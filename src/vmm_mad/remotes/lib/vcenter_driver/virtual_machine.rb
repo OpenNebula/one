@@ -37,23 +37,27 @@ end # class VirtualMachineFolder
 
 class VirtualMachine
     VM_PREFIX_DEFAULT = "one-$i-"
+
     POLL_ATTRIBUTE    = OpenNebula::VirtualMachine::Driver::POLL_ATTRIBUTE
     VM_STATE          = OpenNebula::VirtualMachine::Driver::VM_STATE
 
     attr_accessor :item
-
-    # clone from template attrs
-    attr_accessor :vi_client
-    attr_accessor :vm_prefix
-    attr_accessor :drv_action
-    attr_accessor :dfile
-    attr_accessor :host
 
     include Memoize
 
     def initialize(item=nil)
         @item = item
     end
+
+    ############################################################################
+    ############################################################################
+
+    # clone from template attrs
+    attr_accessor :vi_client
+    attr_accessor :vm_prefix
+    attr_accessor :one_item
+    # attr_accessor :dfile
+    attr_accessor :host
 
     # (used in clone_vm)
     # @return ClusterComputeResource
@@ -68,7 +72,7 @@ class VirtualMachine
     # (used in clone_vm)
     # @return RbVmomi::VIM::ResourcePool
     def get_rp
-        req_rp = @drv_action['USER_TEMPLATE/RESOURCE_POOL']
+        req_rp = one_item['USER_TEMPLATE/RESOURCE_POOL']
 
         if @vi_client.rp_confined?
             if req_rp && req_rp != @vi_client.rp
@@ -82,18 +86,22 @@ class VirtualMachine
 
             if req_rp
                 rps = cluster.resource_pools.select{|r| r._ref == req_rp }
-                raise "No matching resource pool found (#{req_rp})."if rps.empty?
-                return rps.first
+
+                if rps.empty?
+                    raise "No matching resource pool found (#{req_rp})."
+                else
+                    return rps.first
+                end
             else
-                return @cluster.item.resourcePool
+                return cluster.item.resourcePool
             end
         end
     end
 
     # (used in clone_vm)
-    # @return RbVmomi::VIM::Datastore
+    # @return RbVmomi::VIM::Datastore or nil
     def get_ds
-        req_ds = @drv_action['USER_TEMPLATE/VCENTER_DATASTORE']
+        req_ds = one_item['USER_TEMPLATE/VCENTER_DATASTORE']
 
         if req_ds
             dc = cluster.get_dc
@@ -110,20 +118,278 @@ class VirtualMachine
         end
     end
 
+    # (used in clone_vm)
+    # @return Customization or nil
+    def get_customization
+        xpath = "USER_TEMPLATE/VCENTER_CUSTOMIZATION_SPEC"
+        customization_spec = one_item[xpath]
+
+        if customization_spec.nil?
+            return nil
+        end
+
+        begin
+            custom_spec = @vi_client.vim
+                            .serviceContent
+                            .customizationSpecManager
+                            .GetCustomizationSpec(:name => customization.text)
+
+            if custom_spec && (spec = custom_spec.spec)
+                return spec
+            else
+                raise "Error getting customization spec"
+            end
+        rescue
+            raise "Customization spec '#{customization.text}' not found"
+        end
+    end
+
     def clone_vm
         vm_prefix = @host['TEMPLATE/VM_PREFIX']
         vm_prefix = VM_PREFIX_DEFAULT if vm_prefix.nil? || vm_prefix.empty?
-        vm_prefix.gsub!("$i", @drv_action['ID'])
+        vm_prefix.gsub!("$i", one_item['ID'])
 
-        vc_template_ref = @drv_action['USER_TEMPLATE/VCENTER_REF']
+        vc_template_ref = one_item['USER_TEMPLATE/VCENTER_REF']
         vc_template = RbVmomi::VIM::VirtualMachine(@vi_client.vim, vc_template_ref)
 
-        vcenter_name = vm_prefix + @drv_action['NAME']
+        vcenter_name = vm_prefix + one_item['NAME']
 
-        rp = get_rp
+        # Relocate spec
+        relocate_spec_params = {}
+
+        relocate_spec_params[:pool] = get_rp
+
         ds = get_ds
+        if ds
+            relocate_spec_params[:datastore] = ds
+            relocate_spec_params[:diskMoveType] = :moveChildMostDiskBacking
+        end
 
+        relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(
+                                                         relocate_spec_params)
+
+        # Running flag - prevents spurious poweroff states in the VM
+        running_flag = [{ :key => "opennebula.vm.running", :value => "no"}]
+
+        running_flag_spec = RbVmomi::VIM.VirtualMachineConfigSpec(
+                                {:extraConfig => running_flag})
+
+        clone_parameters = {
+            :location => relocate_spec,
+            :powerOn  => false,
+            :template => false,
+            :config   => running_flag_spec
+        }
+
+        cs = get_customization
+        clone_parameters[:customization] = cs if cs
+
+        clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec(clone_parameters)
+
+        # TODO storpod (L2575 vcenter_driver.rb)
+
+        begin
+            vm = vc_template.CloneVM_Task(
+                   :folder => vc_template.parent,
+                   :name   => vcenter_name,
+                   :spec   => clone_spec).wait_for_completion
+        rescue Exception => e
+            if !e.message.start_with?('DuplicateName')
+                raise "Cannot clone VM Template: #{e.message}"
+            end
+
+            vm_folder = cluster.get_dc.vm_folder
+            vm_folder.fetch!
+            vm = vm_folder.items
+                     .select{|k,v| v.item.name == vcenter_name}
+                     .values.first.item rescue nil
+
+            if vm
+                vm.Destroy_Task.wait_for_completion
+                vm = vc_template.CloneVM_Task(
+                    :folder => vc_template.parent,
+                    :name   => vcenter_name,
+                    :spec   => clone_spec).wait_for_completion
+            else
+                raise "Cannot clone VM Template"
+            end
+        end
+
+        # @item is populated
+
+        @item = item
+
+        reconfigure
+        poweron
+        set_running(true)
+
+        return @item._ref
     end
+
+    ############################################################################
+    ############################################################################
+    # these have @item populated
+
+
+    # spec_hash
+    #     :device_change
+    #     :numCPUs
+    #     :memoryMB
+    #     :extraconfig
+    #         :vmid
+    #         :context
+    #         :vnc
+    #         :opennebula.hotplugged_nics
+    def reconfigure
+        spec_hash = {}
+        extraconfig = []
+
+        # get vmid
+        extraconfig << spec_hash_vmid
+
+        # get token
+        extraconfig << spec_hash_context
+
+        # vnc configuration (for config_array hash)
+        extraconfig << spec_hash_vnc
+
+        # extraconfig
+        spec_hash.merge({:extraConfig => extraconfig})
+
+        # device_change hash (nics)
+        spec_hash.merge(spec_hash_nics)
+
+        # device_change hash (disks)
+        spec_hash.merge(spec_hash_disks)
+
+        binding.pry
+        #
+    end
+
+    def spec_hash_vmid
+        { :key => "opennebula.vm.id", :value => one_item['ID'] }
+    end
+
+    def spec_hash_context
+        # TODO: migrator to 5.4 (create token.sh)
+        context_text = "# Context variables generated by OpenNebula\n"
+        one_item.each('TEMPLATE/CONTEXT/*') do |context_element|
+            # next if !context_element.text
+            context_text += context_element.name + "='" +
+                            context_element.text.gsub("'", "\\'") + "'\n"
+        end
+
+        # token
+        token = File.read(File.join(VAR_LOCATION,
+                        'vms',
+                        one_item['ID'],
+                        'token.txt')).chomp rescue nil
+
+        context_text += "ONEGATE_TOKEN='#{token}'\n" if token
+
+        # context_text
+        [
+            { :key => "guestinfo.opennebula.context", :value => context_text }
+        ]
+    end
+
+    def spec_hash_vnc
+        vnc_port   = one_item["TEMPLATE/GRAPHICS/PORT"]
+        vnc_listen = one_item["TEMPLATE/GRAPHICS/LISTEN"] || "0.0.0.0"
+        vnc_keymap = one_item["TEMPLATE/GRAPHICS/KEYMAP"]
+
+        conf = [ {:key => "remotedisplay.vnc.enabled",:value => "TRUE"},
+                 {:key => "remotedisplay.vnc.port",   :value => vnc_port},
+                 {:key => "remotedisplay.vnc.ip",     :value => vnc_listen}]
+
+        conf += [{:key => "remotedisplay.vnc.keymap",
+                          :value => vnc_keymap}] if vnc_keymap
+
+        conf
+    end
+
+    def spec_hash_nics
+        nics = []
+        one_item.each("TEMPLATE/NIC") { |nic| nics << nic }
+
+        if !is_new?
+            # TODO: review
+            nic_array = []
+
+            # Get MACs from NICs inside VM template
+            one_mac_addresses = []
+
+            nics.each{|nic|
+                one_mac_addresses << nic.elements["MAC"].text
+            } rescue nil
+
+            # B4897 - Get mac of NICs that were hot-plugged from vCenter extraConfig
+            hotplugged_nics = []
+            extraconfig_nics = vm.config.extraConfig.select do |val|
+                val[:key] == "opennebula.hotplugged_nics"
+            end
+
+            if extraconfig_nics && !extraconfig_nics.empty?
+                hotplugged_nics = extraconfig_nics[0][:value].to_s.split(";")
+            end
+
+            vm.config.hardware.device.each{ |dv|
+                if is_nic?(dv)
+                   nics.each{|nic|
+                      if nic.elements["MAC"].text == dv.macAddress
+                         nics.delete(nic)
+                      end
+                   } rescue nil
+
+                   # B4897 - Remove detached NICs from vCenter that were unplugged in POWEROFF
+                   if !one_mac_addresses.include?(dv.macAddress) && hotplugged_nics.include?(dv.macAddress)
+                       nic_array << { :operation => :remove, :device => dv}
+                       hotplugged_nics.delete(dv.macAddress)
+                       config_array << {
+                        :key    => 'opennebula.hotplugged_nics',
+                        :value  => hotplugged_nics.join(";")
+                       }
+                   end
+                end
+            }
+
+            device_change += nic_array
+        end
+
+        return if nics.nil?
+
+        if nics
+
+        end
+    end
+
+    def spec_hash_disks
+        if is_new?
+        end
+    end
+
+    def poweron
+    end
+
+    def set_running(state)
+    end
+
+    def one_item
+        # TODO: fetch one_item if it doesn't exist
+        @one_item
+    end
+
+    def is_new?
+        vm_id = vm['config.extraConfig'].select do |o|
+            o.key == "opennebula.vm.id"
+        end.first.value rescue nil
+
+        !vm_id
+    end
+
+    ############################################################################
+    ############################################################################
+
     # @param vm CachedItem (of RbVmomi::VIM::VirtualMachine)
     def to_one
         cluster = self["runtime.host.parent.name"]
