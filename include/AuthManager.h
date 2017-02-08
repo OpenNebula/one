@@ -46,6 +46,9 @@ public:
     AMAction(Actions a, AuthRequest *r):ActionRequest(ActionRequest::USER),
         _action(a), _request(r){};
 
+    AMAction(const AMAction& o):ActionRequest(o._type), _action(o._action),
+        _request(o._request){};
+
     Actions action() const
     {
         return _action;
@@ -54,6 +57,11 @@ public:
     AuthRequest * request() const
     {
         return _request;
+    }
+
+    ActionRequest * clone() const
+    {
+        return new AMAction(*this);
     }
 
 private:

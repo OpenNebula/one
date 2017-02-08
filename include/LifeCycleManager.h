@@ -107,6 +107,9 @@ public:
         ActionRequest(ActionRequest::USER), _action(a), _vm_id(v), _uid(u),
         _gid(g), _req_id(r){};
 
+    LCMAction(const LCMAction& o):ActionRequest(o._type), _action(o._action),
+        _vm_id(o._vm_id), _uid(o._uid), _gid(o._gid), _req_id(o._req_id){};
+
     Actions action() const
     {
         return _action;
@@ -130,6 +133,11 @@ public:
     int req_id() const
     {
         return _req_id;
+    }
+
+    ActionRequest * clone() const
+    {
+        return new LCMAction(*this);
     }
 
 private:

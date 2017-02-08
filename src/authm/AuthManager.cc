@@ -160,7 +160,7 @@ int AuthManager::start()
 void AuthManager::user_action(const ActionRequest& ar)
 {
     const AMAction& auth_ar = static_cast<const AMAction& >(ar);
-    AuthRequest * request     = auth_ar.request();
+    AuthRequest * request   = auth_ar.request();
 
     if ( request == 0 )
     {

@@ -61,6 +61,9 @@ public:
     TMAction(Actions a, int v):ActionRequest(ActionRequest::USER),
         _action(a), _vm_id(v){};
 
+    TMAction(const TMAction& o):ActionRequest(o._type), _action(o._action),
+        _vm_id(o._vm_id){};
+
     Actions action() const
     {
         return _action;
@@ -69,6 +72,11 @@ public:
     int vm_id() const
     {
         return _vm_id;
+    }
+
+    ActionRequest * clone() const
+    {
+        return new TMAction(*this);
     }
 
 private:

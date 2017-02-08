@@ -35,7 +35,6 @@ public:
      */
     enum Type
     {
-        NONE,
         FINALIZE,
         TIMER,
         USER
@@ -48,7 +47,12 @@ public:
 
     ActionRequest(Type __type): _type(__type){};
 
-    ActionRequest(): _type(NONE){};
+    virtual ~ActionRequest(){};
+
+    virtual ActionRequest * clone() const
+    {
+        return new ActionRequest(_type);
+    }
 
 protected:
     Type _type;
@@ -107,9 +111,6 @@ private:
 
             case ActionRequest::USER:
                 user_action(ar);
-                break;
-
-            case ActionRequest::NONE:
                 break;
         }
     }
@@ -188,7 +189,7 @@ private:
     /**
      *  Queue of pending actions, processed in a FIFO manner
      */
-    std::queue<ActionRequest> actions;
+    std::queue<ActionRequest *> actions;
 
     /**
      *  Action synchronization is implemented using the pthread library,

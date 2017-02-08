@@ -45,7 +45,7 @@ void ActionManager::trigger(const ActionRequest& ar )
 {
     lock();
 
-    actions.push(ar);
+    actions.push(ar.clone());
 
     pthread_cond_signal(&cond);
 
@@ -62,7 +62,7 @@ void ActionManager::loop(time_t timer, const ActionRequest& trequest)
     int finalize = 0;
     int rc;
 
-    ActionRequest action;
+    ActionRequest * action;
 
     timeout.tv_sec  = time(NULL) + timer;
     timeout.tv_nsec = 0;
@@ -79,7 +79,7 @@ void ActionManager::loop(time_t timer, const ActionRequest& trequest)
                 rc = pthread_cond_timedwait(&cond,&mutex, &timeout);
 
                 if ( rc == ETIMEDOUT )
-                    actions.push(trequest);
+                    actions.push(trequest.clone());
             }
             else
                 pthread_cond_wait(&cond,&mutex);
@@ -90,9 +90,9 @@ void ActionManager::loop(time_t timer, const ActionRequest& trequest)
 
         unlock();
 
-        listener->_do_action(action);
+        listener->_do_action(*action);
 
-        switch(action.type())
+        switch(action->type())
         {
             case ActionRequest::TIMER:
                 timeout.tv_sec  = time(NULL) + timer;
@@ -106,6 +106,8 @@ void ActionManager::loop(time_t timer, const ActionRequest& trequest)
             default:
             break;
         }
+
+        delete action;
     }
 }
 

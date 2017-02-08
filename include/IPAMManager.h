@@ -45,6 +45,9 @@ public:
     IPMAction(Actions a, IPAMRequest *r):ActionRequest(ActionRequest::USER),
         _action(a), _request(r){};
 
+    IPMAction(const IPMAction& o):ActionRequest(o._type), _action(o._action),
+        _request(o._request){};
+
     Actions action() const
     {
         return _action;
@@ -53,6 +56,11 @@ public:
     IPAMRequest * request() const
     {
         return _request;
+    }
+
+    ActionRequest * clone() const
+    {
+        return new IPMAction(*this);
     }
 
 private:
