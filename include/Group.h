@@ -72,6 +72,13 @@ public:
      */
     int del_user(int id)
     {
+        if (admins.contains(id))
+        {
+            string error;
+
+            del_admin(id, error);
+        }
+
         return users.del(id);
     }
 
