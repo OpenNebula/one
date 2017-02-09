@@ -837,10 +837,25 @@ public:
      *  Sets the action that closed the history record
      *    @param action that closed the history record
      */
-    void set_action(History::VMAction action)
+    void set_action(History::VMAction action, int uid, int gid, int req_id)
     {
         history->action = action;
+
+        history->uid = uid;
+        history->gid = gid;
+
+        history->req_id = req_id;
     };
+
+    void clear_action()
+    {
+        history->action = History::NONE_ACTION;
+
+        history->uid = -1;
+        history->gid = -1;
+
+        history->req_id = -1;
+    }
 
     /**
      *  Sets the action that closed the history record in the previous host

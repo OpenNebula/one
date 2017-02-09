@@ -230,7 +230,7 @@ void  LifeCycleManager::save_failure_action(int vid)
 
         vmpool->update(vm);
 
-        vm->set_action(History::NONE_ACTION);
+        vm->clear_action();
 
         vmpool->update_history(vm);
 

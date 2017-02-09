@@ -137,6 +137,10 @@ private:
     int     oid;
     int     seq;
 
+    int     uid;
+    int     gid;
+    int     req_id;
+
     int     hid;
     string  hostname;
     int     cid;

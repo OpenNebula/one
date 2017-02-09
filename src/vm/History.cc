@@ -312,7 +312,10 @@ string& History::to_xml(string& xml, bool database) const
           "<ESTIME>"     << epilog_stime  << "</ESTIME>"<<
           "<EETIME>"     << epilog_etime  << "</EETIME>"<<
           "<REASON>"     << reason        << "</REASON>"<<
-          "<ACTION>"     << action        << "</ACTION>";
+          "<ACTION>"     << action        << "</ACTION>"<<
+          "<UID>"        << uid           << "</UID>"<<
+          "<GID>"        << gid           << "</GID>"<<
+          "<REQUEST_ID>" << req_id        << "</REQUEST_ID>";
 
     if ( database )
     {
@@ -335,23 +338,33 @@ int History::rebuild_attributes()
     int int_reason, int_action;
     int rc = 0;
 
-    rc += xpath(seq              , "/HISTORY/SEQ",         -1);
-    rc += xpath(hostname         , "/HISTORY/HOSTNAME",    "not_found");
-    rc += xpath(hid              , "/HISTORY/HID",         -1);
-    rc += xpath(cid              , "/HISTORY/CID",         -1);
-    rc += xpath<time_t>(stime    , "/HISTORY/STIME",       0);
-    rc += xpath<time_t>(etime    , "/HISTORY/ETIME",       0);
-    rc += xpath(vmm_mad_name     , "/HISTORY/VM_MAD",      "not_found");
-    rc += xpath(tm_mad_name      , "/HISTORY/TM_MAD",       "not_found");
-    rc += xpath(ds_id            , "/HISTORY/DS_ID",       0);
-    rc += xpath<time_t>(prolog_stime , "/HISTORY/PSTIME",      0);
-    rc += xpath<time_t>(prolog_etime , "/HISTORY/PETIME",      0);
-    rc += xpath<time_t>(running_stime, "/HISTORY/RSTIME",      0);
-    rc += xpath<time_t>(running_etime, "/HISTORY/RETIME",      0);
-    rc += xpath<time_t>(epilog_stime , "/HISTORY/ESTIME",      0);
-    rc += xpath<time_t>(epilog_etime , "/HISTORY/EETIME",      0);
-    rc += xpath(int_reason       , "/HISTORY/REASON",      0);
-    rc += xpath(int_action       , "/HISTORY/ACTION",      0);
+    rc += xpath(seq, "/HISTORY/SEQ", -1);
+    rc += xpath(hid, "/HISTORY/HID", -1);
+    rc += xpath(cid, "/HISTORY/CID", -1);
+
+    rc += xpath(ds_id, "/HISTORY/DS_ID", 0);
+
+    rc += xpath(hostname, "/HISTORY/HOSTNAME", "not_found");
+
+    rc += xpath<time_t>(stime , "/HISTORY/STIME", 0);
+    rc += xpath<time_t>(etime , "/HISTORY/ETIME", 0);
+
+    rc += xpath(vmm_mad_name, "/HISTORY/VM_MAD", "not_found");
+    rc += xpath(tm_mad_name , "/HISTORY/TM_MAD", "not_found");
+
+    rc += xpath<time_t>(prolog_stime , "/HISTORY/PSTIME", 0);
+    rc += xpath<time_t>(prolog_etime , "/HISTORY/PETIME", 0);
+    rc += xpath<time_t>(running_stime, "/HISTORY/RSTIME", 0);
+    rc += xpath<time_t>(running_etime, "/HISTORY/RETIME", 0);
+    rc += xpath<time_t>(epilog_stime , "/HISTORY/ESTIME", 0);
+    rc += xpath<time_t>(epilog_etime , "/HISTORY/EETIME", 0);
+
+    rc += xpath(int_reason , "/HISTORY/REASON", 0);
+    rc += xpath(int_action , "/HISTORY/ACTION", 0);
+
+    rc += xpath(uid, "/HISTORY/UID", -1);
+    rc += xpath(gid, "/HISTORY/GID", -1);
+    rc += xpath(req_id, "/HISTORY/REQUEST_ID", -1);
 
     reason = static_cast<EndReason>(int_reason);
     action = static_cast<VMAction>(int_action);

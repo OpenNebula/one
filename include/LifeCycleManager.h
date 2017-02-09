@@ -302,7 +302,8 @@ private:
      * @param image_id If the VM is in the middle of a save as operation, an
      * image may need to be set to error state.
      */
-    void clean_up_vm (VirtualMachine *vm, bool dispose, int& image_id);
+    void clean_up_vm (VirtualMachine *vm, bool dispose, int& image_id,
+            const LCMAction& la);
 
     // -------------------------------------------------------------------------
     // Internal Actions, triggered by OpenNebula components & drivers
@@ -387,7 +388,7 @@ private:
 
     void poweroff_hard_action(const LCMAction& la);
 
-    void poweroff_action(int vid, bool hard);
+    void poweroff_action(int vid, bool hard, const LCMAction& la);
 
     void updatesg_action(const LCMAction& la);
 

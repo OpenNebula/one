@@ -126,7 +126,8 @@ void  LifeCycleManager::suspend_action(const LCMAction& la)
 
         vmpool->update(vm);
 
-        vm->set_action(History::SUSPEND_ACTION);
+        vm->set_action(History::SUSPEND_ACTION, la.uid(), la.gid(), la.req_id());
+
 
         vmpool->update_history(vm);
 
@@ -171,7 +172,7 @@ void  LifeCycleManager::stop_action(const LCMAction& la)
 
         vmpool->update(vm);
 
-        vm->set_action(History::STOP_ACTION);
+        vm->set_action(History::STOP_ACTION, la.uid(), la.gid(), la.req_id());
 
         vmpool->update_history(vm);
 
@@ -189,7 +190,7 @@ void  LifeCycleManager::stop_action(const LCMAction& la)
 
         vmpool->update(vm);
 
-        vm->set_action(History::STOP_ACTION);
+        vm->set_action(History::STOP_ACTION, la.uid(), la.gid(), la.req_id());
 
         vm->set_epilog_stime(time(0));
 
@@ -411,7 +412,8 @@ void  LifeCycleManager::shutdown_action(const LCMAction& la, bool hard)
 
         if (hard)
         {
-            vm->set_action(History::TERMINATE_HARD_ACTION);
+            vm->set_action(History::TERMINATE_HARD_ACTION, la.uid(), la.gid(),
+                    la.req_id());
 
             //----------------------------------------------------
 
@@ -419,7 +421,8 @@ void  LifeCycleManager::shutdown_action(const LCMAction& la, bool hard)
         }
         else
         {
-            vm->set_action(History::TERMINATE_ACTION);
+            vm->set_action(History::TERMINATE_ACTION, la.uid(), la.gid(),
+                    la.req_id());
 
             //----------------------------------------------------
 
@@ -439,7 +442,8 @@ void  LifeCycleManager::shutdown_action(const LCMAction& la, bool hard)
 
         vmpool->update(vm);
 
-        vm->set_action(History::TERMINATE_ACTION);
+        vm->set_action(History::TERMINATE_ACTION, la.uid(), la.gid(),
+                    la.req_id());
 
         vm->set_epilog_stime(time(0));
 
@@ -457,7 +461,8 @@ void  LifeCycleManager::shutdown_action(const LCMAction& la, bool hard)
 
         vmpool->update(vm);
 
-        vm->set_action(History::TERMINATE_ACTION);
+        vm->set_action(History::TERMINATE_ACTION, la.uid(), la.gid(),
+                    la.req_id());
 
         vm->set_epilog_stime(time(0));
 
@@ -508,13 +513,15 @@ void  LifeCycleManager::undeploy_action(const LCMAction& la, bool hard)
 
         if (hard)
         {
-            vm->set_action(History::UNDEPLOY_HARD_ACTION);
+            vm->set_action(History::UNDEPLOY_HARD_ACTION, la.uid(), la.gid(),
+                    la.req_id());
 
             vmm->trigger(VMMAction::CANCEL,vid);
         }
         else
         {
-            vm->set_action(History::UNDEPLOY_ACTION);
+            vm->set_action(History::UNDEPLOY_ACTION, la.uid(), la.gid(),
+                    la.req_id());
 
             vmm->trigger(VMMAction::SHUTDOWN,vid);
         }
@@ -532,7 +539,8 @@ void  LifeCycleManager::undeploy_action(const LCMAction& la, bool hard)
 
         vmpool->update(vm);
 
-        vm->set_action(History::UNDEPLOY_ACTION);
+        vm->set_action(History::UNDEPLOY_ACTION, la.uid(), la.gid(),
+                    la.req_id());
 
         vm->set_epilog_stime(time(0));
 
@@ -560,7 +568,7 @@ void  LifeCycleManager::poweroff_action(const LCMAction& la)
 {
     int vid = la.vm_id();
 
-    poweroff_action(vid, false);
+    poweroff_action(vid, false, la);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -570,13 +578,13 @@ void  LifeCycleManager::poweroff_hard_action(const LCMAction& la)
 {
     int vid = la.vm_id();
 
-    poweroff_action(vid, true);
+    poweroff_action(vid, true, la);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::poweroff_action(int vid, bool hard)
+void  LifeCycleManager::poweroff_action(int vid, bool hard, const LCMAction& la)
 {
     VirtualMachine * vm = vmpool->get(vid,true);
 
@@ -603,13 +611,15 @@ void  LifeCycleManager::poweroff_action(int vid, bool hard)
 
         if (hard)
         {
-            vm->set_action(History::POWEROFF_HARD_ACTION);
+            vm->set_action(History::POWEROFF_HARD_ACTION, la.uid(), la.gid(),
+                    la.req_id());
 
             vmm->trigger(VMMAction::CANCEL,vid);
         }
         else
         {
-            vm->set_action(History::POWEROFF_ACTION);
+            vm->set_action(History::POWEROFF_ACTION, la.uid(), la.gid(),
+                    la.req_id());
 
             vmm->trigger(VMMAction::SHUTDOWN,vid);
         }
@@ -644,7 +654,7 @@ void  LifeCycleManager::restore_action(const LCMAction& la)
 
     if (vm->get_state() == VirtualMachine::SUSPENDED)
     {
-        time_t                  the_time = time(0);
+        time_t the_time = time(0);
 
         vm->log("LCM", Log::INFO, "Restoring VM");
 
@@ -770,7 +780,7 @@ void LifeCycleManager::delete_action(const LCMAction& la)
         break;
 
         default:
-            clean_up_vm(vm, true, image_id);
+            clean_up_vm(vm, true, image_id, la);
             dm->trigger(DMAction::DONE, vid);
         break;
     }
@@ -840,7 +850,7 @@ void LifeCycleManager::delete_recreate_action(const LCMAction& la)
             vm_uid = vm->get_uid();
             vm_gid = vm->get_gid();
 
-            clean_up_vm(vm, false, image_id);
+            clean_up_vm(vm, false, image_id, la);
 
             vm->delete_non_persistent_disk_snapshots(&vm_quotas_snp,
                     ds_quotas_snp);
@@ -895,7 +905,7 @@ void LifeCycleManager::delete_recreate_action(const LCMAction& la)
 /* -------------------------------------------------------------------------- */
 
 void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
-        int& image_id)
+        int& image_id, const LCMAction& la)
 {
     int cpu, mem, disk;
     unsigned int port;
@@ -909,12 +919,13 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
     if (dispose)
     {
         vm->set_state(VirtualMachine::CLEANUP_DELETE);
-        vm->set_action(History::DELETE_ACTION);
+        vm->set_action(History::DELETE_ACTION, la.uid(), la.gid(), la.req_id());
     }
     else
     {
         vm->set_state(VirtualMachine::CLEANUP_RESUBMIT);
-        vm->set_action(History::DELETE_RECREATE_ACTION);
+        vm->set_action(History::DELETE_RECREATE_ACTION, la.uid(), la.gid(),
+                    la.req_id());
     }
 
     vm->set_resched(false);

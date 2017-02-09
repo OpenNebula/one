@@ -1090,7 +1090,8 @@ int DispatchManager::delete_recreate(VirtualMachine * vm,
         case VirtualMachine::HOLD:
             if (vm->hasHistory())
             {
-                vm->set_action(History::DELETE_RECREATE_ACTION);
+                vm->set_action(History::DELETE_RECREATE_ACTION, ra.uid, ra.gid,
+                        ra.req_id);
                 vmpool->update_history(vm);
             }
 
@@ -1217,7 +1218,7 @@ int DispatchManager::attach(int vid, VirtualMachineTemplate * tmpl,
 
         vm->set_etime(the_time);
 
-        vm->set_action(History::DISK_ATTACH_ACTION);
+        vm->set_action(History::DISK_ATTACH_ACTION, ra.uid, ra.gid, ra.req_id);
         vm->set_reason(History::USER);
 
         vmpool->update_history(vm);
@@ -1308,7 +1309,7 @@ int DispatchManager::detach(int vid, int disk_id, const RequestAttributes& ra,
 
         vm->set_etime(the_time);
 
-        vm->set_action(History::DISK_DETACH_ACTION);
+        vm->set_action(History::DISK_DETACH_ACTION, ra.uid, ra.gid, ra.req_id);
         vm->set_reason(History::USER);
 
         vmpool->update_history(vm);
@@ -1589,7 +1590,8 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
 
         vm->set_etime(the_time);
 
-        vm->set_action(History::NIC_ATTACH_ACTION);
+        vm->set_action(History::NIC_ATTACH_ACTION, ra.uid, ra.gid, ra.req_id);
+
         vm->set_reason(History::USER);
 
         vmpool->update_history(vm);
@@ -1681,7 +1683,8 @@ int DispatchManager::detach_nic(int vid, int nic_id,const RequestAttributes& ra,
 
         vm->set_etime(the_time);
 
-        vm->set_action(History::NIC_DETACH_ACTION);
+        vm->set_action(History::NIC_DETACH_ACTION, ra.uid, ra.gid, ra.req_id);
+
         vm->set_reason(History::USER);
 
         vmpool->update_history(vm);
@@ -1813,7 +1816,9 @@ int DispatchManager::disk_snapshot_create(int vid, int did, const string& name,
 
             vm->set_etime(the_time);
 
-            vm->set_action(History::DISK_SNAPSHOT_CREATE_ACTION);
+            vm->set_action(History::DISK_SNAPSHOT_CREATE_ACTION, ra.uid, ra.gid,
+                    ra.req_id);
+
             vm->set_reason(History::USER);
 
             vmpool->update_history(vm);
@@ -2009,7 +2014,9 @@ int DispatchManager::disk_snapshot_delete(int vid, int did, int snap_id,
 
             vm->set_etime(the_time);
 
-            vm->set_action(History::DISK_SNAPSHOT_DELETE_ACTION);
+            vm->set_action(History::DISK_SNAPSHOT_DELETE_ACTION, ra.uid, ra.gid,
+                    ra.req_id);
+
             vm->set_reason(History::USER);
 
             vmpool->update_history(vm);
@@ -2124,7 +2131,9 @@ int DispatchManager::disk_resize(int vid, int did, long long new_size,
 
             vm->set_etime(the_time);
 
-            vm->set_action(History::DISK_RESIZE_ACTION);
+            vm->set_action(History::DISK_RESIZE_ACTION, ra.uid, ra.gid,
+                    ra.req_id);
+
             vm->set_reason(History::USER);
 
             vmpool->update_history(vm);
