@@ -16,7 +16,7 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+ONE_LOCATION = ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
@@ -27,38 +27,38 @@ end
 $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
-require 'vcenter_driver'
+require 'vcenter_driver2'
 require 'opennebula'
 
-dfile = ARGV[0]
-host  = ARGV[1]
 vm_id = ARGV[2]
 
-drv_action_enc = STDIN.read.gsub("\n","")
-
 drv_action = OpenNebula::XMLElement.new
-drv_action.initialize_xml(Base64.decode64(drv_action_enc),
-                          'VM')
+drv_action.initialize_xml(Base64.decode64(STDIN.read), 'VM')
 
-deploy_id     = drv_action["/VM/DEPLOY_ID"]
-lcm_state_num = drv_action["/VM/LCM_STATE"].to_i
-datastore     = drv_action["/VM/USER_TEMPLATE/VCENTER_DATASTORE"]
-lcm_state     = OpenNebula::VirtualMachine::LCM_STATE[lcm_state_num]
+host_id = drv_action["/VM/HISTORY_RECORDS/HISTORY/HID"]
 
-ops = {
-    :ref    => drv_action["/VM/USER_TEMPLATE/PUBLIC_CLOUD/VCENTER_REF"],
-    :name   => drv_action["/VM/USER_TEMPLATE/PUBLIC_CLOUD/VCENTER_NAME"]
-}
+# lcm_state_num = drv_action["/VM/LCM_STATE"].to_i
+# lcm_state     = OpenNebula::VirtualMachine::LCM_STATE[lcm_state_num]
 
-begin
-    puts VCenterDriver::VCenterVm.deploy(File.read(dfile),
-                                         lcm_state,
-                                         deploy_id,
-                                         host,
-                                         datastore,
-                                         ops)
-rescue Exception => e
-    STDERR.puts "Deploy of VM #{vm_id} on host #{host} with #{dfile} failed " +
-                "due to \"#{e.message}\"\n#{e.backtrace}"
+host = OpenNebula::Host.new_with_id(host_id, OpenNebula::Client.new)
+rc = host.info
+if OpenNebula::is_error?(rc)
+    STDERR.puts rc.message
     exit -1
 end
+
+vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+
+target_ds_id = drv_action['HISTORY_RECORDS/HISTORY[last()]/DS_ID']
+target_ds_one = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, target_ds_id)
+target_ds_ref = target_ds_one['TEMPLATE/VCENTER_DS_REF']
+
+# Clone from template
+vm = VCenterDriver::VirtualMachine.new
+
+vm.vi_client     = vi_client
+vm.one_item      = drv_action
+vm.host          = host
+vm.target_ds_ref = target_ds_ref
+
+puts vm.clone_vm
