@@ -81,29 +81,35 @@ module SGIPTables
 
             return if the_nets.empty?
 
-            if IPAddr.new(the_nets[0]).ipv6?
-                command = :ip6tables
-                family  = "inet6"
-            else
-                command = :iptables
-                family  = "inet"
-            end
-
-            if @rule_type == :inbound
-                chain = vars[:chain_in]
-                set = "#{vars[:set_sg_in]}-#{@protocol}-n-#{family}"
-                dir = "src"
-            else
-                chain = vars[:chain_out]
-                set = "#{vars[:set_sg_out]}-#{@protocol}-n-#{family}"
-                dir = "dst"
-            end
-
-            cmds.add :ipset, "create #{set} hash:net family #{family}"
-            cmds.add command, "-A #{chain} -p #{@protocol} -m set" \
-                " --match-set #{set} #{dir} -j RETURN"
+            sets = []
 
             the_nets.each do |n|
+                if IPAddr.new(the_nets[0]).ipv6?
+                    command = :ip6tables
+                    family  = "inet6"
+                else
+                    command = :iptables
+                    family  = "inet"
+                end
+
+                if @rule_type == :inbound
+                    chain = vars[:chain_in]
+                    set = "#{vars[:set_sg_in]}-#{@protocol}-n-#{family}"
+                    dir = "src"
+                else
+                    chain = vars[:chain_out]
+                    set = "#{vars[:set_sg_out]}-#{@protocol}-n-#{family}"
+                    dir = "dst"
+                end
+
+                if !sets.include?(set)
+                    cmds.add :ipset, "create #{set} hash:net family #{family}"
+                    cmds.add command, "-A #{chain} -p #{@protocol} -m set" \
+                        " --match-set #{set} #{dir} -j RETURN"
+
+                    sets << set
+                end
+
                 cmds.add :ipset, "add -exist #{set} #{n}"
             end
         end

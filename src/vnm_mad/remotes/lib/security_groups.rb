@@ -68,10 +68,12 @@ module VNMNetwork
             @icmp_type = @rule[:icmp_type]
             @icmpv6_type = @rule[:icmpv6_type]
 
-            @range = @rule[:range]
-            @ip    = @rule[:ip]
-            @size  = @rule[:size]
-            @type  = set_type
+            @range      = @rule[:range]
+            @ip         = @rule[:ip]
+            @ip6_global = @rule[:ip6_global]
+            @ip6_ula    = @rule[:ip6_ula]
+            @size       = @rule[:size]
+            @type       = set_type
         end
 
         # Process the rule and generates the associated commands of the rule
@@ -108,9 +110,17 @@ module VNMNetwork
         # Return the network blocks associated to the rule
         #   @return [Array<String>] each network block in CIDR.
         def net
-            return [] if @ip.nil? || @size.nil?
+            nets = []
 
-            VNMNetwork::to_nets(@ip, @size.to_i)
+            if @ip && @size
+                nets += VNMNetwork::to_nets(@ip, @size.to_i)
+            elsif @ip6_global && @size
+                nets += VNMNetwork::to_nets(@ip6_global, @size.to_i)
+            elsif @ip6_ula && @size
+                nets += VNMNetwork::to_nets(@ip6_ula, @size.to_i)
+            end
+
+            return nets
         end
 
         # Expand the ICMP type with associated codes if any
