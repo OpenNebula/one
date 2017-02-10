@@ -385,7 +385,11 @@ def install_bundler_gem
 end
 
 def install_gems(packages, bundler = false)
-    gems_list=get_gems(packages)
+    if bundler
+        gems_list=which_gems(packages)
+    else
+        gems_list=get_gems(packages)
+    end
 
     if gems_list.empty?
         puts "Gems already installed"
