@@ -1056,7 +1056,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    if((vm->hasPreviousHistory() && vm->get_previous_reason()== History::NONE)||
+    if( vm->is_previous_history_open() ||
        (vm->get_state() != VirtualMachine::POWEROFF &&
         vm->get_state() != VirtualMachine::SUSPENDED &&
         (vm->get_state() != VirtualMachine::ACTIVE ||

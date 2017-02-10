@@ -21,11 +21,6 @@
   :size: 16
   :left: true
 
-:REASON:
-  :desc: VM state change reason
-  :size: 4
-  :left: true
-
 :START_TIME:
   :desc: Start time
   :size: 14
@@ -58,7 +53,6 @@
 - :VID
 - :HOSTNAME
 - :ACTION
-- :REASON
 - :START_TIME
 - :END_TIME
 - :MEMORY

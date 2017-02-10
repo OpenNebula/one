@@ -128,7 +128,6 @@ void  LifeCycleManager::suspend_action(const LCMAction& la)
 
         vm->set_action(History::SUSPEND_ACTION, la.uid(), la.gid(), la.req_id());
 
-
         vmpool->update_history(vm);
 
         //----------------------------------------------------
@@ -244,7 +243,10 @@ void  LifeCycleManager::migrate_action(const LCMAction& la)
 
         vm->set_stime(the_time);
 
-        vm->set_previous_action(History::MIGRATE_ACTION);
+        vm->set_previous_action(History::MIGRATE_ACTION, la.uid(), la.gid(),
+                la.req_id());
+
+        vm->set_action(History::MIGRATE_ACTION, la.uid(), la.gid(), la.req_id());
 
         vmpool->update_history(vm);
 
@@ -267,10 +269,15 @@ void  LifeCycleManager::migrate_action(const LCMAction& la)
         if (vm->get_state() == VirtualMachine::POWEROFF)
         {
             vm->set_state(VirtualMachine::PROLOG_MIGRATE_POWEROFF);
+            vm->set_action(History::MIGRATE_ACTION, la.uid(), la.gid(),
+                    la.req_id());
+
         }
         else if (vm->get_state() == VirtualMachine::SUSPENDED)
         {
             vm->set_state(VirtualMachine::PROLOG_MIGRATE_SUSPEND);
+            vm->set_action(History::MIGRATE_ACTION, la.uid(), la.gid(),
+                    la.req_id());
         }
         else //VirtualMachine::UNKNOWN
         {
@@ -280,9 +287,8 @@ void  LifeCycleManager::migrate_action(const LCMAction& la)
 
             vm->set_previous_etime(the_time);
 
-            vm->set_previous_action(History::MIGRATE_ACTION);
-
-            vm->set_previous_reason(History::USER);
+            vm->set_previous_action(History::MIGRATE_ACTION, la.uid(), la.gid(),
+                    la.req_id());
 
             vm->set_previous_vm_info();
 
@@ -365,7 +371,11 @@ void  LifeCycleManager::live_migrate_action(const LCMAction& la)
 
         vmpool->update_history(vm);
 
-        vm->set_previous_action(History::LIVE_MIGRATE_ACTION);
+        vm->set_previous_action(History::LIVE_MIGRATE_ACTION, la.uid(),la.gid(),
+                    la.req_id());
+
+        vm->set_action(History::LIVE_MIGRATE_ACTION, la.uid(), la.gid(),
+                    la.req_id());
 
         vmpool->update_previous_history(vm);
 
@@ -415,16 +425,12 @@ void  LifeCycleManager::shutdown_action(const LCMAction& la, bool hard)
             vm->set_action(History::TERMINATE_HARD_ACTION, la.uid(), la.gid(),
                     la.req_id());
 
-            //----------------------------------------------------
-
             vmm->trigger(VMMAction::CANCEL,vid);
         }
         else
         {
             vm->set_action(History::TERMINATE_ACTION, la.uid(), la.gid(),
                     la.req_id());
-
-            //----------------------------------------------------
 
             vmm->trigger(VMMAction::SHUTDOWN,vid);
         }
@@ -675,6 +681,8 @@ void  LifeCycleManager::restore_action(const LCMAction& la)
 
         vm->set_running_stime(the_time);
 
+        vm->set_action(History::RESUME_ACTION, la.uid(), la.gid(), la.req_id());
+
         vmpool->update_history(vm);
 
         //----------------------------------------------------
@@ -718,7 +726,7 @@ void  LifeCycleManager::restart_action(const LCMAction& la)
     {
         time_t the_time = time(0);
 
-        vm->set_state(VirtualMachine::ACTIVE); // Only needed by poweroff
+        vm->set_state(VirtualMachine::ACTIVE);
 
         vm->set_state(VirtualMachine::BOOT_POWEROFF);
 
@@ -731,6 +739,8 @@ void  LifeCycleManager::restart_action(const LCMAction& la)
         vm->set_last_poll(0);
 
         vm->set_running_stime(the_time);
+
+        vm->set_action(History::RESUME_ACTION, la.uid(), la.gid(), la.req_id());
 
         vmpool->update_history(vm);
 
@@ -941,7 +951,6 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
     vm->set_etime(the_time);
     vm->set_vm_info();
-    vm->set_reason(History::USER);
 
     vm->get_requirements(cpu, mem, disk, pci);
 
@@ -1099,7 +1108,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
             vm->set_previous_etime(the_time);
             vm->set_previous_vm_info();
             vm->set_previous_running_etime(the_time);
-            vm->set_previous_reason(History::USER);
+
             vmpool->update_previous_history(vm);
 
             hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu,
@@ -1125,7 +1134,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
             vm->set_previous_etime(the_time);
             vm->set_previous_vm_info();
             vm->set_previous_running_etime(the_time);
-            vm->set_previous_reason(History::USER);
+
             vmpool->update_previous_history(vm);
 
             hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu,

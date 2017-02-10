@@ -203,14 +203,6 @@ module OpenNebula
             "DISK_RESIZE_UNDEPLOYED" => "drsz"
         }
 
-        MIGRATE_REASON=%w{NONE ERROR USER}
-
-        SHORT_MIGRATE_REASON={
-            "NONE"          => "none",
-            "ERROR"         => "erro",
-            "USER"          => "user"
-        }
-
         HISTORY_ACTION=%w{none migrate live-migrate shutdown shutdown-hard
             undeploy undeploy-hard hold release stop suspend resume boot delete
             delete-recreate reboot reboot-hard resched unresched poweroff
@@ -218,7 +210,7 @@ module OpenNebula
             disk-snapshot-create disk-snapshot-delete terminate terminate-hard
             disk-resize deploy chown chmod updateconf rename resize update
             snapshot-resize snapshot-delete snapshot-revert disk-saveas
-            disk-snapshot-revert recover retry}
+            disk-snapshot-revert recover retry monitor}
 
         EXTERNAL_IP_ATTRS = [
             'GUEST_IP',
@@ -264,13 +256,6 @@ module OpenNebula
             end
 
             XMLElement.build_xml(vm_xml, 'VM')
-        end
-
-        def VirtualMachine.get_reason(reason)
-            reason=MIGRATE_REASON[reason.to_i]
-            reason_str=SHORT_MIGRATE_REASON[reason]
-
-            reason_str
         end
 
         def VirtualMachine.get_history_action(action)

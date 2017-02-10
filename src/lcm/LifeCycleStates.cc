@@ -63,8 +63,6 @@ void  LifeCycleManager::save_success_action(int vid)
 
         vm->set_previous_running_etime(the_time);
 
-        vm->set_previous_reason(History::USER);
-
         vmpool->update_previous_history(vm);
 
         vm->set_prolog_stime(the_time);
@@ -102,8 +100,6 @@ void  LifeCycleManager::save_success_action(int vid)
 
         vm->set_vm_info();
 
-        vm->set_reason(History::USER);
-
         vmpool->update_history(vm);
 
         //----------------------------------------------------
@@ -132,8 +128,6 @@ void  LifeCycleManager::save_success_action(int vid)
         vm->set_epilog_stime(the_time);
 
         vm->set_running_etime(the_time);
-
-        vm->set_reason(History::USER);
 
         vmpool->update_history(vm);
 
@@ -180,8 +174,6 @@ void  LifeCycleManager::save_failure_action(int vid)
 
         vm->set_vm_info();
 
-        vm->set_reason(History::ERROR);
-
         vmpool->update_history(vm);
 
         vm->get_requirements(cpu, mem, disk, pci);
@@ -193,8 +185,6 @@ void  LifeCycleManager::save_failure_action(int vid)
         vm->set_previous_vm_info();
 
         vm->set_previous_running_etime(the_time);
-
-        vm->set_previous_reason(History::USER);
 
         vmpool->update_previous_history(vm);
 
@@ -286,8 +276,6 @@ void  LifeCycleManager::deploy_success_action(int vid)
 
         vm->set_previous_running_etime(the_time);
 
-        vm->set_previous_reason(History::USER);
-
         vmpool->update_previous_history(vm);
 
         vm->get_requirements(cpu, mem, disk, pci);
@@ -316,6 +304,10 @@ void  LifeCycleManager::deploy_success_action(int vid)
               vm->get_lcm_state() == VirtualMachine::BOOT_FAILURE )
     {
         vm->set_state(VirtualMachine::RUNNING);
+
+        vm->clear_action();
+
+        vmpool->update_history(vm);
 
         vmpool->update(vm);
     }
@@ -363,8 +355,6 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         vm->set_vm_info();
 
-        vm->set_reason(History::ERROR);
-
         vmpool->update_history(vm);
 
         vm->set_previous_etime(the_time);
@@ -372,8 +362,6 @@ void  LifeCycleManager::deploy_failure_action(int vid)
         vm->set_previous_vm_info();
 
         vm->set_previous_running_etime(the_time);
-
-        vm->set_previous_reason(History::USER);
 
         vmpool->update_previous_history(vm);
 
@@ -425,9 +413,6 @@ void  LifeCycleManager::deploy_failure_action(int vid)
         vm->set_etime(the_time);
         vm->set_running_etime(the_time);
 
-        vm->set_reason(History::ERROR);
-        vm->set_action(History::RESUME_ACTION);
-
         vm->set_state(VirtualMachine::POWEROFF);
         vm->set_state(VirtualMachine::LCM_INIT);
 
@@ -438,9 +423,6 @@ void  LifeCycleManager::deploy_failure_action(int vid)
     {
         vm->set_etime(the_time);
         vm->set_running_etime(the_time);
-
-        vm->set_reason(History::ERROR);
-        vm->set_action(History::RESUME_ACTION);
 
         vm->set_state(VirtualMachine::SUSPENDED);
         vm->set_state(VirtualMachine::LCM_INIT);
@@ -508,8 +490,6 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         vm->set_running_etime(the_time);
 
-        vm->set_reason(History::USER);
-
         vmpool->update_history(vm);
 
         //----------------------------------------------------
@@ -537,8 +517,6 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         vm->set_vm_info();
 
-        vm->set_reason(History::USER);
-
         vmpool->update_history(vm);
 
         //----------------------------------------------------
@@ -565,8 +543,6 @@ void  LifeCycleManager::shutdown_success_action(int vid)
         vm->set_epilog_stime(the_time);
 
         vm->set_running_etime(the_time);
-
-        vm->set_reason(History::USER);
 
         vmpool->update_history(vm);
 
@@ -608,7 +584,7 @@ void  LifeCycleManager::shutdown_failure_action(int vid)
 
         vmpool->update(vm);
 
-        vm->set_action(History::NONE_ACTION);
+        vm->clear_action();
 
         vmpool->update_history(vm);
 
@@ -731,10 +707,6 @@ void LifeCycleManager::prolog_success_action(int vid)
 
             vm->set_vm_info();
 
-            vm->set_reason(History::USER);
-
-            vm->set_action(History::MIGRATE_ACTION);
-
             vmpool->update_history(vm);
 
             if (lcm_state == VirtualMachine::PROLOG_MIGRATE_POWEROFF||
@@ -821,8 +793,6 @@ void  LifeCycleManager::prolog_failure_action(int vid)
             // Close current history record
             vm->set_prolog_etime(t);
             vm->set_etime(t);
-            vm->set_reason(History::ERROR);
-            vm->set_action(History::MIGRATE_ACTION);
 
             vm->set_vm_info();
 
@@ -1106,7 +1076,7 @@ void  LifeCycleManager::monitor_suspend_action(int vid)
 
         vm->set_vm_info();
 
-        vm->set_reason(History::ERROR);
+        vm->set_internal_action(History::MONITOR_ACTION);
 
         vmpool->update_history(vm);
 
@@ -1198,7 +1168,7 @@ void  LifeCycleManager::monitor_poweroff_action(int vid)
 
         vm->set_vm_info();
 
-        vm->set_reason(History::USER);
+        vm->set_internal_action(History::MONITOR_ACTION);
 
         vmpool->update_history(vm);
 

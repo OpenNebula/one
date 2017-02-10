@@ -29,12 +29,6 @@ using namespace std;
 class History:public ObjectSQL, public ObjectXML
 {
 public:
-    enum EndReason
-    {
-        NONE   = 0, /** < History record is not closed yet */
-        ERROR  = 1, /** < History record was closed because of an error */
-        USER   = 2  /** < History record was closed because of a user action */
-    };
 
     enum VMAction
     {                                       //Associated XML-RPC API call
@@ -81,7 +75,8 @@ public:
         DISK_SAVEAS_ACTION     = 40,        // "one.vm.disksaveas"
         DISK_SNAPSHOT_REVERT_ACTION = 41,   // "one.vm.disksnapshotrevert"
         RECOVER_ACTION         = 42,        // "one.vm.recover"
-        RETRY_ACTION           = 43         // "one.vm.recover"
+        RETRY_ACTION           = 43,        // "one.vm.recover"
+        MONITOR_ACTION         = 44         // internal, monitoring process
     };
 
     static string action_to_str(VMAction action);
@@ -161,8 +156,6 @@ private:
 
     time_t  epilog_stime;
     time_t  epilog_etime;
-
-    EndReason reason;
 
     VMAction action;
 
