@@ -45,4 +45,22 @@ module Migrator
        'cid INTEGER);'
     end
   end
+
+  def vm_pool_schema
+    case db_version()
+    when "4.5.80"
+    when "4.7.80"
+    when "4.9.80"
+    when "4.10.3"
+    when "4.11.80"
+    when "4.13.80"
+    when "4.13.85"
+    when "4.90.0"
+    when "5.3.80"
+       'CREATE TABLE vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), '\
+       'body MEDIUMTEXT, uid INTEGER, gid INTEGER, last_poll INTEGER, '\
+       'state INTEGER, lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, '\
+       'other_u INTEGER);'
+    end
+  end
 end

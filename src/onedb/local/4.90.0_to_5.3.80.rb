@@ -28,33 +28,35 @@ require 'db_schema'
 include OpenNebula
 
 module Migrator
-  def db_version
-    "5.3.80"
-  end
+    def db_version
+        "5.3.80"
+    end
 
-  def one_version
-    "OpenNebula 5.3.80"
-  end
+    def one_version
+        "OpenNebula 5.3.80"
+    end
 
-  def up
-    init_log_time()
+    def up
+        init_log_time()
 
-    feature_4901()
+        feature_4901()
 
-    log_time()
+        feature_5005()
 
-    return true
-  end
+        log_time()
 
-  private
+        return true
+    end
+
+    private
 
     def xpath(doc, sxpath)
-      element = doc.root.at_xpath(sxpath)
-      if !element.nil?
-          element.text
-      else
-          ""
-      end
+        element = doc.root.at_xpath(sxpath)
+        if !element.nil?
+            element.text
+        else
+            ""
+        end
     end
 
     ############################################################################
@@ -62,44 +64,71 @@ module Migrator
     # MAX_CPU and MAX_MEM when RESERVED_CPU/MEM is updated
     ############################################################################
     def feature_4901
-      @db.run "ALTER TABLE host_pool RENAME TO old_host_pool;"
-      @db.run host_pool_schema()
+        @db.run "ALTER TABLE host_pool RENAME TO old_host_pool;"
+        @db.run host_pool_schema()
 
-      @db.transaction do
-        @db.fetch("SELECT * FROM old_host_pool") do |row|
-          doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) { |c|
-              c.default_xml.noblanks
-          }
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_host_pool") do |row|
+                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) { |c|
+                    c.default_xml.noblanks
+                }
 
-          rcpu = xpath(doc, "TEMPLATE/RESERVED_CPU").to_i
-          rmem = xpath(doc, "TEMPLATE/RESERVED_MEM").to_i
+                rcpu = xpath(doc, "TEMPLATE/RESERVED_CPU").to_i
+                rmem = xpath(doc, "TEMPLATE/RESERVED_MEM").to_i
 
-          total_cpu = xpath(doc, "HOST_SHARE/MAX_CPU").to_i + rcpu
-          total_mem = xpath(doc, "HOST_SHARE/MAX_MEM").to_i + rmem
+                total_cpu = xpath(doc, "HOST_SHARE/MAX_CPU").to_i + rcpu
+                total_mem = xpath(doc, "HOST_SHARE/MAX_MEM").to_i + rmem
 
-          total_cpu_e = doc.create_element "TOTAL_CPU", total_cpu
-          total_mem_e = doc.create_element "TOTAL_MEM", total_mem
+                total_cpu_e = doc.create_element "TOTAL_CPU", total_cpu
+                total_mem_e = doc.create_element "TOTAL_MEM", total_mem
 
-          host_share = doc.root.at_xpath("HOST_SHARE")
-          host_share.add_child(total_cpu_e)
-          host_share.add_child(total_mem_e)
+                host_share = doc.root.at_xpath("HOST_SHARE")
+                host_share.add_child(total_cpu_e)
+                host_share.add_child(total_mem_e)
 
-          @db[:host_pool].insert(
-            :oid            => row[:oid],
-            :name           => row[:name],
-            :body           => doc.root.to_s,
-            :state          => row[:state],
-            :last_mon_time  => row[:last_mon_time],
-            :uid            => row[:uid],
-            :gid            => row[:gid],
-            :owner_u        => row[:owner_u],
-            :group_u        => row[:group_u],
-            :other_u        => row[:other_u],
-            :cid            => row[:cid])
+                row[:body] = doc.root.to_s
+
+                @db[:host_pool].insert(row)
+            end
         end
-      end
 
-      @db.run "DROP TABLE old_host_pool;"
+        @db.run "DROP TABLE old_host_pool;"
     end
 
+    ############################################################################
+    # Feature 5005.
+    # Adds UID, GID and REQUEST_ID to history records
+    ############################################################################
+    def feature_5005
+        @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
+        @db.run host_pool_schema()
+
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_vm_pool") do |row|
+
+                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) { |c|
+                  c.default_xml.noblanks
+                }
+
+                doc.root.xpath(HISTORY_RECORDS/HISTORY).each do |h|
+                    reason = h.xpath("REASON")
+                    reason.unlink if !reason.nil?
+
+                    uid = doc.create_element "UID", -1
+                    gid = doc.create_element "GID", -1
+                    rid = doc.create_element "REQUEST_ID", -1
+
+                    h.add_child(uid)
+                    h.add_child(gid)
+                    h.add_child(rid)
+                end
+
+                row[:body] = doc.root.to_s
+
+                @db[:vm_pool].insert(row)
+            end
+
+          end
+        @db.run "DROP TABLE old_vm_pool;"
+    end
 end
