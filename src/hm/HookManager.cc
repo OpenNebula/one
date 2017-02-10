@@ -35,7 +35,7 @@ extern "C" void * hm_action_loop(void *arg)
 
     hm = static_cast<HookManager *>(arg);
 
-    hm->am.loop(0,0);
+    hm->am.loop();
 
     NebulaLog::log("HKM",Log::INFO,"Hook Manager stopped.");
 
@@ -107,26 +107,6 @@ int HookManager::start()
     rc = pthread_create(&hm_thread,&pattr,hm_action_loop,(void *) this);
 
     return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void HookManager::do_action(const string &action, void * arg)
-{
-    if (action == ACTION_FINALIZE)
-    {
-        NebulaLog::log("HKM",Log::INFO,"Stopping Hook Manager...");
-
-        MadManager::stop();
-    }
-    else
-    {
-        ostringstream oss;
-        oss << "Unknown action name: " << action;
-
-        NebulaLog::log("HKM", Log::ERROR, oss);
-    }
 }
 
 /* -------------------------------------------------------------------------- */

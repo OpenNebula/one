@@ -16,7 +16,6 @@
 
 #include "AuthManager.h"
 #include "AuthRequest.h"
-#include "NebulaLog.h"
 #include "NebulaUtil.h"
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
@@ -124,7 +123,7 @@ extern "C" void * authm_action_loop(void *arg)
 
     NebulaLog::log("AuM",Log::INFO,"Authorization Manager started.");
 
-    authm->am.loop(authm->timer_period, 0);
+    authm->am.loop(authm->timer_period);
 
     NebulaLog::log("AuM",Log::INFO,"Authorization Manager stopped.");
 
@@ -158,64 +157,25 @@ int AuthManager::start()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AuthManager::trigger(Actions action, AuthRequest * request)
+void AuthManager::user_action(const ActionRequest& ar)
 {
-    string  aname;
+    const AMAction& auth_ar = static_cast<const AMAction& >(ar);
+    AuthRequest * request   = auth_ar.request();
 
-    switch (action)
+    if ( request == 0 )
     {
-    case AUTHENTICATE:
-        aname = "AUTHENTICATE";
-        break;
-
-    case AUTHORIZE:
-        aname = "AUTHORIZE";
-        break;
-
-    case FINALIZE:
-        aname = ACTION_FINALIZE;
-        break;
-
-    default:
         return;
     }
 
-    am.trigger(aname,request);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void AuthManager::do_action(const string &action, void * arg)
-{
-    AuthRequest * request;
-
-    request  = static_cast<AuthRequest *>(arg);
-
-    if (action == "AUTHENTICATE" && request != 0)
+    switch(auth_ar.action())
     {
-        authenticate_action(request);
-    }
-    else if (action == "AUTHORIZE"  && request != 0)
-    {
-        authorize_action(request);
-    }
-    else if (action == ACTION_TIMER)
-    {
-        check_time_outs_action();
-    }
-    else if (action == ACTION_FINALIZE)
-    {
-        NebulaLog::log("AuM",Log::INFO,"Stopping Authorization Manager...");
+        case AMAction::AUTHENTICATE:
+            authenticate_action(request);
+        break;
 
-        MadManager::stop();
-    }
-    else
-    {
-        ostringstream oss;
-        oss << "Unknown action name: " << action;
-
-        NebulaLog::log("AuM", Log::ERROR, oss);
+        case AMAction::AUTHORIZE:
+            authorize_action(request);
+        break;
     }
 }
 

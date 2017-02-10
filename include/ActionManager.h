@@ -22,43 +22,98 @@
 #include <ctime>
 #include <string>
 
-using namespace std;
-
-
 /**
- * ActionListener class. Interface to be implemented by any class
- * that need to handle actions. There are two predefined actions
- * (each action is identified with its name, a string):
- *   - ACTION_TIMER, periodic action
- *   - ACTION_FINALIZE, to finalize the action loop
+ *  Represents a generic request, pending actions are stored in a queue.
+ *  Each element stores the base action type, additional data is added by each
+ *  ActionListener implementation.
  */
-
-class ActionListener
+class ActionRequest
 {
 public:
-
     /**
-     * Predefined string to refer to the periodic action
+     *  Base Action types
      */
-    static const string ACTION_TIMER;
+    enum Type
+    {
+        FINALIZE,
+        TIMER,
+        USER
+    };
 
-    /**
-     * Predefined string to refer to the finalize action
-     */
-    static const string ACTION_FINALIZE;
+    Type type() const
+    {
+        return _type;
+    }
 
+    ActionRequest(Type __type): _type(__type){};
+
+    virtual ~ActionRequest(){};
+
+    virtual ActionRequest * clone() const
+    {
+        return new ActionRequest(_type);
+    }
+
+protected:
+    Type _type;
+};
+
+/**
+ * ActionListener class. Interface to be implemented by any class that need to
+ * handle actions.
+ */
+class ActionListener
+{
+protected:
     ActionListener(){};
 
     virtual ~ActionListener(){};
 
     /**
-     *  the do_action() function is executed upon action arrival.
+     *  the user_action() function is executed upon action arrival.
      *  This function should check the action type, and perform the
      *  corresponding action.
-     *    @param name the action name
-     *    @param args action arguments
+     *    @param ar the ActionRequest
      */
-    virtual void do_action(const string &name, void *args) = 0;
+    virtual void user_action(const ActionRequest& ar){};
+
+    /**
+     *  Periodic timer action, executed each time the time_out expires. Listener
+     *  needs to re-implement the default timer action if needed.
+     *    @param ar the ActionRequest
+     */
+    virtual void timer_action(const ActionRequest& ar){};
+
+    /**
+     *  Action executed when the Manager finlizes. Listener needs to re-implement
+     *  the default action if needed.
+     *    @param ar the ActionRequest
+     */
+    virtual void finalize_action(const ActionRequest& ar){};
+
+private:
+    friend class ActionManager;
+
+    /**
+     *  Invoke the action handler
+     */
+    void _do_action(const ActionRequest& ar)
+    {
+        switch(ar.type())
+        {
+            case ActionRequest::FINALIZE:
+                finalize_action(ar);
+                break;
+
+            case ActionRequest::TIMER:
+                timer_action(ar);
+                break;
+
+            case ActionRequest::USER:
+                user_action(ar);
+                break;
+        }
+    }
 };
 
 
@@ -66,73 +121,87 @@ public:
  *  ActionManager. Provides action support for a class implementing
  *  the ActionListener interface.
  */
-
 class ActionManager
 {
 public:
 
     ActionManager();
+
     virtual ~ActionManager();
 
-    /** Function to trigger an action to this manager.
+    /**
+     *  Function to trigger an action to this manager.
      *    @param action the action name
      *    @param args arguments for the action
      */
-    void trigger(
-        const string        &action,
-        void *              args);
+    void trigger(const ActionRequest& ar);
 
-    /** The calling thread will be suspended until an action is triggeed.
-     *    @param timeout for the periodic action. Use 0 to disable the timer.
-     *    @param timer_args arguments for the timer action
+    /**
+     *  Trigger the FINALIZE event
      */
-    void loop(
-        time_t              timeout,
-        void *              timer_args);
+    void finalize()
+    {
+        ActionRequest frequest(ActionRequest::FINALIZE);
 
-    /** Register the calling object in this action manager.
-     *    @param listener a pointer to the action listner
+        trigger(frequest);
+    }
+
+    /**
+     * The calling thread will be suspended until an action is triggered.
+     *   @param timeout for the periodic action.
+     *   @param timer_args arguments for the timer action
      */
-    void addListener(
-        ActionListener *  listener)
+    void loop(time_t timeout, const ActionRequest& trequest);
+
+    /**
+     * The calling thread will be suspended until an action is triggered.
+     *   @param timeout for the periodic action, the timer action will recieve
+     *   an "empty" ActionRequest.
+     */
+    void loop(time_t timeout)
+    {
+        ActionRequest trequest(ActionRequest::TIMER);
+
+        loop(timeout, trequest);
+    }
+
+    /**
+     * The calling thread will be suspended until an action is triggered. No
+     * periodic action is defined.
+     */
+    void loop()
+    {
+        ActionRequest trequest(ActionRequest::TIMER);
+
+        loop(0, trequest);
+    }
+
+    /**
+     *   Register the calling object in this action manager.
+     *      @param listener a pointer to the action listner
+     */
+    void addListener(ActionListener *  listener)
     {
         this->listener = listener;
     };
 
 private:
-
-    /**
-     *  Implementation class, pending actions are stored in a queue.
-     *  Each element stores the action name and its arguments
-     */
-    struct ActionRequest
-    {
-        string  name;
-        void *  args;
-
-        ActionRequest(
-            const string    &aname = "",
-            void *          aargs  = 0):
-                name(aname),
-                args(aargs){};
-    };
-
     /**
      *  Queue of pending actions, processed in a FIFO manner
      */
-    queue<ActionRequest>    actions;
+    std::queue<ActionRequest *> actions;
 
     /**
      *  Action synchronization is implemented using the pthread library,
      *  with condition variable and its associated mutex
      */
-    pthread_mutex_t         mutex;
-    pthread_cond_t          cond;
+    pthread_mutex_t mutex;
+    pthread_cond_t  cond;
 
     /**
      *  The listener notified by this manager
      */
-    ActionListener *        listener;
+    ActionListener * listener;
 
     /**
      *  Function to lock the Manager mutex
@@ -149,6 +218,7 @@ private:
     {
         pthread_mutex_unlock(&mutex);
     };
+
 };
 
 #endif /*ACTION_MANAGER_H_*/

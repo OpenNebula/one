@@ -29,23 +29,12 @@ extern "C" void * tm_action_loop(void *arg);
 
 class VirtualMachineDisk;
 
-class TransferManager : public MadManager, public ActionListener
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class TMAction : public ActionRequest
 {
 public:
-
-    TransferManager(
-        VirtualMachinePool * _vmpool,
-        HostPool *           _hpool,
-        vector<const VectorAttribute*>& _mads):
-            MadManager(_mads),
-            vmpool(_vmpool),
-            hpool(_hpool)
-    {
-        am.addListener(this);
-    };
-
-    ~TransferManager(){};
-
     enum Actions
     {
         PROLOG,
@@ -66,9 +55,52 @@ public:
         SNAPSHOT_CREATE,
         SNAPSHOT_REVERT,
         SNAPSHOT_DELETE,
-        RESIZE,
-        FINALIZE
+        RESIZE
     };
+
+    TMAction(Actions a, int v):ActionRequest(ActionRequest::USER),
+        _action(a), _vm_id(v){};
+
+    TMAction(const TMAction& o):ActionRequest(o._type), _action(o._action),
+        _vm_id(o._vm_id){};
+
+    Actions action() const
+    {
+        return _action;
+    }
+
+    int vm_id() const
+    {
+        return _vm_id;
+    }
+
+    ActionRequest * clone() const
+    {
+        return new TMAction(*this);
+    }
+
+private:
+    Actions _action;
+
+    int     _vm_id;
+};
+
+class TransferManager : public MadManager, public ActionListener
+{
+public:
+
+    TransferManager(
+        VirtualMachinePool * _vmpool,
+        HostPool *           _hpool,
+        vector<const VectorAttribute*>& _mads):
+            MadManager(_mads),
+            vmpool(_vmpool),
+            hpool(_hpool)
+    {
+        am.addListener(this);
+    };
+
+    ~TransferManager(){};
 
     /**
      *  Triggers specific actions to the Information Manager. This function
@@ -77,9 +109,17 @@ public:
      *    @param vid VM unique id. This is the argument of the passed to the
      *    invoked action.
      */
-    virtual void trigger(
-        Actions action,
-        int     vid);
+    void trigger(TMAction::Actions action, int vid)
+    {
+        TMAction tm_ar(action, vid);
+
+        am.trigger(tm_ar);
+    }
+
+    void finalize()
+    {
+        am.finalize();
+    }
 
     /**
      *  This functions starts the associated listener thread, and creates a
@@ -279,14 +319,17 @@ private:
      */
     friend void * tm_action_loop(void *arg);
 
-    /**
-     *  The action function executed when an action is triggered.
-     *    @param action the name of the action
-     *    @param arg arguments for the action function
-     */
-    void do_action(
-        const string &  action,
-        void *          arg);
+    // -------------------------------------------------------------------------
+    // Action Listener interface
+    // -------------------------------------------------------------------------
+    void finalize_action(const ActionRequest& ar)
+    {
+        NebulaLog::log("TM",Log::INFO,"Stopping Transfer Manager...");
+
+        MadManager::stop();
+    };
+
+    void user_action(const ActionRequest& ar);
 
     /**
      *  This function starts the prolog sequence

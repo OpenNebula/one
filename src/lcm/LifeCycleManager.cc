@@ -17,6 +17,7 @@
 #include "LifeCycleManager.h"
 #include "Nebula.h"
 #include "NebulaLog.h"
+#include "Request.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -34,7 +35,7 @@ extern "C" void * lcm_action_loop(void *arg)
 
     NebulaLog::log("LCM",Log::INFO,"Life-cycle Manager started.");
 
-    lcm->am.loop(0,0);
+    lcm->am.loop();
 
     NebulaLog::log("LCM",Log::INFO,"Life-cycle Manager stopped.");
 
@@ -80,502 +81,207 @@ void LifeCycleManager::init_managers()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void LifeCycleManager::trigger(Actions action, int _vid)
+void LifeCycleManager::trigger(LCMAction::Actions action, int vid,
+        const RequestAttributes& ra)
 {
-    int *   vid;
-    string  aname;
+    LCMAction lcm_ar(action, vid, ra.uid, ra.gid, ra.req_id);
 
-    vid = new int(_vid);
+    am.trigger(lcm_ar);
+}
 
-    switch (action)
-    {
-    case SAVE_SUCCESS:
-        aname = "SAVE_SUCCESS";
-        break;
+void LifeCycleManager::trigger(LCMAction::Actions action, int vid)
+{
+    LCMAction lcm_ar(action, vid, -1, -1, -1);
 
-    case SAVE_FAILURE:
-        aname = "SAVE_FAILURE";
-        break;
-
-    case DEPLOY_SUCCESS:
-        aname = "DEPLOY_SUCCESS";
-        break;
-
-    case DEPLOY_FAILURE:
-        aname = "DEPLOY_FAILURE";
-        break;
-
-    case SHUTDOWN_SUCCESS:
-        aname = "SHUTDOWN_SUCCESS";
-        break;
-
-    case SHUTDOWN_FAILURE:
-        aname = "SHUTDOWN_FAILURE";
-        break;
-
-    case CANCEL_SUCCESS:
-        aname = "CANCEL_SUCCESS";
-        break;
-
-    case CANCEL_FAILURE:
-        aname = "CANCEL_FAILURE";
-        break;
-
-    case MONITOR_SUSPEND:
-        aname = "MONITOR_SUSPEND";
-        break;
-
-    case MONITOR_DONE:
-        aname = "MONITOR_DONE";
-        break;
-
-    case MONITOR_POWEROFF:
-        aname = "MONITOR_POWEROFF";
-        break;
-
-    case MONITOR_POWERON:
-        aname = "MONITOR_POWERON";
-        break;
-
-    case PROLOG_SUCCESS:
-        aname = "PROLOG_SUCCESS";
-        break;
-
-    case PROLOG_FAILURE:
-        aname = "PROLOG_FAILURE";
-        break;
-
-    case EPILOG_SUCCESS:
-        aname = "EPILOG_SUCCESS";
-        break;
-
-    case EPILOG_FAILURE:
-        aname = "EPILOG_FAILURE";
-        break;
-
-    case ATTACH_SUCCESS:
-        aname = "ATTACH_SUCCESS";
-        break;
-
-    case ATTACH_FAILURE:
-        aname = "ATTACH_FAILURE";
-        break;
-
-    case DETACH_SUCCESS:
-        aname = "DETACH_SUCCESS";
-        break;
-
-    case DETACH_FAILURE:
-        aname = "DETACH_FAILURE";
-        break;
-
-    case SAVEAS_SUCCESS:
-        aname = "SAVEAS_SUCCESS";
-        break;
-
-    case SAVEAS_FAILURE:
-        aname = "SAVEAS_FAILURE";
-        break;
-
-    case ATTACH_NIC_SUCCESS:
-        aname = "ATTACH_NIC_SUCCESS";
-        break;
-
-    case ATTACH_NIC_FAILURE:
-        aname = "ATTACH_NIC_FAILURE";
-        break;
-
-    case DETACH_NIC_SUCCESS:
-        aname = "DETACH_NIC_SUCCESS";
-        break;
-
-    case DETACH_NIC_FAILURE:
-        aname = "DETACH_NIC_FAILURE";
-        break;
-
-    case CLEANUP_SUCCESS:
-        aname = "CLEANUP_SUCCESS";
-        break;
-
-    case CLEANUP_FAILURE:
-        aname = "CLEANUP_FAILURE";
-        break;
-
-    case SNAPSHOT_CREATE_SUCCESS:
-        aname = "SNAPSHOT_CREATE_SUCCESS";
-        break;
-
-    case SNAPSHOT_CREATE_FAILURE:
-        aname = "SNAPSHOT_CREATE_FAILURE";
-        break;
-
-    case SNAPSHOT_REVERT_SUCCESS:
-        aname = "SNAPSHOT_REVERT_SUCCESS";
-        break;
-
-    case SNAPSHOT_REVERT_FAILURE:
-        aname = "SNAPSHOT_REVERT_FAILURE";
-        break;
-
-    case SNAPSHOT_DELETE_SUCCESS:
-        aname = "SNAPSHOT_DELETE_SUCCESS";
-        break;
-
-    case SNAPSHOT_DELETE_FAILURE:
-        aname = "SNAPSHOT_DELETE_FAILURE";
-        break;
-
-    case DISK_SNAPSHOT_SUCCESS:
-        aname = "DISK_SNAPSHOT_SUCCESS";
-        break;
-
-    case DISK_SNAPSHOT_FAILURE:
-        aname = "DISK_SNAPSHOT_FAILURE";
-        break;
-
-    case DISK_LOCK_SUCCESS:
-        aname = "DISK_LOCK_SUCCESS";
-        break;
-
-    case DISK_LOCK_FAILURE:
-        aname = "DISK_LOCK_FAILURE";
-        break;
-
-    case DISK_RESIZE_SUCCESS:
-        aname = "DISK_RESIZE_SUCCESS";
-        break;
-
-    case DISK_RESIZE_FAILURE:
-        aname = "DISK_RESIZE_FAILURE";
-        break;
-
-    case DEPLOY:
-        aname = "DEPLOY";
-        break;
-
-    case SUSPEND:
-        aname = "SUSPEND";
-        break;
-
-    case RESTORE:
-        aname = "RESTORE";
-        break;
-
-    case STOP:
-        aname = "STOP";
-        break;
-
-    case CANCEL:
-        aname = "CANCEL";
-        break;
-
-    case MIGRATE:
-        aname = "MIGRATE";
-        break;
-
-    case LIVE_MIGRATE:
-        aname = "LIVE_MIGRATE";
-        break;
-
-    case SHUTDOWN:
-        aname = "SHUTDOWN";
-        break;
-
-    case UNDEPLOY:
-        aname = "UNDEPLOY";
-        break;
-
-    case UNDEPLOY_HARD:
-        aname = "UNDEPLOY_HARD";
-        break;
-
-    case RESTART:
-        aname = "RESTART";
-        break;
-
-    case DELETE:
-        aname = "DELETE";
-        break;
-
-    case DELETE_RECREATE:
-        aname = "DELETE_RECREATE";
-        break;
-
-    case FINALIZE:
-        aname = ACTION_FINALIZE;
-        break;
-
-    case POWEROFF:
-        aname = "POWEROFF";
-        break;
-
-    case POWEROFF_HARD:
-        aname = "POWEROFF_HARD";
-        break;
-
-    case UPDATESG:
-        aname = "UPDATESG";
-        break;
-
-    default:
-        delete vid;
-        return;
-    }
-
-    am.trigger(aname,vid);
+    am.trigger(lcm_ar);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void LifeCycleManager::do_action(const string &action, void * arg)
+void LifeCycleManager::user_action(const ActionRequest& ar)
 {
-    int             vid;
-    ostringstream   oss;
+    const LCMAction& la = static_cast<const LCMAction& >(ar);
+    int vid = la.vm_id();
 
-    if (arg == 0)
+    switch (la.action())
     {
-        return;
-    }
-
-    vid  = *(static_cast<int *>(arg));
-
-    delete static_cast<int *>(arg);
-
-    if (action == "SAVE_SUCCESS")
-    {
+    // -------------------------------------------------------------------------
+    // Internal Actions, triggered by OpenNebula components & drivers
+    // -------------------------------------------------------------------------
+    case LCMAction::SAVE_SUCCESS:
         save_success_action(vid);
-    }
-    else if (action == "SAVE_FAILURE")
-    {
+        break;
+    case LCMAction::SAVE_FAILURE:
         save_failure_action(vid);
-    }
-    else if (action == "DEPLOY_SUCCESS")
-    {
+        break;
+    case LCMAction::DEPLOY_SUCCESS:
         deploy_success_action(vid);
-    }
-    else if (action == "DEPLOY_FAILURE")
-    {
+        break;
+    case LCMAction::DEPLOY_FAILURE:
         deploy_failure_action(vid);
-    }
-    else if (action == "SHUTDOWN_SUCCESS")
-    {
+        break;
+    case LCMAction::SHUTDOWN_SUCCESS:
         shutdown_success_action(vid);
-    }
-    else if (action == "SHUTDOWN_FAILURE")
-    {
+        break;
+    case LCMAction::SHUTDOWN_FAILURE:
         shutdown_failure_action(vid);
-    }
-    else if (action == "CANCEL_SUCCESS")
-    {
+        break;
+    case LCMAction::CANCEL_SUCCESS:
         shutdown_success_action(vid);
-    }
-    else if (action == "CANCEL_FAILURE")
-    {
+        break;
+    case LCMAction::CANCEL_FAILURE:
         shutdown_failure_action(vid);
-    }
-    else if (action == "MONITOR_SUSPEND")
-    {
+        break;
+    case LCMAction::MONITOR_SUSPEND:
         monitor_suspend_action(vid);
-    }
-    else if (action == "MONITOR_DONE")
-    {
+        break;
+    case LCMAction::MONITOR_DONE:
         monitor_done_action(vid);
-    }
-    else if (action == "MONITOR_POWEROFF")
-    {
+        break;
+    case LCMAction::MONITOR_POWEROFF:
         monitor_poweroff_action(vid);
-    }
-    else if (action == "MONITOR_POWERON")
-    {
+        break;
+    case LCMAction::MONITOR_POWERON:
         monitor_poweron_action(vid);
-    }
-    else if (action == "PROLOG_SUCCESS")
-    {
+        break;
+    case LCMAction::PROLOG_SUCCESS:
         prolog_success_action(vid);
-    }
-    else if (action == "PROLOG_FAILURE")
-    {
+        break;
+    case LCMAction::PROLOG_FAILURE:
         prolog_failure_action(vid);
-    }
-    else if (action == "EPILOG_SUCCESS")
-    {
+        break;
+    case LCMAction::EPILOG_SUCCESS:
         epilog_success_action(vid);
-    }
-    else if (action == "EPILOG_FAILURE")
-    {
+        break;
+    case LCMAction::EPILOG_FAILURE:
         epilog_failure_action(vid);
-    }
-    else if (action == "ATTACH_SUCCESS")
-    {
+        break;
+    case LCMAction::ATTACH_SUCCESS:
         attach_success_action(vid);
-    }
-    else if (action == "ATTACH_FAILURE")
-    {
+        break;
+    case LCMAction::ATTACH_FAILURE:
         attach_failure_action(vid);
-    }
-    else if (action == "DETACH_SUCCESS")
-    {
+        break;
+    case LCMAction::DETACH_SUCCESS:
         detach_success_action(vid);
-    }
-    else if (action == "DETACH_FAILURE")
-    {
+        break;
+    case LCMAction::DETACH_FAILURE:
         detach_failure_action(vid);
-    }
-    else if (action == "SAVEAS_SUCCESS")
-    {
+        break;
+    case LCMAction::SAVEAS_SUCCESS:
         saveas_success_action(vid);
-    }
-    else if (action == "SAVEAS_FAILURE")
-    {
+        break;
+    case LCMAction::SAVEAS_FAILURE:
         saveas_failure_action(vid);
-    }
-    else if (action == "ATTACH_NIC_SUCCESS")
-    {
+        break;
+    case LCMAction::ATTACH_NIC_SUCCESS:
         attach_nic_success_action(vid);
-    }
-    else if (action == "ATTACH_NIC_FAILURE")
-    {
+        break;
+    case LCMAction::ATTACH_NIC_FAILURE:
         attach_nic_failure_action(vid);
-    }
-    else if (action == "DETACH_NIC_SUCCESS")
-    {
+        break;
+    case LCMAction::DETACH_NIC_SUCCESS:
         detach_nic_success_action(vid);
-    }
-    else if (action == "DETACH_NIC_FAILURE")
-    {
+        break;
+    case LCMAction::DETACH_NIC_FAILURE:
         detach_nic_failure_action(vid);
-    }
-    else if (action == "CLEANUP_SUCCESS")
-    {
+        break;
+    case LCMAction::CLEANUP_SUCCESS:
         cleanup_callback_action(vid);
-    }
-    else if (action == "CLEANUP_FAILURE")
-    {
+        break;
+    case LCMAction::CLEANUP_FAILURE:
         cleanup_callback_action(vid);
-    }
-    else if (action == "SNAPSHOT_CREATE_SUCCESS")
-    {
+        break;
+    case LCMAction::SNAPSHOT_CREATE_SUCCESS:
         snapshot_create_success(vid);
-    }
-    else if (action == "SNAPSHOT_CREATE_FAILURE")
-    {
+        break;
+    case LCMAction::SNAPSHOT_CREATE_FAILURE:
         snapshot_create_failure(vid);
-    }
-    else if (action == "SNAPSHOT_REVERT_SUCCESS")
-    {
+        break;
+    case LCMAction::SNAPSHOT_REVERT_SUCCESS:
         snapshot_revert_success(vid);
-    }
-    else if (action == "SNAPSHOT_REVERT_FAILURE")
-    {
+        break;
+    case LCMAction::SNAPSHOT_REVERT_FAILURE:
         snapshot_revert_failure(vid);
-    }
-    else if (action == "SNAPSHOT_DELETE_SUCCESS")
-    {
+        break;
+    case LCMAction::SNAPSHOT_DELETE_SUCCESS:
         snapshot_delete_success(vid);
-    }
-    else if (action == "SNAPSHOT_DELETE_FAILURE")
-    {
+        break;
+    case LCMAction::SNAPSHOT_DELETE_FAILURE:
         snapshot_delete_failure(vid);
-    }
-    else if (action == "DISK_SNAPSHOT_SUCCESS")
-    {
+        break;
+    case LCMAction::DISK_SNAPSHOT_SUCCESS:
         disk_snapshot_success(vid);
-    }
-    else if (action == "DISK_SNAPSHOT_FAILURE")
-    {
+        break;
+    case LCMAction::DISK_SNAPSHOT_FAILURE:
         disk_snapshot_failure(vid);
-    }
-    else if (action == "DISK_LOCK_SUCCESS")
-    {
+        break;
+    case LCMAction::DISK_LOCK_SUCCESS:
         disk_lock_success(vid);
-    }
-    else if (action == "DISK_LOCK_FAILURE")
-    {
+        break;
+    case LCMAction::DISK_LOCK_FAILURE:
         disk_lock_failure(vid);
-    }
-    else if (action == "DISK_RESIZE_SUCCESS")
-    {
+        break;
+    case LCMAction::DISK_RESIZE_SUCCESS:
         disk_resize_success(vid);
-    }
-    else if (action == "DISK_RESIZE_FAILURE")
-    {
+        break;
+    case LCMAction::DISK_RESIZE_FAILURE:
         disk_resize_failure(vid);
-    }
-    else if (action == "DEPLOY")
-    {
-        deploy_action(vid);
-    }
-    else if (action == "SUSPEND")
-    {
-        suspend_action(vid);
-    }
-    else if (action == "RESTORE")
-    {
-        restore_action(vid);
-    }
-    else if (action == "STOP")
-    {
-        stop_action(vid);
-    }
-    else if (action == "CANCEL")
-    {
-        shutdown_action(vid, true);
-    }
-    else if (action == "MIGRATE")
-    {
-        migrate_action(vid);
-    }
-    else if (action == "LIVE_MIGRATE")
-    {
-        live_migrate_action(vid);
-    }
-    else if (action == "SHUTDOWN")
-    {
-        shutdown_action(vid, false);
-    }
-    else if (action == "UNDEPLOY")
-    {
-        undeploy_action(vid, false);
-    }
-    else if (action == "UNDEPLOY_HARD")
-    {
-        undeploy_action(vid, true);
-    }
-    else if (action == "RESTART")
-    {
-        restart_action(vid);
-    }
-    else if (action == "DELETE")
-    {
-        delete_action(vid);
-    }
-    else if (action == "DELETE_RECREATE")
-    {
-        delete_recreate_action(vid);
-    }
-    else if (action == "POWEROFF")
-    {
-        poweroff_action(vid);
-    }
-    else if (action == "POWEROFF_HARD")
-    {
-        poweroff_hard_action(vid);
-    }
-    else if (action == "UPDATESG")
-    {
-        updatesg_action(vid);
-    }
-    else if (action == ACTION_FINALIZE)
-    {
-        NebulaLog::log("LCM",Log::INFO,"Stopping Life-cycle Manager...");
-    }
-    else
-    {
-        ostringstream oss;
-        oss << "Unknown action name: " << action;
-
-        NebulaLog::log("LCM", Log::ERROR, oss);
+        break;
+    // -------------------------------------------------------------------------
+    // External Actions, triggered by user requests
+    // -------------------------------------------------------------------------
+    case LCMAction::DEPLOY:
+        deploy_action(la);
+        break;
+    case LCMAction::SUSPEND:
+        suspend_action(la);
+        break;
+    case LCMAction::RESTORE:
+        restore_action(la);
+        break;
+    case LCMAction::STOP:
+        stop_action(la);
+        break;
+    case LCMAction::CANCEL:
+        shutdown_action(la, true);
+        break;
+    case LCMAction::MIGRATE:
+        migrate_action(la);
+        break;
+    case LCMAction::LIVE_MIGRATE:
+        live_migrate_action(la);
+        break;
+    case LCMAction::SHUTDOWN:
+        shutdown_action(la, false);
+        break;
+    case LCMAction::UNDEPLOY:
+        undeploy_action(la, false);
+        break;
+    case LCMAction::UNDEPLOY_HARD:
+        undeploy_action(la, true);
+        break;
+    case LCMAction::RESTART:
+        restart_action(la);
+        break;
+    case LCMAction::DELETE:
+        delete_action(la);
+        break;
+    case LCMAction::DELETE_RECREATE:
+        delete_recreate_action(la);
+        break;
+    case LCMAction::POWEROFF:
+        poweroff_action(la);
+        break;
+    case LCMAction::POWEROFF_HARD:
+        poweroff_hard_action(la);
+        break;
+    case LCMAction::UPDATESG:
+        updatesg_action(la);
+        break;
+    case LCMAction::NONE:
+        break;
     }
 }
 

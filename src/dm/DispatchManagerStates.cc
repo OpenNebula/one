@@ -83,7 +83,7 @@ void  DispatchManager::stop_success_action(int vid)
         //Set history action field to perform the right TM command on resume
         if (vm->get_action() == History::NONE_ACTION)
         {
-            vm->set_action(History::STOP_ACTION);
+            vm->set_internal_action(History::STOP_ACTION);
 
             vmpool->update_history(vm);
         }
@@ -130,7 +130,7 @@ void  DispatchManager::undeploy_success_action(int vid)
         //Set history action field to perform the right TM command on resume
         if (vm->get_action() == History::NONE_ACTION)
         {
-            vm->set_action(History::UNDEPLOY_ACTION);
+            vm->set_internal_action(History::UNDEPLOY_ACTION);
 
             vmpool->update_history(vm);
         }

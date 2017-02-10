@@ -16,22 +16,12 @@
 
 #include "ActionManager.h"
 #include <ctime>
-#include <cerrno>
 
 /* ************************************************************************** */
-/* NeActionManager constants                                                  */
+/* ActionManager constructor & destructor                                   */
 /* ************************************************************************** */
 
-const string ActionListener::ACTION_TIMER = string("ACTION_TIMER");
-const string ActionListener::ACTION_FINALIZE = string("ACTION_FINALIZE");
-
-/* ************************************************************************** */
-/* NeActionManager constructor & destructor                                   */
-/* ************************************************************************** */
-
-ActionManager::ActionManager():
-        actions(),
-        listener(0)
+ActionManager::ActionManager(): listener(0)
 {
     pthread_mutex_init(&mutex,0);
 
@@ -51,15 +41,11 @@ ActionManager::~ActionManager()
 /* NeActionManager public interface                                           */
 /* ************************************************************************** */
 
-void ActionManager::trigger(
-    const string    &action,
-    void *          arg)
+void ActionManager::trigger(const ActionRequest& ar )
 {
-    ActionRequest   request(action,arg);
-
     lock();
 
-    actions.push(request);
+    actions.push(ar.clone());
 
     pthread_cond_signal(&cond);
 
@@ -69,16 +55,14 @@ void ActionManager::trigger(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void ActionManager::loop(
-    time_t      timer,
-    void *      timer_args)
+void ActionManager::loop(time_t timer, const ActionRequest& trequest)
 {
-    struct timespec     timeout;
-    int                 finalize = 0;
-    int                 rc;
+    struct timespec timeout;
 
-    ActionRequest       action;
-    ActionRequest       trequest(ActionListener::ACTION_TIMER,timer_args);
+    int finalize = 0;
+    int rc;
+
+    ActionRequest * action;
 
     timeout.tv_sec  = time(NULL) + timer;
     timeout.tv_nsec = 0;
@@ -95,7 +79,7 @@ void ActionManager::loop(
                 rc = pthread_cond_timedwait(&cond,&mutex, &timeout);
 
                 if ( rc == ETIMEDOUT )
-                    actions.push(trequest);
+                    actions.push(trequest.clone());
             }
             else
                 pthread_cond_wait(&cond,&mutex);
@@ -106,17 +90,24 @@ void ActionManager::loop(
 
         unlock();
 
-        listener->do_action(action.name,action.args);
+        listener->_do_action(*action);
 
-        if ( action.name == ActionListener::ACTION_TIMER )
+        switch(action->type())
         {
-            timeout.tv_sec  = time(NULL) + timer;
-            timeout.tv_nsec = 0;
+            case ActionRequest::TIMER:
+                timeout.tv_sec  = time(NULL) + timer;
+                timeout.tv_nsec = 0;
+            break;
+
+            case ActionRequest::FINALIZE:
+                finalize = 1;
+            break;
+
+            default:
+            break;
         }
-        else if ( action.name == ActionListener::ACTION_FINALIZE )
-        {
-            finalize = 1;
-        }
+
+        delete action;
     }
 }
 

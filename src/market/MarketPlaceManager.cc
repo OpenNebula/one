@@ -19,7 +19,6 @@
 #include "MarketPlaceAppPool.h"
 #include "MarketPlaceManagerDriver.h"
 
-#include "NebulaLog.h"
 #include "Nebula.h"
 
 const char * MarketPlaceManager::market_driver_name = "market_exe";
@@ -40,7 +39,7 @@ extern "C" void * marketplace_action_loop(void *arg)
 
     mpm = static_cast<MarketPlaceManager *>(arg);
 
-    mpm->am.loop(mpm->timer_period, 0);
+    mpm->am.loop(mpm->timer_period);
 
     NebulaLog::log("MKP", Log::INFO, "Marketplace Manager stopped.");
 
@@ -152,29 +151,6 @@ int MarketPlaceManager::start()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void MarketPlaceManager::do_action(const string &action, void * arg)
-{
-    if (action == ACTION_TIMER)
-    {
-        timer_action();
-    }
-    else if (action == ACTION_FINALIZE)
-    {
-        NebulaLog::log("MKP", Log::INFO, "Stopping Marketplace Manager...");
-        MadManager::stop();
-    }
-    else
-    {
-        std::ostringstream oss;
-        oss << "Unknown action name: " << action;
-
-        NebulaLog::log("MKP", Log::ERROR, oss);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 string * MarketPlaceManager::format_message(
     const string& app_data,
     const string& market_data,
@@ -194,7 +170,7 @@ string * MarketPlaceManager::format_message(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void MarketPlaceManager::timer_action()
+void MarketPlaceManager::timer_action(const ActionRequest& ar)
 {
     static int mark = 0;
     static int tics = monitor_period;

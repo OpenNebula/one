@@ -27,6 +27,7 @@
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+struct RequestAttributes;
 
 /**
  *  The VirtualRouter class.
@@ -167,6 +168,20 @@ public:
         return SUPPORTED_ACTIONS.is_set(action);
     }
 
+
+    // -------------------------------------------------------------------------
+    // VM Management
+    // -------------------------------------------------------------------------
+    //
+    /**
+     *  Tries to shutdown, or delete, all this Virtual Router's VMs
+     *    @param ra attributes for the VirtualRouter delete operation
+     *    @param vms implementing the VirtualRouter
+     *    @param nics IP leased to the VirtualRouter
+     *    @return 0 on success, -1 otherwise
+     */
+    static int shutdown_vms(const set<int>& vms, const RequestAttributes& ra);
+
 private:
     // -------------------------------------------------------------------------
     // Friends
@@ -291,17 +306,6 @@ private:
      * @return nic if found, 0 if not found
      */
     VectorAttribute* get_nic(int nic_id) const;
-
-    // -------------------------------------------------------------------------
-    // VM Management
-    // -------------------------------------------------------------------------
-
-    /**
-     * Tries to shutdown, or delete, all this Virtual Router's VMs
-     *
-     * @return 0 on success, -1 otherwise
-     */
-    int shutdown_vms();
 };
 
 #endif /*VIRTUAL_ROUTER_H_*/

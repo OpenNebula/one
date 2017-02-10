@@ -30,13 +30,6 @@
         <xs:element name="ESTIME" type="xs:integer"/>
         <xs:element name="EETIME" type="xs:integer"/>
 
-        <!-- REASON values:
-          NONE  = 0 History record is not closed yet
-          ERROR = 1 History record was closed because of an error
-          USER  = 2 History record was closed because of a user action
-        -->
-        <xs:element name="REASON" type="xs:integer"/>
-
         <!-- ACTION values:
           NONE_ACTION             = 0
           MIGRATE_ACTION          = 1
@@ -67,6 +60,22 @@
           DISK_SNAPSHOT_DELETE_ACTION = 26
           TERMINATE_ACTION        = 27
           TERMINATE_HARD_ACTION   = 28
+          DISK_RESIZE_ACTION      = 29
+          DEPLOY_ACTION           = 30
+          CHOWN_ACTION            = 31
+          CHMOD_ACTION            = 32
+          UPDATECONF_ACTION       = 33
+          RENAME_ACTION           = 34
+          RESIZE_ACTION           = 35
+          UPDATE_ACTION           = 36
+          SNAPSHOT_CREATE_ACTION  = 37
+          SNAPSHOT_DELETE_ACTION  = 38
+          SNAPSHOT_REVERT_ACTION  = 39
+          DISK_SAVEAS_ACTION      = 40
+          DISK_SNAPSHOT_REVERT_ACTION = 41
+          RECOVER_ACTION          = 42
+          RETRY_ACTION            = 43
+          MONITOR_ACTION          = 44
         -->
         <xs:element name="ACTION" type="xs:integer"/>
 

@@ -461,6 +461,26 @@ int SecurityGroupDelete::drop(PoolObjectSQL * object, bool recursive,
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+int VirtualRouterDelete::drop(PoolObjectSQL * object, bool recursive,
+		RequestAttributes& att)
+{
+    VirtualRouter * vr = static_cast<VirtualRouter *>(object);
+
+    set<int> vms = vr->get_vms();
+
+    int rc  = RequestManagerDelete::drop(object, false, att);
+
+    if ( rc == 0 && !vms.empty())
+    {
+        VirtualRouter::shutdown_vms(vms, att);
+    }
+
+    return rc;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 int MarketPlaceAppDelete::drop(PoolObjectSQL * object, bool recursive,
 		RequestAttributes& att)
 {

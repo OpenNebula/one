@@ -452,6 +452,16 @@ public:
         return (previous_history!=0);
     };
 
+    bool is_history_open() const
+    {
+        return (history != 0) && (history->etime == 0);
+    }
+
+    bool is_previous_history_open() const
+    {
+        return (previous_history != 0) && (previous_history->etime == 0);
+    }
+
     /**
      *  Returns the VMM driver name for the current host. The hasHistory()
      *  function MUST be called before this one.
@@ -638,15 +648,6 @@ public:
     };
 
     /**
-     *  Returns the reason that closed the history record in the previous host
-     *    @return the reason to close the history record in the previous host
-     */
-    const History::EndReason get_previous_reason() const
-    {
-        return previous_history->reason;
-    };
-
-    /**
      *  Returns the action that closed the current history record. The hasHistory()
      *  function MUST be called before this one.
      *    @return the action that closed the current history record
@@ -816,39 +817,47 @@ public:
     };
 
     /**
-     *  Sets the reason that closed the history record
-     *    @param _reason reason to close the history record
-     */
-    void set_reason(History::EndReason _reason)
-    {
-        history->reason=_reason;
-    };
-
-    /**
-     *  Sets the reason that closed the history record in the previous host
-     *    @param _reason reason to close the history record in the previous host
-     */
-    void set_previous_reason(History::EndReason _reason)
-    {
-        previous_history->reason=_reason;
-    };
-
-    /**
      *  Sets the action that closed the history record
      *    @param action that closed the history record
      */
-    void set_action(History::VMAction action)
+    void set_action(History::VMAction action, int uid, int gid, int req_id)
     {
         history->action = action;
+
+        history->uid = uid;
+        history->gid = gid;
+
+        history->req_id = req_id;
     };
 
-    /**
-     *  Sets the action that closed the history record in the previous host
-     *    @param action that closed the history record in the previous host
-     */
-    void set_previous_action(History::VMAction action)
+    void set_internal_action(History::VMAction action)
+    {
+        history->action = action;
+
+        history->uid = -1;
+        history->gid = -1;
+
+        history->req_id = -1;
+    };
+
+    void clear_action()
+    {
+        history->action = History::NONE_ACTION;
+
+        history->uid = -1;
+        history->gid = -1;
+
+        history->req_id = -1;
+    }
+
+    void set_previous_action(History::VMAction action, int uid, int gid,int rid)
     {
         previous_history->action = action;
+
+        previous_history->uid = uid;
+        previous_history->gid = gid;
+
+        previous_history->req_id = rid;
     };
 
     // ------------------------------------------------------------------------

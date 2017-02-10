@@ -90,7 +90,7 @@ extern "C" void * scheduler_action_loop(void *arg)
 
     NebulaLog::log("SCHED",Log::INFO,"Scheduler loop started.");
 
-    sched->am.loop(sched->timer,0);
+    sched->am.loop(sched->timer);
 
     NebulaLog::log("SCHED",Log::INFO,"Scheduler loop stopped.");
 
@@ -392,7 +392,7 @@ void Scheduler::start()
 
     sigwait(&mask, &signal);
 
-    am.trigger(ActionListener::ACTION_FINALIZE,0); //Cancel sched loop
+    am.finalize();
 
     pthread_join(sched_thread,0);
 
@@ -1488,44 +1488,37 @@ void Scheduler::do_vm_groups()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Scheduler::do_action(const string &name, void *args)
+void Scheduler::timer_action(const ActionRequest& ar)
 {
     int rc;
 
-    if (name == ACTION_TIMER)
+    profile(true);
+    rc = vmapool->set_up();
+    profile(false,"Getting scheduled actions information.");
+
+    if ( rc == 0 )
     {
         profile(true);
-        rc = vmapool->set_up();
-        profile(false,"Getting scheduled actions information.");
-
-        if ( rc == 0 )
-        {
-            profile(true);
-            do_scheduled_actions();
-            profile(false,"Executing scheduled actions.");
-        }
-
-        profile(true);
-        rc = set_up_pools();
-        profile(false,"Getting VM and Host information.");
-
-        if ( rc != 0 )
-        {
-            return;
-        }
-
-        profile(true);
-        do_vm_groups();
-        profile(false,"Setting VM groups placement constraints.");
-
-        match_schedule();
-
-        profile(true);
-        dispatch();
-        profile(false,"Dispatching VMs to hosts.");
+        do_scheduled_actions();
+        profile(false,"Executing scheduled actions.");
     }
-    else if (name == ACTION_FINALIZE)
+
+    profile(true);
+    rc = set_up_pools();
+    profile(false,"Getting VM and Host information.");
+
+    if ( rc != 0 )
     {
-        NebulaLog::log("SCHED",Log::INFO,"Stopping the scheduler...");
+        return;
     }
+
+    profile(true);
+    do_vm_groups();
+    profile(false,"Setting VM groups placement constraints.");
+
+    match_schedule();
+
+    profile(true);
+    dispatch();
+    profile(false,"Dispatching VMs to hosts.");
 }

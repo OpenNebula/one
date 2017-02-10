@@ -992,11 +992,11 @@ void Nebula::start(bool bootstrap_only)
     // Stop the managers & free resources
     // -----------------------------------------------------------
 
-    vmm->trigger(VirtualMachineManager::FINALIZE,0);
-    lcm->trigger(LifeCycleManager::FINALIZE,0);
+    vmm->finalize();
+    lcm->finalize();
 
-    tm->trigger(TransferManager::FINALIZE,0);
-    dm->trigger(DispatchManager::FINALIZE,0);
+    tm->finalize();
+    dm->finalize();
 
     im->finalize();
     rm->finalize();

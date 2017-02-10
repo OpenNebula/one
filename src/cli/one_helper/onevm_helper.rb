@@ -1023,10 +1023,6 @@ in the frontend machine.
                 VirtualMachine.get_history_action d["ACTION"]
             end
 
-            column :REASON, "VM state change reason", :left, :size=>4 do |d|
-                VirtualMachine.get_reason d["REASON"]
-            end
-
             column :DS, "System Datastore", :size=>4 do |d|
                 d["DS_ID"]
             end

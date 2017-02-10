@@ -29,19 +29,12 @@ using namespace std;
 
 extern "C" void * vmm_action_loop(void *arg);
 
-class VirtualMachineManager : public MadManager, public ActionListener
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VMMAction : public ActionRequest
 {
 public:
-
-    VirtualMachineManager(
-        time_t                    _timer_period,
-        time_t                    _poll_period,
-        bool                      _do_vm_poll,
-        int                       _vm_limit,
-        vector<const VectorAttribute*>& _mads);
-
-    ~VirtualMachineManager(){};
-
     enum Actions
     {
         DEPLOY,
@@ -57,9 +50,7 @@ public:
         REBOOT,
         RESET,
         POLL,
-        TIMER,
         DRIVER_CANCEL,
-        FINALIZE,
         ATTACH,
         DETACH,
         ATTACH_NIC,
@@ -71,6 +62,46 @@ public:
         DISK_RESIZE
     };
 
+    VMMAction(Actions a, int v):ActionRequest(ActionRequest::USER),
+        _action(a), _vm_id(v){};
+
+    VMMAction(const VMMAction& o):ActionRequest(o._type), _action(o._action),
+        _vm_id(o._vm_id){};
+
+    Actions action() const
+    {
+        return _action;
+    }
+
+    int vm_id() const
+    {
+        return _vm_id;
+    }
+
+    ActionRequest * clone() const
+    {
+        return new VMMAction(*this);
+    }
+
+private:
+    Actions _action;
+
+    int     _vm_id;
+};
+
+class VirtualMachineManager : public MadManager, public ActionListener
+{
+public:
+
+    VirtualMachineManager(
+        time_t                    _timer_period,
+        time_t                    _poll_period,
+        bool                      _do_vm_poll,
+        int                       _vm_limit,
+        vector<const VectorAttribute*>& _mads);
+
+    ~VirtualMachineManager(){};
+
     /**
      *  Triggers specific actions to the Virtual Machine Manager. This function
      *  wraps the ActionManager trigger function.
@@ -78,9 +109,17 @@ public:
      *    @param vid VM unique id. This is the argument of the passed to the
      *    invoked action.
      */
-    virtual void trigger(
-        Actions action,
-        int     vid);
+    void trigger(VMMAction::Actions action, int vid)
+    {
+        VMMAction vmm_ar(action, vid);
+
+        am.trigger(vmm_ar);
+    }
+
+    void finalize()
+    {
+        am.finalize();
+    }
 
     /**
      *  This functions starts the associated listener thread, and creates a
@@ -232,14 +271,22 @@ private:
                (MadManager::get(0,_name,name));
     };
 
+    // -------------------------------------------------------------------------
+    // Action Listener interface
+    // -------------------------------------------------------------------------
     /**
-     *  The action function executed when an action is triggered.
-     *    @param action the name of the action
-     *    @param arg arguments for the action function
+     *  This function is executed periodically to poll the running VMs
      */
-    void do_action(
-        const string &  action,
-        void *          arg);
+    void timer_action(const ActionRequest& ar);
+
+    void finalize_action(const ActionRequest& ar)
+    {
+        NebulaLog::log("VMM",Log::INFO,"Stopping Virtual Machine Manager...");
+
+        MadManager::stop();
+    };
+
+    void user_action(const ActionRequest& ar);
 
     /**
      *  Function to format a VMM Driver message in the form:
@@ -373,10 +420,6 @@ private:
     void poll_action(
         int vid);
 
-    /**
-     *  This function is executed periodically to poll the running VMs
-     */
-    void timer_action();
 
     /**
      * Attaches a new disk to a VM. The VM must have a disk with the

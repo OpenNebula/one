@@ -78,7 +78,7 @@ public:
      */
     void finalize()
     {
-        am.trigger(ACTION_FINALIZE,0);
+        am.finalize();
     };
 
 
@@ -163,20 +163,33 @@ private:
     xmlrpc_c::serverAbyss *  AbyssServer;
 
     /**
-     *  The action function executed when an action is triggered.
-     *    @param action the name of the action
-     *    @param arg arguments for the action function
-     */
-    void do_action(const string & action, void * arg);
-
-    /**
      *  Register the XML-RPC API Calls
      */
     void register_xml_methods();
 
     int setup_socket();
-};
 
+    // ------------------------------------------------------------------------
+    // ActioListener Interface
+    // ------------------------------------------------------------------------
+    virtual void finalize_action(const ActionRequest& ar)
+    {
+        NebulaLog::log("ReM",Log::INFO,"Stopping Request Manager...");
+
+        pthread_cancel(rm_xml_server_thread);
+
+        pthread_join(rm_xml_server_thread,0);
+
+        NebulaLog::log("ReM",Log::INFO,"XML-RPC server stopped.");
+
+        delete AbyssServer;
+
+        if ( socket_fd != -1 )
+        {
+            close(socket_fd);
+        }
+    };
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
