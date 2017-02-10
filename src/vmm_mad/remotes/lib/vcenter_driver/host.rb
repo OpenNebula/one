@@ -28,6 +28,8 @@ end # class HostFolder
 class ClusterComputeResource
     attr_accessor :item
 
+    include Memoize
+
     def initialize(item)
         @item = item
     end
