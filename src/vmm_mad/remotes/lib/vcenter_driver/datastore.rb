@@ -18,6 +18,21 @@ class DatastoreFolder
             item_name = item._ref
             @items[item_name.to_sym] = Datastore.new(item)
         end
+
+        VIClient.get_entities(@item, "StoragePod").each do |sp|
+            VIClient.get_entities(sp, "Datastore").each do |item|
+                item_name = item._ref
+                @items[item_name.to_sym] = Datastore.new(item)
+            end
+        end
+    end
+
+    def monitor
+        monitor = ""
+        @items.values.each do |ds|
+            monitor << "VCENTER_DATASTORE=\"#{ds['name']}\"\n"
+        end
+        monitor
     end
 
     ########################################################################

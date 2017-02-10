@@ -241,6 +241,23 @@ class ClusterComputeResource
         return str_info.gsub(/^\s+/,"")
     end
 
+
+    def monitor_customizations
+        customizations = self['_connection'].serviceContent.customizationSpecManager.info
+
+        text = ''
+
+        customizations.each do |c|
+            t = "CUSTOMIZATION = [ "
+            t << %Q<NAME = "#{c.name}", >
+            t << %Q<TYPE = "#{c.type}" ]\n>
+
+            text << t
+        end
+
+        text
+    end
+
     def get_dc
         item = @item
 

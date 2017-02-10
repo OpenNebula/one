@@ -61,6 +61,9 @@ if !vm_monitor_info.empty?
     puts vm_monitor_info
 end
 
-# TODO: monitor network metrics in 'monitor_vms'
-# TODO: monitor_customizations
-# TODO: get_available_ds
+puts cluster.monitor_customizations
+
+dc = cluster.get_dc
+ds_folder = dc.datastore_folder
+ds_folder.fetch!
+puts ds_folder.monitor

@@ -18,6 +18,7 @@ class VIClient
         !!@rp
     end
 
+    # @return RbVmomi::VIM::<type> objects
     def self.get_entities(folder, type, entities=[])
         if folder == []
             return nil
