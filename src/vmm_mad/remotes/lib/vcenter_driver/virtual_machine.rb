@@ -910,35 +910,30 @@ class VirtualMachine
 
         @guest_ip_addresses = guest_ip_addresses.join(',')
 
-=begin
+        ########################################################################
         # PerfManager metrics
-        pm = @client.vim.serviceInstance.content.perfManager
+        ########################################################################
+        require 'pry'
 
-        provider = pm.provider_summary [@vm].first
+        pm = self['_connection'].serviceInstance.content.perfManager
+
+        provider = pm.provider_summary(@item)
+
         refresh_rate = provider.refreshRate
 
-        vmid = -1
-        extraconfig_vmid = @vm.config.extraConfig.select{|val|
-                                        val[:key]=="opennebula.vm.id"}
-        if extraconfig_vmid.size > 0 and extraconfig_vmid[0]
-            vmid = extraconfig_vmid[0][:value].to_i
-        end
-
-        if vmid < 0
-            @nettx = 0
-            @netrx = 0
+        if !get_vm_id
+            @nettx       = 0
+            @netrx       = 0
             @diskrdbytes = 0
             @diskwrbytes = 0
-            @diskrdiops = 0
-            @diskwriops = 0
+            @diskrdiops  = 0
+            @diskwriops  = 0
         else
-            one_vm = OpenNebula::VirtualMachine.new_with_id(vmid, OpenNebula::Client.new)
-            one_vm.info
             stats = []
 
-            if(one_vm["MONITORING/LAST_MON"] && one_vm["MONITORING/LAST_MON"].to_i != 0 )
+            if (one_item["MONITORING/LAST_MON"] && one_item["MONITORING/LAST_MON"].to_i != 0 )
                 #Real time data stores max 1 hour. 1 minute has 3 samples
-                interval = (Time.now.to_i - one_vm["MONITORING/LAST_MON"].to_i)
+                interval = (Time.now.to_i - one_item["MONITORING/LAST_MON"].to_i)
 
                 #If last poll was more than hour ago get 3 minutes,
                 #else calculate how many samples since last poll
@@ -946,7 +941,7 @@ class VirtualMachine
                 max_samples = samples > 0 ? samples : 1
 
                 stats = pm.retrieve_stats(
-                    [@vm],
+                    [@item],
                     ['net.transmitted','net.bytesRx','net.bytesTx','net.received',
                     'virtualDisk.numberReadAveraged','virtualDisk.numberWriteAveraged',
                     'virtualDisk.read','virtualDisk.write'],
@@ -955,7 +950,7 @@ class VirtualMachine
             else
                 # First poll, get at least latest 3 minutes = 9 samples
                 stats = pm.retrieve_stats(
-                    [@vm],
+                    [@item],
                     ['net.transmitted','net.bytesRx','net.bytesTx','net.received',
                     'virtualDisk.numberReadAveraged','virtualDisk.numberWriteAveraged',
                     'virtualDisk.read','virtualDisk.write'],
@@ -1022,10 +1017,9 @@ class VirtualMachine
                 @diskwriops = write_iops
                 @diskrdbytes = (read_kbpersec * 1024 * refresh_rate).to_i
                 @diskwrbytes = (write_kbpersec * 1024 * refresh_rate).to_i
+                @diskwrbytes = (write_kbpersec * 1024 * refresh_rate).to_i
             end
         end
-=end
-
     end
 
     #  Generates a OpenNebula IM Driver valid string with the monitor info
