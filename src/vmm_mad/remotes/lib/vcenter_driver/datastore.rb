@@ -38,6 +38,8 @@ end # class DatastoreFolder
 class Datastore
     attr_accessor :item
 
+    include Memoize
+
     def initialize(item)
         if !item.instance_of? RbVmomi::VIM::Datastore
             raise "Expecting type 'RbVmomi::VIM::Datastore'. " <<
@@ -58,8 +60,7 @@ class Datastore
     end
 
     def create_virtual_disk(dc, img_name, size, adapter_type, disk_type)
-        vdm = @item._connection.serviceContent.virtualDiskManager
-        ds_name = @item.name
+        ds_name = self['name']
 
         vmdk_spec = RbVmomi::VIM::FileBackedVirtualDiskSpec(
             :adapterType => adapter_type,
@@ -67,7 +68,7 @@ class Datastore
             :diskType    => disk_type
         )
 
-        vdm.CreateVirtualDisk_Task(
+        get_vdm.CreateVirtualDisk_Task(
           :datacenter => dc.item,
           :name       => "[#{ds_name}] #{img_name}.vmdk",
           :spec       => vmdk_spec
@@ -77,13 +78,46 @@ class Datastore
     end
 
     def delete_virtual_disk(dc, img_name)
-        vdm = @item._connection.serviceContent.virtualDiskManager
-        ds_name = @item.name
+        ds_name = self['name']
 
-        vdm.DeleteVirtualDisk_Task(
+        get_vdm.DeleteVirtualDisk_Task(
           name: "[#{ds_name}] #{img_name}",
           datacenter: dc.item
         ).wait_for_completion
+    end
+
+    # Copy a VirtualDisk
+    # @param ds_name [String] name of the datastore
+    # @param img_str [String] path to the VirtualDisk
+    def copy_virtual_disk(src_path, target_ds_name, target_path)
+        source_ds_name = self['name']
+
+        copy_params = {
+            :sourceName       => "[#{source_ds_name}] #{src_path}",
+            :sourceDatacenter => get_dc.item,
+            :destName         => "[#{target_ds_name}] #{target_path}"
+        }
+
+        get_vdm.CopyVirtualDisk_Task(copy_params).wait_for_completion
+
+        target_path
+    end
+
+    def get_vdm
+        self['_connection.serviceContent.virtualDiskManager']
+    end
+
+    def get_dc
+        item = @item
+
+        while !item.instance_of? RbVmomi::VIM::Datacenter
+            item = item.parent
+            if item.nil?
+                raise "Could not find the parent Datacenter"
+            end
+        end
+
+        Datacenter.new(item)
     end
 
     # This is never cached
