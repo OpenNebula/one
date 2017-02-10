@@ -56,26 +56,34 @@ class VIClient
 
         token = config["ONE_KEY"]
 
-        begin
-            cipher = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
-
-            cipher.decrypt
-            cipher.key = token
-
-            password =  cipher.update(Base64::decode64(password))
-            password << cipher.final
-        rescue
-            puts "Error decrypting vCenter password"
-            exit -1
-        end
+        password = VIClient::decrypt(password, token)
 
         connection = {
             :host     => host["TEMPLATE/VCENTER_HOST"],
             :user     => host["TEMPLATE/VCENTER_USER"],
+            :rp       => host["TEMPLATE/VCENTER_RESOURCE_POOL"],
             :password => password
         }
 
         self.new(connection)
+    end
+
+    def self.decrypt(msg, token)
+        begin
+            cipher = OpenSSL::Cipher.new("aes-256-cbc")
+
+            cipher.decrypt
+
+            # Truncate for Ruby 2.4 (in previous versions this was being
+            #  automatically truncated)
+            cipher.key = token[0..31]
+
+            msg =  cipher.update(Base64::decode64(msg))
+            msg << cipher.final
+        rescue
+            puts "Error decrypting secret."
+            exit -1
+        end
     end
 end
 

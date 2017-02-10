@@ -39,12 +39,13 @@ class OpenNebula::ServerCipherAuth
         @srv_passwd = srv_passwd
 
         if !srv_passwd.empty?
-            @key = Digest::SHA1.hexdigest(@srv_passwd)
+            # truncate token to 32-bytes for Ruby >= 2.4
+            @key = Digest::SHA1.hexdigest(@srv_passwd)[0..31]
         else
             @key = ""
         end
 
-        @cipher = OpenSSL::Cipher::Cipher.new(CIPHER)
+        @cipher = OpenSSL::Cipher.new(CIPHER)
     end
 
     ###########################################################################
@@ -109,7 +110,8 @@ class OpenNebula::ServerCipherAuth
     # auth method for auth_mad
     def authenticate(srv_user,srv_pass, signed_text)
         begin
-            @key = srv_pass
+            # truncate token to 32-bytes for Ruby >= 2.4
+            @key = srv_pass[0..31]
 
             s_user, t_user, expires = decrypt(signed_text).split(':')
 
