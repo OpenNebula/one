@@ -61,23 +61,19 @@ class VirtualMachine
     # Target Datastore VMware reference (must be defined when VM is new)
     attr_accessor :target_ds_ref
 
-    # Cached vi_client
-    # @return VIClient instance
-    def vi_client
-        if !@vi_client
-            @item._connection
-        end
-        @vi_client
-    end
-
     # vi_client setter (must be used when the VM does not exist in vCenter)
-    def vi_client=(vi_client)
-        @vi_client = vi_client
-    end
+    attr_accessor :vi_client
 
     # Cached one_item
     def one_item
-        # TODO: fetch one_item if it doesn't exist
+        if @one_item.nil?
+            vm_id = get_vm_id
+
+            raise "Unable to find vm_id." if vm_id.nil?
+
+            @one_item = VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
+        end
+
         @one_item
     end
 
@@ -101,11 +97,14 @@ class VirtualMachine
 
     # @return Boolean whether the VM exists in vCenter
     def is_new?
+        !get_vm_id
+    end
+
+    # @return String the vm_id stored in vCenter
+    def get_vm_id
         vm_id = self['config.extraConfig'].select do |o|
             o.key == "opennebula.vm.id"
         end.first.value rescue nil
-
-        !vm_id
     end
 
     ############################################################################
@@ -350,7 +349,7 @@ class VirtualMachine
 
         spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
 
-        self.item.ReconfigVM_Task(:spec => spec).wait_for_completion
+        @item.ReconfigVM_Task(:spec => spec).wait_for_completion
     end
 
     def extraconfig_vmid
@@ -781,7 +780,7 @@ class VirtualMachine
             :deviceChange => [device_config_spec]
         )
 
-        self.item.ReconfigVM_Task(:spec => vm_config_spec).wait_for_completion
+        @item.ReconfigVM_Task(:spec => vm_config_spec).wait_for_completion
 
         self["config.hardware.device"].each do |device|
             if device.class == RbVmomi::VIM::VirtualLsiLogicController &&
@@ -799,7 +798,7 @@ class VirtualMachine
     ############################################################################
 
     def poweron
-        self.item.PowerOnVM_Task.wait_for_completion
+        @item.PowerOnVM_Task.wait_for_completion
     end
 
     def set_running(state)
@@ -812,7 +811,7 @@ class VirtualMachine
             { :extraConfig => config_array }
         )
 
-        self.item.ReconfigVM_Task(:spec => spec).wait_for_completion
+        @item.ReconfigVM_Task(:spec => spec).wait_for_completion
     end
 
     ############################################################################
