@@ -46,10 +46,10 @@ if OpenNebula::is_error? rc
     exit 1
 end
 
-ccr = host["TEMPLATE/VCENTER_CCR"]
+ccr_ref = host["TEMPLATE/VCENTER_CCR_REF"]
 
 # Get vCenter Cluster
-cluster = VCenterDriver::ClusterComputeResource.new_from_ref(vi_client, ccr)
+cluster = VCenterDriver::ClusterComputeResource.new_from_ref(vi_client, ccr_ref)
 
 # Print monitoring info
 puts cluster.monitor
