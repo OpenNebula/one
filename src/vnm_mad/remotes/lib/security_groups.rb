@@ -114,9 +114,13 @@ module VNMNetwork
 
             if @ip && @size
                 nets += VNMNetwork::to_nets(@ip, @size.to_i)
-            elsif @ip6_global && @size
+            end
+
+            if @ip6_global && @size
                 nets += VNMNetwork::to_nets(@ip6_global, @size.to_i)
-            elsif @ip6_ula && @size
+            end
+
+            if @ip6_ula && @size
                 nets += VNMNetwork::to_nets(@ip6_ula, @size.to_i)
             end
 
