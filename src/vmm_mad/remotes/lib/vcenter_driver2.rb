@@ -50,6 +50,7 @@ require 'openssl'
 
 require 'memoize'
 require 'vi_client'
+require 'vi_helper'
 require 'datacenter'
 require 'host'
 require 'datastore'
