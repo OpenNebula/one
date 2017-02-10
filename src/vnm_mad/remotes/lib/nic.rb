@@ -57,7 +57,7 @@ module VNMNetwork
             else
                 deploy_id = vm['DEPLOY_ID']
             end
-
+            
             if deploy_id and vm.vm_info[:dumpxml].nil?
                 vm.vm_info[:dumpxml] = `#{VNMNetwork::COMMANDS[:virsh]} dumpxml #{deploy_id} 2>/dev/null`
 
@@ -84,6 +84,65 @@ module VNMNetwork
             end
 
             self
+        end
+    end
+
+    # A NIC using LXD. This class implements functions to get the physical
+    # interface that the NIC is using, based on the MAC address
+    class NicLXD < Hash
+        VNMNetwork::HYPERVISORS["lxd"] = self
+
+        def initialize
+            super(nil)
+        end
+
+        # Get the VM information with lxc config show
+        def get_info(vm)
+            if vm.deploy_id
+                deploy_id = vm.deploy_id
+            else
+                deploy_id = vm['DEPLOY_ID']
+            end
+
+            if deploy_id and vm.vm_info[:dumpxml].nil?
+                vm.vm_info[:dumpxml] = YAML.load(`sudo lxc config show #{deploy_id} 2>/dev/null`)
+
+                vm.vm_info.each_key do |k|
+                    vm.vm_info[k] = nil if vm.vm_info[k].to_s.strip.empty?
+                end
+            end
+        end
+
+        # Look for the tap in config
+        def get_tap(vm)
+
+            def find_path(hash,text)
+                path = String.new if not path.is_a?(String)
+                hash.each {|k, v|
+                  if v == text
+                    return k
+                  end
+                  if v.is_a?(Hash)
+                    path = k
+                    tmp=find_path(v,text)
+                  end
+                  return path unless tmp.nil?
+                }
+                return nil
+            end
+
+            dumpxml = vm.vm_info[:dumpxml]
+
+            if dumpxml
+                devices = dumpxml['devices']
+                xpath = find_path(devices, self[:mac])
+            end
+          
+            if xpath
+                self[:tap] = devices[xpath]['host_name'] if devices[xpath]['host_name']
+            end
+
+            self        
         end
     end
 end
