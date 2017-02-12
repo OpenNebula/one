@@ -801,6 +801,10 @@ class VirtualMachine
         @item.PowerOnVM_Task.wait_for_completion
     end
 
+    def poweroff_hard
+        @item.PowerOffVM_Task.wait_for_completion
+    end
+
     def set_running(state)
         value = state ? "yes" : "no"
 
