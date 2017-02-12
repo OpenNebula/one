@@ -29,6 +29,16 @@ class VIHelper
         rc = item.info
         return_if_error(rc, item, exit_if_fail)
     end
+
+    def self.find_by_name(the_class, name, exit_if_fail = true)
+        pool = one_pool(the_class)
+        element = pool.select{|e| e['NAME'] == name }.first rescue nil
+        if element.nil?
+            raise "Could not find element '#{name}' in pool '#{the_class}'"
+        else
+            element
+        end
+    end
 end
 
 end
