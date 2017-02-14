@@ -29,42 +29,39 @@ $: << File.dirname(__FILE__)
 
 require 'vcenter_driver2'
 
-dfile = ARGV[0]
-cluster_name  = ARGV[1]
-vm_id = ARGV[2]
+dfile        = ARGV[0]
+cluster_name = ARGV[1]
+vm_id        = ARGV[2]
 
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(STDIN.read), 'VM')
 
-host_id = drv_action["/VM/HISTORY_RECORDS/HISTORY/HID"]
-
-# lcm_state_num = drv_action["/VM/LCM_STATE"].to_i
-# lcm_state     = OpenNebula::VirtualMachine::LCM_STATE[lcm_state_num]
-
-host = OpenNebula::Host.new_with_id(host_id, OpenNebula::Client.new)
-rc = host.info
-if OpenNebula::is_error?(rc)
-    STDERR.puts rc.message
-    exit -1
-end
+deploy_id    = drv_action["DEPLOY_ID"]
+host_id      = drv_action["HISTORY_RECORDS/HISTORY/HID"]
 
 vi_client = VCenterDriver::VIClient.new_from_host(host_id)
 
-target_ds_id = drv_action['HISTORY_RECORDS/HISTORY[last()]/DS_ID']
-target_ds_one = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, target_ds_id)
-target_ds_ref = target_ds_one['TEMPLATE/VCENTER_DS_REF']
-
 begin
-    # Clone from template
-    vm = VCenterDriver::VirtualMachine.new
+    if deploy_id && !deploy_id.empty?
+        # VM is not new, we just need to reconfigure it and to power it on
+        vm = VCenterDriver::VirtualMachine.new_from_ref(deploy_id, vi_client)
 
-    vm.vi_client     = vi_client
-    vm.one_item      = drv_action
-    vm.host          = host
-    vm.target_ds_ref = target_ds_ref
+        # Setting one_item is optional, but it saves a couple of API calls if
+        # we already have it
+        vm.one_item = drv_action
+    else
+        # VM is new
+        vm = VCenterDriver::VirtualMachine.new
 
-    puts vm.clone_vm
+        # Clone from template
+        vm.clone_vm(drv_action, vi_client)
+    end
 
+    vm.reconfigure
+    vm.poweron
+    vm.set_running(true)
+
+    puts vm['_ref']
 rescue Exception => e
     STDERR.puts "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " +
                 "with #{dfile} failed due to \"#{e.message}\""

@@ -54,7 +54,10 @@ class VirtualMachine
     ############################################################################
 
     # Attributes that must be defined when the VM does not exist in vCenter
-    attr_writer :vi_client
+    attr_accessor :vi_client
+
+    # these have their own getter (if they aren't set, we can set them
+    # dynamically)
     attr_writer :one_item
     attr_writer :host
     attr_writer :target_ds_ref
@@ -258,14 +261,15 @@ class VirtualMachine
     # Crate and reconfigure VM related methods
     ############################################################################
 
-    # When creating a new VM these instance variables must be set beforehand
-    # @vi_client
-    # @one_item
-    # @host
-    #
     # This function creates a new VM from the @one_item XML and returns the
     # VMware ref
-    def clone_vm
+    # @param one_item OpenNebula::VirtualMachine
+    # @param vi_client VCenterDriver::VIClient
+    # @return String vmware ref
+    def clone_vm(one_item, vi_client)
+        @one_item = one_item
+        @vi_client = vi_client
+
         vcenter_name = get_vcenter_name
 
         vc_template_ref = one_item['USER_TEMPLATE/VCENTER_TEMPLATE_REF']
@@ -302,8 +306,8 @@ class VirtualMachine
         end
 
         # @item is populated
-
         @item = vm
+
         return self['_ref']
     end
 
