@@ -53,7 +53,6 @@ drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DAT
 
 ds_ref       = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_REF"]
 host_id      = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
-dc_ref       = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DC_REF"]
 img_id       = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/ID"]
 adapter_type = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/ADAPTER_TYPE"]
 disk_type    = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/DISK_TYPE"]
@@ -66,7 +65,6 @@ check_valid adapter_type, "adapter_type"
 check_valid disk_type, "disk_type"
 check_valid size, "size"
 check_valid ds_ref, "ds_ref"
-check_valid dc_ref, "dc_ref"
 
 # TODO path in vCenter? choose a specific directory
 
@@ -80,9 +78,8 @@ end
 begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
     ds = VCenterDriver::Datastore.new_from_ref(ds_ref, vi_client)
-    dc = VCenterDriver::Datacenter.new_from_ref(dc_ref, vi_client)
 
-    puts ds.create_virtual_disk(dc, img_name, size, adapter_type, disk_type)
+    puts ds.create_virtual_disk(img_name, size, adapter_type, disk_type)
 rescue Exception => e
     STDERR.puts "Error creating virtual disk #{img_src}."\
                 " Reason: #{e.message}"

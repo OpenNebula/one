@@ -74,7 +74,7 @@ class Datastore
         "USED_MB=#{used_mb}\nFREE_MB=#{free_mb} \nTOTAL_MB=#{total_mb}"
     end
 
-    def create_virtual_disk(dc, img_name, size, adapter_type, disk_type)
+    def create_virtual_disk(img_name, size, adapter_type, disk_type)
         ds_name = self['name']
 
         vmdk_spec = RbVmomi::VIM::FileBackedVirtualDiskSpec(
@@ -84,7 +84,7 @@ class Datastore
         )
 
         get_vdm.CreateVirtualDisk_Task(
-          :datacenter => dc.item,
+          :datacenter => get_dc.item,
           :name       => "[#{ds_name}] #{img_name}.vmdk",
           :spec       => vmdk_spec
         ).wait_for_completion
