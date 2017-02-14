@@ -39,6 +39,6 @@ class VIHelper
             element
         end
     end
-end
+end # class VIHelper
 
-end
+end # module VCenterDriver
