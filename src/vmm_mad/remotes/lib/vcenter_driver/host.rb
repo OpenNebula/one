@@ -185,6 +185,14 @@ class ClusterComputeResource
     def monitor_vms_in_rp(rp)
         str_info = ""
 
+        host_pool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool)
+
+        ccr_host = {}
+        host_pool.each do |host|
+            ccr = host['TEMPLATE/VCENTER_CCR_REF']
+            ccr_host[ccr] = host['ID'] if ccr
+        end
+
         rp.vm.each do |v|
             begin
                 vm = VirtualMachine.new(v)
@@ -218,15 +226,16 @@ class ClusterComputeResource
 
                 next if !vm["config"]
 
+
                 str_info << %Q{
                 VM = [
                     ID="#{number}",
                     VM_NAME="#{vm["name"]} - #{vm["runtime.host.parent.name"]}",
-                    DEPLOY_ID="#{vm["config.uuid"]}",
+                    DEPLOY_ID="#{vm["_ref"]}",
                 }
 
                 if number == -1
-                    vm_template_64 = Base64.encode64(vm.to_one).gsub("\n","")
+                    vm_template_64 = Base64.encode64(vm.to_one(ccr_host)).gsub("\n","")
 
                     str_info << "IMPORT_TEMPLATE=\"#{vm_template_64}\","
                 end

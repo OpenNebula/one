@@ -822,9 +822,13 @@ class VirtualMachine
     # monitoring
     ############################################################################
 
-    # @param vm CachedItem (of RbVmomi::VIM::VirtualMachine)
-    def to_one
+    # @param ccr_host Hash that holds the relationship between the vcenter's ref
+    # and the host in OpenNebula
+    def to_one(ccr_host)
         cluster = self["runtime.host.parent.name"]
+
+        ccr     = self["runtime.host.parent._ref"]
+        host_id = ccr_host[ccr]
 
         str = %Q{
             NAME   = "#{self["name"]} - #{cluster}"
@@ -834,20 +838,14 @@ class VirtualMachine
 
             HYPERVISOR = "vcenter"
 
-            PUBLIC_CLOUD = [
-              TYPE        ="vcenter",
-              VM_TEMPLATE ="#{self["config.uuid"]}",
-              VCENTER_REF ="#{self["_ref"]}",
-              VCENTER_NAME="#{self["name"]}",
-              HOST        ="#{cluster}"
-            ]
+            VCENTER_REF ="#{self["_ref"]}"
 
             GRAPHICS = [
               TYPE     ="vnc",
               LISTEN   ="0.0.0.0"
             ]
 
-            SCHED_REQUIREMENTS="NAME=\\\"#{cluster}\\\""
+            SCHED_REQUIREMENTS="ID=\\\"#{host_id}\\\""
 
             CONTEXT = [
               NETWORK = "YES",
@@ -917,8 +915,6 @@ class VirtualMachine
         ########################################################################
         # PerfManager metrics
         ########################################################################
-        require 'pry'
-
         pm = self['_connection'].serviceInstance.content.perfManager
 
         provider = pm.provider_summary(@item)
