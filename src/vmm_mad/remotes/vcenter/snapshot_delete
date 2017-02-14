@@ -35,8 +35,6 @@ vc_cluster_name = ARGV[3]
 
 begin
 
-    File.open('/tmp/args','w'){|f| f.puts(ARGV.join(" "))}
-
     vi_client = VCenterDriver::VIClient.new_from_hostname(vc_cluster_name)
 
     vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
