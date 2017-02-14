@@ -69,6 +69,27 @@ class VIClient
         self.new(connection)
     end
 
+    def self.new_from_hostname(hostname)
+        client = OpenNebula::Client.new
+        host_pool = OpenNebula::HostPool.new(client)
+        rc = host_pool.info
+        if OpenNebula.is_error?(rc)
+            puts "Error getting oned configuration : #{rc.message}"
+            exit -1
+        end
+
+        host_id = host_pool.select do |host_element|
+            host_element.name == hostname
+        end.first.id rescue nil
+
+        if host_id
+            new_from_host(host_id)
+        else
+            puts "Could not find host_id for host: #{hostname}"
+            exit -1
+        end
+    end
+
     def self.decrypt(msg, token)
         begin
             cipher = OpenSSL::Cipher.new("aes-256-cbc")
