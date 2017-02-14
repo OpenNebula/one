@@ -27,19 +27,24 @@ end
 $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
-require 'vcenter_driver'
+require 'vcenter_driver2'
 
-deploy_id = ARGV[0]
-mac       = ARGV[1]
-host      = ARGV[3]
-
+vm_ref = ARGV[0]
+mac = ARGV[1]
+vc_cluster_name = ARGV[3]
 
 begin
-    VCenterDriver::VCenterVm.detach_nic(deploy_id,
-                                        mac,
-                                        host)
+
+    vi_client = VCenterDriver::VIClient.new_from_hostname(vc_cluster_name)
+
+    vm = VCenterDriver::VirtualMachine.new_from_ref(vi_client, vm_ref)
+
+    nic = { "MAC" => mac }
+
+    vm.detach_nic(nic)
+
 rescue Exception => e
-    STDERR.puts "Detach NIC for VM #{deploy_id} on host #{host} failed " +
-                "due to \"#{e.message}\""
-    exit -1
+    STDERR.puts "Detach NIC for VM #{vm_ref} on vCenter cluster #{vc_cluster_name} "\
+                "failed due to \"#{e.message}\""
+    exit(-1)
 end
