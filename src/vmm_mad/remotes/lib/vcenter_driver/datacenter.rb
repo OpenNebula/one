@@ -3,8 +3,8 @@ module VCenterDriver
 class DatacenterFolder
     attr_accessor :items
 
-    def initialize(vcenter_client)
-        @vcenter_client = vcenter_client
+    def initialize(vi_client)
+        @vi_client = vi_client
         @items = {}
     end
 
@@ -14,7 +14,7 @@ class DatacenterFolder
     #   { dc_ref [Symbol] => Datacenter object }
     ########################################################################
     def fetch!
-        VIClient.get_entities(@vcenter_client.vim.root, "Datacenter").each do |item|
+        VIClient.get_entities(@vi_client.vim.root, "Datacenter").each do |item|
             item_name = item._ref
             @items[item_name.to_sym] = Datacenter.new(item)
         end
@@ -27,7 +27,7 @@ class DatacenterFolder
     ########################################################################
     def get(ref)
         if !@items[ref.to_sym]
-            rbvmomi_dc = RbVmomi::VIM::Datacenter.new(@vcenter_client.vim, ref)
+            rbvmomi_dc = RbVmomi::VIM::Datacenter.new(@vi_client.vim, ref)
             @items[ref.to_sym] = Datacenter.new(rbvmomi_dc)
         end
 
@@ -38,12 +38,13 @@ end # class DatatacenterFolder
 class Datacenter
     attr_accessor :item
 
-    def initialize(item)
+    def initialize(item, vi_client=nil)
         if !item.instance_of? RbVmomi::VIM::Datacenter
             raise "Expecting type 'RbVmomi::VIM::Datacenter'. " <<
                   "Got '#{item.class} instead."
         end
 
+        @vi_client = vi_client
         @item = item
     end
 
@@ -63,9 +64,8 @@ class Datacenter
         NetworkFolder.new(@item.networkFolder)
     end
 
-    # This is never cached
-    def self.new_from_ref(vi_client, ref)
-        self.new(RbVmomi::VIM::Datacenter.new(vi_client.vim, ref))
+    def self.new_from_ref(ref, vi_client)
+        self.new(RbVmomi::VIM::Datacenter.new(vi_client.vim, ref), vi_client)
     end
 end
 

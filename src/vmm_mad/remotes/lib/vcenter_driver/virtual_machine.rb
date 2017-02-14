@@ -120,7 +120,7 @@ class VirtualMachine
     def cluster
         if @cluster.nil?
             ccr_ref = host['TEMPLATE/VCENTER_CCR_REF']
-            @cluster = ClusterComputeResource.new_from_ref(vi_client, ccr_ref)
+            @cluster = ClusterComputeResource.new_from_ref(ccr_ref, vi_client)
         end
 
         @cluster
@@ -242,7 +242,7 @@ class VirtualMachine
             end
         end
 
-        VCenterDriver::Datastore.new_from_ref(vi_client, ds_ref)
+        VCenterDriver::Datastore.new_from_ref(ds_ref, vi_client)
     end
 
     # @return String vcenter name
@@ -1300,7 +1300,7 @@ class VirtualMachine
     end
 
     # TODO check with uuid
-    def self.new_from_ref(vi_client, ref)
+    def self.new_from_ref(ref, vi_client)
         self.new(RbVmomi::VIM::VirtualMachine.new(vi_client.vim, ref), vi_client)
     end
 

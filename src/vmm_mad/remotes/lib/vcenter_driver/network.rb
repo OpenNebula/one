@@ -38,18 +38,19 @@ end # class NetworkFolder
 class Network
     attr_accessor :item
 
-    def initialize(item)
+    def initialize(item, vi_client=nil)
         if !item.instance_of? RbVmomi::VIM::Network
             raise "Expecting type 'RbVmomi::VIM::Network'. " <<
                   "Got '#{item.class} instead."
         end
 
+        @vi_client = vi_client
         @item = item
     end
 
     # This is never cached
-    def self.new_from_ref(vi_client, ref)
-        self.new(RbVmomi::VIM::Network.new(vi_client.vim, ref))
+    def self.new_from_ref(ref, vi_client)
+        self.new(RbVmomi::VIM::Network.new(vi_client.vim, ref), vi_client)
     end
 end # class Network
 

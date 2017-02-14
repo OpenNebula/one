@@ -55,7 +55,7 @@ class Datastore
 
     include Memoize
 
-    def initialize(item)
+    def initialize(item, vi_client=nil)
         if !item.instance_of? RbVmomi::VIM::Datastore
             raise "Expecting type 'RbVmomi::VIM::Datastore'. " <<
                   "Got '#{item.class} instead."
@@ -136,8 +136,8 @@ class Datastore
     end
 
     # This is never cached
-    def self.new_from_ref(vi_client, ref)
-        self.new(RbVmomi::VIM::Datastore.new(vi_client.vim, ref))
+    def self.new_from_ref(ref, vi_client)
+        self.new(RbVmomi::VIM::Datastore.new(vi_client.vim, ref), vi_client)
     end
 end # class Datastore
 

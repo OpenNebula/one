@@ -37,7 +37,7 @@ begin
 
     vi_client = VCenterDriver::VIClient.new_from_hostname(vc_cluster_name)
 
-    vm = VCenterDriver::VirtualMachine.new_from_ref(vi_client, vm_ref)
+    vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
 
     vm.revert_snapshot(snapshot_name)
 

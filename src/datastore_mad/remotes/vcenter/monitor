@@ -48,6 +48,6 @@ if host_id.nil? || ds_ref.nil?
 end
 
 vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-ds = VCenterDriver::Datastore.new_from_ref(vi_client, ds_ref)
+ds = VCenterDriver::Datastore.new_from_ref(ds_ref, vi_client)
 
 puts ds.monitor

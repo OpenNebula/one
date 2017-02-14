@@ -30,8 +30,9 @@ class ClusterComputeResource
 
     include Memoize
 
-    def initialize(item)
+    def initialize(item, vi_client=nil)
         @item = item
+        @vi_client = vi_client
     end
 
     def fetch_resource_pools(rp, rp_array = [])
@@ -280,8 +281,8 @@ class ClusterComputeResource
         Datacenter.new(item)
     end
 
-    def self.new_from_ref(vi_client, ref)
-        self.new(RbVmomi::VIM::ClusterComputeResource.new(vi_client.vim, ref))
+    def self.new_from_ref(ref, vi_client)
+        self.new(RbVmomi::VIM::ClusterComputeResource.new(vi_client.vim, ref), vi_client)
     end
 end # class ClusterComputeResource
 

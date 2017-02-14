@@ -48,7 +48,7 @@ end
 ccr_ref = host["TEMPLATE/VCENTER_CCR_REF"]
 
 # Get vCenter Cluster
-cluster = VCenterDriver::ClusterComputeResource.new_from_ref(vi_client, ccr_ref)
+cluster = VCenterDriver::ClusterComputeResource.new_from_ref(ccr_ref, vi_client)
 
 # Print monitoring info
 puts cluster.monitor

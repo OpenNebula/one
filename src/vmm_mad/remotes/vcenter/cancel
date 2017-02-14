@@ -44,7 +44,7 @@ begin
 
     vm_ref = drv_action['VM/DEPLOY_ID']
 
-    vm = VCenterDriver::VirtualMachine.new_from_ref(vi_client, vm_ref)
+    vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
     vm.one_item = drv_action.retrieve_xmlelements('VM').first
 
     vm.poweroff_hard
