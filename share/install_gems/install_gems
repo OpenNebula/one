@@ -42,7 +42,7 @@ GROUPS={
     :ec2_hybrid => 'aws-sdk --version "~> 2.5"',
     :oca        => 'ox',
     :market     => 'aws-sdk',
-    :onedb      => "mysql"
+    :onedb      => "mysql2"
 }
 
 PACKAGES=GROUPS.keys
@@ -58,7 +58,7 @@ DISTRIBUTIONS={
         :dependencies_common => ['ruby-dev', 'make'],
         :dependencies => {
             SQLITE      => ['gcc', 'libsqlite3-dev'],
-            'mysql'     => ['gcc', 'libmysqlclient-dev'],
+            'mysql2'     => ['gcc', 'libmysqlclient-dev'],
             'curb'      => ['gcc', 'libcurl4-openssl-dev'],
             $nokogiri   => %w{gcc rake libxml2-dev libxslt1-dev patch},
             'xmlparser' => ['gcc', 'libexpat1-dev'],
@@ -76,7 +76,7 @@ DISTRIBUTIONS={
         :dependencies_common => ['ruby-devel', 'make'],
         :dependencies => {
             SQLITE      => ['gcc', 'sqlite-devel'],
-            'mysql'     => ['gcc', 'mysql-devel', 'openssl-devel'],
+            'mysql2'     => ['gcc', 'mysql-devel', 'openssl-devel'],
             'curb'      => ['gcc', 'curl-devel'],
             $nokogiri   => %w{gcc rubygem-rake libxml2-devel libxslt-devel patch},
             'xmlparser' => ['gcc', 'expat-devel'],

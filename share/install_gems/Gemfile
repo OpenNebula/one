@@ -32,7 +32,7 @@ gem 'trollop'               # vmware
 gem 'parse-cron'            # oneflow
 gem 'aws-sdk', '~> 2.5'     # ec2_hybrid
 gem 'ox'                    # oca
-gem 'mysql'                 # onedb
+gem 'mysql2'                # onedb
 
 
 
