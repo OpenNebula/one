@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -30,6 +30,8 @@ $: << File.dirname(__FILE__)
 require 'vcenter_driver2'
 require 'opennebula'
 
+dfile = ARGV[0]
+cluster_name  = ARGV[1]
 vm_id = ARGV[2]
 
 drv_action = OpenNebula::XMLElement.new
@@ -53,12 +55,19 @@ target_ds_id = drv_action['HISTORY_RECORDS/HISTORY[last()]/DS_ID']
 target_ds_one = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, target_ds_id)
 target_ds_ref = target_ds_one['TEMPLATE/VCENTER_DS_REF']
 
-# Clone from template
-vm = VCenterDriver::VirtualMachine.new
+begin
+    # Clone from template
+    vm = VCenterDriver::VirtualMachine.new
 
-vm.vi_client     = vi_client
-vm.one_item      = drv_action
-vm.host          = host
-vm.target_ds_ref = target_ds_ref
+    vm.vi_client     = vi_client
+    vm.one_item      = drv_action
+    vm.host          = host
+    vm.target_ds_ref = target_ds_ref
 
-puts vm.clone_vm
+    puts vm.clone_vm
+
+rescue Exception => e
+    STDERR.puts "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " +
+                "with #{dfile} failed due to \"#{e.message}\""
+    exit -1
+end
