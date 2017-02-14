@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -27,18 +27,22 @@ end
 $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
-require 'vcenter_driver'
+require 'vcenter_driver2'
 
-deploy_id     = ARGV[0]
+vm_ref = ARGV[0]
 snapshot_name = ARGV[1]
-host          = ARGV[3]
+vc_cluster_name = ARGV[3]
 
 begin
-    puts VCenterDriver::VCenterVm.create_snapshot(deploy_id,
-                                                  host,
-                                                  snapshot_name)
+
+    vi_client = VCenterDriver::VIClient.new_from_hostname(vc_cluster_name)
+
+    vm = VCenterDriver::VirtualMachine.new_from_ref(vi_client, vm_ref)
+
+    vm.create_snapshot(snapshot_name, vm_ref)
+
 rescue Exception => e
-    STDERR.puts "Snapshot of VM #{deploy_id} on host #{host} failed " +
-                "due to \"#{e.message}\""
-    exit -1
+    STDERR.puts "Snapshot of VM #{vm_ref} on vCenter cluster "\
+                "#{vc_cluster_name} failed due to \"#{e.message}\""
+    exit(-1)
 end

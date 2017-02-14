@@ -27,18 +27,23 @@ end
 $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
-require 'vcenter_driver'
+require 'vcenter_driver2'
 
-deploy_id     = ARGV[0]
+vm_ref = ARGV[0]
 snapshot_name = ARGV[1]
-host          = ARGV[3]
+vc_cluster_name = ARGV[3]
 
 begin
-    VCenterDriver::VCenterVm.revert_snapshot(deploy_id,
-                                             host,
-                                             snapshot_name)
+
+    vi_client = VCenterDriver::VIClient.new_from_hostname(vc_cluster_name)
+
+    vm = VCenterDriver::VirtualMachine.new_from_ref(vi_client, vm_ref)
+
+    vm.revert_snapshot(snapshot_name)
+
 rescue Exception => e
-    STDERR.puts "Snapshot of VM #{deploy_id} on host #{host} could not be " +
-                "reverted due to \"#{e.message}\""
-    exit -1
+    STDERR.puts "Snapshot of VM #{vm_ref} on vCenter cluster "\
+                "#{vc_cluster_name} could not be reverted due "\
+                "to \"#{e.message}\""
+    exit(-1)
 end
