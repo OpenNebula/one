@@ -304,12 +304,7 @@ class VirtualMachine
         # @item is populated
 
         @item = vm
-
-        reconfigure
-        poweron
-        set_running(true)
-
-        return @item._ref
+        return self['_ref']
     end
 
 
