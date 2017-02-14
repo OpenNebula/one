@@ -32,7 +32,6 @@ $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
 require 'vcenter_driver2'
-require 'opennebula'
 
 drv_action_enc = ARGV[0]
 id             = ARGV[1]

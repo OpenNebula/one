@@ -27,7 +27,6 @@ end
 $: << RUBY_LIB_LOCATION
 
 require 'vcenter_driver2'
-require 'opennebula'
 
 host_id = ARGV[4]
 

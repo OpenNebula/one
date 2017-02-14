@@ -28,7 +28,6 @@ $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
 require 'vcenter_driver2'
-require 'opennebula'
 
 dfile = ARGV[0]
 cluster_name  = ARGV[1]
