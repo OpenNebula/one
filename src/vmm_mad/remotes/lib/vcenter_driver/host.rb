@@ -158,15 +158,15 @@ class ClusterComputeResource
 
             host_info << "\nHOST=["
             host_info << "STATE=on,"
-            host_info << "HOSTNAME=\""  << h.name.to_s  << "\","
+            host_info << "HOSTNAME=\""  << h.name.to_s       << "\","
             host_info << "MODELNAME=\"" << hw.cpuModel.to_s  << "\","
             host_info << "CPUSPEED="    << hw.cpuMhz.to_s    << ","
-            host_info << "MAX_CPU="    << total_cpu.to_s << ","
-            host_info << "USED_CPU="     << used_cpu.to_s  << ","
-            host_info << "FREE_CPU="     << free_cpu.to_s << ","
-            host_info << "MAX_MEM=" << total_memory.to_s << ","
-            host_info << "USED_MEM="  << used_memory.to_s  << ","
-            host_info << "FREE_MEM="  << free_memory.to_s
+            host_info << "MAX_CPU="     << total_cpu.to_s    << ","
+            host_info << "USED_CPU="    << used_cpu.to_s     << ","
+            host_info << "FREE_CPU="    << free_cpu.to_s     << ","
+            host_info << "MAX_MEM="     << total_memory.to_s << ","
+            host_info << "USED_MEM="    << used_memory.to_s  << ","
+            host_info << "FREE_MEM="    << free_memory.to_s
             host_info << "]"
         end
 
