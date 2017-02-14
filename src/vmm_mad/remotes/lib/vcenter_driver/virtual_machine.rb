@@ -45,26 +45,25 @@ class VirtualMachine
 
     include Memoize
 
-    def initialize(item=nil)
+    def initialize(item=nil, vi_client=nil)
         @item = item
+        @vi_client = vi_client
     end
 
     ############################################################################
     ############################################################################
 
-    # VM XMLElement
-    attr_accessor :one_item
+    # Attributes that must be defined when the VM does not exist in vCenter
+    attr_writer :vi_client
+    attr_writer :one_item
+    attr_writer :host
+    attr_writer :target_ds_ref
 
-    # OpenNebula host
-    attr_accessor :host
+    ############################################################################
+    ############################################################################
 
-    # Target Datastore VMware reference (must be defined when VM is new)
-    attr_accessor :target_ds_ref
-
-    # vi_client setter (must be used when the VM does not exist in vCenter)
-    attr_accessor :vi_client
-
-    # Cached one_item
+    # The OpenNebula VM
+    # @return OpenNebula::VirtualMachine or XMLElement
     def one_item
         if @one_item.nil?
             vm_id = get_vm_id
@@ -77,18 +76,53 @@ class VirtualMachine
         @one_item
     end
 
-    # one_item setter (must be used when the VM does not exist in vCenter)
-    def one_item=(one_item)
-        @one_item = one_item
+    # The OpenNebula host
+    # @return OpenNebula::Host or XMLElement
+    def host
+        if @host.nil?
+            if one_item.nil?
+                raise "'one_item' must be previously set to be able to " <<
+                      "access the OpenNebula host."
+            end
+
+            host_id = one_item["HISTORY_RECORDS/HISTORY/HID"]
+            raise "No valid host_id found." if host_id.nil?
+
+            @host = VIHelper.one_item(OpenNebula::Host, host_id)
+        end
+
+        @host
+    end
+
+    # Target Datastore VMware reference getter
+    # @return
+    def target_ds_ref
+        if @target_ds_ref.nil?
+            if one_item.nil?
+                raise "'one_item' must be previously set to be able to " <<
+                      "access the target Datastore."
+            end
+
+            target_ds_id = one_item["HISTORY_RECORDS/HISTORY[last()]/DS_ID"]
+            raise "No valid target_ds_id found." if target_ds_id.nil?
+
+            target_ds = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore,
+                                                         target_ds_id)
+
+            @target_ds_ref = target_ds['TEMPLATE/VCENTER_DS_REF']
+        end
+
+        @target_ds_ref
     end
 
     # Cached cluster
     # @return ClusterComputeResource
     def cluster
         if @cluster.nil?
-            ccr_ref = @host['TEMPLATE/VCENTER_CCR_REF']
+            ccr_ref = host['TEMPLATE/VCENTER_CCR_REF']
             @cluster = ClusterComputeResource.new_from_ref(vi_client, ccr_ref)
         end
+
         @cluster
     end
 
@@ -201,7 +235,7 @@ class VirtualMachine
         if disk["PERSISTENT"] == "YES"
             ds_ref = disk["VCENTER_DS_REF"]
         else
-            ds_ref = @target_ds_ref
+            ds_ref = target_ds_ref
 
             if ds_ref.nil?
                 raise "target_ds_ref must be defined on this object."
@@ -213,7 +247,7 @@ class VirtualMachine
 
     # @return String vcenter name
     def get_vcenter_name
-        vm_prefix = @host['TEMPLATE/VM_PREFIX']
+        vm_prefix = host['TEMPLATE/VM_PREFIX']
         vm_prefix = VM_PREFIX_DEFAULT if vm_prefix.nil? || vm_prefix.empty?
         vm_prefix.gsub!("$i", one_item['ID'])
 
@@ -224,7 +258,7 @@ class VirtualMachine
     # Crate and reconfigure VM related methods
     ############################################################################
 
-    # When creating a new these instance variables must be set beforehand
+    # When creating a new VM these instance variables must be set beforehand
     # @vi_client
     # @one_item
     # @host
@@ -1267,7 +1301,7 @@ class VirtualMachine
 
     # TODO check with uuid
     def self.new_from_ref(vi_client, ref)
-        self.new(RbVmomi::VIM::VirtualMachine.new(vi_client.vim, ref))
+        self.new(RbVmomi::VIM::VirtualMachine.new(vi_client.vim, ref), vi_client)
     end
 
 end # class VirtualMachine
