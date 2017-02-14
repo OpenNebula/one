@@ -140,7 +140,8 @@ class VirtualMachine
 
     # @return RbVmomi::VIM::Datastore or nil
     def get_ds
-        req_ds = one_item['USER_TEMPLATE/VCENTER_DATASTORE']
+        # Todo remove this comment req_ds = one_item['USER_TEMPLATE/VCENTER_DATASTORE']
+        req_ds = one_item['USER_TEMPLATE/VCENTER_DS_REF']
 
         if req_ds
             dc = cluster.get_dc
@@ -325,7 +326,7 @@ class VirtualMachine
         # get vmid
         extraconfig += extraconfig_vmid
 
-        # get token
+        # get token and context
         extraconfig += extraconfig_context
 
         # vnc configuration (for config_array hash)
@@ -460,7 +461,7 @@ class VirtualMachine
             device_change += detach_nic_array
         end
 
-        return if nics.empty?
+        return [] if nics.empty?
 
         # Attach new nics (nics now contains only the interfaces not present
         # in the VM in vCenter)
@@ -574,6 +575,89 @@ class VirtualMachine
         }
     end
 
+    # Add NIC to VM
+    def attach_nic(nic)
+
+        spec_hash = {}
+
+        # A new NIC requires a vcenter spec
+        attach_nic_array = []
+        attach_nic_array << calculate_add_nic_spec(nic)
+        spec_hash[:deviceChange] = attach_nic_array if !attach_nic_array.empty?
+
+        # Get mac addresses plugged to the VM B#4897
+        hotplugged_nics = self["config.extraConfig"].select do |val|
+            val[:key] == "opennebula.hotplugged_nics"
+        end.first[:value].to_s.split(";") rescue nil
+
+        # Include MAC in opennebula.hotplugged_nics variable
+        if hotplugged_nics && !hotplugged_nics.empty?
+            if !hotplugged_nics.include?(nic["MAC"])
+                hotplugged_nics << nic["MAC"]
+            end
+        else
+            hotplugged_nics = []
+            hotplugged_nics << nic["MAC"]
+        end
+
+        spec_hash[:extraConfig] = [{
+            :key=>"opennebula.hotplugged_nics",
+            :value=>hotplugged_nics.join(";")}]
+
+        # Reconfigure VM
+        spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+
+        begin
+            @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+        rescue Exception => e
+            raise "Cannot attach NIC to VM: #{e.message}"
+        end
+
+    end
+
+    # Detach NIC from VM
+    def detach_nic(nic)
+
+        spec_hash = {}
+
+        mac = nic["MAC"]
+
+        # Get VM nic element if it has a device with that mac
+        nic_device = self["config.hardware.device"].find do |device|
+                is_nic?(device) && (device.macAddress ==  mac)
+        end rescue nil
+
+        raise "Could not find NIC with mac address #{mac}" if nic_device.nil?
+
+        # Get mac addresses plugged to the VM B#4897
+        hotplugged_nics = self["config.extraConfig"].select do |val|
+            val[:key] == "opennebula.hotplugged_nics"
+        end.first[:value].to_s.split(";") rescue nil
+
+        # Remove MAC from opennebula.hotplugged_nics variable if included
+        if hotplugged_nics &&
+            !hotplugged_nics.empty? && hotplugged_nics.include?(mac)
+
+            hotplugged_nics.delete(mac)
+
+            spec_hash[:extraConfig] = [{
+                :key=>"opennebula.hotplugged_nics",
+                :value=>hotplugged_nics.join(";")}]
+        end
+
+        # Remove NIC from VM in the ReconfigVM_Task
+        spec_hash[:deviceChange] = [
+                :operation => :remove,
+                :device => nic_device ]
+
+        begin
+            @item.ReconfigVM_Task(:spec => spec_hash).wait_for_completion
+        rescue Exception => e
+            raise "Cannot detach NIC from VM: #{e.message}"
+        end
+
+    end
+
     #  Checks if a RbVmomi::VIM::VirtualDevice is a network interface
     def is_nic?(device)
         !device.class.ancestors.index(RbVmomi::VIM::VirtualEthernetCard).nil?
@@ -597,7 +681,7 @@ class VirtualMachine
             end
         end
 
-        return if disks.nil?
+        return [] if disks.nil?
 
         position = 0
         attach_disk_array = []
@@ -793,6 +877,72 @@ class VirtualMachine
         return controller
     end
 
+    # Create a snapshot for the VM
+    def create_snapshot(snapshot_name, vm_ref)
+        snapshot_hash = {
+            :name => snapshot_name,
+            :description => "OpenNebula Snapshot of VM #{vm_ref}",
+            :memory => true,
+            :quiesce => true
+        }
+
+        begin
+            @item.CreateSnapshot_Task(snapshot_hash).wait_for_completion
+        rescue Exception => e
+            raise "Cannot create snapshot for VM: #{e.message}"
+        end
+
+        return snapshot_name
+    end
+
+    # Revert to a VM snapshot
+    def revert_snapshot(snapshot_name)
+
+        snapshot_list = self["snapshot.rootSnapshotList"]
+        snapshot = find_snapshot_in_list(snapshot_list, snapshot_name)
+
+        return nil if !snapshot
+
+        begin
+            revert_snapshot_hash = { :_this => snapshot }
+            snapshot.RevertToSnapshot_Task(revert_snapshot_hash).wait_for_completion
+        rescue Exception => e
+            raise "Cannot revert snapshot of VM: #{e.message}"
+        end
+    end
+
+    # Delete VM snapshot
+    def delete_snapshot(snapshot_name)
+
+        snapshot_list = self["snapshot.rootSnapshotList"]
+        snapshot = find_snapshot_in_list(snapshot_list, snapshot_name)
+
+        return nil if !snapshot
+
+        begin
+            delete_snapshot_hash = {
+                :_this => snapshot,
+                :removeChildren => false
+            }
+            snapshot.RemoveSnapshot_Task(delete_snapshot_hash).wait_for_completion
+        rescue Exception => e
+            raise "Cannot delete snapshot of VM: #{e.message}"
+        end
+    end
+
+    def find_snapshot_in_list(list, snapshot_name)
+        list.each do |i|
+            if i.name == snapshot_name
+                return i.snapshot
+            elsif !i.childSnapshotList.empty?
+                snap = find_snapshot(i.childSnapshotList, snapshot_name)
+                return snap if snap
+            end
+        end rescue nil
+
+        nil
+    end
+
     ############################################################################
     # actions
     ############################################################################
@@ -830,28 +980,40 @@ class VirtualMachine
         ccr     = self["runtime.host.parent._ref"]
         host_id = ccr_host[ccr]
 
-        str = %Q{
-            NAME   = "#{self["name"]} - #{cluster}"
-            CPU    = "#{self["config.hardware.numCPU"]}"
-            vCPU   = "#{self["config.hardware.numCPU"]}"
-            MEMORY = "#{self["config.hardware.memoryMB"]}"
+        str = "NAME   = \"#{self["name"]} - #{cluster}\"\n"\
+              "CPU    = \"#{self["config.hardware.numCPU"]}\"\n"\
+              "vCPU   = \"#{self["config.hardware.numCPU"]}\"\n"\
+              "MEMORY = \"#{self["config.hardware.memoryMB"]}\"\n"\
+              "HYPERVISOR = \"vcenter\"\n"\
+              "IMPORT_VM_ID =\"#{self["config.uuid"]}\"\n"\
+              "IMPORT_STATE =\"#{@state}\"\n"\
+              "SCHED_REQUIREMENTS=\"ID=\\\"#{host_id}\\\"\"\n"\
+              "CONTEXT = [\n"\
+              "    NETWORK = \"YES\",\n"\
+              "    SSH_PUBLIC_KEY = \"$USER[SSH_PUBLIC_KEY]\"\n"\
+              "]\n"
 
-            HYPERVISOR = "vcenter"
+        vnc_port = nil
+        keymap = nil
+        self["config.extraConfig"].select do |xtra|
 
-            VCENTER_REF ="#{self["_ref"]}"
+            if xtra[:key].downcase=="remotedisplay.vnc.port"
+                vnc_port = xtra[:value]
+            end
 
-            GRAPHICS = [
-              TYPE     ="vnc",
-              LISTEN   ="0.0.0.0"
-            ]
+            if xtra[:key].downcase=="remotedisplay.vnc.keymap"
+                keymap = xtra[:value]
+            end
+        end
 
-            SCHED_REQUIREMENTS="ID=\\\"#{host_id}\\\""
-
-            CONTEXT = [
-              NETWORK = "YES",
-              SSH_PUBLIC_KEY = "$USER[SSH_PUBLIC_KEY]"
-            ]
-        }
+        if self["config.extraConfig"].size > 0
+            str << "GRAPHICS = [\n"\
+                   "  TYPE     =\"vnc\",\n"\
+                   "  LISTEN   =\"0.0.0.0\",\n"
+            str << "  PORT     =\"#{vnc_port}\",\n" if vnc_port
+            str << "  KEYMAP   =\"#{keymap}\"\n" if keymap
+            str << "]\n"
+        end
 
         if self["config.annotation"].nil? || self["config.annotation"].empty?
             str << "DESCRIPTION = \"vCenter Template imported by OpenNebula" \
