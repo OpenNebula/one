@@ -29,10 +29,10 @@ $: << File.dirname(__FILE__)
 
 require 'vcenter_driver2'
 
-vm_ref = ARGV[0]
-mac       = ARGV[1]
-bridge    = ARGV[2]
-model     = ARGV[3]
+vm_ref           = ARGV[0]
+mac              = ARGV[1]
+bridge           = ARGV[2]
+model            = ARGV[3]
 vc_cluster_name  = ARGV[-1]
 
 begin
