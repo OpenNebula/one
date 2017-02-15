@@ -33,7 +33,11 @@ vm_ref           = ARGV[0]
 mac              = ARGV[1]
 bridge           = ARGV[2]
 model            = ARGV[3]
+xml_data         = ARGV[4]
 vc_cluster_name  = ARGV[-1]
+
+drv_action = OpenNebula::XMLElement.new
+drv_action.initialize_xml(xml_data, 'VM')
 
 host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, vc_cluster_name)
 host_id = host['ID']
@@ -42,6 +46,9 @@ begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
 
     vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
+
+    # Setting one_item with info with xml_data including NIC to be added
+    vm.one_item = drv_action
 
     nic = {
         "MAC" => mac,
