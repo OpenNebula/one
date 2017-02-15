@@ -92,12 +92,12 @@ class Datastore
         "#{img_name}.vmdk"
     end
 
-    def delete_virtual_disk(dc, img_name)
+    def delete_virtual_disk(img_name)
         ds_name = self['name']
 
         get_vdm.DeleteVirtualDisk_Task(
-          name: "[#{ds_name}] #{img_name}",
-          datacenter: dc.item
+          :name => "[#{ds_name}] #{img_name}",
+          :datacenter => get_dc.item
         ).wait_for_completion
     end
 
