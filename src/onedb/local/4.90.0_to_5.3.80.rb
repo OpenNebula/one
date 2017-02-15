@@ -101,7 +101,7 @@ module Migrator
     ############################################################################
     def feature_5005
         @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
-        @db.run host_pool_schema()
+        @db.run vm_pool_schema()
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_vm_pool") do |row|
@@ -110,7 +110,7 @@ module Migrator
                   c.default_xml.noblanks
                 }
 
-                doc.root.xpath(HISTORY_RECORDS/HISTORY).each do |h|
+                doc.root.xpath("HISTORY_RECORDS/HISTORY").each do |h|
                     reason = h.xpath("REASON")
                     reason.unlink if !reason.nil?
 
@@ -127,8 +127,8 @@ module Migrator
 
                 @db[:vm_pool].insert(row)
             end
+        end
 
-          end
         @db.run "DROP TABLE old_vm_pool;"
     end
 end
