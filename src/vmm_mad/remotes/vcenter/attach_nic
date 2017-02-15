@@ -37,7 +37,10 @@ vc_cluster_name  = ARGV[-1]
 
 begin
 
-    vi_client = VCenterDriver::VIClient.new_from_hostname(vc_cluster_name)
+    host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, vc_cluster_name)
+    host_id = host['ID']
+
+    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
 
     vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
 
