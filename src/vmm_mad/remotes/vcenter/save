@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -27,27 +27,54 @@ end
 $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
-require 'vcenter_driver'
-require 'opennebula'
+require 'vcenter_driver2'
 
-deploy_id = ARGV[0]
-file      = ARGV[1]
-host      = ARGV[2]
-vm_id     = ARGV[-2]
+################################################################################
+
+def check_valid(parameter, label)
+    if parameter.nil? || parameter.empty?
+        STDERR.puts "Not enough information to save the VM. " +
+                    "Missing '#{label}'."
+        exit -1
+    end
+end
+
+################################################################################
+
+vm_ref          = ARGV[0]
+vc_cluster_name = ARGV[-1]
+
+host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, vc_cluster_name)
+host_id = host['ID']
 
 drv_action_enc = STDIN.read.gsub("\n","")
-
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc),
                           'VMM_DRIVER_ACTION_DATA')
 
-lcm_state_num = drv_action["/VMM_DRIVER_ACTION_DATA/VM/LCM_STATE"].to_i
-lcm_state     = OpenNebula::VirtualMachine::LCM_STATE[lcm_state_num]
+lcm_state = drv_action["/VMM_DRIVER_ACTION_DATA/VM/LCM_STATE"]
+check_valid(lcm_state, "lcm_state")
+lcm_state_str = OpenNebula::VirtualMachine::LCM_STATE[lcm_state.to_i]
+
+if lcm_state_str == "SAVE_MIGRATE"
+    STDERR.puts "Migration between vCenters cluster not supported"
+    exit -1
+end
+
+if !["SAVE_SUSPEND", "SAVE_STOP"].include?(lcm_state_str)
+    STDERR.puts "Wrong lcm state when saving VM"
+    exit -1
+end
 
 begin
-    puts VCenterDriver::VCenterVm.save(deploy_id, host, lcm_state)
+    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+
+    vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
+
+    vm.suspend
+
 rescue Exception => e
-    STDERR.puts "Save of VM #{deploy_id} on host #{host} failed " +
-                "due to \"#{e.message}\""
+    STDERR.puts "Save of VM #{vm_ref} on vCenter cluster "\
+                "#{vc_cluster_name} failed due to \"#{e.message}\""
     exit -1
 end
