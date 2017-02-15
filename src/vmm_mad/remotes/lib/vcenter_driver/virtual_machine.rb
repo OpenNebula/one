@@ -506,8 +506,30 @@ class VirtualMachine
         attach_nic_array
     end
 
+    # Regenerate context when devices are hot plugged (reconfigure)
+    def regenerate_context
+        extraconfig   = []
+        extraconfig += extraconfig_context
+
+        File.open('/tmp/context','w'){|f| f.puts(extraconfig_context[0][:value])}
+
+        if !extraconfig.empty?
+            spec_hash = { :extraConfig  => extraconfig }
+
+            spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+
+            begin
+                @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+            rescue Exception => e
+                raise "Cannot create snapshot for VM: #{e.message}"
+            end
+        end
+    end
+
     # Returns an array of actions to be included in :deviceChange
     def calculate_add_nic_spec(nic)
+
+        #TODO include VCENTER_NET_REF usage it should be in one_item
         mac     = nic["MAC"]
         bridge  = nic["BRIDGE"]
         model   = nic["MODEL"]
@@ -704,8 +726,12 @@ class VirtualMachine
             self["config.hardware.device"].each do |d|
                 if is_disk_or_cdrom?(d)
                     disks.each do |disk|
+                        img_name  = get_img_name(disk)
+                        ds        = get_effective_ds(disk)
+                        ds_name   = ds['name']
+
                         if d.backing.respond_to?(:fileName) &&
-                            get_img_name(disk) == d.backing.fileName
+                           "[#{ds_name}] #{img_name}" == d.backing.fileName
 
                             disks.delete(disk)
                         end
@@ -724,6 +750,82 @@ class VirtualMachine
         end
 
         attach_disk_array
+    end
+
+    # Attach DISK to VM (hotplug)
+    def attach_disk
+        # TODO position? and disk size for volatile?
+
+        spec_hash = {}
+        disk = nil
+        disks = []
+        device_change = []
+
+        # Extract disk from driver action
+        one_item.each("TEMPLATE/DISK[ATTACH='YES']") { |d| disks << d }
+        raise "Found more than one DISK element with ATTACH=YES" if disks.size != 1
+        disk = disks.first
+
+        # Check if disk being attached is already connected to the VM
+        raise "DISK is already connected to VM" if disk_attached_to_vm(disk)
+
+        # Generate vCenter spec and reconfigure VM
+        device_change << calculate_add_disk_spec(disk)
+        raise "Could not generate DISK spec" if device_change.empty?
+
+        spec_hash[:deviceChange] = device_change
+        spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+
+        begin
+            @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+        rescue Exception => e
+            raise "Cannot attach DISK to VM: #{e.message}"
+        end
+    end
+
+    # Detach DISK from VM (hotplug)
+    def detach_disk
+        disk = nil
+        disks = []
+        spec_hash = {}
+
+        # Extract disk from driver action
+        one_item.each("TEMPLATE/DISK[ATTACH='YES']") { |d| disks << d }
+        raise "Found more than one DISK element with ATTACH=YES" if disks.size != 1
+        disk = disks.first
+
+        # Check if disk being detached is connected to the VM
+        device = disk_attached_to_vm(disk)
+        raise "DISK is not connected to VM" if device.nil?
+
+        # Generate vCenter spec and reconfigure VM
+        spec_hash[:deviceChange] = [{
+            :operation => :remove,
+            :device => device
+        }]
+
+        begin
+            @item.ReconfigVM_Task(:spec => spec_hash).wait_for_completion
+        rescue Exception => e
+            raise "Cannot detach DISK to VM: #{e.message}"
+        end
+    end
+
+    # Get vcenter device representing DISK object (hotplug)
+    def disk_attached_to_vm(disk)
+        img_name  = get_img_name(disk)
+        ds        = get_effective_ds(disk)
+        ds_name   = ds['name']
+
+        device = self["config.hardware.device"].select do |d|
+            is_disk_or_cdrom?(d) &&
+            d.backing.respond_to?(:fileName) &&
+            d.backing.fileName == "[#{ds_name}] #{img_name}"
+        end rescue nil
+
+        return nil if device.empty?
+
+        return device.first
     end
 
     def calculate_add_disk_spec(disk, position=0)
@@ -979,6 +1081,10 @@ class VirtualMachine
     ############################################################################
     # actions
     ############################################################################
+
+    def reboot
+        @item.RebootGuest.wait_for_completion
+    end
 
     def poweron
         @item.PowerOnVM_Task.wait_for_completion
