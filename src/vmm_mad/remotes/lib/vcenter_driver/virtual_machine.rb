@@ -1082,6 +1082,10 @@ class VirtualMachine
     # actions
     ############################################################################
 
+    def reset
+        @item.ResetVM_Task.wait_for_completion
+    end
+
     def suspend
         @item.SuspendVM_Task.wait_for_completion
     end
