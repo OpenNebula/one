@@ -508,21 +508,13 @@ class VirtualMachine
 
     # Regenerate context when devices are hot plugged (reconfigure)
     def regenerate_context
-        extraconfig   = []
-        extraconfig += extraconfig_context
+        spec_hash = { :extraConfig  => extraconfig_context }
+        spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
 
-        File.open('/tmp/context','w'){|f| f.puts(extraconfig_context[0][:value])}
-
-        if !extraconfig.empty?
-            spec_hash = { :extraConfig  => extraconfig }
-
-            spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
-
-            begin
-                @item.ReconfigVM_Task(:spec => spec).wait_for_completion
-            rescue Exception => e
-                raise "Cannot create snapshot for VM: #{e.message}"
-            end
+        begin
+            @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+        rescue Exception => e
+            raise "Cannot create snapshot for VM: #{e.message}"
         end
     end
 
@@ -758,13 +750,10 @@ class VirtualMachine
 
         spec_hash = {}
         disk = nil
-        disks = []
         device_change = []
 
         # Extract disk from driver action
-        one_item.each("TEMPLATE/DISK[ATTACH='YES']") { |d| disks << d }
-        raise "Found more than one DISK element with ATTACH=YES" if disks.size != 1
-        disk = disks.first
+        disk = drv_action.retrieve_xmlelements("TEMPLATE/DISK[ATTACH='YES']").first
 
         # Check if disk being attached is already connected to the VM
         raise "DISK is already connected to VM" if disk_attached_to_vm(disk)
