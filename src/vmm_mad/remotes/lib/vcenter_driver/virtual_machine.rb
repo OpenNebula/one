@@ -753,7 +753,7 @@ class VirtualMachine
         device_change = []
 
         # Extract disk from driver action
-        disk = drv_action.retrieve_xmlelements("TEMPLATE/DISK[ATTACH='YES']").first
+        disk = one_item.retrieve_xmlelements("TEMPLATE/DISK[ATTACH='YES']").first
 
         # Check if disk being attached is already connected to the VM
         raise "DISK is already connected to VM" if disk_attached_to_vm(disk)
