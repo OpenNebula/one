@@ -39,18 +39,30 @@ public:
 
     // *************************************************************************
     // Address Range types
-    // *************************************************************************
+    /// *************************************************************************
 
     /**
      *  Type of Addresses defined by this address range
+     *  Constants are encoded as follows:
+     *
+     *  option bits    address family bits
+     *            ---+----+----+
+     *           ...*|0000|****|
+     *           ----+----+||||+
+     *                     |||\___ AR with Ethernet addresses
+     *                     ||\____ AR with IPv4 addresses
+     *                     |\_____ AR with IPv6 addresses (SLAAC)
+     *                     \______ AR with IPv6 addresses (static, non-SLAAC)
      */
     enum AddressType
     {
-        NONE  = 0x00000000, /** Undefined Address Type */
-        ETHER = 0x00000001, /** MAC address type */
-        IP4   = 0x00000003, /** IP version 4 address */
-        IP6   = 0x00000005, /** IP version 6 address */
-        IP4_6 = 0x00000007  /** IP dual stack version 4 & 6 addresses */
+        NONE         = 0x00000000, /** Undefined Address Type */
+        ETHER        = 0x00000001, /** MAC address type */
+        IP4          = 0x00000003, /** MAC + IP4 address */
+        IP6          = 0x00000005, /** MAC + IP6 address */
+        IP6_STATIC   = 0x00000009, /** MAC + IP6 (no-SLAAC) address */
+        IP4_6        = 0x00000007, /** MAC + IP4 + IP6  addresses */
+        IP4_6_STATIC = 0x0000000B, /** MAC + IP4 + IP6 (no-SLAAC) addresses */
     };
 
     /**
@@ -66,6 +78,31 @@ public:
      *    @return the string
      */
     static AddressType str_to_type(string& str_type);
+
+    /**
+     *  Return true if the address range includes IPv4 addresses
+     */
+    bool is_ipv4() const
+    {
+        return (type & 0x00000002) != 0;
+    }
+
+    /**
+     *  Return true if the address range includes IPv6 addresses
+     */
+    bool is_ipv6() const
+    {
+        return (type & 0x00000004) != 0;
+    }
+
+    /**
+     *  Return true if the address range includes static IPv6 addresses (host id
+     *  is manually defined)
+     */
+    bool is_ipv6_static() const
+    {
+        return (type & 0x00000008) != 0;
+    }
 
     // *************************************************************************
     // Address Range initialization functions
@@ -421,13 +458,13 @@ protected:
     /* ---------------------------------------------------------------------- */
     /**
      *  Sets the given range of addresses (by index) as used
-     *    @param index the first address to set as used
+     *    @param ix the first address to set as used
      *    @param sz number of addresses to set
-     *    @param msg describing the error if any
+     *    @param mg describing the error if any
      *
      *    @return 0 if success
      */
-    virtual int allocate_addr(unsigned int index, unsigned int sz, string& msg) = 0;
+    virtual int allocate_addr(unsigned int ix, unsigned int sz, string& mg) = 0;
     /**
      *  Gets a range of free addresses
      *    @param index the first address in the range
@@ -488,6 +525,13 @@ private:
     int ip_to_i(const string& _ip, unsigned int& i_ip) const;
 
     /**
+     *  IP version 6 to binary (32 bits)
+     *    @param ip string form 2a00:1bc0:b001:A::3
+     *    @return 0 on success
+     */
+    int ip6_to_i(const string& _ip, unsigned int i_ip[]) const;
+
+    /**
      * IP version 4 to dot notation
      *
      * @param i_ip Numeric (32 bits) IP
@@ -511,6 +555,14 @@ private:
      */
     int ip6_to_s(const unsigned int prefix[], const unsigned int mac[],
         string& ip6_s) const;
+
+    /**
+     * IP version 6 to colon notation
+     *
+     * @param i_ip Numeric (128 bits) IP
+     * @return string in colon notation
+     */
+    string ip6_to_s(const unsigned int i_ip6[]) const;
 
     /* ---------------------------------------------------------------------- */
     /* NIC setup functions                                                    */
@@ -536,6 +588,13 @@ private:
      *    @param nic attribute of a VMTemplate
      */
     void set_ip6(unsigned int addr_index, VectorAttribute * nic) const;
+
+    /**
+     *  Writes IPv6 address (no-slaac) to the given NIC attribute
+     *    @param addr_index internal index for the lease
+     *    @param nic attribute of a VMTemplate
+     */
+    void set_ip6_static(unsigned int addr_index, VectorAttribute * nic) const;
 
     /**
      *  Writes VNET configuration attributes to the given NIC attribute. It
@@ -605,6 +664,39 @@ private:
     /* ---------------------------------------------------------------------- */
     /* Restricted Attributes functions                                        */
     /* ---------------------------------------------------------------------- */
+    /**
+     *  Function to parse the IPv4 attribute ("IP") for IP4 and IP4_6 ARs
+     *    @param error_msg if any
+     *    @return 0 on success
+     */
+    int init_ipv4(string& error_msg);
+
+    /**
+     *  Function to parse the IPv6 attributes ("GLOBAL_PREFIX" and "ULA_PREFIX")
+     *  for IP6 and IP4_6 ARs
+     *    @param error_msg if any
+     *    @return 0 on success
+     */
+    int init_ipv6(string& error_msg);
+
+    /**
+     *  Function to parse the IPv6 attributes no slaac ("IP6") for IP6_STATIC
+     *  and IP4_6_STATIC ARs
+     *    @param error_msg if any
+     *    @return 0 on success
+     */
+    int init_ipv6_static(string& error_msg);
+
+    /**
+     *  Function to parse the MAC attributes ("MAC") for all AR types
+     *    @param error_msg if any
+     *    @return 0 on success
+     */
+    int init_mac(string& error_msg);
+
+    /**
+     *  Checks for restricted attributes, returns the first one found
+     */
     bool check(string& rs_attr) const;
 
     /**
@@ -654,6 +746,11 @@ private:
      *  Binary representation of the IPv6 address site unicast prefix
      */
     unsigned int ula6[2];
+
+    /**
+     *  Binary representation of the first IPv6 address in the AR. No SLAAC ARs
+     */
+    unsigned int ip6[4];
 
     /**
      *  Security Group IDs for this Address Range
