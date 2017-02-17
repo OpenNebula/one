@@ -34,11 +34,7 @@ end
 $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
-require 'opennebula'
-require 'vcenter_driver'
-require 'digest'
-
-client = OpenNebula::Client.new
+require 'vcenter_driver2'
 
 ################################################################################
 
@@ -54,61 +50,52 @@ end
 
 src          = ARGV[0]
 target_path  = ARGV[1]
-snap_id      = ARGV[2]
+snap_id      = ARGV[2] #TODO snapshots?
 vmid         = ARGV[3]
 target_ds_id = ARGV[4]
 
+check_valid src,"src"
+check_valid target_path,"target_path"
+check_valid vmid,"vmid"
+check_valid target_ds_id,"target_ds_id"
+
 source_ds_id = src.split("/")[-3]
 disk_id = src.split(".")[-1]
-
 hostname, src_path = src.split ":"
 
-################################################################################
+# Get host ID
+host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, hostname)
+host_id = host['ID']
 
-vm = OpenNebula::VirtualMachine.new_with_id(vmid, client)
-rc = vm.info
-if OpenNebula.is_error?(rc)
-    STDERR.puts rc.message
-    exit -1
-end
-
-persistent = vm["TEMPLATE/DISK[DISK_ID=#{disk_id}]/PERSISTENT"] == "YES"
-
-if persistent
-    src_path = vm["TEMPLATE/DISK[DISK_ID=#{disk_id}]/SOURCE"]
-else
-    src_path = "one_#{vmid}_#{disk_id}.vmdk"
-end
-
-if vm.state == 3
+# Get OpenNebula VM
+one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vmid)
+disks = one_vm.retrieve_xmlelements("TEMPLATE/DISK[DISK_ID=#{disk_id}]")
+src_path = VCenterDriver::FileHelper.get_img_name(disks.first, vmid)
+if one_vm.state == 3
     STDERR.puts "'disk-saveas' operation is not supported for running VMs."
     exit 1
 end
 
-################################################################################
+# Get source and target ds ref
+source_ds = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, source_ds_id)
+source_ds_ref = source_ds['TEMPLATE/VCENTER_DS_REF']
 
-ds_pool = OpenNebula::DatastorePool.new(client)
-
-rc = ds_pool.info
-if OpenNebula.is_error?(rc)
-    STDERR.puts rc.message
-    exit -1
-end
-
-xpath = "/DATASTORE_POOL/DATASTORE[ID='#{source_ds_id}']/TEMPLATE/VCENTER_NAME"
-source_ds = ds_pool[xpath]
-
-xpath = "/DATASTORE_POOL/DATASTORE[ID='#{target_ds_id}']/TEMPLATE/VCENTER_NAME"
-target_ds = ds_pool[xpath]
-
-################################################################################
+target_ds = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, target_ds_id)
+target_ds_ref = target_ds['TEMPLATE/VCENTER_DS_REF']
 
 begin
-    host_id   = VCenterDriver::VIClient.translate_hostname(hostname)
-    vi_client = VCenterDriver::VIClient.new host_id
+    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
 
-    vi_client.copy_virtual_disk(src_path, source_ds, target_path, target_ds)
+    source_ds_vc = VCenterDriver::Datastore.new_from_ref(source_ds_ref, vi_client)
+
+    target_ds_vc = VCenterDriver::Datastore.new_from_ref(target_ds_ref, vi_client)
+
+    target_ds_name_vc = target_ds_vc['name']
+
+    source_ds_vc.copy_virtual_disk(src_path, source_ds,
+                                   target_path, target_ds_name_vc)
 rescue Exception => e
-    STDERR.puts "Error cloning img #{src_path} size. Reason: #{e.message}"
+    STDERR.puts "Error copying img #{src_path}. "\
+                "Reason: #{e.message}\n#{e.backtrace}"
     exit -1
 end
