@@ -705,7 +705,7 @@ class VirtualMachine
             self["config.hardware.device"].each do |d|
                 if is_disk_or_cdrom?(d)
                     disks.each do |disk|
-                        img_name  = VCenterDriver::FileHelper.get_img_name(disk)
+                        img_name  = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'])
                         ds        = get_effective_ds(disk)
                         ds_name   = ds['name']
 
@@ -789,7 +789,7 @@ class VirtualMachine
 
     # Get vcenter device representing DISK object (hotplug)
     def disk_attached_to_vm(disk)
-        img_name  = VCenterDriver::FileHelper.get_img_name(disk)
+        img_name  = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'])
         ds        = get_effective_ds(disk)
         ds_name   = ds['name']
 
@@ -805,7 +805,7 @@ class VirtualMachine
     end
 
     def calculate_add_disk_spec(disk, position=0)
-        img_name = VCenterDriver::FileHelper.get_img_name(disk)
+        img_name = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'])
         ds       = get_effective_ds(disk)
 
         ds_name  = ds['name']

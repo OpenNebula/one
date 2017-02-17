@@ -5,13 +5,12 @@ module VCenterDriver
 
 class FileHelper
 
-    def self.get_img_name(disk)
+    def self.get_img_name(disk, vm_id)
         if disk["PERSISTENT"] == "YES"
             return disk["SOURCE"]
         else
             image_name = disk["SOURCE"].split(".").first
             disk_id  = disk["DISK_ID"]
-            vm_id    = one_item['ID']
             return "#{image_name}-#{vm_id}-#{disk_id}.vmdk"
         end
     end
