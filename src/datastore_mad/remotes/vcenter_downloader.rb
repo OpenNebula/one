@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -29,33 +29,29 @@ end
 $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
-require 'vcenter_driver'
+require 'vcenter_driver2'
 require 'uri'
 require 'cgi'
 require 'fileutils'
 
-vcenter_url = ARGV[0]
+vcenter_url     = ARGV[0]
 
-u        = URI.parse(vcenter_url)
-params   = CGI.parse(u.query)
+u               = URI.parse(vcenter_url)
+params          = CGI.parse(u.query)
 
-hostname = params["param_host"][0]
-ds_name  = params["param_dsname"][0]
-img_src  = u.host + u.path
+vc_cluster_name = params["param_host"][0]
+ds_name         = params["param_dsname"][0]
+img_src         = u.host + u.path
 
 begin
-    host_id      = VCenterDriver::VIClient.translate_hostname(hostname)
-    vi_client    = VCenterDriver::VIClient.new host_id
 
-    ds = vi_client.get_datastore(ds_name)
+    host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, vc_cluster_name)
+    host_id = host['ID']
 
-    if ds.is_a? RbVmomi::VIM::StoragePod
-        STDERR.puts "Cannot download images from StoragePod #{ds_name} on #{hostname}."\
-                    "Reason: Not supported"
-        exit(-1)
-    end
+    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+    ds = VCenterDriver::Datastore.new_from_ref(source_ds_ref, vi_client)
 
-    if ds.is_descriptor? img_src
+    if ds.is_descriptor?(img_src)
         descriptor_name = File.basename u.path
         temp_folder = VAR_LOCATION + "/vcenter/" + descriptor_name + "/"
         FileUtils.mkdir_p(temp_folder) if !File.directory?(temp_folder)
@@ -73,7 +69,7 @@ begin
 
         VCenterDriver::VIClient.in_silence do
             files_to_download.each{|file|
-                ds.download(url_prefix + file, temp_folder + file)
+                ds.download_file(url_prefix + file, temp_folder + file)
             }
         end
 
@@ -91,7 +87,7 @@ begin
     else
         # Setting "." as the source will read from the stdin
         VCenterDriver::VIClient.in_stderr_silence do
-            ds.download_to_stdout img_src
+            ds.download_to_stdout(img_src)
         end
     end
 rescue Exception => e
