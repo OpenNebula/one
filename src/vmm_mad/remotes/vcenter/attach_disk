@@ -52,6 +52,6 @@ begin
 
 rescue Exception => e
     STDERR.puts "Attach image for VM #{vm_ref} on vCenter cluster #{vc_cluster_name} "\
-                "failed due to \"#{e.message}\""
+                "failed due to \"#{e.message}\"\n#{e.backtrace}"
     exit -1
 end

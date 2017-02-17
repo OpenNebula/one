@@ -64,6 +64,6 @@ begin
     puts vm['_ref']
 rescue Exception => e
     STDERR.puts "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " +
-                "with #{dfile} failed due to \"#{e.message}\""
+                "with #{dfile} failed due to \"#{e.message}\"\n#{e.backtrace}"
     exit -1
 end

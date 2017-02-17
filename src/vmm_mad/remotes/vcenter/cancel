@@ -49,6 +49,7 @@ begin
 
     vm.poweroff_hard
 rescue Exception => e
-    STDERR.puts "Cancel VM #{deploy_id} failed due to \"#{e.message}\""
+    STDERR.puts "Cancel VM #{deploy_id} failed due to "\
+                "\"#{e.message}\"\n#{e.backtrace}"
     exit(-1)
 end

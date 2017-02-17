@@ -46,6 +46,6 @@ begin
 rescue Exception => e
     STDERR.puts "Snapshot of VM #{vm_ref} on vCenter cluster "\
                 "#{vc_cluster_name} could not be reverted due "\
-                "to \"#{e.message}\""
+                "to \"#{e.message}\"\n#{e.backtrace}"
     exit(-1)
 end

@@ -47,6 +47,7 @@ begin
 
 rescue Exception => e
     STDERR.puts "Cannot poll info for VM #{vm_ref} on vCenter cluster "\
-                "#{vc_cluster_name} failed due to \"#{e.message}\""
+                "#{vc_cluster_name} failed due to "\
+                "\"#{e.message}\"\n#{e.backtrace}"
     exit(-1)
 end
