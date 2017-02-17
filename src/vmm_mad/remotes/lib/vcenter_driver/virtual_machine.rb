@@ -220,19 +220,6 @@ class VirtualMachine
         end
     end
 
-    # @return String image name
-    def get_img_name(disk)
-        if disk["PERSISTENT"] == "YES"
-            return disk["SOURCE"]
-        else
-            image_id = disk["IMAGE_ID"]
-            disk_id  = disk["DISK_ID"]
-            vm_id    = one_item['ID']
-
-            return "one-#{image_id}-#{vm_id}-#{disk_id}.vmdk"
-        end
-    end
-
     # @return VCenterDriver::Datastore datastore where the disk will live under
     def get_effective_ds(disk)
         if disk["PERSISTENT"] == "YES"
@@ -718,7 +705,7 @@ class VirtualMachine
             self["config.hardware.device"].each do |d|
                 if is_disk_or_cdrom?(d)
                     disks.each do |disk|
-                        img_name  = get_img_name(disk)
+                        img_name  = VCenterDriver::FileHelper.get_img_name(disk)
                         ds        = get_effective_ds(disk)
                         ds_name   = ds['name']
 
@@ -802,7 +789,7 @@ class VirtualMachine
 
     # Get vcenter device representing DISK object (hotplug)
     def disk_attached_to_vm(disk)
-        img_name  = get_img_name(disk)
+        img_name  = VCenterDriver::FileHelper.get_img_name(disk)
         ds        = get_effective_ds(disk)
         ds_name   = ds['name']
 
@@ -818,7 +805,7 @@ class VirtualMachine
     end
 
     def calculate_add_disk_spec(disk, position=0)
-        img_name = get_img_name(disk)
+        img_name = VCenterDriver::FileHelper.get_img_name(disk)
         ds       = get_effective_ds(disk)
 
         ds_name  = ds['name']
