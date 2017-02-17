@@ -9,7 +9,11 @@ class FileHelper
         if disk["PERSISTENT"] == "YES"
             return disk["SOURCE"]
         else
-            image_name = disk["SOURCE"].split(".").first
+            if disk["SOURCE"]
+                image_name = disk["SOURCE"].split(".").first
+            else
+                image_name = "one" #For volatile disks
+            end
             disk_id  = disk["DISK_ID"]
             return "#{image_name}-#{vm_id}-#{disk_id}.vmdk"
         end
