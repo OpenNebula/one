@@ -20,12 +20,13 @@ define(function(require) {
   var Tips = require('utils/tips');
 
   var TemplateHTML = require('hbs!./role-tab/html');
-  var HostsTable = require('tabs/hosts-tab/datatable');
+  var HostsTable = require('./datatable');
 
   function RoleTab(html_role_id) {
     this.html_role_id = html_role_id;
-    this.host_affined = "";
-    this.host_anti_affined = "";
+    this.host_affined = [];
+    this.host_anti_affined = [];
+    this.old_name = "none";
     return this;
   } 
 
@@ -35,6 +36,8 @@ define(function(require) {
     'onShow': _onShow,
     'retrieve': _retrieve,
     'fill': _fill,
+    'oldName': _get_old_name,
+    'changeNameTab': _change_name_tab
   };
   RoleTab.prototype.constructor = RoleTab;
 
@@ -57,7 +60,8 @@ define(function(require) {
     return TemplateHTML({
       'hostsTableHTML': this.hostsTable.dataTableHTML,
       'value_host_affinity': "value_host_affinity_"+this.html_role_id,
-      'btn_host_vm_roles': "btn_host_vm_roles_"+this.html_role_id,
+      'tf_btn_host_affined': "btn_host_vm_roles_affined"+this.html_role_id,
+      'tf_btn_host_anti_affined': "btn_host_vm_roles_anti_affined"+this.html_role_id,
       'group_vm_host_roles':"group_vm_host_roles_"+this.html_role_id
     })
   }
@@ -66,11 +70,20 @@ define(function(require) {
     var that = this;
     Tips.setup(role_section);
     this.hostsTable.initialize();
-    role_section.on("change", "#role_name", function(){
-      $("#" + that.html_role_id +" #role_name_text").html($(this).val());
+
+    $("#btn_host_vm_roles_anti_affined"+this.html_role_id, context).bind("click",function(){
+       var selectedHostsList = that.hostsTable.retrieveResourceTableSelect();
+      var selectedHosts = {};
+      $.each(selectedHostsList, function(i,e){
+        selectedHosts[e] = 1;
+      });
+      var text = "";
+      for(key in selectedHosts){
+        _generateBox("ANTI_AFFINED",key,that);
+      }
     });
 
-    $("#btn_host_vm_roles_"+this.html_role_id).bind("click",function(){
+    $("#btn_host_vm_roles_affined"+this.html_role_id, context).bind("click",function(){
       var selectedHostsList = that.hostsTable.retrieveResourceTableSelect();
       var selectedHosts = {};
       $.each(selectedHostsList, function(i,e){
@@ -78,56 +91,52 @@ define(function(require) {
       });
       var text = "";
       for(key in selectedHosts){
-        text+= key+" ,";
+        _generateBox("AFFINED",key,that);
       }
-      text = text.slice(0,-2);
-
-      var affinity = $("#value_host_affinity_"+that.html_role_id).val();
-      _generateBox(affinity,text,that);
-    });
-
-    $("#btn_HOST_ANTI_AFFINED_"+this.html_role_id).bind("click", function(){
-       console.log(this.remove());
-       that.host_anti_affined = "";
-    });
-
-    $("#btn_HOST_AFFINED_"+this.html_role_id).bind("click", function(){
-       console.log(this.remove());
-       that.host_affined = "";
     });
   }
 
   function _generateBox(affinity,text, that){
       var html = "";
       if(affinity == "ANTI_AFFINED"){
-        if(that.host_anti_affined  == "" && text != ""){
-          html = "<a value="+text+" id='btn_HOST_ANTI_AFFINED_"+that.html_role_id+"' class='button alert small radius btn_group_host_vm_roles' style='vertical-align: text-top; width: 90%; margin-left: 1em;'>\
-                    <i class='fa fa-lg fa-times-circle remove_host_affinity'><label for="+text+">"+text+"</label></i>\
-                    </a>\
-                    <br/>";
-          var div = '<div id="ANTI_AFFINED_'+that.html_role_id+'" class="group_host_role_content" typeAffinity="ANTI_AFFINED">' + html + '</div>';
-          $("#group_vm_host_roles_"+that.html_role_id).append(div);
-          that.host_anti_affined = text;
+        if(text != ""){
+          if(!equals(that.host_affined, text) && !equals(that.host_anti_affined, text)){
+            html = "<a value="+text+" id='btn_HOST_ANTI_AFFINED_"+that.html_role_id+"' class='button alert radius btn_group_host_vm_roles' style='margin-top: 0.5em;'>\
+                      <i class='fa fa-lg fa-times-circle remove_host_affinity'> "+text+" </i>\
+                      </a>\
+                      <br/>";
+            var div = '<div id="ANTI_AFFINED_'+that.html_role_id+'" class="group_host_role_content" typeAffinity="ANTI_AFFINED">' + html + '</div>';
+            $("#group_vm_host_roles_"+that.html_role_id+"_anti_affined").append(div);
+            that.host_anti_affined.push(text);
+          }
         } 
       }
       else{
-        if(that.host_affined == "" && text != ""){
-          html = "<a value="+text+" id='btn_HOST_AFFINED_"+that.html_role_id+"' class='button success small radius btn_group_host_vm_roles' style='vertical-align: text-top; width: 90%; margin-left: 1em;'>\
-                    <i class='fa fa-lg fa-times-circle remove_host_affinity'><label for="+text+">"+text+"</label></i>\
-                    </a>\
-                    <br/>";
-          var div = '<div id="AFFINED_'+that.html_role_id+'" class="group_host_role_content" typeAffinity="AFFINED">' + html + '</div>';
-          $("#group_vm_host_roles_"+that.html_role_id).append(div);
-          that.host_affined = text;
+        if(text != ""){
+          if(!equals(that.host_affined, text) && !equals(that.host_anti_affined, text)){
+            html = "<a value="+text+" id='btn_HOST_AFFINED_"+that.html_role_id+"' class='button success radius btn_group_host_vm_roles' style='margin-top: 0.5em;'>\
+                      <i class='fa fa-lg fa-times-circle remove_host_affinity'> "+text+" </i>\
+                      </a>\
+                      <br/>";
+            var div = '<div id="AFFINED_'+that.html_role_id+'" class="group_host_role_content" typeAffinity="AFFINED">' + html + '</div>';
+            $("#group_vm_host_roles_"+that.html_role_id+"_affined").append(div);
+            that.host_affined.push(text);
+          }
         }
       }
-      $(".group_vm_host_roles").on("click", "i.remove_host_affinity", function() {
+      $(".btn_group_host_vm_roles").on("click", "i.remove_host_affinity", function() {
         var affinity = $(this.parentElement.parentElement).attr('typeAffinity');
+        var value = $(this.parentElement).attr('value');
         $(this.parentElement.parentElement).remove();
-        if(affinity == "AFFINED")
-          that.host_affined = "";
-        else
-          that.host_anti_affined = "";
+        var index = -1;
+        if(affinity == "AFFINED"){
+          index = that.host_affined.indexOf(text);
+          delete that.host_affined[index];
+        }
+        else{
+          index = that.host_anti_affined.indexOf(text);
+          delete that.host_anti_affined[index];
+        }
         return false;
       });
   }
@@ -138,13 +147,23 @@ define(function(require) {
   function _retrieve(context){
     
     var role = {};
+    var text = "";
     role['NAME'] = $('input[name="name"]', context).val();
     role['VIRTUAL_MACHINES'] = $('input[name="cardinality"]', context).val();
-    role['POLICY'] = $('select[name="protocol"]', context).val();
-    if(this.host_affined != "")
-      role['AFFINED_HOSTS'] = this.host_affined;
-    if(this.host_anti_affined != "")
-      role['HOST_ANTI_AFFINED'] = this.host_anti_affined;
+    role['POLICY'] = $('input[name="protocol"]:checked', context).val();
+    if(this.host_affined.length > 0){
+      for(data in this.host_affined)
+        text += this.host_affined[data] + ", ";
+      text = text.slice(0,-2); 
+      role['HOST_AFFINED'] = text
+      text = "";
+    }
+    if(this.host_anti_affined.length > 0){
+      for(data in this.host_anti_affined)
+        text += this.host_anti_affined[data] + ", "; 
+      text = text.slice(0,-2); 
+      role['HOST_ANTI_AFFINED'] = text;
+    }
     role = _removeEmptyObjects(role);
     return role;
   }
@@ -163,6 +182,18 @@ define(function(require) {
       _generateBox("AFFINED",value.HOST_AFFINED, this);
     if(value.HOST_ANTI_AFFINED)
       _generateBox("ANTI_AFFINED", value.HOST_ANTI_AFFINED, this);
+  }
+
+  function _get_old_name() {
+    return this.old_name;
+    // body...
+  }
+
+  function _change_name_tab(name){
+    if(this.old_name != name){
+        this.old_name = name ;
+      $("#" + this.html_role_id +" #role_name_text").html(name);
+    }
   }
 
   //----------------------------------------------------------------------------
@@ -207,5 +238,13 @@ define(function(require) {
     }
 
     return obj;
+  }
+
+  function equals(list, term) {
+    for(data in list){
+      if(list[data] == term)
+        return true;
+    }
+    return false;
   }
 });

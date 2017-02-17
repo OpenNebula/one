@@ -29,67 +29,26 @@
 	      </label>
 	      <textarea type="text" id="vm_group_description" name="vm_group_description"/>
 	    </div>
-	  </div>
+	</div>
 	  <br>
-	  <div class="row">
-	    <div id="new_role" class="large-12 columns">
-	    <div class="large-12 columns">
-	      <h5>
-	        {{tr "Roles"}}
-	        <a class="button small radius" id="tf_btn_roles" style="vertical-align: text-top; margin-left: 1em;">
-	          <i class="fa fa-lg fa-plus-circle"></i>
-	        </a>
-	      </h5>
-	    </div>
-	      <ul class="tabs" id="roles_tabs" data-tabs>
-	      </ul>
-	      <div class="tabs-content" id="roles_tabs_content" data-tabs-content="roles_tabs">
-	      </div>
-	    </div>
-	  </div>
-	  <br/>
-	  <div class="row">
-	  <div class="medium-8 small-centered columns">
-        <a id="btn_refresh_roles" class="select_vm_group_affinity button small small-12 radius">
-          <i class="fa fa-angle-double-down"></i> {{tr "Change Affinity"}}
-        </a>
-      </div>
-      </div>
-	  <div id="affinity">
-		  <div class="row">
-		    <div class="large-12 columns">
-		      <h5>
-		        {{tr "Role Affinity"}}
-		      </h5>
-		    </div>
-		  </div>
-		  
-		  <div class="row">
-		  	<div class="medium-5 columns">
-		    	<div class="select_role" id="list_roles_select" style="height: 12em; width: 90%; overflow: auto;">
-		    		
-				</div>
-		    </div>
-
-		    <div class="medium-2 columns">
-		    	<div class="type_affined">
-		    		<select id="value_affinity">
-			            <option value="AFFINED" selected="selected" style="background: lightgreen;">{{tr "Affined"}}</option>
-			            <option value="ANTI_AFFINED" style="background: lightcoral;">{{tr "Anti Affined"}}</option>
-			        </select>
-		    		<a class="button medium radius" id="btn_group_vm_roles" style="vertical-align: text-top; width: 100%; margin-left: 1em;">
-			          <i class="fa fa-lg fa-arrow-right"></i>
-			        </a>
-		    	</div>
-		    </div>
-
-		    <div class="medium-5 columns">
-		    	<div class="group_vm_roles" id="group_vm_roles" style="height: 12em; width: 100%; overflow: auto;">
-
-		    	</div>
-		    </div>
-		  </div>
-		  <br/>
-	  </div>
+	<div class="row">
+		<div id="new_role" class="large-12 columns">
+		    <fieldset>
+		  		<legend>
+		  			<h5 style="padding-bottom:0; margin-bottom:0;">
+				        {{tr "Roles"}}
+				        <a class="button small radius" id="tf_btn_roles" style="vertical-align: text-top; margin-left: 1em;">
+				          <i class="fa fa-lg fa-plus-circle"></i>
+				        </a>
+			        </h5>
+		    	</legend>
+			    <div>
+			      <ul class="tabs" id="roles_tabs" data-tabs></ul>
+			      <div class="tabs-content" id="roles_tabs_content" data-tabs-content="roles_tabs"></div>
+			    </div>
+			</fieldset>
+		</div>
+	</div>
+	{{{affinity-role-tab}}}
    </form>
 </div>

@@ -23,14 +23,14 @@ define(function(require) {
   var BaseFormPanel = require('utils/form-panels/form-panel');
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
-  var Tips = require('utils/tips');
+  //var Tips = require('utils/tips');
   var TemplateUtils = require('utils/template-utils');
   var WizardFields = require('utils/wizard-fields');
   var RoleTab = require('tabs/vmgroup-tab/utils/role-tab');
-  var GroupRoleAffinity = require('tabs/vmgroup-tab/utils/group-role-affinity');
-  var Utils = require('../utils/common');
-  var Notifier = require('utils/notifier');
+  var AffinityRoleTab = require('tabs/vmgroup-tab/utils/affinity-role-tab');
 
+  var Utils = require('../utils/common');
+  
   /*
     TEMPLATES
    */
@@ -52,6 +52,7 @@ define(function(require) {
   function FormPanel() {
     this.formPanelId = FORM_PANEL_ID;
     this.tabId = TAB_ID;
+    this.affinity_role_tab = new AffinityRoleTab([]);
     this.actions = {
       'create': {
         'title': Locale.tr("Create Virtual Machine Group"),
@@ -95,7 +96,8 @@ define(function(require) {
     
 
     return TemplateWizardHTML({
-      'formPanelId': this.formPanelId, 
+      'affinity-role-tab': this.affinity_role_tab.html(),
+      'formPanelId': this.formPanelId
     });
   }
 
@@ -105,10 +107,10 @@ define(function(require) {
 
   function _setup(context) {
     this.roleTabObjects = {};
-    this.group_roles_affinity = {};
     var that = this;
     var roles_index = 0;
-    var group_roles_index = 0;
+
+    this.affinity_role_tab.setup(context);
 
     // Fill parents table
     // Each time a tab is clicked the table is filled with existing tabs (roles)
@@ -133,6 +135,7 @@ define(function(require) {
         }
       });
 
+
       if (parent_role_available) {
         $(tab_id+" .parent_roles", context).show();
       }
@@ -149,6 +152,7 @@ define(function(require) {
       });
     });
 
+
     $("#tf_btn_roles", context).bind("click", function(){
       that.addRoleTab(roles_index, context);
       roles_index++;
@@ -156,42 +160,12 @@ define(function(require) {
       return false;
     });
 
-    $("#btn_refresh_roles", context).bind("click", function(){
+    /*$("#btn_refresh_roles", context).bind("click", function(){
         $("#btn_refresh_roles", context).html("<i class='fa fa-angle-double-down'></i> "+Locale.tr("Refresh roles"));
-        var role =  [];
-        $("#list_roles_select").html("");
-        $('.role_content', context).each(function() {
-          var role_id = $(this).attr("role_id");
-          var role = that.roleTabObjects[role_id].retrieve($(this));
-          if(role.NAME){
-            var html = "<input id="+ role.NAME +" type='checkbox' class='roles' value="+role.NAME+" />\
-                      <label for="+ role.NAME+">"+role.NAME+"</label>\
-                      <br />";
-            $("#list_roles_select").append(html);
-          }
-      });
-        $("#affinity",context).show();
-    });
-
-    $("#btn_group_vm_roles").bind("click", function(){
-      var rolesSt = "";
-      var numRoles = 0;
-      $(".roles",context).each(function(){
-        if($(this)[0].checked)
-          rolesSt+= $(this)[0].id+",";
-          numRoles++;
-      });
-      if(rolesSt != "" && numRoles > 1){
-        var affinity = $("#value_affinity", context).val();
-        _add_group_affinity_box(rolesSt.slice(0,-1), context, group_roles_index, that.group_roles_affinity, affinity);
-        group_roles_index++;
-      }
-      else{
-        Notifier.notifyError(Locale.tr("You have to choose at least two roles."));
-      }
-    });
+        that.affinity_role_tab.refresh(context, that.roleTabObjects);
+    });*/
+    //---------btn_group_vm_roles
       
-    $("#affinity",context).hide();
     Foundation.reflow(context, 'tabs');
 
     // Add first role
@@ -208,23 +182,14 @@ define(function(require) {
     var description = WizardFields.retrieveInput($('#vm_group_description', context));
 
     var role =  [];
-    var roles_affinity ={};
-    roles_affinity["AFFINED"] = [];
-    roles_affinity["ANTI_AFFINED"] = [];
-
-    //RETRIEVE ALL GROUPS OF AFFINITY ROLES
-    $('.group_role_content', context).each(function() {
-      var group_role_id = $(this).attr("group_role_id");
-      var group_role = that.group_roles_affinity[group_role_id];
-      roles_affinity[group_role.getAffinity()].push(group_role.retrieve($(this)));
-    });
-
+    
     $('.role_content', context).each(function() {
       var role_id = $(this).attr("role_id");
       role.push(that.roleTabObjects[role_id].retrieve($(this)));
     });
     //call to role-tab.js for retrieve data
     
+    var roles_affinity = this.affinity_role_tab.retrieve(context);
     var vm_group_json = {
       "NAME" : name,
       "DESCRIPTION": description,
@@ -276,7 +241,6 @@ define(function(require) {
     var that = this;
     this.setHeader(element);
     this.resourceId = element.ID;
-    var group_roles_index = 0;
 
      $('#template', context).val(TemplateUtils.templateToString(element.TEMPLATE));
 
@@ -349,20 +313,6 @@ define(function(require) {
       }
     });*/
 
-    $.each(element.TEMPLATE, function(affinity, value){
-      if(affinity == "AFFINED" || affinity == "ANTI_AFFINED"){
-        if(Array.isArray(value)){
-          for(dbs in value){
-            _add_group_affinity_box(value[dbs],context, group_roles_index, that.group_roles_affinity, affinity);
-            group_roles_index++;
-          }
-        }
-        else{
-          _add_group_affinity_box(value, context, group_roles_index, that.group_roles_affinity, affinity);
-          group_roles_index++;
-        }
-      }
-    });
 
     //Remove first tab role, is empty.
 
@@ -386,7 +336,12 @@ define(function(require) {
 
     _redo_service_vmgroup_selector_role(dialog, role_section);
 
-    Tips.setup(role_section);
+    role_section.on("change", "#role_name", function(){
+      that.affinity_role_tab.refresh($(this).val(), role_tab.oldName());
+      role_tab.changeNameTab($(this).val());
+    });
+
+    //Tips.setup(role_section);
 
     var a = $("<li class='tabs-title'>\
       <a class='text-center' id='"+html_role_id+"' href='#"+html_role_id+"Tab'>\
@@ -417,7 +372,7 @@ define(function(require) {
       if (li.hasClass('is-active')) {
         $('a', ul.children('li').last()).click();
       }
-
+      that.affinity_role_tab.removeRole(role_tab.oldName());
       delete that.roleTabObjects[role_id];
 
       return false;
@@ -431,21 +386,6 @@ define(function(require) {
     $('#roles_tabs_content .role_content', dialog).each(function(){
       var role_section = this;
       var role_tab_id = $(role_section).attr('id');
-    });
-  }
-
-  function _add_group_affinity_box(rolesSt, context, group_roles_index, group_roles_affinity, affinity){
-    var that = this;
-    var index = group_roles_index;
-    var group_roles_id  = 'group_role_' + group_roles_index;
-    var group_role = new GroupRoleAffinity(group_roles_id, rolesSt, affinity);
-    group_roles_affinity[group_roles_index] = group_role;
-    var html = '<div id="'+group_roles_id+'" class="group_role_content" group_role_id="'+group_roles_index+'">' + group_role.html() + '</div>';
-    $("#group_vm_roles").append(html);
-    $(".group_roles").on("click", "i.remove_group_affinity", function() {
-      $(this.parentElement.parentElement).remove();
-      delete group_roles_affinity[index];
-      return false;
     });
   }
 });

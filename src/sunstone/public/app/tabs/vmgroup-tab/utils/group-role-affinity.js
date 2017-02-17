@@ -23,6 +23,7 @@ define(function(require) {
     this.html_group_role_id = html_group_role_id;
     this.valueSt = valueSt;
     this.affinity = affinity;
+    this.values = valueSt.split(",");
     return this;
   }
 
@@ -30,7 +31,9 @@ define(function(require) {
     'html': _group_role_tab_content,
     'retrieve': _retrieve,
     'fill': _fill,
-    'getAffinity': _getAffinity
+    'getAffinity': _getAffinity,
+    'equal': _equals,
+    'changeGroup': _change_group
   };
   GroupRoleAffinity.prototype.constructor = GroupRoleAffinity;
 
@@ -45,14 +48,14 @@ define(function(require) {
     var html = "";
     if(that.valueSt){
       if(that.affinity == "ANTI_AFFINED"){
-        html = "<a value="+that.valueSt+" id="+that.html_group_role_id+" class='button alert small radius group_roles' id='btn_cancel_group_roles_anti_"+this.html_group_role_id+" style='vertical-align: text-top; width: 90%; margin-left: 1em;''>\
-                  <i class='fa fa-lg fa-times-circle remove_group_affinity'><label for="+that.html_group_role_id+">"+that.valueSt+"</label></i>\
+        html = "<a value="+that.valueSt+" id="+that.html_group_role_id+" class='button alert small radius group_roles' style='width: 90%; margin-top:0.5em;'>\
+                  <i class='fa fa-lg fa-times-circle remove_group_affinity'> "+that.valueSt+" </i>\
                   </a>\
                   <br/>";
       }
       else{
-        html = "<a value="+that.valueSt+" id="+that.html_group_role_id+" class='button success small radius group_roles' id='btn_cancel_group_roles_affined_"+this.html_group_role_id+" style='vertical-align: text-top; width: 90%; margin-left: 1em;''>\
-                    <i class='fa fa-lg fa-times-circle remove_group_affinity'><label for="+that.html_group_role_id+">"+that.valueSt+"</label></i>\
+        html = "<a value="+that.valueSt+" id="+that.html_group_role_id+" class='button success small radius group_roles' style='width: 90%; margin-top:0.5em;'>\
+                    <i value="+that.valueSt+" class='fa fa-lg fa-times-circle remove_group_affinity'> "+that.valueSt+" </i>\
                   </a>\
                   <br/>";
       }
@@ -74,5 +77,25 @@ define(function(require) {
 
   function _getAffinity(){
     return this.affinity;
+  }
+
+  function _equals(name){
+    return this.values.indexOf(name);
+  }
+
+  function _change_group(index, name){
+    if(name == ""){
+      delete this.values[index];
+      //this.values.length-=1;
+    }
+    else
+      this.values[index] = name;
+    var text = "";
+    for(val in this.values){
+      text+= this.values[val] +",";
+    }
+    text = text.slice(0,-1);
+    this.valueSt = text;
+    return text.split(",").length;
   }
 });
