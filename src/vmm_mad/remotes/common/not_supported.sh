@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
@@ -16,4 +16,11 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-exit 0
+script_name=$(basename $0)
+
+source $(dirname $0)/../../scripts_common.sh
+
+error_message "$script_name: Operation not supported"
+
+exit 1
+
