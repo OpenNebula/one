@@ -134,7 +134,7 @@ define(function(require) {
     },
     "VM.terminate" : {
       type: "confirm_with_icon",
-      icon: "<i class='fa fa-trash fa-3' style='color:red'/>",
+      icon: "<i class='fa fa-trash fa-3' style='color:#ec5840'/>",
       text: Locale.tr(" Terminate"),
       layout: "vmsdelete_buttons",
       tip: Locale.tr("This will remove information from non-persistent hard disks"),
