@@ -92,6 +92,6 @@ begin
     end
 rescue Exception => e
     STDERR.puts "Cannot download image #{u.path} from datastore #{ds_name} "\
-                "on #{hostname}. Reason: #{e.message}"
+                "on #{hostname}. Reason: \"#{e.message}\"\n#{e.backtrace}"
     exit -1
 end

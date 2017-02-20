@@ -68,7 +68,7 @@ if img_path.start_with? "vcenter://"
 
     rescue Exception => e
         STDERR.puts "Error calculating image #{img_path} size."\
-                    " Reason: #{e.message}"
+                    " Reason: \"#{e.message}\"\n#{e.backtrace}"
         exit -1
     end
 else

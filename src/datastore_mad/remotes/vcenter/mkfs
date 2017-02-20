@@ -82,6 +82,6 @@ begin
     puts ds.create_virtual_disk(img_name, size, adapter_type, disk_type)
 rescue Exception => e
     STDERR.puts "Error creating virtual disk #{img_src}."\
-                " Reason: #{e.message}"
+                " Reason: \"#{e.message}\"\n#{e.backtrace}"
     exit -1
 end

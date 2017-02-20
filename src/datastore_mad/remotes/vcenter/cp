@@ -77,7 +77,7 @@ if VCenterDriver::FileHelper.is_remote_or_needs_unpack?(img_path)
     temp_file = File.join(temp_folder, File.basename(target_path))
 
     # Create tmp directory
-    FileUtils.mkdir_p(temp_folder) if !File.directory?(temp_folder)
+    FileUtils.mkdir_p(temp_folder)
 
     # Specify downloader args
     downsh_args = " "

@@ -76,6 +76,7 @@ begin
 
     puts ds.copy_virtual_disk(src_path, target_ds_name, target_path)
 rescue Exception => e
-    STDERR.puts "Error cloning img #{src_path}. Reason: #{e.message}"
+    STDERR.puts "Error cloning img #{src_path}."\
+                " Reason: \"#{e.message}\"\n#{e.backtrace}"
     exit -1
 end

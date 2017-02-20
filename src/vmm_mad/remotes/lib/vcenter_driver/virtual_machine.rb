@@ -272,7 +272,7 @@ class VirtualMachine
                    :spec   => clone_spec).wait_for_completion
         rescue Exception => e
             if !e.message.start_with?('DuplicateName')
-                raise "Cannot clone VM Template: #{e.message}"
+                raise "Cannot clone VM Template: #{e.message}\n#{e.backtrace}"
             end
 
             vm_folder = cluster.get_dc.vm_folder
@@ -501,7 +501,7 @@ class VirtualMachine
         begin
             @item.ReconfigVM_Task(:spec => spec).wait_for_completion
         rescue Exception => e
-            raise "Cannot create snapshot for VM: #{e.message}"
+            raise "Cannot create snapshot for VM: #{e.message}\n#{e.backtrace}"
         end
     end
 
@@ -644,7 +644,7 @@ class VirtualMachine
         begin
             @item.ReconfigVM_Task(:spec => spec).wait_for_completion
         rescue Exception => e
-            raise "Cannot attach NIC to VM: #{e.message}"
+            raise "Cannot attach NIC to VM: #{e.message}\n#{e.backtrace}"
         end
 
     end
@@ -687,7 +687,7 @@ class VirtualMachine
         begin
             @item.ReconfigVM_Task(:spec => spec_hash).wait_for_completion
         rescue Exception => e
-            raise "Cannot detach NIC from VM: #{e.message}"
+            raise "Cannot detach NIC from VM: #{e.message}\n#{e.backtrace}"
         end
 
     end
@@ -755,7 +755,7 @@ class VirtualMachine
         begin
             @item.ReconfigVM_Task(:spec => spec).wait_for_completion
         rescue Exception => e
-            raise "Cannot attach DISK to VM: #{e.message}"
+            raise "Cannot attach DISK to VM: #{e.message}\n#{e.backtrace}"
         end
     end
 
@@ -783,7 +783,7 @@ class VirtualMachine
         begin
             @item.ReconfigVM_Task(:spec => spec_hash).wait_for_completion
         rescue Exception => e
-            raise "Cannot detach DISK to VM: #{e.message}"
+            raise "Cannot detach DISK to VM: #{e.message}\n#{e.backtrace}"
         end
     end
 
@@ -1000,7 +1000,7 @@ class VirtualMachine
         begin
             @item.CreateSnapshot_Task(snapshot_hash).wait_for_completion
         rescue Exception => e
-            raise "Cannot create snapshot for VM: #{e.message}"
+            raise "Cannot create snapshot for VM: #{e.message}\n#{e.backtrace}"
         end
 
         return snapshot_name
@@ -1018,7 +1018,7 @@ class VirtualMachine
             revert_snapshot_hash = { :_this => snapshot }
             snapshot.RevertToSnapshot_Task(revert_snapshot_hash).wait_for_completion
         rescue Exception => e
-            raise "Cannot revert snapshot of VM: #{e.message}"
+            raise "Cannot revert snapshot of VM: #{e.message}\n#{e.backtrace}"
         end
     end
 
@@ -1037,7 +1037,7 @@ class VirtualMachine
             }
             snapshot.RemoveSnapshot_Task(delete_snapshot_hash).wait_for_completion
         rescue Exception => e
-            raise "Cannot delete snapshot of VM: #{e.message}"
+            raise "Cannot delete snapshot of VM: #{e.message}\n#{e.backtrace}"
         end
     end
 
