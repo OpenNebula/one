@@ -67,6 +67,6 @@ begin
 
 rescue Exception => e
     STDERR.puts "Error deleting virtual disk #{img_src}."\
-                " Reason: #{e.message}"
+                " Reason: \"#{e.message}\"\n#{e.backtrace}"
     exit -1
 end
