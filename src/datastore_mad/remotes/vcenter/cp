@@ -81,10 +81,10 @@ if VCenterDriver::FileHelper.is_remote_or_needs_unpack?(img_path)
 
     # Specify downloader args
     downsh_args = " "
-    downsh_args += "--md5 #{md5} " if md5 && !md5.empty? && !md5.eql?("-")
-    downsh_args += "--sha1 #{sha1} " if sha1 && !sha1.empty?
-    downsh_args += "--nodecomp " if nodecomp && !nodecomp.empty?
-    downsh_args += "--limit #{limit_bw} " if limit_bw && !limit_bw.empty?
+    downsh_args << "--md5 #{md5} " if md5 && !md5.empty? && !md5.eql?("-")
+    downsh_args << "--sha1 #{sha1} " if sha1 && !sha1.empty?
+    downsh_args << "--nodecomp " if nodecomp && !nodecomp.empty?
+    downsh_args << "--limit #{limit_bw} " if limit_bw && !limit_bw.empty?
 
     downloader = "#{File.dirname(__FILE__)}/../downloader.sh #{downsh_args}"
 
