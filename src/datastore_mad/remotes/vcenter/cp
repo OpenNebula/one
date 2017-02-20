@@ -81,10 +81,10 @@ if VCenterDriver::FileHelper.is_remote_or_needs_unpack?(img_path)
 
     # Specify downloader args
     downsh_args = " "
-    downsh_args += "--md5 #{md5} " if md5 and !md5.empty? and !md5.eql? "-"
-    downsh_args += "--sha1 #{sha1} " if sha1 and !sha1.empty?
-    downsh_args += "--nodecomp " if nodecomp and !nodecomp.empty?
-    downsh_args += "--limit #{limit_bw} " if limit_bw and !limit_bw.empty?
+    downsh_args += "--md5 #{md5} " if md5 && !md5.empty? && !md5.eql?("-")
+    downsh_args += "--sha1 #{sha1} " if sha1 && !sha1.empty?
+    downsh_args += "--nodecomp " if nodecomp && !nodecomp.empty?
+    downsh_args += "--limit #{limit_bw} " if limit_bw && !limit_bw.empty?
 
     downloader = "#{File.dirname(__FILE__)}/../downloader.sh #{downsh_args}"
 
@@ -123,18 +123,18 @@ files_to_upload.each_with_index do |f, index|
         path = "#{target_path}/#{filename}"
 
         # remove gz or bz2 if part of filename
-        if path.end_with?("gz") and VCenterDriver::FileHelper.is_vmdk?(f)
+        if path.end_with?("gz") && VCenterDriver::FileHelper.is_vmdk?(f)
             path.gsub!(/gz$/,'')
         end
 
-        if path.end_with?("bz2") and VCenterDriver::FileHelper.is_vmdk?(f)
+        if path.end_with?("bz2") && VCenterDriver::FileHelper.is_vmdk?(f)
             path.gsub!(/bz2$/,'')
         end
     end
 
     # Change path if vmdk is part of filename
     # but it's not the extension'
-    if /[^.]+vmdk$/.match(path) and VCenterDriver::FileHelper.is_vmdk?(f)
+    if /[^.]+vmdk$/.match(path) && VCenterDriver::FileHelper.is_vmdk?(f)
         path.gsub!(/vmdk$/,'')
         extension = '.vmdk'
     end
