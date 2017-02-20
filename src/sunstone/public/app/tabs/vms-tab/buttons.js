@@ -133,8 +133,9 @@ define(function(require) {
       custom_classes : "state-dependent"
     },
     "VM.terminate" : {
-      type: "confirm",
-      text: Locale.tr("<i style='color: #ec5840;' class='fa fa-trash'/> Terminate"),
+      type: "confirm_with_icon",
+      icon: "<i class='fa fa-trash fa-3' style='color:red'/>",
+      text: Locale.tr(" Terminate"),
       layout: "vmsdelete_buttons",
       tip: Locale.tr("This will remove information from non-persistent hard disks"),
       custom_classes : "state-dependent"

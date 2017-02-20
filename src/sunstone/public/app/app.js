@@ -41,6 +41,7 @@ define(function(require) {
   var _commonDialogs = [
     require('utils/dialogs/confirm'),
     require('utils/dialogs/confirm-with-select'),
+    require('utils/dialogs/confirm-with-icon'),
     require('utils/dialogs/generic-confirm'),
     require('utils/dialogs/clusters'),
     require('utils/dialogs/overcommit')

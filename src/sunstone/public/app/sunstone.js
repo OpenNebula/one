@@ -31,6 +31,7 @@ define(function(require) {
 
   var TOP_INTERVAL = 10000; //ms
   var CONFIRM_DIALOG_ID = require('utils/dialogs/confirm/dialogId');
+  var CONFIRM_WITH_ICON_DIALOG_ID = require('utils/dialogs/confirm-with-icon/dialogId');
   var CONFIRM_WITH_SELECT_DIALOG_ID = require('utils/dialogs/confirm-with-select/dialogId');
   var DASHBOARD_TAB_ID = require('tabs/dashboard-tab/tabId');
 
@@ -490,6 +491,17 @@ define(function(require) {
       dialogInstance.reset();
       $('#' + CONFIRM_DIALOG_ID).data('buttonAction', $(this).attr('href'));
       $('#' + CONFIRM_DIALOG_ID).data('buttonTab', $(this).parents('.tab').attr('id'));
+      dialogInstance.show();
+      return false;
+    });
+
+    //Listen .confirm_buttons. These buttons show a confirmation dialog
+    //before running the action.
+    $(document).on("click", '.confirm_with_icon_button', function() {
+      var dialogInstance = _getDialogInstance(CONFIRM_WITH_ICON_DIALOG_ID)
+      dialogInstance.reset();
+      $('#' + CONFIRM_WITH_ICON_DIALOG_ID).data('buttonAction', $(this).attr('href'));
+      $('#' + CONFIRM_WITH_ICON_DIALOG_ID).data('buttonTab', $(this).parents('.tab').attr('id'));
       dialogInstance.show();
       return false;
     });
