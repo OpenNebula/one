@@ -17,7 +17,7 @@
 # ---------------------------------------------------------------------------- #
 
 ###############################################################################
-# This script is used retrieve the file size of a disk 
+# This script is used retrieve the file size of a disk
 ###############################################################################
 
 ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
@@ -57,6 +57,8 @@ if img_path.start_with? "vcenter://"
         vi_client    = VCenterDriver::VIClient.new host_id
 
         puts vi_client.stat(ds_name, img_path)
+
+        vi_client.vim.close
     rescue Exception => e
         STDERR.puts "Error calculating image #{img_path} size."\
                     " Reason: #{e.message}"

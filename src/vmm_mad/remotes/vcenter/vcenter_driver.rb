@@ -1519,7 +1519,10 @@ class VCenterVm
             reconfigure_vm(vm, xml, false, hostname)
 
             vm.PowerOnVM_Task.wait_for_completion
-            return vm.config.uuid
+
+            uuid = vm.config.uuid
+            connection.vim.close
+            return uuid
         end
     end
 
@@ -1578,6 +1581,7 @@ class VCenterVm
                 else
                     vm.Destroy_Task.wait_for_completion
                 end
+                connection.vim.close
             else
                 raise "LCM_STATE #{lcm_state} not supported for cancel"
         end
@@ -1599,6 +1603,7 @@ class VCenterVm
                 vm          = connection.find_vm_template(deploy_id)
 
                 vm.SuspendVM_Task.wait_for_completion
+                connection.vim.close
         end
     end
 
@@ -1613,6 +1618,7 @@ class VCenterVm
         vm          = connection.find_vm_template(deploy_id)
 
         vm.PowerOnVM_Task.wait_for_completion
+        connection.vim.close
     end
 
     ############################################################################
@@ -1627,6 +1633,7 @@ class VCenterVm
         vm          = connection.find_vm_template(deploy_id)
 
         vm.RebootGuest.wait_for_completion
+        connection.vim.close
     end
 
     ############################################################################
@@ -1641,6 +1648,7 @@ class VCenterVm
         vm          = connection.find_vm_template(deploy_id)
 
         vm.ResetVM_Task.wait_for_completion
+        connection.vim.close
     end
 
     ############################################################################
@@ -1724,6 +1732,8 @@ class VCenterVm
                     vm.PowerOffVM_Task.wait_for_completion
                 end
         end
+
+        connection.vim.close
     end
 
     ############################################################################
@@ -1746,6 +1756,8 @@ class VCenterVm
         vm          = connection.find_vm_template(deploy_id)
 
         vm.CreateSnapshot_Task(snapshot_hash).wait_for_completion
+
+        connection.vim.close
 
         return snapshot_name
     end
@@ -1791,6 +1803,8 @@ class VCenterVm
         }
 
         snapshot.RemoveSnapshot_Task(delete_snapshot_hash).wait_for_completion
+
+        connection.vim.close
     end
 
     ############################################################################
@@ -1815,6 +1829,8 @@ class VCenterVm
         }
 
         snapshot.RevertToSnapshot_Task(revert_snapshot_hash).wait_for_completion
+
+        connection.vim.close
     end
 
     ############################################################################
@@ -1857,6 +1873,8 @@ class VCenterVm
         spec        = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
 
         vm.ReconfigVM_Task(:spec => spec).wait_for_completion
+
+        connection.vim.close
     end
 
     ############################################################################
@@ -1896,6 +1914,8 @@ class VCenterVm
         }
 
         vm.ReconfigVM_Task(:spec => spec).wait_for_completion
+
+        connection.vim.close
     end
 
     ############################################################################
@@ -1924,6 +1944,8 @@ class VCenterVm
             spec      = RbVmomi::VIM.VirtualMachineConfigSpec(context_spec)
             vm.ReconfigVM_Task(:spec => spec).wait_for_completion
         end
+
+        connection.vim.close
     end
 
     ########################################################################
@@ -2583,7 +2605,9 @@ private
 
         vm.ReconfigVM_Task(:spec => spec).wait_for_completion
 
-        return vm.config.uuid
+        uuid = vm.config.uuid
+        connection.vim.close
+        return uuid
     end
 
     ########################################################################
@@ -2839,6 +2863,7 @@ private
             }
 
             device_change += disk_array
+            connection.vim.close
         end
 
         # Capacity section
@@ -2974,6 +2999,8 @@ private
         return vm_config_spec if only_return
 
         vm.ReconfigVM_Task(:spec => vm_config_spec).wait_for_completion
+
+        connection.vim.close
     end
 
     def self.find_free_controller(vm)
@@ -3095,6 +3122,8 @@ private
                }]}
 
         vm.ReconfigVM_Task(:spec => spec).wait_for_completion
+
+        connection.vim.close
     end
 
     ############################################################################
@@ -3150,6 +3179,8 @@ private
         }
 
         vm.ReconfigVM_Task(:spec => spec).wait_for_completion
+
+        connection.vim.close
     end
 end
 end

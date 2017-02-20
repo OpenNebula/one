@@ -82,6 +82,9 @@ begin
     end
 
     puts target_path
+
+    vi_client.vim.close
+
 rescue Exception => e
     STDERR.puts "Cannot upload image to datastore #{ds_name} on #{hostname}."\
                 "Reason: #{e.message}"

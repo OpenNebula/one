@@ -94,6 +94,9 @@ begin
             ds.download_to_stdout img_src
         end
     end
+
+    vi_client.vim.close
+
 rescue Exception => e
     STDERR.puts "Cannot download image #{u.path} from datastore #{ds_name} "\
                 "on #{hostname}. Reason: #{e.message}"

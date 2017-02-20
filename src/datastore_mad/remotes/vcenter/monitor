@@ -53,6 +53,8 @@ begin
     vi_client    = VCenterDriver::VIClient.new host_id
 
     puts vi_client.monitor_ds(ds_name)
+
+    vi_client.vim.close
 rescue Exception => e
     STDERR.puts "Error monitoring #{ds_name}. Reason: #{e.message}"
     exit -1

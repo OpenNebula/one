@@ -42,3 +42,5 @@ vm           = VCenterDriver::VCenterVm.new(vi_client, vm)
 vm.monitor(host)
 
 puts vm.info
+
+vi_client.vim.close

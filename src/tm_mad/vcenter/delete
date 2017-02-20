@@ -45,6 +45,8 @@ begin
     ds_name      = VCenterDriver::VIClient.find_ds_name(dsid)
 
     vi_client.delete_virtual_disk(img_path, ds_name)
+
+    vi_client.vim.close
 rescue Exception => e
     STDERR.puts "Error delete virtual disk #{img_path} in datastore #{dsid}."\
                 " Reason: #{e.message}"

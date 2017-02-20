@@ -50,3 +50,5 @@ cluster_info << vcenter_host.monitor_customizations
 cluster_info << vcenter_host.get_available_ds
 
 puts cluster_info
+
+vi_client.vim.close
