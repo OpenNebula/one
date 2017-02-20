@@ -47,10 +47,10 @@ class OneVMGroupHelper < OpenNebulaHelper::OneHelper
             end
 
             column :VMS, "Number of VMs in the VM Group", :left, :size=>4 do |d|
-                roles = [d["ROLES"]["ROLE"]].flatten
                 vms   = 0
 
-                if !roles.nil?
+                if !d["ROLES"]["ROLE"].nil?
+	        	roles = [d["ROLES"]["ROLE"]].flatten
                     roles.each { |r|
                         vms += r["VMS"].split(',').size if !r["VMS"].nil?
                     }
