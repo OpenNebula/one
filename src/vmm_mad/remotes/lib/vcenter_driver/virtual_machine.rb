@@ -349,11 +349,6 @@ class VirtualMachine
         end
     end
 
-    def get_srm(vc_template)
-        vcself['_connection.serviceContent.storageResourceManager']
-    end
-
-
     # @return clone parameters spec hash
     def spec_hash_clone
         # Relocate spec
