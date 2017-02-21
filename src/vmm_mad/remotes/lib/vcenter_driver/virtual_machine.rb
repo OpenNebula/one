@@ -1007,12 +1007,12 @@ class VirtualMachine
     end
 
     # Create a snapshot for the VM
-    def create_snapshot(snapshot_name, vm_ref)
+    def create_snapshot(snap_id, snap_name)
         snapshot_hash = {
-            :name => snapshot_name,
-            :description => "OpenNebula Snapshot of VM #{vm_ref}",
-            :memory => true,
-            :quiesce => true
+            :name        => snap_id,
+            :description => snap_name,
+            :memory      => true,
+            :quiesce     => true
         }
 
         begin
@@ -1021,14 +1021,14 @@ class VirtualMachine
             raise "Cannot create snapshot for VM: #{e.message}\n#{e.backtrace}"
         end
 
-        return snapshot_name
+        return snap_id
     end
 
     # Revert to a VM snapshot
-    def revert_snapshot(snapshot_name)
+    def revert_snapshot(snap_id)
 
         snapshot_list = self["snapshot.rootSnapshotList"]
-        snapshot = find_snapshot_in_list(snapshot_list, snapshot_name)
+        snapshot = find_snapshot_in_list(snapshot_list, snap_id)
 
         return nil if !snapshot
 
@@ -1041,10 +1041,10 @@ class VirtualMachine
     end
 
     # Delete VM snapshot
-    def delete_snapshot(snapshot_name)
+    def delete_snapshot(snap_id)
 
         snapshot_list = self["snapshot.rootSnapshotList"]
-        snapshot = find_snapshot_in_list(snapshot_list, snapshot_name)
+        snapshot = find_snapshot_in_list(snapshot_list, snap_id)
 
         return nil if !snapshot
 
@@ -1059,12 +1059,12 @@ class VirtualMachine
         end
     end
 
-    def find_snapshot_in_list(list, snapshot_name)
+    def find_snapshot_in_list(list, snap_id)
         list.each do |i|
-            if i.name == snapshot_name
+            if i.name == snap_id.to_s
                 return i.snapshot
             elsif !i.childSnapshotList.empty?
-                snap = find_snapshot(i.childSnapshotList, snapshot_name)
+                snap = find_snapshot(i.childSnapshotList, snap_id)
                 return snap if snap
             end
         end rescue nil
