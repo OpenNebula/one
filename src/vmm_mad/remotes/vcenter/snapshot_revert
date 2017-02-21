@@ -30,7 +30,7 @@ $: << File.dirname(__FILE__)
 require 'vcenter_driver2'
 
 vm_ref          = ARGV[0]
-snapshot_name   = ARGV[1]
+snap_id         = ARGV[1]
 vc_cluster_name = ARGV[3]
 
 host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, vc_cluster_name)
@@ -41,7 +41,7 @@ begin
 
     vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
 
-    vm.revert_snapshot(snapshot_name)
+    vm.revert_snapshot(snap_id)
 
 rescue Exception => e
     STDERR.puts "Snapshot of VM #{vm_ref} on vCenter cluster "\

@@ -739,7 +739,8 @@ class ExecDriver < VirtualMachineDriver
                     id,
                     host,
                     ACTION[:snapshot_create],
-                    :script_name => "snapshot_create")
+                    :script_name => "snapshot_create",
+                    :stdin => xml_data)
     end
 
     #
