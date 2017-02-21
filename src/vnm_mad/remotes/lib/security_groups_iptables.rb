@@ -84,7 +84,7 @@ module SGIPTables
             sets = []
 
             the_nets.each do |n|
-                if IPAddr.new(the_nets[0]).ipv6?
+                if IPAddr.new(the_nets[n]).ipv6?
                     command = :ip6tables
                     family  = "inet6"
                 else
@@ -124,32 +124,39 @@ module SGIPTables
 
             return if the_nets.empty?
 
-            if IPAddr.new(the_nets[0]).ipv6?
-                command = :ip6tables
-                family  = "inet6"
-            else
-                command = :iptables
-                family  = "inet"
-            end
-
-            if @rule_type == :inbound
-                chain = vars[:chain_in]
-                set = "#{vars[:set_sg_in]}-nr-#{family}"
-                dir = "src,dst"
-            else
-                chain = vars[:chain_out]
-                set = "#{vars[:set_sg_out]}-nr-#{family}"
-                dir = "dst,dst"
-            end
-
-            cmds.add :ipset, "create #{set} hash:net,port family #{family}"
-            cmds.add command, "-A #{chain} -m set --match-set" \
-                " #{set} #{dir} -j RETURN"
+            sets = []
 
             the_nets.each do |n|
+                if IPAddr.new(the_nets[n]).ipv6?
+                    command = :ip6tables
+                    family  = "inet6"
+                else
+                    command = :iptables
+                    family  = "inet"
+                end
+
+                if @rule_type == :inbound
+                    chain = vars[:chain_in]
+                    set = "#{vars[:set_sg_in]}-nr-#{family}"
+                    dir = "src,dst"
+                else
+                    chain = vars[:chain_out]
+                    set = "#{vars[:set_sg_out]}-nr-#{family}"
+                    dir = "dst,dst"
+                end
+
+                if !sets.include?(set)
+                    cmds.add :ipset, "create #{set} hash:net,port family #{family}"
+                    cmds.add command, "-A #{chain} -m set --match-set" \
+                        " #{set} #{dir} -j RETURN"
+
+                    sets << set
+                end
+
                 @range.split(",").each do |r|
                     r.gsub!(":","-")
                     net_range = "#{n},#{@protocol}:#{r}"
+
                     cmds.add :ipset, "add -exist #{set} #{net_range}"
                 end
             end

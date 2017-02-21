@@ -70,6 +70,7 @@ module VNMNetwork
 
             @range      = @rule[:range]
             @ip         = @rule[:ip]
+            @ip6        = @rule[:ip6]
             @ip6_global = @rule[:ip6_global]
             @ip6_ula    = @rule[:ip6_ula]
             @size       = @rule[:size]
@@ -122,6 +123,10 @@ module VNMNetwork
 
             if @ip6_ula && @size
                 nets += VNMNetwork::to_nets(@ip6_ula, @size.to_i)
+            end
+
+            if @ip6 && @size
+                nets += VNMNetwork::to_nets(@ip6, @size.to_i)
             end
 
             return nets
