@@ -63,9 +63,10 @@ begin
 
     puts vm['_ref']
 
-    vi_client.close_connection
 rescue Exception => e
     STDERR.puts "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " +
                 "with #{dfile} failed due to \"#{e.message}\"\n#{e.backtrace}"
     exit -1
+ensure
+    vi_client.close_connection
 end

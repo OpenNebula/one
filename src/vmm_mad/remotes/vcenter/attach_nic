@@ -59,9 +59,10 @@ begin
 
     vm.attach_nic(nic)
 
-    vi_client.close_connection
 rescue Exception => e
     STDERR.puts "Attach NIC for VM #{vm_ref} on vCenter cluster #{vc_cluster_name} "\
                 "failed due to \"#{e.message}\"\n#{e.backtrace}"
     exit(-1)
+ensure
+    vi_client.close_connection
 end

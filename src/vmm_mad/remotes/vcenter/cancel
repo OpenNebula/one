@@ -48,9 +48,10 @@ begin
 
     vm.poweroff_hard
 
-    vi_client.close_connection
 rescue Exception => e
     STDERR.puts "Cancel VM #{vm_ref} failed due to "\
                 "\"#{e.message}\"\n#{e.backtrace}"
     exit(-1)
+ensure
+    vi_client.close_connection
 end

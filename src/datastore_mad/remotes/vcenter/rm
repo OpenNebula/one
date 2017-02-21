@@ -66,9 +66,10 @@ begin
 
     ds.delete_virtual_disk(img_src)
 
-    vi_client.close_connection
 rescue Exception => e
     STDERR.puts "Error deleting virtual disk #{img_src}."\
                 " Reason: \"#{e.message}\"\n#{e.backtrace}"
     exit -1
+ensure
+    vi_client.close_connection
 end

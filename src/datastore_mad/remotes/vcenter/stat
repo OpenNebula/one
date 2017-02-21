@@ -67,11 +67,12 @@ if img_path.start_with? "vcenter://"
 
         ds.stat(img_path)
 
-        vi_client.close_connection
     rescue Exception => e
         STDERR.puts "Error calculating image #{img_path} size."\
                     " Reason: \"#{e.message}\"\n#{e.backtrace}"
         exit -1
+    ensure
+        vi_client.close_connection
     end
 else
     cmd = "#{File.dirname(__FILE__)}/../fs/stat #{drv_action_enc}"
