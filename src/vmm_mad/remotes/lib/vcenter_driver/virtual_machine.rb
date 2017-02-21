@@ -261,9 +261,30 @@ class VirtualMachine
         vc_template_ref = one_item['USER_TEMPLATE/VCENTER_TEMPLATE_REF']
         vc_template = RbVmomi::VIM::VirtualMachine(vi_client.vim, vc_template_ref)
 
-        clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec(spec_hash_clone)
-
         ds = get_ds
+
+        # Default disk move type (Full Clone)
+        disk_move_type = :moveAllDiskBackingsAndDisallowSharing
+
+        if ds.instance_of? RbVmomi::VIM::Datastore
+            use_linked_clones = one_item['USER_TEMPLATE/VCENTER_LINKED_CLONES']
+            if use_linked_clones && use_linked_clones.downcase == "yes"
+                # Check if all disks in template has delta disks
+                disks = vc_template.config
+                                .hardware.device.grep(RbVmomi::VIM::VirtualDisk)
+
+                disks_no_delta = disks.select { |d| d.backing.parent == nil }
+
+                # Can use linked clones if all disks have delta disks
+                if (disks_no_delta.size == 0)
+                    disk_move_type = :moveChildMostDiskBacking
+                end
+            end
+        end
+
+        spec_hash = spec_hash_clone(disk_move_type)
+
+        clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec(spec_hash)
 
         if ds.instance_of? RbVmomi::VIM::StoragePod
             # VM is cloned using Storage Resource Manager for StoragePods
@@ -348,18 +369,16 @@ class VirtualMachine
     end
 
     # @return clone parameters spec hash
-    def spec_hash_clone
+    def spec_hash_clone(disk_move_type)
         # Relocate spec
         relocate_spec_params = {}
 
         relocate_spec_params[:pool] = get_rp
+        relocate_spec_params[:diskMoveType] = disk_move_type
 
         ds = get_ds
 
-        if ds.instance_of? Datastore
-            relocate_spec_params[:datastore] = ds
-            relocate_spec_params[:diskMoveType] = :moveChildMostDiskBacking
-        end
+        relocate_spec_params[:datastore] = ds if ds.instance_of? Datastore
 
         relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(
                                                          relocate_spec_params)
