@@ -29,18 +29,6 @@ $: << File.dirname(__FILE__)
 
 require 'vcenter_driver2'
 
-################################################################################
-
-def check_valid(parameter, label)
-    if parameter.nil? || parameter.empty?
-        STDERR.puts "Not enough information to save the VM. " +
-                    "Missing '#{label}'."
-        exit -1
-    end
-end
-
-################################################################################
-
 vm_ref          = ARGV[0]
 vc_cluster_name = ARGV[-1]
 

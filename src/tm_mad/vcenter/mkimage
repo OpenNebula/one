@@ -37,18 +37,6 @@ $: << File.dirname(__FILE__)
 
 require 'vcenter_driver2'
 
-################################################################################
-
-def check_valid(parameter, label)
-    if parameter.nil? || parameter.empty?
-        STDERR.puts "Not enough information to create the virtual disk. " +
-                    "Missing '#{label}'."
-        exit -1
-    end
-end
-
-################################################################################
-
 size               = ARGV[0]
 path               = ARGV[2]
 vmid               = ARGV[3]

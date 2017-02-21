@@ -33,18 +33,6 @@ $: << File.dirname(__FILE__)
 
 require 'vcenter_driver2'
 
-################################################################################
-
-def check_valid(parameter, label)
-    if parameter.nil? || parameter.empty?
-        STDERR.puts "Not enough information to monitor the datastore. " +
-                    "Missing '#{label}'."
-        exit -1
-    end
-end
-
-################################################################################
-
 drv_action_enc = ARGV[0]
 id             = ARGV[1]
 

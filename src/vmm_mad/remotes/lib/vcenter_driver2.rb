@@ -57,3 +57,14 @@ require 'datastore'
 require 'virtual_machine'
 require 'network'
 require 'file_helper'
+
+# ---------------------------------------------------------------------------- #
+# Helper functions                                                             #
+# ---------------------------------------------------------------------------- #
+
+def check_valid(parameter, label)
+    if parameter.nil? || parameter.empty?
+        STDERR.puts "The parameter '#{label}' is required for this action."
+        exit -1
+    end
+end
