@@ -184,8 +184,6 @@ class VirtualMachine
         if req_ds
             dc = cluster.get_dc
 
-            # TODO: add storage pods
-
             ds_folder = dc.datastore_folder
             ds = ds_folder.get(req_ds)
             ds_item = ds.item rescue nil

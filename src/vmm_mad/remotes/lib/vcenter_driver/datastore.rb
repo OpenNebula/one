@@ -60,6 +60,14 @@ class Storage
 
     include Memoize
 
+    def self.new_from_ref(ref, vi_client)
+        if ref.start_with?('group-')
+            return VCenterDriver::StoragePod.new_from_ref(ref, vi_client)
+        else
+            return VCenterDriver::Datastore.new_from_ref(ref, vi_client)
+        end
+    end
+
     def monitor
         summary = self['summary']
 

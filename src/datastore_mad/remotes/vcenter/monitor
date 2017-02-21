@@ -50,12 +50,7 @@ end
 
 vi_client = VCenterDriver::VIClient.new_from_host(host_id)
 
-if ds_ref.start_with?('group-')
-    storpod = VCenterDriver::StoragePod.new_from_ref(ds_ref, vi_client)
-    puts storpod.monitor
-else
-    ds = VCenterDriver::Datastore.new_from_ref(ds_ref, vi_client)
-    puts ds.monitor
-end
+storage = VCenterDriver::Storage.new_from_ref(ds_ref, vi_client)
+puts storage.monitor
 
 vi_client.close_connection
