@@ -896,7 +896,7 @@ class ExecDriver < VirtualMachineDriver
             {
                 :driver     => :vmm,
                 :action     => :attach_nic,
-                :parameters => [:deploy_id, mac, source, model, vn_mad, target, xml_data]
+                :parameters => [:deploy_id, mac, source, model, vn_mad, target]
             },
             # Execute post-boot networking setup
             {
