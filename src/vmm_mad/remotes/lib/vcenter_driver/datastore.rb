@@ -61,7 +61,7 @@ class Storage
     include Memoize
 
     def monitor
-        summary = @item.summary
+        summary = self['summary']
 
         total_mb = (summary.capacity.to_i / 1024) / 1024
         free_mb  = (summary.freeSpace.to_i / 1024) / 1024
