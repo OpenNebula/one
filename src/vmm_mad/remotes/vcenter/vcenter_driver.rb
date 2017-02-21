@@ -171,7 +171,7 @@ class VIClient
 
         if !@token.nil?
             begin
-                cipher = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
+                cipher = OpenSSL::Cipher.new("aes-256-cbc")
 
                 cipher.decrypt
                 cipher.key = @token
@@ -2768,7 +2768,7 @@ private
                         return nil
                     end
 
-                    cipher = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
+                    cipher = OpenSSL::Cipher.new("aes-256-cbc")
                     cipher.encrypt
                     cipher.key = token_password
                     onegate_token = cipher.update(str_to_encrypt)
