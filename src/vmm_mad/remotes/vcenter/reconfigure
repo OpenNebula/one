@@ -42,6 +42,7 @@ begin
 
     vm.regenerate_context
 
+    vi_client.close_connection
 rescue Exception => e
     STDERR.puts "Reconfiguration of VM #{vm_ref} on vCenter cluster "\
                 "#{vc_cluster_name} failed due to "\

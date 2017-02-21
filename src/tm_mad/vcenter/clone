@@ -97,6 +97,8 @@ begin
     target_ds_name_vc = target_ds_vc['name']
 
     source_ds_vc.copy_virtual_disk(src_path, target_ds_name_vc, target_path)
+
+    vi_client.close_connection
 rescue Exception => e
     STDERR.puts "Error clone virtual disk #{src_path} in "\
                 "datastore #{target_ds_ref}. "\

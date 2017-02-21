@@ -110,6 +110,8 @@ begin
         end
     end
 
+    vi_client.close_connection
+
 rescue Exception => e
     STDERR.puts "Shutdown of VM #{vm_ref} on vCenter cluster "\
                 "#{vc_cluster_name} failed due to "\

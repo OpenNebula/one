@@ -66,3 +66,5 @@ dc = cluster.get_dc
 ds_folder = dc.datastore_folder
 ds_folder.fetch!
 puts ds_folder.monitor
+
+vi_client.close_connection

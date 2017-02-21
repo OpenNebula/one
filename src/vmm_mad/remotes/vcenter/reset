@@ -42,6 +42,7 @@ begin
 
     vm.reset
 
+    vi_client.close_connection
 rescue Exception => e
     STDERR.puts "Reset of VM #{vm_ref} on vCenter cluster "\
                 "#{vc_cluster_name} failed due to "\

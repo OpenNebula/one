@@ -48,6 +48,8 @@ begin
     end
 
     puts target_path
+
+    vi_client.close_connection
 rescue Exception => e
     STDERR.puts "Cannot upload image to datastore #{ds_name} "\
                 "Reason: \"#{e.message}\"\n#{e.backtrace}"

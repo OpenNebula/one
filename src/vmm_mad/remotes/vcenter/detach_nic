@@ -45,6 +45,7 @@ begin
 
     vm.detach_nic(nic)
 
+    vi_client.close_connection
 rescue Exception => e
     STDERR.puts "Detach NIC for VM #{vm_ref} on vCenter cluster #{vc_cluster_name} "\
                 "failed due to \"#{e.message}\"\n#{e.backtrace}"

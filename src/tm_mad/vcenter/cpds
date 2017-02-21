@@ -94,6 +94,8 @@ begin
 
     source_ds_vc.copy_virtual_disk(src_path, source_ds,
                                    target_path, target_ds_name_vc)
+
+    vi_client.close_connection
 rescue Exception => e
     STDERR.puts "Error copying img #{src_path}. "\
                 "Reason: #{e.message}\n#{e.backtrace}"

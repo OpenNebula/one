@@ -39,9 +39,9 @@ drv_action.initialize_xml(Base64.decode64(STDIN.read), 'VM')
 deploy_id    = drv_action["DEPLOY_ID"]
 host_id      = drv_action["HISTORY_RECORDS/HISTORY/HID"]
 
-vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-
 begin
+    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+
     if deploy_id && !deploy_id.empty?
         # VM is not new, we just need to reconfigure it and to power it on
         vm = VCenterDriver::VirtualMachine.new_from_ref(deploy_id, vi_client)
@@ -62,6 +62,8 @@ begin
     vm.set_running(true)
 
     puts vm['_ref']
+
+    vi_client.close_connection
 rescue Exception => e
     STDERR.puts "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " +
                 "with #{dfile} failed due to \"#{e.message}\"\n#{e.backtrace}"

@@ -75,6 +75,8 @@ begin
     target_ds_name = target_ds['name']
 
     puts ds.copy_virtual_disk(src_path, target_ds_name, target_path)
+
+    vi_client.close_connection
 rescue Exception => e
     STDERR.puts "Error cloning img #{src_path}."\
                 " Reason: \"#{e.message}\"\n#{e.backtrace}"

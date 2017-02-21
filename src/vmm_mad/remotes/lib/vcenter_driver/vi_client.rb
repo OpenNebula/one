@@ -18,6 +18,10 @@ class VIClient
         !!@rp
     end
 
+    def close_connection
+        @vim.close
+    end
+
     # @return RbVmomi::VIM::<type> objects
     def self.get_entities(folder, type, entities=[])
         if folder == []

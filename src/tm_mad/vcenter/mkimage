@@ -89,6 +89,7 @@ begin
 
     ds_vc.create_virtual_disk(img_name, size, adapter_type, disk_type)
 
+    vi_client.close_connection
 rescue Exception => e
     STDERR.puts "Error creating virtual disk in #{ds_vc['name']}."\
                 " Reason: #{e.message}\n#{e.backtrace}"

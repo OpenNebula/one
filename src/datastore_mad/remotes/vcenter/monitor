@@ -51,3 +51,5 @@ vi_client = VCenterDriver::VIClient.new_from_host(host_id)
 ds = VCenterDriver::Datastore.new_from_ref(ds_ref, vi_client)
 
 puts ds.monitor
+
+vi_client.close_connection
