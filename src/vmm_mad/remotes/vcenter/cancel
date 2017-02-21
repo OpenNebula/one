@@ -29,7 +29,7 @@ $: << File.dirname(__FILE__)
 
 require 'vcenter_driver2'
 
-deploy_id = ARGV[0]
+vm_ref = ARGV[0]
 host      = ARGV[1]
 vm_id     = ARGV[-2]
 
@@ -42,14 +42,13 @@ host_id = host['ID']
 begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
 
-    vm_ref = drv_action['VM/DEPLOY_ID']
-
     vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
+
     vm.one_item = drv_action.retrieve_xmlelements('VM').first
 
     vm.poweroff_hard
 rescue Exception => e
-    STDERR.puts "Cancel VM #{deploy_id} failed due to "\
+    STDERR.puts "Cancel VM #{vm_ref} failed due to "\
                 "\"#{e.message}\"\n#{e.backtrace}"
     exit(-1)
 end

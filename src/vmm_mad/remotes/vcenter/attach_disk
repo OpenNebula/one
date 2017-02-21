@@ -42,8 +42,6 @@ host_id = host['ID']
 begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
 
-    vm_ref = drv_action['/VMM_DRIVER_ACTION_DATA/DEPLOY_ID']
-
     vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
 
     vm.one_item = drv_action.retrieve_xmlelements('VM').first
