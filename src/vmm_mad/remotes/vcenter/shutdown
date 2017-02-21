@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -27,35 +27,92 @@ end
 $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
-require 'vcenter_driver'
-require 'opennebula'
+require 'vcenter_driver2'
 
-deploy_id = ARGV[0]
-host      = ARGV[1]
-vm_id     = ARGV[-2]
+################################################################################
 
+def check_valid(parameter, label)
+    if parameter.nil? || parameter.empty?
+        STDERR.puts "Not enough information to shutdown the VM. " +
+                    "Missing '#{label}'."
+        exit -1
+    end
+end
+
+################################################################################
+
+vm_ref          = ARGV[0]
+vc_cluster_name = ARGV[1]
+
+host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, vc_cluster_name)
+host_id = host['ID']
 
 drv_action_enc = STDIN.read.gsub("\n","")
-
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc),
                           'VMM_DRIVER_ACTION_DATA')
 
-lcm_state_num = drv_action["/VMM_DRIVER_ACTION_DATA/VM/LCM_STATE"].to_i
-lcm_state     = OpenNebula::VirtualMachine::LCM_STATE[lcm_state_num]
-keep_disks    = !drv_action['/VMM_DRIVER_ACTION_DATA/VM/USER_TEMPLATE/KEEP_DISKS_ON_DONE'].nil? &&
-                 drv_action['/VMM_DRIVER_ACTION_DATA/VM/USER_TEMPLATE/KEEP_DISKS_ON_DONE'].downcase=="yes"
-disks         = [drv_action.to_hash["VMM_DRIVER_ACTION_DATA"]["VM"]["TEMPLATE"]["DISK"]].flatten.compact
+lcm_state = drv_action["/VMM_DRIVER_ACTION_DATA/VM/LCM_STATE"]
+check_valid(lcm_state, "lcm_state")
+lcm_state_str = OpenNebula::VirtualMachine::LCM_STATE[lcm_state.to_i]
 
-cloned_tmplt = nil
-if !drv_action['/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/CLONING_TEMPLATE_ID'].nil?
-    cloned_tmplt  =  drv_action['/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/TEMPLATE_ID']
+if !["SHUTDOWN", "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"].include?(lcm_state_str)
+    STDERR.puts "Wrong lcm state when shutting down VM"
+    exit -1
 end
 
+# Get disk elements from drv_action
+disks = drv_action.retrieve_xmlelements("VM/TEMPLATE/DISK")
+
+## TODO keep_disks and copy_template
+keep_disks =
+    !drv_action['/VMM_DRIVER_ACTION_DATA/VM/USER_TEMPLATE/KEEP_DISKS_ON_DONE'].nil? &&
+    drv_action['/VMM_DRIVER_ACTION_DATA/VM/USER_TEMPLATE/KEEP_DISKS_ON_DONE'].downcase=="yes"
+
+# Manage instantiate to persistent
+instantiate_to_persistent =
+    !drv_action['/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/CLONING_TEMPLATE_ID'].nil?
+
+template_id = drv_action['/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/TEMPLATE_ID']
+
 begin
-    VCenterDriver::VCenterVm.shutdown(deploy_id, host, lcm_state, keep_disks, disks, cloned_tmplt)
+    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+
+    vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
+
+    vm.shutdown #Undeploy, Poweroff or Terminate
+
+    # If Terminate action has been called
+    if lcm_state_str == "SHUTDOWN"
+
+        # TODO: KEEP_DISKS_ON_DONE deprecation / invisible disks
+        if keep_disks
+            # Detach all disks from VM so they are not deleted if VM is destroyed
+            vm.detach_all_disks
+        else
+            # Detach only DISK elements from template
+            disks.each do |disk|
+                vm.detach_disk(disk)
+            end
+        end
+
+        # If the VM was instantiated to persistent keep the VM else destroy it
+        if instantiate_to_persistent
+            vm.mark_as_template #Convert VM to template in vCenter
+
+            # Create new Opennebula template and set VCENTER_TEMPLATE_REF
+            new_template = OpenNebula::Template.new_with_id(template_id,
+                                                OpenNebula::Client.new)
+            new_template.info
+            new_template.update("VCENTER_TEMPLATE_REF= #{vm.item._ref}", true)
+        else
+            vm.destroy
+        end
+    end
+
 rescue Exception => e
-    STDERR.puts "Shutdown of VM #{deploy_id} on host #{host} failed " +
-                "due to \"#{e.message}\"\n#{e.backtrace}"
+    STDERR.puts "Shutdown of VM #{vm_ref} on vCenter cluster "\
+                "#{vc_cluster_name} failed due to "\
+                "\"#{e.message}\"\n#{e.backtrace}"
     exit -1
 end

@@ -41,6 +41,8 @@ class VirtualMachine
     POLL_ATTRIBUTE    = OpenNebula::VirtualMachine::Driver::POLL_ATTRIBUTE
     VM_STATE          = OpenNebula::VirtualMachine::Driver::VM_STATE
 
+    VM_SHUTDOWN_TIMEOUT = 600 #10 minutes til poweroff hard
+
     attr_accessor :item
 
     include Memoize
@@ -760,15 +762,8 @@ class VirtualMachine
     end
 
     # Detach DISK from VM (hotplug)
-    def detach_disk
-        disk = nil
-        disks = []
+    def detach_disk(disk)
         spec_hash = {}
-
-        # Extract disk from driver action
-        one_item.each("TEMPLATE/DISK[ATTACH='YES']") { |d| disks << d }
-        raise "Found more than one DISK element with ATTACH=YES" if disks.size != 1
-        disk = disks.first
 
         # Check if disk being detached is connected to the VM
         device = disk_attached_to_vm(disk)
@@ -783,7 +778,30 @@ class VirtualMachine
         begin
             @item.ReconfigVM_Task(:spec => spec_hash).wait_for_completion
         rescue Exception => e
-            raise "Cannot detach DISK to VM: #{e.message}\n#{e.backtrace}"
+            raise "Cannot detach DISK from VM: #{e.message}\n#{e.backtrace}"
+        end
+    end
+
+    # Detach all DISKs from VM (terminate action)
+    def detach_all_disks
+        spec_hash = {}
+        spec_hash[:deviceChange] = []
+
+        self["config.hardware.device"].each do |disk|
+            if is_disk_or_cdrom?(disk)
+                spec_hash[:deviceChange] << {
+                    :operation => :remove,
+                    :device => disk
+                }
+            end
+        end
+
+        return nil if spec_hash[:deviceChange].empty?
+
+        begin
+            @item.ReconfigVM_Task(:spec => spec_hash).wait_for_completion
+        rescue Exception => e
+            raise "Cannot detach all DISKs from VM: #{e.message}\n#{e.backtrace}"
         end
     end
 
@@ -1057,6 +1075,30 @@ class VirtualMachine
     ############################################################################
     # actions
     ############################################################################
+
+    def shutdown
+        # Ignore ShutdownGuest exceptions, maybe VM hasn't openvm tools
+        @item.ShutdownGuest rescue nil
+
+        # Check if VM has been powered off
+        (0..VM_SHUTDOWN_TIMEOUT).each do
+            break if @item.runtime.powerState == "poweredOff"
+            sleep 1
+        end
+
+        # If VM hasn't been powered off, do it now
+        if @item.runtime.powerState != "poweredOff"
+            poweroff_hard
+        end
+    end
+
+    def destroy
+        @item.Destroy_Task.wait_for_completion
+    end
+
+    def mark_as_template
+        @item.MarkAsTemplate
+    end
 
     def reset
         @item.ResetVM_Task.wait_for_completion
