@@ -188,7 +188,7 @@ public:
         VectorAttribute * nic, const vector<string> &inherit);
 
     /**
-     *  Returns the specific address by mac if is not allocated. The NIC attr
+     *  Returns the specific address by mac/ip if is not allocated. The NIC attr
      *  is filled with the configuration parameters from the address range.
      *    @param mac the mac address
      *    @param ot the type of the object allocating the address
@@ -200,47 +200,35 @@ public:
     int allocate_by_mac(const string& mac, PoolObjectSQL::ObjectType ot,
         int obid, VectorAttribute * nic, const vector<string> &inherit);
 
-    /**
-     *  Returns the specific address by ip if is not allocated. The NIC attr
-     *  is filled with the configuration parameters from the address range.
-     *    @param ot the type of the object allocating the address
-     *    @param obid the id of the object
-     *    @param nic the VM NIC attribute
-     *    @param inherit attributes to be added to the NIC attribute
-     *    @return 0 if success
-     */
     int allocate_by_ip(const string& ip, PoolObjectSQL::ObjectType ot,
         int obid, VectorAttribute * nic, const vector<string> &inherit);
 
-    /**
-     *  Sets the given ip on hold, the address is associated to a VM of id -1.
-     *    @param ip the ip to hold
-     */
-    int hold_by_ip(const string& ip);
+    int allocate_by_ip6(const string& ip6, PoolObjectSQL::ObjectType ot,
+        int obid, VectorAttribute * nic, const vector<string> &inherit);
 
     /**
-     *  Sets the given mac on hold, the address is associated to a VM of id -1.
-     *    @param mac the mac to hold
+     *  Sets the given ip/mac on hold, the address is associated to a VM of
+     *  id -1.
+     *    @param ip/mac the ip to hold
      */
     int hold_by_mac(const string& mac);
 
+    int hold_by_ip(const string& ip);
+
+    int hold_by_ip6(const string& ip);
+
     /**
-     *  Frees a previous allocated address, referenced by its MAC address
+     *  Frees a previous allocated address, referenced by its MAC/IP address
      *  @param ot the object type of the owner of the address
      *  @param obid the id of the owner of the address
-     *  @param mac the MAC address in string form
+     *  @param mac/ip the MAC/IP address in string form
      *  @return 0 if the address was freed
      */
     int free_addr(PoolObjectSQL::ObjectType ot, int obid, const string& mac);
 
-    /**
-     *  Frees a previous allocated address, referenced by its IP address
-     *  @param ot the object type of the owner of the address
-     *  @param obid the id of the owner of the address
-     *  @param ip the IP address in string form
-     *  @return 0 if the address was freed
-     */
     int free_addr_by_ip(PoolObjectSQL::ObjectType ot, int id, const string& ip);
+
+    int free_addr_by_ip6(PoolObjectSQL::ObjectType ot, int id,const string& ip);
 
     /**
      *  Frees all previous allocated address to the given object
@@ -287,21 +275,16 @@ public:
      *    @param vid the id of the VNET making the reservation
      *    @param size number of addresses to reserve
      *    @param rar a new address range to place the reservation
-     *    @param ip the firs ip in the Reservation
-     *    @return 0 on success
-     */
-    int reserve_addr_by_ip(int vid, unsigned int rsize, const string& ip,
-        AddressRange *rar);
-
-    /**
-     *  Reserve a given number of addresses from this address range
-     *    @param vid the id of the VNET making the reservation
-     *    @param size number of addresses to reserve
-     *    @param rar a new address range to place the reservation
-     *    @param mac the firs mac in the Reservation
+     *    @param ip/mac the firs ip in the Reservation
      *    @return 0 on success
      */
     int reserve_addr_by_mac(int vid, unsigned int rsize, const string& mac,
+        AddressRange *rar);
+
+    int reserve_addr_by_ip(int vid, unsigned int rsize, const string& ip,
+        AddressRange *rar);
+
+    int reserve_addr_by_ip6(int vid, unsigned int rsize, const string& ip,
         AddressRange *rar);
 
     // *************************************************************************
@@ -417,6 +400,7 @@ protected:
      *    <MAC>
      *    <IP6_ULA>
      *    <IP6_GLOBAL>
+     *    <IP6>
      *    <SIZE>
      *
      *    @param index for the address
@@ -452,6 +436,20 @@ protected:
      *    @return true if the IP is valid
      */
     bool is_valid_ip(unsigned int& index, const string& ip_s, bool check_free);
+
+    /**
+     *  Check if the given IP is valid for this address range by verifying:
+     *    - AR is of type IP6_STATIC or IP4_6_STATIC
+     *    - Correct : notation
+     *    - Part of the AR
+     *
+     *    @param index of the IP in the AR
+     *    @param ip6_s string representation of the IP in : notation
+     *    @param check_free apart from previous checks
+     *
+     *    @return true if the IP is valid
+     */
+    bool is_valid_ip6(unsigned int& index, const string& ip_s, bool check_free);
 
     /* ---------------------------------------------------------------------- */
     /* Implementation specific address management interface                   */
@@ -556,13 +554,7 @@ private:
     int ip6_to_s(const unsigned int prefix[], const unsigned int mac[],
         string& ip6_s) const;
 
-    /**
-     * IP version 6 to colon notation
-     *
-     * @param i_ip Numeric (128 bits) IP
-     * @return string in colon notation
-     */
-    string ip6_to_s(const unsigned int i_ip6[]) const;
+    int ip6_to_s(const unsigned int ip6_i[], string& ip6_s) const;
 
     /* ---------------------------------------------------------------------- */
     /* NIC setup functions                                                    */

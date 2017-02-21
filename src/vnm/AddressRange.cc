@@ -310,7 +310,7 @@ int AddressRange::update_attributes(
 
     if (is_ipv6_static())
     {
-        vup->replace("IP", attr->vector_value("IP"));
+        vup->replace("IP6", attr->vector_value("IP6"));
     }
 
     /* ----------------- Remove internal attributes ----------------- */
@@ -506,12 +506,14 @@ void AddressRange::addr_to_xml(unsigned int index, unsigned int rsize,
 
 	if ( ip6[0] != 0 || ip6[1] != 0 || ip6[2] != 0 || ip6[3] != 0 )
 	{
-		unsigned int ip_low[2];
+		unsigned int ip_low[4];
 
-		ip_low[0] = ip6[0] + index;
+		ip_low[3] = ip6[3];
+		ip_low[2] = ip6[2];
 		ip_low[1] = ip6[1];
+		ip_low[0] = ip6[0] + index;
 
-        oss << "<IP6>" << ip6_to_s(&(ip6[2]), ip_low, ip6_s) << "</IP6>";
+        oss << "<IP6>" << ip6_to_s(ip_low, ip6_s) << "</IP6>";
 	}
 
     oss << "<SIZE>" << rsize << "</SIZE>"
@@ -590,16 +592,14 @@ void AddressRange::to_xml(ostringstream &oss) const
 	if (is_ipv6_static())
 	{
         string ip6_s;
+		unsigned int ip_low[4];
 
-		ip6_to_s(&(ip6[2]), ip6, ip6_s);
-		oss << "<IP6>" << one_util::escape_xml(ip6_s) << "</IP6>";
-
-		unsigned int ip_low[2];
-
+		ip_low[3] = ip6[3];
+		ip_low[2] = ip6[2];
 		ip_low[1] = ip6[1];
 		ip_low[0] = ip6[0] +  size - 1;
 
-		ip6_to_s(&(ip6[2]), ip_low, ip6_s);
+		ip6_to_s(ip_low, ip6_s);
 		oss << "<IP6_END>" << one_util::escape_xml(ip6_s) << "</IP6_END>";
 	}
 
@@ -674,7 +674,8 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
         if (global6[1] != 0 || global6[0] != 0 ) /* Glocal Unicast */
         {
             ip6_to_s(global6, mac, ip6_s);
-            oss << "<IP6_GLOBAL>" << one_util::escape_xml(ip6_s) << "</IP6_GLOBAL>";
+            oss << "<IP6_GLOBAL>" << one_util::escape_xml(ip6_s)
+                << "</IP6_GLOBAL>";
 
             ip6_to_s(global6, mac_end, ip6_s);
             oss << "<IP6_GLOBAL_END>" << one_util::escape_xml(ip6_s)
@@ -685,16 +686,14 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
 	if (is_ipv6_static())
 	{
         string ip6_s;
+		unsigned int ip_low[4];
 
-		ip6_to_s(&(ip6[2]), ip6, ip6_s);
-		oss << "<IP6>" << one_util::escape_xml(ip6_s) << "</IP6>";
-
-		unsigned int ip_low[2];
-
+		ip_low[3] = ip6[3];
+		ip_low[2] = ip6[2];
 		ip_low[1] = ip6[1];
 		ip_low[0] = ip6[0] +  size - 1;
 
-		ip6_to_s(&(ip6[2]), ip_low, ip6_s);
+		ip6_to_s(ip_low, ip6_s);
 		oss << "<IP6_END>" << one_util::escape_xml(ip6_s) << "</IP6_END>";
 	}
 
@@ -958,7 +957,6 @@ int AddressRange::ip6_to_i(const string& _ip, unsigned int i_ip[]) const
     i_ip[0] = ntohl(s6.s6_addr32[3]);
 
     return 0;
-
 }
 
 /* -------------------------------------------------------------------------- */
@@ -990,7 +988,8 @@ int AddressRange::prefix6_to_i(const string& prefix, unsigned int ip[]) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRange::ip6_to_s(const unsigned int prefix[], const unsigned int mac[], string& ip6_s) const
+int AddressRange::ip6_to_s(const unsigned int prefix[],
+        const unsigned int mac[], string& ip6_s) const
 {
     unsigned int eui64[2];
     unsigned int mlow = mac[0];
@@ -1006,6 +1005,28 @@ int AddressRange::ip6_to_s(const unsigned int prefix[], const unsigned int mac[]
 
     ip6.s6_addr32[0] = htonl(prefix[1]);
     ip6.s6_addr32[1] = htonl(prefix[0]);
+
+    if ( inet_ntop(AF_INET6, &ip6, dst, INET6_ADDRSTRLEN) != 0 )
+    {
+        ip6_s = dst;
+        return 0;
+    }
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRange::ip6_to_s(const unsigned int ip6_i[], string& ip6_s) const
+{
+    struct in6_addr ip6;
+    char dst[INET6_ADDRSTRLEN];
+
+    ip6.s6_addr32[3] = htonl(ip6_i[0]);
+    ip6.s6_addr32[2] = htonl(ip6_i[1]);
+    ip6.s6_addr32[1] = htonl(ip6_i[2]);
+    ip6.s6_addr32[0] = htonl(ip6_i[3]);
 
     if ( inet_ntop(AF_INET6, &ip6, dst, INET6_ADDRSTRLEN) != 0 )
     {
@@ -1050,7 +1071,7 @@ bool AddressRange::is_valid_mac(unsigned int& index, const string& mac_s,
 bool AddressRange::is_valid_ip(unsigned int& index, const string& ip_s,
     bool check_free)
 {
-    if (!(type & 0x00000002))//Not of type IP4 or IP4_6
+    if (!is_ipv4())//Not of type IP4 or IP4_6
     {
         return false;
     }
@@ -1068,6 +1089,41 @@ bool AddressRange::is_valid_ip(unsigned int& index, const string& ip_s,
     }
 
     index = ip_i - ip;
+
+    if ((check_free && allocated.count(index) != 0) || (index >= size))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool AddressRange::is_valid_ip6(unsigned int& index, const string& ip_s,
+    bool check_free)
+{
+    if (!is_ipv6_static())//Not of type IP6_STATIC or IP4_6_STATIC
+    {
+        return false;
+    }
+
+    unsigned int ip_i[4];
+
+    if (ip6_to_i(ip_s, ip_i) == -1)
+    {
+        return false;
+    }
+
+    //3 most significant 32bit blocks must be equal
+    if ( ip_i[3] != ip6[3] || ip_i[2] != ip6[2] || ip_i[1] != ip6[1]
+            || ip_i[0] < ip6[0] )
+    {
+        return false;
+    }
+
+    index = ip_i[0] - ip6[0];
 
     if ((check_free && allocated.count(index) != 0) || (index >= size))
     {
@@ -1140,13 +1196,15 @@ void AddressRange::set_ip6(unsigned int addr_index, VectorAttribute * nic) const
 void AddressRange::set_ip6_static(unsigned int addr_index,
 		VectorAttribute * nic) const
 {
-	unsigned int low_ip[2];
+	unsigned int ip_low[4];
     string       ip6_s;
 
-	low_ip[0] = ip6[0] + addr_index;
-	low_ip[1] = ip6[1];
+    ip_low[3] = ip6[3];
+    ip_low[2] = ip6[2];
+    ip_low[1] = ip6[1];
+	ip_low[0] = ip6[0] + addr_index;
 
-	if ( ip6_to_s(&(ip6[2]), low_ip, ip6_s) == 0 )
+	if ( ip6_to_s(ip_low, ip6_s) == 0 )
 	{
 		nic->replace("IP6", ip6_s);
 	}
@@ -1408,6 +1466,35 @@ int AddressRange::allocate_by_ip(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int AddressRange::allocate_by_ip6(
+    const string&             ip6_s,
+    PoolObjectSQL::ObjectType ot,
+    int                       obid,
+    VectorAttribute*          nic,
+    const vector<string>&     inherit)
+{
+    string error_msg;
+    unsigned int index;
+
+    if (!is_valid_ip6(index, ip6_s, true))
+    {
+        return -1;
+    }
+
+    if (allocate_addr(index, 1, error_msg) != 0)
+    {
+        NebulaLog::log("IPM", Log::ERROR, error_msg);
+        return -1;
+    }
+
+    allocate_by_index(index, ot, obid, nic, inherit);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int AddressRange::free_addr(PoolObjectSQL::ObjectType ot, int obid,
     const string& mac_s)
 {
@@ -1466,6 +1553,45 @@ int AddressRange::free_addr_by_ip(PoolObjectSQL::ObjectType ot, int obid,
 
     return free_allocated_addr(ot, obid, index);
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRange::free_addr_by_ip6(PoolObjectSQL::ObjectType ot, int obid,
+    const string& ip_s)
+{
+    string error_msg;
+
+    if (!is_ipv6())
+    {
+        return -1;
+    }
+
+    unsigned int ip_i[4];
+
+    if (ip6_to_i(ip_s, ip_i) == -1)
+    {
+        return -1;
+    }
+
+    unsigned int index = ip_i[0] - ip6[0];
+
+    if (index < 0 || index >= size || ip6[3] != ip_i[3] || ip6[2] != ip_i[2]
+            || ip6[1] != ip_i[1])
+    {
+        return -1;
+    }
+
+    if (free_addr(index, error_msg) != 0)
+    {
+        return -1;
+    }
+
+    return free_allocated_addr(ot, obid, index);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -1559,9 +1685,10 @@ const char * AddressRange::SG_RULE_ATTRIBUTES[] = {
     "TYPE",
     "SIZE",
     "MAC",
-    "IP"};
+    "IP",
+    "IP6"};
 
-const int  AddressRange::NUM_SG_RULE_ATTRIBUTES = 5;
+const int  AddressRange::NUM_SG_RULE_ATTRIBUTES = 6;
 
 void AddressRange::process_security_rule(VectorAttribute * rule)
 {
@@ -1590,6 +1717,30 @@ void AddressRange::process_security_rule(VectorAttribute * rule)
         ip6_to_s(global6, mac, ip6_s);
         rule->replace("IP6_GLOBAL", ip6_s);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRange::hold_by_ip6(const string& ip_s)
+{
+    string error_msg;
+    unsigned int index;
+
+    if (!is_valid_ip6(index, ip_s, true))
+    {
+        return -1;
+    }
+
+    if (allocate_addr(index, 1, error_msg) != 0)
+    {
+        NebulaLog::log("IPM", Log::ERROR, error_msg);
+        return -1;
+    }
+
+    set_allocated_addr(PoolObjectSQL::VM, -1, index);
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1669,9 +1820,14 @@ int AddressRange::reserve_addr(int vid, unsigned int rsize, AddressRange *rar)
 
     set_mac(first_index, new_ar);
 
-    if (type & 0x00000002 )
+    if ( is_ipv4() )
     {
         set_ip(first_index, new_ar);
+    }
+
+    if ( is_ipv6_static() )
+    {
+        set_ip6_static(first_index, new_ar);
     }
 
     new_ar->replace("SIZE",rsize);
@@ -1721,9 +1877,14 @@ int AddressRange::reserve_addr_by_index(int vid, unsigned int rsize,
 
     set_mac(sindex, new_ar);
 
-    if (type & 0x00000002 )
+    if ( is_ipv4() )
     {
         set_ip(sindex, new_ar);
+    }
+
+    if ( is_ipv6_static() )
+    {
+        set_ip6_static(sindex, new_ar);
     }
 
     new_ar->replace("SIZE",rsize);
@@ -1735,6 +1896,22 @@ int AddressRange::reserve_addr_by_index(int vid, unsigned int rsize,
     new_ar->replace("PARENT_NETWORK_AR_ID",id);
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRange::reserve_addr_by_ip6(int vid, unsigned int rsize,
+    const string& ip_s, AddressRange *rar)
+{
+    unsigned int sindex;
+
+    if (!is_valid_ip6(sindex, ip_s, false))
+    {
+        return -1;
+    }
+
+    return reserve_addr_by_index(vid, rsize, sindex, rar);
 }
 
 /* -------------------------------------------------------------------------- */

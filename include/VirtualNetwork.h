@@ -218,50 +218,6 @@ public:
     // *************************************************************************
 
     /**
-     *    Gets a new address lease for a specific VM
-     *    @param ot the type of the object requesting the address
-     *    @param oid the id of the object requesting the address
-     *    @param nic the VM NIC attribute to be filled with the lease info.
-     *    @param inherit attributes from the address range to include in the NIC
-     *    @return 0 if success
-     */
-    int allocate_addr(PoolObjectSQL::ObjectType ot, int oid,
-            VectorAttribute * nic, const vector<string>& inherit)
-    {
-        return ar_pool.allocate_addr(ot, oid, nic, inherit);
-    }
-
-    /**
-     *    Gets a new address lease for a specific VM by MAC
-     *    @param ot the type of the object requesting the address
-     *    @param oid the id of the object requesting the address
-     *    @param mac the MAC address requested
-     *    @param nic the VM NIC attribute to be filled with the lease info.
-     *    @param inherit attributes from the address range to include in the NIC
-     *    @return 0 if success
-     */
-    int allocate_by_mac(PoolObjectSQL::ObjectType ot, int oid, const string& mac,
-            VectorAttribute * nic, const vector<string>& inherit)
-    {
-        return ar_pool.allocate_by_mac(mac, ot, oid, nic, inherit);
-    }
-
-    /**
-     *    Gets a new address lease for a specific VM by IP
-     *    @param ot the type of the object requesting the address
-     *    @param oid the id of the object requesting the address
-     *    @param ip the IP address requested
-     *    @param nic the VM NIC attribute to be filled with the lease info.
-     *    @param inherit attributes from the address range to include in the NIC
-     *    @return 0 if success
-     */
-    int allocate_by_ip(PoolObjectSQL::ObjectType ot, int oid, const string& ip,
-            VectorAttribute * nic, const vector<string>& inherit)
-    {
-        return ar_pool.allocate_by_ip(ip, ot, oid, nic, inherit);
-    }
-
-    /**
      *  Release previously given address lease
      *    @param arid of the address range where the address was leased from
      *    @param ot the type of the object requesting the address
@@ -392,26 +348,19 @@ public:
      *    @param rid the reservation VNET ID to store the reserved AR
      *    @param rsize number of addresses to reserve
      *    @param ar_id id of the address range to obtain the addresses
-     *    @param ip the first ip in the reservations
-     *    @param rar the address range to place the reservation
-     *    @param err error message
-     *    @return 0 on success
-     */
-    int reserve_addr_by_ip(int rid, unsigned int rsize, unsigned int ar_id,
-            const string& ip, AddressRange *rar, string& error_str);
-
-    /**
-     *  Reserve an address range for this network and add it to the given vnet
-     *    @param rid the reservation VNET ID to store the reserved AR
-     *    @param rsize number of addresses to reserve
-     *    @param ar_id id of the address range to obtain the addresses
-     *    @param mac the first mac in the reservations
+     *    @param ip/mac the first ip/mac in the reservations
      *    @param rar the address range to place the reservation
      *    @param err error message
      *    @return 0 on success
      */
     int reserve_addr_by_mac(int rid, unsigned int rsize, unsigned int ar_id,
             const string& mac, AddressRange *rar, string& error_str);
+
+    int reserve_addr_by_ip(int rid, unsigned int rsize, unsigned int ar_id,
+            const string& ip, AddressRange *rar, string& error_str);
+
+    int reserve_addr_by_ip6(int rid, unsigned int rsize, unsigned int ar_id,
+            const string& ip6, AddressRange *rar, string& error_str);
 
     /**
      * Returns true if this VNET is a reservation
@@ -580,6 +529,51 @@ private:
      *  Set of Virtual Router IDs
      */
     ObjectCollection vrouters;
+
+    // *************************************************************************
+    // Address allocation funtions
+    // *************************************************************************
+
+    /**
+     *    Gets a new address lease for a specific VM
+     *    @param ot the type of the object requesting the address
+     *    @param oid the id of the object requesting the address
+     *    @param nic the VM NIC attribute to be filled with the lease info.
+     *    @param inherit attributes from the address range to include in the NIC
+     *    @return 0 if success
+     */
+    int allocate_addr(PoolObjectSQL::ObjectType ot, int oid,
+            VectorAttribute * nic, const vector<string>& inherit)
+    {
+        return ar_pool.allocate_addr(ot, oid, nic, inherit);
+    }
+
+    /**
+     *    Gets a new address lease for a specific VM by MAC/IP
+     *    @param ot the type of the object requesting the address
+     *    @param oid the id of the object requesting the address
+     *    @param mac/ip the MAC/IP  address requested
+     *    @param nic the VM NIC attribute to be filled with the lease info.
+     *    @param inherit attributes from the address range to include in the NIC
+     *    @return 0 if success
+     */
+    int allocate_by_mac(PoolObjectSQL::ObjectType ot, int oid, const string& mac,
+            VectorAttribute * nic, const vector<string>& inherit)
+    {
+        return ar_pool.allocate_by_mac(mac, ot, oid, nic, inherit);
+    }
+
+    int allocate_by_ip(PoolObjectSQL::ObjectType ot, int oid, const string& ip,
+            VectorAttribute * nic, const vector<string>& inherit)
+    {
+        return ar_pool.allocate_by_ip(ip, ot, oid, nic, inherit);
+    }
+
+    int allocate_by_ip6(PoolObjectSQL::ObjectType ot, int oid, const string& ip,
+            VectorAttribute * nic, const vector<string>& inherit)
+    {
+        return ar_pool.allocate_by_ip6(ip, ot, oid, nic, inherit);
+    }
 
     // *************************************************************************
     // DataBase implementation (Private)

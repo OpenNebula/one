@@ -236,24 +236,19 @@ public:
      *    @param rid the reservation VNET ID to store the reserved AR
      *    @param rsize number of addresses to reserve
      *    @param ar_id AR to make the reservation from
-     *    @param ip the first ip in the reservations
+     *    @param ip/mac the first ip/mac in the reservations
      *    @param err error message
      *    @return 0 on success
      */
     int reserve_addr_by_ip(int pid, int rid, unsigned int rsize,
             unsigned int ar_id, const string& ip, string& err);
-    /**
-     *  Reserve an address range
-     *    @param pid the parent VNET ID to get the leases from
-     *    @param rid the reservation VNET ID to store the reserved AR
-     *    @param rsize number of addresses to reserve
-     *    @param ar_id AR to make the reservation from
-     *    @param mac the first mac in the reservations
-     *    @param err error message
-     *    @return 0 on success
-     */
+
+    int reserve_addr_by_ip6(int pid, int rid, unsigned int rsize,
+            unsigned int ar_id, const string& ip, string& err);
+
     int reserve_addr_by_mac(int pid, int rid, unsigned int rsize,
             unsigned int ar_id, const string& mac, string& err);
+
 private:
     /**
      *  Holds the system-wide MAC prefix
