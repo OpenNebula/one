@@ -33,6 +33,18 @@ $: << File.dirname(__FILE__)
 
 require 'vcenter_driver2'
 
+################################################################################
+
+def check_valid(parameter, label)
+    if parameter.nil? || parameter.empty?
+        STDERR.puts "Not enough information to monitor the datastore. " +
+                    "Missing '#{label}'."
+        exit -1
+    end
+end
+
+################################################################################
+
 drv_action_enc = ARGV[0]
 id             = ARGV[1]
 
@@ -41,6 +53,7 @@ drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DAT
 
 host_id = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
 ds_ref = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_REF"]
+check_valid ds_ref, "ds_ref"
 
 if host_id.nil? || ds_ref.nil?
     STDERR.puts "Not enough information to monitor the image."
@@ -48,8 +61,13 @@ if host_id.nil? || ds_ref.nil?
 end
 
 vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-ds = VCenterDriver::Datastore.new_from_ref(ds_ref, vi_client)
 
-puts ds.monitor
+if ds_ref.start_with?('group-')
+    storpod = VCenterDriver::StoragePod.new_from_ref(ds_ref, vi_client)
+    puts storpod.monitor
+else
+    ds = VCenterDriver::Datastore.new_from_ref(ds_ref, vi_client)
+    puts ds.monitor
+end
 
 vi_client.close_connection

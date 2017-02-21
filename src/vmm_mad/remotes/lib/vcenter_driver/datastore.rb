@@ -20,6 +20,7 @@ class DatastoreFolder
         end
 
         VIClient.get_entities(@item, "StoragePod").each do |sp|
+            @items[sp._ref.to_sym] = StoragePod.new(sp)
             VIClient.get_entities(sp, "Datastore").each do |item|
                 item_name = item._ref
                 @items[item_name.to_sym] = Datastore.new(item)
@@ -36,33 +37,28 @@ class DatastoreFolder
     end
 
     ########################################################################
-    # Returns a Datastore. Uses the cache if available.
+    # Returns a Datastore or StoragePod. Uses the cache if available.
     # @param ref [Symbol] the vcenter ref
     # @return Datastore
     ########################################################################
     def get(ref)
         if !@items[ref.to_sym]
-            rbvmomi_dc = RbVmomi::VIM::Datastore.new(@item._connection, ref)
-            @items[ref.to_sym] = Datastore.new(rbvmomi_dc)
+            if ref.start_with?("group-")
+                rbvmomi_spod = RbVmomi::VIM::StoragePod.new(@item._connection, ref) rescue nil
+                @items[ref.to_sym] = StoragePod.new(rbvmomi_spod)
+            else
+                rbvmomi_ds = RbVmomi::VIM::Datastore.new(@item._connection, ref) rescue nil
+                @items[ref.to_sym] = Datastore.new(rbvmomi_ds)
+            end
         end
-
         @items[ref.to_sym]
     end
 end # class DatastoreFolder
 
-class Datastore
+class Storage
     attr_accessor :item
 
     include Memoize
-
-    def initialize(item, vi_client=nil)
-        if !item.instance_of? RbVmomi::VIM::Datastore
-            raise "Expecting type 'RbVmomi::VIM::Datastore'. " <<
-                  "Got '#{item.class} instead."
-        end
-
-        @item = item
-    end
 
     def monitor
         summary = @item.summary
@@ -72,6 +68,35 @@ class Datastore
         used_mb  = total_mb - free_mb
 
         "USED_MB=#{used_mb}\nFREE_MB=#{free_mb} \nTOTAL_MB=#{total_mb}"
+    end
+end # class Storage
+
+class StoragePod < Storage
+
+    def initialize(item, vi_client=nil)
+        if !item.instance_of? RbVmomi::VIM::StoragePod
+            raise "Expecting type 'RbVmomi::VIM::StoragePod'. " <<
+                  "Got '#{item.class} instead."
+        end
+
+        @item = item
+    end
+
+     # This is never cached
+    def self.new_from_ref(ref, vi_client)
+        self.new(RbVmomi::VIM::StoragePod.new(vi_client.vim, ref), vi_client)
+    end
+end # class StoragePod
+
+class Datastore < Storage
+
+    def initialize(item, vi_client=nil)
+        if !item.instance_of? RbVmomi::VIM::Datastore
+            raise "Expecting type 'RbVmomi::VIM::Datastore'. " <<
+                  "Got '#{item.class} instead."
+        end
+
+        @item = item
     end
 
     def create_virtual_disk(img_name, size, adapter_type, disk_type)

@@ -179,7 +179,6 @@ class VirtualMachine
 
     # @return RbVmomi::VIM::Datastore or nil
     def get_ds
-        # Todo remove this comment req_ds = one_item['USER_TEMPLATE/VCENTER_DATASTORE']
         req_ds = one_item['USER_TEMPLATE/VCENTER_DS_REF']
 
         if req_ds
@@ -266,38 +265,92 @@ class VirtualMachine
 
         clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec(spec_hash_clone)
 
-        vm = nil
-        begin
-            vm = vc_template.CloneVM_Task(
-                   :folder => vc_template.parent,
-                   :name   => vcenter_name,
-                   :spec   => clone_spec).wait_for_completion
-        rescue Exception => e
-            if !e.message.start_with?('DuplicateName')
-                raise "Cannot clone VM Template: #{e.message}\n#{e.backtrace}"
+        ds = get_ds
+
+        if ds.instance_of? RbVmomi::VIM::StoragePod
+            # VM is cloned using Storage Resource Manager for StoragePods
+            begin
+                vm = storagepod_clonevm_task(vc_template, vcenter_name,
+                                             clone_spec, ds)
+            rescue Exception => e
+                raise "Cannot clone VM Template to StoragePod: #{e.message}"
             end
-
-            vm_folder = cluster.get_dc.vm_folder
-            vm_folder.fetch!
-            vm = vm_folder.items
-                     .select{|k,v| v.item.name == vcenter_name}
-                     .values.first.item rescue nil
-
-            if vm
-                vm.Destroy_Task.wait_for_completion
+        else
+            vm = nil
+            begin
                 vm = vc_template.CloneVM_Task(
                     :folder => vc_template.parent,
                     :name   => vcenter_name,
                     :spec   => clone_spec).wait_for_completion
-            else
-                raise "Cannot clone VM Template"
+            rescue Exception => e
+                if !e.message.start_with?('DuplicateName')
+                    raise "Cannot clone VM Template: #{e.message}\n#{e.backtrace}"
+                end
+
+                vm_folder = cluster.get_dc.vm_folder
+                vm_folder.fetch!
+                vm = vm_folder.items
+                        .select{|k,v| v.item.name == vcenter_name}
+                        .values.first.item rescue nil
+
+                if vm
+                    vm.Destroy_Task.wait_for_completion
+                    vm = vc_template.CloneVM_Task(
+                        :folder => vc_template.parent,
+                        :name   => vcenter_name,
+                        :spec   => clone_spec).wait_for_completion
+                else
+                    raise "Cannot clone VM Template"
+                end
             end
         end
-
         # @item is populated
         @item = vm
 
         return self['_ref']
+    end
+
+
+    def storagepod_clonevm_task(vc_template, vcenter_name, clone_spec, storpod)
+
+        storage_manager = vc_template
+                            ._connection.serviceContent.storageResourceManager
+
+        storage_spec = RbVmomi::VIM.StoragePlacementSpec(
+            type: 'clone',
+            cloneName: vcenter_name,
+            folder: vc_template.parent,
+            podSelectionSpec: RbVmomi::VIM.StorageDrsPodSelectionSpec(storagePod: storpod),
+            vm: vc_template,
+            cloneSpec: clone_spec
+        )
+
+        # Query a storage placement recommendation
+        result = storage_manager
+                    .RecommendDatastores(storageSpec: storage_spec) rescue nil
+
+        raise "Could not get placement specification for StoragePod" if result.nil?
+
+        if !result.respond_to?(:recommendations) || result.recommendations.size == 0
+            raise "Could not get placement specification for StoragePod"
+        end
+
+        # Get recommendation key to be applied
+        key = result.recommendations.first.key ||= ''
+        raise "Missing Datastore recommendation for StoragePod" if key.empty?
+
+        begin
+            apply_sr = storage_manager
+                            .ApplyStorageDrsRecommendation_Task(key: [key])
+                            .wait_for_completion
+            return apply_sr.vm
+        rescue Exception => e
+            raise "Failure applying recommendation: #{e.message}"
+        end
+    end
+
+    def get_srm(vc_template)
+        vcself['_connection.serviceContent.storageResourceManager']
     end
 
 
@@ -310,12 +363,10 @@ class VirtualMachine
 
         ds = get_ds
 
-        if ds
+        if ds.instance_of? Datastore
             relocate_spec_params[:datastore] = ds
             relocate_spec_params[:diskMoveType] = :moveChildMostDiskBacking
         end
-
-        # TODO storpod (L2575 vcenter_driver.rb)
 
         relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(
                                                          relocate_spec_params)
