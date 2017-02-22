@@ -27,7 +27,7 @@ end
 $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
-require 'vcenter_driver2'
+require 'vcenter_driver'
 
 host_id         = ARGV[0]
 target_ds_ref   = ARGV[1]

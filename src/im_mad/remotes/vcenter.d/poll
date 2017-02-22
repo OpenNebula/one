@@ -26,7 +26,7 @@ end
 
 $: << RUBY_LIB_LOCATION
 
-require 'vcenter_driver2'
+require 'vcenter_driver'
 
 host_id = ARGV[4]
 

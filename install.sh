@@ -236,7 +236,8 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/mads \
           $LIB_LOCATION/sh \
           $LIB_LOCATION/ruby/cli \
-          $LIB_LOCATION/ruby/cli/one_helper"
+          $LIB_LOCATION/ruby/cli/one_helper \
+          $LIB_LOCATION/ruby/vcenter_driver"
 
 VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im \
@@ -381,6 +382,7 @@ INSTALL_FILES=(
     AUTH_DUMMY_FILES:$VAR_LOCATION/remotes/auth/dummy
     AUTH_PLAIN_FILES:$VAR_LOCATION/remotes/auth/plain
     VMM_EXEC_LIB_FILES:$VAR_LOCATION/remotes/vmm/lib
+    VMM_EXEC_LIB_VCENTER_FILES:$LIB_LOCATION/ruby/vcenter_driver
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/vmm/vcenter
     VMM_EXEC_EC2_SCRIPTS:$VAR_LOCATION/remotes/vmm/ec2
@@ -643,6 +645,21 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
 VMM_EXEC_LIB_FILES="src/vmm_mad/remotes/lib/poll_common.rb"
 
 #-------------------------------------------------------------------------------
+# VMM Lib vcenter files, used by the vCenter Driver to be installed in
+# $REMOTES_LOCATION/vmm/lib/vcenter
+#-------------------------------------------------------------------------------
+
+VMM_EXEC_LIB_VCENTER_FILES="src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb
+                    src/vmm_mad/remotes/lib/vcenter_driver/vi_client.rb \
+                    src/vmm_mad/remotes/lib/vcenter_driver/file_helper.rb \
+                    src/vmm_mad/remotes/lib/vcenter_driver/host.rb \
+                    src/vmm_mad/remotes/lib/vcenter_driver/virtual_machine.rb \
+                    src/vmm_mad/remotes/lib/vcenter_driver/vi_helper.rb \
+                    src/vmm_mad/remotes/lib/vcenter_driver/memoize.rb \
+                    src/vmm_mad/remotes/lib/vcenter_driver/datacenter.rb \
+                    src/vmm_mad/remotes/lib/vcenter_driver/network.rb"
+
+#-------------------------------------------------------------------------------
 # VMM SH Driver KVM scripts, to be installed under $REMOTES_LOCATION/vmm/kvm
 #-------------------------------------------------------------------------------
 
@@ -690,7 +707,7 @@ VMM_EXEC_VCENTER_SCRIPTS="src/vmm_mad/remotes/vcenter/cancel \
                          src/vmm_mad/remotes/vcenter/poll \
                          src/vmm_mad/remotes/vcenter/shutdown \
                          src/vmm_mad/remotes/vcenter/reconfigure \
-                         src/vmm_mad/remotes/vcenter/prereconfigure"
+                         src/vmm_mad/remotes/vcenter/preconfigure"
 
 #------------------------------------------------------------------------------
 # VMM Driver EC2 scripts, to be installed under $REMOTES_LOCATION/vmm/ec2
@@ -758,7 +775,7 @@ IM_PROBES_KVM_PROBES_FILES="src/im_mad/remotes/kvm-probes.d/kvm.rb \
                      src/im_mad/remotes/common.d/version.sh \
                      src/im_mad/remotes/common.d/collectd-client-shepherd.sh"
 
-IM_PROBES_VCENTER_FILES="src/im_mad/remotes/vcenter.d/vcenter.rb"
+IM_PROBES_VCENTER_FILES="src/im_mad/remotes/vcenter.d/poll"
 
 IM_PROBES_EC2_FILES="src/im_mad/remotes/ec2.d/poll"
 

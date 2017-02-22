@@ -29,7 +29,7 @@ end
 $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
-require 'vcenter_driver2'
+require 'vcenter_driver'
 require 'uri'
 require 'cgi'
 require 'fileutils'
