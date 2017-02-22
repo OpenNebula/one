@@ -169,7 +169,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         end
 
         vm_nics.each do |nic|
-            ["IP", "IP6_GLOBAL", "IP6_ULA",
+            ["IP", "IP6_GLOBAL", "IP6_ULA", "IP6",
              "VROUTER_IP", "VROUTER_IP6_GLOBAL", "VROUTER_IP6_ULA"].each do |attr|
                 if nic.has_key?(attr)
                     ips.push(nic[attr])
@@ -752,7 +752,7 @@ in the frontend machine.
 
                 next if nic.has_key?("CLI_DONE")
 
-                ["IP6_LINK", "IP6_ULA", "IP6_GLOBAL"].each do |attr|
+                ["IP6_LINK", "IP6_ULA", "IP6_GLOBAL", "IP6"].each do |attr|
                     if nic.has_key?(attr)
                         shown_ips << nic[attr]
 

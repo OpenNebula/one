@@ -586,8 +586,48 @@ int VirtualNetworkPool::reserve_addr(int pid, int rid, unsigned int rsize, unsig
 
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetworkPool::reserve_addr_by_ip(int pid, int rid, unsigned int rsize, unsigned int ar_id,
-        const string& ip, string& err)
+int VirtualNetworkPool::reserve_addr_by_ip6(int pid, int rid, unsigned int rsize,
+        unsigned int ar_id, const string& ip, string& err)
+{
+    AddressRange * rar = allocate_ar(rid, err);
+
+    if ( rar == 0 )
+    {
+        return -1;
+    }
+
+    VirtualNetwork * pvn = get(pid, true);
+
+    if ( pvn == 0 )
+    {
+        delete rar;
+
+        ostringstream oss;
+        oss << "Virtual network " << pid << " does not exist";
+
+        err = oss.str();
+        return -1;
+    }
+
+    int rc = pvn->reserve_addr_by_ip6(rid, rsize, ar_id, ip, rar, err);
+
+    update(pvn);
+
+    pvn->unlock();
+
+    if ( rc != 0)
+    {
+        delete rar;
+        return -1;
+    }
+
+    return add_ar(rid, rar, err);
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetworkPool::reserve_addr_by_ip(int pid, int rid, unsigned int rsize,
+        unsigned int ar_id, const string& ip, string& err)
 {
     AddressRange * rar = allocate_ar(rid, err);
 

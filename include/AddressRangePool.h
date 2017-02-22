@@ -117,8 +117,8 @@ public:
         VectorAttribute * nic, const vector<string> &inherit);
 
     /**
-     *  Allocates an address in a suitable address range from the pool by mac
-     *    @param mac the specific MAC address requested
+     *  Allocates an address in a suitable address range from the pool by mac/ip
+     *    @param mac/ip the specific MAC/IP address requested
      *    @param ot the type of the object requesting the address (VM or NET)
      *    @param obid the id of the object requesting the address
      *    @param nic the NIC attribute to be filled with lease attributes
@@ -128,85 +128,63 @@ public:
     int allocate_by_mac(const string &mac, PoolObjectSQL::ObjectType ot, int obid,
         VectorAttribute * nic, const vector<string> &inherit);
 
-    /**
-     *  Allocates an address in a suitable address range from the pool by mac
-     *    @param ip the specific IP address requested
-     *    @param ot the type of the object requesting the address (VM or NET)
-     *    @param obid the id of the object requesting the address
-     *    @param nic the NIC attribute to be filled with lease attributes
-     *    @param inherit attributes to be added to the NIC
-     *    @return 0 if success
-     */
     int allocate_by_ip(const string &ip, PoolObjectSQL::ObjectType ot, int obid,
+        VectorAttribute * nic, const vector<string> &inherit);
+
+    int allocate_by_ip6(const string &ip, PoolObjectSQL::ObjectType ot, int obid,
         VectorAttribute * nic, const vector<string> &inherit);
 
     /**
      *  Holds an address from the specified address range.
      *    @param arid of the address range
-     *    @param ip the ip to hold
-     *    @return 0 on success
-     */
-    int hold_by_ip(unsigned int arid, const string& ip);
-
-    /**
-     *  Holds an address from the first address range containing the MAC
-     *    @param mac the mac to hold
-     *    @return 0 on success
-     */
-    int hold_by_ip(const string& ip);
-
-    /**
-     *  Holds an address from the specified address range.
-     *    @param arid of the address range
-     *    @param mac the mac to hold
+     *    @param mac/ip the mac/ip to hold
      *    @return 0 on success
      */
     int hold_by_mac(unsigned int arid, const string& mac);
 
+    int hold_by_ip(unsigned int arid, const string& ip);
+
+    int hold_by_ip6(unsigned int arid, const string& ip);
+
     /**
      *  Holds an address from the first address range containing the MAC
-     *    @param mac the mac to hold
+     *    @param mac/ip the mac/ip to hold
      *    @return 0 on success
      */
     int hold_by_mac(const string& mac);
 
+    int hold_by_ip(const string& ip);
+
+    int hold_by_ip6(const string& ip);
+
     /**
-     *  Frees the given address by MAC on the given address range
+     *  Frees the given address by MAC/IP on the given address range
      *    @param arid the ID of the address range
      *    @param ot the type of the object requesting the address (VM or NET)
      *    @param obid the id of the object requesting the address
-     *    @param mac the specific MAC address requested
+     *    @param mac/ip the specific MAC/IP address requested
      */
     void free_addr(unsigned int arid, PoolObjectSQL::ObjectType ot, int obid,
         const string& mac);
 
-    /**
-     *  Frees the given address by IP on the given address range
-     *    @param arid the ID of the address range
-     *    @param ot the type of the object requesting the address (VM or NET)
-     *    @param obid the id of the object requesting the address
-     *    @param ip the specific IP address requested
-     */
     void free_addr_by_ip(unsigned int arid, PoolObjectSQL::ObjectType ot,
         int obid, const string& ip);
 
+    void free_addr_by_ip6(unsigned int arid, PoolObjectSQL::ObjectType ot,
+        int obid, const string& ip);
+
     /**
-     *  Frees the given address by MAC from all address ranges containing
-     *  the MAC
+     *  Frees the given address by MAC/IP from all address ranges containing
+     *  the MAC/IP
      *    @param ot the type of the object requesting the address (VM or NET)
      *    @param obid the id of the object requesting the address
-     *    @param mac the specific MAC address requested
+     *    @param mac/ip the specific MAC/IP address requested
      */
     void free_addr(PoolObjectSQL::ObjectType ot, int obid, const string& mac);
 
-    /**
-     *  Frees the given address by IP from all address ranges containing
-     *  the IP
-     *    @param ot the type of the object requesting the address (VM or NET)
-     *    @param obid the id of the object requesting the address
-     *    @param ip the specific IP address requested
-     */
     void free_addr_by_ip(PoolObjectSQL::ObjectType ot, int id, const string& ip);
+
+    void free_addr_by_ip6(PoolObjectSQL::ObjectType ot, int id,const string& ip);
 
     /**
      *  Frees all the addressed owned by the given object
@@ -265,28 +243,23 @@ public:
         AddressRange *rar);
 
     /**
-     *  Reserve a number of addresses from an address range from a given ip
+     *  Reserve a number of addresses from an address range from a given ip/mac
      *    @param vid the id of the VNET making the reservation
      *    @param rsize number of addresses to reserve
      *    @param ar_id the address range to reserve the addresses from
-     *    @param ip the first IP in the reservation
-     *    @param rar a new address range to place the reservation
-     *    @return 0 on success
-     */
-    int reserve_addr_by_ip(int vid, unsigned int rsize, unsigned int ar_id,
-        const string& ip, AddressRange *rar);
-
-    /**
-     *  Reserve a number of addresses from an address range from a given ip
-     *    @param vid the id of the VNET making the reservation
-     *    @param rsize number of addresses to reserve
-     *    @param ar_id the address range to reserve the addresses from
-     *    @param mac the first IP in the reservation
+     *    @param mac/ip the first MAC/IP in the reservation
      *    @param rar a new address range to place the reservation
      *    @return 0 on success
      */
     int reserve_addr_by_mac(int vid, unsigned int rsize, unsigned int ar_id,
         const string& mac, AddressRange *rar);
+
+    int reserve_addr_by_ip(int vid, unsigned int rsize, unsigned int ar_id,
+        const string& ip, AddressRange *rar);
+
+    int reserve_addr_by_ip6(int vid, unsigned int rsize, unsigned int ar_id,
+        const string& ip, AddressRange *rar);
+
 
     // *************************************************************************
     // Helpers & Formatting

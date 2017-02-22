@@ -301,13 +301,15 @@ void VirtualNetworkReserve::request_execute(
         return;
     }
 
-    string ip, mac;
+    string ip, mac, ip6;
 
     tmpl.get("IP", ip);
 
+    tmpl.get("IP6", ip6);
+
     tmpl.get("MAC", mac);
 
-    if (!with_ar_id && (!ip.empty()||!mac.empty()))
+    if (!with_ar_id && (!ip.empty() || !mac.empty() || !ip6.empty()))
     {
         att.resp_msg = "AR_ID must be specified for IP/MAC based reservations";
         failure_response(ACTION, att);
@@ -421,11 +423,18 @@ void VirtualNetworkReserve::request_execute(
     {
         if (!ip.empty())
         {
-            rc = vnpool->reserve_addr_by_ip(id, rid, size, ar_id, ip, att.resp_msg);
+            rc = vnpool->reserve_addr_by_ip(id, rid, size, ar_id, ip,
+                    att.resp_msg);
+        }
+        else if (!ip6.empty())
+        {
+            rc = vnpool->reserve_addr_by_ip6(id, rid, size, ar_id, ip6,
+                    att.resp_msg);
         }
         else if (!mac.empty())
         {
-            rc = vnpool->reserve_addr_by_mac(id, rid, size, ar_id, mac, att.resp_msg);
+            rc = vnpool->reserve_addr_by_mac(id, rid, size, ar_id, mac,
+                    att.resp_msg);
         }
         else
         {
