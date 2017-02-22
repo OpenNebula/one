@@ -715,6 +715,8 @@ get '/:resource/:id/template' do
 end
 
 get '/:resource/:id' do
+    require 'pry'
+    binding.pry()
     if params[:extended]
         @SunstoneServer.get_resource(params[:resource], params[:id], true)
     else
