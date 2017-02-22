@@ -52,8 +52,10 @@ begin
 
     ds = VCenterDriver::Datastore.new_from_ref(ds_ref, vi_client)
 
-    ds.delete_virtual_disk(img_src)
+    img_dir = img_src.split('/')[0..-2].join('/')
 
+    ds.delete_virtual_disk(img_src)
+    ds.rm_directory(img_dir) if ds.dir_empty?(img_dir)
 rescue Exception => e
     STDERR.puts "Error deleting virtual disk #{img_src}."\
                 " Reason: \"#{e.message}\"\n#{e.backtrace}"

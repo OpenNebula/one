@@ -177,6 +177,33 @@ class Datastore < Storage
         end
     end
 
+    def rm_directory(directory)
+        ds_name = self['name']
+
+        rm_directory_params = {
+            :name                     => "[#{ds_name}] #{directory}",
+            :datacenter               => get_dc.item
+        }
+
+        get_fm.DeleteDatastoreFile_Task(rm_directory_params)
+    end
+
+    def dir_empty?(path)
+        ds_name = self['name']
+
+        spec = RbVmomi::VIM::HostDatastoreBrowserSearchSpec.new
+
+        search_params = {
+            'datastorePath' => "[#{ds_name}] #{path}",
+            'searchSpec'    => spec
+        }
+
+        ls = self['browser'].SearchDatastoreSubFolders_Task(search_params)
+
+        ls.info.result && ls.info.result.length == 1  && \
+                ls.info.result.first.file.length == 0
+    end
+
     def upload_file(source_path, target_path)
         @item.upload(target_path, source_path)
     end
