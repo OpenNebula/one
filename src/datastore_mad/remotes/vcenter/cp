@@ -55,7 +55,7 @@ end
 
 temp_file = nil
 filename = File.basename(img_path)
-target_path = Digest::MD5.hexdigest(Time.now.to_s + id.to_s)
+target_path = "one/#{id}"
 
 # If image is in a remote http location it has to be downloaded
 # or if is a zipped file it has to be unzipped in a temp folder
@@ -75,7 +75,6 @@ if VCenterDriver::FileHelper.is_remote_or_needs_unpack?(img_path)
     downsh_args << "--limit #{limit_bw} " if limit_bw && !limit_bw.empty?
 
     downloader = "#{File.dirname(__FILE__)}/../downloader.sh #{downsh_args}"
-
 
     rc = system("#{downloader} #{img_path} #{temp_file}")
 

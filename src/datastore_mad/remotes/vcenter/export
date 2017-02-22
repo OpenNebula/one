@@ -17,7 +17,7 @@
 # ---------------------------------------------------------------------------- #
 
 ###############################################################################
-# This script is used retrieve the file size of a disk 
+# This script is used retrieve the file size of a disk
 ###############################################################################
 
 ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
@@ -38,8 +38,6 @@ id             = ARGV[1]
 
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
-
-
 
 img_source = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/SOURCE"]
 img_size   = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/SIZE"]

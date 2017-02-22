@@ -28,7 +28,6 @@ $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
 require 'vcenter_driver2'
-require 'digest'
 
 drv_action_enc = ARGV[0]
 id             = ARGV[1]
@@ -53,7 +52,7 @@ source_ds = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, source_ds_id
 source_ds_ref = source_ds['TEMPLATE/VCENTER_DS_REF']
 
 # Generate target path
-target_path = Digest::MD5.hexdigest(Time.now.to_s + id.to_s) + ".vmdk"
+target_path = "one/#{id}/one-#{id}.vmdk"
 
 begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)

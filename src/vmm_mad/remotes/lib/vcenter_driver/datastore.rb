@@ -108,6 +108,11 @@ class Datastore < Storage
     end
 
     def create_virtual_disk(img_name, size, adapter_type, disk_type)
+        leading_dirs = img_name.split('/')[0..-2]
+        if !leading_dirs.empty?
+            create_directory(leading_dirs.join('/'))
+        end
+
         ds_name = self['name']
 
         vmdk_spec = RbVmomi::VIM::FileBackedVirtualDiskSpec(
@@ -138,6 +143,11 @@ class Datastore < Storage
     # @param ds_name [String] name of the datastore
     # @param img_str [String] path to the VirtualDisk
     def copy_virtual_disk(src_path, target_ds_name, target_path)
+        leading_dirs = target_path.split('/')[0..-2]
+        if !leading_dirs.empty?
+            create_directory(leading_dirs.join('/'))
+        end
+
         source_ds_name = self['name']
 
         copy_params = {

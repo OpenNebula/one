@@ -56,7 +56,7 @@ check_valid ds_ref, "ds_ref"
 
 # TODO path in vCenter? choose a specific directory
 
-img_name = "one-#{img_id}"
+img_name = "one/#{img_id}/one-#{img_id}"
 
 if fs_type == "save_as"
     puts img_name + ".vmdk"
@@ -71,7 +71,7 @@ begin
     puts ds.create_virtual_disk(img_name, size, adapter_type, disk_type)
 
 rescue Exception => e
-    STDERR.puts "Error creating virtual disk #{img_src}."\
+    STDERR.puts "Error creating virtual disk #{img_name}."\
                 " Reason: \"#{e.message}\"\n#{e.backtrace}"
     exit -1
 ensure
