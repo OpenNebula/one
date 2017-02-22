@@ -112,12 +112,9 @@ define(function(require) {
       },
       zoom: {
         interactive: true
-<<<<<<< HEAD
       },
       pan: {
         interactive: true
-=======
->>>>>>> 7b126dd... F #4359 Added auth panel to user settings
       }
     };
     //options.xaxis.zoomRange = false;
