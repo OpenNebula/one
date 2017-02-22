@@ -426,7 +426,7 @@ void VirtualNetworkReserve::request_execute(
             rc = vnpool->reserve_addr_by_ip(id, rid, size, ar_id, ip,
                     att.resp_msg);
         }
-        if (!ip6.empty())
+        else if (!ip6.empty())
         {
             rc = vnpool->reserve_addr_by_ip6(id, rid, size, ar_id, ip6,
                     att.resp_msg);

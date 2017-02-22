@@ -48,6 +48,14 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         :description => "First IP address in . notation"
     }
 
+    IP6 = {
+        :name => "ip6",
+        :short => "-6 ip6",
+        :large => "--ip6 ip6",
+        :format => String,
+        :description => "First IPv6 address in : notation"
+    }
+
     SIZE = {
         :name => "size",
         :short => "-s size",
@@ -117,7 +125,8 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
     ]
 
     ADDAR_OPTIONS = [
-        SIZE, MAC, IP, IP6_GLOBAL, IP6_ULA, GATEWAY, NETMASK, VN_MAD, VLAN_ID ]
+        SIZE, MAC, IP, IP6, IP6_GLOBAL, IP6_ULA, GATEWAY, NETMASK, VN_MAD,
+        VLAN_ID ]
 
     def self.rname
         "VNET"

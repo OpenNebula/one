@@ -1562,7 +1562,7 @@ int AddressRange::free_addr_by_ip6(PoolObjectSQL::ObjectType ot, int obid,
 {
     string error_msg;
 
-    if (!is_ipv6())
+    if (!is_ipv6_static())
     {
         return -1;
     }
