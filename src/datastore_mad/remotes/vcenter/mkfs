@@ -41,6 +41,7 @@ drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DAT
 
 ds_ref       = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_REF"]
 host_id      = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
+ds_image_dir = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_IMAGE_DIR"] || "one"
 img_id       = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/ID"]
 adapter_type = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/ADAPTER_TYPE"]
 disk_type    = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/DISK_TYPE"]
@@ -56,7 +57,7 @@ check_valid ds_ref, "ds_ref"
 
 # TODO path in vCenter? choose a specific directory
 
-img_name = "one/#{img_id}/one-#{img_id}"
+img_name = "#{ds_image_dir}/#{img_id}/one-#{img_id}"
 
 if fs_type == "save_as"
     puts img_name + ".vmdk"
