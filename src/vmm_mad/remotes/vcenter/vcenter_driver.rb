@@ -2838,16 +2838,82 @@ private
 
         # If the VM is not new, avoid reading DISKS
         if !newvm
-            vm.config.hardware.device.select { |d|
+
+            disk_array = []
+
+            # B4912 - Get [ds_name] img_name of DISKs that were hot-plugged
+            # from vCenter extraConfig
+            hotplugged_disks = []
+            extraconfig_disks = vm.config.extraConfig.select do |val|
+                val[:key] == "opennebula.hotplugged_disks"
+            end
+
+            if extraconfig_disks && !extraconfig_disks.empty?
+                 hotplugged_disks = extraconfig_disks[0][:value].to_s.split(";")
+            end
+
+            # Get image info from DISKs inside VM template
+            one_disk_images = []
+            disks.each{|disk|
+                disk_name = "[#{disk.elements["DATASTORE"].text}] "\
+                            "#{disk.elements["SOURCE"].text}"
+                one_disk_images << disk_name
+                # B4912 - Add DISKs that were attached in POWEROFF
+                if !hotplugged_disks.include?(disk_name)
+                    hotplugged_disks << disk_name
+                end
+            }
+
+            vm.config.hardware.device.each do |d|
                 if is_disk?(d)
                    disks.each{|disk|
+                      disk_name = "[#{disk.elements["DATASTORE"].text}] "\
+                                  "#{disk.elements["SOURCE"].text}"
                       if d.backing.respond_to?(:fileName) &&
-                         disk.elements["SOURCE"].text == d.backing.fileName &&
+                         disk_name == d.backing.fileName
                          disks.delete(disk)
                       end
                    }
+                   # B4912 - Remove detached DISKs from vCenter that were unplugged in POWEROFF
+                   if !one_disk_images.include?(d.backing.fileName) && hotplugged_disks.include?(d.backing.fileName)
+                      disk_array << { :operation => :remove, :device => d}
+                      hotplugged_disks.delete(d.backing.fileName)
+                   end
                 end
+            end
+
+            # B4912 - Save what DISKs have been attached by OpenNebula in vCenter VM extraconfig
+            if !hotplugged_disks.empty?
+                config_array << {
+                        :key    => 'opennebula.hotplugged_disks',
+                        :value  => hotplugged_disks.join(";")
+                }
+            else
+                config_array << {
+                        :key    => 'opennebula.hotplugged_disks',
+                        :value  => ""
+                }
+            end
+
+            device_change += disk_array
+
+        else
+            # B4912 - Add DISKs that have been added to the VM template
+            # to the hotplugged_disks extraconfig so we can track what must be removed
+            # When deploying VM
+            one_disk_images = []
+            disks.each{|disk|
+                disk_name = "[#{disk.elements["DATASTORE"].text}] "\
+                            "#{disk.elements["SOURCE"].text}"
+                one_disk_images << disk_name
             }
+
+            if !one_disk_images.empty?
+                config_array << {
+                    :key    => 'opennebula.hotplugged_disks',
+                    :value  => one_disk_images.join(";")
+                }
+            end
         end
 
         if !disks.nil?
@@ -2899,6 +2965,9 @@ private
     ############################################################################
     def self.attach_disk(hostname, deploy_id, ds_name, img_name, type, size_kb, vm=nil, connection=nil)
         only_return = true
+        spec_hash = {}
+        device_config_spec = nil
+
         if !vm
             hid         = VIClient::translate_hostname(hostname)
             connection  = VIClient.new(hid)
@@ -2923,6 +2992,26 @@ private
         ds         = datastores.select{|ds| ds.name == ds_name}[0]
 
         controller, new_number = find_free_controller(vm)
+
+        #B4912 track hot plugged disks
+        hotplugged_disks = vm.config.extraConfig.select do |val|
+             val[:key] == "opennebula.hotplugged_disks"
+        end
+
+        disk_name = "[#{ds_name}] #{img_name}"
+        if hotplugged_disks && !hotplugged_disks.empty?
+            disk_name = "[#{ds_name}] #{img_name}"
+            hotplugged_disks = hotplugged_disks[0][:value].to_s.split(";")
+            hotplugged_disks << disk_name if !hotplugged_disks.include?(disk_name)
+        else
+            hotplugged_disks = []
+            hotplugged_disks << disk_name
+        end
+
+        extra_config = [{:key=>"opennebula.hotplugged_disks",
+                         :value=>hotplugged_disks.join(";")}]
+
+        spec_hash[:extraConfig] = extra_config
 
         if type == "CDROM"
             vmdk_backing = RbVmomi::VIM::VirtualCdromIsoBackingInfo(
@@ -2949,7 +3038,8 @@ private
                         :connected => true,
                         :allowGuestControl => true
                       )
-                   )}]
+                   )}],
+                   :extraConfig => extra_config
                 )
 
                 vm.ReconfigVM_Task(:spec =>
@@ -2992,9 +3082,9 @@ private
             )
         end
 
-        vm_config_spec = RbVmomi::VIM::VirtualMachineConfigSpec(
-          :deviceChange => [device_config_spec]
-        )
+        spec_hash[:deviceChange] = [device_config_spec]
+
+        vm_config_spec = RbVmomi::VIM::VirtualMachineConfigSpec(spec_hash)
 
         return vm_config_spec if only_return
 
@@ -3116,10 +3206,25 @@ private
 
         raise "Disk #{img_path} not found." if disk.nil?
 
+        #B4912 track hot plugged disks
+        hotplugged_disks = vm.config.extraConfig.select do |val|
+             val[:key] == "opennebula.hotplugged_disks"
+        end
+
+        config_array = []
+        if hotplugged_disks && !hotplugged_disks.empty?
+            hotplugged_disks = hotplugged_disks[0][:value].to_s.split(";")
+            hotplugged_disks.delete(ds_and_img_name) # remove hotplugged disk
+            config_array = [{:key=>"opennebula.hotplugged_disks",
+                             :value=>hotplugged_disks.join(";")}]
+        end
+
         spec = { :deviceChange => [{
                   :operation => :remove,
                   :device => disk[0]
                }]}
+
+        spec[:extraConfig] = config_array if !config_array.empty?
 
         vm.ReconfigVM_Task(:spec => spec).wait_for_completion
 
