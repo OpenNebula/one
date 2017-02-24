@@ -1,22 +1,18 @@
-<fieldset>
-  <legend>
-    <i class="fa fa-globe"></i> {{tr "VM Group"}}
-  </legend>
-  <div>
-    <a class="button small provision_add_vmgroup">
-      <i class="fa fa-lg fa-plus-circle add_vmgroup"></i> {{tr "VM Group"}}
-    </a>
-  </div>
+
   <div class="row" id="vmgroup_section_tables">
-    <div class="medium-6 columns">
+    <div class="medium-12 columns">
+      <a class="button secondary small clear_vmgroup_select" style="float:right">
+        <i class="fa fa-lg fa-times-circle"></i> {{tr "Clear"}}
+      </a>
+    </div>
+    <div class="medium-8 columns">
       {{{vmGroupTableHTML}}}
     </div>
-    <div class="medium-6 columns" id="role_section">
-      <div style= "margin-top: 4em">
-        <h6>Roles</h6>
-        <select name="roles" id="role_table_section" size="5" style="height: auto;">
+    <div class="medium-4 columns" id="role_section">
+      <div>
+        <h6 class="title_roles">{{tr "Roles"}}</h6>
+        <select name="roles" class="role_table_section" size="5" style="height: auto;">
         </select>
       </div>
     </div>
   </div>
-</fieldset>

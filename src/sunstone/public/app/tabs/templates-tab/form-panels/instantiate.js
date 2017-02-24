@@ -169,7 +169,7 @@ define(function(require) {
       var vmgroup = VMGroupSection.retrieve($(".vmgroupContext"+ template_id));
 
       if(vmgroup){
-        tmp_json.VMGROUP = vmgroup;
+        $.extend(tmp_json, vmgroup);
       }
 
       var nics = [];
@@ -225,13 +225,11 @@ define(function(require) {
       $.extend(tmp_json, CapacityInputs.retrieveChanges(capacityContext));
 
       extra_info['template'] = tmp_json;
-      if(vmgroup){
         for (var i = 0; i < n_times_int; i++) {
           extra_info['vm_name'] = vm_name.replace(/%i/gi, i); // replace wildcard
 
           Sunstone.runAction("Template."+action, [template_id], extra_info);
         }
-      }
     });
 
     return false;

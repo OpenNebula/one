@@ -22,21 +22,52 @@ define(function(require) {
   var OpenNebulaTemplate = require('opennebula/template');
   var TemplateSection = require('hbs!./vmgroup-section/html');
   var VMGroupsTable = require('tabs/vmgroup-tab/datatable');
+  var UniqueId = require('utils/unique-id');
   //var RoleTable = require('./vmgroup-section/datatable');
 
   //var roleTable = undefined;
 
   return {
+    'onShow': _onShow,
+    'setup': _setup,
+    'html': _html,
+    'fill': _fill,
     'insert': _insert,
     'retrieve': _retrieve
   }
 
+  function _setup(context, vmGroupTable){
+    var templateVmgroup = null;
+    vmGroupTable.idInput().on("change", function(){
+      _generate_provision_role_table(context, $(this).val());
+    });
+    $("#role_section",context).hide();
+    $(".role_table_section", context).prop('required', false);
+    $(".clear_vmgroup_select",context).bind("click", function(){
+      vmGroupTable.initSelectResourceTableSelect();
+      $("#role_section",context).hide();
+      $(".role_table_section", context).prop('required', false);
+      $(".role_table_section > option").removeAttr('selected');
+    });
+
+  }
+  function _html(vmGroupTable){
+    return TemplateSection({
+      vmGroupTableHTML: vmGroupTable.dataTableHTML
+    });
+  }
+
+  function _onShow(context,vmGroupTable=undefined){
+    if(vmGroupTable)
+      vmGroupTable.refreshResourceTableSelect();
+    $("#role_section",context).hide();
+    $(".role_table_section", context).prop('required', false);
+  }
  
   function _insert(template_json, context) {
     var templateVmgroup = null;
-    console.log(template_json);
-    this.vmGroupTable = new VMGroupsTable('vmgroups_table', { 'select': true });
-
+    this.vmGroupTable = new VMGroupsTable('vmgroups_table'+UniqueId.id(), { 'select': true });
+    var that = this;
     var templateVmgroup = $(TemplateSection({
           vmGroupTableHTML: this.vmGroupTable.dataTableHTML,
     })).appendTo($(".provision_vmgroup_selector",context));
@@ -49,50 +80,71 @@ define(function(require) {
       $(".provision_add_vmgroup",context).hide();
     });
 
+    $(".clear_vmgroup_select",context).bind("click", function(){
+      $("#vmgroup_section_tables",context).hide();
+      $(".provision_add_vmgroup",context).show();
+      that.vmGroupTable.initSelectResourceTableSelect();
+      $(".role_table_section", context).prop('required', false);
+      $(".role_table_section > option").removeAttr('selected');
+    });
     this.vmGroupTable.idInput().on("change", function(){
       _generate_provision_role_table(context, $(this).val());
     });
-    role_section
     $("#role_section",context).hide();
+    $(".role_table_section", context).prop('required', false);
   }
 
-  function _retrieve(context) {
-    var role_selected = $('#role_table_section').val();
-    var vmgroup_selected = this.vmGroupTable.retrieveResourceTableSelect();
+  function _fill(context, templateJSON, vmGroupTable=undefined){
+    var element = templateJSON.VMGROUP;
+    vmGroupTable.selectResourceTableSelect({ids:element.VMGROUP_ID});
+    _generate_provision_role_table(context,element.VMGROUP_ID, element.ROLE);
+  }
+  function _retrieve(context, vmGroupTable=undefined) {
+    var role_selected = $('.role_table_section').val();
+
+    var vmgroup_selected = undefined;
+    if(this.vmGroupTable)
+      this.vmGroupTable.retrieveResourceTableSelect();
+    if(vmGroupTable)
+      vmgroup_selected = vmGroupTable.retrieveResourceTableSelect();
     if(vmgroup_selected){
       if(role_selected){
         var vmgroup_json = {
           "VMGROUP_ID": vmgroup_selected,
           "ROLE": role_selected
         }
+        vmgroup_json = {
+          "VMGROUP" : vmgroup_json
+        }
         return vmgroup_json;
-      }else  {
-        Notifier.notifyError(Locale.tr("Select a role."));
-        return false;
       }
     }else return undefined;
+    return false;
   }
 
-  function _generate_provision_role_table(context, idvmgroup) {
-    console.log(idvmgroup);
+  function _generate_provision_role_table(context, idvmgroup, fill=undefined) {
     OpenNebula.VMGroup.show({
       data : {
         id: idvmgroup,
       },
       success: function (request, template_json) {
-        console.log(template_json);
-        $("#role_table_section",context).empty();
+        $(".role_table_section",context).empty();
         var roles = template_json["VM_GROUP"].ROLES.ROLE;
+        $(".title_roles",context).text(Locale.tr("Roles")+" "+ template_json["VM_GROUP"].NAME);
         if(roles){
           if(Array.isArray(roles)){
             $.each(roles, function(){
-              $("<option value='"+this.NAME+"'><label>"+ this.NAME + "</label></option><br/>").appendTo("#role_table_section",context);
+              $("<option value='"+this.NAME+"'><label>"+ this.NAME + "</label></option><br/>").appendTo(".role_table_section",context);
             });
           }
           else{
-            $("<option value='"+roles.NAME+"'><label>"+ roles.NAME + "</label></option>").appendTo("#role_table_section",context);
+            $("<option value='"+roles.NAME+"'><label>"+ roles.NAME + "</label></option>").appendTo(".role_table_section",context);
           }
           $("#role_section",context).show();
+          $(".role_table_section", context).prop('required', true);
+          if(fill){
+            $('.role_table_section option[value='+fill+']').attr("selected",true);
+          }
         }
       },
       error: function(request, error_json, container) {
