@@ -344,7 +344,22 @@ define(function(require) {
     "snap-delete",         // DISK_SNAPSHOT_DELETE_ACTION = 26
     "terminate",           // TERMINATE_ACTION       = 27
     "terminate-hard",      // TERMINATE_HARD_ACTION  = 28
-    "disk-resize"          // DISK_RESIZE_ACTION     = 29
+    "disk-resize",         // DISK_RESIZE_ACTION     = 29
+    "deploy",              // DEPLOY_ACTION          = 30
+    "chown",               // CHOWN_ACTION           = 31
+    "chmod",               // CHMOD_ACTION           = 32
+    "updateconf",          // UPDATECONF_ACTION      = 33
+    "rename",              // RENAME_ACTION          = 34
+    "resize",              // RESIZE_ACTION          = 35
+    "update",              // UPDATE_ACTION          = 36
+    "snapshot-create",     // SNAPSHOT_CREATE_ACTION = 37
+    "snapshot-delete",     // SNAPSHOT_DELETE_ACTION = 38
+    "snapshot-revert",     // SNAPSHOT_REVERT_ACTION = 39
+    "disk-saveas",         // DISK_SAVEAS_ACTION     = 40
+    "disk-snapshot-revert",// DISK_SNAPSHOT_REVERT_ACTION = 41
+    "recover",             // RECOVER_ACTION         = 42
+    "retry",               // RETRY_ACTION           = 43
+    "monitor",             // MONITOR_ACTION         = 44
   ];
 
   var VM = {
