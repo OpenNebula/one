@@ -84,7 +84,7 @@ module SGIPTables
             sets = []
 
             the_nets.each do |n|
-                if IPAddr.new(the_nets[n]).ipv6?
+                if IPAddr.new(n).ipv6?
                     command = :ip6tables
                     family  = "inet6"
                 else
@@ -127,7 +127,7 @@ module SGIPTables
             sets = []
 
             the_nets.each do |n|
-                if IPAddr.new(the_nets[n]).ipv6?
+                if IPAddr.new(n).ipv6?
                     command = :ip6tables
                     family  = "inet6"
                 else
