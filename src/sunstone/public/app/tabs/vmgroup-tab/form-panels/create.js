@@ -254,10 +254,13 @@ define(function(require) {
     $.each(element.ROLES.ROLE, function(index, value){
       var name = value.NAME;
         if(name){
-          var html = "<input id="+ name +" type='checkbox' class='roles' value="+name+" />\
-                    <label for="+ name+">"+name+"</label>\
-                    <br />";
+          var html = "<option id='" + name + "' class='roles' value=" + name + "> " + name + "</option>";
           $("#list_roles_select").append(html);
+          $("select #" + name).mousedown(function(e) {
+            e.preventDefault();
+            $(this).prop('selected', !$(this).prop('selected'));
+            return false;
+          });
         }
       });
 
