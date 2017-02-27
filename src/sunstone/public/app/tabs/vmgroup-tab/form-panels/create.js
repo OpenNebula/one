@@ -238,6 +238,7 @@ define(function(require) {
   }
 
   function _fill(context, element) {
+    $("#new_role", context)[0].parentElement.remove();
     var that = this;
     this.setHeader(element);
     this.resourceId = element.ID;
@@ -260,9 +261,10 @@ define(function(require) {
         }
       });
 
+     this.affinity_role_tab.fill(context, element);
     $("#btn_refresh_roles", context).remove();
     $("#affinity",context).show();
-    $("#new_role", context).remove(); 
+     
     //Remove row of roles------------------------------------------------------------------
     
     /*var role_context_first = $('.role_content', context).first();

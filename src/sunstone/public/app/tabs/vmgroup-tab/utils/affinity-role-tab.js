@@ -111,6 +111,7 @@ define(function(require) {
   }
 
   function _fill(context, element) {
+    var that = this;
     var group_roles_index = 0;
     $.each(element.TEMPLATE, function(affinity, value){
       if(affinity == "AFFINED" || affinity == "ANTI_AFFINED"){

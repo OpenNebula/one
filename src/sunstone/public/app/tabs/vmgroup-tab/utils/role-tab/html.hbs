@@ -31,9 +31,9 @@
       <span style="font-weight: 700; color: #7d7c7c;">
         {{tr "VM-VM Affinity"}}
       </span>
-      <input type="radio" id="role_protocol" name="protocol" value="NONE" style="margin-left: 15%" checked>{{tr "None"}}
-      <input type="radio" id="role_protocol" name="protocol" value="AFFINED" style="margin-left: 10%">{{tr "Affined"}}
-      <input type="radio" id="role_protocol" name="protocol" value="ANTI_AFFINED" style="margin-left: 10%">{{tr "Anti Affined"}}
+      <input type="radio" name="protocol_{{idRole}}" value="NONE" style="margin-left: 15%" checked>{{tr "None"}}
+      <input type="radio" name="protocol_{{idRole}}" value="AFFINED" style="margin-left: 10%">{{tr "Affined"}}
+      <input type="radio" name="protocol_{{idRole}}" value="ANTI_AFFINED" style="margin-left: 10%">{{tr "Anti Affined"}}
     </label>
   </div>
 </div>
