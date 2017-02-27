@@ -308,12 +308,6 @@ define(function(require) {
     'SL_PRIMARYIPADDRESS'
   ];
 
-  var MIGRATE_REASON = [
-    "NONE",
-    "ERROR",
-    "USER"
-  ];
-
   var MIGRATE_ACTION_STR = [
     "none",                // NONE_ACTION            = 0
     "migrate",             // MIGRATE_ACTION         = 1
@@ -636,9 +630,6 @@ define(function(require) {
     },
     "migrateActionStr": function(stateId) {
       return MIGRATE_ACTION_STR[stateId];
-    },
-    "migrateReasonStr": function(stateId) {
-      return MIGRATE_REASON[stateId];
     },
     "ipsStr": ipsStr,
     "retrieveExternalIPs": retrieveExternalIPs,
