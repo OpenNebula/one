@@ -2875,12 +2875,17 @@ private
                       end
                    }
                    # B4912 - Remove detached DISKs from vCenter that were unplugged in POWEROFF
-                   if d.backing.respond_to?(:fileName) && !one_disk_images.include?(d.backing.fileName) && hotplugged_disks.include?(d.backing.fileName)
-                      disk_array << { :operation => :remove, :device => d}
-                      hotplugged_disks.delete(d.backing.fileName)
+                   if (d.class.ancestors.index(RbVmomi::VIM::VirtualCdrom)).nil? &&
+                      d.backing.respond_to?(:fileName) &&
+                      !one_disk_images.include?(d.backing.fileName) &&
+                      hotplugged_disks.include?(d.backing.fileName)
+                         disk_array << { :operation => :remove, :device => d}
+                         hotplugged_disks.delete(d.backing.fileName)
                    end
                 end
             end
+
+
 
             # B4912 - Save what DISKs have been attached by OpenNebula in vCenter VM extraconfig
             if !hotplugged_disks.empty?
