@@ -48,14 +48,14 @@ define(function(require) {
     var html = "";
     if(that.valueSt){
       if(that.affinity == "ANTI_AFFINED"){
-        html = "<a value="+that.valueSt+" id="+that.html_group_role_id+" class='button alert small radius group_roles' style='width: 90%; margin-top:0.5em;'>\
-                  <i class='fa fa-lg fa-times-circle remove_group_affinity'> "+that.valueSt+" </i>\
+        html = "<a value="+that.valueSt+" id="+that.html_group_role_id+" class='button alert small radius group_roles' style='font-size: 100%; width: 90%; margin-top:0.5em;'>\
+                  <i style='float: left' class='fa fa-lg fa-times-circle remove_group_affinity'></i> "+that.valueSt+"\
                   </a>\
                   <br/>";
       }
       else{
-        html = "<a value="+that.valueSt+" id="+that.html_group_role_id+" class='button success small radius group_roles' style='width: 90%; margin-top:0.5em;'>\
-                    <i value="+that.valueSt+" class='fa fa-lg fa-times-circle remove_group_affinity'> "+that.valueSt+" </i>\
+        html = "<a value="+that.valueSt+" id="+that.html_group_role_id+" class='button success small radius group_roles' style='font-size: 100%; width: 90%; margin-top:0.5em;'>\
+                    <i style='float: left' class='fa fa-lg fa-times-circle remove_group_affinity'> </i>"+that.valueSt+"\
                   </a>\
                   <br/>";
       }
