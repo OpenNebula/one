@@ -220,8 +220,8 @@ tabs:
             context: true
             scheduling: false
             hybrid: true
-            other: true
             vmgroup: true
+            other: true
     oneflow-templates-tab:
         panel_tabs:
             service_template_info_tab: true
@@ -799,7 +799,7 @@ tabs:
     upgrade-top-tab:
         panel_tabs:
         actions:
-     vmgroup-tab:
+    vmgroup-tab:
         panel_tabs:
             vm_group_info_tab: true
         table_columns:

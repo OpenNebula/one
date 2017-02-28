@@ -220,6 +220,7 @@ tabs:
             context: true
             scheduling: true
             hybrid: true
+            vmgroup: true
             other: true
     oneflow-templates-tab:
         panel_tabs:
