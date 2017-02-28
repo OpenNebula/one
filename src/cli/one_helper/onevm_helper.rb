@@ -1015,11 +1015,20 @@ in the frontend machine.
                 d["SEQ"]
             end
 
-            column :HOST, "Host name of the VM container", :left, :size=>15 do |d|
+            column :UID, "UID of the user that performed the action",
+                :left, :size=>4 do |d|
+                d["UID"]
+            end
+
+            column :REQ, "Request ID of the action", :left, :size=>5 do |d|
+                d["REQUEST_ID"]
+            end
+
+            column :HOST, "Host name of the VM container", :left, :size=>12 do |d|
                 d["HOSTNAME"]
             end
 
-            column :"ACTION", "VM state change action", :left, :size=>16 do |d|
+            column :"ACTION", "VM state change action", :left, :size=>10 do |d|
                 VirtualMachine.get_history_action d["ACTION"]
             end
 
@@ -1049,7 +1058,7 @@ in the frontend machine.
                 OpenNebulaHelper.short_period_to_str(dtime)
             end
 
-            default :SEQ, :HOST, :ACTION, :DS, :START, :TIME, :PROLOG
+            default :SEQ, :UID, :REQ, :HOST, :ACTION, :DS, :START, :TIME, :PROLOG
         end
 
         vm_hash=vm.to_hash
