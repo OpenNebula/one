@@ -1438,7 +1438,7 @@ class VirtualMachine
         str_info = "GUEST_IP=" << guest_ip.to_s << " " if guest_ip
 
         if @guest_ip_addresses && !@guest_ip_addresses.empty?
-            str_info << "GUEST_IP_ADDRESSES=\\\"" << @guest_ip_addresses.to_s << "\\\" "
+            str_info << "GUEST_IP_ADDRESSES=\"" << @guest_ip_addresses.to_s << "\" "
         end
 
         str_info << "LAST_MON=" << Time.now.to_i.to_s << " "
@@ -1454,12 +1454,12 @@ class VirtualMachine
         str_info << "DISKRDIOPS="  << diskrdiops.to_s  << " "
         str_info << "DISKWRIOPS="  << diskwriops.to_s  << " "
 
-        str_info << "ESX_HOST=\\\""               << esx_host        << "\\\" "
+        str_info << "ESX_HOST=\""                 << esx_host        << "\" "
         str_info << "GUEST_STATE="                << guest_state     << " "
         str_info << "VMWARETOOLS_RUNNING_STATUS=" << vmware_tools    << " "
         str_info << "VMWARETOOLS_VERSION="        << vmtools_ver     << " "
         str_info << "VMWARETOOLS_VERSION_STATUS=" << vmtools_verst   << " "
-        str_info << "RESOURCE_POOL=\\\""          << self["resourcePool.name"] << "\\\" "
+        str_info << "RESOURCE_POOL=\""            << self["resourcePool.name"] << "\" "
     end
 
     def reset_monitor

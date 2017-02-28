@@ -241,7 +241,7 @@ class ClusterComputeResource
                     str_info << "IMPORT_TEMPLATE=\"#{vm_template_64}\","
                 end
 
-                str_info << "POLL=\"#{vm.info}\"]"
+                str_info << "POLL=\"#{vm.info.gsub('"', "\\\"")}\"]"
             rescue Exception => e
                 STDERR.puts e.inspect
                 STDERR.puts e.backtrace
