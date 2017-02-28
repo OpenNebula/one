@@ -108,6 +108,7 @@ define(function(require) {
   }
 
   function _fill(context, element) {
+    var that = this;
     var group_roles_index = 0;
     $.each(element.TEMPLATE, function(affinity, value){
       if(affinity == "AFFINED" || affinity == "ANTI_AFFINED"){
@@ -184,6 +185,12 @@ define(function(require) {
   }
 
   function _add_group_affinity_box(rolesSt, context, group_roles_index, group_roles_affinity, affinity){
+    for(group in group_roles_affinity){
+      if(group_roles_affinity[group].retrieve(context) == rolesSt){
+        Notifier.notifyError(Locale.tr("Already exist a group role with this vaues."));
+        return false;
+      }
+    }
     var that = this;
     var index = group_roles_index;
     var group_roles_id  = 'group_role_' + group_roles_index;

@@ -58,6 +58,7 @@ define(function(require) {
     this.hostsTable.initialize();
 
     return TemplateHTML({
+      'idRole': this.html_role_id,
       'hostsTableHTML': this.hostsTable.dataTableHTML,
       'value_host_affinity': "value_host_affinity_"+this.html_role_id,
       'tf_btn_host_affined': "btn_host_vm_roles_affined"+this.html_role_id,
@@ -150,7 +151,7 @@ define(function(require) {
     var text = "";
     role['NAME'] = $('input[name="name"]', context).val();
     role['VIRTUAL_MACHINES'] = $('input[name="cardinality"]', context).val();
-    role['POLICY'] = $('input[name="protocol"]:checked', context).val();
+    role['POLICY'] = $('input[name="protocol_'+this.html_role_id+'"]:checked', context).val();
     if(this.host_affined.length > 0){
       for(data in this.host_affined)
         text += this.host_affined[data] + ", ";
@@ -174,10 +175,7 @@ define(function(require) {
     $("#role_name", context).val(value.NAME);
     $("#role_name", context).change();
     $("#role_cardinality", context).val(value.VIRTUAL_MACHINES);
-    if(value.POLICY)
-      $("#role_protocol", context).val(value.POLICY);
-    else
-      $("#role_protocol", context).val("NONE");
+    $('input[name="protocol_'+this.html_role_id+', value='+value.POLICY+']', context).attr("checked", true);
     if(value.HOST_AFFINED)
       _generateBox("AFFINED",value.HOST_AFFINED, this);
     if(value.HOST_ANTI_AFFINED)
