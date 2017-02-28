@@ -313,9 +313,6 @@ int VirtualMachineNics::set_up_attach_nic(int vmid, int uid, int cluster_id,
     // -------------------------------------------------------------------------
     set<int> nic_sgs, vm_sgs;
 
-    vector<VectorAttribute*> sg_rules;
-    vector<VectorAttribute*>::iterator it;
-
     get_security_groups(vm_sgs);
 
     nic->get_security_groups(nic_sgs);
@@ -325,7 +322,7 @@ int VirtualMachineNics::set_up_attach_nic(int vmid, int uid, int cluster_id,
         nic_sgs.erase(*it);
     }
 
-    sgpool->get_security_group_rules(vmid, nic_sgs, sg_rules);
+    sgpool->get_security_group_rules(vmid, nic_sgs, sgs);
 
     // -------------------------------------------------------------------------
     // Add the nic to the set
