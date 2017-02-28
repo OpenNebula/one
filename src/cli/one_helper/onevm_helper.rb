@@ -1017,11 +1017,19 @@ in the frontend machine.
 
             column :UID, "UID of the user that performed the action",
                 :left, :size=>4 do |d|
-                d["UID"]
+                if d["UID"] != "-1"
+                    d["UID"]
+                else
+                    "-"
+                end
             end
 
             column :REQ, "Request ID of the action", :left, :size=>5 do |d|
-                d["REQUEST_ID"]
+                if d["REQUEST_ID"] != "-1"
+                    d["REQUEST_ID"]
+                else
+                    "-"
+                end
             end
 
             column :HOST, "Host name of the VM container", :left, :size=>12 do |d|
