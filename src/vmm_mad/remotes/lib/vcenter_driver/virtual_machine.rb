@@ -583,10 +583,11 @@ class VirtualMachine
     def calculate_add_nic_spec(nic)
 
         #TODO include VCENTER_NET_REF usage it should be in one_item
-        mac     = nic["MAC"]
-        bridge  = nic["BRIDGE"]
-        model   = nic["MODEL"]
-        backing = nil
+        mac       = nic["MAC"]
+        bridge    = nic["BRIDGE"]
+        model     = nic["MODEL"]
+        vnet_ref  = nic["VCENTER_NET_REF"]
+        backing   = nil
 
         limit_in  = nic["INBOUND_PEAK_BW"]
         limit_out = nic["OUTBOUND_PEAK_BW"]
@@ -605,7 +606,7 @@ class VirtualMachine
         end
 
         network = self["runtime.host.network"].select do |n|
-            n.name == bridge
+            n._ref == vnet_ref
         end
 
         if network.empty?
