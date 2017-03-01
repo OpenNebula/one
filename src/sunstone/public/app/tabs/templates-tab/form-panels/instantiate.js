@@ -31,6 +31,7 @@ define(function(require) {
   var WizardFields = require('utils/wizard-fields');
   var DisksResize = require('utils/disks-resize');
   var NicsSection = require('utils/nics-section');
+  var VMGroupSection = require('utils/vmgroup-section');
   var DeployFolder = require('utils/deploy-folder');
   var CapacityInputs = require('tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs');
   var Config = require('sunstone-config');
@@ -165,6 +166,12 @@ define(function(require) {
 
       var networks = NicsSection.retrieve($(".nicsContext"  + template_id, context));
 
+      var vmgroup = VMGroupSection.retrieve($(".vmgroupContext"+ template_id));
+
+      if(vmgroup){
+        $.extend(tmp_json, vmgroup);
+      }
+
       var nics = [];
       var pcis = [];
 
@@ -218,12 +225,11 @@ define(function(require) {
       $.extend(tmp_json, CapacityInputs.retrieveChanges(capacityContext));
 
       extra_info['template'] = tmp_json;
+        for (var i = 0; i < n_times_int; i++) {
+          extra_info['vm_name'] = vm_name.replace(/%i/gi, i); // replace wildcard
 
-      for (var i = 0; i < n_times_int; i++) {
-        extra_info['vm_name'] = vm_name.replace(/%i/gi, i); // replace wildcard
-
-        Sunstone.runAction("Template."+action, [template_id], extra_info);
-      }
+          Sunstone.runAction("Template."+action, [template_id], extra_info);
+        }
     });
 
     return false;
@@ -269,6 +275,9 @@ define(function(require) {
             { 'forceIPv4': true,
               'securityGroups': Config.isFeatureEnabled("secgroups")
             });
+
+          VMGroupSection.insert(template_json,
+            $(".vmgroupContext"+ template_json.VMTEMPLATE.ID, context));
 
           deployFolderContext = $(".deployFolderContext"  + template_json.VMTEMPLATE.ID, context);
           DeployFolder.setup(deployFolderContext);

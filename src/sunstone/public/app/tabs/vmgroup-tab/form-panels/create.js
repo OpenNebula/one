@@ -238,6 +238,7 @@ define(function(require) {
   }
 
   function _fill(context, element) {
+    $("#new_role", context)[0].parentElement.remove();
     var that = this;
     this.setHeader(element);
     this.resourceId = element.ID;
@@ -253,16 +254,20 @@ define(function(require) {
     $.each(element.ROLES.ROLE, function(index, value){
       var name = value.NAME;
         if(name){
-          var html = "<input id="+ name +" type='checkbox' class='roles' value="+name+" />\
-                    <label for="+ name+">"+name+"</label>\
-                    <br />";
+          var html = "<option id='" + name + "' class='roles' value=" + name + "> " + name + "</option>";
           $("#list_roles_select").append(html);
+          $("select #" + name).mousedown(function(e) {
+            e.preventDefault();
+            $(this).prop('selected', !$(this).prop('selected'));
+            return false;
+          });
         }
       });
 
+     this.affinity_role_tab.fill(context, element);
     $("#btn_refresh_roles", context).remove();
     $("#affinity",context).show();
-    $("#new_role", context).remove(); 
+     
     //Remove row of roles------------------------------------------------------------------
     
     /*var role_context_first = $('.role_content', context).first();

@@ -1750,7 +1750,23 @@ class VCenterVm
 
         vm          = connection.find_vm_template(deploy_id)
 
-        vm.CreateSnapshot_Task(snapshot_hash).wait_for_completion
+        # Removed wait_for_completion and added poll to remediate
+        # createsnapshot_task not returning due to vCenter/ESX 5.5
+        # default timeout of 15 minutes. Give up if task is not
+        # ended after a day (1440 minutes)
+        vm.CreateSnapshot_Task(snapshot_hash)
+
+        snapshot_found  = false
+        elapsed_minutes = 0
+
+        until snapshot_found || elapsed_minutes == 1440
+            if vm.snapshot && vm.snapshot.rootSnapshotList
+               snapshot = find_snapshot(vm.snapshot.rootSnapshotList, snapshot_name)
+               snapshot_found = !snapshot.nil?
+            end
+            sleep(60)
+            elapsed_minutes += 1
+        end
 
         return snapshot_name
     end

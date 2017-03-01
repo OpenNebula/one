@@ -38,7 +38,8 @@ define(function(require) {
     require('tabs/settings-tab/panels/quotas'),
     require('tabs/settings-tab/panels/group-quotas'),
     require('tabs/settings-tab/panels/accounting'),
-    require('tabs/settings-tab/panels/showback')
+    require('tabs/settings-tab/panels/showback'),
+    require('tabs/settings-tab/panels/auth')
   ];
 
   var _formPanels = [
