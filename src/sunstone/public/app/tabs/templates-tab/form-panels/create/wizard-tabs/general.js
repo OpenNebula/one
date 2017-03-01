@@ -178,7 +178,12 @@ define(function(require) {
 
   function _retrieve(context) {
     var templateJSON = WizardFields.retrieve(context);
-    templateJSON["DISK_COST"] = templateJSON["DISK_COST"] * 1024;
+    if(templateJSON["DISK_COST"]){
+      templateJSON["DISK_COST"] = templateJSON["DISK_COST"] * 1024;
+    }
+    else{
+      templateJSON["DISK_COST"] = "0";
+    }
     if(templateJSON["MEMORY_UNIT_COST"] == "GB")
       templateJSON["MEMORY_COST"] = templateJSON["MEMORY_COST"] * 1024;
     if (templateJSON["HYPERVISOR"] == 'vcenter') {
