@@ -154,7 +154,7 @@ void StdLog::log(
 /* -------------------------------------------------------------------------- */
 
 SysLog::SysLog(const MessageType level,
-               const string&     label):Log(level), resource_label("")
+               const string&     label):Log(level), resource_label(""), label(label)
 {
     static bool initialized = false;
 
