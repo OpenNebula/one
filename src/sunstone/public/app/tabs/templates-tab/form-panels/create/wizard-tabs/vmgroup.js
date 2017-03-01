@@ -80,7 +80,7 @@ define(function(require) {
   }
 
   function _retrieve(context) {
-    return vmgroupSection.retrieve(context);
+    return vmgroupSection.retrieve(context, this.vmGroupTable);
   }
 
   function _fill(context, templateJSON) {

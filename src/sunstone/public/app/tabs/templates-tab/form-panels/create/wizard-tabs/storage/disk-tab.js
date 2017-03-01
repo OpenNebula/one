@@ -146,7 +146,12 @@ define(function(require) {
     }
 
     var tmpl = WizardFields.retrieve(selectedContext);
-    tmpl["SIZE"] = tmpl["SIZE"] * 1024;
+    if(tmpl["SIZE"]){
+      tmpl["SIZE"] = tmpl["SIZE"] * 1024;
+    }
+    else{
+       return {};
+    }
     var dev_prefix = WizardFields.retrieveInput($('#disk_dev_prefix', selectedContext));
     if (dev_prefix != undefined && dev_prefix.length) {
       if (dev_prefix == "custom") {

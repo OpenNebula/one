@@ -34,6 +34,7 @@ define(function(require) {
   var RangeSlider = require('utils/range-slider');
   var DisksResize = require('utils/disks-resize');
   var NicsSection = require('utils/nics-section');
+  var VMGroupSection = require('utils/vmgroup-section');
   var TemplateUtils = require('utils/template-utils');
   var WizardFields = require('utils/wizard-fields');
   var UserInputs = require('utils/user-inputs');
@@ -927,6 +928,7 @@ define(function(require) {
 
             $(".provision_accordion_template a").first().trigger("click");
 
+            $("#provision_create_vm .provision_vmgroup").show();
             OpenNebula.Template.show({
               data : {
                 id: template_id,
@@ -957,6 +959,12 @@ define(function(require) {
                     {'securityGroups': Config.isFeatureEnabled("secgroups")});
                 } else {
                   $(".provision_network_selector", create_vm_context).html("");
+                }
+
+                if (Config.provision.create_vm.isEnabled("vmgroup_select")) {
+                  VMGroupSection.insert(template_json, $(".vmgroupContext", create_vm_context));
+                } else {
+                  $(".provision_vmgroup_selector", create_vm_context).html("");
                 }
 
                 if (template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS) {
@@ -1007,6 +1015,12 @@ define(function(require) {
             'vm_name' : vm_name,
             'template': {
             }
+          }
+
+          var vmgroup = VMGroupSection.retrieve($(".vmgroupContext"+ template_id));
+
+          if(vmgroup){
+            $.extend(extra_info.template, vmgroup);
           }
 
           if (nics.length > 0) {
