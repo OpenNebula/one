@@ -26,14 +26,16 @@
   </div> 
 </div>
 <div class="row">
-  <div class="vmgroup_role medium-12 columns end">
+  <div class="vmgroup_role medium-6 columns end">
     <label>
       <span style="font-weight: 700; color: #7d7c7c;">
         {{tr "VM-VM Affinity"}}
       </span>
-      <input type="radio" name="protocol_{{idRole}}" value="NONE" style="margin-left: 15%" checked>{{tr "None"}}
-      <input type="radio" name="protocol_{{idRole}}" value="AFFINED" style="margin-left: 10%">{{tr "Affined"}}
-      <input type="radio" name="protocol_{{idRole}}" value="ANTI_AFFINED" style="margin-left: 10%">{{tr "Anti Affined"}}
+      <div style="margin-left: 30px; margin-bottom:5px;">
+        <input type="radio" id="role_protocol" name="protocol" value="NONE" checked>{{tr "None"}}</br>
+        <input type="radio" id="role_protocol" name="protocol" value="AFFINED"">{{tr "Affined"}}</br>
+        <input type="radio" id="role_protocol" name="protocol" value="ANTI_AFFINED">{{tr "Anti Affined"}}
+      </div>
     </label>
   </div>
 </div>
@@ -44,27 +46,28 @@
         </span>  
     </div>
     <div class="medium-12 columns">
-      <div class="medium-6 columns">
+      <div class="medium-12 columns">
         <div class="select_host_role" id="list_host_roles_select">
           {{{hostsTableHTML}}}
         </div>
       </div>
-      <div class="medium-1 columns"><br/></div>
-      <div class="medium-2 columns" style="border-left:thin solid #ada8a8; text-align:center;">
-        <div class="type_affined">
-            <label>{{tr "Affined"}}</label>
-            <a class="small radius" id="{{tf_btn_host_affined}}">
+      <div class="medium-12 columns" style="margin-bottom: -40px">
+        <div class="medium-6 columns" style="text-align:center;">
+          <div class="type_affined">
+              <label>{{tr "Affined"}}</label>
+              <a class="small radius" id="{{tf_btn_host_affined}}">
+                <i class="fa fa-lg fa-plus-circle"></i>
+              </a>
+              <div class="group_vm_host_roles_affined" id="{{group_vm_host_roles}}_affined"></div>
+          </div>
+        </div>
+        <div class="medium-6 columns" style="border-left:thin solid #ada8a8; text-align:center;">
+            <label>{{tr "Anti Affined"}}</label>
+            <a class="small radius" id="{{tf_btn_host_anti_affined}}">
               <i class="fa fa-lg fa-plus-circle"></i>
             </a>
-            <div class="group_vm_host_roles_affined" id="{{group_vm_host_roles}}_affined"></div>
+          <div class="group_vm_host_roles_anti_affined" id="{{group_vm_host_roles}}_anti_affined"></div>
         </div>
       </div>
-      <div class="medium-3 columns" style="border-left:thin solid #ada8a8; text-align:center;">
-          <label>{{tr "Anti Affined"}}</label>
-          <a class="small radius" id="{{tf_btn_host_anti_affined}}">
-            <i class="fa fa-lg fa-plus-circle"></i>
-          </a>
-        <div class="group_vm_host_roles_anti_affined" id="{{group_vm_host_roles}}_anti_affined"></div>
-      </div>
-    </div>   
+    </div>
 </div>
