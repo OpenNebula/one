@@ -80,6 +80,41 @@ class DatacenterFolder
         clusters
     end
 
+    def get_unimported_hosts
+        host_objects = {}
+
+        vcenter_uuid = get_vcenter_instance_uuid
+
+        hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool, false)
+
+        if hpool.respond_to?(:message)
+            raise "Could not get OpenNebula HostPool: #{hpool.message}"
+        end
+
+        fetch! if @items.empty? #Get datacenters
+
+        @items.values.each do |dc|
+            dc_name = dc.item.name
+            host_objects[dc_name] = []
+
+            host_folder = dc.host_folder
+            host_folder.fetch_clusters!
+            host_folder.items.values.each do |host|
+
+                one_host = VCenterDriver::VIHelper.find_by_ref(OpenNebula::HostPool,
+                                                               "TEMPLATE/VCENTER_CCR_REF",
+                                                               host['_ref'],
+                                                               vcenter_uuid,
+                                                               hpool)
+                next if one_host #If the host has been already imported
+
+                host_objects[dc_name] << host
+            end
+        end
+
+        return host_objects
+    end
+
     def get_unimported_datastores
         ds_objects = {}
 

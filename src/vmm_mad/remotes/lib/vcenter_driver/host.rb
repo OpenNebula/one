@@ -315,7 +315,7 @@ class ClusterComputeResource
 
     def self.to_one(name, host, user, pass, ref, vc_uuid)
 
-        one_host = VCenterDriver::VIHelper.one_item(OpenNebula::Host)
+        one_host = VCenterDriver::VIHelper.new_one_item(OpenNebula::Host)
 
         if OpenNebula.is_error?(one_host)
             raise "Could not create host: #{one_host.message}"

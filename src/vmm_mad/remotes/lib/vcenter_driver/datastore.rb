@@ -31,7 +31,7 @@ class DatastoreFolder
     def monitor
         monitor = ""
         @items.values.each do |ds|
-            monitor << "VCENTER_DATASTORE=\"#{ds['name']}\"\n"
+            monitor << "VCENTER_DS_REF=\"#{ds['_ref']}\"\n"
         end
         monitor
     end
@@ -101,7 +101,7 @@ class Storage
         return one
     end
 
-    def to_one_template(one_clusters, ccr_ref, ccr_name, type, vcenter_uuid, one)
+    def to_one_template(one_clusters, ccr_ref, ccr_name, type, vcenter_uuid)
 
         one_cluster = one_clusters.select { |ccr| ccr[:ref] == ccr_ref }.first rescue nil
 

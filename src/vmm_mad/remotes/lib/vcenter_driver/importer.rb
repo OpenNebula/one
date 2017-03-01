@@ -17,39 +17,35 @@ def self.import_clusters(con_ops, options)
         # Get vcenter intance uuid as moref is unique for each vcenter
         vc_uuid = dc_folder.get_vcenter_instance_uuid
 
-        rs = dc_folder.get_unimported_objects(OpenNebula::HostPool, vc_uuid)
+        rs = dc_folder.get_unimported_hosts
 
         STDOUT.print "done!\n\n"
 
-        rs.each {|dc, cluster|
+        rs.each {|dc, clusters|
             STDOUT.print "Do you want to process datacenter #{dc} (y/[n])? "
 
             next if STDIN.gets.strip.downcase != 'y'
 
-            if cluster.empty?
+            if clusters.empty?
                 STDOUT.puts "    No new clusters found in #{dc}..."
                 next
             end
 
-            cluster.each{ |c|
+            clusters.each{ |c|
                 imported_name = "#{c["name"]}"
                 STDOUT.print "  * Import cluster #{imported_name} (y/[n])? "
 
                 next if STDIN.gets.strip.downcase != 'y'
 
-
-                one_host = VCenterDriver::ClusterComputeResource
-                                                    .to_one(imported_name,
-                                                            con_ops[:host],
-                                                            con_ops[:user],
-                                                            con_ops[:password],
-                                                            c['_ref'],
-                                                            vc_uuid)
+                one_host = VCenterDriver::ClusterComputeResource.to_one(imported_name,
+                                                                        con_ops[:host],
+                                                                        con_ops[:user],
+                                                                        con_ops[:password],
+                                                                        c['_ref'],
+                                                                        vc_uuid)
 
                 STDOUT.puts "    OpenNebula host #{imported_name} with "\
                             " id #{one_host.id} successfully created."
-
-
                 STDOUT.puts
             }
         }
