@@ -313,7 +313,7 @@ class ClusterComputeResource
         Datacenter.new(item)
     end
 
-    def self.to_one(name, host, user, pass, ref, vc_uuid, vc_version)
+    def self.to_one(cluster, con_ops)
 
         one_host = VCenterDriver::VIHelper.new_one_item(OpenNebula::Host)
 
@@ -321,19 +321,19 @@ class ClusterComputeResource
             raise "Could not create host: #{one_host.message}"
         end
 
-        rc = one_host.allocate(name, 'vcenter', 'vcenter',
+        rc = one_host.allocate(cluster[:cluster_name], 'vcenter', 'vcenter',
                 ::OpenNebula::ClusterPool::NONE_CLUSTER_ID)
 
         if OpenNebula.is_error?(rc)
             raise "Could not allocate host: #{rc.message}"
         end
 
-        template = "VCENTER_HOST=\"#{host}\"\n"\
-                   "VCENTER_PASSWORD=\"#{pass}\"\n"\
-                   "VCENTER_USER=\"#{user}\"\n"\
-                   "VCENTER_CCR_REF=\"#{ref}\"\n"\
-                   "VCENTER_INSTANCE_ID=\"#{vc_uuid}\"\n"\
-                   "VCENTER_VERSION=\"#{vc_version}\"\n"\
+        template = "VCENTER_HOST=\"#{con_ops[:host]}\"\n"\
+                   "VCENTER_PASSWORD=\"#{con_ops[:password]}\"\n"\
+                   "VCENTER_USER=\"#{con_ops[:user]}\"\n"\
+                   "VCENTER_CCR_REF=\"#{cluster[:cluster_ref]}\"\n"\
+                   "VCENTER_INSTANCE_ID=\"#{cluster[:vcenter_uuid]}\"\n"\
+                   "VCENTER_VERSION=\"#{cluster[:vcenter_version]}\"\n"\
 
         rc = one_host.update(template, false)
 

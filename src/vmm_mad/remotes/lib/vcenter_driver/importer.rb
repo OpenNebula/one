@@ -34,21 +34,15 @@ def self.import_clusters(con_ops, options)
                 next
             end
 
-            clusters.each{ |c|
-                imported_name = "#{c["name"]}"
-                STDOUT.print "  * Import cluster #{imported_name} (y/[n])? "
+            clusters.each{ |cluster|
+                STDOUT.print "  * Import cluster #{cluster[:cluster_name]} (y/[n])? "
 
                 next if STDIN.gets.strip.downcase != 'y'
 
-                one_host = VCenterDriver::ClusterComputeResource.to_one(imported_name,
-                                                                        con_ops[:host],
-                                                                        con_ops[:user],
-                                                                        con_ops[:password],
-                                                                        c['_ref'],
-                                                                        vc_uuid,
-                                                                        vc_version)
+                one_host = VCenterDriver::ClusterComputeResource.to_one(cluster,
+                                                                        con_ops)
 
-                STDOUT.puts "    OpenNebula host #{imported_name} with "\
+                STDOUT.puts "    OpenNebula host #{cluster[:cluster_name]} with "\
                             " id #{one_host.id} successfully created."
                 STDOUT.puts
             }

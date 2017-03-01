@@ -56,11 +56,11 @@ helpers do
             error 404, error.to_json
         end
 
-        return VCenterDriver::VIClient.new_connection({
+        return VCenterDriver::VIClient.new({
             :user     => vuser,
             :password => vpass,
-            :host     => vhost},
-            ::OpenNebula::Client.new(nil,$conf[:one_xmlrpc]))
+            :host     => vhost})
+
     end
 
 #    def af_format_response(resp)
@@ -77,7 +77,8 @@ end
 
 get '/vcenter' do
     begin
-        rs = vcenter_client.hierarchy
+        dc_folder = VCenterDriver::DatacenterFolder.new(vcenter_client)
+        rs = dc_folder.get_unimported_hosts
         [200, rs.to_json]
     rescue Exception => e
         logger.error("[vCenter] " + e.message)

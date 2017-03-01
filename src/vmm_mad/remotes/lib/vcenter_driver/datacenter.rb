@@ -38,6 +38,10 @@ class DatacenterFolder
         @vi_client.vim.serviceContent.about.instanceUuid
     end
 
+    def get_vcenter_api_version
+        @vi_client.vim.serviceContent.about.apiVersion
+    end
+
     def get_clusters
 
         clusters = {}
@@ -85,6 +89,8 @@ class DatacenterFolder
 
         vcenter_uuid = get_vcenter_instance_uuid
 
+        vcenter_version = get_vcenter_api_version
+
         hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool, false)
 
         if hpool.respond_to?(:message)
@@ -108,7 +114,13 @@ class DatacenterFolder
                                                                hpool)
                 next if one_host #If the host has been already imported
 
-                host_objects[dc_name] << host
+                host_info = {}
+                host_info[:cluster_name]     = host['name']
+                host_info[:cluster_ref]      = host['_ref']
+                host_info[:vcenter_uuid]     = vcenter_uuid
+                host_info[:vcenter_version]  = vcenter_version
+
+                host_objects[dc_name] << host_info
             end
         end
 
