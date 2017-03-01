@@ -57,6 +57,7 @@ require 'datastore'
 require 'virtual_machine'
 require 'network'
 require 'file_helper'
+require 'importer'
 
 # ---------------------------------------------------------------------------- #
 # Helper functions                                                             #
