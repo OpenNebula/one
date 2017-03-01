@@ -1,27 +1,27 @@
 module VCenterDriver
 
 class HostFolder
-    attr_accessor :item, :clusters
+    attr_accessor :item, :items
 
     def initialize(item)
         @item = item
-        @clusters = {}
+        @items = {}
     end
 
     def fetch_clusters!
         VIClient.get_entities(@item, 'ClusterComputeResource').each do |item|
             item_name = item._ref
-            @clusters[item_name.to_sym] = ClusterComputeResource.new(item)
+            @items[item_name.to_sym] = ClusterComputeResource.new(item)
         end
     end
 
     def get_cluster(ref)
-        if !@clusters[ref.to_sym]
+        if !@items[ref.to_sym]
             rbvmomi_dc = RbVmomi::VIM::ClusterComputeResource.new(@item._connection, ref)
-            @clusters[ref.to_sym] = ClusterComputeResource.new(rbvmomi_dc)
+            @items[ref.to_sym] = ClusterComputeResource.new(rbvmomi_dc)
         end
 
-        @clusters[ref.to_sym]
+        @items[ref.to_sym]
     end
 end # class HostFolder
 
@@ -51,6 +51,38 @@ class ClusterComputeResource
         end
 
         @resource_pools
+    end
+
+    def get_resource_pool_list(rp = nil, parent_prefix = "", rp_array = [])
+
+        current_rp = ""
+
+        if rp.nil?
+            rp = @item.resourcePool
+        else
+            if !parent_prefix.empty?
+                current_rp << parent_prefix
+                current_rp << "/"
+            end
+            current_rp << rp.name
+        end
+
+        if rp.resourcePool.size == 0
+            rp_info = {}
+            rp_info[:name] = current_rp
+            rp_info[:ref]  = rp._ref
+            rp_array << rp_info
+        else
+            rp.resourcePool.each do |child_rp|
+                get_resource_pool_list(child_rp, current_rp, rp_array)
+            end
+            rp_info = {}
+            rp_info[:name] = current_rp
+            rp_info[:ref]  = rp._ref
+            rp_array << rp_info if !current_rp.empty?
+        end
+
+        rp_array
     end
 
     def monitor
@@ -236,7 +268,7 @@ class ClusterComputeResource
                 }
 
                 if number == -1
-                    vm_template_64 = Base64.encode64(vm.to_one(ccr_host)).gsub("\n","")
+                    vm_template_64 = Base64.encode64(vm.to_one).gsub("\n","")
 
                     str_info << "IMPORT_TEMPLATE=\"#{vm_template_64}\","
                 end
@@ -279,6 +311,43 @@ class ClusterComputeResource
         end
 
         Datacenter.new(item)
+    end
+
+    def self.to_one(name, host, user, pass, ref, vc_uuid)
+
+        one_host = VCenterDriver::VIHelper.one_item(OpenNebula::Host)
+
+        if OpenNebula.is_error?(one_host)
+            raise "Could not create host: #{one_host.message}"
+        end
+
+        rc = one_host.allocate(name, 'vcenter', 'vcenter',
+                ::OpenNebula::ClusterPool::NONE_CLUSTER_ID)
+
+        if OpenNebula.is_error?(rc)
+            raise "Could not allocate host: #{rc.message}"
+        end
+
+        template = "VCENTER_HOST=\"#{host}\"\n"\
+                   "VCENTER_PASSWORD=\"#{pass}\"\n"\
+                   "VCENTER_USER=\"#{user}\"\n"\
+                   "VCENTER_CCR_REF=\"#{ref}\"\n"\
+                   "VCENTER_INSTANCE_ID=\"#{vc_uuid}\"\n"
+
+        rc = one_host.update(template, false)
+
+        if OpenNebula.is_error?(rc)
+            update_error = rc.message
+            rc = one_host.delete
+            if OpenNebula.is_error?(rc)
+                raise "Could not update host: #{update_error} "\
+                      "and could not delete host: #{rc.message}"
+            else
+                raise "Could not update host: #{rc.message}"
+            end
+        end
+
+        return one_host
     end
 
     def self.new_from_ref(ref, vi_client)

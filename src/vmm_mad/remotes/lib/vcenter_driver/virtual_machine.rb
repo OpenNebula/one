@@ -20,6 +20,15 @@ class VirtualMachineFolder
         end
     end
 
+    def fetch_templates!
+        VIClient.get_entities(@item, "VirtualMachine").each do |item|
+            if item.config.template
+                item_name = item._ref
+                @items[item_name.to_sym] = VirtualMachine.new(item)
+            end
+        end
+    end
+
     ########################################################################
     # Returns a Datastore. Uses the cache if available.
     # @param ref [Symbol] the vcenter ref
@@ -152,7 +161,7 @@ class VirtualMachine
 
     # @return RbVmomi::VIM::ResourcePool
     def get_rp
-        req_rp = one_item['USER_TEMPLATE/RESOURCE_POOL']
+        req_rp = one_item['USER_TEMPLATE/VCENTER_RP_REF']
 
         if vi_client.rp_confined?
             if req_rp && req_rp != vi_client.rp
@@ -1200,46 +1209,62 @@ class VirtualMachine
     # monitoring
     ############################################################################
 
-    # @param ccr_host Hash that holds the relationship between the vcenter's ref
-    # and the host in OpenNebula
-    def to_one(ccr_host)
-        cluster = self["runtime.host.parent.name"]
+    def to_one(template=false)
+        cluster  = self["runtime.host.parent.name"]
+        ccr_ref  = self["runtime.host.parent._ref"]
+        vc_uuid  = self["_connection.serviceContent.about.instanceUuid"]
 
-        ccr     = self["runtime.host.parent._ref"]
-        host_id = ccr_host[ccr]
+        # Get info of the host where the VM/template is located
+        host_id = nil
+        one_host = VCenterDriver::VIHelper.find_by_ref(OpenNebula::HostPool,
+                                                       "TEMPLATE/VCENTER_CCR_REF",
+                                                       ccr_ref,
+                                                       vc_uuid)
+        host_id = one_host["ID"] if one_host
 
         str = "NAME   = \"#{self["name"]} - #{cluster}\"\n"\
               "CPU    = \"#{self["config.hardware.numCPU"]}\"\n"\
               "vCPU   = \"#{self["config.hardware.numCPU"]}\"\n"\
               "MEMORY = \"#{self["config.hardware.memoryMB"]}\"\n"\
               "HYPERVISOR = \"vcenter\"\n"\
-              "IMPORT_VM_ID =\"#{self["config.uuid"]}\"\n"\
-              "IMPORT_STATE =\"#{@state}\"\n"\
               "SCHED_REQUIREMENTS=\"ID=\\\"#{host_id}\\\"\"\n"\
               "CONTEXT = [\n"\
               "    NETWORK = \"YES\",\n"\
               "    SSH_PUBLIC_KEY = \"$USER[SSH_PUBLIC_KEY]\"\n"\
-              "]\n"
+              "]\n"\
+              "VCENTER_INSTANCE_ID =\"#{vc_uuid}\"\n"
+
+        if !template
+            str << "IMPORT_VM_ID =\"#{self["config.uuid"]}\"\n"
+            str << "IMPORT_STATE =\"#{@state}\"\n"
+        end
+
+        if template
+            str << "VCENTER_CCR_REF =\"#{ccr_ref}\"\n"
+        end
 
         vnc_port = nil
         keymap = nil
-        self["config.extraConfig"].select do |xtra|
 
-            if xtra[:key].downcase=="remotedisplay.vnc.port"
-                vnc_port = xtra[:value]
-            end
+        if !template
+            self["config.extraConfig"].select do |xtra|
 
-            if xtra[:key].downcase=="remotedisplay.vnc.keymap"
-                keymap = xtra[:value]
+                if xtra[:key].downcase=="remotedisplay.vnc.port"
+                    vnc_port = xtra[:value]
+                end
+
+                if xtra[:key].downcase=="remotedisplay.vnc.keymap"
+                    keymap = xtra[:value]
+                end
             end
         end
 
         if self["config.extraConfig"].size > 0
             str << "GRAPHICS = [\n"\
-                   "  TYPE     =\"vnc\",\n"\
-                   "  LISTEN   =\"0.0.0.0\",\n"
+                   "  TYPE     =\"vnc\",\n"
             str << "  PORT     =\"#{vnc_port}\",\n" if vnc_port
-            str << "  KEYMAP   =\"#{keymap}\"\n" if keymap
+            str << "  KEYMAP   =\"#{keymap}\",\n" if keymap
+            str << "  LISTEN   =\"0.0.0.0\"\n"
             str << "]\n"
         end
 
@@ -1253,22 +1278,39 @@ class VirtualMachine
 
         case self["guest.guestFullName"]
             when /CentOS/i
-                str << "LOGO=images/logos/centos.png"
+                str << "LOGO=images/logos/centos.png\n"
             when /Debian/i
-                str << "LOGO=images/logos/debian.png"
+                str << "LOGO=images/logos/debian.png\n"
             when /Red Hat/i
-                str << "LOGO=images/logos/redhat.png"
+                str << "LOGO=images/logos/redhat.png\n"
             when /Ubuntu/i
-                str << "LOGO=images/logos/ubuntu.png"
+                str << "LOGO=images/logos/ubuntu.png\n"
             when /Windows XP/i
-                str << "LOGO=images/logos/windowsxp.png"
+                str << "LOGO=images/logos/windowsxp.png\n"
             when /Windows/i
-                str << "LOGO=images/logos/windows8.png"
+                str << "LOGO=images/logos/windows8.png\n"
             when /Linux/i
-                str << "LOGO=images/logos/linux.png"
+                str << "LOGO=images/logos/linux.png\n"
         end
 
         return str
+    end
+
+    def to_one_template(template_name, template_ref, template_ccr, cluster_name,
+                        ds, ds_list, default_ds, rp, rp_list, vcenter_uuid)
+        one_tmp = {}
+        one_tmp[:name]                  = "#{template_name} - #{cluster_name}"
+        one_tmp[:vcenter_ccr_ref]       = template_ccr
+        one_tmp[:one]                   = to_one(true)
+        one_tmp[:vcenter_ref]           = template_ref
+        one_tmp[:vcenter_instance_uuid] = vcenter_uuid
+        one_tmp[:cluster_name]          = cluster_name
+        one_tmp[:ds]                    = ds
+        one_tmp[:ds_list]               = ds_list
+        one_tmp[:default_ds]            = default_ds
+        one_tmp[:rp]                    = rp
+        one_tmp[:rp_list]                = rp_list
+        return one_tmp
     end
 
     def monitor
@@ -1459,7 +1501,7 @@ class VirtualMachine
         str_info << "VMWARETOOLS_RUNNING_STATUS=" << vmware_tools    << " "
         str_info << "VMWARETOOLS_VERSION="        << vmtools_ver     << " "
         str_info << "VMWARETOOLS_VERSION_STATUS=" << vmtools_verst   << " "
-        str_info << "RESOURCE_POOL=\""            << self["resourcePool.name"] << "\" "
+        str_info << "VCENTER_RP_REF=\""          << self["resourcePool"]._ref << "\" "
     end
 
     def reset_monitor

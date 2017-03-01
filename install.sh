@@ -651,6 +651,7 @@ VMM_EXEC_LIB_FILES="src/vmm_mad/remotes/lib/poll_common.rb"
 
 VMM_EXEC_LIB_VCENTER_FILES="src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb
                     src/vmm_mad/remotes/lib/vcenter_driver/vi_client.rb \
+                    src/vmm_mad/remotes/lib/vcenter_driver/importer.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/file_helper.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/host.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/virtual_machine.rb \
