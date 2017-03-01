@@ -38,7 +38,7 @@ drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
 
 img_path     = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/PATH"]
-host_id      = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
+host_id      = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_ONE_HOST_ID"]
 ds_ref       = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_REF"]
 ds_image_dir = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_IMAGE_DIR"] || "one"
 md5          = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5"]

@@ -45,7 +45,7 @@ md5        = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5"]
 
 md5 = md5.nil? ? "-" : md5
 
-hostname   = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
+hostname   = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_ONE_HOST_ID"]
 ds_name    = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"]
 
 

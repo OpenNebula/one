@@ -39,7 +39,7 @@ id             = ARGV[1]
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
 
-host_id = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
+host_id = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_ONE_HOST_ID"]
 ds_ref = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_REF"]
 check_valid ds_ref, "ds_ref"
 
