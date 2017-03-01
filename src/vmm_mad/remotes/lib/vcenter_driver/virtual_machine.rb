@@ -1502,7 +1502,7 @@ class VirtualMachine
         str_info << "VMWARETOOLS_RUNNING_STATUS=" << vmware_tools    << " "
         str_info << "VMWARETOOLS_VERSION="        << vmtools_ver     << " "
         str_info << "VMWARETOOLS_VERSION_STATUS=" << vmtools_verst   << " "
-        str_info << "VCENTER_RP_REF=\""          << self["resourcePool"]._ref << "\" "
+        str_info << "VCENTER_RP_REF=\""           << self["resourcePool"]._ref << "\" "
     end
 
     def reset_monitor

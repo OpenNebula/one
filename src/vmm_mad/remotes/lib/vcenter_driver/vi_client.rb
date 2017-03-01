@@ -66,7 +66,7 @@ class VIClient
         connection = {
             :host     => host["TEMPLATE/VCENTER_HOST"],
             :user     => host["TEMPLATE/VCENTER_USER"],
-            :rp       => host["TEMPLATE/VCENTER_RESOURCE_POOL"],
+            :rp       => host["TEMPLATE/VCENTER_RP_REF"],
             :password => password
         }
 
