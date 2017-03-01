@@ -211,7 +211,6 @@ public:
 
 private:
     string resource_label;
-    string label;
 };
 
 #endif /* _LOG_H_ */

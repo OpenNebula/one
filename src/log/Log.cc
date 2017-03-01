@@ -154,12 +154,15 @@ void StdLog::log(
 /* -------------------------------------------------------------------------- */
 
 SysLog::SysLog(const MessageType level,
-               const string&     label):Log(level), resource_label(""), label(label)
+               const string&     _label):Log(level), resource_label("")
 {
     static bool initialized = false;
+    static string label;
 
     if (!initialized) //Initialize just once for all SysLog instances
     {
+        label = _label;
+
         openlog(label.c_str(), LOG_PID, LOG_DAEMON);
 
         initialized = true;
