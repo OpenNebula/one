@@ -66,6 +66,7 @@ define(function(require) {
  
   function _insert(template_json, context) {
     var templateVmgroup = null;
+    var that = this;
     this.vmGroupTable = new VMGroupsTable('vmgroups_table'+UniqueId.id(), { 'select': true });
     var that = this;
     var templateVmgroup = $(TemplateSection({
@@ -92,19 +93,25 @@ define(function(require) {
     });
     $("#role_section",context).hide();
     $(".role_table_section", context).prop('required', false);
+    if(template_json.VMTEMPLATE.TEMPLATE.VMGROUP){
+      this.vmGroupTable.selectResourceTableSelect({ids:template_json.VMTEMPLATE.TEMPLATE.VMGROUP.VMGROUP_ID});
+      _generate_provision_role_table(context, template_json.VMTEMPLATE.TEMPLATE.VMGROUP.VMGROUP_ID, template_json.VMTEMPLATE.TEMPLATE.VMGROUP.ROLE);
+    }
   }
 
   function _fill(context, templateJSON, vmGroupTable=undefined){
-    var element = templateJSON.VMGROUP;
-    vmGroupTable.selectResourceTableSelect({ids:element.VMGROUP_ID});
-    _generate_provision_role_table(context,element.VMGROUP_ID, element.ROLE);
+    if(templateJSON.VMGROUP){
+      var element = templateJSON.VMGROUP;
+      vmGroupTable.selectResourceTableSelect({ids:element.VMGROUP_ID});
+      _generate_provision_role_table(context,element.VMGROUP_ID, element.ROLE);
+    }
   }
   function _retrieve(context, vmGroupTable=undefined) {
-    var role_selected = $('.role_table_section').val();
+    var role_selected = $('.role_table_section', context).val();
 
     var vmgroup_selected = undefined;
     if(this.vmGroupTable)
-      this.vmGroupTable.retrieveResourceTableSelect();
+      vmgroup_selected = this.vmGroupTable.retrieveResourceTableSelect();
     if(vmGroupTable)
       vmgroup_selected = vmGroupTable.retrieveResourceTableSelect();
     if(vmgroup_selected){
