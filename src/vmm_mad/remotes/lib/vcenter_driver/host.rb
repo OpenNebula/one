@@ -313,7 +313,7 @@ class ClusterComputeResource
         Datacenter.new(item)
     end
 
-    def self.to_one(name, host, user, pass, ref, vc_uuid)
+    def self.to_one(name, host, user, pass, ref, vc_uuid, vc_version)
 
         one_host = VCenterDriver::VIHelper.new_one_item(OpenNebula::Host)
 
@@ -332,7 +332,8 @@ class ClusterComputeResource
                    "VCENTER_PASSWORD=\"#{pass}\"\n"\
                    "VCENTER_USER=\"#{user}\"\n"\
                    "VCENTER_CCR_REF=\"#{ref}\"\n"\
-                   "VCENTER_INSTANCE_ID=\"#{vc_uuid}\"\n"
+                   "VCENTER_INSTANCE_ID=\"#{vc_uuid}\"\n"\
+                   "VCENTER_VERSION=\"#{vc_version}\"\n"\
 
         rc = one_host.update(template, false)
 

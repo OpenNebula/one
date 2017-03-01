@@ -15,7 +15,10 @@ def self.import_clusters(con_ops, options)
         dc_folder = VCenterDriver::DatacenterFolder.new(vi_client)
 
         # Get vcenter intance uuid as moref is unique for each vcenter
-        vc_uuid = dc_folder.get_vcenter_instance_uuid
+        vc_uuid = vi_client.vim.serviceContent.about.instanceUuid
+
+        # Get vcenter API version
+        vc_version = vi_client.vim.serviceContent.about.apiVersion
 
         rs = dc_folder.get_unimported_hosts
 
@@ -42,7 +45,8 @@ def self.import_clusters(con_ops, options)
                                                                         con_ops[:user],
                                                                         con_ops[:password],
                                                                         c['_ref'],
-                                                                        vc_uuid)
+                                                                        vc_uuid,
+                                                                        vc_version)
 
                 STDOUT.puts "    OpenNebula host #{imported_name} with "\
                             " id #{one_host.id} successfully created."
