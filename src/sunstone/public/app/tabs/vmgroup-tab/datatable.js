@@ -33,8 +33,8 @@ define(function(require) {
   var RESOURCE = "VMGroup";
   var XML_ROOT = "VM_GROUP";
   var TAB_NAME = require('./tabId');
-  var LABELS_COLUMN = 5;
-  var SEARCH_COLUMN = 6;
+  var LABELS_COLUMN = 6;
+  var SEARCH_COLUMN = 7;
   var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
@@ -66,6 +66,7 @@ define(function(require) {
       Locale.tr("Name"),
       Locale.tr("Owner"),
       Locale.tr("Group"),
+      Locale.tr("VMs"),
       Locale.tr("Labels"),
       "search_data"
     ];
@@ -98,6 +99,16 @@ define(function(require) {
 
   function _elementArray(element_json) {
     var element = element_json[XML_ROOT];
+    var numVms = 0;
+
+    for(role_index in element.ROLES.ROLE){
+      if(element.ROLES.ROLE[role_index].VMS){
+        var vms = element.ROLES.ROLE[role_index].VMS;
+        var vms = vms.split(",");
+        numVms += vms.length;
+      }
+    }
+    console.log(numVms);
 
     var search = {
       NAME:  element.NAME,
@@ -113,6 +124,7 @@ define(function(require) {
         element.NAME,
         element.UNAME,
         element.GNAME,
+        numVms,
         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
         btoa(unescape(encodeURIComponent(JSON.stringify(search))))
     ];
