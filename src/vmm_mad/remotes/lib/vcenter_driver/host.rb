@@ -101,6 +101,9 @@ class ClusterComputeResource
 
         str_info = ""
 
+        # Get cluster name for informative purposes
+        str_info << "VCENTER_NAME=" << self['name'] << "\n"
+
         # System
         str_info << "HYPERVISOR=vcenter\n"
         str_info << "TOTALHOST=" << summary.numHosts.to_s << "\n"
