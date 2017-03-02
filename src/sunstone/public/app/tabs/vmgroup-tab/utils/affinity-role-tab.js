@@ -187,7 +187,7 @@ define(function(require) {
   function _add_group_affinity_box(rolesSt, context, group_roles_index, group_roles_affinity, affinity){
     for(group in group_roles_affinity){
       if(group_roles_affinity[group].retrieve(context) == rolesSt){
-        Notifier.notifyError(Locale.tr("Already exist a group role with this vaues."));
+        Notifier.notifyError(Locale.tr("Already exists a group role with these values."));
         return false;
       }
     }
