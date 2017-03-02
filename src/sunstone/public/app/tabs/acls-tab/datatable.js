@@ -180,6 +180,9 @@ define(function(require) {
       case "MARKETPLACEAPP":
           resources_str+=Locale.tr("Marketplace Apps")+", ";
           break;
+      case "VMGROUP":
+          resources_str+=Locale.tr("VM Groups")+", ";
+          break;
       }
     }
     //remove ", " from end
