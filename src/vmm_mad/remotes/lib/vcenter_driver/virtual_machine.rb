@@ -1241,6 +1241,7 @@ class VirtualMachine
         end
 
         if template
+            str << "VCENTER_TEMPLATE_REF =\"#{self['_ref']}\"\n"
             str << "VCENTER_CCR_REF =\"#{ccr_ref}\"\n"
         end
 
