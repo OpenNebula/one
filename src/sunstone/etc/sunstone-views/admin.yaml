@@ -808,11 +808,12 @@ tabs:
         table_columns:
             - 0         # Checkbox
             - 1         # ID
-            - 2         # Owner
+            - 2         # Name
             - 3         # Group
-            - 4         # Name
-            #- 5         # Labels
-            #- 6        # Search data
+            - 4         # Owner
+            - 5         # Vms
+            #- 6         # Labels
+            #- 7        # Search data
         actions:
            VMGroup.create_dialog: true
            VMGroup.update_dialog: true
