@@ -155,6 +155,8 @@ end # class StoragePod
 
 class Datastore < Storage
 
+    attr_accessor :one_item
+
     def initialize(item, vi_client=nil)
         if !item.instance_of? RbVmomi::VIM::Datastore
             raise "Expecting type 'RbVmomi::VIM::Datastore'. " <<
@@ -162,6 +164,7 @@ class Datastore < Storage
         end
 
         @item = item
+        @one_item = {}
     end
 
     def create_virtual_disk(img_name, size, adapter_type, disk_type)
@@ -433,17 +436,7 @@ class Datastore < Storage
             raise "Could not get OpenNebula DatastorePool: #{pool.message}"
         end
 
-        begin
-            one_ds = VCenterDriver::VIHelper.find_by_ref(OpenNebula::DatastorePool,
-                                                        "TEMPLATE/VCENTER_DS_REF",
-                                                        self["_ref"],
-                                                        vcenter_uuid,
-                                                        dpool)
-            raise "Could not find OpenNebula Datastore" if one_ds.nil?
-            ds_id = one_ds["ID"]
-        rescue Exception => e
-            raise "Error: #{e.message}"
-        end
+        ds_id = @one_item["ID"]
 
         begin
             # Create Search Spec

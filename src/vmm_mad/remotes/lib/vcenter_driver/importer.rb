@@ -518,6 +518,7 @@ def self.import_images(con_ops, ds_name, options)
         one_ds_ref = one_ds['TEMPLATE/VCENTER_DS_REF']
 
         ds = VCenterDriver::Datastore.new_from_ref(one_ds_ref, vi_client)
+        ds.one_item = one_ds #Store opennebula template for datastore
 
         vcenter_uuid = vi_client.vim.serviceContent.about.instanceUuid
 
