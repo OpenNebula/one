@@ -64,7 +64,7 @@ define(function(require) {
     $(document).on("input", "input.uinput-slider-val", function(){
       var max = $("input[type=number]", $(this).closest('.uinput-slider-container')).attr('max');
       $("input[type=range]", $(this).closest('.uinput-slider-container')).val( this.value );
-      if(this.value > max)
+      if(parseInt(this.value) > parseInt(max))
         $("input[type=number]", $(this).closest('.uinput-slider-container')).val(max);
     });
 
