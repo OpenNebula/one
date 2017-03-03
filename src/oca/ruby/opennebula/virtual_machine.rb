@@ -354,7 +354,7 @@ module OpenNebula
                 ds = OpenNebula::Datastore.new_with_id(ds_id, @client)
                 rc = ds.info
                 return rc if OpenNebula.is_error?(rc)
-               self.update("VCENTER_DATASTORE=#{ds['/DATASTORE/NAME']}", true)
+               self.update("VCENTER_DS_REF=#{ds['/DATASTORE/VCENTER_DS_REF']}", true)
             end
 
             return call(VM_METHODS[:deploy],
