@@ -281,10 +281,7 @@ class DatacenterFolder
                 end
                 rp = rp_cache[template_ccr.name.to_s]
 
-                object = template.to_one_template(template_name,
-                                                  template_ref,
-                                                  template_ccr._ref,
-                                                  cluster_name,
+                object = template.to_one_template(template,
                                                   ds,
                                                   ds_list,
                                                   default_ds,

@@ -978,11 +978,102 @@ class VirtualMachine
         end
     end
 
-    #  Checks if a RbVmomi::VIM::VirtualDevice is a disk
+    def get_vcenter_disks
+        disks = []
+        self["config.hardware.device"].each do |device|
+            disk = {}
+            if is_disk_or_iso?(device)
+                disk[:datastore] = device.backing.datastore
+                disk[:path]      = device.backing.fileName
+                disk[:type]      = is_disk?(device) ? "OS" : "CDROM"
+                disks << disk
+            end
+        end
+        return disks
+    end
+
+    def import_vcenter_disks(vc_uuid, dpool, ipool)
+
+        disk_info = ""
+        error = ""
+
+        ccr_ref = self["runtime.host.parent._ref"]
+
+        #Get disks and info required
+        vc_disks = get_vcenter_disks
+
+        # Track allocated images
+        allocated_images = []
+
+        vc_disks.each do |disk|
+
+            datastore_found = VCenterDriver::Storage.get_one_image_ds_by_ref_and_ccr(disk[:datastore]._ref,
+                                                                                     ccr_ref,
+                                                                                     vc_uuid,
+                                                                                     dpool)
+            if datastore_found.nil?
+                error = "    Error datastore #{disk[:datastore].name}: has to be imported first as an image datastore!\n"
+
+                #Rollback delete disk images
+                allocated_images.each do |i|
+                    i.delete
+                end
+
+                break
+            end
+
+            image_template = VCenterDriver::Datastore.get_image_import_template(disk[:datastore].name,
+                                                                                disk[:path],
+                                                                                disk[:type], ipool)
+            if !image_template.empty?
+                # Then the image is created
+                one_i = VCenterDriver::VIHelper.new_one_item(OpenNebula::Image)
+
+                allocated_images << one_i
+
+                rc = one_i.allocate(image_template, datastore_found['ID'].to_i)
+
+                if ::OpenNebula.is_error?(rc)
+                    error = "    Error creating disk from template: #{rc.message}. Cannot import the template\n"
+
+                    #Rollback delete disk images
+                    allocated_images.each do |i|
+                        i.delete
+                    end
+
+                    break
+                end
+
+                #Add info for One template
+                one_i.info
+                disk_info << "DISK=[\n"
+                disk_info << "IMAGE=\"#{one_i["NAME"]}\",\n"
+                disk_info << "IMAGE_UNAME=\"#{one_i["UNAME"]}\"\n"
+                disk_info << "]\n"
+            end
+        end
+
+        return error, disk_info
+
+    end
+
+    #  Checks if a RbVmomi::VIM::VirtualDevice is a disk or a cdrom
     def is_disk_or_cdrom?(device)
         is_disk  = !(device.class.ancestors.index(RbVmomi::VIM::VirtualDisk)).nil?
         is_cdrom = !(device.class.ancestors.index(RbVmomi::VIM::VirtualCdrom)).nil?
         is_disk || is_cdrom
+    end
+
+    #  Checks if a RbVmomi::VIM::VirtualDevice is a disk or an iso file
+    def is_disk_or_iso?(device)
+        is_disk  = !(device.class.ancestors.index(RbVmomi::VIM::VirtualDisk)).nil?
+        is_iso = device.backing.is_a? RbVmomi::VIM::VirtualCdromIsoBackingInfo
+        is_disk || is_iso
+    end
+
+    #  Checks if a RbVmomi::VIM::VirtualDevice is a disk
+    def is_disk?(device)
+        !(device.class.ancestors.index(RbVmomi::VIM::VirtualDisk)).nil?
     end
 
     def find_free_controller(position=0)
@@ -1298,11 +1389,18 @@ class VirtualMachine
         return str
     end
 
-    def to_one_template(template_name, template_ref, template_ccr, cluster_name,
-                        ds, ds_list, default_ds, rp, rp_list, vcenter_uuid)
+    def to_one_template(template, ds, ds_list, default_ds,
+                        rp, rp_list, vcenter_uuid)
+
+        template_name = template['name']
+        template_ref  = template['_ref']
+        template_ccr  = template['runtime.host.parent']
+        cluster_name  = template['runtime.host.parent.name']
+
         one_tmp = {}
         one_tmp[:name]                  = "#{template_name} - #{cluster_name}"
-        one_tmp[:vcenter_ccr_ref]       = template_ccr
+        one_tmp[:template_name]         = template_name
+        one_tmp[:vcenter_ccr_ref]       = template_ccr._ref
         one_tmp[:one]                   = to_one(true)
         one_tmp[:vcenter_ref]           = template_ref
         one_tmp[:vcenter_instance_uuid] = vcenter_uuid
@@ -1311,7 +1409,8 @@ class VirtualMachine
         one_tmp[:ds_list]               = ds_list
         one_tmp[:default_ds]            = default_ds
         one_tmp[:rp]                    = rp
-        one_tmp[:rp_list]                = rp_list
+        one_tmp[:rp_list]               = rp_list
+        one_tmp[:template]              = template
         return one_tmp
     end
 

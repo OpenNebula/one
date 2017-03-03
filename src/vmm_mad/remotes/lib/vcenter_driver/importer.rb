@@ -74,6 +74,13 @@ def self.import_templates(con_ops, options)
 
         STDOUT.print "done!\n"
 
+        # Create OpenNebula pools
+        dpool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool)
+        ipool = VCenterDriver::VIHelper.one_pool(OpenNebula::ImagePool)
+
+        # Get vcenter intance uuid as moref is unique for each vcenter
+        vc_uuid = vi_client.vim.serviceContent.about.instanceUuid
+
         rs.each {|dc, tmps|
             STDOUT.print "\nDo you want to process datacenter #{dc}"\
                             " (y/[n])? "
@@ -95,7 +102,23 @@ def self.import_templates(con_ops, options)
 
                 next if STDIN.gets.strip.downcase != 'y'
 
+=begin
+                ## Add existing disks to template (OPENNEBULA_MANAGED)
 
+                template = t[:template]
+
+                error, template_disks = template.import_vcenter_disks(vc_uuid,
+                                                                      dpool,
+                                                                      ipool)
+                if error.empty?
+                    t[:one] << template_disks
+                else
+                    STDOUT.puts error
+                    next
+                end
+=end
+
+                # Datastore placement
                 ds_input = ""
 
                 STDOUT.print "\n    This template is currently set to be "\
@@ -246,7 +269,7 @@ def self.import_templates(con_ops, options)
                         end
 
                         list_str = "\n    [Index] Resource pool :"\
-                                    "\n    #{dashes}\n"
+                                   "\n    #{dashes}\n"
 
                         STDOUT.print list_str
 

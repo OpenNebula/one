@@ -68,6 +68,44 @@ class Storage
         end
     end
 
+    def self.get_image_import_template(ds_name, image_path, image_type, ipool)
+        one_image = ""
+
+        # Remove ds info from path
+        image_path.sub!(/^\[#{ds_name}\] /, "")
+
+        # Get image name
+        file_name = File.basename(image_path).reverse.sub("kdmv.","").reverse
+        image_name = "#{file_name} - #{ds_name}"
+
+        #Chek if the image has already been imported
+        if VCenterDriver::VIHelper.find_by_name(OpenNebula::ImagePool,
+                                                image_name,
+                                                ipool,
+                                                false).nil?
+            #Set template
+            one_image << "NAME=\"#{image_name}\"\n"
+            one_image << "PATH=\"vcenter://#{image_path}\"\n"
+            one_image << "TYPE=\"#{image_type}\"\n"
+            one_image << "PERSISTENT=\"NO\"\n"
+            one_image << "OPENNEBULA_MANAGED=\"YES\"\n"
+        end
+
+        return one_image
+    end
+
+    def self.get_one_image_ds_by_ref_and_ccr(ref, ccr_ref, vcenter_uuid, pool = nil)
+        pool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool, false) if pool.nil?
+        element = pool.select{|e|
+            e["TEMPLATE/TYPE"] == "IMAGE_DS" &&
+            e["TEMPLATE/VCENTER_DS_REF"] == ref &&
+            e["TEMPLATE/VCENTER_CCR_REF"] == ccr_ref &&
+            e["TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid}.first rescue nil
+
+        return element
+    end
+
+
     def monitor
         summary = self['summary']
 
