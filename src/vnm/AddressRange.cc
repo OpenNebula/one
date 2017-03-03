@@ -149,6 +149,14 @@ int AddressRange::init_ipv6_static(string& error_msg)
 		return -1;
 	}
 
+    int pl;
+
+    if ( attr->vector_value("PREFIX_LENGTH", pl) != 0 )
+    {
+        error_msg = "Wrong or empty PREFIX_LENGTH";
+        return -1;
+    }
+
 	return 0;
 }
 
@@ -382,28 +390,42 @@ int AddressRange::update_attributes(
         new_size = size;
     }
 
-    string new_global = vup->vector_value("GLOBAL_PREFIX");
-
-    if (prefix6_to_i(new_global, global6) != 0 )
-    {
-        error_msg = "Wrong format for IP6 global address prefix";
-        return -1;
-    }
-
-    string new_ula = vup->vector_value("ULA_PREFIX");
-
-    if (prefix6_to_i(new_ula, ula6) != 0 )
-    {
-        error_msg = "Wrong format for IP6 unique local address prefix";
-        return -1;
-    }
-
     size = new_size;
 
     vup->replace("SIZE", size);
 
-    vup->replace("GLOBAL_PREFIX", new_global);
-    vup->replace("ULA_PREFIX", new_ula);
+    if ( is_ipv6_static() )
+    {
+        int new_pl;
+
+        if (vup->vector_value("PREFIX_LENGTH", new_pl) == -1 )
+        {
+            vup->replace("PREFIX_LENGTH", attr->vector_value("PREFIX_LENGTH"));
+        }
+    }
+
+    if ( is_ipv6() )
+    {
+        string new_global = vup->vector_value("GLOBAL_PREFIX");
+
+        if (prefix6_to_i(new_global, global6) != 0 )
+        {
+            error_msg = "Wrong format for IP6 global address prefix";
+            return -1;
+        }
+
+        string new_ula = vup->vector_value("ULA_PREFIX");
+
+        if (prefix6_to_i(new_ula, ula6) != 0 )
+        {
+            error_msg = "Wrong format for IP6 unique local address prefix";
+            return -1;
+        }
+
+        vup->replace("GLOBAL_PREFIX", new_global);
+
+        vup->replace("ULA_PREFIX", new_ula);
+    }
 
     string value = vup->vector_value("SECURITY_GROUPS");
 

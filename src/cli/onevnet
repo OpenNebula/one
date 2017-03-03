@@ -143,6 +143,39 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                     exit -1
                 end
 
+                if options[:ip6]
+                    m = /([\h:]*)\/(\d.*)$/.match(options[:ip6])
+
+                    if m.nil? || m[1].nil?
+                        STDERR.puts "Missing or wrong IP6"
+                        exit -1
+                    else
+                        begin
+                            require 'ipaddr'
+
+                            ip = IPAddr.new(m[1])
+
+                            if !ip.ipv6?
+                                STDERR.puts "Wrong IP6 format address"
+                                exit -1
+                            end
+                        rescue
+                            STDERR.puts "Wrong IP6 format address"
+                            exit -1
+                        end
+
+                    end
+
+                    if m[2].nil?
+                        STDERR.puts "IP6 address need to set the prefix length"
+                        exit -1
+                    end
+
+                    ar << ", PREFIX_LENGTH=\"#{m[2]}\""
+
+                    options[:ip6] = m[1]
+                end
+
                 ar << ", IP = " << options[:ip] if options[:ip]
                 ar << ", IP6 = " << options[:ip6] if options[:ip6]
                 ar << ", MAC = " << options[:mac] if options[:mac]

@@ -40,28 +40,38 @@
 /* -------------------------------------------------------------------------- */
 /* Context constants                                                          */
 /* -------------------------------------------------------------------------- */
-const char * VirtualMachine::NETWORK_CONTEXT[][2] = {
-        {"IP", "IP"},
-        {"MAC", "MAC"},
-        {"MASK", "NETWORK_MASK"},
-        {"NETWORK", "NETWORK_ADDRESS"},
-        {"GATEWAY", "GATEWAY"},
-        {"DNS", "DNS"},
-        {"SEARCH_DOMAIN", "SEARCH_DOMAIN"},
-        {"MTU", "GUEST_MTU"},
-        {"VLAN_ID", "VLAN_ID"},
-        {"VROUTER_IP", "VROUTER_IP"},
-        {"VROUTER_MANAGEMENT", "VROUTER_MANAGEMENT"}};
-const int VirtualMachine::NUM_NETWORK_CONTEXT = 11;
 
-const char*  VirtualMachine::NETWORK6_CONTEXT[][2] = {
-        {"IP6", "IP6_GLOBAL"},
-        {"IP6_ULA", "IP6_ULA"},
-        {"GATEWAY6", "GATEWAY6"},
-        {"CONTEXT_FORCE_IPV4", "CONTEXT_FORCE_IPV4"},
-        {"VROUTER_IP6", "VROUTER_IP6_GLOBAL"}};
+struct ContextVariable
+{
+    std::string context_name;
+    std::string nic_name;
+    std::string nic_name_alt;
 
-const int VirtualMachine::NUM_NETWORK6_CONTEXT = 5;
+    bool ar_lookup;
+};
+
+const std::vector<ContextVariable> NETWORK_CONTEXT = {
+    {"IP", "IP", "", false},
+    {"MAC", "MAC", "", false},
+    {"MASK", "NETWORK_MASK", "", true},
+    {"NETWORK", "NETWORK_ADDRESS", "", true},
+    {"GATEWAY", "GATEWAY", "", true},
+    {"DNS", "DNS", "", true},
+    {"SEARCH_DOMAIN", "SEARCH_DOMAIN", "", true},
+    {"MTU", "GUEST_MTU", "", true},
+    {"VLAN_ID", "VLAN_ID", "", true},
+    {"VROUTER_IP", "VROUTER_IP", "", false},
+    {"VROUTER_MANAGEMENT", "VROUTER_MANAGEMENT", "", false}
+};
+
+const std::vector<ContextVariable> NETWORK6_CONTEXT = {
+    {"IP6", "IP6_GLOBAL", "IP6", false},
+    {"IP6_ULA", "IP6_ULA", "", false},
+    {"GATEWAY6", "GATEWAY6", "", true},
+    {"CONTEXT_FORCE_IPV4", "CONTEXT_FORCE_IPV4", "", true},
+    {"IP6_PREFIX_LENGTH", "PREFIX_LENGTH", "", true},
+    {"VROUTER_IP6", "VROUTER_IP6_GLOBAL", "VROUTER_IP6", false},
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -229,25 +239,34 @@ int VirtualMachine::get_created_by_uid() const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static void parse_context_network(const char* vars[][2], int num_vars,
+static void parse_context_network(const std::vector<ContextVariable>& cvars,
         VectorAttribute * context, VectorAttribute * nic)
 {
     string nic_id = nic->vector_value("NIC_ID");
 
-    for (int i=0; i < num_vars; i++)
+    std::vector<ContextVariable>::const_iterator it;
+
+    for (it = cvars.begin(); it != cvars.end() ; ++it)
     {
         ostringstream cvar;
         string cval;
 
-        cvar << "ETH" << nic_id << "_" << vars[i][0];
+        cvar << "ETH" << nic_id << "_" << (*it).context_name;
 
-        cval = nic->vector_value(vars[i][1]); //Check the NIC
+        cval = nic->vector_value((*it).nic_name); //Check the NIC
 
-        if (cval.empty()) //Will check the AR and VNET
+        if ( cval.empty() && !((*it).nic_name_alt).empty() )
+        {
+            cval = nic->vector_value((*it).nic_name_alt);
+        }
+
+        if ( cval.empty() && (*it).ar_lookup ) //Will check the AR and VNET
         {
             ostringstream cval_ss;
 
-            cval_ss << "$NETWORK["<< vars[i][1] <<", NIC_ID=\""<< nic_id <<"\"]";
+            cval_ss << "$NETWORK["<< (*it).nic_name << ", NIC_ID=\""
+                    << nic_id <<"\"]";
+
             cval = cval_ss.str();
         }
 
@@ -285,10 +304,8 @@ int VirtualMachine::generate_network_context(VectorAttribute* context,
 
     for(int i=0; i<num_vatts; i++)
     {
-        parse_context_network(NETWORK_CONTEXT, NUM_NETWORK_CONTEXT,
-                &tmp_context, vatts[i]);
-        parse_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT,
-                &tmp_context, vatts[i]);
+        parse_context_network(NETWORK_CONTEXT, &tmp_context, vatts[i]);
+        parse_context_network(NETWORK6_CONTEXT, &tmp_context, vatts[i]);
     }
 
     str = tmp_context.marshall();
@@ -320,25 +337,31 @@ int VirtualMachine::generate_network_context(VectorAttribute* context,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static void parse_pci_context_network(const char* vars[][2], int num_vars,
+static void parse_pci_context_network(const std::vector<ContextVariable>& cvars,
         VectorAttribute * context, VectorAttribute * nic)
 {
     string pci_id = nic->vector_value("PCI_ID");
 
-    for (int i=0; i < num_vars; i++)
+    std::vector<ContextVariable>::const_iterator it;
+
+    for (it = cvars.begin(); it != cvars.end() ; ++it)
     {
 		ostringstream cvar;
 
-        cvar << "PCI" << pci_id << "_" << vars[i][0];
+        cvar << "PCI" << pci_id << "_" << (*it).context_name;
 
-        string  cval = nic->vector_value(vars[i][1]);
+        string  cval = nic->vector_value((*it).nic_name);
+
+        if ( cval.empty() )
+        {
+            cval = nic->vector_value((*it).nic_name_alt);
+        }
 
         if (!cval.empty())
         {
 			context->replace(cvar.str(), cval);
         }
     }
-
 }
 
 /**
@@ -360,10 +383,8 @@ bool VirtualMachine::generate_pci_context(VectorAttribute * context)
     {
 		if ( net_context && vatts[i]->vector_value("TYPE") == "NIC" )
 		{
-			parse_pci_context_network(NETWORK_CONTEXT, NUM_NETWORK_CONTEXT,
-					context, vatts[i]);
-			parse_pci_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT,
-					context, vatts[i]);
+			parse_pci_context_network(NETWORK_CONTEXT, context, vatts[i]);
+			parse_pci_context_network(NETWORK6_CONTEXT, context, vatts[i]);
 		}
 
 		ostringstream cvar;
@@ -577,16 +598,18 @@ int VirtualMachine::parse_context_variables(VectorAttribute ** context,
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-static void clear_context_network(const char* vars[][2], int num_vars,
+
+static void clear_context_network(const std::vector<ContextVariable>& cvars,
         VectorAttribute * context, int nic_id)
 {
     ostringstream att_name;
+    std::vector<ContextVariable>::const_iterator it;
 
-    for (int i=0; i < num_vars; i++)
+    for (it = cvars.begin(); it != cvars.end() ; ++it)
     {
         att_name.str("");
 
-        att_name << "ETH" << nic_id << "_" << vars[i][0];
+        att_name << "ETH" << nic_id << "_" << (*it).context_name;
 
         context->remove(att_name.str());
     }
@@ -603,8 +626,8 @@ void VirtualMachine::clear_nic_context(int nicid)
         return;
     }
 
-    clear_context_network(NETWORK_CONTEXT, NUM_NETWORK_CONTEXT, context, nicid);
-    clear_context_network(NETWORK6_CONTEXT,NUM_NETWORK6_CONTEXT, context,nicid);
+    clear_context_network(NETWORK_CONTEXT, context, nicid);
+    clear_context_network(NETWORK6_CONTEXT, context, nicid);
 }
 
 /* ------------------------------------------------------------------------ */
