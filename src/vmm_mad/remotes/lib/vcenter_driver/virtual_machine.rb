@@ -1327,7 +1327,7 @@ class VirtualMachine
               "VCENTER_INSTANCE_ID =\"#{vc_uuid}\"\n"
 
         if !template
-            str << "IMPORT_VM_ID =\"#{self["config.uuid"]}\"\n"
+            str << "IMPORT_VM_ID =\"#{self["_ref"]}\"\n"
             str << "IMPORT_STATE =\"#{@state}\"\n"
         end
 
