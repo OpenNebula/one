@@ -890,7 +890,7 @@ class VirtualMachine
             d.backing.fileName == "[#{ds_name}] #{img_name}"
         end rescue nil
 
-        return nil if device.empty?
+        return nil if device.nil?
 
         return device.first
     end
