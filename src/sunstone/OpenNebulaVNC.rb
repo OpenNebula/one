@@ -208,8 +208,8 @@ class OpenNebulaVNC
         vnc_port   = vm_resource['TEMPLATE/GRAPHICS/PORT']
         vnc_pw     = vm_resource['TEMPLATE/GRAPHICS/PASSWD']
 
-        if vm_resource['MONITORING/ESX_HOST'] # It is behind a vCenter
-            host       = vm_resource['MONITORING/ESX_HOST']
+        if vm_resource['MONITORING/VCENTER_ESX_HOST'] # It is behind a vCenter
+            host       = vm_resource['MONITORING/VCENTER_ESX_HOST']
         end
 
         # Generate token random_str: host:port
