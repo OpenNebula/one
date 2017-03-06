@@ -61,7 +61,7 @@ ds_ref = one_ds['TEMPLATE/VCENTER_DS_REF']
 
 # Get adapter and disk type
 one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vmid)
-adapter_type = one_vm["/VM/TEMPLATE/DISK[DISK_ID=#{disk_id}]/ADAPTER_TYPE"]
+adapter_type = one_vm["/VM/TEMPLATE/DISK[DISK_ID=#{disk_id}]/VCENTER_ADAPTER_TYPE"]
 
 # TODO disk_type support, that info is not coming thin, thick...
 # disk_type = one_vm["/VM/TEMPLATE/DISK[DISK_ID=#{disk_id}]/DISK_TYPE"]

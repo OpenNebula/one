@@ -356,7 +356,7 @@ define(function(require) {
                               ProgressBar.html(this.progress(), 1, fileName) );
       });
     }
-    
+
     return false;
   }
 
@@ -398,7 +398,7 @@ define(function(require) {
             result = '';
         for( var index = 0; index < iterations; index++ ) {
             result += chars.charAt( Math.floor( Math.random() * chars.length ) );
-        };     
+        };
         return result;
     };
   };
@@ -454,7 +454,7 @@ define(function(require) {
       if (adapter_type == "custom") {
         adapter_type = WizardFields.retrieveInput($('#custom_adapter_type', context));
       }
-      img_json["ADAPTER_TYPE"] = adapter_type;
+      img_json["VCENTER_ADAPTER_TYPE"] = adapter_type;
     }
 
     switch ($('#src_path_select input:checked', context).val()){

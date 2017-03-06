@@ -1574,7 +1574,7 @@ class VirtualMachine
         guest_state   = self["guest.guestState"].to_s
         vmware_tools  = self["guest.toolsRunningStatus"].to_s
         vmtools_ver   = self["guest.toolsVersion"].to_s
-        vmtools_verst = self["guest.toolsVersionStatus"].to_s
+        vmtools_verst = self["guest.toolsVersionStatus2"].to_s
 
         str_info = ""
 
@@ -1597,12 +1597,12 @@ class VirtualMachine
         str_info << "DISKRDIOPS="  << diskrdiops.to_s  << " "
         str_info << "DISKWRIOPS="  << diskwriops.to_s  << " "
 
-        str_info << "ESX_HOST=\""                 << esx_host        << "\" "
-        str_info << "GUEST_STATE="                << guest_state     << " "
-        str_info << "VMWARETOOLS_RUNNING_STATUS=" << vmware_tools    << " "
-        str_info << "VMWARETOOLS_VERSION="        << vmtools_ver     << " "
-        str_info << "VMWARETOOLS_VERSION_STATUS=" << vmtools_verst   << " "
-        str_info << "VCENTER_RP_REF=\""           << self["resourcePool"]._ref << "\" "
+        str_info << "VCENTER_ESX_HOST=\""                 << esx_host        << "\" "
+        str_info << "VCENTER_GUEST_STATE="                << guest_state     << " "
+        str_info << "VCENTER_VMWARETOOLS_RUNNING_STATUS=" << vmware_tools    << " "
+        str_info << "VCENTER_VMWARETOOLS_VERSION="        << vmtools_ver     << " "
+        str_info << "VCENTER_VMWARETOOLS_VERSION_STATUS=" << vmtools_verst   << " "
+        str_info << "VCENTER_RP_REF=\""                   << self["resourcePool"]._ref << "\" "
     end
 
     def reset_monitor
