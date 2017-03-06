@@ -108,7 +108,6 @@ define(function(require) {
         numVms += vms.length;
       }
     }
-    console.log(numVms);
 
     var search = {
       NAME:  element.NAME,

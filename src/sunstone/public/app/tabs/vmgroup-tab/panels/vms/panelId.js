@@ -14,42 +14,6 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-define(function(require) {
-  var Locale = require('utils/locale');
-  var Buttons = require('./vmgroup-tab/buttons');
-  var Actions = require('./vmgroup-tab/actions');
-  var Table = require('./vmgroup-tab/datatable');
-
-  var TAB_ID = require('./vmgroup-tab/tabId');
-  var DATATABLE_ID = "dataTableVMGroup";
-
-  var _panels = [
-    require('./vmgroup-tab/panels/info'),
-    require('./vmgroup-tab/panels/vms')
-  ];
-
-  var _formPanels = [
-    require('./vmgroup-tab/form-panels/create')
-  ];
-
-  var Tab = {
-    tabId: TAB_ID,
-    title: Locale.tr("VM Groups"),
-    icon: 'fa-folder-open-o',
-    tabClass: "subTab",
-    parentTab: "templates-top-tab",
-    listHeader: Locale.tr("VM Groups"),
-    infoHeader: Locale.tr("VM Groups"),
-    subheader: '<span>\
-        <span class="total_vmgroup"/> <small>'+Locale.tr("TOTAL")+'</small>\
-      </span>',
-    resource: 'VMGroup',
-    buttons: Buttons,
-    actions: Actions,
-    dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
-    panels: _panels,
-    formPanels: _formPanels
-  };
-
-  return Tab;
-});
+define(function(require){
+  return 'vm_group_vms_tab';
+})
