@@ -805,6 +805,7 @@ tabs:
     vmgroup-tab:
         panel_tabs:
             vm_group_info_tab: true
+            vm_group_vms_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID
