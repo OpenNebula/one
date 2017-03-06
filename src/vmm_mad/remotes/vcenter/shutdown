@@ -77,14 +77,9 @@ begin
         if keep_disks
             # Detach all disks from VM so they are not deleted if VM is destroyed
             vm.detach_all_disks
-        else
-            # Detach only DISK elements from template
-            disks.each do |disk|
-                vm.detach_disk(disk)
-            end
         end
 
-        # If the VM was instantiated to persistent keep the VM else destroy it
+        # If the VM was instantiated to persistent keep the VM
         if instantiate_to_persistent
             vm.mark_as_template #Convert VM to template in vCenter
 
@@ -93,8 +88,6 @@ begin
                                                 OpenNebula::Client.new)
             new_template.info
             new_template.update("VCENTER_TEMPLATE_REF= #{vm.item._ref}", true)
-        else
-            vm.destroy
         end
     end
 
