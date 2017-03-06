@@ -81,6 +81,7 @@ if path.match(/disk\.\d+$/)
     begin
         # TODO: if the deploy has failed, the disks may exist, but the vm may
         # not exist...
+        vm.one_item = one_vm
 
         # detach the disk
         vm.detach_disk(disk)
