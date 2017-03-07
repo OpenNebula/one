@@ -75,7 +75,7 @@ class Storage
         image_path.sub!(/^\[#{ds_name}\] /, "")
 
         # Get image name
-        file_name = File.basename(image_path).reverse.sub("kdmv.","").reverse
+        file_name = File.basename(image_path).gsub(/\.vmdk$/,"")
         image_name = "#{file_name} - #{ds_name}"
 
         #Chek if the image has already been imported
