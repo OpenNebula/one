@@ -510,7 +510,7 @@ class Datastore < Storage
                 one_image << "PATH=\"vcenter://#{image_path}\"\n"
                 one_image << "PERSISTENT=\"YES\"\n"
                 one_image << "TYPE=\"#{image_type}\"\n"
-                one_image << "DISK_TYPE=\"#{disk_type}\"\n" if disk_type
+                one_image << "VCENTER_DISK_TYPE=\"#{disk_type}\"\n" if disk_type
 
                 if VCenterDriver::VIHelper.find_by_name(OpenNebula::ImagePool,
                                                         "#{image_name} - #{ds_name}",

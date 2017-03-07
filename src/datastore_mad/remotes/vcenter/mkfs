@@ -44,7 +44,7 @@ host_id      = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_ONE
 ds_image_dir = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_IMAGE_DIR"] || "one"
 img_id       = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/ID"]
 adapter_type = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/VCENTER_ADAPTER_TYPE"]
-disk_type    = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/DISK_TYPE"]
+disk_type    = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/VCENTER_DISK_TYPE"]
 size         = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/SIZE"]
 fs_type      = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/FSTYPE"]
 

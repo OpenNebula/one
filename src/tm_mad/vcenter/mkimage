@@ -64,9 +64,8 @@ one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vmid)
 adapter_type = one_vm["/VM/TEMPLATE/DISK[DISK_ID=#{disk_id}]/VCENTER_ADAPTER_TYPE"]
 
 # TODO disk_type support, that info is not coming thin, thick...
-# disk_type = one_vm["/VM/TEMPLATE/DISK[DISK_ID=#{disk_id}]/DISK_TYPE"]
-# disk_type = "thin" if disk_type.nil? || disk_type.empty?
-disk_type = "thin"
+disk_type = one_vm["/VM/TEMPLATE/DISK[DISK_ID=#{disk_id}]/VCENTER_DISK_TYPE"]
+disk_type = "thin" if disk_type.nil? || disk_type.empty?
 
 check_valid adapter_type, "adapter_type"
 
