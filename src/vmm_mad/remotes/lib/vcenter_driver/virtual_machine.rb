@@ -472,7 +472,8 @@ class VirtualMachine
 
         # context_text
         [
-            { :key => "guestinfo.opennebula.context", :value => context_text }
+            { :key => "guestinfo.opennebula.context",
+              :value => Base64.encode64(context_text) }
         ]
     end
 
