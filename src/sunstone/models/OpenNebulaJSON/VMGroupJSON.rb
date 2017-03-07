@@ -67,8 +67,6 @@ module OpenNebulaJSON
         end
 
         def update(params=Hash.new)
-            require 'pry'
-            binding.pry()
             if !params['append'].nil?
                 super(params['template_raw'], params['append'])
             else
