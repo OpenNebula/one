@@ -1010,7 +1010,10 @@ TM_VCENTER_FILES="src/tm_mad/vcenter/clone \
                  src/tm_mad/vcenter/snap_delete \
                  src/tm_mad/vcenter/snap_revert \
                  src/tm_mad/vcenter/failmigrate \
-                 src/datastore_mad/remotes/vcenter/monitor \
+                 src/tm_mad/vcenter/context \
+                 src/tm_mad/vcenter/monitor \
+                 src/tm_mad/vcenter/mkimage \
+                 src/tm_mad/vcenter/mkswap \
                  src/tm_mad/vcenter/delete"
 
 TM_ISCSI_FILES="src/tm_mad/iscsi_libvirt/clone \
