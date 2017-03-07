@@ -96,11 +96,12 @@ class Storage
 
     def self.get_one_image_ds_by_ref_and_ccr(ref, ccr_ref, vcenter_uuid, pool = nil)
         pool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool, false) if pool.nil?
-        element = pool.select{|e|
-            e["TEMPLATE/TYPE"] == "IMAGE_DS" &&
-            e["TEMPLATE/VCENTER_DS_REF"] == ref &&
-            e["TEMPLATE/VCENTER_CCR_REF"] == ccr_ref &&
-            e["TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid}.first rescue nil
+        element = pool.select do |e|
+            e["TEMPLATE/TYPE"]                == "IMAGE_DS" &&
+            e["TEMPLATE/VCENTER_DS_REF"]      == ref &&
+            e["TEMPLATE/VCENTER_CCR_REF"]     == ccr_ref &&
+            e["TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid
+        end.first rescue nil
 
         return element
     end
@@ -118,11 +119,12 @@ class Storage
 
     def self.exists_one_by_ref_ccr_and_type?(ref, ccr_ref, vcenter_uuid, type, pool = nil)
         pool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool, false) if pool.nil?
-        elements = pool.select{|e|
+        elements = pool.select do |e|
             e["TEMPLATE/TYPE"] == type &&
             e["TEMPLATE/VCENTER_DS_REF"] == ref &&
             e["TEMPLATE/VCENTER_CCR_REF"] == ccr_ref &&
-            e["TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid}
+            e["TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid
+        end
 
         return elements.size == 1
     end
