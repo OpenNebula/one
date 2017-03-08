@@ -835,24 +835,24 @@ class VirtualMachine
         end
     end
 
-    # Detach DISK from VM (hotplug)
+    # Detach DISK from VM
     def detach_disk(disk)
         spec_hash = {}
 
-        # Check if disk being detached is connected to the VM
+        # Get vcenter device to be detached and remove if found
         device = disk_attached_to_vm(disk)
-        raise "DISK is not connected to VM" if device.nil?
+        if device
+            # Generate vCenter spec and reconfigure VM
+            spec_hash[:deviceChange] = [{
+                :operation => :remove,
+                :device => device
+            }]
 
-        # Generate vCenter spec and reconfigure VM
-        spec_hash[:deviceChange] = [{
-            :operation => :remove,
-            :device => device
-        }]
-
-        begin
-            @item.ReconfigVM_Task(:spec => spec_hash).wait_for_completion
-        rescue Exception => e
-            raise "Cannot detach DISK from VM: #{e.message}\n#{e.backtrace}"
+            begin
+                @item.ReconfigVM_Task(:spec => spec_hash).wait_for_completion
+            rescue Exception => e
+                raise "Cannot detach DISK from VM: #{e.message}\n#{e.backtrace}"
+            end
         end
     end
 
