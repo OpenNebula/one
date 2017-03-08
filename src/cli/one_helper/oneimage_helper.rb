@@ -103,14 +103,22 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             :name => "disk_type",
             :large => "--disk_type disk_type",
             :description => "Type of the image \n"<<
-                            " "*31<<"for KVM: BLOCK, CDROM, RBD or FILE \n"<<
-                            " "*31<<"for vCenter: THIN, TICHK, ZEOREDTHICK " <<
+                            " " * 31 << "BLOCK, CDROM, RBD or FILE \n" <<
                                      "(for others, check the documentation) ",
             :format => String
         },
         {
-            :name => "adapter_type",
-            :large => "--adapter_type adapter_type",
+            :name => "vcenter_disk_type",
+            :large => "--vcenter_disk_type vcenter_disk_type",
+            :description => "The vCenter Disk Type of the image \n"<<
+                            " " * 31 <<
+                            "for vCenter: THIN, THICK, ZEROEDTHICK " <<
+                            "(for others, check the documentation) ",
+            :format => String
+        },
+        {
+            :name => "vcenter_adapter_type",
+            :large => "--vcenter_adapter_type vcenter_adapter_type",
             :description => "Controller that will handle this image in " <<
                             "vCenter (lsiLogic, ide, busLogic). For other "<<
                             "values check the documentation",
@@ -358,16 +366,16 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
     end
 
     def self.create_image_variables(options, name)
-        if Array===name
-            names=name
+        if Array === name
+            names = name
         else
-            names=[name]
+            names = [name]
         end
 
-        t=''
+        t = ''
         names.each do |n|
             if options[n]
-                t<<"#{n.to_s.upcase}=\"#{options[n]}\"\n"
+                t << "#{n.to_s.upcase}=\"#{options[n]}\"\n"
             end
         end
 
@@ -375,16 +383,21 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
     end
 
     def self.create_image_template(options)
-        template_options=TEMPLATE_OPTIONS.map do |o|
+        template_options = TEMPLATE_OPTIONS.map do |o|
             o[:name].to_sym
         end
 
-        template=create_image_variables(
-            options, template_options-[:persistent, :dry, :prefix])
+        template =  create_image_variables(
+                        options,
+                        template_options -  [:persistent, :dry, :prefix ]
+                    )
 
-        template<<"PERSISTENT=YES\n" if options[:persistent]
+        if options[:persistent]
+            template << "PERSISTENT=YES\n"
+        end
+
         if options[:prefix]
-            template<<"DEV_PREFIX=\"#{options[:prefix]}\"\n"
+            template << "DEV_PREFIX=\"#{options[:prefix]}\"\n"
         end
 
         [0, template]
