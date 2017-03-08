@@ -84,6 +84,20 @@ define(function(require) {
       }
     });
 
+    $('input.slaac',ar_section).prop('checked',true);
+    $('.slaac_false', ar_section).hide();
+
+    $('input.slaac',ar_section).on('change', function(){
+      var slaac = $(this).prop('checked');
+      if(slaac){
+        $('.slaac_true', ar_section).show();
+        $('.slaac_false', ar_section).hide();
+      }else{
+        $('.slaac_true', ar_section).hide();
+        $('.slaac_false', ar_section).show();
+      }
+    });
+
     $('input#'+str_ar_tab_id+'_ar_type_ip4',ar_section).prop('checked', true);
     $('input#'+str_ar_tab_id+'_ar_type_ip4',ar_section).change();
 
@@ -111,9 +125,15 @@ define(function(require) {
         break;
       case "IP4_6":
         fields = $('div.type_ip4_6', this.ar_section).children("input");
+        if(!$('input.slaac',this.ar_section).prop('checked')){
+          ar_type += "_STATIC";
+        }
         break;
       case "IP6":
         fields = $('div.type_ip6', this.ar_section).children("input");
+        if(!$('input.slaac',this.ar_section).prop('checked')){
+          ar_type += "_STATIC";
+        }
         break;
       case "ETHER":
         fields = $('div.type_ether', this.ar_section).children("input");

@@ -78,6 +78,13 @@
             <td class="value_td">{{last_ip6_global}}</td>
           </tr>
         {{/if}}
+        {{#if first_ip6_static}}
+          <tr>
+            <td class="key_td">{{tr "IP6"}}</td>
+            <td class="value_td">{{first_ip6_static}}</td>
+            <td class="value_td">{{last_ip6_static}}</td>
+          </tr>
+        {{/if}}
         {{#if first_ip6_ula}}
           <tr>
             <td class="key_td">{{tr "IP6_ULA"}}</td>
