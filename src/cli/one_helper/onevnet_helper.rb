@@ -53,7 +53,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         :short => "-6 ip6",
         :large => "--ip6 ip6",
         :format => String,
-        :description => "First IPv6 address in : notation"
+        :description => "First IPv6 address, in CIDR notation e.g. 2001::1/48"
     }
 
     SIZE = {
