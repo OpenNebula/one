@@ -42,11 +42,6 @@ define(function(require) {
       tip: Locale.tr("Select the new group"),
       layout: "user_select"
     },
-    "Service.shutdown" : {
-      type: "action",
-      layout: "main",
-      text: Locale.tr("Shutdown")
-    },
     "Service.recover" : {
       type: "action",
       layout: "main",
