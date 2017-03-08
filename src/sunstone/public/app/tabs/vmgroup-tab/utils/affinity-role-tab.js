@@ -191,6 +191,11 @@ define(function(require) {
         return false;
       }
     }
+
+    $(".select_role").each(function(){
+      $("option").prop("selected", false);
+    });
+    
     var that = this;
     var index = group_roles_index;
     var group_roles_id  = 'group_role_' + group_roles_index;
