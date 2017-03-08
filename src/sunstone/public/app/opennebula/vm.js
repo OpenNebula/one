@@ -289,6 +289,7 @@ define(function(require) {
 
   var NIC_IP_ATTRS = [
     "IP",
+    "IP6",
     "IP6_GLOBAL",
     "IP6_ULA",
     "VROUTER_IP",

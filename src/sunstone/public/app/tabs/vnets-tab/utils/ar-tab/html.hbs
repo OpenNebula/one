@@ -25,7 +25,7 @@
 <div class="row">
   <div class="medium-6 columns">
     <div class="row collapse ar_input type_ip4 type_ip4_6">
-      <label for="{{str_ar_tab_id}}_ip_start">{{tr "First IP address"}}
+      <label for="{{str_ar_tab_id}}_ip_start">{{tr "First IPv4 address"}}
       </label>
       <input wizard_field="IP" type="text" name="IP" id="{{str_ar_tab_id}}_ip_start"/>
     </div>
@@ -35,20 +35,39 @@
       <input wizard_field="MAC" type="text" name="MAC" id="{{str_ar_tab_id}}_mac_start" />
     </div>
   </div>
-  <div class="medium-6 columns ar_input type_ip4 type_ip4_6 type_ip6 type_ether">
-    <label for="{{str_ar_tab_id}}_size">{{tr "Size"}}
-    </label>
-    <input wizard_field="SIZE" required type="number" min="0" name="SIZE" id="{{str_ar_tab_id}}_size" />
+  <div class="medium-6 columns">
+    <div class="row collapse ar_input type_ip4 type_ip4_6 type_ip6 type_ether">
+      <label for="{{str_ar_tab_id}}_size">{{tr "Size"}}
+      </label>
+      <input wizard_field="SIZE" required type="number" min="0" name="SIZE" id="{{str_ar_tab_id}}_size" />
+    </div>
+    <div class="row collapse ar_input type_ip4_6 type_ip6 switch left">
+        <label for="{{str_ar_tab_id}}_">{{tr "SLAAC"}}
+        </label>
+        <input class="switch-input slaac" wizard_field="SLAAC" name="SLAAC" id="{{str_ar_tab_id}}_slaac" type="checkbox">
+        <label class="switch-paddle" for="{{str_ar_tab_id}}_slaac">
+        </label>
+    </div>
   </div>
 </div>
-<div class="row">
+<div class="row slaac_true">
   <div class="medium-6 columns ar_input type_ip4_6 type_ip6">
-    <label for="{{str_ar_tab_id}}_global_prefix">{{tr "Global prefix"}}</label>
+    <label for="{{str_ar_tab_id}}_global_prefix">{{tr "IPv6 Global prefix"}}</label>
     <input wizard_field="GLOBAL_PREFIX" type="text" name="GLOBAL_PREFIX" id="{{str_ar_tab_id}}_global_prefix"/>
   </div>
   <div class="medium-6 columns ar_input type_ip4_6 type_ip6">
-    <label for="{{str_ar_tab_id}}_ula_prefix">{{tr "ULA prefix"}}</label>
+    <label for="{{str_ar_tab_id}}_ula_prefix">{{tr "IPv6 ULA prefix"}}</label>
     <input wizard_field="ULA_PREFIX" type="text" name="ULA_PREFIX" id="{{str_ar_tab_id}}_ula_prefix"/>
+  </div>
+</div>
+<div class="row slaac_false">
+  <div class="medium-6 columns ar_input type_ip4_6 type_ip6">
+    <label for="{{str_ar_tab_id}}_ipv6">{{tr "IPv6"}}</label>
+    <input wizard_field="IP6" type="text" name="IP6" id="{{str_ar_tab_id}}_ipv6"/>
+  </div>
+  <div class="medium-6 columns ar_input type_ip4_6 type_ip6">
+    <label for="{{str_ar_tab_id}}_prefix_lenght">{{tr "Prefix lenght"}}</label>
+    <input wizard_field="PREFIX_LENGHT" type="text" name="PREFIX_LENGHT" id="{{str_ar_tab_id}}_prefix_lenght"/>
   </div>
 </div>
 <div class="row">

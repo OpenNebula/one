@@ -296,6 +296,8 @@ define(function(require) {
     var last_mac        = ar.MAC_END;
     var first_ip        = ar.IP;
     var last_ip         = ar.IP_END;
+    var first_ip6_static= ar.IP6;
+    var last_ip6_static = ar.IP6_END;
     var first_ip6_global= ar.IP6_GLOBAL;
     var last_ip6_global = ar.IP6_GLOBAL_END;
     var first_ip6_ula   = ar.IP6_ULA;
@@ -317,6 +319,8 @@ define(function(require) {
     delete ar["IP_END"];
     delete ar["IP6_ULA"];
     delete ar["IP6_ULA_END"];
+    delete ar["IP6"];
+    delete ar["IP6_END"];
     delete ar["IP6_GLOBAL"];
     delete ar["IP6_GLOBAL_END"];
     delete ar["AR_ID"];
@@ -364,6 +368,8 @@ define(function(require) {
       'last_mac': last_mac,
       'first_ip': first_ip,
       'last_ip': last_ip,
+      'first_ip6_static': first_ip6_static,
+      'last_ip6_static': last_ip6_static,
       'first_ip6_global': first_ip6_global,
       'last_ip6_global': last_ip6_global,
       'first_ip6_ula': first_ip6_ula,
