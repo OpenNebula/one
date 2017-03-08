@@ -80,6 +80,9 @@ let RC=RC+$?
 ./test.sh VirtualRouterTest 2>&1 | tee -a $LOG_FILE
 let RC=RC+$?
 
+./test.sh VMGroupTest 2>&1 | tee -a $LOG_FILE
+let RC=RC+$?
+
 echo ""
 echo "Output saved in $LOG_FILE"
 
