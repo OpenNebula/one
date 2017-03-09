@@ -104,9 +104,8 @@ define(function(require) {
           if(!equals(that.host_affined, text) && !equals(that.host_anti_affined, text)){
             html = "<a value="+text+" id='btn_HOST_ANTI_AFFINED_"+that.html_role_id+"' class='button alert radius btn_group_host_vm_roles' style='margin-top: 0.5em;'>\
                       <i class='fa fa-lg fa-times-circle remove_host_affinity'> "+text+" </i>\
-                      </a>\
-                      <br/>";
-            var div = '<div id="ANTI_AFFINED_'+that.html_role_id+'" class="group_host_role_content" typeAffinity="ANTI_AFFINED">' + html + '</div>';
+                      </a>";
+            var div = '<div style="margin: 3px; display: inline;" id="ANTI_AFFINED_'+that.html_role_id+'" class="group_host_role_content" typeAffinity="ANTI_AFFINED">' + html + '</div>';
             $("#group_vm_host_roles_"+that.html_role_id+"_anti_affined").append(div);
             that.host_anti_affined.push(text);
           }
@@ -117,9 +116,8 @@ define(function(require) {
           if(!equals(that.host_affined, text) && !equals(that.host_anti_affined, text)){
             html = "<a value="+text+" id='btn_HOST_AFFINED_"+that.html_role_id+"' class='button success radius btn_group_host_vm_roles' style='margin-top: 0.5em;'>\
                       <i class='fa fa-lg fa-times-circle remove_host_affinity'> "+text+" </i>\
-                      </a>\
-                      <br/>";
-            var div = '<div id="AFFINED_'+that.html_role_id+'" class="group_host_role_content" typeAffinity="AFFINED">' + html + '</div>';
+                      </a>";
+            var div = '<div style="margin: 3px; display: inline;" id="AFFINED_'+that.html_role_id+'" class="group_host_role_content" typeAffinity="AFFINED">' + html + '</div>';
             $("#group_vm_host_roles_"+that.html_role_id+"_affined").append(div);
             that.host_affined.push(text);
           }
