@@ -30,8 +30,10 @@ $: << File.dirname(__FILE__)
 require 'vcenter_driver'
 
 vm_ref          = ARGV[0]
-mac             = ARGV[1]
 vc_cluster_name = ARGV[3]
+
+drv_action = OpenNebula::XMLElement.new
+drv_action.initialize_xml(Base64.decode64(STDIN.read), 'VMM_DRIVER_ACTION_DATA')
 
 host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, vc_cluster_name)
 host_id = host['ID']
@@ -41,9 +43,10 @@ begin
 
     vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
 
-    nic = { "MAC" => mac }
+    # Setting one_item with info with the vm_xml including NIC to be added
+    vm.one_item = drv_action.retrieve_xmlelements("VM").first
 
-    vm.detach_nic(nic)
+    vm.detach_nic
 
 rescue Exception => e
     STDERR.puts "Detach NIC for VM #{vm_ref} on vCenter cluster #{vc_cluster_name} "\
