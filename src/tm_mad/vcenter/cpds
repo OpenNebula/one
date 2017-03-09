@@ -59,7 +59,7 @@ host_id = host['ID']
 one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vmid)
 disks = one_vm.retrieve_xmlelements("TEMPLATE/DISK[DISK_ID=#{disk_id}]")
 src_path = VCenterDriver::FileHelper.get_img_name(disks.first, vmid)
-if one_vm.state == 3
+if one_vm['LCM_STATE'] == 26 #ACTIVE / HOTPLUG_SAVEAS
     STDERR.puts "'disk-saveas' operation is not supported for running VMs."
     exit 1
 end
@@ -80,8 +80,7 @@ begin
 
     target_ds_name_vc = target_ds_vc['name']
 
-    source_ds_vc.copy_virtual_disk(src_path, source_ds,
-                                   target_path, target_ds_name_vc)
+    source_ds_vc.copy_virtual_disk(src_path, target_ds_name_vc, target_path)
 
 rescue Exception => e
     STDERR.puts "Error copying img #{src_path}. "\
