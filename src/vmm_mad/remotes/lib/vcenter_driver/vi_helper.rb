@@ -1,6 +1,10 @@
 module VCenterDriver
 
 class VIHelper
+
+    ETC_LOCATION = "/etc/one/" if !defined?(ETC_LOCATION)
+    VCENTER_DRIVER_DEFAULT = "#{ETC_LOCATION}/vcenter_driver.default"
+
     def self.client
         @@client ||= OpenNebula::Client.new
     end
@@ -52,6 +56,16 @@ class VIHelper
             e["TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid}.first rescue nil
 
         return element
+    end
+
+    def self.get_default(xpath)
+        begin
+            xml = OpenNebula::XMLElement.new
+            xml.initialize_xml(File.read(VCENTER_DRIVER_DEFAULT), 'VCENTER')
+            return xml[xpath]
+        rescue
+            return nil
+        end
     end
 
 end # class VIHelper
