@@ -29,7 +29,7 @@ $: << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
-vm_ref = ARGV[0]
+vm_ref    = ARGV[0]
 host      = ARGV[1]
 vm_id     = ARGV[-2]
 
