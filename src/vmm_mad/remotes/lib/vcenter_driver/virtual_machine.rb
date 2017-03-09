@@ -583,10 +583,10 @@ class VirtualMachine
     # Returns an array of actions to be included in :deviceChange
     def calculate_add_nic_spec(nic)
 
-        #TODO include VCENTER_NET_REF usage it should be in one_item
+        #TODO include VCENTER_NET_MODEL usage it should be in one_item
         mac       = nic["MAC"]
         bridge    = nic["BRIDGE"]
-        model     = nic["MODEL"]
+        model     = nic["VCENTER_NET_MODEL"]
         vnet_ref  = nic["VCENTER_NET_REF"]
         backing   = nil
 
@@ -686,9 +686,12 @@ class VirtualMachine
     end
 
     # Add NIC to VM
-    def attach_nic(nic)
-
+    def attach_nic
         spec_hash = {}
+        nic = nil
+
+        # Extract nic from driver action
+        nic = one_item.retrieve_xmlelements("TEMPLATE/NIC[ATTACH='YES']").first
 
         # A new NIC requires a vcenter spec
         attach_nic_array = []
@@ -726,9 +729,12 @@ class VirtualMachine
     end
 
     # Detach NIC from VM
-    def detach_nic(nic)
-
+    def detach_nic
         spec_hash = {}
+        nic = nil
+
+        # Extract nic from driver action
+        nic = one_item.retrieve_xmlelements("TEMPLATE/NIC[ATTACH='YES']").first
 
         mac = nic["MAC"]
 
@@ -800,7 +806,7 @@ class VirtualMachine
         position = 0
         attach_disk_array = []
         disks.each do |disk|
-            attach_disk_array << calculate_add_disk_spec(disk)
+            attach_disk_array << calculate_add_disk_spec(disk, position)
             position += 1
         end
 
@@ -1093,7 +1099,7 @@ class VirtualMachine
 
                 used_numbers << dev.scsiCtlrUnitNumber
                 scsi_schema[dev.key][:device] = dev
-          end
+            end
 
             next if dev.class != RbVmomi::VIM::VirtualDisk
             used_numbers << dev.unitNumber
