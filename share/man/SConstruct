@@ -67,6 +67,7 @@ env.Man('onevdc')
 env.Man('onevrouter')
 env.Man('onemarket')
 env.Man('onemarketapp')
+env.Man('onevmgroup')
 
 env.Man('oneflow')
 env.Man('oneflow-template')
