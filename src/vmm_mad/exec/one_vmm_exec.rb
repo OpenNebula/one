@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -126,7 +126,7 @@ class VmmAction
         end
 
         if DriverExecHelper.failed?(result)
-            info << @data[:failed_info]
+            info << ( @data[:failed_info] || "-" )
         elsif !@data["#{@main_action.to_s}_info".to_sym].nil?
             info << @data["#{@main_action.to_s}_info".to_sym]
         end
