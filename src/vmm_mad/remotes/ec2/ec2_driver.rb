@@ -35,6 +35,7 @@ require 'yaml'
 require 'rubygems'
 require 'aws-sdk'
 require 'uri'
+require 'resolv'
 
 $: << RUBY_LIB_LOCATION
 
@@ -338,11 +339,26 @@ class EC2Driver
 
         instance.create_tags(:tags => tag_array)
 
+        elastic_ip = ec2_value(ec2_info, 'ELASTICIP')
+
+        if elastic_ip
+            wait_state('pending', instance.id)
+
+            if elastic_ip.match(Resolv::IPv4::Regex)
+                address_key = :public_ip
+            else
+                address_key = :allocation_id
+            end
+
+            address = {
+                :instance_id    => instance.id,
+                address_key     => elastic_ip
+            }
+
+            @ec2.client.associate_address(address)
+        end
 
         wait_state('running', instance.id)
-        if ec2_value(ec2_info, 'ELASTICIP')
-            instance.associate_elastic_ip(ec2_value(ec2_info, 'ELASTICIP'))
-        end
 
         puts(instance.id)
       else
