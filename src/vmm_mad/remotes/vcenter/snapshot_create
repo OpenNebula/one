@@ -46,13 +46,26 @@ begin
 
     vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
 
-    vm.create_snapshot(snap_id, snap_name)
+    one_vm = drv_action.retrieve_xmlelements("VM").first
+
+    vm.one_item = one_vm
+
+    persistent_disks = one_vm.retrieve_xmlelements("TEMPLATE/DISK[PERSISTENT=YES]")
+
+    if !persistent_disks.empty?
+        STDERR.puts "Snapshot of VM #{vm_ref} on vCenter cluster "\
+                    "#{vc_cluster_name} cannot be performed if "\
+                    "it contains persistent disks"
+        exit 1
+    end
+
+    puts vm.create_snapshot(snap_id, snap_name)
 
 rescue Exception => e
     STDERR.puts "Snapshot of VM #{vm_ref} on vCenter cluster "\
                 "#{vc_cluster_name} failed due to "\
                 "\"#{e.message}\"\n#{e.backtrace}"
-    exit(-1)
+    exit -1
 ensure
     vi_client.close_connection
 end

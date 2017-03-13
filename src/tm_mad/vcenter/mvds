@@ -65,7 +65,7 @@ begin
 
     vm.one_item = one_vm
 
-    vm.detach_disk(disk)
+    vm.detach_disk(disk) if !vm.has_snapshots?
 rescue Exception => e
     STDERR.puts "Error detaching virtual disk #{img_path} from vm #{vmid}."\
                 " Reason: #{e.message}\n#{e.backtrace}"

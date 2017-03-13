@@ -79,16 +79,19 @@ if path.match(/disk\.\d+$/)
     img_path = VCenterDriver::FileHelper.get_img_name(disk, vmid)
 
     begin
-        # TODO: if the deploy has failed, the disks may exist, but the vm may
-        # not exist...
-        vm.one_item = one_vm
+        if !vm.has_snapshots?
+            # TODO: if the deploy has failed, the disks may exist, but the vm may
+            # not exist...
+            vm.one_item = one_vm
 
-        # detach the disk
-        vm.detach_disk(disk)
+            # detach the disk
+            vm.detach_disk(disk)
 
-        # delete the disk
-        ds = VCenterDriver::Datastore.new_from_ref(ds_ref, vi_client)
-        ds.delete_virtual_disk(img_path)
+            # delete the disk
+            ds = VCenterDriver::Datastore.new_from_ref(ds_ref, vi_client)
+            ds.delete_virtual_disk(img_path)
+        end
+
     rescue Exception => e
         STDERR.puts "Error delete virtual disk #{img_path} in datastore #{dsid}."\
                     " Reason: #{e.message}\n#{e.backtrace}"
@@ -100,7 +103,7 @@ else
     # Remove the VM
     begin
         # All OpenNebula managed disks have been detached. The VM may have still
-        # disks that belong to the template (VCENTER_MANAGED disks). These disks
+        # disks that belong to the template (OPENNEBULA_MANAGED disks). These disks
         # will be deleted with the destroy operation. If the user wants to
         # save them to a VM, it can be done using the disk-saveas operation.
         vm.destroy
