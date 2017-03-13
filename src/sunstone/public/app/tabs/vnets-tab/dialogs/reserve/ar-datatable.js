@@ -59,7 +59,7 @@ define(function(require) {
       Locale.tr("Address Range"),
       Locale.tr("Type"),
       Locale.tr("Start"),
-      Locale.tr("IPv6 Prefix"),
+      Locale.tr("End"),
       Locale.tr("Leases")
     ];
 
@@ -100,33 +100,23 @@ define(function(require) {
         $.each(ar_list, function(){
           var ar = this;
           var id = ar.AR_ID;
+          var divider = "<br>";
+          var startips = [];
+          var endips = [];
 
-          var start;
-
-          if(ar.TYPE == "IP4" || ar.TYPE == "IP4_6"){
-            start = (ar.IP ? ar.IP : "--");
-          } else {
-            start = (ar.MAC ? ar.MAC : "--");
-          }
-
-          var prefix = "";
-
-          if(ar.GLOBAL_PREFIX && ar.ULA_PREFIX){
-            prefix += ar.GLOBAL_PREFIX + "<br>" + ar.ULA_PREFIX;
-          } else if (ar.GLOBAL_PREFIX){
-            prefix += ar.GLOBAL_PREFIX;
-          } else if (ar.ULA_PREFIX){
-            prefix += ar.ULA_PREFIX;
-          } else {
-            prefix = "--";
-          }
+          (ar.IP ? startips.push("IP: "+ar.IP+divider) : null);
+          (ar.IP_END ? endips.push("IP: "+ar.IP_END+divider) : null);
+          (ar.IP6 ? startips.push("IP6: "+ar.IP6+divider) : null);
+          (ar.IP6_END ? endips.push("IP6: "+ar.IP6_END+divider) : null);
+          (ar.MAC ? startips.push("MAC: "+ar.MAC+divider) : null);
+          (ar.MAC_END ? endips.push("MAC: "+ar.MAC_END+divider) : null);
 
           ar_list_array.push([
             null,
             id,
             (ar.TYPE ? ar.TYPE : "--"),
-            start,
-            prefix,
+            startips,
+            endips,
             ProgressBar.html(ar.USED_LEASES, ar.SIZE)
             ]);
         });
