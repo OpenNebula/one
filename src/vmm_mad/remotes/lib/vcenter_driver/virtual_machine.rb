@@ -781,7 +781,7 @@ class VirtualMachine
 
     def device_change_disks
         disks = []
-        one_item.each("TEMPLATE/DISK") { |disk| disks << disk }
+        one_item.each("TEMPLATE/DISK") { |disk| disks << disk if !disk["OPENNEBULA_MANAGED"] }
 
         if !is_new?
             self["config.hardware.device"].each do |d|
@@ -891,15 +891,25 @@ class VirtualMachine
         ds        = get_effective_ds(disk)
         ds_name   = ds['name']
 
-        device = self["config.hardware.device"].select do |d|
-            is_disk_or_cdrom?(d) &&
-            d.backing.respond_to?(:fileName) &&
-            d.backing.fileName == "[#{ds_name}] #{img_name}"
-        end rescue nil
+        device_found = nil
+        self["config.hardware.device"].each do |d|
+            if is_disk_or_cdrom?(d)
+                backing = d.backing
 
-        return nil if device.nil?
+                # Backing may be a delta disk (snapshots)
+                while backing.respond_to?(:parent)
+                    break if backing.parent.nil?
+                    backing = backing.parent
+                end
 
-        return device.first
+                if backing.respond_to?(:fileName) && backing.fileName == "[#{ds_name}] #{img_name}"
+                    device_found = d
+                    break
+                end
+            end
+        end
+
+        return device_found
     end
 
     def calculate_add_disk_spec(disk, position=0)
@@ -983,6 +993,10 @@ class VirtualMachine
                :device    => device
             }
         end
+    end
+
+    def has_snapshots?
+        self['rootSnapshot'] && !self['rootSnapshot'].empty?
     end
 
     def get_vcenter_disks
@@ -1235,7 +1249,7 @@ class VirtualMachine
             if i.name == snap_id.to_s
                 return i.snapshot
             elsif !i.childSnapshotList.empty?
-                snap = find_snapshot(i.childSnapshotList, snap_id)
+                snap = find_snapshot_in_list(i.childSnapshotList, snap_id)
                 return snap if snap
             end
         end rescue nil
@@ -1248,13 +1262,15 @@ class VirtualMachine
     ############################################################################
 
     def shutdown
-        # Ignore ShutdownGuest exceptions, maybe VM hasn't openvm tools
-        @item.ShutdownGuest rescue nil
-
-        # Check if VM has been powered off
-        (0..VM_SHUTDOWN_TIMEOUT).each do
-            break if @item.runtime.powerState == "poweredOff"
-            sleep 1
+        begin
+            @item.ShutdownGuest
+            # Check if VM has been powered off
+            (0..VM_SHUTDOWN_TIMEOUT).each do
+                break if @item.runtime.powerState == "poweredOff"
+                sleep 1
+            end
+        rescue
+            # Ignore ShutdownGuest exceptions, maybe VM hasn't openvm tools
         end
 
         # If VM hasn't been powered off, do it now
