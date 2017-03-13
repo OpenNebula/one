@@ -325,6 +325,18 @@ class EC2Driver
             sleep 2
         end
 
+        tags = generate_options(:tags, ec2_info)[:tags] || {}
+
+        tag_array = []
+        tags.each{ |key,value|
+            tag_array << {
+                :key => key,
+                :value => value
+            }
+        }
+
+        instance.create_tags(:tags => tag_array)
+
         elastic_ip = ec2_value(ec2_info, 'ELASTICIP')
 
         if elastic_ip
@@ -346,19 +358,10 @@ class EC2Driver
 
         wait_state('running', instance.id)
 
-        tags = generate_options(:tags, ec2_info)[:tags] || {}
-
-        tags['ONE_ID'] = id
-
-        tag_array = []
-        tags.each{ |key,value|
-            tag_array << {
-                :key => key,
-                :value => value
-            }
-        }
-
-        instance.create_tags(:tags => tag_array)
+        instance.create_tags(tags: [{
+            key: 'ONE_ID',
+            value: id
+        }])
 
         puts(instance.id)
       else
