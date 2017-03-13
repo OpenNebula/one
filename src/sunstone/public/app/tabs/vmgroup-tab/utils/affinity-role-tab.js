@@ -131,7 +131,7 @@ define(function(require) {
     if(name){
       var index_role = this.list_roles.indexOf(oldName);
       if(index_role != -1){
-        var input = $("#list_roles_select #" + oldName);
+        var input = $("#list_roles_select [value ='" + oldName +"']");
         input[0].id = name;
         input[0].value = name;
         input[0].innerHTML = name;
