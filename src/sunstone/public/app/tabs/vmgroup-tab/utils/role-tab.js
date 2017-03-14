@@ -69,11 +69,12 @@ define(function(require) {
 
   function _setup_role_tab_content(role_section,context) {
     var that = this;
+    this.role_section = role_section;
     Tips.setup(role_section);
     this.hostsTable.initialize();
 
     $("#btn_host_vm_roles_anti_affined"+this.html_role_id, context).bind("click",function(){
-       var selectedHostsList = that.hostsTable.retrieveResourceTableSelect();
+      var selectedHostsList = that.hostsTable.retrieveResourceTableSelect();
       var selectedHosts = {};
       $.each(selectedHostsList, function(i,e){
         selectedHosts[e] = 1;
@@ -137,6 +138,14 @@ define(function(require) {
           delete that.host_anti_affined[index];
         }
         return false;
+      });
+      $.each($('tr', that.role_section),function(index, row) {
+        if(row.childNodes[0].className == "markrowchecked"){
+          var row_id = row.childNodes[0].innerText;
+          $('td', row).removeClass('markrowchecked');
+          $('td', row).prop('checked', false);
+          $('#selected_ids_row_table_hosts_'+that.html_role_id + ' span[row_id="' + row_id + '"]', that.role_section).remove();
+        }
       });
   }
   function _onShow(){
