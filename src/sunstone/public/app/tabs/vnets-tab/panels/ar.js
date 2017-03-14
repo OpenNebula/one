@@ -305,8 +305,6 @@ define(function(require) {
 
     var arKnownAttr = [
       {key: Locale.tr("Type"),         value: ar.TYPE},
-      {key: Locale.tr("MAC Start"),    value: ar.MAC},
-      {key: Locale.tr("IP Start"),     value: ar.IP},
       {key: Locale.tr("Global prefix"),value: ar.GLOBAL_PREFIX},
       {key: Locale.tr("ULA prefix"),   value: ar.ULA_PREFIX},
       {key: Locale.tr("Size"),         value: ar.SIZE},
