@@ -15,22 +15,20 @@
 {{! -------------------------------------------------------------------------- }}
 <form data-abide novalidate id="{{formPanelId}}Wizard" class="custom creation">
   <div class="row collapse" id="default_vdc_warning">
-    <div class="large-12 columns text-right">
+    <div class="large-12 columns">
       <span class="radius warning label">
         <i class="fa fa-warning"/> {{tr "New Groups are automatically added to the default VDC"}}
       </span>
     </div>
   </div>
   <div class="row">
-    <div class="columns medium-5">
-      <label>
-        {{tr "Name"}}
-        <input required type="text" name="name" id="name" />
-      </label>
-    </div>
-    <div class="columns medium-7">
-      <dl id="{{formPanelId}}Tabs" class="tabs sunstone-info-tabs text-center right" data-tabs>
+    <div class="columns medium-12">
+      <dl id="{{formPanelId}}Tabs" class="tabs sunstone-info-tabs text-center" data-tabs>
         <dd class="tabs-title is-active">
+          <a href="#name"> <i class="fa fa-desktop"></i>
+            <br>{{tr "General"}}</a>
+        </dd>
+        <dd class="tabs-title">
           <a href="#resource_views"> <i class="fa fa-eye"></i>
             <br>{{tr "Views"}}</a>
         </dd>
@@ -43,11 +41,26 @@
             <i class="fa fa-folder-open"></i>
             <br>{{tr "Permissions"}}</a>
         </dd>
+        <dd class="tabs-title">
+          <a href="#system">
+            <i class="fa fa-cog"></i>
+            <br>{{tr "System"}}</a>
+        </dd>
       </dl>
     </div>
   </div>
   <div class="tabs-content" data-tabs-content="{{formPanelId}}Tabs">
-    <div id="resource_views" class="tabs-panel is-active">
+    <div id="name" class="tabs-panel is-active">
+      <div class="row">
+        <div class="columns medium-4">
+          <label>
+            {{tr "Name"}}
+            <input required type="text" name="name" id="name" />
+            </label>
+        </div>
+      </div>
+    </div>
+    <div id="resource_views" class="tabs-panel">
       <div class="row">
         <div class="large-12 columns">
           <p class="subheader">
@@ -132,6 +145,11 @@
           </div>
           {{{userCreationHTML}}}
         </div>
+      </div>
+    </div>
+    <div id="system" class="tabs-panel">
+      <div class="row">
+        {{!-------TODO-------}}
       </div>
     </div>
     <div id="resource_creation" class="tabs-panel">
