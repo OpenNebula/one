@@ -20,7 +20,7 @@
       <span style="font-weight: 700; color: #7d7c7c;"> 
         {{tr "Role name"}}
       </span>
-      <input class="role_param" type="text" id="role_name" name="name" aria-describedby="helpText" required pattern="^\w+$"/>
+      <input class="role_param" type="text" id="role_name" name="name" aria-describedby="helpText" required/>
       <small class="form-error">{{tr "Can only contain alphanumeric and underscore characters"}}</small>
     </label>
   </div> 
@@ -32,9 +32,9 @@
         {{tr "VM-VM Affinity"}}
       </span>
       <div style="margin-left: 30px; margin-bottom:5px;">
-        <input type="radio" name="protocol_{{idRole}}" value="NONE" checked>{{tr "None"}}</br>
-        <input type="radio" name="protocol_{{idRole}}" value="AFFINED"">{{tr "Affined"}}</br>
-        <input type="radio" name="protocol_{{idRole}}" value="ANTI_AFFINED">{{tr "Anti Affined"}}
+        <input type="radio" name="protocol_{{idRole}}" value="NONE" checked><label>{{tr "None"}}</label></br>
+        <input type="radio" name="protocol_{{idRole}}" value="AFFINED""><label>{{tr "Affined"}}</label></br>
+        <input type="radio" name="protocol_{{idRole}}" value="ANTI_AFFINED"><label>{{tr "Anti Affined"}}</label>
       </div>
     </label>
   </div>
