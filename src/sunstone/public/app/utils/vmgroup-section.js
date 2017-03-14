@@ -49,7 +49,6 @@ define(function(require) {
       $(".role_table_section", context).prop('required', false);
       $(".role_table_section > option").removeAttr('selected');
     });
-
   }
   function _html(vmGroupTable){
     return TemplateSection({
@@ -107,8 +106,14 @@ define(function(require) {
     }
   }
   function _retrieve(context, vmGroupTable=undefined) {
+    if(!vmGroupTable){
+      $.each($('.role_table_section',context), function(){
+        if(this.innerText != ""){
+          this.remove();
+        }
+      });
+    }
     var role_selected = $('.role_table_section', context).val();
-
     var vmgroup_selected = undefined;
     if(this.vmGroupTable)
       vmgroup_selected = this.vmGroupTable.retrieveResourceTableSelect();
@@ -135,7 +140,7 @@ define(function(require) {
         id: idvmgroup,
       },
       success: function (request, template_json) {
-        $(".role_table_section",context).empty();
+        $(".role_table_section").empty();
         var roles = template_json["VM_GROUP"].ROLES.ROLE;
         $(".title_roles",context).text(Locale.tr("Roles")+" "+ template_json["VM_GROUP"].NAME);
         if(roles){
@@ -150,7 +155,7 @@ define(function(require) {
           $("#role_section",context).show();
           $(".role_table_section", context).prop('required', true);
           if(fill){
-            $('.role_table_section option[value='+fill+']').attr("selected",true);
+            $('.role_table_section option[value="'+fill+'"]').attr("selected",true);
           }
         }
       },
