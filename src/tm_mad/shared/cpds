@@ -54,9 +54,11 @@ unset i j XPATH_ELEMENTS
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <(onevm show -x $VMID| $XPATH \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/DISK_TYPE \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE)
 
+DISK_TYPE="${XPATH_ELEMENTS[j++]}"
 DISK_SRC="${XPATH_ELEMENTS[j++]}"
 CLONE="${XPATH_ELEMENTS[j++]}"
 
@@ -77,6 +79,15 @@ DST_PATH="${SRC_DS_PATH}${DST_ARG_PATH##$DST_DS_PATH}"
 if [ "$SNAP_ID" != "-1" ]; then
     [ "$CLONE" != "YES" ] && SRC_PATH="$DISK_SRC"
     SRC_PATH="$SRC_PATH.snap/$SNAP_ID"
+fi
+
+#-------------------------------------------------------------------------------
+# Handle Ceph image
+#-------------------------------------------------------------------------------
+
+if [ "$DISK_TYPE" = "RBD" ]; then
+    ${DRIVER_PATH}/../ceph/cpds "$1" "$2" "$3" "$4" "$5"
+    exit 0
 fi
 
 #-------------------------------------------------------------------------------
