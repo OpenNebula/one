@@ -40,6 +40,7 @@ define(function(require) {
 
   var FORM_PANEL_ID = require('./create/formPanelId');
   var TAB_ID = require('../tabId');
+  var IMAGE_DIALOG_ID = require('../dialogs/image/dialogId');
 
   /*
     CONSTRUCTOR
@@ -126,15 +127,21 @@ define(function(require) {
 
     $.each(filtered_views, function(view_type, views){
       if (views.length > 0) {
+        var link = "";
+        if(Views.types[view_type].preview){
+          link = Views.types[view_type].preview.split(".")[0]
+        }
         viewTypes.push(
           {
             'name': Views.types[view_type].name,
             'description': Views.types[view_type].description,
             'preview': Views.types[view_type].preview,
-            'views': views
+            'views': views,
+            'link': link
           });
       }
     });
+    this.filtered_views = filtered_views;
 
     return TemplateWizardHTML({
       'formPanelId': this.formPanelId,
@@ -192,6 +199,23 @@ define(function(require) {
       _generateViewsSelect(context, "admin", "groupadmin");
       _generateViewsSelect(context, "user", "cloud");
     }
+
+    $.each(this.filtered_views, function(view_type, views){
+      if (views.length > 0) {
+        if(Views.types[view_type].preview){
+          $("#link_"+Views.types[view_type].preview.split(".")[0], context).on("click", function(){
+            Sunstone.getDialog(IMAGE_DIALOG_ID).setParams({element: {
+                                                            "preview":Views.types[view_type].preview, 
+                                                            "name": Views.types[view_type].name}});
+            Sunstone.getDialog(IMAGE_DIALOG_ID).reset();
+            Sunstone.getDialog(IMAGE_DIALOG_ID).show();
+          });
+        }
+        else{
+          $("#link_", context).hide();
+        }
+      }
+    });
   }
 
   function _submitWizard(context) {
@@ -252,6 +276,10 @@ define(function(require) {
       if (default_admin_view != undefined){
         group_json['group']['default_admin_view'] = default_admin_view;
       }
+
+      group_json['group']['opennebula']={};
+      group_json['group']['opennebula']["default_image_persistent_new"] = $('#default_image_persistent_new', context).is(':checked')?'YES':'NO';
+      group_json['group']['opennebula']["default_image_persistent"] = $('#default_image_persistent', context).is(':checked')?'YES':'NO';
 
       Sunstone.runAction("Group.create",group_json);
       return false;
