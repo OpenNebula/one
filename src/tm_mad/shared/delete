@@ -49,7 +49,7 @@ DST_HOST=`arg_host $DST`
 #-------------------------------------------------------------------------------
 
 if [ `is_disk $DST_PATH` -eq 1 ]; then
-    DISK_ID=$(basename ${SRC} | cut -d. -f2)
+    DISK_ID=$(basename ${DST} | cut -d. -f2)
 
     XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
 
