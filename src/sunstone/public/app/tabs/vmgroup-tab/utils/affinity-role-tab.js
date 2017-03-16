@@ -153,7 +153,7 @@ define(function(require) {
         this.list_roles.push(name);
         var html = "<option id='" + name + "' class='roles' value=" + name + "> " + name + "</option>";
         $("#list_roles_select").append(html);
-        $("select #" + name).mousedown(function(e) {
+        $("select [value ='" + name + "']").mousedown(function(e) {
           e.preventDefault();
           $(this).prop('selected', !$(this).prop('selected'));
           return false;

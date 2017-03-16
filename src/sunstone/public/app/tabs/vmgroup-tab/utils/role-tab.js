@@ -191,12 +191,11 @@ define(function(require) {
 
   function _get_old_name() {
     return this.old_name;
-    // body...
   }
 
   function _change_name_tab(name){
     if(this.old_name != name){
-        this.old_name = name ;
+      this.old_name = name;
       $("#" + this.html_role_id +" #role_name_text").html(name);
     }
   }

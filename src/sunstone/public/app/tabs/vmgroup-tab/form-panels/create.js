@@ -28,6 +28,7 @@ define(function(require) {
   var WizardFields = require('utils/wizard-fields');
   var RoleTab = require('tabs/vmgroup-tab/utils/role-tab');
   var AffinityRoleTab = require('tabs/vmgroup-tab/utils/affinity-role-tab');
+  var Notifier = require('utils/notifier');
 
   var Utils = require('../utils/common');
   
@@ -342,8 +343,21 @@ define(function(require) {
     _redo_service_vmgroup_selector_role(dialog, role_section);
 
     role_section.on("change", "#role_name", function(){
-      that.affinity_role_tab.refresh($(this).val(), role_tab.oldName());
-      role_tab.changeNameTab($(this).val());
+      var val = true;
+      var chars = ['/','*','&','|',':', String.fromCharCode(92),'"', ';', '/',String.fromCharCode(39),'#','{','}','$','<','>','*'];
+      var newName = $(this).val();
+      $.each(chars, function(index, value){
+        if(newName.indexOf(value) != -1 && val){
+          val = false;
+        }
+      });
+      if(val){
+        that.affinity_role_tab.refresh($(this).val(), role_tab.oldName());
+        role_tab.changeNameTab(newName);
+      } else {
+        Notifier.notifyError(Locale.tr("The new role name contains invalid characters."));
+      }
+      
     });
 
     //Tips.setup(role_section);
