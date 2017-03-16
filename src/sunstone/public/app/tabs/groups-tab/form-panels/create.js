@@ -287,6 +287,7 @@ define(function(require) {
       var template_json = this.element.TEMPLATE;
 
       delete template_json['SUNSTONE'];
+      delete template_json['OPENNEBULA'];
 
       var sunstone_template = {};
       if (views.length != 0){
@@ -309,8 +310,11 @@ define(function(require) {
         template_json['SUNSTONE'] = sunstone_template;
       }
 
-      var template_str = TemplateUtils.templateToString(template_json);
+      template_json['OPENNEBULA']={};
+      template_json['OPENNEBULA']["default_image_persistent_new"] = $('#default_image_persistent_new', context).is(':checked')?'YES':'NO';
+      template_json['OPENNEBULA']["default_image_persistent"] = $('#default_image_persistent', context).is(':checked')?'YES':'NO';
 
+      var template_str = TemplateUtils.templateToString(template_json);
       Sunstone.runAction("Group.update", this.resourceId, template_str);
       return false;
     }
@@ -343,6 +347,7 @@ define(function(require) {
     $('input[id^="group_view"]', context).removeAttr('checked');
 
     var sunstone_template = element.TEMPLATE.SUNSTONE;
+    var opennebula_template = element.TEMPLATE.OPENNEBULA;
     if (sunstone_template && sunstone_template.VIEWS){
       views_str = sunstone_template.VIEWS;
 
@@ -380,6 +385,11 @@ define(function(require) {
     } else {
       $('#admin_view_default', context).val("").change();
     }
+
+    if(opennebula_template.DEFAULT_IMAGE_PERSISTENT_NEW == "YES")
+      $('#default_image_persistent_new', context).prop('checked', true);
+    if(opennebula_template.DEFAULT_IMAGE_PERSISTENT == "YES")
+      $('#default_image_persistent', context).prop('checked', true);
   }
 
   function _generateViewsSelect(context, idPrefix, value) {
