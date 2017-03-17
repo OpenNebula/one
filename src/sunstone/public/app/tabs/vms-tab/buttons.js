@@ -133,9 +133,8 @@ define(function(require) {
       custom_classes : "state-dependent"
     },
     "VM.terminate" : {
-      type: "confirm_with_icon",
-      icon: "<i class='fa fa-trash fa-3' style='color:#ec5840'/>",
-      text: Locale.tr(" Terminate"),
+      type: text,
+      text: Locale.tr("Terminate"),
       layout: "vmsdelete_buttons",
       custom_classes : "state-dependent"
     },
