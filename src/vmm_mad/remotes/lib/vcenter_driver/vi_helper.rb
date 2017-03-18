@@ -11,12 +11,10 @@ class VIHelper
 
     def self.return_if_error(rc, item, exit_if_fail)
         if OpenNebula::is_error?(rc)
-            if exit_if_fail
-                STDERR.puts rc.message
-                exit 1
-            else
-                rc
-            end
+            raise rc.message if !exit_if_fail
+
+            STDERR.puts rc.message
+            exit 1
         else
             item
         end
