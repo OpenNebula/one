@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -29,42 +29,46 @@ $: << RUBY_LIB_LOCATION
 require 'vcenter_driver'
 
 host_id = ARGV[4]
+check_valid host_id, "host_id"
 
-if !host_id
-    exit -1
+begin
+    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+
+    # Get CCR reference
+    client = OpenNebula::Client.new
+    host = OpenNebula::Host.new_with_id(host_id, client)
+    rc = host.info
+    if OpenNebula::is_error? rc
+        STDERR.puts rc.message
+        exit 1
+    end
+
+    ccr_ref = host["TEMPLATE/VCENTER_CCR_REF"]
+
+    # Get vCenter Cluster
+    cluster = VCenterDriver::ClusterComputeResource.new_from_ref(ccr_ref, vi_client)
+
+    # Print monitoring info
+    puts cluster.monitor
+    puts cluster.monitor_host_systems
+
+    vm_monitor_info = cluster.monitor_vms
+    if !vm_monitor_info.empty?
+        puts "VM_POLL=YES"
+        puts vm_monitor_info
+    end
+
+    puts cluster.monitor_customizations
+
+    dc = cluster.get_dc
+    ds_folder = dc.datastore_folder
+    ds_folder.fetch!
+    puts ds_folder.monitor
+
+rescue Exception => e
+    STDERR.puts "IM poll for vcenter cluster #{host_id} failed due to "\
+                "\"#{e.message}\"\n#{e.backtrace}"
+    exit(-1)
+ensure
+    vi_client.close_connection if vi_client
 end
-
-vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-
-# Get CCR reference
-client = OpenNebula::Client.new
-host = OpenNebula::Host.new_with_id(host_id, client)
-rc = host.info
-if OpenNebula::is_error? rc
-    STDERR.puts rc.message
-    exit 1
-end
-
-ccr_ref = host["TEMPLATE/VCENTER_CCR_REF"]
-
-# Get vCenter Cluster
-cluster = VCenterDriver::ClusterComputeResource.new_from_ref(ccr_ref, vi_client)
-
-# Print monitoring info
-puts cluster.monitor
-puts cluster.monitor_host_systems
-
-vm_monitor_info = cluster.monitor_vms
-if !vm_monitor_info.empty?
-    puts "VM_POLL=YES"
-    puts vm_monitor_info
-end
-
-puts cluster.monitor_customizations
-
-dc = cluster.get_dc
-ds_folder = dc.datastore_folder
-ds_folder.fetch!
-puts ds_folder.monitor
-
-vi_client.close_connection
