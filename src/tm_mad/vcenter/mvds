@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -57,7 +57,6 @@ vm_ref = one_vm['DEPLOY_ID']
 disk_id = img_path.split(".")[-1]
 
 disk = one_vm.retrieve_xmlelements("TEMPLATE/DISK[DISK_ID=#{disk_id}]").first
-img_path = VCenterDriver::FileHelper.get_img_name(disk, vmid)
 
 begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
@@ -66,10 +65,11 @@ begin
     vm.one_item = one_vm
 
     vm.detach_disk(disk) if !vm.has_snapshots?
+
 rescue Exception => e
-    STDERR.puts "Error detaching virtual disk #{img_path} from vm #{vmid}."\
+    STDERR.puts "Error detaching virtual disk #{disk_id} from vm #{vmid}."\
                 " Reason: #{e.message}\n#{e.backtrace}"
     exit -1
 ensure
-    vi_client.close_connection
+    vi_client.close_connection if vi_client
 end
