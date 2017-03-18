@@ -246,15 +246,19 @@ class Datastore < Storage
     end
 
     # Copy a VirtualDisk
-    # @param ds_name [String] name of the datastore
-    # @param img_str [String] path to the VirtualDisk
-    def copy_virtual_disk(src_path, target_ds_name, target_path)
-        leading_dirs = target_path.split('/')[0..-2]
-        if !leading_dirs.empty?
-            create_directory(leading_dirs.join('/'))
-        end
+    def copy_virtual_disk(src_path, target_ds, target_path)
 
         source_ds_name = self['name']
+        target_ds_name = target_ds['name']
+
+        leading_dirs = target_path.split('/')[0..-2]
+        if !leading_dirs.empty?
+            if source_ds_name == target_ds_name
+                create_directory(leading_dirs.join('/'))
+            else
+                target_ds.create_directory(leading_dirs.join('/'))
+            end
+        end
 
         copy_params = {
             :sourceName       => "[#{source_ds_name}] #{src_path}",
