@@ -61,16 +61,16 @@ begin
 
     ds = VCenterDriver::Datastore.new_from_ref(source_ds_ref, vi_client)
 
-    target_ds = VCenterDriver::Datastore.new_from_ref(target_ds_ref, vi_client)
+    target_ds_vc = VCenterDriver::Datastore.new_from_ref(target_ds_ref, vi_client)
 
-    target_ds_name = target_ds['name']
+    target_ds_name = target_ds_vc['name']
 
-    puts ds.copy_virtual_disk(src_path, target_ds_name, target_path)
+    puts ds.copy_virtual_disk(src_path, target_ds_vc, target_path)
 
 rescue Exception => e
-    STDERR.puts "Error cloning img #{src_path}."\
+    STDERR.puts "Error cloning img #{src_path} to #{target_ds_name}"\
                 " Reason: \"#{e.message}\"\n#{e.backtrace}"
     exit -1
 ensure
-    vi_client.close_connection
+    vi_client.close_connection if vi_client
 end
