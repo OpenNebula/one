@@ -93,6 +93,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :format => String
     }
 
+    USE_DEFAULTS = {
+        :name   => "defaults",
+        :large  => "--use-defaults",
+        :description => "Use defaults for answers to questions",
+        :format => String
+    }
+
     ############################################################################
     # Import clusters
     ############################################################################
@@ -100,7 +107,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Import vCenter clusters as OpenNebula hosts
     EOT
 
-    command :hosts, hosts_desc, :options=>[ VCENTER, USER, PASS ] do
+    command :hosts, hosts_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
         con_ops = connection_options("Hosts", options)
 
         VCenterDriver::Importer.import_clusters(con_ops, options)
@@ -115,7 +122,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Import vCenter VM Templates into OpenNebula
     EOT
 
-    command :templates, templates_desc, :options=>[ VCENTER, USER, PASS ] do
+    command :templates, templates_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
         con_ops = connection_options("VM Templates", options)
 
         VCenterDriver::Importer.import_templates(con_ops, options)
@@ -130,7 +137,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Deprecated action in onevcenter, please use onehost importvm instead
     EOT
 
-    command :vms, vms_desc, :options=>[ VCENTER, USER, PASS ] do
+    command :vms, vms_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
         STDERR.puts "Deprecated action in onevcenter, please use onehost "\
                     "importvm instead"
         exit -1
@@ -143,7 +150,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Import vCenter networks into OpenNebula
     EOT
 
-    command :networks, network_desc, :options=>[ VCENTER, USER, PASS ] do
+    command :networks, network_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
         con_ops = connection_options("Networks", options)
 
         VCenterDriver::Importer.import_networks(con_ops, options)
@@ -158,7 +165,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Import vCenter Datastores into OpenNebula
     EOT
 
-    command :datastores, datastores_desc, :options=>[ VCENTER, USER, PASS ] do
+    command :datastores, datastores_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
         con_ops = connection_options("Datastores", options)
 
         VCenterDriver::Importer.import_datastore(con_ops, options)
@@ -173,7 +180,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Import vCenter Images into OpenNebula
     EOT
 
-    command :images, images_desc, :ds_name, :options=>[ VCENTER, USER, PASS ] do
+    command :images, images_desc, :ds_name, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
         ds_name = args[0]
 
         if !ds_name

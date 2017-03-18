@@ -6,6 +6,8 @@ def self.import_clusters(con_ops, options)
     begin
         STDOUT.print "\nConnecting to vCenter: #{options[:vcenter]}..."
 
+        use_defaults = options.key?(:defaults)
+
         vi_client = VCenterDriver::VIClient.new(con_ops)
 
         STDOUT.print "done!\n\n"
@@ -25,9 +27,11 @@ def self.import_clusters(con_ops, options)
         STDOUT.print "done!\n\n"
 
         rs.each {|dc, clusters|
-            STDOUT.print "Do you want to process datacenter #{dc} (y/[n])? "
 
-            next if STDIN.gets.strip.downcase != 'y'
+            if !use_defaults
+                STDOUT.print "Do you want to process datacenter #{dc} (y/[n])? "
+                next if STDIN.gets.strip.downcase != 'y'
+            end
 
             if clusters.empty?
                 STDOUT.puts "    No new clusters found in #{dc}..."
@@ -35,14 +39,15 @@ def self.import_clusters(con_ops, options)
             end
 
             clusters.each{ |cluster|
-                STDOUT.print "  * Import cluster #{cluster[:cluster_name]} (y/[n])? "
-
-                next if STDIN.gets.strip.downcase != 'y'
+                if !use_defaults
+                    STDOUT.print "  * Import cluster #{cluster[:cluster_name]} (y/[n])? "
+                    next if STDIN.gets.strip.downcase != 'y'
+                end
 
                 one_host = VCenterDriver::ClusterComputeResource.to_one(cluster,
                                                                         con_ops)
 
-                STDOUT.puts "    OpenNebula host #{cluster[:cluster_name]} with "\
+                STDOUT.puts "    OpenNebula host #{cluster[:cluster_name]} with"\
                             " id #{one_host.id} successfully created."
                 STDOUT.puts
             }
@@ -61,6 +66,8 @@ end
 def self.import_templates(con_ops, options)
     begin
         STDOUT.print "\nConnecting to vCenter: #{options[:vcenter]}..."
+
+        use_defaults = options.key?(:defaults)
 
         vi_client = VCenterDriver::VIClient.new(con_ops)
 
@@ -82,10 +89,13 @@ def self.import_templates(con_ops, options)
         vc_uuid = vi_client.vim.serviceContent.about.instanceUuid
 
         rs.each {|dc, tmps|
-            STDOUT.print "\nDo you want to process datacenter #{dc}"\
-                            " (y/[n])? "
 
-            next if STDIN.gets.strip.downcase != 'y'
+            if !use_defaults
+                STDOUT.print "\nDo you want to process datacenter #{dc}"\
+                                " (y/[n])? "
+
+                next if STDIN.gets.strip.downcase != 'y'
+            end
 
             if tmps.empty?
                 STDOUT.print "    No new VM Templates found in #{dc}...\n\n"
@@ -94,15 +104,16 @@ def self.import_templates(con_ops, options)
 
             tmps.each{ |t|
 
-                STDOUT.print "\n  * VM Template found:\n"\
-                                "      - Name   : #{t[:name]}\n"\
-                                "      - Moref  : #{t[:vcenter_ref]}\n"\
-                                "      - Cluster: #{t[:cluster_name]}\n"\
-                                "    Import this VM template (y/[n])? "
+                if !use_defaults
+                    STDOUT.print "\n  * VM Template found:\n"\
+                                    "      - Name   : #{t[:name]}\n"\
+                                    "      - Moref  : #{t[:vcenter_ref]}\n"\
+                                    "      - Cluster: #{t[:cluster_name]}\n"\
+                                    "    Import this VM template (y/[n])? "
 
-                next if STDIN.gets.strip.downcase != 'y'
+                    next if STDIN.gets.strip.downcase != 'y'
+                end
 
-=begin
                 ## Add existing disks to template (OPENNEBULA_MANAGED)
 
                 template = t[:template]
@@ -110,156 +121,71 @@ def self.import_templates(con_ops, options)
                 error, template_disks = template.import_vcenter_disks(vc_uuid,
                                                                       dpool,
                                                                       ipool)
+
                 if error.empty?
                     t[:one] << template_disks
                 else
                     STDOUT.puts error
                     next
                 end
-=end
 
                 # Datastore placement
                 ds_input = ""
 
-                STDOUT.print "\n    This template is currently set to be "\
-                                "deployed in datastore #{t[:default_ds]}."\
-                            "\n    Press y to keep the default, n to select"\
-                            " a new default datastore or d to delegate "\
-                            " the choice to the user ([y]/n/d)? "
-
-                answer =  STDIN.gets.strip.downcase
-
-                case answer
-                when 'd'
-                    ds_split     = t[:ds].split("|")
-                    list_of_ds   = ds_split[-2]
-                    default_ds   = ds_split[-1]
-                    ds_input     = ds_split[0] + "|" + ds_split[1] + "|" +
-                                    ds_split[2] + "|"
-
-                    # Available list of datastores
-
-                    input_str = "    The list of available datastores to be"\
-                                " presented to the user are \"#{list_of_ds}\""
-                    input_str+= "\n    Press y to agree, or input a comma"\
-                                " separated list of datastores to edit "\
-                                "[y/comma separated list] "
-                    STDOUT.print input_str
-
-                    answer = STDIN.gets.strip
-
-                    if answer.downcase == 'y'
-                        ds_input += ds_split[3] + "|"
-                    else
-                        ds_input += answer + "|"
-                    end
-
-                    # Default
-                    input_str   = "    The default datastore presented to "\
-                                "the end user is set to \"#{default_ds}\"."
-                    input_str+= "\n    Press y to agree, or input a new "\
-                                "datastore [y/datastore name] "
-                    STDOUT.print input_str
-
-                    answer = STDIN.gets.strip
-
-                    if answer.downcase == 'y'
-                        ds_input += ds_split[4]
-                    else
-                        ds_input += answer
-                    end
-                when 'n'
-                    ds_split     = t[:ds].split("|")
-                    list_of_ds   = ds_split[-2]
-
-                    input_str = "    The list of available datastores is:\n"
-
-                    STDOUT.print input_str
-
-                    dashes = ""
-                    100.times do
-                        dashes << "-"
-                    end
-
-                    list_str = "\n    [Index] Datastore :"\
-                                "\n    #{dashes}\n"
-
-                    STDOUT.print list_str
-
-                    index = 1
-                    t[:ds_list].each do |ds|
-                        list_str = "    [#{index}] #{ds[:name]}\n"
-                        index += 1
-                        STDOUT.print list_str
-                    end
-
-                    input_str = "\n    Please input the new default"\
-                                " datastore index in the list (e.g 1): "
-
-                    STDOUT.print input_str
-
-                    answer = STDIN.gets.strip
-
-                    t[:one] += "VCENTER_DS_REF=\"#{t[:ds_list][answer.to_i - 1][:ref]}\"\n"
-                end
-
-                # Resource Pools
-                rp_input = ""
-                rp_split = t[:rp].split("|")
-
-                if rp_split.size > 3
-                    STDOUT.print "\n    This template is currently set to "\
-                        "launch VMs in the default resource pool."\
-                        "\n    Press y to keep this behaviour, n to select"\
-                        " a new resource pool or d to delegate the choice"\
-                        " to the user ([y]/n/d)? "
+                if !use_defaults
+                    STDOUT.print "\n    This template is currently set to be "\
+                                    "deployed in datastore #{t[:default_ds]}."\
+                                "\n    Press y to keep the default, n to select"\
+                                " a new default datastore or d to delegate "\
+                                " the choice to the user ([y]/n/d)? "
 
                     answer =  STDIN.gets.strip.downcase
 
+
                     case answer
                     when 'd'
-                        list_of_rp   = rp_split[-2]
-                        default_rp   = rp_split[-1]
-                        rp_input     = rp_split[0] + "|" + rp_split[1] + "|" +
-                                        rp_split[2] + "|"
+                        ds_split     = t[:ds].split("|")
+                        list_of_ds   = ds_split[-2]
+                        default_ds   = ds_split[-1]
+                        ds_input     = ds_split[0] + "|" + ds_split[1] + "|" +
+                                        ds_split[2] + "|"
 
-                        # Available list of resource pools
-                        input_str = "    The list of available resource pools "\
-                                    "to be presented to the user are "\
-                                    "\"#{list_of_rp}\""
+                        # Available list of datastores
+
+                        input_str = "    The list of available datastores to be"\
+                                    " presented to the user are \"#{list_of_ds}\""
                         input_str+= "\n    Press y to agree, or input a comma"\
-                                    " separated list of resource pools to edit "\
+                                    " separated list of datastores to edit "\
                                     "[y/comma separated list] "
                         STDOUT.print input_str
 
                         answer = STDIN.gets.strip
 
                         if answer.downcase == 'y'
-                            rp_input += rp_split[3] + "|"
+                            ds_input += ds_split[3] + "|"
                         else
-                            rp_input += answer + "|"
+                            ds_input += answer + "|"
                         end
 
                         # Default
-                        input_str   = "    The default resource pool presented "\
-                                        "to the end user is set to"\
-                                        " \"#{default_rp}\"."
+                        input_str   = "    The default datastore presented to "\
+                                    "the end user is set to \"#{default_ds}\"."
                         input_str+= "\n    Press y to agree, or input a new "\
-                                    "resource pool [y/resource pool name] "
+                                    "datastore [y/datastore name] "
                         STDOUT.print input_str
 
                         answer = STDIN.gets.strip
 
                         if answer.downcase == 'y'
-                            rp_input += rp_split[4]
+                            ds_input += ds_split[4]
                         else
-                            rp_input += answer
+                            ds_input += answer
                         end
                     when 'n'
+                        ds_split     = t[:ds].split("|")
+                        list_of_ds   = ds_split[-2]
 
-                        list_of_rp   = rp_split[-2]
-
-                        input_str = "    The list of available resource pools is:\n"
+                        input_str = "    The list of available datastores is:\n"
 
                         STDOUT.print input_str
 
@@ -268,26 +194,117 @@ def self.import_templates(con_ops, options)
                             dashes << "-"
                         end
 
-                        list_str = "\n    [Index] Resource pool :"\
-                                   "\n    #{dashes}\n"
+                        list_str = "\n    [Index] Datastore :"\
+                                    "\n    #{dashes}\n"
 
                         STDOUT.print list_str
 
                         index = 1
-                        t[:rp_list].each do |rp|
-                            list_str = "    [#{index}] #{rp[:name]}\n"
+                        t[:ds_list].each do |ds|
+                            list_str = "    [#{index}] #{ds[:name]}\n"
                             index += 1
                             STDOUT.print list_str
                         end
 
                         input_str = "\n    Please input the new default"\
-                                    " resource pool index in the list (e.g 1): "
+                                    " datastore index in the list (e.g 1): "
 
                         STDOUT.print input_str
 
                         answer = STDIN.gets.strip
 
-                        t[:one] << "VCENTER_RP_REF=\"#{t[:rp_list][answer.to_i - 1][:ref]}\"\n"
+                        t[:one] += "VCENTER_DS_REF=\"#{t[:ds_list][answer.to_i - 1][:ref]}\"\n"
+                    end
+                end
+
+                # Resource Pools
+                rp_input = ""
+                rp_split = t[:rp].split("|")
+
+                if !use_defaults
+
+                    if rp_split.size > 3
+                        STDOUT.print "\n    This template is currently set to "\
+                            "launch VMs in the default resource pool."\
+                            "\n    Press y to keep this behaviour, n to select"\
+                            " a new resource pool or d to delegate the choice"\
+                            " to the user ([y]/n/d)? "
+
+                        answer =  STDIN.gets.strip.downcase
+
+                        case answer
+                        when 'd'
+                            list_of_rp   = rp_split[-2]
+                            default_rp   = rp_split[-1]
+                            rp_input     = rp_split[0] + "|" + rp_split[1] + "|" +
+                                            rp_split[2] + "|"
+
+                            # Available list of resource pools
+                            input_str = "    The list of available resource pools "\
+                                        "to be presented to the user are "\
+                                        "\"#{list_of_rp}\""
+                            input_str+= "\n    Press y to agree, or input a comma"\
+                                        " separated list of resource pools to edit "\
+                                        "[y/comma separated list] "
+                            STDOUT.print input_str
+
+                            answer = STDIN.gets.strip
+
+                            if answer.downcase == 'y'
+                                rp_input += rp_split[3] + "|"
+                            else
+                                rp_input += answer + "|"
+                            end
+
+                            # Default
+                            input_str   = "    The default resource pool presented "\
+                                            "to the end user is set to"\
+                                            " \"#{default_rp}\"."
+                            input_str+= "\n    Press y to agree, or input a new "\
+                                        "resource pool [y/resource pool name] "
+                            STDOUT.print input_str
+
+                            answer = STDIN.gets.strip
+
+                            if answer.downcase == 'y'
+                                rp_input += rp_split[4]
+                            else
+                                rp_input += answer
+                            end
+                        when 'n'
+
+                            list_of_rp   = rp_split[-2]
+
+                            input_str = "    The list of available resource pools is:\n"
+
+                            STDOUT.print input_str
+
+                            dashes = ""
+                            100.times do
+                                dashes << "-"
+                            end
+
+                            list_str = "\n    [Index] Resource pool :"\
+                                    "\n    #{dashes}\n"
+
+                            STDOUT.print list_str
+
+                            index = 1
+                            t[:rp_list].each do |rp|
+                                list_str = "    [#{index}] #{rp[:name]}\n"
+                                index += 1
+                                STDOUT.print list_str
+                            end
+
+                            input_str = "\n    Please input the new default"\
+                                        " resource pool index in the list (e.g 1): "
+
+                            STDOUT.print input_str
+
+                            answer = STDIN.gets.strip
+
+                            t[:one] << "VCENTER_RP_REF=\"#{t[:rp_list][answer.to_i - 1][:ref]}\"\n"
+                        end
                     end
                 end
 
@@ -324,6 +341,8 @@ def self.import_networks(con_ops, options)
     begin
         STDOUT.print "\nConnecting to vCenter: #{options[:vcenter]}..."
 
+        use_defaults = options.key?(:defaults)
+
         vi_client = VCenterDriver::VIClient.new(con_ops)
 
         STDOUT.print "done!\n\n"
@@ -337,9 +356,12 @@ def self.import_networks(con_ops, options)
         STDOUT.print "done!\n"
 
         rs.each {|dc, tmps|
-            STDOUT.print "\nDo you want to process datacenter #{dc} [y/n]? "
 
-            next if STDIN.gets.strip.downcase != 'y'
+            if !use_defaults
+                STDOUT.print "\nDo you want to process datacenter #{dc} [y/n]? "
+
+                next if STDIN.gets.strip.downcase != 'y'
+            end
 
             if tmps.empty?
                 STDOUT.print "    No new Networks found in #{dc}...\n\n"
@@ -347,76 +369,83 @@ def self.import_networks(con_ops, options)
             end
 
             tmps.each do |n|
-                print_str =  "\n  * Network found:\n"\
-                                "      - Name    : #{n[:name]}\n"\
-                                "      - Type    : #{n[:type]}\n"
-                print_str << "      - VLAN ID : #{n[:vlan_id]}\n" if !n[:vlan_id].empty?
-                print_str << "      - Cluster : #{n[:cluster]}\n"
-                print_str << "    Import this Network (y/[n])? "
 
-                STDOUT.print print_str
+                if !use_defaults
+                    print_str =  "\n  * Network found:\n"\
+                                    "      - Name    : #{n[:name]}\n"\
+                                    "      - Type    : #{n[:type]}\n"
+                    print_str << "      - VLAN ID : #{n[:vlan_id]}\n" if !n[:vlan_id].empty?
+                    print_str << "      - Cluster : #{n[:cluster]}\n"
+                    print_str << "    Import this Network (y/[n])? "
 
-                next if STDIN.gets.strip.downcase != 'y'
+                    STDOUT.print print_str
+
+                    next if STDIN.gets.strip.downcase != 'y'
+                end
 
                 size="255"
-                ar_type=nil
+                ar_type="e"
                 first_ip=nil
                 first_mac=nil
                 global_prefix=nil
                 ula_prefix=nil
 
                 # Size
-                STDOUT.print "    How many VMs are you planning"\
-                            " to fit into this network [255]? "
-                size_answer = STDIN.gets.strip
-                if !size_answer.empty?
-                    size = size_answer.to_i.to_s rescue "255"
+                if !use_defaults
+                    STDOUT.print "    How many VMs are you planning"\
+                                " to fit into this network [255]? "
+                    size_answer = STDIN.gets.strip
+                    if !size_answer.empty?
+                        size = size_answer.to_i.to_s rescue "255"
+                    end
                 end
 
                 # Type
-                STDOUT.print "    What type of Virtual Network"\
-                            " do you want to create (IPv[4],IPv[6]"\
-                            ",[E]thernet) ?"
+                if !use_defaults
+                    STDOUT.print "    What type of Virtual Network"\
+                                " do you want to create (IPv[4],IPv[6]"\
+                                ",[E]thernet) ?"
 
-                type_answer = STDIN.gets.strip
-                if ["4","6","e"].include?(type_answer.downcase)
-                    ar_type = type_answer.downcase
-                else
-                    ar_type = "e"
-                    STDOUT.puts "    Type [#{type_answer}] not supported,"\
-                                " defaulting to Ethernet."
-                end
+                    type_answer = STDIN.gets.strip
+                    if ["4","6","e"].include?(type_answer.downcase)
+                        ar_type = type_answer.downcase
+                    else
+                        ar_type = "e"
+                        STDOUT.puts "    Type [#{type_answer}] not supported,"\
+                                    " defaulting to Ethernet."
+                    end
 
-                case ar_type.downcase
-                when "4"
-                    STDOUT.print "    Please input the first IP "\
-                                    "in the range: "
-                    first_ip = STDIN.gets.strip
+                    case ar_type.downcase
+                    when "4"
+                        STDOUT.print "    Please input the first IP "\
+                                        "in the range: "
+                        first_ip = STDIN.gets.strip
 
-                    STDOUT.print "    Please input the first MAC "\
-                                    "in the range [Enter for default]: "
-                    mac_answer = STDIN.gets.strip
-                    first_mac = first_mac_answer if !mac_answer.empty?
-                when "6"
-                    STDOUT.print "    Please input the first MAC "\
-                                    "in the range [Enter for default]: "
-                    mac_answer = STDIN.gets.strip
-                    first_mac = first_mac_answer if !mac_answer.empty?
+                        STDOUT.print "    Please input the first MAC "\
+                                        "in the range [Enter for default]: "
+                        mac_answer = STDIN.gets.strip
+                        first_mac = first_mac_answer if !mac_answer.empty?
+                    when "6"
+                        STDOUT.print "    Please input the first MAC "\
+                                        "in the range [Enter for default]: "
+                        mac_answer = STDIN.gets.strip
+                        first_mac = first_mac_answer if !mac_answer.empty?
 
-                    STDOUT.print "    Please input the GLOBAL PREFIX "\
-                                    "[Enter for default]: "
-                    gp_answer = STDIN.gets.strip
-                    global_prefix = gp_answer if !gp_answer.empty?
+                        STDOUT.print "    Please input the GLOBAL PREFIX "\
+                                        "[Enter for default]: "
+                        gp_answer = STDIN.gets.strip
+                        global_prefix = gp_answer if !gp_answer.empty?
 
-                    STDOUT.print "    Please input the ULA PREFIX "\
-                                    "[Enter for default]: "
-                    ula_answer = STDIN.gets.strip
-                    ula_prefix = ula_answer if !ula_answer.empty?
-                when "e"
-                    STDOUT.print "    Please input the first MAC "\
-                            "in the range [Enter for default]: "
-                    mac_answer = STDIN.gets.strip
-                    first_mac = first_mac_answer if !mac_answer.empty?
+                        STDOUT.print "    Please input the ULA PREFIX "\
+                                        "[Enter for default]: "
+                        ula_answer = STDIN.gets.strip
+                        ula_prefix = ula_answer if !ula_answer.empty?
+                    when "e"
+                        STDOUT.print "    Please input the first MAC "\
+                                "in the range [Enter for default]: "
+                        mac_answer = STDIN.gets.strip
+                        first_mac = first_mac_answer if !mac_answer.empty?
+                    end
                 end
 
                 ar_str =  "\nAR=[TYPE=\""
@@ -467,6 +496,8 @@ def self.import_datastore(con_ops, options)
     begin
         STDOUT.print "\nConnecting to vCenter: #{options[:vcenter]}..."
 
+        use_defaults = options.key?(:defaults)
+
         vi_client = VCenterDriver::VIClient.new(con_ops)
 
         STDOUT.print "done!\n\n"
@@ -480,9 +511,11 @@ def self.import_datastore(con_ops, options)
         STDOUT.print "done!\n"
 
         rs.each {|dc, tmps|
-            STDOUT.print "\nDo you want to process datacenter #{dc} (y/[n])? "
+            if !use_defaults
+                STDOUT.print "\nDo you want to process datacenter #{dc} (y/[n])? "
 
-            next if STDIN.gets.strip.downcase != 'y'
+                next if STDIN.gets.strip.downcase != 'y'
+            end
 
             if tmps.empty?
                 STDOUT.print "    No new Datastores or StoragePods found in #{dc}...\n\n"
@@ -490,14 +523,16 @@ def self.import_datastore(con_ops, options)
             end
 
             tmps.each{ |d|
-                STDOUT.print "\n  * Datastore found:\n"\
-                                "      - Name      : #{d[:name]}\n"\
-                                "      - Total MB  : #{d[:total_mb]}\n"\
-                                "      - Free  MB  : #{d[:free_mb]}\n"\
-                                "      - Cluster   : #{d[:cluster]}\n"\
-                                "    Import this as Datastore [y/n]? "
+                if !use_defaults
+                    STDOUT.print "\n  * Datastore found:\n"\
+                                    "      - Name      : #{d[:name]}\n"\
+                                    "      - Total MB  : #{d[:total_mb]}\n"\
+                                    "      - Free  MB  : #{d[:free_mb]}\n"\
+                                    "      - Cluster   : #{d[:cluster]}\n"\
+                                    "    Import this as Datastore [y/n]? "
 
-                next if STDIN.gets.strip.downcase != 'y'
+                    next if STDIN.gets.strip.downcase != 'y'
+                end
 
                 one_d = VCenterDriver::VIHelper.new_one_item(OpenNebula::Datastore)
 
@@ -530,6 +565,8 @@ def self.import_images(con_ops, ds_name, options)
     begin
         STDOUT.print "\nConnecting to vCenter: #{options[:vcenter]}..."
 
+        use_defaults = options.key?(:defaults)
+
         vi_client = VCenterDriver::VIClient.new(con_ops)
 
         STDOUT.print "done!\n\n"
@@ -550,13 +587,16 @@ def self.import_images(con_ops, ds_name, options)
         STDOUT.print "done!\n"
 
         images.each{ |i|
-                STDOUT.print "\n  * Image found:\n"\
-                                "      - Name      : #{i[:name]}\n"\
-                                "      - Path      : #{i[:path]}\n"\
-                                "      - Type      : #{i[:type]}\n"\
-                                "    Import this Image (y/[n])? "
 
-                next if STDIN.gets.strip.downcase != 'y'
+                if !use_defaults
+                    STDOUT.print "\n  * Image found:\n"\
+                                    "      - Name      : #{i[:name]}\n"\
+                                    "      - Path      : #{i[:path]}\n"\
+                                    "      - Type      : #{i[:type]}\n"\
+                                    "    Import this Image (y/[n])? "
+
+                    next if STDIN.gets.strip.downcase != 'y'
+                end
 
                 one_i = VCenterDriver::VIHelper.new_one_item(OpenNebula::Image)
 
