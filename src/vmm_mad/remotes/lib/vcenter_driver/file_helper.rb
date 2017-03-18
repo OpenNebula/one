@@ -5,17 +5,18 @@ module VCenterDriver
 
 class FileHelper
 
-    def self.get_img_name(disk, vm_id)
+    def self.get_img_name(disk, vm_id, vm_name)
         if disk["PERSISTENT"] == "YES"
             return disk["SOURCE"]
         else
+            disk_id  = disk["DISK_ID"]
             if disk["SOURCE"]
                 image_name = disk["SOURCE"].split(".").first
+                return "#{image_name}-#{vm_id}-#{disk_id}.vmdk"
             else
-                image_name = "one" #For volatile disks
+                ds_volatile_dir  = disk["VCENTER_DS_VOLATILE_DIR"] || "one-volatile"
+                return "#{ds_volatile_dir}/#{vm_id}/one-#{vm_id}-#{disk_id}.vmdk"
             end
-            disk_id  = disk["DISK_ID"]
-            return "#{image_name}-#{vm_id}-#{disk_id}.vmdk"
         end
     end
 

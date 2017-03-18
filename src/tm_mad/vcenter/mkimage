@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -49,7 +49,6 @@ check_valid dsid, "dsid"
 
 hostname, img_name = path.split(":")
 disk_id  = img_name.split(".")[-1]
-img_name = "one-#{vmid}-#{disk_id}"
 
 # Get host ID
 host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, hostname)
@@ -59,8 +58,10 @@ host_id = host['ID']
 one_ds = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, dsid)
 ds_ref = one_ds['TEMPLATE/VCENTER_DS_REF']
 
-# Get adapter and disk type
+# Get one_vm
 one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vmid)
+
+# Adapter and disk type from one_vm
 adapter_type = one_vm["/VM/TEMPLATE/DISK[DISK_ID=#{disk_id}]/VCENTER_ADAPTER_TYPE"] ||
                VCenterDriver::VIHelper.get_default("IMAGE/TEMPLATE/VCENTER_ADAPTER_TYPE")
 disk_type = one_vm["/VM/TEMPLATE/DISK[DISK_ID=#{disk_id}]/VCENTER_DISK_TYPE"] ||
@@ -69,8 +70,14 @@ disk_type = one_vm["/VM/TEMPLATE/DISK[DISK_ID=#{disk_id}]/VCENTER_DISK_TYPE"] ||
 check_valid adapter_type, "adapter_type"
 check_valid disk_type, "disk_type"
 
+# Volatile images dir from one_vm
+ds_volatile_dir = one_vm["/VM/TEMPLATE/DISK[DISK_ID=#{disk_id}]/VCENTER_DS_VOLATILE_DIR"] ||
+            "one-volatile"
+
 begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+
+    img_name = "#{ds_volatile_dir}/#{vmid}/one-#{vmid}-#{disk_id}"
 
     ds_vc = VCenterDriver::Datastore.new_from_ref(ds_ref, vi_client)
 
@@ -81,5 +88,5 @@ rescue Exception => e
                 " Reason: #{e.message}\n#{e.backtrace}"
     exit -1
 ensure
-    vi_client.close_connection
+    vi_client.close_connection if vi_client
 end
