@@ -68,7 +68,7 @@ class Storage
         end
     end
 
-   def self.get_image_import_template(ds_name, image_path, image_type, ipool)
+    def self.get_image_import_template(ds_name, image_path, image_type, ipool)
         one_image = {}
         one_image[:template] = ""
 
