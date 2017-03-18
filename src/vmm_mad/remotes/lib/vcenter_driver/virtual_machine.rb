@@ -412,6 +412,22 @@ class VirtualMachine
         clone_parameters
     end
 
+    def reference_imported_disks
+        # Add info for existing disks in template in vm xml
+        xpath = "TEMPLATE/DISK[OPENNEBULA_MANAGED=\"NO\"]"
+        non_managed_disks = one_item.retrieve_xmlelements(xpath)
+
+        return if non_managed_disks.empty?
+
+        # Update VM's one_item so it can use the recent attributes
+        vcenter_disks = get_vcenter_disks
+        vcenter_disks.each_with_index do |disk, index|
+            rc = one_item.update("VCENTER_TEMPLATE_DISK_#{non_managed_disks[index]["DISK_ID"]} = \"#{disk[:path]}\"", true)
+            raise "Could not update VCENTER_TEMPLATE_DISK elements" if OpenNebula.is_error?(rc)
+        end
+        one_item.info
+    end
+
 
     def reconfigure
         extraconfig   = []

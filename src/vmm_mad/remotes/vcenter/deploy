@@ -53,8 +53,13 @@ begin
         # VM is new
         vm = VCenterDriver::VirtualMachine.new
 
-        # Clone from template
-        vm.clone_vm(drv_action, vi_client)
+        # Clone the VM
+        vm.clone_vm(drv_action, vi_client) # Clone from template
+
+        # Set reference to template disks in VM template
+        one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
+        vm.one_item = one_vm
+        vm.reference_imported_disks
     end
 
     vm.reconfigure
@@ -68,5 +73,5 @@ rescue Exception => e
                 "with #{dfile} failed due to \"#{e.message}\"\n#{e.backtrace}"
     exit -1
 ensure
-    vi_client.close_connection
+    vi_client.close_connection if vi_client
 end
