@@ -58,7 +58,7 @@ begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
     vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
 rescue Exception => e
-    vi_client.close_connection
+    vi_client.close_connection if vi_client
 
     STDERR.puts "Error obtaining the vCenter client and VM object."\
                 " Reason: #{e.message}\n#{e.backtrace}"
@@ -96,7 +96,7 @@ if path.match(/disk\.\d+$/)
                     " Reason: #{e.message}\n#{e.backtrace}"
         exit -1
     ensure
-        vi_client.close_connection
+        vi_client.close_connection if vi_client
     end
 else
     # Remove the VM

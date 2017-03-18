@@ -96,5 +96,5 @@ rescue Exception => e
                 "on #{hostname}. Reason: \"#{e.message}\"\n#{e.backtrace}"
     exit -1
 ensure
-    vi_client.close_connection
+    vi_client.close_connection if vi_client
 end
