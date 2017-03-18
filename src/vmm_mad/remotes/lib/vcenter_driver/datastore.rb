@@ -487,47 +487,52 @@ class Datastore < Storage
                 SearchDatastoreSubFolders_Task(search_params)
             search_task.wait_for_completion
 
-            search_task.info.result.each { |image|
+            search_task.info.result.each do |result|
+
                 folderpath = ""
-                if image.folderPath[-1] != "]"
-                    folderpath = image.folderPath.sub(/^\[#{ds_name}\] /, "")
+                if result.folderPath[-1] != "]"
+                    folderpath = result.folderPath.sub(/^\[#{ds_name}\] /, "")
                 end
 
-                image = image.file.first
 
-                # Skip not relevant files
-                next if !img_types.include? image.class.to_s
 
-                # Get image path and name
-                image_path = folderpath
-                image_path << image.path
-                image_name = File.basename(image.path).reverse.sub("kdmv.","").reverse
+                result.file.each do |image|
 
-                # Get image and disk type
-                image_type = image.class.to_s == "VmDiskFileInfo" ? "OS" : "CDROM"
-                disk_type = image.class.to_s == "VmDiskFileInfo" ? image.diskType : nil
+                    image_path = ""
 
-                #Set template
-                one_image =  "NAME=\"#{image_name} - #{ds_name}\"\n"
-                one_image << "PATH=\"vcenter://#{image_path}\"\n"
-                one_image << "PERSISTENT=\"YES\"\n"
-                one_image << "TYPE=\"#{image_type}\"\n"
-                one_image << "VCENTER_DISK_TYPE=\"#{disk_type}\"\n" if disk_type
+                    # Skip not relevant files
+                    next if !img_types.include? image.class.to_s
 
-                if VCenterDriver::VIHelper.find_by_name(OpenNebula::ImagePool,
-                                                        "#{image_name} - #{ds_name}",
-                                                        ipool,
-                                                        false).nil?
-                    img_templates << {
-                        :name        => "#{image_name} - #{ds_name}",
-                        :path        => image_path,
-                        :size        => (image.fileSize / 1024).to_s,
-                        :type        => image.class.to_s,
-                        :dsid        => ds_id,
-                        :one         => one_image
-                    }
+                    # Get image path and name
+                    image_path << folderpath << image.path
+                    image_name = File.basename(image.path).reverse.sub("kdmv.","").reverse
+
+                    # Get image and disk type
+                    image_type = image.class.to_s == "VmDiskFileInfo" ? "OS" : "CDROM"
+                    disk_type = image.class.to_s == "VmDiskFileInfo" ? image.diskType : nil
+
+                    #Set template
+                    one_image =  "NAME=\"#{image_name} - #{ds_name}\"\n"
+                    one_image << "PATH=\"vcenter://#{image_path}\"\n"
+                    one_image << "PERSISTENT=\"YES\"\n"
+                    one_image << "TYPE=\"#{image_type}\"\n"
+                    one_image << "VCENTER_DISK_TYPE=\"#{disk_type}\"\n" if disk_type
+
+                    if VCenterDriver::VIHelper.find_by_name(OpenNebula::ImagePool,
+                                                            "#{image_name} - #{ds_name}",
+                                                            ipool,
+                                                            false).nil?
+                        img_templates << {
+                            :name        => "#{image_name} - #{ds_name}",
+                            :path        => image_path,
+                            :size        => (image.fileSize / 1024).to_s,
+                            :type        => image.class.to_s,
+                            :dsid        => ds_id,
+                            :one         => one_image
+                        }
+                    end
                 end
-            }
+            end
 
         rescue
             raise "Could not find images."
