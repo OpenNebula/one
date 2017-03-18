@@ -779,7 +779,7 @@ class VirtualMachine
         !device.class.ancestors.index(RbVmomi::VIM::VirtualEthernetCard).nil?
     end
 
- def device_change_disks
+    def device_change_disks
         disks = []
         one_item.each("TEMPLATE/DISK") { |disk| disks << disk if !disk["OPENNEBULA_MANAGED"] }
 
@@ -787,14 +787,31 @@ class VirtualMachine
             @item["config.hardware.device"].each do |d|
                 if is_disk_or_cdrom?(d)
                     disks.each do |disk|
-                        img_name  = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'])
-                        ds        = get_effective_ds(disk)
-                        ds_name   = ds['name']
+                        backing = d.backing
 
-                        if d.backing.respond_to?(:fileName) &&
-                           "[#{ds_name}] #{img_name}" == d.backing.fileName
+                        while backing.respond_to?(:parent)
+                            break if backing.parent.nil?
+                            backing = backing.parent
+                        end
 
-                            disks.delete(disk)
+                        if backing.respond_to?(:fileName)
+                            # Check if we are dealing with the unmanaged disks present in the template when cloned
+                            if disk["OPENNEBULA_MANAGED"] && disk["OPENNEBULA_MANAGED"] == "NO"
+                                img_name = one_item["USER_TEMPLATE/VCENTER_TEMPLATE_DISK_#{disk["DISK_ID"]}"]
+                                if img_name && backing.fileName == img_name
+                                    disks.delete(disk)
+                                    break
+                                end
+                            end
+
+                            # Alright let's see if we can find other devices only with the expected image name
+                            img_name  = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'], self['name'])
+                            ds        = get_effective_ds(disk)
+                            ds_name   = ds['name']
+                            if backing.fileName == "[#{ds_name}] #{img_name}"
+                                disks.delete(disk)
+                                break
+                            end
                         end
                     end
                 end
@@ -885,12 +902,9 @@ class VirtualMachine
         end
     end
 
-# Get vcenter device representing DISK object (hotplug)
+    # Get vcenter device representing DISK object (hotplug)
     def disk_attached_to_vm(disk)
-        img_name  = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'])
-        ds        = get_effective_ds(disk)
-        ds_name   = ds['name']
-
+        img_name = ""
         device_found = nil
         @item["config.hardware.device"].each do |d|
             if is_disk_or_cdrom?(d)
@@ -902,9 +916,24 @@ class VirtualMachine
                     backing = backing.parent
                 end
 
-                if backing.respond_to?(:fileName) && backing.fileName == "[#{ds_name}] #{img_name}"
-                    device_found = d
-                    break
+                if backing.respond_to?(:fileName)
+                    # Check if we are dealing with the unmanaged disks present in the template when cloned
+                    if disk["OPENNEBULA_MANAGED"] && disk["OPENNEBULA_MANAGED"] == "NO"
+                        img_name = one_item["USER_TEMPLATE/VCENTER_TEMPLATE_DISK_#{disk["DISK_ID"]}"]
+                        if img_name && backing.fileName == img_name
+                            device_found = d
+                            break
+                        end
+                    else
+                        # Alright let's see if we can find other devices only with the expected image name
+                        img_name  = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'], self['name'])
+                        ds        = get_effective_ds(disk)
+                        ds_name   = ds['name']
+                        if backing.fileName == "[#{ds_name}] #{img_name}"
+                            device_found = d
+                            break
+                        end
+                    end
                 end
             end
         end
