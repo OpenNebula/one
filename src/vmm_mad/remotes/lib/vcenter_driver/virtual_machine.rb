@@ -861,10 +861,14 @@ class VirtualMachine
     # Detach DISK from VM
     def detach_disk(disk)
         spec_hash = {}
+        img_path = ""
+        ds_ref = nil
 
         # Get vcenter device to be detached and remove if found
         device = disk_attached_to_vm(disk)
         if device
+            img_path << device.backing.fileName.sub(/^\[(.*?)\] /, "")
+            ds_ref = device.backing.datastore._ref
             # Generate vCenter spec and reconfigure VM
             spec_hash[:deviceChange] = [{
                 :operation => :remove,
@@ -877,6 +881,8 @@ class VirtualMachine
                 raise "Cannot detach DISK from VM: #{e.message}\n#{e.backtrace}"
             end
         end
+
+        return ds_ref, img_path
     end
 
     # Detach all DISKs from VM (terminate action)
