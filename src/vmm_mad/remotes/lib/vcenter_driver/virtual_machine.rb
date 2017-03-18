@@ -1066,7 +1066,6 @@ class VirtualMachine
     end
 
     def import_vcenter_disks(vc_uuid, dpool, ipool)
-
         disk_info = ""
         error = ""
 
@@ -1095,16 +1094,30 @@ class VirtualMachine
                 break
             end
 
-            image_template = VCenterDriver::Datastore.get_image_import_template(disk[:datastore].name,
+            image_import = VCenterDriver::Datastore.get_image_import_template(disk[:datastore].name,
                                                                                 disk[:path],
                                                                                 disk[:type], ipool)
-            if !image_template.empty?
-                # Then the image is created
+            #Image is already in the datastore
+            if image_import[:one]
+                one_image = image_import[:one]
+                # We must update XML so the OPENNEBULA_MANAGED=NO is set
+                rc = one_image.update("OPENNEBULA_MANAGED = \"NO\"", true)
+                if OpenNebula.is_error?(rc)
+                    error = "Could not update VCENTER_TEMPLATE_DISK elements"
+                    break
+                end
+
+                # This is the disk info
+                disk_info << "DISK=[\n"
+                disk_info << "IMAGE=\"#{one_image["NAME"]}\"\n"
+                disk_info << "]\n"
+            elsif !image_import[:template].empty?
+                # Then the image is created as it's not in the datastore
                 one_i = VCenterDriver::VIHelper.new_one_item(OpenNebula::Image)
 
                 allocated_images << one_i
 
-                rc = one_i.allocate(image_template, datastore_found['ID'].to_i)
+                rc = one_i.allocate(image_import[:template], datastore_found['ID'].to_i)
 
                 if ::OpenNebula.is_error?(rc)
                     error = "    Error creating disk from template: #{rc.message}. Cannot import the template\n"
@@ -1127,7 +1140,6 @@ class VirtualMachine
         end
 
         return error, disk_info
-
     end
 
     #  Checks if a RbVmomi::VIM::VirtualDevice is a disk or a cdrom
