@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -50,8 +50,8 @@ check_valid source_ds_id, "source_ds_id"
 target_ds_id = dst.split("/")[-3]
 disk_id = dst.split(".")[-1]
 
-src_host, src_path = src.split ":"
-hostname, dst_path = dst.split ":"
+src_path = src.split(":")[-1]
+hostname = dst.split(":").first
 
 # Get host ID
 host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, hostname)
@@ -67,30 +67,46 @@ target_ds_ref = target_ds['TEMPLATE/VCENTER_DS_REF']
 check_valid source_ds_ref, "source_ds"
 check_valid target_ds_ref, "target_ds"
 
+# Get VM info
+one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
+
 # calculate target path
 target_path = VCenterDriver::FileHelper.get_img_name_from_path(src_path,
                                                                vm_id,
                                                                disk_id)
 begin
-    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+    vi_client     = VCenterDriver::VIClient.new_from_host(host_id)
 
-    source_ds_vc = VCenterDriver::Datastore.new_from_ref(source_ds_ref, vi_client)
+    # Find disk info
+    disk = one_vm.retrieve_xmlelements("TEMPLATE/DISK[SOURCE=\"#{src_path}\"]").first rescue nil
+    raise "Cannot find disk element in vm template" if !disk
 
-    if source_ds_ref == target_ds_ref
-        target_ds_vc = source_ds_vc
-    else
-        target_ds_vc = VCenterDriver::Datastore.new_from_ref(target_ds_ref, vi_client)
+    File.open('/tmp/tm_clone_3','a'){|f| f.puts("TM cloned called")}
+
+    # Do not clone disks not managed by OPENNEBULA
+    if !disk['OPENNEBULA_MANAGED'] || disk['OPENNEBULA_MANAGED'].to_s != "NO"
+        source_ds_vc = VCenterDriver::Datastore.new_from_ref(source_ds_ref, vi_client)
+
+        if source_ds_ref == target_ds_ref
+            target_ds_vc = source_ds_vc
+        else
+            target_ds_vc = VCenterDriver::Datastore.new_from_ref(target_ds_ref, vi_client)
+        end
+
+        target_ds_name_vc = target_ds_vc['name']
+
+        File.open('/tmp/tm_clone_3','a'){|f| f.puts("src_path: #{src_path}")}
+        File.open('/tmp/tm_clone_3','a'){|f| f.puts("target_ds_name_vc: #{target_ds_name_vc}")}
+        File.open('/tmp/tm_clone_3','a'){|f| f.puts("target_path: #{target_path}")}
+
+        source_ds_vc.copy_virtual_disk(src_path, target_ds_vc, target_path)
     end
-
-    target_ds_name_vc = target_ds_vc['name']
-
-    source_ds_vc.copy_virtual_disk(src_path, target_ds_name_vc, target_path)
 
 rescue Exception => e
     STDERR.puts "Error clone virtual disk #{src_path} in "\
-                "datastore #{target_ds_ref}. "\
+                "datastore #{target_ds_name_vc}. "\
                 "Reason: #{e.message}\n#{e.backtrace}"
     exit -1
 ensure
-    vi_client.close_connection
+    vi_client.close_connection if vi_client
 end
