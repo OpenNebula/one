@@ -253,7 +253,7 @@ class VirtualMachine
     end
 
     ############################################################################
-    # Crate and reconfigure VM related methods
+    # Create and reconfigure VM related methods
     ############################################################################
 
     # This function creates a new VM from the @one_item XML and returns the
@@ -515,7 +515,7 @@ class VirtualMachine
             #  extraConfig
             # Get opennebula.hotplugged_nics attribute from the vCenter object
             hotplugged_nics = []
-            extraconfig_nics = self["config.extraConfig"].select do |val|
+            extraconfig_nics = @item["config.extraConfig"].select do |val|
                 val[:key] == "opennebula.hotplugged_nics"
             end
 
@@ -523,7 +523,7 @@ class VirtualMachine
                 hotplugged_nics = extraconfig_nics[0][:value].to_s.split(";")
             end
 
-            self["config.hardware.device"].each do |dv|
+            @item["config.hardware.device"].each do |dv|
                 if is_nic?(dv)
                     # nics array will contain the list of nics to be attached
                     nics.each do |nic|
@@ -618,7 +618,7 @@ class VirtualMachine
 
         card_num = 1 # start in one, we want the next avaliable id
 
-        self["config.hardware.device"].each do |dv|
+        @item["config.hardware.device"].each do |dv|
             card_num += 1 if is_nic?(dv)
         end
 
@@ -699,7 +699,7 @@ class VirtualMachine
         spec_hash[:deviceChange] = attach_nic_array if !attach_nic_array.empty?
 
         # Get mac addresses plugged to the VM B#4897
-        hotplugged_nics = self["config.extraConfig"].select do |val|
+        hotplugged_nics = @item["config.extraConfig"].select do |val|
             val[:key] == "opennebula.hotplugged_nics"
         end.first[:value].to_s.split(";") rescue nil
 
@@ -739,14 +739,14 @@ class VirtualMachine
         mac = nic["MAC"]
 
         # Get VM nic element if it has a device with that mac
-        nic_device = self["config.hardware.device"].find do |device|
+        nic_device = @item["config.hardware.device"].find do |device|
                 is_nic?(device) && (device.macAddress ==  mac)
         end rescue nil
 
         raise "Could not find NIC with mac address #{mac}" if nic_device.nil?
 
         # Get mac addresses plugged to the VM B#4897
-        hotplugged_nics = self["config.extraConfig"].select do |val|
+        hotplugged_nics = @item["config.extraConfig"].select do |val|
             val[:key] == "opennebula.hotplugged_nics"
         end.first[:value].to_s.split(";") rescue nil
 
@@ -779,12 +779,12 @@ class VirtualMachine
         !device.class.ancestors.index(RbVmomi::VIM::VirtualEthernetCard).nil?
     end
 
-    def device_change_disks
+ def device_change_disks
         disks = []
         one_item.each("TEMPLATE/DISK") { |disk| disks << disk if !disk["OPENNEBULA_MANAGED"] }
 
         if !is_new?
-            self["config.hardware.device"].each do |d|
+            @item["config.hardware.device"].each do |d|
                 if is_disk_or_cdrom?(d)
                     disks.each do |disk|
                         img_name  = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'])
@@ -801,7 +801,7 @@ class VirtualMachine
             end
         end
 
-        return [] if disks.nil?
+        return [] if disks.empty?
 
         position = 0
         attach_disk_array = []
@@ -867,7 +867,7 @@ class VirtualMachine
         spec_hash = {}
         spec_hash[:deviceChange] = []
 
-        self["config.hardware.device"].each do |disk|
+        @item["config.hardware.device"].each do |disk|
             if is_disk_or_cdrom?(disk)
                 spec_hash[:deviceChange] << {
                     :operation => :remove,
@@ -885,14 +885,14 @@ class VirtualMachine
         end
     end
 
-    # Get vcenter device representing DISK object (hotplug)
+# Get vcenter device representing DISK object (hotplug)
     def disk_attached_to_vm(disk)
         img_name  = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'])
         ds        = get_effective_ds(disk)
         ds_name   = ds['name']
 
         device_found = nil
-        self["config.hardware.device"].each do |d|
+        @item["config.hardware.device"].each do |d|
             if is_disk_or_cdrom?(d)
                 backing = d.backing
 
@@ -913,7 +913,7 @@ class VirtualMachine
     end
 
     def calculate_add_disk_spec(disk, position=0)
-        img_name = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'])
+        img_name = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'], self['name'])
         ds       = get_effective_ds(disk)
 
         ds_name  = ds['name']
@@ -1001,9 +1001,10 @@ class VirtualMachine
 
     def get_vcenter_disks
         disks = []
-        self["config.hardware.device"].each do |device|
+        @item["config.hardware.device"].each do |device|
             disk = {}
             if is_disk_or_iso?(device)
+                disk[:device]    = device
                 disk[:datastore] = device.backing.datastore
                 disk[:path]      = device.backing.fileName
                 disk[:type]      = is_disk?(device) ? "OS" : "CDROM"
@@ -1099,13 +1100,12 @@ class VirtualMachine
 
     def find_free_controller(position=0)
         free_scsi_controllers = []
-        available_controller  = nil
         scsi_schema           = {}
 
         used_numbers      = []
         available_numbers = []
 
-        self["config.hardware.device"].each do |dev|
+        @item["config.hardware.device"].each do |dev|
             if dev.is_a? RbVmomi::VIM::VirtualSCSIController
                 if scsi_schema[dev.controllerKey].nil?
                     scsi_schema[dev.key] = {}
@@ -1136,7 +1136,7 @@ class VirtualMachine
 
         controller = nil
 
-        self['config.hardware.device'].each do |device|
+        @item['config.hardware.device'].each do |device|
             if device.deviceInfo.label == available_controller_label
                 controller = device
                 break
@@ -1155,10 +1155,10 @@ class VirtualMachine
             raise "Cannot add a new controller, maximum is 4."
         end
 
-        if scsi_schema.keys.length == 0
-            scsi_key    = 0
-            scsi_number = 0
-        else scsi_schema.keys.length < 4
+        scsi_key    = 0
+        scsi_number = 0
+
+        if scsi_schema.keys.length > 0 && scsi_schema.keys.length < 4
             scsi_key    = scsi_schema.keys.sort[-1] + 1
             scsi_number = scsi_schema[scsi_schema.keys.sort[-1]][:device].busNumber + 1
         end
@@ -1180,7 +1180,7 @@ class VirtualMachine
 
         @item.ReconfigVM_Task(:spec => vm_config_spec).wait_for_completion
 
-        self["config.hardware.device"].each do |device|
+        @item["config.hardware.device"].each do |device|
             if device.class == RbVmomi::VIM::VirtualLsiLogicController &&
                 device.key == scsi_key
 
@@ -1338,9 +1338,9 @@ class VirtualMachine
         host_id = one_host["ID"] if one_host
 
         str = "NAME   = \"#{self["name"]} - #{cluster}\"\n"\
-              "CPU    = \"#{self["config.hardware.numCPU"]}\"\n"\
-              "vCPU   = \"#{self["config.hardware.numCPU"]}\"\n"\
-              "MEMORY = \"#{self["config.hardware.memoryMB"]}\"\n"\
+              "CPU    = \"#{@item["config.hardware.numCPU"]}\"\n"\
+              "vCPU   = \"#{@item["config.hardware.numCPU"]}\"\n"\
+              "MEMORY = \"#{@item["config.hardware.memoryMB"]}\"\n"\
               "HYPERVISOR = \"vcenter\"\n"\
               "SCHED_REQUIREMENTS=\"ID=\\\"#{host_id}\\\"\"\n"\
               "CONTEXT = [\n"\
@@ -1363,7 +1363,7 @@ class VirtualMachine
         keymap = nil
 
         if !template
-            self["config.extraConfig"].select do |xtra|
+            @item["config.extraConfig"].select do |xtra|
 
                 if xtra[:key].downcase=="remotedisplay.vnc.port"
                     vnc_port = xtra[:value]
@@ -1375,7 +1375,7 @@ class VirtualMachine
             end
         end
 
-        if self["config.extraConfig"].size > 0
+        if @item["config.extraConfig"].size > 0
             str << "GRAPHICS = [\n"\
                    "  TYPE     =\"vnc\",\n"
             str << "  PORT     =\"#{vnc_port}\",\n" if vnc_port
@@ -1384,11 +1384,11 @@ class VirtualMachine
             str << "]\n"
         end
 
-        if self["config.annotation"].nil? || self["config.annotation"].empty?
+        if @item["config.annotation"].nil? || @item["config.annotation"].empty?
             str << "DESCRIPTION = \"vCenter Template imported by OpenNebula" \
                 " from Cluster #{cluster}\"\n"
         else
-            notes = self["config.annotation"].gsub("\\", "\\\\").gsub("\"", "\\\"")
+            notes = @item["config.annotation"].gsub("\\", "\\\\").gsub("\"", "\\\"")
             str << "DESCRIPTION = \"#{notes}\"\n"
         end
 
