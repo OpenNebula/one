@@ -81,7 +81,6 @@ begin
     disk = one_vm.retrieve_xmlelements("TEMPLATE/DISK[SOURCE=\"#{src_path}\"]").first rescue nil
     raise "Cannot find disk element in vm template" if !disk
 
-    File.open('/tmp/tm_clone_3','a'){|f| f.puts("TM cloned called")}
 
     # Do not clone disks not managed by OPENNEBULA
     if !disk['OPENNEBULA_MANAGED'] || disk['OPENNEBULA_MANAGED'].to_s != "NO"
@@ -94,10 +93,6 @@ begin
         end
 
         target_ds_name_vc = target_ds_vc['name']
-
-        File.open('/tmp/tm_clone_3','a'){|f| f.puts("src_path: #{src_path}")}
-        File.open('/tmp/tm_clone_3','a'){|f| f.puts("target_ds_name_vc: #{target_ds_name_vc}")}
-        File.open('/tmp/tm_clone_3','a'){|f| f.puts("target_path: #{target_path}")}
 
         source_ds_vc.copy_virtual_disk(src_path, target_ds_vc, target_path)
     end
