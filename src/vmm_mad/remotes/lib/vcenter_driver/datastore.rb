@@ -68,8 +68,9 @@ class Storage
         end
     end
 
-    def self.get_image_import_template(ds_name, image_path, image_type, ipool)
-        one_image = ""
+   def self.get_image_import_template(ds_name, image_path, image_type, ipool)
+        one_image = {}
+        one_image[:template] = ""
 
         # Remove ds info from path
         image_path.sub!(/^\[#{ds_name}\] /, "")
@@ -79,16 +80,21 @@ class Storage
         image_name = "#{file_name} - #{ds_name}"
 
         #Chek if the image has already been imported
-        if VCenterDriver::VIHelper.find_by_name(OpenNebula::ImagePool,
-                                                image_name,
-                                                ipool,
-                                                false).nil?
+        image = VCenterDriver::VIHelper.find_by_name(OpenNebula::ImagePool,
+                                                     image_name,
+                                                     ipool,
+                                                     false)
+        if image.nil?
             #Set template
-            one_image << "NAME=\"#{image_name}\"\n"
-            one_image << "PATH=\"vcenter://#{image_path}\"\n"
-            one_image << "TYPE=\"#{image_type}\"\n"
-            one_image << "PERSISTENT=\"NO\"\n"
-            one_image << "OPENNEBULA_MANAGED=\"YES\"\n"
+            one_image[:template] << "NAME=\"#{image_name}\"\n"
+            one_image[:template] << "PATH=\"vcenter://#{image_path}\"\n"
+            one_image[:template] << "TYPE=\"#{image_type}\"\n"
+            one_image[:template] << "PERSISTENT=\"NO\"\n"
+            one_image[:template] << "OPENNEBULA_MANAGED=\"NO\"\n"
+            one_image[:template] << "DEV_PREFIX=\"#{VCenterDriver::VIHelper.get_default("IMAGE/TEMPLATE/DEV_PREFIX")}\"\n" #TODO get device prefix from vcenter info
+        else
+            # Return the image XML if it already exists
+            one_image[:one] = image
         end
 
         return one_image
@@ -494,10 +500,7 @@ class Datastore < Storage
                     folderpath = result.folderPath.sub(/^\[#{ds_name}\] /, "")
                 end
 
-
-
                 result.file.each do |image|
-
                     image_path = ""
 
                     # Skip not relevant files
@@ -518,6 +521,7 @@ class Datastore < Storage
                     one_image << "TYPE=\"#{image_type}\"\n"
                     one_image << "VCENTER_DISK_TYPE=\"#{disk_type}\"\n" if disk_type
                     one_image << "VCENTER_IMPORTED=\"YES\"\n"
+                    one_image << "DEV_PREFIX=\"#{VCenterDriver::VIHelper.get_default("IMAGE/TEMPLATE/DEV_PREFIX")}\"\n" #TODO get device prefix from vcenter info
 
                     if VCenterDriver::VIHelper.find_by_name(OpenNebula::ImagePool,
                                                             "#{image_name} - #{ds_name}",
