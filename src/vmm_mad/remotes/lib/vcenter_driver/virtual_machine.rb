@@ -442,8 +442,10 @@ class VirtualMachine
         # vnc configuration (for config_array hash)
         extraconfig += extraconfig_vnc
 
-        # device_change hash (nics)
-        device_change += device_change_nics
+        # device_change hash (nics and extraconfig)
+        nics, extraconfig_nics = device_change_nics
+        device_change += nics
+        extraconfig += extraconfig_nics
 
         # device_change hash (disks)
         device_change += device_change_disks
@@ -511,6 +513,9 @@ class VirtualMachine
     def device_change_nics
         # Final list of changes to be applied in vCenter
         device_change = []
+        config_array = []
+
+        hotplugged_nics = []
 
         # List of interfaces from the OpenNebula template
         nics = []
@@ -521,22 +526,25 @@ class VirtualMachine
             # To be included in device_change
             detach_nic_array = []
 
-            # Get MACs from NICs inside VM template
-            one_mac_addresses = []
-            nics.each do |nic|
-                one_mac_addresses << nic["MAC"]
-            end rescue nil
-
             # B4897 - Get mac of NICs that were hot-plugged from vCenter
             #  extraConfig
             # Get opennebula.hotplugged_nics attribute from the vCenter object
-            hotplugged_nics = []
             extraconfig_nics = @item["config.extraConfig"].select do |val|
                 val[:key] == "opennebula.hotplugged_nics"
             end
 
             if extraconfig_nics && !extraconfig_nics.empty?
                 hotplugged_nics = extraconfig_nics[0][:value].to_s.split(";")
+            end
+
+            # Get MACs from NICs inside VM template
+            one_mac_addresses = []
+            nics.each do |nic|
+                one_mac_addresses << nic["MAC"]
+                # B4897 - Add NICs that were attached in POWEROFF
+                if !hotplugged_nics.include?(nic["MAC"])
+                    hotplugged_nics << nic["MAC"]
+                end
             end
 
             @item["config.hardware.device"].each do |dv|
@@ -561,27 +569,38 @@ class VirtualMachine
                         }
 
                         hotplugged_nics.delete(dv.macAddress)
-                        config_array << {
-                            :key    => 'opennebula.hotplugged_nics',
-                            :value  => hotplugged_nics.join(";")
-                        }
                     end
                 end
             end
 
-            device_change += detach_nic_array
-        end
+            config_array << { :key    => 'opennebula.hotplugged_nics',
+                              :value  => hotplugged_nics.join(";")}
 
-        return [] if nics.empty?
+            device_change += detach_nic_array
+        else
+            # B4897 - Add NICs that have been added to the VM template
+            # to the hotplugged_nics extraconfig so we can track what must be removed
+
+            # Get MACs from NICs inside VM template to track NICs added by OpenNebula
+            nics.each{|nic|
+                hotplugged_nics << nic["MAC"]
+            }
+
+            if !hotplugged_nics.empty?
+                config_array << {
+                    :key    => 'opennebula.hotplugged_nics',
+                    :value  => hotplugged_nics.join(";")
+                }
+            end
+        end
 
         # Attach new nics (nics now contains only the interfaces not present
         # in the VM in vCenter)
-        attach_nic_array = []
         nics.each do |nic|
-            attach_nic_array << calculate_add_nic_spec(nic)
+            device_change << calculate_add_nic_spec(nic)
         end
 
-        attach_nic_array
+        return device_change, config_array
     end
 
     # Regenerate context when devices are hot plugged (reconfigure)
