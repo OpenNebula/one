@@ -422,10 +422,54 @@ class VirtualMachine
         # Update VM's one_item so it can use the recent attributes
         vcenter_disks = get_vcenter_disks
         vcenter_disks.each_with_index do |disk, index|
-            rc = one_item.update("VCENTER_TEMPLATE_DISK_#{non_managed_disks[index]["DISK_ID"]} = \"#{disk[:path]}\"", true)
-            raise "Could not update VCENTER_TEMPLATE_DISK elements" if OpenNebula.is_error?(rc)
+            if !!non_managed_disks[index]
+                rc = one_item.update("VCENTER_TEMPLATE_DISK_#{non_managed_disks[index]["DISK_ID"]} = \"#{disk[:path]}\"", true)
+                raise "Could not update VCENTER_TEMPLATE_DISK elements" if OpenNebula.is_error?(rc)
+            end
         end
         one_item.info
+    end
+
+    def resize_imported_disks
+        resize_hash = {}
+        device_change_disks = []
+
+        # Look for unmanaged disks with original size changed
+        xpath = "TEMPLATE/DISK[OPENNEBULA_MANAGED=\"NO\" and boolean(ORIGINAL_SIZE)]"
+        unmanaged_resized_disks = one_item.retrieve_xmlelements(xpath)
+
+        return if unmanaged_resized_disks.empty?
+
+        @item["config.hardware.device"].each do |d|
+            if is_disk_or_cdrom?(d)
+                unmanaged_resized_disks.each do |disk|
+                    backing = d.backing
+
+                    while backing.respond_to?(:parent)
+                        break if backing.parent.nil?
+                        backing = backing.parent
+                    end
+
+                    if backing.respond_to?(:fileName)
+                        img_name = one_item["USER_TEMPLATE/VCENTER_TEMPLATE_DISK_#{disk["DISK_ID"]}"]
+                        if img_name && backing.fileName == img_name &&
+                           disk["SIZE"].to_i > disk["ORIGINAL_SIZE"].to_i
+
+                            # Edit capacity setting new size in KB
+                            d.capacityInKB = disk["SIZE"].to_i * 1024
+                            device_change_disks <<   { :device => d,
+                                                       :operation => :edit }
+                            break
+                        end
+                    end
+                end
+            end
+        end
+
+        if !device_change_disks.empty?
+            resize_hash[:deviceChange] = device_change_disks
+            @item.ReconfigVM_Task(:spec => resize_hash).wait_for_completion
+        end
     end
 
 

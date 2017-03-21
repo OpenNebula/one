@@ -53,14 +53,17 @@ begin
         # VM is new
         vm = VCenterDriver::VirtualMachine.new
 
-        # Clone the VM
-        vm.clone_vm(drv_action, vi_client) # Clone from template
-
-        # Set reference to template disks in VM template
+        # Clone the VM from template and provide XML info
+        vm.clone_vm(drv_action, vi_client)
         one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
         vm.one_item = one_vm
+
+        # Set reference to template disks in VM template for detach ops
         vm.reference_imported_disks
     end
+
+    # Resize cloned disks from template if needed
+    vm.resize_imported_disks
 
     vm.reconfigure
     vm.poweron

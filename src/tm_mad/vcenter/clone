@@ -81,6 +81,15 @@ begin
     disk = one_vm.retrieve_xmlelements("TEMPLATE/DISK[SOURCE=\"#{src_path}\"]").first rescue nil
     raise "Cannot find disk element in vm template" if !disk
 
+    new_size = nil
+    # Check if resize is needed
+    if disk["ORIGINAL_SIZE"]
+        original_size = disk["ORIGINAL_SIZE"].to_i
+        new_size      = disk["SIZE"].to_i
+
+        # Shrink not supported (nil). Size is in KB
+        new_size = new_size > original_size ? new_size * 1024 : nil
+    end
 
     # Do not clone disks not managed by OPENNEBULA
     if !disk['OPENNEBULA_MANAGED'] || disk['OPENNEBULA_MANAGED'].to_s != "NO"
@@ -94,7 +103,7 @@ begin
 
         target_ds_name_vc = target_ds_vc['name']
 
-        source_ds_vc.copy_virtual_disk(src_path, target_ds_vc, target_path)
+        source_ds_vc.copy_virtual_disk(src_path, target_ds_vc, target_path, new_size)
     end
 
 rescue Exception => e

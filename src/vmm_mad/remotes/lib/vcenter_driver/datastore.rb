@@ -246,8 +246,7 @@ class Datastore < Storage
     end
 
     # Copy a VirtualDisk
-    def copy_virtual_disk(src_path, target_ds, target_path)
-
+    def copy_virtual_disk(src_path, target_ds, target_path, new_size=nil)
         source_ds_name = self['name']
         target_ds_name = target_ds['name']
 
@@ -267,6 +266,17 @@ class Datastore < Storage
         }
 
         get_vdm.CopyVirtualDisk_Task(copy_params).wait_for_completion
+
+        if new_size
+            resize_spec = {
+                :name => "[#{target_ds_name}] #{target_path}",
+                :datacenter => target_ds.get_dc.item,
+                :newCapacityKb => new_size,
+                :eagerZero => false
+            }
+
+            get_vdm.ExtendVirtualDisk_Task(resize_spec).wait_for_completion
+        end
 
         target_path
     end
