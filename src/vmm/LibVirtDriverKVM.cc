@@ -447,6 +447,11 @@ int LibVirtDriver::deployment_description_kvm(
         ceph_secret     = disk[i]->vector_value("CEPH_SECRET");
         ceph_user       = disk[i]->vector_value("CEPH_USER");
         pool_name       = disk[i]->vector_value("POOL_NAME");
+      
+        iscsi_host      = disk[i]->vector_value("ISCSI_HOST");
+        iscsi_user      = disk[i]->vector_value("ISCSI_USER");
+        iscsi_usage     = disk[i]->vector_value("ISCSI_USAGE");
+        iscsi_iqn       = disk[i]->vector_value("ISCSI_IQN");
 
         gluster_host    = disk[i]->vector_value("GLUSTER_HOST");
         gluster_volume  = disk[i]->vector_value("GLUSTER_VOLUME");

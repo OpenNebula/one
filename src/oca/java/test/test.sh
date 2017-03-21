@@ -19,7 +19,6 @@
 # Usage: test.sh <Test_name>
 # For instance: test.sh ImageTest
 
-JUNIT_JAR="/usr/share/java/junit4.jar"
 
 if [ -z $ONE_LOCATION ]; then
     DB_LOCATION="/var/lib/one/one.db"
@@ -55,7 +54,7 @@ done
 echo 'SAFE_DIRS = "/"' > /tmp/one-javatest-ds.txt
 onedatastore update --append 1 /tmp/one-javatest-ds.txt
 
-java -cp ../lib/*:../jar/*:$JUNIT_JAR:. org.junit.runner.JUnitCore $1
+java -cp ../lib/*:../jar/*:. org.junit.runner.JUnitCore $1
 
 CODE=$?
 

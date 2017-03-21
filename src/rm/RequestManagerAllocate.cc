@@ -20,6 +20,7 @@
 #include "PoolObjectSQL.h"
 #include "MarketPlacePool.h"
 #include "MarketPlaceAppPool.h"
+#include "VirtualMachineDisk.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -113,7 +114,7 @@ bool VirtualMachineAllocate::allocate_authorization(
 
     VirtualMachineTemplate aux_tmpl(*ttmpl);
 
-    VirtualMachine::disk_extended_info(att.uid, &aux_tmpl);
+    VirtualMachineDisks::extended_info(att.uid, &aux_tmpl);
 
     if ( quota_authorization(&aux_tmpl, Quotas::VIRTUALMACHINE, att) == false )
     {
@@ -534,7 +535,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     // ------------------------- Check persistent only -------------------------
 
-    tmpl->get("PERSISTENT", persistent_attr);
+    persistent_attr = Image::test_set_persistent(tmpl, att.uid, att.gid, true);
 
     if ( ds_persistent_only && persistent_attr == false )
     {
@@ -1187,6 +1188,28 @@ Request::ErrorCode MarketPlaceAppAllocate::pool_allocate(
     // Send request operation to market driver                                //
     // ---------------------------------------------------------------------- //
     if (marketm->import_app(id, mp_data, att.resp_msg) == -1)
+    {
+        return Request::INTERNAL;
+    }
+
+    return Request::SUCCESS;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Request::ErrorCode VMGroupAllocate::pool_allocate(
+        xmlrpc_c::paramList const&  paramList,
+        Template *                  tmpl,
+        int&                        id,
+        RequestAttributes&          att)
+{
+    VMGroupPool * vmgpool = static_cast<VMGroupPool *>(pool);
+
+    int rc = vmgpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask
+        ,tmpl, &id, att.resp_msg);
+
+    if (rc < 0)
     {
         return Request::INTERNAL;
     }

@@ -552,6 +552,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/oneflow \
            src/cli/oneflow-template \
            src/cli/onesecgroup \
+           src/cli/onevmgroup \
            src/cli/onevdc \
            src/cli/onevrouter \
            src/cli/onemarket \
@@ -685,7 +686,8 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/snapshot_delete \
                     src/vmm_mad/remotes/kvm/shutdown \
                     src/vmm_mad/remotes/kvm/reconfigure \
-                    src/vmm_mad/remotes/kvm/prereconfigure"
+                    src/vmm_mad/remotes/kvm/prereconfigure \
+                    src/vmm_mad/remotes/kvm/resize_disk"
 
 #-------------------------------------------------------------------------------
 # VMM Driver vCenter scripts, installed under $REMOTES_LOCATION/vmm/vcenter
@@ -731,7 +733,8 @@ VMM_EXEC_EC2_SCRIPTS="src/vmm_mad/remotes/ec2/cancel \
                       src/vmm_mad/remotes/ec2/poll \
                       src/vmm_mad/remotes/ec2/shutdown \
                       src/vmm_mad/remotes/ec2/reconfigure \
-                      src/vmm_mad/remotes/ec2/prereconfigure"
+                      src/vmm_mad/remotes/ec2/prereconfigure \
+                      src/vmm_mad/remotes/ec2/resize_disk"
 
 #------------------------------------------------------------------------------
 # VMM Driver Azure scripts, to be installed under $REMOTES_LOCATION/vmm/az
@@ -754,7 +757,8 @@ VMM_EXEC_AZ_SCRIPTS="src/vmm_mad/remotes/az/cancel \
                      src/vmm_mad/remotes/az/poll \
                      src/vmm_mad/remotes/az/shutdown \
                      src/vmm_mad/remotes/az/reconfigure \
-                     src/vmm_mad/remotes/az/prereconfigure"
+                     src/vmm_mad/remotes/az/prereconfigure \
+                     src/vmm_mad/remotes/az/resize_disk"
 
 #-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $REMOTES_LOCATION/im
@@ -891,7 +895,8 @@ TM_SHARED_FILES="src/tm_mad/shared/clone \
                  src/tm_mad/shared/snap_delete \
                  src/tm_mad/shared/snap_revert \
                  src/tm_mad/shared/monitor \
-                 src/tm_mad/shared/cpds"
+                 src/tm_mad/shared/cpds \
+                 src/tm_mad/shared/resize"
 
 TM_FS_LVM_FILES="src/tm_mad/fs_lvm/clone \
                  src/tm_mad/fs_lvm/context \
@@ -909,7 +914,8 @@ TM_FS_LVM_FILES="src/tm_mad/fs_lvm/clone \
                  src/tm_mad/fs_lvm/snap_delete \
                  src/tm_mad/fs_lvm/snap_revert \
                  src/tm_mad/fs_lvm/failmigrate \
-                 src/tm_mad/fs_lvm/delete"
+                 src/tm_mad/fs_lvm/delete \
+                 src/tm_mad/fs_lvm/resize"
 
 TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
                  src/tm_mad/qcow2/delete \
@@ -927,7 +933,8 @@ TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
                  src/tm_mad/qcow2/snap_create_live \
                  src/tm_mad/qcow2/snap_delete \
                  src/tm_mad/qcow2/snap_revert \
-                 src/tm_mad/qcow2/cpds"
+                 src/tm_mad/qcow2/cpds \
+                 src/tm_mad/qcow2/resize"
 
 TM_SSH_FILES="src/tm_mad/ssh/clone \
               src/tm_mad/ssh/delete \
@@ -946,7 +953,8 @@ TM_SSH_FILES="src/tm_mad/ssh/clone \
               src/tm_mad/ssh/snap_revert \
               src/tm_mad/ssh/monitor \
               src/tm_mad/ssh/monitor_ds \
-              src/tm_mad/ssh/cpds"
+              src/tm_mad/ssh/cpds \
+              src/tm_mad/ssh/resize"
 
 TM_DUMMY_FILES="src/tm_mad/dummy/clone \
               src/tm_mad/dummy/delete \
@@ -964,7 +972,8 @@ TM_DUMMY_FILES="src/tm_mad/dummy/clone \
               src/tm_mad/dummy/snap_delete \
               src/tm_mad/dummy/snap_revert \
               src/tm_mad/dummy/monitor \
-              src/tm_mad/dummy/cpds"
+              src/tm_mad/dummy/cpds \
+              src/tm_mad/dummy/resize"
 
 TM_CEPH_FILES="src/tm_mad/ceph/clone \
                  src/tm_mad/ceph/ln \
@@ -982,7 +991,8 @@ TM_CEPH_FILES="src/tm_mad/ceph/clone \
                  src/tm_mad/ceph/context \
                  src/tm_mad/ceph/mkimage \
                  src/tm_mad/ceph/monitor \
-                 src/tm_mad/ceph/mkswap"
+                 src/tm_mad/ceph/mkswap \
+                 src/tm_mad/ceph/resize"
 
 TM_DEV_FILES="src/tm_mad/dev/clone \
                  src/tm_mad/dev/ln \
@@ -996,7 +1006,8 @@ TM_DEV_FILES="src/tm_mad/dev/clone \
                  src/tm_mad/dev/snap_delete \
                  src/tm_mad/dev/snap_revert \
                  src/tm_mad/dev/failmigrate \
-                 src/tm_mad/dev/delete"
+                 src/tm_mad/dev/delete \
+                 src/tm_mad/dev/resize"
 
 TM_VCENTER_FILES="src/tm_mad/vcenter/clone \
                  src/tm_mad/vcenter/ln \
@@ -1028,7 +1039,8 @@ TM_ISCSI_FILES="src/tm_mad/iscsi_libvirt/clone \
                  src/tm_mad/iscsi_libvirt/snap_delete \
                  src/tm_mad/iscsi_libvirt/snap_revert \
                  src/tm_mad/iscsi_libvirt/failmigrate \
-                 src/tm_mad/iscsi_libvirt/delete"
+                 src/tm_mad/iscsi_libvirt/delete \
+                 src/tm_mad/iscsi_libvirt/resize"
 
 #-------------------------------------------------------------------------------
 # Datastore drivers, to be installed under $REMOTES_LOCATION/datastore
@@ -1288,6 +1300,8 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/pool.rb \
                             src/oca/ruby/opennebula/security_group_pool.rb \
                             src/oca/ruby/opennebula/security_group.rb \
+                            src/oca/ruby/opennebula/vm_group_pool.rb \
+                            src/oca/ruby/opennebula/vm_group.rb \
                             src/oca/ruby/opennebula/system.rb \
                             src/oca/ruby/opennebula/template_pool.rb \
                             src/oca/ruby/opennebula/template.rb \
@@ -1295,8 +1309,8 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/user.rb \
                             src/oca/ruby/opennebula/vdc_pool.rb \
                             src/oca/ruby/opennebula/vdc.rb \
-                            src/oca/ruby/opennebula/virtual_machine_pool.rb \
                             src/oca/ruby/opennebula/virtual_machine.rb \
+                            src/oca/ruby/opennebula/virtual_machine_pool.rb \
                             src/oca/ruby/opennebula/virtual_network_pool.rb \
                             src/oca/ruby/opennebula/virtual_network.rb \
                             src/oca/ruby/opennebula/xml_element.rb \
@@ -1448,6 +1462,7 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/onevdc_helper.rb \
                    src/cli/one_helper/oneacct_helper.rb \
                    src/cli/one_helper/onesecgroup_helper.rb \
+                   src/cli/one_helper/onevmgroup_helper.rb \
                    src/cli/one_helper/onevrouter_helper.rb \
                    src/cli/one_helper/onemarketapp_helper.rb \
                    src/cli/one_helper/onemarket_helper.rb"
@@ -1467,6 +1482,7 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/oneflow-template \
                src/cli/oneacct \
                src/cli/onesecgroup \
+               src/cli/onevmgroup \
                src/cli/oneshowback \
                src/cli/onevdc \
                src/cli/onevrouter \
@@ -1486,6 +1502,7 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onezone.yaml \
                 src/cli/etc/oneacct.yaml \
                 src/cli/etc/onesecgroup.yaml \
+                src/cli/etc/onevmgroup.yaml \
                 src/cli/etc/oneshowback.yaml \
                 src/cli/etc/onevdc.yaml \
                 src/cli/etc/onevrouter.yaml \
@@ -1524,6 +1541,7 @@ SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/JSONUtils.rb \
                     src/sunstone/models/OpenNebulaJSON/PoolJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/UserJSON.rb \
+                    src/sunstone/models/OpenNebulaJSON/VMGroupJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/VirtualMachineJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/TemplateJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/AclJSON.rb \
@@ -1741,6 +1759,7 @@ MAN_FILES="share/man/oneacct.1.gz \
         share/man/onevrouter.1.gz \
         share/man/onemarket.1.gz \
         share/man/onemarketapp.1.gz \
+        share/man/onevmgroup.1.gz \
         share/man/econe-allocate-address.1.gz \
         share/man/econe-associate-address.1.gz \
         share/man/econe-attach-volume.1.gz \

@@ -178,54 +178,17 @@ error_name:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VirtualNetwork * VirtualNetworkPool::get_nic_by_name(VectorAttribute * nic,
-                                                     const string&     name,
-                                                     int               _uid,
-                                                     string&           error)
+VirtualNetwork * VirtualNetworkPool::get_nic_by_name(VirtualMachineNic * nic,
+        const string& name, int _uid, string& error)
 {
-    istringstream  is;
+    int uid = nic->get_uid(_uid, error);
 
-    string uid_s ;
-    string uname;
-    int    uid;
-
-    VirtualNetwork * vnet;
-
-    if (!(uid_s = nic->vector_value("NETWORK_UID")).empty())
+    if ( uid == -1 )
     {
-        is.str(uid_s);
-        is >> uid;
-
-        if( is.fail() )
-        {
-            error = "Cannot get user in NETWORK_UID";
-            return 0;
-        }
-    }
-    else if (!(uname = nic->vector_value("NETWORK_UNAME")).empty())
-    {
-        User *     user;
-        Nebula&    nd    = Nebula::instance();
-        UserPool * upool = nd.get_upool();
-
-        user = upool->get(uname,true);
-
-        if ( user == 0 )
-        {
-            error = "User set in NETWORK_UNAME does not exist";
-            return 0;
-        }
-
-        uid = user->get_oid();
-
-        user->unlock();
-    }
-    else
-    {
-        uid = _uid;
+        return 0;
     }
 
-    vnet = get(name,uid,true);
+    VirtualNetwork * vnet = get(name, uid, true);
 
     if (vnet == 0)
     {
@@ -242,7 +205,7 @@ VirtualNetwork * VirtualNetworkPool::get_nic_by_name(VectorAttribute * nic,
 /* -------------------------------------------------------------------------- */
 
 VirtualNetwork * VirtualNetworkPool::get_nic_by_id(const string& id_s,
-                                                   string&       error)
+    string& error)
 {
     istringstream  is;
     int            id;
@@ -268,9 +231,12 @@ VirtualNetwork * VirtualNetworkPool::get_nic_by_id(const string& id_s,
     return vnet;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualNetworkPool::nic_attribute(
         PoolObjectSQL::ObjectType   ot,
-        VectorAttribute*            nic,
+        VirtualMachineNic *         nic,
         int                         nic_id,
         int                         uid,
         int                         vid,
@@ -333,7 +299,7 @@ int VirtualNetworkPool::nic_attribute(
 
 void VirtualNetworkPool::authorize_nic(
         PoolObjectSQL::ObjectType   ot,
-        VectorAttribute *           nic,
+        VirtualMachineNic *         nic,
         int                         uid,
         AuthRequest *               ar)
 {
@@ -348,7 +314,7 @@ void VirtualNetworkPool::authorize_nic(
     }
     else if (!(network = nic->vector_value("NETWORK")).empty())
     {
-        vnet = get_nic_by_name (nic, network, uid, error);
+        vnet = get_nic_by_name(nic, network, uid, error);
 
         if ( vnet != 0 )
         {
@@ -620,8 +586,48 @@ int VirtualNetworkPool::reserve_addr(int pid, int rid, unsigned int rsize, unsig
 
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetworkPool::reserve_addr_by_ip(int pid, int rid, unsigned int rsize, unsigned int ar_id,
-        const string& ip, string& err)
+int VirtualNetworkPool::reserve_addr_by_ip6(int pid, int rid, unsigned int rsize,
+        unsigned int ar_id, const string& ip, string& err)
+{
+    AddressRange * rar = allocate_ar(rid, err);
+
+    if ( rar == 0 )
+    {
+        return -1;
+    }
+
+    VirtualNetwork * pvn = get(pid, true);
+
+    if ( pvn == 0 )
+    {
+        delete rar;
+
+        ostringstream oss;
+        oss << "Virtual network " << pid << " does not exist";
+
+        err = oss.str();
+        return -1;
+    }
+
+    int rc = pvn->reserve_addr_by_ip6(rid, rsize, ar_id, ip, rar, err);
+
+    update(pvn);
+
+    pvn->unlock();
+
+    if ( rc != 0)
+    {
+        delete rar;
+        return -1;
+    }
+
+    return add_ar(rid, rar, err);
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetworkPool::reserve_addr_by_ip(int pid, int rid, unsigned int rsize,
+        unsigned int ar_id, const string& ip, string& err)
 {
     AddressRange * rar = allocate_ar(rid, err);
 

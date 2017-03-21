@@ -135,10 +135,6 @@ class AcctHelper < OpenNebulaHelper::OneHelper
             VirtualMachine.get_history_action d["ACTION"]
         end
 
-        column :REASON, "VM state change reason", :left, :size=>4 do |d|
-            VirtualMachine.get_reason d["REASON"]
-        end
-
         column :START_TIME, "Start time", :size=>14 do |d|
             OpenNebulaHelper.time_to_str(d['STIME'])
         end
@@ -187,7 +183,7 @@ class AcctHelper < OpenNebulaHelper::OneHelper
             OpenNebulaHelper.unit_to_str(total_disk_size * 1024.0, {})
         end
 
-        default :VID, :HOSTNAME, :ACTION, :REASON, :START_TIME, :END_TIME, :MEMORY, :CPU, :NETRX, :NETTX, :DISK
+        default :VID, :HOSTNAME, :ACTION, :START_TIME, :END_TIME, :MEMORY, :CPU, :NETRX, :NETTX, :DISK
     end
 
     SHOWBACK_TABLE = CLIHelper::ShowTable.new(self.table_conf("oneshowback.yaml"), nil) do

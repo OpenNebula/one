@@ -47,6 +47,7 @@ module OpenNebula
             :disksnapshotcreate => "vm.disksnapshotcreate",
             :disksnapshotrevert => "vm.disksnapshotrevert",
             :disksnapshotdelete => "vm.disksnapshotdelete",
+            :diskresize     => "vm.diskresize",
             :updateconf     => "vm.updateconf"
         }
 
@@ -116,6 +117,9 @@ module OpenNebula
             DISK_SNAPSHOT_DELETE
             PROLOG_MIGRATE_UNKNOWN
             PROLOG_MIGRATE_UNKNOWN_FAILURE
+            DISK_RESIZE
+            DISK_RESIZE_POWEROFF
+            DISK_RESIZE_UNDEPLOYED
         }
 
         SHORT_VM_STATES={
@@ -193,22 +197,20 @@ module OpenNebula
             "DISK_SNAPSHOT"        => "snap",
             "DISK_SNAPSHOT_DELETE" => "snap",
             "PROLOG_MIGRATE_UNKNOWN" => "migr",
-            "PROLOG_MIGRATE_UNKNOWN_FAILURE" => "fail"
-        }
-
-        MIGRATE_REASON=%w{NONE ERROR USER}
-
-        SHORT_MIGRATE_REASON={
-            "NONE"          => "none",
-            "ERROR"         => "erro",
-            "USER"          => "user"
+            "PROLOG_MIGRATE_UNKNOWN_FAILURE" => "fail",
+            "DISK_RESIZE"            => "drsz",
+            "DISK_RESIZE_POWEROFF"   => "drsz",
+            "DISK_RESIZE_UNDEPLOYED" => "drsz"
         }
 
         HISTORY_ACTION=%w{none migrate live-migrate shutdown shutdown-hard
             undeploy undeploy-hard hold release stop suspend resume boot delete
             delete-recreate reboot reboot-hard resched unresched poweroff
             poweroff-hard disk-attach disk-detach nic-attach nic-detach
-            snap-create snap-delete terminate terminate-hard}
+            disk-snapshot-create disk-snapshot-delete terminate terminate-hard
+            disk-resize deploy chown chmod updateconf rename resize update
+            snapshot-resize snapshot-delete snapshot-revert disk-saveas
+            disk-snapshot-revert recover retry monitor}
 
         EXTERNAL_IP_ATTRS = [
             'GUEST_IP',
@@ -254,13 +256,6 @@ module OpenNebula
             end
 
             XMLElement.build_xml(vm_xml, 'VM')
-        end
-
-        def VirtualMachine.get_reason(reason)
-            reason=MIGRATE_REASON[reason.to_i]
-            reason_str=SHORT_MIGRATE_REASON[reason]
-
-            reason_str
         end
 
         def VirtualMachine.get_history_action(action)
@@ -657,6 +652,16 @@ module OpenNebula
         #   otherwise
         def disk_snapshot_delete(disk_id, snap_id)
           return call(VM_METHODS[:disksnapshotdelete], @pe_id, disk_id, snap_id)
+        end
+
+        # Changes the size of a disk
+        #
+        # @param disk_id [Integer] Id of the disk
+        # @param size [Integer] new size in MiB
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success or error
+        def disk_resize(disk_id, size)
+            return call(VM_METHODS[:diskresize], @pe_id, disk_id, size.to_s)
         end
 
         # Recovers an ACTIVE VM

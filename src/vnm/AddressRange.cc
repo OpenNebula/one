@@ -32,11 +32,13 @@ string AddressRange::type_to_str(AddressType ob)
 {
     switch (ob)
     {
-        case ETHER: return "ETHER"; break;
-        case IP4:   return "IP4"  ; break;
-        case IP6:   return "IP6"  ; break;
-        case IP4_6: return "IP4_6"; break;
-        default:    return "";
+        case ETHER:        return "ETHER"       ;
+        case IP4:          return "IP4"         ;
+        case IP6:          return "IP6"         ;
+        case IP6_STATIC:   return "IP6_STATIC"  ;
+        case IP4_6:        return "IP4_6"       ;
+        case IP4_6_STATIC: return "IP4_6_STATIC";
+        default:           return "";
     }
 };
 
@@ -62,6 +64,14 @@ AddressRange::AddressType AddressRange::str_to_type(string& str_type)
     {
         return IP4_6;
     }
+    else if (str_type == "IP4_6_STATIC")
+    {
+        return IP4_6_STATIC;
+    }
+    else if (str_type == "IP6_STATIC")
+    {
+        return IP6_STATIC;
+    }
     else
     {
         return NONE;
@@ -70,6 +80,124 @@ AddressRange::AddressType AddressRange::str_to_type(string& str_type)
 
 /* ************************************************************************** */
 /* ************************************************************************** */
+
+int AddressRange::init_ipv4(string& error_msg)
+{
+	if (!is_ipv4())
+	{
+		attr->remove("IP");
+		return 0;
+	}
+
+	string value = attr->vector_value("IP");
+
+	if (value.empty() || ip_to_i(value, ip) == -1)
+	{
+		error_msg = "Wrong or empty IP attribute";
+		return -1;
+	}
+
+	return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+int AddressRange::init_ipv6(string& error_msg)
+{
+	if (!is_ipv6())
+	{
+		attr->remove("GLOBAL_PREFIX");
+		attr->remove("ULA_PREFIX");
+
+		return 0;
+	}
+
+    string value = attr->vector_value("GLOBAL_PREFIX");
+
+    if (prefix6_to_i(value, global6) != 0 )
+    {
+        error_msg = "Wrong format for IP6 global address prefix";
+        return -1;
+    }
+
+    value = attr->vector_value("ULA_PREFIX");
+
+    if (prefix6_to_i(value, ula6) != 0 )
+    {
+        error_msg = "Wrong format for IP6 unique local address prefix";
+        return -1;
+    }
+
+	return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+int AddressRange::init_ipv6_static(string& error_msg)
+{
+	if (!is_ipv6_static())
+	{
+		attr->remove("IP6");
+		return 0;
+	}
+
+    string value = attr->vector_value("IP6");
+
+	if (value.empty() || ip6_to_i(value, ip6) == -1)
+	{
+		error_msg = "Wrong or empty IP6 attribute";
+		return -1;
+	}
+
+    int pl;
+
+    if ( attr->vector_value("PREFIX_LENGTH", pl) != 0 )
+    {
+        error_msg = "Wrong or empty PREFIX_LENGTH";
+        return -1;
+    }
+
+	return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+int AddressRange::init_mac(string& error_msg)
+{
+    string value = attr->vector_value("MAC");
+
+    if (value.empty())
+    {
+        mac[1] = VirtualNetworkPool::mac_prefix();
+
+		if ( is_ipv4() )
+		{
+			mac[0] = ip;
+		}
+		else
+		{
+			srand(time(0));
+
+			mac[0] = rand() & 0x0000FFFF;
+			mac[0]+= (rand()<<16) & 0xFFFF0000;
+		}
+
+        set_mac(0, attr);
+    }
+    else
+    {
+        if (mac_to_i(value, mac) == -1)
+        {
+            error_msg = "Wrong format for MAC attribute";
+            return -1;
+        };
+    }
+
+	return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int AddressRange::from_attr(VectorAttribute *vattr, string& error_msg)
 {
@@ -94,78 +222,27 @@ int AddressRange::from_attr(VectorAttribute *vattr, string& error_msg)
         return -1;
     }
 
-    /* -------------------- MAC & IPv4 start addresses ---------------------- */
+    /* ---------------------- L3 & L2 start addresses ---------------------- */
 
-    bool do_mac = false;
+	if ( init_ipv4(error_msg) != 0 )
+	{
+		return -1;
+	}
 
-    value = vattr->vector_value("MAC");
+	if ( init_ipv6(error_msg) != 0 )
+	{
+		return -1;
+	}
 
-    if (value.empty())
-    {
-        do_mac = true;
-        mac[1] = VirtualNetworkPool::mac_prefix();
-    }
-    else
-    {
-        if (mac_to_i(value, mac) == -1)
-        {
-            error_msg = "Wrong format for MAC attribute";
-            return -1;
-        };
-    }
+	if ( init_ipv6_static(error_msg) != 0 )
+	{
+		return -1;
+	}
 
-    switch(type)
-    {
-        case ETHER:
-        case IP6:
-            vattr->remove("IP");
-
-            if (do_mac)
-            {
-                srand(time(0));
-
-                mac[0] = rand() & 0x0000FFFF;
-                mac[0]+= (rand()<<16) & 0xFFFF0000;
-            }
-            break;
-
-        case IP4:
-        case IP4_6:
-            value = vattr->vector_value("IP");
-
-            if (value.empty() || ip_to_i(value, ip) == -1)
-            {
-                error_msg = "Wrong or empty IP attribute";
-                return -1;
-            }
-
-            if (do_mac)
-            {
-                mac[0] = ip;
-            }
-            break;
-
-        default:
-            return -1;
-    }
-
-    /* -------------------------- IP6 prefixes ------------------------------ */
-
-    value = vattr->vector_value("GLOBAL_PREFIX");
-
-    if (prefix6_to_i(value, global6) != 0 )
-    {
-        error_msg = "Wrong format for IP6 global address prefix";
-        return -1;
-    }
-
-    value = vattr->vector_value("ULA_PREFIX");
-
-    if (prefix6_to_i(value, ula6) != 0 )
-    {
-        error_msg = "Wrong format for IP6 unique local address prefix";
-        return -1;
-    }
+	if ( init_mac(error_msg) != 0 )
+	{
+		return -1;
+	}
 
     /* ------------------------- Security Groups ---------------------------- */
 
@@ -193,11 +270,6 @@ int AddressRange::from_attr(VectorAttribute *vattr, string& error_msg)
     vattr->remove("PARENT_NETWORK_AR_ID");
 
     vattr->remove("PARENT_NETWORK");
-
-    if (do_mac) //Need to add MAC to the attribute
-    {
-        set_mac(0, attr);
-    }
 
     return 0;
 }
@@ -237,9 +309,16 @@ int AddressRange::update_attributes(
 
     vup->remove("IP");
 
-    if (type & 0x00000002)
+    if (is_ipv4())
     {
         vup->replace("IP", attr->vector_value("IP"));
+    }
+
+    vup->remove("IP6");
+
+    if (is_ipv6_static())
+    {
+        vup->replace("IP6", attr->vector_value("IP6"));
     }
 
     /* ----------------- Remove internal attributes ----------------- */
@@ -265,6 +344,8 @@ int AddressRange::update_attributes(
     vup->remove("MAC_END");
 
     vup->remove("IP_END");
+
+    vup->remove("IP6_END");
 
     vup->remove("IP6_ULA");
 
@@ -309,28 +390,42 @@ int AddressRange::update_attributes(
         new_size = size;
     }
 
-    string new_global = vup->vector_value("GLOBAL_PREFIX");
-
-    if (prefix6_to_i(new_global, global6) != 0 )
-    {
-        error_msg = "Wrong format for IP6 global address prefix";
-        return -1;
-    }
-
-    string new_ula = vup->vector_value("ULA_PREFIX");
-
-    if (prefix6_to_i(new_ula, ula6) != 0 )
-    {
-        error_msg = "Wrong format for IP6 unique local address prefix";
-        return -1;
-    }
-
     size = new_size;
 
     vup->replace("SIZE", size);
 
-    vup->replace("GLOBAL_PREFIX", new_global);
-    vup->replace("ULA_PREFIX", new_ula);
+    if ( is_ipv6_static() )
+    {
+        int new_pl;
+
+        if (vup->vector_value("PREFIX_LENGTH", new_pl) == -1 )
+        {
+            vup->replace("PREFIX_LENGTH", attr->vector_value("PREFIX_LENGTH"));
+        }
+    }
+
+    if ( is_ipv6() )
+    {
+        string new_global = vup->vector_value("GLOBAL_PREFIX");
+
+        if (prefix6_to_i(new_global, global6) != 0 )
+        {
+            error_msg = "Wrong format for IP6 global address prefix";
+            return -1;
+        }
+
+        string new_ula = vup->vector_value("ULA_PREFIX");
+
+        if (prefix6_to_i(new_ula, ula6) != 0 )
+        {
+            error_msg = "Wrong format for IP6 unique local address prefix";
+            return -1;
+        }
+
+        vup->replace("GLOBAL_PREFIX", new_global);
+
+        vup->replace("ULA_PREFIX", new_ula);
+    }
 
     string value = vup->vector_value("SECURITY_GROUPS");
 
@@ -367,9 +462,14 @@ int AddressRange::from_vattr_db(VectorAttribute *vattr)
 
     rc += mac_to_i(vattr->vector_value("MAC"), mac);
 
-    if (type & 0x00000002)
+    if (is_ipv4())
     {
         rc += ip_to_i(vattr->vector_value("IP"), ip);
+    }
+
+    if (is_ipv6_static())
+    {
+        rc += ip6_to_i(vattr->vector_value("IP6"), ip6);
     }
 
     rc += prefix6_to_i(vattr->vector_value("GLOBAL_PREFIX"), global6);
@@ -426,6 +526,18 @@ void AddressRange::addr_to_xml(unsigned int index, unsigned int rsize,
             << "</IP6_GLOBAL>";
     }
 
+	if ( ip6[0] != 0 || ip6[1] != 0 || ip6[2] != 0 || ip6[3] != 0 )
+	{
+		unsigned int ip_low[4];
+
+		ip_low[3] = ip6[3];
+		ip_low[2] = ip6[2];
+		ip_low[1] = ip6[1];
+		ip_low[0] = ip6[0] + index;
+
+        oss << "<IP6>" << ip6_to_s(ip_low, ip6_s) << "</IP6>";
+	}
+
     oss << "<SIZE>" << rsize << "</SIZE>"
         << "</ADDRESS>";
 }
@@ -438,7 +550,6 @@ void AddressRange::to_xml(ostringstream &oss) const
     const map<string,string>& ar_attrs = attr->value();
     map<string,string>::const_iterator it;
 
-    string       aux_st;
     unsigned int mac_end[2];
 
     oss << "<AR>";
@@ -460,11 +571,12 @@ void AddressRange::to_xml(ostringstream &oss) const
 
     oss << "<MAC_END>" << one_util::escape_xml(mac_to_s(mac_end))<<"</MAC_END>";
 
-    aux_st = attr->vector_value("IP");
-
-    if (aux_st != "")
+    if (is_ipv4())
     {
+		string       aux_st;
         unsigned int ip_i;
+
+		aux_st = attr->vector_value("IP");
 
         if (ip_to_i(aux_st, ip_i) == 0)
         {
@@ -473,7 +585,7 @@ void AddressRange::to_xml(ostringstream &oss) const
         }
     }
 
-    if (type & 0x00000004)
+    if (is_ipv6())
     {
         string ip6_s;
 
@@ -498,6 +610,20 @@ void AddressRange::to_xml(ostringstream &oss) const
                 << "</IP6_GLOBAL_END>";
         }
     }
+
+	if (is_ipv6_static())
+	{
+        string ip6_s;
+		unsigned int ip_low[4];
+
+		ip_low[3] = ip6[3];
+		ip_low[2] = ip6[2];
+		ip_low[1] = ip6[1];
+		ip_low[0] = ip6[0] +  size - 1;
+
+		ip6_to_s(ip_low, ip6_s);
+		oss << "<IP6_END>" << one_util::escape_xml(ip6_s) << "</IP6_END>";
+	}
 
     oss << "<USED_LEASES>" << get_used_addr() << "</USED_LEASES>";
     oss << "</AR>";
@@ -539,11 +665,10 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
 
     oss << "<MAC_END>" << one_util::escape_xml(mac_to_s(mac_end))<<"</MAC_END>";
 
-    aux_st = attr->vector_value("IP");
-
-    if (aux_st != "")
+    if (is_ipv4())
     {
         unsigned int ip_i;
+		string aux_st = attr->vector_value("IP");
 
         rc = ip_to_i(aux_st, ip_i);
 
@@ -554,7 +679,7 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
         }
     }
 
-    if (type & 0x00000004)
+    if (is_ipv6())
     {
         string ip6_s;
 
@@ -564,18 +689,35 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
             oss << "<IP6_ULA>" << one_util::escape_xml(ip6_s) << "</IP6_ULA>";
 
             ip6_to_s(ula6, mac_end, ip6_s);
-            oss << "<IP6_ULA_END>" << one_util::escape_xml(ip6_s) << "</IP6_ULA_END>";
+            oss << "<IP6_ULA_END>" << one_util::escape_xml(ip6_s)
+				<< "</IP6_ULA_END>";
         }
 
         if (global6[1] != 0 || global6[0] != 0 ) /* Glocal Unicast */
         {
             ip6_to_s(global6, mac, ip6_s);
-            oss << "<IP6_GLOBAL>" << one_util::escape_xml(ip6_s) << "</IP6_GLOBAL>";
+            oss << "<IP6_GLOBAL>" << one_util::escape_xml(ip6_s)
+                << "</IP6_GLOBAL>";
 
             ip6_to_s(global6, mac_end, ip6_s);
-            oss << "<IP6_GLOBAL_END>" << one_util::escape_xml(ip6_s) << "</IP6_GLOBAL_END>";
+            oss << "<IP6_GLOBAL_END>" << one_util::escape_xml(ip6_s)
+				<< "</IP6_GLOBAL_END>";
         }
     }
+
+	if (is_ipv6_static())
+	{
+        string ip6_s;
+		unsigned int ip_low[4];
+
+		ip_low[3] = ip6[3];
+		ip_low[2] = ip6[2];
+		ip_low[1] = ip6[1];
+		ip_low[0] = ip6[0] +  size - 1;
+
+		ip6_to_s(ip_low, ip6_s);
+		oss << "<IP6_END>" << one_util::escape_xml(ip6_s) << "</IP6_END>";
+	}
 
     oss << "<USED_LEASES>" << get_used_addr() << "</USED_LEASES>";
 
@@ -636,14 +778,19 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
 
             set_mac(it->first, &lease);
 
-            if (type & 0x00000002 )
+            if (is_ipv4())
             {
                 set_ip(it->first, &lease);
             }
 
-            if (type & 0x00000004)
+            if (is_ipv6())
             {
                 set_ip6(it->first, &lease);
+            }
+
+            if (is_ipv6_static())
+            {
+                set_ip6_static(it->first, &lease);
             }
 
             lease.to_xml(oss);
@@ -810,6 +957,33 @@ string AddressRange::ip_to_s(unsigned int i_ip) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int AddressRange::ip6_to_i(const string& _ip, unsigned int i_ip[]) const
+{
+    struct in6_addr s6;
+
+    if (_ip.empty())
+    {
+        return -1;
+    }
+
+    int rc = inet_pton(AF_INET6, _ip.c_str(), &s6);
+
+    if ( rc != 1 )
+    {
+        return -1;
+    }
+
+    i_ip[3] = ntohl(s6.s6_addr32[0]);
+    i_ip[2] = ntohl(s6.s6_addr32[1]);
+    i_ip[1] = ntohl(s6.s6_addr32[2]);
+    i_ip[0] = ntohl(s6.s6_addr32[3]);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int AddressRange::prefix6_to_i(const string& prefix, unsigned int ip[]) const
 {
     struct in6_addr s6;
@@ -836,7 +1010,8 @@ int AddressRange::prefix6_to_i(const string& prefix, unsigned int ip[]) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRange::ip6_to_s(const unsigned int prefix[], const unsigned int mac[], string& ip6_s) const
+int AddressRange::ip6_to_s(const unsigned int prefix[],
+        const unsigned int mac[], string& ip6_s) const
 {
     unsigned int eui64[2];
     unsigned int mlow = mac[0];
@@ -852,6 +1027,28 @@ int AddressRange::ip6_to_s(const unsigned int prefix[], const unsigned int mac[]
 
     ip6.s6_addr32[0] = htonl(prefix[1]);
     ip6.s6_addr32[1] = htonl(prefix[0]);
+
+    if ( inet_ntop(AF_INET6, &ip6, dst, INET6_ADDRSTRLEN) != 0 )
+    {
+        ip6_s = dst;
+        return 0;
+    }
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRange::ip6_to_s(const unsigned int ip6_i[], string& ip6_s) const
+{
+    struct in6_addr ip6;
+    char dst[INET6_ADDRSTRLEN];
+
+    ip6.s6_addr32[3] = htonl(ip6_i[0]);
+    ip6.s6_addr32[2] = htonl(ip6_i[1]);
+    ip6.s6_addr32[1] = htonl(ip6_i[2]);
+    ip6.s6_addr32[0] = htonl(ip6_i[3]);
 
     if ( inet_ntop(AF_INET6, &ip6, dst, INET6_ADDRSTRLEN) != 0 )
     {
@@ -896,7 +1093,7 @@ bool AddressRange::is_valid_mac(unsigned int& index, const string& mac_s,
 bool AddressRange::is_valid_ip(unsigned int& index, const string& ip_s,
     bool check_free)
 {
-    if (!(type & 0x00000002))//Not of type IP4 or IP4_6
+    if (!is_ipv4())//Not of type IP4 or IP4_6
     {
         return false;
     }
@@ -914,6 +1111,41 @@ bool AddressRange::is_valid_ip(unsigned int& index, const string& ip_s,
     }
 
     index = ip_i - ip;
+
+    if ((check_free && allocated.count(index) != 0) || (index >= size))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool AddressRange::is_valid_ip6(unsigned int& index, const string& ip_s,
+    bool check_free)
+{
+    if (!is_ipv6_static())//Not of type IP6_STATIC or IP4_6_STATIC
+    {
+        return false;
+    }
+
+    unsigned int ip_i[4];
+
+    if (ip6_to_i(ip_s, ip_i) == -1)
+    {
+        return false;
+    }
+
+    //3 most significant 32bit blocks must be equal
+    if ( ip_i[3] != ip6[3] || ip_i[2] != ip6[2] || ip_i[1] != ip6[1]
+            || ip_i[0] < ip6[0] )
+    {
+        return false;
+    }
+
+    index = ip_i[0] - ip6[0];
 
     if ((check_free && allocated.count(index) != 0) || (index >= size))
     {
@@ -978,6 +1210,26 @@ void AddressRange::set_ip6(unsigned int addr_index, VectorAttribute * nic) const
             nic->replace("IP6_GLOBAL", ip6_s);
         }
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AddressRange::set_ip6_static(unsigned int addr_index,
+		VectorAttribute * nic) const
+{
+	unsigned int ip_low[4];
+    string       ip6_s;
+
+    ip_low[3] = ip6[3];
+    ip_low[2] = ip6[2];
+    ip_low[1] = ip6[1];
+	ip_low[0] = ip6[0] + addr_index;
+
+	if ( ip6_to_s(ip_low, ip6_s) == 0 )
+	{
+		nic->replace("IP6", ip6_s);
+	}
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1127,14 +1379,19 @@ void AddressRange::allocate_by_index(unsigned int index,
 {
     set_mac(index, nic);
 
-    if (type & 0x00000002 )
+    if (is_ipv4())
     {
         set_ip(index, nic);
     }
 
-    if (type & 0x00000004)
+    if (is_ipv6())
     {
         set_ip6(index, nic);
+    }
+
+	if (is_ipv6_static())
+    {
+        set_ip6_static(index, nic);
     }
 
     set_vnet(nic, inherit);
@@ -1231,6 +1488,35 @@ int AddressRange::allocate_by_ip(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int AddressRange::allocate_by_ip6(
+    const string&             ip6_s,
+    PoolObjectSQL::ObjectType ot,
+    int                       obid,
+    VectorAttribute*          nic,
+    const vector<string>&     inherit)
+{
+    string error_msg;
+    unsigned int index;
+
+    if (!is_valid_ip6(index, ip6_s, true))
+    {
+        return -1;
+    }
+
+    if (allocate_addr(index, 1, error_msg) != 0)
+    {
+        NebulaLog::log("IPM", Log::ERROR, error_msg);
+        return -1;
+    }
+
+    allocate_by_index(index, ot, obid, nic, inherit);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int AddressRange::free_addr(PoolObjectSQL::ObjectType ot, int obid,
     const string& mac_s)
 {
@@ -1263,7 +1549,7 @@ int AddressRange::free_addr_by_ip(PoolObjectSQL::ObjectType ot, int obid,
 {
     string error_msg;
 
-    if (!(type & 0x00000002))//Not of type IP4 or IP4_6
+    if (!is_ipv4())
     {
         return -1;
     }
@@ -1289,6 +1575,45 @@ int AddressRange::free_addr_by_ip(PoolObjectSQL::ObjectType ot, int obid,
 
     return free_allocated_addr(ot, obid, index);
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRange::free_addr_by_ip6(PoolObjectSQL::ObjectType ot, int obid,
+    const string& ip_s)
+{
+    string error_msg;
+
+    if (!is_ipv6_static())
+    {
+        return -1;
+    }
+
+    unsigned int ip_i[4];
+
+    if (ip6_to_i(ip_s, ip_i) == -1)
+    {
+        return -1;
+    }
+
+    unsigned int index = ip_i[0] - ip6[0];
+
+    if (index < 0 || index >= size || ip6[3] != ip_i[3] || ip6[2] != ip_i[2]
+            || ip6[1] != ip_i[1])
+    {
+        return -1;
+    }
+
+    if (free_addr(index, error_msg) != 0)
+    {
+        return -1;
+    }
+
+    return free_allocated_addr(ot, obid, index);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -1382,12 +1707,14 @@ const char * AddressRange::SG_RULE_ATTRIBUTES[] = {
     "TYPE",
     "SIZE",
     "MAC",
-    "IP"};
+    "IP",
+    "IP6"};
 
-const int  AddressRange::NUM_SG_RULE_ATTRIBUTES = 5;
+const int  AddressRange::NUM_SG_RULE_ATTRIBUTES = 6;
 
 void AddressRange::process_security_rule(VectorAttribute * rule)
 {
+    // Persistent attributes
     for ( int i = 0; i < NUM_SG_RULE_ATTRIBUTES; i++ )
     {
         string st = attr->vector_value(SG_RULE_ATTRIBUTES[i]);
@@ -1397,6 +1724,45 @@ void AddressRange::process_security_rule(VectorAttribute * rule)
             rule->replace(SG_RULE_ATTRIBUTES[i], st);
         }
     }
+
+    // Non persistent attributes
+    string ip6_s;
+
+    if (ula6[1] != 0 || ula6[0] != 0 )
+    {
+        ip6_to_s(ula6, mac, ip6_s);
+        rule->replace("IP6_ULA", ip6_s);
+    }
+
+    if (global6[1] != 0 || global6[0] != 0 )
+    {
+        ip6_to_s(global6, mac, ip6_s);
+        rule->replace("IP6_GLOBAL", ip6_s);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRange::hold_by_ip6(const string& ip_s)
+{
+    string error_msg;
+    unsigned int index;
+
+    if (!is_valid_ip6(index, ip_s, true))
+    {
+        return -1;
+    }
+
+    if (allocate_addr(index, 1, error_msg) != 0)
+    {
+        NebulaLog::log("IPM", Log::ERROR, error_msg);
+        return -1;
+    }
+
+    set_allocated_addr(PoolObjectSQL::VM, -1, index);
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1476,9 +1842,14 @@ int AddressRange::reserve_addr(int vid, unsigned int rsize, AddressRange *rar)
 
     set_mac(first_index, new_ar);
 
-    if (type & 0x00000002 )
+    if ( is_ipv4() )
     {
         set_ip(first_index, new_ar);
+    }
+
+    if ( is_ipv6_static() )
+    {
+        set_ip6_static(first_index, new_ar);
     }
 
     new_ar->replace("SIZE",rsize);
@@ -1528,9 +1899,14 @@ int AddressRange::reserve_addr_by_index(int vid, unsigned int rsize,
 
     set_mac(sindex, new_ar);
 
-    if (type & 0x00000002 )
+    if ( is_ipv4() )
     {
         set_ip(sindex, new_ar);
+    }
+
+    if ( is_ipv6_static() )
+    {
+        set_ip6_static(sindex, new_ar);
     }
 
     new_ar->replace("SIZE",rsize);
@@ -1542,6 +1918,22 @@ int AddressRange::reserve_addr_by_index(int vid, unsigned int rsize,
     new_ar->replace("PARENT_NETWORK_AR_ID",id);
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRange::reserve_addr_by_ip6(int vid, unsigned int rsize,
+    const string& ip_s, AddressRange *rar)
+{
+    unsigned int sindex;
+
+    if (!is_valid_ip6(sindex, ip_s, false))
+    {
+        return -1;
+    }
+
+    return reserve_addr_by_index(vid, rsize, sindex, rar);
 }
 
 /* -------------------------------------------------------------------------- */

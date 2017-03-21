@@ -56,6 +56,8 @@ SecurityGroup::SecurityGroup(
     {
         obj_template = new Template;
     }
+
+    set_umask(_umask);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -319,11 +321,11 @@ bool SecurityGroup::isValidRule(const VectorAttribute * rule, string& error) con
 
     one_util::toupper(proto);
 
-    if ( proto != "TCP" && proto != "UDP" && proto != "ICMP" && proto != "IPSEC"
-        && proto != "ALL")
+    if ( proto != "TCP" && proto != "UDP" && proto != "ICMP" && proto != "ICMPV6"
+        && proto != "IPSEC" && proto != "ALL")
     {
-        error = "Wrong PROTOCOL in rule. Valid options: TCP, UDP, ICMP, IPSEC,"
-            " ALL.";
+        error = "Wrong PROTOCOL in rule. Valid options: TCP, UDP, ICMP, ICMPV6,"
+            " IPSEC, ALL.";
         return false;
     }
 
@@ -362,6 +364,23 @@ bool SecurityGroup::isValidRule(const VectorAttribute * rule, string& error) con
         }
     }
 
+    value = rule->vector_value("ICMPV6_TYPE");
+
+    if (!value.empty())
+    {
+        if (proto != "ICMPV6")
+        {
+            error = "ICMPV6_TYPE is supported only for ICMPV6 protocol.";
+            return false;
+        }
+
+        if (rule->vector_value("ICMPV6_TYPE", ivalue) != 0)
+        {
+            error = "Wrong ICMPV6_TYPE, it must be integer";
+            return false;
+        }
+    }
+
     // -------------------------------------------------------------------------
     // RULE_TYPE
     // -------------------------------------------------------------------------
@@ -384,7 +403,7 @@ bool SecurityGroup::isValidRule(const VectorAttribute * rule, string& error) con
 
     if (!ip.empty()) //Target as IP & SIZE
     {
-        struct in_addr ip_addr;
+        struct in6_addr ip_addr;
 
         if (rule->vector_value("SIZE", ivalue) != 0)
         {
@@ -392,10 +411,13 @@ bool SecurityGroup::isValidRule(const VectorAttribute * rule, string& error) con
             return false;
         }
 
-        if (inet_pton(AF_INET, ip.c_str(), static_cast<void*>(&ip_addr)) != 1)
+        if (inet_pton(AF_INET6, ip.c_str(), static_cast<void*>(&ip_addr)) != 1)
         {
-            error = "Wrong format for IP value.";
-            return false;
+            if (inet_pton(AF_INET,ip.c_str(),static_cast<void*>(&ip_addr)) != 1)
+            {
+                error = "Wrong format for IP value.";
+                return false;
+            }
         }
     }
     else //Target is ANY or NETWORK_ID
@@ -431,7 +453,7 @@ int SecurityGroup::post_update_template(string& error)
 
     commit(false);
 
-    Nebula::instance().get_lcm()->trigger(LifeCycleManager::UPDATESG, oid);
+    Nebula::instance().get_lcm()->trigger(LCMAction::UPDATESG, oid);
 
     return 0;
 }

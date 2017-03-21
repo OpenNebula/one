@@ -323,6 +323,7 @@ void Nebula::start(bool bootstrap_only)
             rc += GroupQuotas::bootstrap(db);
             rc += SecurityGroupPool::bootstrap(db);
             rc += VirtualRouterPool::bootstrap(db);
+            rc += VMGroupPool::bootstrap(db);
 
             // Create the system tables only if bootstrap went well
             if (rc == 0)
@@ -370,8 +371,8 @@ void Nebula::start(bool bootstrap_only)
         //XML Library
         xmlCleanupParser();
 
-        NebulaLog::log("ONE", Log::INFO, "Database bootstrap finalized, exiting.\n");
-
+        NebulaLog::log("ONE", Log::INFO,
+                "Database bootstrap finalized, exiting.\n");
         return;
     }
 
@@ -596,6 +597,8 @@ void Nebula::start(bool bootstrap_only)
 
         marketpool = new MarketPlacePool(db, is_federation_slave());
         apppool    = new MarketPlaceAppPool(db, is_federation_slave());
+
+        vmgrouppool = new VMGroupPool(db);
 
         default_user_quota.select();
         default_group_quota.select();
@@ -918,7 +921,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- Request Manager ----
     try
     {
-        int  rm_port = 0;
+        string rm_port;
         int  max_conn;
         int  max_conn_backlog;
         int  keepalive_timeout;
@@ -989,11 +992,11 @@ void Nebula::start(bool bootstrap_only)
     // Stop the managers & free resources
     // -----------------------------------------------------------
 
-    vmm->trigger(VirtualMachineManager::FINALIZE,0);
-    lcm->trigger(LifeCycleManager::FINALIZE,0);
+    vmm->finalize();
+    lcm->finalize();
 
-    tm->trigger(TransferManager::FINALIZE,0);
-    dm->trigger(DispatchManager::FINALIZE,0);
+    tm->finalize();
+    dm->finalize();
 
     im->finalize();
     rm->finalize();

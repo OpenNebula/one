@@ -83,7 +83,7 @@ void  DispatchManager::stop_success_action(int vid)
         //Set history action field to perform the right TM command on resume
         if (vm->get_action() == History::NONE_ACTION)
         {
-            vm->set_action(History::STOP_ACTION);
+            vm->set_internal_action(History::STOP_ACTION);
 
             vmpool->update_history(vm);
         }
@@ -120,6 +120,7 @@ void  DispatchManager::undeploy_success_action(int vid)
 
     if ((vm->get_state() == VirtualMachine::ACTIVE) &&
         (vm->get_lcm_state() == VirtualMachine::EPILOG_UNDEPLOY ||
+         vm->get_lcm_state() == VirtualMachine::DISK_RESIZE_UNDEPLOYED ||
          vm->get_lcm_state() == VirtualMachine::PROLOG_UNDEPLOY))
     {
         vm->set_state(VirtualMachine::UNDEPLOYED);
@@ -129,7 +130,7 @@ void  DispatchManager::undeploy_success_action(int vid)
         //Set history action field to perform the right TM command on resume
         if (vm->get_action() == History::NONE_ACTION)
         {
-            vm->set_action(History::UNDEPLOY_ACTION);
+            vm->set_internal_action(History::UNDEPLOY_ACTION);
 
             vmpool->update_history(vm);
         }
@@ -172,6 +173,7 @@ void  DispatchManager::poweroff_success_action(int vid)
          vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_POWEROFF ||
          vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF ||
          vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF ||
+         vm->get_lcm_state() == VirtualMachine::DISK_RESIZE_POWEROFF ||
          vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE))
     {
         vm->set_state(VirtualMachine::POWEROFF);
@@ -202,6 +204,8 @@ void  DispatchManager::done_action(int vid)
     VirtualMachine * vm;
     Template *       tmpl;
 
+    map<int, Template *> ds_quotas;
+
     int uid;
     int gid;
     string deploy_id;
@@ -226,7 +230,9 @@ void  DispatchManager::done_action(int vid)
     {
         vm->release_network_leases();
 
-        vm->release_disk_images();
+        vm->release_vmgroup();
+
+        vm->release_disk_images(ds_quotas);
 
         vm->set_state(VirtualMachine::DONE);
 
@@ -255,6 +261,11 @@ void  DispatchManager::done_action(int vid)
         Quotas::vm_del(uid, gid, tmpl);
 
         delete tmpl;
+
+        if ( !ds_quotas.empty() )
+        {
+            Quotas::ds_del(ds_quotas);
+        }
 
         if (!deploy_id.empty())
         {

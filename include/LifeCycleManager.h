@@ -33,26 +33,18 @@ class TransferManager;
 class DispatchManager;
 class VirtualMachineManager;
 class ImageManager;
+struct RequestAttributes;
 
-/**
- *  The Virtual Machine Life-cycle Manager module. This class is responsible for
- *  managing the life-cycle of a Virtual Machine.
- */
-class LifeCycleManager : public ActionListener
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class LCMAction : public ActionRequest
 {
 public:
 
-    LifeCycleManager():
-        vmpool(0), hpool(0), ipool(0), sgpool(0), clpool(0), tm(0), vmm(0),
-        dm(0), imagem(0)
-    {
-        am.addListener(this);
-    };
-
-    ~LifeCycleManager(){};
-
     enum Actions
     {
+        NONE,
         SAVE_SUCCESS,     /**< Sent by the VMM when a save action succeeds    */
         SAVE_FAILURE,     /**< Sent by the VMM when a save action fails       */
         DEPLOY_SUCCESS,   /**< Sent by the VMM deploy/restore/migrate succeeds*/
@@ -104,11 +96,77 @@ public:
         RESTART,          /**< Sent by the DM to restart a deployed VM        */
         DELETE,           /**< Sent by the DM to delete a VM                  */
         DELETE_RECREATE,  /**< Sent by the DM to cleanup a VM for resubmission*/
-        FINALIZE,
-        UPDATESG,         /**< Sent by RM/VMM to trigger the secgroup update  */
-        DISK_LOCK_SUCCESS,/**< Sent by IM, image moves from locked to ready   */
-        DISK_LOCK_FAILURE,/**< Sent by IM, image moves from locked to error   */
+        UPDATESG,           /**< Sent by RM/VMM to trigger the secgroup update*/
+        DISK_LOCK_SUCCESS,  /**< Sent by IM, image moves from locked to ready */
+        DISK_LOCK_FAILURE,  /**< Sent by IM, image moves from locked to error */
+        DISK_RESIZE_SUCCESS,/**< Sent by TM/VMM when a disk resize succeeds   */
+        DISK_RESIZE_FAILURE /**< Sent by TM/VMM when a disk resize fails      */
     };
+
+    LCMAction(Actions a, int v, int u, int g, int r):
+        ActionRequest(ActionRequest::USER), _action(a), _vm_id(v), _uid(u),
+        _gid(g), _req_id(r){};
+
+    LCMAction(const LCMAction& o):ActionRequest(o._type), _action(o._action),
+        _vm_id(o._vm_id), _uid(o._uid), _gid(o._gid), _req_id(o._req_id){};
+
+    Actions action() const
+    {
+        return _action;
+    }
+
+    int vm_id() const
+    {
+        return _vm_id;
+    }
+
+    int uid() const
+    {
+        return _uid;
+    }
+
+    int gid() const
+    {
+        return _gid;
+    }
+
+    int req_id() const
+    {
+        return _req_id;
+    }
+
+    ActionRequest * clone() const
+    {
+        return new LCMAction(*this);
+    }
+
+private:
+    Actions _action;
+
+    int _vm_id;
+
+    int _uid;
+    int _gid;
+
+    int _req_id;
+};
+
+/**
+ *  The Virtual Machine Life-cycle Manager module. This class is responsible for
+ *  managing the life-cycle of a Virtual Machine.
+ */
+class LifeCycleManager : public ActionListener
+{
+public:
+
+    LifeCycleManager():
+        vmpool(0), hpool(0), ipool(0), sgpool(0), clpool(0), tm(0), vmm(0),
+        dm(0), imagem(0)
+    {
+        am.addListener(this);
+    };
+
+    ~LifeCycleManager(){};
 
     /**
      *  Triggers specific actions to the Life-cycle Manager. This function
@@ -116,10 +174,17 @@ public:
      *    @param action the LCM action
      *    @param vid VM unique id. This is the argument of the passed to the
      *    invoked action.
+     *    @param r RM request attributes to copy to the action request: uid,
+     *    gid and request_id.
      */
-    void trigger(
-        Actions action,
-        int     vid);
+    void trigger(LCMAction::Actions action, int id, const RequestAttributes& r);
+
+    void trigger(LCMAction::Actions action, int id);
+
+    void finalize()
+    {
+        am.finalize();
+    }
 
     /**
      *  This functions starts a new thread for the Life-cycle Manager. This
@@ -148,7 +213,7 @@ public:
      *    @param vm to be recovered
      *    @param success trigger successful transition if true, fail otherwise
      */
-    void recover(VirtualMachine * vm, bool success);
+    void recover(VirtualMachine * vm, bool success, const RequestAttributes& ra);
 
     /**
      *  Retries the last VM operation that lead to a failure. The underlying
@@ -212,21 +277,21 @@ private:
      */
     ImageManager *          imagem;
 
-
     /**
      *  Function to execute the Manager action loop method within a new pthread
      * (requires C linkage)
      */
     friend void * lcm_action_loop(void *arg);
 
-    /**
-     *  The action function executed when an action is triggered.
-     *    @param action the name of the action
-     *    @param arg arguments for the action function
-     */
-    void do_action(
-        const string &  action,
-        void *          arg);
+    // -------------------------------------------------------------------------
+    // Action Listener interface
+    // -------------------------------------------------------------------------
+    void finalize_action(const ActionRequest& ar)
+    {
+        NebulaLog::log("LCM",Log::INFO,"Stopping Life-cycle Manager...");
+    };
+
+    void user_action(const ActionRequest& ar);
 
     /**
      *  Cleans up a VM, canceling any pending or ongoing action and closing
@@ -237,111 +302,101 @@ private:
      * @param image_id If the VM is in the middle of a save as operation, an
      * image may need to be set to error state.
      */
-    void clean_up_vm (VirtualMachine *vm, bool dispose, int& image_id);
+    void clean_up_vm (VirtualMachine *vm, bool dispose, int& image_id,
+            const LCMAction& la);
 
+    // -------------------------------------------------------------------------
+    // Internal Actions, triggered by OpenNebula components & drivers
+    // -------------------------------------------------------------------------
     void save_success_action(int vid);
-
     void save_failure_action(int vid);
 
     void deploy_success_action(int vid);
-
     void deploy_failure_action(int vid);
 
     void shutdown_success_action(int vid);
-
     void shutdown_failure_action(int vid);
 
     void monitor_suspend_action(int vid);
-
     void monitor_done_action(int vid);
-
     void monitor_poweroff_action(int vid);
-
     void monitor_poweron_action(int vid);
 
     void prolog_success_action(int vid);
-
     void prolog_failure_action(int vid);
 
     void epilog_success_action(int vid);
-
     void epilog_failure_action(int vid);
 
     void attach_success_action(int vid);
-
     void attach_failure_action(int vid);
 
     void detach_success_action(int vid);
-
     void detach_failure_action(int vid);
 
     void saveas_success_action(int vid);
-
     void saveas_failure_action(int vid);
 
     void attach_nic_success_action(int vid);
-
     void attach_nic_failure_action(int vid);
 
     void detach_nic_success_action(int vid);
-
     void detach_nic_failure_action(int vid);
 
     void cleanup_callback_action(int vid);
 
     void snapshot_create_success(int vid);
-
     void snapshot_create_failure(int vid);
 
     void snapshot_revert_success(int vid);
-
     void snapshot_revert_failure(int vid);
 
     void snapshot_delete_success(int vid);
-
     void snapshot_delete_failure(int vid);
 
     void disk_snapshot_success(int vid);
-
     void disk_snapshot_failure(int vid);
 
     void disk_lock_success(int vid);
-
     void disk_lock_failure(int vid);
 
-    void deploy_action(int vid);
+    void disk_resize_success(int vid);
+    void disk_resize_failure(int vid);
 
-    void suspend_action(int vid);
+    // -------------------------------------------------------------------------
+    // External Actions, triggered by user requests
+    // -------------------------------------------------------------------------
+    void deploy_action(const LCMAction& la);
 
-    void restore_action(int vid);
+    void suspend_action(const LCMAction& la);
 
-    void stop_action(int vid);
+    void restore_action(const LCMAction& la);
 
-    void checkpoint_action(int vid);
+    void stop_action(const LCMAction& la);
 
-    void migrate_action(int vid);
+    void checkpoint_action(const LCMAction& la);
 
-    void live_migrate_action(int vid);
+    void migrate_action(const LCMAction& la);
 
-    void shutdown_action(int vid, bool hard);
+    void live_migrate_action(const LCMAction& la);
 
-    void undeploy_action(int vid, bool hard);
+    void shutdown_action(const LCMAction& la, bool hard);
 
-    void poweroff_action(int vid);
+    void undeploy_action(const LCMAction& la, bool hard);
 
-    void poweroff_hard_action(int vid);
+    void poweroff_action(const LCMAction& la);
 
-    void poweroff_action(int vid, bool hard);
+    void poweroff_hard_action(const LCMAction& la);
 
-    void updatesg_action(int sgid);
+    void poweroff_action(int vid, bool hard, const LCMAction& la);
 
-    void restart_action(int vid);
+    void updatesg_action(const LCMAction& la);
 
-    void delete_action(int vid);
+    void restart_action(const LCMAction& la);
 
-    void delete_recreate_action(int vid);
+    void delete_action(const LCMAction& la);
 
-    void timer_action();
+    void delete_recreate_action(const LCMAction& la);
 };
 
 #endif /*LIFE_CYCLE_MANAGER_H_*/

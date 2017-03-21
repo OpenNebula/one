@@ -68,7 +68,9 @@ define(function(require) {
                           <th>' + Locale.tr("Host") + '</th>\
                           <th>' + Locale.tr("Datastore") + '</th>\
                           <th>' + Locale.tr("Action") + '</th>\
-                          <th>' + Locale.tr("Reason") + '</th>\
+                          <th>' + Locale.tr("UID") + '</th>\
+                          <th>' + Locale.tr("GID") + '</th>\
+                          <th>' + Locale.tr("ReqID") + '</th>\
                           <th>' + Locale.tr("Change time") + '</th>\
                           <th>' + Locale.tr("Total time") + '</th>\
                           <th colspan="2">' + Locale.tr("Prolog time") + '</th>\
@@ -110,6 +112,10 @@ define(function(require) {
           etime2 = ptime2 == 0 ? now : ptime2;
       var dtime2 = etime2 - stime2;
 
+      var uid = history[i].UID == -1 ? "-":history[i].UID;
+      var gid = history[i].UID == -1 ? "-":history[i].GID;
+      var req_id = history[i].UID == -1 ? "-":history[i].REQUEST_ID;
+
       //end :PTIME
 
       html += '     <tr>\
@@ -117,7 +123,9 @@ define(function(require) {
                         <td style="width:15%">' + Navigation.link(history[i].HOSTNAME, "hosts-tab", history[i].HID) + '</td>\
                         <td style="width:5%">' + Navigation.link(OpenNebula.Datastore.getName(history[i].DS_ID), "datastores-tab", history[i].DS_ID) + '</td>\
                         <td style="width:16%">' + OpenNebula.VM.migrateActionStr(parseInt(history[i].ACTION, 10)) + '</td>\
-                        <td style="width:10%">' + OpenNebula.VM.migrateReasonStr(parseInt(history[i].REASON, 10)) + '</td>\
+                        <td style="width:3%">' + uid + '</td>\
+                        <td style="width:3%">' + gid + '</td>\
+                        <td style="width:3%">' + req_id + '</td>\
                         <td style="width:16%">' + Humanize.prettyTime(history[i].STIME) + '</td>\
                         <td style="width:16%">' + Humanize.prettyDuration(dtime) + '</td>\
                         <td style="width:16%">' + Humanize.prettyDuration(dtime2) + '</td>\

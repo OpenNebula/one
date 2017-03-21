@@ -215,8 +215,10 @@ Request::ErrorCode TemplateChmod::chmod(
 
 	VMTemplate* tmpl = static_cast<VMTemplatePool*>(pool)->get(oid, true);
 
-	vector<VectorAttribute *> disks;
+	vector<VectorAttribute *> vdisks;
 	vector<VectorAttribute *>::iterator i;
+
+    VirtualMachineDisks disks(true);
 
 	set<int> error_ids;
 	set<int> img_ids;
@@ -232,11 +234,13 @@ Request::ErrorCode TemplateChmod::chmod(
 		return NO_EXISTS;
 	}
 
-	tmpl->clone_disks(disks);
+	tmpl->clone_disks(vdisks);
 
 	tmpl->unlock();
 
-	ipool->get_image_ids(disks, img_ids, att.uid);
+    disks.init(vdisks, false);
+
+	disks.get_image_ids(img_ids, att.uid);
 
 	for (set<int>::iterator it = img_ids.begin(); it != img_ids.end(); it++)
 	{
@@ -249,11 +253,6 @@ Request::ErrorCode TemplateChmod::chmod(
 
 			error_ids.insert(*it);
 		}
-	}
-
-	for (i = disks.begin(); i != disks.end() ; i++)
-	{
-		delete *i;
 	}
 
 	if ( !error_ids.empty() )

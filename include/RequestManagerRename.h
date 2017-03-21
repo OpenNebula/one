@@ -114,6 +114,8 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
         auth_object = PoolObjectSQL::VM;
+
+        auth_op     = nd.get_vm_auth_op(History::RENAME_ACTION);
     };
 
     ~VirtualMachineRename(){};
@@ -404,5 +406,24 @@ public:
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+class VMGroupRename: public RequestManagerRename
+{
+public:
+    VMGroupRename():
+        RequestManagerRename("VMGroupRename", "Renames a vm group")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vmgrouppool();
+        auth_object = PoolObjectSQL::VMGROUP;
+    };
+
+    ~VMGroupRename(){};
+
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return static_cast<VMGroupPool*>(pool)->get(name, uid, lock);
+    };
+};
 
 #endif

@@ -37,7 +37,7 @@ module OpenNebula
         SELF = -1
 
         # Default resource ACL's for group users (create)
-        GROUP_DEFAULT_ACLS = "VM+IMAGE+TEMPLATE+DOCUMENT+SECGROUP+VROUTER"
+        GROUP_DEFAULT_ACLS = "VM+IMAGE+TEMPLATE+DOCUMENT+SECGROUP+VROUTER+VMGROUP"
 
         # The default view for group and group admins, must be defined in
         # sunstone_views.yaml
@@ -104,14 +104,14 @@ module OpenNebula
             end
 
             # Allocate group
-            rc = self.allocate(group_hash[:name])
+            rc = allocate(group_hash[:name])
             return rc if OpenNebula.is_error?(rc)
 
             # Set group ACLs to create resources
             rc, msg = create_default_acls(group_hash[:resources])
 
             if OpenNebula.is_error?(rc)
-                self.delete
+                delete
                 error_msg =  "Error creating group ACL's: #{rc.message}"
                 return OpenNebula::Error.new(error_msg)
             end
@@ -119,7 +119,7 @@ module OpenNebula
             # Set group ACLs to share resources
             if group_hash[:shared_resources]
                 acls = Array.new
-                acls << "@#{self.id} #{group_hash[:shared_resources]}/@#{self.id} USE"
+                acls << "@#{id} #{group_hash[:shared_resources]}/@#{id} USE"
 
                 rc, msg = create_group_acls(acls)
 
@@ -134,7 +134,7 @@ module OpenNebula
             rc = create_admin_user(group_hash)
 
             if OpenNebula.is_error?(rc)
-                self.delete
+                delete
                 error_msg =  "Error creating admin user: #{rc.message}"
                 return OpenNebula::Error.new(error_msg)
             end
@@ -163,10 +163,40 @@ module OpenNebula
                 sunstone_attrs << "GROUP_ADMIN_DEFAULT_VIEW=#{GROUP_ADMIN_SUNSTONE_VIEWS}"
             end
 
+            do_update = false
+
             if sunstone_attrs.length > 0
-                rc = self.update("SUNSTONE=[#{sunstone_attrs.join(",\n")}]", true)
+                do_update = true
+
+                update_str = "SUNSTONE=[#{sunstone_attrs.join(",\n")}]\n"
+            end
+
+            opennebula_attrs = []
+
+            # Persistency attributes for new images
+            if group_hash[:opennebula]
+                if group_hash[:opennebula][:default_image_persistent]
+                    opennebula_attrs << "DEFAULT_IMAGE_PERSISTENT=\""\
+                        "#{group_hash[:opennebula][:default_image_persistent]}\""
+                end
+
+                if group_hash[:opennebula][:default_image_persistent_new]
+                    opennebula_attrs << "DEFAULT_IMAGE_PERSISTENT_NEW=\""\
+                        "#{group_hash[:opennebula][:default_image_persistent_new]}\""
+                end
+            end
+
+            if opennebula_attrs.length > 0
+                do_update = true
+
+                update_str += "OPENNEBULA=[#{opennebula_attrs.join(",\n")}]\n"
+            end
+
+            if do_update
+                rc = update(update_str, true)
+
                 if OpenNebula.is_error?(rc)
-                    self.delete
+                    delete
                     error_msg =  "Error updating group template: #{rc.message}"
                     return OpenNebula::Error.new(error_msg)
                 end

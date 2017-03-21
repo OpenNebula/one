@@ -25,6 +25,8 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var Notifier = require('utils/notifier');
   var Graphs = require('utils/graphs');
+  require('flot.navigate');
+  require('flot.canvas');
   var StateActions = require('../utils/state-actions');
   var OpenNebulaVM = require('opennebula/vm');
   var SecGroupsCommon = require('tabs/secgroups-tab/utils/common');
@@ -474,8 +476,8 @@ define(function(require) {
 
           for (var i = 0; i < vmGraphs.length; i++) {
             Graphs.plot(response, vmGraphs[i]);
-          }
-        },
+            }
+          },
         error: Notifier.onError
       });
     }

@@ -84,7 +84,9 @@ define(function(require) {
     $('#confirm_proceed', dialog).val(actionId);
     $('#confirm_tip', dialog).text(tip);
 
-    if(button && button.text) {
+    if(button && button.text && button.icon) {
+      $('.subheader', dialog).html(button.icon + button.text);
+    } else if(button && button.text){
       $('.subheader', dialog).html(button.text);
     }
 

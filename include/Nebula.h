@@ -37,6 +37,7 @@
 #include "VirtualRouterPool.h"
 #include "MarketPlacePool.h"
 #include "MarketPlaceAppPool.h"
+#include "VMGroupPool.h"
 
 #include "VirtualMachineManager.h"
 #include "LifeCycleManager.h"
@@ -154,6 +155,11 @@ public:
     MarketPlaceAppPool * get_apppool()
     {
         return apppool;
+    };
+
+    VMGroupPool * get_vmgrouppool()
+    {
+        return vmgrouppool;
     };
 
     // --------------------------------------------------------------
@@ -415,6 +421,73 @@ public:
     };
 
     /**
+     *  Gets a user-configurable attribute for oned. Users (and groups) may
+     *  store oned attributes in the "OPENNEBULA" vector. This function gets
+     *  the value querying first the user, then the group and finally oned.conf
+     *    @param uid of the user, if -1 the user template is not considered
+     *    @param gid of the group
+     *    @param name of the attribute
+     *    @param value of the attribute
+     *
+     *    @return 0 on success -1 otherwise
+     */
+    template<typename T>
+    int get_configuration_attribute(int uid, int gid, const std::string& name,
+            T& value) const
+    {
+        if ( uid != -1 )
+        {
+            User * user = upool->get(uid, true);
+
+            if ( user == 0 )
+            {
+                return -1;
+            }
+
+            const VectorAttribute * uconf;
+
+            uconf = user->get_template_attribute("OPENNEBULA");
+
+            if ( uconf != 0 )
+            {
+                if ( uconf->vector_value(name, value) == 0 )
+                {
+                    user->unlock();
+                    return 0;
+                }
+            }
+
+            user->unlock();
+        }
+
+        Group * group = gpool->get(gid, true);
+
+        if ( group == 0 )
+        {
+            return -1;
+        }
+
+        const VectorAttribute * gconf;
+
+        gconf = group->get_template_attribute("OPENNEBULA");
+
+        if ( gconf != 0 )
+        {
+            if ( gconf->vector_value(name, value) == 0 )
+            {
+                group->unlock();
+                return 0;
+            }
+        }
+
+        group->unlock();
+
+        nebula_configuration->get(name, value);
+
+        return 0;
+    }
+
+    /**
      *  Gets a DS configuration attribute
      */
     int get_ds_conf_attribute(const std::string& ds_name,
@@ -450,6 +523,15 @@ public:
     {
         return get_conf_attribute("AUTH_MAD_CONF", driver, attribute, value);
     };
+
+    /**
+     *  Return the Authorization operation for a VM action
+     *
+     */
+    AuthRequest::Operation get_vm_auth_op(History::VMAction action)
+    {
+        return nebula_configuration->get_vm_auth_op(action);
+    }
 
     /**
      *  Gets an XML document with all of the configuration attributes
@@ -580,10 +662,10 @@ private:
                             "/DEFAULT_GROUP_QUOTAS/VM_QUOTA"),
         system_db(0), db(0),
         vmpool(0), hpool(0), vnpool(0), upool(0), ipool(0), gpool(0), tpool(0),
-        dspool(0), clpool(0), docpool(0), zonepool(0),
-        secgrouppool(0), vdcpool(0), vrouterpool(0), marketpool(0), apppool(0),
-        lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0), authm(0),
-        aclm(0), imagem(0), marketm(0), ipamm(0)
+        dspool(0), clpool(0), docpool(0), zonepool(0), secgrouppool(0),
+        vdcpool(0), vrouterpool(0), marketpool(0), apppool(0), vmgrouppool(0),
+        lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0), authm(0), aclm(0),
+        imagem(0), marketm(0), ipamm(0)
     {
         const char * nl = getenv("ONE_LOCATION");
 
@@ -634,6 +716,7 @@ private:
         delete vrouterpool;
         delete marketpool;
         delete apppool;
+        delete vmgrouppool;
         delete vmm;
         delete lcm;
         delete im;
@@ -718,6 +801,7 @@ private:
     VirtualRouterPool  * vrouterpool;
     MarketPlacePool    * marketpool;
     MarketPlaceAppPool * apppool;
+    VMGroupPool        * vmgrouppool;
 
     // ---------------------------------------------------------------
     // Nebula Managers

@@ -118,6 +118,9 @@ define(function(require) {
     "DISK_SNAPSHOT_DELETE",
     "PROLOG_MIGRATE_UNKNOWN",
     "PROLOG_MIGRATE_UNKNOWN_FAILURE",
+    "DISK_RESIZE",
+    "DISK_RESIZE_POWEROFF",
+    "DISK_RESIZE_UNDEPLOYED"
   ];
 
   var LCM_STATES = {
@@ -182,7 +185,10 @@ define(function(require) {
     //DISK_SNAPSHOT_REVERT          : 58,
     DISK_SNAPSHOT_DELETE            : 59,
     PROLOG_MIGRATE_UNKNOWN          : 60,
-    PROLOG_MIGRATE_UNKNOWN_FAILURE  : 61
+    PROLOG_MIGRATE_UNKNOWN_FAILURE  : 61,
+    DISK_RESIZE                     : 62,
+    DISK_RESIZE_POWEROFF            : 63,
+    DISK_RESIZE_UNDEPLOYED          : 64
   };
 
   var SHORT_LCM_STATES_STR = [
@@ -248,6 +254,9 @@ define(function(require) {
     Locale.tr("SNAPSHOT"),  // DISK_SNAPSHOT_DELETE
     Locale.tr("MIGRATE"),   // PROLOG_MIGRATE_UNKNOWN
     Locale.tr("FAILURE"),   // PROLOG_MIGRATE_UNKNOWN_FAILURE
+    Locale.tr("DISK_RSZ"),  // DISK_RESIZE
+    Locale.tr("DISK_RSZ"),  // DISK_RESIZE_POWEROFF
+    Locale.tr("DISK_RSZ")   // DISK_RESIZE_UNDEPLOYED
   ];
 
   var VNC_STATES = [
@@ -263,7 +272,10 @@ define(function(require) {
     LCM_STATES.HOTPLUG_SAVEAS,
     LCM_STATES.HOTPLUG_SAVEAS_POWEROFF,
     LCM_STATES.HOTPLUG_SAVEAS_SUSPENDED,
-    LCM_STATES.SHUTDOWN_UNDEPLOY
+    LCM_STATES.SHUTDOWN_UNDEPLOY,
+    LCM_STATES.DISK_SNAPSHOT,
+    LCM_STATES.DISK_SNAPSHOT_REVERT,
+    LCM_STATES.DISK_RESIZE
   ];
 
   var EXTERNAL_IP_ATTRS = [
@@ -277,6 +289,7 @@ define(function(require) {
 
   var NIC_IP_ATTRS = [
     "IP",
+    "IP6",
     "IP6_GLOBAL",
     "IP6_ULA",
     "VROUTER_IP",
@@ -294,12 +307,6 @@ define(function(require) {
     'AWS_SECURITY_GROUPS',
     'AZ_IPADDRESS',
     'SL_PRIMARYIPADDRESS'
-  ];
-
-  var MIGRATE_REASON = [
-    "NONE",
-    "ERROR",
-    "USER"
   ];
 
   var MIGRATE_ACTION_STR = [
@@ -331,7 +338,23 @@ define(function(require) {
     "snap-create",         // DISK_SNAPSHOT_CREATE_ACTION = 25
     "snap-delete",         // DISK_SNAPSHOT_DELETE_ACTION = 26
     "terminate",           // TERMINATE_ACTION       = 27
-    "terminate-hard"       // TERMINATE_HARD_ACTION  = 28
+    "terminate-hard",      // TERMINATE_HARD_ACTION  = 28
+    "disk-resize",         // DISK_RESIZE_ACTION     = 29
+    "deploy",              // DEPLOY_ACTION          = 30
+    "chown",               // CHOWN_ACTION           = 31
+    "chmod",               // CHMOD_ACTION           = 32
+    "updateconf",          // UPDATECONF_ACTION      = 33
+    "rename",              // RENAME_ACTION          = 34
+    "resize",              // RESIZE_ACTION          = 35
+    "update",              // UPDATE_ACTION          = 36
+    "snapshot-create",     // SNAPSHOT_CREATE_ACTION = 37
+    "snapshot-delete",     // SNAPSHOT_DELETE_ACTION = 38
+    "snapshot-revert",     // SNAPSHOT_REVERT_ACTION = 39
+    "disk-saveas",         // DISK_SAVEAS_ACTION     = 40
+    "disk-snapshot-revert",// DISK_SNAPSHOT_REVERT_ACTION = 41
+    "recover",             // RECOVER_ACTION         = 42
+    "retry",               // RETRY_ACTION           = 43
+    "monitor",             // MONITOR_ACTION         = 44
   ];
 
   var VM = {
@@ -493,6 +516,10 @@ define(function(require) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "resize", action_obj);
     },
+    "disk_resize" : function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "disk_resize", action_obj);
+    },
     "attachdisk" : function(params) {
       var action_obj = {"disk_template": params.data.extra_param};
       OpenNebulaAction.simple_action(params, RESOURCE, "attachdisk", action_obj);
@@ -604,9 +631,6 @@ define(function(require) {
     },
     "migrateActionStr": function(stateId) {
       return MIGRATE_ACTION_STR[stateId];
-    },
-    "migrateReasonStr": function(stateId) {
-      return MIGRATE_REASON[stateId];
     },
     "ipsStr": ipsStr,
     "retrieveExternalIPs": retrieveExternalIPs,

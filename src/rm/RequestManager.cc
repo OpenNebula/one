@@ -54,9 +54,8 @@
 
 #include <sys/signal.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <arpa/inet.h>
+#include <sys/types.h>
+#include <netdb.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
@@ -64,15 +63,15 @@
 
 
 RequestManager::RequestManager(
-        int _port,
+        const string& _port,
         int _max_conn,
         int _max_conn_backlog,
         int _keepalive_timeout,
         int _keepalive_max_conn,
         int _timeout,
-        const string _xml_log_file,
-        const string call_log_format,
-        const string _listen_address,
+        const string& _xml_log_file,
+        const string& call_log_format,
+        const string& _listen_address,
         int message_size):
             port(_port),
             socket_fd(-1),
@@ -108,7 +107,7 @@ extern "C" void * rm_action_loop(void *arg)
 
     rm = static_cast<RequestManager *>(arg);
 
-    rm->am.loop(0,0);
+    rm->am.loop();
 
     NebulaLog::log("ReM",Log::INFO,"Request Manager stopped.");
 
@@ -167,11 +166,29 @@ extern "C" void * rm_xml_server_loop(void *arg)
 
 int RequestManager::setup_socket()
 {
-    int                 rc;
-    int                 yes = 1;
-    struct sockaddr_in  rm_addr;
+    int rc;
+    int yes = 1;
 
-    socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+    struct addrinfo hints = {0};
+    struct addrinfo * result;
+
+    hints.ai_family   = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags    = AI_PASSIVE;
+
+    rc = getaddrinfo(listen_address.c_str(), port.c_str(), &hints, &result);
+
+    if ( rc != 0 )
+    {
+        ostringstream oss;
+
+        oss << "Cannot open server socket: " << gai_strerror(rc);
+        NebulaLog::log("ReM",Log::ERROR,oss);
+
+        return -1;
+    }
+
+    socket_fd = socket(result->ai_family, result->ai_socktype, 0);
 
     if ( socket_fd == -1 )
     {
@@ -179,6 +196,8 @@ int RequestManager::setup_socket()
 
         oss << "Cannot open server socket: " << strerror(errno);
         NebulaLog::log("ReM",Log::ERROR,oss);
+
+        freeaddrinfo(result);
 
         return -1;
     }
@@ -194,35 +213,24 @@ int RequestManager::setup_socket()
 
         close(socket_fd);
 
+        freeaddrinfo(result);
+
         return -1;
     }
 
     fcntl(socket_fd,F_SETFD,FD_CLOEXEC); // Close socket in MADs
 
-    rm_addr.sin_family      = AF_INET;
-    rm_addr.sin_port        = htons(port);
+    rc = bind(socket_fd, result->ai_addr, result->ai_addrlen);
 
-    rc = inet_aton(listen_address.c_str(), &rm_addr.sin_addr);
-
-    if ( rc == 0 )
-    {
-        ostringstream oss;
-
-        oss << "Invalid listen address: " << listen_address;
-        NebulaLog::log("ReM",Log::ERROR,oss);
-
-        close(socket_fd);
-
-        return -1;
-    }
-
-    rc = bind(socket_fd,(struct sockaddr *) &(rm_addr),sizeof(struct sockaddr));
+    freeaddrinfo(result);
 
     if ( rc == -1)
     {
         ostringstream oss;
 
-        oss << "Cannot bind to " << listen_address << ":" << port << " : " << strerror(errno);
+        oss << "Cannot bind to " << listen_address << ":" << port << " : "
+            << strerror(errno);
+
         NebulaLog::log("ReM",Log::ERROR,oss);
 
         close(socket_fd);
@@ -271,39 +279,6 @@ int RequestManager::start()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RequestManager::do_action(
-        const string &  action,
-        void *          arg)
-{
-    if (action == ACTION_FINALIZE)
-    {
-        NebulaLog::log("ReM",Log::INFO,"Stopping Request Manager...");
-
-        pthread_cancel(rm_xml_server_thread);
-
-        pthread_join(rm_xml_server_thread,0);
-
-        NebulaLog::log("ReM",Log::INFO,"XML-RPC server stopped.");
-
-        delete AbyssServer;
-
-        if ( socket_fd != -1 )
-        {
-            close(socket_fd);
-        }
-    }
-    else
-    {
-        ostringstream oss;
-        oss << "Unknown action name: " << action;
-
-        NebulaLog::log("ReM", Log::ERROR, oss);
-    }
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void RequestManager::register_xml_methods()
 {
     Nebula& nebula = Nebula::instance();
@@ -330,6 +305,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vm_dsnap_delete(new VirtualMachineDiskSnapshotDelete());
     xmlrpc_c::methodPtr vm_recover(new VirtualMachineRecover());
     xmlrpc_c::methodPtr vm_updateconf(new VirtualMachineUpdateConf());
+    xmlrpc_c::methodPtr vm_disk_resize(new VirtualMachineDiskResize());
 
     xmlrpc_c::methodPtr vm_pool_acct(new VirtualMachinePoolAccounting());
     xmlrpc_c::methodPtr vm_pool_monitoring(new VirtualMachinePoolMonitoring());
@@ -357,6 +333,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr cluster_update(new ClusterUpdateTemplate());
     xmlrpc_c::methodPtr secg_update(new SecurityGroupUpdateTemplate());
     xmlrpc_c::methodPtr vrouter_update(new VirtualRouterUpdateTemplate());
+    xmlrpc_c::methodPtr vmg_update(new VMGroupUpdateTemplate());
 
     // Allocate Methods
     xmlrpc_c::methodPtr vm_allocate(new VirtualMachineAllocate());
@@ -369,6 +346,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr doc_allocate(new DocumentAllocate());
     xmlrpc_c::methodPtr secg_allocate(new SecurityGroupAllocate());
     xmlrpc_c::methodPtr vrouter_allocate(new VirtualRouterAllocate());
+    xmlrpc_c::methodPtr vmg_allocate(new VMGroupAllocate());
 
     // Clone Methods
     xmlrpc_c::methodPtr template_clone(new VMTemplateClone());
@@ -385,6 +363,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr doc_delete(new DocumentDelete());
     xmlrpc_c::methodPtr secg_delete(new SecurityGroupDelete());
     xmlrpc_c::methodPtr vrouter_delete(new VirtualRouterDelete());
+    xmlrpc_c::methodPtr vmg_delete(new VMGroupDelete());
 
     // Info Methods
     xmlrpc_c::methodPtr vm_info(new VirtualMachineInfo());
@@ -397,6 +376,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr doc_info(new DocumentInfo());
     xmlrpc_c::methodPtr secg_info(new SecurityGroupInfo());
     xmlrpc_c::methodPtr vrouter_info(new VirtualRouterInfo());
+    xmlrpc_c::methodPtr vmg_info(new VMGroupInfo());
 
     // Lock Methods
     xmlrpc_c::methodPtr doc_lock(new DocumentLock());
@@ -412,6 +392,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr clusterpool_info(new ClusterPoolInfo());
     xmlrpc_c::methodPtr docpool_info(new DocumentPoolInfo());
     xmlrpc_c::methodPtr secgpool_info(new SecurityGroupPoolInfo());
+    xmlrpc_c::methodPtr vmgpool_info(new VMGroupPoolInfo());
     xmlrpc_c::methodPtr vrouter_pool_info(new VirtualRouterPoolInfo());
 
     // Host Methods
@@ -440,6 +421,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr doc_chown(new DocumentChown());
     xmlrpc_c::methodPtr secg_chown(new SecurityGroupChown());
     xmlrpc_c::methodPtr vrouter_chown(new VirtualRouterChown());
+    xmlrpc_c::methodPtr vmg_chown(new VMGroupChown());
 
     // Chmod Methods
     xmlrpc_c::methodPtr vm_chmod(new VirtualMachineChmod());
@@ -450,6 +432,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr doc_chmod(new DocumentChmod());
     xmlrpc_c::methodPtr secg_chmod(new SecurityGroupChmod());
     xmlrpc_c::methodPtr vrouter_chmod(new VirtualRouterChmod());
+    xmlrpc_c::methodPtr vmg_chmod(new VMGroupChmod());
 
     // Cluster Methods
     xmlrpc_c::methodPtr cluster_addhost(new ClusterAddHost());
@@ -474,6 +457,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr host_rename(new HostRename());
     xmlrpc_c::methodPtr secg_rename(new SecurityGroupRename());
     xmlrpc_c::methodPtr vrouter_rename(new VirtualRouterRename());
+    xmlrpc_c::methodPtr vmg_rename(new VMGroupRename());
 
     // Virtual Router Methods
     xmlrpc_c::methodPtr vrouter_instantiate(new VirtualRouterInstantiate());
@@ -508,6 +492,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.disksnapshotdelete", vm_dsnap_delete);
     RequestManagerRegistry.addMethod("one.vm.recover", vm_recover);
     RequestManagerRegistry.addMethod("one.vm.updateconf", vm_updateconf);
+    RequestManagerRegistry.addMethod("one.vm.diskresize", vm_disk_resize);
 
     RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);
     RequestManagerRegistry.addMethod("one.vmpool.accounting", vm_pool_acct);
@@ -818,6 +803,18 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.secgroup.commit",  secg_commit);
 
     RequestManagerRegistry.addMethod("one.secgrouppool.info",secgpool_info);
+
+    /* VM Group objects related methods*/
+
+    RequestManagerRegistry.addMethod("one.vmgroup.allocate", vmg_allocate);
+    RequestManagerRegistry.addMethod("one.vmgroup.delete",   vmg_delete);
+    RequestManagerRegistry.addMethod("one.vmgroup.info",     vmg_info);
+    RequestManagerRegistry.addMethod("one.vmgroup.chown",    vmg_chown);
+    RequestManagerRegistry.addMethod("one.vmgroup.chmod",    vmg_chmod);
+    RequestManagerRegistry.addMethod("one.vmgroup.rename",   vmg_rename);
+    RequestManagerRegistry.addMethod("one.vmgroup.update",   vmg_update);
+
+    RequestManagerRegistry.addMethod("one.vmgrouppool.info", vmgpool_info);
 
     /* Vdc related methods */
 

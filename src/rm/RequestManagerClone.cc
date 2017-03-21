@@ -147,15 +147,15 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
 
 	TemplateDelete tmpl_delete;
 
-    Nebula&         nd    = Nebula::instance();
-    ImagePool*      ipool = nd.get_ipool();
     VMTemplatePool* tpool = static_cast<VMTemplatePool*>(pool);
 
     vector<int> new_ids;
 
     int ndisk = 0;
-    vector<VectorAttribute *> disks;
-    vector<VectorAttribute *>::iterator it;
+    vector<VectorAttribute *> vdisks;
+
+    VirtualMachineDisks disks(false);
+    VirtualMachineDisks::disk_iterator disk;
 
     RequestAttributes del_att(att);
     RequestAttributes img_att(att);
@@ -170,16 +170,18 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
         return ACTION;
     }
 
-    vmtmpl->clone_disks(disks);
+    vmtmpl->clone_disks(vdisks);
 
     vmtmpl->unlock();
 
-    for (it = disks.begin(); it != disks.end(); it++)
+    disks.init(vdisks, false);
+
+    for ( disk = disks.begin(); disk != disks.end() ; ++disk )
     {
         int img_id;
         int new_img_id;
 
-        if (ipool->get_image_id(*it, img_id, att.uid) == 0)
+        if ( (*disk)->get_image_id(img_id, att.uid) == 0)
         {
             ostringstream oss;
 
@@ -209,11 +211,11 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
                 goto error_images;
             }
 
-            (*it)->remove("IMAGE");
-            (*it)->remove("IMAGE_UNAME");
-            (*it)->remove("IMAGE_UID");
+            (*disk)->remove("IMAGE");
+            (*disk)->remove("IMAGE_UNAME");
+            (*disk)->remove("IMAGE_UID");
 
-            (*it)->replace("IMAGE_ID", new_img_id);
+            (*disk)->replace("IMAGE_ID", new_img_id);
 
             new_ids.push_back(new_img_id);
         }
@@ -230,7 +232,7 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
         goto error_template;
     }
 
-    vmtmpl->replace_disks(disks);
+    vmtmpl->replace_disks(vdisks);
 
     tpool->update(vmtmpl);
 
@@ -255,7 +257,8 @@ error_template:
         }
     }
 
-    for (it = disks.begin(); it != disks.end() ; it++)
+    for (vector<VectorAttribute *>::iterator it = vdisks.begin();
+            it != vdisks.end() ; it++)
     {
         delete *it;
     }

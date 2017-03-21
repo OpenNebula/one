@@ -111,7 +111,7 @@ void TransferManagerDriver::protocol(const string& message) const
         Nebula              &ne = Nebula::instance();
         LifeCycleManager *  lcm = ne.get_lcm();
 
-        LifeCycleManager::Actions lcm_action;
+        LCMAction::Actions lcm_action;
 
         if (result == "SUCCESS")
         {
@@ -124,28 +124,28 @@ void TransferManagerDriver::protocol(const string& message) const
                 case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
                 case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
                 case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
-                    lcm_action = LifeCycleManager::PROLOG_SUCCESS;
+                    lcm_action = LCMAction::PROLOG_SUCCESS;
                     break;
 
                 case VirtualMachine::EPILOG:
                 case VirtualMachine::EPILOG_STOP:
                 case VirtualMachine::EPILOG_UNDEPLOY:
                 case VirtualMachine::CLEANUP_RESUBMIT:
-                    lcm_action = LifeCycleManager::EPILOG_SUCCESS;
+                    lcm_action = LCMAction::EPILOG_SUCCESS;
                     break;
 
                 case VirtualMachine::HOTPLUG_SAVEAS:
                 case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
                 case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
-                    lcm_action = LifeCycleManager::SAVEAS_SUCCESS;
+                    lcm_action = LCMAction::SAVEAS_SUCCESS;
                     break;
 
                 case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
-                    lcm_action = LifeCycleManager::ATTACH_SUCCESS;
+                    lcm_action = LCMAction::ATTACH_SUCCESS;
                     break;
 
                 case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
-                    lcm_action = LifeCycleManager::DETACH_SUCCESS;
+                    lcm_action = LCMAction::DETACH_SUCCESS;
                     break;
 
                 case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
@@ -155,7 +155,12 @@ void TransferManagerDriver::protocol(const string& message) const
                 case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
                 case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
                 case VirtualMachine::DISK_SNAPSHOT_DELETE:
-                    lcm_action = LifeCycleManager::DISK_SNAPSHOT_SUCCESS;
+                    lcm_action = LCMAction::DISK_SNAPSHOT_SUCCESS;
+                    break;
+
+                case VirtualMachine::DISK_RESIZE_POWEROFF:
+                case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
+                    lcm_action = LCMAction::DISK_RESIZE_SUCCESS;
                     break;
 
                 default:
@@ -190,28 +195,28 @@ void TransferManagerDriver::protocol(const string& message) const
                 case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
                 case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
                 case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
-                    lcm_action = LifeCycleManager::PROLOG_FAILURE;
+                    lcm_action = LCMAction::PROLOG_FAILURE;
                     break;
 
                 case VirtualMachine::EPILOG:
                 case VirtualMachine::EPILOG_STOP:
                 case VirtualMachine::EPILOG_UNDEPLOY:
                 case VirtualMachine::CLEANUP_RESUBMIT:
-                    lcm_action = LifeCycleManager::EPILOG_FAILURE;
+                    lcm_action = LCMAction::EPILOG_FAILURE;
                     break;
 
                 case VirtualMachine::HOTPLUG_SAVEAS:
                 case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
                 case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
-                    lcm_action = LifeCycleManager::SAVEAS_FAILURE;
+                    lcm_action = LCMAction::SAVEAS_FAILURE;
                     break;
 
                 case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
-                    lcm_action = LifeCycleManager::ATTACH_FAILURE;
+                    lcm_action = LCMAction::ATTACH_FAILURE;
                     break;
 
                 case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
-                    lcm_action = LifeCycleManager::DETACH_FAILURE;
+                    lcm_action = LCMAction::DETACH_FAILURE;
                     break;
 
                 case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
@@ -221,7 +226,12 @@ void TransferManagerDriver::protocol(const string& message) const
                 case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
                 case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
                 case VirtualMachine::DISK_SNAPSHOT_DELETE:
-                    lcm_action = LifeCycleManager::DISK_SNAPSHOT_FAILURE;
+                    lcm_action = LCMAction::DISK_SNAPSHOT_FAILURE;
+                    break;
+
+                case VirtualMachine::DISK_RESIZE_POWEROFF:
+                case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
+                    lcm_action = LCMAction::DISK_RESIZE_FAILURE;
                     break;
 
                 default:

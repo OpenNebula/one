@@ -18,6 +18,10 @@
 #define NEBULA_TEMPLATE_H_
 
 #include "Template.h"
+#include "ActionSet.h"
+#include "AuthRequest.h"
+#include "History.h"
+
 #include <map>
 
 /**
@@ -36,7 +40,7 @@ public:
     /**
      *  Parse and loads the configuration in the template
      */
-    int load_configuration();
+    virtual int load_configuration();
 
 protected:
     /**
@@ -80,6 +84,17 @@ public:
      */
     int load_key();
 
+    /**
+     *  Parse and loads the configuration in the template
+     */
+    virtual int load_configuration();
+
+    /**
+     *  @param  action
+     *  @return authorization operation configured for the given VM action
+     */
+    AuthRequest::Operation get_vm_auth_op(History::VMAction action);
+
 private:
     /**
      *  Name for the configuration file, oned.conf
@@ -90,6 +105,21 @@ private:
      *  Path for the var directory, for defaults
      */
     string var_location;
+
+    /**
+     *  Set of VM actions that require USE permission
+     */
+    ActionSet<History::VMAction> vm_use_actions;
+
+    /**
+     *  Set of VM actions that require MANAGE permission
+     */
+    ActionSet<History::VMAction> vm_manage_actions;
+
+    /**
+     *  Set of VM actions that require ADMIN permission
+     */
+    ActionSet<History::VMAction> vm_admin_actions;
 
     /**
      *  Sets the defaults value for the template
@@ -140,6 +170,11 @@ private:
                        const std::string& change_password,
                        const std::string& driver_managed_groups,
                        const std::string& max_token_time);
+
+    /**
+     *  Sets auth permissions for vm operations
+     */
+    int set_vm_auth_ops(std::string& error);
 };
 
 

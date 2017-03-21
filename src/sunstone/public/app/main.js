@@ -58,6 +58,8 @@ require.config({
     /* Flot Graphs */
     'flot': '../bower_components/flot/jquery.flot',
     'flot.stack': '../bower_components/flot/jquery.flot.stack',
+    'flot.navigate': '../bower_components/flot/jquery.flot.navigate',
+    'flot.canvas': '../bower_components/flot/jquery.flot.canvas',
     'flot.resize': '../bower_components/flot/jquery.flot.resize',
     'flot.time': '../bower_components/flot/jquery.flot.time',
     'flot.tooltip': '../bower_components/flot.tooltip/js/jquery.flot.tooltip',
@@ -152,7 +154,8 @@ require.config({
         'tabs/secgroups-tab',
         'tabs/settings-tab',
         'tabs/support-tab',
-        'tabs/upgrade-top-tab'
+        'tabs/upgrade-top-tab',
+        'tabs/vmgroup-tab'
       ]
     },
 

@@ -35,10 +35,10 @@ class OneDB
             @backend = BackEndSQLite.new(ops[:sqlite])
         elsif ops[:backend] == :mysql
             begin
-                require 'mysql'
+                require 'mysql2'
             rescue LoadError
-                STDERR.puts "Ruby gem mysql is needed for this operation:"
-                STDERR.puts "  $ sudo gem install mysql"
+                STDERR.puts "Ruby gem mysql2 is needed for this operation:"
+                STDERR.puts "  $ sudo gem install mysql2"
                 exit -1
             end
 

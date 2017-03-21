@@ -63,8 +63,6 @@ void  LifeCycleManager::save_success_action(int vid)
 
         vm->set_previous_running_etime(the_time);
 
-        vm->set_previous_reason(History::USER);
-
         vmpool->update_previous_history(vm);
 
         vm->set_prolog_stime(the_time);
@@ -77,7 +75,7 @@ void  LifeCycleManager::save_success_action(int vid)
 
         //----------------------------------------------------
 
-        tm->trigger(TransferManager::PROLOG_MIGR,vid);
+        tm->trigger(TMAction::PROLOG_MIGR,vid);
     }
     else if (vm->get_lcm_state() == VirtualMachine::SAVE_SUSPEND)
     {
@@ -102,13 +100,11 @@ void  LifeCycleManager::save_success_action(int vid)
 
         vm->set_vm_info();
 
-        vm->set_reason(History::USER);
-
         vmpool->update_history(vm);
 
         //----------------------------------------------------
 
-        dm->trigger(DispatchManager::SUSPEND_SUCCESS,vid);
+        dm->trigger(DMAction::SUSPEND_SUCCESS,vid);
     }
     else if ( vm->get_lcm_state() == VirtualMachine::SAVE_STOP)
     {
@@ -133,13 +129,11 @@ void  LifeCycleManager::save_success_action(int vid)
 
         vm->set_running_etime(the_time);
 
-        vm->set_reason(History::USER);
-
         vmpool->update_history(vm);
 
         //----------------------------------------------------
 
-        tm->trigger(TransferManager::EPILOG_STOP,vid);
+        tm->trigger(TMAction::EPILOG_STOP,vid);
     }
     else
     {
@@ -180,8 +174,6 @@ void  LifeCycleManager::save_failure_action(int vid)
 
         vm->set_vm_info();
 
-        vm->set_reason(History::ERROR);
-
         vmpool->update_history(vm);
 
         vm->get_requirements(cpu, mem, disk, pci);
@@ -193,8 +185,6 @@ void  LifeCycleManager::save_failure_action(int vid)
         vm->set_previous_vm_info();
 
         vm->set_previous_running_etime(the_time);
-
-        vm->set_previous_reason(History::USER);
 
         vmpool->update_previous_history(vm);
 
@@ -217,7 +207,7 @@ void  LifeCycleManager::save_failure_action(int vid)
 
         //----------------------------------------------------
 
-        vmm->trigger(VirtualMachineManager::POLL,vid);
+        vmm->trigger(VMMAction::POLL,vid);
     }
     else if ( vm->get_lcm_state() == VirtualMachine::SAVE_SUSPEND ||
               vm->get_lcm_state() == VirtualMachine::SAVE_STOP )
@@ -230,7 +220,7 @@ void  LifeCycleManager::save_failure_action(int vid)
 
         vmpool->update(vm);
 
-        vm->set_action(History::NONE_ACTION);
+        vm->clear_action();
 
         vmpool->update_history(vm);
 
@@ -239,7 +229,7 @@ void  LifeCycleManager::save_failure_action(int vid)
 
         //----------------------------------------------------
 
-        vmm->trigger(VirtualMachineManager::POLL,vid);
+        vmm->trigger(VMMAction::POLL,vid);
     }
     else
     {
@@ -286,8 +276,6 @@ void  LifeCycleManager::deploy_success_action(int vid)
 
         vm->set_previous_running_etime(the_time);
 
-        vm->set_previous_reason(History::USER);
-
         vmpool->update_previous_history(vm);
 
         vm->get_requirements(cpu, mem, disk, pci);
@@ -316,6 +304,10 @@ void  LifeCycleManager::deploy_success_action(int vid)
               vm->get_lcm_state() == VirtualMachine::BOOT_FAILURE )
     {
         vm->set_state(VirtualMachine::RUNNING);
+
+        vm->clear_action();
+
+        vmpool->update_history(vm);
 
         vmpool->update(vm);
     }
@@ -363,8 +355,6 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         vm->set_vm_info();
 
-        vm->set_reason(History::ERROR);
-
         vmpool->update_history(vm);
 
         vm->set_previous_etime(the_time);
@@ -372,8 +362,6 @@ void  LifeCycleManager::deploy_failure_action(int vid)
         vm->set_previous_vm_info();
 
         vm->set_previous_running_etime(the_time);
-
-        vm->set_previous_reason(History::USER);
 
         vmpool->update_previous_history(vm);
 
@@ -400,7 +388,7 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         //----------------------------------------------------
 
-        vmm->trigger(VirtualMachineManager::POLL,vid);
+        vmm->trigger(VMMAction::POLL,vid);
     }
     else if (vm->get_lcm_state() == VirtualMachine::BOOT)
     {
@@ -425,9 +413,6 @@ void  LifeCycleManager::deploy_failure_action(int vid)
         vm->set_etime(the_time);
         vm->set_running_etime(the_time);
 
-        vm->set_reason(History::ERROR);
-        vm->set_action(History::RESUME_ACTION);
-
         vm->set_state(VirtualMachine::POWEROFF);
         vm->set_state(VirtualMachine::LCM_INIT);
 
@@ -438,9 +423,6 @@ void  LifeCycleManager::deploy_failure_action(int vid)
     {
         vm->set_etime(the_time);
         vm->set_running_etime(the_time);
-
-        vm->set_reason(History::ERROR);
-        vm->set_action(History::RESUME_ACTION);
 
         vm->set_state(VirtualMachine::SUSPENDED);
         vm->set_state(VirtualMachine::LCM_INIT);
@@ -508,13 +490,11 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         vm->set_running_etime(the_time);
 
-        vm->set_reason(History::USER);
-
         vmpool->update_history(vm);
 
         //----------------------------------------------------
 
-        tm->trigger(TransferManager::EPILOG,vid);
+        tm->trigger(TMAction::EPILOG,vid);
     }
     else if (vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF)
     {
@@ -537,13 +517,11 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         vm->set_vm_info();
 
-        vm->set_reason(History::USER);
-
         vmpool->update_history(vm);
 
         //----------------------------------------------------
 
-        dm->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
+        dm->trigger(DMAction::POWEROFF_SUCCESS,vid);
     }
     else if (vm->get_lcm_state() == VirtualMachine::SHUTDOWN_UNDEPLOY)
     {
@@ -566,13 +544,11 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         vm->set_running_etime(the_time);
 
-        vm->set_reason(History::USER);
-
         vmpool->update_history(vm);
 
         //----------------------------------------------------
 
-        tm->trigger(TransferManager::EPILOG_STOP,vid);
+        tm->trigger(TMAction::EPILOG_STOP,vid);
     }
     else
     {
@@ -608,7 +584,7 @@ void  LifeCycleManager::shutdown_failure_action(int vid)
 
         vmpool->update(vm);
 
-        vm->set_action(History::NONE_ACTION);
+        vm->clear_action();
 
         vmpool->update_history(vm);
 
@@ -617,7 +593,7 @@ void  LifeCycleManager::shutdown_failure_action(int vid)
 
         //----------------------------------------------------
 
-        vmm->trigger(VirtualMachineManager::POLL,vid);
+        vmm->trigger(VMMAction::POLL,vid);
     }
     else
     {
@@ -636,7 +612,7 @@ void LifeCycleManager::prolog_success_action(int vid)
     time_t                  the_time = time(0);
     ostringstream           os;
 
-    VirtualMachineManager::Actions action;
+    VMMAction::Actions action;
 
     vm = vmpool->get(vid, true);
 
@@ -666,19 +642,19 @@ void LifeCycleManager::prolog_success_action(int vid)
             {
                 case VirtualMachine::PROLOG_RESUME:
                 case VirtualMachine::PROLOG_RESUME_FAILURE:
-                    action = VirtualMachineManager::RESTORE;
+                    action = VMMAction::RESTORE;
                     vm->set_state(VirtualMachine::BOOT_STOPPED);
                     break;
 
                 case VirtualMachine::PROLOG_UNDEPLOY:
                 case VirtualMachine::PROLOG_UNDEPLOY_FAILURE:
-                    action = VirtualMachineManager::DEPLOY;
+                    action = VMMAction::DEPLOY;
                     vm->set_state(VirtualMachine::BOOT_UNDEPLOY);
                     break;
 
                 case VirtualMachine::PROLOG_MIGRATE:
                 case VirtualMachine::PROLOG_MIGRATE_FAILURE: //recover success
-                    action = VirtualMachineManager::RESTORE;
+                    action = VMMAction::RESTORE;
                     vm->set_state(VirtualMachine::BOOT_MIGRATE);
                     break;
 
@@ -686,7 +662,7 @@ void LifeCycleManager::prolog_success_action(int vid)
                 case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE:
                 case VirtualMachine::PROLOG:
                 case VirtualMachine::PROLOG_FAILURE: //recover success
-                    action = VirtualMachineManager::DEPLOY;
+                    action = VMMAction::DEPLOY;
                     vm->set_state(VirtualMachine::BOOT);
                     break;
 
@@ -731,20 +707,16 @@ void LifeCycleManager::prolog_success_action(int vid)
 
             vm->set_vm_info();
 
-            vm->set_reason(History::USER);
-
-            vm->set_action(History::MIGRATE_ACTION);
-
             vmpool->update_history(vm);
 
             if (lcm_state == VirtualMachine::PROLOG_MIGRATE_POWEROFF||
                 lcm_state == VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE)
             {
-                dm->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
+                dm->trigger(DMAction::POWEROFF_SUCCESS,vid);
             }
             else //PROLOG_MIGRATE_SUSPEND, PROLOG_MIGRATE_SUSPEND_FAILURE
             {
-                dm->trigger(DispatchManager::SUSPEND_SUCCESS,vid);
+                dm->trigger(DMAction::SUSPEND_SUCCESS,vid);
             }
             break;
 
@@ -821,8 +793,6 @@ void  LifeCycleManager::prolog_failure_action(int vid)
             // Close current history record
             vm->set_prolog_etime(t);
             vm->set_etime(t);
-            vm->set_reason(History::ERROR);
-            vm->set_action(History::MIGRATE_ACTION);
 
             vm->set_vm_info();
 
@@ -862,7 +832,7 @@ void  LifeCycleManager::prolog_failure_action(int vid)
 
             hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu,mem,disk,pci);
 
-            trigger(LifeCycleManager::PROLOG_SUCCESS, vm->get_oid());
+            trigger(LCMAction::PROLOG_SUCCESS, vm->get_oid());
             break;
 
         case VirtualMachine::PROLOG_RESUME_FAILURE:
@@ -893,7 +863,7 @@ void  LifeCycleManager::epilog_success_action(int vid)
     unsigned int port;
 
     VirtualMachine::LcmState state;
-    DispatchManager::Actions action;
+    DMAction::Actions action;
 
     vm = vmpool->get(vid,true);
 
@@ -925,19 +895,19 @@ void  LifeCycleManager::epilog_success_action(int vid)
 
     if ( state == VirtualMachine::EPILOG_STOP )
     {
-        action = DispatchManager::STOP_SUCCESS;
+        action = DMAction::STOP_SUCCESS;
     }
     else if ( state == VirtualMachine::EPILOG_UNDEPLOY )
     {
-        action = DispatchManager::UNDEPLOY_SUCCESS;
+        action = DMAction::UNDEPLOY_SUCCESS;
     }
     else if ( state == VirtualMachine::EPILOG )
     {
-        action = DispatchManager::DONE;
+        action = DMAction::DONE;
     }
     else if ( state == VirtualMachine::CLEANUP_RESUBMIT )
     {
-        dm->trigger(DispatchManager::RESUBMIT, vid);
+        dm->trigger(DMAction::RESUBMIT, vid);
 
         vm->unlock();
 
@@ -999,7 +969,7 @@ void  LifeCycleManager::cleanup_callback_action(int vid)
 
     if ( state == VirtualMachine::CLEANUP_RESUBMIT )
     {
-        dm->trigger(DispatchManager::RESUBMIT, vid);
+        dm->trigger(DMAction::RESUBMIT, vid);
 
     }
     else
@@ -1032,7 +1002,7 @@ void  LifeCycleManager::epilog_failure_action(int vid)
 
     if ( state == VirtualMachine::CLEANUP_RESUBMIT )
     {
-        dm->trigger(DispatchManager::RESUBMIT, vid);
+        dm->trigger(DMAction::RESUBMIT, vid);
     }
     else if ( state == VirtualMachine::EPILOG )
     {
@@ -1106,13 +1076,13 @@ void  LifeCycleManager::monitor_suspend_action(int vid)
 
         vm->set_vm_info();
 
-        vm->set_reason(History::ERROR);
+        vm->set_internal_action(History::MONITOR_ACTION);
 
         vmpool->update_history(vm);
 
         //----------------------------------------------------
 
-        dm->trigger(DispatchManager::SUSPEND_SUCCESS,vid);
+        dm->trigger(DMAction::SUSPEND_SUCCESS,vid);
     }
     else
     {
@@ -1198,13 +1168,13 @@ void  LifeCycleManager::monitor_poweroff_action(int vid)
 
         vm->set_vm_info();
 
-        vm->set_reason(History::USER);
+        vm->set_internal_action(History::MONITOR_ACTION);
 
         vmpool->update_history(vm);
 
         //----------------------------------------------------
 
-        dm->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
+        dm->trigger(DMAction::POWEROFF_SUCCESS,vid);
 
     } else if ( vm->get_lcm_state() == VirtualMachine::SHUTDOWN ||
                 vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF ||
@@ -1212,7 +1182,7 @@ void  LifeCycleManager::monitor_poweroff_action(int vid)
     {
         vm->log("LCM", Log::INFO, "VM reported SHUTDOWN by the drivers");
 
-        trigger(LifeCycleManager::SHUTDOWN_SUCCESS, vid);
+        trigger(LCMAction::SHUTDOWN_SUCCESS, vid);
     }
 
     vm->unlock();
@@ -1277,7 +1247,7 @@ void  LifeCycleManager::monitor_poweron_action(int vid)
             case VirtualMachine::BOOT_FAILURE:
                 vm->log("LCM", Log::INFO, "VM reported RUNNING by the drivers");
 
-                trigger(LifeCycleManager::DEPLOY_SUCCESS, vid);
+                trigger(LCMAction::DEPLOY_SUCCESS, vid);
                 break;
 
             default:
@@ -1317,7 +1287,7 @@ void LifeCycleManager::attach_success_action(int vid)
         vm->clear_attach_disk();
         vmpool->update(vm);
 
-        dm->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
+        dm->trigger(DMAction::POWEROFF_SUCCESS,vid);
     }
     else
     {
@@ -1363,7 +1333,7 @@ void LifeCycleManager::attach_failure_action(int vid)
         {
             vm->log("LCM", Log::INFO, "VM Disk attach failure.");
 
-            dm->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
+            dm->trigger(DMAction::POWEROFF_SUCCESS,vid);
         }
 
         vmpool->update(vm);
@@ -1413,7 +1383,7 @@ void LifeCycleManager::detach_success_action(int vid)
         {
             vm->log("LCM", Log::INFO, "VM Disk successfully detached.");
 
-            dm->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
+            dm->trigger(DMAction::POWEROFF_SUCCESS,vid);
         }
 
         vmpool->update(vm);
@@ -1456,7 +1426,7 @@ void LifeCycleManager::detach_failure_action(int vid)
         vm->clear_attach_disk();
         vmpool->update(vm);
 
-        dm->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
+        dm->trigger(DMAction::POWEROFF_SUCCESS,vid);
     }
     else
     {
@@ -1645,7 +1615,7 @@ void LifeCycleManager::attach_nic_success_action(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC )
     {
-        vm->attach_nic_success();
+        vm->clear_attach_nic();
 
         vm->set_state(VirtualMachine::RUNNING);
 
@@ -1755,7 +1725,7 @@ void LifeCycleManager::detach_nic_failure_action(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC )
     {
-        vm->detach_nic_failure();
+        vm->clear_attach_nic();
 
         vm->set_state(VirtualMachine::RUNNING);
 
@@ -1895,7 +1865,7 @@ void LifeCycleManager::disk_snapshot_success(int vid)
     Template *ds_quotas = 0;
     Template *vm_quotas = 0;
 
-    const VectorAttribute* disk;
+    const VirtualMachineDisk * disk;
     Snapshots           snaps(-1);
     const Snapshots*    tmp_snaps;
     bool                has_snaps = false;
@@ -1940,7 +1910,6 @@ void LifeCycleManager::disk_snapshot_success(int vid)
         case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
             vm->log("LCM", Log::INFO, "VM disk snapshot deleted.");
             vm->delete_disk_snapshot(disk_id, snap_id, &ds_quotas, &vm_quotas);
-
             break;
 
         default:
@@ -1963,8 +1932,8 @@ void LifeCycleManager::disk_snapshot_success(int vid)
 
     disk->vector_value("IMAGE_ID", img_id);
 
-    bool is_persistent = VirtualMachine::is_persistent(disk);
-    string target      = VirtualMachine::disk_tm_target(disk);
+    bool is_persistent = disk->is_persistent();
+    string target      = disk->get_tm_target();
 
     vmpool->update(vm);
 
@@ -1995,7 +1964,7 @@ void LifeCycleManager::disk_snapshot_success(int vid)
     }
 
     // Update image if it is persistent and ln mode does not clone it
-    if ( img_id != -1 && is_persistent && has_snaps && target != "SYSTEM" )
+    if ( img_id != -1 && is_persistent && has_snaps && target == "NONE" )
     {
         imagem->set_image_snapshots(img_id, snaps);
     }
@@ -2005,13 +1974,13 @@ void LifeCycleManager::disk_snapshot_success(int vid)
         case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
-            dm->trigger(DispatchManager::POWEROFF_SUCCESS, vid);
+            dm->trigger(DMAction::POWEROFF_SUCCESS, vid);
             break;
 
         case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
         case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
         case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
-            dm->trigger(DispatchManager::SUSPEND_SUCCESS, vid);
+            dm->trigger(DMAction::SUSPEND_SUCCESS, vid);
             break;
 
         default:
@@ -2033,7 +2002,7 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
     Template *ds_quotas = 0;
     Template *vm_quotas = 0;
 
-    const VectorAttribute* disk;
+    const VirtualMachineDisk* disk;
     Snapshots           snaps(-1);
     const Snapshots*    tmp_snaps;
     bool                has_snaps = false;
@@ -2099,8 +2068,8 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
 
     disk->vector_value("IMAGE_ID", img_id);
 
-    bool is_persistent = VirtualMachine::is_persistent(disk);
-    string target      = VirtualMachine::disk_tm_target(disk);
+    bool is_persistent = disk->is_persistent();
+    string target      = disk->get_tm_target();
 
     vmpool->update(vm);
 
@@ -2141,13 +2110,13 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
         case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
-            dm->trigger(DispatchManager::POWEROFF_SUCCESS, vid);
+            dm->trigger(DMAction::POWEROFF_SUCCESS, vid);
             break;
 
         case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
         case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
         case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
-            dm->trigger(DispatchManager::SUSPEND_SUCCESS, vid);
+            dm->trigger(DMAction::SUSPEND_SUCCESS, vid);
             break;
 
         default:
@@ -2268,3 +2237,179 @@ void LifeCycleManager::disk_lock_failure(int vid)
 {
     disk_lock_success(vid);
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::disk_resize_success(int vid)
+{
+    int img_id = -1;
+    long long size;
+
+    VirtualMachine * vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    VirtualMachineDisk * disk = vm->get_resize_disk();
+
+    if ( disk == 0 )
+    {
+        vm->unlock();
+        return;
+    }
+
+    VirtualMachine::LcmState state = vm->get_lcm_state();
+
+    switch (state)
+    {
+        case VirtualMachine::DISK_RESIZE:
+            vm->set_state(VirtualMachine::RUNNING);
+
+        case VirtualMachine::DISK_RESIZE_POWEROFF:
+        case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
+            vm->log("LCM", Log::INFO, "VM disk resize operation completed.");
+
+            break;
+
+        default:
+            vm->log("LCM",Log::ERROR,"disk_resize_success, VM in a wrong state");
+            vm->unlock();
+            return;
+    }
+
+    disk->clear_resize(false);
+
+    bool is_persistent = disk->is_persistent();
+    string target      = disk->get_tm_target();
+
+    disk->vector_value("IMAGE_ID", img_id);
+    disk->vector_value("SIZE", size);
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    // Update image if it is persistent and ln mode does not clone it
+    if ( img_id != -1 && is_persistent && target == "NONE" )
+    {
+        imagem->set_image_size(img_id, size);
+    }
+
+    switch (state)
+    {
+        case VirtualMachine::DISK_RESIZE_POWEROFF:
+            dm->trigger(DMAction::POWEROFF_SUCCESS, vid);
+            break;
+
+        case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
+            dm->trigger(DMAction::UNDEPLOY_SUCCESS, vid);
+            break;
+
+        default:
+            return;
+    }
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::disk_resize_failure(int vid)
+{
+    Template ds_deltas;
+    Template vm_deltas;
+
+    int img_id = -1;
+    long long size_prev;
+
+    VirtualMachine * vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    VirtualMachineDisk * disk = vm->get_resize_disk();
+
+    if ( disk == 0 )
+    {
+        vm->unlock();
+        return;
+    }
+
+
+    VirtualMachine::LcmState state = vm->get_lcm_state();
+
+    switch (state)
+    {
+        case VirtualMachine::DISK_RESIZE:
+            vm->set_state(VirtualMachine::RUNNING);
+
+        case VirtualMachine::DISK_RESIZE_POWEROFF:
+        case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
+            vm->log("LCM", Log::INFO, "VM disk resize operation completed.");
+
+            break;
+
+        default:
+            vm->log("LCM",Log::ERROR,"disk_resize_success, VM in a wrong state");
+            vm->unlock();
+            return;
+    }
+
+    int vm_uid = vm->get_uid();
+    int vm_gid = vm->get_gid();
+
+    disk->vector_value("IMAGE_ID", img_id);
+    disk->vector_value("SIZE_PREV", size_prev);
+    disk->resize_quotas(size_prev, ds_deltas, vm_deltas);
+
+    disk->clear_resize(true);
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    // Restore quotas
+    if ( !ds_deltas.empty() && img_id != -1 )
+    {
+        Image* img = ipool->get(img_id, true);
+
+        if(img != 0)
+        {
+            int img_uid = img->get_uid();
+            int img_gid = img->get_gid();
+
+            img->unlock();
+
+            Quotas::ds_del(img_uid, img_gid, &ds_deltas);
+        }
+    }
+
+    if ( !vm_deltas.empty() )
+    {
+        Quotas::vm_del(vm_uid, vm_gid, &vm_deltas);
+    }
+
+    switch (state)
+    {
+        case VirtualMachine::DISK_RESIZE_POWEROFF:
+            dm->trigger(DMAction::POWEROFF_SUCCESS, vid);
+            break;
+
+        case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
+            dm->trigger(DMAction::UNDEPLOY_SUCCESS, vid);
+            break;
+
+        default:
+            return;
+    }
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+

@@ -62,6 +62,8 @@ require 'opennebula/marketplace'
 require 'opennebula/marketplace_pool'
 require 'opennebula/marketplaceapp'
 require 'opennebula/marketplaceapp_pool'
+require 'opennebula/vm_group'
+require 'opennebula/vm_group_pool'
 
 module OpenNebula
 

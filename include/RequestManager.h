@@ -43,15 +43,15 @@ class RequestManager : public ActionListener
 public:
 
     RequestManager(
-            int _port,
+            const string& _port,
             int _max_conn,
             int _max_conn_backlog,
             int _keepalive_timeout,
             int _keepalive_max_conn,
             int _timeout,
-            const string _xml_log_file,
-            const string call_log_format,
-            const string _listen_address,
+            const string& _xml_log_file,
+            const string& call_log_format,
+            const string& _listen_address,
             int message_size);
 
     ~RequestManager(){};
@@ -78,7 +78,7 @@ public:
      */
     void finalize()
     {
-        am.trigger(ACTION_FINALIZE,0);
+        am.finalize();
     };
 
 
@@ -105,7 +105,7 @@ private:
     /**
      *  Port number where the connection will be open
      */
-    int port;
+    string port;
 
     /*
      *  FD for the XML server socket
@@ -163,20 +163,33 @@ private:
     xmlrpc_c::serverAbyss *  AbyssServer;
 
     /**
-     *  The action function executed when an action is triggered.
-     *    @param action the name of the action
-     *    @param arg arguments for the action function
-     */
-    void do_action(const string & action, void * arg);
-
-    /**
      *  Register the XML-RPC API Calls
      */
     void register_xml_methods();
 
     int setup_socket();
-};
 
+    // ------------------------------------------------------------------------
+    // ActioListener Interface
+    // ------------------------------------------------------------------------
+    virtual void finalize_action(const ActionRequest& ar)
+    {
+        NebulaLog::log("ReM",Log::INFO,"Stopping Request Manager...");
+
+        pthread_cancel(rm_xml_server_thread);
+
+        pthread_join(rm_xml_server_thread,0);
+
+        NebulaLog::log("ReM",Log::INFO,"XML-RPC server stopped.");
+
+        delete AbyssServer;
+
+        if ( socket_fd != -1 )
+        {
+            close(socket_fd);
+        }
+    };
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

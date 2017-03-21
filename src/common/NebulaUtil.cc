@@ -339,6 +339,25 @@ std::string one_util::gsub(const std::string& st, const std::string& sfind,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+namespace one_util
+{
+template<>
+void split_unique(const std::string& st, char delim, std::set<std::string>& res)
+{
+    std::vector<std::string>::const_iterator it;
+
+    std::vector<std::string> strings = split(st, delim, true);
+
+    for (it = strings.begin(); it != strings.end(); it++)
+    {
+        res.insert(*it);
+    }
+}
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 /**
  *  Buffer length for zlib inflate/deflate
  */

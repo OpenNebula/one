@@ -462,10 +462,10 @@ int Image::from_xml(const string& xml)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void Image::disk_attribute( VectorAttribute *       disk,
-                            ImageType&              img_type,
-                            string&                 dev_prefix,
-                            const vector<string>&   inherit_attrs)
+void Image::disk_attribute(VirtualMachineDisk *    disk,
+                           ImageType&              img_type,
+                           string&                 dev_prefix,
+                           const vector<string>&   inherit_attrs)
 {
     string target;
     string driver;
@@ -481,7 +481,6 @@ void Image::disk_attribute( VectorAttribute *       disk,
     driver     = disk->vector_value("DRIVER");
     dev_prefix = disk->vector_value("DEV_PREFIX");
 
-    long long size = -1;
     long long snap_size;
 
     string template_target;
@@ -520,15 +519,12 @@ void Image::disk_attribute( VectorAttribute *       disk,
     //--------------------------------------------------------------------------
     //                       BASE DISK ATTRIBUTES
     //--------------------------------------------------------------------------
-    disk->replace("IMAGE",    name);
+    disk->replace("IMAGE", name);
     disk->replace("IMAGE_ID", oid);
-    disk->replace("SOURCE",   source);
+    disk->replace("SOURCE", source);
+    disk->replace("ORIGINAL_SIZE", size_mb);
 
-    if ( disk->vector_value("SIZE", size) == 0 && size != size_mb)
-    {
-        disk->replace("ORIGINAL_SIZE", size_mb);
-    }
-    else
+    if ( disk->vector_value("SIZE").empty() )
     {
         disk->replace("SIZE", size_mb);
     }
@@ -809,7 +805,7 @@ void Image::set_state(ImageState _state)
 
         for(set<int>::iterator i = vms.begin(); i != vms.end(); i++)
         {
-            lcm->trigger(LifeCycleManager::DISK_LOCK_FAILURE, *i);
+            lcm->trigger(LCMAction::DISK_LOCK_FAILURE, *i);
         }
     }
 
@@ -870,7 +866,50 @@ void Image::set_state_unlock()
 
         for(set<int>::iterator i = vms.begin(); i != vms.end(); i++)
         {
-            lcm->trigger(LifeCycleManager::DISK_LOCK_SUCCESS, *i);
+            lcm->trigger(LCMAction::DISK_LOCK_SUCCESS, *i);
         }
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool Image::test_set_persistent(Template * image_template, int uid, int gid,
+        bool is_allocate)
+{
+    Nebula&  nd = Nebula::instance();
+
+    string per_oned;
+    string conf_name;
+
+    bool persistent;
+
+    if ( is_allocate )
+    {
+        conf_name = "DEFAULT_IMAGE_PERSISTENT_NEW";
+    }
+    else
+    {
+        conf_name = "DEFAULT_IMAGE_PERSISTENT";
+    }
+
+    int rc = nd.get_configuration_attribute(uid, gid, conf_name, per_oned);
+
+    if ( rc != 0 || per_oned.empty() ) //No DEFAULT_* defined or empty value
+    {
+        image_template->get("PERSISTENT", persistent);
+    }
+    else if ( rc == 0 && one_util::toupper(per_oned) == "YES" )
+    {
+        persistent = true;
+    }
+    else
+    {
+        persistent = false;
+    }
+
+    image_template->replace("PERSISTENT", persistent);
+
+    return persistent;
+}
+

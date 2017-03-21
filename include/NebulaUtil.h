@@ -96,22 +96,14 @@ namespace one_util
      * @param st string to split
      * @param delim delimiter character
      * @param result where the result will be saved
-     * @param clean_empty true to clean empty split parts.
-     *  Example for st "a::b:c"
-     *      clean_empty true will return ["a", "b", "c"]
-     *      clean_empty fase will return ["a", "", "b", "c"]
      */
     template <class T>
-    void split_unique(
-            const std::string& st,
-            char delim,
-            std::set<T>& result,
-            bool clean_empty=true)
+    void split_unique(const std::string& st, char delim, std::set<T>& result)
     {
         T elem;
         std::vector<std::string>::const_iterator it;
 
-        std::vector<std::string> strings = split(st, delim, clean_empty);
+        std::vector<std::string> strings = split(st, delim, true);
 
         for (it = strings.begin(); it != strings.end(); it++)
         {
@@ -126,6 +118,13 @@ namespace one_util
             result.insert(elem);
         }
     }
+
+    /**
+     * Explicit specialization for strings
+     */
+    template <>
+    void split_unique(const std::string& st, char delim,
+            std::set<std::string>& result);
 
     /**
      * Joins the given element with the delimiter

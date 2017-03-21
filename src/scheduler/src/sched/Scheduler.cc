@@ -26,6 +26,7 @@
 #include <pthread.h>
 
 #include <cmath>
+#include <iomanip>
 
 #include "Scheduler.h"
 #include "SchedulerTemplate.h"
@@ -89,7 +90,7 @@ extern "C" void * scheduler_action_loop(void *arg)
 
     NebulaLog::log("SCHED",Log::INFO,"Scheduler loop started.");
 
-    sched->am.loop(sched->timer,0);
+    sched->am.loop(sched->timer);
 
     NebulaLog::log("SCHED",Log::INFO,"Scheduler loop stopped.");
 
@@ -308,19 +309,23 @@ void Scheduler::start()
     // -------------------------------------------------------------------------
     // Pools
     // -------------------------------------------------------------------------
+    Client * client = Client::client();
 
-    hpool  = new HostPoolXML(Client::client());
-    upool  = new UserPoolXML(Client::client());
-    clpool = new ClusterPoolXML(Client::client());
-    vmpool = new VirtualMachinePoolXML(Client::client(), machines_limit,
-            live_rescheds==1);
+    acls  = new AclXML(client, zone_id);
+    upool = new UserPoolXML(client);
 
-    vmapool = new VirtualMachineActionsPoolXML(Client::client(), machines_limit);
+    hpool  = new HostPoolXML(client);
+    clpool = new ClusterPoolXML(client);
 
-    dspool     = new SystemDatastorePoolXML(Client::client());
-    img_dspool = new ImageDatastorePoolXML(Client::client());
+    dspool     = new SystemDatastorePoolXML(client);
+    img_dspool = new ImageDatastorePoolXML(client);
 
-    acls = new AclXML(Client::client(), zone_id);
+    vm_roles_pool = new VirtualMachineRolePoolXML(client, machines_limit);
+    vmpool = new VirtualMachinePoolXML(client, machines_limit, live_rescheds==1);
+
+    vmgpool = new VMGroupPoolXML(client);
+
+    vmapool = new VirtualMachineActionsPoolXML(client, machines_limit);
 
     // -----------------------------------------------------------
     // Load scheduler policies
@@ -387,7 +392,7 @@ void Scheduler::start()
 
     sigwait(&mask, &signal);
 
-    am.trigger(ActionListener::ACTION_FINALIZE,0); //Cancel sched loop
+    am.finalize();
 
     pthread_join(sched_thread,0);
 
@@ -407,7 +412,7 @@ int Scheduler::set_up_pools()
     map<int, int>                   shares;
 
     //--------------------------------------------------------------------------
-    //Cleans the cache and get the pending VMs
+    //Cleans the cache and get the pools
     //--------------------------------------------------------------------------
 
     rc = vmpool->set_up();
@@ -416,10 +421,6 @@ int Scheduler::set_up_pools()
     {
         return rc;
     }
-
-    //--------------------------------------------------------------------------
-    //Cleans the cache and get the datastores
-    //--------------------------------------------------------------------------
 
     rc = dspool->set_up();
 
@@ -435,20 +436,12 @@ int Scheduler::set_up_pools()
         return rc;
     }
 
-    //--------------------------------------------------------------------------
-    //Cleans the cache and get the hosts ids
-    //--------------------------------------------------------------------------
-
     rc = upool->set_up();
 
     if ( rc != 0 )
     {
         return rc;
     }
-
-    //--------------------------------------------------------------------------
-    //Cleans the cache and get the hosts ids
-    //--------------------------------------------------------------------------
 
     rc = hpool->set_up();
 
@@ -457,10 +450,6 @@ int Scheduler::set_up_pools()
         return rc;
     }
 
-    //--------------------------------------------------------------------------
-    //Cleans the cache and get the cluster information
-    //--------------------------------------------------------------------------
-
     rc = clpool->set_up();
 
     if ( rc != 0 )
@@ -468,17 +457,23 @@ int Scheduler::set_up_pools()
         return rc;
     }
 
-    //--------------------------------------------------------------------------
-    //Add to each host the corresponding cluster template
-    //--------------------------------------------------------------------------
-
     hpool->merge_clusters(clpool);
 
-    //--------------------------------------------------------------------------
-    //Cleans the cache and get the ACLs
-    //--------------------------------------------------------------------------
-
     rc = acls->set_up();
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    rc = vmgpool->set_up();
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    rc = vm_roles_pool->set_up();
 
     if ( rc != 0 )
     {
@@ -603,7 +598,8 @@ static bool match_host(AclXML * acls, UserPoolXML * upool, VirtualMachineXML* vm
 
         if (matched == false)
         {
-            error = "It does not fulfill SCHED_REQUIREMENTS.";
+            error = "It does not fulfill SCHED_REQUIREMENTS: " +
+                vm->get_requirements();
             return false;
         }
     }
@@ -878,7 +874,8 @@ void Scheduler::match_schedule()
 
             vmpool->update(vm);
 
-            log_match(vm->get_oid(), "Cannot schedule VM, there is no suitable host.");
+            log_match(vm->get_oid(),
+                    "Cannot schedule VM, there is no suitable host.");
 
             continue;
         }
@@ -1022,13 +1019,20 @@ void Scheduler::match_schedule()
         ostringstream oss;
 
         oss << "Match Making statistics:\n"
-            << "\tNumber of VMs:            " << pending_vms.size() << endl
-            << "\tTotal time:               " << one_util::float_to_str(time(0) - stime) << "s" << endl
-            << "\tTotal Cluster Match time: " << one_util::float_to_str(total_cl_match_time) << "s" << endl
-            << "\tTotal Host Match time:    " << one_util::float_to_str(total_host_match_time) << "s" << endl
-            << "\tTotal Host Ranking time:  " << one_util::float_to_str(total_host_rank_time) << "s" << endl
-            << "\tTotal DS Match time:      " << one_util::float_to_str(total_ds_match_time) << "s" << endl
-            << "\tTotal DS Ranking time:    " << one_util::float_to_str(total_ds_rank_time) << "s" << endl;
+            << "\tNumber of VMs:            "
+            << pending_vms.size() << endl
+            << "\tTotal time:               "
+            << one_util::float_to_str(time(0) - stime) << "s" << endl
+            << "\tTotal Cluster Match time: "
+            << one_util::float_to_str(total_cl_match_time) << "s" << endl
+            << "\tTotal Host Match time:    "
+            << one_util::float_to_str(total_host_match_time) << "s" << endl
+            << "\tTotal Host Ranking time:  "
+            << one_util::float_to_str(total_host_rank_time) << "s" << endl
+            << "\tTotal DS Match time:      "
+            << one_util::float_to_str(total_ds_match_time) << "s" << endl
+            << "\tTotal DS Ranking time:    "
+            << one_util::float_to_str(total_ds_rank_time) << "s" << endl;
 
         NebulaLog::log("SCHED", Log::DDEBUG, oss);
     }
@@ -1070,10 +1074,8 @@ void Scheduler::dispatch()
     int hid, dsid, cid;
 
     unsigned int dispatched_vms = 0;
-    bool dispatched;
-
-    map<int, unsigned int>  host_vms;
-    pair<map<int,unsigned int>::iterator, bool> rc;
+    bool dispatched, matched;
+    char * estr;
 
     map<int, ObjectXML*>::const_iterator vm_it;
 
@@ -1139,6 +1141,32 @@ void Scheduler::dispatch()
             cid = host->get_cid();
 
             //------------------------------------------------------------------
+            // Check host still match requirements with CURRENT_VMS
+            //------------------------------------------------------------------
+            matched = true;
+
+            if ( one_util::regex_match("CURRENT_VMS",
+                        vm->get_requirements().c_str()) == 0 )
+            {
+                if (host->eval_bool(vm->get_requirements(), matched, &estr)!=0)
+                {
+                    free(estr);
+                    continue;
+                }
+            }
+
+            if (matched == false)
+            {
+                std::ostringstream mss;
+
+                mss << "Host " << hid << " no longer meets requirements for VM "
+                    << vm->get_oid();
+
+                NebulaLog::log("SCHED", Log::DEBUG, mss);
+                continue;
+            }
+
+            //------------------------------------------------------------------
             // Test host capacity
             //------------------------------------------------------------------
             if (host->test_capacity(cpu, mem, pci) != true)
@@ -1155,11 +1183,9 @@ void Scheduler::dispatch()
             }
 
             //------------------------------------------------------------------
-            // Test host dispatch limit (init counter if needed)
+            // Test host dispatch limit
             //------------------------------------------------------------------
-            rc = host_vms.insert(make_pair(hid,0));
-
-            if (rc.first->second >= host_dispatch_limit)
+            if (host->dispatched() >= host_dispatch_limit)
             {
                 continue;
             }
@@ -1277,9 +1303,33 @@ void Scheduler::dispatch()
                 }
             }
 
-            host->add_capacity(vm->get_oid(), cpu, mem, pci);
+            //------------------------------------------------------------------
+            // VM leaders needs to add the select host to the affined VMs
+            //------------------------------------------------------------------
+            const set<int>& affined_vms = vm->get_affined_vms();
 
-            host_vms[hid]++;
+            if ( affined_vms.size() > 0 )
+            {
+                set<int>::const_iterator it;
+
+                for ( it = affined_vms.begin(); it != affined_vms.end(); ++it )
+                {
+                    VirtualMachineXML * avm = vmpool->get(*it);
+
+                    if ( avm == 0 )
+                    {
+                        continue;
+                    }
+
+                    avm->add_match_host(hid);
+                    avm->add_match_datastore(dsid);
+                }
+            }
+
+            //------------------------------------------------------------------
+            // Update usage and statistics counters
+            //------------------------------------------------------------------
+            host->add_capacity(vm->get_oid(), cpu, mem, pci);
 
             dispatched_vms++;
 
@@ -1405,40 +1455,70 @@ int Scheduler::do_scheduled_actions()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Scheduler::do_action(const string &name, void *args)
+void Scheduler::do_vm_groups()
+{
+    map<int, ObjectXML*>::const_iterator it;
+    const map<int, ObjectXML*> vmgrps = vmgpool->get_objects();
+
+    ostringstream oss;
+
+    oss << "VM Group Scheduling information\n";
+
+    for (it = vmgrps.begin(); it != vmgrps.end() ; ++it)
+    {
+        VMGroupXML * grp = static_cast<VMGroupXML*>(it->second);
+
+        oss << setfill('*') << setw(80) << '*' << setfill(' ') << "\n"
+            << "SCHEDULING RESULTS FOR VM GROUP " << grp->get_oid() << ", "
+            << grp->get_name() <<"\n"
+            << setfill('*') << setw(80) << '*' << setfill(' ') << "\n";
+
+        oss << *grp << "\n";
+
+        grp->set_affinity_requirements(vmpool, vm_roles_pool, oss);
+
+        grp->set_antiaffinity_requirements(vmpool, oss);
+
+        grp->set_host_requirements(vmpool, oss);
+    }
+
+    NebulaLog::log("VMGRP", Log::DDDEBUG, oss);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Scheduler::timer_action(const ActionRequest& ar)
 {
     int rc;
 
-    if (name == ACTION_TIMER)
+    profile(true);
+    rc = vmapool->set_up();
+    profile(false,"Getting scheduled actions information.");
+
+    if ( rc == 0 )
     {
         profile(true);
-        rc = vmapool->set_up();
-        profile(false,"Getting scheduled actions information.");
-
-        if ( rc == 0 )
-        {
-            profile(true);
-            do_scheduled_actions();
-            profile(false,"Executing scheduled actions.");
-        }
-
-        profile(true);
-        rc = set_up_pools();
-        profile(false,"Getting VM and Host information.");
-
-        if ( rc != 0 )
-        {
-            return;
-        }
-
-        match_schedule();
-
-        profile(true);
-        dispatch();
-        profile(false,"Dispatching VMs to hosts.");
+        do_scheduled_actions();
+        profile(false,"Executing scheduled actions.");
     }
-    else if (name == ACTION_FINALIZE)
+
+    profile(true);
+    rc = set_up_pools();
+    profile(false,"Getting VM and Host information.");
+
+    if ( rc != 0 )
     {
-        NebulaLog::log("SCHED",Log::INFO,"Stopping the scheduler...");
+        return;
     }
+
+    profile(true);
+    do_vm_groups();
+    profile(false,"Setting VM groups placement constraints.");
+
+    match_schedule();
+
+    profile(true);
+    dispatch();
+    profile(false,"Dispatching VMs to hosts.");
 }

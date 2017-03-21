@@ -39,7 +39,10 @@ define(function(require) {
     'html': _html,
     'setup': _setup,
     'fill': _fill,
-    'retrieve': _retrieve
+    'retrieve': _retrieve,
+    'calculatedRealMemory': _calculatedRealMemory,
+    'calculatedRealCpu': _calculatedRealCpu,
+    'totalCost': _totalCost
   };
 
   /*
@@ -65,8 +68,66 @@ define(function(require) {
 
     return Math.floor(val * 1024);
   }
+  function convertCostNumber(number){
+    if(number >= 1000000){
+      number = (number/1000000).toFixed(2)
+      return number.toString()+"M";
+    }
+    else if(number >= 1000){
+      number = (number/1000).toFixed(2)
+      return number.toString()+"K";
+    }
+    else if (number >= 0 && number < 1000)
+      return number.toFixed(2);
+    else
+      return number;
+  }
+
+  function _totalCost(){
+    var total = document.getElementById('real_memory_cost').value + document.getElementById('real_cpu_cost').value;
+    document.getElementById('total_cost').textContent = "Total: "+ convertCostNumber(total);
+  }
+
+  function _calculatedRealMemory(){
+    var memory_cost = document.getElementById('MEMORY_COST').value;
+    var type_cost = document.getElementById('MEMORY_UNIT_COST').value;
+    var memory = document.getElementById('MEMORY').value;
+    var type = document.getElementById('memory_unit').value;
+    if(type_cost == "GB" && type == "MB")
+      memory = (memory/1024)*memory_cost*24*30;
+    else
+      memory = memory*memory_cost*24*30;
+    document.getElementById('real_memory_cost').textContent = "Cost: "+ convertCostNumber(memory);
+    document.getElementById('real_memory_cost').value = memory;
+    _totalCost();
+  }
+
+  function _calculatedRealCpu(){
+    var cpu_cost = document.getElementById('CPU_COST').value;
+    var cpu = document.getElementById('CPU').value;
+    cpu = cpu*cpu_cost*24*30;
+    document.getElementById('real_cpu_cost').textContent = "Cost: "+ convertCostNumber(cpu);
+    document.getElementById('real_cpu_cost').value = cpu;
+    _totalCost();
+  }
 
   function _setup(context) {
+
+    context.on("change", "#MEMORY", function() {
+      _calculatedRealMemory();
+    });
+
+    context.on("change", "#MEMORY_GB", function() {
+      _calculatedRealMemory();
+    });
+
+    context.on("change", "#memory_unit", function() {
+      _calculatedRealMemory();
+    });
+
+    context.on("change", "#CPU", function() {
+      _calculatedRealCpu();
+    });
 
     // MB to GB
     context.on("input", "div.memory_input input", function(){

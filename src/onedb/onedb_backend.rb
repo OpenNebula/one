@@ -272,7 +272,7 @@ class BackEndMySQL < OneDBBacKEnd
     def connect_db
         passwd = CGI.escape(@passwd)
 
-        endpoint = "mysql://#{@user}:#{passwd}@#{@server}:#{@port}/#{@db_name}"
+        endpoint = "mysql2://#{@user}:#{passwd}@#{@server}:#{@port}/#{@db_name}"
 
         begin
             @db = Sequel.connect(endpoint)

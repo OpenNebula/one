@@ -21,6 +21,7 @@
 #include "ActionManager.h"
 #include "InformationManagerDriver.h"
 #include "MonitorThread.h"
+#include "NebulaLog.h"
 
 using namespace std;
 
@@ -74,13 +75,12 @@ public:
         return im_thread;
     };
 
-
     /**
      *
      */
     void finalize()
     {
-        am.trigger(ACTION_FINALIZE,0);
+        am.finalize();
     };
 
     /**
@@ -160,12 +160,6 @@ private:
     MonitorThreadPool mtpool;
 
     /**
-     *  Function to execute the Manager action loop method within a new pthread
-     * (requires C linkage)
-     */
-    friend void * im_action_loop(void *arg);
-
-    /**
      *  Time in seconds to expire a monitoring action (5 minutes)
      */
     static const time_t monitor_expire;
@@ -186,18 +180,25 @@ private:
     };
 
     /**
-     *  The action function executed when an action is triggered.
-     *    @param action the name of the action
-     *    @param arg arguments for the action function
+     *  Function to execute the Manager action loop method within a new pthread
+     * (requires C linkage)
      */
-    void do_action(
-        const string &  action,
-        void *          arg);
+    friend void * im_action_loop(void *arg);
 
+    // ------------------------------------------------------------------------
+    // ActioListener Interface
+    // ------------------------------------------------------------------------
     /**
      *  This function is executed periodically to monitor Nebula hosts.
      */
-    void timer_action();
+    void timer_action(const ActionRequest& ar);
+
+    void finalize_action(const ActionRequest& ar)
+    {
+        NebulaLog::log("InM",Log::INFO,"Stopping Information Manager...");
+
+        MadManager::stop();
+    };
 };
 
 #endif /*VIRTUAL_MACHINE_MANAGER_H*/

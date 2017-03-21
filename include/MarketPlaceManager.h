@@ -20,6 +20,7 @@
 #include "MadManager.h"
 #include "ActionManager.h"
 #include "MarketPlaceManagerDriver.h"
+#include "NebulaLog.h"
 
 extern "C" void * marketplace_action_loop(void *arg);
 
@@ -80,7 +81,7 @@ public:
      */
     void finalize()
     {
-        am.trigger(ACTION_FINALIZE,0);
+        am.finalize();
     };
 
     /**
@@ -198,13 +199,6 @@ private:
     friend void * marketplace_action_loop(void *arg);
 
     /**
-     *  The action function executed when an action is triggered.
-     *    @param action the name of the action
-     *    @param arg arguments for the action function
-     */
-    void do_action(const std::string& action, void * arg);
-
-    /**
      * Formats an XML message for the MAD
      *
      *    @param app_data marketplace app XML representation
@@ -217,10 +211,20 @@ private:
             const std::string& app_data,
             const std::string& market_data,
             const std::string& extra_data);
+
+    // -------------------------------------------------------------------------
+    // Action Listener interface
+    // -------------------------------------------------------------------------
     /**
      *  This function is executed periodically to monitor marketplaces..
      */
-    void timer_action();
+    void timer_action(const ActionRequest& ar);
+
+    void finalize_action(const ActionRequest& ar)
+    {
+        NebulaLog::log("MKP", Log::INFO, "Stopping Marketplace Manager...");
+        MadManager::stop();
+    };
 };
 
 #endif /*MARKETPLACE_MANAGER_H*/

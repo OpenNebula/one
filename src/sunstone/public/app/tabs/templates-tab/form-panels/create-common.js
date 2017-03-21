@@ -46,6 +46,7 @@ define(function(require) {
     require('./create/wizard-tabs/context'),
     require('./create/wizard-tabs/scheduling'),
     require('./create/wizard-tabs/hybrid'),
+    require('./create/wizard-tabs/vmgroup'),
     require('./create/wizard-tabs/other')
   ]
 

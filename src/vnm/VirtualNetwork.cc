@@ -14,7 +14,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-
+#include "VirtualMachineNic.h"
 #include "VirtualNetwork.h"
 #include "VirtualNetworkPool.h"
 #include "VirtualNetworkTemplate.h"
@@ -583,7 +583,7 @@ int VirtualNetwork::from_xml(const string &xml_str)
 /* -------------------------------------------------------------------------- */
 
 int VirtualNetwork::nic_attribute(
-        VectorAttribute *       nic,
+        VirtualMachineNic *     nic,
         int                     vid,
         const vector<string>&   inherit_attrs)
 {
@@ -652,20 +652,38 @@ int VirtualNetwork::nic_attribute(
     //--------------------------------------------------------------------------
     int rc;
 
+    string ip6 = nic->vector_value("IP6");
     string ip  = nic->vector_value("IP");
     string mac = nic->vector_value("MAC");
 
-    if (!ip.empty())
+    int ip_ne  = ip.empty() ? 0 : 1;
+    int ip6_ne = ip6.empty() ? 0 : 1;
+    int mac_ne = mac.empty() ? 0 : 1;
+
+    if ( ip_ne + ip6_ne + mac_ne > 1 )
     {
-        rc = allocate_by_ip(PoolObjectSQL::VM, vid, ip, nic, inherit_attrs);
+        return -1;
     }
-    else if (!mac.empty())
+
+    if (ip_ne == 1)
     {
-        rc = allocate_by_mac(PoolObjectSQL::VM, vid, mac, nic, inherit_attrs);
+        rc = allocate_by_ip(PoolObjectSQL::VM, vid, ip, nic->vector_attribute(),
+                inherit_attrs);
+    }
+    else if (ip6_ne == 1)
+    {
+        rc = allocate_by_ip6(PoolObjectSQL::VM, vid, ip6, nic->vector_attribute(),
+                inherit_attrs);
+    }
+    else if (mac_ne == 1)
+    {
+        rc = allocate_by_mac(PoolObjectSQL::VM, vid,mac,nic->vector_attribute(),
+                inherit_attrs);
     }
     else
     {
-        rc = allocate_addr(PoolObjectSQL::VM, vid, nic, inherit_attrs);
+        rc = allocate_addr(PoolObjectSQL::VM, vid, nic->vector_attribute(),
+                inherit_attrs);
     }
 
     //--------------------------------------------------------------------------
@@ -693,7 +711,7 @@ int VirtualNetwork::nic_attribute(
 /* -------------------------------------------------------------------------- */
 
 int VirtualNetwork::vrouter_nic_attribute(
-        VectorAttribute *       nic,
+        VirtualMachineNic *     nic,
         int                     vrid,
         const vector<string>&   inherit_attrs)
 {
@@ -715,20 +733,38 @@ int VirtualNetwork::vrouter_nic_attribute(
 
     if (floating)
     {
+        string ip6 = nic->vector_value("IP6");
         string ip  = nic->vector_value("IP");
         string mac = nic->vector_value("MAC");
 
-        if (!ip.empty())
+        int ip_ne  = ip.empty() ? 0 : 1;
+        int ip6_ne = ip6.empty() ? 0 : 1;
+        int mac_ne = mac.empty() ? 0 : 1;
+
+        if ( ip_ne + ip6_ne + mac_ne > 1 )
         {
-            rc = allocate_by_ip(PoolObjectSQL::VROUTER, vrid, ip, nic, inherit_attrs);
+            return -1;
         }
-        else if (!mac.empty())
+
+        if (ip_ne == 1)
         {
-            rc = allocate_by_mac(PoolObjectSQL::VROUTER, vrid, mac, nic, inherit_attrs);
+            rc = allocate_by_ip(PoolObjectSQL::VROUTER, vrid, ip,
+                    nic->vector_attribute(), inherit_attrs);
+        }
+        else if (ip6_ne == 1)
+        {
+            rc = allocate_by_ip6(PoolObjectSQL::VROUTER, vrid, ip6,
+                    nic->vector_attribute(), inherit_attrs);
+        }
+        else if (mac_ne == 1)
+        {
+            rc = allocate_by_mac(PoolObjectSQL::VROUTER, vrid, mac,
+                    nic->vector_attribute(), inherit_attrs);
         }
         else
         {
-            rc = allocate_addr(PoolObjectSQL::VROUTER, vrid, nic, inherit_attrs);
+            rc = allocate_addr(PoolObjectSQL::VROUTER, vrid,
+                    nic->vector_attribute(), inherit_attrs);
         }
     }
 
@@ -840,34 +876,54 @@ int VirtualNetwork::hold_leases(VirtualNetworkTemplate * leases_template,
     unsigned int ar_id;
 
     string  ip  = lease->vector_value("IP");
+    string  ip6 = lease->vector_value("IP6");
     string  mac = lease->vector_value("MAC");
 
-    if (ip.empty() && mac.empty())
+    int ip_ne  = ip.empty() ? 0 : 1;
+    int ip6_ne = ip6.empty() ? 0 : 1;
+    int mac_ne = mac.empty() ? 0 : 1;
+
+    int attr_ne = ip_ne + ip6_ne + mac_ne;
+
+    if ( attr_ne == 0 )
     {
-        error_msg = "Missing MAC or IP.";
+        error_msg = "Missing MAC, IP or IP6.";
+        return -1;
+    }
+    else if ( attr_ne > 1 )
+    {
+        error_msg = "Only one attribute MAC, IP or IP6 can be set.";
         return -1;
     }
 
     if (lease->vector_value("AR_ID", ar_id) != 0) //No AR_ID hold all addresses
     {
-        if (!mac.empty())
+        if (mac_ne == 1)
         {
             rc = ar_pool.hold_by_mac(mac);
         }
-        else if (!ip.empty())
+        else if (ip_ne == 1)
         {
             rc = ar_pool.hold_by_ip(ip);
+        }
+        else if (ip6_ne == 1)
+        {
+            rc = ar_pool.hold_by_ip6(ip6);
         }
     }
     else
     {
-        if (!mac.empty())
+        if (mac_ne == 1)
         {
             rc = ar_pool.hold_by_mac(ar_id, mac);
         }
-        else if (!ip.empty())
+        else if (ip_ne == 1)
         {
             rc = ar_pool.hold_by_ip(ar_id, ip);
+        }
+        else if (ip6_ne == 1)
+        {
+            rc = ar_pool.hold_by_ip6(ar_id, ip6);
         }
     }
 
@@ -896,34 +952,54 @@ int VirtualNetwork::free_leases(VirtualNetworkTemplate * leases_template,
     unsigned int ar_id;
 
     string  ip  = lease->vector_value("IP");
+    string  ip6 = lease->vector_value("IP6");
     string  mac = lease->vector_value("MAC");
 
-    if (ip.empty() && mac.empty())
+    int ip_ne  = ip.empty() ? 0 : 1;
+    int ip6_ne = ip6.empty() ? 0 : 1;
+    int mac_ne = mac.empty() ? 0 : 1;
+
+    int attr_ne = ip_ne + ip6_ne + mac_ne;
+
+    if ( attr_ne == 0 )
     {
-        error_msg = "Missing MAC or IP.";
+        error_msg = "Missing MAC, IP or IP6.";
+        return -1;
+    }
+    else if ( attr_ne > 1 )
+    {
+        error_msg = "Only one attribute MAC, IP or IP6 can be set.";
         return -1;
     }
 
     if (lease->vector_value("AR_ID", ar_id) != 0) //No AR_ID free all addresses
     {
-        if (!mac.empty())
+        if ( mac_ne == 1 )
         {
             ar_pool.free_addr(PoolObjectSQL::VM, -1, mac);
         }
-        else if (!ip.empty())
+        else if ( ip_ne == 1 )
         {
             ar_pool.free_addr_by_ip(PoolObjectSQL::VM, -1, ip);
+        }
+        else if ( ip6_ne == 1 )
+        {
+            ar_pool.free_addr_by_ip6(PoolObjectSQL::VM, -1, ip6);
         }
     }
     else
     {
-        if (!mac.empty())
+        if ( mac_ne == 1 )
         {
             ar_pool.free_addr(ar_id, PoolObjectSQL::VM, -1, mac);
         }
-        else if (!ip.empty())
+        else if ( ip_ne == 1 )
         {
             ar_pool.free_addr_by_ip(ar_id, PoolObjectSQL::VM, -1, ip);
+        }
+        else if ( ip6_ne == 1 )
+        {
+            ar_pool.free_addr_by_ip6(ar_id, PoolObjectSQL::VM, -1, ip6);
         }
     }
 
@@ -1007,6 +1083,27 @@ int VirtualNetwork::reserve_addr_by_ip(int rid, unsigned int rsize,
         unsigned int ar_id, const string& ip, AddressRange *rar, string& error_str)
 {
     if (ar_pool.reserve_addr_by_ip(rid, rsize, ar_id, ip, rar)!=0)
+    {
+        ostringstream oss;
+
+        oss << "Not enough free addresses in address range " << ar_id
+            << ", or it does not exist";
+
+        error_str = oss.str();
+
+        return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::reserve_addr_by_ip6(int rid, unsigned int rsize,
+        unsigned int ar_id, const string& ip, AddressRange *rar, string& error_str)
+{
+    if (ar_pool.reserve_addr_by_ip6(rid, rsize, ar_id, ip, rar)!=0)
     {
         ostringstream oss;
 

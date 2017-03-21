@@ -28,7 +28,7 @@ template <typename T>
 class ActionSet
 {
 public:
-    ActionSet():action_set(0){};
+    ActionSet():action_set(0UL){};
     ActionSet(const T * actions, int actions_len):action_set(0)
     {
         for (int i=0; i<actions_len; i++)
@@ -42,12 +42,12 @@ public:
     /* Set the action in the set */
     void set(T action)
     {
-        action_set |= 1 << static_cast<int>(action);
+        action_set |= 1UL << static_cast<int>(action);
     };
 
     void clear(T action)
     {
-        action_set &= (~ (1 << static_cast<int>(action)));
+        action_set &= (~ (1UL << static_cast<int>(action)));
     };
 
     /**
@@ -57,7 +57,7 @@ public:
      */
     bool is_set(T action) const
     {
-        return (action_set & (1 << static_cast<int>(action))) != 0;
+        return (action_set & (1UL << static_cast<int>(action))) != 0;
     };
 
 private:

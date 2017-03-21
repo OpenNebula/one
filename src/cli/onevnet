@@ -123,15 +123,17 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 if options[:ip]
                     if options[:ip6_global] || options[:ip6_ula]
                         ar << "TYPE=\"IP4_6\""
+                    elsif options[:ip6]
+                        ar << "TYPE=\"IP4_6_STATIC\""
                     else
                         ar << "TYPE=\"IP4\""
                     end
+                elsif options[:ip6]
+                    ar << "TYPE=\"IP6_STATIC\""
+                elsif options[:ip6_global] || options[:ip6_ula]
+                    ar << "TYPE=\"IP6\""
                 else
-                    if options[:ip6_global] || options[:ip6_ula]
-                        ar << "TYPE=\"IP6\""
-                    else
-                        ar << "TYPE=\"ETHER\""
-                    end
+                    ar << "TYPE=\"ETHER\""
                 end
 
                 if options[:size]
@@ -141,7 +143,41 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                     exit -1
                 end
 
+                if options[:ip6]
+                    m = /([\h:]*)\/(\d.*)$/.match(options[:ip6])
+
+                    if m.nil? || m[1].nil?
+                        STDERR.puts "Missing or wrong IP6"
+                        exit -1
+                    else
+                        begin
+                            require 'ipaddr'
+
+                            ip = IPAddr.new(m[1])
+
+                            if !ip.ipv6?
+                                STDERR.puts "Wrong IP6 format address"
+                                exit -1
+                            end
+                        rescue
+                            STDERR.puts "Wrong IP6 format address"
+                            exit -1
+                        end
+
+                    end
+
+                    if m[2].nil?
+                        STDERR.puts "IP6 address need to set the prefix length"
+                        exit -1
+                    end
+
+                    ar << ", PREFIX_LENGTH=\"#{m[2]}\""
+
+                    options[:ip6] = m[1]
+                end
+
                 ar << ", IP = " << options[:ip] if options[:ip]
+                ar << ", IP6 = " << options[:ip6] if options[:ip6]
                 ar << ", MAC = " << options[:mac] if options[:mac]
                 ar << ", GLOBAL_PREFIX = " <<
                       options[:ip6_global] if options[:ip6_global]
@@ -234,7 +270,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :reserve, reserve_desc, :vnetid, [:vnetid, nil],
         :options=>STD_OPTIONS + [OneVNetHelper::AR, OneVNetHelper::NAME,
-            OneVNetHelper::SIZE, OneVNetHelper::MAC, OneVNetHelper::IP] do
+            OneVNetHelper::SIZE, OneVNetHelper::MAC, OneVNetHelper::IP,
+            OneVNetHelper::IP6 ] do
         helper.perform_action(args[0],options,"reservation made") do |vn|
             size = options[:size] || -1
             name = options[:name] || -1
@@ -242,6 +279,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             addr = nil
             addr = options[:mac] if options[:mac]
             addr = options[:ip] if options[:ip]
+            addr = options[:ip6] if options[:ip6]
 
             if size == -1
                 STDERR.puts "Specify a size (-s size) for the reservation"

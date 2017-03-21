@@ -612,3 +612,193 @@ function get_source_xml {
 
     echo "$SOURCE_HOST"
 }
+
+# This function extracts information about a disk. The first parameter
+# is a string with the filter for disks, for example, to get the disk
+# that's going to be attached use:
+#
+#     get_disk_information "ATTACH=YES"
+#
+# To get an specific disk ID use:
+#
+#     get_disk_information "DISK_ID=$DISK_ID"
+#
+# The variables set are as follows:
+#
+# * VMID
+# * DRIVER
+# * TYPE
+# * READONLY
+# * CACHE
+# * DISCARD
+# * IMG_SRC
+# * DISK_ID
+# * CLONE
+# * CEPH_HOST
+# * CEPH_SECRET
+# * CEPH_USER
+# * ISCSI_HOST
+# * ISCSI_USAGE
+# * ISCSI_USER
+# * ISCSI_IQN
+# * DISK_TYPE
+# * POOL_NAME
+# * SIZE
+# * DISK_TARGET
+# * TYPE_SOURCE: libvirt xml source name. $TYPE_SOURCE=$SOURCE => file=/my/path
+# * SOURCE: disk source, can be path, ceph pool/image, device...
+# * TYPE_XML
+# * DEVICE
+# * SOURCE_ARGS: ex. protocol='rbd'
+# * SOURCE_HOST
+# * AUTH: auth xml for libvirt
+#
+# This function was originaly in attach_disk action
+
+function get_disk_information {
+    FILTER="$1"
+
+    DRIVER_PATH=$(dirname $0)
+    XPATH="${DRIVER_PATH}/../../datastore/xpath.rb"
+    CMD="$XPATH -b $DRV_ACTION"
+
+    unset i j XPATH_ELEMENTS
+
+    DISK_XPATH="/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/DISK[$FILTER]"
+
+    while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+    done < <($CMD       /VMM_DRIVER_ACTION_DATA/VM/ID \
+                        $DISK_XPATH/DRIVER \
+                        $DISK_XPATH/TYPE \
+                        $DISK_XPATH/READONLY \
+                        $DISK_XPATH/CACHE \
+                        $DISK_XPATH/DISCARD \
+                        $DISK_XPATH/SOURCE \
+                        $DISK_XPATH/DISK_ID \
+                        $DISK_XPATH/CLONE \
+                        $DISK_XPATH/CEPH_HOST \
+                        $DISK_XPATH/CEPH_SECRET \
+                        $DISK_XPATH/CEPH_USER \
+                        $DISK_XPATH/ISCSI_HOST \
+                        $DISK_XPATH/ISCSI_USAGE \
+                        $DISK_XPATH/ISCSI_USER \
+                        $DISK_XPATH/ISCSI_IQN \
+                        $DISK_XPATH/DISK_TYPE \
+                        $DISK_XPATH/POOL_NAME \
+                        $DISK_XPATH/SIZE \
+                        $DISK_XPATH/TARGET)
+
+    VMID="${XPATH_ELEMENTS[j++]}"
+    DRIVER="${XPATH_ELEMENTS[j++]:-$DEFAULT_TYPE}"
+    TYPE="${XPATH_ELEMENTS[j++]}"
+    READONLY="${XPATH_ELEMENTS[j++]}"
+    CACHE="${XPATH_ELEMENTS[j++]}"
+    DISCARD="${XPATH_ELEMENTS[j++]}"
+    IMG_SRC="${XPATH_ELEMENTS[j++]}"
+    DISK_ID="${XPATH_ELEMENTS[j++]}"
+    CLONE="${XPATH_ELEMENTS[j++]}"
+    CEPH_HOST="${XPATH_ELEMENTS[j++]}"
+    CEPH_SECRET="${XPATH_ELEMENTS[j++]}"
+    CEPH_USER="${XPATH_ELEMENTS[j++]}"
+    ISCSI_HOST="${XPATH_ELEMENTS[j++]}"
+    ISCSI_USAGE="${XPATH_ELEMENTS[j++]}"
+    ISCSI_USER="${XPATH_ELEMENTS[j++]}"
+    ISCSI_IQN="${XPATH_ELEMENTS[j++]}"
+    DISK_TYPE="${XPATH_ELEMENTS[j++]}"
+    POOL_NAME="${XPATH_ELEMENTS[j++]}"
+    SIZE="${XPATH_ELEMENTS[j++]}"
+    DISK_TARGET="${XPATH_ELEMENTS[j++]}"
+
+    TYPE=$(echo "$TYPE"|tr A-Z a-z)
+
+    NAME="$SOURCE"
+
+    case "$TYPE" in
+    block)
+        TYPE_SOURCE="dev"
+        TYPE_XML="block"
+        DEVICE="disk"
+        ;;
+    iscsi)
+        TYPE_SOURCE="name"
+        TYPE_XML="network"
+        DEVICE="disk"
+
+        if [ -n "$ISCSI_IQN" ]; then
+            SOURCE="${ISCSI_IQN}"
+        else
+            SOURCE="${IMG_SRC}"
+        fi
+
+        SOURCE_ARGS="protocol='iscsi'"
+        SOURCE_HOST=$(get_source_xml $ISCSI_HOST)
+
+        if [ -n "$ISCSI_USAGE" -a -n "$ISCSI_USER" ]; then
+            AUTH="<auth username='$ISCSI_USER'>\
+                    <secret type='iscsi' usage='$ISCSI_USAGE'/>\
+                  </auth>"
+        fi
+        ;;
+    cdrom)
+        TYPE_SOURCE="file"
+        TYPE_XML="file"
+        DEVICE="cdrom"
+        ;;
+    rbd*)
+        TYPE_SOURCE="name"
+        TYPE_XML="network"
+
+        if [ "$TYPE" = "rbd_cdrom" ]; then
+            DEVICE="cdrom"
+        else
+            DEVICE="disk"
+        fi
+
+        if [ "$CLONE" = "YES" ]; then
+            SOURCE="${IMG_SRC}-${VMID}-${DISK_ID}"
+        else
+            SOURCE="${IMG_SRC}"
+        fi
+
+        SOURCE_ARGS="protocol='rbd'"
+        SOURCE_HOST=$(get_source_xml $CEPH_HOST)
+
+        if [ -n "$CEPH_USER" -a -n "$CEPH_SECRET" ]; then
+            AUTH="<auth username='$CEPH_USER'>\
+                    <secret type='ceph' uuid='$CEPH_SECRET'/>\
+                  </auth>"
+        fi
+        ;;
+    *)
+        #NOTE: This includes TYPE=FS and TYPE=SWAP
+        case "$DISK_TYPE" in
+        RBD)
+            TYPE_SOURCE="name"
+            TYPE_XML="network"
+            DEVICE="disk"
+
+            SOURCE="${POOL_NAME}/one-sys-${VMID}-${DISK_ID}"
+
+            NAME="${RBD_SOURCE}"
+            SOURCE_ARGS="protocol='rbd'"
+
+            SOURCE_HOST=$(get_source_xml $CEPH_HOST)
+
+            if [ -n "$CEPH_USER" -a -n "$CEPH_SECRET" ]; then
+                AUTH="<auth username='$CEPH_USER'>\
+                        <secret type='ceph' uuid='$CEPH_SECRET'/>\
+                      </auth>"
+            fi
+            ;;
+        *)
+            TYPE_SOURCE="file"
+            TYPE_XML="file"
+            DEVICE="disk"
+            ;;
+        esac
+
+        ;;
+    esac
+}
+

@@ -27,6 +27,7 @@
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+struct RequestAttributes;
 
 /**
  *  The VirtualRouter class.
@@ -68,7 +69,6 @@ public:
     // ------------------------------------------------------------------------
     // Template Contents
     // ------------------------------------------------------------------------
-
     /**
      *  Factory method for VirtualRouter templates
      */
@@ -131,12 +131,11 @@ public:
     /**
      * Adds a new NIC to the virtual router template.
      * @param tmpl Template, should contain only one NIC
-     * @param error_str error reason, if any
+     * @param error reason, if any
      *
      * @return 0 on failure, the NIC to attach to each VM on success
      */
-    VectorAttribute * attach_nic(
-            VirtualMachineTemplate * tmpl, string& error_str);
+    VectorAttribute * attach_nic(VirtualMachineTemplate * tmpl, string& error);
 
     /**
      * Deletes the NIC from the virtual router template.
@@ -157,9 +156,7 @@ public:
      *    @param  ar the AuthRequest object
      *    @param  tmpl the virtual router template
      */
-    static void set_auth_request(int uid,
-                                 AuthRequest& ar,
-                                 Template *tmpl);
+    static void set_auth_request(int uid, AuthRequest& ar, Template *tmpl);
 
     /**
      * Checks if the given action is supported for Virtual Router VMs
@@ -170,6 +167,20 @@ public:
     {
         return SUPPORTED_ACTIONS.is_set(action);
     }
+
+
+    // -------------------------------------------------------------------------
+    // VM Management
+    // -------------------------------------------------------------------------
+    //
+    /**
+     *  Tries to shutdown, or delete, all this Virtual Router's VMs
+     *    @param ra attributes for the VirtualRouter delete operation
+     *    @param vms implementing the VirtualRouter
+     *    @param nics IP leased to the VirtualRouter
+     *    @return 0 on success, -1 otherwise
+     */
+    static int shutdown_vms(const set<int>& vms, const RequestAttributes& ra);
 
 private:
     // -------------------------------------------------------------------------
@@ -219,13 +230,13 @@ private:
     // *************************************************************************
     // Constructor
     // *************************************************************************
-    VirtualRouter(  int id,
-                    int uid,
-                    int gid,
-                    const string& uname,
-                    const string& gname,
-                    int umask,
-                    Template * _template_contents);
+    VirtualRouter(int id,
+                  int uid,
+                  int gid,
+                  const string& uname,
+                  const string& gname,
+                  int umask,
+                  Template * _template_contents);
 
     ~VirtualRouter();
 
@@ -295,17 +306,6 @@ private:
      * @return nic if found, 0 if not found
      */
     VectorAttribute* get_nic(int nic_id) const;
-
-    // -------------------------------------------------------------------------
-    // VM Management
-    // -------------------------------------------------------------------------
-
-    /**
-     * Tries to shutdown, or delete, all this Virtual Router's VMs
-     *
-     * @return 0 on success, -1 otherwise
-     */
-    int shutdown_vms();
 };
 
 #endif /*VIRTUAL_ROUTER_H_*/

@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManagerVirtualMachine.h"
+#include "VirtualMachineDisk.h"
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
 #include "Quotas.h"
@@ -488,7 +489,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     ostringstream oss;
     string error;
 
-    AuthRequest::Operation op = auth_op;
+    AuthRequest::Operation op;
     History::VMAction action;
 
     VirtualMachine * vm;
@@ -505,10 +506,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
     History::action_from_str(action_st, action);
 
-    if (action == History::RESCHED_ACTION || action == History::UNRESCHED_ACTION)
-    {
-        op = AuthRequest::ADMIN;
-    }
+    op = nd.get_vm_auth_op(action);
 
     if ( vm_authorization(id, 0, 0, att, 0, 0, 0, op) == false )
     {
@@ -547,49 +545,49 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     switch (action)
     {
         case History::TERMINATE_ACTION:
-            rc = dm->terminate(id, false, error);
+            rc = dm->terminate(id, false, att, error);
             break;
         case History::TERMINATE_HARD_ACTION:
-            rc = dm->terminate(id, true, error);
+            rc = dm->terminate(id, true, att, error);
             break;
         case History::HOLD_ACTION:
-            rc = dm->hold(id, error);
+            rc = dm->hold(id, att, error);
             break;
         case History::RELEASE_ACTION:
-            rc = dm->release(id, error);
+            rc = dm->release(id, att, error);
             break;
         case History::STOP_ACTION:
-            rc = dm->stop(id, error);
+            rc = dm->stop(id, att, error);
             break;
         case History::SUSPEND_ACTION:
-            rc = dm->suspend(id, error);
+            rc = dm->suspend(id, att, error);
             break;
         case History::RESUME_ACTION:
-            rc = dm->resume(id, error);
+            rc = dm->resume(id, att, error);
             break;
         case History::REBOOT_ACTION:
-            rc = dm->reboot(id, false, error);
+            rc = dm->reboot(id, false, att, error);
             break;
         case History::REBOOT_HARD_ACTION:
-            rc = dm->reboot(id, true, error);
+            rc = dm->reboot(id, true, att, error);
             break;
         case History::RESCHED_ACTION:
-            rc = dm->resched(id, true, error);
+            rc = dm->resched(id, true, att, error);
             break;
         case History::UNRESCHED_ACTION:
-            rc = dm->resched(id, false, error);
+            rc = dm->resched(id, false, att, error);
             break;
         case History::POWEROFF_ACTION:
-            rc = dm->poweroff(id, false, error);
+            rc = dm->poweroff(id, false, att, error);
             break;
         case History::POWEROFF_HARD_ACTION:
-            rc = dm->poweroff(id, true, error);
+            rc = dm->poweroff(id, true, att, error);
             break;
         case History::UNDEPLOY_ACTION:
-            rc = dm->undeploy(id, false, error);
+            rc = dm->undeploy(id, false, att, error);
             break;
         case History::UNDEPLOY_HARD_ACTION:
-            rc = dm->undeploy(id, true, error);
+            rc = dm->undeploy(id, true, att, error);
             break;
         default:
             rc = -3;
@@ -639,34 +637,11 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
  *    @param vd vector of DISKS
  *    @return true if there at least one volatile disk was found
  */
-static bool set_volatile_disk_info(int ds_id, vector<VectorAttribute *>& vd)
-{
-    DatastorePool * ds_pool = Nebula::instance().get_dspool();
-
-    bool found = false;
-
-    for(vector<VectorAttribute *>::iterator it = vd.begin(); it!=vd.end(); ++it)
-    {
-        if ( !VirtualMachine::is_volatile(*it) )
-        {
-            continue;
-        }
-
-        ds_pool->disk_attribute(ds_id, *it);
-
-        found = true;
-    }
-
-    return found;
-}
-
 static bool set_volatile_disk_info(VirtualMachine *vm, int ds_id)
 {
-    vector<VectorAttribute *> disks;
+    VirtualMachineDisks& disks = vm->get_disks();
 
-    vm->get_template_attribute("DISK", disks);
-
-    bool found = set_volatile_disk_info(ds_id, disks);
+    bool found = disks.volatile_info(ds_id);
 
     if ( found )
     {
@@ -679,11 +654,9 @@ static bool set_volatile_disk_info(VirtualMachine *vm, int ds_id)
 
 static bool set_volatile_disk_info(VirtualMachine *vm, int ds_id, Template& tmpl)
 {
-    vector<VectorAttribute *> disks;
+    VirtualMachineDisks disks(&tmpl, false);
 
-    tmpl.get("DISK", disks);
-
-    bool found = set_volatile_disk_info(ds_id, disks);
+    bool found = disks.volatile_info(ds_id);
 
     if ( found )
     {
@@ -955,11 +928,11 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (vm->is_imported())
     {
-        dm->import(vm);
+        dm->import(vm, att);
     }
     else
     {
-        dm->deploy(vm);
+        dm->deploy(vm, att);
     }
 
     vm->unlock();
@@ -1083,7 +1056,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    if((vm->hasPreviousHistory() && vm->get_previous_reason()== History::NONE)||
+    if( vm->is_previous_history_open() ||
        (vm->get_state() != VirtualMachine::POWEROFF &&
         vm->get_state() != VirtualMachine::SUSPENDED &&
         (vm->get_state() != VirtualMachine::ACTIVE ||
@@ -1290,11 +1263,11 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     if (live == true && vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
-        dm->live_migrate(vm);
+        dm->live_migrate(vm, att);
     }
     else
     {
-        dm->migrate(vm);
+        dm->migrate(vm, att);
     }
 
     vm->unlock();
@@ -1475,6 +1448,8 @@ void VirtualMachineDiskSaveas::request_execute(
     {
         itemplate->add("DEV_PREFIX", dev_prefix);
     }
+
+    Image::test_set_persistent(itemplate, att.uid, att.gid, false);
 
     img_usage.add("SIZE",      size);
     img_usage.add("DATASTORE", ds_id);
@@ -1707,7 +1682,7 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
     RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
 
     VirtualMachineTemplate deltas(tmpl);
-    VirtualMachine::disk_extended_info(att.uid, &deltas);
+    VirtualMachineDisks::extended_info(att.uid, &deltas);
 
     deltas.add("VMS", 0);
 
@@ -1725,7 +1700,7 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
         }
     }
 
-    rc = dm->attach(id, &tmpl, att.resp_msg);
+    rc = dm->attach(id, &tmpl, att, att.resp_msg);
 
     if ( rc != 0 )
     {
@@ -1787,7 +1762,7 @@ void VirtualMachineDetach::request_execute(xmlrpc_c::paramList const& paramList,
 
     vm->unlock();
 
-    rc = dm->detach(id, disk_id, att.resp_msg);
+    rc = dm->detach(id, disk_id, att, att.resp_msg);
 
     if ( rc != 0 )
     {
@@ -2119,7 +2094,7 @@ void VirtualMachineSnapshotCreate::request_execute(
         return;
     }
 
-    rc = dm->snapshot_create(id, name, snap_id, att.resp_msg);
+    rc = dm->snapshot_create(id, name, snap_id, att, att.resp_msg);
 
     if ( rc != 0 )
     {
@@ -2157,7 +2132,7 @@ void VirtualMachineSnapshotRevert::request_execute(
         return;
     }
 
-    rc = dm->snapshot_revert(id, snap_id, att.resp_msg);
+    rc = dm->snapshot_revert(id, snap_id, att, att.resp_msg);
 
     if ( rc != 0 )
     {
@@ -2195,7 +2170,7 @@ void VirtualMachineSnapshotDelete::request_execute(
         return;
     }
 
-    rc = dm->snapshot_delete(id, snap_id, att.resp_msg);
+    rc = dm->snapshot_delete(id, snap_id, att, att.resp_msg);
 
     if ( rc != 0 )
     {
@@ -2339,7 +2314,7 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
     // Perform the attach
     // -------------------------------------------------------------------------
 
-    rc = dm->attach_nic(id, &tmpl, att.resp_msg);
+    rc = dm->attach_nic(id, &tmpl, att, att.resp_msg);
 
     if ( rc != 0 )
     {
@@ -2440,7 +2415,7 @@ Request::ErrorCode VirtualMachineDetachNic::request_execute(int id, int nic_id,
     // -------------------------------------------------------------------------
     // Perform the detach
     // -------------------------------------------------------------------------
-    if ( dm->detach_nic(id, nic_id, att.resp_msg) != 0 )
+    if ( dm->detach_nic(id, nic_id, att, att.resp_msg) != 0 )
     {
         return ACTION;
     }
@@ -2460,9 +2435,34 @@ void VirtualMachineRecover::request_execute(
     int    rc;
     string error;
 
-    DispatchManager * dm = Nebula::instance().get_dm();
+    Nebula& nd           = Nebula::instance();
+    DispatchManager * dm = nd.get_dm();
 
-    if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
+    AuthRequest::Operation aop;
+
+    switch (op)
+    {
+        case 0: //recover-failure
+        case 1: //recover-success
+            aop = nd.get_vm_auth_op(History::RECOVER_ACTION);
+            break;
+
+        case 2: //retry
+            aop = nd.get_vm_auth_op(History::RETRY_ACTION);
+            break;
+
+        case 3: //delete
+        case 4: //delete-recreate set same as delete in OpenNebulaTemplate
+            aop = nd.get_vm_auth_op(History::DELETE_ACTION);
+            break;
+
+        default:
+            att.resp_msg = "Wrong recovery operation code";
+            failure_response(ACTION, att);
+            return;
+    }
+
+    if ( vm_authorization(id, 0, 0, att, 0, 0, 0, aop) == false )
     {
         return;
     }
@@ -2479,33 +2479,25 @@ void VirtualMachineRecover::request_execute(
     switch (op)
     {
         case 0: //recover-failure
-            rc = dm->recover(vm, false, error);
+            rc = dm->recover(vm, false, att, error);
             break;
 
         case 1: //recover-success
-            rc = dm->recover(vm, true, error);
+            rc = dm->recover(vm, true, att, error);
             break;
 
         case 2: //retry
-            rc = dm->retry(vm, error);
+            rc = dm->retry(vm, att, error);
             break;
 
         case 3: //delete
-            rc = dm->delete_vm(vm, error);
+            rc = dm->delete_vm(vm, att, error);
             break;
 
         case 4: //delete-recreate
-            rc = dm->delete_recreate(vm, error);
+            rc = dm->delete_recreate(vm, att, error);
             break;
-
-        default:
-            att.resp_msg = "Wrong recovery operation code";
-            failure_response(ACTION, att);
-
-            vm->unlock();
-            return;
     }
-
 
     if ( rc == 0 )
     {
@@ -2572,7 +2564,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
 
     PoolObjectAuth   vm_perms;
 
-    const VectorAttribute * disk;
+    const VirtualMachineDisk * disk;
     VectorAttribute * delta_disk = 0;
 
     Template ds_deltas;
@@ -2607,9 +2599,9 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
 
     string disk_size = disk->vector_value("SIZE");
     string ds_id     = disk->vector_value("DATASTORE_ID");
-    bool is_volatile = VirtualMachine::is_volatile(disk);
-    bool is_system   = VirtualMachine::disk_tm_target(disk) == "SYSTEM";
-    bool do_ds_quota = VirtualMachine::is_persistent(disk) || !is_system;
+    bool is_volatile = disk->is_volatile();
+    bool is_system   = disk->get_tm_target() == "SYSTEM";
+    bool do_ds_quota = disk->is_persistent() || !is_system;
 
     int img_id = -1;
     disk->vector_value("IMAGE_ID", img_id);
@@ -2696,7 +2688,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     // ------------------------------------------------------------------------
     // Do the snapshot
     // ------------------------------------------------------------------------
-    rc = dm->disk_snapshot_create(id, did, name, snap_id, att.resp_msg);
+    rc = dm->disk_snapshot_create(id, did, name, snap_id, att, att.resp_msg);
 
     if ( rc != 0 )
     {
@@ -2741,7 +2733,7 @@ void VirtualMachineDiskSnapshotRevert::request_execute(
         return;
     }
 
-    rc = dm->disk_snapshot_revert(id, did, snap_id, att.resp_msg);
+    rc = dm->disk_snapshot_revert(id, did, snap_id, att, att.resp_msg);
 
     if ( rc != 0 )
     {
@@ -2766,7 +2758,7 @@ void VirtualMachineDiskSnapshotDelete::request_execute(
     DispatchManager * dm = nd.get_dm();
     VirtualMachine *  vm;
 
-    const VectorAttribute * disk;
+    const VirtualMachineDisk * disk;
 
     int rc;
 
@@ -2791,7 +2783,7 @@ void VirtualMachineDiskSnapshotDelete::request_execute(
         return;
     }
 
-    bool persistent  = VirtualMachine::is_persistent(disk);
+    bool persistent = disk->is_persistent();
 
     int img_id = -1;
     disk->vector_value("IMAGE_ID", img_id);
@@ -2827,7 +2819,7 @@ void VirtualMachineDiskSnapshotDelete::request_execute(
         return;
     }
 
-    rc = dm->disk_snapshot_delete(id, did, snap_id, att.resp_msg);
+    rc = dm->disk_snapshot_delete(id, did, snap_id, att, att.resp_msg);
 
     if ( rc != 0 )
     {
@@ -2912,3 +2904,190 @@ void VirtualMachineUpdateConf::request_execute(
     vm->unlock();
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineDiskResize::request_execute(
+		xmlrpc_c::paramList const&  paramList,
+        RequestAttributes&          att)
+{
+    Nebula&           nd = Nebula::instance();
+    DispatchManager * dm = nd.get_dm();
+
+    VirtualMachine * vm;
+
+    Template ds_deltas;
+    Template vm_deltas;
+
+    PoolObjectAuth   vm_perms;
+
+    int    id     = xmlrpc_c::value_int(paramList.getInt(1));
+    int    did    = xmlrpc_c::value_int(paramList.getInt(2));
+    string size_s = xmlrpc_c::value_string(paramList.getString(3));
+
+	long long size , current_size;
+
+    // ------------------------------------------------------------------------
+    // Check request consistency (VM & disk exists, size, and no snapshots)
+    // ------------------------------------------------------------------------
+	istringstream iss(size_s);
+
+	iss >> size;
+
+	if (iss.fail() || !iss.eof())
+	{
+		att.resp_msg = "Disk SIZE is not a valid integer";
+        failure_response(ACTION, att);
+
+		return;
+	}
+
+    if ((vm = get_vm(id, att)) == 0)
+    {
+        return;
+    }
+
+    VirtualMachineDisk * disk =vm->get_disk(did);
+
+    if (disk == 0)
+    {
+        att.resp_msg = "VM disk does not exist";
+        failure_response(ACTION, att);
+
+        vm->unlock();
+
+        return;
+	}
+
+	disk->vector_value("SIZE", current_size);
+
+	if ( size <= current_size )
+	{
+        att.resp_msg = "New disk size has to be greater than current one";
+        failure_response(ACTION, att);
+
+        vm->unlock();
+
+        return;
+	}
+
+	if ( disk->has_snapshots() )
+	{
+        att.resp_msg = "Cannot resize a disk with snapshots";
+        failure_response(ACTION, att);
+
+        vm->unlock();
+
+        return;
+	}
+
+    /* ------------- Get information about the disk and image --------------- */
+    bool is_persistent = disk->is_persistent();
+
+    disk->resize_quotas(size, ds_deltas, vm_deltas);
+
+    int img_id = -1;
+    disk->vector_value("IMAGE_ID", img_id);
+
+    vm->get_permissions(vm_perms);
+
+    vm->unlock();
+
+    /* ---------------------------------------------------------------------- */
+    /*  Authorize the request for VM and IMAGE for persistent disks           */
+    /* ---------------------------------------------------------------------- */
+    RequestAttributes ds_att_quota;
+    RequestAttributes vm_att_quota;
+
+    if ( is_persistent )
+    {
+        PoolObjectAuth img_perms;
+
+        if ( img_id != -1 )
+        {
+            Image* img = ipool->get(img_id, true);
+
+            if (img == 0)
+            {
+                att.resp_obj = PoolObjectSQL::IMAGE;
+                att.resp_id  = img_id;
+                failure_response(NO_EXISTS, att);
+
+                return;
+            }
+
+            img->get_permissions(img_perms);
+
+            img->unlock();
+        }
+
+        if (vm_authorization(id, 0, 0, att, 0, 0, &img_perms, auth_op) == false)
+        {
+            return;
+        }
+
+        ds_att_quota = RequestAttributes(img_perms.uid, img_perms.gid, att);
+    }
+    else
+    {
+        if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
+        {
+            return;
+        }
+
+        ds_att_quota = RequestAttributes(vm_perms.uid, vm_perms.gid, att);
+    }
+
+    vm_att_quota = RequestAttributes(vm_perms.uid, vm_perms.gid, att);
+
+    /* ---------------------------------------------------------------------- */
+    /*  Check quotas for the new size in image/system datastoress             */
+    /* ---------------------------------------------------------------------- */
+
+    if ( !ds_deltas.empty() )
+    {
+        if (!quota_authorization(&ds_deltas, Quotas::DATASTORE, ds_att_quota))
+        {
+            return;
+        }
+    }
+
+    if ( !vm_deltas.empty() )
+    {
+        if (!quota_resize_authorization(id, &vm_deltas, vm_att_quota))
+        {
+            if (!ds_deltas.empty())
+            {
+                quota_rollback(&ds_deltas, Quotas::DATASTORE, ds_att_quota);
+            }
+
+            return;
+        }
+    }
+
+    // ------------------------------------------------------------------------
+    // Resize the disk
+    // ------------------------------------------------------------------------
+    int rc = dm->disk_resize(id, did, size, att, att.resp_msg);
+
+    if ( rc != 0 )
+    {
+        if ( !ds_deltas.empty() )
+        {
+            quota_rollback(&ds_deltas, Quotas::DATASTORE, ds_att_quota);
+        }
+
+        if ( !vm_deltas.empty() )
+        {
+            quota_rollback(&vm_deltas, Quotas::VM, vm_att_quota);
+        }
+
+        failure_response(ACTION, att);
+    }
+    else
+    {
+        success_response(did, att);
+    }
+
+    return;
+}

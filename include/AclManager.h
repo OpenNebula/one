@@ -21,6 +21,7 @@
 #include "AuthRequest.h"
 #include "PoolObjectSQL.h"
 #include "AclRule.h"
+#include "NebulaLog.h"
 
 #include "SqlDB.h"
 
@@ -457,14 +458,18 @@ private:
      */
     friend void * acl_action_loop(void *arg);
 
-    /**
-     *  The action function executed when an action is triggered.
-     *    @param action the name of the action
-     *    @param arg arguments for the action function
-     */
-    void do_action(
-        const string &  action,
-        void *          arg);
+    // -------------------------------------------------------------------------
+    // Action Listener interface
+    // -------------------------------------------------------------------------
+    void timer_action(const ActionRequest& ar)
+    {
+        select();
+    };
+
+    void finalize_action(const ActionRequest& ar)
+    {
+        NebulaLog::log("ACL",Log::INFO,"Stopping ACL Manager...");
+    };
 };
 
 #endif /*ACL_MANAGER_H*/

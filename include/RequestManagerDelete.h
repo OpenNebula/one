@@ -404,6 +404,9 @@ public:
     };
 
     ~VirtualRouterDelete(){};
+
+protected:
+    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -449,7 +452,24 @@ protected:
 
     int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att);
 };
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VMGroupDelete : public RequestManagerDelete
+{
+public:
+    VMGroupDelete():
+        RequestManagerDelete("VMGroupDelete",
+                             "Deletes a vm group")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vmgrouppool();
+        auth_object = PoolObjectSQL::VMGROUP;
+    };
+
+    ~VMGroupDelete(){};
+};
 
 #endif
+

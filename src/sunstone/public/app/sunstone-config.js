@@ -134,7 +134,7 @@ define(function(require) {
           }
         }
       },
-      "logo": (_config['view']["provision_logo"] || "images/one_small_logo.png")
+      "logo": (_config['view']["provision_logo"] || "images/one_small_logo.png"),
     },
 
     'autoRefresh' : _config['view']['autorefresh'],
@@ -143,6 +143,8 @@ define(function(require) {
     'vncWSS': _config['user_config']['vnc_wss'],
     'requestVNCPassword': _config['system_config']['vnc_request_password'],
     'logo': (_config['view']["small_logo"] || "images/one_small_logo.png"),
+    "link_logo": (_config['view']["link_logo"] || false),
+    "text_link_logo": (_config['view']["text_link_logo"] || false),
     'vmLogos': (_config['vm_logos']),
     'enabledTabs': _config['view']['enabled_tabs'],
     'onedConf': _config['oned_conf'],
@@ -151,10 +153,6 @@ define(function(require) {
     "allTabs": function() {
       return Object.keys(_config['view']['tabs']);
     }
-
-    /*"isConfirmVmsActionsEnable": function() {
-      Console.Log(_config['view']['confirm_vms']);
-    }*/
   }
 
   return Config;

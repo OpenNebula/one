@@ -16,6 +16,7 @@
 
 
 require 'opennebula/pool_element'
+require 'ipaddr'
 
 module OpenNebula
     class VirtualNetwork < PoolElement
@@ -184,11 +185,9 @@ module OpenNebula
         def hold(ip, ar_id=-1)
             return Error.new('ID not defined') if !@pe_id
 
-            if ip.include?':'
-                addr_name = "MAC"
-            else
-                addr_name = "IP"
-            end
+            addr_name = address_type(ip)
+
+            return addr_name if OpenNebula.is_error?(addr_name)
 
             lease_template =  "LEASES = [ #{addr_name} = #{ip}"
             lease_template << ", AR_ID = #{ar_id}" if ar_id != -1
@@ -207,11 +206,9 @@ module OpenNebula
         def release(ip, ar_id=-1)
             return Error.new('ID not defined') if !@pe_id
 
-            if ip.include?':'
-                addr_name = "MAC"
-            else
-                addr_name = "IP"
-            end
+            addr_name = address_type(ip)
+
+            return addr_name if OpenNebula.is_error?(addr_name)
 
             lease_template =  "LEASES = [ #{addr_name} = #{ip}"
             lease_template << ", AR_ID = #{ar_id}" if ar_id != -1
@@ -243,11 +240,9 @@ module OpenNebula
             rtmpl << "NETWORK_ID = #{vnet}\n"  if !vnet.nil?
 
             if !addr.nil?
-                if addr.include?':'
-                    addr_name = "MAC"
-                else
-                    addr_name = "IP"
-                end
+                addr_name = address_type(addr)
+
+                return addr_name if OpenNebula.is_error?(addr_name)
 
                 rtmpl << "#{addr_name} = #{addr}\n"
             end
@@ -342,5 +337,27 @@ module OpenNebula
             chmod(-1, -1, -1, group_u, -1, -1, -1, -1, -1)
         end
 
+        # Returns the OpenNebula name of the address to use it in LEASE
+        # attributes. MAC, IP or IP6 is returned for MAC addresses in colon
+        # notation, ipv4 and ipv6 respectively
+        def address_type(addr)
+            begin
+                ipaddr = IPAddr.new addr
+
+                if ipaddr.ipv4?
+                    return "IP"
+                elsif ipaddr.ipv6?
+                    return "IP6"
+                else
+                    return Error.new('Unknown IP type')
+                end
+            rescue
+                if /^(\h{2}:){5}\h{2}$/ =~ addr
+                    return "MAC"
+                else
+                    return Error.new('Unknown address type')
+                end
+            end
+        end
     end
 end

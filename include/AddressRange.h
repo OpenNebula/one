@@ -39,18 +39,30 @@ public:
 
     // *************************************************************************
     // Address Range types
-    // *************************************************************************
+    /// *************************************************************************
 
     /**
      *  Type of Addresses defined by this address range
+     *  Constants are encoded as follows:
+     *
+     *  option bits    address family bits
+     *            ---+----+----+
+     *           ...*|0000|****|
+     *           ----+----+||||+
+     *                     |||\___ AR with Ethernet addresses
+     *                     ||\____ AR with IPv4 addresses
+     *                     |\_____ AR with IPv6 addresses (SLAAC)
+     *                     \______ AR with IPv6 addresses (static, non-SLAAC)
      */
     enum AddressType
     {
-        NONE  = 0x00000000, /** Undefined Address Type */
-        ETHER = 0x00000001, /** MAC address type */
-        IP4   = 0x00000003, /** IP version 4 address */
-        IP6   = 0x00000005, /** IP version 6 address */
-        IP4_6 = 0x00000007  /** IP dual stack version 4 & 6 addresses */
+        NONE         = 0x00000000, /** Undefined Address Type */
+        ETHER        = 0x00000001, /** MAC address type */
+        IP4          = 0x00000003, /** MAC + IP4 address */
+        IP6          = 0x00000005, /** MAC + IP6 address */
+        IP6_STATIC   = 0x00000009, /** MAC + IP6 (no-SLAAC) address */
+        IP4_6        = 0x00000007, /** MAC + IP4 + IP6  addresses */
+        IP4_6_STATIC = 0x0000000B, /** MAC + IP4 + IP6 (no-SLAAC) addresses */
     };
 
     /**
@@ -66,6 +78,31 @@ public:
      *    @return the string
      */
     static AddressType str_to_type(string& str_type);
+
+    /**
+     *  Return true if the address range includes IPv4 addresses
+     */
+    bool is_ipv4() const
+    {
+        return (type & 0x00000002) != 0;
+    }
+
+    /**
+     *  Return true if the address range includes IPv6 addresses
+     */
+    bool is_ipv6() const
+    {
+        return (type & 0x00000004) != 0;
+    }
+
+    /**
+     *  Return true if the address range includes static IPv6 addresses (host id
+     *  is manually defined)
+     */
+    bool is_ipv6_static() const
+    {
+        return (type & 0x00000008) != 0;
+    }
 
     // *************************************************************************
     // Address Range initialization functions
@@ -151,7 +188,7 @@ public:
         VectorAttribute * nic, const vector<string> &inherit);
 
     /**
-     *  Returns the specific address by mac if is not allocated. The NIC attr
+     *  Returns the specific address by mac/ip if is not allocated. The NIC attr
      *  is filled with the configuration parameters from the address range.
      *    @param mac the mac address
      *    @param ot the type of the object allocating the address
@@ -163,47 +200,35 @@ public:
     int allocate_by_mac(const string& mac, PoolObjectSQL::ObjectType ot,
         int obid, VectorAttribute * nic, const vector<string> &inherit);
 
-    /**
-     *  Returns the specific address by ip if is not allocated. The NIC attr
-     *  is filled with the configuration parameters from the address range.
-     *    @param ot the type of the object allocating the address
-     *    @param obid the id of the object
-     *    @param nic the VM NIC attribute
-     *    @param inherit attributes to be added to the NIC attribute
-     *    @return 0 if success
-     */
     int allocate_by_ip(const string& ip, PoolObjectSQL::ObjectType ot,
         int obid, VectorAttribute * nic, const vector<string> &inherit);
 
-    /**
-     *  Sets the given ip on hold, the address is associated to a VM of id -1.
-     *    @param ip the ip to hold
-     */
-    int hold_by_ip(const string& ip);
+    int allocate_by_ip6(const string& ip6, PoolObjectSQL::ObjectType ot,
+        int obid, VectorAttribute * nic, const vector<string> &inherit);
 
     /**
-     *  Sets the given mac on hold, the address is associated to a VM of id -1.
-     *    @param mac the mac to hold
+     *  Sets the given ip/mac on hold, the address is associated to a VM of
+     *  id -1.
+     *    @param ip/mac the ip to hold
      */
     int hold_by_mac(const string& mac);
 
+    int hold_by_ip(const string& ip);
+
+    int hold_by_ip6(const string& ip);
+
     /**
-     *  Frees a previous allocated address, referenced by its MAC address
+     *  Frees a previous allocated address, referenced by its MAC/IP address
      *  @param ot the object type of the owner of the address
      *  @param obid the id of the owner of the address
-     *  @param mac the MAC address in string form
+     *  @param mac/ip the MAC/IP address in string form
      *  @return 0 if the address was freed
      */
     int free_addr(PoolObjectSQL::ObjectType ot, int obid, const string& mac);
 
-    /**
-     *  Frees a previous allocated address, referenced by its IP address
-     *  @param ot the object type of the owner of the address
-     *  @param obid the id of the owner of the address
-     *  @param ip the IP address in string form
-     *  @return 0 if the address was freed
-     */
     int free_addr_by_ip(PoolObjectSQL::ObjectType ot, int id, const string& ip);
+
+    int free_addr_by_ip6(PoolObjectSQL::ObjectType ot, int id,const string& ip);
 
     /**
      *  Frees all previous allocated address to the given object
@@ -250,21 +275,16 @@ public:
      *    @param vid the id of the VNET making the reservation
      *    @param size number of addresses to reserve
      *    @param rar a new address range to place the reservation
-     *    @param ip the firs ip in the Reservation
-     *    @return 0 on success
-     */
-    int reserve_addr_by_ip(int vid, unsigned int rsize, const string& ip,
-        AddressRange *rar);
-
-    /**
-     *  Reserve a given number of addresses from this address range
-     *    @param vid the id of the VNET making the reservation
-     *    @param size number of addresses to reserve
-     *    @param rar a new address range to place the reservation
-     *    @param mac the firs mac in the Reservation
+     *    @param ip/mac the firs ip in the Reservation
      *    @return 0 on success
      */
     int reserve_addr_by_mac(int vid, unsigned int rsize, const string& mac,
+        AddressRange *rar);
+
+    int reserve_addr_by_ip(int vid, unsigned int rsize, const string& ip,
+        AddressRange *rar);
+
+    int reserve_addr_by_ip6(int vid, unsigned int rsize, const string& ip,
         AddressRange *rar);
 
     // *************************************************************************
@@ -380,6 +400,7 @@ protected:
      *    <MAC>
      *    <IP6_ULA>
      *    <IP6_GLOBAL>
+     *    <IP6>
      *    <SIZE>
      *
      *    @param index for the address
@@ -416,18 +437,32 @@ protected:
      */
     bool is_valid_ip(unsigned int& index, const string& ip_s, bool check_free);
 
+    /**
+     *  Check if the given IP is valid for this address range by verifying:
+     *    - AR is of type IP6_STATIC or IP4_6_STATIC
+     *    - Correct : notation
+     *    - Part of the AR
+     *
+     *    @param index of the IP in the AR
+     *    @param ip6_s string representation of the IP in : notation
+     *    @param check_free apart from previous checks
+     *
+     *    @return true if the IP is valid
+     */
+    bool is_valid_ip6(unsigned int& index, const string& ip_s, bool check_free);
+
     /* ---------------------------------------------------------------------- */
     /* Implementation specific address management interface                   */
     /* ---------------------------------------------------------------------- */
     /**
      *  Sets the given range of addresses (by index) as used
-     *    @param index the first address to set as used
+     *    @param ix the first address to set as used
      *    @param sz number of addresses to set
-     *    @param msg describing the error if any
+     *    @param mg describing the error if any
      *
      *    @return 0 if success
      */
-    virtual int allocate_addr(unsigned int index, unsigned int sz, string& msg) = 0;
+    virtual int allocate_addr(unsigned int ix, unsigned int sz, string& mg) = 0;
     /**
      *  Gets a range of free addresses
      *    @param index the first address in the range
@@ -488,6 +523,13 @@ private:
     int ip_to_i(const string& _ip, unsigned int& i_ip) const;
 
     /**
+     *  IP version 6 to binary (32 bits)
+     *    @param ip string form 2a00:1bc0:b001:A::3
+     *    @return 0 on success
+     */
+    int ip6_to_i(const string& _ip, unsigned int i_ip[]) const;
+
+    /**
      * IP version 4 to dot notation
      *
      * @param i_ip Numeric (32 bits) IP
@@ -511,6 +553,8 @@ private:
      */
     int ip6_to_s(const unsigned int prefix[], const unsigned int mac[],
         string& ip6_s) const;
+
+    int ip6_to_s(const unsigned int ip6_i[], string& ip6_s) const;
 
     /* ---------------------------------------------------------------------- */
     /* NIC setup functions                                                    */
@@ -536,6 +580,13 @@ private:
      *    @param nic attribute of a VMTemplate
      */
     void set_ip6(unsigned int addr_index, VectorAttribute * nic) const;
+
+    /**
+     *  Writes IPv6 address (no-slaac) to the given NIC attribute
+     *    @param addr_index internal index for the lease
+     *    @param nic attribute of a VMTemplate
+     */
+    void set_ip6_static(unsigned int addr_index, VectorAttribute * nic) const;
 
     /**
      *  Writes VNET configuration attributes to the given NIC attribute. It
@@ -605,6 +656,39 @@ private:
     /* ---------------------------------------------------------------------- */
     /* Restricted Attributes functions                                        */
     /* ---------------------------------------------------------------------- */
+    /**
+     *  Function to parse the IPv4 attribute ("IP") for IP4 and IP4_6 ARs
+     *    @param error_msg if any
+     *    @return 0 on success
+     */
+    int init_ipv4(string& error_msg);
+
+    /**
+     *  Function to parse the IPv6 attributes ("GLOBAL_PREFIX" and "ULA_PREFIX")
+     *  for IP6 and IP4_6 ARs
+     *    @param error_msg if any
+     *    @return 0 on success
+     */
+    int init_ipv6(string& error_msg);
+
+    /**
+     *  Function to parse the IPv6 attributes no slaac ("IP6") for IP6_STATIC
+     *  and IP4_6_STATIC ARs
+     *    @param error_msg if any
+     *    @return 0 on success
+     */
+    int init_ipv6_static(string& error_msg);
+
+    /**
+     *  Function to parse the MAC attributes ("MAC") for all AR types
+     *    @param error_msg if any
+     *    @return 0 on success
+     */
+    int init_mac(string& error_msg);
+
+    /**
+     *  Checks for restricted attributes, returns the first one found
+     */
     bool check(string& rs_attr) const;
 
     /**
@@ -654,6 +738,11 @@ private:
      *  Binary representation of the IPv6 address site unicast prefix
      */
     unsigned int ula6[2];
+
+    /**
+     *  Binary representation of the first IPv6 address in the AR. No SLAAC ARs
+     */
+    unsigned int ip6[4];
 
     /**
      *  Security Group IDs for this Address Range

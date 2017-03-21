@@ -38,7 +38,7 @@ protected:
         pool        = nd.get_vmpool();
 
         auth_object = PoolObjectSQL::VM;
-        auth_op = AuthRequest::MANAGE;
+        auth_op     = AuthRequest::MANAGE;
     };
 
     ~RequestManagerVirtualMachine(){};
@@ -135,7 +135,7 @@ public:
                                      "Deploys a virtual machine",
                                      "A:siibi")
     {
-         auth_op = AuthRequest::ADMIN;
+        auth_op = Nebula::instance().get_vm_auth_op(History::DEPLOY_ACTION);
     };
 
     ~VirtualMachineDeploy(){};
@@ -153,9 +153,8 @@ public:
     VirtualMachineMigrate():
         RequestManagerVirtualMachine("VirtualMachineMigrate",
                                      "Migrates a virtual machine",
-                                     "A:siibbi")
-    {
-         auth_op = AuthRequest::ADMIN;
+                                     "A:siibbi"){
+        auth_op = Nebula::instance().get_vm_auth_op(History::MIGRATE_ACTION);
     };
 
     ~VirtualMachineMigrate(){};
@@ -173,7 +172,9 @@ public:
     VirtualMachineDiskSaveas():
         RequestManagerVirtualMachine("VirtualMachineDiskSaveas",
                            "Save a disk from virtual machine as a new image",
-                           "A:siissi"){};
+                           "A:siissi"){
+        auth_op= Nebula::instance().get_vm_auth_op(History::DISK_SAVEAS_ACTION);
+    };
 
     ~VirtualMachineDiskSaveas(){};
 
@@ -191,8 +192,7 @@ public:
     VirtualMachineMonitoring():
         RequestManagerVirtualMachine("VirtualMachineMonitoring",
                 "Returns the virtual machine monitoring records",
-                "A:si")
-    {
+                "A:si"){
         auth_op = AuthRequest::USE;
     };
 
@@ -211,7 +211,9 @@ public:
     VirtualMachineAttach():
         RequestManagerVirtualMachine("VirtualMachineAttach",
                            "Attaches a new disk to the virtual machine",
-                           "A:sis"){};
+                           "A:sis"){
+        auth_op= Nebula::instance().get_vm_auth_op(History::DISK_ATTACH_ACTION);
+    };
 
     ~VirtualMachineAttach(){};
 
@@ -228,7 +230,10 @@ public:
     VirtualMachineDetach():
         RequestManagerVirtualMachine("VirtualMachineDetach",
                            "Detaches a disk from a virtual machine",
-                           "A:sii"){};
+                           "A:sii"){
+        //Attach & detach are set to the same auth op in OpenNebulaTemplate
+        auth_op= Nebula::instance().get_vm_auth_op(History::DISK_DETACH_ACTION);
+    };
 
     ~VirtualMachineDetach(){};
 
@@ -245,7 +250,9 @@ public:
     VirtualMachineAttachNic():
         RequestManagerVirtualMachine("VirtualMachineAttachNic",
                            "Attaches a new NIC to the virtual machine",
-                           "A:sis"){};
+                           "A:sis"){
+        auth_op = Nebula::instance().get_vm_auth_op(History::NIC_ATTACH_ACTION);
+    };
 
     ~VirtualMachineAttachNic(){};
 
@@ -274,7 +281,10 @@ public:
     VirtualMachineDetachNic():
         RequestManagerVirtualMachine("VirtualMachineDetachNic",
                            "Detaches a NIC from a virtual machine",
-                           "A:sii"){};
+                           "A:sii"){
+        //Attach & detach are set to the same auth op in OpenNebulaTemplate
+        auth_op = Nebula::instance().get_vm_auth_op(History::NIC_DETACH_ACTION);
+    };
 
     ~VirtualMachineDetachNic(){};
 
@@ -300,7 +310,10 @@ public:
     VirtualMachineResize():
         RequestManagerVirtualMachine("VirtualMachineResize",
                            "Changes the capacity of the virtual machine",
-                           "A:sisb"){};
+                           "A:sisb"){
+        auth_op = Nebula::instance().get_vm_auth_op(History::RESIZE_ACTION);
+    };
+
     ~VirtualMachineResize(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
@@ -316,7 +329,12 @@ public:
     VirtualMachineSnapshotCreate():
         RequestManagerVirtualMachine("VirtualMachineSnapshotCreate",
                            "Creates a new virtual machine snapshot",
-                           "A:sis"){};
+                           "A:sis"){
+        Nebula& nd = Nebula::instance();
+
+        //All VM snapshot operations are set to the same auth value
+        auth_op    = nd.get_vm_auth_op(History::SNAPSHOT_CREATE_ACTION);
+    };
 
     ~VirtualMachineSnapshotCreate(){};
 
@@ -333,7 +351,12 @@ public:
     VirtualMachineSnapshotRevert():
         RequestManagerVirtualMachine("VirtualMachineSnapshotRevert",
                            "Reverts a virtual machine to a snapshot",
-                           "A:sii"){};
+                           "A:sii"){
+        Nebula& nd = Nebula::instance();
+
+        //All VM snapshot operations are set to the same auth value
+        auth_op    = nd.get_vm_auth_op(History::SNAPSHOT_REVERT_ACTION);
+    };
 
     ~VirtualMachineSnapshotRevert(){};
 
@@ -350,7 +373,12 @@ public:
     VirtualMachineSnapshotDelete():
         RequestManagerVirtualMachine("VirtualMachineSnapshotDelete",
                            "Deletes a virtual machine snapshot",
-                           "A:sii"){};
+                           "A:sii"){
+        Nebula& nd = Nebula::instance();
+
+        //All VM snapshot operations are set to the same auth value
+        auth_op    = nd.get_vm_auth_op(History::SNAPSHOT_DELETE_ACTION);
+    };
 
     ~VirtualMachineSnapshotDelete(){};
 
@@ -367,11 +395,7 @@ public:
     VirtualMachineRecover():
         RequestManagerVirtualMachine("VirtualMachineRecover",
                                      "Recovers a virtual machine",
-                                     "A:sii")
-    {
-         auth_op = AuthRequest::ADMIN;
-    };
-
+                                     "A:sii"){};
     ~VirtualMachineRecover(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
@@ -387,11 +411,12 @@ public:
 
     VirtualMachinePoolCalculateShowback():
         RequestManagerVirtualMachine("VirtualMachinePoolCalculateShowback",
-                                     "Processes all the history records, and stores the monthly cost for each VM",
-                                     "A:sii")
+            "Processes all the history records, and stores the monthly cost"
+            " for each VM", "A:sii")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
+
         auth_object = PoolObjectSQL::VM;
     };
 
@@ -415,6 +440,9 @@ public:
                            "A:siis"){
         Nebula& nd  = Nebula::instance();
         ipool       = nd.get_ipool();
+
+        //All VM disk snapshot operations are set to the same auth value
+        auth_op = nd.get_vm_auth_op(History::DISK_SNAPSHOT_CREATE_ACTION);
     };
 
     ~VirtualMachineDiskSnapshotCreate(){};
@@ -435,7 +463,12 @@ public:
     VirtualMachineDiskSnapshotRevert():
         RequestManagerVirtualMachine("VirtualMachineDiskSnapshotRevert",
                            "Reverts disk state to a snapshot",
-                           "A:siii"){};
+                           "A:siii"){
+        Nebula& nd = Nebula::instance();
+
+        //All VM disk snapshot operations are set to the same auth value
+        auth_op = nd.get_vm_auth_op(History::DISK_SNAPSHOT_REVERT_ACTION);
+    };
 
     ~VirtualMachineDiskSnapshotRevert(){};
 
@@ -455,6 +488,9 @@ public:
                            "A:siii"){
         Nebula& nd  = Nebula::instance();
         ipool       = nd.get_ipool();
+
+        //All VM disk snapshot operations are set to the same auth value
+        auth_op = nd.get_vm_auth_op(History::DISK_SNAPSHOT_DELETE_ACTION);
     };
 
     ~VirtualMachineDiskSnapshotDelete(){};
@@ -475,12 +511,38 @@ public:
     VirtualMachineUpdateConf():
         RequestManagerVirtualMachine("VirtualMachineUpdateConf",
                            "Updates several configuration attributes of a VM",
-                           "A:sis"){};
+                           "A:sis"){
+        auth_op = Nebula::instance().get_vm_auth_op(History::UPDATECONF_ACTION);
+    };
 
     ~VirtualMachineUpdateConf(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att);
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineDiskResize : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineDiskResize():
+        RequestManagerVirtualMachine("VirtualMachineDiskResize",
+                           "Resizes a disk from a virtual machine",
+                           "A:siis"){
+        Nebula& nd = Nebula::instance();
+        ipool      = nd.get_ipool();
+
+        auth_op = nd.get_vm_auth_op(History::DISK_RESIZE_ACTION);
+    };
+
+    ~VirtualMachineDiskResize(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+private:
+    ImagePool* ipool;
 };
 
 #endif

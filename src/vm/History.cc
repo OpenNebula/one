@@ -54,7 +54,6 @@ History::History(
         running_etime(0),
         epilog_stime(0),
         epilog_etime(0),
-        reason(NONE),
         action(NONE_ACTION),
         vm_info("<VM/>"){};
 
@@ -86,7 +85,6 @@ History::History(
         running_etime(0),
         epilog_stime(0),
         epilog_etime(0),
-        reason(NONE),
         action(NONE_ACTION),
         vm_info(_vm_info)
 {
@@ -311,8 +309,10 @@ string& History::to_xml(string& xml, bool database) const
           "<RETIME>"     << running_etime << "</RETIME>"<<
           "<ESTIME>"     << epilog_stime  << "</ESTIME>"<<
           "<EETIME>"     << epilog_etime  << "</EETIME>"<<
-          "<REASON>"     << reason        << "</REASON>"<<
-          "<ACTION>"     << action        << "</ACTION>";
+          "<ACTION>"     << action        << "</ACTION>"<<
+          "<UID>"        << uid           << "</UID>"<<
+          "<GID>"        << gid           << "</GID>"<<
+          "<REQUEST_ID>" << req_id        << "</REQUEST_ID>";
 
     if ( database )
     {
@@ -332,28 +332,36 @@ string& History::to_xml(string& xml, bool database) const
 
 int History::rebuild_attributes()
 {
-    int int_reason, int_action;
+    int int_action;
     int rc = 0;
 
-    rc += xpath(seq              , "/HISTORY/SEQ",         -1);
-    rc += xpath(hostname         , "/HISTORY/HOSTNAME",    "not_found");
-    rc += xpath(hid              , "/HISTORY/HID",         -1);
-    rc += xpath(cid              , "/HISTORY/CID",         -1);
-    rc += xpath<time_t>(stime    , "/HISTORY/STIME",       0);
-    rc += xpath<time_t>(etime    , "/HISTORY/ETIME",       0);
-    rc += xpath(vmm_mad_name     , "/HISTORY/VM_MAD",      "not_found");
-    rc += xpath(tm_mad_name      , "/HISTORY/TM_MAD",       "not_found");
-    rc += xpath(ds_id            , "/HISTORY/DS_ID",       0);
-    rc += xpath<time_t>(prolog_stime , "/HISTORY/PSTIME",      0);
-    rc += xpath<time_t>(prolog_etime , "/HISTORY/PETIME",      0);
-    rc += xpath<time_t>(running_stime, "/HISTORY/RSTIME",      0);
-    rc += xpath<time_t>(running_etime, "/HISTORY/RETIME",      0);
-    rc += xpath<time_t>(epilog_stime , "/HISTORY/ESTIME",      0);
-    rc += xpath<time_t>(epilog_etime , "/HISTORY/EETIME",      0);
-    rc += xpath(int_reason       , "/HISTORY/REASON",      0);
-    rc += xpath(int_action       , "/HISTORY/ACTION",      0);
+    rc += xpath(seq, "/HISTORY/SEQ", -1);
+    rc += xpath(hid, "/HISTORY/HID", -1);
+    rc += xpath(cid, "/HISTORY/CID", -1);
 
-    reason = static_cast<EndReason>(int_reason);
+    rc += xpath(ds_id, "/HISTORY/DS_ID", 0);
+
+    rc += xpath(hostname, "/HISTORY/HOSTNAME", "not_found");
+
+    rc += xpath<time_t>(stime , "/HISTORY/STIME", 0);
+    rc += xpath<time_t>(etime , "/HISTORY/ETIME", 0);
+
+    rc += xpath(vmm_mad_name, "/HISTORY/VM_MAD", "not_found");
+    rc += xpath(tm_mad_name , "/HISTORY/TM_MAD", "not_found");
+
+    rc += xpath<time_t>(prolog_stime , "/HISTORY/PSTIME", 0);
+    rc += xpath<time_t>(prolog_etime , "/HISTORY/PETIME", 0);
+    rc += xpath<time_t>(running_stime, "/HISTORY/RSTIME", 0);
+    rc += xpath<time_t>(running_etime, "/HISTORY/RETIME", 0);
+    rc += xpath<time_t>(epilog_stime , "/HISTORY/ESTIME", 0);
+    rc += xpath<time_t>(epilog_etime , "/HISTORY/EETIME", 0);
+
+    rc += xpath(int_action , "/HISTORY/ACTION", 0);
+
+    rc += xpath(uid, "/HISTORY/UID", -1);
+    rc += xpath(gid, "/HISTORY/GID", -1);
+    rc += xpath(req_id, "/HISTORY/REQUEST_ID", -1);
+
     action = static_cast<VMAction>(int_action);
 
     non_persistent_data();
@@ -368,3 +376,315 @@ int History::rebuild_attributes()
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+string History::action_to_str(VMAction action)
+{
+    string st;
+
+    switch (action)
+    {
+        case MIGRATE_ACTION:
+            st = "migrate";
+        break;
+        case LIVE_MIGRATE_ACTION:
+            st = "live-migrate";
+        break;
+        case TERMINATE_ACTION:
+            st = "terminate";
+        break;
+        case TERMINATE_HARD_ACTION:
+            st = "terminate-hard";
+        break;
+        case UNDEPLOY_ACTION:
+            st = "undeploy";
+        break;
+        case UNDEPLOY_HARD_ACTION:
+            st = "undeploy-hard";
+        break;
+        case HOLD_ACTION:
+            st = "hold";
+        break;
+        case RELEASE_ACTION:
+            st = "release";
+        break;
+        case STOP_ACTION:
+            st = "stop";
+        break;
+        case SUSPEND_ACTION:
+            st = "suspend";
+        break;
+        case RESUME_ACTION:
+            st = "resume";
+        break;
+        case DELETE_ACTION:
+            st = "delete";
+        break;
+        case DELETE_RECREATE_ACTION:
+            st = "delete-recreate";
+        break;
+        case REBOOT_ACTION:
+            st = "reboot";
+        break;
+        case REBOOT_HARD_ACTION:
+            st = "reboot-hard";
+        break;
+        case RESCHED_ACTION:
+            st = "resched";
+        break;
+        case UNRESCHED_ACTION:
+            st = "unresched";
+        break;
+        case POWEROFF_ACTION:
+            st = "poweroff";
+        break;
+        case POWEROFF_HARD_ACTION:
+            st = "poweroff-hard";
+        break;
+        case DISK_ATTACH_ACTION:
+            st = "disk-attach";
+        break;
+        case DISK_DETACH_ACTION:
+            st = "disk-detach";
+        break;
+        case NIC_ATTACH_ACTION:
+            st = "nic-attach";
+        break;
+        case NIC_DETACH_ACTION:
+            st = "nic-detach";
+        break;
+        case DISK_SNAPSHOT_CREATE_ACTION:
+            st = "disk-snapshot-create";
+        break;
+        case DISK_SNAPSHOT_DELETE_ACTION:
+            st = "disk-snapshot-delete";
+        break;
+        case DISK_RESIZE_ACTION:
+            st = "disk-resize";
+        break;
+        case DEPLOY_ACTION:
+            st = "deploy";
+        break;
+        case CHOWN_ACTION:
+            st = "chown";
+        break;
+        case CHMOD_ACTION:
+            st = "chmod";
+        break;
+        case UPDATECONF_ACTION:
+            st = "updateconf";
+        break;
+        case RENAME_ACTION:
+            st = "rename";
+        break;
+        case RESIZE_ACTION:
+            st = "resize";
+        break;
+        case UPDATE_ACTION:
+            st = "update";
+        break;
+        case SNAPSHOT_CREATE_ACTION:
+            st = "snapshot-resize";
+        break;
+        case SNAPSHOT_DELETE_ACTION:
+            st = "snapshot-delete";
+        break;
+        case SNAPSHOT_REVERT_ACTION:
+            st = "snapshot-revert";
+        break;
+        case DISK_SAVEAS_ACTION:
+            st = "disk-saveas";
+        break;
+        case DISK_SNAPSHOT_REVERT_ACTION:
+            st = "disk-snapshot-revert";
+        break;
+        case RECOVER_ACTION:
+            st = "recover";
+        break;
+        case RETRY_ACTION:
+            st = "retry";
+        break;
+        case MONITOR_ACTION:
+            st = "monitor";
+        break;
+        case NONE_ACTION:
+            st = "none";
+        break;
+    }
+
+    return st;
+};
+
+int History::action_from_str(const string& st, VMAction& action)
+{
+    if (st == "migrate")
+    {
+        action = MIGRATE_ACTION;
+    }
+    else if (st == "live-migrate")
+    {
+        action = LIVE_MIGRATE_ACTION;
+    }
+    else if (st == "terminate")
+    {
+        action = TERMINATE_ACTION;
+    }
+    else if (st == "terminate-hard")
+    {
+        action = TERMINATE_HARD_ACTION;
+    }
+    else if (st == "undeploy")
+    {
+        action = UNDEPLOY_ACTION;
+    }
+    else if (st == "undeploy-hard")
+    {
+        action = UNDEPLOY_HARD_ACTION;
+    }
+    else if (st == "hold")
+    {
+        action = HOLD_ACTION;
+    }
+    else if (st == "release")
+    {
+        action = RELEASE_ACTION;
+    }
+    else if (st == "stop")
+    {
+        action = STOP_ACTION;
+    }
+    else if (st == "suspend")
+    {
+        action = SUSPEND_ACTION;
+    }
+    else if (st == "resume")
+    {
+        action = RESUME_ACTION;
+    }
+    else if (st == "delete")
+    {
+        action = DELETE_ACTION;
+    }
+    else if (st == "delete-recreate")
+    {
+        action = DELETE_RECREATE_ACTION;
+    }
+    else if (st == "reboot")
+    {
+        action = REBOOT_ACTION;
+    }
+    else if (st == "reboot-hard")
+    {
+        action = REBOOT_HARD_ACTION;
+    }
+    else if (st == "resched")
+    {
+        action = RESCHED_ACTION;
+    }
+    else if (st == "unresched")
+    {
+        action = UNRESCHED_ACTION;
+    }
+    else if (st == "poweroff")
+    {
+        action = POWEROFF_ACTION;
+    }
+    else if (st == "poweroff-hard")
+    {
+        action = POWEROFF_HARD_ACTION;
+    }
+    else if (st == "disk-attach")
+    {
+        action = DISK_ATTACH_ACTION;
+    }
+    else if (st == "disk-detach")
+    {
+        action = DISK_DETACH_ACTION;
+    }
+    else if (st == "nic-attach")
+    {
+        action = NIC_ATTACH_ACTION;
+    }
+    else if (st == "nic-detach")
+    {
+        action = NIC_DETACH_ACTION;
+    }
+    else if (st == "disk-snapshot-create")
+    {
+        action = DISK_SNAPSHOT_CREATE_ACTION;
+    }
+    else if (st == "disk-snapshot-snap-delete")
+    {
+        action = DISK_SNAPSHOT_DELETE_ACTION;
+    }
+    else if (st == "disk-resize")
+    {
+        action = DISK_RESIZE_ACTION;
+    }
+    else if ( st == "deploy")
+    {
+        action = DEPLOY_ACTION;
+    }
+    else if ( st == "chown")
+    {
+        action = CHOWN_ACTION;
+    }
+    else if ( st == "chmod")
+    {
+        action = CHMOD_ACTION;
+    }
+    else if ( st == "updateconf")
+    {
+        action = UPDATECONF_ACTION;
+    }
+    else if ( st == "rename")
+    {
+        action = RENAME_ACTION;
+    }
+    else if ( st == "resize")
+    {
+        action = RESIZE_ACTION;
+    }
+    else if ( st == "update")
+    {
+        action = UPDATE_ACTION;
+    }
+    else if ( st == "snapshot-resize")
+    {
+        action = SNAPSHOT_CREATE_ACTION;
+    }
+    else if ( st == "snapshot-delete")
+    {
+        action = SNAPSHOT_DELETE_ACTION;
+    }
+    else if ( st == "snapshot-revert")
+    {
+        action = SNAPSHOT_REVERT_ACTION;
+    }
+    else if ( st == "disk-saveas")
+    {
+        action = DISK_SAVEAS_ACTION;
+    }
+    else if ( st == "disk-snapshot-revert")
+    {
+        action = DISK_SNAPSHOT_REVERT_ACTION;
+    }
+    else if ( st == "recover")
+    {
+        action = RECOVER_ACTION;
+    }
+    else if ( st == "retry")
+    {
+        action = RETRY_ACTION;
+    }
+    else if ( st == "monitor")
+    {
+        action = MONITOR_ACTION;
+    }
+    else
+    {
+        action = NONE_ACTION;
+        return -1;
+    }
+
+    return 0;
+};

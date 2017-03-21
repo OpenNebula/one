@@ -19,6 +19,7 @@
 #define HOST_XML_H_
 
 #include <map>
+#include <set>
 #include "ObjectXML.h"
 #include "HostShare.h"
 #include "PoolObjectAuth.h"
@@ -48,6 +49,11 @@ public:
         return cluster_id;
     };
 
+    unsigned int dispatched() const
+    {
+        return dispatched_vms.size();
+    }
+
     /**
      *  Tests whether a new VM can be hosted by the host or not
      *    @param cpu needed by the VM (percentage)
@@ -56,8 +62,8 @@ public:
      *    @param error error message
      *    @return true if the share can host the VM
      */
-    bool test_capacity(long long cpu, long long mem, vector<VectorAttribute *> &pci,
-        string & error);
+    bool test_capacity(long long cpu, long long mem,
+            vector<VectorAttribute *> &pci, string & error);
 
     /**
      *  Tests whether a new VM can be hosted by the host or not
@@ -86,6 +92,8 @@ public:
         mem_usage  += mem;
 
         pci.add(p, vmid);
+
+        dispatched_vms.insert(vmid);
 
         running_vms++;
     };
@@ -171,28 +179,51 @@ private:
     int cluster_id;
 
     // Host share values
-    long long mem_usage;  /**< Memory allocated to VMs (in KB)       */
-    long long cpu_usage;  /**< CPU  allocated to VMs (in percentage) */
+    long long mem_usage; /**< Memory allocated to VMs (in KB)      */
+    long long cpu_usage; /**< CPU  allocated to VMs (in percentage)*/
 
-    long long max_mem;    /**< Total memory capacity (in KB)         */
-    long long max_cpu;    /**< Total cpu capacity (in percentage)    */
+    long long max_mem; /**< Total memory capacity (in KB)     */
+    long long max_cpu; /**< Total cpu capacity (in percentage)*/
 
-    long long free_disk;  /**< Free disk capacity (in MB)            */
+    HostSharePCI pci;  /**< PCI devices of the host */
+
+    long long free_disk;  /**< Free disk capacity (in MB)*/
 
     map<int, long long> ds_free_disk; /**< Free MB for local system DS */
 
-    long long running_vms; /**< Number of running VMs in this Host   */
+    long long running_vms;   /**< Number of running VMs in this Host        */
+    set<int> dispatched_vms; /**< Dispatched VMs to this host in this cycle */
 
-    bool public_cloud;
-
-    HostSharePCI pci;
+    bool public_cloud; /**< This host is a public cloud */
 
     // Configuration attributes
     static const char *host_paths[]; /**< paths for search function */
+    static int host_num_paths;       /**< number of paths           */
 
-    static int host_num_paths; /**< number of paths*/
+    /* ---------------------------------------------------------------------- */
+    /* Functions to search for values in the HostXML object                   */
+    /* ---------------------------------------------------------------------- */
+    bool is_dispatched(const std::string& vm_id) const
+    {
+        std::istringstream iss(vm_id);
 
-    void init_attributes();
+        int vm_id_i;
+
+        iss >> vm_id_i;
+
+        return dispatched_vms.find(vm_id_i) != dispatched_vms.end();
+    }
+
+    bool is_dispatched(int vm_id) const
+    {
+        return dispatched_vms.find(vm_id) != dispatched_vms.end();
+    }
+
+    template<typename T>
+    bool is_dispatched(const T& vm_id) const
+    {
+        return false;
+    }
 
     /**
      *  Search the Object for a given attribute in a set of object specific
@@ -221,6 +252,11 @@ private:
                 }
             }
 
+            if ( is_dispatched(value) )
+            {
+                return 0;
+            }
+
             value = -1; //VMID not found in VMS value is -1
 
             return 0;
@@ -230,6 +266,11 @@ private:
             return ObjectXML::search(name, value);
         }
     };
+
+    /**
+     *  Bootstrap the HostXML internal attributes
+     */
+    void init_attributes();
 };
 
 #endif /* HOST_XML_H_ */

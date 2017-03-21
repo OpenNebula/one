@@ -81,6 +81,8 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
         auth_object = PoolObjectSQL::VM;
+
+        auth_op     = nd.get_vm_auth_op(History::UPDATE_ACTION);
     };
 
     ~VirtualMachineUpdateTemplate(){};
@@ -342,5 +344,20 @@ public:
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+class VMGroupUpdateTemplate : public RequestManagerUpdateTemplate
+{
+public:
+    VMGroupUpdateTemplate():
+        RequestManagerUpdateTemplate("VMGroupUpdateTemplate",
+                                     "Updates a vm group template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vmgrouppool();
+        auth_object = PoolObjectSQL::VMGROUP;
+    };
+
+    ~VMGroupUpdateTemplate(){};
+};
 
 #endif

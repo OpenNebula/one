@@ -20,6 +20,7 @@
 #include "MadManager.h"
 #include "ActionManager.h"
 #include "ImageManagerDriver.h"
+#include "NebulaLog.h"
 
 using namespace std;
 
@@ -79,7 +80,7 @@ public:
      */
     void finalize()
     {
-        am.trigger(ACTION_FINALIZE,0);
+        am.finalize();
     };
 
     /**************************************************************************/
@@ -258,6 +259,14 @@ public:
      */
      void set_image_snapshots(int iid, const Snapshots& s);
 
+    /**
+     *  Set the size for the given image. The image MUST be persistent
+     *  and of type OS or DATABLOCK.
+     *    @param iid id of image
+     *    @param size
+     */
+     void set_image_size(int iid, long long size);
+
      /**
       *  Deletes the snapshot of an image
       *    @param iid id of image
@@ -372,10 +381,19 @@ private:
             const string& ds_data,
             const string& extra_data);
 
+    // -------------------------------------------------------------------------
+    // Action Listener interface
+    // -------------------------------------------------------------------------
     /**
      *  This function is executed periodically to monitor Datastores.
      */
-    void timer_action();
+    void timer_action(const ActionRequest& ar);
+
+    void finalize_action(const ActionRequest& ar)
+    {
+        NebulaLog::log("ImM",Log::INFO,"Stopping Image Manager...");
+        MadManager::stop();
+    };
 };
 
 #endif /*IMAGE_MANAGER_H*/

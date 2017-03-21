@@ -103,6 +103,7 @@ define(function(require) {
           "col0HTML"  : col0HTML,
           "col1HTML"  : col1HTML,
           "IP"        : lease.IP,
+          "IP6"       : lease.IP6,
           "MAC"       : lease.MAC,
           "IP6_LINK"  : lease.IP6_LINK,
           "IP6_ULA"   : lease.IP6_ULA,

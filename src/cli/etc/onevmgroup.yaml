@@ -1,0 +1,37 @@
+---
+:ID:
+  :desc: ONE identifier for the VM Group
+  :size: 4
+
+:NAME:
+  :desc: Name of the VM Group
+  :size: 15
+  :left: true
+
+:USER:
+  :desc: Username of the VM Group owner
+  :size: 8
+  :left: true
+
+:GROUP:
+  :desc: Group of the VM Group
+  :size: 8
+  :left: true
+
+:VMS:
+  :desc: Number of VMs in the VM Group
+  :size: 4
+  :lef:  true
+
+:ROLES:
+  :desc: Roles in the VM Group
+  :size: 36
+  :left: true
+
+:default:
+- :ID
+- :USER
+- :GROUP
+- :NAME
+- :VMS
+- :ROLES

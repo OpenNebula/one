@@ -16,7 +16,6 @@
 
 #include "IPAMManager.h"
 #include "IPAMRequest.h"
-#include "NebulaLog.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -39,7 +38,7 @@ extern "C" void * ipamm_action_loop(void *arg)
 
     NebulaLog::log("IPM",Log::INFO,"IPAM Manager started.");
 
-    ipamm->am.loop(ipamm->timer_period, 0);
+    ipamm->am.loop(ipamm->timer_period);
 
     NebulaLog::log("IPM",Log::INFO,"IPAM Manager stopped.");
 
@@ -73,78 +72,34 @@ int IPAMManager::start()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void IPAMManager::trigger(Actions action, IPAMRequest * request)
+void IPAMManager::user_action(const ActionRequest& ar)
 {
-    string  aname;
+    const IPMAction& ipam_ar = static_cast<const IPMAction&>(ar);
 
-    switch (action)
+    IPAMRequest * request = ipam_ar.request();
+
+    if ( request == 0 )
     {
-    case REGISTER_ADDRESS_RANGE:
-        aname = "REGISTER_ADDRESS_RANGE";
-        break;
-
-    case ALLOCATE_ADDRESS:
-        aname = "ALLOCATE_ADDRESS";
-        break;
-
-    case GET_ADDRESS:
-        aname = "GET_ADDRESS";
-        break;
-
-    case FREE_ADDRESS:
-        aname = "FREE_ADDRESS";
-        break;
-
-    case FINALIZE:
-        aname = ACTION_FINALIZE;
-        break;
-
-    default:
         return;
     }
 
-    am.trigger(aname,request);
-}
+    switch(ipam_ar.action())
+    {
+        case IPMAction::REGISTER_ADDRESS_RANGE:
+            register_address_range_action(request);
+        break;
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+        case IPMAction::ALLOCATE_ADDRESS:
+            allocate_address_action(request);
+        break;
 
-void IPAMManager::do_action(const string &action, void * arg)
-{
-    IPAMRequest * request = static_cast<IPAMRequest *>(arg);
+        case IPMAction::GET_ADDRESS:
+            get_address_action(request);
+        break;
 
-    if (action == "REGISTER_ADDRESS_RANGE" && request != 0)
-    {
-        register_address_range_action(request);
-    }
-    else if (action == "ALLOCATE_ADDRESS" && request != 0)
-    {
-        allocate_address_action(request);
-    }
-    else if (action == "GET_ADDRESS" && request != 0)
-    {
-        get_address_action(request);
-    }
-    else if (action == "FREE_ADDRESS" && request != 0)
-    {
-        free_address_action(request);
-    }
-    else if (action == ACTION_TIMER)
-    {
-        check_time_outs_action();
-    }
-    else if (action == ACTION_FINALIZE)
-    {
-        NebulaLog::log("IPM",Log::INFO,"Stopping IPAM Manager...");
-
-        MadManager::stop();
-    }
-    else
-    {
-        ostringstream oss;
-        oss << "Unknown action name: " << action;
-
-        NebulaLog::log("IPM", Log::ERROR, oss);
+        case IPMAction::FREE_ADDRESS:
+            free_address_action(request);
+        break;
     }
 }
 

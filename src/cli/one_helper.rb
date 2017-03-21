@@ -352,6 +352,13 @@ EOT
             :name   => 'report_ready',
             :large  => '--report_ready',
             :description => 'Sends READY=YES to OneGate, useful for OneFlow'
+        },
+        {
+            :name   => 'deploy_folder',
+            :large  => '--deploy_folder path',
+            :format => String,
+            :description => "In a vCenter environment sets the the VMs and Template folder where the VM will be placed in." \
+            " The path uses slashes to separate folders. For example: --deploy_folder \"/Management/VMs\""
         }
     ]
 
@@ -771,6 +778,27 @@ EOT
         OneHelper.name_to_id(name, pool, poolname)
     end
 
+    def OpenNebulaHelper.size_in_mb(size)
+        m = size.match(/^(\d+(?:\.\d+)?)(m|mb|g|gb)?$/i)
+
+        if !m
+            # return OpenNebula::Error.new('Size value malformed')
+            return -1, 'Size value malformed'
+        else
+            multiplier=case m[2]
+            when /(g|gb)/i
+                1024
+            else
+                1
+            end
+
+            value=m[1].to_f*multiplier
+
+            # return value.ceil
+            return 0, value.ceil
+        end
+    end
+
     def OpenNebulaHelper.rname_to_id_desc(poolname)
         "OpenNebula #{poolname} name or id"
     end
@@ -1104,6 +1132,8 @@ EOT
             end
             template<<' ]' << "\n"
         end
+
+        template<<"DEPLOY_FOLDER=#{options[:deploy_folder]}\n" if options[:deploy_folder]
 
         context=create_context(options)
         template<<context if context
