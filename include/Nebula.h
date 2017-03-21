@@ -421,6 +421,70 @@ public:
     };
 
     /**
+     *  Gets a user-configurable attribute for oned. Users (and groups) may
+     *  store oned attributes in the "OPENNEBULA" vector. This function gets
+     *  the value querying first the user, then the group and finally oned.conf
+     *    @param uid of the user
+     *    @param gid of the group
+     *    @param name of the attribute
+     *    @param value of the attribute
+     *
+     *    @return 0 on success -1 otherwise
+     */
+    template<typename T>
+    int get_configuration_attribute(int uid, int gid, const std::string& name,
+            T& value) const
+    {
+        User * user = upool->get(uid, true);
+
+        if ( user == 0 )
+        {
+            return -1;
+        }
+
+        const VectorAttribute * uconf;
+
+        uconf = user->get_template_attribute("OPENNEBULA");
+
+        if ( uconf != 0 )
+        {
+            if ( uconf->vector_value(name, value) == 0 )
+            {
+                user->unlock();
+                return 0;
+            }
+        }
+
+        user->unlock();
+
+        Group * group = gpool->get(gid, true);
+
+        if ( group == 0 )
+        {
+            return -1;
+        }
+
+        const VectorAttribute * gconf;
+
+        gconf = group->get_template_attribute("OPENNEBULA");
+
+        if ( gconf != 0 )
+        {
+            if ( gconf->vector_value(name, value) == 0 )
+            {
+                group->unlock();
+                return 0;
+            }
+        }
+
+        group->unlock();
+
+        nebula_configuration->get(name, value);
+
+        return 0;
+    }
+
+    /**
      *  Gets a DS configuration attribute
      */
     int get_ds_conf_attribute(const std::string& ds_name,

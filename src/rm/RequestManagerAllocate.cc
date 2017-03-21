@@ -535,7 +535,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     // ------------------------- Check persistent only -------------------------
 
-    tmpl->get("PERSISTENT", persistent_attr);
+    persistent_attr = Image::test_set_persistent(tmpl, att.uid, att.gid, true);
 
     if ( ds_persistent_only && persistent_attr == false )
     {

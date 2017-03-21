@@ -80,6 +80,7 @@ define(function(require) {
     // TODO: simplify interface?
     var strippedTemplate = $.extend({}, this.element.TEMPLATE);
     delete strippedTemplate["SUNSTONE"];
+    delete strippedTemplate["OPENNEBULA"];
 
     var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE,
                                               Locale.tr("Attributes"));
@@ -102,7 +103,8 @@ define(function(require) {
     // TODO: simplify interface?
     var hiddenKeys = [
       "SUNSTONE",
-      "TABLE_DEFAULT_PAGE_LENGTH"];
+      "TABLE_DEFAULT_PAGE_LENGTH",
+      "OPENNEBULA"];
 
     var strippedTemplate = $.extend({}, this.element.TEMPLATE);
 

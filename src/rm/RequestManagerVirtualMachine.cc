@@ -1449,6 +1449,8 @@ void VirtualMachineDiskSaveas::request_execute(
         itemplate->add("DEV_PREFIX", dev_prefix);
     }
 
+    Image::test_set_persistent(itemplate, att.uid, att.gid, false);
+
     img_usage.add("SIZE",      size);
     img_usage.add("DATASTORE", ds_id);
 

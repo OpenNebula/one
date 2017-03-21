@@ -870,3 +870,46 @@ void Image::set_state_unlock()
         }
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool Image::test_set_persistent(Template * image_template, int uid, int gid,
+        bool is_allocate)
+{
+    Nebula&  nd = Nebula::instance();
+
+    string per_oned;
+    string conf_name;
+
+    bool persistent;
+
+    if ( is_allocate )
+    {
+        conf_name = "DEFAULT_IMAGE_PERSISTENT_NEW";
+    }
+    else
+    {
+        conf_name = "DEFAULT_IMAGE_PERSISTENT";
+    }
+
+    int rc = nd.get_configuration_attribute(uid, gid, conf_name, per_oned);
+
+    if ( rc != 0 || per_oned.empty() ) //No DEFAULT_* defined or empty value
+    {
+        image_template->get("PERSISTENT", persistent);
+    }
+    else if ( rc == 0 && one_util::toupper(per_oned) == "YES" )
+    {
+        persistent = true;
+    }
+    else
+    {
+        persistent = false;
+    }
+
+    image_template->replace("PERSISTENT", persistent);
+
+    return persistent;
+}
+
