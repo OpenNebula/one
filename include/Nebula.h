@@ -424,7 +424,7 @@ public:
      *  Gets a user-configurable attribute for oned. Users (and groups) may
      *  store oned attributes in the "OPENNEBULA" vector. This function gets
      *  the value querying first the user, then the group and finally oned.conf
-     *    @param uid of the user
+     *    @param uid of the user, if -1 the user template is not considered
      *    @param gid of the group
      *    @param name of the attribute
      *    @param value of the attribute
@@ -435,27 +435,30 @@ public:
     int get_configuration_attribute(int uid, int gid, const std::string& name,
             T& value) const
     {
-        User * user = upool->get(uid, true);
-
-        if ( user == 0 )
+        if ( uid != -1 )
         {
-            return -1;
-        }
+            User * user = upool->get(uid, true);
 
-        const VectorAttribute * uconf;
-
-        uconf = user->get_template_attribute("OPENNEBULA");
-
-        if ( uconf != 0 )
-        {
-            if ( uconf->vector_value(name, value) == 0 )
+            if ( user == 0 )
             {
-                user->unlock();
-                return 0;
+                return -1;
             }
-        }
 
-        user->unlock();
+            const VectorAttribute * uconf;
+
+            uconf = user->get_template_attribute("OPENNEBULA");
+
+            if ( uconf != 0 )
+            {
+                if ( uconf->vector_value(name, value) == 0 )
+                {
+                    user->unlock();
+                    return 0;
+                }
+            }
+
+            user->unlock();
+        }
 
         Group * group = gpool->get(gid, true);
 
