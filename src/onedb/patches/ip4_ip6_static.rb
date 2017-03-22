@@ -14,6 +14,18 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+# This patch changes the type of an AR to IP4_6_STATIC and also lets
+# us add or change parameters. The AR must be specified in the extra
+# option. For example, to change network 2, ar 1 and add ip6 and
+# prefix_length you can use:
+#
+#     onedb patch -s one.db ip4_6_static.rb \
+#       --extra vn=2;ar=1;ip6=2001::1;prefix_length=48
+#
+# You can also specify several ARs separated by ,:
+#
+#     vn=3;ar=0;ip6=2001::1;prefix_length=48,vn=3;ar=1;ip6=2001::2;prefix_length=64
+
 if !ONE_LOCATION
     LOG_LOCATION = "/var/log/one"
 else
