@@ -89,8 +89,9 @@ end
 
 get '/vcenter/templates' do
     begin
-        templates = vcenter_client.vm_templates(
-            $cloud_auth.client(session[:user], session[:active_zone_endpoint]))
+        dc_folder = VCenterDriver::DatacenterFolder.new(vcenter_client)
+        templates = dc_folder.get_unimported_templates(vcenter_client)
+
         if templates.nil?
             msg = "No datacenter found"
             logger.error("[vCenter] " + msg)
@@ -109,8 +110,9 @@ end
 
 get '/vcenter/networks' do
     begin
-        networks = vcenter_client.vcenter_networks(
-            $cloud_auth.client(session[:user], session[:active_zone_endpoint]))
+        dc_folder = VCenterDriver::DatacenterFolder.new(vcenter_client)
+        networks = dc_folder.get_unimported_networks
+
         if networks.nil?
             msg = "No datacenter found"
             logger.error("[vCenter] " + msg)
@@ -128,8 +130,14 @@ end
 
 get '/vcenter/images/:ds_name' do
     begin
-        images = vcenter_client.vcenter_images(params[:ds_name],
-            $cloud_auth.client(session[:user], session[:active_zone_endpoint]))
+        one_ds = VCenterDriver::VIHelper.find_by_name(OpenNebula::DatastorePool,
+                                                      params[:ds_name])
+        one_ds_ref = one_ds['TEMPLATE/VCENTER_DS_REF']
+
+        ds = VCenterDriver::Datastore.new_from_ref(one_ds_ref, vcenter_client)
+        ds.one_item = one_ds
+
+        images = ds.get_images
 
         if images.nil?
             msg = "No datastore found"
@@ -148,8 +156,8 @@ end
 
 get '/vcenter/datastores' do
     begin
-        datastores = vcenter_client.vcenter_datastores(
-            $cloud_auth.client(session[:user], session[:active_zone_endpoint]))
+        dc_folder = VCenterDriver::DatacenterFolder.new(vcenter_client)
+        datastores = dc_folder.get_unimported_datastores
         if datastores.nil?
             msg = "No datacenter found"
             logger.error("[vCenter] " + msg)
