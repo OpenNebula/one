@@ -477,7 +477,7 @@ class Datastore < Storage
         return output
     end
 
-    def get_images(vcenter_uuid)
+    def get_images
         img_templates = []
         ds_id = nil
         ds_name = self['name']
