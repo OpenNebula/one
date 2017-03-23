@@ -86,6 +86,25 @@ class Network
         return template
     end
 
+    def self.get_network_type(device)
+        if device.backing.network.instance_of?(RbVmomi::VIM::DistributedVirtualPortgroup)
+            return "Distributed Port Group"
+        else
+            return "Port Group"
+        end
+    end
+
+    def self.get_one_vnet_ds_by_ref_and_ccr(ref, ccr_ref, vcenter_uuid, pool = nil)
+        pool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool, false) if pool.nil?
+        element = pool.select do |e|
+            e["TEMPLATE/VCENTER_NET_REF"]     == ref &&
+            e["TEMPLATE/VCENTER_CCR_REF"]     == ccr_ref &&
+            e["TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid
+        end.first rescue nil
+
+        return element
+    end
+
     # This is never cached
     def self.new_from_ref(ref, vi_client)
         self.new(RbVmomi::VIM::Network.new(vi_client.vim, ref), vi_client)

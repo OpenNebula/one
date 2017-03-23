@@ -60,6 +60,9 @@ begin
 
         # Set reference to template disks in VM template for detach ops
         vm.reference_imported_disks
+
+        # Set reference to template nics in VM template for detach ops
+        vm.reference_imported_nics
     end
 
     # Resize cloned disks from template if needed

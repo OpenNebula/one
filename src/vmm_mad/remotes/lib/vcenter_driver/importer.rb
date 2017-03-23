@@ -84,6 +84,7 @@ def self.import_templates(con_ops, options)
         # Create OpenNebula pools
         dpool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool)
         ipool = VCenterDriver::VIHelper.one_pool(OpenNebula::ImagePool)
+        npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool)
 
         # Get vcenter intance uuid as moref is unique for each vcenter
         vc_uuid = vi_client.vim.serviceContent.about.instanceUuid
@@ -118,16 +119,27 @@ def self.import_templates(con_ops, options)
 
                 template = t[:template]
 
-                error, template_disks = template.import_vcenter_disks(vc_uuid,
+                error, template_disks_and_nics = template.import_vcenter_disks(vc_uuid,
                                                                       dpool,
                                                                       ipool)
 
                 if error.empty?
-                    t[:one] << template_disks
+                    t[:one] << template_disks_and_nics
                 else
                     STDOUT.puts error
                     next
                 end
+
+                error, template_nics = template.import_vcenter_nics(vc_uuid,
+                                                                    npool)
+                if error.empty?
+                    t[:one] << template_nics
+                else
+                    STDOUT.puts error
+                    next
+                end
+
+
 
                 # Datastore placement
                 ds_input = ""

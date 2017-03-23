@@ -430,9 +430,36 @@ class VirtualMachine
         one_item.info
     end
 
+    def reference_imported_nics
+        mac_change_hash = {}
+        nics = []
+
+        # Add info for existing disks in template in vm xml
+        xpath = "TEMPLATE/NIC[OPENNEBULA_MANAGED=\"NO\"]"
+        unmanaged_nics = one_item.retrieve_xmlelements(xpath)
+
+        return if unmanaged_nics.empty?
+
+        # Update vcenter VM's mac addresses with the one in OpenNebula's XML
+        index = 0
+        @item["config.hardware.device"].each_with_index do |device|
+            if is_nic?(device)
+                # Edit capacity setting new size in KB
+                device.macAddress = unmanaged_nics[index]["MAC"]
+                nics << { :device => device, :operation => :edit }
+                index += 1
+            end
+        end
+
+        if !nics.empty?
+            mac_change_hash[:deviceChange] = nics
+            @item.ReconfigVM_Task(:spec => mac_change_hash).wait_for_completion
+        end
+    end
+
     def resize_imported_disks
         resize_hash = {}
-        device_change_disks = []
+        disks = []
 
         # Look for unmanaged disks with original size changed
         xpath = "TEMPLATE/DISK[OPENNEBULA_MANAGED=\"NO\" and boolean(ORIGINAL_SIZE)]"
@@ -457,8 +484,7 @@ class VirtualMachine
 
                             # Edit capacity setting new size in KB
                             d.capacityInKB = disk["SIZE"].to_i * 1024
-                            device_change_disks <<   { :device => d,
-                                                       :operation => :edit }
+                            disks <<   { :device => d, :operation => :edit }
                             break
                         end
                     end
@@ -466,8 +492,8 @@ class VirtualMachine
             end
         end
 
-        if !device_change_disks.empty?
-            resize_hash[:deviceChange] = device_change_disks
+        if !disks.empty?
+            resize_hash[:deviceChange] = disks
             @item.ReconfigVM_Task(:spec => resize_hash).wait_for_completion
         end
     end
@@ -486,10 +512,8 @@ class VirtualMachine
         # vnc configuration (for config_array hash)
         extraconfig += extraconfig_vnc
 
-        # device_change hash (nics and extraconfig)
-        nics, extraconfig_nics = device_change_nics
-        device_change += nics
-        extraconfig += extraconfig_nics
+        # device_change hash (nics)
+        device_change += device_change_nics
 
         # device_change hash (disks)
         device_change += device_change_disks
@@ -557,94 +581,37 @@ class VirtualMachine
     def device_change_nics
         # Final list of changes to be applied in vCenter
         device_change = []
-        config_array = []
 
-        hotplugged_nics = []
+        # Hash of interfaces from the OpenNebula xml
+        nics_in_template = {}
+        xpath = "TEMPLATE/NIC"
+        one_item.each(xpath) { |nic|
+            nics_in_template[nic["MAC"]] = nic
+        }
 
-        # List of interfaces from the OpenNebula template
-        nics = []
-        one_item.each("TEMPLATE/NIC") { |nic| nics << nic }
-
-        # Remove detached nics in poweroff
-        if !is_new?
-            # To be included in device_change
-            detach_nic_array = []
-
-            # B4897 - Get mac of NICs that were hot-plugged from vCenter
-            #  extraConfig
-            # Get opennebula.hotplugged_nics attribute from the vCenter object
-            extraconfig_nics = @item["config.extraConfig"].select do |val|
-                val[:key] == "opennebula.hotplugged_nics"
-            end
-
-            if extraconfig_nics && !extraconfig_nics.empty?
-                hotplugged_nics = extraconfig_nics[0][:value].to_s.split(";")
-            end
-
-            # Get MACs from NICs inside VM template
-            one_mac_addresses = []
-            nics.each do |nic|
-                one_mac_addresses << nic["MAC"]
-                # B4897 - Add NICs that were attached in POWEROFF
-                if !hotplugged_nics.include?(nic["MAC"])
-                    hotplugged_nics << nic["MAC"]
+        # Check nics in VM
+        @item["config.hardware.device"].each do |dv|
+            if is_nic?(dv)
+                if nics_in_template.key?(dv.macAddress)
+                    # Remove nic that is already in the XML to avoid duplicate
+                    nics_in_template.delete(dv.macAddress)
+                else
+                    # B4897 - It was detached in poweroff, remove it from VM
+                    device_change << {
+                        :operation => :remove,
+                        :device    => dv
+                    }
                 end
-            end
-
-            @item["config.hardware.device"].each do |dv|
-                if is_nic?(dv)
-                    # nics array will contain the list of nics to be attached
-                    nics.each do |nic|
-                        if nic["MAC"] == dv.macAddress
-                            nics.delete(nic)
-                        end
-                    end
-
-                    # if the nic is in the list opennebula.hotplugged_nics and
-                    #  not in the list of the OpenNebula NICs we can remove it.
-                    # B4897 - Remove detached NICs from vCenter that were unplugged
-                    #  in POWEROFF
-                    if !one_mac_addresses.include?(dv.macAddress) &&
-                        hotplugged_nics.include?(dv.macAddress)
-
-                        detach_nic_array << {
-                            :operation => :remove,
-                            :device    => dv
-                        }
-
-                        hotplugged_nics.delete(dv.macAddress)
-                    end
-                end
-            end
-
-            config_array << { :key    => 'opennebula.hotplugged_nics',
-                              :value  => hotplugged_nics.join(";")}
-
-            device_change += detach_nic_array
-        else
-            # B4897 - Add NICs that have been added to the VM template
-            # to the hotplugged_nics extraconfig so we can track what must be removed
-
-            # Get MACs from NICs inside VM template to track NICs added by OpenNebula
-            nics.each{|nic|
-                hotplugged_nics << nic["MAC"]
-            }
-
-            if !hotplugged_nics.empty?
-                config_array << {
-                    :key    => 'opennebula.hotplugged_nics',
-                    :value  => hotplugged_nics.join(";")
-                }
             end
         end
 
-        # Attach new nics (nics now contains only the interfaces not present
-        # in the VM in vCenter)
-        nics.each do |nic|
+        # Attach new nics (nics_in_template now contains only the interfaces
+        # not present in the VM in vCenter)
+        nics_in_template.each do |key, nic|
             device_change << calculate_add_nic_spec(nic)
         end
 
-        return device_change, config_array
+        return device_change
     end
 
     # Regenerate context when devices are hot plugged (reconfigure)
@@ -777,25 +744,6 @@ class VirtualMachine
         attach_nic_array << calculate_add_nic_spec(nic)
         spec_hash[:deviceChange] = attach_nic_array if !attach_nic_array.empty?
 
-        # Get mac addresses plugged to the VM B#4897
-        hotplugged_nics = @item["config.extraConfig"].select do |val|
-            val[:key] == "opennebula.hotplugged_nics"
-        end.first[:value].to_s.split(";") rescue nil
-
-        # Include MAC in opennebula.hotplugged_nics variable
-        if hotplugged_nics && !hotplugged_nics.empty?
-            if !hotplugged_nics.include?(nic["MAC"])
-                hotplugged_nics << nic["MAC"]
-            end
-        else
-            hotplugged_nics = []
-            hotplugged_nics << nic["MAC"]
-        end
-
-        spec_hash[:extraConfig] = [{
-            :key=>"opennebula.hotplugged_nics",
-            :value=>hotplugged_nics.join(";")}]
-
         # Reconfigure VM
         spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
 
@@ -814,31 +762,14 @@ class VirtualMachine
 
         # Extract nic from driver action
         nic = one_item.retrieve_xmlelements("TEMPLATE/NIC[ATTACH='YES']").first
-
         mac = nic["MAC"]
 
         # Get VM nic element if it has a device with that mac
         nic_device = @item["config.hardware.device"].find do |device|
-                is_nic?(device) && (device.macAddress ==  mac)
+            is_nic?(device) && (device.macAddress ==  mac)
         end rescue nil
 
         raise "Could not find NIC with mac address #{mac}" if nic_device.nil?
-
-        # Get mac addresses plugged to the VM B#4897
-        hotplugged_nics = @item["config.extraConfig"].select do |val|
-            val[:key] == "opennebula.hotplugged_nics"
-        end.first[:value].to_s.split(";") rescue nil
-
-        # Remove MAC from opennebula.hotplugged_nics variable if included
-        if hotplugged_nics &&
-            !hotplugged_nics.empty? && hotplugged_nics.include?(mac)
-
-            hotplugged_nics.delete(mac)
-
-            spec_hash[:extraConfig] = [{
-                :key=>"opennebula.hotplugged_nics",
-                :value=>hotplugged_nics.join(";")}]
-        end
 
         # Remove NIC from VM in the ReconfigVM_Task
         spec_hash[:deviceChange] = [
@@ -1128,6 +1059,20 @@ class VirtualMachine
         return disks
     end
 
+    def get_vcenter_nics
+        nics = []
+        @item["config.hardware.device"].each do |device|
+            nic = {}
+            if is_nic?(device)
+                nic[:net_name]  = device.backing.network.name
+                nic[:net_ref]   = device.backing.network._ref
+                nic[:pg_type]   = VCenterDriver::Network.get_network_type(device)
+                nics << nic
+            end
+        end
+        return nics
+    end
+
     def import_vcenter_disks(vc_uuid, dpool, ipool)
         disk_info = ""
         error = ""
@@ -1203,6 +1148,80 @@ class VirtualMachine
         end
 
         return error, disk_info
+    end
+
+    def import_vcenter_nics(vc_uuid, npool)
+        nic_info = ""
+        error = ""
+
+        ccr_ref  = self["runtime.host.parent._ref"]
+        ccr_name = self["runtime.host.parent.name"]
+
+        #Get disks and info required
+        vc_nics = get_vcenter_nics
+
+        # Track allocated networks
+        allocated_networks = []
+
+        vc_nics.each do |nic|
+
+            network_found = VCenterDriver::Network.get_one_vnet_ds_by_ref_and_ccr(nic[:net_ref],
+                                                                                  ccr_ref,
+                                                                                  vc_uuid,
+                                                                                  npool)
+            #Network is already in the datastore
+            if network_found
+                # This is the existing nic info
+                nic_info << "NIC=[\n"
+                nic_info << "NETWORK=\"#{network_found["NAME"]}\",\n"
+                nic_info << "OPENNEBULA_MANAGED=\"NO\"\n"
+                nic_info << "]\n"
+            else
+                # Then the network has to be created as it's not in OpenNebula
+                one_vn = VCenterDriver::VIHelper.new_one_item(OpenNebula::VirtualNetwork)
+
+                allocated_networks << one_vn
+
+                vlan_id = "" # TODO VLAN ID management
+                one_vnet = VCenterDriver::Network.to_one_template(nic[:net_name],
+                                                                  nic[:net_ref],
+                                                                  nic[:pg_type],
+                                                                  vlan_id,
+                                                                  ccr_ref,
+                                                                  ccr_name,
+                                                                  vc_uuid)
+
+                # By default add an ethernet range to network size 255
+                ar_str = ""
+                ar_str << "AR=[\n"
+                ar_str << "TYPE=\"ETHER\",\n"
+                ar_str << "SIZE=\"255\"\n"
+                ar_str << "]\n"
+                one_vnet[:one] << ar_str
+
+                rc = one_vn.allocate(one_vnet[:one])
+
+                if ::OpenNebula.is_error?(rc)
+                    error = "    Error creating virtual network from template: #{rc.message}. Cannot import the template\n"
+
+                    #Rollback, delete virtual networks
+                    allocated_networks.each do |n|
+                        n.delete
+                    end
+
+                    break
+                end
+
+                #Add info for One template
+                one_vn.info
+                nic_info << "NIC=[\n"
+                nic_info << "NETWORK=\"#{one_vn["NAME"]}\",\n"
+                nic_info << "OPENNEBULA_MANAGED=\"NO\"\n"
+                nic_info << "]\n"
+            end
+        end
+
+        return error, nic_info
     end
 
     #  Checks if a RbVmomi::VIM::VirtualDevice is a disk or a cdrom
