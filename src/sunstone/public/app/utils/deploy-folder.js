@@ -39,7 +39,7 @@ define(function(require){
 
     if (Config.isFeatureEnabled("vcenter_deploy_folder")){
       var deployFolderContext = context;
-      var template_public_cloud_type = element.TEMPLATE.PUBLIC_CLOUD.TYPE
+      var template_public_cloud_type = element.TEMPLATE.HYPERVISOR
 
       if ($.isEmptyObject(template_public_cloud_type)) {
         deployFolderContext.html("");
