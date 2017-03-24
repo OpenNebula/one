@@ -42,6 +42,7 @@ require 'yaml'
 require 'opennebula'
 require 'base64'
 require 'openssl'
+require 'set'
 
 ################################################################################
 # Monkey patch rbvmomi library with some extra functions
@@ -1364,6 +1365,7 @@ class VCenterHost < ::OpenNebula::Host
     end
 
     def monitor_vms
+        @monitored_vms = Set.new
         # Only monitor from top level (Resource) Resource Pool
         monitor_vms_in_rp(@resource_pools[-1])
     end
@@ -1399,7 +1401,7 @@ class VCenterHost < ::OpenNebula::Host
                                          val[:key]=="opennebula.vm.running"}
               if running_flag.size > 0 and running_flag[0]
                   running_flag = running_flag[0][:value]
-              end
+              end                                
 
               next if running_flag == "no"
 
@@ -1411,20 +1413,32 @@ class VCenterHost < ::OpenNebula::Host
               if extraconfig_vmid.size > 0 and extraconfig_vmid[0]
                   number = extraconfig_vmid[0][:value]
               end
+
+              if number != -1
+                  if @monitored_vms.include? number
+                      next
+                  else
+                      @monitored_vms << number
+                  end
+              end
+
               vm = VCenterVm.new(@client, v)
               vm.monitor(host)
               next if !vm.vm.config
-              str_info << "\nVM = ["
-              str_info << "ID=#{number},"
-              str_info << "DEPLOY_ID=\"#{vm.vm.config.uuid}\","
-              str_info << "VM_NAME=\"#{name} - "\
+              str_info_tmp = ""
+              str_info_tmp << "\nVM = ["
+              str_info_tmp << "ID=#{number},"
+              str_info_tmp << "DEPLOY_ID=\"#{vm.vm.config.uuid}\","
+              str_info_tmp << "VM_NAME=\"#{name} - "\
                           "#{host.cluster_name}\","
               if number == -1
                   vm_template_to_one =
                       Base64.encode64(vm.vm_to_one(host)).gsub("\n","")
-                  str_info << "IMPORT_TEMPLATE=\"#{vm_template_to_one}\","
+                  str_info_tmp << "IMPORT_TEMPLATE=\"#{vm_template_to_one}\","
               end
-              str_info << "POLL=\"#{vm.info}\"]"
+              str_info_tmp << "POLL=\"#{vm.info}\"]"
+
+              str_info << str_info_tmp
           rescue Exception => e
               STDERR.puts e.inspect
               STDERR.puts e.backtrace
