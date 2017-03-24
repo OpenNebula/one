@@ -104,10 +104,10 @@
         <input type="text" name="img_size" id="img_size" />
       </div>
       <div class="medium-6 columns only_vcenter">
-        <label for="disk_type">
+        <label for="vcenter_disk_type">
           {{tr "Disk provisioning type"}}
         </label>
-        <select name="disk_type" id="disk_type">
+        <select name="vcenter_disk_type" id="vcenter_disk_type">
           <option value="" selected="selected"></option>
           <option value="thin">Thin</option>
           <option value="thick">Thick</option>
@@ -115,7 +115,7 @@
           <option value="custom">custom</option>
         </select>
         <div>
-          <input type="text" id="custom_disk_type" name="custom_disk_type" />
+          <input type="text" id="custom_vcenter_disk_type" name="custom_vcenter_disk_type" />
         </div>
       </div>
     </div>
@@ -126,10 +126,10 @@
       <div class="medium-6 columns">
         <div class="row only_vcenter">
           <div class="large-12 columns">
-            <label for="adapter_type">
+            <label for="vcenter_adapter_type">
               {{tr "Bus adapter controller"}}
             </label>
-            <select name="adapter_type" id="adapter_type">
+            <select name="vcenter_adapter_type" id="vcenter_adapter_type">
               <option value="" selected="selected"></option>
               <option value="lsiLogic">lsiLogic</option>
               <option value="ide">ide</option>
@@ -137,7 +137,7 @@
               <option value="custom">custom</option>
             </select>
             <div>
-              <input type="text" id="custom_adapter_type" name="custom_adapter_type" />
+              <input type="text" id="custom_vcenter_adapter_type" name="custom_vcenter_adapter_type" />
             </div>
           </div>
         </div>
