@@ -165,14 +165,8 @@ define(function(require) {
     // part of an array, and it is filled in different tabs, the $.extend deep
     // merge can't work. We define an auxiliary attribute for it.
 
-    if (templateJSON["VCENTER_PUBLIC_CLOUD"]) {
-      if (templateJSON['PUBLIC_CLOUD'] == undefined) {
-        templateJSON['PUBLIC_CLOUD'] = [];
-      }
-
-      templateJSON['PUBLIC_CLOUD'].push(templateJSON["VCENTER_PUBLIC_CLOUD"]);
-
-      delete templateJSON["VCENTER_PUBLIC_CLOUD"];
+    if (templateJSON['PUBLIC_CLOUD'] == undefined) {
+      templateJSON['PUBLIC_CLOUD'] = [];
     }
 
     // PCI with TYPE=NIC is not defined in the 'other' tab. Because it is

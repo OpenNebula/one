@@ -160,9 +160,9 @@ define(function(require) {
       $(".only_" + this.value).show();
 
       if (this.value == "vcenter"){
-        $("#vcenter_template_uuid", context).attr("required", "");
+        $("#vcenter_template_ref", context).attr("required", "");
       } else {
-        $("#vcenter_template_uuid", context).removeAttr("required");
+        $("#vcenter_template_ref", context).removeAttr("required");
       }
       // There is another listener in context.js setup
     });
@@ -187,10 +187,7 @@ define(function(require) {
     if(templateJSON["MEMORY_UNIT_COST"] == "GB")
       templateJSON["MEMORY_COST"] = templateJSON["MEMORY_COST"] * 1024;
     if (templateJSON["HYPERVISOR"] == 'vcenter') {
-      templateJSON["VCENTER_PUBLIC_CLOUD"] = {
-        'TYPE': 'vcenter',
-        'VM_TEMPLATE': WizardFields.retrieveInput($("#vcenter_template_uuid", context))
-      };
+      templateJSON["VCENTER_TEMPLATE_REF"] = WizardFields.retrieveInput($("#vcenter_template_ref", context));
 
       if (Config.isFeatureEnabled("vcenter_deploy_folder")) {
         templateJSON["DEPLOY_FOLDER"] = WizardFields.retrieveInput($("#vcenter_deploy_folder", context))
@@ -304,7 +301,7 @@ define(function(require) {
 
         $.each(publicClouds, function(){
           if(this["TYPE"] == "vcenter"){
-            WizardFields.fillInput($("#vcenter_template_uuid", context), this["VM_TEMPLATE"]);
+            WizardFields.fillInput($("#vcenter_template_ref", context), this["VCENTER_TEMPLATE_REF"]);
             return false;
           }
         });
@@ -348,6 +345,11 @@ define(function(require) {
       WizardFields.fillInput($('.initial_rp', context), templateJSON["RESOURCE_POOL"]);
 
       delete templateJSON["RESOURCE_POOL"];
+    }
+
+    if(templateJSON["VCENTER_TEMPLATE_REF"]){
+      WizardFields.fillInput($("#vcenter_template_ref", context), templateJSON["VCENTER_TEMPLATE_REF"]);
+      delete templateJSON["VCENTER_TEMPLATE_REF"];
     }
 
     CapacityCreate.fill($("div.capacityCreate", context), templateJSON);

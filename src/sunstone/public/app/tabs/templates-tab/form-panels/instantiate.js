@@ -215,8 +215,8 @@ define(function(require) {
       }
 
       if (Config.isFeatureEnabled("vcenter_deploy_folder")){
-        if(!$.isEmptyObject(original_tmpl.TEMPLATE.PUBLIC_CLOUD.TYPE) &&
-          original_tmpl.TEMPLATE.PUBLIC_CLOUD.TYPE === 'vcenter'){
+        if(!$.isEmptyObject(original_tmpl.TEMPLATE.HYPERVISOR) &&
+          original_tmpl.TEMPLATE.HYPERVISOR === 'vcenter'){
           $.extend(tmp_json, DeployFolder.retrieveChanges($(".deployFolderContext"  + template_id)));
         }
       }

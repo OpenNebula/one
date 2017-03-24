@@ -190,8 +190,8 @@ define(function(require) {
       var customization = WizardFields.retrieveInput($('input.vcenter_customizations_value', context));
 
       if (customization) {
-        templateJSON["VCENTER_PUBLIC_CLOUD"] = {
-          CUSTOMIZATION_SPEC : customization
+        templateJSON["USER_TEMPLATE"] = {
+          VCENTER_CUSTOMIZATION_SPEC : customization
         };
       }
     } else {
@@ -258,8 +258,8 @@ define(function(require) {
         if(this["TYPE"] == "vcenter"){
           $("input#context_type_vcenter", context).click();
 
-          if(this["CUSTOMIZATION_SPEC"]){
-            WizardFields.fillInput($('input.vcenter_customizations_value', context), this["CUSTOMIZATION_SPEC"]);
+          if(this["VCENTER_CUSTOMIZATION_SPEC"]){
+            WizardFields.fillInput($('input.vcenter_customizations_value', context), this["VCENTER_CUSTOMIZATION_SPEC"]);
           } else if(userInputsJSON || contextJSON) {
             $("input#context_type_opennebula", context).click();
           }
