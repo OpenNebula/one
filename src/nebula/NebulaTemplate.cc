@@ -505,11 +505,17 @@ void OpenNebulaTemplate::set_conf_default()
 #  DEFAULT_IMAGE_TYPE
 #  DEFAULT_DEVICE_PREFIX
 #  DEFAULT_CDROM_DEVICE_PREFIX
+#  DEFAULT_IMAGE_PERSISTENCY
+#  DEFAULT_IMAGE_PERSISTENCY_ON_NEW
 #*******************************************************************************
 */
     set_conf_single("DATASTORE_LOCATION", var_location + "/datastores");
     set_conf_single("DATASTORE_CAPACITY_CHECK", "YES");
+
     set_conf_single("DEFAULT_IMAGE_TYPE", "OS");
+    set_conf_single("DEFAULT_IMAGE_PERSISTENT", "");
+    set_conf_single("DEFAULT_IMAGE_PERSISTENT_NEW", "");
+
     set_conf_single("DEFAULT_DEVICE_PREFIX", "hd");
     set_conf_single("DEFAULT_CDROM_DEVICE_PREFIX", "hd");
 

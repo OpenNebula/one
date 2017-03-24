@@ -382,6 +382,9 @@ Request::ErrorCode ImageClone::request_execute(
 
     img->unlock();
 
+    //Update persistent attribute from base image if needed
+    Image::test_set_persistent(tmpl, att.uid, att.gid, false);
+
     // ----------------------- Get target Datastore info -----------------------
 
     ds = dspool->get(ds_id, true);
@@ -503,7 +506,8 @@ Request::ErrorCode ImageClone::request_execute(
 
         // -------------------------- Check Quotas  ----------------------------
 
-        if ( quota_authorization(&img_usage, Quotas::DATASTORE, att, att.resp_msg) == false )
+        if ( quota_authorization(&img_usage, Quotas::DATASTORE, att,
+                    att.resp_msg) == false )
         {
             delete tmpl;
             return AUTHORIZATION;

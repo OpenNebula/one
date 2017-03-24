@@ -133,15 +133,19 @@ define(function(require) {
       custom_classes : "state-dependent"
     },
     "VM.terminate" : {
-      type: text,
-      text: Locale.tr("Terminate"),
+      type: "confirm",
+      icon: "<i class='fa fa-trash fa-3' style='color:#ec5840'/>",
+      text: Locale.tr(" Terminate"),
       layout: "vmsdelete_buttons",
+      tip: Locale.tr("This will remove information from non-persistent hard disks"),
       custom_classes : "state-dependent"
     },
     "VM.terminate_hard" : {
-      type: text,
-      text: Locale.tr("Terminate") + ' <span class="label secondary radius">' + Locale.tr("hard") + '</span>',
+      type: "confirm",
+      icon: "<i class='fa fa-trash fa-3' style='color:#ec5840'/>",
+      text: Locale.tr(" Terminate") + ' <span class="label secondary radius">' + Locale.tr("hard") + '</span>',
       layout: "vmsdelete_buttons",
+      tip: Locale.tr("This will remove information from non-persistent hard disks"),
       custom_classes : "state-dependent"
     },
     "VM.resched" : {

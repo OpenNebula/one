@@ -20,16 +20,17 @@ define(function(require) {
    */
 
   var BaseDialog = require('utils/dialogs/dialog');
-  var TemplateHTML = require('hbs!./confirm/html');
-  var Sunstone = require('sunstone');
+  var TemplateHTML = require('hbs!./image/html');
   var Locale = require('utils/locale');
-  var TemplateUtils = require('utils/template-utils');
 
   /*
     CONSTANTS
    */
 
-  var DIALOG_ID = require('./confirm/dialogId');
+  var DIALOG_ID = require('./image/dialogId');
+  var TAB_ID = require('../tabId');
+  var RESOURCE = "Group";
+  var XML_ROOT = "GROUP";
 
   /*
     CONSTRUCTOR
@@ -37,8 +38,11 @@ define(function(require) {
 
   function Dialog() {
     this.dialogId = DIALOG_ID;
+
+    this.element = undefined;
+
     BaseDialog.call(this);
-  };
+  }
 
   Dialog.DIALOG_ID = DIALOG_ID;
   Dialog.prototype = Object.create(BaseDialog.prototype);
@@ -46,6 +50,7 @@ define(function(require) {
   Dialog.prototype.html = _html;
   Dialog.prototype.onShow = _onShow;
   Dialog.prototype.setup = _setup;
+  Dialog.prototype.setParams = _setParams;
 
   return Dialog;
 
@@ -54,45 +59,26 @@ define(function(require) {
    */
 
   function _html() {
-    return TemplateHTML({dialogId: this.dialogId});
+    return TemplateHTML({
+      'dialogId': this.dialogId,
+      'element': this.element
+    });
   }
 
-  function _setup(dialog) {
-    $(dialog).keypress(function (e) {
-      if (e.which == 13 || e.keyCode == 13) {
-        $('#confirm_proceed', dialog).click();
-        return false;
-      } else {
-        return true;
-      }
-    });
-
-    // Submit action is configured in sunstone.js since it's an action_button
+  function _setup(context) {
+    var that = this;
     return false;
   }
 
-  function _onShow(dialog) {
-    var actionId = dialog.data('buttonAction');
-    var tabId = dialog.data('buttonTab');
-    var button = Sunstone.getButton(tabId, actionId);
+  /**
+   * @param {object} params
+   *        - params.element : group object, or empty object {}
+   */
+  function _setParams(params) {
+    this.element = params.element;
+  }
 
-    var tip = Locale.tr("You have to confirm this action");
-    if (button && button.tip) {
-      tip = button.tip
-    }
-
-    $('#confirm_proceed', dialog).val(actionId);
-    $('#confirm_tip', dialog).text(tip);
-
-    if(button && button.text && button.icon) {
-      $('.subheader', dialog).html(button.icon + button.text);
-    } else if(button && button.text){
-      $('.subheader', dialog).html(button.text);
-    }
-
-    var action = Sunstone.getAction(actionId);
-    this.setNames( {elements: action.elements({names: true})} );
-
+  function _onShow(context) {
     return false;
   }
 });
