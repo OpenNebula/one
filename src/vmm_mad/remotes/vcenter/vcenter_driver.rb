@@ -2590,20 +2590,31 @@ private
 
         end
 
+        begin
+            # Reconfigure the VM
+            reconfigure_vm(vm, xml, true, hostname)
+        rescue Exception => e
+            vm.Destroy_Task.wait_for_completion
+            raise "Could not reconfigure the VM after a clone has been created: #{e.message}"
+        end
 
+        begin
+            # Power on the VM
+            vm.PowerOnVM_Task.wait_for_completion
+        rescue Exception => e
+            vm.Destroy_Task.wait_for_completion
+            raise "Could not power on the VM: #{e.message}"
+        end
 
-        reconfigure_vm(vm, xml, true, hostname)
-
-        # Power on the VM
-        vm.PowerOnVM_Task.wait_for_completion
-
-        # Set to yes the running flag
-
-        config_array = [{:key=>"opennebula.vm.running",:value=>"yes"}]
-        spec         = RbVmomi::VIM.VirtualMachineConfigSpec(
-                                                 {:extraConfig =>config_array})
-
-        vm.ReconfigVM_Task(:spec => spec).wait_for_completion
+        begin
+            # Set the running flag to yes
+            config_array = [{:key=>"opennebula.vm.running",:value=>"yes"}]
+            spec         = RbVmomi::VIM.VirtualMachineConfigSpec({:extraConfig =>config_array})
+            vm.ReconfigVM_Task(:spec => spec).wait_for_completion
+        rescue Exception => e
+            vm.Destroy_Task.wait_for_completion
+            raise "Could not set opennebula.vm.running: #{e.message}"
+        end
 
         uuid = vm.config.uuid
         connection.vim.close
