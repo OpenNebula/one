@@ -23,7 +23,7 @@
       <div class="row">
         <div class="large-12 columns">
           <label class="inline">
-            <a href="#{{data.uuid}}Advanced" class="accordion_advanced_toggle"> <i class="fa fa-fw fa-chevron-down"/><i class="fa fa-fw fa-chevron-up"/>
+            <a href="#{{data.vcenter_ref}}Advanced" class="accordion_advanced_toggle"> <i class="fa fa-fw fa-chevron-down"/><i class="fa fa-fw fa-chevron-up"/>
             </a>
             {{data.name}}
           </label>
@@ -31,7 +31,7 @@
       </div>
       <div class="row">
         <div class="large-11 large-centered columns">
-          <div id="{{data.uuid}}Advanced" class="content" hidden>
+          <div id="{{data.vcenter_ref}}Advanced" class="content" hidden>
             {{#if datastore}}
             <div class="vcenter_datastore_input row">
               <div class="medium-3 columns">
