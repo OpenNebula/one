@@ -86,9 +86,12 @@
       <label for="FORMAT">
         {{tr "Filesystem format"}}
       </label>
-      <select wizard_field="FORMAT" name="format" id="FORMAT">
+      <select class="hypervisor only_kvm" wizard_field="FORMAT" name="format" id="FORMAT">
         <option value="raw" selected="selected">raw</option>
         <option value="qcow2">qcow2</option>
+      </select>
+      <select class="hypervisor only_vcenter" style="display: none" wizard_field="FORMAT" name="format" id="FORMAT">
+        <option value="raw" selected="selected">raw</option>
       </select>
     </div>
   </div>
