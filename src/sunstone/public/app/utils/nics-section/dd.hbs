@@ -63,6 +63,23 @@
       </div>
       {{/if}}
     </div>
+    <div class="row">
+      {{#if options.forceIPv6}}
+        <div class="medium-6 columns">
+          <label>
+            {{tr "Force IPv6:"}}
+            <span class="tip">
+              {{tr "Optionally, you can force the IP assigned to the network interface."}}
+            </span>
+            {{#if options.nic.IP6}}
+            <input type="text" class="manual_ip6" value="{{options.nic.IP6}}"/>
+            {{else}}
+            <input type="text" class="manual_ip6"/>
+            {{/if}}
+          </label>
+        </div>
+      {{/if}}
+    </div>
     {{#if options.securityGroups}}
     <div class="row collapse">
       <h6>

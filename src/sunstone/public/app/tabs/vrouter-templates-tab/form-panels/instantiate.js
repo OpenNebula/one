@@ -91,6 +91,7 @@ define(function(require) {
     NicsSection.insert({},
       $(".nicsContext", context),
       { floatingIP: true,
+        forceIPv6:true,
         forceIPv4:true,
         management: true,
         securityGroups: Config.isFeatureEnabled("secgroups")});
