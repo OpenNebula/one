@@ -74,9 +74,12 @@
       <label for="TYPE">
         {{tr "Disk type"}}
       </label>
-      <select wizard_field="TYPE" id="TYPE" name="type">
+      <select class="hypervisor only_kvm" wizard_field="TYPE" id="TYPE" name="type">
         <option value="fs">{{tr "FS"}}</option>
         <option value="swap">{{tr "Swap"}}</option>
+      </select>
+      <select class="hypervisor only_vcenter" style="display: none" wizard_field="TYPE" id="TYPE" name="type">
+        <option value="fs">{{tr "FS"}}</option>
       </select>
     </div>
     <div class="medium-6 columns">
