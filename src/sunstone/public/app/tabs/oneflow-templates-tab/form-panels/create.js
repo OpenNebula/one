@@ -399,7 +399,6 @@ define(function(require) {
         $(".networks_role", role_section).show();
       }
 
-      $(".vm_template_contents", role_section).val("");
 
       $.each(selected_networks, function(){
         $(".service_network_checkbox[value='"+this+"']", role_section).attr('checked', true).change();
