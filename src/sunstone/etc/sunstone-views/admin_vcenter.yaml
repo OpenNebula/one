@@ -544,7 +544,7 @@ tabs:
             #- 13        # Search data
         actions:
             Datastore.refresh: true
-            Datastore.create_dialog: true
+            Datastore.create_dialog: false
             Datastore.import_dialog: true
             Datastore.addtocluster: true
             Datastore.rename: true
