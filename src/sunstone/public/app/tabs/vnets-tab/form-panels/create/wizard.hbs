@@ -87,10 +87,11 @@
             <option value="802.1Q">{{tr "802.1Q"}}</option>
             <option value="vxlan">{{tr "VXLAN"}}</option>
             <option value="ovswitch">{{tr "Open vSwitch"}}</option>
+            <option value="vcenter">{{tr "vCenter"}}</option>
             <option value="custom">{{tr "Custom"}}</option>
           </select>
         </div>
-        <div class="large-3 medium-6 columns mode_param custom">
+        <div class="large-3 medium-6 columns mode_param vcenter custom" id="div_vn_mad">
           <label for="vn_mad">
             {{tr "Network Driver (VN_MAD)"}}
           </label>
@@ -114,6 +115,9 @@
           </div>
           <div class="network_mode_description" value="ovswitch">
             {{tr "Open vSwitch, restrict network access with Open vSwitch Virtual Switch. Security Groups are not applied."}}
+          </div>
+          <div class="network_mode_description" value="vcenter">
+            {{tr "vSphere standard switches or distributed switches with port groups. Security Groups are not applied."}}
           </div>
           <div class="network_mode_description" value="custom">
             {{tr "Custom, use a custom virtual network driver."}}
@@ -139,7 +143,7 @@
         </div>
       </div>
       <div class="row">
-        <div class="medium-3 columns left mode_param 8021Q vxlan ovswitch custom">
+        <div class="medium-3 columns left mode_param 8021Q vxlan ovswitch vcenter custom">
           <label>
             {{tr "VLAN ID"}}
             <select wizard_field="AUTOMATIC_VLAN_ID">
@@ -159,11 +163,43 @@
           </label>
           <input type="text" wizard_field="PHYDEV" name="phydev" id="phydev" />
         </div>
-        <div class="medium-3 columns left mode_param 8021Q vxlan custom">
+        <div class="medium-3 columns left mode_param vcenter">
+          <label for="phydev">
+            {{tr "Physical device"}}
+            <span class="tip">
+              {{tr "Physical NIC names for uplinks. Use comma to separate values (e.g vmnic1,vmnic2)"}}
+            </span>
+          </label>
+          <input type="text" wizard_field="PHYDEV" name="phydev" id="phydev" />
+        </div>
+        <div class="medium-3 columns left mode_param 8021Q vxlan vcenter custom">
           <label for="mtu">
             {{tr "MTU of the interface"}}
           </label>
           <input type="text" wizard_field="MTU" name="mtu" id="mtu" />
+        </div>
+      </div>
+      <div class="row">
+        <div class="medium-3 columns left mode_param vcenter">
+          <label for="vcenter_switch_name">
+            {{tr "Switch name"}}
+          </label>
+          <input type="text" wizard_field="VCENTER_SWITCH_NAME" name="vcenter_switch_name" id="vcenter_switch_name" />
+        </div>
+        <div class="medium-3 columns left mode_param vcenter">
+          <label>
+            {{tr "Number of ports"}}
+          </label>
+          <input type="number" wizard_field="VCENTER_SWITCH_NPORTS" name="vcenter_switch_nports" id="vcenter_switch_nports" />
+        </div>
+        <div class="medium-3 columns left mode_param vcenter">
+          <label>
+            {{tr "Port group type"}}
+            <select wizard_field="VCENTER_PORTGROUP_TYPE">
+              <option value="Port Group">{{tr "Port group"}}</option>
+              <option value="Distributed Port Group">{{tr "Distributed Port Group"}}</option>
+            </select>
+          </label>
         </div>
       </div>
     </div>
