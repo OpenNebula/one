@@ -207,48 +207,6 @@ define(function(require) {
 
     var userInputs = {};
 
-    // Retrieve Datastore Attribute
-    var dsInput = $(".vcenter_datastore_input", context);
-    if (dsInput.length > 0) {
-      var dsModify = WizardFields.retrieveInput($('.modify_datastore', dsInput));
-      var dsInitial = WizardFields.retrieveInput($('.initial_datastore', dsInput));
-      var dsParams = WizardFields.retrieveInput($('.available_datastores', dsInput));
-
-      if (dsModify === 'fixed' && dsInitial !== '') {
-        templateJSON['VCENTER_DATASTORE'] = dsInitial;
-      } else if (dsModify === 'list' && dsParams !== '') {
-        var dsUserInputsStr = UserInputs.marshall({
-            type: 'list',
-            description: Locale.tr("Which datastore you want this VM to run on?"),
-            initial: dsInitial,
-            params: dsParams
-          });
-
-        userInputs['VCENTER_DATASTORE'] = dsUserInputsStr;
-      }
-    }
-
-    // Retrieve Resource Pool Attribute
-    var rpInput = $(".vcenter_rp_input", context);
-    if (rpInput.length > 0) {
-      var rpModify = WizardFields.retrieveInput($('.modify_rp', rpInput));
-      var rpInitial = WizardFields.retrieveInput($('.initial_rp', rpInput));
-      var rpParams = WizardFields.retrieveInput($('.available_rps', rpInput));
-
-      if (rpModify === 'fixed' && rpInitial !== '') {
-        templateJSON['RESOURCE_POOL'] = rpInitial;
-      } else if (rpModify === 'list' && rpParams !== '') {
-        var rpUserInputs = UserInputs.marshall({
-            type: 'list',
-            description: Locale.tr("Which resource pool you want this VM to run in?"),
-            initial: rpInitial,
-            params: WizardFields.retrieveInput($('.available_rps', rpInput))
-          });
-
-        userInputs['RESOURCE_POOL'] = rpUserInputs;
-      }
-    }
-
     // Since the USER_INPUTS section is not enabled for vCenter, we can assume that there are no more user inputs defined
     if (!$.isEmptyObject(userInputs)) {
       templateJSON['USER_INPUTS'] = userInputs;
@@ -271,14 +229,6 @@ define(function(require) {
 
       delete sunstone_template["NETWORK_SELECT"];
     }
-
-    if (templateJSON["HYPERVISOR"] == 'vcenter' &&
-      templateJSON["KEEP_DISKS_ON_DONE"] &&
-        templateJSON["KEEP_DISKS_ON_DONE"].toLowerCase() == "yes" ) {
-      $("#KEEP_DISKS", context).attr("checked", "checked");
-    }
-
-    delete templateJSON["KEEP_DISKS_ON_DONE"];
 
     if (Config.isFeatureEnabled("vcenter_deploy_folder")) {
       if (templateJSON["HYPERVISOR"] == 'vcenter' &&
@@ -331,13 +281,6 @@ define(function(require) {
 
         delete templateJSON["USER_INPUTS"]["RESOURCE_POOL"];
       }
-    }
-
-    if (templateJSON["VCENTER_DATASTORE"]) {
-      $('.modify_datastore', context).val('fixed');
-      WizardFields.fillInput($('.initial_datastore', context), templateJSON["VCENTER_DATASTORE"]);
-
-      delete templateJSON["VCENTER_DATASTORE"];
     }
 
     if (templateJSON["RESOURCE_POOL"]) {
