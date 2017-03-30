@@ -239,10 +239,17 @@ class Datastore < Storage
     def delete_virtual_disk(img_name)
         ds_name = self['name']
 
-        get_vdm.DeleteVirtualDisk_Task(
-          :name => "[#{ds_name}] #{img_name}",
-          :datacenter => get_dc.item
-        ).wait_for_completion
+        begin
+            get_vdm.DeleteVirtualDisk_Task(
+            :name => "[#{ds_name}] #{img_name}",
+            :datacenter => get_dc.item
+            ).wait_for_completion
+        rescue Exception => e
+            # Ignore if file not found
+            if !e.message.start_with?('ManagedObjectNotFound')
+                raise e
+            end
+        end
     end
 
     # Copy a VirtualDisk
