@@ -212,7 +212,7 @@ error:
 void DispatchManager::free_vm_resources(VirtualMachine * vm)
 {
     Template* tmpl;
-    map<int, Template *> ds_quotas;
+    vector<Template *> ds_quotas;
 
     int uid;
     int gid;
@@ -247,7 +247,7 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
 
     if ( !ds_quotas.empty() )
     {
-        Quotas::ds_del(ds_quotas);
+        Quotas::ds_del(uid, gid, ds_quotas);
     }
 
     if (vrid != -1)

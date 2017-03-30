@@ -1041,7 +1041,7 @@ public:
      *  Releases all disk images taken by this Virtual Machine
      *    @param quotas disk space to free from image datastores
      */
-    void release_disk_images(map<int, Template *>& quotas);
+    void release_disk_images(vector<Template *>& quotas);
 
     /**
      *  @return reference to the VirtualMachine disks

@@ -261,8 +261,12 @@ public:
      *    @param new_size of disk
      *    @param dsdeltas increment in datastore usage
      *    @param vmdelta increment in system datastore usage
+     *    @param do_img_owner quotas counter allocated for image uid/gid
+     *    @param do_vm_owner quotas counter allocated for vm uid/gid
+     *
      */
-   void resize_quotas(long long new_size, Template& dsdelta, Template& vmdelta);
+   void resize_quotas(long long new_size, Template& dsdelta, Template& vmdelta,
+           bool& do_img_owner, bool& do_vm_owner);
 
     /* ---------------------------------------------------------------------- */
     /* Disk space usage functions                                             */
@@ -272,6 +276,11 @@ public:
      *  @return the space required by this disk in the system datastore
      */
     long long system_ds_size();
+
+    /**
+     *  @return the space required by this disk in the image datastore
+     */
+    long long image_ds_size();
 
     /**
      *  Compute the storage needed by the disk in the system and/or image
@@ -409,6 +418,14 @@ public:
     static void extended_info(int uid, Template * tmpl);
 
     /**
+     *  Computes the storage in the image DS needed for the disks in a VM
+     *  template
+     *    @param tmpl with DISK descriptions
+     *    @param ds_quotas templates for quota updates
+     */
+    static void image_ds_quotas(Template * tmpl, vector<Template *>& ds_quotas);
+
+    /**
      *  Sets Datastore information on volatile disks
      */
     bool volatile_info(int ds_id);
@@ -446,7 +463,7 @@ public:
      *    @param img_error true if the image has to be set in error state
      *    @param quotas disk space usage to free from image datastores
      */
-    void release_images(int vmid, bool img_error, map<int, Template *>& quotas);
+    void release_images(int vmid, bool img_error, vector<Template *>& quotas);
 
     /* ---------------------------------------------------------------------- */
     /* DISK cloning functions                                                 */

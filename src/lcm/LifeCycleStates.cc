@@ -2363,9 +2363,11 @@ void LifeCycleManager::disk_resize_failure(int vid)
     int vm_uid = vm->get_uid();
     int vm_gid = vm->get_gid();
 
+    bool img_quota, vm_quota;
+
     disk->vector_value("IMAGE_ID", img_id);
     disk->vector_value("SIZE_PREV", size_prev);
-    disk->resize_quotas(size_prev, ds_deltas, vm_deltas);
+    disk->resize_quotas(size_prev, ds_deltas, vm_deltas, img_quota, vm_quota);
 
     disk->clear_resize(true);
 
@@ -2374,7 +2376,7 @@ void LifeCycleManager::disk_resize_failure(int vid)
     vm->unlock();
 
     // Restore quotas
-    if ( !ds_deltas.empty() && img_id != -1 )
+    if ( img_quota && img_id != -1 )
     {
         Image* img = ipool->get(img_id, true);
 
@@ -2387,6 +2389,11 @@ void LifeCycleManager::disk_resize_failure(int vid)
 
             Quotas::ds_del(img_uid, img_gid, &ds_deltas);
         }
+    }
+
+    if ( vm_quota )
+    {
+        Quotas::ds_del(vm_uid, vm_gid, &ds_deltas);
     }
 
     if ( !vm_deltas.empty() )
