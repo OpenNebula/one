@@ -349,6 +349,8 @@ end # class DatatacenterFolder
 class Datacenter
     attr_accessor :item
 
+    DPG_CREATE_TIMEOUT = 240
+
     def initialize(item, vi_client=nil)
         if !item.instance_of? RbVmomi::VIM::Datacenter
             raise "Expecting type 'RbVmomi::VIM::Datacenter'. " <<
@@ -357,6 +359,8 @@ class Datacenter
 
         @vi_client = vi_client
         @item = item
+        @net_rollback = []
+        @locking = true
     end
 
     def datastore_folder
@@ -373,6 +377,319 @@ class Datacenter
 
     def network_folder
         NetworkFolder.new(@item.networkFolder)
+    end
+
+    # Locking function. Similar to flock
+    def lock
+        hostlockname = @item['name'].downcase.tr(" ", "_")
+        if @locking
+           @locking_file = File.open("/tmp/vcenter-dc-#{hostlockname}-lock","w")
+           @locking_file.flock(File::LOCK_EX)
+        end
+    end
+
+    # Unlock driver execution mutex
+    def unlock
+        if @locking
+            @locking_file.close
+        end
+    end
+
+    ########################################################################
+    # Check if distributed virtual switch exists in host
+    ########################################################################
+    def dvs_exists(switch_name, net_folder)
+
+        return net_folder.items.values.select{ |dvs|
+            dvs.instance_of?(VCenterDriver::DistributedVirtualSwitch) &&
+            dvs['name'] == switch_name
+        }.first rescue nil
+    end
+
+    ########################################################################
+    # Is the distributed switch for the distributed pg different?
+    ########################################################################
+    def pg_changes_sw?(dpg, switch_name)
+        return dpg['config.distributedVirtualSwitch.name'] != switch_name
+    end
+
+    ########################################################################
+    # Create a distributed vcenter switch in a datacenter
+    ########################################################################
+    def create_dvs(switch_name, pnics, mtu=1500)
+        # Prepare spec for DVS creation
+        spec = RbVmomi::VIM::DVSCreateSpec.new
+        spec.configSpec = RbVmomi::VIM::VMwareDVSConfigSpec.new
+        spec.configSpec.name = switch_name
+
+        # Specify number of uplinks port for dpg
+        if pnics
+            pnics = pnics.split(",")
+            if !pnics.empty?
+                spec.configSpec.uplinkPortPolicy = RbVmomi::VIM::DVSNameArrayUplinkPortPolicy.new
+                spec.configSpec.uplinkPortPolicy.uplinkPortName = []
+                (0..pnics.size-1).each { |index|
+                    spec.configSpec.uplinkPortPolicy.uplinkPortName[index]="dvUplink#{index+1}"
+                }
+            end
+        end
+
+        #Set maximum MTU
+        spec.configSpec.maxMtu = mtu
+
+        # The DVS must be created in the networkFolder of the datacenter
+        begin
+            dvs_creation_task = @item.networkFolder.CreateDVS_Task(:spec => spec)
+            dvs_creation_task.wait_for_completion
+
+            # If task finished successfuly we rename the uplink portgroup
+            dvs = nil
+            if dvs_creation_task.info.state == 'success'
+                dvs = dvs_creation_task.info.result
+                dvs.config.uplinkPortgroup[0].Rename_Task(:newName => "#{switch_name}-uplink-pg").wait_for_completion
+            else
+                raise "The Distributed vSwitch #{switch_name} could not be created. "
+            end
+        rescue Exception => e
+            raise e
+        end
+
+        @net_rollback << {:action => :delete_dvs, :dvs => dvs, :name => switch_name}
+
+        return VCenterDriver::DistributedVirtualSwitch.new(dvs, @vi_client)
+    end
+
+    ########################################################################
+    # Update a distributed vcenter switch
+    ########################################################################
+    def update_dvs(dvs, pnics, mtu)
+        # Prepare spec for DVS creation
+        spec = RbVmomi::VIM::VMwareDVSConfigSpec.new
+        changed = false
+
+        orig_spec = RbVmomi::VIM::VMwareDVSConfigSpec.new
+        orig_spec.maxMtu = dvs['config.maxMtu']
+        orig_spec.uplinkPortPolicy = RbVmomi::VIM::DVSNameArrayUplinkPortPolicy.new
+        orig_spec.uplinkPortPolicy.uplinkPortName = []
+        (0..dvs['config.uplinkPortgroup'].length-1).each { |index|
+                orig_spec.uplinkPortPolicy.uplinkPortName[index]="dvUplink#{index+1}"
+        }
+
+        # Add more uplinks to default uplink port group according to number of pnics
+        if pnics
+            pnics = pnics.split(",")
+            if !pnics.empty? && dvs['config.uplinkPortgroup'].length != pnics.size
+                spec.uplinkPortPolicy = RbVmomi::VIM::DVSNameArrayUplinkPortPolicy.new
+                spec.uplinkPortPolicy.uplinkPortName = []
+                (dvs['config.uplinkPortgroup'].length..num_pnics-1).each { |index|
+                    spec.uplinkPortPolicy.uplinkPortName[index]="dvUplink#{index+1}"
+                }
+                changed = true
+            end
+        end
+
+        #Set maximum MTU
+        if mtu != dvs['config.maxMtu']
+            spec.maxMtu = mtu
+            changed = true
+        end
+
+        # The DVS must be created in the networkFolder of the datacenter
+        if changed
+            spec.configVersion = dvs['config.configVersion']
+
+            begin
+                dvs.item.ReconfigureDvs_Task(:spec => spec).wait_for_completion
+            rescue Exception => e
+                raise "The Distributed switch #{dvs['name']} could not be updated. "\
+                      "Reason: #{e.message}"
+            end
+
+            @net_rollback << {:action => :update_dvs, :dvs => dvs.item, :name => dvs['name'], :spec => orig_spec}
+        end
+    end
+
+    ########################################################################
+    # Remove a distributed vcenter switch in a datacenter
+    ########################################################################
+    def remove_dvs(dvs)
+        begin
+            dvs.item.Destroy_Task.wait_for_completion
+        rescue
+            #Ignore destroy task exception
+        end
+    end
+
+    ########################################################################
+    # Check if distributed port group exists in datacenter
+    ########################################################################
+    def dpg_exists(pg_name, net_folder)
+
+        return net_folder.items.values.select{ |dpg|
+            dpg.instance_of?(VCenterDriver::DistributedPortGroup) &&
+            dpg['name'] == pg_name
+        }.first rescue nil
+    end
+
+    ########################################################################
+    # Create a distributed vcenter port group
+    ########################################################################
+    def create_dpg(dvs, pg_name, vlan_id, num_ports)
+        spec = RbVmomi::VIM::DVPortgroupConfigSpec.new
+
+        # OpenNebula use DVS static port binding with autoexpand
+        if num_ports
+            spec.autoExpand = true
+            spec.numPorts = num_ports
+        end
+
+        # Distributed port group name
+        spec.name = pg_name
+
+        # Set VLAN information
+        spec.defaultPortConfig = RbVmomi::VIM::VMwareDVSPortSetting.new
+        spec.defaultPortConfig.vlan = RbVmomi::VIM::VmwareDistributedVirtualSwitchVlanIdSpec.new
+        spec.defaultPortConfig.vlan.vlanId = vlan_id
+        spec.defaultPortConfig.vlan.inherited = false
+
+        # earlyBinding. A free DistributedVirtualPort will be selected and
+        # assigned to a VirtualMachine when the virtual machine is reconfigured
+        # to connect to the portgroup.
+        spec.type = "earlyBinding"
+
+        begin
+            dvs.item.AddDVPortgroup_Task(spec: [spec]).wait_for_completion
+        rescue Exception => e
+            raise "The Distributed port group #{pg_name} could not be created. "\
+                  "Reason: #{e.message}"
+        end
+
+        # wait until the network is ready and we have a reference
+        portgroups = dvs['portgroup'].select{ |dpg|
+            dpg.instance_of?(RbVmomi::VIM::DistributedVirtualPortgroup) &&
+            dpg['name'] == pg_name
+        }
+
+        (0..DPG_CREATE_TIMEOUT).each do
+            break if !portgroups.empty?
+            portgroups = dvs['portgroup'].select{ |dpg|
+                dpg.instance_of?(RbVmomi::VIM::DistributedVirtualPortgroup) &&
+                dpg['name'] == pg_name
+            }
+            sleep 1
+        end
+
+        raise "Cannot get VCENTER_NET_REF for new distributed port group" if portgroups.empty?
+
+        @net_rollback << {:action => :delete_dpg, :dpg => portgroups.first, :name => pg_name}
+
+        return portgroups.first._ref
+    end
+
+    ########################################################################
+    # Update a distributed vcenter port group
+    ########################################################################
+    def update_dpg(dpg, vlan_id, num_ports)
+        spec = RbVmomi::VIM::DVPortgroupConfigSpec.new
+
+        changed = false
+
+        orig_spec = RbVmomi::VIM::DVPortgroupConfigSpec.new
+        orig_spec.numPorts = dpg['config.numPorts']
+        orig_spec.defaultPortConfig = RbVmomi::VIM::VMwareDVSPortSetting.new
+        orig_spec.defaultPortConfig.vlan = RbVmomi::VIM::VmwareDistributedVirtualSwitchVlanIdSpec.new
+        orig_spec.defaultPortConfig.vlan.vlanId = dpg['config.defaultPortConfig.vlan.vlanId']
+        orig_spec.defaultPortConfig.vlan.inherited = false
+
+        if num_ports && num_ports != orig_spec.numPorts
+            spec.numPorts = num_ports
+            changed = true
+        end
+
+        # earlyBinding. A free DistributedVirtualPort will be selected and
+        # assigned to a VirtualMachine when the virtual machine is reconfigured
+        # to connect to the portgroup.
+        spec.type = "earlyBinding"
+
+        if vlan_id != orig_spec.defaultPortConfig.vlan.vlanId
+            spec.defaultPortConfig = RbVmomi::VIM::VMwareDVSPortSetting.new
+            spec.defaultPortConfig.vlan = RbVmomi::VIM::VmwareDistributedVirtualSwitchVlanIdSpec.new
+            spec.defaultPortConfig.vlan.vlanId = vlan_id
+            spec.defaultPortConfig.vlan.inherited = false
+            changed = true
+        end
+
+        if changed
+
+            spec.configVersion = dpg['config.configVersion']
+
+            begin
+                dpg.item.ReconfigureDVPortgroup_Task(:spec => spec).wait_for_completion
+            rescue Exception => e
+                raise "The Distributed port group #{dpg['name']} could not be created. "\
+                      "Reason: #{e.message}"
+            end
+
+            @net_rollback << {:action => :update_dpg, :dpg => dpg.item, :name => dpg['name'], :spec => orig_spec}
+        end
+
+    end
+
+    ########################################################################
+    # Remove distributed port group from datacenter
+    ########################################################################
+    def remove_dpg(dpg)
+        begin
+            dpg.item.Destroy_Task.wait_for_completion
+        rescue RbVmomi::VIM::ResourceInUse => e
+            STDERR.puts "The distributed portgroup #{dpg["name"]} is in use so it cannot be deleted"
+            return nil
+        rescue Exception => e
+            raise "The Distributed portgroup #{dpg["name"]} could not be deleted. Reason: #{e.message} "
+        end
+    end
+
+    ########################################################################
+    # Perform vcenter network rollback operations
+    ########################################################################
+    def network_rollback
+        @net_rollback.reverse_each do |nr|
+
+            case nr[:action]
+                when :update_dpg
+                    begin
+                        nr[:dpg].ReconfigureDVPortgroupConfigSpec_Task(:spec => nr[:spec])
+                    rescue Exception => e
+                        raise "A rollback operation for distributed port group #{nr[:name]} could not be performed. Reason: #{e.message}"
+                    end
+                when :update_dvs
+                    begin
+                        nr[:dvs].ReconfigureDvs_Task(:spec => nr[:spec])
+                    rescue Exception => e
+                        raise "A rollback operation for distributed standard switch #{nr[:name]} could not be performed. Reason: #{e.message}"
+                    end
+                when :delete_dvs
+                    begin
+                        nr[:dvs].Destroy_Task.wait_for_completion
+                    rescue RbVmomi::VIM::ResourceInUse
+                        return #Ignore if switch in use
+                    rescue RbVmomi::VIM::NotFound
+                        return #Ignore if switch not found
+                    rescue Exception => e
+                        raise "A rollback operation for standard switch #{nr[:name]} could not be performed. Reason: #{e.message}"
+                    end
+                when :delete_dpg
+                    begin
+                        nr[:dpg].Destroy_Task.wait_for_completion
+                    rescue RbVmomi::VIM::ResourceInUse
+                        return #Ignore if pg in use
+                    rescue RbVmomi::VIM::NotFound
+                        return #Ignore if pg not found
+                    rescue Exception => e
+                        raise "A rollback operation for standard port group #{nr[:name]} could not be performed. Reason: #{e.message}"
+                    end
+            end
+        end
     end
 
     def self.new_from_ref(ref, vi_client)
