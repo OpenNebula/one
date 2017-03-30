@@ -327,12 +327,6 @@ class DatacenterFolder
                 network_name = network['name']
                 network_ref  = network['_ref']
 
-                # TODO slow VLAN_ID retrieve for portgroups! set to nil
-                vlan_id = ""
-                if network.class == VCenterDriver::DistributedPortGroup
-                    vlan_id = network.vlan_id
-                end
-
                 network.clusters.each do |ccr_ref, ccr_name|
                     one_vnet = VCenterDriver::Network.to_one_template(network_name,
                                                                       network_ref,
