@@ -91,7 +91,7 @@ class VirtualMachine
     end
 
     # The OpenNebula host
-    # @return OpenNebula::Host or XMLElement
+ # @return OpenNebula::Host or XMLElement
     def host
         if @host.nil?
             if one_item.nil?
@@ -626,7 +626,7 @@ class VirtualMachine
         end
     end
 
-    # Returns an array of actions to be included in :deviceChange
+ # Returns an array of actions to be included in :deviceChange
     def calculate_add_nic_spec(nic)
 
         #TODO include VCENTER_NET_MODEL usage it should be in one_item
@@ -755,7 +755,7 @@ class VirtualMachine
 
     end
 
-    # Detach NIC from VM
+ # Detach NIC from VM
     def detach_nic
         spec_hash = {}
         nic = nil
@@ -893,29 +893,6 @@ class VirtualMachine
         end
 
         return ds_ref, img_path
-    end
-
-    # Detach all DISKs from VM (terminate action)
-    def detach_all_disks
-        spec_hash = {}
-        spec_hash[:deviceChange] = []
-
-        @item["config.hardware.device"].each do |disk|
-            if is_disk_or_cdrom?(disk)
-                spec_hash[:deviceChange] << {
-                    :operation => :remove,
-                    :device => disk
-                }
-            end
-        end
-
-        return nil if spec_hash[:deviceChange].empty?
-
-        begin
-            @item.ReconfigVM_Task(:spec => spec_hash).wait_for_completion
-        rescue Exception => e
-            raise "Cannot detach all DISKs from VM: #{e.message}\n#{e.backtrace}"
-        end
     end
 
     # Get vcenter device representing DISK object (hotplug)
