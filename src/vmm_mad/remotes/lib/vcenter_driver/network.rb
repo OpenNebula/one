@@ -107,6 +107,16 @@ class Network
         return element
     end
 
+    def self.remove_net_ref(network_id)
+        one_vnet = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualNetwork, network_id)
+        one_vnet.info
+        one_vnet.delete_element("TEMPLATE/VCENTER_NET_REF")
+        one_vnet.delete_element("TEMPLATE/VCENTER_INSTANCE_ID")
+        tmp_str = one_vnet.template_str
+        one_vnet.update(tmp_str)
+        one_vnet.info
+    end
+
     # This is never cached
     def self.new_from_ref(ref, vi_client)
         self.new(RbVmomi::VIM::Network.new(vi_client.vim, ref), vi_client)
