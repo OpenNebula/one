@@ -23,6 +23,11 @@ class NetworkFolder
             item_name = item._ref
             @items[item_name.to_sym] = DistributedPortGroup.new(item)
         end
+
+        VIClient.get_entities(@item, "VmwareDistributedVirtualSwitch").each do |item|
+            item_name = item._ref
+            @items[item_name.to_sym] = DistributedVirtualSwitch.new(item)
+        end
     end
 
     ########################################################################
@@ -164,6 +169,19 @@ class DistributedPortGroup < Network
         "Distributed Port Group"
     end
 end # class DistributedPortGroup
+
+class DistributedVirtualSwitch < Network
+
+    def initialize(item, vi_client=nil)
+        if !item.instance_of?(RbVmomi::VIM::VmwareDistributedVirtualSwitch )
+           raise "Expecting type 'RbVmomi::VIM::VmwareDistributedVirtualSwitch'. " <<
+                  "Got '#{item.class} instead."
+        end
+
+        @vi_client = vi_client
+        @item = item
+    end
+end # class DistributedVirtualSwitch
 
 end # module VCenterDriver
 
