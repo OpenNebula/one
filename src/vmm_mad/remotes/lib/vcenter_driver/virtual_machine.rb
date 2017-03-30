@@ -553,6 +553,7 @@ class VirtualMachine
                     networks[one_network["BRIDGE"]] = one_network
                 end
             end
+        end
     end
 
     def extraconfig_vmid
