@@ -425,6 +425,8 @@ class VirtualMachine
             if !!non_managed_disks[index]
                 rc = one_item.update("VCENTER_TEMPLATE_DISK_#{non_managed_disks[index]["DISK_ID"]} = \"#{disk[:path]}\"", true)
                 raise "Could not update VCENTER_TEMPLATE_DISK elements" if OpenNebula.is_error?(rc)
+                rc = one_item.update("VCENTER_TEMPLATE_DS_DISK_#{non_managed_disks[index]["DISK_ID"]} = \"#{disk[:datastore]._ref}\"", true)
+                raise "Could not update VCENTER_TEMPLATE_DS_DISK elements" if OpenNebula.is_error?(rc)
             end
         end
         one_item.info
