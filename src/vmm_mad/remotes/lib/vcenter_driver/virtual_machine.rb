@@ -91,7 +91,7 @@ class VirtualMachine
     end
 
     # The OpenNebula host
- # @return OpenNebula::Host or XMLElement
+    # @return OpenNebula::Host or XMLElement
     def host
         if @host.nil?
             if one_item.nil?
@@ -99,7 +99,7 @@ class VirtualMachine
                       "access the OpenNebula host."
             end
 
-            host_id = one_item["HISTORY_RECORDS/HISTORY/HID"]
+            host_id = one_item["HISTORY_RECORDS/HISTORY[last()]/HID"]
             raise "No valid host_id found." if host_id.nil?
 
             @host = VIHelper.one_item(OpenNebula::Host, host_id)
