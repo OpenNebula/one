@@ -155,6 +155,10 @@ class VirtualMachine
         end.first.value rescue nil
     end
 
+    def get_vcenter_instance_uuid
+        @vi_client.vim.serviceContent.about.instanceUuid
+    end
+
     ############################################################################
     # Getters
     ############################################################################
@@ -504,6 +508,9 @@ class VirtualMachine
     def reconfigure
         extraconfig   = []
         device_change = []
+        networks      = {}
+
+        npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool, false)
 
         # get vmid
         extraconfig += extraconfig_vmid
@@ -514,25 +521,38 @@ class VirtualMachine
         # vnc configuration (for config_array hash)
         extraconfig += extraconfig_vnc
 
+        # prepare pg and sw for vcenter nics if any
+        configure_vcenter_network
+
         # device_change hash (nics)
         device_change += device_change_nics
 
-        # device_change hash (disks)
-        device_change += device_change_disks
+        # track pg or dpg in case they must be removed
+        vcenter_uuid = get_vcenter_instance_uuid
+        device_change.each do |nic|
+            if nic[:operation] == :remove
 
-        num_cpus = one_item["TEMPLATE/VCPU"] || 1
+                vnet_ref = nil
 
-        spec_hash = {
-            :numCPUs      => num_cpus.to_i,
-            :memoryMB     => one_item["TEMPLATE/MEMORY"],
-            :extraConfig  => extraconfig
-        }
+                if nic[:device].backing.respond_to?(:network)
+                    vnet_ref = nic[:device].backing.network._ref
+                end
 
-        spec_hash[:deviceChange] = device_change if !device_change.empty?
+                if nic[:device].backing.respond_to?(:port) &&
+                   nic[:device].backing.port.respond_to?(:portgroupKey)
+                    vnet_ref  = nic[:device].backing.port.portgroupKey
+                end
 
-        spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
-
-        @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+                one_network = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,
+                                                                  "TEMPLATE/VCENTER_NET_REF",
+                                                                  vnet_ref,
+                                                                  vcenter_uuid,
+                                                                  npool)
+                next if !one_network
+                if one_network["VN_MAD"] == "vcenter" && !networks.key?(one_network["BRIDGE"])
+                    networks[one_network["BRIDGE"]] = one_network
+                end
+            end
     end
 
     def extraconfig_vmid
@@ -628,17 +648,17 @@ class VirtualMachine
         end
     end
 
- # Returns an array of actions to be included in :deviceChange
+    # Returns an array of actions to be included in :deviceChange
     def calculate_add_nic_spec(nic)
 
         #TODO include VCENTER_NET_MODEL usage it should be in one_item
         mac       = nic["MAC"]
-        bridge    = nic["BRIDGE"]
-        model     = nic["VCENTER_NET_MODEL"]
+        pg_name   = nic["BRIDGE"]
+        model     = nic["VCENTER_NET_MODEL"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/MODEL")
         vnet_ref  = nic["VCENTER_NET_REF"]
         backing   = nil
 
-        limit_in  = nic["INBOUND_PEAK_BW"]
+        limit_in  = nic["INBOUND_PEAK_BW"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/INBOUND_PEAK_BW")
         limit_out = nic["OUTBOUND_PEAK_BW"]
         limit     = nil
 
@@ -654,15 +674,11 @@ class VirtualMachine
             rsrv=([rsrv_in.to_i, rsrv_out.to_i].min / 1024) * 8
         end
 
-        network = self["runtime.host.network"].select do |n|
-            n._ref == vnet_ref
+        network = self["runtime.host"].network.select do |n|
+            n._ref == vnet_ref || n.name == pg_name
         end
 
-        if network.empty?
-            raise "Network #{bridge} not found in host #{self['runtime.host.name']}"
-        else
-            network = network.first
-        end
+        network = network.first
 
         card_num = 1 # start in one, we want the next avaliable id
 
@@ -691,7 +707,7 @@ class VirtualMachine
 
         if network.class == RbVmomi::VIM::Network
             backing = RbVmomi::VIM.VirtualEthernetCardNetworkBackingInfo(
-                        :deviceName => bridge,
+                        :deviceName => pg_name,
                         :network    => network)
         else
             port    = RbVmomi::VIM::DistributedVirtualSwitchPortConnection(
@@ -707,7 +723,7 @@ class VirtualMachine
             :key => 0,
             :deviceInfo => {
                 :label => "net" + card_num.to_s,
-                :summary => bridge
+                :summary => pg_name
             },
             :backing     => backing,
             :addressType => mac ? 'manual' : 'generated',
@@ -733,6 +749,207 @@ class VirtualMachine
         }
     end
 
+    def vcenter_standard_network(nic, esx_host, vcenter_uuid)
+        pg_name     = nic["BRIDGE"]
+        switch_name = nic["VCENTER_SWITCH_NAME"]
+        pnics       = nic["PHYDEV"] || nil
+        mtu         = nic["MTU"] || 1500
+        vlan_id     = nic["VLAN_ID"] || nic["AUTOMATIC_VLAN_ID"] || 0
+        num_ports   = nic["VCENTER_SWITCH_NPORTS"] || 128
+
+        begin
+            esx_host.lock # Exclusive lock for ESX host operation
+
+            pnics_available = nil
+            pnics_available = esx_host.get_available_pnics if pnics
+
+            # Get port group if it exists
+            pg = esx_host.pg_exists(pg_name)
+
+            # Disallow changes of switch name for existing pg
+            if pg && esx_host.pg_changes_sw?(pg, switch_name)
+                raise "The port group's switch name can not be modified"\
+                    " for OpenNebula's virtual network, please revert"\
+                    " it back in its definition and create a different"\
+                    " virtual network instead."
+            end
+
+            if !pg
+                # Get standard switch if it exists
+                vs = esx_host.vss_exists(switch_name)
+
+                if !vs
+                    switch_name = esx_host.create_vss(switch_name, pnics, num_ports, mtu, pnics_available)
+                else
+                    #Update switch
+                    esx_host.update_vss(vs, switch_name, pnics, num_ports, mtu)
+                end
+
+                vnet_ref     = esx_host.create_pg(pg_name, switch_name, vlan_id)
+
+                # We must update XML so the VCENTER_NET_REF is set
+                one_vnet = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualNetwork, nic["NETWORK_ID"])
+                one_vnet.delete_element("TEMPLATE/VCENTER_NET_REF") if one_vnet["TEMPLATE/VCENTER_NET_REF"]
+                one_vnet.delete_element("TEMPLATE/VCENTER_INSTANCE_ID") if one_vnet["TEMPLATE/VCENTER_INSTANCE_ID"]
+                rc = one_vnet.update("VCENTER_NET_REF = \"#{vnet_ref}\"\n"\
+                                        "VCENTER_INSTANCE_ID = \"#{vcenter_uuid}\"", true)
+                if OpenNebula.is_error?(rc)
+                    raise "Could not update VCENTER_NET_REF for virtual network"
+                end
+                one_vnet.info
+
+            else
+                # pg exist, update
+                esx_host.update_pg(pg, switch_name, vlan_id)
+
+                # update switch if needed
+                vs = esx_host.vss_exists(switch_name)
+                esx_host.update_vss(vs, switch_name, pnics, num_ports, mtu) if vs
+            end
+
+        rescue Exception => e
+            esx_host.network_rollback
+            raise e
+        ensure
+            esx_host.unlock if esx_host # Remove lock
+        end
+    end
+
+    def vcenter_distributed_network(nic, esx_host, vcenter_uuid, dc, net_folder)
+        pg_name     = nic["BRIDGE"]
+        switch_name = nic["VCENTER_SWITCH_NAME"]
+        pnics       = nic["PHYDEV"] || nil
+        mtu         = nic["MTU"] || 1500
+        vlan_id     = nic["VLAN_ID"] || nic["AUTOMATIC_VLAN_ID"] || 0
+        num_ports   = nic["VCENTER_SWITCH_NPORTS"] || 8
+
+        begin
+            # Get distributed port group if it exists
+            dpg = dc.dpg_exists(pg_name, net_folder)
+
+            # Disallow changes of switch name for existing pg
+            if dpg && dc.pg_changes_sw?(dpg, switch_name)
+                raise "The port group's switch name can not be modified"\
+                    " for OpenNebula's virtual network, please revert"\
+                    " it back in its definition and create a different"\
+                    " virtual network instead."
+            end
+
+            if !dpg
+                # Get distributed virtual switch if it exists
+                dvs = dc.dvs_exists(switch_name, net_folder)
+
+                if !dvs
+                    dvs = dc.create_dvs(switch_name, pnics, mtu)
+                else
+                    #Update switch
+                    dc.update_dvs(dvs, pnics, mtu)
+                end
+
+                vnet_ref = dc.create_dpg(dvs, pg_name, vlan_id, num_ports)
+
+                # We must connect portgroup to current host
+                begin
+                    esx_host.lock
+
+                    pnics_available = nil
+                    pnics_available = esx_host.get_available_pnics if pnics
+
+                    proxy_switch = esx_host.proxy_switch_exists(switch_name)
+
+                    esx_host.assign_proxy_switch(dvs, switch_name, pnics, pnics_available)
+
+                rescue Exception => e
+                    raise e
+                ensure
+                    esx_host.unlock if esx_host # Remove lock
+                end
+
+                # We must update XML so the VCENTER_NET_REF is set
+                one_vnet = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualNetwork, nic["NETWORK_ID"])
+                one_vnet.delete_element("TEMPLATE/VCENTER_NET_REF") if one_vnet["TEMPLATE/VCENTER_NET_REF"]
+                one_vnet.delete_element("TEMPLATE/VCENTER_INSTANCE_ID") if one_vnet["TEMPLATE/VCENTER_INSTANCE_ID"]
+                rc = one_vnet.update("VCENTER_NET_REF = \"#{vnet_ref}\"\n"\
+                                        "VCENTER_INSTANCE_ID = \"#{vcenter_uuid}\"", true)
+                if OpenNebula.is_error?(rc)
+                    raise "Could not update VCENTER_NET_REF for virtual network"
+                end
+                one_vnet.info
+            else
+                # pg exist, dpg update
+                dc.update_dpg(dpg, vlan_id, num_ports)
+
+                # update switch if needed
+                dvs = dc.dvs_exists(switch_name, net_folder)
+                dc.update_dvs(dvs, pnics, mtu) if dvs
+
+                # We must connect or update portgroup to current host (proxyswitch)
+                begin
+                    esx_host.lock
+
+                    pnics_available = nil
+                    pnics_available = esx_host.get_available_pnics if pnics
+
+                    proxy_switch = esx_host.proxy_switch_exists(switch_name)
+                    esx_host.assign_proxy_switch(dvs, switch_name, pnics, pnics_available)
+
+                rescue Exception => e
+                    raise e
+                ensure
+                    esx_host.unlock if esx_host # Remove lock
+                end
+            end
+
+        rescue Exception => e
+            dc.network_rollback
+            raise e
+        end
+
+    end
+
+    def configure_vcenter_network(nic_xml=nil)
+        nics = []
+        if nic_xml
+            nics << nic_xml
+        else
+            nics = one_item.retrieve_xmlelements("TEMPLATE/NIC[VN_MAD=\"vcenter\"]")
+        end
+
+        return if nics.empty?
+
+        vcenter_uuid = get_vcenter_instance_uuid
+        esx_host = VCenterDriver::ESXHost.new_from_ref(self['runtime'].host._ref, vi_client)
+
+        nics.each do |nic|
+
+            if nic["VCENTER_INSTANCE_ID"] && nic["VCENTER_INSTANCE_ID"] != vcenter_uuid
+                raise "The virtual network is not assigned to the right vcenter server, create a different virtual network instead"
+            end
+
+            if nic["VCENTER_PORTGROUP_TYPE"] == "Port Group"
+                vcenter_standard_network(nic, esx_host, vcenter_uuid)
+            end
+
+            if nic["VCENTER_PORTGROUP_TYPE"] == "Distributed Port Group"
+                dc = cluster.get_dc # Get datacenter
+                begin
+                    dc.lock
+
+                    # Explore network folder in search of dpg and dvs
+                    net_folder = dc.network_folder
+                    net_folder.fetch!
+
+                    vcenter_distributed_network(nic, esx_host, vcenter_uuid, dc, net_folder)
+                rescue Exception => e
+                    #TODO rollback
+                    raise e
+                ensure
+                    dc.unlock if dc
+                end
+            end
+        end
+    end
+
     # Add NIC to VM
     def attach_nic
         spec_hash = {}
@@ -741,15 +958,18 @@ class VirtualMachine
         # Extract nic from driver action
         nic = one_item.retrieve_xmlelements("TEMPLATE/NIC[ATTACH='YES']").first
 
-        # A new NIC requires a vcenter spec
-        attach_nic_array = []
-        attach_nic_array << calculate_add_nic_spec(nic)
-        spec_hash[:deviceChange] = attach_nic_array if !attach_nic_array.empty?
-
-        # Reconfigure VM
-        spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
-
         begin
+            # Prepare network for vcenter networks
+            configure_vcenter_network(nic) if nic["VN_MAD"] == "vcenter"
+
+            # A new NIC requires a vcenter spec
+            attach_nic_array = []
+            attach_nic_array << calculate_add_nic_spec(nic)
+            spec_hash[:deviceChange] = attach_nic_array if !attach_nic_array.empty?
+
+            # Reconfigure VM
+            spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+
             @item.ReconfigVM_Task(:spec => spec).wait_for_completion
         rescue Exception => e
             raise "Cannot attach NIC to VM: #{e.message}\n#{e.backtrace}"
@@ -757,7 +977,7 @@ class VirtualMachine
 
     end
 
- # Detach NIC from VM
+    # Detach NIC from VM
     def detach_nic
         spec_hash = {}
         nic = nil
@@ -771,7 +991,7 @@ class VirtualMachine
             is_nic?(device) && (device.macAddress ==  mac)
         end rescue nil
 
-        raise "Could not find NIC with mac address #{mac}" if nic_device.nil?
+        return if nic_device.nil? #Silently ignore if nic is not found
 
         # Remove NIC from VM in the ReconfigVM_Task
         spec_hash[:deviceChange] = [
@@ -783,7 +1003,27 @@ class VirtualMachine
         rescue Exception => e
             raise "Cannot detach NIC from VM: #{e.message}\n#{e.backtrace}"
         end
+    end
 
+    # Detach all nics useful when removing pg and sw so they're not in use
+    def detach_all_nics
+        spec_hash = {}
+        device_change = []
+
+        @item["config.hardware.device"].each do |device|
+            if is_nic?(device)
+                device_change << {:operation => :remove, :device => device}
+            end
+        end
+
+        # Remove NIC from VM in the ReconfigVM_Task
+        spec_hash[:deviceChange] = device_change
+
+        begin
+            @item.ReconfigVM_Task(:spec => spec_hash).wait_for_completion
+        rescue Exception => e
+            raise "Cannot detach all NICs from VM: #{e.message}\n#{e.backtrace}"
+        end
     end
 
     #  Checks if a RbVmomi::VIM::VirtualDevice is a network interface
