@@ -554,7 +554,85 @@ class VirtualMachine
                 end
             end
         end
+
+        # device_change hash (disks)
+        device_change += device_change_disks
+
+        num_cpus = one_item["TEMPLATE/VCPU"] || 1
+
+        spec_hash = {
+            :numCPUs      => num_cpus.to_i,
+            :memoryMB     => one_item["TEMPLATE/MEMORY"],
+            :extraConfig  => extraconfig
+        }
+
+        spec_hash[:deviceChange] = device_change if !device_change.empty?
+
+        spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+
+        @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+
+        #Remove switch and pg if NICs detached in poweroff
+        if !networks.empty?
+
+            esx_host = VCenterDriver::ESXHost.new_from_ref(@item.runtime.host._ref, vi_client)
+            dc = cluster.get_dc # Get datacenter
+
+            networks.each do |pg_name, one|
+
+                if one["TEMPLATE/VCENTER_PORTGROUP_TYPE"] == "Port Group"
+                    begin
+                        esx_host.lock # Exclusive lock for ESX host operation
+
+                        next if !esx_host.pg_exists(pg_name)
+                        swname = esx_host.remove_pg(pg_name)
+                        next if !swname
+
+                        # We must update XML so the VCENTER_NET_REF is unset
+                        VCenterDriver::Network.remove_net_ref(one["ID"])
+
+                        next if !esx_host.vss_exists(swname)
+                        swname = esx_host.remove_vss(swname)
+
+                    rescue Exception => e
+                        raise e
+                    ensure
+                        esx_host.unlock if esx_host # Remove lock
+                    end
+                end
+
+                if one["TEMPLATE/VCENTER_PORTGROUP_TYPE"] == "Distributed Port Group"
+                    begin
+                        dc.lock
+
+                        # Explore network folder in search of dpg and dvs
+                        net_folder = dc.network_folder
+                        net_folder.fetch!
+
+                        # Get distributed port group if it exists
+                        dpg = dc.dpg_exists(pg_name, net_folder)
+                        dc.remove_dpg(dpg) if dpg
+
+                        # We must update XML so the VCENTER_NET_REF is unset
+                        VCenterDriver::Network.remove_net_ref(one["ID"])
+
+                        # Get distributed virtual switch and try to remove it
+                        switch_name =  one["TEMPLATE/VCENTER_SWITCH_NAME"]
+                        dvs = dc.dvs_exists(switch_name, net_folder)
+                        dc.remove_dvs(dvs) if dvs
+
+                    rescue Exception => e
+                        dc.network_rollback
+                        raise e
+                    ensure
+                        dc.unlock if dc
+                    end
+                end
+            end
+
+        end
     end
+
 
     def extraconfig_vmid
         [
