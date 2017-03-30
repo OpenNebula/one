@@ -300,6 +300,10 @@ define(function(require) {
 
     if (Config.provision.dashboard.isEnabled("vms")) {
       $("#provision_dashboard").append(TemplateDashboardVms());
+      
+      if(!Config.isProvisionTabEnabled("provision-tab", "templates")){
+        $('.provision_create_vm_button').hide();
+      }
 
       var start_time =  Math.floor(new Date().getTime() / 1000);
       // ms to s
