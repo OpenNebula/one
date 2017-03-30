@@ -259,6 +259,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vnm/ebtables \
           $VAR_LOCATION/remotes/vnm/fw \
           $VAR_LOCATION/remotes/vnm/ovswitch \
+          $VAR_LOCATION/remotes/vnm/vcenter \
           $VAR_LOCATION/remotes/tm/ \
           $VAR_LOCATION/remotes/tm/dummy \
           $VAR_LOCATION/remotes/tm/shared \
@@ -415,6 +416,7 @@ INSTALL_FILES=(
     NETWORK_EBTABLES_FILES:$VAR_LOCATION/remotes/vnm/ebtables
     NETWORK_FW_FILES:$VAR_LOCATION/remotes/vnm/fw
     NETWORK_OVSWITCH_FILES:$VAR_LOCATION/remotes/vnm/ovswitch
+    NETWORK_VCENTER_FILES:$VAR_LOCATION/remotes/vnm/vcenter
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     WEBSOCKIFY_SHARE_FILES:$SHARE_LOCATION/websockify
     INSTALL_GEMS_SHARE_FILES:$SHARE_LOCATION
@@ -856,6 +858,10 @@ NETWORK_OVSWITCH_FILES="src/vnm_mad/remotes/ovswitch/clean \
                     src/vnm_mad/remotes/ovswitch/pre \
                     src/vnm_mad/remotes/ovswitch/update_sg \
                     src/vnm_mad/remotes/ovswitch/OpenvSwitch.rb"
+
+NETWORK_VCENTER_FILES="src/vnm_mad/remotes/vcenter/pre \
+                       src/vnm_mad/remotes/vcenter/post \
+                       src/vnm_mad/remotes/vcenter/clean"
 
 #-------------------------------------------------------------------------------
 # IPAM drivers to be installed under $REMOTES_LOCATION/ipam
