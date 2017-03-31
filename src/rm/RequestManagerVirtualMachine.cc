@@ -2564,8 +2564,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
 
     PoolObjectAuth   vm_perms;
 
-    const VirtualMachineDisk * disk;
-    VectorAttribute * delta_disk = 0;
+    VirtualMachineDisk * disk;
 
     Template ds_deltas;
     Template vm_deltas;
@@ -2597,11 +2596,19 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
         return;
     }
 
-    string disk_size = disk->vector_value("SIZE");
-    string ds_id     = disk->vector_value("DATASTORE_ID");
+    /* ---------------------------------------------------------------------- */
+    /*  Get disk information and quota usage deltas                           */
+    /* ---------------------------------------------------------------------- */
+    bool img_ds_quota, vm_ds_quota;
+
+    long long ssize;
+    disk->vector_value("SIZE", ssize);
+
+    ssize = 2 * ssize; //Sanpshot accounts as another disk of same size
+
+    disk->resize_quotas(ssize, ds_deltas, vm_deltas, img_ds_quota, vm_ds_quota);
+
     bool is_volatile = disk->is_volatile();
-    bool is_system   = disk->get_tm_target() == "SYSTEM";
-    bool do_ds_quota = disk->is_persistent() || !is_system;
 
     int img_id = -1;
     disk->vector_value("IMAGE_ID", img_id);
@@ -2617,11 +2624,12 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
         return;
     }
 
-    RequestAttributes ds_att_quota;
+    /* ---------- Attributes for quota update requests ---------------------- */
+
+    RequestAttributes img_att_quota;
     RequestAttributes vm_att_quota;
 
-    //--------------------------- Persistent Images ----------------------------
-    if (do_ds_quota)
+    if (img_ds_quota)
     {
         PoolObjectAuth img_perms;
 
@@ -2645,40 +2653,51 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
             return;
         }
 
-        ds_att_quota = RequestAttributes(img_perms.uid, img_perms.gid, att);
-
-        ds_deltas.add("DATASTORE", ds_id);
-        ds_deltas.add("SIZE", disk_size);
-        ds_deltas.add("IMAGES", 0);
-
-        if (!quota_authorization(&ds_deltas, Quotas::DATASTORE, ds_att_quota))
-        {
-            return;
-        }
+        img_att_quota = RequestAttributes(img_perms.uid, img_perms.gid, att);
     }
 
-    //--------------------- Account for System DS storage ----------------------
-    if (is_system)
+    if ( vm_ds_quota )
     {
         if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
         {
             return;
         }
+    }
 
-        vm_att_quota = RequestAttributes(vm_perms.uid, vm_perms.gid, att);
+    vm_att_quota = RequestAttributes(vm_perms.uid, vm_perms.gid, att);
 
-        delta_disk = new VectorAttribute("DISK");
-        delta_disk->replace("TYPE", "FS");
-        delta_disk->replace("SIZE", disk_size);
+    /* ---------------------------------------------------------------------- */
+    /*  Check quotas for the new size in image/system datastoress             */
+    /* ---------------------------------------------------------------------- */
+    if ( img_ds_quota && !quota_authorization(&ds_deltas, Quotas::DATASTORE,
+                img_att_quota) )
+    {
+        return;
+    }
 
-        vm_deltas.add("VMS", 0);
-        vm_deltas.set(delta_disk);
+    if ( vm_ds_quota && !quota_authorization(&ds_deltas, Quotas::DATASTORE,
+                vm_att_quota) )
+    {
+        if ( img_ds_quota )
+        {
+            quota_rollback(&ds_deltas, Quotas::DATASTORE, img_att_quota);
+        }
 
+        return;
+    }
+
+    if ( !vm_deltas.empty() )
+    {
         if (!quota_resize_authorization(id, &vm_deltas, vm_att_quota))
         {
-            if (do_ds_quota)
+            if ( img_ds_quota )
             {
-                quota_rollback(&ds_deltas, Quotas::DATASTORE, ds_att_quota);
+                quota_rollback(&ds_deltas, Quotas::DATASTORE, img_att_quota);
+            }
+
+            if ( vm_ds_quota )
+            {
+                quota_rollback(&ds_deltas, Quotas::DATASTORE, vm_att_quota);
             }
 
             return;
@@ -2692,12 +2711,17 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
 
     if ( rc != 0 )
     {
-        if (do_ds_quota)
+        if ( img_ds_quota )
         {
-            quota_rollback(&ds_deltas, Quotas::DATASTORE, ds_att_quota);
+            quota_rollback(&ds_deltas, Quotas::DATASTORE, img_att_quota);
         }
 
-        if (is_system)
+        if ( vm_ds_quota )
+        {
+            quota_rollback(&ds_deltas, Quotas::DATASTORE, vm_att_quota);
+        }
+
+        if ( !vm_deltas.empty() )
         {
             quota_rollback(&vm_deltas, Quotas::VM, vm_att_quota);
         }
@@ -2996,7 +3020,7 @@ void VirtualMachineDiskResize::request_execute(
     /* ---------------------------------------------------------------------- */
     /*  Authorize the request for VM and IMAGE for persistent disks           */
     /* ---------------------------------------------------------------------- */
-    RequestAttributes img_ds_att_quota, vm_ds_att_quota;
+    RequestAttributes img_att_quota;
     RequestAttributes vm_att_quota;
 
     if ( img_ds_quota )
@@ -3026,7 +3050,7 @@ void VirtualMachineDiskResize::request_execute(
             return;
         }
 
-        img_ds_att_quota = RequestAttributes(img_perms.uid, img_perms.gid, att);
+        img_att_quota = RequestAttributes(img_perms.uid, img_perms.gid, att);
     }
 
     if ( vm_ds_quota )
@@ -3035,8 +3059,6 @@ void VirtualMachineDiskResize::request_execute(
         {
             return;
         }
-
-        vm_ds_att_quota = RequestAttributes(vm_perms.uid, vm_perms.gid, att);
     }
 
     vm_att_quota = RequestAttributes(vm_perms.uid, vm_perms.gid, att);
@@ -3046,14 +3068,19 @@ void VirtualMachineDiskResize::request_execute(
     /* ---------------------------------------------------------------------- */
 
     if ( img_ds_quota && !quota_authorization(&ds_deltas, Quotas::DATASTORE,
-                img_ds_att_quota))
+                img_att_quota))
     {
         return;
     }
 
     if ( vm_ds_quota && !quota_authorization(&ds_deltas, Quotas::DATASTORE,
-                vm_ds_att_quota))
+                vm_att_quota))
     {
+        if ( img_ds_quota )
+        {
+            quota_rollback(&ds_deltas, Quotas::DATASTORE, img_att_quota);
+        }
+
         return;
     }
 
@@ -3063,12 +3090,12 @@ void VirtualMachineDiskResize::request_execute(
         {
             if ( img_ds_quota )
             {
-                quota_rollback(&ds_deltas, Quotas::DATASTORE, img_ds_att_quota);
+                quota_rollback(&ds_deltas, Quotas::DATASTORE, img_att_quota);
             }
 
             if ( vm_ds_quota )
             {
-                quota_rollback(&ds_deltas, Quotas::DATASTORE, vm_ds_att_quota);
+                quota_rollback(&ds_deltas, Quotas::DATASTORE, vm_att_quota);
             }
 
             return;
@@ -3084,12 +3111,12 @@ void VirtualMachineDiskResize::request_execute(
     {
         if ( img_ds_quota )
         {
-            quota_rollback(&ds_deltas, Quotas::DATASTORE, img_ds_att_quota);
+            quota_rollback(&ds_deltas, Quotas::DATASTORE, img_att_quota);
         }
 
         if ( vm_ds_quota )
         {
-            quota_rollback(&ds_deltas, Quotas::DATASTORE, vm_ds_att_quota);
+            quota_rollback(&ds_deltas, Quotas::DATASTORE, vm_att_quota);
         }
 
         if ( !vm_deltas.empty() )

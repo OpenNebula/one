@@ -270,8 +270,11 @@ int VirtualMachineDisk::revert_snapshot(int snap_id)
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineDisk::delete_snapshot(int snap_id, Template **ds_quotas,
-        Template **vm_quotas)
+        Template **vm_quotas, bool& img_owner, bool& vm_owner)
 {
+    vm_owner  = false;
+    img_owner = false;
+
     if ( snapshots == 0 )
     {
         return;
@@ -294,7 +297,10 @@ void VirtualMachineDisk::delete_snapshot(int snap_id, Template **ds_quotas,
 
     string tm_target = get_tm_target();
 
-	if (is_persistent() || tm_target != "SYSTEM")
+    vm_owner  = tm_target == "SELF";
+    img_owner = is_persistent() || tm_target == "NONE";
+
+	if ( img_owner || vm_owner )
 	{
         *ds_quotas = new Template();
 
@@ -372,7 +378,6 @@ long long VirtualMachineDisk::image_ds_size()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 //  Owner to update ds usage quotas
 //
@@ -1272,7 +1277,7 @@ int VirtualMachineDisks::revert_snapshot(int id, int snap_id)
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineDisks::delete_snapshot(int disk_id, int snap_id,
-        Template **ds_quota, Template **vm_quota)
+        Template **ds_quota, Template **vm_quota,bool& img_owner, bool& vm_owner)
 {
     VirtualMachineDisk * disk =
         static_cast<VirtualMachineDisk *>(get_attribute(disk_id));
@@ -1285,14 +1290,14 @@ void VirtualMachineDisks::delete_snapshot(int disk_id, int snap_id,
         return;
     }
 
-    disk->delete_snapshot(snap_id, ds_quota, vm_quota);
+    disk->delete_snapshot(snap_id, ds_quota, vm_quota, img_owner, vm_owner);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineDisks::delete_non_persistent_snapshots(Template **vm_quotas,
-        map<int, Template *>& ds_quotas)
+        vector<Template *> &ds_quotas)
 {
     long long system_disk = 0;
 
@@ -1305,9 +1310,11 @@ void VirtualMachineDisks::delete_non_persistent_snapshots(Template **vm_quotas,
             continue;
         }
 
+        bool vm_owner  = tm_target == "SELF";
+        bool img_owner = (*disk)->is_persistent();
+
         // Decrement DS quota on disks that do not modify the original image
-        if ( tm_target == "SELF" || ( (*disk)->is_persistent() &&
-                    tm_target == "SYSTEM" ) )
+        if ( vm_owner || img_owner )
         {
             int image_id;
 
@@ -1321,8 +1328,11 @@ void VirtualMachineDisks::delete_non_persistent_snapshots(Template **vm_quotas,
             d_ds->add("DATASTORE", (*disk)->vector_value("DATASTORE_ID"));
             d_ds->add("SIZE", (*disk)->get_total_snapshot_size());
             d_ds->add("IMAGES", 0);
+            d_ds->add("IMAGE_ID", image_id);
+            d_ds->add("VM_QUOTA", vm_owner);
+            d_ds->add("IMG_QUOTA", img_owner);
 
-            ds_quotas.insert(pair<int, Template *>(image_id, d_ds));
+            ds_quotas.push_back(d_ds);
         }
 
         if ( tm_target == "SYSTEM" )
@@ -1467,7 +1477,7 @@ int VirtualMachineDisks::get_saveas_info(int& disk_id, string& source,
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineDisks::delete_non_persistent_resizes(Template **vm_quotas,
-        map<int, Template *>& ds_quotas)
+        vector<Template *>& ds_quotas)
 {
     long long original_size, size, delta_size, system_disk = 0;
 
@@ -1488,9 +1498,17 @@ void VirtualMachineDisks::delete_non_persistent_resizes(Template **vm_quotas,
 
         delta_size = original_size - size;
 
+        //Quotas uses del operation to substract counters, delta needs to be > 0
+        if ( delta_size < 0 )
+        {
+            delta_size = - delta_size;
+        }
+
+        bool vm_owner  = tm_target == "SELF";
+        bool img_owner = (*disk)->is_persistent();
+
         // Decrement DS quota on disks that do not modify the original image
-        if ( tm_target == "SELF" || ( (*disk)->is_persistent() &&
-                    tm_target == "SYSTEM" ) )
+        if ( vm_owner || img_owner )
         {
             int image_id;
 
@@ -1504,8 +1522,11 @@ void VirtualMachineDisks::delete_non_persistent_resizes(Template **vm_quotas,
             d_ds->add("DATASTORE", (*disk)->vector_value("DATASTORE_ID"));
             d_ds->add("SIZE", delta_size);
             d_ds->add("IMAGES", 0);
+            d_ds->add("IMAGE_ID", image_id);
+            d_ds->add("VM_QUOTA", vm_owner);
+            d_ds->add("IMG_QUOTA", img_owner);
 
-            ds_quotas.insert(pair<int, Template *>(image_id, d_ds));
+            ds_quotas.push_back(d_ds);
         }
 
         if ( tm_target == "SYSTEM" )

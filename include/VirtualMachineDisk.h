@@ -244,8 +244,11 @@ public:
      *    @param snap_id of the snapshot
      *    @param ds_quotas template with snapshot usage for the DS quotas
      *    @param vm_quotas template with snapshot usage for the VM quotas
+     *    @param io delete ds quotas from image owners
+     *    @param vo delete ds quotas from vm owners
      */
-    void delete_snapshot(int snap_id, Template **ds_quota, Template **vm_quota);
+    void delete_snapshot(int snap_id, Template **ds_quota, Template **vm_quota,
+            bool& io, bool& vo);
 
     /* ---------------------------------------------------------------------- */
     /* Disk resize functions                                                  */
@@ -683,9 +686,11 @@ public:
      *    @param snap_id of the snapshot
      *    @param ds_quotas template with snapshot usage for the DS quotas
      *    @param vm_quotas template with snapshot usage for the VM quotas
+     *    @param io delete ds quotas from image owners
+     *    @param vo delete ds quotas from vm owners
      */
     void delete_snapshot(int disk_id, int snap_id, Template **ds_quota,
-            Template **vm_quota);
+            Template **vm_quota, bool& io, bool& vo);
 
     /**
      * Deletes all the disk snapshots for non-persistent disks and for persistent
@@ -694,7 +699,7 @@ public:
      *     @param ds_quotas The DS SIZE freed from image datastores.
      */
     void delete_non_persistent_snapshots(Template **vm_quotas,
-        map<int, Template *>& ds_quotas);
+        vector<Template *> &ds_quotas);
 
     /**
      * Restores the disk original size for non-persistent and for persistent
@@ -703,7 +708,7 @@ public:
      *     @param ds_quotas The DS SIZE freed from image datastores.
      */
     void delete_non_persistent_resizes(Template **vm_quotas,
-        map<int, Template *>& ds_quotas);
+        vector<Template *> &ds_quotas);
 
 protected:
 
