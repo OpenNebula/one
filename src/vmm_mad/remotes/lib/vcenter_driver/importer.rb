@@ -139,96 +139,6 @@ def self.import_templates(con_ops, options)
                     next
                 end
 
-
-
-                # Datastore placement
-                ds_input = ""
-
-                if !use_defaults
-                    STDOUT.print "\n    This template is currently set to be "\
-                                    "deployed in datastore #{t[:default_ds]}."\
-                                "\n    Press y to keep the default, n to select"\
-                                " a new default datastore or d to delegate "\
-                                " the choice to the user ([y]/n/d)? "
-
-                    answer =  STDIN.gets.strip.downcase
-
-
-                    case answer
-                    when 'd'
-                        ds_split     = t[:ds].split("|")
-                        list_of_ds   = ds_split[-2]
-                        default_ds   = ds_split[-1]
-                        ds_input     = ds_split[0] + "|" + ds_split[1] + "|" +
-                                        ds_split[2] + "|"
-
-                        # Available list of datastores
-
-                        input_str = "    The list of available datastores to be"\
-                                    " presented to the user are \"#{list_of_ds}\""
-                        input_str+= "\n    Press y to agree, or input a comma"\
-                                    " separated list of datastores to edit "\
-                                    "[y/comma separated list] "
-                        STDOUT.print input_str
-
-                        answer = STDIN.gets.strip
-
-                        if answer.downcase == 'y'
-                            ds_input += ds_split[3] + "|"
-                        else
-                            ds_input += answer + "|"
-                        end
-
-                        # Default
-                        input_str   = "    The default datastore presented to "\
-                                    "the end user is set to \"#{default_ds}\"."
-                        input_str+= "\n    Press y to agree, or input a new "\
-                                    "datastore [y/datastore name] "
-                        STDOUT.print input_str
-
-                        answer = STDIN.gets.strip
-
-                        if answer.downcase == 'y'
-                            ds_input += ds_split[4]
-                        else
-                            ds_input += answer
-                        end
-                    when 'n'
-                        ds_split     = t[:ds].split("|")
-                        list_of_ds   = ds_split[-2]
-
-                        input_str = "    The list of available datastores is:\n"
-
-                        STDOUT.print input_str
-
-                        dashes = ""
-                        100.times do
-                            dashes << "-"
-                        end
-
-                        list_str = "\n    [Index] Datastore :"\
-                                    "\n    #{dashes}\n"
-
-                        STDOUT.print list_str
-
-                        index = 1
-                        t[:ds_list].each do |ds|
-                            list_str = "    [#{index}] #{ds[:name]}\n"
-                            index += 1
-                            STDOUT.print list_str
-                        end
-
-                        input_str = "\n    Please input the new default"\
-                                    " datastore index in the list (e.g 1): "
-
-                        STDOUT.print input_str
-
-                        answer = STDIN.gets.strip
-
-                        t[:one] += "VCENTER_DS_REF=\"#{t[:ds_list][answer.to_i - 1][:ref]}\"\n"
-                    end
-                end
-
                 # Resource Pools
                 rp_input = ""
                 rp_split = t[:rp].split("|")
@@ -320,9 +230,8 @@ def self.import_templates(con_ops, options)
                     end
                 end
 
-                if !ds_input.empty? || !rp_input.empty?
+                if !rp_input.empty?
                     t[:one] << "USER_INPUTS=["
-                    t[:one] << "VCENTER_DS_LIST=\"#{ds_input}\"," if !ds_input.empty?
                     t[:one] << "VCENTER_RP_LIST=\"#{rp_input}\"," if !rp_input.empty?
                     t[:one] = t[:one][0..-2]
                     t[:one] << "]"

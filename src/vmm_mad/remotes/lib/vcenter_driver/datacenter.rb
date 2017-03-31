@@ -144,10 +144,12 @@ class DatacenterFolder
 
         @items.values.each do |dc|
             dc_name = dc.item.name
+            next if one_clusters[dc_name].empty? #No clusters imported, continue
             ds_objects[dc_name] = []
 
             datastore_folder = dc.datastore_folder
             datastore_folder.fetch!
+
             datastore_folder.items.values.each do |ds|
 
                 if ds.instance_of? VCenterDriver::Datastore
@@ -221,17 +223,6 @@ class DatacenterFolder
             dc_name = dc.item.name
             template_objects[dc_name] = []
 
-            #Get datastores available in a datacenter
-            ds_list = []
-            datastore_folder = dc.datastore_folder
-            datastore_folder.fetch!
-            datastore_folder.items.values.each do |ds|
-                ds_hash = {}
-                ds_hash[:name] = ds["name"]
-                ds_hash[:ref] = ds["_ref"]
-                ds_list << ds_hash
-            end
-
             #Get templates defined in a datacenter
             vm_folder = dc.vm_folder
             vm_folder.fetch_templates!
@@ -243,24 +234,7 @@ class DatacenterFolder
                                                                    tpool)
                 next if one_template #If the template has been already imported
 
-                template_name = template['name']
-                template_ref  = template['_ref']
                 template_ccr  = template['runtime.host.parent']
-                cluster_name  = template['runtime.host.parent.name']
-
-                #Get DS list
-                ds = ""
-                default_ds = nil
-                if !ds_list.empty?
-                    ds_name_list = []
-                    ds_list.each do |ds_hash|
-                        ds_name_list << ds_hash[:name]
-                    end
-                    ds =  "M|list|Which datastore you want this VM to run in? "
-                    ds << "|#{ds_name_list.join(",")}" #List of DS
-                    ds << "|#{ds_name_list.first}" #Default DS
-                    default_ds = ds_name_list.first
-                end
 
                 #Get resource pools
                 rp_cache = {}
@@ -282,9 +256,6 @@ class DatacenterFolder
                 rp = rp_cache[template_ccr.name.to_s]
 
                 object = template.to_one_template(template,
-                                                  ds,
-                                                  ds_list,
-                                                  default_ds,
                                                   rp,
                                                   rp_list,
                                                   vcenter_uuid)
