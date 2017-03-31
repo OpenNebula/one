@@ -262,7 +262,7 @@ class DatacenterFolder
                         rp_list.each do |rp_hash|
                             rp_name_list << rp_hash[:name]
                         end
-                        rp =  "M|list|Which resource pool you want this VM to run in? "
+                        rp =  "O|list|Which resource pool you want this VM to run in? "
                         rp << "|#{rp_name_list.join(",")}" #List of RP
                         rp << "|#{rp_name_list.first}" #Default RP
                     end
