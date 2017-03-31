@@ -117,6 +117,45 @@ class Network
         one_vnet.info
     end
 
+    def self.vcenter_networks_to_be_removed(device_change_nics, vcenter_uuid)
+
+        networks = {}
+        npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool, false)
+
+        device_change_nics.each do |nic|
+            if nic[:operation] == :remove
+                vnet_ref = nil
+
+                # Port group
+                if nic[:device].backing.respond_to?(:network)
+                    vnet_ref = nic[:device].backing.network._ref
+                end
+
+                # Distributed port group
+                if nic[:device].backing.respond_to?(:port) &&
+                    nic[:device].backing.port.respond_to?(:portgroupKey)
+                    vnet_ref  = nic[:device].backing.port.portgroupKey
+                end
+
+                # Find vnet_ref in OpenNebula's pool of networks
+                one_network = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,
+                                                                    "TEMPLATE/VCENTER_NET_REF",
+                                                                    vnet_ref,
+                                                                    vcenter_uuid,
+                                                                    npool)
+                next if !one_network
+
+                # Add pg or dpg name that are in vcenter but not in
+                # OpenNebula's VM to a hash for later removal
+                if one_network["VN_MAD"] == "vcenter" && !networks.key?(one_network["BRIDGE"])
+                    networks[one_network["BRIDGE"]] = one_network
+                end
+            end
+        end
+
+        networks
+    end
+
     # This is never cached
     def self.new_from_ref(ref, vi_client)
         self.new(RbVmomi::VIM::Network.new(vi_client.vim, ref), vi_client)
