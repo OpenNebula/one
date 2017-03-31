@@ -416,20 +416,31 @@ class VirtualMachine
         clone_parameters
     end
 
-    def reference_imported_disks
-        # Add info for existing disks in template in vm xml
+    def reference_imported_disks(template_ref)
+        # Get unmanaged disks in OpenNebula's VM template
         xpath = "TEMPLATE/DISK[OPENNEBULA_MANAGED=\"NO\"]"
-        non_managed_disks = one_item.retrieve_xmlelements(xpath)
+        unmanaged_disks = one_item.retrieve_xmlelements(xpath)
 
-        return if non_managed_disks.empty?
+        return if unmanaged_disks.empty?
 
-        # Update VM's one_item so it can use the recent attributes
+        # Get vcenter VM disks to know real path of cloned disk
         vcenter_disks = get_vcenter_disks
-        vcenter_disks.each_with_index do |disk, index|
-            if !!non_managed_disks[index]
-                rc = one_item.update("VCENTER_TEMPLATE_DISK_#{non_managed_disks[index]["DISK_ID"]} = \"#{disk[:path]}\"", true)
+
+        # Create an array with the paths of the disks in vcenter template
+        template = VCenterDriver::VirtualMachine.new_from_ref(template_ref, vi_client)
+        template_disks = template.get_vcenter_disks
+        template_disks_vector = []
+        template_disks.each_with_index do |d, index|
+            template_disks_vector << d[:path_wo_ds]
+        end
+
+        # Try to find index of template
+        unmanaged_disks.each do |unmanaged_disk|
+            index = template_disks_vector.index(unmanaged_disk["SOURCE"])
+            if index
+                rc = one_item.update("VCENTER_TEMPLATE_DISK_#{unmanaged_disk["DISK_ID"]} = \"#{vcenter_disks[index][:path]}\"", true)
                 raise "Could not update VCENTER_TEMPLATE_DISK elements" if OpenNebula.is_error?(rc)
-                rc = one_item.update("VCENTER_TEMPLATE_DS_DISK_#{non_managed_disks[index]["DISK_ID"]} = \"#{disk[:datastore]._ref}\"", true)
+                rc = one_item.update("VCENTER_TEMPLATE_DS_DISK_#{unmanaged_disk["DISK_ID"]} = \"#{vcenter_disks[index][:datastore]._ref}\"", true)
                 raise "Could not update VCENTER_TEMPLATE_DS_DISK elements" if OpenNebula.is_error?(rc)
             end
         end
@@ -440,7 +451,7 @@ class VirtualMachine
         mac_change_hash = {}
         nics = []
 
-        # Add info for existing disks in template in vm xml
+        # Add info for existing nics in template in vm xml
         xpath = "TEMPLATE/NIC[OPENNEBULA_MANAGED=\"NO\"]"
         unmanaged_nics = one_item.retrieve_xmlelements(xpath)
 
@@ -508,11 +519,29 @@ class VirtualMachine
     def reconfigure
         extraconfig   = []
         device_change = []
-        networks      = {}
 
-        npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool, false)
+        # Get an array with disk paths in OpenNebula's vm template
+        disks_in_onevm_vector = disks_in_onevm
 
-        # get vmid
+        # As the original template may have been modified in OpenNebula
+        # but not in vcenter, we must detach disks that are in vcenter
+        # but not in OpenNebula's vm template
+        if is_new?
+            device_change = device_detach_disks(disks_in_onevm_vector)
+            if !device_change.empty?
+                spec_hash = {}
+                spec_hash[:deviceChange] = device_change if !device_change.empty?
+
+                # Reconfigure for disks detached from original template
+                spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+                @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+            end
+        end
+
+        # Now reconfigure disks, nics and extraconfig for the VM
+        device_change = []
+
+         # get vmid
         extraconfig += extraconfig_vmid
 
         # get token and context
@@ -520,6 +549,15 @@ class VirtualMachine
 
         # vnc configuration (for config_array hash)
         extraconfig += extraconfig_vnc
+
+        # Set CPU, memory and extraconfig
+        num_cpus = one_item["TEMPLATE/VCPU"] || 1
+
+        spec_hash = {
+            :numCPUs      => num_cpus.to_i,
+            :memoryMB     => one_item["TEMPLATE/MEMORY"],
+            :extraConfig  => extraconfig
+        }
 
         # prepare pg and sw for vcenter nics if any
         configure_vcenter_network
@@ -529,110 +567,20 @@ class VirtualMachine
 
         # track pg or dpg in case they must be removed
         vcenter_uuid = get_vcenter_instance_uuid
-        device_change.each do |nic|
-            if nic[:operation] == :remove
+        networks = VCenterDriver::Network.vcenter_networks_to_be_removed(device_change_nics, vcenter_uuid)
 
-                vnet_ref = nil
+        # Now attach disks that are in OpenNebula's template but not in vcenter
+        # e.g those that has been attached in poweroff
+        device_change += device_attach_disks(disks_in_onevm_vector)
 
-                if nic[:device].backing.respond_to?(:network)
-                    vnet_ref = nic[:device].backing.network._ref
-                end
-
-                if nic[:device].backing.respond_to?(:port) &&
-                   nic[:device].backing.port.respond_to?(:portgroupKey)
-                    vnet_ref  = nic[:device].backing.port.portgroupKey
-                end
-
-                one_network = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,
-                                                                  "TEMPLATE/VCENTER_NET_REF",
-                                                                  vnet_ref,
-                                                                  vcenter_uuid,
-                                                                  npool)
-                next if !one_network
-                if one_network["VN_MAD"] == "vcenter" && !networks.key?(one_network["BRIDGE"])
-                    networks[one_network["BRIDGE"]] = one_network
-                end
-            end
-        end
-
-        # device_change hash (disks)
-        device_change += device_change_disks
-
-        num_cpus = one_item["TEMPLATE/VCPU"] || 1
-
-        spec_hash = {
-            :numCPUs      => num_cpus.to_i,
-            :memoryMB     => one_item["TEMPLATE/MEMORY"],
-            :extraConfig  => extraconfig
-        }
-
-        spec_hash[:deviceChange] = device_change if !device_change.empty?
-
+        # Reconfigure task
+        spec_hash[:deviceChange] = device_change
         spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
-
         @item.ReconfigVM_Task(:spec => spec).wait_for_completion
 
         #Remove switch and pg if NICs detached in poweroff
-        if !networks.empty?
-
-            esx_host = VCenterDriver::ESXHost.new_from_ref(@item.runtime.host._ref, vi_client)
-            dc = cluster.get_dc # Get datacenter
-
-            networks.each do |pg_name, one|
-
-                if one["TEMPLATE/VCENTER_PORTGROUP_TYPE"] == "Port Group"
-                    begin
-                        esx_host.lock # Exclusive lock for ESX host operation
-
-                        next if !esx_host.pg_exists(pg_name)
-                        swname = esx_host.remove_pg(pg_name)
-                        next if !swname
-
-                        # We must update XML so the VCENTER_NET_REF is unset
-                        VCenterDriver::Network.remove_net_ref(one["ID"])
-
-                        next if !esx_host.vss_exists(swname)
-                        swname = esx_host.remove_vss(swname)
-
-                    rescue Exception => e
-                        raise e
-                    ensure
-                        esx_host.unlock if esx_host # Remove lock
-                    end
-                end
-
-                if one["TEMPLATE/VCENTER_PORTGROUP_TYPE"] == "Distributed Port Group"
-                    begin
-                        dc.lock
-
-                        # Explore network folder in search of dpg and dvs
-                        net_folder = dc.network_folder
-                        net_folder.fetch!
-
-                        # Get distributed port group if it exists
-                        dpg = dc.dpg_exists(pg_name, net_folder)
-                        dc.remove_dpg(dpg) if dpg
-
-                        # We must update XML so the VCENTER_NET_REF is unset
-                        VCenterDriver::Network.remove_net_ref(one["ID"])
-
-                        # Get distributed virtual switch and try to remove it
-                        switch_name =  one["TEMPLATE/VCENTER_SWITCH_NAME"]
-                        dvs = dc.dvs_exists(switch_name, net_folder)
-                        dc.remove_dvs(dvs) if dvs
-
-                    rescue Exception => e
-                        dc.network_rollback
-                        raise e
-                    ensure
-                        dc.unlock if dc
-                    end
-                end
-            end
-
-        end
+        remove_poweroff_detached_vcenter_nets(networks) if !networks.empty?
     end
-
 
     def extraconfig_vmid
         [
@@ -1110,40 +1058,40 @@ class VirtualMachine
         !device.class.ancestors.index(RbVmomi::VIM::VirtualEthernetCard).nil?
     end
 
-    def device_change_disks
-        disks = []
-        one_item.each("TEMPLATE/DISK") { |disk| disks << disk if !disk["OPENNEBULA_MANAGED"] }
+    def disks_in_onevm
+        onevm_disks_vector = []
+        disks = one_item.retrieve_xmlelements("TEMPLATE/DISK")
+        disks.each do |disk|
+            if disk["OPENNEBULA_MANAGED"] && disk["OPENNEBULA_MANAGED"] == "NO"
+                onevm_disks_vector << img_name = one_item["USER_TEMPLATE/VCENTER_TEMPLATE_DISK_#{disk["DISK_ID"]}"]
+            else
+                img_name  = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'], self['name'])
+                ds        = get_effective_ds(disk)
+                ds_name   = ds['name']
+                onevm_disks_vector << "[#{ds_name}] #{img_name}"
+            end
+        end
+        return onevm_disks_vector
+    end
 
-        if !is_new?
-            @item["config.hardware.device"].each do |d|
-                if is_disk_or_cdrom?(d)
-                    disks.each do |disk|
-                        backing = d.backing
+    def device_attach_disks(onevm_disks_vector)
 
-                        while backing.respond_to?(:parent)
-                            break if backing.parent.nil?
-                            backing = backing.parent
-                        end
+        disks = one_item.retrieve_xmlelements("TEMPLATE/DISK")
 
-                        if backing.respond_to?(:fileName)
-                            # Check if we are dealing with the unmanaged disks present in the template when cloned
-                            if disk["OPENNEBULA_MANAGED"] && disk["OPENNEBULA_MANAGED"] == "NO"
-                                img_name = one_item["USER_TEMPLATE/VCENTER_TEMPLATE_DISK_#{disk["DISK_ID"]}"]
-                                if img_name && backing.fileName == img_name
-                                    disks.delete(disk)
-                                    break
-                                end
-                            end
+        @item["config.hardware.device"].each do |d|
+            if is_disk_or_cdrom?(d)
+                # Get disk backing
+                backing = d.backing
+                while backing.respond_to?(:parent)
+                    break if backing.parent.nil?
+                    backing = backing.parent
+                end
 
-                            # Alright let's see if we can find other devices only with the expected image name
-                            img_name  = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'], self['name'])
-                            ds        = get_effective_ds(disk)
-                            ds_name   = ds['name']
-                            if backing.fileName == "[#{ds_name}] #{img_name}"
-                                disks.delete(disk)
-                                break
-                            end
-                        end
+                if backing.respond_to?(:fileName)
+                    index = onevm_disks_vector.index(backing.fileName)
+                    if onevm_disks_vector.index(backing.fileName)
+                        disks.delete_at(index)
+                        onevm_disks_vector.delete_at(index)
                     end
                 end
             end
@@ -1151,14 +1099,41 @@ class VirtualMachine
 
         return [] if disks.empty?
 
-        position = 0
         attach_disk_array = []
+        position = 0
         disks.each do |disk|
             attach_disk_array << calculate_add_disk_spec(disk, position)
             position += 1
         end
 
-        attach_disk_array
+        return attach_disk_array
+    end
+
+    def device_detach_disks(onevm_disks_vector)
+        detach_disk_array = []
+
+        @item["config.hardware.device"].each do |d|
+            if is_disk_or_cdrom?(d)
+                # Get disk backing
+                backing = d.backing
+                while backing.respond_to?(:parent)
+                    break if backing.parent.nil?
+                    backing = backing.parent
+                end
+
+                if backing.respond_to?(:fileName)
+                    if !onevm_disks_vector.index(backing.fileName)
+                        # Disk not found remove from VM
+                        detach_disk_array << {
+                            :operation => :remove,
+                            :device    => d
+                        }
+                    end
+                end
+            end
+        end
+
+        return detach_disk_array
     end
 
     # Attach DISK to VM (hotplug)
@@ -1349,6 +1324,7 @@ class VirtualMachine
             if is_disk_or_iso?(device)
                 disk[:device]    = device
                 disk[:datastore] = device.backing.datastore
+                disk[:path_wo_ds]= device.backing.fileName.sub(/^\[(.*?)\] /, "")
                 disk[:path]      = device.backing.fileName
                 disk[:type]      = is_disk?(device) ? "OS" : "CDROM"
                 disks << disk
@@ -1401,21 +1377,14 @@ class VirtualMachine
             end
 
             image_import = VCenterDriver::Datastore.get_image_import_template(disk[:datastore].name,
-                                                                                disk[:path],
-                                                                                disk[:type], ipool)
+                                                                              disk[:path],
+                                                                              disk[:type], ipool)
             #Image is already in the datastore
             if image_import[:one]
-                one_image = image_import[:one]
-                # We must update XML so the OPENNEBULA_MANAGED=NO is set
-                rc = one_image.update("OPENNEBULA_MANAGED = \"NO\"", true)
-                if OpenNebula.is_error?(rc)
-                    error = "Could not update VCENTER_TEMPLATE_DISK elements"
-                    break
-                end
-
                 # This is the disk info
                 disk_info << "DISK=[\n"
-                disk_info << "IMAGE=\"#{one_image["NAME"]}\"\n"
+                disk_info << "IMAGE_ID=\"#{image_import[:one]["ID"]}\",\n"
+                disk_info << "OPENNEBULA_MANAGED=\"NO\"\n"
                 disk_info << "]\n"
             elsif !image_import[:template].empty?
                 # Then the image is created as it's not in the datastore
@@ -1439,13 +1408,71 @@ class VirtualMachine
                 #Add info for One template
                 one_i.info
                 disk_info << "DISK=[\n"
-                disk_info << "IMAGE=\"#{one_i["NAME"]}\",\n"
-                disk_info << "IMAGE_UNAME=\"#{one_i["UNAME"]}\"\n"
+                disk_info << "IMAGE_ID=\"#{one_i["ID"]}\",\n"
+                disk_info << "IMAGE_UNAME=\"#{one_i["UNAME"]}\",\n"
+                disk_info << "OPENNEBULA_MANAGED=\"NO\"\n"
                 disk_info << "]\n"
             end
         end
 
         return error, disk_info
+    end
+
+    def remove_poweroff_detached_vcenter_nets(networks)
+        esx_host = VCenterDriver::ESXHost.new_from_ref(@item.runtime.host._ref, vi_client)
+        dc = cluster.get_dc # Get datacenter
+
+        networks.each do |pg_name, one|
+
+            if one["TEMPLATE/VCENTER_PORTGROUP_TYPE"] == "Port Group"
+                begin
+                    esx_host.lock # Exclusive lock for ESX host operation
+
+                    next if !esx_host.pg_exists(pg_name)
+                    swname = esx_host.remove_pg(pg_name)
+                    next if !swname
+
+                    # We must update XML so the VCENTER_NET_REF is unset
+                    VCenterDriver::Network.remove_net_ref(one["ID"])
+
+                    next if !esx_host.vss_exists(swname)
+                    swname = esx_host.remove_vss(swname)
+
+                rescue Exception => e
+                    raise e
+                ensure
+                    esx_host.unlock if esx_host # Remove lock
+                end
+            end
+
+            if one["TEMPLATE/VCENTER_PORTGROUP_TYPE"] == "Distributed Port Group"
+                begin
+                    dc.lock
+
+                    # Explore network folder in search of dpg and dvs
+                    net_folder = dc.network_folder
+                    net_folder.fetch!
+
+                    # Get distributed port group if it exists
+                    dpg = dc.dpg_exists(pg_name, net_folder)
+                    dc.remove_dpg(dpg) if dpg
+
+                    # We must update XML so the VCENTER_NET_REF is unset
+                    VCenterDriver::Network.remove_net_ref(one["ID"])
+
+                    # Get distributed virtual switch and try to remove it
+                    switch_name =  one["TEMPLATE/VCENTER_SWITCH_NAME"]
+                    dvs = dc.dvs_exists(switch_name, net_folder)
+                    dc.remove_dvs(dvs) if dvs
+
+                rescue Exception => e
+                    dc.network_rollback
+                    raise e
+                ensure
+                    dc.unlock if dc
+                end
+            end
+        end
     end
 
     def import_vcenter_nics(vc_uuid, npool)
@@ -1471,7 +1498,7 @@ class VirtualMachine
             if network_found
                 # This is the existing nic info
                 nic_info << "NIC=[\n"
-                nic_info << "NETWORK=\"#{network_found["NAME"]}\",\n"
+                nic_info << "NETWORK_ID=\"#{network_found["ID"]}\",\n"
                 nic_info << "OPENNEBULA_MANAGED=\"NO\"\n"
                 nic_info << "]\n"
             else
@@ -1513,7 +1540,7 @@ class VirtualMachine
                 #Add info for One template
                 one_vn.info
                 nic_info << "NIC=[\n"
-                nic_info << "NETWORK=\"#{one_vn["NAME"]}\",\n"
+                nic_info << "NETWORK_ID=\"#{one_vn["ID"]}\",\n"
                 nic_info << "OPENNEBULA_MANAGED=\"NO\"\n"
                 nic_info << "]\n"
             end
@@ -1855,8 +1882,7 @@ class VirtualMachine
         return str
     end
 
-    def to_one_template(template, ds, ds_list, default_ds,
-                        rp, rp_list, vcenter_uuid)
+    def to_one_template(template, rp, rp_list, vcenter_uuid)
 
         template_name = template['name']
         template_ref  = template['_ref']
@@ -1871,9 +1897,6 @@ class VirtualMachine
         one_tmp[:vcenter_ref]           = template_ref
         one_tmp[:vcenter_instance_uuid] = vcenter_uuid
         one_tmp[:cluster_name]          = cluster_name
-        one_tmp[:ds]                    = ds
-        one_tmp[:ds_list]               = ds_list
-        one_tmp[:default_ds]            = default_ds
         one_tmp[:rp]                    = rp
         one_tmp[:rp_list]               = rp_list
         one_tmp[:template]              = template

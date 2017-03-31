@@ -54,12 +54,14 @@ begin
         vm = VCenterDriver::VirtualMachine.new
 
         # Clone the VM from template and provide XML info
+        vc_template_ref = drv_action['USER_TEMPLATE/VCENTER_TEMPLATE_REF']
         vm.clone_vm(drv_action, vi_client)
+
         one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
         vm.one_item = one_vm
 
         # Set reference to template disks in VM template for detach ops
-        vm.reference_imported_disks
+        vm.reference_imported_disks(vc_template_ref)
 
         # Set reference to template nics in VM template for detach ops
         vm.reference_imported_nics
