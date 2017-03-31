@@ -225,14 +225,14 @@ def self.import_templates(con_ops, options)
 
                             answer = STDIN.gets.strip
 
-                            t[:one] << "VCENTER_RP_REF=\"#{t[:rp_list][answer.to_i - 1][:ref]}\"\n"
+                            t[:one] << "VCENTER_RESOURCE_POOL=\"#{t[:rp_list][answer.to_i - 1][:name]}\"\n"
                         end
                     end
                 end
 
                 if !rp_input.empty?
                     t[:one] << "USER_INPUTS=["
-                    t[:one] << "VCENTER_RP_LIST=\"#{rp_input}\"," if !rp_input.empty?
+                    t[:one] << "VCENTER_RESOURCE_POOL=\"#{rp_input}\"," if !rp_input.empty?
                     t[:one] = t[:one][0..-2]
                     t[:one] << "]"
                 end
