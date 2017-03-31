@@ -90,7 +90,7 @@ class Storage
             one_image[:template] << "PATH=\"vcenter://#{image_path}\"\n"
             one_image[:template] << "TYPE=\"#{image_type}\"\n"
             one_image[:template] << "PERSISTENT=\"NO\"\n"
-            one_image[:template] << "OPENNEBULA_MANAGED=\"NO\"\n"
+            one_image[:template] << "VCENTER_IMPORTED=\"YES\"\n"
             one_image[:template] << "DEV_PREFIX=\"#{VCenterDriver::VIHelper.get_default("IMAGE/TEMPLATE/DEV_PREFIX")}\"\n" #TODO get device prefix from vcenter info
         else
             # Return the image XML if it already exists
@@ -156,9 +156,10 @@ class Storage
         ds_name = ""
 
         if type == "IMAGE_DS"
-            ds_name = "#{self['name']} - #{ccr_name} (IMG)"
+            ds_name << "#{self['name']} - #{ccr_name} (IMG)"
         else
-            ds_name = "#{self['name']} - #{ccr_name} (SYS)"
+            ds_name << "#{self['name']} - #{ccr_name} (SYS)"
+            ds_name << " [StorDRS]" if self.class == VCenterDriver::StoragePod
         end
 
         one_tmp = {
