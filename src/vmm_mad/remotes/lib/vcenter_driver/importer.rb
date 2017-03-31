@@ -119,12 +119,12 @@ def self.import_templates(con_ops, options)
 
                 template = t[:template]
 
-                error, template_disks_and_nics = template.import_vcenter_disks(vc_uuid,
+                error, template_disks = template.import_vcenter_disks(vc_uuid,
                                                                       dpool,
                                                                       ipool)
 
                 if error.empty?
-                    t[:one] << template_disks_and_nics
+                    t[:one] << template_disks
                 else
                     STDOUT.puts error
                     next

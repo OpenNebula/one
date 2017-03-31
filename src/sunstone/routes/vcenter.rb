@@ -99,8 +99,51 @@ get '/vcenter/templates' do
             error 404, error.to_json
         end
 
-        #ctemplates = templates.select{|t| t[:host] == params[:name]}
         [200, templates.to_json]
+    rescue Exception => e
+        logger.error("[vCenter] " + e.message)
+        error = Error.new(e.message)
+        error 403, error.to_json
+    end
+end
+
+get '/vcenter/template/:vcenter_ref' do
+    begin
+        t = {}
+        t[:one] = ""
+
+        template = VCenterDriver::VirtualMachine.new_from_ref(params[:vcenter_ref], vcenter_client)
+
+        vc_uuid = vcenter_client.vim.serviceContent.about.instanceUuid
+        dpool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool)
+        ipool = VCenterDriver::VIHelper.one_pool(OpenNebula::ImagePool)
+        npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool)
+
+        # Create images or get disks information for template
+        error, template_disks = template.import_vcenter_disks(vc_uuid, dpool, ipool)
+
+        if !error.empty?
+            msg = error
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 404, error.to_json
+        end
+
+        t[:one] << template_disks
+
+        # Create images or get nics information for template
+        error, template_nics = template.import_vcenter_nics(vc_uuid, npool)
+
+        if !error.empty?
+            msg = error
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 404, error.to_json
+        end
+
+        t[:one] << template_nics
+
+        [200, t.to_json]
     rescue Exception => e
         logger.error("[vCenter] " + e.message)
         error = Error.new(e.message)

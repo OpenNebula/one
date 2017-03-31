@@ -61,6 +61,12 @@ class Network
         @item = item
     end
 
+    #  Checks if a RbVmomi::VIM::VirtualDevice is a network interface
+    def self.is_nic?(device)
+        !device.class.ancestors.index(RbVmomi::VIM::VirtualEthernetCard).nil?
+    end
+
+
 
     def self.to_one_template(network_name, network_ref, network_type,
                              ccr_ref, ccr_name, vcenter_uuid)

@@ -236,6 +236,21 @@ class DatacenterFolder
 
                 template_ccr  = template['runtime.host.parent']
 
+                # Check if template has nics or disks to be imported later
+                has_nics_and_disks = false
+
+                template["config.hardware.device"].each do |device|
+                    if VCenterDriver::Storage.is_disk_or_iso?(device)
+                        has_nics_and_disks = true
+                        break
+                    end
+
+                    if VCenterDriver::Network.is_nic?(device)
+                        has_nics_and_disks = true
+                        break
+                    end
+                end
+
                 #Get resource pools
                 rp_cache = {}
                 if !rp_cache[template_ccr.name.to_s]
@@ -256,6 +271,7 @@ class DatacenterFolder
                 rp = rp_cache[template_ccr.name.to_s]
 
                 object = template.to_one_template(template,
+                                                  has_nics_and_disks,
                                                   rp,
                                                   rp_list,
                                                   vcenter_uuid)

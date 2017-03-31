@@ -59,6 +59,22 @@ class VirtualMachine
     def initialize(item=nil, vi_client=nil)
         @item = item
         @vi_client = vi_client
+        @locking = true
+    end
+
+    # Locking function. Similar to flock
+    def lock
+        if @locking
+           @locking_file = File.open("/tmp/vcenter-importer-lock","w")
+           @locking_file.flock(File::LOCK_EX)
+        end
+    end
+
+    # Unlock driver execution mutex
+    def unlock
+        if @locking
+            @locking_file.close
+        end
     end
 
     ############################################################################
@@ -1351,51 +1367,25 @@ class VirtualMachine
         disk_info = ""
         error = ""
 
-        ccr_ref = self["runtime.host.parent._ref"]
+        begin
+            lock #Lock import operation, to avoid concurrent creation of images
 
-        #Get disks and info required
-        vc_disks = get_vcenter_disks
+            ccr_ref = self["runtime.host.parent._ref"]
 
-        # Track allocated images
-        allocated_images = []
+            #Get disks and info required
+            vc_disks = get_vcenter_disks
 
-        vc_disks.each do |disk|
+            # Track allocated images
+            allocated_images = []
 
-            datastore_found = VCenterDriver::Storage.get_one_image_ds_by_ref_and_ccr(disk[:datastore]._ref,
-                                                                                     ccr_ref,
-                                                                                     vc_uuid,
-                                                                                     dpool)
-            if datastore_found.nil?
-                error = "    Error datastore #{disk[:datastore].name}: has to be imported first as an image datastore!\n"
+            vc_disks.each do |disk|
 
-                #Rollback delete disk images
-                allocated_images.each do |i|
-                    i.delete
-                end
-
-                break
-            end
-
-            image_import = VCenterDriver::Datastore.get_image_import_template(disk[:datastore].name,
-                                                                              disk[:path],
-                                                                              disk[:type], ipool)
-            #Image is already in the datastore
-            if image_import[:one]
-                # This is the disk info
-                disk_info << "DISK=[\n"
-                disk_info << "IMAGE_ID=\"#{image_import[:one]["ID"]}\",\n"
-                disk_info << "OPENNEBULA_MANAGED=\"NO\"\n"
-                disk_info << "]\n"
-            elsif !image_import[:template].empty?
-                # Then the image is created as it's not in the datastore
-                one_i = VCenterDriver::VIHelper.new_one_item(OpenNebula::Image)
-
-                allocated_images << one_i
-
-                rc = one_i.allocate(image_import[:template], datastore_found['ID'].to_i)
-
-                if ::OpenNebula.is_error?(rc)
-                    error = "    Error creating disk from template: #{rc.message}. Cannot import the template\n"
+                datastore_found = VCenterDriver::Storage.get_one_image_ds_by_ref_and_ccr(disk[:datastore]._ref,
+                                                                                        ccr_ref,
+                                                                                        vc_uuid,
+                                                                                        dpool)
+                if datastore_found.nil?
+                    error = "    Error datastore #{disk[:datastore].name}: has to be imported first as an image datastore!\n"
 
                     #Rollback delete disk images
                     allocated_images.each do |i|
@@ -1405,14 +1395,49 @@ class VirtualMachine
                     break
                 end
 
-                #Add info for One template
-                one_i.info
-                disk_info << "DISK=[\n"
-                disk_info << "IMAGE_ID=\"#{one_i["ID"]}\",\n"
-                disk_info << "IMAGE_UNAME=\"#{one_i["UNAME"]}\",\n"
-                disk_info << "OPENNEBULA_MANAGED=\"NO\"\n"
-                disk_info << "]\n"
+                image_import = VCenterDriver::Datastore.get_image_import_template(disk[:datastore].name,
+                                                                                disk[:path],
+                                                                                disk[:type], ipool)
+                #Image is already in the datastore
+                if image_import[:one]
+                    # This is the disk info
+                    disk_info << "DISK=[\n"
+                    disk_info << "IMAGE_ID=\"#{image_import[:one]["ID"]}\",\n"
+                    disk_info << "OPENNEBULA_MANAGED=\"NO\"\n"
+                    disk_info << "]\n"
+                elsif !image_import[:template].empty?
+                    # Then the image is created as it's not in the datastore
+                    one_i = VCenterDriver::VIHelper.new_one_item(OpenNebula::Image)
+
+                    allocated_images << one_i
+
+                    rc = one_i.allocate(image_import[:template], datastore_found['ID'].to_i)
+
+                    if ::OpenNebula.is_error?(rc)
+                        error = "    Error creating disk from template: #{rc.message}. Cannot import the template\n"
+
+                        #Rollback delete disk images
+                        allocated_images.each do |i|
+                            i.delete
+                        end
+
+                        break
+                    end
+
+                    #Add info for One template
+                    one_i.info
+                    disk_info << "DISK=[\n"
+                    disk_info << "IMAGE_ID=\"#{one_i["ID"]}\",\n"
+                    disk_info << "IMAGE_UNAME=\"#{one_i["UNAME"]}\",\n"
+                    disk_info << "OPENNEBULA_MANAGED=\"NO\"\n"
+                    disk_info << "]\n"
+                end
             end
+
+        rescue Exception => e
+            error = "There was an error trying to create an image for disk in vcenter template. Reason: #{e.message}"
+        ensure
+            unlock
         end
 
         return error, disk_info
@@ -1479,69 +1504,78 @@ class VirtualMachine
         nic_info = ""
         error = ""
 
-        ccr_ref  = self["runtime.host.parent._ref"]
-        ccr_name = self["runtime.host.parent.name"]
+        begin
+            lock #Lock import operation, to avoid concurrent creation of images
 
-        #Get disks and info required
-        vc_nics = get_vcenter_nics
+            ccr_ref  = self["runtime.host.parent._ref"]
+            ccr_name = self["runtime.host.parent.name"]
 
-        # Track allocated networks
-        allocated_networks = []
+            #Get disks and info required
+            vc_nics = get_vcenter_nics
 
-        vc_nics.each do |nic|
+            # Track allocated networks
+            allocated_networks = []
 
-            network_found = VCenterDriver::Network.get_one_vnet_ds_by_ref_and_ccr(nic[:net_ref],
-                                                                                  ccr_ref,
-                                                                                  vc_uuid,
-                                                                                  npool)
-            #Network is already in the datastore
-            if network_found
-                # This is the existing nic info
-                nic_info << "NIC=[\n"
-                nic_info << "NETWORK_ID=\"#{network_found["ID"]}\",\n"
-                nic_info << "OPENNEBULA_MANAGED=\"NO\"\n"
-                nic_info << "]\n"
-            else
-                # Then the network has to be created as it's not in OpenNebula
-                one_vn = VCenterDriver::VIHelper.new_one_item(OpenNebula::VirtualNetwork)
+            vc_nics.each do |nic|
 
-                allocated_networks << one_vn
+                network_found = VCenterDriver::Network.get_one_vnet_ds_by_ref_and_ccr(nic[:net_ref],
+                                                                                    ccr_ref,
+                                                                                    vc_uuid,
+                                                                                    npool)
+                #Network is already in the datastore
+                if network_found
+                    # This is the existing nic info
+                    nic_info << "NIC=[\n"
+                    nic_info << "NETWORK_ID=\"#{network_found["ID"]}\",\n"
+                    nic_info << "OPENNEBULA_MANAGED=\"NO\"\n"
+                    nic_info << "]\n"
+                else
+                    # Then the network has to be created as it's not in OpenNebula
+                    one_vn = VCenterDriver::VIHelper.new_one_item(OpenNebula::VirtualNetwork)
 
-                one_vnet = VCenterDriver::Network.to_one_template(nic[:net_name],
-                                                                  nic[:net_ref],
-                                                                  nic[:pg_type],
-                                                                  ccr_ref,
-                                                                  ccr_name,
-                                                                  vc_uuid)
+                    allocated_networks << one_vn
 
-                # By default add an ethernet range to network size 255
-                ar_str = ""
-                ar_str << "AR=[\n"
-                ar_str << "TYPE=\"ETHER\",\n"
-                ar_str << "SIZE=\"255\"\n"
-                ar_str << "]\n"
-                one_vnet[:one] << ar_str
+                    one_vnet = VCenterDriver::Network.to_one_template(nic[:net_name],
+                                                                    nic[:net_ref],
+                                                                    nic[:pg_type],
+                                                                    ccr_ref,
+                                                                    ccr_name,
+                                                                    vc_uuid)
 
-                rc = one_vn.allocate(one_vnet[:one])
+                    # By default add an ethernet range to network size 255
+                    ar_str = ""
+                    ar_str << "AR=[\n"
+                    ar_str << "TYPE=\"ETHER\",\n"
+                    ar_str << "SIZE=\"255\"\n"
+                    ar_str << "]\n"
+                    one_vnet[:one] << ar_str
 
-                if ::OpenNebula.is_error?(rc)
-                    error = "    Error creating virtual network from template: #{rc.message}. Cannot import the template\n"
+                    rc = one_vn.allocate(one_vnet[:one])
 
-                    #Rollback, delete virtual networks
-                    allocated_networks.each do |n|
-                        n.delete
+                    if ::OpenNebula.is_error?(rc)
+                        error = "    Error creating virtual network from template: #{rc.message}. Cannot import the template\n"
+
+                        #Rollback, delete virtual networks
+                        allocated_networks.each do |n|
+                            n.delete
+                        end
+
+                        break
                     end
 
-                    break
+                    #Add info for One template
+                    one_vn.info
+                    nic_info << "NIC=[\n"
+                    nic_info << "NETWORK_ID=\"#{one_vn["ID"]}\",\n"
+                    nic_info << "OPENNEBULA_MANAGED=\"NO\"\n"
+                    nic_info << "]\n"
                 end
-
-                #Add info for One template
-                one_vn.info
-                nic_info << "NIC=[\n"
-                nic_info << "NETWORK_ID=\"#{one_vn["ID"]}\",\n"
-                nic_info << "OPENNEBULA_MANAGED=\"NO\"\n"
-                nic_info << "]\n"
             end
+
+        rescue Exception => e
+            error = "There was an error trying to create a virtual network for network in vcenter template. Reason: #{e.message}"
+        ensure
+            unlock
         end
 
         return error, nic_info
@@ -1880,7 +1914,7 @@ class VirtualMachine
         return str
     end
 
-    def to_one_template(template, rp, rp_list, vcenter_uuid)
+    def to_one_template(template, has_nics_and_disks, rp, rp_list, vcenter_uuid)
 
         template_name = template['name']
         template_ref  = template['_ref']
@@ -1898,6 +1932,7 @@ class VirtualMachine
         one_tmp[:rp]                    = rp
         one_tmp[:rp_list]               = rp_list
         one_tmp[:template]              = template
+        one_tmp[:import_disks_and_nics] = has_nics_and_disks
         return one_tmp
     end
 

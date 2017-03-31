@@ -112,6 +112,13 @@ class Storage
         return element
     end
 
+    #  Checks if a RbVmomi::VIM::VirtualDevice is a disk or an iso file
+    def self.is_disk_or_iso?(device)
+        is_disk  = !(device.class.ancestors.index(RbVmomi::VIM::VirtualDisk)).nil?
+        is_iso = device.backing.is_a? RbVmomi::VIM::VirtualCdromIsoBackingInfo
+        is_disk || is_iso
+    end
+
 
     def monitor
         summary = self['summary']
