@@ -236,7 +236,7 @@ define(function(require) {
       var rpParams = WizardFields.retrieveInput($('.available_rps', rpInput));
 
       if (rpModify === 'fixed' && rpInitial !== '') {
-        templateJSON['RESOURCE_POOL'] = rpInitial;
+        templateJSON['VCENTER_RESOURCE_POOL'] = rpInitial;
       } else if (rpModify === 'list' && rpParams !== '') {
         var rpUserInputs = UserInputs.marshall({
             type: 'list',
@@ -245,7 +245,7 @@ define(function(require) {
             params: WizardFields.retrieveInput($('.available_rps', rpInput))
           });
 
-        userInputs['RESOURCE_POOL'] = rpUserInputs;
+        userInputs['VCENTER_RESOURCE_POOL'] = rpUserInputs;
       }
     }
 
@@ -314,37 +314,22 @@ define(function(require) {
     }
 
     if (templateJSON["USER_INPUTS"]) {
-      if (templateJSON["USER_INPUTS"]["VCENTER_DATASTORE"]) {
-        var ds = UserInputs.unmarshall(templateJSON["USER_INPUTS"]["VCENTER_DATASTORE"]);
-        $('.modify_datastore', context).val('list');
-        $('.initial_datastore', context).val(ds.initial);
-        $('.available_datastores', context).val(ds.params);
 
-        delete templateJSON["USER_INPUTS"]["VCENTER_DATASTORE"];
-      }
-
-      if (templateJSON["USER_INPUTS"]["RESOURCE_POOL"]) {
-        var rp = UserInputs.unmarshall(templateJSON["USER_INPUTS"]["RESOURCE_POOL"]);
+      if (templateJSON["USER_INPUTS"]["VCENTER_RESOURCE_POOL"]) {
+        var rp = UserInputs.unmarshall(templateJSON["USER_INPUTS"]["VCENTER_RESOURCE_POOL"]);
         $('.modify_rp', context).val('list');
         $('.initial_rp', context).val(rp.initial);
         $('.available_rps', context).val(rp.params);
 
-        delete templateJSON["USER_INPUTS"]["RESOURCE_POOL"];
+        delete templateJSON["USER_INPUTS"]["VCENTER_RESOURCE_POOL"];
       }
     }
 
-    if (templateJSON["VCENTER_DATASTORE"]) {
-      $('.modify_datastore', context).val('fixed');
-      WizardFields.fillInput($('.initial_datastore', context), templateJSON["VCENTER_DATASTORE"]);
-
-      delete templateJSON["VCENTER_DATASTORE"];
-    }
-
-    if (templateJSON["RESOURCE_POOL"]) {
+    if (templateJSON["VCENTER_RESOURCE_POOL"]) {
       $('.modify_rp', context).val('fixed');
-      WizardFields.fillInput($('.initial_rp', context), templateJSON["RESOURCE_POOL"]);
+      WizardFields.fillInput($('.initial_rp', context), templateJSON["VCENTER_RESOURCE_POOL"]);
 
-      delete templateJSON["RESOURCE_POOL"];
+      delete templateJSON["VCENTER_RESOURCE_POOL"];
     }
 
     if(templateJSON["VCENTER_TEMPLATE_REF"]){

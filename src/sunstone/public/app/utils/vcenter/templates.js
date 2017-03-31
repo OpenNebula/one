@@ -198,7 +198,7 @@ define(function(require) {
           var rpParams = $('.available_rps', rpInput).val();
 
           if (rpModify === 'fixed' && rpInitial !== '') {
-            attrs.push('RESOURCE_POOL="' + rpInitial + '"');
+            attrs.push('VCENTER_RESOURCE_POOL="' + rpInitial + '"');
           } else if (rpModify === 'list' && rpParams !== '') {
             var rpUserInputs = UserInputs.marshall({
                 type: 'list',
@@ -207,7 +207,7 @@ define(function(require) {
                 params: $('.available_rps', rpInput).val()
               });
 
-            userInputs.push('RESOURCE_POOL="' + rpUserInputs + '"');
+            userInputs.push('VCENTER_RESOURCE_POOL="' + rpUserInputs + '"');
           }
         }
 
