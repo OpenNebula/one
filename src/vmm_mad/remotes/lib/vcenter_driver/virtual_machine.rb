@@ -1507,11 +1507,9 @@ class VirtualMachine
 
                 allocated_networks << one_vn
 
-                vlan_id = "" # TODO VLAN ID management
                 one_vnet = VCenterDriver::Network.to_one_template(nic[:net_name],
                                                                   nic[:net_ref],
                                                                   nic[:pg_type],
-                                                                  vlan_id,
                                                                   ccr_ref,
                                                                   ccr_name,
                                                                   vc_uuid)
