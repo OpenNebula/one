@@ -181,10 +181,16 @@ class VirtualMachine
 
     # @return RbVmomi::VIM::ResourcePool
     def get_rp
-        req_rp = one_item['USER_TEMPLATE/VCENTER_RP_REF']
+
+        req_rp = one_item['VCENTER_RESOURCE_POOL'] ||
+                 one_item['USER_TEMPLATE/VCENTER_RESOURCE_POOL']
+
+        #Get ref for req_rp
+        rp_list    = cluster.get_resource_pool_list
+        req_rp_ref = rp_list.select { |rp| rp[:name] == req_rp }.first[:ref] rescue nil
 
         if vi_client.rp_confined?
-            if req_rp && req_rp != vi_client.rp
+            if req_rp_ref && req_rp_ref != vi_client.rp
                 raise "Available resource pool in host [#{vi_client.rp}]"\
                       " does not match requested resource pool"\
                       " [#{req_rp}]"
@@ -192,8 +198,8 @@ class VirtualMachine
 
             return vi_client.rp
         else
-            if req_rp
-                rps = cluster.resource_pools.select{|r| r._ref == req_rp }
+            if req_rp_ref
+                rps = cluster.resource_pools.select{|r| r._ref == req_rp_ref }
 
                 if rps.empty?
                     raise "No matching resource pool found (#{req_rp})."
@@ -2124,7 +2130,7 @@ class VirtualMachine
         str_info << "VCENTER_VMWARETOOLS_RUNNING_STATUS=" << vmware_tools    << " "
         str_info << "VCENTER_VMWARETOOLS_VERSION="        << vmtools_ver     << " "
         str_info << "VCENTER_VMWARETOOLS_VERSION_STATUS=" << vmtools_verst   << " "
-        str_info << "VCENTER_RP_REF=\""                   << self["resourcePool"]._ref << "\" "
+        str_info << "VCENTER_RESOURCE_POOL=\""            << self["resourcePool"].name << "\" "
     end
 
     def reset_monitor
