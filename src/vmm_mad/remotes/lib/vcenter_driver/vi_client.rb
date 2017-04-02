@@ -11,16 +11,20 @@ class VIClient
         opts = {:insecure => true}.merge(opts)
         @vim = RbVmomi::VIM.connect(opts)
 
-        # Get ccr
+        # Get ccr and get rp
         ccr_ref = opts.delete(:ccr)
-        ccr = RbVmomi::VIM::ClusterComputeResource.new(@vim, ccr_ref)
+        if ccr_ref
+            ccr = RbVmomi::VIM::ClusterComputeResource.new(@vim, ccr_ref)
 
-        #Get ref for rp
-        if ccr
-            rp = opts.delete(:rp)
-            rp_list = get_resource_pool_list(ccr)
-            rp_ref = rp_list.select { |r| r[:name] == rp }.first._ref rescue nil
-            @rp = RbVmomi::VIM::ResourcePool(@vim, rp_ref) if rp_ref
+            #Get ref for rp
+            if ccr
+                rp = opts.delete(:rp)
+                if rp
+                    rp_list = get_resource_pool_list(ccr)
+                    rp_ref = rp_list.select { |r| r[:name] == rp }.first._ref rescue nil
+                    @rp = RbVmomi::VIM::ResourcePool(@vim, rp_ref) if rp_ref
+                end
+            end
         end
     end
 
@@ -32,7 +36,7 @@ class VIClient
 
         current_rp = ""
 
-        if rp.nil?
+        if !rp
             rp = ccr.resourcePool
         else
             if !parent_prefix.empty?
