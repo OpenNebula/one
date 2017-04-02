@@ -38,6 +38,10 @@ class DatacenterFolder
         @vi_client.vim.serviceContent.about.instanceUuid
     end
 
+    def get_vcenter_instance_name
+        @vi_client.vim.serviceContent.setting.setting.select{|set| set.key == 'VirtualCenter.InstanceName'}.first.value rescue nil
+    end
+
     def get_vcenter_api_version
         @vi_client.vim.serviceContent.about.apiVersion
     end
@@ -132,6 +136,8 @@ class DatacenterFolder
 
         vcenter_uuid = get_vcenter_instance_uuid
 
+        vcenter_instance_name = get_vcenter_instance_name
+
         pool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool, false)
 
         if pool.respond_to?(:message)
@@ -166,14 +172,14 @@ class DatacenterFolder
                         already_image_ds = VCenterDriver::Storage.exists_one_by_ref_ccr_and_type?(ds["_ref"], ccr_ref, vcenter_uuid, "IMAGE_DS", pool)
 
                         if !already_image_ds
-                            object = ds.to_one_template(one_clusters[dc_name], ccr_ref, ccr_name, "IMAGE_DS", vcenter_uuid)
+                            object = ds.to_one_template(one_clusters[dc_name], ccr_ref, ccr_name, "IMAGE_DS", vcenter_uuid, vcenter_instance_name, dc_name)
                             ds_objects[dc_name] << object if !object.nil?
                         end
 
                         already_system_ds = VCenterDriver::Storage.exists_one_by_ref_ccr_and_type?(ds["_ref"], ccr_ref, vcenter_uuid, "SYSTEM_DS", pool)
 
                         if !already_system_ds
-                            object = ds.to_one_template(one_clusters[dc_name], ccr_ref, ccr_name, "SYSTEM_DS", vcenter_uuid)
+                            object = ds.to_one_template(one_clusters[dc_name], ccr_ref, ccr_name, "SYSTEM_DS", vcenter_uuid, vcenter_instance_name, dc_name)
                             ds_objects[dc_name] << object if !object.nil?
                         end
                     end
@@ -196,7 +202,7 @@ class DatacenterFolder
                         already_system_ds = VCenterDriver::Storage.exists_one_by_ref_ccr_and_type?(ds["_ref"], ccr_ref, vcenter_uuid, "SYSTEM_DS", pool)
 
                         if !already_system_ds
-                            object = ds.to_one_template(one_clusters[dc_name], ccr_ref, ccr_name, "SYSTEM_DS", vcenter_uuid)
+                            object = ds.to_one_template(one_clusters[dc_name], ccr_ref, ccr_name, "SYSTEM_DS", vcenter_uuid, vcenter_instance_name, dc_name)
                             ds_objects[dc_name] << object if !object.nil?
                         end
                     end

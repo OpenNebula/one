@@ -154,7 +154,7 @@ class Storage
         return one
     end
 
-    def to_one_template(one_clusters, ccr_ref, ccr_name, type, vcenter_uuid)
+    def to_one_template(one_clusters, ccr_ref, ccr_name, type, vcenter_uuid, vcenter_instance_name, dc_name)
 
         one_cluster = one_clusters.select { |ccr| ccr[:ref] == ccr_ref }.first rescue nil
 
@@ -163,9 +163,9 @@ class Storage
         ds_name = ""
 
         if type == "IMAGE_DS"
-            ds_name << "#{self['name']} - #{ccr_name} (IMG)"
+            ds_name << "[#{vcenter_instance_name} #{dc_name}] #{self['name']} - #{ccr_name} (IMG)"
         else
-            ds_name << "#{self['name']} - #{ccr_name} (SYS)"
+            ds_name << "[#{vcenter_instance_name} - #{dc_name}] #{self['name']} - #{ccr_name} (SYS)"
             ds_name << " [StorDRS]" if self.class == VCenterDriver::StoragePod
         end
 
