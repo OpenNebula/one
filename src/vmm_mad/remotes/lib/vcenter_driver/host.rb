@@ -150,7 +150,7 @@ class ClusterComputeResource
             rp_name          = (parent_prefix.empty? ? "" : parent_prefix + "/")
             rp_name         += rp.name
 
-            rp_info << "\nRESOURCE_POOL = ["
+            rp_info << "\nVCENTER_RESOURCE_POOL = ["
             rp_info << "NAME=\"#{rp_name}\","
             rp_info << "CPU_EXPANDABLE=#{cpu_expandable},"
             rp_info << "CPU_LIMIT=#{cpu_limit},"
@@ -211,6 +211,7 @@ class ClusterComputeResource
 
     def monitor_vms
         str_info = ""
+        @monitored_vms = Set.new
         resource_pools.each do |rp|
             str_info << monitor_vms_in_rp(rp)
         end
@@ -256,6 +257,11 @@ class ClusterComputeResource
 
                 if extraconfig_vmid.size > 0 and extraconfig_vmid[0]
                     number = extraconfig_vmid[0][:value]
+                end
+
+                if number != -1
+                    next if @monitored_vms.include? number
+                    @monitored_vms << number
                 end
 
                 vm.monitor
