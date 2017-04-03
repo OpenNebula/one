@@ -73,7 +73,7 @@ class VIHelper
             recursive: true
         })
 
-        vcenter_vm = view.view.find{ |v| v.name == vm_name } if view.view
+        vcenter_vm = view.view.find{ |v| v.name == vm_name } if !!view.view && !view.view.empty?
 
         view.DestroyView # Destroy the view
 
