@@ -1827,7 +1827,7 @@ class VirtualMachine
     end
 
     def reboot
-        @item.RebootGuest.wait_for_completion
+        @item.RebootGuest
     end
 
     def poweron
