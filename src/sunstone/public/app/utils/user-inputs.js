@@ -83,7 +83,13 @@ define(function(require) {
       if ($(".user_input_name", $(this)).val()) {
         var attr = {};
         attr.name = $(".user_input_name", $(this)).val();
-        attr.mandatory = true;
+
+        if($('.user_input_mandatory_' + key, $(this)).prop('checked')){
+          attr.mandatory = true;
+        } else {
+          attr.mandatory = false;
+        }
+        
         attr.type = $(".user_input_type", $(this)).val();
         attr.description = $(".user_input_description", $(this)).val();
 
@@ -138,6 +144,13 @@ define(function(require) {
 
         $(".user_input_type", trcontext).val(attr.type).change();
         $(".user_input_description", trcontext).val(attr.description);
+
+        if(attr.mandatory){
+          $('#mandatory_checkbox', trcontext).attr("checked", "checked");
+        } else {
+          $('#mandatory_checkbox', trcontext).removeAttr("checked");
+        }
+
 
         switch(attr.type){
           case "number":
@@ -626,7 +639,11 @@ define(function(require) {
         }
         break;
       case "password":
-        input = '<input type="password" value="'+value+'" '+wizard_field+' '+required+'/>';
+        input = '<br><input type="password" value="'+value+'" '+wizard_field+' '+required+'/>';
+        break;
+      case "boolean":
+        input = '<br>' + Locale.tr("YES ") + '<input type="radio" name="bool_' +attr.name+'" value="YES"' + wizard_field + ' ' + required + '/>';
+        input += Locale.tr("NO ") + '<input type="radio" name="bool_' +attr.name+'" value="NO"' + wizard_field + ' ' + required + '/>';
         break;
       case "number":
       case "number-float":

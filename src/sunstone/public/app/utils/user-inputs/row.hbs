@@ -34,15 +34,11 @@
         <input type="number" step="any" class="user_input_initial" placeholder="42.5"/>
       </label>
     </div>
-
     <div class="user_input_type_right boolean">
       <label>{{tr "Default value"}}</label>
-      <form>
-      <input type="radio" step="any" name="boolean" class="user_input_initial_{{idInput}}" id="radio_yes" value="YES"> {{tr "YES"}}
-      <input type="radio" step="any" name="boolean" class="user_input_initial_{{idInput}}" id="radio_no" value="NO"> {{tr "NO"}}
-      </form>      
+      <input type="radio" step="any" name="bool_{{idInput}}" class="user_input_initial_{{idInput}}" id="radio_yes" value="YES"> {{tr "YES"}}
+      <input type="radio" step="any" name="bool_{{idInput}}" class="user_input_initial_{{idInput}}" id="radio_no" value="NO"> {{tr "NO"}}
     </div>
-
     <div class="user_input_type_right range">
       <div class="row collapse">
         <div class="small-6 columns">
@@ -87,6 +83,10 @@
         <input type=text class="user_input_initial" placeholder="optB"/>
       </label>
     </div>
+  </td>
+  <td>
+    <label>{{tr "Mandatory"}}</label>
+    <input checked style="margin-left: 35%" type="checkbox" class="user_input_mandatory_{{idInput}}" id="mandatory_checkbox"/>
   </td>
   <td>
     <br/>
