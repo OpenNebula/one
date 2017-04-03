@@ -232,7 +232,7 @@ class ClusterComputeResource
 
         rp.vm.each do |v|
             begin
-                vm = VirtualMachine.new(v)
+                vm = VirtualMachine.new(v, @vi_client)
 
                 number = -1
 
@@ -251,13 +251,10 @@ class ClusterComputeResource
                 matches = vm["name"].match(/^one-(\d*)(-(.*))?$/)
                 number  = matches[1] if matches
 
-                extraconfig_vmid = vm["config.extraConfig"].select do |val|
-                   val[:key] == "opennebula.vm.id"
-                end
+                # Extract vmid from ref and vcenter instance uuid if possible
+                vm_id = vm.get_vm_id
 
-                if extraconfig_vmid.size > 0 and extraconfig_vmid[0]
-                    number = extraconfig_vmid[0][:value]
-                end
+                number = vm_id if vm_id
 
                 if number != -1
                     next if @monitored_vms.include? number
@@ -267,7 +264,6 @@ class ClusterComputeResource
                 vm.monitor
 
                 next if !vm["config"]
-
 
                 str_info << %Q{
                 VM = [

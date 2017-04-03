@@ -166,9 +166,18 @@ class VirtualMachine
 
     # @return String the vm_id stored in vCenter
     def get_vm_id
-        vm_id = self['config.extraConfig'].select do |o|
-            o.key == "opennebula.vm.id"
-        end.first.value rescue nil
+        vm_ref = self['_ref']
+        return nil if !vm_ref
+
+        vc_uuid = get_vcenter_instance_uuid
+
+        one_vm = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualMachinePool,
+                                                     "DEPLOY_ID",
+                                                     vm_ref,
+                                                     vc_uuid)
+        return nil if !one_vm
+
+        return one_vm["ID"]
     end
 
     def get_vcenter_instance_uuid
@@ -563,9 +572,6 @@ class VirtualMachine
         # Now reconfigure disks, nics and extraconfig for the VM
         device_change = []
 
-         # get vmid
-        extraconfig += extraconfig_vmid
-
         # get token and context
         extraconfig += extraconfig_context
 
@@ -602,12 +608,6 @@ class VirtualMachine
 
         #Remove switch and pg if NICs detached in poweroff
         remove_poweroff_detached_vcenter_nets(networks) if !networks.empty?
-    end
-
-    def extraconfig_vmid
-        [
-            { :key => "opennebula.vm.id", :value => one_item['ID'] }
-        ]
     end
 
     def extraconfig_context

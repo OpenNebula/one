@@ -51,7 +51,8 @@ class VIHelper
         pool = one_pool(the_class, false) if pool.nil?
         element = pool.select{|e|
             e["#{attribute}"] == ref &&
-            e["TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid}.first rescue nil
+            (e["TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid ||
+             e["USER_TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid)}.first rescue nil
 
         return element
     end
