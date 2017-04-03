@@ -341,7 +341,7 @@ class VirtualMachine
             vcenter_vm_folder_object = dc.item.find_folder(vcenter_vm_folder)
         end
 
-        vm_folder = vc_template.parent if vcenter_vm_folder_object.nil?
+        vcenter_vm_folder_object = vc_template.parent if vcenter_vm_folder_object.nil?
 
         if ds.instance_of? RbVmomi::VIM::StoragePod
             # VM is cloned using Storage Resource Manager for StoragePods
