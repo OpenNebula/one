@@ -166,8 +166,10 @@ define(function(require) {
     if (Config.isTabActionEnabled("vms-tab", "VM.snapshot_revert")) {
       context.off('click', '.snapshot_revert');
       context.on('click', '.snapshot_revert', function() {
+        var snapshot_id = $(this).parents('tr').attr('snapshot_id');
         var dialog = Sunstone.getDialog(REVERT_DIALOG_ID);
         dialog.setElement(that.element);
+        dialog.setSnapshot_id(snapshot_id);
         dialog.show();
         return false;
       });
