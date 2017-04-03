@@ -330,11 +330,24 @@ class VirtualMachine
 
         clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec(spec_hash)
 
+        # Specify vm folder in vSpere's VM and Templates view F#4823
+        vcenter_vm_folder = nil
+        vcenter_vm_folder = one_item["USER_TEMPLATE/VCENTER_VM_FOLDER"]
+        vcenter_vm_folder_object = nil
+
+        dc = cluster.get_dc
+        if !!vcenter_vm_folder && !vcenter_vm_folder.empty?
+            # Look for folder object
+            vcenter_vm_folder_object = dc.item.find_folder(vcenter_vm_folder)
+        end
+
+        vm_folder = vc_template.parent if vcenter_vm_folder_object.nil?
+
         if ds.instance_of? RbVmomi::VIM::StoragePod
             # VM is cloned using Storage Resource Manager for StoragePods
             begin
                 vm = storagepod_clonevm_task(vc_template, vcenter_name,
-                                             clone_spec, ds)
+                                             clone_spec, ds, vcenter_vm_folder_object)
             rescue Exception => e
                 raise "Cannot clone VM Template to StoragePod: #{e.message}"
             end
@@ -342,7 +355,7 @@ class VirtualMachine
             vm = nil
             begin
                 vm = vc_template.CloneVM_Task(
-                    :folder => vc_template.parent,
+                    :folder => vcenter_vm_folder_object,
                     :name   => vcenter_name,
                     :spec   => clone_spec).wait_for_completion
             rescue Exception => e
@@ -350,7 +363,7 @@ class VirtualMachine
                     raise "Cannot clone VM Template: #{e.message}\n#{e.backtrace}"
                 end
 
-                vm_folder = cluster.get_dc.vm_folder
+                vm_folder = dc.vm_folder
                 vm_folder.fetch!
                 vm = vm_folder.items
                         .select{|k,v| v.item.name == vcenter_name}
@@ -359,7 +372,7 @@ class VirtualMachine
                 if vm
                     vm.Destroy_Task.wait_for_completion
                     vm = vc_template.CloneVM_Task(
-                        :folder => vc_template.parent,
+                        :folder => vcenter_vm_folder_object,
                         :name   => vcenter_name,
                         :spec   => clone_spec).wait_for_completion
                 else
@@ -374,7 +387,7 @@ class VirtualMachine
     end
 
 
-    def storagepod_clonevm_task(vc_template, vcenter_name, clone_spec, storpod)
+    def storagepod_clonevm_task(vc_template, vcenter_name, clone_spec, storpod, vcenter_vm_folder_object)
 
         storage_manager = vc_template
                             ._connection.serviceContent.storageResourceManager
@@ -382,7 +395,7 @@ class VirtualMachine
         storage_spec = RbVmomi::VIM.StoragePlacementSpec(
             type: 'clone',
             cloneName: vcenter_name,
-            folder: vc_template.parent,
+            folder: vcenter_vm_folder_object,
             podSelectionSpec: RbVmomi::VIM.StorageDrsPodSelectionSpec(storagePod: storpod),
             vm: vc_template,
             cloneSpec: clone_spec

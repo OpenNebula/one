@@ -354,11 +354,11 @@ EOT
             :description => 'Sends READY=YES to OneGate, useful for OneFlow'
         },
         {
-            :name   => 'deploy_folder',
-            :large  => '--deploy_folder path',
+            :name   => 'vcenter_vm_folder',
+            :large  => '--vcenter_vm_folder path',
             :format => String,
             :description => "In a vCenter environment sets the the VMs and Template folder where the VM will be placed in." \
-            " The path uses slashes to separate folders. For example: --deploy_folder \"/Management/VMs\""
+            " The path uses slashes to separate folders. For example: --vcenter_vm_folder \"/Management/VMs\""
         }
     ]
 
@@ -1133,7 +1133,7 @@ EOT
             template<<' ]' << "\n"
         end
 
-        template<<"DEPLOY_FOLDER=#{options[:deploy_folder]}\n" if options[:deploy_folder]
+        template<<"VCENTER_VM_FOLDER=#{options[:vcenter_vm_folder]}\n" if options[:vcenter_vm_folder]
 
         context=create_context(options)
         template<<context if context

@@ -189,8 +189,8 @@ define(function(require) {
     if (templateJSON["HYPERVISOR"] == 'vcenter') {
       templateJSON["VCENTER_TEMPLATE_REF"] = WizardFields.retrieveInput($("#vcenter_template_ref", context));
 
-      if (Config.isFeatureEnabled("vcenter_deploy_folder")) {
-        templateJSON["DEPLOY_FOLDER"] = WizardFields.retrieveInput($("#vcenter_deploy_folder", context))
+      if (Config.isFeatureEnabled("vcenter_vm_folder")) {
+        templateJSON["VCENTER_VM_FOLDER"] = WizardFields.retrieveInput($("#vcenter_vm_folder", context))
       }
       templateJSON["KEEP_DISKS_ON_DONE"] = $("#KEEP_DISKS", context).is(':checked')?"YES":"NO"
     }
@@ -280,16 +280,16 @@ define(function(require) {
 
     delete templateJSON["KEEP_DISKS_ON_DONE"];
 
-    if (Config.isFeatureEnabled("vcenter_deploy_folder")) {
+    if (Config.isFeatureEnabled("vcenter_vm_folder")) {
       if (templateJSON["HYPERVISOR"] == 'vcenter' &&
-        templateJSON["DEPLOY_FOLDER"]) {
-        WizardFields.fillInput($("#vcenter_deploy_folder", context), templateJSON["DEPLOY_FOLDER"]);
+        templateJSON["VCENTER_VM_FOLDER"]) {
+        WizardFields.fillInput($("#vcenter_vm_folder", context), templateJSON["VCENTER_VM_FOLDER"]);
       }
     } else {
-      $(".vcenter_deploy_folder_input", context).remove();
+      $(".vcenter_vm_folder_input", context).remove();
     }
 
-    delete templateJSON["DEPLOY_FOLDER"];
+    delete templateJSON["VCENTER_VM_FOLDER"];
 
     if (templateJSON["HYPERVISOR"] == 'vcenter') {
       var publicClouds = templateJSON["PUBLIC_CLOUD"];
