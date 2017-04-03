@@ -1834,6 +1834,10 @@ class VirtualMachine
         @item.PowerOnVM_Task.wait_for_completion
     end
 
+    def is_powered_on?
+        return @item.runtime.powerState == "poweredOn"
+    end
+
     def poweroff_hard
         @item.PowerOffVM_Task.wait_for_completion
     end

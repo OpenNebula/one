@@ -57,6 +57,29 @@ class VIHelper
         return element
     end
 
+    def self.find_vcenter_vm_by_name(one_vm, host, vi_client)
+        # Let's try to find the VM object only by its name
+        # Let's build the VM name
+        vm_prefix = host['TEMPLATE/VM_PREFIX']
+        vm_prefix = VM_PREFIX_DEFAULT if vm_prefix.nil? || vm_prefix.empty?
+        vm_prefix.gsub!("$i", one_vm['ID'])
+        vm_name =  vm_prefix + one_vm['NAME']
+
+        # We have no DEPLOY_ID, the VM has never been deployed
+        # let's use a view to try to find the VM from the root folder
+        view = vi_client.vim.serviceContent.viewManager.CreateContainerView({
+            container: vi_client.vim.rootFolder,
+            type:      ['VirtualMachine'],
+            recursive: true
+        })
+
+        vcenter_vm = view.view.find{ |v| v.name == vm_name } if view.view
+
+        view.DestroyView # Destroy the view
+
+        return vcenter_vm
+    end
+
     def self.get_default(xpath)
         begin
             xml = OpenNebula::XMLElement.new
