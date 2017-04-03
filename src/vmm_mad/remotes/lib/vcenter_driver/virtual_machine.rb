@@ -1708,10 +1708,33 @@ class VirtualMachine
             :quiesce     => true
         }
 
-        begin
-            @item.CreateSnapshot_Task(snapshot_hash).wait_for_completion
-        rescue Exception => e
-            raise "Cannot create snapshot for VM: #{e.message}\n#{e.backtrace}"
+        vcenter_version = @vi_client.vim.serviceContent.about.apiVersion rescue nil
+
+        if vcenter_version != "5.5"
+            begin
+                @item.CreateSnapshot_Task(snapshot_hash).wait_for_completion
+            rescue Exception => e
+                raise "Cannot create snapshot for VM: #{e.message}\n#{e.backtrace}"
+            end
+        else
+            # B#5045 - If vcenter is 5.5 the snapshot may take longer than
+            # 15 minutes and it does not report that it has finished using
+            # wait_for_completion we use an active wait instead with a
+            # timeout of 1440 minutes = 24 hours
+            @item.CreateSnapshot_Task(snapshot_hash)
+
+            snapshot_created  = false
+            elapsed_minutes   = 0
+
+            until snapshot_created || elapsed_minutes == 1440
+                if !!@item['snapshot']
+                    current_snapshot = @item['snapshot.currentSnapshot'] rescue nil
+                    snapshot_found = find_snapshot(@item['snapshot.rootSnapshotList'], snapshot_name)
+                    snapshot_created = !!snapshot_found && !!current_snapshot && current_snapshot._ref == snapshot_found._ref
+                end
+                sleep(60)
+                elapsed_minutes += 1
+            end
         end
 
         return snap_id
