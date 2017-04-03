@@ -16,6 +16,7 @@
         <option value="range">        {{tr "range"}}           </option>
         <option value="range-float">  {{tr "range (float)"}}   </option>
         <option value="list">         {{tr "list"}}            </option>
+        <option value="boolean">      {{tr "boolean"}}         </option>
       </select>
     </label>
   </td>
@@ -33,6 +34,15 @@
         <input type="number" step="any" class="user_input_initial" placeholder="42.5"/>
       </label>
     </div>
+
+    <div class="user_input_type_right boolean">
+      <label>{{tr "Default value"}}</label>
+      <form>
+      <input type="radio" step="any" name="boolean" class="user_input_initial_{{idInput}}" id="radio_yes" value="YES"> {{tr "YES"}}
+      <input type="radio" step="any" name="boolean" class="user_input_initial_{{idInput}}" id="radio_no" value="NO"> {{tr "NO"}}
+      </form>      
+    </div>
+
     <div class="user_input_type_right range">
       <div class="row collapse">
         <div class="small-6 columns">

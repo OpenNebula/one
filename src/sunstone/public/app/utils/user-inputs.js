@@ -54,8 +54,11 @@ define(function(require) {
   }
 
   function _setup(context){
+    this.idInput = 0;
+    that = this;
     context.on("click", ".add_user_input_attr", function() {
-      $(".user_input_attrs tbody", context).append(RowTemplateHTML());
+      $(".user_input_attrs tbody", context).append(RowTemplateHTML({'idInput': that.idInput}));
+      that.idInput++;
 
       $("select.user_input_type", context).change();
     });
@@ -74,8 +77,9 @@ define(function(require) {
 
   function _retrieve(context){
     var userInputsJSON = {};
-
-    $(".user_input_attrs tbody tr", context).each(function() {
+    
+    $(".user_input_attrs tbody tr", context).each(function(key) {
+      
       if ($(".user_input_name", $(this)).val()) {
         var attr = {};
         attr.name = $(".user_input_name", $(this)).val();
@@ -101,10 +105,14 @@ define(function(require) {
             attr.params  = $("."+attr.type+" input.user_input_params", $(this)).val();
             attr.initial = $("."+attr.type+" input.user_input_initial", $(this)).val();
             break;
+          case "boolean":
+            attr.initial = $('.user_input_initial_'+key+':checked', $(this)).val();
+            break;
         }
 
         userInputsJSON[attr.name] = _marshall(attr);
       }
+      
     });
 
     return userInputsJSON;
@@ -115,6 +123,7 @@ define(function(require) {
 
     if (userInputsJSON) {
       $.each(userInputsJSON, function(key, value) {
+
         $(".add_user_input_attr", context).trigger("click");
 
         var trcontext = $(".user_input_attrs tbody tr", context).last();
@@ -137,6 +146,17 @@ define(function(require) {
             $("."+attr.type+" input.user_input_initial", trcontext).val(attr.initial);
             break;
 
+          case "boolean":
+            this.name = attr.name;
+            if(attr.initial == "YES"){
+              $('input#radio_yes', trcontext).attr("checked", "checked");
+              $('input#radio_no', trcontext).removeAttr('checked');
+            }
+            else {
+              $('input#radio_yes', trcontext).removeAttr("checked");
+              $('input#radio_no', trcontext).attr("checked", "checked");
+            }
+            break;
           case "range":
           case "range-float":
             var values = attr.params.split("..");  // "2..8"
@@ -343,6 +363,7 @@ define(function(require) {
     switch (attr.type) {
       case "number":
       case "number-float":
+      case "boolean":
       case "fixed":
         st += ("| |" + (attr.initial != undefined ? attr.initial : "") );
 
