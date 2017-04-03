@@ -88,18 +88,12 @@ class DatacenterFolder
         clusters
     end
 
-    def get_unimported_hosts
+    def get_unimported_hosts(hpool)
         host_objects = {}
 
         vcenter_uuid = get_vcenter_instance_uuid
 
         vcenter_version = get_vcenter_api_version
-
-        hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool, false)
-
-        if hpool.respond_to?(:message)
-            raise "Could not get OpenNebula HostPool: #{hpool.message}"
-        end
 
         fetch! if @items.empty? #Get datacenters
 
@@ -131,18 +125,12 @@ class DatacenterFolder
         return host_objects
     end
 
-    def get_unimported_datastores
+    def get_unimported_datastores(hpool)
         ds_objects = {}
 
         vcenter_uuid = get_vcenter_instance_uuid
 
         vcenter_instance_name = get_vcenter_instance_name
-
-        pool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool, false)
-
-        if pool.respond_to?(:message)
-            raise "Could not get OpenNebula DatastorePool: #{pool.message}"
-        end
 
         fetch! if @items.empty? #Get datacenters
 
@@ -169,14 +157,14 @@ class DatacenterFolder
                     end
 
                     clusters_in_ds.each do |ccr_ref, ccr_name|
-                        already_image_ds = VCenterDriver::Storage.exists_one_by_ref_ccr_and_type?(ds["_ref"], ccr_ref, vcenter_uuid, "IMAGE_DS", pool)
+                        already_image_ds = VCenterDriver::Storage.exists_one_by_ref_ccr_and_type?(ds["_ref"], ccr_ref, vcenter_uuid, "IMAGE_DS", hpool)
 
                         if !already_image_ds
                             object = ds.to_one_template(one_clusters[dc_name], ccr_ref, ccr_name, "IMAGE_DS", vcenter_uuid, vcenter_instance_name, dc_name)
                             ds_objects[dc_name] << object if !object.nil?
                         end
 
-                        already_system_ds = VCenterDriver::Storage.exists_one_by_ref_ccr_and_type?(ds["_ref"], ccr_ref, vcenter_uuid, "SYSTEM_DS", pool)
+                        already_system_ds = VCenterDriver::Storage.exists_one_by_ref_ccr_and_type?(ds["_ref"], ccr_ref, vcenter_uuid, "SYSTEM_DS", hpool)
 
                         if !already_system_ds
                             object = ds.to_one_template(one_clusters[dc_name], ccr_ref, ccr_name, "SYSTEM_DS", vcenter_uuid, vcenter_instance_name, dc_name)
@@ -199,7 +187,7 @@ class DatacenterFolder
                     end
 
                     clusters_in_spod.each do |ccr_ref, ccr_name|
-                        already_system_ds = VCenterDriver::Storage.exists_one_by_ref_ccr_and_type?(ds["_ref"], ccr_ref, vcenter_uuid, "SYSTEM_DS", pool)
+                        already_system_ds = VCenterDriver::Storage.exists_one_by_ref_ccr_and_type?(ds["_ref"], ccr_ref, vcenter_uuid, "SYSTEM_DS", hpool)
 
                         if !already_system_ds
                             object = ds.to_one_template(one_clusters[dc_name], ccr_ref, ccr_name, "SYSTEM_DS", vcenter_uuid, vcenter_instance_name, dc_name)
@@ -213,14 +201,9 @@ class DatacenterFolder
         ds_objects
     end
 
-    def get_unimported_templates(vi_client)
+    def get_unimported_templates(vi_client, tpool)
         template_objects = {}
         vcenter_uuid = get_vcenter_instance_uuid
-        tpool = VCenterDriver::VIHelper.one_pool(OpenNebula::TemplatePool, false)
-
-        if tpool.respond_to?(:message)
-            raise "Could not get OpenNebula TemplatePool: #{tpool.message}"
-        end
 
         fetch! if @items.empty? #Get datacenters
 
@@ -288,15 +271,10 @@ class DatacenterFolder
         return template_objects
     end
 
-    def get_unimported_networks
+    def get_unimported_networks(npool)
 
         network_objects = {}
         vcenter_uuid = get_vcenter_instance_uuid
-        npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool, false)
-
-        if npool.respond_to?(:message)
-            raise "Could not get OpenNebula VirtualNetworkPool: #{npool.message}"
-        end
 
         fetch! if @items.empty? #Get datacenters
 
@@ -309,6 +287,8 @@ class DatacenterFolder
             network_folder = dc.network_folder
             network_folder.fetch!
             network_folder.items.values.each do |network|
+
+                next if network.instance_of? VCenterDriver::DistributedVirtualSwitch
 
                 one_network = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,
                                                                   "TEMPLATE/VCENTER_NET_REF",
@@ -324,7 +304,6 @@ class DatacenterFolder
                     one_vnet = VCenterDriver::Network.to_one_template(network_name,
                                                                       network_ref,
                                                                       network.network_type,
-                                                                      vlan_id,
                                                                       ccr_ref,
                                                                       ccr_name,
                                                                       vcenter_uuid)

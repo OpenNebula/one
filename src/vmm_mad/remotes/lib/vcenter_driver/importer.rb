@@ -22,7 +22,14 @@ def self.import_clusters(con_ops, options)
         # Get vcenter API version
         vc_version = vi_client.vim.serviceContent.about.apiVersion
 
-        rs = dc_folder.get_unimported_hosts
+        # Get OpenNebula's host pool
+        hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool, false)
+
+        if hpool.respond_to?(:message)
+            raise "Could not get OpenNebula HostPool: #{hpool.message}"
+        end
+
+        rs = dc_folder.get_unimported_hosts(hpool)
 
         STDOUT.print "done!\n\n"
 
@@ -77,7 +84,14 @@ def self.import_templates(con_ops, options)
 
         dc_folder = VCenterDriver::DatacenterFolder.new(vi_client)
 
-        rs = dc_folder.get_unimported_templates(vi_client)
+        # Get OpenNebula's templates pool
+        tpool = VCenterDriver::VIHelper.one_pool(OpenNebula::TemplatePool, false)
+
+        if tpool.respond_to?(:message)
+            raise "Could not get OpenNebula TemplatePool: #{tpool.message}"
+        end
+
+        rs = dc_folder.get_unimported_templates(vi_client, tpool)
 
         STDOUT.print "done!\n"
 
@@ -272,7 +286,14 @@ def self.import_networks(con_ops, options)
 
         dc_folder = VCenterDriver::DatacenterFolder.new(vi_client)
 
-        rs = dc_folder.get_unimported_networks
+        # OpenNebula's VirtualNetworkPool
+        npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool, false)
+
+        if npool.respond_to?(:message)
+            raise "Could not get OpenNebula VirtualNetworkPool: #{npool.message}"
+        end
+
+        rs = dc_folder.get_unimported_networks(npool)
 
         STDOUT.print "done!\n"
 
@@ -293,9 +314,8 @@ def self.import_networks(con_ops, options)
 
                 if !use_defaults
                     print_str =  "\n  * Network found:\n"\
-                                    "      - Name    : #{n[:name]}\n"\
-                                    "      - Type    : #{n[:type]}\n"
-                    print_str << "      - VLAN ID : #{n[:vlan_id]}\n" if !n[:vlan_id].empty?
+                                 "      - Name    : #{n[:name]}\n"\
+                                 "      - Type    : #{n[:type]}\n"
                     print_str << "      - Cluster : #{n[:cluster]}\n"
                     print_str << "    Import this Network (y/[n])? "
 
@@ -427,7 +447,13 @@ def self.import_datastore(con_ops, options)
 
         dc_folder = VCenterDriver::DatacenterFolder.new(vi_client)
 
-        rs = dc_folder.get_unimported_datastores
+        hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool, false)
+
+        if hpool.respond_to?(:message)
+            raise "Could not get OpenNebula DatastorePool: #{hpool.message}"
+        end
+
+        rs = dc_folder.get_unimported_datastores(hpool)
 
         STDOUT.print "done!\n"
 

@@ -78,7 +78,17 @@ end
 get '/vcenter' do
     begin
         dc_folder = VCenterDriver::DatacenterFolder.new(vcenter_client)
-        rs = dc_folder.get_unimported_hosts
+
+        hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool, false)
+
+        if hpool.respond_to?(:message)
+            msg = "Could not get OpenNebula HostPool: #{hpool.message}"
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 404, error.to_json
+        end
+
+        rs = dc_folder.get_unimported_hosts(hpool)
         [200, rs.to_json]
     rescue Exception => e
         logger.error("[vCenter] " + e.message)
@@ -90,7 +100,17 @@ end
 get '/vcenter/templates' do
     begin
         dc_folder = VCenterDriver::DatacenterFolder.new(vcenter_client)
-        templates = dc_folder.get_unimported_templates(vcenter_client)
+
+        tpool = VCenterDriver::VIHelper.one_pool(OpenNebula::TemplatePool, false)
+
+        if tpool.respond_to?(:message)
+            msg = "Could not get OpenNebula TemplatePool: #{tpool.message}"
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 404, error.to_json
+        end
+
+        templates = dc_folder.get_unimported_templates(vcenter_client, tpool)
 
         if templates.nil?
             msg = "No datacenter found"
@@ -154,7 +174,17 @@ end
 get '/vcenter/networks' do
     begin
         dc_folder = VCenterDriver::DatacenterFolder.new(vcenter_client)
-        networks = dc_folder.get_unimported_networks
+
+        npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool, false)
+
+        if npool.respond_to?(:message)
+            msg = "Could not get OpenNebula VirtualNetworkPool: #{npool.message}"
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 404, error.to_json
+        end
+
+        networks = dc_folder.get_unimported_networks(npool)
 
         if networks.nil?
             msg = "No datacenter found"
@@ -200,7 +230,17 @@ end
 get '/vcenter/datastores' do
     begin
         dc_folder = VCenterDriver::DatacenterFolder.new(vcenter_client)
-        datastores = dc_folder.get_unimported_datastores
+
+        hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool, false)
+
+        if hpool.respond_to?(:message)
+            msg = "Could not get OpenNebula DatastorePool: #{hpool.message}"
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 404, error.to_json
+        end
+
+        datastores = dc_folder.get_unimported_datastores(hpool)
         if datastores.nil?
             msg = "No datacenter found"
             logger.error("[vCenter] " + msg)
