@@ -163,7 +163,7 @@ class Storage
         ds_name = ""
 
         if type == "IMAGE_DS"
-            ds_name << "[#{vcenter_instance_name} #{dc_name}] #{self['name']} - #{ccr_name} (IMG)"
+            ds_name << "[#{vcenter_instance_name} - #{dc_name}] #{self['name']} - #{ccr_name} (IMG)"
         else
             ds_name << "[#{vcenter_instance_name} - #{dc_name}] #{self['name']} - #{ccr_name} (SYS)"
             ds_name << " [StorDRS]" if self.class == VCenterDriver::StoragePod
