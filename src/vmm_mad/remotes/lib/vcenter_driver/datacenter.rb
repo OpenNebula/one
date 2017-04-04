@@ -113,7 +113,7 @@ class DatacenterFolder
                 next if one_host #If the host has been already imported
 
                 host_info = {}
-                host_info[:cluster_name]     = host['name']
+                host_info[:cluster_name]     = host['name'].tr(" ", "_")
                 host_info[:cluster_ref]      = host['_ref']
                 host_info[:vcenter_uuid]     = vcenter_uuid
                 host_info[:vcenter_version]  = vcenter_version

@@ -101,8 +101,8 @@ class ClusterComputeResource
 
         str_info = ""
 
-        # Get cluster name for informative purposes
-        str_info << "VCENTER_NAME=" << self['name'] << "\n"
+        # Get cluster name for informative purposes (replace space with _ if any)
+        str_info << "VCENTER_NAME=" << self['name'].tr(" ", "_") << "\n"
 
         # System
         str_info << "HYPERVISOR=vcenter\n"
