@@ -446,7 +446,7 @@ class ESXHost
     # Update a standard vcenter switch in an ESX host
     ########################################################################
     def update_vss(switch, name, pnics, num_ports, mtu)
-        pnics = pnics.split(",") if pnics
+        pnics = pnics.split(",") rescue []
 
         #Backup switch spec for rollback
         orig_spec = switch.spec
@@ -651,10 +651,10 @@ class ESXHost
             pg_name = pg.spec.name
 
             spec = RbVmomi::VIM.HostPortGroupSpec(
-            :name => pg,
-            :vlanId => vlan_id,
-            :vswitchName => switch_name,
-            :policy => RbVmomi::VIM.HostNetworkPolicy
+                :name => pg_name,
+                :vlanId => vlan_id,
+                :vswitchName => switch_name,
+                :policy => RbVmomi::VIM.HostNetworkPolicy
             )
 
             nws = self['configManager.networkSystem']
@@ -666,7 +666,7 @@ class ESXHost
             end
 
             # Set rollback operation
-            @net_rollback << {:action => :update_pg, :name => pgname, :spec => orig_spec}
+            @net_rollback << {:action => :update_pg, :name => pg_name, :spec => orig_spec}
         end
     end
 

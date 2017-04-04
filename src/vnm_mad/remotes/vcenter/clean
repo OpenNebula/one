@@ -138,10 +138,7 @@ else # VM is being terminated
                         next if !esx_host.vss_exists(switch_name)
                         swname = esx_host.remove_vss(switch_name)
                     rescue Exception => e
-                        #TODO rollback?
                         raise e
-                    ensure
-                        esx_host.unlock # Remove lock
                     end
                 end
 
@@ -168,7 +165,6 @@ else # VM is being terminated
                         dc.remove_dvs(dvs) if dvs
 
                     rescue Exception => e
-                        #TODO rollback?
                         raise e
                     ensure
                         dc.unlock if dc
@@ -178,6 +174,7 @@ else # VM is being terminated
         rescue Exception => e
             raise e
         ensure
+            esx_host.unlock if esx_host
             vi_client.close_connection if vi_client
         end
     end
