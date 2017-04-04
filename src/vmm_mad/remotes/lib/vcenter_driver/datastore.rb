@@ -363,12 +363,17 @@ class Datastore < Storage
 
             search_task.wait_for_completion
 
-            file_size = search_task.info.result[0].file[0].fileSize rescue nil
+            size = 0
 
-            raise "Could not get file size" if file_size.nil?
+            # Try to get vmdk capacity as seen by VM
+            size = search_task.info.result[0].file[0].capacityKb / 1024 rescue nil
 
-            (file_size / 1024) / 1024
+            # Try to get file size
+            size = search_task.info.result[0].file[0].fileSize / 1024 / 1024 rescue nil if !size
 
+            raise "Could not get file size or capacity" if size.nil?
+
+            size
         rescue
             raise "Could not find file."
         end
@@ -376,7 +381,14 @@ class Datastore < Storage
 
     def get_search_params(ds_name, img_path=nil, img_name=nil)
         spec         = RbVmomi::VIM::HostDatastoreBrowserSearchSpec.new
-        spec.query   = [RbVmomi::VIM::VmDiskFileQuery.new,
+
+        vmdisk_query = RbVmomi::VIM::VmDiskFileQuery.new
+        vmdisk_query.details = RbVmomi::VIM::VmDiskFileQueryFlags(:diskType        => true,
+                                                                  :capacityKb      => true,
+                                                                  :hardwareVersion => true,
+                                                                  :controllerType  => true)
+
+        spec.query   = [vmdisk_query,
                         RbVmomi::VIM::IsoImageFileQuery.new]
         spec.details = RbVmomi::VIM::FileQueryFlags(:fileOwner    => true,
                                                     :fileSize     => true,
