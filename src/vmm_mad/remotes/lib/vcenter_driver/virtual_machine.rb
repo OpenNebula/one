@@ -1715,8 +1715,8 @@ class VirtualMachine
     # Create a snapshot for the VM
     def create_snapshot(snap_id, snap_name)
         snapshot_hash = {
-            :name        => snap_id,
-            :description => snap_name,
+            :name        => snap_name,
+            :description => "OpenNebula's snapshot at #{Time.now}",
             :memory      => true,
             :quiesce     => true
         }
@@ -1742,7 +1742,7 @@ class VirtualMachine
             until snapshot_created || elapsed_minutes == 1440
                 if !!@item['snapshot']
                     current_snapshot = @item['snapshot.currentSnapshot'] rescue nil
-                    snapshot_found = find_snapshot(@item['snapshot.rootSnapshotList'], snapshot_name)
+                    snapshot_found = find_snapshot(@item['snapshot.rootSnapshotList'], snap_name)
                     snapshot_created = !!snapshot_found && !!current_snapshot && current_snapshot._ref == snapshot_found._ref
                 end
                 sleep(60)
@@ -1754,10 +1754,10 @@ class VirtualMachine
     end
 
     # Revert to a VM snapshot
-    def revert_snapshot(snap_id)
+    def revert_snapshot(snap_id, snap_name)
 
         snapshot_list = self["snapshot.rootSnapshotList"]
-        snapshot = find_snapshot_in_list(snapshot_list, snap_id)
+        snapshot = find_snapshot_in_list(snapshot_list, snap_id, snap_name)
 
         return nil if !snapshot
 
@@ -1770,10 +1770,10 @@ class VirtualMachine
     end
 
     # Delete VM snapshot
-    def delete_snapshot(snap_id)
+    def delete_snapshot(snap_id, snap_name)
 
         snapshot_list = self["snapshot.rootSnapshotList"]
-        snapshot = find_snapshot_in_list(snapshot_list, snap_id)
+        snapshot = find_snapshot_in_list(snapshot_list, snap_id, snap_name)
 
         return nil if !snapshot
 
@@ -1788,12 +1788,12 @@ class VirtualMachine
         end
     end
 
-    def find_snapshot_in_list(list, snap_id)
+    def find_snapshot_in_list(list, snap_id, snap_name)
         list.each do |i|
-            if i.name == snap_id.to_s
+            if i.name == snap_id.to_s || i.name == snap_name.to_s
                 return i.snapshot
             elsif !i.childSnapshotList.empty?
-                snap = find_snapshot_in_list(i.childSnapshotList, snap_id)
+                snap = find_snapshot_in_list(i.childSnapshotList, snap_id, snap_name)
                 return snap if snap
             end
         end rescue nil
