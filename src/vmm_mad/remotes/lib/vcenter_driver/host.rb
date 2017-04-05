@@ -318,7 +318,7 @@ class ClusterComputeResource
         Datacenter.new(item)
     end
 
-    def self.to_one(cluster, con_ops)
+    def self.to_one(cluster, con_ops, rp)
 
         one_host = VCenterDriver::VIHelper.new_one_item(OpenNebula::Host)
 
@@ -339,6 +339,8 @@ class ClusterComputeResource
                    "VCENTER_CCR_REF=\"#{cluster[:cluster_ref]}\"\n"\
                    "VCENTER_INSTANCE_ID=\"#{cluster[:vcenter_uuid]}\"\n"\
                    "VCENTER_VERSION=\"#{cluster[:vcenter_version]}\"\n"\
+
+        template << "VCENTER_RESOURCE_POOL=\"#{rp}\"" if rp
 
         rc = one_host.update(template, false)
 

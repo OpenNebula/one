@@ -20,7 +20,7 @@ class VIClient
             if ccr
                 rp = opts.delete(:rp)
                 if rp
-                    rp_list = get_resource_pool_list(ccr)
+                    rp_list = get_resource_pools(ccr)
                     rp_ref = rp_list.select { |r| r[:name] == rp }.first._ref rescue nil
                     @rp = RbVmomi::VIM::ResourcePool(@vim, rp_ref) if rp_ref
                 end
@@ -32,7 +32,7 @@ class VIClient
         !!@rp
     end
 
-    def get_resource_pool_list(ccr, rp = nil, parent_prefix = "", rp_array = [])
+    def get_resource_pools(ccr, rp = nil, parent_prefix = "", rp_array = [])
 
         current_rp = ""
 
@@ -53,7 +53,7 @@ class VIClient
             rp_array << rp_info
         else
             rp.resourcePool.each do |child_rp|
-                get_resource_pool_list(ccr, child_rp, current_rp, rp_array)
+                get_resource_pools(ccr, child_rp, current_rp, rp_array)
             end
             rp_info = {}
             rp_info[:name] = current_rp

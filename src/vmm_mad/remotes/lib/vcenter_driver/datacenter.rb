@@ -103,20 +103,24 @@ class DatacenterFolder
 
             host_folder = dc.host_folder
             host_folder.fetch_clusters!
-            host_folder.items.values.each do |host|
+            host_folder.items.values.each do |ccr|
 
                 one_host = VCenterDriver::VIHelper.find_by_ref(OpenNebula::HostPool,
                                                                "TEMPLATE/VCENTER_CCR_REF",
-                                                               host['_ref'],
+                                                               ccr['_ref'],
                                                                vcenter_uuid,
                                                                hpool)
                 next if one_host #If the host has been already imported
 
+                cluster = VCenterDriver::ClusterComputeResource.new_from_ref(ccr['_ref'], @vi_client)
+                rpools = cluster.get_resource_pool_list.select {|rp| !rp[:name].empty?}
+
                 host_info = {}
-                host_info[:cluster_name]     = host['name'].tr(" ", "_")
-                host_info[:cluster_ref]      = host['_ref']
+                host_info[:cluster_name]     = ccr['name'].tr(" ", "_")
+                host_info[:cluster_ref]      = ccr['_ref']
                 host_info[:vcenter_uuid]     = vcenter_uuid
                 host_info[:vcenter_version]  = vcenter_version
+                host_info[:rp_list]          = rpools
 
                 host_objects[dc_name] << host_info
             end

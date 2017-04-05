@@ -41,20 +41,46 @@ def self.import_clusters(con_ops, options)
             end
 
             if clusters.empty?
-                STDOUT.puts "    No new clusters found in #{dc}..."
+                STDOUT.puts "\n    No new clusters found in #{dc}..."
                 next
             end
 
             clusters.each{ |cluster|
+                rpool = nil
                 if !use_defaults
-                    STDOUT.print "  * Import cluster #{cluster[:cluster_name]} (y/[n])? "
+                    STDOUT.print "\n  * Import cluster #{cluster[:cluster_name]} (y/[n])? "
                     next if STDIN.gets.strip.downcase != 'y'
+
+                    rpools = cluster[:rp_list]
+
+                    if !rpools.empty?
+
+                        STDOUT.print "\n    Do you want to confine this cluster in "\
+                                     "a resource pool (y/[n])? "
+
+                        if STDIN.gets.strip.downcase == 'y'
+
+                            rpool_list = ""
+                            rpools.each do |rp|
+                                rpool_list << "    - " << rp[:name] << "\n"
+                            end
+
+                            STDOUT.print "\n    Please specify one resource pool from "\
+                                         "the following list:\n\n#{rpool_list}"
+
+                            STDOUT.print "\n    Your resource pool choice: "
+
+                            answer = STDIN.gets.strip
+                            rpool = answer if !answer.empty?
+                        end
+                    end
                 end
 
                 one_host = VCenterDriver::ClusterComputeResource.to_one(cluster,
-                                                                        con_ops)
+                                                                        con_ops,
+                                                                        rpool)
 
-                STDOUT.puts "    OpenNebula host #{cluster[:cluster_name]} with"\
+                STDOUT.puts "\n    OpenNebula host #{cluster[:cluster_name]} with"\
                             " id #{one_host.id} successfully created."
                 STDOUT.puts
             }
