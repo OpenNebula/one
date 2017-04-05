@@ -1272,8 +1272,7 @@ class VirtualMachine
         ds_name  = ds['name']
         type     = disk["TYPE"]
 
-        # TODO: size_kb = 0 ??
-        size_kb = 0
+        size_kb = disk["SIZE"].to_i * 1024
 
         controller, new_number = find_free_controller(position)
 
@@ -1283,7 +1282,7 @@ class VirtualMachine
                 :fileName  => "[#{ds_name}] #{img_name}"
             )
 
-            cd = self['config.hardware.device'].select  do |hw|
+            cd = @item['config.hardware.device'].select  do |hw|
                 hw.class == RbVmomi::VIM::VirtualCdrom
             end.first
 
