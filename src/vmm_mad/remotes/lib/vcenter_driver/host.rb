@@ -150,7 +150,7 @@ class ClusterComputeResource
             rp_name          = (parent_prefix.empty? ? "" : parent_prefix + "/")
             rp_name         += rp.name
 
-            rp_info << "\nVCENTER_RESOURCE_POOL = ["
+            rp_info << "\nVCENTER_RESOURCE_POOL_INFO = ["
             rp_info << "NAME=\"#{rp_name}\","
             rp_info << "CPU_EXPANDABLE=#{cpu_expandable},"
             rp_info << "CPU_LIMIT=#{cpu_limit},"
