@@ -54,14 +54,13 @@ define(function(require) {
   }
 
   function _setup(context){
-    this.idInput = 0;
-    that = this;
     context.on("click", ".add_user_input_attr", function() {
-      $(".user_input_attrs tbody", context).append(RowTemplateHTML({'idInput': that.idInput}));
-      that.idInput++;
-
+      $(".user_input_attrs tbody", context).append(RowTemplateHTML({'idInput': UniqueId.id()}));
+      $('tbody label').css('cursor', 'pointer');
       $("select.user_input_type", context).change();
     });
+
+    $('tbody').sortable();
 
     context.on("change", "select.user_input_type", function() {
       var row = $(this).closest("tr");
@@ -77,14 +76,19 @@ define(function(require) {
 
   function _retrieve(context){
     var userInputsJSON = {};
-    
-    $(".user_input_attrs tbody tr", context).each(function(key) {
+    var ids = [];
+    var index = 0;
+    $('.user_input_attrs tbody tr').each(function(key, value){
+      ids[index] = "_" + key + "_" + $(".user_input_name", $(this)).val(); 
+      index += 1;
+    });
+    index = 0;
+    $(".user_input_attrs tbody tr", context).each(function() {
       
       if ($(".user_input_name", $(this)).val()) {
         var attr = {};
         attr.name = $(".user_input_name", $(this)).val();
-
-        if($('.user_input_mandatory_' + key, $(this)).prop('checked')){
+        if($('.user_input_mandatory', $(this)).prop('checked')){
           attr.mandatory = true;
         } else {
           attr.mandatory = false;
@@ -99,7 +103,6 @@ define(function(require) {
           case "fixed":
             attr.initial = $("."+attr.type+" input.user_input_initial", $(this)).val();
             break;
-
           case "range":
           case "range-float":
             var min = $("."+attr.type+" input.user_input_params_min", $(this)).val();
@@ -112,11 +115,12 @@ define(function(require) {
             attr.initial = $("."+attr.type+" input.user_input_initial", $(this)).val();
             break;
           case "boolean":
-            attr.initial = $('.user_input_initial_'+key+':checked', $(this)).val();
+            attr.initial = $('.user_input_initial:checked', $(this)).val();
             break;
         }
 
-        userInputsJSON[attr.name] = _marshall(attr);
+        userInputsJSON[ids[index]] = _marshall(attr);
+        index += 1;
       }
       
     });
@@ -134,23 +138,29 @@ define(function(require) {
 
         var trcontext = $(".user_input_attrs tbody tr", context).last();
 
-        $(".user_input_name", trcontext).val(key);
+        var name = "";
+        var len = key.split("_");
+
+        for (i = 2; i < len.length; i++){
+          name += (len[i] + "_"); 
+        }
+
+        name = name.slice(0,-1);
+        $(".user_input_name", trcontext).val(name);
 
         var attr = _unmarshall(value);
 
         if (templateJSON[key] != undefined){
           attr.initial = templateJSON[key];
         }
-
         $(".user_input_type", trcontext).val(attr.type).change();
         $(".user_input_description", trcontext).val(attr.description);
 
-        if(attr.mandatory){
-          $('#mandatory_checkbox', trcontext).attr("checked", "checked");
+        if (attr.mandatory){
+          $('.user_input_mandatory', trcontext).attr("checked", "checked");
         } else {
-          $('#mandatory_checkbox', trcontext).removeAttr("checked");
+          $('.user_input_mandatory', trcontext).removeAttr("checked");
         }
-
 
         switch(attr.type){
           case "number":
@@ -158,9 +168,7 @@ define(function(require) {
           case "fixed":
             $("."+attr.type+" input.user_input_initial", trcontext).val(attr.initial);
             break;
-
           case "boolean":
-            this.name = attr.name;
             if(attr.initial == "YES"){
               $('input#radio_yes', trcontext).attr("checked", "checked");
               $('input#radio_no', trcontext).removeAttr('checked');
@@ -642,8 +650,8 @@ define(function(require) {
         input = '<br><input type="password" value="'+value+'" '+wizard_field+' '+required+'/>';
         break;
       case "boolean":
-        input = '<br>' + Locale.tr("YES ") + '<input type="radio" name="bool_' +attr.name+'" value="YES"' + wizard_field + ' ' + required + '/>';
-        input += Locale.tr("NO ") + '<input type="radio" name="bool_' +attr.name+'" value="NO"' + wizard_field + ' ' + required + '/>';
+        input = '<br>' + Locale.tr("YES ") + '<input type="radio" name="bool_' + attr.name + '" value="YES"' + wizard_field + ' ' + required + '/>';
+        input += Locale.tr("NO ") + '<input type="radio" name="bool_' + attr.name + '" value="NO"' + wizard_field + ' ' + required + '/>';
         break;
       case "number":
       case "number-float":

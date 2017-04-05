@@ -1,4 +1,4 @@
-<tr>
+<tr style="border-style: groove; border-width: 0.5px 0">
   <td>
     <label>{{tr "Name"}}
       <input class="user_input_name" type="text" pattern="^\w+$"/>
@@ -36,8 +36,8 @@
     </div>
     <div class="user_input_type_right boolean">
       <label>{{tr "Default value"}}</label>
-      <input type="radio" step="any" name="bool_{{idInput}}" class="user_input_initial_{{idInput}}" id="radio_yes" value="YES"> {{tr "YES"}}
-      <input type="radio" step="any" name="bool_{{idInput}}" class="user_input_initial_{{idInput}}" id="radio_no" value="NO"> {{tr "NO"}}
+      <input type="radio" step="any" name="bool_{{idInput}}" class="user_input_initial" id="radio_yes" value="YES"> {{tr "YES"}}
+      <input type="radio" step="any" name="bool_{{idInput}}" class="user_input_initial" id="radio_no" value="NO"> {{tr "NO"}}
     </div>
     <div class="user_input_type_right range">
       <div class="row collapse">
@@ -86,7 +86,8 @@
   </td>
   <td>
     <label>{{tr "Mandatory"}}</label>
-    <input checked style="margin-left: 35%" type="checkbox" class="user_input_mandatory_{{idInput}}" id="mandatory_checkbox"/>
+    <input checked type="checkbox" name="user_input_mandatory_{{idInput}}" class="switch input user_input_mandatory slaac" id="user_input_mandatory_{{idInput}}" hidden/>
+    <label class="switch-paddle" for="user_input_mandatory_{{idInput}}"></label>
   </td>
   <td>
     <br/>

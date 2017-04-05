@@ -21,6 +21,7 @@ require.config({
 
     /* jQuery */
     'jquery': '../bower_components/jquery/dist/jquery',
+    'jquery-ui': '../bower_components/jquery-ui/jquery-ui',
 
     /* DataTables */
     'datatables.net': '../bower_components/datatables/media/js/jquery.dataTables',
