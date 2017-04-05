@@ -318,7 +318,7 @@ class ClusterComputeResource
         Datacenter.new(item)
     end
 
-    def self.to_one(cluster, con_ops, rp)
+    def self.to_one(cluster, con_ops, rp, one_cluster_id)
 
         one_host = VCenterDriver::VIHelper.new_one_item(OpenNebula::Host)
 
@@ -326,8 +326,9 @@ class ClusterComputeResource
             raise "Could not create host: #{one_host.message}"
         end
 
-        rc = one_host.allocate(cluster[:cluster_name], 'vcenter', 'vcenter',
-                ::OpenNebula::ClusterPool::NONE_CLUSTER_ID)
+        one_cluster_id = -1 if !one_cluster_id
+
+        rc = one_host.allocate(cluster[:cluster_name], 'vcenter', 'vcenter', one_cluster_id.to_i)
 
         if OpenNebula.is_error?(rc)
             raise "Could not allocate host: #{rc.message}"

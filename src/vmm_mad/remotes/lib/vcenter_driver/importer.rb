@@ -22,6 +22,20 @@ def self.import_clusters(con_ops, options)
         # Get vcenter API version
         vc_version = vi_client.vim.serviceContent.about.apiVersion
 
+        # OpenNebula's ClusterPool
+        cpool = VCenterDriver::VIHelper.one_pool(OpenNebula::ClusterPool, false)
+
+        if cpool.respond_to?(:message)
+            raise "Could not get OpenNebula ClusterPool: #{cpool.message}"
+        end
+
+        cpool.info
+
+        cluster_list = {}
+        cpool.each do |c|
+            cluster_list[c["ID"]] = c["NAME"]
+        end
+
         # Get OpenNebula's host pool
         hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool, false)
 
@@ -46,10 +60,26 @@ def self.import_clusters(con_ops, options)
             end
 
             clusters.each{ |cluster|
+                one_cluster_id = nil
                 rpool = nil
                 if !use_defaults
                     STDOUT.print "\n  * Import cluster #{cluster[:cluster_name]} (y/[n])? "
                     next if STDIN.gets.strip.downcase != 'y'
+
+                    if cluster_list.size > 1
+                        STDOUT.print "\n    In which OpenNebula cluster do you want the vCenter cluster to be included?\n "
+
+                        cluster_list_str = "\n"
+                        cluster_list.each do |key, value|
+                            cluster_list_str << "      - ID: " << key << " - NAME: " << value << "\n"
+                        end
+
+                        STDOUT.print "\n    #{cluster_list_str}"
+                        STDOUT.print "\n    Specify the ID of the cluster or Enter to use the default cluster: "
+
+                        answer = STDIN.gets.strip
+                        one_cluster_id = answer if !answer.empty?
+                    end
 
                     rpools = cluster[:rp_list]
 
@@ -78,7 +108,8 @@ def self.import_clusters(con_ops, options)
 
                 one_host = VCenterDriver::ClusterComputeResource.to_one(cluster,
                                                                         con_ops,
-                                                                        rpool)
+                                                                        rpool,
+                                                                        one_cluster_id)
 
                 STDOUT.puts "\n    OpenNebula host #{cluster[:cluster_name]} with"\
                             " id #{one_host.id} successfully created."
@@ -312,6 +343,20 @@ def self.import_networks(con_ops, options)
 
         dc_folder = VCenterDriver::DatacenterFolder.new(vi_client)
 
+        # OpenNebula's ClusterPool
+        cpool = VCenterDriver::VIHelper.one_pool(OpenNebula::ClusterPool, false)
+
+        if cpool.respond_to?(:message)
+            raise "Could not get OpenNebula ClusterPool: #{cpool.message}"
+        end
+
+        cpool.info
+
+        cluster_list = {}
+        cpool.each do |c|
+            cluster_list[c["ID"]] = c["NAME"]
+        end
+
         # OpenNebula's VirtualNetworkPool
         npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool, false)
 
@@ -337,7 +382,7 @@ def self.import_networks(con_ops, options)
             end
 
             tmps.each do |n|
-
+                one_cluster_id = nil
                 if !use_defaults
                     print_str =  "\n  * Network found:\n"\
                                  "      - Name    : #{n[:name]}\n"\
@@ -348,6 +393,22 @@ def self.import_networks(con_ops, options)
                     STDOUT.print print_str
 
                     next if STDIN.gets.strip.downcase != 'y'
+
+                    if cluster_list.size > 1
+                        STDOUT.print "\n    In which OpenNebula cluster do you want the network to be included?\n "
+
+                        cluster_list_str = "\n"
+                        cluster_list.each do |key, value|
+                            cluster_list_str << "      - ID: " << key << " - NAME: " << value << "\n"
+                        end
+
+                        STDOUT.print "\n    #{cluster_list_str}"
+                        STDOUT.print "\n    Specify the ID of the cluster or Enter to use the default cluster: "
+
+                        answer = STDIN.gets.strip
+                        one_cluster_id = answer if !answer.empty?
+                    end
+
                 end
 
                 size="255"
@@ -438,13 +499,17 @@ def self.import_networks(con_ops, options)
 
                 one_vn = VCenterDriver::VIHelper.new_one_item(OpenNebula::VirtualNetwork)
 
-                rc = one_vn.allocate(n[:one])
+                if one_cluster_id
+                    rc = one_vn.allocate(n[:one],one_cluster_id.to_i)
+                else
+                    rc = one_vn.allocate(n[:one])
+                end
 
                 if ::OpenNebula.is_error?(rc)
-                    STDOUT.puts "    Error creating virtual network: " +
+                    STDOUT.puts "\n    Error creating virtual network: " +
                                 " #{rc.message}\n"
                 else
-                    STDOUT.puts "    OpenNebula virtual network " +
+                    STDOUT.puts "\n    OpenNebula virtual network " +
                                 "#{one_vn.id} created with size #{size}!\n"
                 end
             end
@@ -473,6 +538,20 @@ def self.import_datastore(con_ops, options)
 
         dc_folder = VCenterDriver::DatacenterFolder.new(vi_client)
 
+        # OpenNebula's ClusterPool
+        cpool = VCenterDriver::VIHelper.one_pool(OpenNebula::ClusterPool, false)
+
+        if cpool.respond_to?(:message)
+            raise "Could not get OpenNebula ClusterPool: #{cpool.message}"
+        end
+
+        cpool.info
+
+        cluster_list = {}
+        cpool.each do |c|
+            cluster_list[c["ID"]] = c["NAME"]
+        end
+
         hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool, false)
 
         if hpool.respond_to?(:message)
@@ -496,6 +575,7 @@ def self.import_datastore(con_ops, options)
             end
 
             tmps.each{ |d|
+                one_cluster_id = nil
                 if !use_defaults
                     STDOUT.print "\n  * Datastore found:\n"\
                                     "      - Name      : #{d[:name]}\n"\
@@ -505,21 +585,40 @@ def self.import_datastore(con_ops, options)
                                     "    Import this as Datastore [y/n]? "
 
                     next if STDIN.gets.strip.downcase != 'y'
+
+                    if cluster_list.size > 1
+                        STDOUT.print "\n    In which OpenNebula cluster do you want the datastore to be included?\n "
+
+                        cluster_list_str = "\n"
+                        cluster_list.each do |key, value|
+                            cluster_list_str << "      - ID: " << key << " - NAME: " << value << "\n"
+                        end
+
+                        STDOUT.print "\n    #{cluster_list_str}"
+                        STDOUT.print "\n    Specify the ID of the cluster or Enter to use the default cluster: "
+
+                        answer = STDIN.gets.strip
+                        one_cluster_id = answer if !answer.empty?
+                    end
                 end
 
                 one_d = VCenterDriver::VIHelper.new_one_item(OpenNebula::Datastore)
 
-                rc = one_d.allocate(d[:one])
+                if one_cluster_id
+                    rc = one_d.allocate(d[:one], one_cluster_id.to_i)
+                else
+                    rc = one_d.allocate(d[:one])
+                end
 
                 if ::OpenNebula.is_error?(rc)
-                    STDOUT.puts "    Error creating datastore: #{rc.message}\n"\
+                    STDOUT.puts "    \nError creating datastore: #{rc.message}\n"\
                                 "    One datastore can exist only once, and "\
                                 "can be used in any vCenter Cluster that "\
                                 "has access to it. Also, no spaces allowed "\
                                 "in datastore name (rename it in vCenter "\
                                 "and try again)"
                 else
-                    STDOUT.puts "    OpenNebula datastore #{one_d.id} created!\n"
+                    STDOUT.puts "    \nOpenNebula datastore #{one_d.id} created!\n"
                 end
             }
         }
