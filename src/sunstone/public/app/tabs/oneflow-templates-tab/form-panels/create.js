@@ -18,7 +18,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-
+  var Notifier = require('utils/notifier');
 //  require('foundation.tab');
   var BaseFormPanel = require('utils/form-panels/form-panel');
   var Sunstone = require('sunstone');
@@ -229,23 +229,27 @@ define(function(require) {
 
     json_template['ready_status_gate'] = ready_status_gate;
 
+    var templateStr = $('textarea#template', $("form#createServiceTemplateFormAdvanced")).val();
+    var template_final = TemplateUtils.mergeTemplates(templateJSON, templateStr);
     if (this.action == "create") {
-      Sunstone.runAction("ServiceTemplate.create", json_template );
+      Sunstone.runAction("ServiceTemplate.create", template_final );
       return false;
     } else if (this.action == "update") {
-      Sunstone.runAction("ServiceTemplate.update",this.resourceId, JSON.stringify(json_template));
+      Sunstone.runAction("ServiceTemplate.update",this.resourceId, JSON.stringify(template_final));
       return false;
     }
   }
 
   function _submitAdvanced(context) {
-    var json_template = $('textarea#template', context).val();
-
+    var templateStr = $('textarea#template', context).val();
+    var templateJSON = this.retrieve($("form#createServiceTemplateFormWizard"));
+    var template_final = TemplateUtils.mergeTemplates(templateStr, templateJSON, true);
+    template_final = TemplateUtils.templateToString(template_final);
     if (this.action == "create") {
-      Sunstone.runAction("ServiceTemplate.create", JSON.parse(json_template) );
+      Sunstone.runAction("ServiceTemplate.create", JSON.parse(template_final) );
       return false;
     } else if (this.action == "update") {
-      Sunstone.runAction("ServiceTemplate.update", this.resourceId, json_template);
+      Sunstone.runAction("ServiceTemplate.update", this.resourceId, template_final);
       return false;
     }
   }
