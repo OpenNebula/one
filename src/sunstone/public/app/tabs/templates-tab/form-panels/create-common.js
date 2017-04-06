@@ -1,4 +1,4 @@
-/* -------------------------------------------------------------------------- */
+ /* -------------------------------------------------------------------------- */
 /* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
@@ -18,7 +18,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-
+  var Notifier = require('utils/notifier');
   var BaseFormPanel = require('utils/form-panels/form-panel');
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
@@ -194,24 +194,30 @@ define(function(require) {
 
   function _submitWizard(context) {
     var templateJSON = this.retrieve(context);
+    var templateStr = $('textarea#template', $("form#createVMTemplateFormAdvanced")).val();
+    var template_final = TemplateUtils.mergeTemplates(templateJSON, templateStr);
 
     if (this.action == "create") {
-      Sunstone.runAction(this.resource+".create", {'vmtemplate': templateJSON});
+      Sunstone.runAction(this.resource+".create", {'vmtemplate': template_final});
       return false;
     } else if (this.action == "update") {
-      Sunstone.runAction(this.resource+".update", this.resourceId, TemplateUtils.templateToString(templateJSON));
+      Sunstone.runAction(this.resource+".update", this.resourceId, TemplateUtils.templateToString(template_final));
       return false;
     }
   }
 
   function _submitAdvanced(context) {
-    var template = $('textarea#template', context).val();
+    var templateStr = $('textarea#template', context).val();
+    var templateJSON = this.retrieve($("form#createVMTemplateFormWizard"));
+    var template_final = TemplateUtils.mergeTemplates(templateStr, templateJSON);
+    template_final = TemplateUtils.templateToString(template_final);
+
     if (this.action == "create") {
-      Sunstone.runAction(this.resource+".create", {"vmtemplate": {"template_raw": template}});
+      Sunstone.runAction(this.resource+".create", {"vmtemplate": {"template_raw": template_final}});
       return false;
 
     } else if (this.action == "update") {
-      Sunstone.runAction(this.resource+".update", this.resourceId, template);
+      Sunstone.runAction(this.resource+".update", this.resourceId, template_final);
       return false;
     }
   }
