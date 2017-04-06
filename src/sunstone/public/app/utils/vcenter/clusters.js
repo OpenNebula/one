@@ -173,29 +173,17 @@ define(function(require) {
         VCenterCommon.importLoading({context : row_context});
 
         var rp = $('.select_rp option:selected', row_context).val();
-        if(rp != ""){
-          var host_json = {
-            "host": {
-              "name": $(this).data("cluster").cluster_name,
-              "vcenter_resource_pool": rp,
-              "vm_mad": "vcenter",
-              "vnm_mad": "dummy",
-              "im_mad": "vcenter",
-              "cluster_id": cluster_id
-            }
-          };
-        } else {
-          var host_json = {
-            "host": {
-              "name": $(this).data("cluster").cluster_name,
-              "vm_mad": "vcenter",
-              "vnm_mad": "dummy",
-              "im_mad": "vcenter",
-              "cluster_id": cluster_id
-            }
-          };
-        }
-
+        
+        var host_json = {
+          "host": {
+            "name": $(this).data("cluster").cluster_name,
+            "vm_mad": "vcenter",
+            "vnm_mad": "dummy",
+            "im_mad": "vcenter",
+            "cluster_id": cluster_id
+          }
+        };
+        
         var cluster_ref = $(this).data("cluster").cluster_ref;
         var vcenter_uuid = $(this).data("cluster").vcenter_uuid;
         var vcenter_version = $(this).data("cluster").vcenter_version;
@@ -209,13 +197,24 @@ define(function(require) {
               message : Locale.tr("Host created successfully. ID: %1$s", response.HOST.ID)
             });
 
-            var template_raw =
-              "VCENTER_USER=\"" + that.opts.vcenter_user + "\"\n" +
-              "VCENTER_PASSWORD=\"" + that.opts.vcenter_password + "\"\n" +
-              "VCENTER_HOST=\"" + that.opts.vcenter_host + "\"\n" +
-              "VCENTER_INSTANCE_ID=\"" + vcenter_uuid + "\"\n" +
-              "VCENTER_CCR_REF=\"" + cluster_ref + "\"\n" +
-              "VCENTER_VERSION=\"" + vcenter_version + "\"\n";
+            if(rp != ""){
+              var template_raw =
+                "VCENTER_USER=\"" + that.opts.vcenter_user + "\"\n" +
+                "VCENTER_PASSWORD=\"" + that.opts.vcenter_password + "\"\n" +
+                "VCENTER_HOST=\"" + that.opts.vcenter_host + "\"\n" +
+                "VCENTER_INSTANCE_ID=\"" + vcenter_uuid + "\"\n" +
+                "VCENTER_CCR_REF=\"" + cluster_ref + "\"\n" +
+                "VCENTER_VERSION=\"" + vcenter_version + "\"\n" +
+                "VCENTER_RESOURCE_POOL=\"" + rp + "\"\n";
+            } else {
+              var template_raw =
+                "VCENTER_USER=\"" + that.opts.vcenter_user + "\"\n" +
+                "VCENTER_PASSWORD=\"" + that.opts.vcenter_password + "\"\n" +
+                "VCENTER_HOST=\"" + that.opts.vcenter_host + "\"\n" +
+                "VCENTER_INSTANCE_ID=\"" + vcenter_uuid + "\"\n" +
+                "VCENTER_CCR_REF=\"" + cluster_ref + "\"\n" +
+                "VCENTER_VERSION=\"" + vcenter_version + "\"\n";
+            }
 
             Sunstone.runAction("Host.update_template", response.HOST.ID, template_raw);
           },
