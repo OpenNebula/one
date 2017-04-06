@@ -470,17 +470,27 @@ class VIClient
                     host = host_cache[vi_tmp.vm.runtime.host.to_s]
                     ds   = ds_cache[t.datastore[0].to_s]
 
-                    one_tmp << {
-                        :name           => "#{vi_tmp.vm.name} - #{host.cluster_name}",
-                        :uuid           => vi_tmp.vm.config.uuid,
-                        :host           => host.cluster_name,
-                        :one            => vi_tmp.to_one(host),
-                        :ds             => vi_tmp.to_one_ds(host, ds.name),
-                        :default_ds     => ds.name,
-                        :rp             => vi_tmp.to_one_rp(host),
-                        :vcenter_ref    => vi_tmp.vm._ref,
-                        :vcenter_name   => vi_tmp.vm.name
-                    }
+                    vm_info = nil
+
+                    begin
+                        vm_info = {
+                            :name           => "#{vi_tmp.vm.name} - #{host.cluster_name}",
+                            :uuid           => vi_tmp.vm.config.uuid,
+                            :host           => host.cluster_name,
+                            :one            => vi_tmp.to_one(host),
+                            :ds             => vi_tmp.to_one_ds(host, ds.name),
+                            :default_ds     => ds.name,
+                            :rp             => vi_tmp.to_one_rp(host),
+                            :vcenter_ref    => vi_tmp.vm._ref,
+                            :vcenter_name   => vi_tmp.vm.name
+                        }
+                    rescue Exception => e
+                        if !e.message.match("NoPermission")
+                            raise e
+                        end
+                    end
+
+                    one_tmp << vm_info if vm_info
                 end
             }
 
@@ -1401,7 +1411,7 @@ class VCenterHost < ::OpenNebula::Host
                                          val[:key]=="opennebula.vm.running"}
               if running_flag.size > 0 and running_flag[0]
                   running_flag = running_flag[0][:value]
-              end                                
+              end
 
               next if running_flag == "no"
 
