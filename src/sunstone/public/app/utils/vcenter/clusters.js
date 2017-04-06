@@ -93,6 +93,7 @@ define(function(require) {
               columns : [
                 '<input type="checkbox" class="check_all"/>',
                 Locale.tr("Name"),
+                Locale.tr("Resource Pool"),
                 ""
               ]
             });
@@ -102,7 +103,14 @@ define(function(require) {
 
             $.each(elements, function(id, cluster) {
               var cluster_name = cluster.cluster_name;
-              var opts = { name: cluster_name };
+              var rp_list = '<select class="select_rp"><option></option>';
+              if(cluster.rp_list.length > 0){
+                for(var i = 0; i < cluster.rp_list.length; i++){
+                  rp_list += '<option>' + cluster.rp_list[i].name + '</option>';
+                }
+              }
+              rp_list += '</select>';
+              var opts = { name: cluster_name , rp: rp_list};
               var trow = $(RowTemplate(opts)).appendTo(tbody);
 
               $(".check_item", trow).data("cluster", cluster);
@@ -164,15 +172,29 @@ define(function(require) {
 
         VCenterCommon.importLoading({context : row_context});
 
-        var host_json = {
-          "host": {
-            "name": $(this).data("cluster").cluster_name,
-            "vm_mad": "vcenter",
-            "vnm_mad": "dummy",
-            "im_mad": "vcenter",
-            "cluster_id": cluster_id
-          }
-        };
+        var rp = $('.select_rp option:selected', row_context).val();
+        if(rp != ""){
+          var host_json = {
+            "host": {
+              "name": $(this).data("cluster").cluster_name,
+              "vcenter_resource_pool": rp,
+              "vm_mad": "vcenter",
+              "vnm_mad": "dummy",
+              "im_mad": "vcenter",
+              "cluster_id": cluster_id
+            }
+          };
+        } else {
+          var host_json = {
+            "host": {
+              "name": $(this).data("cluster").cluster_name,
+              "vm_mad": "vcenter",
+              "vnm_mad": "dummy",
+              "im_mad": "vcenter",
+              "cluster_id": cluster_id
+            }
+          };
+        }
 
         var cluster_ref = $(this).data("cluster").cluster_ref;
         var vcenter_uuid = $(this).data("cluster").vcenter_uuid;
