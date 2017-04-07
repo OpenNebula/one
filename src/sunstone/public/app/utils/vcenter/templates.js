@@ -102,9 +102,6 @@ define(function(require) {
 
             $.each(elements, function(id, element) {
               var opts = {};
-              if (element.ds && element.ds !== '') {
-                opts.datastore = UserInputs.unmarshall(element.ds);
-              }
 
               if (element.rp && element.rp !== '') {
                 opts.resourcePool = UserInputs.unmarshall(element.rp);
@@ -168,27 +165,6 @@ define(function(require) {
 
         var attrs = [];
         var userInputs = [];
-
-        // Retrieve Datastore Attribute
-        var dsInput = $(".vcenter_datastore_input", row_context);
-        if (dsInput.length > 0) {
-          var dsModify = $('.modify_datastore', dsInput).val();
-          var dsInitial = $('.initial_datastore', dsInput).val();
-          var dsParams = $('.available_datastores', dsInput).val();
-
-          if (dsModify === 'fixed' && dsInitial !== '') {
-            attrs.push('VCENTER_DATASTORE="' + dsInitial + '"')
-          } else if (dsModify === 'list' && dsParams !== '') {
-            var dsUserInputsStr = UserInputs.marshall({
-                type: 'list',
-                description: Locale.tr("Which datastore you want this VM to run on?"),
-                initial: dsInitial,
-                params: dsParams
-              });
-
-            userInputs.push('VCENTER_DATASTORE="' + dsUserInputsStr + '"');
-          }
-        }
 
         // Retrieve Resource Pool Attribute
         var rpInput = $(".vcenter_rp_input", row_context);

@@ -32,31 +32,6 @@
       <div class="row">
         <div class="large-11 large-centered columns">
           <div id="{{data.vcenter_ref}}Advanced" class="content" hidden>
-            {{#if datastore}}
-            <div class="vcenter_datastore_input row">
-              <div class="medium-3 columns">
-                <label>
-                  {{tr "Default Datastore"}}
-                  <input type="text" class="initial_datastore" value="{{datastore.initial}}"/>
-                </label>
-              </div>
-              <div class="medium-3 columns">
-                <label>
-                  {{tr "Type"}}
-                  <select class="modify_datastore">
-                    <option value="fixed">{{tr "Fixed"}}</option>
-                    <option value="list">{{tr "Provide on instantiation"}}</option>
-                  </select>
-                </label>
-              </div>
-              <div class="medium-4 columns end">
-                <label>
-                  {{tr "Available Datastores"}}
-                  <input type="text" class="available_datastores" value="{{datastore.params}}"/>
-                </label>
-              </div>
-            </div>
-            {{/if}}
             {{#if resourcePool}}
             <div class="vcenter_rp_input row">
               <div class="medium-3 columns">
