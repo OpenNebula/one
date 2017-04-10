@@ -23,6 +23,11 @@ class NetworkFolder
             item_name = item._ref
             @items[item_name.to_sym] = DistributedPortGroup.new(item)
         end
+
+        VIClient.get_entities(@item, "VmwareDistributedVirtualSwitch").each do |item|
+            item_name = item._ref
+            @items[item_name.to_sym] = DistributedVirtualSwitch.new(item)
+        end
     end
 
     ########################################################################
@@ -56,32 +61,38 @@ class Network
         @item = item
     end
 
+    #  Checks if a RbVmomi::VIM::VirtualDevice is a network interface
+    def self.is_nic?(device)
+        !device.class.ancestors.index(RbVmomi::VIM::VirtualEthernetCard).nil?
+    end
 
-    def self.to_one_template(network_name, network_ref, network_type, vlan_id,
-                             ccr_ref, ccr_name, vcenter_uuid)
+
+
+    def self.to_one_template(network_name, network_ref, network_type,
+                             ccr_ref, ccr_name, vcenter_uuid,
+                             vcenter_instance_name, dc_name)
+
         one_tmp = {}
-        one_tmp[:name] = "#{network_name} - #{ccr_name}"
+        network_import_name = "[#{vcenter_instance_name} - #{dc_name}] #{network_name} - #{ccr_name.tr(" ", "_")}"
+        one_tmp[:name] = network_import_name
         one_tmp[:bridge] = network_name
         one_tmp[:type] = network_type
         one_tmp[:cluster] = ccr_name
-        one_tmp[:vlan_id] = vlan_id
         one_tmp[:vcenter_ccr_ref] = ccr_ref
-        one_tmp[:one] = to_one(network_name, network_ref, network_type, vlan_id,
-                             ccr_ref, ccr_name, vcenter_uuid)
+        one_tmp[:one] = to_one(network_import_name, network_name, network_ref, network_type,
+                             ccr_ref, vcenter_uuid)
         return one_tmp
     end
 
-    def self.to_one(network_name, network_ref, network_type, vlan_id,
-                    ccr_ref, ccr_name, vcenter_uuid)
-        template = "NAME=\"#{network_name} - #{ccr_name}\"\n"\
+    def self.to_one(network_import_name, network_name, network_ref, network_type,
+                    ccr_ref, vcenter_uuid)
+        template = "NAME=\"#{network_import_name}\"\n"\
                    "BRIDGE=\"#{network_name}\"\n"\
                    "VN_MAD=\"dummy\"\n"\
                    "VCENTER_PORTGROUP_TYPE=\"#{network_type}\"\n"\
                    "VCENTER_NET_REF=\"#{network_ref}\"\n"\
                    "VCENTER_CCR_REF=\"#{ccr_ref}\"\n"\
                    "VCENTER_INSTANCE_ID=\"#{vcenter_uuid}\"\n"
-
-        template << "VLAN_TAGGED_ID=#{vlan_id}\n" if !vlan_id.empty?
 
         return template
     end
@@ -103,6 +114,55 @@ class Network
         end.first rescue nil
 
         return element
+    end
+
+    def self.remove_net_ref(network_id)
+        one_vnet = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualNetwork, network_id)
+        one_vnet.info
+        one_vnet.delete_element("TEMPLATE/VCENTER_NET_REF")
+        one_vnet.delete_element("TEMPLATE/VCENTER_INSTANCE_ID")
+        tmp_str = one_vnet.template_str
+        one_vnet.update(tmp_str)
+        one_vnet.info
+    end
+
+    def self.vcenter_networks_to_be_removed(device_change_nics, vcenter_uuid)
+
+        networks = {}
+        npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool, false)
+
+        device_change_nics.each do |nic|
+            if nic[:operation] == :remove
+                vnet_ref = nil
+
+                # Port group
+                if nic[:device].backing.respond_to?(:network)
+                    vnet_ref = nic[:device].backing.network._ref
+                end
+
+                # Distributed port group
+                if nic[:device].backing.respond_to?(:port) &&
+                    nic[:device].backing.port.respond_to?(:portgroupKey)
+                    vnet_ref  = nic[:device].backing.port.portgroupKey
+                end
+
+                # Find vnet_ref in OpenNebula's pool of networks
+                one_network = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,
+                                                                    "TEMPLATE/VCENTER_NET_REF",
+                                                                    vnet_ref,
+                                                                    vcenter_uuid,
+                                                                    npool)
+                next if !one_network
+
+                # Add pg or dpg name that are in vcenter but not in
+                # OpenNebula's VM to a hash for later removal
+                if one_network["VN_MAD"] == "vcenter" && !networks.key?(one_network["BRIDGE"])
+                    networks[one_network["BRIDGE"]] = one_network
+                end
+            end
+        end
+
+        networks
     end
 
     # This is never cached
@@ -135,24 +195,6 @@ class PortGroup < Network
         net_clusters
     end
 
-    def vlan_id
-        id = ""
-        host_members = self['host']
-        host = host_members.first
-        # This is pretty slow as the host id subsystem has to be queried
-        cm = host.configManager
-        nws = cm.networkSystem
-        nc = nws.networkConfig
-        pgs = nc.portgroup
-        pgs.each do |pg|
-            if pg.spec.name == self["name"]
-                id << pg.spec.vlanId.to_s  if pg.spec.vlanId != 0
-                break
-            end
-        end
-        id
-    end
-
     def network_type
         "Port Group"
     end
@@ -181,32 +223,23 @@ class DistributedPortGroup < Network
         net_clusters
     end
 
-    def vlan_id
-        id = ""
-        pc = self['config.defaultPortConfig']
-        if pc.respond_to?(:vlan) && pc.vlan.respond_to?(:vlanId)
-
-            vlan = pc.vlan.vlanId
-
-            if vlan.is_a? Array
-                vlan.each do |v|
-                    id << v.start.to_s
-                    id << ".."
-                    id << v.end.to_s
-                    id << ","
-                end
-                id.chop!
-            else
-                id = vlan.to_s if vlan != 0
-            end
-        end
-        return id
-    end
-
     def network_type
         "Distributed Port Group"
     end
 end # class DistributedPortGroup
+
+class DistributedVirtualSwitch < Network
+
+    def initialize(item, vi_client=nil)
+        if !item.instance_of?(RbVmomi::VIM::VmwareDistributedVirtualSwitch )
+           raise "Expecting type 'RbVmomi::VIM::VmwareDistributedVirtualSwitch'. " <<
+                  "Got '#{item.class} instead."
+        end
+
+        @vi_client = vi_client
+        @item = item
+    end
+end # class DistributedVirtualSwitch
 
 end # module VCenterDriver
 

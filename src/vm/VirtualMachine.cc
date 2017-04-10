@@ -734,7 +734,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     int    ivalue;
     float  fvalue;
     set<int> cluster_ids;
-    map<int, Template *> quotas;
+    vector<Template *> quotas;
 
     ostringstream oss;
 
@@ -2653,7 +2653,7 @@ int VirtualMachine::get_disk_images(string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::release_disk_images(map<int, Template *>& quotas)
+void VirtualMachine::release_disk_images(vector<Template *>& quotas)
 {
     bool image_error = (state == ACTIVE && lcm_state != EPILOG) &&
                         state != PENDING && state != HOLD &&

@@ -223,7 +223,7 @@ define(function(require) {
 
       $.each(userInputsJSON, function(key,value){
         var name = key.toUpperCase();
-        contextJSON[name] = "$" + name;
+        contextJSON[name.split("_")[2]] = "$" + name;
       });
 
       var start_script = WizardFields.retrieveInput($(".START_SCRIPT", context));

@@ -41,7 +41,7 @@
       <li class="tabs-title is-active">
         <a href="#netsshTab{{uniqueId}}">{{tr "Configuration"}}</a>
       </li>
-      <li class="tabs-title">
+      <li class="tabs-title hypervisor only_kvm">
         <a href="#filesTab{{uniqueId}}">{{tr "Files"}}</a>
       </li>
       <li class="tabs-title">
@@ -109,7 +109,7 @@
               {{{tip (tr "Text of the script executed when the machine starts up. It can contain shebang in case it is not shell script")}}}
               <textarea rows="4" type="text" class="START_SCRIPT monospace" placeholder="yum upgrade"/>
             </label>
-            <input type="checkbox" class="ENCODE_START_SCRIPT" id="ENCODE_START_SCRIPT{{uniqueId}}">
+            <input type="checkbox" class="ENCODE_START_SCRIPT" id="ENCODE_START_SCRIPT{{uniqueId}}" checked>
             <label for="ENCODE_START_SCRIPT{{uniqueId}}">{{tr "Encode script in Base64"}}</label>
           </div>
         </div>

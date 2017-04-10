@@ -36,6 +36,8 @@ $: << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
+VM_PREFIX_DEFAULT = "one-$i-"
+
 path = ARGV[0]
 vmid = ARGV[1]
 dsid = ARGV[2]
@@ -54,9 +56,22 @@ host_id = host['ID']
 one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vmid)
 vm_ref = one_vm['DEPLOY_ID']
 
+vm = nil
+
 begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-    vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
+
+    if !!vm_ref && !vm_ref.empty?
+        vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
+    else
+        vcenter_vm = VCenterDriver::VIHelper.find_vcenter_vm_by_name(one_vm, host, vi_client)
+
+        # If no VM object retrieved, raise an exception
+        raise "Could not find the undeployed VM in vCenter's inventory using it's name" if !vcenter_vm
+
+        vm_ref = vcenter_vm._ref
+        vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
+    end
 rescue Exception => e
     vi_client.close_connection if vi_client
 
@@ -101,10 +116,106 @@ if path.match(/disk\.\d+$/)
 else
     # Remove the VM
     begin
+
         # All OpenNebula managed disks have been detached. The VM may have still
         # disks that belong to the template (OPENNEBULA_MANAGED disks). These disks
         # will be deleted with the destroy operation. If the user wants to
         # save them to a VM, it can be done using the disk-saveas operation.
+
+        # If we have NICs associated to VN_MAD=vcenter we must check if pgs and
+        # switches must be deleted
+
+        # track pg or dpg in case they must be removed
+        vcenter_uuid = vm.get_vcenter_instance_uuid
+        networks = {}
+        npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool, false)
+
+        # Check nics in VM
+        vm.item["config.hardware.device"].each do |dv|
+            if vm.is_nic?(dv)
+                if dv.backing.respond_to?(:network)
+                    vnet_ref = dv.backing.network._ref
+                end
+
+                if dv.backing.respond_to?(:port) &&
+                   dv.backing.port.respond_to?(:portgroupKey)
+                    vnet_ref  = dv.backing.port.portgroupKey
+                end
+
+                one_network = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,
+                                                                  "TEMPLATE/VCENTER_NET_REF",
+                                                                  vnet_ref,
+                                                                  vcenter_uuid,
+                                                                  npool)
+                next if !one_network
+                if one_network["VN_MAD"] == "vcenter" && !networks.key?(one_network["BRIDGE"])
+                    networks[one_network["BRIDGE"]] = one_network
+                end
+            end
+        end
+
+        #Remove pgs and switches if not needed
+        if !networks.empty?
+
+            esx_host = VCenterDriver::ESXHost.new_from_ref(vm.item.runtime.host._ref, vi_client)
+            dc = vm.cluster.get_dc # Get datacenter
+
+            networks.each do |pg_name, one|
+
+                if one["TEMPLATE/VCENTER_PORTGROUP_TYPE"] == "Port Group"
+                    begin
+                        esx_host.lock # Exclusive lock for ESX host operation
+
+                        next if !esx_host.pg_exists(pg_name)
+                        swname = esx_host.remove_pg(pg_name)
+                        next if !swname
+
+                        # We must update XML so the VCENTER_NET_REF is unset
+                        VCenterDriver::Network.remove_net_ref(one["ID"])
+
+                        next if !esx_host.vss_exists(swname)
+                        swname = esx_host.remove_vss(swname)
+
+                    rescue Exception => e
+                        raise e
+                    ensure
+                        esx_host.unlock if esx_host # Remove lock
+                    end
+                end
+
+                if one["TEMPLATE/VCENTER_PORTGROUP_TYPE"] == "Distributed Port Group"
+                    begin
+                        dc.lock
+
+                        # Explore network folder in search of dpg and dvs
+                        net_folder = dc.network_folder
+                        net_folder.fetch!
+
+                        # Get distributed port group if it exists
+                        dpg = dc.dpg_exists(pg_name, net_folder)
+                        dc.remove_dpg(dpg) if dpg
+
+                        # We must update XML so the VCENTER_NET_REF is unset
+                        VCenterDriver::Network.remove_net_ref(one["ID"])
+
+                        # Get distributed virtual switch and try to remove it
+                        switch_name =  one["TEMPLATE/VCENTER_SWITCH_NAME"]
+                        dvs = dc.dvs_exists(switch_name, net_folder)
+                        dc.remove_dvs(dvs) if dvs
+
+                    rescue Exception => e
+                        #TODO rollback
+                        raise e
+                    ensure
+                        dc.unlock if dc
+                    end
+                end
+            end
+
+        end
+
+        vm.poweroff_hard if vm.is_powered_on?
+
         vm.destroy
     rescue Exception => e
         STDERR.puts "Error unregistering vm #{vmid} (#{vm_ref})."\

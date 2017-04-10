@@ -62,13 +62,13 @@
       <input type="text" id="vcenter_template_ref"/>
     </div>
   </div>
-  <div class="vcenter_deploy_folder_input row">
+  <div class="vcenter_vm_folder_input row">
     <div class="medium-6 columns">
-      <label  for="vcenter_deploy_folder">
-        {{tr "Deployment Folder"}}
-        {{{tip (tr "If specified, the the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be deployed in the same folder where the template exists.")}}}
+      <label  for="vcenter_vm_folder">
+        {{tr "vCenter VM Folder"}}
+        {{{tip (tr "If specified, the the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located.")}}}
       </label>
-      <input type="text" id="vcenter_deploy_folder"/>
+      <input type="text" id="vcenter_vm_folder"/>
     </div>
   </div>
 </fieldset>

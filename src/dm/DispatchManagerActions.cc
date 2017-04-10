@@ -212,7 +212,7 @@ error:
 void DispatchManager::free_vm_resources(VirtualMachine * vm)
 {
     Template* tmpl;
-    map<int, Template *> ds_quotas;
+    vector<Template *> ds_quotas;
 
     int uid;
     int gid;
@@ -247,7 +247,7 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
 
     if ( !ds_quotas.empty() )
     {
-        Quotas::ds_del(ds_quotas);
+        Quotas::ds_del(uid, gid, ds_quotas);
     }
 
     if (vrid != -1)
@@ -1052,8 +1052,8 @@ int DispatchManager::delete_recreate(VirtualMachine * vm,
     Template * vm_quotas_snp = 0;
     Template * vm_quotas_rsz = 0;
 
-    map<int, Template *> ds_quotas_snp;
-    map<int, Template *> ds_quotas_rsz;
+    vector<Template *> ds_quotas_snp;
+    vector<Template *> ds_quotas_rsz;
 
     int vm_uid, vm_gid;
 
@@ -1118,12 +1118,12 @@ int DispatchManager::delete_recreate(VirtualMachine * vm,
 
     if ( !ds_quotas_snp.empty() )
     {
-        Quotas::ds_del(ds_quotas_snp);
+        Quotas::ds_del_recreate(vm_uid, vm_gid, ds_quotas_snp);
     }
 
     if ( !ds_quotas_rsz.empty() )
     {
-        Quotas::ds_del(ds_quotas_rsz);
+        Quotas::ds_del_recreate(vm_uid, vm_gid, ds_quotas_rsz);
     }
 
     if ( vm_quotas_snp != 0 )

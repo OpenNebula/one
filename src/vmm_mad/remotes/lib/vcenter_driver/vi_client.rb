@@ -7,15 +7,61 @@ class VIClient
     attr_accessor :rp
 
     def initialize(opts)
+
         opts = {:insecure => true}.merge(opts)
         @vim = RbVmomi::VIM.connect(opts)
 
-        rp_ref = opts.delete(:rp)
-        @rp = RbVmomi::VIM::ResourcePool(@vim, rp_ref) if rp_ref
+        # Get ccr and get rp
+        ccr_ref = opts.delete(:ccr)
+        if ccr_ref
+            ccr = RbVmomi::VIM::ClusterComputeResource.new(@vim, ccr_ref)
+
+            #Get ref for rp
+            if ccr
+                rp = opts.delete(:rp)
+                if rp
+                    rp_list = get_resource_pools(ccr)
+                    rp_ref = rp_list.select { |r| r[:name] == rp }.first._ref rescue nil
+                    @rp = RbVmomi::VIM::ResourcePool(@vim, rp_ref) if rp_ref
+                end
+            end
+        end
     end
 
     def rp_confined?
         !!@rp
+    end
+
+    def get_resource_pools(ccr, rp = nil, parent_prefix = "", rp_array = [])
+
+        current_rp = ""
+
+        if !rp
+            rp = ccr.resourcePool
+        else
+            if !parent_prefix.empty?
+                current_rp << parent_prefix
+                current_rp << "/"
+            end
+            current_rp << rp.name
+        end
+
+        if rp.resourcePool.size == 0
+            rp_info = {}
+            rp_info[:name] = current_rp
+            rp_info[:ref]  = rp._ref
+            rp_array << rp_info
+        else
+            rp.resourcePool.each do |child_rp|
+                get_resource_pools(ccr, child_rp, current_rp, rp_array)
+            end
+            rp_info = {}
+            rp_info[:name] = current_rp
+            rp_info[:ref]  = rp._ref
+            rp_array << rp_info if !current_rp.empty?
+        end
+
+        rp_array
     end
 
     def close_connection
@@ -66,7 +112,8 @@ class VIClient
         connection = {
             :host     => host["TEMPLATE/VCENTER_HOST"],
             :user     => host["TEMPLATE/VCENTER_USER"],
-            :rp       => host["TEMPLATE/VCENTER_RP_REF"],
+            :rp       => host["TEMPLATE/VCENTER_RESOURCE_POOL"],
+            :ccr      => host["TEMPLATE/VCENTER_CCR_REF"],
             :password => password
         }
 

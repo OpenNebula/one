@@ -31,6 +31,7 @@ require 'vcenter_driver'
 
 vm_ref          = ARGV[0]
 snap_id         = ARGV[1]
+vm_id           = ARGV[2]
 vc_cluster_name = ARGV[3]
 
 host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, vc_cluster_name)
@@ -41,7 +42,11 @@ begin
 
     vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
 
-    vm.delete_snapshot(snap_id)
+    # Get snapshot name
+    one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
+    snap_name = one_vm["TEMPLATE/SNAPSHOT[SNAPSHOT_ID=#{snap_id}]/NAME"]
+
+    vm.delete_snapshot(snap_id, snap_name)
 
 rescue Exception => e
     STDERR.puts "Snapshot of VM #{vm_ref} on vCenter cluster "\

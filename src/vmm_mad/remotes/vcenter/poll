@@ -41,7 +41,7 @@ begin
 
     vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
 
-    vm.monitor
+    vm.monitor_poll_vm
 
     puts vm.info
 

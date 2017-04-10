@@ -14,16 +14,27 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<fieldset>
-  <legend>
-    <i class="fa fa-folder"></i> {{tr "vCenter Deployment"}}
-  </legend>
-  <div class="deployContainer">
-    <label for="deploy_folder_input">
-        {{tr "Deployment Folder"}}
-        {{{tip (tr "If specified, the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be deployed in the same folder where the template exists.")}}}
-    </label>
-    <input type="text" name="deploy_folder_input" id="deploy_folder_input" wizard_field="DEPLOY_FOLDER"/>
+<div id="{{dialogId}}" class="reveal small" data-reveal>
+  <div class="row">
+    <h3 class="subheader">
+      {{tr "Revert"}}
+    </h3>
   </div>
-</fieldset>
-
+  <div class="confirm-resources-header"></div>
+  <div class="reveal-body">
+    <form id="{{dialogId}}Form" action="">
+      <div class="row">
+    <div id="confirm_tip">{{tr "You have to confirm this action."}}</div>
+    <br/>
+    <div id="question">{{tr "Do you want to proceed?"}}</div>
+    <br />
+      </div>
+      <div class="form_buttons">
+        <button class="button radius right success" type="submit">{{tr "OK"}}</button>
+      </div>
+      <button class="close-button" data-close aria-label="{{tr "Close modal"}}" type="button">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </form>
+  </div>
+</div>

@@ -90,7 +90,7 @@ class Storage
             one_image[:template] << "PATH=\"vcenter://#{image_path}\"\n"
             one_image[:template] << "TYPE=\"#{image_type}\"\n"
             one_image[:template] << "PERSISTENT=\"NO\"\n"
-            one_image[:template] << "OPENNEBULA_MANAGED=\"NO\"\n"
+            one_image[:template] << "VCENTER_IMPORTED=\"YES\"\n"
             one_image[:template] << "DEV_PREFIX=\"#{VCenterDriver::VIHelper.get_default("IMAGE/TEMPLATE/DEV_PREFIX")}\"\n" #TODO get device prefix from vcenter info
         else
             # Return the image XML if it already exists
@@ -110,6 +110,13 @@ class Storage
         end.first rescue nil
 
         return element
+    end
+
+    #  Checks if a RbVmomi::VIM::VirtualDevice is a disk or an iso file
+    def self.is_disk_or_iso?(device)
+        is_disk  = !(device.class.ancestors.index(RbVmomi::VIM::VirtualDisk)).nil?
+        is_iso = device.backing.is_a? RbVmomi::VIM::VirtualCdromIsoBackingInfo
+        is_disk || is_iso
     end
 
 
@@ -147,24 +154,27 @@ class Storage
         return one
     end
 
-    def to_one_template(one_clusters, ccr_ref, ccr_name, type, vcenter_uuid)
+    def to_one_template(one_clusters, ccr_ref, ccr_name, type, vcenter_uuid, vcenter_instance_name, dc_name)
 
         one_cluster = one_clusters.select { |ccr| ccr[:ref] == ccr_ref }.first rescue nil
 
         return nil if one_cluster.nil?
 
+        name, capacity, freeSpace = @item.collect("name","summary.capacity","summary.freeSpace")
+
         ds_name = ""
 
         if type == "IMAGE_DS"
-            ds_name = "#{self['name']} - #{ccr_name} (IMG)"
+            ds_name << "[#{vcenter_instance_name} - #{dc_name}] #{name} - #{ccr_name.tr(" ", "_")} (IMG)"
         else
-            ds_name = "#{self['name']} - #{ccr_name} (SYS)"
+            ds_name << "[#{vcenter_instance_name} - #{dc_name}] #{name} - #{ccr_name.tr(" ", "_")} (SYS)"
+            ds_name << " [StorDRS]" if self.class == VCenterDriver::StoragePod
         end
 
         one_tmp = {
             :name     => ds_name,
-            :total_mb => ((self['summary.capacity'].to_i / 1024) / 1024),
-            :free_mb  => ((self['summary.freeSpace'].to_i / 1024) / 1024),
+            :total_mb => ((capacity.to_i / 1024) / 1024),
+            :free_mb  => ((freeSpace.to_i / 1024) / 1024),
             :cluster  => ccr_name,
             :one  => to_one(ds_name, vcenter_uuid, ccr_ref, one_cluster[:host_id])
         }
@@ -239,10 +249,17 @@ class Datastore < Storage
     def delete_virtual_disk(img_name)
         ds_name = self['name']
 
-        get_vdm.DeleteVirtualDisk_Task(
-          :name => "[#{ds_name}] #{img_name}",
-          :datacenter => get_dc.item
-        ).wait_for_completion
+        begin
+            get_vdm.DeleteVirtualDisk_Task(
+            :name => "[#{ds_name}] #{img_name}",
+            :datacenter => get_dc.item
+            ).wait_for_completion
+        rescue Exception => e
+            # Ignore if file not found
+            if !e.message.start_with?('ManagedObjectNotFound')
+                raise e
+            end
+        end
     end
 
     # Copy a VirtualDisk
@@ -348,12 +365,17 @@ class Datastore < Storage
 
             search_task.wait_for_completion
 
-            file_size = search_task.info.result[0].file[0].fileSize rescue nil
+            size = 0
 
-            raise "Could not get file size" if file_size.nil?
+            # Try to get vmdk capacity as seen by VM
+            size = search_task.info.result[0].file[0].capacityKb / 1024 rescue nil
 
-            (file_size / 1024) / 1024
+            # Try to get file size
+            size = search_task.info.result[0].file[0].fileSize / 1024 / 1024 rescue nil if !size
 
+            raise "Could not get file size or capacity" if size.nil?
+
+            size
         rescue
             raise "Could not find file."
         end
@@ -361,7 +383,14 @@ class Datastore < Storage
 
     def get_search_params(ds_name, img_path=nil, img_name=nil)
         spec         = RbVmomi::VIM::HostDatastoreBrowserSearchSpec.new
-        spec.query   = [RbVmomi::VIM::VmDiskFileQuery.new,
+
+        vmdisk_query = RbVmomi::VIM::VmDiskFileQuery.new
+        vmdisk_query.details = RbVmomi::VIM::VmDiskFileQueryFlags(:diskType        => true,
+                                                                  :capacityKb      => true,
+                                                                  :hardwareVersion => true,
+                                                                  :controllerType  => true)
+
+        spec.query   = [vmdisk_query,
                         RbVmomi::VIM::IsoImageFileQuery.new]
         spec.details = RbVmomi::VIM::FileQueryFlags(:fileOwner    => true,
                                                     :fileSize     => true,

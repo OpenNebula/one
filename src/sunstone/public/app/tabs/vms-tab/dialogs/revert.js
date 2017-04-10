@@ -20,18 +20,15 @@ define(function(require) {
    */
 
   var BaseDialog = require('utils/dialogs/dialog');
-  var TemplateHTML = require('hbs!./attach-nic/html');
+  var TemplateHTML = require('hbs!./revert/html');
   var Sunstone = require('sunstone');
-  var Notifier = require('utils/notifier');
-  var NicsSection = require('utils/nics-section');
-  var WizardFields = require('utils/wizard-fields');
-  var Config = require('sunstone-config');
+  var Tips = require('utils/tips');
 
   /*
     CONSTANTS
    */
 
-  var DIALOG_ID = require('./attach-nic/dialogId');
+  var DIALOG_ID = require('./revert/dialogId');
   var TAB_ID = require('../tabId')
 
   /*
@@ -42,7 +39,7 @@ define(function(require) {
     this.dialogId = DIALOG_ID;
 
     BaseDialog.call(this);
-  }
+  };
 
   Dialog.DIALOG_ID = DIALOG_ID;
   Dialog.prototype = Object.create(BaseDialog.prototype);
@@ -65,26 +62,15 @@ define(function(require) {
   }
 
   function _setup(context) {
+
     var that = this;
 
-    NicsSection.insert({},
-      $(".nicsContext", context),
-      { floatingIP: true,
-        forceIPv6:true,
-        forceIPv4:true,
-        management: true,
-        securityGroups: Config.isFeatureEnabled("secgroups"),
-        hide_add_button:true,
-        click_add_button:true
-      });
+    Tips.setup(context);
 
     $('#' + DIALOG_ID + 'Form', context).submit(function() {
-      var templateJSON = NicsSection.retrieve($(".nicsContext", context));
-      var obj = {
-        "NIC": templateJSON
-      };
 
-      Sunstone.runAction('VirtualRouter.attachnic', that.element.ID, obj);
+      var snapshot_id = $(this).parents('tr').attr('snapshot_id');
+      Sunstone.runAction('VM.snapshot_revert', that.element.ID,  {"snapshot_id": snapshot_id});
 
       Sunstone.getDialog(DIALOG_ID).hide();
       Sunstone.getDialog(DIALOG_ID).reset();
@@ -96,11 +82,11 @@ define(function(require) {
 
   function _onShow(context) {
     this.setNames( {tabId: TAB_ID} );
-
     return false;
   }
 
   function _setElement(element) {
-    this.element = element;
+    this.element = element
   }
+
 });

@@ -45,7 +45,6 @@ define(function(require) {
 
   /*
     Retrieve the list of templates from vCenter and fill the container with them
-
     opts = {
       datacenter: "Datacenter Name",
       cluster: "Cluster Name",
@@ -56,6 +55,7 @@ define(function(require) {
     }
    */
   function _fillVCenterTemplates(opts) {
+    this.opts = opts;
     var path = '/vcenter/templates';
 
     var context = $(".vcenter_import", opts.container);
@@ -102,9 +102,6 @@ define(function(require) {
 
             $.each(elements, function(id, element) {
               var opts = {};
-              if (element.ds && element.ds !== '') {
-                opts.datastore = UserInputs.unmarshall(element.ds);
-              }
 
               if (element.rp && element.rp !== '') {
                 opts.resourcePool = UserInputs.unmarshall(element.rp);
@@ -160,6 +157,7 @@ define(function(require) {
   }
 
   function _import(context) {
+    that = this;
     $.each($(".vcenter_import_table", context), function() {
       $.each($(this).DataTable().$(".check_item:checked"), function() {
         var row_context = $(this).closest("tr");
@@ -169,27 +167,6 @@ define(function(require) {
         var attrs = [];
         var userInputs = [];
 
-        // Retrieve Datastore Attribute
-        var dsInput = $(".vcenter_datastore_input", row_context);
-        if (dsInput.length > 0) {
-          var dsModify = $('.modify_datastore', dsInput).val();
-          var dsInitial = $('.initial_datastore', dsInput).val();
-          var dsParams = $('.available_datastores', dsInput).val();
-
-          if (dsModify === 'fixed' && dsInitial !== '') {
-            attrs.push('VCENTER_DATASTORE="' + dsInitial + '"')
-          } else if (dsModify === 'list' && dsParams !== '') {
-            var dsUserInputsStr = UserInputs.marshall({
-                type: 'list',
-                description: Locale.tr("Which datastore you want this VM to run on?"),
-                initial: dsInitial,
-                params: dsParams
-              });
-
-            userInputs.push('VCENTER_DATASTORE="' + dsUserInputsStr + '"');
-          }
-        }
-
         // Retrieve Resource Pool Attribute
         var rpInput = $(".vcenter_rp_input", row_context);
         if (rpInput.length > 0) {
@@ -198,7 +175,7 @@ define(function(require) {
           var rpParams = $('.available_rps', rpInput).val();
 
           if (rpModify === 'fixed' && rpInitial !== '') {
-            attrs.push('RESOURCE_POOL="' + rpInitial + '"');
+            attrs.push('VCENTER_RESOURCE_POOL="' + rpInitial + '"');
           } else if (rpModify === 'list' && rpParams !== '') {
             var rpUserInputs = UserInputs.marshall({
                 type: 'list',
@@ -207,7 +184,7 @@ define(function(require) {
                 params: $('.available_rps', rpInput).val()
               });
 
-            userInputs.push('RESOURCE_POOL="' + rpUserInputs + '"');
+            userInputs.push('VCENTER_RESOURCE_POOL="' + rpUserInputs + '"');
           }
         }
 
@@ -222,28 +199,71 @@ define(function(require) {
           template += "\nUSER_INPUTS=[\n" + userInputs.join(",\n") + "]";
         }
 
-        var template_json = {
-          "vmtemplate": {
-            "template_raw": template
-          }
-        };
+        if($(this).data("import_data").import_disks_and_nics){
+          var path = '/vcenter/template/' + $(this).data("import_data").vcenter_ref;
+          $.ajax({
+            url: path,
+            type: "GET",
+            data: {timeout: false},
+            headers: {
+              "X-VCENTER-USER": that.opts.vcenter_user,
+              "X-VCENTER-PASSWORD": that.opts.vcenter_password,
+              "X-VCENTER-HOST": that.opts.vcenter_host
+            },
+            dataType: "json",
+            success: function(response){
+              template += "\n" + response.one;
+              var template_json = {
+                "vmtemplate": {
+                "template_raw": template
+                }
+              };
+              OpenNebulaTemplate.create({
+                timeout: true,
+                data: template_json,
+                success: function(request, response) {
+                  VCenterCommon.importSuccess({
+                    context : row_context,
+                    message : Locale.tr("Template created successfully. ID: %1$s", response.VMTEMPLATE.ID)
+                  });
+                },
+                error: function (request, error_json) {
+                  VCenterCommon.importFailure({
+                    context : row_context,
+                    message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
+                  });
+                }
+              });
+            },
+            error: function(response){
+              Notifier.onError({}, OpenNebulaError(response));
+            }
+          });
+        } 
+        else {
+          var template_json = {
+            "vmtemplate": {
+              "template_raw": template
+            }
+          };
 
-        OpenNebulaTemplate.create({
-          timeout: true,
-          data: template_json,
-          success: function(request, response) {
-            VCenterCommon.importSuccess({
-              context : row_context,
-              message : Locale.tr("Template created successfully. ID: %1$s", response.VMTEMPLATE.ID)
-            });
-          },
-          error: function (request, error_json) {
-            VCenterCommon.importFailure({
-              context : row_context,
-              message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
-            });
-          }
-        });
+          OpenNebulaTemplate.create({
+            timeout: true,
+            data: template_json,
+            success: function(request, response) {
+              VCenterCommon.importSuccess({
+                context : row_context,
+                message : Locale.tr("Template created successfully. ID: %1$s", response.VMTEMPLATE.ID)
+              });
+            },
+            error: function (request, error_json) {
+              VCenterCommon.importFailure({
+                context : row_context,
+                message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
+              });
+            }
+          });
+        }
       });
     });
   }

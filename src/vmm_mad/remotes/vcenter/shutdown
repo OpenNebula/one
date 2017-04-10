@@ -52,10 +52,7 @@ end
 # Get disk elements from drv_action
 disks = drv_action.retrieve_xmlelements("VM/TEMPLATE/DISK")
 
-## TODO keep_disks and copy_template
-keep_disks =
-    !drv_action['/VMM_DRIVER_ACTION_DATA/VM/USER_TEMPLATE/KEEP_DISKS_ON_DONE'].nil? &&
-    drv_action['/VMM_DRIVER_ACTION_DATA/VM/USER_TEMPLATE/KEEP_DISKS_ON_DONE'].downcase=="yes"
+## TODO copy_template
 
 # Manage instantiate to persistent
 instantiate_to_persistent =
@@ -72,12 +69,6 @@ begin
 
     # If Terminate action has been called
     if lcm_state_str == "SHUTDOWN"
-
-        # TODO: KEEP_DISKS_ON_DONE deprecation / invisible disks
-        if keep_disks
-            # Detach all disks from VM so they are not deleted if VM is destroyed
-            vm.detach_all_disks
-        end
 
         # If the VM was instantiated to persistent keep the VM
         if instantiate_to_persistent

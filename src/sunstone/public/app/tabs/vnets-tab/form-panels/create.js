@@ -126,7 +126,8 @@ define(function(require) {
       $("div.mode_param [wizard_field]", context).prop('wizard_field_disabled', true);
 
       $('input#vn_mad', context).removeAttr('required');
-
+      $('input#vn_mad', context).removeAttr('value');
+      $('#vcenter_switch_name', context).removeAttr('required');
       switch ($(this).val()) {
       case "dummy":
         $("div.mode_param.dummy", context).show();
@@ -163,6 +164,16 @@ define(function(require) {
         $("div.mode_param.ovswitch [wizard_field]", context).prop('wizard_field_disabled', false);
 
         $('input#bridge', context).attr('required', '');
+        break;
+      case "vcenter":
+        $("div.mode_param.vcenter", context).show();
+        $("div.mode_param.vcenter [wizard_field]", context).prop('wizard_field_disabled', false);
+        $('input#bridge', context).attr('value', $('#name', context).val());
+        $('#vcenter_switch_name', context).attr('required', '');
+        $('input#vn_mad', context).attr('required', '');
+        $('input#vn_mad', context).attr('value', 'vcenter');
+
+        $('#div_vn_mad', context).hide();
         break;
       case "custom":
         $("div.mode_param.custom", context).show();

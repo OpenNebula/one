@@ -270,8 +270,11 @@ int VirtualMachineDisk::revert_snapshot(int snap_id)
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineDisk::delete_snapshot(int snap_id, Template **ds_quotas,
-        Template **vm_quotas)
+        Template **vm_quotas, bool& img_owner, bool& vm_owner)
 {
+    vm_owner  = false;
+    img_owner = false;
+
     if ( snapshots == 0 )
     {
         return;
@@ -294,7 +297,10 @@ void VirtualMachineDisk::delete_snapshot(int snap_id, Template **ds_quotas,
 
     string tm_target = get_tm_target();
 
-	if (is_persistent() || tm_target != "SYSTEM")
+    vm_owner  = tm_target == "SELF";
+    img_owner = is_persistent() || tm_target == "NONE";
+
+	if ( img_owner || vm_owner )
 	{
         *ds_quotas = new Template();
 
@@ -345,10 +351,53 @@ long long VirtualMachineDisk::system_ds_size()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+long long VirtualMachineDisk::image_ds_size()
+{
+	long long disk_sz, snapshot_sz = 0;
+
+    string tm_target = get_tm_target();
+
+    if (  get_tm_target() != "SELF" )
+    {
+        return 0;
+    }
+
+	if ( vector_value("SIZE", disk_sz) != 0 )
+	{
+		return 0;
+	}
+
+	if ( vector_value("DISK_SNAPSHOT_TOTAL_SIZE", snapshot_sz) == 0 )
+	{
+		disk_sz += snapshot_sz;
+	}
+
+    return disk_sz;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+/* -------------------------------------------------------------------------- */
+//  Owner to update ds usage quotas
+//
+//  +--------+-------------------------------------+
+//  |LN/CLONE|     PERSISTENT    |   NO PERSISTENT |
+//  |        |---------+---------+-----------------+
+//  | TARGET | created |  quota  | created | quota |
+//  +--------+---------+---------+-----------------+
+//  | SYSTEM | system  | IMG     | system  | -     |
+//  | SELF   | image   | IMG+VM  | image   | VM    |
+//  | NONE   | image   | IMG     | image   | IMG   |
+//  +----------------------------------------------+
+/* -------------------------------------------------------------------------- */
 void VirtualMachineDisk::resize_quotas(long long new_size, Template& ds_deltas,
-        Template& vm_deltas)
+        Template& vm_deltas, bool& do_img_owner, bool& do_vm_owner)
 {
     long long current_size, delta_size;
+
+    do_vm_owner = false;
+    do_img_owner= false;
 
 	if ( vector_value("SIZE", current_size) != 0 )
     {
@@ -363,10 +412,13 @@ void VirtualMachineDisk::resize_quotas(long long new_size, Template& ds_deltas,
         delta_size = - delta_size;
     }
 
-    bool is_system = get_tm_target() == "SYSTEM";
-    string ds_id   = vector_value("DATASTORE_ID");
+    string tm       = get_tm_target();
+    do_vm_owner     = !is_volatile() && tm == "SELF";
+    do_img_owner    = !is_volatile() && (is_persistent() || tm == "NONE");
+    bool is_system  = tm == "SYSTEM";
+    string ds_id    = vector_value("DATASTORE_ID");
 
-    if ( !is_volatile() && ( is_persistent() || !is_system ) )
+    if ( do_vm_owner || do_img_owner )
     {
         ds_deltas.add("DATASTORE", ds_id);
         ds_deltas.add("SIZE", delta_size);
@@ -482,33 +534,32 @@ long long VirtualMachineDisks::system_ds_size(Template * ds_tmpl)
     return disks.system_ds_size();
 }
 
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-/*
-void VirtualMachineDisks::image_ds_size(bool resize_snapshot, long long system,
-		std::map<int, long long>& ds_size) const
+
+void VirtualMachineDisks::image_ds_quotas(Template * tmpl,
+        vector<Template *>& ds_quotas)
 {
-	int ds_id;
-	long long system_sz, image_sz;
+    VirtualMachineDisks disks(tmpl, false);
 
-    for ( disk_iterator disk = begin() ; disk != end() ; ++disk )
+    for (disk_iterator it = disks.begin(); it != disks.end() ; ++it)
     {
-		(*disk)->ds_size(resize_snapshot, ds_id, image_sz, system_sz);
+        long long ds_size = (*it)->image_ds_size();
 
-		system += system_sz;
+        if ( ds_size != 0 )
+        {
+            Template * d_ds = new Template();
 
-		if ( ds_id != -1 && image_sz > 0 )
-		{
-			if (ds_size.count(ds_id) == 0)
-			{
-				ds_size[ds_id] = 0;
-			}
+            d_ds->add("DATASTORE", (*it)->vector_value("DATASTORE_ID"));
+            d_ds->add("SIZE", ds_size);
+            d_ds->add("IMAGES", 0);
 
-			ds_size[ds_id] += image_sz;
-		}
+            ds_quotas.push_back(d_ds);
+        }
     }
 }
-*/
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -772,7 +823,7 @@ error_common:
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineDisks::release_images(int vmid, bool image_error,
-        map<int, Template *>& ds_quotas)
+        vector<Template *>& ds_quotas)
 {
     Nebula& nd = Nebula::instance();
     ImageManager * imagem = nd.get_imagem();
@@ -796,23 +847,16 @@ void VirtualMachineDisks::release_images(int vmid, bool image_error,
                 imagem->set_image_size(iid, size);
             }
 
-            /* ------- Update snapshots  on source image if needed ---------- */
+            /* ------- Update snapshots on source image if needed ----------- */
             if ( (*it)->has_snapshots() )
             {
                 imagem->set_image_snapshots(iid, *(*it)->get_snapshots());
             }
 
             /* --------- Compute space to free on image datastore ----------- */
-            if ( !(*it)->is_persistent() && (*it)->get_tm_target() != "SYSTEM" )
+            if ( (*it)->get_tm_target() == "SELF" )
             {
-                long long delta_size = 0;
-
-                if ( size > original_size )
-                {
-                    delta_size = size - original_size;
-                }
-
-                delta_size += (*it)->get_total_snapshot_size();
+                long long delta_size = size + (*it)->get_total_snapshot_size();
 
                 Template * d_ds = new Template();
 
@@ -820,7 +864,7 @@ void VirtualMachineDisks::release_images(int vmid, bool image_error,
                 d_ds->add("SIZE", delta_size);
                 d_ds->add("IMAGES", 0);
 
-                ds_quotas.insert(pair<int, Template *>(iid, d_ds));
+                ds_quotas.push_back(d_ds);
             }
 
             imagem->release_image(vmid, iid, image_error);
@@ -1233,7 +1277,7 @@ int VirtualMachineDisks::revert_snapshot(int id, int snap_id)
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineDisks::delete_snapshot(int disk_id, int snap_id,
-        Template **ds_quota, Template **vm_quota)
+        Template **ds_quota, Template **vm_quota,bool& img_owner, bool& vm_owner)
 {
     VirtualMachineDisk * disk =
         static_cast<VirtualMachineDisk *>(get_attribute(disk_id));
@@ -1246,14 +1290,14 @@ void VirtualMachineDisks::delete_snapshot(int disk_id, int snap_id,
         return;
     }
 
-    disk->delete_snapshot(snap_id, ds_quota, vm_quota);
+    disk->delete_snapshot(snap_id, ds_quota, vm_quota, img_owner, vm_owner);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineDisks::delete_non_persistent_snapshots(Template **vm_quotas,
-        map<int, Template *>& ds_quotas)
+        vector<Template *> &ds_quotas)
 {
     long long system_disk = 0;
 
@@ -1266,7 +1310,11 @@ void VirtualMachineDisks::delete_non_persistent_snapshots(Template **vm_quotas,
             continue;
         }
 
-        if ((*disk)->is_persistent() || tm_target != "SYSTEM" )
+        bool vm_owner  = tm_target == "SELF";
+        bool img_owner = (*disk)->is_persistent();
+
+        // Decrement DS quota on disks that do not modify the original image
+        if ( vm_owner || img_owner )
         {
             int image_id;
 
@@ -1280,8 +1328,11 @@ void VirtualMachineDisks::delete_non_persistent_snapshots(Template **vm_quotas,
             d_ds->add("DATASTORE", (*disk)->vector_value("DATASTORE_ID"));
             d_ds->add("SIZE", (*disk)->get_total_snapshot_size());
             d_ds->add("IMAGES", 0);
+            d_ds->add("IMAGE_ID", image_id);
+            d_ds->add("VM_QUOTA", vm_owner);
+            d_ds->add("IMG_QUOTA", img_owner);
 
-            ds_quotas.insert(pair<int, Template *>(image_id, d_ds));
+            ds_quotas.push_back(d_ds);
         }
 
         if ( tm_target == "SYSTEM" )
@@ -1426,7 +1477,7 @@ int VirtualMachineDisks::get_saveas_info(int& disk_id, string& source,
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineDisks::delete_non_persistent_resizes(Template **vm_quotas,
-        map<int, Template *>& ds_quotas)
+        vector<Template *>& ds_quotas)
 {
     long long original_size, size, delta_size, system_disk = 0;
 
@@ -1447,7 +1498,17 @@ void VirtualMachineDisks::delete_non_persistent_resizes(Template **vm_quotas,
 
         delta_size = original_size - size;
 
-        if ((*disk)->is_persistent() || tm_target != "SYSTEM" )
+        //Quotas uses del operation to substract counters, delta needs to be > 0
+        if ( delta_size < 0 )
+        {
+            delta_size = - delta_size;
+        }
+
+        bool vm_owner  = tm_target == "SELF";
+        bool img_owner = (*disk)->is_persistent();
+
+        // Decrement DS quota on disks that do not modify the original image
+        if ( vm_owner || img_owner )
         {
             int image_id;
 
@@ -1461,8 +1522,11 @@ void VirtualMachineDisks::delete_non_persistent_resizes(Template **vm_quotas,
             d_ds->add("DATASTORE", (*disk)->vector_value("DATASTORE_ID"));
             d_ds->add("SIZE", delta_size);
             d_ds->add("IMAGES", 0);
+            d_ds->add("IMAGE_ID", image_id);
+            d_ds->add("VM_QUOTA", vm_owner);
+            d_ds->add("IMG_QUOTA", img_owner);
 
-            ds_quotas.insert(pair<int, Template *>(image_id, d_ds));
+            ds_quotas.push_back(d_ds);
         }
 
         if ( tm_target == "SYSTEM" )

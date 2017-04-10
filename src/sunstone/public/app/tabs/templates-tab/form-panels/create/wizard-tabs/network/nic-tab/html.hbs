@@ -47,6 +47,14 @@
         <input type="text" wizard_field="NETWORK_UNAME" id="NETWORK_UNAME" name="NETWORK_UNAME"/>
       </div>
     </div>
+    <div class="row" style="display: none">
+      <div class="medium-6 columns">
+        <label>
+          {{tr "OPEN NEBULA MANAGEMENT"}}
+        </label>
+        <input type="text" wizard_field="OPENNEBULA_MANAGED" id="OPENNEBULA_MANAGED" name="OPENNEBULA_MANAGED"/>
+      </div>
+    </div> 
   </fieldset>
   <fieldset>
     <legend>{{tr "Override Network Values IPv4"}}</legend>
@@ -105,10 +113,10 @@
     <legend>{{tr "Override Network Values IPv6"}}</legend>
     <div class="row">
       <div class="medium-6 columns">
-        <label for="IP6_GLOBAL">
-          {{tr "Global address"}}
+        <label for="IP6">
+          {{tr "IP"}}
         </label>
-        <input type="text" wizard_field="IP6_GLOBAL" id="IP6_GLOBAL" name="IP6_GLOBAL" size="3" />
+        <input type="text" wizard_field="IP6" id="IP6" name="IP6" size="3" />
       </div>
       <div class="medium-6 columns">
         <label for="GATEWAY6">

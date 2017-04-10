@@ -1865,6 +1865,8 @@ void LifeCycleManager::disk_snapshot_success(int vid)
     Template *ds_quotas = 0;
     Template *vm_quotas = 0;
 
+    bool img_owner, vm_owner;
+
     const VirtualMachineDisk * disk;
     Snapshots           snaps(-1);
     const Snapshots*    tmp_snaps;
@@ -1909,7 +1911,8 @@ void LifeCycleManager::disk_snapshot_success(int vid)
         case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
             vm->log("LCM", Log::INFO, "VM disk snapshot deleted.");
-            vm->delete_disk_snapshot(disk_id, snap_id, &ds_quotas, &vm_quotas);
+            vm->delete_disk_snapshot(disk_id, snap_id, &ds_quotas, &vm_quotas,
+                    img_owner, vm_owner);
             break;
 
         default:
@@ -1941,16 +1944,24 @@ void LifeCycleManager::disk_snapshot_success(int vid)
 
     if ( ds_quotas != 0 )
     {
-        Image* img = ipool->get(img_id, true);
-
-        if(img != 0)
+        if ( img_owner )
         {
-            int img_uid = img->get_uid();
-            int img_gid = img->get_gid();
+            Image* img = ipool->get(img_id, true);
 
-            img->unlock();
+            if(img != 0)
+            {
+                int img_uid = img->get_uid();
+                int img_gid = img->get_gid();
 
-            Quotas::ds_del(img_uid, img_gid, ds_quotas);
+                img->unlock();
+
+                Quotas::ds_del(img_uid, img_gid, ds_quotas);
+            }
+        }
+
+        if ( vm_owner )
+        {
+            Quotas::ds_del(vm_uid, vm_gid, ds_quotas);
         }
 
         delete ds_quotas;
@@ -2008,6 +2019,8 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
     bool                has_snaps = false;
     string              error_str;
 
+    bool img_owner, vm_owner;
+
     VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
@@ -2036,7 +2049,8 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
         case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
             vm->log("LCM", Log::ERROR, "Could not take disk snapshot.");
-            vm->delete_disk_snapshot(disk_id, snap_id, &ds_quotas, &vm_quotas);
+            vm->delete_disk_snapshot(disk_id, snap_id, &ds_quotas, &vm_quotas,
+                    img_owner, vm_owner);
             break;
 
         case VirtualMachine::DISK_SNAPSHOT_DELETE:
@@ -2077,16 +2091,24 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
 
     if ( ds_quotas != 0 )
     {
-        Image* img = ipool->get(img_id, true);
-
-        if(img != 0)
+        if ( img_owner )
         {
-            int img_uid = img->get_uid();
-            int img_gid = img->get_gid();
+            Image* img = ipool->get(img_id, true);
 
-            img->unlock();
+            if(img != 0)
+            {
+                int img_uid = img->get_uid();
+                int img_gid = img->get_gid();
 
-            Quotas::ds_del(img_uid, img_gid, ds_quotas);
+                img->unlock();
+
+                Quotas::ds_del(img_uid, img_gid, ds_quotas);
+            }
+        }
+
+        if ( vm_owner)
+        {
+            Quotas::ds_del(vm_uid, vm_gid, ds_quotas);
         }
 
         delete ds_quotas;
@@ -2363,9 +2385,11 @@ void LifeCycleManager::disk_resize_failure(int vid)
     int vm_uid = vm->get_uid();
     int vm_gid = vm->get_gid();
 
+    bool img_quota, vm_quota;
+
     disk->vector_value("IMAGE_ID", img_id);
     disk->vector_value("SIZE_PREV", size_prev);
-    disk->resize_quotas(size_prev, ds_deltas, vm_deltas);
+    disk->resize_quotas(size_prev, ds_deltas, vm_deltas, img_quota, vm_quota);
 
     disk->clear_resize(true);
 
@@ -2374,7 +2398,7 @@ void LifeCycleManager::disk_resize_failure(int vid)
     vm->unlock();
 
     // Restore quotas
-    if ( !ds_deltas.empty() && img_id != -1 )
+    if ( img_quota && img_id != -1 )
     {
         Image* img = ipool->get(img_id, true);
 
@@ -2387,6 +2411,11 @@ void LifeCycleManager::disk_resize_failure(int vid)
 
             Quotas::ds_del(img_uid, img_gid, &ds_deltas);
         }
+    }
+
+    if ( vm_quota )
+    {
+        Quotas::ds_del(vm_uid, vm_gid, &ds_deltas);
     }
 
     if ( !vm_deltas.empty() )

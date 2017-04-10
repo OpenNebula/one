@@ -14,16 +14,16 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<tr>
-  <td>
-    <input type="checkbox" class="check_item"/>
-  </td>
-  <td>{{name}}</td>
-  <td>{{{rp}}}</td>
-  <td>
-    <span class="vcenter_import_result">
-    </span>&nbsp;
-    <span class="vcenter_import_response">
-    </span>
-  </td>
-</tr>
+<fieldset>
+  <legend>
+    <i class="fa fa-folder"></i> {{tr "vCenter Deployment"}}
+  </legend>
+  <div class="deployContainer">
+    <label for="vcenter_vm_folder_input">
+        {{tr "vCenter VM Folder"}}
+        {{{tip (tr "If specified, the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located.")}}}
+    </label>
+    <input type="text" name="vcenter_vm_folder_input" id="vcenter_vm_folder_input" wizard_field="VCENTER_VM_FOLDER"/>
+  </div>
+</fieldset>
+

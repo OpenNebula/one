@@ -16,13 +16,28 @@ def self.import_clusters(con_ops, options)
 
         dc_folder = VCenterDriver::DatacenterFolder.new(vi_client)
 
-        # Get vcenter intance uuid as moref is unique for each vcenter
-        vc_uuid = vi_client.vim.serviceContent.about.instanceUuid
+        vcenter_instance_name = vi_client.vim.host
 
-        # Get vcenter API version
-        vc_version = vi_client.vim.serviceContent.about.apiVersion
+        # OpenNebula's ClusterPool
+        cpool = VCenterDriver::VIHelper.one_pool(OpenNebula::ClusterPool, false)
 
-        rs = dc_folder.get_unimported_hosts
+        if cpool.respond_to?(:message)
+            raise "Could not get OpenNebula ClusterPool: #{cpool.message}"
+        end
+
+        cluster_list = {}
+        cpool.each do |c|
+            cluster_list[c["ID"]] = c["NAME"]
+        end
+
+        # Get OpenNebula's host pool
+        hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool, false)
+
+        if hpool.respond_to?(:message)
+            raise "Could not get OpenNebula HostPool: #{hpool.message}"
+        end
+
+        rs = dc_folder.get_unimported_hosts(hpool,vcenter_instance_name)
 
         STDOUT.print "done!\n\n"
 
@@ -34,20 +49,63 @@ def self.import_clusters(con_ops, options)
             end
 
             if clusters.empty?
-                STDOUT.puts "    No new clusters found in #{dc}..."
+                STDOUT.puts "\n    No new clusters found in #{dc}..."
                 next
             end
 
             clusters.each{ |cluster|
+                one_cluster_id = nil
+                rpool = nil
                 if !use_defaults
-                    STDOUT.print "  * Import cluster #{cluster[:cluster_name]} (y/[n])? "
+                    STDOUT.print "\n  * Import cluster #{cluster[:cluster_name]} (y/[n])? "
                     next if STDIN.gets.strip.downcase != 'y'
+
+                    if cluster_list.size > 1
+                        STDOUT.print "\n    In which OpenNebula cluster do you want the vCenter cluster to be included?\n "
+
+                        cluster_list_str = "\n"
+                        cluster_list.each do |key, value|
+                            cluster_list_str << "      - ID: " << key << " - NAME: " << value << "\n"
+                        end
+
+                        STDOUT.print "\n    #{cluster_list_str}"
+                        STDOUT.print "\n    Specify the ID of the cluster or Enter to use the default cluster: "
+
+                        answer = STDIN.gets.strip
+                        one_cluster_id = answer if !answer.empty?
+                    end
+
+                    rpools = cluster[:rp_list]
+
+                    if !rpools.empty?
+
+                        STDOUT.print "\n    Do you want to confine this cluster in "\
+                                     "a resource pool (y/[n])? "
+
+                        if STDIN.gets.strip.downcase == 'y'
+
+                            rpool_list = ""
+                            rpools.each do |rp|
+                                rpool_list << "    - " << rp[:name] << "\n"
+                            end
+
+                            STDOUT.print "\n    Please specify one resource pool from "\
+                                         "the following list:\n\n#{rpool_list}"
+
+                            STDOUT.print "\n    Your resource pool choice: "
+
+                            answer = STDIN.gets.strip
+                            rpool = answer if !answer.empty?
+                        end
+                    end
                 end
 
                 one_host = VCenterDriver::ClusterComputeResource.to_one(cluster,
-                                                                        con_ops)
+                                                                        con_ops,
+                                                                        rpool,
+                                                                        one_cluster_id)
 
-                STDOUT.puts "    OpenNebula host #{cluster[:cluster_name]} with"\
+                STDOUT.puts "\n    OpenNebula host #{cluster[:cluster_name]} with"\
                             " id #{one_host.id} successfully created."
                 STDOUT.puts
             }
@@ -77,7 +135,14 @@ def self.import_templates(con_ops, options)
 
         dc_folder = VCenterDriver::DatacenterFolder.new(vi_client)
 
-        rs = dc_folder.get_unimported_templates(vi_client)
+        # Get OpenNebula's templates pool
+        tpool = VCenterDriver::VIHelper.one_pool(OpenNebula::TemplatePool, false)
+
+        if tpool.respond_to?(:message)
+            raise "Could not get OpenNebula TemplatePool: #{tpool.message}"
+        end
+
+        rs = dc_folder.get_unimported_templates(vi_client, tpool)
 
         STDOUT.print "done!\n"
 
@@ -104,6 +169,9 @@ def self.import_templates(con_ops, options)
             end
 
             tmps.each{ |t|
+                template = nil
+                template_copy_ref = nil
+                template_xml = nil
 
                 if !use_defaults
                     STDOUT.print "\n  * VM Template found:\n"\
@@ -115,118 +183,129 @@ def self.import_templates(con_ops, options)
                     next if STDIN.gets.strip.downcase != 'y'
                 end
 
+                # Linked Clones
+                if !use_defaults
+
+                    template = VCenterDriver::Template.new_from_ref(t[:vcenter_ref], vi_client)
+
+                    STDOUT.print "\n    For faster deployment operations"\
+                                 " and lower disk usage, OpenNebula"\
+                                 " can create new VMs as linked clones."\
+                                 "\n    Would you like to use Linked Clones with VMs based on this template (y/[n])? "
+
+                    if STDIN.gets.strip.downcase == 'y'
+
+                        STDOUT.print "\n    Linked clones requires that delta"\
+                                     " disks must be created for each disk in the template."\
+                                     " This operation may change the template contents."\
+                                     " \n    Do you want OpenNebula to create a copy of the template,"\
+                                     " so the original template remains untouched ([y]/n)? "
+
+                        template = t[:template]
+                        if STDIN.gets.strip.downcase != 'n'
+
+                            STDOUT.print "\n    The new template will be named"\
+                                         " adding a one- prefix to the name"\
+                                         " of the original template. \n"\
+                                         "    If you prefer a different name"\
+                                         " please specify or press Enter"\
+                                         " to use defaults: "
+
+                            template_name = STDIN.gets.strip.downcase
+
+                            STDOUT.print "\n    WARNING!!! The cloning operation can take some time"\
+                                         " depending on the size of disks. Please wait...\n"
+
+
+                            error, template_copy_ref = template.create_template_copy(template_name)
+
+                            if template_copy_ref
+
+                                template = VCenterDriver::Template.new_from_ref(template_copy_ref, vi_client)
+
+                                one_template = VCenterDriver::Template.get_xml_template(template, vc_uuid, vi_client, options[:vcenter], dc)
+
+                                if one_template
+                                    #Now create delta disks
+                                    STDOUT.print "\n    Delta disks are being created, please be patient..."
+
+                                    lc_error, use_lc = template.create_delta_disks
+                                    if lc_error
+                                        STDOUT.print "\n    ERROR. Something was wrong with the create delta disks on the template operation: #{lc_error}.\n"\
+                                                    "\n    Linked Clones will not be used with this template.\n"
+                                    else
+                                        one_template[:one] << "\nVCENTER_LINKED_CLONES=\"YES\"\n"
+                                        t = one_template
+                                    end
+                                else
+                                    STDOUT.print "\n    ERROR. Something was wrong obtaining the info from the template's copy.\n"\
+                                                 "\n    Linked Clones will not be used with this template.\n"
+                                    template.delete_template if template_copy_ref
+                                end
+
+                            else
+                                STDOUT.print "\n    ERROR. #{error}\n"
+                            end
+
+                        else
+                            # Create linked clones on top of the existing template
+                            # Create a VirtualMachine object from the template_copy_ref
+                            STDOUT.print "\n    Delta disks are being created, please be patient..."
+
+                            lc_error, use_lc = template.create_delta_disks
+                            if lc_error
+                                STDOUT.print "\n    ERROR. Something was wrong with the create delta disks on the template operation: #{lc_error}.\n"\
+                                             "\n    Linked Clones will not be used with this template.\n"
+                            end
+                            t[:one] << "\nVCENTER_LINKED_CLONES=\"YES\"\n" if use_lc
+                        end
+                    end
+                end
+
+                vcenter_vm_folder = ""
+                if !use_defaults
+                    STDOUT.print "\n\n    Do you want to specify a folder where"\
+                                    " the deployed VMs based on this template will appear"\
+                                    " in vSphere's VM and Templates section?"\
+                                    "\n    If no path is set, VMs will be placed in the same"\
+                                    " location where the template lives."\
+                                    "\n    Please specify a path using slashes to separate folders"\
+                                    " e.g /Management/VMs or press Enter to use defaults: "\
+
+                    vcenter_vm_folder = STDIN.gets.strip
+                    t[:one] << "VCENTER_VM_FOLDER=\"#{vcenter_vm_folder}\"\n" if !vcenter_vm_folder.empty?
+                end
+
                 ## Add existing disks to template (OPENNEBULA_MANAGED)
 
-                template = t[:template]
+                STDOUT.print "\n    The existing disks and networks in the template"\
+                             " are being imported, please be patient..."
 
-                error, template_disks_and_nics = template.import_vcenter_disks(vc_uuid,
+                template = t[:template] if !template
+
+
+                error, template_disks = template.import_vcenter_disks(vc_uuid,
                                                                       dpool,
                                                                       ipool)
 
                 if error.empty?
-                    t[:one] << template_disks_and_nics
+                    t[:one] << template_disks
                 else
                     STDOUT.puts error
+                    template.delete_template if template_copy_ref
                     next
                 end
 
                 error, template_nics = template.import_vcenter_nics(vc_uuid,
-                                                                    npool)
+                                                                   npool,
+                                                                   options[:vcenter],
+                                                                   dc)
                 if error.empty?
                     t[:one] << template_nics
                 else
                     STDOUT.puts error
+                    template.delete_template if template_copy_ref
                     next
-                end
-
-
-
-                # Datastore placement
-                ds_input = ""
-
-                if !use_defaults
-                    STDOUT.print "\n    This template is currently set to be "\
-                                    "deployed in datastore #{t[:default_ds]}."\
-                                "\n    Press y to keep the default, n to select"\
-                                " a new default datastore or d to delegate "\
-                                " the choice to the user ([y]/n/d)? "
-
-                    answer =  STDIN.gets.strip.downcase
-
-
-                    case answer
-                    when 'd'
-                        ds_split     = t[:ds].split("|")
-                        list_of_ds   = ds_split[-2]
-                        default_ds   = ds_split[-1]
-                        ds_input     = ds_split[0] + "|" + ds_split[1] + "|" +
-                                        ds_split[2] + "|"
-
-                        # Available list of datastores
-
-                        input_str = "    The list of available datastores to be"\
-                                    " presented to the user are \"#{list_of_ds}\""
-                        input_str+= "\n    Press y to agree, or input a comma"\
-                                    " separated list of datastores to edit "\
-                                    "[y/comma separated list] "
-                        STDOUT.print input_str
-
-                        answer = STDIN.gets.strip
-
-                        if answer.downcase == 'y'
-                            ds_input += ds_split[3] + "|"
-                        else
-                            ds_input += answer + "|"
-                        end
-
-                        # Default
-                        input_str   = "    The default datastore presented to "\
-                                    "the end user is set to \"#{default_ds}\"."
-                        input_str+= "\n    Press y to agree, or input a new "\
-                                    "datastore [y/datastore name] "
-                        STDOUT.print input_str
-
-                        answer = STDIN.gets.strip
-
-                        if answer.downcase == 'y'
-                            ds_input += ds_split[4]
-                        else
-                            ds_input += answer
-                        end
-                    when 'n'
-                        ds_split     = t[:ds].split("|")
-                        list_of_ds   = ds_split[-2]
-
-                        input_str = "    The list of available datastores is:\n"
-
-                        STDOUT.print input_str
-
-                        dashes = ""
-                        100.times do
-                            dashes << "-"
-                        end
-
-                        list_str = "\n    [Index] Datastore :"\
-                                    "\n    #{dashes}\n"
-
-                        STDOUT.print list_str
-
-                        index = 1
-                        t[:ds_list].each do |ds|
-                            list_str = "    [#{index}] #{ds[:name]}\n"
-                            index += 1
-                            STDOUT.print list_str
-                        end
-
-                        input_str = "\n    Please input the new default"\
-                                    " datastore index in the list (e.g 1): "
-
-                        STDOUT.print input_str
-
-                        answer = STDIN.gets.strip
-
-                        t[:one] += "VCENTER_DS_REF=\"#{t[:ds_list][answer.to_i - 1][:ref]}\"\n"
-                    end
                 end
 
                 # Resource Pools
@@ -236,7 +315,7 @@ def self.import_templates(con_ops, options)
                 if !use_defaults
 
                     if rp_split.size > 3
-                        STDOUT.print "\n    This template is currently set to "\
+                        STDOUT.print "\n\n    This template is currently set to "\
                             "launch VMs in the default resource pool."\
                             "\n    Press y to keep this behaviour, n to select"\
                             " a new resource pool or d to delegate the choice"\
@@ -257,15 +336,15 @@ def self.import_templates(con_ops, options)
                                         "\"#{list_of_rp}\""
                             input_str+= "\n    Press y to agree, or input a comma"\
                                         " separated list of resource pools to edit "\
-                                        "[y/comma separated list] "
+                                        "([y]/comma separated list) "
                             STDOUT.print input_str
 
                             answer = STDIN.gets.strip
 
-                            if answer.downcase == 'y'
-                                rp_input += rp_split[3] + "|"
-                            else
+                            if !answer.empty? && answer.downcase != 'y'
                                 rp_input += answer + "|"
+                            else
+                                rp_input += rp_split[3] + "|"
                             end
 
                             # Default
@@ -273,57 +352,44 @@ def self.import_templates(con_ops, options)
                                             "to the end user is set to"\
                                             " \"#{default_rp}\"."
                             input_str+= "\n    Press y to agree, or input a new "\
-                                        "resource pool [y/resource pool name] "
+                                        "resource pool ([y]/resource pool name) "
                             STDOUT.print input_str
 
                             answer = STDIN.gets.strip
 
-                            if answer.downcase == 'y'
-                                rp_input += rp_split[4]
-                            else
+                            if !answer.empty? && answer.downcase != 'y'
                                 rp_input += answer
+                            else
+                                rp_input += rp_split[4]
                             end
                         when 'n'
 
                             list_of_rp   = rp_split[-2]
 
-                            input_str = "    The list of available resource pools is:\n"
-
-                            STDOUT.print input_str
-
-                            dashes = ""
-                            100.times do
-                                dashes << "-"
-                            end
-
-                            list_str = "\n    [Index] Resource pool :"\
-                                    "\n    #{dashes}\n"
-
-                            STDOUT.print list_str
+                            STDOUT.print "    The list of available resource pools is:\n\n"
 
                             index = 1
-                            t[:rp_list].each do |rp|
-                                list_str = "    [#{index}] #{rp[:name]}\n"
+                            t[:rp_list].each do |r|
+                                list_str = "    - #{r[:name]}\n"
                                 index += 1
                                 STDOUT.print list_str
                             end
 
                             input_str = "\n    Please input the new default"\
-                                        " resource pool index in the list (e.g 1): "
+                                        " resource pool name: "
 
                             STDOUT.print input_str
 
                             answer = STDIN.gets.strip
 
-                            t[:one] << "VCENTER_RP_REF=\"#{t[:rp_list][answer.to_i - 1][:ref]}\"\n"
+                            t[:one] << "VCENTER_RESOURCE_POOL=\"#{answer}\"\n"
                         end
                     end
                 end
 
-                if !ds_input.empty? || !rp_input.empty?
+                if !rp_input.empty?
                     t[:one] << "USER_INPUTS=["
-                    t[:one] << "VCENTER_DS_LIST=\"#{ds_input}\"," if !ds_input.empty?
-                    t[:one] << "VCENTER_RP_LIST=\"#{rp_input}\"," if !rp_input.empty?
+                    t[:one] << "VCENTER_RESOURCE_POOL=\"#{rp_input}\"," if !rp_input.empty?
                     t[:one] = t[:one][0..-2]
                     t[:one] << "]"
                 end
@@ -334,6 +400,7 @@ def self.import_templates(con_ops, options)
 
                 if ::OpenNebula.is_error?(rc)
                     STDOUT.puts "    Error creating template: #{rc.message}\n"
+                    template.delete_template if template_copy_ref
                 else
                     STDOUT.puts "    OpenNebula template #{one_t.id} created!\n"
                 end
@@ -363,7 +430,14 @@ def self.import_networks(con_ops, options)
 
         dc_folder = VCenterDriver::DatacenterFolder.new(vi_client)
 
-        rs = dc_folder.get_unimported_networks
+        # OpenNebula's VirtualNetworkPool
+        npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool, false)
+
+        if npool.respond_to?(:message)
+            raise "Could not get OpenNebula VirtualNetworkPool: #{npool.message}"
+        end
+
+        rs = dc_folder.get_unimported_networks(npool,options[:vcenter])
 
         STDOUT.print "done!\n"
 
@@ -381,12 +455,11 @@ def self.import_networks(con_ops, options)
             end
 
             tmps.each do |n|
-
+                one_cluster_id = nil
                 if !use_defaults
                     print_str =  "\n  * Network found:\n"\
-                                    "      - Name    : #{n[:name]}\n"\
-                                    "      - Type    : #{n[:type]}\n"
-                    print_str << "      - VLAN ID : #{n[:vlan_id]}\n" if !n[:vlan_id].empty?
+                                 "      - Name    : #{n[:name]}\n"\
+                                 "      - Type    : #{n[:type]}\n"
                     print_str << "      - Cluster : #{n[:cluster]}\n"
                     print_str << "    Import this Network (y/[n])? "
 
@@ -486,10 +559,10 @@ def self.import_networks(con_ops, options)
                 rc = one_vn.allocate(n[:one])
 
                 if ::OpenNebula.is_error?(rc)
-                    STDOUT.puts "    Error creating virtual network: " +
+                    STDOUT.puts "\n    Error creating virtual network: " +
                                 " #{rc.message}\n"
                 else
-                    STDOUT.puts "    OpenNebula virtual network " +
+                    STDOUT.puts "\n    OpenNebula virtual network " +
                                 "#{one_vn.id} created with size #{size}!\n"
                 end
             end
@@ -518,7 +591,20 @@ def self.import_datastore(con_ops, options)
 
         dc_folder = VCenterDriver::DatacenterFolder.new(vi_client)
 
-        rs = dc_folder.get_unimported_datastores
+        dpool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool, false)
+
+        if dpool.respond_to?(:message)
+            raise "Could not get OpenNebula DatastorePool: #{dpool.message}"
+        end
+
+        # Get OpenNebula's host pool
+        hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool, false)
+
+        if hpool.respond_to?(:message)
+            raise "Could not get OpenNebula HostPool: #{hpool.message}"
+        end
+
+        rs = dc_folder.get_unimported_datastores(dpool, options[:vcenter], hpool)
 
         STDOUT.print "done!\n"
 
@@ -535,6 +621,7 @@ def self.import_datastore(con_ops, options)
             end
 
             tmps.each{ |d|
+                one_cluster_id = nil
                 if !use_defaults
                     STDOUT.print "\n  * Datastore found:\n"\
                                     "      - Name      : #{d[:name]}\n"\
@@ -548,17 +635,21 @@ def self.import_datastore(con_ops, options)
 
                 one_d = VCenterDriver::VIHelper.new_one_item(OpenNebula::Datastore)
 
-                rc = one_d.allocate(d[:one])
+                if one_cluster_id
+                    rc = one_d.allocate(d[:one], one_cluster_id.to_i)
+                else
+                    rc = one_d.allocate(d[:one])
+                end
 
                 if ::OpenNebula.is_error?(rc)
-                    STDOUT.puts "    Error creating datastore: #{rc.message}\n"\
+                    STDOUT.puts "    \nError creating datastore: #{rc.message}\n"\
                                 "    One datastore can exist only once, and "\
                                 "can be used in any vCenter Cluster that "\
                                 "has access to it. Also, no spaces allowed "\
                                 "in datastore name (rename it in vCenter "\
                                 "and try again)"
                 else
-                    STDOUT.puts "    OpenNebula datastore #{one_d.id} created!\n"
+                    STDOUT.puts "    \nOpenNebula datastore #{one_d.id} created!\n"
                 end
             }
         }
