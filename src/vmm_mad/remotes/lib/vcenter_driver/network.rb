@@ -69,21 +69,24 @@ class Network
 
 
     def self.to_one_template(network_name, network_ref, network_type,
-                             ccr_ref, ccr_name, vcenter_uuid)
+                             ccr_ref, ccr_name, vcenter_uuid,
+                             vcenter_instance_name, dc_name)
+
         one_tmp = {}
-        one_tmp[:name] = "#{network_name} - #{ccr_name}"
+        network_import_name = "[#{vcenter_instance_name} - #{dc_name}] #{network_name} - #{ccr_name.tr(" ", "_")}"
+        one_tmp[:name] = network_import_name
         one_tmp[:bridge] = network_name
         one_tmp[:type] = network_type
         one_tmp[:cluster] = ccr_name
         one_tmp[:vcenter_ccr_ref] = ccr_ref
-        one_tmp[:one] = to_one(network_name, network_ref, network_type,
-                             ccr_ref, ccr_name, vcenter_uuid)
+        one_tmp[:one] = to_one(network_import_name, network_name, network_ref, network_type,
+                             ccr_ref, vcenter_uuid)
         return one_tmp
     end
 
-    def self.to_one(network_name, network_ref, network_type,
-                    ccr_ref, ccr_name, vcenter_uuid)
-        template = "NAME=\"#{network_name} - #{ccr_name}\"\n"\
+    def self.to_one(network_import_name, network_name, network_ref, network_type,
+                    ccr_ref, vcenter_uuid)
+        template = "NAME=\"#{network_import_name}\"\n"\
                    "BRIDGE=\"#{network_name}\"\n"\
                    "VN_MAD=\"dummy\"\n"\
                    "VCENTER_PORTGROUP_TYPE=\"#{network_type}\"\n"\

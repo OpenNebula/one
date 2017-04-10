@@ -24,7 +24,7 @@ class VirtualMachineFolder
         VIClient.get_entities(@item, "VirtualMachine").each do |item|
             if item.config.template
                 item_name = item._ref
-                @items[item_name.to_sym] = VirtualMachine.new(item)
+                @items[item_name.to_sym] = Template.new(item)
             end
         end
     end
@@ -44,13 +44,7 @@ class VirtualMachineFolder
     end
 end # class VirtualMachineFolder
 
-class VirtualMachine
-    VM_PREFIX_DEFAULT = "one-$i-"
-
-    POLL_ATTRIBUTE    = OpenNebula::VirtualMachine::Driver::POLL_ATTRIBUTE
-    VM_STATE          = OpenNebula::VirtualMachine::Driver::VM_STATE
-
-    VM_SHUTDOWN_TIMEOUT = 600 #10 minutes til poweroff hard
+class Template
 
     attr_accessor :item
 
@@ -77,6 +71,648 @@ class VirtualMachine
         end
     end
 
+    def get_dc
+        item = @item
+
+        while !item.instance_of? RbVmomi::VIM::Datacenter
+            item = item.parent
+            if item.nil?
+                raise "Could not find the parent Datacenter"
+            end
+        end
+
+        Datacenter.new(item)
+    end
+
+    def delete_template
+        @item.Destroy_Task.wait_for_completion
+    end
+
+    def get_vcenter_instance_uuid
+        @vi_client.vim.serviceContent.about.instanceUuid rescue nil
+    end
+
+    def create_template_copy(template_name)
+        error = nil
+        template_ref = nil
+
+        template_name = "one-#{self['name']}" if template_name.empty?
+
+        relocate_spec_params = {}
+        relocate_spec_params[:pool] = get_rp
+        relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(relocate_spec_params)
+
+        clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec({
+            :location => relocate_spec,
+            :powerOn  => false,
+            :template => false
+        })
+
+        template = nil
+        begin
+            template = @item.CloneVM_Task(:folder => @item.parent,
+                                          :name   => template_name,
+                                          :spec   => clone_spec).wait_for_completion
+            template_ref = template._ref
+        rescue Exception => e
+            if !e.message.start_with?('DuplicateName')
+                error = "Could not create the template clone. Reason: #{e.message}"
+                return error, nil
+            end
+
+            dc = get_dc
+            vm_folder = dc.vm_folder
+            vm_folder.fetch!
+            vm = vm_folder.items
+                    .select{|k,v| v.item.name == template_name}
+                    .values.first.item rescue nil
+
+            if vm
+                begin
+                    vm.Destroy_Task.wait_for_completion
+                    template = @item.CloneVM_Task(:folder => @item.parent,
+                                                  :name   => template_name,
+                                                  :spec   => clone_spec).wait_for_completion
+                    template_ref = template._ref
+                rescue
+                    error = "Could not delete the existing template, please remove it manually from vCenter. Reason: #{e.message}"
+                end
+            else
+                error = "Could not create the template clone. Reason: #{e.message}"
+            end
+        end
+
+        return error, template_ref
+    end
+
+    # Linked Clone over existing template
+    def create_delta_disks
+
+        begin
+            disks = @item['config.hardware.device'].grep(RbVmomi::VIM::VirtualDisk)
+            disk_without_snapshots = disks.select { |x| x.backing.parent.nil? }
+        rescue
+            error = "Cannot extract existing disks on template."
+            use_linked_clones = false
+            return error, use_linked_clones
+        end
+
+        if !disk_without_snapshots.empty?
+
+            begin
+                if self['config.template']
+                    @item.MarkAsVirtualMachine(:pool => get_rp, :host => self['runtime.host'])
+                end
+            rescue Exception => e
+                @item.MarkAsTemplate()
+                error = "Cannot mark the template as a VirtualMachine. Not using linked clones. Reason: #{e.message}/#{e.backtrace}"
+                use_linked_clones = false
+                return error, use_linked_clones
+            end
+
+            begin
+                spec = {}
+                spec[:deviceChange] = []
+
+                disk_without_snapshots.each do |disk|
+                    remove_disk_spec = { :operation => :remove, :device => disk }
+                    spec[:deviceChange] << remove_disk_spec
+
+                    add_disk_spec = { :operation => :add,
+                                    :fileOperation => :create,
+                                    :device => disk.dup.tap { |x|
+                                            x.backing = x.backing.dup
+                                            x.backing.fileName = "[#{disk.backing.datastore.name}]"
+                                            x.backing.parent = disk.backing
+                                    }
+                    }
+                    spec[:deviceChange] << add_disk_spec
+                end
+
+                @item.ReconfigVM_Task(:spec => spec).wait_for_completion if !spec[:deviceChange].empty?
+            rescue Exception => e
+                error = "Cannot create the delta disks on top of the template. Reason: #{e.message}."
+                use_linked_clones = false
+                return error, use_linked_clones
+            end
+
+            begin
+                @item.MarkAsTemplate()
+            rescue
+                error = "Cannot mark the VirtualMachine as a template. Not using linked clones."
+                use_linked_clones = false
+                return error, use_linked_clones
+            end
+
+            error = nil
+            use_linked_clones = true
+            return error, use_linked_clones
+        else
+            # Template already has delta disks
+            error = nil
+            use_linked_clones = true
+            return error, use_linked_clones
+        end
+    end
+
+    def import_vcenter_disks(vc_uuid, dpool, ipool)
+        disk_info = ""
+        error = ""
+
+        begin
+            lock #Lock import operation, to avoid concurrent creation of images
+
+            ccr_ref = self["runtime.host.parent._ref"]
+
+            #Get disks and info required
+            vc_disks = get_vcenter_disks
+
+            # Track allocated images
+            allocated_images = []
+
+            vc_disks.each do |disk|
+                datastore_found = VCenterDriver::Storage.get_one_image_ds_by_ref_and_ccr(disk[:datastore]._ref,
+                                                                                        ccr_ref,
+                                                                                        vc_uuid,
+                                                                                        dpool)
+                if datastore_found.nil?
+                    error = "\n    ERROR: datastore #{disk[:datastore].name}: has to be imported first as an image datastore!\n"
+
+                    #Rollback delete disk images
+                    allocated_images.each do |i|
+                        i.delete
+                    end
+
+                    break
+                end
+
+                image_import = VCenterDriver::Datastore.get_image_import_template(disk[:datastore].name,
+                                                                                disk[:path],
+                                                                                disk[:type], ipool)
+                #Image is already in the datastore
+                if image_import[:one]
+                    # This is the disk info
+                    disk_info << "DISK=[\n"
+                    disk_info << "IMAGE_ID=\"#{image_import[:one]["ID"]}\",\n"
+                    disk_info << "OPENNEBULA_MANAGED=\"NO\"\n"
+                    disk_info << "]\n"
+                elsif !image_import[:template].empty?
+                    # Then the image is created as it's not in the datastore
+                    one_i = VCenterDriver::VIHelper.new_one_item(OpenNebula::Image)
+
+                    allocated_images << one_i
+
+                    rc = one_i.allocate(image_import[:template], datastore_found['ID'].to_i)
+
+                    if ::OpenNebula.is_error?(rc)
+                        error = "    Error creating disk from template: #{rc.message}. Cannot import the template\n"
+
+                        #Rollback delete disk images
+                        allocated_images.each do |i|
+                            i.delete
+                        end
+
+                        break
+                    end
+
+                    #Add info for One template
+                    one_i.info
+                    disk_info << "DISK=[\n"
+                    disk_info << "IMAGE_ID=\"#{one_i["ID"]}\",\n"
+                    disk_info << "IMAGE_UNAME=\"#{one_i["UNAME"]}\",\n"
+                    disk_info << "OPENNEBULA_MANAGED=\"NO\"\n"
+                    disk_info << "]\n"
+                end
+            end
+
+        rescue Exception => e
+            error = "There was an error trying to create an image for disk in vcenter template. Reason: #{e.message}"
+        ensure
+            unlock
+        end
+
+        return error, disk_info
+    end
+
+    def import_vcenter_nics(vc_uuid, npool)
+        nic_info = ""
+        error = ""
+
+        begin
+            lock #Lock import operation, to avoid concurrent creation of images
+
+            ccr_ref  = self["runtime.host.parent._ref"]
+            ccr_name = self["runtime.host.parent.name"]
+
+            #Get disks and info required
+            vc_nics = get_vcenter_nics
+
+            # Track allocated networks
+            allocated_networks = []
+
+            vc_nics.each do |nic|
+
+                network_found = VCenterDriver::Network.get_one_vnet_ds_by_ref_and_ccr(nic[:net_ref],
+                                                                                    ccr_ref,
+                                                                                    vc_uuid,
+                                                                                    npool)
+                #Network is already in the datastore
+                if network_found
+                    # This is the existing nic info
+                    nic_info << "NIC=[\n"
+                    nic_info << "NETWORK_ID=\"#{network_found["ID"]}\",\n"
+                    nic_info << "OPENNEBULA_MANAGED=\"NO\"\n"
+                    nic_info << "]\n"
+                else
+                    # Then the network has to be created as it's not in OpenNebula
+                    one_vn = VCenterDriver::VIHelper.new_one_item(OpenNebula::VirtualNetwork)
+
+                    allocated_networks << one_vn
+
+                    one_vnet = VCenterDriver::Network.to_one_template(nic[:net_name],
+                                                                    nic[:net_ref],
+                                                                    nic[:pg_type],
+                                                                    ccr_ref,
+                                                                    ccr_name,
+                                                                    vc_uuid)
+
+                    # By default add an ethernet range to network size 255
+                    ar_str = ""
+                    ar_str << "AR=[\n"
+                    ar_str << "TYPE=\"ETHER\",\n"
+                    ar_str << "SIZE=\"255\"\n"
+                    ar_str << "]\n"
+                    one_vnet[:one] << ar_str
+
+                    rc = one_vn.allocate(one_vnet[:one])
+
+                    if ::OpenNebula.is_error?(rc)
+                        error = "    Error creating virtual network from template: #{rc.message}. Cannot import the template\n"
+
+                        #Rollback, delete virtual networks
+                        allocated_networks.each do |n|
+                            n.delete
+                        end
+
+                        break
+                    end
+
+                    #Add info for One template
+                    one_vn.info
+                    nic_info << "NIC=[\n"
+                    nic_info << "NETWORK_ID=\"#{one_vn["ID"]}\",\n"
+                    nic_info << "OPENNEBULA_MANAGED=\"NO\"\n"
+                    nic_info << "]\n"
+                end
+            end
+
+        rescue Exception => e
+            error = "There was an error trying to create a virtual network for network in vcenter template. Reason: #{e.message}"
+        ensure
+            unlock
+        end
+
+        return error, nic_info
+    end
+
+    def get_vcenter_disks
+
+        disks = []
+        @item["config.hardware.device"].each do |device|
+            disk = {}
+            if is_disk_or_iso?(device)
+                disk[:device]    = device
+                disk[:datastore] = device.backing.datastore
+                disk[:path]      = device.backing.fileName
+                disk[:path_wo_ds]= disk[:path].sub(/^\[(.*?)\] /, "")
+                disk[:type]      = is_disk?(device) ? "OS" : "CDROM"
+                disks << disk
+            end
+        end
+
+        return disks
+    end
+
+    def get_vcenter_nics
+        nics = []
+        @item["config.hardware.device"].each do |device|
+            nic = {}
+            if is_nic?(device)
+                nic[:net_name]  = device.backing.network.name
+                nic[:net_ref]   = device.backing.network._ref
+                nic[:pg_type]   = VCenterDriver::Network.get_network_type(device)
+                nics << nic
+            end
+        end
+        return nics
+    end
+
+    #  Checks if a RbVmomi::VIM::VirtualDevice is a disk or a cdrom
+    def is_disk_or_cdrom?(device)
+        is_disk  = !(device.class.ancestors.index(RbVmomi::VIM::VirtualDisk)).nil?
+        is_cdrom = !(device.class.ancestors.index(RbVmomi::VIM::VirtualCdrom)).nil?
+        is_disk || is_cdrom
+    end
+
+    #  Checks if a RbVmomi::VIM::VirtualDevice is a disk or an iso file
+    def is_disk_or_iso?(device)
+        is_disk  = !(device.class.ancestors.index(RbVmomi::VIM::VirtualDisk)).nil?
+        is_iso = device.backing.is_a? RbVmomi::VIM::VirtualCdromIsoBackingInfo
+        is_disk || is_iso
+    end
+
+    #  Checks if a RbVmomi::VIM::VirtualDevice is a disk
+    def is_disk?(device)
+        !(device.class.ancestors.index(RbVmomi::VIM::VirtualDisk)).nil?
+    end
+
+    #  Checks if a RbVmomi::VIM::VirtualDevice is a network interface
+    def is_nic?(device)
+        !device.class.ancestors.index(RbVmomi::VIM::VirtualEthernetCard).nil?
+    end
+
+    # @return RbVmomi::VIM::ResourcePool, first resource pool in cluster
+    def get_rp
+        self['runtime.host.parent.resourcePool']
+    end
+
+    def to_one_template(template, cluster_ref, cluster_name, has_nics_and_disks, rp, rp_list, vcenter_uuid, vcenter_instance_name, dc_name)
+
+        template_ref  = template['_ref']
+        template_name = template["name"]
+
+        one_tmp = {}
+        one_tmp[:name]                  = "[#{vcenter_instance_name} - #{dc_name}] #{template_name} - #{cluster_name}"
+        one_tmp[:template_name]         = template_name
+        one_tmp[:vcenter_ccr_ref]       = cluster_ref
+        one_tmp[:vcenter_ref]           = template_ref
+        one_tmp[:vcenter_instance_uuid] = vcenter_uuid
+        one_tmp[:cluster_name]          = cluster_name
+        one_tmp[:rp]                    = rp
+        one_tmp[:rp_list]               = rp_list
+        one_tmp[:template]              = template
+        one_tmp[:import_disks_and_nics] = has_nics_and_disks
+
+        one_tmp[:one]                   = to_one(true, vcenter_uuid, cluster_ref, cluster_name, vcenter_instance_name, dc_name)
+        return one_tmp
+    end
+
+    def vm_to_one(vm_name)
+
+        str = "NAME   = \"#{vm_name}\"\n"\
+              "CPU    = \"#{@vm_info["config.hardware.numCPU"]}\"\n"\
+              "vCPU   = \"#{@vm_info["config.hardware.numCPU"]}\"\n"\
+              "MEMORY = \"#{@vm_info["config.hardware.memoryMB"]}\"\n"\
+              "HYPERVISOR = \"vcenter\"\n"\
+              "SCHED_REQUIREMENTS=\"ID=\\\"#{@vm_info["host_id"]}\\\"\"\n"\
+              "CONTEXT = [\n"\
+              "    NETWORK = \"YES\",\n"\
+              "    SSH_PUBLIC_KEY = \"$USER[SSH_PUBLIC_KEY]\"\n"\
+              "]\n"\
+              "VCENTER_INSTANCE_ID =\"#{@vm_info["vc_uuid"]}\"\n"
+
+        str << "IMPORT_VM_ID =\"#{self["_ref"]}\"\n"
+        str << "IMPORT_STATE =\"#{@state}\"\n"
+
+        vnc_port = nil
+        keymap = nil
+
+        @vm_info["config.extraConfig"].select do |xtra|
+            if xtra[:key].downcase=="remotedisplay.vnc.port"
+                vnc_port = xtra[:value]
+            end
+
+            if xtra[:key].downcase=="remotedisplay.vnc.keymap"
+                keymap = xtra[:value]
+            end
+        end
+
+        if !@vm_info["config.extraConfig"].empty?
+            str << "GRAPHICS = [\n"\
+                   "  TYPE     =\"vnc\",\n"
+            str << "  PORT     =\"#{vnc_port}\",\n" if vnc_port
+            str << "  KEYMAP   =\"#{keymap}\",\n" if keymap
+            str << "  LISTEN   =\"0.0.0.0\"\n"
+            str << "]\n"
+        end
+
+        if !@vm_info["config.annotation"] || @vm_info["config.annotation"].empty?
+            str << "DESCRIPTION = \"vCenter Template imported by OpenNebula" \
+                " from Cluster #{@vm_info["cluster_name"]}\"\n"
+        else
+            notes = @vm_info["config.annotation"].gsub("\\", "\\\\").gsub("\"", "\\\"")
+            str << "DESCRIPTION = \"#{notes}\"\n"
+        end
+
+        case @vm_info["guest.guestFullName"]
+            when /CentOS/i
+                str << "LOGO=images/logos/centos.png\n"
+            when /Debian/i
+                str << "LOGO=images/logos/debian.png\n"
+            when /Red Hat/i
+                str << "LOGO=images/logos/redhat.png\n"
+            when /Ubuntu/i
+                str << "LOGO=images/logos/ubuntu.png\n"
+            when /Windows XP/i
+                str << "LOGO=images/logos/windowsxp.png\n"
+            when /Windows/i
+                str << "LOGO=images/logos/windows8.png\n"
+            when /Linux/i
+                str << "LOGO=images/logos/linux.png\n"
+        end
+
+        return str
+    end
+
+    def to_one(template=false, vc_uuid=nil, ccr_ref=nil, ccr_name=nil, vcenter_instance_name, dc_name)
+
+        if !ccr_ref && !ccr_name
+            cluster  = @item["runtime.host"].parent
+            ccr_name = cluster.name
+            ccr_ref  = cluster._ref
+        end
+
+        vc_uuid  = self["_connection.serviceContent.about.instanceUuid"] if !vc_uuid
+
+        # Get info of the host where the VM/template is located
+        host_id = nil
+        one_host = VCenterDriver::VIHelper.find_by_ref(OpenNebula::HostPool,
+                                                       "TEMPLATE/VCENTER_CCR_REF",
+                                                       ccr_ref,
+                                                       vc_uuid)
+
+        num_cpu, memory, extraconfig, annotation, guest_fullname = @item.collect("config.hardware.numCPU","config.hardware.memoryMB","config.extraConfig","config.annotation","guest.guestFullName")
+        host_id = one_host["ID"] if one_host
+
+        name = ""
+        if template
+            name << "[#{vcenter_instance_name} - #{dc_name}] #{self["name"]} - #{ccr_name.tr(" ", "_")}"
+        else
+            name << "#{self["name"]} - #{ccr_name.tr(" ", "_")}"
+        end
+
+        str = "NAME   = \"#{name}\"\n"\
+              "CPU    = \"#{num_cpu}\"\n"\
+              "vCPU   = \"#{num_cpu}\"\n"\
+              "MEMORY = \"#{memory}\"\n"\
+              "HYPERVISOR = \"vcenter\"\n"\
+              "SCHED_REQUIREMENTS=\"ID=\\\"#{host_id}\\\"\"\n"\
+              "CONTEXT = [\n"\
+              "    NETWORK = \"YES\",\n"\
+              "    SSH_PUBLIC_KEY = \"$USER[SSH_PUBLIC_KEY]\"\n"\
+              "]\n"\
+              "VCENTER_INSTANCE_ID =\"#{vc_uuid}\"\n"
+
+        if !template
+            str << "IMPORT_VM_ID =\"#{self["_ref"]}\"\n"
+            str << "IMPORT_STATE =\"#{@state}\"\n"
+        end
+
+        if template
+            str << "VCENTER_TEMPLATE_REF =\"#{self['_ref']}\"\n"
+            str << "VCENTER_CCR_REF =\"#{ccr_ref}\"\n"
+        end
+
+        vnc_port = nil
+        keymap = nil
+
+        if !template
+            extraconfig.select do |xtra|
+
+                if xtra[:key].downcase=="remotedisplay.vnc.port"
+                    vnc_port = xtra[:value]
+                end
+
+                if xtra[:key].downcase=="remotedisplay.vnc.keymap"
+                    keymap = xtra[:value]
+                end
+            end
+        end
+
+        if !extraconfig.empty?
+            str << "GRAPHICS = [\n"\
+                   "  TYPE     =\"vnc\",\n"
+            str << "  PORT     =\"#{vnc_port}\",\n" if vnc_port
+            str << "  KEYMAP   =\"#{keymap}\",\n" if keymap
+            str << "  LISTEN   =\"0.0.0.0\"\n"
+            str << "]\n"
+        end
+
+        if annotation.nil? || annotation.empty?
+            str << "DESCRIPTION = \"vCenter Template imported by OpenNebula" \
+                " from Cluster #{ccr_name}\"\n"
+        else
+            notes = annotation.gsub("\\", "\\\\").gsub("\"", "\\\"")
+            str << "DESCRIPTION = \"#{notes}\"\n"
+        end
+
+        case guest_fullname
+            when /CentOS/i
+                str << "LOGO=images/logos/centos.png\n"
+            when /Debian/i
+                str << "LOGO=images/logos/debian.png\n"
+            when /Red Hat/i
+                str << "LOGO=images/logos/redhat.png\n"
+            when /Ubuntu/i
+                str << "LOGO=images/logos/ubuntu.png\n"
+            when /Windows XP/i
+                str << "LOGO=images/logos/windowsxp.png\n"
+            when /Windows/i
+                str << "LOGO=images/logos/windows8.png\n"
+            when /Linux/i
+                str << "LOGO=images/logos/linux.png\n"
+        end
+
+        return str
+    end
+
+    def self.get_xml_template(template, vcenter_uuid, vi_client, vcenter_instance_name=nil, dc_name=nil, rp_cache={})
+
+        begin
+            template_ccr  = template['runtime.host.parent']
+            template_ccr_ref = template_ccr._ref
+            template_ccr_name =template_ccr.name
+
+            vcenter_instance_name = vi_client.vim.host if !vcenter_instance_name
+
+            if !dc_name
+                dc = get_dc
+                dc_name = dc.item.name
+            end
+            # Check if template has nics or disks to be imported later
+            has_nics_and_disks = true
+            ##template["config.hardware.device"].each do |device|
+            ##    if VCenterDriver::Storage.is_disk_or_iso?(device) ||
+            ##    VCenterDriver::Network.is_nic?(device)
+            ##        has_nics_and_disks = true
+            ##        break
+            ##    end
+            ##end
+
+            #Get resource pools
+
+            if !rp_cache[template_ccr_name]
+                tmp_cluster = VCenterDriver::ClusterComputeResource.new_from_ref(template_ccr_ref, vi_client)
+                rp_list = tmp_cluster.get_resource_pool_list
+                rp = ""
+                if !rp_list.empty?
+                    rp_name_list = []
+                    rp_list.each do |rp_hash|
+                        rp_name_list << rp_hash[:name]
+                    end
+                    rp =  "O|list|Which resource pool you want this VM to run in? "
+                    rp << "|#{rp_name_list.join(",")}" #List of RP
+                    rp << "|#{rp_name_list.first}" #Default RP
+                end
+                rp_cache[template_ccr_name] = rp
+            end
+            rp = rp_cache[template_ccr_name]
+
+            object = template.to_one_template(template,
+                                            template_ccr_ref,
+                                            template_ccr_name,
+                                            has_nics_and_disks,
+                                            rp,
+                                            rp_list,
+                                            vcenter_uuid,
+                                            vcenter_instance_name,
+                                            dc_name)
+
+            return object
+
+        rescue
+            return nil
+        end
+    end
+
+    # TODO check with uuid
+    def self.new_from_ref(ref, vi_client)
+        self.new(RbVmomi::VIM::VirtualMachine.new(vi_client.vim, ref), vi_client)
+    end
+
+end
+
+class VirtualMachine < Template
+    VM_PREFIX_DEFAULT = "one-$i-"
+
+    POLL_ATTRIBUTE    = OpenNebula::VirtualMachine::Driver::POLL_ATTRIBUTE
+    VM_STATE          = OpenNebula::VirtualMachine::Driver::VM_STATE
+
+    VM_SHUTDOWN_TIMEOUT = 600 #10 minutes til poweroff hard
+
+    attr_accessor :item
+
+    attr_accessor :vm_info
+
+    include Memoize
+
+    def initialize(item=nil, vi_client=nil)
+        @item = item
+        @vi_client = vi_client
+        @locking = true
+        @vm_info = nil
+    end
+
     ############################################################################
     ############################################################################
 
@@ -95,7 +731,7 @@ class VirtualMachine
     # The OpenNebula VM
     # @return OpenNebula::VirtualMachine or XMLElement
     def one_item
-        if @one_item.nil?
+        if !@one_item
             vm_id = get_vm_id
 
             raise "Unable to find vm_id." if vm_id.nil?
@@ -471,7 +1107,7 @@ class VirtualMachine
         vcenter_disks = get_vcenter_disks
 
         # Create an array with the paths of the disks in vcenter template
-        template = VCenterDriver::VirtualMachine.new_from_ref(template_ref, vi_client)
+        template = VCenterDriver::Template.new_from_ref(template_ref, vi_client)
         template_disks = template.get_vcenter_disks
         template_disks_vector = []
         template_disks.each_with_index do |d, index|
@@ -1088,11 +1724,6 @@ class VirtualMachine
         end
     end
 
-    #  Checks if a RbVmomi::VIM::VirtualDevice is a network interface
-    def is_nic?(device)
-        !device.class.ancestors.index(RbVmomi::VIM::VirtualEthernetCard).nil?
-    end
-
     def disks_in_onevm
         onevm_disks_vector = []
         disks = one_item.retrieve_xmlelements("TEMPLATE/DISK")
@@ -1381,86 +2012,6 @@ class VirtualMachine
         return nics
     end
 
-    def import_vcenter_disks(vc_uuid, dpool, ipool)
-        disk_info = ""
-        error = ""
-
-        begin
-            lock #Lock import operation, to avoid concurrent creation of images
-
-            ccr_ref = self["runtime.host.parent._ref"]
-
-            #Get disks and info required
-            vc_disks = get_vcenter_disks
-
-            # Track allocated images
-            allocated_images = []
-
-            vc_disks.each do |disk|
-
-                datastore_found = VCenterDriver::Storage.get_one_image_ds_by_ref_and_ccr(disk[:datastore]._ref,
-                                                                                        ccr_ref,
-                                                                                        vc_uuid,
-                                                                                        dpool)
-                if datastore_found.nil?
-                    error = "    Error datastore #{disk[:datastore].name}: has to be imported first as an image datastore!\n"
-
-                    #Rollback delete disk images
-                    allocated_images.each do |i|
-                        i.delete
-                    end
-
-                    break
-                end
-
-                image_import = VCenterDriver::Datastore.get_image_import_template(disk[:datastore].name,
-                                                                                disk[:path],
-                                                                                disk[:type], ipool)
-                #Image is already in the datastore
-                if image_import[:one]
-                    # This is the disk info
-                    disk_info << "DISK=[\n"
-                    disk_info << "IMAGE_ID=\"#{image_import[:one]["ID"]}\",\n"
-                    disk_info << "OPENNEBULA_MANAGED=\"NO\"\n"
-                    disk_info << "]\n"
-                elsif !image_import[:template].empty?
-                    # Then the image is created as it's not in the datastore
-                    one_i = VCenterDriver::VIHelper.new_one_item(OpenNebula::Image)
-
-                    allocated_images << one_i
-
-                    rc = one_i.allocate(image_import[:template], datastore_found['ID'].to_i)
-
-                    if ::OpenNebula.is_error?(rc)
-                        error = "    Error creating disk from template: #{rc.message}. Cannot import the template\n"
-
-                        #Rollback delete disk images
-                        allocated_images.each do |i|
-                            i.delete
-                        end
-
-                        break
-                    end
-
-                    #Add info for One template
-                    one_i.info
-                    disk_info << "DISK=[\n"
-                    disk_info << "IMAGE_ID=\"#{one_i["ID"]}\",\n"
-                    disk_info << "IMAGE_UNAME=\"#{one_i["UNAME"]}\",\n"
-                    disk_info << "OPENNEBULA_MANAGED=\"NO\"\n"
-                    disk_info << "]\n"
-                end
-            end
-
-        rescue Exception => e
-            error = "There was an error trying to create an image for disk in vcenter template. Reason: #{e.message}"
-        ensure
-            unlock
-        end
-
-        return error, disk_info
-    end
-
     def remove_poweroff_detached_vcenter_nets(networks)
         esx_host = VCenterDriver::ESXHost.new_from_ref(@item.runtime.host._ref, vi_client)
         dc = cluster.get_dc # Get datacenter
@@ -1516,106 +2067,6 @@ class VirtualMachine
                 end
             end
         end
-    end
-
-    def import_vcenter_nics(vc_uuid, npool)
-        nic_info = ""
-        error = ""
-
-        begin
-            lock #Lock import operation, to avoid concurrent creation of images
-
-            ccr_ref  = self["runtime.host.parent._ref"]
-            ccr_name = self["runtime.host.parent.name"]
-
-            #Get disks and info required
-            vc_nics = get_vcenter_nics
-
-            # Track allocated networks
-            allocated_networks = []
-
-            vc_nics.each do |nic|
-
-                network_found = VCenterDriver::Network.get_one_vnet_ds_by_ref_and_ccr(nic[:net_ref],
-                                                                                    ccr_ref,
-                                                                                    vc_uuid,
-                                                                                    npool)
-                #Network is already in the datastore
-                if network_found
-                    # This is the existing nic info
-                    nic_info << "NIC=[\n"
-                    nic_info << "NETWORK_ID=\"#{network_found["ID"]}\",\n"
-                    nic_info << "OPENNEBULA_MANAGED=\"NO\"\n"
-                    nic_info << "]\n"
-                else
-                    # Then the network has to be created as it's not in OpenNebula
-                    one_vn = VCenterDriver::VIHelper.new_one_item(OpenNebula::VirtualNetwork)
-
-                    allocated_networks << one_vn
-
-                    one_vnet = VCenterDriver::Network.to_one_template(nic[:net_name],
-                                                                    nic[:net_ref],
-                                                                    nic[:pg_type],
-                                                                    ccr_ref,
-                                                                    ccr_name,
-                                                                    vc_uuid)
-
-                    # By default add an ethernet range to network size 255
-                    ar_str = ""
-                    ar_str << "AR=[\n"
-                    ar_str << "TYPE=\"ETHER\",\n"
-                    ar_str << "SIZE=\"255\"\n"
-                    ar_str << "]\n"
-                    one_vnet[:one] << ar_str
-
-                    rc = one_vn.allocate(one_vnet[:one])
-
-                    if ::OpenNebula.is_error?(rc)
-                        error = "    Error creating virtual network from template: #{rc.message}. Cannot import the template\n"
-
-                        #Rollback, delete virtual networks
-                        allocated_networks.each do |n|
-                            n.delete
-                        end
-
-                        break
-                    end
-
-                    #Add info for One template
-                    one_vn.info
-                    nic_info << "NIC=[\n"
-                    nic_info << "NETWORK_ID=\"#{one_vn["ID"]}\",\n"
-                    nic_info << "OPENNEBULA_MANAGED=\"NO\"\n"
-                    nic_info << "]\n"
-                end
-            end
-
-        rescue Exception => e
-            error = "There was an error trying to create a virtual network for network in vcenter template. Reason: #{e.message}"
-        ensure
-            unlock
-        end
-
-        return error, nic_info
-    end
-
-    #  Checks if a RbVmomi::VIM::VirtualDevice is a disk or a cdrom
-    def is_disk_or_cdrom?(device)
-        is_disk  = !(device.class.ancestors.index(RbVmomi::VIM::VirtualDisk)).nil?
-        is_cdrom = !(device.class.ancestors.index(RbVmomi::VIM::VirtualCdrom)).nil?
-        is_disk || is_cdrom
-    end
-
-    #  Checks if a RbVmomi::VIM::VirtualDevice is a disk or an iso file
-    def is_disk_or_iso?(device)
-        is_disk  = !(device.class.ancestors.index(RbVmomi::VIM::VirtualDisk)).nil?
-        is_iso = device.backing.is_a? RbVmomi::VIM::VirtualCdromIsoBackingInfo
-        is_disk || is_iso
-    end
-
-    #  Checks if a RbVmomi::VIM::VirtualDevice is a disk
-    def is_disk?(device)
-        !(device.class.ancestors.index(RbVmomi::VIM::VirtualDisk)).nil?
     end
 
     def find_free_controller(position=0)
@@ -1871,131 +2322,21 @@ class VirtualMachine
     # monitoring
     ############################################################################
 
-    def to_one(template=false)
-        cluster  = self["runtime.host.parent.name"]
-        ccr_ref  = self["runtime.host.parent._ref"]
-        vc_uuid  = self["_connection.serviceContent.about.instanceUuid"]
+    def monitor(esx_host_cpu, stats)
 
-        # Get info of the host where the VM/template is located
-        host_id = nil
-        one_host = VCenterDriver::VIHelper.find_by_ref(OpenNebula::HostPool,
-                                                       "TEMPLATE/VCENTER_CCR_REF",
-                                                       ccr_ref,
-                                                       vc_uuid)
-        host_id = one_host["ID"] if one_host
-
-        str = "NAME   = \"#{self["name"]} - #{cluster}\"\n"\
-              "CPU    = \"#{@item["config.hardware.numCPU"]}\"\n"\
-              "vCPU   = \"#{@item["config.hardware.numCPU"]}\"\n"\
-              "MEMORY = \"#{@item["config.hardware.memoryMB"]}\"\n"\
-              "HYPERVISOR = \"vcenter\"\n"\
-              "SCHED_REQUIREMENTS=\"ID=\\\"#{host_id}\\\"\"\n"\
-              "CONTEXT = [\n"\
-              "    NETWORK = \"YES\",\n"\
-              "    SSH_PUBLIC_KEY = \"$USER[SSH_PUBLIC_KEY]\"\n"\
-              "]\n"\
-              "VCENTER_INSTANCE_ID =\"#{vc_uuid}\"\n"
-
-        if !template
-            str << "IMPORT_VM_ID =\"#{self["_ref"]}\"\n"
-            str << "IMPORT_STATE =\"#{@state}\"\n"
-        end
-
-        if template
-            str << "VCENTER_TEMPLATE_REF =\"#{self['_ref']}\"\n"
-            str << "VCENTER_CCR_REF =\"#{ccr_ref}\"\n"
-        end
-
-        vnc_port = nil
-        keymap = nil
-
-        if !template
-            @item["config.extraConfig"].select do |xtra|
-
-                if xtra[:key].downcase=="remotedisplay.vnc.port"
-                    vnc_port = xtra[:value]
-                end
-
-                if xtra[:key].downcase=="remotedisplay.vnc.keymap"
-                    keymap = xtra[:value]
-                end
-            end
-        end
-
-        if @item["config.extraConfig"].size > 0
-            str << "GRAPHICS = [\n"\
-                   "  TYPE     =\"vnc\",\n"
-            str << "  PORT     =\"#{vnc_port}\",\n" if vnc_port
-            str << "  KEYMAP   =\"#{keymap}\",\n" if keymap
-            str << "  LISTEN   =\"0.0.0.0\"\n"
-            str << "]\n"
-        end
-
-        if @item["config.annotation"].nil? || @item["config.annotation"].empty?
-            str << "DESCRIPTION = \"vCenter Template imported by OpenNebula" \
-                " from Cluster #{cluster}\"\n"
-        else
-            notes = @item["config.annotation"].gsub("\\", "\\\\").gsub("\"", "\\\"")
-            str << "DESCRIPTION = \"#{notes}\"\n"
-        end
-
-        case self["guest.guestFullName"]
-            when /CentOS/i
-                str << "LOGO=images/logos/centos.png\n"
-            when /Debian/i
-                str << "LOGO=images/logos/debian.png\n"
-            when /Red Hat/i
-                str << "LOGO=images/logos/redhat.png\n"
-            when /Ubuntu/i
-                str << "LOGO=images/logos/ubuntu.png\n"
-            when /Windows XP/i
-                str << "LOGO=images/logos/windowsxp.png\n"
-            when /Windows/i
-                str << "LOGO=images/logos/windows8.png\n"
-            when /Linux/i
-                str << "LOGO=images/logos/linux.png\n"
-        end
-
-        return str
-    end
-
-    def to_one_template(template, has_nics_and_disks, rp, rp_list, vcenter_uuid)
-
-        template_name = template['name']
-        template_ref  = template['_ref']
-        template_ccr  = template['runtime.host.parent']
-        cluster_name  = template['runtime.host.parent.name']
-
-        one_tmp = {}
-        one_tmp[:name]                  = "#{template_name} - #{cluster_name}"
-        one_tmp[:template_name]         = template_name
-        one_tmp[:vcenter_ccr_ref]       = template_ccr._ref
-        one_tmp[:one]                   = to_one(true)
-        one_tmp[:vcenter_ref]           = template_ref
-        one_tmp[:vcenter_instance_uuid] = vcenter_uuid
-        one_tmp[:cluster_name]          = cluster_name
-        one_tmp[:rp]                    = rp
-        one_tmp[:rp_list]               = rp_list
-        one_tmp[:template]              = template
-        one_tmp[:import_disks_and_nics] = has_nics_and_disks
-        return one_tmp
-    end
-
-    def monitor
         reset_monitor
 
-        @state = state_to_c(self["summary.runtime.powerState"])
+        refresh_rate = 20 #20 seconds between samples (realtime)
 
-        if @state != VM_STATE[:active]
-            reset_monitor
-            return
-        end
+        @state = state_to_c(@vm_info["summary.runtime.powerState"])
 
-        cpuMhz = self["runtime.host.summary.hardware.cpuMhz"].to_f
+        return if @state != VM_STATE[:active]
 
-        @monitor[:used_memory] = self["summary.quickStats.hostMemoryUsage"] * 1024
+        cpuMhz =  esx_host_cpu[@vm_info["runtime.host"]._ref]
 
-        used_cpu = self["summary.quickStats.overallCpuUsage"].to_f / cpuMhz
+        @monitor[:used_memory] = @vm_info["summary.quickStats.hostMemoryUsage"].to_f * 1024
+
+        used_cpu = @vm_info["summary.quickStats.overallCpuUsage"].to_f / cpuMhz
         used_cpu = (used_cpu * 100).to_s
         @monitor[:used_cpu]  = sprintf('%.2f', used_cpu).to_s
 
@@ -2004,7 +2345,7 @@ class VirtualMachine
         @monitor[:used_cpu]    = 0 if @monitor[:used_cpu].to_i < 0
 
         guest_ip_addresses = []
-        self["guest.net"].each do |net|
+        @vm_info["guest.net"].each do |net|
             net.ipConfig.ipAddress.each do |ip|
                 guest_ip_addresses << ip.ipAddress
             end if net.ipConfig && net.ipConfig.ipAddress
@@ -2012,121 +2353,76 @@ class VirtualMachine
 
         @guest_ip_addresses = guest_ip_addresses.join(',')
 
-        ########################################################################
-        # PerfManager metrics
-        ########################################################################
-        pm = self['_connection'].serviceInstance.content.perfManager
+        if stats.key?(@item)
+            metrics = stats[@item][:metrics]
 
-        provider = pm.provider_summary(@item)
-
-        refresh_rate = provider.refreshRate
-
-        if !get_vm_id
-            @nettx       = 0
-            @netrx       = 0
-            @diskrdbytes = 0
-            @diskwrbytes = 0
-            @diskrdiops  = 0
-            @diskwriops  = 0
-        else
-            stats = []
-
-            if (one_item["MONITORING/LAST_MON"] && one_item["MONITORING/LAST_MON"].to_i != 0 )
-                #Real time data stores max 1 hour. 1 minute has 3 samples
-                interval = (Time.now.to_i - one_item["MONITORING/LAST_MON"].to_i)
-
-                #If last poll was more than hour ago get 3 minutes,
-                #else calculate how many samples since last poll
-                samples =  interval > 3600 ? 9 : (interval / refresh_rate) + 1
-                max_samples = samples > 0 ? samples : 1
-
-                stats = pm.retrieve_stats(
-                    [@item],
-                    ['net.transmitted','net.bytesRx','net.bytesTx','net.received',
-                    'virtualDisk.numberReadAveraged','virtualDisk.numberWriteAveraged',
-                    'virtualDisk.read','virtualDisk.write'],
-                    {interval:refresh_rate, max_samples: max_samples}
-                )
-            else
-                # First poll, get at least latest 3 minutes = 9 samples
-                stats = pm.retrieve_stats(
-                    [@item],
-                    ['net.transmitted','net.bytesRx','net.bytesTx','net.received',
-                    'virtualDisk.numberReadAveraged','virtualDisk.numberWriteAveraged',
-                    'virtualDisk.read','virtualDisk.write'],
-                    {interval:refresh_rate, max_samples: 9}
-                )
+            nettx_kbpersec = 0
+            if metrics['net.transmitted']
+                metrics['net.transmitted'].each { |sample|
+                    nettx_kbpersec += sample
+                }
             end
 
-            if stats.empty? || stats.first[1][:metrics].empty?
-                @nettx = 0
-                @netrx = 0
-                @diskrdbytes = 0
-                @diskwrbytes = 0
-                @diskrdiops = 0
-                @diskwriops = 0
-            else
-                metrics = stats.first[1][:metrics]
-
-                nettx_kbpersec = 0
-                if metrics['net.transmitted']
-                    metrics['net.transmitted'].each { |sample|
-                        nettx_kbpersec += sample
-                    }
-                end
-
-                netrx_kbpersec = 0
-                if metrics['net.bytesRx']
-                    metrics['net.bytesRx'].each { |sample|
-                        netrx_kbpersec += sample
-                    }
-                end
-
-                read_kbpersec = 0
-                if metrics['virtualDisk.read']
-                    metrics['virtualDisk.read'].each { |sample|
-                        read_kbpersec += sample
-                    }
-                end
-
-                read_iops = 0
-                if metrics['virtualDisk.numberReadAveraged']
-                    metrics['virtualDisk.numberReadAveraged'].each { |sample|
-                        read_iops += sample
-                    }
-                end
-
-                write_kbpersec = 0
-                if metrics['virtualDisk.write']
-                    metrics['virtualDisk.write'].each { |sample|
-                        write_kbpersec += sample
-                    }
-                end
-
-                write_iops = 0
-                if metrics['virtualDisk.numberWriteAveraged']
-                    metrics['virtualDisk.numberWriteAveraged'].each { |sample|
-                        write_iops += sample
-                    }
-                end
-
-                @nettx = (nettx_kbpersec * 1024 * refresh_rate).to_i
-                @netrx = (netrx_kbpersec * 1024 * refresh_rate).to_i
-
-                @diskrdiops = read_iops
-                @diskwriops = write_iops
-                @diskrdbytes = (read_kbpersec * 1024 * refresh_rate).to_i
-                @diskwrbytes = (write_kbpersec * 1024 * refresh_rate).to_i
-                @diskwrbytes = (write_kbpersec * 1024 * refresh_rate).to_i
+            netrx_kbpersec = 0
+            if metrics['net.bytesRx']
+                metrics['net.bytesRx'].each { |sample|
+                    netrx_kbpersec += sample
+                }
             end
+
+            read_kbpersec = 0
+            if metrics['virtualDisk.read']
+                metrics['virtualDisk.read'].each { |sample|
+                    read_kbpersec += sample
+                }
+            end
+
+            read_iops = 0
+            if metrics['virtualDisk.numberReadAveraged']
+                metrics['virtualDisk.numberReadAveraged'].each { |sample|
+                    read_iops += sample
+                }
+            end
+
+            write_kbpersec = 0
+            if metrics['virtualDisk.write']
+                metrics['virtualDisk.write'].each { |sample|
+                    write_kbpersec += sample
+                }
+            end
+
+            write_iops = 0
+            if metrics['virtualDisk.numberWriteAveraged']
+                metrics['virtualDisk.numberWriteAveraged'].each { |sample|
+                    write_iops += sample
+                }
+            end
+
+            # Accumulate values if present
+            previous_nettx = @one_item && @one_item["MONITORING/NETTX"] ? @one_item["MONITORING/NETTX"].to_i : 0
+            previous_netrx = @one_item && @one_item["MONITORING/NETRX"] ? @one_item["MONITORING/NETRX"].to_i : 0
+            previous_diskrdiops = @one_item && @one_item["MONITORING/DISKRDIOPS"] ? @one_item["MONITORING/DISKRDIOPS"].to_i : 0
+            previous_diskwriops = @one_item && @one_item["MONITORING/DISKWRIOPS"] ? @one_item["MONITORING/DISKWRIOPS"].to_i : 0
+            previous_diskrdbytes = @one_item && @one_item["MONITORING/DISKRDBYTES"] ? @one_item["MONITORING/DISKRDBYTES"].to_i : 0
+            previous_diskwrbytes = @one_item && @one_item["MONITORING/DISKWRBYTES"] ? @one_item["MONITORING/DISKWRBYTES"].to_i : 0
+
+            @monitor[:nettx] = previous_nettx + (nettx_kbpersec * 1024 * refresh_rate).to_i
+            @monitor[:netrx] = previous_netrx + (netrx_kbpersec * 1024 * refresh_rate).to_i
+
+            @monitor[:diskrdiops]  = previous_diskrdiops + read_iops
+            @monitor[:diskwriops]  = previous_diskwriops + write_iops
+            @monitor[:diskrdbytes] = previous_diskrdbytes + (read_kbpersec * 1024 * refresh_rate).to_i
+            @monitor[:diskwrbytes] = previous_diskwrbytes + (write_kbpersec * 1024 * refresh_rate).to_i
         end
     end
+
+
 
     #  Generates a OpenNebula IM Driver valid string with the monitor info
     def info
         return 'STATE=d' if @state == 'd'
 
-        guest_ip = self["guest.ipAddress"]
+        guest_ip = @vm_info["guest.ipAddress"]
 
         used_cpu    = @monitor[:used_cpu]
         used_memory = @monitor[:used_memory]
@@ -2137,11 +2433,13 @@ class VirtualMachine
         diskrdiops  = @monitor[:diskrdiops]
         diskwriops  = @monitor[:diskwriops]
 
-        esx_host      = self["runtime.host.name"].to_s
-        guest_state   = self["guest.guestState"].to_s
-        vmware_tools  = self["guest.toolsRunningStatus"].to_s
-        vmtools_ver   = self["guest.toolsVersion"].to_s
-        vmtools_verst = self["guest.toolsVersionStatus2"].to_s
+        esx_host      = @vm_info["cluster_name"].to_s
+        guest_state   = @vm_info["guest.guestState"].to_s
+        vmware_tools  = @vm_info["guest.toolsRunningStatus"].to_s
+        vmtools_ver   = @vm_info["guest.toolsVersion"].to_s
+        vmtools_verst = @vm_info["guest.toolsVersionStatus2"].to_s
+        rp_name       = @vm_info["rp_list"].select { |item| item._ref == self["_ref"]}.first[:name] rescue ""
+        rp_name       = "Resources" if rp_name.empty?
 
         str_info = ""
 
@@ -2150,8 +2448,6 @@ class VirtualMachine
         if @guest_ip_addresses && !@guest_ip_addresses.empty?
             str_info << "GUEST_IP_ADDRESSES=\"" << @guest_ip_addresses.to_s << "\" "
         end
-
-        str_info << "LAST_MON=" << Time.now.to_i.to_s << " "
 
         str_info << "#{POLL_ATTRIBUTE[:state]}="  << @state               << " "
         str_info << "#{POLL_ATTRIBUTE[:cpu]}="    << used_cpu.to_s        << " "
@@ -2169,7 +2465,7 @@ class VirtualMachine
         str_info << "VCENTER_VMWARETOOLS_RUNNING_STATUS=" << vmware_tools    << " "
         str_info << "VCENTER_VMWARETOOLS_VERSION="        << vmtools_ver     << " "
         str_info << "VCENTER_VMWARETOOLS_VERSION_STATUS=" << vmtools_verst   << " "
-        str_info << "VCENTER_RESOURCE_POOL=\""            << self["resourcePool"].name << "\" "
+        str_info << "VCENTER_RP_NAME=\""                  << rp_name << "\" "
     end
 
     def reset_monitor
