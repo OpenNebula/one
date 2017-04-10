@@ -16,6 +16,8 @@
 
 define(function(require) {
   require('jquery');
+  require('jquery-ui');
+
   require('foundation');
 
   Foundation.Dropdown.defaults.positionClass = 'left';

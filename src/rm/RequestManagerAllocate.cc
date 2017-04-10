@@ -121,7 +121,24 @@ bool VirtualMachineAllocate::allocate_authorization(
         return false;
     }
 
-    return true;
+    vector<Template *> ds_quotas;
+    vector<Template *>::iterator it;
+
+    bool ds_quota_auth = true;
+
+    VirtualMachineDisks::image_ds_quotas(&aux_tmpl, ds_quotas);
+
+    for ( it = ds_quotas.begin() ; it != ds_quotas.end() ; ++it )
+    {
+        if ( quota_authorization(*it, Quotas::DATASTORE, att) == false )
+        {
+            ds_quota_auth = false;
+        }
+
+        delete *it;
+    }
+
+    return ds_quota_auth;
 }
 
 /* -------------------------------------------------------------------------- */

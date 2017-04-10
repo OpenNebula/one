@@ -18,6 +18,7 @@ define(function(require) {
 
   var Locale = require('utils/locale');
   var Sunstone = require('sunstone');
+  var Notifier = require('utils/notifier');
 
   //Escape doublequote in a string and return it
   function _escapeDoubleQuotes(string) {
@@ -92,7 +93,123 @@ define(function(require) {
     return template_str;
   }
 
+  function _merge_templates(template_master, template_slave, advanced){
+    if(!advanced)
+      template_slave = _convert_string_to_template(template_slave);
+    else
+      template_master = _convert_string_to_template(template_master);
+    if((advanced && template_master) || (!advanced && template_slave)){
+      var template_final = {};
+      $.extend(true, template_final, template_slave, template_master);
+      return template_final;
+    }else{
+      Notifier.notifyError(Locale.tr("Advanced template malformed"));
+    } 
+    return template_master;
+  }
+  // Transforms an object to an opennebula template string
+  function _convert_string_to_template(string_json, unshown_values) {
+    string_json = string_json.split("\n").join(" ");
+    string_json = string_json.split("   ").join(" ");
+    string_json = string_json.split("  ").join(" ");
+    var match_symbols = "=[,]"
+    var template_json = {};
+    var array_string = string_json.split(" ");
+    var i = 0;
+    var array = false;
+    while(i < array_string.length-1){
+      if(!array_string[i].match('"') && !array_string[i].match(match_symbols)){ //is key
+        var key = array_string[i];
+        if(template_json[key]){ //exists key, generate Array
+          if(!Array.isArray(template_json[key])){
+            var obj = template_json[key];
+            template_json[key] = [];
+            template_json[key].push(obj);
+          }
+          array = true;
+        }
+        else{
+          array = false;
+        }
+        template_json[key];
+        i+=1;
+        if(array_string[i] == "="){
+          i+=1;
+          if(array_string[i] != "["){
+            var value = "";
+            if(key == "DESCRIPTION" && array_string[i][0] == '"' && array_string[i][array_string[i].length-1] != '"'){
+              while (array_string[i][array_string[i].length-1] != '"' && i < array_string.length-1){
+                value += array_string[i] + " ";
+                i+=1;
+              }
+              if(!value.match("="))
+                value = value.split('"').join("");
+              else{
+                value  = value .slice(0,-1);
+                value = value .slice(1);
+              }
+              if(array){
+                template_json[key].push(value);
+              }else{
+                template_json[key] = value;
+              }
+              i+=1;
+            }
+            else if(array_string[i].match('"')){
+              value = array_string[i];
+              if(!value.match("="))
+                value = value.split('"').join("");
+              else{
+                value  = value .slice(0,-1);
+                value = value .slice(1);
+              }
+              if(array){
+                template_json[key].push(value);
+              }else{
+                template_json[key] = value;
+              }
+              i+=1;
+            }
+            else return false;
+          }else{
+            var obj = {}
+            i+=1;
+            while(array_string[i] != ']' && i < array_string.length-1){
+              var sub_key; 
+              if(!array_string[i].match('"') && !array_string[i].match(match_symbols)){
+                sub_key = array_string[i];
+                i+=1;
+                if(array_string[i] == "="){
+                  i+=1;
+                  if(array_string[i].match('"')){
+                    if(array_string[i][array_string[i].length-1] == ","){
+                      array_string[i] = array_string[i].slice(0,-1);
+                    }
+                    var value = array_string[i];
+                    obj[sub_key] = value;
+                    obj[sub_key] = obj[sub_key].split('"').join("");
+                    i+=1;
+                  }else return false;
+                }else return false;
+              }else return false;
+            }
+            if(array){
+              template_json[key].push(obj);
+            }else{
+              template_json[key] = {};
+              template_json[key] = obj;
+            }
+            i+=1;
+          }
+        }else return false;
+      }else return false; 
+    }
+    return template_json;
+  }
+
   return {
+    'mergeTemplates'  : _merge_templates,
+    'stringToTemplate': _convert_string_to_template,
     'templateToString': _convert_template_to_string,
     'htmlDecode': _htmlDecode,
     'htmlEncode': _htmlEncode,

@@ -204,7 +204,7 @@ void  DispatchManager::done_action(int vid)
     VirtualMachine * vm;
     Template *       tmpl;
 
-    map<int, Template *> ds_quotas;
+    vector<Template *> ds_quotas;
 
     int uid;
     int gid;
@@ -264,7 +264,7 @@ void  DispatchManager::done_action(int vid)
 
         if ( !ds_quotas.empty() )
         {
-            Quotas::ds_del(ds_quotas);
+            Quotas::ds_del(uid, gid, ds_quotas);
         }
 
         if (!deploy_id.empty())

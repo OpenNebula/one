@@ -244,8 +244,11 @@ public:
      *    @param snap_id of the snapshot
      *    @param ds_quotas template with snapshot usage for the DS quotas
      *    @param vm_quotas template with snapshot usage for the VM quotas
+     *    @param io delete ds quotas from image owners
+     *    @param vo delete ds quotas from vm owners
      */
-    void delete_snapshot(int snap_id, Template **ds_quota, Template **vm_quota);
+    void delete_snapshot(int snap_id, Template **ds_quota, Template **vm_quota,
+            bool& io, bool& vo);
 
     /* ---------------------------------------------------------------------- */
     /* Disk resize functions                                                  */
@@ -261,8 +264,12 @@ public:
      *    @param new_size of disk
      *    @param dsdeltas increment in datastore usage
      *    @param vmdelta increment in system datastore usage
+     *    @param do_img_owner quotas counter allocated for image uid/gid
+     *    @param do_vm_owner quotas counter allocated for vm uid/gid
+     *
      */
-   void resize_quotas(long long new_size, Template& dsdelta, Template& vmdelta);
+   void resize_quotas(long long new_size, Template& dsdelta, Template& vmdelta,
+           bool& do_img_owner, bool& do_vm_owner);
 
     /* ---------------------------------------------------------------------- */
     /* Disk space usage functions                                             */
@@ -272,6 +279,11 @@ public:
      *  @return the space required by this disk in the system datastore
      */
     long long system_ds_size();
+
+    /**
+     *  @return the space required by this disk in the image datastore
+     */
+    long long image_ds_size();
 
     /**
      *  Compute the storage needed by the disk in the system and/or image
@@ -409,6 +421,14 @@ public:
     static void extended_info(int uid, Template * tmpl);
 
     /**
+     *  Computes the storage in the image DS needed for the disks in a VM
+     *  template
+     *    @param tmpl with DISK descriptions
+     *    @param ds_quotas templates for quota updates
+     */
+    static void image_ds_quotas(Template * tmpl, vector<Template *>& ds_quotas);
+
+    /**
      *  Sets Datastore information on volatile disks
      */
     bool volatile_info(int ds_id);
@@ -446,7 +466,7 @@ public:
      *    @param img_error true if the image has to be set in error state
      *    @param quotas disk space usage to free from image datastores
      */
-    void release_images(int vmid, bool img_error, map<int, Template *>& quotas);
+    void release_images(int vmid, bool img_error, vector<Template *>& quotas);
 
     /* ---------------------------------------------------------------------- */
     /* DISK cloning functions                                                 */
@@ -666,9 +686,11 @@ public:
      *    @param snap_id of the snapshot
      *    @param ds_quotas template with snapshot usage for the DS quotas
      *    @param vm_quotas template with snapshot usage for the VM quotas
+     *    @param io delete ds quotas from image owners
+     *    @param vo delete ds quotas from vm owners
      */
     void delete_snapshot(int disk_id, int snap_id, Template **ds_quota,
-            Template **vm_quota);
+            Template **vm_quota, bool& io, bool& vo);
 
     /**
      * Deletes all the disk snapshots for non-persistent disks and for persistent
@@ -677,7 +699,7 @@ public:
      *     @param ds_quotas The DS SIZE freed from image datastores.
      */
     void delete_non_persistent_snapshots(Template **vm_quotas,
-        map<int, Template *>& ds_quotas);
+        vector<Template *> &ds_quotas);
 
     /**
      * Restores the disk original size for non-persistent and for persistent
@@ -686,7 +708,7 @@ public:
      *     @param ds_quotas The DS SIZE freed from image datastores.
      */
     void delete_non_persistent_resizes(Template **vm_quotas,
-        map<int, Template *>& ds_quotas);
+        vector<Template *> &ds_quotas);
 
 protected:
 

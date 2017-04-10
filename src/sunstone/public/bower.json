@@ -16,7 +16,8 @@
     "jquery": "2.2.3",
     "datatables": "1.10.12",
     "navigo": "2.1.1",
-    "sprintf": "1.0.3"
+    "sprintf": "1.0.3",
+    "jquery-ui": "^1.12.1"
   },
   "authors": [
     "Daniel Molina <dmolina@opennebula.org>",

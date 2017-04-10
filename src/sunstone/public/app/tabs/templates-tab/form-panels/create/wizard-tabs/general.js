@@ -182,7 +182,7 @@ define(function(require) {
       templateJSON["DISK_COST"] = templateJSON["DISK_COST"] * 1024;
     }
     else{
-      templateJSON["DISK_COST"] = "0";
+      delete templateJSON["MEMORY_UNIT_COST"];
     }
     if(templateJSON["MEMORY_UNIT_COST"] == "GB")
       templateJSON["MEMORY_COST"] = templateJSON["MEMORY_COST"] * 1024;

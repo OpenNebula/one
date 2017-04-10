@@ -145,6 +145,15 @@ define(function(require) {
         }
       }
 
+      var ip6 = $("input.manual_ip6", $(this)).val();
+
+      if (ip6 != undefined){
+        delete nic["IP6"];
+
+        if (ip6 != ""){
+          nic["IP6"] = ip6;
+        }
+      }
       delete nic["VROUTER_MANAGEMENT"];
 
       if ($("input.management", $(this)).prop("checked")){

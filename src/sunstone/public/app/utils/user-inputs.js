@@ -55,10 +55,12 @@ define(function(require) {
 
   function _setup(context){
     context.on("click", ".add_user_input_attr", function() {
-      $(".user_input_attrs tbody", context).append(RowTemplateHTML());
-
+      $(".user_input_attrs tbody", context).append(RowTemplateHTML({'idInput': UniqueId.id()}));
+      $('tbody label').css('cursor', 'pointer');
       $("select.user_input_type", context).change();
     });
+
+    $('tbody').sortable();
 
     context.on("change", "select.user_input_type", function() {
       var row = $(this).closest("tr");
@@ -74,12 +76,24 @@ define(function(require) {
 
   function _retrieve(context){
     var userInputsJSON = {};
-
+    var ids = [];
+    var index = 0;
+    $('.user_input_attrs tbody tr').each(function(key, value){
+      ids[index] = "_" + key + "_" + $(".user_input_name", $(this)).val(); 
+      index += 1;
+    });
+    index = 0;
     $(".user_input_attrs tbody tr", context).each(function() {
+      
       if ($(".user_input_name", $(this)).val()) {
         var attr = {};
         attr.name = $(".user_input_name", $(this)).val();
-        attr.mandatory = true;
+        if($('.user_input_mandatory', $(this)).prop('checked')){
+          attr.mandatory = true;
+        } else {
+          attr.mandatory = false;
+        }
+        
         attr.type = $(".user_input_type", $(this)).val();
         attr.description = $(".user_input_description", $(this)).val();
 
@@ -89,7 +103,6 @@ define(function(require) {
           case "fixed":
             attr.initial = $("."+attr.type+" input.user_input_initial", $(this)).val();
             break;
-
           case "range":
           case "range-float":
             var min = $("."+attr.type+" input.user_input_params_min", $(this)).val();
@@ -101,10 +114,15 @@ define(function(require) {
             attr.params  = $("."+attr.type+" input.user_input_params", $(this)).val();
             attr.initial = $("."+attr.type+" input.user_input_initial", $(this)).val();
             break;
+          case "boolean":
+            attr.initial = $('.user_input_initial:checked', $(this)).val();
+            break;
         }
 
-        userInputsJSON[attr.name] = _marshall(attr);
+        userInputsJSON[ids[index]] = _marshall(attr);
+        index += 1;
       }
+      
     });
 
     return userInputsJSON;
@@ -115,20 +133,34 @@ define(function(require) {
 
     if (userInputsJSON) {
       $.each(userInputsJSON, function(key, value) {
+
         $(".add_user_input_attr", context).trigger("click");
 
         var trcontext = $(".user_input_attrs tbody tr", context).last();
 
-        $(".user_input_name", trcontext).val(key);
+        var name = "";
+        var len = key.split("_");
+
+        for (i = 2; i < len.length; i++){
+          name += (len[i] + "_"); 
+        }
+
+        name = name.slice(0,-1);
+        $(".user_input_name", trcontext).val(name);
 
         var attr = _unmarshall(value);
 
         if (templateJSON[key] != undefined){
           attr.initial = templateJSON[key];
         }
-
         $(".user_input_type", trcontext).val(attr.type).change();
         $(".user_input_description", trcontext).val(attr.description);
+
+        if (attr.mandatory){
+          $('.user_input_mandatory', trcontext).attr("checked", "checked");
+        } else {
+          $('.user_input_mandatory', trcontext).removeAttr("checked");
+        }
 
         switch(attr.type){
           case "number":
@@ -136,7 +168,16 @@ define(function(require) {
           case "fixed":
             $("."+attr.type+" input.user_input_initial", trcontext).val(attr.initial);
             break;
-
+          case "boolean":
+            if(attr.initial == "YES"){
+              $('input#radio_yes', trcontext).attr("checked", "checked");
+              $('input#radio_no', trcontext).removeAttr('checked');
+            }
+            else {
+              $('input#radio_yes', trcontext).removeAttr("checked");
+              $('input#radio_no', trcontext).attr("checked", "checked");
+            }
+            break;
           case "range":
           case "range-float":
             var values = attr.params.split("..");  // "2..8"
@@ -343,6 +384,7 @@ define(function(require) {
     switch (attr.type) {
       case "number":
       case "number-float":
+      case "boolean":
       case "fixed":
         st += ("| |" + (attr.initial != undefined ? attr.initial : "") );
 
@@ -605,7 +647,11 @@ define(function(require) {
         }
         break;
       case "password":
-        input = '<input type="password" value="'+value+'" '+wizard_field+' '+required+'/>';
+        input = '<br><input type="password" value="'+value+'" '+wizard_field+' '+required+'/>';
+        break;
+      case "boolean":
+        input = '<br>' + Locale.tr("YES ") + '<input type="radio" name="bool_' + attr.name + '" value="YES"' + wizard_field + ' ' + required + '/>';
+        input += Locale.tr("NO ") + '<input type="radio" name="bool_' + attr.name + '" value="NO"' + wizard_field + ' ' + required + '/>';
         break;
       case "number":
       case "number-float":

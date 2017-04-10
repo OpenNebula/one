@@ -34,6 +34,7 @@ define(function(require) {
   var TAB_ID = require('../tabId');
   var PANEL_ID = require('./snapshots/panelId');
   var SNAPSHOT_DIALOG_ID = require('../dialogs/snapshot/dialogId');
+  var REVERT_DIALOG_ID = require('../dialogs/revert/dialogId');
   var RESOURCE = "VM"
   var XML_ROOT = "VM"
 
@@ -165,8 +166,9 @@ define(function(require) {
     if (Config.isTabActionEnabled("vms-tab", "VM.snapshot_revert")) {
       context.off('click', '.snapshot_revert');
       context.on('click', '.snapshot_revert', function() {
-        var snapshot_id = $(this).parents('tr').attr('snapshot_id');
-        Sunstone.runAction('VM.snapshot_revert', that.element.ID,  {"snapshot_id": snapshot_id});
+        var dialog = Sunstone.getDialog(REVERT_DIALOG_ID);
+        dialog.setElement(that.element);
+        dialog.show();
         return false;
       });
     }

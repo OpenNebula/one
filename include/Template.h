@@ -243,6 +243,18 @@ public:
 		set(new SingleAttribute(name, value));
 	}
 
+	void add(const string& name, bool value)
+	{
+        if ( value )
+        {
+            set(new SingleAttribute(name, "YES"));
+        }
+        else
+        {
+            set(new SingleAttribute(name, "NO"));
+        }
+	}
+
     /**
      *  Removes an attribute from the template. The attributes are returned. The
      *  attributes MUST be freed by the calling funtion
