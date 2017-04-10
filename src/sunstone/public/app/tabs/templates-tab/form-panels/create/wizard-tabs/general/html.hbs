@@ -62,6 +62,29 @@
       <input type="text" id="vcenter_template_ref"/>
     </div>
   </div>
+  <div class="vcenter_rp_input row">
+     <div class="large-3 medium-6 columns">
+       <label>
+         {{tr "Default Resource Pool"}}
+         <input type="text" class="initial_rp" value="{{resourcePool.initial}}"/>
+       </label>
+     </div>
+     <div class="large-3 medium-6 columns">
+       <label>
+         {{tr "Type"}}
+         <select class="modify_rp">
+           <option value="fixed">{{tr "Fixed"}}</option>
+           <option value="list">{{tr "Provide on instantiation"}}</option>
+         </select>
+       </label>
+     </div>
+     <div class="large-6 medium-12 columns">
+       <label>
+         {{tr "Available Resource Pools"}}
+         <input type="text" class="available_rps" value="{{resourcePool.params}}"/>
+       </label>
+     </div>
+ </div>
   <div class="vcenter_vm_folder_input row">
     <div class="medium-6 columns">
       <label  for="vcenter_vm_folder">
