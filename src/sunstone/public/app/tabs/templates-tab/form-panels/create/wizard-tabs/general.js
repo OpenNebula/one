@@ -207,27 +207,6 @@ define(function(require) {
 
     var userInputs = {};
 
-    // Retrieve Datastore Attribute
-    var dsInput = $(".vcenter_datastore_input", context);
-    if (dsInput.length > 0) {
-      var dsModify = WizardFields.retrieveInput($('.modify_datastore', dsInput));
-      var dsInitial = WizardFields.retrieveInput($('.initial_datastore', dsInput));
-      var dsParams = WizardFields.retrieveInput($('.available_datastores', dsInput));
-
-      if (dsModify === 'fixed' && dsInitial !== '') {
-        templateJSON['VCENTER_DATASTORE'] = dsInitial;
-      } else if (dsModify === 'list' && dsParams !== '') {
-        var dsUserInputsStr = UserInputs.marshall({
-            type: 'list',
-            description: Locale.tr("Which datastore you want this VM to run on?"),
-            initial: dsInitial,
-            params: dsParams
-          });
-
-        userInputs['VCENTER_DATASTORE'] = dsUserInputsStr;
-      }
-    }
-
     // Retrieve Resource Pool Attribute
     var rpInput = $(".vcenter_rp_input", context);
     if (rpInput.length > 0) {
@@ -272,13 +251,6 @@ define(function(require) {
       delete sunstone_template["NETWORK_SELECT"];
     }
 
-    if (templateJSON["HYPERVISOR"] == 'vcenter' &&
-      templateJSON["KEEP_DISKS_ON_DONE"] &&
-        templateJSON["KEEP_DISKS_ON_DONE"].toLowerCase() == "yes" ) {
-      $("#KEEP_DISKS", context).attr("checked", "checked");
-    }
-
-    delete templateJSON["KEEP_DISKS_ON_DONE"];
 
     if (Config.isFeatureEnabled("vcenter_vm_folder")) {
       if (templateJSON["HYPERVISOR"] == 'vcenter' &&
@@ -325,6 +297,7 @@ define(function(require) {
       }
     }
 
+  
     if (templateJSON["VCENTER_RESOURCE_POOL"]) {
       $('.modify_rp', context).val('fixed');
       WizardFields.fillInput($('.initial_rp', context), templateJSON["VCENTER_RESOURCE_POOL"]);

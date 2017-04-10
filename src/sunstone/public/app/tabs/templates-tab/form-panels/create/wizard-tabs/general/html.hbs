@@ -61,64 +61,6 @@
       </label>
       <input type="text" id="vcenter_template_ref"/>
     </div>
-    <div class="medium-6 columns">
-      <div class="row">
-        <div class="large-6 columns">
-          <label>
-            {{tr "VM disks"}}
-            {{{tip (tr "If selected, VM disks won't be deleted after the VM finishes its lifecycle.")}}}
-          </label>
-          <input type="checkbox" id="KEEP_DISKS" name="KEEP_DISKS"/>
-          <label  for="KEEP_DISKS">{{tr "Keep"}}</label>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="vcenter_datastore_input row">
-    <div class="large-3 medium-6 columns">
-      <label>
-        {{tr "Default Datastore"}}
-        <input type="text" class="initial_datastore" value="{{datastore.initial}}"/>
-      </label>
-    </div>
-    <div class="large-3 medium-6 columns">
-      <label>
-        {{tr "Type"}}
-        <select class="modify_datastore">
-          <option value="fixed">{{tr "Fixed"}}</option>
-          <option value="list">{{tr "Provide on instantiation"}}</option>
-        </select>
-      </label>
-    </div>
-    <div class="large-6 medium-12 columns">
-      <label>
-        {{tr "Available Datastores"}}
-        <input type="text" class="available_datastores" value="{{datastore.params}}"/>
-      </label>
-    </div>
-  </div>
-  <div class="vcenter_rp_input row">
-    <div class="large-3 medium-6 columns">
-      <label>
-        {{tr "Default Resource Pool"}}
-        <input type="text" class="initial_rp" value="{{resourcePool.initial}}"/>
-      </label>
-    </div>
-    <div class="large-3 medium-6 columns">
-      <label>
-        {{tr "Type"}}
-        <select class="modify_rp">
-          <option value="fixed">{{tr "Fixed"}}</option>
-          <option value="list">{{tr "Provide on instantiation"}}</option>
-        </select>
-      </label>
-    </div>
-    <div class="large-6 medium-12 columns">
-      <label>
-        {{tr "Available Resource Pools"}}
-        <input type="text" class="available_rps" value="{{resourcePool.params}}"/>
-      </label>
-    </div>
   </div>
   <div class="vcenter_vm_folder_input row">
     <div class="medium-6 columns">
