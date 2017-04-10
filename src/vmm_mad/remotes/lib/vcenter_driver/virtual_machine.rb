@@ -2366,42 +2366,42 @@ class VirtualMachine < Template
             nettx_kbpersec = 0
             if metrics['net.transmitted']
                 metrics['net.transmitted'].each { |sample|
-                    nettx_kbpersec += sample
+                    nettx_kbpersec += sample if sample > 0
                 }
             end
 
             netrx_kbpersec = 0
             if metrics['net.bytesRx']
                 metrics['net.bytesRx'].each { |sample|
-                    netrx_kbpersec += sample
+                    netrx_kbpersec += sample if sample > 0
                 }
             end
 
             read_kbpersec = 0
             if metrics['virtualDisk.read']
                 metrics['virtualDisk.read'].each { |sample|
-                    read_kbpersec += sample
+                    read_kbpersec += sample if sample > 0
                 }
             end
 
             read_iops = 0
             if metrics['virtualDisk.numberReadAveraged']
                 metrics['virtualDisk.numberReadAveraged'].each { |sample|
-                    read_iops += sample
+                    read_iops += sample if sample > 0
                 }
             end
 
             write_kbpersec = 0
             if metrics['virtualDisk.write']
                 metrics['virtualDisk.write'].each { |sample|
-                    write_kbpersec += sample
+                    write_kbpersec += sample if sample > 0
                 }
             end
 
             write_iops = 0
             if metrics['virtualDisk.numberWriteAveraged']
                 metrics['virtualDisk.numberWriteAveraged'].each { |sample|
-                    write_iops += sample
+                    write_iops += sample if sample > 0
                 }
             end
 
