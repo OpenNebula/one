@@ -192,7 +192,6 @@ define(function(require) {
       if (Config.isFeatureEnabled("vcenter_vm_folder")) {
         templateJSON["VCENTER_VM_FOLDER"] = WizardFields.retrieveInput($("#vcenter_vm_folder", context))
       }
-      templateJSON["KEEP_DISKS_ON_DONE"] = $("#KEEP_DISKS", context).is(':checked')?"YES":"NO"
     }
 
     var sunstone_template = {};
@@ -297,7 +296,7 @@ define(function(require) {
       }
     }
 
-  
+
     if (templateJSON["VCENTER_RESOURCE_POOL"]) {
       $('.modify_rp', context).val('fixed');
       WizardFields.fillInput($('.initial_rp', context), templateJSON["VCENTER_RESOURCE_POOL"]);
