@@ -70,8 +70,7 @@ class DatacenterFolder
                 rpools = cluster.get_resource_pool_list.select {|rp| !rp[:name].empty?}
 
                 host_info = {}
-                cluster_name = "[#{vcenter_instance_name} - #{dc_name}] #{ccr['name'].tr(" ", "_")}"
-                host_info[:cluster_name]     = cluster_name
+                host_info[:cluster_name]     = "[#{vcenter_instance_name}-#{dc_name}]_#{ccr['name']}".tr(" ", "_")
                 host_info[:cluster_ref]      = ccr['_ref']
                 host_info[:vcenter_uuid]     = vcenter_uuid
                 host_info[:vcenter_version]  = vcenter_version
@@ -114,7 +113,7 @@ class DatacenterFolder
                                                                hpool)
 
                 if !!one_host
-                    one_clusters[:host_id] = one_host['ID']
+                    cluster[:host_id] = one_host['ID']
                     one_clusters[dc_name] << cluster
                 end
             end

@@ -110,7 +110,7 @@ get '/vcenter/templates' do
             error 404, error.to_json
         end
 
-        templates = dc_folder.get_unimported_templates(vcenter_client, tpool, vcenter_client.vim.host)
+        templates = dc_folder.get_unimported_templates(vcenter_client, tpool)
 
         if templates.nil?
             msg = "No datacenter found"
@@ -178,9 +178,9 @@ get '/vcenter/template/:vcenter_ref' do
 
                 if template_copy_ref
 
-                    template = VCenterDriver::Template.new_from_ref(template_copy_ref, vi_client)
+                    template = VCenterDriver::Template.new_from_ref(template_copy_ref, vcenter_client)
 
-                    one_template = VCenterDriver::Template.get_xml_template(template, vc_uuid, vi_client, vcenter_client.vim.host)
+                    one_template = VCenterDriver::Template.get_xml_template(template, vc_uuid, vcenter_client, vcenter_client.vim.host)
 
                     if one_template
 
@@ -220,7 +220,7 @@ get '/vcenter/template/:vcenter_ref' do
         t[:one] << template_disks
 
         # Create images or get nics information for template
-        error, template_nics = template.import_vcenter_nics(vc_uuid, npool)
+        error, template_nics = template.import_vcenter_nics(vc_uuid, npool, vcenter_client.vim.host)
 
         if !error.empty?
             append = false

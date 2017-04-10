@@ -294,12 +294,17 @@ class Template
         return error, disk_info
     end
 
-    def import_vcenter_nics(vc_uuid, npool)
+    def import_vcenter_nics(vc_uuid, npool, vcenter_instance_name, dc_name=nil)
         nic_info = ""
         error = ""
 
         begin
             lock #Lock import operation, to avoid concurrent creation of images
+
+            if !dc_name
+                dc = get_dc
+                dc_name = dc.item.name
+            end
 
             ccr_ref  = self["runtime.host.parent._ref"]
             ccr_name = self["runtime.host.parent.name"]
@@ -334,7 +339,9 @@ class Template
                                                                     nic[:pg_type],
                                                                     ccr_ref,
                                                                     ccr_name,
-                                                                    vc_uuid)
+                                                                    vc_uuid,
+                                                                    vcenter_instance_name,
+                                                                    dc_name)
 
                     # By default add an ethernet range to network size 255
                     ar_str = ""

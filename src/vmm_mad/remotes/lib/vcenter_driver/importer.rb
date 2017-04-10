@@ -297,7 +297,9 @@ def self.import_templates(con_ops, options)
                 end
 
                 error, template_nics = template.import_vcenter_nics(vc_uuid,
-                                                                   npool)
+                                                                   npool,
+                                                                   options[:vcenter],
+                                                                   dc)
                 if error.empty?
                     t[:one] << template_nics
                 else
