@@ -200,13 +200,13 @@ public:
 
     NicIterator begin()
     {
-        NicIterator it(VirtualMachineAttributeSet::begin());
+        NicIterator it(ExtendedAttributeSet::begin());
         return it;
     }
 
     NicIterator end()
     {
-        NicIterator it(VirtualMachineAttributeSet::end());
+        NicIterator it(ExtendedAttributeSet::end());
         return it;
     }
 

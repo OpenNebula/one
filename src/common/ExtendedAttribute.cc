@@ -14,95 +14,64 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "VirtualMachineAttribute.h"
+#include "ExtendedAttribute.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VirtualMachineAttribute * VirtualMachineAttributeSet::get_attribute(
-        const string& flag) const
-{
-    std::map<int, ExtendedAttribute*>::const_iterator it;
-
-    VirtualMachineAttribute * vma;
-
-    for( it = a_set.begin(); it != a_set.end(); ++it)
-    {
-        vma = static_cast<VirtualMachineAttribute *>(it->second);
-
-        if ( vma->is_flag(flag) == true )
-        {
-            return vma;
-        }
-    }
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachineAttributeSet::set_flag(int a_id, const string& flag_name)
-{
-    VirtualMachineAttribute * va = get_attribute(a_id);
-
-    if ( va == 0 )
-    {
-        return -1;
-    }
-
-    va->set_flag(flag_name);
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-VirtualMachineAttribute * VirtualMachineAttributeSet::remove_attribute(
-        const string& flag)
-{
-    std::map<int, ExtendedAttribute*>::const_iterator it;
-
-    VirtualMachineAttribute * vma;
-    VirtualMachineAttribute * tmp = 0;
-
-    for( it = a_set.begin(); it != a_set.end(); ++it)
-    {
-        vma = static_cast<VirtualMachineAttribute *>(it->second);
-
-        if ( vma->is_flag(flag) == true )
-        {
-            tmp = vma;
-            a_set.erase(it);
-        }
-    }
-
-    return tmp;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-VirtualMachineAttribute * VirtualMachineAttributeSet::clear_flag(
-        const string& flag)
+ExtendedAttributeSet::~ExtendedAttributeSet()
 {
     std::map<int, ExtendedAttribute *>::iterator it;
 
-    VirtualMachineAttribute * vma;
-
-    for( it = a_set.begin(); it != a_set.end(); ++it)
+    for (it = a_set.begin(); it != a_set.end(); ++it)
     {
-        vma = static_cast<VirtualMachineAttribute *>(it->second);
-
-        if ( vma->is_flag(flag) == true )
+        if ( dispose )
         {
-            vma->clear_flag(flag);
-
-            return vma;
+            delete it->second->va;
         }
+
+        delete it->second;
+    }
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+ExtendedAttribute * ExtendedAttributeSet::get_attribute(int id) const
+{
+    std::map<int, ExtendedAttribute*>::const_iterator it = a_set.find(id);
+
+    if ( it == a_set.end() )
+    {
+        return 0;
     }
 
-    return 0;
+    return it->second;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void ExtendedAttributeSet::init_attribute_map(const std::string& id_name,
+        std::vector<VectorAttribute *>& vas)
+{
+    std::vector<VectorAttribute *>::iterator it;
+    int id, auto_id;
+
+    for (it = vas.begin(), auto_id = 0; it != vas.end(); ++it, ++auto_id)
+    {
+        if (id_name.empty())
+        {
+            id = auto_id;
+        }
+        else if ( (*it)->vector_value(id_name, id) != 0 )
+        {
+            continue;
+        }
+
+        ExtendedAttribute * a = attribute_factory(*it, id);
+
+        a_set.insert(make_pair(id, a));
+    }
+};
 
