@@ -45,7 +45,6 @@ define(function(require) {
 
   /*
     Retrieve the list of templates from vCenter and fill the container with them
-
     opts = {
       datacenter: "Datacenter Name",
       cluster: "Cluster Name",
@@ -56,6 +55,7 @@ define(function(require) {
     }
    */
   function _fillVCenterTemplates(opts) {
+    this.opts = opts;
     var path = '/vcenter/templates';
 
     var context = $(".vcenter_import", opts.container);
@@ -157,6 +157,7 @@ define(function(require) {
   }
 
   function _import(context) {
+    that = this;
     $.each($(".vcenter_import_table", context), function() {
       $.each($(this).DataTable().$(".check_item:checked"), function() {
         var row_context = $(this).closest("tr");
@@ -198,28 +199,71 @@ define(function(require) {
           template += "\nUSER_INPUTS=[\n" + userInputs.join(",\n") + "]";
         }
 
-        var template_json = {
-          "vmtemplate": {
-            "template_raw": template
-          }
-        };
+        if($(this).data("import_data").import_disks_and_nics){
+          var path = '/vcenter/template/' + $(this).data("import_data").vcenter_ref;
+          $.ajax({
+            url: path,
+            type: "GET",
+            data: {timeout: false},
+            headers: {
+              "X-VCENTER-USER": that.opts.vcenter_user,
+              "X-VCENTER-PASSWORD": that.opts.vcenter_password,
+              "X-VCENTER-HOST": that.opts.vcenter_host
+            },
+            dataType: "json",
+            success: function(response){
+              template += "\n" + response.one;
+              var template_json = {
+                "vmtemplate": {
+                "template_raw": template
+                }
+              };
+              OpenNebulaTemplate.create({
+                timeout: true,
+                data: template_json,
+                success: function(request, response) {
+                  VCenterCommon.importSuccess({
+                    context : row_context,
+                    message : Locale.tr("Template created successfully. ID: %1$s", response.VMTEMPLATE.ID)
+                  });
+                },
+                error: function (request, error_json) {
+                  VCenterCommon.importFailure({
+                    context : row_context,
+                    message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
+                  });
+                }
+              });
+            },
+            error: function(response){
+              Notifier.onError({}, OpenNebulaError(response));
+            }
+          });
+        } 
+        else {
+          var template_json = {
+            "vmtemplate": {
+              "template_raw": template
+            }
+          };
 
-        OpenNebulaTemplate.create({
-          timeout: true,
-          data: template_json,
-          success: function(request, response) {
-            VCenterCommon.importSuccess({
-              context : row_context,
-              message : Locale.tr("Template created successfully. ID: %1$s", response.VMTEMPLATE.ID)
-            });
-          },
-          error: function (request, error_json) {
-            VCenterCommon.importFailure({
-              context : row_context,
-              message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
-            });
-          }
-        });
+          OpenNebulaTemplate.create({
+            timeout: true,
+            data: template_json,
+            success: function(request, response) {
+              VCenterCommon.importSuccess({
+                context : row_context,
+                message : Locale.tr("Template created successfully. ID: %1$s", response.VMTEMPLATE.ID)
+              });
+            },
+            error: function (request, error_json) {
+              VCenterCommon.importFailure({
+                context : row_context,
+                message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
+              });
+            }
+          });
+        }
       });
     });
   }
