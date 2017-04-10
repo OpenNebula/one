@@ -2329,7 +2329,7 @@ class VirtualMachine < Template
     # monitoring
     ############################################################################
 
-    def monitor(esx_host_cpu, stats)
+    def monitor(stats)
 
         reset_monitor
 
@@ -2339,7 +2339,7 @@ class VirtualMachine < Template
 
         return if @state != VM_STATE[:active]
 
-        cpuMhz =  esx_host_cpu[@vm_info["runtime.host"]._ref]
+        cpuMhz =  @vm_info[:esx_host_cpu]
 
         @monitor[:used_memory] = @vm_info["summary.quickStats.hostMemoryUsage"].to_f * 1024
 
@@ -2440,7 +2440,7 @@ class VirtualMachine < Template
         diskrdiops  = @monitor[:diskrdiops]
         diskwriops  = @monitor[:diskwriops]
 
-        esx_host      = @vm_info["cluster_name"].to_s
+        esx_host      = @vm_info[:esx_host_name].to_s
         guest_state   = @vm_info["guest.guestState"].to_s
         vmware_tools  = @vm_info["guest.toolsRunningStatus"].to_s
         vmtools_ver   = @vm_info["guest.toolsVersion"].to_s

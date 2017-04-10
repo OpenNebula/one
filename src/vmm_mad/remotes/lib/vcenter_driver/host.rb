@@ -325,10 +325,13 @@ class ClusterComputeResource
         host_id = one_host["ID"] if one_host
 
 
-        # Extract CPU info for each esx host in cluster
-        esx_host_cpu = {}
+        # Extract CPU info and name for each esx host in cluster
+        esx_hosts = {}
         @item.host.each do |esx_host|
-            esx_host_cpu[esx_host._ref] = esx_host.summary.hardware.cpuMhz.to_f
+            info = {}
+            info[:name] = esx_host.name
+            info[:cpu]  = esx_host.summary.hardware.cpuMhz.to_f
+            esx_hosts[esx_host._ref] = info
         end
 
         @monitored_vms = Set.new
@@ -425,6 +428,9 @@ class ClusterComputeResource
         vms.each do |vm_ref,info|
             begin
                 vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, @vi_client)
+                esx_host = esx_hosts[info["runtime.host"]._ref]
+                info[:esx_host_name] = esx_host[:name]
+                info[:esx_host_cpu] = esx_host[:cpu]
                 info[:cluster_name] = cluster_name
                 info[:cluster_ref] = cluster_ref
                 info[:vc_uuid] = vc_uuid
@@ -465,7 +471,7 @@ class ClusterComputeResource
                     vm.one_item if vm.get_vm_id
                 end
 
-                vm.monitor(esx_host_cpu,stats)
+                vm.monitor(stats)
 
                 vm_name = "#{info["name"]} - #{cluster_name}"
 
