@@ -299,3 +299,30 @@ int Zone::post_update_template(string& error)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int Zone::add_servers(Template& tmpl, string& error)
+{
+    vector<VectorAttribute *> vs;
+    vector<VectorAttribute *>::iterator it;
+
+    VectorAttribute * server;
+
+    tmpl.get(ZoneServers::SERVER_NAME, vs);
+
+    for ( it = vs.begin() ; it != vs.end() ; ++it )
+    {
+        server = new VectorAttribute(*it);
+
+        if ( servers->add_server(server, error) == -1 )
+        {
+            delete server;
+
+            return -1;
+        }
+
+        servers_template.set(server);
+    }
+
+    return 0;
+}
+

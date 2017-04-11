@@ -18,6 +18,22 @@ require 'one_helper'
 
 class OneZoneHelper < OpenNebulaHelper::OneHelper
 
+    SERVER_NAME={
+        :name => "server_name",
+        :short => "-n server_name",
+        :large => "--name",
+        :format => String,
+        :description => "Zone server name"
+    }
+
+    SERVER_ENDPOINT={
+        :name => "server_rpc",
+        :short => "-r rpc endpoint",
+        :large => "--rpc",
+        :format => String,
+        :description => "Zone server RPC endpoint"
+    }
+
     def self.rname
         "ZONE"
     end
@@ -96,6 +112,31 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
         CLIHelper.print_header(str_h1 % "ZONE #{zone['ID']} INFORMATION")
         puts str % ["ID",   zone.id.to_s]
         puts str % ["NAME", zone.name]
+        puts
+
+        zone_hash=zone.to_hash
+
+        if zone.has_elements?("/ZONE/SERVER_POOL/SERVER")
+            puts
+            CLIHelper.print_header(str_h1 % "SERVERS",false)
+
+            CLIHelper::ShowTable.new(nil, self) do
+
+                column :"ID", "", :size=>2 do |d|
+                    d["ID"] if !d.nil?
+                end
+
+                column :"NAME", "", :left, :size=>15 do |d|
+                    d["NAME"] if !d.nil?
+                end
+
+                column :"ENDPOINT", "", :left, :size=>30 do |d|
+                    d["ENDPOINT"] if !d.nil?
+                end
+
+            end.show([zone_hash['ZONE']['SERVER_POOL']['SERVER']].flatten, {})
+        end
+
         puts
 
         CLIHelper.print_header(str_h1 % "ZONE TEMPLATE", false)

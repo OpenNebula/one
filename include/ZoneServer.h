@@ -34,6 +34,18 @@ public:
 
     int init(string& error)
     {
+        if ( vector_value("NAME").empty() )
+        {
+            error = "Missing NAME in SERVER";
+            return -1;
+        }
+
+        if ( vector_value("ENDPOINT").empty() )
+        {
+            error = "Missing ENDPOINT in SERVER";
+            return -1;
+        }
+
         return 0;
     }
 
@@ -147,6 +159,8 @@ public:
             return -1;
         }
 
+        va->replace(SERVER_ID_NAME, next_id);
+
         add_attribute(server, next_id);
 
         next_id += 1;
@@ -154,15 +168,14 @@ public:
         return 0;
     };
 
-
 protected:
-
     ExtendedAttribute * attribute_factory(VectorAttribute * va, int id) const
     {
         return new ZoneServer(va, id);
     };
 
 private:
+    friend class Zone;
 
     static const char * SERVER_NAME; //"SERVER"
 

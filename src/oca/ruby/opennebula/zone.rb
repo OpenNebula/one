@@ -28,7 +28,8 @@ module OpenNebula
             :allocate       => "zone.allocate",
             :update         => "zone.update",
             :rename         => "zone.rename",
-            :delete         => "zone.delete"
+            :delete         => "zone.delete",
+            :addserver      => "zone.addserver"
         }
 
         # Creates a Zone description with just its identifier
@@ -102,6 +103,17 @@ module OpenNebula
         #   otherwise
         def rename(name)
             return call(ZONE_METHODS[:rename], @pe_id, name)
+        end
+
+        # Adds servers to this Zone
+        #
+        # @param name [String] Template with zone servers
+        #   SERVER = [ NAME = "<server_name>", ENDPOINT = "<rpc_ep>" ]
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def add_servers(servers)
+            return call(ZONE_METHODS[:addserver], @pe_id, servers)
         end
     end
 end

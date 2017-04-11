@@ -30,6 +30,7 @@
 #include "RequestManagerChmod.h"
 #include "RequestManagerClone.h"
 #include "RequestManagerRename.h"
+#include "RequestManagerZone.h"
 #include "RequestManagerLock.h"
 
 #include "RequestManagerVirtualNetwork.h"
@@ -779,6 +780,8 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr zone_delete(zone_delete_pt);
     xmlrpc_c::methodPtr zone_rename(zone_rename_pt);
 
+    xmlrpc_c::methodPtr zone_addserver(new ZoneAddServer());
+
     xmlrpc_c::methodPtr zone_info(new ZoneInfo());
     xmlrpc_c::methodPtr zonepool_info(new ZonePoolInfo());
 
@@ -787,6 +790,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.zone.delete",  zone_delete);
     RequestManagerRegistry.addMethod("one.zone.info",    zone_info);
     RequestManagerRegistry.addMethod("one.zone.rename",  zone_rename);
+
+    RequestManagerRegistry.addMethod("one.zone.addserver", zone_addserver);
 
     RequestManagerRegistry.addMethod("one.zonepool.info",zonepool_info);
 

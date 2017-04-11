@@ -46,6 +46,15 @@ public:
      */
     int from_xml(const string &xml_str);
 
+    /**
+     *  Add servers to this zone
+     *    @param tmpl with SERVER definitions
+     *    @param error
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int add_servers(Template& tmpl, string& error);
+
 private:
     // -------------------------------------------------------------------------
     // Friends
