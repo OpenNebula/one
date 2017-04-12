@@ -2172,8 +2172,8 @@ class VirtualMachine < Template
     # Create a snapshot for the VM
     def create_snapshot(snap_id, snap_name)
         snapshot_hash = {
-            :name        => snap_name,
-            :description => "OpenNebula's snapshot at #{Time.now}",
+            :name        => snap_id,
+            :description => "OpenNebula Snapshot: #{snap_name}",
             :memory      => true,
             :quiesce     => true
         }
@@ -2211,10 +2211,10 @@ class VirtualMachine < Template
     end
 
     # Revert to a VM snapshot
-    def revert_snapshot(snap_id, snap_name)
+    def revert_snapshot(snap_id)
 
         snapshot_list = self["snapshot.rootSnapshotList"]
-        snapshot = find_snapshot_in_list(snapshot_list, snap_id, snap_name)
+        snapshot = find_snapshot_in_list(snapshot_list, snap_id)
 
         return nil if !snapshot
 
@@ -2227,10 +2227,10 @@ class VirtualMachine < Template
     end
 
     # Delete VM snapshot
-    def delete_snapshot(snap_id, snap_name)
+    def delete_snapshot(snap_id)
 
         snapshot_list = self["snapshot.rootSnapshotList"]
-        snapshot = find_snapshot_in_list(snapshot_list, snap_id, snap_name)
+        snapshot = find_snapshot_in_list(snapshot_list, snap_id)
 
         return nil if !snapshot
 
@@ -2245,12 +2245,12 @@ class VirtualMachine < Template
         end
     end
 
-    def find_snapshot_in_list(list, snap_id, snap_name)
+    def find_snapshot_in_list(list, snap_id)
         list.each do |i|
-            if i.name == snap_id.to_s || i.name == snap_name.to_s
+            if i.name == snap_id.to_s
                 return i.snapshot
             elsif !i.childSnapshotList.empty?
-                snap = find_snapshot_in_list(i.childSnapshotList, snap_id, snap_name)
+                snap = find_snapshot_in_list(i.childSnapshotList, snap_id)
                 return snap if snap
             end
         end rescue nil
