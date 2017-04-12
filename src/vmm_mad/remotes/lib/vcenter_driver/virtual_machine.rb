@@ -471,12 +471,12 @@ class Template
               "vCPU   = \"#{@vm_info["config.hardware.numCPU"]}\"\n"\
               "MEMORY = \"#{@vm_info["config.hardware.memoryMB"]}\"\n"\
               "HYPERVISOR = \"vcenter\"\n"\
-              "SCHED_REQUIREMENTS=\"ID=\\\"#{@vm_info["host_id"]}\\\"\"\n"\
+              "SCHED_REQUIREMENTS=\"ID=\\\"#{@vm_info[:host_id]}\\\"\"\n"\
               "CONTEXT = [\n"\
               "    NETWORK = \"YES\",\n"\
               "    SSH_PUBLIC_KEY = \"$USER[SSH_PUBLIC_KEY]\"\n"\
               "]\n"\
-              "VCENTER_INSTANCE_ID =\"#{@vm_info["vc_uuid"]}\"\n"
+              "VCENTER_INSTANCE_ID =\"#{@vm_info[:vc_uuid]}\"\n"
 
         str << "IMPORT_VM_ID =\"#{self["_ref"]}\"\n"
         str << "IMPORT_STATE =\"#{@state}\"\n"

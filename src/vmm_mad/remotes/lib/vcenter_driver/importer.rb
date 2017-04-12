@@ -2,6 +2,51 @@ module VCenterDriver
 
 class Importer
 
+def self.import_wild(host_id, vm_ref, one_vm, template)
+
+    begin
+        vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+        vc_uuid   = vi_client.vim.serviceContent.about.instanceUuid
+        dc_name   = vi_client.vim.host
+
+        dpool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool)
+        ipool = VCenterDriver::VIHelper.one_pool(OpenNebula::ImagePool)
+        npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool)
+
+        vcenter_vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
+
+        error, template_disks = vcenter_vm.import_vcenter_disks(vc_uuid, dpool, ipool)
+
+        return OpenNebula::Error.new(error) if !error.empty?
+
+        template << template_disks
+
+        # Create images or get nics information for template
+        error, template_nics = vcenter_vm.import_vcenter_nics(vc_uuid, npool, dc_name)
+
+        return OpenNebula::Error.new(error) if !error.empty?
+
+        template << template_nics
+
+        rc = one_vm.allocate(template)
+
+        return rc if OpenNebula.is_error?(rc)
+
+        one_vm.deploy(host_id, false)
+
+        # Set reference to template disks and nics in VM template
+        vcenter_vm.one_item = one_vm
+        vcenter_vm.reference_imported_disks(vm_ref)
+        vcenter_vm.reference_imported_nics
+
+        return one_vm.id
+
+    rescue Exception => e
+        vi_client.close_connection if vi_client
+        return OpenNebula::Error.new(e.message)
+    end
+end
+
 def self.import_clusters(con_ops, options)
     begin
         STDOUT.print "\nConnecting to vCenter: #{options[:vcenter]}..."

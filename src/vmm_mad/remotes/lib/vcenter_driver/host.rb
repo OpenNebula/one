@@ -484,7 +484,7 @@ class ClusterComputeResource
 
                 if number == -1
                     vm_template_64 = Base64.encode64(vm.vm_to_one(vm_name)).gsub("\n","")
-
+                    str_info << "VCENTER_TEMPLATE=\"YES\","
                     str_info << "IMPORT_TEMPLATE=\"#{vm_template_64}\","
                 end
 
