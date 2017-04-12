@@ -149,7 +149,7 @@ define(function(require) {
     if(tmpl["SIZE"]){
       tmpl["SIZE"] = tmpl["SIZE"] * 1024;
     }
-    else{
+    else if(!tmpl["IMAGE"] && !tmpl["IMAGE_ID"]){
        return {};
     }
     var dev_prefix = WizardFields.retrieveInput($('#disk_dev_prefix', selectedContext));
