@@ -2312,6 +2312,10 @@ class VirtualMachine < Template
         @item.PowerOffVM_Task.wait_for_completion
     end
 
+    def remove_all_snapshots
+        @item.RemoveAllSnapshots_Task.wait_for_completion
+    end
+
     def set_running(state)
         value = state ? "yes" : "no"
 

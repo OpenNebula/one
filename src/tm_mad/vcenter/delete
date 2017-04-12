@@ -216,6 +216,17 @@ else
 
         vm.poweroff_hard if vm.is_powered_on?
 
+        # If the VM has snapshots the TM could not detach disks so we
+        # will try to detach persistent disks once we have removed all snapshots
+        # that way they won't be removed
+        if vm.has_snapshots?
+            vm.remove_all_snapshots
+            disks = one_vm.retrieve_xmlelements("TEMPLATE/DISK[PERSISTENT=\"YES\"]")
+            disks.each do |d|
+                vm.detach_disk(d)
+            end
+        end
+
         vm.destroy
     rescue Exception => e
         STDERR.puts "Error unregistering vm #{vmid} (#{vm_ref})."\
