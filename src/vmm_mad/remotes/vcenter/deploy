@@ -48,7 +48,8 @@ begin
 
         # Setting one_item is optional, but it saves a couple of API calls if
         # we already have it
-        vm.one_item = drv_action
+        one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
+        vm.one_item = one_vm
     else
         # VM is new
         vm = VCenterDriver::VirtualMachine.new
