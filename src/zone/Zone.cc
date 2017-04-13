@@ -300,7 +300,7 @@ int Zone::post_update_template(string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Zone::add_servers(Template& tmpl, string& error)
+int Zone::add_server(Template& tmpl, string& error)
 {
     vector<VectorAttribute *> vs;
     vector<VectorAttribute *>::iterator it;
@@ -326,3 +326,21 @@ int Zone::add_servers(Template& tmpl, string& error)
     return 0;
 }
 
+int Zone::delete_server(int id, string& error)
+{
+    ZoneServer * zs;
+
+    zs = servers->delete_server(id);
+
+    if ( zs == 0 )
+    {
+        error = "SERVER not found in zone";
+        return -1;
+    }
+
+    delete servers_template.remove(zs->vector_attribute());
+
+    delete zs;
+
+    return 0;
+}

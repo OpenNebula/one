@@ -118,6 +118,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     end
 
+    delserver_desc = <<-EOT.unindent
+        Delete an OpenNebula server from this zone.
+    EOT
+
+    command :"server-del", delserver_desc, :zoneid, :serverid do
+        helper.perform_action(args[0], options, "server deleted") do |o|
+            o.delete_servers(args[1].to_i)
+        end
+
+    end
     update_desc = <<-EOT.unindent
         Update the template contents. If a path is not provided the editor will
         be launched to modify the current content.

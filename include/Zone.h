@@ -53,7 +53,16 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int add_servers(Template& tmpl, string& error);
+    int add_server(Template& tmpl, string& error);
+
+    /**
+     *  Delete a server from this zone
+     *    @param it of the SERVER
+     *    @param error if any
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int delete_server(int id, string& error);
 
 private:
     // -------------------------------------------------------------------------

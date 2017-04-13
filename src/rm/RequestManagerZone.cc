@@ -55,9 +55,50 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ( zone->add_servers(zs_tmpl, att.resp_msg) == -1 )
+    if ( zone->add_server(zs_tmpl, att.resp_msg) == -1 )
     {
         failure_response(ACTION, att);
+
+        return;
+    }
+
+    pool->update(zone);
+
+    zone->unlock();
+
+    success_response(id, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
+    RequestAttributes& att)
+{
+    int id    = xmlrpc_c::value_int(paramList.getInt(1));
+    int zs_id = xmlrpc_c::value_int(paramList.getInt(2));
+
+    string error_str;
+
+    if ( basic_authorization(id, att) == false )
+    {
+        return;
+    }
+
+    Zone * zone = (static_cast<ZonePool *>(pool))->get(id, true);
+
+    if ( zone == 0 )
+    {
+        att.resp_id = id;
+        failure_response(NO_EXISTS, att);
+
+        return;
+    }
+
+    if ( zone->delete_server(zs_id, att.resp_msg) == -1 )
+    {
+        failure_response(ACTION, att);
+        zone->unlock();
 
         return;
     }

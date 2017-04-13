@@ -67,4 +67,20 @@ public:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ZoneDeleteServer : public RequestManagerZone
+{
+public:
+    ZoneDeleteServer():
+        RequestManagerZone("ZoneDeleteServer", "Delete a server from zone",
+                "A:sii"){};
+
+    ~ZoneDeleteServer(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+};
+
 #endif

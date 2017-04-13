@@ -29,7 +29,8 @@ module OpenNebula
             :update         => "zone.update",
             :rename         => "zone.rename",
             :delete         => "zone.delete",
-            :addserver      => "zone.addserver"
+            :addserver      => "zone.addserver",
+            :delserver      => "zone.delserver"
         }
 
         # Creates a Zone description with just its identifier
@@ -114,6 +115,16 @@ module OpenNebula
         #   otherwise
         def add_servers(servers)
             return call(ZONE_METHODS[:addserver], @pe_id, servers)
+        end
+
+        # Delete servers from this Zone
+        #
+        # @param id [Int] Server ID
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def delete_servers(server_id)
+            return call(ZONE_METHODS[:delserver], @pe_id, server_id)
         end
     end
 end

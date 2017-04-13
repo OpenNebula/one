@@ -219,11 +219,20 @@ protected:
     /* ---------------------------------------------------------------------- */
     /**
      *  Adds a new VirtualMachine attribute to the set
+     *    @param a the Extended attribute to add
+     *    @param id of the new attribute
      */
     void add_attribute(ExtendedAttribute * a, int id)
     {
         a_set.insert(make_pair(id, a));
     }
+
+    /**
+     *  Deletes an attribute from the set
+     *    @param id of the attribute
+     *    @return the attribute removed or 0 if not found
+     */
+    ExtendedAttribute * delete_attribute(int id);
 
     /**
      *  Init the attribute set from a vector

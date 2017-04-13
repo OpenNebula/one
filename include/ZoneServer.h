@@ -168,6 +168,12 @@ public:
         return 0;
     };
 
+    ZoneServer * delete_server(int id)
+    {
+        return static_cast<ZoneServer *>(delete_attribute(id));
+    };
+
+
 protected:
     ExtendedAttribute * attribute_factory(VectorAttribute * va, int id) const
     {

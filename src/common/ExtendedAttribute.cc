@@ -75,3 +75,20 @@ void ExtendedAttributeSet::init_attribute_map(const std::string& id_name,
     }
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+ExtendedAttribute * ExtendedAttributeSet::delete_attribute(int id)
+{
+    std::map<int, ExtendedAttribute*>::iterator it = a_set.find(id);
+
+    if ( it == a_set.end() )
+    {
+        return 0;
+    }
+
+    a_set.erase(it);
+
+    return it->second;
+}
+

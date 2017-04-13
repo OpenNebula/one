@@ -760,6 +760,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::method * zone_delete_pt;
     xmlrpc_c::method * zone_rename_pt;
     xmlrpc_c::method * zone_addserver_pt;
+    xmlrpc_c::method * zone_delserver_pt;
 
     if (nebula.is_federation_slave())
     {
@@ -768,6 +769,7 @@ void RequestManager::register_xml_methods()
         zone_delete_pt      = new RequestManagerProxy("one.zone.delete");
         zone_rename_pt      = new RequestManagerProxy("one.zone.rename");
         zone_addserver_pt   = new RequestManagerProxy("one.zone.addserver");
+        zone_delserver_pt   = new RequestManagerProxy("one.zone.delserver");
     }
     else
     {
@@ -776,6 +778,7 @@ void RequestManager::register_xml_methods()
         zone_delete_pt      = new ZoneDelete();
         zone_rename_pt      = new ZoneRename();
         zone_addserver_pt   = new ZoneAddServer();
+        zone_delserver_pt   = new ZoneDeleteServer();
     }
 
     xmlrpc_c::methodPtr zone_allocate(zone_allocate_pt);
@@ -783,6 +786,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr zone_delete(zone_delete_pt);
     xmlrpc_c::methodPtr zone_rename(zone_rename_pt);
     xmlrpc_c::methodPtr zone_addserver(zone_addserver_pt);
+    xmlrpc_c::methodPtr zone_delserver(zone_delserver_pt);
 
     xmlrpc_c::methodPtr zone_info(new ZoneInfo());
     xmlrpc_c::methodPtr zonepool_info(new ZonePoolInfo());
@@ -794,6 +798,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.zone.rename",  zone_rename);
 
     RequestManagerRegistry.addMethod("one.zone.addserver", zone_addserver);
+    RequestManagerRegistry.addMethod("one.zone.delserver", zone_delserver);
 
     RequestManagerRegistry.addMethod("one.zonepool.info",zonepool_info);
 
