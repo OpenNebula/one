@@ -1989,36 +1989,6 @@ class VirtualMachine < Template
         self['rootSnapshot'] && !self['rootSnapshot'].empty?
     end
 
-    def get_vcenter_disks
-        disks = []
-        @item["config.hardware.device"].each do |device|
-            disk = {}
-            if is_disk_or_iso?(device)
-                disk[:device]    = device
-                disk[:datastore] = device.backing.datastore
-                disk[:path_wo_ds]= device.backing.fileName.sub(/^\[(.*?)\] /, "")
-                disk[:path]      = device.backing.fileName
-                disk[:type]      = is_disk?(device) ? "OS" : "CDROM"
-                disks << disk
-            end
-        end
-        return disks
-    end
-
-    def get_vcenter_nics
-        nics = []
-        @item["config.hardware.device"].each do |device|
-            nic = {}
-            if is_nic?(device)
-                nic[:net_name]  = device.backing.network.name
-                nic[:net_ref]   = device.backing.network._ref
-                nic[:pg_type]   = VCenterDriver::Network.get_network_type(device)
-                nics << nic
-            end
-        end
-        return nics
-    end
-
     def remove_poweroff_detached_vcenter_nets(networks)
         esx_host = VCenterDriver::ESXHost.new_from_ref(@item.runtime.host._ref, vi_client)
         dc = cluster.get_dc # Get datacenter
