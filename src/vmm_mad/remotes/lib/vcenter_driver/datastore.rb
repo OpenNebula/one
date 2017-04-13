@@ -68,7 +68,7 @@ class Storage
         end
     end
 
-    def self.get_image_import_template(ds_name, image_path, image_type, ipool)
+    def self.get_image_import_template(ds_name, image_path, image_type, image_prefix, ipool)
         one_image = {}
         one_image[:template] = ""
 
@@ -91,7 +91,7 @@ class Storage
             one_image[:template] << "TYPE=\"#{image_type}\"\n"
             one_image[:template] << "PERSISTENT=\"NO\"\n"
             one_image[:template] << "VCENTER_IMPORTED=\"YES\"\n"
-            one_image[:template] << "DEV_PREFIX=\"#{VCenterDriver::VIHelper.get_default("IMAGE/TEMPLATE/DEV_PREFIX")}\"\n" #TODO get device prefix from vcenter info
+            one_image[:template] << "DEV_PREFIX=\"#{image_prefix}\"\n"
         else
             # Return the image XML if it already exists
             one_image[:one] = image
@@ -547,9 +547,18 @@ class Datastore < Storage
                     image_path << folderpath << image.path
                     image_name = File.basename(image.path).reverse.sub("kdmv.","").reverse
 
-                    # Get image and disk type
-                    image_type = image.class.to_s == "VmDiskFileInfo" ? "OS" : "CDROM"
-                    disk_type = image.class.to_s == "VmDiskFileInfo" ? image.diskType : nil
+                    # Get image's disk and type
+                    image_type  = image.class.to_s == "VmDiskFileInfo" ? "OS" : "CDROM"
+                    disk_type   = image.class.to_s == "VmDiskFileInfo" ? image.diskType : nil
+
+                    # Assign image prefix if known or assign default prefix
+                    controller = image.controllerType rescue nil
+                    if controller
+                        disk_prefix = controller == "VirtualIDEController" ? "hd" : "sd"
+                    else
+                        # Get default value for disks that are not attached to any controller
+                        disk_prefix = VCenterDriver::VIHelper.get_default("IMAGE/TEMPLATE/DEV_PREFIX")
+                    end
 
                     #Set template
                     one_image =  "NAME=\"#{image_name} - #{ds_name}\"\n"
@@ -558,7 +567,7 @@ class Datastore < Storage
                     one_image << "TYPE=\"#{image_type}\"\n"
                     one_image << "VCENTER_DISK_TYPE=\"#{disk_type}\"\n" if disk_type
                     one_image << "VCENTER_IMPORTED=\"YES\"\n"
-                    one_image << "DEV_PREFIX=\"#{VCenterDriver::VIHelper.get_default("IMAGE/TEMPLATE/DEV_PREFIX")}\"\n" #TODO get device prefix from vcenter info
+                    one_image << "DEV_PREFIX=\"#{disk_prefix}\"\n"
 
                     if VCenterDriver::VIHelper.find_by_name(OpenNebula::ImagePool,
                                                             "#{image_name} - #{ds_name}",
@@ -576,8 +585,8 @@ class Datastore < Storage
                 end
             end
 
-        rescue
-            raise "Could not find images."
+        rescue Exception => e
+            raise "Could not find images. Reason: #{e.message}/#{e.backtrace}"
         end
 
         return img_templates

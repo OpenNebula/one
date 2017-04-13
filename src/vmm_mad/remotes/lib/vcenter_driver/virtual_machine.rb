@@ -247,8 +247,10 @@ class Template
                 end
 
                 image_import = VCenterDriver::Datastore.get_image_import_template(disk[:datastore].name,
-                                                                                disk[:path],
-                                                                                disk[:type], ipool)
+                                                                                  disk[:path],
+                                                                                  disk[:type],
+                                                                                  disk[:prefix],
+                                                                                  ipool)
                 #Image is already in the datastore
                 if image_import[:one]
                     # This is the disk info
@@ -385,14 +387,29 @@ class Template
     def get_vcenter_disks
 
         disks = []
+        ide_controlled  = []
+        scsi_controlled = []
+
         @item["config.hardware.device"].each do |device|
             disk = {}
+
+            if device.is_a? RbVmomi::VIM::VirtualIDEController
+                ide_controlled.concat(device.device)
+            end
+
+            if device.is_a? RbVmomi::VIM::VirtualSCSIController
+                scsi_controlled.concat(device.device)
+            end
+
             if is_disk_or_iso?(device)
                 disk[:device]    = device
                 disk[:datastore] = device.backing.datastore
                 disk[:path]      = device.backing.fileName
                 disk[:path_wo_ds]= disk[:path].sub(/^\[(.*?)\] /, "")
                 disk[:type]      = is_disk?(device) ? "OS" : "CDROM"
+
+                disk[:prefix]    = "hd" if ide_controlled.include?(device.key)
+                disk[:prefix]    = "sd" if scsi_controlled.include?(device.key)
                 disks << disk
             end
         end
