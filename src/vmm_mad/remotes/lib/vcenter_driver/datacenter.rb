@@ -126,6 +126,12 @@ class DatacenterFolder
 
             datastore_folder.items.values.each do |ds|
 
+                name, capacity, freeSpace = ds.item.collect("name","summary.capacity","summary.freeSpace")
+
+                ds_name = "[#{vcenter_instance_name} - #{dc_name}] #{name}"
+                ds_total_mb =  ((capacity.to_i / 1024) / 1024)
+                ds_free_mb = ((freeSpace.to_i / 1024) / 1024)
+
                 if ds.instance_of? VCenterDriver::Datastore
                     hosts_in_ds = ds['host']
                     clusters_in_ds = {}
@@ -138,19 +144,29 @@ class DatacenterFolder
                     end
 
                     clusters_in_ds.each do |ccr_ref, ccr_name|
+                        ds_hash = {}
+
+                        ds_hash[:name] = "#{ds_name} - #{ccr_name.tr(" ", "_")}"
+                        ds_hash[:total_mb] = ds_total_mb
+                        ds_hash[:free_mb]  = ds_free_mb
+                        ds_hash[:cluster]  = ccr_name
+                        ds_hash[:ds]      = []
+
                         already_image_ds = VCenterDriver::Storage.exists_one_by_ref_ccr_and_type?(ds["_ref"], ccr_ref, vcenter_uuid, "IMAGE_DS", dpool)
 
                         if !already_image_ds
-                            object = ds.to_one_template(one_clusters[dc_name], ccr_ref, ccr_name, "IMAGE_DS", vcenter_uuid, vcenter_instance_name, dc_name)
-                            ds_objects[dc_name] << object if !object.nil?
+                            object = ds.to_one_template(one_clusters[dc_name], ds_hash[:name], ccr_ref, "IMAGE_DS", vcenter_uuid)
+                            ds_hash[:ds] << object if !object.nil?
                         end
 
                         already_system_ds = VCenterDriver::Storage.exists_one_by_ref_ccr_and_type?(ds["_ref"], ccr_ref, vcenter_uuid, "SYSTEM_DS", dpool)
 
                         if !already_system_ds
-                            object = ds.to_one_template(one_clusters[dc_name], ccr_ref, ccr_name, "SYSTEM_DS", vcenter_uuid, vcenter_instance_name, dc_name)
-                            ds_objects[dc_name] << object if !object.nil?
+                            object = ds.to_one_template(one_clusters[dc_name], ds_hash[:name], ccr_ref, "SYSTEM_DS", vcenter_uuid)
+                            ds_hash[:ds] << object if !object.nil?
                         end
+
+                        ds_objects[dc_name] << ds_hash if !ds_hash[:ds].empty?
                     end
                 end
 
@@ -169,12 +185,22 @@ class DatacenterFolder
                     end
 
                     clusters_in_spod.each do |ccr_ref, ccr_name|
+                        ds_hash = {}
+                        ds_hash[:name] = "#{ds_name} - #{ccr_name.tr(" ", "_")} [StorPod]"
+                        ds_hash[:total_mb] = ds_total_mb
+                        ds_hash[:free_mb]  = ds_free_mb
+                        ds_hash[:cluster]  = ccr_name
+                        ds_hash[:ds]      = []
+
+                        ds_hash[:ds] = []
                         already_system_ds = VCenterDriver::Storage.exists_one_by_ref_ccr_and_type?(ds["_ref"], ccr_ref, vcenter_uuid, "SYSTEM_DS", dpool)
 
                         if !already_system_ds
-                            object = ds.to_one_template(one_clusters[dc_name], ccr_ref, ccr_name, "SYSTEM_DS", vcenter_uuid, vcenter_instance_name, dc_name)
-                            ds_objects[dc_name] << object if !object.nil?
+                            object = ds.to_one_template(one_clusters[dc_name], ds_hash[:name], ccr_ref, "SYSTEM_DS", vcenter_uuid)
+                            ds_hash[:ds] << object if !object.nil?
                         end
+
+                        ds_objects[dc_name] << ds_hash if !ds_hash[:ds].empty?
                     end
                 end
             end

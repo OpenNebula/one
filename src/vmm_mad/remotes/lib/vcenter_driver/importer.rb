@@ -666,7 +666,6 @@ def self.import_datastore(con_ops, options)
             end
 
             tmps.each{ |d|
-                one_cluster_id = nil
                 if !use_defaults
                     STDOUT.print "\n  * Datastore found:\n"\
                                     "      - Name      : #{d[:name]}\n"\
@@ -676,25 +675,23 @@ def self.import_datastore(con_ops, options)
                                     "    Import this as Datastore [y/n]? "
 
                     next if STDIN.gets.strip.downcase != 'y'
+
+                    STDOUT.print "\n    NOTE: For each vcenter datastore a SYSTEM and IMAGE datastore\n"\
+                                 "    will be created in OpenNebula except for a StorageDRS which is \n"\
+                                 "    represented as a SYSTEM datastore only.\n"
+
                 end
 
-                one_d = VCenterDriver::VIHelper.new_one_item(OpenNebula::Datastore)
-
-                if one_cluster_id
-                    rc = one_d.allocate(d[:one], one_cluster_id.to_i)
-                else
-                    rc = one_d.allocate(d[:one])
-                end
-
-                if ::OpenNebula.is_error?(rc)
-                    STDOUT.puts "    \nError creating datastore: #{rc.message}\n"\
-                                "    One datastore can exist only once, and "\
-                                "can be used in any vCenter Cluster that "\
-                                "has access to it. Also, no spaces allowed "\
-                                "in datastore name (rename it in vCenter "\
-                                "and try again)"
-                else
-                    STDOUT.puts "    \nOpenNebula datastore #{one_d.id} created!\n"
+                ds_allocate_error = false
+                d[:ds].each do |ds|
+                    one_d = VCenterDriver::VIHelper.new_one_item(OpenNebula::Datastore)
+                    rc = one_d.allocate(ds[:one])
+                    if ::OpenNebula.is_error?(rc)
+                        STDOUT.puts "    \n    Error creating datastore: #{rc.message}"
+                        ds_allocate_error = true
+                    else
+                        STDOUT.puts "    \n    OpenNebula datastore #{one_d.id} created!\n"
+                    end
                 end
             }
         }
