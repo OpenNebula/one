@@ -167,6 +167,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  script = "";
     string  model  = "";
     string  ip     = "";
+    string  vrouter_ip = "";
     string  filter = "";
 
     string  i_avg_bw = "";
@@ -854,6 +855,7 @@ int LibVirtDriver::deployment_description_kvm(
         script = nic[i]->vector_value("SCRIPT");
         model  = nic[i]->vector_value("MODEL");
         ip     = nic[i]->vector_value("IP");
+        vrouter_ip = nic[i]->vector_value("VROUTER_IP");
         filter = nic[i]->vector_value("FILTER");
 
         i_avg_bw  = nic[i]->vector_value("INBOUND_AVG_BW");
@@ -941,8 +943,13 @@ int LibVirtDriver::deployment_description_kvm(
                 file << "\t\t\t<filterref filter="
                          << one_util::escape_xml_attr(*the_filter) << ">\n"
                      << "\t\t\t\t<parameter name='IP' value="
-                         << one_util::escape_xml_attr(ip) << "/>\n"
-                     << "\t\t\t</filterref>\n";
+                         << one_util::escape_xml_attr(ip) << "/>\n";
+                if ( !vrouter_ip.empty() )
+                {
+                    file << "\t\t\t\t<parameter name='IP' value="
+                            << one_util::escape_xml_attr(vrouter_ip) << "/>\n";
+                }
+                file << "\t\t\t</filterref>\n";
             }
         }
 
