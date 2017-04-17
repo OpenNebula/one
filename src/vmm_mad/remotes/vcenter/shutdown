@@ -49,16 +49,7 @@ if !["SHUTDOWN", "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"].include?(lcm_state_st
     exit -1
 end
 
-# Get disk elements from drv_action
-disks = drv_action.retrieve_xmlelements("VM/TEMPLATE/DISK")
-
 ## TODO copy_template
-
-# Manage instantiate to persistent
-instantiate_to_persistent =
-    !drv_action['/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/CLONING_TEMPLATE_ID'].nil?
-
-template_id = drv_action['/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/TEMPLATE_ID']
 
 begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
@@ -66,21 +57,6 @@ begin
     vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
 
     vm.shutdown #Undeploy, Poweroff or Terminate
-
-    # If Terminate action has been called
-    if lcm_state_str == "SHUTDOWN"
-
-        # If the VM was instantiated to persistent keep the VM
-        if instantiate_to_persistent
-            vm.mark_as_template #Convert VM to template in vCenter
-
-            # Create new Opennebula template and set VCENTER_TEMPLATE_REF
-            new_template = OpenNebula::Template.new_with_id(template_id,
-                                                OpenNebula::Client.new)
-            new_template.info
-            new_template.update("VCENTER_TEMPLATE_REF= #{vm.item._ref}", true)
-        end
-    end
 
 rescue Exception => e
     STDERR.puts "Shutdown of VM #{vm_ref} on vCenter cluster "\
