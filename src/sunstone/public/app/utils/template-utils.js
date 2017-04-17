@@ -109,100 +109,78 @@ define(function(require) {
   }
   // Transforms an object to an opennebula template string
   function _convert_string_to_template(string_json, unshown_values) {
-    string_json = string_json.split("\n").join(" ");
-    string_json = string_json.split("   ").join(" ");
-    string_json = string_json.split("  ").join(" ");
-    var match_symbols = "=[,]"
-    var template_json = {};
-    var array_string = string_json.split(" ");
     var i = 0;
+    var characters = [];
+    var symbols = [];
+    var key, sub_key, value;
+    var template_json = {}, obj_aux = {};
     var array = false;
-    while(i < array_string.length-1){
-      if(!array_string[i].match('"') && !array_string[i].match(match_symbols)){ //is key
-        var key = array_string[i];
-        if(template_json[key]){ //exists key, generate Array
-          if(!Array.isArray(template_json[key])){
-            var obj = template_json[key];
-            template_json[key] = [];
-            template_json[key].push(obj);
+    while (i < string_json.length-1){
+      var symbol = symbols[symbols.length-1];
+      if(string_json[i] != " " && string_json[i] != "," && string_json[i] != "\n" || symbol == '"'){
+        if(string_json[i] == "=" && symbol != '"' && characters.length > 0 && (!symbol || (symbol && symbol == "["))){
+          var key_aux = "";
+          while(characters.length > 0){
+            key_aux += characters.shift();
           }
-          array = true;
-        }
-        else{
-          array = false;
-        }
-        template_json[key];
-        i+=1;
-        if(array_string[i] == "="){
-          i+=1;
-          if(array_string[i] != "["){
-            var value = "";
-            if(key == "DESCRIPTION" && array_string[i][0] == '"' && array_string[i][array_string[i].length-1] != '"'){
-              while (array_string[i][array_string[i].length-1] != '"' && i < array_string.length-1){
-                value += array_string[i] + " ";
-                i+=1;
+          if(!symbol){
+            key = key_aux;
+            if(template_json[key]){ //exists key, generate Array
+              if(!Array.isArray(template_json[key])){
+                var obj = template_json[key];
+                template_json[key] = [];
+                template_json[key].push(obj);
               }
-              if(!value.match("="))
-                value = value.split('"').join("");
-              else{
-                value  = value .slice(0,-1);
-                value = value .slice(1);
-              }
-              if(array){
-                template_json[key].push(value);
-              }else{
-                template_json[key] = value;
-              }
-              i+=1;
-            }
-            else if(array_string[i].match('"')){
-              value = array_string[i];
-              if(!value.match("="))
-                value = value.split('"').join("");
-              else{
-                value  = value .slice(0,-1);
-                value = value .slice(1);
-              }
-              if(array){
-                template_json[key].push(value);
-              }else{
-                template_json[key] = value;
-              }
-              i+=1;
-            }
-            else return false;
-          }else{
-            var obj = {}
-            i+=1;
-            while(array_string[i] != ']' && i < array_string.length-1){
-              var sub_key; 
-              if(!array_string[i].match('"') && !array_string[i].match(match_symbols)){
-                sub_key = array_string[i];
-                i+=1;
-                if(array_string[i] == "="){
-                  i+=1;
-                  if(array_string[i].match('"')){
-                    if(array_string[i][array_string[i].length-1] == ","){
-                      array_string[i] = array_string[i].slice(0,-1);
-                    }
-                    var value = array_string[i];
-                    obj[sub_key] = value;
-                    obj[sub_key] = obj[sub_key].split('"').join("");
-                    i+=1;
-                  }else return false;
-                }else return false;
-              }else return false;
-            }
-            if(array){
-              template_json[key].push(obj);
+              array = true;
             }else{
               template_json[key] = {};
-              template_json[key] = obj;
+              array = false;
             }
-            i+=1;
+          }else{
+            sub_key = key_aux;
           }
-        }else return false;
-      }else return false; 
+        }
+        else if(string_json[i] == '"' && symbol && symbol == '"' && characters[characters.length-1] != "\\"){
+          symbols.pop();
+          var value_aux = "";
+          while(characters.length > 0){
+            value_aux += characters.shift();
+          }
+          if(sub_key){
+            if (array) {
+              obj_aux[sub_key] = value_aux;
+            }
+            else{
+              template_json[key][sub_key] = value_aux;
+            }
+            sub_key = undefined;
+          }else{
+            template_json[key] = value_aux;
+          }
+        }
+        else if(string_json[i] == '[' && !symbol){
+          symbols.push("[");
+        }
+        else if(string_json[i] == '"' && characters[characters.length-1] != "\\"){
+          symbols.push('"');
+        }
+        else if(string_json[i] == ']' && symbol && symbol == '['){
+          symbols.pop();
+          if(array){
+            template_json[key].push(obj_aux);
+            obj_aux = {};
+          }
+        }
+        else{
+          if(JSON.stringify(template_json[key]) === '{}' && symbols.length <= 0){ //Empty
+            return false;
+          }
+          else{
+            characters.push(string_json[i]);
+          }
+        }
+      }
+      i+=1;
     }
     return template_json;
   }
