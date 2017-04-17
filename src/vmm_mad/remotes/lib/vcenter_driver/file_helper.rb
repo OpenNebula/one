@@ -10,13 +10,10 @@ class FileHelper
             return disk["SOURCE"]
         else
             disk_id  = disk["DISK_ID"]
-            if disk["SOURCE"]
-                image_name = disk["SOURCE"].split(".").first
-                return "#{image_name}-#{vm_id}-#{disk_id}.vmdk"
-            else
-                ds_volatile_dir  = disk["VCENTER_DS_VOLATILE_DIR"] || "one-volatile"
-                return "#{ds_volatile_dir}/#{vm_id}/one-#{vm_id}-#{disk_id}.vmdk"
-            end
+            return disk["SOURCE"] if disk["SOURCE"]
+
+            ds_volatile_dir  = disk["VCENTER_DS_VOLATILE_DIR"] || "one-volatile"
+            return "#{ds_volatile_dir}/#{vm_id}/one-#{vm_id}-#{disk_id}.vmdk"
         end
     end
 
@@ -36,6 +33,12 @@ class FileHelper
         type = %x{file #{file}}
 
         type.include? "VMware"
+    end
+
+    def self.is_iso?(file)
+        type = %x{file #{file}}
+
+        type.include? "ISO"
     end
 
     def self.get_type(file)
