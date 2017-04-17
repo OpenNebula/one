@@ -101,6 +101,9 @@ define(function(require) {
 
     $(".vcenter_import_result_row", opts.context).show();
 
+    if(opts.message){
+      $(".vcenter_import_response", opts.context).html(opts.message);
+    }
   }
 
   function _importSuccess(opts) {
