@@ -48,6 +48,8 @@ check_valid ds_ref, "ds_ref"
 check_valid host_id, "vcenter_cluster"
 check_valid img_src, "img_src"
 
+CDROM = "1"
+
 begin
     #TODO should imported disks be deleted?
     if imported.nil? || imported.empty?
@@ -57,7 +59,16 @@ begin
 
         img_dir = img_src.split('/')[0..-2].join('/')
 
-        ds.delete_virtual_disk(img_src)
+        img_type    = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TYPE"]
+
+        if img_type != CDROM
+            # delete the disk
+            ds.delete_virtual_disk(img_src)
+        else
+            # delete the CDROM iso
+            ds.delete_file(img_src)
+        end
+
         ds.rm_directory(img_dir) if ds.dir_empty?(img_dir)
     end
 rescue Exception => e
