@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,6 +18,7 @@ define(function(require) {
 
   var Locale = require('utils/locale');
   var Sunstone = require('sunstone');
+  var Notifier = require('utils/notifier');
 
   //Escape doublequote in a string and return it
   function _escapeDoubleQuotes(string) {
@@ -92,7 +93,101 @@ define(function(require) {
     return template_str;
   }
 
+  function _merge_templates(template_master, template_slave, advanced){
+    if(!advanced)
+      template_slave = _convert_string_to_template(template_slave);
+    else
+      template_master = _convert_string_to_template(template_master);
+    if((advanced && template_master) || (!advanced && template_slave)){
+      var template_final = {};
+      $.extend(true, template_final, template_slave, template_master);
+      return template_final;
+    }else{
+      Notifier.notifyError(Locale.tr("Advanced template malformed"));
+    } 
+    return template_master;
+  }
+  // Transforms an object to an opennebula template string
+  function _convert_string_to_template(string_json, unshown_values) {
+    var i = 0;
+    var characters = [];
+    var symbols = [];
+    var key, sub_key, value;
+    var template_json = {}, obj_aux = {};
+    var array = false;
+    while (i <= string_json.length-1){
+      var symbol = symbols[symbols.length-1];
+      if(string_json[i] != " " && string_json[i] != "," && string_json[i] != "\n" || symbol == '"'){
+        if(string_json[i] == "=" && symbol != '"' && characters.length > 0 && (!symbol || (symbol && symbol == "["))){
+          var key_aux = "";
+          while(characters.length > 0){
+            key_aux += characters.shift();
+          }
+          if(!symbol){
+            key = key_aux;
+            if(template_json[key]){ //exists key, generate Array
+              if(!Array.isArray(template_json[key])){
+                var obj = template_json[key];
+                template_json[key] = [];
+                template_json[key].push(obj);
+              }
+              array = true;
+            }else{
+              template_json[key] = {};
+              array = false;
+            }
+          }else{
+            sub_key = key_aux;
+          }
+        }
+        else if(string_json[i] == '"' && symbol && symbol == '"' && characters[characters.length-1] != "\\"){
+          symbols.pop();
+          var value_aux = "";
+          while(characters.length > 0){
+            value_aux += characters.shift();
+          }
+          if(sub_key){
+            if (array) {
+              obj_aux[sub_key] = value_aux;
+            }
+            else{
+              template_json[key][sub_key] = value_aux;
+            }
+            sub_key = undefined;
+          }else{
+            template_json[key] = value_aux;
+          }
+        }
+        else if(string_json[i] == '[' && !symbol){
+          symbols.push("[");
+        }
+        else if(string_json[i] == '"' && characters[characters.length-1] != "\\"){
+          symbols.push('"');
+        }
+        else if(string_json[i] == ']' && symbol && symbol == '['){
+          symbols.pop();
+          if(array){
+            template_json[key].push(obj_aux);
+            obj_aux = {};
+          }
+        }
+        else{
+          if(JSON.stringify(template_json[key]) === '{}' && symbols.length <= 0){ //Empty
+            return false;
+          }
+          else{
+            characters.push(string_json[i]);
+          }
+        }
+      }
+      i+=1;
+    }
+    return template_json;
+  }
+
   return {
+    'mergeTemplates'  : _merge_templates,
+    'stringToTemplate': _convert_string_to_template,
     'templateToString': _convert_template_to_string,
     'htmlDecode': _htmlDecode,
     'htmlEncode': _htmlEncode,
