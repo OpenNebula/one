@@ -183,6 +183,71 @@ class Storage
         return one_tmp
     end
 
+    def create_virtual_disk(img_name, size, adapter_type, disk_type)
+        leading_dirs = img_name.split('/')[0..-2]
+        if !leading_dirs.empty?
+            create_directory(leading_dirs.join('/'))
+        end
+
+        ds_name = self['name']
+
+        vmdk_spec = RbVmomi::VIM::FileBackedVirtualDiskSpec(
+            :adapterType => adapter_type,
+            :capacityKb  => size.to_i*1024,
+            :diskType    => disk_type
+        )
+
+        get_vdm.CreateVirtualDisk_Task(
+          :datacenter => get_dc.item,
+          :name       => "[#{ds_name}] #{img_name}.vmdk",
+          :spec       => vmdk_spec
+        ).wait_for_completion
+
+        "#{img_name}.vmdk"
+    end
+
+    def create_directory(directory)
+        ds_name = self['name']
+
+        return if self.class == VCenterDriver::StoragePod
+
+        directory_name = "[#{ds_name}] #{directory}"
+
+        create_directory_params = {
+            :name                     => directory_name,
+            :datacenter               => get_dc.item,
+            :createParentDirectories  => true
+        }
+
+        begin
+            get_fm.MakeDirectory(create_directory_params)
+        rescue RbVmomi::VIM::FileAlreadyExists => e
+            # Do nothing if directory already exists
+        end
+    end
+
+    def get_fm
+        self['_connection.serviceContent.fileManager']
+    end
+
+    def get_vdm
+        self['_connection.serviceContent.virtualDiskManager']
+    end
+
+    def get_dc
+        item = @item
+
+        while !item.instance_of? RbVmomi::VIM::Datacenter
+            item = item.parent
+            if item.nil?
+                raise "Could not find the parent Datacenter"
+            end
+        end
+
+        Datacenter.new(item)
+    end
+
+
 
 end # class Storage
 
@@ -217,34 +282,28 @@ class Datastore < Storage
         @one_item = {}
     end
 
-    def create_virtual_disk(img_name, size, adapter_type, disk_type)
-        leading_dirs = img_name.split('/')[0..-2]
-        if !leading_dirs.empty?
-            create_directory(leading_dirs.join('/'))
-        end
-
-        ds_name = self['name']
-
-        vmdk_spec = RbVmomi::VIM::FileBackedVirtualDiskSpec(
-            :adapterType => adapter_type,
-            :capacityKb  => size.to_i*1024,
-            :diskType    => disk_type
-        )
-
-        get_vdm.CreateVirtualDisk_Task(
-          :datacenter => get_dc.item,
-          :name       => "[#{ds_name}] #{img_name}.vmdk",
-          :spec       => vmdk_spec
-        ).wait_for_completion
-
-        "#{img_name}.vmdk"
-    end
-
     def delete_virtual_disk(img_name)
         ds_name = self['name']
 
         begin
             get_vdm.DeleteVirtualDisk_Task(
+            :name => "[#{ds_name}] #{img_name}",
+            :datacenter => get_dc.item
+            ).wait_for_completion
+        rescue Exception => e
+            # Ignore if file not found
+            if !e.message.start_with?('ManagedObjectNotFound')
+                raise e
+            end
+        end
+    end
+
+    def delete_file(img_name)
+
+        ds_name = self['name']
+
+        begin
+            get_fm.DeleteDatastoreFile_Task(
             :name => "[#{ds_name}] #{img_name}",
             :datacenter => get_dc.item
             ).wait_for_completion
@@ -290,22 +349,6 @@ class Datastore < Storage
         end
 
         target_path
-    end
-
-    def create_directory(directory)
-        ds_name = self['name']
-
-        create_directory_params = {
-            :name                     => "[#{ds_name}] #{directory}",
-            :datacenter               => get_dc.item,
-            :createParentDirectories  => true
-        }
-
-        begin
-            get_fm.MakeDirectory(create_directory_params)
-        rescue RbVmomi::VIM::FileAlreadyExists => e
-            # Do nothing if directory already exists
-        end
     end
 
     def rm_directory(directory)
@@ -401,27 +444,6 @@ class Datastore < Storage
                          'searchSpec'    => spec}
 
         return search_params
-    end
-
-    def get_fm
-        self['_connection.serviceContent.fileManager']
-    end
-
-    def get_vdm
-        self['_connection.serviceContent.virtualDiskManager']
-    end
-
-    def get_dc
-        item = @item
-
-        while !item.instance_of? RbVmomi::VIM::Datacenter
-            item = item.parent
-            if item.nil?
-                raise "Could not find the parent Datacenter"
-            end
-        end
-
-        Datacenter.new(item)
     end
 
     def get_dc_path
