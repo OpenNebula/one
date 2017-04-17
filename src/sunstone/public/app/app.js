@@ -144,26 +144,31 @@ define(function(require) {
             groups = [groups];
           }
 
-          $.each(groups, function(value, key){
-           OpenNebulaGroup.show({
-            data : {
-              id: this
-            },
-            success: function(request, group_json){
-              if(group_json.GROUP.ID == this.idGroup){
-                groupsHTML += "<li class='groups' value='" + group_json.GROUP.ID + "'id='" + group_json.GROUP.ID + "'> \
-                  <a href='#'><i class='fa fa-fw fa-check'></i>" + group_json.GROUP.NAME + "\
-                  </a></li>";
-              } else {
-                groupsHTML += "<li class='groups' value='" + group_json.GROUP.ID + "'id='" + group_json.GROUP.ID + "'> \
-                  <a href='#'><i class='fa fa-fw'></i>" + group_json.GROUP.NAME + "\
-                  </a></li>";
-              }
+          that = this;
+
+          OpenNebula.Group.list({
+            timeout: true,
+            success: function(request, group_list) {
+              var group_list_aux = group_list; 
+              $.each(groups, function(value, key){
+                var id = key;
+                $.each(group_list_aux, function(value, key){
+                  if(id == key.GROUP.ID){
+                    if(id == that.idGroup){
+                      groupsHTML += "<li class='groups' value='" + id + "'id='" + id + "'> \
+                        <a href='#'><i class='fa fa-fw fa-check'></i>" + key.GROUP.NAME + "\
+                        </a></li>";
+                    } else {
+                      groupsHTML += "<li class='groups' value='" + id + "'id='" + id + "'> \
+                        <a href='#'><i class='fa fa-fw'></i>" + key.GROUP.NAME + "\
+                        </a></li>";
+                    }
+                  }
+                });
+              });
             }
-           }); 
           });
 
-          that = this;
           $('#userselector').on('click', function(){
             $('.groups-menu').empty();
             $('.groups-menu').append(groupsHTML);
