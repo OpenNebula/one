@@ -79,9 +79,11 @@ begin
 
     img_name = "#{ds_volatile_dir}/#{vmid}/one-#{vmid}-#{disk_id}"
 
-    ds_vc = VCenterDriver::Datastore.new_from_ref(ds_ref, vi_client)
+    ds_vc = VCenterDriver::Storage.new_from_ref(ds_ref, vi_client)
 
-    ds_vc.create_virtual_disk(img_name, size, adapter_type, disk_type)
+    if ds_vc.class == VCenterDriver::Datastore
+        ds_vc.create_virtual_disk(img_name, size, adapter_type, disk_type)
+    end
 
 rescue Exception => e
     STDERR.puts "Error creating virtual disk in #{ds_vc['name']}."\
