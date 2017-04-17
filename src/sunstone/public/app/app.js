@@ -37,6 +37,7 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Menu = require('utils/menu');
   var Locale = require('utils/locale');
+  var OpenNebulaGroup = require('opennebula/group');
 
   var UserAndZoneTemplate = require('hbs!sunstone/user_and_zone');
 
@@ -97,12 +98,17 @@ define(function(require) {
   }
 
   function _insertUserAndZoneSelector() {
+
+    this.idGroup = -1; /*All*/
+    
     $(".user-zone-info").html(UserAndZoneTemplate({
       displayName: config['display_name'],
       settingsTabEnabled: Config.isTabEnabled(SETTINGS_TAB_ID),
       availableViews: config['available_views'],
       zoneName: config['zone_name']
     })).foundation();
+
+    groupsRefresh();
 
     $('.quickconf_view[view="' + config['user_config']["default_view"] + '"] i').addClass('fa-check');
     $(".user-zone-info a.quickconf_view_header").click(function() {
@@ -116,6 +122,61 @@ define(function(require) {
       var sunstone_setting = {DEFAULT_VIEW : $(this).attr("view")};
       Sunstone.runAction("User.append_sunstone_setting_refresh", -1, sunstone_setting);
     });
+
+    function groupsRefresh() {
+
+      OpenNebula.User.show({
+        timeout: true,
+        data : {
+          id: config['user_id']
+        },
+        success: function (request, obj_user) {
+          var groups = obj_user.USER.GROUPS.ID;
+          var groupsHTML = "<li class='groups' value='-1'> <a href='#' value='-1' id='-1'> \
+              <i class='fa fa-fw'></i>" + Locale.tr("All") + "</a></li>";
+          if(this.idGroup == -1){
+            var groupsHTML = "<li class='groups' value='-1'> <a href='#' value='-1' id='-1'> \
+              <i class='fa fa-fw fa-check'></i>" + Locale.tr("All") + "</a></li>";
+          }
+
+          if (!$.isArray(groups)){
+            groups = groups.toString();
+            groups = [groups];
+          }
+
+          $.each(groups, function(value, key){
+           OpenNebulaGroup.show({
+            data : {
+              id: this
+            },
+            success: function(request, group_json){
+              if(group_json.GROUP.ID == this.idGroup){
+                groupsHTML += "<li class='groups' value='" + group_json.GROUP.ID + "'id='" + group_json.GROUP.ID + "'> \
+                  <a href='#'><i class='fa fa-fw fa-check'></i>" + group_json.GROUP.NAME + "\
+                  </a></li>";
+              } else {
+                groupsHTML += "<li class='groups' value='" + group_json.GROUP.ID + "'id='" + group_json.GROUP.ID + "'> \
+                  <a href='#'><i class='fa fa-fw'></i>" + group_json.GROUP.NAME + "\
+                  </a></li>";
+              }
+            }
+           }); 
+          });
+
+          that = this;
+          $('#userselector').on('click', function(){
+            $('.groups-menu').empty();
+            $('.groups-menu').append(groupsHTML);
+            $('.groups').on('click', function(){
+                that.idGroup = $(this).attr('value');
+                $('.groups-menu a i').removeClass('fa-check');
+                $('a i', this).addClass('fa-check');
+                groupsRefresh();
+            });
+          });
+        }
+      }); 
+    }
 
     function zoneRefresh() {
       // Populate Zones dropdown

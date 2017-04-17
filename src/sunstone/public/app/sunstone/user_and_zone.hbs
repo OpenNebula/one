@@ -16,7 +16,7 @@
 
 <ul class="dropdown menu" data-dropdown-menu data-alignment="right">
   <li>
-    <a class="thin-font" href="#">
+    <a class="thin-font" href="#" id="userselector">
       <i class="fa fa-user fa-fw header-icon"></i>
       <span class="username">
         {{displayName}}
@@ -55,6 +55,13 @@
         </ul>
       </li>
       {{/if}}
+      <li>
+        <a href="#">
+          <i class="fa fa-fw fa-users"></i>
+          {{tr "Groups"}}
+        </a>
+        <ul class="menu groups-menu"></ul>      
+      </li>
     </ul>
   </li>
   <li>
