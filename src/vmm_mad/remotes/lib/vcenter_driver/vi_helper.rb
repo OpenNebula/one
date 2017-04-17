@@ -57,6 +57,15 @@ class VIHelper
         return element
     end
 
+    def self.find_persistent_image_by_source(source, pool)
+        element = pool.select{|e|
+            e["SOURCE"] == source &&
+            e["PERSISTENT"] == "1"
+        }.first rescue nil
+
+        return element
+    end
+
     def self.find_vcenter_vm_by_name(one_vm, host, vi_client)
         # Let's try to find the VM object only by its name
         # Let's build the VM name
