@@ -39,6 +39,13 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
         vcenter_vm.reference_imported_disks(vm_ref)
         vcenter_vm.reference_imported_nics
 
+        # Set vnc configuration F#5074
+        extraconfig   = []
+        extraconfig  += vcenter_vm.extraconfig_vnc
+        spec_hash     = { :extraConfig  => extraconfig }
+        spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+        vcenter_vm.item.ReconfigVM_Task(:spec => spec).wait_for_completion
+
         return one_vm.id
 
     rescue Exception => e
