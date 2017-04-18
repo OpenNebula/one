@@ -702,7 +702,7 @@ get '/:pool' do
     end
 
     @SunstoneServer.get_pool(params[:pool],
-                             session[:user_gid],
+                             params[:pool_filter],
                              zone_client)
 end
 
