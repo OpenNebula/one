@@ -524,8 +524,11 @@ def self.import_networks(con_ops, options)
                 ar_type="e"
                 first_ip=nil
                 first_mac=nil
+                slaac=nil
                 global_prefix=nil
                 ula_prefix=nil
+                ip6_address = nil
+                prefix_length = nil
 
                 # Size
                 if !use_defaults
@@ -568,15 +571,31 @@ def self.import_networks(con_ops, options)
                         mac_answer = STDIN.gets.strip
                         first_mac = first_mac_answer if !mac_answer.empty?
 
-                        STDOUT.print "    Please input the GLOBAL PREFIX "\
-                                        "[Enter for default]: "
-                        gp_answer = STDIN.gets.strip
-                        global_prefix = gp_answer if !gp_answer.empty?
+                        STDOUT.print "    Do you want to use SLAAC "\
+                                     "Stateless Address Autoconfiguration? ([y]/n): "
+                        slaac_answer = STDIN.gets.strip.strip.downcase
 
-                        STDOUT.print "    Please input the ULA PREFIX "\
+                        if slaac_answer == 'n'
+                            slaac = false
+                            STDOUT.print "    Please input the IPv6 address (cannot be empty): "
+                            ip6_address = STDIN.gets.strip
+                            ip6_address = ip6_address if !ip6_address.empty?
+
+                            STDOUT.print "    Please input the Prefix length (cannot be empty): "
+                            prefix_length = STDIN.gets.strip
+                            prefix_length = prefix_length if !prefix_length.empty?
+                        else
+                            slaac = true
+                            STDOUT.print "    Please input the GLOBAL PREFIX "\
                                         "[Enter for default]: "
-                        ula_answer = STDIN.gets.strip
-                        ula_prefix = ula_answer if !ula_answer.empty?
+                            gp_answer = STDIN.gets.strip
+                            global_prefix = gp_answer if !gp_answer.empty?
+
+                            STDOUT.print "    Please input the ULA PREFIX "\
+                                            "[Enter for default]: "
+                            ula_answer = STDIN.gets.strip
+                            ula_prefix = ula_answer if !ula_answer.empty?
+                        end
                     when "e"
                         STDOUT.print "    Please input the first MAC "\
                                 "in the range [Enter for default]: "
@@ -593,10 +612,17 @@ def self.import_networks(con_ops, options)
                     ar_str << ",IP=" + first_ip if first_ip
                     ar_str << ",MAC=" + first_mac if first_mac
                 when "6"
-                    ar_str << "IP6\""
-                    ar_str << ",MAC=" + first_mac if first_mac
-                    ar_str << ",GLOBAL_PREFIX=" + global_prefix if global_prefix
-                    ar_str << ",ULA_PREFIX=" + ula_prefix if ula_prefix?
+                    if slaac
+                        ar_str << "IP6\""
+                        ar_str << ",MAC=" + first_mac if first_mac
+                        ar_str << ",GLOBAL_PREFIX=" + global_prefix if global_prefix
+                        ar_str << ",ULA_PREFIX=" + ula_prefix if ula_prefix
+                    else
+                        ar_str << "IP6_STATIC\""
+                        ar_str << ",MAC=" + first_mac if first_mac
+                        ar_str << ",IP6=" + ip6_address if ip6_address
+                        ar_str << ",PREFIX_LENGTH=" + prefix_length if prefix_length
+                    end
                 when "e"
                     ar_str << "ETHER\""
                     ar_str << ",MAC=" + first_mac if first_mac
