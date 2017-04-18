@@ -43,9 +43,10 @@ begin
     vm.reboot
 
 rescue Exception => e
-    STDERR.puts "Guest reboot of VM #{vm_ref} on vCenter cluster "\
-                "#{vc_cluster_name} failed due to "\
-                "\"#{e.message}\"\n#{e.backtrace}"
+    message = "Guest reboot of VM #{vm_ref} on vCenter cluster "\
+              "#{vc_cluster_name} failed due to "\
+              "\"#{e.message}\"\n#{e.backtrace}"
+    STDERR.puts error_message(message)
     exit -1
 ensure
     vi_client.close_connection if vi_client

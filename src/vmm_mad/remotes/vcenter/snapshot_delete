@@ -44,10 +44,11 @@ begin
     vm.delete_snapshot(snap_id)
 
 rescue Exception => e
-    STDERR.puts "Snapshot of VM #{vm_ref} on vCenter cluster "\
-                "#{vc_cluster_name} could not be deleted due to "\
-                "\"#{e.message}\"\n#{e.backtrace}"
-    exit(-1)
+    message = "Snapshot of VM #{vm_ref} on vCenter cluster "\
+              "#{vc_cluster_name} could not be deleted due to "\
+              "\"#{e.message}\"\n#{e.backtrace}"
+    STDERR.puts error_message(message)
+    exit -1
 ensure
     vi_client.close_connection if vi_client
 end

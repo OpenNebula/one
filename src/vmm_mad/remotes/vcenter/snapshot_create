@@ -62,9 +62,10 @@ begin
     puts vm.create_snapshot(snap_id, snap_name)
 
 rescue Exception => e
-    STDERR.puts "Snapshot of VM #{vm_ref} on vCenter cluster "\
-                "#{vc_cluster_name} failed due to "\
-                "\"#{e.message}\"\n#{e.backtrace}"
+    message = "Snapshot of VM #{vm_ref} on vCenter cluster "\
+              "#{vc_cluster_name} failed due to "\
+              "\"#{e.message}\"\n#{e.backtrace}"
+    STDERR.puts error_message(message)
     exit -1
 ensure
     vi_client.close_connection if vi_client
