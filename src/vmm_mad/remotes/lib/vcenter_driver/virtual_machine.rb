@@ -384,10 +384,32 @@ class Template
         return error, nic_info
     end
 
+    def get_vcenter_disk_key(unit_number, controller_key)
+
+        key = nil
+
+        @item["config.hardware.device"].each do |device|
+            disk = {}
+
+            if is_disk_or_iso?(device)
+                disk[:device]    = device
+                if device.controllerKey == controller_key &&
+                   device.unitNumber == unit_number
+
+                   key = device.key
+                   break
+                end
+            end
+        end
+
+        return key
+    end
+
     def get_vcenter_disks
 
         disks = []
         ide_controlled  = []
+        sata_controlled = []
         scsi_controlled = []
 
         @item["config.hardware.device"].each do |device|
@@ -395,6 +417,10 @@ class Template
 
             if device.is_a? RbVmomi::VIM::VirtualIDEController
                 ide_controlled.concat(device.device)
+            end
+
+            if device.is_a? RbVmomi::VIM::VirtualSATAController
+                sata_controlled.concat(device.device)
             end
 
             if device.is_a? RbVmomi::VIM::VirtualSCSIController
@@ -407,9 +433,10 @@ class Template
                 disk[:path]      = device.backing.fileName
                 disk[:path_wo_ds]= disk[:path].sub(/^\[(.*?)\] /, "")
                 disk[:type]      = is_disk?(device) ? "OS" : "CDROM"
-
+                disk[:key]       = device.key
                 disk[:prefix]    = "hd" if ide_controlled.include?(device.key)
                 disk[:prefix]    = "sd" if scsi_controlled.include?(device.key)
+                disk[:prefix]    = "sd" if sata_controlled.include?(device.key)
                 disks << disk
             end
         end
@@ -844,6 +871,16 @@ class VirtualMachine < Template
         @vi_client.vim.serviceContent.about.instanceUuid
     end
 
+    def get_unmanaged_keys
+        unmanaged_keys = {}
+        @item.config.extraConfig.each do |val|
+             if val[:key].include?("opennebula.disk")
+                 unmanaged_keys[val[:key]] = val[:value]
+             end
+        end
+        return unmanaged_keys
+    end
+
     ############################################################################
     # Getters
     ############################################################################
@@ -883,19 +920,28 @@ class VirtualMachine < Template
 
     # @return RbVmomi::VIM::Datastore or nil
     def get_ds
-        req_ds = one_item['USER_TEMPLATE/VCENTER_DS_REF']
+        ##req_ds = one_item['USER_TEMPLATE/VCENTER_DS_REF']
+        ##TODO SCHED_DS_REQUIREMENTS??
+        current_ds_id  = one_item["HISTORY_RECORDS/HISTORY[last()]/DS_ID"]
+        current_ds     = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, current_ds_id)
+        current_ds_ref = current_ds['TEMPLATE/VCENTER_DS_REF']
 
-        if req_ds
+        if current_ds_ref
             dc = cluster.get_dc
 
             ds_folder = dc.datastore_folder
-            ds = ds_folder.get(req_ds)
+            ds = ds_folder.get(current_ds_ref)
             ds_item = ds.item rescue nil
 
             return ds_item
         else
             return nil
         end
+    end
+
+    # StorageResouceManager reference
+    def get_sm
+        self['_connection.serviceContent.storageResourceManager']
     end
 
     # @return Customization or nil
@@ -935,7 +981,7 @@ class VirtualMachine < Template
             end
         end
 
-        VCenterDriver::Datastore.new_from_ref(ds_ref, vi_client)
+        VCenterDriver::Storage.new_from_ref(ds_ref, vi_client)
     end
 
     # @return String vcenter name
@@ -994,20 +1040,17 @@ class VirtualMachine < Template
         vcenter_vm_folder = nil
         vcenter_vm_folder = one_item["USER_TEMPLATE/VCENTER_VM_FOLDER"]
         vcenter_vm_folder_object = nil
-
         dc = cluster.get_dc
         if !!vcenter_vm_folder && !vcenter_vm_folder.empty?
-            # Look for folder object
             vcenter_vm_folder_object = dc.item.find_folder(vcenter_vm_folder)
         end
-
         vcenter_vm_folder_object = vc_template.parent if vcenter_vm_folder_object.nil?
 
         if ds.instance_of? RbVmomi::VIM::StoragePod
             # VM is cloned using Storage Resource Manager for StoragePods
             begin
                 vm = storagepod_clonevm_task(vc_template, vcenter_name,
-                                             clone_spec, ds, vcenter_vm_folder_object)
+                                             clone_spec, ds, vcenter_vm_folder_object, dc)
             rescue Exception => e
                 raise "Cannot clone VM Template to StoragePod: #{e.message}"
             end
@@ -1030,6 +1073,9 @@ class VirtualMachine < Template
                         .values.first.item rescue nil
 
                 if vm
+                    # Detach all persistent disks to avoid accidental destruction
+                    detach_persistent_disks(vm)
+
                     vm.Destroy_Task.wait_for_completion
                     vm = vc_template.CloneVM_Task(
                         :folder => vcenter_vm_folder_object,
@@ -1047,7 +1093,7 @@ class VirtualMachine < Template
     end
 
 
-    def storagepod_clonevm_task(vc_template, vcenter_name, clone_spec, storpod, vcenter_vm_folder_object)
+    def storagepod_clonevm_task(vc_template, vcenter_name, clone_spec, storpod, vcenter_vm_folder_object, dc)
 
         storage_manager = vc_template
                             ._connection.serviceContent.storageResourceManager
@@ -1081,7 +1127,47 @@ class VirtualMachine < Template
                             .wait_for_completion
             return apply_sr.vm
         rescue Exception => e
-            raise "Failure applying recommendation: #{e.message}"
+            if !e.message.start_with?('DuplicateName')
+                raise "Cannot clone VM Template: #{e.message}\n#{e.backtrace}"
+            end
+
+            # The VM already exists, try to find the vm
+            vm_folder = dc.vm_folder
+            vm_folder.fetch!
+            vm = vm_folder.items
+                    .select{|k,v| v.item.name == vcenter_name}
+                    .values.first.item rescue nil
+
+            if vm
+
+                begin
+                    # Detach all persistent disks to avoid accidental destruction
+                    detach_persistent_disks(vm)
+
+                    # Destroy the VM with any disks still attached to it
+                    vm.Destroy_Task.wait_for_completion
+
+                    # Query a storage placement recommendation
+                    result = storage_manager.RecommendDatastores(storageSpec: storage_spec) rescue nil
+
+                    raise "Could not get placement specification for StoragePod" if result.nil?
+
+                    if !result.respond_to?(:recommendations) || result.recommendations.size == 0
+                        raise "Could not get placement specification for StoragePod"
+                    end
+
+                    # Get recommendation key to be applied
+                    key = result.recommendations.first.key ||= ''
+                    raise "Missing Datastore recommendation for StoragePod" if key.empty?
+
+                    apply_sr = storage_manager
+                            .ApplyStorageDrsRecommendation_Task(key: [key])
+                            .wait_for_completion
+                    return apply_sr.vm
+                rescue Exception => e
+                   raise "Failure applying recommendation while cloning VM: #{e.message}"
+                end
+            end
         end
     end
 
@@ -1120,67 +1206,71 @@ class VirtualMachine < Template
         clone_parameters
     end
 
-    def reference_imported_disks(template_ref)
+    def reference_unmanaged_devices(template_ref)
+
+        extraconfig   = []
+        device_change = []
+
         # Get unmanaged disks in OpenNebula's VM template
         xpath = "TEMPLATE/DISK[OPENNEBULA_MANAGED=\"NO\"]"
         unmanaged_disks = one_item.retrieve_xmlelements(xpath)
 
-        return if unmanaged_disks.empty?
+        if !unmanaged_disks.empty?
 
-        # Get vcenter VM disks to know real path of cloned disk
-        vcenter_disks = get_vcenter_disks
+            # Get vcenter VM disks to know real path of cloned disk
+            vcenter_disks = get_vcenter_disks
 
-        # Create an array with the paths of the disks in vcenter template
-        template = VCenterDriver::Template.new_from_ref(template_ref, vi_client)
-        template_disks = template.get_vcenter_disks
-        template_disks_vector = []
-        template_disks.each_with_index do |d, index|
-            template_disks_vector << d[:path_wo_ds]
-        end
+            # Create an array with the paths of the disks in vcenter template
+            template = VCenterDriver::Template.new_from_ref(template_ref, vi_client)
+            template_disks = template.get_vcenter_disks
+            template_disks_vector = []
+            template_disks.each do |d|
+                template_disks_vector << d[:path_wo_ds]
+            end
 
-        # Try to find index of template
-        unmanaged_disks.each do |unmanaged_disk|
-            index = template_disks_vector.index(unmanaged_disk["SOURCE"])
-            if index
-                rc = one_item.update("VCENTER_TEMPLATE_DISK_#{unmanaged_disk["DISK_ID"]} = \"#{vcenter_disks[index][:path]}\"", true)
-                raise "Could not update VCENTER_TEMPLATE_DISK elements" if OpenNebula.is_error?(rc)
-                rc = one_item.update("VCENTER_TEMPLATE_DS_DISK_#{unmanaged_disk["DISK_ID"]} = \"#{vcenter_disks[index][:datastore]._ref}\"", true)
-                raise "Could not update VCENTER_TEMPLATE_DS_DISK elements" if OpenNebula.is_error?(rc)
+            # Try to find index of disks in template disks
+            unmanaged_disks.each do |unmanaged_disk|
+                index = template_disks_vector.index(unmanaged_disk["SOURCE"])
+                if index
+                    reference = {}
+                    reference[:key]   = "opennebula.disk.#{unmanaged_disk["DISK_ID"]}"
+                    reference[:value] = "#{vcenter_disks[index][:key]}"
+                    extraconfig << reference
+                end
             end
         end
-        one_item.info
-    end
-
-    def reference_imported_nics
-        mac_change_hash = {}
-        nics = []
 
         # Add info for existing nics in template in vm xml
         xpath = "TEMPLATE/NIC[OPENNEBULA_MANAGED=\"NO\"]"
         unmanaged_nics = one_item.retrieve_xmlelements(xpath)
 
-        return if unmanaged_nics.empty?
-
-        # Update vcenter VM's mac addresses with the one in OpenNebula's XML
-        index = 0
-        @item["config.hardware.device"].each_with_index do |device|
-            if is_nic?(device)
-                # Edit capacity setting new size in KB
-                device.macAddress = unmanaged_nics[index]["MAC"]
-                nics << { :device => device, :operation => :edit }
-                index += 1
+        if !unmanaged_nics.empty?
+            index = 0
+            self["config.hardware.device"].each_with_index do |device|
+                if is_nic?(device)
+                    # Edit capacity setting new size in KB
+                    device.macAddress = unmanaged_nics[index]["MAC"]
+                    device_change << { :device => device, :operation => :edit }
+                    index += 1
+                end
             end
         end
 
-        if !nics.empty?
-            mac_change_hash[:deviceChange] = nics
-            @item.ReconfigVM_Task(:spec => mac_change_hash).wait_for_completion
+        # Save in extraconfig the key for unmanaged disks
+        if !extraconfig.empty? || !device_change.empty?
+            spec = {}
+            spec[:extraConfig]  = extraconfig if !extraconfig.empty?
+            spec[:deviceChange] = device_change if !device_change.empty?
+            @item.ReconfigVM_Task(:spec => spec).wait_for_completion
         end
     end
 
-    def resize_imported_disks
+    def resize_unmanaged_disks
         resize_hash = {}
         disks = []
+
+        unmanaged_keys = get_unmanaged_keys
+        vc_disks = get_vcenter_disks
 
         # Look for unmanaged disks with original size changed
         xpath = "TEMPLATE/DISK[OPENNEBULA_MANAGED=\"NO\" and boolean(ORIGINAL_SIZE)]"
@@ -1188,26 +1278,20 @@ class VirtualMachine < Template
 
         return if unmanaged_resized_disks.empty?
 
-        @item["config.hardware.device"].each do |d|
-            if is_disk_or_cdrom?(d)
-                unmanaged_resized_disks.each do |disk|
-                    backing = d.backing
+        unmanaged_resized_disks.each do |disk|
+            vc_disks.each do |vcenter_disk|
+                if unmanaged_keys.key?("opennebula.disk.#{disk["DISK_ID"]}")
+                    device_key = unmanaged_keys["opennebula.disk.#{disk["DISK_ID"]}"].to_i
 
-                    while backing.respond_to?(:parent)
-                        break if backing.parent.nil?
-                        backing = backing.parent
-                    end
+                    if device_key == vcenter_disk[:key].to_i
 
-                    if backing.respond_to?(:fileName)
-                        img_name = one_item["USER_TEMPLATE/VCENTER_TEMPLATE_DISK_#{disk["DISK_ID"]}"]
-                        if img_name && backing.fileName == img_name &&
-                           disk["SIZE"].to_i > disk["ORIGINAL_SIZE"].to_i
+                        break if disk["SIZE"].to_i <= disk["ORIGINAL_SIZE"].to_i
 
-                            # Edit capacity setting new size in KB
-                            d.capacityInKB = disk["SIZE"].to_i * 1024
-                            disks <<   { :device => d, :operation => :edit }
-                            break
-                        end
+                        # Edit capacity setting new size in KB
+                        d = vcenter_disk[:device]
+                        d.capacityInKB = disk["SIZE"].to_i * 1024
+                        disks <<   { :device => d, :operation => :edit }
+                        break
                     end
                 end
             end
@@ -1219,26 +1303,97 @@ class VirtualMachine < Template
         end
     end
 
+    def create_storagedrs_disks(device_change_spod, device_change_spod_ids)
+
+        sm = get_sm
+        disk_locator = []
+        extra_config = []
+
+        device_change_spod.each do |device_spec|
+            disk_locator << RbVmomi::VIM.PodDiskLocator(diskId: device_spec[:device].key)
+        end
+
+        spec = {}
+        spec[:deviceChange] = device_change_spod
+
+        # Disk locator is required for AddDisk
+        vmpod_hash = {}
+        vmpod_hash[:storagePod] = get_ds
+        vmpod_hash[:disk] = disk_locator
+        vmpod_config = RbVmomi::VIM::VmPodConfigForPlacement(vmpod_hash)
+
+        # The storage pod selection requires initialize
+        spod_hash = {}
+        spod_hash[:initialVmConfig] = [ vmpod_config ]
+        spod_select = RbVmomi::VIM::StorageDrsPodSelectionSpec(spod_hash)
+        storage_spec = RbVmomi::VIM.StoragePlacementSpec(
+            type: :reconfigure,
+            podSelectionSpec: spod_select,
+            vm: self['_ref'],
+            configSpec: spec
+        )
+
+        # Query a storage placement recommendation
+        result = sm.RecommendDatastores(storageSpec: storage_spec) rescue nil
+
+        raise "Could not get placement specification for StoragePod" if result.nil?
+
+        if !result.respond_to?(:recommendations) || result.recommendations.size == 0
+            raise "Could not get placement specification for StoragePod"
+        end
+
+        # Get recommendation key to be applied
+        key = result.recommendations.first.key ||= ''
+        raise "Missing Datastore recommendation for StoragePod" if key.empty?
+
+        # Apply recommendation
+        sm.ApplyStorageDrsRecommendation_Task(key: [key]).wait_for_completion
+
+        # Set references in opennebula.disk elements
+        device_change_spod.each do |device_spec|
+            unit_number    = device_spec[:device].unitNumber
+            controller_key = device_spec[:device].controllerKey
+            key            = get_vcenter_disk_key(unit_number, controller_key)
+            disk_id        = device_change_spod_ids["#{controller_key}-#{unit_number}"]
+            reference      = {}
+            reference[:key]   = "opennebula.disk.#{disk_id}"
+            reference[:value] = key.to_s
+            extra_config << reference
+        end
+
+        extra_config
+    end
+
 
     def reconfigure
         extraconfig   = []
         device_change = []
 
+        # Unmanaged keys
+        unmanaged_keys = get_unmanaged_keys
+
+        # Get disk devices in vm
+        vc_disks = get_vcenter_disks
+
         # Get an array with disk paths in OpenNebula's vm template
-        disks_in_onevm_vector = disks_in_onevm
+        disks_in_onevm_vector = disks_in_onevm(unmanaged_keys, vc_disks)
 
         # As the original template may have been modified in OpenNebula
         # but not in vcenter, we must detach disks that are in vcenter
         # but not in OpenNebula's vm template
         if is_new?
-            device_change = device_detach_disks(disks_in_onevm_vector)
+            device_change, extra_config = device_detach_disks(disks_in_onevm_vector, unmanaged_keys, vc_disks)
             if !device_change.empty?
                 spec_hash = {}
                 spec_hash[:deviceChange] = device_change if !device_change.empty?
+                spec_hash[:extraConfig] = extra_config  if !extra_config.empty?
 
                 # Reconfigure for disks detached from original template
                 spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
                 @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+
+                # Get disk devices in vm again after reconfigure
+                vc_disks = get_vcenter_disks
             end
         end
 
@@ -1272,9 +1427,15 @@ class VirtualMachine < Template
 
         # Now attach disks that are in OpenNebula's template but not in vcenter
         # e.g those that has been attached in poweroff
-        device_change += device_attach_disks(disks_in_onevm_vector)
+        device_change_ds, device_change_spod, device_change_spod_ids = device_attach_disks(disks_in_onevm_vector, vc_disks)
+        device_change += device_change_ds
 
-        # Reconfigure task
+        # Create volatile disks in StorageDRS if any
+        if !device_change_spod.empty?
+            spec_hash[:extraConfig] = create_storagedrs_disks(device_change_spod, device_change_spod_ids)
+        end
+
+        # Common reconfigure task
         spec_hash[:deviceChange] = device_change
         spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
         @item.ReconfigVM_Task(:spec => spec).wait_for_completion
@@ -1334,7 +1495,7 @@ class VirtualMachine < Template
         }
 
         # Check nics in VM
-        @item["config.hardware.device"].each do |dv|
+        self["config.hardware.device"].each do |dv|
             if is_nic?(dv)
                 if nics_in_template.key?(dv.macAddress)
                     # Remove nic that is already in the XML to avoid duplicate
@@ -1748,82 +1909,97 @@ class VirtualMachine < Template
         end
     end
 
-    def disks_in_onevm
+    def get_device_filename_and_ds_from_key(key, vc_disks)
+        device = vc_disks.select{ |d| d[:key].to_i == key.to_i}.first rescue nil
+        return device
+    end
+
+    def disks_in_onevm(unmanaged_keys, vc_disks)
         onevm_disks_vector = []
+
         disks = one_item.retrieve_xmlelements("TEMPLATE/DISK")
         disks.each do |disk|
-            if disk["OPENNEBULA_MANAGED"] && disk["OPENNEBULA_MANAGED"] == "NO"
-                onevm_disks_vector << img_name = one_item["USER_TEMPLATE/VCENTER_TEMPLATE_DISK_#{disk["DISK_ID"]}"]
-            else
-                img_name  = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'], self['name'])
-                ds        = get_effective_ds(disk)
-                ds_name   = ds['name']
-                onevm_disks_vector << "[#{ds_name}] #{img_name}"
+            if unmanaged_keys.key?("opennebula.disk.#{disk["DISK_ID"]}")
+                device_key = unmanaged_keys["opennebula.disk.#{disk["DISK_ID"]}"].to_i
+                disk_hash = get_device_filename_and_ds_from_key(device_key, vc_disks)
+                onevm_disks_vector << disk_hash[:path_wo_ds] if disk_hash
+                next
             end
+
+            img_name  = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'], self['name'])
+            onevm_disks_vector << "#{img_name}"
         end
+
         return onevm_disks_vector
     end
 
-    def device_attach_disks(onevm_disks_vector)
+    def device_attach_disks(onevm_disks_vector, vc_disks)
 
         disks = one_item.retrieve_xmlelements("TEMPLATE/DISK")
 
-        @item["config.hardware.device"].each do |d|
-            if is_disk_or_cdrom?(d)
-                # Get disk backing
-                backing = d.backing
-                while backing.respond_to?(:parent)
-                    break if backing.parent.nil?
-                    backing = backing.parent
-                end
-
-                if backing.respond_to?(:fileName)
-                    index = onevm_disks_vector.index(backing.fileName)
-                    if onevm_disks_vector.index(backing.fileName)
-                        disks.delete_at(index)
-                        onevm_disks_vector.delete_at(index)
-                    end
-                end
+        vc_disks.each do |d|
+            index = onevm_disks_vector.index(d[:path_wo_ds])
+            if index
+                disks.delete_at(index)
+                onevm_disks_vector.delete_at(index)
             end
         end
 
-        return [] if disks.empty?
+        return [],[],{} if disks.empty?
 
         attach_disk_array = []
+        attach_spod_array = []
+        attach_spod_disk_info = {}
+
         position = 0
         disks.each do |disk|
-            attach_disk_array << calculate_add_disk_spec(disk, position)
+            storpod = disk["VCENTER_DS_REF"].start_with?('group-')
+            if storpod
+                spec = calculate_add_disk_spec(disk, position)
+                attach_spod_array << spec
+                unit_ctrl = "#{spec[:device].controllerKey}-#{spec[:device].unitNumber}"
+                attach_spod_disk_info[unit_ctrl] = disk["DISK_ID"]
+            else
+                attach_disk_array << calculate_add_disk_spec(disk, position)
+            end
             position += 1
         end
 
-        return attach_disk_array
+        return attach_disk_array, attach_spod_array, attach_spod_disk_info
     end
 
-    def device_detach_disks(onevm_disks_vector)
+    def device_detach_disks(onevm_disks_vector, unmanaged_keys, vc_disks)
         detach_disk_array = []
+        extra_config      = []
+        ipool = VCenterDriver::VIHelper.one_pool(OpenNebula::ImagePool)
 
-        @item["config.hardware.device"].each do |d|
-            if is_disk_or_cdrom?(d)
-                # Get disk backing
-                backing = d.backing
-                while backing.respond_to?(:parent)
-                    break if backing.parent.nil?
-                    backing = backing.parent
+        vc_disks.each do |d|
+            if !onevm_disks_vector.index(d[:path_wo_ds])
+
+                # If disk to be detached is not persistent detach and destroy it
+                persistent = VCenterDriver::VIHelper.find_persistent_image_by_source(d[:path_wo_ds], ipool)
+                if !persistent
+                    detach_disk_array << {
+                        :fileOperation => :destroy,
+                        :operation => :remove,
+                        :device    => d[:device]
+                    }
                 end
 
-                if backing.respond_to?(:fileName)
-                    if !onevm_disks_vector.index(backing.fileName)
-                        # Disk not found remove from VM
-                        detach_disk_array << {
-                            :operation => :remove,
-                            :device    => d
-                        }
+                # Remove reference opennebula.disk if exist
+                unmanaged_keys.each do |key, value|
+                    if value.to_i == d[:key].to_i
+                        reference = {}
+                        reference[:key]   = key
+                        reference[:value] = ""
+                        extra_config << reference
+                        break
                     end
                 end
             end
         end
 
-        return detach_disk_array
+        return detach_disk_array, extra_config
     end
 
     # Attach DISK to VM (hotplug)
@@ -1834,11 +2010,18 @@ class VirtualMachine < Template
         disk = nil
         device_change = []
 
+        # Extract unmanaged_keys
+        unmanaged_keys = get_unmanaged_keys
+        vc_disks = get_vcenter_disks
+
         # Extract disk from driver action
         disk = one_item.retrieve_xmlelements("TEMPLATE/DISK[ATTACH='YES']").first
 
+        # Check if we're dealing with a StoragePod SYSTEM ds
+        storpod = disk["VCENTER_DS_REF"].start_with?('group-')
+
         # Check if disk being attached is already connected to the VM
-        raise "DISK is already connected to VM" if disk_attached_to_vm(disk)
+        raise "DISK is already connected to VM" if disk_attached_to_vm(disk, unmanaged_keys, vc_disks)
 
         # Generate vCenter spec and reconfigure VM
         device_change << calculate_add_disk_spec(disk)
@@ -1848,11 +2031,94 @@ class VirtualMachine < Template
         spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
 
         begin
-            @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+            if storpod
+                #Ask for StorageDRS recommendation to reconfigure VM (AddDisk)
+                sm = get_sm
+
+                # Disk id is -1 as I don't know what disk id is going to be set
+                disk_locator = [ RbVmomi::VIM.PodDiskLocator(diskId: -1) ]
+
+                # Disk locator is required for AddDisk
+                vmpod_hash = {}
+                vmpod_hash[:storagePod] = get_ds
+                vmpod_hash[:disk] = disk_locator
+                vmpod_config = RbVmomi::VIM::VmPodConfigForPlacement(vmpod_hash)
+
+                # The storage pod selection requires initialize
+                spod_hash = {}
+                spod_hash[:initialVmConfig] = [ vmpod_config ]
+                spod_select = RbVmomi::VIM::StorageDrsPodSelectionSpec(spod_hash)
+                storage_spec = RbVmomi::VIM.StoragePlacementSpec(
+                    type: :reconfigure,
+                    podSelectionSpec: spod_select,
+                    vm: self['_ref'],
+                    configSpec: spec
+                )
+
+                # Query a storage placement recommendation
+                result = sm.RecommendDatastores(storageSpec: storage_spec) rescue nil
+
+                raise "Could not get placement specification for StoragePod" if result.nil?
+
+                if !result.respond_to?(:recommendations) || result.recommendations.size == 0
+                    raise "Could not get placement specification for StoragePod"
+                end
+
+                # Get recommendation key to be applied
+                key = result.recommendations.first.key ||= ''
+                raise "Missing Datastore recommendation for StoragePod" if key.empty?
+
+                # Apply recommendation
+                sm.ApplyStorageDrsRecommendation_Task(key: [key]).wait_for_completion
+
+                # Add the key for the volatile disk to the unmanaged opennebula.disk.id variables
+                unit_number    = spec_hash[:deviceChange][0][:device].unitNumber
+                controller_key = spec_hash[:deviceChange][0][:device].controllerKey
+                key = get_vcenter_disk_key(unit_number, controller_key)
+                spec_hash = {}
+                reference = {}
+                reference[:key]   = "opennebula.disk.#{disk["DISK_ID"]}"
+                reference[:value] = key.to_s
+                spec_hash[:extraConfig] = [ reference ]
+                @item.ReconfigVM_Task(:spec => spec_hash).wait_for_completion
+            else
+                @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+            end
         rescue Exception => e
             raise "Cannot attach DISK to VM: #{e.message}\n#{e.backtrace}"
         end
     end
+
+    # Detach persistent disks to avoid incidental destruction
+    def detach_persistent_disks(vm)
+        spec_hash = {}
+        spec_hash[:deviceChange] = []
+        ipool = VCenterDriver::VIHelper.one_pool(OpenNebula::ImagePool)
+
+        vm.config.hardware.device.each do |disk|
+            if is_disk_or_cdrom?(disk)
+                # Let's try to find if disks is persistent
+                source = disk.backing.fileName.sub(/^\[(.*?)\] /, "")
+                persistent = VCenterDriver::VIHelper.find_persistent_image_by_source(source, ipool)
+                if persistent
+                    spec_hash[:deviceChange] << {
+                        :operation => :remove,
+                        :device => disk
+                    }
+                end
+            end
+
+        end
+
+        return nil if spec_hash[:deviceChange].empty?
+
+        begin
+            vm.ReconfigVM_Task(:spec => spec_hash).wait_for_completion
+        rescue Exception => e
+            raise "Cannot detach all DISKs from VM: #{e.message}\n#{e.backtrace}"
+        end
+    end
+
 
     # Detach DISK from VM
     def detach_disk(disk)
@@ -1860,15 +2126,29 @@ class VirtualMachine < Template
         img_path = ""
         ds_ref = nil
 
+        # Extract unmanaged disk keys
+        unmanaged_keys = get_unmanaged_keys
+        vc_disks = get_vcenter_disks
+
         # Get vcenter device to be detached and remove if found
-        device = disk_attached_to_vm(disk)
+        device = disk_attached_to_vm(disk, unmanaged_keys, vc_disks)
+
         if device
-            img_path << device.backing.fileName.sub(/^\[(.*?)\] /, "")
-            ds_ref = device.backing.datastore._ref
+            img_path << device[:path_wo_ds]
+
+            if unmanaged_keys.key?("opennebula.disk.#{disk["DISK_ID"]}")
+                reference = {}
+                reference[:key]   = "opennebula.disk.#{disk["DISK_ID"]}"
+                reference[:value] = ""
+                spec_hash[:extraConfig] = [ reference ]
+            end
+
+            ds_ref = device[:datastore]._ref
+
             # Generate vCenter spec and reconfigure VM
             spec_hash[:deviceChange] = [{
                 :operation => :remove,
-                :device => device
+                :device => device[:device]
             }]
 
             begin
@@ -1882,38 +2162,25 @@ class VirtualMachine < Template
     end
 
     # Get vcenter device representing DISK object (hotplug)
-    def disk_attached_to_vm(disk)
+    def disk_attached_to_vm(disk, unmanaged_keys, vc_disks)
+
         img_name = ""
         device_found = nil
-        @item["config.hardware.device"].each do |d|
-            if is_disk_or_cdrom?(d)
-                backing = d.backing
+        disk_id = disk["DISK_ID"]
 
-                # Backing may be a delta disk (snapshots)
-                while backing.respond_to?(:parent)
-                    break if backing.parent.nil?
-                    backing = backing.parent
-                end
+        vc_disks.each do |d|
+            # Check if we are dealing with the unmanaged disks present in the template when cloned
 
-                if backing.respond_to?(:fileName)
-                    # Check if we are dealing with the unmanaged disks present in the template when cloned
-                    if disk["OPENNEBULA_MANAGED"] && disk["OPENNEBULA_MANAGED"] == "NO"
-                        img_name = one_item["USER_TEMPLATE/VCENTER_TEMPLATE_DISK_#{disk["DISK_ID"]}"]
-                        if img_name && backing.fileName == img_name
-                            device_found = d
-                            break
-                        end
-                    else
-                        # Alright let's see if we can find other devices only with the expected image name
-                        img_name  = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'], self['name'])
-                        ds        = get_effective_ds(disk)
-                        ds_name   = ds['name']
-                        if backing.fileName == "[#{ds_name}] #{img_name}"
-                            device_found = d
-                            break
-                        end
-                    end
-                end
+            if unmanaged_keys.key?("opennebula.disk.#{disk_id}") && d[:key] == unmanaged_keys["opennebula.disk.#{disk_id}"].to_i
+                device_found = d
+                break
+            end
+
+            # Alright let's see if we can find other devices only with the expected image name
+            img_name  = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'], self['name'])
+            if d[:path_wo_ds] == "#{img_name}"
+                device_found = d
+                break
             end
         end
 
@@ -1922,88 +2189,93 @@ class VirtualMachine < Template
 
     def calculate_add_disk_spec(disk, position=0)
         img_name = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'], self['name'])
-        ds       = get_effective_ds(disk)
-
-        ds_name  = ds['name']
         type     = disk["TYPE"]
-
-        size_kb = disk["SIZE"].to_i * 1024
-
-        controller, new_number = find_free_controller(position)
+        size_kb  = disk["SIZE"].to_i * 1024
 
         if type == "CDROM"
+            # CDROM drive will be found in the IMAGE DS
+            ds_ref   = disk["VCENTER_DS_REF"]
+            ds       = VCenterDriver::Storage.new_from_ref(ds_ref, @vi_client)
+            ds_name  = ds['name']
+
+            # CDROM can only be added when the VM is in poweroff state
             vmdk_backing = RbVmomi::VIM::VirtualCdromIsoBackingInfo(
                 :datastore => ds.item,
                 :fileName  => "[#{ds_name}] #{img_name}"
             )
 
-            cd = @item['config.hardware.device'].select  do |hw|
-                hw.class == RbVmomi::VIM::VirtualCdrom
-            end.first
-
-            # If no CDROM drive present, we need to add it
-            if !cd
-                controller, _ = find_free_controller
-
-                device = RbVmomi::VIM::VirtualCdrom(
-                    :backing       => vmdk_backing,
-                    :key           => -1,
-                    :controllerKey => 15000,
-                    :unitNumber    => 0,
-
-                    :connectable => RbVmomi::VIM::VirtualDeviceConnectInfo(
-                        :startConnected    => true,
-                        :connected         => true,
-                        :allowGuestControl => true
-                    )
-                )
-
-                return {
-                    :operation => :add,
-                    :device => device
-                }
-            else
-                device = RbVmomi::VIM::VirtualCdrom(
-                    backing: vmdk_backing,
-                    key: cd.key,
-                    controllerKey: cd.controllerKey,
-                    connectable: RbVmomi::VIM::VirtualDeviceConnectInfo(
-                        startConnected: true,
-                        connected: true,
-                        allowGuestControl: true
-                    )
-                )
-
-                return {
-                   :operation => :edit,
-                   :device    => device
-                }
+            if @item["summary.runtime.powerState"] != "poweredOff"
+                raise "The CDROM image can only be added as an IDE device "\
+                      "when the VM is in the powered off state"
             end
+
+            controller, unit_number = find_free_ide_controller(position)
+
+            device = RbVmomi::VIM::VirtualCdrom(
+                :backing       => vmdk_backing,
+                :key           => -1,
+                :controllerKey => controller.key,
+                :unitNumber    => unit_number,
+
+                :connectable => RbVmomi::VIM::VirtualDeviceConnectInfo(
+                    :startConnected    => true,
+                    :connected         => true,
+                    :allowGuestControl => true
+                )
+            )
+
+            return {
+                :operation => :add,
+                :device => device
+            }
+
         else
             # TYPE is regular disk (not CDROM)
-            vmdk_backing = RbVmomi::VIM::VirtualDiskFlatVer2BackingInfo(
+
+            controller, unit_number = find_free_controller(position)
+
+            storpod = disk["VCENTER_DS_REF"].start_with?('group-')
+            if storpod
+                vmdk_backing = RbVmomi::VIM::VirtualDiskFlatVer2BackingInfo(
+                  :diskMode  => 'persistent',
+                  :fileName  => ""
+                )
+            else
+                ds           = get_effective_ds(disk)
+                ds_name      = ds['name']
+                vmdk_backing = RbVmomi::VIM::VirtualDiskFlatVer2BackingInfo(
                   :datastore => ds.item,
                   :diskMode  => 'persistent',
                   :fileName  => "[#{ds_name}] #{img_name}"
-            )
+                )
+            end
 
             device = RbVmomi::VIM::VirtualDisk(
               :backing       => vmdk_backing,
               :capacityInKB  => size_kb,
               :controllerKey => controller.key,
-              :key           => -1,
-              :unitNumber    => new_number
+              :key           => (-1 - position),
+              :unitNumber    => unit_number
             )
 
-            {
+            config = {
                :operation => :add,
                :device    => device
             }
+
+            # For StorageDRS vCenter must create the file
+            config[:fileOperation] = :create if storpod
+
+            return config
         end
     end
 
     def has_snapshots?
         self['rootSnapshot'] && !self['rootSnapshot'].empty?
+    end
+
+    def instantiated_as_persistent?
+        !!one_item["TEMPLATE/CLONING_TEMPLATE_ID"]
     end
 
     def remove_poweroff_detached_vcenter_nets(networks)
@@ -2063,6 +2335,55 @@ class VirtualMachine < Template
         end
     end
 
+    def find_free_ide_controller(position=0)
+
+        free_ide_controllers = []
+        ide_schema           = {}
+
+        used_numbers      = []
+        available_numbers = []
+
+        @item["config.hardware.device"].each do |dev|
+            if dev.is_a? RbVmomi::VIM::VirtualIDEController
+                if ide_schema[dev.key].nil?
+                    ide_schema[dev.key] = {}
+                end
+
+                ide_schema[dev.key][:device] = dev
+            end
+
+            next if dev.class != RbVmomi::VIM::VirtualCdrom
+            used_numbers << dev.unitNumber
+        end
+
+        2.times do |ide_id|
+            available_numbers << ide_id if used_numbers.grep(ide_id).length <= 0
+        end
+
+        ide_schema.keys.each do |controller|
+            free_ide_controllers << ide_schema[controller][:device].deviceInfo.label
+        end
+
+        if free_ide_controllers.empty?
+            raise "There are no free IDE controllers to connect this CDROM device"
+        end
+
+        available_controller_label = free_ide_controllers[0]
+
+        controller = nil
+
+        @item['config.hardware.device'].each do |device|
+            if device.deviceInfo.label == available_controller_label
+                controller = device
+                break
+            end
+        end
+
+        new_unit_number = available_numbers.sort[position]
+
+        return controller, new_unit_number
+    end
+
     def find_free_controller(position=0)
         free_scsi_controllers = []
         scsi_schema           = {}
@@ -2072,7 +2393,7 @@ class VirtualMachine < Template
 
         @item["config.hardware.device"].each do |dev|
             if dev.is_a? RbVmomi::VIM::VirtualSCSIController
-                if scsi_schema[dev.controllerKey].nil?
+                if scsi_schema[dev.key].nil?
                     scsi_schema[dev.key] = {}
                 end
 
