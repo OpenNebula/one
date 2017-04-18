@@ -61,15 +61,14 @@ begin
         one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
         vm.one_item = one_vm
 
-        # Set reference to template disks in VM template for detach ops
-        vm.reference_imported_disks(vc_template_ref)
-
-        # Set reference to template nics in VM template for detach ops
-        vm.reference_imported_nics
+        # Set reference to template disks and nics in VM template for detach ops
+        vm.reference_unmanaged_devices(vc_template_ref)
     end
 
-    # Resize cloned disks from template if needed
-    vm.resize_imported_disks
+    # Resize unmanaged disks
+    vm.resize_unmanaged_disks
+
+
 
     vm.reconfigure
     vm.poweron
