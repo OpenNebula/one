@@ -99,7 +99,8 @@ define(function(require) {
 
   function _insertUserAndZoneSelector() {
 
-    this.idGroup = -1; /*All*/
+    this.idGroup = -2; /*All*/
+    Config.changeFilter(false);
     
     $(".user-zone-info").html(UserAndZoneTemplate({
       displayName: config['display_name'],
@@ -132,10 +133,10 @@ define(function(require) {
         },
         success: function (request, obj_user) {
           var groups = obj_user.USER.GROUPS.ID;
-          var groupsHTML = "<li class='groups' value='-1'> <a href='#' value='-1' id='-1'> \
+          var groupsHTML = "<li class='groups' value='-2'> <a href='#' value='-2' id='-2'> \
               <i class='fa fa-fw'></i>" + Locale.tr("All") + "</a></li>";
-          if(this.idGroup == -1){
-            var groupsHTML = "<li class='groups' value='-1'> <a href='#' value='-1' id='-1'> \
+          if(this.idGroup == -2){
+            var groupsHTML = "<li class='groups' value='-2'> <a href='#' value='-2' id='-2'> \
               <i class='fa fa-fw fa-check'></i>" + Locale.tr("All") + "</a></li>";
           }
 
@@ -145,28 +146,29 @@ define(function(require) {
           }
 
           that = this;
-
           OpenNebula.Group.list({
             timeout: true,
             success: function(request, group_list) {
               var group_list_aux = group_list; 
-              $.each(groups, function(value, key){
-                var id = key;
-                $.each(group_list_aux, function(value, key){
-                  if(id == key.GROUP.ID){
+              $.each(groups, function(key, value){
+                var id = value;
+                $.each(group_list_aux, function(key, value){
+                  if(id == value.GROUP.ID){
                     if(id == that.idGroup){
                       groupsHTML += "<li class='groups' value='" + id + "'id='" + id + "'> \
-                        <a href='#'><i class='fa fa-fw fa-check'></i>" + key.GROUP.NAME + "\
+                        <a href='#'><i class='fa fa-fw fa-check'></i>" + value.GROUP.NAME + "\
                         </a></li>";
                     } else {
                       groupsHTML += "<li class='groups' value='" + id + "'id='" + id + "'> \
-                        <a href='#'><i class='fa fa-fw'></i>" + key.GROUP.NAME + "\
+                        <a href='#'><i class='fa fa-fw'></i>" + value.GROUP.NAME + "\
                         </a></li>";
                     }
+                    return false;
                   }
                 });
               });
-            }
+            },
+            error: Notifier.onError
           });
 
           $('#userselector').on('click', function(){
@@ -177,9 +179,15 @@ define(function(require) {
                 $('.groups-menu a i').removeClass('fa-check');
                 $('a i', this).addClass('fa-check');
                 groupsRefresh();
+                if(that.idGroup != -2){
+                  Config.changeFilter(true);
+                } else {
+                  Config.changeFilter(false);
+                }
             });
           });
-        }
+        },
+        error: Notifier.onError
       }); 
     }
 

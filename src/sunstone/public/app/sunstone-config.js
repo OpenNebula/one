@@ -26,6 +26,10 @@ define(function(require) {
       return enabled;
     },
 
+    "changeFilter": function(bool) {
+      _config['pool_filter'] = bool;
+    },
+
     "isTabActionEnabled": function(tabName, actionName, panelName) {
       var enabled = false;
       var configTab = _config['view']['tabs'][tabName];
