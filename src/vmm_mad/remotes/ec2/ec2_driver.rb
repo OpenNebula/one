@@ -44,12 +44,29 @@ require 'rexml/document'
 require 'VirtualMachineDriver'
 require 'opennebula'
 
+# >> /var/log/one/oned.log
+def handle_exception(action, ex, host, did, id = nil, file = nil)
+
+    file    ||= ""
+        id      ||= ""
+    STDERR.puts action + " of VM #{id} #{did} on host #{host} #{file} "+
+                "due to \"#{ex.message}\""
+    STDERR.puts "********* STACK TRACE *********"
+    STDERR.puts ex.backtrace
+    STDERR.puts "*******************************"
+    exit (-1)
+end
+    
+
+
+
+
 begin
     PUBLIC_CLOUD_EC2_CONF = YAML::load(File.read(EC2_DRIVER_CONF))
 rescue Exception => e
-    STDERR.puts "Unable to read '#{EC2_DRIVER_CONF}'. Invalid YAML syntax:\n" <<
-                e.message
-    exit 1
+    str_error="Unable to read '#{EC2_DRIVER_CONF}'. Invalid YAML syntax:\n" +
+                e.message + "\n********Stack trace from EC2 IM driver*********\n"
+    raise str_error
 end
 
 # The main class for the EC2 driver
@@ -252,7 +269,12 @@ class EC2Driver
     # DEPLOY action, also sets ports and ip if needed
     def deploy(id, host, xml_text, lcm_state, deploy_id)
       if lcm_state == "BOOT" || lcm_state == "BOOT_FAILURE"
-        ec2_info = get_deployment_info(host, xml_text)
+
+    begin
+            ec2_info = get_deployment_info(host, xml_text)
+    rescue Exception => e
+        raise e
+    end
 
         load_default_template_values
 
@@ -439,8 +461,7 @@ class EC2Driver
                 vms_info << "  DEPLOY_ID=#{i.instance_id},\n"
                 vms_info << "  VM_NAME=#{i.instance_id},\n"
                 vms_info << "  IMPORT_TEMPLATE=\"#{vm_template_to_one}\",\n"
-                vms_info << "  POLL=\"#{poll_data}\" ]\n"
-
+                vms_info << "  POLL=\"#{poll_data}\" ]\n"    
                 if one_id
                     name = i.instance_type
                     cpu, mem = instance_type_capacity(name)
@@ -449,9 +470,8 @@ class EC2Driver
                 end
 
             end
-        rescue => e
-            STDERR.puts(e.message)
-            exit(-1)
+        rescue => e            
+            raise e
         end
 
         host_info << "USEDMEMORY=#{usedmemory.round}\n"
@@ -481,7 +501,7 @@ private
 
     # Get the EC2 section of the template. If more than one EC2 section
     # the CLOUD element is used and matched with the host
-    def get_deployment_info(host, xml_text)
+    def get_deployment_info(host, xml_text)    
         xml = REXML::Document.new xml_text
 
         ec2 = nil
@@ -511,10 +531,9 @@ private
             if all_ec2_elements.size == 1
                 ec2 = all_ec2_elements[0]
             else
-                STDERR.puts("Cannot find PUBLIC_CLOUD element in deployment "\
+        raise RuntimeError.new("Cannot find PUBLIC_CLOUD element in deployment "\
                     " file or no HOST site matching the requested in the "\
-                    "template.")
-                exit(-1)
+                    " template.")
             end
         end
 
@@ -587,13 +606,11 @@ private
     # +deploy_id+: String, VM id in EC2
     # +ec2_action+: Symbol, one of the keys of the EC2 hash constant (i.e :run)
     def ec2_action(deploy_id, ec2_action)
+        begin        
         i = get_instance(deploy_id)
-
-        begin
-            i.send(EC2[ec2_action][:cmd])
+        i.send(EC2[ec2_action][:cmd])
         rescue => e
-            STDERR.puts e.message
-            exit(-1)
+                raise e
         end
     end
 
@@ -678,11 +695,10 @@ private
             if instance.exists?
                 return instance
             else
-                raise "Instance #{id} does not exist"
+                raise RuntimeError.new("Instance #{id} does not exist")
             end
         rescue => e
-            STDERR.puts e.message
-            exit(-1)
+            raise e
         end
     end
 

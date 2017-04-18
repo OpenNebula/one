@@ -32,5 +32,13 @@ host    = ARGV[-1]
 host_id = ARGV[-2]
 ec2_drv = EC2Driver.new(host, host_id)
 
-ec2_drv.monitor_all_vms
+begin
+    ec2_drv.monitor_all_vms
+rescue Exception => e
 
+    STDERR.puts e.message
+    STDERR.puts "********** STACK TRACE ************"
+    STDERR.puts e.backtrace
+    STDERR.puts "***********************************"
+    exit -1    
+end
