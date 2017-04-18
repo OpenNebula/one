@@ -64,7 +64,9 @@ begin
 
     vm.one_item = one_vm
 
-    vm.detach_disk(disk) if !vm.has_snapshots?
+    # Don't detach persistent disks if the VM has snapshots,
+    # or the instantiate to persistent is used
+    vm.detach_disk(disk) if !vm.has_snapshots? && !vm.instantiated_as_persistent?
 
 rescue Exception => e
     STDERR.puts "Error detaching virtual disk #{disk_id} from vm #{vmid}."\
