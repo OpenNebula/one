@@ -131,7 +131,9 @@ define(function(require) {
       return support;
     },
     "initMarketExportSupported": function(){
+      var pool_filter = Config.isChangedFilter()? -4 : -2;
       this.list({
+        data : {pool_filter : pool_filter},
         timeout: true,
         success: function (request, obj_list) {},
         //error: Notifier.onError

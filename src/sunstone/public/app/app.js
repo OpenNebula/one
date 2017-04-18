@@ -37,8 +37,6 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Menu = require('utils/menu');
   var Locale = require('utils/locale');
-  var OpenNebulaGroup = require('opennebula/group');
-
   var UserAndZoneTemplate = require('hbs!sunstone/user_and_zone');
 
   var _commonDialogs = [
@@ -176,6 +174,9 @@ define(function(require) {
             $('.groups-menu').append(groupsHTML);
             $('.groups').on('click', function(){
                 that.idGroup = $(this).attr('value');
+                if(that.idGroup != -2){
+                  Sunstone.runAction("User.chgrp", [parseInt(config['user_id'])], parseInt(that.idGroup));
+                }
                 $('.groups-menu a i').removeClass('fa-check');
                 $('a i', this).addClass('fa-check');
                 groupsRefresh();
