@@ -185,7 +185,7 @@ int History::insert_replace(SqlDB *db, bool replace)
         <<          stime           << ","
         <<          etime           << ")";
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     db->free_str(sql_xml);
 
@@ -234,7 +234,7 @@ int History::select(SqlDB * db)
 
     set_callback(static_cast<Callbackable::Callback>(&History::select_cb));
 
-    rc = db->exec(oss,this);
+    rc = db->exec_rd(oss,this);
 
     unset_callback();
 
@@ -255,7 +255,7 @@ int History::drop(SqlDB * db)
 
     oss << "DELETE FROM " << table << " WHERE vid= "<< oid;
 
-    return db->exec(oss);
+    return db->exec_wr(oss);
 }
 
 /* -------------------------------------------------------------------------- */

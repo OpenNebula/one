@@ -223,7 +223,7 @@ int ClusterPool::query_datastore_clusters(int oid, set<int> &cluster_ids)
 
     oss << "SELECT cid FROM " << Cluster::datastore_table << " WHERE oid = " << oid;
 
-    int rc = db->exec(oss, this);
+    int rc = db->exec_rd(oss, this);
 
     unset_callback();
 
@@ -247,7 +247,7 @@ int ClusterPool::query_vnet_clusters(int oid, set<int> &cluster_ids)
 
     oss << "SELECT cid FROM " << Cluster::network_table << " WHERE oid = " << oid;
 
-    int rc = db->exec(oss, this);
+    int rc = db->exec_rd(oss, this);
 
     unset_callback();
 

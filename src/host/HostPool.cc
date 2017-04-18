@@ -254,7 +254,7 @@ int HostPool::discover(
         << " WHERE last_mon_time <= " << target_time
         << " ORDER BY last_mon_time ASC LIMIT " << host_limit;
 
-    rc = db->exec(sql,this);
+    rc = db->exec_rd(sql,this);
 
     unset_callback();
 
@@ -303,7 +303,7 @@ int HostPool::clean_expired_monitoring()
     oss << "DELETE FROM " << Host::monit_table
         << " WHERE last_mon_time < " << max_mon_time;
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     return rc;
 }
@@ -318,7 +318,7 @@ int HostPool::clean_all_monitoring()
 
     oss << "DELETE FROM " << Host::monit_table;
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     return rc;
 }

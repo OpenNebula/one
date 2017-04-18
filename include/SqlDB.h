@@ -33,14 +33,31 @@ public:
 
     virtual ~SqlDB(){};
 
+    /* ---------------------------------------------------------------------- */
+    /* Database Operations                                                    */
+    /* ---------------------------------------------------------------------- */
+
     /**
-     *  Performs a DB transaction
+     *
      *    @param sql_cmd the SQL command
      *    @param callbak function to execute on each data returned
-     *    @param quiet True to log errors with DDEBUG level instead of ERROR
      *    @return 0 on success
+     *
      */
-    virtual int exec(ostringstream& cmd, Callbackable* obj=0, bool quiet=false) = 0;
+    int exec_bootstrap(ostringstream& cmd)
+    {
+        return exec(cmd, 0, false);
+    }
+
+    int exec_rd(ostringstream& cmd, Callbackable* obj)
+    {
+        return exec(cmd, obj, false);
+    }
+
+    int exec_wr(ostringstream& cmd)
+    {
+        return exec(cmd, 0, false);
+    }
 
     /**
      *  This function returns a legal SQL string that can be used in an SQL
@@ -63,6 +80,16 @@ public:
      * @return true if supported
      */
     virtual bool multiple_values_support() = 0;
+
+protected:
+    /**
+     *  Performs a DB transaction
+     *    @param sql_cmd the SQL command
+     *    @param callbak function to execute on each data returned
+     *    @param quiet True to log errors with DDEBUG level instead of ERROR
+     *    @return 0 on success
+     */
+    virtual int exec(ostringstream& cmd, Callbackable* obj, bool quiet) = 0;
 };
 
 #endif /*SQL_DB_H_*/

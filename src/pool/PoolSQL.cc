@@ -62,7 +62,7 @@ PoolSQL::PoolSQL(SqlDB * _db, const char * _table, bool _cache, bool cache_by_na
 
     oss << "SELECT last_oid FROM pool_control WHERE tablename='" << table <<"'";
 
-    db->exec(oss,this);
+    db->exec_rd(oss,this);
 
     unset_callback();
 };
@@ -152,7 +152,7 @@ void PoolSQL::update_lastOID()
         << "'" <<   table       << "',"
         <<          lastOID     << ")";
 
-    db->exec(oss);
+    db->exec_wr(oss);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -635,7 +635,7 @@ int PoolSQL::dump(ostringstream&  oss,
     set_callback(static_cast<Callbackable::Callback>(&PoolSQL::dump_cb),
                  static_cast<void *>(&oss));
 
-    rc = db->exec(sql_query, this);
+    rc = db->exec_rd(sql_query, this);
 
     add_extra_xml(oss);
 
@@ -685,7 +685,7 @@ int PoolSQL::search(
         sql << " WHERE " << where;
     }
 
-    rc = db->exec(sql, this);
+    rc = db->exec_rd(sql, this);
 
     unset_callback();
 

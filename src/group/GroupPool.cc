@@ -249,7 +249,7 @@ int GroupPool::dump(ostringstream& oss, const string& where, const string& limit
     set_callback(static_cast<Callbackable::Callback>(&GroupPool::dump_cb),
                  static_cast<void *>(&oss));
 
-    rc = db->exec(cmd, this);
+    rc = db->exec_rd(cmd, this);
 
     unset_callback();
 

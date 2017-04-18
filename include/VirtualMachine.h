@@ -1750,10 +1750,10 @@ private:
         ostringstream oss_hist(History::db_bootstrap);
         ostringstream oss_showback(VirtualMachine::showback_db_bootstrap);
 
-        rc =  db->exec(oss_vm);
-        rc += db->exec(oss_monit);
-        rc += db->exec(oss_hist);
-        rc += db->exec(oss_showback);
+        rc =  db->exec_bootstrap(oss_vm);
+        rc += db->exec_bootstrap(oss_monit);
+        rc += db->exec_bootstrap(oss_hist);
+        rc += db->exec_bootstrap(oss_showback);
 
         return rc;
     };

@@ -309,7 +309,7 @@ private:
     {
         ostringstream oss_user(User::db_bootstrap);
 
-        return db->exec(oss_user);
+        return db->exec_bootstrap(oss_user);
     };
 
     /**

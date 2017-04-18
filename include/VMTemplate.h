@@ -149,7 +149,7 @@ private:
     {
         ostringstream oss(VMTemplate::db_bootstrap);
 
-        return db->exec(oss);
+        return db->exec_bootstrap(oss);
     };
 
     /**

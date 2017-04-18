@@ -64,7 +64,7 @@ AclManager::AclManager(
     oss << "SELECT last_oid FROM pool_control WHERE tablename='" << table
             << "'";
 
-    db->exec(oss, this);
+    db->exec_rd(oss, this);
 
     unset_callback();
 
@@ -1094,7 +1094,7 @@ int AclManager::bootstrap(SqlDB * _db)
 {
     ostringstream oss(db_bootstrap);
 
-    return _db->exec(oss);
+    return _db->exec_bootstrap(oss);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1111,7 +1111,7 @@ void AclManager::update_lastOID()
         << "'" <<   table       << "',"
         <<          lastOID     << ")";
 
-    db->exec(oss);
+    db->exec_wr(oss);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1186,7 +1186,7 @@ int AclManager::select()
     acl_rules.clear();
     acl_rules_oids.clear();
 
-    rc = db->exec(oss,this);
+    rc = db->exec_rd(oss,this);
 
     unlock();
 
@@ -1212,7 +1212,7 @@ int AclManager::insert(AclRule * rule, SqlDB * db)
         <<  rule->rights    << ","
         <<  rule->zone      << ")";
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     return rc;
 }
@@ -1229,7 +1229,7 @@ int AclManager::drop(int oid)
     oss << "DELETE FROM " << table << " WHERE "
         << "oid=" << oid;
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     return rc;
 }

@@ -32,6 +32,13 @@ public:
 
     virtual ~ZoneServer(){};
 
+    /**
+     *  Initialized server metadata:
+     *    - NAME
+     *    - ENDPOINT
+     *  @param error string if any
+     *  @return -1 if server data could not be initialized, 0 on success
+     */
     int init(string& error)
     {
         if ( vector_value("NAME").empty() )

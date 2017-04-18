@@ -596,7 +596,7 @@ private:
     {
         ostringstream oss_vnet(VirtualNetwork::db_bootstrap);
 
-        return db->exec(oss_vnet);
+        return db->exec_bootstrap(oss_vnet);
     };
 
     /**

@@ -110,7 +110,7 @@ private:
     {
         ostringstream oss(Zone::db_bootstrap);
 
-        return db->exec(oss);
+        return db->exec_bootstrap(oss);
     };
 
     /**

@@ -216,7 +216,7 @@ private:
     {
         ostringstream oss(VirtualRouter::db_bootstrap);
 
-        return db->exec(oss);
+        return db->exec_bootstrap(oss);
     };
 
     /**

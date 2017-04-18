@@ -151,7 +151,7 @@ int Vdc::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          other_u             << ")";
 
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     db->free_str(sql_name);
     db->free_str(sql_xml);
