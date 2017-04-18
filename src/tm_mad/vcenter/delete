@@ -81,7 +81,7 @@ rescue Exception => e
 end
 
 if path.match(/disk\.\d+$/)
-    # Detach and remove the disk
+    # Detach and remove the disk (if it is not a CDROM)
 
     # Get DS ref
     dsid = img_path.split("/")[-3] # get dsid from path
@@ -98,12 +98,20 @@ if path.match(/disk\.\d+$/)
             # not exist...
             vm.one_item = one_vm
 
-            # detach the disk
+            # detach the disk or cdrom
             ds_ref, img_path = vm.detach_disk(disk)
 
-            # delete the disk
-            ds = VCenterDriver::Datastore.new_from_ref(ds_ref, vi_client)
-            ds.delete_virtual_disk(img_path)
+            # If disk was already detached we have no way to remove it
+            if ds_ref && img_path && !img_path.empty?
+                ds = VCenterDriver::Datastore.new_from_ref(ds_ref, vi_client)
+
+                # delete the disk if it's not a CDROM (CLONE=NO)
+                if disk["CLONE"].nil? || disk["CLONE"] == "YES"
+                    ds.delete_virtual_disk(img_path)
+                    img_dir = File.dirname(img_path)
+                    ds.rm_directory(img_dir) if ds.dir_empty?(img_dir)
+                end
+            end
         end
 
     rescue Exception => e
@@ -218,8 +226,9 @@ else
 
         # If the VM has snapshots the TM could not detach disks so we
         # will try to detach persistent disks once we have removed all snapshots
-        # that way they won't be removed
-        if vm.has_snapshots?
+        # that way they won't be removed. If the vm has been marked as template
+        # persistent disks shouldn't be detached
+        if vm.has_snapshots? && !vm.instantiated_as_persistent?
             vm.remove_all_snapshots
             disks = one_vm.retrieve_xmlelements("TEMPLATE/DISK[PERSISTENT=\"YES\"]")
             disks.each do |d|
@@ -227,7 +236,22 @@ else
             end
         end
 
-        vm.destroy
+        # If the VM was instantiated to persistent keep the VM
+        if vm.instantiated_as_persistent?
+
+            #Convert VM to template in vCenter
+            vm.mark_as_template
+
+            # Create new Opennebula template and set VCENTER_TEMPLATE_REF
+            one_client = OpenNebula::Client.new
+            template_id = vm.one_item['TEMPLATE/TEMPLATE_ID']
+            new_template = OpenNebula::Template.new_with_id(template_id, one_client)
+            new_template.info
+            new_template.update("VCENTER_TEMPLATE_REF= #{vm.item._ref}", true)
+        end
+
+        # Destroy the VM unless the instantiate as persistent is used
+        vm.destroy if !vm.instantiated_as_persistent?
     rescue Exception => e
         STDERR.puts "Error unregistering vm #{vmid} (#{vm_ref})."\
                     " Reason: #{e.message}\n#{e.backtrace}"
