@@ -115,8 +115,9 @@ if path.match(/disk\.\d+$/)
         end
 
     rescue Exception => e
-        STDERR.puts "Error delete virtual disk #{img_path} in datastore #{dsid}."\
-                    " Reason: #{e.message}\n#{e.backtrace}"
+        message = "Error delete virtual disk #{img_path} in datastore #{dsid}."\
+                  " Reason: #{e.message}\n#{e.backtrace}"
+        STDERR.puts error_message(message)
         exit -1
     ensure
         vi_client.close_connection if vi_client
@@ -253,8 +254,9 @@ else
         # Destroy the VM unless the instantiate as persistent is used
         vm.destroy if !vm.instantiated_as_persistent?
     rescue Exception => e
-        STDERR.puts "Error unregistering vm #{vmid} (#{vm_ref})."\
-                    " Reason: #{e.message}\n#{e.backtrace}"
+        message = "Error unregistering vm #{vmid} (#{vm_ref})."\
+                  " Reason: #{e.message}\n#{e.backtrace}"
+        STDERR.puts error_message(message)
         exit -1
     ensure
         vi_client.close_connection if vi_client

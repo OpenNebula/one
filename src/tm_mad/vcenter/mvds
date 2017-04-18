@@ -69,8 +69,9 @@ begin
     vm.detach_disk(disk) if !vm.has_snapshots? && !vm.instantiated_as_persistent?
 
 rescue Exception => e
-    STDERR.puts "Error detaching virtual disk #{disk_id} from vm #{vmid}."\
-                " Reason: #{e.message}\n#{e.backtrace}"
+    message = "Error detaching virtual disk #{disk_id} from vm #{vmid}."\
+              " Reason: #{e.message}\n#{e.backtrace}"
+    STDERR.puts error_message(message)
     exit -1
 ensure
     vi_client.close_connection if vi_client
