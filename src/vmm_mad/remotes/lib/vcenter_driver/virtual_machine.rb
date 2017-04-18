@@ -896,8 +896,8 @@ class VirtualMachine < Template
         req_rp_ref = rp_list.select { |rp| rp[:name] == req_rp }.first[:ref] rescue nil
 
         if vi_client.rp_confined?
-            if req_rp_ref && req_rp_ref != vi_client.rp
-                raise "Available resource pool in host [#{vi_client.rp}]"\
+            if req_rp_ref && req_rp_ref != vi_client.rp._ref
+                raise "Resource pool [#{vi_client.rp.name}] in host"\
                       " does not match requested resource pool"\
                       " [#{req_rp}]"
             end

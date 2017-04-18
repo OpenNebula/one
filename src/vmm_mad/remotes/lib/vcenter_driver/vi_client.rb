@@ -7,7 +7,6 @@ class VIClient
     attr_accessor :rp
 
     def initialize(opts)
-
         opts = {:insecure => true}.merge(opts)
         @vim = RbVmomi::VIM.connect(opts)
 
@@ -21,7 +20,7 @@ class VIClient
                 rp = opts.delete(:rp)
                 if rp
                     rp_list = get_resource_pools(ccr)
-                    rp_ref = rp_list.select { |r| r[:name] == rp }.first._ref rescue nil
+                    rp_ref = rp_list.select { |r| r[:name] == rp }.first[:ref] rescue nil
                     @rp = RbVmomi::VIM::ResourcePool(@vim, rp_ref) if rp_ref
                 end
             end

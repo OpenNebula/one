@@ -540,7 +540,14 @@ class ClusterComputeResource
 
         one_cluster_id = -1 if !one_cluster_id
 
-        rc = one_host.allocate(cluster[:cluster_name], 'vcenter', 'vcenter', one_cluster_id.to_i)
+        cluster_name = ""
+        if rp
+            cluster_name << cluster[:cluster_name] << "_#{rp.tr("/", "_")}"
+        else
+            cluster_name << cluster[:cluster_name]
+        end
+
+        rc = one_host.allocate(cluster_name, 'vcenter', 'vcenter', one_cluster_id.to_i)
 
         if OpenNebula.is_error?(rc)
             raise "Could not allocate host: #{rc.message}"
