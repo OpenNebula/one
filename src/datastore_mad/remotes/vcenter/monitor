@@ -55,8 +55,9 @@ begin
     puts storage.monitor
 
 rescue Exception => e
-    STDERR.puts "Error monitoring host #{id}."\
-                " Reason: \"#{e.message}\"\n#{e.backtrace}"
+    message = "Error monitoring host #{id}."\
+              " Reason: \"#{e.message}\"\n#{e.backtrace}"
+    STDERR.puts error_message(message)
     exit -1
 ensure
     vi_client.close_connection if vi_client

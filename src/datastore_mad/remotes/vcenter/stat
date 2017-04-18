@@ -56,8 +56,9 @@ if img_path.start_with? "vcenter://"
         puts ds.stat(img_path.sub("vcenter://",""))
 
     rescue Exception => e
-        STDERR.puts "Error calculating image #{img_path} size."\
-                    " Reason: \"#{e.message}\"\n#{e.backtrace}"
+        message = "Error calculating image #{img_path} size."\
+                  " Reason: \"#{e.message}\"\n#{e.backtrace}"
+        STDERR.puts error_message(message)
         exit -1
     ensure
         vi_client.close_connection if vi_client

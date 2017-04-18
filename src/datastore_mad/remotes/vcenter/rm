@@ -72,8 +72,9 @@ begin
         ds.rm_directory(img_dir) if ds.dir_empty?(img_dir)
     end
 rescue Exception => e
-    STDERR.puts "Error deleting virtual disk #{img_src}."\
-                " Reason: \"#{e.message}\"\n#{e.backtrace}"
+    message = "Error deleting virtual disk #{img_src}."\
+              " Reason: \"#{e.message}\"\n#{e.backtrace}"
+    STDERR.puts error_message(message)
     exit -1
 ensure
     vi_client.close_connection if vi_client

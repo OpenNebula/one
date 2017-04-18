@@ -50,8 +50,9 @@ ds_name    = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"]
 
 
 if img_source.nil?
-    STDERR.puts "Not enough information to export the image,"\
-                " missing image source."
+    message = "Not enough information to export the image,"\
+              " missing image source."
+    STDERR.puts error_message(message)
     exit -1
 end
 

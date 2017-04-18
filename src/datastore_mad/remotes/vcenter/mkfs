@@ -74,8 +74,9 @@ begin
     puts ds.create_virtual_disk(img_name, size, adapter_type, disk_type)
 
 rescue Exception => e
-    STDERR.puts "Error creating virtual disk #{img_name}."\
-                " Reason: \"#{e.message}\"\n#{e.backtrace}"
+    message = "Error creating virtual disk #{img_name}."\
+              " Reason: \"#{e.message}\"\n#{e.backtrace}"
+    STDERR.puts error_message(message)
     exit -1
 ensure
     vi_client.close_connection if vi_client
