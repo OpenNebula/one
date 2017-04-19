@@ -79,7 +79,7 @@ begin
     source_ds_ref = ""
 
     # If disk is unmanaged get the reference from template
-    if disk["OPENNEBULA_MANAGED"] && disk["OPENNEBULA_MANAGED"] == "NO"
+    if disk["OPENNEBULA_MANAGED"] && disk["OPENNEBULA_MANAGED"].downcase == "no"
         unmanaged_keys = vm.get_unmanaged_keys
         device_key = unmanaged_keys["opennebula.disk.#{disk["DISK_ID"]}"].to_i
         image_path, source_ds_ref = vm.get_device_filename_and_ds_from_key(device_key)

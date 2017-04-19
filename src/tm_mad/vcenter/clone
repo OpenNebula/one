@@ -93,7 +93,7 @@ begin
 
     # Unmanaged disks are those with OPENNEBULA_MANAGED=NO or volatile disks
     # that are created in StorageDRS clusters
-    unmanaged_disk = (!!disk['OPENNEBULA_MANAGED'] && disk['OPENNEBULA_MANAGED'] == "NO") ||
+    unmanaged_disk = (!!disk['OPENNEBULA_MANAGED'] && disk['OPENNEBULA_MANAGED'].downcase == "no") ||
                      (target_ds_ref.start_with?('group-') && !!disk["TYPE"] && disk["TYPE"].downcase == "fs")
 
     if !unmanaged_disk

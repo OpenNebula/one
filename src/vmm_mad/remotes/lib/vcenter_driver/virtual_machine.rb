@@ -1212,7 +1212,7 @@ class VirtualMachine < Template
         device_change = []
 
         # Get unmanaged disks in OpenNebula's VM template
-        xpath = "TEMPLATE/DISK[OPENNEBULA_MANAGED=\"NO\"]"
+        xpath = "TEMPLATE/DISK[OPENNEBULA_MANAGED=\"NO\" or OPENNEBULA_MANAGED=\"no\"]"
         unmanaged_disks = one_item.retrieve_xmlelements(xpath)
 
         if !unmanaged_disks.empty?
@@ -1241,7 +1241,7 @@ class VirtualMachine < Template
         end
 
         # Add info for existing nics in template in vm xml
-        xpath = "TEMPLATE/NIC[OPENNEBULA_MANAGED=\"NO\"]"
+        xpath = "TEMPLATE/NIC[OPENNEBULA_MANAGED=\"NO\" or OPENNEBULA_MANAGED=\"no\"]"
         unmanaged_nics = one_item.retrieve_xmlelements(xpath)
 
         if !unmanaged_nics.empty?
@@ -1273,7 +1273,7 @@ class VirtualMachine < Template
         vc_disks = get_vcenter_disks
 
         # Look for unmanaged disks with original size changed
-        xpath = "TEMPLATE/DISK[OPENNEBULA_MANAGED=\"NO\" and boolean(ORIGINAL_SIZE)]"
+        xpath = "TEMPLATE/DISK[(OPENNEBULA_MANAGED=\"NO\" or OPENNEBULA_MANAGED=\"no\") and boolean(ORIGINAL_SIZE) and ORIGINAL_SIZE != SIZE]"
         unmanaged_resized_disks = one_item.retrieve_xmlelements(xpath)
 
         return if unmanaged_resized_disks.empty?
