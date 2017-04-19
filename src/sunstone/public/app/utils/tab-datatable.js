@@ -359,17 +359,12 @@ define(function(require) {
       var empty_label = (label == undefined || label == "");
       empty = (empty && empty_label);
 
-      if (empty_label){
+      if (empty_label) {
         $("span.advanced-search-label", context).text("-");
       } else {
         $("span.advanced-search-label", context).text(label);
       }
 
-      if(empty){
-        $("button.search-dropdown", context).addClass("hollow");
-      } else {
-        $("button.search-dropdown", context).removeClass("hollow");
-      }
     });
 
     $.fn.dataTable.ext.search.push(
