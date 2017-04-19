@@ -185,6 +185,8 @@ define(function(require) {
                 } else {
                   Config.changeFilter(false);
                 }
+                $('.refresh').click();
+                $('.refresh-table').click();
             });
           });
         },
