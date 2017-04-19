@@ -28,6 +28,14 @@
 class ZoneServer : public ExtendedAttribute
 {
 public:
+
+    enum State {
+        OFFLINE   = 0,
+        CANDIDATE = 1,
+        FOLLOWER  = 2,
+        LEADER    = 3
+    };
+
     ZoneServer(VectorAttribute *va, int id):ExtendedAttribute(va, id){};
 
     virtual ~ZoneServer(){};
@@ -56,13 +64,42 @@ public:
         return 0;
     }
 
+    /**
+     *  @return the ID of the server
+     */
     int get_id() const
     {
         return ExtendedAttribute::get_id();
     }
 
-private:
+    /**
+     *  Initialized follower data
+     *    @param last log index
+     */
+    void init_follower(unsigned int last)
+    {
+        next  = last + 1;
+        match = 0;
+    }
 
+private:
+    //--------------------------------------------------------------------------
+    // Volatile log index variables
+    //   - commit, highest log known to be commited
+    //   - applied, highest log applied to DB
+    //
+    //---------------------------- LEADER VARIABLES ----------------------------
+    //
+    //   - next, next log to send to this server
+    //   - match, highest log replicated in this server
+    // -------------------------------------------------------------------------
+    unsigned int commit;
+
+    unsigned int applied;
+
+    unsigned int next;
+
+    unsigned int match;
 };
 
 
