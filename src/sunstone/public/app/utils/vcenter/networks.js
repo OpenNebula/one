@@ -186,6 +186,33 @@ define(function(require) {
                       '</label>' +
                     '</div>';
                   break;
+                  case 'IP6_STATIC':
+                  net_form_str =
+                    '<div class="large-6 medium-6 columns">' +
+                      '<label>' + Locale.tr("Global Prefix") +
+                        '<input type="text" class="six_global_net" placeholder="' + Locale.tr("Optional") + '"/>' +
+                      '</label>' +
+                    '</div>' +
+                    '<div class="large-4 medium-6 columns">' +
+                      '<label>' + Locale.tr("MAC") +
+                        '<input type="text" class="eth_mac_net" placeholder="' + Locale.tr("Optional") + '"/>' +
+                      '</label>' +
+                    '</div>' +
+                    '<div class="large-6 medium-6 columns end">' +
+                      '<label>' + Locale.tr("ULA Prefix") +
+                        '<input type="text" class="six_ula_net" placeholder="' + Locale.tr("Optional") + '"/>' +
+                      '</label>' +
+                    '</div>'+
+                    '<div class="large-6 medium-6 columns end">' +
+                      '<label>' + Locale.tr("IPv6 for the address") +
+                        '<input type="text" class="six_static_net"/>' +
+                      '</label>' +
+                    '</div>'+'<div class="large-4 medium-6 columns end">' +
+                      '<label>' + Locale.tr("Prefix length") +
+                        '<input type="text" class="six_prefix_net"/>' +
+                      '</label>' +
+                    '</div>';
+                  break;
               }
 
               $('.net_options', row_context).html(net_form_str);
@@ -251,6 +278,29 @@ define(function(require) {
               ar_array.push("ULA_PREFIX=" + ula);
             }
 
+            break;
+          case 'IP6_STATIC':
+            var mac = $('.six_mac_net', row_context).val();
+            var gp = $('.six_global_net', row_context).val();
+            var ula = $('.six_mac_net', row_context).val();
+            var ip6_static = $('.six_static_net', row_context).val();
+            var prefix = $('.six_prefix_net', row_context).val();
+
+            if (mac) {
+              ar_array.push("MAC=" + mac);
+            }
+            if (gp) {
+              ar_array.push("GLOBAL_PREFIX=" + gp);
+            }
+            if (ula) {
+              ar_array.push("ULA_PREFIX=" + ula);
+            }
+            if (ip6_static) {
+              ar_array.push("IP6=" + ip6_static);
+            }
+            if (prefix) {
+              ar_array.push("PREFIX_LENGTH=" + prefix);
+            }
             break;
         }
 
