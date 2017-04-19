@@ -108,7 +108,7 @@ define(function(require) {
     this.groupsTableEdit.selectResourceTableSelect({ids: this.groups});
 
     $("#cancel_update_group").hide(); 
-    that = this;
+    var that = this;
     context.off("click", "#update_group");
     context.on("click", "#update_group", function() {
       ResourceSelect.insert({

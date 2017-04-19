@@ -17,6 +17,7 @@
 define(function(require) {
   var OpenNebulaHelper = require('./helper');
   var OpenNebulaError = require('./error');
+  var Config = require('sunstone-config');
 
   var listCache = {};
   var listWaiting = {};
@@ -162,13 +163,13 @@ define(function(require) {
       }
 
       listWaiting[cache_name] = true;
-
+      var pool_filter = Config.isChangedFilter()?-4:-2;
       //console.log(cache_name+" list. NO cache, calling ajax");
 
       $.ajax({
         url: reqPath,
         type: "GET",
-        data: {timeout: timeout},
+        data: {timeout: timeout, pool_filter: pool_filter},
         dataType: "json",
         success: function(response) {
           var list;
