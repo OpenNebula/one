@@ -107,6 +107,7 @@ define(function(require) {
       zoneName: config['zone_name']
     })).foundation();
 
+    $('#filter-view').hide();
     groupsRefresh();
 
     $('.quickconf_view[view="' + config['user_config']["default_view"] + '"] i').addClass('fa-check');
@@ -131,6 +132,7 @@ define(function(require) {
         },
         success: function (request, obj_user) {
           var groups = obj_user.USER.GROUPS.ID;
+          this.primaryGroup = obj_user.USER.GID;
           var groupsHTML = "<li class='groups' value='-2'> <a href='#' value='-2' id='-2'> \
               <i class='fa fa-fw'></i>" + Locale.tr("All") + "</a></li>";
           if(this.idGroup == -2){
@@ -172,21 +174,28 @@ define(function(require) {
           $('#userselector').on('click', function(){
             $('.groups-menu').empty();
             $('.groups-menu').append(groupsHTML);
+            var primaryGroupChar = '<span class="fa fa-asterisk fa-fw" id="primary-char" \
+                                    style="float: right"></span>';
+            $('#'+ that.primaryGroup + ' a').append(primaryGroupChar);
             $('.groups').on('click', function(){
-                that.idGroup = $(this).attr('value');
-                if(that.idGroup != -2){
-                  Sunstone.runAction("User.chgrp", [parseInt(config['user_id'])], parseInt(that.idGroup));
-                }
-                $('.groups-menu a i').removeClass('fa-check');
-                $('a i', this).addClass('fa-check');
-                groupsRefresh();
-                if(that.idGroup != -2){
-                  Config.changeFilter(true);
-                } else {
-                  Config.changeFilter(false);
-                }
-                $('.refresh').click();
-                $('.refresh-table').click();
+              that.idGroup = $(this).attr('value');
+              if(that.idGroup != -2){
+                $('#primary-char').remove();
+                Sunstone.runAction("User.chgrp", [parseInt(config['user_id'])], parseInt(that.idGroup));
+                $('a', this).append(primaryGroupChar);
+                Config.changeFilter(true);
+                var filterName = $(this).text();
+                $('#filter-view').show();
+                $('.filter-name').html(filterName);
+              } else {                
+                $('#filter-view').hide();
+                Config.changeFilter(false);
+              }
+              $('.groups-menu a i').removeClass('fa-check');
+              $('a i', this).addClass('fa-check');
+              groupsRefresh();
+              $('.refresh').click();
+              $('.refresh-table').click();
             });
           });
         },
