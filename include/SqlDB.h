@@ -44,17 +44,17 @@ public:
      *    @return 0 on success
      *
      */
-    int exec_bootstrap(ostringstream& cmd)
+    virtual int exec_bootstrap(ostringstream& cmd)
     {
         return exec(cmd, 0, false);
     }
 
-    int exec_rd(ostringstream& cmd, Callbackable* obj)
+    virtual int exec_rd(ostringstream& cmd, Callbackable* obj)
     {
         return exec(cmd, obj, false);
     }
 
-    int exec_wr(ostringstream& cmd)
+    virtual int exec_wr(ostringstream& cmd)
     {
         return exec(cmd, 0, false);
     }
