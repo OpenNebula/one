@@ -6,14 +6,17 @@ module VCenterDriver
 class FileHelper
 
     def self.get_img_name(disk, vm_id, vm_name)
-        if disk["PERSISTENT"] == "YES"
+        if disk["PERSISTENT"] == "YES" || disk["TYPE"] == "CDROM"
             return disk["SOURCE"]
         else
-            disk_id  = disk["DISK_ID"]
-            return disk["SOURCE"] if disk["SOURCE"]
-
-            ds_volatile_dir  = disk["VCENTER_DS_VOLATILE_DIR"] || "one-volatile"
-            return "#{ds_volatile_dir}/#{vm_id}/one-#{vm_id}-#{disk_id}.vmdk"
+            if disk["SOURCE"]
+                disk_id  = disk["DISK_ID"]
+                image_name = disk["SOURCE"].split(".").first
+                return "#{image_name}-#{vm_id}-#{disk_id}.vmdk"
+            else
+                ds_volatile_dir  = disk["VCENTER_DS_VOLATILE_DIR"] || "one-volatile"
+                return "#{ds_volatile_dir}/#{vm_id}/one-#{vm_id}-#{disk_id}.vmdk"
+            end
         end
     end
 
