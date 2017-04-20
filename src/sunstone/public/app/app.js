@@ -101,6 +101,7 @@ define(function(require) {
     Config.changeFilter(false);
     
     $(".user-zone-info").html(UserAndZoneTemplate({
+      filterView: Config['filterView'],
       displayName: config['display_name'],
       settingsTabEnabled: Config.isTabEnabled(SETTINGS_TAB_ID),
       availableViews: config['available_views'],
