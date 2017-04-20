@@ -67,9 +67,18 @@ define(function(require) {
 
   function _html() {
     var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
-    var templateTableHTML = TemplateTable.html(
-                                      this.element.TEMPLATE, RESOURCE,
-                                      Locale.tr("Attributes"));
+    var strippedTemplate = {};
+    var strippedTemplateVcenter = {};
+    $.each(this.element.TEMPLATE, function(key, value) {
+      if (key.match(/^VCENTER_*/)){
+        strippedTemplateVcenter[key] = value;
+      }
+      else {
+        strippedTemplate[key] = value;
+      }
+    });
+    var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE, Locale.tr("Attributes"), true);
+    var templateTableVcenterHTML = TemplateTable.html(strippedTemplateVcenter, RESOURCE, Locale.tr("Vcenter information"), false);
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
     var capacityBar = DatastoreCapacityBar.html(this.element);
     var stateStr = OpenNebulaDatastore.stateStr(this.element.STATE);
@@ -84,6 +93,7 @@ define(function(require) {
       'element': this.element,
       'renameTrHTML': renameTrHTML,
       'templateTableHTML': templateTableHTML,
+      'templateTableVcenterHTML': templateTableVcenterHTML,
       'permissionsTableHTML': permissionsTableHTML,
       'capacityBar': capacityBar,
       'stateStr': stateStr,
@@ -94,7 +104,20 @@ define(function(require) {
 
   function _setup(context) {
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
-    TemplateTable.setup(this.element.TEMPLATE, RESOURCE, this.element.ID, context);
+    var strippedTemplate = {};
+    var strippedTemplateVcenter = {};
+    $.each(this.element.TEMPLATE, function(key, value) {
+      if (key.match(/^VCENTER_*/)){
+        strippedTemplateVcenter[key] = value;
+      }
+      else {
+        strippedTemplate[key] = value;
+      }
+    });
+    if($.isEmptyObject(strippedTemplateVcenter)){
+      $('.vcenter', context).hide();
+    }
+    TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
     return false;
   }
