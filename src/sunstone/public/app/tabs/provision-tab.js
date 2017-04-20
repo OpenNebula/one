@@ -334,6 +334,7 @@ define(function(require) {
         timeout: true,
         success: function (request, item_list){
           var total = 0;
+          var totalGroup = 0;
           var running = 0;
           var off = 0;
           var error = 0;
@@ -363,10 +364,14 @@ define(function(require) {
                   break;
               }
             }
+            else{
+              totalGroup += 1;
+            }
           })
 
           var context = $("#provision_vms_dashboard");
-          $("#provision_dashboard_total", context).html(total);
+          $("#provision_dashboard_owner", context).html(total);
+          $("#provision_dashboard_group", context).html(totalGroup);
           $("#provision_dashboard_running", context).html(running);
           $("#provision_dashboard_off", context).html(off);
           $("#provision_dashboard_error", context).html(error);
