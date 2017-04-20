@@ -20,7 +20,7 @@
 #include <string>
 #include <sstream>
 
-#include "SqlDB.h"
+#include "SyncRequest.h"
 
 /**
  * This class represents a log entry replication request. The replication request
@@ -30,11 +30,9 @@
 class LogDBRequest : public SyncRequest
 {
 public:
-    LogDBRequest(unsigned int i, unsigned int t, std::ostringstream o):
-        index(i), term(t), sql(o.str()), to_commit(-1), replicas(1)
-    {
-        pthread_mutex_init(&mutex, 0);
-    };
+    LogDBRequest(unsigned int i, unsigned int t, const std::ostringstream& o);
+
+    LogDBRequest(unsigned int i, unsigned int t, const char * s);
 
     virtual ~LogDBRequest(){};
 
@@ -43,30 +41,25 @@ public:
      *  this entry. If it reaches 0, the client is notified
      *    @return number of replicas for this log
      */
-    int replicated()
+    int replicated();
+
+    /* ---------------------------------------------------------------------- */
+    /* Class access methods                                                   */
+    /* ---------------------------------------------------------------------- */
+    unsigned int index()
     {
-        int _replicas;
+        return _index;
+    };
 
-        lock();
+    unsigned int term()
+    {
+        return _term;
+    };
 
-        replicas++;
-
-        to_commit--;
-
-        _replicas = replicas;
-
-        if ( to_commit == 0 )
-        {
-            result  = true;
-            timeout = false;
-
-            notify();
-        }
-
-        unlock();
-
-        return _replicas;
-    }
+    const std::string& sql()
+    {
+        return _sql;
+    };
 
 private:
     pthread_mutex_t mutex;
@@ -74,17 +67,17 @@ private:
     /**
      *  Index for this log entry
      */
-    unsigned int index;
+    unsigned int _index;
 
     /**
      *  Term where this log entry was generated
      */
-    unsigned int term;
+    unsigned int _term;
 
     /**
      *  SQL command to exec in the DB to update (INSERT, REPLACE, DROP)
      */
-    std::string sql;
+    std::string _sql;
 
     /**
      *  Remaining number of servers that need to replicate this record to commit

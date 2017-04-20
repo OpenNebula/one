@@ -19,14 +19,15 @@
 
 #include <string>
 #include <sstream>
+#include <map>
 
 #include "SqlDB.h"
 #include "LogDBRequest.h"
 
-class LogDB : public SqlDB
+class LogDB : public SqlDB, Callbackable
 {
 public:
-    LogDB(SqlDB * _db):db(_db), term(0), index(0){};
+    LogDB(SqlDB * _db):db(_db), next_index(0), term(0){};
 
     virtual ~LogDB(){};
 
@@ -40,36 +41,34 @@ public:
         next_index = i;
     }
 
-    int exec_wr(ostringstream& cmd)
+    /**
+     *  Return the request associated to the given logdb record. If there is
+     *  no client waiting for its replication it is loaded from the DB.
+     *    @param index of the associated logDB entry
+     *    @return the LogDB replication request
+     *
+     */
+    LogDBRequest * get_request(unsigned int index);
+
+    // -------------------------------------------------------------------------
+    // SQL interface
+    // -------------------------------------------------------------------------
+    /**
+     *  This function replicates the DB changes on followers before updating
+     *  the DB state
+     */
+    int exec_wr(ostringstream& cmd);
+
+    virtual int exec_bootstrap(ostringstream& cmd)
     {
-        int rc;
-
-        //TODO: WRITE RECORD IN DB
-        //
-        LogDBRecord * lr = new LogDBRequest(next_index, term, cmd);
-
-        next_index++;
-
-        //LogDBManager->triger(NEW_LOG_RECORD);
-
-        lr.wait();
-
-        if ( lr.result == true )
-        {
-            rc = exec(cmd, 0, false);
-        }
-        else
-        {
-            rc = -1;
-            //Nebula::Log
-        }
-
-        return rc;
+        return db->exec_bootstrap(cmd);
     }
 
-    // -------------------------------------------------------------------------
-    // SQL interface. Use database store implementation
-    // -------------------------------------------------------------------------
+    virtual int exec_rd(ostringstream& cmd, Callbackable* obj)
+    {
+        return db->exec_rd(cmd, obj);
+    }
+
     char * escape_str(const string& str)
     {
         return db->escape_str(str);
@@ -88,7 +87,7 @@ public:
 protected:
     int exec(ostringstream& cmd, Callbackable* obj, bool quiet)
     {
-        return db->exec(cmd, obj, quiet);
+        return -1;
     }
 
 private:
@@ -108,6 +107,40 @@ private:
      */
     unsigned int term;
 
+    /**
+     *  List of pending requests (a client is waiting for the log entry to be
+     *  replicated in a majority of followers)
+     */
+    std::map<unsigned int, LogDBRequest *> requests;
+
+    // -------------------------------------------------------------------------
+    // DataBase implementation
+    // -------------------------------------------------------------------------
+    static const char * table;
+
+    static const char * db_names;
+
+    static const char * db_bootstrap;
+
+    /**
+     *  This function loads a log record from the database and returns the an
+     *  associated replication request
+     *    @param index of the record
+     *
+     *    @return the request 0 if failure
+     */
+    int select_cb(void *req, int num, char **values, char **names);
+
+    LogDBRequest * select(int index);
+
+    /**
+     *  Inserts or update a log record in the database
+     *    @param request associated to the logDB entry to be inserted/updated
+     *    @param replace true to replace an existing entry
+     *
+     *    @return 0 on success
+     */
+    int insert_replace(LogDBRequest * request, bool replace);
 };
 
 #endif /*LOG_DB_H_*/
