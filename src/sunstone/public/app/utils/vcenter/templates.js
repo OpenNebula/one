@@ -200,6 +200,10 @@ define(function(require) {
         }
 
         if($(this).data("import_data").import_disks_and_nics){
+          VCenterCommon.importLoading({
+            context : row_context,
+            message : Locale.tr("Importing images and vnets associated to template disks and nics...")
+          });
           var path = '/vcenter/template/' + $(this).data("import_data").vcenter_ref;
           $.ajax({
             url: path,
