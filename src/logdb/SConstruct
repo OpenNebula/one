@@ -23,7 +23,8 @@ lib_name='nebula_logdb'
 # Sources to generate the library
 source_files=[
     'LogDB.cc',
-    'LogDBRequest.cc'
+    'LogDBRequest.cc',
+    'LogDBManager.cc'
 ]
 
 # Build library

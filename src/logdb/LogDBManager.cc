@@ -14,102 +14,77 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef LOG_DB_MANAGER_H_
-#define LOG_DB_MANAGER_H_
+#include "LogDBManager.h"
+#include "Nebula.h"
+#include "NebulaLog.h"
 
-#include "ActionManager.h"
-#include "LogDBRecord.h"
-#include "ZoneServer.h"
-
-extern "C" void * logdb_manager_loop(void *arg);
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-class LogDBAction : public ActionRequest
+// ----------------------------------------------------------------------------
+// Thread wrapper functions
+// ----------------------------------------------------------------------------
+extern "C" void * logdb_manager_loop(void *arg)
 {
-public:
-    enum Actions
+    LogDBManager * dbm;
+
+    if ( arg == 0 )
     {
-        NEW_LOGDB_RECORD,
-        DELETE_SERVER
+        return 0;
     }
 
-    LogDBAction(Actions a, LogDBRequest * r):ActionRequest(ActionRequest::USER),
-        _action(a), _request(r){};
+    dbm = static_cast<LogDBManager *>(arg);
 
-    LogDBAction(const LogDBAction& o):ActionRequest(o._type),
-        _action(o._action), _request(o._request){};
+    NebulaLog::log("DBM",Log::INFO,"LogDB Replication Manager started.");
 
-    Actions action() const
+    dbm->am.loop();
+
+    NebulaLog::log("DBM",Log::INFO,"LogDB Replication Manager stopped.");
+
+    return 0;
+}
+
+extern "C" void * replication_thread(void *arg)
+{
+    LogDBManager::ReplicaThread * rt;
+
+    if ( arg == 0 )
     {
-        return _action;
+        return 0;
     }
 
-    LogDBRequest * request() const
-    {
-        return _request;
-    }
+    rt = static_cast<LogDBManager::ReplicaThread *>(arg);
 
-    ActionRequest * clone() const
-    {
-        return new LogDBAction(*this);
-    }
+    rt->do_replication();
 
-private:
-    Action _action;
+    return 0;
+}
 
-    LogDBRequest * _request;
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+void LogDBManager::finalize_action(const ActionRequest& ar)
+{
+    NebulaLog::log("DBM",Log::INFO,"Stopping LogDB Manager...");
+};
+
+void LogDBManager::user_action(const ActionRequest& ar)
+{
+
+};
+
+void LogDBManager::start(const ActionRequest& ar)
+{
+
+};
+
+void LogDBManager::stop(const ActionRequest& ar)
+{
+
+};
+
+void LogDBManager::replicate(const ActionRequest& ar)
+{
+
 };
 
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
-
-class LogDBManager : public ActionListener
-{
-private:
-    class LogDBManagerThread
-    {
-    public:
-        LogDBManagerThread(ZoneServer * z):replicate(false), zserver(z)
-        {
-            pthread_mutex_init(&mutex, 0);
-
-            pthread_cond_init(&cond, 0);
-        };
-
-        virtual ~LogDBManagerThread(){};
-
-        void do_replication();
-
-    private:
-        pthread_t thread_id;
-
-        pthread_mutex_t mutex;
-
-        pthread_cond_t cond;
-
-        bool replicate;
-
-        ZoneServer * zserver;
-    }
-
-    /**
-     *  LogDB records being replicated on followers
-     */
-    std::map<unsigned int, LogDBRecord *> log;
-
-    // -------------------------------------------------------------------------
-    // Action Listener interface
-    // -------------------------------------------------------------------------
-    void finalize_action(const ActionRequest& ar)
-    {
-        NebulaLog::log("DBM",Log::INFO,"Stopping LogDB Manager...");
-    };
-
-    void user_action(const ActionRequest& ar);
-}
-
-
-#endif /*LOG_DB_H_*/
 
