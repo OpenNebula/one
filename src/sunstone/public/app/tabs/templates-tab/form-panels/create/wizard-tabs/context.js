@@ -285,6 +285,7 @@ define(function(require) {
     }
 
     if (contextJSON) {
+      $("input#context_type_opennebula", context).click();
       var file_ds_regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/g;
       var net_regexp = /^NETWORK$/;;
       var ssh_regexp = /^SSH_PUBLIC_KEY$/;
