@@ -94,7 +94,7 @@ define(function(require) {
               columns : [
                 '<input type="checkbox" class="check_all"/>',
                 Locale.tr("Name"),
-                Locale.tr("Datacenter"),
+                Locale.tr("Cluster"),
                 ""
               ]
             });
@@ -106,7 +106,7 @@ define(function(require) {
               var opts = { name: element.name, cluster: element.cluster };
               var trow = $(RowTemplate(opts)).appendTo(tbody);
 
-              $(".check_item", trow).data("one_template", element.one)
+              $(".check_item", trow).data("one_template", element.ds)
             });
 
             var elementsTable = new DomDataTable(
@@ -159,29 +159,30 @@ define(function(require) {
         var row_context = $(this).closest("tr");
 
         VCenterCommon.importLoading({context : row_context});
-
-        var datastore_json = {
-          "datastore": {
-            "datastore_raw": $(this).data("one_template")
-          },
-          "cluster_id" : -1
-        };
-
-        OpenNebulaDatastore.create({
-          timeout: true,
-          data: datastore_json,
-          success: function(request, response) {
-            VCenterCommon.importSuccess({
-              context : row_context,
-              message : Locale.tr("Datastore created successfully. ID: %1$s", response.DATASTORE.ID)
-            });
-          },
-          error: function (request, error_json) {
-            VCenterCommon.importFailure({
-              context : row_context,
-              message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
-            });
-          }
+        var one_template = $(this).data("one_template");
+        $.each(one_template, function(id, element){
+          var datastore_json = {
+            "datastore": {
+              "datastore_raw": this.one
+            },
+            "cluster_id" : -1
+          };
+          OpenNebulaDatastore.create({
+            timeout: true,
+            data: datastore_json,
+            success: function(request, response) {
+              VCenterCommon.importSuccess({
+                context : row_context,
+                message : Locale.tr("Datastore created successfully. ID: %1$s", response.DATASTORE.ID)
+              });
+            },
+            error: function (request, error_json) {
+              VCenterCommon.importFailure({
+                context : row_context,
+                message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
+              });
+            }
+          });
         });
       });
     });
