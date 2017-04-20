@@ -31,7 +31,7 @@ define(function(require) {
     @param {String} tableName Header of the table (i.e: Locale.tr("Attributes"))
     @returns {String} HTML table
    */
-  function _html(templateJSON, resourceType, tableName) {
+  function _html(templateJSON, resourceType, tableName, modify=true) {
     var str =
       '<table id="' + resourceType.toLowerCase() + '_template_table" class="dataTable configuration_attrs">\
         <thead>\
@@ -41,13 +41,15 @@ define(function(require) {
           '</th>\
           </tr>\
          </thead>' +
-       fromJSONtoHTMLTable(templateJSON, resourceType) +
-       '<tr>\
+       fromJSONtoHTMLTable(templateJSON, resourceType, undefined, undefined,modify);
+    if (modify) {
+       str += '<tr>\
            <td class="key_td"><input type="text" name="new_key" id="new_key" /></td>\
            <td class="value_td"><textarea type="text" name="new_value" id="new_value"></textarea></td>\
            <td class="text-right"><button type="button" id="button_add_value" class="button small secondary"><i class="fa fa-lg fa-plus-circle"></i></button>\</td>\
-         </tr>\
-      </table>'
+         </tr>';
+    }
+    str += '</table>'
 
     return str;
   }
@@ -359,7 +361,7 @@ define(function(require) {
   }
 
   // Returns an HTML string with the json keys and values
-  function fromJSONtoHTMLTable(templateJSON, resourceType, vectorial, ocurrence) {
+  function fromJSONtoHTMLTable(templateJSON, resourceType, vectorial, ocurrence, modify) {
     var str = ""
     if (!templateJSON) { return "Not defined";}
     var field = null;
@@ -370,14 +372,15 @@ define(function(require) {
                                templateJSON[field],
                                resourceType,
                                vectorial,
-                               ocurrence);
+                               ocurrence,
+                               modify);
     }
 
     return str;
   }
 
   // Helper for fromJSONtoHTMLTable function
-  function fromJSONtoHTMLRow(field, value, resourceType, vectorial_key, ocurrence) {
+  function fromJSONtoHTMLRow(field, value, resourceType, vectorial_key, ocurrence, modify) {
     var str = "";
 
     // value can be an array
@@ -391,28 +394,32 @@ define(function(require) {
         if (typeof current_value == 'object') {
           str += '<tr id="' + resourceType.toLowerCase() + '_template_table_' + field + '">\
                     <td class="key_td key_vectorial_td">' + Locale.tr(field) + '</td>\
-                    <td class="value_vectorial_td"></td>\
-                    <td class="text-right nowrap">\
-                      <span id="div_add_vectorial">\
-                        <a id="div_add_vectorial_' + field + '" class="add_vectorial_a ocurrence_' + it + ' vectorial_key_' + field + '" href="#"><i class="fa fa-plus-sign"/></a>\
-                      </span>&emsp;\
-                      <span id="div_minus">\
-                        <a id="div_minus_' + field + '" class="remove_vectorial_x ocurrence_' + it + '" href="#"><i class="fa fa-pencil-square-o"/><i class="fa fa-trash-o"/></a>\
-                      </span>\
-                    </td>\
-                  </tr>'
+                    <td class="value_vectorial_td"></td>';
+                    if (modify) {
+                      str += '<td class="text-right nowrap">\
+                        <span id="div_add_vectorial">\
+                          <a id="div_add_vectorial_' + field + '" class="add_vectorial_a ocurrence_' + it + ' vectorial_key_' + field + '" href="#"><i class="fa fa-plus-sign"/></a>\
+                        </span>&emsp;\
+                        <span id="div_minus">\
+                          <a id="div_minus_' + field + '" class="remove_vectorial_x ocurrence_' + it + '" href="#"><i class="fa fa-pencil-square-o"/><i class="fa fa-trash-o"/></a>\
+                        </span>\
+                      </td>';
+                    }
+          str += '</tr>'
 
           str += fromJSONtoHTMLTable(current_value,
                                      resourceType,
                                      field,
-                                     it);
+                                     it,
+                                     modify);
         } else {
           // if it is a single value, create the row for this occurence of the key
           str += fromJSONtoHTMLRow(field,
                                    current_value,
                                    resourceType,
                                    false,
-                                   it);
+                                   it,
+                                   modify);
         }
       }
     } else // or value can be a string
@@ -425,48 +432,55 @@ define(function(require) {
         if (vectorial_key) {
           str += '<tr>\
                     <td class="key_td key_vectorial_td">&emsp;&emsp;' + Locale.tr(field) + '</td>\
-                    <td class="value_td value_vectorial_td value_td_input_' + field + ocurrence_str + ' vectorial_key_' + vectorial_key + '" id="value_td_input_' + field + '">' + TemplateUtils.htmlEncode(value) + '</td>\
-                    <td class="text-right nowrap">\
-                      <span id="div_edit_vectorial">\
-                        <a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + ' vectorial_key_' + vectorial_key + '" href="#"><i class="fa fa-pencil-square-o"/></a>\
-                      </span>&emsp;\
-                      <span id="div_minus_vectorial">\
-                        <a id="div_minus_' + field + '" class="remove_x' + ocurrence_str + ' vectorial_key_' + vectorial_key + '" href="#"><i class="fa fa-trash-o"/></a>\
-                      </span>\
-                    </td>\
-                  </tr>';
+                    <td class="value_td value_vectorial_td value_td_input_' + field + ocurrence_str + ' vectorial_key_' + vectorial_key + '" id="value_td_input_' + field + '">' + TemplateUtils.htmlEncode(value) + '</td>';
+                    if (modify) {
+                      str += '<td class="text-right nowrap">\
+                        <span id="div_edit_vectorial">\
+                          <a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + ' vectorial_key_' + vectorial_key + '" href="#"><i class="fa fa-pencil-square-o"/></a>\
+                        </span>&emsp;\
+                        <span id="div_minus_vectorial">\
+                          <a id="div_minus_' + field + '" class="remove_x' + ocurrence_str + ' vectorial_key_' + vectorial_key + '" href="#"><i class="fa fa-trash-o"/></a>\
+                        </span>\
+                      </td>'
+                    }
+                    str += '</tr>';
         } else {
           // If it is not comming from a vectorial daddy key, it can still vectorial itself
           if (typeof value == 'object') {
             str += '<tr id="' + resourceType.toLowerCase() + '_template_table_' + field + '">\
                       <td class="key_td key_vectorial_td">' + Locale.tr(field) + '</td>\
-                      <td class="value_vectorial_td"></td>\
-                      <td class="text-right nowrap">\
-                        <span id="div_add_vectorial">\
-                          <a id="div_add_vectorial_' + field + '" class="add_vectorial_a' + ocurrence_str + ' vectorial_key_' + field + '" href="#"><i class="fa fa-plus-sign"/></a>\
-                        </span>&emsp;\
-                        <span id="div_minus">\
-                          <a id="div_minus_' + field + '" class="remove_vectorial_x' + ocurrence_str + '" href="#"><i class="fa fa-trash-o"/></a>\
-                        </span>\
-                      </td>'
+                      <td class="value_vectorial_td"></td>';
+                      if (modify) {
+                        str += '<td class="text-right nowrap">\
+                          <span id="div_add_vectorial">\
+                            <a id="div_add_vectorial_' + field + '" class="add_vectorial_a' + ocurrence_str + ' vectorial_key_' + field + '" href="#"><i class="fa fa-plus-sign"/></a>\
+                          </span>&emsp;\
+                          <span id="div_minus">\
+                            <a id="div_minus_' + field + '" class="remove_vectorial_x' + ocurrence_str + '" href="#"><i class="fa fa-trash-o"/></a>\
+                          </span>\
+                        </td>'
+                      }
             str += fromJSONtoHTMLTable(value,
                        resourceType,
                        field,
-                       ocurrence);
+                       ocurrence,
+                       modify);
           } else // or, just a single value
              {
                str += '<tr>\
                         <td class="key_td">' + Locale.tr(field) + '</td>\
-                        <td class="value_td" id="value_td_input_' + field + '">' + TemplateUtils.htmlEncode(value) + '</td>\
-                        <td class="text-right nowrap">\
-                          <span id="div_edit">\
-                            <a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + '" href="#"><i class="fa fa-pencil-square-o"/></a>\
-                          </span>&emsp;\
-                          <span id="div_minus">\
-                            <a id="div_minus_' + field + '" class="remove_x' + ocurrence_str + '" href="#"><i class="fa fa-trash-o"/></a>\
-                          </span>\
-                        </td>\
-                      </tr>';
+                        <td class="value_td" id="value_td_input_' + field + '">' + TemplateUtils.htmlEncode(value) + '</td>';
+                        if (modify) {
+                          str += '<td class="text-right nowrap">\
+                            <span id="div_edit">\
+                              <a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + '" href="#"><i class="fa fa-pencil-square-o"/></a>\
+                            </span>&emsp;\
+                            <span id="div_minus">\
+                              <a id="div_minus_' + field + '" class="remove_x' + ocurrence_str + '" href="#"><i class="fa fa-trash-o"/></a>\
+                            </span>\
+                          </td>';
+                        }
+                      str += '</tr>';
              }
         }
 

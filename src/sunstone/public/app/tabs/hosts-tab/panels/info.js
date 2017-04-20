@@ -65,12 +65,17 @@ define(function(require) {
     //  in the template table. Unshow values are stored in the unshownTemplate
     //  object to be used when the host info is updated.
     that.unshownTemplate = {};
+    that.strippedTemplateVcenter = {};
     that.strippedTemplate = {};
     var unshownKeys = ['HOST', 'VM', 'WILDS', 'ZOMBIES', 'RESERVED_CPU', 'RESERVED_MEM'];
     $.each(that.element.TEMPLATE, function(key, value) {
       if ($.inArray(key, unshownKeys) > -1) {
-        that.unshownTemplate[key] = value;
-      } else {
+       that.unshownTemplate[key] = value;
+      }
+      else if (key.match(/^VCENTER_*/)){
+        that.strippedTemplateVcenter[key] = value;
+      }
+      else {
         that.strippedTemplate[key] = value;
       }
     });
@@ -92,6 +97,10 @@ define(function(require) {
                                       this.strippedTemplate,
                                       RESOURCE,
                                       Locale.tr("Attributes"));
+    var templateTableVcenterHTML = TemplateTable.html(
+                                      this.strippedTemplateVcenter,
+                                      RESOURCE,
+                                      Locale.tr("Vcenter information"),false);
     var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
     var clusterTrHTML = ClusterTr.html(this.element.CLUSTER);
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
@@ -106,6 +115,7 @@ define(function(require) {
       'renameTrHTML': renameTrHTML,
       'clusterTrHTML': clusterTrHTML,
       'templateTableHTML': templateTableHTML,
+      'templateTableVcenterHTML': templateTableVcenterHTML,
       'permissionsTableHTML': permissionsTableHTML,
       'cpuBars': cpuBars,
       'memoryBars': memoryBars,
@@ -136,6 +146,10 @@ define(function(require) {
     ClusterTr.setup(RESOURCE, this.element.ID, this.element.CLUSTER_ID, context);
     TemplateTable.setup(this.strippedTemplate, RESOURCE, this.element.ID, context, this.unshownTemplate);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
+
+    if($.isEmptyObject(this.strippedTemplateVcenter)){
+      $('.vcenter', context).hide();
+    }
 
     //.off and .on prevent multiple clicks events
     $(document).off('click', '.update_reserved_hosts').on("click", '.update_reserved', function(){
