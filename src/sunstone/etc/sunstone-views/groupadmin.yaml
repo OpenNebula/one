@@ -3,6 +3,7 @@ provision_logo: images/opennebula-5.0.png
 link_logo:
 text_link_logo:
 confirm_vms: false
+filter-view: true
 enabled_tabs:
     - dashboard-tab
     - instances-top-tab
