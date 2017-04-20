@@ -240,6 +240,10 @@ define(function(require) {
               });
             },
             error: function(response){
+              VCenterCommon.importFailure({
+                  context : row_context,
+                  message : OpenNebulaError(response).error.message
+              });
               Notifier.onError({}, OpenNebulaError(response));
             }
           });
