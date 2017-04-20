@@ -161,8 +161,12 @@ define(function(require) {
 
       if (this.value == "vcenter"){
         $("#vcenter_template_ref", context).attr("required", "");
+        $("#vcenter_instance_id", context).attr("required", "");
+        $("#vcenter_ccr_ref", context).attr("required", "");
       } else {
         $("#vcenter_template_ref", context).removeAttr("required");
+        $("#vcenter_instance_id", context).removeAttr("required");
+        $("#vcenter_ccr_ref", context).removeAttr("required");
       }
       // There is another listener in context.js setup
     });
@@ -188,6 +192,8 @@ define(function(require) {
       templateJSON["MEMORY_COST"] = templateJSON["MEMORY_COST"] * 1024;
     if (templateJSON["HYPERVISOR"] == 'vcenter') {
       templateJSON["VCENTER_TEMPLATE_REF"] = WizardFields.retrieveInput($("#vcenter_template_ref", context));
+      templateJSON["VCENTER_CCR_REF"] = WizardFields.retrieveInput($("#vcenter_ccr_ref", context));
+      templateJSON["VCENTER_INSTANCE_ID"] = WizardFields.retrieveInput($("#vcenter_instance_id", context));
 
       if (Config.isFeatureEnabled("vcenter_vm_folder")) {
         templateJSON["VCENTER_VM_FOLDER"] = WizardFields.retrieveInput($("#vcenter_vm_folder", context))
@@ -307,6 +313,16 @@ define(function(require) {
     if(templateJSON["VCENTER_TEMPLATE_REF"]){
       WizardFields.fillInput($("#vcenter_template_ref", context), templateJSON["VCENTER_TEMPLATE_REF"]);
       delete templateJSON["VCENTER_TEMPLATE_REF"];
+    }
+
+    if(templateJSON["VCENTER_CCR_REF"]){
+      WizardFields.fillInput($("#vcenter_ccr_ref", context), templateJSON["VCENTER_CCR_REF"]);
+      delete templateJSON["VCENTER_CCR_REF"];
+    }
+
+    if(templateJSON["VCENTER_INSTANCE_ID"]){
+      WizardFields.fillInput($("#vcenter_instance_id", context), templateJSON["VCENTER_INSTANCE_ID"]);
+      delete templateJSON["VCENTER_INSTANCE_ID"];
     }
 
     CapacityCreate.fill($("div.capacityCreate", context), templateJSON);
