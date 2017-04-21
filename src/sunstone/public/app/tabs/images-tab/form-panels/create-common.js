@@ -145,6 +145,9 @@ define(function(require) {
         $('#path_image', context).click();
       }
     });
+    if(config["federation_mode"] == "SLAVE"){
+      $("#upload_image").attr("disabled", "disabled");
+    }
 
     $('#img_datastore', context).off('change', '.resource_list_select');
     $('#img_datastore', context).on('change', '.resource_list_select', function() {
