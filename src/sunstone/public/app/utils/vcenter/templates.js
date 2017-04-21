@@ -108,9 +108,19 @@ define(function(require) {
               }
 
               opts.data = element;
+              opts.resourcePool.params = opts.resourcePool.params.split(",");
+              opts.id = UniqueId.id();
 
               var trow = $(RowTemplate(opts)).appendTo(tbody);
-
+              
+              $.each(opts.resourcePool.params, function(){
+                $("#available_rps_" + opts.id + " [value ='" + this + "']").mousedown(function(e) {
+                  e.preventDefault();
+                  $(this).prop('selected', !$(this).prop('selected'));
+                  return false;
+                });
+              });
+            
               $('.check_item', trow).data("import_data", element);
             });
 
@@ -172,7 +182,11 @@ define(function(require) {
         if (rpInput.length > 0) {
           var rpModify = $('.modify_rp', rpInput).val();
           var rpInitial = $('.initial_rp', rpInput).val();
-          var rpParams = $('.available_rps', rpInput).val();
+          var rpParams = "";
+          $.each($('.available_rps option:selected', rpInput), function(){
+            rpParams += $(this).val() + ",";
+          });
+          var rpParams = rpParams.slice(0,-1);
 
           if (rpModify === 'fixed' && rpInitial !== '') {
             attrs.push('VCENTER_RESOURCE_POOL="' + rpInitial + '"');
@@ -181,7 +195,7 @@ define(function(require) {
                 type: 'list',
                 description: Locale.tr("Which resource pool you want this VM to run in?"),
                 initial: rpInitial,
-                params: $('.available_rps', rpInput).val()
+                params: rpParams
               });
 
             userInputs.push('VCENTER_RESOURCE_POOL="' + rpUserInputs + '"');
