@@ -80,6 +80,8 @@ int LogDB::exec_wr(ostringstream& cmd)
     ZoneServer * server = 0;
     unsigned int term   = 0;
 
+    bool is_leader;
+
     if ( server_id != -1 )
     {
         Zone * zone = zpool->get(zone_id, true);
@@ -90,6 +92,11 @@ int LogDB::exec_wr(ostringstream& cmd)
             {
                 server = zone->get_server(server_id);
                 term   = server->get_term();
+            }
+
+            if ( server != 0 )
+            {
+                is_leader = server->is_leader();
             }
 
             zone->unlock();
@@ -120,6 +127,13 @@ int LogDB::exec_wr(ostringstream& cmd)
     // -------------------------------------------------------------------------
     // Insert log entry in the database and replicate on followers
     // -------------------------------------------------------------------------
+
+    if ( ! is_leader )
+    {
+        NebulaLog::log("DBM", Log::ERROR,"Tried to modify DB being a follower");
+        return -1;
+    }
+
     pthread_mutex_lock(&mutex);
 
     LogDBRequest * lr = new LogDBRequest(next_index, term, cmd);

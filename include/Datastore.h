@@ -364,7 +364,7 @@ private:
     {
         ostringstream oss(Datastore::db_bootstrap);
 
-        return db->exec_bootstrap(oss);
+        return db->exec_local_wr(oss);
     };
 
     /**

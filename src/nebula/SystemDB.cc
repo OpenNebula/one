@@ -65,14 +65,14 @@ int SystemDB::shared_bootstrap()
     // db versioning, version of OpenNebula.
     // ---------------------------------------------------------------------
     oss.str(shared_ver_bootstrap);
-    rc = db->exec_bootstrap(oss);
+    rc = db->exec_local_wr(oss);
 
     oss.str("");
     oss << "INSERT INTO " << shared_ver_table << " (" << shared_ver_names << ") "
         << "VALUES (0, '" << Nebula::shared_db_version() << "', " << time(0)
         << ", '" << Nebula::version() << " daemon bootstrap')";
 
-    rc += db->exec_bootstrap(oss);
+    rc += db->exec_local_wr(oss);
 
     return rc;
 };
@@ -89,14 +89,14 @@ int SystemDB::local_bootstrap()
     // pool control, tracks the last ID's assigned to objects
     // ------------------------------------------------------------------------
     oss.str(pc_bootstrap);
-    rc = db->exec_bootstrap(oss);
+    rc = db->exec_local_wr(oss);
 
     // ------------------------------------------------------------------------
     // local db versioning, version of tables that are not replicated in a
     // slave OpenNebula.
     // ------------------------------------------------------------------------
     oss.str(local_ver_bootstrap);
-    rc += db->exec_bootstrap(oss);
+    rc += db->exec_local_wr(oss);
 
     oss.str("");
     oss << "INSERT INTO " << local_ver_table << " (" << local_ver_names << ") "
@@ -104,13 +104,13 @@ int SystemDB::local_bootstrap()
         << ", '" << Nebula::version() << " daemon bootstrap', "
         << Nebula::instance().is_federation_slave() << ")";
 
-    rc += db->exec_bootstrap(oss);
+    rc += db->exec_local_wr(oss);
 
     // ------------------------------------------------------------------------
     // system
     // ------------------------------------------------------------------------
     oss.str(sys_bootstrap);
-    rc += db->exec_bootstrap(oss);
+    rc += db->exec_local_wr(oss);
 
     return rc;
 };

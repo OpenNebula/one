@@ -210,7 +210,7 @@ private:
     {
         ostringstream oss_group(Group::db_bootstrap);
 
-        return db->exec_bootstrap(oss_group);
+        return db->exec_local_wr(oss_group);
     };
 
     /**

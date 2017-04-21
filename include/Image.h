@@ -696,7 +696,7 @@ private:
     {
         ostringstream oss_image(Image::db_bootstrap);
 
-        return db->exec_bootstrap(oss_image);
+        return db->exec_local_wr(oss_image);
     };
 
     /**

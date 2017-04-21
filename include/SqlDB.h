@@ -38,13 +38,15 @@ public:
     /* ---------------------------------------------------------------------- */
 
     /**
-     *
+     *   Operations on the database:
+     *     - exec_local_wr, perform modifications locally, without replication
+     *     - exec_rd, read only access to local DB
+     *     - exec_wr, update DB and replicate changes
      *    @param sql_cmd the SQL command
      *    @param callbak function to execute on each data returned
      *    @return 0 on success
-     *
      */
-    virtual int exec_bootstrap(ostringstream& cmd)
+    virtual int exec_local_wr(ostringstream& cmd)
     {
         return exec(cmd, 0, false);
     }

@@ -122,7 +122,7 @@ public:
         int rc;
 
         rc  = VirtualNetwork::bootstrap(_db);
-        rc += _db->exec_bootstrap(BitMap<0>::bootstrap(vlan_table, oss));
+        rc += _db->exec_local_wr(BitMap<0>::bootstrap(vlan_table, oss));
 
         return rc;
     };

@@ -469,7 +469,7 @@ int VirtualMachinePool::clean_expired_monitoring()
     oss << "DELETE FROM " << VirtualMachine::monit_table
         << " WHERE last_poll < " << max_last_poll;
 
-    rc = db->exec_wr(oss);
+    rc = db->exec_local_wr(oss);
 
     return rc;
 }
@@ -484,7 +484,7 @@ int VirtualMachinePool::clean_all_monitoring()
 
     oss << "DELETE FROM " << VirtualMachine::monit_table;
 
-    rc = db->exec_wr(oss);
+    rc = db->exec_local_wr(oss);
 
     return rc;
 }

@@ -303,7 +303,7 @@ int HostPool::clean_expired_monitoring()
     oss << "DELETE FROM " << Host::monit_table
         << " WHERE last_mon_time < " << max_mon_time;
 
-    rc = db->exec_wr(oss);
+    rc = db->exec_local_wr(oss);
 
     return rc;
 }
@@ -318,7 +318,7 @@ int HostPool::clean_all_monitoring()
 
     oss << "DELETE FROM " << Host::monit_table;
 
-    rc = db->exec_wr(oss);
+    rc = db->exec_local_wr(oss);
 
     return rc;
 }

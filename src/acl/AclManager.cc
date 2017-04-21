@@ -1094,7 +1094,7 @@ int AclManager::bootstrap(SqlDB * _db)
 {
     ostringstream oss(db_bootstrap);
 
-    return _db->exec_bootstrap(oss);
+    return _db->exec_local_wr(oss);
 }
 
 /* -------------------------------------------------------------------------- */

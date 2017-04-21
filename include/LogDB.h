@@ -62,9 +62,9 @@ public:
      */
     int exec_wr(ostringstream& cmd);
 
-    int exec_bootstrap(ostringstream& cmd)
+    int exec_local_wr(ostringstream& cmd)
     {
-        return db->exec_bootstrap(cmd);
+        return db->exec_local_wr(cmd);
     }
 
     int exec_rd(ostringstream& cmd, Callbackable* obj)
@@ -94,7 +94,7 @@ public:
     {
         ostringstream oss(db_bootstrap);
 
-        return db->exec_bootstrap(oss);
+        return db->exec_local_wr(oss);
     }
 
 protected:

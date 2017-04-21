@@ -108,6 +108,7 @@ public:
     {
         return match;
     }
+
     /**
      *  Initialized follower data
      *    @param last log index
@@ -124,6 +125,14 @@ public:
     bool is_offline()
     {
         return state == OFFLINE;
+    }
+
+    /**
+     *  @return true if the server is the leader of the zone
+     */
+    bool is_leader()
+    {
+        return state == LEADER;
     }
 
 private:
