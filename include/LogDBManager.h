@@ -17,6 +17,8 @@
 #ifndef LOG_DB_MANAGER_H_
 #define LOG_DB_MANAGER_H_
 
+#include <xmlrpc-c/client.hpp>
+
 #include "ActionManager.h"
 #include "ZoneServer.h"
 
@@ -35,7 +37,8 @@ public:
         START,
         STOP,
         REPLICATE,
-        DELETE_SERVER
+        DELETE_SERVER,
+        ADD_SERVER
     };
 
     LogDBAction(Actions a):ActionRequest(ActionRequest::USER), _action(a){};
@@ -62,8 +65,23 @@ private:
 
 class LogDBManager : public ActionListener
 {
-private:
+public:
+    LogDBManager(){};
 
+    virtual ~LogDBManager(){};
+
+    /**
+     *  Triggers specific actions to the LogDBManager
+     *    @param action to trigger in the manager
+     */
+    void trigger(LogDBAction::Actions action)
+    {
+        LogDBAction log_action(action);
+
+        am.trigger(log_action);
+    }
+
+private:
     friend void * logdb_manager_loop(void *arg);
 
     friend void * replication_thread(void *arg);
@@ -73,57 +91,112 @@ private:
      */
     ActionManager am;
 
+    /**
+     *  Servers in the zone, managed by Zone::add/delete_server
+     */
+    ZoneServers * servers;
+
     // -------------------------------------------------------------------------
-    // Replication thread class
+    // Replication thread class & pool
     // -------------------------------------------------------------------------
     class ReplicaThread
     {
     public:
-        ReplicaThread(ZoneServer * z):zserver(z)
-        {
-            pthread_mutex_init(&mutex, 0);
-
-            pthread_cond_init(&cond, 0);
-        };
+        ReplicaThread(ZoneServer * server, ZoneServer * leader);
 
         virtual ~ReplicaThread(){};
 
         void do_replication();
 
+        void finalize();
+
+        pthread_t * thread_id()
+        {
+            return &_thread_id;
+        }
+
     private:
-        pthread_t thread_id;
+        friend void * replication_thread(void *arg);
+
+        // ---------------------------------------------------------------------
+        // pthread synchronization variables
+        // ---------------------------------------------------------------------
+        pthread_t _thread_id;
 
         pthread_mutex_t mutex;
 
         pthread_cond_t cond;
 
-        ZoneServer * zserver;
+        bool _finalize;
+
+        // ---------------------------------------------------------------------
+        // Information of the replication target server and leader
+        // ---------------------------------------------------------------------
+        ZoneServer * server;
+
+        ZoneServer * leader;
+
+        // ---------------------------------------------------------------------
+        // XML-RPC client variables to talk with this server
+        // ---------------------------------------------------------------------
+        xmlrpc_c::clientXmlTransport_curl transport;
+
+        xmlrpc_c::client_xml client;
+
+        static const std::string replica_method;
     };
+
+    std::map<int, ReplicaThread *> thread_pool;
+
+    ReplicaThread * get_thread(int server_id)
+    {
+        std::map<int, ReplicaThread *>::iterator it;
+
+        it = thread_pool.find(server_id);
+
+        if ( it == thread_pool.end() )
+        {
+            return 0;
+        }
+
+        return it->second;
+    }
 
     // -------------------------------------------------------------------------
     // Action Listener interface
     // -------------------------------------------------------------------------
-    void finalize_action(const ActionRequest& ar);
-
-    /**
-     *  Start the replication threads, one for each server in the zone
-     */
-    void start(const ActionRequest& ar);
-
-    /**
-     *  Stop the replication threads (leader becomes follower)
-     */
-    void stop(const ActionRequest& ar);
-
-    /**
-     *  Notify threads there is a new log entry to replicate on followers
-     */
-    void replicate(const ActionRequest& ar);
-
     /**
      *  Event dispatcher function
      */
     void user_action(const ActionRequest& ar);
+
+    /**
+     *  Termination function
+     */
+    void finalize_action(const ActionRequest& ar);
+
+    // -------------------------------------------------------------------------
+    // LogDBManager actions
+    // -------------------------------------------------------------------------
+    /**
+     *  Start the replication threads, one for each server in the zone
+     */
+    void start_action();
+
+    /**
+     *  Stop the replication threads (leader becomes follower)
+     */
+    void stop_action();
+
+    /**
+     *  Notify threads there is a new log entry to replicate on followers
+     */
+    void replicate_action();
+
+    /**
+     *
+     */
+    void delete_server_action();
 
 };
 

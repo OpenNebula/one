@@ -248,6 +248,14 @@ protected:
     virtual ExtendedAttribute * attribute_factory(VectorAttribute * va,
             int id) const = 0;
 
+    /**
+     *  @return the number of elements in the set
+     */
+    unsigned int size()
+    {
+        return a_set.size();
+    }
+
     /* ---------------------------------------------------------------------- */
     /* ---------------------------------------------------------------------- */
 

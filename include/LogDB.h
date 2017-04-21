@@ -27,19 +27,22 @@
 class LogDB : public SqlDB, Callbackable
 {
 public:
-    LogDB(SqlDB * _db):db(_db), next_index(0), term(0){};
-
-    virtual ~LogDB(){};
-
-    void set_term(unsigned int t)
+    LogDB(SqlDB * _db):db(_db), next_index(0)
     {
-        term = t;
-    }
+        pthread_mutex_init(&mutex, 0);
+    };
 
-    void set_index(unsigned int i)
+    virtual ~LogDB()
     {
-        next_index = i;
-    }
+        std::map<unsigned int, LogDBRequest *>::iterator it;
+
+        for ( it = requests.begin(); it != requests.end(); ++it )
+        {
+            delete it->second;
+        }
+
+        delete db;
+    };
 
     /**
      *  Return the request associated to the given logdb record. If there is
@@ -59,12 +62,12 @@ public:
      */
     int exec_wr(ostringstream& cmd);
 
-    virtual int exec_bootstrap(ostringstream& cmd)
+    int exec_bootstrap(ostringstream& cmd)
     {
         return db->exec_bootstrap(cmd);
     }
 
-    virtual int exec_rd(ostringstream& cmd, Callbackable* obj)
+    int exec_rd(ostringstream& cmd, Callbackable* obj)
     {
         return db->exec_rd(cmd, obj);
     }
@@ -84,6 +87,16 @@ public:
         return db->multiple_values_support();
     }
 
+    // -------------------------------------------------------------------------
+    // Database methods
+    // -------------------------------------------------------------------------
+    int bootstrap()
+    {
+        ostringstream oss(db_bootstrap);
+
+        return db->exec_bootstrap(oss);
+    }
+
 protected:
     int exec(ostringstream& cmd, Callbackable* obj, bool quiet)
     {
@@ -91,6 +104,8 @@ protected:
     }
 
 private:
+    pthread_mutex_t mutex;
+
     /**
      *  Pointer to the underlying DB store
      */
@@ -100,12 +115,6 @@ private:
      *  Index to be used by the next logDB record
      */
     unsigned int next_index;
-
-    /**
-     *  Current term to be included in new LogDB records generated during the
-     *  term.
-     */
-    unsigned int term;
 
     /**
      *  List of pending requests (a client is waiting for the log entry to be

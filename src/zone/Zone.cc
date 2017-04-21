@@ -344,3 +344,13 @@ int Zone::delete_server(int id, string& error)
 
     return 0;
 }
+
+unsigned int Zone::servers_size()
+{
+    return servers->size();
+}
+
+ZoneServer * Zone::get_server(int server_id)
+{
+    return servers->get_server(server_id);
+}

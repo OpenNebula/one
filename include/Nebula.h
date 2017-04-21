@@ -17,7 +17,7 @@
 #ifndef NEBULA_H_
 #define NEBULA_H_
 
-#include "SqlDB.h"
+#include "LogDB.h"
 #include "SystemDB.h"
 
 #include "NebulaTemplate.h"
@@ -76,6 +76,10 @@ public:
     // --------------------------------------------------------------
     // Pool Accessors
     // --------------------------------------------------------------
+    LogDB * get_logdb()
+    {
+        return logdb;
+    };
 
     VirtualMachinePool * get_vmpool()
     {
@@ -400,6 +404,11 @@ public:
         return zone_id;
     };
 
+    int get_server_id()
+    {
+        return server_id;
+    };
+
     const string& get_master_oned()
     {
         return master_oned;
@@ -660,7 +669,7 @@ private:
                             "/DEFAULT_GROUP_QUOTAS/NETWORK_QUOTA",
                             "/DEFAULT_GROUP_QUOTAS/IMAGE_QUOTA",
                             "/DEFAULT_GROUP_QUOTAS/VM_QUOTA"),
-        system_db(0), db(0),
+        system_db(0), logdb(0),
         vmpool(0), hpool(0), vnpool(0), upool(0), ipool(0), gpool(0), tpool(0),
         dspool(0), clpool(0), docpool(0), zonepool(0), secgrouppool(0),
         vdcpool(0), vrouterpool(0), marketpool(0), apppool(0), vmgrouppool(0),
@@ -730,7 +739,7 @@ private:
         delete marketm;
         delete ipamm;
         delete nebula_configuration;
-        delete db;
+        delete logdb;
         delete system_db;
     };
 
@@ -765,6 +774,7 @@ private:
     bool    federation_enabled;
     bool    federation_master;
     int     zone_id;
+    int     server_id;
     string  master_oned;
 
     // ---------------------------------------------------------------
@@ -784,7 +794,7 @@ private:
     // Nebula Pools
     // ---------------------------------------------------------------
 
-    SqlDB              * db;
+    LogDB              * logdb;
     VirtualMachinePool * vmpool;
     HostPool           * hpool;
     VirtualNetworkPool * vnpool;

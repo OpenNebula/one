@@ -23,7 +23,7 @@
 using namespace std;
 
 class ZoneServers;
-
+class ZoneServer;
 /**
  *  The Zone class.
  */
@@ -63,6 +63,25 @@ public:
      *    @return 0 on success, -1 otherwise
      */
     int delete_server(int id, string& error);
+
+    /**
+     *  @return the servers in this zone
+     */
+    ZoneServers * get_servers()
+    {
+        return servers;
+    }
+
+    /**
+	 *  @param server_id
+     *  @return the server
+     */
+	ZoneServer * get_server(int server_id);
+
+    /**
+     *  @return the number of servers in this zone
+     */
+    unsigned int servers_size();
 
 private:
     // -------------------------------------------------------------------------

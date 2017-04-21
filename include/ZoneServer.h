@@ -72,6 +72,42 @@ public:
         return ExtendedAttribute::get_id();
     }
 
+    int get_term() const
+    {
+        return term;
+    }
+
+    /**
+     *  @return highest log known to be commited
+     */
+    int get_commit() const
+    {
+        return commit;
+    }
+
+    /**
+     *  @return highest log applied to DB
+     */
+    int get_applied() const
+    {
+        return applied;
+    }
+
+    /**
+     *  @return next log to send to this server
+     */
+    int get_next() const
+    {
+        return next;
+    }
+
+    /**
+     *  @return highest log replicated in this server
+     */
+    int get_match() const
+    {
+        return match;
+    }
     /**
      *  Initialized follower data
      *    @param last log index
@@ -82,7 +118,22 @@ public:
         match = 0;
     }
 
+    /**
+     *  @return true if the server is offline
+     */
+    bool is_offline()
+    {
+        return state == OFFLINE;
+    }
+
 private:
+    State state;
+
+    /**
+     *  Current term
+     */
+    unsigned int term;
+
     //--------------------------------------------------------------------------
     // Volatile log index variables
     //   - commit, highest log known to be commited
@@ -217,6 +268,13 @@ public:
         return static_cast<ZoneServer *>(delete_attribute(id));
     };
 
+    /**
+     *  @return servers in zone
+     */
+    unsigned int size()
+    {
+        return ExtendedAttributeSet::size();
+    }
 
 protected:
     ExtendedAttribute * attribute_factory(VectorAttribute * va, int id) const

@@ -427,6 +427,7 @@ void OpenNebulaTemplate::set_conf_default()
     vvalue.clear();
     vvalue.insert(make_pair("MODE","STANDALONE"));
     vvalue.insert(make_pair("ZONE_ID","0"));
+    vvalue.insert(make_pair("SERVER_ID","-1"));
     vvalue.insert(make_pair("MASTER_ONED",""));
 
     vattribute = new VectorAttribute("FEDERATION",vvalue);

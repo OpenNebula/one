@@ -16,16 +16,17 @@
 
 #include "LogDB.h"
 #include "Nebula.h"
+#include "ZoneServer.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 const char * LogDB::table = "logdb";
 
-const char * LogDB::db_names = "index, term, sql";
+const char * LogDB::db_names = "log_index, term, sql";
 
 const char * LogDB::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
-    "logdb (index INTEGER, term INTEGER, sql MEDIUMTEXT, PRIMARY KEY(index))";
+    "logdb (log_index INTEGER PRIMARY KEY, term INTEGER, sql MEDIUMTEXT)";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -34,21 +35,34 @@ LogDBRequest * LogDB::get_request(unsigned int index)
 {
     std::map<unsigned int, LogDBRequest *>::iterator it;
 
+    LogDBRequest * req = 0;
+
+    pthread_mutex_lock(&mutex);
+
     it = requests.find(index);
 
-    if ( it == requests.end() )
+    if ( it != requests.end() )
+    {
+        req = it->second;
+    }
+
+    pthread_mutex_unlock(&mutex);
+
+    if ( req == 0  )
     {
         LogDBRequest * req = select(index);
 
         if ( req != 0 )
         {
-            requests.insert(std::make_pair(index, req));
-        }
+            pthread_mutex_lock(&mutex);
 
-        return req;
+            requests.insert(std::make_pair(index, req));
+
+            pthread_mutex_unlock(&mutex);
+        }
     }
 
-    return it->second;
+    return req;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -57,18 +71,70 @@ int LogDB::exec_wr(ostringstream& cmd)
 {
     int rc;
 
-    // Insert log entry in the Database
+    Nebula& nd       = Nebula::instance();
+    ZonePool * zpool = nd.get_zonepool();
+
+    int server_id = nd.get_server_id();
+    int zone_id   = nd.get_zone_id();
+
+    ZoneServer * server = 0;
+    unsigned int term   = 0;
+
+    if ( server_id != -1 )
+    {
+        Zone * zone = zpool->get(zone_id, true);
+
+        if ( zone != 0  )
+        {
+            if ( zone->servers_size() > 1 )
+            {
+                server = zone->get_server(server_id);
+                term   = server->get_term();
+            }
+
+            zone->unlock();
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // OpenNebula was started in solo mode
+    // -------------------------------------------------------------------------
+    if ( server == 0 )
+    {
+        pthread_mutex_lock(&mutex);
+
+        LogDBRequest lr(next_index, term, cmd);
+
+        next_index++;
+
+        pthread_mutex_unlock(&mutex);
+
+        if ( insert_replace(&lr, false) != 0 )
+        {
+            NebulaLog::log("DBM", Log::ERROR, "Cannot insert log record in DB");
+        }
+
+        return db->exec_wr(cmd);
+    }
+
+    // -------------------------------------------------------------------------
+    // Insert log entry in the database and replicate on followers
+    // -------------------------------------------------------------------------
+    pthread_mutex_lock(&mutex);
+
     LogDBRequest * lr = new LogDBRequest(next_index, term, cmd);
+
+    requests.insert(std::make_pair(next_index, lr));
+
+    next_index++;
+
+    pthread_mutex_unlock(&mutex);
 
     if ( insert_replace(lr, false) != 0 )
     {
         NebulaLog::log("DBM", Log::ERROR, "Cannot insert log record in DB");
     }
 
-    // Store the replication request in the active requests map
-    requests.insert(std::make_pair(next_index, lr));
-
-    next_index++;
 
     //LogDBManager->triger(NEW_LOG_RECORD);
 
