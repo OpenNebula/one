@@ -378,10 +378,12 @@ class EC2Driver
     # Save a EC2 instance
     def save(deploy_id)
         ec2_action(deploy_id, :stop)
+        wait_state('stopped', deploy_id)
     end
 
     # Resumes a EC2 instance
     def restore(deploy_id)
+        wait_state('stopped', deploy_id)
         ec2_action(deploy_id, :start)
     end
 
@@ -602,6 +604,7 @@ private
         end
     end
 
+
     # Execute an EC2 command
     # +deploy_id+: String, VM id in EC2
     # +ec2_action+: Symbol, one of the keys of the EC2 hash constant (i.e :run)
@@ -659,6 +662,23 @@ private
             element = xml.elements[name]
             element.text.strip if element && element.text
         end
+    end
+
+    # Waits until ec2 machine reach the desired state
+    # +state+: String, is the desired state, needs to be a real state of Amazon ec2:  running, stopped, terminated, pending  
+    # +deploy_id+: String, VM id in EC2
+    def wait_state(state, deploy_id)
+
+        ready = (state == 'stopped') || (state == 'pending') || (state == 'running') || (state == 'terminated')       
+        raise "Waiting for an invalid state" if !ready
+
+        t_init = Time.now
+        current_state = get_instance(deploy_id).state.name 
+        while current_state != state
+           break if Time.now - t_init > @state_change_timeout
+           sleep 3
+           current_state = get_instance(deploy_id).state.name
+        end 
     end
 
     # Load the default values that will be used to create a new instance, if
