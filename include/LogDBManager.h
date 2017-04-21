@@ -91,18 +91,13 @@ private:
      */
     ActionManager am;
 
-    /**
-     *  Servers in the zone, managed by Zone::add/delete_server
-     */
-    ZoneServers * servers;
-
     // -------------------------------------------------------------------------
     // Replication thread class & pool
     // -------------------------------------------------------------------------
     class ReplicaThread
     {
     public:
-        ReplicaThread(ZoneServer * server, ZoneServer * leader);
+        ReplicaThread(int follower_id, int leader_id);
 
         virtual ~ReplicaThread(){};
 
@@ -132,9 +127,9 @@ private:
         // ---------------------------------------------------------------------
         // Information of the replication target server and leader
         // ---------------------------------------------------------------------
-        ZoneServer * server;
+        int follower_id;
 
-        ZoneServer * leader;
+        int leader_id;
 
         // ---------------------------------------------------------------------
         // XML-RPC client variables to talk with this server

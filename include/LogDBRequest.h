@@ -32,7 +32,8 @@ class LogDBRequest : public SyncRequest
 public:
     LogDBRequest(unsigned int i, unsigned int t, const std::ostringstream& o);
 
-    LogDBRequest(unsigned int i, unsigned int t, const char * s);
+    LogDBRequest(unsigned int i, unsigned int t, unsigned int pi,
+            unsigned int pt, const char * s);
 
     virtual ~LogDBRequest(){};
 
@@ -51,44 +52,25 @@ public:
         return _index;
     };
 
+    unsigned int prev_index()
+    {
+        return _prev_index;
+    };
+
     unsigned int term()
     {
         return _term;
+    };
+
+    unsigned int prev_term()
+    {
+        return _prev_term;
     };
 
     const std::string& sql()
     {
         return _sql;
     };
-
-private:
-    pthread_mutex_t mutex;
-
-    /**
-     *  Index for this log entry
-     */
-    unsigned int _index;
-
-    /**
-     *  Term where this log entry was generated
-     */
-    unsigned int _term;
-
-    /**
-     *  SQL command to exec in the DB to update (INSERT, REPLACE, DROP)
-     */
-    std::string _sql;
-
-    /**
-     *  Remaining number of servers that need to replicate this record to commit
-     *  it. Initialized to ( Number_Servers - 1 ) / 2
-     */
-    int to_commit;
-
-    /**
-     *  Total number of replicas for this entry
-     */
-    int replicas;
 
     /**
      *  Function to lock the request
@@ -105,6 +87,38 @@ private:
     {
         pthread_mutex_unlock(&mutex);
     };
+private:
+    pthread_mutex_t mutex;
+
+    /**
+     *  Index for this log entry
+     */
+    unsigned int _index;
+
+    unsigned int _prev_index;
+
+    /**
+     *  Term where this log entry was generated
+     */
+    unsigned int _term;
+
+    unsigned int _prev_term;
+
+    /**
+     *  SQL command to exec in the DB to update (INSERT, REPLACE, DROP)
+     */
+    std::string _sql;
+
+    /**
+     *  Remaining number of servers that need to replicate this record to commit
+     *  it. Initialized to ( Number_Servers - 1 ) / 2
+     */
+    int to_commit;
+
+    /**
+     *  Total number of replicas for this entry
+     */
+    int replicas;
 };
 
 

@@ -18,19 +18,20 @@
 
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
-
+/*
 LogDBRequest::LogDBRequest(unsigned int i, unsigned int t,
     const std::ostringstream& o):
     _index(i), _term(t), _sql(o.str()), to_commit(-1), replicas(1)
 {
     pthread_mutex_init(&mutex, 0);
 };
-
+*/
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
-LogDBRequest::LogDBRequest(unsigned int i, unsigned int t, const char * s):
-    _index(i), _term(t), _sql(s), to_commit(-1), replicas(1)
+LogDBRequest::LogDBRequest(unsigned int i, unsigned int t, unsigned int pi,
+        unsigned int pt, const char * s): _index(i), _prev_index(pi), _term(t),
+        _prev_term(pt), _sql(s), to_commit(-1), replicas(1)
 {
     pthread_mutex_init(&mutex, 0);
 };

@@ -110,13 +110,11 @@ int LogDB::exec_wr(ostringstream& cmd)
     {
         pthread_mutex_lock(&mutex);
 
-        LogDBRequest lr(next_index, term, cmd);
-
-        next_index++;
+        unsigned int index = next_index++;
 
         pthread_mutex_unlock(&mutex);
 
-        if ( insert_replace(&lr, false) != 0 )
+        if ( insert_replace(index, term, cmd.str(), false) != 0 )
         {
             NebulaLog::log("DBM", Log::ERROR, "Cannot insert log record in DB");
         }
@@ -136,19 +134,22 @@ int LogDB::exec_wr(ostringstream& cmd)
 
     pthread_mutex_lock(&mutex);
 
-    LogDBRequest * lr = new LogDBRequest(next_index, term, cmd);
+    if ( insert_replace(next_index, term, cmd.str(), false) != 0 )
+    {
+        NebulaLog::log("DBM", Log::ERROR, "Cannot insert log record in DB");
+
+        pthread_mutex_unlock(&mutex);
+
+        return -1;
+    }
+
+    LogDBRequest * lr = select(next_index);
 
     requests.insert(std::make_pair(next_index, lr));
 
     next_index++;
 
     pthread_mutex_unlock(&mutex);
-
-    if ( insert_replace(lr, false) != 0 )
-    {
-        NebulaLog::log("DBM", Log::ERROR, "Cannot insert log record in DB");
-    }
-
 
     //LogDBManager->triger(NEW_LOG_RECORD);
 
@@ -178,7 +179,8 @@ int LogDB::exec_wr(ostringstream& cmd)
 
 int LogDB::select_cb(void *req, int num, char **values, char **names)
 {
-    if ( (!values[0]) || (!values[1]) || (!values[2]) || (num != 1) )
+    if ( !values[0] || !values[1] || !values[2] || !values[3] || !values[4]
+            || num != 1 )
     {
         return -1;
     }
@@ -187,8 +189,10 @@ int LogDB::select_cb(void *req, int num, char **values, char **names)
 
     unsigned int index = static_cast<unsigned int>(atoi(values[0]));
     unsigned int term  = static_cast<unsigned int>(atoi(values[1]));
+    unsigned int prev_index = static_cast<unsigned int>(atoi(values[3]));
+    unsigned int prev_term  = static_cast<unsigned int>(atoi(values[4]));
 
-    *request = new LogDBRequest(index, term, values[2]);
+    *request = new LogDBRequest(index, term, prev_index, prev_term, values[2]);
 
     return 0;
 }
@@ -202,7 +206,17 @@ LogDBRequest * LogDB::select(int index)
 
     LogDBRequest * request = 0;
 
-    oss << "SELECT index, term, sql FROM logdb WHERE index = " << index;
+    int prev_index = index - 1;
+
+    if ( prev_index < 0 )
+    {
+        prev_index = 0;
+    }
+
+    oss << "SELECT c.log_index, c.term, c.sql, p.log_index, p.term"
+        << " FROM logdb l, logdbc WHERE l.log_index = " << index
+        << " WHERE l.log_index = " << index << " AND p.log_index = "
+        << prev_index;
 
     set_callback(static_cast<Callbackable::Callback>(&LogDB::select_cb),
             static_cast<void *>(&request));
@@ -215,11 +229,12 @@ LogDBRequest * LogDB::select(int index)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int LogDB::insert_replace(LogDBRequest * request, bool replace)
+int LogDB::insert_replace(int index, int term, const std::string& sql,
+        bool replace)
 {
     std::ostringstream oss;
 
-    char * sql_db = db->escape_str(request->sql().c_str());
+    char * sql_db = db->escape_str(sql.c_str());
 
     if ( sql_db == 0 )
     {
@@ -236,8 +251,8 @@ int LogDB::insert_replace(LogDBRequest * request, bool replace)
     }
 
     oss << " INTO " << table << " ("<< db_names <<") VALUES ("
-        << request->index() << ","
-        << request->term() << ","
+        << index << ","
+        << term << ","
         << "'" << sql_db << "')";
 
     int rc = db->exec_wr(oss);

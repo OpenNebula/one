@@ -144,12 +144,15 @@ private:
 
     /**
      *  Inserts or update a log record in the database
-     *    @param request associated to the logDB entry to be inserted/updated
+     *    @param index of the log entry
+     *    @param term for the log entry
+     *    @param sql command to modify DB state
      *    @param replace true to replace an existing entry
      *
      *    @return 0 on success
      */
-    int insert_replace(LogDBRequest * request, bool replace);
+    int insert_replace(int index, int term, const std::string& sql,
+            bool replace);
 };
 
 #endif /*LOG_DB_H_*/

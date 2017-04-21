@@ -63,7 +63,7 @@ extern "C" void * replication_thread(void *arg)
 
 void LogDBManager::finalize_action(const ActionRequest& ar)
 {
-    NebulaLog::log("DBM",Log::INFO,"Stopping LogDB Manager...");
+    NebulaLog::log("DBM", Log::INFO, "Stopping LogDB Manager...");
 };
 
 void LogDBManager::user_action(const ActionRequest& ar)
@@ -114,11 +114,13 @@ void LogDBManager::start_action()
         return;
     }
 
-    ZoneServers * servers = zone->get_servers();
+    ZoneServers * servers     = zone->get_servers();
     ZoneServer *  this_server = servers->get_server(this_id);
 
     if ( this_server == 0 )
     {
+        zone->unlock();
+
         oss << "start replicas: server " << zone_id << "does not exist.";
 
         NebulaLog::log("DBM", Log::ERROR, oss);
@@ -146,12 +148,12 @@ void LogDBManager::start_action()
         // ---------------------------------------------------------------------
         // Create replication thread for this follower
         // ---------------------------------------------------------------------
-        ReplicaThread * rthread = new ReplicaThread(*it, this_server);
+        ReplicaThread * rthread = new ReplicaThread(id, this_id);
 
         thread_pool.insert(std::make_pair(id, rthread));
 
         pthread_attr_init (&pattr);
-        pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_JOINABLE);
+        pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_DETACHED);
 
         oss << "Starting replication thread for server " << id;
 
@@ -159,6 +161,8 @@ void LogDBManager::start_action()
 
         pthread_create(rthread->thread_id(), &pattr, replication_thread,
                 (void *) rthread);
+
+        pthread_attr_destroy(&pattr);
     }
 
     zone->unlock();
@@ -172,8 +176,6 @@ void LogDBManager::stop_action()
     for ( it = thread_pool.begin() ; it != thread_pool.end() ; ++it )
     {
         it->second->finalize();
-
-        pthread_join(*(it->second->thread_id()), 0);
 
         delete it->second;
     }
@@ -200,8 +202,8 @@ void LogDBManager::delete_server_action()
 const std::string LogDBManager::ReplicaThread::replica_method =
     "one.zone.replicate";
 
-LogDBManager::ReplicaThread::ReplicaThread(ZoneServer * z, ZoneServer *l):
-    _finalize(false), server(z), leader(l), client(&transport)
+LogDBManager::ReplicaThread::ReplicaThread(int f, int l):
+    _finalize(false), follower_id(f), leader_id(l), client(&transport)
 {
     pthread_mutex_init(&mutex, 0);
 
@@ -213,11 +215,15 @@ LogDBManager::ReplicaThread::ReplicaThread(ZoneServer * z, ZoneServer *l):
 //
 void LogDBManager::ReplicaThread::do_replication()
 {
-    std::string server_endpoint = server->vector_value("ENDPOINT");
-
     std::string secret, error;
 
     Client::read_oneauth(secret, error);
+
+    Nebula& nd       = Nebula::instance();
+    ZonePool * zpool = nd.get_zonepool();
+    LogDB * logdb    = nd.get_logdb();
+
+    int zone_id = nd.get_zone_id();
 
     while ( _finalize == false )
     {
@@ -228,36 +234,96 @@ void LogDBManager::ReplicaThread::do_replication()
             return;
         }
 
-        int next = server->get_next();
-/*
-        LogDBRequest
+        Zone * zone = zpool->get(zone_id, true);
 
-        xmlrpc_c::carriageParm_curl0 carriage(server_endpoint);
+        if ( zone == 0 )
+        {
+            continue;
+        }
+
+        ZoneServer * follower = zone->get_server(follower_id);
+        ZoneServer * leader   = zone->get_server(leader_id);
+
+        if ( leader == 0 || follower == 0 )
+        {
+            zone->unlock();
+
+            continue;
+        }
+
+        std::string follower_edp = follower->vector_value("ENDPOINT");
+
+        int id     = follower->get_next();
+        int term   = leader->get_term();
+        int commit = leader->get_commit();
+
+        zone->unlock();
+
+        LogDBRequest * lr = logdb->get_request(id);
+
+        if ( lr == 0 )
+        {
+            ostringstream oss;
+
+            oss << "Failed to load log entry at index: " << id;
+            NebulaLog::log("DBM", Log::ERROR, oss);
+
+            continue;
+        }
+
+        lr->lock();
+
+        std::string sql = lr->sql();
+
+        unsigned int prev_id   = lr->prev_index();
+        unsigned int prev_term = lr->prev_term();
+
+        lr->unlock();
+
+        xmlrpc_c::carriageParm_curl0 carriage(follower_edp);
 
         xmlrpc_c::paramList replica_params;
 
         replica_params.add(xmlrpc_c::value_string(secret));
-        replica_params.add(xmlrpc_c::value_int(leader->term()));
-        replica_params.add(xmlrpc_c::value_int(secret));
-        replica_params.add(xmlrpc_c::value_string(secret));
+        replica_params.add(xmlrpc_c::value_int(leader_id));
+        replica_params.add(xmlrpc_c::value_int(commit));
+        replica_params.add(xmlrpc_c::value_int(id));
+        replica_params.add(xmlrpc_c::value_int(term));
+        replica_params.add(xmlrpc_c::value_int(prev_id));
+        replica_params.add(xmlrpc_c::value_int(prev_term));
+        replica_params.add(xmlrpc_c::value_string(sql));
 
+        xmlrpc_c::rpc rpc_client(replica_method, replica_params);
 
+        rpc_client.call(&client, &carriage);
 
-            client->call("one.vm.deploy", // methodName
-                         "iibi",          // arguments format
-                         &deploy_result,  // resultP
-                         vid,             // argument 1 (VM)
-                         hid,             // argument 2 (HOST)
-                         false,           // argument 3 (ENFORCE)
-                         dsid);           // argument 5 (SYSTEM SD)
+        /*
+        try
+    xmlrpc_c::rpcPtr rpc(method, plist);
+    xmlrpc_c::carriageParm_curl0 cparam(one_endpoint);
 
-    sampleAddParms.add(xmlrpc_c::value_int(5));
-    sampleAddParms.add(xmlrpc_c::value_int(7));
+    rpc->start(&client, &cparam);
 
-    xmlrpc_c::rpcPtr myRpcP(methodName, sampleAddParms);
+    client.finishAsync(xmlrpc_c::timeout(timeout));
 
-    string const serverUrl("http://localhost:8080/RPC2");
-    */
+    if (!rpc->isFinished())
+    {
+        rpc->finishErr(girerr::error("XMLRPC method " + method +
+            " timeout, resetting call"));
+    }
+
+    if (rpc->isSuccessful())
+    {
+        *result = rpc->getResult();
+    }
+    else
+    {
+        xmlrpc_c::fault failure = rpc->getFault();
+
+        girerr::error(failure.getDescription());
+    }
+
+*/
         pthread_mutex_unlock(&mutex);
     }
 }
