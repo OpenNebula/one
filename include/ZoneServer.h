@@ -135,6 +135,30 @@ public:
         return state == LEADER;
     }
 
+    /**
+     *  Decrease the next log entry to send to this follower
+     */
+    void dec_next()
+    {
+        next--;
+    }
+
+    /**
+     *  Increase the next log entry to send to this follower
+     */
+    void inc_next()
+    {
+        next++;
+    }
+
+    /**
+     *  Set the the index of the highest log entry on this follower
+     */
+    void set_match(unsigned int _match)
+    {
+        match = _match;
+    }
+
 private:
     State state;
 

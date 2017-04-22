@@ -124,6 +124,8 @@ private:
 
         bool _finalize;
 
+        bool _pending_requests;
+
         // ---------------------------------------------------------------------
         // Information of the replication target server and leader
         // ---------------------------------------------------------------------
