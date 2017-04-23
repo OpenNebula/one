@@ -153,7 +153,7 @@ void LogDBManager::start_action()
         thread_pool.insert(std::make_pair(id, rthread));
 
         pthread_attr_init (&pattr);
-        pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_DETACHED);
+        pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_JOINABLE);
 
         oss << "Starting replication thread for server " << id;
 
@@ -168,6 +168,8 @@ void LogDBManager::start_action()
     zone->unlock();
 };
 
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 void LogDBManager::stop_action()
 {
@@ -177,15 +179,25 @@ void LogDBManager::stop_action()
     {
         it->second->finalize();
 
+        pthread_join(*(it->second->thread_id()),0);
+
         delete it->second;
     }
 
     thread_pool.clear();
 };
 
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
 void LogDBManager::replicate_action()
 {
+    std::map<int, ReplicaThread *>::iterator it;
 
+    for ( it = thread_pool.begin() ; it != thread_pool.end() ; ++it )
+    {
+        it->second->add_request();
+    }
 };
 
 void LogDBManager::delete_server_action()
@@ -212,7 +224,7 @@ LogDBManager::ReplicaThread::ReplicaThread(int f, int l):
 
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
-//
+
 void LogDBManager::ReplicaThread::do_replication()
 {
     std::string secret, error;
@@ -438,6 +450,20 @@ void LogDBManager::ReplicaThread::finalize()
     _finalize = true;
 
     _pending_requests = false;
+
+    pthread_cond_signal(&cond);
+
+    pthread_mutex_unlock(&mutex);
+}
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+void LogDBManager::ReplicaThread::add_request()
+{
+    pthread_mutex_lock(&mutex);
+
+    _pending_requests = true;
 
     pthread_cond_signal(&cond);
 

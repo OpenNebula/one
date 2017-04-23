@@ -68,7 +68,10 @@ class LogDBManager : public ActionListener
 public:
     LogDBManager(){};
 
-    virtual ~LogDBManager(){};
+    virtual ~LogDBManager()
+    {
+        stop_action();
+    };
 
     /**
      *  Triggers specific actions to the LogDBManager
@@ -102,6 +105,8 @@ private:
         virtual ~ReplicaThread(){};
 
         void do_replication();
+
+        void add_request();
 
         void finalize();
 

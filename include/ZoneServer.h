@@ -22,6 +22,8 @@
 
 #include "ExtendedAttribute.h"
 
+class LogDBManager;
+
 /**
  * The VirtualMachine DISK attribute
  */
@@ -36,7 +38,8 @@ public:
         LEADER    = 3
     };
 
-    ZoneServer(VectorAttribute *va, int id):ExtendedAttribute(va, id){};
+    ZoneServer(VectorAttribute *va, int id):ExtendedAttribute(va, id),
+        state(FOLLOWER), dbm(0){};
 
     virtual ~ZoneServer(){};
 
@@ -64,6 +67,9 @@ public:
         return 0;
     }
 
+    //--------------------------------------------------------------------------
+    //  Server attributes
+    //--------------------------------------------------------------------------
     /**
      *  @return the ID of the server
      */
@@ -159,6 +165,39 @@ public:
         match = _match;
     }
 
+    /**
+     *  Set the state for this follower
+     */
+    void set_state(State s)
+    {
+        state = s;
+    }
+
+    //--------------------------------------------------------------------------
+    //  LogDBManager interface
+    //--------------------------------------------------------------------------
+    /**
+     *  Start the LogDB manager and associated replica threads for followers
+     *    @param 0 on success
+     */
+    int logdbm_start();
+
+    /**
+     *  Stop the LogDB manager and threads
+     *    @param 0 on success
+     */
+    void logdbm_stop();
+
+    /**
+     *  Start replica threads for new servers in zone
+     */
+    void logdbm_addserver();
+
+    /**
+     *  Start replication of a new log entry on followers
+     */
+    void logdbm_replicate();
+
 private:
     State state;
 
@@ -184,6 +223,11 @@ private:
     unsigned int next;
 
     unsigned int match;
+
+    /**
+     *  Replication Manager for this server (only started in self)
+     */
+    LogDBManager * dbm;
 };
 
 
