@@ -359,6 +359,17 @@ void LogDBManager::ReplicaThread::do_replication()
                     follower->set_match(id);
 
                     zone->unlock();
+
+                    LogDBRequest * lr = logdb->get_request(id);
+
+                    if ( lr == 0 )
+                    {
+                        lr->lock();
+
+                        lr->replicated();
+
+                        lr->unlock();
+                    }
                 }
                 else
                 {
