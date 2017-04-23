@@ -74,6 +74,8 @@ int LogDB::exec_wr(ostringstream& cmd)
     Nebula& nd       = Nebula::instance();
     ZonePool * zpool = nd.get_zonepool();
 
+    Zone * zone;
+
     int server_id = nd.get_server_id();
     int zone_id   = nd.get_zone_id();
 
@@ -84,7 +86,7 @@ int LogDB::exec_wr(ostringstream& cmd)
 
     if ( server_id != -1 )
     {
-        Zone * zone = zpool->get(zone_id, true);
+        zone = zpool->get(zone_id, true);
 
         if ( zone != 0  )
         {
@@ -151,7 +153,25 @@ int LogDB::exec_wr(ostringstream& cmd)
 
     pthread_mutex_unlock(&mutex);
 
-    //LogDBManager->triger(NEW_LOG_RECORD);
+    zone = zpool->get(zone_id, true);
+
+    if ( zone == 0 )
+    {
+        return -1;
+    }
+
+    server = zone->get_server(server_id);
+
+    if ( server == 0 )
+    {
+        zone->unlock();
+
+        return -1;
+    }
+
+    server->logdbm_replicate();
+
+    zone->unlock();
 
     // Wait for completion
     lr->wait();
