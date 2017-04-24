@@ -815,3 +815,4 @@ tabs:
         actions:
            VMGroup.create_dialog: true
            VMGroup.update_dialog: true
+           VMGroup.chmod: true
