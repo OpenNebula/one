@@ -4,6 +4,8 @@
 - { 'name': "CentOS",             'path': "images/logos/centos.png"}
 - { 'name': "Debian",             'path': "images/logos/debian.png"}
 - { 'name': "Fedora",             'path': "images/logos/fedora.png"}
+- { 'name': "FreeBSD",            'path': "images/logos/freebsd.png"}
+- { 'name': "HardenedBSD",        'path': "images/logos/hardenedbsd.png"}
 - { 'name': "Linux",              'path': "images/logos/linux.png"}
 - { 'name': "Redhat",             'path': "images/logos/redhat.png"}
 - { 'name': "Ubuntu",             'path': "images/logos/ubuntu.png"}
