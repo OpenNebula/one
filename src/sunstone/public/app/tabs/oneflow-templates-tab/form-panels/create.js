@@ -25,6 +25,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var RoleTab = require('tabs/oneflow-templates-tab/utils/role-tab');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     TEMPLATES
@@ -229,6 +230,8 @@ define(function(require) {
 
     json_template['ready_status_gate'] = ready_status_gate;
 
+    var templateStr = $('textarea#template', $("form#createServiceTemplateFormAdvanced")).val();
+    var template_final = TemplateUtils.mergeTemplates(json_template, templateStr);
     if (this.action == "create") {
       Sunstone.runAction("ServiceTemplate.create", json_template );
       return false;

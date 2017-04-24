@@ -260,9 +260,14 @@ define(function(require) {
   }
 
   function _updateResouceLabels(tabName, resourceId, labelsArray) {
-    var templateStr = LABELS_ATTR + '="' + labelsArray.join(',') + '"';
     var resource = Sunstone.getResource(tabName);
     var tabTable = Sunstone.getDataTable(tabName);
+
+    if (resource == "ServiceTemplate" || resource == "Service") {
+      var templateStr = '{"' + LABELS_ATTR.toLowerCase() + '":"' + labelsArray.join(',') + '"}';
+    } else {
+      var templateStr = LABELS_ATTR + '="' + labelsArray.join(',') + '"';
+    }
 
     OpenNebula[resource].append({
       timeout: true,
@@ -294,7 +299,11 @@ define(function(require) {
   }
 
   function _labelsStr(elementTemplate) {
-    return TemplateUtils.htmlEncode( elementTemplate[LABELS_ATTR] );
+    if (elementTemplate['BODY'] && elementTemplate["BODY"][LABELS_ATTR.toLowerCase()]) {
+      return TemplateUtils.htmlEncode(elementTemplate["BODY"][LABELS_ATTR.toLowerCase()]);
+    } else {
+      return TemplateUtils.htmlEncode( elementTemplate[LABELS_ATTR] );
+    }
   }
 
   function _deserializeLabels(labelsStr) {
@@ -415,7 +424,13 @@ define(function(require) {
         } else {
           template = element.TEMPLATE;
         }
-        return template[LABELS_ATTR]||'';
+
+        if (template["BODY"] && template["BODY"][LABELS_ATTR.toLowerCase()]) {
+          return template["BODY"][LABELS_ATTR.toLowerCase()];
+        } else {
+          return template[LABELS_ATTR]||'';
+        }
+
       } else {
         return '';
       }
