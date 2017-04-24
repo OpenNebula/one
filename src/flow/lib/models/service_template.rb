@@ -209,10 +209,10 @@ module OpenNebula
         def update(template_json, append=false)
             template = JSON.parse(template_json)
 
-            if(append)
-                rc = info()
+            if append
+                rc = info
 
-                if(OpenNebula.is_error?(rc))
+                if OpenNebula.is_error? rc
                     return rc
                 end
 

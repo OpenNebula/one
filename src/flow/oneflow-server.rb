@@ -248,20 +248,24 @@ post '/service/:id/action' do
         when 'rename'
             service.rename(opts['name'])
         when 'update'
-            if opts && opts['template_raw']
-                if (opts['append'] == true)
-                    rc = service.update_raw(
-                        opts['template_raw'],
-                        (opts['append'] == true))
-
+            if opts && opts['append']
+                if opts['template_json']
+                    begin
+                        rc = service.update(opts['template_json'], true)
+                        status 204
+                    rescue Validator::ParseException, JSON::ParserError
+                        OpenNebula::Error.new($!.message)
+                    end
+                elsif opts['template_raw']
+                    rc = service.update_raw(opts['template_raw'], true)
                     status 204
                 else
                     OpenNebula::Error.new("Action #{action['perform']}: " <<
-                            "Only supported for append")
+                            "You have to provide a template")
                 end
             else
                 OpenNebula::Error.new("Action #{action['perform']}: " <<
-                        "You have to provide a raw template")
+                        "Only supported for append")
             end
         else
             OpenNebula::Error.new("Action #{action['perform']} not supported")

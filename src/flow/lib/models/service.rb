@@ -403,6 +403,34 @@ module OpenNebula
             return @body['shutdown_action']
         end
 
+        # Replaces the template contents
+        #
+        # @param template_json [String] New template contents
+        # @param append [true, false] True to append new attributes instead of
+        #   replace the whole template
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def update(template_json=nil, append=false)
+            if template_json
+                template = JSON.parse(template_json)
+
+                if append
+                    rc = info
+
+                    if OpenNebula.is_error? rc
+                        return rc
+                    end
+
+                    template = @body.merge(template)
+                end
+
+                template_json = template.to_json
+            end
+
+            super(template_json, append)
+        end
+
         # Replaces the raw template contents
         #
         # @param template [String] New template contents, in the form KEY = VAL
