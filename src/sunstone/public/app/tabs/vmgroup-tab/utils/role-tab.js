@@ -18,6 +18,7 @@ define(function(require) {
   // Dependencies
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
+  var Config = require('sunstone-config');
 
   var TemplateHTML = require('hbs!./role-tab/html');
   var HostsTable = require('./datatable');
@@ -63,7 +64,8 @@ define(function(require) {
       'value_host_affinity': "value_host_affinity_"+this.html_role_id,
       'tf_btn_host_affined': "btn_host_vm_roles_affined"+this.html_role_id,
       'tf_btn_host_anti_affined': "btn_host_vm_roles_anti_affined"+this.html_role_id,
-      'group_vm_host_roles':"group_vm_host_roles_"+this.html_role_id
+      'group_vm_host_roles':"group_vm_host_roles_"+this.html_role_id,
+      'hostAffinityEnabled': Config.isTabEnabled('hosts-tab')
     })
   }
 
