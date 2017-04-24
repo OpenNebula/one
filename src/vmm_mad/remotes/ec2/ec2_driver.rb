@@ -268,29 +268,29 @@ class EC2Driver
 
     # DEPLOY action, also sets ports and ip if needed
     def deploy(id, host, xml_text, lcm_state, deploy_id)
-      if lcm_state == "BOOT" || lcm_state == "BOOT_FAILURE"
+        if lcm_state == "BOOT" || lcm_state == "BOOT_FAILURE"
 
-    begin
-            ec2_info = get_deployment_info(host, xml_text)
-    rescue Exception => e
-        raise e
-    end
+            begin
+                ec2_info = get_deployment_info(host, xml_text)
+            rescue Exception => e
+                raise e
+            end
 
-        load_default_template_values
+            load_default_template_values
 
-        if !ec2_value(ec2_info, 'AMI')
-            raise "Cannot find AMI in deployment file"
-        end
+            if !ec2_value(ec2_info, 'AMI')
+                raise "Cannot find AMI in deployment file"
+            end
 
-        opts = generate_options(:run, ec2_info, {
+            opts = generate_options(:run, ec2_info, {
                 :min_count => 1,
                 :max_count => 1})
 
-        # The OpenNebula context will be only included if not USERDATA
-        #   is provided by the user
-        if !ec2_value(ec2_info, 'USERDATA')
-            xml = OpenNebula::XMLElement.new
-            xml.initialize_xml(xml_text, 'VM')
+            # The OpenNebula context will be only included if not USERDATA
+            #   is provided by the user
+            if !ec2_value(ec2_info, 'USERDATA')
+                xml = OpenNebula::XMLElement.new
+                xml.initialize_xml(xml_text, 'VM')
 
             if xml.has_elements?('TEMPLATE/CONTEXT')
                 # Since there is only 1 level ',' will not be added
@@ -339,12 +339,8 @@ class EC2Driver
         instance.create_tags(:tags => tag_array)
 
 
+        wait_state('running', instance.id)
         if ec2_value(ec2_info, 'ELASTICIP')
-            start_time = Time.now
-            while instance.state.name == 'pending'
-                break if Time.now - start_time > @state_change_timeout
-                sleep 5
-            end
             instance.associate_elastic_ip(ec2_value(ec2_info, 'ELASTICIP'))
         end
 
@@ -377,6 +373,7 @@ class EC2Driver
 
     # Save a EC2 instance
     def save(deploy_id)
+        wait_state('running', deploy_id)
         ec2_action(deploy_id, :stop)
         wait_state('stopped', deploy_id)
     end
