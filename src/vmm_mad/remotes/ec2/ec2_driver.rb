@@ -268,29 +268,29 @@ class EC2Driver
 
     # DEPLOY action, also sets ports and ip if needed
     def deploy(id, host, xml_text, lcm_state, deploy_id)
-      if lcm_state == "BOOT" || lcm_state == "BOOT_FAILURE"
+        if lcm_state == "BOOT" || lcm_state == "BOOT_FAILURE"
 
-    begin
-            ec2_info = get_deployment_info(host, xml_text)
-    rescue Exception => e
-        raise e
-    end
+            begin
+                ec2_info = get_deployment_info(host, xml_text)
+            rescue Exception => e
+                raise e
+            end
 
-        load_default_template_values
+            load_default_template_values
 
-        if !ec2_value(ec2_info, 'AMI')
-            raise "Cannot find AMI in deployment file"
-        end
+            if !ec2_value(ec2_info, 'AMI')
+                raise "Cannot find AMI in deployment file"
+            end
 
-        opts = generate_options(:run, ec2_info, {
+            opts = generate_options(:run, ec2_info, {
                 :min_count => 1,
                 :max_count => 1})
 
-        # The OpenNebula context will be only included if not USERDATA
-        #   is provided by the user
-        if !ec2_value(ec2_info, 'USERDATA')
-            xml = OpenNebula::XMLElement.new
-            xml.initialize_xml(xml_text, 'VM')
+            # The OpenNebula context will be only included if not USERDATA
+            #   is provided by the user
+            if !ec2_value(ec2_info, 'USERDATA')
+                xml = OpenNebula::XMLElement.new
+                xml.initialize_xml(xml_text, 'VM')
 
             if xml.has_elements?('TEMPLATE/CONTEXT')
                 # Since there is only 1 level ',' will not be added
@@ -339,12 +339,8 @@ class EC2Driver
         instance.create_tags(:tags => tag_array)
 
 
+        wait_state('running', instance.id)
         if ec2_value(ec2_info, 'ELASTICIP')
-            start_time = Time.now
-            while instance.state.name == 'pending'
-                break if Time.now - start_time > @state_change_timeout
-                sleep 5
-            end
             instance.associate_elastic_ip(ec2_value(ec2_info, 'ELASTICIP'))
         end
 
@@ -377,11 +373,14 @@ class EC2Driver
 
     # Save a EC2 instance
     def save(deploy_id)
+        wait_state('running', deploy_id)
         ec2_action(deploy_id, :stop)
+        wait_state('stopped', deploy_id)
     end
 
     # Resumes a EC2 instance
     def restore(deploy_id)
+        wait_state('stopped', deploy_id)
         ec2_action(deploy_id, :start)
     end
 
@@ -602,6 +601,7 @@ private
         end
     end
 
+
     # Execute an EC2 command
     # +deploy_id+: String, VM id in EC2
     # +ec2_action+: Symbol, one of the keys of the EC2 hash constant (i.e :run)
@@ -659,6 +659,23 @@ private
             element = xml.elements[name]
             element.text.strip if element && element.text
         end
+    end
+
+    # Waits until ec2 machine reach the desired state
+    # +state+: String, is the desired state, needs to be a real state of Amazon ec2:  running, stopped, terminated, pending  
+    # +deploy_id+: String, VM id in EC2
+    def wait_state(state, deploy_id)
+
+        ready = (state == 'stopped') || (state == 'pending') || (state == 'running') || (state == 'terminated')       
+        raise "Waiting for an invalid state" if !ready
+
+        t_init = Time.now
+        current_state = get_instance(deploy_id).state.name 
+        while current_state != state
+           break if Time.now - t_init > @state_change_timeout
+           sleep 3
+           current_state = get_instance(deploy_id).state.name
+        end 
     end
 
     # Load the default values that will be used to create a new instance, if
