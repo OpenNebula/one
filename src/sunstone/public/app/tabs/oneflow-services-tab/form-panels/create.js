@@ -23,6 +23,8 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var TemplatesTable = require('tabs/oneflow-templates-tab/datatable');
+  var TemplateUtils = require('utils/template-utils');
+
   /*
     CONSTANTS
    */
