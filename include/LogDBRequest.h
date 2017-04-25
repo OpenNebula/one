@@ -72,6 +72,21 @@ public:
         return _sql;
     };
 
+    int replicas()
+    {
+        return _replicas;
+    }
+
+    int to_commit()
+    {
+        return _to_commit;
+    }
+
+    void to_commit(int c)
+    {
+        _to_commit = c;
+    }
+
     /**
      *  Function to lock the request
      */
@@ -87,6 +102,7 @@ public:
     {
         pthread_mutex_unlock(&mutex);
     };
+
 private:
     pthread_mutex_t mutex;
 
@@ -113,12 +129,12 @@ private:
      *  Remaining number of servers that need to replicate this record to commit
      *  it. Initialized to ( Number_Servers - 1 ) / 2
      */
-    int to_commit;
+    int _to_commit;
 
     /**
      *  Total number of replicas for this entry
      */
-    int replicas;
+    int _replicas;
 };
 
 

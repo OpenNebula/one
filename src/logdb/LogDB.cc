@@ -31,6 +31,46 @@ const char * LogDB::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int LogDB::init_cb(void *nil, int num, char **values, char **names)
+{
+    if ( values[0] != 0 )
+    {
+        next_index = atoi(values[0]) + 1;
+    }
+
+    return 0;
+}
+
+LogDB::LogDB(SqlDB * _db):db(_db), next_index(0)
+{
+    ostringstream   oss;
+
+    pthread_mutex_init(&mutex, 0);
+
+    set_callback(static_cast<Callbackable::Callback>(&LogDB::init_cb));
+
+    oss << "SELECT MAX(log_index) FROM logdb";
+
+    db->exec_rd(oss,this);
+
+    unset_callback();
+};
+
+LogDB::~LogDB()
+{
+    std::map<unsigned int, LogDBRequest *>::iterator it;
+
+    for ( it = requests.begin(); it != requests.end(); ++it )
+    {
+        delete it->second;
+    }
+
+    delete db;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 LogDBRequest * LogDB::get_request(unsigned int index)
 {
     std::map<unsigned int, LogDBRequest *>::iterator it;
@@ -82,15 +122,19 @@ int LogDB::exec_wr(ostringstream& cmd)
     ZoneServer * server = 0;
     unsigned int term   = 0;
 
+    unsigned int num_servers;
+
     bool is_leader;
 
-    if ( server_id != -1 )
+    if ( server_id != -1 && zpool != 0 )
     {
         zone = zpool->get(zone_id, true);
 
         if ( zone != 0  )
         {
-            if ( zone->servers_size() > 1 )
+            num_servers = zone->servers_size();
+
+            if ( num_servers > 1 )
             {
                 server = zone->get_server(server_id);
                 term   = server->get_term();
@@ -128,7 +172,7 @@ int LogDB::exec_wr(ostringstream& cmd)
     // Insert log entry in the database and replicate on followers
     // -------------------------------------------------------------------------
 
-    if ( ! is_leader )
+    if ( !is_leader )
     {
         NebulaLog::log("DBM", Log::ERROR,"Tried to modify DB being a follower");
         return -1;
@@ -146,6 +190,8 @@ int LogDB::exec_wr(ostringstream& cmd)
     }
 
     LogDBRequest * lr = select(next_index);
+
+    lr->to_commit(num_servers/2);
 
     requests.insert(std::make_pair(next_index, lr));
 

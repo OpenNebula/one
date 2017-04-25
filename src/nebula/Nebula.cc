@@ -292,6 +292,11 @@ void Nebula::start(bool bootstrap_only)
             db_backend = new MySqlDB(server, port, user, passwd, db_name);
         }
 
+        if ( logdb->bootstrap(db_backend) != 0 )
+        {
+            throw runtime_error("Error bootstrapping database.");
+        }
+
         logdb = new LogDB(db_backend);
 
         // ---------------------------------------------------------------------
@@ -333,7 +338,6 @@ void Nebula::start(bool bootstrap_only)
             rc += SecurityGroupPool::bootstrap(logdb);
             rc += VirtualRouterPool::bootstrap(logdb);
             rc += VMGroupPool::bootstrap(logdb);
-            rc += logdb->bootstrap();
 
             // Create the system tables only if bootstrap went well
             if (rc == 0)

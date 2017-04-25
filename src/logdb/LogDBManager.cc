@@ -243,7 +243,7 @@ void LogDBManager::ReplicaThread::do_replication()
 
         while ( _pending_requests == false )
         {
-            pthread_cond_wait(&cond,&mutex);
+            pthread_cond_wait(&cond, &mutex);
 
             if ( _finalize )
             {
@@ -255,6 +255,9 @@ void LogDBManager::ReplicaThread::do_replication()
 
         pthread_mutex_unlock(&mutex);
 
+        // ---------------------------------------------------------------------
+        // Get parameters to call append entries on follower
+        // ---------------------------------------------------------------------
         Zone * zone = zpool->get(zone_id, true);
 
         if ( zone == 0 )
@@ -303,6 +306,9 @@ void LogDBManager::ReplicaThread::do_replication()
 
         ostringstream oss;
 
+        // ---------------------------------------------------------------------
+        // Send log entry to follower
+        // ---------------------------------------------------------------------
         oss << "Replicating log entry " << id << "-" << term << " on server: "
             << follower_id << " (" << follower_edp <<")";
 
@@ -338,6 +344,12 @@ void LogDBManager::ReplicaThread::do_replication()
 
                 if ( success )
                 {
+                    // ---------------------------------------------------------
+                    // Log entry replicated on follower
+                    // - Increment next entry to send to follower
+                    // - Update match entry on follower
+                    // - Evaluate majority to apply changes to DB
+                    // ---------------------------------------------------------
                     zone = zpool->get(zone_id, true);
 
                     if ( zone == 0 )
@@ -346,6 +358,7 @@ void LogDBManager::ReplicaThread::do_replication()
                     }
 
                     ZoneServer * follower = zone->get_server(follower_id);
+                    ZoneServer * leader   = zone->get_server(leader_id);
 
                     if ( follower == 0 )
                     {
@@ -358,13 +371,25 @@ void LogDBManager::ReplicaThread::do_replication()
 
                     follower->set_match(id);
 
+                    if ( leader->get_applied() > follower->get_next() )
+                    {
+                        _pending_requests = true;
+                    }
+
                     zone->unlock();
 
                     LogDBRequest * lr = logdb->get_request(id);
 
                     if ( lr == 0 )
                     {
+                        oss.str("");
+
                         lr->lock();
+
+                        oss << "Log entry " << id << "-" << term << "replicated"
+                            << " on server: " << follower_id << ". Total "
+                            << "replicas: " << lr->replicas() << " Replicas to "
+                            << "majority: " << lr->to_commit();
 
                         lr->replicated();
 
@@ -377,10 +402,12 @@ void LogDBManager::ReplicaThread::do_replication()
 
                     if ( follower_term > term )
                     {
-                        //Convert to follower
-                        // - Update term
-                        // - Set state to follower
-                        // - Stop replica threads
+                        //------------------------------------------------------
+                        // Convert to follower
+                        //   - Update term
+                        //   - Set state to follower
+                        //   - Stop replica threads
+                        //------------------------------------------------------
                         ostringstream ess;
 
                         ess << "Detected a higher term on follower: "
@@ -390,9 +417,11 @@ void LogDBManager::ReplicaThread::do_replication()
                     }
                     else
                     {
-                        //Log inconsistency in follower
-                        // - Decrease follower index
-                        // - Retry
+                        //------------------------------------------------------
+                        // Log inconsistency in follower
+                        //   - Decrease follower index
+                        //   - Retry (do not wait for replica events)
+                        //------------------------------------------------------
                         ostringstream ess;
 
                         ess << "Log inconsistency detected on follower: "

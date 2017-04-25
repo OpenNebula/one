@@ -31,7 +31,7 @@ LogDBRequest::LogDBRequest(unsigned int i, unsigned int t,
 
 LogDBRequest::LogDBRequest(unsigned int i, unsigned int t, unsigned int pi,
         unsigned int pt, const char * s): _index(i), _prev_index(pi), _term(t),
-        _prev_term(pt), _sql(s), to_commit(-1), replicas(1)
+        _prev_term(pt), _sql(s), _to_commit(-1), _replicas(1)
 {
     pthread_mutex_init(&mutex, 0);
 };
@@ -41,17 +41,20 @@ LogDBRequest::LogDBRequest(unsigned int i, unsigned int t, unsigned int pi,
 
 int LogDBRequest::replicated()
 {
-    int _replicas;
+    int __replicas;
 
     lock();
 
-    replicas++;
+    _replicas++;
 
-    to_commit--;
+    if ( _to_commit > 0 )
+    {
+        _to_commit--;
+    }
 
-    _replicas = replicas;
+    __replicas = _replicas;
 
-    if ( to_commit == 0 )
+    if ( _to_commit == 0 )
     {
         result  = true;
         timeout = false;
@@ -61,6 +64,6 @@ int LogDBRequest::replicated()
 
     unlock();
 
-    return _replicas;
+    return __replicas;
 }
 

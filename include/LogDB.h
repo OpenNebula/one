@@ -27,22 +27,9 @@
 class LogDB : public SqlDB, Callbackable
 {
 public:
-    LogDB(SqlDB * _db):db(_db), next_index(0)
-    {
-        pthread_mutex_init(&mutex, 0);
-    };
+    LogDB(SqlDB * _db);
 
-    virtual ~LogDB()
-    {
-        std::map<unsigned int, LogDBRequest *>::iterator it;
-
-        for ( it = requests.begin(); it != requests.end(); ++it )
-        {
-            delete it->second;
-        }
-
-        delete db;
-    };
+    virtual ~LogDB();
 
     /**
      *  Return the request associated to the given logdb record. If there is
@@ -90,11 +77,11 @@ public:
     // -------------------------------------------------------------------------
     // Database methods
     // -------------------------------------------------------------------------
-    int bootstrap()
+    static int bootstrap(SqlDB *_db)
     {
         ostringstream oss(db_bootstrap);
 
-        return db->exec_local_wr(oss);
+        return _db->exec_local_wr(oss);
     }
 
 protected:
@@ -130,6 +117,11 @@ private:
     static const char * db_names;
 
     static const char * db_bootstrap;
+
+    /**
+     *  Callback to initialize the next_index varibale.
+     */
+    int init_cb(void *nil, int num, char **values, char **names);
 
     /**
      *  This function loads a log record from the database and returns the an
