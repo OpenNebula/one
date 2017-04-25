@@ -49,7 +49,7 @@ require 'opennebula'
 def handle_exception(action, ex, host, did, id = nil, file = nil)
 
     file    ||= ""
-        id      ||= ""
+    id      ||= ""
     STDERR.puts action + " of VM #{id} #{did} on host #{host} #{file} "+
                 "due to \"#{ex.message}\""
     STDERR.puts "********* STACK TRACE *********"
@@ -57,7 +57,6 @@ def handle_exception(action, ex, host, did, id = nil, file = nil)
     STDERR.puts "*******************************"
     exit (-1)
 end
-    
 
 
 
@@ -829,14 +828,20 @@ private
 
     # Get metric from AWS/EC2 namespace from the last poll
     def get_cloudwatch_metric(cw, metric_name, last_poll, statistics, units, id)
-       options={:namespace=>"AWS/EC2",
-                :metric_name=>metric_name,
-                :start_time=> (Time.at(last_poll.to_i)-65).iso8601,
-                :end_time=> (Time.now-60).iso8601,
-                :period=>60,
-                :statistics=>statistics,
-                :unit=>units,
-                :dimensions=>[{:name=>"InstanceId", :value=>id}]}
+        dt = 60                              # period
+        t0 = (Time.at(last_poll.to_i)-65)    # last poll time
+        t = (Time.now-60)                    # actual time
+
+        while ((t - t0)/dt >= 1440) do dt+=60 end
+
+        options={:namespace=>"AWS/EC2",
+                 :metric_name=>metric_name,
+                 :start_time=> t0.iso8601,
+                 :end_time=> t.iso8601,
+                 :period=>dt,
+                 :statistics=>statistics,
+                 :unit=>units,
+                 :dimensions=>[{:name=>"InstanceId", :value=>id}]}
 
         cw.get_metric_statistics(options)
     end
