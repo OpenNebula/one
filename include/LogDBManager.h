@@ -84,6 +84,16 @@ public:
         am.trigger(log_action);
     }
 
+    void start()
+    {
+
+    }
+
+    void finalize()
+    {
+
+    }
+
 private:
     friend void * logdb_manager_loop(void *arg);
 

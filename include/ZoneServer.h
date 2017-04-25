@@ -158,6 +158,27 @@ public:
     }
 
     /**
+     *  Increase the term for this server
+     */
+    void inc_term()
+    {
+        term++;
+    }
+
+    /**
+     *  Increase the term for this server
+     */
+    void inc_applied()
+    {
+        applied++;
+    }
+
+    void set_commit(unsigned int _c)
+    {
+        commit = _c;
+    }
+
+    /**
      *  Set the the index of the highest log entry on this follower
      */
     void set_match(unsigned int _match)

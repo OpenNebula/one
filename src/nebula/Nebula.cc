@@ -885,6 +885,23 @@ void Nebula::start(bool bootstrap_only)
        throw runtime_error("Could not start the IPAM Manager");
     }
 
+    // ---- Raft Manager ----
+    try
+    {
+        raftm = new RaftManager();
+    }
+    catch (bad_alloc&)
+    {
+        throw;
+    }
+
+    rc = raftm->start();
+
+    if ( rc != 0 )
+    {
+       throw runtime_error("Could not start the Raft Consensus Manager");
+    }
+
     // -----------------------------------------------------------
     // Load mads
     // -----------------------------------------------------------
@@ -1037,6 +1054,7 @@ void Nebula::start(bool bootstrap_only)
     marketm->finalize();
 	ipamm->finalize();
     aclm->finalize();
+    raftm->finalize();
 
     //sleep to wait drivers???
 
@@ -1051,6 +1069,7 @@ void Nebula::start(bool bootstrap_only)
     pthread_join(imagem->get_thread_id(),0);
     pthread_join(marketm->get_thread_id(),0);
     pthread_join(ipamm->get_thread_id(),0);
+    pthread_join(raftm->get_thread_id(),0);
 
     if(is_federation_slave())
     {

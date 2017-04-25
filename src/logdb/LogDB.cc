@@ -222,9 +222,49 @@ int LogDB::exec_wr(ostringstream& cmd)
     // Wait for completion
     lr->wait();
 
-    if ( lr->result == true ) //Record replicated on majority of followers
+	bool replica_result = lr->result;
+
+    if ( replica_result == true ) //Record replicated on majority of followers
     {
-        rc = db->exec_wr(cmd);
+        zone = zpool->get(zone_id, true);
+
+        if ( zone == 0 )
+        {
+            return -1;
+        }
+
+        server = zone->get_server(server_id);
+
+        if ( server == 0 )
+        {
+            zone->unlock();
+
+            return -1;
+        }
+
+		server->set_commit(next_index);
+
+		while ( server->get_commit() > server->get_applied() )
+		{
+			ostringstream oss_sql;
+
+			LogDBRequest * lr = select(server->get_applied());
+
+			oss_sql.str(lr->sql());
+
+			rc += db->exec_wr(oss_sql);
+
+			oss_sql.str("");
+
+			oss_sql << "Log record " << server->get_applied() << " applied to "
+				    << "DB. Server index: commit - " << server->get_commit();
+
+			server->inc_applied();
+
+			oss_sql << " applied - " << server->get_applied();
+		}
+
+        zone->unlock();
     }
     else
     {
