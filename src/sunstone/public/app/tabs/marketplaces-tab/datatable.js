@@ -80,9 +80,9 @@ define(function(require) {
 
     this.columns = [
       Locale.tr("ID"),
+      Locale.tr("Name"),
       Locale.tr("Owner"),
       Locale.tr("Group"),
-      Locale.tr("Name"),
       Locale.tr("Capacity"),
       Locale.tr("Apps"),
       Locale.tr("Driver"),
@@ -135,9 +135,9 @@ define(function(require) {
                              element.ID + '" name="selected_items" value="' +
                              element.ID + '"/>',
         element.ID,
+        element.NAME,
         element.UNAME,
         element.GNAME,
-        element.NAME,
         DatastoreCapacityBar.html(element),
         _lengthOf(element.MARKETPLACEAPPS.ID),
         element.MARKET_MAD,
