@@ -209,9 +209,7 @@ def self.import_templates(con_ops, options)
         rs.each {|dc, tmps|
 
             if !use_defaults
-                STDOUT.print "\nDo you want to process datacenter #{dc}"\
-                                " (y/[n])? "
-
+                STDOUT.print "\nDo you want to process datacenter #{dc} (y/[n])? "
                 next if STDIN.gets.strip.downcase != 'y'
             end
 
@@ -223,7 +221,6 @@ def self.import_templates(con_ops, options)
             tmps.each{ |t|
                 template = nil
                 template_copy_ref = nil
-                template_xml = nil
 
                 if !use_defaults
                     STDOUT.print "\n  * VM Template found:\n"\
