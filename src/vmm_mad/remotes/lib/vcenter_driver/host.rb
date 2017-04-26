@@ -415,13 +415,15 @@ class ClusterComputeResource
             max_samples =  interval > 3600 ? 9 : samples
         end
 
-        stats = pm.retrieve_stats(
-                vm_objects,
-                ['net.transmitted','net.bytesRx','net.bytesTx','net.received',
-                'virtualDisk.numberReadAveraged','virtualDisk.numberWriteAveraged',
-                'virtualDisk.read','virtualDisk.write'],
-                {max_samples: max_samples}
-        )
+        if !vm_objects.empty?
+            stats = pm.retrieve_stats(
+                    vm_objects,
+                    ['net.transmitted','net.bytesRx','net.bytesTx','net.received',
+                    'virtualDisk.numberReadAveraged','virtualDisk.numberWriteAveraged',
+                    'virtualDisk.read','virtualDisk.write'],
+                    {max_samples: max_samples}
+            )
+        end
 
         get_resource_pool_list if !@rp_list
 
@@ -540,14 +542,7 @@ class ClusterComputeResource
 
         one_cluster_id = -1 if !one_cluster_id
 
-        cluster_name = ""
-        if rp
-            cluster_name << cluster[:cluster_name] << "_#{rp.tr("/", "_")}"
-        else
-            cluster_name << cluster[:cluster_name]
-        end
-
-        rc = one_host.allocate(cluster_name, 'vcenter', 'vcenter', one_cluster_id.to_i)
+        rc = one_host.allocate(cluster[:cluster_name], 'vcenter', 'vcenter', one_cluster_id.to_i)
 
         if OpenNebula.is_error?(rc)
             raise "Could not allocate host: #{rc.message}"
