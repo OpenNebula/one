@@ -14,11 +14,8 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef LOG_DB_REQUEST_H_
-#define LOG_DB_REQUEST_H_
-
-#include <string>
-#include <sstream>
+#ifndef REPLICA_REQUEST_H_
+#define REPLICA_REQUEST_H_
 
 #include "SyncRequest.h"
 
@@ -27,50 +24,57 @@
  * is synchronous: once it has been replicated in a majority of followers the
  * client is notified (SqlDB::exec_wr() call) and DB updated.
  */
-class LogDBRequest : public SyncRequest
+class ReplicaRequest : public SyncRequest
 {
 public:
-    LogDBRequest(unsigned int i, unsigned int t, const std::ostringstream& o);
+    ReplicaRequest(unsigned int i):_index(i), _to_commit(-1), _replicas(1)
+    {
+        pthread_mutex_init(&mutex, 0);
+    };
 
-    LogDBRequest(unsigned int i, unsigned int t, unsigned int pi,
-            unsigned int pt, const char * s);
-
-    virtual ~LogDBRequest(){};
+    ~ReplicaRequest(){};
 
     /**
-     *  This function decrements the number of remaining server to replicate
-     *  this entry. If it reaches 0, the client is notified
-     *    @return number of replicas for this log
+     *  This function updates the number of replicas of the record and decrement
+     *  the number of servers left to reach majority consensus. If it reaches 0,
+     *  the client is notified
+     *      @return number of replicas for this log
      */
-    int replicated();
+    int inc_replicas()
+    {
+        int __replicas;
+
+        pthread_mutex_lock(&mutex);
+
+        _replicas++;
+
+        if ( _to_commit > 0 )
+        {
+            _to_commit--;
+        }
+
+        __replicas = _replicas;
+
+        if ( _to_commit == 0 )
+        {
+            result  = true;
+            timeout = false;
+
+            notify();
+        }
+
+        pthread_mutex_unlock(&mutex);
+
+        return __replicas;
+    }
 
     /* ---------------------------------------------------------------------- */
     /* Class access methods                                                   */
     /* ---------------------------------------------------------------------- */
-    unsigned int index()
+    int index()
     {
         return _index;
-    };
-
-    unsigned int prev_index()
-    {
-        return _prev_index;
-    };
-
-    unsigned int term()
-    {
-        return _term;
-    };
-
-    unsigned int prev_term()
-    {
-        return _prev_term;
-    };
-
-    const std::string& sql()
-    {
-        return _sql;
-    };
+    }
 
     int replicas()
     {
@@ -87,22 +91,6 @@ public:
         _to_commit = c;
     }
 
-    /**
-     *  Function to lock the request
-     */
-    void lock()
-    {
-        pthread_mutex_lock(&mutex);
-    };
-
-    /**
-     *  Function to unlock the request
-     */
-    void unlock()
-    {
-        pthread_mutex_unlock(&mutex);
-    };
-
 private:
     pthread_mutex_t mutex;
 
@@ -110,20 +98,6 @@ private:
      *  Index for this log entry
      */
     unsigned int _index;
-
-    unsigned int _prev_index;
-
-    /**
-     *  Term where this log entry was generated
-     */
-    unsigned int _term;
-
-    unsigned int _prev_term;
-
-    /**
-     *  SQL command to exec in the DB to update (INSERT, REPLACE, DROP)
-     */
-    std::string _sql;
 
     /**
      *  Remaining number of servers that need to replicate this record to commit
@@ -137,6 +111,5 @@ private:
     int _replicas;
 };
 
-
-#endif /*LOG_DB_REQUEST_H_*/
+#endif /*REPLICA_REQUEST_H_*/
 

@@ -888,7 +888,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- Raft Manager ----
     try
     {
-        raftm = new RaftManager();
+        raftm = new RaftManager(server_id != -1);
     }
     catch (bad_alloc&)
     {
@@ -1016,7 +1016,7 @@ void Nebula::start(bool bootstrap_only)
     // Start HA mode if working in a cluster of oned's
     // -----------------------------------------------------------
 
-    if ( server_id != -1 )
+    if ( server_id == -1 )
     {
         NebulaLog::log("ONE", Log::INFO, "No SERVER_ID defined, starting "
                 "oned in solo mode.");
@@ -1025,6 +1025,10 @@ void Nebula::start(bool bootstrap_only)
     {
 
     }
+
+    ///////////////
+    /////////DEBUG
+    raftm->leader_trigger(0);
 
     // -----------------------------------------------------------
     // Wait for a SIGTERM or SIGINT signal

@@ -22,8 +22,6 @@
 
 #include "ExtendedAttribute.h"
 
-class LogDBManager;
-
 /**
  * The VirtualMachine DISK attribute
  */
@@ -31,15 +29,7 @@ class ZoneServer : public ExtendedAttribute
 {
 public:
 
-    enum State {
-        OFFLINE   = 0,
-        CANDIDATE = 1,
-        FOLLOWER  = 2,
-        LEADER    = 3
-    };
-
-    ZoneServer(VectorAttribute *va, int id):ExtendedAttribute(va, id),
-        state(FOLLOWER), dbm(0){};
+    ZoneServer(VectorAttribute *va, int id):ExtendedAttribute(va, id){};
 
     virtual ~ZoneServer(){};
 
@@ -77,178 +67,6 @@ public:
     {
         return ExtendedAttribute::get_id();
     }
-
-    int get_term() const
-    {
-        return term;
-    }
-
-    /**
-     *  @return highest log known to be commited
-     */
-    int get_commit() const
-    {
-        return commit;
-    }
-
-    /**
-     *  @return highest log applied to DB
-     */
-    int get_applied() const
-    {
-        return applied;
-    }
-
-    /**
-     *  @return next log to send to this server
-     */
-    int get_next() const
-    {
-        return next;
-    }
-
-    /**
-     *  @return highest log replicated in this server
-     */
-    int get_match() const
-    {
-        return match;
-    }
-
-    /**
-     *  Initialized follower data
-     *    @param last log index
-     */
-    void init_follower(unsigned int last)
-    {
-        next  = last + 1;
-        match = 0;
-    }
-
-    /**
-     *  @return true if the server is offline
-     */
-    bool is_offline()
-    {
-        return state == OFFLINE;
-    }
-
-    /**
-     *  @return true if the server is the leader of the zone
-     */
-    bool is_leader()
-    {
-        return state == LEADER;
-    }
-
-    /**
-     *  Decrease the next log entry to send to this follower
-     */
-    void dec_next()
-    {
-        next--;
-    }
-
-    /**
-     *  Increase the next log entry to send to this follower
-     */
-    void inc_next()
-    {
-        next++;
-    }
-
-    /**
-     *  Increase the term for this server
-     */
-    void inc_term()
-    {
-        term++;
-    }
-
-    /**
-     *  Increase the term for this server
-     */
-    void inc_applied()
-    {
-        applied++;
-    }
-
-    void set_commit(unsigned int _c)
-    {
-        commit = _c;
-    }
-
-    /**
-     *  Set the the index of the highest log entry on this follower
-     */
-    void set_match(unsigned int _match)
-    {
-        match = _match;
-    }
-
-    /**
-     *  Set the state for this follower
-     */
-    void set_state(State s)
-    {
-        state = s;
-    }
-
-    //--------------------------------------------------------------------------
-    //  LogDBManager interface
-    //--------------------------------------------------------------------------
-    /**
-     *  Start the LogDB manager and associated replica threads for followers
-     *    @param 0 on success
-     */
-    int logdbm_start();
-
-    /**
-     *  Stop the LogDB manager and threads
-     *    @param 0 on success
-     */
-    void logdbm_stop();
-
-    /**
-     *  Start replica threads for new servers in zone
-     */
-    void logdbm_addserver();
-
-    /**
-     *  Start replication of a new log entry on followers
-     */
-    void logdbm_replicate();
-
-private:
-    State state;
-
-    /**
-     *  Current term
-     */
-    unsigned int term;
-
-    //--------------------------------------------------------------------------
-    // Volatile log index variables
-    //   - commit, highest log known to be commited
-    //   - applied, highest log applied to DB
-    //
-    //---------------------------- LEADER VARIABLES ----------------------------
-    //
-    //   - next, next log to send to this server
-    //   - match, highest log replicated in this server
-    // -------------------------------------------------------------------------
-    unsigned int commit;
-
-    unsigned int applied;
-
-    unsigned int next;
-
-    unsigned int match;
-
-    /**
-     *  Replication Manager for this server (only started in self)
-     */
-    LogDBManager * dbm;
 };
 
 

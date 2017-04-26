@@ -55,7 +55,6 @@ main_env.Append(CPPPATH=[
 main_env.Append(LIBPATH=[
     cwd+'/src/common',
     cwd+'/src/log',
-    cwd+'/src/logdb',
     cwd+'/src/raft',
     cwd+'/src/sql',
     cwd+'/src/host',
@@ -213,7 +212,6 @@ main_env.ParseConfig('xml2-config --libs --cflags')
 build_scripts=[
     'src/sql/SConstruct',
     'src/log/SConstruct',
-    'src/logdb/SConstruct',
     'src/raft/SConstruct',
     'src/common/SConstruct',
     'src/template/SConstruct',

@@ -16,7 +16,6 @@
 
 #include "Zone.h"
 #include "ZoneServer.h"
-#include "LogDBManager.h"
 
 /* ------------------------------------------------------------------------ */
 
@@ -356,37 +355,3 @@ ZoneServer * Zone::get_server(int server_id)
     return servers->get_server(server_id);
 }
 
-//--------------------------------------------------------------------------
-//  ZoneServer LogDBManager implementation
-//--------------------------------------------------------------------------
-int ZoneServer::logdbm_start()
-{
-    if ( state != LEADER )
-    {
-        return -1;
-    }
-
-    if ( dbm == 0 )
-    {
-        dbm = new LogDBManager();
-    }
-
-    dbm->trigger(LogDBAction::START);
-
-    return 0;
-}
-
-void ZoneServer::logdbm_stop()
-{
-    dbm->trigger(LogDBAction::STOP);
-}
-
-void ZoneServer::logdbm_addserver()
-{
-    dbm->trigger(LogDBAction::ADD_SERVER);
-}
-
-void ZoneServer::logdbm_replicate()
-{
-    dbm->trigger(LogDBAction::REPLICATE);
-}

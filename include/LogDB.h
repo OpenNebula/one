@@ -19,11 +19,43 @@
 
 #include <string>
 #include <sstream>
-#include <map>
 
 #include "SqlDB.h"
-#include "LogDBRequest.h"
 
+/**
+ *  This class represents a log record
+ */
+struct LogDBRecord
+{
+   /**
+    *  Index for this log entry (and previous)
+    */
+    unsigned int index;
+
+    unsigned int prev_index;
+
+    /**
+     *  Term where this log (and previous) entry was generated
+     */
+    unsigned int term;
+
+    unsigned int prev_term;
+
+    /**
+     *  SQL command to exec in the DB to update (INSERT, REPLACE, DROP)
+     */
+    std::string sql;
+
+    /**
+     *  Time when the record has been applied to DB. 0 if not applied
+     */
+    time_t timestamp;
+};
+
+/**
+ *  This class implements a generic DB interface with replication. The associated
+ *  DB stores a log to replicate on followers.
+ */
 class LogDB : public SqlDB, Callbackable
 {
 public:
@@ -31,14 +63,38 @@ public:
 
     virtual ~LogDB();
 
+    // -------------------------------------------------------------------------
+    // Interface to access Log records
+    // -------------------------------------------------------------------------
     /**
-     *  Return the request associated to the given logdb record. If there is
-     *  no client waiting for its replication it is loaded from the DB.
+     *  Loads a log record from the database. Memory is allocated by this class
+     *  and needs to be freed.
      *    @param index of the associated logDB entry
-     *    @return the LogDB replication request
-     *
+     *    @return the LogDB record
      */
-    LogDBRequest * get_request(unsigned int index);
+    LogDBRecord * get_log_record(unsigned int index);
+
+    /**
+     *  Applies the SQL command of the given record to the database. The
+     *  timestamp of the record is updated.
+     *    @param lr the log record
+     *    @param index of the log record
+     */
+    int apply_log_record(LogDBRecord * lr);
+
+    int apply_log_record(unsigned int index);
+
+    /**
+     *  Inserts a new log record in the database. If the record is successfully
+     *  inserted the index is incremented
+     *    @param term for the record
+     *    @param sql command of the record
+     *    @param timestamp associated to this record
+     *
+     *    @return -1 on failure, index of the inserted record on success
+     */
+    int insert_log_record(unsigned int term, std::ostringstream& sql,
+            time_t timestamp);
 
     // -------------------------------------------------------------------------
     // SQL interface
@@ -79,13 +135,22 @@ public:
     // -------------------------------------------------------------------------
     static int bootstrap(SqlDB *_db)
     {
-        ostringstream oss(db_bootstrap);
+        std::ostringstream oss(db_bootstrap);
 
         return _db->exec_local_wr(oss);
     }
 
+    /**
+     *  This function to get and initialize log related index
+     *    @param last_applied, highest index applied to the DB
+     *    @param last_index
+     *
+     *    @return 0 on success
+     */
+    int setup_index(int& last_applied, int& last_index);
+
 protected:
-    int exec(ostringstream& cmd, Callbackable* obj, bool quiet)
+    int exec(std::ostringstream& cmd, Callbackable* obj, bool quiet)
     {
         return -1;
     }
@@ -104,10 +169,9 @@ private:
     unsigned int next_index;
 
     /**
-     *  List of pending requests (a client is waiting for the log entry to be
-     *  replicated in a majority of followers)
+     *  Index of the last log entry applied to the DB state
      */
-    std::map<unsigned int, LogDBRequest *> requests;
+    unsigned int last_applied;
 
     // -------------------------------------------------------------------------
     // DataBase implementation
@@ -119,32 +183,27 @@ private:
     static const char * db_bootstrap;
 
     /**
-     *  Callback to initialize the next_index varibale.
+     *  Callback to initialize the next_index and last_appled varibales.
      */
-    int init_cb(void *nil, int num, char **values, char **names);
+    int setup_index_cb(void *nil, int num, char **values, char **names);
 
     /**
-     *  This function loads a log record from the database and returns the an
-     *  associated replication request
-     *    @param index of the record
-     *
-     *    @return the request 0 if failure
+     *  SQL callback for log record SELECT commands
      */
     int select_cb(void *req, int num, char **values, char **names);
-
-    LogDBRequest * select(int index);
 
     /**
      *  Inserts or update a log record in the database
      *    @param index of the log entry
      *    @param term for the log entry
      *    @param sql command to modify DB state
+     *    @param timestamp of record application to DB state
      *    @param replace true to replace an existing entry
      *
      *    @return 0 on success
      */
     int insert_replace(int index, int term, const std::string& sql,
-            bool replace);
+            time_t timestamp, bool replace);
 };
 
 #endif /*LOG_DB_H_*/
