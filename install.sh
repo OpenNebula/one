@@ -523,6 +523,7 @@ INSTALL_ONEFLOW_ETC_FILES=(
 INSTALL_ETC_FILES=(
     ETC_FILES:$ETC_LOCATION
     EC2_ETC_FILES:$ETC_LOCATION
+    VCENTER_ETC_FILES:$ETC_LOCATION
     AZ_ETC_FILES:$ETC_LOCATION
     VMM_EXEC_ETC_FILES:$ETC_LOCATION/vmm_exec
     HM_ETC_FILES:$ETC_LOCATION/hm
@@ -1222,6 +1223,8 @@ EC2_ETC_FILES="src/vmm_mad/remotes/ec2/ec2_driver.conf \
 
 AZ_ETC_FILES="src/vmm_mad/remotes/az/az_driver.conf \
               src/vmm_mad/remotes/az/az_driver.default"
+
+VCENTER_ETC_FILES="src/vmm_mad/remotes/lib/vcenter_driver/vcenter_driver.default"
 
 #-------------------------------------------------------------------------------
 # Virtualization drivers config. files, to be installed under $ETC_LOCATION
