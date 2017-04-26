@@ -2279,7 +2279,11 @@ class VirtualMachine < Template
     end
 
     def instantiated_as_persistent?
-        !!one_item["TEMPLATE/CLONING_TEMPLATE_ID"]
+        begin
+            !!one_item["TEMPLATE/CLONING_TEMPLATE_ID"]
+        rescue
+            return false #one_item may not be retrieved if deploy_id hasn't been set
+        end
     end
 
     def remove_poweroff_detached_vcenter_nets(networks)
