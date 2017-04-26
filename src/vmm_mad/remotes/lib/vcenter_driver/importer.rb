@@ -126,30 +126,6 @@ def self.import_clusters(con_ops, options)
                         answer = STDIN.gets.strip
                         one_cluster_id = answer if !answer.empty?
                     end
-
-                    rpools = cluster[:rp_list]
-
-                    if !rpools.empty?
-
-                        STDOUT.print "\n    Do you want to confine this cluster in "\
-                                     "a resource pool (y/[n])? "
-
-                        if STDIN.gets.strip.downcase == 'y'
-
-                            rpool_list = ""
-                            rpools.each do |rp|
-                                rpool_list << "    - " << rp[:name] << "\n"
-                            end
-
-                            STDOUT.print "\n    Please specify one resource pool from "\
-                                         "the following list:\n\n#{rpool_list}"
-
-                            STDOUT.print "\n    Your resource pool choice: "
-
-                            answer = STDIN.gets.strip
-                            rpool = answer if !answer.empty?
-                        end
-                    end
                 end
 
                 one_host = VCenterDriver::ClusterComputeResource.to_one(cluster,
