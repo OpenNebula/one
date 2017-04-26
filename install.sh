@@ -236,7 +236,8 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/mads \
           $LIB_LOCATION/sh \
           $LIB_LOCATION/ruby/cli \
-          $LIB_LOCATION/ruby/cli/one_helper"
+          $LIB_LOCATION/ruby/cli/one_helper \
+          $LIB_LOCATION/ruby/vcenter_driver"
 
 VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im \
@@ -258,6 +259,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vnm/ebtables \
           $VAR_LOCATION/remotes/vnm/fw \
           $VAR_LOCATION/remotes/vnm/ovswitch \
+          $VAR_LOCATION/remotes/vnm/vcenter \
           $VAR_LOCATION/remotes/tm/ \
           $VAR_LOCATION/remotes/tm/dummy \
           $VAR_LOCATION/remotes/tm/shared \
@@ -381,6 +383,7 @@ INSTALL_FILES=(
     AUTH_DUMMY_FILES:$VAR_LOCATION/remotes/auth/dummy
     AUTH_PLAIN_FILES:$VAR_LOCATION/remotes/auth/plain
     VMM_EXEC_LIB_FILES:$VAR_LOCATION/remotes/vmm/lib
+    VMM_EXEC_LIB_VCENTER_FILES:$LIB_LOCATION/ruby/vcenter_driver
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/vmm/vcenter
     VMM_EXEC_EC2_SCRIPTS:$VAR_LOCATION/remotes/vmm/ec2
@@ -413,6 +416,7 @@ INSTALL_FILES=(
     NETWORK_EBTABLES_FILES:$VAR_LOCATION/remotes/vnm/ebtables
     NETWORK_FW_FILES:$VAR_LOCATION/remotes/vnm/fw
     NETWORK_OVSWITCH_FILES:$VAR_LOCATION/remotes/vnm/ovswitch
+    NETWORK_VCENTER_FILES:$VAR_LOCATION/remotes/vnm/vcenter
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     WEBSOCKIFY_SHARE_FILES:$SHARE_LOCATION/websockify
     INSTALL_GEMS_SHARE_FILES:$SHARE_LOCATION
@@ -519,6 +523,7 @@ INSTALL_ONEFLOW_ETC_FILES=(
 INSTALL_ETC_FILES=(
     ETC_FILES:$ETC_LOCATION
     EC2_ETC_FILES:$ETC_LOCATION
+    VCENTER_ETC_FILES:$ETC_LOCATION
     AZ_ETC_FILES:$ETC_LOCATION
     VMM_EXEC_ETC_FILES:$ETC_LOCATION/vmm_exec
     HM_ETC_FILES:$ETC_LOCATION/hm
@@ -644,6 +649,22 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
 VMM_EXEC_LIB_FILES="src/vmm_mad/remotes/lib/poll_common.rb"
 
 #-------------------------------------------------------------------------------
+# VMM Lib vcenter files, used by the vCenter Driver to be installed in
+# $REMOTES_LOCATION/vmm/lib/vcenter
+#-------------------------------------------------------------------------------
+
+VMM_EXEC_LIB_VCENTER_FILES="src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb
+                    src/vmm_mad/remotes/lib/vcenter_driver/vi_client.rb \
+                    src/vmm_mad/remotes/lib/vcenter_driver/importer.rb \
+                    src/vmm_mad/remotes/lib/vcenter_driver/file_helper.rb \
+                    src/vmm_mad/remotes/lib/vcenter_driver/host.rb \
+                    src/vmm_mad/remotes/lib/vcenter_driver/virtual_machine.rb \
+                    src/vmm_mad/remotes/lib/vcenter_driver/vi_helper.rb \
+                    src/vmm_mad/remotes/lib/vcenter_driver/memoize.rb \
+                    src/vmm_mad/remotes/lib/vcenter_driver/datacenter.rb \
+                    src/vmm_mad/remotes/lib/vcenter_driver/network.rb"
+
+#-------------------------------------------------------------------------------
 # VMM SH Driver KVM scripts, to be installed under $REMOTES_LOCATION/vmm/kvm
 #-------------------------------------------------------------------------------
 
@@ -692,8 +713,8 @@ VMM_EXEC_VCENTER_SCRIPTS="src/vmm_mad/remotes/vcenter/cancel \
                          src/vmm_mad/remotes/vcenter/poll \
                          src/vmm_mad/remotes/vcenter/shutdown \
                          src/vmm_mad/remotes/vcenter/reconfigure \
-                         src/vmm_mad/remotes/vcenter/prereconfigure \
-                         src/vmm_mad/remotes/vcenter/resize_disk"
+                         src/vmm_mad/remotes/vcenter/preconfigure \
+                         src/vmm_mad/remotes/vcenter/prereconfigure"
 
 #------------------------------------------------------------------------------
 # VMM Driver EC2 scripts, to be installed under $REMOTES_LOCATION/vmm/ec2
@@ -763,7 +784,7 @@ IM_PROBES_KVM_PROBES_FILES="src/im_mad/remotes/kvm-probes.d/kvm.rb \
                      src/im_mad/remotes/common.d/version.sh \
                      src/im_mad/remotes/common.d/collectd-client-shepherd.sh"
 
-IM_PROBES_VCENTER_FILES="src/im_mad/remotes/vcenter.d/vcenter.rb"
+IM_PROBES_VCENTER_FILES="src/im_mad/remotes/vcenter.d/poll"
 
 IM_PROBES_EC2_FILES="src/im_mad/remotes/ec2.d/poll"
 
@@ -839,6 +860,10 @@ NETWORK_OVSWITCH_FILES="src/vnm_mad/remotes/ovswitch/clean \
                     src/vnm_mad/remotes/ovswitch/pre \
                     src/vnm_mad/remotes/ovswitch/update_sg \
                     src/vnm_mad/remotes/ovswitch/OpenvSwitch.rb"
+
+NETWORK_VCENTER_FILES="src/vnm_mad/remotes/vcenter/pre \
+                       src/vnm_mad/remotes/vcenter/post \
+                       src/vnm_mad/remotes/vcenter/clean"
 
 #-------------------------------------------------------------------------------
 # IPAM drivers to be installed under $REMOTES_LOCATION/ipam
@@ -1004,9 +1029,11 @@ TM_VCENTER_FILES="src/tm_mad/vcenter/clone \
                  src/tm_mad/vcenter/snap_delete \
                  src/tm_mad/vcenter/snap_revert \
                  src/tm_mad/vcenter/failmigrate \
-                 src/datastore_mad/remotes/vcenter/monitor \
-                 src/tm_mad/vcenter/delete \
-                 src/tm_mad/vcenter/resize"
+                 src/tm_mad/vcenter/context \
+                 src/tm_mad/vcenter/monitor \
+                 src/tm_mad/vcenter/mkimage \
+                 src/tm_mad/vcenter/mkswap \
+                 src/tm_mad/vcenter/delete"
 
 TM_ISCSI_FILES="src/tm_mad/iscsi_libvirt/clone \
                  src/tm_mad/iscsi_libvirt/ln \
@@ -1197,6 +1224,8 @@ EC2_ETC_FILES="src/vmm_mad/remotes/ec2/ec2_driver.conf \
 
 AZ_ETC_FILES="src/vmm_mad/remotes/az/az_driver.conf \
               src/vmm_mad/remotes/az/az_driver.default"
+
+VCENTER_ETC_FILES="src/vmm_mad/remotes/lib/vcenter_driver/vcenter_driver.default"
 
 #-------------------------------------------------------------------------------
 # Virtualization drivers config. files, to be installed under $ETC_LOCATION

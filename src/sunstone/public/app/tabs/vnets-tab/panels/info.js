@@ -78,14 +78,22 @@ define(function(require) {
       "OUTBOUND_PEAK_BW",
       "OUTBOUND_PEAK_KB" ];
 
-    var strippedTemplate = $.extend({}, this.element.TEMPLATE);
-
-    $.each(hiddenKeys, function(i, key){
-      delete strippedTemplate[key];
+    var strippedTemplate = {};
+    var strippedTemplateVcenter = {};
+    $.each(this.element.TEMPLATE, function(key, value) {
+      if (!$.inArray(key, hiddenKeys) > -1) {
+        if (key.match(/^VCENTER_*/)){
+          strippedTemplateVcenter[key] = value;
+        }
+        else {
+          strippedTemplate[key] = value;
+        }
+      }
     });
-
     var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE,
                                               Locale.tr("Attributes"));
+    var templateTableVcenterHTML = TemplateTable.html(strippedTemplateVcenter, RESOURCE,
+                                              Locale.tr("Vcenter information"), false);
     //====
 
     // TODO: move to util?
@@ -114,7 +122,8 @@ define(function(require) {
       'renameTrHTML': renameTrHTML,
       'reservationTrHTML': reservationTrHTML,
       'permissionsTableHTML': permissionsTableHTML,
-      'templateTableHTML': templateTableHTML
+      'templateTableHTML': templateTableHTML,
+      'templateTableVcenterHTML': templateTableVcenterHTML
     });
   }
 
@@ -134,19 +143,24 @@ define(function(require) {
       "OUTBOUND_PEAK_BW",
       "OUTBOUND_PEAK_KB" ];
 
-    var strippedTemplate = $.extend({}, this.element.TEMPLATE);
-
-    $.each(hiddenKeys, function(i, key){
-      delete strippedTemplate[key];
-    });
-
     var hiddenValues = {};
-
-    $.each(hiddenKeys, function(i, key){
-      if (that.element.TEMPLATE[key] != undefined){
-          hiddenValues[key] = that.element.TEMPLATE[key];
+    var strippedTemplate = {};
+    var strippedTemplateVcenter = {};
+    $.each(that.element.TEMPLATE, function(key, value) {
+      if ($.inArray(key, hiddenKeys) > -1) {
+        hiddenValues[key] = value;
       }
+      if (key.match(/^VCENTER_*/)){
+          strippedTemplateVcenter[key] = value;
+        }
+        else {
+          strippedTemplate[key] = value;
+        }
     });
+
+    if($.isEmptyObject(strippedTemplateVcenter)){
+      $('.vcenter', context).hide();
+    }
 
     TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, hiddenValues);
     //===

@@ -183,7 +183,6 @@ define(function(require) {
           break;
         
         case "vcenter":
-          $('input#system_ds_type', dialog).attr('disabled', 'disabled');
           $('input#file_ds_type', dialog).attr('disabled', 'disabled');
           _selectvCenter(dialog);
           break;

@@ -32,7 +32,7 @@ define(function(require) {
   var DisksResize = require('utils/disks-resize');
   var NicsSection = require('utils/nics-section');
   var VMGroupSection = require('utils/vmgroup-section');
-  var DeployFolder = require('utils/deploy-folder');
+  var VcenterVMFolder = require('utils/vcenter-vm-folder');
   var CapacityInputs = require('tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs');
   var Config = require('sunstone-config');
 
@@ -214,10 +214,10 @@ define(function(require) {
         tmp_json.PCI = pcis;
       }
 
-      if (Config.isFeatureEnabled("vcenter_deploy_folder")){
-        if(!$.isEmptyObject(original_tmpl.TEMPLATE.PUBLIC_CLOUD.TYPE) &&
-          original_tmpl.TEMPLATE.PUBLIC_CLOUD.TYPE === 'vcenter'){
-          $.extend(tmp_json, DeployFolder.retrieveChanges($(".deployFolderContext"  + template_id)));
+      if (Config.isFeatureEnabled("vcenter_vm_folder")){
+        if(!$.isEmptyObject(original_tmpl.TEMPLATE.HYPERVISOR) &&
+          original_tmpl.TEMPLATE.HYPERVISOR === 'vcenter'){
+          $.extend(tmp_json, VcenterVMFolder.retrieveChanges($(".vcenterVMFolderContext"  + template_id)));
         }
       }
 
@@ -279,9 +279,9 @@ define(function(require) {
           VMGroupSection.insert(template_json,
             $(".vmgroupContext"+ template_json.VMTEMPLATE.ID, context));
 
-          deployFolderContext = $(".deployFolderContext"  + template_json.VMTEMPLATE.ID, context);
-          DeployFolder.setup(deployFolderContext);
-          DeployFolder.fill(deployFolderContext, template_json.VMTEMPLATE);
+          vcenterVMFolderContext = $(".vcenterVMFolderContext"  + template_json.VMTEMPLATE.ID, context);
+          VcenterVMFolder.setup(vcenterVMFolderContext);
+          VcenterVMFolder.fill(vcenterVMFolderContext, template_json.VMTEMPLATE);
 
           var inputs_div = $(".template_user_inputs" + template_json.VMTEMPLATE.ID, context);
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -16,10 +16,6 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-###############################################################################
-# This script is used retrieve the file size of a disk 
-###############################################################################
-
 ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
@@ -32,38 +28,31 @@ $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
 require 'vcenter_driver'
-require 'opennebula'
 
-deploy_id      = ARGV[0]
-source         = ARGV[1]
-target         = ARGV[2]
-target_index   = ARGV[3]
+vm_ref         = ARGV[0]
 drv_action_enc = ARGV[4]
 
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'VMM_DRIVER_ACTION_DATA')
 
-hostname  = drv_action["/VMM_DRIVER_ACTION_DATA/HOST"]
-vm_id     = drv_action["/VMM_DRIVER_ACTION_DATA/VM/ID"]
-ds_name   = drv_action["/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/DISK[ATTACH='YES']/DATASTORE"]
-img_path  = drv_action["/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/DISK[ATTACH='YES']/SOURCE"]
-type      = drv_action["/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/DISK[ATTACH='YES']/TYPE"]
-size_kb   = 0  # No volatile disk support at the moment
-
-if ds_name.nil? || hostname.nil? || img_path.nil?
-    STDERR.puts "Not enough information to attach disk, missing datastore"\
-                " name or vcenter cluster name or image path."
-    exit -1
-end
+vc_cluster_name = drv_action["/VMM_DRIVER_ACTION_DATA/HOST"]
+host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, vc_cluster_name)
+host_id = host['ID']
 
 begin
-    VCenterDriver::VCenterVm.attach_disk(hostname, 
-                                         deploy_id,
-                                         ds_name,
-                                         img_path,
-                                         type,
-                                         size_kb)
+    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+
+    vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
+
+    vm.one_item = drv_action.retrieve_xmlelements('VM').first
+
+    vm.attach_disk
+
 rescue Exception => e
-    STDERR.puts "Error attach image #{img_path}. Reason: #{e.message}"
+    message = "Attach image for VM #{vm_ref} on vCenter cluster #{vc_cluster_name} "\
+              "failed due to \"#{e.message}\"\n#{e.backtrace}"
+    STDERR.puts error_message(message)
     exit -1
+ensure
+    vi_client.close_connection if vi_client
 end

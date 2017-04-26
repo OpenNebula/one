@@ -56,77 +56,56 @@
   <legend>{{tr "vCenter"}}</legend>
   <div class="row hypervisor only_vcenter" style="display: none;">
     <div class="medium-6 columns">
-      <label  for="vcenter_template_uuid">
-        {{tr "vCenter Template UUID"}}
+      <label  for="vcenter_template_ref">
+        {{tr "vCenter Template Ref"}}
       </label>
-      <input type="text" id="vcenter_template_uuid"/>
-    </div>
-    <div class="medium-6 columns">
-      <div class="row">
-        <div class="large-6 columns">
-          <label>
-            {{tr "VM disks"}}
-            {{{tip (tr "If selected, VM disks won't be deleted after the VM finishes its lifecycle.")}}}
-          </label>
-          <input type="checkbox" id="KEEP_DISKS" name="KEEP_DISKS"/>
-          <label  for="KEEP_DISKS">{{tr "Keep"}}</label>
-        </div>
-      </div>
+      <input type="text" id="vcenter_template_ref"/>
     </div>
   </div>
-  <div class="vcenter_datastore_input row">
-    <div class="large-3 medium-6 columns">
-      <label>
-        {{tr "Default Datastore"}}
-        <input type="text" class="initial_datastore" value="{{datastore.initial}}"/>
+  <div class="row hypervisor only_vcenter" style="display: none;">
+    <div class="medium-6 columns">
+      <label  for="vcenter_ccr_ref">
+        {{tr "vCenter Cluster Ref"}}
       </label>
+      <input type="text" id="vcenter_ccr_ref"/>
     </div>
-    <div class="large-3 medium-6 columns">
-      <label>
-        {{tr "Type"}}
-        <select class="modify_datastore">
-          <option value="fixed">{{tr "Fixed"}}</option>
-          <option value="list">{{tr "Provide on instantiation"}}</option>
-        </select>
+    <div class="medium-6 columns">
+      <label  for="vcenter_instance_id">
+        {{tr "vCenter Instance ID"}}
       </label>
-    </div>
-    <div class="large-6 medium-12 columns">
-      <label>
-        {{tr "Available Datastores"}}
-        <input type="text" class="available_datastores" value="{{datastore.params}}"/>
-      </label>
+      <input type="text" id="vcenter_instance_id"/>
     </div>
   </div>
   <div class="vcenter_rp_input row">
-    <div class="large-3 medium-6 columns">
-      <label>
-        {{tr "Default Resource Pool"}}
-        <input type="text" class="initial_rp" value="{{resourcePool.initial}}"/>
-      </label>
-    </div>
-    <div class="large-3 medium-6 columns">
-      <label>
-        {{tr "Type"}}
-        <select class="modify_rp">
-          <option value="fixed">{{tr "Fixed"}}</option>
-          <option value="list">{{tr "Provide on instantiation"}}</option>
-        </select>
-      </label>
-    </div>
-    <div class="large-6 medium-12 columns">
-      <label>
-        {{tr "Available Resource Pools"}}
-        <input type="text" class="available_rps" value="{{resourcePool.params}}"/>
-      </label>
-    </div>
-  </div>
-  <div class="vcenter_deploy_folder_input row">
+     <div class="large-3 medium-6 columns">
+       <label>
+         {{tr "Default Resource Pool"}}
+         <input type="text" class="initial_rp" value="{{resourcePool.initial}}"/>
+       </label>
+     </div>
+     <div class="large-3 medium-6 columns">
+       <label>
+         {{tr "Type"}}
+         <select class="modify_rp">
+           <option value="fixed">{{tr "Fixed"}}</option>
+           <option value="list">{{tr "Provide on instantiation"}}</option>
+         </select>
+       </label>
+     </div>
+     <div class="large-6 medium-12 columns">
+       <label>
+         {{tr "Available Resource Pools"}}
+         <input type="text" class="available_rps" value="{{resourcePool.params}}"/>
+       </label>
+     </div>
+ </div>
+  <div class="vcenter_vm_folder_input row">
     <div class="medium-6 columns">
-      <label  for="vcenter_deploy_folder">
-        {{tr "Deployment Folder"}}
-        {{{tip (tr "If specified, the the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be deployed in the same folder where the template exists.")}}}
+      <label  for="vcenter_vm_folder">
+        {{tr "vCenter VM Folder"}}
+        {{{tip (tr "If specified, the the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located.")}}}
       </label>
-      <input type="text" id="vcenter_deploy_folder"/>
+      <input type="text" id="vcenter_vm_folder"/>
     </div>
   </div>
 </fieldset>

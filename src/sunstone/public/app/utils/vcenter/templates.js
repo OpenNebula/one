@@ -45,7 +45,6 @@ define(function(require) {
 
   /*
     Retrieve the list of templates from vCenter and fill the container with them
-
     opts = {
       datacenter: "Datacenter Name",
       cluster: "Cluster Name",
@@ -56,6 +55,7 @@ define(function(require) {
     }
    */
   function _fillVCenterTemplates(opts) {
+    this.opts = opts;
     var path = '/vcenter/templates';
 
     var context = $(".vcenter_import", opts.container);
@@ -102,18 +102,25 @@ define(function(require) {
 
             $.each(elements, function(id, element) {
               var opts = {};
-              if (element.ds && element.ds !== '') {
-                opts.datastore = UserInputs.unmarshall(element.ds);
-              }
 
               if (element.rp && element.rp !== '') {
                 opts.resourcePool = UserInputs.unmarshall(element.rp);
               }
 
               opts.data = element;
+              opts.resourcePool.params = opts.resourcePool.params.split(",");
+              opts.id = UniqueId.id();
 
               var trow = $(RowTemplate(opts)).appendTo(tbody);
-
+              
+              $.each(opts.resourcePool.params, function(){
+                $("#available_rps_" + opts.id + " [value ='" + this + "']").mousedown(function(e) {
+                  e.preventDefault();
+                  $(this).prop('selected', !$(this).prop('selected'));
+                  return false;
+                });
+              });
+            
               $('.check_item', trow).data("import_data", element);
             });
 
@@ -160,6 +167,7 @@ define(function(require) {
   }
 
   function _import(context) {
+    that = this;
     $.each($(".vcenter_import_table", context), function() {
       $.each($(this).DataTable().$(".check_item:checked"), function() {
         var row_context = $(this).closest("tr");
@@ -169,45 +177,28 @@ define(function(require) {
         var attrs = [];
         var userInputs = [];
 
-        // Retrieve Datastore Attribute
-        var dsInput = $(".vcenter_datastore_input", row_context);
-        if (dsInput.length > 0) {
-          var dsModify = $('.modify_datastore', dsInput).val();
-          var dsInitial = $('.initial_datastore', dsInput).val();
-          var dsParams = $('.available_datastores', dsInput).val();
-
-          if (dsModify === 'fixed' && dsInitial !== '') {
-            attrs.push('VCENTER_DATASTORE="' + dsInitial + '"')
-          } else if (dsModify === 'list' && dsParams !== '') {
-            var dsUserInputsStr = UserInputs.marshall({
-                type: 'list',
-                description: Locale.tr("Which datastore you want this VM to run on?"),
-                initial: dsInitial,
-                params: dsParams
-              });
-
-            userInputs.push('VCENTER_DATASTORE="' + dsUserInputsStr + '"');
-          }
-        }
-
         // Retrieve Resource Pool Attribute
         var rpInput = $(".vcenter_rp_input", row_context);
         if (rpInput.length > 0) {
           var rpModify = $('.modify_rp', rpInput).val();
           var rpInitial = $('.initial_rp', rpInput).val();
-          var rpParams = $('.available_rps', rpInput).val();
+          var rpParams = "";
+          $.each($('.available_rps option:selected', rpInput), function(){
+            rpParams += $(this).val() + ",";
+          });
+          var rpParams = rpParams.slice(0,-1);
 
           if (rpModify === 'fixed' && rpInitial !== '') {
-            attrs.push('RESOURCE_POOL="' + rpInitial + '"');
+            attrs.push('VCENTER_RESOURCE_POOL="' + rpInitial + '"');
           } else if (rpModify === 'list' && rpParams !== '') {
             var rpUserInputs = UserInputs.marshall({
                 type: 'list',
                 description: Locale.tr("Which resource pool you want this VM to run in?"),
                 initial: rpInitial,
-                params: $('.available_rps', rpInput).val()
+                params: rpParams
               });
 
-            userInputs.push('RESOURCE_POOL="' + rpUserInputs + '"');
+            userInputs.push('VCENTER_RESOURCE_POOL="' + rpUserInputs + '"');
           }
         }
 
@@ -222,28 +213,79 @@ define(function(require) {
           template += "\nUSER_INPUTS=[\n" + userInputs.join(",\n") + "]";
         }
 
-        var template_json = {
-          "vmtemplate": {
-            "template_raw": template
-          }
-        };
+        if($(this).data("import_data").import_disks_and_nics){
+          VCenterCommon.importLoading({
+            context : row_context,
+            message : Locale.tr("Importing images and vnets associated to template disks and nics...")
+          });
+          var path = '/vcenter/template/' + $(this).data("import_data").vcenter_ref;
+          $.ajax({
+            url: path,
+            type: "GET",
+            data: {timeout: false},
+            headers: {
+              "X-VCENTER-USER": that.opts.vcenter_user,
+              "X-VCENTER-PASSWORD": that.opts.vcenter_password,
+              "X-VCENTER-HOST": that.opts.vcenter_host
+            },
+            dataType: "json",
+            success: function(response){
+              template += "\n" + response.one;
+              var template_json = {
+                "vmtemplate": {
+                "template_raw": template
+                }
+              };
+              OpenNebulaTemplate.create({
+                timeout: true,
+                data: template_json,
+                success: function(request, response) {
+                  VCenterCommon.importSuccess({
+                    context : row_context,
+                    message : Locale.tr("Template created successfully. ID: %1$s", response.VMTEMPLATE.ID)
+                  });
+                },
+                error: function (request, error_json) {
+                  VCenterCommon.importFailure({
+                    context : row_context,
+                    message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
+                  });
+                }
+              });
+            },
+            error: function(response){
+              VCenterCommon.importFailure({
+                  context : row_context,
+                  message : OpenNebulaError(response).error.message
+              });
+              Notifier.onError({}, OpenNebulaError(response));
+            }
+          });
+        } 
+        else {
+          var template_json = {
+            "vmtemplate": {
+              "template_raw": template
+            }
+          };
 
-        OpenNebulaTemplate.create({
-          timeout: true,
-          data: template_json,
-          success: function(request, response) {
-            VCenterCommon.importSuccess({
-              context : row_context,
-              message : Locale.tr("Template created successfully. ID: %1$s", response.VMTEMPLATE.ID)
-            });
-          },
-          error: function (request, error_json) {
-            VCenterCommon.importFailure({
-              context : row_context,
-              message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
-            });
-          }
-        });
+          OpenNebulaTemplate.create({
+            timeout: true,
+            data: template_json,
+            success: function(request, response) {
+              VCenterCommon.importSuccess({
+                context : row_context,
+                message : Locale.tr("Template created successfully. ID: %1$s", response.VMTEMPLATE.ID)
+              });
+            },
+            error: function (request, error_json) {
+              VCenterCommon.importFailure({
+                context : row_context,
+                message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
+              });
+            }
+          });
+        }
       });
     });
   }

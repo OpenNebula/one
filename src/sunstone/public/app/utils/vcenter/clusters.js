@@ -100,11 +100,19 @@ define(function(require) {
             var newdiv = $(content).appendTo($(".vcenter_datacenter_list", context));
             var tbody = $('#' + tableId + ' tbody', context);
 
-            $.each(elements, function(id, cluster_name) {
+            $.each(elements, function(id, cluster) {
+              var cluster_name = cluster.cluster_name;
+              var rp_list = '<select class="select_rp"><option></option>';
+              if(cluster.rp_list.length > 0){
+                for(var i = 0; i < cluster.rp_list.length; i++){
+                  rp_list += '<option>' + cluster.rp_list[i].name + '</option>';
+                }
+              }
+              rp_list += '</select>';
               var opts = { name: cluster_name };
               var trow = $(RowTemplate(opts)).appendTo(tbody);
 
-              $(".check_item", trow).data("cluster_name", cluster_name);
+              $(".check_item", trow).data("cluster", cluster);
             });
 
             var elementsTable = new DomDataTable(
@@ -165,13 +173,17 @@ define(function(require) {
 
         var host_json = {
           "host": {
-            "name": $(this).data("cluster_name"),
+            "name": $(this).data("cluster").cluster_name,
             "vm_mad": "vcenter",
             "vnm_mad": "dummy",
             "im_mad": "vcenter",
             "cluster_id": cluster_id
           }
         };
+
+        var cluster_ref = $(this).data("cluster").cluster_ref;
+        var vcenter_uuid = $(this).data("cluster").vcenter_uuid;
+        var vcenter_version = $(this).data("cluster").vcenter_version;
 
         OpenNebulaHost.create({
           timeout: true,
@@ -183,9 +195,12 @@ define(function(require) {
             });
 
             var template_raw =
-              "VCENTER_USER=\"" + that.opts.vcenter_user + "\"\n" +
-              "VCENTER_PASSWORD=\"" + that.opts.vcenter_password + "\"\n" +
-              "VCENTER_HOST=\"" + that.opts.vcenter_host + "\"\n";
+               "VCENTER_USER=\"" + that.opts.vcenter_user + "\"\n" +
+               "VCENTER_PASSWORD=\"" + that.opts.vcenter_password + "\"\n" +
+               "VCENTER_HOST=\"" + that.opts.vcenter_host + "\"\n" +
+               "VCENTER_INSTANCE_ID=\"" + vcenter_uuid + "\"\n" +
+               "VCENTER_CCR_REF=\"" + cluster_ref + "\"\n" +
+               "VCENTER_VERSION=\"" + vcenter_version + "\"\n";
 
             Sunstone.runAction("Host.update_template", response.HOST.ID, template_raw);
           },

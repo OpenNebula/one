@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -16,7 +16,7 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+ONE_LOCATION = ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
@@ -28,38 +28,57 @@ $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
 require 'vcenter_driver'
-require 'opennebula'
 
-dfile = ARGV[0]
-host  = ARGV[1]
-vm_id = ARGV[2]
-
-drv_action_enc = STDIN.read.gsub("\n","")
+dfile        = ARGV[0]
+cluster_name = ARGV[1]
+vm_id        = ARGV[2]
 
 drv_action = OpenNebula::XMLElement.new
-drv_action.initialize_xml(Base64.decode64(drv_action_enc),
-                          'VM')
+drv_action.initialize_xml(Base64.decode64(STDIN.read), 'VM')
 
-deploy_id     = drv_action["/VM/DEPLOY_ID"]
-lcm_state_num = drv_action["/VM/LCM_STATE"].to_i
-datastore     = drv_action["/VM/USER_TEMPLATE/VCENTER_DATASTORE"]
-lcm_state     = OpenNebula::VirtualMachine::LCM_STATE[lcm_state_num]
-
-ops = {
-    :ref    => drv_action["/VM/USER_TEMPLATE/PUBLIC_CLOUD/VCENTER_REF"],
-    :name   => drv_action["/VM/USER_TEMPLATE/PUBLIC_CLOUD/VCENTER_NAME"]
-}
+deploy_id    = drv_action["DEPLOY_ID"]
+host_id      = drv_action["HISTORY_RECORDS/HISTORY/HID"]
 
 begin
-    puts VCenterDriver::VCenterVm.deploy(File.read(dfile),
-                                         lcm_state,
-                                         deploy_id,
-                                         host,
-                                         datastore,
-                                         ops)
-rescue Exception => e
-    STDERR.puts "Deploy of VM #{vm_id} on host #{host} with #{dfile} failed " +
-                "due to \"#{e.message}\""
-    exit -1
-end
+    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
 
+    if deploy_id && !deploy_id.empty?
+        # VM is not new, we just need to reconfigure it and to power it on
+        vm = VCenterDriver::VirtualMachine.new_from_ref(deploy_id, vi_client)
+
+        # Setting one_item is optional, but it saves a couple of API calls if
+        # we already have it
+        one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
+        vm.one_item = one_vm
+    else
+        # VM is new
+        vm = VCenterDriver::VirtualMachine.new
+
+        # Clone the VM from template and provide XML info
+        vc_template_ref = drv_action['USER_TEMPLATE/VCENTER_TEMPLATE_REF']
+        vm.clone_vm(drv_action, vi_client)
+
+        one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
+        vm.one_item = one_vm
+
+        # Set reference to template disks and nics in VM template for detach ops
+        vm.reference_unmanaged_devices(vc_template_ref)
+    end
+
+    # Resize unmanaged disks
+    vm.resize_unmanaged_disks
+
+    vm.reconfigure
+    vm.poweron
+    vm.set_running(true)
+
+    puts vm['_ref']
+
+rescue Exception => e
+    message   =  "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " +
+                 "with #{dfile} failed due to \"#{e.message}\"\n#{e.backtrace}"
+    STDERR.puts error_message(message)
+    exit -1
+ensure
+    vi_client.close_connection if vi_client
+end

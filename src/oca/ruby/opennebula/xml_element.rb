@@ -45,6 +45,7 @@ module OpenNebula
                     end
                 end
             end
+            @xml
         end
 
         # Builds a XML document
@@ -165,6 +166,23 @@ module OpenNebula
                 return elements_array
             end
 
+        end
+
+        # Iterates over every Element in the XPath and returns an array
+        # with XMLElements
+        # @return [XMLElement]
+        def retrieve_xmlelements(xpath_str)
+            collection = []
+            if NOKOGIRI
+                @xml.xpath(xpath_str).each { |pelem|
+                    collection << XMLElement.new(pelem)
+                }
+            else
+                @xml.elements.each(xpath_str) { |pelem|
+                    collection << XMLElement.new(pelem)
+                }
+            end
+            collection
         end
 
         # Gets an attribute from an element

@@ -17,7 +17,7 @@
 # ---------------------------------------------------------------------------- #
 
 ###############################################################################
-# This script is used retrieve the file size of a disk 
+# This script is used retrieve the file size of a disk
 ###############################################################################
 
 ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
@@ -39,21 +39,20 @@ id             = ARGV[1]
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
 
-
-
 img_source = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/SOURCE"]
 img_size   = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/SIZE"]
 md5        = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5"]
 
 md5 = md5.nil? ? "-" : md5
 
-hostname   = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
+hostname   = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_ONE_HOST_ID"]
 ds_name    = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"]
 
 
 if img_source.nil?
-    STDERR.puts "Not enough information to export the image,"\
-                " missing image source."
+    message = "Not enough information to export the image,"\
+              " missing image source."
+    STDERR.puts error_message(message)
     exit -1
 end
 

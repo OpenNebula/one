@@ -436,6 +436,10 @@ define(function(require) {
       context.on('click', '#attach_disk', function() {
         var dialog = Sunstone.getDialog(ATTACH_DISK_DIALOG_ID);
         dialog.setElement(that.element);
+        if(that.element.USER_TEMPLATE.HYPERVISOR && that.element.USER_TEMPLATE.HYPERVISOR == 'vcenter'){
+          $('.hypervisor.only_kvm').hide();
+          $('.hypervisor.only_vcenter').show();
+        }
         dialog.show();
         return false;
       });
@@ -445,7 +449,6 @@ define(function(require) {
       context.off('click', '.detachdisk');
       context.on('click', '.detachdisk', function() {
         var disk_id = $(this).parents('tr').attr('disk_id');
-
         Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
           //header :
           headerTabId: TAB_ID,
@@ -596,7 +599,7 @@ define(function(require) {
         return false;
       });
     }
-
+   
     Tree.setup(context);
   }
 

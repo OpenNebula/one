@@ -205,8 +205,8 @@ define(function(require) {
     });
 
     // Custom Adapter Type
-    var custom_attrs = ["adapter_type",
-                        "disk_type",
+    var custom_attrs = ["vcenter_adapter_type",
+                        "vcenter_disk_type",
                         "img_dev_prefix",
                         "img_driver"];
 
@@ -361,10 +361,10 @@ define(function(require) {
         }
         document.getElementById( 'percent_progress' ).textContent = 'Completed: ' + (this.progress().toFixed(3)*100).toFixed(1) +'%';
         $('div.progressbar', $('div[id="' + fileName + 'progressBar"]')).html(
-                              ProgressBar.html(this.progress(), 1, fileName) ); 
+                              ProgressBar.html(this.progress(), 1, fileName) );
       });
     }
-    
+
     return false;
   }
 
@@ -414,12 +414,12 @@ define(function(require) {
     if (target)
         img_json["TARGET"] = target;
 
-    var adapter_type = WizardFields.retrieveInput($('#adapter_type', context));
-    if (adapter_type) {
-      if (adapter_type == "custom") {
-        adapter_type = WizardFields.retrieveInput($('#custom_adapter_type', context));
+    var vcenter_adapter_type = WizardFields.retrieveInput($('#vcenter_adapter_type', context));
+    if (vcenter_adapter_type) {
+      if (vcenter_adapter_type == "custom") {
+        vcenter_adapter_type = WizardFields.retrieveInput($('#custom_vcenter_adapter_type', context));
       }
-      img_json["ADAPTER_TYPE"] = adapter_type;
+      img_json["VCENTER_ADAPTER_TYPE"] = vcenter_adapter_type;
     }
 
     switch ($('#src_path_select input:checked', context).val()){
@@ -431,12 +431,12 @@ define(function(require) {
       size = WizardFields.retrieveInput($('#img_size', context));
       if (size) img_json["SIZE"] = size;
 
-      var disk_type = WizardFields.retrieveInput($('#disk_type', context));
-      if (disk_type) {
-        if (disk_type == "custom"){
-          disk_type = WizardFields.retrieveInput($('#custom_disk_type', context));
+      var vcenter_disk_type = WizardFields.retrieveInput($('#vcenter_disk_type', context));
+      if (vcenter_disk_type) {
+        if (vcenter_disk_type == "custom"){
+          vcenter_disk_type = WizardFields.retrieveInput($('#custom_disk_type', context));
         }
-        img_json["DISK_TYPE"] = disk_type;
+        img_json["VCENTER_DISK_TYPE"] = vcenter_disk_type;
       }
 
       break;

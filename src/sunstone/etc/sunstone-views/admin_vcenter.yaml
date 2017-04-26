@@ -17,8 +17,8 @@ enabled_tabs:
     - datastores-tab
     - images-tab
     #- files-tab
-    #- marketplaces-tab
-    #- marketplaceapps-tab
+    - marketplaces-tab
+    - marketplaceapps-tab
     - network-top-tab
     - vnets-tab
     - vnets-topology-tab
@@ -52,7 +52,7 @@ features:
 
     # True to show an input to specify the the VMs and Template path/folder where a vCenter VM will
     # deployed to
-    vcenter_deploy_folder: true
+    vcenter_vm_folder: true
 tabs:
     dashboard-tab:
         # The following widgets can be used inside any of the '_per_row' settings
@@ -345,7 +345,7 @@ tabs:
             VM.resize: true
             VM.attachdisk: true
             VM.detachdisk: true
-            VM.disk_saveas: false
+            VM.disk_saveas: true
             VM.attachnic: true
             VM.detachnic: true
             VM.snapshot_create: true
@@ -544,7 +544,7 @@ tabs:
             #- 13        # Search data
         actions:
             Datastore.refresh: true
-            Datastore.create_dialog: true
+            Datastore.create_dialog: false
             Datastore.import_dialog: true
             Datastore.addtocluster: true
             Datastore.rename: true

@@ -349,7 +349,7 @@ module OpenNebula
                 ds = OpenNebula::Datastore.new_with_id(ds_id, @client)
                 rc = ds.info
                 return rc if OpenNebula.is_error?(rc)
-               self.update("VCENTER_DATASTORE=#{ds['/DATASTORE/NAME']}", true)
+               self.update("VCENTER_DS_REF=#{ds['/DATASTORE/VCENTER_DS_REF']}", true)
             end
 
             return call(VM_METHODS[:deploy],
@@ -743,13 +743,6 @@ module OpenNebula
         def deploy_id
             self['DEPLOY_ID']
         end
-
-        # Returns the deploy_id of the VirtualMachine (numeric value)
-        def keep_disks?
-            !self['USER_TEMPLATE/KEEP_DISKS_ON_DONE'].nil? &&
-                self['USER_TEMPLATE/KEEP_DISKS_ON_DONE'].downcase=="yes"
-        end
-
 
         # Clones the VM's source Template, replacing the disks with live snapshots
         # of the current disks. The VM capacity and NICs are also preserved

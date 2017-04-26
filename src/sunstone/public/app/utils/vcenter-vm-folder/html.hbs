@@ -19,11 +19,11 @@
     <i class="fa fa-folder"></i> {{tr "vCenter Deployment"}}
   </legend>
   <div class="deployContainer">
-    <label for="deploy_folder_input">
-        {{tr "Deployment Folder"}}
-        {{{tip (tr "If specified, the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be deployed in the same folder where the template exists.")}}}
+    <label for="vcenter_vm_folder_input">
+        {{tr "vCenter VM Folder"}}
+        {{{tip (tr "If specified, the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be placed in the same folder where the template is located.")}}}
     </label>
-    <input type="text" name="deploy_folder_input" id="deploy_folder_input" wizard_field="DEPLOY_FOLDER"/>
+    <input type="text" name="vcenter_vm_folder_input" id="vcenter_vm_folder_input" wizard_field="VCENTER_VM_FOLDER"/>
   </div>
 </fieldset>
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -29,20 +29,30 @@ $: << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
-deploy_id = ARGV[0]
-mac       = ARGV[1]
-bridge    = ARGV[2]
-model     = ARGV[3]
-host      = ARGV[-1]
+vm_ref           = ARGV[0]
+vc_cluster_name  = ARGV[-1]
+
+drv_action = OpenNebula::XMLElement.new
+drv_action.initialize_xml(Base64.decode64(STDIN.read), 'VMM_DRIVER_ACTION_DATA')
+
+host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, vc_cluster_name)
+host_id = host['ID']
 
 begin
-    VCenterDriver::VCenterVm.attach_nic(deploy_id,
-                                        mac,
-                                        bridge,
-                                        model,
-                                        host)
+    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+
+    vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
+
+    # Setting one_item with info with the vm_xml including NIC to be added
+    vm.one_item = drv_action.retrieve_xmlelements("VM").first
+
+    vm.attach_nic
+
 rescue Exception => e
-    STDERR.puts "Attach NIC for VM #{deploy_id} on host #{host} failed " +
-                "due to \"#{e.message}\""
+    message = "Attach NIC for VM #{vm_ref} on vCenter cluster #{vc_cluster_name} "\
+              "failed due to \"#{e.message}\"\n#{e.backtrace}"
+    STDERR.puts error_message(message)
     exit -1
+ensure
+    vi_client.close_connection if vi_client
 end

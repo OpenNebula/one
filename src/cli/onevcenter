@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -65,9 +65,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.set_client(options)
     end
 
-    ########################################################################
+    ############################################################################
     # Global Options
-    ########################################################################
+    ############################################################################
     cmd_options=CommandParser::OPTIONS-[CommandParser::VERBOSE]
     set :option, cmd_options+OpenNebulaHelper::CLIENT_OPTIONS
 
@@ -93,6 +93,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :format => String
     }
 
+    USE_DEFAULTS = {
+        :name   => "defaults",
+        :large  => "--use-defaults",
+        :description => "Use defaults for answers to questions",
+        :format => String
+    }
+
     ############################################################################
     # Import clusters
     ############################################################################
@@ -100,470 +107,80 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Import vCenter clusters as OpenNebula hosts
     EOT
 
-    command :hosts, hosts_desc, :options=>[ VCENTER, USER, PASS ] do
+    command :hosts, hosts_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
         con_ops = connection_options("Hosts", options)
 
-        begin
-            STDOUT.print "\nConnecting to vCenter: #{options[:vcenter]}..."
-
-            vc = VCenterDriver::VIClient.new_connection(con_ops)
-
-            STDOUT.print "done!\n\n"
-
-            STDOUT.print "Exploring vCenter resources..."
-
-            rs = vc.hierarchy
-
-            STDOUT.print "done!\n\n"
-
-            rs.each {|dc, cluster|
-                STDOUT.print "Do you want to process datacenter #{dc} [y/n]? "
-
-                next if STDIN.gets.strip.downcase != 'y'
-
-                if cluster.empty?
-                    STDOUT.puts "    No new clusters found in #{dc}..."
-                    next
-                end
-
-                cluster.each{ |c|
-                    STDOUT.print "  * Import cluster #{c} [y/n]? "
-
-                    next if STDIN.gets.strip.downcase != 'y'
-
-                    r, m = VCenterDriver::VCenterHost.to_one(c, vc)
-
-                    if r == 0
-                        STDOUT.puts "    OpenNebula host #{c} with id #{m}"\
-                            " successfully created."
-                    else
-                        STDOUT.puts "    Error: #{m}"
-                    end
-
-                    STDOUT.puts
-                }
-            }
-        rescue Exception => e
-            STDOUT.puts "error: #{e.message}"
-            exit -1
-        end
+        VCenterDriver::Importer.import_clusters(con_ops, options)
 
         exit 0
     end
 
+    ############################################################################
+    # Import templates
+    ############################################################################
     templates_desc = <<-EOT.unindent
         Import vCenter VM Templates into OpenNebula
     EOT
 
-    command :templates, templates_desc, :options=>[ VCENTER, USER, PASS ] do
+    command :templates, templates_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
         con_ops = connection_options("VM Templates", options)
 
-        begin
-            STDOUT.print "\nConnecting to vCenter: #{options[:vcenter]}..."
-
-            vc = VCenterDriver::VIClient.new_connection(con_ops)
-
-            STDOUT.print "done!\n\n"
-
-            STDOUT.print "Looking for VM Templates..."
-
-            rs = vc.vm_templates
-
-            STDOUT.print "done!\n"
-
-            rs.each {|dc, tmps|
-                STDOUT.print "\nDo you want to process datacenter #{dc} [y/n]? "
-
-                next if STDIN.gets.strip.downcase != 'y'
-
-                if tmps.empty?
-                    STDOUT.print "    No new VM Templates found in #{dc}...\n\n"
-                    next
-                end
-
-                tmps.each{ |t|
-                    STDOUT.print "\n  * VM Template found:\n"\
-                                 "      - Name   : #{t[:name]}\n"\
-                                 "      - UUID   : #{t[:uuid]}\n"\
-                                 "      - Cluster: #{t[:host]}\n"\
-                                 "    Import this VM template [y/n]? "
-
-                    next if STDIN.gets.strip.downcase != 'y'
-
-                    ds_input = ""
-                    rp_input = ""
-
-                    # Datastores
-
-                    STDOUT.print "\n    This template is currently set to be "\
-                                 "deployed in datastore #{t[:default_ds]}."\
-                               "\n    Press y to keep the default, n to select"\
-                               " a new datastore or d to delegate the choice"\
-                               " to the user [y/n/d]? "
-
-                    answer =  STDIN.gets.strip.downcase
-
-                    case answer
-                    when 'd'
-                      ds_split     = t[:ds].split("|")
-                      list_of_ds   = ds_split[-2]
-                      default_ds   = ds_split[-1]
-                      ds_input     = ds_split[0] + "|" + ds_split[1] + "|" +
-                                     ds_split[2] + "|"
-
-                      # Available list of datastores
-
-                      input_str = "    The list of available datastores to be"\
-                                  " presented to the user are \"#{list_of_ds}\""
-                      input_str+= "\n    Press y to agree, or input a comma"\
-                                  " separated list of datastores to edit "\
-                                  "[y/comma separated list] "
-                      STDOUT.print input_str
-
-                      answer = STDIN.gets.strip
-
-                      if answer.downcase == 'y'
-                           ds_input += ds_split[3] + "|"
-                      else
-                           ds_input += answer + "|"
-                      end
-
-                      # Default
-                      input_str   = "    The default datastore presented to "\
-                                    "the end user is set to \"#{default_ds}\"."
-                      input_str+= "\n    Press y to agree, or input a new "\
-                                  "datastore [y/datastore name] "
-                      STDOUT.print input_str
-
-                      answer = STDIN.gets.strip
-
-                      if answer.downcase == 'y'
-                           ds_input += ds_split[4]
-                      else
-                           ds_input += answer
-                      end
-                    when 'n'
-                      ds_split     = t[:ds].split("|")
-                      list_of_ds   = ds_split[-2]
-
-                      input_str = "    The list of available datastores is"\
-                                  " \"#{list_of_ds}\"."
-                      input_str+= "\n    Please input the new default datastore: "
-                      STDOUT.print input_str
-
-                      answer = STDIN.gets.strip
-
-                      t[:one] += "VCENTER_DATASTORE=\"#{answer}\"\n"
-                    end
-
-                    # Resource Pools
-
-                    rp_split     = t[:rp].split("|")
-
-                    if rp_split.size > 3
-                    STDOUT.print "\n    This template is currently set to "\
-                                 "launch VMs in the default resource pool."\
-                               "\n    Press y to keep this behaviour, n to select"\
-                               " a new resource pool or d to delegate the choice"\
-                               " to the user [y/n/d]? "
-
-                    answer =  STDIN.gets.strip.downcase
-
-                    case answer
-                    when 'd'
-                       list_of_rp   = rp_split[-2]
-                       default_rp   = rp_split[-1]
-                       rp_input     = rp_split[0] + "|" + rp_split[1] + "|" +
-                                      rp_split[2] + "|"
-
-                       # Available list of resource pools
-
-                       input_str = "    The list of available resource pools "\
-                                   "to be presented to the user are "\
-                                   "\"#{list_of_rp}\""
-                       input_str+= "\n    Press y to agree, or input a comma"\
-                                   " separated list of resource pools to edit "\
-                                   "[y/comma separated list] "
-                       STDOUT.print input_str
-
-                       answer = STDIN.gets.strip
-
-                       if answer.downcase == 'y'
-                            rp_input += rp_split[3] + "|"
-                       else
-                            rp_input += answer + "|"
-                       end
-
-                       # Default
-                       input_str   = "    The default resource pool presented "\
-                                     "to the end user is set to"\
-                                     " \"#{default_rp}\"."
-                       input_str+= "\n    Press y to agree, or input a new "\
-                                   "resource pool [y/resource pool name] "
-                       STDOUT.print input_str
-
-                       answer = STDIN.gets.strip
-
-                       if answer.downcase == 'y'
-                            rp_input += rp_split[4]
-                       else
-                            rp_input += answer
-                       end
-                    when 'n'
-                      list_of_rp   = rp_split[-2]
-
-                      input_str = "    The list of available resource pools is"\
-                                  " \"#{list_of_rp}\"."
-                      input_str+= "\n    Please input the new default resource pool: "
-                      STDOUT.print input_str
-
-                      answer = STDIN.gets.strip
-
-                      t[:one] += "RESOURCE_POOL=\"#{answer}\"\n"
-                    end
-                    end
-
-                    if ds_input != "" ||
-                       rp_input != ""
-                       t[:one] += "USER_INPUTS=["
-                       t[:one] += "VCENTER_DATASTORE=\"#{ds_input}\"," if ds_input != ""
-                       t[:one] += "RESOURCE_POOL=\"#{rp_input}\"," if rp_input != ""
-                       t[:one] = t[:one][0..-2]
-                       t[:one] += "]"
-                    end
-
-                    one_t = ::OpenNebula::Template.new(
-                                ::OpenNebula::Template.build_xml, vc.one)
-
-                    rc = one_t.allocate(t[:one])
-
-                    if ::OpenNebula.is_error?(rc)
-                        STDOUT.puts "    Error creating template: #{rc.message}\n"
-                    else
-                        STDOUT.puts "    OpenNebula template #{one_t.id} created!\n"
-                    end
-                }
-            }
-        rescue Exception => e
-            STDOUT.puts "error: #{e.message}"
-            exit -1
-        end
+        VCenterDriver::Importer.import_templates(con_ops, options)
 
         exit 0
     end
 
+    ############################################################################
+    # Import vms (deprecated)
+    ############################################################################
     vms_desc = <<-EOT.unindent
         Deprecated action in onevcenter, please use onehost importvm instead
     EOT
 
-    command :vms, vms_desc, :options=>[ VCENTER, USER, PASS ] do
+    command :vms, vms_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
         STDERR.puts "Deprecated action in onevcenter, please use onehost "\
                     "importvm instead"
-
         exit -1
     end
 
+    ############################################################################
+    # Import networks
+    ############################################################################
     network_desc = <<-EOT.unindent
         Import vCenter networks into OpenNebula
     EOT
 
-    command :networks, network_desc, :options=>[ VCENTER, USER, PASS ] do
+    command :networks, network_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
         con_ops = connection_options("Networks", options)
 
-        begin
-            STDOUT.print "\nConnecting to vCenter: #{options[:vcenter]}..."
-
-            vc = VCenterDriver::VIClient.new_connection(con_ops)
-
-            STDOUT.print "done!\n\n"
-
-            STDOUT.print "Looking for vCenter networks..."
-
-            rs = vc.vcenter_networks
-
-            STDOUT.print "done!\n"
-
-            rs.each {|dc, tmps|
-                STDOUT.print "\nDo you want to process datacenter #{dc} [y/n]? "
-
-                next if STDIN.gets.strip.downcase != 'y'
-
-                if tmps.empty?
-                    STDOUT.print "    No new Networks found in #{dc}...\n\n"
-                    next
-                end
-
-                tmps.each{ |n|
-                    print_str =  "\n  * Network found:\n"\
-                                 "      - Name    : #{n[:name]}\n"\
-                                 "      - Type    : #{n[:type]}\n"
-                    print_str += "      - VLAN ID : #{n[:vlan]}\n" if n[:vlan]
-                    print_str += "      - Cluster : #{n[:cluster]}\n"
-                    print_str += "    Import this Network [y/n]? "
-
-                    STDOUT.print print_str
-
-                    next if STDIN.gets.strip.downcase != 'y'
-
-                    # Size
-
-                    STDOUT.print "    How many VMs are you planning"\
-                                 " to fit into this network [255]? "
-
-                    size = STDIN.gets.strip
-
-                    size = "255" if size.to_i.to_s != size
-
-                    # Type
-
-                    STDOUT.print "    What type of Virtual Network"\
-                                 " do you want to create (IPv[4],IPv[6]"\
-                                 ",[E]thernet) ?"
-
-                    type = STDIN.gets.strip
-
-                    ar_str =  "\nAR=[TYPE=\""
-
-                    case type.downcase
-                        when "4"
-                            ar_str += "IP4\""
-                            STDOUT.print "    Please input the first IP "\
-                                         "in the range: "
-                            ip = STDIN.gets.strip
-                            ar_str += ",IP=" + ip
-
-                            STDOUT.print "    Please input the first MAC "\
-                                         "in the range [Enter for default]: "
-                            mac = STDIN.gets.strip
-                            ar_str += ",MAC=" + mac if !mac.empty?
-                        when "6"
-                            ar_str += "IP6\""
-                            STDOUT.print "    Please input the first MAC "\
-                                         "in the range [Enter for default]: "
-                            mac = STDIN.gets.strip
-                            ar_str += ",MAC=" + mac if !mac.empty?
-
-                            STDOUT.print "    Please input the GLOBAL PREFIX "\
-                                         "[Enter for default]: "
-                            gp = STDIN.gets.strip
-                            ar_str += ",GLOBAL_PREFIX=" + gp if !gp.empty?
-
-                            STDOUT.print "    Please input the ULA PREFIX "\
-                                         "[Enter for default]: "
-                            up = STDIN.gets.strip
-                            ar_str += ",ULA_PREFIX=" + up if !up.empty?
-                        when "e"
-                            ar_str += "ETHER\""
-                            STDOUT.print "    Please input the first MAC "\
-                                 "in the range [Enter for default]: "
-                            mac = STDIN.gets.strip
-                            ar_str += ",MAC=" + mac if !mac.empty?
-                        else
-                         STDOUT.puts "    Type [#{type}] not supported,"\
-                                    " defaulting to Ethernet."
-                         ar_str += "ETHER\""
-                         STDOUT.print "    Please input the first MAC "\
-                              "in the range [Enter for default]: "
-                         mac = STDIN.gets.strip
-                         ar_str += ",MAC=" + mac if !mac.empty?
-                    end
-
-                    ar_str += ",SIZE = \"#{size}\"]"
-
-                    one_vn = ::OpenNebula::VirtualNetwork.new(
-                                ::OpenNebula::Template.build_xml, vc.one)
-
-                    vnet_template =  n[:one] + ar_str
-
-                    rc = one_vn.allocate(vnet_template)
-
-                    if ::OpenNebula.is_error?(rc)
-                        STDOUT.puts "    Error creating virtual network: " +
-                                    " #{rc.message}\n"
-                    else
-                        STDOUT.puts "    OpenNebula virtual network " +
-                                    "#{one_vn.id} created with size #{size}!\n"
-                    end
-                }
-            }
-        rescue Exception => e
-            STDOUT.puts "error: #{e.message}"
-            exit -1
-        end
+        VCenterDriver::Importer.import_networks(con_ops, options)
 
         exit 0
     end
 
+    ############################################################################
+    # Import datastores
+    ############################################################################
     datastores_desc = <<-EOT.unindent
         Import vCenter Datastores into OpenNebula
     EOT
 
-    command :datastores, datastores_desc, :options=>[ VCENTER, USER, PASS ] do
+    command :datastores, datastores_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
         con_ops = connection_options("Datastores", options)
 
-        begin
-            STDOUT.print "\nConnecting to vCenter: #{options[:vcenter]}..."
-
-            vc = VCenterDriver::VIClient.new_connection(con_ops)
-
-            STDOUT.print "done!\n\n"
-
-            STDOUT.print "Looking for Datastores..."
-
-            rs = vc.vcenter_datastores
-
-            STDOUT.print "done!\n"
-
-            rs.each {|dc, tmps|
-                STDOUT.print "\nDo you want to process datacenter #{dc} [y/n]? "
-
-                next if STDIN.gets.strip.downcase != 'y'
-
-                if tmps.empty?
-                    STDOUT.print "    No new Datastores found in #{dc}...\n\n"
-                    next
-                end
-
-                tmps.each{ |d|
-                    STDOUT.print "\n  * Datastore found:\n"\
-                                 "      - Name      : #{d[:name]}\n"\
-                                 "      - Total MB  : #{d[:total_mb]}\n"\
-                                 "      - Free  MB  : #{d[:free_mb]}\n"\
-                                 "      - Cluster   : #{d[:cluster]}\n"\
-                                 "    Import this Datastore [y/n]? "
-
-                    next if STDIN.gets.strip.downcase != 'y'
-
-                    one_d = ::OpenNebula::Datastore.new(
-                                ::OpenNebula::Datastore.build_xml, vc.one)
-
-                    rc = one_d.allocate(d[:one])
-
-                    if ::OpenNebula.is_error?(rc)
-                        STDOUT.puts "    Error creating datastore: #{rc.message}\n"\
-                                    "    One datastore can exist only once, and "\
-                                    "can be used in any vCenter Cluster that "\
-                                    "has access to it. Also, no spaces allowed "\
-                                    "in datastore name (rename it in vCenter "\
-                                    "and try again)"
-                    else
-                        STDOUT.puts "    OpenNebula datastore #{one_d.id} created!\n"
-                    end
-                }
-            }
-        rescue Exception => e
-            STDOUT.puts "error: #{e.message}"
-            exit -1
-        end
+        VCenterDriver::Importer.import_datastore(con_ops, options)
 
         exit 0
     end
 
+    ############################################################################
+    # Import images
+    ############################################################################
     images_desc = <<-EOT.unindent
         Import vCenter Images into OpenNebula
     EOT
 
-    command :images, images_desc, :ds_name, :options=>[ VCENTER, USER, PASS ] do
+    command :images, images_desc, :ds_name, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
         ds_name = args[0]
 
         if !ds_name
@@ -573,49 +190,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         con_ops = connection_options("Images", options)
 
-        begin
-            STDOUT.print "\nConnecting to vCenter: #{options[:vcenter]}..."
-
-            vc = VCenterDriver::VIClient.new_connection(con_ops)
-
-            STDOUT.print "done!\n\n"
-
-            STDOUT.print "Looking for Images..."
-
-            images = vc.vcenter_images(ds_name)
-
-            STDOUT.print "done!\n"
-
-            images.each{ |i|
-                    STDOUT.print "\n  * Image found:\n"\
-                                 "      - Name      : #{i[:name]}\n"\
-                                 "      - Path      : #{i[:path]}\n"\
-                                 "      - Type      : #{i[:type]}\n"\
-                                 "    Import this Image [y/n]? "
-
-                    next if STDIN.gets.strip.downcase != 'y'
-
-                    one_i = ::OpenNebula::Image.new(
-                                ::OpenNebula::Image.build_xml, vc.one)
-
-                    rc = one_i.allocate(i[:one], i[:dsid].to_i)
-
-                    if ::OpenNebula.is_error?(rc)
-                        STDOUT.puts "Error creating image: #{rc.message}\n"
-                        if rc.message == "[ImageAllocate] Not enough space "\
-                                         "in datastore"
-                            STDOUT.puts "Please disable DATASTORE_CAPACITY_"\
-                                        "CHECK in /etc/one/oned.conf and "\
-                                        "restart OpenNebula."
-                        end
-                    else
-                        STDOUT.puts "    OpenNebula image #{one_i.id} created!\n"
-                    end
-            }
-        rescue Exception => e
-            STDOUT.puts "error: #{e.message}"
-            exit -1
-        end
+        VCenterDriver::Importer.import_images(con_ops, ds_name, options)
 
         exit 0
     end

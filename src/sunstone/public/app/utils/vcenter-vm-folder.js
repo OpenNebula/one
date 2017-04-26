@@ -21,7 +21,7 @@ define(function(require){
   var OpenNebulaImage = require('opennebula/image');
   var UserInputs = require('utils/user-inputs');
   var WizardFields = require('utils/wizard-fields');
-  var DeployFolderTemplate = require('hbs!./deploy-folder/html');
+  var VcenterVMFolderTemplate = require('hbs!./vcenter-vm-folder/html');
 
   return {
     'setup': _setup,
@@ -30,27 +30,27 @@ define(function(require){
   };
 
   function _setup(context) {
-    if (!Config.isFeatureEnabled("vcenter_deploy_folder")){
+    if (!Config.isFeatureEnabled("vcenter_vm_folder")){
       $(context).remove();
     }
   }
 
   function _fill(context, element) {
 
-    if (Config.isFeatureEnabled("vcenter_deploy_folder")){
-      var deployFolderContext = context;
-      var template_public_cloud_type = element.TEMPLATE.PUBLIC_CLOUD.TYPE
+    if (Config.isFeatureEnabled("vcenter_vm_folder")){
+      var vcenterVMFolderContext = context;
+      var template_public_cloud_type = element.TEMPLATE.HYPERVISOR
 
       if ($.isEmptyObject(template_public_cloud_type)) {
-        deployFolderContext.html("");
+        vcenterVMFolderContext.html("");
       } else {
         if (template_public_cloud_type === 'vcenter') {
-          var deploy_folder = element.TEMPLATE.DEPLOY_FOLDER
-          deployFolderContext.html(DeployFolderTemplate());
-          $("#deploy_folder_input", deployFolderContext).val(deploy_folder);
-          $("#deploy_folder_input", deployFolderContext).data("original_value",deploy_folder);
+          var vcenter_vm_folder = element.TEMPLATE.VCENTER_VM_FOLDER
+          vcenterVMFolderContext.html(VcenterVMFolderTemplate());
+          $("#vcenter_vm_folder_input", vcenterVMFolderContext).val(vcenter_vm_folder);
+          $("#vcenter_vm_folder_input", vcenterVMFolderContext).data("original_value",vcenter_vm_folder);
         } else {
-          deployFolderContext.html("");
+          vcenterVMFolderContext.html("");
         }
       }
     }

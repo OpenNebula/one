@@ -15,15 +15,15 @@
 {{! -------------------------------------------------------------------------- }}
 
 <tr>
-  <td>
-    <input type="checkbox" class="check_item"/>
+  <td style="vertical-align: top">
+    <input type="checkbox" class="check_item" style="margin-top: 5px"/>
   </td>
   <td>
     <div class="accordion_advanced vcenter_row">
       <div class="row">
         <div class="large-12 columns">
           <label class="inline">
-            <a href="#{{data.uuid}}Advanced" class="accordion_advanced_toggle"> <i class="fa fa-fw fa-chevron-down"/><i class="fa fa-fw fa-chevron-up"/>
+            <a href="#{{data.vcenter_ref}}Advanced" class="accordion_advanced_toggle"> <i class="fa fa-fw fa-chevron-down"/><i class="fa fa-fw fa-chevron-up"/>
             </a>
             {{data.name}}
           </label>
@@ -31,34 +31,9 @@
       </div>
       <div class="row">
         <div class="large-11 large-centered columns">
-          <div id="{{data.uuid}}Advanced" class="content" hidden>
-            {{#if datastore}}
-            <div class="vcenter_datastore_input row">
-              <div class="medium-3 columns">
-                <label>
-                  {{tr "Default Datastore"}}
-                  <input type="text" class="initial_datastore" value="{{datastore.initial}}"/>
-                </label>
-              </div>
-              <div class="medium-3 columns">
-                <label>
-                  {{tr "Type"}}
-                  <select class="modify_datastore">
-                    <option value="fixed">{{tr "Fixed"}}</option>
-                    <option value="list">{{tr "Provide on instantiation"}}</option>
-                  </select>
-                </label>
-              </div>
-              <div class="medium-4 columns end">
-                <label>
-                  {{tr "Available Datastores"}}
-                  <input type="text" class="available_datastores" value="{{datastore.params}}"/>
-                </label>
-              </div>
-            </div>
-            {{/if}}
+          <div id="{{data.vcenter_ref}}Advanced" class="content" hidden>
             {{#if resourcePool}}
-            <div class="vcenter_rp_input row">
+            <div class="vcenter_rp_input row" style="margin-left: 11px">
               <div class="medium-3 columns">
                 <label>
                   {{tr "Default Resource Pool"}}
@@ -77,7 +52,11 @@
               <div class="medium-4 columns end">
                 <label>
                   {{tr "Available Resource Pools"}}
-                  <input type="text" class="available_rps" value="{{resourcePool.params}}"/>
+                  <select multiple="true" size="3" class="available_rps" id="available_rps_{{id}}">
+                    {{#each resourcePool.params}}
+                      <option value="{{this}}" selected>{{this}}</option>
+                    {{/each}}
+                  </select>
                 </label>
               </div>
             </div>
