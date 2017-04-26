@@ -9,8 +9,8 @@ class FileHelper
         if disk["PERSISTENT"] == "YES" || disk["TYPE"] == "CDROM"
             return disk["SOURCE"]
         else
+            disk_id  = disk["DISK_ID"]
             if disk["SOURCE"]
-                disk_id  = disk["DISK_ID"]
                 image_name = disk["SOURCE"].split(".").first
                 return "#{image_name}-#{vm_id}-#{disk_id}.vmdk"
             else
