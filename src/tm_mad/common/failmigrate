@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -15,5 +15,34 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
+# FAILMIGRATE SOURCE DST remote_system_dir vmid dsid template system_ds_mad
+# FAILMIGRATE SOURCE DST remote_system_dir vmid dsid template system_ds_mad
+#  - SOURCE is the host where the VM is running
+#  - DST is the host where the VM is to be migrated
+#  - remote_system_dir is the path for the VM home in the system datastore
+#  - vmid is the id of the VM
+#  - dsid is the target datastore
+#  - template is the template of the VM in XML and base64 encoded
+#  - system_ds_mad flag if called by other SYSTEM_DS TM_MAD
+
+SRC_HOST="$1"
+DST_HOST="$2"
+DST_PATH="$3"
+VM_ID="$4"
+DS_ID="$5"
+TEMPLATE_64="$6"
+SYSTEM_MAD="$7"
+
+#--------------------------------------------------------------------------------
+
+if [ -z "${ONE_LOCATION}" ]; then
+    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+else
+    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+fi
+
+source $TMCOMMON
+
+migrate_other "$@"
 
 exit 0
