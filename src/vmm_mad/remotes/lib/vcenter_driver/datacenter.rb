@@ -58,11 +58,24 @@ class DatacenterFolder
             host_folder = dc.host_folder
             host_folder.fetch_clusters!
             host_folder.items.values.each do |ccr|
+
+                one_host = VCenterDriver::VIHelper.find_by_ref(OpenNebula::HostPool,
+                                                               "TEMPLATE/VCENTER_CCR_REF",
+                                                               ccr['_ref'],
+                                                               vcenter_uuid,
+                                                               hpool)
+
+                next if one_host #If the host has been already imported
+
                 cluster = VCenterDriver::ClusterComputeResource.new_from_ref(ccr['_ref'], @vi_client)
                 rpools = cluster.get_resource_pool_list.select {|rp| !rp[:name].empty?}
 
                 host_info = {}
-                host_info[:cluster_name]     = "[#{vcenter_instance_name}-#{dc_name}]_#{ccr['name']}".tr(" ", "_")
+                cluster_name = "[#{vcenter_instance_name}-#{dc_name}]_#{ccr['name']}"
+                cluster_name = cluster_name.tr(" ", "_")
+                cluster_name = cluster_name.tr("\u007F", "") # Remove \u007F character that comes from vcenter
+
+                host_info[:cluster_name]     = cluster_name
                 host_info[:cluster_ref]      = ccr['_ref']
                 host_info[:vcenter_uuid]     = vcenter_uuid
                 host_info[:vcenter_version]  = vcenter_version
@@ -178,7 +191,7 @@ class DatacenterFolder
 
                     clusters_in_spod.each do |ccr_ref, ccr_name|
                         ds_hash = {}
-                        ds_hash[:name] = "#{ds_name} - #{ccr_name.tr(" ", "_")} [StorPod]"
+                        ds_hash[:name] = "#{ds_name} - #{ccr_name.tr(" ", "_")}"
                         ds_hash[:total_mb] = ds_total_mb
                         ds_hash[:free_mb]  = ds_free_mb
                         ds_hash[:cluster]  = ccr_name
