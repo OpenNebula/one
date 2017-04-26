@@ -715,9 +715,12 @@ class Template
                     rp << "|#{rp_name_list.join(",")}" #List of RP
                     rp << "|#{rp_name_list.first}" #Default RP
                 end
-                rp_cache[template_ccr_name] = rp
+                rp_cache[template_ccr_name] = {}
+                rp_cache[template_ccr_name][:rp] = rp
+                rp_cache[template_ccr_name][:rp_list] = rp_list
             end
-            rp = rp_cache[template_ccr_name]
+            rp      = rp_cache[template_ccr_name][:rp]
+            rp_list = rp_cache[template_ccr_name][:rp_list]
 
             object = template.to_one_template(template,
                                             template_ccr_ref,
@@ -897,7 +900,7 @@ class VirtualMachine < Template
 
         if vi_client.rp_confined?
             if req_rp_ref && req_rp_ref != vi_client.rp._ref
-                raise "Resource pool [#{vi_client.rp.name}] in host"\
+                raise "Available resource pool [#{vi_client.rp.name}] in host"\
                       " does not match requested resource pool"\
                       " [#{req_rp}]"
             end
@@ -1962,6 +1965,7 @@ class VirtualMachine < Template
             else
                 attach_disk_array << calculate_add_disk_spec(disk, position)
             end
+
             position += 1
         end
 
@@ -2497,7 +2501,7 @@ class VirtualMachine < Template
         else
             # B#5045 - If vcenter is 5.5 the snapshot may take longer than
             # 15 minutes and it does not report that it has finished using
-            # wait_for_completion we use an active wait instead with a
+            # wait_for_completion so we use an active wait instead with a
             # timeout of 1440 minutes = 24 hours
             @item.CreateSnapshot_Task(snapshot_hash)
 
@@ -2507,7 +2511,7 @@ class VirtualMachine < Template
             until snapshot_created || elapsed_minutes == 1440
                 if !!@item['snapshot']
                     current_snapshot = @item['snapshot.currentSnapshot'] rescue nil
-                    snapshot_found = find_snapshot(@item['snapshot.rootSnapshotList'], snap_name)
+                    snapshot_found = find_snapshot_in_list(@item['snapshot.rootSnapshotList'], snap_id)
                     snapshot_created = !!snapshot_found && !!current_snapshot && current_snapshot._ref == snapshot_found._ref
                 end
                 sleep(60)
