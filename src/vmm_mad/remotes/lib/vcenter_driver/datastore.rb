@@ -585,7 +585,7 @@ class Datastore < Storage
                     #Set template
                     one_image =  "NAME=\"#{image_name} - #{ds_name}\"\n"
                     one_image << "PATH=\"vcenter://#{image_path}\"\n"
-                    one_image << "PERSISTENT=\"YES\"\n"
+                    one_image << "PERSISTENT=\"NO\"\n"
                     one_image << "TYPE=\"#{image_type}\"\n"
                     one_image << "VCENTER_DISK_TYPE=\"#{disk_type}\"\n" if disk_type
                     one_image << "VCENTER_IMPORTED=\"YES\"\n"
