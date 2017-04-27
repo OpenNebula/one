@@ -230,36 +230,53 @@ public:
         return _commit;
     }
 
+	/**
+	 *  @param leader_commit index sent by leader in a replicate xml-rpc call
+	 *  @param index of the last record inserted in the database
+	 *  @return the updated commit index
+	 */
+	unsigned int update_commit(unsigned int leader_commit, unsigned int index)
+	{
+        unsigned int _commit;
+
+        pthread_mutex_lock(&mutex);
+
+		if ( leader_commit > commit )
+		{
+			if ( index < leader_commit )
+			{
+				commit = index;
+			}
+			else
+			{
+				commit = leader_commit;
+			}
+		}
+
+        _commit = commit;
+
+        pthread_mutex_unlock(&mutex);
+
+		return _commit;
+	}
+
     /**
-     *  @return true if the server is the leader of the zone
+     *  @return true if the server is the leader of the zone, runs in solo mode
+	 *  or is a follower
      */
     bool is_leader()
     {
-        bool _leader;
-
-        pthread_mutex_lock(&mutex);
-
-        _leader = state == LEADER;
-
-        pthread_mutex_unlock(&mutex);
-
-        return _leader;
+		return test_state(LEADER);
     }
 
-    /**
-     *  @return true if the server is the leader of the zone
-     */
     bool is_solo()
     {
-        bool _solo;
+		return test_state(SOLO);
+    }
 
-        pthread_mutex_lock(&mutex);
-
-        _solo = state == SOLO;
-
-        pthread_mutex_unlock(&mutex);
-
-        return _solo;
+    bool is_follower()
+    {
+		return test_state(FOLLOWER);
     }
 
     /**
@@ -373,6 +390,23 @@ private:
     //   - Retry (do not wait for replica events)
     //--------------------------------------------------------------------------
     void replicate_failure_action(const RaftAction& ra);
+
+	/**
+	 *  @param s the state to check
+	 *  @return true if the server states matches the provided one
+	 */
+	bool test_state(State s)
+	{
+        bool _is_state;
+
+        pthread_mutex_lock(&mutex);
+
+        _is_state = state == s;
+
+        pthread_mutex_unlock(&mutex);
+
+        return _is_state;
+	}
 };
 
 #endif /*RAFT_MANAGER_H_*/

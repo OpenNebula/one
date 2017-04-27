@@ -67,9 +67,6 @@ public:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
 class ZoneDeleteServer : public RequestManagerZone
 {
 public:
@@ -78,6 +75,22 @@ public:
                 "A:sii"){};
 
     ~ZoneDeleteServer(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class ZoneReplicateLog : public RequestManagerZone
+{
+public:
+    ZoneReplicateLog():
+        RequestManagerZone("ZoneReplicateLog", "Replicate a log record",
+                "A:siiiiiis"){};
+
+    ~ZoneReplicateLog(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);

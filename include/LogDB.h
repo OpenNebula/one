@@ -82,7 +82,13 @@ public:
      */
     int apply_log_record(LogDBRecord * lr);
 
-    int apply_log_record(unsigned int index);
+	int apply_log_records(unsigned int commit_index);
+
+    /**
+     *  Deletes the record in start_index and all that follow it
+     *    @param start_index first log record to delete
+     */
+    int delete_log_records(unsigned int start_index);
 
     /**
      *  Inserts a new log record in the database. If the record is successfully

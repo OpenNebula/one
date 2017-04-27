@@ -266,6 +266,17 @@ protected:
      */
     void failure_response(ErrorCode ec, RequestAttributes& ra);
 
+
+    /**
+     *  Builds an XML-RPC response updating retval. After calling this function
+     *  the xml-rpc excute method should return. The response sets the result
+     *  to failure and includes a numeric ID associated with the action.
+     *  ErrorCode is set to ACTION
+     *    @param id to send in the failure response
+     *    @param ra the specific request attributes
+     */
+    void failure_response(int id, RequestAttributes& ra);
+
     /**
      *  Builds an error response. A descriptive error message
      *  is constructed using att.resp_obj, att.resp_id and/or att.resp_msg and

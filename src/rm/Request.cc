@@ -688,6 +688,21 @@ void Request::failure_response(ErrorCode ec, RequestAttributes& att)
 }
 
 /* -------------------------------------------------------------------------- */
+
+void Request::failure_response(int id, RequestAttributes& att)
+{
+    vector<xmlrpc_c::value> arrayData;
+
+    arrayData.push_back(xmlrpc_c::value_boolean(false));
+    arrayData.push_back(xmlrpc_c::value_int(id));
+    arrayData.push_back(xmlrpc_c::value_int(ACTION));
+
+    xmlrpc_c::value_array arrayresult(arrayData);
+
+    *(att.retval) = arrayresult;
+}
+
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 void Request::success_response(int id, RequestAttributes& att)

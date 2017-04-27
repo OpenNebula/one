@@ -787,15 +787,17 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr zone_rename(zone_rename_pt);
     xmlrpc_c::methodPtr zone_addserver(zone_addserver_pt);
     xmlrpc_c::methodPtr zone_delserver(zone_delserver_pt);
+    xmlrpc_c::methodPtr zone_replicatelog(new ZoneReplicateLog());
 
     xmlrpc_c::methodPtr zone_info(new ZoneInfo());
     xmlrpc_c::methodPtr zonepool_info(new ZonePoolInfo());
 
-    RequestManagerRegistry.addMethod("one.zone.allocate",zone_allocate);
-    RequestManagerRegistry.addMethod("one.zone.update",  zone_update);
-    RequestManagerRegistry.addMethod("one.zone.delete",  zone_delete);
-    RequestManagerRegistry.addMethod("one.zone.info",    zone_info);
-    RequestManagerRegistry.addMethod("one.zone.rename",  zone_rename);
+    RequestManagerRegistry.addMethod("one.zone.allocate", zone_allocate);
+    RequestManagerRegistry.addMethod("one.zone.update",   zone_update);
+    RequestManagerRegistry.addMethod("one.zone.delete",   zone_delete);
+    RequestManagerRegistry.addMethod("one.zone.info",     zone_info);
+    RequestManagerRegistry.addMethod("one.zone.rename",   zone_rename);
+    RequestManagerRegistry.addMethod("one.zone.replicate",zone_replicatelog);
 
     RequestManagerRegistry.addMethod("one.zone.addserver", zone_addserver);
     RequestManagerRegistry.addMethod("one.zone.delserver", zone_delserver);

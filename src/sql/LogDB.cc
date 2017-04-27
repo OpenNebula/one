@@ -198,25 +198,6 @@ int LogDB::apply_log_record(LogDBRecord * lr)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int LogDB::apply_log_record(unsigned int index)
-{
-    LogDBRecord * lr = get_log_record(index);
-
-    if ( lr == 0 )
-    {
-        return -1;
-    }
-
-    int rc = apply_log_record(lr);
-
-    delete lr;
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int LogDB::insert_log_record(unsigned int term, std::ostringstream& sql,
         time_t timestamp)
 {
@@ -299,10 +280,7 @@ int LogDB::exec_wr(ostringstream& cmd)
 
     if ( rr.result == true ) //Record replicated on majority of followers
     {
-        while (last_applied < rindex )
-        {
-            rc += apply_log_record(last_applied+1);
-        }
+		apply_log_records(rindex);
     }
     else
     {
@@ -316,5 +294,56 @@ int LogDB::exec_wr(ostringstream& cmd)
     }
 
     return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int LogDB::delete_log_records(unsigned int start_index)
+{
+    std::ostringstream oss;
+    int rc;
+
+    oss << "DELETE FROM " << table << " WHERE log_index >= start_index";
+
+    rc = db->exec_wr(oss);
+
+    if ( rc == 0 )
+    {
+        pthread_mutex_lock(&mutex);
+
+        next_index = start_index;
+
+        pthread_mutex_unlock(&mutex);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int LogDB::apply_log_records(unsigned int commit_index)
+{
+	int rc;
+
+	while (last_applied < commit_index )
+	{
+    	LogDBRecord * lr = get_log_record(last_applied + 1);
+
+		if ( lr == 0 )
+		{
+			return -1;
+		}
+
+		rc = apply_log_record(lr);
+
+		delete lr;
+
+		if ( rc != 0 )
+		{
+			return -1;
+		}
+	}
+
+	return 0;
 }
 
