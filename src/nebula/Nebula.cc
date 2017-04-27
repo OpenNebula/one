@@ -888,7 +888,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- Raft Manager ----
     try
     {
-        raftm = new RaftManager(server_id != -1);
+        raftm = new RaftManager(server_id == -1);
     }
     catch (bad_alloc&)
     {
@@ -994,7 +994,6 @@ void Nebula::start(bool bootstrap_only)
         throw;
     }
 
-
     // ---- Initialize Manager cross-reference pointers and pool references ----
 
     dm->init_managers();
@@ -1023,12 +1022,11 @@ void Nebula::start(bool bootstrap_only)
     }
     else
     {
-
+        ///////////////
+        /////////DEBUG
+        raftm->leader_trigger(0);
     }
 
-    ///////////////
-    /////////DEBUG
-    raftm->leader_trigger(0);
 
     // -----------------------------------------------------------
     // Wait for a SIGTERM or SIGINT signal

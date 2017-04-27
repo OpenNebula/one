@@ -94,6 +94,8 @@ public:
 
     RaftManager(bool solo):term(0), commit(0), applied(0)
     {
+        pthread_mutex_init(&mutex, 0);
+
         if ( solo )
         {
             state = SOLO;
@@ -343,194 +345,21 @@ private:
 
     void replicate_log_action(const RaftAction& ra);
 
-    // ---------------------------------------------------------
+    // -------------------------------------------------------------------------
     // Log entry replicated on follower
     // - Increment next entry to send to follower
     // - Update match entry on follower
     // - Evaluate majority to apply changes to DB
-    // ---------------------------------------------------------
+    // -------------------------------------------------------------------------
     void replicate_success_action(const RaftAction& ra);
 
+    //--------------------------------------------------------------------------
+    // Log inconsistency in follower
+    //   - Decrease follower index
+    //   - Retry (do not wait for replica events)
+    //--------------------------------------------------------------------------
     void replicate_failure_action(const RaftAction& ra);
 };
 
 #endif /*RAFT_MANAGER_H_*/
 
-/*
-
-                    zone = zpool->get(zone_id, true);
-
-                    if ( zone == 0 )
-                    {
-                        continue;
-                    }
-
-                    ZoneServer * follower = zone->get_server(follower_id);
-                    ZoneServer * leader   = zone->get_server(leader_id);
-
-                    if ( follower == 0 )
-                    {
-                        zone->unlock();
-
-                        continue;
-                    }
-
-                    follower->inc_next();
-
-                    follower->set_match(id);
-
-                    if ( leader->get_applied() > follower->get_next() )
-                    {
-                        _pending_requests = true;
-                    }
-
-                    zone->unlock();
-
-                    LogDBRequest * lr = logdb->get_request(id);
-
-                    if ( lr == 0 )
-                    {
-                        oss.str("");
-
-                        lr->lock();
-
-                        oss << "Log entry " << id << "-" << term << "replicated"
-                            << " on server: " << follower_id << ". Total "
-                            << "replicas: " << lr->replicas() << " Replicas to "
-                            << "majority: " << lr->to_commit();
-
-                        lr->replicated();
-
-                        lr->unlock();
-                    }
-                }
-                else
-                {
-                    int follower_term = xmlrpc_c::value_boolean(values[1]);
-
-                    if ( follower_term > term )
-                    {
-                        //------------------------------------------------------
-                        // Convert to follower
-                        //   - Update term
-                        //   - Set state to follower
-                        //   - Stop replica threads
-                        //------------------------------------------------------
-                        ostringstream ess;
-
-                        ess << "Detected a higher term on follower: "
-                            << follower_id << " giving up leadership";
-
-                        NebulaLog::log("DBM", Log::WARNING, ess);
-                    }
-                    else
-                    {
-                        //------------------------------------------------------
-                        // Log inconsistency in follower
-                        //   - Decrease follower index
-                        //   - Retry (do not wait for replica events)
-                        //------------------------------------------------------
-                        ostringstream ess;
-
-                        ess << "Log inconsistency detected on follower: "
-                            << follower_id;
-
-                        NebulaLog::log("DBM", Log::WARNING, ess);
-
-                        zone = zpool->get(zone_id, true);
-
-                        if ( zone == 0 )
-                        {
-                            continue;
-                        }
-
-                        ZoneServer * follower = zone->get_server(follower_id);
-
-                        if ( follower == 0 )
-                        {
-                            zone->unlock();
-
-                            continue;
-                        }
-
-                        follower->dec_next();
-
-                        zone->unlock();
-
-                        _pending_requests = true;
-                    }
-                }
-            }
-            else //RPC failed, will retry on next replication request
-            {
-                ostringstream ess;
-
-                xmlrpc_c::fault failure = rpc_client.getFault();
-
-                ess << "Error replicating log entry " << id << "-" << term
-                    << " on follower " << follower_id << ": "
-                    << failure.getDescription();
-
-                NebulaLog::log("DBM", Log::ERROR, ess);
-            }
-        }
-        catch (exception const& e)
-        {
-            ostringstream  ess;
-
-            ess << "Error replicating log entry " << id << "-" << term
-                << " on follower " << follower_id << ": " << e.what();
-
-            NebulaLog::log("DBM", Log::ERROR, ess);
-
-            continue;
-        }
-
-
-
-
-
-
-    std::map<unsigned int, LogDBRequest *>::iterator it;
-
-    for ( it = requests.begin(); it != requests.end(); ++it )
-    {
-        delete it->second;
-    }
-
-LogDBRecord * LogDB::get_logrecord(unsigned int index);
-LogDBRequest * LogDB::get_request(unsigned int index)
-{
-    std::map<unsigned int, LogDBRequest *>::iterator it;
-
-    LogDBRequest * req = 0;
-
-    pthread_mutex_lock(&mutex);
-
-    it = requests.find(index);
-
-    if ( it != requests.end() )
-    {
-        req = it->second;
-    }
-
-    pthread_mutex_unlock(&mutex);
-
-    if ( req == 0  )
-    {
-        LogDBRequest * req = select(index);
-
-        if ( req != 0 )
-        {
-            pthread_mutex_lock(&mutex);
-
-            requests.insert(std::make_pair(index, req));
-
-            pthread_mutex_unlock(&mutex);
-        }
-    }
-
-    return req;
-}
-
-  */

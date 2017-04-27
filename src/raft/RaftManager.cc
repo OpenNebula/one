@@ -111,6 +111,16 @@ void RaftManager::leader_action(const RaftAction& ra)
 
     std::ostringstream oss;
 
+    pthread_mutex_lock(&mutex);
+
+    if ( state != FOLLOWER )
+    {
+        pthread_mutex_unlock(&mutex);
+        return;
+    }
+
+    pthread_mutex_unlock(&mutex);
+
     NebulaLog::log("RCM", Log::INFO, "Becoming leader of zone");
 
     //--------------------------------------------------------------------------
@@ -193,6 +203,12 @@ void RaftManager::follower_action(const RaftAction& ra)
 void RaftManager::replicate_log_action(const RaftAction& ra)
 {
     pthread_mutex_lock(&mutex);
+
+    if ( state != LEADER )
+    {
+        pthread_mutex_unlock(&mutex);
+        return;
+    }
 
     ReplicaRequest * request = ra.request();
 

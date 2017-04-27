@@ -67,7 +67,7 @@ int LogDB::setup_index(int& _last_applied, int& _last_index)
 
     set_callback(static_cast<Callbackable::Callback>(&LogDB::setup_index_cb));
 
-    oss << "SELECT MAX(i.log_index) MAX(j.log_index) FROM logdb i, "
+    oss << "SELECT MAX(i.log_index), MAX(j.log_index) FROM logdb i, "
         << "(SELECT log_index AS log_index FROM logdb WHERE timestamp != 0) j";
 
     int rc = db->exec_rd(oss,this);
@@ -244,12 +244,22 @@ int LogDB::exec_wr(ostringstream& cmd)
 
     RaftManager * raftm = Nebula::instance().get_raftm();
 
-    unsigned int term   = raftm->get_term();
+    unsigned int term = 0;
+
+    bool solo   = true;
+    bool leader = true;
+
+    if ( raftm != 0 ) // == 0 during first bootstrap
+    {
+        term = raftm->get_term();
+        solo = raftm->is_solo();
+        leader = raftm->is_leader();
+    }
 
     // -------------------------------------------------------------------------
     // OpenNebula was started in solo mode
     // -------------------------------------------------------------------------
-    if ( raftm->is_solo() )
+    if ( solo )
     {
         if ( insert_log_record(term, cmd, time(0)) == -1 )
         {
@@ -258,7 +268,7 @@ int LogDB::exec_wr(ostringstream& cmd)
 
         return db->exec_wr(cmd);
     }
-    else if ( !raftm->is_leader() )
+    else if ( !leader )
     {
         NebulaLog::log("DBM", Log::ERROR,"Tried to modify DB being a follower");
         return -1;
