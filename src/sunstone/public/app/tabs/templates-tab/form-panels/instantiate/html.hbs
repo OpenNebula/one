@@ -51,6 +51,7 @@
       <input type="number" name="vm_n_times_disabled" id="vm_n_times_disabled" value="1" disabled>
     </div>
     <div class="medium-4 columns">
+      {{#isTabActionEnabled "vms-tab" "VM.hold"}}
       <label>
         <input type="checkbox" name="hold" id="hold"/>
         {{tr "Start on hold"}}
@@ -58,6 +59,7 @@
           {{tr "Sets the new VM to hold state, instead of pending. The scheduler will not deploy VMs in this state. It can be released later, or deployed manually."}}
         </span>
       </label>
+      {{/isTabActionEnabled}}
     </div>
   </div>
   <div class="row">
