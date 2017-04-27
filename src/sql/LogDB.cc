@@ -187,6 +187,11 @@ int LogDB::apply_log_record(LogDBRecord * lr)
 
     insert_replace(lr->index, lr->term, lr->sql, time(0), true);
 
+    if ( rc == 0 )
+    {
+        last_applied = lr->index;
+    }
+
     return rc;
 }
 
@@ -253,6 +258,7 @@ int LogDB::exec_wr(ostringstream& cmd)
     {
         term = raftm->get_term();
         solo = raftm->is_solo();
+
         leader = raftm->is_leader();
     }
 
@@ -293,7 +299,10 @@ int LogDB::exec_wr(ostringstream& cmd)
 
     if ( rr.result == true ) //Record replicated on majority of followers
     {
-        rc = apply_log_record(rindex);
+        while (last_applied < rindex )
+        {
+            rc += apply_log_record(last_applied+1);
+        }
     }
     else
     {

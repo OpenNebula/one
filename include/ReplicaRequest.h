@@ -27,10 +27,7 @@
 class ReplicaRequest : public SyncRequest
 {
 public:
-    ReplicaRequest(unsigned int i):_index(i), _to_commit(-1), _replicas(1)
-    {
-        pthread_mutex_init(&mutex, 0);
-    };
+    ReplicaRequest(unsigned int i):_index(i), _to_commit(-1), _replicas(1){};
 
     ~ReplicaRequest(){};
 
@@ -43,8 +40,6 @@ public:
     int inc_replicas()
     {
         int __replicas;
-
-        pthread_mutex_lock(&mutex);
 
         _replicas++;
 
@@ -62,8 +57,6 @@ public:
 
             notify();
         }
-
-        pthread_mutex_unlock(&mutex);
 
         return __replicas;
     }
@@ -92,8 +85,6 @@ public:
     }
 
 private:
-    pthread_mutex_t mutex;
-
     /**
      *  Index for this log entry
      */

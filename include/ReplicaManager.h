@@ -144,6 +144,12 @@ public:
     void replicate();
 
     /**
+     *  Triggers a replication event on the follower thread
+     *    @param follower id
+     */
+    void replicate(int follower);
+
+    /**
      *  Deletes a replication thread for a follower (e.g. server deleted)
      *    @param follower_id server id
      */

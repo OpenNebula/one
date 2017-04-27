@@ -393,6 +393,18 @@ void ReplicaManager::replicate()
     }
 };
 
+void ReplicaManager::replicate(int follower)
+{
+    ReplicaThread * rth = get_thread(follower);
+
+    if ( rth == 0 )
+    {
+        return;
+    }
+
+    rth->add_request();
+};
+
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 

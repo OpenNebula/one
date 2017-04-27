@@ -69,11 +69,27 @@ public:
     }
 
 private:
-    Actions _action;  /**< Type of action */
+    /**
+     *  Type of action to trigger on manager
+     */
+    Actions _action;
 
-    unsigned int _id; /**< Id of the resource associated to the Action  */
+    /**
+     *  ID of any additional resource associated to this action:
+     *   LEADER - new tem
+     *   FOLLOWER - new term
+     *   REPLICATE_SUCCESS - index of follower that replicated record
+     *   REPLICATE_FAILURE - index of follower that replicated record
+     *   ADD_SERVER - id of new follower
+     *   DELETE_SERVER- id of new follower
+     */
+     int _id;
 
-    ReplicaRequest * _rrequest; /**< Pointer to replica request */
+    /**
+     *  Pointer to replica request set for:
+     *    REPLICATE_LOG
+     */
+    ReplicaRequest * _rrequest;
 };
 
 // -----------------------------------------------------------------------------
@@ -92,7 +108,7 @@ public:
         LEADER    = 3
     };
 
-    RaftManager(bool solo):term(0), commit(0), applied(0)
+    RaftManager(bool solo):term(0), commit(0)
     {
         pthread_mutex_init(&mutex, 0);
 
@@ -306,7 +322,7 @@ private:
     //--------------------------------------------------------------------------
     // Volatile log index variables
     //   - commit, highest log known to be committed
-    //   - applied, highest log applied to DB
+    //   - applied, highest log applied to DB (in LogDB)
     //
     //---------------------------- LEADER VARIABLES ----------------------------
     //
@@ -316,8 +332,6 @@ private:
     ReplicaManager replica_manager;
 
     unsigned int commit;
-
-    unsigned int applied;
 
     std::map<unsigned int, unsigned int> next;
 
