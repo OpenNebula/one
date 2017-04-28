@@ -165,7 +165,15 @@ public:
      */
     int last_index()
     {
-        return next_index - 1;
+        unsigned int _last_index;
+
+        pthread_mutex_lock(&mutex);
+
+        _last_index = next_index - 1;
+
+        pthread_mutex_unlock(&mutex);
+
+        return _last_index;
     }
 
 protected:

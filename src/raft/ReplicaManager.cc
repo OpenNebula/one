@@ -197,7 +197,6 @@ int ReplicaThread::xml_rpc_replicate(unsigned int commit, LogDBRecord * lr,
     return xml_rc;
 }
 
-
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
@@ -252,7 +251,7 @@ void ReplicaThread::do_replication()
         {
             ostringstream ess;
 
-            ess << "Failed to load log entry at index: " << next_index;
+            ess << "Failed to load log record at index: " << next_index;
 
             NebulaLog::log("RCM", Log::ERROR, ess);
 
@@ -282,17 +281,17 @@ void ReplicaThread::do_replication()
 
         if ( success )
         {
-            raftm->replicate_success_trigger(follower_id);
+            raftm->replicate_success(follower_id);
         }
         else
         {
             if ( follower_term > term )
             {
-                raftm->follower_trigger(follower_term);
+                raftm->follower(follower_term);
             }
             else
             {
-                raftm->replicate_failure_trigger(follower_id);
+                raftm->replicate_failure(follower_id);
             }
         }
     }

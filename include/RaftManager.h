@@ -26,75 +26,6 @@ extern "C" void * raft_manager_loop(void *arg);
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-class RaftAction : public ActionRequest
-{
-public:
-    enum Actions
-    {
-        LEADER,           /**< Makes this server leader */
-        FOLLOWER,         /**< Makes this server follower */
-        REPLICATE_LOG,    /**< Replicate a log record on followers */
-        REPLICATE_SUCCESS,/**< Follower successfully replicated entry */
-        REPLICATE_FAILURE /**< Follower failed to replicate (same term) */
-    };
-
-    RaftAction(Actions a, ReplicaRequest * rrequest):
-        ActionRequest(ActionRequest::USER), _action(a), _id(-1),
-        _rrequest(rrequest){};
-
-    RaftAction(Actions a, unsigned int id):
-        ActionRequest(ActionRequest::USER), _action(a), _id(id), _rrequest(0){};
-
-    RaftAction(const RaftAction& o):ActionRequest(o._type),
-        _action(o._action), _id(o._id), _rrequest(o._rrequest){};
-
-    Actions action() const
-    {
-        return _action;
-    }
-
-    ActionRequest * clone() const
-    {
-        return new RaftAction(*this);
-    }
-
-    unsigned int id() const
-    {
-        return _id;
-    }
-
-    ReplicaRequest * request() const
-    {
-        return _rrequest;
-    }
-
-private:
-    /**
-     *  Type of action to trigger on manager
-     */
-    Actions _action;
-
-    /**
-     *  ID of any additional resource associated to this action:
-     *   LEADER - new tem
-     *   FOLLOWER - new term
-     *   REPLICATE_SUCCESS - index of follower that replicated record
-     *   REPLICATE_FAILURE - index of follower that replicated record
-     *   ADD_SERVER - id of new follower
-     *   DELETE_SERVER- id of new follower
-     */
-     int _id;
-
-    /**
-     *  Pointer to replica request set for:
-     *    REPLICATE_LOG
-     */
-    ReplicaRequest * _rrequest;
-};
-
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
-
 class RaftManager : public ActionListener
 {
 public:
@@ -127,61 +58,39 @@ public:
     virtual ~RaftManager(){};
 
     // -------------------------------------------------------------------------
-    // Raft associated events
+    // Raft associated actions (synchronous)
     // -------------------------------------------------------------------------
     /**
-     *  Triggers a REPLICATE_SUCCESS event, when a follower successfully
-     *  replicated a log entry.
+     *  Follower successfully replicated a log entry:
+     *    - Increment next entry to send to follower
+     *    - Update match entry on follower
+     *    - Evaluate majority to apply changes to DB
      */
-    void replicate_success_trigger(unsigned int follower_id)
-    {
-        RaftAction ra(RaftAction::REPLICATE_SUCCESS, follower_id);
-
-        am.trigger(ra);
-    }
+    void replicate_success(unsigned int follower_id);
 
     /**
-     *  Triggers a REPLICATE_FAILURE event, when a follower failed to replicate
-     *  a log entry (but follower_term <= current_term).
-     *  notify the client if a majority of followers replicated this  record.
+     *  Follower failed to replicate a log entry because an inconsistency was
+     *  detected (same index, different term):
+     *    - Decrease follower next_index
+     *    - Retry (do not wait for replica events)
      */
-    void replicate_failure_trigger(unsigned int follower_id)
-    {
-        RaftAction ra(RaftAction::REPLICATE_FAILURE, follower_id);
-
-        am.trigger(ra);
-    }
+    void replicate_failure(unsigned int follower_id);
 
     /**
      *  Triggers a REPLICATE event, it will notify the replica threads to
      *  send the log to the followers
      */
-    void replicate_log_trigger(ReplicaRequest * rr)
-    {
-        RaftAction ra(RaftAction::REPLICATE_LOG, rr);
-
-        am.trigger(ra);
-    }
+    void replicate_log(ReplicaRequest * rr);
 
     /**
      *  Makes this server leader, and start replica threads
      */
-    void leader_trigger(unsigned int term)
-    {
-        RaftAction ra(RaftAction::LEADER, term);
-
-        am.trigger(ra);
-    }
+    void leader(unsigned int term);
 
     /**
      *  Makes this server follower. Stop associated replication facilities
      */
-    void follower_trigger(unsigned int term)
-    {
-        RaftAction ra(RaftAction::FOLLOWER, term);
-
-        am.trigger(ra);
-    }
+    void follower(unsigned int term);
 
     /**
      *  Finalizes the Raft Consensus Manager
@@ -366,30 +275,6 @@ private:
      *  Termination function
      */
     void finalize_action(const ActionRequest& ar);
-
-    // -------------------------------------------------------------------------
-    // RaftManager actions
-    // -------------------------------------------------------------------------
-    void leader_action(const RaftAction& ra);
-
-    void follower_action(const RaftAction& ra);
-
-    void replicate_log_action(const RaftAction& ra);
-
-    // -------------------------------------------------------------------------
-    // Log entry replicated on follower
-    // - Increment next entry to send to follower
-    // - Update match entry on follower
-    // - Evaluate majority to apply changes to DB
-    // -------------------------------------------------------------------------
-    void replicate_success_action(const RaftAction& ra);
-
-    //--------------------------------------------------------------------------
-    // Log inconsistency in follower
-    //   - Decrease follower index
-    //   - Retry (do not wait for replica events)
-    //--------------------------------------------------------------------------
-    void replicate_failure_action(const RaftAction& ra);
 
 	/**
 	 *  @param s the state to check

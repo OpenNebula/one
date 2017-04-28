@@ -60,36 +60,6 @@ int RaftManager::start()
 
 /* -------------------------------------------------------------------------- */
 
-void RaftManager::user_action(const ActionRequest& ar)
-{
-    const RaftAction& ra = static_cast<const RaftAction& >(ar);
-
-    switch(ra.action())
-    {
-        case RaftAction::LEADER:
-            leader_action(ra);
-            break;
-
-        case RaftAction::FOLLOWER:
-            follower_action(ra);
-            break;
-
-        case RaftAction::REPLICATE_LOG:
-            replicate_log_action(ra);
-            break;
-
-        case RaftAction::REPLICATE_SUCCESS:
-            replicate_success_action(ra);
-            break;
-
-        case RaftAction::REPLICATE_FAILURE:
-            replicate_failure_action(ra);
-            break;
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-
 void RaftManager::finalize_action(const ActionRequest& ar)
 {
     NebulaLog::log("RCM", Log::INFO, "Raft Consensus Manager...");
@@ -98,7 +68,7 @@ void RaftManager::finalize_action(const ActionRequest& ar)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RaftManager::leader_action(const RaftAction& ra)
+void RaftManager::leader(unsigned int _term)
 {
     Nebula& nd       = Nebula::instance();
     LogDB * logdb    = nd.get_logdb();
@@ -193,7 +163,7 @@ void RaftManager::leader_action(const RaftAction& ra)
 
     state = LEADER;
 
-    term  = ra.id();
+    term  = _term;
 
     num_servers = _num_servers;
 
@@ -207,7 +177,7 @@ void RaftManager::leader_action(const RaftAction& ra)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RaftManager::follower_action(const RaftAction& ra)
+void RaftManager::follower(unsigned int _term)
 {
     int lapplied, lindex;
 
@@ -222,7 +192,7 @@ void RaftManager::follower_action(const RaftAction& ra)
 
     state = FOLLOWER;
 
-    term  = ra.id();
+    term  = _term;
 
     NebulaLog::log("RCM", Log::INFO, "oned is set to follower mode");
 
@@ -245,7 +215,7 @@ void RaftManager::follower_action(const RaftAction& ra)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RaftManager::replicate_log_action(const RaftAction& ra)
+void RaftManager::replicate_log(ReplicaRequest * request)
 {
     pthread_mutex_lock(&mutex);
 
@@ -254,8 +224,6 @@ void RaftManager::replicate_log_action(const RaftAction& ra)
         pthread_mutex_unlock(&mutex);
         return;
     }
-
-    ReplicaRequest * request = ra.request();
 
     if ( num_servers <= 1 )
     {
@@ -284,7 +252,7 @@ void RaftManager::replicate_log_action(const RaftAction& ra)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RaftManager::replicate_success_action(const RaftAction& ra)
+void RaftManager::replicate_success(unsigned int follower_id)
 {
     std::map<unsigned int, ReplicaRequest *>::iterator it;
 
@@ -293,8 +261,6 @@ void RaftManager::replicate_success_action(const RaftAction& ra)
 
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
-
-    int follower_id = ra.id();
 
     pthread_mutex_lock(&mutex);
 
@@ -337,11 +303,9 @@ void RaftManager::replicate_success_action(const RaftAction& ra)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RaftManager::replicate_failure_action(const RaftAction& ra)
+void RaftManager::replicate_failure(unsigned int follower_id)
 {
     std::map<unsigned int, unsigned int>::iterator next_it;
-
-    int follower_id = ra.id();
 
     pthread_mutex_lock(&mutex);
 
@@ -349,7 +313,7 @@ void RaftManager::replicate_failure_action(const RaftAction& ra)
 
     if ( next_it != next.end() )
     {
-        next_it->second  = next_it->second - 1;
+        next_it->second = next_it->second - 1;
     }
 
     pthread_mutex_unlock(&mutex);

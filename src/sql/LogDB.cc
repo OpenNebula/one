@@ -78,12 +78,16 @@ int LogDB::setup_index(int& _last_applied, int& _last_index)
 
     rc += db->exec_rd(oss, this);
 
+    unset_callback();
+
     if ( rc == 0 )
     {
-        next_index = _last_index + 1;
-    }
+        pthread_mutex_lock(&mutex);
 
-    unset_callback();
+        next_index = _last_index + 1;
+
+        pthread_mutex_unlock(&mutex);
+    }
 
     oss.str("");
 
@@ -94,12 +98,16 @@ int LogDB::setup_index(int& _last_applied, int& _last_index)
 
     rc += db->exec_rd(oss, this);
 
+    unset_callback();
+
     if ( rc == 0 )
     {
-        last_applied = _last_applied;
-    }
+        pthread_mutex_lock(&mutex);
 
-    unset_callback();
+        last_applied = _last_applied;
+
+        pthread_mutex_unlock(&mutex);
+    }
 
     return rc;
 }
@@ -285,7 +293,7 @@ int LogDB::exec_wr(ostringstream& cmd)
 
     ReplicaRequest rr(rindex);
 
-    raftm->replicate_log_trigger(&rr);
+    raftm->replicate_log(&rr);
 
     // Wait for completion
     rr.wait();
@@ -345,12 +353,15 @@ int LogDB::apply_log_records(unsigned int commit_index)
 {
 	int rc;
 
+    pthread_mutex_lock(&mutex);
+
 	while (last_applied < commit_index )
 	{
     	LogDBRecord * lr = get_log_record(last_applied + 1);
 
 		if ( lr == 0 )
 		{
+            pthread_mutex_unlock(&mutex);
 			return -1;
 		}
 
@@ -360,9 +371,12 @@ int LogDB::apply_log_records(unsigned int commit_index)
 
 		if ( rc != 0 )
 		{
+            pthread_mutex_unlock(&mutex);
 			return -1;
 		}
 	}
+
+    pthread_mutex_unlock(&mutex);
 
 	return 0;
 }
