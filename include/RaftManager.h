@@ -108,7 +108,7 @@ public:
         LEADER    = 3
     };
 
-    RaftManager(bool solo):term(0), commit(0)
+    RaftManager(bool solo):term(0), num_servers(0), commit(0)
     {
         pthread_mutex_init(&mutex, 0);
 
@@ -269,11 +269,6 @@ public:
 		return test_state(LEADER);
     }
 
-    bool is_solo()
-    {
-		return test_state(SOLO);
-    }
-
     bool is_follower()
     {
 		return test_state(FOLLOWER);
@@ -335,6 +330,11 @@ private:
      *  Current term
      */
     unsigned int term;
+
+    /**
+     *  Number of servers in zone
+     */
+    unsigned int num_servers;
 
     //--------------------------------------------------------------------------
     // Volatile log index variables

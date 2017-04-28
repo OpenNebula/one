@@ -46,6 +46,7 @@ void Nebula::start(bool bootstrap_only)
     char            hn[80];
     string          scripts_remote_dir;
     SqlDB *         db_backend;
+    bool            solo;
 
     if ( gethostname(hn,79) != 0 )
     {
@@ -292,12 +293,17 @@ void Nebula::start(bool bootstrap_only)
             db_backend = new MySqlDB(server, port, user, passwd, db_name);
         }
 
-        if ( logdb->bootstrap(db_backend) != 0 )
+        solo = server_id == -1;
+
+        if ( solo )
         {
-            throw runtime_error("Error bootstrapping database.");
+            if ( logdb->bootstrap(db_backend) != 0 )
+            {
+                throw runtime_error("Error bootstrapping database.");
+            }
         }
 
-        logdb = new LogDB(db_backend);
+        logdb = new LogDB(db_backend, solo);
 
         // ---------------------------------------------------------------------
         // Prepare the SystemDB and check versions
@@ -319,6 +325,12 @@ void Nebula::start(bool bootstrap_only)
         }
 
         rc = 0;
+
+        if ( (local_bootstrap || shared_bootstrap) && !solo )
+        {
+            throw runtime_error("Database has to be bootstraped to start"
+                    " oned in HA");
+        }
 
         if (local_bootstrap)
         {
@@ -888,7 +900,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- Raft Manager ----
     try
     {
-        raftm = new RaftManager(server_id == -1);
+        raftm = new RaftManager(solo);
     }
     catch (bad_alloc&)
     {
@@ -1017,14 +1029,28 @@ void Nebula::start(bool bootstrap_only)
 
     if ( server_id == -1 )
     {
-        NebulaLog::log("ONE", Log::INFO, "No SERVER_ID defined, starting "
-                "oned in solo mode.");
+        NebulaLog::log("ONE", Log::INFO, "No SERVER_ID defined, oned started "
+                "in solo mode.");
     }
     else
     {
-        ///////////////
-        /////////DEBUG
-        raftm->leader_trigger(0);
+        ////////////////////////////////////////////////////////////////////////
+        //                       LOG REPLICATION DEBUG                        //
+        ////////////////////////////////////////////////////////////////////////
+        if ( server_id == 0 )
+        {
+            raftm->leader_trigger(0);
+        }
+        else
+        {
+            raftm->follower_trigger(0);
+        }
+        ////////////////////////////////////////////////////////////////////////
+        //  TODO:
+        //    - start all servers in follower mode
+        //    - load current term from DB (sysconfig attribute?)
+        //    - load last vote casted
+        ////////////////////////////////////////////////////////////////////////
     }
 
 

@@ -20,6 +20,7 @@
 #include <xmlrpc-c/client.hpp>
 #include <string>
 #include <map>
+#include <vector>
 
 class LogDBRecord;
 
@@ -92,9 +93,6 @@ private:
     // -------------------------------------------------------------------------
     // XML-RPC client variables to talk with this server
     // -------------------------------------------------------------------------
-    xmlrpc_c::clientXmlTransport_curl transport;
-
-    xmlrpc_c::client_xml client;
 
     static const std::string replica_method;
 
@@ -131,7 +129,7 @@ public:
     /**
      *  Start the replication threads, one for each server in the zone
      */
-    void start_replica_threads();
+    void start_replica_threads(std::vector<unsigned int>& fids);
 
     /**
      *  Stop the replication threads (leader becomes follower)

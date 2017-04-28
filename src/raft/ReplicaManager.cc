@@ -55,8 +55,7 @@ extern "C" void * replication_thread(void *arg)
 // -----------------------------------------------------------------------------
 
 ReplicaThread::ReplicaThread(int f, int l):_finalize(false),
-    _pending_requests(false), retry_timeout(2), follower_id(f), leader_id(l),
-    client(&transport)
+    _pending_requests(false), retry_timeout(2), follower_id(f), leader_id(l)
 {
     pthread_mutex_init(&mutex, 0);
 
@@ -121,6 +120,10 @@ int ReplicaThread::xml_rpc_replicate(unsigned int commit, LogDBRecord * lr,
 
     xmlrpc_c::paramList replica_params;
 
+    xmlrpc_c::clientXmlTransport_curl transport;
+
+    xmlrpc_c::client_xml client(&transport);
+
     replica_params.add(xmlrpc_c::value_string(secret));
     replica_params.add(xmlrpc_c::value_int(leader_id));
     replica_params.add(xmlrpc_c::value_int(commit));
@@ -141,13 +144,28 @@ int ReplicaThread::xml_rpc_replicate(unsigned int commit, LogDBRecord * lr,
 
         if ( rpc_client.isSuccessful() )
         {
+            std::string error_str;
+            int         error_rc;
+
+            vector<xmlrpc_c::value> values;
+
             xmlrpc_c::value result = rpc_client.getResult();
 
-            vector<xmlrpc_c::value> values =
-                xmlrpc_c::value_array(result).vectorValueValue();
+            values = xmlrpc_c::value_array(result).vectorValueValue();
 
-            success = xmlrpc_c::value_boolean(values[0]);
-            fterm   = xmlrpc_c::value_int(values[1]);
+            success   = xmlrpc_c::value_boolean(values[0]);
+
+            if ( success )
+            {
+                fterm = xmlrpc_c::value_int(values[1]);
+                error_rc  = xmlrpc_c::value_int(values[2]);
+            }
+            else
+            {
+                error_str = xmlrpc_c::value_string(values[1]);
+                error_rc  = xmlrpc_c::value_int(values[2]);
+                fterm     = xmlrpc_c::value_int(values[3]);
+            }
         }
         else //RPC failed, will retry on next replication request
         {
@@ -168,7 +186,7 @@ int ReplicaThread::xml_rpc_replicate(unsigned int commit, LogDBRecord * lr,
     {
         std::ostringstream  ess;
 
-        ess << "Error replicating log entry " << lr->index
+        ess << "Error exception replicating log entry " << lr->index
             << " on follower " << follower_id << ": " << e.what();
 
         NebulaLog::log("RRM", Log::ERROR, ess);
@@ -332,33 +350,14 @@ ReplicaThread * ReplicaManager::get_thread(int server_id)
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
-void ReplicaManager::start_replica_threads()
+void ReplicaManager::start_replica_threads(std::vector<unsigned int>& fids)
 {
-    std::ostringstream oss;
+    std::vector<unsigned int>::iterator it;
 
-    Nebula& nd       = Nebula::instance();
-    ZonePool * zpool = nd.get_zonepool();
-
-    int zone_id = nd.get_zone_id();
-
-    Zone * zone = zpool->get(zone_id, true);
-
-    if ( zone == 0 )
+    for (it = fids.begin(); it != fids.end(); ++it)
     {
-        oss << "start replicas: zone " << zone_id << "does not exist.";
-
-        NebulaLog::log("RCM", Log::ERROR, oss);
-        return;
+        add_replica_thread(*it);
     }
-
-    ZoneServers * fllw = zone->get_servers();
-
-    for (ZoneServers::zone_iterator it = fllw->begin(); it != fllw->end(); ++it)
-    {
-        add_replica_thread((*it)->get_id());
-    }
-
-    zone->unlock();
 };
 
 // -----------------------------------------------------------------------------

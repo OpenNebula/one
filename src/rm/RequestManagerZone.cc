@@ -137,19 +137,27 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( att.uid != 0 )
     {
-        failure_response(current_term, att);
+        att.resp_id  = current_term;
+
+        failure_response(AUTHORIZATION, att);
         return;
     }
 
     if ( !raftm->is_follower() )
     {
-        failure_response(current_term, att);
+        att.resp_msg = "Only followers can replicate log records";
+        att.resp_id  = current_term;
+
+        failure_response(ACTION, att);
         return;
     }
 
     if ( term < current_term )
     {
-        failure_response(current_term, att);
+        att.resp_msg = "Leader term is outdated";
+        att.resp_id  = current_term;
+
+        failure_response(ACTION, att);
         return;
     }
 
@@ -159,7 +167,10 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
 
         if ( lr == 0 )
         {
-            failure_response(current_term, att);
+            att.resp_msg = "Previous log record missing";
+            att.resp_id  = current_term;
+
+            failure_response(ACTION, att);
             return;
         }
 
@@ -167,7 +178,10 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
         {
             delete lr;
 
-            failure_response(current_term, att);
+            att.resp_msg = "Previous log record missmatch";
+            att.resp_id  = current_term;
+
+            failure_response(ACTION, att);
             return;
         }
 
@@ -186,7 +200,7 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
 
     ostringstream sql_oss(sql);
 
-    logdb->insert_log_record(term, sql_oss, 0);
+    logdb->insert_log_record(index, term, sql_oss, 0);
 
     unsigned int new_commit = raftm->update_commit(commit, index);
 
@@ -194,3 +208,4 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
 
     success_response(static_cast<int>(current_term), att);
 }
+

@@ -33,7 +33,8 @@ const char * LogDB::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
 /* -------------------------------------------------------------------------- */
 
 
-LogDB::LogDB(SqlDB * _db):db(_db), next_index(0), last_applied(-1)
+LogDB::LogDB(SqlDB * _db, bool _solo):solo(_solo), db(_db), next_index(0),
+    last_applied(-1)
 {
     int r, i;
 
@@ -50,12 +51,13 @@ LogDB::~LogDB()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int LogDB::setup_index_cb(void *nil, int num, char **values, char **names)
+int LogDB::setup_index_cb(void *int_value, int num, char **values, char **names)
 {
-    if ( values[0] != 0 && values[0] != 0 && num == 2 )
+    int * value = static_cast<int *>(int_value);
+
+    if ( values[0] != 0 && num == 1 )
     {
-        next_index   = atoi(values[0]) + 1;
-        last_applied = atoi(values[1]);
+        *value = atoi(values[0]);
     }
 
     return 0;
@@ -64,18 +66,40 @@ int LogDB::setup_index_cb(void *nil, int num, char **values, char **names)
 int LogDB::setup_index(int& _last_applied, int& _last_index)
 {
     std::ostringstream oss;
+    int rc = 0;
 
-    set_callback(static_cast<Callbackable::Callback>(&LogDB::setup_index_cb));
+    _last_applied = 0;
+    _last_index   = -1;
 
-    oss << "SELECT MAX(i.log_index), MAX(j.log_index) FROM logdb i, "
-        << "(SELECT log_index AS log_index FROM logdb WHERE timestamp != 0) j";
+    set_callback(static_cast<Callbackable::Callback>(&LogDB::setup_index_cb),
+            static_cast<void *>(&_last_index));
 
-    int rc = db->exec_rd(oss,this);
+    oss << "SELECT MAX(log_index) FROM logdb";
+
+    rc += db->exec_rd(oss, this);
+
+    if ( rc == 0 )
+    {
+        next_index = _last_index + 1;
+    }
 
     unset_callback();
 
-    _last_applied = last_applied;
-    _last_index   = next_index - 1;
+    oss.str("");
+
+    set_callback(static_cast<Callbackable::Callback>(&LogDB::setup_index_cb),
+            static_cast<void *>(&_last_applied));
+
+    oss << "SELECT MAX(log_index) FROM logdb WHERE timestamp != 0";
+
+    rc += db->exec_rd(oss, this);
+
+    if ( rc == 0 )
+    {
+        last_applied = _last_applied;
+    }
+
+    unset_callback();
 
     return rc;
 }
@@ -230,32 +254,20 @@ int LogDB::exec_wr(ostringstream& cmd)
 
     RaftManager * raftm = Nebula::instance().get_raftm();
 
-    unsigned int term = 0;
-
-    bool solo   = true;
-    bool leader = true;
-
-    if ( raftm != 0 ) // == 0 during first bootstrap
-    {
-        term = raftm->get_term();
-        solo = raftm->is_solo();
-
-        leader = raftm->is_leader();
-    }
-
     // -------------------------------------------------------------------------
     // OpenNebula was started in solo mode
     // -------------------------------------------------------------------------
     if ( solo )
     {
-        if ( insert_log_record(term, cmd, time(0)) == -1 )
+        //TODO USE LAST_TERM IN SOlO MODE TO REENGAGE HA
+        if ( insert_log_record(0, cmd, time(0)) == -1 )
         {
             return -1;
         }
 
         return db->exec_wr(cmd);
     }
-    else if ( !leader )
+    else if ( raftm == 0 || !raftm->is_leader() )
     {
         NebulaLog::log("DBM", Log::ERROR,"Tried to modify DB being a follower");
         return -1;
@@ -264,7 +276,7 @@ int LogDB::exec_wr(ostringstream& cmd)
     // -------------------------------------------------------------------------
     // Insert log entry in the database and replicate on followers
     // -------------------------------------------------------------------------
-    int rindex = insert_log_record(term, cmd, 0);
+    int rindex = insert_log_record(raftm->get_term(), cmd, 0);
 
     if ( rindex == -1 )
     {
@@ -278,9 +290,15 @@ int LogDB::exec_wr(ostringstream& cmd)
     // Wait for completion
     rr.wait();
 
-    if ( rr.result == true ) //Record replicated on majority of followers
+    if ( !raftm->is_leader() ) // Check we are still leaders before applying
     {
-		apply_log_records(rindex);
+        NebulaLog::log("DBM", Log::ERROR, "Not applying log record, oned is"
+                " now a follower");
+        rc = -1;
+    }
+    else if ( rr.result == true ) //Record replicated on majority of followers
+    {
+		rc = apply_log_records(rindex);
     }
     else
     {
@@ -316,6 +334,8 @@ int LogDB::delete_log_records(unsigned int start_index)
 
         pthread_mutex_unlock(&mutex);
     }
+
+	return rc;
 }
 
 /* -------------------------------------------------------------------------- */

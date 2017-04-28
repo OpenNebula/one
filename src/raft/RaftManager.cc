@@ -104,10 +104,20 @@ void RaftManager::leader_action(const RaftAction& ra)
     LogDB * logdb    = nd.get_logdb();
     ZonePool * zpool = nd.get_zonepool();
 
+    Zone * zone;
+    ZoneServers * followers;
+    ZoneServers::zone_iterator zit;
+
+    std::vector<unsigned int> _follower_ids;
+    std::vector<unsigned int>::iterator fit;
+
     int index, _applied;
 
     int this_id = nd.get_server_id();
     int zone_id = nd.get_zone_id();
+
+    unsigned int _num_servers;
+
 
     std::ostringstream oss;
 
@@ -136,37 +146,48 @@ void RaftManager::leader_action(const RaftAction& ra)
 
     NebulaLog::log("RCM", Log::INFO, oss);
 
-    Zone * zone = zpool->get(zone_id, true);
+    zone = zpool->get(zone_id, true);
 
     if ( zone == 0 )
     {
-        std::ostringstream oss;
-
+        oss.str("");
         oss << "leader: zone " << zone_id << "does not exist.";
 
         NebulaLog::log("RCM", Log::ERROR, oss);
         return;
     }
 
-    pthread_mutex_lock(&mutex);
+    _num_servers = zone->servers_size();
 
-    ZoneServers * fllw = zone->get_servers();
+    followers = zone->get_servers();
 
-    for (ZoneServers::zone_iterator it = fllw->begin(); it != fllw->end(); ++it)
+    for (zit = followers->begin(); zit != followers->end(); ++zit)
     {
-        int id = (*it)->get_id();
+        int id = (*zit)->get_id();
 
         if ( id == this_id )
         {
             continue;
         }
 
-        next.insert(make_pair<unsigned int, unsigned int>(id, index + 1));
-
-        match.insert(make_pair<unsigned int, unsigned int>(id, 0));
+        _follower_ids.push_back(id);
     }
 
     zone->unlock();
+
+    pthread_mutex_lock(&mutex);
+
+    next.clear();
+    match.clear();
+
+    requests.clear();
+
+    for (fit = _follower_ids.begin(); fit != _follower_ids.end() ; fit++ )
+    {
+        next.insert(std::make_pair(*fit, index + 1));
+
+        match.insert(std::make_pair(*fit, 0));
+    }
 
     commit= _applied;
 
@@ -174,9 +195,11 @@ void RaftManager::leader_action(const RaftAction& ra)
 
     term  = ra.id();
 
+    num_servers = _num_servers;
+
     pthread_mutex_unlock(&mutex);
 
-    replica_manager.start_replica_threads();
+    replica_manager.start_replica_threads(_follower_ids);
 
     NebulaLog::log("RCM", Log::INFO, "oned is now the leader of zone");
 }
@@ -186,7 +209,14 @@ void RaftManager::leader_action(const RaftAction& ra)
 
 void RaftManager::follower_action(const RaftAction& ra)
 {
+    int lapplied, lindex;
+
+    Nebula& nd    = Nebula::instance();
+    LogDB * logdb = nd.get_logdb();
+
     replica_manager.stop_replica_threads();
+
+    logdb->setup_index(lapplied, lindex);
 
     pthread_mutex_lock(&mutex);
 
@@ -196,6 +226,19 @@ void RaftManager::follower_action(const RaftAction& ra)
 
     NebulaLog::log("RCM", Log::INFO, "oned is set to follower mode");
 
+    std::map<unsigned int, ReplicaRequest *>::iterator it;
+
+    for ( it = requests.begin() ; it != requests.end() ; ++it )
+    {
+        it->second->result = false;
+        it->second->timeout= false;
+        it->second->message= "oned is now follower";
+
+        it->second->notify();
+    }
+
+    requests.clear();
+
     pthread_mutex_unlock(&mutex);
 }
 
@@ -204,27 +247,6 @@ void RaftManager::follower_action(const RaftAction& ra)
 
 void RaftManager::replicate_log_action(const RaftAction& ra)
 {
-    Nebula& nd       = Nebula::instance();
-    ZonePool * zpool = nd.get_zonepool();
-
-    int zone_id = nd.get_zone_id();
-
-    Zone * zone = zpool->get(zone_id, true);
-
-    if ( zone == 0 )
-    {
-        std::ostringstream oss;
-
-        oss << "leader: zone " << zone_id << "does not exist.";
-
-        NebulaLog::log("RCM", Log::ERROR, oss);
-        return;
-    }
-
-    unsigned int num_servers = zone->servers_size();
-
-    zone->unlock();
-
     pthread_mutex_lock(&mutex);
 
     if ( state != LEADER )
@@ -235,13 +257,28 @@ void RaftManager::replicate_log_action(const RaftAction& ra)
 
     ReplicaRequest * request = ra.request();
 
-    request->to_commit(num_servers / 2 );
+    if ( num_servers <= 1 )
+    {
+        request->notify();
 
-    requests.insert(std::make_pair(request->index(), request));
+        request->result  = true;
+        request->timeout = false;
+
+        commit = request->index();
+    }
+    else
+    {
+        request->to_commit(num_servers / 2 );
+
+        requests.insert(std::make_pair(request->index(), request));
+    }
 
     pthread_mutex_unlock(&mutex);
 
-    replica_manager.replicate();
+    if ( num_servers > 1 )
+    {
+        replica_manager.replicate();
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -253,6 +290,9 @@ void RaftManager::replicate_success_action(const RaftAction& ra)
 
     std::map<unsigned int, unsigned int>::iterator next_it;
     std::map<unsigned int, unsigned int>::iterator match_it;
+
+    Nebula& nd    = Nebula::instance();
+    LogDB * logdb = nd.get_logdb();
 
     int follower_id = ra.id();
 
@@ -272,7 +312,7 @@ void RaftManager::replicate_success_action(const RaftAction& ra)
     match_it->second = replicated_index;
     next_it->second  = replicated_index + 1;
 
-    it = requests.find(follower_id);
+    it = requests.find(replicated_index);
 
     if ( it != requests.end() )
     {
@@ -280,7 +320,6 @@ void RaftManager::replicate_success_action(const RaftAction& ra)
 
         if ( it->second->to_commit() == 0 )
         {
-            delete it->second;
             requests.erase(it);
 
             commit = replicated_index;
@@ -288,6 +327,11 @@ void RaftManager::replicate_success_action(const RaftAction& ra)
     }
 
     pthread_mutex_unlock(&mutex);
+
+    if ( logdb->last_index() > replicated_index )
+    {
+        replica_manager.replicate(follower_id);
+    }
 }
 
 /* -------------------------------------------------------------------------- */

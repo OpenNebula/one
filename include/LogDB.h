@@ -59,7 +59,7 @@ struct LogDBRecord
 class LogDB : public SqlDB, Callbackable
 {
 public:
-    LogDB(SqlDB * _db);
+    LogDB(SqlDB * _db, bool solo);
 
     virtual ~LogDB();
 
@@ -91,16 +91,21 @@ public:
     int delete_log_records(unsigned int start_index);
 
     /**
-     *  Inserts a new log record in the database. If the record is successfully
-     *  inserted the index is incremented
+     *  Inserts a new log record in the database. No internal counters are
+     *  updated. This method is target at followers to replicate leader log
+     *  records.
+     *    @param index for the record
      *    @param term for the record
      *    @param sql command of the record
      *    @param timestamp associated to this record
      *
      *    @return -1 on failure, index of the inserted record on success
      */
-    int insert_log_record(unsigned int term, std::ostringstream& sql,
-            time_t timestamp);
+    int insert_log_record(unsigned int index, unsigned int term,
+            std::ostringstream& sql, time_t timestamp)
+    {
+	    return insert_replace(index, term, sql.str(), timestamp, false);
+    }
 
     // -------------------------------------------------------------------------
     // SQL interface
@@ -147,13 +152,21 @@ public:
     }
 
     /**
-     *  This function to get and initialize log related index
+     *  This function gets and initialize log related index
      *    @param last_applied, highest index applied to the DB
      *    @param last_index
      *
      *    @return 0 on success
      */
     int setup_index(int& last_applied, int& last_index);
+
+    /**
+     *  @return the index of the last record in the DB
+     */
+    int last_index()
+    {
+        return next_index - 1;
+    }
 
 protected:
     int exec(std::ostringstream& cmd, Callbackable* obj, bool quiet)
@@ -163,6 +176,11 @@ protected:
 
 private:
     pthread_mutex_t mutex;
+
+    /**
+     *  The Database was started in solo mode (no server_id defined)
+     */
+    bool solo;
 
     /**
      *  Pointer to the underlying DB store
@@ -210,6 +228,18 @@ private:
      */
     int insert_replace(int index, int term, const std::string& sql,
             time_t timestamp, bool replace);
+
+    /**
+     *  Inserts a new log record in the database. If the record is successfully
+     *  inserted the index is incremented
+     *    @param term for the record
+     *    @param sql command of the record
+     *    @param timestamp associated to this record
+     *
+     *    @return -1 on failure, index of the inserted record on success
+     */
+    int insert_log_record(unsigned int term, std::ostringstream& sql,
+            time_t timestamp);
 };
 
 #endif /*LOG_DB_H_*/
