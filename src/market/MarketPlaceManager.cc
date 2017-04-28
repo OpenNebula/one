@@ -120,6 +120,7 @@ void MarketPlaceManager::init_managers()
     Nebula& nd = Nebula::instance();
 
     imagem = nd.get_imagem();
+    raftm  = nd.get_raftm();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -190,6 +191,11 @@ void MarketPlaceManager::timer_action(const ActionRequest& ar)
     }
 
     tics = 0;
+
+    if ( !raftm->is_leader() && !raftm->is_solo() )
+    {
+        return;
+    }
 
     int rc;
 

@@ -1039,11 +1039,11 @@ void Nebula::start(bool bootstrap_only)
         ////////////////////////////////////////////////////////////////////////
         if ( server_id == 0 )
         {
-            raftm->leader_trigger(0);
+            raftm->leader(0);
         }
         else
         {
-            raftm->follower_trigger(0);
+            raftm->follower(0);
         }
         ////////////////////////////////////////////////////////////////////////
         //  TODO:

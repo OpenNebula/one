@@ -183,6 +183,11 @@ public:
 		return test_state(FOLLOWER);
     }
 
+    bool is_solo()
+    {
+        return test_state(SOLO);
+    }
+
     /**
      *  Get next index to send to the follower
      *    @param follower server id
@@ -266,11 +271,6 @@ private:
     // -------------------------------------------------------------------------
     // Action Listener interface
     // -------------------------------------------------------------------------
-    /**
-     *  Event dispatcher function
-     */
-    void user_action(const ActionRequest& ar);
-
     /**
      *  Termination function
      */
