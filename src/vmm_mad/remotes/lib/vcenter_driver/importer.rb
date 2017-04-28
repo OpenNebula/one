@@ -40,6 +40,7 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
         vcenter_vm.reference_imported_nics
 
         # Set vnc configuration F#5074
+        one_vm.info # Let's update the info to gather VNC info
         extraconfig   = []
         extraconfig  += vcenter_vm.extraconfig_vnc
         spec_hash     = { :extraConfig  => extraconfig }
