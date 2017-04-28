@@ -82,8 +82,10 @@ begin
     if disk["OPENNEBULA_MANAGED"] && disk["OPENNEBULA_MANAGED"].downcase == "no"
         unmanaged_keys = vm.get_unmanaged_keys
         device_key = unmanaged_keys["opennebula.disk.#{disk["DISK_ID"]}"].to_i
-        image_path, source_ds_ref = vm.get_device_filename_and_ds_from_key(device_key)
-        src_path = image_path.sub(/^\[(.*?)\] /, "")
+        vc_disks  = vm.get_vcenter_disks
+        disk_hash = vm.get_device_filename_and_ds_from_key(device_key, vc_disks)
+        src_path  = disk_hash[:path_wo_ds]
+        source_ds_ref = disk_hash[:datastore]._ref
     else
         # Get image source path
         src_path = VCenterDriver::FileHelper.get_img_name(disk, vmid, vm['name'])
