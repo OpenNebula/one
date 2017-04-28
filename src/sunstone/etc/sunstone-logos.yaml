@@ -6,6 +6,7 @@
 - { 'name': "Fedora",             'path': "images/logos/fedora.png"}
 - { 'name': "FreeBSD",            'path': "images/logos/freebsd.png"}
 - { 'name': "HardenedBSD",        'path': "images/logos/hardenedbsd.png"}
+- { 'name': "Knoppix",            'path': "images/logos/knoppix-logo.png"}
 - { 'name': "Linux",              'path': "images/logos/linux.png"}
 - { 'name': "Oracle",             'path': "images/logos/oel.png"}
 - { 'name': "Redhat",             'path': "images/logos/redhat.png"}
