@@ -39,7 +39,7 @@ public:
         LEADER    = 3
     };
 
-    RaftManager(bool solo):term(0), num_servers(0), commit(0)
+    RaftManager(time_t t, bool solo):term(0), num_servers(0), timer(t),commit(0)
     {
         pthread_mutex_init(&mutex, 0);
 
@@ -250,6 +250,16 @@ private:
      */
     unsigned int num_servers;
 
+    /**
+     *  Timer for periodic actions
+     */
+    time_t timer;
+
+    /**
+     *  Execute actions each "period" seconds
+     */
+    static const time_t period;
+
     //--------------------------------------------------------------------------
     // Volatile log index variables
     //   - commit, highest log known to be committed
@@ -275,6 +285,11 @@ private:
      *  Termination function
      */
     void finalize_action(const ActionRequest& ar);
+
+    /**
+     *  This function is executed periodically to purge the state log
+     */
+    void timer_action(const ActionRequest& ar);
 
 	/**
 	 *  @param s the state to check

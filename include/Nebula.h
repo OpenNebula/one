@@ -774,7 +774,7 @@ private:
     OpenNebulaTemplate * nebula_configuration;
 
     // ---------------------------------------------------------------
-    // Federation
+    // Federation - HA
     // ---------------------------------------------------------------
 
     bool    federation_enabled;
@@ -782,6 +782,7 @@ private:
     int     zone_id;
     int     server_id;
     string  master_oned;
+    string  log_retention;
 
     // ---------------------------------------------------------------
     // Default quotas

@@ -59,7 +59,7 @@ struct LogDBRecord
 class LogDB : public SqlDB, Callbackable
 {
 public:
-    LogDB(SqlDB * _db, bool solo);
+    LogDB(SqlDB * _db, bool solo, const std::string& log_retention);
 
     virtual ~LogDB();
 
@@ -106,6 +106,13 @@ public:
     {
 	    return insert_replace(index, term, sql.str(), timestamp, false);
     }
+
+    /**
+     *  Purge log records. Delete old records applied to database upto the
+     *  LOG_RETENTION configuration variable.
+     *    @return 0 on success
+     */
+    int purge_log();
 
     // -------------------------------------------------------------------------
     // SQL interface
@@ -204,6 +211,11 @@ private:
      *  Index of the last log entry applied to the DB state
      */
     unsigned int last_applied;
+
+    /**
+     *  Max number of records to keep in the database
+     */
+    std::string log_retention;
 
     // -------------------------------------------------------------------------
     // DataBase implementation

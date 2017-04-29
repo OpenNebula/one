@@ -21,6 +21,11 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+const time_t RaftManager::period = 600;
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 extern "C" void * raft_manager_loop(void *arg)
 {
     RaftManager * raftm;
@@ -34,7 +39,7 @@ extern "C" void * raft_manager_loop(void *arg)
 
     NebulaLog::log("RCM",Log::INFO,"Raft Consensus Manager started.");
 
-    raftm->am.loop();
+    raftm->am.loop(raftm->timer);
 
     NebulaLog::log("RCM",Log::INFO,"Raft Consensus Manager stopped.");
 
@@ -319,4 +324,38 @@ void RaftManager::replicate_failure(unsigned int follower_id)
     pthread_mutex_unlock(&mutex);
 
     replica_manager.replicate(follower_id);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void RaftManager::timer_action(const ActionRequest& ar)
+{
+    static int mark = 0;
+    static int tics = 0;
+
+    mark += timer;
+    tics += timer;
+
+    if ( mark >= 600 )
+    {
+        NebulaLog::log("RCM",Log::INFO,"--Mark--");
+        mark = 0;
+    }
+
+    if ( tics <  period)
+    {
+        return;
+    }
+
+    tics = 0;
+
+    Nebula& nd    = Nebula::instance();
+    LogDB * logdb = nd.get_logdb();
+
+    NebulaLog::log("RCM", Log::INFO, "Purging obsolete LogDB records");
+
+    logdb->purge_log();
+
+    return;
 }

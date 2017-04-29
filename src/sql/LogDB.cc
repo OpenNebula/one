@@ -32,9 +32,8 @@ const char * LogDB::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-
-LogDB::LogDB(SqlDB * _db, bool _solo):solo(_solo), db(_db), next_index(0),
-    last_applied(-1)
+LogDB::LogDB(SqlDB * _db, bool _solo, const std::string& _lret):solo(_solo),
+    db(_db), next_index(0), last_applied(-1), log_retention(_lret)
 {
     int r, i;
 
@@ -379,5 +378,20 @@ int LogDB::apply_log_records(unsigned int commit_index)
     pthread_mutex_unlock(&mutex);
 
 	return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int LogDB::purge_log()
+{
+    std::ostringstream oss;
+
+    // keep the last "log_retention" records as well as those not applied to DB
+    oss << "DELETE FROM logdb WHERE timestamp >0 AND log_index NOT IN "
+        << "(SELECT log_index FROM logdb ORDER BY log_index DESC LIMIT "
+        << log_retention <<")";
+
+    return db->exec_wr(oss);
 }
 

@@ -160,11 +160,12 @@ void Nebula::start(bool bootstrap_only)
     // -----------------------------------------------------------
     // Init federation configuration
     // -----------------------------------------------------------
-    federation_enabled  = false;
-    federation_master   = false;
-    zone_id             = 0;
-    server_id           = -1;
-    master_oned         = "";
+    federation_enabled = false;
+    federation_master  = false;
+    zone_id            = 0;
+    server_id          = -1;
+    master_oned        = "";
+    log_retention      = "50000";
 
     const VectorAttribute * vatt = nebula_configuration->get("FEDERATION");
 
@@ -218,6 +219,8 @@ void Nebula::start(bool bootstrap_only)
         {
             server_id = -1;
         }
+
+        log_retention = vatt->vector_value("LOG_RETENTION");
     }
 
     Log::set_zone_id(zone_id);
@@ -303,7 +306,7 @@ void Nebula::start(bool bootstrap_only)
             }
         }
 
-        logdb = new LogDB(db_backend, solo);
+        logdb = new LogDB(db_backend, solo, log_retention);
 
         // ---------------------------------------------------------------------
         // Prepare the SystemDB and check versions
@@ -900,7 +903,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- Raft Manager ----
     try
     {
-        raftm = new RaftManager(solo);
+        raftm = new RaftManager(timer_period, solo);
     }
     catch (bad_alloc&)
     {
