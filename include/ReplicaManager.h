@@ -34,7 +34,7 @@ extern "C" void * replication_thread(void *arg);
 class ReplicaThread
 {
 public:
-    ReplicaThread(int follower_id, int leader_id);
+    ReplicaThread(int follower_id);
 
     virtual ~ReplicaThread(){};
 
@@ -87,28 +87,6 @@ private:
     // Information of the replication target server and leader
     // -------------------------------------------------------------------------
     int follower_id;
-
-    int leader_id;
-
-    // -------------------------------------------------------------------------
-    // XML-RPC client variables to talk with this server
-    // -------------------------------------------------------------------------
-
-    static const std::string replica_method;
-
-    // -------------------------------------------------------------------------
-    // Helper functions
-    // -------------------------------------------------------------------------
-    /**
-     *  Calls the follower xml-rpc method
-     *    @param commit, highest index committed in the leader
-     *    @param lr the record to replicate
-     *    @param success of the xml-rpc method
-     *    @param ft term in the follower as returned by the replicate call
-     *    @return -1 if a XMl-RPC (network) error occurs, 0 otherwise
-     */
-    int xml_rpc_replicate(unsigned int commit, LogDBRecord * lr,
-            bool& success, unsigned int& ft);
 };
 
 // -----------------------------------------------------------------------------

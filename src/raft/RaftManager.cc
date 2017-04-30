@@ -14,14 +14,45 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "RaftManager.h"
 #include "Nebula.h"
+
+#include "RaftManager.h"
 #include "ZoneServer.h"
+#include "Client.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const time_t RaftManager::period = 600;
+const time_t RaftManager::purge_period_ms   = 600000;
+const time_t RaftManager::timer_period_ms   = 10;
+const time_t RaftManager::xmlrpc_timeout_ms = 500;
+
+RaftManager::RaftManager(int id):server_id(id), term(0), num_servers(0),
+	commit(0)
+{
+	pthread_mutex_init(&mutex, 0);
+
+	if ( server_id == -1 )
+	{
+		state = SOLO;
+	}
+	else
+	{
+		state = FOLLOWER;
+	}
+
+	am.addListener(this);
+
+	broadcast_timeout.tv_sec = 5;
+	broadcast_timeout.tv_nsec= 0;
+
+	last_heartbeat.tv_sec = 0;
+	last_heartbeat.tv_nsec= 0;
+
+	//TODO: RANDOM INITALIZATION
+	election_timeout.tv_sec = 30;
+	election_timeout.tv_nsec= 0;
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -29,6 +60,7 @@ const time_t RaftManager::period = 600;
 extern "C" void * raft_manager_loop(void *arg)
 {
     RaftManager * raftm;
+    struct timespec timeout;
 
     if ( arg == 0 )
     {
@@ -37,9 +69,12 @@ extern "C" void * raft_manager_loop(void *arg)
 
     raftm = static_cast<RaftManager *>(arg);
 
+    timeout.tv_sec  = 0;
+    timeout.tv_nsec = raftm->timer_period_ms * 1000000;
+
     NebulaLog::log("RCM",Log::INFO,"Raft Consensus Manager started.");
 
-    raftm->am.loop(raftm->timer);
+    raftm->am.loop(timeout);
 
     NebulaLog::log("RCM",Log::INFO,"Raft Consensus Manager stopped.");
 
@@ -73,26 +108,61 @@ void RaftManager::finalize_action(const ActionRequest& ar)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RaftManager::leader(unsigned int _term)
+void RaftManager::update_zone_servers()
 {
-    Nebula& nd       = Nebula::instance();
-    LogDB * logdb    = nd.get_logdb();
-    ZonePool * zpool = nd.get_zonepool();
-
-    Zone * zone;
-    ZoneServers * followers;
-    ZoneServers::zone_iterator zit;
-
-    std::vector<unsigned int> _follower_ids;
-    std::vector<unsigned int>::iterator fit;
-
-    int index, _applied;
-
-    int this_id = nd.get_server_id();
-    int zone_id = nd.get_zone_id();
-
+    std::map<unsigned int, std::string> _servers;
     unsigned int _num_servers;
 
+    Nebula& nd       = Nebula::instance();
+    ZonePool * zpool = nd.get_zonepool();
+
+    int zone_id = nd.get_zone_id();
+
+    ZoneServers::zone_iterator zit;
+
+    Zone * zone = zpool->get(zone_id, true);
+
+    if ( zone == 0 )
+    {
+        servers.clear();
+        num_servers = 0;
+
+        return;
+    }
+
+    ZoneServers * followers = zone->get_servers();
+
+    for (zit = followers->begin(); zit != followers->end(); ++zit)
+    {
+        unsigned int id  = (*zit)->get_id();
+        std::string  edp = (*zit)->vector_value("ENDPOINT");
+
+        _servers.insert(make_pair(id, edp));
+    }
+
+    _num_servers = zone->servers_size();
+
+    zone->unlock();
+
+    pthread_mutex_lock(&mutex);
+
+    servers     = _servers;
+    num_servers = _num_servers;
+
+    pthread_mutex_unlock(&mutex);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void RaftManager::leader(unsigned int _term)
+{
+    LogDB * logdb = Nebula::instance().get_logdb();
+
+    std::map<unsigned int, std::string>::iterator it;
+    std::vector<unsigned int> _follower_ids;
+
+    int index, _applied;
 
     std::ostringstream oss;
 
@@ -121,34 +191,7 @@ void RaftManager::leader(unsigned int _term)
 
     NebulaLog::log("RCM", Log::INFO, oss);
 
-    zone = zpool->get(zone_id, true);
-
-    if ( zone == 0 )
-    {
-        oss.str("");
-        oss << "leader: zone " << zone_id << "does not exist.";
-
-        NebulaLog::log("RCM", Log::ERROR, oss);
-        return;
-    }
-
-    _num_servers = zone->servers_size();
-
-    followers = zone->get_servers();
-
-    for (zit = followers->begin(); zit != followers->end(); ++zit)
-    {
-        int id = (*zit)->get_id();
-
-        if ( id == this_id )
-        {
-            continue;
-        }
-
-        _follower_ids.push_back(id);
-    }
-
-    zone->unlock();
+    update_zone_servers();
 
     pthread_mutex_lock(&mutex);
 
@@ -157,11 +200,18 @@ void RaftManager::leader(unsigned int _term)
 
     requests.clear();
 
-    for (fit = _follower_ids.begin(); fit != _follower_ids.end() ; fit++ )
+    for (it = servers.begin(); it != servers.end() ; ++it )
     {
-        next.insert(std::make_pair(*fit, index + 1));
+        if ( it->first == (unsigned int) server_id )
+        {
+            continue;
+        }
 
-        match.insert(std::make_pair(*fit, 0));
+        next.insert(std::make_pair(it->first, index + 1));
+
+        match.insert(std::make_pair(it->first, 0));
+
+        _follower_ids.push_back(it->first);
     }
 
     commit= _applied;
@@ -169,8 +219,6 @@ void RaftManager::leader(unsigned int _term)
     state = LEADER;
 
     term  = _term;
-
-    num_servers = _num_servers;
 
     pthread_mutex_unlock(&mutex);
 
@@ -328,34 +376,281 @@ void RaftManager::replicate_failure(unsigned int follower_id)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-void RaftManager::timer_action(const ActionRequest& ar)
+void RaftManager::update_last_heartbeat()
 {
-    static int mark = 0;
-    static int tics = 0;
+    pthread_mutex_lock(&mutex);
 
-    mark += timer;
-    tics += timer;
+	clock_gettime(CLOCK_REALTIME, &last_heartbeat);
 
-    if ( mark >= 600 )
+    pthread_mutex_unlock(&mutex);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+void RaftManager::send_heartbeat()
+{
+    std::map<unsigned int, std::string> _servers;
+    std::map<unsigned int, std::string>::iterator it;
+
+	LogDBRecord lr;
+
+	bool success;
+	unsigned int fterm;
+
+	std::string error;
+
+	lr.index = 0;
+	lr.prev_index = 0;
+
+	lr.term = 0;
+	lr.prev_term = 0;
+
+	lr.sql = "";
+
+	lr.timestamp = 0;
+
+    pthread_mutex_lock(&mutex);
+
+    if ( state != LEADER )
     {
-        NebulaLog::log("RCM",Log::INFO,"--Mark--");
-        mark = 0;
-    }
-
-    if ( tics <  period)
-    {
+        pthread_mutex_unlock(&mutex);
         return;
     }
 
-    tics = 0;
+    _servers = servers;
 
-    Nebula& nd    = Nebula::instance();
-    LogDB * logdb = nd.get_logdb();
+    pthread_mutex_unlock(&mutex);
 
-    NebulaLog::log("RCM", Log::INFO, "Purging obsolete LogDB records");
+    for (it = _servers.begin(); it != _servers.end() ; ++it )
+    {
+        if ( it->first == (unsigned int) server_id )
+        {
+            continue;
+        }
 
-    logdb->purge_log();
+		int rc = xmlrpc_replicate_log(it->first, &lr, success, fterm, error);
+
+		if ( rc == -1 )
+		{
+			std::ostringstream oss;
+
+			oss << "Error sending heartbeat to follower " << it->first <<": "
+				<< error;
+
+        	NebulaLog::log("RCM", Log::INFO, oss);
+		}
+		else if ( success == false && fterm > term )
+		{
+			follower(fterm);
+
+			break;
+		}
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void RaftManager::timer_action(const ActionRequest& ar)
+{
+    static int mark_tics  = 0;
+    static int purge_tics = 0;
+
+    mark_tics++;
+    purge_tics++;
+
+    // Thread heartbeat
+    if ( (mark_tics * timer_period_ms) >= 600000 )
+    {
+        NebulaLog::log("RCM",Log::INFO,"--Mark--");
+        mark_tics = 0;
+    }
+
+    // Database housekeeping
+    if ( (purge_tics * timer_period_ms) >= purge_period_ms )
+    {
+        Nebula& nd    = Nebula::instance();
+        LogDB * logdb = nd.get_logdb();
+
+        NebulaLog::log("RCM", Log::INFO, "Purging obsolete LogDB records");
+
+        logdb->purge_log();
+
+        purge_tics = 0;
+    }
+
+	// Leadership
+	struct timespec the_time;
+
+	clock_gettime(CLOCK_REALTIME, &the_time);
+
+	pthread_mutex_lock(&mutex);
+
+	if ( state == LEADER ) // Send the heartbeat
+	{
+		time_t sec  = last_heartbeat.tv_sec + broadcast_timeout.tv_sec;
+		long   nsec = last_heartbeat.tv_nsec + broadcast_timeout.tv_nsec;
+
+
+		if ((sec < the_time.tv_sec) || (sec == the_time.tv_sec &&
+				nsec <= the_time.tv_nsec))
+		{
+            clock_gettime(CLOCK_REALTIME, &last_heartbeat);
+
+            pthread_mutex_unlock(&mutex);
+
+			send_heartbeat();
+		}
+
+        pthread_mutex_unlock(&mutex);
+	}
+	else if ( state == FOLLOWER )
+	{
+		time_t sec  = last_heartbeat.tv_sec + election_timeout.tv_sec;
+		long   nsec = last_heartbeat.tv_nsec + election_timeout.tv_nsec;
+
+		pthread_mutex_unlock(&mutex);
+
+		if ((sec < the_time.tv_sec) || (sec == the_time.tv_sec &&
+				nsec <= the_time.tv_nsec))
+		{
+			NebulaLog::log("RRM", Log::ERROR, "Failed to get heartbeat from "
+				"leader. Starting election proccess");
+			//TODO
+		}
+	}
+	else
+	{
+		pthread_mutex_unlock(&mutex);
+	}
 
     return;
 }
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+int RaftManager::xmlrpc_replicate_log(int follower_id, LogDBRecord * lr,
+		bool& success, unsigned int& fterm, std::string& error)
+{
+	int _server_id;
+	int _commit;
+
+    static const std::string replica_method = "one.zone.replicate";
+
+    std::ostringstream ess;
+
+    std::string secret;
+    std::string follower_edp;
+
+    std::map<unsigned int, std::string>::iterator it;
+
+	int xml_rc = 0;
+
+	pthread_mutex_lock(&mutex);
+
+    it = servers.find(follower_id);
+
+    if ( it == servers.end() )
+    {
+        error = "Cannot find follower end point";
+        pthread_mutex_unlock(&mutex);
+
+        return -1;
+    }
+
+    follower_edp = it->second;
+
+	_commit    = commit;
+	_server_id = server_id;
+
+	pthread_mutex_unlock(&mutex);
+
+    // -------------------------------------------------------------------------
+    // Get parameters to call append entries on follower
+    // -------------------------------------------------------------------------
+    if ( Client::read_oneauth(secret, error) == -1 )
+    {
+        NebulaLog::log("RRM", Log::ERROR, error);
+        return -1;
+    }
+
+    xmlrpc_c::carriageParm_curl0 carriage(follower_edp);
+
+    xmlrpc_c::paramList replica_params;
+
+    xmlrpc_c::clientXmlTransport_curl transport;
+
+    xmlrpc_c::client_xml client(&transport);
+
+    replica_params.add(xmlrpc_c::value_string(secret));
+    replica_params.add(xmlrpc_c::value_int(_server_id));
+    replica_params.add(xmlrpc_c::value_int(_commit));
+    replica_params.add(xmlrpc_c::value_int(lr->index));
+    replica_params.add(xmlrpc_c::value_int(lr->term));
+    replica_params.add(xmlrpc_c::value_int(lr->prev_index));
+    replica_params.add(xmlrpc_c::value_int(lr->prev_term));
+    replica_params.add(xmlrpc_c::value_string(lr->sql));
+
+    xmlrpc_c::rpcPtr rpc_client(replica_method, replica_params);
+
+    // -------------------------------------------------------------------------
+    // Do the XML-RPC call
+    // -------------------------------------------------------------------------
+    try
+    {
+        rpc_client->start(&client, &carriage);
+
+        client.finishAsync(xmlrpc_c::timeout(xmlrpc_timeout_ms));
+
+        if (!rpc_client->isFinished())
+        {
+            rpc_client->finishErr(girerr::error("XMLRPC method "+replica_method
+                + " timeout, resetting call"));
+        }
+
+        if ( rpc_client->isSuccessful() )
+        {
+            vector<xmlrpc_c::value> values;
+
+            xmlrpc_c::value result = rpc_client->getResult();
+
+            values  = xmlrpc_c::value_array(result).vectorValueValue();
+            success = xmlrpc_c::value_boolean(values[0]);
+
+            if ( success ) //values[2] = error code (string)
+            {
+                fterm    = xmlrpc_c::value_int(values[1]);
+            }
+            else
+            {
+                error = xmlrpc_c::value_string(values[1]);
+                fterm = xmlrpc_c::value_int(values[3]);
+            }
+        }
+        else //RPC failed, will retry on next replication request
+        {
+            xmlrpc_c::fault failure = rpc_client->getFault();
+
+            ess << "Error replicating log entry " << lr->index
+                << " on follower " << follower_id << ": "
+                << failure.getDescription();
+
+			error = ess.str();
+
+            xml_rc = -1;
+        }
+    }
+    catch (exception const& e)
+    {
+        ess << "Error exception replicating log entry " << lr->index
+            << " on follower " << follower_id << ": " << e.what();
+
+		error = ess.str();
+
+        xml_rc = -1;
+    }
+
+    return xml_rc;
+}
+

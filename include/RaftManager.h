@@ -39,21 +39,7 @@ public:
         LEADER    = 3
     };
 
-    RaftManager(time_t t, bool solo):term(0), num_servers(0), timer(t),commit(0)
-    {
-        pthread_mutex_init(&mutex, 0);
-
-        if ( solo )
-        {
-            state = SOLO;
-        }
-        else
-        {
-            state = FOLLOWER;
-        }
-
-        am.addListener(this);
-    };
+    RaftManager(int server_id);
 
     virtual ~RaftManager(){};
 
@@ -169,6 +155,11 @@ public:
 		return _commit;
 	}
 
+	/**
+	 *  Update the last_heartbeat time recieved from server
+	 */
+	void update_last_heartbeat();
+
     /**
      *  @return true if the server is the leader of the zone, runs in solo mode
 	 *  or is a follower
@@ -212,6 +203,29 @@ public:
         return _index;
     }
 
+    // -------------------------------------------------------------------------
+    // XML-RPC Raft API calls
+    // -------------------------------------------------------------------------
+    /**
+     *  Calls the follower xml-rpc method
+	 *    @param follower_id to make the call
+     *    @param lr the record to replicate
+     *    @param success of the xml-rpc method
+     *    @param ft term in the follower as returned by the replicate call
+	 *    @param error describing error if any
+     *    @return -1 if a XMl-RPC (network) error occurs, 0 otherwise
+     */
+	int xmlrpc_replicate_log(int follower_id, LogDBRecord * lr, bool& success,
+			unsigned int& ft, std::string& error);
+
+    // -------------------------------------------------------------------------
+    // Server related interface
+    // -------------------------------------------------------------------------
+    /**
+     *  Update the servers in the zone (numner of servers, endpoints...)
+     */
+    void update_zone_servers();
+
 private:
     friend void * raft_manager_loop(void *arg);
 
@@ -240,6 +254,11 @@ private:
      */
     State state;
 
+	/**
+	 *  Server id
+	 */
+	int server_id;
+
     /**
      *  Current term
      */
@@ -250,15 +269,25 @@ private:
      */
     unsigned int num_servers;
 
-    /**
-     *  Timer for periodic actions
-     */
-    time_t timer;
+	/**
+	 *  Time when the last heartbeat was sent (LEADER) or received (FOLLOWER)
+	 */
+	struct timespec last_heartbeat;
 
     /**
-     *  Execute actions each "period" seconds
+     *  Timers
+     *    - timer_period_ms. Base timer to wake up the manager (10ms)
+     *    - purge_period_ms. How often the LogDB is purged (600s)
+     *    -
      */
-    static const time_t period;
+    static const time_t timer_period_ms;
+    static const time_t purge_period_ms;
+
+    static const time_t xmlrpc_timeout_ms;
+
+	struct timespec election_timeout;
+
+	struct timespec broadcast_timeout;
 
     //--------------------------------------------------------------------------
     // Volatile log index variables
@@ -277,6 +306,8 @@ private:
     std::map<unsigned int, unsigned int> next;
 
     std::map<unsigned int, unsigned int> match;
+
+    std::map<unsigned int, std::string>  servers;
 
     // -------------------------------------------------------------------------
     // Action Listener interface
@@ -307,6 +338,11 @@ private:
 
         return _is_state;
 	}
+
+	/**
+	 *  Send the heartbeat to the followers
+	 */
+	void send_heartbeat();
 };
 
 #endif /*RAFT_MANAGER_H_*/

@@ -903,7 +903,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- Raft Manager ----
     try
     {
-        raftm = new RaftManager(timer_period, solo);
+        raftm = new RaftManager(server_id);
     }
     catch (bad_alloc&)
     {

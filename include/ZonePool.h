@@ -131,6 +131,7 @@ public:
      * ID for the special local zone in stand-alone mode
      */
     static const int STANDALONE_ZONE_ID;
+
 private:
 
     /**

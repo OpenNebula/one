@@ -121,7 +121,7 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
 
     RaftManager * raftm = nd.get_raftm();
 
-    //int leader_id  = xmlrpc_c::value_int(paramList.getInt(1));
+    int leader_id  = xmlrpc_c::value_int(paramList.getInt(1));
     int commit     = xmlrpc_c::value_int(paramList.getInt(2));
 
     unsigned int index      = xmlrpc_c::value_int(paramList.getInt(3));
@@ -145,7 +145,7 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( !raftm->is_follower() )
     {
-        att.resp_msg = "Only followers can replicate log records";
+        att.resp_msg = "oned is not a follower. Cannot replicate log record.";
         att.resp_id  = current_term;
 
         failure_response(ACTION, att);
@@ -161,6 +161,17 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
+    raftm->update_last_heartbeat();
+
+    //HEARTBEAT
+    if ( index == 0 && prev_index == 0 && term == 0 && prev_term == 0 &&
+         sql.empty() )
+    {
+        success_response(static_cast<int>(current_term), att);
+        return;
+    }
+
+    //REPLICATE
     if ( index > 0 )
     {
         lr = logdb->get_log_record(prev_index);

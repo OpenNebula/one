@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "ZonePool.h"
+#include "ZoneServer.h"
 #include "NebulaLog.h"
 #include "Nebula.h"
 #include <sys/types.h>
@@ -201,3 +202,4 @@ int ZonePool::drop(PoolObjectSQL * objsql, string& error_msg)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+

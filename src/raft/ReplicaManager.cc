@@ -17,7 +17,6 @@
 #include "ReplicaManager.h"
 #include "Nebula.h"
 #include "NebulaLog.h"
-#include "Client.h"
 #include "ZoneServer.h"
 
 // -----------------------------------------------------------------------------
@@ -26,9 +25,7 @@
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
-const std::string ReplicaThread::replica_method = "one.zone.replicate";
-
-const time_t ReplicaThread::max_retry_timeout   = 300;
+const time_t ReplicaThread::max_retry_timeout = 300;
 
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -54,148 +51,13 @@ extern "C" void * replication_thread(void *arg)
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
-ReplicaThread::ReplicaThread(int f, int l):_finalize(false),
-    _pending_requests(false), retry_timeout(2), follower_id(f), leader_id(l)
+ReplicaThread::ReplicaThread(int f):_finalize(false), _pending_requests(false),
+    retry_timeout(2), follower_id(f)
 {
     pthread_mutex_init(&mutex, 0);
 
     pthread_cond_init(&cond, 0);
 };
-
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
-
-int ReplicaThread::xml_rpc_replicate(unsigned int commit, LogDBRecord * lr,
-        bool& success, unsigned int& fterm)
-{
-    std::ostringstream oss;
-
-    Nebula& nd = Nebula::instance();
-
-    ZonePool * zpool = nd.get_zonepool();
-    int zone_id      = nd.get_zone_id();
-
-    std::string secret, error;
-
-    int xml_rc = 0;
-
-    // -------------------------------------------------------------------------
-    // Get parameters to call append entries on follower
-    // -------------------------------------------------------------------------
-    if ( Client::read_oneauth(secret, error) == -1 )
-    {
-        NebulaLog::log("RRM", Log::ERROR, error);
-        return -1;
-    }
-
-    Zone * zone = zpool->get(zone_id, true);
-
-    if ( zone == 0 )
-    {
-        return -1;
-    }
-
-    ZoneServer * follower = zone->get_server(follower_id);
-
-    if ( follower == 0 )
-    {
-        zone->unlock();
-
-        return -1;
-    }
-
-    std::string follower_edp = follower->vector_value("ENDPOINT");
-
-    zone->unlock();
-
-    // -------------------------------------------------------------------------
-    // Setup XML-RPC call
-    // -------------------------------------------------------------------------
-    oss << "Replicating log entry " << lr->index << " on server: "
-        << follower_id << " (" << follower_edp <<")";
-
-    NebulaLog::log("RRM", Log::DDEBUG, oss);
-
-    xmlrpc_c::carriageParm_curl0 carriage(follower_edp);
-
-    xmlrpc_c::paramList replica_params;
-
-    xmlrpc_c::clientXmlTransport_curl transport;
-
-    xmlrpc_c::client_xml client(&transport);
-
-    replica_params.add(xmlrpc_c::value_string(secret));
-    replica_params.add(xmlrpc_c::value_int(leader_id));
-    replica_params.add(xmlrpc_c::value_int(commit));
-    replica_params.add(xmlrpc_c::value_int(lr->index));
-    replica_params.add(xmlrpc_c::value_int(lr->term));
-    replica_params.add(xmlrpc_c::value_int(lr->prev_index));
-    replica_params.add(xmlrpc_c::value_int(lr->prev_term));
-    replica_params.add(xmlrpc_c::value_string(lr->sql));
-
-    xmlrpc_c::rpc rpc_client(replica_method, replica_params);
-
-    // -------------------------------------------------------------------------
-    // Do the XML-RPC call
-    // -------------------------------------------------------------------------
-    try
-    {
-        rpc_client.call(&client, &carriage);
-
-        if ( rpc_client.isSuccessful() )
-        {
-            std::string error_str;
-            int         error_rc;
-
-            vector<xmlrpc_c::value> values;
-
-            xmlrpc_c::value result = rpc_client.getResult();
-
-            values = xmlrpc_c::value_array(result).vectorValueValue();
-
-            success   = xmlrpc_c::value_boolean(values[0]);
-
-            if ( success )
-            {
-                fterm = xmlrpc_c::value_int(values[1]);
-                error_rc  = xmlrpc_c::value_int(values[2]);
-            }
-            else
-            {
-                error_str = xmlrpc_c::value_string(values[1]);
-                error_rc  = xmlrpc_c::value_int(values[2]);
-                fterm     = xmlrpc_c::value_int(values[3]);
-            }
-        }
-        else //RPC failed, will retry on next replication request
-        {
-            ostringstream ess;
-
-            xmlrpc_c::fault failure = rpc_client.getFault();
-
-            ess << "Error replicating log entry " << lr->index
-                << " on follower " << follower_id << ": "
-                << failure.getDescription();
-
-            NebulaLog::log("RRM", Log::ERROR, ess);
-
-            xml_rc = -1;
-        }
-    }
-    catch (exception const& e)
-    {
-        std::ostringstream  ess;
-
-        ess << "Error exception replicating log entry " << lr->index
-            << " on follower " << follower_id << ": " << e.what();
-
-        NebulaLog::log("RRM", Log::ERROR, ess);
-
-        xml_rc = -1;
-    }
-
-    return xml_rc;
-}
 
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -209,6 +71,7 @@ void ReplicaThread::do_replication()
     unsigned int term = raftm->get_term();
 
     bool retry_request = false;
+    std::string error;
 
     while ( _finalize == false )
     {
@@ -239,10 +102,8 @@ void ReplicaThread::do_replication()
         // ---------------------------------------------------------------------
         // Get parameters to call append entries on follower
         // ---------------------------------------------------------------------
-        unsigned int commit = raftm->get_commit();
-        int next_index      = raftm->get_next_index(follower_id);
-
-        LogDBRecord * lr    = logdb->get_log_record(next_index);
+        int next_index   = raftm->get_next_index(follower_id);
+        LogDBRecord * lr = logdb->get_log_record(next_index);
 
         bool success = false;
         unsigned int follower_term = -1;
@@ -258,12 +119,15 @@ void ReplicaThread::do_replication()
             continue;
         }
 
-        int xml_rc = xml_rpc_replicate(commit, lr, success, follower_term);
+        int xml_rc = raftm->xmlrpc_replicate_log(follower_id, lr, success,
+            follower_term, error);
 
         delete lr;
 
         if ( xml_rc == -1 )
         {
+            NebulaLog::log("RCM", Log::ERROR, error);
+
             if ( retry_timeout < max_retry_timeout )
             {
                 retry_timeout = 2 * retry_timeout;
@@ -444,7 +308,7 @@ void ReplicaManager::add_replica_thread(int follower_id)
         return;
     }
 
-    ReplicaThread * rthread = new ReplicaThread(follower_id, this_id);
+    ReplicaThread * rthread = new ReplicaThread(follower_id);
 
     thread_pool.insert(std::make_pair(follower_id, rthread));
 
