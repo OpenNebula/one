@@ -25,6 +25,7 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
 {
     int    id     = xmlrpc_c::value_int(paramList.getInt(1));
     string zs_str = xmlrpc_c::value_string(paramList.getString(2));
+	int    zs_id;
 
     string error_str;
 
@@ -55,7 +56,7 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ( zone->add_server(zs_tmpl, att.resp_msg) == -1 )
+    if ( zone->add_server(zs_tmpl, zs_id, att.resp_msg) == -1 )
     {
         failure_response(ACTION, att);
 
@@ -65,6 +66,8 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
     pool->update(zone);
 
     zone->unlock();
+
+	Nebula::instance().get_raftm()->add_server(zs_id);
 
     success_response(id, att);
 }
@@ -106,6 +109,8 @@ void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
     pool->update(zone);
 
     zone->unlock();
+
+	Nebula::instance().get_raftm()->delete_server(zs_id);
 
     success_response(id, att);
 }

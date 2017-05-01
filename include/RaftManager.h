@@ -221,10 +221,9 @@ public:
     // -------------------------------------------------------------------------
     // Server related interface
     // -------------------------------------------------------------------------
-    /**
-     *  Update the servers in the zone (numner of servers, endpoints...)
-     */
-    void update_zone_servers();
+	void add_server(unsigned int follower_id);
+
+	void delete_server(unsigned int follower_id);
 
 private:
     friend void * raft_manager_loop(void *arg);
@@ -274,13 +273,16 @@ private:
 	 */
 	struct timespec last_heartbeat;
 
-    /**
-     *  Timers
-     *    - timer_period_ms. Base timer to wake up the manager (10ms)
-     *    - purge_period_ms. How often the LogDB is purged (600s)
-     *    -
-     */
+    //--------------------------------------------------------------------------
+    //  Timers
+    //    - timer_period_ms. Base timer to wake up the manager (10ms)
+    //    - purge_period_ms. How often the LogDB is purged (600s)
+    //    - xmlrpc_timeout. To timeout xml-rpc api calls to replicate log
+	//    - election_timeout. Timeout leader heartbeats (followers)
+	//    - broadcast_timeout. To send heartbeat to followers (leader)
+    //--------------------------------------------------------------------------
     static const time_t timer_period_ms;
+
     static const time_t purge_period_ms;
 
     static const time_t xmlrpc_timeout_ms;
@@ -298,6 +300,7 @@ private:
     //
     //   - next, next log to send to each follower <follower, next>
     //   - match, highest log replicated in this server <follower, match>
+	//   - servers, list of servers in zone and xml-rpc edp <follower, edp>
     // -------------------------------------------------------------------------
     ReplicaManager replica_manager;
 
@@ -339,10 +342,22 @@ private:
         return _is_state;
 	}
 
+    // -------------------------------------------------------------------------
+    // Helper functions
+    // -------------------------------------------------------------------------
 	/**
 	 *  Send the heartbeat to the followers
 	 */
 	void send_heartbeat();
+
+    /**
+     *  Update the servers in the zone (numner of servers, endpoints...). This
+	 *  function updates:
+	 *    - num_servers
+	 *    - servers id
+	 *    - servers endpoints
+     */
+    void update_zone_servers();
 };
 
 #endif /*RAFT_MANAGER_H_*/

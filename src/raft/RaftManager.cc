@@ -153,6 +153,44 @@ void RaftManager::update_zone_servers()
 }
 
 /* -------------------------------------------------------------------------- */
+
+void RaftManager::add_server(unsigned int follower_id)
+{
+	LogDB * logdb = Nebula::instance().get_logdb();
+
+	unsigned int index = logdb->last_index();
+
+	update_zone_servers();
+
+	pthread_mutex_lock(&mutex);
+
+	next.insert(std::make_pair(follower_id, index + 1));
+
+	match.insert(std::make_pair(follower_id, 0));
+
+	replica_manager.add_replica_thread(follower_id);
+
+	pthread_mutex_unlock(&mutex);
+};
+
+/* -------------------------------------------------------------------------- */
+
+void RaftManager::delete_server(unsigned int follower_id)
+{
+	update_zone_servers();
+
+	pthread_mutex_lock(&mutex);
+
+	next.erase(follower_id);
+
+	match.erase(follower_id);
+
+	replica_manager.delete_replica_thread(follower_id);
+
+	pthread_mutex_unlock(&mutex);
+};
+
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 void RaftManager::leader(unsigned int _term)
@@ -220,9 +258,9 @@ void RaftManager::leader(unsigned int _term)
 
     term  = _term;
 
-    pthread_mutex_unlock(&mutex);
-
     replica_manager.start_replica_threads(_follower_ids);
+
+    pthread_mutex_unlock(&mutex);
 
     NebulaLog::log("RCM", Log::INFO, "oned is now the leader of zone");
 }
@@ -237,11 +275,11 @@ void RaftManager::follower(unsigned int _term)
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
 
-    replica_manager.stop_replica_threads();
-
     logdb->setup_index(lapplied, lindex);
 
     pthread_mutex_lock(&mutex);
+
+    replica_manager.stop_replica_threads();
 
     state = FOLLOWER;
 
@@ -294,12 +332,12 @@ void RaftManager::replicate_log(ReplicaRequest * request)
         requests.insert(std::make_pair(request->index(), request));
     }
 
-    pthread_mutex_unlock(&mutex);
-
     if ( num_servers > 1 )
     {
         replica_manager.replicate();
     }
+
+    pthread_mutex_unlock(&mutex);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -314,6 +352,8 @@ void RaftManager::replicate_success(unsigned int follower_id)
 
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
+
+	int db_last_index = logdb->last_index();
 
     pthread_mutex_lock(&mutex);
 
@@ -345,12 +385,12 @@ void RaftManager::replicate_success(unsigned int follower_id)
         }
     }
 
-    pthread_mutex_unlock(&mutex);
-
-    if ( logdb->last_index() > replicated_index )
+    if ( db_last_index > replicated_index )
     {
         replica_manager.replicate(follower_id);
     }
+
+    pthread_mutex_unlock(&mutex);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -369,9 +409,9 @@ void RaftManager::replicate_failure(unsigned int follower_id)
         next_it->second = next_it->second - 1;
     }
 
-    pthread_mutex_unlock(&mutex);
-
     replica_manager.replicate(follower_id);
+
+    pthread_mutex_unlock(&mutex);
 }
 
 /* -------------------------------------------------------------------------- */

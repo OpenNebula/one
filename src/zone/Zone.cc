@@ -300,12 +300,14 @@ int Zone::post_update_template(string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Zone::add_server(Template& tmpl, string& error)
+int Zone::add_server(Template& tmpl, int& sid, string& error)
 {
     vector<VectorAttribute *> vs;
     vector<VectorAttribute *>::iterator it;
 
     VectorAttribute * server;
+
+    sid = -1;
 
     tmpl.get(ZoneServers::SERVER_NAME, vs);
 
@@ -313,7 +315,7 @@ int Zone::add_server(Template& tmpl, string& error)
     {
         server = new VectorAttribute(*it);
 
-        if ( servers->add_server(server, error) == -1 )
+        if ( servers->add_server(server, sid, error) == -1 )
         {
             delete server;
 

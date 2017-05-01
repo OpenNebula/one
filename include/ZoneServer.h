@@ -159,7 +159,7 @@ public:
         return static_cast<ZoneServer *>(get_attribute(id));
     }
 
-    int add_server(VectorAttribute * va, string& error)
+    int add_server(VectorAttribute * va, int& sid, string& error)
     {
         ZoneServer * server = new ZoneServer(va, next_id);
 
@@ -173,6 +173,8 @@ public:
         va->replace(SERVER_ID_NAME, next_id);
 
         add_attribute(server, next_id);
+
+        sid = next_id;
 
         next_id += 1;
 

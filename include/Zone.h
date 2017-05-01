@@ -49,11 +49,12 @@ public:
     /**
      *  Add servers to this zone
      *    @param tmpl with SERVER definitions
+     *    @param sid id of the new sever
      *    @param error
      *
      *    @return 0 on success, -1 otherwise
      */
-    int add_server(Template& tmpl, string& error);
+    int add_server(Template& tmpl, int& sid, string& error);
 
     /**
      *  Delete a server from this zone

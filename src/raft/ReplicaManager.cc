@@ -272,6 +272,8 @@ void ReplicaManager::replicate(int follower)
 
 void ReplicaManager::delete_replica_thread(int follower_id)
 {
+    std::ostringstream oss;
+
     std::map<int, ReplicaThread *>::iterator it;
 
     it = thread_pool.find(follower_id);
@@ -281,9 +283,15 @@ void ReplicaManager::delete_replica_thread(int follower_id)
         return;
     }
 
+    oss << "Stopping replication thread for follower: " << follower_id;
+
+    NebulaLog::log("RCM", Log::INFO, oss);
+
     it->second->finalize();
 
     pthread_join(it->second->thread_id(), 0);
+
+    NebulaLog::log("RCM", Log::INFO, "Replication thread stopped");
 
     delete it->second;
 
