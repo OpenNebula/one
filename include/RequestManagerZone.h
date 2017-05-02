@@ -96,4 +96,20 @@ public:
                          RequestAttributes& att);
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class ZoneVoteRequest : public RequestManagerZone
+{
+public:
+    ZoneVoteRequest():
+        RequestManagerZone("ZoneVoteRequest", "Request vote from a candidate",
+                "A:siiii"){};
+
+    ~ZoneVoteRequest(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+};
+
 #endif

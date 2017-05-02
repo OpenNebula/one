@@ -91,9 +91,9 @@ public:
     int delete_log_records(unsigned int start_index);
 
     /**
-     *  Inserts a new log record in the database. No internal counters are
-     *  updated. This method is target at followers to replicate leader log
-     *  records.
+     *  Inserts a new log record in the database. This method should be used
+     *  in FOLLOWER mode to replicate leader log. It updates next_index and
+     *  last_term to evaluate vote requests.
      *    @param index for the record
      *    @param term for the record
      *    @param sql command of the record
@@ -104,8 +104,46 @@ public:
     int insert_log_record(unsigned int index, unsigned int term,
             std::ostringstream& sql, time_t timestamp)
     {
-	    return insert_replace(index, term, sql.str(), timestamp, false);
+        int rc;
+
+        pthread_mutex_lock(&mutex);
+
+	    rc = insert_replace(index, term, sql.str(), timestamp, false);
+
+        if ( rc == 0 && term >= 0 && index >= 0 )
+        {
+            next_index = index + 1;
+
+            last_term  = term;
+        }
+
+        pthread_mutex_unlock(&mutex);
+
+        return rc;
     }
+
+    //--------------------------------------------------------------------------
+    // Functions to manage the Raft state. Log record 0, term -1
+    // -------------------------------------------------------------------------
+
+    /**
+     *  Stores the raft state in the log
+     *    @param raft attributes in XML format
+     *    @param replace true to replace the current configuration or false to
+     *    insert a new one
+     *    @return 0 on success
+     */
+    int insert_raft_state(std::string& raft_xml, bool replace)
+    {
+        return insert_replace(0, -1, raft_xml, 0, replace);
+    }
+
+    /**
+     *  Returns the raft state attributes as stored in the log
+     *    @param raft_xml attributes in xml
+     *    @return 0 on success
+     */
+    int get_raft_state(std::string &raft_xml);
 
     /**
      *  Purge log records. Delete old records applied to database upto the
@@ -168,19 +206,18 @@ public:
     int setup_index(int& last_applied, int& last_index);
 
     /**
-     *  @return the index of the last record in the DB
+     *  Gets the index of the last record in the log
+     *    @param _i the index
+     *    @param _t the term
      */
-    int last_index()
+    void get_last_record_index(unsigned int& _i, unsigned int& _t)
     {
-        unsigned int _last_index;
-
         pthread_mutex_lock(&mutex);
 
-        _last_index = next_index - 1;
+        _i = next_index - 1;
+        _t = last_term;
 
         pthread_mutex_unlock(&mutex);
-
-        return _last_index;
     }
 
 protected:
@@ -213,6 +250,11 @@ private:
     unsigned int last_applied;
 
     /**
+     *  Term of the last entry added to the log
+     */
+    unsigned int last_term;
+
+    /**
      *  Max number of records to keep in the database
      */
     std::string log_retention;
@@ -235,6 +277,11 @@ private:
      *  SQL callback for log record SELECT commands
      */
     int select_cb(void *req, int num, char **values, char **names);
+
+    /**
+     *  SQL callback for loading the raft state
+     */
+    int raft_state_cb(void *str_value, int num, char **values, char **names);
 
     /**
      *  Inserts or update a log record in the database

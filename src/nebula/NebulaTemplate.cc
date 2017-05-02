@@ -445,9 +445,9 @@ void OpenNebulaTemplate::set_conf_default()
     vvalue.clear();
     vvalue.insert(make_pair("LOG_RETENTION","500000"));
     vvalue.insert(make_pair("LOG_PURGE_TIMEOUT","600"));
-    vvalue.insert(make_pair("ELECTION_TIMEOUT_MS","1000"));
-    vvalue.insert(make_pair("BROADCAST_TIMEOUT_MS","200"));
-    vvalue.insert(make_pair("XMLRPC_TIMEOUT_MS","20"));
+    vvalue.insert(make_pair("ELECTION_TIMEOUT_MS","1500"));
+    vvalue.insert(make_pair("BROADCAST_TIMEOUT_MS","500"));
+    vvalue.insert(make_pair("XMLRPC_TIMEOUT_MS","100"));
 
     vattribute = new VectorAttribute("RAFT",vvalue);
     conf_default.insert(make_pair(vattribute->name(),vattribute));

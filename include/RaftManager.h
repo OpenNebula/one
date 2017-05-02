@@ -164,6 +164,20 @@ public:
 		return _commit;
 	}
 
+    /**
+     *  Update the term for this server. The state will be stored in the DB.
+     *    @param _term the new term
+     */
+    void update_term(unsigned int _term);
+
+    /**
+     *  Evaluates a vote request. It is granted if no vote has been granted in
+     *  this term or it is requested by the same candidate.
+     *    @param _votedfor the candidate id
+     *    @return -1 if vote is not granted
+     */
+    int update_votedfor(int _votedfor);
+
 	/**
 	 *  Update the last_heartbeat time recieved from server
 	 */
@@ -291,6 +305,17 @@ private:
 	 *  Time when the last heartbeat was sent (LEADER) or received (FOLLOWER)
 	 */
 	struct timespec last_heartbeat;
+
+    /**
+     *  ID of the last candidate we voted for  ( -1 if none )
+     */
+    int votedfor;
+
+    /**
+     *  This is the raft persistent state: votedfor and current term. It is
+     *  stored along the log in a special record (0, -1 , TEMPLATE, 0)
+     */
+    Template raft_state;
 
     //--------------------------------------------------------------------------
     //  Timers

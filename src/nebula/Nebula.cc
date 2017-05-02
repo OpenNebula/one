@@ -668,6 +668,24 @@ void Nebula::start(bool bootstrap_only)
         Client::initialize("", get_master_oned(), msg_size, timeout);
     }
 
+    // ---- Raft Manager ----
+    try
+    {
+        raftm = new RaftManager(server_id, log_purge, bcast_ms, election_ms,
+                xmlrpc_ms);
+    }
+    catch (bad_alloc&)
+    {
+        throw;
+    }
+
+    rc = raftm->start();
+
+    if ( rc != 0 )
+    {
+       throw runtime_error("Could not start the Raft Consensus Manager");
+    }
+
     // ---- Virtual Machine Manager ----
     try
     {
@@ -911,24 +929,6 @@ void Nebula::start(bool bootstrap_only)
     if ( rc != 0 )
     {
        throw runtime_error("Could not start the IPAM Manager");
-    }
-
-    // ---- Raft Manager ----
-    try
-    {
-        raftm = new RaftManager(server_id, log_purge, bcast_ms, election_ms,
-                xmlrpc_ms);
-    }
-    catch (bad_alloc&)
-    {
-        throw;
-    }
-
-    rc = raftm->start();
-
-    if ( rc != 0 )
-    {
-       throw runtime_error("Could not start the Raft Consensus Manager");
     }
 
     // -----------------------------------------------------------

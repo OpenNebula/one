@@ -216,7 +216,16 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
 
     ostringstream sql_oss(sql);
 
-    logdb->insert_log_record(index, term, sql_oss, 0);
+    if ( logdb->insert_log_record(index, term, sql_oss, 0) != 0 )
+    {
+        att.resp_msg = "Error writing log record";
+        att.resp_id  = current_term;
+
+        failure_response(ACTION, att);
+        return;
+    }
+
+    raftm->update_term(term);
 
     unsigned int new_commit = raftm->update_commit(commit, index);
 
@@ -224,4 +233,69 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
 
     success_response(static_cast<int>(current_term), att);
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void ZoneVoteRequest::request_execute(xmlrpc_c::paramList const& paramList,
+    RequestAttributes& att)
+{
+    Nebula& nd    = Nebula::instance();
+    LogDB * logdb = nd.get_logdb();
+
+    RaftManager * raftm = nd.get_raftm();
+
+    unsigned int candidate_term  = xmlrpc_c::value_int(paramList.getInt(1));
+    unsigned int candidate_id    = xmlrpc_c::value_int(paramList.getInt(2));
+
+    unsigned int candidate_log_index = xmlrpc_c::value_int(paramList.getInt(3));
+    unsigned int candidate_log_term  = xmlrpc_c::value_int(paramList.getInt(4));
+
+    unsigned int current_term = raftm->get_term();
+
+    unsigned int log_index, log_term;
+
+    logdb->get_last_record_index(log_index, log_term);
+
+    if ( att.uid != 0 )
+    {
+        att.resp_id  = current_term;
+
+        failure_response(AUTHORIZATION, att);
+        return;
+    }
+
+    if ( candidate_term < current_term )
+    {
+        att.resp_msg = "Candidate's term is outdated";
+        att.resp_id  = current_term;
+
+        failure_response(ACTION, att);
+        return;
+    }
+
+
+    if ((log_term > candidate_log_term) || ((log_term == candidate_log_term) &&
+        (log_index > candidate_log_index)))
+    {
+        att.resp_msg = "Candidate's log is outdated";
+        att.resp_id  = current_term;
+
+        failure_response(ACTION, att);
+        return;
+
+    }
+
+    if ( raftm->update_votedfor(candidate_id) != 0 )
+    {
+        att.resp_msg = "Already voted for another candidate";
+        att.resp_id  = current_term;
+
+        failure_response(ACTION, att);
+        return;
+    }
+
+    success_response(static_cast<int>(current_term), att);
+}
+
 

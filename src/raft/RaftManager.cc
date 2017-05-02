@@ -40,6 +40,8 @@ RaftManager::RaftManager(int id, time_t log_purge, long long bcast,
         long long elect, time_t xmlrpc):server_id(id), term(0), num_servers(0),
 	commit(0)
 {
+    std::string raft_xml;
+
 	pthread_mutex_init(&mutex, 0);
 
 	if ( server_id == -1 )
@@ -63,6 +65,29 @@ RaftManager::RaftManager(int id, time_t log_purge, long long bcast,
     // Warm up of 5 seconds to start the election timeout
 	clock_gettime(CLOCK_REALTIME, &last_heartbeat);
 	last_heartbeat.tv_sec += 5;
+
+    Nebula& nd    = Nebula::instance();
+    LogDB * logdb = nd.get_logdb();
+
+    if ( logdb->get_raft_state(raft_xml) != 0 )
+    {
+        raft_state.replace("TERM", 0);
+        raft_state.replace("VOTEDFOR", -1);
+
+        raft_state.to_xml(raft_xml);
+
+        logdb->insert_raft_state(raft_xml, false);
+
+        votedfor = -1;
+        term     = 0;
+    }
+    else
+    {
+        raft_state.from_xml(raft_xml);
+
+        raft_state.get("TERM", term);
+        raft_state.get("VOTEDFOR", votedfor);
+    }
 };
 
 /* -------------------------------------------------------------------------- */
@@ -161,7 +186,9 @@ void RaftManager::add_server(unsigned int follower_id)
 {
 	LogDB * logdb = Nebula::instance().get_logdb();
 
-	unsigned int index = logdb->last_index();
+	unsigned int log_index, log_term;
+
+    logdb->get_last_record_index(log_index, log_term);
 
     std::map<unsigned int, std::string> _servers;
 
@@ -172,7 +199,7 @@ void RaftManager::add_server(unsigned int follower_id)
     num_servers = _num_servers;
     servers     = _servers;
 
-	next.insert(std::make_pair(follower_id, index + 1));
+	next.insert(std::make_pair(follower_id, log_index + 1));
 
 	match.insert(std::make_pair(follower_id, 0));
 
@@ -366,7 +393,9 @@ void RaftManager::replicate_success(unsigned int follower_id)
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
 
-	int db_last_index = logdb->last_index();
+	unsigned int db_last_index, db_last_term;
+
+    logdb->get_last_record_index(db_last_index, db_last_term);
 
     pthread_mutex_lock(&mutex);
 
@@ -379,7 +408,7 @@ void RaftManager::replicate_success(unsigned int follower_id)
         return;
     }
 
-    int replicated_index = next_it->second;
+    unsigned int replicated_index = next_it->second;
 
     match_it->second = replicated_index;
     next_it->second  = replicated_index + 1;
@@ -429,6 +458,7 @@ void RaftManager::replicate_failure(unsigned int follower_id)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
 void RaftManager::update_last_heartbeat()
 {
     pthread_mutex_lock(&mutex);
@@ -436,6 +466,73 @@ void RaftManager::update_last_heartbeat()
 	clock_gettime(CLOCK_REALTIME, &last_heartbeat);
 
     pthread_mutex_unlock(&mutex);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void RaftManager::update_term(unsigned int _term)
+{
+    Nebula& nd    = Nebula::instance();
+    LogDB * logdb = nd.get_logdb();
+
+    std::string raft_state_xml;
+
+    bool new_term = false;
+
+    pthread_mutex_lock(&mutex);
+
+    if ( _term > term )
+    {
+        NebulaLog::log("RCM", Log::INFO, "Follower entering a new term.");
+
+        new_term = true;
+        votedfor = -1;
+
+        raft_state.replace("TERM", _term);
+        raft_state.to_xml(raft_state_xml);
+    }
+
+    term = _term;
+
+    pthread_mutex_unlock(&mutex);
+
+    if ( new_term == true )
+    {
+        logdb->insert_raft_state(raft_state_xml, true);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int RaftManager::update_votedfor(int _votedfor)
+{
+    Nebula& nd    = Nebula::instance();
+    LogDB * logdb = nd.get_logdb();
+
+    std::string raft_state_xml;
+
+    pthread_mutex_lock(&mutex);
+
+    if ( votedfor != -1 && votedfor != _votedfor )
+    {
+        pthread_mutex_unlock(&mutex);
+
+        return -1;
+    }
+
+    votedfor = _votedfor;
+
+    raft_state.replace("VOTEDFOR", votedfor);
+
+    raft_state.to_xml(raft_state_xml);
+
+    pthread_mutex_unlock(&mutex);
+
+    logdb->insert_raft_state(raft_state_xml, true);
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */

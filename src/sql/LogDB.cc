@@ -171,6 +171,42 @@ LogDBRecord * LogDB::get_log_record(unsigned int index)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int LogDB::raft_state_cb(void *str_value, int num, char **values, char **names)
+{
+    std::string * value = static_cast<std::string *>(str_value);
+
+    if ( values[0] != 0 && num == 1 )
+    {
+        *value = values[0];
+    }
+
+    return 0;
+}
+
+int LogDB::get_raft_state(std::string &raft_xml)
+{
+    ostringstream oss;
+
+    oss << "SELECT sql FROM logdb WHERE log_index = 0 AND term = -1";
+
+    set_callback(static_cast<Callbackable::Callback>(&LogDB::raft_state_cb),
+            static_cast<void *>(&raft_xml));
+
+    int rc = db->exec_rd(oss, this);
+
+    unset_callback();
+
+    if ( raft_xml.empty() )
+    {
+        rc = -1;
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int LogDB::insert_replace(int index, int term, const std::string& sql,
         time_t timestamp, bool replace)
 {
@@ -246,6 +282,8 @@ int LogDB::insert_log_record(unsigned int term, std::ostringstream& sql,
     }
 
     next_index++;
+
+    last_term = term;
 
     pthread_mutex_unlock(&mutex);
 
