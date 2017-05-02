@@ -20,14 +20,24 @@
 #include "ZoneServer.h"
 #include "Client.h"
 
+#include <cstdlib>
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+const time_t RaftManager::timer_period_ms = 10;
 
-const time_t RaftManager::purge_period_ms   = 600000;
-const time_t RaftManager::timer_period_ms   = 10;
-const time_t RaftManager::xmlrpc_timeout_ms = 500;
+static void set_timeout(long long ms, struct timespec& timeout)
+{
+    std::lldiv_t d;
 
-RaftManager::RaftManager(int id):server_id(id), term(0), num_servers(0),
+    d = std::div(ms, (long long) 1000);
+
+    timeout.tv_sec  = d.quot;
+    timeout.tv_nsec = d.rem * 1000000;
+}
+
+RaftManager::RaftManager(int id, time_t log_purge, long long bcast,
+        long long elect, time_t xmlrpc):server_id(id), term(0), num_servers(0),
 	commit(0)
 {
 	pthread_mutex_init(&mutex, 0);
@@ -43,15 +53,16 @@ RaftManager::RaftManager(int id):server_id(id), term(0), num_servers(0),
 
 	am.addListener(this);
 
-	broadcast_timeout.tv_sec = 5;
-	broadcast_timeout.tv_nsec= 0;
+    purge_period_ms   = log_purge * 1000;
+    xmlrpc_timeout_ms = xmlrpc;
 
-	last_heartbeat.tv_sec = 0;
-	last_heartbeat.tv_nsec= 0;
+    set_timeout(bcast, broadcast_timeout);
+	//TODO: RANDOM INITALIZATIZION OF BASE ELECT
+    set_timeout(elect, election_timeout);
 
-	//TODO: RANDOM INITALIZATION
-	election_timeout.tv_sec = 30;
-	election_timeout.tv_nsec= 0;
+    // Warm up of 5 seconds to start the election timeout
+	clock_gettime(CLOCK_REALTIME, &last_heartbeat);
+	last_heartbeat.tv_sec += 5;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -108,10 +119,9 @@ void RaftManager::finalize_action(const ActionRequest& ar)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RaftManager::update_zone_servers()
+static unsigned int get_zone_servers(std::map<unsigned int, std::string>& _serv)
 {
-    std::map<unsigned int, std::string> _servers;
-    unsigned int _num_servers;
+    unsigned int  _num_servers;
 
     Nebula& nd       = Nebula::instance();
     ZonePool * zpool = nd.get_zonepool();
@@ -124,10 +134,8 @@ void RaftManager::update_zone_servers()
 
     if ( zone == 0 )
     {
-        servers.clear();
-        num_servers = 0;
-
-        return;
+        _serv.clear();
+        return 0;
     }
 
     ZoneServers * followers = zone->get_servers();
@@ -137,19 +145,14 @@ void RaftManager::update_zone_servers()
         unsigned int id  = (*zit)->get_id();
         std::string  edp = (*zit)->vector_value("ENDPOINT");
 
-        _servers.insert(make_pair(id, edp));
+        _serv.insert(make_pair(id, edp));
     }
 
     _num_servers = zone->servers_size();
 
     zone->unlock();
 
-    pthread_mutex_lock(&mutex);
-
-    servers     = _servers;
-    num_servers = _num_servers;
-
-    pthread_mutex_unlock(&mutex);
+    return _num_servers;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -160,9 +163,14 @@ void RaftManager::add_server(unsigned int follower_id)
 
 	unsigned int index = logdb->last_index();
 
-	update_zone_servers();
+    std::map<unsigned int, std::string> _servers;
+
+    unsigned int _num_servers = get_zone_servers(_servers);
 
 	pthread_mutex_lock(&mutex);
+
+    num_servers = _num_servers;
+    servers     = _servers;
 
 	next.insert(std::make_pair(follower_id, index + 1));
 
@@ -177,9 +185,14 @@ void RaftManager::add_server(unsigned int follower_id)
 
 void RaftManager::delete_server(unsigned int follower_id)
 {
-	update_zone_servers();
+    std::map<unsigned int, std::string> _servers;
+
+    unsigned int _num_servers = get_zone_servers(_servers);
 
 	pthread_mutex_lock(&mutex);
+
+    num_servers = _num_servers;
+    servers     = _servers;
 
 	next.erase(follower_id);
 
@@ -202,6 +215,9 @@ void RaftManager::leader(unsigned int _term)
 
     int index, _applied;
 
+    unsigned int _num_servers;
+    std::map<unsigned int, std::string> _servers;
+
     std::ostringstream oss;
 
     pthread_mutex_lock(&mutex);
@@ -216,11 +232,6 @@ void RaftManager::leader(unsigned int _term)
 
     //--------------------------------------------------------------------------
     // Initialize leader variables
-    //   - term
-    //   - state
-    //   - last applied index
-    //   - commit index
-    //   - next and match index for all servers
     //--------------------------------------------------------------------------
     logdb->setup_index(_applied, index);
 
@@ -229,7 +240,7 @@ void RaftManager::leader(unsigned int _term)
 
     NebulaLog::log("RCM", Log::INFO, oss);
 
-    update_zone_servers();
+    _num_servers = get_zone_servers(_servers);
 
     pthread_mutex_lock(&mutex);
 
@@ -237,6 +248,14 @@ void RaftManager::leader(unsigned int _term)
     match.clear();
 
     requests.clear();
+
+    num_servers = _num_servers;
+    servers     = _servers;
+
+    state = LEADER;
+
+    commit = _applied;
+    term   = _term;
 
     for (it = servers.begin(); it != servers.end() ; ++it )
     {
@@ -251,12 +270,6 @@ void RaftManager::leader(unsigned int _term)
 
         _follower_ids.push_back(it->first);
     }
-
-    commit= _applied;
-
-    state = LEADER;
-
-    term  = _term;
 
     replica_manager.start_replica_threads(_follower_ids);
 

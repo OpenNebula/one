@@ -420,7 +420,15 @@ void OpenNebulaTemplate::set_conf_default()
 #  FEDERATION
 #   MODE
 #   ZONE_ID
+#   SERVER_ID
 #   MASTER_ONED
+#
+#  RAFT
+#   LOG_RETENTION
+#   LOG_PURGE_TIMEOUT
+#   ELECTION_TIMEOUT_MS
+#   BROADCAST_TIMEOUT_MS
+#   XMLRPC_TIMEOUT_MS
 #*******************************************************************************
 */
     // FEDERATION
@@ -429,11 +437,20 @@ void OpenNebulaTemplate::set_conf_default()
     vvalue.insert(make_pair("ZONE_ID","0"));
     vvalue.insert(make_pair("SERVER_ID","-1"));
     vvalue.insert(make_pair("MASTER_ONED",""));
-    vvalue.insert(make_pair("LOG_RETENTION","500000"));
 
     vattribute = new VectorAttribute("FEDERATION",vvalue);
     conf_default.insert(make_pair(vattribute->name(),vattribute));
 
+    //RAFT
+    vvalue.clear();
+    vvalue.insert(make_pair("LOG_RETENTION","500000"));
+    vvalue.insert(make_pair("LOG_PURGE_TIMEOUT","600"));
+    vvalue.insert(make_pair("ELECTION_TIMEOUT_MS","1000"));
+    vvalue.insert(make_pair("BROADCAST_TIMEOUT_MS","200"));
+    vvalue.insert(make_pair("XMLRPC_TIMEOUT_MS","20"));
+
+    vattribute = new VectorAttribute("RAFT",vvalue);
+    conf_default.insert(make_pair(vattribute->name(),vattribute));
 /*
 #*******************************************************************************
 # Default showback cost

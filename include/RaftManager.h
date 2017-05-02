@@ -39,7 +39,16 @@ public:
         LEADER    = 3
     };
 
-    RaftManager(int server_id);
+    /**
+     * Raft manager constructor
+     *   @param server_id of this server
+     *   @param log_purge period to purge logDB records
+     *   @param bcast heartbeat broadcast timeout
+     *   @param election timeout
+     *   @param xmlrpc timeout for RAFT related xmlrpc API calls
+     **/
+    RaftManager(int server_id, time_t log_purge, long long bcast,
+            long long election, time_t xmlrpc);
 
     virtual ~RaftManager(){};
 
@@ -221,8 +230,18 @@ public:
     // -------------------------------------------------------------------------
     // Server related interface
     // -------------------------------------------------------------------------
+    /**
+     *  Adds a new server to the follower list and starts associated replica
+     *  thread.
+     *    @param follower_id id of new server
+     */
 	void add_server(unsigned int follower_id);
 
+    /**
+     *  Deletes a new server to the follower list and stops associated replica
+     *  thread.
+     *    @param follower_id id of server
+     */
 	void delete_server(unsigned int follower_id);
 
 private:
@@ -283,9 +302,9 @@ private:
     //--------------------------------------------------------------------------
     static const time_t timer_period_ms;
 
-    static const time_t purge_period_ms;
+    time_t purge_period_ms;
 
-    static const time_t xmlrpc_timeout_ms;
+    time_t xmlrpc_timeout_ms;
 
 	struct timespec election_timeout;
 
@@ -343,21 +362,12 @@ private:
 	}
 
     // -------------------------------------------------------------------------
-    // Helper functions
+    // Internal Raft functions
     // -------------------------------------------------------------------------
 	/**
-	 *  Send the heartbeat to the followers
+	 *  Send the heartbeat to the followers.
 	 */
 	void send_heartbeat();
-
-    /**
-     *  Update the servers in the zone (numner of servers, endpoints...). This
-	 *  function updates:
-	 *    - num_servers
-	 *    - servers id
-	 *    - servers endpoints
-     */
-    void update_zone_servers();
 };
 
 #endif /*RAFT_MANAGER_H_*/

@@ -165,7 +165,6 @@ void Nebula::start(bool bootstrap_only)
     zone_id            = 0;
     server_id          = -1;
     master_oned        = "";
-    log_retention      = "50000";
 
     const VectorAttribute * vatt = nebula_configuration->get("FEDERATION");
 
@@ -220,8 +219,22 @@ void Nebula::start(bool bootstrap_only)
             server_id = -1;
         }
 
-        log_retention = vatt->vector_value("LOG_RETENTION");
     }
+
+    vatt = nebula_configuration->get("RAFT");
+
+    long long election_ms;
+    long long bcast_ms;
+
+    time_t xmlrpc_ms;
+    time_t log_purge;
+
+    string log_retention = vatt->vector_value("LOG_RETENTION");
+
+    vatt->vector_value("LOG_PURGE_TIMEOUT", log_purge);
+    vatt->vector_value("ELECTION_TIMEOUT_MS", election_ms);
+    vatt->vector_value("BROADCAST_TIMEOUT_MS", bcast_ms);
+    vatt->vector_value("XMLRPC_TIMEOUT_MS", xmlrpc_ms);
 
     Log::set_zone_id(zone_id);
 
@@ -903,7 +916,8 @@ void Nebula::start(bool bootstrap_only)
     // ---- Raft Manager ----
     try
     {
-        raftm = new RaftManager(server_id);
+        raftm = new RaftManager(server_id, log_purge, bcast_ms, election_ms,
+                xmlrpc_ms);
     }
     catch (bad_alloc&)
     {
