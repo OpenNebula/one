@@ -188,7 +188,8 @@ define(function(require) {
 
   function _submitWizard(context) {
     var templateJSON = this.retrieve(context);
-    var templateStr = $('textarea#template', $("form#createVMTemplateFormAdvanced")).val();
+    var contextAdv = context[0].id.replace("Wizard", "Advanced")
+    var templateStr = $('textarea#template', $("form#"+contextAdv)).val();
     var template_final = TemplateUtils.mergeTemplates(templateJSON, templateStr);
 
     if (this.action == "create") {
@@ -202,7 +203,8 @@ define(function(require) {
 
   function _submitAdvanced(context) {
     var templateStr = $('textarea#template', context).val();
-    var templateJSON = this.retrieve($("form#createVMTemplateFormWizard"));
+    var contextWiz = context[0].id.replace("Advanced", "Wizard");
+    var templateJSON = this.retrieve($("form#"+contextWiz));
     var template_final = TemplateUtils.mergeTemplates(templateStr, templateJSON, true);
     template_final = TemplateUtils.templateToString(template_final);
 

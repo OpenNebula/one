@@ -94,15 +94,19 @@ define(function(require) {
   }
 
   function _merge_templates(template_master, template_slave, advanced){
-    if(!advanced)
+    if(!advanced){
       template_slave = _convert_string_to_template(template_slave);
-    else
+    } else {
       template_master = _convert_string_to_template(template_master);
+    }
+    if(template_slave.USER_INPUTS){
+      delete template_slave.USER_INPUTS;
+    }
     if((advanced && template_master) || (!advanced && template_slave)){
       var template_final = {};
-      $.extend(true, template_final, template_slave, template_master);
+      $.extend(template_final, template_slave, template_master);
       return template_final;
-    }else{
+    } else {
       Notifier.notifyError(Locale.tr("Advanced template malformed"));
     } 
     return template_master;
