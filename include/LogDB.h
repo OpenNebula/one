@@ -135,7 +135,7 @@ public:
      */
     int insert_raft_state(std::string& raft_xml, bool replace)
     {
-        return insert_replace(0, -1, raft_xml, 0, replace);
+        return insert_replace(-1, -1, raft_xml, 0, replace);
     }
 
     /**

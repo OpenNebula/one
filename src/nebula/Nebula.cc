@@ -309,7 +309,7 @@ void Nebula::start(bool bootstrap_only)
             db_backend = new MySqlDB(server, port, user, passwd, db_name);
         }
 
-        solo = server_id == -1;
+        solo = server_id == -1 || bootstrap_only;
 
         if ( solo )
         {
@@ -1039,37 +1039,6 @@ void Nebula::start(bool bootstrap_only)
     {
        throw runtime_error("Could not start the Request Manager");
     }
-
-    // -----------------------------------------------------------
-    // Start HA mode if working in a cluster of oned's
-    // -----------------------------------------------------------
-
-    if ( server_id == -1 )
-    {
-        NebulaLog::log("ONE", Log::INFO, "No SERVER_ID defined, oned started "
-                "in solo mode.");
-    }
-    else
-    {
-        ////////////////////////////////////////////////////////////////////////
-        //                       LOG REPLICATION DEBUG                        //
-        ////////////////////////////////////////////////////////////////////////
-        if ( server_id == 0 )
-        {
-            raftm->leader(0);
-        }
-        else
-        {
-            raftm->follower(0);
-        }
-        ////////////////////////////////////////////////////////////////////////
-        //  TODO:
-        //    - start all servers in follower mode
-        //    - load current term from DB (sysconfig attribute?)
-        //    - load last vote casted
-        ////////////////////////////////////////////////////////////////////////
-    }
-
 
     // -----------------------------------------------------------
     // Wait for a SIGTERM or SIGINT signal

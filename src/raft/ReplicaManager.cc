@@ -151,6 +151,13 @@ void ReplicaThread::do_replication()
         {
             if ( follower_term > term )
             {
+                ostringstream ess;
+
+                ess << "Follower " << follower_id << " term (" << follower_term
+                    << ") is higher than current (" << term << ")";
+
+                NebulaLog::log("RCM", Log::INFO, ess);
+
                 raftm->follower(follower_term);
             }
             else

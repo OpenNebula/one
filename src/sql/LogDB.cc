@@ -187,7 +187,7 @@ int LogDB::get_raft_state(std::string &raft_xml)
 {
     ostringstream oss;
 
-    oss << "SELECT sql FROM logdb WHERE log_index = 0 AND term = -1";
+    oss << "SELECT sql FROM logdb WHERE log_index = -1 AND term = -1";
 
     set_callback(static_cast<Callbackable::Callback>(&LogDB::raft_state_cb),
             static_cast<void *>(&raft_xml));

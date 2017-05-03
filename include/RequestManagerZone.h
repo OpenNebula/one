@@ -88,7 +88,7 @@ class ZoneReplicateLog : public RequestManagerZone
 public:
     ZoneReplicateLog():
         RequestManagerZone("ZoneReplicateLog", "Replicate a log record",
-                "A:siiiiiis"){};
+                "A:siiiiiiis"){};
 
     ~ZoneReplicateLog(){};
 

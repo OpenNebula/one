@@ -77,15 +77,6 @@ public:
      */
     void replicate_log(ReplicaRequest * rr);
 
-    /**
-     *  Makes this server leader, and start replica threads
-     */
-    void leader(unsigned int term);
-
-    /**
-     *  Makes this server follower. Stop associated replication facilities
-     */
-    void follower(unsigned int term);
 
     /**
      *  Finalizes the Raft Consensus Manager
@@ -108,6 +99,11 @@ public:
     // -------------------------------------------------------------------------
     // Raft state query functions
     // -------------------------------------------------------------------------
+    /**
+     *  Makes this server follower. Stop associated replication facilities
+     */
+    void follower(unsigned int term);
+
     unsigned int get_term()
     {
         unsigned int _term;
@@ -163,12 +159,6 @@ public:
 
 		return _commit;
 	}
-
-    /**
-     *  Update the term for this server. The state will be stored in the DB.
-     *    @param _term the new term
-     */
-    void update_term(unsigned int _term);
 
     /**
      *  Evaluates a vote request. It is granted if no vote has been granted in
@@ -240,6 +230,20 @@ public:
      */
 	int xmlrpc_replicate_log(int follower_id, LogDBRecord * lr, bool& success,
 			unsigned int& ft, std::string& error);
+
+    /**
+     *  Calls the request vote xml-rpc method
+	 *    @param follower_id to make the call
+     *    @param lindex highest last log index
+     *    @param lterm highest last log term
+     *    @param success of the xml-rpc method
+     *    @param ft term in the follower as returned by the replicate call
+	 *    @param error describing error if any
+     *    @return -1 if a XMl-RPC (network) error occurs, 0 otherwise
+     */
+    int xmlrpc_request_vote(int follower_id, unsigned int lindex,
+            unsigned int lterm, bool& success, unsigned int& fterm,
+            std::string& error);
 
     // -------------------------------------------------------------------------
     // Server related interface
@@ -393,6 +397,16 @@ private:
 	 *  Send the heartbeat to the followers.
 	 */
 	void send_heartbeat();
+
+	/**
+	 *  Request votes of followers
+	 */
+    void request_vote();
+
+    /**
+     *  Makes this server leader, and start replica threads
+     */
+    void leader();
 };
 
 #endif /*RAFT_MANAGER_H_*/

@@ -126,15 +126,16 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
 
     RaftManager * raftm = nd.get_raftm();
 
-    int leader_id  = xmlrpc_c::value_int(paramList.getInt(1));
-    int commit     = xmlrpc_c::value_int(paramList.getInt(2));
+    int leader_id     = xmlrpc_c::value_int(paramList.getInt(1));
+    int leader_commit = xmlrpc_c::value_int(paramList.getInt(2));
+    unsigned int leader_term = xmlrpc_c::value_int(paramList.getInt(3));
 
-    unsigned int index      = xmlrpc_c::value_int(paramList.getInt(3));
-    unsigned int term       = xmlrpc_c::value_int(paramList.getInt(4));
-    unsigned int prev_index = xmlrpc_c::value_int(paramList.getInt(5));
-    unsigned int prev_term  = xmlrpc_c::value_int(paramList.getInt(6));
+    unsigned int index      = xmlrpc_c::value_int(paramList.getInt(4));
+    unsigned int term       = xmlrpc_c::value_int(paramList.getInt(5));
+    unsigned int prev_index = xmlrpc_c::value_int(paramList.getInt(6));
+    unsigned int prev_term  = xmlrpc_c::value_int(paramList.getInt(7));
 
-    string sql = xmlrpc_c::value_string(paramList.getString(7));
+    string sql = xmlrpc_c::value_string(paramList.getString(8));
 
     unsigned int current_term = raftm->get_term();
 
@@ -148,22 +149,31 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ( !raftm->is_follower() )
+    if ( leader_term < current_term )
     {
-        att.resp_msg = "oned is not a follower. Cannot replicate log record.";
+        std::ostringstream oss;
+
+        oss << "Leader term (" << leader_term << ") is outdated ("
+            << current_term<<")";
+
+        NebulaLog::log("ReM", Log::INFO, oss);
+
+        att.resp_msg = oss.str();
         att.resp_id  = current_term;
 
         failure_response(ACTION, att);
         return;
     }
-
-    if ( term < current_term )
+    else if ( leader_term > current_term )
     {
-        att.resp_msg = "Leader term is outdated";
-        att.resp_id  = current_term;
+        std::ostringstream oss;
 
-        failure_response(ACTION, att);
-        return;
+        oss << "New term (" << leader_term << ") discovered from leader "
+            << leader_id;
+
+        NebulaLog::log("ReM", Log::INFO, oss);
+
+        raftm->follower(leader_term);
     }
 
     raftm->update_last_heartbeat();
@@ -225,9 +235,7 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    raftm->update_term(term);
-
-    unsigned int new_commit = raftm->update_commit(commit, index);
+    unsigned int new_commit = raftm->update_commit(leader_commit, index);
 
     logdb->apply_log_records(new_commit);
 
@@ -274,7 +282,6 @@ void ZoneVoteRequest::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-
     if ((log_term > candidate_log_term) || ((log_term == candidate_log_term) &&
         (log_index > candidate_log_index)))
     {
@@ -283,7 +290,6 @@ void ZoneVoteRequest::request_execute(xmlrpc_c::paramList const& paramList,
 
         failure_response(ACTION, att);
         return;
-
     }
 
     if ( raftm->update_votedfor(candidate_id) != 0 )
@@ -294,6 +300,8 @@ void ZoneVoteRequest::request_execute(xmlrpc_c::paramList const& paramList,
         failure_response(ACTION, att);
         return;
     }
+
+    raftm->update_last_heartbeat();
 
     success_response(static_cast<int>(current_term), att);
 }

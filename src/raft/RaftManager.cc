@@ -36,39 +36,34 @@ static void set_timeout(long long ms, struct timespec& timeout)
     timeout.tv_nsec = d.rem * 1000000;
 }
 
+static unsigned int get_zone_servers(std::map<unsigned int, std::string>& _s);
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* RaftManager component life-cycle functions                                 */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 RaftManager::RaftManager(int id, time_t log_purge, long long bcast,
         long long elect, time_t xmlrpc):server_id(id), term(0), num_servers(0),
 	commit(0)
 {
+    Nebula& nd    = Nebula::instance();
+    LogDB * logdb = nd.get_logdb();
+
     std::string raft_xml;
 
 	pthread_mutex_init(&mutex, 0);
 
-	if ( server_id == -1 )
-	{
-		state = SOLO;
-	}
-	else
-	{
-		state = FOLLOWER;
-	}
-
 	am.addListener(this);
 
-    purge_period_ms   = log_purge * 1000;
-    xmlrpc_timeout_ms = xmlrpc;
-
-    set_timeout(bcast, broadcast_timeout);
-	//TODO: RANDOM INITALIZATIZION OF BASE ELECT
-    set_timeout(elect, election_timeout);
-
-    // Warm up of 5 seconds to start the election timeout
-	clock_gettime(CLOCK_REALTIME, &last_heartbeat);
-	last_heartbeat.tv_sec += 5;
-
-    Nebula& nd    = Nebula::instance();
-    LogDB * logdb = nd.get_logdb();
-
+    // -------------------------------------------------------------------------
+    // Initialize Raft variables:
+    //   - state
+    //   - servers
+    //   - votedfor
+    //   - term
+    // -------------------------------------------------------------------------
     if ( logdb->get_raft_state(raft_xml) != 0 )
     {
         raft_state.replace("TERM", 0);
@@ -88,6 +83,33 @@ RaftManager::RaftManager(int id, time_t log_purge, long long bcast,
         raft_state.get("TERM", term);
         raft_state.get("VOTEDFOR", votedfor);
     }
+
+    num_servers = get_zone_servers(servers);
+
+	if ( server_id == -1 )
+	{
+        NebulaLog::log("ONE", Log::INFO, "oned started in solo mode.");
+		state = SOLO;
+	}
+	else
+	{
+        NebulaLog::log("RCM", Log::INFO, "oned started in follower mode");
+		state = FOLLOWER;
+	}
+
+    // -------------------------------------------------------------------------
+    // Initialize Raft timers
+    //   TODO: randomize election timeout
+    // -------------------------------------------------------------------------
+    purge_period_ms   = log_purge * 1000;
+    xmlrpc_timeout_ms = xmlrpc;
+
+    set_timeout(bcast, broadcast_timeout);
+    set_timeout(elect, election_timeout);
+
+    // 5 seconds warm-up to start election
+	clock_gettime(CLOCK_REALTIME, &last_heartbeat);
+	last_heartbeat.tv_sec += 5;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -141,6 +163,9 @@ void RaftManager::finalize_action(const ActionRequest& ar)
     NebulaLog::log("RCM", Log::INFO, "Raft Consensus Manager...");
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* Server management interface                                                */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -232,8 +257,11 @@ void RaftManager::delete_server(unsigned int follower_id)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+/* State transitions & and callbacks                                          */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-void RaftManager::leader(unsigned int _term)
+void RaftManager::leader()
 {
     LogDB * logdb = Nebula::instance().get_logdb();
 
@@ -242,47 +270,44 @@ void RaftManager::leader(unsigned int _term)
 
     int index, _applied;
 
-    unsigned int _num_servers;
     std::map<unsigned int, std::string> _servers;
 
     std::ostringstream oss;
 
+    std::string raft_state_xml;
+
+    logdb->setup_index(_applied, index);
+
     pthread_mutex_lock(&mutex);
 
-    if ( state != FOLLOWER )
+    if ( state != CANDIDATE )
     {
+        NebulaLog::log("RCM", Log::INFO, "Cannot become leader, no longer "
+                "candidate");
+
         pthread_mutex_unlock(&mutex);
+
         return;
     }
-
-    pthread_mutex_unlock(&mutex);
-
-    //--------------------------------------------------------------------------
-    // Initialize leader variables
-    //--------------------------------------------------------------------------
-    logdb->setup_index(_applied, index);
 
     oss << "Becoming leader of zone. Last log record: " << index << " last "
         << "applied record: " << _applied;
 
     NebulaLog::log("RCM", Log::INFO, oss);
 
-    _num_servers = get_zone_servers(_servers);
-
-    pthread_mutex_lock(&mutex);
-
     next.clear();
     match.clear();
 
     requests.clear();
 
-    num_servers = _num_servers;
-    servers     = _servers;
-
     state = LEADER;
 
-    commit = _applied;
-    term   = _term;
+    commit   = _applied;
+    votedfor = -1;
+
+    raft_state.replace("VOTEDFOR", votedfor);
+
+    raft_state.to_xml(raft_state_xml);
 
     for (it = servers.begin(); it != servers.end() ; ++it )
     {
@@ -302,6 +327,8 @@ void RaftManager::leader(unsigned int _term)
 
     pthread_mutex_unlock(&mutex);
 
+    logdb->insert_raft_state(raft_state_xml, true);
+
     NebulaLog::log("RCM", Log::INFO, "oned is now the leader of zone");
 }
 
@@ -315,6 +342,8 @@ void RaftManager::follower(unsigned int _term)
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
 
+    std::string raft_state_xml;
+
     logdb->setup_index(lapplied, lindex);
 
     pthread_mutex_lock(&mutex);
@@ -323,7 +352,15 @@ void RaftManager::follower(unsigned int _term)
 
     state = FOLLOWER;
 
-    term  = _term;
+    term     = _term;
+    votedfor = -1;
+
+    commit   = lapplied;
+
+    raft_state.replace("VOTEDFOR", votedfor);
+    raft_state.replace("TERM", term);
+
+    raft_state.to_xml(raft_state_xml);
 
     NebulaLog::log("RCM", Log::INFO, "oned is set to follower mode");
 
@@ -338,9 +375,14 @@ void RaftManager::follower(unsigned int _term)
         it->second->notify();
     }
 
+    next.clear();
+    match.clear();
+
     requests.clear();
 
     pthread_mutex_unlock(&mutex);
+
+    logdb->insert_raft_state(raft_state_xml, true);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -458,6 +500,9 @@ void RaftManager::replicate_failure(unsigned int follower_id)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+/* Raft state interface                                                       */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 void RaftManager::update_last_heartbeat()
 {
@@ -466,41 +511,6 @@ void RaftManager::update_last_heartbeat()
 	clock_gettime(CLOCK_REALTIME, &last_heartbeat);
 
     pthread_mutex_unlock(&mutex);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void RaftManager::update_term(unsigned int _term)
-{
-    Nebula& nd    = Nebula::instance();
-    LogDB * logdb = nd.get_logdb();
-
-    std::string raft_state_xml;
-
-    bool new_term = false;
-
-    pthread_mutex_lock(&mutex);
-
-    if ( _term > term )
-    {
-        NebulaLog::log("RCM", Log::INFO, "Follower entering a new term.");
-
-        new_term = true;
-        votedfor = -1;
-
-        raft_state.replace("TERM", _term);
-        raft_state.to_xml(raft_state_xml);
-    }
-
-    term = _term;
-
-    pthread_mutex_unlock(&mutex);
-
-    if ( new_term == true )
-    {
-        logdb->insert_raft_state(raft_state_xml, true);
-    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -533,69 +543,6 @@ int RaftManager::update_votedfor(int _votedfor)
     logdb->insert_raft_state(raft_state_xml, true);
 
     return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-void RaftManager::send_heartbeat()
-{
-    std::map<unsigned int, std::string> _servers;
-    std::map<unsigned int, std::string>::iterator it;
-
-	LogDBRecord lr;
-
-	bool success;
-	unsigned int fterm;
-
-	std::string error;
-
-	lr.index = 0;
-	lr.prev_index = 0;
-
-	lr.term = 0;
-	lr.prev_term = 0;
-
-	lr.sql = "";
-
-	lr.timestamp = 0;
-
-    pthread_mutex_lock(&mutex);
-
-    if ( state != LEADER )
-    {
-        pthread_mutex_unlock(&mutex);
-        return;
-    }
-
-    _servers = servers;
-
-    pthread_mutex_unlock(&mutex);
-
-    for (it = _servers.begin(); it != _servers.end() ; ++it )
-    {
-        if ( it->first == (unsigned int) server_id )
-        {
-            continue;
-        }
-
-		int rc = xmlrpc_replicate_log(it->first, &lr, success, fterm, error);
-
-		if ( rc == -1 )
-		{
-			std::ostringstream oss;
-
-			oss << "Error sending heartbeat to follower " << it->first <<": "
-				<< error;
-
-        	NebulaLog::log("RCM", Log::INFO, oss);
-		}
-		else if ( success == false && fterm > term )
-		{
-			follower(fterm);
-
-			break;
-		}
-    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -659,15 +606,22 @@ void RaftManager::timer_action(const ActionRequest& ar)
 		time_t sec  = last_heartbeat.tv_sec + election_timeout.tv_sec;
 		long   nsec = last_heartbeat.tv_nsec + election_timeout.tv_nsec;
 
-		pthread_mutex_unlock(&mutex);
-
 		if ((sec < the_time.tv_sec) || (sec == the_time.tv_sec &&
 				nsec <= the_time.tv_nsec))
 		{
 			NebulaLog::log("RRM", Log::ERROR, "Failed to get heartbeat from "
 				"leader. Starting election proccess");
-			//TODO
+
+            state = CANDIDATE;
+
+            clock_gettime(CLOCK_REALTIME, &last_heartbeat);
+
+            pthread_mutex_unlock(&mutex);
+
+            request_vote();
 		}
+
+        pthread_mutex_unlock(&mutex);
 	}
 	else
 	{
@@ -677,14 +631,202 @@ void RaftManager::timer_action(const ActionRequest& ar)
     return;
 }
 
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* XML-RPC interface to talk to followers                                     */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void RaftManager::send_heartbeat()
+{
+    std::map<unsigned int, std::string> _servers;
+    std::map<unsigned int, std::string>::iterator it;
+
+	LogDBRecord lr;
+
+	bool success;
+	unsigned int fterm;
+
+	std::string error;
+
+	lr.index = 0;
+	lr.prev_index = 0;
+
+	lr.term = 0;
+	lr.prev_term = 0;
+
+	lr.sql = "";
+
+	lr.timestamp = 0;
+
+    pthread_mutex_lock(&mutex);
+
+    if ( state != LEADER )
+    {
+        pthread_mutex_unlock(&mutex);
+        return;
+    }
+
+    _servers = servers;
+
+    pthread_mutex_unlock(&mutex);
+
+    for (it = _servers.begin(); it != _servers.end() ; ++it )
+    {
+        if ( it->first == (unsigned int) server_id )
+        {
+            continue;
+        }
+
+		int rc = xmlrpc_replicate_log(it->first, &lr, success, fterm, error);
+
+		if ( rc == -1 )
+		{
+			std::ostringstream oss;
+
+			oss << "Error sending heartbeat to follower " << it->first <<": "
+				<< error;
+
+        	NebulaLog::log("RCM", Log::INFO, oss);
+		}
+		else if ( success == false && fterm > term )
+		{
+			std::ostringstream oss;
+
+            oss << "Follower " << it->first << " term (" << fterm
+                << ") is higher than current (" << term << ")";
+
+        	NebulaLog::log("RCM", Log::INFO, oss);
+
+			follower(fterm);
+
+			break;
+		}
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void RaftManager::request_vote()
+{
+    unsigned int lindex, lterm, fterm;
+
+    std::map<unsigned int, std::string> _servers;
+    std::map<unsigned int, std::string>::iterator it;
+
+    std::ostringstream oss;
+
+    unsigned int granted_votes = 0;
+    unsigned int votes2go;
+
+    Nebula& nd    = Nebula::instance();
+    LogDB * logdb = nd.get_logdb();
+
+    int rc;
+
+    std::string error;
+    std::string raft_state_xml;
+
+    bool success;
+
+    pthread_mutex_lock(&mutex);
+
+    if ( state != CANDIDATE )
+    {
+        pthread_mutex_unlock(&mutex);
+        return;
+    }
+
+    term     = term + 1;
+    votedfor = server_id;
+
+    raft_state.replace("TERM", term);
+    raft_state.replace("VOTEDFOR", votedfor);
+
+    raft_state.to_xml(raft_state_xml);
+
+    votes2go = num_servers / 2;
+
+    pthread_mutex_unlock(&mutex);
+
+    logdb->insert_raft_state(raft_state_xml, true);
+
+    logdb->get_last_record_index(lindex, lterm);
+
+    for (it = _servers.begin(); it != _servers.end() ; ++it, oss.str("") )
+    {
+        if ( it->first == (unsigned int) server_id )
+        {
+            continue;
+        }
+
+		rc = xmlrpc_request_vote(it->first, lindex, lterm, success, fterm, error);
+
+		if ( rc == -1 )
+		{
+			oss << "Error sending vote request to follower " << it->first <<": "
+				<< error;
+
+        	NebulaLog::log("RCM", Log::INFO, oss);
+		}
+		else if ( success == false && fterm > term )
+		{
+            oss << "Follower " << it->first << " has a higher term, turning "
+                << "into follower";
+
+        	NebulaLog::log("RCM", Log::INFO, oss);
+
+			follower(fterm);
+
+			break;
+		}
+        else if ( success == true )
+        {
+            granted_votes++;
+
+            oss << "Got vote from server: " << it->first << ". Total votes: "
+                << granted_votes;
+
+        	NebulaLog::log("RCM", Log::INFO, oss);
+        }
+
+        if ( granted_votes >= votes2go )
+        {
+            NebulaLog::log("RCM", Log::INFO, "Got majority of votes");
+            break;
+        }
+    }
+
+    if ( granted_votes >= votes2go )
+    {
+        leader();
+        return;
+    }
+
+    //This election process failed, start a new one by expiring heartbeat
+    pthread_mutex_lock(&mutex);
+
+    if (state == CANDIDATE)
+    {
+        state = FOLLOWER;
+
+        last_heartbeat.tv_sec = 0;
+        last_heartbeat.tv_nsec= 0;
+    }
+
+    pthread_mutex_unlock(&mutex);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int RaftManager::xmlrpc_replicate_log(int follower_id, LogDBRecord * lr,
 		bool& success, unsigned int& fterm, std::string& error)
 {
 	int _server_id;
 	int _commit;
+	int _term;
 
     static const std::string replica_method = "one.zone.replicate";
 
@@ -712,6 +854,7 @@ int RaftManager::xmlrpc_replicate_log(int follower_id, LogDBRecord * lr,
     follower_edp = it->second;
 
 	_commit    = commit;
+    _term      = term;
 	_server_id = server_id;
 
 	pthread_mutex_unlock(&mutex);
@@ -736,6 +879,7 @@ int RaftManager::xmlrpc_replicate_log(int follower_id, LogDBRecord * lr,
     replica_params.add(xmlrpc_c::value_string(secret));
     replica_params.add(xmlrpc_c::value_int(_server_id));
     replica_params.add(xmlrpc_c::value_int(_commit));
+    replica_params.add(xmlrpc_c::value_int(_term));
     replica_params.add(xmlrpc_c::value_int(lr->index));
     replica_params.add(xmlrpc_c::value_int(lr->term));
     replica_params.add(xmlrpc_c::value_int(lr->prev_index));
@@ -795,6 +939,130 @@ int RaftManager::xmlrpc_replicate_log(int follower_id, LogDBRecord * lr,
     {
         ess << "Error exception replicating log entry " << lr->index
             << " on follower " << follower_id << ": " << e.what();
+
+		error = ess.str();
+
+        xml_rc = -1;
+    }
+
+    return xml_rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int RaftManager::xmlrpc_request_vote(int follower_id, unsigned int lindex,
+        unsigned int lterm, bool& success, unsigned int& fterm,
+        std::string& error)
+{
+	int _server_id;
+	int _term;
+
+    static const std::string replica_method = "one.zone.voterequest";
+
+    std::ostringstream ess;
+
+    std::string secret;
+    std::string follower_edp;
+
+    std::map<unsigned int, std::string>::iterator it;
+
+	int xml_rc = 0;
+
+	pthread_mutex_lock(&mutex);
+
+    it = servers.find(follower_id);
+
+    if ( it == servers.end() )
+    {
+        error = "Cannot find follower end point";
+        pthread_mutex_unlock(&mutex);
+
+        return -1;
+    }
+
+    follower_edp = it->second;
+
+	_term      = term;
+	_server_id = server_id;
+
+	pthread_mutex_unlock(&mutex);
+
+    // -------------------------------------------------------------------------
+    // Get parameters to call append entries on follower
+    // -------------------------------------------------------------------------
+    if ( Client::read_oneauth(secret, error) == -1 )
+    {
+        NebulaLog::log("RRM", Log::ERROR, error);
+        return -1;
+    }
+
+    xmlrpc_c::carriageParm_curl0 carriage(follower_edp);
+
+    xmlrpc_c::paramList replica_params;
+
+    xmlrpc_c::clientXmlTransport_curl transport;
+
+    xmlrpc_c::client_xml client(&transport);
+
+    replica_params.add(xmlrpc_c::value_string(secret));
+    replica_params.add(xmlrpc_c::value_int(_term));
+    replica_params.add(xmlrpc_c::value_int(_server_id));
+    replica_params.add(xmlrpc_c::value_int(lindex));
+    replica_params.add(xmlrpc_c::value_int(lterm));
+
+    xmlrpc_c::rpcPtr rpc_client(replica_method, replica_params);
+
+    // -------------------------------------------------------------------------
+    // Do the XML-RPC call
+    // -------------------------------------------------------------------------
+    try
+    {
+        rpc_client->start(&client, &carriage);
+
+        client.finishAsync(xmlrpc_c::timeout(xmlrpc_timeout_ms));
+
+        if (!rpc_client->isFinished())
+        {
+            rpc_client->finishErr(girerr::error("XMLRPC method "+replica_method
+                + " timeout, resetting call"));
+        }
+
+        if ( rpc_client->isSuccessful() )
+        {
+            vector<xmlrpc_c::value> values;
+
+            xmlrpc_c::value result = rpc_client->getResult();
+
+            values  = xmlrpc_c::value_array(result).vectorValueValue();
+            success = xmlrpc_c::value_boolean(values[0]);
+
+            if ( success ) //values[2] = error code (string)
+            {
+                fterm    = xmlrpc_c::value_int(values[1]);
+            }
+            else
+            {
+                error = xmlrpc_c::value_string(values[1]);
+                fterm = xmlrpc_c::value_int(values[3]);
+            }
+        }
+        else //RPC failed, vote not granted
+        {
+            xmlrpc_c::fault failure = rpc_client->getFault();
+
+            ess << "Error requesting vote from follower " << follower_id << ": "
+                << failure.getDescription();
+
+			error = ess.str();
+
+            xml_rc = -1;
+        }
+    }
+    catch (exception const& e)
+    {
+        ess << "Error requesting vote from follower " << follower_id << ": "
+            << e.what();
 
 		error = ess.str();
 
