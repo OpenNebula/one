@@ -131,6 +131,17 @@ class SunstoneViews
         @views.keys
     end
 
+    def get_all_labels(group_name)
+        labels = []
+        if @views_config['labels_groups'][group_name]
+            @views_config['labels_groups'][group_name].each{|l| labels.push(l)}
+        end
+        if @views_config['labels_groups']['default']
+            @views_config['labels_groups']['default'].each{|l| labels.push(l)}
+        end
+        return labels
+    end
+
     def logo
         @views_config['logo']
     end

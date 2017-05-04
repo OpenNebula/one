@@ -23,6 +23,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Notifier = require('utils/notifier');
   var TemplateUtils = require('utils/template-utils');
+  var OpenNebulaUser = require('opennebula/user');
 
   var LABELS_ATTR = 'LABELS';
 
@@ -117,20 +118,59 @@ define(function(require) {
 
     var labelsDropdown = $('#' + tabName + 'LabelsDropdown');
 
-    var labels = _getLabels(dataTable, labelsColumn);
-    labelsDropdown.html(
-      '<div>' +
-      '<h6>' + Locale.tr('Edit Labels') + '</h6>' +
-      '<div class="labeltree-container">' +
-        Tree.html(_makeTree(labels), false) +
-      '</div>' +
-      '<div class="input-container">' +
-        '<input type="text" class="newLabelInput" placeholder="' + Locale.tr("Add Label") + '"/>' +
-      '</div>' +
-      '</div>');
+    OpenNebulaUser.show({
+        data : {
+          id: config['user_id']
+        },
+        success: function(request, user_json) {
+          var labels_persis = '';
+          if (user_json["USER"]["TEMPLATE"]) {
+            if (user_json["USER"]["TEMPLATE"]["LABELS"]) {
+              labels_persis = user_json["USER"]["TEMPLATE"]["LABELS"];
+            }
+          }
+          var labels = _getLabels(dataTable, labelsColumn);
+          labels_persis = _deserializeLabels(labels_persis);
+          var array_labels_yaml = [];
+          $.each(config['all_labels'], function(index){
+            array_labels_yaml.push(config['all_labels'][index]+'_YAML');
+            if(labels[config['all_labels'][index]]){
+              delete labels[config['all_labels'][index]];
+            }
+          })
+          var labels_yaml = _deserializeLabels(array_labels_yaml.join(','));
+          var keys = Object.keys(labels_persis).sort();
+          for (var i = 0; i < keys.length; i++){
+            if(labels[keys[i]]){
+              delete labels[keys[i]];
+            }
+            labels_persis[keys[i]+"_PERSIS"] = labels_persis[keys[i]];
+            delete labels_persis[keys[i]];
+          }
+          $.extend(labels, labels_persis);
+          labelsDropdown.html(
+            '<div>' +
+            '<h6>' + Locale.tr('Edit Labels') + '</h6>' +
+            '<div class="labeltree-container">' +
+              Tree.html(_makeTree(labels), false) +
+            '</div>' +
+            '<h6>' + Locale.tr('System Labels') + '</h6>' +
+            '<div class="labeltree-container">' +
+              Tree.html(_makeTree(labels_yaml), false) +
+            '</div>' +
+            '<div class="input-container">' +
+              '<input type="text" class="newLabelInput" placeholder="' + Locale.tr("Add Label") + '"/>' +
+            '</div>' +
+            '</div>');
 
-    Tree.setup(labelsDropdown);
-
+          Tree.setup(labelsDropdown);
+          recountLabels();
+          $('[data-toggle="' + tabName + 'LabelsDropdown"]').off('click');
+          $('[data-toggle="' + tabName + 'LabelsDropdown"]').on('click', function(){
+            recountLabels();
+          });
+        }
+      });
     /*
       Update Dropdown with selected items
       [v] If all the selected items has a label
@@ -183,12 +223,6 @@ define(function(require) {
       $('.newLabelInput', labelsDropdown).focus();
     }
 
-    recountLabels();
-    $('[data-toggle="' + tabName + 'LabelsDropdown"]').off('click');
-    $('[data-toggle="' + tabName + 'LabelsDropdown"]').on('click', function(){
-      recountLabels();
-    });
-
     /*
       Check/Uncheck label & Update Templates
      */
@@ -204,25 +238,44 @@ define(function(require) {
         action = 'remove';
         $(that).removeClass('fa-check-square-o fa-minus-square-o').addClass('fa-square-o');
       }
-
-      var labelName = $('.one-label', $(that).closest('li')).attr('one-label-full-name');
-      var labelsArray, labelIndex;
-      var selectedItems = tabTable.elements();
-      $.each(selectedItems, function(index, resourceId) {
-        labelsStr = _getLabel(tabName, dataTable, labelsColumn, resourceId);
-        if (labelsStr != '') {
-          labelsArray = labelsStr.split(',')
-        } else {
-          labelsArray = []
-        }
-
-        labelIndex = $.inArray(labelName, labelsArray);
-        if (action == 'add' && labelIndex == -1) {
-          labelsArray.push(labelName)
-          _updateResouceLabels(tabName, resourceId, labelsArray);
-        } else if (action == 'remove' && labelIndex != -1) {
-          labelsArray.splice(labelIndex, 1);
-          _updateResouceLabels(tabName, resourceId, labelsArray);
+      OpenNebulaUser.show({
+        data : {
+          id: config['user_id']
+        },
+        success: function(request, user_json) {
+          var labels_persis = '';
+          if (user_json["USER"]["TEMPLATE"]) {
+            if (user_json["USER"]["TEMPLATE"]["LABELS"]) {
+              labels_persis = user_json["USER"]["TEMPLATE"]["LABELS"];
+            }
+          }
+          var labelName = $('.one-label', $(that).closest('li')).attr('one-label-full-name');
+          var labelsArray,labelsArray_persis, labelIndex;
+          var selectedItems = tabTable.elements();
+          if (labels_persis != '') {
+              labelsArray_persis = labels_persis.split(',')
+          } else {
+              labelsArray_persis = []
+          }
+          $.each(selectedItems, function(index, resourceId) {
+            labelsStr = _getLabel(tabName, dataTable, labelsColumn, resourceId);
+            if (labelsStr != '') {
+              labelsArray = labelsStr.split(',')
+            } else {
+              labelsArray = []
+            }
+            labelIndex = $.inArray(labelName, labelsArray);
+            if (action == 'add' && labelIndex == -1) {
+              labelsArray.push(labelName)
+              _updateResouceLabels(tabName, resourceId, labelsArray);
+            } else if (action == 'remove' && labelIndex != -1) {
+              if ((!labelsArray_persis || (labelsArray_persis && $.inArray(labelName, labelsArray_persis) == -1)) ||
+                    (!config['all_labels'] || (config['all_labels'] && $.inArray(labelName, config['all_labels']) == -1))) {
+                labelsArray.splice(labelIndex, 1);
+                _updateResouceLabels(tabName, resourceId, labelsArray);
+              }
+            }
+          });
         }
       });
     });
@@ -333,11 +386,47 @@ define(function(require) {
   }
 
   function _makeSubTree(parentName, folderName, childs, currentLabel) {
+    var name_split = folderName.split("_");
+    var persis = false;
+    var yaml = false;
+    if(name_split.indexOf("PERSIS") > -1){
+      folderName = "";
+      $.each(name_split, function(value){
+        if(name_split[value] != "PERSIS"){
+          folderName += name_split[value]+"_";
+        }
+      });
+      folderName = folderName.slice(0,-1);
+      persis = true;
+    }
+    else if(name_split.indexOf("YAML") > -1){
+      folderName = "";
+      $.each(name_split, function(value){
+        if(name_split[value] != "YAML"){
+          folderName += name_split[value]+"_";
+        }
+      });
+      folderName = folderName.slice(0,-1);
+      yaml = true;
+    }
     var fullName = parentName + folderName;
-    var htmlStr =
-      '<span class="secondary one-label" title="' + fullName + '" one-label-full-name="' + fullName + '">' +
+    if(persis){
+      var htmlStr =
+      '<span class="secondary one-label" persis="true" title="' + fullName + '" one-label-full-name="' + fullName + '">' +
         folderName +
       '</span>';
+    } else if (yaml) {
+      var htmlStr =
+        '<span class="secondary one-label" yaml="true" title="' + fullName + '" one-label-full-name="' + fullName + '">' +
+          folderName +
+        '</span>';
+    } else {
+       var htmlStr =
+        '<span class="secondary one-label" title="' + fullName + '" one-label-full-name="' + fullName + '">' +
+          folderName +
+        '</span>';
+    }
+
 
     var tree = {
       htmlStr: htmlStr,
