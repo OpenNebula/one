@@ -69,6 +69,9 @@ define(function(require) {
     } else {
       vncIcon = '';
     }
+    if (config["federation_mode"] == "SLAVE") {
+      vncIcon = '';
+    }
 
     var cpuMonitoring = 0;
     var memoryMonitoring = 0;
