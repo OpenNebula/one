@@ -162,7 +162,7 @@ string one_util::sha1_digest(const string& in)
     unsigned int   md_len;
     ostringstream  oss;
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
     mdctx = (EVP_MD_CTX*) malloc(sizeof(EVP_MD_CTX));
     EVP_MD_CTX_init(mdctx);
 #else
@@ -175,7 +175,7 @@ string one_util::sha1_digest(const string& in)
 
     EVP_DigestFinal_ex(mdctx,md_value, &md_len);
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
     EVP_MD_CTX_cleanup(mdctx);
     free(mdctx);
 #else
@@ -205,7 +205,7 @@ string * one_util::aes256cbc_encrypt(const string& in, const string password)
 
     int outlen1, outlen2;
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
     ctx = (EVP_CIPHER_CTX*) malloc(sizeof(EVP_CIPHER_CTX));
     EVP_CIPHER_CTX_init(ctx);
 #else
@@ -216,7 +216,7 @@ string * one_util::aes256cbc_encrypt(const string& in, const string password)
     EVP_EncryptUpdate(ctx, out, &outlen1, in_data, in.length());
     EVP_EncryptFinal(ctx, out + outlen1, &outlen2);
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
     EVP_CIPHER_CTX_cleanup(ctx);
     free(ctx);
 #else
