@@ -62,10 +62,10 @@ define(function(require) {
     };
 
     this.columns = [
-      Locale.tr("ID") ,
-      Locale.tr("Owner") ,
-      Locale.tr("Group"),
+      Locale.tr("ID"),
       Locale.tr("Name"),
+      Locale.tr("Owner"),
+      Locale.tr("Group"),
       Locale.tr("State"),
       Locale.tr("Labels"),
       "search_data"

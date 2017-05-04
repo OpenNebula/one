@@ -63,9 +63,9 @@ define(function(require) {
 
     this.columns = [
       Locale.tr("ID"),
+      Locale.tr("Name"),
       Locale.tr("Owner"),
       Locale.tr("Group"),
-      Locale.tr("Name"),
       Locale.tr("Datastore"),
       Locale.tr("Size"),
       Locale.tr("Type"),
@@ -116,9 +116,9 @@ define(function(require) {
                            element.ID + '" name="selected_items" value="' +
                            element.ID + '"/>',
       element.ID,
-      element.UNAME,
-      element.GNAME,
       element.NAME,
+      element.UNAME,
+      element.GNAME,   
       element.DATASTORE,
       Humanize.sizeFromMB(element.SIZE),
       type,
