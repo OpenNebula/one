@@ -45,7 +45,8 @@ define(function(require) {
     "VMGroup.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
     "VMGroup.append_template" : _commonActions.appendTemplate(),
     "VMGroup.chown": _commonActions.multipleAction('chown'),
-    "VMGroup.chgrp": _commonActions.multipleAction('chgrp')
+    "VMGroup.chgrp": _commonActions.multipleAction('chgrp'),
+    "VMGroup.chmod": _commonActions.singleAction('chmod')
   };
 
   return _actions;
