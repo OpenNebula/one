@@ -18,6 +18,7 @@
 #define CALLBACKABLE_H_
 
 #include <pthread.h>
+#include <sstream>
 
 using namespace std;
 
@@ -103,6 +104,41 @@ private:
      *  Mutex for locking the callback function.
      */
     pthread_mutex_t             mutex;
+};
+
+/* -------------------------------------------------------------------------- */
+/* Classes to obtain values from a DB it support concurrent queries using     */
+/* different objects                                                          */
+/* -------------------------------------------------------------------------- */
+
+template <class T>
+class single_cb : public Callbackable
+{
+public:
+    void set_callback(T * _value)
+    {
+        value = _value;
+
+        Callbackable::set_callback(
+                static_cast<Callbackable::Callback>(&single_cb::callback));
+    }
+
+    virtual int callback(void *nil, int num, char **values, char **names)
+    {
+        if ( values == 0 || values[0] == 0 || num != 1 )
+        {
+            return -1;
+        }
+
+        std::istringstream iss(values[0]);
+
+        iss >> *value;
+
+        return 0;
+    }
+
+private:
+    T * value;
 };
 
 #endif /*CALLBACKABLE_H_*/

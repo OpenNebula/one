@@ -139,7 +139,7 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
 
     unsigned int current_term = raftm->get_term();
 
-    LogDBRecord * lr;
+    LogDBRecord lr, prev_lr;
 
     if ( att.uid != 0 )
     {
@@ -189,36 +189,28 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
     //REPLICATE
     if ( index > 0 )
     {
-        lr = logdb->get_log_record(prev_index);
-
-        if ( lr == 0 )
+        if ( logdb->get_log_record(prev_index, prev_lr) != 0 )
         {
-            att.resp_msg = "Previous log record missing";
+            att.resp_msg = "Error loading previous log record";
             att.resp_id  = current_term;
 
             failure_response(ACTION, att);
             return;
         }
 
-        if ( lr->prev_term != prev_term )
+        if ( prev_lr.term != prev_term )
         {
-            delete lr;
-
             att.resp_msg = "Previous log record missmatch";
             att.resp_id  = current_term;
 
             failure_response(ACTION, att);
             return;
         }
-
-        delete lr;
     }
 
-    lr = logdb->get_log_record(index);
-
-    if ( lr != 0 )
+    if ( logdb->get_log_record(index, lr) != 0 )
     {
-        if ( lr->term != term )
+        if ( lr.term != term )
         {
             logdb->delete_log_records(index);
         }

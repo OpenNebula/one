@@ -17,6 +17,7 @@
 #include "LogDB.h"
 #include "Nebula.h"
 #include "ZoneServer.h"
+#include "Callbackable.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -50,34 +51,24 @@ LogDB::~LogDB()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int LogDB::setup_index_cb(void *int_value, int num, char **values, char **names)
-{
-    int * value = static_cast<int *>(int_value);
-
-    if ( values[0] != 0 && num == 1 )
-    {
-        *value = atoi(values[0]);
-    }
-
-    return 0;
-}
-
 int LogDB::setup_index(int& _last_applied, int& _last_index)
 {
-    std::ostringstream oss;
     int rc = 0;
+
+    std::ostringstream oss;
+
+    single_cb<int> cb;
 
     _last_applied = 0;
     _last_index   = -1;
 
-    set_callback(static_cast<Callbackable::Callback>(&LogDB::setup_index_cb),
-            static_cast<void *>(&_last_index));
+    cb.set_callback(&_last_index);
 
     oss << "SELECT MAX(log_index) FROM logdb";
 
-    rc += db->exec_rd(oss, this);
+    rc += db->exec_rd(oss, &cb);
 
-    unset_callback();
+    cb.unset_callback();
 
     if ( rc == 0 )
     {
@@ -90,14 +81,13 @@ int LogDB::setup_index(int& _last_applied, int& _last_index)
 
     oss.str("");
 
-    set_callback(static_cast<Callbackable::Callback>(&LogDB::setup_index_cb),
-            static_cast<void *>(&_last_applied));
+    cb.set_callback(&_last_applied);
 
     oss << "SELECT MAX(log_index) FROM logdb WHERE timestamp != 0";
 
-    rc += db->exec_rd(oss, this);
+    rc += db->exec_rd(oss, &cb);
 
-    unset_callback();
+    cb.unset_callback();
 
     if ( rc == 0 )
     {
@@ -114,38 +104,9 @@ int LogDB::setup_index(int& _last_applied, int& _last_index)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int LogDB::select_cb(void *req, int num, char **values, char **names)
-{
-    if ( !values[0] || !values[1] || !values[2] || !values[3] || !values[4]
-            || !values[5] || num != 6 )
-    {
-        return -1;
-    }
-
-    LogDBRecord ** request = static_cast<LogDBRecord **>(req);
-
-    *request = new LogDBRecord;
-
-    (*request)->index = static_cast<unsigned int>(atoi(values[0]));
-    (*request)->term  = static_cast<unsigned int>(atoi(values[1]));
-    (*request)->sql   = values[2];
-
-    (*request)->timestamp  = static_cast<unsigned int>(atoi(values[3]));
-
-    (*request)->prev_index = static_cast<unsigned int>(atoi(values[4]));
-    (*request)->prev_term  = static_cast<unsigned int>(atoi(values[5]));
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-LogDBRecord * LogDB::get_log_record(unsigned int index)
+int LogDB::get_log_record(unsigned int index, LogDBRecord& lr)
 {
     ostringstream oss;
-
-    LogDBRecord * request = 0;
 
     int prev_index = index - 1;
 
@@ -158,43 +119,73 @@ LogDBRecord * LogDB::get_log_record(unsigned int index)
         << " FROM logdb c, logdb p WHERE c.log_index = " << index
         << " AND p.log_index = " << prev_index;
 
-    set_callback(static_cast<Callbackable::Callback>(&LogDB::select_cb),
-            static_cast<void *>(&request));
+    lr.set_callback();
 
-    db->exec_rd(oss, this);
+    int rc = db->exec_rd(oss, &lr);
 
-    unset_callback();
+    lr.unset_callback();
 
-    return request;
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int LogDB::raft_state_cb(void *str_value, int num, char **values, char **names)
+int LogDB::get_last_record_index(unsigned int& _i, unsigned int& _t)
 {
-    std::string * value = static_cast<std::string *>(str_value);
-
-    if ( values[0] != 0 && num == 1 )
+    class db_callback : public Callbackable
     {
-        *value = values[0];
-    }
+    public:
+        int index;
+        int term;
 
-    return 0;
+        int cb(void *_db_cbk, int num, char **values, char **names)
+        {
+            if ( values == 0 || values[0] == 0 || values[1] == 0 || num != 2 )
+            {
+                return -1;
+            }
+
+            index = atoi(values[0]);
+            term  = atoi(values[1]);
+
+            return 0;
+        }
+    } db_cbk;
+
+    std::ostringstream oss;
+
+    db_cbk.set_callback(static_cast<Callbackable::Callback>(&db_callback::cb));
+
+    oss << "SELECT log_index, term FROM logdb WHERE log_index=(SELECT "
+        << "MAX(log_index) FROM logdb)";
+
+    int rc = db->exec_rd(oss, &db_cbk);
+
+    db_cbk.unset_callback();
+
+    _i = db_cbk.index;
+    _t = db_cbk.term;
+
+    return rc;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int LogDB::get_raft_state(std::string &raft_xml)
 {
     ostringstream oss;
 
+    single_cb<std::string> cb;
+
     oss << "SELECT sql FROM logdb WHERE log_index = -1 AND term = -1";
 
-    set_callback(static_cast<Callbackable::Callback>(&LogDB::raft_state_cb),
-            static_cast<void *>(&raft_xml));
+    cb.set_callback(&raft_xml);
 
-    int rc = db->exec_rd(oss, this);
+    int rc = db->exec_rd(oss, &cb);
 
-    unset_callback();
+    cb.unset_callback();
 
     if ( raft_xml.empty() )
     {
@@ -219,16 +210,7 @@ int LogDB::insert_replace(int index, int term, const std::string& sql,
         return -1;
     }
 
-    if (replace)
-    {
-        oss << "REPLACE";
-    }
-    else
-    {
-        oss << "INSERT";
-    }
-
-    oss << " INTO " << table << " ("<< db_names <<") VALUES ("
+    oss << "REPLACE INTO " << table << " ("<< db_names <<") VALUES ("
         << index << ","
         << term << ","
         << "'" << sql_db << "',"
@@ -282,8 +264,6 @@ int LogDB::insert_log_record(unsigned int term, std::ostringstream& sql,
     }
 
     next_index++;
-
-    last_term = term;
 
     pthread_mutex_unlock(&mutex);
 
@@ -394,17 +374,15 @@ int LogDB::apply_log_records(unsigned int commit_index)
 
 	while (last_applied < commit_index )
 	{
-    	LogDBRecord * lr = get_log_record(last_applied + 1);
+    	LogDBRecord lr;
 
-		if ( lr == 0 )
+		if ( get_log_record(last_applied + 1, lr) != 0 )
 		{
             pthread_mutex_unlock(&mutex);
 			return -1;
 		}
 
-		rc = apply_log_record(lr);
-
-		delete lr;
+		rc = apply_log_record(&lr);
 
 		if ( rc != 0 )
 		{

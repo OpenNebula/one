@@ -102,13 +102,14 @@ void ReplicaThread::do_replication()
         // ---------------------------------------------------------------------
         // Get parameters to call append entries on follower
         // ---------------------------------------------------------------------
-        int next_index   = raftm->get_next_index(follower_id);
-        LogDBRecord * lr = logdb->get_log_record(next_index);
+        LogDBRecord lr;
+
+        int next_index = raftm->get_next_index(follower_id);
 
         bool success = false;
         unsigned int follower_term = -1;
 
-        if ( lr == 0 )
+        if ( logdb->get_log_record(next_index, lr) != 0 )
         {
             ostringstream ess;
 
@@ -119,10 +120,8 @@ void ReplicaThread::do_replication()
             continue;
         }
 
-        int xml_rc = raftm->xmlrpc_replicate_log(follower_id, lr, success,
+        int xml_rc = raftm->xmlrpc_replicate_log(follower_id, &lr, success,
             follower_term, error);
-
-        delete lr;
 
         if ( xml_rc == -1 )
         {

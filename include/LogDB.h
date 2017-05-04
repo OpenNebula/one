@@ -25,8 +25,9 @@
 /**
  *  This class represents a log record
  */
-struct LogDBRecord
+class LogDBRecord : public Callbackable
 {
+public:
    /**
     *  Index for this log entry (and previous)
     */
@@ -50,13 +51,46 @@ struct LogDBRecord
      *  Time when the record has been applied to DB. 0 if not applied
      */
     time_t timestamp;
+
+    /**
+     *  Sets callback to load register from DB
+     */
+    void set_callback()
+    {
+        Callbackable::set_callback(
+                static_cast<Callbackable::Callback>(&LogDBRecord::select_cb));
+    }
+
+private:
+    /**
+     *  SQL callback to load logDBRecord from DB (SELECT commands)
+     */
+    int select_cb(void *nil, int num, char **values, char **names)
+    {
+        if ( !values || !values[0] || !values[1] || !values[2] || !values[3] ||
+                !values[4] || !values[5] || num != 6 )
+        {
+            return -1;
+        }
+
+        index = static_cast<unsigned int>(atoi(values[0]));
+        term  = static_cast<unsigned int>(atoi(values[1]));
+        sql   = values[2];
+
+        timestamp  = static_cast<unsigned int>(atoi(values[3]));
+
+        prev_index = static_cast<unsigned int>(atoi(values[4]));
+        prev_term  = static_cast<unsigned int>(atoi(values[5]));
+
+        return 0;
+    }
 };
 
 /**
  *  This class implements a generic DB interface with replication. The associated
  *  DB stores a log to replicate on followers.
  */
-class LogDB : public SqlDB, Callbackable
+class LogDB : public SqlDB
 {
 public:
     LogDB(SqlDB * _db, bool solo, const std::string& log_retention);
@@ -70,9 +104,10 @@ public:
      *  Loads a log record from the database. Memory is allocated by this class
      *  and needs to be freed.
      *    @param index of the associated logDB entry
-     *    @return the LogDB record
+     *    @param lr logDBrecored to load from the DB
+     *    @return 0 on success -1 otherwise
      */
-    LogDBRecord * get_log_record(unsigned int index);
+    int get_log_record(unsigned int index, LogDBRecord& lr);
 
     /**
      *  Applies the SQL command of the given record to the database. The
@@ -92,8 +127,7 @@ public:
 
     /**
      *  Inserts a new log record in the database. This method should be used
-     *  in FOLLOWER mode to replicate leader log. It updates next_index and
-     *  last_term to evaluate vote requests.
+     *  in FOLLOWER mode to replicate leader log. It does not update counters.
      *    @param index for the record
      *    @param term for the record
      *    @param sql command of the record
@@ -104,28 +138,12 @@ public:
     int insert_log_record(unsigned int index, unsigned int term,
             std::ostringstream& sql, time_t timestamp)
     {
-        int rc;
-
-        pthread_mutex_lock(&mutex);
-
-	    rc = insert_replace(index, term, sql.str(), timestamp, false);
-
-        if ( rc == 0 && term >= 0 && index >= 0 )
-        {
-            next_index = index + 1;
-
-            last_term  = term;
-        }
-
-        pthread_mutex_unlock(&mutex);
-
-        return rc;
+	    return insert_replace(index, term, sql.str(), timestamp, false);
     }
 
     //--------------------------------------------------------------------------
     // Functions to manage the Raft state. Log record 0, term -1
     // -------------------------------------------------------------------------
-
     /**
      *  Stores the raft state in the log
      *    @param raft attributes in XML format
@@ -206,19 +224,13 @@ public:
     int setup_index(int& last_applied, int& last_index);
 
     /**
-     *  Gets the index of the last record in the log
+     *  Gets the index & term of the last record in the log
      *    @param _i the index
      *    @param _t the term
+     *
+     *    @return 0 on success
      */
-    void get_last_record_index(unsigned int& _i, unsigned int& _t)
-    {
-        pthread_mutex_lock(&mutex);
-
-        _i = next_index - 1;
-        _t = last_term;
-
-        pthread_mutex_unlock(&mutex);
-    }
+    int get_last_record_index(unsigned int& _i, unsigned int& _t);
 
 protected:
     int exec(std::ostringstream& cmd, Callbackable* obj, bool quiet)
@@ -250,11 +262,6 @@ private:
     unsigned int last_applied;
 
     /**
-     *  Term of the last entry added to the log
-     */
-    unsigned int last_term;
-
-    /**
      *  Max number of records to keep in the database
      */
     std::string log_retention;
@@ -267,21 +274,6 @@ private:
     static const char * db_names;
 
     static const char * db_bootstrap;
-
-    /**
-     *  Callback to initialize the next_index and last_appled varibales.
-     */
-    int setup_index_cb(void *nil, int num, char **values, char **names);
-
-    /**
-     *  SQL callback for log record SELECT commands
-     */
-    int select_cb(void *req, int num, char **values, char **names);
-
-    /**
-     *  SQL callback for loading the raft state
-     */
-    int raft_state_cb(void *str_value, int num, char **values, char **names);
 
     /**
      *  Inserts or update a log record in the database

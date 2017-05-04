@@ -788,6 +788,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr zone_addserver(zone_addserver_pt);
     xmlrpc_c::methodPtr zone_delserver(zone_delserver_pt);
     xmlrpc_c::methodPtr zone_replicatelog(new ZoneReplicateLog());
+    xmlrpc_c::methodPtr zone_voterequest(new ZoneVoteRequest());
 
     xmlrpc_c::methodPtr zone_info(new ZoneInfo());
     xmlrpc_c::methodPtr zonepool_info(new ZonePoolInfo());
@@ -798,6 +799,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.zone.info",     zone_info);
     RequestManagerRegistry.addMethod("one.zone.rename",   zone_rename);
     RequestManagerRegistry.addMethod("one.zone.replicate",zone_replicatelog);
+    RequestManagerRegistry.addMethod("one.zone.voterequest",zone_voterequest);
 
     RequestManagerRegistry.addMethod("one.zone.addserver", zone_addserver);
     RequestManagerRegistry.addMethod("one.zone.delserver", zone_delserver);

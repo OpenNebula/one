@@ -710,7 +710,7 @@ void RaftManager::send_heartbeat()
 
 void RaftManager::request_vote()
 {
-    unsigned int lindex, lterm, fterm;
+    unsigned int lindex, lterm, fterm, _term, _server_id;
 
     std::map<unsigned int, std::string> _servers;
     std::map<unsigned int, std::string>::iterator it;
@@ -738,6 +738,8 @@ void RaftManager::request_vote()
         return;
     }
 
+    _servers = servers;
+
     term     = term + 1;
     votedfor = server_id;
 
@@ -748,6 +750,9 @@ void RaftManager::request_vote()
 
     votes2go = num_servers / 2;
 
+    _term      = term;
+    _server_id = server_id;
+
     pthread_mutex_unlock(&mutex);
 
     logdb->insert_raft_state(raft_state_xml, true);
@@ -756,7 +761,7 @@ void RaftManager::request_vote()
 
     for (it = _servers.begin(); it != _servers.end() ; ++it, oss.str("") )
     {
-        if ( it->first == (unsigned int) server_id )
+        if ( it->first == _server_id )
         {
             continue;
         }
@@ -765,27 +770,33 @@ void RaftManager::request_vote()
 
 		if ( rc == -1 )
 		{
-			oss << "Error sending vote request to follower " << it->first <<": "
-				<< error;
-
-        	NebulaLog::log("RCM", Log::INFO, oss);
+        	NebulaLog::log("RCM", Log::INFO, error);
 		}
-		else if ( success == false && fterm > term )
+		else if ( success == false )
 		{
-            oss << "Follower " << it->first << " has a higher term, turning "
-                << "into follower";
+            oss << "Vote not granted from follower " << it->first << ": "
+                << error;
 
-        	NebulaLog::log("RCM", Log::INFO, oss);
+            NebulaLog::log("RCM", Log::INFO, oss);
 
-			follower(fterm);
+            if ( fterm > _term )
+            {
+                oss.str("");
+                oss << "Follower " << it->first << " is in term " << fterm
+                    << " current term is "<< _term << ". Turning into follower";
 
-			break;
+                NebulaLog::log("RCM", Log::INFO, oss);
+
+                follower(fterm);
+
+                break;
+            }
 		}
         else if ( success == true )
         {
             granted_votes++;
 
-            oss << "Got vote from server: " << it->first << ". Total votes: "
+            oss << "Got vote from follower " << it->first << ". Total votes: "
                 << granted_votes;
 
         	NebulaLog::log("RCM", Log::INFO, oss);
@@ -811,8 +822,7 @@ void RaftManager::request_vote()
     {
         state = FOLLOWER;
 
-        last_heartbeat.tv_sec = 0;
-        last_heartbeat.tv_nsec= 0;
+        clock_gettime(CLOCK_REALTIME, &last_heartbeat);
     }
 
     pthread_mutex_unlock(&mutex);
