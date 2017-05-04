@@ -79,7 +79,21 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             " rsync command must be installed in the frontend and nodes."
     }
 
-    CREAT_OPTIONS = [ IM, VMM, OneClusterHelper::CLUSTER ]
+    EC2_ACCESS = {
+        :name   => "ec2access",
+        :large  => "--ec2access id",
+        :description => "Set the id access for EC2 Driver",
+        :format => String
+    }
+
+    EC2_SECRET = {
+        :name   => "ec2secret",
+        :large  => "--ec2secret key",
+        :description => "Set the secret key for EC2 Driver",
+        :format => String
+    }
+
+    CREAT_OPTIONS = [ IM, VMM, OneClusterHelper::CLUSTER, EC2_ACCESS, EC2_SECRET ]
     SYNC_OPTIONS  = [ OneClusterHelper::CLUSTER, FORCE, RSYNC ]
 
     ########################################################################
@@ -108,6 +122,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             STDERR.puts "\t -i information driver"
             STDERR.puts "\t -v hypervisor driver"
             exit -1
+        end
+
+        if !options[:ec2access].nil? && !options[:ec2secret].nil?
+            puts "madafakaaa"
+            puts "el acceso es "+options[:ec2access]
+            puts "la key es "+options[:ec2secret]
+            exit (-1)
         end
 
         cid = options[:cluster] || ClusterPool::NONE_CLUSTER_ID
