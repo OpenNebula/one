@@ -45,20 +45,33 @@ class VXLANDriver < VNMMAD::VLANDriver
     ############################################################################
     def create_vlan_dev
         begin
-            ipaddr = IPAddr.new CONF[:vxlan_mc]
+            ipaddr = IPAddr.new @nic[:conf][:vxlan_mc]
         rescue
             ipaddr = IPAddr.new "239.0.0.0"
         end
 
         mc  = ipaddr.to_i + @nic[:vlan_id].to_i
-        mcs = IPAddr.new(mc, Socket::AF_INET).to_s
+        mcs = VNMMAD::VNMNetwork::IPv4.to_s(mc)
 
-        mtu = @nic[:mtu] ? "mtu #{@nic[:mtu]}" : "mtu #{CONF[:vxlan_mtu]}"
-        ttl = CONF[:vxlan_ttl] ? "ttl #{CONF[:vxlan_ttl]}" : ""
+        mtu = @nic[:mtu] ? "mtu #{@nic[:mtu]}" : "mtu #{@nic[:conf][:vxlan_mtu]}"
+        ttl = @nic[:conf][:vxlan_ttl] ? "ttl #{@nic[:conf][:vxlan_ttl]}" : ""
+
+        ip_link_conf = ""
+
+        @nic[:ip_link_conf].each do |option, value|
+            case value
+            when true
+                value = "on"
+            when false
+                value = "off"
+            end
+
+            ip_link_conf << "#{option} #{value} "
+        end
 
         OpenNebula.exec_and_log("#{command(:ip)} link add #{@nic[:vlan_dev]}"\
             " #{mtu} type vxlan id #{@nic[:vlan_id]} group #{mcs} #{ttl}"\
-            " dev #{@nic[:phydev]}")
+            " dev #{@nic[:phydev]} #{ip_link_conf}")
 
         OpenNebula.exec_and_log("#{command(:ip)} link set #{@nic[:vlan_dev]} up")
     end
