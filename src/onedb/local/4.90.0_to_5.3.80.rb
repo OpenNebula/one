@@ -100,6 +100,7 @@ module Migrator
     # Adds UID, GID and REQUEST_ID to history records
     ############################################################################
     def feature_5005
+        #TODO ADD VALUES TO HISTORY POOL TABLE
         @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
         @db.run vm_pool_schema()
 
