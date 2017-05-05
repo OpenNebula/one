@@ -112,4 +112,20 @@ public:
                          RequestAttributes& att);
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class ZoneRaftStatus : public RequestManagerZone
+{
+public:
+    ZoneRaftStatus():
+        RequestManagerZone("ZoneRaftInformation", "Returns Raft status",
+                "A:s"){};
+
+    ~ZoneRaftStatus(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+};
+
 #endif

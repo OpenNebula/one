@@ -1112,3 +1112,37 @@ int RaftManager::xmlrpc_request_vote(int follower_id, unsigned int lindex,
     return xml_rc;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+std::string& RaftManager::to_xml(std::string& raft_xml)
+{
+    Nebula& nd    = Nebula::instance();
+    LogDB * logdb = nd.get_logdb();
+
+    unsigned int lindex, lterm;
+
+    std::ostringstream oss;
+
+    logdb->get_last_record_index(lindex, lterm);
+
+	pthread_mutex_lock(&mutex);
+
+    oss << "<RAFT>"
+        << "<SERVER_ID>" << server_id << "</SERVER_ID>"
+        << "<STATE>"     << state << "</STATE>"
+        << "<TERM>"      << term << "</TERM>"
+        << "<VOTEDFOR>"  << votedfor << "</VOTEDFOR>"
+        << "<COMMIT>"    << commit << "</COMMIT>"
+        << "<LOG_INDEX>" << lindex << "</LOG_INDEX>"
+        << "<LOG_TERM>"  << lterm  << "</LOG_TERM>"
+        << "</RAFT>";
+
+	pthread_mutex_unlock(&mutex);
+
+    raft_xml = oss.str();
+
+    return raft_xml;
+}
+
+

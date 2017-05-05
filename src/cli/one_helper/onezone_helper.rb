@@ -117,6 +117,42 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
         zone_hash=zone.to_hash
 
         if zone.has_elements?("/ZONE/SERVER_POOL/SERVER")
+            servers = zone_hash["ZONE"]["SERVER_POOL"]["SERVER"]
+
+            servers.each { |s|
+                endpoint = s["ENDPOINT"]
+
+                next if endpoint.nil?
+
+                client = OpenNebula::Client.new(nil, endpoint)
+
+                xml_doc = client.call("zone.raftstatus")
+
+                if OpenNebula::is_error?(xml_doc)
+                    s["STATE"]     = "error"
+                    s["TERM"]      = "-"
+                    s["VOTEDFOR"]  = "-"
+                    s["COMMIT"  ]  = "-"
+                    s["LOG_INDEX"] = "-"
+
+                    next
+                end
+
+                xml_doc = Nokogiri::XML(xml_doc)
+
+                s["STATE"] = case xml_doc.root.at_xpath("STATE").text
+                     when "0" then "solo"
+                     when "1" then "candidate"
+                     when "2" then "follower"
+                     when "3" then "leader"
+                     else "-"
+                 end
+                s["TERM"]     = xml_doc.root.at_xpath("TERM").text
+                s["VOTEDFOR"]  = xml_doc.root.at_xpath("VOTEDFOR").text
+                s["COMMIT"]    = xml_doc.root.at_xpath("COMMIT").text
+                s["LOG_INDEX"] = xml_doc.root.at_xpath("LOG_INDEX").text
+            }
+
             puts
             CLIHelper.print_header(str_h1 % "SERVERS",false)
 
@@ -130,10 +166,29 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
                     d["NAME"] if !d.nil?
                 end
 
-                column :"ENDPOINT", "", :left, :size=>30 do |d|
-                    d["ENDPOINT"] if !d.nil?
+                column :"STATE", "", :left, :size=>10 do |d|
+                    d["STATE"] if !d.nil?
                 end
 
+                column :"TERM", "", :left, :size=>10 do |d|
+                    d["TERM"] if !d.nil?
+                end
+
+                column :"INDEX", "", :left, :size=>10 do |d|
+                    d["LOG_INDEX"] if !d.nil?
+                end
+
+                column :"COMMIT", "", :left, :size=>10 do |d|
+                    d["COMMIT"] if !d.nil?
+                end
+
+                column :"VOTE", "", :left, :size=>5 do |d|
+                    d["VOTEDFOR"] if !d.nil?
+                end
+
+                column :"ENDPOINT", "", :left, :size=>18 do |d|
+                    d["ENDPOINT"] if !d.nil?
+                end
             end.show([zone_hash['ZONE']['SERVER_POOL']['SERVER']].flatten, {})
         end
 

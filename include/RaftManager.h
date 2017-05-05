@@ -100,6 +100,12 @@ public:
     // Raft state query functions
     // -------------------------------------------------------------------------
     /**
+     *  Return the Raft status in XML format
+     *    @return xml document with the raft state
+     */
+    std::string& to_xml(std::string& state_xml);
+
+    /**
      *  Makes this server follower. Stop associated replication facilities
      */
     void follower(unsigned int term);

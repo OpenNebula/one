@@ -303,4 +303,25 @@ void ZoneVoteRequest::request_execute(xmlrpc_c::paramList const& paramList,
     success_response(static_cast<int>(current_term), att);
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void ZoneRaftStatus::request_execute(xmlrpc_c::paramList const& paramList,
+    RequestAttributes& att)
+{
+    Nebula& nd = Nebula::instance();
+
+    RaftManager * raftm = nd.get_raftm();
+
+    std::string raft_xml;
+
+    if ( basic_authorization(nd.get_zone_id(), att) == false )
+    {
+        return;
+    }
+
+    raftm->to_xml(raft_xml);
+
+    success_response(raft_xml, att);
+}
 
