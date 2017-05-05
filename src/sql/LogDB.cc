@@ -199,7 +199,7 @@ int LogDB::get_raft_state(std::string &raft_xml)
 /* -------------------------------------------------------------------------- */
 
 int LogDB::insert_replace(int index, int term, const std::string& sql,
-        time_t timestamp, bool replace)
+        time_t timestamp)
 {
     std::ostringstream oss;
 
@@ -234,10 +234,10 @@ int LogDB::apply_log_record(LogDBRecord * lr)
 
     int rc = db->exec_wr(oss_sql);
 
-    insert_replace(lr->index, lr->term, lr->sql, time(0), true);
-
     if ( rc == 0 )
     {
+        insert_replace(lr->index, lr->term, lr->sql, time(0));
+
         last_applied = lr->index;
     }
 
@@ -254,7 +254,7 @@ int LogDB::insert_log_record(unsigned int term, std::ostringstream& sql,
 
     unsigned int index = next_index;
 
-    if ( insert_replace(index, term, sql.str(), timestamp, false) != 0 )
+    if ( insert_replace(index, term, sql.str(), timestamp) != 0 )
     {
         NebulaLog::log("DBM", Log::ERROR, "Cannot insert log record in DB");
 
@@ -368,8 +368,6 @@ int LogDB::delete_log_records(unsigned int start_index)
 
 int LogDB::apply_log_records(unsigned int commit_index)
 {
-	int rc;
-
     pthread_mutex_lock(&mutex);
 
 	while (last_applied < commit_index )
@@ -382,9 +380,7 @@ int LogDB::apply_log_records(unsigned int commit_index)
 			return -1;
 		}
 
-		rc = apply_log_record(&lr);
-
-		if ( rc != 0 )
+		if ( apply_log_record(&lr) != 0 )
 		{
             pthread_mutex_unlock(&mutex);
 			return -1;

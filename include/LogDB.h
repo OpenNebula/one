@@ -138,7 +138,7 @@ public:
     int insert_log_record(unsigned int index, unsigned int term,
             std::ostringstream& sql, time_t timestamp)
     {
-	    return insert_replace(index, term, sql.str(), timestamp, false);
+	    return insert_replace(index, term, sql.str(), timestamp);
     }
 
     //--------------------------------------------------------------------------
@@ -147,13 +147,11 @@ public:
     /**
      *  Stores the raft state in the log
      *    @param raft attributes in XML format
-     *    @param replace true to replace the current configuration or false to
-     *    insert a new one
      *    @return 0 on success
      */
-    int insert_raft_state(std::string& raft_xml, bool replace)
+    int insert_raft_state(std::string& raft_xml)
     {
-        return insert_replace(-1, -1, raft_xml, 0, replace);
+        return insert_replace(-1, -1, raft_xml, 0);
     }
 
     /**
@@ -280,13 +278,11 @@ private:
      *    @param index of the log entry
      *    @param term for the log entry
      *    @param sql command to modify DB state
-     *    @param timestamp of record application to DB state
-     *    @param replace true to replace an existing entry
+     *    @param ts timestamp of record application to DB state
      *
      *    @return 0 on success
      */
-    int insert_replace(int index, int term, const std::string& sql,
-            time_t timestamp, bool replace);
+    int insert_replace(int index, int term, const std::string& sql, time_t ts);
 
     /**
      *  Inserts a new log record in the database. If the record is successfully

@@ -187,6 +187,11 @@ public:
 		return test_state(FOLLOWER);
     }
 
+    bool is_candidate()
+    {
+        return test_state(CANDIDATE);
+    }
+
     bool is_solo()
     {
         return test_state(SOLO);

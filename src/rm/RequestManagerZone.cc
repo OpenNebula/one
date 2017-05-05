@@ -176,6 +176,11 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
         raftm->follower(leader_term);
     }
 
+    if ( raftm->is_candidate() )
+    {
+        raftm->follower(leader_term);
+    }
+
     raftm->update_last_heartbeat();
 
     //HEARTBEAT

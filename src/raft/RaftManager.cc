@@ -71,7 +71,7 @@ RaftManager::RaftManager(int id, time_t log_purge, long long bcast,
 
         raft_state.to_xml(raft_xml);
 
-        logdb->insert_raft_state(raft_xml, false);
+        logdb->insert_raft_state(raft_xml);
 
         votedfor = -1;
         term     = 0;
@@ -327,7 +327,7 @@ void RaftManager::leader()
 
     pthread_mutex_unlock(&mutex);
 
-    logdb->insert_raft_state(raft_state_xml, true);
+    logdb->insert_raft_state(raft_state_xml);
 
     NebulaLog::log("RCM", Log::INFO, "oned is now the leader of zone");
 }
@@ -382,7 +382,7 @@ void RaftManager::follower(unsigned int _term)
 
     pthread_mutex_unlock(&mutex);
 
-    logdb->insert_raft_state(raft_state_xml, true);
+    logdb->insert_raft_state(raft_state_xml);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -540,7 +540,7 @@ int RaftManager::update_votedfor(int _votedfor)
 
     pthread_mutex_unlock(&mutex);
 
-    logdb->insert_raft_state(raft_state_xml, true);
+    logdb->insert_raft_state(raft_state_xml);
 
     return 0;
 }
@@ -728,104 +728,134 @@ void RaftManager::request_vote()
     std::string error;
     std::string raft_state_xml;
 
+    struct timespec etimeout;
+    long long ms;
+
     bool success;
 
-    pthread_mutex_lock(&mutex);
-
-    if ( state != CANDIDATE )
+    do
     {
-        pthread_mutex_unlock(&mutex);
-        return;
-    }
+        /* ------------------------------------------------------------------ */
+        /* Initialize election variables                                      */
+        /* ------------------------------------------------------------------ */
+        pthread_mutex_lock(&mutex);
 
-    _servers = servers;
-
-    term     = term + 1;
-    votedfor = server_id;
-
-    raft_state.replace("TERM", term);
-    raft_state.replace("VOTEDFOR", votedfor);
-
-    raft_state.to_xml(raft_state_xml);
-
-    votes2go = num_servers / 2;
-
-    _term      = term;
-    _server_id = server_id;
-
-    pthread_mutex_unlock(&mutex);
-
-    logdb->insert_raft_state(raft_state_xml, true);
-
-    logdb->get_last_record_index(lindex, lterm);
-
-    for (it = _servers.begin(); it != _servers.end() ; ++it, oss.str("") )
-    {
-        if ( it->first == _server_id )
+        if ( state != CANDIDATE )
         {
-            continue;
+            pthread_mutex_unlock(&mutex);
+            break;
         }
 
-		rc = xmlrpc_request_vote(it->first, lindex, lterm, success, fterm, error);
+        _servers = servers;
 
-		if ( rc == -1 )
-		{
-        	NebulaLog::log("RCM", Log::INFO, error);
-		}
-		else if ( success == false )
-		{
-            oss << "Vote not granted from follower " << it->first << ": "
-                << error;
+        term     = term + 1;
+        votedfor = server_id;
 
-            NebulaLog::log("RCM", Log::INFO, oss);
+        raft_state.replace("TERM", term);
+        raft_state.replace("VOTEDFOR", votedfor);
 
-            if ( fterm > _term )
+        raft_state.to_xml(raft_state_xml);
+
+        votes2go = num_servers / 2;
+
+        _term      = term;
+        _server_id = server_id;
+
+        pthread_mutex_unlock(&mutex);
+
+        logdb->insert_raft_state(raft_state_xml);
+
+        logdb->get_last_record_index(lindex, lterm);
+
+        /* ------------------------------------------------------------------ */
+        /* Request vote on all the followers                                  */
+        /* ------------------------------------------------------------------ */
+        for (it = _servers.begin(); it != _servers.end() ; ++it, oss.str("") )
+        {
+            unsigned int id = it->first;
+
+            if ( id == _server_id )
             {
-                oss.str("");
-                oss << "Follower " << it->first << " is in term " << fterm
-                    << " current term is "<< _term << ". Turning into follower";
+                continue;
+            }
+
+            rc = xmlrpc_request_vote(id, lindex, lterm, success, fterm, error);
+
+            if ( rc == -1 )
+            {
+                NebulaLog::log("RCM", Log::INFO, error);
+            }
+            else if ( success == false )
+            {
+                oss << "Vote not granted from follower " << id << ": " << error;
 
                 NebulaLog::log("RCM", Log::INFO, oss);
 
-                follower(fterm);
+                if ( fterm > _term )
+                {
+                    oss.str("");
+                    oss << "Follower " << id << " is in term " << fterm
+                        << " current term is "<< _term
+                        << ". Turning into follower";
 
+                    NebulaLog::log("RCM", Log::INFO, oss);
+
+                    follower(fterm);
+
+                    return;
+                }
+            }
+            else if ( success == true )
+            {
+                granted_votes++;
+
+                oss << "Got vote from follower " << id << ". Total votes: "
+                    << granted_votes;
+
+                NebulaLog::log("RCM", Log::INFO, oss);
+            }
+
+            if ( granted_votes >= votes2go )
+            {
+                NebulaLog::log("RCM", Log::INFO, "Got majority of votes");
                 break;
             }
-		}
-        else if ( success == true )
-        {
-            granted_votes++;
-
-            oss << "Got vote from follower " << it->first << ". Total votes: "
-                << granted_votes;
-
-        	NebulaLog::log("RCM", Log::INFO, oss);
         }
 
+        /* ------------------------------------------------------------------ */
+        /* Become leader if we have enough votes                              */
+        /* ------------------------------------------------------------------ */
         if ( granted_votes >= votes2go )
         {
-            NebulaLog::log("RCM", Log::INFO, "Got majority of votes");
-            break;
+            leader();
+            return;
         }
-    }
 
-    if ( granted_votes >= votes2go )
-    {
-        leader();
-        return;
-    }
+        /* ------------------------------------------------------------------ */
+        /* Timeout for a new election process (blocking timer thread)         */
+        /* ------------------------------------------------------------------ */
+        pthread_mutex_lock(&mutex);
 
-    //This election process failed, start a new one by expiring heartbeat
-    pthread_mutex_lock(&mutex);
+        votedfor = -1;
 
-    if (state == CANDIDATE)
-    {
-        state = FOLLOWER;
+        raft_state.replace("VOTEDFOR", votedfor);
 
-        clock_gettime(CLOCK_REALTIME, &last_heartbeat);
-    }
+        raft_state.to_xml(raft_state_xml);
 
-    pthread_mutex_unlock(&mutex);
+        pthread_mutex_unlock(&mutex);
+
+        logdb->insert_raft_state(raft_state_xml);
+
+        srand(_server_id);
+
+        ms = rand() % 500 + election_timeout.tv_sec * 1000
+            + election_timeout.tv_nsec / 1000000;
+
+        set_timeout(ms, etimeout);
+
+        nanosleep(&etimeout, 0);
+
+    } while ( true );
 }
 
 /* -------------------------------------------------------------------------- */
