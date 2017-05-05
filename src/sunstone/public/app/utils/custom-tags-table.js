@@ -40,6 +40,19 @@ define(function(require) {
       tbody.append(VectorAttributeRowTemplateHTML());
     });
 
+    context.off("click", ".change_to_vector_attribute");
+    context.on("click", ".change_to_vector_attribute", function(){
+      var td = $($(this).closest('table')).parent();
+      var tr = $(td).parent();
+      $('.change_to_vector_attribute', td).addClass('add_vector_attribute').removeClass('change_to_vector_attribute');
+      $('tbody.custom_body', td).addClass('custom_vector_attributes').removeClass('custom_body');
+      $('.custom_tag_key', tr).addClass('custom_vector_key').removeClass('custom_tag_key').css('margin-top', '5px');
+      $('tbody.custom_vector_attributes', td).append(VectorAttributeRowTemplateHTML({
+        key: $('textarea.custom_tag_value', td).val()
+      }));
+      $('textarea.custom_tag_value', td).remove();
+    });
+
     $(".add_custom_tag", context).trigger("click");
 
     context.on("click", "tbody.custom_tags i.remove-tab", function(){
