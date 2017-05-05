@@ -25,6 +25,7 @@ define(function(require) {
   var ImageTable = require('tabs/images-tab/datatable')
   var WizardFields = require('utils/wizard-fields');
   var UniqueId = require('utils/unique-id');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     TEMPLATES
@@ -159,7 +160,7 @@ define(function(require) {
       }
       tmpl["DEV_PREFIX"] = dev_prefix;
     }
-
+    $.extend(tmpl, TemplateUtils.stringToTemplate($('#templateStr',context).val()));
     return tmpl;
   }
 
@@ -198,6 +199,7 @@ define(function(require) {
     }
 
     WizardFields.fill(selectedContext, templateJSON);
+    $('#templateStr',context).val(TemplateUtils.templateToString(templateJSON));
 
     var dev_prefix = templateJSON["DEV_PREFIX"];
     if (dev_prefix != undefined && dev_prefix.length) {
