@@ -93,20 +93,6 @@ define(function(require) {
     return template_str;
   }
 
-  function _merge_templates(template_master, template_slave, advanced){
-    if(!advanced)
-      template_slave = _convert_string_to_template(template_slave);
-    else
-      template_master = _convert_string_to_template(template_master);
-    if((advanced && template_master) || (!advanced && template_slave)){
-      var template_final = {};
-      $.extend(true, template_final, template_slave, template_master);
-      return template_final;
-    }else{
-      Notifier.notifyError(Locale.tr("Advanced template malformed"));
-    } 
-    return template_master;
-  }
   // Transforms an object to an opennebula template string
   function _convert_string_to_template(string_json, unshown_values) {
     var i = 0;
@@ -186,7 +172,6 @@ define(function(require) {
   }
 
   return {
-    'mergeTemplates'  : _merge_templates,
     'stringToTemplate': _convert_string_to_template,
     'templateToString': _convert_template_to_string,
     'htmlDecode': _htmlDecode,

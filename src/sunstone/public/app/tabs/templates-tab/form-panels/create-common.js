@@ -188,30 +188,25 @@ define(function(require) {
 
   function _submitWizard(context) {
     var templateJSON = this.retrieve(context);
-    var templateStr = $('textarea#template', $("form#createVMTemplateFormAdvanced")).val();
-    var template_final = TemplateUtils.mergeTemplates(templateJSON, templateStr);
 
     if (this.action == "create") {
-      Sunstone.runAction(this.resource+".create", {'vmtemplate': template_final});
+      Sunstone.runAction(this.resource+".create", {'vmtemplate': templateJSON});
       return false;
     } else if (this.action == "update") {
-      Sunstone.runAction(this.resource+".update", this.resourceId, TemplateUtils.templateToString(template_final));
+      Sunstone.runAction(this.resource+".update", this.resourceId, TemplateUtils.templateToString(templateJSON));
       return false;
     }
   }
 
   function _submitAdvanced(context) {
     var templateStr = $('textarea#template', context).val();
-    var templateJSON = this.retrieve($("form#createVMTemplateFormWizard"));
-    var template_final = TemplateUtils.mergeTemplates(templateStr, templateJSON, true);
-    template_final = TemplateUtils.templateToString(template_final);
 
     if (this.action == "create") {
-      Sunstone.runAction(this.resource+".create", {"vmtemplate": {"template_raw": template_final}});
+      Sunstone.runAction(this.resource+".create", {"vmtemplate": {"template_raw": templateStr}});
       return false;
 
     } else if (this.action == "update") {
-      Sunstone.runAction(this.resource+".update", this.resourceId, template_final);
+      Sunstone.runAction(this.resource+".update", this.resourceId, templateStr);
       return false;
     }
   }
