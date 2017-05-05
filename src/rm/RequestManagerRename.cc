@@ -126,8 +126,6 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
 
     object->unlock();
 
-    pool->update_cache_index(old_name, operms.uid, new_name, operms.uid);
-
     batch_rename(oid);
 
     success_response(oid, att);

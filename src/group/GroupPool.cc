@@ -77,7 +77,7 @@ GroupPool::GroupPool(SqlDB * db, vector<const VectorAttribute *> hook_mads,
             goto error_groups;
         }
 
-        set_update_lastOID(99);
+        set_lastOID(99);
     }
 
     register_hooks(hook_mads, remotes_location);

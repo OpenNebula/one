@@ -83,8 +83,7 @@ ZonePool::ZonePool(SqlDB * db, bool is_federation_slave)
 
         // The first 100 Zone IDs are reserved for system Zones.
         // Regular ones start from ID 100
-
-        set_update_lastOID(99);
+        set_lastOID(99);
     }
 
     return;

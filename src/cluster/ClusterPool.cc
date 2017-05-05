@@ -72,7 +72,7 @@ ClusterPool::ClusterPool(SqlDB * db, const VectorAttribute * _vnc_conf):
         cluster->unlock();
 
         // User created clusters will start from ID 100
-        set_update_lastOID(99);
+        set_lastOID(99);
     }
 
     return;

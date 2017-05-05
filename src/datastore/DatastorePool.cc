@@ -160,7 +160,7 @@ DatastorePool::DatastorePool(
         }
 
         // User created datastores will start from ID 100
-        set_update_lastOID(99);
+        set_lastOID(99);
     }
 
     return;
