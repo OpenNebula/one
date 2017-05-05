@@ -22,6 +22,9 @@
       var available_views = JSON.parse('["<%=
           $views_config.available_views(session[:user], session[:user_gname]).join('","')
         %>"]')
+      var all_labels = JSON.parse('["<%=
+          $views_config.get_all_labels(session[:user_gname]).join('","')
+        %>"]')
       var all_views = JSON.parse('["<%=
           $views_config.get_all_views.join('","')
         %>"]')
@@ -42,6 +45,7 @@
         },
         'view' : view,
         'available_views' : available_views,
+        'all_labels' : all_labels,
         'all_views' : all_views,
         'user_id' : '<%= session[:user_id] %>',
         'user_gid' : '<%= session[:user_gid] %>',
