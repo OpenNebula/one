@@ -34,7 +34,8 @@ const char * LogDB::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
 /* -------------------------------------------------------------------------- */
 
 LogDB::LogDB(SqlDB * _db, bool _solo, const std::string& _lret):solo(_solo),
-    db(_db), next_index(0), last_applied(-1), log_retention(_lret)
+    db(_db), next_index(0), last_applied(-1), last_index(-1), last_term(-1),
+    log_retention(_lret)
 {
     int r, i;
 
@@ -59,8 +60,12 @@ int LogDB::setup_index(int& _last_applied, int& _last_index)
 
     single_cb<int> cb;
 
+    LogDBRecord lr;
+
     _last_applied = 0;
     _last_index   = -1;
+
+    pthread_mutex_lock(&mutex);
 
     cb.set_callback(&_last_index);
 
@@ -72,11 +77,8 @@ int LogDB::setup_index(int& _last_applied, int& _last_index)
 
     if ( rc == 0 )
     {
-        pthread_mutex_lock(&mutex);
-
         next_index = _last_index + 1;
-
-        pthread_mutex_unlock(&mutex);
+        last_index = _last_index;
     }
 
     oss.str("");
@@ -91,12 +93,17 @@ int LogDB::setup_index(int& _last_applied, int& _last_index)
 
     if ( rc == 0 )
     {
-        pthread_mutex_lock(&mutex);
-
         last_applied = _last_applied;
-
-        pthread_mutex_unlock(&mutex);
     }
+
+    rc += get_log_record(last_index, lr);
+
+    if ( rc == 0 )
+    {
+        last_term = lr.term;
+    }
+
+    pthread_mutex_unlock(&mutex);
 
     return rc;
 }
@@ -131,43 +138,14 @@ int LogDB::get_log_record(unsigned int index, LogDBRecord& lr)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int LogDB::get_last_record_index(unsigned int& _i, unsigned int& _t)
+void LogDB::get_last_record_index(unsigned int& _i, unsigned int& _t)
 {
-    class db_callback : public Callbackable
-    {
-    public:
-        int index;
-        int term;
+    pthread_mutex_lock(&mutex);
 
-        int cb(void *_db_cbk, int num, char **values, char **names)
-        {
-            if ( values == 0 || values[0] == 0 || values[1] == 0 || num != 2 )
-            {
-                return -1;
-            }
+    _i = last_index;
+    _t = last_term;
 
-            index = atoi(values[0]);
-            term  = atoi(values[1]);
-
-            return 0;
-        }
-    } db_cbk;
-
-    std::ostringstream oss;
-
-    db_cbk.set_callback(static_cast<Callbackable::Callback>(&db_callback::cb));
-
-    oss << "SELECT log_index, term FROM logdb WHERE log_index=(SELECT "
-        << "MAX(log_index) FROM logdb)";
-
-    int rc = db->exec_rd(oss, &db_cbk);
-
-    db_cbk.unset_callback();
-
-    _i = db_cbk.index;
-    _t = db_cbk.term;
-
-    return rc;
+    pthread_mutex_unlock(&mutex);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -263,11 +241,44 @@ int LogDB::insert_log_record(unsigned int term, std::ostringstream& sql,
         return -1;
     }
 
+    last_index = next_index;
+
+    last_term  = term;
+
     next_index++;
 
     pthread_mutex_unlock(&mutex);
 
     return index;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int LogDB::insert_log_record(unsigned int index, unsigned int term,
+        std::ostringstream& sql, time_t timestamp)
+{
+    int rc;
+
+    pthread_mutex_lock(&mutex);
+
+    rc = insert_replace(index, term, sql.str(), timestamp);
+
+    if ( rc == 0 )
+    {
+        if ( index > last_index )
+        {
+            last_index = index;
+
+            last_term  = term;
+
+            next_index = last_index + 1;
+        }
+    }
+
+    pthread_mutex_unlock(&mutex);
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -347,18 +358,27 @@ int LogDB::delete_log_records(unsigned int start_index)
     std::ostringstream oss;
     int rc;
 
+    pthread_mutex_lock(&mutex);
+
     oss << "DELETE FROM " << table << " WHERE log_index >= start_index";
 
     rc = db->exec_wr(oss);
 
     if ( rc == 0 )
     {
-        pthread_mutex_lock(&mutex);
+    	LogDBRecord lr;
 
         next_index = start_index;
 
-        pthread_mutex_unlock(&mutex);
+        last_index = start_index - 1;
+
+		if ( get_log_record(last_index, lr) == 0 )
+        {
+            last_term = lr.term;
+        }
     }
+
+    pthread_mutex_unlock(&mutex);
 
 	return rc;
 }

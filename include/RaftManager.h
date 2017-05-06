@@ -137,34 +137,12 @@ public:
     }
 
 	/**
+     *  Update the commit index = min(leader_commit, log index).
 	 *  @param leader_commit index sent by leader in a replicate xml-rpc call
 	 *  @param index of the last record inserted in the database
 	 *  @return the updated commit index
 	 */
-	unsigned int update_commit(unsigned int leader_commit, unsigned int index)
-	{
-        unsigned int _commit;
-
-        pthread_mutex_lock(&mutex);
-
-		if ( leader_commit > commit )
-		{
-			if ( index < leader_commit )
-			{
-				commit = index;
-			}
-			else
-			{
-				commit = leader_commit;
-			}
-		}
-
-        _commit = commit;
-
-        pthread_mutex_unlock(&mutex);
-
-		return _commit;
-	}
+	unsigned int update_commit(unsigned int leader_commit, unsigned int index);
 
     /**
      *  Evaluates a vote request. It is granted if no vote has been granted in

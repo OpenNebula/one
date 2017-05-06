@@ -187,6 +187,14 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
     if ( index == 0 && prev_index == 0 && term == 0 && prev_term == 0 &&
          sql.empty() )
     {
+        unsigned int lindex, lterm;
+
+        logdb->get_last_record_index(lindex, lterm);
+
+        unsigned int new_commit = raftm->update_commit(leader_commit, lindex);
+
+        logdb->apply_log_records(new_commit);
+
         success_response(static_cast<int>(current_term), att);
         return;
     }

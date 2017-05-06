@@ -127,7 +127,7 @@ public:
 
     /**
      *  Inserts a new log record in the database. This method should be used
-     *  in FOLLOWER mode to replicate leader log. It does not update counters.
+     *  in FOLLOWER mode to replicate leader log.
      *    @param index for the record
      *    @param term for the record
      *    @param sql command of the record
@@ -136,10 +136,7 @@ public:
      *    @return -1 on failure, index of the inserted record on success
      */
     int insert_log_record(unsigned int index, unsigned int term,
-            std::ostringstream& sql, time_t timestamp)
-    {
-	    return insert_replace(index, term, sql.str(), timestamp);
-    }
+            std::ostringstream& sql, time_t timestamp);
 
     //--------------------------------------------------------------------------
     // Functions to manage the Raft state. Log record 0, term -1
@@ -225,10 +222,8 @@ public:
      *  Gets the index & term of the last record in the log
      *    @param _i the index
      *    @param _t the term
-     *
-     *    @return 0 on success
      */
-    int get_last_record_index(unsigned int& _i, unsigned int& _t);
+    void get_last_record_index(unsigned int& _i, unsigned int& _t);
 
 protected:
     int exec(std::ostringstream& cmd, Callbackable* obj, bool quiet)
@@ -258,6 +253,16 @@ private:
      *  Index of the last log entry applied to the DB state
      */
     unsigned int last_applied;
+
+    /**
+     *  Index of the last (highest) log entry
+     */
+    unsigned int last_index;
+
+    /**
+     *  term of the last (highest) log entry
+     */
+    unsigned int last_term;
 
     /**
      *  Max number of records to keep in the database

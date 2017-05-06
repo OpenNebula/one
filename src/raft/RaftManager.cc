@@ -516,6 +516,35 @@ void RaftManager::update_last_heartbeat()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+unsigned int RaftManager::update_commit(unsigned int leader_commit,
+        unsigned int index)
+{
+    unsigned int _commit;
+
+    pthread_mutex_lock(&mutex);
+
+    if ( leader_commit > commit )
+    {
+        if ( index < leader_commit )
+        {
+            commit = index;
+        }
+        else
+        {
+            commit = leader_commit;
+        }
+    }
+
+    _commit = commit;
+
+    pthread_mutex_unlock(&mutex);
+
+    return _commit;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int RaftManager::update_votedfor(int _votedfor)
 {
     Nebula& nd    = Nebula::instance();
