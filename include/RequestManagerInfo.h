@@ -59,7 +59,7 @@ class VirtualMachineInfo : public RequestManagerInfo
 {
 public:
     VirtualMachineInfo():
-        RequestManagerInfo("VirtualMachineInfo",
+        RequestManagerInfo("one.vm.info",
                            "Returns virtual machine instance information")
     {
         Nebula& nd  = Nebula::instance();
@@ -84,7 +84,7 @@ class TemplateInfo : public RequestManagerInfo
 {
 public:
     TemplateInfo():
-        RequestManagerInfo("TemplateInfo",
+        RequestManagerInfo("one.template.info",
                            "Returns virtual machine template information")
     {
         Nebula& nd  = Nebula::instance();
@@ -108,7 +108,7 @@ class VirtualNetworkInfo: public RequestManagerInfo
 {
 public:
     VirtualNetworkInfo():
-        RequestManagerInfo("VirtualNetworkInfo",
+        RequestManagerInfo("one.vn.info",
                            "Returns virtual network information")
     {
         Nebula& nd  = Nebula::instance();
@@ -130,7 +130,7 @@ class ImageInfo: public RequestManagerInfo
 {
 public:
     ImageInfo():
-        RequestManagerInfo("ImageInfo",
+        RequestManagerInfo("one.image.info",
                            "Returns image information")
     {
         Nebula& nd  = Nebula::instance();
@@ -149,7 +149,7 @@ class HostInfo : public RequestManagerInfo
 {
 public:
     HostInfo():
-        RequestManagerInfo("HostInfo",
+        RequestManagerInfo("one.host.info",
                            "Returns host information")
     {
         Nebula& nd  = Nebula::instance();
@@ -167,7 +167,7 @@ class GroupInfo: public RequestManagerInfo
 {
 public:
     GroupInfo():
-        RequestManagerInfo("GroupInfo",
+        RequestManagerInfo("one.group.info",
                            "Returns group information")
     {
         Nebula& nd = Nebula::instance();
@@ -192,7 +192,7 @@ class UserInfo: public RequestManagerInfo
 {
 public:
     UserInfo():
-        RequestManagerInfo("UserInfo",
+        RequestManagerInfo("one.user.info",
                            "Returns user information")
     {
         Nebula& nd  = Nebula::instance();
@@ -217,7 +217,7 @@ class DatastoreInfo: public RequestManagerInfo
 {
 public:
     DatastoreInfo():
-        RequestManagerInfo("DatastoreInfo",
+        RequestManagerInfo("one.datastore.info",
                            "Returns datastore information")
     {
         Nebula& nd  = Nebula::instance();
@@ -235,7 +235,7 @@ class ClusterInfo: public RequestManagerInfo
 {
 public:
     ClusterInfo():
-        RequestManagerInfo("ClusterInfo",
+        RequestManagerInfo("one.cluster.info",
                            "Returns cluster information")
     {
         Nebula& nd = Nebula::instance();
@@ -253,7 +253,7 @@ class DocumentInfo : public RequestManagerInfo
 {
 public:
     DocumentInfo():
-        RequestManagerInfo("DocumentInfo",
+        RequestManagerInfo("one.document.info",
                            "Returns generic document information")
     {
         Nebula& nd  = Nebula::instance();
@@ -271,7 +271,7 @@ class ZoneInfo: public RequestManagerInfo
 {
 public:
     ZoneInfo():
-        RequestManagerInfo("ZoneInfo",
+        RequestManagerInfo("one.zone.info",
                            "Returns zone information")
     {
         Nebula& nd = Nebula::instance();
@@ -289,7 +289,7 @@ class SecurityGroupInfo : public RequestManagerInfo
 {
 public:
     SecurityGroupInfo():
-        RequestManagerInfo("SecurityGroupInfo",
+        RequestManagerInfo("one.secgroup.info",
                            "Returns security group information")
     {
         Nebula& nd  = Nebula::instance();
@@ -307,7 +307,7 @@ class VdcInfo: public RequestManagerInfo
 {
 public:
     VdcInfo():
-        RequestManagerInfo("VdcInfo",
+        RequestManagerInfo("one.vdc.info",
                            "Returns VDC information")
     {
         Nebula& nd = Nebula::instance();
@@ -325,7 +325,7 @@ class VirtualRouterInfo : public RequestManagerInfo
 {
 public:
     VirtualRouterInfo():
-        RequestManagerInfo("VirtualRouterInfo",
+        RequestManagerInfo("one.vrouter.info",
                            "Returns virtual router information")
     {
         Nebula& nd  = Nebula::instance();
@@ -343,7 +343,7 @@ class MarketPlaceInfo : public RequestManagerInfo
 {
 public:
     MarketPlaceInfo():
-        RequestManagerInfo("MarketPlaceInfo",
+        RequestManagerInfo("one.market.info",
                            "Returns marketplace information")
     {
         Nebula& nd  = Nebula::instance();
@@ -361,7 +361,7 @@ class MarketPlaceAppInfo : public RequestManagerInfo
 {
 public:
     MarketPlaceAppInfo():
-        RequestManagerInfo("MarketPlaceAppInfo",
+        RequestManagerInfo("one.marketapp.info",
                            "Returns marketplace app information")
     {
         Nebula& nd  = Nebula::instance();
@@ -379,7 +379,7 @@ class VMGroupInfo : public RequestManagerInfo
 {
 public:
     VMGroupInfo():
-        RequestManagerInfo("VMGroupInfo",
+        RequestManagerInfo("one.vmgroup.info",
                            "Returns vm group information")
     {
         Nebula& nd  = Nebula::instance();

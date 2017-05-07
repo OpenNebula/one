@@ -57,7 +57,7 @@ class TemplateUpdateTemplate: public RequestManagerUpdateTemplate
 {
 public:
     TemplateUpdateTemplate():
-        RequestManagerUpdateTemplate("TemplateUpdateTemplate",
+        RequestManagerUpdateTemplate("one.template.update",
                                      "Updates a virtual machine template")
     {
         Nebula& nd  = Nebula::instance();
@@ -75,7 +75,7 @@ class VirtualMachineUpdateTemplate: public RequestManagerUpdateTemplate
 {
 public:
     VirtualMachineUpdateTemplate():
-        RequestManagerUpdateTemplate("VirtualMachineUpdateTemplate",
+        RequestManagerUpdateTemplate("one.vm.update",
                                      "Updates a virtual machine user template")
     {
         Nebula& nd  = Nebula::instance();
@@ -95,7 +95,7 @@ class ImageUpdateTemplate: public RequestManagerUpdateTemplate
 {
 public:
     ImageUpdateTemplate():
-        RequestManagerUpdateTemplate("ImageUpdateTemplate",
+        RequestManagerUpdateTemplate("one.image.update",
                                      "Updates an image template")
     {
         Nebula& nd  = Nebula::instance();
@@ -113,7 +113,7 @@ class HostUpdateTemplate : public RequestManagerUpdateTemplate
 {
 public:
     HostUpdateTemplate():
-        RequestManagerUpdateTemplate("HostUpdateTemplate",
+        RequestManagerUpdateTemplate("one.host.update",
                                      "Updates a host template")
     {
         Nebula& nd  = Nebula::instance();
@@ -132,7 +132,7 @@ class VirtualNetworkUpdateTemplate : public RequestManagerUpdateTemplate
 {
 public:
     VirtualNetworkUpdateTemplate():
-        RequestManagerUpdateTemplate("VirtualNetworkUpdateTemplate",
+        RequestManagerUpdateTemplate("one.vn.update",
                                      "Updates a vnet template")
     {
         Nebula& nd  = Nebula::instance();
@@ -151,7 +151,7 @@ class UserUpdateTemplate : public RequestManagerUpdateTemplate
 {
 public:
     UserUpdateTemplate():
-        RequestManagerUpdateTemplate("UserUpdateTemplate",
+        RequestManagerUpdateTemplate("one.user.update",
                                      "Updates a user template")
     {
         Nebula& nd  = Nebula::instance();
@@ -169,7 +169,7 @@ class DatastoreUpdateTemplate : public RequestManagerUpdateTemplate
 {
 public:
     DatastoreUpdateTemplate():
-        RequestManagerUpdateTemplate("DatastoreUpdateTemplate",
+        RequestManagerUpdateTemplate("one.datastore.update",
                                      "Updates a datastore template")
     {
         Nebula& nd  = Nebula::instance();
@@ -187,7 +187,7 @@ class DocumentUpdateTemplate : public RequestManagerUpdateTemplate
 {
 public:
     DocumentUpdateTemplate():
-        RequestManagerUpdateTemplate("DocumentUpdateTemplate",
+        RequestManagerUpdateTemplate("one.document.update",
                                      "Updates a document template")
     {
         Nebula& nd  = Nebula::instance();
@@ -205,7 +205,7 @@ class ClusterUpdateTemplate : public RequestManagerUpdateTemplate
 {
 public:
     ClusterUpdateTemplate():
-        RequestManagerUpdateTemplate("ClusterUpdateTemplate",
+        RequestManagerUpdateTemplate("one.cluster.update",
                                      "Updates a cluster template")
     {
         Nebula& nd  = Nebula::instance();
@@ -223,7 +223,7 @@ class ZoneUpdateTemplate : public RequestManagerUpdateTemplate
 {
 public:
     ZoneUpdateTemplate():
-        RequestManagerUpdateTemplate("ZoneUpdateTemplate",
+        RequestManagerUpdateTemplate("one.zone.update",
                                      "Updates a zone template")
     {
         Nebula& nd  = Nebula::instance();
@@ -241,7 +241,7 @@ class GroupUpdateTemplate : public RequestManagerUpdateTemplate
 {
 public:
     GroupUpdateTemplate():
-        RequestManagerUpdateTemplate("GroupUpdateTemplate",
+        RequestManagerUpdateTemplate("one.group.update",
                                      "Updates a Group template")
     {
         Nebula& nd  = Nebula::instance();
@@ -259,7 +259,7 @@ class SecurityGroupUpdateTemplate : public RequestManagerUpdateTemplate
 {
 public:
     SecurityGroupUpdateTemplate():
-        RequestManagerUpdateTemplate("SecurityGroupUpdateTemplate",
+        RequestManagerUpdateTemplate("one.secgroup.update",
                                      "Updates a security group template")
     {
         Nebula& nd  = Nebula::instance();
@@ -277,7 +277,7 @@ class VdcUpdateTemplate : public RequestManagerUpdateTemplate
 {
 public:
     VdcUpdateTemplate():
-        RequestManagerUpdateTemplate("VdcUpdateTemplate",
+        RequestManagerUpdateTemplate("one.vdc.update",
                                      "Updates a VDC template")
     {
         Nebula& nd  = Nebula::instance();
@@ -295,7 +295,7 @@ class VirtualRouterUpdateTemplate : public RequestManagerUpdateTemplate
 {
 public:
     VirtualRouterUpdateTemplate():
-        RequestManagerUpdateTemplate("VirtualRouterUpdateTemplate",
+        RequestManagerUpdateTemplate("one.vrouter.update",
                                      "Updates a virtual router template")
     {
         Nebula& nd  = Nebula::instance();
@@ -313,7 +313,7 @@ class MarketPlaceUpdateTemplate : public RequestManagerUpdateTemplate
 {
 public:
     MarketPlaceUpdateTemplate():
-        RequestManagerUpdateTemplate("MarketPlaceUpdateTemplate",
+        RequestManagerUpdateTemplate("one.market.update",
                                      "Updates a marketplace template")
     {
         Nebula& nd  = Nebula::instance();
@@ -331,7 +331,7 @@ class MarketPlaceAppUpdateTemplate : public RequestManagerUpdateTemplate
 {
 public:
     MarketPlaceAppUpdateTemplate():
-        RequestManagerUpdateTemplate("MarketPlaceUpdateTemplate",
+        RequestManagerUpdateTemplate("one.marketapp.update",
                                      "Updates a marketplace app template")
     {
         Nebula& nd  = Nebula::instance();
@@ -349,7 +349,7 @@ class VMGroupUpdateTemplate : public RequestManagerUpdateTemplate
 {
 public:
     VMGroupUpdateTemplate():
-        RequestManagerUpdateTemplate("VMGroupUpdateTemplate",
+        RequestManagerUpdateTemplate("one.vmgroup.update",
                                      "Updates a vm group template")
     {
         Nebula& nd  = Nebula::instance();

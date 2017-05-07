@@ -175,6 +175,8 @@ protected:
 
     static string format_str;
 
+    bool log_method_call; //Write method call and result to the log
+
     /* ---------------------------------------------------------------------- */
     /* Class Constructors                                                     */
     /* ---------------------------------------------------------------------- */
@@ -185,6 +187,8 @@ protected:
         _help      = help;
 
         hidden_params.clear();
+
+        log_method_call = true;
     };
 
     virtual ~Request(){};

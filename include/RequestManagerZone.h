@@ -56,7 +56,8 @@ class ZoneAddServer : public RequestManagerZone
 {
 public:
     ZoneAddServer():
-        RequestManagerZone("ZoneAddServer", "Add a server to zone", "A:sis"){};
+        RequestManagerZone("one.zone.addserver", "Add a server to zone",
+                "A:sis"){};
 
     ~ZoneAddServer(){};
 
@@ -71,7 +72,7 @@ class ZoneDeleteServer : public RequestManagerZone
 {
 public:
     ZoneDeleteServer():
-        RequestManagerZone("ZoneDeleteServer", "Delete a server from zone",
+        RequestManagerZone("one.zone.delserver", "Delete a server from zone",
                 "A:sii"){};
 
     ~ZoneDeleteServer(){};
@@ -87,8 +88,11 @@ class ZoneReplicateLog : public RequestManagerZone
 {
 public:
     ZoneReplicateLog():
-        RequestManagerZone("ZoneReplicateLog", "Replicate a log record",
-                "A:siiiiiiis"){};
+        RequestManagerZone("one.zone.replicate", "Replicate a log record",
+                "A:siiiiiiis")
+    {
+        log_method_call = false;
+    };
 
     ~ZoneReplicateLog(){};
 
@@ -103,8 +107,8 @@ class ZoneVoteRequest : public RequestManagerZone
 {
 public:
     ZoneVoteRequest():
-        RequestManagerZone("ZoneVoteRequest", "Request vote from a candidate",
-                "A:siiii"){};
+        RequestManagerZone("one.zone.voterequest",
+                "Request vote from a candidate", "A:siiii"){};
 
     ~ZoneVoteRequest(){};
 
@@ -119,7 +123,7 @@ class ZoneRaftStatus : public RequestManagerZone
 {
 public:
     ZoneRaftStatus():
-        RequestManagerZone("ZoneRaftInformation", "Returns Raft status",
+        RequestManagerZone("one.zone.raftstatus", "Returns Raft status",
                 "A:s"){};
 
     ~ZoneRaftStatus(){};

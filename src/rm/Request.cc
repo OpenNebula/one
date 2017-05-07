@@ -283,8 +283,11 @@ void Request::execute(
                                              att.gname,
                                              att.group_ids,
                                              att.umask);
-
-    log_method_invoked(att, _paramList, format_str, method_name, hidden_params);
+    if ( log_method_call )
+    {
+        log_method_invoked(att, _paramList, format_str, method_name,
+                hidden_params);
+    }
 
     if ( authenticated == false )
     {
@@ -295,7 +298,10 @@ void Request::execute(
         request_execute(_paramList, att);
     }
 
-    log_result(att, method_name);
+    if ( log_method_call )
+    {
+        log_result(att, method_name);
+    }
 };
 
 /* -------------------------------------------------------------------------- */

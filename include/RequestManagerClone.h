@@ -79,8 +79,8 @@ class VMTemplateClone : public RequestManagerClone
 {
 public:
     VMTemplateClone():
-        RequestManagerClone("VMTemplateClone","Clone a virtual machine template",
-                "A:sisb")
+        RequestManagerClone("one.template.clone",
+                "Clone a virtual machine template", "A:sisb")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
@@ -132,7 +132,7 @@ class DocumentClone : public RequestManagerClone
 {
 public:
     DocumentClone():
-        RequestManagerClone("DocumentClone", "Clone existing document")
+        RequestManagerClone("one.document.clone", "Clone existing document")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_docpool();
@@ -176,7 +176,7 @@ class SecurityGroupClone : public RequestManagerClone
 {
 public:
     SecurityGroupClone():
-        RequestManagerClone("SecurityGroupClone", "Clone a security group")
+        RequestManagerClone("one.secgroup.clone", "Clone a security group")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_secgrouppool();

@@ -25,7 +25,7 @@
 class RequestManagerUpdateDB: public Request
 {
 protected:
-    RequestManagerUpdateDB(): Request("UpdateDB", "A:sis",
+    RequestManagerUpdateDB(const string& name): Request(name, "A:sis",
             "Updates the DB object from a XML document")
     {
         auth_op = AuthRequest::MANAGE;
@@ -94,7 +94,7 @@ protected:
 class MarketPlaceAppUpdateDB : public RequestManagerUpdateDB
 {
 public:
-    MarketPlaceAppUpdateDB():RequestManagerUpdateDB()
+    MarketPlaceAppUpdateDB():RequestManagerUpdateDB("one.marketapp.updatedb")
     {
         auth_object = PoolObjectSQL::MARKETPLACEAPP;
         pool        =  Nebula::instance().get_apppool();
@@ -106,7 +106,7 @@ public:
 class MarketPlaceUpdateDB : public RequestManagerUpdateDB
 {
 public:
-    MarketPlaceUpdateDB():RequestManagerUpdateDB()
+    MarketPlaceUpdateDB():RequestManagerUpdateDB("one.market.updatedb")
     {
         auth_object = PoolObjectSQL::MARKETPLACE;
         pool        =  Nebula::instance().get_marketpool();

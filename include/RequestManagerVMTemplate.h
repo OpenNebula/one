@@ -55,7 +55,7 @@ class VMTemplateInstantiate : public RequestManagerVMTemplate
 {
 public:
     VMTemplateInstantiate():
-        RequestManagerVMTemplate("TemplateInstantiate", "Instantiates a new "
+        RequestManagerVMTemplate("one.template.instantiate", "Instantiates a new "
             "virtual machine using a template", "A:sisbs")
     {
         auth_op = AuthRequest::USE;

@@ -62,7 +62,7 @@ public:
     };
 
     HostStatus():
-        RequestManagerHost("HostStatus", "Sets the status of the host", "A:sii")
+        RequestManagerHost("one.host.status", "Sets the status of the host", "A:sii")
     {
         auth_op = AuthRequest::ADMIN;
     };
@@ -80,7 +80,7 @@ class HostMonitoring : public RequestManagerHost
 {
 public:
     HostMonitoring():
-        RequestManagerHost("HostMonitoring",
+        RequestManagerHost("one.host.monitoring",
                             "Returns the host monitoring records",
                             "A:si")
     {

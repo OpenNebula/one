@@ -76,7 +76,7 @@ class DocumentLock : public RequestManagerLock
 {
 public:
     DocumentLock():
-        RequestManagerLock("DocumentLock",
+        RequestManagerLock("one.document.lock",
                            "Tries to acquire the object's lock")
     {
         Nebula& nd  = Nebula::instance();
@@ -99,7 +99,7 @@ class DocumentUnlock : public RequestManagerUnlock
 {
 public:
     DocumentUnlock():
-        RequestManagerUnlock("DocumentUnlock",
+        RequestManagerUnlock("one.document.unlock",
                            "Unlocks the object")
     {
         Nebula& nd  = Nebula::instance();

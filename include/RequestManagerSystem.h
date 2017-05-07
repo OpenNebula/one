@@ -50,7 +50,7 @@ class SystemVersion : public RequestManagerSystem
 {
 public:
     SystemVersion():
-        RequestManagerSystem("SystemVersion",
+        RequestManagerSystem("one.system.version",
                           "Returns the OpenNebula version",
                           "A:s")
     {};
@@ -68,7 +68,7 @@ class SystemConfig : public RequestManagerSystem
 {
 public:
     SystemConfig():
-        RequestManagerSystem("SystemConfig",
+        RequestManagerSystem("one.system.config",
                           "Returns the OpenNebula configuration",
                           "A:s")
     {};
@@ -86,7 +86,7 @@ class UserQuotaInfo : public RequestManagerSystem
 {
 public:
     UserQuotaInfo():
-        RequestManagerSystem("UserQuotaInfo",
+        RequestManagerSystem("one.userquota.info",
                            "Returns the default user quota limits",
                            "A:s")
     {
@@ -106,7 +106,7 @@ class GroupQuotaInfo : public RequestManagerSystem
 {
 public:
     GroupQuotaInfo():
-        RequestManagerSystem("GroupQuotaInfo",
+        RequestManagerSystem("one.groupquota.info",
                            "Returns the default group quota limits",
                            "A:s")
     {
@@ -124,7 +124,7 @@ public:
 
 class QuotaUpdate : public RequestManagerSystem
 {
-public:
+protected:
     QuotaUpdate(const string& method_name,
             const string& help):
         RequestManagerSystem(method_name,
@@ -151,7 +151,7 @@ class UserQuotaUpdate : public QuotaUpdate
 {
 public:
     UserQuotaUpdate():
-        QuotaUpdate("UserQuotaUpdate",
+        QuotaUpdate("one.userquota.update",
                    "Updates the default user quota limits")
     {
         auth_op = AuthRequest::ADMIN;
@@ -169,7 +169,7 @@ class GroupQuotaUpdate : public QuotaUpdate
 {
 public:
     GroupQuotaUpdate():
-        QuotaUpdate("GroupQuotaUpdate",
+        QuotaUpdate("one.groupquota.update",
                    "Updates the default group quota limits")
     {
         auth_op = AuthRequest::ADMIN;
