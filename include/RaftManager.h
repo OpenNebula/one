@@ -208,6 +208,13 @@ public:
         return _index;
     }
 
+    /**
+     * Gets the endpoint for xml-rpc calls of the current leader
+     *   @param endpoint
+     *   @return 0 on success, -1 if no leader found
+     */
+    int get_leader_endpoint(std::string& endpoint);
+
     // -------------------------------------------------------------------------
     // XML-RPC Raft API calls
     // -------------------------------------------------------------------------

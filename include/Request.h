@@ -179,6 +179,8 @@ protected:
 
     bool leader_only; //Method can be only execute by leaders or solo servers
 
+    long long xmlrpc_timeout;
+
     /* ---------------------------------------------------------------------- */
     /* Class Constructors                                                     */
     /* ---------------------------------------------------------------------- */
@@ -193,6 +195,9 @@ protected:
         log_method_call = true;
 
         leader_only     = true;
+
+        //TODO Get this from oned.conf
+        xmlrpc_timeout  = 500;
     };
 
     virtual ~Request(){};

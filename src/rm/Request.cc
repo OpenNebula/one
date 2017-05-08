@@ -16,6 +16,7 @@
 
 #include "Request.h"
 #include "Nebula.h"
+#include "Client.h"
 
 #include "PoolObjectAuth.h"
 
@@ -270,12 +271,15 @@ void Request::execute(
     att.retval  = _retval;
     att.session = xmlrpc_c::value_string (_paramList.getString(0));
 
-    att.req_id = (reinterpret_cast<uintptr_t>(this) * rand()) % 10000;
+    att.req_id  = (reinterpret_cast<uintptr_t>(this) * rand()) % 10000;
 
-    Nebula& nd = Nebula::instance();
+    Nebula& nd  = Nebula::instance();
 
-    UserPool* upool     = nd.get_upool();
     RaftManager * raftm = nd.get_raftm();
+    UserPool* upool     = nd.get_upool();
+
+    bool authenticated = upool->authenticate(att.session, att.password,
+        att.uid, att.gid, att.uname, att.gname, att.group_ids, att.umask);
 
     if ( log_method_call )
     {
@@ -283,10 +287,40 @@ void Request::execute(
                 hidden_params);
     }
 
+    if ( authenticated == false )
+    {
+        failure_response(AUTHENTICATION, att);
+
+        log_result(att, method_name);
+
+        return;
+    }
+
     if ( raftm->is_follower() && leader_only)
     {
-        att.resp_msg = "Cannot process request, server is a follower";
-        failure_response(INTERNAL, att);
+        string leader_endpoint, error;
+
+        if ( raftm->get_leader_endpoint(leader_endpoint) != 0 )
+        {
+            att.resp_msg = "Cannot process request, not leader found";
+            failure_response(INTERNAL, att);
+
+            log_result(att, method_name);
+
+            return;
+        }
+
+        int rc = Client::call(leader_endpoint, method_name, _paramList,
+                xmlrpc_timeout, _retval, att.resp_msg);
+
+        if ( rc != 0 )
+        {
+            failure_response(INTERNAL, att);
+
+            log_result(att, method_name);
+
+            return;
+        }
     }
     else if ( raftm->is_candidate() && leader_only)
     {
@@ -295,17 +329,7 @@ void Request::execute(
     }
     else //leader or solo or !leader_only
     {
-        bool authenticated = upool->authenticate(att.session, att.password,
-            att.uid, att.gid, att.uname, att.gname, att.group_ids, att.umask);
-
-        if ( authenticated == false )
-        {
-            failure_response(AUTHENTICATION, att);
-        }
-        else
-        {
-            request_execute(_paramList, att);
-        }
+        request_execute(_paramList, att);
     }
 
     if ( log_method_call )

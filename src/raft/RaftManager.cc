@@ -207,6 +207,39 @@ static unsigned int get_zone_servers(std::map<unsigned int, std::string>& _serv)
     return _num_servers;
 }
 
+int RaftManager::get_leader_endpoint(std::string& endpoint)
+{
+    int rc;
+
+    pthread_mutex_lock(&mutex);
+
+    if ( leader_id == -1 )
+    {
+        rc = -1;
+    }
+    else
+    {
+        std::map<unsigned int, std::string>::iterator it;
+
+        it = servers.find(leader_id);
+
+        if ( it == servers.end() )
+        {
+            rc = -1;
+        }
+        else
+        {
+            endpoint = it->second;
+            rc = 0;
+        }
+    }
+
+    pthread_mutex_unlock(&mutex);
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 void RaftManager::add_server(unsigned int follower_id)
@@ -909,8 +942,6 @@ int RaftManager::xmlrpc_replicate_log(int follower_id, LogDBRecord * lr,
 
     static const std::string replica_method = "one.zone.replicate";
 
-    std::ostringstream ess;
-
     std::string secret;
     std::string follower_edp;
 
@@ -947,13 +978,8 @@ int RaftManager::xmlrpc_replicate_log(int follower_id, LogDBRecord * lr,
         return -1;
     }
 
-    xmlrpc_c::carriageParm_curl0 carriage(follower_edp);
-
+    xmlrpc_c::value result;
     xmlrpc_c::paramList replica_params;
-
-    xmlrpc_c::clientXmlTransport_curl transport;
-
-    xmlrpc_c::client_xml client(&transport);
 
     replica_params.add(xmlrpc_c::value_string(secret));
     replica_params.add(xmlrpc_c::value_int(_server_id));
@@ -965,63 +991,37 @@ int RaftManager::xmlrpc_replicate_log(int follower_id, LogDBRecord * lr,
     replica_params.add(xmlrpc_c::value_int(lr->prev_term));
     replica_params.add(xmlrpc_c::value_string(lr->sql));
 
-    xmlrpc_c::rpcPtr rpc_client(replica_method, replica_params);
-
     // -------------------------------------------------------------------------
     // Do the XML-RPC call
     // -------------------------------------------------------------------------
-    try
+    xml_rc = Client::client()->call(follower_edp, replica_method, replica_params,
+            xmlrpc_timeout_ms, &result, error);
+
+    if ( xml_rc == 0 )
     {
-        rpc_client->start(&client, &carriage);
+        vector<xmlrpc_c::value> values;
 
-        client.finishAsync(xmlrpc_c::timeout(xmlrpc_timeout_ms));
+        values  = xmlrpc_c::value_array(result).vectorValueValue();
+        success = xmlrpc_c::value_boolean(values[0]);
 
-        if (!rpc_client->isFinished())
+        if ( success ) //values[2] = error code (string)
         {
-            rpc_client->finishErr(girerr::error("XMLRPC method "+replica_method
-                + " timeout, resetting call"));
+            fterm = xmlrpc_c::value_int(values[1]);
         }
-
-        if ( rpc_client->isSuccessful() )
+        else
         {
-            vector<xmlrpc_c::value> values;
-
-            xmlrpc_c::value result = rpc_client->getResult();
-
-            values  = xmlrpc_c::value_array(result).vectorValueValue();
-            success = xmlrpc_c::value_boolean(values[0]);
-
-            if ( success ) //values[2] = error code (string)
-            {
-                fterm    = xmlrpc_c::value_int(values[1]);
-            }
-            else
-            {
-                error = xmlrpc_c::value_string(values[1]);
-                fterm = xmlrpc_c::value_int(values[3]);
-            }
-        }
-        else //RPC failed, will retry on next replication request
-        {
-            xmlrpc_c::fault failure = rpc_client->getFault();
-
-            ess << "Error replicating log entry " << lr->index
-                << " on follower " << follower_id << ": "
-                << failure.getDescription();
-
-			error = ess.str();
-
-            xml_rc = -1;
+            error = xmlrpc_c::value_string(values[1]);
+            fterm = xmlrpc_c::value_int(values[3]);
         }
     }
-    catch (exception const& e)
+    else
     {
-        ess << "Error exception replicating log entry " << lr->index
-            << " on follower " << follower_id << ": " << e.what();
+        std::ostringstream ess;
 
-		error = ess.str();
+        ess << "Error replicating log entry " << lr->index << " on follower "
+            << follower_id << ": " << error;
 
-        xml_rc = -1;
+        error = ess.str();
     }
 
     return xml_rc;
@@ -1038,8 +1038,6 @@ int RaftManager::xmlrpc_request_vote(int follower_id, unsigned int lindex,
 	int _term;
 
     static const std::string replica_method = "one.zone.voterequest";
-
-    std::ostringstream ess;
 
     std::string secret;
     std::string follower_edp;
@@ -1076,13 +1074,8 @@ int RaftManager::xmlrpc_request_vote(int follower_id, unsigned int lindex,
         return -1;
     }
 
-    xmlrpc_c::carriageParm_curl0 carriage(follower_edp);
-
+    xmlrpc_c::value result;
     xmlrpc_c::paramList replica_params;
-
-    xmlrpc_c::clientXmlTransport_curl transport;
-
-    xmlrpc_c::client_xml client(&transport);
 
     replica_params.add(xmlrpc_c::value_string(secret));
     replica_params.add(xmlrpc_c::value_int(_term));
@@ -1090,62 +1083,37 @@ int RaftManager::xmlrpc_request_vote(int follower_id, unsigned int lindex,
     replica_params.add(xmlrpc_c::value_int(lindex));
     replica_params.add(xmlrpc_c::value_int(lterm));
 
-    xmlrpc_c::rpcPtr rpc_client(replica_method, replica_params);
-
     // -------------------------------------------------------------------------
     // Do the XML-RPC call
     // -------------------------------------------------------------------------
-    try
+    xml_rc = Client::client()->call(follower_edp, replica_method, replica_params,
+        xmlrpc_timeout_ms, &result, error);
+
+    if ( xml_rc == 0 )
     {
-        rpc_client->start(&client, &carriage);
+        vector<xmlrpc_c::value> values;
 
-        client.finishAsync(xmlrpc_c::timeout(xmlrpc_timeout_ms));
+        values  = xmlrpc_c::value_array(result).vectorValueValue();
+        success = xmlrpc_c::value_boolean(values[0]);
 
-        if (!rpc_client->isFinished())
+        if ( success ) //values[2] = error code (string)
         {
-            rpc_client->finishErr(girerr::error("XMLRPC method "+replica_method
-                + " timeout, resetting call"));
+            fterm = xmlrpc_c::value_int(values[1]);
         }
-
-        if ( rpc_client->isSuccessful() )
+        else
         {
-            vector<xmlrpc_c::value> values;
-
-            xmlrpc_c::value result = rpc_client->getResult();
-
-            values  = xmlrpc_c::value_array(result).vectorValueValue();
-            success = xmlrpc_c::value_boolean(values[0]);
-
-            if ( success ) //values[2] = error code (string)
-            {
-                fterm    = xmlrpc_c::value_int(values[1]);
-            }
-            else
-            {
-                error = xmlrpc_c::value_string(values[1]);
-                fterm = xmlrpc_c::value_int(values[3]);
-            }
-        }
-        else //RPC failed, vote not granted
-        {
-            xmlrpc_c::fault failure = rpc_client->getFault();
-
-            ess << "Error requesting vote from follower " << follower_id << ": "
-                << failure.getDescription();
-
-			error = ess.str();
-
-            xml_rc = -1;
+            error = xmlrpc_c::value_string(values[1]);
+            fterm = xmlrpc_c::value_int(values[3]);
         }
     }
-    catch (exception const& e)
+    else
     {
-        ess << "Error requesting vote from follower " << follower_id << ": "
-            << e.what();
+        std::ostringstream ess;
 
-		error = ess.str();
+        ess << "Error requesting vote from follower "<< follower_id << ":"
+            << error;
 
-        xml_rc = -1;
+        error = ess.str();
     }
 
     return xml_rc;
