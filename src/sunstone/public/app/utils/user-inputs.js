@@ -60,7 +60,7 @@ define(function(require) {
       $("select.user_input_type", context).change();
     });
 
-    $('tbody').sortable();
+    $('tbody', context).sortable();
 
     context.on("change", "select.user_input_type", function() {
       var row = $(this).closest("tr");
@@ -651,13 +651,13 @@ define(function(require) {
         break;
       case "boolean":
         if(value == "YES"){
-          input = '<br>' + Locale.tr("YES ") + '<input checked type="radio" name="bool_' + attr.name + '" value="YES"' + wizard_field + ' ' + required + '/>';
+          input = '<br>' + Locale.tr("YES ") + '<input style="margin-right: 20px" checked type="radio" name="bool_' + attr.name + '" value="YES"' + wizard_field + ' ' + required + '/>';
           input += Locale.tr("NO ") + '<input type="radio" name="bool_' + attr.name + '" value="NO"' + wizard_field + ' ' + required + '/>';
         } else if(value == "NO"){
-          input = '<br>' + Locale.tr("YES ") + '<input type="radio" name="bool_' + attr.name + '" value="YES"' + wizard_field + ' ' + required + '/>';
+          input = '<br>' + Locale.tr("YES ") + '<input style="margin-right: 20px" type="radio" name="bool_' + attr.name + '" value="YES"' + wizard_field + ' ' + required + '/>';
           input += Locale.tr("NO ") + '<input checked type="radio" name="bool_' + attr.name + '" value="NO"' + wizard_field + ' ' + required + '/>'
         } else {
-          input = '<br>' + Locale.tr("YES ") + '<input type="radio" name="bool_' + attr.name + '" value="YES"' + wizard_field + ' ' + required + '/>';
+          input = '<br>' + Locale.tr("YES ") + '<input style="margin-right: 20px" type="radio" name="bool_' + attr.name + '" value="YES"' + wizard_field + ' ' + required + '/>';
           input += Locale.tr("NO ") + '<input type="radio" name="bool_' + attr.name + '" value="NO"' + wizard_field + ' ' + required + '/>';
         }
         break;

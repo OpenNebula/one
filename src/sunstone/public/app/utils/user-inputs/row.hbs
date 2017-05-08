@@ -20,7 +20,7 @@
       </select>
     </label>
   </td>
-  <td>
+  <td style="padding-left: 20px">
     <label>{{tr "Description"}}
       <textarea class="user_input_description"/>
     </label>
@@ -36,8 +36,8 @@
     </div>
     <div class="user_input_type_right boolean">
       <label>{{tr "Default value"}}</label>
-      <input type="radio" step="any" name="bool_{{idInput}}" class="user_input_initial" id="radio_yes" value="YES"> {{tr "YES"}}
-      <input type="radio" step="any" name="bool_{{idInput}}" class="user_input_initial" id="radio_no" value="NO"> {{tr "NO"}}
+      {{tr "YES"}} <input style="margin-right: 20px" type="radio" step="any" name="bool_{{idInput}}" class="user_input_initial" id="radio_yes" value="YES">
+      {{tr "NO"}} <input type="radio" step="any" name="bool_{{idInput}}" class="user_input_initial" id="radio_no" value="NO">
     </div>
     <div class="user_input_type_right range">
       <div class="row collapse">
