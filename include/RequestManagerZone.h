@@ -92,6 +92,7 @@ public:
                 "A:siiiiiiis")
     {
         log_method_call = false;
+        leader_only     = false;
     };
 
     ~ZoneReplicateLog(){};
@@ -106,9 +107,11 @@ public:
 class ZoneVoteRequest : public RequestManagerZone
 {
 public:
-    ZoneVoteRequest():
-        RequestManagerZone("one.zone.voterequest",
-                "Request vote from a candidate", "A:siiii"){};
+    ZoneVoteRequest(): RequestManagerZone("one.zone.voterequest",
+        "Request vote from a candidate", "A:siiii")
+    {
+        leader_only = false;
+    };
 
     ~ZoneVoteRequest(){};
 
@@ -122,9 +125,11 @@ public:
 class ZoneRaftStatus : public RequestManagerZone
 {
 public:
-    ZoneRaftStatus():
-        RequestManagerZone("one.zone.raftstatus", "Returns Raft status",
-                "A:s"){};
+    ZoneRaftStatus(): RequestManagerZone("one.zone.raftstatus",
+        "Returns Raft status", "A:s")
+    {
+        leader_only = false;
+    };
 
     ~ZoneRaftStatus(){};
 

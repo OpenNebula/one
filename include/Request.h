@@ -177,6 +177,8 @@ protected:
 
     bool log_method_call; //Write method call and result to the log
 
+    bool leader_only; //Method can be only execute by leaders or solo servers
+
     /* ---------------------------------------------------------------------- */
     /* Class Constructors                                                     */
     /* ---------------------------------------------------------------------- */
@@ -189,6 +191,8 @@ protected:
         hidden_params.clear();
 
         log_method_call = true;
+
+        leader_only     = true;
     };
 
     virtual ~Request(){};

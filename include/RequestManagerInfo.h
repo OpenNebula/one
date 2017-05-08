@@ -34,6 +34,8 @@ protected:
         :Request(method_name, "A:si", help)
     {
         auth_op = AuthRequest::USE;
+
+        leader_only = false;
     };
 
     ~RequestManagerInfo(){};

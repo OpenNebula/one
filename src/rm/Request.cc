@@ -273,29 +273,39 @@ void Request::execute(
     att.req_id = (reinterpret_cast<uintptr_t>(this) * rand()) % 10000;
 
     Nebula& nd = Nebula::instance();
-    UserPool* upool = nd.get_upool();
 
-    bool authenticated = upool->authenticate(att.session,
-                                             att.password,
-                                             att.uid,
-                                             att.gid,
-                                             att.uname,
-                                             att.gname,
-                                             att.group_ids,
-                                             att.umask);
+    UserPool* upool     = nd.get_upool();
+    RaftManager * raftm = nd.get_raftm();
+
     if ( log_method_call )
     {
         log_method_invoked(att, _paramList, format_str, method_name,
                 hidden_params);
     }
 
-    if ( authenticated == false )
+    if ( raftm->is_follower() && leader_only)
     {
-        failure_response(AUTHENTICATION, att);
+        att.resp_msg = "Cannot process request, server is a follower";
+        failure_response(INTERNAL, att);
     }
-    else
+    else if ( raftm->is_candidate() && leader_only)
     {
-        request_execute(_paramList, att);
+        att.resp_msg = "Cannot process request, oned cluster in election mode";
+        failure_response(INTERNAL, att);
+    }
+    else //leader or solo or !leader_only
+    {
+        bool authenticated = upool->authenticate(att.session, att.password,
+            att.uid, att.gid, att.uname, att.gname, att.group_ids, att.umask);
+
+        if ( authenticated == false )
+        {
+            failure_response(AUTHENTICATION, att);
+        }
+        else
+        {
+            request_execute(_paramList, att);
+        }
     }
 
     if ( log_method_call )

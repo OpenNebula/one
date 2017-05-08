@@ -63,7 +63,9 @@ protected:
                                  const string& help,
                                  const string& signature)
         :Request(method_name,signature,help)
-    {};
+    {
+        leader_only = false;
+    };
 
     ~RequestManagerPoolInfoFilter(){};
 
