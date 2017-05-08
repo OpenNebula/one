@@ -298,7 +298,10 @@ void RaftManager::delete_server(unsigned int follower_id)
 
 void RaftManager::leader()
 {
-    LogDB * logdb = Nebula::instance().get_logdb();
+    Nebula& nd    = Nebula::instance();
+
+    LogDB * logdb     = nd.get_logdb();
+    AclManager * aclm = nd.get_aclm();
 
     std::map<unsigned int, std::string>::iterator it;
     std::vector<unsigned int> _follower_ids;
@@ -363,6 +366,8 @@ void RaftManager::leader()
     replica_manager.start_replica_threads(_follower_ids);
 
     pthread_mutex_unlock(&mutex);
+
+    aclm->reload_rules();
 
     logdb->insert_raft_state(raft_state_xml);
 

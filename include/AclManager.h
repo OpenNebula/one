@@ -37,7 +37,6 @@ extern "C" void * acl_action_loop(void *arg);
 class AclManager : public Callbackable, public ActionListener
 {
 public:
-
     /**
      *  @param _db pointer to the DB
      *  @param zone_id of the Zone
@@ -57,6 +56,15 @@ public:
     int start();
 
     void finalize();
+
+    /**
+     *  Reload the ACL rules from the DB. This function needs to be used when
+     *  a server becomes leader of the zone as the ACL cache maybe out-dated
+     */
+    void reload_rules()
+    {
+        select();
+    }
 
     /* ---------------------------------------------------------------------- */
     /* Rule management                                                        */
@@ -186,7 +194,6 @@ public:
     /* ---------------------------------------------------------------------- */
     /* DB management                                                          */
     /* ---------------------------------------------------------------------- */
-
     /**
      *  Bootstraps the database table(s) associated to the ACL Manager
      *    @return 0 on success
@@ -200,10 +207,9 @@ public:
      */
     virtual int dump(ostringstream& oss);
 
-    // ----------------------------------------
+    // -------------------------------------------------------------------------
     // Refresh loop thread
-    // ----------------------------------------
-
+    // -------------------------------------------------------------------------
     /**
      *  Gets the AclManager thread identification. The thread is only
      *  initialized if the refresh_cache flag is true.
@@ -215,22 +221,20 @@ public:
     };
 
 protected:
-
     /**
      *  Constructor for derived ACL managers. Classes derived from this one
      *  will operate in a stand-alone fashion (i.e. no refresh of ACL rules
      *  from DB)
      */
     AclManager(int _zone_id)
-        :zone_id(_zone_id), db(0),lastOID(0), is_federation_slave(false)
+        :zone_id(_zone_id), db(0), is_federation_slave(false)
     {
        pthread_mutex_init(&mutex, 0);
     };
 
-    // ----------------------------------------
+    // -------------------------------------------------------------------------
     // ACL rules management
-    // ----------------------------------------
-
+    // -------------------------------------------------------------------------
     /**
      *  ACL rules. Each rule is indexed by its 'user' long long attibute,
      *  several rules can apply to the same user
@@ -324,15 +328,15 @@ private:
      */
     void del_zone_matching_rules(long long zone_req);
 
-    // ----------------------------------------
+    // -------------------------------------------------------------------------
     // Local zone
-    // ----------------------------------------
+    // -------------------------------------------------------------------------
 
     int zone_id;
 
-    // ----------------------------------------
+    // -------------------------------------------------------------------------
     // Mutex synchronization
-    // ----------------------------------------
+    // -------------------------------------------------------------------------
 
     pthread_mutex_t mutex;
 
@@ -352,19 +356,13 @@ private:
         pthread_mutex_unlock(&mutex);
     };
 
-    // ----------------------------------------
+    // -------------------------------------------------------------------------
     // DataBase implementation variables
-    // ----------------------------------------
-
+    // -------------------------------------------------------------------------
     /**
      *  Pointer to the database.
      */
     SqlDB * db;
-
-    /**
-     *  Last object ID assigned to a rule.
-     */
-    int lastOID;
 
     /**
      *  Tablename for the ACL rules
@@ -374,11 +372,6 @@ private:
     static const char * db_names;
 
     static const char * db_bootstrap;
-
-    /**
-     *  Inserts the last oid into the pool_control table
-     */
-    void update_lastOID();
 
     /**
      *  Callback function to unmarshall the ACL rules
@@ -423,15 +416,9 @@ private:
      */
     int drop(int oid);
 
-    /**
-     *  Callback to set the lastOID
-     */
-    int  init_cb(void *nil, int num, char **values, char **names);
-
-    // ----------------------------------------
+    // -------------------------------------------------------------------------
     // Refresh loop thread
-    // ----------------------------------------
-
+    // -------------------------------------------------------------------------
     /**
      * Flag to refresh the cache periodically
      */
