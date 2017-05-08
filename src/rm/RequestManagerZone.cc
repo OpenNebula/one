@@ -181,7 +181,7 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
         raftm->follower(leader_term);
     }
 
-    raftm->update_last_heartbeat();
+    raftm->update_last_heartbeat(leader_id);
 
     //HEARTBEAT
     if ( index == 0 && prev_index == 0 && term == 0 && prev_term == 0 &&
@@ -306,7 +306,7 @@ void ZoneVoteRequest::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    raftm->update_last_heartbeat();
+    raftm->update_last_heartbeat(-1);
 
     success_response(static_cast<int>(current_term), att);
 }

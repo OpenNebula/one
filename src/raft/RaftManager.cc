@@ -84,6 +84,8 @@ RaftManager::RaftManager(int id, time_t log_purge, long long bcast,
         raft_state.get("VOTEDFOR", votedfor);
     }
 
+    leader_id = -1;
+
     num_servers = get_zone_servers(servers);
 
 	if ( server_id == -1 )
@@ -305,6 +307,8 @@ void RaftManager::leader()
     commit   = _applied;
     votedfor = -1;
 
+    leader_id = server_id;
+
     raft_state.replace("VOTEDFOR", votedfor);
 
     raft_state.to_xml(raft_state_xml);
@@ -356,6 +360,8 @@ void RaftManager::follower(unsigned int _term)
     votedfor = -1;
 
     commit   = lapplied;
+
+    leader_id = -1;
 
     raft_state.replace("VOTEDFOR", votedfor);
     raft_state.replace("TERM", term);
@@ -504,9 +510,11 @@ void RaftManager::replicate_failure(unsigned int follower_id)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RaftManager::update_last_heartbeat()
+void RaftManager::update_last_heartbeat(int _leader_id)
 {
     pthread_mutex_lock(&mutex);
+
+    leader_id = _leader_id;
 
 	clock_gettime(CLOCK_REALTIME, &last_heartbeat);
 
@@ -779,6 +787,8 @@ void RaftManager::request_vote()
 
         term     = term + 1;
         votedfor = server_id;
+
+        leader_id = -1;
 
         raft_state.replace("TERM", term);
         raft_state.replace("VOTEDFOR", votedfor);

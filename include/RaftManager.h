@@ -153,9 +153,12 @@ public:
     int update_votedfor(int _votedfor);
 
 	/**
-	 *  Update the last_heartbeat time recieved from server
+	 *  Update the last_heartbeat time recieved from server. It stores the id
+     *  of the leader.
+     *    @param leader_id id of server, -1 if there is no leader set (e.g.
+     *    during a election because a vote request was received)
 	 */
-	void update_last_heartbeat();
+	void update_last_heartbeat(int leader_id);
 
     /**
      *  @return true if the server is the leader of the zone, runs in solo mode
@@ -303,6 +306,11 @@ private:
      *  ID of the last candidate we voted for  ( -1 if none )
      */
     int votedfor;
+
+    /**
+     *  ID of leader for the current term
+     */
+    int leader_id;
 
     /**
      *  This is the raft persistent state: votedfor and current term. It is
