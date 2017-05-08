@@ -650,8 +650,16 @@ define(function(require) {
         input = '<br><input type="password" value="'+value+'" '+wizard_field+' '+required+'/>';
         break;
       case "boolean":
-        input = '<br>' + Locale.tr("YES ") + '<input type="radio" name="bool_' + attr.name + '" value="YES"' + wizard_field + ' ' + required + '/>';
-        input += Locale.tr("NO ") + '<input type="radio" name="bool_' + attr.name + '" value="NO"' + wizard_field + ' ' + required + '/>';
+        if(value == "YES"){
+          input = '<br>' + Locale.tr("YES ") + '<input checked type="radio" name="bool_' + attr.name + '" value="YES"' + wizard_field + ' ' + required + '/>';
+          input += Locale.tr("NO ") + '<input type="radio" name="bool_' + attr.name + '" value="NO"' + wizard_field + ' ' + required + '/>';
+        } else if(value == "NO"){
+          input = '<br>' + Locale.tr("YES ") + '<input type="radio" name="bool_' + attr.name + '" value="YES"' + wizard_field + ' ' + required + '/>';
+          input += Locale.tr("NO ") + '<input checked type="radio" name="bool_' + attr.name + '" value="NO"' + wizard_field + ' ' + required + '/>'
+        } else {
+          input = '<br>' + Locale.tr("YES ") + '<input type="radio" name="bool_' + attr.name + '" value="YES"' + wizard_field + ' ' + required + '/>';
+          input += Locale.tr("NO ") + '<input type="radio" name="bool_' + attr.name + '" value="NO"' + wizard_field + ' ' + required + '/>';
+        }
         break;
       case "number":
       case "number-float":

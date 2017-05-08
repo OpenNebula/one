@@ -65,9 +65,9 @@ define(function(require) {
 
     this.columns = [
       Locale.tr("ID"),
+      Locale.tr("Name"),
       Locale.tr("Owner"),
       Locale.tr("Group"),
-      Locale.tr("Name"),
       Locale.tr("Reservation"),
       Locale.tr("Cluster"),
       Locale.tr("Bridge"),
@@ -146,9 +146,9 @@ define(function(require) {
                            element.ID + '" name="selected_items" value="' +
                            element.ID + '"/>',
       element.ID,
+      element.NAME,
       element.UNAME,
       element.GNAME,
-      element.NAME,
       element.PARENT_NETWORK_ID.length ? Locale.tr("Yes") : Locale.tr("No"),
       clusters,
       element.BRIDGE,

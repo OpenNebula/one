@@ -27,10 +27,10 @@ define(function(require) {
   var TEMPLATE_ATTR = 'USER_TEMPLATE';
 
   var _columns = [
-    Locale.tr("ID") ,
-    Locale.tr("Owner") ,
-    Locale.tr("Group"),
+    Locale.tr("ID"),
     Locale.tr("Name"),
+    Locale.tr("Owner"),
+    Locale.tr("Group"),
     Locale.tr("Status"),
     Locale.tr("Used CPU"),
     Locale.tr("Used Memory"),
@@ -67,6 +67,9 @@ define(function(require) {
     } else if (OpenNebulaVM.isSPICESupported(element)) {
       vncIcon = '<a class="spice" href="#" vm_id="' + element.ID + '"><i class="fa fa-desktop"/></a>';
     } else {
+      vncIcon = '';
+    }
+    if (config["federation_mode"] == "SLAVE") {
       vncIcon = '';
     }
 
@@ -114,9 +117,9 @@ define(function(require) {
         'value="' + element.ID + '" '+
         'state="'+element.STATE+'" lcm_state="'+element.LCM_STATE+'"/>',
       element.ID,
+      element.NAME,
       element.UNAME,
       element.GNAME,
-      element.NAME,
       state,
       cpuMonitoring,
       Humanize.size(memoryMonitoring),

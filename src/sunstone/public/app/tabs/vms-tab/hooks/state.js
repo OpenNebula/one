@@ -53,6 +53,10 @@ define(function(require) {
     } else {
       $(".spice-sunstone-info").hide();
     }
+
+    if (config["federation_mode"] == "SLAVE") {
+      $(".vnc-sunstone-info").hide();
+    }
   }
 
   function _post(info, contextTabId) {

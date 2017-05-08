@@ -167,6 +167,10 @@ define(function(require) {
   function _fill(context, templateJSON) {
     var selectedContext;
 
+    if(templateJSON.SIZE){
+      templateJSON.SIZE = templateJSON.SIZE / 1024;
+    }
+
     if (templateJSON.IMAGE_ID || templateJSON.IMAGE) {
       $('input#' + this.diskTabId + 'radioImage', context).click();
 

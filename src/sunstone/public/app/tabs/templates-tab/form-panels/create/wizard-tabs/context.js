@@ -222,9 +222,16 @@ define(function(require) {
 
       var userInputsJSON = UserInputs.retrieve(context);
 
-      $.each(userInputsJSON, function(key,value){
+      $.each(userInputsJSON, function(key, value){
         var name = key.toUpperCase();
-        contextJSON[name.split("_")[2]] = "$" + name;
+        cntxt = name.split("_");
+        var keyName = "";
+        $.each(cntxt, function(key, value){
+          if(key >= 2){
+            keyName += value + "_";
+          }
+        });
+        contextJSON[keyName.slice(0,-1)] = "$" + name;
       });
 
       var start_script = WizardFields.retrieveInput($(".START_SCRIPT", context));

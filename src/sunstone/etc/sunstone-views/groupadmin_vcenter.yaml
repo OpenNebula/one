@@ -816,3 +816,6 @@ tabs:
         actions:
            VMGroup.create_dialog: true
            VMGroup.update_dialog: true
+           VMGroup.chmod: true
+           VMGroup.chown: true
+           VMGroup.chgrp: true

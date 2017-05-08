@@ -276,8 +276,10 @@ define(function(require) {
 
     var boot = _retrieveBootValue(context);
 
-    if (boot.length > 0) {
+    if (boot && boot.length > 0) {
       osJSON["BOOT"] = boot;
+    } else {
+      osJSON["BOOT"] = "";
     }
 
     if (!$.isEmptyObject(osJSON)) { templateJSON['OS'] = osJSON; };
