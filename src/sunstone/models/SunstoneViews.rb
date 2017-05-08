@@ -133,11 +133,13 @@ class SunstoneViews
 
     def get_all_labels(group_name)
         labels = []
-        if @views_config['labels_groups'][group_name]
-            @views_config['labels_groups'][group_name].each{|l| labels.push(l)}
-        end
-        if @views_config['labels_groups']['default']
-            @views_config['labels_groups']['default'].each{|l| labels.push(l)}
+        if @views_config['labels_groups']
+            if @views_config['labels_groups'][group_name]
+                @views_config['labels_groups'][group_name].each{|l| labels.push(l)}
+            end
+            if @views_config['labels_groups']['default']
+                @views_config['labels_groups']['default'].each{|l| labels.push(l)}
+            end
         end
         return labels
     end

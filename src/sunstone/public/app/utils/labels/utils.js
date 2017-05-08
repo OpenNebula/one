@@ -132,13 +132,16 @@ define(function(require) {
           var labels = _getLabels(dataTable, labelsColumn);
           labels_persis = _deserializeLabels(labels_persis);
           var array_labels_yaml = [];
-          $.each(config['all_labels'], function(index){
-            array_labels_yaml.push(config['all_labels'][index]+'_YAML');
-            if(labels[config['all_labels'][index]]){
-              delete labels[config['all_labels'][index]];
-            }
-          })
-          var labels_yaml = _deserializeLabels(array_labels_yaml.join(','));
+          var labels_yaml = {};
+          if(config['all_labels'][0] != ""){
+            $.each(config['all_labels'], function(index){
+              array_labels_yaml.push(config['all_labels'][index]+'_YAML');
+              if(labels[config['all_labels'][index]]){
+                delete labels[config['all_labels'][index]];
+              }
+            })
+            labels_yaml = _deserializeLabels(array_labels_yaml.join(','));
+          }
           var keys = Object.keys(labels_persis).sort();
           for (var i = 0; i < keys.length; i++){
             if(labels[keys[i]]){
@@ -148,16 +151,20 @@ define(function(require) {
             delete labels_persis[keys[i]];
           }
           $.extend(labels, labels_persis);
+          var html_yaml = ""
+          if(!$.isEmptyObject(labels_yaml)){
+            html_yaml = '<h6>' + Locale.tr('System Labels') + '</h6>' +
+            '<div class="labeltree-container">' +
+              Tree.html(_makeTree(labels_yaml), false) +
+            '</div>'; 
+          }
           labelsDropdown.html(
             '<div>' +
             '<h6>' + Locale.tr('Edit Labels') + '</h6>' +
             '<div class="labeltree-container">' +
               Tree.html(_makeTree(labels), false) +
             '</div>' +
-            '<h6>' + Locale.tr('System Labels') + '</h6>' +
-            '<div class="labeltree-container">' +
-              Tree.html(_makeTree(labels_yaml), false) +
-            '</div>' +
+            html_yaml+
             '<div class="input-container">' +
               '<input type="text" class="newLabelInput" placeholder="' + Locale.tr("Add Label") + '"/>' +
             '</div>' +

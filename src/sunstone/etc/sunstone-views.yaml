@@ -14,3 +14,5 @@ default:
 default_groupadmin:
     - groupadmin
     - cloud
+labels_groups:
+    default:
