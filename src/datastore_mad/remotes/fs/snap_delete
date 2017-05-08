@@ -20,16 +20,19 @@ DRV_ACTION=$1
 ID=$2
 
 if [ -z "${ONE_LOCATION}" ]; then
-    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
-    DATASTORES=/var/lib/one/datastores
+    LIB_LOCATION=/usr/lib/one
 else
-    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
-    DATASTORES=$ONE_LOCATION/var/datastores
+    LIB_LOCATION=$ONE_LOCATION/lib
 fi
 
+TMCOMMON=$LIB_LOCATION/var/remotes/tm/tm_common.sh
+DATASTORES=$LIB_LOCATION/var/datastores
+
 . $TMCOMMON
+. $LIB_LOCATION/sh/scripts_common.sh
 
 DRIVER_PATH=$(dirname $0)
+source ${DRIVER_PATH}/../libfs.sh
 
 # -------- Get image and datastore arguments from OpenNebula core ------------
 
@@ -42,9 +45,11 @@ unset i j XPATH_ELEMENTS
 
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
-done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
+done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
+                    /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
                     /DS_DRIVER_ACTION_DATA/IMAGE/TARGET_SNAPSHOT)
 
+BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
 DISK_SRC="${XPATH_ELEMENTS[j++]}"
 SNAP_ID="${XPATH_ELEMENTS[j++]}"
 
@@ -55,5 +60,11 @@ SYSTEM_DS_PATH=$(dirname ${SRC_PATH})
 SNAP_DIR="${DISK_SRC}.snap"
 SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
 
-rm ${SNAP_PATH}
-
+if [ -n "$BRIDGE_LIST" ]; then
+    log "Delete remote snapshot $SNAP_PATH"
+    DST_HOST=`get_destination_host $ID`
+    ssh_exec_and_log "$DST_HOST" "rm -f $SNAP_PATH" "Error deleting snapshot $SNAP_PATH"
+else
+    log "Delete local snapshot $SNAP_PATH"
+    rm -f ${SNAP_PATH}
+fi
