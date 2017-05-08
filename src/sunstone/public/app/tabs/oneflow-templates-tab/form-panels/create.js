@@ -230,27 +230,22 @@ define(function(require) {
 
     json_template['ready_status_gate'] = ready_status_gate;
 
-    var templateStr = $('textarea#template', $("form#createServiceTemplateFormAdvanced")).val();
-    var template_final = TemplateUtils.mergeTemplates(json_template, templateStr);
     if (this.action == "create") {
-      Sunstone.runAction("ServiceTemplate.create", template_final );
+      Sunstone.runAction("ServiceTemplate.create", json_template );
       return false;
     } else if (this.action == "update") {
-      Sunstone.runAction("ServiceTemplate.update",this.resourceId, JSON.stringify(template_final));
+      Sunstone.runAction("ServiceTemplate.update",this.resourceId, JSON.stringify(json_template));
       return false;
     }
   }
 
   function _submitAdvanced(context) {
     var templateStr = $('textarea#template', context).val();
-    var templateJSON = this.retrieve($("form#createServiceTemplateFormWizard"));
-    var template_final = TemplateUtils.mergeTemplates(templateStr, templateJSON, true);
-    template_final = TemplateUtils.templateToString(template_final);
     if (this.action == "create") {
-      Sunstone.runAction("ServiceTemplate.create", JSON.parse(template_final) );
+      Sunstone.runAction("ServiceTemplate.create", JSON.parse(templateStr) );
       return false;
     } else if (this.action == "update") {
-      Sunstone.runAction("ServiceTemplate.update", this.resourceId, template_final);
+      Sunstone.runAction("ServiceTemplate.update", this.resourceId, templateStr);
       return false;
     }
   }
