@@ -125,8 +125,6 @@ void ReplicaThread::do_replication()
 
         if ( xml_rc == -1 )
         {
-            NebulaLog::log("RCM", Log::ERROR, error);
-
             if ( retry_timeout < max_retry_timeout )
             {
                 retry_timeout = 2 * retry_timeout;

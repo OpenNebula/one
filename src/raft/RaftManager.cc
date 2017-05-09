@@ -757,12 +757,30 @@ void RaftManager::send_heartbeat()
 
 		if ( rc == -1 )
 		{
-			std::ostringstream oss;
+            static time_t last_error = 0;
+            static int    num_errors = 0;
 
-			oss << "Error sending heartbeat to follower " << it->first <<": "
-				<< error;
+            num_errors++;
 
-        	NebulaLog::log("RCM", Log::INFO, oss);
+            if ( last_error == 0 )
+            {
+                last_error = time(0);
+                num_errors = 1;
+            }
+            else if ( last_error + 60 < time(0) )
+            {
+                if ( num_errors > 10 )
+                {
+                    std::ostringstream oss;
+
+                    oss << "Detetected error condition on follower "
+                        << it->first <<". Last error was: " << error;
+
+                    NebulaLog::log("RCM", Log::INFO, oss);
+                }
+
+                last_error = 0;
+            }
 		}
 		else if ( success == false && fterm > term )
 		{
