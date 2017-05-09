@@ -1492,6 +1492,58 @@ void Scheduler::timer_action(const ActionRequest& ar)
 {
     int rc;
 
+    try
+    {
+        xmlrpc_c::value result;
+
+        Client::client()->call("one.zone.raftstatus", "", &result);
+
+        vector<xmlrpc_c::value> values =
+                        xmlrpc_c::value_array(result).vectorValueValue();
+
+        bool success = xmlrpc_c::value_boolean(values[0]);
+        string msg   = xmlrpc_c::value_string(values[1]);
+
+        if ( success )
+        {
+            int state;
+
+            Template raft(false, '=', "RAFT");
+
+            if ( raft.from_xml(msg) != 0 )
+            {
+                NebulaLog::log("SCHED", Log::ERROR, "Error parsing oned info");
+                return;
+            }
+
+           if ( raft.get("STATE", state) == false )
+           {
+                NebulaLog::log("SCHED", Log::ERROR, "Cannot get oned state");
+                return;
+           }
+
+           if ( state != 3 )
+           {
+                NebulaLog::log("SCHED", Log::ERROR, "oned is not leader");
+                return;
+           }
+        }
+        else
+        {
+            NebulaLog::log("SCHED", Log::ERROR, "Cannot contact oned: " + msg);
+            return;
+        }
+    }
+    catch (exception const& e)
+    {
+        ostringstream ess;
+
+        ess << "Cannot contact oned: " << e.what();
+
+        NebulaLog::log("SCHED", Log::ERROR, ess);
+        return;
+    }
+
     profile(true);
     rc = vmapool->set_up();
     profile(false,"Getting scheduled actions information.");
