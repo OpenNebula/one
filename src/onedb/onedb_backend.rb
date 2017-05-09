@@ -17,6 +17,7 @@
 require 'time'
 require 'rubygems'
 require 'cgi'
+require 'database_schema'
 
 begin
     require 'sequel'

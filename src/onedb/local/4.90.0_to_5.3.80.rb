@@ -23,7 +23,6 @@ require 'pathname'
 require 'opennebula'
 
 $: << File.dirname(__FILE__)
-require 'db_schema'
 
 include OpenNebula
 
@@ -42,6 +41,8 @@ module Migrator
         feature_4901()
 
         feature_5005()
+
+        feature_2347()
 
         log_time()
 
@@ -65,7 +66,7 @@ module Migrator
     ############################################################################
     def feature_4901
         @db.run "ALTER TABLE host_pool RENAME TO old_host_pool;"
-        @db.run host_pool_schema()
+        create_table(:host_pool)
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_host_pool") do |row|
@@ -102,7 +103,7 @@ module Migrator
     def feature_5005
         #TODO ADD VALUES TO HISTORY POOL TABLE
         @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
-        @db.run vm_pool_schema()
+        create_table(:vm_pool)
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_vm_pool") do |row|
@@ -131,5 +132,9 @@ module Migrator
         end
 
         @db.run "DROP TABLE old_vm_pool;"
+    end
+
+    def feature_2347
+        create_table(:vmgroup_pool)
     end
 end
