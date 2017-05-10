@@ -149,6 +149,7 @@ define(function(require) {
     'enabledTabs': _config['view']['enabled_tabs'],
     'onedConf': _config['oned_conf'],
     'confirmVMActions': _config['view']['confirm_vms'],
+    'scaleFactor': _config['view']['features']['instanciate_cpu_factor'],
 
     "allTabs": function() {
       return Object.keys(_config['view']['tabs']);
