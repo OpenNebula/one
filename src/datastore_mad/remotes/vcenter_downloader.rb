@@ -49,7 +49,10 @@ begin
     host_id = host['ID']
 
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-    ds = VCenterDriver::Datastore.new_from_ref(source_ds_ref, vi_client)
+
+    one_ds = VCenterDriver::VIHelper.find_by_name(OpenNebula::DatastorePool, ds_name)
+
+    ds = VCenterDriver::Datastore.new_from_ref(one_ds["TEMPLATE/VCENTER_DS_REF"], vi_client)
 
     if ds.is_descriptor?(img_src)
         descriptor_name = File.basename u.path
