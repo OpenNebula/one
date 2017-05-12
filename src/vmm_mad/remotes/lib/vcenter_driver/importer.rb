@@ -7,7 +7,7 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
     begin
         vi_client = VCenterDriver::VIClient.new_from_host(host_id)
         vc_uuid   = vi_client.vim.serviceContent.about.instanceUuid
-        dc_name   = vi_client.vim.host
+        vc_name   = vi_client.vim.host
 
         dpool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool)
         ipool = VCenterDriver::VIHelper.one_pool(OpenNebula::ImagePool)
@@ -16,36 +16,48 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
         vcenter_vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
 
         error, template_disks = vcenter_vm.import_vcenter_disks(vc_uuid, dpool, ipool)
-
         return OpenNebula::Error.new(error) if !error.empty?
 
         template << template_disks
 
         # Create images or get nics information for template
-        error, template_nics = vcenter_vm.import_vcenter_nics(vc_uuid, npool, dc_name)
-
+        error, template_nics = vcenter_vm.import_vcenter_nics(vc_uuid,
+                                                              npool,
+                                                              vm_ref,
+                                                              vc_name)
         return OpenNebula::Error.new(error) if !error.empty?
 
         template << template_nics
 
         rc = one_vm.allocate(template)
-
         return rc if OpenNebula.is_error?(rc)
 
         one_vm.deploy(host_id, false)
 
         # Set reference to template disks and nics in VM template
         vcenter_vm.one_item = one_vm
-        vcenter_vm.reference_imported_disks(vm_ref)
-        vcenter_vm.reference_imported_nics
+        vcenter_vm.reference_unmanaged_devices(vm_ref)
 
         # Set vnc configuration F#5074
-        one_vm.info # Let's update the info to gather VNC info
-        extraconfig   = []
-        extraconfig  += vcenter_vm.extraconfig_vnc
-        spec_hash     = { :extraConfig  => extraconfig }
-        spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
-        vcenter_vm.item.ReconfigVM_Task(:spec => spec).wait_for_completion
+        vnc_port  = one_vm["TEMPLATE/GRAPHICS/PORT"]
+        elapsed_seconds = 0
+
+        # Let's update the info to gather VNC port
+        until vnc_port || elapsed_seconds > 30
+            sleep(2)
+            one_vm.info
+            vnc_port  = one_vm["TEMPLATE/GRAPHICS/PORT"]
+            elapsed_seconds += 2
+        end
+
+        if vnc_port
+            vcenter_vm.one_item = one_vm
+            extraconfig   = []
+            extraconfig  += vcenter_vm.extraconfig_vnc
+            spec_hash     = { :extraConfig  => extraconfig }
+            spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+            vcenter_vm.item.ReconfigVM_Task(:spec => spec).wait_for_completion
+        end
 
         return one_vm.id
 
@@ -322,10 +334,13 @@ def self.import_templates(con_ops, options)
                     next
                 end
 
+                template_moref = template_copy_ref ? template_copy_ref : t[:vcenter_ref]
+
                 error, template_nics = template.import_vcenter_nics(vc_uuid,
-                                                                   npool,
-                                                                   options[:vcenter],
-                                                                   dc)
+                                                                    npool,
+                                                                    options[:vcenter],
+                                                                    template_moref,
+                                                                    dc)
                 if error.empty?
                     t[:one] << template_nics
                 else

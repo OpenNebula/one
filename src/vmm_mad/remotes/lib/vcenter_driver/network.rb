@@ -70,22 +70,28 @@ class Network
 
     def self.to_one_template(network_name, network_ref, network_type,
                              ccr_ref, ccr_name, vcenter_uuid,
-                             vcenter_instance_name, dc_name)
+                             vcenter_instance_name, dc_name,
+                             unmanaged=false, template_ref=nil)
 
         one_tmp = {}
-        network_import_name = "[#{vcenter_instance_name} - #{dc_name}] #{network_name} - #{ccr_name.tr(" ", "_")}"
+
+        if unmanaged
+            network_import_name = "#{network_name} [#{network_ref} - #{template_ref} - #{vcenter_uuid}]"
+        else
+            network_import_name = "[#{vcenter_instance_name} - #{dc_name}] #{network_name} - #{ccr_name.tr(" ", "_")}"
+        end
         one_tmp[:name] = network_import_name
         one_tmp[:bridge] = network_name
         one_tmp[:type] = network_type
         one_tmp[:cluster] = ccr_name
         one_tmp[:vcenter_ccr_ref] = ccr_ref
         one_tmp[:one] = to_one(network_import_name, network_name, network_ref, network_type,
-                             ccr_ref, vcenter_uuid)
+                             ccr_ref, vcenter_uuid, unmanaged, template_ref)
         return one_tmp
     end
 
     def self.to_one(network_import_name, network_name, network_ref, network_type,
-                    ccr_ref, vcenter_uuid)
+                    ccr_ref, vcenter_uuid, unmanaged, template_ref)
         template = "NAME=\"#{network_import_name}\"\n"\
                    "BRIDGE=\"#{network_name}\"\n"\
                    "VN_MAD=\"dummy\"\n"\
@@ -93,6 +99,10 @@ class Network
                    "VCENTER_NET_REF=\"#{network_ref}\"\n"\
                    "VCENTER_CCR_REF=\"#{ccr_ref}\"\n"\
                    "VCENTER_INSTANCE_ID=\"#{vcenter_uuid}\"\n"
+
+        template += "OPENNEBULA_MANAGED=\"NO\"\n" if unmanaged
+
+        template += "VCENTER_TEMPLATE_REF=\"#{template_ref}\"\n" if template_ref
 
         return template
     end
@@ -105,12 +115,14 @@ class Network
         end
     end
 
-    def self.get_one_vnet_ds_by_ref_and_ccr(ref, ccr_ref, vcenter_uuid, pool = nil)
+    def self.get_unmanaged_vnet_by_ref(ref, ccr_ref, template_ref, vcenter_uuid, pool = nil)
         pool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool, false) if pool.nil?
         element = pool.select do |e|
             e["TEMPLATE/VCENTER_NET_REF"]     == ref &&
             e["TEMPLATE/VCENTER_CCR_REF"]     == ccr_ref &&
-            e["TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid
+            e["TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid &&
+            e["TEMPLATE/VCENTER_TEMPLATE_REF"] == template_ref &&
+            e["TEMPLATE/OPENNEBULA_MANAGED"] == "NO"
         end.first rescue nil
 
         return element

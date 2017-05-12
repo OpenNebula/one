@@ -219,8 +219,13 @@ get '/vcenter/template/:vcenter_ref' do
 
         t[:one] << template_disks
 
+        template_moref = template_copy_ref ? template_copy_ref : ref
+
         # Create images or get nics information for template
-        error, template_nics = template.import_vcenter_nics(vc_uuid, npool, vcenter_client.vim.host)
+        error, template_nics = template.import_vcenter_nics(vc_uuid,
+                                                            npool,
+                                                            vcenter_client.vim.host,
+                                                            template_moref)
 
         if !error.empty?
             append = false
