@@ -53,6 +53,13 @@ fi
 
 #--------------------------------------------------------------------------------
 
+if [ -n "$7" ]; then
+    log "Called from tm/$7 but I've nothing to do"
+    exit 0
+fi
+
+#--------------------------------------------------------------------------------
+
 DST_PATH_DIRNAME=`dirname $DST_PATH`
 DST_PATH_BASENAME=`basename $DST_PATH`
 
