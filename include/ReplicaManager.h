@@ -17,93 +17,21 @@
 #ifndef REPLICA_MANAGER_H_
 #define REPLICA_MANAGER_H_
 
-#include <xmlrpc-c/client.hpp>
 #include <string>
 #include <map>
 #include <vector>
 
-class LogDBRecord;
-
-extern "C" void * replication_thread(void *arg);
+class ReplicaThread;
 
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
-// Replication thread class
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
-class ReplicaThread
-{
-public:
-    ReplicaThread(int follower_id);
-
-    virtual ~ReplicaThread(){};
-
-    /**
-     *  Main replication logic for the thread, it sends log records to followers
-     *  and handle errors
-     */
-    void do_replication();
-
-    /**
-     *  Notify this replica thread that are new records in the log to replicate
-     */
-    void add_request();
-
-    /**
-     *  Exists the replication thread
-     */
-    void finalize();
-
-    pthread_t thread_id() const
-    {
-        return _thread_id;
-    }
-
-private:
-    /**
-     * C linkage function to start the thread
-     *   @param arg pointer to "this"
-     */
-    friend void * replication_thread(void *arg);
-
-    // -------------------------------------------------------------------------
-    // pthread synchronization variables
-    // -------------------------------------------------------------------------
-    pthread_t _thread_id;
-
-    pthread_mutex_t mutex;
-
-    pthread_cond_t cond;
-
-    bool _finalize;
-
-    bool _pending_requests;
-
-    time_t retry_timeout;
-
-    static const time_t max_retry_timeout;
-
-    // -------------------------------------------------------------------------
-    // Information of the replication target server and leader
-    // -------------------------------------------------------------------------
-    int follower_id;
-};
-
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
-// Replication Manager
+// Replication Manager. This is a generic replication manager it starts, stops
+// and send control events to replica threads.
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 class ReplicaManager
 {
 public:
-    ReplicaManager(){};
-
-    virtual ~ReplicaManager()
-    {
-        stop_replica_threads();
-    };
-
     /**
      *  Start the replication threads, one for each server in the zone
      */
@@ -137,6 +65,16 @@ public:
      */
     void add_replica_thread(int follower_id);
 
+protected:
+    ReplicaManager(){};
+
+    virtual ~ReplicaManager()
+    {
+        stop_replica_threads();
+    };
+
+    virtual ReplicaThread * thread_factory(int follower_id) = 0;
+
 private:
     /**
      *  The replication thread pool
@@ -148,6 +86,22 @@ private:
      *  @return pointer to the replica thread associated to a follower
      */
     ReplicaThread * get_thread(int server_id);
+};
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// RaftReplicaManager to manage the raft replication thread pool
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+class RaftReplicaManager : public ReplicaManager
+{
+public:
+    RaftReplicaManager():ReplicaManager(){};
+
+    virtual ~RaftReplicaManager(){};
+
+private:
+    ReplicaThread * thread_factory(int follower_id);
 };
 
 #endif /*REPLICA_MANAGER_H_*/

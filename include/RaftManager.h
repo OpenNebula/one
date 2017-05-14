@@ -20,6 +20,7 @@
 #include "ActionManager.h"
 #include "ReplicaManager.h"
 #include "ReplicaRequest.h"
+#include "Template.h"
 
 extern "C" void * raft_manager_loop(void *arg);
 
@@ -354,7 +355,7 @@ private:
     //   - match, highest log replicated in this server <follower, match>
 	//   - servers, list of servers in zone and xml-rpc edp <follower, edp>
     // -------------------------------------------------------------------------
-    ReplicaManager replica_manager;
+    RaftReplicaManager replica_manager;
 
     unsigned int commit;
 

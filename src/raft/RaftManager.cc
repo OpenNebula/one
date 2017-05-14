@@ -810,7 +810,7 @@ void RaftManager::request_vote()
 
     std::ostringstream oss;
 
-    unsigned int granted_votes = 0;
+    unsigned int granted_votes;
     unsigned int votes2go;
 
     Nebula& nd    = Nebula::instance();
@@ -851,7 +851,8 @@ void RaftManager::request_vote()
 
         raft_state.to_xml(raft_state_xml);
 
-        votes2go = num_servers / 2;
+        votes2go      = num_servers / 2;
+        granted_votes = 0;
 
         _term      = term;
         _server_id = server_id;

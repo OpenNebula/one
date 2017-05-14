@@ -286,6 +286,18 @@ void ZoneVoteRequest::request_execute(xmlrpc_c::paramList const& paramList,
         failure_response(ACTION, att);
         return;
     }
+    else if ( candidate_term > current_term  )
+    {
+        std::ostringstream oss;
+
+        oss << "New term (" << candidate_term << ") discovered from candidate "
+            << candidate_id;
+
+        NebulaLog::log("ReM", Log::INFO, oss);
+
+        raftm->follower(leader_term);
+
+    }
 
     if ((log_term > candidate_log_term) || ((log_term == candidate_log_term) &&
         (log_index > candidate_log_index)))

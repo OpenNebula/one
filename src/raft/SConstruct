@@ -23,7 +23,8 @@ lib_name='nebula_raft'
 # Sources to generate the library
 source_files=[
     'RaftManager.cc',
-    'ReplicaManager.cc'
+    'ReplicaManager.cc',
+    'ReplicaThread.cc'
 ]
 
 # Build library

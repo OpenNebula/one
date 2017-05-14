@@ -15,188 +15,10 @@
 /* -------------------------------------------------------------------------- */
 
 #include "ReplicaManager.h"
+#include "ReplicaThread.h"
 #include "Nebula.h"
 #include "NebulaLog.h"
-#include "ZoneServer.h"
 
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
-// Replication thread class & pool
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
-
-const time_t ReplicaThread::max_retry_timeout = 300;
-
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
-
-extern "C" void * replication_thread(void *arg)
-{
-    ReplicaThread * rt;
-
-    if ( arg == 0 )
-    {
-        return 0;
-    }
-
-    rt = static_cast<ReplicaThread *>(arg);
-
-    rt->_thread_id = pthread_self();
-
-    rt->do_replication();
-
-    return 0;
-}
-
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
-
-ReplicaThread::ReplicaThread(int f):_finalize(false), _pending_requests(false),
-    retry_timeout(2), follower_id(f)
-{
-    pthread_mutex_init(&mutex, 0);
-
-    pthread_cond_init(&cond, 0);
-};
-
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
-
-void ReplicaThread::do_replication()
-{
-    Nebula& nd    = Nebula::instance();
-    LogDB * logdb = nd.get_logdb();
-    RaftManager * raftm = nd.get_raftm();
-
-    unsigned int term = raftm->get_term();
-
-    bool retry_request = false;
-    std::string error;
-
-    while ( _finalize == false )
-    {
-        pthread_mutex_lock(&mutex);
-
-        while ( _pending_requests == false )
-        {
-            struct timespec timeout;
-
-            timeout.tv_sec  = time(NULL) + retry_timeout;
-            timeout.tv_nsec = 0;
-
-            if ( pthread_cond_timedwait(&cond, &mutex, &timeout) == ETIMEDOUT )
-            {
-                _pending_requests = retry_request;
-            }
-
-            if ( _finalize )
-            {
-                return;
-            }
-        }
-
-        _pending_requests = false;
-
-        pthread_mutex_unlock(&mutex);
-
-        // ---------------------------------------------------------------------
-        // Get parameters to call append entries on follower
-        // ---------------------------------------------------------------------
-        LogDBRecord lr;
-
-        int next_index = raftm->get_next_index(follower_id);
-
-        bool success = false;
-        unsigned int follower_term = -1;
-
-        if ( logdb->get_log_record(next_index, lr) != 0 )
-        {
-            ostringstream ess;
-
-            ess << "Failed to load log record at index: " << next_index;
-
-            NebulaLog::log("RCM", Log::ERROR, ess);
-
-            continue;
-        }
-
-        int xml_rc = raftm->xmlrpc_replicate_log(follower_id, &lr, success,
-            follower_term, error);
-
-        if ( xml_rc == -1 )
-        {
-            if ( retry_timeout < max_retry_timeout )
-            {
-                retry_timeout = 2 * retry_timeout;
-            }
-
-            retry_request = true;
-
-            continue;
-        }
-        else
-        {
-            retry_timeout = 2;
-            retry_request = false;
-        }
-
-        if ( success )
-        {
-            raftm->replicate_success(follower_id);
-        }
-        else
-        {
-            if ( follower_term > term )
-            {
-                ostringstream ess;
-
-                ess << "Follower " << follower_id << " term (" << follower_term
-                    << ") is higher than current (" << term << ")";
-
-                NebulaLog::log("RCM", Log::INFO, ess);
-
-                raftm->follower(follower_term);
-            }
-            else
-            {
-                raftm->replicate_failure(follower_id);
-            }
-        }
-    }
-}
-
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
-
-void ReplicaThread::finalize()
-{
-    pthread_mutex_lock(&mutex);
-
-    _finalize = true;
-
-    _pending_requests = false;
-
-    pthread_cond_signal(&cond);
-
-    pthread_mutex_unlock(&mutex);
-}
-
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
-
-void ReplicaThread::add_request()
-{
-    pthread_mutex_lock(&mutex);
-
-    _pending_requests = true;
-
-    pthread_cond_signal(&cond);
-
-    pthread_mutex_unlock(&mutex);
-}
-
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
@@ -320,7 +142,7 @@ void ReplicaManager::add_replica_thread(int follower_id)
         return;
     }
 
-    ReplicaThread * rthread = new ReplicaThread(follower_id);
+    ReplicaThread * rthread = thread_factory(follower_id);
 
     thread_pool.insert(std::make_pair(follower_id, rthread));
 
@@ -335,3 +157,10 @@ void ReplicaManager::add_replica_thread(int follower_id)
 
     pthread_attr_destroy(&pattr);
 };
+
+// -----------------------------------------------------------------------------
+
+ReplicaThread * RaftReplicaManager::thread_factory(int follower_id)
+{
+    return new RaftReplicaThread(follower_id);
+}
