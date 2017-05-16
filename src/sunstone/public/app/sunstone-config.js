@@ -145,7 +145,6 @@ define(function(require) {
       "logo": (_config['view']["provision_logo"] || "images/one_small_logo.png"),
     },
 
-    'autoRefresh' : _config['view']['autorefresh'],
     'tableOrder': _config['user_config']['table_order'],
     'vncProxyPort': _config['system_config']['vnc_proxy_port'],
     'vncWSS': _config['user_config']['vnc_wss'],
