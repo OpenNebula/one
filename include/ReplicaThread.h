@@ -130,4 +130,22 @@ private:
     RaftManager * raftm;
 };
 
+class FedReplicaThread : public ReplicaThread
+{
+public:
+    FedReplicaThread(int zone_id):ReplicaThread(zone_id){};
+
+    virtual ~FedReplicaThread(){};
+
+private:
+    /**
+     * Specific logic for the replicate process
+     */
+    int replicate()
+    {
+        //TODO
+        return 0;
+    };
+};
+
 #endif

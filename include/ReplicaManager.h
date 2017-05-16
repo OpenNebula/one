@@ -35,7 +35,7 @@ public:
     /**
      *  Start the replication threads, one for each server in the zone
      */
-    void start_replica_threads(std::vector<unsigned int>& fids);
+    void start_replica_threads(std::vector<int>& fids);
 
     /**
      *  Stop the replication threads (leader becomes follower)

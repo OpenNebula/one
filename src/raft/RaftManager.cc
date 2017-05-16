@@ -36,7 +36,7 @@ static void set_timeout(long long ms, struct timespec& timeout)
     timeout.tv_nsec = d.rem * 1000000;
 }
 
-static unsigned int get_zone_servers(std::map<unsigned int, std::string>& _s);
+static unsigned int get_zone_servers(std::map<int, std::string>& _s);
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -170,7 +170,7 @@ void RaftManager::finalize_action(const ActionRequest& ar)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static unsigned int get_zone_servers(std::map<unsigned int, std::string>& _serv)
+static unsigned int get_zone_servers(std::map<int, std::string>& _serv)
 {
     Nebula& nd       = Nebula::instance();
     ZonePool * zpool = nd.get_zonepool();
@@ -192,7 +192,7 @@ int RaftManager::get_leader_endpoint(std::string& endpoint)
     }
     else
     {
-        std::map<unsigned int, std::string>::iterator it;
+        std::map<int, std::string>::iterator it;
 
         it = servers.find(leader_id);
 
@@ -215,7 +215,7 @@ int RaftManager::get_leader_endpoint(std::string& endpoint)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RaftManager::add_server(unsigned int follower_id)
+void RaftManager::add_server(int follower_id)
 {
 	LogDB * logdb = Nebula::instance().get_logdb();
 
@@ -223,7 +223,7 @@ void RaftManager::add_server(unsigned int follower_id)
 
     logdb->get_last_record_index(log_index, log_term);
 
-    std::map<unsigned int, std::string> _servers;
+    std::map<int, std::string> _servers;
 
     unsigned int _num_servers = get_zone_servers(_servers);
 
@@ -243,9 +243,9 @@ void RaftManager::add_server(unsigned int follower_id)
 
 /* -------------------------------------------------------------------------- */
 
-void RaftManager::delete_server(unsigned int follower_id)
+void RaftManager::delete_server(int follower_id)
 {
-    std::map<unsigned int, std::string> _servers;
+    std::map<int, std::string> _servers;
 
     unsigned int _num_servers = get_zone_servers(_servers);
 
@@ -276,12 +276,12 @@ void RaftManager::leader()
     LogDB * logdb     = nd.get_logdb();
     AclManager * aclm = nd.get_aclm();
 
-    std::map<unsigned int, std::string>::iterator it;
-    std::vector<unsigned int> _follower_ids;
+    std::map<int, std::string>::iterator it;
+    std::vector<int> _follower_ids;
 
     int index, _applied;
 
-    std::map<unsigned int, std::string> _servers;
+    std::map<int, std::string> _servers;
 
     std::ostringstream oss;
 
@@ -324,7 +324,7 @@ void RaftManager::leader()
 
     for (it = servers.begin(); it != servers.end() ; ++it )
     {
-        if ( it->first == (unsigned int) server_id )
+        if ( it->first == server_id )
         {
             continue;
         }
@@ -381,7 +381,7 @@ void RaftManager::follower(unsigned int _term)
 
     NebulaLog::log("RCM", Log::INFO, "oned is set to follower mode");
 
-    std::map<unsigned int, ReplicaRequest *>::iterator it;
+    std::map<int, ReplicaRequest *>::iterator it;
 
     for ( it = requests.begin() ; it != requests.end() ; ++it )
     {
@@ -442,12 +442,12 @@ void RaftManager::replicate_log(ReplicaRequest * request)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RaftManager::replicate_success(unsigned int follower_id)
+void RaftManager::replicate_success(int follower_id)
 {
-    std::map<unsigned int, ReplicaRequest *>::iterator it;
+    std::map<int, ReplicaRequest *>::iterator it;
 
-    std::map<unsigned int, unsigned int>::iterator next_it;
-    std::map<unsigned int, unsigned int>::iterator match_it;
+    std::map<int, unsigned int>::iterator next_it;
+    std::map<int, unsigned int>::iterator match_it;
 
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
@@ -497,9 +497,9 @@ void RaftManager::replicate_success(unsigned int follower_id)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RaftManager::replicate_failure(unsigned int follower_id)
+void RaftManager::replicate_failure(int follower_id)
 {
-    std::map<unsigned int, unsigned int>::iterator next_it;
+    std::map<int, unsigned int>::iterator next_it;
 
     pthread_mutex_lock(&mutex);
 
@@ -687,8 +687,8 @@ void RaftManager::timer_action(const ActionRequest& ar)
 
 void RaftManager::send_heartbeat()
 {
-    std::map<unsigned int, std::string> _servers;
-    std::map<unsigned int, std::string>::iterator it;
+    std::map<int, std::string> _servers;
+    std::map<int, std::string>::iterator it;
 
 	LogDBRecord lr;
 
@@ -721,7 +721,7 @@ void RaftManager::send_heartbeat()
 
     for (it = _servers.begin(); it != _servers.end() ; ++it )
     {
-        if ( it->first == (unsigned int) server_id )
+        if ( it->first == server_id )
         {
             continue;
         }
@@ -776,10 +776,11 @@ void RaftManager::send_heartbeat()
 
 void RaftManager::request_vote()
 {
-    unsigned int lindex, lterm, fterm, _term, _server_id;
+    unsigned int lindex, lterm, fterm, _term;
+    int _server_id;
 
-    std::map<unsigned int, std::string> _servers;
-    std::map<unsigned int, std::string>::iterator it;
+    std::map<int, std::string> _servers;
+    std::map<int, std::string>::iterator it;
 
     std::ostringstream oss;
 
@@ -841,7 +842,7 @@ void RaftManager::request_vote()
         /* ------------------------------------------------------------------ */
         for (it = _servers.begin(); it != _servers.end() ; ++it, oss.str("") )
         {
-            unsigned int id = it->first;
+            int id = it->first;
 
             if ( id == _server_id )
             {
@@ -942,7 +943,7 @@ int RaftManager::xmlrpc_replicate_log(int follower_id, LogDBRecord * lr,
     std::string secret;
     std::string follower_edp;
 
-    std::map<unsigned int, std::string>::iterator it;
+    std::map<int, std::string>::iterator it;
 
 	int xml_rc = 0;
 
@@ -1039,7 +1040,7 @@ int RaftManager::xmlrpc_request_vote(int follower_id, unsigned int lindex,
     std::string secret;
     std::string follower_edp;
 
-    std::map<unsigned int, std::string>::iterator it;
+    std::map<int, std::string>::iterator it;
 
 	int xml_rc = 0;
 

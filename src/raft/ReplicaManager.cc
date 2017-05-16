@@ -39,9 +39,9 @@ ReplicaThread * ReplicaManager::get_thread(int server_id)
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
-void ReplicaManager::start_replica_threads(std::vector<unsigned int>& fids)
+void ReplicaManager::start_replica_threads(std::vector<int>& fids)
 {
-    std::vector<unsigned int>::iterator it;
+    std::vector<int>::iterator it;
 
     for (it = fids.begin(); it != fids.end(); ++it)
     {

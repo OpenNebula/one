@@ -133,8 +133,7 @@ public:
      *    @param _serv list of servers and associated xml-rpc endpoints
      *    @return the number of servers in the zone
      */
-    unsigned int get_zone_servers(int zone_id,
-            std::map<unsigned int, std::string>& _serv);
+    unsigned int get_zone_servers(int zone_id, std::map<int, std::string>& srv);
 
     /**
      *  Return the list of zones defined

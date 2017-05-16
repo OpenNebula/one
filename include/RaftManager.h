@@ -62,7 +62,7 @@ public:
      *    - Update match entry on follower
      *    - Evaluate majority to apply changes to DB
      */
-    void replicate_success(unsigned int follower_id);
+    void replicate_success(int follower_id);
 
     /**
      *  Follower failed to replicate a log entry because an inconsistency was
@@ -70,7 +70,7 @@ public:
      *    - Decrease follower next_index
      *    - Retry (do not wait for replica events)
      */
-    void replicate_failure(unsigned int follower_id);
+    void replicate_failure(int follower_id);
 
     /**
      *  Triggers a REPLICATE event, it will notify the replica threads to
@@ -190,9 +190,9 @@ public:
      *    @param follower server id
      *    @return -1 on failure, the next index if success
      */
-    int get_next_index(unsigned int follower_id)
+    int get_next_index(int follower_id)
     {
-        std::map<unsigned int, unsigned int>::iterator it;
+        std::map<int, unsigned int>::iterator it;
         unsigned int _index = -1;
 
         pthread_mutex_lock(&mutex);
@@ -253,14 +253,14 @@ public:
      *  thread.
      *    @param follower_id id of new server
      */
-	void add_server(unsigned int follower_id);
+	void add_server(int follower_id);
 
     /**
      *  Deletes a new server to the follower list and stops associated replica
      *  thread.
      *    @param follower_id id of server
      */
-	void delete_server(unsigned int follower_id);
+	void delete_server(int follower_id);
 
 private:
     friend void * raft_manager_loop(void *arg);
@@ -280,7 +280,7 @@ private:
     /**
      * Clients waiting for a log replication
      */
-    std::map<unsigned int, ReplicaRequest *> requests;
+    std::map<int, ReplicaRequest *> requests;
 
     // -------------------------------------------------------------------------
     // Raft state
@@ -359,11 +359,11 @@ private:
 
     unsigned int commit;
 
-    std::map<unsigned int, unsigned int> next;
+    std::map<int, unsigned int> next;
 
-    std::map<unsigned int, unsigned int> match;
+    std::map<int, unsigned int> match;
 
-    std::map<unsigned int, std::string>  servers;
+    std::map<int, std::string>  servers;
 
     // -------------------------------------------------------------------------
     // Action Listener interface
