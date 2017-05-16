@@ -36,7 +36,6 @@ enabled_tabs:
     #- support-tab
     #- upgrade-top-tab
     - vmgroup-tab
-autorefresh: true
 features:
     # True to show showback monthly reports, and VM cost
     showback: true
