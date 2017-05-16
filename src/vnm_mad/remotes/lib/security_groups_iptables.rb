@@ -388,12 +388,20 @@ module SGIPTables
         commands.add :ip6tables, "-A #{chain_in} -p icmpv6 --icmpv6-type 135 "\
             "-j ACCEPT"
 
+        ## Allow neighbor solicitations replies to reach the host
+        commands.add :ip6tables, "-A #{chain_in} -p icmpv6 --icmpv6-type 136 "\
+            "-j ACCEPT"
+
         ## Allow routers to send Redirect messages
         commands.add :ip6tables, "-A #{chain_in} -p icmpv6 --icmpv6-type 137 "\
             "-j ACCEPT"
 
         ## Allow the host to send a router solicitation
         commands.add :ip6tables, "-A #{chain_out} -p icmpv6 --icmpv6-type 133 "\
+            "-j ACCEPT"
+
+        ## Allow the host to send neighbor solicitation requests
+        commands.add :ip6tables, "-A #{chain_out} -p icmpv6 --icmpv6-type 135 "\
             "-j ACCEPT"
 
         ## Allow the host to send neighbor solicitation replies
