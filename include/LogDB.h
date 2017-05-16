@@ -349,7 +349,7 @@ protected:
 private:
 
     LogDB * _logdb;
-}
+};
 
 #endif /*LOG_DB_H_*/
 
