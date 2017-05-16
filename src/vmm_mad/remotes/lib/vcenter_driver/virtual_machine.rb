@@ -1985,6 +1985,9 @@ class VirtualMachine < Template
         detach_disk_array = []
         extra_config      = []
         ipool = VCenterDriver::VIHelper.one_pool(OpenNebula::ImagePool)
+        if ipool.respond_to?(:message)
+            raise "Could not get OpenNebula ImagePool: #{ipool.message}"
+        end
 
         vc_disks.each do |d|
             if !onevm_disks_vector.index(d[:path_wo_ds])
@@ -2107,6 +2110,9 @@ class VirtualMachine < Template
         spec_hash = {}
         spec_hash[:deviceChange] = []
         ipool = VCenterDriver::VIHelper.one_pool(OpenNebula::ImagePool)
+        if ipool.respond_to?(:message)
+            raise "Could not get OpenNebula ImagePool: #{ipool.message}"
+        end
 
         vm.config.hardware.device.each do |disk|
             if is_disk_or_cdrom?(disk)

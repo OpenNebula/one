@@ -101,7 +101,13 @@ class Storage
     end
 
     def self.get_one_image_ds_by_ref_and_ccr(ref, ccr_ref, vcenter_uuid, pool = nil)
-        pool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool, false) if pool.nil?
+        if pool.nil?
+            pool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool, false)
+            if pool.respond_to?(:message)
+                raise "Could not get OpenNebula DatastorePool: #{pool.message}"
+            end
+        end
+
         element = pool.select do |e|
             e["TEMPLATE/TYPE"]                == "IMAGE_DS" &&
             e["TEMPLATE/VCENTER_DS_REF"]      == ref &&
@@ -131,7 +137,12 @@ class Storage
     end
 
     def self.exists_one_by_ref_ccr_and_type?(ref, ccr_ref, vcenter_uuid, type, pool = nil)
-        pool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool, false) if pool.nil?
+        if pool.nil?
+            pool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool, false)
+            if pool.respond_to?(:message)
+                raise "Could not get OpenNebula DatastorePool: #{pool.message}"
+            end
+        end
         elements = pool.select do |e|
             e["TEMPLATE/TYPE"] == type &&
             e["TEMPLATE/VCENTER_DS_REF"] == ref &&

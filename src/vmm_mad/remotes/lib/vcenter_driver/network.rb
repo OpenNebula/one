@@ -116,7 +116,12 @@ class Network
     end
 
     def self.get_unmanaged_vnet_by_ref(ref, ccr_ref, template_ref, vcenter_uuid, pool = nil)
-        pool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool, false) if pool.nil?
+        if pool.nil?
+            pool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool, false)
+            if pool.respond_to?(:message)
+                raise "Could not get OpenNebula VirtualNetworkPool: #{pool.message}"
+            end
+        end
         element = pool.select do |e|
             e["TEMPLATE/VCENTER_NET_REF"]     == ref &&
             e["TEMPLATE/VCENTER_CCR_REF"]     == ccr_ref &&
@@ -142,6 +147,9 @@ class Network
 
         networks = {}
         npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool, false)
+        if npool.respond_to?(:message)
+            raise "Could not get OpenNebula VirtualNetworkPool: #{npool.message}"
+        end
 
         device_change_nics.each do |nic|
             if nic[:operation] == :remove

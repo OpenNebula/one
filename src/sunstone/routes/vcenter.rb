@@ -147,9 +147,30 @@ get '/vcenter/template/:vcenter_ref' do
 
         template = VCenterDriver::Template.new_from_ref(ref, vcenter_client)
         vc_uuid = vcenter_client.vim.serviceContent.about.instanceUuid
+
         dpool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool)
+        if dpool.respond_to?(:message)
+            msg = "Could not get OpenNebula DatastorePool: #{dpool.message}"
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 404, error.to_json
+        end
+
         ipool = VCenterDriver::VIHelper.one_pool(OpenNebula::ImagePool)
+        if ipool.respond_to?(:message)
+            msg = "Could not get OpenNebula ImagePool: #{ipool.message}"
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 404, error.to_json
+        end
+
         npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool)
+        if npool.respond_to?(:message)
+            msg = "Could not get OpenNebula VirtualNetworkPool: #{npool.message}"
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 404, error.to_json
+        end
 
         # POST params
         if @request_body && !@request_body.empty?

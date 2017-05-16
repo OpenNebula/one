@@ -138,6 +138,9 @@ else
         vcenter_uuid = vm.get_vcenter_instance_uuid
         networks = {}
         npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool, false)
+        if npool.respond_to?(:message)
+            raise "Could not get OpenNebula VirtualNetworkPool: #{npool.message}"
+        end
 
         # Check nics in VM
         vm.item["config.hardware.device"].each do |dv|

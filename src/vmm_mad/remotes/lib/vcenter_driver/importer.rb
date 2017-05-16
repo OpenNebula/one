@@ -10,8 +10,17 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
         vc_name   = vi_client.vim.host
 
         dpool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool)
+        if dpool.respond_to?(:message)
+            raise "Could not get OpenNebula DatastorePool: #{dpool.message}"
+        end
         ipool = VCenterDriver::VIHelper.one_pool(OpenNebula::ImagePool)
+        if ipool.respond_to?(:message)
+            raise "Could not get OpenNebula ImagePool: #{ipool.message}"
+        end
         npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool)
+        if npool.respond_to?(:message)
+            raise "Could not get OpenNebula VirtualNetworkPool: #{npool.message}"
+        end
 
         vcenter_vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
 
@@ -85,7 +94,6 @@ def self.import_clusters(con_ops, options)
 
         # OpenNebula's ClusterPool
         cpool = VCenterDriver::VIHelper.one_pool(OpenNebula::ClusterPool, false)
-
         if cpool.respond_to?(:message)
             raise "Could not get OpenNebula ClusterPool: #{cpool.message}"
         end
@@ -97,7 +105,6 @@ def self.import_clusters(con_ops, options)
 
         # Get OpenNebula's host pool
         hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool, false)
-
         if hpool.respond_to?(:message)
             raise "Could not get OpenNebula HostPool: #{hpool.message}"
         end
@@ -178,7 +185,6 @@ def self.import_templates(con_ops, options)
 
         # Get OpenNebula's templates pool
         tpool = VCenterDriver::VIHelper.one_pool(OpenNebula::TemplatePool, false)
-
         if tpool.respond_to?(:message)
             raise "Could not get OpenNebula TemplatePool: #{tpool.message}"
         end
@@ -189,8 +195,17 @@ def self.import_templates(con_ops, options)
 
         # Create OpenNebula pools
         dpool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool)
+        if dpool.respond_to?(:message)
+            raise "Could not get OpenNebula DatastorePool: #{dpool.message}"
+        end
         ipool = VCenterDriver::VIHelper.one_pool(OpenNebula::ImagePool)
+        if ipool.respond_to?(:message)
+            raise "Could not get OpenNebula ImagePool: #{ipool.message}"
+        end
         npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool)
+        if npool.respond_to?(:message)
+            raise "Could not get OpenNebula VirtualNetworkPool: #{npool.message}"
+        end
 
         # Get vcenter intance uuid as moref is unique for each vcenter
         vc_uuid = vi_client.vim.serviceContent.about.instanceUuid
@@ -473,7 +488,6 @@ def self.import_networks(con_ops, options)
 
         # OpenNebula's VirtualNetworkPool
         npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool, false)
-
         if npool.respond_to?(:message)
             raise "Could not get OpenNebula VirtualNetworkPool: #{npool.message}"
         end
@@ -659,14 +673,12 @@ def self.import_datastore(con_ops, options)
         dc_folder = VCenterDriver::DatacenterFolder.new(vi_client)
 
         dpool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool, false)
-
         if dpool.respond_to?(:message)
             raise "Could not get OpenNebula DatastorePool: #{dpool.message}"
         end
 
         # Get OpenNebula's host pool
         hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool, false)
-
         if hpool.respond_to?(:message)
             raise "Could not get OpenNebula HostPool: #{hpool.message}"
         end
