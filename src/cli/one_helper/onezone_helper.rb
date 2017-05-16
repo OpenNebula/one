@@ -119,7 +119,7 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
         if zone.has_elements?("/ZONE/SERVER_POOL/SERVER")
             servers = zone_hash["ZONE"]["SERVER_POOL"]["SERVER"]
 
-            servers.each { |s|
+            [servers].flatten.each { |s|
                 endpoint = s["ENDPOINT"]
 
                 next if endpoint.nil?
