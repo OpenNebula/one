@@ -58,7 +58,16 @@ def handle_exception(action, ex, host, did, id = nil, file = nil)
     exit (-1)
 end
 
+def encrypt(opts)
+      if !opts[:ec2access].nil? && !opts[:ec2secret].nil?
+        puts "el accesoas es "+opts[:ec2access]
+        puts "la key es "+opts[:ec2secret]
+        cipher = OpenSSL::Cipher.new("aes-256-cbc")
+        cipher.encrypt
+        exit (-1)
+      end
 
+end
 
 
 begin

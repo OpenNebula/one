@@ -32,6 +32,7 @@ $: << RUBY_LIB_LOCATION+"/cli"
 require 'command_parser'
 require 'one_helper/onehost_helper'
 require 'one_helper/onecluster_helper'
+require 'ec2_driver'
 
 cmd=CommandParser::CmdParser.new(ARGV) do
     usage "`onehost` <command> [<args>] [<options>]"
@@ -124,12 +125,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             exit -1
         end
 
-        if !options[:ec2access].nil? && !options[:ec2secret].nil?
-            puts "madafakaaa"
-            puts "el acceso es "+options[:ec2access]
-            puts "la key es "+options[:ec2secret]
-            exit (-1)
-        end
+        encrypt(options) 
 
         cid = options[:cluster] || ClusterPool::NONE_CLUSTER_ID
 
