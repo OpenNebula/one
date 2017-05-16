@@ -26,6 +26,14 @@ define(function(require) {
       return enabled;
     },
 
+    "changeFilter": function(bool) {
+      _config['pool_filter'] = bool;
+    },
+
+    "isChangedFilter": function(){
+      return _config['pool_filter'];
+    },
+
     "isTabActionEnabled": function(tabName, actionName, panelName) {
       var enabled = false;
       var configTab = _config['view']['tabs'][tabName];
@@ -150,6 +158,7 @@ define(function(require) {
     'onedConf': _config['oned_conf'],
     'confirmVMActions': _config['view']['confirm_vms'],
     'scaleFactor': _config['view']['features']['instanciate_cpu_factor'],
+    'filterView': _config['view']['filter_view'],
 
     "allTabs": function() {
       return Object.keys(_config['view']['tabs']);

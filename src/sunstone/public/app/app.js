@@ -37,7 +37,6 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Menu = require('utils/menu');
   var Locale = require('utils/locale');
-
   var UserAndZoneTemplate = require('hbs!sunstone/user_and_zone');
 
   var _commonDialogs = [
@@ -97,12 +96,20 @@ define(function(require) {
   }
 
   function _insertUserAndZoneSelector() {
+
+    this.idGroup = -2; /*All*/
+    Config.changeFilter(false);
+    
     $(".user-zone-info").html(UserAndZoneTemplate({
+      filterView: Config['filterView'],
       displayName: config['display_name'],
       settingsTabEnabled: Config.isTabEnabled(SETTINGS_TAB_ID),
       availableViews: config['available_views'],
       zoneName: config['zone_name']
     })).foundation();
+
+    $('#filter-view').hide();
+    groupsRefresh();
 
     $('.quickconf_view[view="' + config['user_config']["default_view"] + '"] i').addClass('fa-check');
     $(".user-zone-info a.quickconf_view_header").click(function() {
@@ -116,6 +123,86 @@ define(function(require) {
       var sunstone_setting = {DEFAULT_VIEW : $(this).attr("view")};
       Sunstone.runAction("User.append_sunstone_setting_refresh", -1, sunstone_setting);
     });
+
+    function groupsRefresh() {
+
+      OpenNebula.User.show({
+        timeout: true,
+        data : {
+          id: config['user_id']
+        },
+        success: function (request, obj_user) {
+          var groups = obj_user.USER.GROUPS.ID;
+          this.primaryGroup = obj_user.USER.GID;
+          var groupsHTML = "<li class='groups' value='-2'> <a href='#' value='-2' id='-2'> \
+              <i class='fa fa-fw'></i>" + Locale.tr("All") + "</a></li>";
+          if(this.idGroup == -2){
+            var groupsHTML = "<li class='groups' value='-2'> <a href='#' value='-2' id='-2'> \
+              <i class='fa fa-fw fa-check'></i>" + Locale.tr("All") + "</a></li>";
+          }
+
+          if (!$.isArray(groups)){
+            groups = groups.toString();
+            groups = [groups];
+          }
+
+          that = this;
+          OpenNebula.Group.list({
+            timeout: true,
+            success: function(request, group_list) {
+              var group_list_aux = group_list; 
+              $.each(groups, function(key, value){
+                var id = value;
+                $.each(group_list_aux, function(key, value){
+                  if(id == value.GROUP.ID){
+                    if(id == that.idGroup){
+                      groupsHTML += "<li class='groups' value='" + id + "'id='" + id + "'> \
+                        <a href='#'><i class='fa fa-fw fa-check'></i>" + value.GROUP.NAME + "\
+                        </a></li>";
+                    } else {
+                      groupsHTML += "<li class='groups' value='" + id + "'id='" + id + "'> \
+                        <a href='#'><i class='fa fa-fw'></i>" + value.GROUP.NAME + "\
+                        </a></li>";
+                    }
+                    return false;
+                  }
+                });
+              });
+            },
+            error: Notifier.onError
+          });
+
+          $('#userselector').on('click', function(){
+            $('.groups-menu').empty();
+            $('.groups-menu').append(groupsHTML);
+            var primaryGroupChar = '<span class="fa fa-asterisk fa-fw" id="primary-char" \
+                                    style="float: right"></span>';
+            $('#'+ that.primaryGroup + ' a').append(primaryGroupChar);
+            $('.groups').on('click', function(){
+              that.idGroup = $(this).attr('value');
+              if(that.idGroup != -2){
+                $('#primary-char').remove();
+                Sunstone.runAction("User.chgrp", [parseInt(config['user_id'])], parseInt(that.idGroup));
+                $('a', this).append(primaryGroupChar);
+                Config.changeFilter(true);
+                var filterName = $(this).text();
+                $('#filter-view').show();
+                $('.filter-name').html(filterName);
+              } else {                
+                $('#filter-view').hide();
+                Config.changeFilter(false);
+              }
+              $('.groups-menu a i').removeClass('fa-check');
+              $('a i', this).addClass('fa-check');
+              groupsRefresh();
+              $('.refresh').click();
+              $('.refresh-table').click();
+            });
+          });
+        },
+        error: Notifier.onError
+      }); 
+    }
 
     function zoneRefresh() {
       // Populate Zones dropdown

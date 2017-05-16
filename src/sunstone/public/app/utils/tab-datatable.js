@@ -1226,16 +1226,17 @@ define(function(require) {
       success_func(request, []);
       Notifier.onError(request, error_json, container);
     }
-
+    var pool_filter = SunstoneConfig.isChangedFilter()? -4 : -2;
     if (that.selectOptions.zone_id == undefined) {
       OpenNebula[that.resource].list({
+        data : {pool_filter : pool_filter},
         timeout: true,
         success: success_func,
         error: error_func
       });
     } else {
       OpenNebula[that.resource].list_in_zone({
-        data: {zone_id: that.selectOptions.zone_id},
+        data: {zone_id: that.selectOptions.zone_id, pool_filter : pool_filter},
         timeout: true,
         success: success_func,
         error: error_func
@@ -1246,7 +1247,9 @@ define(function(require) {
   // TODO: This is probably duplicated somewhere
   function _list() {
     var that = this;
+    var pool_filter = SunstoneConfig.isChangedFilter()? -4 : -2;
     OpenNebula[that.resource].list({
+      data : {pool_filter : pool_filter},
       success: function(req, resp) {
         that.updateView(req, resp);
       },
