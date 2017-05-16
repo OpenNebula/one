@@ -295,8 +295,7 @@ void ZoneVoteRequest::request_execute(xmlrpc_c::paramList const& paramList,
 
         NebulaLog::log("ReM", Log::INFO, oss);
 
-        raftm->follower(leader_term);
-
+        raftm->follower(candidate_term);
     }
 
     if ((log_term > candidate_log_term) || ((log_term == candidate_log_term) &&

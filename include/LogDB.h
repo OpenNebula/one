@@ -302,5 +302,54 @@ private:
             time_t timestamp);
 };
 
+// -----------------------------------------------------------------------------
+// This is a LogDB decoration, it replicates the DB write commands on slaves
+// It should be passed as DB for federated pools.
+// -----------------------------------------------------------------------------
+class FedLogDB: public SqlDB
+{
+public:
+    FedLogDB(LogDB *db):_logdb(db){};
+
+    virtual ~FedLogDB(){};
+
+    int exec_wr(ostringstream& cmd);
+
+    int exec_local_wr(ostringstream& cmd)
+    {
+        return _logdb->exec_local_wr(cmd);
+    }
+
+    int exec_rd(ostringstream& cmd, Callbackable* obj)
+    {
+        return _logdb->exec_rd(cmd, obj);
+    }
+
+    char * escape_str(const string& str)
+    {
+        return _logdb->escape_str(str);
+    }
+
+    void free_str(char * str)
+    {
+        _logdb->free_str(str);
+    }
+
+    bool multiple_values_support()
+    {
+        return _logdb->multiple_values_support();
+    }
+
+protected:
+    int exec(std::ostringstream& cmd, Callbackable* obj, bool quiet)
+    {
+        return -1;
+    }
+
+private:
+
+    LogDB * _logdb;
+}
+
 #endif /*LOG_DB_H_*/
 

@@ -202,3 +202,35 @@ int ZonePool::drop(PoolObjectSQL * objsql, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+unsigned int ZonePool::get_zone_servers(int zone_id,
+        std::map<unsigned int, std::string>& _serv)
+{
+    unsigned int  _num_servers;
+
+    ZoneServers::zone_iterator zit;
+
+    Zone * zone = get(zone_id, true);
+
+    if ( zone == 0 )
+    {
+        _serv.clear();
+        return 0;
+    }
+
+    ZoneServers * followers = zone->get_servers();
+
+    for (zit = followers->begin(); zit != followers->end(); ++zit)
+    {
+        unsigned int id  = (*zit)->get_id();
+        std::string  edp = (*zit)->vector_value("ENDPOINT");
+
+        _serv.insert(make_pair(id, edp));
+    }
+
+    _num_servers = zone->servers_size();
+
+    zone->unlock();
+
+    return _num_servers;
+}
+

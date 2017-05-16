@@ -101,7 +101,6 @@ RaftManager::RaftManager(int id, time_t log_purge, long long bcast,
 
     // -------------------------------------------------------------------------
     // Initialize Raft timers
-    //   TODO: randomize election timeout
     // -------------------------------------------------------------------------
     purge_period_ms   = log_purge * 1000;
     xmlrpc_timeout_ms = xmlrpc;
@@ -173,38 +172,12 @@ void RaftManager::finalize_action(const ActionRequest& ar)
 
 static unsigned int get_zone_servers(std::map<unsigned int, std::string>& _serv)
 {
-    unsigned int  _num_servers;
-
     Nebula& nd       = Nebula::instance();
     ZonePool * zpool = nd.get_zonepool();
 
     int zone_id = nd.get_zone_id();
 
-    ZoneServers::zone_iterator zit;
-
-    Zone * zone = zpool->get(zone_id, true);
-
-    if ( zone == 0 )
-    {
-        _serv.clear();
-        return 0;
-    }
-
-    ZoneServers * followers = zone->get_servers();
-
-    for (zit = followers->begin(); zit != followers->end(); ++zit)
-    {
-        unsigned int id  = (*zit)->get_id();
-        std::string  edp = (*zit)->vector_value("ENDPOINT");
-
-        _serv.insert(make_pair(id, edp));
-    }
-
-    _num_servers = zone->servers_size();
-
-    zone->unlock();
-
-    return _num_servers;
+    return zpool->get_zone_servers(zone_id, _serv);
 }
 
 int RaftManager::get_leader_endpoint(std::string& endpoint)
