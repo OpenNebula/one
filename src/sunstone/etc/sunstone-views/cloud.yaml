@@ -17,6 +17,9 @@ features:
     # will be set to the same value as VCPU, that will still be visible for the
     # end users
     instantiate_hide_cpu: false
+    
+    # False to not scale the CPU. Number [0, 1] to scale from VCPU
+    instanciate_cpu_factor: false
 tabs:
     provision-tab:
         panel_tabs:

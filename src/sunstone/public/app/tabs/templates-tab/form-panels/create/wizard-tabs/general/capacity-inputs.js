@@ -57,7 +57,7 @@ define(function(require) {
     if (Config.isFeatureEnabled("instantiate_hide_cpu")){
       $(".cpu_input_wrapper", context).remove();
     }
-
+   
     Tips.setup(context);
   }
 
@@ -134,6 +134,13 @@ define(function(require) {
     }
 
     $("div.vcpu_input", context).html(input);
+
+    if (Config.isFeatureEnabled("instanciate_cpu_factor")){
+      $("div.vcpu_input input", context).on("change", function(){
+        var vcpuValue = $("div.vcpu_input input", context).val();
+        $("div.cpu_input input", context).val(vcpuValue * Config.scaleFactor);
+      });
+    }
 
     if (userInputs != undefined && userInputs.MEMORY != undefined){
       attr = UserInputs.parse("MEMORY", userInputs.MEMORY);
