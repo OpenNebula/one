@@ -22,6 +22,7 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var RenameTr = require('utils/panel/rename-tr');
   var TemplateTable = require('utils/panel/template-table');
+  var TemplateTableVcenter = require('utils/panel/template-table');
   var PermissionsTable = require('utils/panel/permissions-table');
   var ClusterTr = require('utils/panel/cluster-tr');
   var OpenNebulaHost = require('opennebula/host');
@@ -97,7 +98,7 @@ define(function(require) {
                                       this.strippedTemplate,
                                       RESOURCE,
                                       Locale.tr("Attributes"));
-    var templateTableVcenterHTML = TemplateTable.html(
+    var templateTableVcenterHTML = TemplateTableVcenter.html(
                                       this.strippedTemplateVcenter,
                                       RESOURCE,
                                       Locale.tr("Vcenter information"),false);
@@ -145,6 +146,7 @@ define(function(require) {
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     ClusterTr.setup(RESOURCE, this.element.ID, this.element.CLUSTER_ID, context);
     TemplateTable.setup(this.strippedTemplate, RESOURCE, this.element.ID, context, this.unshownTemplate);
+    TemplateTableVcenter.setup(this.strippedTemplateVcenter, RESOURCE, this.element.ID, context, this.unshownTemplate, false);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
 
     if($.isEmptyObject(this.strippedTemplateVcenter)){
