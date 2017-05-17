@@ -801,6 +801,19 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t\t</iotune>" << endl;
         }
 
+        // ---- SCSI target ----
+
+        if ( target[0] == 's' && target[1] == 'd' )
+        {
+            int target_number = target[2] - 'a';
+
+            if ( target_number >= 0 && target_number < 256 )
+            {
+                file << "\t\t\t<address type='drive' controller='0' bus='0' " <<
+                     "target='" << target_number << "' unit='0'/>" << endl;
+            }
+        }
+
         file << "\t\t</disk>" << endl;
     }
 
