@@ -32,7 +32,6 @@ $: << RUBY_LIB_LOCATION+"/cli"
 require 'command_parser'
 require 'one_helper/onehost_helper'
 require 'one_helper/onecluster_helper'
-require 'ec2_driver'
 
 cmd=CommandParser::CmdParser.new(ARGV) do
     usage "`onehost` <command> [<args>] [<options>]"
@@ -124,16 +123,37 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             STDERR.puts "\t -v hypervisor driver"
             exit -1
         end
+        
+        ec2_host = !options[:ec2access].nil? && !options[:ec2secret].nil?
 
-        encrypt(options) 
+        if ec2_host
+            ec2_opts = {
+                :access => options[:ec2access],
+                :secret => options[:ec2secret]
+            }
+
+            encrypt_opts = helper.encrypt(ec2_opts) 
+            helper.decrypt(encrypt_opts)
+
+        end
 
         cid = options[:cluster] || ClusterPool::NONE_CLUSTER_ID
-
         helper.create_resource(options) do |host|
                 host.allocate(args[0],
                               options[:im],
                               options[:vm],
                               cid)
+				#template=""
+				#encrypt_opts.each do |key, value|
+           		#	template << "#{key}=\"+value\"\n"\
+				#end
+
+               	template = "EC2_ACCESS=\"#{encrypt_opts[:access]}\"\n"\
+               		"EC2_SECRET=\"#{encrypt_opts[:secret]}\"\n"\
+
+                host.update(template, true)
+
+
         end
     end
 
