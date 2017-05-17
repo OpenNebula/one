@@ -37,8 +37,10 @@ EOT
 
     if ONE_LOCATION
         TABLE_CONF_PATH=ONE_LOCATION+"/etc/cli"
+        VAR_LOCATION=ONE_LOCATION+"/var" if !defined?(VAR_LOCATION)
     else
         TABLE_CONF_PATH="/etc/one/cli"
+        VAR_LOCATION="/var/lib/one" if !defined?(VAR_LOCATION)
     end
 
     EDITOR_PATH='/usr/bin/vi'
@@ -488,6 +490,47 @@ EOT
                 return 0
             end
         end
+
+
+        # receive a object key => value format
+        # returns hashed values
+        def encrypt(opts)
+
+            res = {}
+            key_one= File.read(VAR_LOCATION+'/.one/one_key')
+
+            opts.each do |key, value|
+                cipher = OpenSSL::Cipher::AES.new(256,:CBC)
+                cipher.encrypt.key = key_one
+                puts "cifrando #{key}"                
+                encrypted = cipher.update(value) + cipher.final
+                #res.merge!({key => value})
+                res[key] = Base64::encode64(encrypted) 
+                puts "encriptado es: "+encrypted
+            end
+            
+            return res
+        end
+
+        def decrypt(res)
+            opts = {}
+            key_one= File.read(VAR_LOCATION+'/.one/one_key')
+
+            res.each do |key, encrypted_value|
+                decipher = OpenSSL::Cipher::AES.new(256,:CBC)
+                decipher.decrypt
+                decipher.key = key_one
+                puts "desencriptando #{key}"
+                plain = decipher.update(Base64::decode64(encrypted_value)) + decipher.final
+                puts "una vez desencriptado es "+plain
+                opts[key] = plain
+            end
+
+            return opts
+
+        end
+
+
 
         def list_pool(options, top=false, filter_flag=nil)
             if options[:describe]
