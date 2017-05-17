@@ -100,7 +100,7 @@ define(function(require) {
     var templateTableVcenterHTML = TemplateTable.html(
                                       this.strippedTemplateVcenter,
                                       RESOURCE,
-                                      Locale.tr("Vcenter information"),false);
+                                      Locale.tr("vCenter information"),false);
     var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
     var clusterTrHTML = ClusterTr.html(this.element.CLUSTER);
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
