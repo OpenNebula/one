@@ -209,7 +209,6 @@ int LibVirtDriver::deployment_description_kvm(
     bool hyperv             = false;
     bool localtime          = false;
     bool guest_agent        = false;
-    bool virtio_scsi        = false;
     int  virtio_scsi_queues = 0;
 
     int pae_found                   = -1;
@@ -218,7 +217,6 @@ int LibVirtDriver::deployment_description_kvm(
     int hyperv_found                = -1;
     int localtime_found             = -1;
     int guest_agent_found           = -1;
-    int virtio_scsi_found           = -1;
     int virtio_scsi_queues_found    = -1;
 
     string hyperv_options = "";
@@ -1152,7 +1150,8 @@ int LibVirtDriver::deployment_description_kvm(
         hyperv_found      = features->vector_value("HYPERV", hyperv);
         localtime_found   = features->vector_value("LOCALTIME", localtime);
         guest_agent_found = features->vector_value("GUEST_AGENT", guest_agent);
-        virtio_scsi_found = features->vector_value("VIRTIO_SCSI", virtio_scsi);
+        virtio_scsi_queues_found =
+            features->vector_value("VIRTIO_SCSI_QUEUES", virtio_scsi_queues);
     }
 
     if ( pae_found != 0 )
@@ -1185,9 +1184,9 @@ int LibVirtDriver::deployment_description_kvm(
         get_default("FEATURES", "GUEST_AGENT", guest_agent);
     }
 
-    if ( virtio_scsi_found != 0 )
+    if ( virtio_scsi_queues_found != 0 )
     {
-        get_default("FEATURES", "VIRTIO_SCSI", virtio_scsi);
+        get_default("FEATURES", "VIRTIO_SCSI_QUEUES", virtio_scsi_queues);
     }
 
     if ( acpi || pae || apic || hyperv )
@@ -1236,25 +1235,13 @@ int LibVirtDriver::deployment_description_kvm(
              << "\t</devices>" << endl;
     }
 
-    if ( virtio_scsi )
+    if ( virtio_scsi_queues > 0 )
     {
-        virtio_scsi_queues_found = features->vector_value(
-                "VIRTIO_SCSI_QUEUES", virtio_scsi_queues);
-
-        if ( virtio_scsi_queues_found != 0 )
-        {
-            get_default("FEATURES", "VIRTIO_SCSI_QUEUES", virtio_scsi_queues);
-        }
-
         file << "\t<devices>" << endl
              << "\t\t<controller type='scsi' index='0' model='virtio-scsi'>"
              << endl;
 
-        if ( virtio_scsi_queues > 0 )
-        {
-            file << "\t\t\t<driver queues='" << virtio_scsi_queues << "'/>"
-                 << endl;
-        }
+        file << "\t\t\t<driver queues='" << virtio_scsi_queues << "'/>" << endl;
 
         file << "\t\t</controller>" << endl
              << "\t</devices>" << endl;
