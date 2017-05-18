@@ -44,14 +44,16 @@ static unsigned int get_zone_servers(std::map<int, std::string>& _s);
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-RaftManager::RaftManager(int id, time_t log_purge, long long bcast,
-        long long elect, time_t xmlrpc):server_id(id), term(0), num_servers(0),
-	commit(0)
+RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
+        const VectorAttribute * follower_hook_mad, time_t log_purge,
+        long long bcast, long long elect, time_t xmlrpc,
+        const string& remotes_location):server_id(id), term(0), num_servers(0),
+        commit(0),leader_hook(0),follower_hook(0)
 {
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
 
-    std::string raft_xml;
+    std::string raft_xml, cmd;
 
 	pthread_mutex_init(&mutex, 0);
 
@@ -64,6 +66,7 @@ RaftManager::RaftManager(int id, time_t log_purge, long long bcast,
     //   - votedfor
     //   - term
     // -------------------------------------------------------------------------
+
     if ( logdb->get_raft_state(raft_xml) != 0 )
     {
         raft_state.replace("TERM", 0);
@@ -102,6 +105,7 @@ RaftManager::RaftManager(int id, time_t log_purge, long long bcast,
     // -------------------------------------------------------------------------
     // Initialize Raft timers
     // -------------------------------------------------------------------------
+
     purge_period_ms   = log_purge * 1000;
     xmlrpc_timeout_ms = xmlrpc;
 
@@ -109,8 +113,64 @@ RaftManager::RaftManager(int id, time_t log_purge, long long bcast,
     set_timeout(elect, election_timeout);
 
     // 5 seconds warm-up to start election
-	clock_gettime(CLOCK_REALTIME, &last_heartbeat);
-	last_heartbeat.tv_sec += 5;
+    clock_gettime(CLOCK_REALTIME, &last_heartbeat);
+    last_heartbeat.tv_sec += 5;
+
+    // -------------------------------------------------------------------------
+    // Initialize Hooks
+    // -------------------------------------------------------------------------
+
+    if ( leader_hook_mad != 0 )
+    {
+        cmd = leader_hook_mad->vector_value("COMMAND");
+
+        if ( cmd.empty() )
+        {
+            ostringstream oss;
+
+            oss << "Empty COMMAND attribute in RAFT_LEADER_HOOK. Hook "
+                << "not registered!";
+
+            NebulaLog::log("ONE", Log::WARNING, oss);
+        }
+        else
+        {
+            if (cmd[0] != '/')
+            {
+                ostringstream cmd_os;
+                cmd_os << remotes_location << "/hooks/" << cmd;
+                cmd = cmd_os.str();
+            }
+
+            leader_hook = new RaftLeaderHook(cmd);
+        }
+    }
+
+    if ( follower_hook_mad != 0 )
+    {
+        cmd = follower_hook_mad->vector_value("COMMAND");
+
+        if ( cmd.empty() )
+        {
+            ostringstream oss;
+
+            oss << "Empty COMMAND attribute in RAFT_FOLLOWER_HOOK. Hook "
+                << "not registered!";
+
+            NebulaLog::log("ONE", Log::WARNING, oss);
+        }
+        else
+        {
+            if (cmd[0] != '/')
+            {
+                ostringstream cmd_os;
+                cmd_os << remotes_location << "/hooks/" << cmd;
+                cmd = cmd_os.str();
+            }
+
+            follower_hook = new RaftFollowerHook(cmd);
+        }
+    }
 };
 
 /* -------------------------------------------------------------------------- */
@@ -311,6 +371,8 @@ void RaftManager::leader()
 
     requests.clear();
 
+    leader_hook->do_hook(0);
+
     state = LEADER;
 
     commit   = _applied;
@@ -362,6 +424,11 @@ void RaftManager::follower(unsigned int _term)
     logdb->setup_index(lapplied, lindex);
 
     pthread_mutex_lock(&mutex);
+
+    if ( state == LEADER )
+    {
+        follower_hook->do_hook(0);
+    }
 
     replica_manager.stop_replica_threads();
 

@@ -21,6 +21,7 @@
 #include "ReplicaManager.h"
 #include "ReplicaRequest.h"
 #include "Template.h"
+#include "RaftHook.h"
 
 extern "C" void * raft_manager_loop(void *arg);
 
@@ -43,15 +44,30 @@ public:
     /**
      * Raft manager constructor
      *   @param server_id of this server
+     *   @param leader_hook_mad to be executed when follower->leader
+     *   @param follower_hook_mad to be executed when leader->follower
      *   @param log_purge period to purge logDB records
      *   @param bcast heartbeat broadcast timeout
      *   @param election timeout
      *   @param xmlrpc timeout for RAFT related xmlrpc API calls
      **/
-    RaftManager(int server_id, time_t log_purge, long long bcast,
-            long long election, time_t xmlrpc);
+    RaftManager(int server_id, const VectorAttribute * leader_hook_mad,
+        const VectorAttribute * follower_hook_mad, time_t log_purge,
+        long long bcast, long long election, time_t xmlrpc,
+        const string& remotes_location);
 
-    virtual ~RaftManager(){};
+    ~RaftManager()
+    {
+        if ( leader_hook != 0 )
+        {
+            delete(leader_hook);
+        }
+
+        if ( follower_hook != 0 )
+        {
+            delete(follower_hook);
+        }
+    };
 
     // -------------------------------------------------------------------------
     // Raft associated actions (synchronous)
@@ -364,6 +380,13 @@ private:
     std::map<int, unsigned int> match;
 
     std::map<int, std::string>  servers;
+
+    // -------------------------------------------------------------------------
+    // Hooks
+    // -------------------------------------------------------------------------
+
+    RaftLeaderHook   * leader_hook;
+    RaftFollowerHook * follower_hook;
 
     // -------------------------------------------------------------------------
     // Action Listener interface

@@ -669,10 +669,17 @@ void Nebula::start(bool bootstrap_only)
     }
 
     // ---- Raft Manager ----
+
+    const VectorAttribute * raft_leader_hook;
+    const VectorAttribute * raft_follower_hook;
+
+    raft_leader_hook   = nebula_configuration->get("RAFT_LEADER_HOOK");
+    raft_follower_hook = nebula_configuration->get("RAFT_FOLLOWER_HOOK");
+
     try
     {
-        raftm = new RaftManager(server_id, log_purge, bcast_ms, election_ms,
-                xmlrpc_ms);
+        raftm = new RaftManager(server_id, raft_leader_hook, raft_follower_hook,
+                log_purge, bcast_ms, election_ms, xmlrpc_ms, remotes_location);
     }
     catch (bad_alloc&)
     {
