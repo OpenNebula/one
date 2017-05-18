@@ -45,6 +45,8 @@ FedReplicaManager::FedReplicaManager(time_t _t, time_t _p, SqlDB * d,
 
     std::map<int, std::string> zone_servers;
 
+    int zone_id = nd.get_zone_id();
+
     am.addListener(this);
 
     if ( zpool->list_zones(zone_ids) != 0 )
@@ -52,15 +54,24 @@ FedReplicaManager::FedReplicaManager(time_t _t, time_t _p, SqlDB * d,
         return;
     }
 
-    for ( it = zone_ids.begin() ; it != zone_ids.end(); ++it)
+    for ( it = zone_ids.begin() ; it != zone_ids.end(); )
     {
-        zpool->get_zone_servers(*it, zone_servers);
+        if ( *it == zone_id )
+        {
+            it = zone_ids.erase(it);
+        }
+        else
+        {
+            zpool->get_zone_servers(*it, zone_servers);
 
-        ZoneServers * zs = new ZoneServers(*it, zone_servers);
+            ZoneServers * zs = new ZoneServers(*it, zone_servers);
 
-        zones.insert(make_pair(*it, zs));
+            zones.insert(make_pair(*it, zs));
 
-        zone_servers.clear();
+            zone_servers.clear();
+
+            ++it;
+        }
     }
 
     get_last_index(last_index);
