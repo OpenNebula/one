@@ -58,18 +58,6 @@ def handle_exception(action, ex, host, did, id = nil, file = nil)
     exit (-1)
 end
 
-def encrypt(opts)
-      if !opts[:ec2access].nil? && !opts[:ec2secret].nil?
-        puts "el accesoas es "+opts[:ec2access]
-        puts "la key es "+opts[:ec2secret]
-        cipher = OpenSSL::Cipher.new("aes-256-cbc")
-        cipher.encrypt
-        exit (-1)
-      end
-
-end
-
-
 begin
     PUBLIC_CLOUD_EC2_CONF = YAML::load(File.read(EC2_DRIVER_CONF))
 rescue Exception => e
@@ -256,7 +244,6 @@ class EC2Driver
 
         regions = PUBLIC_CLOUD_EC2_CONF['regions']
         @region = regions[host] || regions["default"]
-
         #sanitize region data
         raise "access_key_id not defined for #{host}" if @region['access_key_id'].nil?
         raise "secret_access_key not defined for #{host}" if @region['secret_access_key'].nil?
@@ -267,12 +254,25 @@ class EC2Driver
             :secret_access_key  => @region['secret_access_key'],
             :region             => @region['region_name']
         })
+        getHost(host)
 
         if (proxy_uri = PUBLIC_CLOUD_EC2_CONF['proxy_uri'])
             Aws.config(:proxy_uri => proxy_uri)
         end
 
         @ec2 = Aws::EC2::Resource.new
+    end
+
+    def getHost(host)
+
+        client   = OpenNebula::Client.new
+        pool = OpenNebula::HostPool.new(client)
+        pool.info
+        objects=pool.select {|object| object.name==host }
+        access = objects.first["TEMPLATE/EC2_ACCESS"]
+        secret = objects.first["TEMPLATE/EC2_SECRET"]
+        File.open("/home/semedi/prueba", 'w') {|f| f << "el secreto esta en #{secret}\n" }
+        File.open("/home/semedi/prueba", 'w') {|f| f << "el acceso esta en #{access}\n" }
     end
 
     # DEPLOY action, also sets ports and ip if needed
