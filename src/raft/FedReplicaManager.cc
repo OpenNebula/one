@@ -35,7 +35,7 @@ const time_t FedReplicaManager::xmlrpc_timeout_ms = 2000;
 
 FedReplicaManager::FedReplicaManager(time_t _t, time_t _p, SqlDB * d,
     const std::string& l, bool s): ReplicaManager(), timer_period(_t),
-    purge_period(_t), logdb(d), log_retention(l)
+    purge_period(_p), logdb(d), log_retention(l)
 {
     Nebula& nd       = Nebula::instance();
     ZonePool * zpool = nd.get_zonepool();
