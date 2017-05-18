@@ -123,15 +123,15 @@ void OpenNebulaTemplate::set_multiple_conf_default()
 # dev
 #*******************************************************************************
 */
-    set_conf_tm("dummy",  "NONE",   "SYSTEM", "YES", "YES");
-    set_conf_tm("lvm",    "NONE",   "SELF",   "YES", "NO");
-    set_conf_tm("shared", "NONE",   "SYSTEM", "YES", "YES");
-    set_conf_tm("fs_lvm", "SYSTEM", "SYSTEM", "YES", "NO");
-    set_conf_tm("qcow2",  "NONE",   "SYSTEM", "YES", "NO");
-    set_conf_tm("ssh",    "SYSTEM", "SYSTEM", "NO",  "YES");
-    set_conf_tm("vmfs",   "NONE",   "SYSTEM", "YES", "NO");
-    set_conf_tm("ceph",   "NONE",   "SELF",   "YES", "NO");
-    set_conf_tm("dev",    "NONE",   "NONE",   "YES", "NO");
+    set_conf_tm("dummy",  "NONE",   "SYSTEM", "YES", "YES", "");
+    set_conf_tm("lvm",    "NONE",   "SELF",   "YES", "NO",  "");
+    set_conf_tm("shared", "NONE",   "SYSTEM", "YES", "YES", "");
+    set_conf_tm("fs_lvm", "SYSTEM", "SYSTEM", "YES", "NO",  "raw");
+    set_conf_tm("qcow2",  "NONE",   "SYSTEM", "YES", "NO",  "");
+    set_conf_tm("ssh",    "SYSTEM", "SYSTEM", "NO",  "YES", "");
+    set_conf_tm("vmfs",   "NONE",   "SYSTEM", "YES", "NO",  "");
+    set_conf_tm("ceph",   "NONE",   "SELF",   "YES", "NO",  "raw");
+    set_conf_tm("dev",    "NONE",   "NONE",   "YES", "NO",  "");
 
     register_multiple_conf_default("TM_MAD_CONF");
 /*
@@ -301,7 +301,8 @@ void OpenNebulaTemplate::set_conf_tm(const std::string& name,
                                      const std::string& ln_target,
                                      const std::string& clone_target,
                                      const std::string& shared,
-                                     const std::string& ds_migrate)
+                                     const std::string& ds_migrate,
+                                     const std::string& driver)
 {
     VectorAttribute *   vattribute;
     std::map<std::string,std::string>  vvalue;
@@ -311,6 +312,7 @@ void OpenNebulaTemplate::set_conf_tm(const std::string& name,
     vvalue.insert(make_pair("CLONE_TARGET", clone_target));
     vvalue.insert(make_pair("SHARED", shared));
     vvalue.insert(make_pair("DS_MIGRATE", ds_migrate));
+    vvalue.insert(make_pair("DRIVER", driver));
 
     vattribute = new VectorAttribute("TM_MAD_CONF", vvalue);
     conf_default.insert(make_pair(vattribute->name(), vattribute));

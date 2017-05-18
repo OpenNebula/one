@@ -342,6 +342,13 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
 
         replace_template_attribute("CLONE_TARGET", st);
 
+        st = vatt->vector_value("DRIVER");
+
+        if (!st.empty())
+        {
+            replace_template_attribute("DRIVER", st);
+        }
+
         remove_template_attribute("SHARED");
     }
 
