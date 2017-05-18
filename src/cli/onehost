@@ -143,10 +143,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                               options[:im],
                               options[:vm],
                               cid)
-				#template=""
-				#encrypt_opts.each do |key, value|
-           		#	template << "#{key}=\"+value\"\n"\
-				#end
 
                	template = "EC2_ACCESS=\"#{encrypt_opts[:access]}\"\n"\
                		"EC2_SECRET=\"#{encrypt_opts[:secret]}\"\n"\
