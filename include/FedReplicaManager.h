@@ -37,8 +37,10 @@ public:
      *  @param _p purge timeout for log
      *  @param d pointer to underlying DB (LogDB)
      *  @param l log_retention length (num records)
+     *  @param s true if operating in solo mode
      */
-    FedReplicaManager(time_t _t, time_t _p, SqlDB * d, long l);
+    FedReplicaManager(time_t _t, time_t _p, SqlDB * d, const std::string& l,
+            bool s);
 
     virtual ~FedReplicaManager();
 
@@ -85,6 +87,16 @@ public:
      *    @param zone_id of the zone
      */
     void delete_zone(int zone_id);
+
+    /**
+     *  Bootstrap federated log
+     */
+    static int bootstrap(SqlDB *_db);
+
+    pthread_t get_thread_id() const
+    {
+        return frm_thread;
+    };
 
 private:
     friend void * frm_loop(void *arg);
@@ -143,7 +155,7 @@ private:
 
     SqlDB * logdb;
 
-    long log_retention;
+    std::string log_retention;
 
     // -------------------------------------------------------------------------
     // Action Listener interface

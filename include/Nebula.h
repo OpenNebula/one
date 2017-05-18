@@ -52,6 +52,7 @@
 #include "MarketPlaceManager.h"
 #include "IPAMManager.h"
 #include "RaftManager.h"
+#include "FedReplicaManager.h"
 
 #include "DefaultQuotas.h"
 
@@ -230,6 +231,12 @@ public:
     {
         return raftm;
     };
+
+    FedReplicaManager * get_frm()
+    {
+        return frm;
+    };
+
     // --------------------------------------------------------------
     // Environment & Configuration
     // --------------------------------------------------------------
@@ -679,7 +686,7 @@ private:
         dspool(0), clpool(0), docpool(0), zonepool(0), secgrouppool(0),
         vdcpool(0), vrouterpool(0), marketpool(0), apppool(0), vmgrouppool(0),
         lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0), authm(0), aclm(0),
-        imagem(0), marketm(0), ipamm(0), raftm(0)
+        imagem(0), marketm(0), ipamm(0), raftm(0), frm(0)
     {
         const char * nl = getenv("ONE_LOCATION");
 
@@ -744,6 +751,7 @@ private:
         delete marketm;
         delete ipamm;
         delete raftm;
+        delete frm;
         delete nebula_configuration;
         delete logdb;
         delete system_db;
@@ -836,6 +844,7 @@ private:
     MarketPlaceManager *    marketm;
     IPAMManager *           ipamm;
     RaftManager *           raftm;
+    FedReplicaManager *     frm;
 
     // ---------------------------------------------------------------
     // Implementation functions

@@ -33,9 +33,9 @@ const time_t FedReplicaManager::xmlrpc_timeout_ms = 2000;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-FedReplicaManager::FedReplicaManager(time_t _t, time_t _p, SqlDB * d, long l):
-    ReplicaManager(), timer_period(_t), purge_period(_t), logdb(d),
-    log_retention(l)
+FedReplicaManager::FedReplicaManager(time_t _t, time_t _p, SqlDB * d,
+    const std::string& l, bool s): ReplicaManager(), timer_period(_t),
+    purge_period(_t), logdb(d), log_retention(l)
 {
     Nebula& nd       = Nebula::instance();
     ZonePool * zpool = nd.get_zonepool();
@@ -65,7 +65,10 @@ FedReplicaManager::FedReplicaManager(time_t _t, time_t _p, SqlDB * d, long l):
 
     get_last_index(last_index);
 
-    start_replica_threads(zone_ids);
+    if ( nd.is_federation_master() && s )
+    {
+        start_replica_threads(zone_ids);
+    }
 
     pthread_mutex_init(&mutex, 0);
 };
@@ -74,6 +77,8 @@ FedReplicaManager::FedReplicaManager(time_t _t, time_t _p, SqlDB * d, long l):
 
 FedReplicaManager::~FedReplicaManager()
 {
+    Nebula& nd = Nebula::instance();
+
     std::map<int, ZoneServers *>::iterator it;
 
     for ( it = zones.begin() ; it != zones.end() ; ++it )
@@ -82,6 +87,11 @@ FedReplicaManager::~FedReplicaManager()
     }
 
     zones.clear();
+
+    if ( nd.is_federation_master() )
+    {
+        stop_replica_threads();
+    }
 };
 
 /* -------------------------------------------------------------------------- */
@@ -179,6 +189,13 @@ int FedReplicaManager::start()
     rc = pthread_create(&frm_thread, &pattr, frm_loop,(void *) this);
 
     return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+
+void FedReplicaManager::finalize_action(const ActionRequest& ar)
+{
+    NebulaLog::log("RCM", Log::INFO, "Raft Consensus Manager...");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -333,6 +350,15 @@ int FedReplicaManager::get_last_index(unsigned int& index)
     cb.unset_callback();
 
     return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+
+int FedReplicaManager::bootstrap(SqlDB *_db)
+{
+    std::ostringstream oss(db_bootstrap);
+
+    return _db->exec_local_wr(oss);
 }
 
 /* -------------------------------------------------------------------------- */

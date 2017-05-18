@@ -366,6 +366,7 @@ void Nebula::start(bool bootstrap_only)
             rc += SecurityGroupPool::bootstrap(logdb);
             rc += VirtualRouterPool::bootstrap(logdb);
             rc += VMGroupPool::bootstrap(logdb);
+            rc += FedReplicaManager::bootstrap(logdb);
 
             // Create the system tables only if bootstrap went well
             if (rc == 0)
@@ -691,6 +692,24 @@ void Nebula::start(bool bootstrap_only)
     if ( rc != 0 )
     {
        throw runtime_error("Could not start the Raft Consensus Manager");
+    }
+
+    // ---- FedReplica Manager ----
+    try
+    {
+        frm = new FedReplicaManager(timer_period, log_purge, logdb,
+                log_retention, solo);
+    }
+    catch (bad_alloc&)
+    {
+        throw;
+    }
+
+    rc = frm->start();
+
+    if ( rc != 0 )
+    {
+       throw runtime_error("Could not start the Federation Replica Manager");
     }
 
     // ---- Virtual Machine Manager ----
@@ -1076,6 +1095,7 @@ void Nebula::start(bool bootstrap_only)
 	ipamm->finalize();
     aclm->finalize();
     raftm->finalize();
+    frm->finalize();
 
     //sleep to wait drivers???
 
@@ -1091,6 +1111,7 @@ void Nebula::start(bool bootstrap_only)
     pthread_join(marketm->get_thread_id(),0);
     pthread_join(ipamm->get_thread_id(),0);
     pthread_join(raftm->get_thread_id(),0);
+    pthread_join(frm->get_thread_id(),0);
 
     if(is_federation_slave())
     {
