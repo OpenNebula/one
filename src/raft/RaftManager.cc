@@ -867,6 +867,8 @@ void RaftManager::request_vote()
 
     bool success;
 
+    unsigned int _num_servers = get_zone_servers(_servers);
+
     do
     {
         /* ------------------------------------------------------------------ */
@@ -880,7 +882,8 @@ void RaftManager::request_vote()
             break;
         }
 
-        _servers = servers;
+        servers     = _servers;
+        num_servers = _num_servers;
 
         term     = term + 1;
         votedfor = server_id;
