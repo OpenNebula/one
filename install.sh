@@ -1238,12 +1238,12 @@ WEBSOCKIFY_SHARE_FILES="share/websockify/websocketproxy.py \
                         share/websockify/websockify"
 
 #-------------------------------------------------------------------------------
-# HOOK scripts, to be installed under $VAR_LOCATION/remotes/hooks
+# HOOK scripts, to be installed under $VAR_LOCATION/remotes/hooks/ft
 #-------------------------------------------------------------------------------
 
-HOOK_FT_FILES="share/hooks/host_error.rb \
-               share/hooks/fence_host.sh \
-               share/hooks/delete_poweroff_vms.rb"
+HOOK_FT_FILES="share/hooks/ft/host_error.rb \
+               share/hooks/ft/fence_host.sh \
+               share/hooks/ft/delete_poweroff_vms.rb"
 
 #-------------------------------------------------------------------------------
 # Installation scripts, to be installed under $SHARE_LOCATION
