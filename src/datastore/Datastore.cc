@@ -147,6 +147,13 @@ void Datastore::disk_attribute(
     {
         disk->replace("DISK_TYPE", Image::disk_type_to_str(get_disk_type()));
     }
+
+    get_template_attribute("DRIVER", st);
+
+    if(!st.empty())
+    {
+        disk->replace("DRIVER", st);
+    }
 }
 
 /* ************************************************************************ */
