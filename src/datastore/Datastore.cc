@@ -107,6 +107,7 @@ void Datastore::disk_attribute(
     string st;
     string inherit_val;
     string current_val;
+    string type;
 
     vector<string>::const_iterator it;
 
@@ -148,11 +149,16 @@ void Datastore::disk_attribute(
         disk->replace("DISK_TYPE", Image::disk_type_to_str(get_disk_type()));
     }
 
-    get_template_attribute("DRIVER", st);
+    type = disk->vector_value("TYPE");
 
-    if(!st.empty())
+    if (type != "CDROM")
     {
-        disk->replace("DRIVER", st);
+        get_template_attribute("DRIVER", st);
+
+        if(!st.empty())
+        {
+            disk->replace("DRIVER", st);
+        }
     }
 }
 
