@@ -254,7 +254,7 @@ class EC2Driver
             :secret_access_key  => @region['secret_access_key'],
             :region             => @region['region_name']
         })
-        getHost(host)
+        get_connect_info(host)
 
         if (proxy_uri = PUBLIC_CLOUD_EC2_CONF['proxy_uri'])
             Aws.config(:proxy_uri => proxy_uri)
@@ -263,16 +263,24 @@ class EC2Driver
         @ec2 = Aws::EC2::Resource.new
     end
 
-    def getHost(host)
+    def get_connect_info(host)
+
+        conn_opts={}
 
         client   = OpenNebula::Client.new
         pool = OpenNebula::HostPool.new(client)
         pool.info
         objects=pool.select {|object| object.name==host }
-        access = objects.first["TEMPLATE/EC2_ACCESS"]
-        secret = objects.first["TEMPLATE/EC2_SECRET"]
-        File.open("/home/semedi/prueba", 'w') {|f| f << "el secreto esta en #{secret}\n" }
-        File.open("/home/semedi/prueba", 'w') {|f| f << "el acceso esta en #{access}\n" }
+        xmlhost = objects.first
+
+        access = xmlhost["TEMPLATE/EC2_ACCESS"]
+        secret = xmlhost["TEMPLATE/EC2_SECRET"]
+
+
+        File.open("/home/semedi/prueba_secret", 'w') {|f| f << "el secreto esta en #{secret}\n" }
+        File.open("/home/semedi/prueba_acces", 'w') {|f| f << "el acceso esta en #{access}\n" }
+
+        
     end
 
     # DEPLOY action, also sets ports and ip if needed
