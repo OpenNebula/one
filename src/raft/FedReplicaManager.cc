@@ -38,42 +38,11 @@ FedReplicaManager::FedReplicaManager(time_t _t, time_t _p, SqlDB * d,
     const std::string& l, bool s): ReplicaManager(), timer_period(_t),
     purge_period(_p), logdb(d), log_retention(l)
 {
-    Nebula& nd       = Nebula::instance();
-    ZonePool * zpool = nd.get_zonepool();
+    Nebula& nd = Nebula::instance();
 
-    std::vector<int> zone_ids;
-    vector<int>::iterator it;
-
-    std::map<int, std::string> zone_servers;
-
-    int zone_id = nd.get_zone_id();
+    pthread_mutex_init(&mutex, 0);
 
     am.addListener(this);
-
-    if ( zpool->list_zones(zone_ids) != 0 )
-    {
-        return;
-    }
-
-    for ( it = zone_ids.begin() ; it != zone_ids.end(); )
-    {
-        if ( *it == zone_id )
-        {
-            it = zone_ids.erase(it);
-        }
-        else
-        {
-            zpool->get_zone_servers(*it, zone_servers);
-
-            ZoneServers * zs = new ZoneServers(*it, zone_servers);
-
-            zones.insert(make_pair(*it, zs));
-
-            zone_servers.clear();
-
-            ++it;
-        }
-    }
 
     get_last_index(last_index);
 
@@ -81,10 +50,8 @@ FedReplicaManager::FedReplicaManager(time_t _t, time_t _p, SqlDB * d,
     // HA start/stop the replica threads on leader/follower states will
     if ( nd.is_federation_master() && s )
     {
-        start_replica_threads(zone_ids);
+        start_replica_threads();
     }
-
-    pthread_mutex_init(&mutex, 0);
 };
 
 /* -------------------------------------------------------------------------- */
@@ -209,7 +176,53 @@ int FedReplicaManager::start()
 
 void FedReplicaManager::finalize_action(const ActionRequest& ar)
 {
-    NebulaLog::log("FRM", Log::INFO, "Raft Consensus Manager...");
+    NebulaLog::log("FRM", Log::INFO, "Federation Replica Manager...");
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void FedReplicaManager::update_zones(std::vector<int>& zone_ids)
+{
+    Nebula& nd       = Nebula::instance();
+    ZonePool * zpool = nd.get_zonepool();
+
+    vector<int>::iterator it;
+
+    std::map<int, std::string> zone_servers;
+
+    int zone_id = nd.get_zone_id();
+
+    if ( zpool->list_zones(zone_ids) != 0 )
+    {
+        return;
+    }
+
+    pthread_mutex_lock(&mutex);
+
+    zones.clear();
+
+    for (it = zone_ids.begin() ; it != zone_ids.end(); )
+    {
+        if ( *it == zone_id )
+        {
+            it = zone_ids.erase(it);
+        }
+        else
+        {
+            zpool->get_zone_servers(*it, zone_servers);
+
+            ZoneServers * zs = new ZoneServers(*it, zone_servers);
+
+            zones.insert(make_pair(*it, zs));
+
+            zone_servers.clear();
+
+            ++it;
+        }
+    }
+
+    pthread_mutex_unlock(&mutex);
 }
 
 /* -------------------------------------------------------------------------- */

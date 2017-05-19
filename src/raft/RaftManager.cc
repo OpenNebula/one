@@ -17,6 +17,7 @@
 #include "Nebula.h"
 
 #include "RaftManager.h"
+#include "FedReplicaManager.h"
 #include "ZoneServer.h"
 #include "Client.h"
 
@@ -336,6 +337,8 @@ void RaftManager::leader()
     LogDB * logdb     = nd.get_logdb();
     AclManager * aclm = nd.get_aclm();
 
+    FedReplicaManager * frm = nd.get_frm();
+
     std::map<int, std::string>::iterator it;
     std::vector<int> _follower_ids;
 
@@ -404,6 +407,11 @@ void RaftManager::leader()
 
     aclm->reload_rules();
 
+    if ( nd.is_federation_master() )
+    {
+        frm->start_replica_threads();
+    }
+
     logdb->insert_raft_state(raft_state_xml);
 
     NebulaLog::log("RCM", Log::INFO, "oned is now the leader of zone");
@@ -418,6 +426,8 @@ void RaftManager::follower(unsigned int _term)
 
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
+
+    FedReplicaManager * frm = nd.get_frm();
 
     std::string raft_state_xml;
 
@@ -465,6 +475,11 @@ void RaftManager::follower(unsigned int _term)
     requests.clear();
 
     pthread_mutex_unlock(&mutex);
+
+    if ( nd.is_federation_master() )
+    {
+        frm->stop_replica_threads();
+    }
 
     logdb->insert_raft_state(raft_state_xml);
 }

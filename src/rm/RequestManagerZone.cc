@@ -67,7 +67,10 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
 
     zone->unlock();
 
+    std::vector<int> zids;
+
 	Nebula::instance().get_raftm()->add_server(zs_id);
+	Nebula::instance().get_frm()->update_zones(zids);
 
     success_response(id, att);
 }
@@ -110,7 +113,10 @@ void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
 
     zone->unlock();
 
+    std::vector<int> zids;
+
 	Nebula::instance().get_raftm()->delete_server(zs_id);
+	Nebula::instance().get_frm()->update_zones(zids);
 
     success_response(id, att);
 }

@@ -100,6 +100,26 @@ public:
     int start();
 
     /**
+     *  Start the replication threads, and updates the server list of the zone
+     */
+    void start_replica_threads()
+    {
+        std::vector<int> zids;
+
+        update_zones(zids);
+
+        ReplicaManager::start_replica_threads(zids);
+    }
+
+    /**
+     *  Updates the list of zones and servers in the zone. This function is
+     *  invoked when a server becomes leader, or whenever a server is +
+     *  added/removed to the zone
+     *    @param zids ids of zones
+     */
+    void update_zones(std::vector<int>& zids);
+
+    /**
      *  Adds a new zone to the replication list and starts the associated
      *  replica thread
      *    @param zone_id of the new zone
@@ -184,6 +204,7 @@ private:
     SqlDB * logdb;
 
     std::string log_retention;
+
 
     // -------------------------------------------------------------------------
     // Action Listener interface
