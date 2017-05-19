@@ -504,33 +504,12 @@ EOT
                 cipher.encrypt.key = key_one
                 puts "cifrando #{key}"                
                 encrypted = cipher.update(value) + cipher.final
-                #res.merge!({key => value})
                 res[key] = Base64::encode64(encrypted) 
                 puts "encriptado es: "+encrypted
             end
             
             return res
         end
-
-        def decrypt(res)
-            opts = {}
-            key_one= File.read(VAR_LOCATION+'/.one/one_key')
-
-            res.each do |key, encrypted_value|
-                decipher = OpenSSL::Cipher::AES.new(256,:CBC)
-                decipher.decrypt
-                decipher.key = key_one
-                puts "desencriptando #{key}"
-                plain = decipher.update(Base64::decode64(encrypted_value)) + decipher.final
-                puts "una vez desencriptado es "+plain
-                opts[key] = plain
-            end
-
-            return opts
-
-        end
-
-
 
         def list_pool(options, top=false, filter_flag=nil)
             if options[:describe]

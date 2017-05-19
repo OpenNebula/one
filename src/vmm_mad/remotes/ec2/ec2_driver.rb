@@ -20,9 +20,11 @@ ONE_LOCATION = ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
 if !ONE_LOCATION
     RUBY_LIB_LOCATION = "/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
     ETC_LOCATION      = "/etc/one/" if !defined?(ETC_LOCATION)
+    VAR_LOCATION      = "/var/lib/one/" if !defined?(VAR_LOCATION)
 else
     RUBY_LIB_LOCATION = ONE_LOCATION + "/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
     ETC_LOCATION      = ONE_LOCATION + "/etc/" if !defined?(ETC_LOCATION)
+    VAR_LOCATION      = ONE_LOCATION + "/var/" if !defined?(VAR_LOCATION)
 end
 
 EC2_DRIVER_CONF = "#{ETC_LOCATION}/ec2_driver.conf"
@@ -242,8 +244,13 @@ class EC2Driver
 
         @instance_types = PUBLIC_CLOUD_EC2_CONF['instance_types']
 
+        conn_opts = get_connect_info(host)
         regions = PUBLIC_CLOUD_EC2_CONF['regions']
+        regions["default"]["access_key_id"] = conn_opts[:access]
+        regions["default"]["secret_access_key"] = conn_opts[:secret]
+        
         @region = regions[host] || regions["default"]
+        
         #sanitize region data
         raise "access_key_id not defined for #{host}" if @region['access_key_id'].nil?
         raise "secret_access_key not defined for #{host}" if @region['secret_access_key'].nil?
@@ -254,13 +261,27 @@ class EC2Driver
             :secret_access_key  => @region['secret_access_key'],
             :region             => @region['region_name']
         })
-        get_connect_info(host)
 
         if (proxy_uri = PUBLIC_CLOUD_EC2_CONF['proxy_uri'])
             Aws.config(:proxy_uri => proxy_uri)
         end
 
         @ec2 = Aws::EC2::Resource.new
+    end
+    def decrypt(res)
+        opts = {}
+        key_one= File.read(VAR_LOCATION+'/.one/one_key')
+
+
+        res.each do |key, encrypted_value|
+            decipher = OpenSSL::Cipher::AES.new(256,:CBC)
+            decipher.decrypt
+            decipher.key = key_one
+            plain = decipher.update(Base64::decode64(encrypted_value)) + decipher.final
+            opts[key] = plain
+        end
+        return opts
+
     end
 
     def get_connect_info(host)
@@ -273,14 +294,17 @@ class EC2Driver
         objects=pool.select {|object| object.name==host }
         xmlhost = objects.first
 
-        access = xmlhost["TEMPLATE/EC2_ACCESS"]
-        secret = xmlhost["TEMPLATE/EC2_SECRET"]
-
-
-        File.open("/home/semedi/prueba_secret", 'w') {|f| f << "el secreto esta en #{secret}\n" }
-        File.open("/home/semedi/prueba_acces", 'w') {|f| f << "el acceso esta en #{access}\n" }
-
+        conn_opts = {
+            :access => xmlhost["TEMPLATE/EC2_ACCESS"],
+            :secret => xmlhost["TEMPLATE/EC2_SECRET"]
+        }
+        begin 
+            conn_opts = decrypt(conn_opts)
+        rescue
+            raise "HOST: #{host} must have ec2 credentials in order to work properly"
+        end
         
+        return conn_opts
     end
 
     # DEPLOY action, also sets ports and ip if needed
