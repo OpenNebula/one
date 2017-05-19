@@ -137,4 +137,23 @@ public:
                          RequestAttributes& att);
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class ZoneReplicateFedLog : public RequestManagerZone
+{
+public:
+    ZoneReplicateFedLog():
+        RequestManagerZone("one.zone.fedreplicate", "Replicate a fed log record",
+                "A:sis")
+    {
+        log_method_call = false;
+    };
+
+    ~ZoneReplicateFedLog(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+};
+
 #endif

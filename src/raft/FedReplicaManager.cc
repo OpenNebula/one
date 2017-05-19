@@ -17,6 +17,7 @@
 #include "FedReplicaManager.h"
 #include "ReplicaThread.h"
 #include "Nebula.h"
+#include "Client.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -76,6 +77,8 @@ FedReplicaManager::FedReplicaManager(time_t _t, time_t _p, SqlDB * d,
 
     get_last_index(last_index);
 
+    // Replica threads are started on master in solo mode.
+    // HA start/stop the replica threads on leader/follower states will
     if ( nd.is_federation_master() && s )
     {
         start_replica_threads(zone_ids);
@@ -155,11 +158,11 @@ int FedReplicaManager::apply_log_record(int index, const std::string& sql)
 
     std::ostringstream oss(sql);
 
-    rc = logdb->exec_wr(oss);
+    logdb->exec_wr(oss);
 
     pthread_mutex_unlock(&mutex);
 
-    return rc;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -206,7 +209,7 @@ int FedReplicaManager::start()
 
 void FedReplicaManager::finalize_action(const ActionRequest& ar)
 {
-    NebulaLog::log("RCM", Log::INFO, "Raft Consensus Manager...");
+    NebulaLog::log("FRM", Log::INFO, "Raft Consensus Manager...");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -307,6 +310,31 @@ void FedReplicaManager::timer_action(const ActionRequest& ar)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int FedReplicaManager::get_next_record(int zone_id, int& index, std::string& sql,
+        std::map<int, std::string>& zservers)
+{
+    pthread_mutex_lock(&mutex);
+
+    std::map<int, ZoneServers *>::iterator it = zones.find(zone_id);
+
+    if ( it == zones.end() )
+    {
+        pthread_mutex_unlock(&mutex);
+        return -1;
+    }
+
+    index    = it->second->next;
+    zservers = it->second->servers;
+
+    int rc   = get_log_record(index, sql);
+
+    pthread_mutex_unlock(&mutex);
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+
 int FedReplicaManager::get_log_record(int index, std::string& sql)
 {
     ostringstream oss;
@@ -375,3 +403,130 @@ int FedReplicaManager::bootstrap(SqlDB *_db)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void FedReplicaManager::replicate_success(int zone_id)
+{
+    pthread_mutex_lock(&mutex);
+
+    std::map<int, ZoneServers *>::iterator it = zones.find(zone_id);
+
+    if ( it == zones.end() )
+    {
+        pthread_mutex_unlock(&mutex);
+        return;
+    }
+
+    ZoneServers * zs = it->second;
+
+    zs->next++;
+
+    if ( last_index >= zs->next )
+    {
+        ReplicaManager::replicate(zone_id);
+    }
+
+    pthread_mutex_unlock(&mutex);
+}
+
+/* -------------------------------------------------------------------------- */
+
+void FedReplicaManager::replicate_failure(int zone_id, int last_zone)
+{
+    pthread_mutex_lock(&mutex);
+
+    std::map<int, ZoneServers *>::iterator it = zones.find(zone_id);
+
+    if ( it != zones.end() )
+    {
+        ZoneServers * zs = it->second;
+
+        if ( last_zone >= 0 )
+        {
+            zs->next = last_zone + 1;
+        }
+    }
+
+    ReplicaManager::replicate(zone_id);
+
+    pthread_mutex_unlock(&mutex);
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
+        int& last, std::string& error)
+{
+    static const std::string replica_method = "one.zone.fedreplicate";
+
+    int index;
+    std::string sql, secret;
+
+    std::map<int, std::string> zservers;
+    std::map<int, std::string>::iterator it;
+
+	int xml_rc = 0;
+
+    if ( get_next_record(zone_id, index, sql, zservers) != 0 )
+    {
+        error = "Failed to load federation log record";
+        return -1;
+    }
+
+    // -------------------------------------------------------------------------
+    // Get parameters to call append entries on follower
+    // -------------------------------------------------------------------------
+    if ( Client::read_oneauth(secret, error) == -1 )
+    {
+        return -1;
+    }
+
+    xmlrpc_c::value result;
+    xmlrpc_c::paramList replica_params;
+
+    replica_params.add(xmlrpc_c::value_string(secret));
+    replica_params.add(xmlrpc_c::value_int(index));
+    replica_params.add(xmlrpc_c::value_string(sql));
+
+    // -------------------------------------------------------------------------
+    // Do the XML-RPC call
+    // -------------------------------------------------------------------------
+    for (it=zservers.begin(); it != zservers.end(); ++it)
+    {
+        xml_rc = Client::client()->call(it->second, replica_method,
+            replica_params, xmlrpc_timeout_ms, &result, error);
+
+        if ( xml_rc == 0 )
+        {
+            vector<xmlrpc_c::value> values;
+
+            values  = xmlrpc_c::value_array(result).vectorValueValue();
+            success = xmlrpc_c::value_boolean(values[0]);
+
+            if ( success ) //values[2] = error code (string)
+            {
+                last = xmlrpc_c::value_int(values[1]);
+            }
+            else
+            {
+                error = xmlrpc_c::value_string(values[1]);
+                last  = xmlrpc_c::value_int(values[3]);
+            }
+
+            break;
+        }
+        else
+        {
+            std::ostringstream ess;
+
+            ess << "Error replicating log entry " << index << " on zone server "
+                << it->second << ": " << error;
+
+            NebulaLog::log("FRM", Log::ERROR, error);
+
+            error = ess.str();
+        }
+    }
+
+    return xml_rc;
+}

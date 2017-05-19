@@ -62,6 +62,31 @@ public:
     int apply_log_record(int index, const std::string& sql);
 
     /**
+     *  Record was successfully replicated on zone, increase next index and
+     *  send any pending records.
+     *    @param zone_id
+     */
+    void replicate_success(int zone_id);
+
+    /**
+     *  Record could not be replicated on zone, decrease next index and
+     *  send any pending records.
+     *    @param zone_id
+     */
+    void replicate_failure(int zone_id, int zone_last);
+
+    /**
+     *  XML-RPC API call to replicate a log entry on slaves
+     *     @param zone_id
+     *     @param success status of API call
+     *     @param last index replicate in zone slave
+     *     @param error description if any
+     *     @return 0 on success -1 if a xml-rpc/network error occurred
+     */
+    int xmlrpc_replicate_log(int zone_id, bool& success, int& last,
+            std::string& err);
+
+    /**
      *  Finalizes the Federation Replica Manager
      */
     void finalize()
@@ -93,6 +118,9 @@ public:
      */
     static int bootstrap(SqlDB *_db);
 
+    /**
+     *  @return the id of fed. replica thread
+     */
     pthread_t get_thread_id() const
     {
         return frm_thread;
@@ -132,7 +160,7 @@ private:
     // Synchronization variables
     //   - last_index in the replication log
     //   - zones list of zones in the federation with:
-    //     - list of servers
+    //     - list of servers <id, xmlrpc endpoint>
     //     - next index to send to this zone
     // -------------------------------------------------------------------------
     struct ZoneServers
@@ -190,7 +218,6 @@ private:
      */
     int get_log_record(int index, std::string& sql);
 
-
     /**
      *  Inserts a new record in the log ans updates the last_index variable
      *  (memory and db)
@@ -206,6 +233,16 @@ private:
      *    @return 0 on success
      */
     int get_last_index(unsigned int& index);
+
+    /**
+     *  Get the nest record to replicate in a zone
+     *    @param zone_id of the zone
+     *    @param index of the next record to send
+     *    @param sql command to replicate
+     *    @return 0 on success, -1 otherwise
+     */
+    int get_next_record(int zone_id, int& index, std::string& sql,
+        std::map<int, std::string>& zservers);
 };
 
 #endif /*FED_REPLICA_MANAGER_H_*/

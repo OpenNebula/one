@@ -574,7 +574,10 @@ void RaftManager::replicate_failure(int follower_id)
 
     if ( next_it != next.end() )
     {
-        next_it->second = next_it->second - 1;
+        if ( next_it->second > 0 )
+        {
+            next_it->second = next_it->second - 1;
+        }
     }
 
     replica_manager.replicate(follower_id);

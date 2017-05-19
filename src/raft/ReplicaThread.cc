@@ -210,44 +210,39 @@ int RaftReplicaThread::replicate()
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
-/*
-void FederationReplicaThread::replicate()
+FedReplicaThread::FedReplicaThread(int zone_id):ReplicaThread(zone_id)
+{
+    Nebula& nd = Nebula::instance();
+
+    frm = nd.get_frm();
+};
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+
+int FedReplicaThread::replicate()
 {
     std::string error;
 
-    LogDBRecord lr;
-
     bool success = false;
 
-    unsigned int follower_term = -1;
+    int last;
 
-    int next_index = raftm->get_next_index(follower_id);
-
-    if ( fedlogdb->get_log_record(next_index, lr) != 0 )
+    if ( frm->xmlrpc_replicate_log(follower_id, success, last, error) != 0 )
     {
-        ostringstream ess;
-
-        ess << "Failed to load log record at index: " << next_index;
-
-        NebulaLog::log("RCM", Log::ERROR, ess);
-
-        return;
-    }
-
-    if ( fedm->xmlrpc_replicate_log(follower_id, &lr, success, error) != 0 )
-    {
+        NebulaLog::log("FRM", Log::ERROR, error);
         return -1;
     }
 
     if ( success )
     {
-        fedm->replicate_success(follower_id);
+        frm->replicate_success(follower_id);
     }
     else
     {
-        fedm->replicate_failure(follower_id);
+        frm->replicate_failure(follower_id, last);
     }
 
     return 0;
 }
-*/
+

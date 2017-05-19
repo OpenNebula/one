@@ -344,3 +344,69 @@ void ZoneRaftStatus::request_execute(xmlrpc_c::paramList const& paramList,
     success_response(raft_xml, att);
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
+    RequestAttributes& att)
+{
+    std::ostringstream oss;
+
+    Nebula& nd = Nebula::instance();
+
+    FedReplicaManager * frm = nd.get_frm();
+
+    int index  = xmlrpc_c::value_int(paramList.getInt(1));
+    string sql = xmlrpc_c::value_string(paramList.getString(2));
+
+    if ( att.uid != 0 )
+    {
+        att.resp_id  = -1;
+
+        failure_response(AUTHORIZATION, att);
+        return;
+    }
+
+    if ( !nd.is_federation_slave() )
+    {
+        oss << "Cannot replicate federate log records on federation master";
+
+        NebulaLog::log("ReM", Log::INFO, oss);
+
+        att.resp_msg = oss.str();
+        att.resp_id  = - 1;
+
+        failure_response(ACTION, att);
+    }
+
+    int rc = frm->apply_log_record(index, sql);
+
+    if ( rc == 0 )
+    {
+        success_response(index, att);
+    }
+    else if ( rc < 0 )
+    {
+        oss << "Error replicating log entry " << index << "in zone";
+
+        NebulaLog::log("ReM", Log::INFO, oss);
+
+        att.resp_msg = oss.str();
+        att.resp_id  = index - 1;
+
+        failure_response(ACTION, att);
+    }
+    else // rc == last_index in log
+    {
+        oss << "Zone log is outdated last log index is " << rc;
+
+        NebulaLog::log("ReM", Log::INFO, oss);
+
+        att.resp_msg = oss.str();
+        att.resp_id  = rc;
+
+        failure_response(ACTION, att);
+    }
+
+    return;
+}

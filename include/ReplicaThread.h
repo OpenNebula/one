@@ -130,10 +130,16 @@ private:
     RaftManager * raftm;
 };
 
+// -----------------------------------------------------------------------------
+// Federation replica thread. It replicates SQL commands on zone slaves for
+// federated pools
+// -----------------------------------------------------------------------------
+class FedReplicaManager;
+
 class FedReplicaThread : public ReplicaThread
 {
 public:
-    FedReplicaThread(int zone_id):ReplicaThread(zone_id){};
+    FedReplicaThread(int zone_id);
 
     virtual ~FedReplicaThread(){};
 
@@ -141,11 +147,12 @@ private:
     /**
      * Specific logic for the replicate process
      */
-    int replicate()
-    {
-        //TODO
-        return 0;
-    };
+    int replicate();
+
+    /**
+     * Pointers to other components
+     */
+    FedReplicaManager * frm;
 };
 
 #endif
