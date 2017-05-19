@@ -77,7 +77,7 @@ MD5="${XPATH_ELEMENTS[i++]}"
 SHA1="${XPATH_ELEMENTS[i++]}"
 NO_DECOMPRESS="${XPATH_ELEMENTS[i++]}"
 LIMIT_TRANSFER_BW="${XPATH_ELEMENTS[i++]}"
-CONVERT="${XPATH_ELEMENTS[i++]}"
+CONVERT="${XPATH_ELEMENTS[i++]:-yes}"
 DRIVER="${XPATH_ELEMENTS[i++]}"
 IMAGE_TYPE="${XPATH_ELEMENTS[i++]}"
 
@@ -92,6 +92,7 @@ if [ "$TYPE" = "2" ]; then
 fi
 
 # Disable conversion for CD-ROM and 'files' datastores
+CONVERT=$(echo "${CONVERT}" | $TR '[:upper:]' '[:lower:]')
 if [ "$IMAGE_TYPE" = "1" ] || [ "$TYPE" = "2" ]; then
     CONVERT=no
 fi
