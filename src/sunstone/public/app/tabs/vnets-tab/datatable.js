@@ -79,8 +79,8 @@ define(function(require) {
 
     this.selectOptions = {
       "id_index": 1,
-      "name_index": 4,
-      "uname_index": 2,
+      "name_index": 2,
+      "uname_index": 3,
       "select_resource": Locale.tr("Please select a network from the list"),
       "you_selected": Locale.tr("You selected the following network:"),
       "select_resource_multiple": Locale.tr("Please select one or more networks from the list"),
