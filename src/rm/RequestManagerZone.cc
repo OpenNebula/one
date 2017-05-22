@@ -393,7 +393,7 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
     }
     else if ( rc < 0 )
     {
-        oss << "Error replicating log entry " << index << "in zone";
+        oss << "Error replicating log entry " << index << " in zone";
 
         NebulaLog::log("ReM", Log::INFO, oss);
 

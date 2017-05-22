@@ -58,15 +58,8 @@ public:
 
     ~RaftManager()
     {
-        if ( leader_hook != 0 )
-        {
-            delete(leader_hook);
-        }
-
-        if ( follower_hook != 0 )
-        {
-            delete(follower_hook);
-        }
+        delete leader_hook;
+        delete follower_hook;
     };
 
     // -------------------------------------------------------------------------

@@ -141,4 +141,32 @@ private:
     T * value;
 };
 
+template<>
+class single_cb<std::string> : public Callbackable
+{
+public:
+    void set_callback(std::string * _value)
+    {
+        value = _value;
+
+        Callbackable::set_callback(
+                static_cast<Callbackable::Callback>(&single_cb::callback));
+    }
+
+    virtual int callback(void *nil, int num, char **values, char **names)
+    {
+        if ( values == 0 || values[0] == 0 || num != 1 )
+        {
+            return -1;
+        }
+
+        *value = values[0];
+
+        return 0;
+    }
+
+private:
+    std::string * value;
+};
+
 #endif /*CALLBACKABLE_H_*/

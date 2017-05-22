@@ -432,7 +432,7 @@ int LogDB::purge_log()
 
 int FedLogDB::exec_wr(ostringstream& cmd)
 {
-    //FedReplicaManager * fedrm = Nebula::instance().get_fedrm();
+    FedReplicaManager * frm = Nebula::instance().get_frm();
 
     int rc = _logdb->exec_wr(cmd);
 
@@ -441,8 +441,7 @@ int FedLogDB::exec_wr(ostringstream& cmd)
         return rc;
     }
 
-    //Replicate on slaves
-    // fedrm->replicate(cmd);
+    frm->replicate(cmd.str());
 
     return rc;
 }

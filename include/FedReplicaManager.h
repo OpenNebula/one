@@ -37,10 +37,8 @@ public:
      *  @param _p purge timeout for log
      *  @param d pointer to underlying DB (LogDB)
      *  @param l log_retention length (num records)
-     *  @param s true if operating in solo mode
      */
-    FedReplicaManager(time_t _t, time_t _p, SqlDB * d, const std::string& l,
-            bool s);
+    FedReplicaManager(time_t _t, time_t _p, SqlDB * d, const std::string& l);
 
     virtual ~FedReplicaManager();
 
@@ -185,8 +183,8 @@ private:
     // -------------------------------------------------------------------------
     struct ZoneServers
     {
-        ZoneServers(int z, const std::map<int,std::string>& s):zone_id(z),
-            servers(s), next(0){};
+        ZoneServers(int z, unsigned int l, const std::map<int,std::string>& s):
+            zone_id(z), servers(s), next(l){};
 
         ~ZoneServers(){};
 

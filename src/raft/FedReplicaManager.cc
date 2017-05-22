@@ -35,23 +35,14 @@ const time_t FedReplicaManager::xmlrpc_timeout_ms = 2000;
 /* -------------------------------------------------------------------------- */
 
 FedReplicaManager::FedReplicaManager(time_t _t, time_t _p, SqlDB * d,
-    const std::string& l, bool s): ReplicaManager(), timer_period(_t),
-    purge_period(_p), logdb(d), log_retention(l)
+    const std::string& l): ReplicaManager(), timer_period(_t), purge_period(_p),
+    logdb(d), log_retention(l)
 {
-    Nebula& nd = Nebula::instance();
-
     pthread_mutex_init(&mutex, 0);
 
     am.addListener(this);
 
     get_last_index(last_index);
-
-    // Replica threads are started on master in solo mode.
-    // HA start/stop the replica threads on leader/follower states will
-    if ( nd.is_federation_master() && s )
-    {
-        start_replica_threads();
-    }
 };
 
 /* -------------------------------------------------------------------------- */
@@ -82,7 +73,7 @@ int FedReplicaManager::replicate(const std::string& sql)
 {
     pthread_mutex_lock(&mutex);
 
-    if ( insert_log_record(last_index+1, sql) == 0 )
+    if ( insert_log_record(last_index+1, sql) != 0 )
     {
         pthread_mutex_unlock(&mutex);
         return -1;
@@ -115,7 +106,7 @@ int FedReplicaManager::apply_log_record(int index, const std::string& sql)
         return rc;
     }
 
-    if ( insert_log_record(last_index + 1, sql) == 0 )
+    if ( insert_log_record(last_index + 1, sql) != 0 )
     {
         pthread_mutex_unlock(&mutex);
         return -1;
@@ -212,7 +203,7 @@ void FedReplicaManager::update_zones(std::vector<int>& zone_ids)
         {
             zpool->get_zone_servers(*it, zone_servers);
 
-            ZoneServers * zs = new ZoneServers(*it, zone_servers);
+            ZoneServers * zs = new ZoneServers(*it, last_index, zone_servers);
 
             zones.insert(make_pair(*it, zs));
 
@@ -237,9 +228,9 @@ void FedReplicaManager::add_zone(int zone_id)
 
     zpool->get_zone_servers(zone_id, zone_servers);
 
-    ZoneServers * zs = new ZoneServers(zone_id, zone_servers);
-
     pthread_mutex_lock(&mutex);
+
+    ZoneServers * zs = new ZoneServers(zone_id, last_index, zone_servers);
 
     zones.insert(make_pair(zone_id, zs));
 

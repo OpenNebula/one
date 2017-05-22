@@ -39,14 +39,16 @@ using namespace std;
 
 void Nebula::start(bool bootstrap_only)
 {
-    int             rc;
-    int             fd;
-    sigset_t        mask;
-    int             signal;
-    char            hn[80];
-    string          scripts_remote_dir;
-    SqlDB *         db_backend;
-    bool            solo;
+    int      rc;
+    int      fd;
+    sigset_t mask;
+    int      signal;
+    char     hn[80];
+    string   scripts_remote_dir;
+    SqlDB *  db_backend;
+    bool     solo;
+
+    SqlDB *  db_ptr;
 
     if ( gethostname(hn,79) != 0 )
     {
@@ -321,6 +323,16 @@ void Nebula::start(bool bootstrap_only)
 
         logdb = new LogDB(db_backend, solo, log_retention);
 
+        if ( federation_master )
+        {
+            fed_logdb = new FedLogDB(logdb);
+            db_ptr    = fed_logdb;
+        }
+        else
+        {
+            db_ptr = logdb;
+        }
+
         // ---------------------------------------------------------------------
         // Prepare the SystemDB and check versions
         // ---------------------------------------------------------------------
@@ -468,7 +480,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- ACL Manager ----
     try
     {
-        aclm = new AclManager(logdb, zone_id, is_federation_slave(),
+        aclm = new AclManager(db_ptr, zone_id, is_federation_slave(),
                 timer_period);
     }
     catch (bad_alloc&)
@@ -595,14 +607,14 @@ void Nebula::start(bool bootstrap_only)
 
         nebula_configuration->get("GROUP_HOOK", group_hooks);
 
-        gpool = new GroupPool(logdb, group_hooks, remotes_location,
+        gpool = new GroupPool(db_ptr, group_hooks, remotes_location,
                 is_federation_slave());
 
         nebula_configuration->get("SESSION_EXPIRATION_TIME", expiration_time);
 
         nebula_configuration->get("USER_HOOK", user_hooks);
 
-        upool = new UserPool(logdb, expiration_time, user_hooks,
+        upool = new UserPool(db_ptr, expiration_time, user_hooks,
                 remotes_location, is_federation_slave());
 
         /* -------------------- Image/Datastore Pool ------------------------ */
@@ -635,15 +647,15 @@ void Nebula::start(bool bootstrap_only)
 
         /* ----- Document, Zone, VDC, VMTemplate, SG and Makerket Pools ----- */
         docpool  = new DocumentPool(logdb);
-        zonepool = new ZonePool(logdb, is_federation_slave());
-        vdcpool  = new VdcPool(logdb, is_federation_slave());
+        zonepool = new ZonePool(db_ptr, is_federation_slave());
+        vdcpool  = new VdcPool(db_ptr, is_federation_slave());
 
         tpool = new VMTemplatePool(logdb);
 
         secgrouppool = new SecurityGroupPool(logdb);
 
-        marketpool = new MarketPlacePool(logdb, is_federation_slave());
-        apppool    = new MarketPlaceAppPool(logdb, is_federation_slave());
+        marketpool = new MarketPlacePool(db_ptr, is_federation_slave());
+        apppool    = new MarketPlaceAppPool(db_ptr, is_federation_slave());
 
         vmgrouppool = new VMGroupPool(logdb);
 
@@ -697,8 +709,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- FedReplica Manager ----
     try
     {
-        frm = new FedReplicaManager(timer_period, log_purge, logdb,
-                log_retention, solo);
+        frm = new FedReplicaManager(timer_period,log_purge,logdb,log_retention);
     }
     catch (bad_alloc&)
     {
@@ -706,6 +717,13 @@ void Nebula::start(bool bootstrap_only)
     }
 
     rc = frm->start();
+
+    if ( is_federation_master() && solo )
+    {
+        // Replica threads are started on master in solo mode.
+        // HA start/stop the replica threads on leader/follower states will
+        frm->start_replica_threads();
+    }
 
     if ( rc != 0 )
     {
