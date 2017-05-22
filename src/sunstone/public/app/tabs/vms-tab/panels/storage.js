@@ -581,7 +581,7 @@ define(function(require) {
         return false;
       });
     }
-    if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_delete")) {
+    if (Config.isTabActionEnabled("vms-tab", "VM.resize")) {
     context.off('click', '.disk_sresize');
       context.on('click', '.disk_resize', function() {
         var disk_id = $(this).parents('tr').attr('disk_id');
