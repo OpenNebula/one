@@ -36,7 +36,7 @@ const time_t FedReplicaManager::xmlrpc_timeout_ms = 2000;
 
 FedReplicaManager::FedReplicaManager(time_t _t, time_t _p, SqlDB * d,
     const std::string& l): ReplicaManager(), timer_period(_t), purge_period(_p),
-    logdb(d), log_retention(l)
+    last_index(-1), logdb(d), log_retention(l)
 {
     pthread_mutex_init(&mutex, 0);
 
@@ -399,9 +399,19 @@ int FedReplicaManager::get_last_index(unsigned int& index)
 
 int FedReplicaManager::bootstrap(SqlDB *_db)
 {
+    int rc;
+
     std::ostringstream oss(db_bootstrap);
 
-    return _db->exec_local_wr(oss);
+    rc = _db->exec_local_wr(oss);
+
+    oss.str("");
+
+    oss << "REPLACE INTO " << table << " ("<< db_names <<") VALUES (-1,-1)";
+
+    rc += _db->exec_local_wr(oss);
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */

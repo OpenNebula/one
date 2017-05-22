@@ -106,6 +106,8 @@ public:
 
         update_zones(zids);
 
+        get_last_index(last_index);
+
         ReplicaManager::start_replica_threads(zids);
     }
 
@@ -202,7 +204,6 @@ private:
     SqlDB * logdb;
 
     std::string log_retention;
-
 
     // -------------------------------------------------------------------------
     // Action Listener interface
