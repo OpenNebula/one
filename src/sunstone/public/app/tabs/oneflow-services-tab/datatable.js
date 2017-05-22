@@ -73,7 +73,7 @@ define(function(require) {
 
     this.selectOptions = {
       "id_index": 1,
-      "name_index": 4,
+      "name_index": 2,
       "select_resource": Locale.tr("Please select a Service from the list"),
       "you_selected": Locale.tr("You selected the following Service:"),
       "select_resource_multiple": Locale.tr("Please select one or more Services from the list"),

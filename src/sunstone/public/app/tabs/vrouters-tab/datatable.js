@@ -71,7 +71,7 @@ define(function(require) {
 
     this.selectOptions = {
       "id_index": 1,
-      "name_index": 4,
+      "name_index": 2,
       "select_resource": Locale.tr("Please select a virtual router from the list"),
       "you_selected": Locale.tr("You selected the following virtual router:"),
       "select_resource_multiple": Locale.tr("Please select one or more virtual routers from the list"),
