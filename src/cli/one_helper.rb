@@ -494,18 +494,13 @@ EOT
 
         # receive a object key => value format
         # returns hashed values
-        def encrypt(opts)
-
+        def encrypt(opts, token)
             res = {}
-            key_one= File.read(VAR_LOCATION+'/.one/one_key')
-
             opts.each do |key, value|
                 cipher = OpenSSL::Cipher::AES.new(256,:CBC)
-                cipher.encrypt.key = key_one
-                puts "cifrando #{key}"                
+                cipher.encrypt.key = token[0..31]
                 encrypted = cipher.update(value) + cipher.final
                 res[key] = Base64::encode64(encrypted) 
-                puts "encriptado es: "+encrypted
             end
             
             return res
