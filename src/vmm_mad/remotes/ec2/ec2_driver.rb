@@ -268,15 +268,13 @@ class EC2Driver
 
         @ec2 = Aws::EC2::Resource.new
     end
-    def decrypt(res)
+    def decrypt(res, token)
         opts = {}
-        key_one= File.read(VAR_LOCATION+'/.one/one_key')
-
 
         res.each do |key, encrypted_value|
             decipher = OpenSSL::Cipher::AES.new(256,:CBC)
             decipher.decrypt
-            decipher.key = key_one
+            decipher.key = token[0..31]  
             plain = decipher.update(Base64::decode64(encrypted_value)) + decipher.final
             opts[key] = plain
         end
@@ -294,12 +292,20 @@ class EC2Driver
         objects=pool.select {|object| object.name==host }
         xmlhost = objects.first
 
+        system = OpenNebula::System.new(client)
+        config = system.get_configuration
+        if OpenNebula.is_error?(config)
+            puts "Error getting oned configuration : #{config.message}"
+            exit -1
+        end
+        token = config["ONE_KEY"]
+
         conn_opts = {
             :access => xmlhost["TEMPLATE/EC2_ACCESS"],
             :secret => xmlhost["TEMPLATE/EC2_SECRET"]
         }
         begin 
-            conn_opts = decrypt(conn_opts)
+            conn_opts = decrypt(conn_opts, token)
         rescue
             raise "HOST: #{host} must have ec2 credentials in order to work properly"
         end
@@ -375,7 +381,7 @@ class EC2Driver
             }
         }
 
-        instance.create_tags(:tags => tag_array)
+        instance.create_tags(:tags => tag_array) if tag_array.length > 0
 
         elastic_ip = ec2_value(ec2_info, 'ELASTICIP')
 
@@ -501,14 +507,12 @@ class EC2Driver
         do_cw = (Time.now.to_i - cw_mon_time) >= 360
 
         vpool.each{|vm| onevm_info[vm.deploy_id] = vm }
-
         begin
             @ec2.instances.each do |i|
                 next if i.state.name != 'pending' && i.state.name != 'running'
-
                 one_id = i.tags.find {|t| t.key == 'ONE_ID' }
                 one_id = one_id.value if one_id
-
+                
                 poll_data=parse_poll(i, onevm_info[i.id], do_cw, cw_mon_time)
 
                 vm_template_to_one = vm_to_one(i)
@@ -620,7 +624,9 @@ private
                 cloudwatch_str = ""
             end
 
-            info =  "#{POLL_ATTRIBUTE[:memory]}=0 #{cloudwatch_str}"
+            mem = onevm["/VM/TEMPLATE/MEMORY"].to_s
+            mem=mem.to_i*1024
+            info =  "#{POLL_ATTRIBUTE[:memory]}=#{mem} #{cloudwatch_str}"
 
             state = ""
             if !instance.exists?
