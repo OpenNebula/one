@@ -203,19 +203,21 @@ int LibVirtDriver::deployment_description_kvm(
 
     const VectorAttribute * features;
 
-    bool pae         = false;
-    bool acpi        = false;
-    bool apic        = false;
-    bool hyperv      = false;
-    bool localtime   = false;
-    bool guest_agent = false;
+    bool pae                = false;
+    bool acpi               = false;
+    bool apic               = false;
+    bool hyperv             = false;
+    bool localtime          = false;
+    bool guest_agent        = false;
+    int  virtio_scsi_queues = 0;
 
-    int pae_found         = -1;
-    int acpi_found        = -1;
-    int apic_found        = -1;
-    int hyperv_found      = -1;
-    int localtime_found   = -1;
-    int guest_agent_found = -1;
+    int pae_found                   = -1;
+    int acpi_found                  = -1;
+    int apic_found                  = -1;
+    int hyperv_found                = -1;
+    int localtime_found             = -1;
+    int guest_agent_found           = -1;
+    int virtio_scsi_queues_found    = -1;
 
     string hyperv_options = "";
 
@@ -799,6 +801,19 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t\t</iotune>" << endl;
         }
 
+        // ---- SCSI target ----
+
+        if ( target[0] == 's' && target[1] == 'd' )
+        {
+            int target_number = target[2] - 'a';
+
+            if ( target_number >= 0 && target_number < 256 )
+            {
+                file << "\t\t\t<address type='drive' controller='0' bus='0' " <<
+                     "target='" << target_number << "' unit='0'/>" << endl;
+            }
+        }
+
         file << "\t\t</disk>" << endl;
     }
 
@@ -1148,6 +1163,8 @@ int LibVirtDriver::deployment_description_kvm(
         hyperv_found      = features->vector_value("HYPERV", hyperv);
         localtime_found   = features->vector_value("LOCALTIME", localtime);
         guest_agent_found = features->vector_value("GUEST_AGENT", guest_agent);
+        virtio_scsi_queues_found =
+            features->vector_value("VIRTIO_SCSI_QUEUES", virtio_scsi_queues);
     }
 
     if ( pae_found != 0 )
@@ -1178,6 +1195,11 @@ int LibVirtDriver::deployment_description_kvm(
     if ( guest_agent_found != 0 )
     {
         get_default("FEATURES", "GUEST_AGENT", guest_agent);
+    }
+
+    if ( virtio_scsi_queues_found != 0 )
+    {
+        get_default("FEATURES", "VIRTIO_SCSI_QUEUES", virtio_scsi_queues);
     }
 
     if ( acpi || pae || apic || hyperv )
@@ -1223,6 +1245,18 @@ int LibVirtDriver::deployment_description_kvm(
              << "\t\t\t<source mode='bind'/>"
              << "<target type='virtio' name='org.qemu.guest_agent.0'/>" << endl
              << "\t\t</channel>" << endl
+             << "\t</devices>" << endl;
+    }
+
+    if ( virtio_scsi_queues > 0 )
+    {
+        file << "\t<devices>" << endl
+             << "\t\t<controller type='scsi' index='0' model='virtio-scsi'>"
+             << endl;
+
+        file << "\t\t\t<driver queues='" << virtio_scsi_queues << "'/>" << endl;
+
+        file << "\t\t</controller>" << endl
              << "\t</devices>" << endl;
     }
 
