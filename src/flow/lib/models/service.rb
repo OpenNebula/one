@@ -445,6 +445,10 @@ module OpenNebula
 
         private
 
+        # Maximum number of log entries per service
+        # TODO: Make this value configurable
+        MAX_LOG = 50
+
         # @param [Logger::Severity] severity
         # @param [String] message
         def add_log(severity, message)
@@ -456,6 +460,9 @@ module OpenNebula
                 :severity  => severity_str,
                 :message   => message
             }
+
+            # Truncate the number of log entries
+            @body['log'] = @body['log'].last(MAX_LOG)
         end
     end
 end
