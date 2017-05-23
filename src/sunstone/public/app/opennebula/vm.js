@@ -270,6 +270,7 @@ define(function(require) {
     'GUEST_IP',
     'GUEST_IP_ADDRESSES',
     'AWS_IP_ADDRESS',
+    'AWS_PUBLIC_IP_ADDRESS',
     'AWS_PRIVATE_IP_ADDRESS',
     'AZ_IPADDRESS',
     'SL_PRIMARYIPADDRESS'
@@ -289,6 +290,8 @@ define(function(require) {
     'GUEST_IP_ADDRESSES',
     'AWS_IP_ADDRESS',
     'AWS_DNS_NAME',
+    'AWS_PUBLIC_IP_ADDRESS',
+    'AWS_PUBLIC_DNS_NAME',
     'AWS_PRIVATE_IP_ADDRESS',
     'AWS_PRIVATE_DNS_NAME',
     'AWS_SECURITY_GROUPS',
