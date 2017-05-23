@@ -156,7 +156,8 @@ private:
                      const std::string& ln_target,
                      const std::string& clone_target,
                      const std::string& shared,
-                     const std::string& ds_migrate);
+                     const std::string& ds_migrate,
+                     const std::string& driver);
 
     /**
      *  Sets a the defaults for a Market

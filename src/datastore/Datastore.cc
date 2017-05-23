@@ -107,6 +107,7 @@ void Datastore::disk_attribute(
     string st;
     string inherit_val;
     string current_val;
+    string type;
 
     vector<string>::const_iterator it;
 
@@ -146,6 +147,18 @@ void Datastore::disk_attribute(
     if (disk->is_volatile())
     {
         disk->replace("DISK_TYPE", Image::disk_type_to_str(get_disk_type()));
+    }
+
+    type = disk->vector_value("TYPE");
+
+    if (type != "CDROM")
+    {
+        get_template_attribute("DRIVER", st);
+
+        if(!st.empty())
+        {
+            disk->replace("DRIVER", st);
+        }
     }
 }
 
@@ -334,6 +347,13 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
         }
 
         replace_template_attribute("CLONE_TARGET", st);
+
+        st = vatt->vector_value("DRIVER");
+
+        if (!st.empty())
+        {
+            replace_template_attribute("DRIVER", st);
+        }
 
         remove_template_attribute("SHARED");
     }
