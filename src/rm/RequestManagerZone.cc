@@ -16,6 +16,47 @@
 
 #include "RequestManagerZone.h"
 #include "Nebula.h"
+#include "Client.h"
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static Request::ErrorCode master_update_zone(int oid, const std::string& xml,
+        RequestAttributes& att)
+{
+    Client * client = Client::client();
+
+    xmlrpc_c::value         result;
+    vector<xmlrpc_c::value> values;
+
+    std::ostringstream oss("Cannot update zone at federation master: ",
+            std::ios::ate);
+    try
+    {
+        client->call("one.zone.updatedb", "is", &result, oid, xml.c_str());
+    }
+    catch (exception const& e)
+    {
+        oss << e.what();
+        att.resp_msg = oss.str();
+
+        return Request::ACTION;
+    }
+
+    values = xmlrpc_c::value_array(result).vectorValueValue();
+
+    if ( xmlrpc_c::value_boolean(values[0]) == false )
+    {
+        std::string e = xmlrpc_c::value_string(values[1]);
+        oss << e;
+
+        att.resp_msg = oss.str();
+
+        return Request::ACTION;
+    }
+
+    return Request::SUCCESS;
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -23,11 +64,22 @@
 void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
     RequestAttributes& att)
 {
+    Nebula& nd    = Nebula::instance();
+
     int    id     = xmlrpc_c::value_int(paramList.getInt(1));
     string zs_str = xmlrpc_c::value_string(paramList.getString(2));
 	int    zs_id;
 
-    string error_str;
+    string error_str, xmlep;
+
+    if ( id != nd.get_zone_id() )
+    {
+        att.resp_msg = "Servers have to be added through the target zone"
+             " endpoints";
+        failure_response(ACTION, att);
+
+        return;
+    }
 
     if ( basic_authorization(id, att) == false )
     {
@@ -56,21 +108,45 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ( zone->add_server(zs_tmpl, zs_id, att.resp_msg) == -1 )
+    if ( zone->add_server(zs_tmpl, zs_id, xmlep, att.resp_msg) == -1 )
     {
         failure_response(ACTION, att);
 
         return;
     }
 
-    pool->update(zone);
+    if ( nd.is_federation_master() || !nd.is_federation_enabled() )
+    {
+        std::vector<int> zids;
 
-    zone->unlock();
+        pool->update(zone);
 
-    std::vector<int> zids;
+        zone->unlock();
 
-	Nebula::instance().get_raftm()->add_server(zs_id);
-	Nebula::instance().get_frm()->update_zones(zids);
+        nd.get_frm()->update_zones(zids);
+    }
+    else
+    {
+        std::string tmpl_xml;
+
+        int oid = zone->get_oid();
+
+        zone->to_xml(tmpl_xml);
+
+        ErrorCode ec = master_update_zone(oid, tmpl_xml, att);
+
+        zone->unlock();
+
+        if ( ec != SUCCESS )
+        {
+            NebulaLog::log("ReM", Log::ERROR, att.resp_msg);
+
+            failure_response(ec, att);
+            return;
+        }
+    }
+
+	nd.get_raftm()->add_server(zs_id, xmlep);
 
     success_response(id, att);
 }
@@ -81,10 +157,21 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
 void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
     RequestAttributes& att)
 {
-    int id    = xmlrpc_c::value_int(paramList.getInt(1));
-    int zs_id = xmlrpc_c::value_int(paramList.getInt(2));
+    Nebula& nd = Nebula::instance();
+
+    int id     = xmlrpc_c::value_int(paramList.getInt(1));
+    int zs_id  = xmlrpc_c::value_int(paramList.getInt(2));
 
     string error_str;
+
+    if ( id != nd.get_zone_id() )
+    {
+        att.resp_msg = "Servers have to be deleted through the target zone"
+             " endpoints";
+        failure_response(ACTION, att);
+
+        return;
+    }
 
     if ( basic_authorization(id, att) == false )
     {
@@ -109,14 +196,38 @@ void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    pool->update(zone);
+    if ( nd.is_federation_master() )
+    {
+        std::vector<int> zids;
 
-    zone->unlock();
+        pool->update(zone);
 
-    std::vector<int> zids;
+        zone->unlock();
 
-	Nebula::instance().get_raftm()->delete_server(zs_id);
-	Nebula::instance().get_frm()->update_zones(zids);
+        nd.get_frm()->update_zones(zids);
+    }
+    else
+    {
+        std::string tmpl_xml;
+
+        int oid = zone->get_oid();
+
+        zone->to_xml(tmpl_xml);
+
+        ErrorCode ec = master_update_zone(oid, tmpl_xml, att);
+
+        zone->unlock();
+
+        if ( ec != SUCCESS )
+        {
+            NebulaLog::log("ReM", Log::ERROR, att.resp_msg);
+
+            failure_response(ec, att);
+            return;
+        }
+    }
+
+	nd.get_raftm()->delete_server(zs_id);
 
     success_response(id, att);
 }

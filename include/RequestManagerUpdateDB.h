@@ -33,9 +33,10 @@ protected:
 
     virtual ~RequestManagerUpdateDB(){};
 
-    /* -------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------- */
 
-    void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& att)
+    virtual void request_execute(xmlrpc_c::paramList const& pl,
+            RequestAttributes& att)
     {
         int oid = xmlrpc_c::value_int(pl.getInt(1));
         std::string xml = xmlrpc_c::value_string(pl.getString(2));
@@ -46,13 +47,30 @@ protected:
             return;
         }
 
+        ErrorCode ec = request_execute(oid, xml, att);
+
+        if ( ec == SUCCESS )
+        {
+            success_response(oid, att);
+        }
+        else
+        {
+            failure_response(ec, att);
+        }
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------- */
+
+    ErrorCode request_execute(int oid, const std::string& xml,
+            RequestAttributes& att)
+    {
         PoolObjectSQL * object = pool->get(oid,true);
 
         if ( object == 0 )
         {
             att.resp_id = oid;
-            failure_response(NO_EXISTS, att);
-            return;
+            return NO_EXISTS;
         }
 
         string old_xml;
@@ -62,34 +80,31 @@ protected:
         if ( object->from_xml(xml) != 0 )
         {
             object->from_xml(old_xml);
+            object->unlock();
 
             att.resp_msg = "Cannot update object from XML";
-            failure_response(INTERNAL, att);
-
-            object->unlock();
-            return;
+            return INTERNAL;
         }
 
         if ( object->get_oid() != oid )
         {
             object->from_xml(old_xml);
+            object->unlock();
 
             att.resp_msg = "Consistency check failed";
-            failure_response(INTERNAL, att);
-
-            object->unlock();
-            return;
+            return INTERNAL;
         }
 
         pool->update(object);
 
         object->unlock();
 
-        success_response(oid, att);
-
-        return;
+        return SUCCESS;
     }
 };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 class MarketPlaceAppUpdateDB : public RequestManagerUpdateDB
 {
@@ -103,6 +118,8 @@ public:
     ~MarketPlaceAppUpdateDB(){};
 };
 
+/* -------------------------------------------------------------------------- */
+
 class MarketPlaceUpdateDB : public RequestManagerUpdateDB
 {
 public:
@@ -113,6 +130,47 @@ public:
     }
 
     ~MarketPlaceUpdateDB(){};
+};
+
+/* -------------------------------------------------------------------------- */
+
+class ZoneUpdateDB : public RequestManagerUpdateDB
+{
+public:
+    ZoneUpdateDB():RequestManagerUpdateDB("one.zone.updatedb")
+    {
+        auth_object = PoolObjectSQL::ZONE;
+        pool        =  Nebula::instance().get_zonepool();
+    }
+
+    ~ZoneUpdateDB(){};
+
+    virtual void request_execute(xmlrpc_c::paramList const& pl,
+            RequestAttributes& att)
+    {
+        int oid = xmlrpc_c::value_int(pl.getInt(1));
+        std::string xml = xmlrpc_c::value_string(pl.getString(2));
+
+        if ( att.uid != UserPool::ONEADMIN_ID )
+        {
+            failure_response(AUTHORIZATION, att);
+            return;
+        }
+
+        ErrorCode ec = RequestManagerUpdateDB::request_execute(oid, xml, att);
+
+        if ( ec == SUCCESS )
+        {
+            std::vector<int> zids;
+            success_response(oid, att);
+
+            Nebula::instance().get_frm()->update_zones(zids);
+        }
+        else
+        {
+            failure_response(ec, att);
+        }
+    }
 };
 
 #endif /* REQUEST_MANAGER_UPDATE_DB_H */

@@ -261,8 +261,9 @@ public:
      *  Adds a new server to the follower list and starts associated replica
      *  thread.
      *    @param follower_id id of new server
+     *    @param xmlep xmlrpc endpoint for new server
      */
-	void add_server(int follower_id);
+	void add_server(int follower_id, const std::string& xmlep);
 
     /**
      *  Deletes a new server to the follower list and stops associated replica

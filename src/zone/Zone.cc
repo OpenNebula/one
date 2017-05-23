@@ -300,7 +300,7 @@ int Zone::post_update_template(string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Zone::add_server(Template& tmpl, int& sid, string& error)
+int Zone::add_server(Template& tmpl, int& sid, string& xmlep, string& error)
 {
     vector<VectorAttribute *> vs;
     vector<VectorAttribute *>::iterator it;
@@ -309,21 +309,25 @@ int Zone::add_server(Template& tmpl, int& sid, string& error)
 
     sid = -1;
 
-    tmpl.get(ZoneServers::SERVER_NAME, vs);
+    const VectorAttribute * tmpl_server = tmpl.get(ZoneServers::SERVER_NAME);
 
-    for ( it = vs.begin() ; it != vs.end() ; ++it )
+    if ( tmpl_server == 0 )
     {
-        server = new VectorAttribute(*it);
-
-        if ( servers->add_server(server, sid, error) == -1 )
-        {
-            delete server;
-
-            return -1;
-        }
-
-        servers_template.set(server);
+        return -1;
     }
+
+    server = new VectorAttribute(tmpl_server);
+
+    if ( servers->add_server(server, sid, error) == -1 )
+    {
+        delete server;
+
+        return -1;
+    }
+
+    xmlep = server->vector_value("ENDPOINT");
+
+    servers_template.set(server);
 
     return 0;
 }

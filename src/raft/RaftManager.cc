@@ -276,7 +276,7 @@ int RaftManager::get_leader_endpoint(std::string& endpoint)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void RaftManager::add_server(int follower_id)
+void RaftManager::add_server(int follower_id, const std::string& endpoint)
 {
 	LogDB * logdb = Nebula::instance().get_logdb();
 
@@ -284,14 +284,10 @@ void RaftManager::add_server(int follower_id)
 
     logdb->get_last_record_index(log_index, log_term);
 
-    std::map<int, std::string> _servers;
-
-    unsigned int _num_servers = get_zone_servers(_servers);
-
 	pthread_mutex_lock(&mutex);
 
-    num_servers = _num_servers;
-    servers     = _servers;
+    num_servers++;
+    servers.insert(std::make_pair(follower_id, endpoint));
 
 	next.insert(std::make_pair(follower_id, log_index + 1));
 
@@ -308,12 +304,10 @@ void RaftManager::delete_server(int follower_id)
 {
     std::map<int, std::string> _servers;
 
-    unsigned int _num_servers = get_zone_servers(_servers);
-
 	pthread_mutex_lock(&mutex);
 
-    num_servers = _num_servers;
-    servers     = _servers;
+    num_servers--;
+    servers.erase(follower_id);
 
 	next.erase(follower_id);
 
