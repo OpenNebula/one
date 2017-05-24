@@ -1191,7 +1191,7 @@ define(function(require) {
 
     $(document).on("click", "a", function(e){
       if ($(this).attr("href") != undefined &&
-          $(this).attr("href").startsWith("#")){
+          $(this).attr("href")[0] === "#"){
         e.preventDefault();
       }
     });
