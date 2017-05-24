@@ -179,7 +179,7 @@ protected:
 
     bool leader_only; //Method can be only execute by leaders or solo servers
 
-    long long xmlrpc_timeout;
+    static const long long xmlrpc_timeout; //Timeout (ms) for request forwarding
 
     /* ---------------------------------------------------------------------- */
     /* Class Constructors                                                     */
@@ -195,9 +195,6 @@ protected:
         log_method_call = true;
 
         leader_only     = true;
-
-        //TODO Get this from oned.conf (10s)
-        xmlrpc_timeout  = 10000;
     };
 
     virtual ~Request(){};

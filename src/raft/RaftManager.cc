@@ -719,14 +719,21 @@ void RaftManager::timer_action(const ActionRequest& ar)
 		if ((sec < the_time.tv_sec) || (sec == the_time.tv_sec &&
 				nsec <= the_time.tv_nsec))
 		{
-            clock_gettime(CLOCK_REALTIME, &last_heartbeat);
-
             pthread_mutex_unlock(&mutex);
 
 			send_heartbeat();
-		}
 
-        pthread_mutex_unlock(&mutex);
+            pthread_mutex_lock(&mutex);
+
+            clock_gettime(CLOCK_REALTIME, &last_heartbeat);
+
+            pthread_mutex_unlock(&mutex);
+		}
+        else
+        {
+            pthread_mutex_unlock(&mutex);
+        }
+
 	}
 	else if ( state == FOLLOWER )
 	{
@@ -741,14 +748,14 @@ void RaftManager::timer_action(const ActionRequest& ar)
 
             state = CANDIDATE;
 
-            clock_gettime(CLOCK_REALTIME, &last_heartbeat);
-
             pthread_mutex_unlock(&mutex);
 
             request_vote();
 		}
-
-        pthread_mutex_unlock(&mutex);
+        else
+        {
+            pthread_mutex_unlock(&mutex);
+        }
 	}
 	else
 	{

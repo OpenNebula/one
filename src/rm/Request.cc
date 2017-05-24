@@ -260,6 +260,8 @@ void Request::log_xmlrpc_value(const xmlrpc_c::value& v, std::ostringstream& oss
 
 string Request::format_str;
 
+const long long Request::xmlrpc_timeout = 10000;
+
 /* -------------------------------------------------------------------------- */
 
 void Request::execute(

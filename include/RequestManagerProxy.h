@@ -31,7 +31,7 @@ public:
     RequestManagerProxy(string _method): Request("RequestManagerProxy", "?",
         "Forwards the request to another OpenNebula"), method(_method)
     {
-        method_name = ("RequestManagerProxy." + method);
+        method_name = method;
     };
 
     ~RequestManagerProxy(){};
