@@ -20,15 +20,17 @@ DRV_ACTION=$1
 ID=$2
 
 if [ -z "${ONE_LOCATION}" ]; then
+    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+    DATASTORES=/var/lib/one/datastores
     LIB_LOCATION=/usr/lib/one
 else
+    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+    DATASTORES=$ONE_LOCATION/var/datastores
     LIB_LOCATION=$ONE_LOCATION/lib
 fi
 
-TMCOMMON=$LIB_LOCATION/var/remotes/tm/tm_common.sh
-DATASTORES=$LIB_LOCATION/var/datastores
-
 . $TMCOMMON
+
 . $LIB_LOCATION/sh/scripts_common.sh
 
 DRIVER_PATH=$(dirname $0)
@@ -62,25 +64,47 @@ SYSTEM_DS_PATH=$(dirname ${SRC_PATH})
 SNAP_DIR="${DISK_SRC}.snap"
 SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
 
-if [ -n "$BRIDGE_LIST" ]; then
-    log "Revert remote snapshot $SNAP_PATH"
-    DST_HOST=`get_destination_host $ID`
-    if [ "$TM_MAD" = "qcow2" ]; then
-        ACTIVE_SNAP_ID=$(ssh_monitor_and_log "$DST_HOST" "ls $SNAP_DIR | grep '^[[:digit:]]*$' | sort -n | tail -n 1" "Get active snapshot id" 2>&1)
+if [ "$TM_MAD" = "qcow2" ]; then
+    SNAP_ID_SCRIPT=$(cat <<EOF
+set -e -o pipefail
+ls $SNAP_DIR | grep '^[[:digit:]]*\$' | sort -n | tail -n 1
+EOF
+)
+    if [ -n "$BRIDGE_LIST" ]; then
+        DST_HOST=`get_destination_host $ID`
+
+        ACTIVE_SNAP_ID=$(ssh_monitor_and_log "$DST_HOST" "$SNAP_ID_SCRIPT" "Error get active snapshot ID" 2>&1)
         ACTIVE_SNAP_PATH="${SNAP_DIR}/${ACTIVE_SNAP_ID}"
 
-        ssh_exec_and_log "$DST_HOST" "rm -f $ACTIVE_SNAP_PATH; qemu-img create -f qcow2 -b $SNAP_PATH $ACTIVE_SNAP_PATH" "Error reverting snapshot to $SNAP_PATH"
+        ssh_exec_and_log "$DST_HOST" "rm $ACTIVE_SNAP_PATH" \
+            "Error deleting $ACTIVE_SNAP_PATH"
+
+        ssh_exec_and_log "$DST_HOST" "qemu-img create -f qcow2 -b $SNAP_PATH $ACTIVE_SNAP_PATH" \
+            "Error reverting snapshot to $SNAP_PATH"
     else
-        ssh_exec_and_log "$DST_HOST" "mv -f $SNAP_PATH $DISK_SRC" "Error reverting snapshot to $SNAP_PATH"
+        ACTIVE_SNAP_ID=$(monitor_and_log "$SNAP_ID_SCRIPT" "Error get active snapshot ID" 2>&1)
+        ACTIVE_SNAP_PATH="${SNAP_DIR}/${ACTIVE_SNAP_ID}"
+
+        exec_and_log "rm ${ACTIVE_SNAP_PATH}" \
+            "Error deleting $ACTIVE_SNAP_PATH"
+
+        exec_and_log "qemu-img create -f qcow2 -b ${SNAP_PATH} ${ACTIVE_SNAP_PATH}" \
+            "Error reverting snapshot to $SNAP_PATH"
     fi
 else
-    if [ "$TM_MAD" = "qcow2" ]; then
-        ACTIVE_SNAP_ID=$(ls ${SNAP_DIR} | grep '^[[:digit:]]*$' | sort -n | tail -n 1)
-        ACTIVE_SNAP_PATH="${SNAP_DIR}/${ACTIVE_SNAP_ID}"
+    if [ -n "$BRIDGE_LIST" ]; then
+        DST_HOST=`get_destination_host $ID`
 
-        rm ${ACTIVE_SNAP_PATH}
-        qemu-img create -f qcow2 -b ${SNAP_PATH} ${ACTIVE_SNAP_PATH}
+        ssh_exec_and_log "$DST_HOST" "cp -f ${SNAP_PATH} ${DISK_SRC}.tmp" \
+            "Error copying snapshot $SNAP_PATH"
+
+        ssh_exec_and_log "$DST_HOST" "mv ${DISK_SRC}.tmp ${DISK_SRC}" \
+            "Error moving to $DISK_SRC"
     else
-        mv -f ${SNAP_PATH} ${DISK_SRC}
+        exec_and_log "cp -f ${SNAP_PATH} ${DISK_SRC}.tmp" \
+            "Error copying snapshot $SNAP_PATH"
+
+        exec_and_log "mv ${DISK_SRC}.tmp ${DISK_SRC}" \
+            "Error moving to $DISK_SRC"
     fi
 fi
