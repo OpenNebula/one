@@ -300,7 +300,9 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
 
     raftm->update_last_heartbeat(leader_id);
 
-    //HEARTBEAT
+    //--------------------------------------------------------------------------
+    // HEARTBEAT
+    //--------------------------------------------------------------------------
     if ( index == 0 && prev_index == 0 && term == 0 && prev_term == 0 &&
          sql.empty() )
     {
@@ -316,7 +318,22 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    //REPLICATE
+    //--------------------------------------------------------------------------
+    // REPLICATE
+    //   0. Check it is a valid record (prevent spurious entries)
+    //   1. Check log consistency (index, and previous index match)
+    //   2. Insert record in the log
+    //   3. Apply log records that can be safely applied
+    //--------------------------------------------------------------------------
+    if ( sql.empty() )
+    {
+        att.resp_msg = "Empty SQL command in log record";
+        att.resp_id  = current_term;
+
+        failure_response(ACTION, att);
+        return;
+    }
+
     if ( index > 0 )
     {
         if ( logdb->get_log_record(prev_index, prev_lr) != 0 )

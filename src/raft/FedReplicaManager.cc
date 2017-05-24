@@ -29,7 +29,7 @@ const char * FedReplicaManager::db_names = "log_index, sql";
 const char * FedReplicaManager::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
         "fed_logdb (log_index INTEGER PRIMARY KEY, sql MEDIUMTEXT)";
 
-const time_t FedReplicaManager::xmlrpc_timeout_ms = 2000;
+const time_t FedReplicaManager::xmlrpc_timeout_ms = 10000;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -292,20 +292,26 @@ void FedReplicaManager::timer_action(const ActionRequest& ar)
     // Database housekeeping
     if ( (purge_tics * timer_period) >= purge_period )
     {
-        NebulaLog::log("FRM", Log::INFO, "Purging federated log");
+        Nebula& nd          = Nebula::instance();
+        RaftManager * raftm = nd.get_raftm();
 
-        std::ostringstream oss;
+        if ( raftm->is_leader() || raftm->is_solo() )
+        {
+            NebulaLog::log("FRM", Log::INFO, "Purging federated log");
 
-        pthread_mutex_lock(&mutex);
+            std::ostringstream oss;
 
-        // keep the last "log_retention" records
-        oss << "DELETE FROM fed_logdb WHERE log_index NOT IN (SELECT "
-            << "log_index FROM fed_logdb ORDER BY log_index DESC LIMIT "
-            << log_retention <<")";
+            pthread_mutex_lock(&mutex);
 
-        logdb->exec_wr(oss);
+            // keep the last "log_retention" records
+            oss << "DELETE FROM fed_logdb WHERE log_index NOT IN (SELECT "
+                << "log_index FROM fed_logdb ORDER BY log_index DESC LIMIT "
+                << log_retention <<")";
 
-        pthread_mutex_unlock(&mutex);
+            logdb->exec_wr(oss);
+
+            pthread_mutex_unlock(&mutex);
+        }
 
         purge_tics = 0;
     }

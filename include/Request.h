@@ -196,8 +196,8 @@ protected:
 
         leader_only     = true;
 
-        //TODO Get this from oned.conf
-        xmlrpc_timeout  = 500;
+        //TODO Get this from oned.conf (10s)
+        xmlrpc_timeout  = 10000;
     };
 
     virtual ~Request(){};

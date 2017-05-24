@@ -89,7 +89,7 @@ public:
      *    @param endpoint of server
      *    @param method name
      *    @param plist initialized param list
-     *    @param timeout for the request, set 0 for global xml_rpc timeout
+     *    @param timeout (ms) for the request, set 0 for global xml_rpc timeout
      *    @param result of the xmlrpc call
      *    @param error string if any
      *    @return 0
