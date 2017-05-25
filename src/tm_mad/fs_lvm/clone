@@ -90,11 +90,24 @@ LV_NAME="lv-one-$VM_ID-$DISK_ID"
 VG_NAME="vg-one-$DS_SYS_ID"
 DEV="/dev/${VG_NAME}/${LV_NAME}"
 
-CLONE_CMD=$(cat <<EOF
-    set -e -o pipefail
-    mkdir -p $DST_DIR
+# Execute lvcreate with a lock in the frontend
+mkdir -p $DST_DS_PATH
+
+CREATE_CMD=$(cat <<EOF
+    $SUDO $SYNC
+    $SUDO $LVSCAN
 
     $SUDO $LVCREATE --wipesignatures n -L${SIZE}M -n $LV_NAME $VG_NAME
+EOF
+)
+
+LOCK_FILE="$DST_DS_PATH/lock"
+flock -w 120 $LOCK_FILE ssh_exec_and_log "$DST_HOST" "$CREATE_CMD" \
+        "Error creating LV named $LV_NAME"
+
+CLONE_CMD=$(cat <<EOF
+    set -e -o pipefail
+
     $QEMU_IMG convert -O raw "$SRC_PATH" "$DEV"
     rm -f "$DST_PATH"
     ln -s "$DEV" "$DST_PATH"
