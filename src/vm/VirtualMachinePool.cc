@@ -238,7 +238,7 @@ int VirtualMachinePool::insert_index(const string& deploy_id, int vmid,
 
     db->free_str(deploy_name);
 
-    return db->exec(oss);
+    return db->exec_wr(oss);
 };
 
 /* -------------------------------------------------------------------------- */
@@ -256,7 +256,7 @@ void VirtualMachinePool::drop_index(const string& deploy_id)
     oss << "DELETE FROM " << import_table << " WHERE deploy_id='"
         << deploy_name << "'";
 
-    db->exec(oss);
+    db->exec_wr(oss);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -469,7 +469,7 @@ int VirtualMachinePool::clean_expired_monitoring()
     oss << "DELETE FROM " << VirtualMachine::monit_table
         << " WHERE last_poll < " << max_last_poll;
 
-    rc = db->exec(oss);
+    rc = db->exec_local_wr(oss);
 
     return rc;
 }
@@ -484,7 +484,7 @@ int VirtualMachinePool::clean_all_monitoring()
 
     oss << "DELETE FROM " << VirtualMachine::monit_table;
 
-    rc = db->exec(oss);
+    rc = db->exec_local_wr(oss);
 
     return rc;
 }
@@ -543,7 +543,7 @@ int VirtualMachinePool::get_vmid (const string& deploy_id)
     oss << "SELECT vmid FROM " << import_table
         << " WHERE deploy_id = '" << db->escape_str(deploy_id.c_str()) << "'";
 
-    rc = db->exec(oss, this);
+    rc = db->exec_rd(oss, this);
 
     unset_callback();
 
@@ -696,7 +696,7 @@ int VirtualMachinePool::calculate_showback(
 
         oss << "SELECT MIN(stime) FROM " << History::table;
 
-        rc = db->exec(oss, this);
+        rc = db->exec_rd(oss, this);
 
         unset_callback();
     }
@@ -973,7 +973,7 @@ int VirtualMachinePool::calculate_showback(
             {
                 oss << sql_cmd_end;
 
-                rc = db->exec(oss);
+                rc = db->exec_wr(oss);
 
                 if (rc != 0)
                 {
@@ -1004,7 +1004,7 @@ int VirtualMachinePool::calculate_showback(
     {
         oss << sql_cmd_end;
 
-        rc = db->exec(oss);
+        rc = db->exec_wr(oss);
 
         if (rc != 0)
         {

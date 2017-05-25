@@ -19,101 +19,25 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VirtualMachineAttributeSet::~VirtualMachineAttributeSet()
-{
-    std::map<int, VirtualMachineAttribute *>::iterator it;
-
-    for (it = a_set.begin(); it != a_set.end(); ++it)
-    {
-        if ( dispose )
-        {
-            delete it->second->va;
-        }
-
-        delete it->second;
-    }
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-VirtualMachineAttribute * VirtualMachineAttributeSet::get_attribute(int id) const
-{
-    std::map<int, VirtualMachineAttribute*>::const_iterator it = a_set.find(id);
-
-    if ( it == a_set.end() )
-    {
-        return 0;
-    }
-
-    return it->second;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 VirtualMachineAttribute * VirtualMachineAttributeSet::get_attribute(
         const string& flag) const
 {
-    std::map<int, VirtualMachineAttribute*>::const_iterator it;
+    std::map<int, ExtendedAttribute*>::const_iterator it;
+
+    VirtualMachineAttribute * vma;
 
     for( it = a_set.begin(); it != a_set.end(); ++it)
     {
-        if ( it->second->is_flag(flag) == true )
+        vma = static_cast<VirtualMachineAttribute *>(it->second);
+
+        if ( vma->is_flag(flag) == true )
         {
-            return it->second;
+            return vma;
         }
     }
 
     return 0;
 }
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-VirtualMachineAttribute * VirtualMachineAttributeSet::remove_attribute(
-        const string& flag)
-{
-    std::map<int, VirtualMachineAttribute*>::const_iterator it;
-    VirtualMachineAttribute * tmp = 0;
-
-    for( it = a_set.begin(); it != a_set.end(); ++it)
-    {
-        if ( it->second->is_flag(flag) == true )
-        {
-            tmp = it->second;
-            a_set.erase(it);
-        }
-    }
-
-    return tmp;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineAttributeSet::init_attribute_map(const std::string& id_name,
-        std::vector<VectorAttribute *>& vas)
-{
-    std::vector<VectorAttribute *>::iterator it;
-    int id, auto_id;
-
-    for (it = vas.begin(), auto_id = 0; it != vas.end(); ++it, ++auto_id)
-    {
-        if (id_name.empty())
-        {
-            id = auto_id;
-        }
-        else if ( (*it)->vector_value(id_name, id) != 0 )
-        {
-            continue;
-        }
-
-        VirtualMachineAttribute * a = attribute_factory(*it, id);
-
-        a_set.insert(make_pair(id, a));
-    }
-};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -135,18 +59,47 @@ int VirtualMachineAttributeSet::set_flag(int a_id, const string& flag_name)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VirtualMachineAttribute * VirtualMachineAttributeSet::clear_flag(
+VirtualMachineAttribute * VirtualMachineAttributeSet::remove_attribute(
         const string& flag)
 {
-    std::map<int, VirtualMachineAttribute*>::iterator it;
+    std::map<int, ExtendedAttribute*>::const_iterator it;
+
+    VirtualMachineAttribute * vma;
+    VirtualMachineAttribute * tmp = 0;
 
     for( it = a_set.begin(); it != a_set.end(); ++it)
     {
-        if ( it->second->is_flag(flag) == true )
-        {
-            it->second->clear_flag(flag);
+        vma = static_cast<VirtualMachineAttribute *>(it->second);
 
-            return it->second;
+        if ( vma->is_flag(flag) == true )
+        {
+            tmp = vma;
+            a_set.erase(it);
+        }
+    }
+
+    return tmp;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+VirtualMachineAttribute * VirtualMachineAttributeSet::clear_flag(
+        const string& flag)
+{
+    std::map<int, ExtendedAttribute *>::iterator it;
+
+    VirtualMachineAttribute * vma;
+
+    for( it = a_set.begin(); it != a_set.end(); ++it)
+    {
+        vma = static_cast<VirtualMachineAttribute *>(it->second);
+
+        if ( vma->is_flag(flag) == true )
+        {
+            vma->clear_flag(flag);
+
+            return vma;
         }
     }
 

@@ -237,7 +237,7 @@ int Cluster::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          other_u             << ")";
 
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     db->free_str(sql_name);
     db->free_str(sql_xml);
@@ -252,11 +252,11 @@ int Cluster::insert_replace(SqlDB *db, bool replace, string& error_str)
 
             oss.str("");
             oss << "DELETE FROM " << network_table  << " WHERE cid = " << oid;
-            rc += db->exec(oss);
+            rc += db->exec_wr(oss);
 
             oss.str("");
             oss << "DELETE FROM " << datastore_table<< " WHERE cid = " << oid;
-            rc += db->exec(oss);
+            rc += db->exec_wr(oss);
 
             set<int> datastore_set = datastores.get_collection();
 
@@ -275,7 +275,7 @@ int Cluster::insert_replace(SqlDB *db, bool replace, string& error_str)
                     oss << ", (" << oid  << "," << *i << ")";
                 }
 
-                rc += db->exec(oss);
+                rc += db->exec_wr(oss);
             }
 
             set<int> vnet_set = vnets.get_collection();
@@ -295,7 +295,7 @@ int Cluster::insert_replace(SqlDB *db, bool replace, string& error_str)
                     oss << ", (" << oid  << "," << *i << ")";
                 }
 
-                rc += db->exec(oss);
+                rc += db->exec_wr(oss);
             }
         }
         else
@@ -330,7 +330,7 @@ int Cluster::insert_replace(SqlDB *db, bool replace, string& error_str)
 
             oss << "COMMIT";
 
-            rc = db->exec(oss);
+            rc = db->exec_wr(oss);
         }
     }
 

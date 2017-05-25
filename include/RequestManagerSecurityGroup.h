@@ -23,7 +23,7 @@
 class SecurityGroupCommit : public Request
 {
 public:
-    SecurityGroupCommit() : Request("SecurityGroupCommit", "A:sib",
+    SecurityGroupCommit() : Request("one.secgroup.commit", "A:sib",
         "Commit security group changes to VMs")
     {
         Nebula& nd  = Nebula::instance();

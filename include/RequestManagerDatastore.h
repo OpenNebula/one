@@ -55,9 +55,8 @@ protected:
 class DatastoreEnable : public RequestManagerDatastore
 {
 public:
-    DatastoreEnable():
-        RequestManagerDatastore("DatastoreEnable", "Enables or disables an datastore",
-                "A:sib"){};
+    DatastoreEnable(): RequestManagerDatastore("one.datastore.enable",
+        "Enables or disables an datastore", "A:sib"){};
 
     ~DatastoreEnable(){};
 

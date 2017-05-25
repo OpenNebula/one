@@ -48,7 +48,7 @@ public:
     /**
      *  Error message for negative results
      */
-    string message;
+    std::string message;
 
     /**
      *  Time out, true if the request ended because of a time out
@@ -78,6 +78,14 @@ public:
         am.loop();
     };
 
+    /**
+     *  Wait for the AuthRequest to be completed
+     */
+    void wait(time_t t)
+    {
+        am.loop(t);
+    };
+
 protected:
 
     friend class MadManager;
@@ -91,6 +99,18 @@ protected:
      *  The ActionManager that will be notify when the request is ready.
      */
     ActionManager am;
+
+    /**
+     *  Timer action to finalize time-out waits
+     */
+    void timer_action(const ActionRequest& ar)
+    {
+        result  = false;
+        timeout = true;
+        message = "Operation time out";
+
+        am.finalize();
+    };
 };
 
 #endif /*SYNC_REQUEST_H_*/

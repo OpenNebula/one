@@ -24,6 +24,7 @@ lib_name='nebula_common'
 source_files=[
     'ActionManager.cc',
     'Attribute.cc',
+    'ExtendedAttribute.cc',
     'mem_collector.c',
     'NebulaUtil.cc'
 ]

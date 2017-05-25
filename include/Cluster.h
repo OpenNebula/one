@@ -283,13 +283,13 @@ private:
         ostringstream oss;
 
         oss.str(Cluster::db_bootstrap);
-        rc = db->exec(oss);
+        rc = db->exec_local_wr(oss);
 
         oss.str(Cluster::datastore_db_bootstrap);
-        rc += db->exec(oss);
+        rc += db->exec_local_wr(oss);
 
         oss.str(Cluster::network_db_bootstrap);
-        rc += db->exec(oss);
+        rc += db->exec_local_wr(oss);
 
         return rc;
     };

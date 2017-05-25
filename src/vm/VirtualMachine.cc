@@ -1523,7 +1523,7 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
     db->free_str(sql_name);
     db->free_str(sql_xml);
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     return rc;
 
@@ -1594,7 +1594,7 @@ int VirtualMachine::update_monitoring(SqlDB * db)
 
     db->free_str(sql_xml);
 
-    rc = db->exec(oss);
+    rc = db->exec_local_wr(oss);
 
     return rc;
 

@@ -30,6 +30,7 @@
 #include "RequestManagerChmod.h"
 #include "RequestManagerClone.h"
 #include "RequestManagerRename.h"
+#include "RequestManagerZone.h"
 #include "RequestManagerLock.h"
 
 #include "RequestManagerVirtualNetwork.h"
@@ -772,21 +773,38 @@ void RequestManager::register_xml_methods()
         zone_update_pt      = new ZoneUpdateTemplate();
         zone_delete_pt      = new ZoneDelete();
         zone_rename_pt      = new ZoneRename();
+
+        xmlrpc_c::methodPtr zone_updatedb(new ZoneUpdateDB());
+
+        RequestManagerRegistry.addMethod("one.zone.updatedb", zone_updatedb);
     }
 
     xmlrpc_c::methodPtr zone_allocate(zone_allocate_pt);
     xmlrpc_c::methodPtr zone_update(zone_update_pt);
     xmlrpc_c::methodPtr zone_delete(zone_delete_pt);
     xmlrpc_c::methodPtr zone_rename(zone_rename_pt);
+    xmlrpc_c::methodPtr zone_addserver(new ZoneAddServer());
+    xmlrpc_c::methodPtr zone_delserver(new ZoneDeleteServer());
+    xmlrpc_c::methodPtr zone_replicatelog(new ZoneReplicateLog());
+    xmlrpc_c::methodPtr zone_voterequest(new ZoneVoteRequest());
+    xmlrpc_c::methodPtr zone_raftstatus(new ZoneRaftStatus());
+    xmlrpc_c::methodPtr zone_fedreplicatelog(new ZoneReplicateFedLog());
 
     xmlrpc_c::methodPtr zone_info(new ZoneInfo());
     xmlrpc_c::methodPtr zonepool_info(new ZonePoolInfo());
 
-    RequestManagerRegistry.addMethod("one.zone.allocate",zone_allocate);
-    RequestManagerRegistry.addMethod("one.zone.update",  zone_update);
-    RequestManagerRegistry.addMethod("one.zone.delete",  zone_delete);
-    RequestManagerRegistry.addMethod("one.zone.info",    zone_info);
-    RequestManagerRegistry.addMethod("one.zone.rename",  zone_rename);
+    RequestManagerRegistry.addMethod("one.zone.allocate", zone_allocate);
+    RequestManagerRegistry.addMethod("one.zone.update",   zone_update);
+    RequestManagerRegistry.addMethod("one.zone.delete",   zone_delete);
+    RequestManagerRegistry.addMethod("one.zone.info",     zone_info);
+    RequestManagerRegistry.addMethod("one.zone.rename",   zone_rename);
+    RequestManagerRegistry.addMethod("one.zone.replicate",zone_replicatelog);
+    RequestManagerRegistry.addMethod("one.zone.fedreplicate",zone_fedreplicatelog);
+    RequestManagerRegistry.addMethod("one.zone.voterequest",zone_voterequest);
+    RequestManagerRegistry.addMethod("one.zone.raftstatus", zone_raftstatus);
+
+    RequestManagerRegistry.addMethod("one.zone.addserver", zone_addserver);
+    RequestManagerRegistry.addMethod("one.zone.delserver", zone_delserver);
 
     RequestManagerRegistry.addMethod("one.zonepool.info",zonepool_info);
 

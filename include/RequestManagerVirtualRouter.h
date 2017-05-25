@@ -54,10 +54,9 @@ protected:
 class VirtualRouterInstantiate : public RequestManagerVirtualRouter
 {
 public:
-    VirtualRouterInstantiate():
-        RequestManagerVirtualRouter("VirtualRouterInstantiate",
-                                 "Instantiates a new virtual machine associated to a virtual router",
-                                 "A:siiisbs")
+    VirtualRouterInstantiate() : RequestManagerVirtualRouter(
+        "one.vrouter.instantiate", "Instantiates a new virtual machine "
+        "associated to a virtual router", "A:siiisbs")
     {
         auth_op = AuthRequest::MANAGE;
     };
@@ -75,10 +74,9 @@ public:
 class VirtualRouterAttachNic : public RequestManagerVirtualRouter
 {
 public:
-    VirtualRouterAttachNic():
-        RequestManagerVirtualRouter("VirtualRouterAttachNic",
-                                 "Attaches a new NIC to the virtual router, and its virtual machines",
-                                 "A:sis")
+    VirtualRouterAttachNic():RequestManagerVirtualRouter("one.vrouter.attachnic",
+         "Attaches a new NIC to the virtual router, and its virtual machines",
+         "A:sis")
     {
         auth_op = AuthRequest::MANAGE;
     };
@@ -96,10 +94,8 @@ public:
 class VirtualRouterDetachNic : public RequestManagerVirtualRouter
 {
 public:
-    VirtualRouterDetachNic():
-        RequestManagerVirtualRouter("VirtualRouterDetachNic",
-                                 "Detaches a NIC from a virtual router, and its virtual machines",
-                                 "A:sii")
+    VirtualRouterDetachNic():RequestManagerVirtualRouter("one.vrouter.detachnic",
+        "Detaches a NIC from a virtual router, and its virtual machines","A:sii")
     {
         auth_op = AuthRequest::MANAGE;
     };

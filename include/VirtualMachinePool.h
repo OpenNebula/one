@@ -236,7 +236,7 @@ public:
         ostringstream oss_import(import_db_bootstrap);
 
         rc  = VirtualMachine::bootstrap(_db);
-        rc += _db->exec(oss_import);
+        rc += _db->exec_local_wr(oss_import);
 
         return rc;
     };

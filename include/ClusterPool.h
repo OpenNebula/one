@@ -201,7 +201,8 @@ public:
         int rc;
 
         rc  = Cluster::bootstrap(_db);
-        rc += _db->exec(BitMap<0>::bootstrap(Cluster::bitmap_table, oss_bitmap));
+        rc += _db->exec_local_wr(
+                BitMap<0>::bootstrap(Cluster::bitmap_table, oss_bitmap));
 
         return rc;
     };

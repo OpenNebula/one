@@ -78,8 +78,7 @@ MarketPlacePool::MarketPlacePool(
 
         // The first 100 IDs are reserved for system MarketPlaces.
         // Regular ones start from ID 100
-
-        set_update_lastOID(99);
+        set_lastOID(99);
     }
 
     return;

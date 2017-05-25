@@ -25,7 +25,7 @@
 class RequestManagerDropDB: public Request
 {
 protected:
-    RequestManagerDropDB(): Request("DropDB", "A:si",
+    RequestManagerDropDB(const string& name): Request(name, "A:si",
             "Drops an object from DB")
     {
         auth_op = AuthRequest::MANAGE;
@@ -75,7 +75,7 @@ protected:
 class MarketPlaceAppDropDB : public RequestManagerDropDB
 {
 public:
-    MarketPlaceAppDropDB():RequestManagerDropDB()
+    MarketPlaceAppDropDB():RequestManagerDropDB("one.marketapp.dropdb")
     {
         auth_object = PoolObjectSQL::MARKETPLACEAPP;
         pool        =  Nebula::instance().get_apppool();

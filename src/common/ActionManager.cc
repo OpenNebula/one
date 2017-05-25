@@ -55,7 +55,21 @@ void ActionManager::trigger(const ActionRequest& ar )
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void ActionManager::loop(time_t timer, const ActionRequest& trequest)
+static void set_timeout(struct timespec& timeout, struct timespec& _tout)
+{
+    clock_gettime(CLOCK_REALTIME, &timeout);
+
+    timeout.tv_sec  += _tout.tv_sec;
+    timeout.tv_nsec += _tout.tv_nsec;
+
+    while ( timeout.tv_nsec >= 1000000000 )
+    {
+        timeout.tv_sec  += 1;
+        timeout.tv_nsec -= 1000000000;
+    }
+}
+
+void ActionManager::loop(struct timespec& _tout, const ActionRequest& trequest)
 {
     struct timespec timeout;
 
@@ -64,8 +78,7 @@ void ActionManager::loop(time_t timer, const ActionRequest& trequest)
 
     ActionRequest * action;
 
-    timeout.tv_sec  = time(NULL) + timer;
-    timeout.tv_nsec = 0;
+    set_timeout(timeout, _tout);
 
     //Action Loop, end when a finalize action is triggered to this manager
     while (finalize == 0)
@@ -74,9 +87,9 @@ void ActionManager::loop(time_t timer, const ActionRequest& trequest)
 
         while ( actions.empty() == true )
         {
-            if ( timer != 0 )
+            if ( _tout.tv_sec != 0 || _tout.tv_nsec != 0 )
             {
-                rc = pthread_cond_timedwait(&cond,&mutex, &timeout);
+                rc = pthread_cond_timedwait(&cond, &mutex, &timeout);
 
                 if ( rc == ETIMEDOUT )
                     actions.push(trequest.clone());
@@ -95,8 +108,7 @@ void ActionManager::loop(time_t timer, const ActionRequest& trequest)
         switch(action->type())
         {
             case ActionRequest::TIMER:
-                timeout.tv_sec  = time(NULL) + timer;
-                timeout.tv_nsec = 0;
+                set_timeout(timeout, _tout);
             break;
 
             case ActionRequest::FINALIZE:

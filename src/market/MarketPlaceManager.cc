@@ -120,6 +120,7 @@ void MarketPlaceManager::init_managers()
     Nebula& nd = Nebula::instance();
 
     imagem = nd.get_imagem();
+    raftm  = nd.get_raftm();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -173,7 +174,7 @@ string * MarketPlaceManager::format_message(
 void MarketPlaceManager::timer_action(const ActionRequest& ar)
 {
     static int mark = 0;
-    static int tics = monitor_period;
+    static int tics = monitor_period - 5; //first monitor in 5 secs
 
     mark += timer_period;
     tics += timer_period;
@@ -190,6 +191,11 @@ void MarketPlaceManager::timer_action(const ActionRequest& ar)
     }
 
     tics = 0;
+
+    if ( !raftm->is_leader() && !raftm->is_solo() )
+    {
+        return;
+    }
 
     int rc;
 

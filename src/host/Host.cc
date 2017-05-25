@@ -140,7 +140,7 @@ int Host::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          other_u             << ","
         <<          cluster_id          << ")";
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     db->free_str(sql_hostname);
     db->free_str(sql_xml);
@@ -553,7 +553,7 @@ int Host::update_monitoring(SqlDB * db)
 
     db->free_str(sql_xml);
 
-    rc = db->exec(oss);
+    rc = db->exec_local_wr(oss);
 
     return rc;
 

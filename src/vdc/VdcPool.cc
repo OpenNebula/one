@@ -73,8 +73,7 @@ VdcPool::VdcPool(SqlDB * db, bool is_federation_slave)
 
         // The first 100 Vdc IDs are reserved for system Vdcs.
         // Regular ones start from ID 100
-
-        set_update_lastOID(99);
+        set_lastOID(99);
     }
 
     return;

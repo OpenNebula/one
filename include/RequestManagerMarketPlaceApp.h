@@ -51,7 +51,7 @@ protected:
 class MarketPlaceAppEnable : public RequestManagerMarketPlaceApp
 {
 public:
-    MarketPlaceAppEnable(): RequestManagerMarketPlaceApp("MarketPlaceAppEnable",
+    MarketPlaceAppEnable(): RequestManagerMarketPlaceApp("one.marketapp.enable",
 		"Enables or disables a marketplace app", "A:sib"){};
 
     ~MarketPlaceAppEnable(){};

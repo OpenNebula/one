@@ -532,8 +532,8 @@ private:
         ostringstream oss_host(Host::db_bootstrap);
         ostringstream oss_monit(Host::monit_db_bootstrap);
 
-        rc =  db->exec(oss_host);
-        rc += db->exec(oss_monit);
+        rc =  db->exec_local_wr(oss_host);
+        rc += db->exec_local_wr(oss_monit);
 
         return rc;
     };

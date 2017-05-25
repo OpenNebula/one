@@ -379,13 +379,13 @@ public:
 
     DiskIterator begin()
     {
-        DiskIterator it(VirtualMachineAttributeSet::begin());
+        DiskIterator it(ExtendedAttributeSet::begin());
         return it;
     }
 
     DiskIterator end()
     {
-        DiskIterator it(VirtualMachineAttributeSet::end());
+        DiskIterator it(ExtendedAttributeSet::end());
         return it;
     }
 

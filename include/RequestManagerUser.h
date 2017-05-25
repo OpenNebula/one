@@ -63,7 +63,7 @@ class UserChangePassword : public RequestManagerUser
 {
 public:
     UserChangePassword():
-        RequestManagerUser("UserChangePassword",
+        RequestManagerUser("one.user.passwd",
                            "Changes user's password",
                            "A:sis")
     {
@@ -86,7 +86,7 @@ class UserChangeAuth: public RequestManagerUser
 {
 public:
     UserChangeAuth():
-        RequestManagerUser("UserChangeAuth",
+        RequestManagerUser("one.user.chauth",
                            "Changes user's authentication driver",
                            "A:siss")
     {
@@ -109,7 +109,7 @@ class UserSetQuota : public RequestManagerUser
 {
 public:
     UserSetQuota():
-        RequestManagerUser("UserSetQuota",
+        RequestManagerUser("one.user.quota",
                            "Sets user quota limits",
                            "A:sis")
     {
@@ -130,7 +130,8 @@ public:
 class UserLogin : public Request
 {
 public:
-    UserLogin(): Request("UserLogin", "A:sssii", "Generates or sets a login token")
+    UserLogin(): Request("one.user.login", "A:sssii",
+            "Generates or sets a login token")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_upool();
@@ -194,7 +195,7 @@ class UserAddGroup : public UserEditGroup
 {
 public:
     UserAddGroup():
-        UserEditGroup("UserAddGroup",
+        UserEditGroup("one.user.addgroup",
                        "Adds the user to a secondary group",
                        "A:sii"){};
 
@@ -214,7 +215,7 @@ class UserDelGroup : public UserEditGroup
 {
 public:
     UserDelGroup():
-        UserEditGroup("UserDelGroup",
+        UserEditGroup("one.user.delgroup",
                        "Deletes the user from a secondary group",
                        "A:sii"){};
 

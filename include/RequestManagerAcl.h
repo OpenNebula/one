@@ -60,7 +60,7 @@ class AclAddRule : public RequestManagerAcl
 {
 public:
     AclAddRule():
-        RequestManagerAcl("AclAddRule",
+        RequestManagerAcl("one.acl.addrule",
                           "Adds a new ACL rule",
                           "A:ssss")
     {};
@@ -78,7 +78,7 @@ class AclDelRule : public RequestManagerAcl
 {
 public:
     AclDelRule():
-        RequestManagerAcl("AclDelRule",
+        RequestManagerAcl("one.acl.delrule",
                           "Deletes an existing ACL rule",
                           "A:si")
     {};
@@ -96,7 +96,7 @@ class AclInfo: public RequestManagerAcl
 {
 public:
     AclInfo():
-        RequestManagerAcl("AclInfo",
+        RequestManagerAcl("one.acl.info",
                           "Returns the ACL rule set",
                           "A:s")
     {};

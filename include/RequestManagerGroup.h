@@ -53,7 +53,7 @@ class GroupSetQuota : public RequestManagerGroup
 {
 public:
     GroupSetQuota():
-        RequestManagerGroup("GroupSetQuota",
+        RequestManagerGroup("one.group.quota",
                            "Sets group quota limits",
                            "A:sis")
     {
@@ -101,7 +101,7 @@ class GroupAddAdmin : public GroupEditAdmin
 {
 public:
     GroupAddAdmin():
-        GroupEditAdmin( "GroupAddAdmin",
+        GroupEditAdmin( "one.group.addadmin",
                         "Adds a user to the group admin set",
                         "A:sii"){};
 
@@ -117,7 +117,7 @@ class GroupDelAdmin : public GroupEditAdmin
 {
 public:
     GroupDelAdmin():
-        GroupEditAdmin( "GroupDelAdmin",
+        GroupEditAdmin( "one.group.deladmin",
                         "Removes a user from the group admin set",
                         "A:sii"){};
 

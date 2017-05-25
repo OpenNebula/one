@@ -45,6 +45,7 @@ source_files=[
     'RequestManagerRename.cc',
     'RequestManagerProxy.cc',
     'RequestManagerVdc.cc',
+    'RequestManagerZone.cc',
     'RequestManagerDatastore.cc',
     'RequestManagerLock.cc',
     'RequestManagerMarketPlaceApp.cc',

@@ -151,7 +151,17 @@ public:
      *   @param timeout for the periodic action.
      *   @param timer_args arguments for the timer action
      */
-    void loop(time_t timeout, const ActionRequest& trequest);
+    void loop(struct timespec& _timeout, const ActionRequest& trequest);
+
+    void loop(time_t timeout, const ActionRequest& trequest)
+    {
+        struct timespec _timeout;
+
+        _timeout.tv_sec  = timeout;
+        _timeout.tv_nsec = 0;
+
+        loop(_timeout, trequest);
+    }
 
     /**
      * The calling thread will be suspended until an action is triggered.
@@ -162,7 +172,19 @@ public:
     {
         ActionRequest trequest(ActionRequest::TIMER);
 
-        loop(timeout, trequest);
+        struct timespec _timeout;
+
+        _timeout.tv_sec  = timeout;
+        _timeout.tv_nsec = 0;
+
+        loop(_timeout, trequest);
+    }
+
+    void loop(struct timespec& _timeout)
+    {
+        ActionRequest trequest(ActionRequest::TIMER);
+
+        loop(_timeout, trequest);
     }
 
     /**
@@ -172,8 +194,12 @@ public:
     void loop()
     {
         ActionRequest trequest(ActionRequest::TIMER);
+        struct timespec _timeout;
 
-        loop(0, trequest);
+        _timeout.tv_sec  = 0;
+        _timeout.tv_nsec = 0;
+
+        loop(_timeout, trequest);
     }
 
     /**

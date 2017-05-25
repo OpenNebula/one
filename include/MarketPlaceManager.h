@@ -30,6 +30,7 @@ class ImagePool;
 class DatastorePool;
 
 class ImageManager;
+class RaftManager;
 
 class MarketPlaceManager : public MadManager, public ActionListener
 {
@@ -174,6 +175,11 @@ private:
 	 *  Pointer to the Image Manger
      */
 	ImageManager *       imagem;
+
+	/**
+	 *  Pointer to the Raft Manger
+     */
+	RaftManager *        raftm;
 
     /**
      *  Action engine for the Manager

@@ -141,6 +141,12 @@ void ImageManager::timer_action(const ActionRequest& ar)
 
     Nebula& nd             = Nebula::instance();
     DatastorePool * dspool = nd.get_dspool();
+    RaftManager * raftm    = nd.get_raftm();
+
+    if ( !raftm->is_leader() && !raftm->is_solo() )
+    {
+        return;
+    }
 
     rc = dspool->list(datastores);
 

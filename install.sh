@@ -272,6 +272,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/tm/iscsi_libvirt \
           $VAR_LOCATION/remotes/hooks \
           $VAR_LOCATION/remotes/hooks/ft \
+          $VAR_LOCATION/remotes/hooks/raft \
           $VAR_LOCATION/remotes/datastore \
           $VAR_LOCATION/remotes/datastore/dummy \
           $VAR_LOCATION/remotes/datastore/fs \
@@ -422,6 +423,7 @@ INSTALL_FILES=(
     INSTALL_GEMS_SHARE_FILES:$SHARE_LOCATION
     ONETOKEN_SHARE_FILE:$SHARE_LOCATION
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
+    HOOK_RAFT_FILES:$VAR_LOCATION/remotes/hooks/raft
     COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
     CLOUD_AUTH_LIB_FILES:$LIB_LOCATION/ruby/cloud/CloudAuth
     ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe
@@ -1269,12 +1271,18 @@ WEBSOCKIFY_SHARE_FILES="share/websockify/websocketproxy.py \
                         share/websockify/websockify"
 
 #-------------------------------------------------------------------------------
-# HOOK scripts, to be installed under $VAR_LOCATION/remotes/hooks
+# HOOK scripts, to be installed under $VAR_LOCATION/remotes/hooks/ft
 #-------------------------------------------------------------------------------
 
-HOOK_FT_FILES="share/hooks/host_error.rb \
-               share/hooks/fence_host.sh \
-               share/hooks/delete_poweroff_vms.rb"
+HOOK_FT_FILES="share/hooks/ft/host_error.rb \
+               share/hooks/ft/fence_host.sh \
+               share/hooks/ft/delete_poweroff_vms.rb"
+#-------------------------------------------------------------------------------
+# HOOK RAFT scripts, to be installed under $VAR_LOCATION/remotes/hooks/raft
+#-------------------------------------------------------------------------------
+
+HOOK_RAFT_FILES="share/hooks/raft/leader.sh \
+                 share/hooks/raft/follower.sh"
 
 #-------------------------------------------------------------------------------
 # Installation scripts, to be installed under $SHARE_LOCATION

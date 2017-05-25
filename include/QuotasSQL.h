@@ -167,7 +167,7 @@ public:
     {
         ostringstream oss_quota(GroupQuotas::db_bootstrap);
 
-        return db->exec(oss_quota);
+        return db->exec_local_wr(oss_quota);
     };
 
 protected:
@@ -220,7 +220,7 @@ public:
     {
         ostringstream oss_quota(UserQuotas::db_bootstrap);
 
-        return db->exec(oss_quota);
+        return db->exec_local_wr(oss_quota);
     };
 
 protected:

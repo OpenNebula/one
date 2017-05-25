@@ -217,7 +217,7 @@ private:
     {
         ostringstream oss(SecurityGroup::db_bootstrap);
 
-        return db->exec(oss);
+        return db->exec_local_wr(oss);
     };
 
     /**

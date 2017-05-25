@@ -122,7 +122,7 @@ public:
         std::ostringstream oss;
         oss << "DELETE FROM " << db_table << " WHERE id = " << id ;
 
-        return db->exec(oss);
+        return db->exec_wr(oss);
     }
 
     /* ---------------------------------------------------------------------- */
@@ -263,7 +263,7 @@ private:
 
         oss << "SELECT map FROM " << db_table << " WHERE id = " << id ;
 
-        rc = db->exec(oss, this);
+        rc = db->exec_rd(oss, this);
 
         unset_callback();
 
@@ -318,7 +318,7 @@ private:
         oss << "INTO " << db_table << " (id, map) VALUES ("
             << id << ",'" << ezipped64 << "')";
 
-        int rc = db->exec(oss);
+        int rc = db->exec_wr(oss);
 
         delete zipped;
 
