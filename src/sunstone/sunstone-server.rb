@@ -689,6 +689,7 @@ end
 ##############################################################################
 get '/:pool' do
     zone_client = nil
+    filter = params[:pool_filter]
 
     if params[:zone_id] && session[:federation_mode] != "STANDALONE"
         zone = OpenNebula::Zone.new_with_id(params[:zone_id].to_i,
@@ -701,8 +702,12 @@ get '/:pool' do
                                          zone['TEMPLATE/ENDPOINT'])
     end
 
+    if params[:pool_filter].nil?
+        filter = session[:user_gid]
+    end
+
     @SunstoneServer.get_pool(params[:pool],
-                             params[:pool_filter],
+                             filter,
                              zone_client)
 end
 
