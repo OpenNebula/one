@@ -693,6 +693,29 @@ int Host::from_xml(const string& xml)
     return 0;
 }
 
+static void nebula_crypt(const std::string in, std::string& out)
+{
+    Nebula& nd = Nebula::instance();
+    string  one_key;
+    string  * encrypted;
+
+    nd.get_configuration_attribute("ONE_KEY", one_key);
+
+    if (!one_key.empty())
+    {
+        encrypted = one_util::aes256cbc_encrypt(in, one_key);
+
+        out = *encrypted;
+
+        delete encrypted;
+    }
+    else
+    {
+        out = in;
+    }
+}
+
+
 
 int Host::post_update_template(string& error)
 {
@@ -700,30 +723,36 @@ int Host::post_update_template(string& error)
     string new_im_mad;
     string new_vm_mad;
 
+    string ec2_access;
+    string ec2_secret;
+
+    string crypted;
+
     get_template_attribute("VCENTER_PASSWORD", vcenter_password);
 
     if (!vcenter_password.empty() && vcenter_password.size() <= 22)
     {
-        erase_template_attribute("VCENTER_PASSWORD", vcenter_password);
+        nebula_crypt(vcenter_password, crypted);
 
-        Nebula& nd = Nebula::instance();
-        string  one_key;
-        string  * encrypted;
+        replace_template_attribute("VCENTER_PASSWORD", crypted);
+    }
 
-        nd.get_configuration_attribute("ONE_KEY", one_key);
+    get_template_attribute("EC2_ACCESS", ec2_access);
 
-        if (!one_key.empty())
-        {
-            encrypted = one_util::aes256cbc_encrypt(vcenter_password, one_key);
+    if (!ec2_access.empty())
+    {
+        nebula_crypt(ec2_access, crypted);
 
-            add_template_attribute("VCENTER_PASSWORD", *encrypted);
+        replace_template_attribute("EC2_ACCESS", crypted);
+    }
 
-            delete encrypted;
-        }
-        else
-        {
-            add_template_attribute("VCENTER_PASSWORD", vcenter_password);
-        }
+    get_template_attribute("EC2_SECRET", ec2_secret);
+
+    if (!ec2_secret.empty())
+    {
+        nebula_crypt(ec2_secret, crypted);
+
+        replace_template_attribute("EC2_SECRET", crypted);
     }
 
     get_template_attribute("IM_MAD", new_im_mad);
