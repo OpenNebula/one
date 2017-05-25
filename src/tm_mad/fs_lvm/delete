@@ -60,5 +60,7 @@ DELETE_CMD=$(cat <<EOF
 EOF
 )
 
-ssh_exec_and_log "$DST_HOST" "$DELETE_CMD" "Error deleting $DST_PATH"
+LOCK_FILE="$DST_DS_PATH/lock"
+flock -w 120 $LOCK_FILE ssh_exec_and_log "$DST_HOST" "$DELETE_CMD" \
+        "Error deleting $DST_PATH"
 
