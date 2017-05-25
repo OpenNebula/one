@@ -29,11 +29,8 @@ using namespace std;
 class RequestManagerSystem: public Request
 {
 protected:
-    RequestManagerSystem( const string& method_name,
-                       const string& help,
-                       const string& params)
-        :Request(method_name,params,help)
-    {};
+    RequestManagerSystem(const string& method_name, const string& help,
+            const string& params) :Request(method_name,params,help) {};
 
     ~RequestManagerSystem(){};
 
@@ -74,6 +71,24 @@ public:
     {};
 
     ~SystemConfig(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class SystemSql: public RequestManagerSystem
+{
+public:
+    SystemSql():RequestManagerSystem("one.system.sql",
+            "Executes and replicates SQL commands on the DB backend","A:ssb")
+    {
+        auth_op = AuthRequest::ADMIN;
+    };
+
+    ~SystemSql(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);

@@ -446,6 +446,7 @@ void RequestManager::register_xml_methods()
     // System Methods
     xmlrpc_c::methodPtr system_version(new SystemVersion());
     xmlrpc_c::methodPtr system_config(new SystemConfig());
+    xmlrpc_c::methodPtr system_sql(new SystemSql());
 
     // Rename Methods
     xmlrpc_c::methodPtr vm_rename(new VirtualMachineRename());
@@ -1063,6 +1064,7 @@ void RequestManager::register_xml_methods()
     /* System related methods */
     RequestManagerRegistry.addMethod("one.system.version", system_version);
     RequestManagerRegistry.addMethod("one.system.config", system_config);
+    RequestManagerRegistry.addMethod("one.system.sql", system_sql);
 };
 
 /* -------------------------------------------------------------------------- */
