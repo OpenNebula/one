@@ -1522,7 +1522,7 @@ void Scheduler::timer_action(const ActionRequest& ar)
                 return;
            }
 
-           if ( state != 3 )
+           if ( state != 3 && state != 0 )
            {
                 NebulaLog::log("SCHED", Log::ERROR, "oned is not leader");
                 return;
