@@ -46,6 +46,8 @@ module Migrator
 
         bug_3705()
 
+        feature_4809()
+
         log_time()
 
         return true
@@ -173,5 +175,14 @@ module Migrator
         end
 
         @db.run "DROP TABLE old_datastore_pool;"
+    end
+
+    ############################################################################
+    # Feature 4809
+    # Simplify HA management in OpenNebula
+    ############################################################################
+    def feature_4809
+        create_table(:logdb)
+        create_table(:fed_logdb)
     end
 end
