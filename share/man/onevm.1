@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEVM" "1" "October 2016" "" "onevm(1) -- manages OpenNebula virtual machines"
+.TH "ONEVM" "1" "May 2017" "" "onevm(1) -- manages OpenNebula virtual machines"
 .
 .SH "NAME"
 \fBonevm\fR \- manages OpenNebula virtual machines
@@ -57,6 +57,10 @@
  \-\-init script1,script2    Script or scripts to start in context
  \-\-startscript [file]      Start script to be executed
  \-\-report_ready            Sends READY=YES to OneGate, useful for OneFlow
+ \-\-vcenter_vm_folder path  In a vCenter environment sets the the VMs and
+                           Template folder where the VM will be placed in\.
+                           The path uses slashes to separate folders\. For
+                           example: \-\-vcenter_vm_folder "/Management/VMs"
  \-\-dry                     Just print the template
  \-a, \-\-append              Append new attributes to the current template
  \-\-schedule TIME           Schedules this action to be executed afterthe
@@ -130,7 +134,7 @@ Examples:
   \- a vm with two disks
 
     onevm create \-\-name "test vm" \-\-memory 128 \-\-cpu 1 \-\-disk arch,data
-valid options: multiple, hold, name, cpu, vcpu, arch, memory, disk, nic, raw, vnc, vnc_password, vnc_listen, vnc_keymap, spice, spice_password, spice_listen, spice_keymap, ssh, net_context, context, boot, files_ds, init, startscript, report_ready, dry
+valid options: multiple, hold, name, cpu, vcpu, arch, memory, disk, nic, raw, vnc, vnc_password, vnc_listen, vnc_keymap, spice, spice_password, spice_listen, spice_keymap, ssh, net_context, context, boot, files_ds, init, startscript, report_ready, vcenter_vm_folder, dry
 .
 .fi
 .
@@ -498,6 +502,20 @@ States: RUNNING, POWEROFF, SUSPENDED
 
 .
 .IP "\(bu" 4
+disk\-resize \fIvmid\fR \fIdiskid\fR \fIsize\fR Resizes a VM disk\. The new size should be larger than the old one\.
+.
+.IP "" 4
+.
+.nf
+
+States: RUNNING, POWEROFF
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
 list [\fIfilterflag\fR] Lists VMs in the pool valid options: list, listconf, delay, filter, csv, xml, numeric, kilobytes, describe
 .
 .IP "\(bu" 4
@@ -578,15 +596,18 @@ vmid OpenNebula VM name or id
 vmid_list Comma\-separated list of OpenNebula VM names or ids
 .
 .IP "\(bu" 4
-filterflag a, all all the known VMs m, mine the VM belonging to the user in ONE_AUTH g, group \'mine\' plus the VM belonging to the groups the user is member of uid VM of the user identified by this uid user VM of the user identified by the username
+filterflag a, all all the known VMs m, mine the VM belonging to the user in ONE_AUTH g, group \'mine\' plus the VM belonging to the groups the user is member of G, primary group the VM owned the user\'s primary group uid VM of the user identified by this uid user VM of the user identified by the username
 .
 .IP "\(bu" 4
 diskid Integer
 .
+.IP "\(bu" 4
+size Disk size in MiB
+.
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 5\.2\.0 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
+OpenNebula 5\.3\.80 Copyright 2002\-2017, OpenNebula Project, OpenNebula Systems
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

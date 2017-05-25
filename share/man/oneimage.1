@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEIMAGE" "1" "October 2016" "" "oneimage(1) -- manages OpenNebula images"
+.TH "ONEIMAGE" "1" "May 2017" "" "oneimage(1) -- manages OpenNebula images"
 .
 .SH "NAME"
 \fBoneimage\fR \- manages OpenNebula images
@@ -24,12 +24,14 @@
  \-\-target target           Device the disk will be attached to
  \-\-path path               Path of the image file
  \-\-driver driver           Driver to use image (raw, qcow2, tap:aio:\.\.\.)
- \-\-disk_type disk_type     Type of the image for KVM: BLOCK, CDROM, RBD or
-                           FILE for vCenter: THIN, TICHK, ZEOREDTHICK (for
+ \-\-disk_type disk_type     Type of the image BLOCK, CDROM, RBD or FILE (for
                            others, check the documentation)
- \-\-adapter_type adapter_type Controller that will handle this image in
-                           vCenter (lsiLogic, ide, busLogic)\. For other
-                           values check the documentation
+ \-\-vcenter_disk_type vcenter_disk_type The vCenter Disk Type of the image
+                           for vCenter: THIN, THICK, ZEROEDTHICK (for
+                           others, check the documentation)
+ \-\-vcenter_adapter_type vcenter_adapter_type Controller that will handle
+                           this image in vCenter (lsiLogic, ide, busLogic)\.
+                           For other values check the documentation
  \-\-source source           Source to be used\. Useful for not file\-based
                            images
  \-\-size size               Size in MB\. Used for DATABLOCK type or SOURCE
@@ -81,7 +83,7 @@ create [\fIfile\fR] Creates a new Image Examples:
   \- a datablock image of 400MB:
 
     oneimage create \-d 1 \-\-name data \-\-type DATABLOCK \-\-size 400
-valid options: datastore, name, description, type, persistent, prefix, target, path, driver, disk_type, adapter_type, source, size, dry
+valid options: datastore, name, description, type, persistent, prefix, target, path, driver, disk_type, vcenter_disk_type, vcenter_adapter_type, source, size, dry
 .
 .fi
 .
@@ -168,7 +170,7 @@ imageid OpenNebula IMAGE name or id
 imageid_list Comma\-separated list of OpenNebula IMAGE names or ids
 .
 .IP "\(bu" 4
-filterflag a, all all the known IMAGEs m, mine the IMAGE belonging to the user in ONE_AUTH g, group \'mine\' plus the IMAGE belonging to the groups the user is member of uid IMAGE of the user identified by this uid user IMAGE of the user identified by the username
+filterflag a, all all the known IMAGEs m, mine the IMAGE belonging to the user in ONE_AUTH g, group \'mine\' plus the IMAGE belonging to the groups the user is member of G, primary group the IMAGE owned the user\'s primary group uid IMAGE of the user identified by this uid user IMAGE of the user identified by the username
 .
 .IP "\(bu" 4
 type Image type: OS, CDROM, DATABLOCK, KERNEL, RAMDISK, CONTEXT
@@ -176,7 +178,7 @@ type Image type: OS, CDROM, DATABLOCK, KERNEL, RAMDISK, CONTEXT
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 5\.2\.0 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
+OpenNebula 5\.3\.80 Copyright 2002\-2017, OpenNebula Project, OpenNebula Systems
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0
