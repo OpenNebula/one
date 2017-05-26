@@ -867,6 +867,8 @@ void LifeCycleManager::delete_recreate_action(const LCMAction& la)
 
             vm->delete_non_persistent_disk_resizes(&vm_quotas_rsz,
                     ds_quotas_rsz);
+
+            vmpool->update(vm);
         break;
     }
 

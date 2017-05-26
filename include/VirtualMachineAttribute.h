@@ -98,7 +98,8 @@ protected:
      */
     VirtualMachineAttribute * get_attribute(int id) const
     {
-        return static_cast<VirtualMachineAttribute *>(get_attribute(id));
+        return static_cast<VirtualMachineAttribute *>(
+            ExtendedAttributeSet::get_attribute(id));
     }
 
     /**
