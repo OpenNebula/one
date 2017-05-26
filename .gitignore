@@ -2,6 +2,7 @@
 *.o
 *.pyc
 *.DS_Store
+.idea/
 .xmlrpc_test/
 .sconsign.dblite
 share/man/*.gz
