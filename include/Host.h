@@ -317,7 +317,7 @@ public:
      *    @return 0 on success
      */
     void del_capacity(int vm_id, long long cpu, long long mem, long long disk,
-            vector<VectorAttribute *> pci)
+            const vector<VectorAttribute *>& pci)
     {
         if ( vm_collection.del(vm_id) == 0 )
         {

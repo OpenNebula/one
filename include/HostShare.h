@@ -226,7 +226,7 @@ public:
      *    @param pci_devs requested by the VM
      */
     void del(long long cpu, long long mem, long long disk,
-            vector<VectorAttribute *> pci_devs)
+            const vector<VectorAttribute *>& pci_devs)
     {
         cpu_usage  -= cpu;
         mem_usage  -= mem;

@@ -37,7 +37,7 @@ void  LifeCycleManager::deploy_action(const LCMAction& la)
     if ( vm->get_state() == VirtualMachine::ACTIVE )
     {
         time_t thetime = time(0);
-        int    cpu,mem,disk;
+        int    cpu, mem, disk, rc;
         vector<VectorAttribute *> pci;
 
         VirtualMachine::LcmState vm_state;
@@ -69,6 +69,8 @@ void  LifeCycleManager::deploy_action(const LCMAction& la)
 
         vm->set_state(vm_state);
 
+        rc = hpool->add_capacity(vm->get_hid(),vm->get_oid(),cpu,mem,disk,pci);
+
         vmpool->update(vm);
 
         vm->set_stime(thetime);
@@ -77,9 +79,7 @@ void  LifeCycleManager::deploy_action(const LCMAction& la)
 
         vmpool->update_history(vm);
 
-        //----------------------------------------------------
-
-        if (hpool->add_capacity(vm->get_hid(),vm->get_oid(),cpu,mem,disk,pci) == -1)
+        if ( rc == -1)
         {
             //The host has been deleted, move VM to FAILURE
             this->trigger(LCMAction::PROLOG_FAILURE, vid);
@@ -239,6 +239,10 @@ void  LifeCycleManager::migrate_action(const LCMAction& la)
 
         vm->set_resched(false);
 
+        vm->get_requirements(cpu, mem, disk, pci);
+
+        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
+
         vmpool->update(vm);
 
         vm->set_stime(the_time);
@@ -249,10 +253,6 @@ void  LifeCycleManager::migrate_action(const LCMAction& la)
         vm->set_action(History::MIGRATE_ACTION, la.uid(), la.gid(), la.req_id());
 
         vmpool->update_history(vm);
-
-        vm->get_requirements(cpu, mem, disk, pci);
-
-        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
 
         //----------------------------------------------------
 
@@ -306,6 +306,13 @@ void  LifeCycleManager::migrate_action(const LCMAction& la)
 
         vm->reset_info();
 
+        vm->get_requirements(cpu, mem, disk, pci);
+
+        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
+
+        hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem,
+            disk, pci);
+
         vmpool->update(vm);
 
         vm->set_stime(the_time);
@@ -313,13 +320,6 @@ void  LifeCycleManager::migrate_action(const LCMAction& la)
         vm->set_prolog_stime(the_time);
 
         vmpool->update_history(vm);
-
-        vm->get_requirements(cpu, mem, disk, pci);
-
-        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
-
-        hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem,
-            disk, pci);
 
         //----------------------------------------------------
 
@@ -365,6 +365,10 @@ void  LifeCycleManager::live_migrate_action(const LCMAction& la)
 
         vm->set_resched(false);
 
+        vm->get_requirements(cpu, mem, disk, pci);
+
+        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
+
         vmpool->update(vm);
 
         vm->set_stime(time(0));
@@ -378,10 +382,6 @@ void  LifeCycleManager::live_migrate_action(const LCMAction& la)
                     la.req_id());
 
         vmpool->update_previous_history(vm);
-
-        vm->get_requirements(cpu, mem, disk, pci);
-
-        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
 
         //----------------------------------------------------
 
