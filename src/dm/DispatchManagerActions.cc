@@ -108,8 +108,6 @@ int DispatchManager::import(VirtualMachine * vm, const RequestAttributes& ra)
         vm->set_state(VirtualMachine::RUNNING);
     }
 
-    vmpool->update(vm);
-
     vm->set_stime(the_time);
 
     vm->set_prolog_stime(the_time);
@@ -120,6 +118,8 @@ int DispatchManager::import(VirtualMachine * vm, const RequestAttributes& ra)
     vm->set_last_poll(0);
 
     vmpool->update_history(vm);
+
+    vmpool->update(vm);
 
     return 0;
 }
@@ -1790,10 +1790,6 @@ int DispatchManager::disk_snapshot_create(int vid, int did, const string& name,
         default: break;
     }
 
-    vmpool->update(vm);
-
-    vm->unlock();
-
     switch(state)
     {
         case VirtualMachine::POWEROFF:
@@ -1830,6 +1826,10 @@ int DispatchManager::disk_snapshot_create(int vid, int did, const string& name,
 
         default: break;
     }
+
+    vmpool->update(vm);
+
+    vm->unlock();
 
     return 0;
 }
@@ -1991,10 +1991,6 @@ int DispatchManager::disk_snapshot_delete(int vid, int did, int snap_id,
         default: break;
     }
 
-    vmpool->update(vm);
-
-    vm->unlock();
-
     switch(state)
     {
         case VirtualMachine::ACTIVE:
@@ -2028,6 +2024,10 @@ int DispatchManager::disk_snapshot_delete(int vid, int did, int snap_id,
 
         default: break;
     }
+
+    vmpool->update(vm);
+
+    vm->unlock();
 
     return 0;
 }
@@ -2101,10 +2101,6 @@ int DispatchManager::disk_resize(int vid, int did, long long new_size,
         default: break;
     }
 
-    vmpool->update(vm);
-
-    vm->unlock();
-
     switch(state)
     {
         case VirtualMachine::POWEROFF:
@@ -2141,6 +2137,10 @@ int DispatchManager::disk_resize(int vid, int did, long long new_size,
 
         default: break;
     }
+
+    vmpool->update(vm);
+
+    vm->unlock();
 
     return 0;
 }
