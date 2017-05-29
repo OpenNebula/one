@@ -78,7 +78,7 @@ define(function(require) {
       }
     });
     var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE, Locale.tr("Attributes"), true);
-    var templateTableVcenterHTML = TemplateTable.html(strippedTemplateVcenter, RESOURCE, Locale.tr("Vcenter information"), false);
+    var templateTableVcenterHTML = TemplateTable.html(strippedTemplateVcenter, RESOURCE, Locale.tr("vCenter information"), false);
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
     var capacityBar = DatastoreCapacityBar.html(this.element);
     var stateStr = OpenNebulaDatastore.stateStr(this.element.STATE);

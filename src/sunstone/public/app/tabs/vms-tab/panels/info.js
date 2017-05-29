@@ -107,7 +107,7 @@ define(function(require) {
     });
 
     var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE, Locale.tr("Attributes"), true);
-    var templateTableVcenterHTML = TemplateTable.html(strippedTemplateVcenter, RESOURCE, Locale.tr("Vcenter information"), false);
+    var templateTableVcenterHTML = TemplateTable.html(strippedTemplateVcenter, RESOURCE, Locale.tr("vCenter information"), false);
 
 
     var monitoring = $.extend({}, this.element.MONITORING);
