@@ -93,7 +93,7 @@ define(function(require) {
     var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE,
                                               Locale.tr("Attributes"));
     var templateTableVcenterHTML = TemplateTable.html(strippedTemplateVcenter, RESOURCE,
-                                              Locale.tr("Vcenter information"), false);
+                                              Locale.tr("vCenter information"), false);
     //====
 
     // TODO: move to util?
