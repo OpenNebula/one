@@ -3,9 +3,9 @@
 # This file is distributed under the same license as the OpenNebula package.
 #
 # Translators:
-# André Monteiro <andre.monteir@gmail.com>, 2012
-# André Monteiro <andre.monteir@gmail.com>, 2012-2015
-# Philippe Caseiro <caseiro.philippe@gmail.com>, 2016
+# catborise <muhammetalisag@gmail.com>, 2013
+# Mehmet Faik YESILOREN <mfyesiloren@gmail.com>, 2015
+# Umit Oztosun <umit@oztosun.net>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
@@ -13,17 +13,17 @@ msgstr ""
 "POT-Creation-Date: 2017-05-29 11:58+0200\n"
 "PO-Revision-Date: 2017-05-29 10:01+0000\n"
 "Last-Translator: Abel Coronado <abelcoronado1993@gmail.com>\n"
-"Language-Team: Portuguese (Portugal) (http://www.transifex.com/opennebula/one/language/pt_PT/)\n"
-"Language: pt_PT\n"
+"Language-Team: Turkish (Turkey) (http://www.transifex.com/opennebula/one/language/tr_TR/)\n"
+"Language: tr_TR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../app/opennebula/role.js:44 ../app/opennebula/service.js:26
 #: ../app/tabs/provision-tab/flows/list.js:624 ../app/tabs/vms-tab.js:76
 msgid "PENDING"
-msgstr "PENDENTE"
+msgstr "BEKLİYOR"
 
 #: ../app/opennebula/role.js:45 ../app/opennebula/service.js:27
 #: ../app/tabs/provision-tab/vms/list.js:801
@@ -34,64 +34,64 @@ msgstr "PENDENTE"
 #: ../app/tabs/provision-tab/vms/list.js:984
 #: ../app/tabs/provision-tab/flows/list.js:628
 msgid "DEPLOYING"
-msgstr "A INSTANCIAR"
+msgstr ""
 
 #: ../app/opennebula/role.js:46 ../app/opennebula/service.js:28
 #: ../app/opennebula/vm.js:198 ../app/tabs/provision-tab/vms/list.js:846
 #: ../app/tabs/provision-tab/flows/list.js:652
 msgid "RUNNING"
-msgstr "A CORRER"
+msgstr "ÇALIŞIYOR"
 
 #: ../app/opennebula/role.js:47 ../app/opennebula/service.js:29
 #: ../app/tabs/provision-tab/flows/list.js:632
 msgid "UNDEPLOYING"
-msgstr "A CANCELAR INSTANCIAÇÃO"
+msgstr ""
 
 #: ../app/opennebula/role.js:48 ../app/opennebula/service.js:30
 #: ../app/tabs/provision-tab/flows/list.js:648
 msgid "WARNING"
-msgstr "AVISO"
+msgstr "UYARI"
 
 #: ../app/opennebula/role.js:49 ../app/opennebula/service.js:31
 #: ../app/tabs/provision-tab/flows/list.js:664
 msgid "DONE"
-msgstr "FINALIZADO"
+msgstr "TAMAMLANDI"
 
 #: ../app/opennebula/role.js:50 ../app/opennebula/service.js:32
 msgid "FAILED_UNDEPLOYING"
-msgstr "CANCELAMENTO_DE_INSTANCIACAO_FALHADO"
+msgstr ""
 
 #: ../app/opennebula/role.js:51 ../app/opennebula/service.js:33
 msgid "FAILED_DEPLOYING"
-msgstr "INSTANCIACAO_FALHADA"
+msgstr ""
 
 #: ../app/opennebula/role.js:52 ../app/opennebula/service.js:34
 #: ../app/tabs/provision-tab/flows/list.js:656
 msgid "SCALING"
-msgstr "A ESCALAR"
+msgstr ""
 
 #: ../app/opennebula/role.js:53 ../app/opennebula/service.js:35
 msgid "FAILED_SCALING"
-msgstr "ESCALONAMENTO_FALHADO"
+msgstr ""
 
 #: ../app/opennebula/role.js:54 ../app/opennebula/service.js:36
 #: ../app/tabs/provision-tab/flows/list.js:660
 msgid "COOLDOWN"
-msgstr "ARREFECIMENTO"
+msgstr ""
 
 #: ../app/opennebula/host.js:39 ../app/opennebula/host.js:51
 #: ../app/opennebula/host.js:57 ../app/opennebula/marketplaceapp.js:24
 #: ../app/opennebula/image.js:23
 msgid "INIT"
-msgstr "INIC"
+msgstr "INIT"
 
 #: ../app/opennebula/host.js:40
 msgid "MONITORING_MONITORED"
-msgstr "MONITORIZAR_MONITORIZADO"
+msgstr "iZLEME_iZLENDİ"
 
 #: ../app/opennebula/host.js:41
 msgid "MONITORED"
-msgstr "MONITORIZADO"
+msgstr "İZLENDİ"
 
 #: ../app/opennebula/host.js:42 ../app/opennebula/host.js:54
 #: ../app/opennebula/marketplaceapp.js:27 ../app/opennebula/image.js:28
@@ -99,25 +99,25 @@ msgstr "MONITORIZADO"
 #: ../app/tabs/provision-tab/vms/list.js:923
 #: ../app/tabs/provision-tab/vms/list.js:988 ../app/tabs/hosts-tab.js:60
 msgid "ERROR"
-msgstr "ERRO"
+msgstr "HATA"
 
 #: ../app/opennebula/host.js:43 ../app/opennebula/host.js:55
 #: ../app/opennebula/host.js:58 ../app/opennebula/marketplaceapp.js:28
 #: ../app/opennebula/image.js:26
 msgid "DISABLED"
-msgstr "DESATIVADO"
+msgstr "PASİF"
 
 #: ../app/opennebula/host.js:44
 msgid "MONITORING_ERROR"
-msgstr "ERRO_DE_MONITORIZAÇÃO"
+msgstr "İZLEME_HATASI"
 
 #: ../app/opennebula/host.js:45
 msgid "MONITORING_INIT"
-msgstr "MONITORIZAÇÃO_A_INICIAR"
+msgstr "İZLEME_BAŞLANGICI"
 
 #: ../app/opennebula/host.js:46
 msgid "MONITORING_DISABLED"
-msgstr "MONITORIZAÇÂO_DESATIVADA"
+msgstr "İZLEME_DEVRE_DIŞI"
 
 #: ../app/opennebula/host.js:47
 msgid "OFFLINE"
@@ -125,32 +125,32 @@ msgstr ""
 
 #: ../app/opennebula/host.js:52
 msgid "UPDATE"
-msgstr "ATUALIZAR"
+msgstr "GÜNCELLE"
 
 #: ../app/opennebula/host.js:53 ../app/opennebula/datastore.js:25
 #: ../app/tabs/hosts-tab.js:58
 msgid "ON"
-msgstr "LIGADO"
+msgstr "AÇIK"
 
 #: ../app/opennebula/host.js:56
 msgid "RETRY"
-msgstr "TENTAR NOVAMENTE"
+msgstr "YENIDEN_DENE"
 
 #: ../app/opennebula/host.js:59 ../app/opennebula/datastore.js:26
 #: ../app/tabs/provision-tab/vms/list.js:907
 #: ../app/tabs/provision-tab/vms/list.js:978 ../app/tabs/vms-tab.js:75
 #: ../app/tabs/hosts-tab.js:59
 msgid "OFF"
-msgstr "DESLIGADA"
+msgstr "KAPALI"
 
 #: ../app/opennebula/marketplaceapp.js:25 ../app/opennebula/image.js:24
 #: ../app/tabs/provision-tab/vms/list.js:973
 msgid "READY"
-msgstr "PRONTO"
+msgstr "HAZIR"
 
 #: ../app/opennebula/marketplaceapp.js:26 ../app/opennebula/image.js:27
 msgid "LOCKED"
-msgstr "BLOQUEADO"
+msgstr "KİLİTLİ"
 
 #: ../app/opennebula/marketplaceapp.js:32 ../app/opennebula/vm.js:211
 #: ../app/tabs/provision-tab/vms/list.js:893
@@ -159,11 +159,11 @@ msgstr "BLOQUEADO"
 #: ../app/tabs/provision-tab/vms/list.js:996
 #: ../app/tabs/provision-tab/flows/list.js:668
 msgid "UNKNOWN"
-msgstr "DESCONHECIDO"
+msgstr "BİLİNMEYEN"
 
 #: ../app/opennebula/marketplaceapp.js:33 ../app/opennebula/datastore.js:29
 msgid "IMAGE"
-msgstr "IMAGEM"
+msgstr ""
 
 #: ../app/opennebula/marketplaceapp.js:34
 msgid "VMTEMPLATE"
@@ -175,19 +175,19 @@ msgstr ""
 
 #: ../app/opennebula/image.js:25
 msgid "USED"
-msgstr "EM USO"
+msgstr "KULLANILAN"
 
 #: ../app/opennebula/image.js:29
 msgid "CLONE"
-msgstr "CLONAR"
+msgstr "KLONLA"
 
 #: ../app/opennebula/image.js:30
 msgid "DELETE"
-msgstr "APAGAR"
+msgstr "SİL"
 
 #: ../app/opennebula/image.js:31
 msgid "USED_PERS"
-msgstr "EM_USO_PERS"
+msgstr ""
 
 #: ../app/opennebula/image.js:32
 msgid "LOCKED_USED"
@@ -200,7 +200,7 @@ msgstr ""
 #: ../app/opennebula/image.js:37
 #: ../app/tabs/images-tab/panels/info-common.js:96
 msgid "OS"
-msgstr "SO"
+msgstr "OS"
 
 #: ../app/opennebula/image.js:38
 #: ../app/tabs/images-tab/panels/info-common.js:97
@@ -210,59 +210,59 @@ msgstr "CDROM"
 #: ../app/opennebula/image.js:39
 #: ../app/tabs/images-tab/panels/info-common.js:98
 msgid "DATABLOCK"
-msgstr "DATABLOCK"
+msgstr "VERİBLOKU"
 
 #: ../app/opennebula/image.js:40
 #: ../app/tabs/images-tab/panels/info-common.js:103
 msgid "KERNEL"
-msgstr "KERNEL"
+msgstr ""
 
 #: ../app/opennebula/image.js:41
 #: ../app/tabs/images-tab/panels/info-common.js:104
 msgid "RAMDISK"
-msgstr "RAMDISK"
+msgstr ""
 
 #: ../app/opennebula/image.js:42
 #: ../app/tabs/images-tab/panels/info-common.js:105
 msgid "CONTEXT"
-msgstr "CONTEXTO"
+msgstr "İÇERİK"
 
 #: ../app/opennebula/vm.js:195
 msgid "LCM_INIT"
-msgstr "LCM_INIT"
+msgstr ""
 
 #: ../app/opennebula/vm.js:196 ../app/opennebula/vm.js:204
 #: ../app/opennebula/vm.js:226
 msgid "PROLOG"
-msgstr "PROLOG"
+msgstr ""
 
 #: ../app/opennebula/vm.js:197 ../app/opennebula/vm.js:214
 #: ../app/opennebula/vm.js:215 ../app/opennebula/vm.js:216
 #: ../app/opennebula/vm.js:217 ../app/opennebula/vm.js:227
 #: ../app/opennebula/vm.js:230
 msgid "BOOT"
-msgstr "ARRANQUE"
+msgstr ""
 
 #: ../app/opennebula/vm.js:199 ../app/opennebula/vm.js:203
 #: ../app/opennebula/vm.js:238 ../app/opennebula/vm.js:240
 #: ../app/opennebula/vm.js:255
 msgid "MIGRATE"
-msgstr "MIGRAR"
+msgstr ""
 
 #: ../app/opennebula/vm.js:200 ../app/opennebula/vm.js:201
 #: ../app/opennebula/vm.js:202
 msgid "SAVE"
-msgstr "GUARDAR"
+msgstr "KAYDET"
 
 #: ../app/opennebula/vm.js:205 ../app/opennebula/vm.js:206
 #: ../app/opennebula/vm.js:225
 msgid "EPILOG"
-msgstr "EPILOG"
+msgstr ""
 
 #: ../app/opennebula/vm.js:207 ../app/opennebula/vm.js:208
 #: ../app/opennebula/vm.js:213 ../app/opennebula/vm.js:224
 msgid "SHUTDOWN"
-msgstr "ENCERRAR"
+msgstr ""
 
 #: ../app/opennebula/vm.js:209 ../app/opennebula/vm.js:231
 #: ../app/opennebula/vm.js:232 ../app/opennebula/vm.js:233
@@ -273,18 +273,18 @@ msgstr "ENCERRAR"
 #: ../app/opennebula/vm.js:244 ../app/opennebula/vm.js:245
 #: ../app/opennebula/vm.js:256
 msgid "FAILURE"
-msgstr "FALHA"
+msgstr ""
 
 #: ../app/opennebula/vm.js:210 ../app/opennebula/vm.js:218
 msgid "CLEANUP"
-msgstr "A LIMPAR"
+msgstr ""
 
 #: ../app/opennebula/vm.js:212 ../app/opennebula/vm.js:220
 #: ../app/opennebula/vm.js:221 ../app/opennebula/vm.js:222
 #: ../app/opennebula/vm.js:223 ../app/opennebula/vm.js:228
 #: ../app/opennebula/vm.js:229
 msgid "HOTPLUG"
-msgstr "HOTPLUG"
+msgstr ""
 
 #: ../app/opennebula/vm.js:219 ../app/opennebula/vm.js:246
 #: ../app/opennebula/vm.js:247 ../app/opennebula/vm.js:248
@@ -292,7 +292,7 @@ msgstr "HOTPLUG"
 #: ../app/opennebula/vm.js:251 ../app/opennebula/vm.js:252
 #: ../app/opennebula/vm.js:253 ../app/opennebula/vm.js:254
 msgid "SNAPSHOT"
-msgstr "SNAPSHOT"
+msgstr ""
 
 #: ../app/opennebula/vm.js:257 ../app/opennebula/vm.js:258
 #: ../app/opennebula/vm.js:259
@@ -301,17 +301,17 @@ msgstr ""
 
 #: ../app/opennebula/datastore.js:30
 msgid "SYSTEM"
-msgstr "SISTEMA"
+msgstr "SİSTEM"
 
 #: ../app/opennebula/datastore.js:31
 msgid "FILE"
-msgstr "FICHEIRO"
+msgstr "DOSYA"
 
 #: ../app/tabs/vrouters-tab.js:46 ../app/tabs/vrouters-tab.js:50
 #: ../app/tabs/vrouter-templates-tab.js:45
 #: ../app/tabs/acls-tab/datatable.js:175
 msgid "Virtual Routers"
-msgstr "Roteador Virtual"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab.js:51
 msgid "Virtual Router"
@@ -319,7 +319,7 @@ msgstr ""
 
 #: ../app/tabs/clusters-tab/form-panels/create.js:52
 msgid "Create Cluster"
-msgstr "Criar Cluster"
+msgstr "Küme Oluştur"
 
 #: ../app/tabs/clusters-tab/form-panels/create.js:53
 #: ../app/tabs/datastores-tab/form-panels/create.js:55
@@ -341,11 +341,11 @@ msgstr "Criar Cluster"
 #: ../app/tabs/vmgroup-tab/form-panels/create.js:60
 #: ../app/tabs/templates-tab/form-panels/create-common.js:75
 msgid "Create"
-msgstr "Criar"
+msgstr "Oluştur"
 
 #: ../app/tabs/clusters-tab/form-panels/create.js:57
 msgid "Update Cluster"
-msgstr "Atualizar Cluster"
+msgstr "Küme Güncelle"
 
 #: ../app/tabs/clusters-tab/form-panels/create.js:58
 #: ../app/tabs/clusters-tab/buttons.js:33
@@ -367,7 +367,7 @@ msgstr "Atualizar Cluster"
 #: ../app/tabs/templates-tab/form-panels/create-common.js:80
 #: ../app/tabs/templates-tab/buttons.js:40
 msgid "Update"
-msgstr "Atualizar"
+msgstr "Güncelle"
 
 #: ../app/tabs/clusters-tab/buttons.js:38
 #: ../app/tabs/datastores-tab/buttons.js:57
@@ -388,7 +388,7 @@ msgstr "Atualizar"
 #: ../app/tabs/templates-tab/buttons.js:81
 #: ../app/tabs/templates-tab/actions-common.js:60
 msgid "Delete"
-msgstr "Apagar"
+msgstr "Sil"
 
 #: ../app/tabs/clusters-tab/panels/info.js:47
 #: ../app/tabs/datastores-tab/panels/info.js:49
@@ -409,7 +409,7 @@ msgstr "Apagar"
 #: ../app/tabs/vmgroup-tab/panels/info.js:48
 #: ../app/tabs/templates-tab/panels/info-common.js:44
 msgid "Info"
-msgstr "Info"
+msgstr "Bilgi"
 
 #: ../app/tabs/clusters-tab/panels/info.js:84
 #: ../app/tabs/datastores-tab/panels/info.js:80
@@ -428,27 +428,27 @@ msgstr "Info"
 #: ../app/tabs/vnets-tab/panels/info.js:94
 #: ../app/tabs/vmgroup-tab/panels/info.js:96
 msgid "Attributes"
-msgstr "Atributos"
+msgstr "Nitelikler"
 
 #: ../app/tabs/clusters-tab/panels/vnets.js:39
 #: ../app/tabs/clusters-tab/datatable.js:65
 #: ../app/tabs/vdcs-tab/datatable.js:70
 msgid "VNets"
-msgstr "VNets"
+msgstr "VNetler"
 
 #: ../app/tabs/clusters-tab/panels/hosts.js:39
 #: ../app/tabs/clusters-tab/datatable.js:64
 #: ../app/tabs/vdcs-tab/datatable.js:69 ../app/tabs/acls-tab/datatable.js:136
 #: ../app/tabs/hosts-tab.js:51 ../app/tabs/hosts-tab.js:55
 msgid "Hosts"
-msgstr "Anfitriões"
+msgstr "Makineler"
 
 #: ../app/tabs/clusters-tab/panels/datastores.js:39
 #: ../app/tabs/clusters-tab/datatable.js:66
 #: ../app/tabs/vdcs-tab/datatable.js:71 ../app/tabs/acls-tab/datatable.js:160
 #: ../app/tabs/datastores-tab.js:46 ../app/tabs/datastores-tab.js:50
 msgid "Datastores"
-msgstr "Datastores"
+msgstr "Veri Depoları"
 
 #: ../app/tabs/clusters-tab/datatable.js:62
 #: ../app/tabs/datastores-tab/datatable.js:81
@@ -498,7 +498,7 @@ msgstr "ID"
 #: ../app/utils/vcenter/clusters.js:95 ../app/utils/vcenter/images.js:96
 #: ../app/utils/vcenter/datastores.js:96
 msgid "Name"
-msgstr "Nome"
+msgstr "İsim"
 
 #: ../app/tabs/clusters-tab/datatable.js:67
 #: ../app/tabs/datastores-tab/datatable.js:92
@@ -517,44 +517,44 @@ msgstr "Nome"
 #: ../app/tabs/vmgroup-tab/datatable.js:70
 #: ../app/tabs/templates-tab/datatable-common.js:71
 msgid "Labels"
-msgstr "Rótulos"
+msgstr "Etiketler"
 
 #: ../app/tabs/clusters-tab/datatable.js:73
 msgid "Please select a Cluster from the list"
-msgstr "Por favor selecione um Cluster da lista"
+msgstr "Lütfen listeden Küme seçiniz"
 
 #: ../app/tabs/clusters-tab/datatable.js:74
 msgid "You selected the following Cluster:"
-msgstr "Selecionou o seguinte Cluster:"
+msgstr "Seçtiğiniz Küme:"
 
 #: ../app/tabs/clusters-tab/datatable.js:75
 msgid "Please select one or more clusters from the list"
-msgstr "Por favor selecione um ou mais clusters da lista"
+msgstr "Lütfen listeden bir ya da daha fazla küme seçin"
 
 #: ../app/tabs/clusters-tab/datatable.js:76
 msgid "You selected the following clusters:"
-msgstr "Selecionou os seguintes clusters:"
+msgstr "Belirtilen kümeleri seçtiniz:"
 
 #: ../app/tabs/clusters-tab/actions.js:33
 #: ../app/tabs/clusters-tab/actions.js:65
 msgid "Cluster created"
-msgstr "Cluster criado"
+msgstr "Küme oluşturuldu"
 
 #: ../app/tabs/system-top-tab.js:23
 msgid "System"
-msgstr "Sistema"
+msgstr "Sistem"
 
 #: ../app/tabs/datastores-tab/form-panels/create.js:54
 msgid "Create Datastore"
-msgstr "Criar Datastore"
+msgstr "Veri Deposu Oluştur"
 
 #: ../app/tabs/datastores-tab/form-panels/create.js:341
 msgid "Please select a cluster for this datastore"
-msgstr "Por favor selecione um cluster para esta datastore"
+msgstr "Lütfen bu veri deposu için bir küme seçiniz"
 
 #: ../app/tabs/datastores-tab/form-panels/import.js:50
 msgid "Import vCenter Datastores"
-msgstr "Importar datastores de vCenter"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/import.js:51
 #: ../app/tabs/datastores-tab/buttons.js:33
@@ -565,12 +565,12 @@ msgstr "Importar datastores de vCenter"
 #: ../app/tabs/templates-tab/form-panels/import.js:51
 #: ../app/tabs/templates-tab/buttons.js:33
 msgid "Import"
-msgstr "Importar"
+msgstr "İçe aktar"
 
 #: ../app/tabs/datastores-tab/buttons.js:39 ../app/tabs/hosts-tab/buttons.js:32
 #: ../app/tabs/vnets-tab/buttons.js:51
 msgid "Select cluster"
-msgstr "Selecionar cluster"
+msgstr "Küme seç"
 
 #: ../app/tabs/datastores-tab/buttons.js:43
 #: ../app/tabs/marketplaceapps-tab/buttons.js:40
@@ -582,7 +582,7 @@ msgstr "Selecionar cluster"
 #: ../app/tabs/vnets-tab/buttons.js:55 ../app/tabs/vmgroup-tab/buttons.js:38
 #: ../app/tabs/templates-tab/buttons.js:49
 msgid "Change owner"
-msgstr "Alterar dono"
+msgstr "Sahibi Değiştir"
 
 #: ../app/tabs/datastores-tab/buttons.js:46
 #: ../app/tabs/marketplaceapps-tab/buttons.js:43
@@ -594,7 +594,7 @@ msgstr "Alterar dono"
 #: ../app/tabs/vnets-tab/buttons.js:58 ../app/tabs/vmgroup-tab/buttons.js:41
 #: ../app/tabs/templates-tab/buttons.js:52
 msgid "Select the new owner"
-msgstr "Selecione o novo dono"
+msgstr "Yeni sahibi seç"
 
 #: ../app/tabs/datastores-tab/buttons.js:50
 #: ../app/tabs/marketplaceapps-tab/buttons.js:47
@@ -606,7 +606,7 @@ msgstr "Selecione o novo dono"
 #: ../app/tabs/vnets-tab/buttons.js:63 ../app/tabs/vmgroup-tab/buttons.js:45
 #: ../app/tabs/templates-tab/buttons.js:56
 msgid "Change group"
-msgstr "Alterar grupo"
+msgstr "Grubu değiştir"
 
 #: ../app/tabs/datastores-tab/buttons.js:53
 #: ../app/tabs/marketplaceapps-tab/buttons.js:50
@@ -618,19 +618,19 @@ msgstr "Alterar grupo"
 #: ../app/tabs/vnets-tab/buttons.js:66 ../app/tabs/vmgroup-tab/buttons.js:48
 #: ../app/tabs/templates-tab/buttons.js:59
 msgid "Select the new group"
-msgstr "Selecione o novo grupo"
+msgstr "Yeni grubu seç"
 
 #: ../app/tabs/datastores-tab/buttons.js:63 ../app/tabs/hosts-tab/buttons.js:39
 #: ../app/tabs/marketplaceapps-tab/buttons.js:55
 #: ../app/tabs/images-tab/buttons.js:57
 msgid "Enable"
-msgstr "Ativar"
+msgstr "Aktif et"
 
 #: ../app/tabs/datastores-tab/buttons.js:68 ../app/tabs/hosts-tab/buttons.js:44
 #: ../app/tabs/marketplaceapps-tab/buttons.js:60
 #: ../app/tabs/images-tab/buttons.js:62
 msgid "Disable"
-msgstr "Desativar"
+msgstr "Pasif et"
 
 #: ../app/tabs/datastores-tab/panels/info.js:81
 #: ../app/tabs/vms-tab/panels/info.js:110
@@ -643,13 +643,13 @@ msgstr ""
 #: ../app/tabs/clusters-tab.js:50 ../app/tabs/vnets-tab/panels/clusters.js:39
 #: ../app/tabs/acls-tab/datatable.js:157
 msgid "Clusters"
-msgstr "Clusters"
+msgstr "Kümeler"
 
 #: ../app/tabs/datastores-tab/panels/images.js:40
 #: ../app/tabs/acls-tab/datatable.js:145 ../app/tabs/images-tab.js:47
 #: ../app/tabs/images-tab.js:51 ../app/utils/quotas/quota-widgets.js:418
 msgid "Images"
-msgstr "Imagens"
+msgstr "İmajlar"
 
 #: ../app/tabs/datastores-tab/datatable.js:83
 #: ../app/tabs/marketplaceapps-tab/datatable.js:85
@@ -664,7 +664,7 @@ msgstr "Imagens"
 #: ../app/tabs/vmgroup-tab/datatable.js:67
 #: ../app/tabs/templates-tab/datatable-common.js:68
 msgid "Owner"
-msgstr "Dono"
+msgstr "Sahip"
 
 #: ../app/tabs/datastores-tab/datatable.js:84
 #: ../app/tabs/marketplaceapps-tab/datatable.js:86
@@ -682,14 +682,14 @@ msgstr "Dono"
 #: ../app/tabs/templates-tab/datatable-common.js:69
 #: ../app/utils/accounting.js:362
 msgid "Group"
-msgstr "Grupo"
+msgstr "Grup"
 
 #: ../app/tabs/datastores-tab/datatable.js:85
 #: ../app/tabs/vms-tab/panels/capacity.js:52
 #: ../app/tabs/marketplaces-tab/datatable.js:86
 #: ../app/tabs/provision-tab.js:191
 msgid "Capacity"
-msgstr "Capacidade"
+msgstr "Kapasite"
 
 #: ../app/tabs/datastores-tab/datatable.js:86
 #: ../app/tabs/hosts-tab/datatable.js:71 ../app/tabs/clusters-tab.js:51
@@ -697,19 +697,19 @@ msgstr "Capacidade"
 #: ../app/tabs/vmgroup-tab/utils/datatable.js:67
 #: ../app/utils/vcenter/datastores.js:97
 msgid "Cluster"
-msgstr "Cluster"
+msgstr "Küme"
 
 #: ../app/tabs/datastores-tab/datatable.js:87
 msgid "Basepath"
-msgstr "Caminho base"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/datatable.js:88
 msgid "TM MAD"
-msgstr "TM MAD"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/datatable.js:89
 msgid "DS MAD"
-msgstr "DS MAD"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/datatable.js:90
 #: ../app/tabs/marketplaceapps-tab/datatable.js:90
@@ -718,7 +718,7 @@ msgstr "DS MAD"
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:60
 #: ../app/tabs/vnets-tab/panels/ar.js:307
 msgid "Type"
-msgstr "Tipo"
+msgstr "Tip"
 
 #: ../app/tabs/datastores-tab/datatable.js:91
 #: ../app/tabs/hosts-tab/datatable.js:77
@@ -726,110 +726,110 @@ msgstr "Tipo"
 #: ../app/tabs/vms-tab/utils/datatable-common.js:34
 #: ../app/tabs/vmgroup-tab/utils/datatable.js:68
 msgid "Status"
-msgstr "Estado"
+msgstr "Durum"
 
 #: ../app/tabs/datastores-tab/datatable.js:100
 msgid "Please select a datastore from the list"
-msgstr "Por favor selecione uma datastore da lista"
+msgstr "Lütfen listeden veri depose seçiniz"
 
 #: ../app/tabs/datastores-tab/datatable.js:101
 msgid "You selected the following datastore:"
-msgstr "Selecionou a seguinte datastore:"
+msgstr "Şeçili veri deposu:"
 
 #: ../app/tabs/datastores-tab/datatable.js:102
 msgid "Please select one or more datastores from the list"
-msgstr "Por favor selecione uma ou mais datastores da lista"
+msgstr "Lütfen listeden bir ya da daha fazla veri deposu seçiniz"
 
 #: ../app/tabs/datastores-tab/datatable.js:103
 msgid "You selected the following datastores:"
-msgstr "Selecionou as seguintes datastores"
+msgstr "Belirtilen veri depolarını seçtiniz:"
 
 #: ../app/tabs/datastores-tab/actions.js:34
 msgid "Datastore created"
-msgstr "Datastore criada"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/list.js:76
 #: ../app/tabs/acls-tab/datatable.js:139
 msgid "Virtual Machines"
-msgstr "Máquinas Virtuais"
+msgstr "Sanal Makineler"
 
 #: ../app/tabs/provision-tab/vms/list.js:97
 #: ../app/tabs/provision-tab/vms/list.js:161
 msgid "There are no Virtual Machines"
-msgstr "Não há Máquinas Virtuais"
+msgstr "Sanal Makine bulunamadı"
 
 #: ../app/tabs/provision-tab/vms/list.js:240
 #: ../app/tabs/provision-tab/templates/list.js:253
 #: ../app/tabs/provision-tab/flows/list.js:242
 msgid "ALL"
-msgstr "TUDO"
+msgstr "TÜMÜ"
 
 #: ../app/tabs/provision-tab/vms/list.js:510
 #: ../app/tabs/vms-tab/dialogs/saveas-template.js:86
 #: ../app/tabs/templates-tab.js:52
 msgid "VM Template"
-msgstr "Modelo de VM"
+msgstr "VM Şablonu"
 
 #: ../app/tabs/provision-tab/vms/list.js:510
 #: ../app/tabs/vms-tab/dialogs/saveas-template.js:86
 msgid "saved successfully"
-msgstr "guardado com sucesso"
+msgstr "kaydetme başarılı"
 
 #: ../app/tabs/provision-tab/vms/list.js:518
 msgid "VM cloning in the background. The Template will appear as soon as it is ready, and the VM unlocked."
-msgstr "A clonar VM em processo de fundo. O Modelo irá aparecer em breve quando estiver pronto e a VM desbloqueada."
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/list.js:856
 msgid "SAVING IMAGE"
-msgstr "A GUARDAR IMAGEM"
+msgstr "IMAGE KAYDEDİLİYOR"
 
 #: ../app/tabs/provision-tab/vms/list.js:889
 msgid "POWERING OFF"
-msgstr "A DESLIGAR"
+msgstr "KAPTATILIYOR"
 
 #: ../app/tabs/provision-tab/vms/list.js:912
 msgid "UNDEPLOYED"
-msgstr "NAO INSTANCIADO"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/list.js:992
 msgid "DELETING"
-msgstr "A APAGAR"
+msgstr "SİLİNİYOR"
 
 #: ../app/tabs/provision-tab/templates/list.js:55
 #: ../app/tabs/templates-top-tab.js:23
 #: ../app/tabs/marketplaceapps-tab/panels/templates.js:50
 msgid "Templates"
-msgstr "Modelos"
+msgstr "Şablonlar"
 
 #: ../app/tabs/provision-tab/templates/list.js:98
 #: ../app/tabs/provision-tab/templates/list.js:147
 #: ../app/tabs/provision-tab.js:630 ../app/tabs/provision-tab.js:814
 #: ../app/tabs/provision-tab.js:1102
 msgid "There are no templates available"
-msgstr "Não há modelos disponíveis"
+msgstr "Uygun şablon bulunamadı"
 
 #: ../app/tabs/provision-tab/templates/list.js:114
 #: ../app/tabs/provision-tab.js:645
 msgid "No labels defined"
-msgstr "Sem rótulos definidos"
+msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:149
 msgid "Create a template by saving a running Virtual Machine"
-msgstr "Criar um modelo guardando uma Máquina Virtual que esteja a correr"
+msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:164
 #: ../app/tabs/templates-tab/buttons.js:75
 msgid "Unshare"
-msgstr "Não partilhar"
+msgstr "Paylaşma"
 
 #: ../app/tabs/provision-tab/templates/list.js:165
 msgid "SHARED"
-msgstr "PARTILHADO"
+msgstr "PAYLAŞILMIŞ"
 
 #: ../app/tabs/provision-tab/templates/list.js:167
 #: ../app/tabs/templates-tab/buttons.js:69
 msgid "Share"
-msgstr "Partilhar"
+msgstr "Paylaş"
 
 #: ../app/tabs/provision-tab/templates/list.js:274
 msgid "Handle with care! This action will immediately destroy the template"
@@ -837,46 +837,46 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:276
 msgid "and the image associated."
-msgstr "e a imagem associada."
+msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:324
 #: ../app/tabs/provision-tab/templates/list.js:372
 msgid "The template"
-msgstr "O modelo"
+msgstr "Şablon"
 
 #: ../app/tabs/provision-tab/templates/list.js:326
 msgid "and the image associated will be shared and all the users will be able to instantiate new VMs using this template."
-msgstr "e a imagem associada irão ser partilhados e todos os utilizadores serão capazes de instanciar novas VMs usando este modelo."
+msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:330
 msgid "Share template"
-msgstr "Partilhar modelo"
+msgstr "Şablonu paylaş"
 
 #: ../app/tabs/provision-tab/templates/list.js:374
 msgid "and the image associated will be unshared and the users will not be able to instantiate new VMs using this template."
-msgstr "e a imagem associada deixarão de estar partilhados e os utilizadores não serão capazes de instanciar novas VMs usando este modelo."
+msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:378
 msgid "Unshare template"
-msgstr "Desativar partilha do modelo"
+msgstr "Şablonu paylaşma"
 
 #: ../app/tabs/provision-tab/flows/list.js:57
 #: ../app/tabs/oneflow-templates-tab.js:48
 #: ../app/tabs/oneflow-services-tab.js:47
 #: ../app/tabs/oneflow-services-tab.js:51
 msgid "Services"
-msgstr "Serviços"
+msgstr "Servisler"
 
 #: ../app/tabs/provision-tab/flows/list.js:95
 #: ../app/tabs/provision-tab/flows/list.js:154
 msgid "There are no Services"
-msgstr "Não há Serviços"
+msgstr "Servis bulunmamaktadır"
 
 #: ../app/tabs/provision-tab/flows/list.js:110
 #: ../app/tabs/oneflow-templates-tab.js:57
 #: ../app/tabs/oneflow-services-tab.js:56
 msgid "Cannot connect to OneFlow server"
-msgstr "Impossível ligar ao servidor OneFlow"
+msgstr "OneFlow sunucusuna bağlanılamıyor"
 
 #: ../app/tabs/provision-tab/flows/list.js:415
 #: ../app/tabs/hosts-tab/panels/vms.js:39 ../app/tabs/vms-tab.js:67
@@ -888,15 +888,15 @@ msgstr "Impossível ligar ao servidor OneFlow"
 #: ../app/tabs/vmgroup-tab/datatable.js:69
 #: ../app/utils/quotas/quota-widgets.js:100 ../app/utils/showback.js:98
 msgid "VMs"
-msgstr "VMs"
+msgstr "VM ler"
 
 #: ../app/tabs/provision-tab/flows/list.js:438
 msgid "Change Cardinality"
-msgstr "Alterar Cardinalidade"
+msgstr ""
 
 #: ../app/tabs/provision-tab/flows/list.js:440 ../app/tabs/provision-tab.js:123
 msgid "The cardinality for this role cannot be changed"
-msgstr "A cardinalidade para este papel não pode ser alterada"
+msgstr ""
 
 #: ../app/tabs/provision-tab/flows/list.js:445
 #: ../app/tabs/provision-tab/flows/list.js:504
@@ -915,27 +915,27 @@ msgstr ""
 #: ../app/tabs/provision-tab/flows/list.js:497
 #: ../app/tabs/provision-tab/flows/list.js:518
 msgid "All the information will be lost!"
-msgstr "Toda a informação será perdida!"
+msgstr "Tüm bilgi kaybolacaktır!"
 
 #: ../app/tabs/provision-tab/flows/list.js:516
 msgid "Be careful, this action will immediately shutdown your Service"
-msgstr "Cuidado, esta operação vai desligar o seu service immediatamente"
+msgstr ""
 
 #: ../app/tabs/provision-tab/flows/list.js:522
 msgid "Shutdown"
-msgstr "Desligar"
+msgstr ""
 
 #: ../app/tabs/provision-tab/flows/list.js:636
 msgid "FAILED UNDEPLOYING"
-msgstr "FALHA NA DESALOCAÇÃO"
+msgstr ""
 
 #: ../app/tabs/provision-tab/flows/list.js:640
 msgid "FAILED DEPLOYING"
-msgstr "FALHA NA INSTANCIAÇÃO"
+msgstr ""
 
 #: ../app/tabs/provision-tab/flows/list.js:644
 msgid "FAILED SCALING"
-msgstr "FALHA NO ESCALAMENTO"
+msgstr ""
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:58
 msgid "Instantiate Virtual Router Template"
@@ -949,12 +949,12 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:56
 #: ../app/tabs/templates-tab/buttons.js:45
 msgid "Instantiate"
-msgstr "Instanciar"
+msgstr "Somutlaştır"
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:146
 #: ../app/tabs/vrouters-tab/actions.js:32
 msgid "Virtual Router created"
-msgstr "Roteador virtual criado"
+msgstr "Sanal Yönlendirici oluşturuldu"
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:166
 msgid "Failed to create VMs. Virtual Router may need to be deleted manually."
@@ -966,27 +966,27 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:291
 #: ../app/utils/user-inputs.js:268
 msgid "Custom Attributes"
-msgstr "Atributos personalizáveis"
+msgstr "Özel Öznitelikler"
 
 #: ../app/tabs/dashboard-tab.js:233 ../app/tabs/dashboard-tab.js:234
 msgid "Dashboard"
-msgstr "Página de controlo"
+msgstr "Pano"
 
 #: ../app/tabs/hosts-tab/form-panels/create.js:54
 msgid "Create Host"
-msgstr "Criar Anfitrião"
+msgstr "Makine Oluştur"
 
 #: ../app/tabs/hosts-tab/buttons.js:34
 msgid "Select the destination cluster"
-msgstr "Selecione o cluster de destino"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/buttons.js:49
 msgid "Offline"
-msgstr "Off-line"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/buttons.js:54
 msgid "Delete host"
-msgstr "Apagar anfitrião"
+msgstr "Makine sil"
 
 #: ../app/tabs/hosts-tab/panels/info.js:104
 msgid "vCenter information"
@@ -994,39 +994,39 @@ msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/esx.js:46
 msgid "ESX"
-msgstr "ESX"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/zombies.js:48
 msgid "Zombies"
-msgstr "Zombies"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/pci.js:45
 msgid "PCI"
-msgstr "PCI"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:48
 msgid "Graphs"
-msgstr "Gráficos"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:86
 #: ../app/tabs/hosts-tab/panels/monitor.js:93
 #: ../app/tabs/vms-tab/panels/capacity.js:120
 #: ../app/tabs/vms-tab/panels/capacity.js:127
 msgid "Allocated"
-msgstr "Alocado"
+msgstr "Ayrılmış"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:86
 #: ../app/tabs/hosts-tab/panels/monitor.js:93
 #: ../app/tabs/vms-tab/panels/capacity.js:120
 #: ../app/tabs/vms-tab/panels/capacity.js:127
 msgid "Real"
-msgstr "Real"
+msgstr "Gerçek"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:86
 #: ../app/tabs/hosts-tab/panels/monitor.js:93 ../app/utils/accounting.js:610
 #: ../app/utils/accounting.js:627 ../app/utils/accounting.js:644
 msgid "Total"
-msgstr "Total"
+msgstr "Toplam"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:86
 #: ../app/tabs/hosts-tab/panels/monitor.js:93
@@ -1035,16 +1035,16 @@ msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:50
 msgid "Wilds"
-msgstr "Wilds"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:157
 msgid "VM imported"
-msgstr "VM importada"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:165
 #: ../app/tabs/hosts-tab/panels/wilds.js:178
 msgid "Import Wilds"
-msgstr "Importar Wilds"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:172
 #: ../app/utils/vcenter/clusters.js:210 ../app/utils/vcenter/networks.js:317
@@ -1052,79 +1052,79 @@ msgstr "Importar Wilds"
 #: ../app/utils/vcenter/templates.js:251 ../app/utils/vcenter/templates.js:284
 #: ../app/utils/notifier.js:74
 msgid "Cannot contact server: is it running and reachable?"
-msgstr "Não é possível contactar o servidor: está em execução ou contactável?"
+msgstr "Sunucuyla iletişim sağlanamıyor: çalışıyor ve erişilebilir mi?"
 
 #: ../app/tabs/hosts-tab/datatable.js:72
 msgid "RVMs"
-msgstr "RVMs"
+msgstr "RVM ler"
 
 #: ../app/tabs/hosts-tab/datatable.js:73 ../app/tabs/hosts-tab/datatable.js:236
 msgid "Real CPU"
-msgstr "CPU Real"
+msgstr "Gerçek CPU"
 
 #: ../app/tabs/hosts-tab/datatable.js:74 ../app/tabs/hosts-tab/datatable.js:220
 msgid "Allocated CPU"
-msgstr "CPU Alocado"
+msgstr "Ayrılmış CPU"
 
 #: ../app/tabs/hosts-tab/datatable.js:75
 msgid "Real MEM"
-msgstr "Memória Real"
+msgstr "Gerçek BELLEK"
 
 #: ../app/tabs/hosts-tab/datatable.js:76
 msgid "Allocated MEM"
-msgstr "Memória alocada"
+msgstr "Ayrılmış BELLEK"
 
 #: ../app/tabs/hosts-tab/datatable.js:78
 msgid "IM MAD"
-msgstr "IM MAD"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/datatable.js:79
 msgid "VM MAD"
-msgstr "VM MAD"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/datatable.js:80
 msgid "Last monitored on"
-msgstr "Monitorizada pela última vez em"
+msgstr "Son izleme zamanı"
 
 #: ../app/tabs/hosts-tab/datatable.js:88
 #: ../app/tabs/vmgroup-tab/utils/datatable.js:75
 msgid "Please select a Host from the list"
-msgstr "Por favor selecione um Anfitrião da lista"
+msgstr "Lütfen listeden bir Makine seçiniz"
 
 #: ../app/tabs/hosts-tab/datatable.js:89
 #: ../app/tabs/vmgroup-tab/utils/datatable.js:76
 msgid "You selected the following Host:"
-msgstr "Selecionou o seguinte Anfitrião"
+msgstr "Seçili Makine:"
 
 #: ../app/tabs/hosts-tab/datatable.js:90
 #: ../app/tabs/vmgroup-tab/utils/datatable.js:77
 msgid "Please select one or more hosts from the list"
-msgstr "Por favor selecione um ou mais anfitriões da lista"
+msgstr "Lütfen listeden bir ya da daha fazla makine seçin"
 
 #: ../app/tabs/hosts-tab/datatable.js:91
 #: ../app/tabs/vmgroup-tab/utils/datatable.js:78
 msgid "You selected the following hosts:"
-msgstr "Selecionou os seguintes anfitriões:"
+msgstr "Belirtilen makineleri seçtiniz:"
 
 #: ../app/tabs/hosts-tab/datatable.js:252
 msgid "Allocated Memory"
-msgstr "Memória alocada"
+msgstr "Ayrılmış Bellek"
 
 #: ../app/tabs/hosts-tab/datatable.js:268
 msgid "Real Memory"
-msgstr "Memória real"
+msgstr "Gerçek Hafıza"
 
 #: ../app/tabs/hosts-tab/actions.js:33
 msgid "Host created"
-msgstr "Host criado"
+msgstr ""
 
 #: ../app/tabs/vdcs-tab/form-panels/create.js:59
 msgid "Create Virtual Data Center"
-msgstr "Criar Datacenter Virtual"
+msgstr "Sanal Veri Merkezi Oluştur"
 
 #: ../app/tabs/vdcs-tab/form-panels/create.js:64
 msgid "Update Virtual Data Center"
-msgstr "Atualizar Datacenter Virtual"
+msgstr "Sanal Veri Merkezini Güncelle"
 
 #: ../app/tabs/vdcs-tab/panels/groups.js:39
 #: ../app/tabs/vdcs-tab/datatable.js:67 ../app/tabs/groups-tab.js:49
@@ -1132,27 +1132,27 @@ msgstr "Atualizar Datacenter Virtual"
 #: ../app/tabs/users-tab/panels/groups.js:48
 #: ../app/tabs/acls-tab/datatable.js:154
 msgid "Groups"
-msgstr "Grupos"
+msgstr "Gruplar"
 
 #: ../app/tabs/vdcs-tab/panels/resources.js:41
 msgid "Resources"
-msgstr "Recursos"
+msgstr "Kaynaklar"
 
 #: ../app/tabs/vdcs-tab/datatable.js:78
 msgid "Please select a VDC from the list"
-msgstr "Por favor selecione um VDC da lista"
+msgstr "Lütfen listden SVM seçiniz"
 
 #: ../app/tabs/vdcs-tab/datatable.js:79
 msgid "You selected the following VDC:"
-msgstr "Selecionou o seguinte VDC:"
+msgstr "Seçili SMV:"
 
 #: ../app/tabs/vdcs-tab/datatable.js:80
 msgid "Please select one or more VDCs from the list"
-msgstr "Por favor selecione um ou mais VDCs da lista"
+msgstr "Lütfen listeden bir veya daha fazla SVM seçiniz"
 
 #: ../app/tabs/vdcs-tab/datatable.js:81
 msgid "You selected the following VDCs:"
-msgstr "Selecionou os seguintes VDCs:"
+msgstr "Seçtili SVM'leri:"
 
 #: ../app/tabs/vdcs-tab/datatable.js:136
 #: ../app/tabs/secgroups-tab/utils/common.js:56
@@ -1162,11 +1162,11 @@ msgstr "Selecionou os seguintes VDCs:"
 #: ../app/tabs/acls-tab/datatable.js:214 ../app/tabs/acls-tab/datatable.js:232
 #: ../app/tabs/acls-tab/datatable.js:259 ../app/app.js:138 ../app/app.js:141
 msgid "All"
-msgstr "Tudo"
+msgstr "Hepsi"
 
 #: ../app/tabs/vdcs-tab/actions.js:33 ../app/tabs/vdcs-tab/actions.js:104
 msgid "VDC created"
-msgstr "VDC criado"
+msgstr "SVM oluşturuldu"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export.js:55
 msgid "Download App To OpenNebula"
@@ -1198,12 +1198,12 @@ msgstr ""
 #: ../app/tabs/vnets-tab/panels/ar.js:310
 #: ../app/utils/quotas/quota-widgets.js:419 ../app/utils/vcenter/images.js:97
 msgid "Size"
-msgstr "Tamanho"
+msgstr "Boyut"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:89
 #: ../app/tabs/oneflow-services-tab/datatable.js:69
 msgid "State"
-msgstr "Estado"
+msgstr "Durum"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:91
 msgid "Registration Time"
@@ -1211,13 +1211,13 @@ msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:92
 msgid "Marketplace"
-msgstr "Loja"
+msgstr "Pazar"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:93
 #: ../app/tabs/marketplaces-tab/datatable.js:89
 #: ../app/tabs/acls-tab/datatable.js:66 ../app/tabs/zones-tab.js:45
 msgid "Zone"
-msgstr "Zona"
+msgstr "Alan"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:102
 msgid "Please select an appliance from the list"
@@ -1249,7 +1249,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/actions-common.js:234
 #: ../app/tabs/templates-tab/actions-common.js:247
 msgid "VM Template created"
-msgstr "Modelo de VM criado"
+msgstr "SM Şablonu Oluşturuldu"
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:130
 #: ../app/tabs/images-tab/actions.js:94
@@ -1273,30 +1273,30 @@ msgstr ""
 #: ../app/tabs/vnets-topology-tab.js:529
 #: ../app/utils/quotas/quota-widgets.js:1165 ../app/utils/accounting.js:375
 msgid "VM"
-msgstr "VM"
+msgstr ""
 
 #: ../app/tabs/vms-tab.js:73 ../app/tabs/groups-tab.js:56
 #: ../app/tabs/vnets-tab.js:58 ../app/tabs/users-tab.js:60
 #: ../app/tabs/hosts-tab.js:57 ../app/tabs/vdcs-tab.js:52
 #: ../app/tabs/vmgroup-tab.js:44
 msgid "TOTAL"
-msgstr "TOTAL"
+msgstr "TOPLAM"
 
 #: ../app/tabs/vms-tab.js:74
 msgid "ACTIVE"
-msgstr "ATIVA"
+msgstr "AKTIF"
 
 #: ../app/tabs/vms-tab.js:77
 msgid "FAILED"
-msgstr "FALHADO"
+msgstr "BAŞARISIZ"
 
 #: ../app/tabs/secgroups-tab/form-panels/create.js:55
 msgid "Create Security Group"
-msgstr "Criar Grupo de Segurança"
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create.js:60
 msgid "Update Security Group"
-msgstr "Atualizar Grupo de Segurança"
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/dialogs/clone.js:71
 #: ../app/tabs/users-tab/dialogs/auth-driver.js:78
@@ -1304,13 +1304,13 @@ msgstr "Atualizar Grupo de Segurança"
 #: ../app/tabs/oneflow-services-tab/dialogs/scale.js:77
 #: ../app/utils/form-panels/form-panel.js:77
 msgid "One or more required fields are missing or malformed."
-msgstr "Um ou mais campos obrigatórios estão em falta ou mal preenchidos."
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/buttons.js:52 ../app/tabs/images-tab/buttons.js:77
 #: ../app/tabs/oneflow-templates-tab/buttons.js:57
 #: ../app/tabs/templates-tab/buttons.js:64
 msgid "Clone"
-msgstr "Clonar"
+msgstr "Klon"
 
 #: ../app/tabs/secgroups-tab/buttons.js:57
 #: ../app/tabs/secgroups-tab/actions.js:87
@@ -1319,19 +1319,19 @@ msgstr ""
 
 #: ../app/tabs/secgroups-tab/datatable.js:75
 msgid "Please select a security group from the list"
-msgstr "Por favor selecione um grupo de segurança da lista"
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/datatable.js:76
 msgid "You selected the following security group:"
-msgstr "Selecionou o seguinte grupo de segurança:"
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/datatable.js:77
 msgid "Please select one or more security groups from the list"
-msgstr "Por favor selecione um ou mais grupos de segurança da lista"
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/datatable.js:78
 msgid "You selected the following security groups:"
-msgstr "Selecionou os seguintes grupos de segurança:"
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/actions.js:33
 msgid "Security Group created"
@@ -1359,25 +1359,25 @@ msgstr "IPsec"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:68
 msgid "Outbound"
-msgstr "Saída"
+msgstr "Giden"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:71
 msgid "Inbound"
-msgstr "Entrada"
+msgstr "Gelen"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:95 ../app/tabs/vnets-tab.js:57
 msgid "Virtual Network"
-msgstr "Rede virtual"
+msgstr "Sanal Ağ"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:104
 #: ../app/tabs/secgroups-tab/utils/common.js:106
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:61
 msgid "Start"
-msgstr "Iniciar"
+msgstr "Başlat"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:113
 msgid "Any"
-msgstr "Qualquer"
+msgstr "Herhangi"
 
 #: ../app/tabs/images-tab/form-panels/import.js:51
 msgid "Import vCenter Images"
@@ -1385,28 +1385,28 @@ msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create-common.js:53
 msgid "Create Image"
-msgstr "Criar imagem"
+msgstr "İmaj Oluştur"
 
 #: ../app/tabs/images-tab/form-panels/create-common.js:55
 msgid "Create File"
-msgstr "Criar ficheiro"
+msgstr "Dosya Oluştur"
 
 #: ../app/tabs/images-tab/form-panels/create-common.js:319
 msgid "Uploading..."
-msgstr "A transferir..."
+msgstr "İndiriliyor..."
 
 #: ../app/tabs/images-tab/form-panels/create-common.js:381
 #: ../app/tabs/images-tab/form-panels/create-common.js:506
 msgid "Please select a datastore for this image"
-msgstr "Por favor seleccione a datastore para esta imagem"
+msgstr "Lütfen bu imaj dosyası için bir veri deposu seçiniz"
 
 #: ../app/tabs/images-tab/form-panels/create-common.js:463
 msgid "Please select a file to upload"
-msgstr "Por favor selecione o ficheiro para carregar"
+msgstr "Lütfen yüklemek için bir dosya seçiniz"
 
 #: ../app/tabs/images-tab/form-panels/create-common.js:471
 msgid "Registering in OpenNebula"
-msgstr "A registar no OpenNebula"
+msgstr ""
 
 #: ../app/tabs/images-tab/buttons.js:32 ../app/tabs/marketplaces-tab.js:53
 msgid "MarketPlace"
@@ -1414,41 +1414,41 @@ msgstr ""
 
 #: ../app/tabs/images-tab/buttons.js:67
 msgid "Make persistent"
-msgstr "Tornar persistente"
+msgstr "Kalıcı yap"
 
 #: ../app/tabs/images-tab/buttons.js:72
 msgid "Make non persistent"
-msgstr "Tornar não persistente"
+msgstr "Kalıcılığı kaldır"
 
 #: ../app/tabs/images-tab/panels/info-common.js:66
 #: ../app/tabs/images-tab/panels/info-common.js:145
 #: ../app/tabs/vms-tab/panels/info.js:89
 msgid "yes"
-msgstr "sim"
+msgstr "evet"
 
 #: ../app/tabs/images-tab/panels/info-common.js:66
 #: ../app/tabs/images-tab/panels/info-common.js:146
 #: ../app/tabs/vms-tab/panels/info.js:89
 msgid "no"
-msgstr "não"
+msgstr "hayır"
 
 #: ../app/tabs/images-tab/panels/snapshots.js:46
 #: ../app/tabs/vms-tab/panels/snapshots.js:47
 msgid "Snapshots"
-msgstr "Snapshots"
+msgstr ""
 
 #: ../app/tabs/images-tab/panels/snapshots.js:131
 msgid "This will delete all the other image snapshots"
-msgstr "Isto irá apagar todos os outros snapshots de imagem"
+msgstr ""
 
 #: ../app/tabs/images-tab/panels/snapshots.js:164
 msgid "This will delete the image snapshot "
-msgstr "Isto irá apagar a imagem de snapshot"
+msgstr ""
 
 #: ../app/tabs/images-tab/panels/snapshots.js:202
 #: ../app/tabs/vms-tab/panels/storage.js:660
 msgid "Active"
-msgstr "Ativo"
+msgstr "Aktive"
 
 #: ../app/tabs/images-tab/datatable-common.js:69
 #: ../app/tabs/vms-tab/panels/placement.js:69 ../app/tabs/datastores-tab.js:51
@@ -1456,16 +1456,16 @@ msgstr "Ativo"
 #: ../app/utils/quotas/quota-widgets.js:1166 ../app/utils/vcenter/images.js:82
 #: ../app/utils/vcenter/images.js:91
 msgid "Datastore"
-msgstr "Datastore"
+msgstr "Veri Deposu"
 
 #: ../app/tabs/images-tab/datatable-common.js:72
 #: ../app/tabs/templates-tab/datatable-common.js:70
 msgid "Registration time"
-msgstr "Registo de tempo"
+msgstr "Kayıt zamanı"
 
 #: ../app/tabs/images-tab/datatable-common.js:73
 msgid "Persistent"
-msgstr "Persistente"
+msgstr "Kalıcı"
 
 #: ../app/tabs/images-tab/datatable-common.js:75
 msgid "#VMS"
@@ -1473,23 +1473,23 @@ msgstr "#VMS"
 
 #: ../app/tabs/images-tab/datatable-common.js:76
 msgid "Target"
-msgstr "Alvo"
+msgstr "Hedef"
 
 #: ../app/tabs/images-tab/datatable.js:44
 msgid "Please select an image from the list"
-msgstr "Por favor selecione uma imagem da lista"
+msgstr "Lütfen listeden image seçiniz"
 
 #: ../app/tabs/images-tab/datatable.js:45
 msgid "You selected the following image:"
-msgstr "Selecionou a seguinte imagem:"
+msgstr ""
 
 #: ../app/tabs/images-tab/datatable.js:46
 msgid "Please select one or more images from the list"
-msgstr "Por favor selecione uma ou mais imagens da lista"
+msgstr "Lütfen listeden en az bir image seçiniz"
 
 #: ../app/tabs/images-tab/datatable.js:47
 msgid "You selected the following images:"
-msgstr "Selecionou as seguintes imagens:"
+msgstr ""
 
 #: ../app/tabs/images-tab/actions.js:73
 msgid "Please select one (and just one) Image to export."
@@ -1514,11 +1514,11 @@ msgstr ""
 #: ../app/tabs/vrouters-tab/form-panels/instantiate.js:57
 #: ../app/tabs/vrouters-tab/buttons.js:33
 msgid "Instantiate VMs"
-msgstr "Instanciar VMs"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/form-panels/create.js:52
 msgid "Create Virtual Router"
-msgstr "Criar um roteador virtual"
+msgstr "Sanal Yönlendirici Oluştur"
 
 #: ../app/tabs/vrouters-tab/panels/info.js:157
 #: ../app/tabs/vms-tab/panels/network.js:415
@@ -1543,7 +1543,7 @@ msgstr ""
 
 #: ../app/tabs/users-tab/form-panels/create.js:52
 msgid "Create User"
-msgstr "Criar Utilizador"
+msgstr "Kullanıcı Oluştur"
 
 #: ../app/tabs/users-tab/form-panels/create.js:95
 msgid "To define secondary groups you need to also set the main group"
@@ -1553,25 +1553,25 @@ msgstr ""
 #: ../app/tabs/users-tab/dialogs/login-token.js:102
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context.js:174
 msgid "None"
-msgstr "Nenhuma"
+msgstr "Hiçbiri"
 
 #: ../app/tabs/users-tab/buttons.js:33
 #: ../app/tabs/users-tab/panels/auth-common.js:113
 #: ../app/tabs/users-tab/datatable.js:72
 msgid "Password"
-msgstr "Palavra-passe"
+msgstr "Parola"
 
 #: ../app/tabs/users-tab/buttons.js:38
 #: ../app/tabs/users-tab/panels/auth-common.js:51
 msgid "Auth"
-msgstr "Autenticação"
+msgstr ""
 
 #: ../app/tabs/users-tab/buttons.js:43
 #: ../app/tabs/users-tab/panels/quotas-common.js:39
 #: ../app/tabs/groups-tab/buttons.js:37
 #: ../app/tabs/groups-tab/panels/quotas.js:41
 msgid "Quotas"
-msgstr "Quotas"
+msgstr "Kotalar"
 
 #: ../app/tabs/users-tab/buttons.js:52
 msgid "Change primary group"
@@ -1584,7 +1584,7 @@ msgstr ""
 #: ../app/tabs/users-tab/panels/showback-common.js:37
 #: ../app/tabs/groups-tab/panels/showback.js:40 ../app/utils/showback.js:205
 msgid "Showback"
-msgstr "Estatística de utilização"
+msgstr "Showback"
 
 #: ../app/tabs/users-tab/panels/auth-common.js:115
 msgid "Current password"
@@ -1597,24 +1597,24 @@ msgstr ""
 #: ../app/tabs/users-tab/panels/accounting-common.js:37
 #: ../app/tabs/groups-tab/panels/accounting.js:39
 msgid "Accounting"
-msgstr "Contabilidade"
+msgstr "Muhasebe"
 
 #: ../app/tabs/users-tab/panels/info-common.js:113
 msgid "ascending"
-msgstr "ascendente"
+msgstr ""
 
 #: ../app/tabs/users-tab/panels/info-common.js:114
 msgid "descending"
-msgstr "descendente"
+msgstr ""
 
 #: ../app/tabs/users-tab/datatable.js:71
 msgid "Auth driver"
-msgstr "Driver de autenticação"
+msgstr ""
 
 #: ../app/tabs/users-tab/datatable.js:74 ../app/tabs/groups-tab/datatable.js:69
 #: ../app/utils/quotas/quota-widgets.js:196
 msgid "Memory"
-msgstr "Memória"
+msgstr "Bellek"
 
 #: ../app/tabs/users-tab/datatable.js:75 ../app/tabs/groups-tab/datatable.js:70
 #: ../app/utils/quotas/quota-widgets.js:148
@@ -1623,27 +1623,27 @@ msgstr "CPU"
 
 #: ../app/tabs/users-tab/datatable.js:76
 msgid "Group ID"
-msgstr "ID de Grupo"
+msgstr "Grup ID"
 
 #: ../app/tabs/users-tab/datatable.js:77
 msgid "Hidden User Data"
-msgstr "Dados de Utilizador ocultos"
+msgstr ""
 
 #: ../app/tabs/users-tab/datatable.js:85
 msgid "Please select a User from the list"
-msgstr "Por favor selecione um Utilizador da lista"
+msgstr ""
 
 #: ../app/tabs/users-tab/datatable.js:86
 msgid "You selected the following User:"
-msgstr "Selecionou o seguinte Utilizador:"
+msgstr ""
 
 #: ../app/tabs/users-tab/datatable.js:87
 msgid "Please select one or more users from the list"
-msgstr "Por favor selecione um ou mais utilizadores da lista"
+msgstr ""
 
 #: ../app/tabs/users-tab/datatable.js:88
 msgid "You selected the following users:"
-msgstr "Selecionou os seguintes utilizadores:"
+msgstr ""
 
 #: ../app/tabs/users-tab/actions.js:37
 msgid "User created"
@@ -1652,62 +1652,62 @@ msgstr ""
 #: ../app/tabs/users-tab/utils/user-creation.js:141
 #: ../app/utils/quotas/quota-widgets.js:848
 msgid "Default"
-msgstr "Por omissão"
+msgstr "Varsayılan"
 
 #: ../app/tabs/oneflow-services-tab/form-panels/create.js:46
 msgid "Create Service"
-msgstr "Criar Serviço"
+msgstr "Servis Oluştur"
 
 #: ../app/tabs/oneflow-services-tab/buttons.js:48
 #: ../app/tabs/vms-tab/buttons.js:165
 msgid "Recover"
-msgstr "Recuperar"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/buttons.js:54
 msgid "This will delete the selected services"
-msgstr "Isto irá apagar os serviços selecionados"
+msgstr "Bu eylem seçili servisleri silecektir"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:23
 msgid "Scale"
-msgstr "Escalar"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:28
 #: ../app/tabs/vms-tab/buttons.js:71
 msgid "Hold"
-msgstr "Pausa"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:33
 #: ../app/tabs/vms-tab/buttons.js:77
 msgid "Release"
-msgstr "Libertar"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:38
 #: ../app/tabs/vms-tab/buttons.js:83
 msgid "Suspend"
-msgstr "Suspender"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:48
 #: ../app/tabs/vms-tab/buttons.js:95
 msgid "Stop"
-msgstr "Parar"
+msgstr "Dur"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:53
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:58
 #: ../app/tabs/vms-tab/buttons.js:101 ../app/tabs/vms-tab/buttons.js:107
 msgid "Reboot"
-msgstr "Reiniciar"
+msgstr "Yeniden Başlat"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:63
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:68
 #: ../app/tabs/vms-tab/buttons.js:113 ../app/tabs/vms-tab/buttons.js:119
 msgid "Power Off"
-msgstr "Encerrar"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:73
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:78
 #: ../app/tabs/vms-tab/buttons.js:125 ../app/tabs/vms-tab/buttons.js:131
 msgid "Undeploy"
-msgstr "Cancelar instanciação"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:83
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:88
@@ -1717,51 +1717,51 @@ msgstr ""
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:58
 #: ../app/utils/vmgroup-section.js:145
 msgid "Roles"
-msgstr "Papéis"
+msgstr "Roller"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:217
 msgid "The VM is ready"
-msgstr "A VM está pronta"
+msgstr "SM hazır"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:220
 msgid "Waiting for the VM to be ready"
-msgstr "À espera da VM estar pronta"
+msgstr "SM'in hazır olması bekleniyor"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:255
 #: ../app/tabs/vms-tab/datatable.js:169 ../app/tabs/vms-tab/actions.js:153
 msgid "VNC Connection in progress"
-msgstr "Ligação VNC em progresso"
+msgstr "SAB Bağlantısı işleniyor"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:269
 #: ../app/tabs/vms-tab/datatable.js:182 ../app/tabs/vms-tab/actions.js:181
 msgid "SPICE Connection in progress"
-msgstr "Ligação SPICE em curso"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/log.js:39
 #: ../app/tabs/vms-tab/panels/log.js:41
 msgid "Log"
-msgstr "Registo"
+msgstr "Log"
 
 #: ../app/tabs/oneflow-services-tab/datatable.js:77
 msgid "Please select a Service from the list"
-msgstr "Por favor selecione um Serviço da lista"
+msgstr "Lütfen listeden Servis seçiniz"
 
 #: ../app/tabs/oneflow-services-tab/datatable.js:78
 msgid "You selected the following Service:"
-msgstr "Selecionou o seguinte Serviço:"
+msgstr "Seçili Servis:"
 
 #: ../app/tabs/oneflow-services-tab/datatable.js:79
 msgid "Please select one or more Services from the list"
-msgstr "Por favor selecione uma ou mais Serviços da lista"
+msgstr "Lütfen listeden bir veya daha fazla Servis seçiniz"
 
 #: ../app/tabs/oneflow-services-tab/datatable.js:80
 msgid "You selected the following Services:"
-msgstr "Selecionou os seguintes Serviços:"
+msgstr "Şeçili Servisler:"
 
 #: ../app/tabs/oneflow-services-tab/actions.js:35
 #: ../app/tabs/oneflow-templates-tab/actions.js:70
 msgid "Service created"
-msgstr "Serviço criado"
+msgstr ""
 
 #: ../app/tabs/vms-tab/form-panels/updateconf.js:58
 msgid "Update VM Configuration"
@@ -1769,30 +1769,30 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/form-panels/create.js:44
 msgid "Create Virtual Machine"
-msgstr "Criar Máquina Virtual VM"
+msgstr "Sanal Makine Oluştur"
 
 #: ../app/tabs/vms-tab/dialogs/deploy.js:90
 #: ../app/tabs/vms-tab/dialogs/migrate.js:93
 msgid "You have not selected a host"
-msgstr "Não selecionou um anfitrião"
+msgstr "Henüz bir makine seçmediniz"
 
 #: ../app/tabs/vms-tab/dialogs/migrate.js:139
 msgid "is currently running on Host"
-msgstr "está de momento a correr no Anfitrião"
+msgstr "şu anda Makinede çalışıyor"
 
 #: ../app/tabs/vms-tab/dialogs/disk-resize.js:95
 #: ../app/tabs/vms-tab/dialogs/disk-resize.js:101
 #: ../app/tabs/vms-tab/dialogs/disk-resize.js:105
 msgid "Cost"
-msgstr "Custo"
+msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:53
 msgid "Deploy"
-msgstr "Lançar"
+msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:59 ../app/tabs/vms-tab/buttons.js:65
 msgid "Migrate"
-msgstr "Migrar"
+msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:65
 msgid "live"
@@ -1823,31 +1823,31 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:153
 msgid "Reschedule"
-msgstr "Recalendarizar"
+msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:159
 msgid "Un-Reschedule"
-msgstr "Cancelar Recalendarização"
+msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:168
 msgid "retry"
-msgstr "tentar novamente"
+msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:169
 msgid "success"
-msgstr "sucesso"
+msgstr "başarılı"
 
 #: ../app/tabs/vms-tab/buttons.js:170
 msgid "failure"
-msgstr "falha"
+msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:171
 msgid "delete"
-msgstr "apagar"
+msgstr "sil"
 
 #: ../app/tabs/vms-tab/buttons.js:172
 msgid "delete-recreate"
-msgstr "apagar-recriar"
+msgstr "sil-yenidenolustur"
 
 #: ../app/tabs/vms-tab/buttons.js:174
 msgid "Recovers a stuck VM that is waiting for a driver operation.                     The recovery may be done by failing, succeeding or retrying the current operation.                     YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation                     was successful or not, or if it can be retried.                    <br/>                    <br/>Delete: This will delete the selected VMs                    <br/>Delete-recreate: This will delete and recreate VMs to PENDING state"
@@ -1859,12 +1859,12 @@ msgstr "VNC"
 
 #: ../app/tabs/vms-tab/buttons.js:190
 msgid "SPICE"
-msgstr "SPICE"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage.js:57
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage.js:55
 msgid "Storage"
-msgstr "Armazenamento"
+msgstr "Depolama"
 
 #: ../app/tabs/vms-tab/panels/storage.js:95
 msgid "Disk RD Bytes"
@@ -1885,24 +1885,24 @@ msgstr ""
 #: ../app/tabs/vms-tab/panels/storage.js:238
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context.js:57
 msgid "Context"
-msgstr "Contexto"
+msgstr "İçerik"
 
 #: ../app/tabs/vms-tab/panels/storage.js:272
 msgid "Save as in progress"
-msgstr "Guardar em progresso"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage.js:283
 #: ../app/tabs/vms-tab/panels/network.js:268
 msgid "attach/detach in progress"
-msgstr "anexar/desanexar em curso"
+msgstr "bağla/ayır işlemi sürüyor"
 
 #: ../app/tabs/vms-tab/panels/storage.js:353
 msgid "YES"
-msgstr "SIM"
+msgstr "EVET"
 
 #: ../app/tabs/vms-tab/panels/storage.js:353
 msgid "NO"
-msgstr "NÃO"
+msgstr "HAYIR"
 
 #: ../app/tabs/vms-tab/panels/storage.js:455
 msgid "This will detach the disk immediately"
@@ -1910,7 +1910,7 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage.js:566
 msgid "This will delete the disk snapshot "
-msgstr "Isto irá apagar o snapshot de disco"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage.js:701
 msgid "Disk read bytes"
@@ -1935,7 +1935,7 @@ msgstr ""
 #: ../app/utils/quotas/quota-widgets.js:580 ../app/utils/vcenter/networks.js:95
 #: ../app/utils/user-inputs.js:272
 msgid "Network"
-msgstr "Rede"
+msgstr "Ağ"
 
 #: ../app/tabs/vms-tab/panels/network.js:84
 msgid "IP"
@@ -1953,7 +1953,7 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/panels/network.js:87
 msgid "IPv6 ULA"
-msgstr "ULA IPv6"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/network.js:88
 msgid "IPv6 Global"
@@ -1964,16 +1964,16 @@ msgstr "IPv6 Global"
 #: ../app/tabs/vms-tab/panels/actions.js:72
 #: ../app/tabs/vms-tab/panels/snapshots.js:76
 msgid "Actions"
-msgstr "Ações"
+msgstr "Eylemler"
 
 #: ../app/tabs/vms-tab/panels/network.js:98
 #: ../app/tabs/vms-tab/panels/network.js:101
 msgid "Attach nic"
-msgstr "Anexar placa de rede"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/network.js:121
 msgid "Network Monitoring Attributes"
-msgstr "Atributos de Monitorização de Rede"
+msgstr "Ağ İzleme Nitelikleri"
 
 #: ../app/tabs/vms-tab/panels/network.js:145
 msgid "NET RX"
@@ -1985,11 +1985,11 @@ msgstr "NET TX"
 
 #: ../app/tabs/vms-tab/panels/network.js:177
 msgid "NET DOWNLOAD SPEED"
-msgstr "VELOCIDADE DE TRANSFERÊNCIA DA REDE"
+msgstr "NET İNDİRME HIZI"
 
 #: ../app/tabs/vms-tab/panels/network.js:193
 msgid "NET UPLOAD SPEED"
-msgstr "VELOCIDADE DE ENVIO DA REDE"
+msgstr "NET GÖNDERME HIZI"
 
 #: ../app/tabs/vms-tab/panels/network.js:221
 msgid " (VRouter)"
@@ -1997,50 +1997,50 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/panels/network.js:272
 msgid "Detach"
-msgstr "Remover"
+msgstr "Ayır"
 
 #: ../app/tabs/vms-tab/panels/network.js:365 ../app/tabs/secgroups-tab.js:50
 msgid "Security Group"
-msgstr "Grupo de Segurança"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/network.js:366
 msgid "Protocol"
-msgstr "Protocolo"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/network.js:368
 msgid "Range"
-msgstr "Intervalo"
+msgstr "Aralık"
 
 #: ../app/tabs/vms-tab/panels/network.js:370
 msgid "ICMP Type"
-msgstr "Tipo ICMP"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/network.js:444
 msgid "Network reception"
-msgstr "Receção de Rede"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/network.js:451
 msgid "Network transmission"
-msgstr "Transmissão de Rede"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/network.js:458
 msgid "Network reception speed"
-msgstr "Velocidade de receção de rede"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/network.js:467
 msgid "Network transmission speed"
-msgstr "Velocidade de transmissão de rede"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/template.js:41
 #: ../app/tabs/oneflow-templates-tab/panels/template.js:45
 #: ../app/tabs/templates-tab/panels/template-common.js:43
 #: ../app/utils/vcenter/templates.js:96
 msgid "Template"
-msgstr "Modelo"
+msgstr "Şablon"
 
 #: ../app/tabs/vms-tab/panels/placement.js:43
 msgid "Placement"
-msgstr "Colocação"
+msgstr "Yerleştirme"
 
 #: ../app/tabs/vms-tab/panels/placement.js:67
 msgid "#"
@@ -2049,12 +2049,12 @@ msgstr "#"
 #: ../app/tabs/vms-tab/panels/placement.js:68
 #: ../app/tabs/vms-tab/utils/datatable-common.js:37 ../app/tabs/hosts-tab.js:56
 msgid "Host"
-msgstr "Anfitrião"
+msgstr "Makine"
 
 #: ../app/tabs/vms-tab/panels/placement.js:70
 #: ../app/tabs/vms-tab/panels/actions.js:68
 msgid "Action"
-msgstr "Ação"
+msgstr "Eylem"
 
 #: ../app/tabs/vms-tab/panels/placement.js:71
 msgid "UID"
@@ -2074,47 +2074,47 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/panels/placement.js:75
 msgid "Total time"
-msgstr "Tempo total"
+msgstr "Toplam zaman"
 
 #: ../app/tabs/vms-tab/panels/placement.js:76
 msgid "Prolog time"
-msgstr "Tempo de prólogo"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/placement.js:89
 msgid "No data available in table"
-msgstr "Não há dados disponíveis na tabela"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/placement.js:146
 msgid "Sched Message"
-msgstr "Mensagem de calendarização"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/placement.js:169
 msgid "Placement - Host"
-msgstr "Alocamento - Anfitrião"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/placement.js:174
 msgid "Requirements"
-msgstr "Requisitos"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/placement.js:178
 msgid "Rank"
-msgstr "Posição"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/placement.js:186
 msgid "Placement - Datastore"
-msgstr "Alocamento - Datastore"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/placement.js:191
 msgid "DS Requirements"
-msgstr "Requisitos DS"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/placement.js:195
 msgid "DS Rank"
-msgstr "Posição DS"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/conf.js:51
 msgid "Conf"
-msgstr "Configuração"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/log.js:103
 msgid "Some ad-block extensions are known to filter the '/log?id=' URL"
@@ -2134,7 +2134,7 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/panels/actions.js:73
 msgid "Add action"
-msgstr "Adicionar ação"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/actions.js:93
 msgid "terminate"
@@ -2146,110 +2146,110 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/panels/actions.js:95
 msgid "hold"
-msgstr "pausar"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/actions.js:96
 msgid "release"
-msgstr "libertar"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/actions.js:97
 msgid "stop"
-msgstr "parar"
+msgstr "durdur"
 
 #: ../app/tabs/vms-tab/panels/actions.js:98
 msgid "suspend"
-msgstr "suspender"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/actions.js:99
 msgid "resume"
-msgstr "continuar"
+msgstr "devam et"
 
 #: ../app/tabs/vms-tab/panels/actions.js:100
 msgid "reboot"
-msgstr "desligar e reiniciar"
+msgstr "yeniden başlat"
 
 #: ../app/tabs/vms-tab/panels/actions.js:101
 msgid "reboot-hard"
-msgstr "forçar-reiniciar"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/actions.js:102
 msgid "poweroff"
-msgstr "encerrar"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/actions.js:103
 msgid "poweroff-hard"
-msgstr "forcar-desligar"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/actions.js:104
 msgid "undeploy"
-msgstr "cancelar instanciação"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/actions.js:105
 msgid "undeploy-hard"
-msgstr "forçar-cancelar-instanciacao"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/actions.js:106
 msgid "snapshot-create"
-msgstr "criar-snapshot"
+msgstr "snapshot-oluştur"
 
 #: ../app/tabs/vms-tab/panels/actions.js:114
 msgid "Add"
-msgstr "Adicionar"
+msgstr "Ekle"
 
 #: ../app/tabs/vms-tab/panels/actions.js:192
 msgid "No actions to show"
-msgstr "Sem ações para mostrar"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/snapshots.js:75
 msgid "Timestamp"
-msgstr "Timestamp"
+msgstr "Tarih Bilgisi"
 
 #: ../app/tabs/vms-tab/panels/snapshots.js:83
 #: ../app/tabs/vms-tab/panels/snapshots.js:86
 msgid "Take snapshot"
-msgstr "Tirar snapshot"
+msgstr "Snapshot al"
 
 #: ../app/tabs/vms-tab/panels/snapshots.js:104
 msgid "No snapshots to show"
-msgstr "Sem snapshots para mostrar"
+msgstr "Gösterilecek snapshot yok"
 
 #: ../app/tabs/vms-tab/panels/snapshots.js:116
 msgid "snapshot in progress"
-msgstr "snapshot em progresso"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/snapshots.js:124
 msgid "Revert"
-msgstr "Reverter"
+msgstr "Geri döndür"
 
 #: ../app/tabs/vms-tab/datatable.js:75
 msgid "Please select a VM from the list"
-msgstr "Por favor selecione uma VM da lista"
+msgstr ""
 
 #: ../app/tabs/vms-tab/datatable.js:76
 msgid "You selected the following VM:"
-msgstr "Selecionou a seguinte VM:"
+msgstr ""
 
 #: ../app/tabs/vms-tab/datatable.js:77
 msgid "Please select one or more VMs from the list"
-msgstr "Por favor selecione uma ou mais VMs da lista"
+msgstr ""
 
 #: ../app/tabs/vms-tab/datatable.js:78
 msgid "You selected the following VMs:"
-msgstr "Selecionou as seguintes VMs:"
+msgstr ""
 
 #: ../app/tabs/vms-tab/actions.js:40
 #: ../app/tabs/templates-tab/actions-common.js:161
 #: ../app/tabs/templates-tab/actions-common.js:208
 msgid "VM created"
-msgstr "VM criada"
+msgstr "SM oluşturuldu"
 
 #: ../app/tabs/vms-tab/utils/datatable-common.js:35
 msgid "Used CPU"
-msgstr "CPU utilizado"
+msgstr "Kullanılan CPU"
 
 #: ../app/tabs/vms-tab/utils/datatable-common.js:36
 msgid "Used Memory"
-msgstr "Memória utilizada"
+msgstr "Kullanılan Bellek"
 
 #: ../app/tabs/vms-tab/utils/datatable-common.js:38
 msgid "IPs"
@@ -2257,20 +2257,20 @@ msgstr "IPs"
 
 #: ../app/tabs/vms-tab/utils/datatable-common.js:39
 msgid "Start Time"
-msgstr "Hora de Início"
+msgstr "Başlama Zamanı"
 
 #: ../app/tabs/vms-tab/utils/datatable-common.js:41
 msgid "Hidden Template"
-msgstr "Modelo oculto"
+msgstr ""
 
 #: ../app/tabs/vnets-tab.js:52 ../app/tabs/vnets-tab.js:56
 #: ../app/tabs/acls-tab/datatable.js:142
 msgid "Virtual Networks"
-msgstr "Redes Virtuais"
+msgstr "Sanal Ağlar"
 
 #: ../app/tabs/vnets-tab.js:59
 msgid "USED IPs"
-msgstr "IPs USADOS"
+msgstr "KULLANILAN IPler"
 
 #: ../app/tabs/marketplaces-tab.js:48 ../app/tabs/marketplaces-tab.js:52
 msgid "MarketPlaces"
@@ -2278,11 +2278,11 @@ msgstr ""
 
 #: ../app/tabs/vrouter-templates-tab.js:49
 msgid "Virtual Router VM Templates"
-msgstr "Modelos de VM Roteador Virtual"
+msgstr ""
 
 #: ../app/tabs/vrouter-templates-tab.js:50
 msgid "Virtual Router VM Template"
-msgstr "Modelo de VM Roteador Virtual"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:46
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:100
@@ -2373,7 +2373,7 @@ msgstr ""
 
 #: ../app/tabs/marketplaces-tab/datatable.js:88
 msgid "Driver"
-msgstr "Driver"
+msgstr "Sürücü"
 
 #: ../app/tabs/marketplaces-tab/datatable.js:98
 msgid "Please select a marketplace from the list"
@@ -2397,31 +2397,31 @@ msgstr ""
 
 #: ../app/tabs/zones-tab/datatable.js:64
 msgid "Endpoint"
-msgstr "Ponto final"
+msgstr ""
 
 #: ../app/tabs/zones-tab/datatable.js:71
 msgid "Please select a Zone from the list"
-msgstr "Por favor selecione uma Zona da lista"
+msgstr ""
 
 #: ../app/tabs/zones-tab/datatable.js:72
 msgid "You selected the following Zone:"
-msgstr "Selecionou a seguinte Zona:"
+msgstr ""
 
 #: ../app/tabs/zones-tab/datatable.js:73
 msgid "Please select one or more Zones from the list"
-msgstr "Por favor selecione uma ou mais Zonas da lista"
+msgstr ""
 
 #: ../app/tabs/zones-tab/datatable.js:74
 msgid "You selected the following Zones:"
-msgstr "Selecionou as seguintes Zonas:"
+msgstr ""
 
 #: ../app/tabs/zones-tab/actions.js:31
 msgid "Zone created"
-msgstr "Zona criada"
+msgstr ""
 
 #: ../app/tabs/support-tab/buttons.js:29
 msgid "Upload a file"
-msgstr "Enviar um ficheiro"
+msgstr "Dosya yükle"
 
 #: ../app/tabs/marketplaceapps-tab.js:54
 msgid "App"
@@ -2437,15 +2437,15 @@ msgstr ""
 
 #: ../app/tabs/files-tab/datatable.js:45
 msgid "You selected the following file:"
-msgstr "Selecionou o ficheiro seguinte:"
+msgstr "Seçili dosya:"
 
 #: ../app/tabs/files-tab/datatable.js:46
 msgid "Please select one or more files from the list"
-msgstr "Por favor selecione um ou mais ficheiros da lista"
+msgstr "Lütfen listeden bir veya daha fazla dosya seçiniz"
 
 #: ../app/tabs/files-tab/datatable.js:47
 msgid "You selected the following files:"
-msgstr "Selecionou os seguintes ficheiros:"
+msgstr "Belirtilen dosyaları seçtiniz:"
 
 #: ../app/tabs/files-tab/actions.js:30
 msgid "File created"
@@ -2453,20 +2453,20 @@ msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:56
 msgid "Instantiate Service Template"
-msgstr "Instanciar Modelo de Serviço"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:156
 #: ../app/tabs/vmgroup-tab/panels/vms.js:119
 msgid "Role"
-msgstr "Papel"
+msgstr "Rol"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:53
 msgid "Create Service Template"
-msgstr "Criar Modelo de Serviço"
+msgstr "Servis Şablonu Oluştur"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:58
 msgid "Update Service Template"
-msgstr "Atualizar Modelo de Serviço"
+msgstr "Servis Şablonu Güncelle"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:108
 msgid "Can only contain alphanumeric and underscore characters"
@@ -2475,47 +2475,47 @@ msgstr ""
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:430
 #: ../app/tabs/vmgroup-tab/form-panels/create.js:370
 msgid "Role "
-msgstr "Papel"
+msgstr "Rol"
 
 #: ../app/tabs/oneflow-templates-tab/buttons.js:63
 msgid "This will delete the selected templates"
-msgstr "Isto irá apagar os modelos selecionados"
+msgstr "Bu eylem seçili şablonları silecek"
 
 #: ../app/tabs/oneflow-templates-tab/datatable.js:75
 #: ../app/tabs/templates-tab/datatable-common.js:78
 msgid "Please select a Template from the list"
-msgstr "Por favor selecione um Modelo da lista"
+msgstr "Lütfen listeden Şablon seçiniz"
 
 #: ../app/tabs/oneflow-templates-tab/datatable.js:76
 #: ../app/tabs/templates-tab/datatable-common.js:79
 msgid "You selected the following Template:"
-msgstr "Selecionou o seguinte Modelo:"
+msgstr "Seçili Şablon:"
 
 #: ../app/tabs/oneflow-templates-tab/datatable.js:77
 #: ../app/tabs/templates-tab/datatable-common.js:80
 msgid "Please select one or more Templates from the list"
-msgstr "Por favor selecione uma ou mais Modelos da lista"
+msgstr "Lütfen listeden bir veya daha fazla Şablon seçiniz"
 
 #: ../app/tabs/oneflow-templates-tab/datatable.js:78
 #: ../app/tabs/templates-tab/datatable-common.js:81
 msgid "You selected the following Templates:"
-msgstr "Selecionou os seguintes Modelos:"
+msgstr "Seçili Şablonlar:"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:34
 msgid "Service Template created"
-msgstr "Modelo de Serviço criado"
+msgstr ""
 
 #: ../app/tabs/provision-tab.js:112
 msgid "Cardinality"
-msgstr "Cardinalidade"
+msgstr ""
 
 #: ../app/tabs/provision-tab.js:115 ../app/tabs/provision-tab.js:194
 msgid "COST"
-msgstr "CUSTO"
+msgstr "DEĞER"
 
 #: ../app/tabs/provision-tab.js:115 ../app/tabs/provision-tab.js:194
 msgid "HOUR"
-msgstr "HORA"
+msgstr "SAAT"
 
 #: ../app/tabs/provision-tab.js:773 ../app/tabs/provision-tab.js:851
 msgid "mine"
@@ -2531,90 +2531,90 @@ msgstr ""
 
 #: ../app/tabs/provision-tab.js:1015 ../app/tabs/provision-tab.js:1268
 msgid "You must select at least a template configuration"
-msgstr "Deve selecionar pelo menos um modelo de configuração"
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create.js:54
 msgid "Create Group"
-msgstr "Criar Grupo"
+msgstr "Grup Oluştur"
 
 #: ../app/tabs/groups-tab/form-panels/create.js:59
 msgid "Update Group"
-msgstr "Atualizar Grupo"
+msgstr "Grubu Güncelle"
 
 #: ../app/tabs/groups-tab/panels/info.js:150
 msgid "default"
-msgstr "por omissão"
+msgstr "varsayılan"
 
 #: ../app/tabs/groups-tab/panels/users.js:45
 #: ../app/tabs/groups-tab/datatable.js:67 ../app/tabs/users-tab.js:53
 #: ../app/tabs/users-tab.js:57 ../app/tabs/acls-tab/datatable.js:151
 msgid "Users"
-msgstr "Utilizadores"
+msgstr "Kullanıcılar"
 
 #: ../app/tabs/groups-tab/datatable.js:77
 msgid "Please select a Group from the list"
-msgstr "Por favor selecione um Grupo da lista"
+msgstr "Lütfen listeden group seçiniz"
 
 #: ../app/tabs/groups-tab/datatable.js:78
 msgid "You selected the following Group:"
-msgstr "Selecionou o seguinte Grupo:"
+msgstr "Seçili group:"
 
 #: ../app/tabs/groups-tab/datatable.js:79
 msgid "Please select one or more groups from the list"
-msgstr "Por favor selecione um ou mais grupos da lista"
+msgstr "Lütfen listeden bir veya daha fazla grup seçiniz"
 
 #: ../app/tabs/groups-tab/datatable.js:80
 msgid "You selected the following groups:"
-msgstr "Selecionou os seguintes grupos:"
+msgstr "Seçili gruplar:"
 
 #: ../app/tabs/groups-tab/actions.js:33
 msgid "Group created"
-msgstr "Grupo criado"
+msgstr "Grup yaratıldı"
 
 #: ../app/tabs/groups-tab/utils/views.js:23
 msgid "Exposes a complete view of the cloud, allowing administrators and advanced users full control of any physical or virtual resource."
-msgstr ""
+msgstr "Tüm bulut yapısını göstererek, sistem yöneticilerinin ve gelişmiş kullanıcıların istedikleri fiziksel ya da sanal kaynağı kontrol etmelerini sağlar."
 
 #: ../app/tabs/groups-tab/utils/views.js:28
 msgid "Simplified version of the cloud allowing group admins and cloud end-users to manage any virtual resource."
-msgstr ""
+msgstr "Bulut yapısının basitleştirilmiş halini göstererek grup yöneticilerinin ve bulut son kullanıcılarının sanal kaynakları yönetmelerini sağlar."
 
 #: ../app/tabs/groups-tab/utils/views.js:33
 msgid "Set of views to present valid operations over a vCenter infrastructure"
-msgstr ""
+msgstr "Bir vCenter altyapısında yürütülebilecek işlemleri içeren görünümler"
 
 #: ../app/tabs/groups-tab/utils/views.js:47
 msgid "Full control of the cloud, including virtual and physical resources."
-msgstr ""
+msgstr "Bulut yapısının, fiziksel ve sanal tüm kaynakları içerecek şekilde tam kontrolünü sağlar."
 
 #: ../app/tabs/groups-tab/utils/views.js:53
 msgid "Users are not able to manage hosts and clusters, although they will be able to create new Images or Virtual Machines."
-msgstr ""
+msgstr "Kullanıcılar sunucu ya da kümeleri yönetemeyecek, ancak yeni İmaj ve Sanal Makine oluşturabileceklerdir."
 
 #: ../app/tabs/groups-tab/utils/views.js:59
 msgid "Control of all the resources belonging to a group, with the ability to create new users within the group."
-msgstr ""
+msgstr "Bir gruba bağlı tüm kaynakların yönetimine ek olarak, grup içerisinde yeni kullanıcılar açabilme."
 
 #: ../app/tabs/groups-tab/utils/views.js:65
 msgid "Simplified view mainly where users can provision new Virtual Machines easily from pre-defined Templates."
-msgstr ""
+msgstr "Temel olarak kullanıcıların önceden tanımlanmış Şablonlar kullanarak yeni Sanal Makineler oluşturmasını sağlayan görünüm"
 
 #: ../app/tabs/groups-tab/utils/views.js:71
 msgid "View designed to present the valid operations over a vCenter infrastructure to a cloud administrator"
-msgstr ""
+msgstr "Bir vCenter altyapısında, bulut yöneticisi tarafından yürütülebilecek işlemleri içeren görünüm"
 
 #: ../app/tabs/groups-tab/utils/views.js:77
 msgid "View designed to present the valid operations over a vCenter infrastructure to a group administrator"
-msgstr ""
+msgstr "Bir vCenter altyapısında grup yöneticisi tarafından yürütülebilecek işlemleri içeren görünüm"
 
 #: ../app/tabs/groups-tab/utils/views.js:83
 msgid "View designed to present the valid operations over a vCenter infrastructure to a cloud consumer"
-msgstr ""
+msgstr "Bir vCenter altyapısında bulut tüketicisi tarafından yürütülebilecek işlemleri içeren görünüm"
 
 #: ../app/tabs/users-tab.js:58 ../app/tabs/acls-tab/datatable.js:217
 #: ../app/utils/accounting.js:349
 msgid "User"
-msgstr "Utilizador"
+msgstr "Kullanıcı"
 
 #: ../app/tabs/oneflow-services-tab.js:52
 msgid "Service"
@@ -2622,33 +2622,33 @@ msgstr ""
 
 #: ../app/tabs/files-tab.js:42 ../app/tabs/files-tab.js:46
 msgid "Files"
-msgstr "Ficheiros"
+msgstr "Dosyalar"
 
 #: ../app/tabs/files-tab.js:47
 msgid "File"
-msgstr "Ficheiro"
+msgstr "Dosya"
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:56
 msgid "Create Virtual Network"
-msgstr "Criar Rede Virtual"
+msgstr "Sanal Ağ Oluştur"
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:61
 msgid "Update Virtual Network"
-msgstr "Atualizar Rede Virtual"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:231
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:59
 msgid "Address Range"
-msgstr "Intervalo de Endereço"
+msgstr "Adres Aralığı"
 
 #: ../app/tabs/vnets-tab/form-panels/import.js:50
 msgid "Import vCenter Networks"
-msgstr "Importar Redes vCenter"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/dialogs/add-ar.js:81
 #: ../app/tabs/vnets-tab/dialogs/update-ar.js:77
 msgid "One or more required fields are missing."
-msgstr "Um ou mais campos obrigatórios estão em falta."
+msgstr ""
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:62
 msgid "End"
@@ -2659,31 +2659,31 @@ msgstr ""
 #: ../app/tabs/vnets-tab/datatable.js:74
 #: ../app/utils/quotas/quota-widgets.js:585
 msgid "Leases"
-msgstr "Atribuições"
+msgstr "Kiralar"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:69
 msgid "Please select an Address Range from the list"
-msgstr "Por favor selecione um Intervalo de Endereços da lista"
+msgstr "Lütfen listeden adres aralığı seçiniz"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:70
 msgid "You selected the following Address Range:"
-msgstr "Selecionou o seguinte Intervalo de Endereços:"
+msgstr "Seçili adres aralığı:"
 
 #: ../app/tabs/vnets-tab/buttons.js:45
 msgid "Reserve"
-msgstr "Reservar"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/info.js:105
 msgid "Reservation parent"
-msgstr "Reserva mãe"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/info.js:112
 msgid "This Network is already a reservation"
-msgstr "Esta Rede já está reservada"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/secgroups.js:39
 msgid "Security"
-msgstr "Segurança"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/leases.js:90
 msgid "VM:"
@@ -2691,7 +2691,7 @@ msgstr "VM:"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:93
 msgid "NET:"
-msgstr "REDE:"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/leases.js:96
 msgid "VR:"
@@ -2699,11 +2699,11 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar.js:52
 msgid "Addresses"
-msgstr "Endereços"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar.js:177
 msgid "This will delete all the addresses in this range"
-msgstr "Isto irá apagar todos os endereços neste intervalo"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar.js:234
 msgid "The Address Range was not found"
@@ -2711,19 +2711,19 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar.js:308
 msgid "Global prefix"
-msgstr "Prefixo global"
+msgstr "Global ön ek"
 
 #: ../app/tabs/vnets-tab/panels/ar.js:309
 msgid "ULA prefix"
-msgstr "Prefixo ULA"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar.js:311
 msgid "Used leases"
-msgstr "Endereços usados"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar.js:312
 msgid "Reservation parent AR"
-msgstr "Reserva mãe AR"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar.js:313
 msgid "IPAM driver"
@@ -2735,39 +2735,39 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/datatable.js:71
 msgid "Reservation"
-msgstr "Reserva"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/datatable.js:73
 msgid "Bridge"
-msgstr "Ponte"
+msgstr "Köprü"
 
 #: ../app/tabs/vnets-tab/datatable.js:75
 msgid "VLAN ID"
-msgstr "ID VLAN"
+msgstr "VLAN ID"
 
 #: ../app/tabs/vnets-tab/datatable.js:84
 msgid "Please select a network from the list"
-msgstr "Por favor selecione uma rede da lista"
+msgstr "Lütfen listeden bir ağ seçin"
 
 #: ../app/tabs/vnets-tab/datatable.js:85
 msgid "You selected the following network:"
-msgstr "Selecionou uma das seguintes redes:"
+msgstr "Belirtilen ağları seçtiniz:"
 
 #: ../app/tabs/vnets-tab/datatable.js:86
 msgid "Please select one or more networks from the list"
-msgstr "Por favor selecione uma ou mais redes da lista"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/datatable.js:87
 msgid "You selected the following networks:"
-msgstr "Selecionou as seguintes redes:"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/datatable.js:152
 msgid "Yes"
-msgstr "Sim"
+msgstr "Evet"
 
 #: ../app/tabs/vnets-tab/datatable.js:152
 msgid "No"
-msgstr "Não"
+msgstr "Hayır"
 
 #: ../app/tabs/vnets-tab/actions.js:38
 msgid "Virtual Network created"
@@ -2775,125 +2775,125 @@ msgstr ""
 
 #: ../app/tabs/templates-tab.js:51 ../app/tabs/acls-tab/datatable.js:148
 msgid "VM Templates"
-msgstr "Modelos de VM"
+msgstr "VM Şablonları"
 
 #: ../app/tabs/settings-tab/panels/group-quotas.js:43
 msgid "Group Quotas"
-msgstr "Quotas de Grupo"
+msgstr "Grup Kotası"
 
 #: ../app/tabs/settings-tab/panels/group-quotas.js:64
 msgid "Select group"
-msgstr "Selecione grupo"
+msgstr "Grup seçiniz"
 
 #: ../app/tabs/settings-tab/panels/user-config.js:53
 msgid "Config"
-msgstr "Configuração"
+msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config.js:109
 msgid "Fill in a new password"
-msgstr "Preencha de novo a palavra-passe"
+msgstr "Yeni Parola Giriniz"
 
 #: ../app/tabs/settings-tab/panels/user-config.js:114
 msgid "Passwords do not match"
-msgstr "As palavras-chave não coincidem"
+msgstr "Parolalar Uyuşmamaktadır"
 
 #: ../app/tabs/settings-tab/panels/user-config.js:128
 msgid "You have to provide an SSH key"
-msgstr "Tem que fornecer uma chave SSH"
+msgstr ""
 
 #: ../app/tabs/settings-tab.js:51 ../app/tabs/settings-tab.js:52
 msgid "Settings"
-msgstr "Definições"
+msgstr "Ayarlar"
 
 #: ../app/tabs/acls-tab.js:38
 msgid "ACLs"
-msgstr "ACLs"
+msgstr "ACL ler"
 
 #: ../app/tabs/acls-tab.js:42
 msgid "Access Control Lists"
-msgstr "Lista de Controlo de Acesso"
+msgstr "Erişim Kontrol Listeleri"
 
 #: ../app/tabs/acls-tab/form-panels/create.js:51
 msgid "Create ACL"
-msgstr "Criar ACL"
+msgstr "ACL Oluştur"
 
 #: ../app/tabs/acls-tab/form-panels/create.js:212
 msgid "Please select a user to whom the acl applies"
-msgstr "Por favor selecione um utilizador ao qual se aplicam as regras acl"
+msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create.js:220
 msgid "Please select a group to whom the acl applies"
-msgstr "Por favor selecione um grupo ao qual se aplicam as regras acl"
+msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create.js:229
 msgid "Please select at least one resource"
-msgstr "Por favor selecione pelo menos um recurso"
+msgstr "Lütfen en azından bir kaynak seçin"
 
 #: ../app/tabs/acls-tab/form-panels/create.js:239
 msgid "Please provide a resource ID for the resource(s) in this rule"
-msgstr "Por favor insira o ID de recurso para os recurso(s) nesta regra"
+msgstr ""
 
 #: ../app/tabs/acls-tab/datatable.js:62
 msgid "Applies to"
-msgstr "Aplica-se a"
+msgstr "Uygulanacaklar"
 
 #: ../app/tabs/acls-tab/datatable.js:63
 msgid "Affected resources"
-msgstr "Recursos afetados"
+msgstr "Etkilenen kaynaklar"
 
 #: ../app/tabs/acls-tab/datatable.js:64
 msgid "Resource ID / Owned by"
-msgstr "ID do recurso / Pertencente a"
+msgstr "Kaynak ID / Sahibi"
 
 #: ../app/tabs/acls-tab/datatable.js:65
 msgid "Allowed operations"
-msgstr "Operações permitidas"
+msgstr "İzin verilen eylemler"
 
 #: ../app/tabs/acls-tab/datatable.js:67
 msgid "ACL String"
-msgstr "Texto LCA"
+msgstr "ACL Metni"
 
 #: ../app/tabs/acls-tab/datatable.js:73
 msgid "Please select an ACL rule from the list"
-msgstr "Por favor selecione uma regra ACL da lista"
+msgstr "Lütfen EKL kuralı seçiniz"
 
 #: ../app/tabs/acls-tab/datatable.js:74
 msgid "You selected the following ACL rule:"
-msgstr "Selecionou a seguinte regra ACL:"
+msgstr "Seçili EKL kuralı"
 
 #: ../app/tabs/acls-tab/datatable.js:75
 msgid "Please select one or more ACL rules from the list"
-msgstr "Por favor selecione uma ou mais regras ACL da lista"
+msgstr "LÜtfen listeden bir veya daha fazla EKL kuralı seçiniz"
 
 #: ../app/tabs/acls-tab/datatable.js:76
 msgid "You selected the following ACL rules:"
-msgstr "Selecionou as seguintes regras ACL:"
+msgstr "Seçili EKL kuralları:"
 
 #: ../app/tabs/acls-tab/datatable.js:163
 msgid "Documents"
-msgstr "Documentos"
+msgstr "Belgeler"
 
 #: ../app/tabs/acls-tab/datatable.js:166 ../app/tabs/zones-tab.js:40
 #: ../app/tabs/zones-tab.js:44
 msgid "Zones"
-msgstr "Zonas"
+msgstr "Alanlar"
 
 #: ../app/tabs/acls-tab/datatable.js:169 ../app/tabs/secgroups-tab.js:45
 #: ../app/tabs/secgroups-tab.js:49
 msgid "Security Groups"
-msgstr "Grupos de Segurança"
+msgstr "Güvenlik Grupları"
 
 #: ../app/tabs/acls-tab/datatable.js:172 ../app/tabs/vdcs-tab.js:45
 msgid "VDCs"
-msgstr "VDCs"
+msgstr "SVM'leri"
 
 #: ../app/tabs/acls-tab/datatable.js:178
 msgid "Marketplaces"
-msgstr "Loja"
+msgstr ""
 
 #: ../app/tabs/acls-tab/datatable.js:181
 msgid "Marketplace Apps"
-msgstr "Loja de Apps"
+msgstr ""
 
 #: ../app/tabs/acls-tab/datatable.js:184 ../app/tabs/vmgroup-tab.js:37
 #: ../app/tabs/vmgroup-tab.js:41 ../app/tabs/vmgroup-tab.js:42
@@ -2902,16 +2902,16 @@ msgstr ""
 
 #: ../app/tabs/acls-tab/datatable.js:243
 msgid "Cluster ID"
-msgstr "ID do Cluster"
+msgstr "Küme ID"
 
 #: ../app/tabs/acls-tab/actions.js:32
 msgid "ACL Rule created"
-msgstr "Regra ACL criada"
+msgstr ""
 
 #: ../app/tabs/images-tab.js:52 ../app/utils/quotas/quota-widgets.js:272
 #: ../app/utils/quotas/quota-widgets.js:1167
 msgid "Image"
-msgstr "imagem"
+msgstr "İmaj"
 
 #: ../app/tabs/vmgroup-tab/form-panels/create.js:59
 msgid "Create Virtual Machine Group"
@@ -2956,7 +2956,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other.js:55
 msgid "Other"
-msgstr "Outros"
+msgstr "Diğer"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/vmgroup.js:49
 msgid "VM Group"
@@ -2964,49 +2964,49 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:147
 msgid "OS Booting"
-msgstr "Arranque de SO"
+msgstr "İşletim Sistemi Açılıyor"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:380
 msgid "Image ID"
-msgstr "ID de imagem"
+msgstr "İmaj ID"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:382
 msgid "Volatile"
-msgstr "Volátil"
+msgstr "Geçici"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:407
 msgid "Network ID"
-msgstr "ID de rede"
+msgstr "Ağ ID"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:409
 msgid "Manual settings"
-msgstr "Configurações manuais"
+msgstr "El ile ayarlanan ayarlar"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:419
 msgid "Disks and NICs will appear here"
-msgstr "Discos et NICs  irão aparecer aqui"
+msgstr "Diskler ve NIC'ler burada gözükecektir"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage.js:161
 #: ../app/utils/disks-resize.js:134
 msgid "DISK"
-msgstr "DISCO"
+msgstr "DISK"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage.js:197
 msgid "Disk"
-msgstr "Disco"
+msgstr "Disk"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling.js:55
 msgid "Scheduling"
-msgstr "Agendamento"
+msgstr "Zamanlama"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/utils.js:52
 #: ../app/utils/resource-select.js:68
 msgid "Please select"
-msgstr "Por favor selecione"
+msgstr "Lütfen seçin"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:56
 msgid "Hybrid"
-msgstr "Híbrido"
+msgstr "Hibrit"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:163
 msgid "Remote OpenNebula"
@@ -3014,16 +3014,16 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:173
 msgid "Custom"
-msgstr "Personalizado"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:182
 msgid "PROVIDER"
-msgstr "FORNECEDOR"
+msgstr "SAĞLAYICI"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:186
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:208
 msgid "Provider"
-msgstr "Fornecedor"
+msgstr "Sağlayıcı"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:226
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:262
@@ -3032,76 +3032,76 @@ msgstr "NIC"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io.js:51
 msgid "Input/Output"
-msgstr "Entrada/Saída"
+msgstr "Giriş/Çıkış"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:53
 msgid "General"
-msgstr "Geral"
+msgstr "Genel"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:227
 #: ../app/utils/vcenter/templates.js:196
 msgid "Which resource pool you want this VM to run in?"
-msgstr ""
+msgstr "Bu SM'nin hangi kaynak havuzunda çalışmasını istersiniz?"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context.js:180
 msgid "Set manually"
-msgstr "Definir manualmente"
+msgstr "El ile ayarla"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:55
 msgid "Instantiate VM Template"
-msgstr "Instanciar Modelo VM"
+msgstr "SM Şablonunu Somutlaştır"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:132
 msgid "No template selected"
-msgstr "Nenhum modelo selecionado"
+msgstr "Şablon seçilmemiş"
 
 #: ../app/tabs/templates-tab/form-panels/import.js:50
 msgid "Import vCenter VM Templates"
-msgstr "Importar Templates de VM vCenter"
+msgstr "vCenter SM Şablonlarını İçe Aktar"
 
 #: ../app/tabs/templates-tab/form-panels/create-common.js:65
 msgid "Create VM Template"
-msgstr "Criar Modelo de VM"
+msgstr "SM Şablonu Oluştur"
 
 #: ../app/tabs/templates-tab/form-panels/create-common.js:66
 msgid "Update VM Template"
-msgstr "Atualizar Modelo de VM"
+msgstr "SM Şablonu Güncelle"
 
 #: ../app/tabs/templates-tab/form-panels/create-common.js:68
 msgid "Create Virtual Router VM Template"
-msgstr "Criar um modelo de roteador virtual"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create-common.js:69
 msgid "Update Virtual Router VM Template"
-msgstr "Atualizar um modelo de roteador virtual"
+msgstr ""
 
 #: ../app/tabs/templates-tab/buttons.js:70
 msgid "The template, along with any image referenced by it, will be shared with the group's users. Permission changed: GROUP USE"
-msgstr ""
+msgstr "Şablon ve bu şablon tarafından refere edilen tüm imajlar, grubun kullanıcıları ile paylaşılacaktır. Değiştirilen yetki: GRUP KULLANIMI"
 
 #: ../app/tabs/templates-tab/buttons.js:76
 msgid "The template, along with any image referenced by it, will be unshared with the group's users. Permission changed: GROUP USE"
-msgstr ""
+msgstr "Şablon ve bu şablon tarafından refere edilen tüm imajların grubun kullanıcıları ile paylaşımı durdurulacaktır. Değiştirilen yetki: GRUP KULLANIMI"
 
 #: ../app/tabs/templates-tab/actions-common.js:56
 msgid "This will delete the Template.<br/>You can also delete any Image referenced inside this Template"
-msgstr ""
+msgstr "Bu Şablonu silecektir.<br/>Bu şablondan refere edilen İmajı ayrıca silebilirsiniz."
 
 #: ../app/tabs/templates-tab/actions-common.js:59
 msgid "Delete all images"
-msgstr "Remover todas as imagens"
+msgstr "Tüm imajları sil"
 
 #: ../app/tabs/vdcs-tab.js:49
 msgid "Virtual Data Centers"
-msgstr "Datacenters virtuais"
+msgstr "Sanal Veri Merkezleri"
 
 #: ../app/tabs/vdcs-tab.js:50
 msgid "Virtual Data Center"
-msgstr "Datacenter virtual"
+msgstr "Sanal Veri Merkezi"
 
 #: ../app/tabs/infrastructure-top-tab.js:23
 msgid "Infrastructure"
-msgstr "Infraestrutura"
+msgstr "Altyapı"
 
 #: ../app/tabs/vnets-topology-tab.js:52
 msgid "Collapse VMs"
@@ -3118,16 +3118,16 @@ msgstr ""
 #: ../app/tabs/vnets-topology-tab.js:532
 #: ../app/utils/quotas/quota-widgets.js:1168
 msgid "VNet"
-msgstr "VNet"
+msgstr ""
 
 #: ../app/utils/dialogs/confirm-with-select.js:118
 #: ../app/utils/dialogs/confirm.js:79
 msgid "You have to confirm this action"
-msgstr "Tem que confimar esta ação"
+msgstr "Bu eylemi teyid etmek zorundasınız"
 
 #: ../app/utils/disks-resize.js:129
 msgid "Volatile Disk"
-msgstr "Disco volátil"
+msgstr ""
 
 #: ../app/utils/disks-resize.js:131 ../app/utils/disks-resize.js:163
 msgid "Image was not found"
@@ -3147,7 +3147,7 @@ msgstr ""
 
 #: ../app/utils/nics-section.js:338
 msgid "There are no networks available."
-msgstr "Não há redes disponíveis"
+msgstr ""
 
 #: ../app/utils/vmgroup-section.js:163
 msgid "Internal server error."
@@ -3155,44 +3155,44 @@ msgstr ""
 
 #: ../app/utils/quotas/quota-widgets.js:244
 msgid "System disks"
-msgstr "Discos de sistema"
+msgstr "Sistem diskleri"
 
 #: ../app/utils/quotas/quota-widgets.js:277
 msgid "Running VMs"
-msgstr "VMs a correr"
+msgstr "Çalışan VM ler"
 
 #: ../app/utils/quotas/quota-widgets.js:322
 #: ../app/utils/quotas/quota-widgets.js:474
 #: ../app/utils/quotas/quota-widgets.js:629
 msgid "Add a new quota"
-msgstr "Adicionar nova quota"
+msgstr ""
 
 #: ../app/utils/quotas/quota-widgets.js:731
 msgid "Edit"
-msgstr "Editar"
+msgstr "Düzenle"
 
 #: ../app/utils/quotas/quota-widgets.js:734
 msgid "Cancel"
-msgstr "Cancelar"
+msgstr ""
 
 #: ../app/utils/quotas/quota-widgets.js:737
 msgid "Apply"
-msgstr "Aplicar"
+msgstr ""
 
 #: ../app/utils/quotas/quota-widgets.js:755
 msgid "There are no quotas defined"
-msgstr "Não existem quotas definidas"
+msgstr ""
 
 #: ../app/utils/quotas/quota-widgets.js:859
 msgid "Unlimited"
-msgstr "Ilimitado"
+msgstr ""
 
 #: ../app/utils/vcenter/clusters.js:81 ../app/utils/vcenter/clusters.js:90
 #: ../app/utils/vcenter/networks.js:81 ../app/utils/vcenter/networks.js:90
 #: ../app/utils/vcenter/datastores.js:82 ../app/utils/vcenter/datastores.js:91
 #: ../app/utils/vcenter/templates.js:82 ../app/utils/vcenter/templates.js:91
 msgid "DataCenter"
-msgstr "DataCenter"
+msgstr "VeriMerkezi"
 
 #: ../app/utils/vcenter/clusters.js:82
 msgid "No new clusters found in this DataCenter"
@@ -3224,7 +3224,7 @@ msgstr ""
 
 #: ../app/utils/vcenter/networks.js:82
 msgid "No new networks found in this DataCenter"
-msgstr "Não foram encontradas novas redes neste Datacenter"
+msgstr "Bu VeriMezkez'inde yeni ağ bulunamadı"
 
 #: ../app/utils/vcenter/networks.js:91
 msgid "Clear Imported Networks"
@@ -3249,11 +3249,11 @@ msgstr ""
 #: ../app/utils/vcenter/networks.js:175 ../app/utils/vcenter/networks.js:185
 #: ../app/utils/vcenter/networks.js:202
 msgid "Optional"
-msgstr "Opcional"
+msgstr "İsteğe bağlı"
 
 #: ../app/utils/vcenter/networks.js:161
 msgid "IP Start"
-msgstr "IP Inicial"
+msgstr "IP Başlangıç"
 
 #: ../app/utils/vcenter/networks.js:174
 msgid "Global Prefix"
@@ -3338,7 +3338,7 @@ msgstr ""
 
 #: ../app/utils/vcenter/templates.js:83
 msgid "No new templates found in this DataCenter"
-msgstr "Não foram encontrados novos modelos neste Datacenter"
+msgstr "Bu VeriMezkez'inde yeni şablon bulunamadı"
 
 #: ../app/utils/vcenter/templates.js:92
 msgid "Clear Imported Templates"
@@ -3392,40 +3392,40 @@ msgstr ""
 
 #: ../app/utils/tab-datatable.js:108
 msgid "Please select a resource from the list"
-msgstr "Por favor selecione um recurso da lista"
+msgstr ""
 
 #: ../app/utils/tab-datatable.js:112
 msgid "You selected the following resource:"
-msgstr "Selecionou um dos seguintes recursos:"
+msgstr ""
 
 #: ../app/utils/notifier.js:89
 msgid "Network is unreachable: is OpenNebula running?"
-msgstr "A rede está incontactável: o OpenNebula está em execução?"
+msgstr "Ağa erişilemiyor: OpenNebula çalışıyor mu?"
 
 #: ../app/utils/notifier.js:105
 msgid "Unauthorized"
-msgstr "Não autorizado"
+msgstr "Yetkisiz"
 
 #: ../app/utils/accounting.js:126 ../app/utils/showback.js:57
 msgid "<< me >>"
-msgstr "<< eu >>"
+msgstr ""
 
 #: ../app/utils/accounting.js:158
 msgid "Time range start is mandatory"
-msgstr "O início do intervalo de tempo é obrigatório"
+msgstr ""
 
 #: ../app/utils/accounting.js:165
 msgid "Time range start is not a valid date. It must be YYYY/MM/DD"
-msgstr "O início de intervalo de tempo não é uma data válida. Deve estar no formato AAAA/MM/DD"
+msgstr ""
 
 #: ../app/utils/accounting.js:178
 msgid "Time range end is not a valid date. It must be YYYY/MM/DD"
-msgstr "O fim do intervalo de tempo não é uma data válida. Deve estar no formato AAAA/MM/DD"
+msgstr ""
 
 #: ../app/utils/accounting.js:609 ../app/utils/accounting.js:626
 #: ../app/utils/accounting.js:643
 msgid "Date UTC"
-msgstr "Data UTC"
+msgstr ""
 
 #: ../app/utils/labels/utils.js:156
 msgid "System Labels"
@@ -3441,56 +3441,56 @@ msgstr ""
 
 #: ../app/utils/locale.js:42
 msgid "January"
-msgstr "Janeiro"
+msgstr ""
 
 #: ../app/utils/locale.js:42
 msgid "February"
-msgstr "Fevereiro"
+msgstr ""
 
 #: ../app/utils/locale.js:42
 msgid "March"
-msgstr "Março"
+msgstr ""
 
 #: ../app/utils/locale.js:42
 msgid "April"
-msgstr "Abril"
+msgstr ""
 
 #: ../app/utils/locale.js:42
 msgid "May"
-msgstr "Maio"
+msgstr ""
 
 #: ../app/utils/locale.js:43
 msgid "June"
-msgstr "Junho"
+msgstr ""
 
 #: ../app/utils/locale.js:43
 msgid "July"
-msgstr "Julho"
+msgstr ""
 
 #: ../app/utils/locale.js:43
 msgid "August"
-msgstr "Agosto"
+msgstr ""
 
 #: ../app/utils/locale.js:43
 msgid "September"
-msgstr "Setembro"
+msgstr ""
 
 #: ../app/utils/locale.js:43
 msgid "October"
-msgstr "Outubro"
+msgstr ""
 
 #: ../app/utils/locale.js:44
 msgid "November"
-msgstr "Novembro"
+msgstr ""
 
 #: ../app/utils/locale.js:44
 msgid "December"
-msgstr "Dezembro"
+msgstr ""
 
 #: ../app/sunstone.js:955 ../app/sunstone.js:956
 msgid "Submitting..."
-msgstr "A submeter..."
+msgstr ""
 
 #: ../app/sunstone.js:1073 ../app/sunstone.js:1074
 msgid "Loading..."
-msgstr "A carregar..."
+msgstr "Yükleniyor..."
