@@ -28,6 +28,6 @@ void RaftHook::do_hook(void *arg)
 
     if ( hmd != 0 )
     {
-        hmd->execute(-1, name, cmd, "");
+        hmd->execute(-1, name, cmd, args);
     }
 }

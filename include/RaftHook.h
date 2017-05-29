@@ -25,8 +25,9 @@ class RaftHook : public Hook
 {
 public:
     RaftHook(const std::string& name,
-             const std::string& command):
-        Hook(name, command, "", Hook::UPDATE, false){};
+             const std::string& command,
+             const std::string& arg):
+        Hook(name, command, arg, Hook::UPDATE, false){};
 
     ~RaftHook(){};
 
@@ -36,8 +37,8 @@ public:
 class RaftLeaderHook : public RaftHook
 {
 public:
-    RaftLeaderHook(const std::string& command):
-        RaftHook("RAFT_LEADER_HOOK", command){};
+    RaftLeaderHook(const std::string& command, const std::string& arg):
+        RaftHook("RAFT_LEADER_HOOK", command, arg){};
 
     ~RaftLeaderHook(){};
 };
@@ -45,8 +46,8 @@ public:
 class RaftFollowerHook : public RaftHook
 {
 public:
-    RaftFollowerHook(const std::string& command):
-        RaftHook("RAFT_FOLLOWER_HOOK", command){};
+    RaftFollowerHook(const std::string& command, const std::string& arg):
+        RaftHook("RAFT_FOLLOWER_HOOK", command, arg){};
 
     ~RaftFollowerHook(){};
 };

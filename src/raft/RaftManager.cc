@@ -54,7 +54,7 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
 
-    std::string raft_xml, cmd;
+    std::string raft_xml, cmd, arg;
 
 	pthread_mutex_init(&mutex, 0);
 
@@ -124,6 +124,7 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
     if ( leader_hook_mad != 0 )
     {
         cmd = leader_hook_mad->vector_value("COMMAND");
+        arg = leader_hook_mad->vector_value("ARGUMENTS");
 
         if ( cmd.empty() )
         {
@@ -143,13 +144,14 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
                 cmd = cmd_os.str();
             }
 
-            leader_hook = new RaftLeaderHook(cmd);
+            leader_hook = new RaftLeaderHook(cmd, arg);
         }
     }
 
     if ( follower_hook_mad != 0 )
     {
         cmd = follower_hook_mad->vector_value("COMMAND");
+        arg = follower_hook_mad->vector_value("ARGUMENTS");
 
         if ( cmd.empty() )
         {
@@ -169,7 +171,7 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
                 cmd = cmd_os.str();
             }
 
-            follower_hook = new RaftFollowerHook(cmd);
+            follower_hook = new RaftFollowerHook(cmd, arg);
         }
     }
 };
