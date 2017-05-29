@@ -1281,8 +1281,7 @@ HOOK_FT_FILES="share/hooks/ft/host_error.rb \
 # HOOK RAFT scripts, to be installed under $VAR_LOCATION/remotes/hooks/raft
 #-------------------------------------------------------------------------------
 
-HOOK_RAFT_FILES="share/hooks/raft/leader.sh \
-                 share/hooks/raft/follower.sh"
+HOOK_RAFT_FILES="share/hooks/raft/vip.sh"
 
 #-------------------------------------------------------------------------------
 # Installation scripts, to be installed under $SHARE_LOCATION
