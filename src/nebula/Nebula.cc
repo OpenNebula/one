@@ -231,12 +231,13 @@ void Nebula::start(bool bootstrap_only)
     time_t xmlrpc_ms;
     time_t log_purge;
 
-    string log_retention = vatt->vector_value("LOG_RETENTION");
+    unsigned int log_retention;
 
     vatt->vector_value("LOG_PURGE_TIMEOUT", log_purge);
     vatt->vector_value("ELECTION_TIMEOUT_MS", election_ms);
     vatt->vector_value("BROADCAST_TIMEOUT_MS", bcast_ms);
     vatt->vector_value("XMLRPC_TIMEOUT_MS", xmlrpc_ms);
+    vatt->vector_value("LOG_RETENTION", log_retention);
 
     Log::set_zone_id(zone_id);
 

@@ -38,7 +38,7 @@ public:
      *  @param d pointer to underlying DB (LogDB)
      *  @param l log_retention length (num records)
      */
-    FedReplicaManager(time_t _t, time_t _p, SqlDB * d, const std::string& l);
+    FedReplicaManager(time_t _t, time_t _p, SqlDB * d, unsigned int l);
 
     virtual ~FedReplicaManager();
 
@@ -203,7 +203,7 @@ private:
 
     SqlDB * logdb;
 
-    std::string log_retention;
+    unsigned int log_retention;
 
     // -------------------------------------------------------------------------
     // Action Listener interface

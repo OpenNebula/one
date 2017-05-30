@@ -35,7 +35,7 @@ const time_t FedReplicaManager::xmlrpc_timeout_ms = 10000;
 /* -------------------------------------------------------------------------- */
 
 FedReplicaManager::FedReplicaManager(time_t _t, time_t _p, SqlDB * d,
-    const std::string& l): ReplicaManager(), timer_period(_t), purge_period(_p),
+    unsigned int l): ReplicaManager(), timer_period(_t), purge_period(_p),
     last_index(-1), logdb(d), log_retention(l)
 {
     pthread_mutex_init(&mutex, 0);
@@ -303,12 +303,16 @@ void FedReplicaManager::timer_action(const ActionRequest& ar)
 
             pthread_mutex_lock(&mutex);
 
-            // keep the last "log_retention" records
-            oss << "DELETE FROM fed_logdb WHERE log_index NOT IN (SELECT "
-                << "log_index FROM fed_logdb ORDER BY log_index DESC LIMIT "
-                << log_retention <<")";
+            if ( last_index > log_retention )
+            {
+                unsigned int delete_index = last_index - log_retention;
 
-            logdb->exec_wr(oss);
+                // keep the last "log_retention" records
+                oss << "DELETE FROM fed_logdb WHERE log_index >= 0 AND "
+                    << "log_index < " << delete_index;
+
+                logdb->exec_wr(oss);
+            }
 
             pthread_mutex_unlock(&mutex);
         }

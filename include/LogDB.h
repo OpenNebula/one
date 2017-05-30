@@ -93,7 +93,7 @@ private:
 class LogDB : public SqlDB
 {
 public:
-    LogDB(SqlDB * _db, bool solo, const std::string& log_retention);
+    LogDB(SqlDB * _db, bool solo, unsigned int log_retention);
 
     virtual ~LogDB();
 
@@ -267,7 +267,7 @@ private:
     /**
      *  Max number of records to keep in the database
      */
-    std::string log_retention;
+    unsigned int log_retention;
 
     // -------------------------------------------------------------------------
     // DataBase implementation
