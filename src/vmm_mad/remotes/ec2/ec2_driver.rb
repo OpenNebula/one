@@ -47,6 +47,8 @@ require 'rexml/document'
 require 'VirtualMachineDriver'
 require 'opennebula'
 
+require 'thread'
+
 # >> /var/log/one/oned.log
 def handle_exception(action, ex, host, did, id = nil, file = nil)
 
@@ -507,34 +509,40 @@ class EC2Driver
         do_cw = (Time.now.to_i - cw_mon_time) >= 360
 
         vpool.each{|vm| onevm_info[vm.deploy_id] = vm }
-        begin
-            @ec2.instances.each do |i|
-                next if i.state.name != 'pending' && i.state.name != 'running'
-                one_id = i.tags.find {|t| t.key == 'ONE_ID' }
-                one_id = one_id.value if one_id
+
+
+        work_q = Queue.new
+        @ec2.instances.each{|i| work_q.push i }
+		workers = (0...20).map do
+            Thread.new do
+                begin
+                    while i = work_q.pop(true)
+                        next if i.state.name != 'pending' && i.state.name != 'running'
+                        one_id = i.tags.find {|t| t.key == 'ONE_ID' }
+                        one_id = one_id.value if one_id
+                        poll_data=parse_poll(i, onevm_info[i.id], do_cw, cw_mon_time)
+                        vm_template_to_one = vm_to_one(i)
+                        vm_template_to_one = Base64.encode64(vm_template_to_one).gsub("\n","")
                 
-                poll_data=parse_poll(i, onevm_info[i.id], do_cw, cw_mon_time)
-
-                vm_template_to_one = vm_to_one(i)
-                vm_template_to_one = Base64.encode64(vm_template_to_one).gsub("\n","")
-
-                vms_info << "VM=[\n"
-                vms_info << "  ID=#{one_id || -1},\n"
-                vms_info << "  DEPLOY_ID=#{i.instance_id},\n"
-                vms_info << "  VM_NAME=#{i.instance_id},\n"
-                vms_info << "  IMPORT_TEMPLATE=\"#{vm_template_to_one}\",\n"
-                vms_info << "  POLL=\"#{poll_data}\" ]\n"    
-                if one_id
-                    name = i.instance_type
-                    cpu, mem = instance_type_capacity(name)
-                    usedcpu += cpu
-                    usedmemory += mem
+                        vms_info << "VM=[\n"
+                        vms_info << "  ID=#{one_id || -1},\n"
+                        vms_info << "  DEPLOY_ID=#{i.instance_id},\n"
+                        vms_info << "  VM_NAME=#{i.instance_id},\n"
+                        vms_info << "  IMPORT_TEMPLATE=\"#{vm_template_to_one}\",\n"
+                        vms_info << "  POLL=\"#{poll_data}\" ]\n"
+                        if one_id
+                            name = i.instance_type
+                            cpu, mem = instance_type_capacity(name)
+                            usedcpu += cpu
+                            usedmemory += mem
+                        end
+                    end
+                rescue Exception => e
+                    STDERR.puts  "#{e.message}\n"
                 end
-
             end
-        rescue => e            
-            raise e
-        end
+        end; "ok"
+        workers.map(&:join); "ok"
 
         host_info << "USEDMEMORY=#{usedmemory.round}\n"
         host_info << "USEDCPU=#{usedcpu.round}\n"
@@ -606,19 +614,17 @@ private
     def parse_poll(instance, onevm, do_cw, cw_mon_time)
         begin
             if onevm
+                onevm.info
                 if do_cw
-                    onevm.info
                     cloudwatch_str = cloudwatch_monitor_info(instance.instance_id,
                                                            onevm,
                                                            cw_mon_time)
                 else
-                  previous_cpu   = onevm["/VM/MONITORING/CPU"] || 0
-                  previous_netrx = onevm["/VM/MONITORING/NETRX"] || 0
-                  previous_nettx = onevm["/VM/MONITORING/NETTX"] || 0
+                    previous_cpu   = onevm["/VM/MONITORING/CPU"]  || 0
+                    previous_netrx = onevm["/VM/MONITORING/NETRX"] || 0
+                    previous_nettx = onevm["/VM/MONITORING/NETTX"] || 0
 
-                  cloudwatch_str = "CPU=#{previous_cpu} "\
-                                   "NETTX=#{previous_nettx} "\
-                                   "NETRX=#{previous_netrx} "
+                    cloudwatch_str = "CPU=#{previous_cpu} NETTX=#{previous_nettx} NETRX=#{previous_netrx} "
                 end
             else
                 cloudwatch_str = ""
