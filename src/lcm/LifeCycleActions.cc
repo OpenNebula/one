@@ -1616,7 +1616,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
 
 void  LifeCycleManager::updatesg_action(const LCMAction& la)
 {
-    int  vmid;
+    int  vmid, rc;
     VirtualMachine * vm;
 
     int sgid = la.vm_id();
@@ -1636,15 +1636,16 @@ void  LifeCycleManager::updatesg_action(const LCMAction& la)
         bool is_tmpl  = false;
         bool is_update= false;
 
-        if (sg->get_outdated(vmid) != 0)
-        {
-            sgpool->update(sg);
-            sg->unlock();
+        rc = sg->get_outdated(vmid);
 
-            return;
-        }
+        sgpool->update(sg);
 
         sg->unlock();
+
+        if ( rc != 0 )
+        {
+            return;
+        }
 
         vm = vmpool->get(vmid, true);
 
