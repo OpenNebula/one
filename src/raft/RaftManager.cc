@@ -370,7 +370,10 @@ void RaftManager::leader()
 
     requests.clear();
 
-    leader_hook->do_hook(0);
+    if ( leader_hook != 0 )
+    {
+        leader_hook->do_hook(0);
+    }
 
     state = LEADER;
 
@@ -431,7 +434,7 @@ void RaftManager::follower(unsigned int _term)
 
     pthread_mutex_lock(&mutex);
 
-    if ( state == LEADER )
+    if ( state == LEADER && follower_hook != 0 )
     {
         follower_hook->do_hook(0);
     }

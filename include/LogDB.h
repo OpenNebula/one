@@ -65,25 +65,7 @@ private:
     /**
      *  SQL callback to load logDBRecord from DB (SELECT commands)
      */
-    int select_cb(void *nil, int num, char **values, char **names)
-    {
-        if ( !values || !values[0] || !values[1] || !values[2] || !values[3] ||
-                !values[4] || !values[5] || num != 6 )
-        {
-            return -1;
-        }
-
-        index = static_cast<unsigned int>(atoi(values[0]));
-        term  = static_cast<unsigned int>(atoi(values[1]));
-        sql   = values[2];
-
-        timestamp  = static_cast<unsigned int>(atoi(values[3]));
-
-        prev_index = static_cast<unsigned int>(atoi(values[4]));
-        prev_term  = static_cast<unsigned int>(atoi(values[5]));
-
-        return 0;
-    }
+    int select_cb(void *nil, int num, char **values, char **names);
 };
 
 /**
@@ -112,11 +94,8 @@ public:
     /**
      *  Applies the SQL command of the given record to the database. The
      *  timestamp of the record is updated.
-     *    @param lr the log record
      *    @param index of the log record
      */
-    int apply_log_record(LogDBRecord * lr);
-
 	int apply_log_records(unsigned int commit_index);
 
     /**
@@ -277,6 +256,13 @@ private:
     static const char * db_names;
 
     static const char * db_bootstrap;
+
+    /**
+     *  Applies the SQL command of the given record to the database. The
+     *  timestamp of the record is updated.
+     *    @param lr the log record
+     */
+    int apply_log_record(LogDBRecord * lr);
 
     /**
      *  Inserts or update a log record in the database

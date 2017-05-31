@@ -16,6 +16,7 @@
 
 #include "LogDB.h"
 #include "Nebula.h"
+#include "NebulaUtil.h"
 #include "ZoneServer.h"
 #include "Callbackable.h"
 
@@ -29,6 +30,44 @@ const char * LogDB::db_names = "log_index, term, sql, timestamp";
 const char * LogDB::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
     "logdb (log_index INTEGER PRIMARY KEY, term INTEGER, sql MEDIUMTEXT, "
     "timestamp INTEGER)";
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int LogDBRecord::select_cb(void *nil, int num, char **values, char **names)
+{
+    if ( !values || !values[0] || !values[1] || !values[2] || !values[3] ||
+            !values[4] || !values[5] || num != 6 )
+    {
+        return -1;
+    }
+
+    std::string zsql;
+
+    std::string * _sql;
+
+    index = static_cast<unsigned int>(atoi(values[0]));
+    term  = static_cast<unsigned int>(atoi(values[1]));
+    zsql  = values[2];
+
+    timestamp  = static_cast<unsigned int>(atoi(values[3]));
+
+    prev_index = static_cast<unsigned int>(atoi(values[4]));
+    prev_term  = static_cast<unsigned int>(atoi(values[5]));
+
+    _sql = one_util::zlib_decompress(zsql, true);
+
+    if ( _sql == 0 )
+    {
+        return -1;
+    }
+
+    sql = *_sql;
+
+    delete _sql;
+
+    return 0;
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -155,20 +194,33 @@ int LogDB::get_raft_state(std::string &raft_xml)
 {
     ostringstream oss;
 
+    std::string zraft_xml;
+
     single_cb<std::string> cb;
 
     oss << "SELECT sql FROM logdb WHERE log_index = -1 AND term = -1";
 
-    cb.set_callback(&raft_xml);
+    cb.set_callback(&zraft_xml);
 
     int rc = db->exec_rd(oss, &cb);
 
     cb.unset_callback();
 
-    if ( raft_xml.empty() )
+    if ( zraft_xml.empty() )
     {
         rc = -1;
     }
+
+    std::string * _raft_xml = one_util::zlib_decompress(zraft_xml, true);
+
+    if ( _raft_xml == 0 )
+    {
+        return -1;
+    }
+
+    raft_xml = *_raft_xml;
+
+    delete _raft_xml;
 
     return rc;
 }
@@ -181,7 +233,18 @@ int LogDB::insert_replace(int index, int term, const std::string& sql,
 {
     std::ostringstream oss;
 
-    char * sql_db = db->escape_str(sql.c_str());
+    std::string * zsql;
+
+    zsql = one_util::zlib_compress(sql, true);
+
+    if ( zsql == 0 )
+    {
+        return -1;
+    }
+
+    char * sql_db = db->escape_str(zsql->c_str());
+
+    delete zsql;
 
     if ( sql_db == 0 )
     {
@@ -360,7 +423,7 @@ int LogDB::delete_log_records(unsigned int start_index)
 
     pthread_mutex_lock(&mutex);
 
-    oss << "DELETE FROM " << table << " WHERE log_index >= start_index";
+    oss << "DELETE FROM " << table << " WHERE log_index >= " << start_index;
 
     rc = db->exec_wr(oss);
 
