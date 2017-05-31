@@ -123,22 +123,21 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             STDERR.puts "\t -v hypervisor driver"
             exit -1
         end
-        
+
         ec2_host = !options[:ec2access].nil? && !options[:ec2secret].nil?
 
         cid = options[:cluster] || ClusterPool::NONE_CLUSTER_ID
         helper.create_resource(options) do |host|
-                host.allocate(args[0],
-                              options[:im],
-                              options[:vm],
-                              cid)
-                if ec2_host
+                rc = host.allocate(args[0], options[:im], options[:vm], cid)
+
+                if ec2_host && !OpenNebula.is_error?(rc)
                	    template = "EC2_ACCESS=\"#{options[:ec2access]}\"\n"\
                		    "EC2_SECRET=\"#{options[:ec2secret]}\"\n"\
 
-                    host.update(template, true)
+                    rc = host.update(template, true)
                 end
 
+                rc
         end
     end
 
