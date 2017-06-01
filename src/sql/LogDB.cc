@@ -82,8 +82,7 @@ LogDB::LogDB(SqlDB * _db, bool _solo, unsigned int _lret):solo(_solo), db(_db),
 
     LogDBRecord lr;
 
-
-    if ( get_log_record(0, lr) != 0  || lr.sql.empty() )
+    if ( get_log_record(0, lr) != 0 )
     {
         std::ostringstream oss;
 
@@ -166,12 +165,14 @@ int LogDB::get_log_record(unsigned int index, LogDBRecord& lr)
 {
     ostringstream oss;
 
-    int prev_index = index - 1;
+    unsigned int prev_index = index - 1;
 
-    if ( prev_index < 0 )
+    if ( index == 0 )
     {
         prev_index = 0;
     }
+
+    lr.index = 0;
 
     oss << "SELECT c.log_index, c.term, c.sqlcmd,"
         << " c.timestamp, p.log_index, p.term"
@@ -183,6 +184,11 @@ int LogDB::get_log_record(unsigned int index, LogDBRecord& lr)
     int rc = db->exec_rd(oss, &lr);
 
     lr.unset_callback();
+
+    if ( lr.index != index )
+    {
+        rc = -1;
+    }
 
     return rc;
 }
