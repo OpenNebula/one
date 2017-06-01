@@ -70,12 +70,18 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
 
     if ( logdb->get_raft_state(raft_xml) != 0 )
     {
+        std::ostringstream bsr;
+
+        bsr << "bootstrap state";
+
+        logdb->insert_log_record(-1, -1, bsr, 0);
+
         raft_state.replace("TERM", 0);
         raft_state.replace("VOTEDFOR", -1);
 
         raft_state.to_xml(raft_xml);
 
-        logdb->insert_raft_state(raft_xml);
+        logdb->update_raft_state(raft_xml);
 
         votedfor = -1;
         term     = 0;
@@ -411,7 +417,7 @@ void RaftManager::leader()
         frm->start_replica_threads();
     }
 
-    logdb->insert_raft_state(raft_state_xml);
+    logdb->update_raft_state(raft_state_xml);
 
     NebulaLog::log("RCM", Log::INFO, "oned is now the leader of zone");
 }
@@ -480,7 +486,7 @@ void RaftManager::follower(unsigned int _term)
         frm->stop_replica_threads();
     }
 
-    logdb->insert_raft_state(raft_state_xml);
+    logdb->update_raft_state(raft_state_xml);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -672,7 +678,7 @@ int RaftManager::update_votedfor(int _votedfor)
 
     pthread_mutex_unlock(&mutex);
 
-    logdb->insert_raft_state(raft_state_xml);
+    logdb->update_raft_state(raft_state_xml);
 
     return 0;
 }
@@ -927,7 +933,7 @@ void RaftManager::request_vote()
 
         pthread_mutex_unlock(&mutex);
 
-        logdb->insert_raft_state(raft_state_xml);
+        logdb->update_raft_state(raft_state_xml);
 
         logdb->get_last_record_index(lindex, lterm);
 
@@ -1008,7 +1014,7 @@ void RaftManager::request_vote()
 
         pthread_mutex_unlock(&mutex);
 
-        logdb->insert_raft_state(raft_state_xml);
+        logdb->update_raft_state(raft_state_xml);
 
         srand(_server_id);
 

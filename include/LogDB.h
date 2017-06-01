@@ -125,10 +125,7 @@ public:
      *    @param raft attributes in XML format
      *    @return 0 on success
      */
-    int insert_raft_state(std::string& raft_xml)
-    {
-        return insert_replace(-1, -1, raft_xml, 0);
-    }
+    int update_raft_state(std::string& raft_xml);
 
     /**
      *  Returns the raft state attributes as stored in the log
@@ -273,7 +270,7 @@ private:
      *
      *    @return 0 on success
      */
-    int insert_replace(int index, int term, const std::string& sql, time_t ts);
+    int insert(int index, int term, const std::string& sql, time_t ts);
 
     /**
      *  Inserts a new log record in the database. If the record is successfully

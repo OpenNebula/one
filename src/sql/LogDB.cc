@@ -80,6 +80,18 @@ LogDB::LogDB(SqlDB * _db, bool _solo, unsigned int _lret):solo(_solo), db(_db),
 
     pthread_mutex_init(&mutex, 0);
 
+    LogDBRecord lr;
+
+
+    if ( get_log_record(0, lr) != 0  || lr.sql.empty() )
+    {
+        std::ostringstream oss;
+
+        oss << time(0);
+
+        insert_log_record(0, 0, oss, time(0));
+    }
+
     setup_index(r, i);
 };
 
@@ -194,33 +206,20 @@ int LogDB::get_raft_state(std::string &raft_xml)
 {
     ostringstream oss;
 
-    std::string zraft_xml;
-
     single_cb<std::string> cb;
 
     oss << "SELECT sql FROM logdb WHERE log_index = -1 AND term = -1";
 
-    cb.set_callback(&zraft_xml);
+    cb.set_callback(&raft_xml);
 
     int rc = db->exec_rd(oss, &cb);
 
     cb.unset_callback();
 
-    if ( zraft_xml.empty() )
+    if ( raft_xml.empty() )
     {
         rc = -1;
     }
-
-    std::string * _raft_xml = one_util::zlib_decompress(zraft_xml, true);
-
-    if ( _raft_xml == 0 )
-    {
-        return -1;
-    }
-
-    raft_xml = *_raft_xml;
-
-    delete _raft_xml;
 
     return rc;
 }
@@ -228,8 +227,28 @@ int LogDB::get_raft_state(std::string &raft_xml)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int LogDB::insert_replace(int index, int term, const std::string& sql,
-        time_t timestamp)
+int LogDB::update_raft_state(std::string& raft_xml)
+{
+    std::ostringstream oss;
+
+    char * sql_db = db->escape_str(raft_xml.c_str());
+
+    if ( sql_db == 0 )
+    {
+        return -1;
+    }
+
+    oss << "UPDATE logdb SET sql ='" << sql_db << "' WHERE log_index = -1";
+
+    db->free_str(sql_db);
+
+    return db->exec_wr(oss);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int LogDB::insert(int index, int term, const std::string& sql, time_t tstamp)
 {
     std::ostringstream oss;
 
@@ -251,13 +270,26 @@ int LogDB::insert_replace(int index, int term, const std::string& sql,
         return -1;
     }
 
-    oss << "REPLACE INTO " << table << " ("<< db_names <<") VALUES ("
-        << index << ","
-        << term << ","
-        << "'" << sql_db << "',"
-        << timestamp << ")";
+    oss << "INSERT INTO " << table << " ("<< db_names <<") VALUES ("
+        << index << "," << term << "," << "'" << sql_db << "'," << tstamp<< ")";
 
     int rc = db->exec_wr(oss);
+
+    if ( rc != 0 )
+    {
+        //Check for duplicate (leader retrying i.e. xmlrpc client timeout)
+        LogDBRecord lr;
+
+        if ( get_log_record(index, lr) == 0 && !lr.sql.empty() )
+        {
+            NebulaLog::log("DBM", Log::ERROR, "Duplicated log record");
+            rc = 0;
+        }
+        else
+        {
+            rc = -1;
+        }
+    }
 
     db->free_str(sql_db);
 
@@ -277,7 +309,15 @@ int LogDB::apply_log_record(LogDBRecord * lr)
 
     if ( rc == 0 )
     {
-        insert_replace(lr->index, lr->term, lr->sql, time(0));
+        std::ostringstream oss;
+
+        oss << "UPDATE logdb SET timestamp = " << time(0) << " WHERE "
+            << "log_index = " << lr->index << " AND timestamp = 0";
+
+        if ( db->exec_wr(oss) != 0 )
+        {
+            NebulaLog::log("DBM", Log::ERROR, "Cannot update log record");
+        }
 
         last_applied = lr->index;
     }
@@ -295,7 +335,7 @@ int LogDB::insert_log_record(unsigned int term, std::ostringstream& sql,
 
     unsigned int index = next_index;
 
-    if ( insert_replace(index, term, sql.str(), timestamp) != 0 )
+    if ( insert(index, term, sql.str(), timestamp) != 0 )
     {
         NebulaLog::log("DBM", Log::ERROR, "Cannot insert log record in DB");
 
@@ -325,7 +365,7 @@ int LogDB::insert_log_record(unsigned int index, unsigned int term,
 
     pthread_mutex_lock(&mutex);
 
-    rc = insert_replace(index, term, sql.str(), timestamp);
+    rc = insert(index, term, sql.str(), timestamp);
 
     if ( rc == 0 )
     {
@@ -358,12 +398,6 @@ int LogDB::exec_wr(ostringstream& cmd)
     // -------------------------------------------------------------------------
     if ( solo )
     {
-        //TODO USE LAST_TERM IN SOlO MODE TO REENGAGE HA
-        if ( insert_log_record(0, cmd, time(0)) == -1 )
-        {
-            return -1;
-        }
-
         return db->exec_wr(cmd);
     }
     else if ( raftm == 0 || !raftm->is_leader() )
@@ -491,8 +525,6 @@ int LogDB::purge_log()
     }
 
     unsigned int delete_index = last_index - log_retention;
-
-    oss.str("");
 
     // keep the last "log_retention" records as well as those not applied to DB
     oss << "DELETE FROM logdb WHERE timestamp > 0 AND log_index >= 0 "
