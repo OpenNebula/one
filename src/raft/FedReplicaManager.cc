@@ -24,10 +24,10 @@
 
 const char * FedReplicaManager::table = "fed_logdb";
 
-const char * FedReplicaManager::db_names = "log_index, sql";
+const char * FedReplicaManager::db_names = "log_index, sqlcmd";
 
 const char * FedReplicaManager::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
-        "fed_logdb (log_index INTEGER PRIMARY KEY, sql MEDIUMTEXT)";
+        "fed_logdb (log_index INTEGER PRIMARY KEY, sqlcmd MEDIUMTEXT)";
 
 const time_t FedReplicaManager::xmlrpc_timeout_ms = 10000;
 
@@ -355,7 +355,7 @@ int FedReplicaManager::get_log_record(int index, std::string& sql)
 
     single_cb<std::string> cb;
 
-    oss << "SELECT sql FROM fed_logdb WHERE log_index = " << index;
+    oss << "SELECT sqlcmd FROM fed_logdb WHERE log_index = " << index;
 
     cb.set_callback(&sql);
 
@@ -394,7 +394,7 @@ int FedReplicaManager::get_last_index(unsigned int& index)
 
     single_cb<unsigned int> cb;
 
-    oss << "SELECT sql FROM fed_logdb WHERE log_index = -1";
+    oss << "SELECT sqlcmd FROM fed_logdb WHERE log_index = -1";
 
     cb.set_callback(&index);
 

@@ -25,10 +25,10 @@
 
 const char * LogDB::table = "logdb";
 
-const char * LogDB::db_names = "log_index, term, sql, timestamp";
+const char * LogDB::db_names = "log_index, term, sqlcmd, timestamp";
 
 const char * LogDB::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
-    "logdb (log_index INTEGER PRIMARY KEY, term INTEGER, sql MEDIUMTEXT, "
+    "logdb (log_index INTEGER PRIMARY KEY, term INTEGER, sqlcmd MEDIUMTEXT, "
     "timestamp INTEGER)";
 
 /* -------------------------------------------------------------------------- */
@@ -173,7 +173,8 @@ int LogDB::get_log_record(unsigned int index, LogDBRecord& lr)
         prev_index = 0;
     }
 
-    oss << "SELECT c.log_index, c.term, c.sql, c.timestamp, p.log_index, p.term"
+    oss << "SELECT c.log_index, c.term, c.sqlcmd,"
+        << " c.timestamp, p.log_index, p.term"
         << " FROM logdb c, logdb p WHERE c.log_index = " << index
         << " AND p.log_index = " << prev_index;
 
@@ -208,7 +209,7 @@ int LogDB::get_raft_state(std::string &raft_xml)
 
     single_cb<std::string> cb;
 
-    oss << "SELECT sql FROM logdb WHERE log_index = -1 AND term = -1";
+    oss << "SELECT sqlcmd FROM logdb WHERE log_index = -1 AND term = -1";
 
     cb.set_callback(&raft_xml);
 
@@ -238,7 +239,7 @@ int LogDB::update_raft_state(std::string& raft_xml)
         return -1;
     }
 
-    oss << "UPDATE logdb SET sql ='" << sql_db << "' WHERE log_index = -1";
+    oss << "UPDATE logdb SET sqlcmd ='" << sql_db << "' WHERE log_index = -1";
 
     db->free_str(sql_db);
 
