@@ -64,6 +64,12 @@ BACKUP={
     :format => String
 }
 
+FEDERATED = {
+    :name        => "federated",
+    :large       => "--federated",
+    :description => "Limit backup/restore to federated tables"
+}
+
 ###############################################################################
 # SQLite options
 ###############################################################################
@@ -239,7 +245,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Dumps the DB to a file specified in the argument
     EOT
 
-    command :backup, backup_desc, [:output_file, nil], :options=>FORCE do
+    command :backup, backup_desc, [:output_file, nil],
+            :options=>[FORCE, FEDERATED] do
+
         begin
             helper = OneDB.new(options)
             helper.backup(args[0], options)
@@ -289,7 +297,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         from the same backend (SQLite or MySQL)
     EOT
 
-    command :restore , restore_desc, [:backup_file, nil], :options=>FORCE do
+    command :restore , restore_desc, [:backup_file, nil],
+            :options=>[FORCE, FEDERATED] do
+
         begin
             helper = OneDB.new(options)
             helper.restore(args[0], options)
@@ -331,7 +341,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             [-1, e.message]
         end
     end
-
 
     ###########################################################################
     # Import slave
