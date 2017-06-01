@@ -754,6 +754,7 @@ module OpenNebula
         #
         # @return [Integer, OpenNebula::Error] the new Template ID in case of
         #   success, error otherwise
+        REMOVE_VNET_ATTRS = %w{AR_ID BRIDGE CLUSTER_ID IP MAC TARGET NIC_ID NETWORK_ID VN_MAD SECURITY_GROUPS}
         def save_as_template(name, persistent=nil)
             img_ids = []
             new_tid = nil
@@ -851,21 +852,18 @@ module OpenNebula
                 end
 
                 self.each('TEMPLATE/NIC') do |nic|
+
                     nic_id = nic["NIC_ID"]
                     if nic_id.nil? || nic_id.empty?
                         rc = Error.new('The NIC_ID is missing from the VM template')
                         raise
                     end
-
-                    net_id = nic["NETWORK_ID"]
-
-                    if !net_id.nil? && !net_id.empty?
-                        replace << "NIC = [ NETWORK_ID = #{net_id} ]\n"
-                    else
-                        # This NIC does not use a Virtual Network
-                        replace << self.template_like_str(
-                            "TEMPLATE", true, "NIC[NIC_ID=#{nic_id}]") << "\n"
+                     REMOVE_VNET_ATTRS.each do |attr|
+                        nic.delete_element(attr)
                     end
+
+                    replace << self.template_like_str(
+                        "TEMPLATE", true, "NIC[#{nic}]") << "\n"
                 end
 
                 # Required by the Sunstone Cloud View
