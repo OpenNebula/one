@@ -172,7 +172,7 @@ int LogDB::get_log_record(unsigned int index, LogDBRecord& lr)
         prev_index = 0;
     }
 
-    lr.index = 0;
+    lr.index = index + 1;
 
     oss << "SELECT c.log_index, c.term, c.sqlcmd,"
         << " c.timestamp, p.log_index, p.term"
@@ -287,7 +287,7 @@ int LogDB::insert(int index, int term, const std::string& sql, time_t tstamp)
         //Check for duplicate (leader retrying i.e. xmlrpc client timeout)
         LogDBRecord lr;
 
-        if ( get_log_record(index, lr) == 0 && !lr.sql.empty() )
+        if ( get_log_record(index, lr) == 0 )
         {
             NebulaLog::log("DBM", Log::ERROR, "Duplicated log record");
             rc = 0;
