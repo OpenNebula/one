@@ -1707,13 +1707,13 @@ int DispatchManager::detach_nic(int vid, int nic_id,const RequestAttributes& ra,
     }
     else
     {
+        vm->log("DiM", Log::INFO, "VM NIC Successfully detached.");
+
         vmpool->update(vm);
 
         vm->unlock();
 
         vmpool->detach_nic_success(vid);
-
-        vm->log("DiM", Log::INFO, "VM NIC Successfully detached.");
     }
 
     return 0;
