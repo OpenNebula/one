@@ -739,7 +739,7 @@ int Host::post_update_template(string& error)
 
     get_template_attribute("EC2_ACCESS", ec2_access);
 
-    if (!ec2_access.empty())
+    if (!ec2_access.empty() && ec2_access.size() <= 21)
     {
         nebula_crypt(ec2_access, crypted);
 
@@ -748,7 +748,7 @@ int Host::post_update_template(string& error)
 
     get_template_attribute("EC2_SECRET", ec2_secret);
 
-    if (!ec2_secret.empty())
+    if (!ec2_secret.empty() && ec2_secret.size() <= 41)
     {
         nebula_crypt(ec2_secret, crypted);
 
