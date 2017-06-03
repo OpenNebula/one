@@ -216,9 +216,9 @@ FedReplicaThread::FedReplicaThread(int zone_id):ReplicaThread(zone_id)
 
     frm = nd.get_frm();
 };
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
 
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 int FedReplicaThread::replicate()
 {
@@ -241,6 +241,84 @@ int FedReplicaThread::replicate()
     else
     {
         frm->replicate_failure(follower_id, last);
+    }
+
+    return 0;
+}
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+HeartBeatThread::HeartBeatThread(int fid):ReplicaThread(fid), last_error(0),
+    num_errors(0)
+{
+    Nebula& nd = Nebula::instance();
+
+    raftm = nd.get_raftm();
+};
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+int HeartBeatThread::replicate()
+{
+    int rc;
+
+	bool success;
+
+	std::string error;
+
+	unsigned int fterm;
+    unsigned int term  = raftm->get_term();
+
+	LogDBRecord lr;
+
+	lr.index = 0;
+	lr.prev_index = 0;
+
+	lr.term = 0;
+	lr.prev_term = 0;
+
+	lr.sql = "";
+
+	lr.timestamp = 0;
+
+    rc = raftm->xmlrpc_replicate_log(follower_id, &lr, success, fterm, error);
+
+    if ( rc == -1 )
+    {
+        num_errors++;
+
+        if ( last_error == 0 )
+        {
+            last_error = time(0);
+            num_errors = 1;
+        }
+        else if ( last_error + 60 < time(0) )
+        {
+            if ( num_errors > 10 )
+            {
+                std::ostringstream oss;
+
+                oss << "Detetected error condition on follower "
+                    << follower_id <<". Last error was: " << error;
+
+                NebulaLog::log("RCM", Log::INFO, oss);
+            }
+
+            last_error = 0;
+        }
+    }
+    else if ( success == false && fterm > term )
+    {
+        std::ostringstream oss;
+
+        oss << "Follower " << follower_id << " term (" << fterm
+            << ") is higher than current (" << term << ")";
+
+        NebulaLog::log("RCM", Log::INFO, oss);
+
+        raftm->follower(fterm);
     }
 
     return 0;

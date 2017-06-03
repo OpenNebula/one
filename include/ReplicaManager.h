@@ -104,5 +104,16 @@ private:
     ReplicaThread * thread_factory(int follower_id);
 };
 
+class HeartBeatManager : public ReplicaManager
+{
+public:
+    HeartBeatManager():ReplicaManager(){};
+
+    virtual ~HeartBeatManager(){};
+
+private:
+    ReplicaThread * thread_factory(int follower_id);
+};
+
 #endif /*REPLICA_MANAGER_H_*/
 

@@ -308,6 +308,8 @@ void RaftManager::add_server(int follower_id, const std::string& endpoint)
 
 	replica_manager.add_replica_thread(follower_id);
 
+	heartbeat_manager.add_replica_thread(follower_id);
+
 	pthread_mutex_unlock(&mutex);
 };
 
@@ -327,6 +329,8 @@ void RaftManager::delete_server(int follower_id)
 	match.erase(follower_id);
 
 	replica_manager.delete_replica_thread(follower_id);
+
+	heartbeat_manager.delete_replica_thread(follower_id);
 
 	pthread_mutex_unlock(&mutex);
 };
@@ -412,6 +416,7 @@ void RaftManager::leader()
     }
 
     replica_manager.start_replica_threads(_follower_ids);
+    heartbeat_manager.start_replica_threads(_follower_ids);
 
     pthread_mutex_unlock(&mutex);
 
@@ -451,6 +456,7 @@ void RaftManager::follower(unsigned int _term)
     }
 
     replica_manager.stop_replica_threads();
+    heartbeat_manager.stop_replica_threads();
 
     state = FOLLOWER;
 
@@ -735,11 +741,7 @@ void RaftManager::timer_action(const ActionRequest& ar)
 		if ((sec < the_time.tv_sec) || (sec == the_time.tv_sec &&
 				nsec <= the_time.tv_nsec))
 		{
-            pthread_mutex_unlock(&mutex);
-
-			send_heartbeat();
-
-            pthread_mutex_lock(&mutex);
+			heartbeat_manager.replicate();
 
             clock_gettime(CLOCK_REALTIME, &last_heartbeat);
 
@@ -784,95 +786,6 @@ void RaftManager::timer_action(const ActionRequest& ar)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* XML-RPC interface to talk to followers                                     */
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void RaftManager::send_heartbeat()
-{
-    std::map<int, std::string> _servers;
-    std::map<int, std::string>::iterator it;
-
-	LogDBRecord lr;
-
-	bool success;
-	unsigned int fterm;
-
-	std::string error;
-
-	lr.index = 0;
-	lr.prev_index = 0;
-
-	lr.term = 0;
-	lr.prev_term = 0;
-
-	lr.sql = "";
-
-	lr.timestamp = 0;
-
-    pthread_mutex_lock(&mutex);
-
-    if ( state != LEADER )
-    {
-        pthread_mutex_unlock(&mutex);
-        return;
-    }
-
-    _servers = servers;
-
-    pthread_mutex_unlock(&mutex);
-
-    for (it = _servers.begin(); it != _servers.end() ; ++it )
-    {
-        if ( it->first == server_id )
-        {
-            continue;
-        }
-
-		int rc = xmlrpc_replicate_log(it->first, &lr, success, fterm, error);
-
-		if ( rc == -1 )
-		{
-            static time_t last_error = 0;
-            static int    num_errors = 0;
-
-            num_errors++;
-
-            if ( last_error == 0 )
-            {
-                last_error = time(0);
-                num_errors = 1;
-            }
-            else if ( last_error + 60 < time(0) )
-            {
-                if ( num_errors > 10 )
-                {
-                    std::ostringstream oss;
-
-                    oss << "Detetected error condition on follower "
-                        << it->first <<". Last error was: " << error;
-
-                    NebulaLog::log("RCM", Log::INFO, oss);
-                }
-
-                last_error = 0;
-            }
-		}
-		else if ( success == false && fterm > term )
-		{
-			std::ostringstream oss;
-
-            oss << "Follower " << it->first << " term (" << fterm
-                << ") is higher than current (" << term << ")";
-
-        	NebulaLog::log("RCM", Log::INFO, oss);
-
-			follower(fterm);
-
-			break;
-		}
-    }
-}
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -1237,6 +1150,12 @@ std::string& RaftManager::to_xml(std::string& raft_xml)
     logdb->get_last_record_index(lindex, lterm);
 
 	pthread_mutex_lock(&mutex);
+
+	if ( state == SOLO )
+	{
+		lindex = 0;
+		lterm  = 0;
+	}
 
     oss << "<RAFT>"
         << "<SERVER_ID>" << server_id << "</SERVER_ID>"

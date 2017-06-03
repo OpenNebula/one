@@ -155,4 +155,33 @@ private:
     FedReplicaManager * frm;
 };
 
+// -----------------------------------------------------------------------------
+// Thread to send hearbeats to each follower
+// -----------------------------------------------------------------------------
+class HeartBeatThread : public ReplicaThread
+{
+public:
+    HeartBeatThread(int follower_id);
+
+    virtual ~HeartBeatThread(){};
+
+private:
+    /**
+     *  Error statistics for follower
+     */
+    time_t last_error;
+
+    int num_errors;
+
+    /**
+     * Specific logic for the replicate process
+     */
+    int replicate();
+
+    /**
+     * Pointers to other components
+     */
+    RaftManager * raftm;
+};
+
 #endif

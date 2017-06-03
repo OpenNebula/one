@@ -164,3 +164,10 @@ ReplicaThread * RaftReplicaManager::thread_factory(int follower_id)
 {
     return new RaftReplicaThread(follower_id);
 }
+
+// -----------------------------------------------------------------------------
+
+ReplicaThread * HeartBeatManager::thread_factory(int follower_id)
+{
+    return new HeartBeatThread(follower_id);
+}

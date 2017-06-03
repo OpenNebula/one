@@ -367,6 +367,8 @@ private:
     // -------------------------------------------------------------------------
     RaftReplicaManager replica_manager;
 
+    HeartBeatManager   heartbeat_manager;
+
     unsigned int commit;
 
     std::map<int, unsigned int> next;
@@ -415,11 +417,6 @@ private:
     // -------------------------------------------------------------------------
     // Internal Raft functions
     // -------------------------------------------------------------------------
-	/**
-	 *  Send the heartbeat to the followers.
-	 */
-	void send_heartbeat();
-
 	/**
 	 *  Request votes of followers
 	 */
