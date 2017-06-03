@@ -49,7 +49,7 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
         const VectorAttribute * follower_hook_mad, time_t log_purge,
         long long bcast, long long elect, time_t xmlrpc,
         const string& remotes_location):server_id(id), term(0), num_servers(0),
-        commit(0),leader_hook(0),follower_hook(0)
+        commit(0), leader_hook(0), follower_hook(0)
 {
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
@@ -179,6 +179,11 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
 
             follower_hook = new RaftFollowerHook(cmd, arg);
         }
+    }
+
+    if ( state == FOLLOWER && follower_hook != 0 )
+    {
+        follower_hook->do_hook(0);
     }
 };
 
@@ -1092,7 +1097,7 @@ int RaftManager::xmlrpc_replicate_log(int follower_id, LogDBRecord * lr,
     // -------------------------------------------------------------------------
     // Do the XML-RPC call
     // -------------------------------------------------------------------------
-    xml_rc = Client::client()->call(follower_edp, replica_method, replica_params,
+    xml_rc = Client::call(follower_edp, replica_method, replica_params,
             xmlrpc_timeout_ms, &result, error);
 
     if ( xml_rc == 0 )
@@ -1184,7 +1189,7 @@ int RaftManager::xmlrpc_request_vote(int follower_id, unsigned int lindex,
     // -------------------------------------------------------------------------
     // Do the XML-RPC call
     // -------------------------------------------------------------------------
-    xml_rc = Client::client()->call(follower_edp, replica_method, replica_params,
+    xml_rc = Client::call(follower_edp, replica_method, replica_params,
         xmlrpc_timeout_ms, &result, error);
 
     if ( xml_rc == 0 )
