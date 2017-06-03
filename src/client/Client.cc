@@ -196,21 +196,17 @@ void Client::call(const std::string &method, const std::string format,
 void Client::call(const std::string& method, const xmlrpc_c::paramList& plist,
      xmlrpc_c::value * const result)
 {
-    xmlrpc_c::clientXmlTransport_curl ctrans;
-    xmlrpc_c::client_xml              client(&ctrans);
+    xmlrpc_c::clientXmlTransport_curl ctrans(
+        xmlrpc_c::clientXmlTransport_curl::constrOpt().timeout(timeout));
 
-    xmlrpc_c::rpcPtr rpc(method, plist);
     xmlrpc_c::carriageParm_curl0 cparam(one_endpoint);
+
+    xmlrpc_c::client_xml client(&ctrans);
+    xmlrpc_c::rpcPtr     rpc(method, plist);
 
     rpc->start(&client, &cparam);
 
-    client.finishAsync(xmlrpc_c::timeout(timeout));
-
-    if (!rpc->isFinished())
-    {
-        rpc->finishErr(girerr::error("XMLRPC method " + method +
-            " timeout, resetting call"));
-    }
+    client.finishAsync(xmlrpc_c::timeout());
 
     if (rpc->isSuccessful())
     {
@@ -228,14 +224,16 @@ void Client::call(const std::string& method, const xmlrpc_c::paramList& plist,
 /* -------------------------------------------------------------------------- */
 
 int Client::call(const std::string& endpoint, const std::string& method,
-        const xmlrpc_c::paramList& plist, long long _timeout,
+        const xmlrpc_c::paramList& plist, unsigned int _timeout,
         xmlrpc_c::value * const result, std::string& error)
 {
-    xmlrpc_c::carriageParm_curl0      carriage(endpoint);
-    xmlrpc_c::clientXmlTransport_curl transport;
-    xmlrpc_c::client_xml              client(&transport);
+    xmlrpc_c::clientXmlTransport_curl transport(
+        xmlrpc_c::clientXmlTransport_curl::constrOpt().timeout(_timeout));
 
-    xmlrpc_c::rpcPtr rpc_client(method, plist);
+    xmlrpc_c::carriageParm_curl0  carriage(endpoint);
+
+    xmlrpc_c::client_xml client(&transport);
+    xmlrpc_c::rpcPtr     rpc_client(method, plist);
 
     int xml_rc = 0;
 
@@ -243,13 +241,7 @@ int Client::call(const std::string& endpoint, const std::string& method,
     {
         rpc_client->start(&client, &carriage);
 
-        client.finishAsync(xmlrpc_c::timeout(_timeout));
-
-        if (!rpc_client->isFinished())
-        {
-            rpc_client->finishErr(girerr::error("XMLRPC method "+ method
-                + " timeout, resetting call"));
-        }
+        client.finishAsync(xmlrpc_c::timeout());
 
         if ( rpc_client->isSuccessful() )
         {

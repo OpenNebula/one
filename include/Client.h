@@ -95,7 +95,7 @@ public:
      *    @return 0
      */
     static int call(const std::string& endpoint, const std::string& method,
-        const xmlrpc_c::paramList& plist, long long _timeout,
+        const xmlrpc_c::paramList& plist, unsigned int _timeout,
         xmlrpc_c::value * const result, std::string& error);
 
 	/**
