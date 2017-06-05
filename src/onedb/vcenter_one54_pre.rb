@@ -37,7 +37,6 @@ require 'one_helper/onehost_helper'
 require 'one_helper/onecluster_helper'
 require 'vcenter_driver'
 require 'opennebula'
-require 'pry'
 
 TEMP_DIR="/tmp"
 
