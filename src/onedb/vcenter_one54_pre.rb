@@ -855,7 +855,7 @@ def template_unmanaged_discover(devices, ccr_name, ccr_ref, vcenter_name, vcente
                 end
                 host_id = hosts.first["ID"]
 
-                ds = create_image_ds(ds_name, ds_ref, vcenter_name, vcenter_uuid, ccr_name, ccr_ref, host_id, one_client)
+                ds = create_image_ds(ds_name, ds_ref, vcenter_name, vcenter_uuid, ccr_name, ccr_ref, dc_name, host_id, one_client)
 
                 create_system_ds(ds_name, ds_ref, vcenter_name, vcenter_uuid, ccr_name, ccr_ref, host_id, one_client)
             end
@@ -2186,6 +2186,10 @@ CommandParser::CmdParser.new(ARGV) do
             STDOUT.puts
 
             hpool.each do |host|
+                if host['VM_MAD'] != "vcenter"
+                    next
+                end
+
                 vi_client = VCenterDriver::VIClient.new(host["ID"])
                 vcenter_uuid = vi_client.vim.serviceContent.about.instanceUuid
                 if vcenter_instances.include?(vcenter_uuid)
