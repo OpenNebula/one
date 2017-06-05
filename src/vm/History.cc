@@ -241,6 +241,11 @@ int History::select(SqlDB * db)
 
     unset_callback();
 
+	if ( hostname.empty() )
+	{
+		rc = -1;
+	}
+
     if ( rc == 0 ) // Regenerate non-persistent data
     {
         non_persistent_data();
