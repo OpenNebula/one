@@ -1151,21 +1151,25 @@ std::string& RaftManager::to_xml(std::string& raft_xml)
 
 	pthread_mutex_lock(&mutex);
 
-	if ( state == SOLO )
-	{
-		lindex = 0;
-		lterm  = 0;
-	}
-
     oss << "<RAFT>"
         << "<SERVER_ID>" << server_id << "</SERVER_ID>"
         << "<STATE>"     << state << "</STATE>"
         << "<TERM>"      << term << "</TERM>"
         << "<VOTEDFOR>"  << votedfor << "</VOTEDFOR>"
-        << "<COMMIT>"    << commit << "</COMMIT>"
-        << "<LOG_INDEX>" << lindex << "</LOG_INDEX>"
-        << "<LOG_TERM>"  << lterm  << "</LOG_TERM>"
-        << "</RAFT>";
+        << "<COMMIT>"    << commit << "</COMMIT>";
+
+	if ( state == SOLO )
+	{
+        oss << "<LOG_INDEX>-1</LOG_INDEX>"
+            << "<LOG_TERM>-1</LOG_TERM>";
+	}
+    else
+    {
+        oss << "<LOG_INDEX>" << lindex << "</LOG_INDEX>"
+            << "<LOG_TERM>"  << lterm  << "</LOG_TERM>";
+    }
+
+    oss << "</RAFT>";
 
 	pthread_mutex_unlock(&mutex);
 
