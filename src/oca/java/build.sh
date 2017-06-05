@@ -183,7 +183,7 @@ if [ "$DO_PACKAGE" = "yes" ] ; then
     cp -r jar $PACK_NAME
     cp -r lib $PACK_NAME
 
-    tar cf $PACK_NAME.tar.gz $PACK_NAME
+    tar czf $PACK_NAME.tar.gz $PACK_NAME
 
     rm -rf $PACK_NAME
 fi
