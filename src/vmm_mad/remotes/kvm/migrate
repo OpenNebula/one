@@ -22,5 +22,16 @@ source $(dirname $0)/../../scripts_common.sh
 deploy_id=$1
 dest_host=$2
 
+# migration can't be done with domain snapshots, drop them first
+snaps=$(monitor_and_log \
+   "virsh --connect $LIBVIRT_URI snapshot-list $deploy_id --name 2>/dev/null" \
+   "Failed to get snapshots for $deploy_id")
+
+for snap in $snaps; do
+    exec_and_log \
+        "virsh --connect $LIBVIRT_URI snapshot-delete $deploy_id --snapshotname $snap --metadata" \
+        "Failed to delete snapshot $snap from $deploy_id"
+done
+
 exec_and_log "virsh --connect $LIBVIRT_URI migrate --live $MIGRATE_OPTIONS $deploy_id $QEMU_PROTOCOL://$dest_host/system" \
     "Could not migrate $deploy_id to $dest_host"
