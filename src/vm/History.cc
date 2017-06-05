@@ -74,6 +74,9 @@ History::History(
     const string& _vm_info):
         oid(_oid),
         seq(_seq),
+        uid(-1),
+        gid(-1),
+        req_id(-1),
         hid(_hid),
         hostname(_hostname),
         cid(_cid),
