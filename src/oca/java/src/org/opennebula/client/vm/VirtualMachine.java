@@ -1025,8 +1025,6 @@ public class VirtualMachine extends PoolElement{
     /**
      * Resize VM disk
      *
-     * @param client XML-RPC Client.
-     * @param id The VM id of the target VM.
      * @param diskId Id of the disk
      * @param newSize for the disk
      * @return diskId of resized disk, or error message
@@ -1035,6 +1033,7 @@ public class VirtualMachine extends PoolElement{
     {
         return diskResize(client, id, diskId, newSize);
     }
+
     /**
      * Recovers a stuck VM.
      *
