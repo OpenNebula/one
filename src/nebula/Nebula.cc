@@ -312,9 +312,30 @@ void Nebula::start(bool bootstrap_only)
             db_backend = new MySqlDB(server, port, user, passwd, db_name);
         }
 
-        solo = server_id == -1 || bootstrap_only;
+        // ---------------------------------------------------------------------
+        // Check Database Versions
+        // ---------------------------------------------------------------------
+        bool local_bootstrap;
+        bool shared_bootstrap;
 
-        if ( solo )
+        NebulaLog::log("ONE",Log::INFO,"Checking database version.");
+
+        SystemDB sysdb(db_backend);
+
+        rc = sysdb.check_db_version(is_federation_slave(), local_bootstrap,
+                shared_bootstrap);
+
+        if( rc == -1 )
+        {
+            throw runtime_error("Database version mismatch. Check oned.log.");
+        }
+
+        // ---------------------------------------------------------------------
+        // Initialize logging and federation database facilities and SystemDB
+        // ---------------------------------------------------------------------
+        solo = server_id == -1;
+
+        if ( (solo && local_bootstrap) || bootstrap_only)
         {
             if ( logdb->bootstrap(db_backend) != 0 )
             {
@@ -334,25 +355,11 @@ void Nebula::start(bool bootstrap_only)
             db_ptr = logdb;
         }
 
-        // ---------------------------------------------------------------------
-        // Prepare the SystemDB and check versions
-        // ---------------------------------------------------------------------
-
-        bool local_bootstrap;
-        bool shared_bootstrap;
-
-        NebulaLog::log("ONE",Log::INFO,"Checking database version.");
-
         system_db = new SystemDB(logdb);
 
-        rc = system_db->check_db_version(is_federation_slave(),
-                                         local_bootstrap,
-                                         shared_bootstrap);
-        if( rc == -1 )
-        {
-            throw runtime_error("Database version mismatch. Check oned.log.");
-        }
-
+        // ---------------------------------------------------------------------
+        // DB Bootstraping
+        // ---------------------------------------------------------------------
         rc = 0;
 
         if ( (local_bootstrap || shared_bootstrap) && !solo )
