@@ -29,13 +29,15 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
     int                       new_gid,
     RequestAttributes&        att)
 {
-    Template * tmpl;
+    std::map<Quotas::QuotaType, Template *> quota_map;
+    std::map<Quotas::QuotaType, Template *> quota_to_rback;
+
+    std::map<Quotas::QuotaType, Template *>::iterator it;
 
     int old_uid;
     int old_gid;
 
     PoolObjectSQL *   object;
-    Quotas::QuotaType qtype;
 
     object = pool->get(oid,true);
 
@@ -50,6 +52,9 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
     {
         VirtualMachine * vm = static_cast<VirtualMachine*>(object);
 
+        vector<Template *> ds_quotas;
+        vector<Template *>::iterator it;
+
         if ( vm->get_state() == VirtualMachine::DONE )
         {
             vm->unlock();
@@ -59,18 +64,26 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
             return 0;
         }
 
-        tmpl  = vm->clone_template();
-        qtype = Quotas::VIRTUALMACHINE;
+        Template * tmpl = vm->clone_template();
+
+        quota_map.insert(make_pair(Quotas::VIRTUALMACHINE, tmpl));
+
+        VirtualMachineDisks::image_ds_quotas(tmpl, ds_quotas);
+
+        for ( it = ds_quotas.begin() ; it != ds_quotas.end() ; ++it )
+        {
+            quota_map.insert(make_pair(Quotas::DATASTORE, *it));
+        }
     }
     else if (auth_object == PoolObjectSQL::IMAGE)
     {
-        Image * img = static_cast<Image *>(object);
-        tmpl        = new Template;
+        Image * img     = static_cast<Image *>(object);
+        Template * tmpl = new Template;
 
         tmpl->add("DATASTORE", img->get_ds_id());
         tmpl->add("SIZE",img->get_size()+img->get_snapshots().get_total_size());
 
-        qtype = Quotas::DATASTORE;
+        quota_map.insert(make_pair(Quotas::DATASTORE, tmpl));
     }
     else if (auth_object == PoolObjectSQL::NET)
     {
@@ -86,7 +99,7 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
             return object;
         }
 
-        tmpl = new Template;
+        Template * tmpl = new Template;
 
         for (unsigned int i= 0 ; i < total ; i++)
         {
@@ -95,7 +108,7 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
 
         tmpl->parse_str_or_xml(oss.str(), att.resp_msg);
 
-        qtype = Quotas::NETWORK;
+        quota_map.insert(make_pair(Quotas::NETWORK, tmpl));
     }
     else
     {
@@ -127,29 +140,80 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
     RequestAttributes att_new(new_uid, new_gid, att);
     RequestAttributes att_old(old_uid, old_gid, att);
 
-    if ( quota_authorization(tmpl, qtype, att_new, att.resp_msg) == false )
-    {
-        failure_response(AUTHORIZATION, att);
+    bool error = false;
 
-        delete tmpl;
-        return 0;
+    // -------------------------------------------------------------------------
+    // Apply quotas to new owner free old owner
+    // -------------------------------------------------------------------------
+    for ( it = quota_map.begin(); it != quota_map.end() ; )
+    {
+        Quotas::QuotaType qtype = it->first;
+        Template *        tmpl  = it->second;
+
+        if ( quota_authorization(tmpl, qtype, att_new, att.resp_msg) == false )
+        {
+            error = true;
+            break;
+        }
+        else
+        {
+            quota_to_rback.insert(make_pair(qtype, tmpl));
+
+            it = quota_map.erase(it);
+        }
     }
 
-    quota_rollback(tmpl, qtype, att_old);
-
-    object = pool->get(oid,true);
-
-    if ( object == 0 )
+    if (!error)
     {
-        quota_rollback(tmpl, qtype, att_new);
+        for (it = quota_to_rback.begin(); it != quota_to_rback.end(); ++it)
+        {
+            quota_rollback(it->second, it->first, att_old);
+        }
 
-        quota_authorization(tmpl, qtype, att_old, att.resp_msg);
-
-        att.resp_id = oid;
-        failure_response(NO_EXISTS, att);
+        object = pool->get(oid,true);
     }
 
-    delete tmpl;
+    // -------------------------------------------------------------------------
+    // Error or object deleted. Rollback chown quota operation. Add again usage
+    // to old owner, decrement to new owner.
+    // -------------------------------------------------------------------------
+    if ( object == 0 || error )
+    {
+        for (it = quota_to_rback.begin(); it != quota_to_rback.end(); ++it)
+        {
+            if ( object == 0 )
+            {
+                quota_authorization(it->second, it->first,att_old,att.resp_msg);
+            }
+
+            quota_rollback(it->second, it->first, att_new);
+        }
+
+        if ( object == 0 )
+        {
+            att.resp_id = oid;
+            failure_response(NO_EXISTS, att);
+        }
+        else
+        {
+            failure_response(AUTHORIZATION, att);
+        }
+
+        object = 0;
+    }
+
+    // -------------------------------------------------------------------------
+    // Clean up memory for templates
+    // -------------------------------------------------------------------------
+    for ( it = quota_map.begin(); it != quota_map.end() ; ++it)
+    {
+        delete it->second;
+    }
+
+    for (it = quota_to_rback.begin(); it != quota_to_rback.end(); ++it)
+    {
+        delete it->second;
+    }
 
     return object;
 }
