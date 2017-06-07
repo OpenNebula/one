@@ -493,6 +493,7 @@ define(function(require) {
 
         var vm_id = context.attr("vm_id");
         var template_name = $('.provision_snapshot_name', context).val();
+        var template_description = $('.provision_snapshot_description', context).val();
         var persistent =
           ($('input[name=provision_snapshot_radio]:checked').val() == "persistent");
 
@@ -501,6 +502,7 @@ define(function(require) {
             id: vm_id,
             extra_param: {
               name : template_name,
+              description: template_description,
               persistent : persistent
             }
           },
