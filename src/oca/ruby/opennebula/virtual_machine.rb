@@ -755,10 +755,9 @@ module OpenNebula
         # @return [Integer, OpenNebula::Error] the new Template ID in case of
         #   success, error otherwise
         REMOVE_VNET_ATTRS = %w{AR_ID BRIDGE CLUSTER_ID IP MAC TARGET NIC_ID NETWORK_ID VN_MAD SECURITY_GROUPS}
-        def save_as_template(name, persistent=nil)
+        def save_as_template(name,description, persistent=nil)
             img_ids = []
             new_tid = nil
-
             begin
                 rc = info()
                 raise if OpenNebula.is_error?(rc)
@@ -783,7 +782,9 @@ module OpenNebula
 
                 # Replace the original template's capacity with the actual VM values
                 replace = ""
-
+                if !description.nil?
+                    replace << "DESCRIPTION = #{description}\n"
+                end
                 cpu = self['TEMPLATE/CPU']
                 if !cpu.nil? && !cpu.empty?
                     replace << "CPU = #{cpu}\n"

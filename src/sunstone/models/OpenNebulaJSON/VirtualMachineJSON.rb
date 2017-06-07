@@ -193,7 +193,7 @@ module OpenNebulaJSON
         def save_as_template(params=Hash.new)
             vm_new = VirtualMachine.new(VirtualMachine.build_xml(@pe_id),
                                         @client)
-            vm_new.save_as_template(params['name'], params['persistent'])
+            vm_new.save_as_template(params['name'],params['description'], params['persistent'])
         end
     end
 end
