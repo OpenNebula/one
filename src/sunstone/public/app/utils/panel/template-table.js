@@ -84,7 +84,7 @@ define(function(require) {
     context.on("click", '#button_add_value', function() {
       new_value = $('#new_value', $(this).parent().parent()).val();
       new_key   = $('#new_key', $(this).parent().parent()).val();
-      if (!modify && !templateJSON[new_key]){
+      if (modify && !templateJSON[new_key]){
         if (new_key != "") {
           var templateJSON_bk = $.extend({}, templateJSON);
           if (templateJSON[$.trim(new_key)] && (templateJSON[$.trim(new_key)] instanceof Array)) {
