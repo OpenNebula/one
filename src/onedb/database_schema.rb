@@ -57,8 +57,8 @@ class OneDBBacKEnd
                 "last_poll INTEGER, state INTEGER, lcm_state INTEGER, " <<
                 "owner_u INTEGER, group_u INTEGER, other_u INTEGER",
             logdb: "log_index INTEGER PRIMARY KEY, term INTEGER, " <<
-                "sql MEDIUMTEXT, timestamp INTEGER",
-            fed_logdb: "log_index INTEGER PRIMARY KEY, sql MEDIUMTEXT"
+                "sqlcmd MEDIUMTEXT, timestamp INTEGER",
+            fed_logdb: "log_index INTEGER PRIMARY KEY, sqlcmd MEDIUMTEXT"
         }
     }
 
