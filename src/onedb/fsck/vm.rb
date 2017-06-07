@@ -19,7 +19,7 @@ module OneDBFsck
             port = vm_doc.root.at_xpath('TEMPLATE/GRAPHICS[translate(TYPE,"vnc","VNC")="VNC"]/PORT').text.to_i rescue nil
             # DATA: TODO: get also spice port
 
-            if cid && port
+            if cid && port && state == 3
                 cluster_vnc[cid] ||= Set.new
                 cluster_vnc[cid] << port
             end
