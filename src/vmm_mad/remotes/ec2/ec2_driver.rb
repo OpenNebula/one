@@ -736,17 +736,14 @@ private
     # +state+: String, is the desired state, needs to be a real state of Amazon ec2:  running, stopped, terminated, pending  
     # +deploy_id+: String, VM id in EC2
     def wait_state(state, deploy_id)
-
-        ready = (state == 'stopped') || (state == 'pending') || (state == 'running') || (state == 'terminated')       
+        ready = (state == 'stopped') || (state == 'pending') || (state == 'running') || (state == 'terminated')
         raise "Waiting for an invalid state" if !ready
-
         t_init = Time.now
-        current_state = get_instance(deploy_id).state.name 
-        while current_state != state
-           break if Time.now - t_init > @state_change_timeout
-           sleep 3
-           current_state = get_instance(deploy_id).state.name
-        end 
+        begin
+            wstate = get_instance(deploy_id).state.name rescue nil
+            raise "Ended in invalid state" if Time.now - t_init > @state_change_timeout
+            sleep 3
+        end while wstate != state
     end
 
     # Load the default values that will be used to create a new instance, if
