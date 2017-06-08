@@ -591,6 +591,18 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
+     * Update VM Configuration
+     * @param client XML-RPC Client.
+     * @param id The VM id of the target VM.
+     * @param new_conf New Configuration of the target VM
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse updateconf(Client client, int id, String new_conf)
+    {
+        return client.call(UPDATECONF, id, new_conf);
+    }
+
+    /**
      * Recovers a stuck VM.
      *
      * @param client XML-RPC Client.
