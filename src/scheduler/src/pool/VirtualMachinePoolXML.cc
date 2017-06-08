@@ -38,6 +38,7 @@ int VirtualMachinePoolXML::set_up()
             oss << "Pending/rescheduling VM and capacity requirements:" << endl;
 
             oss << right << setw(8)  << "ACTION"    << " "
+                << right << setw(8)  << "PRIO"      << " "
                 << right << setw(8)  << "VM"        << " "
                 << right << setw(4)  << "CPU"       << " "
                 << right << setw(11) << "Memory"    << " "
@@ -69,12 +70,13 @@ int VirtualMachinePoolXML::set_up()
                     action = "RESUME";
                 }
 
-                oss << right << setw(8)  << action      << " "
-                    << right << setw(8)  << it->first   << " "
-                    << right << setw(4)  << cpu         << " "
-                    << right << setw(11) << mem         << " "
-                    << right << setw(3)  << pci.size()  << " "
-                    << right << setw(11) << disk        << " ";
+                oss << right << setw(8)  << action         << " "
+                    << right << setw(8)  << vm->get_oid()  << " "
+                    << right << setw(8)  << vm->get_prio() << " "
+                    << right << setw(4)  << cpu            << " "
+                    << right << setw(11) << mem            << " "
+                    << right << setw(3)  << pci.size()     << " "
+                    << right << setw(11) << disk           << " ";
 
                 map<int,long long> ds_usage = vm->get_storage_usage();
                 map<int,long long>::const_iterator ds_it;
@@ -112,7 +114,16 @@ void VirtualMachinePoolXML::add_object(xmlNodePtr node)
 
     VirtualMachineXML* vm = new VirtualMachineXML(node);
 
-    objects.insert(pair<int,ObjectXML*>(vm->get_oid(),vm));
+    bool use_prio = true; // TODO: mettere nel file di cnfigurazione
+    if ( use_prio ) { 
+       objects.insert(pair<int,ObjectXML*>(vm->get_prio(),vm));
+       // ostringstream os; 
+       // os << vm->get_prio();
+       // NebulaLog::log("SARA", Log::INFO, os);
+    } else {
+       objects.insert(pair<int,ObjectXML*>(vm->get_oid(),vm));
+    }
+
 }
 
 /* -------------------------------------------------------------------------- */
