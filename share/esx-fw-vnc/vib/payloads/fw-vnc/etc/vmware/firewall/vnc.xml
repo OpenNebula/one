@@ -1,0 +1,16 @@
+<ConfigRoot>
+  <service>
+    <id>VNC</id>
+    <rule>
+      <direction>inbound</direction>
+      <protocol>tcp</protocol>
+      <porttype>dst</porttype>
+      <port>
+        <begin>5900</begin>
+        <end>65535</end>
+      </port>
+    </rule>
+    <enabled>true</enabled>
+    <required>false</required>
+  </service>
+</ConfigRoot>
