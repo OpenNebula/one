@@ -689,8 +689,34 @@ void Nebula::start(bool bootstrap_only)
         Client::initialize("", get_master_oned(), msg_size, timeout);
     }
 
-    // ---- Raft Manager ----
+    // ---- Hook Manager ----
+    try
+    {
+        vector<const VectorAttribute *> hm_mads;
 
+        nebula_configuration->get("HM_MAD", hm_mads);
+
+        hm = new HookManager(hm_mads,vmpool);
+    }
+    catch (bad_alloc&)
+    {
+        throw;
+    }
+
+    rc = hm->start();
+
+    if ( rc != 0 )
+    {
+       throw runtime_error("Could not start the Hook Manager");
+    }
+
+    if (hm->load_mads(0) != 0)
+    {
+        goto error_mad;
+    }
+
+
+    // ---- Raft Manager ----
     const VectorAttribute * raft_leader_hook;
     const VectorAttribute * raft_follower_hook;
 
@@ -864,27 +890,6 @@ void Nebula::start(bool bootstrap_only)
        throw runtime_error("Could not start the Dispatch Manager");
     }
 
-    // ---- Hook Manager ----
-    try
-    {
-        vector<const VectorAttribute *> hm_mads;
-
-        nebula_configuration->get("HM_MAD", hm_mads);
-
-        hm = new HookManager(hm_mads,vmpool);
-    }
-    catch (bad_alloc&)
-    {
-        throw;
-    }
-
-    rc = hm->start();
-
-    if ( rc != 0 )
-    {
-       throw runtime_error("Could not start the Hook Manager");
-    }
-
     // ---- Auth Manager ----
     try
     {
@@ -987,7 +992,7 @@ void Nebula::start(bool bootstrap_only)
     // Load mads
     // -----------------------------------------------------------
 
-    sleep(1);
+    usleep(2500000);
 
     rc = 0;
 
@@ -1002,11 +1007,6 @@ void Nebula::start(bool bootstrap_only)
     }
 
     if (tm->load_mads(0) != 0)
-    {
-        goto error_mad;
-    }
-
-    if (hm->load_mads(0) != 0)
     {
         goto error_mad;
     }
