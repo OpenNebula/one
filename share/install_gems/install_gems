@@ -1,5 +1,9 @@
 #!/usr/bin/env ruby
 
+# Add '/usr/local/bin' to $PATH. In CentOS 7.3 gem bins are installed installed
+# in that path, but it's not in the $PATH.
+ENV['PATH'] += ENV['PATH'] + ':/usr/local/bin'
+
 require 'pp'
 
 DEFAULT_PRE=%w{sunstone quota cloud auth_ldap vmware oneflow ec2_hybrid oca onedb market}
