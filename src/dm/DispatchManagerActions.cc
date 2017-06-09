@@ -1428,8 +1428,7 @@ int DispatchManager::snapshot_revert(int vid, int snap_id,
         return -1;
     }
 
-
-    rc = vm->set_active_snapshot(snap_id);
+    rc = vm->set_revert_snapshot(snap_id);
 
     if ( rc == -1 )
     {
@@ -1492,7 +1491,7 @@ int DispatchManager::snapshot_delete(int vid, int snap_id,
         return -1;
     }
 
-    rc = vm->set_active_snapshot(snap_id);
+    rc = vm->set_delete_snapshot(snap_id);
 
     if ( rc == -1 )
     {

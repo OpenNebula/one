@@ -1166,6 +1166,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 void LifeCycleManager::recover(VirtualMachine * vm, bool success,
         const RequestAttributes& ra)
 {
+    string action;
     LCMAction::Actions lcm_action = LCMAction::NONE;
 
     switch (vm->get_lcm_state())
@@ -1350,7 +1351,42 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
 
         //This is for all snapshot actions (create, delete & revert)
         case VirtualMachine::HOTPLUG_SNAPSHOT:
-            lcm_action = LCMAction::SNAPSHOT_CREATE_FAILURE;
+            action = vm->get_snapshot_action();
+
+            if ( success )
+            {
+                if ( action == "CREATE" )
+                {
+                    vm->update_snapshot_id();
+
+                    vmpool->update(vm);
+
+                    lcm_action = LCMAction::SNAPSHOT_CREATE_SUCCESS;
+                }
+                else if ( action == "REVERT" )
+                {
+                    lcm_action = LCMAction::SNAPSHOT_REVERT_SUCCESS;
+                }
+                else if  ( action == "DELETE" )
+                {
+                    lcm_action = LCMAction::SNAPSHOT_DELETE_SUCCESS;
+                }
+            }
+            else
+            {
+                if ( action == "CREATE" )
+                {
+                    lcm_action = LCMAction::SNAPSHOT_CREATE_FAILURE;
+                }
+                else if ( action == "REVERT" )
+                {
+                    lcm_action = LCMAction::SNAPSHOT_REVERT_FAILURE;
+                }
+                else if  ( action == "DELETE" )
+                {
+                    lcm_action = LCMAction::SNAPSHOT_DELETE_FAILURE;
+                }
+            }
         break;
 
         case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
