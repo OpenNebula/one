@@ -182,6 +182,9 @@ module Migrator
     # Simplify HA management in OpenNebula
     ############################################################################
     def feature_4809
+        #
+        # TODO NEEDS TO ADD <SERVER_POOL> TO EACH ZONE
+        #
         create_table(:logdb)
         create_table(:fed_logdb)
     end
