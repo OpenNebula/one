@@ -153,6 +153,8 @@ void Scheduler::start()
 
     conf.get("MAX_HOST", host_dispatch_limit);
 
+    conf.get("USE_PRIO", use_prio);
+
     conf.get("LIVE_RESCHEDS", live_rescheds);
 
     // -----------------------------------------------------------
