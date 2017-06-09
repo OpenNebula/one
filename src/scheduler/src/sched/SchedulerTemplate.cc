@@ -41,6 +41,7 @@ void SchedulerTemplate::set_conf_default()
 #  MAX_VM
 #  MAX_DISPATCH
 #  MAX_HOST
+#  USE_PRIO
 #  DEFAULT_SCHED
 #  DEFAULT_DS_SCHED
 #  LIVE_RESCHEDS
@@ -88,6 +89,12 @@ void SchedulerTemplate::set_conf_default()
 
     attribute = new SingleAttribute("MAX_HOST",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
+
+   // USE_PRIO
+   value = "0";
+
+   attribute = new SigleAttribute("USE_PRIO", value);
+   conf_default.insert(make_pair(attribute->name(),attribute));
 
     //LIVE_RESCHEDS
     value = "0";
