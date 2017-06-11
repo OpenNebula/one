@@ -74,7 +74,7 @@ define(function(require) {
       "INBOUND_AVG_BW",
       "INBOUND_PEAK_BW",
       "INBOUND_PEAK_KB",
-      "OUTBOUNDD_AVG_BW",
+      "OUTBOUND_AVG_BW",
       "OUTBOUND_PEAK_BW",
       "OUTBOUND_PEAK_KB" ];
 
