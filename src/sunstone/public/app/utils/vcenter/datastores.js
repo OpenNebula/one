@@ -23,6 +23,7 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var UniqueId = require('utils/unique-id');
   var VCenterCommon = require('./vcenter-common');
+  var Sunstone = require('sunstone');
 
   var TemplateHTML = require('hbs!./common/html');
   var RowTemplate = require('hbs!./datastores/row');
@@ -55,6 +56,7 @@ define(function(require) {
     }
    */
   function _fillVCenterDatastores(opts) {
+    this.opts = opts;
     var path = '/vcenter/datastores';
 
     var context = $(".vcenter_import", opts.container);
@@ -94,7 +96,9 @@ define(function(require) {
               columns : [
                 '<input type="checkbox" class="check_all"/>',
                 Locale.tr("Name"),
-                Locale.tr("Cluster"),
+                Locale.tr("Total MB"),
+                Locale.tr("Free MB"),
+                Locale.tr("OpenNebula Cluster IDs"),
                 ""
               ]
             });
@@ -103,10 +107,11 @@ define(function(require) {
             var tbody = $('#' + tableId + ' tbody', context);
 
             $.each(elements, function(id, element){
-              var opts = { name: element.name, cluster: element.cluster };
+              var opts = { name: element.simple_name, cluster: element.cluster, free_mb: element.free_mb, total_mb: element.total_mb };
               var trow = $(RowTemplate(opts)).appendTo(tbody);
 
               $(".check_item", trow).data("one_template", element.ds)
+              $(".check_item", trow).data("one_clusters", element.cluster)
             });
 
             var elementsTable = new DomDataTable(
@@ -154,12 +159,15 @@ define(function(require) {
   }
 
   function _import(context) {
+    var that = this;
     $.each($("table.vcenter_import_table", context), function() {
       $.each($(this).DataTable().$(".check_item:checked"), function() {
         var row_context = $(this).closest("tr");
 
         VCenterCommon.importLoading({context : row_context});
-        var one_template = $(this).data("one_template");
+        var one_template  = $(this).data("one_template");
+        var one_clusters  = $(this).data("one_clusters");
+        var datastore_ids = [];
         $.each(one_template, function(id, element){
           var datastore_json = {
             "datastore": {
@@ -171,9 +179,21 @@ define(function(require) {
             timeout: true,
             data: datastore_json,
             success: function(request, response) {
+              datastore_ids.push(response.DATASTORE.ID);
               VCenterCommon.importSuccess({
                 context : row_context,
-                message : Locale.tr("Datastore created successfully. ID: %1$s", response.DATASTORE.ID)
+                message : Locale.tr("Datastores created successfully. IDs: %1$s", datastore_ids.join())
+              });
+
+              var datastore_raw =
+               "VCENTER_USER=\"" + that.opts.vcenter_user + "\"\n" +
+               "VCENTER_PASSWORD=\"" + that.opts.vcenter_password + "\"\n" +
+               "VCENTER_HOST=\"" + that.opts.vcenter_host + "\"\n";
+
+              Sunstone.runAction("Datastore.append_template", response.DATASTORE.ID, datastore_raw);
+
+              $.each(one_clusters, function(index, cluster_id){
+                  Sunstone.runAction("Cluster.adddatastore",cluster_id,response.DATASTORE.ID);
               });
             },
             error: function (request, error_json) {

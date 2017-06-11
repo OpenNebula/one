@@ -18,12 +18,15 @@ define(function(require) {
   // Dependencies
   var Locale = require('utils/locale');
   var OpenNebulaTemplate = require('opennebula/template');
+  var OpenNebulaNetwork = require('opennebula/network');
+  var OpenNebulaImage = require('opennebula/image');
   var OpenNebulaError = require('opennebula/error');
   var DomDataTable = require('utils/dom-datatable');
   var UserInputs = require('utils/user-inputs');
   var Notifier = require('utils/notifier');
   var UniqueId = require('utils/unique-id');
   var VCenterCommon = require('./vcenter-common');
+  var Sunstone = require('sunstone');
 
   var TemplateHTML = require('hbs!./common/html');
   var RowTemplate = require('hbs!./templates/row');
@@ -103,24 +106,23 @@ define(function(require) {
             $.each(elements, function(id, element) {
               var opts = {};
 
-              if (element.rp && element.rp !== '') {
-                opts.resourcePool = UserInputs.unmarshall(element.rp);
-              }
-
               opts.data = element;
-              opts.resourcePool.params = opts.resourcePool.params.split(",");
               opts.id = UniqueId.id();
 
-              var trow = $(RowTemplate(opts)).appendTo(tbody);
-              
-              $.each(opts.resourcePool.params, function(){
-                $("#available_rps_" + opts.id + " [value ='" + this + "']").mousedown(function(e) {
-                  e.preventDefault();
-                  $(this).prop('selected', !$(this).prop('selected'));
-                  return false;
+              if (element.rp && element.rp !== '') {
+                opts.resourcePool = UserInputs.unmarshall(element.rp);
+                opts.resourcePool.params = opts.resourcePool.params.split(",");
+                $.each(opts.resourcePool.params, function(){
+                  $("#available_rps_" + opts.id + " [value ='" + this + "']").mousedown(function(e) {
+                    e.preventDefault();
+                    $(this).prop('selected', !$(this).prop('selected'));
+                    return false;
+                  });
                 });
-              });
-            
+              }
+
+              var trow = $(RowTemplate(opts)).appendTo(tbody);
+
               $('.check_item', trow).data("import_data", element);
             });
 
@@ -165,6 +167,198 @@ define(function(require) {
       }
     });
   }
+
+  function rollback_nics_and_disk(error_message, template_id, rollback_items, row_context) {
+    var rollback_index = 0;
+
+    function nextRollback() {
+
+      if (rollback_items.length == rollback_index) {
+        var path = '/vcenter/template_rollback/' + template_id;
+        $.ajax({
+          url: path,
+          type: "POST",
+          data: {timeout: false},
+          dataType: "json",
+          success: function(response){
+            VCenterCommon.importFailure({
+                context : row_context,
+                message : Locale.tr("Could not import the template due to " + error_message + ". A rollback has been applied.")
+            });
+          },
+          error: function(response){
+            VCenterCommon.importFailure({
+                    context : row_context,
+                    message : OpenNebulaError(response).error.message
+            });
+          }
+        });
+      } else {
+          if (rollback_items[rollback_index].type === "NETWORK") {
+            var path = '/vcenter/network_rollback/' + rollback_items[rollback_index].id;
+            $.ajax({
+              url: path,
+              type: "POST",
+              data: {timeout: false},
+              dataType: "json",
+              success: function(response){
+                ++rollback_index;
+                nextRollback();
+              },
+              error: function(response){
+                VCenterCommon.importFailure({
+                    context : row_context,
+                    message : OpenNebulaError(response).error.message
+                });
+                Notifier.onError({}, OpenNebulaError(response));
+              }
+            });
+          }
+
+          if (rollback_items[rollback_index].type === "IMAGE") {
+            var path = '/vcenter/image_rollback/' + rollback_items[rollback_index].id;
+            $.ajax({
+              url: path,
+              type: "POST",
+              data: {timeout: false},
+              dataType: "json",
+              success: function(response){
+                ++rollback_index;
+                nextRollback();
+              },
+              error: function(response){
+                VCenterCommon.importFailure({
+                    context : row_context,
+                    message : OpenNebulaError(response).error.message
+                });
+                Notifier.onError({}, OpenNebulaError(response));
+              }
+            });
+          }
+      }
+    }
+
+    nextRollback();
+  }
+
+  function import_images_and_nets(disks_and_nets, row_context, template_id) {
+    var index = 0;
+    var template = "";
+    var rollback  = [];
+
+    function getNext() {
+
+      // Update the template
+      if (disks_and_nets.length == index) {
+        var template_json = {
+          "extra_param": template
+        };
+
+        Sunstone.runAction('Template.append_template', template_id, template);
+
+        VCenterCommon.importSuccess({
+          context : row_context,
+          message : Locale.tr("Template created successfully. ID: %1$s", template_id)
+        });
+
+      } else {
+
+        if (disks_and_nets[index].type === "NEW_DISK") {
+
+            var image_json = {
+              "image": {
+                "image_raw": disks_and_nets[index].image_tmpl
+              },
+              "ds_id" : disks_and_nets[index].ds_id
+            };
+
+            OpenNebulaImage.create({
+              timeout: true,
+              data: image_json,
+              success: function(request, response) {
+                var image_id    = response.IMAGE.ID;
+                var image_uname = response.IMAGE.UNAME;
+                ++index;
+                template += "DISK=[\n";
+                template += "IMAGE_ID=\"" + image_id + "\",\n";
+                template += "IMAGE_UNAME=\"" + image_uname + "\",\n";
+                template += "OPENNEBULA_MANAGED=\"NO\"\n";
+                template += "]\n";
+
+                var rollback_info = { type: "IMAGE", id: image_id};
+                rollback.push(rollback_info);
+                getNext();
+              },
+              error: function (request, error_json) {
+                var error_message_str = error_json.error.message;
+
+                // Rollback
+                VCenterCommon.importFailure({
+                  context : row_context,
+                  message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
+                });
+
+                rollback_nics_and_disk(error_json.error.message, template_id, rollback, row_context);
+              }
+            });
+          }
+
+          if (disks_and_nets[index].type === "EXISTING_DISK") {
+            template += disks_and_nets[index].image_tmpl;
+            ++index;
+            getNext();
+          }
+
+          if (disks_and_nets[index].type === "NEW_NIC") {
+
+              var vnet_json = {
+                "vnet": {
+                  "vnet_raw": disks_and_nets[index].network_tmpl
+                }
+              };
+
+              var one_cluster_id  = disks_and_nets[index].one_cluster_id;
+
+              OpenNebulaNetwork.create({
+                timeout: true,
+                data: vnet_json,
+                success: function(request, response) {
+                  var network_id = response.VNET.ID;
+                  if (one_cluster_id != -1) {
+                    Sunstone.runAction("Cluster.addvnet",one_cluster_id,response.VNET.ID);
+                  }
+                  ++index;
+                  template += "NIC=[\n";
+                  template += "NETWORK_ID=\"" + network_id + "\",\n";
+                  template += "OPENNEBULA_MANAGED=\"NO\"\n";
+                  template += "]\n";
+                  var rollback_info = { type: "NETWORK", id: network_id};
+                  rollback.push(rollback_info);
+                  getNext();
+                },
+                error: function (request, error_json) {
+                  // Rollback
+                  VCenterCommon.importFailure({
+                    context : row_context,
+                    message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
+                  });
+
+                  rollback_nics_and_disk(error_json.error.message, template_id, rollback, row_context);
+                }
+              });
+          }
+
+          if (disks_and_nets[index].type == "EXISTING_NIC") {
+            template += disks_and_nets[index].network_tmpl;
+            ++index;
+            getNext();
+          }
+
+      }
+    }
+    getNext();
+  }
+
 
   function _import(context) {
     that = this;
@@ -214,35 +408,44 @@ define(function(require) {
         }
 
         if($(this).data("import_data").import_disks_and_nics){
-          VCenterCommon.importLoading({
-            context : row_context,
-            message : Locale.tr("Importing images and vnets associated to template disks and nics...")
-          });
-          var path = '/vcenter/template/' + $(this).data("import_data").vcenter_ref;
-          $.ajax({
-            url: path,
-            type: "GET",
-            data: {timeout: false},
-            headers: {
-              "X-VCENTER-USER": that.opts.vcenter_user,
-              "X-VCENTER-PASSWORD": that.opts.vcenter_password,
-              "X-VCENTER-HOST": that.opts.vcenter_host
-            },
-            dataType: "json",
-            success: function(response){
-              template += "\n" + response.one;
               var template_json = {
-                "vmtemplate": {
-                "template_raw": template
-                }
+                "vmtemplate": { "template_raw": template }
               };
+
+              var vcenter_ref = $(this).data("import_data").vcenter_ref;
+
               OpenNebulaTemplate.create({
                 timeout: true,
                 data: template_json,
                 success: function(request, response) {
-                  VCenterCommon.importSuccess({
-                    context : row_context,
-                    message : Locale.tr("Template created successfully. ID: %1$s", response.VMTEMPLATE.ID)
+                   VCenterCommon.importLoading({
+                      context : row_context,
+                      message : Locale.tr("Importing images and vnets associated to template disks and nics...")
+                   });
+                   template_id = response.VMTEMPLATE.ID;
+                   var path = '/vcenter/template/' + vcenter_ref + '/' + template_id;
+
+                   $.ajax({
+                    url: path,
+                    type: "GET",
+                    data: {timeout: false},
+                    headers: {
+                      "X-VCENTER-USER": that.opts.vcenter_user,
+                      "X-VCENTER-PASSWORD": that.opts.vcenter_password,
+                      "X-VCENTER-HOST": that.opts.vcenter_host
+                    },
+                    dataType: "json",
+                    success: function(response){
+                      var disks_and_nets = response.disks.concat(response.nics)
+                      import_images_and_nets(disks_and_nets, row_context, template_id)
+                    },
+                    error: function(response){
+                      VCenterCommon.importFailure({
+                          context : row_context,
+                          message : OpenNebulaError(response).error.message
+                      });
+                      Notifier.onError({}, OpenNebulaError(response));
+                    }
                   });
                 },
                 error: function (request, error_json) {
@@ -251,17 +454,8 @@ define(function(require) {
                     message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
                   });
                 }
-              });
-            },
-            error: function(response){
-              VCenterCommon.importFailure({
-                  context : row_context,
-                  message : OpenNebulaError(response).error.message
-              });
-              Notifier.onError({}, OpenNebulaError(response));
-            }
-          });
-        } 
+            });
+        }
         else {
           var template_json = {
             "vmtemplate": {

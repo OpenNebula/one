@@ -29,6 +29,7 @@ define(function(require) {
   var SecurityGroupsTable = require('tabs/secgroups-tab/datatable');
   var TemplateUtils = require('utils/template-utils');
   var WizardFields = require('utils/wizard-fields');
+  var ResourceSelect = require('utils/resource-select');
 
   /*
     TEMPLATES
@@ -128,6 +129,7 @@ define(function(require) {
       $('input#vn_mad', context).removeAttr('required');
       $('input#vn_mad', context).removeAttr('value');
       $('#vcenter_switch_name', context).removeAttr('required');
+      $('#vcenter_cluster_id', context).removeAttr('required');
       switch ($(this).val()) {
       case "dummy":
         $("div.mode_param.dummy", context).show();
@@ -170,6 +172,19 @@ define(function(require) {
         $("div.mode_param.vcenter [wizard_field]", context).prop('wizard_field_disabled', false);
         $('input#bridge', context).attr('value', $('#name', context).val());
         $('#vcenter_switch_name', context).attr('required', '');
+        ResourceSelect.insert({
+          context: $('#vcenter_cluster_id', context),
+          resourceName: 'Host',
+          emptyValue: true,
+          nameValues: false,
+          filterKey: 'VM_MAD',
+          filterValue: 'vcenter',
+          required: true,
+          callback: function(element){
+            element.attr('wizard_field', 'VCENTER_ONE_HOST_ID');
+          }
+        });
+
         $('input#vn_mad', context).attr('required', '');
         $('input#vn_mad', context).attr('value', 'vcenter');
 

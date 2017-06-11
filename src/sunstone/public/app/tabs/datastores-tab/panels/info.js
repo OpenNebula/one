@@ -70,7 +70,10 @@ define(function(require) {
     var strippedTemplate = {};
     var strippedTemplateVcenter = {};
     $.each(this.element.TEMPLATE, function(key, value) {
-      if (key.match(/^VCENTER_*/)){
+      if (!key.match(/^VCENTER_HOST$/) &&
+          !key.match(/^VCENTER_USER$/) &&
+          !key.match(/^VCENTER_PASSWORD$/) &&
+           key.match(/^VCENTER_*/)){
         strippedTemplateVcenter[key] = value;
       }
       else {

@@ -73,7 +73,7 @@ define(function(require) {
       if ($.inArray(key, unshownKeys) > -1) {
        that.unshownTemplate[key] = value;
       }
-      else if (key.match(/^VCENTER_*/)){
+      else if (!key.match(/^VCENTER_RESOURCE_POOL$/) && key.match(/^VCENTER_*/)){
         that.strippedTemplateVcenter[key] = value;
       }
       else {
@@ -134,7 +134,7 @@ define(function(require) {
     document.getElementById('change_bar_cpu_hosts').value = parseInt(document.getElementById('textInput_reserved_cpu_hosts').value);
     document.getElementById('textInput_reserved_cpu_hosts').value = document.getElementById('change_bar_cpu_hosts').value;
   }
-  
+
    function changeInputMEM(){
     document.getElementById('change_bar_mem_hosts').value = Humanize.sizeToMB(document.getElementById('textInput_reserved_mem_hosts').value);
     document.getElementById('textInput_reserved_mem_hosts').value = Humanize.size(document.getElementById('change_bar_mem_hosts').value);
@@ -155,9 +155,9 @@ define(function(require) {
 
     //.off and .on prevent multiple clicks events
     $(document).off('click', '.update_reserved_hosts').on("click", '.update_reserved', function(){
-        var reservedCPU = parseInt(document.getElementById('change_bar_cpu_hosts').value); 
+        var reservedCPU = parseInt(document.getElementById('change_bar_cpu_hosts').value);
         var CPU = parseInt(that.element.HOST_SHARE.FREE_CPU);
-        var reservedMem = parseInt(document.getElementById('change_bar_mem_hosts').value); 
+        var reservedMem = parseInt(document.getElementById('change_bar_mem_hosts').value);
         var MEM = parseInt(that.element.HOST_SHARE.FREE_MEM);
         if(parseInt(that.element.HOST_SHARE.USED_CPU) > 0)
           CPU += parseInt(that.element.HOST_SHARE.USED_CPU);
@@ -167,9 +167,9 @@ define(function(require) {
         reservedMem = MEM - reservedMem;
 
         var obj = {RESERVED_CPU: reservedCPU, RESERVED_MEM: reservedMem};
-        Sunstone.runAction("Host.append_template", that.element.ID, TemplateUtils.templateToString(obj)); 
+        Sunstone.runAction("Host.append_template", that.element.ID, TemplateUtils.templateToString(obj));
     });
-    
+
     document.getElementById("change_bar_cpu_hosts").addEventListener("change", function(){
       if(parseInt(document.getElementById('change_bar_cpu_hosts').value) > that.element.HOST_SHARE.TOTAL_CPU)
         document.getElementById('textInput_reserved_cpu_hosts').style.backgroundColor = 'rgba(111, 220, 111,0.5)';
