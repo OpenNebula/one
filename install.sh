@@ -1277,7 +1277,9 @@ WEBSOCKIFY_SHARE_FILES="share/websockify/websocketproxy.py \
 
 HOOK_FT_FILES="share/hooks/ft/host_error.rb \
                share/hooks/ft/fence_host.sh \
-               share/hooks/ft/delete_poweroff_vms.rb"
+               share/hooks/create_vcenter_net.rb \
+               share/hooks/delete_vcenter_net.rb"
+
 #-------------------------------------------------------------------------------
 # HOOK RAFT scripts, to be installed under $VAR_LOCATION/remotes/hooks/raft
 #-------------------------------------------------------------------------------
