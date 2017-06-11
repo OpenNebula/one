@@ -670,11 +670,15 @@ class ESXHost
 
         #Compare current configuration and return if switch hasn't changed
         same_switch = false
+
+        switch_has_pnics = switch.spec.respond_to?(:bridge) && switch.spec.bridge.respond_to?(:nicDevice)
+
+
+
         same_switch = switch.spec.respond_to?(:mtu) && switch.spec.mtu == mtu &&
-                      switch.spec.respond_to?(:numPorts) && switch.spec.mtu == num_ports &&
-                      (!pnics || (pnics && switch.spec.respond_to?(:bridge) &&
-                      switch.spec.bridge.respond_to?(:nicDevice) &&
-                      switch.spec.bridge.nicDevice.uniq.sort == pnics.uniq.sort))
+                      switch.spec.respond_to?(:numPorts) && switch.spec.numPorts == num_ports &&
+                      (!switch_has_pnics && pnics.empty? ||
+                       switch_has_pnics && switch.spec.bridge.nicDevice.uniq.sort == pnics.uniq.sort)
         return if same_switch
 
         # Let's create a new spec and update the switch
@@ -754,6 +758,9 @@ class ESXHost
     def assign_proxy_switch(dvs, switch_name, pnics, pnics_available)
         dvs = dvs.item
 
+        # Return if host is already assigned
+        return dvs if !dvs['config.host'].select { |host| host.config.host._ref == self['_ref'] }.empty?
+
         # Prepare spec for DVS reconfiguration
         configSpec = RbVmomi::VIM::VMwareDVSConfigSpec.new
         configSpec.name = switch_name
@@ -761,7 +768,7 @@ class ESXHost
 
         # Check if host is already assigned to distributed switch
         operation = "add"
-        operation = "edit" if !dvs['config.host'].select { |host| host.config.host._ref == self['_ref'] }.empty?
+        ##operation = "edit" if !dvs['config.host'].select { |host| host.config.host._ref == self['_ref'] }.empty?
 
         # Add host members to the distributed virtual switch
         host_member_spec = RbVmomi::VIM::DistributedVirtualSwitchHostMemberConfigSpec.new
