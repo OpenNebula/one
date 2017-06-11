@@ -1,5 +1,6 @@
 module VCenterDriver
 require 'set'
+require 'digest'
 class DatacenterFolder
     attr_accessor :items
 
@@ -46,41 +47,71 @@ class DatacenterFolder
         host_objects = {}
 
         vcenter_uuid = get_vcenter_instance_uuid
-
         vcenter_version = get_vcenter_api_version
 
-        fetch! if @items.empty? #Get datacenters
+        fetch! if @items.empty? # Get datacenters
 
+        sha256 = Digest::SHA256.new # Prepare crypto hash generator
+
+        # Loop through datacenters
         @items.values.each do |dc|
             dc_name = dc.item.name
             host_objects[dc_name] = []
 
+            # Get clusters inside a datacenter
             host_folder = dc.host_folder
             host_folder.fetch_clusters!
             host_folder.items.values.each do |ccr|
 
+                # Check if the cluster is a host in OpenNebula's pool
                 one_host = VCenterDriver::VIHelper.find_by_ref(OpenNebula::HostPool,
                                                                "TEMPLATE/VCENTER_CCR_REF",
                                                                ccr['_ref'],
                                                                vcenter_uuid,
                                                                hpool)
+                next if one_host
 
-                next if one_host #If the host has been already imported
-
+                # Get a ClusterComputeResource object
                 cluster = VCenterDriver::ClusterComputeResource.new_from_ref(ccr['_ref'], @vi_client)
+
+                # Obtain a list of resource pools found in the cluster
                 rpools = cluster.get_resource_pool_list.select {|rp| !rp[:name].empty?}
 
-                host_info = {}
-                cluster_name = "[#{vcenter_instance_name}-#{dc_name}]_#{ccr['name']}"
+                # Determine a host location (folder and subfolders)
+                item = cluster.item
+                folders = []
+                while !item.instance_of? RbVmomi::VIM::Datacenter
+                    item = item.parent
+                    if !item.instance_of? RbVmomi::VIM::Datacenter
+                        folders << item.name if item.name != "host"
+                    end
+                    raise "Could not find the host's location" if item.nil?
+                end
+                location   = folders.reverse.join("/")
+                location = "/" if location.empty?
+
+                # Generate a crypto hash and take the first 12 characters to
+                # avoid name collisions.
+                full_name = "#{ccr['name']}_[#{vcenter_instance_name}-#{dc_name}]_#{location}"
+                cluster_hash = sha256.hexdigest(full_name)[0..11]
+
+                # Setting host import name and replace spaces and weird characters
+                cluster_name = "#{ccr['name']}_[#{vcenter_instance_name}-#{dc_name}]_#{cluster_hash}"
                 cluster_name = cluster_name.tr(" ", "_")
                 cluster_name = cluster_name.tr("\u007F", "") # Remove \u007F character that comes from vcenter
 
+                # Prepare hash for import tool
+                host_info = {}
+                host_info[:simple_name]      = ccr['name']
                 host_info[:cluster_name]     = cluster_name
                 host_info[:cluster_ref]      = ccr['_ref']
+                host_info[:cluster_location] = location
+                host_info[:cluster_hash]     = cluster_hash
                 host_info[:vcenter_uuid]     = vcenter_uuid
                 host_info[:vcenter_version]  = vcenter_version
                 host_info[:rp_list]          = rpools
 
+                # Add the hash to current datacenter
                 host_objects[dc_name] << host_info
             end
         end
@@ -96,34 +127,10 @@ class DatacenterFolder
 
         fetch! if @items.empty? #Get datacenters
 
-        one_clusters = {}
-
         @items.values.each do |dc|
+            clusters_in_ds = {}
             dc_name = dc.item.name
-
-            one_clusters[dc_name] = []
-
-            host_folder = dc.host_folder
-            host_folder.fetch_clusters!
-
-            host_folder.items.values.each do |ccr|
-                cluster = {}
-                cluster[:ref]  = ccr['_ref']
-                cluster[:name] = ccr['name']
-                attribute = "TEMPLATE/VCENTER_CCR_REF"
-                one_host = VCenterDriver::VIHelper.find_by_ref(OpenNebula::HostPool,
-                                                               attribute,
-                                                               ccr['_ref'],
-                                                               vcenter_uuid,
-                                                               hpool)
-
-                if !!one_host
-                    cluster[:host_id] = one_host['ID']
-                    one_clusters[dc_name] << cluster
-                end
-            end
-
-            next if one_clusters[dc_name].empty? #No clusters imported, continue
+            dc_ref  = dc.item._ref
             ds_objects[dc_name] = []
 
             datastore_folder = dc.datastore_folder
@@ -131,82 +138,103 @@ class DatacenterFolder
 
             datastore_folder.items.values.each do |ds|
 
-                name, capacity, freeSpace = ds.item.collect("name","summary.capacity","summary.freeSpace")
+                name, capacity, freeSpace = ds.item.collect("name",
+                                                            "summary.capacity",
+                                                            "summary.freeSpace")
 
-                ds_name = "[#{vcenter_instance_name} - #{dc_name}] #{name}"
-                ds_total_mb =  ((capacity.to_i / 1024) / 1024)
-                ds_free_mb = ((freeSpace.to_i / 1024) / 1024)
+                ds_name     = "#{name}"
+                ds_total_mb = ((capacity.to_i / 1024) / 1024)
+                ds_free_mb  = ((freeSpace.to_i / 1024) / 1024)
 
                 if ds.instance_of? VCenterDriver::Datastore
-                    hosts_in_ds = ds['host']
-                    clusters_in_ds = {}
+                    ds_hash = {}
+                    ds_hash[:simple_name] = "#{ds_name}"
+                    ds_hash[:total_mb]    = ds_total_mb
+                    ds_hash[:free_mb]     = ds_free_mb
+                    ds_hash[:ds]          = []
+                    ds_hash[:cluster]     = []
 
-                    hosts_in_ds.each do |host|
+                    hosts = ds["host"]
+                    hosts.each do |host|
                         cluster_ref = host.key.parent._ref
-                        if !clusters_in_ds[cluster_ref]
-                            clusters_in_ds[cluster_ref] = host.key.parent.name
+                        if !clusters_in_ds.key?(cluster_ref)
+                            clusters_in_ds[cluster_ref] = nil
+                            # Try to locate cluster ref in host's pool
+                            one_cluster = VCenterDriver::VIHelper.find_by_ref(OpenNebula::HostPool,
+                                                               "TEMPLATE/VCENTER_CCR_REF",
+                                                               cluster_ref,
+                                                               vcenter_uuid,
+                                                               hpool)
+                            if one_cluster
+                                ds_hash[:cluster] << one_cluster["CLUSTER_ID"].to_i
+                                clusters_in_ds[cluster_ref] = one_cluster["CLUSTER_ID"].to_i
+                            end
+                        else
+                            ds_hash[:cluster] << clusters_in_ds[cluster_ref] if clusters_in_ds[cluster_ref] && !ds_hash[:cluster].include?(clusters_in_ds[cluster_ref])
                         end
                     end
 
-                    clusters_in_ds.each do |ccr_ref, ccr_name|
-                        ds_hash = {}
+                    already_image_ds = VCenterDriver::Storage.exists_one_by_ref_dc_and_type?(ds["_ref"], dc_ref, vcenter_uuid, "IMAGE_DS", dpool)
 
-                        ds_hash[:name] = "#{ds_name} - #{ccr_name.tr(" ", "_")}"
-                        ds_hash[:total_mb] = ds_total_mb
-                        ds_hash[:free_mb]  = ds_free_mb
-                        ds_hash[:cluster]  = ccr_name
-                        ds_hash[:ds]      = []
-
-                        already_image_ds = VCenterDriver::Storage.exists_one_by_ref_ccr_and_type?(ds["_ref"], ccr_ref, vcenter_uuid, "IMAGE_DS", dpool)
-
-                        if !already_image_ds
-                            object = ds.to_one_template(one_clusters[dc_name], ds_hash[:name], ccr_ref, "IMAGE_DS", vcenter_uuid)
-                            ds_hash[:ds] << object if !object.nil?
-                        end
-
-                        already_system_ds = VCenterDriver::Storage.exists_one_by_ref_ccr_and_type?(ds["_ref"], ccr_ref, vcenter_uuid, "SYSTEM_DS", dpool)
-
-                        if !already_system_ds
-                            object = ds.to_one_template(one_clusters[dc_name], ds_hash[:name], ccr_ref, "SYSTEM_DS", vcenter_uuid)
-                            ds_hash[:ds] << object if !object.nil?
-                        end
-
-                        ds_objects[dc_name] << ds_hash if !ds_hash[:ds].empty?
+                    if !already_image_ds
+                        ds_hash[:name] = "#{ds_name} [#{vcenter_instance_name} - #{dc_name}] (IMG)"
+                        object = ds.to_one_template(ds_hash, vcenter_uuid, dc_name, dc_ref, "IMAGE_DS")
+                        ds_hash[:ds] << object if !object.nil?
                     end
+
+                    already_system_ds = VCenterDriver::Storage.exists_one_by_ref_dc_and_type?(ds["_ref"], dc_ref, vcenter_uuid, "SYSTEM_DS", dpool)
+
+                    if !already_system_ds
+                        ds_hash[:name] = "#{ds_name} [#{vcenter_instance_name} - #{dc_name}] (SYS)"
+                        object = ds.to_one_template(ds_hash, vcenter_uuid, dc_name, dc_ref, "SYSTEM_DS")
+                        ds_hash[:ds] << object if !object.nil?
+                    end
+
+                    ds_hash[:name] = "#{ds_name} [#{vcenter_instance_name} - #{dc_name}]"
+
+                    ds_objects[dc_name] << ds_hash if !ds_hash[:ds].empty?
+
                 end
 
                 if ds.instance_of? VCenterDriver::StoragePod
-                    clusters_in_spod = {}
-                    ds_in_spod = ds['children']
+                    ds_hash = {}
+                    ds_hash[:simple_name] = "#{ds_name}"
+                    ds_hash[:total_mb] = ds_total_mb
+                    ds_hash[:free_mb]  = ds_free_mb
+                    ds_hash[:ds]      = []
+                    ds_hash[:cluster] = []
 
-                    ds_in_spod.each do |sp_ds|
-                        hosts_in_ds = sp_ds.host
-                        hosts_in_ds.each do |host|
+                    ds['children'].each do |sp_ds|
+                        hosts = sp_ds.host
+                        hosts.each do |host|
                             cluster_ref = host.key.parent._ref
-                            if !clusters_in_spod[cluster_ref]
-                                clusters_in_spod[cluster_ref] = host.key.parent.name
+                            if !clusters_in_ds.include?(cluster_ref)
+                                clusters_in_ds[cluster_ref] = nil
+                                # Try to locate cluster ref in cluster's pool
+                                one_cluster = VCenterDriver::VIHelper.find_by_ref(OpenNebula::HostPool,
+                                                                "TEMPLATE/VCENTER_CCR_REF",
+                                                                cluster_ref,
+                                                                vcenter_uuid,
+                                                                hpool)
+                                if one_cluster
+                                    ds_hash[:cluster] << one_cluster["CLUSTER_ID"].to_i
+                                    clusters_in_ds[cluster_ref] = one_cluster["CLUSTER_ID"].to_i
+                                end
+                            else
+                                ds_hash[:cluster] << clusters_in_ds[cluster_ref] if clusters_in_ds[cluster_ref] && !ds_hash[:cluster].include?(clusters_in_ds[cluster_ref])
                             end
                         end
                     end
 
-                    clusters_in_spod.each do |ccr_ref, ccr_name|
-                        ds_hash = {}
-                        ds_hash[:name] = "#{ds_name} - #{ccr_name.tr(" ", "_")}"
-                        ds_hash[:total_mb] = ds_total_mb
-                        ds_hash[:free_mb]  = ds_free_mb
-                        ds_hash[:cluster]  = ccr_name
-                        ds_hash[:ds]      = []
+                    already_system_ds = VCenterDriver::Storage.exists_one_by_ref_dc_and_type?(ds["_ref"], dc_ref, vcenter_uuid, "SYSTEM_DS", dpool)
 
-                        ds_hash[:ds] = []
-                        already_system_ds = VCenterDriver::Storage.exists_one_by_ref_ccr_and_type?(ds["_ref"], ccr_ref, vcenter_uuid, "SYSTEM_DS", dpool)
-
-                        if !already_system_ds
-                            object = ds.to_one_template(one_clusters[dc_name], ds_hash[:name], ccr_ref, "SYSTEM_DS", vcenter_uuid)
-                            ds_hash[:ds] << object if !object.nil?
-                        end
-
-                        ds_objects[dc_name] << ds_hash if !ds_hash[:ds].empty?
+                    if !already_system_ds
+                        ds_hash[:name] = "#{ds_name} [#{vcenter_instance_name} - #{dc_name}] (StorDRS)"
+                        object = ds.to_one_template(ds_hash, vcenter_uuid, dc_name, dc_ref, "SYSTEM_DS")
+                        ds_hash[:ds] << object if !object.nil?
                     end
+
+                    ds_objects[dc_name] << ds_hash if !ds_hash[:ds].empty?
                 end
             end
         end
@@ -268,7 +296,6 @@ class DatacenterFolder
 
             view.DestroyView # Destroy the view
 
-
             templates.each do |template|
 
                 one_template = VCenterDriver::VIHelper.find_by_ref(OpenNebula::TemplatePool,
@@ -288,7 +315,7 @@ class DatacenterFolder
         template_objects
     end
 
-    def get_unimported_networks(npool,vcenter_instance_name)
+    def get_unimported_networks(npool,vcenter_instance_name, hpool)
 
         network_objects = {}
         vcenter_uuid = get_vcenter_instance_uuid
@@ -373,6 +400,36 @@ class DatacenterFolder
 
             clusters.each do |ref, info|
 
+                one_host = VCenterDriver::VIHelper.find_by_ref(OpenNebula::HostPool,
+                                                               "TEMPLATE/VCENTER_CCR_REF",
+                                                               ref,
+                                                               vcenter_uuid,
+                                                               hpool)
+                if !one_host || !one_host['CLUSTER_ID']
+                    cluster_id = -1
+                else
+                    cluster_id = one_host['CLUSTER_ID']
+                end
+
+                one_cluster = VCenterDriver::ClusterComputeResource.new_from_ref(ref, @vi_client)
+
+                # Determine a host location
+                item = one_cluster.item
+                folders = []
+                while !item.instance_of? RbVmomi::VIM::Datacenter
+                    item = item.parent
+                    if !item.instance_of? RbVmomi::VIM::Datacenter
+                        folders << item.name if item.name != "host"
+                    end
+
+                    if item.nil?
+                        raise "Could not find the host's location"
+                    end
+                end
+
+                location = folders.reverse.join("/")
+                location = "/" if location.empty?
+
                 network_obj = info['network']
 
                 network_obj.each do |n|
@@ -388,13 +445,17 @@ class DatacenterFolder
                     next if one_network #If the network has been already imported
 
                     one_vnet = VCenterDriver::Network.to_one_template(network_name,
-                                                                        network_ref,
-                                                                        network_type,
-                                                                        ref,
-                                                                        info['name'],
-                                                                        vcenter_uuid,
-                                                                        vcenter_instance_name,
-                                                                        dc_name)
+                                                                      network_ref,
+                                                                      network_type,
+                                                                      ref,
+                                                                      info['name'],
+                                                                      vcenter_uuid,
+                                                                      vcenter_instance_name,
+                                                                      dc_name,
+                                                                      cluster_id,
+                                                                      location)
+
+
                     network_objects[dc_name] << one_vnet
                 end
 
@@ -719,7 +780,7 @@ class Datacenter
             case nr[:action]
                 when :update_dpg
                     begin
-                        nr[:dpg].ReconfigureDVPortgroupConfigSpec_Task(:spec => nr[:spec])
+                        nr[:dpg].ReconfigureDVPortgroup_Task(:spec => nr[:spec])
                     rescue Exception => e
                         raise "A rollback operation for distributed port group #{nr[:name]} could not be performed. Reason: #{e.message}"
                     end
@@ -751,6 +812,13 @@ class Datacenter
                     end
             end
         end
+    end
+
+    ########################################################################
+    # PowerOn VMs
+    ########################################################################
+    def power_on_vm(vm)
+        @item.PowerOnMultiVM_Task({:vm => [vm]}).wait_for_completion
     end
 
     def self.new_from_ref(ref, vi_client)

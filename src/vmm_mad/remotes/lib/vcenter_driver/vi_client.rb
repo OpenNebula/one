@@ -87,36 +87,73 @@ class VIClient
     end
 
     def self.new_from_host(host_id)
-        client = OpenNebula::Client.new
-        host = OpenNebula::Host.new_with_id(host_id, client)
-        rc = host.info
-        if OpenNebula.is_error?(rc)
-            puts rc.message
-            exit -1
+        begin
+            client = OpenNebula::Client.new
+            host = OpenNebula::Host.new_with_id(host_id, client)
+            rc = host.info
+            if OpenNebula.is_error?(rc)
+                raise "Could not get host info for ID: #{host_id} - #{rc.message}"
+            end
+
+            password = host["TEMPLATE/VCENTER_PASSWORD"]
+
+            system = OpenNebula::System.new(client)
+            config = system.get_configuration
+            if OpenNebula.is_error?(config)
+                raise "Error getting oned configuration : #{config.message}"
+            end
+
+            token = config["ONE_KEY"]
+
+            password = VIClient::decrypt(password, token)
+
+            connection = {
+                :host     => host["TEMPLATE/VCENTER_HOST"],
+                :user     => host["TEMPLATE/VCENTER_USER"],
+                :rp       => host["TEMPLATE/VCENTER_RESOURCE_POOL"],
+                :ccr      => host["TEMPLATE/VCENTER_CCR_REF"],
+                :password => password
+            }
+
+            self.new(connection)
+
+        rescue Exception => e
+            raise e
         end
+    end
 
-        password = host["TEMPLATE/VCENTER_PASSWORD"]
+    def self.new_from_datastore(datastore_id)
+        begin
+            client = OpenNebula::Client.new
+            datastore = OpenNebula::Datastore.new_with_id(datastore_id, client)
+            rc = datastore.info
+            if OpenNebula.is_error?(rc)
+                raise "Could not get datastore info for ID: #{datastore_id} - #{rc.message}"
+            end
 
-        system = OpenNebula::System.new(client)
-        config = system.get_configuration
-        if OpenNebula.is_error?(config)
-            puts "Error getting oned configuration : #{config.message}"
-            exit -1
+            password = datastore["TEMPLATE/VCENTER_PASSWORD"]
+
+            system = OpenNebula::System.new(client)
+            config = system.get_configuration
+            if OpenNebula.is_error?(config)
+                raise "Error getting oned configuration : #{config.message}"
+            end
+
+            token = config["ONE_KEY"]
+
+            password = VIClient::decrypt(password, token)
+
+            connection = {
+                :host     => datastore["TEMPLATE/VCENTER_HOST"],
+                :user     => datastore["TEMPLATE/VCENTER_USER"],
+                :password => password
+            }
+
+            self.new(connection)
+
+        rescue Exception => e
+            raise e
         end
-
-        token = config["ONE_KEY"]
-
-        password = VIClient::decrypt(password, token)
-
-        connection = {
-            :host     => host["TEMPLATE/VCENTER_HOST"],
-            :user     => host["TEMPLATE/VCENTER_USER"],
-            :rp       => host["TEMPLATE/VCENTER_RESOURCE_POOL"],
-            :ccr      => host["TEMPLATE/VCENTER_CCR_REF"],
-            :password => password
-        }
-
-        self.new(connection)
     end
 
     def self.decrypt(msg, token)
@@ -132,8 +169,7 @@ class VIClient
             msg =  cipher.update(Base64::decode64(msg))
             msg << cipher.final
         rescue
-            puts "Error decrypting secret."
-            exit -1
+            raise "Error decrypting secret."
         end
     end
 

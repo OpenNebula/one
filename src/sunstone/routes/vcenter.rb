@@ -23,7 +23,10 @@ end
 # TODO vcenter_driver should be stored in RUBY_LIB_LOCATION
 $: << REMOTES_LOCATION+"/vmm/vcenter/"
 
+MAX_VCENTER_PASSWORD_LENGTH = 22 #This is the maximum length for a vCenter password
+
 require 'vcenter_driver'
+
 
 helpers do
     def vcenter_client
@@ -54,6 +57,22 @@ helpers do
             logger.error("[vCenter] " + msg)
             error = Error.new(msg)
             error 404, error.to_json
+        end
+
+        if vpass.size > MAX_VCENTER_PASSWORD_LENGTH
+            begin
+                client = OpenNebula::Client.new
+                system = OpenNebula::System.new(client)
+                config = system.get_configuration
+                token = config["ONE_KEY"]
+                vpass = VCenterDriver::VIClient::decrypt(vpass, token)
+
+            rescue Exception => e
+                msg = "I was unable to decrypt the vCenter password credentials"
+                logger.error("[vCenter] #{e.message}/#{e.backtrace}. " + msg)
+                error = Error.new(msg)
+                error 404, error.to_json
+            end
         end
 
         return VCenterDriver::VIClient.new({
@@ -127,7 +146,96 @@ get '/vcenter/templates' do
     end
 end
 
-get '/vcenter/template/:vcenter_ref' do
+post '/vcenter/image_rollback/:image_id' do
+    begin
+        image_id = params[:image_id]
+        one_image = VCenterDriver::VIHelper.one_item(OpenNebula::Image, image_id.to_s, false)
+
+        if OpenNebula.is_error?(one_image)
+            raise "Error finding image #{image_id}: #{rc.message}\n"
+        end
+
+        rc =  one_image.delete
+        if OpenNebula.is_error?(rc)
+            raise "Error deleting image #{image_id}: #{rc.message}\n"
+        end
+
+        [200, "Image #{image_id} deleted in rollback.".to_json]
+    rescue Exception => e
+        logger.error("[vCenter] " + e.message)
+        error = Error.new(e.message)
+        error 403, error.to_json
+    end
+end
+
+post '/vcenter/network_rollback/:network_id' do
+    begin
+        network_id = params[:network_id]
+        one_vnet = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualNetwork, network_id.to_s, false)
+
+        if OpenNebula.is_error?(one_vnet)
+            raise "Error finding network #{network_id}: #{rc.message}\n"
+        end
+
+        rc =  one_vnet.delete
+        if OpenNebula.is_error?(rc)
+            raise "Error deleting network #{network_id}: #{rc.message}\n"
+        end
+
+        [200, "Network #{network_id} deleted in rollback.".to_json]
+    rescue Exception => e
+        logger.error("[vCenter] " + e.message)
+        error = Error.new(e.message)
+        error 403, error.to_json
+    end
+end
+
+post '/vcenter/template_rollback/:template_id' do
+    begin
+        template_id = params[:template_id]
+        one_template = VCenterDriver::VIHelper.one_item(OpenNebula::Template, template_id.to_s, false)
+
+        if OpenNebula.is_error?(one_template)
+            raise "Error finding template #{template_id}: #{rc.message}\n"
+        end
+
+        rc =  one_template.delete
+        if OpenNebula.is_error?(rc)
+            raise "Error deleting template #{template_id}: #{rc.message}\n"
+        end
+
+        [200, "Template #{template_id} deleted in rollback.".to_json]
+    rescue Exception => e
+        logger.error("[vCenter] " + e.message)
+        error = Error.new(e.message)
+        error 403, error.to_json
+    end
+end
+
+post '/vcenter/wild_rollback/:vm_id' do
+    begin
+        vm_id = params[:vm_id]
+        one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id.to_s, false)
+
+        if OpenNebula.is_error?(one_vm)
+            raise "Error finding VM #{vm_id}: #{rc.message}\n"
+        end
+
+        rc =  one_vm.delete
+        if OpenNebula.is_error?(rc)
+            raise "Error deleting VM #{vm_id}: #{rc.message}\n"
+        end
+
+        [200, "VM #{vm_id} deleted in rollback.".to_json]
+    rescue Exception => e
+        logger.error("[vCenter] " + e.message)
+        error = Error.new(e.message)
+        error 403, error.to_json
+    end
+end
+
+
+get '/vcenter/template/:vcenter_ref/:template_id' do
     begin
         t = {}
         t[:one] = ""
@@ -136,7 +244,8 @@ get '/vcenter/template/:vcenter_ref' do
         append = true
         lc_error = nil
 
-        ref = params[:vcenter_ref]
+        ref         = params[:vcenter_ref]
+        template_id = params[:template_id]
 
         if !ref || ref.empty?
             msg = "No template ref specified"
@@ -167,6 +276,14 @@ get '/vcenter/template/:vcenter_ref' do
         npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool)
         if npool.respond_to?(:message)
             msg = "Could not get OpenNebula VirtualNetworkPool: #{npool.message}"
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 404, error.to_json
+        end
+
+        hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool)
+        if hpool.respond_to?(:message)
+            msg = "Could not get OpenNebula HostPool: #{hpool.message}"
             logger.error("[vCenter] " + msg)
             error = Error.new(msg)
             error 404, error.to_json
@@ -227,7 +344,7 @@ get '/vcenter/template/:vcenter_ref' do
         end
 
         # Create images or get disks information for template
-        error, template_disks = template.import_vcenter_disks(vc_uuid, dpool, ipool)
+        error, template_disks = template.import_vcenter_disks(vc_uuid, dpool, ipool, true, template_id)
 
         if !error.empty?
             append = false
@@ -238,15 +355,23 @@ get '/vcenter/template/:vcenter_ref' do
             error 404, error.to_json
         end
 
-        t[:one] << template_disks
+        #t[:one] << template_disks
+        t[:disks] = template_disks
 
         template_moref = template_copy_ref ? template_copy_ref : ref
+
+        wild = false #We're importing templates not wild vms
 
         # Create images or get nics information for template
         error, template_nics = template.import_vcenter_nics(vc_uuid,
                                                             npool,
+                                                            hpool,
                                                             vcenter_client.vim.host,
-                                                            template_moref)
+                                                            template_moref,
+                                                            wild,
+                                                            true,
+                                                            template["name"],
+                                                            template_id)
 
         if !error.empty?
             append = false
@@ -257,7 +382,8 @@ get '/vcenter/template/:vcenter_ref' do
             error 404, error.to_json
         end
 
-        t[:one] << template_nics
+        #t[:one] << template_nics
+        t[:nics] = template_nics
 
         t[:lc_error] = lc_error
         t[:append] = append
@@ -265,6 +391,99 @@ get '/vcenter/template/:vcenter_ref' do
         [200, t.to_json]
     rescue Exception => e
         template.delete_template if template_copy_ref
+        logger.error("[vCenter] " + e.message)
+        error = Error.new(e.message)
+        error 403, error.to_json
+    end
+end
+
+get '/vcenter/wild/:vcenter_ref' do
+    begin
+        t        = {}
+        template = nil
+        vm_ref   = params[:vcenter_ref]
+        sunstone = true
+        wild     = true
+
+        if !vm_ref || vm_ref.empty?
+            msg = "No VM moref for Wild VM specified"
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 404, error.to_json
+        end
+
+        vc_uuid = vcenter_client.vim.serviceContent.about.instanceUuid
+
+        dpool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool)
+        if dpool.respond_to?(:message)
+            msg = "Could not get OpenNebula DatastorePool: #{dpool.message}"
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 404, error.to_json
+        end
+
+        ipool = VCenterDriver::VIHelper.one_pool(OpenNebula::ImagePool)
+        if ipool.respond_to?(:message)
+            msg = "Could not get OpenNebula ImagePool: #{ipool.message}"
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 404, error.to_json
+        end
+
+        npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool)
+        if npool.respond_to?(:message)
+            msg = "Could not get OpenNebula VirtualNetworkPool: #{npool.message}"
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 404, error.to_json
+        end
+
+        hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool)
+        if hpool.respond_to?(:message)
+            msg = "Could not get OpenNebula HostPool: #{hpool.message}"
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 404, error.to_json
+        end
+
+        vcenter_vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vcenter_client)
+        vm_name    = vcenter_vm["name"]
+
+        # Get disks information for template
+        error, template_disks = vcenter_vm.import_vcenter_disks(vc_uuid, dpool, ipool, sunstone)
+
+        if !error.empty?
+            msg = error
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 404, error.to_json
+        end
+
+        t[:disks] = template_disks
+
+        # Get nics information for template
+
+        # Create images or get nics information for template
+        error, template_nics = vcenter_vm.import_vcenter_nics(vc_uuid,
+                                                              npool,
+                                                              hpool,
+                                                              vcenter_client.vim.host,
+                                                              vm_ref,
+                                                              wild,
+                                                              sunstone,
+                                                              vm_name)
+
+        if !error.empty?
+            msg = error
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 404, error.to_json
+        end
+
+        t[:nics] = template_nics
+
+        [200, t.to_json]
+    rescue Exception => e
         logger.error("[vCenter] " + e.message)
         error = Error.new(e.message)
         error 403, error.to_json
@@ -284,7 +503,16 @@ get '/vcenter/networks' do
             error 404, error.to_json
         end
 
-        networks = dc_folder.get_unimported_networks(npool,vcenter_client.vim.host)
+        hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool, false)
+
+        if hpool.respond_to?(:message)
+            msg = "Could not get OpenNebula HostPool: #{hpool.message}"
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 404, error.to_json
+        end
+
+        networks = dc_folder.get_unimported_networks(npool,vcenter_client.vim.host,hpool)
 
         if networks.nil?
             msg = "No datacenter found"
@@ -305,7 +533,16 @@ get '/vcenter/images/:ds_name' do
     begin
         one_ds = VCenterDriver::VIHelper.find_by_name(OpenNebula::DatastorePool,
                                                       params[:ds_name])
-        one_ds_ref = one_ds['TEMPLATE/VCENTER_DS_REF']
+        one_ds_ref         = one_ds['TEMPLATE/VCENTER_DS_REF']
+        one_ds_instance_id = one_ds['TEMPLATE/VCENTER_INSTANCE_ID']
+        vc_uuid            = vcenter_client.vim.serviceContent.about.instanceUuid
+
+        if one_ds_instance_id != vc_uuid
+            msg = "Datastore is not in the same vCenter instance provided in credentials"
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 404, error.to_json
+        end
 
         ds = VCenterDriver::Datastore.new_from_ref(one_ds_ref, vcenter_client)
         ds.one_item = one_ds
@@ -340,7 +577,6 @@ get '/vcenter/datastores' do
             error 404, error.to_json
         end
 
-
         hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool, false)
 
         if hpool.respond_to?(:message)
@@ -349,7 +585,6 @@ get '/vcenter/datastores' do
             error = Error.new(msg)
             error 404, error.to_json
         end
-
 
         datastores = dc_folder.get_unimported_datastores(dpool, vcenter_client.vim.host, hpool)
         if datastores.nil?

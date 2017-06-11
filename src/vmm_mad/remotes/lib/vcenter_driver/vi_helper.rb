@@ -4,6 +4,7 @@ class VIHelper
 
     ETC_LOCATION = "/etc/one/" if !defined?(ETC_LOCATION)
     VCENTER_DRIVER_DEFAULT = "#{ETC_LOCATION}/vcenter_driver.default"
+    VM_PREFIX_DEFAULT = "one-$i-"
 
     def self.client
         @@client ||= OpenNebula::Client.new
@@ -55,6 +56,14 @@ class VIHelper
             (e["TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid ||
              e["USER_TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid)}.first rescue nil
 
+        return element
+    end
+
+    def self.find_image_by_path(the_class, path, ds_id, pool = nil)
+        pool = one_pool(the_class, false) if pool.nil?
+        element = pool.select{|e|
+            e["PATH"] == path &&
+            e["DATASTORE_ID"] == ds_id}.first rescue nil
         return element
     end
 

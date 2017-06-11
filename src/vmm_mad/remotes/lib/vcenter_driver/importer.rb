@@ -2,6 +2,8 @@ module VCenterDriver
 
 class Importer
 
+VNC_ESX_HOST_FOLDER = "/tmp"
+
 def self.import_wild(host_id, vm_ref, one_vm, template)
 
     begin
@@ -21,10 +23,18 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
         if npool.respond_to?(:message)
             raise "Could not get OpenNebula VirtualNetworkPool: #{npool.message}"
         end
+        hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool)
+        if hpool.respond_to?(:message)
+            raise "Could not get OpenNebula HostPool: #{hpool.message}"
+        end
 
         vcenter_vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
+        vm_name    = vcenter_vm["name"]
 
-        error, template_disks = vcenter_vm.import_vcenter_disks(vc_uuid, dpool, ipool)
+        wild     = true
+        sunstone = false
+
+        error, template_disks = vcenter_vm.import_vcenter_disks(vc_uuid, dpool, ipool, sunstone)
         return OpenNebula::Error.new(error) if !error.empty?
 
         template << template_disks
@@ -32,8 +42,13 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
         # Create images or get nics information for template
         error, template_nics = vcenter_vm.import_vcenter_nics(vc_uuid,
                                                               npool,
+                                                              hpool,
+                                                              vc_name,
                                                               vm_ref,
-                                                              vc_name)
+                                                              wild,
+                                                              sunstone,
+                                                              vm_name)
+
         return OpenNebula::Error.new(error) if !error.empty?
 
         template << template_nics
@@ -41,7 +56,8 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
         rc = one_vm.allocate(template)
         return rc if OpenNebula.is_error?(rc)
 
-        one_vm.deploy(host_id, false)
+        rc = one_vm.deploy(host_id, false)
+        return rc if OpenNebula.is_error?(rc)
 
         # Set reference to template disks and nics in VM template
         vcenter_vm.one_item = one_vm
@@ -53,10 +69,10 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
 
         # Let's update the info to gather VNC port
         until vnc_port || elapsed_seconds > 30
-            sleep(2)
+            sleep(1)
             one_vm.info
             vnc_port  = one_vm["TEMPLATE/GRAPHICS/PORT"]
-            elapsed_seconds += 2
+            elapsed_seconds += 1
         end
 
         if vnc_port
@@ -68,11 +84,17 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
             vcenter_vm.item.ReconfigVM_Task(:spec => spec).wait_for_completion
         end
 
+        # Add VCENTER_ESX_HOST to MONITOR info so VNC works for running VMs F#4242
+        esx_host = vcenter_vm["runtime.host.name"].to_s
+        f = File.open(File.join(VNC_ESX_HOST_FOLDER, "vcenter_vnc_#{one_vm.id}"), 'w')
+        f.write(esx_host)
+        f.close
+
         return one_vm.id
 
     rescue Exception => e
         vi_client.close_connection if vi_client
-        return OpenNebula::Error.new(e.message)
+        return OpenNebula::Error.new("#{e.message}/#{e.backtrace}")
     end
 end
 
@@ -91,6 +113,7 @@ def self.import_clusters(con_ops, options)
         dc_folder = VCenterDriver::DatacenterFolder.new(vi_client)
 
         vcenter_instance_name = vi_client.vim.host
+        vc_uuid   = vi_client.vim.serviceContent.about.instanceUuid
 
         # OpenNebula's ClusterPool
         cpool = VCenterDriver::VIHelper.one_pool(OpenNebula::ClusterPool, false)
@@ -100,7 +123,7 @@ def self.import_clusters(con_ops, options)
 
         cluster_list = {}
         cpool.each do |c|
-            cluster_list[c["ID"]] = c["NAME"]
+            cluster_list[c["ID"]] = c["NAME"] if c["ID"].to_i != 0
         end
 
         # Get OpenNebula's host pool
@@ -129,32 +152,46 @@ def self.import_clusters(con_ops, options)
                 one_cluster_id = nil
                 rpool = nil
                 if !use_defaults
-                    STDOUT.print "\n  * Import cluster #{cluster[:cluster_name]} (y/[n])? "
+                    STDOUT.print "\n  * vCenter cluster found:\n"\
+                                 "      - Name       : \e[92m#{cluster[:simple_name]}\e[39m\n"\
+                                 "      - Location   : #{cluster[:cluster_location]}\n"\
+                                 "    Import cluster (y/[n])? "
                     next if STDIN.gets.strip.downcase != 'y'
+                end
 
-                    if cluster_list.size > 1
-                        STDOUT.print "\n    In which OpenNebula cluster do you want the vCenter cluster to be included?\n "
+                if cluster_list.size > 0
+                    STDOUT.print "\n    In which OpenNebula cluster do you want the vCenter cluster to be included?\n "
 
-                        cluster_list_str = "\n"
-                        cluster_list.each do |key, value|
-                            cluster_list_str << "      - ID: " << key << " - NAME: " << value << "\n"
+                    cluster_list_str = "\n"
+                    cluster_list.each do |key, value|
+                        cluster_list_str << "      - \e[94mID: " << key << "\e[39m - NAME: " << value << "\n"
+                    end
+
+                    STDOUT.print "\n    #{cluster_list_str}"
+                    STDOUT.print "\n    Specify the ID of the cluster or press Enter if you want OpenNebula to create a new cluster for you: "
+
+                    answer = STDIN.gets.strip
+                    if !answer.empty?
+                        one_cluster_id = answer
+                    else
+                        one_cluster = VCenterDriver::VIHelper.new_one_item(OpenNebula::Cluster)
+                        rc = one_cluster.allocate("#{cluster[:cluster_name]}")
+                        if ::OpenNebula.is_error?(rc)
+                            STDOUT.puts "    Error creating OpenNebula cluster: #{rc.message}\n"
+                            next
                         end
-
-                        STDOUT.print "\n    #{cluster_list_str}"
-                        STDOUT.print "\n    Specify the ID of the cluster or Enter to use the default cluster: "
-
-                        answer = STDIN.gets.strip
-                        one_cluster_id = answer if !answer.empty?
+                        one_cluster_id = one_cluster.id
                     end
                 end
 
+                # Generate the template and create the host in the pool
                 one_host = VCenterDriver::ClusterComputeResource.to_one(cluster,
                                                                         con_ops,
                                                                         rpool,
                                                                         one_cluster_id)
 
-                STDOUT.puts "\n    OpenNebula host #{cluster[:cluster_name]} with"\
-                            " id #{one_host.id} successfully created."
+                STDOUT.puts "\n    OpenNebula host \e[92m#{cluster[:cluster_name]}\e[39m with"\
+                            " ID \e[94m#{one_host.id}\e[39m successfully created."
                 STDOUT.puts
             }
         }
@@ -206,9 +243,19 @@ def self.import_templates(con_ops, options)
         if npool.respond_to?(:message)
             raise "Could not get OpenNebula VirtualNetworkPool: #{npool.message}"
         end
+        hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool)
+        if hpool.respond_to?(:message)
+            raise "Could not get OpenNebula HostPool: #{hpool.message}"
+        end
 
         # Get vcenter intance uuid as moref is unique for each vcenter
         vc_uuid = vi_client.vim.serviceContent.about.instanceUuid
+
+        # Init vars
+        allocated_images  = []
+        allocated_nets    = []
+        one_t             = nil
+        template_copy_ref = nil
 
         rs.each {|dc, tmps|
 
@@ -228,13 +275,16 @@ def self.import_templates(con_ops, options)
 
                 if !use_defaults
                     STDOUT.print "\n  * VM Template found:\n"\
-                                    "      - Name   : #{t[:name]}\n"\
-                                    "      - Moref  : #{t[:vcenter_ref]}\n"\
-                                    "      - Cluster: #{t[:cluster_name]}\n"\
+                                    "      - Name       : \e[92m#{t[:template_name]}\e[39m\n"\
+                                    "      - Cluster    : \e[96m#{t[:cluster_name]}\e[39m\n"\
+                                    "      - Location   : #{t[:template_location]}\n"\
                                     "    Import this VM template (y/[n])? "
 
                     next if STDIN.gets.strip.downcase != 'y'
                 end
+
+                allocated_images = []
+                allocated_nets   = []
 
                 # Linked Clones
                 if !use_defaults
@@ -267,7 +317,7 @@ def self.import_templates(con_ops, options)
                             template_name = STDIN.gets.strip.downcase
 
                             STDOUT.print "\n    WARNING!!! The cloning operation can take some time"\
-                                         " depending on the size of disks. Please wait...\n"
+                                         " depending on the size of disks. \e[96mPlease wait...\e[39m\n"
 
 
                             error, template_copy_ref = template.create_template_copy(template_name)
@@ -303,7 +353,7 @@ def self.import_templates(con_ops, options)
                         else
                             # Create linked clones on top of the existing template
                             # Create a VirtualMachine object from the template_copy_ref
-                            STDOUT.print "\n    Delta disks are being created, please be patient..."
+                            STDOUT.print "\n    Delta disks are being created, \e[96please be patient...\e[39m"
 
                             lc_error, use_lc = template.create_delta_disks
                             if lc_error
@@ -329,38 +379,69 @@ def self.import_templates(con_ops, options)
                     t[:one] << "VCENTER_VM_FOLDER=\"#{vcenter_vm_folder}\"\n" if !vcenter_vm_folder.empty?
                 end
 
+
+                # Create template object
+                one_t = VCenterDriver::VIHelper.new_one_item(OpenNebula::Template)
+
+                rc = one_t.allocate(t[:one])
+
+                if OpenNebula.is_error?(rc)
+                    STDOUT.puts "    Error creating template: #{rc.message}\n"
+                    template.delete_template if template_copy_ref
+                    next
+                end
+
+                one_t.info
+
                 ## Add existing disks to template (OPENNEBULA_MANAGED)
 
                 STDOUT.print "\n    The existing disks and networks in the template"\
-                             " are being imported, please be patient..."
+                             " are being imported, \e[96mplease be patient...\e[39m\n"
 
                 template = t[:template] if !template
 
 
-                error, template_disks = template.import_vcenter_disks(vc_uuid,
-                                                                      dpool,
-                                                                      ipool)
+                error, template_disks, allocated_images = template.import_vcenter_disks(vc_uuid,
+                                                                                        dpool,
+                                                                                        ipool,
+                                                                                        false,
+                                                                                        one_t["ID"])
 
                 if error.empty?
                     t[:one] << template_disks
                 else
                     STDOUT.puts error
+                    # Rollback
                     template.delete_template if template_copy_ref
+                    one_t.delete if one_t
+                    one_t = nil
                     next
                 end
 
                 template_moref = template_copy_ref ? template_copy_ref : t[:vcenter_ref]
 
-                error, template_nics = template.import_vcenter_nics(vc_uuid,
-                                                                    npool,
-                                                                    options[:vcenter],
-                                                                    template_moref,
-                                                                    dc)
+                wild = false # We are not importing from a Wild VM
+                error, template_nics, allocated_nets = template.import_vcenter_nics(vc_uuid,
+                                                                                    npool,
+                                                                                    hpool,
+                                                                                    options[:vcenter],
+                                                                                    template_moref,
+                                                                                    wild,
+                                                                                    false,
+                                                                                    template["name"],
+                                                                                    one_t["ID"],
+                                                                                    dc)
+
                 if error.empty?
                     t[:one] << template_nics
                 else
                     STDOUT.puts error
+                    # Rollback
+                    allocated_images.each do |i| i.delete end
+                    allocated_images = []
                     template.delete_template if template_copy_ref
+                    one_t.delete if one_t
+                    one_t = nil
                     next
                 end
 
@@ -450,15 +531,21 @@ def self.import_templates(con_ops, options)
                     t[:one] << "]"
                 end
 
-                one_t = VCenterDriver::VIHelper.new_one_item(OpenNebula::Template)
+                rc = one_t.update(t[:one])
 
-                rc = one_t.allocate(t[:one])
-
-                if ::OpenNebula.is_error?(rc)
+                if OpenNebula.is_error?(rc)
                     STDOUT.puts "    Error creating template: #{rc.message}\n"
+
+                    # Rollback
                     template.delete_template if template_copy_ref
+                    allocated_images.each do |i| i.delete end
+                    allocated_images = []
+                    allocated_nets.each do |n| n.delete end
+                    allocated_nets = []
+                    one_t.delete if one_t
+                    one_t = nil
                 else
-                    STDOUT.puts "    OpenNebula template #{one_t.id} created!\n"
+                    STDOUT.puts "\n    OpenNebula template \e[92m#{t[:name]}\e[39m with ID \e[94m#{one_t.id}\e[39m created!\n"
                 end
             }
         }
@@ -466,7 +553,15 @@ def self.import_templates(con_ops, options)
         puts "\n"
         exit 0 #Ctrl+C
     rescue Exception => e
-        STDOUT.puts "    Error: #{e.message}/\n#{e.backtrace}"
+        STDOUT.puts "There was an error trying to import a vcenter template: #{e.message}/\n#{e.backtrace}"
+
+         # Rollback
+        allocated_images.each do |i| i.delete end
+        allocated_images = []
+        allocated_nets.each do |n| n.delete end
+        allocated_nets = []
+        one_t.delete if one_t
+        template.delete_template if template_copy_ref
     ensure
         vi_client.close_connection if vi_client
     end
@@ -492,7 +587,13 @@ def self.import_networks(con_ops, options)
             raise "Could not get OpenNebula VirtualNetworkPool: #{npool.message}"
         end
 
-        rs = dc_folder.get_unimported_networks(npool,options[:vcenter])
+        # Get OpenNebula's host pool
+        hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool, false)
+        if hpool.respond_to?(:message)
+            raise "Could not get OpenNebula HostPool: #{hpool.message}"
+        end
+
+        rs = dc_folder.get_unimported_networks(npool,options[:vcenter],hpool)
 
         STDOUT.print "done!\n"
 
@@ -510,12 +611,13 @@ def self.import_networks(con_ops, options)
             end
 
             tmps.each do |n|
-                one_cluster_id = nil
                 if !use_defaults
                     print_str =  "\n  * Network found:\n"\
-                                 "      - Name    : #{n[:name]}\n"\
-                                 "      - Type    : #{n[:type]}\n"
-                    print_str << "      - Cluster : #{n[:cluster]}\n"
+                                 "      - Name                  : \e[92m#{n[:name]}\e[39m\n"\
+                                 "      - Type                  : #{n[:type]}\n"\
+                                 "      - Cluster               : \e[96m#{n[:cluster]}\e[39m\n"\
+                                 "      - Cluster location      : #{n[:cluster_location]}\n"\
+                                 "      - OpenNebula Cluster ID : #{n[:one_cluster_id]}\n"
                     print_str << "    Import this Network (y/[n])? "
 
                     STDOUT.print print_str
@@ -547,9 +649,10 @@ def self.import_networks(con_ops, options)
                 if !use_defaults
                     STDOUT.print "    What type of Virtual Network"\
                                 " do you want to create (IPv[4],IPv[6]"\
-                                ",[E]thernet) ?"
+                                ",[E]thernet)?"
 
                     type_answer = STDIN.gets.strip
+                    type_answer = "e" if type_answer.empty?
                     if ["4","6","e"].include?(type_answer.downcase)
                         ar_type = type_answer.downcase
                     else
@@ -637,14 +740,14 @@ def self.import_networks(con_ops, options)
 
                 one_vn = VCenterDriver::VIHelper.new_one_item(OpenNebula::VirtualNetwork)
 
-                rc = one_vn.allocate(n[:one])
+                rc = one_vn.allocate(n[:one],n[:one_cluster_id].to_i)
 
                 if ::OpenNebula.is_error?(rc)
                     STDOUT.puts "\n    Error creating virtual network: " +
                                 " #{rc.message}\n"
                 else
-                    STDOUT.puts "\n    OpenNebula virtual network " +
-                                "#{one_vn.id} created with size #{size}!\n"
+                    STDOUT.puts "\n    OpenNebula virtual network \e[92m#{n[:import_name]}\e[39m " +
+                                "with ID \e[94m#{one_vn.id}\e[39m created with size #{size}!\n"
                 end
             end
         }
@@ -677,7 +780,7 @@ def self.import_datastore(con_ops, options)
             raise "Could not get OpenNebula DatastorePool: #{dpool.message}"
         end
 
-        # Get OpenNebula's host pool
+        # OpenNebula's HostPool
         hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool, false)
         if hpool.respond_to?(:message)
             raise "Could not get OpenNebula HostPool: #{hpool.message}"
@@ -689,7 +792,7 @@ def self.import_datastore(con_ops, options)
 
         rs.each {|dc, tmps|
             if !use_defaults
-                STDOUT.print "\nDo you want to process datacenter #{dc} (y/[n])? "
+                STDOUT.print "\nDo you want to process datacenter \e[95m#{dc}\e[39m (y/[n])? "
 
                 next if STDIN.gets.strip.downcase != 'y'
             end
@@ -702,29 +805,50 @@ def self.import_datastore(con_ops, options)
             tmps.each{ |d|
                 if !use_defaults
                     STDOUT.print "\n  * Datastore found:\n"\
-                                    "      - Name      : #{d[:name]}\n"\
-                                    "      - Total MB  : #{d[:total_mb]}\n"\
-                                    "      - Free  MB  : #{d[:free_mb]}\n"\
-                                    "      - Cluster   : #{d[:cluster]}\n"\
-                                    "    Import this as Datastore [y/n]? "
+                                    "      - Name                  : \e[92m#{d[:simple_name]}\e[39m\n"\
+                                    "      - Total MB              : #{d[:total_mb]}\n"\
+                                    "      - Free  MB              : #{d[:free_mb]}\n"\
+                                    "      - OpenNebula Cluster IDs: #{d[:cluster].join(',')}\n"\
+                                    "   Import this datastore [y/n]? "
 
                     next if STDIN.gets.strip.downcase != 'y'
 
-                    STDOUT.print "\n    NOTE: For each vcenter datastore a SYSTEM and IMAGE datastore\n"\
+                    STDOUT.print "\n    NOTE: For each vCenter datastore a SYSTEM and IMAGE datastore\n"\
                                  "    will be created in OpenNebula except for a StorageDRS which is \n"\
                                  "    represented as a SYSTEM datastore only.\n"
 
                 end
 
-                ds_allocate_error = false
                 d[:ds].each do |ds|
                     one_d = VCenterDriver::VIHelper.new_one_item(OpenNebula::Datastore)
                     rc = one_d.allocate(ds[:one])
                     if ::OpenNebula.is_error?(rc)
                         STDOUT.puts "    \n    Error creating datastore: #{rc.message}"
-                        ds_allocate_error = true
                     else
-                        STDOUT.puts "    \n    OpenNebula datastore #{one_d.id} created!\n"
+                        # Update template with credentials
+                        one = ""
+                        one << "VCENTER_HOST=\"#{con_ops[:host]}\"\n"
+                        one << "VCENTER_USER=\"#{con_ops[:user]}\"\n"
+                        one << "VCENTER_PASSWORD=\"#{con_ops[:password]}\"\n"
+
+                        rc = one_d.update(one,true)
+                        if ::OpenNebula.is_error?(rc)
+                            STDOUT.puts "    \n    Error updating datastore: \e[91m#{rc.message}\e[39m"
+                        else
+                            STDOUT.puts "    \n    OpenNebula datastore \e[92m#{d[:name]}\e[39m with ID \e[94m#{one_d.id}\e[39m created!\n"
+
+                            # Let's add it to clusters
+                            d[:cluster].each do |cid|
+                                one_cluster = VCenterDriver::VIHelper.one_item(OpenNebula::Cluster, cid.to_s, false)
+                                if ::OpenNebula.is_error?(one_cluster)
+                                    STDOUT.puts "    \n    Error retrieving cluster #{cid}: #{rc.message}"
+                                end
+                                rc = one_cluster.adddatastore(one_d.id)
+                                if ::OpenNebula.is_error?(rc)
+                                    STDOUT.puts "    \n    Error adding datastore #{one_d.id} to OpenNebula cluster #{cid}: #{rc.message}. Yoy may have to place this datastore in the right cluster by hand"
+                                end
+                            end
+                        end
                     end
                 end
             }
@@ -758,6 +882,12 @@ def self.import_images(con_ops, ds_name, options)
 
         ds = VCenterDriver::Datastore.new_from_ref(one_ds_ref, vi_client)
         ds.one_item = one_ds #Store opennebula template for datastore
+        vc_uuid   = vi_client.vim.serviceContent.about.instanceUuid
+        one_ds_instance_id = one_ds['TEMPLATE/VCENTER_INSTANCE_ID']
+
+        if one_ds_instance_id != vc_uuid
+            raise "Datastore is not in the same vCenter instance provided in credentials"
+        end
 
         images = ds.get_images
 
@@ -770,6 +900,7 @@ def self.import_images(con_ops, ds_name, options)
                                     "      - Name      : #{i[:name]}\n"\
                                     "      - Path      : #{i[:path]}\n"\
                                     "      - Type      : #{i[:type]}\n"\
+                                    "      - Size (MB) : #{i[:size]}\n"\
                                     "    Import this Image (y/[n])? "
 
                     next if STDIN.gets.strip.downcase != 'y'
