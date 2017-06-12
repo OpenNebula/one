@@ -212,7 +212,8 @@ else
 fi
 
 SHARE_DIRS="$SHARE_LOCATION/examples \
-            $SHARE_LOCATION/websockify"
+            $SHARE_LOCATION/websockify \
+            $SHARE_LOCATION/esx-fw-vnc"
 
 ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/hm \
@@ -420,6 +421,7 @@ INSTALL_FILES=(
     NETWORK_VCENTER_FILES:$VAR_LOCATION/remotes/vnm/vcenter
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     WEBSOCKIFY_SHARE_FILES:$SHARE_LOCATION/websockify
+    ESX_FW_VNC_SHARE_FILES:$SHARE_LOCATION/esx-fw-vnc
     INSTALL_GEMS_SHARE_FILES:$SHARE_LOCATION
     ONETOKEN_SHARE_FILE:$SHARE_LOCATION
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
@@ -1270,6 +1272,13 @@ EXAMPLE_SHARE_FILES="share/examples/vm.template \
 WEBSOCKIFY_SHARE_FILES="share/websockify/websocketproxy.py \
                         share/websockify/websocket.py \
                         share/websockify/websockify"
+
+#-------------------------------------------------------------------------------
+# Installation packages for ESX hosts to enable VNC ports
+#-------------------------------------------------------------------------------
+
+ESX_FW_VNC_SHARE_FILES="share/esx-fw-vnc/fw-vnc.vib \
+                        share/esx-fw-vnc/fw-vnc.zip"
 
 #-------------------------------------------------------------------------------
 # HOOK scripts, to be installed under $VAR_LOCATION/remotes/hooks/ft
