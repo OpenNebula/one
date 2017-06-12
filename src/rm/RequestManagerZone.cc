@@ -196,7 +196,7 @@ void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ( nd.is_federation_master() )
+    if ( nd.is_federation_master() || !nd.is_federation_enabled() )
     {
         std::vector<int> zids;
 
