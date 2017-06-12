@@ -186,6 +186,16 @@ begin
             if OpenNebula.is_error?(rc)
                 STDOUT.puts "Error adding vnet #{network_id} to OpenNebula cluster #{cluster_id}: #{rc.message}. You may have to place this vnet in the right cluster by hand"
             end
+
+            default_cluster = VCenterDriver::VIHelper.one_item(OpenNebula::Cluster, "0", false)
+            if OpenNebula.is_error?(default_cluster)
+                STDOUT.puts "Error retrieving default cluster: #{rc.message}."
+            end
+
+            rc = default_cluster.delvnet(network_id.to_i)
+            if OpenNebula.is_error?(rc)
+                STDOUT.puts "Error removing vnet #{network_id} from default OpenNebula cluster: #{rc.message}."
+            end
         end
     end
 
