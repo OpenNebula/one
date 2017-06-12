@@ -29,8 +29,9 @@ public:
 
     VirtualMachinePoolXML(Client*        client,
                           unsigned int   machines_limit,
-                          bool           _live_resched):
-        PoolXML(client, machines_limit), live_resched(_live_resched){};
+                          bool           _live_resched,
+                          bool           _use_prio):
+        PoolXML(client, machines_limit), live_resched(_live_resched), use_prio(_use_prio){};
 
     virtual ~VirtualMachinePoolXML(){};
 
@@ -110,6 +111,12 @@ protected:
      * Do live migrations to resched VMs
      */
     bool live_resched;
+
+   /** 
+    * Select FairShare Scheduler
+    */ 
+   bool use_prio;
+
 };
 
 /* -------------------------------------------------------------------------- */
@@ -121,7 +128,7 @@ public:
 
     VirtualMachineActionsPoolXML(Client*       client,
                                  unsigned int  machines_limit):
-        VirtualMachinePoolXML(client, machines_limit, false){};
+        VirtualMachinePoolXML(client, machines_limit, false, false){};
 
     virtual ~VirtualMachineActionsPoolXML(){};
 
@@ -166,7 +173,7 @@ class VirtualMachineRolePoolXML : public VirtualMachinePoolXML
 public:
 
     VirtualMachineRolePoolXML(Client * client, unsigned int machines_limit):
-        VirtualMachinePoolXML(client, machines_limit, false){};
+        VirtualMachinePoolXML(client, machines_limit, false, false){};
 
     virtual ~VirtualMachineRolePoolXML(){};
 
