@@ -748,7 +748,7 @@ class Template
             template_hash     = sha256.hexdigest(full_name)[0..11]
             template_name     = template_name.tr("\u007F", "")
             template_ccr_name = template_ccr_name.tr("\u007F", "")
-            import_name       = "#{template_name} - #{template_ccr_name} [#{vcenter_instance_name} - #{dc_name}]_#{template_hash}"
+            import_name       = "#{template_name} - #{template_ccr_name} #{template_hash}"
 
             # Prepare the Hash that will be used by importers to display
             # the object being imported
@@ -773,11 +773,12 @@ class Template
                                                            "TEMPLATE/VCENTER_CCR_REF",
                                                            template_ccr_ref,
                                                            vcenter_uuid)
-            host_id = one_host["ID"]
+            host_id    = one_host["ID"]
+            cluster_id = one_host["CLUSTER_ID"]
             raise "Could not find the host's ID associated to template being imported" if !host_id
 
             # Get the OpenNebula's template hash
-            one_tmp[:one] = template_to_one(template, vcenter_uuid, template_ccr_ref, template_ccr_name, import_name, host_id)
+            one_tmp[:one] = template_to_one(template, vcenter_uuid, template_ccr_ref, template_ccr_name, import_name, host_id, cluster_id)
             return one_tmp
         rescue
             return nil
