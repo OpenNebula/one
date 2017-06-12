@@ -455,6 +455,7 @@ class EC2Driver
     def poll(id, deploy_id)
         i = get_instance(deploy_id)
         vm = OpenNebula::VirtualMachine.new_with_id(id, OpenNebula::Client.new)
+        vm.info
         cw_mon_time = vm["LAST_POLL"] ? vm["LAST_POLL"].to_i : Time.now.to_i
         do_cw = (Time.now.to_i - cw_mon_time) >= 360
         puts parse_poll(i, vm, do_cw, cw_mon_time)
@@ -507,8 +508,9 @@ class EC2Driver
         end
 
         do_cw = (Time.now.to_i - cw_mon_time) >= 360
-
-        vpool.each{|vm| onevm_info[vm.deploy_id] = vm }
+        vpool.each{
+            |vm| onevm_info[vm.deploy_id] = vm
+        }
 
 
         work_q = Queue.new
@@ -523,7 +525,6 @@ class EC2Driver
                         poll_data=parse_poll(i, onevm_info[i.id], do_cw, cw_mon_time)
                         vm_template_to_one = vm_to_one(i)
                         vm_template_to_one = Base64.encode64(vm_template_to_one).gsub("\n","")
-                
                         vms_info << "VM=[\n"
                         vms_info << "  ID=#{one_id || -1},\n"
                         vms_info << "  DEPLOY_ID=#{i.instance_id},\n"
@@ -538,7 +539,6 @@ class EC2Driver
                         end
                     end
                 rescue Exception => e
-                    STDERR.puts  "#{e.message}\n"
                 end
             end
         end; "ok"
@@ -571,7 +571,7 @@ private
 
     # Get the EC2 section of the template. If more than one EC2 section
     # the CLOUD element is used and matched with the host
-    def get_deployment_info(host, xml_text)    
+    def get_deployment_info(host, xml_text)
         xml = REXML::Document.new xml_text
 
         ec2 = nil
@@ -614,15 +614,14 @@ private
     def parse_poll(instance, onevm, do_cw, cw_mon_time)
         begin
             if onevm
-                onevm.info
                 if do_cw
                     cloudwatch_str = cloudwatch_monitor_info(instance.instance_id,
                                                            onevm,
                                                            cw_mon_time)
                 else
-                    previous_cpu   = onevm["/VM/MONITORING/CPU"]  || 0
-                    previous_netrx = onevm["/VM/MONITORING/NETRX"] || 0
-                    previous_nettx = onevm["/VM/MONITORING/NETTX"] || 0
+                    previous_cpu   = onevm["MONITORING/CPU"]  || 0
+                    previous_netrx = onevm["MONITORING/NETRX"] || 0
+                    previous_nettx = onevm["MONITORING/NETTX"] || 0
 
                     cloudwatch_str = "CPU=#{previous_cpu} NETTX=#{previous_nettx} NETRX=#{previous_netrx} "
                 end
@@ -630,7 +629,7 @@ private
                 cloudwatch_str = ""
             end
 
-            mem = onevm["/VM/TEMPLATE/MEMORY"].to_s
+            mem = onevm["TEMPLATE/MEMORY"].to_s
             mem=mem.to_i*1024
             info =  "#{POLL_ATTRIBUTE[:memory]}=#{mem} #{cloudwatch_str}"
 
@@ -677,7 +676,7 @@ private
     # +deploy_id+: String, VM id in EC2
     # +ec2_action+: Symbol, one of the keys of the EC2 hash constant (i.e :run)
     def ec2_action(deploy_id, ec2_action)
-        begin        
+        begin
         i = get_instance(deploy_id)
         i.send(EC2[ec2_action][:cmd])
         rescue => e
