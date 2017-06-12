@@ -157,23 +157,25 @@ def self.import_clusters(con_ops, options)
                                  "      - Location   : #{cluster[:cluster_location]}\n"\
                                  "    Import cluster (y/[n])? "
                     next if STDIN.gets.strip.downcase != 'y'
-                end
 
-                if cluster_list.size > 0
-                    STDOUT.print "\n    In which OpenNebula cluster do you want the vCenter cluster to be included?\n "
+                    if cluster_list.size > 0
+                        STDOUT.print "\n    In which OpenNebula cluster do you want the vCenter cluster to be included?\n "
 
-                    cluster_list_str = "\n"
-                    cluster_list.each do |key, value|
-                        cluster_list_str << "      - \e[94mID: " << key << "\e[39m - NAME: " << value << "\n"
+                        cluster_list_str = "\n"
+                        cluster_list.each do |key, value|
+                            cluster_list_str << "      - \e[94mID: " << key << "\e[39m - NAME: " << value << "\n"
+                        end
+
+                        STDOUT.print "\n    #{cluster_list_str}"
+                        STDOUT.print "\n    Specify the ID of the cluster or press Enter if you want OpenNebula to create a new cluster for you: "
+
+                        answer = STDIN.gets.strip
+                        if !answer.empty?
+                            one_cluster_id = answer
+                        end
                     end
 
-                    STDOUT.print "\n    #{cluster_list_str}"
-                    STDOUT.print "\n    Specify the ID of the cluster or press Enter if you want OpenNebula to create a new cluster for you: "
-
-                    answer = STDIN.gets.strip
-                    if !answer.empty?
-                        one_cluster_id = answer
-                    else
+                    if !one_cluster_id
                         one_cluster = VCenterDriver::VIHelper.new_one_item(OpenNebula::Cluster)
                         rc = one_cluster.allocate("#{cluster[:cluster_name]}")
                         if ::OpenNebula.is_error?(rc)
@@ -182,7 +184,18 @@ def self.import_clusters(con_ops, options)
                         end
                         one_cluster_id = one_cluster.id
                     end
+                else
+                    # Defaults, add host to new cluster
+                    one_cluster = VCenterDriver::VIHelper.new_one_item(OpenNebula::Cluster)
+                    rc = one_cluster.allocate("#{cluster[:cluster_name]}")
+                    if ::OpenNebula.is_error?(rc)
+                        STDOUT.puts "    Error creating OpenNebula cluster: #{rc.message}\n"
+                        next
+                    end
+                    one_cluster_id = one_cluster.id
                 end
+
+
 
                 # Generate the template and create the host in the pool
                 one_host = VCenterDriver::ClusterComputeResource.to_one(cluster,
@@ -845,7 +858,18 @@ def self.import_datastore(con_ops, options)
                                 end
                                 rc = one_cluster.adddatastore(one_d.id)
                                 if ::OpenNebula.is_error?(rc)
-                                    STDOUT.puts "    \n    Error adding datastore #{one_d.id} to OpenNebula cluster #{cid}: #{rc.message}. Yoy may have to place this datastore in the right cluster by hand"
+                                    STDOUT.puts "    \n    Error adding datastore #{one_d.id} to OpenNebula cluster #{cid}: #{rc.message}. You may have to place this datastore in the right cluster by hand"
+                                end
+                            end
+
+                            if !d[:cluster].empty?
+                                one_cluster = VCenterDriver::VIHelper.one_item(OpenNebula::Cluster, "0", false)
+                                if ::OpenNebula.is_error?(one_cluster)
+                                    STDOUT.puts "    \n    Error retrieving default cluster: #{rc.message}"
+                                end
+                                rc = one_cluster.deldatastore(one_d.id)
+                                if ::OpenNebula.is_error?(rc)
+                                    STDOUT.puts "    \n    Error removing datastore #{one_d.id} from default datastore."
                                 end
                             end
                         end

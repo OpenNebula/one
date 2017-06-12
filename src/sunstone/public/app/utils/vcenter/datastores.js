@@ -195,6 +195,10 @@ define(function(require) {
               $.each(one_clusters, function(index, cluster_id){
                   Sunstone.runAction("Cluster.adddatastore",cluster_id,response.DATASTORE.ID);
               });
+
+              if (one_clusters.length > 0) {
+                  Sunstone.runAction("Cluster.deldatastore",0,response.DATASTORE.ID);
+              }
             },
             error: function (request, error_json) {
               VCenterCommon.importFailure({
