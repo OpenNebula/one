@@ -778,7 +778,7 @@ class Template
             raise "Could not find the host's ID associated to template being imported" if !host_id
 
             # Get the OpenNebula's template hash
-            one_tmp[:one] = template_to_one(template, vcenter_uuid, template_ccr_ref, template_ccr_name, import_name, host_id, cluster_id)
+            one_tmp[:one] = template_to_one(template, vcenter_uuid, template_ccr_ref, template_ccr_name, import_name, host_id)
             return one_tmp
         rescue
             return nil
