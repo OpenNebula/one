@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -212,7 +212,8 @@ else
 fi
 
 SHARE_DIRS="$SHARE_LOCATION/examples \
-            $SHARE_LOCATION/websockify"
+            $SHARE_LOCATION/websockify \
+            $SHARE_LOCATION/esx-fw-vnc"
 
 ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/hm \
@@ -272,6 +273,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/tm/iscsi_libvirt \
           $VAR_LOCATION/remotes/hooks \
           $VAR_LOCATION/remotes/hooks/ft \
+          $VAR_LOCATION/remotes/hooks/raft \
           $VAR_LOCATION/remotes/datastore \
           $VAR_LOCATION/remotes/datastore/dummy \
           $VAR_LOCATION/remotes/datastore/fs \
@@ -419,9 +421,11 @@ INSTALL_FILES=(
     NETWORK_VCENTER_FILES:$VAR_LOCATION/remotes/vnm/vcenter
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     WEBSOCKIFY_SHARE_FILES:$SHARE_LOCATION/websockify
+    ESX_FW_VNC_SHARE_FILES:$SHARE_LOCATION/esx-fw-vnc
     INSTALL_GEMS_SHARE_FILES:$SHARE_LOCATION
     ONETOKEN_SHARE_FILE:$SHARE_LOCATION
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
+    HOOK_RAFT_FILES:$VAR_LOCATION/remotes/hooks/raft
     COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
     CLOUD_AUTH_LIB_FILES:$LIB_LOCATION/ruby/cloud/CloudAuth
     ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe
@@ -1198,7 +1202,8 @@ ONEDB_SHARED_MIGRATOR_FILES="src/onedb/shared/2.0_to_2.9.80.rb \
                              src/onedb/shared/4.5.80_to_4.6.0.rb \
                              src/onedb/shared/4.6.0_to_4.11.80.rb \
                              src/onedb/shared/4.11.80_to_4.90.0.rb \
-                             src/onedb/shared/4.90.0_to_5.2.0.rb"
+                             src/onedb/shared/4.90.0_to_5.2.0.rb \
+                             src/onedb/shared/5.2.0_to_5.3.80.rb"
 
 ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/4.5.80_to_4.7.80.rb \
                             src/onedb/local/4.7.80_to_4.9.80.rb \
@@ -1269,12 +1274,26 @@ WEBSOCKIFY_SHARE_FILES="share/websockify/websocketproxy.py \
                         share/websockify/websockify"
 
 #-------------------------------------------------------------------------------
-# HOOK scripts, to be installed under $VAR_LOCATION/remotes/hooks
+# Installation packages for ESX hosts to enable VNC ports
 #-------------------------------------------------------------------------------
 
-HOOK_FT_FILES="share/hooks/host_error.rb \
-               share/hooks/fence_host.sh \
-               share/hooks/delete_poweroff_vms.rb"
+ESX_FW_VNC_SHARE_FILES="share/esx-fw-vnc/fw-vnc.vib \
+                        share/esx-fw-vnc/fw-vnc.zip"
+
+#-------------------------------------------------------------------------------
+# HOOK scripts, to be installed under $VAR_LOCATION/remotes/hooks/ft
+#-------------------------------------------------------------------------------
+
+HOOK_FT_FILES="share/hooks/ft/host_error.rb \
+               share/hooks/ft/fence_host.sh \
+               share/hooks/create_vcenter_net.rb \
+               share/hooks/delete_vcenter_net.rb"
+
+#-------------------------------------------------------------------------------
+# HOOK RAFT scripts, to be installed under $VAR_LOCATION/remotes/hooks/raft
+#-------------------------------------------------------------------------------
+
+HOOK_RAFT_FILES="share/hooks/raft/vip.sh"
 
 #-------------------------------------------------------------------------------
 # Installation scripts, to be installed under $SHARE_LOCATION

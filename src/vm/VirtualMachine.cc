@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -1523,7 +1523,7 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
     db->free_str(sql_name);
     db->free_str(sql_xml);
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     return rc;
 
@@ -1594,7 +1594,7 @@ int VirtualMachine::update_monitoring(SqlDB * db)
 
     db->free_str(sql_xml);
 
-    rc = db->exec(oss);
+    rc = db->exec_local_wr(oss);
 
     return rc;
 

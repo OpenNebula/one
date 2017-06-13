@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -101,7 +101,7 @@ do_documentation()
       -doctitle 'OpenNebula Cloud API Specification' \
       -header '<b>OpenNebula</b><br><font size="-1">Cloud API</font>' \
       -bottom 'Visit <a
-href="http://opennebula.org/">OpenNebula.org</a><br>Copyright 2002-2016 &copy;
+href="http://opennebula.org/">OpenNebula.org</a><br>Copyright 2002-2017 &copy;
 OpenNebula Project, OpenNebula Systems.'
 }
 
@@ -183,7 +183,7 @@ if [ "$DO_PACKAGE" = "yes" ] ; then
     cp -r jar $PACK_NAME
     cp -r lib $PACK_NAME
 
-    tar cf $PACK_NAME.tar.gz $PACK_NAME
+    tar czf $PACK_NAME.tar.gz $PACK_NAME
 
     rm -rf $PACK_NAME
 fi

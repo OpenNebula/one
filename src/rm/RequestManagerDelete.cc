@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -282,6 +282,33 @@ int GroupDelete::drop(PoolObjectSQL * object, bool recursive,
     if ( rc == 0 )
     {
         aclm->del_gid_rules(oid);
+    }
+
+    Nebula&        nd = Nebula::instance();
+    VdcPool * vdcpool = nd.get_vdcpool();
+
+    std::vector<int> vdcs;
+    std::vector<int>::iterator it;
+
+    std::string error;
+
+    vdcpool->list(vdcs);
+
+    for (it = vdcs.begin() ; it != vdcs.end() ; ++it)
+    {
+        Vdc * vdc = vdcpool->get(*it, true);
+
+        if ( vdc == 0 )
+        {
+            continue;
+        }
+
+        if ( vdc->del_group(oid, error) == 0 )
+        {
+            vdcpool->update(vdc);
+        }
+
+        vdc->unlock();
     }
 
     return rc;

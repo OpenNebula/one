@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -76,7 +76,7 @@ class DocumentLock : public RequestManagerLock
 {
 public:
     DocumentLock():
-        RequestManagerLock("DocumentLock",
+        RequestManagerLock("one.document.lock",
                            "Tries to acquire the object's lock")
     {
         Nebula& nd  = Nebula::instance();
@@ -99,7 +99,7 @@ class DocumentUnlock : public RequestManagerUnlock
 {
 public:
     DocumentUnlock():
-        RequestManagerUnlock("DocumentUnlock",
+        RequestManagerUnlock("one.document.unlock",
                            "Unlocks the object")
     {
         Nebula& nd  = Nebula::instance();

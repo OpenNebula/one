@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -196,21 +196,17 @@ void Client::call(const std::string &method, const std::string format,
 void Client::call(const std::string& method, const xmlrpc_c::paramList& plist,
      xmlrpc_c::value * const result)
 {
-    xmlrpc_c::clientXmlTransport_curl ctrans;
-    xmlrpc_c::client_xml              client(&ctrans);
+    xmlrpc_c::clientXmlTransport_curl ctrans(
+        xmlrpc_c::clientXmlTransport_curl::constrOpt().timeout(timeout));
 
-    xmlrpc_c::rpcPtr rpc(method, plist);
     xmlrpc_c::carriageParm_curl0 cparam(one_endpoint);
+
+    xmlrpc_c::client_xml client(&ctrans);
+    xmlrpc_c::rpcPtr     rpc(method, plist);
 
     rpc->start(&client, &cparam);
 
-    client.finishAsync(xmlrpc_c::timeout(timeout));
-
-    if (!rpc->isFinished())
-    {
-        rpc->finishErr(girerr::error("XMLRPC method " + method +
-            " timeout, resetting call"));
-    }
+    client.finishAsync(xmlrpc_c::timeout());
 
     if (rpc->isSuccessful())
     {
@@ -223,3 +219,48 @@ void Client::call(const std::string& method, const xmlrpc_c::paramList& plist,
         girerr::error(failure.getDescription());
     }
 };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Client::call(const std::string& endpoint, const std::string& method,
+        const xmlrpc_c::paramList& plist, unsigned int _timeout,
+        xmlrpc_c::value * const result, std::string& error)
+{
+    xmlrpc_c::clientXmlTransport_curl transport(
+        xmlrpc_c::clientXmlTransport_curl::constrOpt().timeout(_timeout));
+
+    xmlrpc_c::carriageParm_curl0  carriage(endpoint);
+
+    xmlrpc_c::client_xml client(&transport);
+    xmlrpc_c::rpcPtr     rpc_client(method, plist);
+
+    int xml_rc = 0;
+
+    try
+    {
+        rpc_client->start(&client, &carriage);
+
+        client.finishAsync(xmlrpc_c::timeout());
+
+        if ( rpc_client->isSuccessful() )
+        {
+            *result = rpc_client->getResult();
+        }
+        else //RPC failed
+        {
+            xmlrpc_c::fault failure = rpc_client->getFault();
+
+            error  = failure.getDescription();
+            xml_rc = -1;
+        }
+    }
+    catch (exception const& e)
+    {
+		error  = e.what();
+        xml_rc = -1;
+    }
+
+    return xml_rc;
+}
+

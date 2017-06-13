@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -62,6 +62,12 @@ BACKUP={
     :large => "--backup file",
     :description => "Use this file to store SQL dump",
     :format => String
+}
+
+FEDERATED = {
+    :name        => "federated",
+    :large       => "--federated",
+    :description => "Limit backup/restore to federated tables"
 }
 
 ###############################################################################
@@ -239,7 +245,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Dumps the DB to a file specified in the argument
     EOT
 
-    command :backup, backup_desc, [:output_file, nil], :options=>FORCE do
+    command :backup, backup_desc, [:output_file, nil],
+            :options=>[FORCE, FEDERATED] do
+
         begin
             helper = OneDB.new(options)
             helper.backup(args[0], options)
@@ -289,7 +297,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         from the same backend (SQLite or MySQL)
     EOT
 
-    command :restore , restore_desc, [:backup_file, nil], :options=>FORCE do
+    command :restore , restore_desc, [:backup_file, nil],
+            :options=>[FORCE, FEDERATED] do
+
         begin
             helper = OneDB.new(options)
             helper.restore(args[0], options)
@@ -331,7 +341,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             [-1, e.message]
         end
     end
-
 
     ###########################################################################
     # Import slave

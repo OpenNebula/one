@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -43,6 +43,10 @@ module Migrator
         feature_5005()
 
         feature_2347()
+
+        bug_3705()
+
+        feature_4809()
 
         log_time()
 
@@ -136,5 +140,52 @@ module Migrator
 
     def feature_2347
         create_table(:vmgroup_pool)
+    end
+
+    ############################################################################
+    # Bug 3705
+    # Adds DRIVER to CEPH and LVM image datastores
+    ############################################################################
+    def bug_3705
+        @db.run "ALTER TABLE datastore_pool RENAME TO old_datastore_pool;"
+        create_table(:datastore_pool)
+
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_datastore_pool") do |row|
+                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) { |c|
+                    c.default_xml.noblanks
+                }
+
+                type = xpath(doc, 'TYPE').to_i
+                tm_mad = xpath(doc, 'TM_MAD')
+
+                if (type == 0) && (["ceph", "fs_lvm"].include?(tm_mad))
+                    doc.root.xpath("TEMPLATE/DRIVER").each do |d|
+                        d.remove
+                    end
+
+                    driver = doc.create_element "DRIVER", "raw"
+                    doc.root.at_xpath("TEMPLATE").add_child(driver)
+
+                    row[:body] = doc.root.to_s
+                end
+
+                @db[:datastore_pool].insert(row)
+            end
+        end
+
+        @db.run "DROP TABLE old_datastore_pool;"
+    end
+
+    ############################################################################
+    # Feature 4809
+    # Simplify HA management in OpenNebula
+    ############################################################################
+    def feature_4809
+        #
+        # TODO NEEDS TO ADD <SERVER_POOL> TO EACH ZONE
+        #
+        create_table(:logdb)
+        create_table(:fed_logdb)
     end
 end

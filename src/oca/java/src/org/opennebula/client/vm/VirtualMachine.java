@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2002-2016, OpenNebula Project, OpenNebula Systems
+ * Copyright 2002-2017, OpenNebula Project, OpenNebula Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -591,6 +591,18 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
+     * Update VM Configuration
+     * @param client XML-RPC Client.
+     * @param id The VM id of the target VM.
+     * @param new_conf New Configuration of the target VM
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse updateconf(Client client, int id, String new_conf)
+    {
+        return client.call(UPDATECONF, id, new_conf);
+    }
+
+    /**
      * Recovers a stuck VM.
      *
      * @param client XML-RPC Client.
@@ -1025,8 +1037,6 @@ public class VirtualMachine extends PoolElement{
     /**
      * Resize VM disk
      *
-     * @param client XML-RPC Client.
-     * @param id The VM id of the target VM.
      * @param diskId Id of the disk
      * @param newSize for the disk
      * @return diskId of resized disk, or error message
@@ -1035,6 +1045,7 @@ public class VirtualMachine extends PoolElement{
     {
         return diskResize(client, id, diskId, newSize);
     }
+
     /**
      * Recovers a stuck VM.
      *

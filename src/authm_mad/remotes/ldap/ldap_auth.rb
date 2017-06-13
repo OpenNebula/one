@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -48,7 +48,8 @@ class OpenNebula::LdapAuth
             :mapping_filename   => 'server1.yaml',
             :mapping_key        => 'GROUP_DN',
             :mapping_default    => 1,
-            :attributes         => [ "memberOf" ]
+            :attributes         => [ "memberOf" ],
+            :rfc2307bis         => true
         }.merge(options)
 
         ops={}
@@ -59,6 +60,10 @@ class OpenNebula::LdapAuth
                 :username => @options[:user],
                 :password => @options[:password]
             }
+        end
+
+        if !@options[:rfc2307bis]
+            @options[:attributes] << @options[:user_field]
         end
 
         ops[:host]=@options[:host] if @options[:host]
@@ -181,9 +186,22 @@ class OpenNebula::LdapAuth
     def get_groups
         groups = []
 
-        [@user['memberOf']].flatten.each do |group|
-            if @mapping[group]
-                groups << @mapping[group]
+        if @options[:rfc2307bis]
+            [@user['memberOf']].flatten.each do |group|
+                if @mapping[group]
+                    groups << @mapping[group]
+                end
+            end
+        else
+            filter = "(#{@options[:group_field]}=#{@user[@options[:user_field]].first})"
+            @ldap.search(
+                :base       => @options[:base],
+                :attributes => "dn",
+                :filter     => filter
+            ) do |entry|
+                if @mapping[entry.dn]
+                    groups << @mapping[entry.dn]
+                end
             end
         end
 

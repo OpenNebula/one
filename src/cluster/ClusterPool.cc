@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -72,7 +72,7 @@ ClusterPool::ClusterPool(SqlDB * db, const VectorAttribute * _vnc_conf):
         cluster->unlock();
 
         // User created clusters will start from ID 100
-        set_update_lastOID(99);
+        set_lastOID(99);
     }
 
     return;
@@ -223,7 +223,7 @@ int ClusterPool::query_datastore_clusters(int oid, set<int> &cluster_ids)
 
     oss << "SELECT cid FROM " << Cluster::datastore_table << " WHERE oid = " << oid;
 
-    int rc = db->exec(oss, this);
+    int rc = db->exec_rd(oss, this);
 
     unset_callback();
 
@@ -247,7 +247,7 @@ int ClusterPool::query_vnet_clusters(int oid, set<int> &cluster_ids)
 
     oss << "SELECT cid FROM " << Cluster::network_table << " WHERE oid = " << oid;
 
-    int rc = db->exec(oss, this);
+    int rc = db->exec_rd(oss, this);
 
     unset_callback();
 

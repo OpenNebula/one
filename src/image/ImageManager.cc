@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -141,6 +141,12 @@ void ImageManager::timer_action(const ActionRequest& ar)
 
     Nebula& nd             = Nebula::instance();
     DatastorePool * dspool = nd.get_dspool();
+    RaftManager * raftm    = nd.get_raftm();
+
+    if ( !raftm->is_leader() && !raftm->is_solo() )
+    {
+        return;
+    }
 
     rc = dspool->list(datastores);
 

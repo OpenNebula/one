@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -27,6 +27,9 @@
             </a>
             {{data.name}}
             - <i>{{data.type}}</i>
+            - Cluster: <i>{{data.cluster}}</i>
+            - Location: <i>{{data.cluster_location}}</i>
+            - OpenNebula Cluster ID: <i>{{data.one_cluster_id}}</i>
             {{#if data.vlan}} - <i>VLAN: <span class="vlaninfo">{{data.vlan}}</span></i>{{/if}}
           </label>
         </div>

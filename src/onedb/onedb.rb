@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -71,14 +71,14 @@ class OneDB
     end
 
     def backup(bck_file, ops, backend=@backend)
-        bck_file = backend.bck_file if bck_file.nil?
+        bck_file = backend.bck_file(ops[:federated]) if bck_file.nil?
 
         if !ops[:force] && File.exists?(bck_file)
             raise "File #{bck_file} exists, backup aborted. Use -f " <<
                   "to overwrite."
         end
 
-        backend.backup(bck_file)
+        backend.backup(bck_file, ops[:federated])
         return 0
     end
 
@@ -89,7 +89,7 @@ class OneDB
 
         one_not_running
 
-        backend.restore(bck_file, ops[:force])
+        backend.restore(bck_file, ops[:force], ops[:federated])
         return 0
     end
 

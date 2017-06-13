@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -30,6 +30,7 @@
 #include "RequestManagerChmod.h"
 #include "RequestManagerClone.h"
 #include "RequestManagerRename.h"
+#include "RequestManagerZone.h"
 #include "RequestManagerLock.h"
 
 #include "RequestManagerVirtualNetwork.h"
@@ -445,6 +446,7 @@ void RequestManager::register_xml_methods()
     // System Methods
     xmlrpc_c::methodPtr system_version(new SystemVersion());
     xmlrpc_c::methodPtr system_config(new SystemConfig());
+    xmlrpc_c::methodPtr system_sql(new SystemSql());
 
     // Rename Methods
     xmlrpc_c::methodPtr vm_rename(new VirtualMachineRename());
@@ -772,21 +774,38 @@ void RequestManager::register_xml_methods()
         zone_update_pt      = new ZoneUpdateTemplate();
         zone_delete_pt      = new ZoneDelete();
         zone_rename_pt      = new ZoneRename();
+
+        xmlrpc_c::methodPtr zone_updatedb(new ZoneUpdateDB());
+
+        RequestManagerRegistry.addMethod("one.zone.updatedb", zone_updatedb);
     }
 
     xmlrpc_c::methodPtr zone_allocate(zone_allocate_pt);
     xmlrpc_c::methodPtr zone_update(zone_update_pt);
     xmlrpc_c::methodPtr zone_delete(zone_delete_pt);
     xmlrpc_c::methodPtr zone_rename(zone_rename_pt);
+    xmlrpc_c::methodPtr zone_addserver(new ZoneAddServer());
+    xmlrpc_c::methodPtr zone_delserver(new ZoneDeleteServer());
+    xmlrpc_c::methodPtr zone_replicatelog(new ZoneReplicateLog());
+    xmlrpc_c::methodPtr zone_voterequest(new ZoneVoteRequest());
+    xmlrpc_c::methodPtr zone_raftstatus(new ZoneRaftStatus());
+    xmlrpc_c::methodPtr zone_fedreplicatelog(new ZoneReplicateFedLog());
 
     xmlrpc_c::methodPtr zone_info(new ZoneInfo());
     xmlrpc_c::methodPtr zonepool_info(new ZonePoolInfo());
 
-    RequestManagerRegistry.addMethod("one.zone.allocate",zone_allocate);
-    RequestManagerRegistry.addMethod("one.zone.update",  zone_update);
-    RequestManagerRegistry.addMethod("one.zone.delete",  zone_delete);
-    RequestManagerRegistry.addMethod("one.zone.info",    zone_info);
-    RequestManagerRegistry.addMethod("one.zone.rename",  zone_rename);
+    RequestManagerRegistry.addMethod("one.zone.allocate", zone_allocate);
+    RequestManagerRegistry.addMethod("one.zone.update",   zone_update);
+    RequestManagerRegistry.addMethod("one.zone.delete",   zone_delete);
+    RequestManagerRegistry.addMethod("one.zone.info",     zone_info);
+    RequestManagerRegistry.addMethod("one.zone.rename",   zone_rename);
+    RequestManagerRegistry.addMethod("one.zone.replicate",zone_replicatelog);
+    RequestManagerRegistry.addMethod("one.zone.fedreplicate",zone_fedreplicatelog);
+    RequestManagerRegistry.addMethod("one.zone.voterequest",zone_voterequest);
+    RequestManagerRegistry.addMethod("one.zone.raftstatus", zone_raftstatus);
+
+    RequestManagerRegistry.addMethod("one.zone.addserver", zone_addserver);
+    RequestManagerRegistry.addMethod("one.zone.delserver", zone_delserver);
 
     RequestManagerRegistry.addMethod("one.zonepool.info",zonepool_info);
 
@@ -1045,6 +1064,7 @@ void RequestManager::register_xml_methods()
     /* System related methods */
     RequestManagerRegistry.addMethod("one.system.version", system_version);
     RequestManagerRegistry.addMethod("one.system.config", system_config);
+    RequestManagerRegistry.addMethod("one.system.sql", system_sql);
 };
 
 /* -------------------------------------------------------------------------- */

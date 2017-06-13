@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -107,6 +107,7 @@ void Datastore::disk_attribute(
     string st;
     string inherit_val;
     string current_val;
+    string type;
 
     vector<string>::const_iterator it;
 
@@ -146,6 +147,18 @@ void Datastore::disk_attribute(
     if (disk->is_volatile())
     {
         disk->replace("DISK_TYPE", Image::disk_type_to_str(get_disk_type()));
+    }
+
+    type = disk->vector_value("TYPE");
+
+    if (type != "CDROM")
+    {
+        get_template_attribute("DRIVER", st);
+
+        if(!st.empty())
+        {
+            disk->replace("DRIVER", st);
+        }
     }
 }
 
@@ -334,6 +347,13 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
         }
 
         replace_template_attribute("CLONE_TARGET", st);
+
+        st = vatt->vector_value("DRIVER");
+
+        if (!st.empty())
+        {
+            replace_template_attribute("DRIVER", st);
+        }
 
         remove_template_attribute("SHARED");
     }
@@ -606,7 +626,7 @@ int Datastore::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          group_u             << ","
         <<          other_u             << ")";
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     db->free_str(sql_name);
     db->free_str(sql_xml);
@@ -760,6 +780,7 @@ int Datastore::post_update_template(string& error_str)
     string s_ds_type;
     string new_disk_type;
     string new_base_path;
+    string vcenter_password;
 
     DatastoreType new_ds_type;
 
@@ -815,6 +836,37 @@ int Datastore::post_update_template(string& error_str)
             return -1;
         }
     }
+
+    /* ---------------------------------------------------------------------- */
+    /* Encrypt VCENTER_PASSWORD attribute                                     */
+    /* ---------------------------------------------------------------------- */
+
+    get_template_attribute("VCENTER_PASSWORD", vcenter_password);
+
+    if (!vcenter_password.empty() && vcenter_password.size() <= 22)
+    {
+        erase_template_attribute("VCENTER_PASSWORD", vcenter_password);
+
+        Nebula& nd = Nebula::instance();
+        string  one_key;
+        string  * encrypted;
+
+        nd.get_configuration_attribute("ONE_KEY", one_key);
+
+        if (!one_key.empty())
+        {
+            encrypted = one_util::aes256cbc_encrypt(vcenter_password, one_key);
+
+            add_template_attribute("VCENTER_PASSWORD", *encrypted);
+
+            delete encrypted;
+        }
+        else
+        {
+            add_template_attribute("VCENTER_PASSWORD", vcenter_password);
+        }
+    }
+
 
     /* ---------------------------------------------------------------------- */
     /* Set the TM_MAD of the Datastore (class & template)                     */

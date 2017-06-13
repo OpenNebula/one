@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -200,7 +200,7 @@ SUPPORT = {
     :author_name => "OpenNebula Support Team",
     :support_subscription => "http://opennebula.systems/support/",
     :account => "http://opennebula.systems/buy/",
-    :docs => "http://docs.opennebula.org/5.2/",
+    :docs => "http://docs.opennebula.org/5.4/",
     :community => "http://opennebula.org/support/community/",
     :project => "OpenNebula"
 }
@@ -689,6 +689,7 @@ end
 ##############################################################################
 get '/:pool' do
     zone_client = nil
+    filter = params[:pool_filter]
 
     if params[:zone_id] && session[:federation_mode] != "STANDALONE"
         zone = OpenNebula::Zone.new_with_id(params[:zone_id].to_i,
@@ -701,8 +702,12 @@ get '/:pool' do
                                          zone['TEMPLATE/ENDPOINT'])
     end
 
+    if params[:pool_filter].nil?
+        filter = session[:user_gid]
+    end
+
     @SunstoneServer.get_pool(params[:pool],
-                             params[:pool_filter],
+                             filter,
                              zone_client)
 end
 

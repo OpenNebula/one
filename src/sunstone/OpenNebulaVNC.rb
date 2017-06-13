@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -98,6 +98,8 @@ VNC_STATES = [
         #63, #DISK_RESIZE_POWEROFF
         #64  #DISK_RESIZE_UNDEPLOYED
 ]
+
+VNC_ESX_HOST_FOLDER = "/tmp"
 
 class OpenNebulaVNC
 
@@ -211,8 +213,18 @@ class OpenNebulaVNC
         vnc_port   = vm_resource['TEMPLATE/GRAPHICS/PORT']
         vnc_pw     = vm_resource['TEMPLATE/GRAPHICS/PASSWD']
 
-        if vm_resource['MONITORING/VCENTER_ESX_HOST'] # It is behind a vCenter
-            host       = vm_resource['MONITORING/VCENTER_ESX_HOST']
+        # If it is a vCenter VM
+        if vm_resource['USER_TEMPLATE/HYPERVISOR'] == "vcenter"
+            if vm_resource['MONITORING/VCENTER_ESX_HOST']
+                host = vm_resource['MONITORING/VCENTER_ESX_HOST']
+            else
+                # F#4242 get ESX host from file if it hasn't been monitored yet
+                begin
+                    host = File.read(File.join(VNC_ESX_HOST_FOLDER, "vcenter_vnc_#{vm_resource["/VM/ID"]}"))
+                rescue
+                    return error(400,"Could not determine the vCenter ESX host where the VM is running. Wait till the VCENTER_ESX_HOST attribute is retrieved once the host has been monitored")
+                end
+            end
         end
 
         # Generate token random_str: host:port

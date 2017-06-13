@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -317,7 +317,7 @@ public:
      *    @return 0 on success
      */
     void del_capacity(int vm_id, long long cpu, long long mem, long long disk,
-            vector<VectorAttribute *> pci)
+            const vector<VectorAttribute *>& pci)
     {
         if ( vm_collection.del(vm_id) == 0 )
         {
@@ -532,8 +532,8 @@ private:
         ostringstream oss_host(Host::db_bootstrap);
         ostringstream oss_monit(Host::monit_db_bootstrap);
 
-        rc =  db->exec(oss_host);
-        rc += db->exec(oss_monit);
+        rc =  db->exec_local_wr(oss_host);
+        rc += db->exec_local_wr(oss_monit);
 
         return rc;
     };

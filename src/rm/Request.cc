@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,6 +16,7 @@
 
 #include "Request.h"
 #include "Nebula.h"
+#include "Client.h"
 
 #include "PoolObjectAuth.h"
 
@@ -259,6 +260,8 @@ void Request::log_xmlrpc_value(const xmlrpc_c::value& v, std::ostringstream& oss
 
 string Request::format_str;
 
+const long long Request::xmlrpc_timeout = 10000;
+
 /* -------------------------------------------------------------------------- */
 
 void Request::execute(
@@ -270,32 +273,71 @@ void Request::execute(
     att.retval  = _retval;
     att.session = xmlrpc_c::value_string (_paramList.getString(0));
 
-    att.req_id = (reinterpret_cast<uintptr_t>(this) * rand()) % 10000;
+    att.req_id  = (reinterpret_cast<uintptr_t>(this) * rand()) % 10000;
 
-    Nebula& nd = Nebula::instance();
-    UserPool* upool = nd.get_upool();
+    Nebula& nd  = Nebula::instance();
 
-    bool authenticated = upool->authenticate(att.session,
-                                             att.password,
-                                             att.uid,
-                                             att.gid,
-                                             att.uname,
-                                             att.gname,
-                                             att.group_ids,
-                                             att.umask);
+    RaftManager * raftm = nd.get_raftm();
+    UserPool* upool     = nd.get_upool();
 
-    log_method_invoked(att, _paramList, format_str, method_name, hidden_params);
+    bool authenticated = upool->authenticate(att.session, att.password,
+        att.uid, att.gid, att.uname, att.gname, att.group_ids, att.umask);
+
+    if ( log_method_call )
+    {
+        log_method_invoked(att, _paramList, format_str, method_name,
+                hidden_params);
+    }
 
     if ( authenticated == false )
     {
         failure_response(AUTHENTICATION, att);
+
+        log_result(att, method_name);
+
+        return;
     }
-    else
+
+    if ( raftm->is_follower() && leader_only)
+    {
+        string leader_endpoint, error;
+
+        if ( raftm->get_leader_endpoint(leader_endpoint) != 0 )
+        {
+            att.resp_msg = "Cannot process request, not leader found";
+            failure_response(INTERNAL, att);
+
+            log_result(att, method_name);
+
+            return;
+        }
+
+        int rc = Client::call(leader_endpoint, method_name, _paramList,
+                xmlrpc_timeout, _retval, att.resp_msg);
+
+        if ( rc != 0 )
+        {
+            failure_response(INTERNAL, att);
+
+            log_result(att, method_name);
+
+            return;
+        }
+    }
+    else if ( raftm->is_candidate() && leader_only)
+    {
+        att.resp_msg = "Cannot process request, oned cluster in election mode";
+        failure_response(INTERNAL, att);
+    }
+    else //leader or solo or !leader_only
     {
         request_execute(_paramList, att);
     }
 
-    log_result(att, method_name);
+    if ( log_method_call )
+    {
+        log_result(att, method_name);
+    }
 };
 
 /* -------------------------------------------------------------------------- */
@@ -601,6 +643,7 @@ void Request::failure_response(ErrorCode ec, const string& str_val,
     arrayData.push_back(xmlrpc_c::value_boolean(false));
     arrayData.push_back(xmlrpc_c::value_string(str_val));
     arrayData.push_back(xmlrpc_c::value_int(ec));
+    arrayData.push_back(xmlrpc_c::value_int(att.resp_id));
 
     xmlrpc_c::value_array arrayresult(arrayData);
 

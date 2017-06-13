@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -23,6 +23,7 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var UniqueId = require('utils/unique-id');
   var VCenterCommon = require('./vcenter-common');
+  var Sunstone = require('sunstone');
 
   var TemplateHTML = require('hbs!./common/html');
   var RowTemplate = require('hbs!./networks/row');
@@ -302,6 +303,8 @@ define(function(require) {
           }
         };
 
+        var one_cluster_id  = $(this).data("import_data").one_cluster_id;
+
         OpenNebulaNetwork.create({
           timeout: true,
           data: vnet_json,
@@ -310,6 +313,10 @@ define(function(require) {
               context : row_context,
               message : Locale.tr("Virtual Network created successfully. ID: %1$s", response.VNET.ID)
             });
+
+            if (one_cluster_id != -1) {
+              Sunstone.runAction("Cluster.addvnet",one_cluster_id,response.VNET.ID);
+            }
           },
           error: function (request, error_json) {
             VCenterCommon.importFailure({

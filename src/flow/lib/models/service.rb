@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -445,6 +445,10 @@ module OpenNebula
 
         private
 
+        # Maximum number of log entries per service
+        # TODO: Make this value configurable
+        MAX_LOG = 50
+
         # @param [Logger::Severity] severity
         # @param [String] message
         def add_log(severity, message)
@@ -456,6 +460,9 @@ module OpenNebula
                 :severity  => severity_str,
                 :message   => message
             }
+
+            # Truncate the number of log entries
+            @body['log'] = @body['log'].last(MAX_LOG)
         end
     end
 end

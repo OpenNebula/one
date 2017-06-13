@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -80,7 +80,7 @@ class VirtualMachineChown : public RequestManagerChown
 {
 public:
     VirtualMachineChown():
-        RequestManagerChown("VirtualMachineChown",
+        RequestManagerChown("one.vm.chown",
                             "Changes ownership of a virtual machine")
     {
         Nebula& nd  = Nebula::instance();
@@ -108,7 +108,7 @@ class TemplateChown : public RequestManagerChown
 {
 public:
     TemplateChown():
-        RequestManagerChown("TemplateChown",
+        RequestManagerChown("one.template.chown",
                             "Changes ownership of a virtual machine template")
     {
         Nebula& nd  = Nebula::instance();
@@ -132,7 +132,7 @@ class VirtualNetworkChown: public RequestManagerChown
 {
 public:
     VirtualNetworkChown():
-        RequestManagerChown("VirtualNetworkChown",
+        RequestManagerChown("one.vn.chown",
                            "Changes ownership of a virtual network")
     {
         Nebula& nd  = Nebula::instance();
@@ -155,7 +155,7 @@ class ImageChown: public RequestManagerChown
 {
 public:
     ImageChown():
-        RequestManagerChown("ImageChown",
+        RequestManagerChown("one.image.chown",
                             "Changes ownership of an image")
     {
         Nebula& nd  = Nebula::instance();
@@ -178,7 +178,7 @@ class UserChown : public RequestManagerChown
 {
 public:
     UserChown():
-        RequestManagerChown("UserChown",
+        RequestManagerChown("one.user.chgrp",
                             "Changes ownership of a user",
                             "A:sii")
     {
@@ -207,7 +207,7 @@ class DatastoreChown: public RequestManagerChown
 {
 public:
     DatastoreChown():
-        RequestManagerChown("Datastore",
+        RequestManagerChown("one.datastore.chown",
                            "Changes ownership of a datastore")
     {
         Nebula& nd  = Nebula::instance();
@@ -230,7 +230,7 @@ class DocumentChown : public RequestManagerChown
 {
 public:
     DocumentChown():
-        RequestManagerChown("DocumentChown",
+        RequestManagerChown("one.document.chown",
                             "Changes ownership of a generic document")
     {
         Nebula& nd  = Nebula::instance();
@@ -253,7 +253,7 @@ class SecurityGroupChown: public RequestManagerChown
 {
 public:
     SecurityGroupChown():
-        RequestManagerChown("SecurityGroupChown",
+        RequestManagerChown("one.secgroup.chown",
                             "Changes ownership of a security group")
     {
         Nebula& nd  = Nebula::instance();
@@ -276,7 +276,7 @@ class VirtualRouterChown: public RequestManagerChown
 {
 public:
     VirtualRouterChown():
-        RequestManagerChown("VirtualRouterChown",
+        RequestManagerChown("one.vrouter.chown",
                             "Changes ownership of a virtual router")
     {
         Nebula& nd  = Nebula::instance();
@@ -299,7 +299,7 @@ class MarketPlaceChown: public RequestManagerChown
 {
 public:
     MarketPlaceChown():
-        RequestManagerChown("MarketPlaceChown",
+        RequestManagerChown("one.market.chown",
                             "Changes ownership of a marketplace")
     {
         Nebula& nd  = Nebula::instance();
@@ -322,7 +322,7 @@ class MarketPlaceAppChown: public RequestManagerChown
 {
 public:
     MarketPlaceAppChown():
-        RequestManagerChown("MarketPlaceAppChown",
+        RequestManagerChown("one.marketapp.chown",
                             "Changes ownership of a marketplace app")
     {
         Nebula& nd  = Nebula::instance();
@@ -345,7 +345,7 @@ class VMGroupChown: public RequestManagerChown
 {
 public:
     VMGroupChown():
-        RequestManagerChown("VMGroupChown",
+        RequestManagerChown("one.vmgroup.chown",
                             "Changes ownership of a vm group")
     {
         Nebula& nd  = Nebula::instance();

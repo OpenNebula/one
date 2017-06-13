@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -122,7 +122,7 @@ public:
         int rc;
 
         rc  = VirtualNetwork::bootstrap(_db);
-        rc += _db->exec(BitMap<0>::bootstrap(vlan_table, oss));
+        rc += _db->exec_local_wr(BitMap<0>::bootstrap(vlan_table, oss));
 
         return rc;
     };

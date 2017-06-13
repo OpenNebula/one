@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -55,8 +55,6 @@ void  LifeCycleManager::save_success_action(int vid)
 
         vm->reset_info();
 
-        vmpool->update(vm);
-
         vm->set_previous_etime(the_time);
 
         vm->set_previous_vm_info();
@@ -68,6 +66,8 @@ void  LifeCycleManager::save_success_action(int vid)
         vm->set_prolog_stime(the_time);
 
         vmpool->update_history(vm);
+
+        vmpool->update(vm);
 
         vm->get_requirements(cpu, mem, disk, pci);
 
@@ -92,8 +92,6 @@ void  LifeCycleManager::save_success_action(int vid)
 
         vm->reset_info();
 
-        vmpool->update(vm);
-
         vm->set_running_etime(the_time);
 
         vm->set_etime(the_time);
@@ -101,6 +99,8 @@ void  LifeCycleManager::save_success_action(int vid)
         vm->set_vm_info();
 
         vmpool->update_history(vm);
+
+        vmpool->update(vm);
 
         //----------------------------------------------------
 
@@ -123,13 +123,13 @@ void  LifeCycleManager::save_success_action(int vid)
 
         vm->reset_info();
 
-        vmpool->update(vm);
-
         vm->set_epilog_stime(the_time);
 
         vm->set_running_etime(the_time);
 
         vmpool->update_history(vm);
+
+        vmpool->update(vm);
 
         //----------------------------------------------------
 
@@ -192,8 +192,6 @@ void  LifeCycleManager::save_failure_action(int vid)
 
         vm->cp_previous_history();
 
-        vmpool->update(vm); //update last_seq & state
-
         vm->set_stime(the_time);
 
         vm->set_running_stime(the_time);
@@ -201,6 +199,8 @@ void  LifeCycleManager::save_failure_action(int vid)
         vm->set_last_poll(0);
 
         vmpool->update_history(vm);
+
+        vmpool->update(vm);
 
         vm->log("LCM", Log::INFO, "Fail to save VM state while migrating."
                 " Assuming that the VM is still RUNNING (will poll VM).");
@@ -218,11 +218,11 @@ void  LifeCycleManager::save_failure_action(int vid)
 
         vm->set_state(VirtualMachine::RUNNING);
 
-        vmpool->update(vm);
-
         vm->clear_action();
 
         vmpool->update_history(vm);
+
+        vmpool->update(vm);
 
         vm->log("LCM", Log::INFO, "Fail to save VM state."
                 " Assuming that the VM is still RUNNING (will poll VM).");
@@ -349,8 +349,6 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         vm->set_state(VirtualMachine::RUNNING);
 
-        vmpool->update(vm);
-
         vm->set_etime(the_time);
 
         vm->set_vm_info();
@@ -373,8 +371,6 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         vm->cp_previous_history();
 
-        vmpool->update(vm); //update last_seq & state
-
         vm->set_stime(the_time);
 
         vm->set_running_stime(the_time);
@@ -382,6 +378,8 @@ void  LifeCycleManager::deploy_failure_action(int vid)
         vm->set_last_poll(0);
 
         vmpool->update_history(vm);
+
+        vmpool->update(vm);
 
         vm->log("LCM", Log::INFO, "Fail to live migrate VM."
                 " Assuming that the VM is still RUNNING (will poll VM).");
@@ -416,8 +414,8 @@ void  LifeCycleManager::deploy_failure_action(int vid)
         vm->set_state(VirtualMachine::POWEROFF);
         vm->set_state(VirtualMachine::LCM_INIT);
 
-        vmpool->update(vm);
         vmpool->update_history(vm);
+        vmpool->update(vm);
     }
     else if (vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED)
     {
@@ -427,8 +425,8 @@ void  LifeCycleManager::deploy_failure_action(int vid)
         vm->set_state(VirtualMachine::SUSPENDED);
         vm->set_state(VirtualMachine::LCM_INIT);
 
-        vmpool->update(vm);
         vmpool->update_history(vm);
+        vmpool->update(vm);
     }
     else if (vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED)
     {
@@ -484,13 +482,13 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         vm->reset_info();
 
-        vmpool->update(vm);
-
         vm->set_epilog_stime(the_time);
 
         vm->set_running_etime(the_time);
 
         vmpool->update_history(vm);
+
+        vmpool->update(vm);
 
         //----------------------------------------------------
 
@@ -509,8 +507,6 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         vm->reset_info();
 
-        vmpool->update(vm);
-
         vm->set_running_etime(the_time);
 
         vm->set_etime(the_time);
@@ -518,6 +514,8 @@ void  LifeCycleManager::shutdown_success_action(int vid)
         vm->set_vm_info();
 
         vmpool->update_history(vm);
+
+        vmpool->update(vm);
 
         //----------------------------------------------------
 
@@ -538,13 +536,13 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         vm->reset_info();
 
-        vmpool->update(vm);
-
         vm->set_epilog_stime(the_time);
 
         vm->set_running_etime(the_time);
 
         vmpool->update_history(vm);
+
+        vmpool->update(vm);
 
         //----------------------------------------------------
 
@@ -582,11 +580,11 @@ void  LifeCycleManager::shutdown_failure_action(int vid)
 
         vm->set_state(VirtualMachine::RUNNING);
 
-        vmpool->update(vm);
-
         vm->clear_action();
 
         vmpool->update_history(vm);
+
+        vmpool->update(vm);
 
         vm->log("LCM", Log::INFO, "Fail to shutdown VM."
                 " Assuming that the VM is still RUNNING (will poll VM).");
@@ -670,8 +668,6 @@ void LifeCycleManager::prolog_success_action(int vid)
                     return;
             }
 
-            vmpool->update(vm);
-
             vm->set_prolog_etime(the_time);
 
             vm->set_running_stime(the_time);
@@ -679,6 +675,8 @@ void LifeCycleManager::prolog_success_action(int vid)
             vm->set_last_poll(0);
 
             vmpool->update_history(vm);
+
+            vmpool->update(vm);
 
             vmm->trigger(action,vid);
             break;
@@ -697,8 +695,6 @@ void LifeCycleManager::prolog_success_action(int vid)
 
             vm->reset_info();
 
-            vmpool->update(vm);
-
             vm->set_etime(the_time);
 
             vm->set_prolog_etime(the_time);
@@ -708,6 +704,8 @@ void LifeCycleManager::prolog_success_action(int vid)
             vm->set_vm_info();
 
             vmpool->update_history(vm);
+
+            vmpool->update(vm);
 
             if (lcm_state == VirtualMachine::PROLOG_MIGRATE_POWEROFF||
                 lcm_state == VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE)
@@ -827,10 +825,11 @@ void  LifeCycleManager::prolog_failure_action(int vid)
             vm->set_prolog_stime(t);
             vm->set_last_poll(0);
 
-            vmpool->update(vm); //update last_seq & state
+            hpool->add_capacity(vm->get_hid(),vm->get_oid(),cpu,mem,disk,pci);
+
             vmpool->update_history(vm);
 
-            hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu,mem,disk,pci);
+            vmpool->update(vm);
 
             trigger(LCMAction::PROLOG_SUCCESS, vm->get_oid());
             break;
@@ -878,17 +877,14 @@ void  LifeCycleManager::epilog_success_action(int vid)
     if ( state == VirtualMachine::EPILOG_STOP_FAILURE )
     {
         vm->set_state(VirtualMachine::EPILOG_STOP);
-        vmpool->update(vm);
     }
     else if ( state == VirtualMachine::EPILOG_UNDEPLOY_FAILURE )
     {
         vm->set_state(VirtualMachine::EPILOG_UNDEPLOY);
-        vmpool->update(vm);
     }
     else if ( state == VirtualMachine::EPILOG_FAILURE )
     {
         vm->set_state(VirtualMachine::EPILOG);
-        vmpool->update(vm);
     }
 
     state = vm->get_lcm_state();
@@ -909,6 +905,8 @@ void  LifeCycleManager::epilog_success_action(int vid)
     {
         dm->trigger(DMAction::RESUBMIT, vid);
 
+        vmpool->update(vm);
+
         vm->unlock();
 
         return;
@@ -928,6 +926,8 @@ void  LifeCycleManager::epilog_success_action(int vid)
     vm->set_vm_info();
 
     vmpool->update_history(vm);
+
+    vmpool->update(vm);
 
     vm->get_requirements(cpu, mem, disk, pci);
 
@@ -1068,8 +1068,6 @@ void  LifeCycleManager::monitor_suspend_action(int vid)
 
         vm->reset_info();
 
-        vmpool->update(vm);
-
         vm->set_running_etime(the_time);
 
         vm->set_etime(the_time);
@@ -1079,6 +1077,8 @@ void  LifeCycleManager::monitor_suspend_action(int vid)
         vm->set_internal_action(History::MONITOR_ACTION);
 
         vmpool->update_history(vm);
+
+        vmpool->update(vm);
 
         //----------------------------------------------------
 
@@ -1160,8 +1160,6 @@ void  LifeCycleManager::monitor_poweroff_action(int vid)
 
         vm->set_state(VirtualMachine::SHUTDOWN_POWEROFF);
 
-        vmpool->update(vm);
-
         vm->set_running_etime(the_time);
 
         vm->set_etime(the_time);
@@ -1171,6 +1169,8 @@ void  LifeCycleManager::monitor_poweroff_action(int vid)
         vm->set_internal_action(History::MONITOR_ACTION);
 
         vmpool->update_history(vm);
+
+        vmpool->update(vm);
 
         //----------------------------------------------------
 
@@ -1214,8 +1214,6 @@ void  LifeCycleManager::monitor_poweron_action(int vid)
 
             vm->cp_history();
 
-            vmpool->update(vm);
-
             vm->set_stime(the_time);
 
             vm->set_running_stime(the_time);
@@ -1223,6 +1221,8 @@ void  LifeCycleManager::monitor_poweron_action(int vid)
             vm->set_last_poll(the_time);
 
             vmpool->update_history(vm);
+
+            vmpool->update(vm);
     }
     else if ( vm->get_state() == VirtualMachine::ACTIVE )
     {
@@ -1534,8 +1534,6 @@ void LifeCycleManager::snapshot_revert_success(int vid)
 
 void LifeCycleManager::snapshot_revert_failure(int vid)
 {
-    // TODO: for now, it is the same code
-
     snapshot_revert_success(vid);
 }
 

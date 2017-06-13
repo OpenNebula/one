@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -74,7 +74,7 @@ define(function(require) {
       "INBOUND_AVG_BW",
       "INBOUND_PEAK_BW",
       "INBOUND_PEAK_KB",
-      "OUTBOUNDD_AVG_BW",
+      "OUTBOUND_AVG_BW",
       "OUTBOUND_PEAK_BW",
       "OUTBOUND_PEAK_KB" ];
 
@@ -93,7 +93,7 @@ define(function(require) {
     var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE,
                                               Locale.tr("Attributes"));
     var templateTableVcenterHTML = TemplateTable.html(strippedTemplateVcenter, RESOURCE,
-                                              Locale.tr("Vcenter information"), false);
+                                              Locale.tr("vCenter information"), false);
     //====
 
     // TODO: move to util?

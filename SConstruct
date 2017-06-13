@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -55,6 +55,7 @@ main_env.Append(CPPPATH=[
 main_env.Append(LIBPATH=[
     cwd+'/src/common',
     cwd+'/src/log',
+    cwd+'/src/raft',
     cwd+'/src/sql',
     cwd+'/src/host',
     cwd+'/src/cluster',
@@ -211,6 +212,7 @@ main_env.ParseConfig('xml2-config --libs --cflags')
 build_scripts=[
     'src/sql/SConstruct',
     'src/log/SConstruct',
+    'src/raft/SConstruct',
     'src/common/SConstruct',
     'src/template/SConstruct',
     'src/host/SConstruct',

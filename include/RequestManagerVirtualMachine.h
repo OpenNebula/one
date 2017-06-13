@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -115,7 +115,7 @@ public:
     //auth_op is MANAGE for all actions but "resched" and "unresched"
     //this is dynamically set for each request in the execute method
     VirtualMachineAction():
-        RequestManagerVirtualMachine("VirtualMachineAction",
+        RequestManagerVirtualMachine("one.vm.action",
                                      "Performs an action on a virtual machine",
                                      "A:ssi"){};
     ~VirtualMachineAction(){};
@@ -131,7 +131,7 @@ class VirtualMachineDeploy : public RequestManagerVirtualMachine
 {
 public:
     VirtualMachineDeploy():
-        RequestManagerVirtualMachine("VirtualMachineDeploy",
+        RequestManagerVirtualMachine("one.vm.deploy",
                                      "Deploys a virtual machine",
                                      "A:siibi")
     {
@@ -151,7 +151,7 @@ class VirtualMachineMigrate : public RequestManagerVirtualMachine
 {
 public:
     VirtualMachineMigrate():
-        RequestManagerVirtualMachine("VirtualMachineMigrate",
+        RequestManagerVirtualMachine("one.vm.migrate",
                                      "Migrates a virtual machine",
                                      "A:siibbi"){
         auth_op = Nebula::instance().get_vm_auth_op(History::MIGRATE_ACTION);
@@ -170,7 +170,7 @@ class VirtualMachineDiskSaveas : public RequestManagerVirtualMachine
 {
 public:
     VirtualMachineDiskSaveas():
-        RequestManagerVirtualMachine("VirtualMachineDiskSaveas",
+        RequestManagerVirtualMachine("one.vm.disksaveas",
                            "Save a disk from virtual machine as a new image",
                            "A:siissi"){
         auth_op= Nebula::instance().get_vm_auth_op(History::DISK_SAVEAS_ACTION);
@@ -190,7 +190,7 @@ class VirtualMachineMonitoring : public RequestManagerVirtualMachine
 public:
 
     VirtualMachineMonitoring():
-        RequestManagerVirtualMachine("VirtualMachineMonitoring",
+        RequestManagerVirtualMachine("one.vm.monitoring",
                 "Returns the virtual machine monitoring records",
                 "A:si"){
         auth_op = AuthRequest::USE;
@@ -209,7 +209,7 @@ class VirtualMachineAttach : public RequestManagerVirtualMachine
 {
 public:
     VirtualMachineAttach():
-        RequestManagerVirtualMachine("VirtualMachineAttach",
+        RequestManagerVirtualMachine("one.vm.attach",
                            "Attaches a new disk to the virtual machine",
                            "A:sis"){
         auth_op= Nebula::instance().get_vm_auth_op(History::DISK_ATTACH_ACTION);
@@ -228,7 +228,7 @@ class VirtualMachineDetach : public RequestManagerVirtualMachine
 {
 public:
     VirtualMachineDetach():
-        RequestManagerVirtualMachine("VirtualMachineDetach",
+        RequestManagerVirtualMachine("one.vm.detach",
                            "Detaches a disk from a virtual machine",
                            "A:sii"){
         //Attach & detach are set to the same auth op in OpenNebulaTemplate
@@ -248,7 +248,7 @@ class VirtualMachineAttachNic : public RequestManagerVirtualMachine
 {
 public:
     VirtualMachineAttachNic():
-        RequestManagerVirtualMachine("VirtualMachineAttachNic",
+        RequestManagerVirtualMachine("one.vm.attachnic",
                            "Attaches a new NIC to the virtual machine",
                            "A:sis"){
         auth_op = Nebula::instance().get_vm_auth_op(History::NIC_ATTACH_ACTION);
@@ -279,7 +279,7 @@ class VirtualMachineDetachNic : public RequestManagerVirtualMachine
 {
 public:
     VirtualMachineDetachNic():
-        RequestManagerVirtualMachine("VirtualMachineDetachNic",
+        RequestManagerVirtualMachine("one.vm.detachnic",
                            "Detaches a NIC from a virtual machine",
                            "A:sii"){
         //Attach & detach are set to the same auth op in OpenNebulaTemplate
@@ -308,7 +308,7 @@ class VirtualMachineResize : public RequestManagerVirtualMachine
 {
 public:
     VirtualMachineResize():
-        RequestManagerVirtualMachine("VirtualMachineResize",
+        RequestManagerVirtualMachine("one.vm.resize",
                            "Changes the capacity of the virtual machine",
                            "A:sisb"){
         auth_op = Nebula::instance().get_vm_auth_op(History::RESIZE_ACTION);
@@ -327,7 +327,7 @@ class VirtualMachineSnapshotCreate: public RequestManagerVirtualMachine
 {
 public:
     VirtualMachineSnapshotCreate():
-        RequestManagerVirtualMachine("VirtualMachineSnapshotCreate",
+        RequestManagerVirtualMachine("one.vm.snapshotcreate",
                            "Creates a new virtual machine snapshot",
                            "A:sis"){
         Nebula& nd = Nebula::instance();
@@ -349,7 +349,7 @@ class VirtualMachineSnapshotRevert: public RequestManagerVirtualMachine
 {
 public:
     VirtualMachineSnapshotRevert():
-        RequestManagerVirtualMachine("VirtualMachineSnapshotRevert",
+        RequestManagerVirtualMachine("one.vm.snapshotrevert",
                            "Reverts a virtual machine to a snapshot",
                            "A:sii"){
         Nebula& nd = Nebula::instance();
@@ -371,7 +371,7 @@ class VirtualMachineSnapshotDelete: public RequestManagerVirtualMachine
 {
 public:
     VirtualMachineSnapshotDelete():
-        RequestManagerVirtualMachine("VirtualMachineSnapshotDelete",
+        RequestManagerVirtualMachine("one.vm.snapshotdelete",
                            "Deletes a virtual machine snapshot",
                            "A:sii"){
         Nebula& nd = Nebula::instance();
@@ -393,7 +393,7 @@ class VirtualMachineRecover: public RequestManagerVirtualMachine
 {
 public:
     VirtualMachineRecover():
-        RequestManagerVirtualMachine("VirtualMachineRecover",
+        RequestManagerVirtualMachine("one.vm.recover",
                                      "Recovers a virtual machine",
                                      "A:sii"){};
     ~VirtualMachineRecover(){};
@@ -410,7 +410,7 @@ class VirtualMachinePoolCalculateShowback : public RequestManagerVirtualMachine
 public:
 
     VirtualMachinePoolCalculateShowback():
-        RequestManagerVirtualMachine("VirtualMachinePoolCalculateShowback",
+        RequestManagerVirtualMachine("one.vmpool.calculateshowback",
             "Processes all the history records, and stores the monthly cost"
             " for each VM", "A:sii")
     {
@@ -435,7 +435,7 @@ class VirtualMachineDiskSnapshotCreate: public RequestManagerVirtualMachine
 {
 public:
     VirtualMachineDiskSnapshotCreate():
-        RequestManagerVirtualMachine("VirtualMachineDiskSnapshotCreate",
+        RequestManagerVirtualMachine("one.vm.disksnapshotcreate",
                            "Creates a new virtual machine disk snapshot",
                            "A:siis"){
         Nebula& nd  = Nebula::instance();
@@ -461,7 +461,7 @@ class VirtualMachineDiskSnapshotRevert: public RequestManagerVirtualMachine
 {
 public:
     VirtualMachineDiskSnapshotRevert():
-        RequestManagerVirtualMachine("VirtualMachineDiskSnapshotRevert",
+        RequestManagerVirtualMachine("one.vm.disksnapshotrevert",
                            "Reverts disk state to a snapshot",
                            "A:siii"){
         Nebula& nd = Nebula::instance();
@@ -483,7 +483,7 @@ class VirtualMachineDiskSnapshotDelete: public RequestManagerVirtualMachine
 {
 public:
     VirtualMachineDiskSnapshotDelete():
-        RequestManagerVirtualMachine("VirtualMachineDiskSnapshotDelete",
+        RequestManagerVirtualMachine("one.vm.disksnapshotdelete",
                            "Deletes a disk snapshot",
                            "A:siii"){
         Nebula& nd  = Nebula::instance();
@@ -509,7 +509,7 @@ class VirtualMachineUpdateConf: public RequestManagerVirtualMachine
 {
 public:
     VirtualMachineUpdateConf():
-        RequestManagerVirtualMachine("VirtualMachineUpdateConf",
+        RequestManagerVirtualMachine("one.vm.updateconf",
                            "Updates several configuration attributes of a VM",
                            "A:sis"){
         auth_op = Nebula::instance().get_vm_auth_op(History::UPDATECONF_ACTION);
@@ -528,7 +528,7 @@ class VirtualMachineDiskResize : public RequestManagerVirtualMachine
 {
 public:
     VirtualMachineDiskResize():
-        RequestManagerVirtualMachine("VirtualMachineDiskResize",
+        RequestManagerVirtualMachine("one.vm.diskresize",
                            "Resizes a disk from a virtual machine",
                            "A:siis"){
         Nebula& nd = Nebula::instance();

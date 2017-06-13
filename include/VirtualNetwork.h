@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -596,7 +596,7 @@ private:
     {
         ostringstream oss_vnet(VirtualNetwork::db_bootstrap);
 
-        return db->exec(oss_vnet);
+        return db->exec_local_wr(oss_vnet);
     };
 
     /**

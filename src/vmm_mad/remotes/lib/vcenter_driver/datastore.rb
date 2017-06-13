@@ -1,5 +1,5 @@
 module VCenterDriver
-
+require 'digest'
 class DatastoreFolder
     attr_accessor :item, :items
 
@@ -68,7 +68,7 @@ class Storage
         end
     end
 
-    def self.get_image_import_template(ds_name, image_path, image_type, image_prefix, ipool)
+    def self.get_image_import_template(ds_name, image_path, image_type, image_prefix, ipool, template_id)
         one_image = {}
         one_image[:template] = ""
 
@@ -77,9 +77,13 @@ class Storage
 
         # Get image name
         file_name = File.basename(image_path).gsub(/\.vmdk$/,"")
-        image_name = "#{file_name} - #{ds_name}"
+        if template_id
+            image_name = "#{file_name} - #{ds_name} [Template #{template_id}]"
+        else
+            image_name = "#{file_name} - #{ds_name}"
+        end
 
-        #Chek if the image has already been imported
+        #Check if the image has already been imported
         image = VCenterDriver::VIHelper.find_by_name(OpenNebula::ImagePool,
                                                      image_name,
                                                      ipool,
@@ -100,7 +104,7 @@ class Storage
         return one_image
     end
 
-    def self.get_one_image_ds_by_ref_and_ccr(ref, ccr_ref, vcenter_uuid, pool = nil)
+    def self.get_one_image_ds_by_ref_and_dc(ref, dc_ref, vcenter_uuid, pool = nil)
         if pool.nil?
             pool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool, false)
             if pool.respond_to?(:message)
@@ -111,7 +115,7 @@ class Storage
         element = pool.select do |e|
             e["TEMPLATE/TYPE"]                == "IMAGE_DS" &&
             e["TEMPLATE/VCENTER_DS_REF"]      == ref &&
-            e["TEMPLATE/VCENTER_CCR_REF"]     == ccr_ref &&
+            e["TEMPLATE/VCENTER_DC_REF"]      == dc_ref &&
             e["TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid
         end.first rescue nil
 
@@ -136,7 +140,7 @@ class Storage
         "USED_MB=#{used_mb}\nFREE_MB=#{free_mb} \nTOTAL_MB=#{total_mb}"
     end
 
-    def self.exists_one_by_ref_ccr_and_type?(ref, ccr_ref, vcenter_uuid, type, pool = nil)
+    def self.exists_one_by_ref_dc_and_type?(ref, dc_ref, vcenter_uuid, type, pool = nil)
         if pool.nil?
             pool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool, false)
             if pool.respond_to?(:message)
@@ -146,42 +150,28 @@ class Storage
         elements = pool.select do |e|
             e["TEMPLATE/TYPE"] == type &&
             e["TEMPLATE/VCENTER_DS_REF"] == ref &&
-            e["TEMPLATE/VCENTER_CCR_REF"] == ccr_ref &&
+            e["TEMPLATE/VCENTER_DC_REF"] == dc_ref &&
             e["TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid
         end
 
         return elements.size == 1
     end
 
-    def to_one(ds_name, vcenter_uuid, ccr_ref, host_id)
+    def to_one(ds_hash, vcenter_uuid, dc_name, dc_ref)
         one = ""
-        one << "NAME=\"#{ds_name}\"\n"
+        one << "NAME=\"#{ds_hash[:name]}\"\n"
         one << "TM_MAD=vcenter\n"
         one << "VCENTER_INSTANCE_ID=\"#{vcenter_uuid}\"\n"
-        one << "VCENTER_CCR_REF=\"#{ccr_ref}\"\n"
+        one << "VCENTER_DC_REF=\"#{dc_ref}\"\n"
+        one << "VCENTER_DC_NAME=\"#{dc_name}\"\n"
+        one << "VCENTER_DS_NAME=\"#{ds_hash[:simple_name]}\"\n"
         one << "VCENTER_DS_REF=\"#{self['_ref']}\"\n"
-        one << "VCENTER_ONE_HOST_ID=\"#{host_id}\"\n"
-
         return one
     end
 
-    def to_one_template(one_clusters, name, ccr_ref, type, vcenter_uuid)
-
-        one_cluster = one_clusters.select { |ccr| ccr[:ref] == ccr_ref }.first rescue nil
-
-        return nil if one_cluster.nil?
-
-        ds_name = ""
-
-        if type == "IMAGE_DS"
-            ds_name << "#{name} (IMG)"
-        else
-            ds_name << "#{name} (SYS)"
-            ds_name << " [StorDRS]" if self.class == VCenterDriver::StoragePod
-        end
-
+    def to_one_template(ds_hash, vcenter_uuid, dc_name, dc_ref, type)
         one_tmp = {
-            :one  => to_one(ds_name, vcenter_uuid, ccr_ref, one_cluster[:host_id])
+            :one  => to_one(ds_hash, vcenter_uuid, dc_name, dc_ref)
         }
 
         if type == "SYSTEM_DS"
@@ -201,6 +191,8 @@ class Storage
         end
 
         ds_name = self['name']
+
+        disk_type = 'preallocated' if disk_type == 'thick'
 
         vmdk_spec = RbVmomi::VIM::FileBackedVirtualDiskSpec(
             :adapterType => adapter_type,
@@ -538,10 +530,7 @@ class Datastore < Storage
         ds_id = nil
         ds_name = self['name']
 
-        img_types = ["FloppyImageFileInfo",
-                     "IsoImageFileInfo",
-                     "VmDiskFileInfo"]
-
+        # We need OpenNebula Images and Datastores pools
         ipool = VCenterDriver::VIHelper.one_pool(OpenNebula::ImagePool, false)
         if ipool.respond_to?(:message)
             raise "Could not get OpenNebula ImagePool: #{pool.message}"
@@ -555,34 +544,45 @@ class Datastore < Storage
         ds_id = @one_item["ID"]
 
         begin
+            # Prepare sha256 crypto generator
+            sha256        = Digest::SHA256.new
+
             # Create Search Spec
             search_params = get_search_params(ds_name)
 
             # Perform search task and return results
-            search_task = self['browser'].
-                SearchDatastoreSubFolders_Task(search_params)
+            search_task = self['browser'].SearchDatastoreSubFolders_Task(search_params)
             search_task.wait_for_completion
 
+            # Loop through search results
             search_task.info.result.each do |result|
 
+                # Remove [datastore] from file path
                 folderpath = ""
                 if result.folderPath[-1] != "]"
                     folderpath = result.folderPath.sub(/^\[#{ds_name}\] /, "")
                 end
 
+                # Loop through images in result.file
                 result.file.each do |image|
+
                     image_path = ""
 
                     # Skip not relevant files
-                    next if !img_types.include? image.class.to_s
+                    next if !["FloppyImageFileInfo",
+                              "IsoImageFileInfo",
+                              "VmDiskFileInfo"].include? image.class.to_s
 
                     # Get image path and name
                     image_path << folderpath << image.path
                     image_name = File.basename(image.path).reverse.sub("kdmv.","").reverse
 
-                    # Get image's disk and type
+                    # Get image's type
                     image_type  = image.class.to_s == "VmDiskFileInfo" ? "OS" : "CDROM"
-                    disk_type   = image.class.to_s == "VmDiskFileInfo" ? image.diskType : nil
+
+                    # Get image's size
+                    image_size  = image.capacityKb / 1024 rescue nil
+                    image_size  = image.fileSize / 1024 / 1024 rescue nil if !image_size
 
                     # Assign image prefix if known or assign default prefix
                     controller = image.controllerType rescue nil
@@ -593,23 +593,33 @@ class Datastore < Storage
                         disk_prefix = VCenterDriver::VIHelper.get_default("IMAGE/TEMPLATE/DEV_PREFIX")
                     end
 
-                    #Set template
-                    one_image =  "NAME=\"#{image_name} - #{ds_name}\"\n"
+                    # Generate a crypto hash and get the first 12 characters
+                    # this hash is used to avoid name collisions
+                    full_name       = "#{image_name} - #{ds_name} [#{image_path}]"
+                    image_hash      = sha256.hexdigest(full_name)[0..11]
+                    import_name     = "#{image_name} - #{ds_name} [#{image_hash}]"
+
+                    # Set template
+                    one_image =  "NAME=\"#{import_name}\"\n"
                     one_image << "PATH=\"vcenter://#{image_path}\"\n"
                     one_image << "PERSISTENT=\"NO\"\n"
                     one_image << "TYPE=\"#{image_type}\"\n"
-                    one_image << "VCENTER_DISK_TYPE=\"#{disk_type}\"\n" if disk_type
                     one_image << "VCENTER_IMPORTED=\"YES\"\n"
                     one_image << "DEV_PREFIX=\"#{disk_prefix}\"\n"
 
-                    if VCenterDriver::VIHelper.find_by_name(OpenNebula::ImagePool,
-                                                            "#{image_name} - #{ds_name}",
-                                                            ipool,
-                                                            false).nil?
+                    # Check image hasn't already been imported
+                    vcenter_path = "vcenter://#{image_path}"
+                    image_found = VCenterDriver::VIHelper.find_image_by_path(OpenNebula::ImagePool,
+                                                                             vcenter_path,
+                                                                             ds_id,
+                                                                             ipool)
+
+                    if !image_found
+                        # Add template to image array
                         img_templates << {
-                            :name        => "#{image_name} - #{ds_name}",
+                            :name        => import_name,
                             :path        => image_path,
-                            :size        => (image.fileSize / 1024).to_s,
+                            :size        => image_size.to_s,
                             :type        => image.class.to_s,
                             :dsid        => ds_id,
                             :one         => one_image

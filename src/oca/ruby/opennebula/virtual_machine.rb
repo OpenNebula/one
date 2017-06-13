@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -215,6 +215,7 @@ module OpenNebula
         EXTERNAL_IP_ATTRS = [
             'GUEST_IP',
             'AWS_IP_ADDRESS',
+            'AWS_PUBLIC_IP_ADDRESS',
             'AWS_PRIVATE_IP_ADDRESS',
             'AZ_IPADDRESS',
             'SL_PRIMARYIPADDRESS'
@@ -753,10 +754,10 @@ module OpenNebula
         #
         # @return [Integer, OpenNebula::Error] the new Template ID in case of
         #   success, error otherwise
-        def save_as_template(name, persistent=nil)
+        REMOVE_VNET_ATTRS = %w{AR_ID BRIDGE CLUSTER_ID IP MAC TARGET NIC_ID NETWORK_ID VN_MAD SECURITY_GROUPS}
+        def save_as_template(name,description, persistent=nil)
             img_ids = []
             new_tid = nil
-
             begin
                 rc = info()
                 raise if OpenNebula.is_error?(rc)
@@ -781,7 +782,9 @@ module OpenNebula
 
                 # Replace the original template's capacity with the actual VM values
                 replace = ""
-
+                if !description.nil?
+                    replace << "DESCRIPTION = #{description}\n"
+                end
                 cpu = self['TEMPLATE/CPU']
                 if !cpu.nil? && !cpu.empty?
                     replace << "CPU = #{cpu}\n"
@@ -850,21 +853,18 @@ module OpenNebula
                 end
 
                 self.each('TEMPLATE/NIC') do |nic|
+
                     nic_id = nic["NIC_ID"]
                     if nic_id.nil? || nic_id.empty?
                         rc = Error.new('The NIC_ID is missing from the VM template')
                         raise
                     end
-
-                    net_id = nic["NETWORK_ID"]
-
-                    if !net_id.nil? && !net_id.empty?
-                        replace << "NIC = [ NETWORK_ID = #{net_id} ]\n"
-                    else
-                        # This NIC does not use a Virtual Network
-                        replace << self.template_like_str(
-                            "TEMPLATE", true, "NIC[NIC_ID=#{nic_id}]") << "\n"
+                     REMOVE_VNET_ATTRS.each do |attr|
+                        nic.delete_element(attr)
                     end
+
+                    replace << self.template_like_str(
+                        "TEMPLATE", true, "NIC[#{nic}]") << "\n"
                 end
 
                 # Required by the Sunstone Cloud View

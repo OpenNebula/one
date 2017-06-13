@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -28,8 +28,8 @@ require 'opennebula'
 include OpenNebula
 
 module OneDBImportSlave
-    VERSION = "5.2.0"
-    LOCAL_VERSION = "4.90.0"
+    VERSION = "5.3.80"
+    LOCAL_VERSION = "5.3.80"
 
     def check_db_version(master_db_version, slave_db_version)
         if ( master_db_version[:version] != VERSION ||

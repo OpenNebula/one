@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -77,7 +77,7 @@ GroupPool::GroupPool(SqlDB * db, vector<const VectorAttribute *> hook_mads,
             goto error_groups;
         }
 
-        set_update_lastOID(99);
+        set_lastOID(99);
     }
 
     register_hooks(hook_mads, remotes_location);
@@ -249,7 +249,7 @@ int GroupPool::dump(ostringstream& oss, const string& where, const string& limit
     set_callback(static_cast<Callbackable::Callback>(&GroupPool::dump_cb),
                  static_cast<void *>(&oss));
 
-    rc = db->exec(cmd, this);
+    rc = db->exec_rd(cmd, this);
 
     unset_callback();
 

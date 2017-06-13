@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -52,7 +52,7 @@ class VirtualMachineChmod : public RequestManagerChmod
 {
 public:
     VirtualMachineChmod():
-        RequestManagerChmod("VirtualMachineChmod",
+        RequestManagerChmod("one.vm.chmod",
                             "Changes permission bits of a virtual machine")
     {
         Nebula& nd  = Nebula::instance();
@@ -70,7 +70,7 @@ class TemplateChmod : public RequestManagerChmod
 {
 public:
     TemplateChmod():
-        RequestManagerChmod("TemplateChmod", "Changes permission bits of a "
+        RequestManagerChmod("one.template.chmod", "Changes permission bits of a "
             "virtual machine template", "A:siiiiiiiiiib")
     {
         Nebula& nd  = Nebula::instance();
@@ -102,7 +102,7 @@ class VirtualNetworkChmod: public RequestManagerChmod
 {
 public:
     VirtualNetworkChmod():
-        RequestManagerChmod("VirtualNetworkChmod",
+        RequestManagerChmod("one.vn.chmod",
                            "Changes permission bits of a virtual network")
     {
         Nebula& nd  = Nebula::instance();
@@ -120,7 +120,7 @@ class ImageChmod: public RequestManagerChmod
 {
 public:
     ImageChmod():
-        RequestManagerChmod("ImageChmod",
+        RequestManagerChmod("one.image.chmod",
                             "Changes permission bits of an image")
     {
         Nebula& nd  = Nebula::instance();
@@ -146,7 +146,7 @@ class DatastoreChmod: public RequestManagerChmod
 {
 public:
     DatastoreChmod():
-        RequestManagerChmod("DatastoreChmod",
+        RequestManagerChmod("one.datastore.chmod",
                            "Changes permission bits of a datastore")
     {
         Nebula& nd  = Nebula::instance();
@@ -164,7 +164,7 @@ class DocumentChmod : public RequestManagerChmod
 {
 public:
     DocumentChmod():
-        RequestManagerChmod("DocumentChmod",
+        RequestManagerChmod("one.document.chmod",
                             "Changes permission bits of a generic document")
     {
         Nebula& nd  = Nebula::instance();
@@ -182,7 +182,7 @@ class SecurityGroupChmod: public RequestManagerChmod
 {
 public:
     SecurityGroupChmod():
-        RequestManagerChmod("SecurityGroupChmod",
+        RequestManagerChmod("one.secgroup.chmod",
                             "Changes permission bits of a security group")
     {
         Nebula& nd  = Nebula::instance();
@@ -200,7 +200,7 @@ class VirtualRouterChmod: public RequestManagerChmod
 {
 public:
     VirtualRouterChmod():
-        RequestManagerChmod("VirtualRouterChmod",
+        RequestManagerChmod("one.vrouter.chmod",
                             "Changes permission bits of a virtual router")
     {
         Nebula& nd  = Nebula::instance();
@@ -218,7 +218,7 @@ class MarketPlaceChmod: public RequestManagerChmod
 {
 public:
     MarketPlaceChmod():
-        RequestManagerChmod("MarketPlaceChmod",
+        RequestManagerChmod("one.market.chmod",
                            "Changes permission bits of a marketplace")
     {
         Nebula& nd  = Nebula::instance();
@@ -236,7 +236,7 @@ class MarketPlaceAppChmod: public RequestManagerChmod
 {
 public:
     MarketPlaceAppChmod():
-        RequestManagerChmod("MarketPlaceAppChmod",
+        RequestManagerChmod("one.marketapp.chmod",
                            "Changes permission bits of a marketplace app")
     {
         Nebula& nd  = Nebula::instance();
@@ -254,7 +254,7 @@ class VMGroupChmod: public RequestManagerChmod
 {
 public:
     VMGroupChmod():
-        RequestManagerChmod("VMGroupChmod",
+        RequestManagerChmod("one.vmgroup.chmod",
                             "Changes permission bits of a vm group")
     {
         Nebula& nd  = Nebula::instance();

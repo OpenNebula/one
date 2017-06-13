@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -108,8 +108,6 @@ int DispatchManager::import(VirtualMachine * vm, const RequestAttributes& ra)
         vm->set_state(VirtualMachine::RUNNING);
     }
 
-    vmpool->update(vm);
-
     vm->set_stime(the_time);
 
     vm->set_prolog_stime(the_time);
@@ -120,6 +118,8 @@ int DispatchManager::import(VirtualMachine * vm, const RequestAttributes& ra)
     vm->set_last_poll(0);
 
     vmpool->update_history(vm);
+
+    vmpool->update(vm);
 
     return 0;
 }
@@ -1428,8 +1428,7 @@ int DispatchManager::snapshot_revert(int vid, int snap_id,
         return -1;
     }
 
-
-    rc = vm->set_active_snapshot(snap_id);
+    rc = vm->set_revert_snapshot(snap_id);
 
     if ( rc == -1 )
     {
@@ -1492,7 +1491,7 @@ int DispatchManager::snapshot_delete(int vid, int snap_id,
         return -1;
     }
 
-    rc = vm->set_active_snapshot(snap_id);
+    rc = vm->set_delete_snapshot(snap_id);
 
     if ( rc == -1 )
     {
@@ -1707,13 +1706,13 @@ int DispatchManager::detach_nic(int vid, int nic_id,const RequestAttributes& ra,
     }
     else
     {
+        vm->log("DiM", Log::INFO, "VM NIC Successfully detached.");
+
         vmpool->update(vm);
 
         vm->unlock();
 
         vmpool->detach_nic_success(vid);
-
-        vm->log("DiM", Log::INFO, "VM NIC Successfully detached.");
     }
 
     return 0;
@@ -1790,10 +1789,6 @@ int DispatchManager::disk_snapshot_create(int vid, int did, const string& name,
         default: break;
     }
 
-    vmpool->update(vm);
-
-    vm->unlock();
-
     switch(state)
     {
         case VirtualMachine::POWEROFF:
@@ -1830,6 +1825,10 @@ int DispatchManager::disk_snapshot_create(int vid, int did, const string& name,
 
         default: break;
     }
+
+    vmpool->update(vm);
+
+    vm->unlock();
 
     return 0;
 }
@@ -1991,10 +1990,6 @@ int DispatchManager::disk_snapshot_delete(int vid, int did, int snap_id,
         default: break;
     }
 
-    vmpool->update(vm);
-
-    vm->unlock();
-
     switch(state)
     {
         case VirtualMachine::ACTIVE:
@@ -2028,6 +2023,10 @@ int DispatchManager::disk_snapshot_delete(int vid, int did, int snap_id,
 
         default: break;
     }
+
+    vmpool->update(vm);
+
+    vm->unlock();
 
     return 0;
 }
@@ -2101,10 +2100,6 @@ int DispatchManager::disk_resize(int vid, int did, long long new_size,
         default: break;
     }
 
-    vmpool->update(vm);
-
-    vm->unlock();
-
     switch(state)
     {
         case VirtualMachine::POWEROFF:
@@ -2141,6 +2136,10 @@ int DispatchManager::disk_resize(int vid, int did, long long new_size,
 
         default: break;
     }
+
+    vmpool->update(vm);
+
+    vm->unlock();
 
     return 0;
 }

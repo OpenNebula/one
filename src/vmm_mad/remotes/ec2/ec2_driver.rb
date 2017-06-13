@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -20,9 +20,11 @@ ONE_LOCATION = ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
 if !ONE_LOCATION
     RUBY_LIB_LOCATION = "/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
     ETC_LOCATION      = "/etc/one/" if !defined?(ETC_LOCATION)
+    VAR_LOCATION      = "/var/lib/one/" if !defined?(VAR_LOCATION)
 else
     RUBY_LIB_LOCATION = ONE_LOCATION + "/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
     ETC_LOCATION      = ONE_LOCATION + "/etc/" if !defined?(ETC_LOCATION)
+    VAR_LOCATION      = ONE_LOCATION + "/var/" if !defined?(VAR_LOCATION)
 end
 
 EC2_DRIVER_CONF = "#{ETC_LOCATION}/ec2_driver.conf"
@@ -45,6 +47,8 @@ require 'rexml/document'
 require 'VirtualMachineDriver'
 require 'opennebula'
 
+require 'thread'
+
 # >> /var/log/one/oned.log
 def handle_exception(action, ex, host, did, id = nil, file = nil)
 
@@ -57,9 +61,6 @@ def handle_exception(action, ex, host, did, id = nil, file = nil)
     STDERR.puts "*******************************"
     exit (-1)
 end
-
-
-
 
 begin
     PUBLIC_CLOUD_EC2_CONF = YAML::load(File.read(EC2_DRIVER_CONF))
@@ -245,9 +246,13 @@ class EC2Driver
 
         @instance_types = PUBLIC_CLOUD_EC2_CONF['instance_types']
 
+        conn_opts = get_connect_info(host)
         regions = PUBLIC_CLOUD_EC2_CONF['regions']
+        regions["default"]["access_key_id"] = conn_opts[:access]
+        regions["default"]["secret_access_key"] = conn_opts[:secret]
+        
         @region = regions[host] || regions["default"]
-
+        
         #sanitize region data
         raise "access_key_id not defined for #{host}" if @region['access_key_id'].nil?
         raise "secret_access_key not defined for #{host}" if @region['secret_access_key'].nil?
@@ -264,6 +269,50 @@ class EC2Driver
         end
 
         @ec2 = Aws::EC2::Resource.new
+    end
+    def decrypt(res, token)
+        opts = {}
+
+        res.each do |key, encrypted_value|
+            decipher = OpenSSL::Cipher::AES.new(256,:CBC)
+            decipher.decrypt
+            decipher.key = token[0..31]  
+            plain = decipher.update(Base64::decode64(encrypted_value)) + decipher.final
+            opts[key] = plain
+        end
+        return opts
+
+    end
+
+    def get_connect_info(host)
+
+        conn_opts={}
+
+        client   = OpenNebula::Client.new
+        pool = OpenNebula::HostPool.new(client)
+        pool.info
+        objects=pool.select {|object| object.name==host }
+        xmlhost = objects.first
+
+        system = OpenNebula::System.new(client)
+        config = system.get_configuration
+        if OpenNebula.is_error?(config)
+            puts "Error getting oned configuration : #{config.message}"
+            exit -1
+        end
+        token = config["ONE_KEY"]
+
+        conn_opts = {
+            :access => xmlhost["TEMPLATE/EC2_ACCESS"],
+            :secret => xmlhost["TEMPLATE/EC2_SECRET"]
+        }
+        begin 
+            conn_opts = decrypt(conn_opts, token)
+        rescue
+            raise "HOST: #{host} must have ec2 credentials in order to work properly"
+        end
+        
+        return conn_opts
     end
 
     # DEPLOY action, also sets ports and ip if needed
@@ -334,7 +383,7 @@ class EC2Driver
             }
         }
 
-        instance.create_tags(:tags => tag_array)
+        instance.create_tags(:tags => tag_array) if tag_array.length > 0
 
         elastic_ip = ec2_value(ec2_info, 'ELASTICIP')
 
@@ -406,6 +455,7 @@ class EC2Driver
     def poll(id, deploy_id)
         i = get_instance(deploy_id)
         vm = OpenNebula::VirtualMachine.new_with_id(id, OpenNebula::Client.new)
+        vm.info
         cw_mon_time = vm["LAST_POLL"] ? vm["LAST_POLL"].to_i : Time.now.to_i
         do_cw = (Time.now.to_i - cw_mon_time) >= 360
         puts parse_poll(i, vm, do_cw, cw_mon_time)
@@ -458,38 +508,41 @@ class EC2Driver
         end
 
         do_cw = (Time.now.to_i - cw_mon_time) >= 360
+        vpool.each{
+            |vm| onevm_info[vm.deploy_id] = vm
+        }
 
-        vpool.each{|vm| onevm_info[vm.deploy_id] = vm }
 
-        begin
-            @ec2.instances.each do |i|
-                next if i.state.name != 'pending' && i.state.name != 'running'
-
-                one_id = i.tags.find {|t| t.key == 'ONE_ID' }
-                one_id = one_id.value if one_id
-
-                poll_data=parse_poll(i, onevm_info[i.id], do_cw, cw_mon_time)
-
-                vm_template_to_one = vm_to_one(i)
-                vm_template_to_one = Base64.encode64(vm_template_to_one).gsub("\n","")
-
-                vms_info << "VM=[\n"
-                vms_info << "  ID=#{one_id || -1},\n"
-                vms_info << "  DEPLOY_ID=#{i.instance_id},\n"
-                vms_info << "  VM_NAME=#{i.instance_id},\n"
-                vms_info << "  IMPORT_TEMPLATE=\"#{vm_template_to_one}\",\n"
-                vms_info << "  POLL=\"#{poll_data}\" ]\n"    
-                if one_id
-                    name = i.instance_type
-                    cpu, mem = instance_type_capacity(name)
-                    usedcpu += cpu
-                    usedmemory += mem
+        work_q = Queue.new
+        @ec2.instances.each{|i| work_q.push i }
+		workers = (0...20).map do
+            Thread.new do
+                begin
+                    while i = work_q.pop(true)
+                        next if i.state.name != 'pending' && i.state.name != 'running'
+                        one_id = i.tags.find {|t| t.key == 'ONE_ID' }
+                        one_id = one_id.value if one_id
+                        poll_data=parse_poll(i, onevm_info[i.id], do_cw, cw_mon_time)
+                        vm_template_to_one = vm_to_one(i)
+                        vm_template_to_one = Base64.encode64(vm_template_to_one).gsub("\n","")
+                        vms_info << "VM=[\n"
+                        vms_info << "  ID=#{one_id || -1},\n"
+                        vms_info << "  DEPLOY_ID=#{i.instance_id},\n"
+                        vms_info << "  VM_NAME=#{i.instance_id},\n"
+                        vms_info << "  IMPORT_TEMPLATE=\"#{vm_template_to_one}\",\n"
+                        vms_info << "  POLL=\"#{poll_data}\" ]\n"
+                        if one_id
+                            name = i.instance_type
+                            cpu, mem = instance_type_capacity(name)
+                            usedcpu += cpu
+                            usedmemory += mem
+                        end
+                    end
+                rescue Exception => e
                 end
-
             end
-        rescue => e            
-            raise e
-        end
+        end; "ok"
+        workers.map(&:join); "ok"
 
         host_info << "USEDMEMORY=#{usedmemory.round}\n"
         host_info << "USEDCPU=#{usedcpu.round}\n"
@@ -518,7 +571,7 @@ private
 
     # Get the EC2 section of the template. If more than one EC2 section
     # the CLOUD element is used and matched with the host
-    def get_deployment_info(host, xml_text)    
+    def get_deployment_info(host, xml_text)
         xml = REXML::Document.new xml_text
 
         ec2 = nil
@@ -562,24 +615,23 @@ private
         begin
             if onevm
                 if do_cw
-                    onevm.info
                     cloudwatch_str = cloudwatch_monitor_info(instance.instance_id,
                                                            onevm,
                                                            cw_mon_time)
                 else
-                  previous_cpu   = onevm["/VM/MONITORING/CPU"] || 0
-                  previous_netrx = onevm["/VM/MONITORING/NETRX"] || 0
-                  previous_nettx = onevm["/VM/MONITORING/NETTX"] || 0
+                    previous_cpu   = onevm["MONITORING/CPU"]  || 0
+                    previous_netrx = onevm["MONITORING/NETRX"] || 0
+                    previous_nettx = onevm["MONITORING/NETTX"] || 0
 
-                  cloudwatch_str = "CPU=#{previous_cpu} "\
-                                   "NETTX=#{previous_nettx} "\
-                                   "NETRX=#{previous_netrx} "
+                    cloudwatch_str = "CPU=#{previous_cpu} NETTX=#{previous_nettx} NETRX=#{previous_netrx} "
                 end
             else
                 cloudwatch_str = ""
             end
 
-            info =  "#{POLL_ATTRIBUTE[:memory]}=0 #{cloudwatch_str}"
+            mem = onevm["TEMPLATE/MEMORY"].to_s
+            mem=mem.to_i*1024
+            info =  "#{POLL_ATTRIBUTE[:memory]}=#{mem} #{cloudwatch_str}"
 
             state = ""
             if !instance.exists?
@@ -624,7 +676,7 @@ private
     # +deploy_id+: String, VM id in EC2
     # +ec2_action+: Symbol, one of the keys of the EC2 hash constant (i.e :run)
     def ec2_action(deploy_id, ec2_action)
-        begin        
+        begin
         i = get_instance(deploy_id)
         i.send(EC2[ec2_action][:cmd])
         rescue => e
@@ -683,17 +735,14 @@ private
     # +state+: String, is the desired state, needs to be a real state of Amazon ec2:  running, stopped, terminated, pending  
     # +deploy_id+: String, VM id in EC2
     def wait_state(state, deploy_id)
-
-        ready = (state == 'stopped') || (state == 'pending') || (state == 'running') || (state == 'terminated')       
+        ready = (state == 'stopped') || (state == 'pending') || (state == 'running') || (state == 'terminated')
         raise "Waiting for an invalid state" if !ready
-
         t_init = Time.now
-        current_state = get_instance(deploy_id).state.name 
-        while current_state != state
-           break if Time.now - t_init > @state_change_timeout
-           sleep 3
-           current_state = get_instance(deploy_id).state.name
-        end 
+        begin
+            wstate = get_instance(deploy_id).state.name rescue nil
+            raise "Ended in invalid state" if Time.now - t_init > @state_change_timeout
+            sleep 3
+        end while wstate != state
     end
 
     # Load the default values that will be used to create a new instance, if

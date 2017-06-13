@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -58,6 +58,8 @@ public:
     RequestAttributes()
     {
         resp_obj = PoolObjectSQL::NONE;
+        resp_id  = -1;
+        resp_msg = "";
     };
 
     RequestAttributes(const RequestAttributes& ra)
@@ -173,6 +175,12 @@ protected:
 
     static string format_str;
 
+    bool log_method_call; //Write method call and result to the log
+
+    bool leader_only; //Method can be only execute by leaders or solo servers
+
+    static const long long xmlrpc_timeout; //Timeout (ms) for request forwarding
+
     /* ---------------------------------------------------------------------- */
     /* Class Constructors                                                     */
     /* ---------------------------------------------------------------------- */
@@ -183,6 +191,10 @@ protected:
         _help      = help;
 
         hidden_params.clear();
+
+        log_method_call = true;
+
+        leader_only     = true;
     };
 
     virtual ~Request(){};

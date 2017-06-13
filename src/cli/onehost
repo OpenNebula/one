@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -79,7 +79,21 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             " rsync command must be installed in the frontend and nodes."
     }
 
-    CREAT_OPTIONS = [ IM, VMM, OneClusterHelper::CLUSTER ]
+    EC2_ACCESS = {
+        :name   => "ec2access",
+        :large  => "--ec2access id",
+        :description => "Set the id access for EC2 Driver",
+        :format => String
+    }
+
+    EC2_SECRET = {
+        :name   => "ec2secret",
+        :large  => "--ec2secret key",
+        :description => "Set the secret key for EC2 Driver",
+        :format => String
+    }
+
+    CREAT_OPTIONS = [ IM, VMM, OneClusterHelper::CLUSTER, EC2_ACCESS, EC2_SECRET ]
     SYNC_OPTIONS  = [ OneClusterHelper::CLUSTER, FORCE, RSYNC ]
 
     ########################################################################
@@ -110,13 +124,20 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             exit -1
         end
 
-        cid = options[:cluster] || ClusterPool::NONE_CLUSTER_ID
+        ec2_host = !options[:ec2access].nil? && !options[:ec2secret].nil?
 
+        cid = options[:cluster] || ClusterPool::NONE_CLUSTER_ID
         helper.create_resource(options) do |host|
-                host.allocate(args[0],
-                              options[:im],
-                              options[:vm],
-                              cid)
+                rc = host.allocate(args[0], options[:im], options[:vm], cid)
+
+                if ec2_host && !OpenNebula.is_error?(rc)
+               	    template = "EC2_ACCESS=\"#{options[:ec2access]}\"\n"\
+               		    "EC2_SECRET=\"#{options[:ec2secret]}\"\n"\
+
+                    rc = host.update(template, true)
+                end
+
+                rc
         end
     end
 

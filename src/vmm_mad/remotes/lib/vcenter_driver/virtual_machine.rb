@@ -1,5 +1,5 @@
 module VCenterDriver
-
+require 'digest'
 class VirtualMachineFolder
     attr_accessor :item, :items
 
@@ -215,14 +215,17 @@ class Template
         end
     end
 
-    def import_vcenter_disks(vc_uuid, dpool, ipool)
+    def import_vcenter_disks(vc_uuid, dpool, ipool, sunstone=false, template_id=nil)
         disk_info = ""
         error = ""
+        sunstone_disk_info = []
 
         begin
             lock #Lock import operation, to avoid concurrent creation of images
 
-            ccr_ref = self["runtime.host.parent._ref"]
+            ##ccr_ref = self["runtime.host.parent._ref"]
+            dc = get_dc
+            dc_ref = dc.item._ref
 
             #Get disks and info required
             vc_disks = get_vcenter_disks
@@ -231,8 +234,8 @@ class Template
             allocated_images = []
 
             vc_disks.each do |disk|
-                datastore_found = VCenterDriver::Storage.get_one_image_ds_by_ref_and_ccr(disk[:datastore]._ref,
-                                                                                        ccr_ref,
+                datastore_found = VCenterDriver::Storage.get_one_image_ds_by_ref_and_dc(disk[:datastore]._ref,
+                                                                                        dc_ref,
                                                                                         vc_uuid,
                                                                                         dpool)
                 if datastore_found.nil?
@@ -250,63 +253,86 @@ class Template
                                                                                   disk[:path],
                                                                                   disk[:type],
                                                                                   disk[:prefix],
-                                                                                  ipool)
+                                                                                  ipool,
+                                                                                  template_id)
                 #Image is already in the datastore
                 if image_import[:one]
                     # This is the disk info
-                    disk_info << "DISK=[\n"
-                    disk_info << "IMAGE_ID=\"#{image_import[:one]["ID"]}\",\n"
-                    disk_info << "OPENNEBULA_MANAGED=\"NO\"\n"
-                    disk_info << "]\n"
-                elsif !image_import[:template].empty?
-                    # Then the image is created as it's not in the datastore
-                    one_i = VCenterDriver::VIHelper.new_one_item(OpenNebula::Image)
-
-                    allocated_images << one_i
-
-                    rc = one_i.allocate(image_import[:template], datastore_found['ID'].to_i)
-
-                    if ::OpenNebula.is_error?(rc)
-                        error = "    Error creating disk from template: #{rc.message}. Cannot import the template\n"
-
-                        #Rollback delete disk images
-                        allocated_images.each do |i|
-                            i.delete
-                        end
-
-                        break
+                    disk_tmp = ""
+                    disk_tmp << "DISK=[\n"
+                    disk_tmp << "IMAGE_ID=\"#{image_import[:one]["ID"]}\",\n"
+                    disk_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
+                    disk_tmp << "]\n"
+                    if sunstone
+                        sunstone_disk = {}
+                        sunstone_disk[:type] = "EXISTING_DISK"
+                        sunstone_disk[:image_tmpl] = disk_tmp
+                        sunstone_disk_info << sunstone_disk
+                    else
+                        disk_info << disk_tmp
                     end
 
-                    #Add info for One template
-                    one_i.info
-                    disk_info << "DISK=[\n"
-                    disk_info << "IMAGE_ID=\"#{one_i["ID"]}\",\n"
-                    disk_info << "IMAGE_UNAME=\"#{one_i["UNAME"]}\",\n"
-                    disk_info << "OPENNEBULA_MANAGED=\"NO\"\n"
-                    disk_info << "]\n"
+                elsif !image_import[:template].empty?
+
+                    if sunstone
+                        sunstone_disk = {}
+                        sunstone_disk[:type] = "NEW_DISK"
+                        sunstone_disk[:image_tmpl] = image_import[:template]
+                        sunstone_disk[:ds_id] = datastore_found['ID'].to_i
+                        sunstone_disk_info << sunstone_disk
+                    else
+                        # Then the image is created as it's not in the datastore
+                        one_i = VCenterDriver::VIHelper.new_one_item(OpenNebula::Image)
+                        allocated_images << one_i
+                        rc = one_i.allocate(image_import[:template], datastore_found['ID'].to_i)
+
+                        if OpenNebula.is_error?(rc)
+                            error = "    Error creating disk from template: #{rc.message}\n"
+                            break
+                        end
+
+                        #Add info for One template
+                        one_i.info
+                        disk_info << "DISK=[\n"
+                        disk_info << "IMAGE_ID=\"#{one_i["ID"]}\",\n"
+                        disk_info << "IMAGE_UNAME=\"#{one_i["UNAME"]}\",\n"
+                        disk_info << "OPENNEBULA_MANAGED=\"NO\"\n"
+                        disk_info << "]\n"
+                    end
                 end
             end
 
         rescue Exception => e
-            error = "There was an error trying to create an image for disk in vcenter template. Reason: #{e.message}"
+            error = "\n    There was an error trying to create an image for disk in vcenter template. Reason: #{e.message}\n#{e.backtrace}"
         ensure
             unlock
+            if !error.empty?
+                #Rollback delete disk images
+                allocated_images.each do |i|
+                    i.delete
+                end
+            end
         end
 
-        return error, disk_info
+        return error, sunstone_disk_info, allocated_images if sunstone
+
+        return error, disk_info, allocated_images if !sunstone
+
     end
 
-    def import_vcenter_nics(vc_uuid, npool, vcenter_instance_name,
-                            template_ref, dc_name=nil)
+    def import_vcenter_nics(vc_uuid, npool, hpool, vcenter_instance_name,
+                            template_ref, wild, sunstone=false, vm_name=nil, vm_id=nil, dc_name=nil)
         nic_info = ""
         error = ""
+        sunstone_nic_info = []
 
         begin
-            lock #Lock import operation, to avoid concurrent creation of images
+            lock #Lock import operation, to avoid concurrent creation of networks
 
             if !dc_name
                 dc = get_dc
                 dc_name = dc.item.name
+                dc_ref  = dc.item._ref
             end
 
             ccr_ref  = self["runtime.host.parent._ref"]
@@ -315,30 +341,63 @@ class Template
             #Get disks and info required
             vc_nics = get_vcenter_nics
 
-            # Track allocated networks
+            # Track allocated networks for rollback
             allocated_networks = []
 
             vc_nics.each do |nic|
+                # Check if the network already exists
                 network_found = VCenterDriver::Network.get_unmanaged_vnet_by_ref(nic[:net_ref],
-                                                                                 ccr_ref,
                                                                                  template_ref,
                                                                                  vc_uuid,
                                                                                  npool)
-                #Network is already in the datastore
+                #Network is already in OpenNebula
                 if network_found
+
                     # This is the existing nic info
-                    nic_info << "NIC=[\n"
-                    nic_info << "NETWORK_ID=\"#{network_found["ID"]}\",\n"
-                    nic_info << "OPENNEBULA_MANAGED=\"NO\"\n"
-                    nic_info << "]\n"
+                    nic_tmp = ""
+                    nic_tmp << "NIC=[\n"
+                    nic_tmp << "NETWORK_ID=\"#{network_found["ID"]}\",\n"
+                    nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
+                    nic_tmp << "]\n"
+
+                    if sunstone
+                        sunstone_nic = {}
+                        sunstone_nic[:type] = "EXISTING_NIC"
+                        sunstone_nic[:network_tmpl] = nic_tmp
+                        sunstone_nic_info << sunstone_nic
+                    else
+                        nic_info << nic_tmp
+                    end
                 else
                     # Then the network has to be created as it's not in OpenNebula
                     one_vn = VCenterDriver::VIHelper.new_one_item(OpenNebula::VirtualNetwork)
 
-                    allocated_networks << one_vn
-
+                    # We're importing unmanaged nics
                     unmanaged = true
 
+                    # Let's get the OpenNebula host associated to the cluster reference
+                    one_host = VCenterDriver::VIHelper.find_by_ref(OpenNebula::HostPool,
+                                                                  "TEMPLATE/VCENTER_CCR_REF",
+                                                                   ccr_ref,
+                                                                   vc_uuid,
+                                                                   hpool)
+
+                    # Let's get the CLUSTER_ID from the OpenNebula host
+                    if !one_host || !one_host['CLUSTER_ID']
+                        cluster_id = -1
+                    else
+                        cluster_id = one_host['CLUSTER_ID']
+                    end
+
+                    # We have to know if we're importing nics from a wild vm
+                    # or from a template
+                    if wild
+                        unmanaged = "wild"
+                    else
+                        unmanaged = "template"
+                    end
+
+                    # Prepare the Virtual Network template
                     one_vnet = VCenterDriver::Network.to_one_template(nic[:net_name],
                                                                       nic[:net_ref],
                                                                       nic[:pg_type],
@@ -347,8 +406,13 @@ class Template
                                                                       vc_uuid,
                                                                       vcenter_instance_name,
                                                                       dc_name,
+                                                                      cluster_id,
+                                                                      nil,
                                                                       unmanaged,
-                                                                      template_ref)
+                                                                      template_ref,
+                                                                      dc_ref,
+                                                                      vm_name,
+                                                                      vm_id)
 
                     # By default add an ethernet range to network size 255
                     ar_str = ""
@@ -358,35 +422,47 @@ class Template
                     ar_str << "]\n"
                     one_vnet[:one] << ar_str
 
-                    rc = one_vn.allocate(one_vnet[:one])
+                    if sunstone
+                        sunstone_nic = {}
+                        sunstone_nic[:type] = "NEW_NIC"
+                        sunstone_nic[:network_tmpl] = one_vnet[:one]
+                        sunstone_nic[:one_cluster_id] = cluster_id.to_i
+                        sunstone_nic_info << sunstone_nic
+                    else
+                        # Allocate the Virtual Network
+                        allocated_networks << one_vn
+                        rc = one_vn.allocate(one_vnet[:one], cluster_id.to_i)
 
-                    if ::OpenNebula.is_error?(rc)
-                        error = "    Error creating virtual network from template: #{rc.message}. Cannot import the template\n"
-
-                        #Rollback, delete virtual networks
-                        allocated_networks.each do |n|
-                            n.delete
+                        if OpenNebula.is_error?(rc)
+                            error = "\n    ERROR: Could not allocate virtual network due to #{rc.message}\n"
+                            break
                         end
 
-                        break
+                        # Add info for One template
+                        one_vn.info
+                        nic_info << "NIC=[\n"
+                        nic_info << "NETWORK_ID=\"#{one_vn["ID"]}\",\n"
+                        nic_info << "OPENNEBULA_MANAGED=\"NO\"\n"
+                        nic_info << "]\n"
                     end
-
-                    #Add info for One template
-                    one_vn.info
-                    nic_info << "NIC=[\n"
-                    nic_info << "NETWORK_ID=\"#{one_vn["ID"]}\",\n"
-                    nic_info << "OPENNEBULA_MANAGED=\"NO\"\n"
-                    nic_info << "]\n"
                 end
             end
 
         rescue Exception => e
-            error = "There was an error trying to create a virtual network for network in vcenter template. Reason: #{e.message}"
+            error = "\n    There was an error trying to create a virtual network for network in vcenter template. Reason: #{e.message}"
         ensure
             unlock
+            #Rollback, delete virtual networks
+            if !error.empty?
+                allocated_networks.each do |n|
+                    n.delete
+                end
+            end
         end
 
-        return error, nic_info
+        return error, nic_info, allocated_networks if !sunstone
+
+        return error, sunstone_nic_info, allocated_networks if sunstone
     end
 
     def get_vcenter_disk_key(unit_number, controller_key)
@@ -492,27 +568,6 @@ class Template
         self['runtime.host.parent.resourcePool']
     end
 
-    def to_one_template(template, cluster_ref, cluster_name, has_nics_and_disks, rp, rp_list, vcenter_uuid, vcenter_instance_name, dc_name)
-
-        template_ref  = template['_ref']
-        template_name = template["name"]
-
-        one_tmp = {}
-        one_tmp[:name]                  = "[#{vcenter_instance_name} - #{dc_name}] #{template_name} - #{cluster_name}"
-        one_tmp[:template_name]         = template_name
-        one_tmp[:vcenter_ccr_ref]       = cluster_ref
-        one_tmp[:vcenter_ref]           = template_ref
-        one_tmp[:vcenter_instance_uuid] = vcenter_uuid
-        one_tmp[:cluster_name]          = cluster_name
-        one_tmp[:rp]                    = rp
-        one_tmp[:rp_list]               = rp_list
-        one_tmp[:template]              = template
-        one_tmp[:import_disks_and_nics] = has_nics_and_disks
-
-        one_tmp[:one]                   = to_one(true, vcenter_uuid, cluster_ref, cluster_name, vcenter_instance_name, dc_name)
-        return one_tmp
-    end
-
     def vm_to_one(vm_name)
 
         str = "NAME   = \"#{vm_name}\"\n"\
@@ -581,34 +636,11 @@ class Template
         return str
     end
 
-    def to_one(template=false, vc_uuid=nil, ccr_ref=nil, ccr_name=nil, vcenter_instance_name, dc_name)
+    def self.template_to_one(template, vc_uuid, ccr_ref, ccr_name, import_name, host_id)
 
-        if !ccr_ref && !ccr_name
-            cluster  = @item["runtime.host"].parent
-            ccr_name = cluster.name
-            ccr_ref  = cluster._ref
-        end
+        num_cpu, memory, annotation, guest_fullname = template.item.collect("config.hardware.numCPU","config.hardware.memoryMB","config.annotation","guest.guestFullName")
 
-        vc_uuid  = self["_connection.serviceContent.about.instanceUuid"] if !vc_uuid
-
-        # Get info of the host where the VM/template is located
-        host_id = nil
-        one_host = VCenterDriver::VIHelper.find_by_ref(OpenNebula::HostPool,
-                                                       "TEMPLATE/VCENTER_CCR_REF",
-                                                       ccr_ref,
-                                                       vc_uuid)
-
-        num_cpu, memory, extraconfig, annotation, guest_fullname = @item.collect("config.hardware.numCPU","config.hardware.memoryMB","config.extraConfig","config.annotation","guest.guestFullName")
-        host_id = one_host["ID"] if one_host
-
-        name = ""
-        if template
-            name << "[#{vcenter_instance_name} - #{dc_name}] #{self["name"]} - #{ccr_name.tr(" ", "_")}"
-        else
-            name << "#{self["name"]} - #{ccr_name.tr(" ", "_")}"
-        end
-
-        str = "NAME   = \"#{name}\"\n"\
+        str = "NAME   = \"#{import_name}\"\n"\
               "CPU    = \"#{num_cpu}\"\n"\
               "vCPU   = \"#{num_cpu}\"\n"\
               "MEMORY = \"#{memory}\"\n"\
@@ -620,40 +652,13 @@ class Template
               "]\n"\
               "VCENTER_INSTANCE_ID =\"#{vc_uuid}\"\n"
 
-        if !template
-            str << "IMPORT_VM_ID =\"#{self["_ref"]}\"\n"
-            str << "IMPORT_STATE =\"#{@state}\"\n"
-        end
+        str << "VCENTER_TEMPLATE_REF =\"#{template["_ref"]}\"\n"
+        str << "VCENTER_CCR_REF =\"#{ccr_ref}\"\n"
 
-        if template
-            str << "VCENTER_TEMPLATE_REF =\"#{self['_ref']}\"\n"
-            str << "VCENTER_CCR_REF =\"#{ccr_ref}\"\n"
-        end
-
-        vnc_port = nil
-        keymap = nil
-
-        if !template
-            extraconfig.select do |xtra|
-
-                if xtra[:key].downcase=="remotedisplay.vnc.port"
-                    vnc_port = xtra[:value]
-                end
-
-                if xtra[:key].downcase=="remotedisplay.vnc.keymap"
-                    keymap = xtra[:value]
-                end
-            end
-        end
-
-        if !extraconfig.empty?
-            str << "GRAPHICS = [\n"\
-                   "  TYPE     =\"vnc\",\n"
-            str << "  PORT     =\"#{vnc_port}\",\n" if vnc_port
-            str << "  KEYMAP   =\"#{keymap}\",\n" if keymap
-            str << "  LISTEN   =\"0.0.0.0\"\n"
-            str << "]\n"
-        end
+        str << "GRAPHICS = [\n"\
+               "  TYPE     =\"vnc\",\n"
+        str << "  LISTEN   =\"0.0.0.0\"\n"
+        str << "]\n"
 
         if annotation.nil? || annotation.empty?
             str << "DESCRIPTION = \"vCenter Template imported by OpenNebula" \
@@ -686,28 +691,22 @@ class Template
     def self.get_xml_template(template, vcenter_uuid, vi_client, vcenter_instance_name=nil, dc_name=nil, rp_cache={})
 
         begin
-            template_ccr  = template['runtime.host.parent']
-            template_ccr_ref = template_ccr._ref
-            template_ccr_name =template_ccr.name
+            template_ref      = template['_ref']
+            template_name     = template["name"]
+            template_ccr      = template['runtime.host.parent']
+            template_ccr_ref  = template_ccr._ref
+            template_ccr_name = template_ccr.name
 
+            # Set vcenter instance name
             vcenter_instance_name = vi_client.vim.host if !vcenter_instance_name
 
+            # Get datacenter info
             if !dc_name
                 dc = get_dc
                 dc_name = dc.item.name
             end
-            # Check if template has nics or disks to be imported later
-            has_nics_and_disks = true
-            ##template["config.hardware.device"].each do |device|
-            ##    if VCenterDriver::Storage.is_disk_or_iso?(device) ||
-            ##    VCenterDriver::Network.is_nic?(device)
-            ##        has_nics_and_disks = true
-            ##        break
-            ##    end
-            ##end
 
-            #Get resource pools
-
+            #Get resource pools and generate a list
             if !rp_cache[template_ccr_name]
                 tmp_cluster = VCenterDriver::ClusterComputeResource.new_from_ref(template_ccr_ref, vi_client)
                 rp_list = tmp_cluster.get_resource_pool_list
@@ -728,18 +727,59 @@ class Template
             rp      = rp_cache[template_ccr_name][:rp]
             rp_list = rp_cache[template_ccr_name][:rp_list]
 
-            object = template.to_one_template(template,
-                                            template_ccr_ref,
-                                            template_ccr_name,
-                                            has_nics_and_disks,
-                                            rp,
-                                            rp_list,
-                                            vcenter_uuid,
-                                            vcenter_instance_name,
-                                            dc_name)
 
-            return object
+            # Determine the location path for the template
+            vcenter_template = VCenterDriver::VirtualMachine.new_from_ref(template_ref, vi_client)
+            item = vcenter_template.item
+            folders = []
+            while !item.instance_of? RbVmomi::VIM::Datacenter
+                item = item.parent
+                if !item.instance_of? RbVmomi::VIM::Datacenter
+                    folders << item.name if item.name != "vm"
+                end
+                raise "Could not find the templates parent location" if item.nil?
+            end
+            location = folders.reverse.join("/")
+            location = "/" if location.empty?
 
+            # Generate a crypto hash for the template name and take the first 12 chars
+            sha256            = Digest::SHA256.new
+            full_name         = "#{template_name} - #{template_ccr_name} [#{vcenter_instance_name} - #{dc_name}]_#{location}"
+            template_hash     = sha256.hexdigest(full_name)[0..11]
+            template_name     = template_name.tr("\u007F", "")
+            template_ccr_name = template_ccr_name.tr("\u007F", "")
+            import_name       = "#{template_name} - #{template_ccr_name} #{template_hash}"
+
+            # Prepare the Hash that will be used by importers to display
+            # the object being imported
+            one_tmp = {}
+            one_tmp[:name]                  = import_name
+            one_tmp[:template_name]         = template_name
+            one_tmp[:sunstone_template_name]= "#{template_name} [ Cluster: #{template_ccr_name} - Template location: #{location} ]"
+            one_tmp[:template_hash]         = template_hash
+            one_tmp[:template_location]     = location
+            one_tmp[:vcenter_ccr_ref]       = template_ccr_ref
+            one_tmp[:vcenter_ref]           = template_ref
+            one_tmp[:vcenter_instance_uuid] = vcenter_uuid
+            one_tmp[:cluster_name]          = template_ccr_name
+            one_tmp[:rp]                    = rp
+            one_tmp[:rp_list]               = rp_list
+            one_tmp[:template]              = template
+            one_tmp[:import_disks_and_nics] = true # By default we import disks and nics
+
+            # Get the host ID of the OpenNebula host which represents the vCenter Cluster
+            host_id = nil
+            one_host = VCenterDriver::VIHelper.find_by_ref(OpenNebula::HostPool,
+                                                           "TEMPLATE/VCENTER_CCR_REF",
+                                                           template_ccr_ref,
+                                                           vcenter_uuid)
+            host_id    = one_host["ID"]
+            cluster_id = one_host["CLUSTER_ID"]
+            raise "Could not find the host's ID associated to template being imported" if !host_id
+
+            # Get the OpenNebula's template hash
+            one_tmp[:one] = template_to_one(template, vcenter_uuid, template_ccr_ref, template_ccr_name, import_name, host_id)
+            return one_tmp
         rescue
             return nil
         end
@@ -930,7 +970,6 @@ class VirtualMachine < Template
     # @return RbVmomi::VIM::Datastore or nil
     def get_ds
         ##req_ds = one_item['USER_TEMPLATE/VCENTER_DS_REF']
-        ##TODO SCHED_DS_REQUIREMENTS??
         current_ds_id  = one_item["HISTORY_RECORDS/HISTORY[last()]/DS_ID"]
         current_ds     = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, current_ds_id)
         current_ds_ref = current_ds['TEMPLATE/VCENTER_DS_REF']
@@ -1424,15 +1463,8 @@ class VirtualMachine < Template
             :extraConfig  => extraconfig
         }
 
-        # prepare pg and sw for vcenter nics if any
-        configure_vcenter_network
-
         # device_change hash (nics)
         device_change += device_change_nics
-
-        # track pg or dpg in case they must be removed
-        vcenter_uuid = get_vcenter_instance_uuid
-        networks = VCenterDriver::Network.vcenter_networks_to_be_removed(device_change_nics, vcenter_uuid)
 
         # Now attach disks that are in OpenNebula's template but not in vcenter
         # e.g those that has been attached in poweroff
@@ -1448,9 +1480,6 @@ class VirtualMachine < Template
         spec_hash[:deviceChange] = device_change
         spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
         @item.ReconfigVM_Task(:spec => spec).wait_for_completion
-
-        #Remove switch and pg if NICs detached in poweroff
-        remove_poweroff_detached_vcenter_nets(networks) if !networks.empty?
     end
 
     def extraconfig_context
@@ -1546,7 +1575,6 @@ class VirtualMachine < Template
     # Returns an array of actions to be included in :deviceChange
     def calculate_add_nic_spec(nic)
 
-        #TODO include VCENTER_NET_MODEL usage it should be in one_item
         mac       = nic["MAC"]
         pg_name   = nic["BRIDGE"]
         model     = nic["VCENTER_NET_MODEL"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/MODEL")
@@ -1554,15 +1582,15 @@ class VirtualMachine < Template
         backing   = nil
 
         limit_in  = nic["INBOUND_PEAK_BW"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/INBOUND_PEAK_BW")
-        limit_out = nic["OUTBOUND_PEAK_BW"]
+        limit_out = nic["OUTBOUND_PEAK_BW"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/OUTBOUND_PEAK_BW")
         limit     = nil
 
         if limit_in && limit_out
             limit=([limit_in.to_i, limit_out.to_i].min / 1024) * 8
         end
 
-        rsrv_in  = nic["INBOUND_AVG_BW"]
-        rsrv_out = nic["OUTBOUND_AVG_BW"]
+        rsrv_in  = nic["INBOUND_AVG_BW"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/INBOUND_AVG_BW")
+        rsrv_out = nic["OUTBOUND_AVG_BW"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/OUTBOUND_AVG_BW")
         rsrv     = nil
 
         if rsrv_in || rsrv_out
@@ -1644,207 +1672,6 @@ class VirtualMachine < Template
         }
     end
 
-    def vcenter_standard_network(nic, esx_host, vcenter_uuid)
-        pg_name     = nic["BRIDGE"]
-        switch_name = nic["VCENTER_SWITCH_NAME"]
-        pnics       = nic["PHYDEV"] || nil
-        mtu         = nic["MTU"] || 1500
-        vlan_id     = nic["VLAN_ID"] || nic["AUTOMATIC_VLAN_ID"] || 0
-        num_ports   = nic["VCENTER_SWITCH_NPORTS"] || 128
-
-        begin
-            esx_host.lock # Exclusive lock for ESX host operation
-
-            pnics_available = nil
-            pnics_available = esx_host.get_available_pnics if pnics
-
-            # Get port group if it exists
-            pg = esx_host.pg_exists(pg_name)
-
-            # Disallow changes of switch name for existing pg
-            if pg && esx_host.pg_changes_sw?(pg, switch_name)
-                raise "The port group's switch name can not be modified"\
-                    " for OpenNebula's virtual network, please revert"\
-                    " it back in its definition and create a different"\
-                    " virtual network instead."
-            end
-
-            if !pg
-                # Get standard switch if it exists
-                vs = esx_host.vss_exists(switch_name)
-
-                if !vs
-                    switch_name = esx_host.create_vss(switch_name, pnics, num_ports, mtu, pnics_available)
-                else
-                    #Update switch
-                    esx_host.update_vss(vs, switch_name, pnics, num_ports, mtu)
-                end
-
-                vnet_ref     = esx_host.create_pg(pg_name, switch_name, vlan_id)
-
-                # We must update XML so the VCENTER_NET_REF is set
-                one_vnet = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualNetwork, nic["NETWORK_ID"])
-                one_vnet.delete_element("TEMPLATE/VCENTER_NET_REF") if one_vnet["TEMPLATE/VCENTER_NET_REF"]
-                one_vnet.delete_element("TEMPLATE/VCENTER_INSTANCE_ID") if one_vnet["TEMPLATE/VCENTER_INSTANCE_ID"]
-                rc = one_vnet.update("VCENTER_NET_REF = \"#{vnet_ref}\"\n"\
-                                        "VCENTER_INSTANCE_ID = \"#{vcenter_uuid}\"", true)
-                if OpenNebula.is_error?(rc)
-                    raise "Could not update VCENTER_NET_REF for virtual network"
-                end
-                one_vnet.info
-
-            else
-                # pg exist, update
-                esx_host.update_pg(pg, switch_name, vlan_id)
-
-                # update switch if needed
-                vs = esx_host.vss_exists(switch_name)
-                esx_host.update_vss(vs, switch_name, pnics, num_ports, mtu) if vs
-            end
-
-        rescue Exception => e
-            esx_host.network_rollback
-            raise e
-        ensure
-            esx_host.unlock if esx_host # Remove lock
-        end
-    end
-
-    def vcenter_distributed_network(nic, esx_host, vcenter_uuid, dc, net_folder)
-        pg_name     = nic["BRIDGE"]
-        switch_name = nic["VCENTER_SWITCH_NAME"]
-        pnics       = nic["PHYDEV"] || nil
-        mtu         = nic["MTU"] || 1500
-        vlan_id     = nic["VLAN_ID"] || nic["AUTOMATIC_VLAN_ID"] || 0
-        num_ports   = nic["VCENTER_SWITCH_NPORTS"] || 8
-
-        begin
-            # Get distributed port group if it exists
-            dpg = dc.dpg_exists(pg_name, net_folder)
-
-            # Disallow changes of switch name for existing pg
-            if dpg && dc.pg_changes_sw?(dpg, switch_name)
-                raise "The port group's switch name can not be modified"\
-                    " for OpenNebula's virtual network, please revert"\
-                    " it back in its definition and create a different"\
-                    " virtual network instead."
-            end
-
-            if !dpg
-                # Get distributed virtual switch if it exists
-                dvs = dc.dvs_exists(switch_name, net_folder)
-
-                if !dvs
-                    dvs = dc.create_dvs(switch_name, pnics, mtu)
-                else
-                    #Update switch
-                    dc.update_dvs(dvs, pnics, mtu)
-                end
-
-                vnet_ref = dc.create_dpg(dvs, pg_name, vlan_id, num_ports)
-
-                # We must connect portgroup to current host
-                begin
-                    esx_host.lock
-
-                    pnics_available = nil
-                    pnics_available = esx_host.get_available_pnics if pnics
-
-                    proxy_switch = esx_host.proxy_switch_exists(switch_name)
-
-                    esx_host.assign_proxy_switch(dvs, switch_name, pnics, pnics_available)
-
-                rescue Exception => e
-                    raise e
-                ensure
-                    esx_host.unlock if esx_host # Remove lock
-                end
-
-                # We must update XML so the VCENTER_NET_REF is set
-                one_vnet = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualNetwork, nic["NETWORK_ID"])
-                one_vnet.delete_element("TEMPLATE/VCENTER_NET_REF") if one_vnet["TEMPLATE/VCENTER_NET_REF"]
-                one_vnet.delete_element("TEMPLATE/VCENTER_INSTANCE_ID") if one_vnet["TEMPLATE/VCENTER_INSTANCE_ID"]
-                rc = one_vnet.update("VCENTER_NET_REF = \"#{vnet_ref}\"\n"\
-                                        "VCENTER_INSTANCE_ID = \"#{vcenter_uuid}\"", true)
-                if OpenNebula.is_error?(rc)
-                    raise "Could not update VCENTER_NET_REF for virtual network"
-                end
-                one_vnet.info
-            else
-                # pg exist, dpg update
-                dc.update_dpg(dpg, vlan_id, num_ports)
-
-                # update switch if needed
-                dvs = dc.dvs_exists(switch_name, net_folder)
-                dc.update_dvs(dvs, pnics, mtu) if dvs
-
-                # We must connect or update portgroup to current host (proxyswitch)
-                begin
-                    esx_host.lock
-
-                    pnics_available = nil
-                    pnics_available = esx_host.get_available_pnics if pnics
-
-                    proxy_switch = esx_host.proxy_switch_exists(switch_name)
-                    esx_host.assign_proxy_switch(dvs, switch_name, pnics, pnics_available)
-
-                rescue Exception => e
-                    raise e
-                ensure
-                    esx_host.unlock if esx_host # Remove lock
-                end
-            end
-
-        rescue Exception => e
-            dc.network_rollback
-            raise e
-        end
-
-    end
-
-    def configure_vcenter_network(nic_xml=nil)
-        nics = []
-        if nic_xml
-            nics << nic_xml
-        else
-            nics = one_item.retrieve_xmlelements("TEMPLATE/NIC[VN_MAD=\"vcenter\"]")
-        end
-
-        return if nics.empty?
-
-        vcenter_uuid = get_vcenter_instance_uuid
-        esx_host = VCenterDriver::ESXHost.new_from_ref(self['runtime'].host._ref, vi_client)
-
-        nics.each do |nic|
-
-            if nic["VCENTER_INSTANCE_ID"] && nic["VCENTER_INSTANCE_ID"] != vcenter_uuid
-                raise "The virtual network is not assigned to the right vcenter server, create a different virtual network instead"
-            end
-
-            if nic["VCENTER_PORTGROUP_TYPE"] == "Port Group"
-                vcenter_standard_network(nic, esx_host, vcenter_uuid)
-            end
-
-            if nic["VCENTER_PORTGROUP_TYPE"] == "Distributed Port Group"
-                dc = cluster.get_dc # Get datacenter
-                begin
-                    dc.lock
-
-                    # Explore network folder in search of dpg and dvs
-                    net_folder = dc.network_folder
-                    net_folder.fetch!
-
-                    vcenter_distributed_network(nic, esx_host, vcenter_uuid, dc, net_folder)
-                rescue Exception => e
-                    #TODO rollback
-                    raise e
-                ensure
-                    dc.unlock if dc
-                end
-            end
-        end
-    end
-
     # Add NIC to VM
     def attach_nic
         spec_hash = {}
@@ -1854,9 +1681,6 @@ class VirtualMachine < Template
         nic = one_item.retrieve_xmlelements("TEMPLATE/NIC[ATTACH='YES']").first
 
         begin
-            # Prepare network for vcenter networks
-            configure_vcenter_network(nic) if nic["VN_MAD"] == "vcenter"
-
             # A new NIC requires a vcenter spec
             attach_nic_array = []
             attach_nic_array << calculate_add_nic_spec(nic)
@@ -2301,63 +2125,6 @@ class VirtualMachine < Template
         end
     end
 
-    def remove_poweroff_detached_vcenter_nets(networks)
-        esx_host = VCenterDriver::ESXHost.new_from_ref(@item.runtime.host._ref, vi_client)
-        dc = cluster.get_dc # Get datacenter
-
-        networks.each do |pg_name, one|
-
-            if one["TEMPLATE/VCENTER_PORTGROUP_TYPE"] == "Port Group"
-                begin
-                    esx_host.lock # Exclusive lock for ESX host operation
-
-                    next if !esx_host.pg_exists(pg_name)
-                    swname = esx_host.remove_pg(pg_name)
-                    next if !swname
-
-                    # We must update XML so the VCENTER_NET_REF is unset
-                    VCenterDriver::Network.remove_net_ref(one["ID"])
-
-                    next if !esx_host.vss_exists(swname)
-                    swname = esx_host.remove_vss(swname)
-
-                rescue Exception => e
-                    raise e
-                ensure
-                    esx_host.unlock if esx_host # Remove lock
-                end
-            end
-
-            if one["TEMPLATE/VCENTER_PORTGROUP_TYPE"] == "Distributed Port Group"
-                begin
-                    dc.lock
-
-                    # Explore network folder in search of dpg and dvs
-                    net_folder = dc.network_folder
-                    net_folder.fetch!
-
-                    # Get distributed port group if it exists
-                    dpg = dc.dpg_exists(pg_name, net_folder)
-                    dc.remove_dpg(dpg) if dpg
-
-                    # We must update XML so the VCENTER_NET_REF is unset
-                    VCenterDriver::Network.remove_net_ref(one["ID"])
-
-                    # Get distributed virtual switch and try to remove it
-                    switch_name =  one["TEMPLATE/VCENTER_SWITCH_NAME"]
-                    dvs = dc.dvs_exists(switch_name, net_folder)
-                    dc.remove_dvs(dvs) if dvs
-
-                rescue Exception => e
-                    dc.network_rollback
-                    raise e
-                ensure
-                    dc.unlock if dc
-                end
-            end
-        end
-    end
-
     def find_free_ide_controller(position=0)
 
         free_ide_controllers = []
@@ -2632,6 +2399,9 @@ class VirtualMachine < Template
     end
 
     def poweron
+        ## If need in the future, you can power on VMs from datacenter
+        ## dc = get_dc
+        ## dc.power_on_vm(@item)
         @item.PowerOnVM_Task.wait_for_completion
     end
 

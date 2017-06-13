@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -379,13 +379,13 @@ public:
 
     DiskIterator begin()
     {
-        DiskIterator it(VirtualMachineAttributeSet::begin());
+        DiskIterator it(ExtendedAttributeSet::begin());
         return it;
     }
 
     DiskIterator end()
     {
-        DiskIterator it(VirtualMachineAttributeSet::end());
+        DiskIterator it(ExtendedAttributeSet::end());
         return it;
     }
 

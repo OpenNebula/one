@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -63,7 +63,9 @@ protected:
                                  const string& help,
                                  const string& signature)
         :Request(method_name,signature,help)
-    {};
+    {
+        leader_only = false;
+    };
 
     ~RequestManagerPoolInfoFilter(){};
 
@@ -109,7 +111,7 @@ public:
     /* -------------------------------------------------------------------- */
 
     VirtualMachinePoolInfo():
-        RequestManagerPoolInfoFilter("VirtualMachinePoolInfo",
+        RequestManagerPoolInfoFilter("one.vmpool.info",
                                      "Returns the virtual machine instances pool",
                                      "A:siiii")
     {
@@ -134,7 +136,7 @@ class VirtualMachinePoolAccounting : public RequestManagerPoolInfoFilter
 public:
 
     VirtualMachinePoolAccounting():
-        RequestManagerPoolInfoFilter("VirtualMachinePoolAccounting",
+        RequestManagerPoolInfoFilter("one.vmpool.accounting",
                                      "Returns the virtual machine history records",
                                      "A:siii")
     {
@@ -159,7 +161,7 @@ class VirtualMachinePoolShowback : public RequestManagerPoolInfoFilter
 public:
 
     VirtualMachinePoolShowback():
-        RequestManagerPoolInfoFilter("VirtualMachinePoolShowback",
+        RequestManagerPoolInfoFilter("one.vmpool.showback",
                                      "Returns the virtual machine showback records",
                                      "A:siiiii")
     {
@@ -184,7 +186,7 @@ class VirtualMachinePoolMonitoring : public RequestManagerPoolInfoFilter
 public:
 
     VirtualMachinePoolMonitoring():
-        RequestManagerPoolInfoFilter("VirtualMachinePoolMonitoring",
+        RequestManagerPoolInfoFilter("one.vmpool.monitoring",
                                      "Returns the virtual machine monitoring records",
                                      "A:si")
     {
@@ -208,7 +210,7 @@ class TemplatePoolInfo : public RequestManagerPoolInfoFilter
 {
 public:
     TemplatePoolInfo():
-        RequestManagerPoolInfoFilter("TemplatePoolInfo",
+        RequestManagerPoolInfoFilter("one.templatepool.info",
                                      "Returns the virtual machine template pool",
                                      "A:siii")
     {
@@ -227,7 +229,7 @@ class VirtualNetworkPoolInfo: public RequestManagerPoolInfoFilter
 {
 public:
     VirtualNetworkPoolInfo():
-        RequestManagerPoolInfoFilter("VirtualNetworkPoolInfo",
+        RequestManagerPoolInfoFilter("one.vnpool.info",
                                      "Returns the virtual network pool",
                                      "A:siii")
     {
@@ -249,7 +251,7 @@ class ImagePoolInfo: public RequestManagerPoolInfoFilter
 {
 public:
     ImagePoolInfo():
-        RequestManagerPoolInfoFilter("ImagePoolInfo",
+        RequestManagerPoolInfoFilter("one.imagepool.info",
                                      "Returns the image pool",
                                      "A:siii")
     {
@@ -268,7 +270,7 @@ class HostPoolInfo : public RequestManagerPoolInfoFilter
 {
 public:
     HostPoolInfo():
-        RequestManagerPoolInfoFilter("HostPoolInfo",
+        RequestManagerPoolInfoFilter("one.hostpool.info",
                                      "Returns the host pool",
                                      "A:s")
     {
@@ -293,7 +295,7 @@ class HostPoolMonitoring : public RequestManagerPoolInfoFilter
 public:
 
     HostPoolMonitoring():
-        RequestManagerPoolInfoFilter("HostPoolMonitoring",
+        RequestManagerPoolInfoFilter("one.hostpool.monitoring",
                                      "Returns the host monitoring records",
                                      "A:s")
     {
@@ -317,7 +319,7 @@ class GroupPoolInfo: public RequestManagerPoolInfoFilter
 {
 public:
     GroupPoolInfo():
-        RequestManagerPoolInfoFilter("GroupPoolInfo",
+        RequestManagerPoolInfoFilter("one.grouppool.info",
                                      "Returns the group pool",
                                      "A:s")
     {
@@ -341,7 +343,7 @@ class UserPoolInfo: public RequestManagerPoolInfoFilter
 {
 public:
     UserPoolInfo():
-        RequestManagerPoolInfoFilter("UserPoolInfo",
+        RequestManagerPoolInfoFilter("one.userpool.info",
                                      "Returns the user pool",
                                      "A:s")
     {
@@ -365,7 +367,7 @@ class DatastorePoolInfo: public RequestManagerPoolInfoFilter
 {
 public:
     DatastorePoolInfo():
-        RequestManagerPoolInfoFilter("DatastorePoolInfo",
+        RequestManagerPoolInfoFilter("one.datastorepool.info",
                                      "Returns the datastore pool",
                                      "A:s")
     {
@@ -389,7 +391,7 @@ class ClusterPoolInfo: public RequestManagerPoolInfoFilter
 {
 public:
     ClusterPoolInfo():
-        RequestManagerPoolInfoFilter("ClusterPoolInfo",
+        RequestManagerPoolInfoFilter("one.clusterpool.info",
                                      "Returns the cluster pool",
                                      "A:s")
     {
@@ -413,7 +415,7 @@ class DocumentPoolInfo : public RequestManagerPoolInfoFilter
 {
 public:
     DocumentPoolInfo():
-        RequestManagerPoolInfoFilter("DocumentPoolInfo",
+        RequestManagerPoolInfoFilter("one.documentpool.info",
                                      "Returns the generic document pool",
                                      "A:siiii")
     {
@@ -437,7 +439,7 @@ class ZonePoolInfo : public RequestManagerPoolInfoFilter
 {
 public:
     ZonePoolInfo():
-        RequestManagerPoolInfoFilter("ZonePoolInfo",
+        RequestManagerPoolInfoFilter("one.zonepool.info",
                                      "Returns the zone pool",
                                      "A:s")
     {
@@ -461,7 +463,7 @@ class SecurityGroupPoolInfo : public RequestManagerPoolInfoFilter
 {
 public:
     SecurityGroupPoolInfo():
-        RequestManagerPoolInfoFilter("SecurityGroupPoolInfo",
+        RequestManagerPoolInfoFilter("one.secgrouppool.info",
                                      "Returns the security group pool",
                                      "A:siii")
     {
@@ -480,7 +482,7 @@ class VdcPoolInfo : public RequestManagerPoolInfoFilter
 {
 public:
     VdcPoolInfo():
-        RequestManagerPoolInfoFilter("VdcPoolInfo",
+        RequestManagerPoolInfoFilter("one.vdcpool.info",
                                      "Returns the VDC pool",
                                      "A:s")
     {
@@ -501,7 +503,7 @@ class VirtualRouterPoolInfo : public RequestManagerPoolInfoFilter
 {
 public:
     VirtualRouterPoolInfo():
-        RequestManagerPoolInfoFilter("VirtualRouterPoolInfo",
+        RequestManagerPoolInfoFilter("one.vrouterpool.info",
                                      "Returns the virtual router pool",
                                      "A:siii")
     {
@@ -520,7 +522,7 @@ class MarketPlacePoolInfo : public RequestManagerPoolInfoFilter
 {
 public:
     MarketPlacePoolInfo():
-        RequestManagerPoolInfoFilter("MarketPlacePoolInfo",
+        RequestManagerPoolInfoFilter("one.marketpool.info",
                                      "Returns the marketplace pool",
                                      "A:s")
     {
@@ -541,7 +543,7 @@ class MarketPlaceAppPoolInfo : public RequestManagerPoolInfoFilter
 {
 public:
     MarketPlaceAppPoolInfo():
-        RequestManagerPoolInfoFilter("MarketPlacePoolInfo",
+        RequestManagerPoolInfoFilter("one.marketapppool.info",
                                      "Returns the market place pool",
                                      "A:siii")
     {
@@ -560,7 +562,7 @@ class VMGroupPoolInfo : public RequestManagerPoolInfoFilter
 {
 public:
     VMGroupPoolInfo():
-        RequestManagerPoolInfoFilter("VMGroupPoolInfo",
+        RequestManagerPoolInfoFilter("one.vmgrouppool.info",
                                      "Returns the vm group pool",
                                      "A:siii")
     {

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -52,7 +52,7 @@ require 'fsck/template'
 require 'fsck/quotas'
 
 module OneDBFsck
-    VERSION = "5.2.0"
+    VERSION = "5.3.80"
     LOCAL_VERSION = "5.3.80"
 
     def db_version

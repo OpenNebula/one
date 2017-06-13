@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -59,7 +59,7 @@ int PoolObjectSQL::select(SqlDB *db)
     boid = oid;
     oid  = -1;
 
-    rc = db->exec(oss, this);
+    rc = db->exec_rd(oss, this);
 
     unset_callback();
 
@@ -101,7 +101,7 @@ int PoolObjectSQL::select(SqlDB *db, const string& _name, int _uid)
     name  = "";
     uid   = -1;
 
-    rc = db->exec(oss, this);
+    rc = db->exec_rd(oss, this);
 
     unset_callback();
 
@@ -125,7 +125,7 @@ int PoolObjectSQL::drop(SqlDB *db)
 
     oss << "DELETE FROM " << table << " WHERE oid=" << oid;
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     if ( rc == 0 )
     {

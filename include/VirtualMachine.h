@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -1544,15 +1544,24 @@ public:
      *
      * @return 0 on success
      */
-    int set_active_snapshot(int snap_id);
+    int set_revert_snapshot(int snap_id);
+
+    int set_delete_snapshot(int snap_id);
+
+    /**
+     *  @return the on-going ACTION associated to the ACTIVE snapshot
+     */
+    string get_snapshot_action();
 
     /**
      * Replaces HYPERVISOR_ID for the active SNAPSHOT
      *
      * @param hypervisor_id Id returned by the hypervisor for the newly
-     * created snapshot
+     * created snapshot. The no hypervisor_id version uses the snap_id.
      */
-    void update_snapshot_id(string& hypervisor_id);
+    void update_snapshot_id(const string& hypervisor_id);
+
+    void update_snapshot_id();
 
     /**
      * Cleans the ACTIVE = YES attribute from the snapshots
@@ -1750,10 +1759,10 @@ private:
         ostringstream oss_hist(History::db_bootstrap);
         ostringstream oss_showback(VirtualMachine::showback_db_bootstrap);
 
-        rc =  db->exec(oss_vm);
-        rc += db->exec(oss_monit);
-        rc += db->exec(oss_hist);
-        rc += db->exec(oss_showback);
+        rc =  db->exec_local_wr(oss_vm);
+        rc += db->exec_local_wr(oss_monit);
+        rc += db->exec_local_wr(oss_hist);
+        rc += db->exec_local_wr(oss_showback);
 
         return rc;
     };

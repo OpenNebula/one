@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -109,7 +109,7 @@ class VirtualMachineRename : public RequestManagerRename
 {
 public:
     VirtualMachineRename():
-        RequestManagerRename("VirtualMachineRename","Renames a virtual machine")
+        RequestManagerRename("one.vm.rename","Renames a virtual machine")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
@@ -128,7 +128,7 @@ class TemplateRename : public RequestManagerRename
 {
 public:
     TemplateRename():
-        RequestManagerRename("TemplateRename",
+        RequestManagerRename("one.template.rename",
                              "Renames a virtual machine template")
     {
         Nebula& nd  = Nebula::instance();
@@ -152,7 +152,7 @@ class VirtualNetworkRename: public RequestManagerRename
 {
 public:
     VirtualNetworkRename():
-        RequestManagerRename("VirtualNetworkRename","Renames a virtual network")
+        RequestManagerRename("one.vn.rename","Renames a virtual network")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();
@@ -174,7 +174,7 @@ class ImageRename: public RequestManagerRename
 {
 public:
     ImageRename():
-        RequestManagerRename("ImageRename", "Renames an image")
+        RequestManagerRename("one.image.rename", "Renames an image")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_ipool();
@@ -196,7 +196,7 @@ class DocumentRename : public RequestManagerRename
 {
 public:
     DocumentRename():
-        RequestManagerRename("DocumentRename", "Renames a generic document")
+        RequestManagerRename("one.document.rename", "Renames a generic document")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_docpool();
@@ -213,7 +213,7 @@ class ClusterRename: public RequestManagerRename
 {
 public:
     ClusterRename():
-        RequestManagerRename("ClusterRename", "Renames a cluster")
+        RequestManagerRename("one.cluster.rename", "Renames a cluster")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_clpool();
@@ -237,7 +237,7 @@ class DatastoreRename: public RequestManagerRename
 {
 public:
     DatastoreRename():
-        RequestManagerRename("DatastoreRename", "Renames a datastore")
+        RequestManagerRename("one.datastore.rename", "Renames a datastore")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_dspool();
@@ -261,7 +261,7 @@ class HostRename: public RequestManagerRename
 {
 public:
     HostRename():
-        RequestManagerRename("HostRename", "Renames a host")
+        RequestManagerRename("one.host.rename", "Renames a host")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_hpool();
@@ -287,7 +287,7 @@ class ZoneRename : public RequestManagerRename
 {
 public:
     ZoneRename():
-        RequestManagerRename("ZoneRename", "Renames a zone")
+        RequestManagerRename("one.zone.rename", "Renames a zone")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_zonepool();
@@ -304,7 +304,7 @@ class SecurityGroupRename: public RequestManagerRename
 {
 public:
     SecurityGroupRename():
-        RequestManagerRename("SecurityGroupRename", "Renames a security group")
+        RequestManagerRename("one.secgroup.rename", "Renames a security group")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_secgrouppool();
@@ -326,7 +326,7 @@ class VdcRename : public RequestManagerRename
 {
 public:
     VdcRename():
-        RequestManagerRename("VdcRename", "Renames a VDC")
+        RequestManagerRename("one.vdc.rename", "Renames a VDC")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vdcpool();
@@ -343,7 +343,7 @@ class VirtualRouterRename: public RequestManagerRename
 {
 public:
     VirtualRouterRename():
-        RequestManagerRename("VirtualRouterRename", "Renames a virtual router")
+        RequestManagerRename("one.vrouter.rename", "Renames a virtual router")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vrouterpool();
@@ -365,7 +365,7 @@ class MarketPlaceRename: public RequestManagerRename
 {
 public:
     MarketPlaceRename():
-        RequestManagerRename("MarketPlaceRename", "Renames a marketplace")
+        RequestManagerRename("one.market.rename", "Renames a marketplace")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_marketpool();
@@ -389,7 +389,7 @@ class MarketPlaceAppRename: public RequestManagerRename
 {
 public:
     MarketPlaceAppRename():
-        RequestManagerRename("MarketPlaceRename", "Renames a marketplace app")
+        RequestManagerRename("one.marketapp.rename", "Renames a marketplace app")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_apppool();
@@ -411,7 +411,7 @@ class VMGroupRename: public RequestManagerRename
 {
 public:
     VMGroupRename():
-        RequestManagerRename("VMGroupRename", "Renames a vm group")
+        RequestManagerRename("one.vmgroup.rename", "Renames a vm group")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmgrouppool();

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -70,7 +70,10 @@ define(function(require) {
     var strippedTemplate = {};
     var strippedTemplateVcenter = {};
     $.each(this.element.TEMPLATE, function(key, value) {
-      if (key.match(/^VCENTER_*/)){
+      if (!key.match(/^VCENTER_HOST$/) &&
+          !key.match(/^VCENTER_USER$/) &&
+          !key.match(/^VCENTER_PASSWORD$/) &&
+           key.match(/^VCENTER_*/)){
         strippedTemplateVcenter[key] = value;
       }
       else {
@@ -78,7 +81,7 @@ define(function(require) {
       }
     });
     var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE, Locale.tr("Attributes"), true);
-    var templateTableVcenterHTML = TemplateTable.html(strippedTemplateVcenter, RESOURCE, Locale.tr("Vcenter information"), false);
+    var templateTableVcenterHTML = TemplateTable.html(strippedTemplateVcenter, RESOURCE, Locale.tr("vCenter information"), false);
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
     var capacityBar = DatastoreCapacityBar.html(this.element);
     var stateStr = OpenNebulaDatastore.stateStr(this.element.STATE);

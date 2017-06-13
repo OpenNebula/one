@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -193,7 +193,7 @@ module OpenNebulaJSON
         def save_as_template(params=Hash.new)
             vm_new = VirtualMachine.new(VirtualMachine.build_xml(@pe_id),
                                         @client)
-            vm_new.save_as_template(params['name'], params['persistent'])
+            vm_new.save_as_template(params['name'],params['description'], params['persistent'])
         end
     end
 end

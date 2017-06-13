@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -28,7 +28,7 @@ include OpenNebula
 module OpenNebulaHelper
     ONE_VERSION=<<-EOT
 OpenNebula #{OpenNebula::VERSION}
-Copyright 2002-2016, OpenNebula Project, OpenNebula Systems
+Copyright 2002-2017, OpenNebula Project, OpenNebula Systems
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may
 not use this file except in compliance with the License. You may obtain
@@ -37,8 +37,10 @@ EOT
 
     if ONE_LOCATION
         TABLE_CONF_PATH=ONE_LOCATION+"/etc/cli"
+        VAR_LOCATION=ONE_LOCATION+"/var" if !defined?(VAR_LOCATION)
     else
         TABLE_CONF_PATH="/etc/one/cli"
+        VAR_LOCATION="/var/lib/one" if !defined?(VAR_LOCATION)
     end
 
     EDITOR_PATH='/usr/bin/vi'
@@ -487,6 +489,21 @@ EOT
                 puts "ID: #{resource.id.to_s}"
                 return 0
             end
+        end
+
+
+        # receive a object key => value format
+        # returns hashed values
+        def encrypt(opts, token)
+            res = {}
+            opts.each do |key, value|
+                cipher = OpenSSL::Cipher::AES.new(256,:CBC)
+                cipher.encrypt.key = token[0..31]
+                encrypted = cipher.update(value) + cipher.final
+                res[key] = Base64::encode64(encrypted) 
+            end
+            
+            return res
         end
 
         def list_pool(options, top=false, filter_flag=nil)
