@@ -232,7 +232,7 @@ define(function(require) {
     else if (!$.isEmptyObject(that.element.TEMPLATE.DISK))
       disks = [that.element.TEMPLATE.DISK];
 
-    if (!$.isEmptyObject(that.element.TEMPLATE.CONTEXT)) {
+    if (!$.isEmptyObject(that.element.TEMPLATE.CONTEXT) && that.element.USER_TEMPLATE.HYPERVISOR != "vcenter") {
       var context_disk = that.element.TEMPLATE.CONTEXT;
 
       context_disk["IMAGE"] = Locale.tr("Context");
