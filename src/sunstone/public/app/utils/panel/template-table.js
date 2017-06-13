@@ -410,7 +410,7 @@ define(function(require) {
                           <a id="div_add_vectorial_' + field + '" class="add_vectorial_a ocurrence_' + it + ' vectorial_key_' + field + '" href="#"><i class="fa fa-plus-sign"/></a>\
                         </span>&emsp;\
                         <span id="div_minus">\
-                          <a id="div_minus_' + field + '" class="remove_vectorial_x ocurrence_' + it + '" href="#"><i class="fa fa-pencil-square-o"/><i class="fa fa-trash-o"/></a>\
+                          <a id="div_minus_' + field + '" class="remove_vectorial_x ocurrence_' + it + '" href="#"><i class="fa fa-trash-o"/></a>\
                         </span>\
                       </td>';
                     }
