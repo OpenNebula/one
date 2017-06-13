@@ -73,6 +73,8 @@ define(function(require) {
       if (!key.match(/^VCENTER_HOST$/) &&
           !key.match(/^VCENTER_USER$/) &&
           !key.match(/^VCENTER_PASSWORD$/) &&
+          !key.match(/^VCENTER_DS_IMAGE_DIR$/) &&
+          !key.match(/^VCENTER_DS_VOLATILE_DIR$/) &&
            key.match(/^VCENTER_*/)){
         strippedTemplateVcenter[key] = value;
       }
