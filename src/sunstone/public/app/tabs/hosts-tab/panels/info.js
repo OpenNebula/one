@@ -145,8 +145,10 @@ define(function(require) {
 
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     ClusterTr.setup(RESOURCE, this.element.ID, this.element.CLUSTER_ID, context);
-    TemplateTable.setup(this.strippedTemplate, RESOURCE, this.element.ID, context, this.unshownTemplate);
-    TemplateTableVcenter.setup(this.strippedTemplateVcenter, RESOURCE, this.element.ID, context, this.unshownTemplate, false);
+
+    TemplateTable.setup(this.strippedTemplate, RESOURCE, this.element.ID, context, this.unshownTemplate, this.strippedTemplateVcenter);
+    TemplateTableVcenter.setup(this.strippedTemplateVcenter, RESOURCE, this.element.ID, context, this.unshownTemplate, this.strippedTemplate);
+
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
 
     if($.isEmptyObject(this.strippedTemplateVcenter)){

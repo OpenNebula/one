@@ -65,7 +65,9 @@ define(function(require) {
       have been deleted from the templateJSON param. Whithout this, a template
       update would permanently delete the missing values from OpenNebula
    */
-  var _setup = function(templateJSON, resourceType, resourceId, context, unshownValues, modify=true) {
+
+  var _setup = function(templateJSON, resourceType, resourceId, context, unshownValues, templateJSON_Others) {
+
     // Remove previous listeners
     context.off("keypress", "#new_key");
     context.off("keypress", "#new_value");
@@ -84,9 +86,12 @@ define(function(require) {
     context.on("click", '#button_add_value', function() {
       new_value = $('#new_value', $(this).parent().parent()).val();
       new_key   = $('#new_key', $(this).parent().parent()).val();
-      if (modify && !templateJSON[new_key]){
+
+      if (!templateJSON[new_key]){
         if (new_key != "") {
-          var templateJSON_bk = $.extend({}, templateJSON);
+          templateJSON = $.extend({}, templateJSON_Others, templateJSON);
+          var templateJSON_bk = $.extend({},templateJSON);
+
           if (templateJSON[$.trim(new_key)] && (templateJSON[$.trim(new_key)] instanceof Array)) {
             templateJSON[$.trim(new_key)].push($.trim(new_value));
           } else {
