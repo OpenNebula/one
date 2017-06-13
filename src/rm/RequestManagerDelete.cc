@@ -395,6 +395,8 @@ int ZoneDelete::drop(PoolObjectSQL * object, bool recursive,
         aclm->del_zid_rules(oid);
     }
 
+    Nebula::instance().get_frm()->delete_zone(oid);
+
     return rc;
 }
 
