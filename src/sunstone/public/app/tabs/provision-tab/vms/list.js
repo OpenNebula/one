@@ -312,7 +312,7 @@ define(function(require) {
             $(".provision_terminate_confirm_button", context).hide();
           }
 
-          if(Config.isTabActionEnabled("provision-tab", "VM.save_as_template") && (data.USER_TEMPLATE.HYPERVISOR != "vcenter")){
+          if(Config.isTabActionEnabled("provision-tab", "VM.save_as_template")){
             if (enabled("VM.save_as_template")){
               $(".provision_save_as_template_confirm_button", context).show();
               $(".provision_save_as_template_confirm_button_disabled", context).hide();
@@ -320,7 +320,7 @@ define(function(require) {
               $(".provision_save_as_template_confirm_button", context).hide();
               $(".provision_save_as_template_confirm_button_disabled", context).show();
             }
-          } else {
+          }else{
             $(".provision_save_as_template_confirm_button", context).hide();
             $(".provision_save_as_template_confirm_button_disabled", context).hide();
           }
