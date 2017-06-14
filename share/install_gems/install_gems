@@ -62,7 +62,7 @@ DISTRIBUTIONS={
         :dependencies_common => ['ruby-dev', 'make'],
         :dependencies => {
             SQLITE      => ['gcc', 'libsqlite3-dev'],
-            'mysql2'     => ['gcc', 'libmysqlclient-dev'],
+            'mysql2'     => ['gcc', ['default-libmysqlclient-dev', 'libmysqlclient-dev']],
             'curb'      => ['gcc', 'libcurl4-openssl-dev'],
             $nokogiri   => %w{gcc rake libxml2-dev libxslt1-dev patch},
             'xmlparser' => ['gcc', 'libexpat1-dev'],
@@ -71,6 +71,7 @@ DISTRIBUTIONS={
         },
         :install_command_interactive => 'apt-get install',
         :install_command => 'apt-get -y install',
+        :check_command => 'apt-cache show',
         :gem_env    => {
             'rake'      => '/usr/bin/rake'
         }
@@ -88,7 +89,8 @@ DISTRIBUTIONS={
             'json'      => ['gcc']
         },
         :install_command_interactive => 'yum install',
-        :install_command => 'yum -y install'
+        :install_command => 'yum -y install',
+        :check_command => 'yum info',
     }
 }
 
@@ -256,14 +258,14 @@ end
 
 def get_gems(packages)
     ([$nokogiri]+packages.map do |package|
-	GROUPS[package.to_sym]
+        GROUPS[package.to_sym]
     end).flatten.uniq-installed_gems
 end
 
 
 def detect_distro
     begin
-        lsb_info=`lsb_release -a`
+        lsb_info=`lsb_release -a 2>/dev/null`
     rescue
     end
 
@@ -293,11 +295,36 @@ EOT
     end
 end
 
-def get_dependencies(gems, dependencies)
+def get_dependencies(gems, dependencies, check_command)
     deps=[]
 
     gems.each do |gem_name|
-        deps<<dependencies[gem_name]
+        next unless dependencies.has_key?(gem_name)
+
+        dependencies[gem_name].each do |pkg|
+            if pkg.is_a? Array
+                alt_pkg = nil
+
+                pkg.each do |p|
+                    `#{check_command} #{p} 2>/dev/null`
+
+                    if $?.exitstatus==0
+                        alt_pkg = p
+                        break
+                    end
+                end
+
+                if alt_pkg
+                    deps << alt_pkg
+                else
+                    puts "Could not find any suitable package from candidates:"
+                    puts pkg.join(", ")
+                    exit(-1)
+                end
+            else
+                deps << pkg
+            end
+        end
     end
 
     deps.flatten!
@@ -319,7 +346,8 @@ def install_dependencies(gems, distro)
         STDIN.readline
     else
         puts "Distribution \"#{distro.first}\" detected."
-        deps=get_dependencies(gems, distro.last[:dependencies])
+        deps=get_dependencies(gems, distro.last[:dependencies],
+                              distro.last[:check_command])
         deps+=distro.last[:dependencies_common]
 
         if deps.length==0
@@ -466,7 +494,8 @@ def show_allpackages(packages)
         distro=select_distribution
     end
 
-    deps=get_dependencies(gems, distro.last[:dependencies])
+    deps=get_dependencies(gems, distro.last[:dependencies],
+                          distro.last[:check_command])
     deps+=distro.last[:dependencies_common]
 
     if deps.length==0
