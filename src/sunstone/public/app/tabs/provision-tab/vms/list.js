@@ -412,7 +412,7 @@ define(function(require) {
 
           var vcenter_info = "";
           if(data.MONITORING.VCENTER_GUEST_STATE){
-            vcenter_info = "<thead><tr><th>" + Locale.tr("vCenter Information") + "</th></tr></thead><tbody>" +
+            vcenter_info = "<thead><tr><th>" + Locale.tr("vCenter information") + "</th></tr></thead><tbody>" +
             "<tr><td>" + Locale.tr("GUEST STATE") + "</td><td>" + data.MONITORING.VCENTER_GUEST_STATE + "</td>" +
              "<td>" + Locale.tr("VMWARETOOLS RUNNING STATUS") + "</td><td>" +
              data.MONITORING.VCENTER_VMWARETOOLS_RUNNING_STATUS + "</td></tr>" +
