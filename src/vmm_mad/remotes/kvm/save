@@ -47,7 +47,7 @@ if [ ! -t 0 ]; then
     TM_MAD=$(echo "$DRV_MESSAGE" | $XPATH /VMM_DRIVER_ACTION_DATA/DATASTORE/TM_MAD)
 
     # If there is a specific pre hook for this TM_MAD call it:
-    SAVE_TM_FILE="${DRIVER_PATH}/restore.${TM_MAD}-pre"
+    SAVE_TM_FILE="${DRIVER_PATH}/save.${TM_MAD}-pre"
 
     if [ -x "$SAVE_TM_FILE" ]; then
         echo "$DRV_MESSAGE" | $SAVE_TM_FILE $@
