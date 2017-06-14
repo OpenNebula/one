@@ -39,20 +39,16 @@ vcenter_url     = ARGV[0]
 u               = URI.parse(vcenter_url)
 params          = CGI.parse(u.query)
 
-vc_cluster_name = params["param_host"][0]
-ds_name         = params["param_dsname"][0]
+ds_id           = params["param_dsid"][0]
 img_src         = u.host + u.path
 
 begin
+    vi_client = VCenterDriver::VIClient.new_from_datastore(ds_id)
 
-    host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, vc_cluster_name)
-    host_id = host['ID']
+    source_ds = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, ds_id)
+    source_ds_ref = source_ds['TEMPLATE/VCENTER_DS_REF']
 
-    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-
-    one_ds = VCenterDriver::VIHelper.find_by_name(OpenNebula::DatastorePool, ds_name)
-
-    ds = VCenterDriver::Datastore.new_from_ref(one_ds["TEMPLATE/VCENTER_DS_REF"], vi_client)
+    ds = VCenterDriver::Datastore.new_from_ref(source_ds_ref, vi_client)
 
     if ds.is_descriptor?(img_src)
         descriptor_name = File.basename u.path
@@ -95,8 +91,8 @@ begin
     end
 
 rescue Exception => e
-    STDERR.puts "Cannot download image #{u.path} from datastore #{ds_name} "\
-                "on #{hostname}. Reason: \"#{e.message}\"\n#{e.backtrace}"
+    STDERR.puts "Cannot download image #{u.path} from datastore #{ds_id} "\
+                "Reason: \"#{e.message}\"\n#{e.backtrace}"
     exit -1
 ensure
     vi_client.close_connection if vi_client

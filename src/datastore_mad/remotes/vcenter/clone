@@ -36,13 +36,11 @@ drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
 
 target_ds_ref = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_REF"]
-##host_id       = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_ONE_HOST_ID"]
 ds_image_dir  = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_IMAGE_DIR"] || "one"
 src_path      = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/PATH"]
 src_img_id    = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/CLONING_ID"]
 
 check_valid src_img_id, "cloning id"
-##check_valid host_id, "vcenter cluster"
 check_valid src_path, "image path"
 check_valid target_ds_ref, "target ds ref"
 
@@ -56,7 +54,6 @@ source_ds_ref = source_ds['TEMPLATE/VCENTER_DS_REF']
 target_path = "#{ds_image_dir}/#{id}/one-#{id}.vmdk"
 
 begin
-    ##vi_client = VCenterDriver::VIClient.new_from_host(host_id)
 
     vi_client = VCenterDriver::VIClient.new_from_datastore(source_ds_id)
 

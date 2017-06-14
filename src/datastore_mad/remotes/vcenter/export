@@ -45,9 +45,7 @@ md5        = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5"]
 
 md5 = md5.nil? ? "-" : md5
 
-hostname   = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_ONE_HOST_ID"]
-ds_name    = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"]
-
+ds_id = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/ID"]
 
 if img_source.nil?
     message = "Not enough information to export the image,"\
@@ -60,8 +58,7 @@ end
 # the vCenter datastore
 
 vcenter_url_img = "vcenter://#{img_source}?"\
-                  "param_dsname=#{ds_name}&"\
-                  "param_host=#{hostname}"
+                  "param_dsid=#{ds_id}"
 
 # Create import info document for marketplace import script
 
