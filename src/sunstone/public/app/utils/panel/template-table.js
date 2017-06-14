@@ -81,6 +81,8 @@ define(function(require) {
     context.off("click", "#button_add_value");
     context.off("click", "#button_add_value_vectorial");
     context.off("click", "#div_add_vectorial");
+    this.templateJSON_Others = templateJSON_Others;
+    var that = this;
 
     // Add listener for add key and add value for Extended Template
     context.on("click", '#button_add_value', function() {
@@ -137,10 +139,11 @@ define(function(require) {
 
       // Erase the value from the template
       if (ocurrence != null)
-          templateJSON[field].splice(ocurrence, 1);
+          that.templateJSON_Others[field].splice(ocurrence, 1);
       else
-          delete templateJSON[field];
+          delete that.templateJSON_Others[field];
 
+      templateJSON = $.extend({}, templateJSON_Others, templateJSON);
       template_str = TemplateUtils.templateToString(templateJSON, unshownValues);
 
       // Let OpenNebula know
@@ -171,11 +174,12 @@ define(function(require) {
     context.on("change", ".input_edit_value", function() {
       var key_str          = $.trim(this.id.substring(11, this.id.length));
       var value_str        = $.trim(this.value);
-      var templateJSON_bk = $.extend({}, templateJSON);
+      var templateJSON_bk = $.extend({}, templateJSON_Others);
 
-      delete templateJSON[key_str];
-      templateJSON[key_str] = value_str;
+      delete templateJSON_Others[key_str];
+      templateJSON_Others[key_str] = value_str;
 
+      templateJSON = $.extend({}, templateJSON_Others, templateJSON);
       template_str = TemplateUtils.templateToString(templateJSON, unshownValues);
 
       // Let OpenNebula know
@@ -220,7 +224,7 @@ define(function(require) {
     context.on("change", ".input_edit_value_vectorial", function() {
       var key_str          = $.trim(this.id.substring(11, this.id.length));
       var value_str        = $.trim(this.value);
-      var templateJSON_bk = $.extend({}, templateJSON);
+      var templateJSON_bk = $.extend({}, templateJSON_Others);
 
       var list_of_classes  = this.className.split(" ");
       var ocurrence        = null;
@@ -241,10 +245,11 @@ define(function(require) {
       }
 
       if (ocurrence != null)
-          templateJSON[vectorial_key][ocurrence][key_str] = value_str;
+          templateJSON_Others[vectorial_key][ocurrence][key_str] = value_str;
       else
-          templateJSON[vectorial_key][key_str] = value_str;
+          templateJSON_Others[vectorial_key][key_str] = value_str;
 
+      templateJSON = $.extend({}, templateJSON_Others, templateJSON);
       template_str = TemplateUtils.templateToString(templateJSON, unshownValues);
 
       // Let OpenNebula know
@@ -277,10 +282,11 @@ define(function(require) {
 
       // Erase the value from the template
       if (ocurrence != null)
-          delete templateJSON[vectorial_key][ocurrence][field];
+          delete templateJSON_Others[vectorial_key][ocurrence][field];
       else
-          delete templateJSON[vectorial_key][field];
+          delete templateJSON_Others[vectorial_key][field];
 
+      templateJSON = $.extend({}, templateJSON_Others, templateJSON);
       template_str = TemplateUtils.templateToString(templateJSON, unshownValues);
 
       // Let OpenNebula know
@@ -323,7 +329,7 @@ define(function(require) {
         var list_of_classes  = this.className.split(" ");
         var ocurrence        = null;
         var vectorial_key    = null;
-        var templateJSON_bk = $.extend({}, templateJSON);
+        var templateJSON_bk = $.extend({}, templateJSON_Others);
 
         if (list_of_classes.length != 1) {
           $.each(list_of_classes, function(index, value) {
@@ -343,11 +349,12 @@ define(function(require) {
 
         if (ocurrence != null) {
           ocurrence = ocurrence.substring(10, ocurrence.length);
-          templateJSON[vectorial_key][ocurrence][$('#new_key_vectorial').val()] = $.trim($('#new_value_vectorial').val());
+          templateJSON_Others[vectorial_key][ocurrence][$('#new_key_vectorial').val()] = $.trim($('#new_value_vectorial').val());
         } else {
-          templateJSON[vectorial_key][$('#new_key_vectorial').val()] = $.trim($('#new_value_vectorial').val());
+          templateJSON_Others[vectorial_key][$('#new_key_vectorial').val()] = $.trim($('#new_value_vectorial').val());
         }
 
+        templateJSON = $.extend({}, templateJSON_Others, templateJSON);
         template_str  = TemplateUtils.templateToString(templateJSON, unshownValues);
 
         Sunstone.runAction(resourceType + ".update_template", resourceId, template_str);
