@@ -47,7 +47,7 @@ public:
 
         int size = attribute_name.size();
 
-        if  ((size >0 && !isalpha(aname[0]))||
+        if  ((size >0 && !(isalpha(aname[0]) || aname[0] == '_')) ||
              (size >=3 && (aname[0]=='X' && aname[1]=='M' && aname[2]=='L')))
         {
             attribute_name.insert(0,"ONE_");
