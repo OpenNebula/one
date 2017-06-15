@@ -38,6 +38,22 @@ fi
 touch "$FILE"
 chmod 666 "$FILE"
 
+if [ ! -t 0 ]; then
+    # There is data in stdin, read it
+    DRV_MESSAGE=$(cat)
+
+    # The data is the driver message. Extracting the System DS TM_MAD
+    XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+    TM_MAD=$(echo "$DRV_MESSAGE" | $XPATH /VMM_DRIVER_ACTION_DATA/DATASTORE/TM_MAD)
+
+    # If there is a specific pre hook for this TM_MAD call it:
+    SAVE_TM_FILE="${DRIVER_PATH}/save.${TM_MAD}-pre"
+
+    if [ -x "$SAVE_TM_FILE" ]; then
+        echo "$DRV_MESSAGE" | $SAVE_TM_FILE $@
+    fi
+fi
+
 exec_and_log "virsh --connect $LIBVIRT_URI save $DEPLOY_ID $FILE" \
     "Could not save $DEPLOY_ID to $FILE"
 
@@ -49,13 +65,6 @@ exec_and_log "virsh --connect $LIBVIRT_URI save $DEPLOY_ID $FILE" \
 if [ -t 0 ]; then
     exit 0
 fi
-
-# There is data in stdin, read it
-DRV_MESSAGE=$(cat)
-
-# The data is the driver message. Extracting the System DS TM_MAD
-XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
-TM_MAD=$(echo "$DRV_MESSAGE" | $XPATH /VMM_DRIVER_ACTION_DATA/DATASTORE/TM_MAD)
 
 # If there is a specific hook for this TM_MAD call it:
 SAVE_TM_FILE="${DRIVER_PATH}/save.${TM_MAD}"
