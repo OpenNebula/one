@@ -575,7 +575,6 @@ class Template
               "vCPU   = \"#{@vm_info["config.hardware.numCPU"]}\"\n"\
               "MEMORY = \"#{@vm_info["config.hardware.memoryMB"]}\"\n"\
               "HYPERVISOR = \"vcenter\"\n"\
-              "SCHED_REQUIREMENTS=\"ID=\\\"#{@vm_info[:host_id]}\\\"\"\n"\
               "CONTEXT = [\n"\
               "    NETWORK = \"YES\",\n"\
               "    SSH_PUBLIC_KEY = \"$USER[SSH_PUBLIC_KEY]\"\n"\
@@ -645,7 +644,6 @@ class Template
               "vCPU   = \"#{num_cpu}\"\n"\
               "MEMORY = \"#{memory}\"\n"\
               "HYPERVISOR = \"vcenter\"\n"\
-              "SCHED_REQUIREMENTS=\"ID=\\\"#{host_id}\\\"\"\n"\
               "CONTEXT = [\n"\
               "    NETWORK = \"YES\",\n"\
               "    SSH_PUBLIC_KEY = \"$USER[SSH_PUBLIC_KEY]\"\n"\
