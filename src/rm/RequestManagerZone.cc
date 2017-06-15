@@ -163,6 +163,8 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
                     {
                         updated = true;
                     }
+
+                    zone->unlock();
                 }
 
                 usleep(250000);
