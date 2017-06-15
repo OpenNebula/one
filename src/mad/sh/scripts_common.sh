@@ -129,6 +129,36 @@ function error_message
     ) 1>&2
 }
 
+# Ensures the code is executed exclusively
+function exclusive
+{
+    LOCK_FILE="/var/lock/one/$1"
+    TIMEOUT=$2
+    shift 2
+
+    ( umask 0027; touch "${LOCK_FILE}" 2>/dev/null )
+
+    # open lockfile
+    exec 2>/dev/null {FD}>"${LOCK_FILE}"
+    if [ $? -ne 0 ]; then
+        log_error "Could not create or open lock ${LOCK_FILE}"
+        exit -2
+    fi
+
+    # acquire lock
+    flock -w "${TIMEOUT}" "${FD}"
+    if [ $? -ne 0 ]; then
+        log_error "Could not acquire exclusive lock on ${LOCK_FILE}"
+        exit -2
+    fi
+
+    "$@"
+
+    EXEC_RC=$?
+    eval "exec ${FD}>&-"
+    return $EXEC_RC
+}
+
 # Executes a command, if it fails returns error message and exits
 # If a second parameter is present it is used as the error message when
 # the command fails

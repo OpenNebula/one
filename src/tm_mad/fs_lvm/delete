@@ -39,6 +39,8 @@ source $TMCOMMON
 DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
 
+DS_SYS_ID=$(echo $DST_PATH | grep -E '\/disk\.[[:digit:]]+$' | $AWK -F '/' '{print $(NF-2)}')
+
 # Delete the device if it's a clone (LVM snapshot)
 DELETE_CMD=$(cat <<EOF
     set -x
@@ -60,7 +62,11 @@ DELETE_CMD=$(cat <<EOF
 EOF
 )
 
-LOCK_FILE="$DST_DS_PATH/lock"
-flock -w 120 $LOCK_FILE ssh_exec_and_log "$DST_HOST" "$DELETE_CMD" \
+if [ -n "${DS_SYS_ID}" ]; then
+    LOCK="tm-fs_lvm-${DS_SYS_ID}.lock"
+    exclusive "${LOCK}" 120 ssh_exec_and_log "$DST_HOST" "$DELETE_CMD" \
         "Error deleting $DST_PATH"
-
+else
+    ssh_exec_and_log "$DST_HOST" "$DELETE_CMD" \
+        "Error deleting $DST_PATH"
+fi

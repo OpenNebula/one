@@ -70,8 +70,8 @@ log "Dumping $SRC to $DST"
 ssh_exec_and_log "$SRC_HOST" "$DUMP_CMD" \
     "Error dumping $SRC to $DST"
 
-LOCK_FILE="$DST_DS_PATH/lock"
-flock -w 120 $LOCK_FILE ssh_exec_and_log "$SRC_HOST" "$REMOVE_CMD" \
-    "Error deleting LV $LV_NAME"
+LOCK="tm-fs_lvm-${DS_SYS_ID}.lock"
+exclusive "${LOCK}" 120 ssh_exec_and_log "$SRC_HOST" "$DELETE_CMD" \
+    "Error dumping $SRC to $DST"
 
 exit 0
