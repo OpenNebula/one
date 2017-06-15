@@ -755,7 +755,7 @@ void Nebula::start(bool bootstrap_only)
     if ( is_federation_master() && solo )
     {
         // Replica threads are started on master in solo mode.
-        // HA start/stop the replica threads on leader/follower states will
+        // HA start/stop the replica threads on leader/follower states 
         frm->start_replica_threads();
     }
 
