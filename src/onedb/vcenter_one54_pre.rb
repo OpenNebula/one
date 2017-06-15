@@ -1198,6 +1198,49 @@ def add_new_host_attrs(vc_clusters, hpool, one_client, vcenter_ids)
 end
 
 ################################################################################
+def create_new_clusters(vc_clusters, hpool, one_client)
+
+    hosts = hpool.retrieve_xmlelements("HOST[VM_MAD=\"vcenter\"]")
+
+    hosts.each do |host|
+        begin
+            one_host  = OpenNebula::Host.new_with_id(host["ID"], one_client)
+            rc   = one_host.info
+            raise rc.message if OpenNebula.is_error?(rc)
+
+            vi_client       = VCenterDriver::VIClient.new(host["ID"])
+            vcenter_uuid    = vi_client.vim.serviceContent.about.instanceUuid
+
+            ccr_name = host["NAME"]
+
+            clusters_with_name = vc_clusters[vcenter_uuid].select {|ref, ccr| ccr["name"] == ccr_name}
+
+            if clusters_with_name.size == 0
+                raise "Host #{ccr_name} could not be updated, cannot find cluster's MOREF"
+            end
+
+            # Create OpenNebula clusters
+            one_cluster = OpenNebula::Cluster.new(OpenNebula::Cluster.build_xml, one_client)
+            rc = one_cluster.allocate("#{ccr_name}")
+            if OpenNebula.is_error?(rc)
+                if !rc.message.include?("already taken")
+                    STDOUT.puts "    Error creating OpenNebula cluster you should create a cluster by hand with name #{ccr_name} before you upgrade OpenNebula: #{rc.message}\n"
+                end
+                next
+            end
+
+            STDOUT.puts "Cluster #{ccr_name} was created."
+            STDOUT.puts
+
+        rescue Exception => e
+            raise e
+        ensure
+            vi_client.vim.close if vi_client
+        end
+    end
+end
+
+################################################################################
 def remove_host_attrs(host_ids, one_client)
     host_ids.each do |host_id|
         # Create XML removing old attributes
@@ -2150,7 +2193,7 @@ end
 ################################################################################
 
 CommandParser::CmdParser.new(ARGV) do
-    usage "`onevcenter_migrator` [<options>]"
+    usage "`vcenter_one54_pre` [<options>]"
     description ""
     version OpenNebulaHelper::ONE_VERSION
 
@@ -2167,7 +2210,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     main do
         begin
-            # Initializa opennebula client
+            # Initialize opennebula client
             one_client = OpenNebula::Client.new()
             vcenter_instances = []
 
@@ -2216,8 +2259,13 @@ CommandParser::CmdParser.new(ARGV) do
             vcenter_ids[:image] = []
 
             banner " Add new attributes to existing hosts", true
+            STDOUT.puts
             add_new_host_attrs(vc_clusters, hpool, one_client, vcenter_ids)
 
+            banner " Create new OpenNebula clusters where OpenNebula hosts will be added to", true
+            STDOUT.puts
+            create_new_clusters(vc_clusters, hpool, one_client)
+=begin
             dspool = OpenNebula::DatastorePool.new(one_client)
             rc = dspool.info
             raise "Error contacting OpenNebula #{rc.message}" if OpenNebula.is_error?(rc)
@@ -2231,6 +2279,7 @@ CommandParser::CmdParser.new(ARGV) do
             raise "Error contacting OpenNebula #{rc.message}" if OpenNebula.is_error?(rc)
 
             banner " Add new attributes to existing vnets", true
+            STDOUT.puts
             add_new_vnet_attrs(vc_networks, vc_clusters, vnpool, hpool, one_client, vcenter_ids)
 
             ipool = OpenNebula::ImagePool.new(one_client)
@@ -2238,6 +2287,7 @@ CommandParser::CmdParser.new(ARGV) do
             raise "Error contacting OpenNebula #{rc.message}" if OpenNebula.is_error?(rc)
 
             banner " Add new attributes to existing images", true
+            STDOUT.puts
             add_new_image_attrs(ipool, hpool, one_client, vcenter_ids)
 
             tpool = OpenNebula::TemplatePool.new(one_client)
@@ -2245,6 +2295,7 @@ CommandParser::CmdParser.new(ARGV) do
             raise "Error contacting OpenNebula #{rc.message}" if OpenNebula.is_error?(rc)
 
             banner " Add new attributes to existing templates\n Discovering nics and disks inside templates", true
+            STDOUT.puts
             add_new_template_attrs(vc_templates, vc_clusters, tpool, ipool, vnpool, dspool, hpool, one_client)
 
             vmpool = OpenNebula::VirtualMachinePool.new(one_client)
@@ -2252,28 +2303,33 @@ CommandParser::CmdParser.new(ARGV) do
             raise "Error contacting OpenNebula #{rc.message}" if OpenNebula.is_error?(rc)
 
             banner " Migrating existing VMs", true
+            STDOUT.puts
             existing_vms_task(vc_vmachines, vc_templates, vc_clusters, vmpool, ipool, tpool, vnpool, dspool, hpool, one_client)
 
             if !vcenter_ids[:host].empty?
                 banner " Remove old attributes from hosts", true
+                STDOUT.puts
                 remove_host_attrs(vcenter_ids[:host], one_client)
             end
 
             if !vcenter_ids[:ds].empty?
                 banner " Remove old attributes from datastores", true
+                STDOUT.puts
                 remove_ds_attrs(vcenter_ids[:ds], one_client)
             end
 
             if !vcenter_ids[:vnet].empty?
                 banner " Remove old attributes from vnets", true
+                STDOUT.puts
                 remove_vnet_attrs(vcenter_ids[:vnet], one_client)
             end
 
             if !vcenter_ids[:image].empty?
                 banner " Remove old attributes from images", true
+                STDOUT.puts
                 remove_image_attrs(vcenter_ids[:image], one_client)
             end
-
+=end
             puts ""
 
             exit_code 0
