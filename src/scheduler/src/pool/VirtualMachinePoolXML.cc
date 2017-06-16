@@ -114,9 +114,6 @@ void VirtualMachinePoolXML::add_object(xmlNodePtr node)
     bool use_prio = true; // TODO: mettere nel file di cnfigurazione
     if ( use_prio ) { 
        objects.insert(pair<int,ObjectXML*>(vm->get_prio(),vm));
-       ostringstream os;
-       // os << vm->get_prio();
-       // NebulaLog::log("SARA", Log::INFO, os);
     } else {
        objects.insert(pair<int,ObjectXML*>(vm->get_oid(),vm));
     }
