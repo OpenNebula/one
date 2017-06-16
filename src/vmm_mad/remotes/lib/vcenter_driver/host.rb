@@ -125,8 +125,6 @@ class ClusterComputeResource
         str_info << "FREEMEMORY="  << free_mem.to_s << "\n"
         str_info << "USEDMEMORY="  << (total_mem - free_mem).to_s << "\n"
 
-        str_info << "VCENTER_LAST_PERF_POLL=" << Time.now.to_i.to_s << "\n"
-
         str_info << monitor_resource_pools(mhz_core)
     end
 
@@ -400,7 +398,7 @@ class ClusterComputeResource
 
         pm = @vi_client.vim.serviceContent.perfManager
 
-        stats = []
+        stats = {}
 
         max_samples = 9
         refresh_rate = 20 #Real time stats takes samples every 20 seconds
@@ -422,7 +420,11 @@ class ClusterComputeResource
                     'virtualDisk.numberReadAveraged','virtualDisk.numberWriteAveraged',
                     'virtualDisk.read','virtualDisk.write'],
                     {max_samples: max_samples}
-            )
+            ) rescue {}
+        end
+
+        if !stats.empty?
+            last_mon_time = Time.now.to_i.to_s
         end
 
         get_resource_pool_list if !@rp_list
@@ -500,7 +502,7 @@ class ClusterComputeResource
 
         view.DestroyView # Destroy the view
 
-        return str_info
+        return str_info, last_mon_time
     end
 
     def monitor_customizations

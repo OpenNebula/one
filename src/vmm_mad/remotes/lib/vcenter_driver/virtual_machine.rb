@@ -2471,7 +2471,7 @@ class VirtualMachine < Template
         refresh_rate = provider.refreshRate
 
         if get_vm_id
-            stats = []
+            stats = {}
 
             if (one_item["MONITORING/LAST_MON"] && one_item["MONITORING/LAST_MON"].to_i != 0 )
                 #Real time data stores max 1 hour. 1 minute has 3 samples
@@ -2488,7 +2488,7 @@ class VirtualMachine < Template
                     'virtualDisk.numberReadAveraged','virtualDisk.numberWriteAveraged',
                     'virtualDisk.read','virtualDisk.write'],
                     {interval:refresh_rate, max_samples: max_samples}
-                )
+                ) rescue {}
             else
                 # First poll, get at least latest 3 minutes = 9 samples
                 stats = pm.retrieve_stats(
@@ -2497,7 +2497,7 @@ class VirtualMachine < Template
                     'virtualDisk.numberReadAveraged','virtualDisk.numberWriteAveraged',
                     'virtualDisk.read','virtualDisk.write'],
                     {interval:refresh_rate, max_samples: 9}
-                )
+                ) rescue {}
             end
 
             if !stats.empty? && !stats.first[1][:metrics].empty?
@@ -2544,23 +2544,30 @@ class VirtualMachine < Template
                         write_iops += sample if sample > 0
                     }
                 end
-
-                # Accumulate values if present
-                previous_nettx = @one_item && @one_item["MONITORING/NETTX"] ? @one_item["MONITORING/NETTX"].to_i : 0
-                previous_netrx = @one_item && @one_item["MONITORING/NETRX"] ? @one_item["MONITORING/NETRX"].to_i : 0
-                previous_diskrdiops = @one_item && @one_item["MONITORING/DISKRDIOPS"] ? @one_item["MONITORING/DISKRDIOPS"].to_i : 0
-                previous_diskwriops = @one_item && @one_item["MONITORING/DISKWRIOPS"] ? @one_item["MONITORING/DISKWRIOPS"].to_i : 0
-                previous_diskrdbytes = @one_item && @one_item["MONITORING/DISKRDBYTES"] ? @one_item["MONITORING/DISKRDBYTES"].to_i : 0
-                previous_diskwrbytes = @one_item && @one_item["MONITORING/DISKWRBYTES"] ? @one_item["MONITORING/DISKWRBYTES"].to_i : 0
-
-                @monitor[:nettx] = previous_nettx + (nettx_kbpersec * 1024 * refresh_rate).to_i
-                @monitor[:netrx] = previous_netrx + (netrx_kbpersec * 1024 * refresh_rate).to_i
-
-                @monitor[:diskrdiops]  = previous_diskrdiops + read_iops
-                @monitor[:diskwriops]  = previous_diskwriops + write_iops
-                @monitor[:diskrdbytes] = previous_diskrdbytes + (read_kbpersec * 1024 * refresh_rate).to_i
-                @monitor[:diskwrbytes] = previous_diskwrbytes + (write_kbpersec * 1024 * refresh_rate).to_i
+            else
+                nettx_kbpersec = 0
+                netrx_kbpersec = 0
+                read_kbpersec  = 0
+                read_iops      = 0
+                write_kbpersec = 0
+                write_iops     = 0
             end
+
+            # Accumulate values if present
+            previous_nettx = @one_item && @one_item["MONITORING/NETTX"] ? @one_item["MONITORING/NETTX"].to_i : 0
+            previous_netrx = @one_item && @one_item["MONITORING/NETRX"] ? @one_item["MONITORING/NETRX"].to_i : 0
+            previous_diskrdiops = @one_item && @one_item["MONITORING/DISKRDIOPS"] ? @one_item["MONITORING/DISKRDIOPS"].to_i : 0
+            previous_diskwriops = @one_item && @one_item["MONITORING/DISKWRIOPS"] ? @one_item["MONITORING/DISKWRIOPS"].to_i : 0
+            previous_diskrdbytes = @one_item && @one_item["MONITORING/DISKRDBYTES"] ? @one_item["MONITORING/DISKRDBYTES"].to_i : 0
+            previous_diskwrbytes = @one_item && @one_item["MONITORING/DISKWRBYTES"] ? @one_item["MONITORING/DISKWRBYTES"].to_i : 0
+
+            @monitor[:nettx] = previous_nettx + (nettx_kbpersec * 1024 * refresh_rate).to_i
+            @monitor[:netrx] = previous_netrx + (netrx_kbpersec * 1024 * refresh_rate).to_i
+
+            @monitor[:diskrdiops]  = previous_diskrdiops + read_iops
+            @monitor[:diskwriops]  = previous_diskwriops + write_iops
+            @monitor[:diskrdbytes] = previous_diskrdbytes + (read_kbpersec * 1024 * refresh_rate).to_i
+            @monitor[:diskwrbytes] = previous_diskwrbytes + (write_kbpersec * 1024 * refresh_rate).to_i
         end
     end
 
@@ -2640,23 +2647,30 @@ class VirtualMachine < Template
                     write_iops += sample if sample > 0
                 }
             end
-
-            # Accumulate values if present
-            previous_nettx = @one_item && @one_item["MONITORING/NETTX"] ? @one_item["MONITORING/NETTX"].to_i : 0
-            previous_netrx = @one_item && @one_item["MONITORING/NETRX"] ? @one_item["MONITORING/NETRX"].to_i : 0
-            previous_diskrdiops = @one_item && @one_item["MONITORING/DISKRDIOPS"] ? @one_item["MONITORING/DISKRDIOPS"].to_i : 0
-            previous_diskwriops = @one_item && @one_item["MONITORING/DISKWRIOPS"] ? @one_item["MONITORING/DISKWRIOPS"].to_i : 0
-            previous_diskrdbytes = @one_item && @one_item["MONITORING/DISKRDBYTES"] ? @one_item["MONITORING/DISKRDBYTES"].to_i : 0
-            previous_diskwrbytes = @one_item && @one_item["MONITORING/DISKWRBYTES"] ? @one_item["MONITORING/DISKWRBYTES"].to_i : 0
-
-            @monitor[:nettx] = previous_nettx + (nettx_kbpersec * 1024 * refresh_rate).to_i
-            @monitor[:netrx] = previous_netrx + (netrx_kbpersec * 1024 * refresh_rate).to_i
-
-            @monitor[:diskrdiops]  = previous_diskrdiops + read_iops
-            @monitor[:diskwriops]  = previous_diskwriops + write_iops
-            @monitor[:diskrdbytes] = previous_diskrdbytes + (read_kbpersec * 1024 * refresh_rate).to_i
-            @monitor[:diskwrbytes] = previous_diskwrbytes + (write_kbpersec * 1024 * refresh_rate).to_i
+        else
+            nettx_kbpersec = 0
+            netrx_kbpersec = 0
+            read_kbpersec  = 0
+            read_iops      = 0
+            write_kbpersec = 0
+            write_iops     = 0
         end
+
+        # Accumulate values if present
+        previous_nettx = @one_item && @one_item["MONITORING/NETTX"] ? @one_item["MONITORING/NETTX"].to_i : 0
+        previous_netrx = @one_item && @one_item["MONITORING/NETRX"] ? @one_item["MONITORING/NETRX"].to_i : 0
+        previous_diskrdiops = @one_item && @one_item["MONITORING/DISKRDIOPS"] ? @one_item["MONITORING/DISKRDIOPS"].to_i : 0
+        previous_diskwriops = @one_item && @one_item["MONITORING/DISKWRIOPS"] ? @one_item["MONITORING/DISKWRIOPS"].to_i : 0
+        previous_diskrdbytes = @one_item && @one_item["MONITORING/DISKRDBYTES"] ? @one_item["MONITORING/DISKRDBYTES"].to_i : 0
+        previous_diskwrbytes = @one_item && @one_item["MONITORING/DISKWRBYTES"] ? @one_item["MONITORING/DISKWRBYTES"].to_i : 0
+
+        @monitor[:nettx] = previous_nettx + (nettx_kbpersec * 1024 * refresh_rate).to_i
+        @monitor[:netrx] = previous_netrx + (netrx_kbpersec * 1024 * refresh_rate).to_i
+
+        @monitor[:diskrdiops]  = previous_diskrdiops + read_iops
+        @monitor[:diskwriops]  = previous_diskwriops + write_iops
+        @monitor[:diskrdbytes] = previous_diskrdbytes + (read_kbpersec * 1024 * refresh_rate).to_i
+        @monitor[:diskwrbytes] = previous_diskwrbytes + (write_kbpersec * 1024 * refresh_rate).to_i
     end
 
 
