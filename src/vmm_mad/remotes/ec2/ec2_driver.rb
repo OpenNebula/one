@@ -248,19 +248,19 @@ class EC2Driver
 
         conn_opts = get_connect_info(host)
         regions = PUBLIC_CLOUD_EC2_CONF['regions']
-        regions["default"]["access_key_id"] = conn_opts[:access]
-        regions["default"]["secret_access_key"] = conn_opts[:secret]
-        
+        access_key = conn_opts[:access]
+        secret_key = conn_opts[:secret]
+
         @region = regions[host] || regions["default"]
-        
+               
         #sanitize region data
-        raise "access_key_id not defined for #{host}" if @region['access_key_id'].nil?
-        raise "secret_access_key not defined for #{host}" if @region['secret_access_key'].nil?
+        raise "access_key_id not defined for #{host}" if access_key.nil?
+        raise "secret_access_key not defined for #{host}" if secret_key.nil?
         raise "region_name not defined for #{host}" if @region['region_name'].nil?
 
         Aws.config.merge!({
-            :access_key_id      => @region['access_key_id'],
-            :secret_access_key  => @region['secret_access_key'],
+            :access_key_id      => access_key,
+            :secret_access_key  => secret_key,
             :region             => @region['region_name']
         })
 
