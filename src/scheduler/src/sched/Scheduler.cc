@@ -110,7 +110,7 @@ void Scheduler::start()
     string etc_path;
 
     unsigned int live_rescheds;
-    bool         use_prio;
+    unsigned int use_prio;
 
     pthread_attr_t pattr;
 
@@ -324,7 +324,7 @@ void Scheduler::start()
     img_dspool = new ImageDatastorePoolXML(client);
 
     vm_roles_pool = new VirtualMachineRolePoolXML(client, machines_limit);
-    vmpool = new VirtualMachinePoolXML(client, machines_limit, live_rescheds==1, use_prio=0);
+    vmpool = new VirtualMachinePoolXML(client, machines_limit, live_rescheds==1, use_prio);
 
     vmgpool = new VMGroupPoolXML(client);
 
