@@ -70,6 +70,11 @@ public:
         return oid;
     };
 
+    int get_prio() const
+    {
+        return oid;
+    };    
+
     int get_uid() const
     {
         return uid;

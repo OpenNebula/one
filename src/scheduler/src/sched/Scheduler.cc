@@ -109,6 +109,7 @@ void Scheduler::start()
     string etc_path;
 
     unsigned int live_rescheds;
+    unsigned int use_prio;
 
     pthread_attr_t pattr;
 
@@ -151,6 +152,8 @@ void Scheduler::start()
     conf.get("MAX_DISPATCH", dispatch_limit);
 
     conf.get("MAX_HOST", host_dispatch_limit);
+
+    conf.get("USE_PRIO", use_prio);
 
     conf.get("LIVE_RESCHEDS", live_rescheds);
 
@@ -320,7 +323,13 @@ void Scheduler::start()
     dspool     = new SystemDatastorePoolXML(Client::client());
     img_dspool = new ImageDatastorePoolXML(Client::client());
 
-    acls = new AclXML(Client::client(), zone_id);
+
+    vm_roles_pool = new VirtualMachineRolePoolXML(client, machines_limit);
+    vmpool = new VirtualMachinePoolXML(client, machines_limit, live_rescheds==1, use_prio);
+
+    vmgpool = new VMGroupPoolXML(client);
+
+    vmapool = new VirtualMachineActionsPoolXML(client, machines_limit);
 
     // -----------------------------------------------------------
     // Load scheduler policies
@@ -1247,15 +1256,13 @@ void Scheduler::dispatch()
             //------------------------------------------------------------------
             // Dispatch and update host and DS capacity, and dispatch counters
             //------------------------------------------------------------------
-            // if (vmpool->dispatch(vm_it->first, hid, dsid, vm->is_resched()) != 0)
             if (vmpool->dispatch(vm->get_oid(), hid, dsid, vm->is_resched()) != 0)
             {
                 continue;
             }
-
-            //dss << "\t" << vm_it->first << "\t" << hid << "\t" << dsid << "\n";
+        
             dss << "\t" << vm->get_oid() << "\t" << hid << "\t" << dsid << "\n";
-
+           
             // DS capacity skip VMs deployed in public cloud hosts
             if (!host->is_public_cloud())
             {

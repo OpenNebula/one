@@ -36,6 +36,7 @@ int VirtualMachinePoolXML::set_up()
             oss << "Pending/rescheduling VM and capacity requirements:" << endl;
 
             oss << right << setw(8)  << "ACTION"    << " "
+                << right << setw(8)  << "PRIO"      << " "
                 << right << setw(8)  << "VM"        << " "
                 << right << setw(8)  << "PRIO"        << " "
                 << right << setw(4)  << "CPU"       << " "
@@ -66,8 +67,8 @@ int VirtualMachinePoolXML::set_up()
                     action = "RESUME";
                 }
 
+
                 oss << right << setw(8)  << action      << " "
-                    //<< right << setw(8)  << it->first   << " "
                     << right << setw(8)  << vm->get_oid()   << " "
                     << right << setw(8)  << vm->get_prio()   << " "
                     << right << setw(4)  << cpu         << " "
@@ -102,6 +103,8 @@ int VirtualMachinePoolXML::set_up()
 
 void VirtualMachinePoolXML::add_object(xmlNodePtr node)
 {
+    ostringstream   oss;
+   
     if ( node == 0 || node->children == 0 || node->children->next==0 )
     {
         NebulaLog::log("VM",Log::ERROR,
@@ -110,13 +113,22 @@ void VirtualMachinePoolXML::add_object(xmlNodePtr node)
     }
 
     VirtualMachineXML* vm = new VirtualMachineXML(node);
+   
+    if ( use_prio == 1) { 
+       objects.insert(pair<int,ObjectXML*>(vm->get_prio(),vm));
+       oss << "Priority: " << vm->get_prio();
+       NebulaLog::log("VM", Log::INFO, oss);
+    } else {
+       objects.insert(pair<int,ObjectXML*>(vm->get_oid(),vm));
+    }
 
-    bool use_prio = true; // TODO: mettere nel file di cnfigurazione
+    
     if ( use_prio ) { 
        objects.insert(pair<int,ObjectXML*>(vm->get_prio(),vm));
     } else {
        objects.insert(pair<int,ObjectXML*>(vm->get_oid(),vm));
     }
+
 }
 
 /* -------------------------------------------------------------------------- */
