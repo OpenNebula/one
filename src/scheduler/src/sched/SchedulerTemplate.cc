@@ -93,7 +93,7 @@ void SchedulerTemplate::set_conf_default()
    // USE_PRIO
    value = "0";
 
-   attribute = new SigleAttribute("USE_PRIO", value);
+   attribute = new SingleAttribute("USE_PRIO", value);
    conf_default.insert(make_pair(attribute->name(),attribute));
 
     //LIVE_RESCHEDS

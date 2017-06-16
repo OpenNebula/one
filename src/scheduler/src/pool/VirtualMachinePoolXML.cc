@@ -105,6 +105,8 @@ int VirtualMachinePoolXML::set_up()
 
 void VirtualMachinePoolXML::add_object(xmlNodePtr node)
 {
+    ostringstream   oss;
+   
     if ( node == 0 || node->children == 0 || node->children->next==0 )
     {
         NebulaLog::log("VM",Log::ERROR,
@@ -113,11 +115,11 @@ void VirtualMachinePoolXML::add_object(xmlNodePtr node)
     }
 
     VirtualMachineXML* vm = new VirtualMachineXML(node);
-    
-    if ( use_prio ) { 
+   
+    if ( use_prio == 1) { 
        objects.insert(pair<int,ObjectXML*>(vm->get_prio(),vm));
-       // oss << vm->get_prio();
-       // NebulaLog::log("VM", Log::INFO, oss);
+       oss << "Priority: " << vm->get_prio();
+       NebulaLog::log("VM", Log::INFO, oss);
     } else {
        objects.insert(pair<int,ObjectXML*>(vm->get_oid(),vm));
     }
