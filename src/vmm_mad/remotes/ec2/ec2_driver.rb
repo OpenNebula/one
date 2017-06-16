@@ -54,8 +54,8 @@ def handle_exception(action, ex, host, did, id = nil, file = nil)
 
     file    ||= ""
     id      ||= ""
-    STDERR.puts action + " of VM #{id} #{did} on host #{host} #{file} "+
-                "due to \"#{ex.message}\""
+    opennebula::log_error(action + " of VM #{id} #{did} on host #{host} #{file} "+
+                "due to \"#{ex.message}\"")
     STDERR.puts "********* STACK TRACE *********"
     STDERR.puts ex.backtrace
     STDERR.puts "*******************************"
@@ -376,7 +376,7 @@ class EC2Driver
             begin
                 break if instance.exists?
             rescue => e
-                STDERR.puts "RESCUE: #{e.inspect}"
+                opennebula::log_error("RESCUE: #{e.inspect}")
             end
 
             sleep 2
@@ -836,7 +836,7 @@ private
             end
             cpu = cpu.to_f.round(2).to_s
         rescue => e
-            STDERR.puts(e.message)
+            opennebula::log_error(e.message)
         end
 
         # NETTX
@@ -855,7 +855,7 @@ private
                 nettx += dp[:sum].to_i
             }
         rescue => e
-            STDERR.puts(e.message)
+            opennebula::log_error(e.message)
         end
 
         # NETRX
@@ -874,7 +874,7 @@ private
                 netrx += dp[:sum].to_i
             }
         rescue => e
-            STDERR.puts(e.message)
+            opennebula::log_error(e.message)
         end
 
         "CPU=#{cpu.to_s} NETTX=#{nettx.to_s} NETRX=#{netrx.to_s} "
@@ -910,8 +910,8 @@ private
         user_id = xml['TEMPLATE/CREATED_BY']
 
         if user_id.nil?
-            STDERR.puts {"VMID:#{vmid} CREATED_BY not present" \
-                " in the VM TEMPLATE"}
+            opennebula::log_error("VMID:#{vmid} CREATED_BY not present" \
+                " in the VM TEMPLATE")
             return nil
         end
 
@@ -920,16 +920,16 @@ private
         rc   = user.info
 
         if OpenNebula.is_error?(rc)
-            STDERR.puts {"VMID:#{vmid} user.info" \
-                " error: #{rc.message}"}
+            opennebula::log_error("VMID:#{vmid} user.info" \
+                " error: #{rc.message}")
             return nil
         end
 
         token_password = user['TEMPLATE/TOKEN_PASSWORD']
 
         if token_password.nil?
-            STDERR.puts {"VMID:#{vmid} TOKEN_PASSWORD not present"\
-                " in the USER:#{user_id} TEMPLATE"}
+            opennebula::log_error(VMID:#{vmid} TOKEN_PASSWORD not present"\
+                " in the USER:#{user_id} TEMPLATE")
             return nil
         end
 
