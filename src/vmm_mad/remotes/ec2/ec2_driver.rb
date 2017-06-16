@@ -317,46 +317,55 @@ class EC2Driver
 
     # DEPLOY action, also sets ports and ip if needed
     def deploy(id, host, xml_text, lcm_state, deploy_id)
-        if lcm_state == "BOOT" || lcm_state == "BOOT_FAILURE"
 
-            begin
-                ec2_info = get_deployment_info(host, xml_text)
-            rescue Exception => e
-                raise e
-            end
-
-            load_default_template_values
-
-            if !ec2_value(ec2_info, 'AMI')
-                raise "Cannot find AMI in deployment file"
-            end
-
-            opts = generate_options(:run, ec2_info, {
-                :min_count => 1,
-                :max_count => 1})
-
-            # The OpenNebula context will be only included if not USERDATA
-            #   is provided by the user
-            if !ec2_value(ec2_info, 'USERDATA')
-                xml = OpenNebula::XMLElement.new
-                xml.initialize_xml(xml_text, 'VM')
-
-            if xml.has_elements?('TEMPLATE/CONTEXT')
-                # Since there is only 1 level ',' will not be added
-                context_str = xml.template_like_str('TEMPLATE/CONTEXT')
-
-                if xml['TEMPLATE/CONTEXT/TOKEN'] == 'YES'
-                    # TODO use OneGate library
-                    token_str = generate_onegate_token(xml)
-                    if token_str
-                        context_str << "\nONEGATE_TOKEN=\"#{token_str}\""
-                    end
-                end
-
-                userdata_key = EC2[:run][:args]["USERDATA"][:opt]
-                opts[userdata_key] = Base64.encode64(context_str)
-            end
+        # Restore if we need to
+        
+        if lcm_state != "BOOT" && lcm_state != "BOOT_FAILURE"
+            restore(deploy_id)
+            return deploy_id
         end
+
+        # Otherwise deploy the VM
+
+        begin
+            ec2_info = get_deployment_info(host, xml_text)
+        rescue Exception => e
+            raise e
+        end
+
+        load_default_template_values
+
+        if !ec2_value(ec2_info, 'AMI')
+            raise "Cannot find AMI in deployment file"
+        end
+
+        opts = generate_options(:run, ec2_info, {
+            :min_count => 1,
+            :max_count => 1})
+
+        # The OpenNebula context will be only included if not USERDATA
+        #   is provided by the user
+        if !ec2_value(ec2_info, 'USERDATA')
+            xml = OpenNebula::XMLElement.new
+            xml.initialize_xml(xml_text, 'VM')
+        end
+
+        if xml.has_elements?('TEMPLATE/CONTEXT')
+            # Since there is only 1 level ',' will not be added
+            context_str = xml.template_like_str('TEMPLATE/CONTEXT')
+
+            if xml['TEMPLATE/CONTEXT/TOKEN'] == 'YES'
+                # TODO use OneGate library
+                token_str = generate_onegate_token(xml)
+                if token_str
+                    context_str << "\nONEGATE_TOKEN=\"#{token_str}\""
+                end
+            end
+
+            userdata_key = EC2[:run][:args]["USERDATA"][:opt]
+            opts[userdata_key] = Base64.encode64(context_str)
+        end
+        
 
         instances = @ec2.create_instances(opts)
         instance = instances.first
@@ -412,10 +421,6 @@ class EC2Driver
         }])
 
         puts(instance.id)
-      else
-        restore(deploy_id)
-        deploy_id
-      end
     end
 
     # Shutdown a EC2 instance
