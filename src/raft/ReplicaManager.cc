@@ -60,6 +60,8 @@ void ReplicaManager::stop_replica_threads()
     {
         it->second->finalize();
 
+        pthread_cancel(it->second->thread_id());
+
         delete it->second;
     }
 

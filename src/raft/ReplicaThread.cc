@@ -38,6 +38,8 @@ extern "C" void * replication_thread(void *arg)
 {
     ReplicaThread * rt;
 
+    int oldstate;
+
     if ( arg == 0 )
     {
         return 0;
@@ -46,6 +48,10 @@ extern "C" void * replication_thread(void *arg)
     rt = static_cast<ReplicaThread *>(arg);
 
     rt->_thread_id = pthread_self();
+
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &oldstate);
+
+    pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &oldstate);
 
     rt->do_replication();
 

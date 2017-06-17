@@ -381,11 +381,16 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
         }
     }
 
-    if ( logdb->get_log_record(index, lr) != 0 )
+    if ( logdb->get_log_record(index, lr) == 0 )
     {
         if ( lr.term != term )
         {
             logdb->delete_log_records(index);
+        }
+        else //Already a log record with same index and term
+        {
+            success_response(static_cast<int>(current_term), att);
+            return;
         }
     }
 
