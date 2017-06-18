@@ -295,7 +295,8 @@ class Datastore < Storage
             ).wait_for_completion
         rescue Exception => e
             # Ignore if file not found
-            if !e.message.start_with?('ManagedObjectNotFound')
+            if !e.message.start_with?('ManagedObjectNotFound') &&
+               !e.message.start_with?('FileNotFound')
                 raise e
             end
         end
@@ -312,7 +313,8 @@ class Datastore < Storage
             ).wait_for_completion
         rescue Exception => e
             # Ignore if file not found
-            if !e.message.start_with?('ManagedObjectNotFound')
+            if !e.message.start_with?('ManagedObjectNotFound') &&
+               !e.message.start_with?('FileNotFound')
                 raise e
             end
         end
@@ -375,11 +377,17 @@ class Datastore < Storage
             'searchSpec'    => spec
         }
 
-        ls = self['browser'].SearchDatastoreSubFolders_Task(search_params)
-
-        ls.info.result && ls.info.result.length == 1  && \
-                ls.info.result.first.file.length == 0
+        begin
+            search_task = self['browser'].SearchDatastoreSubFolders_Task(search_params)
+            search_task.wait_for_completion
+            empty = !!search_task.info.result &&
+                    search_task.info.result.length == 1 &&
+                    search_task.info.result.first.file.length == 0
+        rescue
+            empty = false
+        end
     end
+
 
     def upload_file(source_path, target_path)
         @item.upload(target_path, source_path)

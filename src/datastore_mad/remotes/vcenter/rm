@@ -59,15 +59,33 @@ begin
 
         img_type    = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TYPE"]
 
-        if img_type != CDROM
-            # delete the disk
-            ds.delete_virtual_disk(img_src)
-        else
-            # delete the CDROM iso
-            ds.delete_file(img_src)
-        end
+        # Check if file exists before trying to delete it
+        ds_name  = ds['name']
+        img_path = File.dirname img_src
+        img_name = File.basename img_src
 
-        ds.rm_directory(img_dir) if ds.dir_empty?(img_dir)
+        search_params = ds.get_search_params(ds_name, img_path, img_name)
+
+        # Perform search task and return results
+        begin
+            search_task = ds['browser'].SearchDatastoreSubFolders_Task(search_params)
+            search_task.wait_for_completion
+
+            if img_type != CDROM
+                # delete the disk
+                ds.delete_virtual_disk(img_src)
+            else
+                # delete the CDROM iso
+                ds.delete_file(img_src)
+            end
+
+            ds.rm_directory(img_dir) if ds.dir_empty?(img_dir)
+
+        rescue Exception => e
+            if !e.message.start_with?('FileNotFound')
+                raise e.message # Ignore FileNotFound
+            end
+        end
     end
 rescue Exception => e
     message = "Error deleting virtual disk #{img_src}."\
