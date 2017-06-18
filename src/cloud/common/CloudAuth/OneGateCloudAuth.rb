@@ -107,7 +107,7 @@ module OneGateCloudAuth
 
     def decrypt(token_password, data)
         @cipher.decrypt
-        @cipher.key = token_password
+        @cipher.key = token_password[0..31]
 
         rc = @cipher.update(Base64::decode64(data))
         rc << @cipher.final
