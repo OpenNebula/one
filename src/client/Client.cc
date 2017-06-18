@@ -227,13 +227,8 @@ int Client::call(const std::string& endpoint, const std::string& method,
         const xmlrpc_c::paramList& plist, unsigned int _timeout,
         xmlrpc_c::value * const result, std::string& error)
 {
-/*
-    xmlrpc may raise if there is outstanding curl work 
-
     xmlrpc_c::clientXmlTransport_curl transport(
         xmlrpc_c::clientXmlTransport_curl::constrOpt().timeout(_timeout));
-*/
-    xmlrpc_c::clientXmlTransport_curl transport;
 
     xmlrpc_c::carriageParm_curl0  carriage(endpoint);
 
