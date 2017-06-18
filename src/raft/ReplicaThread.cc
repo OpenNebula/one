@@ -55,6 +55,10 @@ extern "C" void * replication_thread(void *arg)
 
     rt->do_replication();
 
+    NebulaLog::log("RCM", Log::INFO, "Replication thread stopped");
+
+    delete rt;
+
     return 0;
 }
 

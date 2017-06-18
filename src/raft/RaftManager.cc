@@ -605,7 +605,7 @@ void RaftManager::replicate_success(int follower_id)
         }
     }
 
-    if ( db_last_index > replicated_index )
+    if ((db_last_index > replicated_index) && (state == LEADER))
     {
         replica_manager.replicate(follower_id);
     }
@@ -632,7 +632,10 @@ void RaftManager::replicate_failure(int follower_id)
         }
     }
 
-    replica_manager.replicate(follower_id);
+    if ( state == LEADER )
+    {
+        replica_manager.replicate(follower_id);
+    }
 
     pthread_mutex_unlock(&mutex);
 }

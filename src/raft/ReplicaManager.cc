@@ -59,10 +59,6 @@ void ReplicaManager::stop_replica_threads()
     for ( it = thread_pool.begin() ; it != thread_pool.end() ; ++it )
     {
         it->second->finalize();
-
-        pthread_cancel(it->second->thread_id());
-
-        delete it->second;
     }
 
     thread_pool.clear();
@@ -109,10 +105,6 @@ void ReplicaManager::delete_replica_thread(int follower_id)
     }
 
     it->second->finalize();
-
-    NebulaLog::log("RCM", Log::INFO, "Replication thread stopped");
-
-    delete it->second;
 
     thread_pool.erase(it);
 };
