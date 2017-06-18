@@ -59,7 +59,7 @@ begin
     end
 
     # Print last VM poll for perfmanager tracking
-    puts "VCENTER_LAST_PERF_POLL=" << last_perf_poll << "\n"
+    puts "VCENTER_LAST_PERF_POLL=" << last_perf_poll << "\n" if last_perf_poll
 
     puts cluster.monitor_customizations
 
