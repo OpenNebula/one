@@ -194,6 +194,13 @@ PoolObjectSQL * PoolSQL::get(int oid, bool olock)
 
     pool.insert(make_pair(objectsql->oid, objectsql));
 
+    if ( uses_name_pool )
+    {
+        string okey = key(objectsql->name, objectsql->uid);
+
+        name_pool.insert(make_pair(okey, objectsql));
+    }
+
     if ( olock == true )
     {
         objectsql->lock();
@@ -262,7 +269,7 @@ void PoolSQL::flush_cache(int oid)
     for (it = pool.begin(); it != pool.end(); )
     {
         // The object we are looking for in ::get(). Wait until it is unlocked()
-        if (it->second->oid == oid)
+        if (it->first == oid)
         {
             it->second->lock();
         }
@@ -281,11 +288,11 @@ void PoolSQL::flush_cache(int oid)
         tmp_ptr = it->second;
 
         // map::erase does not invalidate iterator, except for the current one
-        pool.erase(it++);
+        it = pool.erase(it);
 
         if ( uses_name_pool )
         {
-            string okey = key(tmp_ptr->name,tmp_ptr->uid);
+            string okey = key(tmp_ptr->name, tmp_ptr->uid);
 
             name_pool.erase(okey);
         }
@@ -306,10 +313,8 @@ void PoolSQL::flush_cache(const string& name_key)
 
     for (it = name_pool.begin(); it != name_pool.end(); )
     {
-        string okey = key(it->second->name, it->second->uid);
-
         // The object we are looking for in ::get(). Wait until it is unlocked()
-        if (name_key == okey)
+        if (name_key == it->first)
         {
             it->second->lock();
         }
@@ -328,7 +333,7 @@ void PoolSQL::flush_cache(const string& name_key)
         tmp_ptr = it->second;
 
         // map::erase does not invalidate iterator, except for the current one
-        name_pool.erase(it++);
+        it = name_pool.erase(it);
 
         pool.erase(tmp_ptr->oid);
 
