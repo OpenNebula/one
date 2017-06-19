@@ -45,3 +45,8 @@ export SHUTDOWN_TIMEOUT=300
 # default value is "ignore" (or its synonym "off"), and the other valid value
 # is "unmap" (or "on").
 #DEFAULT_ATTACH_DISCARD=unmap
+
+# This parameters will set the default NIC model and filter for
+# the hot-attached interfaces.
+#DEFAULT_ATTACH_NIC_MODEL=virtio
+#DEFAULT_ATTACH_NIC_FILTER=clean-traffic

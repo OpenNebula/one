@@ -20,31 +20,77 @@ source $(dirname $0)/kvmrc
 source $(dirname $0)/../../scripts_common.sh
 
 DOMAIN=$1
-MAC=$2
-BRIDGE=$3
-THE_MODEL=$4
-NET_DRV=$5
-TARGET=$6
 
-if [ "$THE_MODEL" != "-" ]; then
-    MODEL="<model type='$THE_MODEL'/>"
+get_nic_information "ATTACH='YES'"
+
+# defaults
+[ -z "${MODEL}" ] && [ -n "${DEFAULT_ATTACH_NIC_MODEL}" ] && \
+    MODEL="${DEFAULT_ATTACH_NIC_MODEL}"
+
+[ -z "${FILTER}" ] && [ -n "${DEFAULT_ATTACH_NIC_FILTER}" ] && \
+    FILTER="${DEFAULT_ATTACH_NIC_FILTER}"
+
+# interface XML
+#TODO: escaping
+DEVICE=''
+
+if [ -z "${BRIDGE}" ]; then
+    DEVICE+="<interface type='ethernet'>"
+else
+    DEVICE+="<interface type='bridge'>"
+    [ "${VN_MAD}" = 'ovswitch' ] && DEVICE+=" <virtualport type='openvswitch'/>"
+    DEVICE+=" <source bridge='${BRIDGE}'/>"
 fi
 
-if [ "$NET_DRV" = "ovswitch" ]; then
-    VIRTUALPORT="<virtualport type='openvswitch'/>"
+[ -n "${MAC}" ] && DEVICE+=" <mac address='${MAC}'/>"
+[ -n "${NIC_TARGET}" ] && DEVICE+=" <target dev='${NIC_TARGET}'/>"
+[ -n "${ORDER}" ] && DEVICE+=" <boot order='${ORDER}'/>"
+[ -n "${SCRIPT}" ] && DEVICE+=" <script path='${SCRIPT}'/>"
+[ -n "${MODEL}" ] && DEVICE+=" <model type='${MODEL}'/>"
+
+if [ -n "${IP}" ] && [ -n "${FILTER}" ]; then
+    DEVICE+=" <filterref filter='${FILTER}'>"
+    DEVICE+=" <parameter name='IP' value='${IP}'/>"
+    DEVICE+=" </filterref>"
 fi
 
-DEVICE=$(cat <<EOF
-<interface type='bridge'>
-    <source bridge='$BRIDGE'/>
-    <mac address='$MAC'/>
-    <target dev='$TARGET'/>
-    $MODEL
-    $VIRTUALPORT
-</interface>
-EOF
-)
+if [ -n "${INBOUND_AVG_BW}${INBOUND_PEAK_BW}${INBOUND_PEAK_KB}" ] || \
+   [ -n "${OUTBOUND_AVG_BW}${OUTBOUND_PEAK_BW}${OUTBOUND_PEAK_KB}" ];
+then
+    DEVICE+=" <bandwidth>"
 
+    if [ -n "${INBOUND_AVG_BW}${INBOUND_PEAK_BW}${INBOUND_PEAK_KB}" ]; then
+        DEVICE+=" <inbound"
+
+        [ -n "${INBOUND_AVG_BW}" ] && \
+            DEVICE+=" average='${INBOUND_AVG_BW}'"
+        [ -n "${INBOUND_PEAK_BW}" ] && \
+            DEVICE+=" peak='${INBOUND_PEAK_BW}'"
+        [ -n "${INBOUND_PEAK_KB}" ] && \
+            DEVICE+=" burst='${INBOUND_PEAK_KB}'"
+
+        DEVICE+=" />"
+    fi
+
+    if [ -n "${OUTBOUND_AVG_BW}${OUTBOUND_PEAK_BW}${OUTBOUND_PEAK_KB}" ]; then
+        DEVICE+=" <outbound"
+
+        [ -n "${OUTBOUND_AVG_BW}" ] && \
+            DEVICE+=" average='${OUTBOUND_AVG_BW}'"
+        [ -n "${OUTBOUND_PEAK_BW}" ] && \
+            DEVICE+=" peak='${OUTBOUND_PEAK_BW}'"
+        [ -n "${OUTBOUND_PEAK_KB}" ] && \
+            DEVICE+=" burst='${OUTBOUND_PEAK_KB}'"
+
+        DEVICE+=" />"
+    fi
+
+    DEVICE+=" </bandwidth>"
+fi
+
+DEVICE+=" </interface>"
+
+# device attach
 ATTACH_CMD=$(cat <<EOF
 virsh --connect $LIBVIRT_URI attach-device $DOMAIN <(
 cat <<EOT
@@ -55,4 +101,4 @@ EOF
 )
 
 multiline_exec_and_log "$ATTACH_CMD" \
-    "Could not attach $SOURCE ($TARGET) to $DOMAIN"
+    "Could not attach NIC ${NIC_ID} ($MAC) to $DOMAIN"
