@@ -89,7 +89,7 @@ define(function(require) {
     $( ".uinput-slider-val",context).prop('type', 'text');
     $( ".uinput-slider-val",context).val(Humanize.size($( ".uinput-slider",context).val()));
 
-    $( ".uinput-slider", context).on("change", function(){
+    $( ".uinput-slider", context).on("input", function(){
       $( ".uinput-slider-val",context).val(Humanize.size($( ".uinput-slider",context).val()));
       var cost = Humanize.sizeToMB($( ".uinput-slider",context).val())*that.diskCost;
       document.getElementById("new_cost_resize").textContent =  Locale.tr("Cost")+": "+ convertCostNumber(cost);
