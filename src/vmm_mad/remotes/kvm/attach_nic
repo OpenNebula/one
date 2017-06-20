@@ -30,8 +30,18 @@ get_nic_information "ATTACH='YES'"
 [ -z "${FILTER}" ] && [ -n "${DEFAULT_ATTACH_NIC_FILTER}" ] && \
     FILTER="${DEFAULT_ATTACH_NIC_FILTER}"
 
+# functions
+function xml_esc
+{
+   R=${1//\'/&apos;}
+   R=${R//\"/&quot;}
+   R=${R//\&/&amp;}
+   R=${R//\</&lt;}
+   R=${R//\>/&gt;}
+   echo "${R}"
+}
+
 # interface XML
-#TODO: escaping
 DEVICE=''
 
 if [ -z "${BRIDGE}" ]; then
@@ -39,19 +49,19 @@ if [ -z "${BRIDGE}" ]; then
 else
     DEVICE+="<interface type='bridge'>"
     [ "${VN_MAD}" = 'ovswitch' ] && DEVICE+=" <virtualport type='openvswitch'/>"
-    DEVICE+=" <source bridge='${BRIDGE}'/>"
+    DEVICE+=" <source bridge='$(xml_esc "${BRIDGE}")'/>"
 fi
 
-[ -n "${MAC}" ] && DEVICE+=" <mac address='${MAC}'/>"
-[ -n "${NIC_TARGET}" ] && DEVICE+=" <target dev='${NIC_TARGET}'/>"
-[ -n "${ORDER}" ] && DEVICE+=" <boot order='${ORDER}'/>"
-[ -n "${SCRIPT}" ] && DEVICE+=" <script path='${SCRIPT}'/>"
-[ -n "${MODEL}" ] && DEVICE+=" <model type='${MODEL}'/>"
+[ -n "${MAC}" ] && DEVICE+=" <mac address='$(xml_esc "${MAC}")'/>"
+[ -n "${NIC_TARGET}" ] && DEVICE+=" <target dev='$(xml_esc "${NIC_TARGET}")'/>"
+[ -n "${ORDER}" ] && DEVICE+=" <boot order='$(xml_esc "${ORDER}")'/>"
+[ -n "${SCRIPT}" ] && DEVICE+=" <script path='$(xml_esc "${SCRIPT}")'/>"
+[ -n "${MODEL}" ] && DEVICE+=" <model type='$(xml_esc "${MODEL}")'/>"
 
 if [ -n "${MAC}" ] && [ -n "${FILTER}" ]; then
-    DEVICE+=" <filterref filter='${FILTER}'>"
+    DEVICE+=" <filterref filter='$(xml_esc "${FILTER}")'>"
     if [ -n "${IP}" ]; then
-        DEVICE+=" <parameter name='IP' value='${IP}'/>"
+        DEVICE+=" <parameter name='IP' value='$(xml_esc "${IP}")'/>"
     else
         DEVICE+=" <parameter name='CTRL_IP_LEARNING' value='dhcp'/>"
     fi
@@ -67,11 +77,11 @@ then
         DEVICE+=" <inbound"
 
         [ -n "${INBOUND_AVG_BW}" ] && \
-            DEVICE+=" average='${INBOUND_AVG_BW}'"
+            DEVICE+=" average='$(xml_esc "${INBOUND_AVG_BW}")'"
         [ -n "${INBOUND_PEAK_BW}" ] && \
-            DEVICE+=" peak='${INBOUND_PEAK_BW}'"
+            DEVICE+=" peak='$(xml_esc "${INBOUND_PEAK_BW}")'"
         [ -n "${INBOUND_PEAK_KB}" ] && \
-            DEVICE+=" burst='${INBOUND_PEAK_KB}'"
+            DEVICE+=" burst='$(xml_esc "${INBOUND_PEAK_KB}")'"
 
         DEVICE+=" />"
     fi
@@ -80,11 +90,11 @@ then
         DEVICE+=" <outbound"
 
         [ -n "${OUTBOUND_AVG_BW}" ] && \
-            DEVICE+=" average='${OUTBOUND_AVG_BW}'"
+            DEVICE+=" average='$(xml_esc "${OUTBOUND_AVG_BW}")'"
         [ -n "${OUTBOUND_PEAK_BW}" ] && \
-            DEVICE+=" peak='${OUTBOUND_PEAK_BW}'"
+            DEVICE+=" peak='$(xml_esc "${OUTBOUND_PEAK_BW}")'"
         [ -n "${OUTBOUND_PEAK_KB}" ] && \
-            DEVICE+=" burst='${OUTBOUND_PEAK_KB}'"
+            DEVICE+=" burst='$(xml_esc "${OUTBOUND_PEAK_KB}")'"
 
         DEVICE+=" />"
     fi
