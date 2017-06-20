@@ -48,9 +48,13 @@ fi
 [ -n "${SCRIPT}" ] && DEVICE+=" <script path='${SCRIPT}'/>"
 [ -n "${MODEL}" ] && DEVICE+=" <model type='${MODEL}'/>"
 
-if [ -n "${IP}" ] && [ -n "${FILTER}" ]; then
+if [ -n "${MAC}" ] && [ -n "${FILTER}" ]; then
     DEVICE+=" <filterref filter='${FILTER}'>"
-    DEVICE+=" <parameter name='IP' value='${IP}'/>"
+    if [ -n "${IP}" ]; then
+        DEVICE+=" <parameter name='IP' value='${IP}'/>"
+    else
+        DEVICE+=" <parameter name='CTRL_IP_LEARNING' value='dhcp'/>"
+    fi
     DEVICE+=" </filterref>"
 fi
 
