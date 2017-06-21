@@ -394,9 +394,10 @@ class EC2Driver
         instance.create_tags(:tags => tag_array) if tag_array.length > 0
 
         elastic_ip = ec2_value(ec2_info, 'ELASTICIP')
+ 
+        wait_state('running', instance.id)
 
         if elastic_ip
-            wait_state('pending', instance.id)
 
             if elastic_ip.match(Resolv::IPv4::Regex)
                 address_key = :public_ip
@@ -412,7 +413,6 @@ class EC2Driver
             @ec2.client.associate_address(address)
         end
 
-        wait_state('running', instance.id)
 
         instance.create_tags(tags: [{
             key: 'ONE_ID',
