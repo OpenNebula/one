@@ -21,10 +21,8 @@
 
 /* -------------------------------------------------------------------------- */
 
-MarketPlacePool::MarketPlacePool(
-        SqlDB * db,
-        bool    is_federation_slave)
-    :PoolSQL(db, MarketPlace::table, !is_federation_slave, true)
+MarketPlacePool::MarketPlacePool(SqlDB * db, bool is_federation_slave)
+    :PoolSQL(db, MarketPlace::table)
 {
     //Federation slaves do not need to init the pool
     if (is_federation_slave)

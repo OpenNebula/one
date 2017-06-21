@@ -36,7 +36,7 @@ const int    ClusterPool::DEFAULT_CLUSTER_ID   = 0;
 /* -------------------------------------------------------------------------- */
 
 ClusterPool::ClusterPool(SqlDB * db, const VectorAttribute * _vnc_conf):
-    PoolSQL(db, Cluster::table, true, true), vnc_conf(_vnc_conf)
+    PoolSQL(db, Cluster::table), vnc_conf(_vnc_conf)
 {
     ostringstream oss;
     string        error_str;

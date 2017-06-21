@@ -28,8 +28,7 @@ const int ZonePool::STANDALONE_ZONE_ID = 0;
 
 /* -------------------------------------------------------------------------- */
 
-ZonePool::ZonePool(SqlDB * db, bool is_federation_slave)
-    :PoolSQL(db, Zone::table, !is_federation_slave, true)
+ZonePool::ZonePool(SqlDB * db, bool is_federation_slave):PoolSQL(db,Zone::table)
 {
     string error_str;
 

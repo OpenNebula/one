@@ -45,10 +45,8 @@ public:
      *   @param _db a pointer to the database
      *   @param _table the name of the table supporting the pool (to set the oid
      *   counter). If null the OID counter is not updated.
-     *   @param cache True to enable the cache
-     *   @param cache_by_name True if the objects can be retrieved by name
      */
-    PoolSQL(SqlDB * _db, const char * _table, bool cache, bool cache_by_name);
+    PoolSQL(SqlDB * _db, const char * _table);
 
     virtual ~PoolSQL();
 
@@ -353,18 +351,7 @@ private:
      *  The pool is implemented with a Map of SQL object pointers, using the
      *  OID as key.
      */
-    map<int,PoolObjectSQL *> pool;
-
-    /**
-     * Whether or not this pool uses the name_pool index
-     */
-    bool uses_name_pool;
-
-    /**
-     *  This is a name index for the pool map. The key is the name of the object
-     *  , that may be combained with the owner id.
-     */
-    map<string,PoolObjectSQL *> name_pool;
+    vector<PoolObjectSQL *> pool;
 
     /**
      *  Factory method, must return an ObjectSQL pointer to an allocated pool

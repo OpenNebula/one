@@ -25,7 +25,7 @@ class AuthRequest;
 class VMGroupPool : public PoolSQL
 {
 public:
-    VMGroupPool(SqlDB * db):PoolSQL(db, VMGroup::table, true, true){};
+    VMGroupPool(SqlDB * db):PoolSQL(db, VMGroup::table){};
 
     ~VMGroupPool(){};
 

@@ -663,7 +663,7 @@ void Nebula::start(bool bootstrap_only)
         secgrouppool = new SecurityGroupPool(logdb);
 
         marketpool = new MarketPlacePool(db_ptr, is_federation_slave());
-        apppool    = new MarketPlaceAppPool(db_ptr, is_federation_slave());
+        apppool    = new MarketPlaceAppPool(db_ptr);
 
         vmgrouppool = new VMGroupPool(logdb);
 

@@ -56,7 +56,7 @@ UserPool::UserPool(SqlDB * db,
                    vector<const VectorAttribute *> hook_mads,
                    const string&             remotes_location,
                    bool                      is_federation_slave):
-                       PoolSQL(db, User::table, !is_federation_slave, true)
+                       PoolSQL(db, User::table)
 {
     int           one_uid    = -1;
     int           server_uid = -1;

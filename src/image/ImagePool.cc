@@ -42,7 +42,7 @@ ImagePool::ImagePool(
         vector<const VectorAttribute *>& hook_mads,
         const string&                    remotes_location,
         const vector<const SingleAttribute *>& _inherit_attrs)
-    :PoolSQL(db, Image::table, true, true)
+    :PoolSQL(db, Image::table)
 {
     // Init static defaults
     _default_type       = __default_type;

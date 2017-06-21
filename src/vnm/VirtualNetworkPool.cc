@@ -48,7 +48,7 @@ VirtualNetworkPool::VirtualNetworkPool(
     const vector<const SingleAttribute *>& _inherit_attrs,
     const VectorAttribute *             _vlan_conf,
     const VectorAttribute *             _vxlan_conf):
-        PoolSQL(db, VirtualNetwork::table, true, true), vlan_conf(_vlan_conf),
+        PoolSQL(db, VirtualNetwork::table), vlan_conf(_vlan_conf),
         vlan_id_bitmap(vlan_conf, VLAN_BITMAP_ID, vlan_table),
         vxlan_conf(_vxlan_conf)
 {

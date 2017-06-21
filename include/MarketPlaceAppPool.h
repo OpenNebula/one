@@ -24,10 +24,7 @@ class SqlDB;
 class MarketPlaceAppPool : public PoolSQL
 {
 public:
-    MarketPlaceAppPool(
-            SqlDB * db,
-            bool    is_federation_slave)
-                :PoolSQL(db,MarketPlaceApp::table,!is_federation_slave,true){};
+    MarketPlaceAppPool(SqlDB * db):PoolSQL(db, MarketPlaceApp::table){};
 
     ~MarketPlaceAppPool(){};
 

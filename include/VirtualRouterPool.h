@@ -28,7 +28,7 @@ class VirtualRouterPool : public PoolSQL
 public:
 
     VirtualRouterPool(SqlDB * db, vector<const VectorAttribute *> hook_mads,
-        const string& remotes_location) : PoolSQL(db, VirtualRouter::table, true, true)
+        const string& remotes_location) : PoolSQL(db, VirtualRouter::table)
     {
         register_hooks(hook_mads, remotes_location);
     };
