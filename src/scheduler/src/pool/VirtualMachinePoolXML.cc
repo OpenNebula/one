@@ -46,7 +46,8 @@ int VirtualMachinePoolXML::set_up()
                 << " Image DS" << endl
                 << setw(60) << setfill('-') << "-" << setfill(' ') << endl;
 
-            for (map<int,ObjectXML*>::iterator it=objects.begin();it!=objects.end();it++)
+
+            for (map<int,ObjectXML*>::iterator it=objects.begin() ; it != objects.end() ; ++it)
             {
                 int cpu, mem;
                 long long disk;
