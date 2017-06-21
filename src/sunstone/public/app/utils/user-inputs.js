@@ -85,9 +85,9 @@ define(function(require) {
   function _retrieve(context){
     var userInputsJSON = {};
     var order_inputs = "";
-     
+
     $('.user_input_attrs tbody tr').each(function(key, value){
-      order_inputs += $(".user_input_name", $(this)).val() + ","; 
+      order_inputs += $(".user_input_name", $(this)).val() + ",";
     });
 
     this.order = order_inputs.slice(0,-1);
@@ -215,7 +215,6 @@ define(function(require) {
       });
     }
   }
-
 
   // It will replace the div's html with a row for each USER_INPUTS
   // opts.text_header: header text for the text & password inputs
@@ -361,14 +360,13 @@ define(function(require) {
         '</fieldset>';
 
       div.append(html);
-      
+
       if(opts.defaults.INPUTS_ORDER){
         var order = opts.defaults.INPUTS_ORDER;
         var orderJSON = order.split(",");
 
         $.each(orderJSON, function(key, value){
           var orderValue = value;
-          
           $.each(input_attrs, function(index, custom_attr) {
             if(custom_attr.name == orderValue){
               $(".instantiate_user_inputs", div).append(
