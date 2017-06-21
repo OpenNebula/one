@@ -107,9 +107,25 @@ if path.match(/disk\.\d+$/)
 
                 # delete the disk if it's not a CDROM (CLONE=NO)
                 if disk["CLONE"].nil? || disk["CLONE"] == "YES"
-                    ds.delete_virtual_disk(img_path)
-                    img_dir = File.dirname(img_path)
-                    ds.rm_directory(img_dir) if ds.dir_empty?(img_dir)
+
+                    search_params = ds.get_search_params(ds['name'],
+                                                         File.dirname(img_path),
+                                                         File.basename(img_path))
+
+                    # Perform search task and return results
+                    begin
+                        search_task = ds['browser'].SearchDatastoreSubFolders_Task(search_params)
+                        search_task.wait_for_completion
+
+                        ds.delete_virtual_disk(img_path)
+                        img_dir = File.dirname(img_path)
+                        ds.rm_directory(img_dir) if ds.dir_empty?(img_dir)
+
+                    rescue Exception => e
+                        if !e.message.start_with?('FileNotFound')
+                            raise e.message # Ignore FileNotFound
+                        end
+                    end
                 end
             end
         end
