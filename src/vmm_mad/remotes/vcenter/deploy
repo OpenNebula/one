@@ -29,6 +29,8 @@ $: << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
+VNC_ESX_HOST_FOLDER = "/tmp"
+
 dfile        = ARGV[0]
 cluster_name = ARGV[1]
 vm_id        = ARGV[2]
@@ -71,6 +73,12 @@ begin
     vm.reconfigure
     vm.poweron
     vm.set_running(true)
+
+    # Add VCENTER_ESX_HOST to MONITOR info so VNC works for running VMs F#4242
+    esx_host = vm["runtime.host.name"]
+    f = File.open(File.join(VNC_ESX_HOST_FOLDER, "vcenter_vnc_#{one_vm["ID"]}"), 'w')
+    f.write(esx_host)
+    f.close
 
     puts vm['_ref']
 

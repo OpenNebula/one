@@ -291,6 +291,8 @@ int RaftManager::get_leader_endpoint(std::string& endpoint)
 
 void RaftManager::add_server(int follower_id, const std::string& endpoint)
 {
+    std::ostringstream oss;
+
 	LogDB * logdb = Nebula::instance().get_logdb();
 
 	unsigned int log_index, log_term;
@@ -299,12 +301,23 @@ void RaftManager::add_server(int follower_id, const std::string& endpoint)
 
 	pthread_mutex_lock(&mutex);
 
+    if ( state != LEADER )
+    {
+        pthread_mutex_unlock(&mutex);
+        return;
+    }
+
     num_servers++;
     servers.insert(std::make_pair(follower_id, endpoint));
 
 	next.insert(std::make_pair(follower_id, log_index + 1));
 
 	match.insert(std::make_pair(follower_id, 0));
+
+    oss << "Starting replication and heartbeat threads for follower: "
+        << follower_id;
+
+    NebulaLog::log("RCM", Log::INFO, oss);
 
 	replica_manager.add_replica_thread(follower_id);
 
@@ -317,9 +330,16 @@ void RaftManager::add_server(int follower_id, const std::string& endpoint)
 
 void RaftManager::delete_server(int follower_id)
 {
+    std::ostringstream oss;
     std::map<int, std::string> _servers;
 
 	pthread_mutex_lock(&mutex);
+
+    if ( state != LEADER )
+    {
+        pthread_mutex_unlock(&mutex);
+        return;
+    }
 
     num_servers--;
     servers.erase(follower_id);
@@ -327,6 +347,11 @@ void RaftManager::delete_server(int follower_id)
 	next.erase(follower_id);
 
 	match.erase(follower_id);
+
+    oss << "Stopping replication and heartbeat threads for follower: "
+        << follower_id;
+
+    NebulaLog::log("RCM", Log::INFO, oss);
 
 	replica_manager.delete_replica_thread(follower_id);
 
@@ -367,11 +392,7 @@ void RaftManager::leader()
 
     if ( state != CANDIDATE )
     {
-        NebulaLog::log("RCM", Log::INFO, "Cannot become leader, no longer "
-                "candidate");
-
         pthread_mutex_unlock(&mutex);
-
         return;
     }
 

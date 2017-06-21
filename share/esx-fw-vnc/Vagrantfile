@@ -1,0 +1,35 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+#
+if Dir.glob('vmware-esx-vib-author*.rpm').size != 1
+    STDERR.puts <<EOT
+Missing vmware-esx-vib-author RPM, please download and put in current dir.:
+https://labs.vmware.com/flings/vib-author
+
+EOT
+end
+
+# Vagrant configurations
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'virtualbox'
+
+Vagrant.configure("2") do |config|
+    config.vm.box = "centos/6"
+
+    config.vm.provider :virtualbox do |v|
+        v.name = "VIB Vagrant Build"
+    end
+
+    config.vm.synced_folder ".", "/vagrant", type: "sshfs"
+
+    # install VIB author
+    config.vm.provision "shell", inline: <<-SCRIPT
+        yum -y install /vagrant/*.rpm
+    SCRIPT
+
+    # (always) generate VIB/ZIP
+    config.vm.provision "shell",  run: "always", inline: <<-SCRIPT
+        set -e
+        cd /vagrant/
+        vibauthor -C -t vib/ -v fw-vnc.vib -O fw-vnc.zip --force
+    SCRIPT
+end

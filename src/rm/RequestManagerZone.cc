@@ -131,6 +131,8 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
 
         int oid = zone->get_oid();
 
+        unsigned int numservers = zone->servers_size();
+
         zone->to_xml(tmpl_xml);
 
         ErrorCode ec = master_update_zone(oid, tmpl_xml, att);
@@ -143,6 +145,30 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
 
             failure_response(ec, att);
             return;
+        }
+
+        //Wait for zone update to propagate from master before adding the
+        //new server
+        if ( numservers == 2 )
+        {
+            bool updated = false;
+
+            while (!updated) 
+            {
+                Zone * zone = (static_cast<ZonePool *>(pool))->get(id, true);
+
+                if ( zone != 0 )
+                {
+                    if ( zone->get_server(zs_id) != 0 )
+                    {
+                        updated = true;
+                    }
+
+                    zone->unlock();
+                }
+
+                usleep(250000);
+            }
         }
     }
 
@@ -196,7 +222,9 @@ void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ( nd.is_federation_master() )
+	nd.get_raftm()->delete_server(zs_id);
+
+    if ( nd.is_federation_master() || !nd.is_federation_enabled() )
     {
         std::vector<int> zids;
 
@@ -226,8 +254,6 @@ void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
             return;
         }
     }
-
-	nd.get_raftm()->delete_server(zs_id);
 
     success_response(id, att);
 }
@@ -501,6 +527,19 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
+    if ( sql.empty() )
+    {
+        oss << "Received an empty SQL command at index" << index;
+
+        NebulaLog::log("ReM", Log::ERROR, oss);
+
+        att.resp_msg = oss.str();
+        att.resp_id  = index;
+
+        failure_response(ACTION, att);
+        return;
+    }
+
     if ( !nd.is_federation_slave() )
     {
         oss << "Cannot replicate federate log records on federation master";
@@ -511,6 +550,7 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
         att.resp_id  = - 1;
 
         failure_response(ACTION, att);
+        return;
     }
 
     int rc = frm->apply_log_record(index, sql);
@@ -526,7 +566,7 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
         NebulaLog::log("ReM", Log::INFO, oss);
 
         att.resp_msg = oss.str();
-        att.resp_id  = index - 1;
+        att.resp_id  = index;
 
         failure_response(ACTION, att);
     }
@@ -544,3 +584,4 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
 
     return;
 }
+

@@ -105,7 +105,6 @@ module Migrator
     # Adds UID, GID and REQUEST_ID to history records
     ############################################################################
     def feature_5005
-        #TODO ADD VALUES TO HISTORY POOL TABLE
         @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
         create_table(:vm_pool)
 
@@ -136,6 +135,36 @@ module Migrator
         end
 
         @db.run "DROP TABLE old_vm_pool;"
+
+        @db.run "ALTER TABLE history RENAME TO old_history;"
+        create_table(:history)
+
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_history") do |row|
+                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) { |c|
+                    c.default_xml.noblanks
+                }
+
+                h = doc.root
+
+                reason = h.xpath("REASON")
+                reason.unlink if !reason.nil?
+
+                uid = doc.create_element "UID", -1
+                gid = doc.create_element "GID", -1
+                rid = doc.create_element "REQUEST_ID", -1
+
+                h.add_child(uid)
+                h.add_child(gid)
+                h.add_child(rid)
+
+                row[:body] = doc.root.to_s
+
+                @db[:history].insert(row)
+            end
+        end
+
+        @db.run "DROP TABLE old_history;"
     end
 
     def feature_2347
@@ -184,5 +213,40 @@ module Migrator
     def feature_4809
         create_table(:logdb)
         create_table(:fed_logdb)
+
+        @db.run "ALTER TABLE zone_pool RENAME TO old_zone_pool;"
+        create_table(:zone_pool)
+
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_zone_pool") do |row|
+                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) { |c|
+                    c.default_xml.noblanks
+                }
+
+                zedp = xpath(doc, "TEMPLATE/ENDPOINT")
+
+                server_pool = doc.create_element "SERVER_POOL"
+                server      = doc.create_element "SERVER"
+
+                id   = doc.create_element "ID", 0
+                name = doc.create_element "NAME", "zone_server"
+                edp  = doc.create_element "ENDPOINT", zedp
+
+                server.add_child(id)
+                server.add_child(name)
+                server.add_child(edp)
+
+                server_pool.add_child(server)
+
+                doc.root.add_child(server_pool)
+
+                row[:body] = doc.root.to_s
+
+                @db[:zone_pool].insert(row)
+            end
+        end
+
+        @db.run "DROP TABLE old_zone_pool;"
+
     end
 end

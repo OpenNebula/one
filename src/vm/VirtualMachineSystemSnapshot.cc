@@ -62,6 +62,7 @@ int VirtualMachine::new_snapshot(string& name, int& snap_id)
     snap->replace("HYPERVISOR_ID", "");
 
     snap->replace("ACTIVE", "YES");
+    snap->replace("ACTION", "CREATE");
 
     obj_template->set(snap);
 
@@ -71,20 +72,21 @@ int VirtualMachine::new_snapshot(string& name, int& snap_id)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::set_active_snapshot(int snap_id)
+int set_active_snapshot(int snap_id, const string& action, 
+        vector<VectorAttribute *>& snaps)
 {
     int s_id;
 
-    vector<VectorAttribute *> snaps;
-    int num_snaps = obj_template->get("SNAPSHOT", snaps);
+    vector<VectorAttribute *>::iterator it;
 
-    for(int i=0; i<num_snaps; i++)
+    for ( it = snaps.begin() ; it != snaps.end() ; ++it )
     {
-        snaps[i]->vector_value("SNAPSHOT_ID", s_id);
+        (*it)->vector_value("SNAPSHOT_ID", s_id);
 
         if ( s_id == snap_id )
         {
-            snaps[i]->replace("ACTIVE", "YES");
+            (*it)->replace("ACTIVE", "YES");
+            (*it)->replace("ACTION", action);
             return 0;
         }
     }
@@ -92,19 +94,57 @@ int VirtualMachine::set_active_snapshot(int snap_id)
     return -1;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachine::update_snapshot_id(string& hypervisor_id)
+int VirtualMachine::set_revert_snapshot(int snap_id)
 {
-    vector<VectorAttribute  *> snaps;
-    int num_snaps = obj_template->get("SNAPSHOT", snaps);
+    vector<VectorAttribute *> snaps;
 
-    for(int i=0; i<num_snaps; i++)
+    obj_template->get("SNAPSHOT", snaps);
+
+    return set_active_snapshot(snap_id, "REVERT", snaps);
+}
+
+int VirtualMachine::set_delete_snapshot(int snap_id)
+{
+    vector<VectorAttribute *> snaps;
+
+    obj_template->get("SNAPSHOT", snaps);
+
+    return set_active_snapshot(snap_id, "DELETE", snaps);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::update_snapshot_id(const string& hypervisor_id)
+{
+    vector<VectorAttribute *> snaps;
+    vector<VectorAttribute *>::iterator it;
+
+    obj_template->get("SNAPSHOT", snaps);
+
+    for ( it = snaps.begin() ; it != snaps.end() ; ++it )
     {
-        if ( snaps[i]->vector_value("ACTIVE") == "YES" )
+        if ( (*it)->vector_value("ACTIVE") == "YES" )
         {
-            snaps[i]->replace("HYPERVISOR_ID", hypervisor_id);
+            (*it)->replace("HYPERVISOR_ID", hypervisor_id);
+            break;
+        }
+    }
+}
+
+void VirtualMachine::update_snapshot_id()
+{
+    vector<VectorAttribute *> snaps;
+    vector<VectorAttribute *>::iterator it;
+
+    obj_template->get("SNAPSHOT", snaps);
+
+    for ( it = snaps.begin() ; it != snaps.end() ; ++it )
+    {
+        if ( (*it)->vector_value("ACTIVE") == "YES" )
+        {
+            string snap_id = (*it)->vector_value("SNAPSHOT_ID");
+            (*it)->replace("HYPERVISOR_ID", snap_id);
             break;
         }
     }
@@ -113,17 +153,43 @@ void VirtualMachine::update_snapshot_id(string& hypervisor_id)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+string VirtualMachine::get_snapshot_action()
+{
+    string action;
+
+    vector<VectorAttribute *> snaps;
+    vector<VectorAttribute *>::iterator it;
+
+    obj_template->get("SNAPSHOT", snaps);
+
+    for ( it = snaps.begin() ; it != snaps.end() ; ++it )
+    {
+        if ( (*it)->vector_value("ACTIVE") == "YES" )
+        {
+            action = (*it)->vector_value("ACTION");
+            break;
+        }
+    }
+
+    return action;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachine::clear_active_snapshot()
 {
-    vector<VectorAttribute  *> snaps;
+    vector<VectorAttribute *> snaps;
+    vector<VectorAttribute *>::iterator it;
 
-    int num_snaps = obj_template->get("SNAPSHOT", snaps);
+    obj_template->get("SNAPSHOT", snaps);
 
-    for(int i=0; i<num_snaps; i++)
+    for ( it = snaps.begin() ; it != snaps.end() ; ++it )
     {
-        if ( snaps[i]->vector_value("ACTIVE") == "YES" )
+        if ( (*it)->vector_value("ACTIVE") == "YES" )
         {
-            snaps[i]->remove("ACTIVE");
+            (*it)->remove("ACTIVE");
+            (*it)->remove("ACTION");
             return;
         }
     }
@@ -135,13 +201,15 @@ void VirtualMachine::clear_active_snapshot()
 void VirtualMachine::delete_active_snapshot()
 {
     vector<VectorAttribute *> snaps;
-    int num_snaps = obj_template->get("SNAPSHOT", snaps);
+    vector<VectorAttribute *>::iterator it;
 
-    for(int i=0; i<num_snaps; i++)
+    obj_template->get("SNAPSHOT", snaps);
+
+    for ( it = snaps.begin() ; it != snaps.end() ; ++it )
     {
-        if ( snaps[i]->vector_value("ACTIVE") == "YES" )
+        if ( (*it)->vector_value("ACTIVE") == "YES" )
         {
-            delete obj_template->remove(snaps[i]);
+            delete obj_template->remove(*it);
 
             return;
         }

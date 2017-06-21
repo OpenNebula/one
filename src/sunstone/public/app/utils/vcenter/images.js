@@ -93,8 +93,9 @@ define(function(require) {
             toggleAdvanced : false,
             columns : [
               '<input type="checkbox" class="check_all"/>',
-              Locale.tr("Name"),
+              Locale.tr("Path"),
               Locale.tr("Size"),
+              Locale.tr("Type"),
               ""
             ]
           });
@@ -103,7 +104,7 @@ define(function(require) {
           var tbody = $('#' + tableId + ' tbody', context);
 
           $.each(response, function(id, element) {
-            var opts = { name: element.name, size: element.size };
+            var opts = { name: element.path, size: element.size, type: element.type };
             var trow = $(RowTemplate(opts)).appendTo(tbody);
 
             $(".check_item", trow).data("datastore_id", element.dsid);

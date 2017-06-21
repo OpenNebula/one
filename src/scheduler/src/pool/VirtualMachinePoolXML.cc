@@ -33,13 +33,11 @@ int VirtualMachinePoolXML::set_up()
 
         if (NebulaLog::log_level() >= Log::DDDEBUG)
         {
-            map<int,ObjectXML*>::iterator it;
-
             oss << "Pending/rescheduling VM and capacity requirements:" << endl;
 
             oss << right << setw(8)  << "ACTION"    << " "
-                << right << setw(8)  << "PRIO"      << " "
                 << right << setw(8)  << "VM"        << " "
+                << right << setw(8)  << "PRIO"      << " "
                 << right << setw(4)  << "CPU"       << " "
                 << right << setw(11) << "Memory"    << " "
                 << right << setw(3)  << "PCI"       << " "
@@ -47,7 +45,8 @@ int VirtualMachinePoolXML::set_up()
                 << " Image DS" << endl
                 << setw(60) << setfill('-') << "-" << setfill(' ') << endl;
 
-            for (it = objects.begin() ; it != objects.end() ; ++it)
+
+            for (map<int,ObjectXML*>::iterator it=objects.begin() ; it != objects.end() ; ++it)
             {
                 int cpu, mem;
                 long long disk;
@@ -55,9 +54,7 @@ int VirtualMachinePoolXML::set_up()
 
                 string action = "DEPLOY";
 
-                VirtualMachineXML * vm;
-
-                vm = static_cast<VirtualMachineXML *>(it->second);
+                VirtualMachineXML * vm = static_cast<VirtualMachineXML *>(it->second);
 
                 vm->get_requirements(cpu, mem, disk, pci);
 
@@ -70,20 +67,21 @@ int VirtualMachinePoolXML::set_up()
                     action = "RESUME";
                 }
 
-                oss << right << setw(8)  << action         << " "
-                    << right << setw(8)  << vm->get_oid()  << " "
-                    << right << setw(8)  << vm->get_prio() << " "
-                    << right << setw(4)  << cpu            << " "
-                    << right << setw(11) << mem            << " "
-                    << right << setw(3)  << pci.size()     << " "
-                    << right << setw(11) << disk           << " ";
+
+                oss << right << setw(8)  << action      << " "
+                    << right << setw(8)  << vm->get_oid()   << " "
+                    << right << setw(8)  << vm->get_prio()   << " "
+                    << right << setw(4)  << cpu         << " "
+                    << right << setw(11) << mem         << " "
+                    << right << setw(3)  << pci.size()  << " "
+                    << right << setw(11) << disk        << " ";
 
                 map<int,long long> ds_usage = vm->get_storage_usage();
-                map<int,long long>::const_iterator ds_it;
 
-                for ( ds_it = ds_usage.begin(); ds_it != ds_usage.end(); ds_it++)
+                for (map<int,long long>::const_iterator ds_it = ds_usage.begin();
+                        ds_it != ds_usage.end(); ds_it++)
                 {
-                    oss << " DS " << ds_it->first << ": " << ds_it->second <<" ";
+                    oss << " DS " << ds_it->first << ": " << ds_it->second << " ";
                 }
 
                 oss << endl;
@@ -123,6 +121,7 @@ void VirtualMachinePoolXML::add_object(xmlNodePtr node)
     } else {
        objects.insert(pair<int,ObjectXML*>(vm->get_oid(),vm));
     }
+
 
 }
 
@@ -246,7 +245,6 @@ int VirtualMachinePoolXML::update(int vid, const string &st) const
 
     return 0;
 }
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -279,7 +277,6 @@ int VirtualMachineActionsPoolXML::set_up()
 
     return rc;
 }
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -321,30 +318,3 @@ int VirtualMachineActionsPoolXML::action(
 
     return 0;
 }
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachineRolePoolXML::set_up()
-{
-    int rc = PoolXML::set_up();
-
-    if ( rc == 0 )
-    {
-        ostringstream oss;
-
-        oss << "VMs in VMGroups:" << endl;
-
-        map<int,ObjectXML*>::iterator it;
-
-        for (it=objects.begin();it!=objects.end();it++)
-        {
-            oss << " " << it->first;
-        }
-
-        NebulaLog::log("VM", Log::DEBUG, oss);
-    }
-
-    return rc;
-}
-

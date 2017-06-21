@@ -248,19 +248,19 @@ class EC2Driver
 
         conn_opts = get_connect_info(host)
         regions = PUBLIC_CLOUD_EC2_CONF['regions']
-        regions["default"]["access_key_id"] = conn_opts[:access]
-        regions["default"]["secret_access_key"] = conn_opts[:secret]
-        
+        access_key = conn_opts[:access]
+        secret_key = conn_opts[:secret]
+
         @region = regions[host] || regions["default"]
-        
+               
         #sanitize region data
-        raise "access_key_id not defined for #{host}" if @region['access_key_id'].nil?
-        raise "secret_access_key not defined for #{host}" if @region['secret_access_key'].nil?
+        raise "access_key_id not defined for #{host}" if access_key.nil?
+        raise "secret_access_key not defined for #{host}" if secret_key.nil?
         raise "region_name not defined for #{host}" if @region['region_name'].nil?
 
         Aws.config.merge!({
-            :access_key_id      => @region['access_key_id'],
-            :secret_access_key  => @region['secret_access_key'],
+            :access_key_id      => access_key,
+            :secret_access_key  => secret_key,
             :region             => @region['region_name']
         })
 
@@ -317,46 +317,55 @@ class EC2Driver
 
     # DEPLOY action, also sets ports and ip if needed
     def deploy(id, host, xml_text, lcm_state, deploy_id)
-        if lcm_state == "BOOT" || lcm_state == "BOOT_FAILURE"
 
-            begin
-                ec2_info = get_deployment_info(host, xml_text)
-            rescue Exception => e
-                raise e
-            end
-
-            load_default_template_values
-
-            if !ec2_value(ec2_info, 'AMI')
-                raise "Cannot find AMI in deployment file"
-            end
-
-            opts = generate_options(:run, ec2_info, {
-                :min_count => 1,
-                :max_count => 1})
-
-            # The OpenNebula context will be only included if not USERDATA
-            #   is provided by the user
-            if !ec2_value(ec2_info, 'USERDATA')
-                xml = OpenNebula::XMLElement.new
-                xml.initialize_xml(xml_text, 'VM')
-
-            if xml.has_elements?('TEMPLATE/CONTEXT')
-                # Since there is only 1 level ',' will not be added
-                context_str = xml.template_like_str('TEMPLATE/CONTEXT')
-
-                if xml['TEMPLATE/CONTEXT/TOKEN'] == 'YES'
-                    # TODO use OneGate library
-                    token_str = generate_onegate_token(xml)
-                    if token_str
-                        context_str << "\nONEGATE_TOKEN=\"#{token_str}\""
-                    end
-                end
-
-                userdata_key = EC2[:run][:args]["USERDATA"][:opt]
-                opts[userdata_key] = Base64.encode64(context_str)
-            end
+        # Restore if we need to
+        
+        if lcm_state != "BOOT" && lcm_state != "BOOT_FAILURE"
+            restore(deploy_id)
+            return deploy_id
         end
+
+        # Otherwise deploy the VM
+
+        begin
+            ec2_info = get_deployment_info(host, xml_text)
+        rescue Exception => e
+            raise e
+        end
+
+        load_default_template_values
+
+        if !ec2_value(ec2_info, 'AMI')
+            raise "Cannot find AMI in deployment file"
+        end
+
+        opts = generate_options(:run, ec2_info, {
+            :min_count => 1,
+            :max_count => 1})
+
+        # The OpenNebula context will be only included if not USERDATA
+        #   is provided by the user
+        if !ec2_value(ec2_info, 'USERDATA')
+            xml = OpenNebula::XMLElement.new
+            xml.initialize_xml(xml_text, 'VM')
+        end
+
+        if xml.has_elements?('TEMPLATE/CONTEXT')
+            # Since there is only 1 level ',' will not be added
+            context_str = xml.template_like_str('TEMPLATE/CONTEXT')
+
+            if xml['TEMPLATE/CONTEXT/TOKEN'] == 'YES'
+                # TODO use OneGate library
+                token_str = generate_onegate_token(xml)
+                if token_str
+                    context_str << "\nONEGATE_TOKEN=\"#{token_str}\""
+                end
+            end
+
+            userdata_key = EC2[:run][:args]["USERDATA"][:opt]
+            opts[userdata_key] = Base64.encode64(context_str)
+        end
+        
 
         instances = @ec2.create_instances(opts)
         instance = instances.first
@@ -412,10 +421,6 @@ class EC2Driver
         }])
 
         puts(instance.id)
-      else
-        restore(deploy_id)
-        deploy_id
-      end
     end
 
     # Shutdown a EC2 instance
@@ -455,6 +460,7 @@ class EC2Driver
     def poll(id, deploy_id)
         i = get_instance(deploy_id)
         vm = OpenNebula::VirtualMachine.new_with_id(id, OpenNebula::Client.new)
+        vm.info
         cw_mon_time = vm["LAST_POLL"] ? vm["LAST_POLL"].to_i : Time.now.to_i
         do_cw = (Time.now.to_i - cw_mon_time) >= 360
         puts parse_poll(i, vm, do_cw, cw_mon_time)
@@ -507,8 +513,9 @@ class EC2Driver
         end
 
         do_cw = (Time.now.to_i - cw_mon_time) >= 360
-
-        vpool.each{|vm| onevm_info[vm.deploy_id] = vm }
+        vpool.each{
+            |vm| onevm_info[vm.deploy_id] = vm
+        }
 
 
         work_q = Queue.new
@@ -523,7 +530,6 @@ class EC2Driver
                         poll_data=parse_poll(i, onevm_info[i.id], do_cw, cw_mon_time)
                         vm_template_to_one = vm_to_one(i)
                         vm_template_to_one = Base64.encode64(vm_template_to_one).gsub("\n","")
-                
                         vms_info << "VM=[\n"
                         vms_info << "  ID=#{one_id || -1},\n"
                         vms_info << "  DEPLOY_ID=#{i.instance_id},\n"
@@ -538,7 +544,6 @@ class EC2Driver
                         end
                     end
                 rescue Exception => e
-                    STDERR.puts  "#{e.message}\n"
                 end
             end
         end; "ok"
@@ -571,7 +576,7 @@ private
 
     # Get the EC2 section of the template. If more than one EC2 section
     # the CLOUD element is used and matched with the host
-    def get_deployment_info(host, xml_text)    
+    def get_deployment_info(host, xml_text)
         xml = REXML::Document.new xml_text
 
         ec2 = nil
@@ -614,15 +619,14 @@ private
     def parse_poll(instance, onevm, do_cw, cw_mon_time)
         begin
             if onevm
-                onevm.info
                 if do_cw
                     cloudwatch_str = cloudwatch_monitor_info(instance.instance_id,
                                                            onevm,
                                                            cw_mon_time)
                 else
-                    previous_cpu   = onevm["/VM/MONITORING/CPU"]  || 0
-                    previous_netrx = onevm["/VM/MONITORING/NETRX"] || 0
-                    previous_nettx = onevm["/VM/MONITORING/NETTX"] || 0
+                    previous_cpu   = onevm["MONITORING/CPU"]  || 0
+                    previous_netrx = onevm["MONITORING/NETRX"] || 0
+                    previous_nettx = onevm["MONITORING/NETTX"] || 0
 
                     cloudwatch_str = "CPU=#{previous_cpu} NETTX=#{previous_nettx} NETRX=#{previous_netrx} "
                 end
@@ -630,7 +634,7 @@ private
                 cloudwatch_str = ""
             end
 
-            mem = onevm["/VM/TEMPLATE/MEMORY"].to_s
+            mem = onevm["TEMPLATE/MEMORY"].to_s
             mem=mem.to_i*1024
             info =  "#{POLL_ATTRIBUTE[:memory]}=#{mem} #{cloudwatch_str}"
 
@@ -677,7 +681,7 @@ private
     # +deploy_id+: String, VM id in EC2
     # +ec2_action+: Symbol, one of the keys of the EC2 hash constant (i.e :run)
     def ec2_action(deploy_id, ec2_action)
-        begin        
+        begin
         i = get_instance(deploy_id)
         i.send(EC2[ec2_action][:cmd])
         rescue => e

@@ -26,3 +26,6 @@ src/sunstone/public/css/app.min.css
 src/sunstone/public/dist/
 src/sunstone/public/locale/languages/*.js
 .tx/config
+
+share/esx-fw-vnc/*.rpm
+share/esx-fw-vnc/.vagrant*

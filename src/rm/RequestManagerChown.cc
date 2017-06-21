@@ -486,7 +486,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
         AuthRequest ar(att.uid, att.group_ids);
 
         ar.add_auth(auth_op, uperms);           // MANAGE USER
-        ar.add_auth(AuthRequest::USE, ngperms); // USE    GROUP
+        ar.add_auth(AuthRequest::USE, ngperms); // USE GROUP
 
         if (UserPool::authorize(ar) == -1)
         {

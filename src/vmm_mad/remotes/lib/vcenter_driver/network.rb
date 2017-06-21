@@ -1,5 +1,5 @@
 module VCenterDriver
-
+require 'digest'
 class NetworkFolder
     attr_accessor :item, :items
 
@@ -70,38 +70,53 @@ class Network
 
     def self.to_one_template(network_name, network_ref, network_type,
                              ccr_ref, ccr_name, vcenter_uuid,
-                             vcenter_instance_name, dc_name,
-                             unmanaged=false, template_ref=nil)
+                             vcenter_instance_name, dc_name, cluster_id,
+                             cluster_location,
+                             unmanaged=nil, template_ref=nil, dc_ref=nil,
+                             vm_or_template_name=nil, template_id=nil)
 
         one_tmp = {}
 
         if unmanaged
-            network_import_name = "#{network_name} [#{network_ref} - #{template_ref} - #{vcenter_uuid}]"
+            if unmanaged == "wild"
+                network_import_name = "#{network_name} [VM #{vm_or_template_name}]"
+            end
+
+            if unmanaged == "template"
+                network_import_name = "#{network_name} [#{vm_or_template_name} - Template #{template_id}]"
+            end
         else
-            network_import_name = "[#{vcenter_instance_name} - #{dc_name}] #{network_name} - #{ccr_name.tr(" ", "_")}"
+            full_name = "#{network_name} - #{ccr_name.tr(" ", "_")} [#{vcenter_instance_name} - #{dc_name}]_#{cluster_location}"
+            sha256 = Digest::SHA256.new
+            network_hash = sha256.hexdigest(full_name)[0..11]
+            network_import_name = "#{network_name} - #{ccr_name.tr(" ", "_")} [#{vcenter_instance_name} - #{dc_name}]_#{network_hash}"
         end
-        one_tmp[:name] = network_import_name
+        one_tmp[:name] = network_name
+        one_tmp[:import_name] = network_import_name
         one_tmp[:bridge] = network_name
         one_tmp[:type] = network_type
         one_tmp[:cluster] = ccr_name
+        one_tmp[:cluster_location] = cluster_location
         one_tmp[:vcenter_ccr_ref] = ccr_ref
+        one_tmp[:one_cluster_id] = cluster_id
         one_tmp[:one] = to_one(network_import_name, network_name, network_ref, network_type,
-                             ccr_ref, vcenter_uuid, unmanaged, template_ref)
+                             ccr_ref, vcenter_uuid, unmanaged, template_ref, dc_ref)
         return one_tmp
     end
 
     def self.to_one(network_import_name, network_name, network_ref, network_type,
-                    ccr_ref, vcenter_uuid, unmanaged, template_ref)
+                    ccr_ref, vcenter_uuid, unmanaged, template_ref, dc_ref)
+
         template = "NAME=\"#{network_import_name}\"\n"\
                    "BRIDGE=\"#{network_name}\"\n"\
                    "VN_MAD=\"dummy\"\n"\
                    "VCENTER_PORTGROUP_TYPE=\"#{network_type}\"\n"\
                    "VCENTER_NET_REF=\"#{network_ref}\"\n"\
-                   "VCENTER_CCR_REF=\"#{ccr_ref}\"\n"\
                    "VCENTER_INSTANCE_ID=\"#{vcenter_uuid}\"\n"
 
-        template += "OPENNEBULA_MANAGED=\"NO\"\n" if unmanaged
+        template += "VCENTER_CCR_REF=\"#{ccr_ref}\"\n" if !unmanaged
 
+        template += "OPENNEBULA_MANAGED=\"NO\"\n" if unmanaged
         template += "VCENTER_TEMPLATE_REF=\"#{template_ref}\"\n" if template_ref
 
         return template
@@ -115,7 +130,7 @@ class Network
         end
     end
 
-    def self.get_unmanaged_vnet_by_ref(ref, ccr_ref, template_ref, vcenter_uuid, pool = nil)
+    def self.get_unmanaged_vnet_by_ref(ref, template_ref, vcenter_uuid, pool = nil)
         if pool.nil?
             pool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool, false)
             if pool.respond_to?(:message)
@@ -124,7 +139,6 @@ class Network
         end
         element = pool.select do |e|
             e["TEMPLATE/VCENTER_NET_REF"]     == ref &&
-            e["TEMPLATE/VCENTER_CCR_REF"]     == ccr_ref &&
             e["TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid &&
             e["TEMPLATE/VCENTER_TEMPLATE_REF"] == template_ref &&
             e["TEMPLATE/OPENNEBULA_MANAGED"] == "NO"
@@ -143,46 +157,21 @@ class Network
         one_vnet.info
     end
 
-    def self.vcenter_networks_to_be_removed(device_change_nics, vcenter_uuid)
-
-        networks = {}
-        npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool, false)
-        if npool.respond_to?(:message)
-            raise "Could not get OpenNebula VirtualNetworkPool: #{npool.message}"
-        end
-
-        device_change_nics.each do |nic|
-            if nic[:operation] == :remove
-                vnet_ref = nil
-
-                # Port group
-                if nic[:device].backing.respond_to?(:network)
-                    vnet_ref = nic[:device].backing.network._ref
-                end
-
-                # Distributed port group
-                if nic[:device].backing.respond_to?(:port) &&
-                    nic[:device].backing.port.respond_to?(:portgroupKey)
-                    vnet_ref  = nic[:device].backing.port.portgroupKey
-                end
-
-                # Find vnet_ref in OpenNebula's pool of networks
-                one_network = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,
-                                                                    "TEMPLATE/VCENTER_NET_REF",
-                                                                    vnet_ref,
-                                                                    vcenter_uuid,
-                                                                    npool)
-                next if !one_network
-
-                # Add pg or dpg name that are in vcenter but not in
-                # OpenNebula's VM to a hash for later removal
-                if one_network["VN_MAD"] == "vcenter" && !networks.key?(one_network["BRIDGE"])
-                    networks[one_network["BRIDGE"]] = one_network
-                end
+    def self.get_unmanaged_vnet_by_ref(ref, template_ref, vcenter_uuid, pool = nil)
+        if pool.nil?
+            pool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool, false)
+            if pool.respond_to?(:message)
+                raise "Could not get OpenNebula VirtualNetworkPool: #{pool.message}"
             end
         end
+        element = pool.select do |e|
+            e["TEMPLATE/VCENTER_NET_REF"]     == ref &&
+            e["TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid &&
+            e["TEMPLATE/VCENTER_TEMPLATE_REF"] == template_ref &&
+            e["TEMPLATE/OPENNEBULA_MANAGED"] == "NO"
+        end.first rescue nil
 
-        networks
+        return element
     end
 
     # This is never cached

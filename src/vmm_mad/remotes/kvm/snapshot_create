@@ -22,7 +22,7 @@ source $(dirname $0)/../../scripts_common.sh
 DOMAIN="$1"
 SNAP_ID="$2"
 
-data=`virsh --connect $LIBVIRT_URI snapshot-create-as $DOMAIN`
+data=`virsh --connect $LIBVIRT_URI snapshot-create-as $DOMAIN --name $SNAP_ID`
 
 if [ "$?" = "0" ]; then
     echo "$data" | awk '{print $3}'
