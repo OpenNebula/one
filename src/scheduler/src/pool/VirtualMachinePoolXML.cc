@@ -36,9 +36,8 @@ int VirtualMachinePoolXML::set_up()
             oss << "Pending/rescheduling VM and capacity requirements:" << endl;
 
             oss << right << setw(8)  << "ACTION"    << " "
-                << right << setw(8)  << "PRIO"      << " "
                 << right << setw(8)  << "VM"        << " "
-                << right << setw(8)  << "PRIO"        << " "
+                << right << setw(8)  << "PRIO"      << " "
                 << right << setw(4)  << "CPU"       << " "
                 << right << setw(11) << "Memory"    << " "
                 << right << setw(3)  << "PCI"       << " "
@@ -123,12 +122,6 @@ void VirtualMachinePoolXML::add_object(xmlNodePtr node)
        objects.insert(pair<int,ObjectXML*>(vm->get_oid(),vm));
     }
 
-    
-    if ( use_prio ) { 
-       objects.insert(pair<int,ObjectXML*>(vm->get_prio(),vm));
-    } else {
-       objects.insert(pair<int,ObjectXML*>(vm->get_oid(),vm));
-    }
 
 }
 
