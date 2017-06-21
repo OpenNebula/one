@@ -492,20 +492,6 @@ EOT
         end
 
 
-        # receive a object key => value format
-        # returns hashed values
-        def encrypt(opts, token)
-            res = {}
-            opts.each do |key, value|
-                cipher = OpenSSL::Cipher::AES.new(256,:CBC)
-                cipher.encrypt.key = token[0..31]
-                encrypted = cipher.update(value) + cipher.final
-                res[key] = Base64::encode64(encrypted) 
-            end
-            
-            return res
-        end
-
         def list_pool(options, top=false, filter_flag=nil)
             if options[:describe]
                 table = format_pool(options)
