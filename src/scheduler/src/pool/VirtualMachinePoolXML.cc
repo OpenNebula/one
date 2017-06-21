@@ -33,7 +33,6 @@ int VirtualMachinePoolXML::set_up()
 
         if (NebulaLog::log_level() >= Log::DDDEBUG)
         {
-            map<int,ObjectXML*>::iterator it;
 
             oss << "Pending/rescheduling VM and capacity requirements:" << endl;
 
@@ -47,7 +46,7 @@ int VirtualMachinePoolXML::set_up()
                 << " Image DS" << endl
                 << setw(60) << setfill('-') << "-" << setfill(' ') << endl;
 
-            for (it = objects.begin() ; it != objects.end() ; ++it)
+            for (map<int,ObjectXML*>::iterator it = objects.begin() ; it != objects.end() ; ++it)
             {
                 int cpu, mem;
                 long long disk;
