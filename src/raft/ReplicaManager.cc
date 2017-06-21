@@ -60,8 +60,6 @@ void ReplicaManager::stop_replica_threads()
     {
         it->second->finalize();
 
-        pthread_join(it->second->thread_id(), 0);
-
         delete it->second;
     }
 
@@ -98,7 +96,6 @@ void ReplicaManager::replicate(int follower)
 
 void ReplicaManager::delete_replica_thread(int follower_id)
 {
-    std::ostringstream oss;
 
     std::map<int, ReplicaThread *>::iterator it;
 
@@ -109,13 +106,7 @@ void ReplicaManager::delete_replica_thread(int follower_id)
         return;
     }
 
-    oss << "Stopping replication thread for follower: " << follower_id;
-
-    NebulaLog::log("RCM", Log::INFO, oss);
-
     it->second->finalize();
-
-    pthread_join(it->second->thread_id(), 0);
 
     NebulaLog::log("RCM", Log::INFO, "Replication thread stopped");
 
@@ -129,8 +120,6 @@ void ReplicaManager::delete_replica_thread(int follower_id)
 
 void ReplicaManager::add_replica_thread(int follower_id)
 {
-    std::ostringstream oss;
-
     pthread_attr_t pattr;
     pthread_t thid;
 
@@ -147,11 +136,7 @@ void ReplicaManager::add_replica_thread(int follower_id)
     thread_pool.insert(std::make_pair(follower_id, rthread));
 
     pthread_attr_init (&pattr);
-    pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_JOINABLE);
-
-    oss << "Starting replication thread for follower: " << follower_id;
-
-    NebulaLog::log("RCM", Log::INFO, oss);
+    pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_DETACHED);
 
     pthread_create(&thid, &pattr, replication_thread, (void *) rthread);
 

@@ -395,6 +395,24 @@ void Group::add_admin_rules(int user_id)
     {
         NebulaLog::log("GROUP",Log::ERROR,error_msg);
     }
+
+    // #<uid> GROUP/<gid> MANAGE *
+    if ( aclm->add_rule(
+            AclRule::INDIVIDUAL_ID |
+            user_id,
+
+            PoolObjectSQL::GROUP |
+            AclRule::INDIVIDUAL_ID |
+            oid,
+
+            AuthRequest::MANAGE,
+
+            AclRule::ALL_ID,
+
+            error_msg) < 0 )
+    {
+        NebulaLog::log("GROUP",Log::ERROR,error_msg);
+    }
 }
 
 /* ------------------------------------------------------------------------ */
@@ -485,6 +503,24 @@ void Group::del_admin_rules(int user_id)
             PoolObjectSQL::VROUTER,
 
             AuthRequest::CREATE,
+
+            AclRule::ALL_ID,
+
+            error_msg) < 0 )
+    {
+        NebulaLog::log("GROUP",Log::ERROR,error_msg);
+    }
+
+    // #<uid> GROUP/<gid> MANAGE *
+    if ( aclm->del_rule(
+            AclRule::INDIVIDUAL_ID |
+            user_id,
+
+            PoolObjectSQL::GROUP |
+            AclRule::INDIVIDUAL_ID |
+            oid,
+
+            AuthRequest::MANAGE,
 
             AclRule::ALL_ID,
 

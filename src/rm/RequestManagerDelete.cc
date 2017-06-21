@@ -284,6 +284,33 @@ int GroupDelete::drop(PoolObjectSQL * object, bool recursive,
         aclm->del_gid_rules(oid);
     }
 
+    Nebula&        nd = Nebula::instance();
+    VdcPool * vdcpool = nd.get_vdcpool();
+
+    std::vector<int> vdcs;
+    std::vector<int>::iterator it;
+
+    std::string error;
+
+    vdcpool->list(vdcs);
+
+    for (it = vdcs.begin() ; it != vdcs.end() ; ++it)
+    {
+        Vdc * vdc = vdcpool->get(*it, true);
+
+        if ( vdc == 0 )
+        {
+            continue;
+        }
+
+        if ( vdc->del_group(oid, error) == 0 )
+        {
+            vdcpool->update(vdc);
+        }
+
+        vdc->unlock();
+    }
+
     return rc;
 }
 
@@ -367,6 +394,8 @@ int ZoneDelete::drop(PoolObjectSQL * object, bool recursive,
     {
         aclm->del_zid_rules(oid);
     }
+
+    Nebula::instance().get_frm()->delete_zone(oid);
 
     return rc;
 }

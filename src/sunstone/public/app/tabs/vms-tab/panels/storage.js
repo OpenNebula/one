@@ -92,7 +92,7 @@ define(function(require) {
           <div class="row">\
               <div class="medium-6 columns">\
                 <div class="row">\
-                  <span>' + Locale.tr("Disk RD Bytes") + '</span3>\
+                  <span>' + Locale.tr("Disk read bytes") + '</span3>\
                 </div>\
                 <div class="row">\
                   <div class="large-12 columns centered graph" id="vm_st_drb_graph" style="height: 100px;">\
@@ -108,7 +108,7 @@ define(function(require) {
               </div>\
               <div class="medium-6 columns">\
                 <div class="row">\
-                  <span>' + Locale.tr("Disk WR Bytes") + '</span3>\
+                  <span>' + Locale.tr("Disk write bytes") + '</span3>\
                 </div>\
                 <div class="row">\
                   <div class="large-12 columns centered graph" id="vm_st_dwb_graph" style="height: 100px;">\
@@ -124,7 +124,7 @@ define(function(require) {
               </div>\
               <div class="medium-6 columns">\
                 <div class="row">\
-                  <span>' + Locale.tr("Disk RD IOPS") + '</span3>\
+                  <span>' + Locale.tr("Disk read IOPS") + '</span3>\
                 </div>\
                 <div class="row">\
                   <div class="large-12 columns centered graph" id="vm_st_drio_graph" style="height: 100px;">\
@@ -140,7 +140,7 @@ define(function(require) {
               </div>\
               <div class="medium-6 columns">\
                 <div class="row">\
-                  <span>' + Locale.tr("Disk WR IOPS") + '</span3>\
+                  <span>' + Locale.tr("Disk write IOPS") + '</span3>\
                 </div>\
                 <div class="row">\
                   <div class="large-12 columns centered graph" id="vm_st_dwio_graph" style="height: 100px;">\
@@ -232,7 +232,7 @@ define(function(require) {
     else if (!$.isEmptyObject(that.element.TEMPLATE.DISK))
       disks = [that.element.TEMPLATE.DISK];
 
-    if (!$.isEmptyObject(that.element.TEMPLATE.CONTEXT)) {
+    if (!$.isEmptyObject(that.element.TEMPLATE.CONTEXT) && that.element.USER_TEMPLATE.HYPERVISOR != "vcenter") {
       var context_disk = that.element.TEMPLATE.CONTEXT;
 
       context_disk["IMAGE"] = Locale.tr("Context");
@@ -714,7 +714,7 @@ define(function(require) {
               div_graph : $("#vm_st_dwb_graph")
             },
             {
-              labels : Locale.tr("Disk Read IOPS"),
+              labels : Locale.tr("Disk read IOPS"),
               monitor_resources : "MONITORING/DISKRDIOPS",
               //humanize_figures : true,
               //convert_from_bytes : true,

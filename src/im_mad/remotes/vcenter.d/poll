@@ -52,11 +52,14 @@ begin
     puts cluster.monitor
     puts cluster.monitor_host_systems
 
-    vm_monitor_info = cluster.monitor_vms
+    vm_monitor_info, last_perf_poll = cluster.monitor_vms
     if !vm_monitor_info.empty?
         puts "VM_POLL=YES"
         puts vm_monitor_info
     end
+
+    # Print last VM poll for perfmanager tracking
+    puts "VCENTER_LAST_PERF_POLL=" << last_perf_poll << "\n"
 
     puts cluster.monitor_customizations
 

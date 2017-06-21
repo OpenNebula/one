@@ -31,6 +31,7 @@ define(function(require) {
    */
 
   var TemplateTable = require('utils/panel/template-table');
+  var TemplateTableVcenter = require('utils/panel/template-table');
 
   /*
     CONSTANTS
@@ -74,7 +75,7 @@ define(function(require) {
       "INBOUND_AVG_BW",
       "INBOUND_PEAK_BW",
       "INBOUND_PEAK_KB",
-      "OUTBOUNDD_AVG_BW",
+      "OUTBOUND_AVG_BW",
       "OUTBOUND_PEAK_BW",
       "OUTBOUND_PEAK_KB" ];
 
@@ -92,7 +93,7 @@ define(function(require) {
     });
     var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE,
                                               Locale.tr("Attributes"));
-    var templateTableVcenterHTML = TemplateTable.html(strippedTemplateVcenter, RESOURCE,
+    var templateTableVcenterHTML = TemplateTableVcenter.html(strippedTemplateVcenter, RESOURCE,
                                               Locale.tr("vCenter information"), false);
     //====
 
@@ -162,7 +163,8 @@ define(function(require) {
       $('.vcenter', context).hide();
     }
 
-    TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, hiddenValues);
+    TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, hiddenValues, strippedTemplateVcenter);
+    TemplateTableVcenter.setup(strippedTemplateVcenter, RESOURCE, this.element.ID, context, hiddenValues, strippedTemplate);
     //===
 
     return false;

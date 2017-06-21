@@ -29,11 +29,11 @@ define(function(require) {
     },
     "MarketPlaceApp.download_opennebula_dialog" : {
       type: "action",
-      text: '<i class="fa fa-share"/> '+ Locale.tr("OpenNebula")
+      text: '<i class="fa fa-lg fa-cloud-download"/>'
     },
     "MarketPlaceApp.download_local" : {
       type: "action",
-      text: '<i class="fa fa-lg fa-cloud-download"/>'
+      text: '<i class="fa fa-lg fa-download"/>'
     },
     "MarketPlaceApp.chown" : {
       type: "confirm_with_select",

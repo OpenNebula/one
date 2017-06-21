@@ -2,7 +2,7 @@
  <VM>
    <TEMPLATE>
      <NIC>
-       <MODEL>e1000</MODEL>
+       <MODEL>vmxnet3</MODEL>
      </NIC>
    </TEMPLATE>
  </VM>

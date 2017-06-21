@@ -125,8 +125,6 @@ class ClusterComputeResource
         str_info << "FREEMEMORY="  << free_mem.to_s << "\n"
         str_info << "USEDMEMORY="  << (total_mem - free_mem).to_s << "\n"
 
-        str_info << "VCENTER_LAST_PERF_POLL=" << Time.now.to_i.to_s << "\n"
-
         str_info << monitor_resource_pools(mhz_core)
     end
 
@@ -400,7 +398,7 @@ class ClusterComputeResource
 
         pm = @vi_client.vim.serviceContent.perfManager
 
-        stats = []
+        stats = {}
 
         max_samples = 9
         refresh_rate = 20 #Real time stats takes samples every 20 seconds
@@ -422,7 +420,11 @@ class ClusterComputeResource
                     'virtualDisk.numberReadAveraged','virtualDisk.numberWriteAveraged',
                     'virtualDisk.read','virtualDisk.write'],
                     {max_samples: max_samples}
-            )
+            ) rescue {}
+        end
+
+        if !stats.empty?
+            last_mon_time = Time.now.to_i.to_s
         end
 
         get_resource_pool_list if !@rp_list
@@ -500,7 +502,7 @@ class ClusterComputeResource
 
         view.DestroyView # Destroy the view
 
-        return str_info
+        return str_info, last_mon_time
     end
 
     def monitor_customizations
@@ -670,11 +672,15 @@ class ESXHost
 
         #Compare current configuration and return if switch hasn't changed
         same_switch = false
+
+        switch_has_pnics = switch.spec.respond_to?(:bridge) && switch.spec.bridge.respond_to?(:nicDevice)
+
+
+
         same_switch = switch.spec.respond_to?(:mtu) && switch.spec.mtu == mtu &&
-                      switch.spec.respond_to?(:numPorts) && switch.spec.mtu == num_ports &&
-                      (!pnics || (pnics && switch.spec.respond_to?(:bridge) &&
-                      switch.spec.bridge.respond_to?(:nicDevice) &&
-                      switch.spec.bridge.nicDevice.uniq.sort == pnics.uniq.sort))
+                      switch.spec.respond_to?(:numPorts) && switch.spec.numPorts == num_ports &&
+                      (!switch_has_pnics && pnics.empty? ||
+                       switch_has_pnics && switch.spec.bridge.nicDevice.uniq.sort == pnics.uniq.sort)
         return if same_switch
 
         # Let's create a new spec and update the switch
@@ -754,6 +760,9 @@ class ESXHost
     def assign_proxy_switch(dvs, switch_name, pnics, pnics_available)
         dvs = dvs.item
 
+        # Return if host is already assigned
+        return dvs if !dvs['config.host'].select { |host| host.config.host._ref == self['_ref'] }.empty?
+
         # Prepare spec for DVS reconfiguration
         configSpec = RbVmomi::VIM::VMwareDVSConfigSpec.new
         configSpec.name = switch_name
@@ -761,7 +770,7 @@ class ESXHost
 
         # Check if host is already assigned to distributed switch
         operation = "add"
-        operation = "edit" if !dvs['config.host'].select { |host| host.config.host._ref == self['_ref'] }.empty?
+        ##operation = "edit" if !dvs['config.host'].select { |host| host.config.host._ref == self['_ref'] }.empty?
 
         # Add host members to the distributed virtual switch
         host_member_spec = RbVmomi::VIM::DistributedVirtualSwitchHostMemberConfigSpec.new

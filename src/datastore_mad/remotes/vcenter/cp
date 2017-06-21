@@ -38,7 +38,7 @@ drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
 
 img_path     = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/PATH"]
-host_id      = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_ONE_HOST_ID"]
+ds_id        = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/ID"]
 ds_ref       = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_REF"]
 ds_image_dir = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_IMAGE_DIR"] || "one"
 md5          = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5"]
@@ -121,7 +121,7 @@ files_to_upload.each_with_index do |f, index|
     end
 
     # Change path if vmdk is part of filename but it's not the extension
-    if /[^.]+vmdk$/.match(path) && VCenterDriver::FileHelper.is_vmdk?(f)
+    if !!/[^.]+vmdk$/.match(path) && VCenterDriver::FileHelper.is_vmdk?(f)
         path.gsub!(/vmdk$/,'')
         extension = '.vmdk'
     end
@@ -133,10 +133,10 @@ files_to_upload.each_with_index do |f, index|
     end
 
     if index == files_to_upload.size - 1
-        uploader_args = host_id + " " + ds_ref + " " +
+        uploader_args = ds_id + " " + ds_ref + " " +
             "#{path}#{extension}" + " " + f
     else
-        uploader_args = host_id + " " + ds_ref + " " +
+        uploader_args = ds_id + " " + ds_ref + " " +
                         path + " " + f + " &> /dev/null"
     end
 

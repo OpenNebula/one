@@ -23,6 +23,7 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var RenameTr = require('utils/panel/rename-tr');
   var TemplateTable = require('utils/panel/template-table');
+  var TemplateTableVcenter = require('utils/panel/template-table');
   var PermissionsTable = require('utils/panel/permissions-table');
   var OpenNebulaDatastore = require('opennebula/datastore');
   var DatastoreCapacityBar = require('../utils/datastore-capacity-bar');
@@ -70,7 +71,12 @@ define(function(require) {
     var strippedTemplate = {};
     var strippedTemplateVcenter = {};
     $.each(this.element.TEMPLATE, function(key, value) {
-      if (key.match(/^VCENTER_*/)){
+      if (!key.match(/^VCENTER_HOST$/) &&
+          !key.match(/^VCENTER_USER$/) &&
+          !key.match(/^VCENTER_PASSWORD$/) &&
+          !key.match(/^VCENTER_DS_IMAGE_DIR$/) &&
+          !key.match(/^VCENTER_DS_VOLATILE_DIR$/) &&
+           key.match(/^VCENTER_*/)){
         strippedTemplateVcenter[key] = value;
       }
       else {
@@ -78,7 +84,7 @@ define(function(require) {
       }
     });
     var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE, Locale.tr("Attributes"), true);
-    var templateTableVcenterHTML = TemplateTable.html(strippedTemplateVcenter, RESOURCE, Locale.tr("vCenter information"), false);
+    var templateTableVcenterHTML = TemplateTableVcenter.html(strippedTemplateVcenter, RESOURCE, Locale.tr("vCenter information"), false);
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
     var capacityBar = DatastoreCapacityBar.html(this.element);
     var stateStr = OpenNebulaDatastore.stateStr(this.element.STATE);
@@ -117,7 +123,10 @@ define(function(require) {
     if($.isEmptyObject(strippedTemplateVcenter)){
       $('.vcenter', context).hide();
     }
-    TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context);
+
+    TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, undefined, strippedTemplateVcenter);
+    TemplateTableVcenter.setup(strippedTemplateVcenter, RESOURCE, this.element.ID, context, undefined, strippedTemplate);
+
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
     return false;
   }

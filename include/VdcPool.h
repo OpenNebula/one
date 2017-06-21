@@ -127,6 +127,17 @@ public:
     };
 
     /**
+     *  Lists the VDC ids
+     *  @param oids a vector with the oids of the objects.
+     *
+     *  @return 0 on success
+     */
+     int list(std::vector<int>& oids)
+     {
+        return PoolSQL::list(oids, Vdc::table);
+     }
+
+    /**
      *  Default name for the default VDC
      */
     static const string DEFAULT_NAME;

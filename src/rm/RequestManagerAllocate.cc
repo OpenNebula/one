@@ -980,6 +980,8 @@ Request::ErrorCode ZoneAllocate::pool_allocate(
         return Request::INTERNAL;
     }
 
+    Nebula::instance().get_frm()->add_zone(id);
+
     return Request::SUCCESS;
 }
 

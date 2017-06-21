@@ -221,6 +221,8 @@ void FedReplicaManager::update_zones(std::vector<int>& zone_ids)
 
 void FedReplicaManager::add_zone(int zone_id)
 {
+    std::ostringstream oss;
+
     Nebula& nd       = Nebula::instance();
     ZonePool * zpool = nd.get_zonepool();
 
@@ -234,15 +236,21 @@ void FedReplicaManager::add_zone(int zone_id)
 
     zones.insert(make_pair(zone_id, zs));
 
-    pthread_mutex_unlock(&mutex);
+    oss << "Starting federation replication thread for slave: " << zone_id;
+
+    NebulaLog::log("FRM", Log::INFO, oss);
 
     add_replica_thread(zone_id);
+
+    pthread_mutex_unlock(&mutex);
 }
 
 /* -------------------------------------------------------------------------- */
 
 void FedReplicaManager::delete_zone(int zone_id)
 {
+    std::ostringstream oss;
+
     std::map<int, ZoneServers *>::iterator it;
 
     pthread_mutex_lock(&mutex);
@@ -258,9 +266,13 @@ void FedReplicaManager::delete_zone(int zone_id)
 
     zones.erase(it);
 
-    pthread_mutex_unlock(&mutex);
+    oss << "Stopping replication thread for slave: " << zone_id;
+
+    NebulaLog::log("FRM", Log::INFO, oss);
 
     delete_replica_thread(zone_id);
+
+    pthread_mutex_unlock(&mutex);
 };
 
 /* -------------------------------------------------------------------------- */

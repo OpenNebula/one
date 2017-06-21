@@ -29,13 +29,13 @@ $: << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
-host_id         = ARGV[0]
+ds_id           = ARGV[0]
 target_ds_ref   = ARGV[1]
 target_path     = ARGV[2]
 source_path     = ARGV[3]
 
 begin
-    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+    vi_client = VCenterDriver::VIClient.new_from_datastore(ds_id)
     ds = VCenterDriver::Datastore.new_from_ref(target_ds_ref, vi_client)
 
     # Setting "." as the source will read from the stdin

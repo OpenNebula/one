@@ -24,6 +24,7 @@ define(function(require) {
   var RenameTr = require('utils/panel/rename-tr');
   var PermissionsTable = require('utils/panel/permissions-table');
   var TemplateTable = require('utils/panel/template-table');
+  var TemplateTableVcenter = require('utils/panel/template-table');
   var OpenNebula = require('opennebula');
   var Sunstone = require('sunstone');
   var Config = require('sunstone-config');
@@ -107,8 +108,8 @@ define(function(require) {
     });
 
     var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE, Locale.tr("Attributes"), true);
-    var templateTableVcenterHTML = TemplateTable.html(strippedTemplateVcenter, RESOURCE, Locale.tr("vCenter information"), false);
 
+    var templateTableVcenterHTML = TemplateTableVcenter.html(strippedTemplateVcenter, RESOURCE, Locale.tr("vCenter information"), false);
 
     var monitoring = $.extend({}, this.element.MONITORING);
     delete monitoring.CPU;
@@ -164,6 +165,7 @@ define(function(require) {
       $('.vcenter', context).hide();
     }
 
-    TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, unshownValues);
+    TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, unshownValues, strippedTemplateVcenter);
+    TemplateTableVcenter.setup(strippedTemplateVcenter, RESOURCE, this.element.ID, context, unshownValues, strippedTemplate);
   }
 });
