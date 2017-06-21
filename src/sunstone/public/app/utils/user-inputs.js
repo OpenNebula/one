@@ -46,7 +46,8 @@ define(function(require) {
     'parse': _parse,
     'generateInputElement': _generateInputElement,
     'attributeInput': _attributeInput,
-    'insertAttributeInputMB': _insertAttributeInputMB
+    'insertAttributeInputMB': _insertAttributeInputMB,
+    'retrieveOrder': _retrieveOrder
   };
 
   function _html(){
@@ -74,15 +75,23 @@ define(function(require) {
     });
   }
 
+  function _retrieveOrder(){
+    if (this.order){
+      return this.order;
+    }
+    return "";
+  }
+
   function _retrieve(context){
     var userInputsJSON = {};
-    var ids = [];
-    var index = 0;
+    var order_inputs = "";
+     
     $('.user_input_attrs tbody tr').each(function(key, value){
-      ids[index] = "_" + key + "_" + $(".user_input_name", $(this)).val(); 
-      index += 1;
+      order_inputs += $(".user_input_name", $(this)).val() + ","; 
     });
-    index = 0;
+
+    this.order = order_inputs.slice(0,-1);
+
     $(".user_input_attrs tbody tr", context).each(function() {
       
       if ($(".user_input_name", $(this)).val()) {
@@ -119,8 +128,7 @@ define(function(require) {
             break;
         }
 
-        userInputsJSON[ids[index]] = _marshall(attr);
-        index += 1;
+        userInputsJSON[attr.name] = _marshall(attr);
       }
       
     });
@@ -130,77 +138,84 @@ define(function(require) {
 
   function _fill(context, templateJSON){
     var userInputsJSON = templateJSON['USER_INPUTS'];
+    if(!templateJSON['INPUTS_ORDER']){
+      var inputsOrderString = "";
+      $.each(userInputsJSON, function(key, value){
+        inputsOrderString += key + ',';
+      });
+      templateJSON['INPUTS_ORDER'] = inputsOrderString.slice(0,-1);
+    }
 
-    if (userInputsJSON) {
-      $.each(userInputsJSON, function(key, value) {
+    var order = templateJSON['INPUTS_ORDER'];
+    var orderJSON = order.split(",");
 
-        $(".add_user_input_attr", context).trigger("click");
+    if(userInputsJSON){
+      $.each(orderJSON, function(key, value){
+        var nameOrder = value;
+        $.each(userInputsJSON, function(key, value) {
+          if(nameOrder == key){
+            $(".add_user_input_attr", context).trigger("click");
 
-        var trcontext = $(".user_input_attrs tbody tr", context).last();
+            var trcontext = $(".user_input_attrs tbody tr", context).last();
 
-        var name = "";
-        var len = key.split("_");
+            $(".user_input_name", trcontext).val(key);
 
-        for (i = 2; i < len.length; i++){
-          name += (len[i] + "_"); 
-        }
+            var attr = _unmarshall(value);
 
-        name = name.slice(0,-1);
-        $(".user_input_name", trcontext).val(name);
-
-        var attr = _unmarshall(value);
-
-        if (templateJSON[key] != undefined){
-          attr.initial = templateJSON[key];
-        }
-        $(".user_input_type", trcontext).val(attr.type).change();
-        $(".user_input_description", trcontext).val(attr.description);
-
-        if (attr.mandatory){
-          $('.user_input_mandatory', trcontext).attr("checked", "checked");
-        } else {
-          $('.user_input_mandatory', trcontext).removeAttr("checked");
-        }
-
-        switch(attr.type){
-          case "number":
-          case "number-float":
-          case "fixed":
-            $("."+attr.type+" input.user_input_initial", trcontext).val(attr.initial);
-            break;
-          case "boolean":
-            if(attr.initial == "YES"){
-              $('input#radio_yes', trcontext).attr("checked", "checked");
-              $('input#radio_no', trcontext).removeAttr('checked');
+            if (templateJSON[key] != undefined){
+              attr.initial = templateJSON[key];
             }
-            else {
-              $('input#radio_yes', trcontext).removeAttr("checked");
-              $('input#radio_no', trcontext).attr("checked", "checked");
-            }
-            break;
-          case "range":
-          case "range-float":
-            var values = attr.params.split("..");  // "2..8"
+            $(".user_input_type", trcontext).val(attr.type).change();
+            $(".user_input_description", trcontext).val(attr.description);
 
-            if (values.length == 2){
-              $("."+attr.type+" input.user_input_params_min", trcontext).val(values[0]);
-              $("."+attr.type+" input.user_input_params_max", trcontext).val(values[1]);
+            if (attr.mandatory){
+              $('.user_input_mandatory', trcontext).attr("checked", "checked");
             } else {
-              console.error('Wrong user input parameters for "'+key+'". Expected "MIN..MAX", received "'+attr.params+'"');
+              $('.user_input_mandatory', trcontext).removeAttr("checked");
             }
 
-            $("."+attr.type+" input.user_input_initial", trcontext).val(attr.initial);
+            switch(attr.type){
+              case "number":
+              case "number-float":
+              case "fixed":
+                $("."+attr.type+" input.user_input_initial", trcontext).val(attr.initial);
+                break;
+              case "boolean":
+                if(attr.initial == "YES"){
+                  $('input#radio_yes', trcontext).attr("checked", "checked");
+                  $('input#radio_no', trcontext).removeAttr('checked');
+                }
+                else {
+                  $('input#radio_yes', trcontext).removeAttr("checked");
+                  $('input#radio_no', trcontext).attr("checked", "checked");
+                }
+                break;
+              case "range":
+              case "range-float":
+                var values = attr.params.split("..");  // "2..8"
 
-            break;
+                if (values.length == 2){
+                  $("."+attr.type+" input.user_input_params_min", trcontext).val(values[0]);
+                  $("."+attr.type+" input.user_input_params_max", trcontext).val(values[1]);
+                } else {
+                  console.error('Wrong user input parameters for "'+key+'". Expected "MIN..MAX", received "'+attr.params+'"');
+                }
 
-          case "list":
-            $("."+attr.type+" input.user_input_params", trcontext).val(attr.params);
-            $("."+attr.type+" input.user_input_initial", trcontext).val(attr.initial);
-            break;
-        }
+                $("."+attr.type+" input.user_input_initial", trcontext).val(attr.initial);
+
+                break;
+
+              case "list":
+                $("."+attr.type+" input.user_input_params", trcontext).val(attr.params);
+                $("."+attr.type+" input.user_input_initial", trcontext).val(attr.initial);
+                break;
+            }
+          }
+        });
       });
     }
   }
+
 
   // It will replace the div's html with a row for each USER_INPUTS
   // opts.text_header: header text for the text & password inputs
@@ -346,18 +361,29 @@ define(function(require) {
         '</fieldset>';
 
       div.append(html);
+      
+      if(opts.defaults.INPUTS_ORDER){
+        var order = opts.defaults.INPUTS_ORDER;
+        var orderJSON = order.split(",");
 
-      $.each(input_attrs, function(index, custom_attr) {
-        $(".instantiate_user_inputs", div).append(
-          '<div class="row">' +
-            '<div class="large-12 large-centered columns">' +
-              '<label>' +
-                TemplateUtils.htmlEncode(custom_attr.description) +
-                _attributeInput(custom_attr) +
-              '</label>' +
-            '</div>' +
-          '</div>');
-      });
+        $.each(orderJSON, function(key, value){
+          var orderValue = value;
+          
+          $.each(input_attrs, function(index, custom_attr) {
+            if(custom_attr.name == orderValue){
+              $(".instantiate_user_inputs", div).append(
+                '<div class="row">' +
+                  '<div class="large-12 large-centered columns">' +
+                    '<label>' +
+                      TemplateUtils.htmlEncode(custom_attr.description) +
+                      _attributeInput(custom_attr) +
+                    '</label>' +
+                  '</div>' +
+                '</div>');
+            }
+          });
+        });
+      }
     }
 
     return (network_attrs.length > 0 || input_attrs.length > 0);
