@@ -29,7 +29,7 @@
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
-const time_t ReplicaThread::max_retry_timeout = 300;
+const time_t ReplicaThread::max_retry_timeout = 2.5e9;
 
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -79,8 +79,8 @@ void ReplicaThread::do_replication()
         {
             struct timespec timeout;
 
-            timeout.tv_sec  = time(NULL) + retry_timeout;
-            timeout.tv_nsec = 0;
+            timeout.tv_sec  = time(NULL);
+            timeout.tv_nsec = retry_timeout;
 
             if ( pthread_cond_timedwait(&cond, &mutex, &timeout) == ETIMEDOUT )
             {
@@ -110,7 +110,7 @@ void ReplicaThread::do_replication()
         }
         else
         {
-            retry_timeout = 2;
+            retry_timeout = 1e8;
             retry_request = false;
         }
     }

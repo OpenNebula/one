@@ -509,6 +509,12 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
         return -1;
     }
 
+    if ( zservers.size() == 0 )
+    {
+        error = "No servers defined in the zone";
+        return -1;
+    }
+
     // -------------------------------------------------------------------------
     // Get parameters to call append entries on follower
     // -------------------------------------------------------------------------

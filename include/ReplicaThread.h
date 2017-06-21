@@ -32,7 +32,7 @@ class ReplicaThread
 {
 public:
     ReplicaThread(int _follower_id):follower_id(_follower_id), _finalize(false),
-        _pending_requests(false), retry_timeout(2)
+        _pending_requests(false), retry_timeout(1e8)
     {
         pthread_mutex_init(&mutex, 0);
 
