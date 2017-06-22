@@ -65,6 +65,19 @@ extern "C" void * replication_thread(void *arg)
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
+static void set_timeout(struct timespec& timeout, time_t nsec )
+{
+    clock_gettime(CLOCK_REALTIME, &timeout);
+
+    timeout.tv_nsec += nsec;
+
+    while ( timeout.tv_nsec >= 1000000000 )
+    {
+        timeout.tv_sec  += 1;
+        timeout.tv_nsec -= 1000000000;
+    }
+}
+
 void ReplicaThread::do_replication()
 {
     int rc;
@@ -79,8 +92,7 @@ void ReplicaThread::do_replication()
         {
             struct timespec timeout;
 
-            timeout.tv_sec  = time(NULL);
-            timeout.tv_nsec = retry_timeout;
+            set_timeout(timeout, retry_timeout);
 
             if ( pthread_cond_timedwait(&cond, &mutex, &timeout) == ETIMEDOUT )
             {
