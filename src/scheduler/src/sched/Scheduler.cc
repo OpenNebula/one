@@ -1281,8 +1281,8 @@ void Scheduler::dispatch()
                 continue;
             }
 
-            dss << "\t" << vm->get_oid() << "\t" << hid << "\t" << dsid << "\n";           
- 
+            dss << "\t" << vm->get_oid() << "\t" << hid << "\t" << dsid << "\n";
+
             // DS capacity skip VMs deployed in public cloud hosts
             if (!host->is_public_cloud())
             {
