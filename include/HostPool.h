@@ -39,7 +39,7 @@ public:
         const string& hook_location, const string& remotes_location,
         time_t expire_time);
 
-    ~HostPool(){};
+    ~HostPool();
 
     /**
      *  Function to allocate a new Host object
@@ -66,7 +66,19 @@ public:
         int     oid,
         bool    lock)
     {
-        return static_cast<Host *>(PoolSQL::get(oid,lock));
+        Host * h = static_cast<Host *>(PoolSQL::get(oid,lock));
+
+        if ( h != 0 )
+        {
+            HostVM * hv = get_host_vm(oid);
+
+            h->tmp_lost_vms   = &(hv->tmp_lost_vms);
+            h->tmp_zombie_vms = &(hv->tmp_zombie_vms);
+
+            h->prev_rediscovered_vms = &(hv->prev_rediscovered_vms);
+        }
+
+        return h;
     };
 
     /**
@@ -79,7 +91,19 @@ public:
     Host * get(string name, bool lock)
     {
         // The owner is set to -1, because it is not used in the key() method
-        return static_cast<Host *>(PoolSQL::get(name,-1,lock));
+        Host * h = static_cast<Host *>(PoolSQL::get(name,-1,lock));
+
+        if ( h != 0 )
+        {
+            HostVM * hv = get_host_vm(h->oid);
+
+            h->tmp_lost_vms   = &(hv->tmp_lost_vms);
+            h->tmp_zombie_vms = &(hv->tmp_zombie_vms);
+
+            h->prev_rediscovered_vms = &(hv->prev_rediscovered_vms);
+        }
+
+        return h;
     };
 
     /**
@@ -180,7 +204,14 @@ public:
             return -1;
         }
 
-        return PoolSQL::drop(objsql, error_msg);
+        int rc = PoolSQL::drop(objsql, error_msg);
+
+        if ( rc == 0 )
+        {
+            delete_host_vm(host->oid);
+        }
+
+        return rc;
     };
 
     /**
@@ -265,6 +296,33 @@ public:
     int clean_expired_monitoring();
 
 private:
+    /**
+     * Stores several Host counters to give VMs one monitor grace cycle before
+     * moving them to another state
+     */
+    struct HostVM
+    {
+        /**
+         * Tmp set of lost VM IDs. 
+         */
+        set<int> tmp_lost_vms;
+
+        /**
+         * Tmp set of zombie VM IDs. 
+         */
+        set<int> tmp_zombie_vms;
+
+        /**
+         * VMs reported as found from the poweroff state.
+         */
+        set<int> prev_rediscovered_vms;
+    };
+
+    map<int, HostVM *> host_vms;
+
+    HostVM * get_host_vm(int oid);
+
+    void delete_host_vm(int oid);
 
     /**
      *  Factory method to produce Host objects

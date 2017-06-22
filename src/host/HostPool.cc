@@ -145,6 +145,19 @@ HostPool::HostPool(SqlDB*                    db,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+HostPool::~HostPool()
+{
+    map<int, HostVM *>::iterator it;
+
+    for (it=host_vms.begin(); it != host_vms.end() ; ++it)
+    {
+        delete it->second;
+    } 
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int HostPool::allocate (
     int * oid,
     const string& hostname,
@@ -322,3 +335,41 @@ int HostPool::clean_all_monitoring()
 
     return rc;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+HostPool::HostVM * HostPool::get_host_vm(int oid)
+{
+    HostVM * hvm;
+
+    map<int, HostVM *>::iterator it = host_vms.find(oid);
+
+    if ( it == host_vms.end() )
+    {
+        hvm = new HostVM;
+
+        host_vms.insert(make_pair(oid, new HostVM));
+    }
+    else
+    {
+        hvm = it->second;
+    }
+
+    return hvm;
+}
+
+void HostPool::delete_host_vm(int oid)
+{
+    HostVM * hvm;
+
+    map<int, HostVM *>::iterator it = host_vms.find(oid);
+
+    if ( it != host_vms.end() )
+    {
+        delete it->second;
+
+        host_vms.erase(it);
+    }
+}
+

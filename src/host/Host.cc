@@ -253,8 +253,8 @@ int Host::update_info(Template        &tmpl,
     set<int>::iterator        set_it;
     map<int,string>::iterator map_it;
 
-    set<int> prev_tmp_lost   = tmp_lost_vms;
-    set<int> prev_tmp_zombie = tmp_zombie_vms;
+    set<int> prev_tmp_lost   = *tmp_lost_vms;
+    set<int> prev_tmp_zombie = *tmp_zombie_vms;
 
     int num_zombies = 0;
     int num_wilds   = 0;
@@ -298,9 +298,9 @@ int Host::update_info(Template        &tmpl,
 
     obj_template->remove("VM", vm_att);
 
-    tmp_lost_vms = vm_collection.clone();
+    *tmp_lost_vms = vm_collection.clone();
 
-    tmp_zombie_vms.clear();
+    tmp_zombie_vms->clear();
 
     for (it = vm_att.begin(); it != vm_att.end(); it++)
     {
@@ -328,7 +328,7 @@ int Host::update_info(Template        &tmpl,
 
             it_vm = found.find(vmid);
 
-            if ( tmp_lost_vms.erase(vmid) == 1 ) //Good, known
+            if ( tmp_lost_vms->erase(vmid) == 1 ) //Good, known
             {
                 found.insert(make_pair(vmid, vatt->vector_value("POLL")));
             }
@@ -338,7 +338,7 @@ int Host::update_info(Template        &tmpl,
             }
             else //Bad, known but should not be here
             {
-                tmp_zombie_vms.insert(vmid);
+                tmp_zombie_vms->insert(vmid);
 
                 // Reported as zombie at least 2 times?
                 if (prev_tmp_zombie.count(vmid) == 1)
@@ -389,7 +389,7 @@ int Host::update_info(Template        &tmpl,
     {
         if ( one_util::regex_match("STATE=. ",map_it->second.c_str()) != 0 )
         {
-            tmp_lost_vms.insert(map_it->first);
+            tmp_lost_vms->insert(map_it->first);
             found.erase(map_it++);
         }
         else
@@ -398,7 +398,7 @@ int Host::update_info(Template        &tmpl,
         }
     }
 
-    for(set_it = tmp_lost_vms.begin(); set_it != tmp_lost_vms.end(); set_it++)
+    for(set_it = tmp_lost_vms->begin(); set_it != tmp_lost_vms->end(); set_it++)
     {
         // Reported as lost at least 2 times?
         if (prev_tmp_lost.count(*set_it) == 1)
