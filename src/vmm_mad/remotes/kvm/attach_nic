@@ -61,6 +61,7 @@ fi
 if [ -n "${IP}" ] && [ -n "${FILTER}" ]; then
     DEVICE+=" <filterref filter='$(xml_esc "${FILTER}")'>"
     DEVICE+=" <parameter name='IP' value='$(xml_esc "${IP}")'/>"
+    [ -n "${VROUTER_IP}" ] && DEVICE+=" <parameter name='IP' value='$(xml_esc "${VROUTER_IP}")'/>"
     DEVICE+=" </filterref>"
 fi
 
