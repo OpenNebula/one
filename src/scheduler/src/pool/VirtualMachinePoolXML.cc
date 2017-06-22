@@ -34,7 +34,7 @@ int VirtualMachinePoolXML::set_up()
         if (NebulaLog::log_level() >= Log::DDDEBUG)
         {
             map<int,ObjectXML*>::iterator it;
-            
+
             oss << "Pending/rescheduling VM and capacity requirements:" << endl;
 
             oss << right << setw(8)  << "ACTION"    << " "
@@ -47,7 +47,6 @@ int VirtualMachinePoolXML::set_up()
                 << " Image DS" << endl
                 << setw(60) << setfill('-') << "-" << setfill(' ') << endl;
 
-
             for (it=objects.begin() ; it != objects.end() ; ++it)
             {
                 int cpu, mem;
@@ -57,7 +56,7 @@ int VirtualMachinePoolXML::set_up()
                 string action = "DEPLOY";
 
                 VirtualMachineXML * vm;
-                
+
                 vm = static_cast<VirtualMachineXML *>(it->second);
 
                 vm->get_requirements(cpu, mem, disk, pci);
@@ -71,7 +70,6 @@ int VirtualMachinePoolXML::set_up()
                     action = "RESUME";
                 }
 
-
                 oss << right << setw(8)  << action      << " "
                     << right << setw(8)  << vm->get_oid()   << " "
                     << right << setw(8)  << vm->get_prio()   << " "
@@ -82,8 +80,8 @@ int VirtualMachinePoolXML::set_up()
 
                 map<int,long long> ds_usage = vm->get_storage_usage();
                 map<int,long long>::const_iterator ds_it;
-                
-                for (ds_it = ds_usage.begin(); ds_it != ds_usage.end(); ds_it++)
+ 
+                for ( ds_it = ds_usage.begin(); ds_it != ds_usage.end(); ds_it++)
                 {
                     oss << " DS " << ds_it->first << ": " << ds_it->second <<" ";
                 }
@@ -121,7 +119,6 @@ void VirtualMachinePoolXML::add_object(xmlNodePtr node)
     } else {
        objects.insert(pair<int,ObjectXML*>(vm->get_oid(),vm));
     }
-
 
 }
 
@@ -245,6 +242,7 @@ int VirtualMachinePoolXML::update(int vid, const string &st) const
 
     return 0;
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -277,6 +275,7 @@ int VirtualMachineActionsPoolXML::set_up()
 
     return rc;
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -318,9 +317,9 @@ int VirtualMachineActionsPoolXML::action(
 
     return 0;
 }
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int VirtualMachineRolePoolXML::set_up()
 {
