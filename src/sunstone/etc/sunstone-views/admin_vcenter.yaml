@@ -18,8 +18,8 @@ enabled_tabs:
     - datastores-tab
     - images-tab
     #- files-tab
-    - marketplaces-tab
-    - marketplaceapps-tab
+    #- marketplaces-tab
+    #- marketplaceapps-tab
     - network-top-tab
     - vnets-tab
     - vnets-topology-tab
