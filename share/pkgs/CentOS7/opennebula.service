@@ -21,6 +21,7 @@ ExecStartPre=/bin/chown oneadmin:oneadmin /var/log/one
 ExecStartPre=-/usr/sbin/logrotate -s /tmp/logrotate.state -f /etc/logrotate.d/opennebula
 ExecStop=/bin/kill -TERM $MAINPID
 ExecStopPost=/bin/rm -f /var/lock/one/one
+ExecStopPost=/usr/share/one/follower_cleanup
 PIDFile=/var/run/one/oned.pid
 
 [Install]

@@ -424,6 +424,7 @@ INSTALL_FILES=(
     ESX_FW_VNC_SHARE_FILES:$SHARE_LOCATION/esx-fw-vnc
     INSTALL_GEMS_SHARE_FILES:$SHARE_LOCATION
     ONETOKEN_SHARE_FILE:$SHARE_LOCATION
+    FOLLOWER_CLEANUP_SHARE_FILE:$SHARE_LOCATION
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
     HOOK_RAFT_FILES:$VAR_LOCATION/remotes/hooks/raft
     COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
@@ -1301,7 +1302,10 @@ HOOK_RAFT_FILES="share/hooks/raft/vip.sh"
 
 INSTALL_GEMS_SHARE_FILES="share/install_gems/install_gems \
                           share/install_gems/Gemfile"
+
 ONETOKEN_SHARE_FILE="share/onetoken/onetoken.sh"
+
+FOLLOWER_CLEANUP_SHARE_FILE="share/hooks/raft/follower_cleanup"
 
 #-------------------------------------------------------------------------------
 # OCA Files
