@@ -54,7 +54,7 @@ def handle_exception(action, ex, host, did, id = nil, file = nil)
 
     file    ||= ""
     id      ||= ""
-    opennebula::log_error(action + " of VM #{id} #{did} on host #{host} #{file} "+
+    OpenNebula::log_error(action + " of VM #{id} #{did} on host #{host} #{file} "+
                 "due to \"#{ex.message}\"")
     STDERR.puts "********* STACK TRACE *********"
     STDERR.puts ex.backtrace
@@ -365,7 +365,6 @@ class EC2Driver
             userdata_key = EC2[:run][:args]["USERDATA"][:opt]
             opts[userdata_key] = Base64.encode64(context_str)
         end
-        
 
         instances = @ec2.create_instances(opts)
         instance = instances.first
@@ -376,7 +375,7 @@ class EC2Driver
             begin
                 break if instance.exists?
             rescue => e
-                opennebula::log_error("RESCUE: #{e.inspect}")
+                OpenNebula::log_error("RESCUE: #{e.inspect}")
             end
 
             sleep 2
@@ -395,9 +394,10 @@ class EC2Driver
         instance.create_tags(:tags => tag_array) if tag_array.length > 0
 
         elastic_ip = ec2_value(ec2_info, 'ELASTICIP')
+ 
+        wait_state('running', instance.id)
 
         if elastic_ip
-            wait_state('pending', instance.id)
 
             if elastic_ip.match(Resolv::IPv4::Regex)
                 address_key = :public_ip
@@ -413,7 +413,6 @@ class EC2Driver
             @ec2.client.associate_address(address)
         end
 
-        wait_state('running', instance.id)
 
         instance.create_tags(tags: [{
             key: 'ONE_ID',
@@ -836,7 +835,7 @@ private
             end
             cpu = cpu.to_f.round(2).to_s
         rescue => e
-            opennebula::log_error(e.message)
+            OpenNebula::log_error(e.message)
         end
 
         # NETTX
@@ -855,7 +854,7 @@ private
                 nettx += dp[:sum].to_i
             }
         rescue => e
-            opennebula::log_error(e.message)
+            OpenNebula::log_error(e.message)
         end
 
         # NETRX
@@ -874,7 +873,7 @@ private
                 netrx += dp[:sum].to_i
             }
         rescue => e
-            opennebula::log_error(e.message)
+            OpenNebula::log_error(e.message)
         end
 
         "CPU=#{cpu.to_s} NETTX=#{nettx.to_s} NETRX=#{netrx.to_s} "
@@ -910,7 +909,7 @@ private
         user_id = xml['TEMPLATE/CREATED_BY']
 
         if user_id.nil?
-            opennebula::log_error("VMID:#{vmid} CREATED_BY not present" \
+            OpenNebula::log_error("VMID:#{vNid} CREATED_BY not present" \
                 " in the VM TEMPLATE")
             return nil
         end
@@ -920,7 +919,7 @@ private
         rc   = user.info
 
         if OpenNebula.is_error?(rc)
-            opennebula::log_error("VMID:#{vmid} user.info" \
+            OpenNebula::log_error("VMID:#{vmid} user.info" \
                 " error: #{rc.message}")
             return nil
         end
@@ -928,7 +927,7 @@ private
         token_password = user['TEMPLATE/TOKEN_PASSWORD']
 
         if token_password.nil?
-            opennebula::log_error(VMID:#{vmid} TOKEN_PASSWORD not present"\
+            OpenNebula::log_error(VMID:#{vmid} TOKEN_PASSWORD not present"\
                 " in the USER:#{user_id} TEMPLATE")
             return nil
         end

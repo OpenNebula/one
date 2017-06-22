@@ -87,8 +87,8 @@ void PoolSQL::set_lastOID(int _last_oid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-PoolSQL::PoolSQL(SqlDB * _db, const char * _table, bool _cache, bool by_name):
-    db(_db), table(_table), uses_name_pool(by_name)
+PoolSQL::PoolSQL(SqlDB * _db, const char * _table):
+    db(_db), table(_table)
 {
     pthread_mutex_init(&mutex,0);
 };
@@ -98,15 +98,15 @@ PoolSQL::PoolSQL(SqlDB * _db, const char * _table, bool _cache, bool by_name):
 
 PoolSQL::~PoolSQL()
 {
-    map<int,PoolObjectSQL *>::iterator  it;
+    vector<PoolObjectSQL *>::iterator it;
 
     pthread_mutex_lock(&mutex);
 
-    for ( it = pool.begin(); it != pool.end(); it++)
+    for ( it = pool.begin(); it != pool.end(); ++it)
     {
-        it->second->lock();
+        (*it)->lock();
 
-        delete it->second;
+        delete *it;
     }
 
     pthread_mutex_unlock(&mutex);
@@ -192,14 +192,7 @@ PoolObjectSQL * PoolSQL::get(int oid, bool olock)
         return 0;
     }
 
-    pool.insert(make_pair(objectsql->oid, objectsql));
-
-    if ( uses_name_pool )
-    {
-        string okey = key(objectsql->name, objectsql->uid);
-
-        name_pool.insert(make_pair(okey, objectsql));
-    }
+    pool.push_back(objectsql);
 
     if ( olock == true )
     {
@@ -216,11 +209,6 @@ PoolObjectSQL * PoolSQL::get(int oid, bool olock)
 
 PoolObjectSQL * PoolSQL::get(const string& name, int ouid, bool olock)
 {
-    if ( uses_name_pool == false )
-    {
-        return 0;
-    }
-
     lock();
 
     string name_key = key(name, ouid);
@@ -242,9 +230,7 @@ PoolObjectSQL * PoolSQL::get(const string& name, int ouid, bool olock)
         return 0;
     }
 
-    pool.insert(make_pair(objectsql->oid, objectsql));
-
-    name_pool.insert(make_pair(name_key, objectsql));
+    pool.push_back(objectsql);
 
     if ( olock == true )
     {
@@ -261,22 +247,17 @@ PoolObjectSQL * PoolSQL::get(const string& name, int ouid, bool olock)
 
 void PoolSQL::flush_cache(int oid)
 {
-    int  rc;
-    PoolObjectSQL * tmp_ptr;
-
-    map<int,PoolObjectSQL *>::iterator  it;
-
-    for (it = pool.begin(); it != pool.end(); )
+    for (vector<PoolObjectSQL *>::iterator it = pool.begin(); it != pool.end();)
     {
         // The object we are looking for in ::get(). Wait until it is unlocked()
-        if (it->first == oid)
+        if ((*it)->oid == oid)
         {
-            it->second->lock();
+            (*it)->lock();
         }
         else
         {
             // Any other locked object is just ignored
-            rc = pthread_mutex_trylock(&(it->second->mutex));
+            int rc = pthread_mutex_trylock(&((*it)->mutex));
 
             if ( rc == EBUSY ) // In use by other thread
             {
@@ -285,19 +266,9 @@ void PoolSQL::flush_cache(int oid)
             }
         }
 
-        tmp_ptr = it->second;
+        delete *it;
 
-        // map::erase does not invalidate iterator, except for the current one
         it = pool.erase(it);
-
-        if ( uses_name_pool )
-        {
-            string okey = key(tmp_ptr->name, tmp_ptr->uid);
-
-            name_pool.erase(okey);
-        }
-
-        delete tmp_ptr;
     }
 }
 
@@ -306,22 +277,19 @@ void PoolSQL::flush_cache(int oid)
 
 void PoolSQL::flush_cache(const string& name_key)
 {
-    int  rc;
-    PoolObjectSQL * tmp_ptr;
-
-    map<string,PoolObjectSQL *>::iterator it;
-
-    for (it = name_pool.begin(); it != name_pool.end(); )
+    for (vector<PoolObjectSQL *>::iterator it = pool.begin(); it != pool.end();)
     {
+        string okey = key((*it)->name, (*it)->uid);
+
         // The object we are looking for in ::get(). Wait until it is unlocked()
-        if (name_key == it->first)
+        if ( name_key == okey)
         {
-            it->second->lock();
+            (*it)->lock();
         }
         else
         {
             // Any other locked object is just ignored
-            rc = pthread_mutex_trylock(&(it->second->mutex));
+            int rc = pthread_mutex_trylock(&((*it)->mutex));
 
             if ( rc == EBUSY ) // In use by other thread
             {
@@ -330,14 +298,9 @@ void PoolSQL::flush_cache(const string& name_key)
             }
         }
 
-        tmp_ptr = it->second;
+        delete *it;
 
-        // map::erase does not invalidate iterator, except for the current one
-        it = name_pool.erase(it);
-
-        pool.erase(tmp_ptr->oid);
-
-        delete tmp_ptr;
+        it = pool.erase(it);
     }
 }
 
@@ -346,20 +309,18 @@ void PoolSQL::flush_cache(const string& name_key)
 
 void PoolSQL::clean()
 {
-    map<int,PoolObjectSQL *>::iterator  it;
+    vector<PoolObjectSQL *>::iterator it;
 
     lock();
 
-    for ( it = pool.begin(); it != pool.end(); it++)
+    for (it = pool.begin(); it != pool.end(); ++it)
     {
-        it->second->lock();
+        (*it)->lock();
 
-        delete it->second;
+        delete *it;
     }
 
     pool.clear();
-
-    name_pool.clear();
 
     unlock();
 }

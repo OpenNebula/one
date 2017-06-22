@@ -19,7 +19,7 @@ require 'set'
 require 'base64'
 require 'zlib'
 require 'pathname'
-
+require 'yaml'
 require 'opennebula'
 
 $: << File.dirname(__FILE__)
@@ -38,6 +38,8 @@ module Migrator
     def up
         init_log_time()
 
+        feature_5136()
+
         feature_4901()
 
         feature_5005()
@@ -47,7 +49,6 @@ module Migrator
         bug_3705()
 
         feature_4809()
-
         log_time()
 
         return true
@@ -62,6 +63,54 @@ module Migrator
         else
             ""
         end
+    end
+
+    ############################################################################
+    # Feature 5136. Improve ec2 keys_ids_security
+    #
+    ############################################################################
+    def feature_5136
+        ec2_driver_conf = "#{ETC_LOCATION}/ec2_driver.conf"
+        token = File.read(VAR_LOCATION+'/.one/one_key')
+        opts = {}
+
+        begin
+            ec2_conf = YAML::load(File.read(ec2_driver_conf))
+        rescue Exception => e
+            str_error="ec2_driver.conf invalid syntax!"
+            raise str_error
+        end
+
+        regions = ec2_conf["regions"]
+        @db.run "ALTER TABLE host_pool RENAME TO old_host_pool;"
+        create_table(:host_pool)
+
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_host_pool") do |row|
+                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) { |c|
+                    c.default_xml.noblanks
+                }
+                template = doc.root.at_xpath("TEMPLATE")
+
+                if xpath(doc, "TEMPLATE/HYPERVISOR").to_s == "ec2"
+
+                    host_name = xpath(doc, "NAME").to_s
+                    host_info = ( regions[host_name].nil? ? regions["default"] : regions[host_name] )
+
+                    opts["EC2_ACCESS"]=host_info["access_key_id"]
+                    opts["EC2_SECRET"]=host_info["secret_access_key"]
+
+                    OpenNebula.encrypt(opts, token).each { |k, v|
+                        template.add_child(doc.create_element k, v)
+                    }
+                end
+
+                row[:body] = doc.root.to_s
+                @db[:host_pool].insert(row)
+            end
+        end
+
+        @db.run "DROP TABLE old_host_pool;"
     end
 
     ############################################################################

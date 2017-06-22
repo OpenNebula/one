@@ -27,7 +27,7 @@ class DocumentPool : public PoolSQL
 {
 public:
 
-    DocumentPool(SqlDB * db) : PoolSQL(db, Document::table, true, false){};
+    DocumentPool(SqlDB * db) : PoolSQL(db, Document::table){};
 
     ~DocumentPool(){};
 

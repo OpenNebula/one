@@ -47,7 +47,7 @@ VirtualMachinePool::VirtualMachinePool(
         float                       default_cpu_cost,
         float                       default_mem_cost,
         float                       default_disk_cost)
-    : PoolSQL(db, VirtualMachine::table, true, false),
+    : PoolSQL(db, VirtualMachine::table),
     _monitor_expiration(expire_time), _submit_on_hold(on_hold),
     _default_cpu_cost(default_cpu_cost), _default_mem_cost(default_mem_cost),
     _default_disk_cost(default_disk_cost)

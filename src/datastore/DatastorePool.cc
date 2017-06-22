@@ -41,7 +41,7 @@ const int    DatastorePool::FILE_DS_ID   = 2;
 DatastorePool::DatastorePool(
         SqlDB * db,
         const vector<const SingleAttribute *>& _inherit_attrs) :
-    PoolSQL(db, Datastore::table, true, true)
+    PoolSQL(db, Datastore::table)
 
 {
     ostringstream oss;
