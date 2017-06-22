@@ -146,6 +146,14 @@ public:
         return frm_thread;
     };
 
+    /**
+     *  Return the last index of the fed log
+     */
+    int get_last_index() const
+    {
+        return last_index;
+    }
+
 private:
     friend void * frm_loop(void *arg);
 

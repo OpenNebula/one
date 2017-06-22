@@ -1176,6 +1176,8 @@ std::string& RaftManager::to_xml(std::string& raft_xml)
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
 
+    FedReplicaManager * frm = nd.get_frm();
+
     unsigned int lindex, lterm;
 
     std::ostringstream oss;
@@ -1200,6 +1202,15 @@ std::string& RaftManager::to_xml(std::string& raft_xml)
     {
         oss << "<LOG_INDEX>" << lindex << "</LOG_INDEX>"
             << "<LOG_TERM>"  << lterm  << "</LOG_TERM>";
+    }
+
+    if ( nd.is_federation_enabled() )
+    {
+        oss << "<FEDLOG_INDEX>" << frm->get_last_index() << "</FEDLOG_INDEX>";
+    }
+    else
+    {
+        oss << "<FEDLOG_INDEX>-1</FEDLOG_INDEX>";
     }
 
     oss << "</RAFT>";

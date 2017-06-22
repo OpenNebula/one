@@ -361,8 +361,6 @@ HostPool::HostVM * HostPool::get_host_vm(int oid)
 
 void HostPool::delete_host_vm(int oid)
 {
-    HostVM * hvm;
-
     map<int, HostVM *>::iterator it = host_vms.find(oid);
 
     if ( it != host_vms.end() )

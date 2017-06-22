@@ -147,14 +147,34 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
                      when "3" then "leader"
                      else "-"
                  end
-                s["TERM"]     = xml_doc.root.at_xpath("TERM").text
+                s["TERM"]      = xml_doc.root.at_xpath("TERM").text
                 s["VOTEDFOR"]  = xml_doc.root.at_xpath("VOTEDFOR").text
                 s["COMMIT"]    = xml_doc.root.at_xpath("COMMIT").text
-                s["LOG_INDEX"] = xml_doc.root.at_xpath("LOG_INDEX").text
+
+                s["LOG_INDEX"]    = xml_doc.root.at_xpath("LOG_INDEX").text
+                s["FEDLOG_INDEX"] = xml_doc.root.at_xpath("FEDLOG_INDEX").text
             }
 
             puts
-            CLIHelper.print_header(str_h1 % "SERVERS",false)
+            CLIHelper.print_header(str_h1 % "ZONE SERVERS",false)
+
+            CLIHelper::ShowTable.new(nil, self) do
+
+                column :"ID", "", :size=>2 do |d|
+                    d["ID"] if !d.nil?
+                end
+
+                column :"NAME", "", :left, :size=>15 do |d|
+                    d["NAME"] if !d.nil?
+                end
+
+                column :"ENDPOINT", "", :left, :size=>63 do |d|
+                    d["ENDPOINT"] if !d.nil?
+                end
+            end.show([zone_hash['ZONE']['SERVER_POOL']['SERVER']].flatten, {})
+
+            puts
+            CLIHelper.print_header(str_h1 % "RAFT & FEDERATION SYNC STATUS",false)
 
             CLIHelper::ShowTable.new(nil, self) do
 
@@ -186,9 +206,10 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
                     d["VOTEDFOR"] if !d.nil?
                 end
 
-                column :"ENDPOINT", "", :left, :size=>18 do |d|
-                    d["ENDPOINT"] if !d.nil?
+                column :"FED_INDEX", "", :left, :size=>10 do |d|
+                    d["FEDLOG_INDEX"] if !d.nil?
                 end
+
             end.show([zone_hash['ZONE']['SERVER_POOL']['SERVER']].flatten, {})
         end
 
