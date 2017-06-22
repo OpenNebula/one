@@ -78,8 +78,7 @@ int VirtualMachinePoolXML::set_up()
 
                 map<int,long long> ds_usage = vm->get_storage_usage();
 
-                for (map<int,long long>::const_iterator ds_it = ds_usage.begin();
-                        ds_it != ds_usage.end(); ds_it++)
+                for (map<int,long long>::const_iterator ds_it = ds_usage.begin(); ds_it != ds_usage.end(); ds_it++)
                 {
                     oss << " DS " << ds_it->first << ": " << ds_it->second << " ";
                 }
@@ -103,8 +102,6 @@ int VirtualMachinePoolXML::set_up()
 
 void VirtualMachinePoolXML::add_object(xmlNodePtr node)
 {
-    ostringstream   oss;
-   
     if ( node == 0 || node->children == 0 || node->children->next==0 )
     {
         NebulaLog::log("VM",Log::ERROR,
@@ -116,8 +113,6 @@ void VirtualMachinePoolXML::add_object(xmlNodePtr node)
    
     if ( use_prio == 1) { 
        objects.insert(pair<int,ObjectXML*>(vm->get_prio(),vm));
-       oss << "Priority: " << vm->get_prio();
-       NebulaLog::log("VM", Log::INFO, oss);
     } else {
        objects.insert(pair<int,ObjectXML*>(vm->get_oid(),vm));
     }

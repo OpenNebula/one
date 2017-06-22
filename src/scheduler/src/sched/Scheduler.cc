@@ -1276,13 +1276,13 @@ void Scheduler::dispatch()
             //------------------------------------------------------------------
             // Dispatch and update host and DS capacity, and dispatch counters
             //------------------------------------------------------------------
-            if (vmpool->dispatch(vm_it->first, hid, dsid, vm->is_resched()) != 0)
+            if (vmpool->dispatch(vm->get_oid(), hid, dsid, vm->is_resched()) != 0)
             {
                 continue;
             }
 
-            dss << "\t" << vm_it->first << "\t" << hid << "\t" << dsid << "\n";
-
+            dss << "\t" << vm->get_oid() << "\t" << hid << "\t" << dsid << "\n";           
+ 
             // DS capacity skip VMs deployed in public cloud hosts
             if (!host->is_public_cloud())
             {
