@@ -33,7 +33,7 @@ void VirtualMachineXML::init_attributes()
     string automatic_ds_requirements;
 
     xpath(oid, "/VM/ID", -1);
-    xpath(prio, "/VM/PRIO", oid);
+    xpath(prio, "/VM/PRIO", -1);
     xpath(uid, "/VM/UID", -1);
     xpath(gid, "/VM/GID", -1);
 
