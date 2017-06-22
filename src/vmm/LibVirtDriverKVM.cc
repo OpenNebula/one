@@ -449,7 +449,7 @@ int LibVirtDriver::deployment_description_kvm(
         ceph_secret     = disk[i]->vector_value("CEPH_SECRET");
         ceph_user       = disk[i]->vector_value("CEPH_USER");
         pool_name       = disk[i]->vector_value("POOL_NAME");
-
+      
         iscsi_host      = disk[i]->vector_value("ISCSI_HOST");
         iscsi_user      = disk[i]->vector_value("ISCSI_USER");
         iscsi_usage     = disk[i]->vector_value("ISCSI_USAGE");
@@ -938,7 +938,7 @@ int LibVirtDriver::deployment_description_kvm(
                  << one_util::escape_xml_attr(*the_model) << "/>\n";
         }
 
-        if (!mac.empty() )
+        if (!ip.empty() )
         {
             string * the_filter = 0;
 
@@ -954,20 +954,10 @@ int LibVirtDriver::deployment_description_kvm(
             if ( the_filter != 0 )
             {
                 file << "\t\t\t<filterref filter="
-                         << one_util::escape_xml_attr(*the_filter) << ">\n";
-
-                if (!ip.empty() )
-                {
-                    file << "\t\t\t\t<parameter name='IP' value="
-                            << one_util::escape_xml_attr(ip) << "/>\n";
-                }
-                else
-                {
-                    file << "\t\t\t\t<parameter name='CTRL_IP_LEARNING'"
-                            << " value='dhcp'/>\n";
-                }
-
-                file << "\t\t\t</filterref>\n";
+                         << one_util::escape_xml_attr(*the_filter) << ">\n"
+                     << "\t\t\t\t<parameter name='IP' value="
+                         << one_util::escape_xml_attr(ip) << "/>\n"
+                     << "\t\t\t</filterref>\n";
             }
         }
 

@@ -58,13 +58,9 @@ fi
 [ -n "${SCRIPT}" ] && DEVICE+=" <script path='$(xml_esc "${SCRIPT}")'/>"
 [ -n "${MODEL}" ] && DEVICE+=" <model type='$(xml_esc "${MODEL}")'/>"
 
-if [ -n "${MAC}" ] && [ -n "${FILTER}" ]; then
+if [ -n "${IP}" ] && [ -n "${FILTER}" ]; then
     DEVICE+=" <filterref filter='$(xml_esc "${FILTER}")'>"
-    if [ -n "${IP}" ]; then
-        DEVICE+=" <parameter name='IP' value='$(xml_esc "${IP}")'/>"
-    else
-        DEVICE+=" <parameter name='CTRL_IP_LEARNING' value='dhcp'/>"
-    fi
+    DEVICE+=" <parameter name='IP' value='$(xml_esc "${IP}")'/>"
     DEVICE+=" </filterref>"
 fi
 
