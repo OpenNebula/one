@@ -47,7 +47,7 @@ int VirtualMachinePoolXML::set_up()
                 << " Image DS" << endl
                 << setw(60) << setfill('-') << "-" << setfill(' ') << endl;
 
-            for (it=objects.begin() ; it != objects.end() ; ++it)
+            for (it = objects.begin() ; it != objects.end() ; ++it)
             {
                 int cpu, mem;
                 long long disk;
@@ -80,7 +80,7 @@ int VirtualMachinePoolXML::set_up()
 
                 map<int,long long> ds_usage = vm->get_storage_usage();
                 map<int,long long>::const_iterator ds_it;
- 
+
                 for ( ds_it = ds_usage.begin(); ds_it != ds_usage.end(); ds_it++)
                 {
                     oss << " DS " << ds_it->first << ": " << ds_it->second <<" ";
