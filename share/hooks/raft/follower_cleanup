@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+
+VAR_LOCATION    = "/var/lib/one"
+CONFIG_LOCATION = VAR_LOCATION + "/config"
+HOOKS_LOCATION  = VAR_LOCATION + "/remotes/hooks"
+
+REGEXP = /^RAFT_FOLLOWER_HOOK=(?:ARGUMENTS=(.*),)?COMMAND=(.*)$/
+
+config = File.read(CONFIG_LOCATION)
+
+groups = config.match(REGEXP) rescue nil
+
+if groups.nil? || groups[2].nil?
+    exit 0
+end
+
+cmd = groups[2]
+
+if !cmd.start_with?("/")
+    cmd = HOOKS_LOCATION + "/" + cmd
+end
+
+cmd = cmd.split(" ")
+
+if groups[1]
+    cmd += groups[1].split(" ")
+end
+
+exec(*cmd)
