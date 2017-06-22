@@ -25,7 +25,7 @@
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-const time_t RaftManager::timer_period_ms = 10;
+const time_t RaftManager::timer_period_ms = 50;
 
 static void set_timeout(long long ms, struct timespec& timeout)
 {
@@ -207,7 +207,16 @@ extern "C" void * raft_manager_loop(void *arg)
 
     NebulaLog::log("RCM",Log::INFO,"Raft Consensus Manager started.");
 
-    raftm->am.loop(timeout);
+    if ( raftm->is_solo() )
+    {
+        raftm->am.loop();
+
+    }
+    else
+    {
+        raftm->am.loop(timeout);
+    }
+
 
     NebulaLog::log("RCM",Log::INFO,"Raft Consensus Manager stopped.");
 

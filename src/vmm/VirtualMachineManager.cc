@@ -423,6 +423,8 @@ void VirtualMachineManager::deploy_action(int vid)
 
     delete drv_msg;
 
+    vmpool->update(vm);
+
     vm->unlock();
 
     return;
@@ -1266,6 +1268,8 @@ void VirtualMachineManager::restore_action(
     vmd->restore(vid, *drv_msg);
 
     delete drv_msg;
+
+    vmpool->update(vm);
 
     vm->unlock();
 
@@ -2326,6 +2330,8 @@ void VirtualMachineManager::attach_nic_action(
     vmd->attach_nic(vid, *drv_msg);
 
     delete drv_msg;
+
+    vmpool->update(vm);
 
     vm->unlock();
 
