@@ -1287,8 +1287,8 @@ ESX_FW_VNC_SHARE_FILES="share/esx-fw-vnc/fw-vnc.vib \
 
 HOOK_FT_FILES="share/hooks/ft/host_error.rb \
                share/hooks/ft/fence_host.sh \
-               share/hooks/create_vcenter_net.rb \
-               share/hooks/delete_vcenter_net.rb"
+               share/hooks/vcenter/create_vcenter_net.rb \
+               share/hooks/vcenter/delete_vcenter_net.rb"
 
 #-------------------------------------------------------------------------------
 # HOOK RAFT scripts, to be installed under $VAR_LOCATION/remotes/hooks/raft
