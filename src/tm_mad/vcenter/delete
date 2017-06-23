@@ -119,7 +119,8 @@ if path.match(/disk\.\d+$/)
 
                         ds.delete_virtual_disk(img_path)
                         img_dir = File.dirname(img_path)
-                        ds.rm_directory(img_dir) if ds.dir_empty?(img_dir)
+                        vcenter_version = vi_client.vim.serviceContent.about.apiVersion
+                        ds.rm_directory(img_dir) if ds.dir_empty?(img_dir) && vcenter_version != "6.5"
 
                     rescue Exception => e
                         if !e.message.start_with?('FileNotFound')
