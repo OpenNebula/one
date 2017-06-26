@@ -79,8 +79,8 @@ begin
                 ds.delete_file(img_src)
             end
 
-            #vcenter_version = vi_client.vim.serviceContent.about.apiVersion
-            ds.rm_directory(img_dir) if ds.dir_empty?(img_dir) #&& vcenter_version != "6.5"
+            vcenter_version = vi_client.vim.serviceContent.about.apiVersion
+            ds.rm_directory(img_dir) if ds.dir_empty?(img_dir) && vcenter_version != "6.5"
 
         rescue Exception => e
             if !e.message.start_with?('FileNotFound')
