@@ -252,7 +252,7 @@ class EC2Driver
         secret_key = conn_opts[:secret]
 
         @region = regions[host] || regions["default"]
-               
+
         #sanitize region data
         raise "access_key_id not defined for #{host}" if access_key.nil?
         raise "secret_access_key not defined for #{host}" if secret_key.nil?
@@ -276,7 +276,7 @@ class EC2Driver
         res.each do |key, encrypted_value|
             decipher = OpenSSL::Cipher::AES.new(256,:CBC)
             decipher.decrypt
-            decipher.key = token[0..31]  
+            decipher.key = token[0..31]
             plain = decipher.update(Base64::decode64(encrypted_value)) + decipher.final
             opts[key] = plain
         end
@@ -465,17 +465,34 @@ class EC2Driver
         puts parse_poll(i, vm, do_cw, cw_mon_time)
     end
 
+    # Parse template instance type into
+    # Amazon ec2 format (M1SMALL => m1.small)
+    def parse_inst_type(type)
+        fixed_type = type[0..1]<< '.' << type[2..type.length+1]
+        return fixed_type.downcase
+    end
+
     # Get the info of all the EC2 instances. An EC2 instance must include
     #   the ONE_ID tag, otherwise it will be ignored
     def monitor_all_vms
         totalmemory = 0
         totalcpu = 0
-        @region['capacity'].each { |name, size|
-            cpu, mem = instance_type_capacity(name)
 
-            totalmemory += mem * size.to_i
-            totalcpu    += cpu * size.to_i
-        }
+        # Get last cloudwatch monitoring time
+        host_obj    = OpenNebula::Host.new_with_id(@host_id,
+                                                  OpenNebula::Client.new)
+        host_obj.info
+        cw_mon_time = host_obj["/HOST/TEMPLATE/CWMONTIME"]
+        capacity = host_obj.to_hash["HOST"]["TEMPLATE"]["CAPACITY"]
+        if !capacity.nil? && Hash === capacity
+            capacity.each{ |name, value|
+                name = parse_inst_type(name)
+                cpu, mem = instance_type_capacity(name)
+                totalmemory += mem * value.to_i
+                totalcpu    += cpu * value.to_i
+            }
+        end
+
 
         host_info =  "HYPERVISOR=ec2\n"
         host_info << "PUBLIC_CLOUD=YES\n"
@@ -499,11 +516,6 @@ class EC2Driver
         vpool.info
         onevm_info = {}
 
-        # Get last cloudwatch monitoring time
-        host_obj    = OpenNebula::Host.new_with_id(@host_id,
-                                                  OpenNebula::Client.new)
-        host_obj.info
-        cw_mon_time = host_obj["/HOST/TEMPLATE/CWMONTIME"]
 
         if !cw_mon_time
             cw_mon_time = Time.now.to_i
