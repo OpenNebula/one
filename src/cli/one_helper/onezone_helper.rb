@@ -174,7 +174,7 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
             end.show([zone_hash['ZONE']['SERVER_POOL']['SERVER']].flatten, {})
 
             puts
-            CLIHelper.print_header(str_h1 % "RAFT & FEDERATION SYNC STATUS",false)
+            CLIHelper.print_header(str_h1 % "HA & FEDERATION SYNC STATUS",false)
 
             CLIHelper::ShowTable.new(nil, self) do
 

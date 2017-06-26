@@ -180,8 +180,6 @@ void FedReplicaManager::update_zones(std::vector<int>& zone_ids)
 
     vector<int>::iterator it;
 
-    std::map<int, std::string> zone_servers;
-
     int zone_id = nd.get_zone_id();
 
     if ( zpool->list_zones(zone_ids) != 0 )
@@ -201,15 +199,26 @@ void FedReplicaManager::update_zones(std::vector<int>& zone_ids)
         }
         else
         {
-            zpool->get_zone_servers(*it, zone_servers);
+            Zone * zone = zpool->get(*it, true);
 
-            ZoneServers * zs = new ZoneServers(*it, last_index, zone_servers);
+            if ( zone == 0 )
+            {
+                it = zone_ids.erase(it);
+            }
+            else
+            {
+                std::string zedp;
 
-            zones.insert(make_pair(*it, zs));
+                zone->get_template_attribute("ENDPOINT", zedp);
 
-            zone_servers.clear();
+                zone->unlock();
 
-            ++it;
+                ZoneServers * zs = new ZoneServers(*it, last_index, zedp);
+
+                zones.insert(make_pair(*it, zs));
+
+                ++it;
+            }
         }
     }
 
@@ -223,16 +232,25 @@ void FedReplicaManager::add_zone(int zone_id)
 {
     std::ostringstream oss;
 
+    std::string zedp;
+
     Nebula& nd       = Nebula::instance();
     ZonePool * zpool = nd.get_zonepool();
 
-    std::map<int, std::string> zone_servers;
+    Zone * zone = zpool->get(zone_id, true);
 
-    zpool->get_zone_servers(zone_id, zone_servers);
+    if ( zone == 0 )
+    {
+        return;
+    }
+
+    zone->get_template_attribute("ENDPOINT", zedp);
+
+    zone->unlock();
 
     pthread_mutex_lock(&mutex);
 
-    ZoneServers * zs = new ZoneServers(zone_id, last_index, zone_servers);
+    ZoneServers * zs = new ZoneServers(zone_id, last_index, zedp);
 
     zones.insert(make_pair(zone_id, zs));
 
@@ -336,8 +354,8 @@ void FedReplicaManager::timer_action(const ActionRequest& ar)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int FedReplicaManager::get_next_record(int zone_id, int& index, std::string& sql,
-        std::map<int, std::string>& zservers)
+int FedReplicaManager::get_next_record(int zone_id, int& index,
+        std::string& sql, std::string& zedp)
 {
     pthread_mutex_lock(&mutex);
 
@@ -349,10 +367,10 @@ int FedReplicaManager::get_next_record(int zone_id, int& index, std::string& sql
         return -1;
     }
 
-    index    = it->second->next;
-    zservers = it->second->servers;
+    index = it->second->next;
+    zedp  = it->second->endpoint;
 
-    int rc   = get_log_record(index, sql);
+    int rc = get_log_record(index, sql);
 
     pthread_mutex_unlock(&mutex);
 
@@ -400,7 +418,7 @@ int FedReplicaManager::insert_log_record(int index, const std::string& sql)
 
 /* -------------------------------------------------------------------------- */
 
-int FedReplicaManager::get_last_index(unsigned int& index)
+int FedReplicaManager::get_last_index(unsigned int& index) const
 {
     ostringstream oss;
 
@@ -477,7 +495,7 @@ void FedReplicaManager::replicate_failure(int zone_id, int last_zone)
 
         if ( last_zone >= 0 )
         {
-            zs->next = last_zone + 1;
+            zs->next = last_zone - 1;
         }
     }
 
@@ -496,22 +514,14 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
     static const std::string replica_method = "one.zone.fedreplicate";
 
     int index;
-    std::string sql, secret;
 
-    std::map<int, std::string> zservers;
-    std::map<int, std::string>::iterator it;
+    std::string sql, secret, zedp;
 
 	int xml_rc = 0;
 
-    if ( get_next_record(zone_id, index, sql, zservers) != 0 )
+    if ( get_next_record(zone_id, index, sql, zedp) != 0 )
     {
         error = "Failed to load federation log record";
-        return -1;
-    }
-
-    if ( zservers.size() == 0 )
-    {
-        error = "No servers defined in the zone";
         return -1;
     }
 
@@ -533,41 +543,36 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
     // -------------------------------------------------------------------------
     // Do the XML-RPC call
     // -------------------------------------------------------------------------
-    for (it=zservers.begin(); it != zservers.end(); ++it)
+    xml_rc = Client::client()->call(zedp, replica_method, replica_params, 
+        xmlrpc_timeout_ms, &result, error);
+
+    if ( xml_rc == 0 )
     {
-        xml_rc = Client::client()->call(it->second, replica_method,
-            replica_params, xmlrpc_timeout_ms, &result, error);
+        vector<xmlrpc_c::value> values;
 
-        if ( xml_rc == 0 )
+        values  = xmlrpc_c::value_array(result).vectorValueValue();
+        success = xmlrpc_c::value_boolean(values[0]);
+
+        if ( success ) //values[2] = error code (string)
         {
-            vector<xmlrpc_c::value> values;
-
-            values  = xmlrpc_c::value_array(result).vectorValueValue();
-            success = xmlrpc_c::value_boolean(values[0]);
-
-            if ( success ) //values[2] = error code (string)
-            {
-                last = xmlrpc_c::value_int(values[1]);
-            }
-            else
-            {
-                error = xmlrpc_c::value_string(values[1]);
-                last  = xmlrpc_c::value_int(values[3]);
-            }
-
-            break;
+            last = xmlrpc_c::value_int(values[1]);
         }
         else
         {
-            std::ostringstream ess;
-
-            ess << "Error replicating log entry " << index << " on zone server "
-                << it->second << ": " << error;
-
-            NebulaLog::log("FRM", Log::ERROR, error);
-
-            error = ess.str();
+            error = xmlrpc_c::value_string(values[1]);
+            last  = xmlrpc_c::value_int(values[3]);
         }
+    }
+    else
+    {
+        std::ostringstream ess;
+
+        ess << "Error replicating log entry " << index << " on zone "
+            << zone_id << " (" << zedp << "): " << error;
+
+        NebulaLog::log("FRM", Log::ERROR, error);
+
+        error = ess.str();
     }
 
     return xml_rc;

@@ -147,11 +147,16 @@ public:
     };
 
     /**
-     *  Return the last index of the fed log
+     *  @return the last index of the fed log (from DB to use this method in
+     *  HA followers)
      */
-    int get_last_index() const
+    unsigned int get_last_index() const
     {
-        return last_index;
+        unsigned int li;
+
+        get_last_index(li);
+
+        return li;
     }
 
 private:
@@ -193,14 +198,14 @@ private:
     // -------------------------------------------------------------------------
     struct ZoneServers
     {
-        ZoneServers(int z, unsigned int l, const std::map<int,std::string>& s):
-            zone_id(z), servers(s), next(l){};
+        ZoneServers(int z, unsigned int l, const std::string& s):
+            zone_id(z), endpoint(s), next(l){};
 
         ~ZoneServers(){};
 
         int zone_id;
 
-        std::map<int, std::string> servers;
+        std::string  endpoint;
 
         unsigned int next;
     };
@@ -260,7 +265,7 @@ private:
      *    @param index
      *    @return 0 on success
      */
-    int get_last_index(unsigned int& index);
+    int get_last_index(unsigned int& index) const;
 
     /**
      *  Get the nest record to replicate in a zone
@@ -270,7 +275,7 @@ private:
      *    @return 0 on success, -1 otherwise
      */
     int get_next_record(int zone_id, int& index, std::string& sql,
-        std::map<int, std::string>& zservers);
+        std::string& zservers);
 };
 
 #endif /*FED_REPLICA_MANAGER_H_*/
