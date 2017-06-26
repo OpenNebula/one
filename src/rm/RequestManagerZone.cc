@@ -122,8 +122,6 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
         pool->update(zone);
 
         zone->unlock();
-
-        nd.get_frm()->update_zones(zids);
     }
     else
     {
@@ -231,8 +229,6 @@ void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
         pool->update(zone);
 
         zone->unlock();
-
-        nd.get_frm()->update_zones(zids);
     }
     else
     {
