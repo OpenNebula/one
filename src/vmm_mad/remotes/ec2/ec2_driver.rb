@@ -247,21 +247,19 @@ class EC2Driver
         @instance_types = PUBLIC_CLOUD_EC2_CONF['instance_types']
 
         conn_opts = get_connect_info(host)
-        regions = PUBLIC_CLOUD_EC2_CONF['regions']
         access_key = conn_opts[:access]
         secret_key = conn_opts[:secret]
-
-        @region = regions[host] || regions["default"]
+        region_name = conn_opts[:region]
 
         #sanitize region data
         raise "access_key_id not defined for #{host}" if access_key.nil?
         raise "secret_access_key not defined for #{host}" if secret_key.nil?
-        raise "region_name not defined for #{host}" if @region['region_name'].nil?
+        raise "region_name not defined for #{host}" if region_name.nil?
 
         Aws.config.merge!({
             :access_key_id      => access_key,
             :secret_access_key  => secret_key,
-            :region             => @region['region_name']
+            :region             => region_name
         })
 
         if (proxy_uri = PUBLIC_CLOUD_EC2_CONF['proxy_uri'])
@@ -270,6 +268,7 @@ class EC2Driver
 
         @ec2 = Aws::EC2::Resource.new
     end
+
     def decrypt(res, token)
         opts = {}
 
@@ -306,12 +305,13 @@ class EC2Driver
             :access => xmlhost["TEMPLATE/EC2_ACCESS"],
             :secret => xmlhost["TEMPLATE/EC2_SECRET"]
         }
-        begin 
+        begin
             conn_opts = decrypt(conn_opts, token)
+            conn_opts[:region] = xmlhost["TEMPLATE/REGION_NAME"]
         rescue
-            raise "HOST: #{host} must have ec2 credentials in order to work properly"
+            raise "HOST: #{host} must have ec2 credentials and region in order to work properly"
         end
-        
+
         return conn_opts
     end
 
@@ -319,7 +319,6 @@ class EC2Driver
     def deploy(id, host, xml_text, lcm_state, deploy_id)
 
         # Restore if we need to
-        
         if lcm_state != "BOOT" && lcm_state != "BOOT_FAILURE"
             restore(deploy_id)
             return deploy_id
@@ -394,7 +393,7 @@ class EC2Driver
         instance.create_tags(:tags => tag_array) if tag_array.length > 0
 
         elastic_ip = ec2_value(ec2_info, 'ELASTICIP')
- 
+
         wait_state('running', instance.id)
 
         if elastic_ip
@@ -492,7 +491,6 @@ class EC2Driver
                 totalcpu    += cpu * value.to_i
             }
         end
-
 
         host_info =  "HYPERVISOR=ec2\n"
         host_info << "PUBLIC_CLOUD=YES\n"
