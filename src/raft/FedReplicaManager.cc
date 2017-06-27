@@ -102,21 +102,32 @@ int FedReplicaManager::apply_log_record(int index, const std::string& sql)
         rc = last_index;
 
         pthread_mutex_unlock(&mutex);
-
         return rc;
     }
 
-    if ( insert_log_record(last_index + 1, sql) != 0 )
+    std::ostringstream oss;
+
+    char * sql_db = logdb->escape_str(sql.c_str());
+
+    if ( sql_db == 0 )
+    {
+        pthread_mutex_unlock(&mutex);
+        return -1;
+    }
+
+    oss << "BEGIN;\n" 
+        << "REPLACE INTO " << table << " ("<< db_names <<") VALUES "
+        << "(" << last_index + 1 << ",'" << sql_db << "');\n"
+        << sql << ";\n"
+        << "END;";
+
+    if ( logdb->exec_wr(oss) != 0 )
     {
         pthread_mutex_unlock(&mutex);
         return -1;
     }
 
     last_index++;
-
-    std::ostringstream oss(sql);
-
-    logdb->exec_wr(oss);
 
     pthread_mutex_unlock(&mutex);
 
@@ -496,9 +507,12 @@ void FedReplicaManager::replicate_failure(int zone_id, int last_zone)
         {
             zs->next = last_zone + 1;
         }
-    }
 
-    ReplicaManager::replicate(zone_id);
+        if ( last_index >= zs->next )
+        {
+            ReplicaManager::replicate(zone_id);
+        }
+    }
 
     pthread_mutex_unlock(&mutex);
 }
