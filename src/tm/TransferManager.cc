@@ -2165,7 +2165,7 @@ void TransferManager::resize_command(VirtualMachine * vm,
     if ( disk->is_volatile() )
     {
         tm_mad = vm->get_tm_mad();
-        ds_id  = vm->get_ds_id();
+        ds_id  = std::to_string(vm->get_ds_id());
     }
     else
     {
