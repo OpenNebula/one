@@ -32,4 +32,19 @@ module OpenNebula
         return res
     end
 
+    # receive hashed values (res) with a token
+    # returns original values
+    def self.decrypt(res, token)
+        opts = {}
+
+        res.each do |key, encrypted_value|
+            decipher = OpenSSL::Cipher::AES.new(256,:CBC)
+            decipher.decrypt
+            decipher.key = token[0..31]
+            plain = decipher.update(Base64::decode64(encrypted_value)) + decipher.final
+            opts[key] = plain
+        end
+        return opts
+    end
+
 end

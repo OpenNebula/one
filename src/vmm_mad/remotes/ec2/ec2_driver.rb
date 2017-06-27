@@ -269,20 +269,9 @@ class EC2Driver
         @ec2 = Aws::EC2::Resource.new
     end
 
-    def decrypt(res, token)
-        opts = {}
-
-        res.each do |key, encrypted_value|
-            decipher = OpenSSL::Cipher::AES.new(256,:CBC)
-            decipher.decrypt
-            decipher.key = token[0..31]
-            plain = decipher.update(Base64::decode64(encrypted_value)) + decipher.final
-            opts[key] = plain
-        end
-        return opts
-
-    end
-
+    # Check the current template of host
+    # to retrieve connection information
+    # needed for Amazon
     def get_connect_info(host)
 
         conn_opts={}
@@ -306,7 +295,7 @@ class EC2Driver
             :secret => xmlhost["TEMPLATE/EC2_SECRET"]
         }
         begin
-            conn_opts = decrypt(conn_opts, token)
+            conn_opts = OpenNebula.decrypt(conn_opts, token)
             conn_opts[:region] = xmlhost["TEMPLATE/REGION_NAME"]
         rescue
             raise "HOST: #{host} must have ec2 credentials and region in order to work properly"
