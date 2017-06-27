@@ -91,6 +91,7 @@ define(function(require) {
     var context = $("#provision_create_vm");
     $("#vm_name", context).val('');
     $(".provision_selected_networks").html("");
+    $(".provision_vmgroup_selector").html("");
     $(".provision-pricing-table", context).removeClass("selected");
     $(".alert-box-error", context).hide();
     $(".total_cost_div", context).hide();
@@ -567,6 +568,10 @@ define(function(require) {
     $("#provision_create_vm .provision_disk_selector").html("");
     $("#provision_create_vm .provision_disk_selector").removeData("template_json");
     $("#provision_create_vm .provision_network_selector").html("");
+    $("#provision_create_vm .provision_vmgroup_selector").html("");
+    $("#provision_create_vm .provision_add_vmgroup").show();
+    $("#provision_create_vm .provision_vmgroup").hide();
+
     $("#provision_create_vm .provision_custom_attributes_selector").html("")
 
     $("#provision_create_vm li:not(.is-active) a[href='#provision_dd_template']").trigger("click")
@@ -586,8 +591,11 @@ define(function(require) {
     $("#provision_customize_flow_template", context).hide();
     $("#provision_customize_flow_template", context).html("");
 
-    $(".provision_network_selector", context).html("")
-    $(".provision_custom_attributes_selector", context).html("")
+    $(".provision_network_selector", context).html("");
+    $(".provision_vmgroup_selector", context).html("");
+    $(".provision_add_vmgroup", context).show();
+    $(".provision_vmgroup", context).hide();
+    $(".provision_custom_attributes_selector", context).html("");
 
     $(".provision_accordion_flow_template .selected_template", context).hide();
     $(".provision_accordion_flow_template .select_template", context).show();
@@ -1186,11 +1194,10 @@ define(function(require) {
 
             if (body.custom_attrs) {
               UserInputs.serviceTemplateInsert(
-                $(".provision_network_selector", context),
-                data);
+                $(".provision_network_selector", context), data);
             } else {
-              $(".provision_network_selector", context).html("")
-              $(".provision_custom_attributes_selector", context).html("")
+              $(".provision_network_selector", context).html("");
+              $(".provision_custom_attributes_selector", context).html("");
             }
 
             $.each(body.roles, function(index, role){
