@@ -76,6 +76,7 @@ module OpenNebulaJSON
                  when "unresched"    then self.unresched
                  when "recover"      then self.recover(action_hash['params'])
                  when "save_as_template" then self.save_as_template(action_hash['params'])
+                 when "disk_resize"  then self.disk_resize(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -110,6 +111,10 @@ module OpenNebulaJSON
         def disk_saveas(params=Hash.new)
             super(params['disk_id'].to_i, params['image_name'],
                 params['type'], params['snapshot_id'].to_i)
+        end
+
+        def disk_resize(params=Hash.new)
+            super(params['disk_id'].to_i, params['new_size'])
         end
 
         def snapshot_create(params=Hash.new)
