@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEHOST" "1" "May 2017" "" "onehost(1) -- manages OpenNebula hosts"
+.TH "ONEHOST" "1" "June 2017" "" "onehost(1) -- manages OpenNebula hosts"
 .
 .SH "NAME"
 \fBonehost\fR \- manages OpenNebula hosts
@@ -16,6 +16,8 @@
  \-i, \-\-im im_mad           Set the information driver for the host
  \-v, \-\-vm vmm_mad          Set the virtualization driver for the host
  \-c, \-\-cluster id|name     Selects the cluster
+ \-\-ec2access id            Set the id access for EC2 Driver
+ \-\-ec2secret key           Set the secret key for EC2 Driver
  \-a, \-\-append              Append new attributes to the current template
  \-\-force                   Force probe upgrade in onehost sync
  \-\-rsync                   Use rsync to synchronize remotes\. In case some
@@ -43,7 +45,7 @@
 .SH "COMMANDS"
 .
 .IP "\(bu" 4
-create \fIhostname\fR Creates a new Host valid options: im, vm, cluster
+create \fIhostname\fR Creates a new Host valid options: im, vm, cluster, ec2access, ec2secret
 .
 .IP "\(bu" 4
 delete \fIrange|hostid_list\fR Deletes the given Host
@@ -129,7 +131,7 @@ hostid_list Comma\-separated list of OpenNebula HOST names or ids
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 5\.3\.80 Copyright 2002\-2017, OpenNebula Project, OpenNebula Systems
+OpenNebula 5\.3\.85 Copyright 2002\-2017, OpenNebula Project, OpenNebula Systems
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0
