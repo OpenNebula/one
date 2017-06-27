@@ -832,3 +832,86 @@ function get_disk_information {
     esac
 }
 
+
+# This function extracts information about a NIC. The first parameter
+# is a string with the filter for NICs, for example, to get the interface
+# that's going to be attached, use:
+#
+#     get_nic_information "ATTACH=YES"
+#
+# To get an specific interface ID use:
+#
+#     get_nic_information "NIC_ID=$NIC_ID"
+#
+# The variables set are as follows:
+#
+# * VMID
+# * NIC_ID
+# * BRIDGE
+# * VN_MAD
+# * MAC
+# * NIC_TARGET
+# * SCRIPT
+# * MODEL
+# * IP
+# * FILTER
+# * VROUTER_IP
+# * INBOUND_AVG_BW
+# * INBOUND_PEAK_BW
+# * INBOUND_PEAK_KB
+# * OUTBOUND_AVG_BW
+# * OUTBOUND_PEAK_BW
+# * OUTBOUND_PEAK_KB
+# * ORDER
+
+function get_nic_information {
+    FILTER="$1"
+
+    DRIVER_PATH=$(dirname $0)
+    XPATH="${DRIVER_PATH}/../../datastore/xpath.rb"
+    CMD="$XPATH --stdin"
+
+    unset i j XPATH_ELEMENTS
+
+    NIC_XPATH="/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/NIC[$FILTER]"
+
+    while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+    done < <($CMD       /VMM_DRIVER_ACTION_DATA/VM/ID \
+                        $NIC_XPATH/NIC_ID \
+                        $NIC_XPATH/BRIDGE \
+                        $NIC_XPATH/VN_MAD \
+                        $NIC_XPATH/MAC \
+                        $NIC_XPATH/TARGET \
+                        $NIC_XPATH/SCRIPT \
+                        $NIC_XPATH/MODEL \
+                        $NIC_XPATH/IP \
+                        $NIC_XPATH/FILTER \
+                        $NIC_XPATH/VROUTER_IP \
+                        $NIC_XPATH/INBOUND_AVG_BW \
+                        $NIC_XPATH/INBOUND_PEAK_BW \
+                        $NIC_XPATH/INBOUND_PEAK_KB \
+                        $NIC_XPATH/OUTBOUND_AVG_BW \
+                        $NIC_XPATH/OUTBOUND_PEAK_BW \
+                        $NIC_XPATH/OUTBOUND_PEAK_KB \
+                        $NIC_XPATH/ORDER)
+
+    VMID="${XPATH_ELEMENTS[j++]}"
+    NIC_ID="${XPATH_ELEMENTS[j++]}"
+    BRIDGE="${XPATH_ELEMENTS[j++]}"
+    VN_MAD="${XPATH_ELEMENTS[j++]}"
+    MAC="${XPATH_ELEMENTS[j++]}"
+    NIC_TARGET="${XPATH_ELEMENTS[j++]}"
+    SCRIPT="${XPATH_ELEMENTS[j++]}"
+    MODEL="${XPATH_ELEMENTS[j++]}"
+    IP="${XPATH_ELEMENTS[j++]}"
+    FILTER="${XPATH_ELEMENTS[j++]}"
+    VROUTER_IP="${XPATH_ELEMENTS[j++]}"
+    INBOUND_AVG_BW="${XPATH_ELEMENTS[j++]}"
+    INBOUND_PEAK_BW="${XPATH_ELEMENTS[j++]}"
+    INBOUND_PEAK_KB="${XPATH_ELEMENTS[j++]}"
+    OUTBOUND_AVG_BW="${XPATH_ELEMENTS[j++]}"
+    OUTBOUND_PEAK_BW="${XPATH_ELEMENTS[j++]}"
+    OUTBOUND_PEAK_KB="${XPATH_ELEMENTS[j++]}"
+    ORDER="${XPATH_ELEMENTS[j++]}"
+}
