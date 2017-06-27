@@ -535,7 +535,7 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
         NebulaLog::log("ReM", Log::ERROR, oss);
 
         att.resp_msg = oss.str();
-        att.resp_id  = index;
+        att.resp_id  = -1;
 
         failure_response(ACTION, att);
         return;

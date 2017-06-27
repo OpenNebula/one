@@ -495,7 +495,7 @@ void FedReplicaManager::replicate_failure(int zone_id, int last_zone)
 
         if ( last_zone >= 0 )
         {
-            zs->next = last_zone - 1;
+            zs->next = last_zone + 1;
         }
     }
 
