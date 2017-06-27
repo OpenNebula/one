@@ -410,8 +410,7 @@ int FedReplicaManager::insert_log_record(int index, const std::string& sql)
     }
 
     oss << "REPLACE INTO " << table << " ("<< db_names <<") VALUES "
-        << "(" << index  << ",'" << sql_db << "'), "
-        << "(" << -1 << "," << index << ")";
+        << "(" << index  << ",'" << sql_db << "')";
 
     return logdb->exec_wr(oss);
 }
@@ -424,7 +423,7 @@ int FedReplicaManager::get_last_index(unsigned int& index) const
 
     single_cb<unsigned int> cb;
 
-    oss << "SELECT sqlcmd FROM fed_logdb WHERE log_index = -1";
+    oss << "SELECT MAX(log_index) FROM fed_logdb";
 
     cb.set_callback(&index);
 
