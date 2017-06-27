@@ -54,6 +54,10 @@ DEV="/dev/${VG_NAME}/${LV_NAME}"
 
 DUMP_CMD=$(cat <<EOF
     $DD if=$DEV of=$DST_PATH bs=64k
+EOF
+)
+
+DELETE_CMD=$(cat <<EOF
     $SUDO $LVREMOVE -f $DEV
 EOF
 )
@@ -64,6 +68,10 @@ EOF
 log "Dumping $SRC to $DST"
 
 ssh_exec_and_log "$SRC_HOST" "$DUMP_CMD" \
+    "Error dumping $SRC to $DST"
+
+LOCK="tm-fs_lvm-${DS_SYS_ID}.lock"
+exclusive "${LOCK}" 120 ssh_exec_and_log "$SRC_HOST" "$DELETE_CMD" \
     "Error dumping $SRC to $DST"
 
 exit 0
