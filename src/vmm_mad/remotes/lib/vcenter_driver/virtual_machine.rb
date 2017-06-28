@@ -2111,6 +2111,100 @@ class VirtualMachine < Template
         end
     end
 
+    def resize_unmanaged_disk(disk, new_size)
+
+        resize_hash = {}
+        disks       = []
+        found       = false
+
+        unmanaged_keys = get_unmanaged_keys
+        vc_disks = get_vcenter_disks
+
+        vc_disks.each do |vcenter_disk|
+            if unmanaged_keys.key?("opennebula.disk.#{disk["DISK_ID"]}")
+                device_key = unmanaged_keys["opennebula.disk.#{disk["DISK_ID"]}"].to_i
+
+                if device_key == vcenter_disk[:key].to_i
+
+                    if disk["SIZE"].to_i <= disk["ORIGINAL_SIZE"].to_i
+                        raise "Disk size cannot be shrinked."
+                    end
+
+                    # Edit capacity setting new size in KB
+                    d = vcenter_disk[:device]
+                    d.capacityInKB = disk["SIZE"].to_i * 1024
+                    disks <<   { :device => d, :operation => :edit }
+
+                    found = true
+                    break
+                end
+            end
+        end
+
+        raise "Unmanaged disk could not be found to apply resize operation." if !found
+
+        if !disks.empty?
+            resize_hash[:deviceChange] = disks
+            @item.ReconfigVM_Task(:spec => resize_hash).wait_for_completion
+        else
+            raise "Device was not found after attaching it to VM in poweroff."
+        end
+    end
+
+    def resize_managed_disk(disk, new_size)
+
+        resize_hash = {}
+
+        unmanaged_keys = get_unmanaged_keys
+        vc_disks       = get_vcenter_disks
+
+        # Get vcenter device to be detached and remove if found
+        device         = disk_attached_to_vm(disk, unmanaged_keys, vc_disks)
+
+        # If the disk is being attached in poweroff, reconfigure the VM
+        if !device
+            spec_hash     = {}
+            device_change = []
+
+            # Get an array with disk paths in OpenNebula's vm template
+            disks_in_onevm_vector = disks_in_onevm(unmanaged_keys, vc_disks)
+
+            device_change_ds, device_change_spod, device_change_spod_ids = device_attach_disks(disks_in_onevm_vector, vc_disks)
+            device_change += device_change_ds
+
+            # Create volatile disks in StorageDRS if any
+            if !device_change_spod.empty?
+                spec_hash[:extraConfig] = create_storagedrs_disks(device_change_spod, device_change_spod_ids)
+            end
+
+            # Common reconfigure task
+            spec_hash[:deviceChange] = device_change
+            spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+            @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+
+            # Check again if device has now been attached
+            unmanaged_keys = get_unmanaged_keys
+            vc_disks       = get_vcenter_disks
+            device         = disk_attached_to_vm(disk, unmanaged_keys, vc_disks)
+
+            if !device
+                raise "Device was not found after attaching it to VM in poweroff."
+            end
+        end
+
+        # Resize disk now that we know that it's part of the VM
+        if device
+            vcenter_disk = device[:device]
+            vcenter_disk.capacityInKB = new_size.to_i * 1024
+            resize_hash[:deviceChange] = [{
+                :operation => :edit,
+                :device => vcenter_disk
+            }]
+
+            @item.ReconfigVM_Task(:spec => resize_hash).wait_for_completion
+        end
+    end
+
     def has_snapshots?
         self['rootSnapshot'] && !self['rootSnapshot'].empty?
     end

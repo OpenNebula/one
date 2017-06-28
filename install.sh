@@ -1031,6 +1031,7 @@ TM_VCENTER_FILES="src/tm_mad/vcenter/clone \
                  src/tm_mad/vcenter/cpds \
                  src/tm_mad/vcenter/premigrate \
                  src/tm_mad/vcenter/postmigrate \
+                 src/tm_mad/vcenter/resize \
                  src/tm_mad/vcenter/snap_create \
                  src/tm_mad/vcenter/snap_create_live \
                  src/tm_mad/vcenter/snap_delete \
