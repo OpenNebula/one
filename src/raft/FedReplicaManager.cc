@@ -107,7 +107,17 @@ int FedReplicaManager::apply_log_record(int index, const std::string& sql)
 
     std::ostringstream oss;
 
-    char * sql_db = logdb->escape_str(sql.c_str());
+    std::string * zsql = one_util::zlib_compress(sql, true);
+
+    if ( zsql == 0 )
+    {
+        pthread_mutex_unlock(&mutex);
+        return -1;
+    }
+
+    char * sql_db = logdb->escape_str(zsql->c_str());
+
+    delete zsql;
 
     if ( sql_db == 0 )
     {
@@ -392,17 +402,30 @@ int FedReplicaManager::get_next_record(int zone_id, int& index,
 
 int FedReplicaManager::get_log_record(int index, std::string& sql)
 {
+    std::string zsql;
+
     ostringstream oss;
 
     single_cb<std::string> cb;
 
     oss << "SELECT sqlcmd FROM fed_logdb WHERE log_index = " << index;
 
-    cb.set_callback(&sql);
+    cb.set_callback(&zsql);
 
     int rc = logdb->exec_rd(oss, &cb);
 
     cb.unset_callback();
+
+    std::string * _sql = one_util::zlib_decompress(zsql, true);
+
+    if ( _sql == 0 )
+    {
+        return -1;
+    }
+
+    sql = *_sql;
+
+    delete _sql;
 
     return rc;
 }
@@ -413,7 +436,16 @@ int FedReplicaManager::insert_log_record(int index, const std::string& sql)
 {
     std::ostringstream oss;
 
-    char * sql_db = logdb->escape_str(sql.c_str());
+    std::string * zsql = one_util::zlib_compress(sql, true);
+
+    if ( zsql == 0 )
+    {
+        return -1;
+    }
+
+    char * sql_db = logdb->escape_str(zsql->c_str());
+
+    delete zsql;
 
     if ( sql_db == 0 )
     {
