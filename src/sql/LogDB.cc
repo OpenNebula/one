@@ -531,7 +531,7 @@ int LogDB::purge_log()
         return 0;
     }
 
-    unsigned int delete_index = last_index - log_retention;
+    unsigned int delete_index = last_applied - log_retention;
 
     // keep the last "log_retention" records as well as those not applied to DB
     oss << "DELETE FROM logdb WHERE timestamp > 0 AND log_index >= 0 "
