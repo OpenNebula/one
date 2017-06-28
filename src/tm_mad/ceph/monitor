@@ -49,11 +49,13 @@ while IFS= read -r -d '' element; do
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/POOL_NAME \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_KEY \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_CONF)
 
 BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
 POOL_NAME="${XPATH_ELEMENTS[j++]:-$POOL_NAME}"
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
+CEPH_KEY="${XPATH_ELEMENTS[j++]}"
 CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 
 HOST=`get_destination_host`
@@ -65,6 +67,10 @@ fi
 
 if [ -n "$CEPH_USER" ]; then
     CEPH="$CEPH --id ${CEPH_USER}"
+fi
+
+if [ -n "$CEPH_KEY" ]; then
+    CEPH="$CEPH --keyfile ${CEPH_KEY}"
 fi
 
 if [ -n "$CEPH_CONF" ]; then
