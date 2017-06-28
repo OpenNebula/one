@@ -66,17 +66,23 @@ if [ `is_disk $DST_PATH` -eq 0 ]; then
                         /DATASTORE/TEMPLATE/SOURCE \
                         /DATASTORE/TEMPLATE/CLONE \
                         /DATASTORE/TEMPLATE/CEPH_USER \
+                        /DATASTORE/TEMPLATE/CEPH_KEY \
                         /DATASTORE/TEMPLATE/CEPH_CONF \
                         /DATASTORE/TEMPLATE/POOL_NAME)
 
     SRC="${XPATH_ELEMENTS[j++]}"
     CLONE="${XPATH_ELEMENTS[j++]}"
     CEPH_USER="${XPATH_ELEMENTS[j++]}"
+    CEPH_KEY="${XPATH_ELEMENTS[j++]}"
     CEPH_CONF="${XPATH_ELEMENTS[j++]}"
     POOL_NAME="${XPATH_ELEMENTS[j++]:-$POOL_NAME}"
 
     if [ -n "$CEPH_USER" ]; then
         RBD="$RBD --id ${CEPH_USER}"
+    fi
+    
+    if [ -n "$CEPH_KEY" ]; then
+    CEPH="$CEPH --keyfile ${CEPH_KEY}"
     fi
 
     if [ -n "$CEPH_CONF" ]; then

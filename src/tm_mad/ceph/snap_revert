@@ -63,11 +63,13 @@ done < <(onevm show -x $VM_ID| $XPATH \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_KEY \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_CONF)
 
 RBD_SRC="${XPATH_ELEMENTS[j++]}"
 CLONE="${XPATH_ELEMENTS[j++]}"
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
+CEPH_KEY="${XPATH_ELEMENTS[j++]}"
 CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 
 if [ "$CLONE" = "NO" ]; then
@@ -101,6 +103,10 @@ fi
 
 if [ -n "$CEPH_USER" ]; then
     RBD="$RBD --id ${CEPH_USER}"
+fi
+
+if [ -n "$CEPH_KEY" ]; then
+    CEPH="$CEPH --keyfile ${CEPH_KEY}"
 fi
 
 if [ -n "$CEPH_CONF" ]; then
