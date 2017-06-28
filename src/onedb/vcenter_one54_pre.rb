@@ -364,10 +364,10 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
     cluster_id = one_clusters[host_id]
 
     devices.each do |device|
-        rc = vnpool.info
+        rc = vnpool.info_all
         raise "\n    ERROR! Could not update vnpool. Reason #{rc.message}" if OpenNebula.is_error?(rc)
 
-        rc = ipool.info
+        rc = ipool.info_all
         raise "\n    ERROR! Could not update ipool. Reason #{rc.message}" if OpenNebula.is_error?(rc)
 
         rc = dspool.info
@@ -866,9 +866,14 @@ def template_unmanaged_discover(devices, ccr_name, ccr_ref,
 
     # Loop through devices
     devices.each do |device|
-        dspool.info
-        ipool.info
-        vnpool.info
+        rc = vnpool.info_all
+        raise "\n    ERROR! Could not update vnpool. Reason #{rc.message}" if OpenNebula.is_error?(rc)
+
+        rc = ipool.info_all
+        raise "\n    ERROR! Could not update ipool. Reason #{rc.message}" if OpenNebula.is_error?(rc)
+
+        rc = dspool.info
+        raise "\n    ERROR! Could not update dspool. Reason #{rc.message}" if OpenNebula.is_error?(rc)
 
         if defined?(RbVmomi::VIM::VirtualIDEController) &&
            device.is_a?(RbVmomi::VIM::VirtualIDEController)
@@ -1853,7 +1858,7 @@ def add_new_image_attrs(ipool, one_client, vcenter_ids)
     STDOUT.puts
 
     # Refresh pool
-    rc = ipool.info
+    rc = ipool.info_all
     raise "Error contacting OpenNebula #{rc.message}" if OpenNebula.is_error?(rc)
 
     # Loop through existing images
@@ -1966,9 +1971,9 @@ def inspect_templates(vc_templates, vc_clusters, one_clusters, tpool, ipool, vnp
 
         begin
             # Refresh pools
-            rc = vnpool.info
+            rc = vnpool.info_all
             raise "\n    ERROR! Could not update vnpool. Reason #{rc.message}" if OpenNebula.is_error?(rc)
-            rc = ipool.info
+            rc = ipool.info_all
             raise "\n    ERROR! Could not update ipool. Reason #{rc.message}" if OpenNebula.is_error?(rc)
             rc = dspool.info
             raise "\n    ERROR! Could not update dspool. Reason #{rc.message}" if OpenNebula.is_error?(rc)
@@ -2338,9 +2343,9 @@ def inspect_vms(vc_vmachines, vc_templates, vc_clusters, one_clusters, vmpool, i
         begin
 
             # Refresh pools
-            rc = vnpool.info
+            rc = vnpool.info_all
             raise "\n    ERROR! Could not update vnpool. Reason #{rc.message}" if OpenNebula.is_error?(rc)
-            rc = ipool.info
+            rc = ipool.info_all
             raise "\n    ERROR! Could not update ipool. Reason #{rc.message}" if OpenNebula.is_error?(rc)
             rc = dspool.info
             raise "\n    ERROR! Could not update dspool. Reason #{rc.message}" if OpenNebula.is_error?(rc)
@@ -2776,7 +2781,7 @@ CommandParser::CmdParser.new(ARGV) do
             raise "Error contacting OpenNebula #{rc.message}" if OpenNebula.is_error?(rc)
 
             vnpool = OpenNebula::VirtualNetworkPool.new(one_client)
-            rc = vnpool.info
+            rc = vnpool.info_all
             raise "Error contacting OpenNebula #{rc.message}" if OpenNebula.is_error?(rc)
 
             extended_message = " - Add new attributes to vnets\n"\
@@ -2785,17 +2790,17 @@ CommandParser::CmdParser.new(ARGV) do
             inspect_networks(vc_networks, vc_clusters, one_clusters, vnpool, hpool, one_client, vcenter_ids)
 
             ipool = OpenNebula::ImagePool.new(one_client)
-            rc = ipool.info
+            rc = ipool.info_all
             raise "Error contacting OpenNebula #{rc.message}" if OpenNebula.is_error?(rc)
 
             banner " PHASE 6 - Add new attributes to existing images", true
             add_new_image_attrs(ipool, one_client, vcenter_ids)
 
-            rc = ipool.info
+            rc = ipool.info_all
             raise "Error contacting OpenNebula #{rc.message}" if OpenNebula.is_error?(rc)
 
             tpool = OpenNebula::TemplatePool.new(one_client)
-            rc = tpool.info
+            rc = tpool.info_all
             raise "Error contacting OpenNebula #{rc.message}" if OpenNebula.is_error?(rc)
 
             extended_message = " - Add new attributes to existing templates\n"\
@@ -2810,7 +2815,7 @@ CommandParser::CmdParser.new(ARGV) do
             inspect_templates(vc_templates, vc_clusters, one_clusters, tpool, ipool, vnpool, dspool, hpool, one_client, vcenter_ids)
 
             vmpool = OpenNebula::VirtualMachinePool.new(one_client)
-            rc = vmpool.info
+            rc = vmpool.info_all
             raise "Error contacting OpenNebula #{rc.message}" if OpenNebula.is_error?(rc)
 
             extended_message = " - Add new attributes to existing VMs\n"\
