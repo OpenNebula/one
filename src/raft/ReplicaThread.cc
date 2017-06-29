@@ -304,6 +304,7 @@ int HeartBeatThread::replicate()
 	lr.sql = "";
 
 	lr.timestamp = 0;
+    lr.fed_index = -1;
 
     rc = raftm->xmlrpc_replicate_log(follower_id, &lr, success, fterm, error);
 

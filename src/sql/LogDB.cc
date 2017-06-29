@@ -25,11 +25,11 @@
 
 const char * LogDB::table = "logdb";
 
-const char * LogDB::db_names = "log_index, term, sqlcmd, timestamp";
+const char * LogDB::db_names = "log_index, term, sqlcmd, timestamp, fed_index";
 
 const char * LogDB::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
     "logdb (log_index INTEGER PRIMARY KEY, term INTEGER, sqlcmd MEDIUMTEXT, "
-    "timestamp INTEGER)";
+    "timestamp INTEGER, fed_index INTEGER)";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -37,7 +37,7 @@ const char * LogDB::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
 int LogDBRecord::select_cb(void *nil, int num, char **values, char **names)
 {
     if ( !values || !values[0] || !values[1] || !values[2] || !values[3] ||
-            !values[4] || !values[5] || num != 6 )
+            !values[4] || !values[5] || !values[6] || num != 7 )
     {
         return -1;
     }
@@ -52,8 +52,10 @@ int LogDBRecord::select_cb(void *nil, int num, char **values, char **names)
 
     timestamp  = static_cast<unsigned int>(atoi(values[3]));
 
-    prev_index = static_cast<unsigned int>(atoi(values[4]));
-    prev_term  = static_cast<unsigned int>(atoi(values[5]));
+    fed_index  = static_cast<unsigned int>(atoi(values[4]));
+
+    prev_index = static_cast<unsigned int>(atoi(values[5]));
+    prev_term  = static_cast<unsigned int>(atoi(values[6]));
 
     _sql = one_util::zlib_decompress(zsql, true);
 
@@ -88,7 +90,7 @@ LogDB::LogDB(SqlDB * _db, bool _solo, unsigned int _lret):solo(_solo), db(_db),
 
         oss << time(0);
 
-        insert_log_record(0, 0, oss, time(0));
+        insert_log_record(0, 0, oss, time(0), false);
     }
 
     setup_index(r, i);
@@ -153,6 +155,8 @@ int LogDB::setup_index(int& _last_applied, int& _last_index)
         last_term = lr.term;
     }
 
+    build_federated_index();
+
     pthread_mutex_unlock(&mutex);
 
     return rc;
@@ -175,7 +179,7 @@ int LogDB::get_log_record(unsigned int index, LogDBRecord& lr)
     lr.index = index + 1;
 
     oss << "SELECT c.log_index, c.term, c.sqlcmd,"
-        << " c.timestamp, p.log_index, p.term"
+        << " c.timestamp, c.fed_index, p.log_index, p.term"
         << " FROM logdb c, logdb p WHERE c.log_index = " << index
         << " AND p.log_index = " << prev_index;
 
@@ -255,7 +259,8 @@ int LogDB::update_raft_state(std::string& raft_xml)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int LogDB::insert(int index, int term, const std::string& sql, time_t tstamp)
+int LogDB::insert(int index, int term, const std::string& sql, time_t tstamp,
+        int fed_index)
 {
     std::ostringstream oss;
 
@@ -278,7 +283,8 @@ int LogDB::insert(int index, int term, const std::string& sql, time_t tstamp)
     }
 
     oss << "INSERT INTO " << table << " ("<< db_names <<") VALUES ("
-        << index << "," << term << "," << "'" << sql_db << "'," << tstamp<< ")";
+        << index << "," << term << "," << "'" << sql_db << "'," << tstamp
+        << "," << fed_index << ")";
 
     int rc = db->exec_wr(oss);
 
@@ -336,13 +342,24 @@ int LogDB::apply_log_record(LogDBRecord * lr)
 /* -------------------------------------------------------------------------- */
 
 int LogDB::insert_log_record(unsigned int term, std::ostringstream& sql,
-        time_t timestamp)
+        time_t timestamp, int fed_index)
 {
     pthread_mutex_lock(&mutex);
 
     unsigned int index = next_index;
 
-    if ( insert(index, term, sql.str(), timestamp) != 0 )
+    int _fed_index;
+
+    if ( fed_index == 0 )
+    {
+        _fed_index = index;
+    }
+    else
+    {
+        _fed_index = fed_index;
+    }
+
+    if ( insert(index, term, sql.str(), timestamp, _fed_index) != 0 )
     {
         NebulaLog::log("DBM", Log::ERROR, "Cannot insert log record in DB");
 
@@ -357,6 +374,11 @@ int LogDB::insert_log_record(unsigned int term, std::ostringstream& sql,
 
     next_index++;
 
+    if ( fed_index != -1 )
+    {
+        fed_log.insert(_fed_index);
+    }
+
     pthread_mutex_unlock(&mutex);
 
     return index;
@@ -366,13 +388,13 @@ int LogDB::insert_log_record(unsigned int term, std::ostringstream& sql,
 /* -------------------------------------------------------------------------- */
 
 int LogDB::insert_log_record(unsigned int index, unsigned int term,
-        std::ostringstream& sql, time_t timestamp)
+        std::ostringstream& sql, time_t timestamp, int fed_index)
 {
     int rc;
 
     pthread_mutex_lock(&mutex);
 
-    rc = insert(index, term, sql.str(), timestamp);
+    rc = insert(index, term, sql.str(), timestamp, fed_index);
 
     if ( rc == 0 )
     {
@@ -384,6 +406,11 @@ int LogDB::insert_log_record(unsigned int index, unsigned int term,
 
             next_index = last_index + 1;
         }
+
+        if ( fed_index != -1 )
+        {
+            fed_log.insert(fed_index);
+        }
     }
 
     pthread_mutex_unlock(&mutex);
@@ -394,7 +421,7 @@ int LogDB::insert_log_record(unsigned int index, unsigned int term,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int LogDB::exec_wr(ostringstream& cmd)
+int LogDB::_exec_wr(ostringstream& cmd, int federated_index)
 {
     int rc;
 
@@ -416,7 +443,7 @@ int LogDB::exec_wr(ostringstream& cmd)
     // -------------------------------------------------------------------------
     // Insert log entry in the database and replicate on followers
     // -------------------------------------------------------------------------
-    int rindex = insert_log_record(raftm->get_term(), cmd, 0);
+    int rindex = insert_log_record(raftm->get_term(), cmd, 0, federated_index);
 
     if ( rindex == -1 )
     {
@@ -546,12 +573,108 @@ int LogDB::purge_log()
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+int LogDB::index_cb(void *null, int num, char **values, char **names)
+{
+    if ( num == 0 || values == 0 || values[0] == 0 )
+    {
+        return -1;
+    }
+
+    fed_log.insert(atoi(values[0]));
+
+    return 0;
+}
+
+void LogDB::build_federated_index()
+{
+    std::ostringstream oss;
+
+    fed_log.clear();
+
+    set_callback(static_cast<Callbackable::Callback>(&LogDB::index_cb), 0);
+
+    oss << "SELECT fed_index FROM " << table << " WHERE fed_index != -1 ";
+
+    db->exec_rd(oss, this);
+
+    unset_callback();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int LogDB::last_federated()
+{
+    pthread_mutex_lock(&mutex);
+
+    int findex = -1;
+
+    if ( !fed_log.empty() )
+    {
+        set<int>::reverse_iterator rit;
+
+        rit = fed_log.rbegin();
+
+        findex = *rit;
+    }
+
+    pthread_mutex_unlock(&mutex);
+
+    return findex;
+}
+
+/* -------------------------------------------------------------------------- */
+
+int LogDB::previous_federated(int i)
+{
+    set<int>::iterator it;
+
+    pthread_mutex_lock(&mutex);
+
+    int findex = -1;
+
+    it = fed_log.find(i);
+
+    if ( it != fed_log.end() && it != fed_log.begin() )
+    {
+        findex = *(--it);
+    }
+
+    pthread_mutex_unlock(&mutex);
+
+    return findex;
+}
+
+/* -------------------------------------------------------------------------- */
+
+int LogDB::next_federated(int i)
+{
+    set<int>::iterator it;
+
+    pthread_mutex_lock(&mutex);
+
+    int findex = -1;
+
+    it = fed_log.find(i);
+
+    if ( it != fed_log.end() && it != --fed_log.end() )
+    {
+        findex = *(++it);
+    }
+
+    pthread_mutex_unlock(&mutex);
+
+    return findex;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int FedLogDB::exec_wr(ostringstream& cmd)
 {
     FedReplicaManager * frm = Nebula::instance().get_frm();
 
-    int rc = _logdb->exec_wr(cmd);
+    int rc = _logdb->exec_federated_wr(cmd);
 
     if ( rc != 0 )
     {

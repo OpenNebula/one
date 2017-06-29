@@ -26,38 +26,37 @@
 
 extern "C" void * frm_loop(void *arg);
 
-class SqlDB;
+class LogDB;
+class LogDBRecord;
 
 class FedReplicaManager : public ReplicaManager, ActionListener
 {
 public:
 
     /**
-     *  @param _t timer for periofic actions (sec)
-     *  @param _p purge timeout for log
      *  @param d pointer to underlying DB (LogDB)
-     *  @param l log_retention length (num records)
      */
-    FedReplicaManager(time_t _t, time_t _p, SqlDB * d, unsigned int l);
+    FedReplicaManager(LogDB * d);
 
     virtual ~FedReplicaManager();
 
     /**
-     *  Creates a new record in the federation log and sends the replication
-     *  event to the replica threads. [MASTER]
-     *    @param sql db command to replicate
-     *    @return 0 on success -1 otherwise
+     *  Sends the replication event to the replica threads. [MASTER]
      */
-    int replicate(const std::string& sql);
+    void replicate(const std::string& sql)
+    {
+        ReplicaManager::replicate();
+    }
 
     /**
      *  Updates the current index in the server and applies the command to the
      *  server. It also stores the record in the zone log [SLAVE]
      *    @param index of the record
+     *    @param prev of index preceding this one
      *    @param sql command to apply to DB
      *    @return 0 on success, last_index if missing records, -1 on DB error
      */
-    int apply_log_record(int index, const std::string& sql);
+    int apply_log_record(int index, int prev, const std::string& sql);
 
     /**
      *  Record was successfully replicated on zone, increase next index and
@@ -106,8 +105,6 @@ public:
 
         update_zones(zids);
 
-        get_last_index(last_index);
-
         ReplicaManager::start_replica_threads(zids);
     }
 
@@ -134,30 +131,12 @@ public:
     void delete_zone(int zone_id);
 
     /**
-     *  Bootstrap federated log
-     */
-    static int bootstrap(SqlDB *_db);
-
-    /**
      *  @return the id of fed. replica thread
      */
     pthread_t get_thread_id() const
     {
         return frm_thread;
     };
-
-    /**
-     *  @return the last index of the fed log (from DB to use this method in
-     *  HA followers)
-     */
-    unsigned int get_last_index() const
-    {
-        unsigned int li;
-
-        get_last_index(li);
-
-        return li;
-    }
 
 private:
     friend void * frm_loop(void *arg);
@@ -177,29 +156,19 @@ private:
      */
     pthread_mutex_t mutex;
 
-    //--------------------------------------------------------------------------
-    //  Timers
-    //    - timer_period. Base timer to wake up the manager
-    //    - purge_period. How often the replicated log is purged (600s)
-    //    - xmlrpc_timeout. To timeout xml-rpc api calls to replicate log
-    //--------------------------------------------------------------------------
-    time_t timer_period;
-
-    time_t purge_period;
-
-    static const time_t xmlrpc_timeout_ms;
-
     // -------------------------------------------------------------------------
     // Synchronization variables
-    //   - last_index in the replication log
+    //   - xmlrpc_timeout. To timeout xml-rpc api calls to replicate log
     //   - zones list of zones in the federation with:
     //     - list of servers <id, xmlrpc endpoint>
     //     - next index to send to this zone
     // -------------------------------------------------------------------------
+    static const time_t xmlrpc_timeout_ms;
+
     struct ZoneServers
     {
         ZoneServers(int z, unsigned int l, const std::string& s):
-            zone_id(z), endpoint(s), next(l){};
+            zone_id(z), endpoint(s), next(l), last(-1){};
 
         ~ZoneServers(){};
 
@@ -207,16 +176,14 @@ private:
 
         std::string  endpoint;
 
-        unsigned int next;
+        int next;
+
+        int last;
     };
 
     std::map<int, ZoneServers *> zones;
 
-    unsigned int last_index;
-
-    SqlDB * logdb;
-
-    unsigned int log_retention;
+    LogDB * logdb;
 
     // -------------------------------------------------------------------------
     // Action Listener interface
@@ -229,53 +196,14 @@ private:
     void finalize_action(const ActionRequest& ar);
 
     /**
-     *  This function is executed periodically to purge the state log
-     */
-    void timer_action(const ActionRequest& ar);
-
-    // -------------------------------------------------------------------------
-    // Database Implementation
-    // Store log records to replicate on federation slaves
-    // -------------------------------------------------------------------------
-    static const char * table;
-
-    static const char * db_names;
-
-    static const char * db_bootstrap;
-
-    /**
-     *  Gets a record from the log
-     *    @param index of the record
-     *    @param sql command of the record
-     *    @return 0 in case of success -1 otherwise
-     */
-    int get_log_record(int index, std::string& sql);
-
-    /**
-     *  Inserts a new record in the log ans updates the last_index variable
-     *  (memory and db)
-     *    @param index of new record
-     *    @param sql of DB command to execute
-     *    @return 0 on success
-     */
-    int insert_log_record(int index, const std::string& sql);
-
-    /**
-     *  Reads the last index from DB for initialization
-     *    @param index
-     *    @return 0 on success
-     */
-    int get_last_index(unsigned int& index) const;
-
-    /**
      *  Get the nest record to replicate in a zone
      *    @param zone_id of the zone
      *    @param index of the next record to send
      *    @param sql command to replicate
      *    @return 0 on success, -1 otherwise
      */
-    int get_next_record(int zone_id, int& index, std::string& sql,
-        std::string& zservers);
+    int get_next_record(int zone_id, std::string& zedp, LogDBRecord& lr);
+
 };
 
 #endif /*FED_REPLICA_MANAGER_H_*/
