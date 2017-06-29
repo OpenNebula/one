@@ -53,6 +53,7 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/POOL_NAME \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_KEY \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_CONF)
 
 unset i
@@ -65,6 +66,7 @@ FORMAT="${XPATH_ELEMENTS[i++]:-raw}"
 BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
 POOL_NAME="${XPATH_ELEMENTS[i++]:-$POOL_NAME}"
 CEPH_USER="${XPATH_ELEMENTS[i++]}"
+CEPH_KEY="${XPATH_ELEMENTS[i++]}"
 CEPH_CONF="${XPATH_ELEMENTS[i++]}"
 
 DST_HOST=`get_destination_host $ID`
@@ -81,10 +83,17 @@ if [ -n "$CEPH_USER" ]; then
     IMPORT_SOURCE="${IMPORT_SOURCE}?CEPH_USER=${CEPH_USER}"
 fi
 
+if [ -n "$CEPH_KEY" ]; then
+    RBD="$RBD --keyfile ${CEPH_USER}"
+    IMPORT_SOURCE="${IMPORT_SOURCE}?CEPH_USER=${CEPH_USER}?CEPH_KEY=${CEPH_KEY}?"
+fi
+
 if [ -n "$CEPH_CONF" ]; then
     RBD="$RBD --conf ${CEPH_CONF}"
 
     if [ -n "$CEPH_USER" ]; then
+        IMPORT_SOURCE="${IMPORT_SOURCE}&"
+    elif [ -n "$CEPH_KEY" ]; then
         IMPORT_SOURCE="${IMPORT_SOURCE}&"
     else
         IMPORT_SOURCE="${IMPORT_SOURCE}?"
