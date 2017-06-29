@@ -21,7 +21,7 @@ features:
     # False to not scale the CPU. Number [0, 1] to scale from VCPU
     instantiate_cpu_factor: false
 
-    # True to show the option to make persistent a instance
+    # True to show the option to make an instance persistent
     instantiate_persistent: true
 tabs:
     provision-tab:
