@@ -961,10 +961,14 @@ define(function(require) {
                 disksContext.data("template_json", template_json);
 
                 if (Config.provision.create_vm.isEnabled("disk_resize")) {
+                  var pers = $("input.instantiate_pers", create_vm_context).prop("checked");
+                  if(pers == undefined){
+                    pers = false;
+                  }
                   DisksResize.insert({
                     template_json: template_json,
                     disksContext: disksContext,
-                    force_persistent: $("input.instantiate_pers", create_vm_context).prop("checked"),
+                    force_persistent: pers,
                     cost_callback: _calculateCost
                   });
                 } else {

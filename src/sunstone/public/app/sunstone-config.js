@@ -156,7 +156,7 @@ define(function(require) {
     'enabledTabs': _config['view']['enabled_tabs'],
     'onedConf': _config['oned_conf'],
     'confirmVMActions': _config['view']['confirm_vms'],
-    'scaleFactor': _config['view']['features']['instanciate_cpu_factor'],
+    'scaleFactor': _config['view']['features']['instantiate_cpu_factor'],
     'filterView': _config['view']['filter_view'],
 
     "allTabs": function() {

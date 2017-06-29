@@ -88,26 +88,31 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
-    $("input.instantiate_pers", context).on("change", function(){
-      var persistent = $(this).prop('checked');
+    if(Config.isFeatureEnabled("instantiate_persistent")){
+      $("input.instantiate_pers", context).on("change", function(){
+        var persistent = $(this).prop('checked');
 
-      if(persistent){
-        $("#vm_n_times_disabled", context).show();
-        $("#vm_n_times", context).hide();
-      } else {
-        $("#vm_n_times_disabled", context).hide();
-        $("#vm_n_times", context).show();
-      }
+        if(persistent){
+          $("#vm_n_times_disabled", context).show();
+          $("#vm_n_times", context).hide();
+        } else {
+          $("#vm_n_times_disabled", context).hide();
+          $("#vm_n_times", context).show();
+        }
 
-      $.each(that.template_objects, function(index, template_json) {
-        DisksResize.insert({
-          template_json:    template_json,
-          disksContext:     $(".disksContext"  + template_json.VMTEMPLATE.ID, context),
-          force_persistent: persistent,
-          cost_callback: that.calculateCost.bind(that)
+        $.each(that.template_objects, function(index, template_json) {
+          DisksResize.insert({
+            template_json:    template_json,
+            disksContext:     $(".disksContext"  + template_json.VMTEMPLATE.ID, context),
+            force_persistent: persistent,
+            cost_callback: that.calculateCost.bind(that)
+          });
         });
       });
-    });
+    } else {
+      $("#vm_n_times_disabled", context).hide();
+      $("#vm_n_times", context).show();
+    }
   }
 
   function _calculateCost(){
