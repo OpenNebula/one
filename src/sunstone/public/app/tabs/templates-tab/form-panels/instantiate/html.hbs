@@ -21,6 +21,7 @@
   </div>
   <div class="row persistentContainer">
     <div class="large-12 large-centered columns">
+      {{#isFeatureEnabled "instantiate_persistent"}}
       <div class="switch left">
         <input class="switch-input instantiate_pers" id="{{formPanelId}}instantiate_pers" type="checkbox">
         <label class="switch-paddle" for="{{formPanelId}}instantiate_pers">
@@ -31,6 +32,7 @@
         {{tr "Instantiate as persistent"}}
         {{{tip (tr "Creates a private persistent copy of the template plus any image defined in DISK, and instantiates that copy")}}}
       </label>
+       {{/isFeatureEnabled}}
     </div>
   </div>
   <div class="row nameContainer">
