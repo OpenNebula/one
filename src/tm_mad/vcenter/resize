@@ -68,13 +68,13 @@ begin
     # Get disk element to be resized
     disk = one_vm.retrieve_xmlelements("TEMPLATE/DISK[DISK_ID=#{disk_id}]").first
 
-    if  disk["ORIGINAL_SIZE"].to_i >= new_size.to_i
+    if disk["ORIGINAL_SIZE"] && disk["ORIGINAL_SIZE"].to_i >= new_size.to_i
         raise "'disk-resize' cannot decrease the disk's size"
     end
 
     # Resize operation
-    if !disk["OPENNEBULA_MANAGED"] || disk["OPENNEBULA_MANAGED"].downcase != "no" &&
-        vm.resize_managed_disk(disk,new_size)
+    if !disk["OPENNEBULA_MANAGED"] || disk["OPENNEBULA_MANAGED"].downcase != "no"
+        vm.resize_managed_disk(disk, new_size)
     else
         vm.resize_unmanaged_disk(disk, new_size)
     end
