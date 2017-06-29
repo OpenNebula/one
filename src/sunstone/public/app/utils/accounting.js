@@ -467,6 +467,10 @@ define(function(require) {
 
           var template = history.VM.TEMPLATE;
 
+          if(!template){
+            break;
+          }
+          
           // --- cpu ---
 
           var val = parseFloat(template.CPU) * n_hours;
