@@ -22,27 +22,16 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const char * FedReplicaManager::table = "fed_logdb";
-
-const char * FedReplicaManager::db_names = "log_index, sqlcmd";
-
-const char * FedReplicaManager::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
-        "fed_logdb (log_index INTEGER PRIMARY KEY, sqlcmd MEDIUMTEXT)";
-
 const time_t FedReplicaManager::xmlrpc_timeout_ms = 10000;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-FedReplicaManager::FedReplicaManager(time_t _t, time_t _p, SqlDB * d,
-    unsigned int l): ReplicaManager(), timer_period(_t), purge_period(_p),
-    last_index(-1), logdb(d), log_retention(l)
+FedReplicaManager::FedReplicaManager(LogDB * d): ReplicaManager(), logdb(d)
 {
     pthread_mutex_init(&mutex, 0);
 
     am.addListener(this);
-
-    get_last_index(last_index);
 };
 
 /* -------------------------------------------------------------------------- */
@@ -69,35 +58,16 @@ FedReplicaManager::~FedReplicaManager()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int FedReplicaManager::replicate(const std::string& sql)
-{
-    pthread_mutex_lock(&mutex);
-
-    if ( insert_log_record(last_index+1, sql) != 0 )
-    {
-        pthread_mutex_unlock(&mutex);
-        return -1;
-    }
-
-    last_index++;
-
-    pthread_mutex_unlock(&mutex);
-
-    ReplicaManager::replicate();
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int FedReplicaManager::apply_log_record(int index, const std::string& sql)
+int FedReplicaManager::apply_log_record(int index, int prev, 
+        const std::string& sql)
 {
     int rc;
 
     pthread_mutex_lock(&mutex);
 
-    if ( (unsigned int) index != last_index + 1 )
+    int last_index = logdb->last_federated();
+
+    if ( prev != last_index )
     {
         rc = last_index;
 
@@ -105,39 +75,13 @@ int FedReplicaManager::apply_log_record(int index, const std::string& sql)
         return rc;
     }
 
-    std::ostringstream oss;
+    std::ostringstream oss(sql);
 
-    std::string * zsql = one_util::zlib_compress(sql, true);
-
-    if ( zsql == 0 )
+    if ( logdb->exec_federated_wr(oss, index) != 0 )
     {
         pthread_mutex_unlock(&mutex);
         return -1;
     }
-
-    char * sql_db = logdb->escape_str(zsql->c_str());
-
-    delete zsql;
-
-    if ( sql_db == 0 )
-    {
-        pthread_mutex_unlock(&mutex);
-        return -1;
-    }
-
-    oss << "BEGIN;\n" 
-        << "REPLACE INTO " << table << " ("<< db_names <<") VALUES "
-        << "(" << last_index + 1 << ",'" << sql_db << "');\n"
-        << sql << ";\n"
-        << "END;";
-
-    if ( logdb->exec_wr(oss) != 0 )
-    {
-        pthread_mutex_unlock(&mutex);
-        return -1;
-    }
-
-    last_index++;
 
     pthread_mutex_unlock(&mutex);
 
@@ -160,7 +104,7 @@ extern "C" void * frm_loop(void *arg)
 
     NebulaLog::log("FRM",Log::INFO,"Federation Replica Manger started.");
 
-    fedrm->am.loop(fedrm->timer_period);
+    fedrm->am.loop();
 
     NebulaLog::log("FRM",Log::INFO,"Federation Replica Manger stopped.");
 
@@ -209,6 +153,8 @@ void FedReplicaManager::update_zones(std::vector<int>& zone_ids)
     }
 
     pthread_mutex_lock(&mutex);
+
+    int last_index = logdb->last_federated();
 
     zones.clear();
 
@@ -271,6 +217,8 @@ void FedReplicaManager::add_zone(int zone_id)
 
     pthread_mutex_lock(&mutex);
 
+    int last_index = logdb->last_federated();
+
     ZoneServers * zs = new ZoneServers(zone_id, last_index, zedp);
 
     zones.insert(make_pair(zone_id, zs));
@@ -325,58 +273,8 @@ ReplicaThread * FedReplicaManager::thread_factory(int zone_id)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void FedReplicaManager::timer_action(const ActionRequest& ar)
-{
-    static int mark_tics  = 0;
-    static int purge_tics = 0;
-
-    mark_tics++;
-    purge_tics++;
-
-    // Thread heartbeat
-    if ( (mark_tics * timer_period) >= 600 )
-    {
-        NebulaLog::log("FRM",Log::INFO,"--Mark--");
-        mark_tics = 0;
-    }
-
-    // Database housekeeping
-    if ( (purge_tics * timer_period) >= purge_period )
-    {
-        Nebula& nd          = Nebula::instance();
-        RaftManager * raftm = nd.get_raftm();
-
-        if ( raftm->is_leader() || raftm->is_solo() )
-        {
-            NebulaLog::log("FRM", Log::INFO, "Purging federated log");
-
-            std::ostringstream oss;
-
-            pthread_mutex_lock(&mutex);
-
-            if ( last_index > log_retention )
-            {
-                unsigned int delete_index = last_index - log_retention;
-
-                // keep the last "log_retention" records
-                oss << "DELETE FROM fed_logdb WHERE log_index >= 0 AND "
-                    << "log_index < " << delete_index;
-
-                logdb->exec_wr(oss);
-            }
-
-            pthread_mutex_unlock(&mutex);
-        }
-
-        purge_tics = 0;
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int FedReplicaManager::get_next_record(int zone_id, int& index,
-        std::string& sql, std::string& zedp)
+int FedReplicaManager::get_next_record(int zone_id, std::string& zedp, 
+        LogDBRecord& lr)
 {
     pthread_mutex_lock(&mutex);
 
@@ -388,110 +286,24 @@ int FedReplicaManager::get_next_record(int zone_id, int& index,
         return -1;
     }
 
-    index = it->second->next;
-    zedp  = it->second->endpoint;
+    ZoneServers * zs = it->second;
 
-    int rc = get_log_record(index, sql);
+    zedp  = zs->endpoint;
+
+    if ( zs->next == -1 )
+    {
+        zs->next= logdb->last_federated();
+    }
+
+    if ( zs->last == zs->next )
+    {
+        pthread_mutex_unlock(&mutex);
+        return -1;
+    }
+
+    int rc = logdb->get_log_record(zs->next, lr);
 
     pthread_mutex_unlock(&mutex);
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-
-int FedReplicaManager::get_log_record(int index, std::string& sql)
-{
-    std::string zsql;
-
-    ostringstream oss;
-
-    single_cb<std::string> cb;
-
-    oss << "SELECT sqlcmd FROM fed_logdb WHERE log_index = " << index;
-
-    cb.set_callback(&zsql);
-
-    int rc = logdb->exec_rd(oss, &cb);
-
-    cb.unset_callback();
-
-    std::string * _sql = one_util::zlib_decompress(zsql, true);
-
-    if ( _sql == 0 )
-    {
-        return -1;
-    }
-
-    sql = *_sql;
-
-    delete _sql;
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-
-int FedReplicaManager::insert_log_record(int index, const std::string& sql)
-{
-    std::ostringstream oss;
-
-    std::string * zsql = one_util::zlib_compress(sql, true);
-
-    if ( zsql == 0 )
-    {
-        return -1;
-    }
-
-    char * sql_db = logdb->escape_str(zsql->c_str());
-
-    delete zsql;
-
-    if ( sql_db == 0 )
-    {
-        return -1;
-    }
-
-    oss << "REPLACE INTO " << table << " ("<< db_names <<") VALUES "
-        << "(" << index  << ",'" << sql_db << "')";
-
-    return logdb->exec_wr(oss);
-}
-
-/* -------------------------------------------------------------------------- */
-
-int FedReplicaManager::get_last_index(unsigned int& index) const
-{
-    ostringstream oss;
-
-    single_cb<unsigned int> cb;
-
-    oss << "SELECT MAX(log_index) FROM fed_logdb";
-
-    cb.set_callback(&index);
-
-    int rc = logdb->exec_rd(oss, &cb);
-
-    cb.unset_callback();
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-
-int FedReplicaManager::bootstrap(SqlDB *_db)
-{
-    int rc;
-
-    std::ostringstream oss(db_bootstrap);
-
-    rc = _db->exec_local_wr(oss);
-
-    oss.str("");
-
-    oss << "REPLACE INTO " << table << " ("<< db_names <<") VALUES (-1,-1)";
-
-    rc += _db->exec_local_wr(oss);
 
     return rc;
 }
@@ -513,9 +325,11 @@ void FedReplicaManager::replicate_success(int zone_id)
 
     ZoneServers * zs = it->second;
 
-    zs->next++;
+    zs->last = zs->next;
 
-    if ( last_index >= zs->next )
+    zs->next = logdb->next_federated(zs->next);
+
+    if ( zs->next != -1 )
     {
         ReplicaManager::replicate(zone_id);
     }
@@ -537,10 +351,12 @@ void FedReplicaManager::replicate_failure(int zone_id, int last_zone)
 
         if ( last_zone >= 0 )
         {
-            zs->next = last_zone + 1;
+            zs->last = last_zone;
+
+            zs->next = logdb->next_federated(zs->last);
         }
 
-        if ( last_index >= zs->next )
+        if ( zs->next != -1 )
         {
             ReplicaManager::replicate(zone_id);
         }
@@ -558,17 +374,19 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
 {
     static const std::string replica_method = "one.zone.fedreplicate";
 
-    int index;
-
-    std::string sql, secret, zedp;
+    std::string secret, zedp;
 
 	int xml_rc = 0;
 
-    if ( get_next_record(zone_id, index, sql, zedp) != 0 )
+    LogDBRecord lr;
+
+    if ( get_next_record(zone_id, zedp, lr) != 0 )
     {
         error = "Failed to load federation log record";
         return -1;
     }
+
+    int prev_index = logdb->previous_federated(lr.index);
 
     // -------------------------------------------------------------------------
     // Get parameters to call append entries on follower
@@ -582,8 +400,9 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
     xmlrpc_c::paramList replica_params;
 
     replica_params.add(xmlrpc_c::value_string(secret));
-    replica_params.add(xmlrpc_c::value_int(index));
-    replica_params.add(xmlrpc_c::value_string(sql));
+    replica_params.add(xmlrpc_c::value_int(lr.index));
+    replica_params.add(xmlrpc_c::value_int(prev_index));
+    replica_params.add(xmlrpc_c::value_string(lr.sql));
 
     // -------------------------------------------------------------------------
     // Do the XML-RPC call
@@ -612,7 +431,7 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
     {
         std::ostringstream ess;
 
-        ess << "Error replicating log entry " << index << " on zone "
+        ess << "Error replicating log entry " << lr.index << " on zone "
             << zone_id << " (" << zedp << "): " << error;
 
         NebulaLog::log("FRM", Log::ERROR, error);

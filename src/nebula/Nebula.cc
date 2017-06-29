@@ -386,7 +386,6 @@ void Nebula::start(bool bootstrap_only)
             rc += SecurityGroupPool::bootstrap(logdb);
             rc += VirtualRouterPool::bootstrap(logdb);
             rc += VMGroupPool::bootstrap(logdb);
-            rc += FedReplicaManager::bootstrap(logdb);
 
             // Create the system tables only if bootstrap went well
             if (rc == 0)
@@ -743,7 +742,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- FedReplica Manager ----
     try
     {
-        frm = new FedReplicaManager(timer_period,log_purge,logdb,log_retention);
+        frm = new FedReplicaManager(logdb);
     }
     catch (bad_alloc&)
     {

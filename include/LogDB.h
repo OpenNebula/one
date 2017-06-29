@@ -19,6 +19,7 @@
 
 #include <string>
 #include <sstream>
+#include <set>
 
 #include "SqlDB.h"
 
@@ -53,6 +54,12 @@ public:
     time_t timestamp;
 
     /**
+     *  The index in the federation, -1 if the log entry is not federated.
+     *  At master fed_index is equal to index.
+     */
+    int fed_index;
+
+    /**
      *  Sets callback to load register from DB
      */
     void set_callback()
@@ -72,7 +79,7 @@ private:
  *  This class implements a generic DB interface with replication. The associated
  *  DB stores a log to replicate on followers.
  */
-class LogDB : public SqlDB
+class LogDB : public SqlDB, Callbackable
 {
 public:
     LogDB(SqlDB * _db, bool solo, unsigned int log_retention);
@@ -111,11 +118,12 @@ public:
      *    @param term for the record
      *    @param sql command of the record
      *    @param timestamp associated to this record
+     *    @param fed_index index in the federation -1 if not federated
      *
      *    @return -1 on failure, index of the inserted record on success
      */
     int insert_log_record(unsigned int index, unsigned int term,
-            std::ostringstream& sql, time_t timestamp);
+            std::ostringstream& sql, time_t timestamp, int fed_index);
 
     //--------------------------------------------------------------------------
     // Functions to manage the Raft state. Log record 0, term -1
@@ -148,7 +156,20 @@ public:
      *  This function replicates the DB changes on followers before updating
      *  the DB state
      */
-    int exec_wr(ostringstream& cmd);
+    int exec_wr(ostringstream& cmd)
+    {
+        return _exec_wr(cmd, -1);
+    }
+
+    int exec_federated_wr(ostringstream& cmd)
+    {
+        return _exec_wr(cmd, 0);
+    }
+
+    int exec_federated_wr(ostringstream& cmd, int index)
+    {
+        return _exec_wr(cmd, index);
+    }
 
     int exec_local_wr(ostringstream& cmd)
     {
@@ -201,6 +222,18 @@ public:
      */
     void get_last_record_index(unsigned int& _i, unsigned int& _t);
 
+    // -------------------------------------------------------------------------
+    // Federate log methods
+    // -------------------------------------------------------------------------
+    /**
+     *  Get last federated index, and previous
+     */
+    int last_federated();
+
+    int previous_federated(int index);
+
+    int next_federated(int index);
+
 protected:
     int exec(std::ostringstream& cmd, Callbackable* obj, bool quiet)
     {
@@ -246,6 +279,21 @@ private:
     unsigned int log_retention;
 
     // -------------------------------------------------------------------------
+    // Federated Log
+    // -------------------------------------------------------------------------
+    /**
+     *  The federated log stores a map with the federated log index and its
+     *  corresponding local index. For the master both are the same
+     */
+    std::set<int> fed_log;
+
+    /**
+     *  Generates the federated index, it should be called whenever a server
+     *  takes leadership.
+     */
+    void build_federated_index();
+
+    // -------------------------------------------------------------------------
     // DataBase implementation
     // -------------------------------------------------------------------------
     static const char * table;
@@ -253,6 +301,20 @@ private:
     static const char * db_names;
 
     static const char * db_bootstrap;
+
+    /**
+     *  Replicates writes in the followers and apply changes to DB state once
+     *  it is safe to do so.
+     *
+     *  @param federated -1 not federated (fed_index = -1), 0 generate fed index
+     *  (fed_index = index), > 0 set (fed_index = federated)
+     */
+    int _exec_wr(ostringstream& cmd, int federated);
+
+    /**
+     *  Callback to store the IDs of federated records in the federated log.
+     */
+    int index_cb(void *null, int num, char **values, char **names);
 
     /**
      *  Applies the SQL command of the given record to the database. The
@@ -267,10 +329,11 @@ private:
      *    @param term for the log entry
      *    @param sql command to modify DB state
      *    @param ts timestamp of record application to DB state
+     *    @param fi the federated index -1 if none
      *
      *    @return 0 on success
      */
-    int insert(int index, int term, const std::string& sql, time_t ts);
+    int insert(int index, int term, const std::string& sql, time_t ts, int fi);
 
     /**
      *  Inserts a new log record in the database. If the record is successfully
@@ -278,11 +341,12 @@ private:
      *    @param term for the record
      *    @param sql command of the record
      *    @param timestamp associated to this record
+     *    @param federated, if true it will set fed_index == index, -1 otherwise
      *
      *    @return -1 on failure, index of the inserted record on success
      */
     int insert_log_record(unsigned int term, std::ostringstream& sql,
-            time_t timestamp);
+            time_t timestamp, int federated);
 };
 
 // -----------------------------------------------------------------------------
