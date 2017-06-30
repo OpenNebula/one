@@ -129,6 +129,7 @@ define(function(require) {
     var index = 0;
     var template = "";
     var rollback  = [];
+    var duplicated_nics = {};
 
     function getNext() {
 
@@ -200,7 +201,6 @@ define(function(require) {
           }
 
           if (disks_and_nets[index].type === "EXISTING_DISK") {
-            template += disks_and_nets[index].image_tmpl;
             ++index;
             getNext();
           }
@@ -222,6 +222,8 @@ define(function(require) {
                   var network_id = response.VNET.ID;
                   if (one_cluster_id != -1) {
                     Sunstone.runAction("Cluster.addvnet",one_cluster_id,response.VNET.ID);
+                    // Remove vnet from cluster default 0
+                    Sunstone.runAction("Cluster.delvnet",0,response.VNET.ID);
                   }
                   ++index;
                   var rollback_info = { type: "NETWORK", id: network_id};
@@ -241,11 +243,14 @@ define(function(require) {
           }
 
           if (disks_and_nets[index].type == "EXISTING_NIC") {
-            template += disks_and_nets[index].network_tmpl;
             ++index;
             getNext();
           }
 
+          if (disks_and_nets[index].type === "DUPLICATED_NIC") {
+            ++index;
+            getNext();
+          }
       }
     }
     getNext();

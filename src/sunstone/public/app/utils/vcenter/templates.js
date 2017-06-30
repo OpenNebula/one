@@ -245,6 +245,7 @@ define(function(require) {
     var index = 0;
     var template = "";
     var rollback  = [];
+    var duplicated_nics = {};
 
     function getNext() {
 
@@ -263,7 +264,7 @@ define(function(require) {
 
       } else {
 
-        if (disks_and_nets[index].type === "NEW_DISK") {
+          if (disks_and_nets[index].type === "NEW_DISK") {
 
             var image_json = {
               "image": {
@@ -281,7 +282,6 @@ define(function(require) {
                 ++index;
                 template += "DISK=[\n";
                 template += "IMAGE_ID=\"" + image_id + "\",\n";
-                template += "IMAGE_UNAME=\"" + image_uname + "\",\n";
                 template += "OPENNEBULA_MANAGED=\"NO\"\n";
                 template += "]\n";
 
@@ -326,12 +326,17 @@ define(function(require) {
                   var network_id = response.VNET.ID;
                   if (one_cluster_id != -1) {
                     Sunstone.runAction("Cluster.addvnet",one_cluster_id,response.VNET.ID);
+                    //Remove bnet from default datastore
+                    Sunstone.runAction("Cluster.delvnet",0,response.VNET.ID);
                   }
+                  duplicated_nics[disks_and_nets[index].network_name]=network_id;
+
                   ++index;
                   template += "NIC=[\n";
                   template += "NETWORK_ID=\"" + network_id + "\",\n";
                   template += "OPENNEBULA_MANAGED=\"NO\"\n";
                   template += "]\n";
+
                   var rollback_info = { type: "NETWORK", id: network_id};
                   rollback.push(rollback_info);
                   getNext();
@@ -353,6 +358,18 @@ define(function(require) {
             ++index;
             getNext();
           }
+
+          if (disks_and_nets[index].type === "DUPLICATED_NIC") {
+            var network_id = duplicated_nics[disks_and_nets[index].network_name];
+
+            template += "NIC=[\n";
+            template += "NETWORK_ID=\"" + network_id + "\",\n";
+            template += "OPENNEBULA_MANAGED=\"NO\"\n";
+            template += "]\n";
+            ++index;
+            getNext();
+          }
+
 
       }
     }
@@ -445,6 +462,24 @@ define(function(require) {
                           message : OpenNebulaError(response).error.message
                       });
                       Notifier.onError({}, OpenNebulaError(response));
+
+                      // Remove template - Rollback
+                      var path = '/vcenter/template_rollback/' + template_id;
+                      $.ajax({
+                        url: path,
+                        type: "POST",
+                        data: {timeout: false},
+                        dataType: "json",
+                        success: function(response){
+                          // Do nothing
+                        },
+                        error: function(response){
+                          VCenterCommon.importFailure({
+                              context : row_context,
+                              message : Locale.tr("Could not delete the template " + template_id + " due to " + OpenNebulaError(response).error.message + ". Please remote it manually before importing this template again.")
+                          });
+                        }
+                      });
                     }
                   });
                 },

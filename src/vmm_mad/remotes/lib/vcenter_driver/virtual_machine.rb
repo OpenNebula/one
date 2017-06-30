@@ -295,7 +295,6 @@ class Template
                         one_i.info
                         disk_info << "DISK=[\n"
                         disk_info << "IMAGE_ID=\"#{one_i["ID"]}\",\n"
-                        disk_info << "IMAGE_UNAME=\"#{one_i["UNAME"]}\",\n"
                         disk_info << "OPENNEBULA_MANAGED=\"NO\"\n"
                         disk_info << "]\n"
                     end
@@ -343,6 +342,9 @@ class Template
 
             # Track allocated networks for rollback
             allocated_networks = []
+
+            # Track port groups duplicated in this VM
+            duplicated_networks = []
 
             vc_nics.each do |nic|
                 # Check if the network already exists
@@ -423,11 +425,20 @@ class Template
                     one_vnet[:one] << ar_str
 
                     if sunstone
-                        sunstone_nic = {}
-                        sunstone_nic[:type] = "NEW_NIC"
-                        sunstone_nic[:network_tmpl] = one_vnet[:one]
-                        sunstone_nic[:one_cluster_id] = cluster_id.to_i
-                        sunstone_nic_info << sunstone_nic
+                        if !duplicated_networks.include?(nic[:net_name])
+                            sunstone_nic = {}
+                            sunstone_nic[:type] = "NEW_NIC"
+                            sunstone_nic[:network_name] = nic[:net_name]
+                            sunstone_nic[:network_tmpl] = one_vnet[:one]
+                            sunstone_nic[:one_cluster_id] = cluster_id.to_i
+                            sunstone_nic_info << sunstone_nic
+                            duplicated_networks << nic[:net_name]
+                        else
+                            sunstone_nic = {}
+                            sunstone_nic[:type] = "DUPLICATED_NIC"
+                            sunstone_nic[:network_name] = nic[:net_name]
+                            sunstone_nic_info << sunstone_nic
+                        end
                     else
                         # Allocate the Virtual Network
                         allocated_networks << one_vn
@@ -444,6 +455,9 @@ class Template
                         nic_info << "NETWORK_ID=\"#{one_vn["ID"]}\",\n"
                         nic_info << "OPENNEBULA_MANAGED=\"NO\"\n"
                         nic_info << "]\n"
+
+                        # Refresh npool
+                        npool.info_all
                     end
                 end
             end
