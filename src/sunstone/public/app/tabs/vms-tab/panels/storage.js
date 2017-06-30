@@ -311,7 +311,7 @@ define(function(require) {
             }
           }
           
-          if (Config.isTabActionEnabled("vms-tab", "VM.resize")) {
+          if (Config.isTabActionEnabled("vms-tab", "VM.disk_resize")) {
             if (StateActions.enabledStateAction("VM.disk_resize", that.element.STATE, that.element.LCM_STATE)) {
               if(that.element.LCM_STATE != "3" || that.element.HISTORY_RECORDS.HISTORY.VM_MAD != "vcenter"){
                 actions += ('<a class="disk_resize nowrap" >\
