@@ -311,10 +311,12 @@ define(function(require) {
             }
           }
           
-          if (Config.isTabActionEnabled("vms-tab", "VM.resize")) {
-            if (StateActions.enabledStateAction("VM.resize", that.element.STATE, that.element.LCM_STATE)) {
-              actions += ('<a class="disk_resize nowrap" >\
-              <i class="fa fa-expand fa-fw" title="Resize"></i></a>');
+          if (Config.isTabActionEnabled("vms-tab", "VM.disk_resize")) {
+            if (StateActions.enabledStateAction("VM.disk_resize", that.element.STATE, that.element.LCM_STATE)) {
+              if(that.element.LCM_STATE != "3" || that.element.HISTORY_RECORDS.HISTORY.VM_MAD != "vcenter"){
+                actions += ('<a class="disk_resize nowrap" >\
+                <i class="fa fa-expand fa-fw" title="Resize"></i></a>');
+              }
             }
           }
         }
