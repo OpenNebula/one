@@ -30,7 +30,8 @@ module OpenNebula
             :groupquotaupdate   => "groupquota.update",
             :version            => "system.version",
             :config             => "system.config",
-            :sql                => "system.sql"
+            :sql                => "system.sql",
+            :sqlquery           => "system.sqlquery"
         }
 
         #######################################################################
@@ -57,6 +58,22 @@ module OpenNebula
             return @client.call(SYSTEM_METHODS[:sql], sql, federate)
         end
 
+        # Executes a SQL query command on OpenNebula DB
+        #   @param [String] Sql string
+        #   @return [String, OpenNebula::Error] Sql execution result in XML 
+        #   format in case of success, Error otherwise
+        #   <QUERY>
+        #     the query sent to oned
+        #   </QUERY>
+        #   <RESULT>
+        #     <ROW>
+        #       <column_name>column_value</column_name>
+        #       ...
+        #     </ROW>
+        #   </RESULT>
+        def sql_query_command(sql)
+            return @client.call(SYSTEM_METHODS[:sqlquery], sql)
+        end
         #
         # Gets the oned version
         #
