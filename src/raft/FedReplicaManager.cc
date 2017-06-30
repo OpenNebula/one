@@ -290,11 +290,23 @@ int FedReplicaManager::get_next_record(int zone_id, std::string& zedp,
 
     zedp  = zs->endpoint;
 
+//LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+    std::ostringstream loss;
+    loss << "REPLICATE FOR ZONE: " << zone_id << " NEXT IS: " << zs->next
+         << "LAST IS: " << zs->last;
+    NebulaLog::log("ReM", Log::INFO, loss);
+//LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
     if ( zs->next == -1 )
     {
         zs->next= logdb->last_federated();
     }
 
+//LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+    loss.str("");
+    loss << "REPLICATE FOR ZONE: " << zone_id << " NEXT IS: " << zs->next
+         << "LAST IS: " << zs->last;
+    NebulaLog::log("ReM", Log::INFO, loss);
+//LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
     if ( zs->last == zs->next )
     {
         pthread_mutex_unlock(&mutex);
@@ -325,10 +337,19 @@ void FedReplicaManager::replicate_success(int zone_id)
 
     ZoneServers * zs = it->second;
 
+//LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+    std::ostringstream loss;
+    loss << "SUCCESS REPLICATE FOR ZONE: " << zone_id << " NEXT: " << zs->next
+         << " LAST: " << zs->last;
+//LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
     zs->last = zs->next;
 
     zs->next = logdb->next_federated(zs->next);
-
+//LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+    loss.str("");
+    loss << " NEW NEXT: " << zs->next << " NEW LAST: " << zs->last;
+    NebulaLog::log("ReM", Log::INFO, loss);
+//LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
     if ( zs->next != -1 )
     {
         ReplicaManager::replicate(zone_id);
@@ -356,6 +377,12 @@ void FedReplicaManager::replicate_failure(int zone_id, int last_zone)
             zs->next = logdb->next_federated(zs->last);
         }
 
+//LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+    std::ostringstream loss;
+    loss << "FAILURE REPLICATE FOR ZONE: " << zone_id << " NEXT: " << zs->next
+         << "LAST: " << zs->last << " LAST_ZONE: " << last_zone;
+    NebulaLog::log("ReM", Log::INFO, loss);
+//LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
         if ( zs->next != -1 )
         {
             ReplicaManager::replicate(zone_id);
@@ -404,6 +431,12 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
     replica_params.add(xmlrpc_c::value_int(prev_index));
     replica_params.add(xmlrpc_c::value_string(lr.sql));
 
+//LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+    std::ostringstream loss;
+    loss << "REPLICATING INDEX: " <<lr.index<< " PREV_INDEX: " << prev_index
+         << " SQL: " <<lr.sql;
+    NebulaLog::log("ReM", Log::INFO, loss);
+//LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
     // -------------------------------------------------------------------------
     // Do the XML-RPC call
     // -------------------------------------------------------------------------
