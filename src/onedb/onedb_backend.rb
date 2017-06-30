@@ -30,7 +30,7 @@ end
 
 class OneDBBacKEnd
     FEDERATED_TABLES = %w(group_pool user_pool acl zone_pool vdc_pool
-                          marketplace_pool marketplaceapp_pool fed_logdb)
+                          marketplace_pool marketplaceapp_pool)
 
     def read_db_version
         connect_db
@@ -260,6 +260,18 @@ class BackEndMySQL < OneDBBacKEnd
 
         if !rc
             raise "Unknown error running '#{cmd}'"
+        end
+
+        if federated
+            cmd = "mysqldump -u #{@user} -p'#{@passwd}' -h #{@server} " <<
+                  "-P #{@port} #{@db_name} logdb --where=\"fed_index!=-1\" "<<
+                  " >> #{bck_file}"
+
+            rc = system(cmd)
+
+            if !rc
+                raise "Unknown error running '#{cmd}'"
+            end
         end
 
         puts "MySQL dump stored in #{bck_file}"
