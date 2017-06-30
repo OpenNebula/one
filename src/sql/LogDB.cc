@@ -90,7 +90,7 @@ LogDB::LogDB(SqlDB * _db, bool _solo, unsigned int _lret):solo(_solo), db(_db),
 
         oss << time(0);
 
-        insert_log_record(0, 0, oss, time(0), false);
+        insert_log_record(0, 0, oss, time(0), -1);
     }
 
     setup_index(r, i);
@@ -432,7 +432,14 @@ int LogDB::_exec_wr(ostringstream& cmd, int federated_index)
     // -------------------------------------------------------------------------
     if ( solo )
     {
-        return db->exec_wr(cmd);
+        rc = db->exec_wr(cmd);
+
+        if ( rc == 0 && Nebula::instance().is_federation_enabled() )
+        {
+            insert_log_record(0, cmd, time(0), federated_index);
+        }
+
+        return rc;
     }
     else if ( raftm == 0 || !raftm->is_leader() )
     {
