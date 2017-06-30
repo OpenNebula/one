@@ -114,6 +114,93 @@ void SystemSql::request_execute(xmlrpc_c::paramList const& paramList,
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+int SystemSqlQuery::select_cb::callback(void *nil, int num, char **values,
+        char **names)
+{
+    oss << "<ROW>";
+
+    for ( int i = 0 ; i < num ; ++i )
+    {
+        if (values[i] != 0 && values[i][0] == '<')
+        {
+            std::string val(values[i]);
+            std::string * val64 = one_util::base64_encode(val);
+
+            if ( val64 != 0 )
+            {
+                oss << "<" << names[i] << "64>"
+                    << "<![CDATA[" << *val64 << "]]>"
+                    << "</"<< names[i] << "64>";
+
+                delete val64;
+            }
+        }
+        else
+        {
+            oss << "<" << names[i] << ">"
+                << "<![CDATA[" << values[i] << "]]>"
+                << "</"<< names[i] << ">";
+        }
+    }
+
+    oss << "</ROW>";
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SystemSqlQuery::request_execute(xmlrpc_c::paramList const& paramList,
+                                 RequestAttributes& att)
+{
+    std::string sql = xmlrpc_c::value_string(paramList.getString(1));
+
+    Nebula& nd    = Nebula::instance();
+    LogDB * logdb = nd.get_logdb();
+
+    SystemSqlQuery::select_cb cb;
+
+    std::ostringstream oss(sql);
+
+    std::string result;
+
+    if ( att.uid != 0 )
+    {
+        att.resp_id  = -1;
+
+        failure_response(AUTHORIZATION, att);
+        return;
+    }
+
+
+    cb.set_callback();
+
+    int rc = logdb->exec_rd(oss, &cb);
+
+    result = cb.get_result();
+
+    cb.unset_callback();
+
+    if ( rc == 0 )
+    {
+        oss.str("");
+
+        oss << "<SQL_COMMAND><QUERY><![CDATA[" << sql << "]]></QUERY>"
+            << "<RESULT>" << result << "</RESULT></SQL_COMMAND>";
+
+        success_response(oss.str(), att);
+    }
+    else
+    {
+        att.resp_id = rc;
+        failure_response(ACTION, att);
+    }
+
+    return;
+}
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 void UserQuotaInfo::request_execute(xmlrpc_c::paramList const& paramList,
                                  RequestAttributes& att)
 {
