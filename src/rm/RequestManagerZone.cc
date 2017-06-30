@@ -522,6 +522,13 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
     int prev   = xmlrpc_c::value_int(paramList.getInt(2));
     string sql = xmlrpc_c::value_string(paramList.getString(3));
 
+//LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+    std::ostringstream loss;
+    loss << "REPLICATE REQUEST INDEX: " << index << " PREV: " << prev << " SQL: " 
+         << sql;
+    NebulaLog::log("ReM", Log::INFO, loss);
+//LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+
     if ( att.uid != 0 )
     {
         att.resp_id  = -1;
