@@ -65,9 +65,11 @@ while IFS= read -r -d '' element; do
         XPATH_ELEMENTS[i++]="$element"
         done < <(onevm show -x $VM_ID| $XPATH  \
                             /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER \
+                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_KEY \
                             /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_CONF)
 
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
+CEPH_KEY="${XPATH_ELEMENTS[j++]}"
 CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
@@ -76,6 +78,10 @@ CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 
 if [ -n "$CEPH_USER" ]; then
     RBD="$RBD --id ${CEPH_USER}"
+fi
+
+if [ -n "$CEPH_KEY" ]; then
+    RBD="$RBD --keyfile ${CEPH_KEY}"
 fi
 
 if [ -n "$CEPH_CONF" ]; then
