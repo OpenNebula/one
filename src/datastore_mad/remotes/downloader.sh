@@ -182,6 +182,7 @@ function get_rbd_cmd
                         SOURCE \
                         PARAM_DS \
                         PARAM_CEPH_USER \
+                        PARAM_CEPH_KEY \
                         PARAM_CEPH_CONF)
 
     USER="${URL_ELEMENTS[j++]}"
@@ -189,6 +190,7 @@ function get_rbd_cmd
     SOURCE="${URL_ELEMENTS[j++]}"
     DS="${URL_ELEMENTS[j++]}"
     CEPH_USER="${URL_ELEMENTS[j++]}"
+    CEPH_KEY="${URL_ELEMENTS[j++]}"
     CEPH_CONF="${URL_ELEMENTS[j++]}"
 
     # Remove leading '/'
@@ -200,6 +202,10 @@ function get_rbd_cmd
 
     if [ -n "$CEPH_USER" ]; then
         RBD="$RBD --id ${CEPH_USER}"
+    fi
+
+    if [ -n "$CEPH_KEY" ]; then
+        RBD="$RBD --keyfile ${CEPH_KEY}"
     fi
 
     if [ -n "$CEPH_CONF" ]; then
