@@ -261,41 +261,5 @@ module Migrator
     ############################################################################
     def feature_4809
         create_table(:logdb)
-        create_table(:fed_logdb)
-
-        @db.run "ALTER TABLE zone_pool RENAME TO old_zone_pool;"
-        create_table(:zone_pool)
-
-        @db.transaction do
-            @db.fetch("SELECT * FROM old_zone_pool") do |row|
-                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) { |c|
-                    c.default_xml.noblanks
-                }
-
-                zedp = xpath(doc, "TEMPLATE/ENDPOINT")
-
-                server_pool = doc.create_element "SERVER_POOL"
-                server      = doc.create_element "SERVER"
-
-                id   = doc.create_element "ID", 0
-                name = doc.create_element "NAME", "zone_server"
-                edp  = doc.create_element "ENDPOINT", zedp
-
-                server.add_child(id)
-                server.add_child(name)
-                server.add_child(edp)
-
-                server_pool.add_child(server)
-
-                doc.root.add_child(server_pool)
-
-                row[:body] = doc.root.to_s
-
-                @db[:zone_pool].insert(row)
-            end
-        end
-
-        @db.run "DROP TABLE old_zone_pool;"
-
     end
 end
