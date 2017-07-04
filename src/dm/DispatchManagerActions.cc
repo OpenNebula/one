@@ -322,6 +322,23 @@ int DispatchManager::terminate(int vid, bool hard, const RequestAttributes& ra,
                     }
                     break;
 
+                case VirtualMachine::BOOT_FAILURE:
+                case VirtualMachine::BOOT_MIGRATE_FAILURE:
+                case VirtualMachine::PROLOG_MIGRATE_FAILURE:
+                case VirtualMachine::PROLOG_FAILURE:
+                case VirtualMachine::EPILOG_FAILURE:
+                case VirtualMachine::EPILOG_STOP_FAILURE:
+                case VirtualMachine::EPILOG_UNDEPLOY_FAILURE:
+                case VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE:
+                case VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE:
+                case VirtualMachine::BOOT_UNDEPLOY_FAILURE:
+                case VirtualMachine::BOOT_STOPPED_FAILURE:
+                case VirtualMachine::PROLOG_RESUME_FAILURE:
+                case VirtualMachine::PROLOG_UNDEPLOY_FAILURE:
+                case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE:
+                    lcm->trigger(LCMAction::DELETE, vid, ra);
+                    break;
+
                 default:
                     oss.str("");
                     oss << "Could not terminate VM " << vid
