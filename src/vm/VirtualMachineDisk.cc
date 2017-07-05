@@ -202,6 +202,8 @@ int VirtualMachineDisk::create_snapshot(const string& name, string& error)
     long long size_mb, snap_size;
     int snap_id;
 
+    bool ro;
+
     if (is_volatile())
     {
         error = "Cannot make snapshots on volatile disks";
@@ -211,6 +213,12 @@ int VirtualMachineDisk::create_snapshot(const string& name, string& error)
     if ( vector_value("SIZE", size_mb) != 0 )
     {
         error = "Wrong size in disk";
+        return -1;
+    }
+
+    if ((vector_value("READONLY", ro) == 0) && ro == true )
+    {
+        error = "Cannot make snapshots on readonly disks";
         return -1;
     }
 
