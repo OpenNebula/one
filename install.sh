@@ -1168,7 +1168,8 @@ ONEDB_FILES="src/onedb/fsck.rb \
             src/onedb/vcenter_one54.rb \
             src/onedb/sqlite2mysql.rb \
             src/onedb/database_schema.rb \
-            src/onedb/fsck"
+            src/onedb/fsck \
+            src/onedb/onedb_live.rb"
 
 ONEDB_SHARED_MIGRATOR_FILES="src/onedb/shared/2.0_to_2.9.80.rb \
                              src/onedb/shared/2.9.80_to_2.9.85.rb \
