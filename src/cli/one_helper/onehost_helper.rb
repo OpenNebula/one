@@ -42,6 +42,29 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 #
                 #-----------------------------------------------------------------------
                 EOT
+        },
+        :az => {
+            :help => <<-EOT.unindent,
+                #-----------------------------------------------------------------------
+                # Supported AZURE AUTH ATTRIBUTTES:
+                #
+                # CERTIFICATE = <azure classic certificate>
+                #
+                #
+                #
+                #
+                #
+                #
+                #
+                #
+                #
+                #
+                #
+                #
+                #
+                #
+                #-----------------------------------------------------------------------
+                EOT
         }
     }
 

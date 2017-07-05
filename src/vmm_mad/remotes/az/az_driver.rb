@@ -33,6 +33,7 @@ require 'yaml'
 require 'rubygems'
 require 'azure'
 require 'uri'
+require 'tempfile'
 
 $: << RUBY_LIB_LOCATION
 
@@ -161,13 +162,45 @@ class AzureDriver
            @region['management_endpoint']="https://management.core.windows.net"
         end
 
+        file = Tempfile.new("certificate")
+        file << get_connect_info(host)
+        file.close
+
         Azure.configure do |config|
-          config.management_certificate = @region['pem_management_cert']
+          config.management_certificate = file.path
           config.subscription_id        = @region['subscription_id']
           config.management_endpoint    = @region['management_endpoint']
         end
 
+		file.unlink    # deletes the temp file
+
+
         @azure_vms = Azure::VirtualMachineManagementService.new
+    end
+
+    def get_connect_info(host)
+        conn_opts={}
+        client   = OpenNebula::Client.new
+
+        pool = OpenNebula::HostPool.new(OpenNebula::Client.new)
+        pool.info
+        objects=pool.select {|object| object.name==host }
+        xmlhost = objects.first
+
+        system = OpenNebula::System.new(client)
+        config = system.get_configuration
+        if OpenNebula.is_error?(config)
+            puts "Error getting oned configuration : #{config.message}"
+            exit -1
+        end
+        token = config["ONE_KEY"]
+
+        conn_opts = {
+            :cert => xmlhost["TEMPLATE/CERTIFICATE"]
+        }
+
+        return xmlhost["TEMPLATE/CERTIFICATE"]#gsub(/ñ/,"\n")
+
     end
 
     # DEPLOY action
