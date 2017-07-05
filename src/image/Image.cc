@@ -60,7 +60,7 @@ Image::Image(int             _uid,
         vm_collection("VMS"),
         img_clone_collection("CLONES"),
         app_clone_collection("APP_CLONES"),
-        snapshots(-1),
+        snapshots(-1, false),
         target_snapshot(-1)
 {
     if (_image_template != 0)

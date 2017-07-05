@@ -45,7 +45,7 @@ class VectorAttribute;
 class Snapshots
 {
 public:
-    Snapshots(int _disk_id);
+    Snapshots(int _disk_id, bool orphans);
 
     Snapshots(const Snapshots& s);
 
@@ -231,6 +231,11 @@ private:
      * Id of the disk associated with this snapshot list
      */
     int disk_id;
+
+    /**
+     * Allow to remove parent snapshots and active one
+     */
+    bool orphans;
 
     /**
      * Snapshot pointer map

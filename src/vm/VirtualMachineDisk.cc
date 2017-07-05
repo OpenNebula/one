@@ -216,7 +216,7 @@ int VirtualMachineDisk::create_snapshot(const string& name, string& error)
 
     if ( snapshots == 0 )
     {
-        snapshots = new Snapshots(get_id());
+        snapshots = new Snapshots(get_id(), allow_orphans());
 
         snap_id   = snapshots->create_snapshot(name, size_mb);
         snap_size = size_mb;

@@ -43,6 +43,8 @@ public:
     /* DISK get/set functions for boolean disk flags                          */
     /*   ATTACH                                                               */
     /*   RESIZE                                                               */
+    /*   OPENNEBULA_MANAGED                                                   */
+    /*   ALLOW_ORPHANS                                                        */
     /*   CLONING                                                              */
     /*   PERSISTENT                                                           */
     /*   DISK_SNAPSHOT_ACTIVE                                                 */
@@ -62,6 +64,18 @@ public:
         }
 
         return one_managed;
+    }
+
+    bool allow_orphans() const
+    {
+        bool orphans;
+
+        if (vector_value("ALLOW_ORPHANS", orphans) == -1)
+        {
+            orphans = false;
+        }
+
+        return orphans;
     }
 
     void set_attach()
