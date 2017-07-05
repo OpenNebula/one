@@ -162,13 +162,14 @@ class AzureDriver
            @region['management_endpoint']="https://management.core.windows.net"
         end
 
+        conn_opts = get_connect_info(host)
         file = Tempfile.new("certificate")
-        file << get_connect_info(host)
+        file << conn_opts[:cert]
         file.close
 
         Azure.configure do |config|
           config.management_certificate = file.path
-          config.subscription_id        = @region['subscription_id']
+          config.subscription_id        = conn_opts[:id]
           config.management_endpoint    = @region['management_endpoint']
         end
 
@@ -178,6 +179,8 @@ class AzureDriver
         @azure_vms = Azure::VirtualMachineManagementService.new
     end
 
+    # Check the current template to retrieve
+    # conection info needed for Azure
     def get_connect_info(host)
         conn_opts={}
         client   = OpenNebula::Client.new
@@ -189,18 +192,16 @@ class AzureDriver
 
         system = OpenNebula::System.new(client)
         config = system.get_configuration
-        if OpenNebula.is_error?(config)
-            puts "Error getting oned configuration : #{config.message}"
-            exit -1
-        end
+        raise "Error getting oned configuration : #{config.message}" if OpenNebula.is_error?(config)
+
         token = config["ONE_KEY"]
 
         conn_opts = {
-            :cert => xmlhost["TEMPLATE/CERTIFICATE"]
+            :cert => xmlhost["TEMPLATE/AZ_CERT"],
+            :id   => xmlhost["TEMPLATE/AZ_ID"]
         }
 
-        return xmlhost["TEMPLATE/CERTIFICATE"]#gsub(/ñ/,"\n")
-
+        return conn_opts
     end
 
     # DEPLOY action

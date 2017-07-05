@@ -48,8 +48,8 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 #-----------------------------------------------------------------------
                 # Supported AZURE AUTH ATTRIBUTTES:
                 #
-                # CERTIFICATE = <azure classic certificate>
-                #
+                # AZ_ID   = <azure classic id>
+                # AZ_CERT = <azure classic certificate>
                 #
                 #
                 #
