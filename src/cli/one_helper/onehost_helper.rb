@@ -20,6 +20,30 @@ require 'rubygems'
 
 class OneHostHelper < OpenNebulaHelper::OneHelper
     TEMPLATE_XPATH  = '//HOST/TEMPLATE'
+    EDITOR_PATH = '/usr/bin/vi'
+    HYBRID = {
+        :ec2 => {
+            :help => <<-EOT.unindent,
+                #-----------------------------------------------------------------------
+                # Supported EC2 AUTH ATTRIBUTTES:
+                #
+                #  REGION_NAME = <the name of the ec2 region>
+                #
+                #  EC2_ACCESS = <Your ec2 access key id>
+                #  EC2_SECRET = <Your ec2 secret key>
+                #
+                #  CAPACITY = [
+                #    M1SMALL     = <n>,
+                #    M1XLARGE = <n>,
+                #    M1LARGE   = <n>
+                #  ]
+                #
+                #-----------------------------------------------------------------------
+                EOT
+        }
+    }
+
+
     VERSION_XPATH   = "#{TEMPLATE_XPATH}/VERSION"
 
     def self.rname
@@ -163,6 +187,45 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
         table
     end
+
+    def set_hybrid(type, path)
+        k = type.to_sym
+        if HYBRID.key?(k)
+            str = set_host_auth(k, path)
+        end
+    end
+
+    def set_host_auth(type, path=nil)
+        str = ""
+
+        if path.nil?
+            require 'tempfile'
+
+            tmp  = Tempfile.new('one-cli')
+            path = tmp.path
+
+            tmp << HYBRID[type][:help]
+            tmp.close
+
+            editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH
+            system("#{editor_path} #{path}")
+
+            unless $?.exitstatus == 0
+                puts "Editor not defined"
+                exit -1
+            end
+
+            str = File.read(path)
+
+            File.unlink(path)
+        else
+            str = File.read(path)
+        end
+
+        str
+    end
+
+
 
 
     NUM_THREADS = 15
