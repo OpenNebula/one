@@ -10,7 +10,7 @@ else
     gem 'zendesk_api', '< 1.14.0'
 end
 
-if RUBY_VERSION < '2.2.0'
+if RUBY_VERSION < '2.4.0'
     gem 'rack', '< 2.0.0'
 else
     gem 'rack'
