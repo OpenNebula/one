@@ -79,21 +79,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             " rsync command must be installed in the frontend and nodes."
     }
 
-    EC2_ACCESS = {
-        :name   => "ec2access",
-        :large  => "--ec2access id",
-        :description => "Set the id access for EC2 Driver",
+    TYPE = {
+        :name  => "type",
+        :short => "-t remote_provider",
+        :large => "--type remote_provider",
+        :description => "Use type to create a host using Cloud Bursting ",
         :format => String
     }
 
-    EC2_SECRET = {
-        :name   => "ec2secret",
-        :large  => "--ec2secret key",
-        :description => "Set the secret key for EC2 Driver",
-        :format => String
-    }
-
-    CREAT_OPTIONS = [ IM, VMM, OneClusterHelper::CLUSTER, EC2_ACCESS, EC2_SECRET ]
+    CREAT_OPTIONS = [ IM, VMM, OneClusterHelper::CLUSTER, TYPE ]
     SYNC_OPTIONS  = [ OneClusterHelper::CLUSTER, FORCE, RSYNC ]
 
     ########################################################################
@@ -116,7 +110,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Creates a new Host
     EOT
 
-    command :create, create_desc, :hostname, :options=>CREAT_OPTIONS do
+    command :create, create_desc, :hostname, [:file, nil], :options=>CREAT_OPTIONS do
         if options[:im].nil? || options[:vm].nil?
             STDERR.puts "Drivers are mandatory to create a host:"
             STDERR.puts "\t -i information driver"
@@ -124,20 +118,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             exit -1
         end
 
-        ec2_host = !options[:ec2access].nil? && !options[:ec2secret].nil?
-
         cid = options[:cluster] || ClusterPool::NONE_CLUSTER_ID
         helper.create_resource(options) do |host|
-                rc = host.allocate(args[0], options[:im], options[:vm], cid)
+            if !options[:type].nil?
+                str = helper.set_hybrid(options[:type], args[1])
+            end
+            rc = host.allocate(args[0], options[:im], options[:vm], cid)
+            host.update(str, true) if !OpenNebula.is_error?(rc) && !options[:type].nil?
 
-                if ec2_host && !OpenNebula.is_error?(rc)
-               	    template = "EC2_ACCESS=\"#{options[:ec2access]}\"\n"\
-               		    "EC2_SECRET=\"#{options[:ec2secret]}\"\n"\
-
-                    rc = host.update(template, true)
-                end
-
-                rc
+            rc
         end
     end
 

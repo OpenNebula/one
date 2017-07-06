@@ -33,9 +33,9 @@ deploy_id = ARGV[0]
 host      = ARGV[1]
 id        = ARGV[2]
 
-ec2_drv = EC2Driver.new(host)
 
-begin 
+begin
+    ec2_drv = EC2Driver.new(host)
     ec2_drv.poll(id, deploy_id)
 rescue Excetion => e
     handle_exception("Poll", e, host, deploy_id, id)
