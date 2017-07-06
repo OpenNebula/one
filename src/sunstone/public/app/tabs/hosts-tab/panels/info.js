@@ -32,6 +32,8 @@ define(function(require) {
   var CanImportWilds = require('../utils/can-import-wilds');
   var Sunstone = require('sunstone');
   var TemplateUtils = require('utils/template-utils');
+  var CapacityTable = require('utils/custom-tags-table');
+  var EC2Tr = require('utils/panel/ec2-tr');
 
   /*
     TEMPLATES
@@ -68,7 +70,7 @@ define(function(require) {
     that.unshownTemplate = {};
     that.strippedTemplateVcenter = {};
     that.strippedTemplate = {};
-    var unshownKeys = ['HOST', 'VM', 'WILDS', 'ZOMBIES', 'RESERVED_CPU', 'RESERVED_MEM'];
+    var unshownKeys = ['HOST', 'VM', 'WILDS', 'ZOMBIES', 'RESERVED_CPU', 'RESERVED_MEM', "EC2_ACCESS", "EC2_SECRET", "CAPACITY", "REGION_NAME"];
     $.each(that.element.TEMPLATE, function(key, value) {
       if ($.inArray(key, unshownKeys) > -1) {
        that.unshownTemplate[key] = value;
@@ -126,7 +128,9 @@ define(function(require) {
       'maxReservedCPU': realCPU * 2,
       'realCPU': realCPU,
       'realMEM': Humanize.size(realMEM),
-      'virtualMEMInput': Humanize.size(this.element.HOST_SHARE.MAX_MEM)
+      'virtualMEMInput': Humanize.size(this.element.HOST_SHARE.MAX_MEM),
+      'ec2_tr': EC2Tr.html(RESOURCE, this.element.TEMPLATE),
+      'capacityTableHTML': CapacityTable.html()
     });
   }
 
@@ -166,7 +170,7 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-
+    $(".ec2",context).show();
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     ClusterTr.setup(RESOURCE, this.element.ID, this.element.CLUSTER_ID, context);
 
@@ -207,6 +211,23 @@ define(function(require) {
       changeColorInputMEM(that.element.HOST_SHARE.TOTAL_MEM);
       document.getElementById('textInput_reserved_mem_hosts').value = Humanize.size(parseInt(document.getElementById('change_bar_mem_hosts').value));
     });
+    document.getElementById("textInput_reserved_mem_hosts").addEventListener("change", changeInputMEM);
+
+    CapacityTable.setup(context, true, RESOURCE, this.element.TEMPLATE, this.element.ID);
+    EC2Tr.setup(RESOURCE, this.element.ID, context);
+    CapacityTable.fill(context, this.element.TEMPLATE.CAPACITY);
+    $(".change_to_vector_attribute", context).hide();
+    $(".custom_tag_value",context).focusout(function(){
+        var key = $(".custom_tag_key",this.parentElement.parentElement).val();
+        if(!that.element.TEMPLATE.CAPACITY){
+          that.element.TEMPLATE.CAPACITY = {};
+        }
+        that.element.TEMPLATE.CAPACITY[key] = this.value;
+        Sunstone.runAction(RESOURCE+".update_template",that.element.ID, TemplateUtils.templateToString(that.element.TEMPLATE));
+      });
+    if (this.element.TEMPLATE.IM_MAD != "ec2"){
+      $(".ec2",context).hide();
+    }
     document.getElementById("textInput_reserved_mem_hosts").addEventListener("input", function(){
       changeInputMEM(that.element.HOST_SHARE.TOTAL_MEM);
     });

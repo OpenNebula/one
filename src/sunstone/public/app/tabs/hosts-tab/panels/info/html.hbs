@@ -113,3 +113,42 @@
 <div class="row">
   <div class="large-9 columns">{{{templateTableHTML}}}</div>
 </div>
+<div class="row ec2">
+  <div class="large-12 columns">
+    <table class="dataTable">
+      <thead>
+        <tr>
+          <th colspan="3">{{tr "EC2"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <div id="host_ec2_div" class="row">
+            <div class="row">
+              <div class="large12 columns">
+                <table class="dataTable">
+                  <thead>
+                    <tr>
+                      <th colspan="3">{{tr "Attributes"}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {{{ec2_tr}}}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="row ec2">
+              <div class="large-12 columns" id="capacity">
+                <fieldset class="ec2_capacity">
+                  <legend>{{tr "Capacity"}}</legend>
+                    {{{capacityTableHTML}}}
+                </fieldset>
+              </div>
+            </div>
+          </div>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

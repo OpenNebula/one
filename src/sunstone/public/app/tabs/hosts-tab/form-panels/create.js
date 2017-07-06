@@ -119,23 +119,45 @@ define(function(require) {
     $("#host_type_mad", context).on("change", function() {
       $("#vmm_mad", context).val(this.value).change();
       $("#im_mad", context).val(this.value).change();
+      $(".vcenter_credentials", context).hide();
+      $(".ec2_extra", context).hide();
+      $(".drivers", context).hide();
+      $("#name_container", context).show();
 
       if (this.value == "custom") {
-        $(".vcenter_credentials", context).hide();
-        $("#name_container", context).show();
         Sunstone.showFormPanelSubmit(TAB_ID);
         $(".drivers", context).show();
       } else if (this.value == "vcenter") {
         $("#name_container", context).hide();
         $(".vcenter_credentials", context).show();
         Sunstone.hideFormPanelSubmit(TAB_ID);
-        $(".drivers", context).hide();
-      } else {
-        $(".vcenter_credentials", context).hide();
-        $("#name_container", context).show();
+      } else if (this.value == "ec2") {
+        $(".ec2_extra", context).show();
         Sunstone.showFormPanelSubmit(TAB_ID);
-        $(".drivers", context).hide();
+      } else {
+        Sunstone.showFormPanelSubmit(TAB_ID);
       }
+    });
+
+    context.off("click", ".add_custom_tag");
+    context.on("click", ".add_custom_tag", function(){
+      $("tbody.capacity_ec2", context).append(
+          "<tr class='row_capacity'>\
+            <td style='display: flex; justify-content: flex-start'>\
+              <input class='capacity_key' type='text' name='key'>\
+            </td>\
+            <td>\
+              <input class='capacity_value' type='number' min='0' name='value'>\
+            </td>\
+            <td style='width: 150%; display: flex; justify-content: flex-end'>\
+              <a href='#''><i class='fa fa-times-circle remove-capacity'></i></a>\
+            </td>\
+          </tr>");
+    });
+
+    context.on("click", "tbody.capacity_ec2 i.remove-capacity", function(){
+      var tr = $(this).closest('tr');
+      tr.remove();
     });
 
     $("#host_type_mad", context).change();
@@ -222,6 +244,26 @@ define(function(require) {
       }
     };
 
+    if(vmm_mad == "ec2"){
+      var capacity = [];
+      var key = "";
+      var value = "";
+      var obj = {};
+      var region_name = $('input[name="REGION_NAME"]').val();
+      var ec2_access = $('input[name="EC2_ACCESS"]').val();
+      var ec2_secret = $('input[name="EC2_SECRET"]').val();
+      $('tr.row_capacity',context).each(function() {
+        key = $("input[name='key']", this).val();
+        value = $("input[name='value']", this).val();
+        obj[key] = value;
+        capacity.push(obj);
+      });
+
+      host_json["host"]["region_name"] = region_name;
+      host_json["host"]["ec2_secret"] = ec2_secret;
+      host_json["host"]["ec2_access"] = ec2_access;
+      host_json["host"]["capacity"] = capacity;
+    }
     //Create the OpenNebula.Host.
     //If it is successfull we refresh the list.
     Sunstone.runAction("Host.create", host_json);
