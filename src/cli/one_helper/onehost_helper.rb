@@ -20,7 +20,6 @@ require 'rubygems'
 
 class OneHostHelper < OpenNebulaHelper::OneHelper
     TEMPLATE_XPATH  = '//HOST/TEMPLATE'
-    EDITOR_PATH = '/usr/bin/vi'
     HYBRID = {
         :ec2 => {
             :help => <<-EOT.unindent,
@@ -33,12 +32,12 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 #  EC2_SECRET = <Your ec2 secret key>
                 #
                 #  CAPACITY = [
-                #    M1SMALL = <number of machines m1.small>,
+                #    M1SMALL  = <number of machines m1.small>,
                 #    M1XLARGE = <number of machines m1.xlarge>,
-                #    M1LARGE   = <nunmber of machines m1.large>
+                #    M1LARGE  = <number of machines m1.large>
                 #  ]
                 #
-                # You can set any kind of machine that supports ec2
+                # You can set any machine type supported by ec2
                 # See your ec2_driver.conf for more information
                 #
                 #-----------------------------------------------------------------------
@@ -194,42 +193,9 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
     def set_hybrid(type, path)
         k = type.to_sym
         if HYBRID.key?(k)
-            str = set_host_auth(k, path)
+            str = path.nil? ?  OpenNebulaHelper.editor_input(HYBRID[k][:help]): File.read(path)
         end
     end
-
-    def set_host_auth(type, path=nil)
-        str = ""
-
-        if path.nil?
-            require 'tempfile'
-
-            tmp  = Tempfile.new('one-cli')
-            path = tmp.path
-
-            tmp << HYBRID[type][:help]
-            tmp.close
-
-            editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH
-            system("#{editor_path} #{path}")
-
-            unless $?.exitstatus == 0
-                puts "Editor not defined"
-                exit -1
-            end
-
-            str = File.read(path)
-
-            File.unlink(path)
-        else
-            str = File.read(path)
-        end
-
-        str
-    end
-
-
-
 
     NUM_THREADS = 15
     def sync(host_ids, options)

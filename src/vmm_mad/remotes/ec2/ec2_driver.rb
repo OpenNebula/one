@@ -273,7 +273,6 @@ class EC2Driver
     # to retrieve connection information
     # needed for Amazon
     def get_connect_info(host)
-
         conn_opts={}
 
         client   = OpenNebula::Client.new
@@ -284,16 +283,15 @@ class EC2Driver
 
         system = OpenNebula::System.new(client)
         config = system.get_configuration
-        if OpenNebula.is_error?(config)
-            puts "Error getting oned configuration : #{config.message}"
-            exit -1
-        end
+        raise "Error getting oned configuration : #{config.message}" if OpenNebula.is_error?(config)
+
         token = config["ONE_KEY"]
 
         conn_opts = {
             :access => xmlhost["TEMPLATE/EC2_ACCESS"],
             :secret => xmlhost["TEMPLATE/EC2_SECRET"]
         }
+
         begin
             conn_opts = OpenNebula.decrypt(conn_opts, token)
             conn_opts[:region] = xmlhost["TEMPLATE/REGION_NAME"]
@@ -479,6 +477,8 @@ class EC2Driver
                 totalmemory += mem * value.to_i
                 totalcpu    += cpu * value.to_i
             }
+        else
+            raise "you must define CAPACITY section properly! check the template"
         end
 
         host_info =  "HYPERVISOR=ec2\n"

@@ -33,9 +33,9 @@ deploy_id = ARGV[0]
 file      = ARGV[1]
 host      = ARGV[2]
 
-ec2_drv = EC2Driver.new(host)
 
 begin
+    ec2_drv = EC2Driver.new(host)
     ec2_drv.save(deploy_id)
 rescue Exception => e
     handle_exception("Save", e, host, deploy_id, nil, file)
