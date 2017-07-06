@@ -1241,7 +1241,7 @@ class VirtualMachine < Template
 
         ds = get_ds
 
-        relocate_spec_params[:datastore] = ds if ds.instance_of? Datastore
+        relocate_spec_params[:datastore] = ds if ds.instance_of? RbVmomi::VIM::Datastore
 
         relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(
                                                          relocate_spec_params)
@@ -2120,7 +2120,7 @@ class VirtualMachine < Template
         return ds_ref, img_path
     end
 
-    # Get vcenter device representing DISK object (hotplug)
+        # Get vcenter device representing DISK object (hotplug)
     def disk_attached_to_vm(disk, unmanaged_keys, vc_disks)
 
         img_name = ""
