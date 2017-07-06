@@ -84,19 +84,19 @@ class IPAMDriver < OpenNebulaDriver
     end
 
     def register_address_range(id, drv_message)
-        do_ipam_action(id, :register_address_range, "#{drv_message} #{id}")
+        do_ipam_action(id, :register_address_range, drv_message)
     end
 
     def allocate_address(id, drv_message)
-        do_ipam_action(id, :allocate_address, "#{drv_message} #{id}")
+        do_ipam_action(id, :allocate_address, drv_message)
     end
 
     def get_address(id, drv_message)
-        do_ipam_action(id, :get_address, "#{drv_message} #{id}")
+        do_ipam_action(id, :get_address, drv_message)
     end
 
     def free_address(id, drv_message)
-        do_ipam_action(id, :free_address, "#{drv_message} #{id}")
+        do_ipam_action(id, :free_address, drv_message)
     end
     private
 
