@@ -353,6 +353,7 @@ tabs:
             VM.attachdisk: false
             VM.detachdisk: false
             VM.disk_saveas: false
+            VM.disk_resize: false
             VM.attachnic: false
             VM.detachnic: false
             VM.snapshot_create: false
