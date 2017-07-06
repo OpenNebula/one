@@ -1878,7 +1878,7 @@ class VirtualMachine < Template
                 next
             end
 
-            img_name  = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'], self['name'])
+            img_name  = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'], self['name'], instantiated_as_persistent?)
             onevm_disks_vector << "#{img_name}"
         end
 
@@ -2120,7 +2120,7 @@ class VirtualMachine < Template
         return ds_ref, img_path
     end
 
-        # Get vcenter device representing DISK object (hotplug)
+    # Get vcenter device representing DISK object (hotplug)
     def disk_attached_to_vm(disk, unmanaged_keys, vc_disks)
 
         img_name = ""
@@ -2136,7 +2136,7 @@ class VirtualMachine < Template
             end
 
             # Alright let's see if we can find other devices only with the expected image name
-            img_name  = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'], self['name'])
+            img_name  = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'], self['name'], instantiated_as_persistent?)
             if d[:path_wo_ds] == "#{img_name}"
                 device_found = d
                 break
@@ -2147,7 +2147,7 @@ class VirtualMachine < Template
     end
 
     def calculate_add_disk_spec(disk, position=0)
-        img_name = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'], self['name'])
+        img_name = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'], self['name'],instantiated_as_persistent?)
         type     = disk["TYPE"]
         size_kb  = disk["SIZE"].to_i * 1024
 

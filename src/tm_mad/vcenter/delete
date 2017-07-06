@@ -94,36 +94,39 @@ if path.match(/disk\.\d+$/)
 
     begin
         if !vm.has_snapshots?
-            # TODO: if the deploy has failed, the disks may exist, but the vm may
-            # not exist...
+
             vm.one_item = one_vm
 
-            # detach the disk or cdrom
-            ds_ref, img_path = vm.detach_disk(disk)
+            # Don't do a detach if unmanaged disks and state is terminate (EPILOG)
+            unless one_vm["LCM_STATE"].to_i == 11 && disk["OPENNEBULA_MANAGED"] && disk["OPENNEBULA_MANAGED"].upcase == "NO"
 
-            # If disk was already detached we have no way to remove it
-            if ds_ref && img_path && !img_path.empty?
-                ds = VCenterDriver::Datastore.new_from_ref(ds_ref, vi_client)
+                # Detach disk
+                ds_ref, img_path = vm.detach_disk(disk)
 
-                # delete the disk if it's not a CDROM (CLONE=NO)
-                if disk["CLONE"].nil? || disk["CLONE"] == "YES"
+                # If disk was already detached we have no way to remove it
+                if ds_ref && img_path && !img_path.empty?
+                    ds = VCenterDriver::Datastore.new_from_ref(ds_ref, vi_client)
 
-                    search_params = ds.get_search_params(ds['name'],
-                                                         File.dirname(img_path),
-                                                         File.basename(img_path))
+                    # delete the disk if it's not a CDROM (CLONE=NO)
+                    if disk["CLONE"].nil? || disk["CLONE"] == "YES"
 
-                    # Perform search task and return results
-                    begin
-                        search_task = ds['browser'].SearchDatastoreSubFolders_Task(search_params)
-                        search_task.wait_for_completion
+                        search_params = ds.get_search_params(ds['name'],
+                                                            File.dirname(img_path),
+                                                            File.basename(img_path))
 
-                        ds.delete_virtual_disk(img_path)
-                        img_dir = File.dirname(img_path)
-                        ds.rm_directory(img_dir) if ds.dir_empty?(img_dir)
+                        # Perform search task and return results
+                        begin
+                            search_task = ds['browser'].SearchDatastoreSubFolders_Task(search_params)
+                            search_task.wait_for_completion
 
-                    rescue Exception => e
-                        if !e.message.start_with?('FileNotFound')
-                            raise e.message # Ignore FileNotFound
+                            ds.delete_virtual_disk(img_path)
+                            img_dir = File.dirname(img_path)
+                            ds.rm_directory(img_dir) if ds.dir_empty?(img_dir)
+
+                        rescue Exception => e
+                            if !e.message.start_with?('FileNotFound')
+                                raise e.message # Ignore FileNotFound
+                            end
                         end
                     end
                 end
@@ -142,10 +145,11 @@ else
     # Remove the VM
     begin
 
-        # All OpenNebula managed disks have been detached. The VM may have still
-        # disks that belong to the template (OPENNEBULA_MANAGED disks). These disks
-        # will be deleted with the destroy operation. If the user wants to
-        # save them to a VM, it can be done using the disk-saveas operation.
+        # All OpenNebula managed disks have been detached unless it has snapshots.
+        # The VM may have still unmanaged disks that belong to the template
+        # (OPENNEBULA_MANAGED disks). These disks will be deleted with the destroy
+        # operation. If the user wants to save them, it can be done using the
+        # disk-saveas operation.
 
         vm.poweroff_hard if vm.is_powered_on?
 
@@ -153,30 +157,65 @@ else
         # will try to detach persistent disks once we have removed all snapshots
         # that way they won't be removed. If the vm has been marked as template
         # persistent disks shouldn't be detached
-        if vm.has_snapshots? && !vm.instantiated_as_persistent?
-            vm.remove_all_snapshots
-            disks = one_vm.retrieve_xmlelements("TEMPLATE/DISK[PERSISTENT=\"YES\"]")
+        vm.remove_all_snapshots if vm.has_snapshots?
+
+        disks = one_vm.retrieve_xmlelements("TEMPLATE/DISK")
+        if vm.has_snapshots? || vm.instantiated_as_persistent?
             disks.each do |d|
-                vm.detach_disk(d)
+                if d["PERSISTENT"] == "YES"
+                    vm.detach_disk(d)
+                else
+                    # Remove any disk that is not unmanaged from the VM if
+                    # instantiate as persistent was set
+                    if vm.instantiated_as_persistent? &&
+                    (!d["OPENNEBULA_MANAGED"] || d["OPENNEBULA_MANAGED"].upcase != "NO")
+                        vm.detach_disk(d)
+                    end
+                end
             end
         end
 
         # If the VM was instantiated to persistent keep the VM
         if vm.instantiated_as_persistent?
 
-            #Convert VM to template in vCenter
+            # Remove the MAC addresses so they cannot be in conflict
+            # with OpenNebula assigned mac addresses.
+
+            # We detach all nics from the VM
+            vm.detach_all_nics
+
+            # We attach new NICs where the MAC address is assigned by vCenter
+            nic_specs = []
+            nics = one_vm.retrieve_xmlelements("TEMPLATE/NIC")
+            nics.each do |nic|
+                if (nic["OPENNEBULA_MANAGED"] && nic["OPENNEBULA_MANAGED"].upcase == "NO")
+                    nic_specs << vm.calculate_add_nic_spec_autogenerate_mac(nic)
+                end
+            end
+
+            # Reconfigure VM to add unmanaged nics
+            spec_hash = {}
+            spec_hash[:deviceChange] = nic_specs
+            spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+            vm.item.ReconfigVM_Task(:spec => spec).wait_for_completion
+
+            # Convert VM to template in vCenter
             vm.mark_as_template
 
-            # Create new Opennebula template and set VCENTER_TEMPLATE_REF
+            # Edit the Opennebula template
             one_client = OpenNebula::Client.new
             template_id = vm.one_item['TEMPLATE/TEMPLATE_ID']
             new_template = OpenNebula::Template.new_with_id(template_id, one_client)
             new_template.info
+
+            # Update the template reference
             new_template.update("VCENTER_TEMPLATE_REF= #{vm.item._ref}", true)
+
+        else
+            # Destroy the VM and remaining disks
+            vm.destroy
         end
 
-        # Destroy the VM unless the instantiate as persistent is used
-        vm.destroy if !vm.instantiated_as_persistent?
     rescue Exception => e
         message = "Error unregistering vm #{vmid} (#{vm_ref})."\
                   " Reason: #{e.message}\n#{e.backtrace}"

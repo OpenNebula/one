@@ -91,10 +91,42 @@ begin
         new_size = new_size > original_size ? new_size * 1024 : nil
     end
 
+    unmanaged_disk = false
+
     # Unmanaged disks are those with OPENNEBULA_MANAGED=NO or volatile disks
     # that are created in StorageDRS clusters
-    unmanaged_disk = (!!disk['OPENNEBULA_MANAGED'] && disk['OPENNEBULA_MANAGED'].downcase == "no") ||
-                     (target_ds_ref.start_with?('group-') && !!disk["TYPE"] && disk["TYPE"].downcase == "fs")
+    if (target_ds_ref.start_with?('group-') && !!disk["TYPE"] && disk["TYPE"].downcase == "fs")
+        unmanaged_disk = true
+    else
+        if (disk['OPENNEBULA_MANAGED'] && disk['OPENNEBULA_MANAGED'].downcase == "no")
+            # Let's check if the disk is really unmanaged
+
+            if one_vm["TEMPLATE/CLONING_TEMPLATE_ID"]
+                # In this case we're not cloning the disk, althought the disk
+                # is unmanaged, the disk is treated as persistent until the
+                # vm is terminated. That way the disk added to the new vcenter
+                # template is the one that OpenNebula created when the OpenNebula
+                # VM template was created
+               unmanaged_disk = true
+            else
+                # What's the moref of the template linked to this VM?
+                template_ref = one_vm["USER_TEMPLATE/VCENTER_TEMPLATE_REF"]
+
+                # What's the ID of the image and the source
+                image_id     = disk["IMAGE_ID"]
+                one_image    = VCenterDriver::VIHelper.one_item(OpenNebula::Image, image_id)
+                one_source   = one_image["SOURCE"]
+
+                # Let's inspect the disks inside the template
+                # if we found that the image source of the disk matches one of
+                # the template disks backing paths, then it's really an unmanaged
+                vc_template    = VCenterDriver::Template.new_from_ref(template_ref, vi_client)
+                template_disks = vc_template.get_vcenter_disks
+                found_disks    = template_disks.select { |d| d[:path_wo_ds] == one_source } rescue []
+                unmanaged_disk = !found_disks.empty?
+            end
+        end
+    end
 
     if !unmanaged_disk
         source_ds_vc = VCenterDriver::Datastore.new_from_ref(source_ds_ref, vi_client)
