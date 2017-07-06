@@ -247,21 +247,19 @@ class EC2Driver
         @instance_types = PUBLIC_CLOUD_EC2_CONF['instance_types']
 
         conn_opts = get_connect_info(host)
-        regions = PUBLIC_CLOUD_EC2_CONF['regions']
         access_key = conn_opts[:access]
         secret_key = conn_opts[:secret]
+        region_name = conn_opts[:region]
 
-        @region = regions[host] || regions["default"]
-               
         #sanitize region data
         raise "access_key_id not defined for #{host}" if access_key.nil?
         raise "secret_access_key not defined for #{host}" if secret_key.nil?
-        raise "region_name not defined for #{host}" if @region['region_name'].nil?
+        raise "region_name not defined for #{host}" if region_name.nil?
 
         Aws.config.merge!({
             :access_key_id      => access_key,
             :secret_access_key  => secret_key,
-            :region             => @region['region_name']
+            :region             => region_name
         })
 
         if (proxy_uri = PUBLIC_CLOUD_EC2_CONF['proxy_uri'])
@@ -270,22 +268,11 @@ class EC2Driver
 
         @ec2 = Aws::EC2::Resource.new
     end
-    def decrypt(res, token)
-        opts = {}
 
-        res.each do |key, encrypted_value|
-            decipher = OpenSSL::Cipher::AES.new(256,:CBC)
-            decipher.decrypt
-            decipher.key = token[0..31]  
-            plain = decipher.update(Base64::decode64(encrypted_value)) + decipher.final
-            opts[key] = plain
-        end
-        return opts
-
-    end
-
+    # Check the current template of host
+    # to retrieve connection information
+    # needed for Amazon
     def get_connect_info(host)
-
         conn_opts={}
 
         client   = OpenNebula::Client.new
@@ -296,22 +283,22 @@ class EC2Driver
 
         system = OpenNebula::System.new(client)
         config = system.get_configuration
-        if OpenNebula.is_error?(config)
-            puts "Error getting oned configuration : #{config.message}"
-            exit -1
-        end
+        raise "Error getting oned configuration : #{config.message}" if OpenNebula.is_error?(config)
+
         token = config["ONE_KEY"]
 
         conn_opts = {
             :access => xmlhost["TEMPLATE/EC2_ACCESS"],
             :secret => xmlhost["TEMPLATE/EC2_SECRET"]
         }
-        begin 
-            conn_opts = decrypt(conn_opts, token)
+
+        begin
+            conn_opts = OpenNebula.decrypt(conn_opts, token)
+            conn_opts[:region] = xmlhost["TEMPLATE/REGION_NAME"]
         rescue
-            raise "HOST: #{host} must have ec2 credentials in order to work properly"
+            raise "HOST: #{host} must have ec2 credentials and region in order to work properly"
         end
-        
+
         return conn_opts
     end
 
@@ -319,7 +306,6 @@ class EC2Driver
     def deploy(id, host, xml_text, lcm_state, deploy_id)
 
         # Restore if we need to
-        
         if lcm_state != "BOOT" && lcm_state != "BOOT_FAILURE"
             restore(deploy_id)
             return deploy_id
@@ -394,7 +380,7 @@ class EC2Driver
         instance.create_tags(:tags => tag_array) if tag_array.length > 0
 
         elastic_ip = ec2_value(ec2_info, 'ELASTICIP')
- 
+
         wait_state('running', instance.id)
 
         if elastic_ip
@@ -465,17 +451,35 @@ class EC2Driver
         puts parse_poll(i, vm, do_cw, cw_mon_time)
     end
 
+    # Parse template instance type into
+    # Amazon ec2 format (M1SMALL => m1.small)
+    def parse_inst_type(type)
+        fixed_type = type[0..1]<< '.' << type[2..type.length+1]
+        return fixed_type.downcase
+    end
+
     # Get the info of all the EC2 instances. An EC2 instance must include
     #   the ONE_ID tag, otherwise it will be ignored
     def monitor_all_vms
         totalmemory = 0
         totalcpu = 0
-        @region['capacity'].each { |name, size|
-            cpu, mem = instance_type_capacity(name)
 
-            totalmemory += mem * size.to_i
-            totalcpu    += cpu * size.to_i
-        }
+        # Get last cloudwatch monitoring time
+        host_obj    = OpenNebula::Host.new_with_id(@host_id,
+                                                  OpenNebula::Client.new)
+        host_obj.info
+        cw_mon_time = host_obj["/HOST/TEMPLATE/CWMONTIME"]
+        capacity = host_obj.to_hash["HOST"]["TEMPLATE"]["CAPACITY"]
+        if !capacity.nil? && Hash === capacity
+            capacity.each{ |name, value|
+                name = parse_inst_type(name)
+                cpu, mem = instance_type_capacity(name)
+                totalmemory += mem * value.to_i
+                totalcpu    += cpu * value.to_i
+            }
+        else
+            raise "you must define CAPACITY section properly! check the template"
+        end
 
         host_info =  "HYPERVISOR=ec2\n"
         host_info << "PUBLIC_CLOUD=YES\n"
@@ -499,11 +503,6 @@ class EC2Driver
         vpool.info
         onevm_info = {}
 
-        # Get last cloudwatch monitoring time
-        host_obj    = OpenNebula::Host.new_with_id(@host_id,
-                                                  OpenNebula::Client.new)
-        host_obj.info
-        cw_mon_time = host_obj["/HOST/TEMPLATE/CWMONTIME"]
 
         if !cw_mon_time
             cw_mon_time = Time.now.to_i

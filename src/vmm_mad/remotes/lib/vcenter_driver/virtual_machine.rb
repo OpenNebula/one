@@ -295,7 +295,6 @@ class Template
                         one_i.info
                         disk_info << "DISK=[\n"
                         disk_info << "IMAGE_ID=\"#{one_i["ID"]}\",\n"
-                        disk_info << "IMAGE_UNAME=\"#{one_i["UNAME"]}\",\n"
                         disk_info << "OPENNEBULA_MANAGED=\"NO\"\n"
                         disk_info << "]\n"
                     end
@@ -343,6 +342,9 @@ class Template
 
             # Track allocated networks for rollback
             allocated_networks = []
+
+            # Track port groups duplicated in this VM
+            duplicated_networks = []
 
             vc_nics.each do |nic|
                 # Check if the network already exists
@@ -423,11 +425,20 @@ class Template
                     one_vnet[:one] << ar_str
 
                     if sunstone
-                        sunstone_nic = {}
-                        sunstone_nic[:type] = "NEW_NIC"
-                        sunstone_nic[:network_tmpl] = one_vnet[:one]
-                        sunstone_nic[:one_cluster_id] = cluster_id.to_i
-                        sunstone_nic_info << sunstone_nic
+                        if !duplicated_networks.include?(nic[:net_name])
+                            sunstone_nic = {}
+                            sunstone_nic[:type] = "NEW_NIC"
+                            sunstone_nic[:network_name] = nic[:net_name]
+                            sunstone_nic[:network_tmpl] = one_vnet[:one]
+                            sunstone_nic[:one_cluster_id] = cluster_id.to_i
+                            sunstone_nic_info << sunstone_nic
+                            duplicated_networks << nic[:net_name]
+                        else
+                            sunstone_nic = {}
+                            sunstone_nic[:type] = "DUPLICATED_NIC"
+                            sunstone_nic[:network_name] = nic[:net_name]
+                            sunstone_nic_info << sunstone_nic
+                        end
                     else
                         # Allocate the Virtual Network
                         allocated_networks << one_vn
@@ -444,6 +455,9 @@ class Template
                         nic_info << "NETWORK_ID=\"#{one_vn["ID"]}\",\n"
                         nic_info << "OPENNEBULA_MANAGED=\"NO\"\n"
                         nic_info << "]\n"
+
+                        # Refresh npool
+                        npool.info_all
                     end
                 end
             end
@@ -1324,6 +1338,12 @@ class VirtualMachine < Template
 
         return if unmanaged_resized_disks.empty?
 
+        # Cannot resize linked cloned disks
+        if one_item["USER_TEMPLATE/VCENTER_LINKED_CLONES"] &&
+           one_item["USER_TEMPLATE/VCENTER_LINKED_CLONES"] == "YES"
+            raise "Linked cloned disks cannot be resized."
+        end
+
         unmanaged_resized_disks.each do |disk|
             vc_disks.each do |vcenter_disk|
                 if unmanaged_keys.key?("opennebula.disk.#{disk["DISK_ID"]}")
@@ -1649,6 +1669,104 @@ class VirtualMachine < Template
             :backing     => backing,
             :addressType => mac ? 'manual' : 'generated',
             :macAddress  => mac
+        }
+
+        if (limit || rsrv) && (limit > 0)
+            ra_spec = {}
+            rsrv = limit if rsrv > limit
+            ra_spec[:limit] = limit if limit
+            ra_spec[:reservation] = rsrv if rsrv
+            ra_spec[:share] =  RbVmomi::VIM.SharesInfo({
+                    :level => RbVmomi::VIM.SharesLevel("normal"),
+                    :shares => 0
+                })
+            card_spec[:resourceAllocation] =
+               RbVmomi::VIM.VirtualEthernetCardResourceAllocation(ra_spec)
+        end
+
+        {
+            :operation => :add,
+            :device    => nic_card.new(card_spec)
+        }
+    end
+
+     # Returns an array of actions to be included in :deviceChange
+    def calculate_add_nic_spec_autogenerate_mac(nic)
+
+        pg_name   = nic["BRIDGE"]
+        model     = nic["VCENTER_NET_MODEL"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/MODEL")
+        vnet_ref  = nic["VCENTER_NET_REF"]
+        backing   = nil
+
+        limit_in  = nic["INBOUND_PEAK_BW"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/INBOUND_PEAK_BW")
+        limit_out = nic["OUTBOUND_PEAK_BW"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/OUTBOUND_PEAK_BW")
+        limit     = nil
+
+        if limit_in && limit_out
+            limit=([limit_in.to_i, limit_out.to_i].min / 1024) * 8
+        end
+
+        rsrv_in  = nic["INBOUND_AVG_BW"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/INBOUND_AVG_BW")
+        rsrv_out = nic["OUTBOUND_AVG_BW"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/OUTBOUND_AVG_BW")
+        rsrv     = nil
+
+        if rsrv_in || rsrv_out
+            rsrv=([rsrv_in.to_i, rsrv_out.to_i].min / 1024) * 8
+        end
+
+        network = self["runtime.host"].network.select do |n|
+            n._ref == vnet_ref || n.name == pg_name
+        end
+
+        network = network.first
+
+        card_num = 1 # start in one, we want the next avaliable id
+
+        @item["config.hardware.device"].each do |dv|
+            card_num += 1 if is_nic?(dv)
+        end
+
+        nic_card = case model
+                        when "virtuale1000", "e1000"
+                            RbVmomi::VIM::VirtualE1000
+                        when "virtuale1000e", "e1000e"
+                            RbVmomi::VIM::VirtualE1000e
+                        when "virtualpcnet32", "pcnet32"
+                            RbVmomi::VIM::VirtualPCNet32
+                        when "virtualsriovethernetcard", "sriovethernetcard"
+                            RbVmomi::VIM::VirtualSriovEthernetCard
+                        when "virtualvmxnetm", "vmxnetm"
+                            RbVmomi::VIM::VirtualVmxnetm
+                        when "virtualvmxnet2", "vmnet2"
+                            RbVmomi::VIM::VirtualVmxnet2
+                        when "virtualvmxnet3", "vmxnet3"
+                            RbVmomi::VIM::VirtualVmxnet3
+                        else # If none matches, use VirtualE1000
+                            RbVmomi::VIM::VirtualE1000
+                   end
+
+        if network.class == RbVmomi::VIM::Network
+            backing = RbVmomi::VIM.VirtualEthernetCardNetworkBackingInfo(
+                        :deviceName => pg_name,
+                        :network    => network)
+        else
+            port    = RbVmomi::VIM::DistributedVirtualSwitchPortConnection(
+                        :switchUuid =>
+                                network.config.distributedVirtualSwitch.uuid,
+                        :portgroupKey => network.key)
+            backing =
+              RbVmomi::VIM.VirtualEthernetCardDistributedVirtualPortBackingInfo(
+                 :port => port)
+        end
+
+        card_spec = {
+            :key => 0,
+            :deviceInfo => {
+                :label => "net" + card_num.to_s,
+                :summary => pg_name
+            },
+            :backing     => backing,
+            :addressType => 'generated'
         }
 
         if (limit || rsrv) && (limit > 0)
@@ -2108,6 +2226,100 @@ class VirtualMachine < Template
             config[:fileOperation] = :create if storpod
 
             return config
+        end
+    end
+
+    def resize_unmanaged_disk(disk, new_size)
+
+        resize_hash = {}
+        disks       = []
+        found       = false
+
+        unmanaged_keys = get_unmanaged_keys
+        vc_disks = get_vcenter_disks
+
+        vc_disks.each do |vcenter_disk|
+            if unmanaged_keys.key?("opennebula.disk.#{disk["DISK_ID"]}")
+                device_key = unmanaged_keys["opennebula.disk.#{disk["DISK_ID"]}"].to_i
+
+                if device_key == vcenter_disk[:key].to_i
+
+                    if disk["SIZE"].to_i <= disk["ORIGINAL_SIZE"].to_i
+                        raise "Disk size cannot be shrinked."
+                    end
+
+                    # Edit capacity setting new size in KB
+                    d = vcenter_disk[:device]
+                    d.capacityInKB = disk["SIZE"].to_i * 1024
+                    disks <<   { :device => d, :operation => :edit }
+
+                    found = true
+                    break
+                end
+            end
+        end
+
+        raise "Unmanaged disk could not be found to apply resize operation." if !found
+
+        if !disks.empty?
+            resize_hash[:deviceChange] = disks
+            @item.ReconfigVM_Task(:spec => resize_hash).wait_for_completion
+        else
+            raise "Device was not found after attaching it to VM in poweroff."
+        end
+    end
+
+    def resize_managed_disk(disk, new_size)
+
+        resize_hash = {}
+
+        unmanaged_keys = get_unmanaged_keys
+        vc_disks       = get_vcenter_disks
+
+        # Get vcenter device to be detached and remove if found
+        device         = disk_attached_to_vm(disk, unmanaged_keys, vc_disks)
+
+        # If the disk is being attached in poweroff, reconfigure the VM
+        if !device
+            spec_hash     = {}
+            device_change = []
+
+            # Get an array with disk paths in OpenNebula's vm template
+            disks_in_onevm_vector = disks_in_onevm(unmanaged_keys, vc_disks)
+
+            device_change_ds, device_change_spod, device_change_spod_ids = device_attach_disks(disks_in_onevm_vector, vc_disks)
+            device_change += device_change_ds
+
+            # Create volatile disks in StorageDRS if any
+            if !device_change_spod.empty?
+                spec_hash[:extraConfig] = create_storagedrs_disks(device_change_spod, device_change_spod_ids)
+            end
+
+            # Common reconfigure task
+            spec_hash[:deviceChange] = device_change
+            spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+            @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+
+            # Check again if device has now been attached
+            unmanaged_keys = get_unmanaged_keys
+            vc_disks       = get_vcenter_disks
+            device         = disk_attached_to_vm(disk, unmanaged_keys, vc_disks)
+
+            if !device
+                raise "Device was not found after attaching it to VM in poweroff."
+            end
+        end
+
+        # Resize disk now that we know that it's part of the VM
+        if device
+            vcenter_disk = device[:device]
+            vcenter_disk.capacityInKB = new_size.to_i * 1024
+            resize_hash[:deviceChange] = [{
+                :operation => :edit,
+                :device => vcenter_disk
+            }]
+
+            @item.ReconfigVM_Task(:spec => resize_hash).wait_for_completion
         end
     end
 

@@ -1866,7 +1866,7 @@ void LifeCycleManager::disk_snapshot_success(int vid)
     bool img_owner, vm_owner;
 
     const VirtualMachineDisk * disk;
-    Snapshots           snaps(-1);
+    Snapshots           snaps(-1, false);
     const Snapshots*    tmp_snaps;
     bool                has_snaps = false;
     string              error_str;
@@ -2012,7 +2012,7 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
     Template *vm_quotas = 0;
 
     const VirtualMachineDisk* disk;
-    Snapshots           snaps(-1);
+    Snapshots           snaps(-1, false);
     const Snapshots*    tmp_snaps;
     bool                has_snaps = false;
     string              error_str;

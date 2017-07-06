@@ -74,7 +74,7 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
 
         bsr << "bootstrap state";
 
-        logdb->insert_log_record(-1, -1, bsr, 0);
+        logdb->insert_log_record(-1, -1, bsr, 0, -1);
 
         raft_state.replace("TERM", 0);
         raft_state.replace("VOTEDFOR", -1);
@@ -1038,6 +1038,7 @@ int RaftManager::xmlrpc_replicate_log(int follower_id, LogDBRecord * lr,
     replica_params.add(xmlrpc_c::value_int(lr->term));
     replica_params.add(xmlrpc_c::value_int(lr->prev_index));
     replica_params.add(xmlrpc_c::value_int(lr->prev_term));
+    replica_params.add(xmlrpc_c::value_int(lr->fed_index));
     replica_params.add(xmlrpc_c::value_string(lr->sql));
 
     // -------------------------------------------------------------------------
@@ -1176,8 +1177,6 @@ std::string& RaftManager::to_xml(std::string& raft_xml)
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
 
-    FedReplicaManager * frm = nd.get_frm();
-
     unsigned int lindex, lterm;
 
     std::ostringstream oss;
@@ -1206,7 +1205,7 @@ std::string& RaftManager::to_xml(std::string& raft_xml)
 
     if ( nd.is_federation_enabled() )
     {
-        oss << "<FEDLOG_INDEX>" << frm->get_last_index() << "</FEDLOG_INDEX>";
+        oss << "<FEDLOG_INDEX>" << logdb->last_federated() << "</FEDLOG_INDEX>";
     }
     else
     {

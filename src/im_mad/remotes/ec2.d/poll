@@ -36,9 +36,9 @@ begin
     ec2_drv.monitor_all_vms
 rescue Exception => e
 
-    opennebula::log_error(e.message)
+    OpenNebula.log_error(e.message)
     STDERR.puts "********** STACK TRACE ************"
     STDERR.puts e.backtrace
     STDERR.puts "***********************************"
-    exit -1    
+    exit -1
 end

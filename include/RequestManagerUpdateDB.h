@@ -163,8 +163,6 @@ public:
         {
             std::vector<int> zids;
             success_response(oid, att);
-
-            Nebula::instance().get_frm()->update_zones(zids);
         }
         else
         {

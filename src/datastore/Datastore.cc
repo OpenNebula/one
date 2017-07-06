@@ -358,6 +358,15 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
         remove_template_attribute("SHARED");
     }
 
+    bool orph;
+
+    if ( vatt->vector_value("ALLOW_ORPHANS", orph) == -1 )
+    {
+        orph = false;
+    }
+
+    replace_template_attribute("ALLOW_ORPHANS", orph);
+
     return 0;
 
 error_conf:

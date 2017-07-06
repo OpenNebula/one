@@ -33,9 +33,9 @@ checkpoint_file = ARGV[0]
 host            = ARGV[1]
 deploy_id       = ARGV[2]
 
-ec2_drv = EC2Driver.new(host)
 
 begin
+    ec2_drv = EC2Driver.new(host)
     ec2_drv.restore(deploy_id)
 rescue Exception => e
     handle_exception("Restore", e, host, deploy_id)

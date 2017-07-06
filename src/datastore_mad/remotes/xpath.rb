@@ -66,9 +66,9 @@ ARGV.each do |xpath|
         element = xml.elements[xpath.dup]
         if !element.nil?
             if element.class.method_defined?(:text)
-                values << element.text
+                values << ( element.text || '' )
             else
-                values << element.to_s
+                values << ( element.to_s || '' )
             end
         end
     end

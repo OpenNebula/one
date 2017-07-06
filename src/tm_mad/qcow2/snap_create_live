@@ -131,24 +131,31 @@ mkdir -p "${SNAP_DIR}"
 
 PREVIOUS_SNAP=\$(readlink $SYSTEM_DS_DISK_PATH)
 
-# The file must be created beforehand or libvirt complains with
-# "permission denied"
-touch $SNAP_PATH
-
 # Temporary xml file
 FILENAME="/tmp/snapshot-$VMID-$DISK_ID-$SNAP_ID"
 echo "$DOC" > \$FILENAME
 
 if virsh -c $LIBVIRT_URI domfsfreeze $DEPLOY_ID ; then
     trap "virsh -c $LIBVIRT_URI domfsthaw $DEPLOY_ID" EXIT TERM INT HUP
+elif virsh -c $LIBVIRT_URI suspend $DEPLOY_ID; then
+    trap "virsh -c $LIBVIRT_URI resume $DEPLOY_ID" EXIT TERM INT HUP
+else
+    error_message "Could not domfsfreeze or suspend domain"
+    exit 1
 fi
 
+# older qemu-img requires relative backing file paths
+# to be resolvable from the current directory
+cd "${SNAP_DIR}"
+
+$QEMU_IMG create -o backing_fmt=qcow2 -b "\${PREVIOUS_SNAP}" \
+    -f qcow2 ${QCOW2_OPTIONS} "${SNAP_PATH}"
+
 virsh -c $LIBVIRT_URI snapshot-create $DEPLOY_ID --disk-only --atomic --no-metadata \
-    --xmlfile \$FILENAME
+    --reuse-external --xmlfile \$FILENAME
 
 rm \${FILENAME}
 
-qemu-img rebase -u -b "\${PREVIOUS_SNAP}" "${SNAP_PATH}"
 ln -sf $SNAP_PATH_SHORT $SYSTEM_DS_DISK_PATH
 EOT
 )

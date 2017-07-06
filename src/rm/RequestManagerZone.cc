@@ -122,8 +122,6 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
         pool->update(zone);
 
         zone->unlock();
-
-        nd.get_frm()->update_zones(zids);
     }
     else
     {
@@ -231,8 +229,6 @@ void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
         pool->update(zone);
 
         zone->unlock();
-
-        nd.get_frm()->update_zones(zids);
     }
     else
     {
@@ -277,8 +273,9 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
     unsigned int term       = xmlrpc_c::value_int(paramList.getInt(5));
     unsigned int prev_index = xmlrpc_c::value_int(paramList.getInt(6));
     unsigned int prev_term  = xmlrpc_c::value_int(paramList.getInt(7));
+    unsigned int fed_index  = xmlrpc_c::value_int(paramList.getInt(8));
 
-    string sql = xmlrpc_c::value_string(paramList.getString(8));
+    string sql = xmlrpc_c::value_string(paramList.getString(9));
 
     unsigned int current_term = raftm->get_term();
 
@@ -396,7 +393,7 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
 
     ostringstream sql_oss(sql);
 
-    if ( logdb->insert_log_record(index, term, sql_oss, 0) != 0 )
+    if ( logdb->insert_log_record(index, term, sql_oss, 0, fed_index) != 0 )
     {
         att.resp_msg = "Error writing log record";
         att.resp_id  = current_term;
@@ -522,7 +519,8 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
     FedReplicaManager * frm = nd.get_frm();
 
     int index  = xmlrpc_c::value_int(paramList.getInt(1));
-    string sql = xmlrpc_c::value_string(paramList.getString(2));
+    int prev   = xmlrpc_c::value_int(paramList.getInt(2));
+    string sql = xmlrpc_c::value_string(paramList.getString(3));
 
     if ( att.uid != 0 )
     {
@@ -539,7 +537,7 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
         NebulaLog::log("ReM", Log::ERROR, oss);
 
         att.resp_msg = oss.str();
-        att.resp_id  = index;
+        att.resp_id  = -1;
 
         failure_response(ACTION, att);
         return;
@@ -558,7 +556,7 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    int rc = frm->apply_log_record(index, sql);
+    int rc = frm->apply_log_record(index, prev, sql);
 
     if ( rc == 0 )
     {

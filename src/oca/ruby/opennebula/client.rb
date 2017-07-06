@@ -39,9 +39,11 @@ module OpenNebula
                 alias :start_element :startElement
 
                 def parse(str)
+
                     Ox.sax_parse(self, StringIO.new(str),
                         :symbolize => false,
-                        :convert_special => true)
+                        :convert_special => true,
+                        :skip => false)
                 end
             end
         end

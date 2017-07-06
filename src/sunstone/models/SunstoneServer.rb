@@ -47,7 +47,7 @@ class SunstoneServer < CloudServer
             when "host"             then HostPoolJSON.new(client)
             when "image"            then ImagePoolJSON.new(client, user_flag)
             when "vmtemplate"       then TemplatePoolJSON.new(client, user_flag)
-            when "vm_group"          then VMGroupPoolJSON.new(client, user_flag)
+            when "vm_group"         then VMGroupPoolJSON.new(client, user_flag)
             when "vm"               then VirtualMachinePoolJSON.new(client, user_flag)
             when "vnet"             then VirtualNetworkPoolJSON.new(client, user_flag)
             when "user"             then UserPoolJSON.new(client)

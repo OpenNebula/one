@@ -134,14 +134,38 @@ define(function(require) {
     });
   }
 
-   function changeInputCPU(){
+   function changeInputCPU(maxCPU){
     document.getElementById('change_bar_cpu_hosts').value = parseInt(document.getElementById('textInput_reserved_cpu_hosts').value);
     document.getElementById('textInput_reserved_cpu_hosts').value = document.getElementById('change_bar_cpu_hosts').value;
+    changeColorInputCPU(maxCPU);
   }
 
-   function changeInputMEM(){
+   function changeInputMEM(maxMEM){
     document.getElementById('change_bar_mem_hosts').value = Humanize.sizeToMB(document.getElementById('textInput_reserved_mem_hosts').value);
     document.getElementById('textInput_reserved_mem_hosts').value = Humanize.size(document.getElementById('change_bar_mem_hosts').value);
+    changeColorInputMEM(maxMEM);
+  }
+
+  function changeColorInputCPU(maxCPU){
+    if(parseInt(document.getElementById('change_bar_cpu_hosts').value) > parseInt(maxCPU)){
+      document.getElementById('textInput_reserved_cpu_hosts').style.backgroundColor = 'rgba(111, 220, 111, 0.5)';
+    }
+    else if(parseInt(document.getElementById('change_bar_cpu_hosts').value) < parseInt(maxCPU)){
+      document.getElementById('textInput_reserved_cpu_hosts').style.backgroundColor = 'rgba(255, 80, 80, 0.5)';
+    } else {
+      document.getElementById('textInput_reserved_cpu_hosts').style.backgroundColor = 'white';
+    }
+  }
+
+  function changeColorInputMEM(maxMEM){
+    if(parseInt(document.getElementById('change_bar_mem_hosts').value) > parseInt(maxMEM)){
+      document.getElementById('textInput_reserved_mem_hosts').style.backgroundColor = 'rgba(111, 220, 111, 0.5)';
+    }
+    else if(parseInt(document.getElementById('change_bar_mem_hosts').value) < parseInt(maxMEM)){
+      document.getElementById('textInput_reserved_mem_hosts').style.backgroundColor = 'rgba(255, 80, 80, 0.5)';
+    } else {
+      document.getElementById('textInput_reserved_mem_hosts').style.backgroundColor = 'white';
+    }
   }
 
   function _setup(context) {
@@ -176,19 +200,15 @@ define(function(require) {
         Sunstone.runAction("Host.append_template", that.element.ID, TemplateUtils.templateToString(obj));
     });
 
-    document.getElementById("change_bar_cpu_hosts").addEventListener("change", function(){
-      if(parseInt(document.getElementById('change_bar_cpu_hosts').value) > that.element.HOST_SHARE.TOTAL_CPU)
-        document.getElementById('textInput_reserved_cpu_hosts').style.backgroundColor = 'rgba(111, 220, 111,0.5)';
-      if(parseInt(document.getElementById('change_bar_cpu_hosts').value) < that.element.HOST_SHARE.TOTAL_CPU)
-        document.getElementById('textInput_reserved_cpu_hosts').style.backgroundColor = 'rgba(255, 80, 80,0.5)';
+    document.getElementById("change_bar_cpu_hosts").addEventListener("input", function(){
+      changeColorInputCPU(that.element.HOST_SHARE.TOTAL_CPU);
       document.getElementById('textInput_reserved_cpu_hosts').value = document.getElementById('change_bar_cpu_hosts').value;
     });
-    document.getElementById("textInput_reserved_cpu_hosts").addEventListener("change", changeInputCPU);
-    document.getElementById("change_bar_mem_hosts").addEventListener("change", function(){
-      if(parseInt(document.getElementById('change_bar_mem_hosts').value) > that.element.HOST_SHARE.TOTAL_MEM)
-        document.getElementById('textInput_reserved_mem_hosts').style.backgroundColor = 'rgba(111, 220, 111,0.5)';
-      if(parseInt(document.getElementById('change_bar_mem_hosts').value) < that.element.HOST_SHARE.TOTAL_MEM)
-        document.getElementById('textInput_reserved_mem_hosts').style.backgroundColor = 'rgba(255, 80, 80,0.5)';
+    document.getElementById("textInput_reserved_cpu_hosts").addEventListener("input", function(){
+      changeInputCPU(that.element.HOST_SHARE.TOTAL_CPU);
+    });
+    document.getElementById("change_bar_mem_hosts").addEventListener("input", function(){
+      changeColorInputMEM(that.element.HOST_SHARE.TOTAL_MEM);
       document.getElementById('textInput_reserved_mem_hosts').value = Humanize.size(parseInt(document.getElementById('change_bar_mem_hosts').value));
     });
     document.getElementById("textInput_reserved_mem_hosts").addEventListener("change", changeInputMEM);
@@ -208,5 +228,8 @@ define(function(require) {
     if (this.element.TEMPLATE.IM_MAD != "ec2"){
       $(".ec2",context).hide();
     }
+    document.getElementById("textInput_reserved_mem_hosts").addEventListener("input", function(){
+      changeInputMEM(that.element.HOST_SHARE.TOTAL_MEM);
+    });
   }
 });

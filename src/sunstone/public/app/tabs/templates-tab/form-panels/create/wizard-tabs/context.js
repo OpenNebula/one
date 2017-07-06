@@ -224,15 +224,10 @@ define(function(require) {
 
       $.each(userInputsJSON, function(key, value){
         var name = key.toUpperCase();
-        cntxt = name.split("_");
-        var keyName = "";
-        $.each(cntxt, function(key, value){
-          if(key >= 2){
-            keyName += value + "_";
-          }
-        });
-        contextJSON[keyName.slice(0,-1)] = "$" + name;
+        contextJSON[key] = "$" + name;
       });
+
+      var userInputsOrder = UserInputs.retrieveOrder();
 
       var start_script = WizardFields.retrieveInput($(".START_SCRIPT", context));
       if (start_script != "") {
@@ -245,6 +240,7 @@ define(function(require) {
 
       if (!$.isEmptyObject(contextJSON)) { templateJSON['CONTEXT'] = contextJSON; };
       if (!$.isEmptyObject(userInputsJSON)) { templateJSON['USER_INPUTS'] = userInputsJSON; };
+      templateJSON['INPUTS_ORDER'] = userInputsOrder;
     }
 
     return templateJSON;
@@ -290,6 +286,7 @@ define(function(require) {
       }
 
       delete templateJSON['USER_INPUTS'];
+      delete templateJSON['INPUTS_ORDER'];
     }
 
     if (contextJSON) {

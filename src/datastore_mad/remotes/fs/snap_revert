@@ -79,7 +79,7 @@ EOF
         ssh_exec_and_log "$DST_HOST" "rm $ACTIVE_SNAP_PATH" \
             "Error deleting $ACTIVE_SNAP_PATH"
 
-        ssh_exec_and_log "$DST_HOST" "qemu-img create -f qcow2 -b $SNAP_PATH $ACTIVE_SNAP_PATH" \
+        ssh_exec_and_log "$DST_HOST" "qemu-img create -f qcow2 -o backing_fmt=qcow2 -b $SNAP_PATH $ACTIVE_SNAP_PATH" \
             "Error reverting snapshot to $SNAP_PATH"
     else
         ACTIVE_SNAP_ID=$(monitor_and_log "$SNAP_ID_SCRIPT" "Error get active snapshot ID" 2>&1)
@@ -88,7 +88,7 @@ EOF
         exec_and_log "rm ${ACTIVE_SNAP_PATH}" \
             "Error deleting $ACTIVE_SNAP_PATH"
 
-        exec_and_log "qemu-img create -f qcow2 -b ${SNAP_PATH} ${ACTIVE_SNAP_PATH}" \
+        exec_and_log "qemu-img create -f qcow2 -o backing_fmt=qcow2 -b ${SNAP_PATH} ${ACTIVE_SNAP_PATH}" \
             "Error reverting snapshot to $SNAP_PATH"
     fi
 else

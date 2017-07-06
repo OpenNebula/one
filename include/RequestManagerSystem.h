@@ -97,6 +97,47 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+class SystemSqlQuery: public RequestManagerSystem
+{
+public:
+    SystemSqlQuery():RequestManagerSystem("one.system.sqlquery",
+            "Executes SQL queries on the DB backend","A:ss")
+    {
+        auth_op = AuthRequest::ADMIN;
+    };
+
+    ~SystemSqlQuery(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+private:
+
+    class select_cb : public Callbackable
+    {
+    public:
+        void set_callback()
+        {
+            oss.str("");
+
+            Callbackable::set_callback(
+                    static_cast<Callbackable::Callback>(&select_cb::callback));
+        }
+
+        std::string get_result()
+        {
+            return oss.str();
+        }
+
+        virtual int callback(void *nil, int num, char **values, char **names);
+
+    private:
+        std::ostringstream oss;
+    };
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 class UserQuotaInfo : public RequestManagerSystem
 {
 public:

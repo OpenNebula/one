@@ -364,7 +364,7 @@ class Datastore < Storage
             :datacenter               => get_dc.item
         }
 
-        get_fm.DeleteDatastoreFile_Task(rm_directory_params)
+        get_fm.DeleteDatastoreFile_Task(rm_directory_params).wait_for_completion
     end
 
     def dir_empty?(path)

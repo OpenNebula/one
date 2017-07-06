@@ -43,6 +43,8 @@ public:
     /* DISK get/set functions for boolean disk flags                          */
     /*   ATTACH                                                               */
     /*   RESIZE                                                               */
+    /*   OPENNEBULA_MANAGED                                                   */
+    /*   ALLOW_ORPHANS                                                        */
     /*   CLONING                                                              */
     /*   PERSISTENT                                                           */
     /*   DISK_SNAPSHOT_ACTIVE                                                 */
@@ -50,6 +52,30 @@ public:
     bool is_persistent() const
     {
         return is_flag("PERSISTENT");
+    }
+
+    bool is_managed() const
+    {
+        bool one_managed;
+
+        if (vector_value("OPENNEBULA_MANAGED", one_managed) == -1)
+        {
+            one_managed = true;
+        }
+
+        return one_managed;
+    }
+
+    bool allow_orphans() const
+    {
+        bool orphans;
+
+        if (vector_value("ALLOW_ORPHANS", orphans) == -1)
+        {
+            orphans = false;
+        }
+
+        return orphans;
     }
 
     void set_attach()

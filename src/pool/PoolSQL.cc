@@ -137,6 +137,8 @@ int PoolSQL::allocate(PoolObjectSQL *objsql, string& error_str)
 
     objsql->oid = ++lastOID;
 
+    _set_lastOID(lastOID, db, table);
+
     rc = objsql->insert(db, error_str);
 
     if ( rc != 0 )
@@ -151,9 +153,9 @@ int PoolSQL::allocate(PoolObjectSQL *objsql, string& error_str)
 
     delete objsql;
 
-    if( rc != -1 )
+    if( rc == -1 )
     {
-        _set_lastOID(lastOID, db, table);
+        _set_lastOID(--lastOID, db, table);
     }
 
     unlock();

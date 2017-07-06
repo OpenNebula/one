@@ -120,6 +120,11 @@ protected:
         ds_policies.push_back(policy);
     }
 
+    void add_vm_policy(SchedulerPolicy *policy)
+    {
+        vm_policies.push_back(policy);
+    }
+
     // ---------------------------------------------------------------
     // Scheduler main methods
     // ---------------------------------------------------------------
@@ -159,6 +164,7 @@ private:
 
     vector<SchedulerPolicy *> host_policies;
     vector<SchedulerPolicy *> ds_policies;
+    vector<SchedulerPolicy *> vm_policies;
 
     // ---------------------------------------------------------------
     // Configuration attributes

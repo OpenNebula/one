@@ -273,6 +273,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/tm/iscsi_libvirt \
           $VAR_LOCATION/remotes/hooks \
           $VAR_LOCATION/remotes/hooks/ft \
+          $VAR_LOCATION/remotes/hooks/vcenter \
           $VAR_LOCATION/remotes/hooks/raft \
           $VAR_LOCATION/remotes/datastore \
           $VAR_LOCATION/remotes/datastore/dummy \
@@ -426,6 +427,7 @@ INSTALL_FILES=(
     ONETOKEN_SHARE_FILE:$SHARE_LOCATION
     FOLLOWER_CLEANUP_SHARE_FILE:$SHARE_LOCATION
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
+    HOOK_VCENTER_FILES:$VAR_LOCATION/remotes/hooks/vcenter
     HOOK_RAFT_FILES:$VAR_LOCATION/remotes/hooks/raft
     COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
     CLOUD_AUTH_LIB_FILES:$LIB_LOCATION/ruby/cloud/CloudAuth
@@ -1029,6 +1031,7 @@ TM_VCENTER_FILES="src/tm_mad/vcenter/clone \
                  src/tm_mad/vcenter/cpds \
                  src/tm_mad/vcenter/premigrate \
                  src/tm_mad/vcenter/postmigrate \
+                 src/tm_mad/vcenter/resize \
                  src/tm_mad/vcenter/snap_create \
                  src/tm_mad/vcenter/snap_create_live \
                  src/tm_mad/vcenter/snap_delete \
@@ -1165,7 +1168,8 @@ ONEDB_FILES="src/onedb/fsck.rb \
             src/onedb/vcenter_one54.rb \
             src/onedb/sqlite2mysql.rb \
             src/onedb/database_schema.rb \
-            src/onedb/fsck"
+            src/onedb/fsck \
+            src/onedb/onedb_live.rb"
 
 ONEDB_SHARED_MIGRATOR_FILES="src/onedb/shared/2.0_to_2.9.80.rb \
                              src/onedb/shared/2.9.80_to_2.9.85.rb \
@@ -1286,9 +1290,14 @@ ESX_FW_VNC_SHARE_FILES="share/esx-fw-vnc/fw-vnc.vib \
 #-------------------------------------------------------------------------------
 
 HOOK_FT_FILES="share/hooks/ft/host_error.rb \
-               share/hooks/ft/fence_host.sh \
-               share/hooks/create_vcenter_net.rb \
-               share/hooks/delete_vcenter_net.rb"
+               share/hooks/ft/fence_host.sh"
+
+#-------------------------------------------------------------------------------
+# HOOK scripts, to be installed under $VAR_LOCATION/remotes/hooks/vcenter
+#-------------------------------------------------------------------------------
+
+HOOK_VCENTER_FILES="share/hooks/vcenter/create_vcenter_net.rb \
+                    share/hooks/vcenter/delete_vcenter_net.rb"
 
 #-------------------------------------------------------------------------------
 # HOOK RAFT scripts, to be installed under $VAR_LOCATION/remotes/hooks/raft

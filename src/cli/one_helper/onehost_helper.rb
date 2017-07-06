@@ -20,6 +20,32 @@ require 'rubygems'
 
 class OneHostHelper < OpenNebulaHelper::OneHelper
     TEMPLATE_XPATH  = '//HOST/TEMPLATE'
+    HYBRID = {
+        :ec2 => {
+            :help => <<-EOT.unindent,
+                #-----------------------------------------------------------------------
+                # Supported EC2 AUTH ATTRIBUTTES:
+                #
+                #  REGION_NAME = <the name of the ec2 region>
+                #
+                #  EC2_ACCESS = <Your ec2 access key id>
+                #  EC2_SECRET = <Your ec2 secret key>
+                #
+                #  CAPACITY = [
+                #    M1SMALL  = <number of machines m1.small>,
+                #    M1XLARGE = <number of machines m1.xlarge>,
+                #    M1LARGE  = <number of machines m1.large>
+                #  ]
+                #
+                # You can set any machine type supported by ec2
+                # See your ec2_driver.conf for more information
+                #
+                #-----------------------------------------------------------------------
+                EOT
+        }
+    }
+
+
     VERSION_XPATH   = "#{TEMPLATE_XPATH}/VERSION"
 
     def self.rname
@@ -164,6 +190,12 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         table
     end
 
+    def set_hybrid(type, path)
+        k = type.to_sym
+        if HYBRID.key?(k)
+            str = path.nil? ?  OpenNebulaHelper.editor_input(HYBRID[k][:help]): File.read(path)
+        end
+    end
 
     NUM_THREADS = 15
     def sync(host_ids, options)

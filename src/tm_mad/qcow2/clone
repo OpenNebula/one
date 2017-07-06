@@ -109,7 +109,8 @@ rm -rf "${DST_PATH}.snap"
 
 mkdir -p "${DST_PATH}.snap"
 
-$QEMU_IMG create -b $SRC_PATH -f qcow2 $QCOW2_OPTIONS ${DST_PATH}.snap/0
+B_FORMAT=\$($QEMU_IMG info $SRC_PATH | grep "^file format:" | awk '{print \$3}' || :)
+$QEMU_IMG create -o backing_fmt=\${B_FORMAT:-raw} -b $SRC_PATH -f qcow2 $QCOW2_OPTIONS ${DST_PATH}.snap/0
 
 rm -f "${DST_PATH}"
 

@@ -46,7 +46,9 @@ $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+'/onedb'
 
 require 'cli/command_parser'
+require 'optparse/time'
 require 'onedb'
+require 'onedb_live'
 require 'opennebula'
 
 FORCE={
@@ -224,6 +226,62 @@ EXTRA={
     :format => Array
 }
 
+###############################################################################
+# Live operation options
+###############################################################################
+
+START_TIME = {
+    :name   => "start_time",
+    :short  => "-s TIME",
+    :large  => "--start TIME" ,
+    :description => "First time to process",
+    :format => Time
+}
+
+END_TIME = {
+    :name   => "end_time",
+    :short  => "-e TIME",
+    :large  => "--end TIME" ,
+    :description => "Last time to process",
+    :format => Time
+}
+
+ID = {
+    :name   => "id",
+    :short  => "-i ID",
+    :large  => "--id ID" ,
+    :description => "Filter by ID",
+    :format => Numeric
+}
+
+XPATH = {
+    :name   => "xpath",
+    :short  => "-x ID",
+    :large  => "--xpath ID" ,
+    :description => "Filter by xpath",
+    :format => String
+}
+
+EXPR= {
+    :name   => "expr",
+    :short  => "-e ID",
+    :large  => "--expr ID" ,
+    :description => "Filter by expression (UNAME=oneadmin)",
+    :format => String
+}
+
+DRY= {
+    :name   => "dry",
+    :large  => "--dry" ,
+    :description => "Do not write in the database, output xml"
+}
+
+DELETE= {
+    :name   => "delete",
+    :short  => "-d",
+    :large  => "--delete" ,
+    :description => "Delete all matched xpaths"
+}
 
 cmd=CommandParser::CmdParser.new(ARGV) do
     description <<-EOT.unindent
@@ -413,5 +471,105 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         rescue Exception => e
             [-1, e.message]
         end
+    end
+
+    LIVE_ACTION_HELP = <<-EOT.unindent
+        **WARNING**: This action is done while OpenNebula is running. Make
+        a backup of the datasbase before executing.
+    EOT
+
+    ###########################################################################
+    # Purge history
+    ###########################################################################
+    purge_history_desc = <<-EOT.unindent
+        Deletes all but the last history records from non DONE VMs
+
+        #{LIVE_ACTION_HELP}
+    EOT
+
+    command :'purge-history', purge_history_desc,
+            :options => [START_TIME, END_TIME] do
+        begin
+            action = OneDBLive.new
+            action.purge_history(options)
+        rescue Exception => e
+            puts e.message
+            pp e.backtrace
+            [-1, e.message]
+        end
+
+        0
+    end
+
+    ###########################################################################
+    # Purge VMs in DONE state
+    ###########################################################################
+    purge_done_desc = <<-EOT.unindent
+        Deletes all VMs in DONE state
+
+        #{LIVE_ACTION_HELP}
+    EOT
+
+    command :'purge-done', purge_done_desc,
+            :options => [START_TIME, END_TIME] do
+        begin
+            action = OneDBLive.new
+            action.purge_done_vm(options)
+        rescue Exception => e
+            puts e.name
+            pp e.backtrace
+            [-1, e.message]
+        end
+
+        0 # exit code
+    end
+
+    ###########################################################################
+    # Change value in object body
+    ###########################################################################
+    change_body_desc = <<-EOT.unindent
+        Changes a value from the body of an object. The possible objects are:
+            vm, host, vnet, image, cluster, document, group, marketplace,
+            marketplaceapp, secgroup, template, vrouter or zone
+
+        You can filter the objects to modify using one of these options:
+
+            * --id: object id, example: 156
+            * --xpath: xpath expression, example: TEMPLATE[count(NIC)>1]
+            * --expr: xpath expression, can use operators =, !=, <, >, <= or >=
+                examples: UNAME=oneadmin, TEMPLATE/NIC/NIC_ID>0
+
+        If you want to change a value use a third parameter. In case you want
+        to delete it use --delete option.
+
+        Change the second network of VMs that belong to "user":
+
+            onedb change-body vm --expr UNAME=user \\
+                '/VM/TEMPLATE/NIC[NETWORK="service"]/NETWORK' new_network
+
+        Delete cache attribute in all disks, write xml, do not modify DB:
+
+            onedb change-body vm '/VM/TEMPLATE/DISK/CACHE' --delete --dry
+
+        Delete cache attribute in all disks in poweroff:
+
+            onedb change-body vm --expr LCM_STATE=8 \\
+                '/VM/TEMPLATE/DISK/CACHE' --delete
+
+        #{LIVE_ACTION_HELP}
+    EOT
+
+    command :'change-body', change_body_desc, :object, :xpath, [:value, nil],
+            :options => [ID, XPATH, EXPR, DRY, DELETE] do
+        begin
+            action = OneDBLive.new
+            action.change_body(args[0], args[1], args[2], options)
+        rescue Exception => e
+            puts e.message
+            pp e.backtrace
+            [-1, e.message]
+        end
+
+        0 # exit code
     end
 end

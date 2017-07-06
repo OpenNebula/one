@@ -361,7 +361,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
 
         # Convert snapshot data to an array
         image_hash = image.to_hash
-        image_snapshots = [image_hash['IMAGE']['SNAPSHOTS']].flatten.first
+        image_snapshots = [image_hash['IMAGE']['SNAPSHOTS']['SNAPSHOT']].flatten
         table.show(image_snapshots)
     end
 

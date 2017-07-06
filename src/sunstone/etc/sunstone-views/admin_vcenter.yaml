@@ -51,7 +51,10 @@ features:
     instantiate_hide_cpu: false
 
     # False to not scale the CPU. Number [0, 1] to scale from VCPU
-    instanciate_cpu_factor: false
+    instantiate_cpu_factor: false
+
+    # True to show the option to make an instance persistent
+    instantiate_persistent: true
 
     # True to show an input to specify the the VMs and Template path/folder where a vCenter VM will
     # deployed to
