@@ -116,7 +116,10 @@ define(function(require) {
     $("#vnet_wizard_ar_btn", context).bind("click", function() {
       that.addARTab(number_of_ar, context);
       number_of_ar++;
-
+      var mode = $("#network_mode", context).val();
+      if(mode == "vcenter"){
+        $(".sec_groups_datatable", context).hide();
+      }
       return false;
     });
 
@@ -130,6 +133,8 @@ define(function(require) {
       $('input#vn_mad', context).removeAttr('value');
       $('#vcenter_switch_name', context).removeAttr('required');
       $('#vcenter_cluster_id', context).removeAttr('required');
+      $(".sec_groups_datatable", context).show();
+      $('#vnetCreateSecurityTab-label').show();
       switch ($(this).val()) {
       case "dummy":
         $("div.mode_param.dummy", context).show();
@@ -169,9 +174,11 @@ define(function(require) {
         break;
       case "vcenter":
         $("div.mode_param.vcenter", context).show();
+        $(".sec_groups_datatable", context).hide();
         $("div.mode_param.vcenter [wizard_field]", context).prop('wizard_field_disabled', false);
         $('input#bridge', context).attr('value', $('#name', context).val());
         $('#vcenter_switch_name', context).attr('required', '');
+        $('#vnetCreateSecurityTab-label').hide();
         ResourceSelect.insert({
           context: $('#vcenter_cluster_id', context),
           resourceName: 'Host',
