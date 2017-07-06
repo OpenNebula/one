@@ -42,7 +42,6 @@ GEM
     mime-types (2.99.3)
     mini_portile2 (2.2.0)
     multipart-post (2.0.0)
-    mustermann (1.0.0)
     mysql2 (0.4.6)
     net-ldap (0.12.1)
     nokogiri (1.8.0)
@@ -51,16 +50,15 @@ GEM
     parse-cron (0.1.4)
     polyglot (0.3.5)
     public_suffix (2.0.5)
-    rack (2.0.3)
-    rack-protection (2.0.0)
+    rack (1.6.8)
+    rack-protection (1.5.3)
       rack
     scrub_rb (1.0.1)
     sequel (4.47.0)
-    sinatra (2.0.0)
-      mustermann (~> 1.0)
-      rack (~> 2.0)
-      rack-protection (= 2.0.0)
-      tilt (~> 2.0)
+    sinatra (1.4.8)
+      rack (~> 1.5)
+      rack-protection (~> 1.4)
+      tilt (>= 1.3, < 3)
     sqlite3 (1.3.13)
     systemu (2.6.5)
     thin (1.7.1)
@@ -98,7 +96,7 @@ DEPENDENCIES
   nokogiri
   ox
   parse-cron
-  rack
+  rack (< 2.0.0)
   sequel
   sinatra
   sqlite3
