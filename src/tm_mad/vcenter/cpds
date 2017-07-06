@@ -48,6 +48,7 @@ check_valid vmid,"vmid"
 check_valid target_ds_id,"target_ds_id"
 
 disk_id = src.split(".")[-1]
+source_ds_id = src.split("/")[-3]
 hostname, src_path = src.split ":"
 
 # Get host ID
@@ -89,7 +90,9 @@ begin
     else
         # Get image source path
         src_path = VCenterDriver::FileHelper.get_img_name(disk, vmid, vm['name'])
-        source_ds_ref = disk["VCENTER_DS_REF"]
+        source_ds = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, source_ds_id)
+        source_ds_ref = source_ds['TEMPLATE/VCENTER_DS_REF']
+        ##source_ds_ref = disk["VCENTER_DS_REF"]
     end
 
     source_ds_vc = VCenterDriver::Datastore.new_from_ref(source_ds_ref, vi_client)
