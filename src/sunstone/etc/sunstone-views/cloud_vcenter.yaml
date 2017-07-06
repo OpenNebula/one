@@ -17,7 +17,7 @@ features:
     # will be set to the same value as VCPU, that will still be visible for the
     # end users
     instantiate_hide_cpu: true
-    
+
     # False to not scale the CPU. Number [0, 1] to scale from VCPU
     instantiate_cpu_factor: false
 
@@ -69,7 +69,7 @@ tabs:
             VM.disk_snapshot_create: false
             VM.disk_snapshot_revert: false
             VM.disk_snapshot_delete: false
-            VM.save_as_template: false
+            VM.save_as_template: true
         dashboard:
             # Connected user's quotas
             quotas: true
