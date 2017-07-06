@@ -1338,6 +1338,12 @@ class VirtualMachine < Template
 
         return if unmanaged_resized_disks.empty?
 
+        # Cannot resize linked cloned disks
+        if one_item["USER_TEMPLATE/VCENTER_LINKED_CLONES"] &&
+           one_item["USER_TEMPLATE/VCENTER_LINKED_CLONES"] == "YES"
+            raise "Linked cloned disks cannot be resized."
+        end
+
         unmanaged_resized_disks.each do |disk|
             vc_disks.each do |vcenter_disk|
                 if unmanaged_keys.key?("opennebula.disk.#{disk["DISK_ID"]}")
@@ -1663,6 +1669,104 @@ class VirtualMachine < Template
             :backing     => backing,
             :addressType => mac ? 'manual' : 'generated',
             :macAddress  => mac
+        }
+
+        if (limit || rsrv) && (limit > 0)
+            ra_spec = {}
+            rsrv = limit if rsrv > limit
+            ra_spec[:limit] = limit if limit
+            ra_spec[:reservation] = rsrv if rsrv
+            ra_spec[:share] =  RbVmomi::VIM.SharesInfo({
+                    :level => RbVmomi::VIM.SharesLevel("normal"),
+                    :shares => 0
+                })
+            card_spec[:resourceAllocation] =
+               RbVmomi::VIM.VirtualEthernetCardResourceAllocation(ra_spec)
+        end
+
+        {
+            :operation => :add,
+            :device    => nic_card.new(card_spec)
+        }
+    end
+
+     # Returns an array of actions to be included in :deviceChange
+    def calculate_add_nic_spec_autogenerate_mac(nic)
+
+        pg_name   = nic["BRIDGE"]
+        model     = nic["VCENTER_NET_MODEL"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/MODEL")
+        vnet_ref  = nic["VCENTER_NET_REF"]
+        backing   = nil
+
+        limit_in  = nic["INBOUND_PEAK_BW"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/INBOUND_PEAK_BW")
+        limit_out = nic["OUTBOUND_PEAK_BW"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/OUTBOUND_PEAK_BW")
+        limit     = nil
+
+        if limit_in && limit_out
+            limit=([limit_in.to_i, limit_out.to_i].min / 1024) * 8
+        end
+
+        rsrv_in  = nic["INBOUND_AVG_BW"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/INBOUND_AVG_BW")
+        rsrv_out = nic["OUTBOUND_AVG_BW"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/OUTBOUND_AVG_BW")
+        rsrv     = nil
+
+        if rsrv_in || rsrv_out
+            rsrv=([rsrv_in.to_i, rsrv_out.to_i].min / 1024) * 8
+        end
+
+        network = self["runtime.host"].network.select do |n|
+            n._ref == vnet_ref || n.name == pg_name
+        end
+
+        network = network.first
+
+        card_num = 1 # start in one, we want the next avaliable id
+
+        @item["config.hardware.device"].each do |dv|
+            card_num += 1 if is_nic?(dv)
+        end
+
+        nic_card = case model
+                        when "virtuale1000", "e1000"
+                            RbVmomi::VIM::VirtualE1000
+                        when "virtuale1000e", "e1000e"
+                            RbVmomi::VIM::VirtualE1000e
+                        when "virtualpcnet32", "pcnet32"
+                            RbVmomi::VIM::VirtualPCNet32
+                        when "virtualsriovethernetcard", "sriovethernetcard"
+                            RbVmomi::VIM::VirtualSriovEthernetCard
+                        when "virtualvmxnetm", "vmxnetm"
+                            RbVmomi::VIM::VirtualVmxnetm
+                        when "virtualvmxnet2", "vmnet2"
+                            RbVmomi::VIM::VirtualVmxnet2
+                        when "virtualvmxnet3", "vmxnet3"
+                            RbVmomi::VIM::VirtualVmxnet3
+                        else # If none matches, use VirtualE1000
+                            RbVmomi::VIM::VirtualE1000
+                   end
+
+        if network.class == RbVmomi::VIM::Network
+            backing = RbVmomi::VIM.VirtualEthernetCardNetworkBackingInfo(
+                        :deviceName => pg_name,
+                        :network    => network)
+        else
+            port    = RbVmomi::VIM::DistributedVirtualSwitchPortConnection(
+                        :switchUuid =>
+                                network.config.distributedVirtualSwitch.uuid,
+                        :portgroupKey => network.key)
+            backing =
+              RbVmomi::VIM.VirtualEthernetCardDistributedVirtualPortBackingInfo(
+                 :port => port)
+        end
+
+        card_spec = {
+            :key => 0,
+            :deviceInfo => {
+                :label => "net" + card_num.to_s,
+                :summary => pg_name
+            },
+            :backing     => backing,
+            :addressType => 'generated'
         }
 
         if (limit || rsrv) && (limit > 0)

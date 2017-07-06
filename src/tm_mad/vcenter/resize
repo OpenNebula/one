@@ -76,7 +76,13 @@ begin
     if !disk["OPENNEBULA_MANAGED"] || disk["OPENNEBULA_MANAGED"].downcase != "no"
         vm.resize_managed_disk(disk, new_size)
     else
-        vm.resize_unmanaged_disk(disk, new_size)
+        if one_vm["USER_TEMPLATE/VCENTER_LINKED_CLONES"] &&
+           one_vm["USER_TEMPLATE/VCENTER_LINKED_CLONES"].upcase == "YES"
+
+            raise "Linked cloned disks cannot be resized."
+        else
+            vm.resize_unmanaged_disk(disk, new_size)
+        end
     end
 
 rescue Exception => e
