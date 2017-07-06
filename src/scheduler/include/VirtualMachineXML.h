@@ -60,6 +60,11 @@ public:
     //--------------------------------------------------------------------------
     // Get Methods for VirtualMachineXML class
     //--------------------------------------------------------------------------
+    int get_prio() const
+    {
+        return prio;
+    };
+
     int get_oid() const
     {
         return oid;
@@ -389,6 +394,8 @@ protected:
     set<int> affined_vms;
 
     /* ----------------------- VIRTUAL MACHINE ATTRIBUTES ------------------- */
+    int   prio;
+
     int   oid;
 
     int   uid;

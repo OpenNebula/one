@@ -39,6 +39,7 @@ int VirtualMachinePoolXML::set_up()
 
             oss << right << setw(8)  << "ACTION"    << " "
                 << right << setw(8)  << "VM"        << " "
+                << right << setw(8)  << "PRIO"      << " "
                 << right << setw(4)  << "CPU"       << " "
                 << right << setw(11) << "Memory"    << " "
                 << right << setw(3)  << "PCI"       << " "
@@ -70,7 +71,8 @@ int VirtualMachinePoolXML::set_up()
                 }
 
                 oss << right << setw(8)  << action      << " "
-                    << right << setw(8)  << it->first   << " "
+                    << right << setw(8)  << vm->get_oid()   << " "
+                    << right << setw(8)  << vm->get_prio()   << " "
                     << right << setw(4)  << cpu         << " "
                     << right << setw(11) << mem         << " "
                     << right << setw(3)  << pci.size()  << " "
@@ -111,8 +113,13 @@ void VirtualMachinePoolXML::add_object(xmlNodePtr node)
     }
 
     VirtualMachineXML* vm = new VirtualMachineXML(node);
+   
+    if ( use_prio == 1) { 
+       objects.insert(pair<int,ObjectXML*>(vm->get_prio(),vm));
+    } else {
+       objects.insert(pair<int,ObjectXML*>(vm->get_oid(),vm));
+    }
 
-    objects.insert(pair<int,ObjectXML*>(vm->get_oid(),vm));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -336,4 +343,3 @@ int VirtualMachineRolePoolXML::set_up()
 
     return rc;
 }
-
