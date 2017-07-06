@@ -80,6 +80,57 @@
         </div>
       </fieldset>
     </div>
+
+    <div class="ec2_extra">
+      <fieldset>
+        <legend>{{tr "EC2"}}</legend>
+        <div class="row">
+          <div class="large-12 columns">
+            <label for="REGION_NAME">{{tr "Region name"}}</label>
+            <input type="text" name="REGION_NAME" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="large-6 columns">
+            <label for="EC2_ACCESS">{{tr "Access key ID"}}</label>
+            <input type="text" name="EC2_ACCESS" />
+          </div>
+          <div class="large-6 columns">
+            <label for="EC2_SECRET">{{tr "Secret access key"}}</label>
+            <input type="text" name="EC2_SECRET" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="medium-12 columns">
+            <label>{{tr "Capacity"}}</label>
+            <div class="row">
+              <div class="large-12 columns">
+                <table class="dataTable capacity_table">
+                  <thead>
+                    <tr>
+                      <th>{{tr "Key"}}</th>
+                      <th>{{tr "Value"}}</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody class="capacity_ec2">
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="3">
+                        <a type="button" class="add_custom_tag button small small-12 secondary radius">
+                          <i class="fa fa-lg fa-plus-circle"></i>
+                        </a>
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    </div>
   </form>
   <form data-abide novalidate class="vcenter_credentials" action="">
     <fieldset>
