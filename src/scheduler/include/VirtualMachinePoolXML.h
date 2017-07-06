@@ -85,12 +85,19 @@ public:
     };
 
     /**
-     *
-     *
+     *  Returns a vector of matched hosts
      */
-    void clear()
+    const vector<Resource *> get_vm_resources()
     {
-        flush();
+        return vm_resources.get_resources();
+    }
+
+    /**
+     *  Sort the VMs in the pool
+     */
+    void sort_vm_resources()
+    {
+        vm_resources.sort_resources();
     }
 
 protected:
@@ -110,6 +117,12 @@ protected:
      * Do live migrations to resched VMs
      */
     bool live_resched;
+
+private:
+    /**
+     *  Stores the list of vms, and it associated user prioty vm_resources.
+     */
+    ResourceMatch vm_resources;
 };
 
 /* -------------------------------------------------------------------------- */

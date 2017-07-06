@@ -1077,27 +1077,37 @@ void Scheduler::dispatch()
     bool dispatched, matched;
     char * estr;
 
-    map<int, ObjectXML*>::const_iterator vm_it;
+    vector<Resource *>::const_reverse_iterator i, j, k;
 
-    vector<Resource *>::const_reverse_iterator i, j;
+    vector<SchedulerPolicy *>::iterator sp_it;
 
-    const map<int, ObjectXML*> pending_vms = vmpool->get_objects();
+    //--------------------------------------------------------------------------
+    // Schedule pending VMs according to the VM policies (e.g. User priority)
+    //--------------------------------------------------------------------------
+    for (sp_it = vm_policies.begin() ; sp_it != vm_policies.end() ; ++sp_it)
+    {
+        (*sp_it)->schedule(0);
+    }
 
-    dss << "Dispatching VMs to hosts:\n" << "\tVMID\tHost\tSystem DS\n"
-        << "\t-------------------------\n";
+    vmpool->sort_vm_resources();
+
+    const vector<Resource *> vm_rs = vmpool->get_vm_resources();
+
+    //--------------------------------------------------------------------------
+    dss << "Dispatching VMs to hosts:\n" 
+        << "\tVMID\tPriority\tHost\tSystem DS\n"
+        << "\t--------------------------------------------------------------\n";
+    //--------------------------------------------------------------------------
 
     //--------------------------------------------------------------------------
     // Dispatch each VM till we reach the dispatch limit
     //--------------------------------------------------------------------------
-
-    for (vm_it = pending_vms.begin();
-         vm_it != pending_vms.end() &&
-            ( dispatch_limit <= 0 || dispatched_vms < dispatch_limit );
-         vm_it++)
+    for (k = vm_rs.rbegin(); k != vm_rs.rend() &&
+            ( dispatch_limit <= 0 || dispatched_vms < dispatch_limit ); ++k)
     {
         dispatched = false;
 
-        vm = static_cast<VirtualMachineXML*>(vm_it->second);
+        vm = vmpool->get((*k)->oid);
 
         const vector<Resource *> resources = vm->get_match_hosts();
 
@@ -1273,12 +1283,15 @@ void Scheduler::dispatch()
             //------------------------------------------------------------------
             // Dispatch and update host and DS capacity, and dispatch counters
             //------------------------------------------------------------------
-            if (vmpool->dispatch(vm_it->first, hid, dsid, vm->is_resched()) != 0)
+            if (vmpool->dispatch((*k)->oid, hid, dsid, vm->is_resched()) != 0)
             {
                 continue;
             }
 
-            dss << "\t" << vm_it->first << "\t" << hid << "\t" << dsid << "\n";
+            //------------------------------------------------------------------
+            dss << "\t" << (*k)->oid << "\t" << (*k)->priority << "\t\t" << hid
+                << "\t" << dsid << "\n";
+            //------------------------------------------------------------------
 
             // DS capacity skip VMs deployed in public cloud hosts
             if (!host->is_public_cloud())
@@ -1347,10 +1360,10 @@ void Scheduler::dispatch()
         }
     }
 
-    if (vm_it != pending_vms.end())
+    if (k != vm_rs.rend())
     {
         dss << endl << "MAX_DISPATCH limit of " << dispatch_limit << " reached, "
-            << std::distance(vm_it, pending_vms.end())
+            << std::distance(k, vm_rs.rend())
             << " VMs were not dispatched";
     }
 

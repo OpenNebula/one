@@ -55,7 +55,7 @@ public:
         policy(obj, priority);
 
         //2. Scale priorities
-        sw.max =fabs(*max_element(priority.begin(), priority.end(), abs_cmp));
+        sw.max = fabs(*max_element(priority.begin(), priority.end(), abs_cmp));
 
         transform(priority.begin(), priority.end(), priority.begin(), sw);
 
