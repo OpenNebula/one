@@ -35,8 +35,7 @@ define(function(require) {
     require('./hosts-tab/panels/wilds'),
     require('./hosts-tab/panels/zombies'),
     require('./hosts-tab/panels/esx'),
-    require('./hosts-tab/panels/pci'),
-    require('./hosts-tab/panels/ec2')
+    require('./hosts-tab/panels/pci')
   ];
 
   var _panelsHooks = [

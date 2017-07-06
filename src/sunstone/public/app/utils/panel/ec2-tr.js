@@ -69,34 +69,22 @@ define(function(require) {
       context.off("change", ".input_edit_value_region");
       context.on("change", ".input_edit_value_region", function() {
         var valueRegion = $(".input_edit_value_region").val();
-        var template = {};
-        if (valueRegion != "") {
-          template["region_name"] = valueRegion;
-        }
-        var templateJSON = $.extend({},that.element, template);
-        Sunstone.runAction(resourceType+".update_template",resourceId, TemplateUtils.templateToString(templateJSON));
+        that.element["REGION_NAME"] = valueRegion;
+        Sunstone.runAction(resourceType+".update_template",resourceId, TemplateUtils.templateToString(that.element));
       });
 
       context.off("change", ".input_edit_value_access");
       context.on("change", ".input_edit_value_access", function() {
         var valueAccess = $(".input_edit_value_access").val();
-        var template = {};
-        if (valueAccess != "") {
-          template["ec2_access"] = valueAccess;
-        }
-        var templateJSON = $.extend({},that.element, template);
-        Sunstone.runAction(resourceType+".update_template",resourceId, TemplateUtils.templateToString(templateJSON));
+        that.element["EC2_ACCESS"] = valueAccess;
+        Sunstone.runAction(resourceType+".update_template",resourceId, TemplateUtils.templateToString(that.element));
       });
 
       context.off("change", ".input_edit_value_secret");
       context.on("change", ".input_edit_value_secret", function() {
         var valueSecret = $(".input_edit_value_secret").val();
-        var template = {};
-        if (valueSecret != "") {
-          template["ec2_secret"] = valueSecret;
-        }
-        var templateJSON = $.extend({},that.element, template);
-        Sunstone.runAction(resourceType+".update_template",resourceId, TemplateUtils.templateToString(templateJSON));
+        that.element["EC2_SECRET"] = valueSecret;
+        Sunstone.runAction(resourceType+".update_template",resourceId, TemplateUtils.templateToString(that.element));
       });
   }
 
