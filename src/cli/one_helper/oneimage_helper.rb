@@ -290,7 +290,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             puts str % [e,  mask]
         }
 
-        if image.has_elements?("/IMAGE/SNAPSHOTS")
+        if image.has_elements?("/IMAGE/SNAPSHOTS/SNAPSHOT")
             puts
             CLIHelper.print_header(str_h1 % "IMAGE SNAPSHOTS",false)
             format_snapshots(image)
