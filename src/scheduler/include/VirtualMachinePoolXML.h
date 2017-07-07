@@ -122,7 +122,7 @@ private:
     /**
      *  Stores the list of vms, and it associated user prioty vm_resources.
      */
-    ResourceMatch vm_resources;
+    VirtualMachineResourceMatch vm_resources;
 };
 
 /* -------------------------------------------------------------------------- */
