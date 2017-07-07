@@ -230,9 +230,13 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
             vm_mad = host['VM_MAD'].downcase
             remote_remotes = host['TEMPLATE/REMOTE_REMOTES']
+            state = host['STATE']
 
             # Skip this host from remote syncing if it's a PUBLIC_CLOUD host
             next if host['TEMPLATE/PUBLIC_CLOUD'] == 'YES'
+
+            # Skip this host from remote syncing if it's OFFLINE
+            next if self.class.state_to_str(state) == 'off'
 
             host_version=host['TEMPLATE/VERSION']
 
