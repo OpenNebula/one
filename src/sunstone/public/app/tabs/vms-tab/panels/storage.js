@@ -596,11 +596,15 @@ define(function(require) {
       context.on('click', '.disk_resize', function() {
         var disk_id = $(this).parents('tr').attr('disk_id');
         var disk_size = "";
-        $.each(that.element.TEMPLATE.DISK, function(){
-          if(this.DISK_ID == disk_id){
-            disk_size = this.SIZE * 1024;
-          }
-        });
+        if(Array.isArray(that.element.TEMPLATE.DISK)){
+          $.each(that.element.TEMPLATE.DISK, function(){
+            if (this.DISK_ID == disk_id){
+              disk_size = this.SIZE * 1024;
+            }
+          });
+        } else {
+            disk_size = that.element.TEMPLATE.DISK.SIZE * 1024;
+        }
         var dialog = Sunstone.getDialog(DISK_RESIZE_DIALOG_ID);
         dialog.setParams(
           { element: that.element,
