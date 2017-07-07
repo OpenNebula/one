@@ -82,7 +82,7 @@ define(function(require) {
     Tips.setup(context);
     $( ".diskSlider", context).html(RangeSlider.html({
         min: that.diskSize,
-        max: Humanize.sizeToMB("500GB"),
+        max: Humanize.sizeToMB("500GB")*1024,
         initial: that.diskSize,
         name: "resize"
     }));
@@ -99,7 +99,7 @@ define(function(require) {
     });
 
     $( ".uinput-slider-val", context).on("change", function(){
-      $( ".uinput-slider",context).val(Humanize.sizeToMB($( ".uinput-slider-val",context).val()));
+      $( ".uinput-slider",context).val(Humanize.sizeToMB(($( ".uinput-slider-val",context).val()).toString())*1024);
       var cost = Humanize.sizeToMB($( ".uinput-slider",context).val())*that.diskCost;
       if(isNaN(cost)){
         cost = 0;

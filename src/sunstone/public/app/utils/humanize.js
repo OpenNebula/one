@@ -101,11 +101,11 @@ define(function(require) {
     var factor = split[0].slice(-1);
     var number = parseFloat(split[0]);
     if(factor=="K")
-      number = number * 1024;
+      number = number / 1024;
     else if(factor=="G")
-      number = number * 1024 * 1024;
+      number = number * 1024;
     else if(factor=="T")
-      number = number * 1024 * 1024 * 1024;
+      number = number * 1024 * 1024;
     return number;
   }
 
