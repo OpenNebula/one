@@ -439,7 +439,7 @@ define(function(require) {
                       context : row_context,
                       message : Locale.tr("Importing images and vnets associated to template disks and nics...")
                    });
-                   template_id = response.VMTEMPLATE.ID;
+                   var template_id = response.VMTEMPLATE.ID;
                    var path = '/vcenter/template/' + vcenter_ref + '/' + template_id;
 
                    $.ajax({
