@@ -20,10 +20,8 @@ else
     LOG_LOCATION = ONE_LOCATION + "/var"
 end
 
-LOG              = LOG_LOCATION + "/onedb-vcenter-one54.log"
-
-TMP_DIR          = "/tmp"
-
+LOG     = LOG_LOCATION + "/onedb-vcenter-one54.log"
+TMP_DIR = "/var/tmp/vcenter_one54"
 
 module One54Vcenter
     VERSION = "5.3.80"

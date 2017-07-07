@@ -417,10 +417,10 @@ module OneDBFsck
 
                 new_used_leases += new_leases.size
 
+                allocated_e.remove if allocated_e
+
                 if new_leases.size > 0
-                    allocated_e.content = " #{new_leases.join(" ")}"
-                else
-                    allocated_e.remove if !allocated_e.nil?
+                    add_cdata(net_ar, "ALLOCATED", " #{new_leases.join(" ")}")
                 end
             end
 

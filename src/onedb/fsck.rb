@@ -115,6 +115,16 @@ EOT
         end
     end
 
+    def add_element(elem, name)
+        return elem.add_child(elem.document.create_element(name))
+    end
+
+    def add_cdata(elem, name, text)
+        # The cleaner doc.create_cdata(txt) is not supported in
+        # old versions of nokogiri
+        return add_element(elem, name).add_child(
+                        Nokogiri::XML::CDATA.new(elem.document(), text))
+    end
 
     ########################################################################
     # Acl

@@ -261,5 +261,25 @@ module Migrator
     ############################################################################
     def feature_4809
         create_table(:logdb)
+
+        @db.run "ALTER TABLE zone_pool RENAME TO old_zone_pool;"
+        create_table(:zone_pool)
+
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_zone_pool") do |row|
+                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) { |c|
+                    c.default_xml.noblanks
+                }
+
+                server_pool = doc.create_element "SERVER_POOL"
+                doc.root.add_child(server_pool)
+
+                row[:body] = doc.root.to_s
+
+                @db[:zone_pool].insert(row)
+            end
+        end
+
+        @db.run "DROP TABLE old_zone_pool;"
     end
 end

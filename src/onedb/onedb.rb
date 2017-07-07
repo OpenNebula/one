@@ -559,7 +559,6 @@ is preserved.
         file = "#{RUBY_LIB_LOCATION}/onedb/vcenter_one54.rb"
 
         if File.exists? file
-
             load(file)
             @backend.extend One54Vcenter
 
