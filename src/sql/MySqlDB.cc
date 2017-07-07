@@ -234,7 +234,11 @@ int MySqlDB::exec(ostringstream& cmd, Callbackable* obj, bool quiet)
         // Fetch each row, and call-back the object waiting for them
         while((row = mysql_fetch_row(result)))
         {
-            obj->do_callback(num_fields, row, names);
+            if ( obj->do_callback(num_fields, row, names) != 0 )
+            {
+                rc = -1;
+                break;
+            }
         }
 
         // Free the result object
@@ -245,7 +249,7 @@ int MySqlDB::exec(ostringstream& cmd, Callbackable* obj, bool quiet)
 
     free_db_connection(db);
 
-    return 0;
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
