@@ -289,8 +289,19 @@ define(function(require) {
             // Check if it's volatile
             if (disk.IMAGE_ID &&
                  StateActions.enabledStateAction("VM.disk_saveas", that.element.STATE, that.element.LCM_STATE)) {
-              actions += '<a href="VM.disk_saveas" class="disk_saveas nowrap" >\
-              <i class="fa fa-save fa-fw" title="Saveas"></i></a> &emsp;';//+ Locale.tr("Save as") + ';'
+              if(Array.isArray(that.element.HISTORY_RECORDS.HISTORY)){
+                var historyLenght = that.element.HISTORY_RECORDS.HISTORY.length - 1;
+                if(that.element.LCM_STATE != "3" || that.element.HISTORY_RECORDS.HISTORY[historyLenght].VM_MAD != "vcenter"){
+                  actions += '<a href="VM.disk_saveas" class="disk_saveas nowrap" >\
+              <i class="fa fa-save fa-fw" title="Saveas"></i></a> &emsp;';
+                }
+              } else {
+                if(that.element.LCM_STATE != "3" || that.element.HISTORY_RECORDS.HISTORY.VM_MAD != "vcenter"){
+                  actions += '<a href="VM.disk_saveas" class="disk_saveas nowrap" >\
+              <i class="fa fa-save fa-fw" title="Saveas"></i></a> &emsp;';
+                }
+              }
+              //+ Locale.tr("Save as") + ';'
             }
           }
 
