@@ -162,6 +162,11 @@ define(function(require) {
       data["SECURITY_GROUPS"] = secgroups.join(",");
     }
 
+    var ipam = $('input[name="IPAM_MAD"]', this.ar_section).val();
+    if(ipam != ""){
+      data["IPAM_MAD"] = ipam;
+    }
+
     return data;
   }
 
