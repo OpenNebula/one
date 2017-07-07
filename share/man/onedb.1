@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEDB" "1" "June 2017" "" "onedb(1) -- OpenNebula database migration tool"
+.TH "ONEDB" "1" "July 2017" "" "onedb(1) -- OpenNebula database migration tool"
 .
 .SH "NAME"
 \fBonedb\fR \- OpenNebula database migration tool
@@ -25,6 +25,13 @@ This command enables the user to manage the OpenNebula database\. It provides in
  \-\-slave\-dbname dbname     Slave MySQL DB name for OpenNebula
  \-\-slave\-backup file       Use this file to store SQL dump
  \-\-extra arg               Extra args
+ \-s, \-\-start TIME          First time to process
+ \-e, \-\-end TIME            Last time to process
+ \-i, \-\-id ID               Filter by ID
+ \-x, \-\-xpath ID            Filter by xpath
+ \-e, \-\-expr ID             Filter by expression (UNAME=oneadmin)
+ \-\-dry                     Do not write in the database, output xml
+ \-d, \-\-delete              Delete all matched xpaths
  \-v, \-\-verbose             Verbose mode
  \-h, \-\-help                Show this message
  \-V, \-\-version             Show version and copyright information
@@ -69,6 +76,78 @@ patch \fIfile\fR Applies a database patch file valid options: backup, extra
 .
 .IP "\(bu" 4
 sqlite2mysql Migrates a SQLite OpenNebula Database to MySQL valid options: backup
+.
+.IP "\(bu" 4
+purge\-history Deletes all but the last history records from non DONE VMs
+.
+.IP "" 4
+.
+.nf
+
+**WARNING**: This action is done while OpenNebula is running\. Make
+a backup of the datasbase before executing\.
+valid options: start_time, end_time
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+purge\-done Deletes all VMs in DONE state
+.
+.IP "" 4
+.
+.nf
+
+**WARNING**: This action is done while OpenNebula is running\. Make
+a backup of the datasbase before executing\.
+valid options: start_time, end_time
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+change\-body
+.
+.IP "" 4
+.
+.nf
+
+You can filter the objects to modify using one of these options:
+
+    * \-\-id: object id, example: 156
+    * \-\-xpath: xpath expression, example: TEMPLATE[count(NIC)>1]
+    * \-\-expr: xpath expression, can use operators =, !=, <, >, <= or >=
+        examples: UNAME=oneadmin, TEMPLATE/NIC/NIC_ID>0
+
+If you want to change a value use a third parameter\. In case you want
+to delete it use \-\-delete option\.
+
+Change the second network of VMs that belong to "user":
+
+    onedb change\-body vm \-\-expr UNAME=user \e
+        \'/VM/TEMPLATE/NIC[NETWORK="service"]/NETWORK\' new_network
+
+Delete cache attribute in all disks, write xml, do not modify DB:
+
+    onedb change\-body vm \'/VM/TEMPLATE/DISK/CACHE\' \-\-delete \-\-dry
+
+Delete cache attribute in all disks in poweroff:
+
+    onedb change\-body vm \-\-expr LCM_STATE=8 \e
+        \'/VM/TEMPLATE/DISK/CACHE\' \-\-delete
+
+**WARNING**: This action is done while OpenNebula is running\. Make
+a backup of the datasbase before executing\.
+valid options: id, xpath, expr, dry, delete
+.
+.fi
+.
+.IP "" 0
+
 .
 .IP "" 0
 .
