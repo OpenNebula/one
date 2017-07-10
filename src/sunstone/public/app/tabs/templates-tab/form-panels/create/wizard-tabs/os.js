@@ -351,8 +351,8 @@ define(function(require) {
         '<td>'+value+'</td>'+
         '<td><label>'+label+'</label></td>'+
         '<td>'+
-          '<button class="boot-order-up button radius tiny hollow secondary"><i class="fa fa-lg fa-arrow-up" aria-hidden="true"></i></button>'+
-          '<button class="boot-order-down button radius tiny hollow secondary"><i class="fa fa-lg fa-arrow-down" aria-hidden="true"></i></button>'+
+          '<button class="boot-order-up button radius tiny secondary"><i class="fa fa-lg fa-arrow-up" aria-hidden="true"></i></button>'+
+          '<button class="boot-order-down button radius tiny secondary"><i class="fa fa-lg fa-arrow-down" aria-hidden="true"></i></button>'+
         '</td>'+
       '</tr>');
   }
