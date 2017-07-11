@@ -57,7 +57,7 @@ class OneDBBacKEnd
                 "last_poll INTEGER, state INTEGER, lcm_state INTEGER, " <<
                 "owner_u INTEGER, group_u INTEGER, other_u INTEGER",
             logdb: "log_index INTEGER PRIMARY KEY, term INTEGER, " <<
-                "sqlcmd MEDIUMTEXT, timestamp INTEGER",
+                "sqlcmd MEDIUMTEXT, timestamp INTEGER, fed_index INTEGER",
             history: "vid INTEGER, seq INTEGER, body MEDIUMTEXT, " <<
                      "stime INTEGER, etime INTEGER, PRIMARY KEY(vid,seq)",
             zone_pool: "oid INTEGER PRIMARY KEY, name VARCHAR(128), " <<
