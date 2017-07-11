@@ -147,10 +147,8 @@ define(function(require) {
     }
 
     var tmpl = WizardFields.retrieve(selectedContext);
-    if(tmpl["SIZE"]){
-      tmpl["SIZE"] = tmpl["SIZE"] * 1024;
-    }
-    else if(!tmpl["IMAGE"] && !tmpl["IMAGE_ID"]){
+
+    if(!tmpl["IMAGE"] && !tmpl["IMAGE_ID"]){
        return {};
     }
     var dev_prefix = WizardFields.retrieveInput($('#disk_dev_prefix', selectedContext));
