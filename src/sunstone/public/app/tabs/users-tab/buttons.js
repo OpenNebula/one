@@ -27,26 +27,6 @@ define(function(require) {
       type: "create_dialog",
       layout: "create"
     },
-    "User.update_password" : {
-      type : "action",
-      layout: "main_buttons",
-      text : Locale.tr("Password")
-    },
-    "User.change_authentication" : {
-      type : "action",
-      layout: "main_buttons",
-      text : Locale.tr("Auth")
-    },
-    "User.quotas_dialog" : {
-      type : "action",
-      layout: "main_buttons",
-      text : Locale.tr("Quotas")
-    },
-    "User.groups_dialog" : {
-      type : "action",
-      layout: "main_buttons",
-      text : Locale.tr("Groups")
-    },
     "User.chgrp" : {
       type: "confirm_with_select",
       text: Locale.tr("Change primary group"),
