@@ -68,6 +68,9 @@ define(function(require) {
 
   var _setup = function(templateJSON, resourceType, resourceId, context, unshownValues, templateJSON_Others) {
 
+    if (!templateJSON_Others){
+      templateJSON_Others = templateJSON;
+    }
     // Remove previous listeners
     context.off("keypress", "#new_key");
     context.off("keypress", "#new_value");
