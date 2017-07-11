@@ -47,8 +47,8 @@ define(function(require) {
 
   var TAB_ID = require('../tabId');
   var PANEL_ID = require('./info/panelId');
-  var RESOURCE = "Host"
-  var XML_ROOT = "HOST"
+  var RESOURCE = "Host";
+  var XML_ROOT = "HOST";
 
   var OVERCOMMIT_DIALOG_ID = require('utils/dialogs/overcommit/dialogId');
 
