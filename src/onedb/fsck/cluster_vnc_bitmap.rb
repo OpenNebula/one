@@ -32,7 +32,7 @@ module OneDBFsck
     def fix_cluster_vnc_bitmap
         @db.transaction do
             @fixes_cluster_vnc_bitmap.each do |id, map|
-                @db[:cluster_vnc_bitmap].where(oid: id).update(map: map)
+                @db[:cluster_vnc_bitmap].where(id: id).update(map: map)
             end
         end
     end
