@@ -290,15 +290,22 @@ int FedReplicaManager::get_next_record(int zone_id, std::string& zedp,
 
     zedp  = zs->endpoint;
 
+    //Initialize next index for the zone
     if ( zs->next == -1 )
     {
         zs->next= logdb->last_federated();
     }
 
+    //Update the next index for zone if already reaplicated
     if ( zs->last == zs->next )
     {
-        pthread_mutex_unlock(&mutex);
-        return -1;
+        zs->next = logdb->next_federated(zs->next);
+
+        if ( zs->last == zs->next ) //no new records
+        {
+            pthread_mutex_unlock(&mutex);
+            return -1;
+        }
     }
 
     int rc = logdb->get_log_record(zs->next, lr);
