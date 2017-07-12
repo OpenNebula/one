@@ -115,7 +115,7 @@
 </div>
 <div class="row ec2">
   <div class="large-12 columns">
-    <table class="dataTable">
+    <table class="datatable">
       <thead>
         <tr>
           <th colspan="3">{{tr "EC2"}}</th>
@@ -123,32 +123,34 @@
       </thead>
       <tbody>
         <tr>
-          <div id="host_ec2_div" class="row">
-            <div class="row">
-              <div class="large12 columns">
-                <table class="dataTable">
-                  <thead>
-                    <tr>
-                      <th colspan="3">{{tr "Attributes"}}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {{{ec2_tr}}}
-                  </tbody>
-                </table>
+          <td>
+            <div id="host_ec2_div" class="row">
+              <div class="row">
+                <div class="large-12 columns">
+                  <table class="datatable">
+                    <thead>
+                      <tr>
+                        <th colspan="3">{{tr "Attributes"}}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {{{ec2_tr}}}
+                    </tbody>
+                  </table>
+                </div>
               </div>
+              <div class="row">
+                <div class="large-12 columns" id="capacity">
+                  <fieldset class="ec2_capacity">
+                    <legend>{{tr "Capacity"}}</legend>
+                      {{{capacityTableHTML}}}
+                  </fieldset>
+                </div>
+              </div> 
             </div>
-            <div class="row ec2">
-              <div class="large-12 columns" id="capacity">
-                <fieldset class="ec2_capacity">
-                  <legend>{{tr "Capacity"}}</legend>
-                    {{{capacityTableHTML}}}
-                </fieldset>
-              </div>
-            </div>
-          </div>
+          </td>
         </tr>
       </tbody>
     </table>
   </div>
-</div>
+</div> 
