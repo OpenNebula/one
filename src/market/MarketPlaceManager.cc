@@ -55,7 +55,8 @@ MarketPlaceManager::MarketPlaceManager(
         MadManager(_mads),
         timer_period(_timer_period),
         monitor_period(_monitor_period),
-        imagem(0)
+        imagem(0),
+        raftm(0)
 {
     Nebula& nd = Nebula::instance();
 
@@ -192,7 +193,7 @@ void MarketPlaceManager::timer_action(const ActionRequest& ar)
 
     tics = 0;
 
-    if ( !raftm->is_leader() && !raftm->is_solo() )
+    if (raftm == 0 || (!raftm->is_leader() && !raftm->is_solo()))
     {
         return;
     }
