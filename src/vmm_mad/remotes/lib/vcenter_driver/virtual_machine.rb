@@ -463,11 +463,11 @@ class Template
             end
 
         rescue Exception => e
-            error = "\n    There was an error trying to create a virtual network for network in vcenter template. Reason: #{e.message}"
+            error = "\n    There was an error trying to create a virtual network to repesent a vCenter network for a VM or VM Template. Reason: #{e.message}"
         ensure
             unlock
             #Rollback, delete virtual networks
-            if !error.empty?
+            if !error.empty? && allocated_networks
                 allocated_networks.each do |n|
                     n.delete
                 end
