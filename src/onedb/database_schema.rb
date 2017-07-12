@@ -98,6 +98,8 @@ class OneDBBacKEnd
 
         schema = get_schema(type, version)
 
+        @db.run "DROP TABLE IF EXISTS #{n};"
+
         sql = "CREATE TABLE #{n} (#{schema});"
 
         @db.run sql
