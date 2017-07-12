@@ -48,6 +48,7 @@ define(function(require) {
   Dialog.prototype.onShow = _onShow;
   Dialog.prototype.setup = _setup;
   Dialog.prototype.setElement = _setElement;
+  Dialog.prototype.setSnapshot_id = _setSnapshot_id;
 
   return Dialog;
 
@@ -69,8 +70,7 @@ define(function(require) {
 
     $('#' + DIALOG_ID + 'Form', context).submit(function() {
 
-      var snapshot_id = $(this).parents('tr').attr('snapshot_id');
-      Sunstone.runAction('VM.snapshot_revert', that.element.ID,  {"snapshot_id": snapshot_id});
+      Sunstone.runAction('VM.snapshot_revert', that.element.ID,  {"snapshot_id": that.snapshot_id});
 
       Sunstone.getDialog(DIALOG_ID).hide();
       Sunstone.getDialog(DIALOG_ID).reset();
@@ -87,6 +87,10 @@ define(function(require) {
 
   function _setElement(element) {
     this.element = element
+  }
+
+  function _setSnapshot_id(snapshot_id) {
+    this.snapshot_id = snapshot_id
   }
 
 });
