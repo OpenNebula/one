@@ -405,7 +405,7 @@ void RaftManager::leader()
         return;
     }
 
-    oss << "Becoming leader of zone. Last log record: " << index << " last "
+    oss << "Becoming leader of the zone. Last log record: " << index << " last "
         << "applied record: " << _applied;
 
     NebulaLog::log("RCM", Log::INFO, oss);
@@ -459,7 +459,7 @@ void RaftManager::leader()
 
     logdb->update_raft_state(raft_state_xml);
 
-    NebulaLog::log("RCM", Log::INFO, "oned is now the leader of zone");
+    NebulaLog::log("RCM", Log::INFO, "oned is now the leader of the zone");
 }
 
 /* -------------------------------------------------------------------------- */

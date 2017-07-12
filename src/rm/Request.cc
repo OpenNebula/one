@@ -304,7 +304,7 @@ void Request::execute(
 
         if ( raftm->get_leader_endpoint(leader_endpoint) != 0 )
         {
-            att.resp_msg = "Cannot process request, not leader found";
+            att.resp_msg = "Cannot process request, no leader found";
             failure_response(INTERNAL, att);
 
             log_result(att, method_name);
