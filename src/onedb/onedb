@@ -355,7 +355,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         from the same backend (SQLite or MySQL)
     EOT
 
-    command :restore , restore_desc, [:backup_file, nil],
+    command :restore , restore_desc, :backup_file,
             :options=>[FORCE, FEDERATED] do
 
         begin
