@@ -10,7 +10,7 @@ onetokenset(){
     shift
 
     if [ -z "$USER" -o "${USER:0:1}" = "-" ]; then
-        echo "Usage: $0 <user> [options]" >&2
+        echo "Usage: onetokenset <user> [options]" >&2
         echo "  Any option understood by 'oneuser token-set' is valid." >&2
         return 1
     fi
@@ -42,7 +42,7 @@ onetokencreate(){
     USER=$1
 
     if [ -z "$USER" ]; then
-        echo "Usage: $0 <user> [options]" >&2
+        echo "Usage: onetokencreate <user> [options]" >&2
         echo "  Any option understood by 'oneuser token-create' is valid." >&2
         return 1
     fi

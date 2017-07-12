@@ -33,14 +33,28 @@ require 'one_helper/onequota_helper'
 
 require 'uri'
 
-cmd=CommandParser::CmdParser.new(ARGV) do
+NO_CLIENT_CMDS = [ :key, :"token-create", :login ]
+
+cmd = CommandParser::CmdParser.new(ARGV) do
     usage "`oneuser` <command> [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION
 
     helper = OneUserHelper.new
 
     before_proc do
-        helper.set_client(options) if ![:key].include?(@comm_name)
+        if !NO_CLIENT_CMDS.include?(@comm_name)
+            begin
+                helper.set_client(options)
+            rescue Exception => e
+                STDERR.puts e.message
+
+                if e.message != "ONE_AUTH file not present"
+                    STDERR.puts e.backtrace
+                end
+
+                exit 1
+            end
+        end
     end
 
     ########################################################################
