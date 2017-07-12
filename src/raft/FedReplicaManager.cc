@@ -274,7 +274,7 @@ ReplicaThread * FedReplicaManager::thread_factory(int zone_id)
 /* -------------------------------------------------------------------------- */
 
 int FedReplicaManager::get_next_record(int zone_id, std::string& zedp, 
-        LogDBRecord& lr)
+        LogDBRecord& lr, std::string& error)
 {
     pthread_mutex_lock(&mutex);
 
@@ -302,6 +302,16 @@ int FedReplicaManager::get_next_record(int zone_id, std::string& zedp,
     }
 
     int rc = logdb->get_log_record(zs->next, lr);
+
+    if ( rc == -1 )
+    {
+        std::ostringstream oss;
+
+        oss << "Failed to load federation log record " << zs->next
+            << " for zone " << zs->zone_id;
+
+        error = oss.str();
+    }
 
     pthread_mutex_unlock(&mutex);
 
@@ -380,9 +390,8 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
 
     LogDBRecord lr;
 
-    if ( get_next_record(zone_id, zedp, lr) != 0 )
+    if ( get_next_record(zone_id, zedp, lr, error) != 0 )
     {
-        error = "Failed to load federation log record";
         return -1;
     }
 

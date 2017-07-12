@@ -61,6 +61,14 @@ int LogDBRecord::select_cb(void *nil, int num, char **values, char **names)
 
     if ( _sql == 0 )
     {
+
+        std::ostringstream oss;
+
+        oss << "Error zlib inflate for " << index << ", " << fed_index
+            << ", " << zsql;
+
+        NebulaLog::log("DBM", Log::ERROR, oss);
+
         return -1;
     }
 
@@ -191,6 +199,14 @@ int LogDB::get_log_record(unsigned int index, LogDBRecord& lr)
 
     if ( lr.index != index )
     {
+        std::ostringstream oss;
+
+        oss << "Log record " << index << " loaded incorrectly. Record index: "
+            << lr.index << " fed. index: " << lr.fed_index << " sql command: " 
+            << lr.sql << ". Operation return code: " << rc;
+
+        NebulaLog::log("DBM", Log::ERROR, oss);
+
         rc = -1;
     }
 

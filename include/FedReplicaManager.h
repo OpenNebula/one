@@ -196,13 +196,16 @@ private:
     void finalize_action(const ActionRequest& ar);
 
     /**
-     *  Get the nest record to replicate in a zone
+     *  Get the nerxt record to replicate in a zone
      *    @param zone_id of the zone
-     *    @param index of the next record to send
-     *    @param sql command to replicate
+     *    @param zedp zone endpoint
+     *    @param lr log record
+     *    @param error description if any
+     *
      *    @return 0 on success, -1 otherwise
      */
-    int get_next_record(int zone_id, std::string& zedp, LogDBRecord& lr);
+    int get_next_record(int zone_id, std::string& zedp, LogDBRecord& lr,
+            std::string& error);
 
 };
 
