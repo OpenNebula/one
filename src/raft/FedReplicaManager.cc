@@ -273,7 +273,7 @@ ReplicaThread * FedReplicaManager::thread_factory(int zone_id)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int FedReplicaManager::get_next_record(int zone_id, std::string& zedp, 
+int FedReplicaManager::get_next_record(int zone_id, std::string& zedp,
         LogDBRecord& lr, std::string& error)
 {
     pthread_mutex_lock(&mutex);
@@ -416,7 +416,7 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
     // -------------------------------------------------------------------------
     // Do the XML-RPC call
     // -------------------------------------------------------------------------
-    xml_rc = Client::client()->call(zedp, replica_method, replica_params, 
+    xml_rc = Client::client()->call(zedp, replica_method, replica_params,
         xmlrpc_timeout_ms, &result, error);
 
     if ( xml_rc == 0 )
@@ -443,7 +443,7 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
         ess << "Error replicating log entry " << lr.index << " on zone "
             << zone_id << " (" << zedp << "): " << error;
 
-        NebulaLog::log("FRM", Log::ERROR, error);
+        NebulaLog::log("FRM", Log::ERROR, ess);
 
         error = ess.str();
     }
