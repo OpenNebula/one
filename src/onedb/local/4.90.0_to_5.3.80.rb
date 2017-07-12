@@ -152,6 +152,7 @@ module Migrator
     ############################################################################
     # Feature 5005.
     # Adds UID, GID and REQUEST_ID to history records
+    # It also changes the old naming for mads from 4.x to 5.x
     ############################################################################
     def feature_5005
         @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
@@ -206,6 +207,18 @@ module Migrator
                 h.add_child(uid)
                 h.add_child(gid)
                 h.add_child(rid)
+
+                # This section is unrelated to Feature 5005. It renames
+                # attributes in the history with the  nomenclature that was in
+                # use before OpenNebula 5.0.
+                vm_mad = h.at_xpath("VMMMAD")
+                vm_mad.node_name = "VM_MAD" if vm_mad
+
+                tm_mad = h.at_xpath("TMMAD")
+                tm_mad.node_name = "TM_MAD" if tm_mad
+
+                vn_mad = h.at_xpath("VNMMAD")
+                vn_mad.remove if vn_mad
 
                 row[:body] = doc.root.to_s
 
