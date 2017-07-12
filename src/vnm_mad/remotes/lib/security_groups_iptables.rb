@@ -489,9 +489,11 @@ module SGIPTables
         chain_out = vars[:chain_out]
 
         commands = VNMNetwork::Commands.new
-        commands.add :iptables, "-A #{chain_in} -j DROP"
+
+        commands.add :iptables, "-A #{chain_in}  -j DROP"
         commands.add :iptables, "-A #{chain_out} -j DROP"
-        commands.add :ip6tables, "-A #{chain_in} -j DROP"
+
+        commands.add :ip6tables, "-A #{chain_in}  -j DROP"
         commands.add :ip6tables, "-A #{chain_out} -j DROP"
 
         commands.run!
@@ -504,12 +506,15 @@ module SGIPTables
         chain_in  = vars[:chain_in]
         chain_out = vars[:chain_out]
 
-        info              = self.info
-        iptables_forwards = info[:iptables_forwards]
-        iptables_s        = info[:iptables_s]
-        ip6tables_forwards= info[:ip6tables_forwards]
-        ip6tables_s       = info[:ip6tables_s]
-        ipset_list        = info[:ipset_list]
+        info = self.info
+
+        iptables_forwards  = info[:iptables_forwards]
+        iptables_s         = info[:iptables_s]
+
+        ip6tables_forwards = info[:ip6tables_forwards]
+        ip6tables_s        = info[:ip6tables_s]
+
+        ipset_list = info[:ipset_list]
 
         commands = VNMNetwork::Commands.new
 
@@ -532,13 +537,20 @@ module SGIPTables
         remove_chains = []
         iptables_s.lines.each do |line|
             if line.match(/^-N #{chain}(-|$)/)
-                 remove_chains << line.split[1]
+                remove_chains << line.split[1]
             end
         end
         remove_chains.each {|c| commands.add :iptables, "-F #{c}" }
         remove_chains.each {|c| commands.add :iptables, "-X #{c}" }
-        remove_chains.each {|c| commands.add :ip6tables, "-F #{c}" }
-        remove_chains.each {|c| commands.add :ip6tables, "-X #{c}" }
+
+        remove_chains_6 = []
+        ip6tables_s.lines.each do |line|
+            if line.match(/^-N #{chain}(-|$)/)
+                remove_chains_6 << line.split[1]
+            end
+        end
+        remove_chains_6.each {|c| commands.add :ip6tables, "-F #{c}" }
+        remove_chains_6.each {|c| commands.add :ip6tables, "-X #{c}" }
 
         ipset_list.lines.each do |line|
             if line.match(/^#{chain}(-|$)/)
