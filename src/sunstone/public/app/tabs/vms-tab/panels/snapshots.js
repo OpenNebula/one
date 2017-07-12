@@ -167,6 +167,7 @@ define(function(require) {
       context.off('click', '.snapshot_revert');
       context.on('click', '.snapshot_revert', function() {
         var dialog = Sunstone.getDialog(REVERT_DIALOG_ID);
+        that.element.snapshot_id = $(this).parents('tr').attr('snapshot_id');
         dialog.setElement(that.element);
         dialog.show();
         return false;
