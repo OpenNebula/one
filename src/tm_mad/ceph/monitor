@@ -70,7 +70,7 @@ if [ -n "$CEPH_USER" ]; then
 fi
 
 if [ -n "$CEPH_KEY" ]; then
-    RBD="$RBD --keyfile ${CEPH_KEY}"
+    CEPH="$CEPH --keyfile ${CEPH_KEY}"
 fi
 
 if [ -n "$CEPH_CONF" ]; then
