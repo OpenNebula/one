@@ -362,8 +362,16 @@ class BackEndSQLite < OneDBBacKEnd
 
             end
         else
+            connect_db
+
+            File.open(bck_file, "w") do |file|
+                @db.tables.each do |table|
+                    file.puts "DROP TABLE IF EXISTS \"#{table}\";"
+                end
+            end
+
             puts "Sqlite database backup stored in #{bck_file}"
-            system("sqlite3 #{@sqlite_file} .dump > #{bck_file}")
+            system("sqlite3 #{@sqlite_file} .dump >> #{bck_file}")
         end
 
         puts "Use 'onedb restore' to restore the DB."
