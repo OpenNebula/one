@@ -351,8 +351,8 @@ define(function(require) {
                 },
                 error: function(response){
                   var msg;
-                  if (error_json.error.message){
-                    msg = error_json.error.message;
+                  if (response.responseJSON && response.responseJSON.error.message){
+                    msg = response.responseJSON.error.message;
                   } else {
                     msg = Locale.tr("Cannot contact server: is it running and reachable?");
                   }
