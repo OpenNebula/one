@@ -49,6 +49,7 @@ module Migrator
         bug_3705()
 
         feature_4809()
+
         log_time()
 
         return true
@@ -65,6 +66,12 @@ module Migrator
         end
     end
 
+    def delete_element(doc, element)
+        doc.search("//#{element}").each do |node|
+            node.remove
+        end
+    end
+
     ############################################################################
     # Feature 5136. Improve ec2 keys_ids_security
     #
@@ -72,7 +79,7 @@ module Migrator
     def feature_5136
         ec2_driver_conf = "#{ETC_LOCATION}/ec2_driver.conf"
         token = File.read(VAR_LOCATION+'/.one/one_key')
-        opts = {}
+        to_encrypt = {}
 
         begin
             ec2_conf = YAML::load(File.read(ec2_driver_conf))
@@ -97,12 +104,23 @@ module Migrator
                     host_name = xpath(doc, "NAME").to_s
                     host_info = ( regions[host_name].nil? ? regions["default"] : regions[host_name] )
 
-                    opts["EC2_ACCESS"]=host_info["access_key_id"]
-                    opts["EC2_SECRET"]=host_info["secret_access_key"]
+                    to_encrypt["EC2_ACCESS"]=host_info["access_key_id"]
+                    to_encrypt["EC2_SECRET"]=host_info["secret_access_key"]
 
-                    OpenNebula.encrypt(opts, token).each { |k, v|
-                        template.add_child(doc.create_element k, v)
+                    OpenNebula.encrypt(to_encrypt, token).each { |k, v|
+                        delete_element(template, k)
+                        template.add_child(doc.create_element(k, v))
                     }
+
+                    capacity = doc.create_element("CAPACITY")
+                    host_info["capacity"].each { |k, v|
+                        name = k[0..1] << k[3..k.length-1]
+                        capacity.add_child(doc.create_element(name.upcase, v))
+                    }
+                    delete_element(template, "CAPACITY")
+                    template.add_child(capacity)
+                    delete_element(template, "REGION_NAME")
+                    template.add_child(doc.create_element "REGION_NAME", host_info["region_name"])
                 end
 
                 row[:body] = doc.root.to_s
