@@ -85,6 +85,8 @@ module OpenNebula
     # The client class, represents the connection with the core and handles the
     # xml-rpc calls.
     class Client
+        NO_ONE_AUTH_ERROR = "ONE_AUTH file not present"
+
         attr_accessor :one_auth
         attr_reader   :one_endpoint
 
@@ -129,7 +131,7 @@ module OpenNebula
             elsif File.file?("/var/lib/one/.one/one_auth")
                 @one_auth = File.read("/var/lib/one/.one/one_auth")
             else
-                raise "ONE_AUTH file not present"
+                raise NO_ONE_AUTH_ERROR
             end
 
             @one_auth = @one_auth.rstrip
