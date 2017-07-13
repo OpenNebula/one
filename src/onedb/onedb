@@ -401,25 +401,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     ###########################################################################
-    # Import slave
-    ###########################################################################
-    import_slave_desc = <<-EOT.unindent
-        Imports an existing federation slave into the federation master database
-    EOT
-
-    command :"import-slave", import_slave_desc, :options=>[FORCE,BACKUP,
-        SLAVE_SERVER,SLAVE_PORT,SLAVE_USERNAME,SLAVE_PASSWORD,
-        SLAVE_DBNAME,SLAVE_BACKUP] do
-
-        begin
-            helper = OneDB.new(options)
-            helper.import_slave(options)
-        rescue Exception => e
-            [-1, e.message]
-        end
-    end
-
-    ###########################################################################
     # Migrate vcenter 54
     ###########################################################################
     vcenter_one54_desc = <<-EOT.unindent

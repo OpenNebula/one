@@ -1162,7 +1162,6 @@ MARKETPLACE_DRIVER_S3_SCRIPTS="src/market_mad/remotes/s3/import \
 #-------------------------------------------------------------------------------
 
 ONEDB_FILES="src/onedb/fsck.rb \
-            src/onedb/import_slave.rb \
             src/onedb/onedb.rb \
             src/onedb/onedb_backend.rb \
             src/onedb/vcenter_one54.rb \
