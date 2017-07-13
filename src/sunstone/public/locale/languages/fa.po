@@ -3,7 +3,6 @@
 # This file is distributed under the same license as the OpenNebula package.
 # 
 # Translators:
-# Bojan Cvetković <cbojan@consandpros.com>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
@@ -11,12 +10,12 @@ msgstr ""
 "POT-Creation-Date: 2017-07-07 09:21+0200\n"
 "PO-Revision-Date: 2017-07-07 07:22+0000\n"
 "Last-Translator: juanmont <jjmontiel@opennebula.org>\n"
-"Language-Team: Serbian (Serbia) (http://www.transifex.com/opennebula/one/language/sr_RS/)\n"
+"Language-Team: Persian (http://www.transifex.com/opennebula/one/language/fa/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: sr_RS\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Language: fa\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../app/opennebula/role.js:44 ../app/opennebula/service.js:26
 #: ../app/tabs/provision-tab/flows/list.js:624 ../app/tabs/vms-tab.js:76
@@ -434,7 +433,7 @@ msgstr ""
 #: ../app/tabs/vmgroup-tab/panels/info.js:48
 #: ../app/tabs/templates-tab/panels/info-common.js:44
 msgid "Info"
-msgstr "Инфо"
+msgstr ""
 
 #: ../app/tabs/clusters-tab/panels/info.js:84
 #: ../app/tabs/datastores-tab/panels/info.js:86
@@ -1313,7 +1312,7 @@ msgstr ""
 #: ../app/utils/vcenter/templates.js:489 ../app/utils/vcenter/templates.js:513
 #: ../app/utils/notifier.js:74
 msgid "Cannot contact server: is it running and reachable?"
-msgstr "Не могу контактирати сервер: да ли је оперативан и доступан?"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/datatable.js:72
 msgid "RVMs"
@@ -1559,7 +1558,7 @@ msgstr ""
 #: ../app/tabs/marketplaceapps-tab/actions.js:130
 #: ../app/tabs/images-tab/actions.js:94
 msgid "Error"
-msgstr "Грешка"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:133
 msgid "This MarketPlace App resides in Zone "
@@ -3575,7 +3574,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/utils.js:52
 #: ../app/utils/resource-select.js:68
 msgid "Please select"
-msgstr "Изаберите"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:57
 msgid "Hybrid"
@@ -3766,7 +3765,7 @@ msgstr ""
 #: ../app/utils/quotas/quota-widgets.js:734
 #: ../app/tabs/groups-tab/panels/users/html.hbs:25
 msgid "Cancel"
-msgstr "Поништи"
+msgstr ""
 
 #: ../app/utils/quotas/quota-widgets.js:737
 #: ../app/tabs/groups-tab/panels/users/html.hbs:28
@@ -4032,11 +4031,11 @@ msgstr ""
 
 #: ../app/utils/notifier.js:89
 msgid "Network is unreachable: is OpenNebula running?"
-msgstr "Мрежа је недоступна: да ли је OpenNebula оперативна?"
+msgstr ""
 
 #: ../app/utils/notifier.js:105
 msgid "Unauthorized"
-msgstr "Неауторизован"
+msgstr ""
 
 #: ../app/utils/accounting.js:126 ../app/utils/showback.js:57
 msgid "<< me >>"
@@ -5508,20 +5507,20 @@ msgstr ""
 #: ../app/utils/dialogs/confirm/html.hbs:25
 #: ../app/utils/dialogs/generic-confirm/html.hbs:26
 msgid "You have to confirm this action."
-msgstr "Морате потврдити ову акцију."
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/revert/html.hbs:29
 #: ../app/utils/dialogs/confirm/html.hbs:27
 #: ../app/utils/dialogs/generic-confirm/html.hbs:28
 msgid "Do you want to proceed?"
-msgstr "Да ли желите да наставите?"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/revert/html.hbs:33
 #: ../app/utils/dialogs/confirm/html.hbs:30
 #: ../app/utils/dialogs/confirm-with-select/html.hbs:36
 #: ../app/utils/dialogs/generic-confirm/html.hbs:31
 msgid "OK"
-msgstr "У реду"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:20
 msgid "Disk Snapshot"
@@ -7627,7 +7626,7 @@ msgstr ""
 
 #: ../app/utils/dialogs/confirm-with-select/html.hbs:27
 msgid "You need to select something."
-msgstr "Морате направити избор."
+msgstr ""
 
 #: ../app/utils/accounting/html.hbs:23
 msgid "End time"
