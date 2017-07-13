@@ -86,10 +86,13 @@ function check_running() {
 
 case $ACTION in
 start)
-    if ! check_running; then
-        start_client
-        write_pid $!
+    if check_running; then
+        stop_client
+        remove_pid_file
     fi
+
+    start_client
+    write_pid $!
 
     # This script returns the run_probes execution
     HYPERVISOR=$1
