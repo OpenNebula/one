@@ -305,7 +305,7 @@ class Template
             error = "\n    There was an error trying to create an image for disk in vcenter template. Reason: #{e.message}\n#{e.backtrace}"
         ensure
             unlock
-            if !error.empty?
+            if !error.empty? && allocated_images
                 #Rollback delete disk images
                 allocated_images.each do |i|
                     i.delete
@@ -544,10 +544,13 @@ class Template
         @item["config.hardware.device"].each do |device|
             nic = {}
             if is_nic?(device)
-                nic[:net_name]  = device.backing.network.name
-                nic[:net_ref]   = device.backing.network._ref
-                nic[:pg_type]   = VCenterDriver::Network.get_network_type(device)
-                nics << nic
+                begin
+                    nic[:net_name]  = device.backing.network.name
+                    nic[:net_ref]   = device.backing.network._ref
+                    nic[:pg_type]   = VCenterDriver::Network.get_network_type(device)
+                    nics << nic
+                rescue
+                end
             end
         end
         return nics
