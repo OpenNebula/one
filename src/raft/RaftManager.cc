@@ -393,8 +393,6 @@ void RaftManager::leader()
 
     std::ostringstream oss;
 
-    std::string raft_state_xml;
-
     logdb->setup_index(_applied, index);
 
     pthread_mutex_lock(&mutex);
@@ -420,16 +418,11 @@ void RaftManager::leader()
         leader_hook->do_hook(0);
     }
 
-    state = LEADER;
+    state  = LEADER;
 
-    commit   = _applied;
-    votedfor = -1;
+    commit = _applied;
 
     leader_id = server_id;
-
-    raft_state.replace("VOTEDFOR", votedfor);
-
-    raft_state.to_xml(raft_state_xml);
 
     for (it = servers.begin(); it != servers.end() ; ++it )
     {
@@ -456,8 +449,6 @@ void RaftManager::leader()
     {
         frm->start_replica_threads();
     }
-
-    logdb->update_raft_state(raft_state_xml);
 
     NebulaLog::log("RCM", Log::INFO, "oned is now the leader of the zone");
 }
