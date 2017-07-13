@@ -762,7 +762,7 @@ module Migrator
               reserved_vlan_ids << vlan_id
             end
 
-            doc.root.xpath('//VLAN_ID').remove
+            doc.root.xpath("//VLAN_ID[not(parent::AR)]").each {|e| e.remove }
           end
 
           doc.root.add_child(doc.create_element("VLAN_ID")).content = vlan_id
