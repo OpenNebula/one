@@ -102,7 +102,11 @@
         </div>
         <div class="row">
           <div class="medium-12 columns">
-            <label>{{tr "Capacity"}}</label>
+            <label>{{tr "Capacity"}}
+              <span class="tip">
+                {{tr "The valid list of instance types can be found in the official Amazon EC2 documentation, please use a value from the Model column of the following table: aws.amazon.com/ ec2/instance-types/"}}
+              </span>
+            </label>
             <div class="row">
               <div class="large-12 columns">
                 <table class="dataTable capacity_table">
