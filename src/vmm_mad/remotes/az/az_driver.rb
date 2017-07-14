@@ -145,36 +145,43 @@ class AzureDriver
 
         @instance_types = @public_cloud_az_conf['instance_types']
 
+        certificate = Tempfile.new("certificate")
+        conn_opts = get_connect_info(host)
+
+        access_id     = conn_opts[:id]
+        endpoint_addr = conn_opts[:endpoint]
+        region_name   = conn_opts[:region]
+        certificate << conn_opts[:cert]
+
+        certificate.close
+
+        #DEPRECATE
+        #############################################################
         regions = @public_cloud_az_conf['regions']
         @region = regions[host] || regions["default"]
 
         # Sanitize region data
-        if @region['pem_management_cert'].nil?
+        if certificate.nil?
             raise "pem_management_cert not defined for #{host}"
         end
 
-        if @region['subscription_id'].nil?
+        if access_id.nil?
             raise "subscription_id not defined for #{host}"
         end
 
         # Set default endpoint if not declared
-        if @region['management_endpoint'].nil?
-           @region['management_endpoint']="https://management.core.windows.net"
+        if endpoint_addr.nil?
+            endpoint_addr="https://management.core.windows.net"
         end
-
-        conn_opts = get_connect_info(host)
-        file = Tempfile.new("certificate")
-        file << conn_opts[:cert]
-        file.close
+        ###################################################################
 
         Azure.configure do |config|
-          config.management_certificate = file.path
-          config.subscription_id        = conn_opts[:id]
-          config.management_endpoint    = @region['management_endpoint']
+          config.management_certificate = certificate.path
+          config.subscription_id        = access_id
+          config.management_endpoint    = endpoint_addr
         end
 
-		file.unlink    # deletes the temp file
-
+		certificate.unlink    # deletes the temp file
 
         @azure_vms = Azure::VirtualMachineManagementService.new
     end
@@ -200,6 +207,12 @@ class AzureDriver
             :cert => xmlhost["TEMPLATE/AZ_CERT"],
             :id   => xmlhost["TEMPLATE/AZ_ID"]
         }
+        conn_opts = OpenNebula.encrypt(conn_opts, token)
+        conn_opts = OpenNebula.decrypt(conn_opts, token)
+
+        conn_opts[:region] = xmlhost["TEMPLATE/REGION_NAME"]
+        conn_opts[:endpoint] = xmlhost["TEMPLATE/AZ_ENDPOINT"]
+
 
         return conn_opts
     end
@@ -329,7 +342,7 @@ class AzureDriver
                 usedcpu    += cpu
                 usedmemory += mem
             end
-          rescue 
+          rescue
             next
           end
         end
