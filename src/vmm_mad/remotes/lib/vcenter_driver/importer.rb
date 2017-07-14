@@ -48,7 +48,7 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
         #                                                      wild,
         #                                                      sunstone,
         #                                                      vm_name)
-#
+        #
         #return OpenNebula::Error.new(error) if !error.empty?
 
         #template << template_nics
