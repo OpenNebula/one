@@ -77,9 +77,14 @@ module Migrator
     #
     ############################################################################
     def feature_5136
-        ec2_driver_conf = "#{ETC_LOCATION}/ec2_driver.conf"
+        ec2_driver_conf = "#{ETC_LOCATION}/ec2_driver.conf.old"
         token = File.read(VAR_LOCATION+'/.one/one_key')
         to_encrypt = {}
+
+        if !File.exist?(ec2_driver_conf)
+            STDERR.puts "  > Old EC2 file not found, skipping EC2 host migration"
+            return
+        end
 
         begin
             ec2_conf = YAML::load(File.read(ec2_driver_conf))
@@ -89,6 +94,13 @@ module Migrator
         end
 
         regions = ec2_conf["regions"]
+
+        if !regions
+            STDERR.puts "  > Regions not found in EC2 config file, skipping migration"
+            return
+        end
+
+        @db.run "DROP TABLE IF EXISTS old_host_pool;"
         @db.run "ALTER TABLE host_pool RENAME TO old_host_pool;"
         create_table(:host_pool)
 
@@ -97,10 +109,10 @@ module Migrator
                 doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) { |c|
                     c.default_xml.noblanks
                 }
+
                 template = doc.root.at_xpath("TEMPLATE")
 
                 if xpath(doc, "TEMPLATE/HYPERVISOR").to_s == "ec2"
-
                     host_name = xpath(doc, "NAME").to_s
                     host_info = ( regions[host_name].nil? ? regions["default"] : regions[host_name] )
 
@@ -117,8 +129,10 @@ module Migrator
                         name = k[0..1] << k[3..k.length-1]
                         capacity.add_child(doc.create_element(name.upcase, v))
                     }
+
                     delete_element(template, "CAPACITY")
                     template.add_child(capacity)
+
                     delete_element(template, "REGION_NAME")
                     template.add_child(doc.create_element "REGION_NAME", host_info["region_name"])
                 end
@@ -129,6 +143,8 @@ module Migrator
         end
 
         @db.run "DROP TABLE old_host_pool;"
+
+        STDERR.puts "  > You can now delete #{ec2_driver_conf} file"
     end
 
     ############################################################################
@@ -136,6 +152,7 @@ module Migrator
     # MAX_CPU and MAX_MEM when RESERVED_CPU/MEM is updated
     ############################################################################
     def feature_4901
+        @db.run "DROP TABLE IF EXISTS old_host_pool;"
         @db.run "ALTER TABLE host_pool RENAME TO old_host_pool;"
         create_table(:host_pool)
 
@@ -173,6 +190,7 @@ module Migrator
     # It also changes the old naming for mads from 4.x to 5.x
     ############################################################################
     def feature_5005
+        @db.run "DROP TABLE IF EXISTS old_vm_pool;"
         @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
         create_table(:vm_pool)
 
@@ -204,6 +222,7 @@ module Migrator
 
         @db.run "DROP TABLE old_vm_pool;"
 
+        @db.run "DROP TABLE IF EXISTS old_history;"
         @db.run "ALTER TABLE history RENAME TO old_history;"
         create_table(:history)
 
@@ -256,6 +275,7 @@ module Migrator
     # Adds DRIVER to CEPH and LVM image datastores
     ############################################################################
     def bug_3705
+        @db.run "DROP TABLE IF EXISTS old_datastore_pool;"
         @db.run "ALTER TABLE datastore_pool RENAME TO old_datastore_pool;"
         create_table(:datastore_pool)
 
@@ -293,6 +313,7 @@ module Migrator
     def feature_4809
         create_table(:logdb)
 
+        @db.run "DROP TABLE IF EXISTS old_zone_pool;"
         @db.run "ALTER TABLE zone_pool RENAME TO old_zone_pool;"
         create_table(:zone_pool)
 
