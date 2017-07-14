@@ -186,16 +186,20 @@ class AzureDriver
         @azure_vms = Azure::VirtualMachineManagementService.new
     end
 
+    def get_host_info(client)
+        pool = OpenNebula::HostPool.new(client)
+        pool.info
+        objects=pool.select {|object| object.name==@host }
+
+        objects.first
+    end
+
     # Check the current template to retrieve
     # conection info needed for Azure
     def get_connect_info(host)
         conn_opts={}
         client   = OpenNebula::Client.new
-
-        pool = OpenNebula::HostPool.new(OpenNebula::Client.new)
-        pool.info
-        objects=pool.select {|object| object.name==host }
-        xmlhost = objects.first
+        xmlhost = get_host_info(client)
 
         system = OpenNebula::System.new(client)
         config = system.get_configuration
@@ -295,12 +299,19 @@ class AzureDriver
     def monitor_all_vms
         totalmemory = 0
         totalcpu    = 0
-        @region['capacity'].each { |name, size|
-            cpu, mem = instance_type_capacity(name)
 
-            totalmemory += mem * size.to_i
-            totalcpu    += cpu * size.to_i
-        }
+        host_obj=get_host_info(OpenNebula::Client.new)
+        capacity = host_obj.to_hash["HOST"]["TEMPLATE"]["CAPACITY"]
+        if !capacity.nil? && Hash === capacity
+            capacity.each{ |name, value|
+                cpu, mem = instance_type_capacity(name)
+
+                totalmemory += mem * value.to_i
+                totalcpu    += cpu * value.to_i
+            }
+        else
+            raise "you must define CAPACITY section properly! check the template"
+        end
 
         host_info =  "HYPERVISOR=AZURE\n"
         host_info << "PUBLIC_CLOUD=YES\n"
