@@ -53,10 +53,25 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
 
         #template << template_nics
 
+        # Get DS_ID for the deployment, the wild VM needs a System DS
+        dc_ref = vcenter_vm.get_dc.item._ref
+        ds_ref = template.match(/^VCENTER_DS_REF *= *"(.*)" *$/)[1]
+
+        begin
+            ds_one = dpool.select do |e|
+                e["TEMPLATE/TYPE"]                == "SYSTEM_DS" &&
+                e["TEMPLATE/VCENTER_DS_REF"]      == ds_ref &&
+                e["TEMPLATE/VCENTER_DC_REF"]      == dc_ref &&
+                e["TEMPLATE/VCENTER_INSTANCE_ID"] == vc_uuid
+            end.first
+        rescue
+            raise "DS with ref #{ds_ref} is not imported in OpenNebula, aborting Wild VM import."
+        end
+
         rc = one_vm.allocate(template)
         return rc if OpenNebula.is_error?(rc)
 
-        rc = one_vm.deploy(host_id, false)
+        rc = one_vm.deploy(host_id, false, ds_one.id)
         return rc if OpenNebula.is_error?(rc)
 
         # Set reference to template disks and nics in VM template
