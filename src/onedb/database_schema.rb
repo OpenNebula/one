@@ -14,6 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require "rubygems"
+
 class OneDBBacKEnd
     SCHEMA = {
         cluster_pool: "oid INTEGER PRIMARY KEY, name VARCHAR(128), " <<
@@ -64,10 +66,11 @@ class OneDBBacKEnd
                        "body MEDIUMTEXT, uid INTEGER, gid INTEGER, " <<
                        "owner_u INTEGER, group_u INTEGER, other_u INTEGER, " <<
                        "UNIQUE(name)"
-        }
+        },
+        "5.4.0" => {}
     }
 
-    LATEST_DB_VERSION = "5.3.80"
+    LATEST_DB_VERSION = "5.4.0"
 
     def get_schema(type, version = nil)
         if !version
@@ -78,8 +81,27 @@ class OneDBBacKEnd
             end
         end
 
-        version_schema = VERSION_SCHEMA[version] || {}
-        schema = SCHEMA.merge(version_schema)[type]
+        gver = Gem::Version.new(version)
+
+        # Discard versions greater than the one we are searching for
+        versions = VERSION_SCHEMA.keys.reject do |v|
+            Gem::Version.new(v) > gver
+        end
+
+        # Order versions in decreasing order
+        versions.sort! do |a, b|
+            Gem::Version.new(b) <=> Gem::Version.new(a)
+        end
+
+        schema = nil
+
+        # Find latest type definition
+        versions.each do |v|
+            schema = VERSION_SCHEMA[v][type]
+            next if schema
+        end
+
+        schema = SCHEMA[type] if !schema
 
         if !schema
             STDERR.puts "Schema not found (#{type}) for version #{version}"
