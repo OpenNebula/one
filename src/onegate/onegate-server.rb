@@ -170,7 +170,7 @@ helpers do
     def perform_action(vm, body)
         action_hash = parse_json(body, 'action')
         if OpenNebula.is_error?(action_hash)
-            halt 400, rc.message
+            halt 400, action_hash.message
         end
 
         check_restricted_actions(action_hash['perform'])
