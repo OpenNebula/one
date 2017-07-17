@@ -67,6 +67,25 @@
       </fieldset>
     </div>
   </div>
+  <div class="row">
+    <div class="small-12 columns hostContext{{element.ID}}">
+      <fieldset>
+        <legend>
+          <i class="fa fa-globe"></i> {{tr "Host"}}
+        </legend>
+        <div class="provision_host_selector{{element.ID}}" data-tab-content>{{{hostsDatatable}}}</div>
+        <div class="row">
+            <div class="large-12 columns">
+              <label for="SCHED_REQUIREMENTS">
+                {{tr "Expression"}}
+                {{{tip (tr "Boolean expression that rules out entries from the pool of datastores suitable to run this VM.")}}}
+              </label>
+              <input type="text" wizard_field="SCHED_REQUIREMENTS" id="SCHED_REQUIREMENTS{{element.ID}}" name="requirements" />
+            </div>
+        </div>
+      </fieldset>
+    </div>
+  </div>
    <div class="row">
     <div class="medium-6 small-12 columns vcenterVMFolderContext{{element.ID}}">
       <div class="provision_vcenter_vm_folder_selector">
