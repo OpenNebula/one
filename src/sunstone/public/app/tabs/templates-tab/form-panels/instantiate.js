@@ -173,9 +173,13 @@ define(function(require) {
       var networks = NicsSection.retrieve($(".nicsContext"  + template_id, context));
 
       var vmgroup = VMGroupSection.retrieve($(".vmgroupContext"+ template_id));
-
       if(vmgroup){
         $.extend(tmp_json, vmgroup);
+      }
+
+      var sched = WizardFields.retrieveInput($("#SCHED_REQUIREMENTS"  + template_id, context));
+      if(sched){
+        tmp_json.SCHED_REQUIREMENTS = sched;
       }
 
       var nics = [];
@@ -230,9 +234,6 @@ define(function(require) {
       capacityContext = $(".capacityContext"  + template_id, context);
       $.extend(tmp_json, CapacityInputs.retrieveChanges(capacityContext));
 
-      var requirements = WizardFields.retrieve(context).SCHED_REQUIREMENTS;
-      tmp_json.SCHED_REQUIREMENTS = requirements;
-
       extra_info['template'] = tmp_json;
         for (var i = 0; i < n_times_int; i++) {
           extra_info['vm_name'] = vm_name.replace(/%i/gi, i); // replace wildcard
@@ -279,14 +280,15 @@ define(function(require) {
                 capacityInputsHTML: CapacityInputs.html(),
                 hostsDatatable: that.hostsTable.dataTableHTML
               }) );
-          
+
+          $(".provision_host_selector" + template_json.VMTEMPLATE.ID, context).data("hostsTable", that.hostsTable);
           var selectOptions = {
             'selectOptions': {
               'select_callback': function(aData, options) {
-                generateRequirements(that.hostsTable, context)
+                generateRequirements($(".provision_host_selector" + template_json.VMTEMPLATE.ID, context).data("hostsTable"), context, template_json.VMTEMPLATE.ID);
               },
               'unselect_callback': function(aData, options) {
-                generateRequirements(that.hostsTable, context)
+                generateRequirements($(".provision_host_selector"+ template_json.VMTEMPLATE.ID, context).data("hostsTable"), context, template_json.VMTEMPLATE.ID);
               }
             }
           }
@@ -381,7 +383,7 @@ define(function(require) {
     Tips.setup(context);
     return false;
   }
-  function generateRequirements(hosts_table, context) {
+  function generateRequirements(hosts_table, context, id) {
       var req_string=[];
       //var req_ds_string=[];
       var selected_hosts = hosts_table.retrieveResourceTableSelect();
@@ -395,7 +397,7 @@ define(function(require) {
         req_ds_string.push('ID="'+dsId+'"');
       });*/
 
-      $('#SCHED_REQUIREMENTS', context).val(req_string.join(" | "));
+      $('#SCHED_REQUIREMENTS' + id, context).val(req_string.join(" | "));
       //$('#SCHED_DS_REQUIREMENTS', context).val(req_ds_string.join(" | "));
   };
 });
