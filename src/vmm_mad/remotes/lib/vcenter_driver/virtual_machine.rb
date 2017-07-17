@@ -603,11 +603,7 @@ class Template
         str << "IMPORT_STATE =\"#{@state}\"\n"
 
         # Get DS information
-        ds_folder = get_dc.datastore_folder
-        ds_name   = self["config.datastoreUrl"][0].name
-        ds_folder.fetch!
-        ds_vcenter_ref = ds_folder.items.select{|_,d| d["name"] == ds_name}.values[0]["_ref"]
-        str << "VCENTER_DS_REF = \"#{ds_vcenter_ref}\"\n"
+        str << "VCENTER_DS_REF = \"#{@vm_info["datastore"].first._ref}\"\n"
 
         vnc_port = nil
         keymap = nil
