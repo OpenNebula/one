@@ -818,7 +818,7 @@ class VirtualMachine < Template
 
     VM_SHUTDOWN_TIMEOUT = 600 #10 minutes til poweroff hard
 
-    attr_accessor :item
+    attr_accessor :item, :vm_id
 
     attr_accessor :vm_info
 
@@ -920,8 +920,8 @@ class VirtualMachine < Template
 
     # @return String the vm_id stored in vCenter
     def get_vm_id(vm_pool = nil)
-        if defined?(@one_item_id) && @one_item_id
-            return @one_item_id
+        if defined?(@vm_id) && @vm_id
+            return @vm_id
         end
 
         vm_ref = self['_ref']
@@ -936,8 +936,8 @@ class VirtualMachine < Template
                                                      vm_pool)
         return nil if !one_vm
 
-        @one_item_id = one_vm["ID"]
-        return @one_item_id
+        @vm_id = one_vm["ID"]
+        return @vm_id
     end
 
     def get_vcenter_instance_uuid
