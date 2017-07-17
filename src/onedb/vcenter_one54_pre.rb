@@ -16,16 +16,14 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-#!/usr/bin/env ruby
-
-ONE_LOCATION=ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
-    REMOTES_LOCATION="/var/lib/one/remotes/"
+    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
+    REMOTES_LOCATION  = "/var/lib/one/remotes/"
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
-    REMOTES_LOCATION=ONE_LOCATION+"/var/remotes/"
+    RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
+    REMOTES_LOCATION  = ONE_LOCATION+"/var/remotes/"
 end
 
 $: << RUBY_LIB_LOCATION
@@ -41,6 +39,7 @@ require 'vcenter_driver'
 require 'opennebula'
 
 TEMP_DIR="/var/tmp/vcenter_one54"
+
 FileUtils.mkdir_p TEMP_DIR
 
 def banner(msg, header=false, extended=nil)
@@ -257,6 +256,7 @@ def create_system_ds(ds_name, ds_ref, vcenter_name, vcenter_uuid, dc_name, dc_re
     raise rc.message if OpenNebula.is_error?(rc)
 
     STDOUT.puts "Datastore \e[96m#{ds_name}\e[39m is now also a SYSTEM datastore with ID: #{one_ds["ID"]}\n"
+    one_ds
 end
 
 def get_dc(item)
@@ -362,124 +362,98 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
 
     cluster_id = one_clusters[host_id]
 
-    devices.each do |device|
-        rc = vnpool.info_all
-        raise "\n    ERROR! Could not update vnpool. Reason #{rc.message}" if OpenNebula.is_error?(rc)
+    if !vm_wild && template_xml
+        devices.each do |device|
+            rc = vnpool.info_all
+            raise "\n    ERROR! Could not update vnpool. Reason #{rc.message}" if OpenNebula.is_error?(rc)
 
-        rc = ipool.info_all
-        raise "\n    ERROR! Could not update ipool. Reason #{rc.message}" if OpenNebula.is_error?(rc)
+            rc = ipool.info_all
+            raise "\n    ERROR! Could not update ipool. Reason #{rc.message}" if OpenNebula.is_error?(rc)
 
-        rc = dspool.info
-        raise "\n    ERROR! Could not update dspool. Reason #{rc.message}" if OpenNebula.is_error?(rc)
+            rc = dspool.info
+            raise "\n    ERROR! Could not update dspool. Reason #{rc.message}" if OpenNebula.is_error?(rc)
 
-        if defined?(RbVmomi::VIM::VirtualIDEController) &&
-           device.is_a?(RbVmomi::VIM::VirtualIDEController)
-            ide_controlled += device.device
-            next
-        end
-
-        if defined?(RbVmomi::VIM::VirtualSATAController) &&
-           device.is_a?(RbVmomi::VIM::VirtualSATAController)
-            sata_controlled += device.device
-            next
-        end
-
-        if defined?(RbVmomi::VIM::VirtualSCSIController) &&
-           device.is_a?(RbVmomi::VIM::VirtualSCSIController)
-            scsi_controlled += device.device
-            next
-        end
-
-        #cluster_id = xml_doc.root.xpath("HISTORY_RECORDS/HISTORY[last()]/CID").text
-
-        # If CDROM
-        if !(device.class.ancestors.index(RbVmomi::VIM::VirtualCdrom)).nil?
-            ds_name       = device.backing.datastore.name
-            ds_ref        = device.backing.datastore._ref
-            image_path    = device.backing.fileName.sub(/^\[(.*?)\] /, "")
-
-            image = find_image(ipool, ds_name, image_path)
-
-            if image
-                # It's a persistent disk if it already exists
-                xml_template     = xml_doc.root.at_xpath("TEMPLATE")
-                existing_disk    = existing_disks[managed_disk_index]
-
-                # Replace DISK_ID
-                existind_disk_id = existing_disk.at_xpath("DISK_ID")
-                existind_disk_id.content = disk_index
-
-                disk = xml_template.add_child(existing_disks[managed_disk_index])
-
-                # Add VCENTER_DS_REF
-                disk.add_child(xml_doc.create_element("VCENTER_DS_REF")).add_child(Nokogiri::XML::CDATA.new(xml_doc,"#{ds_ref}"))
-
-                STDOUT.puts "--- Added VCENTER_DS_REF=#{ds_ref} to CDROM (IMAGE_ID=#{image["ID"]})"
-
-                # Update indexes
-                managed_disk_index = managed_disk_index + 1
-                disk_index = disk_index + 1
+            if defined?(RbVmomi::VIM::VirtualIDEController) &&
+               device.is_a?(RbVmomi::VIM::VirtualIDEController)
+                ide_controlled += device.device
+                next
             end
-        end
 
-        # If Virtual Disk
-        if !(device.class.ancestors.index(RbVmomi::VIM::VirtualDisk)).nil?
-            ds_name       = device.backing.datastore.name
-            ds_ref        = device.backing.datastore._ref
-            image_type    = "OS"
-            image_path    = device.backing.fileName.sub(/^\[(.*?)\] /, "")
-            image_prefix  = "hd" if ide_controlled.include?(device.key)
-            image_prefix  = "sd" if scsi_controlled.include?(device.key)
-            image_prefix  = "sd" if sata_controlled.include?(device.key)
-            file_name     = File.basename(image_path).gsub(/\.vmdk$/,"")
-            image_name    = "#{file_name} - #{ds_name}"
+            if defined?(RbVmomi::VIM::VirtualSATAController) &&
+               device.is_a?(RbVmomi::VIM::VirtualSATAController)
+                sata_controlled += device.device
+                next
+            end
 
-            #Check if the image already exists
-            one_image = find_image(ipool, ds_name, image_path)
+            if defined?(RbVmomi::VIM::VirtualSCSIController) &&
+               device.is_a?(RbVmomi::VIM::VirtualSCSIController)
+                scsi_controlled += device.device
+                next
+            end
 
-            if !one_image
-                #Check if the IMAGE DS is there
-                ds = find_datastore(dspool, ds_ref, dc_ref, vcenter_uuid, "IMAGE_DS")
+            #cluster_id = xml_doc.root.xpath("HISTORY_RECORDS/HISTORY[last()]/CID").text
 
-                #Create IMAGE and SYSTEM DS if datastore is not found
-                if !ds
-                    ds = create_image_ds(ds_name, ds_ref, vcenter_name, vcenter_uuid, ccr_name, dc_name, dc_ref, one_client, vcenter_user, vcenter_pass, vcenter_host, cluster_id)
+            # If CDROM
+            if !(device.class.ancestors.index(RbVmomi::VIM::VirtualCdrom)).nil?
+                device_backing_datastore = device.backing.datastore rescue nil
+                if device_backing_datastore
+                    ds_name       = device.backing.datastore.name
+                    ds_ref        = device.backing.datastore._ref
+                    image_path    = device.backing.fileName.sub(/^\[(.*?)\] /, "")
 
-                    create_system_ds(ds_name, ds_ref, vcenter_name, vcenter_uuid, dc_name, dc_ref, one_client, vcenter_user, vcenter_pass, vcenter_host, cluster_id)
+                    image = find_image(ipool, ds_name, image_path)
+
+                    if image
+                        # It's a persistent disk if it already exists
+                        xml_template     = xml_doc.root.at_xpath("TEMPLATE")
+                        existing_disk    = existing_disks[managed_disk_index]
+
+                        # Replace DISK_ID
+                        existind_disk_id = existing_disk.at_xpath("DISK_ID")
+                        existind_disk_id.content = disk_index
+
+                        disk = xml_template.add_child(existing_disks[managed_disk_index])
+
+                        # Add VCENTER_DS_REF
+                        disk.add_child(xml_doc.create_element("VCENTER_DS_REF")).add_child(Nokogiri::XML::CDATA.new(xml_doc,"#{ds_ref}"))
+
+                        STDOUT.puts "--- Added VCENTER_DS_REF=#{ds_ref} to CDROM (IMAGE_ID=#{image["ID"]})"
+
+                        # Update indexes
+                        managed_disk_index = managed_disk_index + 1
+                        disk_index = disk_index + 1
+                    end
                 end
+            end
 
-                ds_id = ds["ID"].to_i
+            # If Virtual Disk
+            if !(device.class.ancestors.index(RbVmomi::VIM::VirtualDisk)).nil?
+                ds_name       = device.backing.datastore.name
+                ds_ref        = device.backing.datastore._ref
+                image_type    = "OS"
+                image_path    = device.backing.fileName.sub(/^\[(.*?)\] /, "")
+                image_prefix  = "hd" if ide_controlled.include?(device.key)
+                image_prefix  = "sd" if scsi_controlled.include?(device.key)
+                image_prefix  = "sd" if sata_controlled.include?(device.key)
+                file_name     = File.basename(image_path).gsub(/\.vmdk$/,"")
+                image_name    = "#{file_name} - #{ds_name}"
 
-                if vm_wild || !template_xml
-                    #Create images for unmanaged disks
+                #Check if the image already exists
+                one_image = find_image(ipool, ds_name, image_path)
 
-                    template = ""
-                    template << "NAME=\"#{image_name}\"\n"
-                    template << "PATH=\"vcenter://#{image_path}\"\n"
-                    template << "TYPE=\"#{image_type}\"\n"
-                    template << "PERSISTENT=\"NO\"\n"
-                    template << "VCENTER_IMPORTED=\"YES\"\n"
-                    template << "DEV_PREFIX=\"#{image_prefix}\"\n"
+                if !one_image
+                    #Check if the IMAGE DS is there
+                    ds = find_datastore(dspool, ds_ref, dc_ref, vcenter_uuid, "IMAGE_DS")
 
-                    one_image = OpenNebula::Image.new(OpenNebula::Image.build_xml, one_client)
-                    rc = one_image.allocate(template, ds_id)
-                    raise "\n    ERROR! Could not create image for wild vm. Reason #{rc.message}" if OpenNebula.is_error?(rc)
+                    #Create IMAGE and SYSTEM DS if datastore is not found
+                    if !ds
+                        ds = create_image_ds(ds_name, ds_ref, vcenter_name, vcenter_uuid, ccr_name, dc_name, dc_ref, one_client, vcenter_user, vcenter_pass, vcenter_host, cluster_id)
 
-                    loop do
-                        rc = one_image.info
-                        raise "\n    ERROR! Could not get image info for wild vm disk. Reason #{rc.message}" if OpenNebula.is_error?(rc)
-                        break if one_image["SOURCE"] && !one_image["SOURCE"].empty? #Get out of loop if image is not locked
-                        sleep(1)
+                        create_system_ds(ds_name, ds_ref, vcenter_name, vcenter_uuid, dc_name, dc_ref, one_client, vcenter_user, vcenter_pass, vcenter_host, cluster_id)
                     end
 
-                    if one_image["STATE"] == 5
-                        raise "\n    ERROR! The image created for wild vm is in ERROR state"
-                    end
+                    ds_id = ds["ID"].to_i
 
-                    vcenter_ids[:image] << one_image["ID"]
-
-                    STDOUT.puts "--- Image #{one_image["NAME"]} with ID #{one_image["ID"]} has been created"
-                else
                     template_disk = template_xml.xpath("VMTEMPLATE/TEMPLATE/DISK")[unmanaged_disk_index] rescue nil
                     raise "Cannot find unmanaged disk inside template" if !template_disk
 
@@ -499,165 +473,165 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
                     ds_name = ds["NAME"]
 
                     STDOUT.puts "--- Image #{one_image["NAME"]} with ID #{one_image["ID"]} already exists"
-                end
 
-                # Create unmanaged disk element for vm template
-                # Get disk size (capacity)
-                image_name   = one_image["NAME"]
-                image_source = one_image["SOURCE"]
-                image_id     = one_image["ID"]
-
-                # Add new disk attributes
-                create_disk(xml_doc, image_name, image_source, image_prefix, image_id,
-                            disk_index, cluster_id, ds, ds_ref, ds_name, vi_client)
-
-                STDOUT.puts "--- Added unmanaged disk to xml template (IMAGE_ID=#{one_image["ID"]})"
-
-                reference = {}
-                reference[:key]   = "opennebula.disk.#{unmanaged_disk_index}"
-                reference[:value] = "#{device.key}"
-                extraconfig << reference
-
-                unmanaged_disk_index = unmanaged_disk_index + 1
-                disk_index = disk_index + 1
-            else
-
-                if one_image["TEMPLATE/VCENTER_IMPORTED"] == "YES"
-
-                    #Check if the IMAGE DS is there
-                    ds = find_datastore(dspool, ds_ref, dc_ref, vcenter_uuid, "IMAGE_DS")
-
-                    #Create IMAGE and SYSTEM DS if datastore is not found
-                    if !ds
-                        ds = create_image_ds(ds_name, ds_ref, vcenter_name, vcenter_uuid, ccr_name, dc_name, dc_ref, one_client, vcenter_user, vcenter_pass, vcenter_host, cluster_id)
-
-                        create_system_ds(ds_name, ds_ref, vcenter_name, vcenter_uuid, dc_name, dc_ref, one_client, vcenter_user, vcenter_pass, vcenter_host, cluster_id)
-                    end
-
-                    ds_id = ds["ID"].to_i
-
-                    #Create unmanaged disk element for vm template
-                    image_id     = one_image["ID"]
+                    # Create unmanaged disk element for vm template
+                    # Get disk size (capacity)
                     image_name   = one_image["NAME"]
                     image_source = one_image["SOURCE"]
+                    image_id     = one_image["ID"]
 
+                    # Add new disk attributes
                     create_disk(xml_doc, image_name, image_source, image_prefix, image_id,
                                 disk_index, cluster_id, ds, ds_ref, ds_name, vi_client)
 
-                    STDOUT.puts "--- Added unmanaged disk in wild vm (IMAGE_ID=#{one_image["ID"]})"
+                    STDOUT.puts "--- Added unmanaged disk to xml template (IMAGE_ID=#{one_image["ID"]})"
 
                     reference = {}
                     reference[:key]   = "opennebula.disk.#{unmanaged_disk_index}"
                     reference[:value] = "#{device.key}"
                     extraconfig << reference
 
-                    # Update indexes
                     unmanaged_disk_index = unmanaged_disk_index + 1
                     disk_index = disk_index + 1
-
                 else
-                    # It's a persistent disk if it already exists
-                    xml_template     = xml_doc.root.at_xpath("TEMPLATE")
-                    existing_disk    = existing_disks[managed_disk_index]
+                    if one_image["TEMPLATE/VCENTER_IMPORTED"] == "YES"
+                        # This is (probably) a wild VM. The code should not reach this.
 
-                    # Replace DISK_ID
-                    existing_disk_image_id = existing_disk.xpath("IMAGE_ID").text
-                    existing_disk_id = existing_disk.at_xpath("DISK_ID")
-                    existing_disk_id.content = disk_index
+                        #Check if the IMAGE DS is there
+                        ds = find_datastore(dspool, ds_ref, dc_ref, vcenter_uuid, "IMAGE_DS")
 
-                    disk = xml_template.add_child(existing_disks[managed_disk_index])
+                        #Create IMAGE and SYSTEM DS if datastore is not found
+                        if !ds
+                            ds = create_image_ds(ds_name, ds_ref, vcenter_name, vcenter_uuid, ccr_name, dc_name, dc_ref, one_client, vcenter_user, vcenter_pass, vcenter_host, cluster_id)
 
-                    # Add VCENTER_DISK_TYPE and VCENTER_ADAPTER_TYPE if found
-                    if !existing_disk.xpath("DISK_TYPE").text.empty?
-                        disk.add_child(xml_doc.create_element("VCENTER_DISK_TYPE")).add_child(Nokogiri::XML::CDATA.new(xml_doc,"#{existing_disk.xpath("DISK_TYPE").text}"))
-                        STDOUT.puts "--- Added VCENTER_DISK_TYPE=#{existing_disk.xpath("DISK_TYPE").text} to existing disk (IMAGE_ID=#{existing_disk_image_id})"
+                            create_system_ds(ds_name, ds_ref, vcenter_name, vcenter_uuid, dc_name, dc_ref, one_client, vcenter_user, vcenter_pass, vcenter_host, cluster_id)
+                        end
+
+                        ds_id = ds["ID"].to_i
+
+                        #Create unmanaged disk element for vm template
+                        image_id     = one_image["ID"]
+                        image_name   = one_image["NAME"]
+                        image_source = one_image["SOURCE"]
+
+                        create_disk(xml_doc, image_name, image_source, image_prefix, image_id,
+                                    disk_index, cluster_id, ds, ds_ref, ds_name, vi_client)
+
+                        STDOUT.puts "--- Added unmanaged disk in wild vm (IMAGE_ID=#{one_image["ID"]})"
+
+                        reference = {}
+                        reference[:key]   = "opennebula.disk.#{unmanaged_disk_index}"
+                        reference[:value] = "#{device.key}"
+                        extraconfig << reference
+
+                        # Update indexes
+                        unmanaged_disk_index = unmanaged_disk_index + 1
+                        disk_index = disk_index + 1
+
+                    else
+                        # It's a persistent disk if it already exists
+                        xml_template  = xml_doc.root.at_xpath("TEMPLATE")
+                        existing_disk = existing_disks[managed_disk_index]
+
+                        # Replace DISK_ID
+                        existing_disk_image_id = existing_disk.xpath("IMAGE_ID").text
+                        existing_disk_id = existing_disk.at_xpath("DISK_ID")
+                        existing_disk_id.content = disk_index
+
+                        disk = xml_template.add_child(existing_disks[managed_disk_index])
+
+                        # Add VCENTER_DISK_TYPE and VCENTER_ADAPTER_TYPE if found
+                        if !existing_disk.xpath("DISK_TYPE").text.empty?
+                            disk.add_child(xml_doc.create_element("VCENTER_DISK_TYPE")).add_child(Nokogiri::XML::CDATA.new(xml_doc,"#{existing_disk.xpath("DISK_TYPE").text}"))
+                            STDOUT.puts "--- Added VCENTER_DISK_TYPE=#{existing_disk.xpath("DISK_TYPE").text} to existing disk (IMAGE_ID=#{existing_disk_image_id})"
+                        end
+
+                        if !existing_disk.xpath("ADAPTER_TYPE").text.empty?
+                            disk.add_child(xml_doc.create_element("VCENTER_ADAPTER_TYPE")).add_child(Nokogiri::XML::CDATA.new(xml_doc,"#{existing_disk.xpath("ADAPTER_TYPE").text}"))
+                            STDOUT.puts "--- Added VCENTER_ADAPTER_TYPE=#{existing_disk.xpath("ADAPTER_TYPE").text} to existing disk (IMAGE_ID=#{existing_disk_image_id})"
+                        end
+
+                        # Add VCENTER_DS_REF
+                        disk.add_child(xml_doc.create_element("VCENTER_DS_REF")).add_child(Nokogiri::XML::CDATA.new(xml_doc,"#{ds_ref}"))
+                        STDOUT.puts "--- Added VCENTER_DS_REF=#{ds_ref} to existing disk (IMAGE_ID=#{existing_disk_image_id})"
+
+                        # Update indexes
+                        managed_disk_index = managed_disk_index + 1
+                        disk_index = disk_index + 1
                     end
-
-                    if !existing_disk.xpath("ADAPTER_TYPE").text.empty?
-                        disk.add_child(xml_doc.create_element("VCENTER_ADAPTER_TYPE")).add_child(Nokogiri::XML::CDATA.new(xml_doc,"#{existing_disk.xpath("ADAPTER_TYPE").text}"))
-                        STDOUT.puts "--- Added VCENTER_ADAPTER_TYPE=#{existing_disk.xpath("ADAPTER_TYPE").text} to existing disk (IMAGE_ID=#{existing_disk_image_id})"
-                    end
-
-                    # Add VCENTER_DS_REF
-                    disk.add_child(xml_doc.create_element("VCENTER_DS_REF")).add_child(Nokogiri::XML::CDATA.new(xml_doc,"#{ds_ref}"))
-                    STDOUT.puts "--- Added VCENTER_DS_REF=#{ds_ref} to existing disk (IMAGE_ID=#{existing_disk_image_id})"
-
-                    # Update indexes
-                    managed_disk_index = managed_disk_index + 1
-                    disk_index = disk_index + 1
                 end
             end
-        end
 
-        # If VirtualEthernetCard
-        if !device.class.ancestors.index(RbVmomi::VIM::VirtualEthernetCard).nil?
-            network_bridge = device.backing.network.name
-            network_ref    = device.backing.network._ref
-            network_name   = "#{network_bridge} [#{vm_name}]"
-            network_type   = device.backing.network.instance_of?(RbVmomi::VIM::DistributedVirtualPortgroup) ? "Distributed Port Group" : "Port Group"
+            # If VirtualEthernetCard
+            if !device.class.ancestors.index(RbVmomi::VIM::VirtualEthernetCard).nil?
+                network_bridge = device.backing.network.name
+                network_ref    = device.backing.network._ref
+                network_name   = "#{network_bridge} [#{vm_name}]"
+                network_type   = device.backing.network.instance_of?(RbVmomi::VIM::DistributedVirtualPortgroup) ? "Distributed Port Group" : "Port Group"
 
-            # Create network if doesn't exist
-            network = find_network(vnpool, network_ref, ccr_ref, template_ref, vcenter_uuid)
+                # Create network if doesn't exist
+                network = find_network(vnpool, network_ref, ccr_ref, template_ref, vcenter_uuid)
 
-            if !network
-                one_net = ""
-                one_net << "NAME=\"#{network_name}\"\n"
-                one_net << "BRIDGE=\"#{network_bridge}\"\n"
-                one_net << "VN_MAD=\"dummy\"\n"
-                one_net << "VCENTER_PORTGROUP_TYPE=\"#{network_type}\"\n"
-                one_net << "VCENTER_NET_REF=\"#{network_ref}\"\n"
-                one_net << "VCENTER_CCR_REF=\"#{ccr_ref}\"\n"
-                one_net << "VCENTER_INSTANCE_ID=\"#{vcenter_uuid}\"\n"
-                one_net << "VCENTER_TEMPLATE_REF=\"#{template_ref}\"\n"
-                one_net << "OPENNEBULA_MANAGED=\"NO\"\n"
-                one_net << "AR=[\n"
-                one_net << "TYPE=\"ETHER\",\n"
-                one_net << "SIZE=\"255\"\n"
-                one_net << "]\n"
+                if !network
+                    one_net = ""
+                    one_net << "NAME=\"#{network_name}\"\n"
+                    one_net << "BRIDGE=\"#{network_bridge}\"\n"
+                    one_net << "VN_MAD=\"dummy\"\n"
+                    one_net << "VCENTER_PORTGROUP_TYPE=\"#{network_type}\"\n"
+                    one_net << "VCENTER_NET_REF=\"#{network_ref}\"\n"
+                    one_net << "VCENTER_CCR_REF=\"#{ccr_ref}\"\n"
+                    one_net << "VCENTER_INSTANCE_ID=\"#{vcenter_uuid}\"\n"
+                    one_net << "VCENTER_TEMPLATE_REF=\"#{template_ref}\"\n"
+                    one_net << "OPENNEBULA_MANAGED=\"NO\"\n"
+                    one_net << "AR=[\n"
+                    one_net << "TYPE=\"ETHER\",\n"
+                    one_net << "SIZE=\"255\"\n"
+                    one_net << "]\n"
 
-                one_vn = OpenNebula::VirtualNetwork.new(OpenNebula::VirtualNetwork.build_xml, one_client)
-                rc = one_vn.allocate(one_net, cluster_id.to_i)
-                raise "\n    ERROR! Could not create vnet for vm #{vm_name}. Reason #{rc.message}" if OpenNebula.is_error?(rc)
+                    one_vn = OpenNebula::VirtualNetwork.new(OpenNebula::VirtualNetwork.build_xml, one_client)
+                    rc = one_vn.allocate(one_net, cluster_id.to_i)
+                    raise "\n    ERROR! Could not create vnet for vm #{vm_name}. Reason #{rc.message}" if OpenNebula.is_error?(rc)
 
-                rc = one_vn.info
-                raise "\n    ERROR! Could not get network info for vnet #{network_name}. Reason #{rc.message}" if OpenNebula.is_error?(rc)
-                network = one_vn
-                STDOUT.puts "--- Network #{one_vn["NAME"]} with ID #{one_vn["ID"]} has been created"
-            else
-                STDOUT.puts "--- Network #{network["NAME"]} with ID #{network["ID"]} already exists"
-            end
+                    rc = one_vn.info
+                    raise "\n    ERROR! Could not get network info for vnet #{network_name}. Reason #{rc.message}" if OpenNebula.is_error?(rc)
+                    network = one_vn
+                    STDOUT.puts "--- Network #{one_vn["NAME"]} with ID #{one_vn["ID"]} has been created"
+                else
+                    STDOUT.puts "--- Network #{network["NAME"]} with ID #{network["ID"]} already exists"
+                end
 
-            existing_macs = []
-            existing_nics.xpath("MAC").each do |mac|
-                existing_macs << mac.text
-            end
+                existing_macs = []
+                existing_nics.xpath("MAC").each do |mac|
+                    existing_macs << mac.text
+                end
 
-            mac_address = device.macAddress
-            if !existing_macs.include?(mac_address)
-                # Unmanaged nic
-                create_nic(xml_doc, network, mac_address, cluster_id, nic_index)
+                mac_address = device.macAddress
+                if !existing_macs.include?(mac_address)
+                    # Unmanaged nic
+                    create_nic(xml_doc, network, mac_address, cluster_id, nic_index)
 
-                #Update indexes
-                nic_index = nic_index + 1
-            else
-                # Managed nic
-                managed_nic_index = existing_macs.index(mac_address)
-                xml_template      = xml_doc.root.at_xpath("TEMPLATE")
-                existing_nic      = existing_nics[managed_nic_index]
+                    #Update indexes
+                    nic_index = nic_index + 1
+                else
+                    # Managed nic
+                    managed_nic_index = existing_macs.index(mac_address)
+                    xml_template      = xml_doc.root.at_xpath("TEMPLATE")
+                    existing_nic      = existing_nics[managed_nic_index]
 
-                # Replace NIC_ID
-                existind_nic_id = existing_nic.at_xpath("NIC_ID")
-                existind_nic_id.content = nic_index
+                    # Replace NIC_ID
+                    existind_nic_id = existing_nic.at_xpath("NIC_ID")
+                    existind_nic_id.content = nic_index
 
-                # Add existing NIC to XML template
-                nic = xml_template.add_child(existing_nics[managed_nic_index])
-                create_cdata_element(nic, xml_doc, "VCENTER_NET_REF", "#{network["TEMPLATE/VCENTER_NET_REF"]}")
-                create_cdata_element(nic, xml_doc, "VCENTER_CCR_REF", "#{network["TEMPLATE/VCENTER_CCR_REF"]}")
-                create_cdata_element(nic, xml_doc, "VCENTER_INSTANCE_ID", "#{network["TEMPLATE/VCENTER_INSTANCE_ID"]}")
-                create_cdata_element(nic, xml_doc, "VCENTER_PORTGROUP_TYPE", "#{network["TEMPLATE/VCENTER_PORTGROUP_TYPE"]}")
+                    # Add existing NIC to XML template
+                    nic = xml_template.add_child(existing_nics[managed_nic_index])
+                    create_cdata_element(nic, xml_doc, "VCENTER_NET_REF", "#{network["TEMPLATE/VCENTER_NET_REF"]}")
+                    create_cdata_element(nic, xml_doc, "VCENTER_CCR_REF", "#{network["TEMPLATE/VCENTER_CCR_REF"]}")
+                    create_cdata_element(nic, xml_doc, "VCENTER_INSTANCE_ID", "#{network["TEMPLATE/VCENTER_INSTANCE_ID"]}")
+                    create_cdata_element(nic, xml_doc, "VCENTER_PORTGROUP_TYPE", "#{network["TEMPLATE/VCENTER_PORTGROUP_TYPE"]}")
 
-                #Update indexes
-                nic_index = nic_index + 1
+                    #Update indexes
+                    nic_index = nic_index + 1
+                end
             end
         end
     end
@@ -716,10 +690,16 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
             if !vc_vmachines.key? vm_ref
                 raise "Could not find vcenter vm using ref #{vm_ref} in order to assign a datastore"
             else
-                ds_ref = vc_vmachines[vm_ref]["datastore"].first._ref rescue nil
-                raise "Could not get ds ref in order to assign a datastore in history records" if !ds_ref
+                vc_system_ds = vc_vmachine["datastore"].first rescue nil
+                raise "Could not find Datastore associated with the VM" if vc_system_ds.nil?
+
+                ds_ref = vc_system_ds._ref
 
                 ds = find_datastore(dspool, ds_ref, dc_ref, vcenter_uuid, "SYSTEM_DS")
+                if !ds
+                    ds_name = vc_system_ds.name
+                    ds = create_system_ds(ds_name, ds_ref, vcenter_name, vcenter_uuid, dc_name, dc_ref, one_client, vcenter_user, vcenter_pass, vcenter_host, cluster_id)
+                end
                 ds_id = ds["ID"]
             end
         else
@@ -2101,13 +2081,15 @@ def inspect_templates(vc_templates, vc_clusters, one_clusters, tpool, ipool, vnp
                 end
             end
 
-            # Try to get moref using the templates uuid note that that uuid
+            # Try to get moref using the templates uuid. Note that that uuid
             # is not unique
+            templates_same_uuid = {}
             if !template_ref && template_uuid
                 templates_found = 0
                 vc_templates[vcenter_uuid].each do |ref, value|
                     if value["config.uuid"] == template_uuid
                         templates_found += 1
+                        templates_same_uuid[ref] = value
                         if templates_found > 1
                             template_ref = nil
                         else
@@ -2125,7 +2107,14 @@ def inspect_templates(vc_templates, vc_clusters, one_clusters, tpool, ipool, vnp
                 index = 0
                 template_refs  = []
 
-                vc_templates[vcenter_uuid].each do |ref, t|
+                if templates_same_uuid.length > 1
+                    # Choose only between those that have the same UUID
+                    templates_list = templates_same_uuid
+                else
+                    templates_list = vc_templates[vcenter_uuid]
+                end
+
+                templates_list.each do |ref, t|
                     item = RbVmomi::VIM::VirtualMachine.new(vi_client.vim, ref)
 
                     folders = []
@@ -2165,15 +2154,33 @@ def inspect_templates(vc_templates, vc_clusters, one_clusters, tpool, ipool, vnp
                 STDOUT.puts "-" * 80
             end
 
+            # Get OpenNebulas's template
+            one_template = OpenNebula::Template.new_with_id(template["ID"], one_client)
             STDOUT.puts
 
             if !template_ref
-                raise "Template #{template_name} could not be updated, cannot find template's MOREF"
+                STDOUT.print "Could not upgrade this template. Not found in vCenter. Do you want to remove it? (y/n) "
+                loop do
+                    option = STDIN.gets.strip
+                    case option
+                    when "y"
+                        # delete
+                        rc = one_template.delete
+                        raise "Template #{template["ID"]}: '#{template["NAME"]}' could not be deleted. Reason #{rc.message}" if OpenNebula.is_error?(rc)
+
+                        STDOUT.puts("\nTemplate #{template["ID"]}: '#{template["NAME"]}' has been \e[93mdeleted\e[39m.")
+                        break
+                    when "n"
+                        STDOUT.puts("\nTemplate #{template["ID"]}: '#{template["NAME"]}' is \e[93mbroken\e[39m. Please inspect it manually after the upgrade.")
+                        STDOUT.puts("\nPress any key to continue.\n")
+                        STDIN.gets
+                        break
+                    end
+                end
+                next
             end
 
-            # Get OpenNebulas's template
-            one_template = OpenNebula::Template.new_with_id(template["ID"], one_client)
-            rc   = one_template.info
+            rc  = one_template.info
             raise "Could not get info for template #{template["ID"]}. Reason: #{rc.message}" if OpenNebula.is_error?(rc)
 
             # Find vcenter template in vc_templates
@@ -2372,8 +2379,10 @@ def inspect_vms(vc_vmachines, vc_templates, vc_clusters, one_clusters, vmpool, i
             # Refresh pools
             rc = vnpool.info_all
             raise "\n    ERROR! Could not update vnpool. Reason #{rc.message}" if OpenNebula.is_error?(rc)
+
             rc = ipool.info_all
             raise "\n    ERROR! Could not update ipool. Reason #{rc.message}" if OpenNebula.is_error?(rc)
+
             rc = dspool.info
             raise "\n    ERROR! Could not update dspool. Reason #{rc.message}" if OpenNebula.is_error?(rc)
 
@@ -2498,11 +2507,13 @@ def inspect_vms(vc_vmachines, vc_templates, vc_clusters, one_clusters, vmpool, i
 
                 # Try to get moref using the templates uuid note that that uuid
                 # is not unique
+                templates_same_uuid = {}
                 if !template_ref && template_uuid
                     templates_found = 0
                     vc_templates[vcenter_uuid].each do |ref, value|
                         if value["config.uuid"] == template_uuid
                             templates_found += 1
+                            templates_same_uuid[ref] = value
                             if templates_found > 1
                                 template_ref = nil
                             else
@@ -2520,7 +2531,14 @@ def inspect_vms(vc_vmachines, vc_templates, vc_clusters, one_clusters, vmpool, i
                     index = 0
                     template_refs  = []
 
-                    vc_templates[vcenter_uuid].each do |ref, t|
+                    if templates_same_uuid.length > 1
+                        # Choose only between those that have the same UUID
+                        templates_list = templates_same_uuid
+                    else
+                        templates_list = vc_templates[vcenter_uuid]
+                    end
+
+                    templates_list.each do |ref, t|
                         item = RbVmomi::VIM::VirtualMachine.new(vi_client.vim, ref)
 
                         folders = []
@@ -2772,7 +2790,7 @@ CommandParser::CmdParser.new(ARGV) do
                 vc_clusters[vcenter_uuid]   = retrieve_vcenter_clusters(vi_client)
                 vc_datastores[vcenter_uuid] = retrieve_vcenter_datastores(vi_client)
                 vc_networks[vcenter_uuid]   = retrieve_vcenter_networks(vi_client)
-                vc_vmachines[vcenter_uuid], vc_templates[vcenter_uuid]  = retrieve_vcenter_vms(vi_client)
+                vc_vmachines[vcenter_uuid], vc_templates[vcenter_uuid] = retrieve_vcenter_vms(vi_client)
 
                 STDOUT.puts "--- #{host["TEMPLATE/VCENTER_HOST"]} \e[92mobjects have been retrieved\e[39m"
             end
