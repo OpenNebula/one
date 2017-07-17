@@ -24,7 +24,7 @@ LOG     = LOG_LOCATION + "/onedb-vcenter-one54.log"
 TMP_DIR = "/var/tmp/vcenter_one54"
 
 module One54Vcenter
-    VERSION = "5.3.80"
+    VERSION = "5.4.0"
 
     def check_db_version(ops)
         db_version = read_db_version()
