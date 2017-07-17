@@ -726,6 +726,9 @@ int Host::post_update_template(string& error)
     string ec2_access;
     string ec2_secret;
 
+    string az_id;
+    string az_cert;
+
     string crypted;
 
     get_template_attribute("VCENTER_PASSWORD", vcenter_password);
@@ -753,6 +756,22 @@ int Host::post_update_template(string& error)
         nebula_crypt(ec2_secret, crypted);
 
         replace_template_attribute("EC2_SECRET", crypted);
+    }
+
+    get_template_attribute("AZ_ID", az_id);
+
+    if (!az_id.empty())
+    {
+        nebula_crypt(az_id, crypted);
+        replace_template_attribute("AZ_ID", crypted);
+    }
+
+    get_template_attribute("AZ_CERT", az_cert);
+
+    if (!az_cert.empty())
+    {
+        nebula_crypt(az_cert, crypted);
+        replace_template_attribute("AZ_CERT", crypted);
     }
 
     get_template_attribute("IM_MAD", new_im_mad);

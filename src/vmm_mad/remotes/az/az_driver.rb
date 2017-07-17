@@ -136,6 +136,7 @@ class AzureDriver
     # Azure constructor, loads credentials and endpoint
     def initialize(host)
         @host = host
+        @to_inst ={}
 
         @public_cloud_az_conf  = YAML::load(File.read(AZ_DRIVER_CONF))
 
@@ -144,6 +145,9 @@ class AzureDriver
         end
 
         @instance_types = @public_cloud_az_conf['instance_types']
+        @instance_types.keys.each{ |key|
+            @to_inst[key.upcase] = key
+        }
 
         certificate = Tempfile.new("certificate")
         conn_opts = get_connect_info(host)
@@ -158,7 +162,6 @@ class AzureDriver
         #DEPRECATE
         #############################################################
         regions = @public_cloud_az_conf['regions']
-        @region = regions[host] || regions["default"]
 
         # Sanitize region data
         if certificate.nil?
@@ -211,7 +214,7 @@ class AzureDriver
             :cert => xmlhost["TEMPLATE/AZ_CERT"],
             :id   => xmlhost["TEMPLATE/AZ_ID"]
         }
-        conn_opts = OpenNebula.encrypt(conn_opts, token)
+        #conn_opts = OpenNebula.encrypt(conn_opts, token)
         conn_opts = OpenNebula.decrypt(conn_opts, token)
 
         conn_opts[:region] = xmlhost["TEMPLATE/REGION_NAME"]
@@ -372,9 +375,10 @@ private
     # Get the associated capacity of the instance_type as cpu (in 100 percent
     # e.g. 800 for 8 cores) and memory (in KB)
     def instance_type_capacity(name)
-        return 0, 0 if @instance_types[name].nil?
-        return (@instance_types[name]['cpu'].to_f * 100).to_i ,
-               (@instance_types[name]['memory'].to_f * 1024 * 1024).to_i
+        resource = @instance_types[@to_inst[name]] || @instance_types[name]
+        return 0, 0 if resource.nil?
+        return (resource['cpu'].to_f * 100).to_i ,
+               (resource['memory'].to_f * 1024 * 1024).to_i
     end
 
     # Get the Azure section of the template. If more than one Azure section
@@ -389,6 +393,7 @@ private
         # First, let's see if we have an Azure location that matches
         # our host name
         all_az_elements.each { |element|
+
             cloud_host = element.elements["LOCATION"]
             type       = element.elements["TYPE"].text
 
