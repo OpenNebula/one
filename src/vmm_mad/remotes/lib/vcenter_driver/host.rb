@@ -360,7 +360,8 @@ class ClusterComputeResource
             "config.extraConfig", #VM extraconfig info e.g opennebula.vm.running
             "config.hardware.numCPU",
             "config.hardware.memoryMB",
-            "config.annotation"
+            "config.annotation",
+            "datastore"
         ]
 
         filterSpec = RbVmomi::VIM.PropertyFilterSpec(
