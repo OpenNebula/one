@@ -464,21 +464,21 @@ class ClusterComputeResource
                 number  = matches[1] if matches
 
                 # Extract vmid from ref and vcenter instance uuid if possible
+                one_vm = nil
                 if number == -1
                     one_vm = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualMachinePool,
                                                                 "DEPLOY_ID",
                                                                 vm_ref,
                                                                 vc_uuid,
                                                                 vm_pool)
-                    number = one_vm["ID"] if one_vm
-                end
+                    if one_vm
+                        number = one_vm["ID"]
 
-                if number != -1
-                    next if @monitored_vms.include? number
-                    @monitored_vms << number
+                        next if @monitored_vms.include? number
+                        @monitored_vms << number
 
-                    if vm.get_vm_id(vm_pool)
-                        vm.one_item
+                        vm.one_item = one_vm
+                        vm.vm_id = number
                     end
                 end
 
