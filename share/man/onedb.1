@@ -16,14 +16,6 @@ This command enables the user to manage the OpenNebula database\. It provides in
  \-f, \-\-force               Forces the backup even if the DB exists
  \-\-federated               Limit backup/restore to federated tables
  \-b, \-\-backup file         Use this file to store SQL dump
- \-\-slave\-server host       Slave MySQL server hostname or IP\. Defaults to
-                           localhost
- \-\-slave\-port port         Slave MySQL server port\. Defaults to 3306
- \-\-slave\-username user     Slave MySQL username
- \-\-slave\-password pass     Slave MySQL password\. Leave unset to be prompted
-                           for it
- \-\-slave\-dbname dbname     Slave MySQL DB name for OpenNebula
- \-\-slave\-backup file       Use this file to store SQL dump
  \-\-extra arg               Extra args
  \-s, \-\-start TIME          First time to process
  \-e, \-\-end TIME            Last time to process
@@ -57,16 +49,13 @@ version Prints the current DB version\. Use \-v flag to see also OpenNebula vers
 history Prints the upgrades history
 .
 .IP "\(bu" 4
-restore [\fIbackup_file\fR] Restores the DB from a backup file\. Only restores backups generated from the same backend (SQLite or MySQL) valid options: force, federated
+restore \fIbackup_file\fR Restores the DB from a backup file\. Only restores backups generated from the same backend (SQLite or MySQL) valid options: force, federated
 .
 .IP "\(bu" 4
 upgrade [\fIversion\fR] Upgrades the DB to the latest version where \fIversion\fR : DB version (e\.g\. 1, 3) to upgrade\. By default the DB is upgraded to the latest version valid options: force, backup
 .
 .IP "\(bu" 4
 fsck Checks the consistency of the DB, and fixes the problems found valid options: force, backup
-.
-.IP "\(bu" 4
-import\-slave Imports an existing federation slave into the federation master database valid options: force, backup, slave\-server, slave\-port, slave\-username, slave\-password, slave\-dbname, slave\-backup
 .
 .IP "\(bu" 4
 vcenter\-one54 Migrate VM and templates so they can be used by OpenNebula 5\.4 valid options: force, backup
