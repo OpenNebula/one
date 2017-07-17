@@ -919,7 +919,11 @@ class VirtualMachine < Template
     end
 
     # @return String the vm_id stored in vCenter
-    def get_vm_id
+    def get_vm_id(vm_pool = nil)
+        if defined?(@one_item_id) && @one_item_id
+            return @one_item_id
+        end
+
         vm_ref = self['_ref']
         return nil if !vm_ref
 
@@ -928,10 +932,12 @@ class VirtualMachine < Template
         one_vm = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualMachinePool,
                                                      "DEPLOY_ID",
                                                      vm_ref,
-                                                     vc_uuid)
+                                                     vc_uuid,
+                                                     vm_pool)
         return nil if !one_vm
 
-        return one_vm["ID"]
+        @one_item_id = one_vm["ID"]
+        return @one_item_id
     end
 
     def get_vcenter_instance_uuid

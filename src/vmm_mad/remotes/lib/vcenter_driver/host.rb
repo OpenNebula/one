@@ -430,6 +430,8 @@ class ClusterComputeResource
 
         get_resource_pool_list if !@rp_list
 
+        vm_pool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualMachinePool)
+
         vms.each do |vm_ref,info|
             begin
                 vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, @vi_client)
@@ -466,14 +468,18 @@ class ClusterComputeResource
                     one_vm = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualMachinePool,
                                                                 "DEPLOY_ID",
                                                                 vm_ref,
-                                                                vc_uuid)
+                                                                vc_uuid,
+                                                                vm_pool)
                     number = one_vm["ID"] if one_vm
                 end
 
                 if number != -1
                     next if @monitored_vms.include? number
                     @monitored_vms << number
-                    vm.one_item if vm.get_vm_id
+
+                    if vm.get_vm_id(vm_pool)
+                        vm.one_item
+                    end
                 end
 
                 vm.monitor(stats)

@@ -45,7 +45,7 @@ class VIHelper
 
     def self.find_by_name(the_class, name, pool = nil, raise_if_fail = true)
         pool = one_pool(the_class, raise_if_fail) if pool.nil?
-        element = pool.select{|e| e['NAME'] == "#{name}" }.first rescue nil
+        element = pool.find{|e| e['NAME'] == "#{name}" }
         if element.nil? && raise_if_fail
             raise "Could not find element '#{name}' in pool '#{the_class}'"
         else
@@ -55,28 +55,28 @@ class VIHelper
 
     def self.find_by_ref(the_class, attribute, ref, vcenter_uuid, pool = nil)
         pool = one_pool(the_class, false) if pool.nil?
-        element = pool.select{|e|
+        element = pool.find{|e|
             e["#{attribute}"] == ref &&
             (!e["TEMPLATE/OPENNEBULA_MANAGED"] || e["TEMPLATE/OPENNEBULA_MANAGED"] != "NO") &&
             (e["TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid ||
-             e["USER_TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid)}.first rescue nil
+             e["USER_TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid)}
 
         return element
     end
 
     def self.find_image_by_path(the_class, path, ds_id, pool = nil)
         pool = one_pool(the_class, false) if pool.nil?
-        element = pool.select{|e|
+        element = pool.find{|e|
             e["PATH"] == path &&
-            e["DATASTORE_ID"] == ds_id}.first rescue nil
+            e["DATASTORE_ID"] == ds_id}
         return element
     end
 
     def self.find_persistent_image_by_source(source, pool)
-        element = pool.select{|e|
+        element = pool.find{|e|
             e["SOURCE"] == source &&
             e["PERSISTENT"] == "1"
-        }.first rescue nil
+        }
 
         return element
     end
