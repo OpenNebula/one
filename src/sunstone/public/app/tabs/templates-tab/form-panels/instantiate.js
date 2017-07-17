@@ -35,6 +35,7 @@ define(function(require) {
   var VcenterVMFolder = require('utils/vcenter-vm-folder');
   var CapacityInputs = require('tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs');
   var Config = require('sunstone-config');
+  var HostsTable = require('tabs/hosts-tab/datatable');
 
   /*
     CONSTANTS
@@ -229,6 +230,9 @@ define(function(require) {
       capacityContext = $(".capacityContext"  + template_id, context);
       $.extend(tmp_json, CapacityInputs.retrieveChanges(capacityContext));
 
+      var requirements = WizardFields.retrieve(context).SCHED_REQUIREMENTS;
+      tmp_json.SCHED_REQUIREMENTS = requirements;
+
       extra_info['template'] = tmp_json;
         for (var i = 0; i < n_times_int; i++) {
           extra_info['vm_name'] = vm_name.replace(/%i/gi, i); // replace wildcard
@@ -261,12 +265,33 @@ define(function(require) {
         timeout: true,
         success: function (request, template_json) {
           that.template_objects.push(template_json);
+          var options = {
+            'select': true,
+            'selectOptions': {
+              'multiple_choice': true
+            }
+          }
 
+          that.hostsTable = new HostsTable('HostsTable' + template_json.VMTEMPLATE.ID, options);
           templatesContext.append(
             TemplateRowHTML(
               { element: template_json.VMTEMPLATE,
-                capacityInputsHTML: CapacityInputs.html()
+                capacityInputsHTML: CapacityInputs.html(),
+                hostsDatatable: that.hostsTable.dataTableHTML
               }) );
+          
+          var selectOptions = {
+            'selectOptions': {
+              'select_callback': function(aData, options) {
+                generateRequirements(that.hostsTable, context)
+              },
+              'unselect_callback': function(aData, options) {
+                generateRequirements(that.hostsTable, context)
+              }
+            }
+          }
+          that.hostsTable.initialize(selectOptions);
+          that.hostsTable.refreshResourceTableSelect();
 
           DisksResize.insert({
             template_json: template_json,
@@ -356,4 +381,21 @@ define(function(require) {
     Tips.setup(context);
     return false;
   }
+  function generateRequirements(hosts_table, context) {
+      var req_string=[];
+      //var req_ds_string=[];
+      var selected_hosts = hosts_table.retrieveResourceTableSelect();
+      //var selected_ds = this.datastoresTable.retrieveResourceTableSelect();
+
+      $.each(selected_hosts, function(index, hostId) {
+        req_string.push('ID="'+hostId+'"');
+      });
+
+      /*$.each(selected_ds, function(index, dsId) {
+        req_ds_string.push('ID="'+dsId+'"');
+      });*/
+
+      $('#SCHED_REQUIREMENTS', context).val(req_string.join(" | "));
+      //$('#SCHED_DS_REQUIREMENTS', context).val(req_ds_string.join(" | "));
+  };
 });
