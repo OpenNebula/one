@@ -64,7 +64,7 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
             e["TEMPLATE/VCENTER_INSTANCE_ID"] == vc_uuid
         end.first
         
-        raise "DS with ref #{ds_ref} is not imported in OpenNebula, aborting Wild VM import." if !ds_one
+        return OpenNebula::Error.new("DS with ref #{ds_ref} is not imported in OpenNebula, aborting Wild VM import.") if !ds_one
 
         rc = one_vm.allocate(template)
         return rc if OpenNebula.is_error?(rc)
