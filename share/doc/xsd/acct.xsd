@@ -78,7 +78,9 @@
           MONITOR_ACTION          = 44
         -->
         <xs:element name="ACTION" type="xs:integer"/>
-
+        <xs:element name="UID" type="xs:integer"/>
+        <xs:element name="GID" type="xs:integer"/>
+        <xs:element name="REQUEST_ID" type="xs:string"/>
         <xs:element name="VM">
           <xs:complexType>
             <xs:sequence>
