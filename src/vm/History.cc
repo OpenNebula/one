@@ -380,22 +380,20 @@ int History::rebuild_attributes()
     // -------------------------------------------------------------------------
     ObjectXML::get_nodes("/HISTORY/VM", content);
 
-    if (content.empty())
+    if (!content.empty())
     {
-        return -1;
+        ObjectXML vm_info_xml(content[0]);
+
+        ostringstream oss;
+
+        oss << vm_info_xml;
+
+        vm_info = oss.str();
+
+        ObjectXML::free_nodes(content);
+
+        content.clear();
     }
-
-    ObjectXML vm_info_xml(content[0]);
-
-    ostringstream oss;
-
-    oss << vm_info_xml;
-
-    vm_info = oss.str();
-
-    ObjectXML::free_nodes(content);
-
-    content.clear();
 
     non_persistent_data();
 
