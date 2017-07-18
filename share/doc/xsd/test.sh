@@ -41,6 +41,9 @@ onehost create host01 --im dummy --vm dummy
 onehost create host02 --im dummy --vm dummy
 onehost create host03 --im dummy --vm dummy
 
+#Wait to monitor hosts
+sleep 30
+
 onecluster addhost newcluster host03
 
 for i in `onehost list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
