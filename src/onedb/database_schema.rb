@@ -76,6 +76,7 @@ class OneDBBacKEnd
         if !version
             if self.respond_to?(:db_version)
                 version = db_version
+                version = version[:local_version] if Hash === version
             else
                 version = LATEST_DB_VERSION
             end
