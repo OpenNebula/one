@@ -343,6 +343,8 @@ string& History::to_xml(string& xml, bool database) const
 
 int History::rebuild_attributes()
 {
+    vector<xmlNodePtr> content;
+
     int int_action;
     int rc = 0;
 
@@ -374,6 +376,26 @@ int History::rebuild_attributes()
     rc += xpath(req_id, "/HISTORY/REQUEST_ID", -1);
 
     action = static_cast<VMAction>(int_action);
+
+    // -------------------------------------------------------------------------
+    ObjectXML::get_nodes("/HISTORY/VM", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    ObjectXML vm_info_xml(content[0]);
+
+    ostringstream oss;
+
+    oss << vm_info_xml;
+
+    vm_info = oss.str();
+
+    ObjectXML::free_nodes(content);
+
+    content.clear();
 
     non_persistent_data();
 
