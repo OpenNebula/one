@@ -148,7 +148,11 @@ define(function(require) {
 
     var tmpl = WizardFields.retrieve(selectedContext);
 
-    if(!tmpl["IMAGE"] && !tmpl["IMAGE_ID"]){
+    if(tmpl.SIZE){
+      tmpl.SIZE = tmpl.SIZE * 1024;
+    }
+
+    if($("input[name='" + this.diskTabId + "']:checked", context).val() == "image" && !tmpl["IMAGE"] && !tmpl["IMAGE_ID"]){
        return {};
     }
     var dev_prefix = WizardFields.retrieveInput($('#disk_dev_prefix', selectedContext));
