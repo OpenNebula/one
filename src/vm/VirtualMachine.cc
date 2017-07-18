@@ -505,10 +505,12 @@ int VirtualMachine::select(SqlDB * db)
         return rc;
     }
 
-    //Get History Records. Current history is built in from_xml() (if any).
+    //Get History Records. 
     if( hasHistory() )
     {
-        last_seq = history->seq - 1;
+        last_seq = history->seq;
+
+        delete history_records[last_seq];
 
         for (int i = last_seq; i >= 0; i--)
         {
@@ -525,6 +527,10 @@ int VirtualMachine::select(SqlDB * db)
             history_records[i] = hp;
 
             if ( i == last_seq )
+            {
+                history = hp;
+            }
+            else if ( i == last_seq - 1 )
             {
                 previous_history = hp;
             }
@@ -2117,18 +2123,15 @@ int VirtualMachine::from_xml(const string &xml_str)
     // -------------------------------------------------------------------------
     // Last history entry
     // -------------------------------------------------------------------------
-    ObjectXML::get_nodes("/VM/HISTORY_RECORDS/HISTORY", content);
+    int last_seq;
 
-    if (!content.empty())
+    if ( xpath(last_seq,"/VM/HISTORY_RECORDS/HISTORY/SEQ", -1) == 0 && 
+            last_seq != -1 )
     {
-        history = new History(oid);
-        rc += history->from_xml_node(content[0]);
+        history = new History(oid, last_seq);
 
         history_records.resize(history->seq + 1);
         history_records[history->seq] = history;
-
-        ObjectXML::free_nodes(content);
-        content.clear();
     }
 
     // -------------------------------------------------------------------------
