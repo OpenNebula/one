@@ -54,6 +54,41 @@ EOT
         Dir["#{TMP_DIR}/one_migrate_vm_*"].each do |vm_filename|
             vm_id = vm_filename.split("_")[-1]
             vm_xml = File.read(vm_filename)
+
+            vm_xml_doc = REXML::Document.new(vm_xml).root
+
+            seq_node  = vm_xml_doc.elements["HISTORY_RECORDS/HISTORY/SEQ"]
+            dsid_node = vm_xml_doc.elements["HISTORY_RECORDS/HISTORY/DS_ID"]
+
+            if seq_node && seq_node.has_text? && dsid_node && dsid_node.has_text?
+                seq = seq_node.text
+                dsid= dsid_node.text
+                begin
+
+                h_dataset = @db["SELECT body from history where vid=#{vm_id} and seq=#{seq}"]
+                h_body    = h_dataset.map(:body)
+
+                h_xml = REXML::Document.new(h_body[0]).root
+
+                h_ds_node = h_xml.elements["DS_ID"]
+
+                if h_ds_node && h_ds_node.has_text?
+                    h_ds_node.text = dsid
+
+                    h_xml.delete_element "TM_MAD"
+
+                    tmmad_elem = REXML::Element.new("TM_MAD")
+                    tmmad_elem.text = "vcenter"
+                    h_xml.add_element(tmmad_elem)
+
+                    @db.run("UPDATE history SET body='#{h_xml.to_s}' WHERE vid=#{vm_id} and seq=#{seq}")
+                end
+
+                rescue
+                    puts "VM #{vm_id} cannot set datastore. Manual update needed"
+                end
+            end
+
             @db.run("UPDATE vm_pool SET body='#{vm_xml}' WHERE oid='#{vm_id}'")
             puts "    VM #{vm_id} migrated!" if verbose
         end
