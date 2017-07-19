@@ -690,7 +690,7 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
             if !vc_vmachines.key? vm_ref
                 raise "Could not find vcenter vm using ref #{vm_ref} in order to assign a datastore"
             else
-                vc_system_ds = vc_vmachine["datastore"].first rescue nil
+                vc_system_ds = vc_vmachines[vm_ref]["datastore"].first rescue nil
                 raise "Could not find Datastore associated with the VM" if vc_system_ds.nil?
 
                 ds_ref = vc_system_ds._ref
