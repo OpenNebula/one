@@ -102,31 +102,6 @@ public:
         obj_template->set(disks);
     }
 
-    /**
-    *  This method check if sched_action is malformed or not
-	*
-    *    @return false if the attribute is malformed
-    */
-    bool parse_sched_action()
-    {
-        bool malformed = false;
-        string action = "";
-        VectorAttribute *attr = nullptr;
-        vector<const VectorAttribute *> _sched_actions;
-        obj_template->get("SCHED_ACTION",_sched_actions);
-
-        for (vector<const VectorAttribute *>::const_iterator i = _sched_actions.begin();
-				i != _sched_actions.end() && !malformed ; ++i)
-		{
-		    attr = new VectorAttribute(*i);
-            if ( attr->vector_value("DONE") != "" || attr->vector_value("MESSAGE") != "" )
-            {
-                malformed = true;
-            }
-		}
-        return !malformed;
-    }
-
     // ------------------------------------------------------------------------
     // Virtual Router
     // ------------------------------------------------------------------------
@@ -191,6 +166,11 @@ private:
      *    @return 0 on success, -1 otherwise
      */
     int from_xml(const string &xml_str);
+
+    /**
+     *  This method removes sched_action DONE/MESSAGE attributes
+     */
+    void parse_sched_action();
 
 protected:
 

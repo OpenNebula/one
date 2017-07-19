@@ -74,13 +74,16 @@ int VMTemplate::insert(SqlDB *db, string& error_str)
     // ---------------------------------------------------------------------
     // Check default attributes
     // ---------------------------------------------------------------------
-
     erase_template_attribute("NAME", name);
+
+    // ---------------------------------------------------------------------
+    // Remove DONE/MESSAGE from SCHED_ACTION
+    // ---------------------------------------------------------------------
+    parse_sched_action();
 
     // ------------------------------------------------------------------------
     // Insert the Template
     // ------------------------------------------------------------------------
-
     return insert_replace(db, false, error_str);
 }
 
@@ -167,16 +170,27 @@ error_common:
     return -1;
 }
 
+void VMTemplate::parse_sched_action()
+{
+    vector<VectorAttribute *> _sched_actions;
+    vector<VectorAttribute *>::iterator i;
+
+    get_template_attribute("SCHED_ACTION", _sched_actions);
+
+    for ( i = _sched_actions.begin(); i != _sched_actions.end() ; ++i)
+    {
+        (*i)->remove("DONE");
+        (*i)->remove("MESSAGE");
+    }
+}
+
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
 int VMTemplate::post_update_template(string& error)
 {
-    if ( !parse_sched_action() )
-    {
-       error = "Error parsing sched_action, malformed.";
-       return -1;
-    }
+    parse_sched_action();
+
     return 0;
 }
 
