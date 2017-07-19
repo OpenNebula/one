@@ -983,6 +983,8 @@ define(function(require) {
                 }
 
                 if (Config.provision.create_vm.isEnabled("vmgroup_select")) {
+                  $(".provision_vmgroup_selector", create_vm_context).html("");
+                  $("#provision_create_vm .provision_add_vmgroup").show();
                   VMGroupSection.insert(template_json, $(".vmgroupContext", create_vm_context));
                 } else {
                   $(".provision_vmgroup_selector", create_vm_context).html("");
