@@ -86,7 +86,7 @@ class OneDBBacKEnd
 
         # Discard versions greater than the one we are searching for
         versions = VERSION_SCHEMA.keys.reject do |v|
-            Gem::Version.new(v) > gver
+            Gem::Version.new(v.dup) > gver
         end
 
         # Order versions in decreasing order
