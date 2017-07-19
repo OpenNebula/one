@@ -78,7 +78,7 @@ define(function(require) {
       $.each(Config.onedConf.IM_MAD, function(index, imMad) {
         if (imMad.SUNSTONE_NAME !== undefined) {
           that.imMadNameList.push({
-              'displayNme': imMad["SUNSTONE_NAME"],
+              'displayName': imMad["SUNSTONE_NAME"],
               'driverName': imMad["NAME"]
           });
         }
