@@ -32,9 +32,9 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 #  EC2_SECRET = <Your ec2 secret key>
                 #
                 #  CAPACITY = [
-                #    M1SMALL  = <number of machines m1.small>,
-                #    M1XLARGE = <number of machines m1.xlarge>,
-                #    M1LARGE  = <number of machines m1.large>
+                #    M1_SMALL  = <number of machines m1.small>,
+                #    M1_XLARGE = <number of machines m1.xlarge>,
+                #    M1_LARGE  = <number of machines m1.large>
                 #  ]
                 #
                 # You can set any machine type supported by ec2
