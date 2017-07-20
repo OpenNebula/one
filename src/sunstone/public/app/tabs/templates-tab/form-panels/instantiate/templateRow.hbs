@@ -67,6 +67,7 @@
       </fieldset>
     </div>
   </div>
+  {{#isFeatureEnabled "show_host_instantiate"}}
   <div class="row">
     <div class="small-12 columns hostContext{{element.ID}}">
       <fieldset>
@@ -86,25 +87,28 @@
       </fieldset>
     </div>
   </div>
-  <div class="row">
-    <div class="small-12 columns dsContext{{element.ID}}">
-      <fieldset>
-        <legend>
-          <i class="fa fa-globe"></i> {{tr "Datastore"}}
-        </legend>
-        <div class="provision_ds_selector{{element.ID}}" data-tab-content>{{{dsDatatable}}}</div>
-        <div class="row">
-            <div class="large-12 columns">
-              <label for="SCHED_DS_REQUIREMENTS">
-                {{tr "Expression"}}
-                {{{tip (tr "Boolean expression that rules out entries from the pool of datastores suitable to run this VM.")}}}
-              </label>
-              <input type="text" wizard_field="SCHED_DS_REQUIREMENTS" id="SCHED_DS_REQUIREMENTS{{element.ID}}" name="requirements" />
-            </div>
-        </div>
-      </fieldset>
+  {{/isFeatureEnabled}}
+  {{#isFeatureEnabled "show_ds_instantiate"}}
+    <div class="row">
+      <div class="small-12 columns dsContext{{element.ID}}">
+        <fieldset>
+          <legend>
+            <i class="fa fa-globe"></i> {{tr "Datastore"}}
+          </legend>
+          <div class="provision_ds_selector{{element.ID}}" data-tab-content>{{{dsDatatable}}}</div>
+          <div class="row">
+              <div class="large-12 columns">
+                <label for="SCHED_DS_REQUIREMENTS">
+                  {{tr "Expression"}}
+                  {{{tip (tr "Boolean expression that rules out entries from the pool of datastores suitable to run this VM.")}}}
+                </label>
+                <input type="text" wizard_field="SCHED_DS_REQUIREMENTS" id="SCHED_DS_REQUIREMENTS{{element.ID}}" name="requirements" />
+              </div>
+          </div>
+        </fieldset>
+      </div>
     </div>
-  </div>
+  {{/isFeatureEnabled}}
   <div class="row">
     <div class="medium-6 small-12 columns vcenterVMFolderContext{{element.ID}}">
       <div class="provision_vcenter_vm_folder_selector">
