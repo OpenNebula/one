@@ -126,7 +126,7 @@ module Migrator
 
                     capacity = doc.create_element("CAPACITY")
                     host_info["capacity"].each { |k, v|
-                        name = k[0..1] << k[3..k.length-1]
+                        name = k.gsub(".", "_")
                         capacity.add_child(doc.create_element(name.upcase, v))
                     }
 
