@@ -84,8 +84,17 @@ define(function(require) {
   }
 
   function _totalCost(){
-    var total = document.getElementById('real_memory_cost').value + document.getElementById('real_cpu_cost').value;
-    document.getElementById('total_cost').textContent = "Total: "+ convertCostNumber(total);
+    var memory = document.getElementById('real_memory_cost').value;
+    var cpu = document.getElementById('real_cpu_cost').value;
+    if(memory === undefined && cpu === undefined){
+      document.getElementById('total_cost').textContent = "Total: 0.00";
+    } else if(memory === undefined){
+      document.getElementById('total_cost').textContent = "Total: " + convertCostNumber(cpu);
+    } else if(cpu === undefined){
+      document.getElementById('total_cost').textContent = "Total: " + convertCostNumber(memory);
+    } else {
+      document.getElementById('total_cost').textContent = "Total: " + convertCostNumber(memory + cpu);
+    }
   }
 
   function _calculatedRealMemory(){
