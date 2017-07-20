@@ -129,6 +129,7 @@ define(function(require) {
     that.clustersTable.initialize(selectOptions);
     that.clustersTable.refreshResourceTableSelect();
     that.datastoresTable.initialize(selectOptions);
+    that.datastoresTable.filter("system", 10);
     that.datastoresTable.refreshResourceTableSelect();
   }
 

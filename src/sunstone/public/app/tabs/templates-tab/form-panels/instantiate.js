@@ -312,6 +312,7 @@ define(function(require) {
           that.hostsTable.initialize(selectOptions);
           that.hostsTable.refreshResourceTableSelect();
           that.datastoresTable.initialize(selectOptions);
+          that.datastoresTable.filter("system", 10);
           that.datastoresTable.refreshResourceTableSelect();
 
           var reqJSON = template_json.VMTEMPLATE.TEMPLATE.SCHED_REQUIREMENTS;
