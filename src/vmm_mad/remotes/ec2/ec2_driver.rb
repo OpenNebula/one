@@ -454,8 +454,7 @@ class EC2Driver
     # Parse template instance type into
     # Amazon ec2 format (M1SMALL => m1.small)
     def parse_inst_type(type)
-        fixed_type = type[0..1]<< '.' << type[2..type.length+1]
-        return fixed_type.downcase
+        return type.downcase.gsub("_", ".")
     end
 
     # Get the info of all the EC2 instances. An EC2 instance must include
