@@ -58,7 +58,8 @@ define(function(require) {
           {"bSortable": false, "aTargets": ["check"]},
           {"sWidth": "35px", "aTargets": [0]},
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(tabId)},
-          {"bVisible": false, "aTargets": ['_all']}
+          {"bVisible": false, "aTargets": ['_all']},
+          {"sType": "date-euro", "aTargets": [ 5 ]}
       ]
     }
 
@@ -118,7 +119,7 @@ define(function(require) {
         element.NAME,
         element.UNAME,
         element.GNAME,
-        Humanize.prettyTime(element.REGTIME),
+        Humanize.prettyTimeDatatable(element.REGTIME),
         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
         btoa(unescape(encodeURIComponent(JSON.stringify(search))))
     ];
