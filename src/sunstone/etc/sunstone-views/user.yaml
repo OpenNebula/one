@@ -56,6 +56,12 @@ features:
     # True to show the option to make an instance persistent
     instantiate_persistent: true
 
+    # True to show the datastore datatable to instantiate VM
+    show_ds_instantiate: false
+
+    # True to show the host datatable to instantiate VM
+    show_host_instantiate: false
+
     # True to show an input to specify the the VMs and Template path/folder where a vCenter VM will
     # deployed to
     vcenter_vm_folder: false
