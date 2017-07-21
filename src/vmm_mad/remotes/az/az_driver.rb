@@ -226,38 +226,38 @@ class AzureDriver
 
     # DEPLOY action
     def deploy(id, host, xml_text, lcm_state, deploy_id)
-      if lcm_state == "BOOT" || lcm_state == "BOOT_FAILURE"
-        load_default_template_values
+        if lcm_state == "BOOT" || lcm_state == "BOOT_FAILURE"
+            load_default_template_values
 
-        az_info = get_deployment_info(host, xml_text)
+            az_info = get_deployment_info(host, xml_text)
 
-        if !az_value(az_info, 'IMAGE')
-            raise "Cannot find IMAGE in deployment file"
-        end
+            if !az_value(az_info, 'IMAGE')
+                raise "Cannot find IMAGE in deployment file"
+            end
 
-        csn = az_value(az_info, 'CLOUD_SERVICE')
+            csn = az_value(az_info, 'CLOUD_SERVICE')
 
-        csn = "csn#{id}" if !csn
+            csn = "csn#{id}" if !csn
 
-        create_params  = create_params(id,csn,az_info)
-        create_options = create_options(id,csn,az_info)
-        instance       = nil
+            create_params  = create_params(id,csn,az_info)
+            create_options = create_options(id,csn,az_info)
+            instance       = nil
 
-        in_silence do
-          instance = @azure_vms.create_virtual_machine(create_params,
-                                                       create_options)
-        end
+            in_silence do
+              instance = @azure_vms.create_virtual_machine(create_params,
+                                                           create_options)
+            end
 
 
-        if instance.class == Azure::VirtualMachineManagement::VirtualMachine
-            puts(instance.vm_name)
+            if instance.class == Azure::VirtualMachineManagement::VirtualMachine
+                puts(instance.vm_name)
+            else
+                raise "Deployment failure " + instance
+            end
         else
-            raise "Deployment failure " + instance
+            restore(deploy_id)
+            deploy_id
         end
-      else
-        restore(deploy_id)
-        deploy_id
-      end
     end
 
     # Shutdown an Azure instance
@@ -405,87 +405,89 @@ private
         }
 
         if !az
-              # If we don't find an Azure location, and ONE just
-              # knows about one Azure location, let's use that
-              if all_az_elements.size == 1 and
-                 all_az_elements[0].elements["TYPE"].text.downcase.eql? "azure"
-                  az = all_az_elements[0]
-              else
-                  STDERR.puts(
-                      "Cannot find Azure element in VM template "<<
-                      "or couldn't find any Azure location matching "<<
-                      "one of the templates.")
-                  exit(-1)
-              end
-          end
+            # If we don't find an Azure location, and ONE just
+            # knows about one Azure location, let's use that
+            if all_az_elements.size == 1 and
+                all_az_elements[0].elements["TYPE"].text.downcase.eql? "azure"
+                az = all_az_elements[0]
+            else
+                STDERR.puts(
+                "Cannot find Azure element in VM template "<<
+                "or couldn't find any Azure location matching "<<
+                "one of the templates.")
+                exit(-1)
+            end
+        end
 
-         # If LOCATION not explicitly defined, try to get default, if not
-          # try to use hostname as datacenter
-          if !az.elements["LOCATION"]
+        # location can be retrieved from host information...
+
+        # If LOCATION not explicitly defined, try to get default, if not
+        # try to use hostname as datacenter
+        if !az.elements["LOCATION"]
             location=REXML::Element.new("LOCATION")
             if @defaults["LOCATION"]
-              location.text=@defaults["LOCATION"]
+                location.text=@defaults["LOCATION"]
             else
-              location.text=host
+                location.text=host
             end
             az.elements << location
-          end
+        end
 
-          # Translate region name form keyword to actual value
-          region_keyword = az.elements["LOCATION"].text
-          translated_region = @public_cloud_az_conf["regions"][region_keyword]
-          az.elements["LOCATION"].text=translated_region["region_name"]
+        # Translate region name form keyword to actual value
+        region_keyword = az.elements["LOCATION"].text
+        translated_region = @public_cloud_az_conf["regions"][region_keyword]
+        az.elements["LOCATION"].text=translated_region["region_name"]
 
-          az
+        az
     end
 
     # Retrive the vm information from the Azure instance
     def parse_poll(instance)
-      begin
-        info =  "#{POLL_ATTRIBUTE[:memory]}=0 " \
-                "#{POLL_ATTRIBUTE[:cpu]}=0 " \
-                "#{POLL_ATTRIBUTE[:nettx]}=0 " \
-                "#{POLL_ATTRIBUTE[:netrx]}=0 "
+        begin
+            info =  "#{POLL_ATTRIBUTE[:memory]}=0 " \
+                    "#{POLL_ATTRIBUTE[:cpu]}=0 " \
+                    "#{POLL_ATTRIBUTE[:nettx]}=0 " \
+                    "#{POLL_ATTRIBUTE[:netrx]}=0 "
 
-        state = ""
-        if !instance
-            state = VM_STATE[:deleted]
-        else
-            state = case instance.deployment_status
-            when "Running", "Starting"
-                VM_STATE[:active]
-            when "Suspended", "Stopping",
-                VM_STATE[:paused]
+            state = ""
+            if !instance
+                state = VM_STATE[:deleted]
             else
-                VM_STATE[:unknown]
-            end
-        end
-        info << "#{POLL_ATTRIBUTE[:state]}=#{state} "
-
-        AZ_POLL_ATTRS.map { |key|
-            value = instance.send(key)
-            if !value.nil? && !value.empty?
-                if key.to_s.upcase == "TCP_ENDPOINTS" or
-                   key.to_s.upcase == "UDP_ENDPOINTS"
-                    value_str = format_endpoints(value)
-                elsif value.kind_of?(Hash)
-                    value_str = value.inspect
+                state = case instance.deployment_status
+                when "Running", "Starting"
+                    VM_STATE[:active]
+                when "Suspended", "Stopping",
+                    VM_STATE[:paused]
                 else
-                    value_str = value
+                    VM_STATE[:unknown]
                 end
-
-                info << "AZ_#{key.to_s.upcase}="
-                info << "\\\"#{value_str.gsub("\"","")}\\\" "
-
             end
-        }
+            info << "#{POLL_ATTRIBUTE[:state]}=#{state} "
 
-        info
-      rescue
-        # Unknown state if exception occurs retrieving information from
-        # an instance
-        "#{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:unknown]} "
-      end
+            AZ_POLL_ATTRS.map { |key|
+                value = instance.send(key)
+                if !value.nil? && !value.empty?
+                    if key.to_s.upcase == "TCP_ENDPOINTS" or
+                        key.to_s.upcase == "UDP_ENDPOINTS"
+                        value_str = format_endpoints(value)
+                    elsif value.kind_of?(Hash)
+                        value_str = value.inspect
+                    else
+                        value_str = value
+                    end
+
+                    info << "AZ_#{key.to_s.upcase}="
+                    info << "\\\"#{value_str.gsub("\"","")}\\\" "
+
+                end
+            }
+
+            info
+        rescue
+            # Unknown state if exception occurs retrieving information from
+            # an instance
+            "#{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:unknown]} "
+        end
     end
 
     def format_endpoints(endpoints)
