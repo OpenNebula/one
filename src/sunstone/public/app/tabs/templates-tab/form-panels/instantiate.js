@@ -29,6 +29,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var UserInputs = require('utils/user-inputs');
   var WizardFields = require('utils/wizard-fields');
+  var TemplateUtils = require('utils/template-utils');
   var DisksResize = require('utils/disks-resize');
   var NicsSection = require('utils/nics-section');
   var VMGroupSection = require('utils/vmgroup-section');
@@ -36,6 +37,7 @@ define(function(require) {
   var CapacityInputs = require('tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs');
   var Config = require('sunstone-config');
   var HostsTable = require('tabs/hosts-tab/datatable');
+  var DatastoresTable = require('tabs/datastores-tab/datatable');
 
   /*
     CONSTANTS
@@ -182,6 +184,11 @@ define(function(require) {
         tmp_json.SCHED_REQUIREMENTS = sched;
       }
 
+      var sched_ds = WizardFields.retrieveInput($("#SCHED_DS_REQUIREMENTS"  + template_id, context));
+      if(sched_ds){
+        tmp_json.SCHED_DS_REQUIREMENTS = sched_ds;
+      }
+
       var nics = [];
       var pcis = [];
 
@@ -266,6 +273,7 @@ define(function(require) {
         timeout: true,
         success: function (request, template_json) {
           that.template_objects.push(template_json);
+
           var options = {
             'select': true,
             'selectOptions': {
@@ -274,26 +282,68 @@ define(function(require) {
           }
 
           that.hostsTable = new HostsTable('HostsTable' + template_json.VMTEMPLATE.ID, options);
+          that.datastoresTable = new DatastoresTable('DatastoresTable' + template_json.VMTEMPLATE.ID, options);
+
           templatesContext.append(
             TemplateRowHTML(
               { element: template_json.VMTEMPLATE,
                 capacityInputsHTML: CapacityInputs.html(),
-                hostsDatatable: that.hostsTable.dataTableHTML
+                hostsDatatable: that.hostsTable.dataTableHTML,
+                dsDatatable: that.datastoresTable.dataTableHTML
               }) );
 
           $(".provision_host_selector" + template_json.VMTEMPLATE.ID, context).data("hostsTable", that.hostsTable);
+          $(".provision_ds_selector" + template_json.VMTEMPLATE.ID, context).data("dsTable", that.datastoresTable);
+
           var selectOptions = {
             'selectOptions': {
               'select_callback': function(aData, options) {
-                generateRequirements($(".provision_host_selector" + template_json.VMTEMPLATE.ID, context).data("hostsTable"), context, template_json.VMTEMPLATE.ID);
+                var hostTable = $(".provision_host_selector" + template_json.VMTEMPLATE.ID, context).data("hostsTable");
+                var dsTable = $(".provision_ds_selector" + template_json.VMTEMPLATE.ID, context).data("dsTable");
+                generateRequirements(hostTable, dsTable, context, template_json.VMTEMPLATE.ID);
               },
               'unselect_callback': function(aData, options) {
-                generateRequirements($(".provision_host_selector"+ template_json.VMTEMPLATE.ID, context).data("hostsTable"), context, template_json.VMTEMPLATE.ID);
-              }
+                var hostTable = $(".provision_host_selector" + template_json.VMTEMPLATE.ID, context).data("hostsTable");
+                var dsTable = $(".provision_ds_selector" + template_json.VMTEMPLATE.ID, context).data("dsTable");
+                generateRequirements(hostTable, dsTable, context, template_json.VMTEMPLATE.ID);
+               }
             }
           }
           that.hostsTable.initialize(selectOptions);
           that.hostsTable.refreshResourceTableSelect();
+          that.datastoresTable.initialize(selectOptions);
+          that.datastoresTable.filter("system", 10);
+          that.datastoresTable.refreshResourceTableSelect();
+
+          var reqJSON = template_json.VMTEMPLATE.TEMPLATE.SCHED_REQUIREMENTS;
+          if (reqJSON) {
+            $('#SCHED_REQUIREMENTS' + template_json.VMTEMPLATE.ID, context).val(reqJSON);
+            var req = TemplateUtils.escapeDoubleQuotes(reqJSON);
+            var host_id_regexp = /(\s|\||\b)ID=\\"([0-9]+)\\"/g;
+            var hosts = [];
+            while (match = host_id_regexp.exec(req)) {
+                hosts.push(match[2]);
+            }
+            var selectedResources = {
+              ids : hosts
+            }
+            that.hostsTable.selectResourceTableSelect(selectedResources);
+          }
+
+          var dsReqJSON = template_json.VMTEMPLATE.TEMPLATE.SCHED_DS_REQUIREMENTS;
+          if (dsReqJSON) {
+            $('#SCHED_DS_REQUIREMENTS' + template_json.VMTEMPLATE.ID, context).val(dsReqJSON);
+            var dsReq = TemplateUtils.escapeDoubleQuotes(dsReqJSON);
+            var ds_id_regexp = /(\s|\||\b)ID=\\"([0-9]+)\\"/g;
+            var ds = [];
+            while (match = ds_id_regexp.exec(dsReq)) {
+              ds.push(match[2]);
+            }
+            var selectedResources = {
+              ids : ds
+            }
+            that.datastoresTable.selectResourceTableSelect(selectedResources);
+          }
 
           DisksResize.insert({
             template_json: template_json,
@@ -383,21 +433,22 @@ define(function(require) {
     Tips.setup(context);
     return false;
   }
-  function generateRequirements(hosts_table, context, id) {
+
+  function generateRequirements(hosts_table, ds_table, context, id) {
       var req_string=[];
-      //var req_ds_string=[];
+      var req_ds_string=[];
       var selected_hosts = hosts_table.retrieveResourceTableSelect();
-      //var selected_ds = this.datastoresTable.retrieveResourceTableSelect();
+      var selected_ds = ds_table.retrieveResourceTableSelect();
 
       $.each(selected_hosts, function(index, hostId) {
         req_string.push('ID="'+hostId+'"');
       });
 
-      /*$.each(selected_ds, function(index, dsId) {
+      $.each(selected_ds, function(index, dsId) {
         req_ds_string.push('ID="'+dsId+'"');
-      });*/
+      });
 
       $('#SCHED_REQUIREMENTS' + id, context).val(req_string.join(" | "));
-      //$('#SCHED_DS_REQUIREMENTS', context).val(req_ds_string.join(" | "));
+      $('#SCHED_DS_REQUIREMENTS' + id, context).val(req_ds_string.join(" | "));
   };
 });
