@@ -40,6 +40,8 @@ define(function(require) {
   var UserInputs = require('utils/user-inputs');
   var CapacityInputs = require('tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs');
   var LabelsUtils = require('utils/labels/utils');
+  var DatastoresTable = require('tabs/datastores-tab/datatable');
+  var UniqueId = require('utils/unique-id');
 
   var ProvisionVmsList = require('./provision-tab/vms/list');
   var ProvisionTemplatesList = require('./provision-tab/templates/list');
@@ -92,6 +94,7 @@ define(function(require) {
     $("#vm_name", context).val('');
     $(".provision_selected_networks").html("");
     $(".provision_vmgroup_selector").html("");
+    $(".provision_ds_selector").html("");
     $(".provision-pricing-table", context).removeClass("selected");
     $(".alert-box-error", context).hide();
     $(".total_cost_div", context).hide();
@@ -569,8 +572,10 @@ define(function(require) {
     $("#provision_create_vm .provision_disk_selector").removeData("template_json");
     $("#provision_create_vm .provision_network_selector").html("");
     $("#provision_create_vm .provision_vmgroup_selector").html("");
+    $("#provision_create_vm .provision_ds_selector").html("");
     $("#provision_create_vm .provision_add_vmgroup").show();
     $("#provision_create_vm .provision_vmgroup").hide();
+    $("#provision_create_vm .provision_ds").hide();
 
     $("#provision_create_vm .provision_custom_attributes_selector").html("")
 
@@ -595,12 +600,13 @@ define(function(require) {
     $(".provision_vmgroup_selector", context).html("");
     $(".provision_add_vmgroup", context).show();
     $(".provision_vmgroup", context).hide();
+    //$(".provision_ds", context).hide();
     $(".provision_custom_attributes_selector", context).html("");
 
     $(".provision_accordion_flow_template .selected_template", context).hide();
     $(".provision_accordion_flow_template .select_template", context).show();
 
-    $("li:not(.is-active) a[href='#provision_dd_flow_template']", context).trigger("click")
+    $("li:not(.is-active) a[href='#provision_dd_flow_template']", context).trigger("click");
 
     $(".total_cost_div", context).hide();
     $(".alert-box-error", context).hide();
@@ -946,6 +952,7 @@ define(function(require) {
             $(".provision_accordion_template a").first().trigger("click");
 
             $("#provision_create_vm .provision_vmgroup").show();
+            $("#provision_create_vm .provision_ds").show();
             OpenNebula.Template.show({
               data : {
                 id: template_id,
@@ -983,9 +990,43 @@ define(function(require) {
                 }
 
                 if (Config.provision.create_vm.isEnabled("vmgroup_select")) {
+                  $(".provision_vmgroup_selector", create_vm_context).html("");
+                  $("#provision_create_vm .provision_add_vmgroup").show();
                   VMGroupSection.insert(template_json, $(".vmgroupContext", create_vm_context));
                 } else {
                   $(".provision_vmgroup_selector", create_vm_context).html("");
+                }
+
+                if (Config.provision.create_vm.isEnabled("datastore_select")) {
+                  $(".provision_ds_selector", create_vm_context).html("");
+                  var options = {
+                    'select': true,
+                    'selectOptions': {
+                      'multiple_choice': true
+                    }
+                  }
+                  this.datastoresTable = new DatastoresTable('DatastoresTable' + UniqueId.id(), options);
+                  $(".provision_ds_selector", create_vm_context).html(this.datastoresTable.dataTableHTML);
+                  this.datastoresTable.initialize();
+                  this.datastoresTable.filter("system", 10);
+                  this.datastoresTable.refreshResourceTableSelect();
+                  if(template_json.VMTEMPLATE.TEMPLATE.SCHED_DS_REQUIREMENTS){
+                    var dsReqJSON = template_json.VMTEMPLATE.TEMPLATE.SCHED_DS_REQUIREMENTS;
+                    var dsReq = TemplateUtils.escapeDoubleQuotes(dsReqJSON);
+                    var ds_id_regexp = /(\s|\||\b)ID=\\"([0-9]+)\\"/g;
+                    var ds = [];
+                    while (match = ds_id_regexp.exec(dsReq)) {
+                      ds.push(match[2]);
+                    }
+                    var selectedResources = {
+                      ids : ds
+                    }
+                    this.datastoresTable.selectResourceTableSelect(selectedResources);
+                    $(".provision_ds_selector", create_vm_context).data("dsTable", this.datastoresTable);
+                  }
+                } else {
+                  $(".provision_ds_selector", create_vm_context).html("");
+                  $(".provision_ds", create_vm_context).hide();
                 }
 
                 if (template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS) {
@@ -1042,6 +1083,20 @@ define(function(require) {
 
           if(vmgroup){
             $.extend(extra_info.template, vmgroup);
+          }
+
+          var dsTable = $(".provision_ds_selector", context).data("dsTable");
+          if(dsTable != undefined){
+            var req_string = [];
+            var ds = dsTable.retrieveResourceTableSelect();
+            if(ds){
+              $.each(ds, function(index, dsId) {
+                req_string.push('ID="' + dsId + '"');
+              });
+              req_string = req_string.join(" | ");
+              req_string = TemplateUtils.escapeDoubleQuotes(req_string);
+              extra_info.template.SCHED_DS_REQUIREMENTS = req_string;
+            }
           }
 
           if (nics.length > 0) {
