@@ -78,6 +78,8 @@ define(function(require) {
       "you_selected_multiple": Locale.tr("You selected the following security groups:")
     };
 
+    this.totalSecGroups = 0;
+
     this.conf.searchDropdownHTML = SearchDropdown({tableId: this.dataTableId});
     this.searchColumn = SEARCH_COLUMN;
 
@@ -87,6 +89,8 @@ define(function(require) {
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
+  Table.prototype.preUpdateView = _preUpdateView;
+  Table.prototype.postUpdateView = _postUpdateView;
 
   return Table;
 
@@ -96,6 +100,7 @@ define(function(require) {
 
   function _elementArray(element_json) {
     var element = element_json[XML_ROOT];
+    this.totalSecGroups++;
 
     var search = {
       NAME:  element.NAME,
@@ -114,5 +119,13 @@ define(function(require) {
         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
         btoa(unescape(encodeURIComponent(JSON.stringify(search))))
     ];
+  }
+
+  function _preUpdateView() {
+    this.totalSecGroups = 0;
+  }
+
+  function _postUpdateView() {
+    $(".total_secgroups").text(this.totalSecGroups);
   }
 });
