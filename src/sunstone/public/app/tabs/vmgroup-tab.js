@@ -42,7 +42,8 @@ define(function(require) {
     infoHeader: Locale.tr("VM Groups"),
     subheader: '<span>\
         <span class="total_vmgroup"/> <small>'+Locale.tr("TOTAL")+'</small>\
-      </span>',
+        </small>&emsp;\
+        <span class="total_vms_vmgroup"/> <small>'+Locale.tr("TOTAL VMs")+'</small></span>',
     resource: 'VMGroup',
     buttons: Buttons,
     actions: Actions,
