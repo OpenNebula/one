@@ -106,12 +106,18 @@ define(function(require) {
     this.conf.searchDropdownHTML = SearchDropdown({tableId: this.dataTableId});
     this.searchColumn = SEARCH_COLUMN;
 
+    this.totalDSs = 0;
+    this.totalON = 0;
+    this.totalOFF = 0;
+
     TabDataTable.call(this);
   };
 
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
+  Table.prototype.preUpdateView = _preUpdateView;
+  Table.prototype.postUpdateView = _postUpdateView;
 
   return Table;
 
@@ -121,6 +127,7 @@ define(function(require) {
 
   function _elementArray(element_json) {
     var element = element_json.DATASTORE;
+    this.totalDSs++;
 
     var clusters = '-';
     if (element.CLUSTERS.ID != undefined){
@@ -128,6 +135,12 @@ define(function(require) {
     }
 
     var state = OpenNebulaDatastore.stateStr(element.STATE);
+
+    if(state == "ON"){
+      this.totalON++;
+    } else if(state == "OFF"){
+      this.totalOFF++;
+    }
 
     var search = {
       NAME:   element.NAME,
@@ -156,5 +169,17 @@ define(function(require) {
         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
         btoa(unescape(encodeURIComponent(JSON.stringify(search))))
     ];
+  }
+
+  function _preUpdateView() {
+    this.totalDSs = 0;
+    this.totalON = 0;
+    this.totalOFF = 0;
+  }
+
+  function _postUpdateView() {
+    $(".total_ds").text(this.totalDSs);
+    $(".total_on").text(this.totalON);
+    $(".total_off").text(this.totalOFF);
   }
 });
