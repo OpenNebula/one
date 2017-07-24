@@ -52,7 +52,9 @@ define(function(require) {
     parentTab: "storage-top-tab",
     listHeader: Locale.tr("Apps"),
     infoHeader: Locale.tr("App"),
-    subheader: '',
+    subheader: '<span>\
+        <span class="total_apps"/> <small>'+Locale.tr("TOTAL")+'</small>\
+      </span>',
     resource: 'MarketPlaceApp',
     buttons: Buttons,
     actions: Actions,

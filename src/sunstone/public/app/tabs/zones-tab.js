@@ -43,7 +43,9 @@ define(function(require) {
     parentTab: "infrastructure-top-tab",
     listHeader: Locale.tr("Zones"),
     infoHeader: Locale.tr("Zone"),
-    subheader: '',
+    subheader: '<span>\
+        <span class="total_zones"/> <small>'+Locale.tr("TOTAL")+'</small>\
+      </span>',
     resource: 'Zone',
     buttons: Buttons,
     actions: Actions,
