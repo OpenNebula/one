@@ -50,7 +50,8 @@ define(function(require) {
     parentTab: "storage-top-tab",
     listHeader: Locale.tr("Images"),
     infoHeader: Locale.tr("Image"),
-    subheader: '',
+    subheader: '<span class="total_images"/> <small>'+Locale.tr("TOTAL")+'</small>&emsp;\
+        <span class="size_images"/> <small>'+Locale.tr("TOTAL SIZE")+'</small>',
     resource: 'Image',
     buttons: Buttons,
     actions: Actions,

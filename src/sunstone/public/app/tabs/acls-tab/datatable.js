@@ -57,6 +57,8 @@ define(function(require) {
       ]
     };
 
+    this.totalACLs = 0;
+
     this.columns = [
       Locale.tr("ID"),
       Locale.tr("Applies to"),
@@ -82,6 +84,8 @@ define(function(require) {
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
+  Table.prototype.preUpdateView = _preUpdateView;
+  Table.prototype.postUpdateView = _postUpdateView;
 
   return Table;
 
@@ -95,6 +99,8 @@ define(function(require) {
     var acl_string = element.STRING;
 
     var acl_array = _parseAclString(acl_string);
+
+    this.totalACLs++;
 
     return [
       '<input class="check_item" type="checkbox" id="'+RESOURCE.toLowerCase()+'_' +
@@ -262,6 +268,14 @@ define(function(require) {
     }
 
     return zone_str;
+  }
+
+  function _preUpdateView() {
+    this.totalACLs = 0;
+  }
+
+  function _postUpdateView() {
+    $(".total_acl").text(this.totalACLs);
   }
 
 });
