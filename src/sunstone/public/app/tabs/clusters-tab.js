@@ -49,7 +49,9 @@ define(function(require) {
     parentTab: "infrastructure-top-tab",
     listHeader: Locale.tr("Clusters"),
     infoHeader: Locale.tr("Cluster"),
-    subheader: '<span/> <small></small>&emsp;',
+    subheader: '<span>\
+        <span class="total_clusters"/> <small>'+Locale.tr("TOTAL")+'</small>\
+      </span>',
     resource: 'Cluster',
     buttons: Buttons,
     actions: Actions,

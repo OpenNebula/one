@@ -76,12 +76,16 @@ define(function(require) {
       "you_selected_multiple": Locale.tr("You selected the following clusters:")
     };
 
+    this.totalClusters = 0;
+
     TabDataTable.call(this);
   }
 
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
+  Table.prototype.preUpdateView = _preUpdateView;
+  Table.prototype.postUpdateView = _postUpdateView;
 
   return Table;
 
@@ -91,6 +95,7 @@ define(function(require) {
 
   function _elementArray(element_json) {
     var element = element_json[XML_ROOT];
+    this.totalClusters++;
 
     return [
       '<input class="check_item" type="checkbox" id="'+RESOURCE.toLowerCase()+'_' +
@@ -114,4 +119,13 @@ define(function(require) {
 
     return l;
   }
+
+  function _preUpdateView() {
+    this.totalClusters = 0;
+  }
+
+  function _postUpdateView() {
+    $(".total_clusters").text(this.totalClusters);
+  }
+
 });
