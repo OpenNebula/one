@@ -75,7 +75,8 @@ define(function(require) {
           {"sWidth": "35px", "aTargets": [0]},
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
           {"bVisible": false, "aTargets": ['_all']},
-          {"sType": "file-size", "aTargets": [ 6 ] }
+          {"sType": "file-size", "aTargets": [ 6 ]},
+          {"sType": "date-euro", "aTargets": [ 9 ]}
       ]
     }
 
@@ -150,7 +151,7 @@ define(function(require) {
         Humanize.sizeFromMB(element.SIZE),
         state,
         OpenNebulaMarketPlaceApp.typeStr(element.TYPE),
-        Humanize.prettyTime(element.REGTIME),
+        Humanize.prettyTimeDatatable(element.REGTIME),
         element.MARKETPLACE,
         zone,
         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
