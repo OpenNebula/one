@@ -32,7 +32,8 @@ define(function(require) {
     'prettyTime': _prettyTime,
     'prettyTimeAxis': _prettyTimeAxis,
     'prettyPrintJSON': _prettyPrintJSON,
-    'prettyTimeAgo': _format_date
+    'prettyTimeAgo': _format_date,
+    'prettyTimeDatatable': _prettyTimeDatatable
   }
 
   /*
@@ -238,6 +239,20 @@ define(function(require) {
     };
 
     return str;
+  }
+
+  function _prettyTimeDatatable(seconds) {
+    var d = new Date();
+    d.setTime(seconds * 1000);
+
+    var secs = _pad(d.getSeconds(), 2);
+    var hour = _pad(d.getHours(), 2);
+    var mins = _pad(d.getMinutes(), 2);
+    var day = _pad(d.getDate(), 2);
+    var month = _pad(d.getMonth() + 1, 2); //getMonths returns 0-11
+    var year = d.getFullYear();
+
+    return day + "/" + month + "/" + year + " " + hour + ":" + mins + ":" + secs;
   }
 
   function _format_date(unix_timestamp) {
