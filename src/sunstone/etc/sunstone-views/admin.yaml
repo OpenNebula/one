@@ -232,6 +232,7 @@ tabs:
             features: true
             input_output: true
             context: true
+            actions: true
             scheduling: true
             hybrid: true
             vmgroup: true

@@ -142,6 +142,13 @@ private:
     int insert_replace(SqlDB *db, bool replace, string& error_str);
 
     /**
+     *  Execute this method after update the template.
+     *    @param error Returns the error reason, if any
+     *    @return 0 one success
+     */
+    int post_update_template(string& error);
+
+    /**
      *  Bootstraps the database table(s) associated to the VMTemplate
      *    @return 0 on success
      */
@@ -159,6 +166,11 @@ private:
      *    @return 0 on success, -1 otherwise
      */
     int from_xml(const string &xml_str);
+
+    /**
+     *  This method removes sched_action DONE/MESSAGE attributes
+     */
+    void parse_sched_action();
 
 protected:
 
