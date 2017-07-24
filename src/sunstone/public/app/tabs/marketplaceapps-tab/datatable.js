@@ -105,6 +105,8 @@ define(function(require) {
       "you_selected_multiple": Locale.tr("You selected the following appliances:")
     }
 
+    this.totalApps = 0;
+
     this.conf.searchDropdownHTML = SearchDropdown({tableId: this.dataTableId});
     this.searchColumn = SEARCH_COLUMN;
 
@@ -114,6 +116,8 @@ define(function(require) {
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
+  Table.prototype.preUpdateView = _preUpdateView;
+  Table.prototype.postUpdateView = _postUpdateView;
 
   return Table;
 
@@ -126,6 +130,8 @@ define(function(require) {
 
     var state = OpenNebulaMarketPlaceApp.stateStr(element.STATE);
     var zone = OpenNebulaZone.getName(element.ZONE_ID);
+
+    this.totalApps++;
 
     var search = {
       NAME:           element.NAME,
@@ -166,5 +172,13 @@ define(function(require) {
       l = 1;
 
     return l;
+  }
+
+  function _preUpdateView() {
+    this.totalApps = 0;
+  }
+
+  function _postUpdateView() {
+    $(".total_apps").text(this.totalApps);
   }
 });
