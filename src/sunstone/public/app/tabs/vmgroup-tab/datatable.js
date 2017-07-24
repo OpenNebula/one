@@ -80,6 +80,8 @@ define(function(require) {
       "you_selected_multiple": Locale.tr("You selected the following vm groups:")
     };
 
+    this.totalVMGroups = 0;
+    this.totalVMs = 0;
 
     this.conf.searchDropdownHTML = SearchDropdown({tableId: this.dataTableId});
     this.searchColumn = SEARCH_COLUMN;
@@ -90,6 +92,8 @@ define(function(require) {
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
+  Table.prototype.preUpdateView = _preUpdateView;
+  Table.prototype.postUpdateView = _postUpdateView;
 
   return Table;
 
@@ -100,6 +104,7 @@ define(function(require) {
   function _elementArray(element_json) {
     var element = element_json[XML_ROOT];
     var numVms = 0;
+    this.totalVMGroups++;
 
     for(role_index in element.ROLES.ROLE){
       if(element.ROLES.ROLE[role_index].VMS){
@@ -108,6 +113,7 @@ define(function(require) {
         numVms += vms.length;
       }
     }
+    this.totalVMs += numVms;
 
     var search = {
       NAME:  element.NAME,
@@ -127,6 +133,16 @@ define(function(require) {
         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
         btoa(unescape(encodeURIComponent(JSON.stringify(search))))
     ];
+  }
+
+  function _preUpdateView() {
+    this.totalVMGroups = 0;
+    this.totalVMs= 0;
+  }
+
+  function _postUpdateView() {
+    $(".total_vmgroup").text(this.totalVMGroups);
+    $(".total_vms_vmgroup").text(this.totalVMs);
   }
 
 });
