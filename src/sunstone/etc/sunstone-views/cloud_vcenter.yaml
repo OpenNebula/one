@@ -85,7 +85,7 @@ tabs:
             # True to allow NIC customization
             network_select: true
             # True to allow DISK size customization
-            disk_resize: false
+            disk_resize: true
     settings-tab:
         panel_tabs:
             settings_info_tab: false
