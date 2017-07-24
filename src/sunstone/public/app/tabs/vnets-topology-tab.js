@@ -588,7 +588,9 @@ define(function(require) {
       _network.cluster(clusterOptionsByData);
     });
 
-    _network.stabilize();
+    if(_network){
+      _network.stabilize();
+    }
   }
 
   function _openVMs(){
@@ -604,10 +606,15 @@ define(function(require) {
       }
     });
 
-    _network.stabilize();
+    if(_network){
+      _network.stabilize();
+    }
   }
 
   function _fit(){
-    _network.fit();
+
+    if(_network){
+      _network.fit();
+    }
   }
 });
