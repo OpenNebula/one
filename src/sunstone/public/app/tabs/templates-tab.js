@@ -50,7 +50,9 @@ define(function(require) {
     parentTab: "templates-top-tab",
     listHeader: Locale.tr("VM Templates"),
     infoHeader: Locale.tr("VM Template"),
-    subheader: '',
+    subheader: '<span>\
+        <span class="total_templates"/> <small>'+Locale.tr("TOTAL")+'</small>\
+      </span>',
     resource: 'Template',
     buttons: Buttons,
     actions: Actions,

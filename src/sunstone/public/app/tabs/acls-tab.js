@@ -40,7 +40,9 @@ define(function(require) {
     tabClass: "subTab",
     parentTab: "system-top-tab",
     listHeader: Locale.tr("Access Control Lists"),
-    subheader: '<span/><small></small>&emsp;',
+    subheader: '<span>\
+        <span class="total_acl"/> <small>'+Locale.tr("TOTAL")+'</small>\
+      </span>',
     resource: 'Acl',
     buttons: Buttons,
     actions: Actions,

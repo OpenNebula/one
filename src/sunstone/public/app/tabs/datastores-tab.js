@@ -49,7 +49,9 @@ define(function(require) {
     parentTab: "storage-top-tab",
     listHeader: Locale.tr("Datastores"),
     infoHeader: Locale.tr("Datastore"),
-    subheader: '',
+    subheader: '<span class="total_ds"/> <small>'+Locale.tr("TOTAL")+'</small>&emsp;\
+        <span class="total_on"/> <small>'+Locale.tr("ON")+'</small>&emsp;\
+        <span class="total_off"/> <small>'+Locale.tr("OFF")+'</small>',
     resource: 'Datastore',
     buttons: Buttons,
     actions: Actions,

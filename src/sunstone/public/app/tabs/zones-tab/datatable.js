@@ -74,12 +74,16 @@ define(function(require) {
       "you_selected_multiple": Locale.tr("You selected the following Zones:")
     };
 
+    this.totalZones = 0;
+
     TabDataTable.call(this);
   };
 
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
+  Table.prototype.preUpdateView = _preUpdateView;
+  Table.prototype.postUpdateView = _postUpdateView;
 
   return Table;
 
@@ -89,6 +93,7 @@ define(function(require) {
 
   function _elementArray(element_json) {
     var element = element_json.ZONE;
+    this.totalZones++;
 
     return [
         '<input class="check_item" type="checkbox" id="' + RESOURCE.toLowerCase() + '_' +
@@ -100,4 +105,13 @@ define(function(require) {
         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
     ];
   }
+
+  function _preUpdateView() {
+    this.totalZones = 0;
+  }
+
+  function _postUpdateView() {
+    $(".total_zones").text(this.totalZones);
+  }
+
 });

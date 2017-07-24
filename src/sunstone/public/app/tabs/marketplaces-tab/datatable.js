@@ -104,12 +104,16 @@ define(function(require) {
     this.conf.searchDropdownHTML = SearchDropdown({tableId: this.dataTableId});
     this.searchColumn = SEARCH_COLUMN;
 
+    this.totalMarkets = 0;
+
     TabDataTable.call(this);
   };
 
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
+  Table.prototype.preUpdateView = _preUpdateView;
+  Table.prototype.postUpdateView = _postUpdateView;
 
   return Table;
 
@@ -119,6 +123,7 @@ define(function(require) {
 
   function _elementArray(element_json) {
     var element = element_json[XML_ROOT];
+    this.totalMarkets++;
 
     var zone = OpenNebulaZone.getName(element.ZONE_ID);
 
@@ -155,5 +160,13 @@ define(function(require) {
       l = 1;
 
     return l;
+  }
+
+  function _preUpdateView() {
+    this.totalMarkets = 0;
+  }
+
+  function _postUpdateView() {
+    $(".total_markets").text(this.totalMarkets);
   }
 });
