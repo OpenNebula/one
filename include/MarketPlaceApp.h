@@ -191,6 +191,20 @@ public:
         market_name = name;
     };
 
+
+    /**
+     * Add to check_delete and check the attribute
+     *      @return true if check_delete is greater than 2
+     */
+    bool test_check_delete()
+    {
+        check_delete++;
+        if ( check_delete > 2 ){
+            return true;
+        }
+        return false;
+    };
+
     /**
      * Returns the marketplace app type
      *    @return marketplace app type
@@ -266,6 +280,13 @@ public:
     void set_format(const std::string&  _format)
     {
         format = _format;
+    };
+
+    /**
+    * reset check_delete attribute
+    */
+    void touch_delete(){
+        check_delete = -1;
     };
 
 private:
@@ -344,6 +365,11 @@ private:
      * ID of the zone where this app lives
      */
     int zone_id;
+
+    /**
+     * Number of times the machine has not appeared in the monitoring process
+     */
+    int check_delete;
 
     // *************************************************************************
     // Constructor
