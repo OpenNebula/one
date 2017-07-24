@@ -51,7 +51,9 @@ define(function(require) {
     parentTab: "storage-top-tab",
     listHeader: Locale.tr("MarketPlaces"),
     infoHeader: Locale.tr("MarketPlace"),
-    subheader: '',
+    subheader: '<span>\
+        <span class="total_markets"/> <small>'+Locale.tr("TOTAL")+'</small>\
+      </span>',
     resource: 'MarketPlace',
     buttons: Buttons,
     actions: Actions,
