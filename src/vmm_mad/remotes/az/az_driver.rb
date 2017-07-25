@@ -154,14 +154,10 @@ class AzureDriver
 
         access_id     = conn_opts[:id]
         endpoint_addr = conn_opts[:endpoint]
-        region_name   = conn_opts[:region]
+        @region_name   = conn_opts[:region]
         certificate << conn_opts[:cert]
 
         certificate.close
-
-        #DEPRECATE
-        #############################################################
-        regions = @public_cloud_az_conf['regions']
 
         # Sanitize region data
         if certificate.nil?
@@ -425,18 +421,13 @@ private
         # try to use hostname as datacenter
         if !az.elements["LOCATION"]
             location=REXML::Element.new("LOCATION")
-            if @defaults["LOCATION"]
-                location.text=@defaults["LOCATION"]
+            if @region_name
+                location.text=@region_name
             else
                 location.text=host
             end
             az.elements << location
         end
-
-        # Translate region name form keyword to actual value
-        region_keyword = az.elements["LOCATION"].text
-        translated_region = @public_cloud_az_conf["regions"][region_keyword]
-        az.elements["LOCATION"].text=translated_region["region_name"]
 
         az
     end
