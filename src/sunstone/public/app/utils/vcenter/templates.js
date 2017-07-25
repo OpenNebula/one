@@ -353,13 +353,13 @@ define(function(require) {
               });
           }
 
-          if (disks_and_nets[index].type == "EXISTING_NIC") {
+          if (disks_and_nets[index] != undefined && disks_and_nets[index].type == "EXISTING_NIC") {
             template += disks_and_nets[index].network_tmpl;
             ++index;
             getNext();
           }
 
-          if (disks_and_nets[index].type === "DUPLICATED_NIC") {
+          if (disks_and_nets[index] != undefined && disks_and_nets[index].type == "DUPLICATED_NIC") {
             var network_id = duplicated_nics[disks_and_nets[index].network_name];
 
             template += "NIC=[\n";
@@ -394,6 +394,12 @@ define(function(require) {
           var rpModify = $('.modify_rp', rpInput).val();
           var rpInitial = $('.initial_rp', rpInput).val();
           var rpParams = "";
+          var linkedClone = $('.linked_clone', rpInput).prop("checked");
+          if(linkedClone){
+            linkedClone = "YES";
+          } else {
+            linkedClone = "NO";
+          }
           $.each($('.available_rps option:selected', rpInput), function(){
             rpParams += $(this).val() + ",";
           });
@@ -401,6 +407,7 @@ define(function(require) {
 
           if (rpModify === 'fixed' && rpInitial !== '') {
             attrs.push('VCENTER_RESOURCE_POOL="' + rpInitial + '"');
+            attrs.push('VCENTER_LINKED_CLONES="' + linkedClone + '"');
           } else if (rpModify === 'list' && rpParams !== '') {
             var rpUserInputs = UserInputs.marshall({
                 type: 'list',
@@ -410,6 +417,7 @@ define(function(require) {
               });
 
             userInputs.push('VCENTER_RESOURCE_POOL="' + rpUserInputs + '"');
+            userInputs.push('VCENTER_LINKED_CLONES="' + linkedClone + '"');
           }
         }
 
