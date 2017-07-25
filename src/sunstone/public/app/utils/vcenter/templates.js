@@ -395,11 +395,7 @@ define(function(require) {
           var rpInitial = $('.initial_rp', rpInput).val();
           var rpParams = "";
           var linkedClone = $('.linked_clone', rpInput).prop("checked");
-          if(linkedClone){
-            linkedClone = "YES";
-          } else {
-            linkedClone = "NO";
-          }
+
           $.each($('.available_rps option:selected', rpInput), function(){
             rpParams += $(this).val() + ",";
           });
@@ -407,7 +403,6 @@ define(function(require) {
 
           if (rpModify === 'fixed' && rpInitial !== '') {
             attrs.push('VCENTER_RESOURCE_POOL="' + rpInitial + '"');
-            attrs.push('VCENTER_LINKED_CLONES="' + linkedClone + '"');
           } else if (rpModify === 'list' && rpParams !== '') {
             var rpUserInputs = UserInputs.marshall({
                 type: 'list',
@@ -417,7 +412,6 @@ define(function(require) {
               });
 
             userInputs.push('VCENTER_RESOURCE_POOL="' + rpUserInputs + '"');
-            userInputs.push('VCENTER_LINKED_CLONES="' + linkedClone + '"');
           }
         }
 
@@ -438,6 +432,13 @@ define(function(require) {
               };
 
               var vcenter_ref = $(this).data("import_data").vcenter_ref;
+              if(linkedClone){
+                var template_name = $(this).data("import_data").template_name;
+                var linked = true;
+              } else {
+                var template_name;
+                var linked = false;
+              }
 
               OpenNebulaTemplate.create({
                 timeout: true,
@@ -453,7 +454,12 @@ define(function(require) {
                    $.ajax({
                     url: path,
                     type: "GET",
-                    data: {timeout: false},
+                    data: {
+                      timeout: false,
+                      use_linked_clones: linked,
+                      create_copy: linked,
+                      template_name: template_name
+                    },
                     headers: {
                       "X-VCENTER-USER": that.opts.vcenter_user,
                       "X-VCENTER-PASSWORD": that.opts.vcenter_password,
