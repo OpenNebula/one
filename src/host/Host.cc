@@ -23,6 +23,43 @@
 #include "Host.h"
 #include "Nebula.h"
 
+/* -------------------------------------------------------------------------- */
+/* Hybrid constants                                                           */
+/* -------------------------------------------------------------------------- */
+
+struct Hinfo
+{
+    const char *attr_name;
+    unsigned int bytes;
+};
+
+struct HybridVariable
+{
+    string hybrid_name;
+    vector<Hinfo> template_atts;
+};
+
+const vector<Hinfo> EC2 = {
+    {"EC2_ACCESS", 21},
+    {"EC2_SECRET", 41}
+};
+
+const vector<Hinfo> AZURE = {
+    {"AZ_ID", 41},
+    {"AZ_CERT", 3130}
+};
+
+const vector<Hinfo> VCENTER = {
+    {"VCENTER_PASSWORD", 22}
+};
+
+const vector<HybridVariable> REMOTE_PROVIDERS = {
+    {"vcenter", VCENTER},
+    {"ec2", EC2},
+    {"azure", AZURE}
+};
+
+
 /* ************************************************************************ */
 /* Host :: Constructor/Destructor                                           */
 /* ************************************************************************ */
@@ -714,65 +751,53 @@ static void nebula_crypt(const std::string in, std::string& out)
         out = in;
     }
 }
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/*   HYBRID - static Interface                                               */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+static void hide_auth_fields (const vector<Hinfo>& tfields, Host *host)
+{
+    string att;
+    string name;
+    string crypted;
+    vector<Hinfo>::const_iterator it;
 
+    for (it = tfields.begin(); it != tfields.end() ; ++it)
+    {
+
+        name = (*it).attr_name;
+
+        host->get_template_attribute(name.c_str(), att);
+
+        if (!att.empty() && att.size() <= (*it).bytes)
+        {
+            nebula_crypt(att, crypted);
+            host->replace_template_attribute(name.c_str(), crypted);
+        }
+    }
+}
+
+static void update_hybrid (const vector<HybridVariable>& hvars, Host *host)
+{
+    vector<HybridVariable>::const_iterator it;
+
+    for (it = hvars.begin(); it != hvars.end() ; ++it)
+    {
+        hide_auth_fields((*it).template_atts, host);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 
 int Host::post_update_template(string& error)
 {
-    string vcenter_password;
     string new_im_mad;
     string new_vm_mad;
 
-    string ec2_access;
-    string ec2_secret;
-
-    string az_id;
-    string az_cert;
-
-    string crypted;
-
-    get_template_attribute("VCENTER_PASSWORD", vcenter_password);
-
-    if (!vcenter_password.empty() && vcenter_password.size() <= 22)
-    {
-        nebula_crypt(vcenter_password, crypted);
-
-        replace_template_attribute("VCENTER_PASSWORD", crypted);
-    }
-
-    get_template_attribute("EC2_ACCESS", ec2_access);
-
-    if (!ec2_access.empty() && ec2_access.size() <= 21)
-    {
-        nebula_crypt(ec2_access, crypted);
-
-        replace_template_attribute("EC2_ACCESS", crypted);
-    }
-
-    get_template_attribute("EC2_SECRET", ec2_secret);
-
-    if (!ec2_secret.empty() && ec2_secret.size() <= 41)
-    {
-        nebula_crypt(ec2_secret, crypted);
-
-        replace_template_attribute("EC2_SECRET", crypted);
-    }
-
-    get_template_attribute("AZ_ID", az_id);
-
-    if (!az_id.empty())
-    {
-        nebula_crypt(az_id, crypted);
-        replace_template_attribute("AZ_ID", crypted);
-    }
-
-    get_template_attribute("AZ_CERT", az_cert);
-
-    if (!az_cert.empty())
-    {
-        nebula_crypt(az_cert, crypted);
-        replace_template_attribute("AZ_CERT", crypted);
-    }
+    update_hybrid(REMOTE_PROVIDERS, this);
 
     get_template_attribute("IM_MAD", new_im_mad);
     get_template_attribute("VM_MAD", new_vm_mad);
