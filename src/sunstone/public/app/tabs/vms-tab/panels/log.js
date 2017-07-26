@@ -59,7 +59,7 @@ define(function(require) {
 
   function _html() {
     return '<div class="row">' +
-      '<div class="large-12 columns vm_log_container monospace">' +
+      '<div class="large-12 columns vm_log_container monospace" style="overflow: auto; height: 500px">' +
         '<div class="text-center" style="height: 100px;">' +
           '<span style="font-size:80px">' +
             '<i class="fa fa-spinner fa-spin"></i>' +
