@@ -235,7 +235,7 @@ post '/vcenter/wild_rollback/:vm_id' do
 end
 
 
-get '/vcenter/template/:vcenter_ref/:template_id' do
+post '/vcenter/template/:vcenter_ref/:template_id' do
     begin
         t = {}
         t[:one] = ""
@@ -255,9 +255,11 @@ get '/vcenter/template/:vcenter_ref/:template_id' do
         end
 
         template = VCenterDriver::Template.new_from_ref(ref, vcenter_client)
+
         vc_uuid = vcenter_client.vim.serviceContent.about.instanceUuid
 
         dpool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool)
+
         if dpool.respond_to?(:message)
             msg = "Could not get OpenNebula DatastorePool: #{dpool.message}"
             logger.error("[vCenter] " + msg)
@@ -289,12 +291,22 @@ get '/vcenter/template/:vcenter_ref/:template_id' do
             error 404, error.to_json
         end
 
+        use_linked_clones = params[:use_linked_clones] || false
+        if use_linked_clones == "true"
+            use_linked_clones = true
+        else 
+            use_linked_clones = false
+        end
         # POST params
-        if @request_body && !@request_body.empty?
-            body_hash = JSON.parse(@request_body)
-            use_linked_clones = body_hash['use_linked_clones'] || false
-            create_copy = body_hash['create_copy'] || false
-            template_name = body_hash['template_name'] || ""
+        if @request_body && !@request_body.empty? && use_linked_clones
+
+            create_copy = params[:create_copy] || false
+            if create_copy == "true"
+                create_copy = true
+            else 
+                create_copy = false
+            end
+            template_name = params[:template_name] || ""
 
             if !use_linked_clones && (create_copy || !template_name.empty?)
                 msg = "Should not set create template copy or template copy name if not using linked clones"
@@ -336,6 +348,7 @@ get '/vcenter/template/:vcenter_ref/:template_id' do
 
             else
                 lc_error, use_lc = template.create_delta_disks
+
                 if !lc_error
                     append = true
                     t[:one] << "\nVCENTER_LINKED_CLONES=\"YES\"\n" if use_lc
@@ -387,7 +400,6 @@ get '/vcenter/template/:vcenter_ref/:template_id' do
 
         t[:lc_error] = lc_error
         t[:append] = append
-
         [200, t.to_json]
     rescue Exception => e
         template.delete_template if template_copy_ref
