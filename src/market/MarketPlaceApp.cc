@@ -55,7 +55,8 @@ MarketPlaceApp::MarketPlaceApp(
         market_name(""),
         state(INIT),
         type(IMAGE),
-        zone_id(-1)
+        zone_id(-1),
+        check_delete(-1)
 {
     if (app_template != 0)
     {

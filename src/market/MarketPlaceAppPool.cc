@@ -229,6 +229,7 @@ int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
 
     if( mp_aux != 0 ) //Marketplace app already imported
     {
+        mp_aux->touch_delete();
         if ( mp_aux->version != app->version || mp_aux->md5 != app->md5 )
         {
             mp_aux->from_template64(t64, error_str);
