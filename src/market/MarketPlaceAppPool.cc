@@ -128,6 +128,11 @@ int MarketPlaceAppPool:: allocate(
 
     *oid = PoolSQL::allocate(mp, error_str);
 
+    // ------------------------------------------------------------------------
+    // Insert id into map_check
+    // --------------------------------------------------------------------------
+    insert_map_check(name);
+
     return *oid;
 
 error_duplicated:
@@ -183,6 +188,8 @@ int MarketPlaceAppPool::drop(PoolObjectSQL * objsql, std::string& error_msg)
         return 0;
     }
 
+    drop_map_check(objsql->get_name());
+
     return PoolSQL::drop(objsql, error_msg);
 }
 
@@ -229,6 +236,7 @@ int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
 
     if( mp_aux != 0 ) //Marketplace app already imported
     {
+        reset_map_check(app->name);
         if ( mp_aux->version != app->version || mp_aux->md5 != app->md5 )
         {
             mp_aux->from_template64(t64, error_str);
@@ -255,7 +263,7 @@ int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
 
         return oid;
     }
-
+    insert_map_check(app->name);
     return PoolSQL::allocate(app, error_str);
 }
 

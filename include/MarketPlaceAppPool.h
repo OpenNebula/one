@@ -145,6 +145,45 @@ public:
     {
         return new MarketPlaceApp(-1,-1,"","", 0, 0);
     };
+
+    /**
+     * Erease map element
+     */
+    void drop_map_check(const std::string& name){
+        if (map_check.find( name ) != map_check.end()){
+            map<std::string,int>::iterator it;
+            it=map_check.find(name);
+            map_check.erase (it);
+        }
+    }
+
+    /**
+     * Check an element into map
+     */
+    bool test_map_check(const std::string& name){
+        map_check[name]++;
+        if (map_check[name] > 0){
+            return true;
+        }
+        return false;
+    }
+private:
+    map<std::string, int> map_check;
+
+    
+    void insert_map_check(const std::string& name){
+        map_check.insert(make_pair(name, -1));
+    }
+    void reset_map_check(const std::string& name){
+        if (name != "") {
+            if (map_check.find( name ) != map_check.end()){
+                map_check[name] = -1;
+            }
+            else{
+                insert_map_check(name);
+            }
+        }
+    }
 };
 
 #endif /*MARKETPLACE_POOL_H_*/

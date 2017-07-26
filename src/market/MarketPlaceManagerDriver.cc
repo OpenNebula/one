@@ -163,6 +163,37 @@ static void monitor_action(
             }
         }
     }
+    MarketPlaceApp *mp_app = nullptr;
+    std::string error;
+    std::string source;
+    int rc_del;
+    market = marketpool->get(id, true);
+    set<int> apps_mp = market->get_marketapp_ids();
+    market->unlock();
+
+    for (set<int>::iterator i = apps_mp.begin(); i != apps_mp.end(); i++) {
+        mp_app = apppool->get(*i, true);
+        if ( mp_app != 0 )
+        {
+            if(apppool->test_map_check(mp_app->get_name())){ //delete app
+                market = marketpool->get(id, true);
+
+                source = mp_app->get_source();
+                rc_del = apppool->drop(mp_app, error);
+
+                market->del_marketapp(*i);
+                marketpool->update(market);
+
+                market->unlock();
+                if ( rc_del < 0 )
+                {
+                    oss << " Error removing app from DB: " << error
+                        << ". Remove app manually, source is: " << source;
+                }
+            }
+        }
+        mp_app->unlock();
+    }
 
     oss << "Marketplace " << name << " (" << id << ") successfully monitored.";
 
