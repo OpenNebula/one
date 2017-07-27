@@ -123,6 +123,24 @@ define(function(require) {
 
               var trow = $(RowTemplate(opts)).appendTo(tbody);
 
+              $("#linked_clone_"+opts.id).on("change", function(){
+                if ($("#linked_clone_"+opts.id).is(":checked")){
+                  $("#create_"+opts.id).show();
+                } else {
+                  $("#create_"+opts.id).hide();
+                  $("#create_copy_"+opts.id).prop("checked", false);
+                  $("#name_"+opts.id).hide();
+                }
+              });
+
+              $("#create_copy_"+opts.id).on("change", function(){
+                if ($("#create_copy_"+opts.id).is(":checked")){
+                  $("#name_"+opts.id).show();
+                } else {
+                  $("#name_"+opts.id).hide();
+                }
+              });
+
               $('.check_item', trow).data("import_data", element);
             });
 
@@ -395,15 +413,24 @@ define(function(require) {
           var rpInitial = $('.initial_rp', rpInput).val();
           var rpParams = "";
           var linkedClone = $('.linked_clone', rpInput).prop("checked");
+          var createCopy = $('.create_copy', rpInput).prop("checked");
+          var templateName = $('.template_name', rpInput).val();
 
           var vcenter_ref = $(this).data("import_data").vcenter_ref;
           if(linkedClone){
-            var template_name = $(this).data("import_data").template_name;
             var linked = true;
             linkedClone = "YES";
+            if(createCopy && templateName != ""){
+              var copy = true;
+              var template_name  = templateName;
+            } else {
+              var copy = false;
+              var template_name = "";
+            }
           } else {
-            var template_name;
+            var template_name  = "";
             var linked = false;
+            var copy = false;
             linkedClone = "NO";
           }
 
@@ -444,7 +471,7 @@ define(function(require) {
                 "vmtemplate": { "template_raw": template }
               };
               OpenNebulaTemplate.create({
-                timeout: true,
+                timeout: false,
                 data: template_json,
                 success: function(request, response) {
                    VCenterCommon.importLoading({
@@ -459,7 +486,9 @@ define(function(require) {
                     type: "POST",
                     data: {
                       timeout: false,
-                      use_linked_clones: linked
+                      use_linked_clones: linked,
+                      create_copy: copy,
+                      template_name: template_name
                     },
                     headers: {
                       "X-VCENTER-USER": that.opts.vcenter_user,

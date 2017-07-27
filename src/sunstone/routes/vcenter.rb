@@ -329,16 +329,15 @@ post '/vcenter/template/:vcenter_ref/:template_id' do
                 if template_copy_ref
 
                     template = VCenterDriver::Template.new_from_ref(template_copy_ref, vcenter_client)
-
+                    
                     one_template = VCenterDriver::Template.get_xml_template(template, vc_uuid, vcenter_client, vcenter_client.vim.host)
-
+                    
                     if one_template
-
                         lc_error, use_lc = template.create_delta_disks
                         if !lc_error
                             one_template[:one] << "\nVCENTER_LINKED_CLONES=\"YES\"\n"
                             t = one_template
-                            append = false # t[:one] replaces the current template
+                            append = false
                         end
                     else
                         lc_error = "Could not obtain the info from the template's copy"
@@ -398,8 +397,6 @@ post '/vcenter/template/:vcenter_ref/:template_id' do
         #t[:one] << template_nics
         t[:nics] = template_nics
 
-        t[:lc_error] = lc_error
-        t[:append] = append
         [200, t.to_json]
     rescue Exception => e
         template.delete_template if template_copy_ref
