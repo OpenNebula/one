@@ -127,7 +127,6 @@ static void monitor_action(
         return;
     }
 
-    set<int> apps_mp = market->get_marketapp_ids();
     std::string name = market->get_name();
 
     market->update_monitor(monitor_data);
@@ -166,9 +165,8 @@ static void monitor_action(
 
         apppool->reset_map_check(app_id);
 
-        apps_mp.erase(app_id);
     }
-
+    set<int> apps_mp = market->get_marketapp_ids();
     for (set<int>::iterator i = apps_mp.begin(); i != apps_mp.end(); ++i)
     {
         if (apppool->test_map_check(*i)) //delete app
