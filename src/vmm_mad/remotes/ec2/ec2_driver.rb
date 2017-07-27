@@ -56,6 +56,8 @@ def handle_exception(action, ex, host, did, id = nil, file = nil)
     id      ||= ""
     OpenNebula::log_error(action + " of VM #{id} #{did} on host #{host} #{file} "+
                 "due to \"#{ex.message}\"")
+    OpenNebula.error_message("There is a problem: #{ex.message}")
+
     STDERR.puts "********* STACK TRACE *********"
     STDERR.puts ex.backtrace
     STDERR.puts "*******************************"
