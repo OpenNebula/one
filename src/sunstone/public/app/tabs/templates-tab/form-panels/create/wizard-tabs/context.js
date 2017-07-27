@@ -323,9 +323,10 @@ define(function(require) {
           OpenNebula.Image.list({
             timeout: true,
             success: function(request, obj_files){
-              while (match = file_ds_regexp.exec(value)) {
+
+              while (match = file_ds_regexp.exec(value.replace(/"/g, ""))) {
                 $.each(obj_files, function(key, value){
-                  if(value.IMAGE.NAME == match[1] && value.IMAGE.UNAME == match[2]){
+                  if(value.IMAGE.NAME.replace(/"/g, "") == match[1] && value.IMAGE.UNAME == match[2]){
                     files.push(value.IMAGE.ID);
                     return false;
                   }
@@ -357,18 +358,21 @@ define(function(require) {
   function _generateContextFiles(context) {
     var req_string=[];
     var selected_files = this.contextFilesTable.retrieveResourceTableSelect();
-
-    $.each(selected_files, function(index, fileId) {
-      OpenNebula.Image.show({
-        timeout: true,
-        data : {
-          id: fileId
-        },
-        success: function(request, obj_file){
-          req_string.push("$FILE[IMAGE=" + obj_file.IMAGE.NAME + ", IMAGE_UNAME=" + obj_file.IMAGE.UNAME + "]");
-          $('.FILES_DS', context).val(req_string.join(" "));
-        }
+    if(selected_files.length != 0){
+      $.each(selected_files, function(index, fileId) {
+        OpenNebula.Image.show({
+          timeout: true,
+          data : {
+            id: fileId
+          },
+          success: function(request, obj_file){
+            req_string.push("$FILE[IMAGE=" + '"' + obj_file.IMAGE.NAME + '"' + ", IMAGE_UNAME=" + obj_file.IMAGE.UNAME + "]");
+            $('.FILES_DS', context).val(req_string.join(" "));
+          }
+        });
       });
-    });
+    } else {
+      $('.FILES_DS', context).val("");
+    }
   };
 });
