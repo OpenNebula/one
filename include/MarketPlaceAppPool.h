@@ -73,13 +73,14 @@ public:
      *    @param template to generate app with the from_template64 function
      *    @param mp_id of the MarketPlace to store de App
      *    @param mp_name of the MarketPlace
+     *    @param app_id of the imported app
      *    @param error_str Returns the error reason, if any
      *
      *    @return the oid assigned to the object, -1 in case of failure, -2
      *    already imported
      */
     int import(const std::string& t64, int mp_id, const std::string& mp_name,
-            std::string& error_str);
+            int& app_id, std::string& error_str);
 
     /**
      *  Function to get a MarketPlaceApp from the pool
@@ -147,43 +148,29 @@ public:
     };
 
     /**
-     * Erease map element
+     * Check an element into map
+     *   @param map_id of the app
+     *   @return true if the app has to be deleted
      */
-    void drop_map_check(const std::string& name){
-        if (map_check.find( name ) != map_check.end()){
-            map<std::string,int>::iterator it;
-            it=map_check.find(name);
-            map_check.erase (it);
-        }
-    }
+    bool test_map_check(int map_id);
 
     /**
-     * Check an element into map
+     *  Resets the counter of missing monitors of an app
+     *    @param app_id of the app
      */
-    bool test_map_check(const std::string& name){
-        map_check[name]++;
-        if (map_check[name] > 0){
-            return true;
-        }
-        return false;
-    }
-private:
-    map<std::string, int> map_check;
+    void reset_map_check(int app_id);
 
-    
-    void insert_map_check(const std::string& name){
-        map_check.insert(make_pair(name, -1));
-    }
-    void reset_map_check(const std::string& name){
-        if (name != "") {
-            if (map_check.find( name ) != map_check.end()){
-                map_check[name] = -1;
-            }
-            else{
-                insert_map_check(name);
-            }
-        }
-    }
+private:
+
+    /**
+     *  Hash to store the number of times an app was missing from monitor data
+     */
+    map<int, int> map_check;
+
+    /**
+     *  Max number of monitor that an app may be missing before deleting it
+     */
+    static const int MAX_MISSING_MONITORS;
 };
 
 #endif /*MARKETPLACE_POOL_H_*/

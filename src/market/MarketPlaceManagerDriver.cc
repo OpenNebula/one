@@ -120,7 +120,6 @@ static void monitor_action(
         return;
     }
 
-    std::string   name;
     MarketPlace * market = marketpool->get(id, true);
 
     if (market == 0 )
@@ -128,7 +127,8 @@ static void monitor_action(
         return;
     }
 
-    name    = market->get_name();
+    set<int> apps_mp = market->get_marketapp_ids();
+    std::string name = market->get_name();
 
     market->update_monitor(monitor_data);
 
@@ -143,7 +143,8 @@ static void monitor_action(
 
     for (int i=0; i< num ; i++)
     {
-        int rc = apppool->import(apps[i]->value(), id, name, err);
+        int app_id;
+        int rc = apppool->import(apps[i]->value(), id, name, app_id, err);
 
         if ( rc == -1 )
         {
@@ -162,37 +163,37 @@ static void monitor_action(
                 market->unlock();
             }
         }
+
+        apppool->reset_map_check(app_id);
+
+        apps_mp.erase(app_id);
     }
-    MarketPlaceApp *mp_app = nullptr;
-    std::string error;
-    std::string source;
-    int rc_del;
-    market = marketpool->get(id, true);
-    set<int> apps_mp = market->get_marketapp_ids();
-    market->unlock();
 
-    for (set<int>::iterator i = apps_mp.begin(); i != apps_mp.end(); i++) {
-        mp_app = apppool->get(*i, true);
-        if ( mp_app != 0 )
-        {
-            if(apppool->test_map_check(mp_app->get_name())){ //delete app
-                market = marketpool->get(id, true);
+    for (set<int>::iterator i = apps_mp.begin(); i != apps_mp.end(); ++i)
+    {
+        if (apppool->test_map_check(*i)) //delete app
+        { 
+            std::string error;
 
-                source = mp_app->get_source();
-                rc_del = apppool->drop(mp_app, error);
+            MarketPlaceApp * app = apppool->get(*i, true);
 
-                market->del_marketapp(*i);
-                marketpool->update(market);
-
-                market->unlock();
-                if ( rc_del < 0 )
-                {
-                    oss << " Error removing app from DB: " << error
-                        << ". Remove app manually, source is: " << source;
-                }
+            if ( app == 0 )
+            {
+                continue;
             }
+
+            rc = apppool->drop(app, error);
+
+            app->unlock();
+
+            market = marketpool->get(id, true);
+
+            market->del_marketapp(*i);
+
+            marketpool->update(market);
+
+            market->unlock();
         }
-        mp_app->unlock();
     }
 
     oss << "Marketplace " << name << " (" << id << ") successfully monitored.";
