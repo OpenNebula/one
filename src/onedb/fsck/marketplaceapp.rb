@@ -78,7 +78,7 @@ module OneDBFsck
                     @db[:marketplaceapp_pool].where(:oid => id).update(:body => body)
                 end
             end
-        elsif !apps_fix.empty?
+        elsif !@fixes_marketplaceapp.empty?
             log_msg("^ Marketplace App errors need to be fixed in the master OpenNebula")
         end
     end
