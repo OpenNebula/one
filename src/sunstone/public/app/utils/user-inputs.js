@@ -87,7 +87,7 @@ define(function(require) {
     var order_inputs = "";
 
     $('.user_input_attrs tbody tr').each(function(key, value){
-      order_inputs += $(".user_input_name", $(this)).val() + ",";
+      order_inputs += $(".user_input_name", $(this)).val().toUpperCase() + ",";
     });
 
     this.order = order_inputs.slice(0,-1);
