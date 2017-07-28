@@ -60,6 +60,7 @@ define(function(require) {
       "bDeferRender": true,
       "aoColumnDefs": [
           {"sType": "ip-address", "aTargets": [0]},
+          {"sType": "num", "aTargets": [1]},
           {"bSortable": false, "aTargets": ["check", 6, 7, 11]},
           {"sWidth": "35px", "aTargets": [0]},
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
