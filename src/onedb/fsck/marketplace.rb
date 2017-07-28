@@ -82,7 +82,7 @@ module OneDBFsck
                     @db[:marketplace_pool].where(:oid => id).update(:body => body)
                 end
             end
-        elsif !markets_fix.empty?
+        elsif !@fixes_marketplace.empty?
             log_msg("^ Marketplace errors need to be fixed in the master OpenNebula")
         end
     end
