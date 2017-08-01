@@ -693,6 +693,9 @@ int Host::from_xml(const string& xml)
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 static void nebula_crypt(const std::string in, std::string& out)
 {
     Nebula& nd = Nebula::instance();
@@ -715,44 +718,36 @@ static void nebula_crypt(const std::string in, std::string& out)
     }
 }
 
+/* -------------------------------------------------------------------------- */
 
+static const map<std::string, unsigned int> MAX_HOST_VAR_SIZES = {
+    {"EC2_ACCESS", 21},
+    {"EC2_SECRET", 41},
+    {"AZ_ID", 41},
+    {"AZ_CERT", 3130},
+    {"VCENTER_PASSWORD", 22}
+};
 
 int Host::post_update_template(string& error)
 {
-    string vcenter_password;
     string new_im_mad;
     string new_vm_mad;
 
-    string ec2_access;
-    string ec2_secret;
+    map<std::string, unsigned int>::const_iterator it;
 
-    string crypted;
-
-    get_template_attribute("VCENTER_PASSWORD", vcenter_password);
-
-    if (!vcenter_password.empty() && vcenter_password.size() <= 22)
+    for (it = MAX_HOST_VAR_SIZES.begin(); it != MAX_HOST_VAR_SIZES.end() ; ++it)
     {
-        nebula_crypt(vcenter_password, crypted);
+        string att;
+        string crypted;
 
-        replace_template_attribute("VCENTER_PASSWORD", crypted);
-    }
+        get_template_attribute(it->first.c_str(), att);
 
-    get_template_attribute("EC2_ACCESS", ec2_access);
+        if (!att.empty() && att.size() <= it->second)
+        {
+            nebula_crypt(att, crypted);
 
-    if (!ec2_access.empty() && ec2_access.size() <= 21)
-    {
-        nebula_crypt(ec2_access, crypted);
-
-        replace_template_attribute("EC2_ACCESS", crypted);
-    }
-
-    get_template_attribute("EC2_SECRET", ec2_secret);
-
-    if (!ec2_secret.empty() && ec2_secret.size() <= 41)
-    {
-        nebula_crypt(ec2_secret, crypted);
-
-        replace_template_attribute("EC2_SECRET", crypted);
+            replace_template_attribute(it->first, crypted);
+        }
     }
 
     get_template_attribute("IM_MAD", new_im_mad);
