@@ -54,11 +54,16 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
 
-    std::string raft_xml, cmd, arg;
+    std::string raft_xml, cmd, arg, error;
 
 	pthread_mutex_init(&mutex, 0);
 
 	am.addListener(this);
+
+    if ( Client::read_oneauth(xmlrpc_secret, error) == -1 )
+    {
+        throw runtime_error(error);
+    }
 
     // -------------------------------------------------------------------------
     // Initialize Raft variables:
@@ -481,17 +486,19 @@ void RaftManager::follower(unsigned int _term)
 
     state = FOLLOWER;
 
-    term     = _term;
-    votedfor = -1;
+    if ( _term > term )
+    {
+        term     = _term;
+        votedfor = -1;
 
-    commit   = lapplied;
+        raft_state.replace("VOTEDFOR", votedfor);
+        raft_state.replace("TERM", term);
 
+        raft_state.to_xml(raft_state_xml);
+    }
+
+    commit    = lapplied;
     leader_id = -1;
-
-    raft_state.replace("VOTEDFOR", votedfor);
-    raft_state.replace("TERM", term);
-
-    raft_state.to_xml(raft_state_xml);
 
     NebulaLog::log("RCM", Log::INFO, "oned is set to follower mode");
 
@@ -518,7 +525,10 @@ void RaftManager::follower(unsigned int _term)
         frm->stop_replica_threads();
     }
 
-    logdb->update_raft_state(raft_state_xml);
+    if (!raft_state_xml.empty())
+    {
+        logdb->update_raft_state(raft_state_xml);
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -982,7 +992,6 @@ int RaftManager::xmlrpc_replicate_log(int follower_id, LogDBRecord * lr,
 
     static const std::string replica_method = "one.zone.replicate";
 
-    std::string secret;
     std::string follower_edp;
 
     std::map<int, std::string>::iterator it;
@@ -1012,16 +1021,10 @@ int RaftManager::xmlrpc_replicate_log(int follower_id, LogDBRecord * lr,
     // -------------------------------------------------------------------------
     // Get parameters to call append entries on follower
     // -------------------------------------------------------------------------
-    if ( Client::read_oneauth(secret, error) == -1 )
-    {
-        NebulaLog::log("RRM", Log::ERROR, error);
-        return -1;
-    }
-
     xmlrpc_c::value result;
     xmlrpc_c::paramList replica_params;
 
-    replica_params.add(xmlrpc_c::value_string(secret));
+    replica_params.add(xmlrpc_c::value_string(xmlrpc_secret));
     replica_params.add(xmlrpc_c::value_int(_server_id));
     replica_params.add(xmlrpc_c::value_int(_commit));
     replica_params.add(xmlrpc_c::value_int(_term));
@@ -1080,7 +1083,6 @@ int RaftManager::xmlrpc_request_vote(int follower_id, unsigned int lindex,
 
     static const std::string replica_method = "one.zone.voterequest";
 
-    std::string secret;
     std::string follower_edp;
 
     std::map<int, std::string>::iterator it;
@@ -1109,16 +1111,10 @@ int RaftManager::xmlrpc_request_vote(int follower_id, unsigned int lindex,
     // -------------------------------------------------------------------------
     // Get parameters to call append entries on follower
     // -------------------------------------------------------------------------
-    if ( Client::read_oneauth(secret, error) == -1 )
-    {
-        NebulaLog::log("RRM", Log::ERROR, error);
-        return -1;
-    }
-
     xmlrpc_c::value result;
     xmlrpc_c::paramList replica_params;
 
-    replica_params.add(xmlrpc_c::value_string(secret));
+    replica_params.add(xmlrpc_c::value_string(xmlrpc_secret));
     replica_params.add(xmlrpc_c::value_int(_term));
     replica_params.add(xmlrpc_c::value_int(_server_id));
     replica_params.add(xmlrpc_c::value_int(lindex));

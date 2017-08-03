@@ -156,6 +156,11 @@ private:
      */
     pthread_mutex_t mutex;
 
+    /**
+     *  Secret to use in xmlrpc API calls
+     */
+    std::string xmlrpc_secret;
+
     // -------------------------------------------------------------------------
     // Synchronization variables
     //   - xmlrpc_timeout. To timeout xml-rpc api calls to replicate log

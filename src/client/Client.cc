@@ -77,7 +77,7 @@ int Client::read_oneauth(string &secret, string& error_msg)
     string   one_auth_file;
     ifstream file;
 
-    const char *  one_auth_env = getenv("ONE_AUTH");
+    const char * one_auth_env = getenv("ONE_AUTH");
 
     if (!one_auth_env) //No $ONE_AUTH, read $HOME/.one/one_auth
     {

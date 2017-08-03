@@ -292,6 +292,11 @@ private:
      */
     std::map<int, ReplicaRequest *> requests;
 
+    /**
+     *  Secret to use in xmlrpc API calls
+     */
+    std::string xmlrpc_secret;
+
     // -------------------------------------------------------------------------
     // Raft state
     // -------------------------------------------------------------------------
