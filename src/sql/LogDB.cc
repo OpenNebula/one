@@ -199,14 +199,6 @@ int LogDB::get_log_record(unsigned int index, LogDBRecord& lr)
 
     if ( lr.index != index )
     {
-        std::ostringstream oss;
-
-        oss << "Log record " << index << " loaded incorrectly. Record index: "
-            << lr.index << " fed. index: " << lr.fed_index << " sql command: " 
-            << lr.sql << ". Operation return code: " << rc;
-
-        NebulaLog::log("DBM", Log::ERROR, oss);
-
         rc = -1;
     }
 

@@ -29,9 +29,16 @@ const time_t FedReplicaManager::xmlrpc_timeout_ms = 10000;
 
 FedReplicaManager::FedReplicaManager(LogDB * d): ReplicaManager(), logdb(d)
 {
+    std::string error;
+
     pthread_mutex_init(&mutex, 0);
 
     am.addListener(this);
+
+    if ( Client::read_oneauth(xmlrpc_secret, error) == -1 )
+    {
+        throw runtime_error(error);
+    }
 };
 
 /* -------------------------------------------------------------------------- */
@@ -391,7 +398,7 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
 {
     static const std::string replica_method = "one.zone.fedreplicate";
 
-    std::string secret, zedp;
+    std::string zedp;
 
 	int xml_rc = 0;
 
@@ -407,15 +414,10 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
     // -------------------------------------------------------------------------
     // Get parameters to call append entries on follower
     // -------------------------------------------------------------------------
-    if ( Client::read_oneauth(secret, error) == -1 )
-    {
-        return -1;
-    }
-
     xmlrpc_c::value result;
     xmlrpc_c::paramList replica_params;
 
-    replica_params.add(xmlrpc_c::value_string(secret));
+    replica_params.add(xmlrpc_c::value_string(xmlrpc_secret));
     replica_params.add(xmlrpc_c::value_int(lr.index));
     replica_params.add(xmlrpc_c::value_int(prev_index));
     replica_params.add(xmlrpc_c::value_string(lr.sql));
