@@ -568,15 +568,16 @@ EOT
     # Params:
     # +type+:: type name of the disk, can be “hd” or “cdrom”
     # +doc+:: Nokogiri::XML::Node describing the VM template
-    def get_disk_id(type, index, doc)
+    def get_disk_id(type, index, doc, uid)
         found_i = -1
 
         doc.root.xpath("TEMPLATE/DISK").each_with_index do |disk, disk_i|
             id = disk.at_xpath("IMAGE_ID")
-            if ! id.nil?
+
+            if id
                 image = get_image_from_id(id.content)
             else
-                image = get_image_from_name(disk)
+                image = get_image_from_name(disk, uid)
             end
 
             next if image.nil?
@@ -608,29 +609,34 @@ EOT
     # Returns a Nokogiri::XML::Node describing an image
     # Params:
     # +disk+:: Nokogiri::XML::Node describing a disk used by a template
-    def get_image_from_name(disk)
-      name = disk.at_xpath("IMAGE") && disk.at_xpath("IMAGE").content
-      uid = disk.at_xpath("IMAGE_UID")
-      uname = disk.at_xpath("IMAGE_UNAME")
+    def get_image_from_name(disk, template_uid)
+        name = disk.at_xpath("IMAGE") && disk.at_xpath("IMAGE").content
 
-      if ! name.nil? and (! uid.nil? or ! uname.nil?)
-        if uid.nil?
-          uid = get_user_id(uname.content)
+        return nil if name.nil?
+
+        uid   = disk.at_xpath("IMAGE_UID")
+        uname = disk.at_xpath("IMAGE_UNAME")
+
+        if uid
+            uid = uid.content
         else
-          uid = uid.content
+            if uname
+                uid = get_user_id(uname.content)
+            else
+                uid = template_uid
+            end
         end
 
         return nil if uid.nil?
 
-        row = @db.fetch("SELECT body from image_pool where name=\"#{name}\" and uid=#{uid}").first
+        row = @db.fetch("SELECT body FROM image_pool WHERE name=\"#{name}\" AND uid=#{uid}").first
+
         # No image found, so unable to get image TYPE
         return nil if row.nil?
 
         image = Nokogiri::XML(row[:body], nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
-        return image
-      end
 
-      return nil
+        return image
     end
 
     # Returns the ID of a user name
