@@ -51,7 +51,7 @@ class VXLANDriver < VNMMAD::VLANDriver
         end
 
         mc  = ipaddr.to_i + @nic[:vlan_id].to_i
-        mcs = VNMMAD::VNMNetwork::IPv4.to_s(mc)
+        mcs = IPAddr.new(mc, Socket::AF_INET).to_s
 
         mtu = @nic[:mtu] ? "mtu #{@nic[:mtu]}" : "mtu #{@nic[:conf][:vxlan_mtu]}"
         ttl = @nic[:conf][:vxlan_ttl] ? "ttl #{@nic[:conf][:vxlan_ttl]}" : ""
