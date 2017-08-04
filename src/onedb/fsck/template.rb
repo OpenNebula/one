@@ -8,6 +8,8 @@ module OneDBFsck
 
             boot = doc.root.at_xpath("TEMPLATE/OS/BOOT")
 
+            uid = doc.root.at_xpath('UID').content
+
             if boot.nil? || boot.text.downcase.match(/fd|hd|cdrom|network/).nil?
                 next
             end
@@ -40,7 +42,8 @@ module OneDBFsck
                         cdrom_i += 1
                     end
 
-                    id = get_disk_id(dev, index, doc)
+                    id = get_disk_id(dev, index, doc, uid)
+
                     if id.nil?
                         log_error("VM Template #{row[:oid]} OS/BOOT contains deprecated format \"#{boot.content}\", but DISK ##{index} of type #{dev} could not be found to fix it automatically", false)
                         error = true
