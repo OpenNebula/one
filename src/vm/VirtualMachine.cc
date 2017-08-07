@@ -2128,10 +2128,16 @@ int VirtualMachine::from_xml(const string &xml_str)
     if ( xpath(last_seq,"/VM/HISTORY_RECORDS/HISTORY/SEQ", -1) == 0 && 
             last_seq != -1 )
     {
+        history_records.resize(last_seq + 1);
+
+        for (int i=0; i <= last_seq; ++i)
+        {
+            history_records[i] = 0;
+        }
+
         history = new History(oid, last_seq);
 
-        history_records.resize(history->seq + 1);
-        history_records[history->seq] = history;
+        history_records[last_seq] = history;
     }
 
     // -------------------------------------------------------------------------
