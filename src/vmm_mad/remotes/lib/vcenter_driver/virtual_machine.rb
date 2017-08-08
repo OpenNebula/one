@@ -1302,7 +1302,8 @@ class VirtualMachine < Template
 
             # Try to find index of disks in template disks
             unmanaged_disks.each do |unmanaged_disk|
-                index = template_disks_vector.index(unmanaged_disk["SOURCE"])
+                unmanaged_disk_source = VCenterDriver::FileHelper.unescape_path(unmanaged_disk["SOURCE"])
+                index = template_disks_vector.index(unmanaged_disk_source)
                 if index
                     reference = {}
                     reference[:key]   = "opennebula.disk.#{unmanaged_disk["DISK_ID"]}"
@@ -1886,12 +1887,19 @@ class VirtualMachine < Template
             if unmanaged_keys.key?("opennebula.disk.#{disk["DISK_ID"]}")
                 device_key = unmanaged_keys["opennebula.disk.#{disk["DISK_ID"]}"].to_i
                 disk_hash = get_device_filename_and_ds_from_key(device_key, vc_disks)
-                onevm_disks_vector << disk_hash[:path_wo_ds] if disk_hash
-                next
-            end
 
-            img_name  = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'], self['name'], instantiated_as_persistent?)
-            onevm_disks_vector << "#{img_name}"
+                if disk_hash
+                    onevm_disks_vector << disk_hash[:path_wo_ds]
+                end
+            else
+                img_name_escaped = VCenterDriver::FileHelper.get_img_name(
+                                    disk,
+                                    one_item['ID'],
+                                    self['name'],
+                                    instantiated_as_persistent?)
+                img_name = VCenterDriver::FileHelper.unescape_path(img_name_escaped)
+                onevm_disks_vector << img_name
+            end
         end
 
         return onevm_disks_vector
@@ -1936,6 +1944,7 @@ class VirtualMachine < Template
     def device_detach_disks(onevm_disks_vector, unmanaged_keys, vc_disks)
         detach_disk_array = []
         extra_config      = []
+
         ipool = VCenterDriver::VIHelper.one_pool(OpenNebula::ImagePool)
         if ipool.respond_to?(:message)
             raise "Could not get OpenNebula ImagePool: #{ipool.message}"
@@ -1945,7 +1954,9 @@ class VirtualMachine < Template
             if !onevm_disks_vector.index(d[:path_wo_ds])
 
                 # If disk to be detached is not persistent detach and destroy it
-                persistent = VCenterDriver::VIHelper.find_persistent_image_by_source(d[:path_wo_ds], ipool)
+                source = VCenterDriver::FileHelper.escape_path(d[:path_wo_ds])
+                persistent = VCenterDriver::VIHelper.find_persistent_image_by_source(source, ipool)
+
                 if !persistent
                     detach_disk_array << {
                         :fileOperation => :destroy,
@@ -2069,8 +2080,11 @@ class VirtualMachine < Template
         vm.config.hardware.device.each do |disk|
             if is_disk_or_cdrom?(disk)
                 # Let's try to find if disks is persistent
-                source = disk.backing.fileName.sub(/^\[(.*?)\] /, "")
+                source_unescaped = disk.backing.fileName.sub(/^\[(.*?)\] /, "")
+                source = VCenterDriver::FileHelper.escape_path(source_unescaped)
+
                 persistent = VCenterDriver::VIHelper.find_persistent_image_by_source(source, ipool)
+
                 if persistent
                     spec_hash[:deviceChange] << {
                         :operation => :remove,
@@ -2134,22 +2148,24 @@ class VirtualMachine < Template
 
     # Get vcenter device representing DISK object (hotplug)
     def disk_attached_to_vm(disk, unmanaged_keys, vc_disks)
-
         img_name = ""
         device_found = nil
         disk_id = disk["DISK_ID"]
+        unmanaged_key = unmanaged_keys["opennebula.disk.#{disk_id}"]
+
+        img_name_escaped = VCenterDriver::FileHelper.get_img_name(
+                                disk,
+                                one_item['ID'],
+                                self['name'],
+                                instantiated_as_persistent?)
+
+        img_name = VCenterDriver::FileHelper.unescape_path(img_name_escaped)
 
         vc_disks.each do |d|
-            # Check if we are dealing with the unmanaged disks present in the template when cloned
+            key_matches  = (unmanaged_key && d[:key] == unmanaged_key.to_i)
+            path_matches = (d[:path_wo_ds] == img_name)
 
-            if unmanaged_keys.key?("opennebula.disk.#{disk_id}") && d[:key] == unmanaged_keys["opennebula.disk.#{disk_id}"].to_i
-                device_found = d
-                break
-            end
-
-            # Alright let's see if we can find other devices only with the expected image name
-            img_name  = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'], self['name'], instantiated_as_persistent?)
-            if d[:path_wo_ds] == "#{img_name}"
+            if key_matches || path_matches
                 device_found = d
                 break
             end
@@ -2159,7 +2175,14 @@ class VirtualMachine < Template
     end
 
     def calculate_add_disk_spec(disk, position=0)
-        img_name = VCenterDriver::FileHelper.get_img_name(disk, one_item['ID'], self['name'],instantiated_as_persistent?)
+        img_name_escaped = VCenterDriver::FileHelper.get_img_name(
+                                disk,
+                                one_item['ID'],
+                                self['name'],
+                                instantiated_as_persistent?)
+
+        img_name = VCenterDriver::FileHelper.unescape_path(img_name_escaped)
+
         type     = disk["TYPE"]
         size_kb  = disk["SIZE"].to_i * 1024
 
