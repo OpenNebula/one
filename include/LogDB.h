@@ -199,12 +199,7 @@ public:
     // -------------------------------------------------------------------------
     // Database methods
     // -------------------------------------------------------------------------
-    static int bootstrap(SqlDB *_db)
-    {
-        std::ostringstream oss(db_bootstrap);
-
-        return _db->exec_local_wr(oss);
-    }
+    static int bootstrap(SqlDB *_db);
 
     /**
      *  This function gets and initialize log related index
