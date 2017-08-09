@@ -32,6 +32,28 @@ const char * LogDB::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
     "timestamp INTEGER, fed_index INTEGER)";
 
 /* -------------------------------------------------------------------------- */
+
+int LogDB::bootstrap(SqlDB *_db)
+{
+    int rc;
+
+    std::ostringstream oss(db_bootstrap);
+
+    rc = _db->exec_local_wr(oss);
+
+    // Create indexes
+    oss.str("CREATE INDEX fed_index_idx on logdb (fed_index);");
+
+    rc += _db->exec_local_wr(oss);
+
+    oss.str("CREATE INDEX timestamp_idx on logdb (timestamp);");
+
+    rc += _db->exec_local_wr(oss);
+
+    return rc;
+};
+
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int LogDBRecord::select_cb(void *nil, int num, char **values, char **names)
