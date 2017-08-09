@@ -517,14 +517,14 @@ int VirtualMachine::select(SqlDB * db)
             History * hp;
 
             hp = new History(oid, i);
+            history_records[i] = hp;
+
             rc = hp->select(db);
 
             if ( rc != 0)
             {
                 goto error_previous_history;
             }
-
-            history_records[i] = hp;
 
             if ( i == last_seq )
             {
