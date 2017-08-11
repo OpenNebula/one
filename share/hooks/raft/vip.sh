@@ -17,7 +17,7 @@ fi
 case $ACTION in
 leader)
     sudo ip address add $IP dev $INTERFACE
-    arping -c 5 -A -I $INTERFACE ${IP%%/*}
+    arping -c 5 -U -I $INTERFACE ${IP%%/*}
     ;;
 
 follower)
