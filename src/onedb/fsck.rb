@@ -575,7 +575,13 @@ EOT
             id = disk.at_xpath("IMAGE_ID")
 
             if id
-                image = get_image_from_id(id.content)
+                begin
+                    image = get_image_from_id(id.content)
+                rescue => e
+                    template_id = doc.root.at_xpath("ID").content
+                    STDERR.puts "Error processing template: #{template_id}"
+                    raise e
+                end
             else
                 image = get_image_from_name(disk, uid)
             end
@@ -598,7 +604,17 @@ EOT
     # Params:
     # +id+:: ID of the image
     def get_image_from_id(id)
-        row = @db.fetch("SELECT body from image_pool where oid=#{id}").first
+        # if IMAGE_ID has a non positive integer (>=0) return nil
+        return nil if id !~ /^\d+$/
+
+        begin
+            sql_cmd = "SELECT body FROM image_pool WHERE oid='#{id}'"
+            row = @db.fetch(sql_cmd).first
+        rescue => e
+            STDERR.puts "Error executing: #{sql_cmd}"
+            raise e
+        end
+
         # No image found, so unable to get image TYPE
         return nil if row.nil?
 
