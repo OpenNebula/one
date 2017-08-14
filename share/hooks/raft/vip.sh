@@ -17,7 +17,12 @@ fi
 case $ACTION in
 leader)
     sudo ip address add $IP dev $INTERFACE
-    arping -c 5 -A -I $INTERFACE ${IP%%/*}
+    for i in $(seq 5); do
+        arping -c 1 -U -I $INTERFACE ${IP%%/*}
+        sleep 1
+        arping -c 1 -A -I $INTERFACE ${IP%%/*}
+        sleep 1
+    done
     ;;
 
 follower)
