@@ -127,7 +127,7 @@ class OpenNebula::LdapAuth
 
     def find_user(name)
         begin
-            filter = "#{@options[:user_field]}=#{escape(name)}"
+            filter = Net::LDAP::Filter.eq(@options[:user_field], escape(name))
 
             result = @ldap.search(
                 :base       => @options[:base],
