@@ -196,7 +196,7 @@ class OpenNebula::LdapAuth
             filter = "(#{@options[:group_field]}=#{@user[@options[:user_field]].first})"
             @ldap.search(
                 :base       => @options[:base],
-                :attributes => "dn",
+                :attributes => [ "dn" ],
                 :filter     => filter
             ) do |entry|
                 if @mapping[entry.dn]
