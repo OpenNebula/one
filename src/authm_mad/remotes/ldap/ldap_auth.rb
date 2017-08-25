@@ -155,10 +155,11 @@ class OpenNebula::LdapAuth
     end
 
     def is_in_group?(user, group)
+        username = user.first.force_encoding(Encoding::UTF_8)
         result=@ldap.search(
                     :base   => group,
                     :attributes => [@options[:group_field]],
-                    :filter => "(#{@options[:group_field]}=#{user.first})")
+                    :filter => "(#{@options[:group_field]}=#{username})")
 
         if result && result.first
             true
@@ -228,4 +229,3 @@ private
       string.gsub(FILTER_ESCAPE_RE) { |char| "\\" + FILTER_ESCAPES[char] }
     end
 end
-
