@@ -504,7 +504,7 @@ int VirtualMachine::select(SqlDB * db)
         return rc;
     }
 
-    //Get History Records. 
+    //Get History Records.
     if( hasHistory() )
     {
         last_seq = history->seq;
@@ -1400,6 +1400,7 @@ error_common:
 int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
     string& error_str)
 {
+    string tm_mad_system;
     ostringstream   oss;
     set<string>     clouds;
 
@@ -1451,20 +1452,27 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
 
     obj_template->add("AUTOMATIC_REQUIREMENTS", oss.str());
 
+    oss.str("");
+
+    if ( obj_template->get("TM_MAD_SYSTEM", tm_mad_system) )
+    {
+        oss << "(TM_MAD = " << one_util::trim(tm_mad_system) << ") & ";
+    }
+
     // Set automatic System DS requirements
 
     if ( !cluster_ids.empty() )
     {
-        oss.str("");
-
         set<int>::iterator i = cluster_ids.begin();
 
-        oss << "\"CLUSTERS/ID\" @> " << *i;
+        oss << "(\"CLUSTERS/ID\" @> " << *i;
 
         for (++i; i != cluster_ids.end(); i++)
         {
             oss << " | \"CLUSTERS/ID\" @> " << *i;
         }
+
+        oss << ")";
 
         obj_template->add("AUTOMATIC_DS_REQUIREMENTS", oss.str());
     }
@@ -2129,7 +2137,7 @@ int VirtualMachine::from_xml(const string &xml_str)
     // -------------------------------------------------------------------------
     int last_seq;
 
-    if ( xpath(last_seq,"/VM/HISTORY_RECORDS/HISTORY/SEQ", -1) == 0 && 
+    if ( xpath(last_seq,"/VM/HISTORY_RECORDS/HISTORY/SEQ", -1) == 0 &&
             last_seq != -1 )
     {
         history_records.resize(last_seq + 1);
@@ -2677,7 +2685,19 @@ int VirtualMachine::get_disk_images(string& error_str)
         context = static_cast<VectorAttribute * >(acontext_disks[0]);
     }
 
-    return disks.get_images(oid, uid, adisks, context, error_str);
+    // -------------------------------------------------------------------------
+    // Deployment mode for the VM disks
+    // -------------------------------------------------------------------------
+    std::string tm_mad_sys;
+
+    if ( user_obj_template->get("TM_MAD_SYSTEM", tm_mad_sys) == true )
+    {
+        user_obj_template->erase("TM_MAD_SYSTEM");
+
+        obj_template->add("TM_MAD_SYSTEM", tm_mad_sys);
+    }
+
+    return disks.get_images(oid, uid, tm_mad_sys, adisks, context, error_str);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2711,7 +2731,14 @@ int VirtualMachine::set_up_attach_disk(VirtualMachineTemplate * tmpl, string& er
 
     VirtualMachineDisk * new_disk;
 
-    new_disk = disks.set_up_attach(oid, uid, get_cid(), new_vdisk, context, err);
+    // -------------------------------------------------------------------------
+    // Deployment mode for the VM disks
+    // -------------------------------------------------------------------------
+    std::string tm_mad_sys;
+
+    obj_template->get("TM_MAD_SYSTEM", tm_mad_sys);
+
+    new_disk = disks.set_up_attach(oid, uid, get_cid(), new_vdisk, tm_mad_sys, context, err);
 
     if ( new_disk == 0 )
     {

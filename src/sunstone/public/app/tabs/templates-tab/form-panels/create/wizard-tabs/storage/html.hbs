@@ -13,6 +13,23 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
+<div class="row">
+  <div class="medium-2 columns"></div>
+  <div class="medium-10 columns">
+    <fieldset>
+      <legend>{{tr "Deployment Requirements"}}</legend>
+      <div class="row">
+        <div class="medium-12 columns">
+          <label for="TM_MAD_SYSTEM">
+            {{tr "Deploy Mode"}}
+          </label>
+          <select wizard_field="TM_MAD_SYSTEM" id="TM_MAD_SYSTEM" name="TM_MAD_SYSTEM">
+          </select>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+</div>
 <div class="row collapse">
   <div class="medium-2 columns">
     <ul class="tabs vertical" id="{{linksContainerId}}" data-tabs>

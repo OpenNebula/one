@@ -218,6 +218,7 @@ define(function(require) {
         }
 
         this.imageTable.selectResourceTableSelect(selectedResources);
+
       } else if (templateJSON.IMAGE != undefined && templateJSON.IMAGE_UNAME != undefined) {
         var selectedResources = {
           names : {

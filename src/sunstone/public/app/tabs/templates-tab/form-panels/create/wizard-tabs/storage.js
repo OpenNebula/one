@@ -26,6 +26,7 @@ define(function(require) {
   var WizardFields = require('utils/wizard-fields');
   var DiskTab = require('./storage/disk-tab');
   var UniqueId = require('utils/unique-id');
+  var OpenNebula = require('opennebula');
 
   /*
     TEMPLATES
@@ -111,7 +112,7 @@ define(function(require) {
   }
 
   function _retrieve(context) {
-    var templateJSON = {};
+    var templateJSON = WizardFields.retrieve(context);
     var disksJSON = [];
     var diskJSON;
     $.each(this.diskTabObjects, function(id, diskTab) {
@@ -131,6 +132,14 @@ define(function(require) {
   function _fill(context, templateJSON) {
     var that = this;
     var disks = templateJSON.DISK
+    var modes = [];
+    var groupDropdownOptions = '<option value=></option>';
+
+    var tmpl_tm_mad_system;
+    if (templateJSON.TM_MAD_SYSTEM){
+      tmpl_tm_mad_system = templateJSON.TM_MAD_SYSTEM;
+    }
+
     if (disks instanceof Array) {
       $.each(disks, function(diskId, diskJSON) {
         if (diskId > 0) {
@@ -139,11 +148,75 @@ define(function(require) {
 
         var diskTab = that.diskTabObjects[that.numberOfDisks];
         var diskContext = $('#' + diskTab.diskTabId, context);
+        OpenNebula.Image.show({
+          timeout: true,
+          data : {
+            name: diskJSON.IMAGE,
+            uname: diskJSON.IMAGE_UNAME
+          },
+          success: function(request, obj_file){
+            OpenNebula.Datastore.show({
+              data : {
+                id: obj_file.IMAGE.DATASTORE_ID
+              },
+              timeout: true,
+              success: function(request, ds){
+                  var tm_mad_system = ds.DATASTORE.TEMPLATE.TM_MAD_SYSTEM;
+                  if (tm_mad_system) {
+                    tm_mad_system.split(",").map(function(item) {
+                      var i = item.trim();
+                      if(modes.indexOf(i) === -1){
+                        modes.push(i);
+                        groupDropdownOptions += '<option elem_id="'+i+'" value="'+i+'">'+i+'</option>';
+                      }
+                    });
+                    $('select#TM_MAD_SYSTEM', context).html(groupDropdownOptions);
+                    if ( tmpl_tm_mad_system ){
+                      $('select#TM_MAD_SYSTEM', context).val(tmpl_tm_mad_system);
+                    }
+                  }
+              }
+            });
+          }
+        });
         diskTab.fill(diskContext, diskJSON);
       });
     } else if (disks instanceof Object) {
       var diskTab = that.diskTabObjects[that.numberOfDisks];
       var diskContext = $('#' + diskTab.diskTabId, context);
+
+      OpenNebula.Image.show({
+        timeout: true,
+        data : {
+          name: disks.IMAGE,
+          uname: disks.IMAGE_UNAME
+        },
+        success: function(request, obj_file){
+          OpenNebula.Datastore.show({
+            data : {
+              id: obj_file.IMAGE.DATASTORE_ID
+            },
+            timeout: true,
+            success: function(request, ds){
+              var tm_mad_system = ds.DATASTORE.TEMPLATE.TM_MAD_SYSTEM;
+              if (tm_mad_system) {
+                tm_mad_system.split(",").map(function(item) {
+                  var i = item.trim();
+                  if(modes.indexOf(i) === -1){
+                    modes.push(i);
+                    groupDropdownOptions += '<option elem_id="'+i+'" value="'+i+'">'+i+'</option>';
+                  }
+                });
+                $('select#TM_MAD_SYSTEM', context).html(groupDropdownOptions);
+                if ( tmpl_tm_mad_system ){
+                  $('select#TM_MAD_SYSTEM', context).val(tmpl_tm_mad_system);
+                }
+              }
+            }
+          });
+        }
+      });
+
       diskTab.fill(diskContext, disks);
     }
 
