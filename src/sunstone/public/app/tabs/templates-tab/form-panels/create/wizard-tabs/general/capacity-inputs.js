@@ -55,7 +55,7 @@ define(function(require) {
 
   function _setup(context) {
     if (Config.isFeatureEnabled("instantiate_hide_cpu")){
-      $(".cpu_input_wrapper", context).remove();
+      $(".cpu_input_wrapper", context).hide();
     }
    
     Tips.setup(context);
@@ -85,33 +85,31 @@ define(function(require) {
     var attr;
     var input;
 
-    if (!Config.isFeatureEnabled("instantiate_hide_cpu")){
-      if (userInputs != undefined && userInputs.CPU != undefined){
-        attr = UserInputs.parse("CPU", userInputs.CPU);
-      } else {
-        attr = UserInputs.parse("CPU", "O|number-float|||");
-      }
-
-      if (element.TEMPLATE.CPU != undefined){
-        attr.initial = element.TEMPLATE.CPU;
-      } else {
-        attr.mandatory = true;
-      }
-
-      attr.step = 0.01;
-
-      if(attr.min == undefined){
-        attr.min = 0.01;
-      }
-
-      input = UserInputs.attributeInput(attr);
-
-      if (attr.type != "range-float"){
-        $("div.cpu_input_wrapper", context).addClass("medium-6");
-      }
-
-      $("div.cpu_input", context).html(input);
+    if (userInputs != undefined && userInputs.CPU != undefined){
+      attr = UserInputs.parse("CPU", userInputs.CPU);
+    } else {
+      attr = UserInputs.parse("CPU", "O|number-float|||");
     }
+
+    if (element.TEMPLATE.CPU != undefined){
+      attr.initial = element.TEMPLATE.CPU;
+    } else {
+      attr.mandatory = true;
+    }
+
+    attr.step = 0.01;
+
+    if(attr.min == undefined){
+      attr.min = 0.01;
+    }
+
+    input = UserInputs.attributeInput(attr);
+
+    if (attr.type != "range-float"){
+      $("div.cpu_input_wrapper", context).addClass("medium-6");
+    }
+
+    $("div.cpu_input", context).html(input);
 
     if (userInputs != undefined && userInputs.VCPU != undefined){
       attr = UserInputs.parse("VCPU", userInputs.VCPU);
@@ -136,9 +134,15 @@ define(function(require) {
     $("div.vcpu_input", context).html(input);
 
     if (Config.isFeatureEnabled("instantiate_cpu_factor")){
+      $("div.cpu_input input", context).prop("disabled", true);
       $("div.vcpu_input input", context).on("change", function(){
         var vcpuValue = $("div.vcpu_input input", context).val();
         $("div.cpu_input input", context).val(vcpuValue * Config.scaleFactor);
+      });
+    } else {
+        $("div.vcpu_input input", context).on("change", function(){
+        var vcpuValue = $("div.vcpu_input input", context).val();
+        $("div.cpu_input input", context).val(vcpuValue);
       });
     }
 
@@ -163,6 +167,10 @@ define(function(require) {
     }
 
     UserInputs.insertAttributeInputMB(attr, $("div.memory_input", context));
+
+    if (Config.isFeatureEnabled("instantiate_hide_cpu")){
+      $(".vcpu_input input", context).prop("required", true);
+    }
   }
 
   /**
@@ -189,12 +197,6 @@ define(function(require) {
   function _retrieve(context) {
     var values = WizardFields.retrieve(context);
 
-    if (Config.isFeatureEnabled("instantiate_hide_cpu")){
-      if(values.VCPU != undefined){
-        values.CPU = values.VCPU;
-      }
-    }
-
     return values;
   }
 
@@ -218,12 +220,6 @@ define(function(require) {
         delete templateJSON[field_name];
       }
     });
-
-    if (Config.isFeatureEnabled("instantiate_hide_cpu")){
-      if(templateJSON.VCPU != undefined){
-        templateJSON.CPU = templateJSON.VCPU;
-      }
-    }
 
     return templateJSON;
   }
