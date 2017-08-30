@@ -53,7 +53,8 @@ define(function(require) {
           { "bSortable": false, "aTargets": ["check",2,3,4,5,6,7] },
           {"sWidth": "35px", "aTargets": [0]},
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
-          {"bVisible": false, "aTargets": ['_all']}
+          {"bVisible": false, "aTargets": ['_all']},
+          {"sType": "num", "aTargets": [1]}
       ]
     };
 
