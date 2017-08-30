@@ -74,7 +74,8 @@ define(function(require) {
       "iDisplayLength": 6,
       "sDom": "t<'row collapse'<'small-12 columns'p>>",
       "aoColumnDefs": [
-          { "bVisible": false, "aTargets": [0,1,2]}
+          { "bVisible": false, "aTargets": [0,1,2]},
+          { "sType": "num", "aTargets": [4]}
         ]
     });
 
@@ -82,7 +83,10 @@ define(function(require) {
 
     showback_vms_dataTable = $("#showback_vms_datatable",context).dataTable({
       "bSortClasses" : false,
-      "bDeferRender": true
+      "bDeferRender": true,
+      "aoColumnDefs": [
+        { "sType": "num", "aTargets": [0,3,4]}
+      ]
     });
 
     showback_dataTable.on("click", "tbody tr", function(){
