@@ -331,7 +331,7 @@ function force_shutdown {
     if [ "x$error" != "x0" ]; then
         if [ "$FORCE_DESTROY" = "yes" ]; then
             log_error "Timeout shutting down $deploy_id. Destroying it"
-            $($command)
+            ret=$($command)
             sleep 2
         else
             error_message "Timed out shutting down $deploy_id"
