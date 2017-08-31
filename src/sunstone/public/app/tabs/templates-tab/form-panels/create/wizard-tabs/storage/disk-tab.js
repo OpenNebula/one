@@ -150,6 +150,7 @@ define(function(require) {
 
     if($(".mb_input_unit", context).val() == "GB"){
       tmpl.SIZE = tmpl.SIZE * 1024;
+      tmpl.SIZE = tmpl.SIZE.toString();
     }
 
     if($("input[name='" + this.diskTabId + "']:checked", context).val() == "image" && !tmpl["IMAGE"] && !tmpl["IMAGE_ID"]){

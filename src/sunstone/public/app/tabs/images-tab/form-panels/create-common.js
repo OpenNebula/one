@@ -432,6 +432,11 @@ define(function(require) {
       break;
     case "datablock":
       size = WizardFields.retrieveInput($('#img_size', context));
+
+      if(size && $(".mb_input_unit", context).val() == "GB"){
+        size = size * 1024;
+        size = size.toString();
+      }
       if (size) img_json["SIZE"] = size;
 
       var vcenter_disk_type = WizardFields.retrieveInput($('#vcenter_disk_type', context));
