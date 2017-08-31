@@ -148,7 +148,7 @@ define(function(require) {
 
     var tmpl = WizardFields.retrieve(selectedContext);
 
-    if(tmpl.SIZE){
+    if($(".mb_input_unit", context).val() == "GB"){
       tmpl.SIZE = tmpl.SIZE * 1024;
     }
 
