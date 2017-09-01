@@ -343,21 +343,21 @@ int Host::update_info(Template        &tmpl,
                 // Reported as zombie at least 2 times?
                 if (prev_tmp_zombie.count(vmid) == 1)
                 {
-                    string zname;
-
-                    if (num_zombies++ > 0)
-                    {
-                        zombie << ", ";
-                    }
-
-                    zname = vatt->vector_value("VM_NAME");
+                    string zname = vatt->vector_value("VM_NAME");
 
                     if (zname.empty())
                     {
                         zname = vatt->vector_value("DEPLOY_ID");
                     }
 
-                    zombie << zname;
+                    if (!zname.empty())
+                    {
+                        if (num_zombies++ > 0)
+                        {
+                            zombie << ", ";
+                        }
+                        zombie << zname;
+                    }
                 }
             }
 
