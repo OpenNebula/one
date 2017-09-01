@@ -561,7 +561,7 @@ define(function(require) {
 
     } else if (attr_gb.type == "number"){
       attr_gb.type = "number-float";
-      attr_gb.step = "1";
+      attr_gb.step = "0.1";
     }
 
     div.html(
