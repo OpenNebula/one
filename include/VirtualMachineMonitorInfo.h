@@ -44,7 +44,9 @@ public:
         VirtualMachineMonitorInfo new_info;
 
         char * error_c = 0;
+        
         remove_state();
+        
         if (new_info.parse(monitor_data, &error_c) != 0)
         {
             error = error_c;
