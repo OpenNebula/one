@@ -69,7 +69,8 @@ bool RequestManagerVirtualMachine::vm_authorization(
     {
         string t_xml;
 
-        ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::IMAGE, tmpl->to_xml(t_xml));
+        ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::IMAGE, 
+                tmpl->to_xml(t_xml));
     }
 
     if ( vtmpl != 0 )
@@ -1836,7 +1837,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
     {
         string aname;
 
-        if (tmpl.check(aname))
+        if (tmpl.check_restricted(aname))
         {
             att.resp_msg = "Template includes a restricted attribute " + aname;
             failure_response(AUTHORIZATION, att);
@@ -1911,7 +1912,9 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         case VirtualMachine::DONE:
         case VirtualMachine::SUSPENDED:
         case VirtualMachine::ACTIVE:
-            att.resp_msg="Resize action is not available for state "+vm->state_str();
+            att.resp_msg="Resize action is not available for state " +
+                vm->state_str();
+
             failure_response(ACTION, att);
 
             vm->unlock();
@@ -2043,7 +2046,9 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         case VirtualMachine::DONE:
         case VirtualMachine::SUSPENDED:
         case VirtualMachine::ACTIVE:
-            att.resp_msg = "Resize action is not available for state " + vm->state_str();
+            att.resp_msg = "Resize action is not available for state " + 
+                vm->state_str();
+
             failure_response(ACTION, att);
 
             vm->unlock();
@@ -2299,14 +2304,15 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
     {
         string aname;
 
-        if (tmpl.check(aname))
+        if (tmpl.check_restricted(aname))
         {
             att.resp_msg = "NIC includes a restricted attribute " + aname;
             return AUTHORIZATION;
         }
     }
 
-    if (quota_authorization(&tmpl, Quotas::NETWORK, att_quota, att.resp_msg) == false)
+    if (quota_authorization(&tmpl, Quotas::NETWORK, att_quota,
+                att.resp_msg) == false)
     {
         return AUTHORIZATION;
     }
@@ -2893,7 +2899,7 @@ void VirtualMachineUpdateConf::request_execute(
     {
         string aname;
 
-        if (tmpl.check(aname))
+        if (tmpl.check_restricted(aname))
         {
             att.resp_msg = "Template includes a restricted attribute " + aname;
             failure_response(AUTHORIZATION, att);

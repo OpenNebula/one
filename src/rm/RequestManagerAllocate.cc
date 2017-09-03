@@ -87,7 +87,7 @@ bool VirtualMachineAllocate::allocate_authorization(
 
     if ( att.uid != 0 && att.gid != GroupPool::ONEADMIN_ID )
     {
-        if (ttmpl->check(aname))
+        if (ttmpl->check_restricted(aname))
         {
             att.resp_msg = "VM Template includes a restricted attribute "+aname;
             failure_response(AUTHORIZATION, att);
@@ -513,9 +513,10 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
         // ------------ Check template for restricted attributes  --------------
 
-        if ( att.uid != UserPool::ONEADMIN_ID && att.gid != GroupPool::ONEADMIN_ID )
+        if ( att.uid != UserPool::ONEADMIN_ID &&
+                att.gid != GroupPool::ONEADMIN_ID )
         {
-            if (tmpl->check(aname))
+            if (tmpl->check_restricted(aname))
             {
                 att.resp_msg = "Template includes a restricted attribute "+aname;
                 failure_response(AUTHORIZATION, att);
@@ -528,7 +529,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
         // ------------------ Check permissions and ACLs  ----------------------
         tmpl->to_xml(tmpl_str);
 
-        ar.add_create_auth(att.uid, att.gid, auth_object, tmpl_str); // CREATE IMAGE
+        ar.add_create_auth(att.uid, att.gid, auth_object, tmpl_str);
 
         ar.add_auth(AuthRequest::USE, ds_perms); // USE DATASTORE
 
@@ -649,7 +650,7 @@ bool TemplateAllocate::allocate_authorization(
     VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);
 
     // ------------ Check template for restricted attributes -------------------
-    if (ttmpl->check(aname))
+    if (ttmpl->check_restricted(aname))
     {
         att.resp_msg = "VM Template includes a restricted attribute " + aname;
 

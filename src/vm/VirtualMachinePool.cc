@@ -207,7 +207,7 @@ VirtualMachinePool::VirtualMachinePool(
     }
 
     // Set restricted attributes
-    VirtualMachineTemplate::set_restricted_attributes(restricted_attrs);
+    VirtualMachineTemplate::parse_restricted(restricted_attrs);
 }
 
 /* -------------------------------------------------------------------------- */
