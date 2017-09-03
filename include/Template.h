@@ -19,7 +19,9 @@
 
 #include <iostream>
 #include <map>
+#include <set>
 #include <vector>
+#include <string>
 
 #include <libxml/tree.h>
 #include <libxml/parser.h>
@@ -54,8 +56,6 @@ public:
         replace_mode = t.replace_mode;
         separator    = t.separator;
         xml_root     = t.xml_root;
-
-        attributes.clear();
 
         for (it = t.attributes.begin() ; it != t.attributes.end() ; it++)
         {
@@ -404,39 +404,47 @@ public:
     /**
      *  Merges another Template, adding the new attributes and
      *  replacing the existing ones
-     *
      *    @param from_tmpl the template to be merged
      */
      void merge(const Template * from_tmpl);
 
-     /**
-      * Deletes all restricted attributes
-      */
-     virtual void remove_restricted();
+    /**
+     *  Check if the template can be safely merge with a base template. If a
+     *  restricted attribute is found it is check that it has the same value in
+     *  base.
+     *    @param rs_attr the first restricted attribute found with a different
+     *    value in base
+     *    @param base template used to check restricted values.
+     *
+     *    @return true if a restricted attribute with a different value is found
+     *    in the template
+     *
+     *   The version of this method without base template just look for any
+     *   restricted attribute.
+     */
+    virtual bool check_restricted(string& rs_attr, const Template* base)
+    {
+        return false;
+    }
 
-     /**
-      * Deletes all the attributes, except the restricted ones
-      */
-     virtual void remove_all_except_restricted();
+    virtual bool check_restricted(string& rs_attr)
+    {
+        return false;
+    }
 
-     /**
-      *  @return true if the template defines one or more restricted attributes
-      */
-     virtual bool has_restricted();
-
-     /**
-      *  @return true if template is empty
-      */
-     bool empty()
-     {
-         return attributes.empty();
-     }
+    /**
+     *  @return true if template is empty
+     */
+    bool empty()
+    {
+        return attributes.empty();
+    }
 
 protected:
     /**
      *  The template attributes
      */
-    multimap<string,Attribute *>    attributes;
+    multimap<string,Attribute *> attributes;
 
     /**
      *  Builds a SingleAttribute from the given node
@@ -455,32 +463,37 @@ protected:
     Attribute* vector_xml_att(const xmlNode * node);
 
     /**
-     * Stores the attributes as restricted, these attributes will be used in
-     * Template::check
-     * @param rattrs Attributes to restrict
-     * @param restricted_attributes The attributes will be stored here
+     *  Parses a list of restricted attributes in the form ATTRIBUTE_NAME or
+     *  ATTRIBUTE_NAME/SUBATTRIBUTE.
+     *    @param ras list of restricted attributes
+     *    @param rattr_m result list of attributes indexed by ATTRIBUTE_NAME.
+     *    RAs are stored:
+     *      {
+     *        RESTRICTED_ATTR_NAME => [ RESTRICTED_SUB_ATTRIBUTES ],
+     *        ...
+     *      }
+     *    If the RA is Single the sub attribute list will be empty.
      */
-    static void set_restricted_attributes(
-            vector<const SingleAttribute *>& rattrs,
-            vector<string>& restricted_attributes);
+    static void parse_restricted(const vector<const SingleAttribute *>& ras,
+        std::map<std::string, std::set<std::string> >& rattr_m);
 
     /**
-     *  Checks the template for RESTRICTED ATTRIBUTES
-     *    @param rs_attr the first restricted attribute found if any
-     *    @return true if a restricted attribute is found in the template
+     *  Check if the template can be safely merge with a base template. If a
+     *  restricted attribute is found it is check that it has the same value in
+     *  base.
+     *    @param rs_attr the first restricted attribute found with a different
+     *    value in base
+     *    @param base template used to check restricted values.
+     *    @param ras list of restricted attributes.
+     *
+     *    @return true if a restricted attribute with a different value is found
+     *    in the template
      */
-    bool check(string& rs_attr, const vector<string> &restricted_attributes);
+    bool check_restricted(string& rs_attr, const Template* base,
+           const std::map<std::string, std::set<std::string> >& ras);
 
-    /**
-     * Deletes all restricted attributes
-     */
-    void remove_restricted(const vector<string> &restricted_attributes);
-
-    /**
-     * Deletes all the attributes, except the restricted ones
-     */
-    void remove_all_except_restricted(const vector<string> &restricted_attributes);
-
+    bool check_restricted(string& rs_attr,
+           const std::map<std::string, std::set<std::string> >& ras);
     /**
      * Updates the xml root element name
      *

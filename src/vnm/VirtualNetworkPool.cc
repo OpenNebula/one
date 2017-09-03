@@ -90,7 +90,8 @@ VirtualNetworkPool::VirtualNetworkPool(
     _mac_prefix <<= 8;
     _mac_prefix += tmp;
 
-    VirtualNetworkTemplate::set_restricted_attributes(restricted_attrs);
+    VirtualNetworkTemplate::parse_restricted(restricted_attrs);
+
     AddressRange::set_restricted_attributes(restricted_attrs);
 
     register_hooks(hook_mads, remotes_location);

@@ -274,7 +274,7 @@ Request::ErrorCode VMTemplateInstantiate::merge(
 
 	if (att.uid!=UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
 	{
-		if (uattrs.check(aname))
+		if (uattrs.check_restricted(aname, tmpl))
 		{
 			att.resp_msg ="User Template includes a restricted attribute " + aname;
 
