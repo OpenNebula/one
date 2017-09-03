@@ -172,6 +172,8 @@ void PoolObjectSQL::clear_template_error_message()
 int PoolObjectSQL::replace_template(
         const string& tmpl_str, bool keep_restricted, string& error)
 {
+    string ra;
+
     Template * old_tmpl = 0;
     Template * new_tmpl = get_new_template();
 
@@ -189,19 +191,22 @@ int PoolObjectSQL::replace_template(
 
     if (obj_template != 0)
     {
+        if ( keep_restricted &&  new_tmpl->check_restricted(ra, obj_template) )
+        {
+            error = "Tried to change restricted attribute: " + ra;
+
+            delete new_tmpl;
+            return -1;
+        }
+
         old_tmpl = new Template(*obj_template);
     }
-
-    if (keep_restricted && new_tmpl->has_restricted())
+    else if ( keep_restricted && new_tmpl->check_restricted(ra) )
     {
-        new_tmpl->remove_restricted();
+        error = "Tried to set restricted attribute: " + ra;
 
-        if (obj_template != 0)
-        {
-            obj_template->remove_all_except_restricted();
-
-            new_tmpl->merge(obj_template);
-        }
+        delete new_tmpl;
+        return -1;
     }
 
     delete obj_template;
@@ -257,8 +262,6 @@ int PoolObjectSQL::append_template(
 
     if ( obj_template != 0 )
     {
-        old_tmpl = new Template(*obj_template);
-
         obj_template->merge(new_tmpl);
 
         delete new_tmpl;

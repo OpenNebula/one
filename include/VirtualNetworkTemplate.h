@@ -27,57 +27,38 @@ using namespace std;
 class VirtualNetworkTemplate : public Template
 {
 public:
-    VirtualNetworkTemplate():
-        Template(false,'=',"TEMPLATE"){};
+    VirtualNetworkTemplate():Template(false,'=',"TEMPLATE"){};
 
     ~VirtualNetworkTemplate(){};
 
-    /**
-     *  Checks the template for RESTRICTED ATTRIBUTES
-     *    @param rs_attr the first restricted attribute found if any
-     *    @return true if a restricted attribute is found in the template
-     */
-    bool check(string& rs_attr)
+    // -------------------------------------------------------------------------
+    // Restricted attributes interface implementation
+    // -------------------------------------------------------------------------
+    virtual void remove_restricted()
     {
-        return Template::check(rs_attr, restricted_attributes);
+        Template::remove_restricted(restricted);
     };
 
-    /**
-     * Deletes all restricted attributes
-     */
-    void remove_restricted()
+    virtual bool check_restricted(string& rs_attr, const Template& base)
     {
-        Template::remove_restricted(restricted_attributes);
-    };
+        return Template::check_restricted(rs_attr, base, restricted);
+    }
 
-    /**
-     * Deletes all the attributes, except the restricted ones
-     */
-    void remove_all_except_restricted()
+    virtual bool check_restricted(string& rs_attr)
     {
-        Template::remove_all_except_restricted(restricted_attributes);
-    };
+        return Template::check_restricted(rs_attr, restricted);
+    }
+
+    static void parse_restricted(vector<const SingleAttribute *>& ra)
+    {
+        Template::parse_restricted(ra, restricted);
+    }
 
 private:
-
-    friend class VirtualNetworkPool;
-
-    static vector<string> restricted_attributes;
-
-    bool has_restricted()
-    {
-        return restricted_attributes.size() > 0;
-    };
-
     /**
-     * Stores the attributes as restricted, these attributes will be used in
-     * VirtualMachineTemplate::check
-     * @param rattrs Attributes to restrict
+     *  Restricted attribute list for VirtualNetworkTemplates
      */
-    static void set_restricted_attributes(vector<const SingleAttribute *>& rattrs)
-    {
-        Template::set_restricted_attributes(rattrs, restricted_attributes);
-    };
+    static std::map<std::string, std::set<std::string> > restricted;
 };
 
 /* -------------------------------------------------------------------------- */

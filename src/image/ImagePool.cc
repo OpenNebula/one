@@ -67,7 +67,7 @@ ImagePool::ImagePool(
         _default_type = "OS";
     }
 
-    ImageTemplate::set_restricted_attributes(restricted_attrs);
+    ImageTemplate::parse_restricted(restricted_attrs);
 
     register_hooks(hook_mads, remotes_location);
 }

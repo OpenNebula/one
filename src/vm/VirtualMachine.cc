@@ -2223,6 +2223,8 @@ int VirtualMachine::replace_template(
         bool            keep_restricted,
         string&         error)
 {
+    string ra;
+
     VirtualMachineTemplate * new_tmpl =
             new VirtualMachineTemplate(false,'=',"USER_TEMPLATE");
 
@@ -2238,16 +2240,22 @@ int VirtualMachine::replace_template(
         return -1;
     }
 
-    if (keep_restricted)
+    if (user_obj_template != 0)
     {
-        new_tmpl->remove_restricted();
-
-        if (user_obj_template != 0)
+        if (keep_restricted && new_tmpl->check_restricted(ra, user_obj_template))
         {
-            user_obj_template->remove_all_except_restricted();
+            error = "Tried to change restricted attribute: " + ra;
 
-            new_tmpl->merge(user_obj_template);
+            delete new_tmpl;
+            return -1;
         }
+    }
+    else if (keep_restricted && new_tmpl->check_restricted(ra))
+    {
+        error = "Tried to set restricted attribute: " + ra;
+
+        delete new_tmpl;
+        return -1;
     }
 
     delete user_obj_template;
