@@ -42,6 +42,21 @@ require 'scripts_common'
 require 'rexml/document'
 require 'VirtualMachineDriver'
 
+# >> /var/log/one/oned.log
+def handle_exception(action, ex, host, did, id = nil, file = nil)
+
+    file    ||= ""
+    id      ||= ""
+    OpenNebula::log_error(action + " of VM #{id} #{did} on host #{host} #{file} "+
+                "due to \"#{ex.message}\"")
+    OpenNebula.error_message("There is a problem: #{ex.message}")
+
+    STDERR.puts "********* STACK TRACE *********"
+    STDERR.puts ex.backtrace
+    STDERR.puts "*******************************"
+    exit (-1)
+end
+
 # The main class for the Azure driver
 class AzureDriver
     ACTION          = VirtualMachineDriver::ACTION

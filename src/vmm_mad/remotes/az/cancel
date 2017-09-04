@@ -32,11 +32,10 @@ require 'az_driver'
 deploy_id = ARGV[0]
 host      = ARGV[1]
 
-az_drv = AzureDriver.new(host)
 
 begin
+    az_drv = AzureDriver.new(host)
     az_drv.cancel(deploy_id)
 rescue => e
-    STDERR.puts "Error canceling Azure VM [#{deploy_id}]: " + e.message
-    exit -1
+    handle_exception("Cancel", e, host, deploy_id)
 end
