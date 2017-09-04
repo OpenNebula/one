@@ -63,18 +63,24 @@ done < <(onevm show -x $VM_ID| $XPATH \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_KEY \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_CONF \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/PERSISTENT)
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/PERSISTENT \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/POOL_NAME )
 
 RBD_SRC="${XPATH_ELEMENTS[j++]}"
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
 CEPH_KEY="${XPATH_ELEMENTS[j++]}"
 CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 PERSISTENT="${XPATH_ELEMENTS[j++]}"
+POOL_NAME="${XPATH_ELEMENTS[j++]:-$POOL_NAME}"
 
-if [[ $PERSISTENT == "YES" ]] ; then \
-  RBD_DST=$RBD_SRC
+if [ -n "${RBD_SRC}" ]; then
+    if [ "${PERSISTENT}" = 'YES' ]; then
+        RBD_DST=$RBD_SRC
+    else
+        RBD_DST="${RBD_SRC}-${VM_ID}-${DISK_ID}"
+    fi
 else
-  RBD_DST="${RBD_SRC}-${VM_ID}-${DISK_ID}"
+    RBD_DST="${POOL_NAME}/one-sys-${VM_ID}-${DISK_ID}"
 fi
 
 #-------------------------------------------------------------------------------
