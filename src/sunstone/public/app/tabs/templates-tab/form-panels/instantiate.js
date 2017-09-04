@@ -123,6 +123,13 @@ define(function(require) {
       var capacity_val = parseFloat( $(".capacity_cost_div .cost_value", $(this)).text() );
       var disk_val = parseFloat( $(".provision_create_template_disk_cost_div .cost_value", $(this)).text() );
 
+      if(Number.isNaN(capacity_val)){
+        capacity_val = 0;
+      }
+      if(Number.isNaN(disk_val)){
+        disk_val = 0;
+      }
+
       var total = capacity_val + disk_val;
 
       if (total != 0 && Config.isFeatureEnabled("showback")) {
@@ -379,7 +386,8 @@ define(function(require) {
           CapacityInputs.fill(capacityContext, template_json.VMTEMPLATE);
 
           var cpuCost    = template_json.VMTEMPLATE.TEMPLATE.CPU_COST;
-          var memoryCost = template_json.VMTEMPLATE.TEMPLATE.MEMORY_COST;
+          var memoryCost = template_json.VMTEMPLATE.TEMPLATE.MEMORY_COST / 1024;
+          var memoryUnitCost = template_json.VMTEMPLATE.TEMPLATE.MEMORY_UNIT_COST;
 
           if (cpuCost == undefined){
             cpuCost = Config.onedConf.DEFAULT_COST.CPU_COST;
