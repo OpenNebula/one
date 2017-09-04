@@ -45,6 +45,6 @@ begin
     az_drv = AzureDriver.new(host)
     az_drv.shutdown(deploy_id, lcm_state)
 rescue => e
-    handle_exception("Shutdown", e, host, deploy_id, vm_id)
+    OpenNebula.handle_driver_exception("Shutdown", e, host, deploy_id, vm_id)
 end
 

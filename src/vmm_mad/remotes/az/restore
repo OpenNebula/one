@@ -38,5 +38,5 @@ begin
     az_drv = AzureDriver.new(host)
     az_drv.restore(deploy_id)
 rescue => e
-    handle_exception("Restore", e, host, deploy_id)
+    OpenNebula.handle_driver_exception("Restore", e, host, deploy_id)
 end
