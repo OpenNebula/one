@@ -497,6 +497,7 @@ void  LifeCycleManager::shutdown_action(const LCMAction& la, bool hard)
 void  LifeCycleManager::undeploy_action(const LCMAction& la, bool hard)
 {
     int vid = la.vm_id();
+    unsigned int port;
     VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
@@ -529,6 +530,14 @@ void  LifeCycleManager::undeploy_action(const LCMAction& la, bool hard)
                     la.req_id());
 
             vmm->trigger(VMMAction::SHUTDOWN,vid);
+        }
+
+        VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
+
+        if ( graphics != 0 && (graphics->vector_value("PORT", port) == 0))
+        {
+            graphics->remove("PORT");
+            clpool->release_vnc_port(vm->get_cid(), port);
         }
 
         vmpool->update_history(vm);
