@@ -422,11 +422,9 @@ private
                 all_az_elements[0].elements["TYPE"].text.downcase.eql? "azure"
                 az = all_az_elements[0]
             else
-                STDERR.puts(
-                "Cannot find Azure element in VM template "<<
-                "or couldn't find any Azure location matching "<<
-                "one of the templates.")
-                exit(-1)
+                raise "Cannot find Azure element in VM template "<<
+                      "or couldn't find any Azure location matching "<<
+                      "one of the templates."
             end
         end
 
