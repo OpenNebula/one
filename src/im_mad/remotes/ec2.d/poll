@@ -36,9 +36,5 @@ begin
     ec2_drv.monitor_all_vms
 rescue Exception => e
 
-    OpenNebula.log_error(e.message)
-    STDERR.puts "********** STACK TRACE ************"
-    STDERR.puts e.backtrace
-    STDERR.puts "***********************************"
-    exit -1
+    OpenNebula.handle_driver_exception("im poll", e, host)
 end

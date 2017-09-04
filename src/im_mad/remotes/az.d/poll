@@ -34,6 +34,5 @@ az_drv = AzureDriver.new(host)
 begin
     az_drv.monitor_all_vms
 rescue => e
-    STDERR.puts "Error monitoring Azure host: #{e.message}"
-    exit -1
+    OpenNebula.handle_driver_exception("im poll", e, host)
 end
