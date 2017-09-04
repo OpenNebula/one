@@ -386,7 +386,7 @@ define(function(require) {
           CapacityInputs.fill(capacityContext, template_json.VMTEMPLATE);
 
           var cpuCost    = template_json.VMTEMPLATE.TEMPLATE.CPU_COST;
-          var memoryCost = template_json.VMTEMPLATE.TEMPLATE.MEMORY_COST / 1024;
+          var memoryCost = template_json.VMTEMPLATE.TEMPLATE.MEMORY_COST;
           var memoryUnitCost = template_json.VMTEMPLATE.TEMPLATE.MEMORY_UNIT_COST;
 
           if (cpuCost == undefined){
@@ -395,6 +395,10 @@ define(function(require) {
 
           if (memoryCost == undefined){
             memoryCost = Config.onedConf.DEFAULT_COST.MEMORY_COST;
+          } else {
+            if (memoryUnitCost == "GB"){
+              memoryCost = memoryCost / 1024;
+            }
           }
 
           if ((cpuCost != 0 || memoryCost != 0) && Config.isFeatureEnabled("showback")) {
@@ -403,12 +407,12 @@ define(function(require) {
             CapacityInputs.setCallback(capacityContext, function(values){
               var cost = 0;
 
-              if (values.CPU != undefined){
-                cost += cpuCost * values.CPU;
-              }
-
               if (values.MEMORY != undefined){
                 cost += memoryCost * values.MEMORY;
+              }
+
+              if (values.CPU != undefined){
+                cost += cpuCost * values.CPU;
               }
 
               $(".cost_value", capacityContext).html(cost.toFixed(2));
