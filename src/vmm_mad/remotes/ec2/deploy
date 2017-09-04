@@ -48,5 +48,5 @@ begin
     puts ec2_drv.deploy(id, host, text, lcm_state, deploy_id)
 
 rescue Exception => e
-    handle_exception("Deploy", e, host, deploy_id, id, dfile)
+    OpenNebula.handle_driver_exception("Deploy", e, host, deploy_id, id, dfile)
 end
