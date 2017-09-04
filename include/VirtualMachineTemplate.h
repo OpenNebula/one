@@ -66,7 +66,7 @@ public:
         Template::remove_restricted(restricted);
     };
 
-    virtual bool check_restricted(string& rs_attr, const Template& base)
+    virtual bool check_restricted(string& rs_attr, const Template* base)
     {
         return Template::check_restricted(rs_attr, base, restricted);
     }

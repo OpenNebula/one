@@ -707,14 +707,14 @@ void Template::parse_restricted(const vector<const SingleAttribute *>& ras,
 /* -------------------------------------------------------------------------- */
 
 static void restricted_values(const string& vname, const set<string>& vsubs,
-        const Template& tmpl, vector<string>& rstrings)
+        const Template* tmpl, vector<string>& rstrings)
 {
     string value;
 
     vector<const VectorAttribute *>::const_iterator va_it;
     vector<const VectorAttribute *> va;
 
-    tmpl.get(vname, va);
+    tmpl->get(vname, va);
 
     for ( va_it = va.begin(); va_it != va.end() ; ++va_it )
     {
@@ -722,7 +722,7 @@ static void restricted_values(const string& vname, const set<string>& vsubs,
         {
             if ( (*va_it)->vector_value(*jt, value) == 0 )
             {
-                rstrings.push_back(value);
+                rstrings.push_back(*jt + value);
             }
         }
     }
@@ -730,7 +730,7 @@ static void restricted_values(const string& vname, const set<string>& vsubs,
     sort(rstrings.begin(), rstrings.end());
 }
 
-bool Template::check_restricted(string& ra, const Template& base,
+bool Template::check_restricted(string& ra, const Template* base,
         const std::map<std::string, std::set<std::string> >& ras)
 {
     std::map<std::string, std::set<std::string> >::const_iterator rit;
@@ -741,7 +741,7 @@ bool Template::check_restricted(string& ra, const Template& base,
         {
             vector<string> rvalues, rvalues_base;
 
-            restricted_values(rit->first, rit->second, *this, rvalues);
+            restricted_values(rit->first, rit->second, this, rvalues);
             restricted_values(rit->first, rit->second, base, rvalues_base);
 
             if ( rvalues != rvalues_base )
@@ -756,7 +756,7 @@ bool Template::check_restricted(string& ra, const Template& base,
             {
                 string ra_b;
 
-                base.get(rit->first, ra_b);
+                base->get(rit->first, ra_b);
 
                 if ( ra_b != ra )
                 {

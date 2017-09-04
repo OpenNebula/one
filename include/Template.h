@@ -422,7 +422,7 @@ public:
      *   The version of this method without base template just look for any
      *   restricted attribute.
      */
-    virtual bool check_restricted(string& rs_attr, const Template& base)
+    virtual bool check_restricted(string& rs_attr, const Template* base)
     {
         return false;
     }
@@ -502,7 +502,7 @@ protected:
      *    @return true if a restricted attribute with a different value is found
      *    in the template
      */
-    bool check_restricted(string& rs_attr, const Template& base,
+    bool check_restricted(string& rs_attr, const Template* base,
            const std::map<std::string, std::set<std::string> >& ras);
 
     bool check_restricted(string& rs_attr,
