@@ -56,11 +56,12 @@ define(function(require) {
       "bSortClasses" : false,
       "bDeferRender": true,
       "aoColumnDefs": [
-          { "bSortable": false, "aTargets": ["check",6,7,8] },
+          {"bSortable": false, "aTargets": ["check",6,7,8] },
           {"sWidth": "35px", "aTargets": [0]},
-          { "sWidth": "150px", "aTargets": [6,7,8] },
+          {"sWidth": "150px", "aTargets": [6,7,8] },
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
-          {"bVisible": false, "aTargets": ['_all']}
+          {"bVisible": false, "aTargets": ['_all']},
+          {"sType": "num", "aTargets": [1]}
       ]
     };
 
