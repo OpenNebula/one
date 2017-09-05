@@ -1556,6 +1556,7 @@ error_auth:
     goto error_common;
 
 error_allocate:
+    att.resp_obj = PoolObjectSQL::IMAGE;
     quota_rollback(&img_usage, Quotas::DATASTORE, att);
     failure_response(ALLOCATE, att);
     goto error_common;
