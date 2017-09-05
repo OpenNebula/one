@@ -606,7 +606,7 @@ static void monitor_action(istringstream& is,
                            int            id,
                            const string&  result)
 {
-    static unsigned int tics = 10;
+    static map<int, int> tics;
 
     string  dsinfo64;
     string *dsinfo = 0;
@@ -697,12 +697,12 @@ static void monitor_action(istringstream& is,
     NebulaLog::log("ImM", Log::DEBUG, oss);
 
     //Process VM disk information every 10 monitor actions
-    if ( tics++ < 10 )
+    if ( --tics[id] > 0 )
     {
         return;
     }
 
-    tics = 0;
+    tics[id] = 10;
 
     vector<VectorAttribute *> vm_disk_info;
     vector<VectorAttribute *>::iterator it;
