@@ -718,19 +718,14 @@ void VirtualMachineManagerDriver::process_poll(VirtualMachine* vm,
 
     if (vm->get_state() == VirtualMachine::ACTIVE)
     {
-        bool update_db;
-
-        if (vm->update_info(monitor_str, update_db) == 0)
+        if (vm->update_info(monitor_str) == 0)
         {
             vmpool->update_history(vm);
 
             vmpool->update_monitoring(vm);
         }
 
-        if (update_db)
-        {
-            vmpool->update(vm);
-        }
+        vmpool->update(vm);
 
         VirtualMachineMonitorInfo &minfo = vm->get_info();
 
