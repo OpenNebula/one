@@ -44,7 +44,7 @@ begin
 
     ec2_drv.shutdown(deploy_id, lcm_state)
 rescue Exception => e
-    handle_exception("Save", e, host, deploy_id, vm_id)
+    OpenNebula.handle_driver_exception("Shutdown", e, host, deploy_id, vm_id)
 end
 
 

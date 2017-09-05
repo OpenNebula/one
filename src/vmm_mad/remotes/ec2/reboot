@@ -37,6 +37,6 @@ begin
     ec2_drv = EC2Driver.new(host)
     ec2_drv.reboot(deploy_id)
 rescue Exception => e
-    handle_exception("Reboot", e, host, deploy_id)
+    OpenNebula.handle_driver_exception("Reboot", e, host, deploy_id)
 end
 

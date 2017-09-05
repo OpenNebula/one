@@ -47,4 +47,23 @@ module OpenNebula
         return opts
     end
 
+    # >> /var/log/one/oned.log
+    def self.handle_driver_exception(action, ex, host, did = nil, id = nil, file = nil)
+
+        file    ||= ""
+        id      ||= ""
+        did     ||= ""
+        OpenNebula::log_error(action + " of VM #{id} #{did} on host #{host} #{file} "+
+                    "due to \"#{ex.message}\"" +
+                    "\n********* STACK TRACE *********\n" +
+                    "\t#{ex.backtrace.join("\n\t")}" +
+                    "\n*******************************\n")
+
+        OpenNebula.error_message("There is a problem: #{ex.message}")
+        exit (-1)
+    end
+
+
+
+
 end
