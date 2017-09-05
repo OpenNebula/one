@@ -105,19 +105,31 @@ define(function(require) {
         $("[wizard_field]", imageContext).prop('wizard_field_disabled', true);
       }
     });
-
     $("[wizard_field]", imageContext).prop('wizard_field_disabled', false);
     $("[wizard_field]", volatileContext).prop('wizard_field_disabled', true);
 
     // Volatile Type FS hides Format, Type SWAP displays Format
-    $("select#TYPE", volatileContext).change(function() {
+    $("select#TYPE_KVM", volatileContext).change(function() {
       var value = $(this).val();
       switch (value){
         case "fs":
-          $("select#FORMAT", volatileContext).parent().show();
+          $("select#FORMAT_KVM", volatileContext).parent().show();
           break;
         case "swap":
-          $("select#FORMAT", volatileContext).parent().hide();
+          $("select#FORMAT_KVM", volatileContext).parent().hide();
+          break;
+      }
+    });
+
+    // Volatile Type FS hides Format, Type SWAP displays Format
+    $("select#TYPE_VCENTER", volatileContext).change(function() {
+      var value = $(this).val();
+      switch (value){
+        case "fs":
+          $("select#FORMAT_VCENTER", volatileContext).parent().show();
+          break;
+        case "swap":
+          $("select#FORMAT_VCENTER", volatileContext).parent().hide();
           break;
       }
     });
@@ -140,13 +152,33 @@ define(function(require) {
     } else {
       selectedContext = $("div.volatile",  context);
 
-      if ($("select#TYPE", selectedContext).val() == "swap")
+      var typeKvm = $("#TYPE_KVM", context).val();
+      var typeVcenter = $("#TYPE_VCENTER", context).val();
+      var type = "fs";
+      if(typeKvm != "fs"){
+        type = typeKvm;
+      } else if (typeVcenter != "fs"){
+        type = typeVcenter;
+      }
+
+      if (type == "swap")
       {
         $("select#FORMAT", selectedContext).val("");
       }
     }
 
     var tmpl = WizardFields.retrieve(selectedContext);
+
+    tmpl.TYPE = type;
+
+    var formatKvm = $("#FORMAT_KVM", context).val();
+    var formatVcenter = $("#FORMAT_VCENTER", context).val();
+
+    if(formatKvm != "raw"){
+      tmpl.FORMAT = formatKvm;
+    } else if (formatVcenter != "raw"){
+      tmpl.FORMAT = formatVcenter;
+    }
 
     if($(".mb_input_unit", context).val() == "GB"){
       tmpl.SIZE = tmpl.SIZE * 1024;
