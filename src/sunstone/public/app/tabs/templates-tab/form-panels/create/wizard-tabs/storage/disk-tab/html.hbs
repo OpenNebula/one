@@ -84,11 +84,11 @@
       <label for="TYPE">
         {{tr "Disk type"}}
       </label>
-      <select class="hypervisor only_kvm" wizard_field="TYPE" id="TYPE" name="type">
+      <select class="hypervisor only_kvm" wizard_field="TYPE" id="TYPE_KVM" name="type">
         <option value="fs">{{tr "FS"}}</option>
         <option value="swap">{{tr "Swap"}}</option>
       </select>
-      <select class="hypervisor only_vcenter" style="display: none" wizard_field="TYPE" id="TYPE" name="type">
+      <select class="hypervisor only_vcenter" style="display: none" wizard_field="TYPE" id="TYPE_VCENTER" name="type">
         <option value="fs">{{tr "FS"}}</option>
       </select>
     </div>
@@ -96,11 +96,11 @@
       <label for="FORMAT">
         {{tr "Filesystem format"}}
       </label>
-      <select class="hypervisor only_kvm" wizard_field="FORMAT" name="format" id="FORMAT">
+      <select class="hypervisor only_kvm" wizard_field="FORMAT" name="format" id="FORMAT_KVM">
         <option value="raw" selected="selected">raw</option>
         <option value="qcow2">qcow2</option>
       </select>
-      <select class="hypervisor only_vcenter" style="display: none" wizard_field="FORMAT" name="format" id="FORMAT">
+      <select class="hypervisor only_vcenter" style="display: none" wizard_field="FORMAT" name="format" id="FORMAT_VCENTER">
         <option value="raw" selected="selected">raw</option>
       </select>
     </div>
