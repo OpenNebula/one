@@ -76,7 +76,8 @@ define(function(require) {
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
           {"bVisible": false, "aTargets": ['_all']},
           {"sType": "file-size", "aTargets": [ 6 ]},
-          {"sType": "date-euro", "aTargets": [ 9 ]}
+          {"sType": "date-euro", "aTargets": [ 9 ]},
+          {"sType": "num", "aTargets": [1, 11]}
       ]
     }
 

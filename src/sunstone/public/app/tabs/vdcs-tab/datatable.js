@@ -57,7 +57,8 @@ define(function(require) {
           { "bSortable": false, "aTargets": ["check"] },
           { "sWidth": "35px", "aTargets": [0] },
           { "bVisible": true, "aTargets": Config.tabTableColumns(TAB_NAME)},
-          { "bVisible": false, "aTargets": ['_all']}
+          { "bVisible": false, "aTargets": ['_all']},
+          {"sType": "num", "aTargets": [1, 3, 5, 6, 7]}
       ]
     };
 
