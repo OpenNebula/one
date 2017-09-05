@@ -74,19 +74,16 @@ public:
      *
      * @param id VM id
      * @param monitor_str String returned by the poll driver call
-     * @param update_db write data to DB (or keep it in memory)
      */
-    static void process_poll(int id, const string &monitor_str, bool update_db);
+    static void process_poll(int id, const string &monitor_str);
 
     /**
      * Updates the VM with the information gathered by the drivers
      *
      * @param vm VM to update, must be locked
      * @param monitor_str String returned by the poll driver call
-     * @param update_db write data to DB (or keep it in memory)
      */
-    static void process_poll(VirtualMachine* vm, const string &monitor_str,
-        bool update_db);
+    static void process_poll(VirtualMachine* vm, const string &monitor_str);
 
     /**
      *  Check if action is supported for imported VMs

@@ -282,7 +282,7 @@ void MonitorThread::do_message()
                 continue;
             }
 
-            VirtualMachineManagerDriver::process_poll(vm, itm->second, true);
+            VirtualMachineManagerDriver::process_poll(vm, itm->second);
 
             vm->unlock();
         }
