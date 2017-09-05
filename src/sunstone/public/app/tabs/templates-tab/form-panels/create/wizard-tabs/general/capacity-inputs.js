@@ -179,7 +179,7 @@ define(function(require) {
    * @param {Function} callback will be called as callback( retrieve(context) )
    */
   function _setCallback(context, callback) {
-    context.on("input", function(){
+    context.on("change", function(){
       callback( _retrieve(context) );
     });
 
