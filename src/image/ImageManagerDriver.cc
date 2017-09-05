@@ -606,6 +606,8 @@ static void monitor_action(istringstream& is,
                            int            id,
                            const string&  result)
 {
+    static unsigned int tics = 10;
+
     string  dsinfo64;
     string *dsinfo = 0;
 
@@ -690,6 +692,18 @@ static void monitor_action(istringstream& is,
 
     ds->unlock();
 
+    oss << "Datastore " << ds_name << " (" << id << ") successfully monitored.";
+
+    NebulaLog::log("ImM", Log::DEBUG, oss);
+
+    //Process VM disk information every 10 monitor actions
+    if ( tics++ < 10 )
+    {
+        return;
+    }
+
+    tics = 0;
+
     vector<VectorAttribute *> vm_disk_info;
     vector<VectorAttribute *>::iterator it;
 
@@ -706,12 +720,8 @@ static void monitor_action(istringstream& is,
             continue;
         }
 
-        VirtualMachineManagerDriver::process_poll(vm_id, poll_info, false);
+        VirtualMachineManagerDriver::process_poll(vm_id, poll_info);
     }
-
-    oss << "Datastore " << ds_name << " (" << id << ") successfully monitored.";
-
-    NebulaLog::log("ImM", Log::DEBUG, oss);
 
     return;
 }

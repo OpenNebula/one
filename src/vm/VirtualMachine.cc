@@ -2179,12 +2179,14 @@ int VirtualMachine::from_xml(const string &xml_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::update_info(const string& monitor_data)
+int VirtualMachine::update_info(const string& monitor_data, bool& update_db)
 {
     int    rc;
     string error;
 
     ostringstream oss;
+
+    update_db = false;
 
     last_poll = time(0);
 
@@ -2201,12 +2203,14 @@ int VirtualMachine::update_info(const string& monitor_data)
 
         log("VMM", Log::ERROR, oss);
 
+        update_db = true;
+
         return -1;
     }
 
     set_vm_info();
 
-    clear_template_monitor_error();
+    update_db = clear_template_monitor_error() > 0;
 
     oss << "VM " << oid << " successfully monitored: " << monitor_data;
 
@@ -2340,9 +2344,9 @@ void VirtualMachine::set_template_monitor_error(const string& message)
 
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::clear_template_monitor_error()
+int VirtualMachine::clear_template_monitor_error()
 {
-    user_obj_template->erase("ERROR_MONITOR");
+    return user_obj_template->erase("ERROR_MONITOR");
 }
 
 /* -------------------------------------------------------------------------- */

@@ -301,8 +301,9 @@ public:
     /**
      *  Updates VM dynamic information (usage counters), and updates last_poll,
      *  and copies it to history record for acct.
+     *    @param update_db true if the VM table needs to be updated.
      */
-    int update_info(const string& monitor_data);
+    int update_info(const string& monitor_data, bool& update_db);
 
     /**
      *  Clears the VM monitor information usage counters (MEMORY, CPU),
@@ -970,8 +971,9 @@ public:
     /**
      *  Deletes the error message from the template (ERROR_MONITOR)
      *    @param message Message string
+     *    @return the number of ERROR_MONITOR attributes removed
      */
-    void clear_template_monitor_error();
+    int clear_template_monitor_error();
 
     // ------------------------------------------------------------------------
     // Timers & Requirements
