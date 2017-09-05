@@ -305,7 +305,7 @@ define(function(require) {
     if (Config.provision.dashboard.isEnabled("vms")) {
       $("#provision_dashboard").append(TemplateDashboardVms());
       
-      if(!Config.isProvisionTabEnabled("provision-tab", "templates")){
+      if(!Config.isFeatureEnabled("cloud_vm_create")){
         $('.provision_create_vm_button').hide();
       }
 
