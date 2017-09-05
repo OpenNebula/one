@@ -364,7 +364,6 @@ define(function(require) {
       if(opts.defaults.INPUTS_ORDER){
         var order = opts.defaults.INPUTS_ORDER;
         var orderJSON = order.split(",");
-
         $.each(orderJSON, function(key, value){
           var orderValue = value;
           $.each(input_attrs, function(index, custom_attr) {
@@ -380,6 +379,18 @@ define(function(require) {
                 '</div>');
             }
           });
+        });
+      } else {
+        $.each(input_attrs, function(index, custom_attr) {
+          $(".instantiate_user_inputs", div).append(
+            '<div class="row">' +
+              '<div class="large-12 large-centered columns">' +
+                '<label>' +
+                  TemplateUtils.htmlEncode(custom_attr.description) +
+                  _attributeInput(custom_attr) +
+                '</label>' +
+              '</div>' +
+            '</div>');
         });
       }
     }
