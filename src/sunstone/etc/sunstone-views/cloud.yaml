@@ -23,6 +23,9 @@ features:
 
     # True to show the option to make an instance persistent
     instantiate_persistent: true
+
+    # True to allow to create machines to cloud users
+    cloud_vm_create: true
 tabs:
     provision-tab:
         panel_tabs:
