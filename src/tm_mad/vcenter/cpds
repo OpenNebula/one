@@ -89,7 +89,9 @@ begin
         source_ds_ref = disk_hash[:datastore]._ref
     else
         # Get image source path
-        src_path = VCenterDriver::FileHelper.get_img_name(disk, vmid, vm['name'])
+        src_path_escaped = VCenterDriver::FileHelper.get_img_name(disk, vmid, vm['name'])
+        src_path = VCenterDriver::FileHelper.unescape_path(src_path_escaped)
+
         source_ds = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, source_ds_id)
         source_ds_ref = source_ds['TEMPLATE/VCENTER_DS_REF']
         ##source_ds_ref = disk["VCENTER_DS_REF"]

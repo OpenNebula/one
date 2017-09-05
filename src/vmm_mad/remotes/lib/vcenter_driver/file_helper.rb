@@ -26,7 +26,9 @@ class FileHelper
         end
     end
 
+    # REMOVE: no need to change...
     def self.get_img_name_from_path(path, vm_id, disk_id)
+        # Note: This will probably fail if the basename contains '.'
         return "#{path.split(".").first}-#{vm_id}-#{disk_id}.vmdk"
     end
 
@@ -131,6 +133,14 @@ class FileHelper
             STDERR.puts "Unrecognized file type"
             exit(-1)
         end
+    end
+
+    def self.escape_path(path)
+        return path.gsub(" ", "%20")
+    end
+
+    def self.unescape_path(path)
+        return path.gsub("%20", " ")
     end
 
 end # class FileHelper
