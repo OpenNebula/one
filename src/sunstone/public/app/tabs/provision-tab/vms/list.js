@@ -140,7 +140,8 @@ define(function(require) {
       "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
       "aaSorting"  : [[0, "desc"]],
       "aoColumnDefs": [
-          { "bVisible": false, "aTargets": ["all"]}
+          { "bVisible": false, "aTargets": ["all"]},
+          { "sType": "num", "aTargets": [0]}
       ],
       "aoColumns": [
           { "mDataProp": "VM.ID" },
