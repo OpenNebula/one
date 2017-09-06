@@ -242,6 +242,7 @@ int PoolObjectSQL::append_template(
 {
     Template * old_tmpl = 0;
     Template * new_tmpl = get_new_template();
+    string rname;
 
     if ( new_tmpl == 0 )
     {
@@ -255,19 +256,26 @@ int PoolObjectSQL::append_template(
         return -1;
     }
 
-    if (keep_restricted)
-    {
-        new_tmpl->remove_restricted();
-    }
-
     if ( obj_template != 0 )
     {
+        if (keep_restricted && new_tmpl->check_restricted(rname, obj_template))
+        {
+            error ="User Template includes a restricted attribute " + rname;
+            delete new_tmpl;
+            return -1;
+        }
         obj_template->merge(new_tmpl);
 
         delete new_tmpl;
     }
     else
     {
+        if (keep_restricted && new_tmpl->check_restricted(rname))
+        {
+            error ="User Template includes a restricted attribute " + rname;
+            delete new_tmpl;
+            return -1;
+        }
         obj_template = new_tmpl;
     }
 
