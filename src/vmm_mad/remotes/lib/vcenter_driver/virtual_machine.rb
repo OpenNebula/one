@@ -542,15 +542,24 @@ class Template
     def get_vcenter_nics
         nics = []
         @item["config.hardware.device"].each do |device|
-            nic = {}
+            nic     = {}
+            network = nil
             if is_nic?(device)
-                begin
-                    nic[:net_name]  = device.backing.network.name
-                    nic[:net_ref]   = device.backing.network._ref
-                    nic[:pg_type]   = VCenterDriver::Network.get_network_type(device)
-                    nics << nic
-                rescue
+
+                # Let's find out if it is a standard or distributed network
+                # If distributed, it needs to be instantitaed from the ref
+                if device.backing.is_a? RbVmomi::VIM::VirtualEthernetCardDistributedVirtualPortBackingInfo
+                    ref     = device.backing.port.portKey == "0" ? device.backing.port.portgroupKey : device.backing.port.portKey
+                    network = RbVmomi::VIM::Network.new(@vi_client.vim, ref)
+                else
+                    network = device.backing.network
                 end
+
+                nic[:net_name]  = network.name
+                nic[:net_ref]   = network._ref
+                nic[:pg_type]   = VCenterDriver::Network.get_network_type(device)
+
+                nics << nic
             end
         end
         return nics

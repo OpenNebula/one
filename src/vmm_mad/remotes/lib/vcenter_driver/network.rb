@@ -123,7 +123,7 @@ class Network
     end
 
     def self.get_network_type(device)
-        if device.backing.network.instance_of?(RbVmomi::VIM::DistributedVirtualPortgroup)
+        if device.backing.is_a? RbVmomi::VIM::VirtualEthernetCardDistributedVirtualPortBackingInfo
             return "Distributed Port Group"
         else
             return "Port Group"
