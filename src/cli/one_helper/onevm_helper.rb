@@ -192,6 +192,14 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         end
     end
 
+    def retrieve_snapshot_id(vm_id, name)
+        vm = retrieve_resource(vm_id)
+        vm.info
+        snap_id = vm["/VM/TEMPLATE/SNAPSHOT[NAME='#{name}']/SNAPSHOT_ID"] unless /\A\d+\z/.match(name)
+
+        result = snap_id.nil? ? [-1, "#{name} not found!"] :[0, snap_id.to_i]
+    end
+
     def format_pool(options)
         config_file = self.class.table_conf
 

@@ -609,10 +609,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def snapshot_delete(snap_id)
-            self.info
-            snap_id = self["/VM/TEMPLATE/SNAPSHOT[NAME='#{snap_id}']/SNAPSHOT_ID"] unless /\A\d+\z/.match(snap_id)
-            return Error.new('NAME not found!') if snap_id.nil?
-            return call(VM_METHODS[:snapshotdelete], @pe_id, snap_id.to_i)
+            return call(VM_METHODS[:snapshotdelete], @pe_id, snap_id)
         end
 
         # Takes a new snapshot of a disk

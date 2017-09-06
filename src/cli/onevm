@@ -162,7 +162,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     set :format, :vmid, OneVMHelper.to_id_desc do |arg|
-        helper.to_id(arg)
+        tmp = helper.to_id(arg)
+        @current_vm=tmp[1]
+        tmp
     end
 
     set :format, :vmid_list, OneVMHelper.list_to_id_desc do |arg|
@@ -180,6 +182,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     set :format, :size, "Disk size in MiB" do |arg|
         OpenNebulaHelper.size_in_mb(arg)
     end
+
+    format :snapshot_id, "Snapshot identifier" do |arg|
+        helper.retrieve_snapshot_id(@current_vm, arg)
+    end
+
 
     ########################################################################
     # Commands
@@ -829,7 +836,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :"disk-snapshot-revert", disk_snapshot_revert_desc,
-      :vmid, :diskid, :snapshot_id do
+      :vmid, :diskid, :disk_snapshot_id do
         helper.perform_action(args[0],options,"disk snapshot reverted") do |o|
           o.disk_snapshot_revert(args[1].to_i, args[2].to_i)
         end
@@ -841,7 +848,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         States: RUNNING, POWEROFF, SUSPENDED
     EOT
     command :"disk-snapshot-delete", disk_snapshot_delete_desc,
-      :vmid, :diskid, :snapshot_id do
+      :vmid, :diskid, :disk_snapshot_id do
         helper.perform_action(args[0],options,"disk snapshot deleted") do |o|
           o.disk_snapshot_delete(args[1].to_i, args[2].to_i)
         end
