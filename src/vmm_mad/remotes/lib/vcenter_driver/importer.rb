@@ -34,24 +34,24 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
         wild     = true
         sunstone = false
 
-        #error, template_disks = vcenter_vm.import_vcenter_disks(vc_uuid, dpool, ipool, sunstone)
-        #return OpenNebula::Error.new(error) if !error.empty?
+        error, template_disks = vcenter_vm.import_vcenter_disks(vc_uuid, dpool, ipool, sunstone)
+        return OpenNebula::Error.new(error) if !error.empty?
 
-        #template << template_disks
+        template << template_disks
 
         # Create images or get nics information for template
-        #error, template_nics = vcenter_vm.import_vcenter_nics(vc_uuid,
-        #                                                      npool,
-        #                                                      hpool,
-        #                                                      vc_name,
-        #                                                      vm_ref,
-        #                                                      wild,
-        #                                                      sunstone,
-        #                                                      vm_name)
-        #
-        #return OpenNebula::Error.new(error) if !error.empty?
+        error, template_nics = vcenter_vm.import_vcenter_nics(vc_uuid,
+                                                              npool,
+                                                              hpool,
+                                                              vc_name,
+                                                              vm_ref,
+                                                              wild,
+                                                              sunstone,
+                                                              vm_name)
+        
+        return OpenNebula::Error.new(error) if !error.empty?
 
-        #template << template_nics
+        template << template_nics
 
         # Get DS_ID for the deployment, the wild VM needs a System DS
         dc_ref = vcenter_vm.get_dc.item._ref
