@@ -419,7 +419,6 @@ define(function(require) {
           var vcenter_ref = $(this).data("import_data").vcenter_ref;
           if(linkedClone){
             var linked = true;
-            linkedClone = "YES";
             if(createCopy && templateName != ""){
               var copy = true;
               var template_name  = templateName;
@@ -431,7 +430,6 @@ define(function(require) {
             var template_name  = "";
             var linked = false;
             var copy = false;
-            linkedClone = "NO";
           }
 
           $.each($('.available_rps option:selected', rpInput), function(){
@@ -441,7 +439,6 @@ define(function(require) {
 
           if (rpModify === 'fixed' && rpInitial !== '') {
             attrs.push('VCENTER_RESOURCE_POOL="' + rpInitial + '"');
-            attrs.push('VCENTER_LINKED_CLONES="' + linkedClone + '"');
           } else if (rpModify === 'list' && rpParams !== '') {
             var rpUserInputs = UserInputs.marshall({
                 type: 'list',
@@ -451,7 +448,6 @@ define(function(require) {
               });
 
             userInputs.push('VCENTER_RESOURCE_POOL="' + rpUserInputs + '"');
-            userInputs.push('VCENTER_LINKED_CLONES="' + linkedClone + '"');
           }
         }
 
@@ -483,7 +479,7 @@ define(function(require) {
 
                    $.ajax({
                     url: path,
-                    type: "POST",
+                    type: "GET",
                     data: {
                       timeout: false,
                       use_linked_clones: linked,
@@ -497,8 +493,29 @@ define(function(require) {
                     },
                     dataType: "json",
                     success: function(response){
-                      var disks_and_nets = response.disks.concat(response.nics)
-                      import_images_and_nets(disks_and_nets, row_context, template_id)
+                      var disks_and_nets = response.disks.concat(response.nics);
+                      var template_json = {
+                        "vmtemplate": { "template_raw": response.one }
+                      };
+                      if(response.create_copy){
+                        OpenNebulaTemplate.del({
+                          timeout: true,
+                          data : {
+                            id : template_id
+                          },
+                          success: function(){
+                            OpenNebulaTemplate.create({
+                              timeout: false,
+                              data: template_json,
+                              success: function(request, response){
+                                import_images_and_nets(disks_and_nets, row_context, response.VMTEMPLATE.ID);
+                              }
+                            });
+                          }
+                        });
+                      } else {
+                        import_images_and_nets(disks_and_nets, row_context, template_id);
+                      }
                     },
                     error: function(response){
                       VCenterCommon.importFailure({

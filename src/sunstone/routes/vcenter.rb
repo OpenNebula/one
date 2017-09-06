@@ -234,8 +234,7 @@ post '/vcenter/wild_rollback/:vm_id' do
     end
 end
 
-
-post '/vcenter/template/:vcenter_ref/:template_id' do
+get '/vcenter/template/:vcenter_ref/:template_id' do
     begin
         t = {}
         t[:one] = ""
@@ -246,6 +245,9 @@ post '/vcenter/template/:vcenter_ref/:template_id' do
 
         ref         = params[:vcenter_ref]
         template_id = params[:template_id]
+        use_linked_clones = params[:use_linked_clones] || false
+        create_copy = params[:create_copy] || false
+        template_name = params[:template_name] || ""
 
         if !ref || ref.empty?
             msg = "No template ref specified"
@@ -255,11 +257,9 @@ post '/vcenter/template/:vcenter_ref/:template_id' do
         end
 
         template = VCenterDriver::Template.new_from_ref(ref, vcenter_client)
-
         vc_uuid = vcenter_client.vim.serviceContent.about.instanceUuid
 
         dpool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool)
-
         if dpool.respond_to?(:message)
             msg = "Could not get OpenNebula DatastorePool: #{dpool.message}"
             logger.error("[vCenter] " + msg)
@@ -291,73 +291,51 @@ post '/vcenter/template/:vcenter_ref/:template_id' do
             error 404, error.to_json
         end
 
-        use_linked_clones = params[:use_linked_clones] || false
-        if use_linked_clones == "true"
-            use_linked_clones = true
-        else 
-            use_linked_clones = false
-        end
         # POST params
-        if @request_body && !@request_body.empty? && use_linked_clones
+        if !use_linked_clones && (create_copy || !template_name.empty?)
+            msg = "Should not set create template copy or template copy name if not using linked clones"
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 403, error.to_json
+        end
 
-            create_copy = params[:create_copy] || false
-            if create_copy == "true"
-                create_copy = true
-            else 
-                create_copy = false
-            end
-            template_name = params[:template_name] || ""
+        if use_linked_clones && !create_copy && !template_name.empty?
+            msg = "Should not set template copy name if create template copy hasn't been selected"
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 403, error.to_json
+        end
 
-            if !use_linked_clones && (create_copy || !template_name.empty?)
-                msg = "Should not set create template copy or template copy name if not using linked clones"
-                logger.error("[vCenter] " + msg)
-                error = Error.new(msg)
-                error 403, error.to_json
-            end
+        if create_copy
 
-            if use_linked_clones && !create_copy && !template_name.empty?
-                msg = "Should not set template copy name if create template copy hasn't been selected"
-                logger.error("[vCenter] " + msg)
-                error = Error.new(msg)
-                error 403, error.to_json
-            end
+            lc_error, template_copy_ref = template.create_template_copy(template_name)
 
-            if create_copy
-
-                lc_error, template_copy_ref = template.create_template_copy(template_name)
-
-                if template_copy_ref
-
-                    template = VCenterDriver::Template.new_from_ref(template_copy_ref, vcenter_client)
-                    
-                    one_template = VCenterDriver::Template.get_xml_template(template, vc_uuid, vcenter_client, vcenter_client.vim.host)
-                    
-                    if one_template
-                        lc_error, use_lc = template.create_delta_disks
-                        if !lc_error
-                            one_template[:one] << "\nVCENTER_LINKED_CLONES=\"YES\"\n"
-                            t = one_template
-                            append = false
-                        end
-                    else
-                        lc_error = "Could not obtain the info from the template's copy"
-                        template.delete_template if template_copy_ref
+            if template_copy_ref
+                template = VCenterDriver::Template.new_from_ref(template_copy_ref, vcenter_client)
+                one_template = VCenterDriver::Template.get_xml_template(template, vc_uuid, vcenter_client, vcenter_client.vim.host, "Datacenter")
+                if one_template
+                    lc_error, use_lc = template.create_delta_disks
+                    if !lc_error
+                        one_template[:one] << "\nVCENTER_LINKED_CLONES=\"YES\"\n"
+                        one_template[:create_copy] = "YES"
+                        t = one_template
+                        append = false # t[:one] replaces the current template
                     end
+                else
+                    lc_error = "Could not obtain the info from the template's copy"
+                    template.delete_template if template_copy_ref
                 end
-
-            else
-                lc_error, use_lc = template.create_delta_disks
-
-                if !lc_error
-                    append = true
-                    t[:one] << "\nVCENTER_LINKED_CLONES=\"YES\"\n" if use_lc
-                end
+            end
+        else
+            lc_error, use_lc = template.create_delta_disks
+            if !lc_error
+                append = true
+                t[:one] << "\nVCENTER_LINKED_CLONES=\"YES\"\n" if use_lc
             end
         end
 
         # Create images or get disks information for template
         error, template_disks = template.import_vcenter_disks(vc_uuid, dpool, ipool, true, template_id)
-
         if !error.empty?
             append = false
             template.delete_template if template_copy_ref
@@ -397,6 +375,8 @@ post '/vcenter/template/:vcenter_ref/:template_id' do
         #t[:one] << template_nics
         t[:nics] = template_nics
 
+        t[:lc_error] = lc_error
+        t[:append] = append
         [200, t.to_json]
     rescue Exception => e
         template.delete_template if template_copy_ref
