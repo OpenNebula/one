@@ -433,12 +433,6 @@ public:
     }
 
     /**
-     *  Removes a restricted attribute from the template. For vector attributes
-     *  only restricted sub attributes are removed.
-     */
-    virtual void remove_restricted(){};
-
-    /**
      *  @return true if template is empty
      */
     bool empty()
@@ -482,13 +476,6 @@ protected:
      */
     static void parse_restricted(const vector<const SingleAttribute *>& ras,
         std::map<std::string, std::set<std::string> >& rattr_m);
-
-    /**
-     *  Removes a restricted attribute from the template. For vector attributes
-     *  only restricted sub attributes are removed.
-     */
-    void remove_restricted(
-            const std::map<std::string, std::set<std::string> >& ras);
 
     /**
      *  Check if the template can be safely merge with a base template. If a

@@ -2290,7 +2290,7 @@ int VirtualMachine::append_template(
 
     if (keep_restricted)
     {
-        new_tmpl->remove_restricted();
+        //new_tmpl->remove_restricted();
     }
 
     if (user_obj_template != 0)

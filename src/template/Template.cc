@@ -811,37 +811,3 @@ bool Template::check_restricted(string& ra,
 
     return false;
 }
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void Template::remove_restricted(
-        const std::map<std::string, std::set<std::string> >& ras)
-{
-    std::map<std::string, std::set<std::string> >::const_iterator rit;
-
-    for (rit=ras.begin(); rit!=ras.end(); ++rit)
-    {
-        if (!(rit->second).empty()) //Vector Attribute
-        {
-            std::set<std::string>::iterator jt;
-            std::vector<VectorAttribute *>::iterator vat;
-
-            std::vector<VectorAttribute *> va;
-
-            get(rit->first, va);
-
-            for (vat = va.begin(); vat != va.end() ; ++vat)
-            {
-                for (jt=(rit->second).begin(); jt != (rit->second).end(); ++jt)
-                {
-                    (*vat)->remove(*jt);
-                }
-            }
-        }
-        else
-        {
-            erase(rit->first);
-        }
-    }
-}
