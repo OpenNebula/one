@@ -804,7 +804,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :"snapshot-delete", snapshot_delete_desc, :vmid, :snapshot_id do
         helper.perform_action(args[0],options,"snapshot deleted") do |o|
-            o.snapshot_delete(args[1].to_i)
+            o.snapshot_delete(args[1])
         end
     end
 
