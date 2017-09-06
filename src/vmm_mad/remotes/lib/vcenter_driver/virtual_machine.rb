@@ -549,7 +549,14 @@ class Template
                 # Let's find out if it is a standard or distributed network
                 # If distributed, it needs to be instantitaed from the ref
                 if device.backing.is_a? RbVmomi::VIM::VirtualEthernetCardDistributedVirtualPortBackingInfo
-                    ref     = device.backing.port.portKey == "0" ? device.backing.port.portgroupKey : device.backing.port.portKey
+                    if device.backing.port.portKey.match(/^[a-z]+-\d+$/)
+                        ref = device.backing.port.portKey
+                    elsif device.backing.port.portgroupKey.match(/^[a-z]+-\d+$/)
+                        ref = device.backing.port.portgroupKey
+                    else
+                        raise "Cannot get hold of Network for device #{device}"
+                    end
+            
                     network = RbVmomi::VIM::Network.new(@vi_client.vim, ref)
                 else
                     network = device.backing.network
