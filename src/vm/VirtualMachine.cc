@@ -2275,6 +2275,7 @@ int VirtualMachine::append_template(
 {
     VirtualMachineTemplate * new_tmpl =
             new VirtualMachineTemplate(false,'=',"USER_TEMPLATE");
+    string rname;
 
     if ( new_tmpl == 0 )
     {
@@ -2288,18 +2289,26 @@ int VirtualMachine::append_template(
         return -1;
     }
 
-    if (keep_restricted)
-    {
-        //new_tmpl->remove_restricted();
-    }
-
     if (user_obj_template != 0)
     {
+        if (keep_restricted && new_tmpl->check_restricted(rname, user_obj_template))
+        {
+            error ="User Template includes a restricted attribute " + rname;
+            delete new_tmpl;
+            return -1;
+        }
         user_obj_template->merge(new_tmpl);
+
         delete new_tmpl;
     }
     else
     {
+        if (keep_restricted && new_tmpl->check_restricted(rname))
+        {
+            error ="User Template includes a restricted attribute " + rname;
+            delete new_tmpl;
+            return -1;
+        }
         user_obj_template = new_tmpl;
     }
 
