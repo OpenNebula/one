@@ -193,12 +193,17 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
     end
 
     def retrieve_snapshot_id(vm_id, id)
-        name = id
         vm = retrieve_resource(vm_id)
         vm.info
-        id = vm.retrieve_elements("/VM/TEMPLATE/SNAPSHOT[NAME='#{name}']/SNAPSHOT_ID") unless /\A\d+\z/.match(name)
 
-        result = id.nil? || id.size > 1 ? [-1, "#{name} not found or duplicated"] :[0, id[0].to_i]
+        if !/\A\d+\z/.match(id)
+            ids = vm.retrieve_elements("/VM/TEMPLATE/SNAPSHOT[NAME='#{id}']/SNAPSHOT_ID")
+            return [-1, "#{id} not found or duplicated"] if ids.nil? || ids.size > 1
+        else
+            return [0, id.to_i]
+        end
+
+        [0, ids[0].to_i]
     end
 
     def format_pool(options)

@@ -163,7 +163,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     set :format, :vmid, OneVMHelper.to_id_desc do |arg|
         tmp = helper.to_id(arg)
-        @current_vm=tmp[1]
+        @current_vm = tmp[1]
         tmp
     end
 
@@ -186,7 +186,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     format :snapshot_id, "Snapshot identifier" do |arg|
         helper.retrieve_snapshot_id(@current_vm, arg)
     end
-
 
     ########################################################################
     # Commands
