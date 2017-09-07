@@ -151,7 +151,6 @@ define(function(require) {
       selectedContext = $("div.image",  context);
     } else {
       selectedContext = $("div.volatile",  context);
-
       var typeKvm = $("#TYPE_KVM", context).val();
       var typeVcenter = $("#TYPE_VCENTER", context).val();
       var type = "fs";
@@ -168,9 +167,14 @@ define(function(require) {
     }
 
     var tmpl = WizardFields.retrieve(selectedContext);
+    if(type){
+      tmpl.TYPE = type;
+    }
 
-    tmpl.TYPE = type;
-
+    if(tmpl.SIZE != undefined && $(".mb_input_unit", context).val() == "GB"){
+      tmpl.SIZE = tmpl.SIZE * 1024;
+      tmpl.SIZE = tmpl.SIZE.toString();
+    }
     var formatKvm = $("#FORMAT_KVM", context).val();
     var formatVcenter = $("#FORMAT_VCENTER", context).val();
 
@@ -178,11 +182,6 @@ define(function(require) {
       tmpl.FORMAT = formatKvm;
     } else if (formatVcenter != "raw"){
       tmpl.FORMAT = formatVcenter;
-    }
-
-    if($(".mb_input_unit", context).val() == "GB"){
-      tmpl.SIZE = tmpl.SIZE * 1024;
-      tmpl.SIZE = tmpl.SIZE.toString();
     }
 
     if($("input[name='" + this.diskTabId + "']:checked", context).val() == "image" && !tmpl["IMAGE"] && !tmpl["IMAGE_ID"]){
