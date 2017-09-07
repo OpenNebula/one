@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEVM" "1" "July 2017" "" "onevm(1) -- manages OpenNebula virtual machines"
+.TH "ONEVM" "1" "September 2017" "" "onevm(1) -- manages OpenNebula virtual machines"
 .
 .SH "NAME"
 \fBonevm\fR \- manages OpenNebula virtual machines
@@ -474,7 +474,7 @@ States: RUNNING, POWEROFF, SUSPENDED
 
 .
 .IP "\(bu" 4
-disk\-snapshot\-revert \fIvmid\fR \fIdiskid\fR \fIsnapshot_id\fR Reverts disk state to a previously taken snapshot\.
+disk\-snapshot\-revert \fIvmid\fR \fIdiskid\fR \fIdisk_snapshot_id\fR Reverts disk state to a previously taken snapshot\.
 .
 .IP "" 4
 .
@@ -488,7 +488,7 @@ States: POWEROFF, SUSPENDED
 
 .
 .IP "\(bu" 4
-disk\-snapshot\-delete \fIvmid\fR \fIdiskid\fR \fIsnapshot_id\fR Deletes a disk snapshot\.
+disk\-snapshot\-delete \fIvmid\fR \fIdiskid\fR \fIdisk_snapshot_id\fR Deletes a disk snapshot\.
 .
 .IP "" 4
 .
@@ -604,10 +604,13 @@ diskid Integer
 .IP "\(bu" 4
 size Disk size in MiB
 .
+.IP "\(bu" 4
+snapshot_id Snapshot identifier
+.
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 5\.4\.0 Copyright 2002\-2017, OpenNebula Project, OpenNebula Systems
+OpenNebula 5\.4\.1 Copyright 2002\-2017, OpenNebula Project, OpenNebula Systems
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

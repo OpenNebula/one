@@ -67,7 +67,8 @@ class OneDBBacKEnd
                        "owner_u INTEGER, group_u INTEGER, other_u INTEGER, " <<
                        "UNIQUE(name)"
         },
-        "5.4.0" => {}
+        "5.4.0" => {},
+        "5.4.1" => {}
     }
 
     LATEST_DB_VERSION = "5.4.0"
