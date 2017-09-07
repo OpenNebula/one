@@ -28,6 +28,12 @@ fi
 
 DRIVER_PATH=$(dirname $0)
 
+# Escape single quotes
+function esc_sq
+{
+    echo "$1" | sed -e "s/'/'\\\''/g"
+}
+
 # Execute a command (first parameter) and use the first kb of stdout
 # to determine the file type
 function get_type
@@ -151,8 +157,8 @@ function s3_curl_args
     FROM="$1"
 
     ENDPOINT=${S3_ENDPOINT:-https://s3.amazonaws.com}
-    OBJECT=$(basename $FROM)
-    BUCKET=$(basename $(dirname $FROM))
+    OBJECT=$(basename "$FROM")
+    BUCKET=$(basename $(dirname "$FROM"))
 
     DATE="`date -u +'%a, %d %b %Y %H:%M:%S GMT'`"
     AUTH_STRING="GET\n\n\n${DATE}\n/${BUCKET}/${OBJECT}"
@@ -163,7 +169,7 @@ function s3_curl_args
 
     echo " -H \"Date: ${DATE}\"" \
          " -H \"Authorization: AWS ${S3_ACCESS_KEY_ID}:${SIGNED_AUTH_STRING}\"" \
-         " ${ENDPOINT}/${BUCKET}/${OBJECT}"
+         " '$(esc_sq "${ENDPOINT}/${BUCKET}/${OBJECT}")'"
 }
 
 function get_rbd_cmd
@@ -176,7 +182,7 @@ function get_rbd_cmd
 
     while IFS= read -r -d '' element; do
         URL_ELEMENTS[i++]="$element"
-    done < <($URL_RB    $FROM \
+    done < <($URL_RB    "$FROM" \
                         USER \
                         HOST \
                         SOURCE \
@@ -268,7 +274,7 @@ http://*|https://*)
     # -L  to follow redirects
     # -sS to hide output except on failure
     # --limit_rate to limit the bw
-    curl_args="$GLOBAL_CURL_ARGS $FROM"
+    curl_args="$GLOBAL_CURL_ARGS '$(esc_sq "${FROM}")'"
 
     if [ -n "$LIMIT_RATE" ]; then
         curl_args="--limit-rate $LIMIT_RATE $curl_args"
@@ -282,7 +288,7 @@ ssh://*)
     ssh_src=${FROM#ssh://}
     ssh_arg=(${ssh_src/:/ })
 
-    rmt_cmd="'cat ${ssh_arg[1]}'"
+    rmt_cmd="\"cat '$(esc_sq "${ssh_arg[1]}")'\""
 
     command="ssh ${ssh_arg[0]} $rmt_cmd"
     ;;
@@ -296,22 +302,22 @@ s3://*)
         exit -1
     fi
 
-    curl_args="$(s3_curl_args $FROM)"
+    curl_args="$(s3_curl_args "$FROM")"
 
     command="curl $GLOBAL_CURL_ARGS $curl_args"
     ;;
 rbd://*)
-    command="$(get_rbd_cmd $FROM)"
+    command="$(get_rbd_cmd "$FROM")"
     ;;
 vcenter://*)
-    command="$VAR_LOCATION/remotes/datastore/vcenter_downloader.rb \"$FROM\""
+    command="$VAR_LOCATION/remotes/datastore/vcenter_downloader.rb '$(esc_sq "$FROM")'"
     ;;
 *)
     if [ ! -r $FROM ]; then
         echo "Cannot read from $FROM" >&2
         exit -1
     fi
-    command="cat $FROM"
+    command="cat '$(esc_sq "$FROM")'"
     ;;
 esac
 
