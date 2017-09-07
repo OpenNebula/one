@@ -381,49 +381,35 @@ private
     # the LOCATION element is used and matched with the host
     def get_deployment_info(host, xml_text)
         xml = REXML::Document.new xml_text
-
         az = nil
-
         all_az_elements = xml.root.get_elements("//USER_TEMPLATE/PUBLIC_CLOUD")
 
-        # First, let's see if we have an Azure location that matches
-        # our host name
+        # Look for an azure location
+        # if we find the same LOCATION as @region name
+        # means that we have the final location
         all_az_elements.each { |element|
 
-            cloud_host = element.elements["LOCATION"]
-            type       = element.elements["TYPE"].text
-
+            type = element.elements["TYPE"].text
             next if !type.downcase.eql? "azure"
 
-            if cloud_host and cloud_host.text.upcase.eql? host.upcase
-                az = element
-            end
+            az = element
+
+            cloud_host = element.elements["LOCATION"]
+            break if cloud_host and cloud_host.text.upcase.eql? @region_name.upcase
         }
 
+        # If we don't find an Azure location raise an error
         if !az
-            # If we don't find an Azure location, and ONE just
-            # knows about one Azure location, let's use that
-            if all_az_elements.size == 1 and
-                all_az_elements[0].elements["TYPE"].text.downcase.eql? "azure"
-                az = all_az_elements[0]
-            else
-                raise "Cannot find Azure element in VM template "<<
-                      "or couldn't find any Azure location matching "<<
-                      "one of the templates."
-            end
+            raise "Cannot find Azure element in VM template "<<
+                  "or couldn't find any Azure location matching "<<
+                  "one of the templates."
         end
 
-        # location can be retrieved from host information...
-
-        # If LOCATION not explicitly defined, try to get default, if not
+        # If LOCATION not explicitly defined, try to get from host, if not
         # try to use hostname as datacenter
         if !az.elements["LOCATION"]
             location=REXML::Element.new("LOCATION")
-            if @region_name
-                location.text=@region_name
-            else
-                location.text=host
-            end
+            location.text = @region_name || @defaults["LOCATION"] || host
             az.elements << location
         end
 
