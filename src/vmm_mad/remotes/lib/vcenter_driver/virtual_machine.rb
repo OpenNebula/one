@@ -75,8 +75,11 @@ class Template
         item = @item
 
         while !item.instance_of? RbVmomi::VIM::Datacenter
-            item = item.parent
-            if item.nil?
+            if item.parent
+                item = item.parent
+            elsif item.resourcePool.instance_of? RbVmomi::VIM::VirtualApp
+                item = item.resourcePool.parent
+            else
                 raise "Could not find the parent Datacenter"
             end
         end
