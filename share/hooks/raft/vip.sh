@@ -23,10 +23,12 @@ leader)
         sudo arping -c 1 -A -I $INTERFACE ${IP%%/*}
         sleep 1
     done
+    oneflow-server start
     ;;
 
 follower)
     sudo ip address del $IP dev $INTERFACE
+    oneflow-server stop
     ;;
 
 *)
