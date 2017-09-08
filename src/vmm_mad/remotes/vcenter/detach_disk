@@ -46,9 +46,6 @@ begin
     raise "vCenter doesn't allow to remove a virtual disk if it's part of a "\
           "snapshot of the virtual machine." if vm.has_snapshots?
 
-    disk = drv_action.retrieve_xmlelements("VM/TEMPLATE/DISK[ATTACH='YES']").first
-    vm.detach_disk(disk)
-
 rescue Exception => e
     message = "Detach DISK for VM #{vm_ref} on vCenter cluster #{vc_cluster_name} "\
               "failed due to \"#{e.message}\"\n#{e.backtrace}"
