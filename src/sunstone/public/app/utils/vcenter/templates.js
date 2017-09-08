@@ -123,6 +123,24 @@ define(function(require) {
 
               var trow = $(RowTemplate(opts)).appendTo(tbody);
 
+              $("#linked_clone_"+opts.id).on("change", function(){
+                if ($("#linked_clone_"+opts.id).is(":checked")){
+                  $("#create_"+opts.id).show();
+                } else {
+                  $("#create_"+opts.id).hide();
+                  $("#create_copy_"+opts.id).prop("checked", false);
+                  $("#name_"+opts.id).hide();
+                }
+              });
+
+              $("#create_copy_"+opts.id).on("change", function(){
+                if ($("#create_copy_"+opts.id).is(":checked")){
+                  $("#name_"+opts.id).show();
+                } else {
+                  $("#name_"+opts.id).hide();
+                }
+              });
+
               $('.check_item', trow).data("import_data", element);
             });
 
@@ -353,13 +371,13 @@ define(function(require) {
               });
           }
 
-          if (disks_and_nets[index].type == "EXISTING_NIC") {
+          if (disks_and_nets[index] != undefined && disks_and_nets[index].type == "EXISTING_NIC") {
             template += disks_and_nets[index].network_tmpl;
             ++index;
             getNext();
           }
 
-          if (disks_and_nets[index].type === "DUPLICATED_NIC") {
+          if (disks_and_nets[index] != undefined && disks_and_nets[index].type == "DUPLICATED_NIC") {
             var network_id = duplicated_nics[disks_and_nets[index].network_name];
 
             template += "NIC=[\n";
@@ -394,6 +412,26 @@ define(function(require) {
           var rpModify = $('.modify_rp', rpInput).val();
           var rpInitial = $('.initial_rp', rpInput).val();
           var rpParams = "";
+          var linkedClone = $('.linked_clone', rpInput).prop("checked");
+          var createCopy = $('.create_copy', rpInput).prop("checked");
+          var templateName = $('.template_name', rpInput).val();
+
+          var vcenter_ref = $(this).data("import_data").vcenter_ref;
+          if(linkedClone){
+            var linked = true;
+            if(createCopy && templateName != ""){
+              var copy = true;
+              var template_name  = templateName;
+            } else {
+              var copy = false;
+              var template_name = "";
+            }
+          } else {
+            var template_name  = "";
+            var linked = false;
+            var copy = false;
+          }
+
           $.each($('.available_rps option:selected', rpInput), function(){
             rpParams += $(this).val() + ",";
           });
@@ -428,11 +466,8 @@ define(function(require) {
               var template_json = {
                 "vmtemplate": { "template_raw": template }
               };
-
-              var vcenter_ref = $(this).data("import_data").vcenter_ref;
-
               OpenNebulaTemplate.create({
-                timeout: true,
+                timeout: false,
                 data: template_json,
                 success: function(request, response) {
                    VCenterCommon.importLoading({
@@ -445,7 +480,12 @@ define(function(require) {
                    $.ajax({
                     url: path,
                     type: "GET",
-                    data: {timeout: false},
+                    data: {
+                      timeout: false,
+                      use_linked_clones: linked,
+                      create_copy: copy,
+                      template_name: template_name
+                    },
                     headers: {
                       "X-VCENTER-USER": that.opts.vcenter_user,
                       "X-VCENTER-PASSWORD": that.opts.vcenter_password,
@@ -453,8 +493,29 @@ define(function(require) {
                     },
                     dataType: "json",
                     success: function(response){
-                      var disks_and_nets = response.disks.concat(response.nics)
-                      import_images_and_nets(disks_and_nets, row_context, template_id)
+                      var disks_and_nets = response.disks.concat(response.nics);
+                      var template_json = {
+                        "vmtemplate": { "template_raw": response.one }
+                      };
+                      if(response.create_copy){
+                        OpenNebulaTemplate.del({
+                          timeout: true,
+                          data : {
+                            id : template_id
+                          },
+                          success: function(){
+                            OpenNebulaTemplate.create({
+                              timeout: false,
+                              data: template_json,
+                              success: function(request, response){
+                                import_images_and_nets(disks_and_nets, row_context, response.VMTEMPLATE.ID);
+                              }
+                            });
+                          }
+                        });
+                      } else {
+                        import_images_and_nets(disks_and_nets, row_context, template_id);
+                      }
                     },
                     error: function(response){
                       VCenterCommon.importFailure({
