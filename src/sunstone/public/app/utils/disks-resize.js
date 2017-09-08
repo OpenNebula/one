@@ -187,7 +187,7 @@ define(function(require){
           }
         }
 
-        UserInputs.insertAttributeInputMB(attr, $(".diskSlider", diskContext));
+        $(".diskSlider", diskContext).html(UserInputs.attributeInput(attr));
       })
 
     } else {
