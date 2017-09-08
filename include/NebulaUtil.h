@@ -36,6 +36,13 @@ namespace one_util
     std::string log_time();
 
     /**
+     *  Escape XML entity and character references
+     *  @param in the string to be escaped
+     *  @return a string copy
+     */
+    std::string xml_escape(const std::string& in);
+
+    /**
      *  sha1 digest
      *  @param in the string to be hashed
      *  @return sha1 hash of str

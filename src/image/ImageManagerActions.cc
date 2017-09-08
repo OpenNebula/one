@@ -897,7 +897,9 @@ int ImageManager::stat_image(Template*     img_tmpl,
                 return -1;
             }
 
-            img_data << "<IMAGE><PATH>" << res << "</PATH></IMAGE>";
+            img_data << "<IMAGE><PATH>"
+                     << one_util::xml_escape(res)
+                     << "</PATH></IMAGE>";
             break;
 
         case Image::DATABLOCK:
@@ -919,7 +921,9 @@ int ImageManager::stat_image(Template*     img_tmpl,
             }
             else
             {
-                img_data << "<IMAGE><PATH>" << res << "</PATH></IMAGE>";
+                img_data << "<IMAGE><PATH>"
+                         << one_util::xml_escape(res)
+                         << "</PATH></IMAGE>";
             }
             break;
     }
