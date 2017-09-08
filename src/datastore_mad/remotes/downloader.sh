@@ -207,18 +207,18 @@ function get_rbd_cmd
     fi
 
     if [ -n "$CEPH_USER" ]; then
-        RBD="$RBD --id ${CEPH_USER}"
+        RBD="$RBD --id '$(esc_sq "${CEPH_USER}")'"
     fi
 
     if [ -n "$CEPH_KEY" ]; then
-        RBD="$RBD --keyfile ${CEPH_KEY}"
+        RBD="$RBD --keyfile '$(esc_sq "${CEPH_KEY}")'"
     fi
 
     if [ -n "$CEPH_CONF" ]; then
-        RBD="$RBD --conf ${CEPH_CONF}"
+        RBD="$RBD --conf '$(esc_sq "${CEPH_CONF}")'"
     fi
 
-    echo "ssh $DST_HOST $RBD export $SOURCE -"
+    echo "ssh '$(esc_sq "$DST_HOST")' \"$RBD export '$(esc_sq "$SOURCE")' -\""
 }
 
 TEMP=`getopt -o m:s:l:n -l md5:,sha1:,limit:,nodecomp -- "$@"`
