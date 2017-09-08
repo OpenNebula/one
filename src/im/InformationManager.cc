@@ -179,6 +179,14 @@ void InformationManager::timer_action(const ActionRequest& ar)
         mark = 0;
     }
 
+    Nebula& nd          = Nebula::instance();
+    RaftManager * raftm = nd.get_raftm();
+
+    if ( !raftm->is_leader() && !raftm->is_solo() )
+    {
+        return;
+    }
+
     hpool->clean_expired_monitoring();
 
     now = time(0);
