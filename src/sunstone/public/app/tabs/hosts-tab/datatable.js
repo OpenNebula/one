@@ -60,6 +60,7 @@ define(function(require) {
       "aoColumnDefs": [
           {"bSortable": false, "aTargets": ["check", 5, 6, 7, 8]},
           {"sWidth": "35px", "aTargets": [0]},
+          {"sWidth": "155px", "aTargets": [6, 8]},
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
           {"bVisible": false, "aTargets": ['_all']},
           {"sType": "num", "aTargets": [1, 4]}
