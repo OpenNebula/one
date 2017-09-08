@@ -201,7 +201,9 @@ define(function(require) {
     $.each(["memory","cpu","vcpu"], function(i,classname){
       $("."+classname+"_modify_type", context).on("change", function(){
         $("."+classname+"_modify_opt", context).hide();
-        $("."+classname+"_modify_opt."+this.value, context).show();
+        if(this.value != ""){
+          $("."+classname+"_modify_opt."+this.value, context).show();
+        }
 
         $("#memory_unit", context).change();
       });
