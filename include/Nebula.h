@@ -357,7 +357,7 @@ public:
      */
     static string code_version()
     {
-        return "5.4.0"; // bump version
+        return "5.5.80"; // bump version
     }
 
     /**
@@ -366,7 +366,7 @@ public:
      */
     static string shared_db_version()
     {
-        return "5.4.0";
+        return "5.5.80";
     }
 
     /**
@@ -375,7 +375,7 @@ public:
      */
     static string local_db_version()
     {
-        return "5.4.0";
+        return "5.5.80";
     }
 
     /**
