@@ -80,6 +80,23 @@ string one_util::log_time()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+std::string one_util::xml_escape(const std::string& in)
+{
+    std::string result = in;
+
+    result = one_util::gsub(result, "&",  "&amp;");
+    result = one_util::gsub(result, "<",  "&lt;");
+    result = one_util::gsub(result, ">",  "&gt;");
+    result = one_util::gsub(result, "'",  "&apos;");
+    result = one_util::gsub(result, "\"", "&quot;");
+    result = one_util::gsub(result, "\r", "&#x0d;");
+
+    return result;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 string * one_util::base64_encode(const string& in)
 {
     BIO *     bio_mem;
