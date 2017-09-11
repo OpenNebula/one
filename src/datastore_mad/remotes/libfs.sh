@@ -168,16 +168,27 @@ function fs_size {
 
     case $1 in
     http://*|https://*)
-        HEADERS=`curl -LIk --max-time 60 $1 2>&1`
+        HEADERS=`curl -LIk --max-time 60 "${1}" 2>&1`
 
         if echo "$HEADERS" | grep -i -q "OpenNebula-AppMarket-Size"; then
             # An AppMarket/Marketplace URL
             SIZE=$(echo "$HEADERS" | grep -i "^OpenNebula-AppMarket-Size:" | tail -n1 | cut -d: -f2)
+            error=$?
         else
             # Not an AppMarket/Marketplace URL
-            SIZE=$(echo "$HEADERS" | grep -i "^Content-Length:" | tail -n1 | cut -d: -f2)
+            SIZE=$(echo "$HEADERS" | grep -i "^Content-Length:" | tail -n1 | cut -d: -f2 | tr -d "\r")
+            error=$?
+
+            # Try to download the image head and inspect via qemu-img
+            IMAGE=$(mktemp)
+            curl -Lk --max-time 60 "${1}" 2>/dev/null | head -c 65536 >${IMAGE}
+            QSIZE=$($QEMU_IMG info "${IMAGE}" | sed -n 's/.*(\([0-9]*\) bytes).*/\1/p')
+            rm "${IMAGE}" 2>/dev/null
+
+            if [ "${QSIZE}" -gt "${SIZE}" ]; then
+                SIZE="${QSIZE}"
+            fi
         fi
-        error=$?
         ;;
     *)
         if [ -d "$1" ]; then
