@@ -760,6 +760,7 @@ bool Template::check_restricted(string& ra, const Template* base,
 
                 if ( ra_b != ra )
                 {
+                    ra = rit->first;
                     return true;
                 }
             }
