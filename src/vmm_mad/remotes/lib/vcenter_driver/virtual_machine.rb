@@ -294,6 +294,16 @@ class Template
                             break
                         end
 
+                        # Monitor image, we need READY state
+                        one_i.info
+                        start_time = Time.now
+
+                        while one_i.state_str != "READY" and Time.now - start_time < 300
+                            sleep 1
+                            one_i.info
+                        end
+
+
                         #Add info for One template
                         one_i.info
                         disk_info << "DISK=[\n"
