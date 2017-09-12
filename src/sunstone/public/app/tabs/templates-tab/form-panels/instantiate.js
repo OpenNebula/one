@@ -38,6 +38,10 @@ define(function(require) {
   var Config = require('sunstone-config');
   var HostsTable = require('tabs/hosts-tab/datatable');
   var DatastoresTable = require('tabs/datastores-tab/datatable');
+  var Humanize = require('utils/humanize');
+  var TemplateUtils = require('utils/template-utils');
+  var UniqueId = require('utils/unique-id');
+  var Actions = require('utils/actions');
 
   /*
     CONSTANTS
@@ -116,6 +120,77 @@ define(function(require) {
       $("#vm_n_times_disabled", context).hide();
       $("#vm_n_times", context).show();
     }
+
+    context.off('click', '#add_scheduling_inst_action');
+    context.on('click', '#add_scheduling_inst_action', function() {
+      $("#add_scheduling_inst_action", context).attr("disabled", "disabled");
+      $("#scheduling_inst_actions_table").append('<tr>\
+          <td>\
+            <select id="select_new_action" class="select_new_action" name="select_action">\
+              <option value="terminate">' + Locale.tr("terminate") + '</option>\
+              <option value="terminate-hard">' + Locale.tr("terminate-hard") + '</option>\
+              <option value="hold">' + Locale.tr("hold") + '</option>\
+              <option value="release">' + Locale.tr("release") + '</option>\
+              <option value="stop">' + Locale.tr("stop") + '</option>\
+              <option value="suspend">' + Locale.tr("suspend") + '</option>\
+              <option value="resume">' + Locale.tr("resume") + '</option>\
+              <option value="reboot">' + Locale.tr("reboot") + '</option>\
+              <option value="reboot-hard">' + Locale.tr("reboot-hard") + '</option>\
+              <option value="poweroff">' + Locale.tr("poweroff") + '</option>\
+              <option value="poweroff-hard">' + Locale.tr("poweroff-hard") + '</option>\
+              <option value="undeploy">' + Locale.tr("undeploy") + '</option>\
+              <option value="undeploy-hard">' + Locale.tr("undeploy-hard") + '</option>\
+              <option value="snapshot-create">' + Locale.tr("snapshot-create") + '</option>\
+            </select>\
+          </td>\
+         <td>\
+            <input id="date_input" type="date" placeholder="2013/12/30"/>\
+            <input id="time_input" type="time" placeholder="12:30"/>\
+         </td>\
+         <td>\
+            <button id="add_inst_action_json" class="secondary small button radius" >' + Locale.tr("Add") + '</button>\
+         </td>\
+         <td colspan=2></td>\
+       </tr>');
+
+      return false;
+    });
+
+    context.off("click", "#add_inst_action_json");
+    context.on("click" , "#add_inst_action_json", function(){
+      var date_input_value = $("#date_input", context).val();
+      var time_input_value = $("#time_input", context).val();
+
+      if (date_input_value == "" || time_input_value == ""){
+        return false;
+      }
+
+      var time_value = date_input_value + ' ' + time_input_value;
+      var epoch_str = new Date(time_value);
+      var time = parseInt(epoch_str.getTime()) / 1000;
+
+      var new_action = $("#select_new_action", context).val();
+      var sched_action = {};
+      sched_action.ACTION = new_action;
+      sched_action.TIME = time;
+
+      $(this).parents('tr').remove();
+      $("#add_scheduling_inst_action", context).removeAttr("disabled");
+
+      $("#sched_inst_actions_body").append(Actions.fromJSONtoActionsTable(sched_action));
+
+      return false;
+    });
+
+    context.on("focusout" , "#time_input", function(){
+      $("#time_input").removeAttr("data-invalid");
+      $("#time_input").removeAttr("class");
+    });
+
+    context.off("click", ".remove_action_x");
+    context.on("click", ".remove_action_x", function(){
+      $(this).parents('tr').remove();
+    });
   }
 
   function _calculateCost(){
@@ -245,6 +320,33 @@ define(function(require) {
         }
       }
 
+      var templateJSON = {};
+      var actionsJSON = [];
+
+      $("#scheduling_inst_actions_table tbody tr").each(function(index){
+        var first = $(this).children("td")[0];
+        if(!$('select', first).html()){
+          var actionJSON = {};
+          actionJSON.ID = index;
+          $(this).children("td").each(function(index2){
+            if(index2 == 0)
+              actionJSON.ACTION = $(this).text();
+            else if (index2 == 1){
+              var pretty_time = $(this).text();
+              pretty_time = pretty_time.split(' ');
+              var date = Actions.convertDate(pretty_time[1]);
+              var time_value = date + ' ' + pretty_time[0];
+              var epoch_str = new Date(time_value);
+              var time = parseInt(epoch_str.getTime()) / 1000;
+              actionJSON.TIME = time;
+            }
+          });
+        }
+        if (!$.isEmptyObject(actionJSON)) {actionsJSON.push(actionJSON)};
+      });
+
+      tmp_json['SCHED_ACTION'] = actionsJSON;
+
       capacityContext = $(".capacityContext"  + template_id, context);
       $.extend(tmp_json, CapacityInputs.retrieveChanges(capacityContext));
 
@@ -288,8 +390,8 @@ define(function(require) {
             }
           }
 
-          that.hostsTable = new HostsTable('HostsTable' + template_json.VMTEMPLATE.ID, options);
-          that.datastoresTable = new DatastoresTable('DatastoresTable' + template_json.VMTEMPLATE.ID, options);
+          that.hostsTable = new HostsTable('HostsTable' + UniqueId.id(), options);
+          that.datastoresTable = new DatastoresTable('DatastoresTable' + UniqueId.id(), options);
 
           templatesContext.append(
             TemplateRowHTML(
@@ -301,6 +403,9 @@ define(function(require) {
 
           $(".provision_host_selector" + template_json.VMTEMPLATE.ID, context).data("hostsTable", that.hostsTable);
           $(".provision_ds_selector" + template_json.VMTEMPLATE.ID, context).data("dsTable", that.datastoresTable);
+
+          var actions = Actions.fromJSONtoActionsTable(template_json.VMTEMPLATE.TEMPLATE.SCHED_ACTION);
+          $("#sched_inst_actions_body").append(actions);
 
           var selectOptions = {
             'selectOptions': {
@@ -436,7 +541,6 @@ define(function(require) {
 
   function _onShow(context) {
     Sunstone.disableFormPanelSubmit(this.tabId);
-
     $("input.instantiate_pers", context).change();
 
     var templatesContext = $(".list_of_templates", context);
@@ -462,5 +566,6 @@ define(function(require) {
 
       $('#SCHED_REQUIREMENTS' + id, context).val(req_string.join(" | "));
       $('#SCHED_DS_REQUIREMENTS' + id, context).val(req_ds_string.join(" | "));
-  };
+  }
+
 });
