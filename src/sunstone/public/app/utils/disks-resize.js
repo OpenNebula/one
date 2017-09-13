@@ -186,8 +186,11 @@ define(function(require){
               "M|number|"+label+"||");
           }
         }
-
-        $(".diskSlider", diskContext).html(UserInputs.attributeInput(attr));
+        if(!opts.uinput_mb){
+          $(".diskSlider", diskContext).html(UserInputs.attributeInput(attr));
+        } else {
+          UserInputs.insertAttributeInputMB(attr, $(".diskSlider", diskContext));
+        }
       })
 
     } else {

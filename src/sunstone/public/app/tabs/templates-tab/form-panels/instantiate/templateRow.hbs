@@ -14,19 +14,22 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
+<br>
 <div class="template-row" element-id="{{element.ID}}">
-  <h5>
-    {{element.NAME}}
-    <span class="total_cost_div" hidden>
-      <small class="cost_value">0.00</small>
-      <small>{{tr "COST"}} / {{tr "HOUR"}}</small>
-    </span>
-  </h5>
-  <span>
-    <img src="{{element.TEMPLATE.LOGO}}">
-  </span>
   <div class="row">
-    <div class="medium-6 small-12 columns capacityContext{{element.ID}}">
+    <div class="medium-2 small-12 columns">
+      <h5>
+        {{element.NAME}}
+        <span class="total_cost_div" hidden>
+          <small class="cost_value">0.00</small>
+          <small>{{tr "COST"}} / {{tr "HOUR"}}</small>
+        </span>
+      </h5>
+      <span>
+        <img src="{{element.TEMPLATE.LOGO}}">
+      </span>
+    </div>
+    <div class="medium-4 small-12 columns capacityContext{{element.ID}}" style="padding-top: 18px; padding-left: 40px">
       <fieldset>
         <legend>
           <i class="fa fa-laptop"></i> {{tr "Capacity"}}
@@ -40,10 +43,10 @@
         </div>
       </fieldset>
     </div>
-    <div class="medium-6 small-12 columns disksContext{{element.ID}}"></div>
-  </div>
-  <div class="row">
-    <div class="medium-6 small-12 columns template_user_inputs{{element.ID}}"></div>
+    <div class="medium-6 small-12 columns disksContext{{element.ID}}" style="padding-top: 18px"></div>
+    <div class="row">
+      <div class="medium-6 small-12 columns template_user_inputs{{element.ID}}"></div>
+    </div>
   </div>
   <div class="row">
     <div class="small-12 columns nicsContext{{element.ID}}">
@@ -51,22 +54,7 @@
       </div>
     </div>
   </div>
-  <div class="row">
-    <div class="small-12 columns vmgroupContext{{element.ID}}">
-      <fieldset>
-        <legend>
-          <i class="fa fa-globe"></i> {{tr "VM Group"}}
-        </legend>
-        <div>
-          <a class="button small provision_add_vmgroup">
-            <i class="fa fa-lg fa-plus-circle add_vmgroup"></i> {{tr "VM Group"}}
-          </a>
-        </div>
-        <div class="provision_vmgroup_selector">
-        </div>
-      </fieldset>
-    </div>
-  </div>
+  {{#advancedSection (tr "Advanced options") }}
   {{#isFeatureEnabled "show_host_instantiate"}}
   <div class="row">
     <div class="small-12 columns hostContext{{element.ID}}">
@@ -89,30 +77,48 @@
   </div>
   {{/isFeatureEnabled}}
   {{#isFeatureEnabled "show_ds_instantiate"}}
-    <div class="row">
-      <div class="small-12 columns dsContext{{element.ID}}">
-        <fieldset>
-          <legend>
-            <i class="fa fa-globe"></i> {{tr "Datastore"}}
-          </legend>
-          <div class="provision_ds_selector{{element.ID}}" data-tab-content>{{{dsDatatable}}}</div>
-          <div class="row">
-              <div class="large-12 columns">
-                <label for="SCHED_DS_REQUIREMENTS">
-                  {{tr "Expression"}}
-                  {{{tip (tr "Boolean expression that rules out entries from the pool of datastores suitable to run this VM.")}}}
-                </label>
-                <input type="text" wizard_field="SCHED_DS_REQUIREMENTS" id="SCHED_DS_REQUIREMENTS{{element.ID}}" name="requirements" />
-              </div>
-          </div>
-        </fieldset>
-      </div>
+  <div class="row">
+    <div class="small-12 columns dsContext{{element.ID}}">
+      <fieldset>
+        <legend>
+          <i class="fa fa-globe"></i> {{tr "Datastore"}}
+        </legend>
+        <div class="provision_ds_selector{{element.ID}}" data-tab-content>{{{dsDatatable}}}</div>
+        <div class="row">
+            <div class="large-12 columns">
+              <label for="SCHED_DS_REQUIREMENTS">
+                {{tr "Expression"}}
+                {{{tip (tr "Boolean expression that rules out entries from the pool of datastores suitable to run this VM.")}}}
+              </label>
+              <input type="text" wizard_field="SCHED_DS_REQUIREMENTS" id="SCHED_DS_REQUIREMENTS{{element.ID}}" name="requirements" />
+            </div>
+        </div>
+      </fieldset>
     </div>
+  </div>
   {{/isFeatureEnabled}}
+  <div class="row">
+    <div class="small-12 columns vmgroupContext{{element.ID}}">
+      <fieldset>
+        <legend>
+          <i class="fa fa-globe"></i> {{tr "VM Group"}}
+        </legend>
+        <div>
+          <a class="button small provision_add_vmgroup">
+            <i class="fa fa-lg fa-plus-circle add_vmgroup"></i> {{tr "VM Group"}}
+          </a>
+        </div>
+        <div class="provision_vmgroup_selector">
+        </div>
+      </fieldset>
+    </div>
+  </div>
   <div class="row">
     <div class="medium-6 small-12 columns vcenterVMFolderContext{{element.ID}}">
       <div class="provision_vcenter_vm_folder_selector">
       </div>
     </div>
   </div>
+  {{/advancedSection}}
 </div>
+<br>
