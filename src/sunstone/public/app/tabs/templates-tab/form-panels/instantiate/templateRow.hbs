@@ -110,6 +110,26 @@
     </div>
   {{/isFeatureEnabled}}
   <div class="row">
+    <div class="large-12 columns actionContext{{element.ID}}">
+      <fieldset>
+        <legend>
+          <i class="fa fa-globe"></i> {{tr "Actions"}}
+        </legend>
+        <table id="scheduling_inst_actions_table" class="info_table dataTable">
+          <thead>
+            <tr>
+              <th> {{tr "Action"}} </th>
+              <th> {{tr "Time"}} </th>
+              <th colspan=""> {{tr "Actions"}} </th>
+              <th><button id="add_scheduling_inst_action" class="button small success right radius"> {{tr "Add action"}} </button></th>
+            </tr>
+          </thead>
+          <tbody id="sched_inst_actions_body"></tbody>
+        </table>
+      </fieldset>
+    </div>
+  </div>
+  <div class="row">
     <div class="medium-6 small-12 columns vcenterVMFolderContext{{element.ID}}">
       <div class="provision_vcenter_vm_folder_selector">
       </div>

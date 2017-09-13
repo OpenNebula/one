@@ -26,6 +26,7 @@ define(function(require) {
   var UniqueId = require('utils/unique-id');
   var Humanize = require('utils/humanize');
   var TemplateUtils = require('utils/template-utils');
+  var Actions = require('utils/actions');
 
   var TemplateHTML = require('hbs!./actions/html');
   /*
@@ -123,7 +124,7 @@ define(function(require) {
       $(this).parents('tr').remove();
       $("#add_scheduling_temp_action", context).removeAttr("disabled");
 
-      $("#sched_temp_actions_body").append(fromJSONtoActionsTable(sched_action));
+      $("#sched_temp_actions_body").append(Actions.fromJSONtoActionsTable(sched_action));
 			
       return false;
     });
@@ -154,7 +155,7 @@ define(function(require) {
           else if (index2 == 1){
             var pretty_time = $(this).text();
             pretty_time = pretty_time.split(' ');
-            var date = convertDate(pretty_time[1]);
+            var date = Actions.convertDate(pretty_time[1]);
             var time_value = date + ' ' + pretty_time[0];
             var epoch_str = new Date(time_value);
             var time = parseInt(epoch_str.getTime()) / 1000;
@@ -170,55 +171,8 @@ define(function(require) {
   }
 
   function _fill(context, templateJSON) {
-    var actions = fromJSONtoActionsTable(templateJSON.SCHED_ACTION);
+    var actions = Actions.fromJSONtoActionsTable(templateJSON.SCHED_ACTION);
     $("#sched_temp_actions_body").append(actions);
     delete templateJSON['SCHED_ACTION'];
   }
-
-  function fromJSONtoActionsTable(actions_array) {
-    var str = ""
-
-    if (!actions_array) {
-      return "";
-    }
-
-    if (!$.isArray(actions_array)) {
-      var tmp_array = new Array();
-      tmp_array[0]  = actions_array;
-      actions_array = tmp_array;
-    }
-
-    if (!actions_array.length) {
-      return "";
-    }
-
-    $.each(actions_array, function(index, scheduling_action) {
-      str += fromJSONtoActionRow(scheduling_action);
-    });
-
-    return str;
-  }
-
-  function fromJSONtoActionRow(scheduling_action) {
-    var time_str = Humanize.prettyTime(scheduling_action.TIME);
-
-    var str = "";
-    str += '<tr class="tr_action">\
-       <td class="action_row">' + TemplateUtils.htmlEncode(scheduling_action.ACTION) + '</td>\
-       <td nowrap class="time_row">' + time_str + '</td>\
-       <td>\
-         <div>\
-           <a id="minus" class="remove_action_x" href="#"><i class="fa fa-trash-o"/></a>\
-         </div>\
-       </td>\
-     </tr>';
-
-    return str;
-  }
-
-  function convertDate(date_string){
-    date_string = date_string.split('/');
-    return date_string[2] + "-" + date_string[1] + "-" + date_string[0]; 
-  }
-
 });
