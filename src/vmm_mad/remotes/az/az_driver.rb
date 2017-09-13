@@ -323,57 +323,43 @@ private
     # the LOCATION element is used and matched with the host
     def get_deployment_info(host, xml_text)
         xml = REXML::Document.new xml_text
-
         az = nil
-
         all_az_elements = xml.root.get_elements("//USER_TEMPLATE/PUBLIC_CLOUD")
 
-        # First, let's see if we have an Azure location that matches
-        # our host name
-        all_az_elements.each { |element|
-            cloud_host = element.elements["LOCATION"]
-            type       = element.elements["TYPE"].text
+        # Look for an azure location
+        # if we find the same LOCATION as @region name
+        # means that we have the final location
+        all_az_elements.each do |element|
+            type     = element.elements["TYPE"].text.downcase
+            location = element.elements["LOCATION"].text.downcase rescue nil
 
-            next if !type.downcase.eql? "azure"
+            next if type != "azure"
 
-            if cloud_host and cloud_host.text.upcase.eql? host.upcase
+            if location.nil?
                 az = element
+            elsif location && location == @region["region_name"].downcase
+                az = element
+                break
             end
-        }
+        end
 
-        if !az
-              # If we don't find an Azure location, and ONE just
-              # knows about one Azure location, let's use that
-              if all_az_elements.size == 1 and
-                 all_az_elements[0].elements["TYPE"].text.downcase.eql? "azure"
-                  az = all_az_elements[0]
-              else
-                  STDERR.puts(
-                      "Cannot find Azure element in VM template "<<
-                      "or couldn't find any Azure location matching "<<
-                      "one of the templates.")
-                  exit(-1)
-              end
-          end
+        # If we don't find an Azure location raise an error
+        if az.nil?
+            raise "Cannot find Azure element in VM template " <<
+                  "or couldn't find any Azure location matching " <<
+                  "one of the templates."
+        end
 
-         # If LOCATION not explicitly defined, try to get default, if not
-          # try to use hostname as datacenter
-          if !az.elements["LOCATION"]
-            location=REXML::Element.new("LOCATION")
-            if @defaults["LOCATION"]
-              location.text=@defaults["LOCATION"]
-            else
-              location.text=host
-            end
+        # If LOCATION not explicitly defined, try to get from host, if not
+        # try to use hostname as datacenter
+        if !az.elements["LOCATION"]
+            location = REXML::Element.new("LOCATION")
+
+            location.text = @region["region_name"] || @public_cloud_az_conf['regions'][@defaults["LOCATION"]]["region_name"]
             az.elements << location
-          end
+        end
 
-          # Translate region name form keyword to actual value
-          region_keyword = az.elements["LOCATION"].text
-          translated_region = @public_cloud_az_conf["regions"][region_keyword]
-          az.elements["LOCATION"].text=translated_region["region_name"]
-
-          az
+        az
     end
 
     # Retrive the vm information from the Azure instance
