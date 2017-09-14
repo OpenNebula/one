@@ -127,6 +127,10 @@ define(function(require) {
             if (Config.isTabActionEnabled("vms-tab", "VM.snapshot_delete")) {
               actions += '<a href="VM.snapshot_delete" class="snapshot_delete" ><i class="fa fa-times"/>' + Locale.tr("Delete") + '</a>'
             }
+          } else if (that.element.STATE == OpenNebulaVM.STATES.POWEROFF &&  that.element.HISTORY_RECORDS.HISTORY.VM_MAD == "vcenter"){
+            if (Config.isTabActionEnabled("vms-tab", "VM.snapshot_delete")) {
+              actions += '<a href="VM.snapshot_delete" class="snapshot_delete" ><i class="fa fa-times"/>' + Locale.tr("Delete") + '</a>'
+            }
           }
         }
 
