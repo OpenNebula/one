@@ -461,8 +461,11 @@ define(function(require) {
             template_json: template_json,
             disksContext: $(".disksContext"  + template_json.VMTEMPLATE.ID, context),
             force_persistent: $("input.instantiate_pers", context).prop("checked"),
-            cost_callback: that.calculateCost.bind(that)
+            cost_callback: that.calculateCost.bind(that),
+            uinput_mb: true
           });
+
+          $('.memory_input_wrapper', context).removeClass("large-6 medium-8").addClass("large-12 medium-12");
 
           NicsSection.insert(template_json,
             $(".nicsContext"  + template_json.VMTEMPLATE.ID, context),
