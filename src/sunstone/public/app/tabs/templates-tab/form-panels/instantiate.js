@@ -135,7 +135,7 @@ define(function(require) {
       if (total != 0 && Config.isFeatureEnabled("showback")) {
         $(".total_cost_div", $(this)).show();
 
-        $(".total_cost_div .cost_value", $(this)).text( (capacity_val + disk_val).toFixed(2) );
+        $(".total_cost_div .cost_value", $(this)).text( (capacity_val + disk_val).toFixed(6) );
       }
     });
   }
@@ -400,7 +400,7 @@ define(function(require) {
             memoryCost = Config.onedConf.DEFAULT_COST.MEMORY_COST;
           } else {
             if (memoryUnitCost == "GB"){
-              memoryCost = memoryCost / 1024;
+              memoryCost = memoryCost / 1024 / 1024;
             }
           }
 
@@ -418,7 +418,7 @@ define(function(require) {
                 cost += cpuCost * values.CPU;
               }
 
-              $(".cost_value", capacityContext).html(cost.toFixed(2));
+              $(".cost_value", capacityContext).html(cost.toFixed(6));
 
               _calculateCost(context);
             });

@@ -102,7 +102,7 @@ define(function(require) {
     var type_cost = document.getElementById('MEMORY_UNIT_COST').value;
     var memory = document.getElementById('MEMORY').value;
     var type = document.getElementById('memory_unit').value;
-    if(type_cost == "GB" && type == "MB")
+    if(type_cost == "GB")
       memory = (memory/1024)*memory_cost*24*30;
     else
       memory = memory*memory_cost*24*30;
