@@ -18,18 +18,18 @@
 <div class="template-row" element-id="{{element.ID}}">
   <div class="row">
     <div class="medium-2 small-12 columns">
-      <h5>
-        {{element.NAME}}
+      <h6>
+        {{element.NAME}}<br>
         <span class="total_cost_div" hidden>
           <small class="cost_value">0.00</small>
           <small>{{tr "COST"}} / {{tr "HOUR"}}</small>
         </span>
-      </h5>
+      </h6>
       <span>
         <img src="{{element.TEMPLATE.LOGO}}">
       </span>
     </div>
-    <div class="medium-4 small-12 columns capacityContext{{element.ID}}" style="padding-top: 18px; padding-left: 40px">
+    <div class="medium-4 small-12 columns capacityContext{{element.ID}}" style="padding-top: 15px; padding-left: 35px">
       <fieldset>
         <legend>
           <i class="fa fa-laptop"></i> {{tr "Capacity"}}
@@ -43,7 +43,7 @@
         </div>
       </fieldset>
     </div>
-    <div class="medium-6 small-12 columns disksContext{{element.ID}}" style="padding-top: 18px"></div>
+    <div class="medium-6 small-12 columns disksContext{{element.ID}}" style="padding-top: 15px"></div>
     <div class="row">
       <div class="medium-6 small-12 columns template_user_inputs{{element.ID}}"></div>
     </div>
