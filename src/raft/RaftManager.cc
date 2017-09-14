@@ -540,6 +540,8 @@ void RaftManager::replicate_log(ReplicaRequest * request)
 
     if ( state != LEADER )
     {
+        request->notify();
+
         pthread_mutex_unlock(&mutex);
         return;
     }
