@@ -33,7 +33,8 @@ public:
         message(""),
         timeout(false),
         id(-1),
-        time_out(0)
+        time_out(0),
+        notified(false)
     {
         am.addListener(this);
     };
@@ -65,6 +66,8 @@ public:
      */
     void notify()
     {
+        notified = true;
+
         am.finalize();
     };
 
@@ -73,6 +76,11 @@ public:
      */
     void wait()
     {
+        if ( notified )
+        {
+            return;
+        }
+
         time_out = time(0) + 90;//Requests will expire in 1.5 minutes
 
         am.loop();
@@ -83,6 +91,11 @@ public:
      */
     void wait(time_t t)
     {
+        if ( notified )
+        {
+            return;
+        }
+
         am.loop(t);
     };
 
@@ -94,6 +107,11 @@ protected:
      *  Time in seconds when this request will expire
      */
     time_t  time_out;
+
+    /**
+     *  True if the request has been notified
+     */
+    bool notified;
 
     /**
      *  The ActionManager that will be notify when the request is ready.
