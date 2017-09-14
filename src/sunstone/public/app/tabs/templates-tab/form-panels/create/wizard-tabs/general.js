@@ -235,12 +235,6 @@ define(function(require) {
 
   function _fill(context, templateJSON) {
     var sunstone_template = templateJSON.SUNSTONE;
-    if(templateJSON["MEMORY_UNIT_COST"] == "GB"){
-      templateJSON["MEMORY_COST"] = templateJSON["MEMORY_COST"] / 1024;
-    }
-    if(templateJSON["DISK_COST"]){
-      templateJSON["DISK_COST"] = templateJSON["DISK_COST"] / 1024;
-    }
     if (sunstone_template) {
       if (sunstone_template["NETWORK_SELECT"] &&
           sunstone_template["NETWORK_SELECT"].toUpperCase() == "NO") {
