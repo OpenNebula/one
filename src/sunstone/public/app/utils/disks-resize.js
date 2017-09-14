@@ -30,6 +30,7 @@ define(function(require){
 
   function _calculateCost(context, disk_cost, callback){
     var cost = 0;
+    disk_cost = disk_cost / 1024 / 1024;
 
     $(".diskContainer", context).each(function(){
       var size = 0;
@@ -50,7 +51,7 @@ define(function(require){
       cost += $(this).data('disk_snapshot_total_cost');
     });
 
-    $(".cost_value", context).text(cost.toFixed(2));
+    $(".cost_value", context).text(cost.toFixed(6));
 
     if(callback != undefined){
       callback();

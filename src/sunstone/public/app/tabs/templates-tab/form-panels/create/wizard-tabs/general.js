@@ -98,20 +98,18 @@ define(function(require) {
   }
   function convertCostNumber(number){
     if(number >= 1000000){
-      number = (number/1000000).toFixed(2)
+      number = (number/1000000).toFixed(6)
       return number.toString()+"M";
     }
     else if(number >= 1000){
-      number = (number/1000).toFixed(2)
+      number = (number/1000).toFixed(6)
       return number.toString()+"K";
     }
-    return number;
+    return number.toFixed(6);
   }
   function caculatedTotalMemory(context){
     var memory = document.getElementById('MEMORY_COST').value;
     var type = document.getElementById('MEMORY_UNIT_COST').value;
-    if(type == "GB")
-      memory *= 1024;
     memory = memory * 24 * 30; //24 hours and 30 days
     document.getElementById('total_value_memory').textContent = convertCostNumber(memory);
     $(".total_memory_cost", context).show();
@@ -143,7 +141,7 @@ define(function(require) {
 
     context.on("change", "#DISK_COST", function() {
       var disk = document.getElementById('DISK_COST').value;
-      document.getElementById('total_value_disk').textContent = convertCostNumber(disk * 1024 * 24 * 30);
+      document.getElementById('total_value_disk').textContent = convertCostNumber(disk * 24 * 30);
       $(".total_disk_cost", context).show();
     });
 
@@ -182,14 +180,6 @@ define(function(require) {
 
   function _retrieve(context) {
     var templateJSON = WizardFields.retrieve(context);
-    if(templateJSON["DISK_COST"]){
-      templateJSON["DISK_COST"] = templateJSON["DISK_COST"] * 1024;
-    }
-    else{
-      delete templateJSON["MEMORY_UNIT_COST"];
-    }
-    if(templateJSON["MEMORY_UNIT_COST"] == "GB")
-      templateJSON["MEMORY_COST"] = templateJSON["MEMORY_COST"] * 1024;
     if (templateJSON["HYPERVISOR"] == 'vcenter') {
       templateJSON["VCENTER_TEMPLATE_REF"] = WizardFields.retrieveInput($("#vcenter_template_ref", context));
       templateJSON["VCENTER_CCR_REF"] = WizardFields.retrieveInput($("#vcenter_ccr_ref", context));
