@@ -433,6 +433,7 @@ class Template
                     ar_str = ""
                     ar_str << "AR=[\n"
                     ar_str << "TYPE=\"ETHER\",\n"
+                    ar_str << "MAC=\"#{nic[:mac]}\",\n"
                     ar_str << "SIZE=\"255\"\n"
                     ar_str << "]\n"
                     one_vnet[:one] << ar_str
@@ -569,12 +570,13 @@ class Template
                     else
                         raise "Cannot get hold of Network for device #{device}"
                     end
-            
+
                     network = RbVmomi::VIM::Network.new(@vi_client.vim, ref)
                 else
                     network = device.backing.network
                 end
 
+                nic[:mac]       = device.macAddress
                 nic[:net_name]  = network.name
                 nic[:net_ref]   = network._ref
                 nic[:pg_type]   = VCenterDriver::Network.get_network_type(device)
