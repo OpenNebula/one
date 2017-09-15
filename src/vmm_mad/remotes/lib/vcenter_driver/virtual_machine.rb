@@ -410,8 +410,10 @@ class Template
                     # or from a template
                     if wild
                         unmanaged = "wild"
+                        ar_size   = 1
                     else
                         unmanaged = "template"
+                        ar_size   = 255
                     end
 
                     # Prepare the Virtual Network template
@@ -435,8 +437,8 @@ class Template
                     ar_str = ""
                     ar_str << "AR=[\n"
                     ar_str << "TYPE=\"ETHER\",\n"
-                    ar_str << "MAC=\"#{nic[:mac]}\",\n"
-                    ar_str << "SIZE=\"255\"\n"
+                    ar_str << "MAC=\"#{nic[:mac]}\",\n" if wild && nic[:mac]
+                    ar_str << "SIZE=\"#{ar_size}\"\n"
                     ar_str << "]\n"
                     one_vnet[:one] << ar_str
 
@@ -578,7 +580,7 @@ class Template
                     network = device.backing.network
                 end
 
-                nic[:mac]       = device.macAddress
+                nic[:mac]       = device.macAddress rescue nil
                 nic[:net_name]  = network.name
                 nic[:net_ref]   = network._ref
                 nic[:pg_type]   = VCenterDriver::Network.get_network_type(device)
