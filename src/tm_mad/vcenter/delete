@@ -209,7 +209,7 @@ else
             new_template.info
 
             # Update the template reference
-            new_template.update("VCENTER_TEMPLATE_REF= #{vm.item._ref}", true)
+            new_template.update("VCENTER_TEMPLATE_REF=#{vm.item._ref}", true)
 
         else
             # Destroy the VM and remaining disks
