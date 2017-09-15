@@ -157,23 +157,6 @@ class Network
         one_vnet.info
     end
 
-    def self.get_unmanaged_vnet_by_ref(ref, template_ref, vcenter_uuid, pool = nil)
-        if pool.nil?
-            pool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool, false)
-            if pool.respond_to?(:message)
-                raise "Could not get OpenNebula VirtualNetworkPool: #{pool.message}"
-            end
-        end
-        element = pool.select do |e|
-            e["TEMPLATE/VCENTER_NET_REF"]     == ref &&
-            e["TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid &&
-            e["TEMPLATE/VCENTER_TEMPLATE_REF"] == template_ref &&
-            e["TEMPLATE/OPENNEBULA_MANAGED"] == "NO"
-        end.first rescue nil
-
-        return element
-    end
-
     # This is never cached
     def self.new_from_ref(ref, vi_client)
         self.new(RbVmomi::VIM::Network.new(vi_client.vim, ref), vi_client)
