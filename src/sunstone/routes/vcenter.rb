@@ -245,8 +245,8 @@ get '/vcenter/template/:vcenter_ref/:template_id' do
 
         ref         = params[:vcenter_ref]
         template_id = params[:template_id]
-        use_linked_clones = params[:use_linked_clones] || false
-        create_copy = params[:create_copy] || false
+        use_linked_clones = params[:use_linked_clones] != "false"
+        create_copy = params[:create_copy] != "false"
         template_name = params[:template_name] || ""
 
         if !ref || ref.empty?
