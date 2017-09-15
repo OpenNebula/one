@@ -36,23 +36,21 @@
             <div class="vcenter_rp_input row" style="margin-left: 11px">
               <div class="medium-3 columns">
                 <label>
-                  {{tr "Default Resource Pool"}}
-                  <input type="text" class="initial_rp" value="{{resourcePool.initial}}"/>
-                </label>
-              </div>
-              <div class="medium-3 columns">
-                <label>
                   {{tr "Type"}}
-                  <select class="modify_rp">
+                  <select class="modify_rp" id="modify_rp_{{id}}">
+                    <option value="default">{{tr "Default"}}</option>
                     <option value="fixed">{{tr "Fixed"}}</option>
                     <option value="list">{{tr "Provide on instantiation"}}</option>
                   </select>
                 </label>
               </div>
-              <div class="medium-4 columns end">
+              <div class="medium-4 columns end" id="div_rp_{{id}}" hidden>
                 <label>
                   {{tr "Available Resource Pools"}}
-                  <select multiple="true" size="3" class="available_rps" id="available_rps_{{id}}">
+                  <span class="tip">
+                    {{tr "Use ctrl key for multiple selection (provide on instantiation)."}}
+                  </span>
+                  <select required style="height: 60px" size="5" class="available_rps" id="available_rps_{{id}}">
                     {{#each resourcePool.params}}
                       <option value="{{this}}" selected>{{this}}</option>
                     {{/each}}
