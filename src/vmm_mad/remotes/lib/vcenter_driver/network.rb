@@ -83,14 +83,19 @@ class Network
             end
 
             if unmanaged == "template"
-                network_import_name = "#{network_name} [#{vm_or_template_name} - Template #{template_id}]"
+                hash_name = "#{network_ref}#{vcenter_uuid}"
+                sha256 = Digest::SHA256.new
+                network_hash = sha256.hexdigest(hash_name)[0..11]
+
+                network_import_name = "#{network_name} - #{network_hash}"
             end
         else
-            full_name = "#{network_name} - #{ccr_name.tr(" ", "_")} [#{vcenter_instance_name} - #{dc_name}]_#{cluster_location}"
+            hash_name = "#{network_name} - #{ccr_name.tr(" ", "_")} [#{vcenter_instance_name} - #{dc_name}]_#{cluster_location}"
             sha256 = Digest::SHA256.new
-            network_hash = sha256.hexdigest(full_name)[0..11]
+            network_hash = sha256.hexdigest(hash_name)[0..11]
             network_import_name = "#{network_name} - #{ccr_name.tr(" ", "_")} [#{vcenter_instance_name} - #{dc_name}]_#{network_hash}"
         end
+
         one_tmp[:name] = network_name
         one_tmp[:import_name] = network_import_name
         one_tmp[:bridge] = network_name
@@ -130,7 +135,7 @@ class Network
         end
     end
 
-    def self.get_unmanaged_vnet_by_ref(ref, template_ref, vcenter_uuid, pool = nil)
+    def self.get_unmanaged_vnet_by_ref(ref, vcenter_uuid, pool = nil)
         if pool.nil?
             pool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool, false)
             if pool.respond_to?(:message)
@@ -140,8 +145,7 @@ class Network
         element = pool.select do |e|
             e["TEMPLATE/VCENTER_NET_REF"]     == ref &&
             e["TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid &&
-            e["TEMPLATE/VCENTER_TEMPLATE_REF"] == template_ref &&
-            e["TEMPLATE/OPENNEBULA_MANAGED"] == "NO"
+            e["TEMPLATE/OPENNEBULA_MANAGED"]  == "NO"
         end.first rescue nil
 
         return element

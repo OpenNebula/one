@@ -362,7 +362,6 @@ class Template
             vc_nics.each do |nic|
                 # Check if the network already exists
                 network_found = VCenterDriver::Network.get_unmanaged_vnet_by_ref(nic[:net_ref],
-                                                                                 template_ref,
                                                                                  vc_uuid,
                                                                                  npool)
                 #Network is already in OpenNebula
