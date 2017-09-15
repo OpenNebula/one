@@ -77,18 +77,8 @@ class Network
 
         one_tmp = {}
 
-        if unmanaged
-            if unmanaged == "wild"
-                network_import_name = "#{network_name} [VM #{vm_or_template_name}]"
-            end
-
-            if unmanaged == "template"
-                hash_name = "#{network_ref}#{vcenter_uuid}"
-                sha256 = Digest::SHA256.new
-                network_hash = sha256.hexdigest(hash_name)[0..11]
-
-                network_import_name = "#{network_name} - #{network_hash}"
-            end
+        if unmanaged && unmanaged == "wild"
+            network_import_name = "#{network_name} [VM #{vm_or_template_name}]"
         else
             hash_name = "#{network_name} - #{ccr_name.tr(" ", "_")} [#{vcenter_instance_name} - #{dc_name}]_#{cluster_location}"
             sha256 = Digest::SHA256.new
@@ -96,14 +86,15 @@ class Network
             network_import_name = "#{network_name} - #{ccr_name.tr(" ", "_")} [#{vcenter_instance_name} - #{dc_name}]_#{network_hash}"
         end
 
-        one_tmp[:name] = network_name
-        one_tmp[:import_name] = network_import_name
-        one_tmp[:bridge] = network_name
-        one_tmp[:type] = network_type
-        one_tmp[:cluster] = ccr_name
+        one_tmp[:name]             = network_name
+        one_tmp[:import_name]      = network_import_name
+        one_tmp[:bridge]           = network_name
+        one_tmp[:type]             = network_type
+        one_tmp[:cluster]          = ccr_name
         one_tmp[:cluster_location] = cluster_location
-        one_tmp[:vcenter_ccr_ref] = ccr_ref
-        one_tmp[:one_cluster_id] = cluster_id
+        one_tmp[:vcenter_ccr_ref]  = ccr_ref
+        one_tmp[:one_cluster_id]   = cluster_id
+
         one_tmp[:one] = to_one(network_import_name, network_name, network_ref, network_type,
                              ccr_ref, vcenter_uuid, unmanaged, template_ref, dc_ref)
         return one_tmp
@@ -121,7 +112,6 @@ class Network
 
         template += "VCENTER_CCR_REF=\"#{ccr_ref}\"\n" if !unmanaged
 
-        template += "OPENNEBULA_MANAGED=\"NO\"\n" if unmanaged
         template += "VCENTER_TEMPLATE_REF=\"#{template_ref}\"\n" if template_ref
 
         return template
@@ -133,22 +123,6 @@ class Network
         else
             return "Port Group"
         end
-    end
-
-    def self.get_unmanaged_vnet_by_ref(ref, vcenter_uuid, pool = nil)
-        if pool.nil?
-            pool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool, false)
-            if pool.respond_to?(:message)
-                raise "Could not get OpenNebula VirtualNetworkPool: #{pool.message}"
-            end
-        end
-        element = pool.select do |e|
-            e["TEMPLATE/VCENTER_NET_REF"]     == ref &&
-            e["TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid &&
-            e["TEMPLATE/OPENNEBULA_MANAGED"]  == "NO"
-        end.first rescue nil
-
-        return element
     end
 
     def self.remove_net_ref(network_id)
