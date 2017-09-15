@@ -27,6 +27,7 @@ define(function(require) {
   var UniqueId = require('utils/unique-id');
   var VCenterCommon = require('./vcenter-common');
   var Sunstone = require('sunstone');
+  var Tips = require('utils/tips');
 
   var TemplateHTML = require('hbs!./common/html');
   var RowTemplate = require('hbs!./templates/row');
@@ -112,16 +113,30 @@ define(function(require) {
               if (element.rp && element.rp !== '') {
                 opts.resourcePool = UserInputs.unmarshall(element.rp);
                 opts.resourcePool.params = opts.resourcePool.params.split(",");
-                $.each(opts.resourcePool.params, function(){
+               /* $.each(opts.resourcePool.params, function(){
                   $("#available_rps_" + opts.id + " [value ='" + this + "']").mousedown(function(e) {
                     e.preventDefault();
                     $(this).prop('selected', !$(this).prop('selected'));
                     return false;
                   });
-                });
+                });*/
               }
 
               var trow = $(RowTemplate(opts)).appendTo(tbody);
+              Tips.setup(trow);
+
+              $("#modify_rp_" + opts.id).change(function(){
+                var val = $("#modify_rp_" + opts.id).val();
+                if (val == "default"){
+                  $("#div_rp_" + opts.id).hide();
+                } else if (val == "fixed"){
+                  $("#div_rp_" + opts.id).show();
+                  $("#available_rps_" + opts.id).attr("multiple", false);
+                } else {
+                  $("#div_rp_" + opts.id).show();
+                  $("#available_rps_" + opts.id).attr("multiple", true);
+                }
+              });
 
               $("#linked_clone_"+opts.id).on("change", function(){
                 if ($("#linked_clone_"+opts.id).is(":checked")){
@@ -387,8 +402,6 @@ define(function(require) {
             ++index;
             getNext();
           }
-
-
       }
     }
     getNext();
@@ -410,7 +423,6 @@ define(function(require) {
         var rpInput = $(".vcenter_rp_input", row_context);
         if (rpInput.length > 0) {
           var rpModify = $('.modify_rp', rpInput).val();
-          var rpInitial = $('.initial_rp', rpInput).val();
           var rpParams = "";
           var linkedClone = $('.linked_clone', rpInput).prop("checked");
           var createCopy = $('.create_copy', rpInput).prop("checked");
@@ -437,13 +449,13 @@ define(function(require) {
           });
           var rpParams = rpParams.slice(0,-1);
 
-          if (rpModify === 'fixed' && rpInitial !== '') {
-            attrs.push('VCENTER_RESOURCE_POOL="' + rpInitial + '"');
+          if (rpModify === 'fixed' && rpParams!== '') {
+            attrs.push('VCENTER_RESOURCE_POOL="' + rpParams + '"');
           } else if (rpModify === 'list' && rpParams !== '') {
             var rpUserInputs = UserInputs.marshall({
                 type: 'list',
                 description: Locale.tr("Which resource pool you want this VM to run in?"),
-                initial: rpInitial,
+                initial: "",
                 params: rpParams
               });
 
