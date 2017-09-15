@@ -118,13 +118,13 @@ tabs:
         table_columns:
             - 0         # Checkbox
             - 1         # ID
-            - 2         # Owner
-            - 3         # Group
-            - 4         # Name
+            - 2         # Name
+            - 3         # Onwer
+            - 4         # Group
             - 5         # Datastore
-            #- 6         # Size
-            - 7        # Type
-            #- 8         # Registration time
+            #- 6        # Size
+            - 7         # Type
+            #- 8        # Registration time
             #- 9        # Persistent
             - 10        # Status
             - 11        # #VMs
@@ -133,45 +133,45 @@ tabs:
         table_columns:
             - 0         # Checkbox
             - 1         # ID
-            - 2         # Owner
-            #- 3         # Group
-            - 4         # Name
-            #- 5         # Reservation
-            #- 6         # Cluster
-            #- 7         # Bridge
-            #- 8         # Leases
-            #- 9         # VLAN ID
+            - 2         # Name
+            #- 3        # Owner
+            - 4         # Group
+            #- 5        # Reservation
+            #- 6        # Cluster
+            #- 7        # Bridge
+            #- 8        # Leases
+            #- 9        # VLAN ID
     secgroups-tab:
         table_columns:
             - 0         # Checkbox
             - 1         # ID
-            - 2         # Owner
-            #- 3         # Group
-            - 4         # Name
-            #- 5         # Labels
+            - 2         # Name
+            #- 3        # Owner
+            - 4         # Group
+            #- 5        # Labels
     vmgroup-tab:
         table_columns:
             - 0         # Checkbox
             - 1         # ID
             - 2         # Name
-            - 3         # Group
-            - 4         # Owner
+            - 3         # Owner
+            - 4         # Group
             - 5         # Vms
-            #- 6         # Labels
+            #- 6        # Labels
             #- 7        # Search data
     datastores-tab:
         table_columns:
             - 0         # Checkbox
             - 1         # ID
-            - 2         # Owner
-            - 3         # Group
-            - 4         # Name
-            #- 5         # Capacity
-            #- 6         # Cluster
-            #- 7         # Basepath
-            #- 8         # TM
-            #- 9         # DS
-            #- 10        # Type
+            - 2         # Name
+            - 3         # Owner
+            - 4         # Group
+            #- 5        # Capacity
+            #- 6        # Cluster
+            #- 7        # Basepath
+            #- 8        # TM
+            #- 9        # DS
+            #- 10       # Type
             - 11        # Status
-            #- 12        # Labels
-            #- 13        # Search data
+            #- 12       # Labels
+            #- 13       # Search data
