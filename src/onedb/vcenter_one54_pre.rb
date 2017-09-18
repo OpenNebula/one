@@ -2156,7 +2156,6 @@ def inspect_templates(vc_templates, vc_clusters, one_clusters, tpool, ipool, vnp
 
             # Get OpenNebulas's template
             one_template = OpenNebula::Template.new_with_id(template["ID"], one_client)
-
             STDOUT.puts
 
             if !template_ref
@@ -2250,50 +2249,7 @@ def inspect_templates(vc_templates, vc_clusters, one_clusters, tpool, ipool, vnp
             dc_ref  = dc._ref
             vcenter_name = vi_client.host
             STDOUT.puts "--- Discovering disks and network interfaces inside the template (please be patient)"
-
-            devices = vc_template["config.hardware.device"]
-
-            has_spaces = false
-            devices.each do |device|
-                if !(device.class.ancestors.index(RbVmomi::VIM::VirtualDisk)).nil?
-                    image_path = device.backing.fileName.sub(/^\[(.*?)\] /, "")
-                    if image_path.include?(" ")
-                        has_spaces = true
-                        break
-                    end
-                end
-            end
-
-            if has_spaces
-                STDOUT.puts
-                STDOUT.puts("\n\e[93mWARNING: Manual intervention required!\e[39m")
-                STDOUT.puts "Template #{one_template["ID"]}: '#{one_template["NAME"]}' is not compatible."
-                STDOUT.puts
-                STDOUT.puts "Images in this template contain spaces, which is not supported."
-                STDOUT.puts "You need to remove the spaces from the paths and import it again"
-                STDOUT.puts "in OpenNebula 5.4."
-                STDOUT.puts
-                STDOUT.puts "Press 'y' to delete the template from OpenNebula."
-                STDOUT.puts "Alternatively press 'q' to quit the premigrator"
-                STDOUT.puts "in order to fix the path before running the premigrator again."
-                STDOUT.puts "(y/q)"
-                STDOUT.puts
-
-                loop do
-                    option = STDIN.gets.strip
-                    case option
-                    when "y"
-                        rc = one_template.delete
-                        raise "Template #{one_template["ID"]}: '#{one_template["NAME"]}' could not be deleted. Reason #{rc.message}" if OpenNebula.is_error?(rc)
-                        break
-                    when "q"
-                        exit 0
-                    end
-                end
-                next
-            end
-
-            unmanaged = template_unmanaged_discover(devices,
+            unmanaged = template_unmanaged_discover(vc_template["config.hardware.device"],
                                                     template_cluster,
                                                     ccr_ref,
                                                     vcenter_name,
@@ -2469,9 +2425,6 @@ def inspect_vms(vc_vmachines, vc_templates, vc_clusters, one_clusters, vmpool, i
                 STDOUT.puts "VM \e[96m#{vm_name}\e[39m could not be migrated, \e[91mcannot find this VM in objects retrieved\e[39m,\n"\
                             "maybe it was deleted in vCenter but not in OpenNebula?"
                 STDOUT.puts
-                STDOUT.puts "Press any key to continue."
-                STDIN.gets
-                STDOUT.puts
                 STDOUT.puts "-" * 80
                 STDOUT.puts
                 next
@@ -2552,7 +2505,7 @@ def inspect_vms(vc_vmachines, vc_templates, vc_clusters, one_clusters, vmpool, i
                     end
                 end
 
-                # Try to get moref using the templates uuid. Note that that uuid
+                # Try to get moref using the templates uuid note that that uuid
                 # is not unique
                 templates_same_uuid = {}
                 if !template_ref && template_uuid
@@ -2615,7 +2568,7 @@ def inspect_vms(vc_vmachines, vc_templates, vc_clusters, one_clusters, vmpool, i
                     STDOUT.puts("#{template_refs.size+1}: None of the above.")
 
                     loop do
-                        STDOUT.print("\nFrom the list above, please \e[95mpick a number\e[39m in order to specify the venter template that this VM was based on: ")
+                        STDOUT.print("\nFrom the list above, please \e[95mpick up one number\e[39m in order to specify the venter template that this VM was based on: ")
                         template_index = STDIN.gets.strip.to_i
                         next if template_index == 0 || template_index - 1 < 0 || template_index > template_refs.size + 1
                         template_ref  = template_refs[template_index-1] rescue nil
