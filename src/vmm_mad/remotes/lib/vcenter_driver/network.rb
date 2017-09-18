@@ -96,12 +96,12 @@ class Network
         one_tmp[:one_cluster_id]   = cluster_id
 
         one_tmp[:one] = to_one(network_import_name, network_name, network_ref, network_type,
-                             ccr_ref, vcenter_uuid, unmanaged, template_ref, dc_ref)
+                             ccr_ref, vcenter_uuid, unmanaged, template_ref, dc_ref, template_id)
         return one_tmp
     end
 
     def self.to_one(network_import_name, network_name, network_ref, network_type,
-                    ccr_ref, vcenter_uuid, unmanaged, template_ref, dc_ref)
+                    ccr_ref, vcenter_uuid, unmanaged, template_ref, dc_ref, template_id)
 
         template = "NAME=\"#{network_import_name}\"\n"\
                    "BRIDGE=\"#{network_name}\"\n"\
@@ -109,6 +109,11 @@ class Network
                    "VCENTER_PORTGROUP_TYPE=\"#{network_type}\"\n"\
                    "VCENTER_NET_REF=\"#{network_ref}\"\n"\
                    "VCENTER_INSTANCE_ID=\"#{vcenter_uuid}\"\n"
+
+        if unmanaged == "wild"
+            template += "VCENTER_FROM_WILD=\"#{template_id}\"\n"
+            template += "OPENNEBULA_MANAGED=\"NO\"\n"
+        end
 
         template += "VCENTER_CCR_REF=\"#{ccr_ref}\"\n" if !unmanaged
 
