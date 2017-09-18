@@ -361,11 +361,15 @@ class Template
 
             vc_nics.each do |nic|
                 # Check if the network already exists
-                network_found = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,
-                                                                "TEMPLATE/VCENTER_NET_REF",
-                                                                nic[:net_ref],
-                                                                vc_uuid,
-                                                                npool)
+                if wild
+                    network_found = false
+                else
+                    network_found = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,
+                                                                    "TEMPLATE/VCENTER_NET_REF",
+                                                                    nic[:net_ref],
+                                                                    vc_uuid,
+                                                                    npool)
+                end
 
                 #Network is already in OpenNebula
                 if network_found
