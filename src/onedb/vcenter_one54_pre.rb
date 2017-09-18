@@ -307,10 +307,8 @@ end
 def find_network(vnpool, net_ref, ccr_ref, template_ref, vcenter_uuid)
     element = vnpool.select do |e|
         e["TEMPLATE/VCENTER_NET_REF"]      == net_ref &&
-        e["TEMPLATE/VCENTER_TEMPLATE_REF"] == template_ref &&
-        e["TEMPLATE/VCENTER_CCR_REF"]      == ccr_ref &&
         e["TEMPLATE/VCENTER_INSTANCE_ID"]  == vcenter_uuid &&
-        e["TEMPLATE/OPENNEBULA_MANAGED"] == "NO"
+        e["TEMPLATE/OPENNEBULA_MANAGED"]   != "NO"
     end.first rescue nil
 
     return element
@@ -600,7 +598,13 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
             network_type   = device.backing.network.instance_of?(RbVmomi::VIM::DistributedVirtualPortgroup) ? "Distributed Port Group" : "Port Group"
 
             # Create network if doesn't exist
-            network = find_network(vnpool, network_ref, ccr_ref, template_ref, vcenter_uuid)
+            if vm_wild
+                network = false
+            else
+                network = find_network(vnpool, network_ref, ccr_ref, template_ref, vcenter_uuid)
+            end
+
+            mac_address = device.macAddress rescue nil
 
             if !network
                 one_net = ""
@@ -612,10 +616,24 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
                 one_net << "VCENTER_CCR_REF=\"#{ccr_ref}\"\n"
                 one_net << "VCENTER_INSTANCE_ID=\"#{vcenter_uuid}\"\n"
                 one_net << "VCENTER_TEMPLATE_REF=\"#{template_ref}\"\n"
-                one_net << "OPENNEBULA_MANAGED=\"NO\"\n"
+
+                if vm_wild
+                    ar_size = 1
+                    one_net << "OPENNEBULA_MANAGED=\"NO\"\n"
+                    one_net << "VCENTER_FROM_WILD=\"#{vm_id}\"\n"
+                else
+                    ar_size = 255
+                end
+
                 one_net << "AR=[\n"
+
+                if vm_wild && mac_address
+                    one_net << "MAC=\"#{mac_address}\",\n"
+                end
+
                 one_net << "TYPE=\"ETHER\",\n"
-                one_net << "SIZE=\"255\"\n"
+                one_net << "SIZE=\"#{ar_size}\"\n"
+
                 one_net << "]\n"
 
                 one_vn = OpenNebula::VirtualNetwork.new(OpenNebula::VirtualNetwork.build_xml, one_client)
@@ -635,7 +653,6 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
                 existing_macs << mac.text
             end
 
-            mac_address = device.macAddress
             if !existing_macs.include?(mac_address)
                 # Unmanaged nic
                 create_nic(xml_doc, network, mac_address, cluster_id, nic_index)
@@ -982,7 +999,6 @@ def template_unmanaged_discover(devices, ccr_name, ccr_ref,
                 one_net << "VCENTER_CCR_REF=\"#{ccr_ref}\"\n"
                 one_net << "VCENTER_INSTANCE_ID=\"#{vcenter_uuid}\"\n"
                 one_net << "VCENTER_TEMPLATE_REF=\"#{template_ref}\"\n"
-                one_net << "OPENNEBULA_MANAGED=\"NO\"\n"
                 one_net << "AR=[\n"
                 one_net << "TYPE=\"ETHER\",\n"
                 one_net << "SIZE=\"255\"\n"
