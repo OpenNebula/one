@@ -177,7 +177,7 @@ def create_disk(xml_doc, image_name, image_source, image_prefix, image_id,
     create_cdata_element(disk, xml_doc, "VCENTER_DS_REF", "#{ds["TEMPLATE/VCENTER_DS_REF"]}")
 end
 
-def create_nic(xml_doc, network, mac_address, cluster_id, nic_index)
+def create_nic(xml_doc, network, mac_address, cluster_id, nic_index, ar_id = nil)
     xml_template   = xml_doc.root.at_xpath("TEMPLATE")
     nic = xml_template.add_child(xml_doc.create_element("NIC"))
     create_cdata_element(nic, xml_doc, "BRIDGE", "#{network["BRIDGE"]}")
@@ -186,6 +186,7 @@ def create_nic(xml_doc, network, mac_address, cluster_id, nic_index)
     create_cdata_element(nic, xml_doc, "NETWORK", "#{network["NAME"]}")
     create_cdata_element(nic, xml_doc, "NETWORK_ID", "#{network["ID"]}")
     create_cdata_element(nic, xml_doc, "NIC_ID", "#{nic_index}")
+    create_cdata_element(nic, xml_doc, "AR_ID", "#{ar_id}") if ar_id
     create_cdata_element(nic, xml_doc, "OPENNEBULA_MANAGED", "NO")
     create_cdata_element(nic, xml_doc, "SECURITY_GROUPS", "0")
     create_cdata_element(nic, xml_doc, "VCENTER_CCR_REF", "#{network["TEMPLATE/VCENTER_CCR_REF"]}")
@@ -312,6 +313,30 @@ def find_network(vnpool, net_ref, ccr_ref, template_ref, vcenter_uuid)
     end.first rescue nil
 
     return element
+end
+
+def find_network_by_name(vnpool, name)
+    element = vnpool.select do |e|
+        e["NAME"] == name
+    end.first rescue nil
+
+    return element
+end
+
+def find_network_ar(vnet, mac)
+    mac_int = mac.delete(":").to_i(16)
+    vnet.retrieve_xmlelements("AR_POOL/AR").each do |ar|
+        ar_id = ar["AR_ID"]
+        mac_start = ar["MAC"]
+        size = ar["SIZE"].to_i
+
+        mac_start_int = mac_start.delete(":").to_i(16)
+        mac_end_int = mac_start_int + size
+
+        return ar_id if mac_int >= mac_start_int && mac_int < mac_end_int
+    end
+
+    false
 end
 
 def find_template(tpool, template_id, template_ref, ccr_ref, vcenter_uuid)
@@ -594,17 +619,18 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
         if !device.class.ancestors.index(RbVmomi::VIM::VirtualEthernetCard).nil?
             network_bridge = device.backing.network.name
             network_ref    = device.backing.network._ref
-            network_name   = "#{network_bridge} [#{vm_name}]"
+            network_name   = "#{network_bridge} [#{vm_name}(#{vm_id})]"
             network_type   = device.backing.network.instance_of?(RbVmomi::VIM::DistributedVirtualPortgroup) ? "Distributed Port Group" : "Port Group"
 
             # Create network if doesn't exist
             if vm_wild
-                network = false
+                network = find_network_by_name(vnpool, network_name)
             else
                 network = find_network(vnpool, network_ref, ccr_ref, template_ref, vcenter_uuid)
             end
 
             mac_address = device.macAddress rescue nil
+            ar_id = nil
 
             if !network
                 one_net = ""
@@ -646,6 +672,26 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
                 STDOUT.puts "--- Network #{one_vn["NAME"]} with ID #{one_vn["ID"]} has been created"
             else
                 STDOUT.puts "--- Network #{network["NAME"]} with ID #{network["ID"]} already exists"
+
+                ar_id = find_network_ar(network, mac_address)
+
+                if !ar_id
+                    one_ar = "AR = [\n"
+                    one_ar << %Q(  MAC="#{mac_address}",\n)
+                    one_ar << %Q(  TYPE="ETHER",\n")
+                    one_ar << %Q(  SIZE="1"\n)
+                    one_ar << "]\n"
+
+                    rc = network.add_ar(one_ar)
+
+                    if OpenNebula.is_error?(rc)
+                        STDERR.puts "ERROR! Could not create AR for VM #{vm_name}, VNET #{network["ID"]}, " <<
+                            "message: #{rc.message}"
+                    else
+                        network.info
+                        ar_id = find_network_ar(network, mac_address)
+                    end
+                end
             end
 
             existing_macs = []
@@ -655,7 +701,7 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
 
             if !existing_macs.include?(mac_address)
                 # Unmanaged nic
-                create_nic(xml_doc, network, mac_address, cluster_id, nic_index)
+                create_nic(xml_doc, network, mac_address, cluster_id, nic_index, ar_id)
 
                 #Update indexes
                 nic_index = nic_index + 1
@@ -2277,6 +2323,8 @@ def inspect_templates(vc_templates, vc_clusters, one_clusters, tpool, ipool, vnp
             STDOUT.puts "--- New attribute VCENTER_CCR_REF=#{ccr_ref} added\n"
             STDOUT.puts "--- New attribute VCENTER_RESOURCE_POOL=#{template_rp} added\n" if template_rp
             STDOUT.puts "--- New attribute USER_INPUTS/VCENTER_RESOURCE_POOL=#{template_user_rp} added\n" if template_user_rp
+
+            one_template.info
 
             # Prepare template for migration
             xml_doc           = Nokogiri::XML(one_template.to_xml, nil, "UTF-8"){|c| c.default_xml.noblanks}
