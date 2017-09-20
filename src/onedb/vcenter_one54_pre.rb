@@ -617,10 +617,30 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
 
         # If VirtualEthernetCard
         if !device.class.ancestors.index(RbVmomi::VIM::VirtualEthernetCard).nil?
-            network_bridge = device.backing.network.name
-            network_ref    = device.backing.network._ref
+
+
+             # Let's find out if it is a standard or distributed network
+             # If distributed, it needs to be instantitaed from the ref
+             if device.backing.is_a? RbVmomi::VIM::VirtualEthernetCardDistributedVirtualPortBackingInfo
+                 if device.backing.port.portKey.match(/^[a-z]+-\d+$/)
+                     dist_ref = device.backing.port.portKey
+                 elsif device.backing.port.portgroupKey.match(/^[a-z]+-\d+$/)
+                     dist_ref = device.backing.port.portgroupKey
+                 else
+                     raise "Cannot get hold of Network for device #{device}"
+                 end
+                 dist_network   = RbVmomi::VIM::Network.new(vi_client.vim, dist_ref)
+
+                 network_ref    = dist_network._ref
+                 network_bridge = dist_network.name
+                 network_type   = "Distributed Port Group"
+             else
+                 network_bridge = device.backing.network.name
+                 network_ref    = device.backing.network._ref
+                 network_type   = "Port Group"
+             end
+
             network_name   = "#{network_bridge} [#{vm_name}(#{vm_id})]"
-            network_type   = device.backing.network.instance_of?(RbVmomi::VIM::DistributedVirtualPortgroup) ? "Distributed Port Group" : "Port Group"
 
             # Create network if doesn't exist
             if vm_wild
@@ -924,7 +944,7 @@ def template_unmanaged_discover(devices, ccr_name, ccr_ref,
                                 dc_name, dc_ref, ipool, vnpool, dspool, hpool,
                                 one_client,
                                 template_ref, template_name, template_id,
-                                one_clusters, vcenter_ids)
+                                one_clusters, vcenter_ids, vi_client)
     unmanaged = {}
     unmanaged[:images] = []
     unmanaged[:networks] = []
@@ -1028,12 +1048,31 @@ def template_unmanaged_discover(devices, ccr_name, ccr_ref,
 
         # If VirtualEthernetCard
         if !device.class.ancestors.index(RbVmomi::VIM::VirtualEthernetCard).nil?
-            network_bridge = device.backing.network.name
-            network_ref    = device.backing.network._ref
-            network_name   = "#{network_bridge} [#{template_name} - Template #{template_id}]"
-            network_type   = device.backing.network.instance_of?(RbVmomi::VIM::DistributedVirtualPortgroup) ? "Distributed Port Group" : "Port Group"
 
-            network = find_network(vnpool, network_ref, ccr_ref, template_ref, vcenter_uuid)
+
+             # Let's find out if it is a standard or distributed network
+             # If distributed, it needs to be instantitaed from the ref
+             if device.backing.is_a? RbVmomi::VIM::VirtualEthernetCardDistributedVirtualPortBackingInfo
+                 if device.backing.port.portKey.match(/^[a-z]+-\d+$/)
+                     dist_ref = device.backing.port.portKey
+                 elsif device.backing.port.portgroupKey.match(/^[a-z]+-\d+$/)
+                     dist_ref = device.backing.port.portgroupKey
+                 else
+                     raise "Cannot get hold of Network for device #{device}"
+                 end
+                 dist_network   = RbVmomi::VIM::Network.new(vi_client.vim, dist_ref)
+
+                 network_ref    = dist_network._ref
+                 network_bridge = dist_network.name
+                 network_type   = "Distributed Port Group"
+             else
+                 network_bridge = device.backing.network.name
+                 network_ref    = device.backing.network._ref
+                 network_type   = "Port Group"
+             end
+
+            network_name   = "#{network_bridge} [#{template_name} - Template #{template_id}]"
+            network        = find_network(vnpool, network_ref, ccr_ref, template_ref, vcenter_uuid)
 
             if !network
                 one_net = ""
@@ -2361,7 +2400,8 @@ def inspect_templates(vc_templates, vc_clusters, one_clusters, tpool, ipool, vnp
                                                     vc_template["name"],
                                                     template_id,
                                                     one_clusters,
-                                                    vcenter_ids)
+                                                    vcenter_ids,
+                                                    vi_client)
 
             if !unmanaged[:images].empty?
                 STDOUT.puts "--- Adding DISK elements for discovered disks to new XML"
