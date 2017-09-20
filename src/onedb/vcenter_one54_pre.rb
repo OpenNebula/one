@@ -944,7 +944,7 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
     return extraconfig
 end
 
-def template_unmanaged_discover(vi_client, devices, ccr_name, ccr_ref,
+def template_unmanaged_discover(devices, ccr_name, ccr_ref,
                                 vcenter_name, vcenter_uuid,
                                 vcenter_user, vcenter_pass, vcenter_host,
                                 dc_name, dc_ref, ipool, vnpool, dspool, hpool,
@@ -2404,8 +2404,7 @@ def inspect_templates(vc_templates, vc_clusters, one_clusters, tpool, ipool, vnp
             dc_ref  = dc._ref
             vcenter_name = vi_client.host
             STDOUT.puts "--- Discovering disks and network interfaces inside the template (please be patient)"
-            unmanaged = template_unmanaged_discover(vi_client,
-                                                    vc_template["config.hardware.device"],
+            unmanaged = template_unmanaged_discover(vc_template["config.hardware.device"],
                                                     template_cluster,
                                                     ccr_ref,
                                                     vcenter_name,
@@ -2866,7 +2865,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     main do
         begin
-            msg = "  vCenter pre-migrator tool for OpenNebula 5.4 - Version: 1.1.2"
+            msg = "  vCenter pre-migrator tool for OpenNebula 5.4 - Version: 1.1.3"
             logo_banner(msg)
 
             # Initialize opennebula client
