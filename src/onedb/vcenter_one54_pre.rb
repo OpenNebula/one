@@ -87,8 +87,10 @@ class OpenNebula::XMLElement
     end
 end
 
-def get_image_size(ds, img_str)
+def get_image_size(ds, img_str_escaped)
     ds_name = ds.name
+
+    img_str = img_str_escaped.gsub("%20", " ")
 
     img_path = File.dirname img_str
     img_name = File.basename img_str
@@ -460,8 +462,10 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
             file_name     = File.basename(image_path).gsub(/\.vmdk$/,"")
             image_name    = "#{file_name} - #{ds_name}"
 
+            image_path_escaped = image_path.gsub(" ", "%20")
+
             #Check if the image already exists
-            one_image = find_image(ipool, ds_name, image_path)
+            one_image = find_image(ipool, ds_name, image_path_escaped)
 
             if !one_image
                 #Check if the IMAGE DS is there
@@ -479,13 +483,16 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
                 if vm_wild || !template_xml
                     #Create images for unmanaged disks
 
+                    image_size = get_image_size(RbVmomi::VIM::Datastore.new(vi_client.vim, ds_ref), image_path_escaped)
+
                     template = ""
                     template << "NAME=\"#{image_name}\"\n"
-                    template << "PATH=\"vcenter://#{image_path}\"\n"
+                    template << "SOURCE=\"#{image_path_escaped}\"\n"
                     template << "TYPE=\"#{image_type}\"\n"
                     template << "PERSISTENT=\"NO\"\n"
                     template << "VCENTER_IMPORTED=\"YES\"\n"
                     template << "DEV_PREFIX=\"#{image_prefix}\"\n"
+                    template << "SIZE=\"#{image_size}\"\n"
 
                     one_image = OpenNebula::Image.new(OpenNebula::Image.build_xml, one_client)
                     rc = one_image.allocate(template, ds_id)
@@ -918,7 +925,7 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
     return extraconfig
 end
 
-def template_unmanaged_discover(devices, ccr_name, ccr_ref,
+def template_unmanaged_discover(vi_client, devices, ccr_name, ccr_ref,
                                 vcenter_name, vcenter_uuid,
                                 vcenter_user, vcenter_pass, vcenter_host,
                                 dc_name, dc_ref, ipool, vnpool, dspool, hpool,
@@ -987,8 +994,10 @@ def template_unmanaged_discover(devices, ccr_name, ccr_ref,
             file_name     = File.basename(image_path).gsub(/\.vmdk$/,"")
             image_name    = "#{file_name} - #{ds_name} [Template #{template_id}]"
 
+            image_path_escaped = image_path.gsub(" ", "%20")
+
             #Check if the image has already been imported
-            image = find_image(ipool, ds_name, image_path)
+            image = find_image(ipool, ds_name, image_path_escaped)
 
             #Check if the IMAGE DS is there
             ds = find_datastore(dspool, ds_ref, dc_ref, vcenter_uuid, "IMAGE_DS")
@@ -1001,14 +1010,18 @@ def template_unmanaged_discover(devices, ccr_name, ccr_ref,
             end
 
             if !image
+
+                image_size = get_image_size(RbVmomi::VIM::Datastore.new(vi_client.vim, ds_ref), image_path_escaped)
+
                 #Create image
                 one_image = ""
                 one_image << "NAME=\"#{image_name}\"\n"
-                one_image << "PATH=\"vcenter://#{image_path}\"\n"
+                one_image << "SOURCE=\"#{image_path_escaped}\"\n"
                 one_image << "TYPE=\"#{image_type}\"\n"
                 one_image << "PERSISTENT=\"NO\"\n"
                 one_image << "VCENTER_IMPORTED=\"YES\"\n"
                 one_image << "DEV_PREFIX=\"#{image_prefix}\"\n"
+                one_image << "SIZE=\"#{image_size}\"\n"
 
                 one_i = OpenNebula::Image.new(OpenNebula::Image.build_xml, one_client)
                 rc = one_i.allocate(one_image, ds["ID"].to_i)
@@ -2342,7 +2355,8 @@ def inspect_templates(vc_templates, vc_clusters, one_clusters, tpool, ipool, vnp
             dc_ref  = dc._ref
             vcenter_name = vi_client.host
             STDOUT.puts "--- Discovering disks and network interfaces inside the template (please be patient)"
-            unmanaged = template_unmanaged_discover(vc_template["config.hardware.device"],
+            unmanaged = template_unmanaged_discover(vi_client,
+                                                    vc_template["config.hardware.device"],
                                                     template_cluster,
                                                     ccr_ref,
                                                     vcenter_name,
