@@ -130,13 +130,12 @@ def get_image_size(ds, img_str_escaped)
 
         # Try to get file size
         size = search_task.info.result[0].file[0].fileSize / 1024 / 1024 rescue nil if !size
-
-        raise "Could not get file size or capacity" if size.nil?
-
-        size
-    rescue
-        raise "Could not find file #{img_path}."
+    rescue Exception => e
+        raise "Could not find file #{img_path}.\n{e.message}"
     end
+
+    raise "Could not get file size or capacity" if size.nil?
+    size
 end
 
 def create_cdata_element(item, xml_doc, element_name, element_value)
@@ -2035,6 +2034,11 @@ def prepare_image_xml_templates(image_ids, hpool, one_client)
             rc   = one_ds.info
             raise rc.message if OpenNebula.is_error?(rc)
             image_source = one_image["SOURCE"]
+
+            if image_source.nil? || image_source.empty?
+                next
+            end
+
             ds_ref  = one_ds["TEMPLATE/VCENTER_DS_REF"]
 
             # Get Datastore's cluster name
@@ -2049,7 +2053,13 @@ def prepare_image_xml_templates(image_ids, hpool, one_client)
             host_id = hosts.first["ID"]
 
             vi_client = VCenterDriver::VIClient.new(host_id)
-            disk_size = get_image_size(RbVmomi::VIM::Datastore.new(vi_client.vim, ds_ref), image_source)
+            disk_size = get_image_size(RbVmomi::VIM::Datastore.new(vi_client.vim, ds_ref), image_source) rescue nil
+
+            if disk_size.nil?
+                STDOUT.puts "Skip image #{one_image['ID']}. Not found in vCenter"
+                next
+            end
+
             xml_size  = xml_doc.root.at_xpath("SIZE")
             xml_size.content = disk_size
 
