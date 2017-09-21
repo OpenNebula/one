@@ -388,14 +388,17 @@ private
         # if we find the same LOCATION as @region name
         # means that we have the final location
         all_az_elements.each { |element|
+            type = element.elements["TYPE"].text.downcase
+            location = element.elements["LOCATION"].text.downcase rescue nil
 
-            type = element.elements["TYPE"].text
-            next if !type.downcase.eql? "azure"
+            next if type  != "azure"
 
-            az = element
-
-            cloud_host = element.elements["LOCATION"]
-            break if cloud_host and cloud_host.text.upcase.eql? @region_name.upcase
+            if location.nil?
+                az = element
+            elsif location && location == @region_name.downcase
+                az = element
+                break
+            end
         }
 
         # If we don't find an Azure location raise an error
