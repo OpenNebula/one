@@ -710,6 +710,7 @@ define(function(require) {
 
   function _setup() {
     $(document).ready(function(){
+      var that = this;
       var tab_name = 'provision-tab';
       var tab = $("#"+tab_name);
 
@@ -730,8 +731,6 @@ define(function(require) {
         //
         // Dashboard
         //
-
-
         $(".configuration").on("click", function(){
           $('li', '.provision-header').removeClass("active");
         })
@@ -954,6 +953,7 @@ define(function(require) {
 
             $("#provision_create_vm .provision_vmgroup").show();
             $("#provision_create_vm .provision_ds").show();
+
             OpenNebula.Template.show({
               data : {
                 id: template_id,
@@ -965,6 +965,7 @@ define(function(require) {
                   $(".provision_capacity_selector", create_vm_context),
                   template_json.VMTEMPLATE);
 
+                that.original_disks = jQuery.extend(true, {}, template_json.VMTEMPLATE.TEMPLATE.DISK);
                 var disksContext = $(".provision_disk_selector", create_vm_context);
                 disksContext.data("template_json", template_json);
 
@@ -1059,7 +1060,7 @@ define(function(require) {
           }
 
           return false;
-        })
+        });
 
         $("#provision_create_vm").submit(function(){
           var context = $(this);
@@ -1072,7 +1073,21 @@ define(function(require) {
 
           var vm_name = $("#vm_name", context).val();
           var nics = NicsSection.retrieve(context);
+
+          var odisks = that.original_disks;
           var disks = DisksResize.retrieve($(".provision_disk_selector", context));
+          $.each(disks, function(dkey, dvalue){
+            $.each(odisks, function(okey, ovalue){
+              if (dvalue.DISK_ID == ovalue.DISK_ID && dvalue.IMAGE_ID){
+                if (dvalue.SIZE != ovalue.SIZE) {
+                  var disk = { IMAGE_ID: dvalue.IMAGE_ID, SIZE: dvalue.SIZE };
+                } else {
+                  var disk = { IMAGE_ID: dvalue.IMAGE_ID };
+                }
+                disks[dkey] = disk;
+              }
+            });
+          });
 
           var extra_info = {
             'vm_name' : vm_name,
