@@ -302,13 +302,12 @@ define(function(require) {
         $.each(selectedItems, function(index, resourceId) {
           labelsStr = _getLabel(tabName, dataTable, labelsColumn, resourceId);
           if (labelsStr != '') {
-            labelsArray = labelsStr.split(',')
+            labelsArray = labelsStr.split(',');
           } else {
-            labelsArray = []
+            labelsArray = [];
           }
 
-          labelIndex = $.inArray(labelName, labelsArray);
-          if (labelIndex == -1) {
+          if (!existInArrInsensitive(labelName, labelsArray)) {
             labelsArray.push(labelName);
             _updateResouceLabels(tabName, resourceId, labelsArray);
           }
@@ -317,6 +316,17 @@ define(function(require) {
         ev.preventDefault();
       }
     });
+  }
+
+  function existInArrInsensitive(val, arr){
+    if (arr.length){
+      for (var i = 0; arr.length > i; i++){
+        if (val.toLowerCase() == arr[i].toLowerCase()){
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   function _updateResouceLabels(tabName, resourceId, labelsArray) {
