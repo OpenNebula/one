@@ -24,6 +24,7 @@ define(function(require) {
   var QuotaLimits = require('./quota-limits');
   var QuotaDefaults = require('utils/quotas/quota-defaults');
   var TemplateUtils = require('utils/template-utils');
+  var OpenNebula = require('opennebula');
 
   // Constants
   var QUOTA_LIMIT_DEFAULT   = QuotaLimits.QUOTA_LIMIT_DEFAULT;
@@ -926,6 +927,106 @@ define(function(require) {
    * @param  {string} resource_name User or Group
    */
   function _setupQuotasPanel(resource_info, parent_container, edit_enabled, resource_name){
+    /*Check effective group quotas*/
+    if (resource_name == "User"){
+      this.resource_info = resource_info;
+      this.parent_container = parent_container;
+      var that = this;
+      OpenNebula.Group.show({
+        data: {
+            id: resource_info.GID
+        }, success: function (request, group_json) {
+            if (group_json.GROUP.VM_QUOTA.VM){
+              if (group_json.GROUP.VM_QUOTA.VM.VMS != "-1" && group_json.GROUP.VM_QUOTA.VM.VMS != "-2" && parseInt(group_json.GROUP.VM_QUOTA.VM.VMS) < parseInt(that.resource_info.VM_QUOTA.VM.VMS)){
+                $("div[quota_name=VM_VMS] .progress-text", that.parent_container).text(that.resource_info.VM_QUOTA.VM.VMS_USED + " / " + group_json.GROUP.VM_QUOTA.VM.VMS);
+                $("div[quota_name=VM_VMS] input", that.parent_container).val(group_json.GROUP.VM_QUOTA.VM.VMS);
+              }
+              if (group_json.GROUP.VM_QUOTA.VM.CPU != "-1" && group_json.GROUP.VM_QUOTA.VM.CPU != "-2" && parseInt(group_json.GROUP.VM_QUOTA.VM.CPU) < parseInt(that.resource_info.VM_QUOTA.VM.CPU)){
+                $("div[quota_name=VM_CPU] .progress-text", that.parent_container).text(that.resource_info.VM_QUOTA.VM.CPU_USED + " / " + group_json.GROUP.VM_QUOTA.VM.CPU);
+                $("div[quota_name=VM_CPU] input", that.parent_container).val(group_json.GROUP.VM_QUOTA.VM.CPU);
+              }
+              if (group_json.GROUP.VM_QUOTA.VM.MEMORY != "-1" && group_json.GROUP.VM_QUOTA.VM.MEMORY != "-2" && parseInt(group_json.GROUP.VM_QUOTA.VM.MEMORY) < parseInt(that.resource_info.VM_QUOTA.VM.MEMORY)){
+                $("div[quota_name=VM_MEMORY] .progress-text", that.parent_container).text(Humanize.size(that.resource_info.VM_QUOTA.VM.MEMORY_USED * 1024) + " / " + Humanize.size(group_json.GROUP.VM_QUOTA.VM.MEMORY * 1024));
+                $("div[quota_name=VM_MEMORY] input", that.parent_container).val(group_json.GROUP.VM_QUOTA.VM.MEMORY);
+              }
+              if (group_json.GROUP.VM_QUOTA.VM.SYSTEM_DISK_SIZE != "-1" && group_json.GROUP.VM_QUOTA.VM.SYSTEM_DISK_SIZE != "-2" && parseInt(group_json.GROUP.VM_QUOTA.VM.SYSTEM_DISK_SIZE) < parseInt(that.resource_info.VM_QUOTA.VM.SYSTEM_DISK_SIZE)){
+                $("div[quota_name=VM_SYSTEM_DISK_SIZE] .progress-text", that.parent_container).text(Humanize.size(that.resource_info.VM_QUOTA.VM.SYSTEM_DISK_SIZE_USED * 1024) + " / " + Humanize.size(group_json.GROUP.VM_QUOTA.VM.SYSTEM_DISK_SIZE * 1024));
+                $("div[quota_name=VM_SYSTEM_DISK_SIZE] input", that.parent_container).val(group_json.GROUP.VM_QUOTA.VM.SYSTEM_DISK_SIZE);
+              }
+            }
+
+            /*Check Images*/
+            if(that.resource_info.IMAGE_QUOTA.IMAGE){
+              var imageQuota = that.resource_info.IMAGE_QUOTA.IMAGE;
+              if (!Array.isArray(imageQuota)){
+                imageQuota = [that.resource_info.IMAGE_QUOTA.IMAGE];
+              }
+              var imageGroupQuota = group_json.GROUP.IMAGE_QUOTA.IMAGE;
+              if (!Array.isArray(imageGroupQuota)){
+                imageGroupQuota = [group_json.GROUP.IMAGE_QUOTA.IMAGE];
+              }
+              $.each(imageQuota, function(key, user_value){
+                $.each(imageGroupQuota, function(key, group_value){
+                  if (user_value.ID == group_value.ID && group_value.RVMS != "-1" && group_value.RVMS != "-2" && parseInt(group_value.RVMS) < parseInt(user_value.RVMS)){
+                    $("tr[quota_id=" + user_value.ID + "] div[quota_name=IMAGE_RVMS] .progress-text", that.parent_container).text(user_value.RVMS_USED + " / " + group_value.RVMS);
+                    $("tr[quota_id=" + user_value.ID + "] div[quota_name=IMAGE_RVMS] input", that.parent_container).val(group_value.RVMS);
+                  }
+                });
+              });
+            }
+
+            /*Check VNets*/
+            if(that.resource_info.NETWORK_QUOTA.NETWORK){
+              var vnetQuota = that.resource_info.NETWORK_QUOTA.NETWORK;
+              if (!Array.isArray(vnetQuota)){
+                vnetQuota = [that.resource_info.NETWORK_QUOTA.NETWORK];
+              }
+              var vnetGroupQuota = group_json.GROUP.NETWORK_QUOTA.NETWORK;
+              if (!Array.isArray(vnetGroupQuota)){
+                vnetGroupQuota = [group_json.GROUP.NETWORK_QUOTA.NETWORK];
+              }
+              $.each(vnetQuota, function(key, user_value){
+                $.each(vnetGroupQuota, function(key, group_value){
+                  if (user_value.ID == group_value.ID && group_value.LEASES != "-1" && group_value.LEASES != "-2" && parseInt(group_value.LEASES) < parseInt(user_value.LEASES)){
+                    $("tr[quota_id=" + user_value.ID + "] div[quota_name=NETWORK_LEASES] .progress-text", that.parent_container).text(user_value.LEASES_USED + " / " + group_value.LEASES);
+                    $("tr[quota_id=" + user_value.ID + "] div[quota_name=NETWORK_LEASES] input", that.parent_container).val(group_value.LEASES);
+                  }
+                });
+              });
+            }
+
+            /*Check Datastores*/
+            if(that.resource_info.DATASTORE_QUOTA.DATASTORE){
+              var dsQuota = that.resource_info.DATASTORE_QUOTA.DATASTORE;
+              if (!Array.isArray(dsQuota)){
+                dsQuota = [that.resource_info.DATASTORE_QUOTA.DATASTORE];
+              }
+              var dsGroupQuota = group_json.GROUP.DATASTORE_QUOTA.DATASTORE;
+              if (!Array.isArray(dsGroupQuota)){
+                dsGroupQuota = [group_json.GROUP.DATASTORE_QUOTA.DATASTORE];
+              }
+              $.each(dsQuota, function(key, user_value){
+                $.each(dsGroupQuota, function(key, group_value){
+                  if (user_value.ID == group_value.ID){
+                    if (group_value.IMAGES != "-1" && group_value.IMAGES != "-2" && parseInt(group_value.IMAGES) < parseInt(user_value.IMAGES)){
+                      $("tr[quota_id=" + user_value.ID + "] div[quota_name=DS_IMAGES] .progress-text", that.parent_container).text(user_value.IMAGES_USED + " / " + group_value.IMAGES);
+                      $("tr[quota_id=" + user_value.ID + "] div[quota_name=DS_IMAGES] input", that.parent_container).val(group_value.IMAGES);
+                    }
+                    if (group_value.SIZE != "-1" && group_value.SIZE != "-2" && parseInt(group_value.SIZE) < parseInt(user_value.SIZE)){
+                      $("tr[quota_id=" + user_value.ID + "] div[quota_name=DS_SIZE] .progress-text", that.parent_container).text(Humanize.size(user_value.SIZE_USED * 1024) + " / " + Humanize.size(group_value.SIZE * 1024));
+                      $("tr[quota_id=" + user_value.ID + "] div[quota_name=DS_SIZE] input", that.parent_container).val(group_value.SIZE);
+                    }
+                  }
+                });
+              });
+            }
+
+        }, error: function () {
+          // Do nothing
+        }
+      });
+    }
+
     if (edit_enabled) {
       parent_container.off("click", "#edit_quotas_button");
       parent_container.on("click",  "#edit_quotas_button", function() {
