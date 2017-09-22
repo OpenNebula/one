@@ -386,9 +386,9 @@ define(function(require) {
       $('#admin_view_default', context).val("").change();
     }
 
-    if(opennebula_template.DEFAULT_IMAGE_PERSISTENT_NEW == "YES")
+    if(opennebula_template && opennebula_template.DEFAULT_IMAGE_PERSISTENT_NEW == "YES")
       $('#default_image_persistent_new', context).prop('checked', true);
-    if(opennebula_template.DEFAULT_IMAGE_PERSISTENT == "YES")
+    if(opennebula_template && opennebula_template.DEFAULT_IMAGE_PERSISTENT == "YES")
       $('#default_image_persistent', context).prop('checked', true);
   }
 
