@@ -106,6 +106,7 @@ define(function(require) {
     this.groupsTableEdit.initialize();
     this.groupsTableEdit.refreshResourceTableSelect();
     this.groupsTableEdit.selectResourceTableSelect({ids: this.groups});
+    var that = this;
 
     $("#cancel_update_group").hide(); 
     var that = this;
@@ -116,6 +117,7 @@ define(function(require) {
         resourceName: 'Group',
         callback : function(response){
           $("#choose_primary_grp").html(response[0].outerHTML);
+          $(".resource_list_select option[elem_id=" + that.element.GID + "]").prop("selected", true);
         }
       });
       $(".show_labels").hide();
@@ -133,6 +135,11 @@ define(function(require) {
     $('#Form_change_second_grp').submit(function() {
       var selectPrimaryGrp = $("#choose_primary_grp  .resource_list_select").val();
       var selectedGroupsList = that.groupsTableEdit.retrieveResourceTableSelect();
+
+      if (selectPrimaryGrp != -1 && selectPrimaryGrp != that.element.GID) { 
+        Sunstone.runAction("User.chgrp", [that.element.ID], selectPrimaryGrp);
+      }
+
       $.each(selectedGroupsList, function(index, groupId) {
         if ($.inArray(groupId, that.groups) === -1) {
           Sunstone.runAction('User.addgroup', [that.element.ID], groupId);
@@ -145,9 +152,6 @@ define(function(require) {
         }
       });
 
-      if (selectPrimaryGrp != -1 && selectPrimaryGrp != that.element.GID) { 
-        Sunstone.runAction("User.chgrp", [that.element.ID], selectPrimaryGrp);
-      }
       $(".select_labels").hide();
       $(".show_labels").show();
       setTimeout(function() {
