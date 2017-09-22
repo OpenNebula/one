@@ -1075,6 +1075,9 @@ define(function(require) {
           var nics = NicsSection.retrieve(context);
 
           var odisks = that.original_disks;
+          if (!Array.isArray(odisks)){
+            odisks = [odisks];
+          }
           var disks = DisksResize.retrieve($(".provision_disk_selector", context));
           $.each(disks, function(dkey, dvalue){
             $.each(odisks, function(okey, ovalue){
