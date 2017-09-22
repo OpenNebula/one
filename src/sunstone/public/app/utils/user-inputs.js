@@ -685,15 +685,16 @@ define(function(require) {
         input = '<br><input type="password" value="'+value+'" '+wizard_field+' '+required+'/>';
         break;
       case "boolean":
+        var id = UniqueId.id();
         if(value == "YES"){
-          input = '<br>' + Locale.tr("YES ") + '<input style="margin-right: 20px" checked type="radio" name="bool_' + attr.name + '" value="YES"' + wizard_field + ' ' + required + '/>';
-          input += Locale.tr("NO ") + '<input type="radio" name="bool_' + attr.name + '" value="NO"' + wizard_field + ' ' + required + '/>';
+          input = '<br>' + Locale.tr("YES ") + '<input style="margin-right: 20px" checked type="radio" name="bool_' +id + '" value="YES"' + wizard_field + ' ' + required + '/>';
+          input += Locale.tr("NO ") + '<input type="radio" name="bool_' + id + '" value="NO"' + wizard_field + ' ' + required + '/>';
         } else if(value == "NO"){
-          input = '<br>' + Locale.tr("YES ") + '<input style="margin-right: 20px" type="radio" name="bool_' + attr.name + '" value="YES"' + wizard_field + ' ' + required + '/>';
-          input += Locale.tr("NO ") + '<input checked type="radio" name="bool_' + attr.name + '" value="NO"' + wizard_field + ' ' + required + '/>'
+          input = '<br>' + Locale.tr("YES ") + '<input style="margin-right: 20px" type="radio" name="bool_' + id + '" value="YES"' + wizard_field + ' ' + required + '/>';
+          input += Locale.tr("NO ") + '<input checked type="radio" name="bool_' + id + '" value="NO"' + wizard_field + ' ' + required + '/>'
         } else {
-          input = '<br>' + Locale.tr("YES ") + '<input style="margin-right: 20px" type="radio" name="bool_' + attr.name + '" value="YES"' + wizard_field + ' ' + required + '/>';
-          input += Locale.tr("NO ") + '<input type="radio" name="bool_' + attr.name + '" value="NO"' + wizard_field + ' ' + required + '/>';
+          input = '<br>' + Locale.tr("YES ") + '<input style="margin-right: 20px" type="radio" name="bool_' + id + '" value="YES"' + wizard_field + ' ' + required + '/>';
+          input += Locale.tr("NO ") + '<input type="radio" name="bool_' + id + '" value="NO"' + wizard_field + ' ' + required + '/>';
         }
         break;
       case "number":
