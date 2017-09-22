@@ -36,7 +36,7 @@ drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
 
 target_ds_ref    = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_REF"]
-ds_image_dir     = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_IMAGE_DIR"] || "one"
+ds_image_dir     = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_IMAGE_DIR"].match(%r{^/*(.*?)/*$})[1] || "one"
 src_path_escaped = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/PATH"]
 src_img_id       = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/CLONING_ID"]
 
