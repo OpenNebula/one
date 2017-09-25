@@ -191,7 +191,7 @@ define(function(require) {
       var customization = WizardFields.retrieveInput($('input.vcenter_customizations_value', context));
 
       if (customization) {
-        templateJSON["USER_TEMPLATE"] = {
+        templateJSON = {
           VCENTER_CUSTOMIZATION_SPEC : customization
         };
       }
