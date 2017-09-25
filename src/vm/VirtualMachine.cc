@@ -737,8 +737,8 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     string prefix;
 
     string value;
-    int    ivalue;
-    float  fvalue;
+    long int ivalue;
+    float fvalue;
     set<int> cluster_ids;
     vector<Template *> quotas;
 
