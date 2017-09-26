@@ -109,6 +109,7 @@ void DispatchManager::init_managers()
 
     hpool       = nd.get_hpool();
     vmpool      = nd.get_vmpool();
+    clpool      = nd.get_clpool();
     vrouterpool = nd.get_vrouterpool();
 }
 
