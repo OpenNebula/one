@@ -432,6 +432,10 @@ define(function(require) {
         var name = group_by_name(history);
         series[group_by].name = name;
         series[group_by].label = group_by_prefix+" "+group_by+" "+name;
+      } else {
+        var name = group_by_name(history);
+        series[group_by].name = name;
+        series[group_by].label = group_by_prefix+" "+group_by+" "+name;
       }
 
       var serie = series[group_by].data_points;
