@@ -2661,14 +2661,10 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
         }
 
         img_att_quota = RequestAttributes(img_perms.uid, img_perms.gid, att);
-    }
-
-    if ( vm_ds_quota )
+    } 
+    if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
     {
-        if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
-        {
-            return;
-        }
+        return;
     }
 
     vm_att_quota = RequestAttributes(vm_perms.uid, vm_perms.gid, att);
