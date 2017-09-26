@@ -214,25 +214,44 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
     Template* tmpl;
     vector<Template *> ds_quotas;
 
+    int vmid;
     int uid;
     int gid;
+    string deploy_id;
     int vrid = -1;
-    int vmid;
+    unsigned int port;
 
     vm->release_network_leases();
+
     vm->release_vmgroup();
+
     vm->release_disk_images(ds_quotas);
+
+    vm->set_state(VirtualMachine::DONE);
+
+    vm->set_state(VirtualMachine::LCM_INIT);
 
     vm->set_exit_time(time(0));
 
-    vm->set_state(VirtualMachine::LCM_INIT);
-    vm->set_state(VirtualMachine::DONE);
+    VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
+
+    if ( graphics != 0 && (graphics->vector_value("PORT", port) == 0))
+    {
+        graphics->remove("PORT");
+        clpool->release_vnc_port(vm->get_cid(), port);
+    }
+
     vmpool->update(vm);
 
     vmid = vm->get_oid();
     uid  = vm->get_uid();
     gid  = vm->get_gid();
     tmpl = vm->clone_template();
+
+    if (vm->is_imported())
+    {
+        deploy_id = vm->get_deploy_id();
+    }
 
     if (vm->is_vrouter())
     {
@@ -248,6 +267,11 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
     if ( !ds_quotas.empty() )
     {
         Quotas::ds_del(uid, gid, ds_quotas);
+    }
+
+    if (!deploy_id.empty())
+    {
+        vmpool->drop_index(deploy_id);
     }
 
     if (vrid != -1)

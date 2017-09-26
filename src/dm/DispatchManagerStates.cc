@@ -202,14 +202,6 @@ void  DispatchManager::poweroff_success_action(int vid)
 void  DispatchManager::done_action(int vid)
 {
     VirtualMachine * vm;
-    Template *       tmpl;
-
-    vector<Template *> ds_quotas;
-
-    int uid;
-    int gid;
-    string deploy_id;
-    int vrid = -1;
 
     VirtualMachine::LcmState lcm_state;
     VirtualMachine::VmState  dm_state;
@@ -228,63 +220,7 @@ void  DispatchManager::done_action(int vid)
           (lcm_state == VirtualMachine::EPILOG ||
            lcm_state == VirtualMachine::CLEANUP_DELETE))
     {
-        vm->release_network_leases();
-
-        vm->release_vmgroup();
-
-        vm->release_disk_images(ds_quotas);
-
-        vm->set_state(VirtualMachine::DONE);
-
-        vm->set_state(VirtualMachine::LCM_INIT);
-
-        vm->set_exit_time(time(0));
-
-        vmpool->update(vm);
-
-        uid  = vm->get_uid();
-        gid  = vm->get_gid();
-        tmpl = vm->clone_template();
-
-        if (vm->is_imported())
-        {
-            deploy_id = vm->get_deploy_id();
-        }
-
-        if (vm->is_vrouter())
-        {
-            vrid = vm->get_vrouter_id();
-        }
-
-        vm->unlock();
-
-        Quotas::vm_del(uid, gid, tmpl);
-
-        delete tmpl;
-
-        if ( !ds_quotas.empty() )
-        {
-            Quotas::ds_del(uid, gid, ds_quotas);
-        }
-
-        if (!deploy_id.empty())
-        {
-            vmpool->drop_index(deploy_id);
-        }
-
-        if (vrid != -1)
-        {
-            VirtualRouter* vr = vrouterpool->get(vrid, true);
-
-            if (vr != 0)
-            {
-                vr->del_vmid(vid);
-
-                vrouterpool->update(vr);
-
-                vr->unlock();
-            }
-        }
+        free_vm_resources(vm);
     }
     else
     {
