@@ -53,15 +53,35 @@ class VIHelper
         end
     end
 
+    def self.create_ref_hash(attribute, pool)
+        hash = {}
+
+        pool.each_element(Proc.new do |e|
+            ref = e[attribute]
+            hash[ref] = {
+                opennebula_managed: e["TEMPLATE/OPENNEBULA_MANAGED"],
+                tvcenter_instance_id: e["TEMPLATE/VCENTER_INSTANCE_ID"],
+                uvcenter_instance_id: e["USER_TEMPLATE/VCENTER_INSTANCE_ID"]
+            }
+        end)
+
+        hash
+    end
+
     def self.find_by_ref(the_class, attribute, ref, vcenter_uuid, pool = nil)
         pool = one_pool(the_class, false) if pool.nil?
-        element = pool.find{|e|
-            e["#{attribute}"] == ref &&
-            (!e["TEMPLATE/OPENNEBULA_MANAGED"] || e["TEMPLATE/OPENNEBULA_MANAGED"] != "NO") &&
-            (e["TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid ||
-             e["USER_TEMPLATE/VCENTER_INSTANCE_ID"] == vcenter_uuid)}
+        @ref_hash ||= {}
+        @ref_hash[attribute] ||= create_ref_hash(attribute, pool)
 
-        return element
+        e = @ref_hash[attribute][ref]
+
+        if e && (!e[:opennebula_managed] || e[:opennebula_managed] != "NO") &&
+            (e[:tvcenter_instance_id] == vcenter_uuid ||
+             e[:uvcenter_instance_id] == vcenter_uuid)
+            return e
+        end
+
+        return nil
     end
 
     def self.find_image_by_path(the_class, path, ds_id, pool = nil)
