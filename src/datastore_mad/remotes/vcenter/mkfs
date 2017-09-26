@@ -41,7 +41,7 @@ drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DAT
 
 ds_id        = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/ID"]
 ds_ref       = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_REF"]
-ds_image_dir = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_IMAGE_DIR"] || "one"
+ds_image_dir = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_IMAGE_DIR"].match(%r{^/*(.*?)/*$})[1] rescue "one"
 img_id       = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/ID"]
 adapter_type = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/VCENTER_ADAPTER_TYPE"] ||
                 VCenterDriver::VIHelper.get_default("IMAGE/TEMPLATE/VCENTER_ADAPTER_TYPE")
