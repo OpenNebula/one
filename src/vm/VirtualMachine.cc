@@ -1753,7 +1753,7 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk,
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::check_resize (
-        float cpu, int memory, int vcpu, string& error_str)
+        float cpu, long int memory, int vcpu, string& error_str)
 {
     if (cpu < 0)
     {
@@ -1779,7 +1779,7 @@ int VirtualMachine::check_resize (
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::resize(float cpu, int memory, int vcpu, string& error_str)
+int VirtualMachine::resize(float cpu, long int memory, int vcpu, string& error_str)
 {
     ostringstream oss;
 

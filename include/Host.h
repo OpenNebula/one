@@ -341,7 +341,7 @@ public:
      *    @param disk not used
      *    @return 0 on success
      */
-    void update_capacity(int cpu, int mem, int disk)
+    void update_capacity(int cpu, long int mem, int disk)
     {
         host_share.update(cpu,mem,disk);
     };
