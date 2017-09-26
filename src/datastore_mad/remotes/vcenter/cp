@@ -40,7 +40,7 @@ drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DAT
 img_path     = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/PATH"]
 ds_id        = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/ID"]
 ds_ref       = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_REF"]
-ds_image_dir = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_IMAGE_DIR"].match(%r{^/*(.*?)/*$})[1] || "one"
+ds_image_dir = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_IMAGE_DIR"].match(%r{^/*(.*?)/*$})[1] rescue "one"
 md5          = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5"]
 sha1         = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/SHA1"]
 nodecomp     = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/NO_DECOMPRESS"]
