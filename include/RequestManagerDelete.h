@@ -242,6 +242,7 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_upool();
         gpool       = nd.get_gpool();
+        vmpool      = nd.get_vmpool();
 
         auth_object = PoolObjectSQL::USER;
         auth_op     = AuthRequest::ADMIN;
@@ -252,6 +253,7 @@ public:
 protected:
 
     GroupPool *  gpool;
+    VirtualMachinePool * vmpool;
 
     int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att);
 };
