@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManagerDelete.h"
+#include "RequestManagerPoolInfoFilter.h"
 #include "NebulaUtil.h"
 
 using namespace std;
@@ -342,11 +343,27 @@ int UserDelete::drop(PoolObjectSQL * object, bool recursive,
     set<int> group_set = user->get_groups();
     set<int>::iterator it;
 
-	int oid = user->get_oid();
+    string acl_str;
+    vector<int> vms;
+    string where_vms;
+
+    int oid = user->get_oid();
+    int gid = user->get_gid();
 
     if (oid == 0)
     {
         att.resp_msg = "oneadmin cannot be deleted.";
+
+        object->unlock();
+        return -1;
+    }
+
+    PoolSQL::usr_filter(oid, gid, group_set, RequestManagerPoolInfoFilter::MINE, true, acl_str,
+        where_vms);
+    vmpool->search(vms, where_vms);
+
+    if (!vms.empty()){
+        att.resp_msg = "User has VM associates to him";
 
         object->unlock();
         return -1;
