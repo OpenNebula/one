@@ -318,6 +318,8 @@ private:
         set<int> prev_rediscovered_vms;
     };
 
+    pthread_mutex_t host_vm_lock;
+
     map<int, HostVM *> host_vms;
 
     HostVM * get_host_vm(int oid);
