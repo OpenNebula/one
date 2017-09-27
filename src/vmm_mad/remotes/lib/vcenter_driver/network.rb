@@ -66,7 +66,16 @@ class Network
         !device.class.ancestors.index(RbVmomi::VIM::VirtualEthernetCard).nil?
     end
 
-
+    def self.retrieve_vlanId(network)
+        begin
+            name = network.name
+            id = network.host.first.configManager.networkSystem.networkConfig.portgroup.select{|p|
+                p.spec.name == name
+            }.first.spec.vlanId
+        rescue
+            id = -1
+        end
+    end
 
     def self.to_one_template(network_name, network_ref, network_type,
                              ccr_ref, ccr_name, vcenter_uuid,
@@ -94,6 +103,7 @@ class Network
         one_tmp[:cluster_location] = cluster_location
         one_tmp[:vcenter_ccr_ref]  = ccr_ref
         one_tmp[:one_cluster_id]   = cluster_id
+        one_tmp[:vcenter_net_ref]  = network_ref
 
         one_tmp[:one] = to_one(network_import_name, network_name, network_ref, network_type,
                              ccr_ref, vcenter_uuid, unmanaged, template_ref, dc_ref, template_id)

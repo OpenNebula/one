@@ -637,6 +637,7 @@ def self.import_networks(con_ops, options)
             end
 
             tmps.each do |n|
+
                 if !use_defaults
                     print_str =  "\n  * Network found:\n"\
                                  "      - Name                  : \e[92m#{n[:name]}\e[39m\n"\
@@ -649,6 +650,12 @@ def self.import_networks(con_ops, options)
                     STDOUT.print print_str
 
                     next if STDIN.gets.strip.downcase != 'y'
+                end
+
+                net = VCenterDriver::Network.new_from_ref(n[:vcenter_net_ref], vi_client)
+
+                if net
+                    vlanId = VCenterDriver::Network.retrieve_vlanId(net.item)
                 end
 
                 size="255"
