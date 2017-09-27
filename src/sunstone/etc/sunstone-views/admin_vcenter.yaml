@@ -59,6 +59,12 @@ features:
     # True to show the datastore datatable to instantiate VM
     show_ds_instantiate: false
 
+    # True to show the vmgroup datatable to instantiate VM
+    show_vmgroup_instantiate: true
+
+    # True to show the vnet datatable to instantiate VM
+    show_vnet_instantiate: true
+
     # True to show the host datatable to instantiate VM
     show_host_instantiate: false
 
