@@ -998,6 +998,7 @@ define(function(require) {
                   VMGroupSection.insert(template_json, $(".vmgroupContext", create_vm_context));
                 } else {
                   $(".provision_vmgroup_selector", create_vm_context).html("");
+                  $(".provision_vmgroup", create_vm_context).hide();
                 }
 
                 if (Config.provision.create_vm.isEnabled("datastore_select")) {
