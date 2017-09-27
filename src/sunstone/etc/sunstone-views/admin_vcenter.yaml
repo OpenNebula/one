@@ -370,7 +370,7 @@ tabs:
             VM.disk_snapshot_delete: false
             VM.resched: true
             VM.unresched: true
-            VM.save_as_template: false
+            VM.save_as_template: true
             VM.updateconf: true
             VM.edit_labels: true
             VM.menu_labels: true
