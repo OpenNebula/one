@@ -74,14 +74,21 @@ class Template
     def get_dc
         item = @item
 
-        while !item.instance_of? RbVmomi::VIM::Datacenter
-            if item.parent
-                item = item.parent
-            elsif item.resourcePool.instance_of? RbVmomi::VIM::VirtualApp
-                item = item.resourcePool.parent
+        trace = []
+        while item && !item.instance_of?(RbVmomi::VIM::Datacenter)
+            rp = item.resourcePool rescue nil
+            if rp && rp.instance_of?(RbVmomi::VIM::VirtualApp)
+                trace << "rp:" + item.to_s
+                item = rp.parent rescue nil
             else
-                raise "Could not find the parent Datacenter"
+                trace << item.to_s
+                item = item.parent rescue nil
             end
+        end
+
+        if item.nil?
+            trace = "[" + trace.join(", ") + "]"
+            raise "Could not find the parent Datacenter. Trace: #{trace}"
         end
 
         Datacenter.new(item)
