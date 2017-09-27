@@ -59,6 +59,7 @@ class VIHelper
         pool.each_element(Proc.new do |e|
             ref = e[attribute]
             hash[ref] = {
+                opennebula_object: e,
                 opennebula_managed: e["TEMPLATE/OPENNEBULA_MANAGED"],
                 tvcenter_instance_id: e["TEMPLATE/VCENTER_INSTANCE_ID"],
                 uvcenter_instance_id: e["USER_TEMPLATE/VCENTER_INSTANCE_ID"]
@@ -78,7 +79,7 @@ class VIHelper
         if e && (!e[:opennebula_managed] || e[:opennebula_managed] != "NO") &&
             (e[:tvcenter_instance_id] == vcenter_uuid ||
              e[:uvcenter_instance_id] == vcenter_uuid)
-            return e
+            return e[:opennebula_object]
         end
 
         return nil
