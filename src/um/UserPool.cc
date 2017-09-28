@@ -1320,3 +1320,27 @@ int UserPool::dump_cb(void * _oss, int num, char **values, char **names)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+string UserPool::get_token_password(int oid, int bck_oid){
+
+    string token_password = "";
+    User * user = get(oid, true);
+
+    if (user != 0)
+    {
+        user->get_template_attribute("TOKEN_PASSWORD", token_password);
+        user->unlock();
+    }
+    else{
+        user = get(bck_oid, true);
+        if (user != 0)
+        {
+            user->get_template_attribute("TOKEN_PASSWORD", token_password);
+            user->unlock();
+        }
+    }
+    return token_password;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
