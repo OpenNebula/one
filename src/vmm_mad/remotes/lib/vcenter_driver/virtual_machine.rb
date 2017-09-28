@@ -1075,7 +1075,7 @@ class VirtualMachine < Template
             custom_spec = vi_client.vim
                             .serviceContent
                             .customizationSpecManager
-                            .GetCustomizationSpec(:name => customization.text)
+                            .GetCustomizationSpec(:name => customization_spec)
 
             if custom_spec && (spec = custom_spec.spec)
                 return spec
@@ -1083,7 +1083,7 @@ class VirtualMachine < Template
                 raise "Error getting customization spec"
             end
         rescue
-            raise "Customization spec '#{customization.text}' not found"
+            raise "Customization spec '#{customization_spec}' not found"
         end
     end
 
