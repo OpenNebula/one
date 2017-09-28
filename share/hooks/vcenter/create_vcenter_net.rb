@@ -59,7 +59,7 @@ begin
         else
             nports  = pg_type == "Port Group" ? 128 : 8
         end
-        vlan_id =  template["VLAN_ID"] || template["AUTOMATIC_VLAN_ID"] || 0
+        vlan_id =  template["VLAN_ID"] || 0
 
         # Step 2. Contact cluster and extract cluster's info
         vi_client  = VCenterDriver::VIClient.new_from_host(host_id)
