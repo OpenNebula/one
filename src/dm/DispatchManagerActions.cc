@@ -1495,8 +1495,8 @@ int DispatchManager::snapshot_delete(int vid, int snap_id,
         return -1;
     }
 
-    if ( (vm->get_state()     != VirtualMachine::ACTIVE || vm->get_lcm_state() != VirtualMachine::RUNNING) &&
-         (vmm->is_keep_snapshots(vm->get_vmm_mad()) && vm->get_state()     != VirtualMachine::POWEROFF) )
+    if ( (vm->get_state() != VirtualMachine::ACTIVE || vm->get_lcm_state() != VirtualMachine::RUNNING) ||
+         (!vmm->is_keep_snapshots(vm->get_vmm_mad()) && vm->get_state() == VirtualMachine::POWEROFF) )
     {
         oss << "Could not delete snapshot " << snap_id << " for VM " << vid
             << ", wrong state " << vm->state_str() << ".";
