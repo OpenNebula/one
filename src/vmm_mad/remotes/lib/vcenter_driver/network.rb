@@ -66,7 +66,20 @@ class Network
         !device.class.ancestors.index(RbVmomi::VIM::VirtualEthernetCard).nil?
     end
 
-    def self.retrieve_vlanId(network)
+    def self.vlanid(vid)
+        case vid
+        when -1
+            "error"
+        when 0
+            "disabled"
+        when 4095
+            "VGT"
+        else
+            vid
+        end
+    end
+
+    def self.retrieve_vlanid(network)
         begin
             name = network.name
             id = network.host.first.configManager.networkSystem.networkConfig.portgroup.select{|p|
@@ -75,6 +88,7 @@ class Network
         rescue
             id = -1
         end
+        return id
     end
 
     def self.to_one_template(network_name, network_ref, network_type,
