@@ -582,15 +582,10 @@ void TransferManager::prolog_action(int vid)
     }
 
     int uid = vm->get_created_by_uid();
+    int owner_id = vm->get_uid();
     vm->unlock();
 
-    User * user = Nebula::instance().get_upool()->get(uid, true);
-
-    if (user != 0)
-    {
-        user->get_template_attribute("TOKEN_PASSWORD", token_password);
-        user->unlock();
-    }
+    token_password = Nebula::instance().get_upool()->get_token_password(uid, owner_id);
 
     vm = vmpool->get(vid,true);
 
@@ -881,16 +876,10 @@ void TransferManager::prolog_resume_action(int vid)
     }
 
     int uid = vm->get_created_by_uid();
-
+    int owner_id = vm->get_uid();
     vm->unlock();
 
-    User * user = Nebula::instance().get_upool()->get(uid, true);
-
-    if (user != 0)
-    {
-        user->get_template_attribute("TOKEN_PASSWORD", token_password);
-        user->unlock();
-    }
+    token_password = Nebula::instance().get_upool()->get_token_password(uid, owner_id);
 
     vm = vmpool->get(vid,true);
 

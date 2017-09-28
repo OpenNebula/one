@@ -110,6 +110,15 @@ public:
     };
 
     /**
+     *  Function to get the token password of an user from the pool
+     *    @param uid creator of the object
+     *    @param uid owner of the object, only used if the creator not exists
+     *
+     *    @return the user's token password
+     */
+    string get_token_password(int oid, int bck_oid);
+
+    /**
      * Update a particular User. This method does not update the user's quotas
      *    @param user pointer to User
      *    @return 0 on success
