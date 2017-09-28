@@ -135,42 +135,42 @@ define(function(require) {
   }
 
    function changeInputCPU(maxCPU){
-    document.getElementById('change_bar_cpu_hosts').value = parseInt(document.getElementById('textInput_reserved_cpu_hosts').value);
-    document.getElementById('textInput_reserved_cpu_hosts').value = document.getElementById('change_bar_cpu_hosts').value;
+    $("#change_bar_cpu_hosts").val(parseInt($("#textInput_reserved_cpu_hosts").val()));
+    $("#textInput_reserved_cpu_hosts").val($("#change_bar_cpu_hosts").val());
     changeColorInputCPU(maxCPU);
   }
 
    function changeInputMEM(maxMEM){
-    document.getElementById('change_bar_mem_hosts').value = Humanize.sizeToMB(document.getElementById('textInput_reserved_mem_hosts').value);
-    document.getElementById('textInput_reserved_mem_hosts').value = Humanize.size(document.getElementById('change_bar_mem_hosts').value);
+    $("#change_bar_mem_hosts").val(Humanize.sizeToMB($("#textInput_reserved_mem_hosts").val()));
+    $("#textInput_reserved_mem_hosts").val(Humanize.size($("#change_bar_mem_hosts").val()));
     changeColorInputMEM(maxMEM);
   }
 
   function changeColorInputCPU(maxCPU){
-    if(parseInt(document.getElementById('change_bar_cpu_hosts').value) > parseInt(maxCPU)){
-      document.getElementById('textInput_reserved_cpu_hosts').style.backgroundColor = 'rgba(111, 220, 111, 0.5)';
+    if (parseInt($("#change_bar_cpu_hosts").val()) > parseInt(maxCPU)){
+      $("#textInput_reserved_cpu_hosts").css("background-color", "rgba(111, 220, 111, 0.5)");
     }
-    else if(parseInt(document.getElementById('change_bar_cpu_hosts').value) < parseInt(maxCPU)){
-      document.getElementById('textInput_reserved_cpu_hosts').style.backgroundColor = 'rgba(255, 80, 80, 0.5)';
+    else if (parseInt($("#change_bar_cpu_hosts").val()) < parseInt(maxCPU)){
+      $("#textInput_reserved_cpu_hosts").css("background-color", "rgba(255, 80, 80, 0.5)");
     } else {
-      document.getElementById('textInput_reserved_cpu_hosts').style.backgroundColor = 'white';
+      $("#textInput_reserved_cpu_hosts").css("background-color", "white");
     }
   }
 
   function changeColorInputMEM(maxMEM){
-    if(parseInt(document.getElementById('change_bar_mem_hosts').value) > parseInt(maxMEM)){
-      document.getElementById('textInput_reserved_mem_hosts').style.backgroundColor = 'rgba(111, 220, 111, 0.5)';
+    if (parseInt($("#change_bar_mem_hosts").val()) > parseInt(maxMEM)){
+      $("#textInput_reserved_mem_hosts").css("background-color", "rgba(111, 220, 111, 0.5)");
     }
-    else if(parseInt(document.getElementById('change_bar_mem_hosts').value) < parseInt(maxMEM)){
-      document.getElementById('textInput_reserved_mem_hosts').style.backgroundColor = 'rgba(255, 80, 80, 0.5)';
+    else if (parseInt($("#change_bar_mem_hosts").val()) < parseInt(maxMEM)){
+      $("#textInput_reserved_mem_hosts").css("background-color", "rgba(255, 80, 80, 0.5)");
     } else {
-      document.getElementById('textInput_reserved_mem_hosts').style.backgroundColor = 'white';
+      $("#textInput_reserved_mem_hosts").css("background-color", "white");
     }
   }
 
   function _setup(context) {
     var that = this;
-    $(".ec2",context).show();
+    $(".ec2", context).show();
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     ClusterTr.setup(RESOURCE, this.element.ID, this.element.CLUSTER_ID, context);
 
@@ -184,52 +184,58 @@ define(function(require) {
     }
 
     //.off and .on prevent multiple clicks events
-    $(document).off('click', '.update_reserved_hosts').on("click", '.update_reserved', function(){
-        var reservedCPU = parseInt(document.getElementById('change_bar_cpu_hosts').value);
-        var CPU = parseInt(that.element.HOST_SHARE.FREE_CPU);
-        var reservedMem = parseInt(document.getElementById('change_bar_mem_hosts').value);
-        var MEM = parseInt(that.element.HOST_SHARE.FREE_MEM);
-        if(parseInt(that.element.HOST_SHARE.USED_CPU) > 0)
-          CPU += parseInt(that.element.HOST_SHARE.USED_CPU);
-        reservedCPU = CPU - reservedCPU;
-        if(parseInt(that.element.HOST_SHARE.USED_MEM) > 0)
-          MEM += parseInt(that.element.HOST_SHARE.USED_MEM);
-        reservedMem = MEM - reservedMem;
+    $(document).off("click", "#update_reserved_hosts").on("click", ".update_reserved", function(){
+      $("#update_reserved_hosts", context).prop("disabled", true);
+      var reservedCPU = parseInt($("#change_bar_cpu_hosts", context).val());
+      var CPU = parseInt(that.element.HOST_SHARE.FREE_CPU);
+      var reservedMem = parseInt($("#change_bar_mem_hosts", context).val());
+      var MEM = parseInt(that.element.HOST_SHARE.FREE_MEM);
+      if (parseInt(that.element.HOST_SHARE.USED_CPU) > 0){
+        CPU += parseInt(that.element.HOST_SHARE.USED_CPU);
+      }
+      reservedCPU = CPU - reservedCPU;
+      if (parseInt(that.element.HOST_SHARE.USED_MEM) > 0){
+        MEM += parseInt(that.element.HOST_SHARE.USED_MEM);
+      }
+      reservedMem = MEM - reservedMem;
 
-        var obj = {RESERVED_CPU: reservedCPU, RESERVED_MEM: reservedMem};
-        Sunstone.runAction("Host.append_template", that.element.ID, TemplateUtils.templateToString(obj));
+      var obj = { RESERVED_CPU: reservedCPU, RESERVED_MEM: reservedMem };
+      Sunstone.runAction("Host.append_template", that.element.ID, TemplateUtils.templateToString(obj));
     });
 
-    document.getElementById("change_bar_cpu_hosts").addEventListener("input", function(){
+    $("#change_bar_cpu_hosts", context).on("input", function(){
       changeColorInputCPU(that.element.HOST_SHARE.TOTAL_CPU);
-      document.getElementById('textInput_reserved_cpu_hosts').value = document.getElementById('change_bar_cpu_hosts').value;
+     $("#textInput_reserved_cpu_hosts", context).val($("#change_bar_cpu_hosts", context).val());
     });
-    document.getElementById("textInput_reserved_cpu_hosts").addEventListener("input", function(){
+
+    $("#textInput_reserved_cpu_hosts", context).on("input", function(){
       changeInputCPU(that.element.HOST_SHARE.TOTAL_CPU);
     });
-    document.getElementById("change_bar_mem_hosts").addEventListener("input", function(){
+
+    $("#change_bar_mem_hosts", context).on("input", function(){
       changeColorInputMEM(that.element.HOST_SHARE.TOTAL_MEM);
-      document.getElementById('textInput_reserved_mem_hosts').value = Humanize.size(parseInt(document.getElementById('change_bar_mem_hosts').value));
+      $("#textInput_reserved_mem_hosts", context).val(Humanize.size(parseInt($("#change_bar_mem_hosts").val())));
     });
 
-    document.getElementById("textInput_reserved_mem_hosts").addEventListener("input", function(){
+    $("#textInput_reserved_mem_hosts", context).on("input", function(){
       changeInputMEM(that.element.HOST_SHARE.TOTAL_MEM);
     });
 
+    $("#update_reserved_hosts", context).prop("disabled", false);
     CapacityTable.setup(context, true, RESOURCE, this.element.TEMPLATE, this.element.ID);
     EC2Tr.setup(RESOURCE, this.element.ID, context);
     CapacityTable.fill(context, this.element.TEMPLATE.CAPACITY);
     $(".change_to_vector_attribute", context).hide();
-    $(".custom_tag_value",context).focusout(function(){
-        var key = $(".custom_tag_key",this.parentElement.parentElement).val();
-        if(!that.element.TEMPLATE.CAPACITY){
-          that.element.TEMPLATE.CAPACITY = {};
-        }
-        that.element.TEMPLATE.CAPACITY[key] = this.value;
-        Sunstone.runAction(RESOURCE+".update_template",that.element.ID, TemplateUtils.templateToString(that.element.TEMPLATE));
-      });
+    $(".custom_tag_value", context).focusout(function(){
+      var key = $(".custom_tag_key", this.parentElement.parentElement).val();
+      if (!that.element.TEMPLATE.CAPACITY){
+        that.element.TEMPLATE.CAPACITY = {};
+      }
+      that.element.TEMPLATE.CAPACITY[key] = this.value;
+      Sunstone.runAction(RESOURCE + ".update_template", that.element.ID, TemplateUtils.templateToString(that.element.TEMPLATE));
+    });
     if (this.element.TEMPLATE.IM_MAD != "ec2"){
-      $(".ec2",context).hide();
+      $(".ec2", context).hide();
     }
   }
 });

@@ -69,13 +69,6 @@ define(function(require) {
         $("#acct_cpu_graph, #acct_mem_graph, #acct_disk_graph", "#dashboard_user_accounting").html('<span  id="provision_dashboard_total" style="font-size:80px">'+
           '<i class="fa fa-spinner fa-spin"></i>'+
         '</span>')
-        OpenNebulaVM.accounting({
-          success: function(req, response) {
-            Accounting.fillAccounting($("#dashboard_user_accounting"), req, response, no_table);
-          },
-          error: Notifier.onError,
-          data: options
-        });
       }
     },
     'network': {
@@ -112,6 +105,7 @@ define(function(require) {
         OpenNebulaVM.accounting({
           success: function(req, response) {
             Accounting.fillAccounting($("#dashboard_vm_accounting"), req, response, no_table);
+            Accounting.fillAccounting($("#dashboard_user_accounting"), req, response, no_table);
           },
           error: Notifier.onError,
           data: options

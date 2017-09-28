@@ -125,7 +125,7 @@ define(function(require) {
       Humanize.size(memoryMonitoring),
       hostname,
       OpenNebulaVM.ipsStr(element),
-      Humanize.prettyTime(element.STIME),
+      Humanize.prettyTimeDatatable(element.STIME),
       vncIcon,
       TemplateUtils.htmlEncode(TemplateUtils.templateToString(element)),
       (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),

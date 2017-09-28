@@ -140,6 +140,8 @@ HostPool::HostPool(SqlDB*                    db,
 
         add_hook(hook);
     }
+
+    pthread_mutex_init(&host_vm_lock,0);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -343,6 +345,8 @@ HostPool::HostVM * HostPool::get_host_vm(int oid)
 {
     HostVM * hvm;
 
+    pthread_mutex_lock(&host_vm_lock);
+
     map<int, HostVM *>::iterator it = host_vms.find(oid);
 
     if ( it == host_vms.end() )
@@ -356,11 +360,15 @@ HostPool::HostVM * HostPool::get_host_vm(int oid)
         hvm = it->second;
     }
 
+    pthread_mutex_unlock(&host_vm_lock);
+
     return hvm;
 }
 
 void HostPool::delete_host_vm(int oid)
 {
+    pthread_mutex_lock(&host_vm_lock);
+
     map<int, HostVM *>::iterator it = host_vms.find(oid);
 
     if ( it != host_vms.end() )
@@ -369,5 +377,7 @@ void HostPool::delete_host_vm(int oid)
 
         host_vms.erase(it);
     }
+
+    pthread_mutex_unlock(&host_vm_lock);
 }
 

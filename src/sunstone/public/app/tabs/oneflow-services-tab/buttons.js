@@ -47,10 +47,16 @@ define(function(require) {
       layout: "main",
       text: Locale.tr("Recover")
     },
+    "Service.shutdown" : {
+      type: "confirm",
+      text: Locale.tr("Terminate"),
+      layout: "vmsdelete_buttons",
+      tip: Locale.tr("This will remove information from non-persistent hard disks")
+    },
     "Service.delete" : {
       type: "confirm",
       text: Locale.tr("Delete"),
-      layout: "del",
+      layout: "vmsdelete_buttons",
       tip: Locale.tr("This will delete the selected services")
     },
     "Service.edit_labels" : {
