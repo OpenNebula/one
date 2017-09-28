@@ -119,7 +119,11 @@ define(function(require) {
       if (!$.isEmptyObject(diskJSON)) {disksJSON.push(diskJSON)};
     })
 
-    if (disksJSON.length > 0) { templateJSON['DISK'] = disksJSON; };
+    if (disksJSON.length > 0) {
+      templateJSON['DISK'] = disksJSON;
+      localStorage.setItem("disksJSON", JSON.stringify(disksJSON));
+      $("#DISK_COST").trigger("change");
+    };
 
     return templateJSON;
   }
