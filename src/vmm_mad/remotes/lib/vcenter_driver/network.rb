@@ -75,7 +75,7 @@ class Network
         when 4095
             "VGT"
         else
-            vid
+            "#{vid}"
         end
     end
 

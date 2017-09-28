@@ -657,8 +657,13 @@ def self.import_networks(con_ops, options)
 
                 if vid
                     vlanid = VCenterDriver::Network.vlanid(vid)
-                    n[:one] << "VCENTER_VLAN_ID=\"#{vlanid}\"\n"
-                    STDOUT.print "      - vcenter vlan id = #{vlanid}\n"
+
+                    # we have vlan id
+                    if /\A\d+\z/.match(vlanid)
+                        n[:one] << "VCENTER_VLAN_ID=\"#{vlanid}\"\n"
+                        STDOUT.print "      - vcenter vlan id = #{vlanid}\n"
+                    end
+
                 end
 
                 size="255"
