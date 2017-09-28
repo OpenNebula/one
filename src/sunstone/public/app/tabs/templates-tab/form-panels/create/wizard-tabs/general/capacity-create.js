@@ -31,6 +31,8 @@ define(function(require) {
 
   var TemplateHTML = require('hbs!./capacity-create/html');
 
+  this.totalCostDisk = 0;
+
   /*
     CONSTRUCTOR
    */
@@ -83,17 +85,21 @@ define(function(require) {
       return number;
   }
 
-  function _totalCost(){
+  function _totalCost(totalCostDisk=0){
     var memory = document.getElementById('real_memory_cost').value;
     var cpu = document.getElementById('real_cpu_cost').value;
+    if (totalCostDisk != 0){
+      this.totalCostDisk = totalCostDisk;
+    }
+
     if(memory === undefined && cpu === undefined){
       document.getElementById('total_cost').textContent = "Total: 0.00";
     } else if(memory === undefined){
-      document.getElementById('total_cost').textContent = "Total: " + convertCostNumber(cpu);
+      document.getElementById('total_cost').textContent = "Total: " + convertCostNumber(cpu + this.totalCostDisk);
     } else if(cpu === undefined){
-      document.getElementById('total_cost').textContent = "Total: " + convertCostNumber(memory);
+      document.getElementById('total_cost').textContent = "Total: " + convertCostNumber(memory + this.totalCostDisk);
     } else {
-      document.getElementById('total_cost').textContent = "Total: " + convertCostNumber(memory + cpu);
+      document.getElementById('total_cost').textContent = "Total: " + convertCostNumber(memory + cpu + this.totalCostDisk);
     }
   }
 

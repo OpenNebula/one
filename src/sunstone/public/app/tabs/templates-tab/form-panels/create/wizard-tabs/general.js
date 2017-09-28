@@ -140,7 +140,16 @@ define(function(require) {
     });
 
     context.on("change", "#DISK_COST", function() {
-      var disk = document.getElementById('DISK_COST').value;
+      var disk = parseInt(document.getElementById('DISK_COST').value);
+      that.templateDISKS = JSON.parse(localStorage.getItem("disksJSON"));
+      if (that.templateDISKS){
+        var totalGB = 0;
+        $.each(that.templateDISKS, function(key, value){
+          totalGB += value.SIZE / 1024;
+        });
+        totalCostDisk = totalGB * disk;
+        CapacityCreate.totalCost(totalCostDisk);
+      }
       document.getElementById('total_value_disk').textContent = convertCostNumber(disk * 24 * 30);
       $(".total_disk_cost", context).show();
     });
@@ -234,6 +243,9 @@ define(function(require) {
   }
 
   function _fill(context, templateJSON) {
+    var that = this;
+    that.templateDISKS = $.extend(true, {}, templateJSON.DISK);
+    localStorage.setItem("disksJSON", JSON.stringify(that.templateDISKS));
     var sunstone_template = templateJSON.SUNSTONE;
     if (sunstone_template) {
       if (sunstone_template["NETWORK_SELECT"] &&
