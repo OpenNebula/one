@@ -34,9 +34,11 @@ class VIHelper
 
     def self.one_pool(the_class, exit_if_fail = true)
         item = the_class.new(client)
-        if item.respond_to?(:info_all)
+
+        rc = nil
+        begin
             rc = item.info_all
-        else
+        rescue
             rc = item.info
         end
 
