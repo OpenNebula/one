@@ -111,10 +111,20 @@
   {{#unless volatile}}
   <div class="medium-6 columns hypervisor">
     <label for="SIZE">
-      {{tr "Size on instantiate (GB)"}}
+      {{tr "Size on instantiate"}}
       {{{tip (tr "The size of the disk will be modified to match this size when the template is instantiated")}}}
     </label>
-    <input wizard_field="SIZE" type="number" min="0" id="SIZE" name="SIZE" />
+    <div class="input-group mb_input_wrapper">
+      <div class="input-group-field">
+        <input type="number" wizard_field="SIZE" name="SIZE" id="SIZE" />
+      </div>
+      <div class="input-group-button">
+        <select class="mb_input_unit">
+          <option value="MB">{{tr "MB"}}</option>
+          <option value="GB" selected>{{tr "GB"}}</option>
+        </select>
+      </div>
+    </div>
   </div>
   {{/unless}}
 </div>
