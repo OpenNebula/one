@@ -140,7 +140,7 @@ define(function(require) {
     });
 
     context.on("change", "#DISK_COST", function() {
-      var disk = parseInt(document.getElementById('DISK_COST').value);
+      var disk = parseFloat(document.getElementById('DISK_COST').value);
       that.templateDISKS = JSON.parse(localStorage.getItem("disksJSON"));
       if (that.templateDISKS){
         var totalGB = 0;
