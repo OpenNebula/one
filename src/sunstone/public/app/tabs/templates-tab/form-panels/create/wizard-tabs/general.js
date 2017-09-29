@@ -142,30 +142,31 @@ define(function(require) {
 
     context.on("change", "#DISK_COST", function() {
       that.disk = parseInt(document.getElementById('DISK_COST').value);
-      that.templateDISKS = JSON.parse(localStorage.getItem("disksJSON"));
-
-      if (that.templateDISKS){
-        OpenNebula.Image.list({
-          timeout: true,
-          success: function(request, obj_files){
-            var totalGB = 0;
-            $.each(that.templateDISKS, function(ikey, ivalue){
-              if (ivalue.IMAGE_ID){
-                $.each(obj_files, function(jkey, jvalue){
-                  if (ivalue.IMAGE_ID == jvalue.IMAGE.ID){
-                    totalGB += jvalue.IMAGE.SIZE / 1024;
-                  }
-                });
-              } else {
-                totalGB += ivalue.SIZE / 1024;
-              }
-            });
-            totalCostDisk = totalGB * that.disk;
-            CapacityCreate.totalCost(totalCostDisk);
-            document.getElementById('total_value_disk').textContent = convertCostNumber(that.disk * 24 * 30);
-            $(".total_disk_cost", context).show();
-          }
-        });
+      if(!isNaN(that.disk)){
+        that.templateDISKS = JSON.parse(localStorage.getItem("disksJSON"));
+        if (that.templateDISKS){
+          OpenNebula.Image.list({
+            timeout: true,
+            success: function(request, obj_files){
+              var totalGB = 0;
+              $.each(that.templateDISKS, function(ikey, ivalue){
+                if (ivalue.IMAGE_ID){
+                  $.each(obj_files, function(jkey, jvalue){
+                    if (ivalue.IMAGE_ID == jvalue.IMAGE.ID){
+                      totalGB += jvalue.IMAGE.SIZE / 1024;
+                    }
+                  });
+                } else {
+                  totalGB += ivalue.SIZE / 1024;
+                }
+              });
+              totalCostDisk = totalGB * that.disk;
+              CapacityCreate.totalCost(totalCostDisk);
+              document.getElementById('total_value_disk').textContent = convertCostNumber(that.disk * 24 * 30);
+              $(".total_disk_cost", context).show();
+            }
+          });
+        }
       }
     });
 
