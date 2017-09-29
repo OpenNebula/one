@@ -37,6 +37,7 @@ require 'one_helper/onehost_helper'
 require 'one_helper/onecluster_helper'
 require 'vcenter_driver'
 require 'opennebula'
+require 'digest/md5'
 
 TEMP_DIR="/var/tmp/vcenter_one54"
 
@@ -65,6 +66,12 @@ def logo_banner(msg, header=false)
     STDOUT.puts "-"*80
     STDOUT.puts msg
     STDOUT.puts "="*80
+end
+
+def get_md5(string)
+    md5 = Digest::MD5.new
+    md5.update(string.to_s)
+    md5.hexdigest[0..4]
 end
 
 ################################################################################
@@ -459,7 +466,9 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
             image_prefix  = "sd" if scsi_controlled.include?(device.key)
             image_prefix  = "sd" if sata_controlled.include?(device.key)
             file_name     = File.basename(image_path).gsub(/\.vmdk$/,"")
-            image_name    = "#{file_name} - #{ds_name}"
+
+            md5        = get_md5("#{ds_name}#{image_path}")
+            image_name = "#{file_name} - #{ds_name} - #{md5}"
 
             image_path_escaped = image_path.gsub(" ", "%20")
 
@@ -2120,6 +2129,7 @@ def inspect_templates(vc_templates, vc_clusters, one_clusters, tpool, ipool, vnp
     # Retrieve all OpenNebula templates associated with PUBLIC_CLOUD=vcenter
     templates = tpool.retrieve_xmlelements("VMTEMPLATE[TEMPLATE/PUBLIC_CLOUD/TYPE=\"vcenter\"]")
 
+    selected_templates = {}
     templates.each do |template|
         begin
             # Refresh pools
@@ -2295,11 +2305,21 @@ def inspect_templates(vc_templates, vc_clusters, one_clusters, tpool, ipool, vnp
 
                 STDOUT.puts("#{template_refs.size+1}: None of the above.")
 
+                STDOUT.puts
+                STDOUT.puts "Template: #{template_name}"
+                STDOUT.puts
+                STDOUT.puts "Previously selected templates:"
+                selected_templates.each do |k,v|
+                    STDOUT.puts("#{k}: #{v}")
+                end
+                STDOUT.puts
+
                 loop do
                     STDOUT.print("\nFrom the list above, please \e[95mpick a number\e[39m in order to specify the template: ")
                     template_index = STDIN.gets.strip.to_i
                     next if template_index == 0 || template_index - 1 < 0 || template_index > template_refs.size + 1
                     template_ref  = template_refs[template_index-1] rescue nil
+                    selected_templates[template_index] = templates_list[template_ref]["name"]
                     break
                 end
 
@@ -2524,10 +2544,10 @@ end
 
 ################################################################################
 def inspect_vms(vc_vmachines, vc_templates, vc_clusters, one_clusters, vmpool, ipool, tpool, vnpool, dspool, hpool, one_client, vcenter_ids)
-
     # Retrieve vCenter deployed or importer VMs
     vms = vmpool.retrieve_xmlelements("VM[USER_TEMPLATE/PUBLIC_CLOUD/TYPE=\"vcenter\"]")
 
+    selected_templates = {}
     vms.each do |vm|
         next if !vm["DEPLOY_ID"] # Ignore undeployed vms
 
@@ -2723,11 +2743,21 @@ def inspect_vms(vc_vmachines, vc_templates, vc_clusters, one_clusters, vmpool, i
 
                     STDOUT.puts("#{template_refs.size+1}: None of the above.")
 
+                    STDOUT.puts
+                    STDOUT.puts "VirtualMachine: #{vm_name}"
+                    STDOUT.puts
+                    STDOUT.puts "Previously selected templates:"
+                    selected_templates.each do |k,v|
+                        STDOUT.puts("#{k}: #{v}")
+                    end
+                    STDOUT.puts
+
                     loop do
                         STDOUT.print("\nFrom the list above, please \e[95mpick up one number\e[39m in order to specify the venter template that this VM was based on: ")
                         template_index = STDIN.gets.strip.to_i
                         next if template_index == 0 || template_index - 1 < 0 || template_index > template_refs.size + 1
                         template_ref  = template_refs[template_index-1] rescue nil
+                        selected_templates[template_index] = templates_list[template_ref]["name"]
                         break
                     end
                 end
