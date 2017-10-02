@@ -31,8 +31,6 @@ define(function(require) {
 
   var TemplateHTML = require('hbs!./capacity-create/html');
 
-  this.totalCostDisk = 0;
-
   /*
     CONSTRUCTOR
    */
@@ -93,7 +91,7 @@ define(function(require) {
     }
 
     if(memory === undefined && cpu === undefined){
-      document.getElementById('total_cost').textContent = "Total: 0.00";
+      document.getElementById('total_cost').textContent = "Total: " + this.totalCostDisk;
     } else if(memory === undefined){
       document.getElementById('total_cost').textContent = "Total: " + convertCostNumber(cpu + this.totalCostDisk);
     } else if(cpu === undefined){
@@ -127,7 +125,7 @@ define(function(require) {
   }
 
   function _setup(context) {
-
+    this.totalCostDisk = 0;
     context.on("change", "#MEMORY", function() {
       _calculatedRealMemory();
     });
