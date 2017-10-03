@@ -494,7 +494,7 @@ define(function(require) {
           CapacityInputs.fill(capacityContext, template_json.VMTEMPLATE);
 
           if (template_json.VMTEMPLATE.TEMPLATE.HYPERVISOR == "vcenter"){
-            $(".mb_input input", context).attr("pattern", "^[0-9]*[02468]$");
+            $(".mb_input input", context).attr("pattern", "^([048]|\\d*[13579][26]|\\d*[24680][048])$");
           } else {
             $(".mb_input input", context).removeAttr("pattern");
           }
