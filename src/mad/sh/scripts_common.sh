@@ -667,6 +667,7 @@ function get_source_xml {
 # * CEPH_HOST
 # * CEPH_SECRET
 # * CEPH_USER
+# * LUKS_SECRET
 # * ISCSI_HOST
 # * ISCSI_USAGE
 # * ISCSI_USER
@@ -710,6 +711,7 @@ function get_disk_information {
                         $DISK_XPATH/CEPH_HOST \
                         $DISK_XPATH/CEPH_SECRET \
                         $DISK_XPATH/CEPH_USER \
+                        $DISK_XPATH/LUKS_SECRET \
                         $DISK_XPATH/ISCSI_HOST \
                         $DISK_XPATH/ISCSI_USAGE \
                         $DISK_XPATH/ISCSI_USER \
@@ -731,6 +733,7 @@ function get_disk_information {
     CEPH_HOST="${XPATH_ELEMENTS[j++]}"
     CEPH_SECRET="${XPATH_ELEMENTS[j++]}"
     CEPH_USER="${XPATH_ELEMENTS[j++]}"
+    LUKS_SECRET="${XPATH_ELEMENTS[j++]}"
     ISCSI_HOST="${XPATH_ELEMENTS[j++]}"
     ISCSI_USAGE="${XPATH_ELEMENTS[j++]}"
     ISCSI_USER="${XPATH_ELEMENTS[j++]}"
@@ -799,6 +802,11 @@ function get_disk_information {
                     <secret type='ceph' uuid='$CEPH_SECRET'/>\
                   </auth>"
         fi
+        if [ -n "$LUKS_SECRET" ]; then
+            LUKS="<encryption format='luks'>
+                    <secret type='passphrase' uuid='$LUKS_SECRET'/>\
+                  </encryption>"
+        fi
         ;;
     *)
         #NOTE: This includes TYPE=FS and TYPE=SWAP
@@ -819,6 +827,11 @@ function get_disk_information {
                 AUTH="<auth username='$CEPH_USER'>\
                         <secret type='ceph' uuid='$CEPH_SECRET'/>\
                       </auth>"
+            fi
+            if [ -n "$LUKS_SECRET" ]; then
+                LUKS="<encryption format='luks'>
+                        <secret type='passphrase' uuid='$LUKS_SECRET'/>\
+                      </encryption>"
             fi
             ;;
         *)

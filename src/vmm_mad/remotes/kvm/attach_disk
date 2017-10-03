@@ -54,6 +54,7 @@ cat <<EOF > $ATTACH_FILE
   $AUTH
   <target dev='$TARGET'/>
   $READONLY
+  $LUKS
 </disk>
 EOF
 
