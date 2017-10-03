@@ -71,14 +71,31 @@ class VIHelper
         hash
     end
 
-    def self.find_by_ref(the_class, attribute, ref, vcenter_uuid, pool = nil)
+    def self.clean_ref_hash(attr = nil)
+        if attr.nil?
+            @ref_hash = {}
+        else
+            @ref_hash[attr] = {}
+        end
+    end
+
+    def self.find_by_ref(the_class, attribute, ref, vcenter_uuid, pool = nil, one_managed = nil)
+        one_managed = one_managed.nil? || one_managed
         pool = one_pool(the_class, false) if pool.nil?
         @ref_hash ||= {}
         @ref_hash[attribute] ||= create_ref_hash(attribute, pool)
 
         e = @ref_hash[attribute][ref]
 
-        if e && (!e[:opennebula_managed] || e[:opennebula_managed] != "NO") &&
+        return nil if e.nil?
+
+        if one_managed
+            one_managed_test = (!e[:opennebula_managed] || e[:opennebula_managed] != "NO")
+        else
+            one_managed_test = (!e[:opennebula_managed] || e[:opennebula_managed] != "YES")
+        end
+
+        if one_managed_test &&
             (e[:tvcenter_instance_id] == vcenter_uuid ||
              e[:uvcenter_instance_id] == vcenter_uuid)
             return e[:opennebula_object]

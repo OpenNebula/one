@@ -367,16 +367,13 @@ class Template
             duplicated_networks = []
 
             vc_nics.each do |nic|
+
                 # Check if the network already exists
-                if wild
-                    network_found = false
-                else
-                    network_found = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,
-                                                                    "TEMPLATE/VCENTER_NET_REF",
-                                                                    nic[:net_ref],
-                                                                    vc_uuid,
-                                                                    npool)
-                end
+                network_found = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,
+                                                                "TEMPLATE/VCENTER_NET_REF",
+                                                                 nic[:net_ref],
+                                                                 vc_uuid,
+                                                                 npool, false)
 
                 #Network is already in OpenNebula
                 if network_found
@@ -472,6 +469,7 @@ class Template
                         # Allocate the Virtual Network
                         allocated_networks << one_vn
                         rc = one_vn.allocate(one_vnet[:one], cluster_id.to_i)
+                        VCenterDriver::VIHelper.clean_ref_hash()
 
                         if OpenNebula.is_error?(rc)
                             error = "\n    ERROR: Could not allocate virtual network due to #{rc.message}\n"
@@ -571,6 +569,7 @@ class Template
     def get_vcenter_nics
         nics = []
         @item["config.hardware.device"].each do |device|
+
             nic     = {}
             network = nil
             if is_nic?(device)
