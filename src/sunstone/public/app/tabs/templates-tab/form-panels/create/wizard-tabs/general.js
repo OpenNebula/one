@@ -110,10 +110,12 @@ define(function(require) {
   }
   function caculatedTotalMemory(context){
     var memory = document.getElementById('MEMORY_COST').value;
-    var type = document.getElementById('MEMORY_UNIT_COST').value;
-    memory = memory * 24 * 30; //24 hours and 30 days
-    document.getElementById('total_value_memory').textContent = convertCostNumber(memory);
-    $(".total_memory_cost", context).show();
+    if (memory != ""){
+      var type = document.getElementById('MEMORY_UNIT_COST').value;
+      memory = memory * 24 * 30; //24 hours and 30 days
+      document.getElementById('total_value_memory').textContent = convertCostNumber(memory);
+      $(".total_memory_cost", context).show();
+    }
   }
 
   function _setup(context) {
