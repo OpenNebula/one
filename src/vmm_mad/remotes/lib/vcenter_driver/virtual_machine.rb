@@ -385,6 +385,15 @@ class Template
                     nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
                     nic_tmp << "]\n"
 
+                    ar_tmp = ""
+                    ar_tmp << "AR=[\n"
+                    ar_tmp << "TYPE=\"ETHER\",\n"
+                    ar_tmp << "MAC=\"#{nic[:mac]}\",\n" if wild && nic[:mac]
+                    ar_tmp << "SIZE=\"1\"\n" if wild
+                    ar_tmp << "]\n"
+
+                    network_found.add_ar(ar_tmp)
+
                     if sunstone
                         sunstone_nic = {}
                         sunstone_nic[:type] = "EXISTING_NIC"
