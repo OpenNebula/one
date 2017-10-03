@@ -1172,6 +1172,8 @@ int AclManager::select_cb(void *nil, int num, char **values, char **names)
 
 int AclManager::select()
 {
+    multimap<long long, AclRule *>::iterator  it;
+
     ostringstream   oss;
     int             rc;
 
@@ -1180,6 +1182,11 @@ int AclManager::select()
     set_callback(static_cast<Callbackable::Callback>(&AclManager::select_cb));
 
     lock();
+
+    for ( it = acl_rules.begin(); it != acl_rules.end(); it++ )
+    {
+        delete it->second;
+    }
 
     acl_rules.clear();
     acl_rules_oids.clear();

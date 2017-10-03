@@ -32,6 +32,12 @@ ActionManager::ActionManager(): listener(0)
 
 ActionManager::~ActionManager()
 {
+    while (!actions.empty())
+    {
+        delete actions.front();
+        actions.pop();
+    }
+
     pthread_mutex_destroy(&mutex);
 
     pthread_cond_destroy(&cond);
