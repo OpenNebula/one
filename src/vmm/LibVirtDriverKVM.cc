@@ -458,6 +458,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  sheepdog_host   = "";
     string  gluster_host    = "";
     string  gluster_volume  = "";
+    string  luks_secret     = "";
 
     string  total_bytes_sec            = "";
     string  total_bytes_sec_max_length = "";
@@ -1132,6 +1133,16 @@ int LibVirtDriver::deployment_description_kvm(
 
         file <<"/>\n";
 
+
+        // ---- luks secret for target ----
+
+        if ( !luks_secret.empty())
+            {
+                file << "\t\t\t<encryption format='luks'>\n"
+                     << "\t\t\t\t<secret type='passphrase' uuid="
+                     << one_util::escape_xml_attr(luks_secret) <<"/>\n"
+                     << "\t\t\t</encryption>\n";
+            }
 
         // ---- boot order for this device ----
 
