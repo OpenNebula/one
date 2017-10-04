@@ -753,7 +753,6 @@ class Template
     end
 
     def self.get_xml_template(template, vcenter_uuid, vi_client, vcenter_instance_name=nil, dc_name=nil, rp_cache={})
-
         begin
             template_ref      = template['_ref']
             template_name     = template["name"]

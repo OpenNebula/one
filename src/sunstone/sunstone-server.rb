@@ -419,7 +419,7 @@ before do
 
     client = $cloud_auth.client(session[:user], session[:active_zone_endpoint])
 
-    @SunstoneServer = SunstoneServer.new(client,$conf,logger)
+    @SunstoneServer = SunstoneServer.new(client, $conf, logger)
 end
 
 after do
