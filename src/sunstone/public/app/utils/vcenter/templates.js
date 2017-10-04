@@ -407,7 +407,6 @@ define(function(require) {
     getNext();
   }
 
-
   function _import(context) {
     that = this;
     $.each($(".vcenter_import_table", context), function() {
@@ -429,9 +428,10 @@ define(function(require) {
           var templateName = $('.template_name', rpInput).val();
 
           var vcenter_ref = $(this).data("import_data").vcenter_ref;
-          if(linkedClone){
+          if (linkedClone) {
             var linked = true;
-            if(createCopy && templateName != ""){
+
+            if (createCopy && templateName != "") {
               var copy = true;
               var template_name  = templateName;
             } else {
@@ -474,6 +474,10 @@ define(function(require) {
           template += "\nUSER_INPUTS=[\n" + userInputs.join(",\n") + "]";
         }
 
+        if (linked) {
+          template += "\nVCENTER_LINKED_CLONES=\"YES\"";
+        }
+
         if($(this).data("import_data").import_disks_and_nics){
               var template_json = {
                 "vmtemplate": { "template_raw": template }
@@ -506,9 +510,11 @@ define(function(require) {
                     dataType: "json",
                     success: function(response){
                       var disks_and_nets = response.disks.concat(response.nics);
+
                       var template_json = {
                         "vmtemplate": { "template_raw": response.one }
                       };
+
                       if(response.create_copy){
                         OpenNebulaTemplate.del({
                           timeout: true,
