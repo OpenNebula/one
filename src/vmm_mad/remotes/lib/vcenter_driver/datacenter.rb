@@ -441,7 +441,8 @@ class DatacenterFolder
                                                                     "TEMPLATE/VCENTER_NET_REF",
                                                                     network_ref,
                                                                     vcenter_uuid,
-                                                                    npool)
+                                                                    npool,
+                                                                    false)
                     next if one_network #If the network has been already imported
 
                     one_vnet = VCenterDriver::Network.to_one_template(network_name,

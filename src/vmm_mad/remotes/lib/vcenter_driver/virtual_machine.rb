@@ -367,7 +367,6 @@ class Template
             duplicated_networks = []
 
             vc_nics.each do |nic|
-
                 # Check if the network already exists
                 network_found = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,
                                                                 "TEMPLATE/VCENTER_NET_REF",
@@ -378,21 +377,26 @@ class Template
                 #Network is already in OpenNebula
                 if network_found
 
+                    # Create the new size 1 AR
+                    ar_tmp = ""
+                    ar_tmp << "AR=[\n"
+                    ar_tmp << "TYPE=\"ETHER\",\n"
+                    if wild && nic[:mac]
+                        ar_tmp << "MAC=\"#{nic[:mac]}\",\n"
+                        ar_tmp << "SIZE=\"1\"\n"
+                    else
+                        ar_tmp << "SIZE=\"255\"\n"
+                    end
+                    ar_tmp << "]\n"
+                    network_found.add_ar(ar_tmp)
+
                     # This is the existing nic info
                     nic_tmp = ""
                     nic_tmp << "NIC=[\n"
                     nic_tmp << "NETWORK_ID=\"#{network_found["ID"]}\",\n"
+                    nic_tmp << "MAC=\"#{nic[:mac]}\",\n" if wild && nic[:mac]
                     nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
                     nic_tmp << "]\n"
-
-                    ar_tmp = ""
-                    ar_tmp << "AR=[\n"
-                    ar_tmp << "TYPE=\"ETHER\",\n"
-                    ar_tmp << "MAC=\"#{nic[:mac]}\",\n" if wild && nic[:mac]
-                    ar_tmp << "SIZE=\"1\"\n" if wild
-                    ar_tmp << "]\n"
-
-                    network_found.add_ar(ar_tmp)
 
                     if sunstone
                         sunstone_nic = {}
@@ -578,7 +582,6 @@ class Template
     def get_vcenter_nics
         nics = []
         @item["config.hardware.device"].each do |device|
-
             nic     = {}
             network = nil
             if is_nic?(device)
