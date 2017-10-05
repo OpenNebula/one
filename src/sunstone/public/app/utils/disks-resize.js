@@ -30,7 +30,7 @@ define(function(require){
 
   function _calculateCost(context, disk_cost, callback){
     var cost = 0;
-    disk_cost = disk_cost / 1024 / 1024;
+    disk_cost = disk_cost / 1024;
 
     $(".diskContainer", context).each(function(){
       var size = 0;
@@ -86,12 +86,12 @@ define(function(require){
         disk_cost = Config.onedConf.DEFAULT_COST.DISK_COST;
       }
 
-      disksContext.off("input", "input");
+      disksContext.off("change", "input");
 
       if (disk_cost != 0 && Config.isFeatureEnabled("showback")) {
         $(".provision_create_template_disk_cost_div", disksContext).show();
 
-        disksContext.on("input", "input", function(){
+        disksContext.on("change", "input", function(){
           _calculateCost(disksContext, disk_cost, opts.cost_callback);
         });
 
