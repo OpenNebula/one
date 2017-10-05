@@ -84,6 +84,9 @@ define(function(require) {
   }
 
   function _totalCost(totalCostDisk=0){
+    if(!this.totalCostDisk){
+      this.totalCostDisk = 0;
+    }
     var memory = document.getElementById('real_memory_cost').value;
     var cpu = document.getElementById('real_cpu_cost').value;
     if (totalCostDisk != 0){

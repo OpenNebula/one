@@ -493,6 +493,12 @@ define(function(require) {
           CapacityInputs.setup(capacityContext);
           CapacityInputs.fill(capacityContext, template_json.VMTEMPLATE);
 
+          if (template_json.VMTEMPLATE.TEMPLATE.HYPERVISOR == "vcenter"){
+            $(".mb_input input", context).attr("pattern", "^([048]|\\d*[13579][26]|\\d*[24680][048])$");
+          } else {
+            $(".mb_input input", context).removeAttr("pattern");
+          }
+
           var cpuCost    = template_json.VMTEMPLATE.TEMPLATE.CPU_COST;
           var memoryCost = template_json.VMTEMPLATE.TEMPLATE.MEMORY_COST;
           var memoryUnitCost = template_json.VMTEMPLATE.TEMPLATE.MEMORY_UNIT_COST;
