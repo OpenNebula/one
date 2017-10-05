@@ -186,10 +186,12 @@ define(function(require) {
         $("#vcenter_template_ref", context).attr("required", "");
         $("#vcenter_instance_id", context).attr("required", "");
         $("#vcenter_ccr_ref", context).attr("required", "");
+        $("#MEMORY", context).attr("pattern", "^([048]|\\d*[13579][26]|\\d*[24680][048])$");
       } else {
         $("#vcenter_template_ref", context).removeAttr("required");
         $("#vcenter_instance_id", context).removeAttr("required");
         $("#vcenter_ccr_ref", context).removeAttr("required");
+        $("#MEMORY", context).removeAttr("pattern");
       }
       // There is another listener in context.js setup
     });
