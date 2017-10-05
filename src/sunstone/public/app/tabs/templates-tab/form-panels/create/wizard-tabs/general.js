@@ -114,7 +114,8 @@ define(function(require) {
     var real_memory = document.getElementById('MEMORY').value;
     memory = memory_cost * real_memory * 24 * 30; //24 hours and 30 days
     document.getElementById('total_value_memory').textContent = convertCostNumber(memory);
-    $(".total_memory_cost", context).show();
+    if (memory_cost != "")
+      $(".total_memory_cost", context).show();
   }
 
   function _setup(context) {
@@ -169,6 +170,8 @@ define(function(require) {
             }
           });
         }
+      } else {
+        document.getElementById('total_value_disk').textContent = 0;
       }
     });
 
