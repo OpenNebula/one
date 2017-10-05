@@ -253,8 +253,36 @@ module OpenNebula
 
             @body['last_vmname'] ||= 0
 
+            template_id = @body['vm_template']
+            template = OpenNebula::Template.new_with_id(template_id, @service.client)
+
             if @body['vm_template_contents']
                 extra_template = @body['vm_template_contents'].dup
+
+                # If the extra_template contains APPEND="<attr1>,<attr2>", it
+                # will add the attributes that already exist in the template,
+                # instead of replacing them.
+                append = extra_template.match(/^\s*APPEND=\"?(.*?)\"?\s*$/)[1].split(",") rescue nil
+
+                if append && !append.empty?
+                    rc = template.info
+                    if OpenNebula.is_error?(rc)
+                        msg = "Role #{name} : Info template #{template_id}; #{rc.message}"
+
+                        Log.error LOG_COMP, msg, @service.id()
+                        @service.log_error(msg)
+
+                        return [false, "Error fetching Info to instantiate the VM Template" \
+                            " #{template_id} in Role #{self.name}: #{rc.message}"]
+                    end
+
+                    et = template.template_like_str("TEMPLATE",
+                                        true, append.join("|"))
+
+                    et = et << "\n" << extra_template
+
+                    extra_template = et
+                end
             else
                 extra_template = ""
             end
@@ -272,12 +300,8 @@ module OpenNebula
 
                 @body['last_vmname'] += 1
 
-                template_id = @body['vm_template']
-
                 Log.debug LOG_COMP, "Role #{name} : Trying to instantiate template "\
                     "#{template_id}, with name #{vm_name}", @service.id()
-
-                template = OpenNebula::Template.new_with_id(template_id, @service.client)
 
                 vm_id = template.instantiate(vm_name, false, extra_template)
 
