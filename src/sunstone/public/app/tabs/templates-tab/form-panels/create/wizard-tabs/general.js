@@ -109,13 +109,12 @@ define(function(require) {
     return number.toFixed(6);
   }
   function caculatedTotalMemory(context){
-    var memory = document.getElementById('MEMORY_COST').value;
-    if (memory != ""){
-      var type = document.getElementById('MEMORY_UNIT_COST').value;
-      memory = memory * 24 * 30; //24 hours and 30 days
-      document.getElementById('total_value_memory').textContent = convertCostNumber(memory);
-      $(".total_memory_cost", context).show();
-    }
+    var memory_cost = document.getElementById('MEMORY_COST').value;
+    var type = document.getElementById('MEMORY_UNIT_COST').value;
+    var real_memory = document.getElementById('MEMORY').value;
+    memory = memory_cost * real_memory * 24 * 30; //24 hours and 30 days
+    document.getElementById('total_value_memory').textContent = convertCostNumber(memory);
+    $(".total_memory_cost", context).show();
   }
 
   function _setup(context) {
@@ -136,8 +135,9 @@ define(function(require) {
     });
 
      context.on("change", "#CPU_COST", function() {
-      var cpu = document.getElementById('CPU_COST').value;
-      document.getElementById('total_value_cpu').textContent = convertCostNumber(cpu * 24 * 30);
+      var cpu = document.getElementById('CPU').value;
+      var cpu_cost = document.getElementById('CPU_COST').value;
+      document.getElementById('total_value_cpu').textContent = convertCostNumber(cpu * cpu_cost * 24 * 30);
       $(".total_cpu_cost", context).show();
       CapacityCreate.calculatedRealCpu();
     });
@@ -164,7 +164,7 @@ define(function(require) {
               });
               totalCostDisk = totalGB * that.disk;
               CapacityCreate.totalCost(totalCostDisk);
-              document.getElementById('total_value_disk').textContent = convertCostNumber(that.disk * 24 * 30);
+              document.getElementById('total_value_disk').textContent = convertCostNumber(totalCostDisk * 24 * 30);
               $(".total_disk_cost", context).show();
             }
           });
@@ -188,12 +188,10 @@ define(function(require) {
         $("#vcenter_template_ref", context).attr("required", "");
         $("#vcenter_instance_id", context).attr("required", "");
         $("#vcenter_ccr_ref", context).attr("required", "");
-        $("#MEMORY", context).attr("pattern", "^([048]|\\d*[13579][26]|\\d*[24680][048])$");
       } else {
         $("#vcenter_template_ref", context).removeAttr("required");
         $("#vcenter_instance_id", context).removeAttr("required");
         $("#vcenter_ccr_ref", context).removeAttr("required");
-        $("#MEMORY", context).removeAttr("pattern");
       }
       // There is another listener in context.js setup
     });
