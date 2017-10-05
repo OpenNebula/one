@@ -115,6 +115,7 @@ define(function(require) {
       memory = memory*memory_cost*24*30;
     document.getElementById('real_memory_cost').textContent = "Cost: "+ convertCostNumber(memory);
     document.getElementById('real_memory_cost').value = memory;
+    document.getElementById('total_value_memory').textContent = memory;
     _totalCost();
   }
 
@@ -124,6 +125,7 @@ define(function(require) {
     cpu = cpu*cpu_cost*24*30;
     document.getElementById('real_cpu_cost').textContent = "Cost: "+ convertCostNumber(cpu);
     document.getElementById('real_cpu_cost').value = cpu;
+    document.getElementById('total_value_cpu').textContent = cpu;
     _totalCost();
   }
 
