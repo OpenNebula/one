@@ -250,6 +250,11 @@ int RaftManager::start()
 void RaftManager::finalize_action(const ActionRequest& ar)
 {
     NebulaLog::log("RCM", Log::INFO, "Raft Consensus Manager...");
+
+    if (is_leader())
+    {
+        follower(-1);
+    }
 }
 
 /* -------------------------------------------------------------------------- */
