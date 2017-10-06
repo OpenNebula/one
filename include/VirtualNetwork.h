@@ -58,7 +58,8 @@ public:
         EBTABLES = 3,
         FW       = 4,
         OVSWITCH = 5,
-        VXLAN    = 6
+        VXLAN    = 6,
+        VCENTER  = 7
     };
 
     static string driver_to_str(VirtualNetworkDriver ob)
@@ -72,6 +73,7 @@ public:
             case FW:       return "fw";
             case OVSWITCH: return "ovswitch";
             case VXLAN:    return "vxlan";
+            case VCENTER:  return "vcenter";
         }
     };
 
@@ -100,6 +102,10 @@ public:
         else if ( ob == "vxlan" )
         {
             return VXLAN;
+        }
+        else if ( ob == "vcenter" )
+        {
+            return VCENTER;
         }
         else
         {

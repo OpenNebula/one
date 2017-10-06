@@ -35,10 +35,29 @@ require 'vcenter_driver'
 require 'base64'
 
 network_id   = ARGV[0]
-base64_temp  = ARGV[1]
+#base64_temp  = ARGV[1]
 
-template     = OpenNebula::XMLElement.new
-template.initialize_xml(Base64.decode64(base64_temp), 'VNET')
+#template     = OpenNebula::XMLElement.new
+#template.initialize_xml(Base64.decode64(base64_temp), 'VNET')
+
+template = OpenNebula::VirtualNetwork.new_with_id(network_id, OpenNebula::Client.new)
+rc = template.info
+if OpenNebula.is_error?(rc)
+    STDERR.puts rc.message
+    exit 1
+end
+
+if template["VLAN_ID_AUTOMATIC"] == '1'
+    RETRIES = 5
+    i = 0
+    while template["VLAN_ID"].nil?
+        raise "cannot get vlan_id" if i >= RETRIES
+        sleep 1
+        i +=1
+        template.info
+    end
+end
+
 esx_rollback = [] #Track hosts that require a rollback
 
 begin
@@ -53,13 +72,13 @@ begin
         pg_type   =  template["TEMPLATE/VCENTER_PORTGROUP_TYPE"]
         sw_name   =  template["TEMPLATE/VCENTER_SWITCH_NAME"]
         mtu       =  template["TEMPLATE/MTU"]
+        vlan_id   =  template["VLAN_ID"] || 0
 
         if template["TEMPLATE/VCENTER_SWITCH_NPORTS"]
             nports  =  template["TEMPLATE/VCENTER_SWITCH_NPORTS"]
         else
             nports  = pg_type == "Port Group" ? 128 : 8
         end
-        vlan_id =  template["VLAN_ID"] || template["AUTOMATIC_VLAN_ID"] || 0
 
         # Step 2. Contact cluster and extract cluster's info
         vi_client  = VCenterDriver::VIClient.new_from_host(host_id)
