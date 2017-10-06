@@ -351,7 +351,7 @@ class DatacenterFolder
         result = pc.RetrieveProperties(:specSet => [filterSpec])
 
         networks = {}
-            result.each do |r|
+        result.each do |r|
             networks[r.obj._ref] = r.to_hash if r.obj.is_a?(RbVmomi::VIM::DistributedVirtualPortgroup) || r.obj.is_a?(RbVmomi::VIM::Network)
             networks[r.obj._ref][:network_type] = r.obj.is_a?(RbVmomi::VIM::DistributedVirtualPortgroup) ? "Distributed Port Group" : "Port Group"
         end
