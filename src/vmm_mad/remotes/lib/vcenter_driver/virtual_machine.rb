@@ -368,23 +368,33 @@ class Template
 
             vc_nics.each do |nic|
                 # Check if the network already exists
-                if wild
-                    network_found = false
-                else
-                    network_found = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,
-                                                                    "TEMPLATE/VCENTER_NET_REF",
-                                                                    nic[:net_ref],
-                                                                    vc_uuid,
-                                                                    npool)
-                end
+                network_found = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,
+                                                                "TEMPLATE/VCENTER_NET_REF",
+                                                                 nic[:net_ref],
+                                                                 vc_uuid,
+                                                                 npool, false)
 
                 #Network is already in OpenNebula
                 if network_found
+
+                    # Create the new size 1 AR
+                    ar_tmp = ""
+                    ar_tmp << "AR=[\n"
+                    ar_tmp << "TYPE=\"ETHER\",\n"
+                    if wild && nic[:mac]
+                        ar_tmp << "MAC=\"#{nic[:mac]}\",\n"
+                        ar_tmp << "SIZE=\"1\"\n"
+                    else
+                        ar_tmp << "SIZE=\"255\"\n"
+                    end
+                    ar_tmp << "]\n"
+                    network_found.add_ar(ar_tmp)
 
                     # This is the existing nic info
                     nic_tmp = ""
                     nic_tmp << "NIC=[\n"
                     nic_tmp << "NETWORK_ID=\"#{network_found["ID"]}\",\n"
+                    nic_tmp << "MAC=\"#{nic[:mac]}\",\n" if wild && nic[:mac]
                     nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
                     nic_tmp << "]\n"
 
@@ -472,6 +482,7 @@ class Template
                         # Allocate the Virtual Network
                         allocated_networks << one_vn
                         rc = one_vn.allocate(one_vnet[:one], cluster_id.to_i)
+                        VCenterDriver::VIHelper.clean_ref_hash()
 
                         if OpenNebula.is_error?(rc)
                             error = "\n    ERROR: Could not allocate virtual network due to #{rc.message}\n"
