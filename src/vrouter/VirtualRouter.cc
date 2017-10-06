@@ -69,10 +69,7 @@ VirtualRouter::VirtualRouter(   int             id,
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-VirtualRouter::~VirtualRouter()
-{
-    delete obj_template;
-}
+VirtualRouter::~VirtualRouter(){};
 
 /* ************************************************************************ */
 /* VirtualRouter :: Database Access Functions                                    */

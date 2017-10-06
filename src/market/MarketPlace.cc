@@ -65,10 +65,7 @@ MarketPlace::MarketPlace(
     set_umask(umask);
 };
 
-MarketPlace::~MarketPlace()
-{
-    delete obj_template;
-};
+MarketPlace::~MarketPlace(){};
 
 /* *************************************************************************** */
 /* MartketPlace :: Database Access Functions                                   */

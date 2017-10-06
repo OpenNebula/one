@@ -376,10 +376,7 @@ protected:
         obj_template = new UserTemplate;
     };
 
-    virtual ~User()
-    {
-        delete obj_template;
-    };
+    virtual ~User(){};
 
     // *************************************************************************
     // DataBase implementation

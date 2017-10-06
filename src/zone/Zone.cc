@@ -55,8 +55,6 @@ Zone::Zone(int id, Template* zone_template):
 
 Zone::~Zone()
 {
-    delete obj_template;
-
     delete servers;
 };
 

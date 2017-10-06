@@ -136,6 +136,8 @@ public:
 
     virtual ~PoolObjectSQL()
     {
+        delete obj_template;
+
         pthread_mutex_unlock(&mutex);
 
         pthread_mutex_destroy(&mutex);

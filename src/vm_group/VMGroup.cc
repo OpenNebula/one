@@ -52,10 +52,7 @@ VMGroup::VMGroup(int _uid, int _gid, const string& _uname, const string& _gname,
     set_umask(_umask);
 }
 
-VMGroup::~VMGroup()
-{
-    delete obj_template;
-}
+VMGroup::~VMGroup(){};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
