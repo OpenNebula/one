@@ -327,7 +327,7 @@ class OneDBLive
             raise "A value or --delete should specified"
         end
 
-        object.info
+        object.info_all
 
         object.each do |o|
             if options[:id]
