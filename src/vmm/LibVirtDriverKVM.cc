@@ -136,6 +136,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  sheepdog_host   = "";
     string  gluster_host    = "";
     string  gluster_volume  = "";
+    string  luks_secret     = "";
 
     string  total_bytes_sec = "";
     string  read_bytes_sec  = "";
@@ -456,6 +457,8 @@ int LibVirtDriver::deployment_description_kvm(
         iscsi_usage     = disk[i]->vector_value("ISCSI_USAGE");
         iscsi_iqn       = disk[i]->vector_value("ISCSI_IQN");
 
+        luks_secret     = disk[i]->vector_value("LUKS_SECRET");
+
         gluster_host    = disk[i]->vector_value("GLUSTER_HOST");
         gluster_volume  = disk[i]->vector_value("GLUSTER_VOLUME");
 
@@ -685,6 +688,17 @@ int LibVirtDriver::deployment_description_kvm(
         // ---- target device to map the disk ----
 
         file << "\t\t\t<target dev=" << one_util::escape_xml_attr(target) << "/>\n";
+
+        // ---- luks secret for target ----
+
+        if ( !luks_secret.empty())
+            {
+                file << "\t\t\t<encryption format='luks'>\n"
+                     << "\t\t\t\t<secret type='passphrase' uuid="
+                     << one_util::escape_xml_attr(luks_secret) <<"/>\n"
+                     << "\t\t\t</encryption>\n";
+            }
+
 
         // ---- boot order for this device ----
 
