@@ -651,6 +651,21 @@ def self.import_networks(con_ops, options)
                     next if STDIN.gets.strip.downcase != 'y'
                 end
 
+                # we try to retrieve once we know the desired net
+                net = VCenterDriver::Network.new_from_ref(n[:vcenter_net_ref], vi_client)
+                vid = VCenterDriver::Network.retrieve_vlanid(net.item) if net
+
+                if vid
+                    vlanid = VCenterDriver::Network.vlanid(vid)
+
+                    # we have vlan id
+                    if /\A\d+\z/.match(vlanid)
+                        n[:one] << "VCENTER_VLAN_ID=\"#{vlanid}\"\n"
+                        STDOUT.print "      - vcenter vlan id = #{vlanid}\n"
+                    end
+
+                end
+
                 size="255"
                 ar_type="e"
                 first_ip=nil
