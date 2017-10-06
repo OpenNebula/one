@@ -89,7 +89,6 @@ VirtualMachine::~VirtualMachine()
     }
 
     delete _log;
-    delete obj_template;
     delete user_obj_template;
 }
 

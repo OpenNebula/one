@@ -62,23 +62,20 @@ Image::Image(int             _uid,
         app_clone_collection("APP_CLONES"),
         snapshots(-1, false),
         target_snapshot(-1)
-{
-    if (_image_template != 0)
     {
-        obj_template = _image_template;
-    }
-    else
-    {
-        obj_template = new ImageTemplate;
+        if (_image_template != 0)
+        {
+            obj_template = _image_template;
+        }
+        else
+        {
+            obj_template = new ImageTemplate;
+        }
+
+        set_umask(_umask);
     }
 
-    set_umask(_umask);
-}
-
-Image::~Image()
-{
-    delete obj_template;
-}
+Image::~Image(){};
 
 /* ************************************************************************ */
 /* Image :: Database Access Functions                                       */

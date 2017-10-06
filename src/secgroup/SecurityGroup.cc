@@ -63,10 +63,7 @@ SecurityGroup::SecurityGroup(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-SecurityGroup::~SecurityGroup()
-{
-    delete obj_template;
-};
+SecurityGroup::~SecurityGroup(){};
 
 /* ************************************************************************ */
 /* SecurityGroup :: Database Access Functions                               */

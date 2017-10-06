@@ -51,10 +51,7 @@ Host::Host(
     replace_template_attribute("VM_MAD", vmm_mad_name);
 }
 
-Host::~Host()
-{
-    delete obj_template;
-}
+Host::~Host(){};
 
 /* ************************************************************************ */
 /* Host :: Database Access Functions                                        */

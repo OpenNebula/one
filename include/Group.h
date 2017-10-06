@@ -161,10 +161,7 @@ private:
         obj_template = new Template;
     };
 
-    virtual ~Group()
-    {
-        delete obj_template;
-    };
+    virtual ~Group(){};
 
     // *************************************************************************
     // Administrators

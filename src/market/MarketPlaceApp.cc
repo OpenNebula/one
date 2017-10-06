@@ -69,10 +69,7 @@ MarketPlaceApp::MarketPlaceApp(
     set_umask(umask);
 };
 
-MarketPlaceApp::~MarketPlaceApp()
-{
-    delete obj_template;
-};
+MarketPlaceApp::~MarketPlaceApp(){};
 
 /* ************************************************************************ */
 /* MartketPlaceApp:: Database Access Functions                              */
