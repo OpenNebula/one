@@ -799,6 +799,7 @@ bool Template::check_restricted(string& ra,
                 {
                     if ( (*va_it)->vector_value(*jt, ra) == 0 )
                     {
+                        ra = *jt;
                         return true;
                     }
                 }
@@ -806,6 +807,7 @@ bool Template::check_restricted(string& ra,
         }
         else if ( get(rit->first, ra) ) //Single Attribute
         {
+            ra = rit->first;
             return true;
         }
     }
