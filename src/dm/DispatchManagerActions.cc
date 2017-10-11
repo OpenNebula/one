@@ -237,8 +237,11 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
 
     if ( graphics != 0 && (graphics->vector_value("PORT", port) == 0))
     {
-        graphics->remove("PORT");
-        clpool->release_vnc_port(vm->get_cid(), port);
+        if (vm->hasHistory())
+        {
+            graphics->remove("PORT");
+            clpool->release_vnc_port(vm->get_cid(), port);
+        }
     }
 
     vmpool->update(vm);
