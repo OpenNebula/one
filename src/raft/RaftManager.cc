@@ -253,7 +253,7 @@ void RaftManager::finalize_action(const ActionRequest& ar)
 
     if (is_leader())
     {
-        follower(-1);
+        follower(0);
     }
 }
 
