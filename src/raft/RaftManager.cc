@@ -212,16 +212,7 @@ extern "C" void * raft_manager_loop(void *arg)
 
     NebulaLog::log("RCM",Log::INFO,"Raft Consensus Manager started.");
 
-    if ( raftm->is_solo() )
-    {
-        raftm->am.loop();
-
-    }
-    else
-    {
-        raftm->am.loop(timeout);
-    }
-
+    raftm->am.loop(timeout);
 
     NebulaLog::log("RCM",Log::INFO,"Raft Consensus Manager stopped.");
 
@@ -816,7 +807,7 @@ void RaftManager::timer_action(const ActionRequest& ar)
             pthread_mutex_unlock(&mutex);
         }
 	}
-	else
+	else //SOLO or CANDIDATE, do nothing
 	{
 		pthread_mutex_unlock(&mutex);
 	}
