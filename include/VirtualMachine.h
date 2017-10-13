@@ -1021,7 +1021,7 @@ public:
      *
      *    @return 0 on success
      */
-     int check_resize(float cpu, int memory, int vcpu, string& error_str);
+     int check_resize(float cpu, long int memory, int vcpu, string& error_str);
 
     /**
      *  Resize the VM capacity
@@ -1032,7 +1032,7 @@ public:
      *
      *    @return 0 on success
      */
-     int resize(float cpu, int memory, int vcpu, string& error_str);
+     int resize(float cpu, long int memory, int vcpu, string& error_str);
 
     // ------------------------------------------------------------------------
     // Virtual Machine Disks
@@ -1672,7 +1672,7 @@ private:
     /**
      *  Memory in Kilobytes used by the VM
      */
-    int         memory;
+    long int         memory;
 
     /**
      *  CPU usage (percent)

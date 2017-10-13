@@ -149,7 +149,7 @@ public:
      *     @param m memory in kb
      *     @param d in mb (system ds usage)
      */
-    void add_requirements(float c, int m, long long d);
+    void add_requirements(float c, long int m, long long d);
 
     /**
      *  Adds (logical AND) new placement requirements to the current ones
@@ -402,7 +402,7 @@ protected:
 
     int   state;
 
-    int         memory;
+    long int         memory;
     float       cpu;
     long long   system_ds_usage;
 
