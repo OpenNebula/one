@@ -83,7 +83,10 @@ class VIHelper
         one_managed = one_managed.nil? || one_managed
         pool = one_pool(the_class, false) if pool.nil?
         @ref_hash ||= {}
-        @ref_hash[attribute] ||= create_ref_hash(attribute, pool)
+
+        if @ref_hash[attribute].nil? || @ref_hash[attribute] == {}
+            @ref_hash[attribute] = create_ref_hash(attribute, pool)
+        end
 
         e = @ref_hash[attribute][ref]
 
