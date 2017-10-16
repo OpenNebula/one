@@ -845,14 +845,20 @@ def self.import_datastore(con_ops, options)
 
             tmps.each{ |d|
                 if !use_defaults
-                    STDOUT.print "\n  * Datastore found:\n"\
+                    datastore_str = "\n  * Datastore found:\n"\
                                     "      - Name                  : \e[92m#{d[:simple_name]}\e[39m\n"\
                                     "      - Total MB              : #{d[:total_mb]}\n"\
                                     "      - Free  MB              : #{d[:free_mb]}\n"\
-                                    "      - OpenNebula Cluster IDs: #{d[:cluster].join(',')}\n"\
-                                    "   Import this datastore [y/n]? "
+                                    "      - OpenNebula Cluster IDs: #{d[:cluster].join(',')}\n"
+                    if d[:cluster].empty?
+                        datastore_str << "You need to import the associated vcenter cluster as one host first!"
+                    else
+                        datastore_str << "   Import this datastore [y/n]? "
+                    end
+                    STDOUT.print datastore_str
 
-                    next if STDIN.gets.strip.downcase != 'y'
+                    next if STDIN.gets.strip.downcase != 'y' || d[:cluster].empty?
+
 
                     STDOUT.print "\n    NOTE: For each vCenter datastore a SYSTEM and IMAGE datastore\n"\
                                  "    will be created in OpenNebula except for a StorageDRS which is \n"\
