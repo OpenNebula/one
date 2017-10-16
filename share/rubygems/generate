@@ -19,9 +19,22 @@
 require 'fileutils'
 require 'tmpdir'
 
+VERSION = "5.4.2"
+
+def version
+    v = VERSION
+
+    _, min, incr = v.split(".").collect{|e| e.to_i}
+
+    if min >= 80 || incr >= 80
+        v += ".pre"
+    end
+
+    v
+end
 
 DEFAULTS={
-    :version => "5.4.2",
+    :version => version,
     :date => Time.now.strftime("%Y-%m-%d"),
     :dependencies => []
 }
@@ -211,7 +224,7 @@ def generate_gem(description)
             end
 
             Dir.glob("*.gem").each do |f|
-                FileUtils.cp(f, pwd) 
+                FileUtils.cp(f, pwd)
             end
         end
     end
