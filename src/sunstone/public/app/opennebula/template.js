@@ -103,6 +103,7 @@ define(function(require) {
 
       var cpuCost    = capacity.CPU_COST;
       var memoryCost = capacity.MEMORY_COST;
+      var memoryUnitCost = capacity.MEMORY_UNIT_COST;
       var diskCost   = capacity.DISK_COST;
 
       if (cpuCost == undefined){
@@ -122,7 +123,11 @@ define(function(require) {
       }
 
       if (capacity.MEMORY) {
-        cost += capacity.MEMORY * memoryCost;
+        if (memoryUnitCost == "GB"){
+          cost += (capacity.MEMORY / 1024) * memoryCost;
+        } else {
+          cost += capacity.MEMORY * memoryCost;
+        }
       }
 
       if (diskCost != 0) {
@@ -134,9 +139,9 @@ define(function(require) {
           disks = [template_disk];
         }
 
-        $.each(disks, function(i,disk){
+        $.each(disks, function(i, disk){
           if (disk.SIZE) {
-            cost += diskCost * disk.SIZE;
+            cost += diskCost * (disk.SIZE / 1024);
           }
 
           if (disk.DISK_SNAPSHOT_TOTAL_SIZE) {

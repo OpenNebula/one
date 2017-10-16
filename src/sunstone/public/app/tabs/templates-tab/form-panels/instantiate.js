@@ -406,7 +406,7 @@ define(function(require) {
             memoryCost = Config.onedConf.DEFAULT_COST.MEMORY_COST;
           } else {
             if (memoryUnitCost == "GB"){
-              memoryCost = memoryCost / 1024 / 1024;
+              memoryCost = memoryCost / 1024;
             }
           }
 
