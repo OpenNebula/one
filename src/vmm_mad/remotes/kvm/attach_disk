@@ -45,6 +45,10 @@ else
     READONLY=""
 fi
 
+if [ -z "$LUKS" ]; then
+  unset LUKS
+fi
+
 cat <<EOF > $ATTACH_FILE
 <disk type='$TYPE_XML' device='$DEVICE'>
   <driver name='qemu' type='$DRIVER' $CACHE $DISCARD/>

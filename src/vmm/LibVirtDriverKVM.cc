@@ -699,7 +699,6 @@ int LibVirtDriver::deployment_description_kvm(
                      << "\t\t\t</encryption>\n";
             }
 
-
         // ---- boot order for this device ----
 
         if ( disk[i]->vector_value("ORDER", order) == 0 )

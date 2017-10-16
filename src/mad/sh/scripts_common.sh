@@ -58,6 +58,9 @@ VGDISPLAY=${VGDISPLAY:-vgdisplay}
 VMKFSTOOLS=${VMKFSTOOLS:-vmkfstools}
 WGET=${WGET:-wget}
 
+# Variable declaration
+LUKS=${LUKS:-""}
+
 if [ "x$(uname -s)" = "xLinux" ]; then
     SED="$SED -r"
 else
