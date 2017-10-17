@@ -83,9 +83,9 @@ extern "C"
 
 %defines
 %locations
-%pure_parser
-%name-prefix = "expr_arith__"
-%output      = "expr_arith.cc"
+%pure-parser
+%name-prefix "expr_arith__"
+%output      "expr_arith.cc"
 
 %left '+' '-'
 %left '*' '/'

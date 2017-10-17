@@ -215,9 +215,9 @@ int get_image_path(VirtualMachine * vm,
 
 %defines
 %locations
-%pure_parser
-%name-prefix = "vm_file_var__"
-%output      = "vm_file_var_syntax.cc"
+%pure-parser
+%name-prefix "vm_file_var__"
+%output      "vm_file_var_syntax.cc"
 
 %token EQUAL COMMA OBRACKET CBRACKET
 

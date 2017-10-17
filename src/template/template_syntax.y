@@ -78,9 +78,9 @@ extern "C"
 
 %defines
 %locations
-%pure_parser
-%name-prefix = "template__"
-%output      = "template_syntax.cc"
+%pure-parser
+%name-prefix "template__"
+%output      "template_syntax.cc"
 
 %token EQUAL COMMA OBRACKET CBRACKET EQUAL_EMPTY CCDATA
 %token <val_str>    STRING
