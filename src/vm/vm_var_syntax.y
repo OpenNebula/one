@@ -413,9 +413,9 @@ void insert_vector(VirtualMachine * vm,
 
 %defines
 %locations
-%pure_parser
-%name-prefix = "vm_var__"
-%output      = "vm_var_syntax.cc"
+%pure-parser
+%name-prefix "vm_var__"
+%output      "vm_var_syntax.cc"
 
 %token EQUAL COMMA OBRACKET CBRACKET
 

@@ -82,9 +82,9 @@ extern "C"
 
 %defines
 %locations
-%pure_parser
-%name-prefix = "expr_bool__"
-%output      = "expr_bool.cc"
+%pure-parser
+%name-prefix "expr_bool__"
+%output      "expr_bool.cc"
 
 %left '!' '&' '|'
 %token <val_int>    INTEGER
