@@ -38,19 +38,20 @@ HAMCREST_URL="http://search.maven.org/remotecontent?filepath=org/hamcrest/hamcre
 #-------------------------------------------------------------------------------
 usage() {
  echo
- echo "Usage: build.sh [-d ] [-h] [-s] [-t] [-j] [-p version]"
+ echo "Usage: build.sh [-d ] [-h] [-s] [-t] [-l path] [-j] [-p version]"
  echo
  echo "-d: build the documentation"
  echo "-s: compile the examples"
  echo "-c: clean compilation files"
  echo "-j: download junit lib for running the tests"
  echo "-t: build the tests"
+ echo "-l: path of development test java folder"
  echo "-p: build the java-oca-version-tar.gz package"
  echo "-h: prints this help"
 }
 #-------------------------------------------------------------------------------
 
-TEMP_OPT=`getopt -o hsdjctp: -n 'build.sh' -- "$@"`
+TEMP_OPT=`getopt -o hsdjctpl: -n 'build.sh' -- "$@"`
 
 eval set -- "$TEMP_OPT"
 
@@ -59,7 +60,9 @@ DO_EXA="no"
 DO_CLEAN="no"
 DO_TESTS="no"
 DO_PACKAGE="no"
+DO_CP="no"
 VERSION=""
+DEVELOPMENT_DIR=""
 
 while true ; do
     case "$1" in
@@ -67,7 +70,8 @@ while true ; do
         -j) DO_JUNIT="yes"; shift;;
         -d) DO_DOC="yes"; shift ;;
         -s) DO_EXA="yes"; shift ;;
-        -t) DO_TESTS="yes"; shift ;;
+        -t) DO_TESTS="yes"; DEVELOPMENT_DIR=$2; shift ;;
+        -l) DO_CP="yes"; DEVELOPMENT_DIR=$2; shift 2;;
         -c) DO_CLEAN="yes"; shift ;;
         -p) DO_PACKAGE="yes"; VERSION=$2; shift 2;;
         --) shift ; break ;;
@@ -85,6 +89,11 @@ do_junit_install()
     curl -LO $JUNIT_URL
     curl -LO $HAMCREST_URL
     cd -
+
+    if [ "$DO_CP" = "yes" ] ; then
+        echo "Coping JUnit into $DEVELOPMENT_DIR"
+        cp -r $LIB_DIR $DEVELOPMENT_DIR
+    fi
 }
 
 
@@ -120,6 +129,12 @@ do_jar()
         echo "Packaging class files in a jar..."
         jar cf $OCA_JAR -C $BIN_DIR org
     fi
+
+    if [ "$DO_CP" = "yes" ] ; then
+        echo "Coping jar into $DEVELOPMENT_DIR"
+        cp -r $JAR_DIR $DEVELOPMENT_DIR
+        cp -r $BIN_DIR $DEVELOPMENT_DIR
+    fi
 }
 
 do_examples()
@@ -132,6 +147,12 @@ do_tests()
 {
     echo "Compiling OpenNebula Cloud API Tests..."
     javac -d $TEST_DIR -classpath $OCA_JAR:$LIB_DIR/* `find $TEST_DIR -name *.java`
+
+    if [ "$DO_CP" = "yes" ] ; then
+        echo "Coping test into $DEVELOPMENT_DIR"
+        cp -r $TEST_DIR $DEVELOPMENT_DIR
+        cp $DEVELOPMENT_DIR"test.sh" $DEVELOPMENT_DIR"/test"
+    fi
 }
 
 do_clean()
