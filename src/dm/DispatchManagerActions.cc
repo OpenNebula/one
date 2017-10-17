@@ -235,13 +235,10 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
 
     VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
 
-    if ( graphics != 0 && (graphics->vector_value("PORT", port) == 0))
+    if ( graphics != 0 && (graphics->vector_value("PORT", port) == 0) && vm->hasHistory())
     {
-        if (vm->hasHistory())
-        {
-            graphics->remove("PORT");
-            clpool->release_vnc_port(vm->get_cid(), port);
-        }
+        graphics->remove("PORT");
+        clpool->release_vnc_port(vm->get_cid(), port);
     }
 
     vmpool->update(vm);
