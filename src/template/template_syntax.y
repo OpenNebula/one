@@ -122,6 +122,15 @@ attribute:  VARIABLE EQUAL STRING
 
                 delete amap;
             }
+         |  VARIABLE EQUAL OBRACKET CBRACKET
+            {
+                Attribute * pattr;
+                string      name($1);
+
+                pattr   = new VectorAttribute(name);
+
+                tmpl->set(pattr);
+            }
          |  VARIABLE EQUAL_EMPTY
             {
                 Attribute * pattr;

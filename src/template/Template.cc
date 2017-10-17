@@ -655,7 +655,19 @@ void Template::merge(const Template * from)
 
     for (it = from->attributes.begin(); it != from->attributes.end(); ++it)
     {
-        set(it->second->clone());
+        if ( it->second->type() == Attribute::VECTOR )
+        {
+            VectorAttribute * va = static_cast<VectorAttribute *>(it->second);
+
+            if (!va->value().empty())
+            {
+                set(it->second->clone());
+            }
+        }
+        else //Attribute::SINGLE
+        {
+            set(it->second->clone());
+        }
     }
 }
 
