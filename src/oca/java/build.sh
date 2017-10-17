@@ -23,7 +23,7 @@
 DOC_DIR="./share/doc"
 BIN_DIR="./bin"
 JAR_DIR="./jar"
-LIB_DIR="./lib"
+LIB_DIR="/usr/share/java"
 EXA_DIR="./share/examples"
 
 OCA_JAR=$JAR_DIR"/org.opennebula.client.jar"
@@ -149,7 +149,6 @@ if [ "$DO_PACKAGE" = "yes" ] ; then
     mkdir $PACK_NAME
     cp -r share/doc $PACK_NAME
     cp -r jar $PACK_NAME
-    cp -r lib $PACK_NAME
 
     tar czf $PACK_NAME.tar.gz $PACK_NAME
 
