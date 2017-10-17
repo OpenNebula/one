@@ -236,7 +236,7 @@ define(function(require) {
       $.ajax({
         url: reqPath,
         type: "GET",
-        data: {timeout: timeout, zone_id: params.data.zone_id},
+        data: {timeout: timeout, zone_id: params.data.zone_id, pool_filter: params.data.pool_filter},
         dataType: "json",
         success: function(response) {
           var list = OpenNebulaHelper.pool(resource, response)
