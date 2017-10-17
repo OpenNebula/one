@@ -147,7 +147,10 @@ class OneDBLive
 
             history_num = 2
 
-            if Array === val_history && val_history.size > history_num
+            val_history = [val_history].flatten
+            last_seq = val_history.last['SEQ'].to_i rescue 0
+
+            if last_seq >= history_num
                 last_history = val_history.last(history_num)
 
                 old_seq = []
@@ -178,6 +181,8 @@ class OneDBLive
                 # Renumerate sequence numbers
                 old_seq.each_with_index do |seq, index|
                     row = history.find {|r| seq.to_s == r["seq"] }
+                    next if !row
+
                     body = Base64.decode64(row['body64'])
 
                     doc = Nokogiri::XML(body)
