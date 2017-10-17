@@ -644,11 +644,16 @@ def self.import_networks(con_ops, options)
                                  "      - Cluster               : \e[96m#{n[:cluster]}\e[39m\n"\
                                  "      - Cluster location      : #{n[:cluster_location]}\n"\
                                  "      - OpenNebula Cluster ID : #{n[:one_cluster_id]}\n"
-                    print_str << "    Import this Network (y/[n])? "
+
+                    if n[:one_cluster_id] == -1
+                        print_str << "You need to import the associated vcenter cluster as one host first!"
+                    else
+                        print_str << "    Import this Network (y/[n])? "
+                    end
 
                     STDOUT.print print_str
 
-                    next if STDIN.gets.strip.downcase != 'y'
+                    next if STDIN.gets.strip.downcase != 'y' || n[:one_cluster_id] == -1
                 end
 
                 # we try to retrieve once we know the desired net
