@@ -929,9 +929,12 @@ void  LifeCycleManager::epilog_success_action(int vid)
 
     if ( graphics != 0 && (graphics->vector_value("PORT", port) == 0))
     {
-        graphics->remove("PORT");
+        if(state != VirtualMachine::EPILOG_STOP)
+        {
+            graphics->remove("PORT");
+        }
         clpool->release_vnc_port(vm->get_cid(), port);
-    }
+    } 
     
     vmpool->update_history(vm);
 
