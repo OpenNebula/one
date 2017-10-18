@@ -89,17 +89,17 @@ define(function(require) {
     var memory = $("#real_memory_cost").val();
     var cpu = $("#real_cpu_cost").val();
     var disk_cost = $("#total_value_disk").text();
-    if (disk_cost == "") {
+    if (disk_cost === "") {
       disk_cost = 0;
     } else {
       disk_cost = parseFloat(disk_cost);
     }
 
-    if ((memory === undefined || memory == "") && (cpu === undefined || cpu == "")){
+    if ((memory === undefined || memory === "") && (cpu === undefined || cpu === "")){
       document.getElementById('total_cost').textContent = "Total: " + disk_cost;
-    } else if(memory === undefined || memory == ""){
+    } else if(memory === undefined || memory === ""){
       document.getElementById('total_cost').textContent = "Total: " + convertCostNumber(cpu + disk_cost);
-    } else if(cpu === undefined || cpu == ""){
+    } else if(cpu === undefined || cpu === ""){
       document.getElementById('total_cost').textContent = "Total: " + convertCostNumber(memory + disk_cost);
     } else {
       document.getElementById('total_cost').textContent = "Total: " + convertCostNumber(memory + cpu + disk_cost);

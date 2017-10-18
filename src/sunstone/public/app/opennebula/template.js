@@ -123,7 +123,7 @@ define(function(require) {
       }
 
       if (capacity.MEMORY) {
-        if (memoryUnitCost == "GB"){
+        if (memoryUnitCost === "GB"){
           cost += (capacity.MEMORY / 1024) * memoryCost;
         } else {
           cost += capacity.MEMORY * memoryCost;
