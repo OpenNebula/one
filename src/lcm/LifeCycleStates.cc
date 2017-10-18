@@ -924,15 +924,17 @@ void  LifeCycleManager::epilog_success_action(int vid)
     vm->set_etime(the_time);
 
     vm->set_vm_info();
-    
+
     VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
 
-    if ( graphics != 0 && (graphics->vector_value("PORT", port) == 0))
+    //Do not free VNC ports for STOP as it is stored in checkpoint file
+    if ( graphics != 0 && (graphics->vector_value("PORT", port) == 0) &&
+          state != VirtualMachine::EPILOG_STOP )
     {
         graphics->remove("PORT");
         clpool->release_vnc_port(vm->get_cid(), port);
     }
-    
+
     vmpool->update_history(vm);
 
     vmpool->update(vm);
