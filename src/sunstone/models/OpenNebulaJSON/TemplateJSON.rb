@@ -108,7 +108,7 @@ module OpenNebulaJSON
 
                 template = template_to_str(params['template'])
 
-                ['NIC', 'SCHED_ACTION', 'SCHED_DS_REQUIREMENTS'].each { |i|
+                ['NIC', 'SCHED_ACTION', 'SCHED_REQUIREMENTS', 'SCHED_DS_REQUIREMENTS'].each { |i|
                     if params['template'][i] && params['template'][i].empty?
                         template << "\n#{i} = []"
                     end
