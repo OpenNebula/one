@@ -682,6 +682,11 @@ int set_vnc_port(VirtualMachine *vm, int cluster_id, RequestAttributes& att)
     {
         return 0;
     }
+    else if (vm->hasPreviousHistory() &&
+                 vm->get_previous_action() == History::STOP_ACTION)
+    {
+        return 0;
+    }
     else if (graphics->vector_value("PORT", port) == 0)
     {
         rc = cpool->set_vnc_port(cluster_id, port);
