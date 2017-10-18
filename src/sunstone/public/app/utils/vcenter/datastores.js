@@ -168,46 +168,53 @@ define(function(require) {
         var one_template  = $(this).data("one_template");
         var one_clusters  = $(this).data("one_clusters");
         var datastore_ids = [];
-        $.each(one_template, function(id, element){
-          var datastore_json = {
-            "datastore": {
-              "datastore_raw": this.one
-            },
-            "cluster_id" : -1
-          };
-          OpenNebulaDatastore.create({
-            timeout: true,
-            data: datastore_json,
-            success: function(request, response) {
-              datastore_ids.push(response.DATASTORE.ID);
-              VCenterCommon.importSuccess({
-                context : row_context,
-                message : Locale.tr("Datastores created successfully. IDs: %1$s", datastore_ids.join())
-              });
+        if (one_clusters.length > 0) {
+          $.each(one_template, function(id, element){
+            var datastore_json = {
+              "datastore": {
+                "datastore_raw": this.one
+              },
+              "cluster_id" : -1
+            };
+            OpenNebulaDatastore.create({
+              timeout: true,
+              data: datastore_json,
+              success: function(request, response) {
+                datastore_ids.push(response.DATASTORE.ID);
+                VCenterCommon.importSuccess({
+                  context : row_context,
+                  message : Locale.tr("Datastores created successfully. IDs: %1$s", datastore_ids.join())
+                });
 
-              var datastore_raw =
-               "VCENTER_USER=\"" + that.opts.vcenter_user + "\"\n" +
-               "VCENTER_PASSWORD=\"" + that.opts.vcenter_password + "\"\n" +
-               "VCENTER_HOST=\"" + that.opts.vcenter_host + "\"\n";
+                var datastore_raw =
+                "VCENTER_USER=\"" + that.opts.vcenter_user + "\"\n" +
+                "VCENTER_PASSWORD=\"" + that.opts.vcenter_password + "\"\n" +
+                "VCENTER_HOST=\"" + that.opts.vcenter_host + "\"\n";
 
-              Sunstone.runAction("Datastore.append_template", response.DATASTORE.ID, datastore_raw);
+                Sunstone.runAction("Datastore.append_template", response.DATASTORE.ID, datastore_raw);
 
-              $.each(one_clusters, function(index, cluster_id){
-                  Sunstone.runAction("Cluster.adddatastore",cluster_id,response.DATASTORE.ID);
-              });
+                $.each(one_clusters, function(index, cluster_id){
+                    Sunstone.runAction("Cluster.adddatastore",cluster_id,response.DATASTORE.ID);
+                });
 
-              if (one_clusters.length > 0) {
-                  Sunstone.runAction("Cluster.deldatastore",0,response.DATASTORE.ID);
+                if (one_clusters.length > 0) {
+                    Sunstone.runAction("Cluster.deldatastore",0,response.DATASTORE.ID);
+                }
+              },
+              error: function (request, error_json) {
+                VCenterCommon.importFailure({
+                  context : row_context,
+                  message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
+                });
               }
-            },
-            error: function (request, error_json) {
-              VCenterCommon.importFailure({
-                context : row_context,
-                message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
-              });
-            }
+            });
           });
-        });
+        } else {
+          VCenterCommon.importFailure({
+            context : row_context,
+            message : Locale.tr("You need to import the associated vcenter cluster as one host first.")
+          });
+        }
       });
     });
   }

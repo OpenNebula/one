@@ -305,26 +305,30 @@ define(function(require) {
 
         var one_cluster_id  = $(this).data("import_data").one_cluster_id;
 
-        OpenNebulaNetwork.create({
-          timeout: true,
-          data: vnet_json,
-          success: function(request, response) {
-            VCenterCommon.importSuccess({
-              context : row_context,
-              message : Locale.tr("Virtual Network created successfully. ID: %1$s", response.VNET.ID)
-            });
-
-            if (one_cluster_id != -1) {
+        if (one_cluster_id != -1){
+          OpenNebulaNetwork.create({
+            timeout: true,
+            data: vnet_json,
+            success: function(request, response) {
+              VCenterCommon.importSuccess({
+                context : row_context,
+                message : Locale.tr("Virtual Network created successfully. ID: %1$s", response.VNET.ID)
+              });
               Sunstone.runAction("Cluster.addvnet",one_cluster_id,response.VNET.ID);
+            },
+            error: function (request, error_json) {
+              VCenterCommon.importFailure({
+                context : row_context,
+                message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
+              });
             }
-          },
-          error: function (request, error_json) {
-            VCenterCommon.importFailure({
-              context : row_context,
-              message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
-            });
-          }
-        });
+          });
+        } else {
+          VCenterCommon.importFailure({
+            context : row_context,
+            message : Locale.tr("You need to import the associated vcenter cluster as one host first.")
+          });
+        }
       });
     });
 

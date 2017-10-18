@@ -23,14 +23,10 @@
 DOC_DIR="./share/doc"
 BIN_DIR="./bin"
 JAR_DIR="./jar"
-LIB_DIR="./lib"
+LIB_DIR="/usr/share/java"
 EXA_DIR="./share/examples"
-TEST_DIR="./test"
 
 OCA_JAR=$JAR_DIR"/org.opennebula.client.jar"
-
-JUNIT_URL="http://search.maven.org/remotecontent?filepath=junit/junit/4.12/junit-4.12.jar"
-HAMCREST_URL="http://search.maven.org/remotecontent?filepath=org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"
 
 
 #-------------------------------------------------------------------------------
@@ -38,36 +34,31 @@ HAMCREST_URL="http://search.maven.org/remotecontent?filepath=org/hamcrest/hamcre
 #-------------------------------------------------------------------------------
 usage() {
  echo
- echo "Usage: build.sh [-d ] [-h] [-s] [-t] [-j] [-p version]"
+ echo "Usage: build.sh [-d ] [-h] [-s] [-p version]"
  echo
  echo "-d: build the documentation"
  echo "-s: compile the examples"
  echo "-c: clean compilation files"
- echo "-j: download junit lib for running the tests"
- echo "-t: build the tests"
  echo "-p: build the java-oca-version-tar.gz package"
  echo "-h: prints this help"
 }
 #-------------------------------------------------------------------------------
 
-TEMP_OPT=`getopt -o hsdjctp: -n 'build.sh' -- "$@"`
+TEMP_OPT=`getopt -o hsdcp: -n 'build.sh' -- "$@"`
 
 eval set -- "$TEMP_OPT"
 
 DO_DOC="no"
 DO_EXA="no"
 DO_CLEAN="no"
-DO_TESTS="no"
 DO_PACKAGE="no"
 VERSION=""
 
 while true ; do
     case "$1" in
         -h) usage; exit 0;;
-        -j) DO_JUNIT="yes"; shift;;
         -d) DO_DOC="yes"; shift ;;
         -s) DO_EXA="yes"; shift ;;
-        -t) DO_TESTS="yes"; shift ;;
         -c) DO_CLEAN="yes"; shift ;;
         -p) DO_PACKAGE="yes"; VERSION=$2; shift 2;;
         --) shift ; break ;;
@@ -78,15 +69,6 @@ done
 #-------------------------------------------------------------------------------
 # BUILD FUNCTIONS
 #-------------------------------------------------------------------------------
-
-do_junit_install()
-{
-    cd $LIB_DIR
-    curl -LO $JUNIT_URL
-    curl -LO $HAMCREST_URL
-    cd -
-}
-
 
 do_documentation()
 {
@@ -128,12 +110,6 @@ do_examples()
     javac -d $EXA_DIR -classpath $OCA_JAR:$LIB_DIR/* `find share/examples -name *.java`
 }
 
-do_tests()
-{
-    echo "Compiling OpenNebula Cloud API Tests..."
-    javac -d $TEST_DIR -classpath $OCA_JAR:$LIB_DIR/* `find $TEST_DIR -name *.java`
-}
-
 do_clean()
 {
     echo "Cleaning .class files..."
@@ -150,10 +126,6 @@ do_clean()
     rm -rf $JAR_DIR > /dev/null 2>&1
 }
 
-if [ "$DO_JUNIT" = "yes" ] ; then
-    do_junit_install
-fi
-
 if [ "$DO_CLEAN" = "yes" ] ; then
     do_clean
     exit 0
@@ -169,10 +141,6 @@ if [ "$DO_EXA" = "yes" ] ; then
     do_examples
 fi
 
-if [ "$DO_TESTS" = "yes" ] ; then
-    do_tests
-fi
-
 if [ "$DO_PACKAGE" = "yes" ] ; then
     do_documentation
 
@@ -181,7 +149,6 @@ if [ "$DO_PACKAGE" = "yes" ] ; then
     mkdir $PACK_NAME
     cp -r share/doc $PACK_NAME
     cp -r jar $PACK_NAME
-    cp -r lib $PACK_NAME
 
     tar czf $PACK_NAME.tar.gz $PACK_NAME
 
