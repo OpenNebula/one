@@ -163,9 +163,14 @@ define(function(require) {
                   totalGB += ivalue.SIZE / 1024;
                 }
               });
-              totalCostDisk = totalGB * that.disk;
-              CapacityCreate.totalCost(totalCostDisk);
-              document.getElementById('total_value_disk').textContent = convertCostNumber(totalCostDisk * 24 * 30);
+              var totalCostDisk = 0;
+              if (!isNaN(totalGB)){
+                totalCostDisk = totalGB * that.disk;
+                document.getElementById('total_value_disk').textContent = convertCostNumber(totalCostDisk * 24 * 30);
+                CapacityCreate.totalCost();
+              } else {
+                document.getElementById('total_value_disk').textContent = totalCostDisk;
+              }
               $(".total_disk_cost", context).show();
             }
           });
