@@ -379,6 +379,8 @@ get '/vcenter/networks' do
             error 404, error.to_json
         end
 
+        # clean vcenterDriver cache
+        VCenterDriver::VIHelper.clean_ref_hash("TEMPLATE/VCENTER_CCR_REF")
         networks = dc_folder.get_unimported_networks(npool,vcenter_client.vim.host,hpool)
 
         if networks.nil?
@@ -453,6 +455,8 @@ get '/vcenter/datastores' do
             error 404, error.to_json
         end
 
+        # clean vcenterDriver cache
+        VCenterDriver::VIHelper.clean_ref_hash("TEMPLATE/VCENTER_CCR_REF")
         datastores = dc_folder.get_unimported_datastores(dpool, vcenter_client.vim.host, hpool)
         if datastores.nil?
             msg = "No datacenter found"

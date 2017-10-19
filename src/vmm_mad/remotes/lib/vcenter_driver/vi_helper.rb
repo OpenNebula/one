@@ -75,7 +75,7 @@ class VIHelper
         if attr.nil?
             @ref_hash = {}
         else
-            @ref_hash[attr] = {}
+            @ref_hash[attr] = {} unless @ref_hash.nil?
         end
     end
 
