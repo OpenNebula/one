@@ -259,16 +259,22 @@ define(function(require) {
       var vmgroup = VMGroupSection.retrieve($(".vmgroupContext"+ template_id));
       if(vmgroup){
         $.extend(tmp_json, vmgroup);
+      } else {
+        tmp_json.VMGROUP = [];
       }
 
       var sched = WizardFields.retrieveInput($("#SCHED_REQUIREMENTS"  + template_id, context));
-      if(sched){
+      if (sched){
         tmp_json.SCHED_REQUIREMENTS = sched;
+      } else {
+        tmp_json.SCHED_REQUIREMENTS = [];
       }
 
       var sched_ds = WizardFields.retrieveInput($("#SCHED_DS_REQUIREMENTS"  + template_id, context));
-      if(sched_ds){
+      if (sched_ds){
         tmp_json.SCHED_DS_REQUIREMENTS = sched_ds;
+      } else {
+        tmp_json.SCHED_DS_REQUIREMENTS = [];
       }
 
       var nics = [];
@@ -277,14 +283,12 @@ define(function(require) {
       $.each(networks, function(){
         if (this.TYPE == "NIC"){
           pcis.push(this);
-        }else{
+        } else {
           nics.push(this);
         }
       });
 
-      if (nics.length > 0) {
-        tmp_json.NIC = nics;
-      }
+      tmp_json.NIC = nics;
 
       // Replace PCIs of type nic only
       var original_tmpl = that.template_objects[index].VMTEMPLATE;
