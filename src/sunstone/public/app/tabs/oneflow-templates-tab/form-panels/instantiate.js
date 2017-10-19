@@ -146,7 +146,7 @@ define(function(require) {
                 total_cost += (cost * role.cardinality);
 
                 $(".total_cost_div", context).show();
-                $(".total_cost_div .cost_value", context).text( (total_cost).toFixed(2) );
+                $(".total_cost_div .cost_value", context).text((total_cost).toFixed(4));
               }
 
               UserInputs.vmTemplateInsert(
