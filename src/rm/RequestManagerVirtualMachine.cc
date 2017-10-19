@@ -682,8 +682,7 @@ int set_vnc_port(VirtualMachine *vm, int cluster_id, RequestAttributes& att)
     {
         return 0;
     }
-    else if (vm->hasPreviousHistory() &&
-                 vm->get_previous_action() == History::STOP_ACTION)
+    else if (vm->hasHistory() && vm->get_action()==History::STOP_ACTION)
     {
         return 0;
     }
