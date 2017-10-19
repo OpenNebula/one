@@ -28,7 +28,9 @@
         <li></li>
         <li>
           <button class="button radius tiny show_vms_tab"> <i class="fa fa-lg fa-list fa-fw"></i></button>
-          <button class="button success radius tiny show_create_vm"> <i class="fa fa-lg fa-plus fa-fw"></i></button>
+          {{#isTabActionEnabled "vms-tab" "VM.create_dialog"}}
+            <button class="button success radius tiny show_create_vm"> <i class="fa fa-lg fa-plus fa-fw"></i></button>
+          {{/isTabActionEnabled}}
         </li>
       </ul>
     </legend>
