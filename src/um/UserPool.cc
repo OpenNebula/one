@@ -497,7 +497,17 @@ int UserPool::drop(PoolObjectSQL * objsql, string& error_msg)
         return -1;
     }
 
-    return PoolSQL::drop(objsql, error_msg);
+    User * user = static_cast<User *>(objsql);
+    int oid = user->oid;
+
+    int rc = PoolSQL::drop(objsql, error_msg);
+
+    if ( rc == 0 )
+    {
+        delete_session_token(oid);
+    }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -680,7 +690,7 @@ bool UserPool::authenticate_internal(User *        user,
 
         return true;
     }
-    else if (user->session.is_valid(token))
+    else if (user->session->is_valid(token))
     {
         user->unlock();
         return true;
@@ -744,7 +754,7 @@ bool UserPool::authenticate_internal(User *        user,
         return false;
     }
 
-    user->session.set(token, _session_expiration_time);
+    user->session->set(token, _session_expiration_time);
 
     if ( !driver_managed_groups || new_gid == -1 || new_group_ids == group_ids )
     {
@@ -937,7 +947,7 @@ bool UserPool::authenticate_server(User *        user,
     uname  = user->name;
     gname  = user->gname;
 
-    result = user->session.is_valid(second_token);
+    result = user->session->is_valid(second_token);
 
     umask  = user->get_umask();
 
@@ -971,7 +981,7 @@ bool UserPool::authenticate_server(User *        user,
 
     if (user != 0)
     {
-        user->session.set(second_token, _session_expiration_time);
+        user->session->set(second_token, _session_expiration_time);
         user->unlock();
     }
 
@@ -1341,6 +1351,3 @@ string UserPool::get_token_password(int oid, int bck_oid){
     }
     return token_password;
 }
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */

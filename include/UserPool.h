@@ -20,6 +20,8 @@
 #include "PoolSQL.h"
 #include "User.h"
 #include "GroupPool.h"
+#include "CachePool.h"
+#include "LoginToken.h"
 
 #include <time.h>
 #include <sstream>
@@ -80,7 +82,14 @@ public:
      */
     User * get(int oid, bool lock)
     {
-        return static_cast<User *>(PoolSQL::get(oid,lock));
+        User * u = static_cast<User *>(PoolSQL::get(oid,lock));
+
+        if ( u != 0 )
+        {
+            u->set_session(get_session_token(oid));
+        }
+
+        return u;
     };
 
     /**
@@ -93,7 +102,14 @@ public:
     User * get(string name, bool lock)
     {
         // The owner is set to -1, because it is not used in the key() method
-        return static_cast<User *>(PoolSQL::get(name,-1,lock));
+        User * u = static_cast<User *>(PoolSQL::get(name,-1,lock));
+
+        if ( u != 0 )
+        {
+            u->set_session(get_session_token(u->oid));
+        }
+
+        return u;
     };
 
     /**
@@ -221,6 +237,16 @@ private:
      **/
     static time_t _session_expiration_time;
 
+
+    CachePool<SessionToken> cache;
+    SessionToken * get_session_token(int oid){
+        return cache.get_resource(oid);
+    }
+
+    void delete_session_token(int oid){
+        cache.delete_resource(oid);
+    }
+
     /**
      *  Function to authenticate internal (known) users
      */
@@ -273,7 +299,7 @@ private:
     //--------------------------------------------------------------------------
 
     /**
-     *  Callback function to get output in XML format
+     *  Callback function to  output in XML format
      *    @param num the number of columns read from the DB
      *    @param names the column names
      *    @param vaues the column values

@@ -353,7 +353,7 @@ int User::set_password(const string& passwd, string& error_str)
             password = passwd;
         }
 
-        session.reset();
+        session->reset();
 
         login_tokens.reset();
     }

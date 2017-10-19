@@ -95,7 +95,7 @@ public:
     {
         enabled = false;
 
-        session.reset();
+        session->reset();
 
         login_tokens.reset();
     };
@@ -137,7 +137,7 @@ public:
     int set_auth_driver(const string& _auth_driver, string& error_str)
     {
         auth_driver = _auth_driver;
-        session.reset();
+        session->reset();
 
         return 0;
     };
@@ -224,6 +224,16 @@ public:
         return groups.contains(_group_id);
     }
 
+    /**
+     *  Sets session token
+     *
+     *    @param session_token the new session token
+     */
+    void set_session(SessionToken * session_token)
+    {
+        session = session_token;
+    }
+
     // *************************************************************************
     // Quotas
     // *************************************************************************
@@ -286,7 +296,7 @@ private:
     // *************************************************************************
     // Authentication session used to cache authentication calls
     // *************************************************************************
-    SessionToken session;
+    SessionToken * session;
 
     // *************************************************************************
     // DataBase implementation (Private)
