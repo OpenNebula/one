@@ -119,8 +119,8 @@ define(function(require) {
       }
     });
 
-    context.off("change", "#table_order_select")
-    context.on("change", "#table_order_select", function() {
+    context.off("click", "#table_order_select")
+    context.on("click", "#table_order_select", function() {
       var sunstone_setting = {TABLE_ORDER : $(this).val()};
       Sunstone.runAction("User.append_sunstone_setting_refresh", that.element.ID, sunstone_setting);
     });
@@ -137,8 +137,8 @@ define(function(require) {
       }
     });
 
-    context.off("change", "#language_select")
-    context.on("change", "#language_select", function() {
+    context.off("click", "#language_select")
+    context.on("click", "#language_select", function() {
       var sunstone_setting = {LANG : $(this).val()};
       Sunstone.runAction("User.append_sunstone_setting_refresh", that.element.ID, sunstone_setting);
     });
@@ -160,8 +160,8 @@ define(function(require) {
       }
     });
 
-    context.off("change", "#view_select")
-    context.on("change", "#view_select", function() {
+    context.off("click", "#view_select")
+    context.on("click", "#view_select", function() {
       var sunstone_setting = {DEFAULT_VIEW : $(this).val()};
       Sunstone.runAction("User.append_sunstone_setting_refresh", that.element.ID, sunstone_setting);
     });
