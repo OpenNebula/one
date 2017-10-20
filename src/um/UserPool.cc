@@ -497,10 +497,8 @@ int UserPool::drop(PoolObjectSQL * objsql, string& error_msg)
         return -1;
     }
 
-    User * user = static_cast<User *>(objsql);
-    int oid = user->oid;
-
-    int rc = PoolSQL::drop(objsql, error_msg);
+    int oid = (static_cast<User *>(objsql))->oid;
+    int rc  = PoolSQL::drop(objsql, error_msg);
 
     if ( rc == 0 )
     {

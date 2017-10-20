@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 #ifndef CACHE_POOL_H_
 #define CACHE_POOL_H_
 
@@ -12,29 +28,30 @@
 using namespace std;
 
 /**
- *  The Cache Pool class.
+ *  The Cache Pool class. This class is used to store volatile pool data.
  */
 template<typename T> class CachePool
 {
-private:
-
-    pthread_mutex_t resource_lock;
-
-    std::map<int, T *> resources;
-
 public:
-    CachePool(){
-        pthread_mutex_init(&resource_lock,0);
+    CachePool()
+    {
+        pthread_mutex_init(&resource_lock, 0);
     }
 
     ~CachePool()
     {
         typename std::map<int, T *>::iterator it;
 
+        pthread_mutex_lock(&resource_lock);
+
         for (it=resources.begin(); it != resources.end() ; ++it)
         {
             delete it->second;
         }
+
+        pthread_mutex_unlock(&resource_lock);
+
+        pthread_mutex_destroy(&resource_lock);
     };
 
     T * get_resource(int oid)
@@ -77,6 +94,12 @@ public:
 
         pthread_mutex_unlock(&resource_lock);
     }
+
+private:
+
+    pthread_mutex_t resource_lock;
+
+    std::map<int, T *> resources;
 };
 
 #endif /*CACHE_POOL_H_*/
