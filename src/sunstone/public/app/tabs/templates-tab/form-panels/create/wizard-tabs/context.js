@@ -151,7 +151,7 @@ define(function(require) {
     });
 
     UserInputs.setup(context);
-    CustomTagsTable.setup(context);
+    CustomTagsTable.setup(context, true);
 
     var selectOptions = {
       'selectOptions': {
