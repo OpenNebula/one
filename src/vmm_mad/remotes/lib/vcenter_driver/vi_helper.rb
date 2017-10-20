@@ -157,6 +157,21 @@ class VIHelper
         end
     end
 
+    def self.get_location(item)
+        folders = []
+        while !item.instance_of? RbVmomi::VIM::Datacenter
+            item = item.parent
+            if !item.instance_of? RbVmomi::VIM::Datacenter
+                folders << item.name if item.name != "host"
+            end
+            raise "Could not find the location" if item.nil?
+        end
+        location   = folders.reverse.join("/")
+        location = "/" if location.empty?
+
+        return location
+    end
+
 end # class VIHelper
 
 end # module VCenterDriver

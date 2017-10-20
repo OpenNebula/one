@@ -437,6 +437,9 @@ class Template
                         ar_size   = 255
                     end
 
+                    net_host = VCenterDriver::ClusterComputeResource.new_from_ref(ccr_ref, @vi_client)
+                    location = VCenterDriver::VIHelper.get_location(net_host.item)
+
                     # Prepare the Virtual Network template
                     one_vnet = VCenterDriver::Network.to_one_template(nic[:net_name],
                                                                       nic[:net_ref],
@@ -447,7 +450,7 @@ class Template
                                                                       vcenter_instance_name,
                                                                       dc_name,
                                                                       cluster_id,
-                                                                      nil,
+                                                                      location,
                                                                       unmanaged,
                                                                       template_ref,
                                                                       dc_ref,
