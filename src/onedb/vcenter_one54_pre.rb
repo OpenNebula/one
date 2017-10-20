@@ -2317,9 +2317,18 @@ def inspect_templates(vc_templates, vc_clusters, one_clusters, tpool, ipool, vnp
                 loop do
                     STDOUT.print("\nFrom the list above, please \e[95mpick a number\e[39m in order to specify the template: ")
                     template_index = STDIN.gets.strip.to_i
-                    next if template_index == 0 || template_index - 1 < 0 || template_index > template_refs.size + 1
-                    template_ref  = template_refs[template_index-1] rescue nil
+
+                    if template_index == template_refs.size + 1
+                        # selected None of the above
+                        break
+                    end
+
+                    # selection out of bounds
+                    next if template_index <= 0 || template_index > template_refs.size + 1
+
+                    template_ref = template_refs[template_index-1] rescue nil
                     selected_templates[template_index] = templates_list[template_ref]["name"]
+
                     break
                 end
 
@@ -2755,9 +2764,18 @@ def inspect_vms(vc_vmachines, vc_templates, vc_clusters, one_clusters, vmpool, i
                     loop do
                         STDOUT.print("\nFrom the list above, please \e[95mpick up one number\e[39m in order to specify the venter template that this VM was based on: ")
                         template_index = STDIN.gets.strip.to_i
-                        next if template_index == 0 || template_index - 1 < 0 || template_index > template_refs.size + 1
-                        template_ref  = template_refs[template_index-1] rescue nil
+
+                        if template_index == template_refs.size + 1
+                            # selected None of the above
+                            break
+                        end
+
+                        # selection out of bounds
+                        next if template_index <= 0 || template_index > template_refs.size + 1
+
+                        template_ref = template_refs[template_index-1] rescue nil
                         selected_templates[template_index] = templates_list[template_ref]["name"]
+
                         break
                     end
                 end
@@ -2895,7 +2913,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     main do
         begin
-            msg = "  vCenter pre-migrator tool for OpenNebula 5.4 - Version: 1.1.4"
+            msg = "  vCenter pre-migrator tool for OpenNebula 5.4 - Version: 1.1.5"
             logo_banner(msg)
 
             # Initialize opennebula client
