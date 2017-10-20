@@ -19,6 +19,7 @@
 
 #include "PoolSQL.h"
 #include "Host.h"
+#include "CachePool.h"
 
 #include <time.h>
 #include <sstream>
@@ -39,7 +40,7 @@ public:
         const string& hook_location, const string& remotes_location,
         time_t expire_time);
 
-    ~HostPool();
+    ~HostPool(){};
 
     /**
      *  Function to allocate a new Host object
@@ -197,6 +198,7 @@ public:
     int drop(PoolObjectSQL * objsql, string& error_msg)
     {
         Host * host = static_cast<Host *>(objsql);
+        int oid = host->oid;
 
         if ( host->get_share_running_vms() > 0 )
         {
@@ -208,7 +210,7 @@ public:
 
         if ( rc == 0 )
         {
-            delete_host_vm(host->oid);
+            delete_host_vm(oid);
         }
 
         return rc;
@@ -318,13 +320,17 @@ private:
         set<int> prev_rediscovered_vms;
     };
 
-    pthread_mutex_t host_vm_lock;
+    CachePool<HostVM> cache;
 
-    map<int, HostVM *> host_vms;
+    HostVM * get_host_vm(int oid)
+    {
+        return cache.get_resource(oid);
+    }
 
-    HostVM * get_host_vm(int oid);
-
-    void delete_host_vm(int oid);
+    void delete_host_vm(int oid)
+    {
+        cache.delete_resource(oid);
+    }
 
     /**
      *  Factory method to produce Host objects

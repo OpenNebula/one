@@ -95,7 +95,7 @@ public:
     {
         enabled = false;
 
-        session.reset();
+        session->reset();
 
         login_tokens.reset();
     };
@@ -137,7 +137,7 @@ public:
     int set_auth_driver(const string& _auth_driver, string& error_str)
     {
         auth_driver = _auth_driver;
-        session.reset();
+        session->reset();
 
         return 0;
     };
@@ -286,7 +286,7 @@ private:
     // *************************************************************************
     // Authentication session used to cache authentication calls
     // *************************************************************************
-    SessionToken session;
+    SessionToken * session;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -371,7 +371,8 @@ protected:
         password(_password),
         auth_driver(_auth_driver),
         enabled(_enabled),
-        groups("GROUPS")
+        groups("GROUPS"),
+        session(0)
     {
         obj_template = new UserTemplate;
     };
