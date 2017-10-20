@@ -40,7 +40,7 @@ public:
         const string& hook_location, const string& remotes_location,
         time_t expire_time);
 
-    ~HostPool();
+    ~HostPool(){};
 
     /**
      *  Function to allocate a new Host object
@@ -320,15 +320,15 @@ private:
         set<int> prev_rediscovered_vms;
     };
 
-    pthread_mutex_t host_vm_lock;
-
     CachePool<HostVM> cache;
 
-    HostVM * get_host_vm(int oid){
+    HostVM * get_host_vm(int oid)
+    {
         return cache.get_resource(oid);
     }
 
-    void delete_host_vm(int oid){
+    void delete_host_vm(int oid)
+    {
         cache.delete_resource(oid);
     }
 

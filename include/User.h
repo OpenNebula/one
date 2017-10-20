@@ -224,16 +224,6 @@ public:
         return groups.contains(_group_id);
     }
 
-    /**
-     *  Sets session token
-     *
-     *    @param session_token the new session token
-     */
-    void set_session(SessionToken * session_token)
-    {
-        session = session_token;
-    }
-
     // *************************************************************************
     // Quotas
     // *************************************************************************
@@ -381,7 +371,8 @@ protected:
         password(_password),
         auth_driver(_auth_driver),
         enabled(_enabled),
-        groups("GROUPS")
+        groups("GROUPS"),
+        session(0)
     {
         obj_template = new UserTemplate;
     };

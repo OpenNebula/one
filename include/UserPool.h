@@ -86,7 +86,7 @@ public:
 
         if ( u != 0 )
         {
-            u->set_session(get_session_token(oid));
+            u->session = get_session_token(oid);
         }
 
         return u;
@@ -106,7 +106,7 @@ public:
 
         if ( u != 0 )
         {
-            u->set_session(get_session_token(u->oid));
+            u->session = get_session_token(u->oid);
         }
 
         return u;
@@ -237,13 +237,15 @@ private:
      **/
     static time_t _session_expiration_time;
 
-
     CachePool<SessionToken> cache;
-    SessionToken * get_session_token(int oid){
+
+    SessionToken * get_session_token(int oid)
+    {
         return cache.get_resource(oid);
     }
 
-    void delete_session_token(int oid){
+    void delete_session_token(int oid)
+    {
         cache.delete_resource(oid);
     }
 
