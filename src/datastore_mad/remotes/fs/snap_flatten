@@ -31,8 +31,6 @@ fi
 
 . $TMCOMMON
 
-. $LIB_LOCATION/sh/scripts_common.sh
-
 DRIVER_PATH=$(dirname $0)
 source ${DRIVER_PATH}/../libfs.sh
 
