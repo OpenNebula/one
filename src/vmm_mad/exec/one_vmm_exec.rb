@@ -139,7 +139,7 @@ class VmmAction
     # List of xpaths required by the VNM driver actions. TEMPLATE/NIC is
     # also required but added separately to the driver xml
     XPATH_LIST = %w(
-        ID DEPLOY_ID
+        ID DEPLOY_ID TEMPLATE/CONTEXT USER_TEMPLATE
         TEMPLATE/SECURITY_GROUP_RULE
         HISTORY_RECORDS/HISTORY/HOSTNAME
         HISTORY_RECORDS/HISTORY/VM_MAD
