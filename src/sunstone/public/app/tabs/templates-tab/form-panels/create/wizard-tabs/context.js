@@ -366,7 +366,7 @@ define(function(require) {
             id: fileId
           },
           success: function(request, obj_file){
-            req_string.push("$FILE[IMAGE=" + '"' + obj_file.IMAGE.NAME + '"' + ", IMAGE_UNAME=" + obj_file.IMAGE.UNAME + "]");
+            req_string.push("$FILE[IMAGE=" + '"' + obj_file.IMAGE.NAME + '"' + ", IMAGE_UNAME=" + '"' + obj_file.IMAGE.UNAME + '"]');
             $('.FILES_DS', context).val(req_string.join(" "));
           }
         });
