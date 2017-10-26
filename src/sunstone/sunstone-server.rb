@@ -523,6 +523,7 @@ get '/spice' do
     if !authorized?
         erb :login
     else
+        params[:title] = CGI::escape(params[:title])
         erb :spice
     end
 end
