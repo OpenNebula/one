@@ -32,7 +32,10 @@ define(function(require) {
     @param {String} tableName Header of the table (i.e: Locale.tr("Attributes"))
     @returns {String} HTML table
    */
-  function _html(templateJSON, resourceType, tableName, modify=true) {
+  function _html(templateJSON, resourceType, tableName, modify) {
+    if (!modify) {
+      modify = true;
+    }
     var str =
       '<table id="' + resourceType.toLowerCase() + '_template_table" class="dataTable configuration_attrs">\
         <thead>\
@@ -42,7 +45,7 @@ define(function(require) {
           '</th>\
           </tr>\
          </thead>' +
-       fromJSONtoHTMLTable(templateJSON, resourceType, undefined, undefined,modify);
+       fromJSONtoHTMLTable(templateJSON, resourceType, undefined, undefined, modify);
     if (modify) {
        str += '<tr>\
            <td class="key_td"><input type="text" name="new_key" id="new_key" /></td>\
