@@ -37,7 +37,7 @@ define(function(require) {
         $(".change_to_vector_attribute", context).hide();
         $(".custom_tag_value",context).focusout(function(){
           var key = $(".custom_tag_key",this.parentElement.parentElement).val();
-          if(!element.CAPACITY){
+          if(element && !element.CAPACITY){
             element.CAPACITY = {};
           }
           element.CAPACITY[key] = this.value;
@@ -72,7 +72,7 @@ define(function(require) {
       tr.remove();
       if(hide_vector_button){
         var key = $(".custom_tag_key",this.parentElement.parentElement.parentElement).val()
-        if(element.CAPACITY && element.CAPACITY[key]){
+        if(element && element.CAPACITY && element.CAPACITY[key]){
           delete element.CAPACITY[key];
           Sunstone.runAction(resourceType+".update_template",elementID, TemplateUtils.templateToString(element));
         }
