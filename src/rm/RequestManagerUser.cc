@@ -31,7 +31,7 @@ void RequestManagerUser::
         return;
     }
 
-    user = static_cast<User *>(pool->get(id,false));
+    user = (static_cast<UserPool *>(pool))->get(id,false);
 
     if ( user == 0 )
     {
@@ -60,7 +60,7 @@ int UserChangePassword::user_action(int     user_id,
 
     string new_pass = xmlrpc_c::value_string(paramList.getString(2));
 
-    User * user = static_cast<User *>(pool->get(user_id,true));
+    User * user = (static_cast<UserPool *>(pool))->get(user_id,true);
 
     if ( user == 0 )
     {
@@ -112,7 +112,7 @@ int UserChangeAuth::user_action(int     user_id,
 
     User * user;
 
-    user = static_cast<User *>(pool->get(user_id,true));
+    user = (static_cast<UserPool *>(pool))->get(user_id,true);
 
     if ( user == 0 )
     {
@@ -173,7 +173,7 @@ int UserSetQuota::user_action(int     user_id,
         return -1;
     }
 
-    user = static_cast<User *>(pool->get(user_id,true));
+    user = (static_cast<UserPool *>(pool))->get(user_id,true);
 
     if ( user == 0 )
     {
