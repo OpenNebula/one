@@ -29,7 +29,10 @@ define(function(require) {
     return TemplateHTML();
   }
 
-  function _setup(context, hide_vector_button = false, resourceType = undefined, element = undefined, elementID = undefined){
+  function _setup(context, hide_vector_button, resourceType, element, elementID){
+    if (!hide_vector_button) {
+      hide_vector_button = false;
+    }
     context.off("click", ".add_custom_tag");
     context.on("click", ".add_custom_tag", function(){
       $("tbody.custom_tags", context).append(RowTemplateHTML());

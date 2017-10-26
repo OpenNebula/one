@@ -25,7 +25,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var WizardFields = require('utils/wizard-fields');
   var UniqueId = require('utils/unique-id');
-  var vmgroupSection = require('utils/vmgroup-section')
+  var vmgroupSection = require('utils/vmgroup-section');
   var VMGroupsTable = require('tabs/vmgroup-tab/datatable');
 
 
