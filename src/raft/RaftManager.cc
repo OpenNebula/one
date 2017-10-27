@@ -55,6 +55,7 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
     LogDB * logdb = nd.get_logdb();
 
     std::string raft_xml, cmd, arg, error;
+    std::string xmlrpc_secret;
 
 	pthread_mutex_init(&mutex, 0);
 
@@ -829,6 +830,7 @@ void RaftManager::request_vote()
     std::map<int, std::string> _servers;
     std::map<int, std::string>::iterator it;
 
+
     std::ostringstream oss;
 
     unsigned int granted_votes;
@@ -986,7 +988,8 @@ int RaftManager::xmlrpc_replicate_log(int follower_id, LogDBRecord * lr,
 {
 	int _server_id;
 	int _commit;
-	int _term;
+    int _term;
+    std::string xmlrpc_secret;
 
     static const std::string replica_method = "one.zone.replicate";
 
@@ -1021,6 +1024,11 @@ int RaftManager::xmlrpc_replicate_log(int follower_id, LogDBRecord * lr,
     // -------------------------------------------------------------------------
     xmlrpc_c::value result;
     xmlrpc_c::paramList replica_params;
+
+    if ( Client::read_oneauth(xmlrpc_secret, error) == -1 )
+    {
+        return -1;
+    }
 
     replica_params.add(xmlrpc_c::value_string(xmlrpc_secret));
     replica_params.add(xmlrpc_c::value_int(_server_id));
@@ -1077,7 +1085,8 @@ int RaftManager::xmlrpc_request_vote(int follower_id, unsigned int lindex,
         std::string& error)
 {
 	int _server_id;
-	int _term;
+    int _term;
+    std::string xmlrpc_secret;
 
     static const std::string replica_method = "one.zone.voterequest";
 
@@ -1111,6 +1120,11 @@ int RaftManager::xmlrpc_request_vote(int follower_id, unsigned int lindex,
     // -------------------------------------------------------------------------
     xmlrpc_c::value result;
     xmlrpc_c::paramList replica_params;
+
+    if ( Client::read_oneauth(xmlrpc_secret, error) == -1 )
+    {
+        return -1;
+    }
 
     replica_params.add(xmlrpc_c::value_string(xmlrpc_secret));
     replica_params.add(xmlrpc_c::value_int(_term));

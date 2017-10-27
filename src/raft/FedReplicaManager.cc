@@ -29,7 +29,7 @@ const time_t FedReplicaManager::xmlrpc_timeout_ms = 10000;
 
 FedReplicaManager::FedReplicaManager(LogDB * d): ReplicaManager(), logdb(d)
 {
-    std::string error;
+    std::string error, xmlrpc_secret;
 
     pthread_mutex_init(&mutex, 0);
 
@@ -398,7 +398,7 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
 {
     static const std::string replica_method = "one.zone.fedreplicate";
 
-    std::string zedp;
+    std::string zedp, xmlrpc_secret;
 
 	int xml_rc = 0;
 
@@ -416,6 +416,11 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
     // -------------------------------------------------------------------------
     xmlrpc_c::value result;
     xmlrpc_c::paramList replica_params;
+
+    if ( Client::read_oneauth(xmlrpc_secret, error) == -1 )
+    {
+        return -1;
+    }
 
     replica_params.add(xmlrpc_c::value_string(xmlrpc_secret));
     replica_params.add(xmlrpc_c::value_int(lr.index));
