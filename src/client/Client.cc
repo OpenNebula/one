@@ -76,22 +76,32 @@ int Client::read_oneauth(string &secret, string& error_msg)
 {
     string   one_auth_file;
     ifstream file;
+    int rc;
 
     const char * one_auth_env = getenv("ONE_AUTH");
 
     if (!one_auth_env) //No $ONE_AUTH, read $HOME/.one/one_auth
     {
-        struct passwd * pw_ent;
+        struct passwd pw_ent;
+        struct passwd * result;
+        char pwdbuffer[16384];
+        int  pwdlinelen = sizeof(pwdbuffer);
 
-        pw_ent = getpwuid(getuid());
+        rc = getpwuid_r(getuid(), &pw_ent, pwdbuffer, pwdlinelen, &result);
 
-        if ((pw_ent == NULL) || (pw_ent->pw_dir == NULL))
+        if (result == NULL)
         {
-            error_msg = "Could not get one_auth file location";
-            return -1;
+            if (rc == 0)
+            {
+                error_msg = "Could not get one_auth file location";
+                return -1;
+            } else {
+                error_msg = "one_auth error";
+                return -1;
+            }
         }
 
-        one_auth_file = pw_ent->pw_dir;
+        one_auth_file = pw_ent.pw_dir;
         one_auth_file += "/.one/one_auth";
 
         one_auth_env = one_auth_file.c_str();
