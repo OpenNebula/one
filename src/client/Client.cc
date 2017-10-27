@@ -84,21 +84,24 @@ int Client::read_oneauth(string &secret, string& error_msg)
     {
         struct passwd pw_ent;
         struct passwd * result;
-        char pwdbuffer[16384];
-        int  pwdlinelen = sizeof(pwdbuffer);
+
+        char   pwdbuffer[16384];
+        size_t pwdlinelen = sizeof(pwdbuffer);
 
         rc = getpwuid_r(getuid(), &pw_ent, pwdbuffer, pwdlinelen, &result);
 
-        if (result == NULL)
+        if (result == 0)
         {
             if (rc == 0)
             {
-                error_msg = "Could not get one_auth file location";
-                return -1;
-            } else {
-                error_msg = "one_auth error";
-                return -1;
+                error_msg = "No matching password record for user";
             }
+            else
+            {
+                error_msg = "Error accessing password file";
+            }
+
+            return -1;
         }
 
         one_auth_file = pw_ent.pw_dir;

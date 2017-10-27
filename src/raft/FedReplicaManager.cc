@@ -29,16 +29,9 @@ const time_t FedReplicaManager::xmlrpc_timeout_ms = 10000;
 
 FedReplicaManager::FedReplicaManager(LogDB * d): ReplicaManager(), logdb(d)
 {
-    std::string error, xmlrpc_secret;
-
     pthread_mutex_init(&mutex, 0);
 
     am.addListener(this);
-
-    if ( Client::read_oneauth(xmlrpc_secret, error) == -1 )
-    {
-        throw runtime_error(error);
-    }
 };
 
 /* -------------------------------------------------------------------------- */
