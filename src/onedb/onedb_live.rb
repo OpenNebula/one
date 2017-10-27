@@ -343,8 +343,20 @@ class OneDBLive
                 next unless check_expr(o, options[:expr])
             end
 
-            o.info
-            doc = Nokogiri::XML(o.to_xml, nil, NOKOGIRI_ENCODING) do |c|
+            # Get body from the database
+            begin
+                db_data = select(table, "oid = #{o.id}")
+            rescue => e
+                STDERR.puts "Error getting object id #{o.id}"
+                STDERR.puts e.message
+                STDERR.puts e.backtrace
+                next
+            end
+
+            row = db_data.first
+            body = Base64.decode64(row['body64'])
+
+            doc = Nokogiri::XML(body, nil, NOKOGIRI_ENCODING) do |c|
                 c.default_xml.noblanks
             end
 
@@ -361,7 +373,14 @@ class OneDBLive
             if options[:dry]
                 puts xml
             else
-                update_body(table, xml, "oid = #{o.id}", federate)
+                begin
+                    update_body(table, xml, "oid = #{o.id}", federate)
+                rescue => e
+                    STDERR.puts "Error updating object id #{o.id}"
+                    STDERR.puts e.message
+                    STDERR.puts e.backtrace
+                    next
+                end
             end
         end
     end
