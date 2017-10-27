@@ -54,17 +54,11 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
 
-    std::string raft_xml, cmd, arg, error;
-    std::string xmlrpc_secret;
+    std::string raft_xml, cmd, arg;
 
 	pthread_mutex_init(&mutex, 0);
 
 	am.addListener(this);
-
-    if ( Client::read_oneauth(xmlrpc_secret, error) == -1 )
-    {
-        throw runtime_error(error);
-    }
 
     // -------------------------------------------------------------------------
     // Initialize Raft variables:
