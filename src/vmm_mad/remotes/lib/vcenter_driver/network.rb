@@ -100,14 +100,10 @@ class Network
 
         one_tmp = {}
 
-        if unmanaged && unmanaged == "wild"
-            network_import_name = "#{network_name} [VM #{vm_or_template_name}]"
-        else
-            hash_name = "#{network_name} - #{ccr_name.tr(" ", "_")} [#{vcenter_instance_name} - #{dc_name}]_#{cluster_location}"
-            sha256 = Digest::SHA256.new
-            network_hash = sha256.hexdigest(hash_name)[0..11]
-            network_import_name = "#{network_name} - #{ccr_name.tr(" ", "_")} [#{vcenter_instance_name} - #{dc_name}]_#{network_hash}"
-        end
+        hash_name = "#{network_name} - #{ccr_name.tr(" ", "_")} [#{vcenter_instance_name} - #{dc_name}]_#{cluster_location}"
+        sha256 = Digest::SHA256.new
+        network_hash = sha256.hexdigest(hash_name)[0..11]
+        network_import_name = "#{network_name} - #{ccr_name.tr(" ", "_")} [#{vcenter_instance_name} - #{dc_name}]_#{network_hash}"
 
         one_tmp[:name]             = network_name
         one_tmp[:import_name]      = network_import_name
