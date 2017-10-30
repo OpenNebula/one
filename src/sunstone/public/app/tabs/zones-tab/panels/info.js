@@ -65,9 +65,17 @@ define(function(require) {
     var templateTableHTML = TemplateTable.html(this.element.TEMPLATE, RESOURCE,
                                       Locale.tr("Attributes"));
 
+    if (this.element.SERVER_POOL.SERVER){
+      var serverPool = this.element.SERVER_POOL.SERVER;
+      if (!Array.isArray(serverPool)){
+        serverPool = [serverPool];
+      }
+    }
+
     return TemplateInfo({
       'element': this.element,
       'renameTrHTML': renameTrHTML,
+      'serverPool': serverPool,
       'templateTableHTML': templateTableHTML
     });
   }

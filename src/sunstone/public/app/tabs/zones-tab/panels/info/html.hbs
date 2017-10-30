@@ -34,6 +34,32 @@
   <div class="large-6 columns"></div>
 </div>
 <div class="row">
+  <div class="large-6 columns">
+    <table id="info_zone_table" class="dataTable">
+      <thead>
+        <tr>
+          <th colspan="3">{{tr "Server Pool"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{tr "ID"}}</td>
+          <td>{{tr "Name"}}</td>
+          <td>{{tr "ENDPOINT"}}</td>
+        </tr>
+        {{#each serverPool}}
+          <tr>
+            <td>{{ID}}</td>
+            <td>{{NAME}}</td>
+            <td>{{ENDPOINT}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+  <div class="large-6 columns"></div>
+</div>
+<div class="row">
   <div class="large-9 columns">
     {{{templateTableHTML}}}
   </div>
