@@ -398,6 +398,10 @@ define(function(require) {
           var memoryCost = template_json.VMTEMPLATE.TEMPLATE.MEMORY_COST;
           var memoryUnitCost = template_json.VMTEMPLATE.TEMPLATE.MEMORY_UNIT_COST;
 
+          if (memoryCost && memoryUnitCost && memoryUnitCost == "GB") {
+            memoryCost = (memoryCost*1024).toString();
+          }
+
           if (cpuCost == undefined){
             cpuCost = Config.onedConf.DEFAULT_COST.CPU_COST;
           }
