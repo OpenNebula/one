@@ -164,6 +164,12 @@ define(function(require) {
                 delete roleTemplate.APPEND;
                 $.extend(true, that.vm_template_json.VMTEMPLATE.TEMPLATE, roleTemplate);
               }
+              if (vm_template_json.VMTEMPLATE.TEMPLATE['MEMORY_COST'] && vm_template_json.VMTEMPLATE.TEMPLATE['MEMORY_UNIT_COST'] && vm_template_json.VMTEMPLATE.TEMPLATE['MEMORY_UNIT_COST'] == "GB") {
+                vm_template_json.VMTEMPLATE.TEMPLATE['MEMORY_COST'] = vm_template_json.VMTEMPLATE.TEMPLATE['MEMORY_COST']*1024;
+              }
+              if (vm_template_json.VMTEMPLATE.TEMPLATE['DISK_COST']) {
+                vm_template_json.VMTEMPLATE.TEMPLATE['DISK_COST'] = vm_template_json.VMTEMPLATE.TEMPLATE['DISK_COST']*1024;
+              }
 
               var cost = OpenNebulaTemplate.cost(that.vm_template_json);
 
