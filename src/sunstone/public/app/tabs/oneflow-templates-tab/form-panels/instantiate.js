@@ -30,6 +30,7 @@ define(function(require) {
   var WizardFields = require('utils/wizard-fields');
   var UserInputs = require('utils/user-inputs');
   var Config = require('sunstone-config');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     TEMPLATES
@@ -137,10 +138,34 @@ define(function(require) {
             },
             timeout: true,
             success: function (request, vm_template_json){
-
+              that.vm_template_json = vm_template_json;
               $("#"+div_id, context).empty();
 
-              var cost = OpenNebulaTemplate.cost(vm_template_json);
+              if (role.vm_template_contents){
+                roleTemplate = TemplateUtils.stringToTemplate(role.vm_template_contents);
+                var append = roleTemplate.APPEND.split(",");
+                $.each(append, function(key, value){
+                  if (!that.vm_template_json.VMTEMPLATE.TEMPLATE[value]){
+                    that.vm_template_json.VMTEMPLATE.TEMPLATE[value] = roleTemplate[value];
+                  } else {
+                    if (!Array.isArray(that.vm_template_json.VMTEMPLATE.TEMPLATE[value])){
+                      that.vm_template_json.VMTEMPLATE.TEMPLATE[value] = [that.vm_template_json.VMTEMPLATE.TEMPLATE[value]];
+                    }
+                    if (Array.isArray(roleTemplate[value])){
+                      $.each(roleTemplate[value], function(rkey, rvalue){
+                        that.vm_template_json.VMTEMPLATE.TEMPLATE[value].push(rvalue);
+                      });
+                    } else {
+                      that.vm_template_json.VMTEMPLATE.TEMPLATE[value].push(roleTemplate[value]);
+                    }
+                  }
+                  delete roleTemplate[value];
+                });
+                delete roleTemplate.APPEND;
+                $.extend(true, that.vm_template_json.VMTEMPLATE.TEMPLATE, roleTemplate);
+              }
+
+              var cost = OpenNebulaTemplate.cost(that.vm_template_json);
 
               if (cost != 0 && Config.isFeatureEnabled("showback")) {
                 total_cost += (cost * role.cardinality);
