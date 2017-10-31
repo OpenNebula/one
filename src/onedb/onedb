@@ -254,6 +254,13 @@ ID = {
     :format => Numeric
 }
 
+SEQ= {
+    :name   => "seq",
+    :large  => "--seq SEQ" ,
+    :description => "Sequence number of a hitory record",
+    :format => Numeric
+}
+
 XPATH = {
     :name   => "xpath",
     :short  => "-x ID",
@@ -545,6 +552,46 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         begin
             action = OneDBLive.new
             action.change_body(args[0], args[1], args[2], options)
+        rescue Exception => e
+            puts e.message
+            pp e.backtrace
+            [-1, e.message]
+        end
+
+        0 # exit code
+    end
+
+    ###########################################################################
+    # Change value in a history record
+    ###########################################################################
+    change_history_desc = <<-EOT.unindent
+        Changes a value from a history record of a VM. History records are
+        defined by its sequence number (SEQ) and VM ID.
+
+            * --id: vm id, example: 156
+            * --seq: sequence number of the record, example: 0
+
+        The new value for this elemente is set in the third parameter.   
+
+        Change the the hostname of first record:
+
+            onedb change-history --id 3 --seq 0 '/HISTORY/HOSTNAME' new_host
+
+        #{LIVE_ACTION_HELP}
+    EOT
+    command :'change-history', change_history_desc, :xpath, :value,
+            :options => [ID, SEQ, DRY] do
+        begin
+            vid = options[:id]
+            seq = options[:seq]
+
+            if !vid || !seq
+                puts "Missing VM ID or SEQ number"
+                return -1
+            end
+
+            action = OneDBLive.new
+            action.change_history(vid, seq, args[0], args[1], options)
         rescue Exception => e
             puts e.message
             pp e.backtrace
