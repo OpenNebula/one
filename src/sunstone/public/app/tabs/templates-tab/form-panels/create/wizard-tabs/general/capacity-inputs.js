@@ -139,11 +139,6 @@ define(function(require) {
         var vcpuValue = $("div.vcpu_input input", context).val();
         $("div.cpu_input input", context).val(vcpuValue * Config.scaleFactor);
       });
-    } else {
-        $("div.vcpu_input input", context).on("change", function(){
-        var vcpuValue = $("div.vcpu_input input", context).val();
-        $("div.cpu_input input", context).val(vcpuValue);
-      });
     }
 
     if (userInputs != undefined && userInputs.MEMORY != undefined){
