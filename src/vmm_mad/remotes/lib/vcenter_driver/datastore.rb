@@ -68,7 +68,7 @@ class Storage
         end
     end
 
-    def self.get_image_import_template(ds_name, image_path, image_type, image_prefix, ipool, template_id, ds_id)
+    def self.get_image_import_template(ds_name, image_path, image_type, image_prefix, ipool, type, ds_id)
         one_image = {}
         one_image[:template] = ""
 
@@ -83,9 +83,9 @@ class Storage
 
         if image.nil?
             # Generate a name with the reference
-            if template_id
-                image_name = "#{file_name} - #{ds_name} [Template #{template_id}]"
-            else
+            begin
+                image_name = "#{file_name} - #{ds_name} [#{type[:object]} #{type[:id]}]"
+            rescue
                 image_name = "#{file_name} - #{ds_name}"
             end
 
