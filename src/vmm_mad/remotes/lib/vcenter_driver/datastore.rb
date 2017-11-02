@@ -616,9 +616,8 @@ class Datastore < Storage
                     one_image << "DEV_PREFIX=\"#{disk_prefix}\"\n"
 
                     # Check image hasn't already been imported
-                    vcenter_path = "vcenter://#{image_path}"
-                    image_found = VCenterDriver::VIHelper.find_image_by("PATH", OpenNebula::ImagePool,
-                                                                             vcenter_path,
+                    image_found = VCenterDriver::VIHelper.find_image_by("SOURCE", OpenNebula::ImagePool,
+                                                                             image_path,
                                                                              ds_id,
                                                                              ipool)
 
