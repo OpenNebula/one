@@ -1,6 +1,8 @@
 
 require 'opennebula'
 require 'base64'
+require 'pry'
+EDITOR_PATH='/usr/bin/vi'
 
 class OneDBLive
     def initialize
@@ -12,7 +14,7 @@ class OneDBLive
         @client ||= OpenNebula::Client.new
     end
 
-    def system
+    def system_db
         @system ||= OpenNebula::System.new(client)
     end
 
@@ -70,7 +72,7 @@ class OneDBLive
     end
 
     def db_exec(sql, error_msg, federate = false)
-        rc = system.sql_command(sql, federate)
+        rc = system_db.sql_command(sql, federate)
         if OpenNebula.is_error?(rc)
             raise "#{error_msg}: #{rc.message}"
         end
@@ -90,7 +92,7 @@ class OneDBLive
     end
 
     def db_query(sql, error_msg)
-        rc = system.sql_query_command(sql)
+        rc = system_db.sql_query_command(sql)
         if OpenNebula.is_error?(rc)
             raise "#{error_msg}: #{rc.message}"
         end
@@ -419,6 +421,254 @@ class OneDBLive
                 end
             end
         end
+    end
+
+    def update_body_cli(object, options = {})
+        case (object||'').downcase.strip.to_sym
+        when :vm
+            table = 'vm_pool'
+            object = OpenNebula::VirtualMachinePool.new(client)
+            federate = false
+
+        when :host
+            table = 'host_pool'
+            object = OpenNebula::HostPool.new(client)
+            federate = false
+
+        when :vnet
+            table = 'network_pool'
+            object = OpenNebula::VirtualNetworkPool.new(client)
+            federate = false
+
+        when :image
+            table = 'image_pool'
+            object = OpenNebula::ImagePool.new(client)
+            federate = false
+
+        when :cluster
+            table = 'cluster_pool'
+            object = OpenNebula::ClusterPool.new(client)
+            federate = false
+
+        when :document
+            table = 'document_pool'
+            object = OpenNebula::DocumentPool.new(client)
+            federate = false
+
+        when :group
+            table = 'group_pool'
+            object = OpenNebula::GroupPool.new(client)
+            federate = true
+
+        when :marketplace
+            table = 'marketplace_pool'
+            object = OpenNebula::MarketPlacePool.new(client)
+            federate = true
+
+        when :marketplaceapp
+            table = 'marketplaceapp_pool'
+            object = OpenNebula::MarketPlaceAppPool.new(client)
+            federate = true
+
+        when :secgroup
+            table = 'secgroup_pool'
+            object = OpenNebula::SecurityGroupPool.new(client)
+            federate = false
+
+        when :template
+            table = 'template_pool'
+            object = OpenNebula::TemplatePool.new(client)
+            federate = false
+
+        when :vrouter
+            table = 'vrouter_pool'
+            object = OpenNebula::VirtualRouterPool.new(client)
+            federate = false
+
+        when :zone
+            table = 'zone_pool'
+            object = OpenNebula::ZonePool.new(client)
+            federate = true
+
+        else
+            raise "Object type '#{object}' not supported"
+        end
+
+        object.info_all
+
+        object.each do |o|
+            if options[:id]
+                next unless o.id.to_s.strip == options[:id].to_s
+            elsif options[:xpath]
+                next unless o[options[:xpath]]
+            elsif options[:expr]
+                next unless check_expr(o, options[:expr])
+            end
+
+            # Get body from the database
+            begin
+                db_data = select(table, "oid = #{o.id}")
+            rescue => e
+                STDERR.puts "Error getting object id #{o.id}"
+                STDERR.puts e.message
+                STDERR.puts e.backtrace
+                next
+            end
+
+            row = db_data.first
+            body = Base64.decode64(row['body64'])
+
+            doc = Nokogiri::XML(body, nil, NOKOGIRI_ENCODING) do |c|
+                c.default_xml.noblanks
+            end
+
+            doc = editor_body(doc)
+
+            xml_doc = Nokogiri::XML(doc)
+            xml = xml_doc.root.to_xml
+
+            if options[:dry]
+                puts xml
+            else
+                begin
+                    update_body(table, xml, "oid = #{o.id}", federate)
+                rescue => e
+                    STDERR.puts "Error updating object id #{o.id}"
+                    STDERR.puts e.message
+                    STDERR.puts e.backtrace
+                    next
+                end
+            end
+        end
+    end
+
+    def show_body_cli(object, options = {})
+        case (object||'').downcase.strip.to_sym
+        when :vm
+            table = 'vm_pool'
+            object = OpenNebula::VirtualMachinePool.new(client)
+            federate = false
+
+        when :host
+            table = 'host_pool'
+            object = OpenNebula::HostPool.new(client)
+            federate = false
+
+        when :vnet
+            table = 'network_pool'
+            object = OpenNebula::VirtualNetworkPool.new(client)
+            federate = false
+
+        when :image
+            table = 'image_pool'
+            object = OpenNebula::ImagePool.new(client)
+            federate = false
+
+        when :cluster
+            table = 'cluster_pool'
+            object = OpenNebula::ClusterPool.new(client)
+            federate = false
+
+        when :document
+            table = 'document_pool'
+            object = OpenNebula::DocumentPool.new(client)
+            federate = false
+
+        when :group
+            table = 'group_pool'
+            object = OpenNebula::GroupPool.new(client)
+            federate = true
+
+        when :marketplace
+            table = 'marketplace_pool'
+            object = OpenNebula::MarketPlacePool.new(client)
+            federate = true
+
+        when :marketplaceapp
+            table = 'marketplaceapp_pool'
+            object = OpenNebula::MarketPlaceAppPool.new(client)
+            federate = true
+
+        when :secgroup
+            table = 'secgroup_pool'
+            object = OpenNebula::SecurityGroupPool.new(client)
+            federate = false
+
+        when :template
+            table = 'template_pool'
+            object = OpenNebula::TemplatePool.new(client)
+            federate = false
+
+        when :vrouter
+            table = 'vrouter_pool'
+            object = OpenNebula::VirtualRouterPool.new(client)
+            federate = false
+
+        when :zone
+            table = 'zone_pool'
+            object = OpenNebula::ZonePool.new(client)
+            federate = true
+
+        else
+            raise "Object type '#{object}' not supported"
+        end
+
+        object.info_all
+
+        object.each do |o|
+            if options[:id]
+                next unless o.id.to_s.strip == options[:id].to_s
+            elsif options[:xpath]
+                next unless o[options[:xpath]]
+            elsif options[:expr]
+                next unless check_expr(o, options[:expr])
+            end
+
+            # Get body from the database
+            begin
+                db_data = select(table, "oid = #{o.id}")
+            rescue => e
+                STDERR.puts "Error getting object id #{o.id}"
+                STDERR.puts e.message
+                STDERR.puts e.backtrace
+                next
+            end
+
+            row = db_data.first
+            body = Base64.decode64(row['body64'])
+
+            doc = Nokogiri::XML(body, nil, NOKOGIRI_ENCODING) do |c|
+                c.default_xml.noblanks
+            end
+            puts "----------------------------"
+            puts doc
+            puts "----------------------------"
+        end
+    end
+
+    def editor_body(body_xml)
+        #Editor
+        require 'tempfile'
+        
+        tmp  = Tempfile.new("one_cli")
+
+        if body_xml
+            tmp << body_xml
+            tmp.flush
+        end
+
+        editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH
+
+        system("#{editor_path} #{tmp.path}")
+
+        unless $?.exitstatus == 0
+            puts "Editor not defined"
+            exit -1
+        end
+
+        tmp.close
+
+        return File.read(tmp.path)
     end
 end
 
