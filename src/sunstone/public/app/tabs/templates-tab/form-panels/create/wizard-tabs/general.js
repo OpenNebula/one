@@ -267,10 +267,24 @@ define(function(require) {
 
     $.extend(true, templateJSON, CapacityCreate.retrieve($("div.capacityCreate", context)));
 
+    if (templateJSON['MEMORY_COST'] && templateJSON['MEMORY_UNIT_COST'] && templateJSON['MEMORY_UNIT_COST'] == "GB") {
+      templateJSON['MEMORY_COST'] = templateJSON['MEMORY_COST']/1024;
+    }
+    if (templateJSON['DISK_COST']) {
+      templateJSON['DISK_COST'] = templateJSON['DISK_COST']/1024;
+    }
     return templateJSON;
   }
 
   function _fill(context, templateJSON) {
+
+    if (templateJSON['MEMORY_COST'] && templateJSON['MEMORY_UNIT_COST'] && templateJSON['MEMORY_UNIT_COST'] == "GB") {
+      templateJSON['MEMORY_COST'] = templateJSON['MEMORY_COST']*1024;
+    }
+    if (templateJSON['DISK_COST']) {
+      templateJSON['DISK_COST'] = templateJSON['DISK_COST']*1024;
+    }
+
     that.templateDISKS = $.extend(true, {}, templateJSON.DISK);
     localStorage.setItem("disksJSON", JSON.stringify(that.templateDISKS));
     var sunstone_template = templateJSON.SUNSTONE;

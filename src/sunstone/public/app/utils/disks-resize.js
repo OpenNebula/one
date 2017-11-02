@@ -30,7 +30,6 @@ define(function(require){
 
   function _calculateCost(context, disk_cost, callback){
     var cost = 0;
-    disk_cost = disk_cost / 1024;
 
     $(".diskContainer", context).each(function(){
       var size = 0;

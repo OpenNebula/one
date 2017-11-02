@@ -259,6 +259,42 @@ class OneDBLive
         res
     end
 
+    def change_history(vid, seq, xpath, value, options)
+        begin
+            db_data = select("history", "vid = #{vid} and seq = #{seq}")
+        rescue => e
+            STDERR.puts "Error getting history recored #{seq} for VM #{vid}"
+            STDERR.puts e.message
+            STDERR.puts e.backtrace
+            return
+        end
+
+        row  = db_data.first
+        body = Base64.decode64(row['body64'])
+
+        doc = Nokogiri::XML(body, nil, NOKOGIRI_ENCODING) do |c|
+            c.default_xml.noblanks
+        end
+
+        doc.xpath(xpath).each do |e|
+            e.content = value
+        end
+
+        xml = doc.root.to_xml
+
+        if options[:dry]
+            puts xml
+        else
+            begin
+                update_body("history", xml, "vid = #{vid} and seq = #{seq}", false)
+            rescue => e
+                STDERR.puts "Error updating history recored #{seq} for VM #{vid}"
+                STDERR.puts e.message
+                STDERR.puts e.backtrace
+            end
+        end
+    end
+
     def change_body(object, xpath, value, options = {})
         case (object||'').downcase.strip.to_sym
         when :vm
