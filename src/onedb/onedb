@@ -553,4 +553,66 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         0 # exit code
     end
+
+    ###########################################################################
+    # Update object body
+    ###########################################################################
+    update_body_desc = <<-EOT.unindent
+        Update body of an object. The possible objects are:
+        vm, host, vnet, image, cluster, document, group, marketplace,
+        marketplaceapp, secgroup, template, vrouter or zone
+
+        You can filter the objects to modify using one of these options:
+
+            * --id: object id, example: 156
+            * --xpath: xpath expression, example: TEMPLATE[count(NIC)>1]
+            * --expr: xpath expression, can use operators =, !=, <, >, <= or >=
+                examples: UNAME=oneadmin, TEMPLATE/NIC/NIC_ID>0
+        #{LIVE_ACTION_HELP}
+    EOT
+
+    command :'update-body', update_body_desc, :object,
+            :options => [ID, XPATH, EXPR, DRY] do
+        begin
+            action = OneDBLive.new
+            action.update_body_cli(args[0], options)
+        rescue Exception => e
+            puts e.message
+            pp e.backtrace
+            [-1, e.message]
+        end
+
+        0 # exit code
+    end
+
+    ###########################################################################
+    # Show object body
+    ###########################################################################
+    show_body_desc = <<-EOT.unindent
+        Show body of an object. The possible objects are:
+        vm, host, vnet, image, cluster, document, group, marketplace,
+        marketplaceapp, secgroup, template, vrouter or zone
+
+        You can filter the objects to show using one of these options:
+
+            * --id: object id, example: 156
+            * --xpath: xpath expression, example: TEMPLATE[count(NIC)>1]
+            * --expr: xpath expression, can use operators =, !=, <, >, <= or >=
+                examples: UNAME=oneadmin, TEMPLATE/NIC/NIC_ID>0
+        #{LIVE_ACTION_HELP}
+    EOT
+
+    command :'show-body', show_body_desc, :object,
+            :options => [ID, XPATH, EXPR, DRY] do
+        begin
+            action = OneDBLive.new
+            action.show_body_cli(args[0], options)
+        rescue Exception => e
+            puts e.message
+            pp e.backtrace
+            [-1, e.message]
+        end
+
+        0 # exit code
+    end
 end
