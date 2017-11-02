@@ -554,7 +554,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             action.change_body(args[0], args[1], args[2], options)
         rescue Exception => e
             puts e.message
-            pp e.backtrace
             [-1, e.message]
         end
 
@@ -594,7 +593,72 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             action.change_history(vid, seq, args[0], args[1], options)
         rescue Exception => e
             puts e.message
-            pp e.backtrace
+            [-1, e.message]
+        end
+
+        0 # exit code
+    end
+
+    ###########################################################################
+    # Update object body
+    ###########################################################################
+    update_body_desc = <<-EOT.unindent
+        Update body of an object. The possible objects are:
+        vm, host, vnet, image, cluster, document, group, marketplace,
+        marketplaceapp, secgroup, template, vrouter or zone. Objects are
+        specified by their ID:
+            * --id: object id, example: 156
+
+        For example to update the XML document of VM 23:
+            onedb update-body vm --id 23
+
+        #{LIVE_ACTION_HELP}
+    EOT
+
+    command :'update-body', update_body_desc, :object, :options => [ID] do
+        begin
+            if !options[:id]
+                puts "Missing object ID"
+                return -1
+            end
+
+            action = OneDBLive.new
+            action.update_body_cli(args[0], options[:id])
+        rescue Exception => e
+            puts e.message
+            [-1, e.message]
+        end
+
+        0 # exit code
+    end
+
+    ###########################################################################
+    # Show object body
+    ###########################################################################
+    show_body_desc = <<-EOT.unindent
+        Show body of an object. The possible objects are:
+        vm, host, vnet, image, cluster, document, group, marketplace,
+        marketplaceapp, secgroup, template, vrouter or zone. Objects are
+        specified by their ID:
+            * --id: object id, example: 156
+
+        For example to show the XML document of VM 23:
+            onedb show-body vm --id 23
+
+        #{LIVE_ACTION_HELP}
+    EOT
+
+    command :'show-body', show_body_desc, :object, :options => [ID] do
+        begin
+            if !options[:id]
+                puts "Missing object ID"
+                return -1
+            end
+
+            action = OneDBLive.new
+            STDOUT.puts action.show_body_cli(args[0], options[:id])
+        rescue Exception => e
+            puts e.message
             [-1, e.message]
         end
 

@@ -3,6 +3,9 @@ require 'opennebula'
 require 'base64'
 
 class OneDBLive
+
+    EDITOR_PATH='/bin/vi'
+
     def initialize
         @client = nil
         @system = nil
@@ -12,7 +15,7 @@ class OneDBLive
         @client ||= OpenNebula::Client.new
     end
 
-    def system
+    def system_db
         @system ||= OpenNebula::System.new(client)
     end
 
@@ -70,7 +73,7 @@ class OneDBLive
     end
 
     def db_exec(sql, error_msg, federate = false)
-        rc = system.sql_command(sql, federate)
+        rc = system_db.sql_command(sql, federate)
         if OpenNebula.is_error?(rc)
             raise "#{error_msg}: #{rc.message}"
         end
@@ -90,7 +93,7 @@ class OneDBLive
     end
 
     def db_query(sql, error_msg)
-        rc = system.sql_query_command(sql)
+        rc = system_db.sql_query_command(sql)
         if OpenNebula.is_error?(rc)
             raise "#{error_msg}: #{rc.message}"
         end
@@ -257,43 +260,7 @@ class OneDBLive
         res
     end
 
-    def change_history(vid, seq, xpath, value, options)
-        begin
-            db_data = select("history", "vid = #{vid} and seq = #{seq}")
-        rescue => e
-            STDERR.puts "Error getting history recored #{seq} for VM #{vid}"
-            STDERR.puts e.message
-            STDERR.puts e.backtrace
-            return
-        end
-
-        row  = db_data.first
-        body = Base64.decode64(row['body64'])
-
-        doc = Nokogiri::XML(body, nil, NOKOGIRI_ENCODING) do |c|
-            c.default_xml.noblanks
-        end
-
-        doc.xpath(xpath).each do |e|
-            e.content = value
-        end
-
-        xml = doc.root.to_xml
-
-        if options[:dry]
-            puts xml
-        else
-            begin
-                update_body("history", xml, "vid = #{vid} and seq = #{seq}", false)
-            rescue => e
-                STDERR.puts "Error updating history recored #{seq} for VM #{vid}"
-                STDERR.puts e.message
-                STDERR.puts e.backtrace
-            end
-        end
-    end
-
-    def change_body(object, xpath, value, options = {})
+    def get_pool_config(object)
         case (object||'').downcase.strip.to_sym
         when :vm
             table = 'vm_pool'
@@ -364,6 +331,46 @@ class OneDBLive
             raise "Object type '#{object}' not supported"
         end
 
+        return table, object, federate
+    end
+
+    def change_history(vid, seq, xpath, value, options)
+        begin
+            db_data = select("history", "vid = #{vid} and seq = #{seq}")
+        rescue => e
+            STDERR.puts "Error getting history recored #{seq} for VM #{vid}"
+            STDERR.puts e.message
+            return
+        end
+
+        row  = db_data.first
+        body = Base64.decode64(row['body64'])
+
+        doc = Nokogiri::XML(body, nil, NOKOGIRI_ENCODING) do |c|
+            c.default_xml.noblanks
+        end
+
+        doc.xpath(xpath).each do |e|
+            e.content = value
+        end
+
+        xml = doc.root.to_xml
+
+        if options[:dry]
+            puts xml
+        else
+            begin
+                update_body("history", xml, "vid = #{vid} and seq = #{seq}", false)
+            rescue => e
+                STDERR.puts "Error updating history recored #{seq} for VM #{vid}"
+                STDERR.puts e.message
+            end
+        end
+    end
+
+    def change_body(object, xpath, value, options = {})
+        table, object, federate = get_pool_config(object)
+
         if !value && !options[:delete]
             raise "A value or --delete should specified"
         end
@@ -385,7 +392,6 @@ class OneDBLive
             rescue => e
                 STDERR.puts "Error getting object id #{o.id}"
                 STDERR.puts e.message
-                STDERR.puts e.backtrace
                 next
             end
 
@@ -414,11 +420,91 @@ class OneDBLive
                 rescue => e
                     STDERR.puts "Error updating object id #{o.id}"
                     STDERR.puts e.message
-                    STDERR.puts e.backtrace
                     next
                 end
             end
         end
+    end
+
+    def editor_body(body_xml)
+        #Editor
+        require 'tempfile'
+
+        tmp  = Tempfile.new("onedb")
+
+        if body_xml
+            tmp << body_xml
+            tmp.flush
+        end
+
+        editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH
+
+        system("#{editor_path} #{tmp.path}")
+
+        unless $?.exitstatus == 0
+            puts "Editor not defined"
+            exit -1
+        end
+
+        tmp.close
+
+        return File.read(tmp.path)
+    end
+
+    def update_body_cli(object, id)
+        table, object, federate = get_pool_config(object)
+
+        # Get body from the database
+        begin
+            db_data = select(table, "oid = #{id}")
+        rescue => e
+            STDERR.puts "Error getting object id #{o.id}"
+            STDERR.puts e.message
+        end
+
+        row = db_data.first
+        body = Base64.decode64(row['body64'])
+
+        doc = Nokogiri::XML(body, nil, NOKOGIRI_ENCODING) do |c|
+            c.default_xml.noblanks
+        end
+
+        doc = editor_body(doc.root.to_s)
+
+        begin
+            xml_doc = Nokogiri::XML(doc, nil, NOKOGIRI_ENCODING) do |c|
+                c.default_xml.noblanks
+                c.strict
+            end
+
+            xml = xml_doc.root.to_xml
+
+            update_body(table, xml, "oid = #{id}", federate)
+        rescue => e
+            STDERR.puts "Error updating object id #{id}"
+            STDERR.puts e.message
+        end
+    end
+
+    def show_body_cli(object, id)
+        table, object, federate = get_pool_config(object)
+
+        # Get body from the database
+        begin
+            db_data = select(table, "oid = #{id}")
+        rescue => e
+            STDERR.puts "Error getting object id #{id}"
+            STDERR.puts e.message
+        end
+
+        row = db_data.first
+        body = Base64.decode64(row['body64'])
+
+        doc = Nokogiri::XML(body, nil, NOKOGIRI_ENCODING) do |c|
+            c.default_xml.noblanks
+        end
+
+        doc.root.to_s
     end
 end
 
