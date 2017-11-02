@@ -264,7 +264,8 @@ class Template
                                                                                   disk[:type],
                                                                                   disk[:prefix],
                                                                                   ipool,
-                                                                                  template_id)
+                                                                                  template_id,
+                                                                                  datastore_found["ID"])
                 #Image is already in the datastore
                 if image_import[:one]
                     # This is the disk info
