@@ -247,7 +247,6 @@ build_scripts=[
     'src/vrouter/SConstruct',
     'src/market/SConstruct',
     'src/ipamm/SConstruct',
-    'share/man/SConstruct',
     'src/sunstone/public/locale/languages/SConstruct',
     'src/sunstone/public/SConstruct',
     'share/rubygems/SConstruct',
