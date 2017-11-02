@@ -16,6 +16,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+set -e
+
 #-------------------------------------------------------------------------------
 # DIR DEFINITIONS
 #-------------------------------------------------------------------------------
@@ -117,7 +119,10 @@ do_clean()
     mkdir -p $BIN_DIR
 
     find share/examples -name '*.class' -delete
-    find test/ -name '*.class' -delete
+
+    if [ -d test/ ]; then
+        find test/ -name '*.class' -delete
+    fi
 
     echo "Cleaning javadoc files..."
     rm -rf $DOC_DIR > /dev/null 2>&1
