@@ -327,8 +327,10 @@ get '/vcenter/template/:vcenter_ref/:template_id' do
             end
         end
 
+        type = {:object => "template", :id => template_id}
+
         # Create images or get disks information for template
-        error, template_disks = template.import_vcenter_disks(vc_uuid, dpool, ipool, true, template_id)
+        error, template_disks = template.import_vcenter_disks(vc_uuid, dpool, ipool, type, true)
         raise error if !error.empty?
 
         template_moref = template_copy_ref ? template_copy_ref : ref
