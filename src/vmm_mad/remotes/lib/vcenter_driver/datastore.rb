@@ -68,7 +68,7 @@ class Storage
         end
     end
 
-    def self.get_image_import_template(ds_name, image_path, image_type, image_prefix, ipool, template_id)
+    def self.get_image_import_template(ds_name, image_path, image_type, image_prefix, ipool, type, ds_id)
         one_image = {}
         one_image[:template] = ""
 
@@ -77,18 +77,18 @@ class Storage
 
         # Get image name
         file_name = File.basename(image_path).gsub(/\.vmdk$/,"")
-        if template_id
-            image_name = "#{file_name} - #{ds_name} [Template #{template_id}]"
-        else
-            image_name = "#{file_name} - #{ds_name}"
-        end
 
         #Check if the image has already been imported
-        image = VCenterDriver::VIHelper.find_by_name(OpenNebula::ImagePool,
-                                                     image_name,
-                                                     ipool,
-                                                     false)
+        image = VIHelper.find_image_by("SOURCE", OpenNebula::ImagePool, image_path, ds_id, ipool)
+
         if image.nil?
+            # Generate a name with the reference
+            begin
+                image_name = "#{file_name} - #{ds_name} [#{type[:object]} #{type[:id]}]"
+            rescue
+                image_name = "#{file_name} - #{ds_name}"
+            end
+
             #Set template
             one_image[:template] << "NAME=\"#{image_name}\"\n"
             one_image[:template] << "PATH=\"vcenter://#{image_path}\"\n"
@@ -616,9 +616,8 @@ class Datastore < Storage
                     one_image << "DEV_PREFIX=\"#{disk_prefix}\"\n"
 
                     # Check image hasn't already been imported
-                    vcenter_path = "vcenter://#{image_path}"
-                    image_found = VCenterDriver::VIHelper.find_image_by_path(OpenNebula::ImagePool,
-                                                                             vcenter_path,
+                    image_found = VCenterDriver::VIHelper.find_image_by("SOURCE", OpenNebula::ImagePool,
+                                                                             image_path,
                                                                              ds_id,
                                                                              ipool)
 

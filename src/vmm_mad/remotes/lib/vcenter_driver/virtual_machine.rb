@@ -225,7 +225,12 @@ class Template
         end
     end
 
-    def import_vcenter_disks(vc_uuid, dpool, ipool, sunstone=false, template_id=nil)
+    ########################################################################
+    # Import vcenter disks
+    # @param type [object] contains the type of the object(:object) and identificator(:id)
+    # @return error, template_disks
+    ########################################################################
+    def import_vcenter_disks(vc_uuid, dpool, ipool, type,  sunstone=false)
         disk_info = ""
         error = ""
         sunstone_disk_info = []
@@ -264,7 +269,8 @@ class Template
                                                                                   disk[:type],
                                                                                   disk[:prefix],
                                                                                   ipool,
-                                                                                  template_id)
+                                                                                  type,
+                                                                                  datastore_found["ID"])
                 #Image is already in the datastore
                 if image_import[:one]
                     # This is the disk info

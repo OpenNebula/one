@@ -107,10 +107,10 @@ class VIHelper
         return nil
     end
 
-    def self.find_image_by_path(the_class, path, ds_id, pool = nil)
+    def self.find_image_by(att, the_class, path, ds_id, pool = nil)
         pool = one_pool(the_class, false) if pool.nil?
         element = pool.find{|e|
-            e["PATH"] == path &&
+            e[att] == path &&
             e["DATASTORE_ID"] == ds_id}
         return element
     end
