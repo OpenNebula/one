@@ -69,5 +69,5 @@ require 'opennebula/vm_group_pool'
 module OpenNebula
 
     # OpenNebula version
-    VERSION = '5.4.2'
+    VERSION = '5.4.3'
 end
