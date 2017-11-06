@@ -2517,22 +2517,30 @@ def inspect_templates(vc_templates, vc_clusters, one_clusters, tpool, ipool, vnp
             # If vcenter_datastore is a SYSTEM_DS then it's a storage pod
             # Let's create a SCHED_DS_REQUIREMENTS to force using that datastore
             ds_id = nil
-            if !vcenter_datastore.empty?
-                ds = find_datastore_by_name(dspool, "#{vcenter_datastore}")
-                ds_id   = ds["ID"]
-                ds_type = ds["TEMPLATE/TYPE"]
-                if ds_type == "SYSTEM_DS"
-                    sched_ds_req = one_template["TEMPLATE/SCHED_DS_REQUIREMENTS"]
+            begin
+                if !vcenter_datastore.empty?
+                    ds = find_datastore_by_name(dspool, "#{vcenter_datastore}")
+                    ds_id   = ds["ID"]
+                    ds_type = ds["TEMPLATE/TYPE"]
+                    if ds_type == "SYSTEM_DS"
+                        sched_ds_req = one_template["TEMPLATE/SCHED_DS_REQUIREMENTS"]
 
-                    if sched_ds_req
-                        xml_template.xpath("SCHED_DS_REQUIREMENTS").remove
-                        requirements = "ID=#{ds_id} & (#{sched_ds_req})"
-                        xml_template.add_child(xml_doc.create_element("SCHED_DS_REQUIREMENTS")).add_child(Nokogiri::XML::CDATA.new(xml_doc,"\"#{requirements}\""))
-                    else
-                        # Add a SCHED_DS_REQUIREMENTS to template
-                        xml_template.add_child(xml_doc.create_element("SCHED_DS_REQUIREMENTS")).add_child(Nokogiri::XML::CDATA.new(xml_doc,"\"ID=#{ds_id}\""))
+                        if sched_ds_req
+                            xml_template.xpath("SCHED_DS_REQUIREMENTS").remove
+                            requirements = "ID=#{ds_id} & (#{sched_ds_req})"
+                            xml_template.add_child(xml_doc.create_element("SCHED_DS_REQUIREMENTS")).add_child(Nokogiri::XML::CDATA.new(xml_doc,"\"#{requirements}\""))
+                        else
+                            # Add a SCHED_DS_REQUIREMENTS to template
+                            xml_template.add_child(xml_doc.create_element("SCHED_DS_REQUIREMENTS")).add_child(Nokogiri::XML::CDATA.new(xml_doc,"\"ID=#{ds_id}\""))
+                        end
                     end
                 end
+            rescue Exception => e
+                STDOUT.puts
+                if vcenter_datastore and !ds
+                    STDOUT.puts "vCenter datastore #{vcenter_datastore} cannot be found"
+                end
+                STDOUT.puts "Could not add SCHED_DS_REQUIREMENTS to VM Template #{template["NAME"]}. Please add it manually if needed. Reason: #{e.message}"
             end
 
             #Write new XML template to file
@@ -2544,7 +2552,11 @@ def inspect_templates(vc_templates, vc_clusters, one_clusters, tpool, ipool, vnp
             STDOUT.puts
 
         rescue Exception => e
-            raise e
+            STDOUT.puts
+            STDOUT.puts "VM Template \"#{template_name}\" couldn't be imported. Please consider removing the VM Template and importing it again with OpenNebula 5.4.x. Reason: #{e.message}"
+            if template_id
+                File.delete("#{TEMP_DIR}/one_migrate_template_#{template_id}") rescue nil
+            end
         ensure
             vi_client.vim.close if vi_client
         end
@@ -2884,7 +2896,8 @@ def inspect_vms(vc_vmachines, vc_templates, vc_clusters, one_clusters, vmpool, i
             STDOUT.puts "-" * 80
             STDOUT.puts
         rescue Exception => e
-            raise e
+            STDOUT.puts
+            STDOUT.puts "Wild VM \"#{vm["NAME"]}\" couldn't be migrated. It may require manual intervention. Reason: #{e.message}"
         ensure
             vi_client.vim.close if vi_client
         end
@@ -2913,7 +2926,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     main do
         begin
-            msg = "  vCenter pre-migrator tool for OpenNebula 5.4 - Version: 1.1.5"
+            msg = "  vCenter pre-migrator tool for OpenNebula 5.4 - Version: 1.1.6"
             logo_banner(msg)
 
             # Initialize opennebula client
@@ -3092,7 +3105,7 @@ CommandParser::CmdParser.new(ARGV) do
                                " - Reconfigure vCenter VM to add unmanaged disks and nics references\n"\
                                " - DEPLOY_ID will get VM's managed object reference\n"
 
-            banner " PHASE 8 - Inspect existing VMs", true
+            banner " PHASE 8 - Inspect existing VMs", true, extended_message
             STDOUT.puts
             inspect_vms(vc_vmachines, vc_templates, vc_clusters, one_clusters, vmpool, ipool, tpool, vnpool, dspool, hpool, one_client, vcenter_ids)
 
