@@ -37,6 +37,7 @@ require 'one_helper/onehost_helper'
 require 'one_helper/onecluster_helper'
 require 'vcenter_driver'
 require 'opennebula'
+require 'digest/md5'
 
 TEMP_DIR="/var/tmp/vcenter_one54"
 
@@ -65,6 +66,12 @@ def logo_banner(msg, header=false)
     STDOUT.puts "-"*80
     STDOUT.puts msg
     STDOUT.puts "="*80
+end
+
+def get_md5(string)
+    md5 = Digest::MD5.new
+    md5.update(string.to_s)
+    md5.hexdigest[0..4]
 end
 
 ################################################################################
@@ -459,7 +466,9 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
             image_prefix  = "sd" if scsi_controlled.include?(device.key)
             image_prefix  = "sd" if sata_controlled.include?(device.key)
             file_name     = File.basename(image_path).gsub(/\.vmdk$/,"")
-            image_name    = "#{file_name} - #{ds_name}"
+
+            md5        = get_md5("#{ds_name}#{image_path}")
+            image_name = "#{file_name} - #{ds_name} - #{md5}"
 
             image_path_escaped = image_path.gsub(" ", "%20")
 
@@ -2120,6 +2129,7 @@ def inspect_templates(vc_templates, vc_clusters, one_clusters, tpool, ipool, vnp
     # Retrieve all OpenNebula templates associated with PUBLIC_CLOUD=vcenter
     templates = tpool.retrieve_xmlelements("VMTEMPLATE[TEMPLATE/PUBLIC_CLOUD/TYPE=\"vcenter\"]")
 
+    selected_templates = {}
     templates.each do |template|
         begin
             # Refresh pools
@@ -2295,11 +2305,30 @@ def inspect_templates(vc_templates, vc_clusters, one_clusters, tpool, ipool, vnp
 
                 STDOUT.puts("#{template_refs.size+1}: None of the above.")
 
+                STDOUT.puts
+                STDOUT.puts "Template: #{template_name}"
+                STDOUT.puts
+                STDOUT.puts "Previously selected templates:"
+                selected_templates.each do |k,v|
+                    STDOUT.puts("#{k}: #{v}")
+                end
+                STDOUT.puts
+
                 loop do
                     STDOUT.print("\nFrom the list above, please \e[95mpick a number\e[39m in order to specify the template: ")
                     template_index = STDIN.gets.strip.to_i
-                    next if template_index == 0 || template_index - 1 < 0 || template_index > template_refs.size + 1
-                    template_ref  = template_refs[template_index-1] rescue nil
+
+                    if template_index == template_refs.size + 1
+                        # selected None of the above
+                        break
+                    end
+
+                    # selection out of bounds
+                    next if template_index <= 0 || template_index > template_refs.size + 1
+
+                    template_ref = template_refs[template_index-1] rescue nil
+                    selected_templates[template_index] = templates_list[template_ref]["name"]
+
                     break
                 end
 
@@ -2488,22 +2517,30 @@ def inspect_templates(vc_templates, vc_clusters, one_clusters, tpool, ipool, vnp
             # If vcenter_datastore is a SYSTEM_DS then it's a storage pod
             # Let's create a SCHED_DS_REQUIREMENTS to force using that datastore
             ds_id = nil
-            if !vcenter_datastore.empty?
-                ds = find_datastore_by_name(dspool, "#{vcenter_datastore}")
-                ds_id   = ds["ID"]
-                ds_type = ds["TEMPLATE/TYPE"]
-                if ds_type == "SYSTEM_DS"
-                    sched_ds_req = one_template["TEMPLATE/SCHED_DS_REQUIREMENTS"]
+            begin
+                if !vcenter_datastore.empty?
+                    ds = find_datastore_by_name(dspool, "#{vcenter_datastore}")
+                    ds_id   = ds["ID"]
+                    ds_type = ds["TEMPLATE/TYPE"]
+                    if ds_type == "SYSTEM_DS"
+                        sched_ds_req = one_template["TEMPLATE/SCHED_DS_REQUIREMENTS"]
 
-                    if sched_ds_req
-                        xml_template.xpath("SCHED_DS_REQUIREMENTS").remove
-                        requirements = "ID=#{ds_id} & (#{sched_ds_req})"
-                        xml_template.add_child(xml_doc.create_element("SCHED_DS_REQUIREMENTS")).add_child(Nokogiri::XML::CDATA.new(xml_doc,"\"#{requirements}\""))
-                    else
-                        # Add a SCHED_DS_REQUIREMENTS to template
-                        xml_template.add_child(xml_doc.create_element("SCHED_DS_REQUIREMENTS")).add_child(Nokogiri::XML::CDATA.new(xml_doc,"\"ID=#{ds_id}\""))
+                        if sched_ds_req
+                            xml_template.xpath("SCHED_DS_REQUIREMENTS").remove
+                            requirements = "ID=#{ds_id} & (#{sched_ds_req})"
+                            xml_template.add_child(xml_doc.create_element("SCHED_DS_REQUIREMENTS")).add_child(Nokogiri::XML::CDATA.new(xml_doc,"\"#{requirements}\""))
+                        else
+                            # Add a SCHED_DS_REQUIREMENTS to template
+                            xml_template.add_child(xml_doc.create_element("SCHED_DS_REQUIREMENTS")).add_child(Nokogiri::XML::CDATA.new(xml_doc,"\"ID=#{ds_id}\""))
+                        end
                     end
                 end
+            rescue Exception => e
+                STDOUT.puts
+                if vcenter_datastore and !ds
+                    STDOUT.puts "vCenter datastore #{vcenter_datastore} cannot be found"
+                end
+                STDOUT.puts "Could not add SCHED_DS_REQUIREMENTS to VM Template #{template["NAME"]}. Please add it manually if needed. Reason: #{e.message}"
             end
 
             #Write new XML template to file
@@ -2515,7 +2552,11 @@ def inspect_templates(vc_templates, vc_clusters, one_clusters, tpool, ipool, vnp
             STDOUT.puts
 
         rescue Exception => e
-            raise e
+            STDOUT.puts
+            STDOUT.puts "VM Template \"#{template_name}\" couldn't be imported. Please consider removing the VM Template and importing it again with OpenNebula 5.4.x. Reason: #{e.message}"
+            if template_id
+                File.delete("#{TEMP_DIR}/one_migrate_template_#{template_id}") rescue nil
+            end
         ensure
             vi_client.vim.close if vi_client
         end
@@ -2524,10 +2565,10 @@ end
 
 ################################################################################
 def inspect_vms(vc_vmachines, vc_templates, vc_clusters, one_clusters, vmpool, ipool, tpool, vnpool, dspool, hpool, one_client, vcenter_ids)
-
     # Retrieve vCenter deployed or importer VMs
     vms = vmpool.retrieve_xmlelements("VM[USER_TEMPLATE/PUBLIC_CLOUD/TYPE=\"vcenter\"]")
 
+    selected_templates = {}
     vms.each do |vm|
         next if !vm["DEPLOY_ID"] # Ignore undeployed vms
 
@@ -2723,11 +2764,30 @@ def inspect_vms(vc_vmachines, vc_templates, vc_clusters, one_clusters, vmpool, i
 
                     STDOUT.puts("#{template_refs.size+1}: None of the above.")
 
+                    STDOUT.puts
+                    STDOUT.puts "VirtualMachine: #{vm_name}"
+                    STDOUT.puts
+                    STDOUT.puts "Previously selected templates:"
+                    selected_templates.each do |k,v|
+                        STDOUT.puts("#{k}: #{v}")
+                    end
+                    STDOUT.puts
+
                     loop do
                         STDOUT.print("\nFrom the list above, please \e[95mpick up one number\e[39m in order to specify the venter template that this VM was based on: ")
                         template_index = STDIN.gets.strip.to_i
-                        next if template_index == 0 || template_index - 1 < 0 || template_index > template_refs.size + 1
-                        template_ref  = template_refs[template_index-1] rescue nil
+
+                        if template_index == template_refs.size + 1
+                            # selected None of the above
+                            break
+                        end
+
+                        # selection out of bounds
+                        next if template_index <= 0 || template_index > template_refs.size + 1
+
+                        template_ref = template_refs[template_index-1] rescue nil
+                        selected_templates[template_index] = templates_list[template_ref]["name"]
+
                         break
                     end
                 end
@@ -2836,7 +2896,8 @@ def inspect_vms(vc_vmachines, vc_templates, vc_clusters, one_clusters, vmpool, i
             STDOUT.puts "-" * 80
             STDOUT.puts
         rescue Exception => e
-            raise e
+            STDOUT.puts
+            STDOUT.puts "Wild VM \"#{vm["NAME"]}\" couldn't be migrated. It may require manual intervention. Reason: #{e.message}"
         ensure
             vi_client.vim.close if vi_client
         end
@@ -2865,7 +2926,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     main do
         begin
-            msg = "  vCenter pre-migrator tool for OpenNebula 5.4 - Version: 1.1.3"
+            msg = "  vCenter pre-migrator tool for OpenNebula 5.4 - Version: 1.1.6"
             logo_banner(msg)
 
             # Initialize opennebula client
@@ -3044,7 +3105,7 @@ CommandParser::CmdParser.new(ARGV) do
                                " - Reconfigure vCenter VM to add unmanaged disks and nics references\n"\
                                " - DEPLOY_ID will get VM's managed object reference\n"
 
-            banner " PHASE 8 - Inspect existing VMs", true
+            banner " PHASE 8 - Inspect existing VMs", true, extended_message
             STDOUT.puts
             inspect_vms(vc_vmachines, vc_templates, vc_clusters, one_clusters, vmpool, ipool, tpool, vnpool, dspool, hpool, one_client, vcenter_ids)
 
