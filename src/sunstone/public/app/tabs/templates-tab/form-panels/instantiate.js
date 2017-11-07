@@ -485,6 +485,8 @@ define(function(require) {
               template_json,
               {text_header: '<i class="fa fa-gears"></i> '+Locale.tr("Custom Attributes")});
 
+          Tips.setup(inputs_div);
+
           inputs_div.data("opennebula_id", template_json.VMTEMPLATE.ID);
 
           capacityContext = $(".capacityContext"  + template_json.VMTEMPLATE.ID, context);

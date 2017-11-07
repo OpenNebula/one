@@ -16,6 +16,7 @@
         <option value="range">        {{tr "range"}}           </option>
         <option value="range-float">  {{tr "range (float)"}}   </option>
         <option value="list">         {{tr "list"}}            </option>
+        <option value="list-multiple">{{tr "list (multiple)"}} </option>
         <option value="boolean">      {{tr "boolean"}}         </option>
       </select>
     </label>
@@ -73,7 +74,7 @@
         <input type="number" step="any" class="user_input_initial" placeholder="8.5"/>
       </label>
     </div>
-    <div class="user_input_type_right list">
+    <div class="user_input_type_right list list-multiple">
       <label style="display: initial;">
         {{tr "Options"}}
         {{{tip (tr "Comma-separated list of options for the drop-down select input")}}}
