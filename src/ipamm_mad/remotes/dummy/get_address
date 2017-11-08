@@ -103,7 +103,8 @@ ADDR_SIZE="${XPATH_ELEMENTS[i++]}"
 BASE_IP=$(echo $AR_IP | cut -d'.' -f-3)
 HOST_ID=$RANDOM
 let "HOST_ID %= $AR_SIZE"
-$HOST_ID = $HOST_ID +1
+HOST_ID=$(($HOST_ID+1))
+
 cat << EOT
 ADDRESS = [ IP=$BASE_IP.$HOST_ID, SIZE=$ADDR_SIZE ]
 EOT
