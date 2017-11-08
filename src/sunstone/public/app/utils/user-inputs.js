@@ -740,12 +740,13 @@ define(function(require) {
       case "list-multiple":
         input = "<select multiple=\"multiple\" "+wizard_field+" "+required+">";
 
-        $.each(attr.options, function(){
-          var selected = (attr.initial == this);
+        $.each(attr.options, function(key, value){
+          var defaultR = attr.initial.split(",");
+          var selected = (defaultR.includes(value));
 
-          input +=  "<option value=\""+this+"\" "+
+          input +=  "<option value=\""+value+"\" "+
                     (selected? "selected" : "")+">"+
-                      this+
+                      value+
                     "</option>";
         });
 

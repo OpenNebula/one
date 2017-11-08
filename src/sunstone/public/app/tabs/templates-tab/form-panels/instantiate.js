@@ -243,6 +243,13 @@ define(function(require) {
       };
 
       var tmp_json = WizardFields.retrieve($(".template_user_inputs" + template_id, context));
+      $.each(tmp_json, function(key, value){
+        if (Array.isArray(value)){
+          delete tmp_json[key];
+          tmp_json[key] = value.join(",");
+        }
+      });
+
       var disks = DisksResize.retrieve($(".disksContext"  + template_id, context));
       if (disks.length > 0) {
         tmp_json.DISK = disks;
