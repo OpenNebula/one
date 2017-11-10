@@ -106,7 +106,7 @@ define(function(require) {
     TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, hiddenValues);
 
     // Change table Order
-    context.off("click", "#div_edit_table_order")
+    context.off("click", "#div_edit_table_order");
     context.on("click", "#div_edit_table_order", function() {
       $(".value_td_table_order", context).html("<select id=\"table_order_select\">" +
          "<option> </option>" +
@@ -119,6 +119,7 @@ define(function(require) {
       }
     });
 
+    context.off("change", "#table_order_select");
     context.on("change", "#table_order_select", function() {
       var sunstone_setting = {TABLE_ORDER : $(this).val()};
       if (sunstone_setting.TABLE_ORDER !== ""){
@@ -139,6 +140,7 @@ define(function(require) {
       }
     });
 
+    context.off("change", "#language_select");
     context.on("change", "#language_select", function() {
       var sunstone_setting = {LANG : $(this).val()};
       if (sunstone_setting.LANG !== ""){
@@ -163,6 +165,7 @@ define(function(require) {
       }
     });
 
+    context.off("change", "#view_select");
     context.on("change", "#view_select", function() {
       var sunstone_setting = {DEFAULT_VIEW : $(this).val()};
       if (sunstone_setting.DEFAULT_VIEW !== ""){
