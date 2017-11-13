@@ -43,7 +43,7 @@ function get_type
     else
         command=$1
 
-        ( $command | head -n 1024 | file -b --mime-type - ) 2>/dev/null
+        ( eval "$command" | head -n 1024 | file -b --mime-type - ) 2>/dev/null
     fi
 }
 
