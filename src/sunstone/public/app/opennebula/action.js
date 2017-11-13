@@ -116,6 +116,10 @@ define(function(require) {
       });
     },
 
+    "cache": function(resource) {
+      return listCache[resource];
+    },
+
     "list": function(params, resource, path, process) {
       var callback = params.success;
       var callbackError = params.error;

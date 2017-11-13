@@ -17,40 +17,42 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  require('foundation');
-  var Locale = require('utils/locale');
-  var Humanize = require('utils/humanize');
-  var RenameTr = require('utils/panel/rename-tr');
-  var TemplateTable = require('utils/panel/template-table');
-  var TemplateTableVcenter = require('utils/panel/template-table');
-  var PermissionsTable = require('utils/panel/permissions-table');
-  var ClusterTr = require('utils/panel/cluster-tr');
-  var OpenNebulaHost = require('opennebula/host');
-  var CPUBars = require('../utils/cpu-bars');
-  var MemoryBars = require('../utils/memory-bars');
-  var DatastoresCapacityTable = require('../utils/datastores-capacity-table');
-  var CanImportWilds = require('../utils/can-import-wilds');
-  var Sunstone = require('sunstone');
-  var TemplateUtils = require('utils/template-utils');
-  var CapacityTable = require('utils/custom-tags-table');
-  var EC2Tr = require('utils/panel/ec2-tr');
+  require("foundation");
+  var Locale = require("utils/locale");
+  var Humanize = require("utils/humanize");
+  var RenameTr = require("utils/panel/rename-tr");
+  var TemplateTable = require("utils/panel/template-table");
+  var TemplateTableVcenter = require("utils/panel/template-table");
+  var PermissionsTable = require("utils/panel/permissions-table");
+  var ClusterTr = require("utils/panel/cluster-tr");
+  var OpenNebulaHost = require("opennebula/host");
+  var CPUBars = require("../utils/cpu-bars");
+  var MemoryBars = require("../utils/memory-bars");
+  var Reserved = require("../utils/reserved");
+  var DatastoresCapacityTable = require("../utils/datastores-capacity-table");
+  var CanImportWilds = require("../utils/can-import-wilds");
+  var Sunstone = require("sunstone");
+  var TemplateUtils = require("utils/template-utils");
+  var CapacityTable = require("utils/custom-tags-table");
+  var EC2Tr = require("utils/panel/ec2-tr");
+  var OpenNebulaAction = require("opennebula/action");
 
   /*
     TEMPLATES
    */
 
-  var TemplateInfo = require('hbs!./info/html');
+  var TemplateInfo = require("hbs!./info/html");
 
   /*
     CONSTANTS
    */
 
-  var TAB_ID = require('../tabId');
-  var PANEL_ID = require('./info/panelId');
+  var TAB_ID = require("../tabId");
+  var PANEL_ID = require("./info/panelId");
   var RESOURCE = "Host";
   var XML_ROOT = "HOST";
 
-  var OVERCOMMIT_DIALOG_ID = require('utils/dialogs/overcommit/dialogId');
+  var OVERCOMMIT_DIALOG_ID = require("utils/dialogs/overcommit/dialogId");
 
   /*
     CONSTRUCTOR
@@ -70,7 +72,7 @@ define(function(require) {
     that.unshownTemplate = {};
     that.strippedTemplateVcenter = {};
     that.strippedTemplate = {};
-    var unshownKeys = ['HOST', 'VM', 'WILDS', 'ZOMBIES', 'RESERVED_CPU', 'RESERVED_MEM', "EC2_ACCESS", "EC2_SECRET", "CAPACITY", "REGION_NAME"];
+    var unshownKeys = ["HOST", "VM", "WILDS", "ZOMBIES", "RESERVED_CPU", "RESERVED_MEM", "EC2_ACCESS", "EC2_SECRET", "CAPACITY", "REGION_NAME"];
     $.each(that.element.TEMPLATE, function(key, value) {
       if ($.inArray(key, unshownKeys) > -1) {
        that.unshownTemplate[key] = value;
@@ -96,6 +98,13 @@ define(function(require) {
     FUNCTION DEFINITIONS
    */
   function _html() {
+    var cache = OpenNebulaAction.cache("CLUSTER");
+    if (!cache){
+      Sunstone.runAction("Cluster.list");
+      cache = OpenNebulaAction.cache("CLUSTER");
+    }
+    var elementAux = Reserved.updateHostTemplate(cache, this.element);
+
     var templateTableHTML = TemplateTable.html(
                                       this.strippedTemplate,
                                       RESOURCE,
@@ -107,30 +116,30 @@ define(function(require) {
     var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
     var clusterTrHTML = ClusterTr.html(this.element.CLUSTER);
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
-    var cpuBars = CPUBars.html(this.element);
-    var memoryBars = MemoryBars.html(this.element);
+    var cpuBars = CPUBars.html(elementAux);
+    var memoryBars = MemoryBars.html(elementAux);
     var datastoresCapacityTableHTML = DatastoresCapacityTable.html(this.element);
     var realCPU = parseInt(this.element.HOST_SHARE.TOTAL_CPU);
     var realMEM = parseInt(this.element.HOST_SHARE.TOTAL_MEM);
 
     return TemplateInfo({
-      'element': this.element,
-      'renameTrHTML': renameTrHTML,
-      'clusterTrHTML': clusterTrHTML,
-      'templateTableHTML': templateTableHTML,
-      'templateTableVcenterHTML': templateTableVcenterHTML,
-      'permissionsTableHTML': permissionsTableHTML,
-      'cpuBars': cpuBars,
-      'memoryBars': memoryBars,
-      'stateStr': OpenNebulaHost.stateStr(this.element.STATE),
-      'datastoresCapacityTableHTML': datastoresCapacityTableHTML,
-      'maxReservedMEM': realMEM * 2,
-      'maxReservedCPU': realCPU * 2,
-      'realCPU': realCPU,
-      'realMEM': Humanize.size(realMEM),
-      'virtualMEMInput': Humanize.size(this.element.HOST_SHARE.MAX_MEM),
-      'ec2_tr': EC2Tr.html(RESOURCE, this.element.TEMPLATE),
-      'capacityTableHTML': CapacityTable.html()
+      "element": this.element,
+      "renameTrHTML": renameTrHTML,
+      "clusterTrHTML": clusterTrHTML,
+      "templateTableHTML": templateTableHTML,
+      "templateTableVcenterHTML": templateTableVcenterHTML,
+      "permissionsTableHTML": permissionsTableHTML,
+      "cpuBars": cpuBars,
+      "memoryBars": memoryBars,
+      "stateStr": OpenNebulaHost.stateStr(this.element.STATE),
+      "datastoresCapacityTableHTML": datastoresCapacityTableHTML,
+      "maxReservedMEM": realMEM * 2,
+      "maxReservedCPU": realCPU * 2,
+      "realCPU": realCPU,
+      "realMEM": Humanize.size(realMEM),
+      "virtualMEMInput": Humanize.size(this.element.HOST_SHARE.MAX_MEM),
+      "ec2_tr": EC2Tr.html(RESOURCE, this.element.TEMPLATE),
+      "capacityTableHTML": CapacityTable.html()
     });
   }
 
@@ -180,7 +189,7 @@ define(function(require) {
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
 
     if($.isEmptyObject(this.strippedTemplateVcenter)){
-      $('.vcenter', context).hide();
+      $(".vcenter", context).hide();
     }
 
     //.off and .on prevent multiple clicks events
