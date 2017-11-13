@@ -902,21 +902,20 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     // Add deployment dependent attributes to VM
     //   - volatile disk (selected system DS driver)
     //   - vnc port (free in the selected cluster)
+    //   - system_ds to virtualMachineDisks (for non-public clouds)
     // ------------------------------------------------------------------------
     set_volatile_disk_info(vm, ds_id);
-
-    //-------------------------------------------------------------------------
-    // set system_ds to virtualMachineDisks
-    //-------------------------------------------------------------------------
-    vm->get_disks().set_system_ds(Image::disk_type_to_str(disk_type));
-
-    //------------------------------------------------------------------------
 
     if (set_vnc_port(vm, cluster_id, att) != 0)
     {
         failure_response(ACTION, att);
         vm->unlock();
         return;
+    }
+	
+    if ( ds_id != -1 )
+    {
+        vm->get_disks().set_system_ds(Image::disk_type_to_str(disk_type));
     }
 
     // ------------------------------------------------------------------------
