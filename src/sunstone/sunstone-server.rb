@@ -177,7 +177,7 @@ end
 
 set :cloud_auth, $cloud_auth
 
-$views_config = SunstoneViews.new($conf[:mode])
+$views_config = SunstoneViews.new
 
 #start VNC proxy
 
@@ -333,8 +333,6 @@ helpers do
             session[:zone_id]   = zone.id
 
             session[:federation_mode] = rc['FEDERATION/MODE'].upcase
-
-            session[:mode] = $conf[:mode]
 
             return [204, ""]
         end

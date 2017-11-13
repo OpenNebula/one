@@ -99,12 +99,11 @@ define(function(require) {
 
     this.idGroup = -2; /*All*/
     Config.changeFilter(false);
-
+    
     $(".user-zone-info").html(UserAndZoneTemplate({
       filterView: Config['filterView'],
       displayName: config['display_name'],
       settingsTabEnabled: Config.isTabEnabled(SETTINGS_TAB_ID),
-      mode : config["mode"],
       availableViews: config['available_views'],
       zoneName: config['zone_name']
     })).foundation();
@@ -151,7 +150,7 @@ define(function(require) {
           OpenNebula.Group.list({
             timeout: true,
             success: function(request, group_list) {
-              var group_list_aux = group_list;
+              var group_list_aux = group_list; 
               $.each(groups, function(key, value){
                 var id = value;
                 $.each(group_list_aux, function(key, value){
@@ -189,7 +188,7 @@ define(function(require) {
                 var filterName = $(this).text();
                 $('#filter-view').show();
                 $('.filter-name').html(filterName);
-              } else {
+              } else {                
                 $('#filter-view').hide();
                 Config.changeFilter(false);
               }
@@ -202,7 +201,7 @@ define(function(require) {
           });
         },
         error: Notifier.onError
-      });
+      }); 
     }
 
     function zoneRefresh() {
@@ -349,12 +348,12 @@ define(function(require) {
         }
         var x = "",
             xa = "";
-
+ 
         if (m.length == 4) {
             // IPV4
             for(i = 0; i < m.length; i++) {
                 item = m[i];
-
+ 
                 if(item.length == 1) {
                     x += "00" + item;
                 }
@@ -371,11 +370,11 @@ define(function(require) {
             var count = 0;
             for(i = 0; i < n.length; i++) {
                 item = n[i];
-
+ 
                 if (i > 0) {
                     xa += ":";
                 }
-
+ 
                 if(item.length === 0) {
                     count += 0;
                 }
@@ -396,14 +395,14 @@ define(function(require) {
                     count += 4;
                 }
             }
-
+ 
             // Padding the ::
             n = xa.split(":");
             var paddDone = 0;
-
+ 
             for (i = 0; i < n.length; i++) {
                 item = n[i];
-
+ 
                 if (item.length === 0 && paddDone === 0) {
                     for (var padding = 0 ; padding < (32-count) ; padding++) {
                         x += "0";
@@ -415,15 +414,15 @@ define(function(require) {
                 }
             }
         }
-
+ 
         return x;
       }else return a;
     },
-
+ 
     "ip-address-asc": function ( a, b ) {
         return ((a < b) ? -1 : ((a > b) ? 1 : 0));
     },
-
+ 
     "ip-address-desc": function ( a, b ) {
         return ((a < b) ? 1 : ((a > b) ? -1 : 0));
     }
