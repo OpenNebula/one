@@ -369,6 +369,8 @@ public:
 
     virtual ~VirtualMachineDisks(){};
 
+    void set_system_ds(const string name);
+
     /**
      *  Function used to initialize the attribute map based on a vector of DISK
      */

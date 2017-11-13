@@ -19,6 +19,7 @@
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
 #include "Quotas.h"
+#include "Image.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -214,6 +215,7 @@ int RequestManagerVirtualMachine::get_default_ds_information(
     int cluster_id,
     int& ds_id,
     string& tm_mad,
+    Image::DiskType& disk_type,
     RequestAttributes& att)
 {
     Nebula& nd = Nebula::instance();
@@ -260,7 +262,7 @@ int RequestManagerVirtualMachine::get_default_ds_information(
 
     set<int> ds_cluster_ids;
 
-    return get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr);
+    return get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr, disk_type);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -270,7 +272,8 @@ int RequestManagerVirtualMachine::get_ds_information(int ds_id,
     set<int>& ds_cluster_ids,
     string& tm_mad,
     RequestAttributes& att,
-    bool& ds_migr)
+    bool& ds_migr,
+    Image::DiskType& disk_type)
 {
     Nebula& nd = Nebula::instance();
 
@@ -308,6 +311,8 @@ int RequestManagerVirtualMachine::get_ds_information(int ds_id,
     tm_mad = ds->get_tm_mad();
 
     ds->get_template_attribute("DS_MIGRATE", ds_migr);
+
+    disk_type = ds->get_disk_type();
 
     ds->unlock();
 
@@ -730,6 +735,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     PoolObjectAuth * auth_ds_perms;
 
     string tm_mad;
+    Image::DiskType disk_type;
 
     bool auth = false;
 
@@ -791,7 +797,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     {
         if ( ds_id == -1 ) //Use default system DS for cluster
         {
-            if (get_default_ds_information(cluster_id, ds_id, tm_mad, att) != 0)
+            if (get_default_ds_information(cluster_id, ds_id, tm_mad, disk_type, att) != 0)
             {
                 return;
             }
@@ -801,7 +807,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
             set<int> ds_cluster_ids;
             bool     ds_migr;
 
-            if (get_ds_information(ds_id,ds_cluster_ids,tm_mad,att,ds_migr) != 0)
+            if (get_ds_information(ds_id,ds_cluster_ids,tm_mad,att,ds_migr, disk_type) != 0)
             {
                 return;
             }
@@ -899,6 +905,13 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     // ------------------------------------------------------------------------
     set_volatile_disk_info(vm, ds_id);
 
+    //-------------------------------------------------------------------------
+    // set system_ds to virtualMachineDisks
+    //-------------------------------------------------------------------------
+    vm->get_disks().set_system_ds(Image::disk_type_to_str(disk_type));
+
+    //------------------------------------------------------------------------
+
     if (set_vnc_port(vm, cluster_id, att) != 0)
     {
         failure_response(ACTION, att);
@@ -965,6 +978,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     int    c_ds_id;
     string c_tm_mad, tm_mad;
     bool   c_is_public_cloud;
+    Image::DiskType disk_type;
 
     set<int> cluster_ids;
     string   error_str;
@@ -1189,7 +1203,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
             return;
         }
 
-        if (get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr) != 0)
+        if (get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr, disk_type) != 0)
         {
             return;
         }
@@ -1213,7 +1227,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     {
         ds_id  = c_ds_id;
 
-        if (get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr) != 0)
+        if (get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr, disk_type) != 0)
         {
             return;
         }

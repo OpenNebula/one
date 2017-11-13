@@ -81,12 +81,14 @@ protected:
         set<int>& ds_cluster_ids,
         string& tm_mad,
         RequestAttributes& att,
-        bool& ds_migr);
+        bool& ds_migr,
+        Image::DiskType& disk_type);
 
     int get_default_ds_information(
         int cluster_id,
         int& ds_id,
         string& tm_mad,
+        Image::DiskType& disk_type,
         RequestAttributes& att);
 
     bool check_host(int hid,
