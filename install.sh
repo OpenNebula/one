@@ -221,10 +221,7 @@ ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/auth/certificates \
           $ETC_LOCATION/ec2query_templates \
           $ETC_LOCATION/sunstone-views \
-          $ETC_LOCATION/cli \
-          $ETC_LOCATION/sunstone-views/kvm \
-          $ETC_LOCATION/sunstone-views/vcenter \
-          $ETC_LOCATION/sunstone-views/mixed"
+          $ETC_LOCATION/cli"
 
 LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/opennebula \
@@ -506,9 +503,7 @@ INSTALL_SUNSTONE_PUBLIC_DEV_DIR=(
 
 INSTALL_SUNSTONE_ETC_FILES=(
     SUNSTONE_ETC_FILES:$ETC_LOCATION
-    SUNSTONE_ETC_VIEW_KVM:$ETC_LOCATION/sunstone-views/kvm
-    SUNSTONE_ETC_VIEW_VCENTER:$ETC_LOCATION/sunstone-views/vcenter
-    SUNSTONE_ETC_VIEW_MIXED:$ETC_LOCATION/sunstone-views/mixed
+    SUNSTONE_ETC_VIEW_FILES:$ETC_LOCATION/sunstone-views
 )
 
 INSTALL_ONEGATE_FILES=(
@@ -1579,20 +1574,13 @@ SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf \
                     src/sunstone/etc/sunstone-views.yaml \
                     src/sunstone/etc/sunstone-logos.yaml"
 
-SUNSTONE_ETC_VIEW_KVM="src/sunstone/etc/sunstone-views/kvm/admin.yaml \
-                    src/sunstone/etc/sunstone-views/kvm/user.yaml \
-                    src/sunstone/etc/sunstone-views/kvm/cloud.yaml \
-                    src/sunstone/etc/sunstone-views/kvm/groupadmin.yaml"
-
-SUNSTONE_ETC_VIEW_VCENTER="src/sunstone/etc/sunstone-views/vcenter/admin.yaml \
-                    src/sunstone/etc/sunstone-views/vcenter/user.yaml \
-                    src/sunstone/etc/sunstone-views/vcenter/cloud.yaml \
-                    src/sunstone/etc/sunstone-views/vcenter/groupadmin.yaml"
-
-SUNSTONE_ETC_VIEW_MIXED="src/sunstone/etc/sunstone-views/mixed/admin.yaml \
-                    src/sunstone/etc/sunstone-views/mixed/user.yaml \
-                    src/sunstone/etc/sunstone-views/mixed/cloud.yaml \
-                    src/sunstone/etc/sunstone-views/mixed/groupadmin.yaml"
+SUNSTONE_ETC_VIEW_FILES="src/sunstone/etc/sunstone-views/admin.yaml \
+                    src/sunstone/etc/sunstone-views/user.yaml \
+                    src/sunstone/etc/sunstone-views/cloud.yaml \
+                    src/sunstone/etc/sunstone-views/cloud_vcenter.yaml \
+                    src/sunstone/etc/sunstone-views/groupadmin.yaml \
+                    src/sunstone/etc/sunstone-views/groupadmin_vcenter.yaml \
+                    src/sunstone/etc/sunstone-views/admin_vcenter.yaml"
 
 SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
                        src/sunstone/models/SunstoneServer.rb \
