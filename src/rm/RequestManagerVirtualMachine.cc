@@ -19,6 +19,7 @@
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
 #include "Quotas.h"
+#include "Image.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -898,6 +899,18 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     //   - vnc port (free in the selected cluster)
     // ------------------------------------------------------------------------
     set_volatile_disk_info(vm, ds_id);
+
+    //-------------------------------------------------------------------------
+    // set system_ds to virtualMachineDisks
+    //-------------------------------------------------------------------------
+    Datastore * ds = dspool->get(ds_id, true);
+
+    Image::DiskType disk_type = ds->get_disk_type();
+
+    ds->unlock();
+
+    vm->get_disks().set_system_ds(Image::disk_type_to_str(disk_type));
+    //------------------------------------------------------------------------
 
     if (set_vnc_port(vm, cluster_id, att) != 0)
     {
