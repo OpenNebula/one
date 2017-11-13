@@ -111,9 +111,12 @@ class OneMarket
                 end
             end
 
+            begin
             if !app["opennebula_template"].nil?
                 vmtmpl64 = template_to_str(JSON.parse(app["opennebula_template"]))
                 print_var(tmpl, "VMTEMPLATE64", Base64::strict_encode64(vmtmpl64))
+            end
+            rescue
             end
 
             appstr << "APP=\"#{Base64::strict_encode64(tmpl)}\"\n"
