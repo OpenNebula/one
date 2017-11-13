@@ -1560,4 +1560,13 @@ void VirtualMachineDisks::delete_non_persistent_resizes(Template **vm_quotas,
 }
 
 /* -------------------------------------------------------------------------- */
+
+void VirtualMachineDisks::set_system_ds(const string ds_name)
+{
+    for ( disk_iterator disk = begin() ; disk != end() ; ++disk )
+    {
+        (*disk)->replace("SYSTEM_DISK_TYPE", ds_name);
+    }
+}
+
 /* -------------------------------------------------------------------------- */

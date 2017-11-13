@@ -435,7 +435,7 @@ int LibVirtDriver::deployment_description_kvm(
 
     for (int i=0; i < num ;i++)
     {
-        type            = disk[i]->vector_value("TYPE");
+        type            = disk[i]->vector_value("SYSTEM_DISK_TYPE");
         disk_type       = disk[i]->vector_value("DISK_TYPE");
         target          = disk[i]->vector_value("TARGET");
         ro              = disk[i]->vector_value("READONLY");
