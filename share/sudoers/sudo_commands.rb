@@ -20,7 +20,7 @@ require "erb"
 
 
 CMDS = {
-    :MISC  => %w(dd mkfs sync),
+    :MISC  => %w(mkfs sync),
     :NET   => %w(brctl ebtables iptables ip6tables ip ipset),
     :LVM   => %w(lvcreate lvremove lvs vgdisplay lvchange lvscan),
     :ISCSI => %w(iscsiadm tgt-admin tgtadm),
