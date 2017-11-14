@@ -81,6 +81,7 @@ define(function(require) {
       'html': require('hbs!./dashboard-tab/hosts'),
       'onShow': function() {
         Sunstone.runAction("Host.list");
+        Sunstone.runAction("Cluster.list");
       }
     },
     'vms': {

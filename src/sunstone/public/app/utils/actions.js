@@ -16,12 +16,12 @@
 
 define(function(require) {
 
-  var Locale = require('utils/locale');
-  var TemplateUtils = require('utils/template-utils');
-  var Humanize = require('utils/humanize');
+  var Locale = require("utils/locale");
+  var TemplateUtils = require("utils/template-utils");
+  var Humanize = require("utils/humanize");
 
   function _fromJSONtoActionsTable(actions_array) {
-    var str = ""
+    var str = "";
 
     if (!actions_array) {
         return "";
@@ -48,28 +48,26 @@ define(function(require) {
     var time_str = Humanize.prettyTime(scheduling_action.TIME);
 
     var str = "";
-    str += '<tr class="tr_action">\
-        <td class="action_row">' + TemplateUtils.htmlEncode(scheduling_action.ACTION) + '</td>\
-        <td nowrap class="time_row">' + time_str + '</td>\
+    str += "<tr class=\"tr_action\">\
+        <td class=\"action_row\">" + TemplateUtils.htmlEncode(scheduling_action.ACTION) + "</td>\
+        <td nowrap class=\"time_row\">" + time_str + "</td>\
         <td>\
           <div>\
-            <a id="minus" class="remove_action_x" href="#"><i class="fa fa-trash-o"/></a>\
+            <a id=\"minus\" class=\"remove_action_x\" href=\"#\"><i class=\"fa fa-trash-o\"/></a>\
           </div>\
         </td>\
-      </tr>';
+      </tr>";
 
     return str;
   }
 
   function _convertDate(date_string){
-    date_string = date_string.split('/');
+    date_string = date_string.split("/");
     return date_string[2] + "-" + date_string[1] + "-" + date_string[0];
   }
 
   return {
-    'fromJSONtoActionsTable': _fromJSONtoActionsTable,
-    'convertDate': _convertDate
+    "fromJSONtoActionsTable": _fromJSONtoActionsTable,
+    "convertDate": _convertDate
   };
 });
-  
-    

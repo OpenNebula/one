@@ -19,15 +19,18 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var TabDataTable = require('utils/tab-datatable');
-  var SunstoneConfig = require('sunstone-config');
-  var Locale = require('utils/locale');
-  var Humanize = require('utils/humanize');
-  var CPUBars = require('./utils/cpu-bars');
-  var MemoryBars = require('./utils/memory-bars');
-  var OpenNebulaHost = require('opennebula/host');
-  var LabelsUtils = require('utils/labels/utils');
-  var SearchDropdown = require('hbs!./datatable/search');
+  var TabDataTable = require("utils/tab-datatable");
+  var SunstoneConfig = require("sunstone-config");
+  var Locale = require("utils/locale");
+  var Humanize = require("utils/humanize");
+  var CPUBars = require("./utils/cpu-bars");
+  var MemoryBars = require("./utils/memory-bars");
+  var Reserved = require("./utils/reserved");
+  var OpenNebulaHost = require("opennebula/host");
+  var LabelsUtils = require("utils/labels/utils");
+  var SearchDropdown = require("hbs!./datatable/search");
+  var OpenNebulaAction = require("opennebula/action");
+  var Sunstone = require("sunstone");
 
 
   /*
@@ -36,10 +39,10 @@ define(function(require) {
 
   var RESOURCE = "Host";
   var XML_ROOT = "HOST";
-  var TAB_NAME = require('./tabId');
+  var TAB_NAME = require("./tabId");
   var LABELS_COLUMN = 13;
   var SEARCH_COLUMN = 14;
-  var TEMPLATE_ATTR = 'TEMPLATE';
+  var TEMPLATE_ATTR = "TEMPLATE";
 
   /*
     CONSTRUCTOR
@@ -62,10 +65,10 @@ define(function(require) {
           {"sWidth": "35px", "aTargets": [0]},
           {"sWidth": "155px", "aTargets": [6, 8]},
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
-          {"bVisible": false, "aTargets": ['_all']},
+          {"bVisible": false, "aTargets": ["_all"]},
           {"sType": "num", "aTargets": [1, 4]}
       ]
-    }
+    };
 
     this.columns = [
       Locale.tr("ID") ,
@@ -123,10 +126,15 @@ define(function(require) {
    */
 
   function _elementArray(element_json) {
+    var cache = OpenNebulaAction.cache("CLUSTER");
+    if (!cache){
+      Sunstone.runAction("Cluster.list");
+      cache = OpenNebulaAction.cache("CLUSTER");
+    }
     var element = element_json.HOST;
-
-    var cpuBars = CPUBars.html(element);
-    var memoryBars = MemoryBars.html(element);
+    var elementAux = Reserved.updateHostTemplate(cache, element);
+    var cpuBars = CPUBars.html(elementAux);
+    var memoryBars = MemoryBars.html(elementAux);
 
     this.totalHosts++;
 
@@ -168,9 +176,9 @@ define(function(require) {
     }
 
     return [
-        '<input class="check_item" type="checkbox" id="' + RESOURCE.toLowerCase() + '_' +
-                             element.ID + '" name="selected_items" value="' +
-                             element.ID + '"/>',
+        "<input class=\"check_item\" type=\"checkbox\" id=\"" + RESOURCE.toLowerCase() + "_" +
+                             element.ID + "\" name=\"selected_items\" value=\"" +
+                             element.ID + "\"/>",
         element.ID,
         element.NAME,
         element.CLUSTER.length ? element.CLUSTER : "-",
@@ -183,7 +191,7 @@ define(function(require) {
         element.IM_MAD,
         element.VM_MAD,
         Humanize.prettyTime(element.LAST_MON_TIME),
-        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||""),
         btoa(unescape(encodeURIComponent(JSON.stringify(search))))
     ];
   }
@@ -210,7 +218,7 @@ define(function(require) {
     var ratio_allocated_cpu = 0;
     if (this.maxCPU > 0) {
       ratio_allocated_cpu = Math.round((this.allocatedCPU / this.maxCPU) * 100);
-      info_str = this.allocatedCPU + ' / ' + this.maxCPU ;
+      info_str = this.allocatedCPU + " / " + this.maxCPU ;
     } else {
       info_str = "- / -";
     }
@@ -228,7 +236,7 @@ define(function(require) {
     var ratio_real_cpu = 0;
     if (this.maxCPU > 0) {
       ratio_real_cpu = Math.round((this.realCPU / this.maxCPU) * 100);
-      info_str = this.realCPU + ' / ' + this.maxCPU;
+      info_str = this.realCPU + " / " + this.maxCPU;
     } else {
       info_str = "- / -";
     }
@@ -244,9 +252,9 @@ define(function(require) {
     var ratio_allocated_mem = 0;
     if (this.maxMemory > 0) {
       ratio_allocated_mem = Math.round((this.allocatedMemory / this.maxMemory) * 100);
-      info_str = Humanize.size(this.allocatedMemory) + ' / ' + Humanize.size(this.maxMemory);
+      info_str = Humanize.size(this.allocatedMemory) + " / " + Humanize.size(this.maxMemory);
     } else {
-      info_str = Humanize.size(this.allocatedMemory) + ' / -';
+      info_str = Humanize.size(this.allocatedMemory) + " / -";
     }
 
     $("#dashboard_host_allocated_mem").html(quotaDashboard(
@@ -260,9 +268,9 @@ define(function(require) {
     var ratio_real_mem = 0;
     if (this.maxMemory > 0) {
       ratio_real_mem = Math.round((this.realMemory / this.maxMemory) * 100);
-      info_str = Humanize.size(this.realMemory) + ' / ' + Humanize.size(this.maxMemory);
+      info_str = Humanize.size(this.realMemory) + " / " + Humanize.size(this.maxMemory);
     } else {
-      info_str = Humanize.size(this.realMemory) + ' / -';
+      info_str = Humanize.size(this.realMemory) + " / -";
     }
 
     $("#dashboard_host_real_mem").html(quotaDashboard(
@@ -278,20 +286,20 @@ define(function(require) {
   function quotaDashboard(html_tag, legend, font_large_size, font_small_size, quota) {
     var percentage = quota.percentage > 100 ? 100 : quota.percentage;
 
-    return '<div class="row">' +
-          '<div class="large-12 columns">' +
-            '<span>' + legend + '</span>' +
-          '</div>' +
-        '</div>' +
-        '<div class="row">' +
-          '<div class="large-12 columns">' +
-            '  <meter id="' + html_tag + '_meter" min="0" low="33" high="66" optimum="0" max="100" value="' + percentage + '"></meter>' +
-          '</div>' +
-        '</div>' +
-        '<div class="row">' +
-          '<div class="large-12 columns">' +
-            '<span id="' + html_tag + '_str" class="right">' + quota.str + '</span>' +
-          '</div>' +
-        '</div>';
+    return "<div class=\"row\">" +
+          "<div class=\"large-12 columns\">" +
+            "<span>" + legend + "</span>" +
+          "</div>" +
+        "</div>" +
+        "<div class=\"row\">" +
+          "<div class=\"large-12 columns\">" +
+            "  <meter id=\"" + html_tag + "_meter\" min=\"0\" low=\"33\" high=\"66\" optimum=\"0\" max=\"100\" value=\"" + percentage + "\"></meter>" +
+          "</div>" +
+        "</div>" +
+        "<div class=\"row\">" +
+          "<div class=\"large-12 columns\">" +
+            "<span id=\"" + html_tag + "_str\" class=\"right\">" + quota.str + "</span>" +
+          "</div>" +
+        "</div>";
   }
 });
