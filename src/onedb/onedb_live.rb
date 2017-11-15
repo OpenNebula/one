@@ -327,6 +327,26 @@ class OneDBLive
             object = OpenNebula::ZonePool.new(client)
             federate = true
 
+        when :datastore
+            table = 'datastore_pool'
+            object = OpenNebula::DatastorePool.new(client)
+            federate = false
+
+        when :user
+            table = 'user_pool'
+            object = OpenNebula::UserPool.new(client)
+            federate = false
+
+        when :vmgroup
+            table = 'vmgroup_pool'
+            object = OpenNebula::VMGroupPool.new(client)
+            federate = false
+
+        when :vdc
+            table = 'vdc_pool'
+            object = OpenNebula::VdcPool.new(client)
+            federate = false
+
         else
             raise "Object type '#{object}' not supported"
         end

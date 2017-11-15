@@ -518,7 +518,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     change_body_desc = <<-EOT.unindent
         Changes a value from the body of an object. The possible objects are:
             vm, host, vnet, image, cluster, document, group, marketplace,
-            marketplaceapp, secgroup, template, vrouter or zone
+            marketplaceapp, secgroup, template, vrouter, datastore, user, vmgroup, vdc or zone
 
         You can filter the objects to modify using one of these options:
 
@@ -605,8 +605,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     update_body_desc = <<-EOT.unindent
         Update body of an object. The possible objects are:
         vm, host, vnet, image, cluster, document, group, marketplace,
-        marketplaceapp, secgroup, template, vrouter or zone. Objects are
-        specified by their ID:
+        marketplaceapp, secgroup, template, vrouter, datastore, user, vmgroup, vdc or zone.
+        Objects are specified by their ID:
             * --id: object id, example: 156
 
         For example to update the XML document of VM 23:
@@ -638,8 +638,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     show_body_desc = <<-EOT.unindent
         Show body of an object. The possible objects are:
         vm, host, vnet, image, cluster, document, group, marketplace,
-        marketplaceapp, secgroup, template, vrouter or zone. Objects are
-        specified by their ID:
+        marketplaceapp, secgroup, template, vrouter, datastore, user, vmgroup, vdc or zone.
+        Objects are specified by their ID:
             * --id: object id, example: 156
 
         For example to show the XML document of VM 23:
