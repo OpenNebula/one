@@ -76,6 +76,16 @@ define(function(require){
       disks = [template_disk]
     }
 
+    if (opts.template_base_json) {
+      var template_base_disk = opts.template_base_json.VMTEMPLATE.TEMPLATE.DISK
+      var disks_base = []
+      if ($.isArray(template_base_disk)) {
+        disks_base = template_base_disk
+      } else if (!$.isEmptyObject(template_base_disk)) {
+        disks_base = [template_base_disk]
+      }
+    }
+
     if (disks.length > 0) {
       disksContext.html(DisksResizeTemplate());
 
@@ -101,17 +111,23 @@ define(function(require){
 
       var diskContext;
       $(".disksContainer", disksContext).html("");
-      $.each(disks, function(disk_id, disk) {
-        diskContext = $(
-          '<div class="row diskContainer">'+
-            '<div class="small-12 columns">'+
-              '<label></label>'+
-            '</div>'+
-            '<div class="large-12 columns diskSlider">' +
-            '</div>' +
-          '</div>').appendTo($(".disksContainer", disksContext));
 
-        diskContext.data('template_disk', disk);
+      if (disks_base) {
+        $.each(disks_base, function(disk_id, disk) {
+          diskContext = $(
+            '<div class="row diskContainer">'+
+              '<div class="small-12 columns">'+
+                '<label></label>'+
+              '</div>'+
+              '<div class="large-12 columns diskSlider">' +
+              '</div>' +
+            '</div>').appendTo($(".disksContainer", disksContext));
+
+          diskContext.data('template_disk', disk);
+        });
+      }
+
+      $.each(disks, function(disk_id, disk) {
 
         var disk_snapshot_total_size = 0;
         if (disk.DISK_SNAPSHOT_TOTAL_SIZE != undefined) {
