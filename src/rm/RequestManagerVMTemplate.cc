@@ -255,10 +255,7 @@ Request::ErrorCode VMTemplateInstantiate::merge(
                 const string    &str_uattrs,
                 RequestAttributes& att)
 {
-    if (str_uattrs.empty())
-    {
-		return SUCCESS;
-	}
+
 
 	int rc;
 
@@ -270,11 +267,15 @@ Request::ErrorCode VMTemplateInstantiate::merge(
 	if ( rc != 0 )
 	{
 		return INTERNAL;
+    }
+    else if (uattrs.empty())
+    {
+        return SUCCESS;
 	}
 
 	if (att.uid!=UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
 	{
-		if (uattrs.check_restricted(aname, tmpl))
+        if (uattrs.check_restricted(aname, tmpl))
 		{
 			att.resp_msg ="User Template includes a restricted attribute " + aname;
 
