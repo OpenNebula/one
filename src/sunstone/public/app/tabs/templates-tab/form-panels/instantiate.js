@@ -264,14 +264,29 @@ define(function(require) {
 
     this.selected_nodes = selected_nodes;
     this.template_objects = [];
+    this.template_base_objects = {};
 
     var templatesContext = $(".list_of_templates", context);
 
     var idsLength = this.selected_nodes.length;
     var idsDone = 0;
 
+    $.each(this.selected_nodes, function(index, template_id) {
+      OpenNebulaTemplate.show({
+        data : {
+          id: template_id,
+          extended: false
+        },
+        timeout: true,
+        success: function (request, template_json) {
+          that.template_base_objects[template_json.VMTEMPLATE.ID] = template_json;
+        }
+      });
+    });
+
     templatesContext.html("");
     $.each(this.selected_nodes, function(index, template_id) {
+
       OpenNebulaTemplate.show({
         data : {
           id: template_id,
@@ -353,6 +368,7 @@ define(function(require) {
           }
 
           DisksResize.insert({
+            template_base_json: that.template_base_objects[template_json.VMTEMPLATE.ID],
             template_json: template_json,
             disksContext: $(".disksContext"  + template_json.VMTEMPLATE.ID, context),
             force_persistent: $("input.instantiate_pers", context).prop("checked"),
