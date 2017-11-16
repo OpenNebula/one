@@ -22,6 +22,7 @@ define(function(require){
   var UserInputs = require('utils/user-inputs');
   var WizardFields = require('utils/wizard-fields');
   var DisksResizeTemplate = require('hbs!./disks-resize/html');
+  var Humanize = require('utils/humanize');
 
   return {
     'insert': _insert,
@@ -112,22 +113,20 @@ define(function(require){
       var diskContext;
       $(".disksContainer", disksContext).html("");
 
-      if (disks_base) {
-        $.each(disks_base, function(disk_id, disk) {
-          diskContext = $(
-            '<div class="row diskContainer">'+
-              '<div class="small-12 columns">'+
-                '<label></label>'+
-              '</div>'+
-              '<div class="large-12 columns diskSlider">' +
-              '</div>' +
-            '</div>').appendTo($(".disksContainer", disksContext));
 
-          diskContext.data('template_disk', disk);
-        });
-      }
 
       $.each(disks, function(disk_id, disk) {
+        diskContext = $(
+          '<div class="row diskContainer">'+
+            '<div class="small-12 columns">'+
+              '<label></label>'+
+            '</div>'+
+            '<div class="large-12 columns diskSlider">' +
+            '</div>' +
+          '</div>').appendTo($(".disksContainer", disksContext));
+        if (disks_base) {
+          diskContext.data('template_disk', disks_base[disk_id]);
+        }
 
         var disk_snapshot_total_size = 0;
         if (disk.DISK_SNAPSHOT_TOTAL_SIZE != undefined) {
@@ -191,7 +190,7 @@ define(function(require){
           if (disk.SIZE != undefined){
             // Range from original size to size + 500GB
             var min = parseInt(disk.SIZE);
-            var max = min + 512000;
+            var max = min + Humanize.sizeToMB("1024GB");
 
             attr = UserInputs.parse(
               "SIZE",
@@ -202,6 +201,7 @@ define(function(require){
               "M|number|"+label+"||");
           }
         }
+        attr.max_value = "";
         if(!opts.uinput_mb){
           $(".diskSlider", diskContext).html(UserInputs.attributeInput(attr));
         } else {
