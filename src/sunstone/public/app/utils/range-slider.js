@@ -54,7 +54,6 @@ define(function(require) {
         tick_val += opts.tick_size;
       }
     }
-    
     sliderId += 1;
     return TemplateHTML(opts);
   }

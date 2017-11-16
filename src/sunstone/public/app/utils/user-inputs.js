@@ -706,6 +706,9 @@ define(function(require) {
         break;
       case "range":
       case "range-float":
+        if(attr.max_value != ""){
+          attr.max_value = attr.max;
+        }
         input = RangeSlider.html(attr);
 
         break;
