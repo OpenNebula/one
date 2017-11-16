@@ -155,7 +155,7 @@ class OpenNebula::LdapAuth
     end
 
     def is_in_group?(user, group)
-        username = user.first.force_encoding(Encoding::UTF_8)
+        username = user.force_encoding(Encoding::UTF_8)
         result=@ldap.search(
                     :base   => group,
                     :attributes => [@options[:group_field]],
