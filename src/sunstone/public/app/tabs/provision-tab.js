@@ -957,7 +957,7 @@ define(function(require) {
             $("#provision_create_vm .provision_vmgroup").show();
             $("#provision_create_vm .provision_ds").show();
 
-            OpenNebulaTemplate.show({
+            OpenNebula.Template.show({
               data : {
                 id: template_id,
                 extended: false
