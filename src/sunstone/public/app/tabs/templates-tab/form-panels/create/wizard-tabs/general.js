@@ -153,9 +153,9 @@ define(function(require) {
             success: function(request, obj_files){
               var totalGB = 0;
               $.each(that.templateDISKS, function(ikey, ivalue){
-                if (ivalue.IMAGE_ID){
+                if (ivalue.IMAGE || ivalue.IMAGE_ID){
                   $.each(obj_files, function(jkey, jvalue){
-                    if (ivalue.IMAGE_ID == jvalue.IMAGE.ID){
+                    if ((ivalue.IMAGE && ivalue.IMAGE === jvalue.IMAGE.NAME && ivalue.IMAGE_UNAME === jvalue.IMAGE.UNAME) || (ivalue.IMAGE_ID && ivalue.IMAGE_ID === jvalue.IMAGE.ID)){
                       totalGB += jvalue.IMAGE.SIZE / 1024;
                     }
                   });
