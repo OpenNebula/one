@@ -88,7 +88,7 @@ class OneDBLive
         hash = element.to_hash
         row = hash['SQL_COMMAND']['RESULT']['ROW'] rescue nil
         if !row
-            raise "Empty row: "
+            raise "Empty SQL query result: "
         end
         [row].flatten.compact
     end
@@ -393,8 +393,10 @@ class OneDBLive
         if !value && !options[:delete]
             raise "A value or --delete should specified"
         end
+        
         rc = object.info_all
         raise rc.message if OpenNebula.is_error?(rc)
+        
         begin
             db_data = select(table, "oid = #{options[:id]}")
         rescue => e
