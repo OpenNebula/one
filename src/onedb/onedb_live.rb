@@ -2,7 +2,6 @@
 require 'opennebula'
 require 'base64'
 
-require 'pry'
 class OneDBLive
 
     EDITOR_PATH='/bin/vi'
@@ -403,12 +402,6 @@ class OneDBLive
         rc = object.info_all
         raise rc.message if OpenNebula.is_error?(rc)
         
-        begin
-            db_data = select(table, "oid = #{options[:id]}")
-        rescue => e
-            STDERR.puts e.message + "id #{options[:id]} not found"
-        end
-
         object.each do |o|
             if options[:id]
                 next unless o.id.to_s.strip == options[:id].to_s
