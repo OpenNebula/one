@@ -417,8 +417,8 @@ EOT
                 else
                     sync = true
                 end
-
-                @@client=OpenNebula::Client.new(secret, endpoint, :sync => sync)
+                options[:sync] = sync
+                @@client=OpenNebula::Client.new(secret, endpoint, options)
             end
         end
 
