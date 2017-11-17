@@ -570,7 +570,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             * --id: vm id, example: 156
             * --seq: sequence number of the record, example: 0
 
-        The new value for this elemente is set in the third parameter.   
+        The new value for this elemente is set in the third parameter.
 
         Change the the hostname of first record:
 

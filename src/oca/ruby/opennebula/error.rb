@@ -31,7 +31,7 @@ module OpenNebula
         EALLOCATE       = 0x4000
         ENOTDEFINED     = 0xF001
         EXML_RPC_CALL   = 0xF002
-        
+
         attr_reader :message, :errno
 
         # +message+ Description of the error
