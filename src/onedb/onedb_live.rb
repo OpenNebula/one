@@ -83,21 +83,27 @@ class OneDBLive
     def select(table, where)
         sql = "SELECT * FROM #{table} WHERE #{where}"
         res = db_query(sql, "Error querying database")
+        
         element = OpenNebula::XMLElement.new(
             OpenNebula::XMLElement.build_xml(res, '/SQL_COMMAND'))
+        
         hash = element.to_hash
-        row = hash['SQL_COMMAND']['RESULT']['ROW'] rescue nil
+        row  = hash['SQL_COMMAND']['RESULT']['ROW'] rescue nil
+        
         if !row
             raise "Empty SQL query result: "
         end
+        
         [row].flatten.compact
     end
 
     def db_query(sql, error_msg)
         rc = system_db.sql_query_command(sql)
+        
         if OpenNebula.is_error?(rc)
             raise "#{error_msg}: #{rc.message}"
         end
+        
         rc
     end
 
