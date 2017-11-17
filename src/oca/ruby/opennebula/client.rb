@@ -69,7 +69,7 @@ module OpenNebula
         end
     end
 
-    DEFAULT_POOL_PAGE_SIZE = 2000
+    DEFAULT_POOL_PAGE_SIZE = 200
 
     if size=ENV['ONE_POOL_PAGE_SIZE']
         if size.strip.match(/^\d+$/) && size.to_i >= 2
