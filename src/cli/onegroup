@@ -108,10 +108,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             options[:group_admin] = admin_user
         end
 
-        if !options.empty?
-            helper.create_complete_resource(options)
-        elsif args[0]
+        if args[0]
             options[:name] = args[0]
+            helper.create_complete_resource(options)
+        else
             helper.create_complete_resource(options)
         end
     end
