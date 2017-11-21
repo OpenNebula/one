@@ -450,13 +450,9 @@ class OneDBLive
                     next
                 end
             end
-            if found_id
-                break
-            end
+            break if found_id
         end
-        if !found_id
-            raise "Object with id #{options[:id]} not found"
-        end
+        raise "Object with id #{options[:id]} not found" if !found_id
     end
 
     def editor_body(body_xml)
