@@ -87,13 +87,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :create, create_desc, [:group_name, nil], :options =>
             OpenNebulaHelper::GROUP_OPTIONS do
 
-
-        if !args[0] && options.empty?
-            STDERR.puts "Please use either a group name or command arguments."<<
-            " Run onegroup create -h for more information"
-            next -1
-        end
-
         if options && options[:admin_user]
             if !options[:admin_password]
                 STDERR.puts "Admin user needs password"
@@ -111,8 +104,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         if args[0]
             options[:name] = args[0]
             helper.create_complete_resource(options)
-        else
+        elsif options[:name]
             helper.create_complete_resource(options)
+        else
+            STDERR.puts "Please use either a group name or command arguments."<<
+            " Run onegroup create -h for more information"
+            next -1
         end
     end
 
