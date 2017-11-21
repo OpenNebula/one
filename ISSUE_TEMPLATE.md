@@ -21,7 +21,7 @@ _Mark the relevant versions affected with [X]_
 - [ ] Orchestration (OpenNebula Flow)
 - [ ] Sunstone
 - [ ] Storage
-- [ ] Scheculer
+- [ ] Scheduler
 - [ ] vCenter
 
 ## Description
