@@ -125,7 +125,7 @@ class Network
 
         template = "NAME=\"#{network_import_name}\"\n"\
                    "BRIDGE=\"#{network_name}\"\n"\
-                   "VN_MAD=\"dummy\"\n"\
+                   "VN_MAD=\"vcenter\"\n"\
                    "VCENTER_PORTGROUP_TYPE=\"#{network_type}\"\n"\
                    "VCENTER_NET_REF=\"#{network_ref}\"\n"\
                    "VCENTER_INSTANCE_ID=\"#{vcenter_uuid}\"\n"\
