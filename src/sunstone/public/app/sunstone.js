@@ -624,7 +624,11 @@ define(function(require) {
 
     var res = SunstoneCfg['tabs'][tabName]['resource']
     if (res) {
-      Sunstone.runAction(res + ".refresh");
+      if (res === "VM"){
+        Sunstone.runAction(res + ".list");
+      } else {
+        Sunstone.runAction(res + ".refresh");
+      }
     }
   }
 
