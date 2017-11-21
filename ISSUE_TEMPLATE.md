@@ -1,4 +1,4 @@
-_Complete the only applicable section Bug Report or Enhancement Request_
+_Complete **only** the section Bug Report -OR- Enhancement Request_
 
 # Bug Report
 ## Version of OpenNebula
