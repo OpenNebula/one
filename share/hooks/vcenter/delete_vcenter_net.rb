@@ -37,10 +37,11 @@ require 'base64'
 base64_temp = ARGV[1]
 template    = OpenNebula::XMLElement.new
 template.initialize_xml(Base64.decode64(base64_temp), 'VNET')
+managed = template["TEMPLATE/OPENNEBULA_MANAGED"].upcase != "NO" rescue true
 
 begin
     # Step 0. Only execute for vcenter network driver
-    if template["VN_MAD"] == "vcenter"
+    if template["VN_MAD"] == "vcenter" && managed
         # Step 1. Extract vnet settings
         host_id =  template["TEMPLATE/VCENTER_ONE_HOST_ID"]
         raise "We require the ID of the OpenNebula host representing a vCenter cluster" if !host_id

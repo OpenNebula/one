@@ -128,11 +128,11 @@ class Network
                    "VN_MAD=\"dummy\"\n"\
                    "VCENTER_PORTGROUP_TYPE=\"#{network_type}\"\n"\
                    "VCENTER_NET_REF=\"#{network_ref}\"\n"\
-                   "VCENTER_INSTANCE_ID=\"#{vcenter_uuid}\"\n"
+                   "VCENTER_INSTANCE_ID=\"#{vcenter_uuid}\"\n"\
+                   "OPENNEBULA_MANAGED=\"NO\"\n"
 
         if unmanaged == "wild"
             template += "VCENTER_FROM_WILD=\"#{template_id}\"\n"
-            template += "OPENNEBULA_MANAGED=\"NO\"\n"
         end
 
         template += "VCENTER_CCR_REF=\"#{ccr_ref}\"\n" if !unmanaged
