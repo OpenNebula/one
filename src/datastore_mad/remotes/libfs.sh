@@ -61,6 +61,14 @@ function image_format {
 }
 
 #-------------------------------------------------------------------------------
+# Get image virtual size using qemu-img
+#   @return string representation of the format, empty if error
+#-------------------------------------------------------------------------------
+function image_vsize {
+    echo "$($QEMU_IMG info "${1}" 2>/dev/null | sed -n 's/.*(\([0-9]*\) bytes).*/\1/p')"
+}
+
+#-------------------------------------------------------------------------------
 # Generates an unique image hash. Requires ID to be set
 #   @return hash for the image (empty if error)
 #-------------------------------------------------------------------------------
@@ -118,7 +126,7 @@ function set_downloader_args {
         HASHES="$HASHES --sha1 $2"
     fi
 
-    if [ "$3" = "yes" -o "$3" = "Yes" -o "$3" = "YES" ]; then
+    if [ "x$(echo "$3" | tr A-Z a-z)" = "xyes" ]; then
         HASHES="$HASHES --nodecomp"
     fi
 
@@ -149,6 +157,17 @@ function file_size {
     $STAT_CMD "$*"
 }
 
+
+#------------------------------------------------------------------------------
+# Gets the MIME type of a file
+#   @param $1 - Path to the image
+#   @return MIME type
+#------------------------------------------------------------------------------
+
+function file_type {
+    file -b --mime-type "${1}" | tr A-Z a-z
+}
+
 #------------------------------------------------------------------------------
 # Gets the size in bytes of a gzipped file
 #   @param $1 - Path to the image
@@ -159,58 +178,192 @@ function gzip_file_size {
     gzip -l "$1" | tail -n 1 | awk '{print $2}'
 }
 
+#------------------------------------------------------------------------------
+# Gets the size in bytes of a xzipped file
+#   @param $1 - Path to the image
+#   @return size of the image in bytes
+#------------------------------------------------------------------------------
+
+function xz_file_size {
+    xz -l --robot "$1" | tail -n 1 | awk '{print $5}'
+}
+
+#------------------------------------------------------------------------------
+# Gets the size in bytes of a bzipped file
+#   @param $1 - Path to the image
+#   @return size of the image in bytes
+#------------------------------------------------------------------------------
+
+function bzip_file_size {
+    bunzip2 -c "${1}" | wc -c
+}
+
 #-------------------------------------------------------------------------------
 # Computes the size of an image
 #   @param $1 - Path to the image
+#   @param $2 - NO_DECOMPRESS
+#   @param $3 - BW LIMIT
 #   @return size of the image in Mb
 #-------------------------------------------------------------------------------
 function fs_size {
+    SRC=$1
+    NO_DECOMPRESS=$(echo "$2" | tr A-Z a-z)
+    LIMIT_TRANSFER_BW=$3
 
-    case $1 in
-    http://*|https://*)
-        HEADERS=`curl -LIk --max-time 60 "${1}" 2>&1`
+    DOWNLOADER_ARGS=`set_downloader_args '' '' "${NO_DECOMPRESS}" "${LIMIT_TRANSFER_BW}"`
 
-        if echo "$HEADERS" | grep -i -q "OpenNebula-AppMarket-Size"; then
-            # An AppMarket/Marketplace URL
-            SIZE=$(echo "$HEADERS" | grep -i "^OpenNebula-AppMarket-Size:" | tail -n1 | cut -d: -f2)
+    if [ -z "${UTILS_PATH}" ] && [ -n "${DRIVER_PATH}" ]; then
+        UTILS_PATH="${DRIVER_PATH}/../../datastore"
+    fi
+
+    if ! [ -d "${UTILS_PATH}" ]; then
+        log_error "Failed to detect downloader.sh location"
+        exit 1
+    fi
+
+    if [ -d "${SRC}" ]; then
+        SIZE=`du -sb "${SRC}" | cut -f1`
+        error=$?
+    else
+        IMAGE=$(mktemp)
+
+        # try first download only a part of image
+        $UTILS_PATH/downloader.sh ${DOWNLOADER_ARGS} -c 65536 "${SRC}" - >"${IMAGE}" 2>/dev/null
+        error=$?
+        if [ $error -ne 0 ]; then
+            # better fail here ...
+            log_error "Failed to download image head"
+            echo '0'
+            return
+        fi
+
+        TYPE=$(image_format "${IMAGE}")
+
+        # raw images requires special handling, as there is no image header
+        # with size available and we can't predict image virtual size just
+        # from a part of the file
+        if [ "${TYPE}" = 'raw' ]; then
+            $UTILS_PATH/downloader.sh ${DOWNLOADER_ARGS} --nodecomp -c 65536 "${SRC}" - >"${IMAGE}" 2>/dev/null
             error=$?
-        else
-            # Not an AppMarket/Marketplace URL
-            SIZE=$(echo "$HEADERS" | grep -i "^Content-Length:" | tail -n1 | cut -d: -f2 | tr -d "\r")
-            error=$?
-
-            # Try to download the image head and inspect via qemu-img
-            IMAGE=$(mktemp)
-            curl -Lk --max-time 60 "${1}" 2>/dev/null | head -c 65536 >${IMAGE}
-            QSIZE=$($QEMU_IMG info "${IMAGE}" | sed -n 's/.*(\([0-9]*\) bytes).*/\1/p')
-            rm "${IMAGE}" 2>/dev/null
-
-            if [ "${QSIZE}" -gt "${SIZE}" ]; then
-                SIZE="${QSIZE}"
+            if [ $error -ne 0 ]; then
+                # better fail here ...
+                log_error "Failed to download image head"
+                echo '0'
+                return
             fi
-        fi
-        ;;
-    *)
-        if [ -d "$1" ]; then
-            SIZE=`du -sb "$1" | cut -f1`
-            error=$?
+
+            ORIG_TYPE=$(file_type "${IMAGE}")
+
+            # if NO_DECOMPRESS=yes is configured on the datastore,
+            # treat the downloaded data as image as is
+            if [ "${NO_DECOMPRESS}" = 'yes' ]; then
+                ORIG_TYPE='application/octet-stream'
+            fi
+
+            if [ -f "${SRC}" ] ; then
+                # for local raw images:
+                # - compressed: use decompressor on local file
+                # - uncompressed: get file size
+                case ${ORIG_TYPE} in
+                "application/x-gzip"|"application/gzip")
+                    SIZE=$(gzip_file_size "${SRC}")
+                    error=$?
+                    ;;
+                "application/x-xz")
+                    SIZE=$(xz_file_size "${SRC}")
+                    error=$?
+                    ;;
+                "application/x-bzip2")
+                    SIZE=$(bzip_file_size "${SRC}")
+                    error=$?
+                    ;;
+                *)
+                    SIZE=$(image_vsize "${SRC}")
+                    error=$?
+                    ;;
+                esac
+            else
+                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                # code which allows downloading is experimental for future use,
+                # longer downloads may result in image import failure, as
+                # the datastore stat operation is synchronous with import call
+                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                ALLOW_DOWNLOADS='no'
+
+                # for remote raw images
+                # - compressed: complete download and use decompressor
+                # - uncompressed: get size from HTTP headers or complete download
+                case ${ORIG_TYPE} in
+                "application/x-gzip"|"application/gzip")
+                    if [ "${ALLOW_DOWNLOADS}" = 'yes' ]; then
+                        $UTILS_PATH/downloader.sh ${DOWNLOADER_ARGS} --nodecomp "${SRC}" - >"${IMAGE}" 2>/dev/null
+                        error=$?
+                        if [ $error -eq 0 ]; then
+                            SIZE=$(gzip_file_size "${IMAGE}")
+                            error=$?
+                        fi
+                    else
+                        log_error 'Unsupported remote image format'
+                        error=1
+                    fi
+                    ;;
+                "application/x-xz")
+                    if [ "${ALLOW_DOWNLOADS}" = 'yes' ]; then
+                        $UTILS_PATH/downloader.sh ${DOWNLOADER_ARGS} --nodecomp "${SRC}" - >"${IMAGE}" 2>/dev/null
+                        error=$?
+                        if [ $error -eq 0 ]; then
+                            SIZE=$(xz_file_size "${IMAGE}")
+                            error=$?
+                        fi
+                    else
+                        log_error 'Unsupported remote image format'
+                        error=1
+                    fi
+                    ;;
+                "application/x-bzip2")
+                    if [ "${ALLOW_DOWNLOADS}" = 'yes' ]; then
+                        $UTILS_PATH/downloader.sh ${DOWNLOADER_ARGS} "${SRC}" - >"${IMAGE}" 2>/dev/null
+                        error=$?
+                        if [ $error -eq 0 ]; then
+                            SIZE=$(image_vsize "${IMAGE}")
+                            error=$?
+                        fi
+                    else
+                        log_error 'Unsupported remote image format'
+                        error=1
+                    fi
+                    ;;
+                *)
+                    HEADERS=`curl -LIk --max-time 60 "${SRC}" 2>&1`
+                    error=$?
+                    SIZE=$(echo "$HEADERS" | grep -i "^Content-Length:" | tail -n1 | cut -d: -f2 | tr -d "\r")
+
+                    if [ -z "${SIZE}" ]; then
+                        if [ "${ALLOW_DOWNLOADS}" = 'yes' ]; then
+                            $UTILS_PATH/downloader.sh ${DOWNLOADER_ARGS} "${SRC}" - >"${IMAGE}" 2>/dev/null
+                            error=$?
+                            if [ $error -eq 0 ]; then
+                                SIZE=$(image_vsize "${IMAGE}")
+                                error=$?
+                            fi
+                        else
+                            log_error 'Unsupported remote image format'
+                            error=1
+                        fi
+                    fi
+                    ;;
+                esac
+            fi
         else
-            TYPE=$(cat "$1" | head -n 1024 | file -b - | tr A-Z a-z)
-            case "$TYPE" in
-            *gzip*)
-                SIZE=$(gzip_file_size "$1")
-                ;;
-            *qcow*)
-                SIZE=$($QEMU_IMG info "$1" | sed -n 's/.*(\([0-9]*\) bytes).*/\1/p')
-                ;;
-            *)
-                SIZE=$(file_size "$1")
-                ;;
-            esac
-            error=$?
+            SIZE=$(image_vsize "${IMAGE}")
         fi
-        ;;
-    esac
+
+        if [ -f "${IMAGE}" ]; then
+            unlink "${IMAGE}" 2>/dev/null
+        fi
+    fi
+
+    #####
 
     SIZE=$(echo $SIZE | tr -d "\r")
 

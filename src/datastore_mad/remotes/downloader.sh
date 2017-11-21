@@ -57,7 +57,10 @@ function get_decompressor
         echo "gunzip -c -"
         ;;
     "application/x-bzip2")
-        echo "bunzip2 -c -"
+        echo "bunzip2 -qc -"
+        ;;
+    "application/x-xz")
+        echo "unxz -c -"
         ;;
     *)
         echo "cat"
@@ -221,7 +224,7 @@ function get_rbd_cmd
     echo "ssh '$(esc_sq "$DST_HOST")' \"$RBD export '$(esc_sq "$SOURCE")' -\""
 }
 
-TEMP=`getopt -o m:s:l:n -l md5:,sha1:,limit:,nodecomp -- "$@"`
+TEMP=`getopt -o m:s:l:c:n -l md5:,sha1:,limit:,max-size:,nodecomp -- "$@"`
 
 if [ $? != 0 ] ; then
     echo "Arguments error"
@@ -248,6 +251,10 @@ while true; do
             ;;
         -l|--limit)
             export LIMIT_RATE="$2"
+            shift 2
+            ;;
+        -c|--max-size)
+            export MAX_SIZE="$2"
             shift 2
             ;;
         --)
@@ -324,7 +331,19 @@ esac
 file_type=$(get_type "$command")
 decompressor=$(get_decompressor "$file_type")
 
-eval "$command" | tee >( hasher $HASH_TYPE) | decompress "$decompressor" "$TO"
+if [ -z "${MAX_SIZE}" ]; then
+    eval "$command" | \
+        tee >( hasher $HASH_TYPE) | \
+        decompress "$decompressor" "$TO"
+else
+    # ignore broken pipe
+    trap '' PIPE
+
+    eval "$command" | \
+        tee >( hasher $HASH_TYPE) 2>/dev/null | \
+        decompress "$decompressor" "$TO" 2>/dev/null | \
+        head -c "${MAX_SIZE}"
+fi
 
 if [ "$?" != "0" -o "$PIPESTATUS" != "0" ]; then
     echo "Error copying" >&2
@@ -344,4 +363,3 @@ fi
 if [ "$TO" != "-" ]; then
     unarchive "$TO"
 fi
-
