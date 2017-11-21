@@ -82,27 +82,27 @@ class OneDBLive
     def select(table, where)
         sql = "SELECT * FROM #{table} WHERE #{where}"
         res = db_query(sql, "Error querying database")
-        
+
         element = OpenNebula::XMLElement.new(
             OpenNebula::XMLElement.build_xml(res, '/SQL_COMMAND'))
-        
+
         hash = element.to_hash
         row  = hash['SQL_COMMAND']['RESULT']['ROW'] rescue nil
-        
+
         if !row
             raise "Empty SQL query result: "
         end
-        
+
         [row].flatten.compact
     end
 
     def db_query(sql, error_msg)
         rc = system_db.sql_query_command(sql)
-        
+
         if OpenNebula.is_error?(rc)
             raise "#{error_msg}: #{rc.message}"
         end
-        
+
         rc
     end
 
@@ -395,16 +395,19 @@ class OneDBLive
 
     def change_body(object, xpath, value, options = {})
         table, object, federate = get_pool_config(object)
+        found_id = false
+
         if !value && !options[:delete]
             raise "A value or --delete should specified"
         end
-        
+
         rc = object.info_all
         raise rc.message if OpenNebula.is_error?(rc)
-        
+
         object.each do |o|
             if options[:id]
-                next unless o.id.to_s.strip == options[:id].to_s
+                found_id = o.id.to_s.strip == options[:id].to_s
+                next unless found_id
             elsif options[:xpath]
                 next unless o[options[:xpath]]
             elsif options[:expr]
@@ -447,6 +450,12 @@ class OneDBLive
                     next
                 end
             end
+            if found_id
+                break
+            end
+        end
+        if !found_id
+            raise "Object with id #{options[:id]} not found"
         end
     end
 
