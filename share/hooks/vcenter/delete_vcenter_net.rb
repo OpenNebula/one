@@ -37,7 +37,7 @@ require 'base64'
 base64_temp = ARGV[1]
 template    = OpenNebula::XMLElement.new
 template.initialize_xml(Base64.decode64(base64_temp), 'VNET')
-managed = template["TEMPLATE/OPENNEBULA_MANAGED"].upcase != "NO" rescue true
+managed = template["TEMPLATE/OPENNEBULA_MANAGED"] != "NO"
 
 begin
     # Step 0. Only execute for vcenter network driver
