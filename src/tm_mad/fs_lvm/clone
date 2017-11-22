@@ -76,7 +76,7 @@ SIZE="${XPATH_ELEMENTS[j++]}"
 ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
 TM_MAD="${XPATH_ELEMENTS[j++]}"
 
-FILE_SIZE=`fs_size $SRC_PATH`
+FILE_SIZE=`fs_size "${SRC_PATH}" YES`
 
 if [ $FILE_SIZE -gt $SIZE ]; then
     SIZE="$FILE_SIZE"
