@@ -1,8 +1,14 @@
 _Complete **only one section**: Bug Report -OR- Enhancement Request_
 
+<!-- ------------------------------------------ -->
+<!-- ------------------------------------------ -->
+<!-- COMPLETE THIS SECTION FOR BUG REPORTS      -->
+<!-- ------------------------------------------ -->
+<!-- ------------------------------------------ -->
+
 # Bug Report
 ## Version of OpenNebula
-_Mark the relevant versions affected with [X]_
+<!--Mark the relevant versions affected with [X] -->
 - [ ] 5.2.2
 - [ ] 5.4.0
 - [ ] 5.4.1
@@ -11,7 +17,7 @@ _Mark the relevant versions affected with [X]_
 - [ ] Development build
 
 ## Component
-_Mark the relevant versions affected with [X]_
+<!-- Mark the relevant versions affected with [X] -->
 - [ ] Authorization (LDAP, x509 certs...)
 - [ ] Command Line Interface (CLI)
 - [ ] Contextualization
@@ -25,14 +31,23 @@ _Mark the relevant versions affected with [X]_
 - [ ] vCenter
 
 ## Description
-_Brief description of your problem include the actual and expect behavior_
+<!-- Brief description of your problem -->
+
+### Expected Behavior
+
+### Actual Behavior
 
 ## How to reproduce
-_Steps to reproduce the issue_
+<!-- Steps to reproduce the issue -->
 
+<!-- ------------------------------------------ -->
+<!-- ------------------------------------------ -->
+<!-- COMPLETE THIS SECTION FOR FEATURE REQUESTS -->
+<!-- ------------------------------------------ -->
+<!-- ------------------------------------------ -->
 # Enhancement Request
 ## Description
-_Brief description of the new functionality_
+<!-- Brief description of the new functionality -->
 
 ## Use case
-_How are you going to use this new feature? Why do you need it?_
+<!-- How are you going to use this new feature? Why do you need it? -->
