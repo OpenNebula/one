@@ -221,10 +221,13 @@ function fs_size {
         exit 1
     fi
 
+    error=1
+
+    # limit only on local or remote http(s)
     if [ -d "${SRC}" ]; then
         SIZE=`du -sb "${SRC}" | cut -f1`
         error=$?
-    else
+    elif [ -f "${SRC}" ] || (echo "${SRC}" | grep -qe '^https\?://'); then
         IMAGE=$(mktemp)
 
         # try first download only a part of image
