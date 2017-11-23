@@ -2019,7 +2019,11 @@ int VirtualMachine::from_xml(const string &xml_str)
     int rc = 0;
 
     // Initialize the internal XML object
-    update_from_str(xml_str);
+    rc = update_from_str(xml_str);
+    if ( rc != 0 )
+    {
+        return -1;
+    }
 
     // Get class base attributes
     rc += xpath(oid,       "/VM/ID",    -1);
