@@ -2020,6 +2020,7 @@ int VirtualMachine::from_xml(const string &xml_str)
 
     // Initialize the internal XML object
     rc = update_from_str(xml_str);
+
     if ( rc != 0 )
     {
         return -1;
