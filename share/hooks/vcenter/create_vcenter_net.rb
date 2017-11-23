@@ -40,29 +40,32 @@ network_id   = ARGV[0]
 #template     = OpenNebula::XMLElement.new
 #template.initialize_xml(Base64.decode64(base64_temp), 'VNET')
 
+# waits for a vlan_id attribute to be generated
+# only if automatic_vlan activated
+def wait_vlanid(vnet)
+    retries = 5
+    i = 0
+    while vnet["VLAN_ID"].nil?
+        raise "cannot get vlan_id" if i >= retries
+        sleep 1
+        i +=1
+        vnet.info
+    end
+end
+
 template = OpenNebula::VirtualNetwork.new_with_id(network_id, OpenNebula::Client.new)
 rc = template.info
 if OpenNebula.is_error?(rc)
     STDERR.puts rc.message
     exit 1
 end
-
-if template["VLAN_ID_AUTOMATIC"] == '1'
-    RETRIES = 5
-    i = 0
-    while template["VLAN_ID"].nil?
-        raise "cannot get vlan_id" if i >= RETRIES
-        sleep 1
-        i +=1
-        template.info
-    end
-end
-
 esx_rollback = [] #Track hosts that require a rollback
+managed = template["TEMPLATE/OPENNEBULA_MANAGED"] != "NO"
 
 begin
-    # Step 0. Only execute for vcenter network driver
-    if template["VN_MAD"] == "vcenter"
+    # Step 0. Only execute for vcenter network driver && managed by one
+    if template["VN_MAD"] == "vcenter" && managed
+        wait_vlanid(template) if template["VLAN_ID_AUTOMATIC"] == '1'
         # Step 1. Extract vnet settings
         host_id =  template["TEMPLATE/VCENTER_ONE_HOST_ID"]
         raise "We require the ID of the OpenNebula host representing a vCenter cluster" if !host_id
