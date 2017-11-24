@@ -87,8 +87,6 @@ define(function(require) {
     'vms': {
       'html': require('hbs!./dashboard-tab/vms'),
       'onShow': function() {
-        Sunstone.runAction("VM.list");
-
         var end_time = -1; // today
         var start_time =  Math.floor(new Date().getTime() / 1000);
         start_time = start_time - 604800; // 604800 = 7 days = 7*24*60*60
@@ -107,6 +105,7 @@ define(function(require) {
           success: function(req, response) {
             Accounting.fillAccounting($("#dashboard_vm_accounting"), req, response, no_table);
             Accounting.fillAccounting($("#dashboard_user_accounting"), req, response, no_table);
+            Sunstone.runAction("VM.list");
           },
           error: Notifier.onError,
           data: options
