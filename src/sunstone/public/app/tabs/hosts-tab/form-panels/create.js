@@ -262,8 +262,7 @@ define(function(require) {
       host_json["host"]["region_name"] = region_name;
       host_json["host"]["ec2_secret"] = ec2_secret;
       host_json["host"]["ec2_access"] = ec2_access;
-      if (capacity.length > 0)
-      {
+      if (capacity.length > 0){
         host_json["host"]["capacity"] = capacity;
       }
     }
