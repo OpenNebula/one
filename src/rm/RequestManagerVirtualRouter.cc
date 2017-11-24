@@ -293,12 +293,9 @@ void VirtualRouterAttachNic::request_execute(
         {
             failure_response(ACTION, att);
 
-            delete nic;
             return;
         }
     }
-
-    delete nic;
 
     success_response(vrid, att);
 }
