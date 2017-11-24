@@ -76,7 +76,7 @@ begin
     end
 
     if server_conf[:group]
-        if !ldap.is_in_group?(user_group_name, server_conf[:group])
+        if !ldap.is_in_group?(user, server_conf[:group])
             STDERR.puts "User #{user} is not in group #{server_conf[:group]}"
             next
         end
