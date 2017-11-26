@@ -348,7 +348,7 @@ module KVM
             values[:diskwriops]=0
 
             disks.each do |disk|
-                text=`#{virsh(:domblkstat)} #{vmid} #{disk}`
+                text=`#{virsh(:domblkstat)} #{vmid} #{disk} 2>/dev/null`
 
                 text.each_line do |line|
                     columns=line.split(/\s+/)
