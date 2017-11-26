@@ -85,7 +85,7 @@ for vm in \$vms; do
 
     for disk in \$disks; do
         disk_id="\$(echo "\$disk" | cut -d. -f2)"
-        disk_size="\$(du -mL "\${vmdir}/\${disk}" | awk '{print \$1}')"
+        disk_size="\$(du -mL "\${vmdir}/\${disk}" 2>/dev/null | awk '{print \$1}')"
         snap_dir="\${vmdir}/\${disk}.snap"
 
         [ -z "\$disk_size" ] && continue
@@ -95,7 +95,7 @@ for vm in \$vms; do
             snaps="\$(ls "\$snap_dir" 2>/dev/null | grep '^[0-9]$')"
 
             for snap in \$snaps; do
-                snap_size="\$(du -mL "\${snap_dir}/\${snap}" | awk '{print \$1}')"
+                snap_size="\$(du -mL "\${snap_dir}/\${snap}" 2>/dev/null | awk '{print \$1}')"
                 [ -z "\$snap_size" ] && continue
                 echo -n "SNAPSHOT_SIZE=[ID=\${snap},DISK_ID=\${disk_id},SIZE=\${snap_size}] "
             done
