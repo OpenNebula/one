@@ -51,3 +51,6 @@ _Complete **only one section**: Bug Report -OR- Enhancement Request_
 
 ## Use case
 <!-- How are you going to use this new feature? Why do you need it? -->
+
+## Interface Changes
+<!-- Describe any changed to current interfaces incluing Sunstone, CLI or/and API --> 
