@@ -66,6 +66,11 @@ class OpenNebula::LdapAuth
             @options[:attributes] << @options[:user_field]
         end
 
+        # fetch the user group field only if we need that
+        if @options[:group] or !@options[:rfc2307bis]
+            @options[:attributes] << @options[:user_group_field]
+        end
+
         ops[:host]=@options[:host] if @options[:host]
         ops[:port]=@options[:port].to_i if @options[:port]
         ops[:encryption]=@options[:encryption] if @options[:encryption]
