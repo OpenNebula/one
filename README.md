@@ -160,7 +160,7 @@ https://docs.opennebula.org/5.4/deployment/references/oned_conf.html
 
 OpenNebula web page: https://opennebula.org
 
-Development and issue tracking: https://dev.opennebula.org
+Development and issue tracking: https://github.com/OpenNebula/one/issues
 
 Support: https://opennebula.org/support
 
