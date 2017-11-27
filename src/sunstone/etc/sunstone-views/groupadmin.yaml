@@ -723,9 +723,9 @@ tabs:
         table_columns:
             - 0         # Checkbox
             - 1         # ID
-            #- 2        # Name
+            - 2         # Name
             #- 3        # Owner
-            - 4         # Group
+            #- 4        # Group
             #- 5        # Reservation
             #- 6        # Cluster
             #- 7        # Bridge
