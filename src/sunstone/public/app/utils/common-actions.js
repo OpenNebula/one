@@ -55,7 +55,10 @@ define(function(require) {
       type: "list",
       call: that.openNebulaResource.list,
       callback: function(request, response) {
-        Sunstone.getDataTable(that.tabId).updateView(request, response);
+        var datatable = Sunstone.getDataTable(that.tabId);
+        if (datatable){
+          datatable.updateView(request, response);
+        }
       },
       error: Notifier.onError
     }
