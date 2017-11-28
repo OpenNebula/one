@@ -65,7 +65,8 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/LIMIT_TRANSFER_BW \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_KEY \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_CONF)
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_CONF \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/EC_POOL)
 
 unset i
 
@@ -85,6 +86,7 @@ LIMIT_TRANSFER_BW="${XPATH_ELEMENTS[i++]}"
 CEPH_USER="${XPATH_ELEMENTS[i++]}"
 CEPH_KEY="${XPATH_ELEMENTS[i++]}"
 CEPH_CONF="${XPATH_ELEMENTS[i++]}"
+EC_POOL="${XPATH_ELEMENTS[i++]}"
 
 DST_HOST=`get_destination_host $ID`
 
@@ -103,6 +105,10 @@ fi
 
 if [ -n "$CEPH_CONF" ]; then
     RBD="$RBD --conf ${CEPH_CONF}"
+fi
+
+if [ -n "$EC_POOL" ]; then
+    RBD="$RBD --data-pool ${EC_POOL}"
 fi
 
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS"
