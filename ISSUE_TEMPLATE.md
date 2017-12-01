@@ -1,10 +1,11 @@
-_Complete **only one section**: Bug Report -OR- Enhancement Request_
+<!--////////////////////////////////////////////-->
+<!-- COMPLETE ONLY ONE SECTION                  -->
+<!-- BUG REPORT *OR* ENHANCEMENT REQUEST        -->
+<!--////////////////////////////////////////////-->
 
-<!-- ------------------------------------------ -->
-<!-- ------------------------------------------ -->
+<!--////////////////////////////////////////////-->
 <!-- COMPLETE THIS SECTION FOR BUG REPORTS      -->
-<!-- ------------------------------------------ -->
-<!-- ------------------------------------------ -->
+<!--////////////////////////////////////////////-->
 
 # Bug Report
 ## Version of OpenNebula
@@ -19,18 +20,20 @@ _Complete **only one section**: Bug Report -OR- Enhancement Request_
 ## Component
 <!-- Mark the relevant versions affected with [X] -->
 - [ ] Authorization (LDAP, x509 certs...)
-- [ ] Federation and  HA
-- [ ] User, Groups, VDCs and ACL
 - [ ] Command Line Interface (CLI)
 - [ ] Contextualization
-- [ ] Host, Clusters and Monitorization
 - [ ] Documentation
+- [ ] Federation and HA
+- [ ] Host, Clusters and Monitorization
 - [ ] KVM
 - [ ] Networking
 - [ ] Orchestration (OpenNebula Flow)
-- [ ] Sunstone
-- [ ] Storage & Images
+- [ ] Packages
 - [ ] Scheduler
+- [ ] Storage & Images
+- [ ] Sunstone
+- [ ] Upgrades
+- [ ] User, Groups, VDCs and ACL
 - [ ] vCenter
 
 ## Description
@@ -43,27 +46,28 @@ _Complete **only one section**: Bug Report -OR- Enhancement Request_
 ## How to reproduce
 <!-- Steps to reproduce the issue -->
 
-<!-- ------------------------------------------ -->
-<!-- ------------------------------------------ -->
+<!--////////////////////////////////////////////-->
 <!-- COMPLETE THIS SECTION FOR FEATURE REQUESTS -->
-<!-- ------------------------------------------ -->
-<!-- ------------------------------------------ -->
+<!--////////////////////////////////////////////-->
+
 # Enhancement Request
 ## Description
 <!-- Brief description of the new functionality -->
 
 ## Use case
-<!-- How are you going to use this new feature? Why do you need it? -->
+<!-- How are you going to use this new feature? -->
+<!-- Why do you need it?                        -->
 
 ## Interface Changes
-<!-- Describe any changed to current interfaces incluing Sunstone, CLI or/and API --> 
+<!-- Describe any changed to current interfaces -->
+<!-- incluing Sunstone, CLI or/and API          --> 
 
-<!-- ------------------------------------------ -->
-<!-- ------------------------------------------ -->
+<!--////////////////////////////////////////////-->
 <!-- THIS SECTION IS FOR THE DEVELOPMENT TEAM   -->
+<!-- BOTH FOR BUGS AND ENHANCEMENT REQUESTS     -->
 <!-- PROGRESS WILL BE REFLECTED HERE            -->
-<!-- ------------------------------------------ -->
-<!-- ------------------------------------------ -->
+<!--////////////////////////////////////////////-->
+
 # Progress Status
 - [ ] Branch created 
 - [ ] Code committed to development branch
