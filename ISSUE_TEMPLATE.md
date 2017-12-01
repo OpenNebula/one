@@ -19,14 +19,17 @@ _Complete **only one section**: Bug Report -OR- Enhancement Request_
 ## Component
 <!-- Mark the relevant versions affected with [X] -->
 - [ ] Authorization (LDAP, x509 certs...)
+- [ ] Federation and  HA
+- [ ] User, Groups, VDCs and ACL
 - [ ] Command Line Interface (CLI)
 - [ ] Contextualization
+- [ ] Host, Clusters and Monitorization
 - [ ] Documentation
 - [ ] KVM
 - [ ] Networking
 - [ ] Orchestration (OpenNebula Flow)
 - [ ] Sunstone
-- [ ] Storage
+- [ ] Storage & Images
 - [ ] Scheduler
 - [ ] vCenter
 
