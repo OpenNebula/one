@@ -57,3 +57,18 @@ _Complete **only one section**: Bug Report -OR- Enhancement Request_
 
 ## Interface Changes
 <!-- Describe any changed to current interfaces incluing Sunstone, CLI or/and API --> 
+
+<!-- ------------------------------------------ -->
+<!-- ------------------------------------------ -->
+<!-- THIS SECTION IS FOR THE DEVELOPMENT TEAM   -->
+<!-- PROGRESS WILL BE REFLECTED HERE            -->
+<!-- ------------------------------------------ -->
+<!-- ------------------------------------------ -->
+# Progress Status
+- [ ] Branch created 
+- [ ] Code committed to development branch
+- [ ] Testing - QA
+- [ ] Documentation 
+- [ ] Release notes - resolved issues, compatibility, known issues
+- [ ] Code committed to upstream release/hotfix branches
+- [ ] Documentation committed to upstream release/hotfix branches
