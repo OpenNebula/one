@@ -61,7 +61,7 @@ DST_DIR=`dirname $DST_PATH`
 DISK_ID=$(echo $DST|awk -F. '{print $NF}')
 
 #-------------------------------------------------------------------------------
-# Make the new image (file-based)
+#  Get Image information
 #-------------------------------------------------------------------------------
 
 XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
@@ -83,6 +83,23 @@ CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 POOL_NAME="${XPATH_ELEMENTS[j++]:-$POOL_NAME}"
 RBD_FORMAT="${XPATH_ELEMENTS[j++]:-$RBD_FORMAT}"
 
+#-------------------------------------------------------------------------------
+# Get Datastore information
+#-------------------------------------------------------------------------------
+
+unset i j XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+      done < <(onedatastore show -x $DSID | $XPATH \
+                            /DATASTORE/TEMPLATE/EC_POOL)
+
+EC_POOL="${XPATH_ELEMENTS[j++]}"
+
+#-------------------------------------------------------------------------------
+# Make the new image (file-based)
+#-------------------------------------------------------------------------------
+
 if [ -n "$CEPH_USER" ]; then
     RBD="$RBD --id ${CEPH_USER}"
 fi
@@ -99,11 +116,15 @@ if [ "$RBD_FORMAT" = "2" ]; then
     FORMAT_OPT="--image-format 2"
 fi
 
+if [ -n "$EC_POOL" ]; then
+    EC_POOL_OPT="--data-pool ${EC_POOL}"
+fi
+
 RBD_SOURCE="${POOL_NAME}/one-sys-${VMID}-${DISK_ID}"
 
 MKIMAGE_CMD=$(cat <<EOF
     export PATH=/usr/sbin:/sbin:\$PATH
-    $RBD create $FORMAT_OPT $RBD_SOURCE --size ${SIZE} || exit \$?
+    $RBD create $FORMAT_OPT $EC_POOL_OPT $RBD_SOURCE --size ${SIZE} || exit \$?
 
     if [ "$FSTYPE" = "swap" ]; then
         $SUDO $RBD map $RBD_SOURCE || exit \$?
