@@ -55,8 +55,7 @@ define(function(require) {
         });
     });
 
-    context.off("click", ".value_td_cluster .resource_list_select");
-    context.on("click", ".value_td_cluster .resource_list_select", function() {
+    context.on("change", ".value_td_cluster .resource_list_select", function() {
       var newClusterId = $(this).val();
       if (newClusterId != "") {
         Sunstone.runAction(resourceType + ".addtocluster", [resourceId], newClusterId);

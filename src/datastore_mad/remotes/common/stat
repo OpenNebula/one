@@ -45,15 +45,21 @@ unset i XPATH_ELEMENTS
 
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
-done < <($XPATH /DS_DRIVER_ACTION_DATA/IMAGE/PATH)
+done < <($XPATH /DS_DRIVER_ACTION_DATA/IMAGE/PATH \
+                /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/NO_DECOMPRESS \
+                /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/LIMIT_TRANSFER_BW)
 
-SRC="${XPATH_ELEMENTS[0]}"
+unset i
+
+SRC="${XPATH_ELEMENTS[i++]}"
+NO_DECOMPRESS="${XPATH_ELEMENTS[i++]}"
+LIMIT_TRANSFER_BW="${XPATH_ELEMENTS[i++]}"
 
 # ------------------------------------------------------------------------------
 #  Compute the size
 # ------------------------------------------------------------------------------
 
-SIZE=`fs_size $SRC`
+SIZE=`fs_size "${SRC}" "${NO_DECOMPRESS}" "${LIMIT_TRANSFER_BW}"`
 
 if [ "$SIZE" = "0" ]; then
     log_error "Cannot determine size for $SRC"

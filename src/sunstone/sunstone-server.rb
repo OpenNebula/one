@@ -715,13 +715,12 @@ end
 ##############################################################################
 # GET Resource information
 ##############################################################################
-
 get '/:resource/:id/template' do
     @SunstoneServer.get_template(params[:resource], params[:id])
 end
 
 get '/:resource/:id' do
-    if params[:extended]
+    if  params[:extended] && params[:extended] != "false"
         @SunstoneServer.get_resource(params[:resource], params[:id], true)
     else
         @SunstoneServer.get_resource(params[:resource], params[:id])

@@ -30,7 +30,7 @@ define(function(require) {
   /*
     TEMPLATES
    */
- 
+
   var TemplateTable = require('utils/panel/template-table');
 
   /*

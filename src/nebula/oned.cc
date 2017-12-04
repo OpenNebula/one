@@ -53,7 +53,7 @@ static void print_help()
          << "  -v, --verbose\toutput version information and exit\n"
          << "  -h, --help\tdisplay this help and exit\n"
          << "  -f, --foreground\tforeground, do not fork the oned daemon\n"
-         << "  -i, --init-db\tinitialize the dabase and exit\n";
+         << "  -i, --init-db\tinitialize the database and exit\n";
 }
 
 /* ------------------------------------------------------------------------- */

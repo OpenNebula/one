@@ -926,6 +926,9 @@ define(function(require) {
 
         tab.on("click", "#provision_create_vm .provision_select_template .provision-pricing-table.only-one" , function(){
           var create_vm_context = $("#provision_create_vm");
+          var that = this;
+
+          that.template_base_json = {};
 
           if ($(this).hasClass("selected")){
             //$(".provision_disk_selector", create_vm_context).html("");
@@ -957,6 +960,17 @@ define(function(require) {
             OpenNebula.Template.show({
               data : {
                 id: template_id,
+                extended: false
+              },
+              timeout: true,
+              success: function (request, template_json) {
+                that.template_base_json= template_json;
+              }
+            });
+
+            OpenNebula.Template.show({
+              data : {
+                id: template_id,
                 extended: true
               },
               timeout: true,
@@ -975,6 +989,7 @@ define(function(require) {
                     pers = false;
                   }
                   DisksResize.insert({
+                    template_base_json: that.template_base_json,
                     template_json: template_json,
                     disksContext: disksContext,
                     force_persistent: pers,

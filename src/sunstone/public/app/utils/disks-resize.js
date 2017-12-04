@@ -22,6 +22,7 @@ define(function(require){
   var UserInputs = require('utils/user-inputs');
   var WizardFields = require('utils/wizard-fields');
   var DisksResizeTemplate = require('hbs!./disks-resize/html');
+  var Humanize = require('utils/humanize');
 
   return {
     'insert': _insert,
@@ -76,6 +77,16 @@ define(function(require){
       disks = [template_disk]
     }
 
+    if (opts.template_base_json) {
+      var template_base_disk = opts.template_base_json.VMTEMPLATE.TEMPLATE.DISK
+      var disks_base = []
+      if ($.isArray(template_base_disk)) {
+        disks_base = template_base_disk
+      } else if (!$.isEmptyObject(template_base_disk)) {
+        disks_base = [template_base_disk]
+      }
+    }
+
     if (disks.length > 0) {
       disksContext.html(DisksResizeTemplate());
 
@@ -101,6 +112,9 @@ define(function(require){
 
       var diskContext;
       $(".disksContainer", disksContext).html("");
+
+
+
       $.each(disks, function(disk_id, disk) {
         diskContext = $(
           '<div class="row diskContainer">'+
@@ -110,8 +124,9 @@ define(function(require){
             '<div class="large-12 columns diskSlider">' +
             '</div>' +
           '</div>').appendTo($(".disksContainer", disksContext));
-
-        diskContext.data('template_disk', disk);
+        if (disks_base) {
+          diskContext.data('template_disk', disks_base[disk_id]);
+        }
 
         var disk_snapshot_total_size = 0;
         if (disk.DISK_SNAPSHOT_TOTAL_SIZE != undefined) {
@@ -175,7 +190,7 @@ define(function(require){
           if (disk.SIZE != undefined){
             // Range from original size to size + 500GB
             var min = parseInt(disk.SIZE);
-            var max = min + 512000;
+            var max = min + Humanize.sizeToMB("1024GB");
 
             attr = UserInputs.parse(
               "SIZE",
@@ -186,6 +201,7 @@ define(function(require){
               "M|number|"+label+"||");
           }
         }
+        attr.max_value = "";
         if(!opts.uinput_mb){
           $(".diskSlider", diskContext).html(UserInputs.attributeInput(attr));
         } else {

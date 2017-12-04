@@ -124,7 +124,8 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
 
                 next if endpoint.nil?
 
-                client = OpenNebula::Client.new(nil, endpoint)
+                options[:timeout] = 5 #5 sec
+                client = OpenNebula::Client.new(nil, endpoint, options)
 
                 xml_doc = client.call("zone.raftstatus")
 

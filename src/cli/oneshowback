@@ -43,6 +43,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     helper=OpenNebulaHelper::OneHelper.new
 
     before_proc do
+        options[:timeout] = 60 #60 sec
         helper.set_client(options)
     end
 

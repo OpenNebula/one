@@ -23,8 +23,8 @@
   {{/if}}
   <div class="large-8 small-6 columns">
     <input id="input-{{sliderId}}" type="range" class="uinput-slider"
-      min="{{min}}" max="{{max}}" step="{{step}}" 
-      value="{{initial}}" 
+      min="{{min}}" max="{{max}}" step="{{step}}"
+      value="{{initial}}"
       list="uinput-list-{{sliderId}}"
       {{#if disabled}}disabled="true"{{/if}}/>
     <datalist id="uinput-list-{{sliderId}}">
@@ -34,9 +34,9 @@
     </datalist>
   </div>
   <div class="large-4 small-6 columns">
-    <input type="number" class="uinput-slider-val" 
-      min="{{min}}" max="{{max}}" step="{{step}}" 
-      value="{{initial}}" 
+    <input type="number" class="uinput-slider-val"
+      min="{{min}}" max="{{max_value}}" step="{{step}}"
+      value="{{initial}}"
       {{#unless wizard_field_disabled}}wizard_field="{{name}}"{{/unless}}
       {{#if disabled}}disabled="true"{{/if}} required/>
   </div>

@@ -82,9 +82,10 @@ define(function(require) {
     Tips.setup(context);
     $( ".diskSlider", context).html(RangeSlider.html({
         min: that.diskSize,
-        max: Humanize.sizeToMB("500GB")*1024,
+        max: Humanize.sizeToMB("1024GB")*1024,
         initial: that.diskSize,
-        name: "resize"
+        name: "resize",
+        max_value: ""
     }));
     $( ".uinput-slider-val",context).prop('type', 'text');
     $( ".uinput-slider-val",context).val(Humanize.size($( ".uinput-slider",context).val()));
@@ -115,7 +116,7 @@ define(function(require) {
 
 
     $('#' + DIALOG_ID + 'Form', context).submit(function() {
-      var new_size = $( ".uinput-slider",context).val();
+      var new_size = $( ".uinput-slider-val",context).val();
       new_size = Math.round(parseInt(new_size) / 1024);
       new_size = new_size.toString();
       var obj = {
