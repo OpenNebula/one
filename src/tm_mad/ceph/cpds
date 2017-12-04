@@ -79,6 +79,19 @@ CEPH_KEY="${XPATH_ELEMENTS[j++]}"
 CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
+# Get Datastore information
+#-------------------------------------------------------------------------------
+
+unset i j XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+      done < <(onedatastore show -x $DS_ID | $XPATH \
+                            /DATASTORE/TEMPLATE/EC_POOL)
+
+EC_POOL="${XPATH_ELEMENTS[j++]}"
+
+#-------------------------------------------------------------------------------
 # Copy Image back to the datastore
 #-------------------------------------------------------------------------------
 
@@ -98,6 +111,10 @@ fi
 
 if [ -n "$CEPH_CONF" ]; then
     RBD="$RBD --conf ${CEPH_CONF}"
+fi
+
+if [ -n "$EC_POOL" ]; then
+    RBD="$RBD --data-pool ${EC_POOL}"
 fi
 
 COPY_CMD=$(cat <<EOF
