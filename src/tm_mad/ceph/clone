@@ -54,6 +54,7 @@ SRC_PATH=`arg_path $SRC`
 
 DISK_ID=$(echo $DST|awk -F. '{print $NF}')
 RBD_DST="${SRC_PATH}-${VM_ID}-${DISK_ID}"
+DST_DS_ID=$(echo $DST | sed s#//*#/#g | awk -F/ '{print $(NF-2)}')
 
 #-------------------------------------------------------------------------------
 # Get Image information
@@ -79,6 +80,19 @@ SIZE="${XPATH_ELEMENTS[j++]}"
 ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
+# Get Datastore information
+#-------------------------------------------------------------------------------
+
+unset i j XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+      done < <(onedatastore show -x $DST_DS_ID | $XPATH \
+                            /DATASTORE/TEMPLATE/EC_POOL)
+
+EC_POOL="${XPATH_ELEMENTS[j++]}"
+
+#-------------------------------------------------------------------------------
 # Clone the image and create @snap if it does not exists
 #-------------------------------------------------------------------------------
 
@@ -94,6 +108,10 @@ if [ -n "$CEPH_CONF" ]; then
     RBD="$RBD --conf ${CEPH_CONF}"
 fi
 
+if [ -n "$EC_POOL" ]; then
+    EC_POOL_OPT="--data-pool ${EC_POOL}"
+fi
+
 CLONE_CMD=$(cat <<EOF
     RBD="${RBD}"
 
@@ -104,9 +122,9 @@ CLONE_CMD=$(cat <<EOF
     set -e -o pipefail
 
     if [ "\$(rbd_format $SRC_PATH)" = "2" ]; then
-        $RBD clone "$SRC_PATH@snap" $RBD_DST
+        $RBD $EC_POOL_OPT clone "$SRC_PATH@snap" $RBD_DST
     else
-        $RBD copy $SRC_PATH $RBD_DST
+        $RBD $EC_POOL_OPT copy $SRC_PATH $RBD_DST
     fi
 
     if [ -n "$ORIGINAL_SIZE" -a "$SIZE" -gt "$ORIGINAL_SIZE" ]; then
