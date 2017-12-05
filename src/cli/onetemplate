@@ -101,8 +101,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
           - using two disks:
 
-            onetempate create --name "test vm" --memory 128 --cpu 1 \\
-                              --disk arch,data
+            onetemplate create --name "test vm" --memory 128 --cpu 1 \\
+                               --disk arch,data
 
     EOT
 
