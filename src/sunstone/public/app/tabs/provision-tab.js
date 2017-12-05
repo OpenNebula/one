@@ -30,7 +30,6 @@ define(function(require) {
   var Showback = require('utils/showback');
   var Humanize = require('utils/humanize');
   var QuotaLimits = require('utils/quotas/quota-limits');
-  var Graphs = require('utils/graphs');
   var RangeSlider = require('utils/range-slider');
   var DisksResize = require('utils/disks-resize');
   var NicsSection = require('utils/nics-section');
@@ -304,7 +303,7 @@ define(function(require) {
 
     if (Config.provision.dashboard.isEnabled("vms")) {
       $("#provision_dashboard").append(TemplateDashboardVms());
-      
+
       if(!Config.isFeatureEnabled("cloud_vm_create")){
         $('.provision_create_vm_button').hide();
       }
@@ -324,15 +323,6 @@ define(function(require) {
         "userfilter": config["user_id"]
       }
 
-      var no_table = true;
-
-      OpenNebula.VM.accounting({
-          success: function(req, response){
-              Accounting.fillAccounting($("#dashboard_vm_accounting"), req, response, no_table);
-          },
-          error: Notifier.onError,
-          data: options
-      });
 
       OpenNebula.VM.list({
         timeout: true,
@@ -401,17 +391,6 @@ define(function(require) {
         "start_time": start_time,
         "end_time": end_time
       }
-
-      var no_table = true;
-
-      OpenNebula.VM.accounting({
-          success: function(req, response){
-              Accounting.fillAccounting($("#dashboard_group_vm_accounting"), req, response, no_table);
-          },
-          error: Notifier.onError,
-          data: options
-      });
-
 
       OpenNebula.VM.list({
         timeout: true,
