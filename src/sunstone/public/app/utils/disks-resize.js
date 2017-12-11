@@ -125,6 +125,7 @@ define(function(require){
             '</div>' +
           '</div>').appendTo($(".disksContainer", disksContext));
         if (disks_base) {
+          disks_base[disk_id].SIZE = disk.SIZE;
           diskContext.data('template_disk', disks_base[disk_id]);
         }
 
@@ -222,14 +223,17 @@ define(function(require){
         disk = $(this).data("template_disk");
 
         var fields = WizardFields.retrieve(this);
-
-        if (fields.SIZE != undefined){
-          disk['SIZE'] = fields.SIZE;
+        if (disk["SIZE"] && fields["SIZE"] && disk["SIZE"] === fields["SIZE"]){
+          delete disk["SIZE"];
+          disks.push(disk);
         }
-      }
-
-      if (disk) {
-        disks.push(disk);
+        else if (fields.SIZE != undefined){
+          var size = $.extend(true, [], fields.SIZE);
+          var size = size.join("");
+          var diskAux = $.extend(true, {}, disk);
+          diskAux["SIZE"] = fields.SIZE;
+          disks.push(diskAux);
+        }
       }
     });
 
