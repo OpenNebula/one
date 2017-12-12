@@ -831,7 +831,7 @@ private
             if cpu[:datapoints].size != 0
                 cpu = cpu[:datapoints][-1][:average]
             else
-                cpu = 0
+                cpu = onevm["MONITORING/CPU"] || 0
             end
             cpu = cpu.to_f.round(2).to_s
         rescue => e
