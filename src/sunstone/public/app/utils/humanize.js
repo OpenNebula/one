@@ -27,6 +27,7 @@ define(function(require) {
     'sizeFromB': _sizeFromB,
     'sizeFromKB': _sizeFromKB,
     'sizeFromMB': _sizeFromMB,
+    'sizeFromMBArray': _sizeFromMBArray,
     'sizeToMB': _sizeToMB,
     'prettyDuration': _prettyDuration,
     'prettyTime': _prettyTime,
@@ -94,6 +95,26 @@ define(function(require) {
     }
 
     var st = value + binarySufix[i];
+    return st;
+  }
+
+  function _sizeFromMBArray(value) {
+    if (typeof(value) === "undefined") {
+      value = 0;
+    }
+    var binarySufix =  ["MB", "GB", "TB"];
+    var i = 0;
+    while (value >= 1024 && i < 2) {
+      value = value / 1024;
+      i++;
+    }
+    value = Math.round(value * 10) / 10;
+
+    if (value - Math.round(value) == 0) {
+      value = Math.round(value);
+    }
+
+    var st = [value, binarySufix[i]];
     return st;
   }
 

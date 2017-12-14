@@ -15,35 +15,28 @@
 {{! -------------------------------------------------------------------------- }}
 
 <div>
-  <fieldset class="large-font">
-    <legend>
-      <ul class="menu simple">
-        <li>
-          {{tr "Hosts"}} <span class=" total_hosts"></span> 
-        </li>
-        <li></li>
-        <li><span>{{tr "ON"}}</span> <span class=" on_hosts success-color"></span></li>
-        <li><span>{{tr "OFF"}}</span> <span class=" off_hosts"></span></li>
-        <li><span>{{tr "ERROR"}}</span> <span class=" error_hosts alert-color"></span></li>
-        <li></li>
-        <li>
-          <button class="button radius tiny show_hosts_tab"> <i class="fa fa-lg fa-list fa-fw"></i></button>
-          <button class="button success radius tiny show_create_host"> <i class="fa fa-lg fa-plus fa-fw"></i></button>
-        </li>
-      </ul>
-    </legend>
+  <fieldset class="large-font dashboard-fieldset">
+    <div class="row small-12 medium-12 columns">
+      <div class="small-6 medium-8 columns dashboard-div-titles">
+        <h5>{{tr "Hosts"}}</h5>
+      </div>
+      <div class="small-6 medium-4 columns dashboard-div-buttons">
+        <button class="button radius tiny show_hosts_tab"> <i class="fa fa-lg fa-list fa-fw"></i></button>
+        <button class="button success radius tiny show_create_host"> <i class="fa fa-lg fa-plus fa-fw"></i></button>
+      </div>
+    </div>
     <div class="row">
-      <input style="display:none;" value="vm" id="acct_group_by"/>
-      <div class="small-12 medium-3 columns">
+      <div class="row"></div>
+      <div class="small-12 medium-6 columns">
         <div id="dashboard_host_allocated_cpu"></div>
       </div>
-      <div class="small-12 medium-3 columns">
+      <div class="small-12 medium-6 columns">
         <div id="dashboard_host_allocated_mem"></div>
       </div>
-      <div class="small-12 medium-3 columns">
+      <div class="small-12 medium-6 columns">
         <div id="dashboard_host_real_cpu"></div>
       </div>
-      <div class="small-12 medium-3 columns">
+      <div class="small-12 medium-6 columns">
         <div id="dashboard_host_real_mem"></div>
       </div>
     </div>

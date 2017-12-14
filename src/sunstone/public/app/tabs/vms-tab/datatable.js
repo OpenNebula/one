@@ -29,6 +29,7 @@ define(function(require) {
   var Vnc = require('utils/vnc');
   var Spice = require('utils/spice');
   var Notifier = require('utils/notifier');
+  var DashboardUtils = require('utils/dashboard');
   var SearchDropdown = require('hbs!./datatable/search');
 
   /*
@@ -150,9 +151,17 @@ define(function(require) {
 
   function _postUpdateView() {
     $(".total_vms").text(this.totalVms);
-    $(".active_vms").text(this.activeVms);
-    $(".pending_vms").text(this.pendingVms);
-    $(".failed_vms").text(this.failedVms);
+    DashboardUtils.counterAnimation(".total_vms", this.totalVms);
+
+    $(".active_vms").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".active_vms", this.activeVms);
+
+    $(".pending_vms").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".pending_vms", this.pendingVms);
+
+    $(".failed_vms").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".failed_vms", this.failedVms);
+
     $(".off_vms").text(this.offVms);
   }
 
@@ -206,4 +215,6 @@ define(function(require) {
     });
 
   }
+
+
 });

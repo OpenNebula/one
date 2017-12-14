@@ -25,6 +25,7 @@ define(function(require) {
   var QuotaDefaults = require('utils/quotas/quota-defaults');
   var QuotaWidgets = require('utils/quotas/quota-widgets');
   var LabelsUtils = require('utils/labels/utils');
+  var DashboardUtils = require('utils/dashboard');
 
   /*
     CONSTANTS
@@ -157,6 +158,7 @@ define(function(require) {
   }
 
   function _postUpdateView() {
-    $(".total_groups").text(this.totalGroups);
+    $(".total_groups").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".total_groups", this.totalGroups);
   }
 });

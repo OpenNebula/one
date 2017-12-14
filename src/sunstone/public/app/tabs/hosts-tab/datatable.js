@@ -222,9 +222,6 @@ define(function(require) {
     } else {
       info_str = "- / -";
     }
-
-    //$("#dash_host_allocated_cpu").html(usageBarHtml(allocated_cpu, max_cpu, info_str, true));
-
     $("#dashboard_host_allocated_cpu").html(quotaDashboard(
       "dashboard_host_allocated_cpu",
       Locale.tr("Allocated CPU"),
@@ -232,6 +229,10 @@ define(function(require) {
       "1rem",
       {"percentage": ratio_allocated_cpu, "str": info_str})
     );
+    var percentage = ratio_allocated_cpu > 100 ? 100 : ratio_allocated_cpu;
+    $("#dashboard_host_allocated_cpu_meter").animate({
+      value: percentage,
+    }, 2000, "swing");
 
     var ratio_real_cpu = 0;
     if (this.maxCPU > 0) {
@@ -240,7 +241,6 @@ define(function(require) {
     } else {
       info_str = "- / -";
     }
-
     $("#dashboard_host_real_cpu").html(quotaDashboard(
       "dashboard_host_real_cpu",
       Locale.tr("Real CPU"),
@@ -248,6 +248,10 @@ define(function(require) {
       "1rem",
       {"percentage": ratio_real_cpu, "str": info_str})
     );
+    var percentage = ratio_real_cpu > 100 ? 100 : ratio_real_cpu;
+    $("#dashboard_host_real_cpu_meter").animate({
+      value: percentage,
+    }, 2000, "swing");
 
     var ratio_allocated_mem = 0;
     if (this.maxMemory > 0) {
@@ -256,7 +260,6 @@ define(function(require) {
     } else {
       info_str = Humanize.size(this.allocatedMemory) + " / -";
     }
-
     $("#dashboard_host_allocated_mem").html(quotaDashboard(
       "dashboard_host_allocated_mem",
       Locale.tr("Allocated Memory"),
@@ -264,6 +267,10 @@ define(function(require) {
       "1rem",
       {"percentage": ratio_allocated_mem, "str": info_str})
     );
+    var percentage = ratio_allocated_mem > 100 ? 100 : ratio_allocated_mem;
+    $("#dashboard_host_allocated_mem_meter").animate({
+      value: percentage,
+    }, 2000, "swing");
 
     var ratio_real_mem = 0;
     if (this.maxMemory > 0) {
@@ -272,7 +279,6 @@ define(function(require) {
     } else {
       info_str = Humanize.size(this.realMemory) + " / -";
     }
-
     $("#dashboard_host_real_mem").html(quotaDashboard(
       "dashboard_host_real_mem",
       Locale.tr("Real Memory"),
@@ -280,12 +286,14 @@ define(function(require) {
       "1rem",
       {"percentage": ratio_real_mem, "str": info_str})
     );
+    var percentage = ratio_real_mem > 100 ? 100 : ratio_real_mem;
+    $("#dashboard_host_real_mem_meter").animate({
+      value: percentage,
+    }, 2000, "swing");
 
   }
 
   function quotaDashboard(html_tag, legend, font_large_size, font_small_size, quota) {
-    var percentage = quota.percentage > 100 ? 100 : quota.percentage;
-
     return "<div class=\"row\">" +
           "<div class=\"large-12 columns\">" +
             "<span>" + legend + "</span>" +
@@ -293,7 +301,7 @@ define(function(require) {
         "</div>" +
         "<div class=\"row\">" +
           "<div class=\"large-12 columns\">" +
-            "  <meter id=\"" + html_tag + "_meter\" min=\"0\" low=\"33\" high=\"66\" optimum=\"0\" max=\"100\" value=\"" + percentage + "\"></meter>" +
+            "  <meter id=\"" + html_tag + "_meter\" min=\"0\" low=\"33\" high=\"66\" optimum=\"0\" max=\"100\" value=\"0\"></meter>" +
           "</div>" +
         "</div>" +
         "<div class=\"row\">" +

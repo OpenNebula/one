@@ -27,6 +27,7 @@ define(function(require) {
   var LabelsUtils = require('utils/labels/utils');
   var SearchDropdown = require('hbs!./datatable/search');
   var OpenNebulaNetwork = require('opennebula/network');
+  var DashboardUtils = require('utils/dashboard');
 
   /*
     CONSTANTS
@@ -166,7 +167,9 @@ define(function(require) {
   }
 
   function _postUpdateView() {
-    $(".total_vnets").text(this.totalVNets);
-    $(".addresses_vnets").text(this.usedLeases);
+    $(".total_vnets").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".total_vnets", this.totalVNets);
+    $(".addresses_vnets").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".addresses_vnets", this.usedLeases);
   }
 });
