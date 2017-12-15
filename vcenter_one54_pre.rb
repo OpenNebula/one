@@ -638,7 +638,6 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
             end
         end
 
-
         # If VirtualEthernetCard
         if !device.class.ancestors.index(RbVmomi::VIM::VirtualEthernetCard).nil?
 
@@ -718,7 +717,6 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
                 STDOUT.puts "--- Network #{one_vn["NAME"]} with ID #{one_vn["ID"]} has been created"
             # network found:
             else
-
                 STDOUT.puts "--- Network #{network["NAME"]} with ID #{network["ID"]} already exists"
 
                 ar_id = find_network_ar(network, mac_address)
