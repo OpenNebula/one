@@ -2950,7 +2950,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     main do
         begin
-            msg = "  vCenter pre-migrator tool for OpenNebula 5.4 - Version: 1.1.6"
+            msg = "  vCenter pre-migrator tool for OpenNebula 5.4 - Version: 1.1.7"
             logo_banner(msg)
 
             # Initialize opennebula client
