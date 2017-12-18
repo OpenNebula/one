@@ -22,7 +22,7 @@ vms=$(ls "$dir" | grep '^[0-9]\+$')
 
 for vm in $vms; do
     vmdir="${dir}/${vm}"
-    disks=$(ls "$vmdir" | grep '^disk\.[0-9]\+$')
+    disks=$(ls "$vmdir" 2>/dev/null | grep '^disk\.[0-9]\+$')
 
     [ -z "$disks" ] && continue
 
