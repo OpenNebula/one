@@ -446,22 +446,26 @@ class Template
                     net_host = VCenterDriver::ClusterComputeResource.new_from_ref(ccr_ref, @vi_client)
                     location = VCenterDriver::VIHelper.get_location(net_host.item)
 
+                    import_opts = {
+                        :network_name=>          nic[:net_name],
+                        :network_ref=>           nic[:net_ref],
+                        :network_type=>          nic[:pg_type],
+                        :ccr_ref=>               ccr_ref,
+                        :ccr_name=>              ccr_name,
+                        :vcenter_uuid=>          vc_uuid,
+                        :vcenter_instance_name=> vcenter_instance_name,
+                        :dc_name=>               dc_name,
+                        :cluster_id=>            cluster_id,
+                        :location=>              location,
+                        :unmanaged=>             unmanaged,
+                        :template_ref=>          template_ref,
+                        :dc_ref=>                dc_ref,
+                        :vm_or_template_name=>   vm_name,
+                        :template_id=>           vm_id
+                    }
+
                     # Prepare the Virtual Network template
-                    one_vnet = VCenterDriver::Network.to_one_template(nic[:net_name],
-                                                                      nic[:net_ref],
-                                                                      nic[:pg_type],
-                                                                      ccr_ref,
-                                                                      ccr_name,
-                                                                      vc_uuid,
-                                                                      vcenter_instance_name,
-                                                                      dc_name,
-                                                                      cluster_id,
-                                                                      location,
-                                                                      unmanaged,
-                                                                      template_ref,
-                                                                      dc_ref,
-                                                                      vm_name,
-                                                                      vm_id)
+                    one_vnet = VCenterDriver::Network.to_one_template(import_opts)
 
                     # By default add an ethernet range to network size 255
                     ar_str = ""

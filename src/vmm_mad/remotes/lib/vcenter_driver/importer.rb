@@ -1,5 +1,4 @@
 module VCenterDriver
-
 class Importer
 
 VNC_ESX_HOST_FOLDER = "/tmp"
@@ -640,22 +639,34 @@ def self.import_networks(con_ops, options)
 
             tmps.each do |n|
                 if !use_defaults
+                    message = false
                     print_str =  "\n  * Network found:\n"\
-                                 "      - Name                  : \e[92m#{n[:name]}\e[39m\n"\
-                                 "      - Type                  : #{n[:type]}\n"\
-                                 "      - Cluster               : \e[96m#{n[:cluster]}\e[39m\n"\
-                                 "      - Cluster location      : #{n[:cluster_location]}\n"\
-                                 "      - OpenNebula Cluster ID : #{n[:one_cluster_id]}\n"
+                                 "      - Name                     : \e[92m#{n[:name]}\e[39m\n"\
+                                 "      - Type                     : #{n[:type]}\n"\
+                                 "      - Vcenter Clusters(host id): "
 
-                    if n[:one_cluster_id] == -1
-                        print_str << "You need to import the associated vcenter cluster as one host first!"
+                    unimported = ""
+                    import = false
+
+                    for i in 0..(n[:clusters][:refs].size-1)
+                        if n[:clusters][:one_ids][i] != -1
+                            import = true
+                            print_str << "\e[96m#{n[:clusters][:names][i]}(#{n[:clusters][:one_ids][i]})\e[39m "
+                        else
+                            message = true
+                            print_str << "\e[91m#{n[:clusters][:names][i]}\e[39m "
+                            unimported << "#{n[:clusters][:names][i]} "
+                        end
+                    end
+
+                    if !import
+                        print_str << "\n    You need to at least 1 vcenter cluster as one host first!"
                     else
-                        print_str << "    Import this Network (y/[n])? "
+                        print_str << "\n    Import this Network (y/[n])? "
                     end
 
                     STDOUT.print print_str
-
-                    next if STDIN.gets.strip.downcase != 'y' || n[:one_cluster_id] == -1
+                    next if STDIN.gets.strip.downcase != 'y' || !import
                 end
 
                 # we try to retrieve once we know the desired net
@@ -682,6 +693,11 @@ def self.import_networks(con_ops, options)
                 ula_prefix=nil
                 ip6_address = nil
                 prefix_length = nil
+
+                if !use_defaults && message
+                    STDOUT.print "\n\e[93mWarning: you have unimported clusters for this network: #{unimported}\n"\
+                                 "cancel this process(ctrl-C) if you want to import them first\e[39m\n\n"
+                end
 
                 # Size
                 if !use_defaults
@@ -787,8 +803,22 @@ def self.import_networks(con_ops, options)
                 n[:one] << ar_str
 
                 one_vn = VCenterDriver::VIHelper.new_one_item(OpenNebula::VirtualNetwork)
+                if n[:clusters] #Distributed Port Group
+                    done = []
+                    for i in 0..n[:clusters][:refs].size-1
+                        cl_id = n[:clusters][:one_ids][i]
+                        next if cl_id == -1 || done.include?(cl_id)
 
-                rc = one_vn.allocate(n[:one],n[:one_cluster_id].to_i)
+                        if done.empty?
+                            rc = one_vn.allocate(n[:one],cl_id.to_i)
+                            one_vn.info
+                        else
+                            one_cluster = VCenterDriver::VIHelper.one_item(OpenNebula::Cluster, cl_id, false)
+                            rc = one_cluster.addvnet(one_vn['ID'].to_i)
+                        end
+                        done << cl_id
+                    end
+                end
 
                 if ::OpenNebula.is_error?(rc)
                     STDOUT.puts "\n    Error creating virtual network: " +

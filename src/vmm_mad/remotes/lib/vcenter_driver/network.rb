@@ -91,37 +91,52 @@ class Network
         return id
     end
 
-    def self.to_one_template(network_name, network_ref, network_type,
-                             ccr_ref, ccr_name, vcenter_uuid,
-                             vcenter_instance_name, dc_name, cluster_id,
-                             cluster_location,
-                             unmanaged=nil, template_ref=nil, dc_ref=nil,
-                             vm_or_template_name=nil, template_id=nil)
 
-        one_tmp = {}
+    def self.generate_name(name, opts = {})
+        vcenter_instance_name = opts[:vcenter_name] || nil
+        dc_name               = opts[:dc_name] || nil
 
-        hash_name = "#{network_name} - #{ccr_name.tr(" ", "_")} [#{vcenter_instance_name} - #{dc_name}]_#{cluster_location}"
+        hash_name = "#{name} - [#{vcenter_instance_name} - #{dc_name}]"
         sha256 = Digest::SHA256.new
         network_hash = sha256.hexdigest(hash_name)[0..11]
-        network_import_name = "#{network_name} - #{ccr_name.tr(" ", "_")} [#{vcenter_instance_name} - #{dc_name}]_#{network_hash}"
+        network_import_name = "#{name} - [#{vcenter_instance_name} - #{dc_name}]_#{network_hash}"
+    end
+
+    def self.to_one_template(opts = {})
+
+        one_tmp = {}
+        network_name          = opts[:network_name]
+        network_ref           = opts[:network_ref]
+        network_type          = opts[:network_type]
+
+        vcenter_uuid          = opts[:vcenter_uuid]
+        vcenter_instance_name = opts[:vcenter_instance_name]
+        dc_name               = opts[:dc_name]
+        cluster_id            = opts[:cluster_id]
+
+        unmanaged             = opts[:unmanaged] || nil
+        template_ref          = opts[:template_ref] || nil
+        dc_ref                = opts[:dc_ref] || nil
+        vm_or_template_name   = opts[:vm_or_template_name] || nil
+        template_id           = opts[:template_id] || nil
+
+        network_import_name = generate_name(network_name, {:vcenter_name=>vcenter_instance_name, :dc_name=>dc_name})
 
         one_tmp[:name]             = network_name
         one_tmp[:import_name]      = network_import_name
         one_tmp[:bridge]           = network_name
         one_tmp[:type]             = network_type
-        one_tmp[:cluster]          = ccr_name
-        one_tmp[:cluster_location] = cluster_location
-        one_tmp[:vcenter_ccr_ref]  = ccr_ref
         one_tmp[:one_cluster_id]   = cluster_id
         one_tmp[:vcenter_net_ref]  = network_ref
+        one_tmp[:clusters]         = opts[:clusters] || nil
 
         one_tmp[:one] = to_one(network_import_name, network_name, network_ref, network_type,
-                             ccr_ref, vcenter_uuid, unmanaged, template_ref, dc_ref, template_id)
+                               vcenter_uuid, unmanaged, template_ref, dc_ref, template_id)
         return one_tmp
     end
 
     def self.to_one(network_import_name, network_name, network_ref, network_type,
-                    ccr_ref, vcenter_uuid, unmanaged, template_ref, dc_ref, template_id)
+                    vcenter_uuid, unmanaged, template_ref, dc_ref, template_id)
 
         template = "NAME=\"#{network_import_name}\"\n"\
                    "BRIDGE=\"#{network_name}\"\n"\
@@ -135,7 +150,7 @@ class Network
             template += "VCENTER_FROM_WILD=\"#{template_id}\"\n"
         end
 
-        template += "VCENTER_CCR_REF=\"#{ccr_ref}\"\n" if !unmanaged
+        #template += "VCENTER_CCR_REF=\"#{ccr_ref}\"\n" if !unmanaged
 
         template += "VCENTER_TEMPLATE_REF=\"#{template_ref}\"\n" if template_ref
 
