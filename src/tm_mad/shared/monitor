@@ -77,7 +77,7 @@ vms=\$(ls "$BASE_PATH" | grep '^[0-9]\+$')
 
 for vm in \$vms; do
     vmdir="${BASE_PATH}/\${vm}"
-    disks=\$(ls "\$vmdir" | grep '^disk\.[0-9]\+$')
+    disks=\$(ls "\$vmdir" 2>/dev/null | grep '^disk\.[0-9]\+$')
 
     [ -z \$disks ] && continue
 
@@ -92,7 +92,7 @@ for vm in \$vms; do
         echo -n "DISK_SIZE=[ID=\${disk_id},SIZE=\${disk_size}] "
 
         if [ -e "\$snap_dir" ]; then
-            snaps="\$(ls "\$snap_dir" | grep '^[0-9]$')"
+            snaps="\$(ls "\$snap_dir" 2>/dev/null | grep '^[0-9]$')"
 
             for snap in \$snaps; do
                 snap_size="\$(du -mL "\${snap_dir}/\${snap}" | awk '{print \$1}')"
