@@ -31,6 +31,7 @@ define(function(require){
 
   function _calculateCost(context, disk_cost, callback){
     var cost = 0;
+    var totalSize = 0;
 
     $(".diskContainer", context).each(function(){
       var size = 0;
@@ -46,12 +47,13 @@ define(function(require){
           size = disk['SIZE'];
         }
       }
-
+      totalSize += parseFloat(size);
       cost += size * disk_cost;
       cost += $(this).data('disk_snapshot_total_cost');
     });
 
     $(".cost_value", context).text(cost.toFixed(6));
+    $("#quotas-disks", context).text(totalSize.toFixed(2));
 
     if(callback != undefined){
       callback();
@@ -112,8 +114,6 @@ define(function(require){
 
       var diskContext;
       $(".disksContainer", disksContext).html("");
-
-
 
       $.each(disks, function(disk_id, disk) {
         diskContext = $(

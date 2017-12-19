@@ -200,6 +200,31 @@ define(function(require) {
         CapacityInputs.html() +
       '</fieldset>');
 
+    if (Config.provision.dashboard.isEnabled("quotas")) {
+      $("#quotas-mem", context).show();
+      $("#quotas-cpu", context).show();
+      var quotaMem = false;
+      var quotaCpu = false;
+
+      var user = this.user;
+      if (!$.isEmptyObject(user.VM_QUOTA)){
+        var memUsed = parseFloat(user.VM_QUOTA.VM.MEMORY_USED);
+        var cpuUsed = parseFloat(user.VM_QUOTA.VM.CPU_USED);
+        if (user.VM_QUOTA.VM.MEMORY === "-1" || user.VM_QUOTA.VM.MEMORY === "-2"){
+          $("#quotas-mem", context).text(Humanize.size(memUsed * 1024) + " / ∞");
+        } else {
+          quotaMem = true;
+          $("#quotas-mem", context).text(Humanize.size(memUsed * 1024) + " / " + Humanize.size(user.VM_QUOTA.VM.MEMORY * 1024));
+        }
+        if (user.VM_QUOTA.VM.CPU === "-1" || user.VM_QUOTA.VM.CPU === "-2"){
+          $("#quotas-cpu", context).text(cpuUsed + " / ∞");
+        } else {
+          quotaCpu = true;
+          $("#quotas-cpu", context).text(cpuUsed + " / " + user.VM_QUOTA.VM.CPU);
+        }
+      }
+    }
+
     CapacityInputs.setup(context);
     CapacityInputs.fill(context, element);
 
@@ -219,6 +244,23 @@ define(function(require) {
 
       $(".memory_value", context).html(memory_value);
       $(".memory_unit", context).html(memory_unit);
+
+      if (!values.MEMORY){
+        values.MEMORY = 0;
+      }
+      if (!values.CPU){
+        values.CPU = 0;
+      }
+      if (quotaMem){
+        $("#quotas-mem", context).text( Humanize.size((parseFloat(user.VM_QUOTA.VM.MEMORY_USED) + parseFloat(values.MEMORY)) * 1024) + " / " + Humanize.size(user.VM_QUOTA.VM.MEMORY * 1024));
+      } else {
+        $("#quotas-mem", context).text( Humanize.size((parseFloat(user.VM_QUOTA.VM.MEMORY_USED) + parseFloat(values.MEMORY)) * 1024) + " / ∞");
+      }
+      if (quotaCpu){
+        $("#quotas-cpu", context).text(((parseFloat(user.VM_QUOTA.VM.CPU_USED) + parseFloat(values.CPU))).toFixed(2) + " / " + user.VM_QUOTA.VM.CPU);
+      } else {
+        $("#quotas-cpu", context).text(((parseFloat(user.VM_QUOTA.VM.CPU_USED) + parseFloat(values.CPU))).toFixed(2) + " / ∞");
+      }
     });
 
     var cost = 0;
@@ -275,6 +317,17 @@ define(function(require) {
       $(".total_cost_div", context).show();
 
       $(".total_cost_div .cost_value", context).text( (total).toFixed(2) );
+    }
+
+    if (Config.provision.dashboard.isEnabled("quotas")) {
+      if (!$("#quotas-disks").text().includes("/")){
+        var totalSize = parseFloat($("#quotas-disks").text());
+        if (this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE === "-1" || this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE === "-2"){
+          $("#quotas-disks").text(Humanize.size((parseFloat(this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE_USED) + totalSize) * 1024) + " / ∞");
+        } else {
+          $("#quotas-disks").text(Humanize.size((parseFloat(this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE_USED) + totalSize) * 1024) + " / " + Humanize.size(parseFloat(this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE) * 1024));
+        }
+      }
     }
   }
 
@@ -441,13 +494,14 @@ define(function(require) {
     if (Config.provision.dashboard.isEnabled("quotas")) {
       $("#provision_dashboard").append(TemplateDashboardQuotas());
 
-
+      var that = this;
       OpenNebula.User.show({
         data : {
             id: "-1"
         },
         success: function(request,user_json){
           var user = user_json.USER;
+          that.user = user;
 
           QuotaWidgets.initEmptyQuotas(user);
 
@@ -974,6 +1028,15 @@ define(function(require) {
                     cost_callback: _calculateCost,
                     uinput_mb: true
                   });
+                  if (Config.provision.dashboard.isEnabled("quotas")) {
+                    $("#quotas-disks").show();
+                    if (this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE === "-1" || this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE === "-2"){
+                      $("#quotas-disks").text(Humanize.size(parseFloat(this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE_USED) * 1024) + " / " + "∞");
+                    } else {
+                      $("#quotas-disks").text(Humanize.size(parseFloat(this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE_USED) * 1024) + " / " + Humanize.size(parseFloat(this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE) * 1024));
+                    }
+                    $("input", disksContext).change();
+                  }
                 } else {
                   disksContext.html("");
                 }
