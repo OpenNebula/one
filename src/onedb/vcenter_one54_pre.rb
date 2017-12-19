@@ -1374,12 +1374,12 @@ def add_new_host_attrs(vc_clusters, hpool, one_client, vcenter_ids)
     hosts.each do |host|
         begin
             # Get OpenNebula host and prepare variables
-            one_host        = OpenNebula::Host.new_with_id(host["ID"], one_client)
+            one_host        = OpenNebula::Host.new_with_id(host["ID"], one_client) 
             rc              = one_host.info
             raise rc.message if OpenNebula.is_error?(rc)
             ccr_name = host["NAME"]
             ccr_ref  = nil
-            vi_client       = VCenterDriver::VIClient.new(host["ID"])
+            vi_client       = VCenterDriver::VIClient.new(host["ID"]) rescue next
             vcenter_uuid    = vi_client.vim.serviceContent.about.instanceUuid
             vcenter_version = vi_client.vim.serviceContent.about.apiVersion
 
@@ -1447,7 +1447,7 @@ def create_new_clusters(vc_clusters, hpool, cpool, one_client)
             one_host  = OpenNebula::Host.new_with_id(host["ID"], one_client)
             rc   = one_host.info
             raise rc.message if OpenNebula.is_error?(rc)
-            vi_client       = VCenterDriver::VIClient.new(host["ID"])
+            vi_client       = VCenterDriver::VIClient.new(host["ID"]) rescue next
             vcenter_uuid    = vi_client.vim.serviceContent.about.instanceUuid
             ccr_name = host["NAME"]
 
@@ -1586,7 +1586,8 @@ def inspect_datastores(vc_datastores, vc_clusters, one_clusters, dspool, hpool, 
             # Get cluster's host from its name stored in VCENTER_CLUSTER
             hosts = hpool.retrieve_xmlelements("HOST[NAME=\"#{ccr_name}\"]")
             if hosts.empty?
-                raise "Could not find OpenNebula host associated to VCENTER_CLUSTER"
+                STDERR.puts "Could not find OpenNebula host associated to VCENTER_CLUSTER #{ccr_name}. Not updating datastore #{ds_name}."
+                next
             end
 
             # Check if host already has the ccr moref
@@ -1597,7 +1598,7 @@ def inspect_datastores(vc_datastores, vc_clusters, one_clusters, dspool, hpool, 
 
             # Get OpenNebula host's id and create a Rbvmomi connection
             host_id = hosts.first["ID"]
-            vi_client       = VCenterDriver::VIClient.new(host_id)
+            vi_client       = VCenterDriver::VIClient.new(host_id) rescue next
             vcenter_uuid    = vi_client.vim.serviceContent.about.instanceUuid
             vcenter_name    = vi_client.host
 
@@ -2921,7 +2922,7 @@ def inspect_vms(vc_vmachines, vc_templates, vc_clusters, one_clusters, vmpool, i
             STDOUT.puts
         rescue Exception => e
             STDOUT.puts
-            STDOUT.puts "Wild VM \"#{vm["NAME"]}\" couldn't be migrated. It may require manual intervention. Reason: #{e.message}"
+            STDOUT.puts "VM \"#{vm["NAME"]}\" couldn't be migrated. It may require manual intervention. Reason: #{e.message}"
         ensure
             vi_client.vim.close if vi_client
         end
@@ -2950,7 +2951,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     main do
         begin
-            msg = "  vCenter pre-migrator tool for OpenNebula 5.4 - Version: 1.1.7"
+            msg = "  vCenter pre-migrator tool for OpenNebula 5.4 - Version: 1.1.8"
             logo_banner(msg)
 
             # Initialize opennebula client
@@ -3026,7 +3027,7 @@ CommandParser::CmdParser.new(ARGV) do
             hpool.each do |host|
                 next if host['VM_MAD'] != "vcenter"
 
-                vi_client = VCenterDriver::VIClient.new(host["ID"])
+                vi_client = VCenterDriver::VIClient.new(host["ID"]) rescue next
                 vcenter_uuid = vi_client.vim.serviceContent.about.instanceUuid
                 if vcenter_instances.include?(vcenter_uuid)
                     vi_client.vim.close
