@@ -83,17 +83,23 @@ define(function(require) {
                                       RESOURCE,
                                       Locale.tr("Attributes"));
     var reservedMem;
+    var reservedMemInput;
     if (this.element.TEMPLATE.RESERVED_MEM != "0%" && this.element.TEMPLATE.RESERVED_MEM != ""){
       reservedMem = parseInt(this.element.TEMPLATE.RESERVED_MEM);
+      reservedMemInput = this.element.TEMPLATE.RESERVED_MEM;
     } else {
       reservedMem = 0;
+      reservedMemInput = "0%";
     }
 
     var reservedCPU;
+    var reservedCPUInput;
     if (this.element.TEMPLATE.RESERVED_CPU != "0%" && this.element.TEMPLATE.RESERVED_CPU != ""){
       reservedCPU = parseInt(this.element.TEMPLATE.RESERVED_CPU);
+      reservedCPUInput = this.element.TEMPLATE.RESERVED_CPU;
     } else {
       reservedCPU = 0;
+      reservedCPUInput = "0%";
     }
 
     return TemplateHTML({
@@ -101,7 +107,9 @@ define(function(require) {
       "renameTrHTML": renameTrHTML,
       "templateTableHTML": templateTableHTML,
       "percentCPU": reservedCPU,
+      "percentCPUinput": reservedCPUInput,
       "percentMEM": reservedMem,
+      "percentMEMinput": reservedMemInput
     });
   }
 
