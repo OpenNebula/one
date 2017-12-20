@@ -44,7 +44,11 @@ define(function(require) {
   function DiskTab(diskTabId) {
     this.diskTabId = 'diskTab' + diskTabId + UniqueId.id();
 
-    this.imageTable = new ImageTable(this.diskTabId + 'Table', {'select': true});
+    this.imageTable = new ImageTable(this.diskTabId + 'Table', {
+      'select': true,
+      'selectOptions': {
+        "filter_fn": function(image) { return image.STATE != 5; }
+    }});
   }
 
   DiskTab.prototype.constructor = DiskTab;
