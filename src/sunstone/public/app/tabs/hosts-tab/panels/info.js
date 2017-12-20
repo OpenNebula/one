@@ -134,15 +134,22 @@ define(function(require) {
     });
   }
 
-   function changeInputCPU(maxCPU){
-    $("#change_bar_cpu_hosts").val(parseInt($("#textInput_reserved_cpu_hosts").val()));
-    $("#textInput_reserved_cpu_hosts").val($("#change_bar_cpu_hosts").val());
+  function changeInputCPU(maxCPU){
+    if($("#textInput_reserved_cpu_hosts").val() === ""){
+      $("#change_bar_cpu_hosts").val(0);
+      $("#textInput_reserved_cpu_hosts").val("");
+    } else {
+      $("#change_bar_cpu_hosts").val(parseInt($("#textInput_reserved_cpu_hosts").val()));
+    }
     changeColorInputCPU(maxCPU);
   }
 
-   function changeInputMEM(maxMEM){
-    $("#change_bar_mem_hosts").val(Humanize.sizeToMB($("#textInput_reserved_mem_hosts").val()));
-    $("#textInput_reserved_mem_hosts").val(Humanize.size($("#change_bar_mem_hosts").val()));
+  function changeInputMEM(maxMEM){
+    if($("#textInput_reserved_mem_hosts").val() === ""){
+      $("#change_bar_mem_hosts").val(0);
+    } else {
+      $("#change_bar_mem_hosts").val(Humanize.sizeToMB($("#textInput_reserved_mem_hosts").val())*1024);
+    }
     changeColorInputMEM(maxMEM);
   }
 
@@ -186,9 +193,9 @@ define(function(require) {
     //.off and .on prevent multiple clicks events
     $(document).off("click", "#update_reserved_hosts").on("click", ".update_reserved", function(){
       $("#update_reserved_hosts", context).prop("disabled", true);
-      var reservedCPU = parseInt($("#change_bar_cpu_hosts", context).val());
+      var reservedCPU = parseInt($("#textInput_reserved_cpu_hosts", context).val());
       var CPU = parseInt(that.element.HOST_SHARE.FREE_CPU);
-      var reservedMem = parseInt($("#change_bar_mem_hosts", context).val());
+      var reservedMem = Humanize.sizeToMB($("#textInput_reserved_mem_hosts").val()) * 1024;
       var MEM = parseInt(that.element.HOST_SHARE.FREE_MEM);
       if (parseInt(that.element.HOST_SHARE.USED_CPU) > 0){
         CPU += parseInt(that.element.HOST_SHARE.USED_CPU);
