@@ -48,7 +48,8 @@ rescue
         :vxlan_ttl           => "16",
         :vxlan_mtu           => "1500",
         :validate_vlan_id    => false,
-        :vlan_mtu            => "1500"
+        :vlan_mtu            => "1500",
+        :ipset_maxelem       => "65536",
     }
 end
 

@@ -81,7 +81,7 @@ module VNMMAD
             attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID'] if !do_all
 
             # Process the rules
-            @vm.nics.each do |nic|
+            process do |nic|
                 next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
                 if nic[:security_groups].nil?
