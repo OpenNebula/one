@@ -743,7 +743,9 @@ module OpenNebula
         #
         # @return [Integer, OpenNebula::Error] the new Template ID in case of
         #   success, error otherwise
-        REMOVE_VNET_ATTRS = %w{AR_ID BRIDGE CLUSTER_ID IP MAC TARGET NIC_ID NETWORK_ID VN_MAD SECURITY_GROUPS}
+        REMOVE_VNET_ATTRS = %w{AR_ID BRIDGE CLUSTER_ID IP MAC TARGET NIC_ID
+            NETWORK_ID VN_MAD SECURITY_GROUPS VLAN_ID}
+
         def save_as_template(name,description, persistent=nil)
             img_ids = []
             new_tid = nil
