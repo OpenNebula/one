@@ -87,8 +87,12 @@ tabs:
             capacity_select: true
             # True to allow NIC customization
             network_select: true
+            # True to allow vmgroup customization
+            vmgroup_select: true
             # True to allow DISK size customization
             disk_resize: true
+            # True to allow datastore customization
+            datastore_select: true
     settings-tab:
         panel_tabs:
             settings_info_tab: false
