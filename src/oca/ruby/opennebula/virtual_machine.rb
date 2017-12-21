@@ -850,12 +850,11 @@ module OpenNebula
                         rc = Error.new('The NIC_ID is missing from the VM template')
                         raise
                     end
-                     REMOVE_VNET_ATTRS.each do |attr|
+                    REMOVE_VNET_ATTRS.each do |attr|
                         nic.delete_element(attr)
                     end
-
-                    replace << self.template_like_str(
-                        "TEMPLATE", true, "NIC[#{nic}]") << "\n"
+                    
+                    replace << "NIC = [ " << nic.template_like_str(".").tr("\n", ",\n") << " ] \n"
                 end
 
                 # Required by the Sunstone Cloud View
