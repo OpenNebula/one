@@ -36,6 +36,7 @@ env.StaticLibrary(lib_name, source_files)
 # Build daemon
 env.Prepend(LIBS=[
         'im_collectd',
+        'nebula_common',
         'util'
 ])
 

@@ -158,43 +158,11 @@ int IMCollectorDriver::init_collector()
 
 void IMCollectorDriver::start_collector()
 {
-    pthread_attr_t attr;
-    pthread_t id;
-
-    pthread_attr_init(&attr);
-    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-
-    pthread_create(&id, &attr, flush_thread, (void *)this);
-
     pool->start_pool();
 
     start();
-
-    pthread_attr_destroy(&attr);
-
-    pthread_cancel(id);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-extern "C" void * flush_thread(void *arg)
-{
-    IMCollectorDriver * collectd = static_cast<IMCollectorDriver *>(arg);
-
-    collectd->flush_loop();
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-
-void IMCollectorDriver::flush_loop()
-{
-    while(true)
-    {
-        sleep(_flush_period);
-
-        pool->flush_pool();
-    }
-};
