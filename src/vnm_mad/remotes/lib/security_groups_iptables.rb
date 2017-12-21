@@ -146,7 +146,11 @@ module SGIPTables
                 end
 
                 if !sets.include?(set)
-                    cmds.add :ipset, "create #{set} hash:net,port family #{family}"
+                    maxelem = vars[:nic][:conf][:ipset_maxelem] ?
+                        "maxelem #{vars[:nic][:conf][:ipset_maxelem]}" :
+                        "maxelem #{CONF[:ipset_maxelem]}"
+
+                    cmds.add :ipset, "create #{set} hash:net,port family #{family} #{maxelem}"
                     cmds.add command, "-A #{chain} -m set --match-set" \
                         " #{set} #{dir} -j RETURN"
 
@@ -318,10 +322,11 @@ module SGIPTables
 
         vars = {}
 
-        vars[:vm_id]     = vm_id,
-        vars[:nic_id]    = nic_id,
-        vars[:chain]     = "one-#{vm_id}-#{nic_id}",
-        vars[:chain_in]  = "#{vars[:chain]}-i",
+        vars[:nic]       = nic
+        vars[:vm_id]     = vm_id
+        vars[:nic_id]    = nic_id
+        vars[:chain]     = "one-#{vm_id}-#{nic_id}"
+        vars[:chain_in]  = "#{vars[:chain]}-i"
         vars[:chain_out] = "#{vars[:chain]}-o"
 
         if sg_id
