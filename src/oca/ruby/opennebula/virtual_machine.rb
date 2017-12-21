@@ -851,9 +851,8 @@ module OpenNebula
                     REMOVE_VNET_ATTRS.each do |attr|
                         nic.delete_element(attr)
                     end
-                    binding.pry
+                    
                     replace << "NIC = [ " << nic.template_like_str(".").tr("\n", ",\n") << " ] \n"
-                    binding.pry
                 end
 
                 # Required by the Sunstone Cloud View
