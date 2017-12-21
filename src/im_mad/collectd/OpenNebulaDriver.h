@@ -78,16 +78,12 @@ class IMCollectorDriver: public OpenNebulaDriver
 {
 public:
 
-    IMCollectorDriver(std::string address, int port, int threads,
-        int flush_period)
-        :OpenNebulaDriver(),_address(address),_port(port),_threads(threads),
-        _flush_period(flush_period){};
+    IMCollectorDriver(std::string a, int p, int t)
+        :OpenNebulaDriver(),_address(a),_port(p),_threads(t){};
 
     virtual ~IMCollectorDriver(){};
 
     int init_collector();
-
-    void flush_loop();
 
     void start_collector();
 
@@ -99,8 +95,6 @@ private:
     int _port;
 
     int _threads;
-
-    int _flush_period;
 
     ListenerPool *pool;
 };
