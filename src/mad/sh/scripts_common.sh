@@ -717,7 +717,8 @@ function get_disk_information {
                         $DISK_XPATH/DISK_TYPE \
                         $DISK_XPATH/POOL_NAME \
                         $DISK_XPATH/SIZE \
-                        $DISK_XPATH/TARGET)
+                        $DISK_XPATH/TARGET \
+                        $DISK_XPATH/IO)
 
     VMID="${XPATH_ELEMENTS[j++]}"
     DRIVER="${XPATH_ELEMENTS[j++]:-$DEFAULT_TYPE}"
@@ -739,6 +740,7 @@ function get_disk_information {
     POOL_NAME="${XPATH_ELEMENTS[j++]}"
     SIZE="${XPATH_ELEMENTS[j++]}"
     DISK_TARGET="${XPATH_ELEMENTS[j++]}"
+    IO="${XPATH_ELEMENTS[j++]}"
 
     TYPE=$(echo "$TYPE"|tr A-Z a-z)
 
