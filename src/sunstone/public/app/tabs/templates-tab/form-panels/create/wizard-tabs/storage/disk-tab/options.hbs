@@ -96,7 +96,6 @@
       <option value="native">native</option>
     </select>
   </div>
-  {{#unless volatile}}
   <div class="medium-6 columns hypervisor only_kvm">
     <label for="DISCARD">
       {{tr "Discard"}}
@@ -107,7 +106,6 @@
       <option value="unmap">{{tr "unmap"}}</option>
     </select>
   </div>
-  {{/unless}}
   {{#unless volatile}}
   <div class="medium-6 columns hypervisor">
     <label for="SIZE">
