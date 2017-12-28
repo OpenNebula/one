@@ -341,18 +341,10 @@ class OneDBLive
 
     def change_history(vid, seq, xpath, value, options)
         begin
-            db_data = select("history", "vid = #{vid} and seq = #{seq}")
+            doc = get_history_body(vid, seq)
         rescue => e
-            STDERR.puts "Error getting history recored #{seq} for VM #{vid}"
             STDERR.puts e.message
             return
-        end
-
-        row  = db_data.first
-        body = Base64.decode64(row['body64'])
-
-        doc = Nokogiri::XML(body, nil, NOKOGIRI_ENCODING) do |c|
-            c.default_xml.noblanks
         end
 
         doc.xpath(xpath).each do |e|
@@ -495,6 +487,31 @@ class OneDBLive
         end
     end
 
+    def update_history_cli(vid, seq)
+        begin
+            doc = get_history_body(vid, seq)
+        rescue => e
+            STDERR.puts e.message
+            return
+        end
+
+        doc = editor_body(doc.root.to_s)
+
+        begin
+            xml_doc = Nokogiri::XML(doc, nil, NOKOGIRI_ENCODING) do |c|
+                c.default_xml.noblanks
+                c.strict
+            end
+
+            xml = xml_doc.root.to_xml
+
+            update_body("history", xml, "vid = #{vid} and seq = #{seq}", false)
+        rescue => e
+            STDERR.puts "Error updating history record #{seq} for VM #{vid}"
+            STDERR.puts e.message
+        end
+    end
+
     def show_body_cli(object, id)
         table, object, federate = get_pool_config(object)
 
@@ -514,6 +531,37 @@ class OneDBLive
         end
 
         doc.root.to_s
+    end
+
+    def show_history_cli(vid, seq)
+        begin
+            doc = get_history_body(vid, seq)
+        rescue => e
+            STDERR.puts e.message
+            return
+        end
+
+        doc.root.to_s
+    end
+
+    def get_history_body(vid, seq)
+        begin
+            db_data = select("history", "vid = #{vid} and seq = #{seq}")
+        rescue => e
+            error_str = "Error getting history record #{seq} for VM #{vid}"
+            error_str << e.message
+
+            raise error_str
+        end
+
+        row  = db_data.first
+        body = Base64.decode64(row['body64'])
+
+        doc = Nokogiri::XML(body, nil, NOKOGIRI_ENCODING) do |c|
+            c.default_xml.noblanks
+        end
+
+        return doc
     end
 end
 
