@@ -1098,7 +1098,7 @@ define(function(require) {
             }
           };
 
-          var vmgroup = VMGroupSection.retrieve($(".vmgroupContext"+ template_id));
+          var vmgroup = VMGroupSection.retrieve($(".vmgroupContext", context));
 
           if(vmgroup){
             $.extend(extra_info.template, vmgroup);
