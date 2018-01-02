@@ -37,7 +37,8 @@ env.StaticLibrary(lib_name, source_files)
 env.Prepend(LIBS=[
         'im_collectd',
         'nebula_common',
-        'util'
+        'util',
+        'crypto'
 ])
 
 env.Program('collectd.cc')
