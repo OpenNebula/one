@@ -19,16 +19,16 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var Locale = require('utils/locale');
-  var Notifier = require('utils/notifier');
-  var OpenNebulaVM = require('opennebula/vm');
+  var Locale = require("utils/locale");
+  var Notifier = require("utils/notifier");
+  var OpenNebulaVM = require("opennebula/vm");
 
   /*
     CONSTANTS
    */
 
-  var TAB_ID = require('../tabId');
-  var PANEL_ID = require('./log/panelId');
+  var TAB_ID = require("../tabId");
+  var PANEL_ID = require("./log/panelId");
   var RESOURCE = "VM"
   var XML_ROOT = "VM"
 
@@ -58,15 +58,15 @@ define(function(require) {
    */
 
   function _html() {
-    return '<div class="row">' +
-      '<div class="large-12 columns vm_log_container monospace" style="overflow: auto; height: 500px">' +
-        '<div class="text-center" style="height: 100px;">' +
-          '<span style="font-size:80px">' +
-            '<i class="fa fa-spinner fa-spin"></i>' +
-          '</span>' +
-        '</div>' +
-      '</div>' +
-    '</div>';
+    return "<div class=\"row\">" +
+      "<div class=\"large-12 columns vm_log_container monospace\" style=\"overflow: auto; height: 500px\">" +
+        "<div class=\"text-center\" style=\"height: 100px;\">" +
+          "<span style=\"font-size:80px\">" +
+            "<i class=\"fa fa-spinner fa-spin\"></i>" +
+          "</span>" +
+        "</div>" +
+      "</div>" +
+    "</div>";
   }
 
   function _setup(context) {
@@ -77,33 +77,34 @@ define(function(require) {
     OpenNebulaVM.log({
       data: {id: that.element.ID},
       success: function(req, response) {
-        var log_lines = response['vm_log'].split("\n");
-        var colored_log = '';
+        var log_lines = response["vm_log"].split("\n");
+        var colored_log = "";
         for (var i = 0; i < log_lines.length; i++) {
           var line = log_lines[i];
           if (line.match(/\[E\]/)) {
-            line = '<span class="vm_log_error">' + line + '</span>';
+            line = "<span class=\"vm_log_error\">" + line + "</span>";
           }
           colored_log += line + "<br>";
         }
 
-        $('.vm_log_container', context).html(
-          '<div class="row">' +
-            '<div class="large-11 small-centered columns log-tab">' +
+        $(".vm_log_container", context).html(
+          "<div class=\"row\">" +
+            "<div class=\"large-11 small-centered columns log-tab\">" +
               colored_log +
-            '</div>' +
-          '</div>')
+            "</div>" +
+          "</div>");
+        $(".vm_log_container", context).animate({scrollTop:"500px"}, "slow");
 
       },
       error: function(request, error_json) {
-        $('.vm_log_container', context).html(
-          '<div class="row">' +
-            '<div class="large-12 columns vm_log_container monospace">' +
-              '<div class="text-center" style="height: 100px;">' +
-                '<span class="radius secondary label"><i class="fa fa-exclamation-triangle"></i> '+Locale.tr("Some ad-block extensions are known to filter the '/log?id=' URL")+'</span>' +
-              '</div>' +
-            '</div>' +
-          '</div>');
+        $(".vm_log_container", context).html(
+          "<div class=\"row\">" +
+            "<div class=\"large-12 columns vm_log_container monospace\">" +
+              "<div class=\"text-center\" style=\"height: 100px;\">" +
+                "<span class=\"radius secondary label\"><i class=\"fa fa-exclamation-triangle\"></i> "+Locale.tr("Some ad-block extensions are known to filter the '/log?id=' URL")+"</span>" +
+              "</div>" +
+            "</div>" +
+          "</div>");
 
         Notifier.onError(request, error_json);
       }
