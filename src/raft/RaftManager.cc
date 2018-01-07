@@ -49,7 +49,7 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
         const VectorAttribute * follower_hook_mad, time_t log_purge,
         long long bcast, long long elect, time_t xmlrpc,
         const string& remotes_location):server_id(id), term(0), num_servers(0),
-        commit(0), leader_hook(0), follower_hook(0)
+        reconciling(false), commit(0), leader_hook(0), follower_hook(0)
 {
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
@@ -371,6 +371,32 @@ void RaftManager::delete_server(int follower_id)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+extern "C" void * reconciling_thread(void *arg)
+{
+    Nebula& nd = Nebula::instance();
+
+    LogDB * logdb    = nd.get_logdb();
+    RaftManager * rm = nd.get_raftm();
+
+    int * index = static_cast<int *>(arg);
+
+    NebulaLog::log("RCM", Log::INFO, "Replicating log to followers");
+
+    logdb->replicate(*index);
+
+    NebulaLog::log("RCM", Log::INFO, "Leader log replicated");
+
+    pthread_mutex_lock(&(rm->mutex));
+
+    rm->reconciling = false;
+
+    pthread_mutex_unlock(&(rm->mutex));
+
+    free(index);
+
+    return 0;
+}
+
 void RaftManager::leader()
 {
     Nebula& nd    = Nebula::instance();
@@ -383,7 +409,7 @@ void RaftManager::leader()
     std::map<int, std::string>::iterator it;
     std::vector<int> _follower_ids;
 
-    int index, _applied;
+    int index, _applied, _next_index;
 
     std::map<int, std::string> _servers;
 
@@ -420,6 +446,16 @@ void RaftManager::leader()
 
     leader_id = server_id;
 
+    if ( _applied < index )
+    {
+        reconciling = true;
+        _next_index = index;
+    }
+    else
+    {
+        _next_index = index + 1;
+    }
+
     for (it = servers.begin(); it != servers.end() ; ++it )
     {
         if ( it->first == server_id )
@@ -427,7 +463,7 @@ void RaftManager::leader()
             continue;
         }
 
-        next.insert(std::make_pair(it->first, index + 1));
+        next.insert(std::make_pair(it->first, _next_index));
 
         match.insert(std::make_pair(it->first, 0));
 
@@ -444,6 +480,23 @@ void RaftManager::leader()
     if ( nd.is_federation_master() )
     {
         frm->start_replica_threads();
+    }
+
+    if ( _applied < index )
+    {
+        pthread_attr_t pattr;
+        pthread_t thid;
+
+        pthread_attr_init (&pattr);
+        pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_DETACHED);
+
+        int * _index = (int *) malloc(sizeof(int));
+
+        *_index = _next_index;
+
+        pthread_create(&thid, &pattr, reconciling_thread, (void *) _index);
+
+        pthread_attr_destroy(&pattr);
     }
 
     NebulaLog::log("RCM", Log::INFO, "oned is now the leader of the zone");

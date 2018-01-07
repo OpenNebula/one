@@ -329,6 +329,11 @@ void Request::execute(
         att.resp_msg = "Cannot process request, oned cluster in election mode";
         failure_response(INTERNAL, att);
     }
+    else if ( raftm->is_reconciling() && leader_only)
+    {
+        att.resp_msg = "Cannot process request, oned cluster is replicating log";
+        failure_response(INTERNAL, att);
+    }
     else //leader or solo or !leader_only
     {
         request_execute(_paramList, att);

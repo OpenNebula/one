@@ -125,6 +125,15 @@ public:
     int insert_log_record(unsigned int index, unsigned int term,
             std::ostringstream& sql, time_t timestamp, int fed_index);
 
+    /**
+     *  Replicate a log record on followers. It will also replicate any missing
+     *  previous records
+     *    @param rindex of the record to replicate
+     *
+     *    @return 0 on success, -1 in case of failure
+     */
+    int replicate(int rindex);
+
     //--------------------------------------------------------------------------
     // Functions to manage the Raft state. Log record 0, term -1
     // -------------------------------------------------------------------------
