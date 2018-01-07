@@ -25,6 +25,8 @@
 
 extern "C" void * raft_manager_loop(void *arg);
 
+extern "C" void * reconciling_thread(void *arg);
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -86,7 +88,6 @@ public:
      *  send the log to the followers
      */
     void replicate_log(ReplicaRequest * rr);
-
 
     /**
      *  Finalizes the Raft Consensus Manager
@@ -194,6 +195,19 @@ public:
         return test_state(SOLO);
     }
 
+    bool is_reconciling()
+    {
+        bool _reconciling;
+
+        pthread_mutex_lock(&mutex);
+
+        _reconciling = reconciling;
+
+        pthread_mutex_unlock(&mutex);
+
+        return _reconciling;
+    }
+
     /**
      *  Get next index to send to the follower
      *    @param follower server id
@@ -275,6 +289,8 @@ public:
 private:
     friend void * raft_manager_loop(void *arg);
 
+    friend void * reconciling_thread(void *arg);
+
     /**
      *  Thread id of the main event loop
      */
@@ -336,6 +352,12 @@ private:
      *  stored along the log in a special record (0, -1 , TEMPLATE, 0)
      */
     Template raft_state;
+
+    /**
+     *  After becoming a leader it is replicating and applying any pending
+     *  log entry.
+     */
+    bool reconciling;
 
     //--------------------------------------------------------------------------
     //  Timers
