@@ -329,6 +329,7 @@ string& Image::to_xml(string& xml) const
     string        clone_collection_xml;
     string        app_clone_collection_xml;
     string        snapshots_xml;
+    string        lock_str;
 
     oss <<
         "<IMAGE>" <<
@@ -338,6 +339,7 @@ string& Image::to_xml(string& xml) const
             "<UNAME>"          << uname           << "</UNAME>"       <<
             "<GNAME>"          << gname           << "</GNAME>"       <<
             "<NAME>"           << name            << "</NAME>"        <<
+            lock_db_to_xml(lock_str)                                  <<
             perms_to_xml(perms_xml)                                   <<
             "<TYPE>"           << type            << "</TYPE>"        <<
             "<DISK_TYPE>"      << disk_type       << "</DISK_TYPE>"   <<
@@ -409,6 +411,7 @@ int Image::from_xml(const string& xml)
     rc += xpath(ds_id,          "/IMAGE/DATASTORE_ID",  -1);
     rc += xpath(ds_name,        "/IMAGE/DATASTORE",     "not_found");
 
+    rc += lock_db_from_xml();
     // Permissions
     rc += perms_from_xml();
 
@@ -804,6 +807,9 @@ void Image::set_state(ImageState _state)
         {
             lcm->trigger(LCMAction::DISK_LOCK_FAILURE, *i);
         }
+    } else if( _state == LOCKED)
+    {
+        lock_db(-1,-1, PoolObjectSQL::LockStates::ST_MANAGE);
     }
 
     state = _state;
@@ -820,6 +826,7 @@ void Image::set_state_unlock()
 
     switch (state) {
         case LOCKED:
+            unlock_db(-1,-1);
             set_state(READY);
             break;
 
