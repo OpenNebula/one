@@ -17,7 +17,7 @@
 #ifndef REQUEST_MANAGER_CHMOD_H_
 #define REQUEST_MANAGER_CHMOD_H_
 
-#include "Request.h"
+#include "RequestManagerResourceLocked.h"
 #include "Nebula.h"
 
 using namespace std;
@@ -26,12 +26,12 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class RequestManagerChmod : public Request
+class RequestManagerChmod : public RequestManagerResourceLocked
 {
 protected:
     RequestManagerChmod(const string& method_name, const string& help,
         const string& params = "A:siiiiiiiiii"):
-            Request(method_name, params, help){};
+            RequestManagerResourceLocked(method_name, params, help, 1){};
 
     ~RequestManagerChmod(){};
 

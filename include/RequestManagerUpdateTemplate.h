@@ -17,7 +17,7 @@
 #ifndef REQUEST_MANAGER_UPDATE_TEMPLATE_H
 #define REQUEST_MANAGER_UPDATE_TEMPLATE_H
 
-#include "Request.h"
+#include "RequestManagerResourceLocked.h"
 #include "Nebula.h"
 
 using namespace std;
@@ -26,12 +26,12 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class RequestManagerUpdateTemplate: public Request
+class RequestManagerUpdateTemplate: public RequestManagerResourceLocked
 {
 protected:
     RequestManagerUpdateTemplate(const string& method_name,
                                  const string& help)
-        :Request(method_name, "A:sis", help)
+        :RequestManagerResourceLocked(method_name, "A:sis", help, 1)
     {
         auth_op = AuthRequest::MANAGE;
     };

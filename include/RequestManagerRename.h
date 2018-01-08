@@ -17,7 +17,7 @@
 #ifndef REQUEST_MANAGER_RENAME_H_
 #define REQUEST_MANAGER_RENAME_H_
 
-#include "Request.h"
+#include "RequestManagerResourceLocked.h"
 #include "Nebula.h"
 
 using namespace std;
@@ -26,13 +26,13 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class RequestManagerRename : public Request
+class RequestManagerRename : public RequestManagerResourceLocked
 {
 protected:
     RequestManagerRename(const string& method_name,
                          const string& help,
                          const string& params = "A:sis")
-        :Request(method_name,params,help)
+        :RequestManagerResourceLocked(method_name,params,help, 1)
     {
         pthread_mutex_init(&mutex, 0);
 
