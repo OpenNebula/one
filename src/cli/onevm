@@ -137,6 +137,30 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Make the new images persistent"
     }
 
+    USE={
+        :name  => "use",
+        :large => "--use",
+        :description => "lock use actions"
+    }
+
+    MANAGE={
+        :name  => "manage",
+        :large => "--manage",
+        :description => "lock manage actions"
+    }
+
+    ADMIN={
+        :name  => "admin",
+        :large => "--admin",
+        :description => "lock admin actions"
+    }
+
+    ALL={
+        :name  => "all",
+        :large => "--all",
+        :description => "lock all actions"
+    }
+
     ########################################################################
     # Global Options
     ########################################################################
@@ -993,6 +1017,37 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             end
 
             vm.updateconf(template)
+        end
+    end
+
+    lock_desc = <<-EOT.unindent
+    EOT
+
+    command :lock, lock_desc, :vmid,
+        :options => [USE, MANAGE, ADMIN, ALL] do
+        helper.perform_action(args[0],options,"VM locked") do |vm|
+            if !options[:use].nil?
+                level = 1
+            elsif !options[:manage].nil?
+                level = 2
+            elsif !options[:admin].nil?
+                level = 3
+            elsif !options[:all].nil?
+                level = 4
+            else
+                STDERR.puts "Need to specify a level of lock."
+                exit -1
+            end
+            vm.lock(level)
+        end
+    end
+
+    unlock_desc = <<-EOT.unindent
+    EOT
+
+    command :unlock, unlock_desc, :vmid do
+        helper.perform_action(args[0],options,"VM unlocked") do |vm|
+            vm.unlock
         end
     end
 

@@ -1948,6 +1948,7 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
     string history_xml;
     string perm_xml;
     string snap_xml;
+    string lock_str;
 
     ostringstream   oss;
 
@@ -1968,6 +1969,7 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
         << "<STIME>"     << stime     << "</STIME>"
         << "<ETIME>"     << etime     << "</ETIME>"
         << "<DEPLOY_ID>" << deploy_id << "</DEPLOY_ID>"
+        << lock_db_to_xml(lock_str)
         << monitoring.to_xml(monitoring_xml)
         << obj_template->to_xml(template_xml)
         << user_obj_template->to_xml(user_template_xml);
@@ -2066,6 +2068,8 @@ int VirtualMachine::from_xml(const string &xml_str)
 
     prev_state     = static_cast<VmState>(istate);
     prev_lcm_state = static_cast<LcmState>(ilcmstate);
+
+    rc += lock_db_from_xml();
 
     // -------------------------------------------------------------------------
     // Virtual Machine template and attributes

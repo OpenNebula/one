@@ -1267,4 +1267,21 @@ EOT
             return OpenNebula::Error.new("Remote server error: #{error_message}")
         end
     end
+
+    def OpenNebulaHelper.level_lock_to_str(str)
+        level = str.to_i
+        if level == 0
+            "None"
+        elsif level == 1
+            "Use"
+        elsif level == 2
+            "Manage"
+        elsif level == 3
+            "Admin"
+        elsif level == 4
+            "All"
+        else
+            "-"
+        end
+    end
 end
