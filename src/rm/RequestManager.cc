@@ -382,6 +382,14 @@ void RequestManager::register_xml_methods()
     // Lock Methods
     xmlrpc_c::methodPtr doc_lock(new DocumentLock());
     xmlrpc_c::methodPtr doc_unlock(new DocumentUnlock());
+    xmlrpc_c::methodPtr vm_lock(new VirtualMachineLock());
+    xmlrpc_c::methodPtr vm_unlock(new VirtualMachineUnlock());
+    xmlrpc_c::methodPtr template_lock(new VMTemplateLock());
+    xmlrpc_c::methodPtr template_unlock(new VMTemplateUnlock());
+    xmlrpc_c::methodPtr vn_lock(new VirtualNetworkLock());
+    xmlrpc_c::methodPtr vn_unlock(new VirtualNetworkUnlock());
+    xmlrpc_c::methodPtr image_lock(new ImageLock());
+    xmlrpc_c::methodPtr image_unlock(new ImageUnlock());
 
     // PoolInfo Methods
     xmlrpc_c::methodPtr hostpool_info(new HostPoolInfo());
@@ -495,6 +503,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.disksnapshotdelete", vm_dsnap_delete);
     RequestManagerRegistry.addMethod("one.vm.recover", vm_recover);
     RequestManagerRegistry.addMethod("one.vm.updateconf", vm_updateconf);
+    RequestManagerRegistry.addMethod("one.vm.lock", vm_lock);
+    RequestManagerRegistry.addMethod("one.vm.unlock", vm_unlock);
     RequestManagerRegistry.addMethod("one.vm.diskresize", vm_disk_resize);
 
     RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);
@@ -513,7 +523,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.template.chmod", template_chmod);
     RequestManagerRegistry.addMethod("one.template.clone", template_clone);
     RequestManagerRegistry.addMethod("one.template.rename", template_rename);
-
+    RequestManagerRegistry.addMethod("one.template.lock", template_lock);
+    RequestManagerRegistry.addMethod("one.template.unlock", template_unlock);
     RequestManagerRegistry.addMethod("one.templatepool.info",template_pool_info);
 
     /* Host related methods*/
@@ -593,6 +604,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vn.chown", vn_chown);
     RequestManagerRegistry.addMethod("one.vn.chmod", vn_chmod);
     RequestManagerRegistry.addMethod("one.vn.rename", vn_rename);
+    RequestManagerRegistry.addMethod("one.vn.lock", vn_lock);
+    RequestManagerRegistry.addMethod("one.vn.unlock", vn_unlock);
 
     RequestManagerRegistry.addMethod("one.vnpool.info", vnpool_info);
 
@@ -685,6 +698,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.image.snapshotdelete", image_snap_delete);
     RequestManagerRegistry.addMethod("one.image.snapshotrevert", image_snap_revert);
     RequestManagerRegistry.addMethod("one.image.snapshotflatten", image_snap_flatten);
+    RequestManagerRegistry.addMethod("one.image.lock", image_lock);
+    RequestManagerRegistry.addMethod("one.image.unlock", image_unlock);
 
     RequestManagerRegistry.addMethod("one.imagepool.info", imagepool_info);
 

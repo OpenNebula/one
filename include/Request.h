@@ -161,6 +161,11 @@ public:
         format_str = log_format;
     }
 
+    virtual bool is_locked(xmlrpc_c::paramList const& paramList, RequestAttributes& att)
+    {
+        return false;
+    }
+
 protected:
     /* ---------------------------------------------------------------------- */
     /* Static Request Attributes: shared among request of the same method     */

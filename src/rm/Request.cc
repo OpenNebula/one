@@ -331,7 +331,14 @@ void Request::execute(
     }
     else //leader or solo or !leader_only
     {
-        request_execute(_paramList, att);
+        if (!is_locked(_paramList, att)) //Resource or action locked
+        {
+            request_execute(_paramList, att);
+        }
+        else
+        {
+            failure_response(AUTHORIZATION, att);
+        }
     }
 
     if ( log_method_call )
