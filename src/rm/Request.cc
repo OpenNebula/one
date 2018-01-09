@@ -731,10 +731,6 @@ string Request::failure_message(ErrorCode ec, RequestAttributes& att)
             {
                oss << " [" << att.resp_id << "].";
             }
-            else
-            {
-              oss << " Pool.";
-            }
             break;
     }
 
