@@ -549,13 +549,15 @@ void PoolObjectSQL::unlock_db(const int owner, const int req_id)
 string& PoolObjectSQL::lock_db_to_xml(string& xml) const
 {
     ostringstream   oss;
-
-    oss << "<LOCK>"
-            << "<LOCKED>"  << static_cast<int>(locked)   << "</LOCKED>"
-            << "<OWNER>"   << lock_owner << "</OWNER>"
-            << "<TIME>" << lock_time << "</TIME>"
-            << "<REQ_ID>" << lock_req_id << "</REQ_ID>"
-        << "</LOCK>";
+    if (locked  != LockStates::ST_NONE)
+    {
+        oss << "<LOCK>"
+                << "<LOCKED>"  << static_cast<int>(locked)   << "</LOCKED>"
+                << "<OWNER>"   << lock_owner << "</OWNER>"
+                << "<TIME>" << lock_time << "</TIME>"
+                << "<REQ_ID>" << lock_req_id << "</REQ_ID>"
+            << "</LOCK>";
+    }
 
     xml = oss.str();
     return xml;
