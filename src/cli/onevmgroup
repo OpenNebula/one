@@ -40,6 +40,30 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.set_client(options)
     end
 
+    USE={
+        :name  => "use",
+        :large => "--use",
+        :description => "lock use actions"
+    }
+
+    MANAGE={
+        :name  => "manage",
+        :large => "--manage",
+        :description => "lock manage actions"
+    }
+
+    ADMIN={
+        :name  => "admin",
+        :large => "--admin",
+        :description => "lock admin actions"
+    }
+
+    ALL={
+        :name  => "all",
+        :large => "--all",
+        :description => "lock all actions"
+    }
+
     ########################################################################
     # Global Options
     ########################################################################
@@ -180,6 +204,37 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :rename, rename_desc, :vmgroupid, :name do
         helper.perform_action(args[0],options,"renamed") do |o|
             o.rename(args[1])
+        end
+    end
+
+    lock_desc = <<-EOT.unindent
+    EOT
+
+    command :lock, lock_desc, :vmid,
+        :options => [USE, MANAGE, ADMIN, ALL] do
+        helper.perform_action(args[0],options,"VMGroup locked") do |vmg|
+            if !options[:use].nil?
+                level = 1
+            elsif !options[:manage].nil?
+                level = 2
+            elsif !options[:admin].nil?
+                level = 3
+            elsif !options[:all].nil?
+                level = 4
+            else
+                STDERR.puts "Need to specify a level of lock."
+                exit -1
+            end
+            vmg.lock(level)
+        end
+    end
+
+    unlock_desc = <<-EOT.unindent
+    EOT
+
+    command :unlock, unlock_desc, :vmid do
+        helper.perform_action(args[0],options,"VMGroup unlocked") do |vmg|
+            vmg.unlock
         end
     end
 end

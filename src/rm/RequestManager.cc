@@ -392,6 +392,8 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr image_unlock(new ImageUnlock());
     xmlrpc_c::methodPtr vrouter_lock(new VirtualRouterLock());
     xmlrpc_c::methodPtr vrouter_unlock(new VirtualRouterUnlock());
+    xmlrpc_c::methodPtr vmg_lock(new VMGroupLock());
+    xmlrpc_c::methodPtr vmg_unlock(new VMGroupUnlock());
 
     // PoolInfo Methods
     xmlrpc_c::methodPtr hostpool_info(new HostPoolInfo());
@@ -850,6 +852,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vmgroup.chmod",    vmg_chmod);
     RequestManagerRegistry.addMethod("one.vmgroup.rename",   vmg_rename);
     RequestManagerRegistry.addMethod("one.vmgroup.update",   vmg_update);
+    RequestManagerRegistry.addMethod("one.vmgroup.lock",     vmg_lock);
+    RequestManagerRegistry.addMethod("one.vmgroup.unlock",   vmg_unlock);
 
     RequestManagerRegistry.addMethod("one.vmgrouppool.info", vmgpool_info);
 

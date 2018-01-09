@@ -135,7 +135,7 @@ class VirtualMachineUnlock: public RequestManagerUnlock
 public:
     VirtualMachineUnlock():
         RequestManagerUnlock("one.vm.unlock",
-                           "Lock a VM"){
+                           "Unlock a VM"){
         Nebula& nd  = Nebula::instance();
         auth_object = PoolObjectSQL::VM;
         pool        =  nd.get_vmpool();
@@ -168,7 +168,7 @@ class VMTemplateUnlock: public RequestManagerUnlock
 public:
     VMTemplateUnlock():
         RequestManagerUnlock("one.template.unlock",
-                           "Lock a Template"){
+                           "Unlock a Template"){
         Nebula& nd  = Nebula::instance();
         auth_object = PoolObjectSQL::TEMPLATE;
         pool        =  nd.get_tpool();
@@ -202,7 +202,7 @@ class VirtualNetworkUnlock: public RequestManagerUnlock
 public:
     VirtualNetworkUnlock():
         RequestManagerUnlock("one.vn.unlock",
-                           "Lock a VNet"){
+                           "Unlock a VNet"){
         Nebula& nd  = Nebula::instance();
         auth_object = PoolObjectSQL::NET;
         pool        =  nd.get_vnpool();
@@ -236,7 +236,7 @@ class ImageUnlock: public RequestManagerUnlock
 public:
     ImageUnlock():
         RequestManagerUnlock("one.image.unlock",
-                           "Lock a Image"){
+                           "Unlock a Image"){
         Nebula& nd  = Nebula::instance();
         auth_object = PoolObjectSQL::IMAGE;
         pool        =  nd.get_ipool();
@@ -270,7 +270,7 @@ class MarketPlaceAppUnlock: public RequestManagerUnlock
 public:
     MarketPlaceAppUnlock():
         RequestManagerUnlock("one.marketapp.unlock",
-                           "Lock a MarketPlaceApp"){
+                           "Unlock a MarketPlaceApp"){
         Nebula& nd  = Nebula::instance();
         auth_object = PoolObjectSQL::MARKETPLACEAPP;
         pool        =  nd.get_apppool();
@@ -304,12 +304,46 @@ class VirtualRouterUnlock: public RequestManagerUnlock
 public:
     VirtualRouterUnlock():
         RequestManagerUnlock("one.vrouter.unlock",
-                           "Lock a VirtualRouter"){
+                           "Unlock a VirtualRouter"){
         Nebula& nd  = Nebula::instance();
         auth_object = PoolObjectSQL::VROUTER;
         pool        =  nd.get_vrouterpool();
     };
 
     ~VirtualRouterUnlock(){};
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VMGroupLock: public RequestManagerLock
+{
+public:
+    VMGroupLock():
+        RequestManagerLock("one.vmgroup.lock",
+                           "Lock a VMGroup"){
+        Nebula& nd  = Nebula::instance();
+        auth_object = PoolObjectSQL::VMGROUP;
+        pool        =  nd.get_vmgrouppool();
+    };
+
+    ~VMGroupLock(){};
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VMGroupUnlock: public RequestManagerUnlock
+{
+public:
+    VMGroupUnlock():
+        RequestManagerUnlock("one.vmgroup.unlock",
+                           "Unlock a VMGroup"){
+        Nebula& nd  = Nebula::instance();
+        auth_object = PoolObjectSQL::VMGROUP;
+        pool        =  nd.get_vmgrouppool();
+    };
+
+    ~VMGroupUnlock(){};
 };
 #endif

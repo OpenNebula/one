@@ -28,7 +28,9 @@ module OpenNebula
             :delete      => "vmgroup.delete",
             :chown       => "vmgroup.chown",
             :chmod       => "vmgroup.chmod",
-            :rename      => "vmgroup.rename"
+            :rename      => "vmgroup.rename",
+            :lock        => "vmgroup.lock",
+            :unlock        => "vmgroup.unlock"
         }
 
         # Creates a VMGroup description with just its identifier
@@ -127,6 +129,16 @@ module OpenNebula
         #   otherwise
         def rename(name)
             return call(VMGROUP_METHODS[:rename], @pe_id, name)
+        end
+
+        # Lock a VMGroup
+        def lock(level)
+            return call(VMGROUP_METHODS[:lock], @pe_id, level)
+        end
+
+        # Unlock a VMGroup
+        def unlock()
+            return call(VMGROUP_METHODS[:unlock], @pe_id)
         end
 
         #######################################################################
