@@ -568,13 +568,17 @@ int PoolObjectSQL::lock_db_from_xml()
 {
     int rc = 0;
     int locked_int;
+    vector<xmlNodePtr> content;
 
-    rc += xpath(locked_int,   "/*/LOCK/LOCKED", 0);
-    rc += xpath(lock_req_id,   "/*/LOCK/REQ_ID", -1);
-    rc += xpath(lock_owner,   "/*/LOCK/OWNER", -1);
-    xpath<time_t>(lock_time, "/*/LOCK/EXPIRES", time(0));
+    if (ObjectXML::get_nodes("/*/LOCK/LOCKED", content) > 0)
+    {
+        rc += xpath(locked_int,   "/*/LOCK/LOCKED", 0);
+        rc += xpath(lock_req_id,   "/*/LOCK/REQ_ID", -1);
+        rc += xpath(lock_owner,   "/*/LOCK/OWNER", -1);
+        xpath<time_t>(lock_time, "/*/LOCK/EXPIRES", time(0));
 
-    locked = static_cast<LockStates>(locked_int);
+        locked = static_cast<LockStates>(locked_int);
+    }
 
     return rc;
 }

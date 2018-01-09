@@ -337,7 +337,7 @@ void Request::execute(
         }
         else
         {
-            failure_response(AUTHORIZATION, att);
+            failure_response(LOCKED, att);
         }
     }
 
@@ -722,6 +722,18 @@ string Request::failure_message(ErrorCode ec, RequestAttributes& att)
             if (!att.resp_msg.empty())
             {
                 oss << " " << att.resp_msg;
+            }
+            break;
+        case LOCKED:
+            oss << "The resource " << obname << " is locked.";
+
+            if ( att.resp_id != -1 )
+            {
+               oss << " [" << att.resp_id << "].";
+            }
+            else
+            {
+              oss << " Pool.";
             }
             break;
     }
