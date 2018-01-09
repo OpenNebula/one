@@ -30,7 +30,9 @@ module OpenNebula
             :chown      => "marketapp.chown",
             :chmod      => "marketapp.chmod",
             :rename     => "marketapp.rename",
-            :enable     => "marketapp.enable"
+            :enable     => "marketapp.enable",
+            :lock       => "marketapp.lock",
+            :unlock     => "marketapp.unlock"
         }
 
         MARKETPLACEAPP_STATES=%w{INIT READY LOCKED ERROR DISABLED}
@@ -262,6 +264,16 @@ module OpenNebula
         # Returns the state of the marketplace app (string value)
         def short_state_str
             SHORT_MARKETPLACEAPP_STATES[state_str]
+        end
+
+        #Locked a MarketplaceApp
+        def lock(level)
+            return call(MARKETPLACEAPP_METHODS[:lock], @pe_id, level)
+        end
+
+        #Unlocked a MarketplaceApp
+        def unlock()
+            return call(MARKETPLACEAPP_METHODS[:unlock], @pe_id)
         end
     end
 end

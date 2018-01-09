@@ -244,4 +244,38 @@ public:
 
     ~ImageUnlock(){};
 };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class MarketPlaceAppLock: public RequestManagerLock
+{
+public:
+    MarketPlaceAppLock():
+        RequestManagerLock("one.marketapp.lock",
+                           "Lock a MarketPlaceApp"){
+        Nebula& nd  = Nebula::instance();
+        auth_object = PoolObjectSQL::MARKETPLACEAPP;
+        pool        =  nd.get_apppool();
+    };
+
+    ~MarketPlaceAppLock(){};
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class MarketPlaceAppUnlock: public RequestManagerUnlock
+{
+public:
+    MarketPlaceAppUnlock():
+        RequestManagerUnlock("one.marketapp.unlock",
+                           "Lock a MarketPlaceApp"){
+        Nebula& nd  = Nebula::instance();
+        auth_object = PoolObjectSQL::MARKETPLACEAPP;
+        pool        =  nd.get_apppool();
+    };
+
+    ~MarketPlaceAppUnlock(){};
+};
 #endif

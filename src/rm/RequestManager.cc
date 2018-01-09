@@ -1023,6 +1023,8 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::method * marketapp_chown_pt;
     xmlrpc_c::method * marketapp_enable_pt;
     xmlrpc_c::method * marketapp_rename_pt;
+    xmlrpc_c::method * marketapp_lock_pt;
+    xmlrpc_c::method * marketapp_unlock_pt;
 
     if (nebula.is_federation_slave())
     {
@@ -1031,6 +1033,8 @@ void RequestManager::register_xml_methods()
         marketapp_chown_pt    = new RequestManagerProxy("one.marketapp.chown");
         marketapp_enable_pt   = new RequestManagerProxy("one.marketapp.enable");
         marketapp_rename_pt   = new RequestManagerProxy("one.marketapp.rename");
+        marketapp_lock_pt   = new RequestManagerProxy("one.marketapp.lock");
+        marketapp_unlock_pt   = new RequestManagerProxy("one.marketapp.unlock");
     }
     else
     {
@@ -1039,6 +1043,8 @@ void RequestManager::register_xml_methods()
         marketapp_chown_pt    = new MarketPlaceAppChown();
         marketapp_enable_pt   = new MarketPlaceAppEnable();
         marketapp_rename_pt   = new MarketPlaceAppRename();
+        marketapp_lock_pt   = new MarketPlaceAppLock();
+        marketapp_unlock_pt   = new MarketPlaceAppUnlock();
 
         xmlrpc_c::methodPtr marketapp_updatedb(new MarketPlaceAppUpdateDB());
         xmlrpc_c::methodPtr marketapp_dropdb(new MarketPlaceAppDropDB());
@@ -1061,6 +1067,8 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr marketapp_chown(marketapp_chown_pt);
     xmlrpc_c::methodPtr marketapp_enable(marketapp_enable_pt);
     xmlrpc_c::methodPtr marketapp_rename(marketapp_rename_pt);
+    xmlrpc_c::methodPtr marketapp_lock(marketapp_lock_pt);
+    xmlrpc_c::methodPtr marketapp_unlock(marketapp_unlock_pt);
 
     xmlrpc_c::methodPtr marketapp_info(new MarketPlaceAppInfo());
     xmlrpc_c::methodPtr marketapppool_info(new MarketPlaceAppPoolInfo());
@@ -1071,6 +1079,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.marketapp.chmod", marketapp_chmod);
     RequestManagerRegistry.addMethod("one.marketapp.chown", marketapp_chown);
     RequestManagerRegistry.addMethod("one.marketapp.enable", marketapp_enable);
+    RequestManagerRegistry.addMethod("one.marketapp.lock", marketapp_lock);
+    RequestManagerRegistry.addMethod("one.marketapp.unlock", marketapp_unlock);
 
     RequestManagerRegistry.addMethod("one.marketapp.info", marketapp_info);
     RequestManagerRegistry.addMethod("one.marketapp.rename", marketapp_rename);
