@@ -351,6 +351,8 @@ class DatacenterFolder
         result.each do |r|
             networks[r.obj._ref] = r.to_hash if r.obj.is_a?(RbVmomi::VIM::DistributedVirtualPortgroup) || r.obj.is_a?(RbVmomi::VIM::Network)
             networks[r.obj._ref][:network_type] = r.obj.is_a?(RbVmomi::VIM::DistributedVirtualPortgroup) ? "Distributed Port Group" : "Port Group"
+            networks[r.obj._ref][:uplink] = false
+            networks[r.obj._ref][:processed] = false
 
             #Multicluster nets support
             networks[r.obj._ref][:clusters] = {}
@@ -396,6 +398,15 @@ class DatacenterFolder
 
             clusters = {}
             result.each do |r|
+                browser = r.obj.environmentBrowser || nil
+                if browser
+                    browser.QueryConfigTarget.distributedVirtualPortgroup.each do |s|
+                        next if networks[s.portgroupKey][:processed]
+
+                        networks[s.portgroupKey][:uplink] = s.uplinkPortgroup
+                        networks[s.portgroupKey][:processed] = true
+                    end
+                end
                 clusters[r.obj._ref] = r.to_hash if r.obj.is_a?(RbVmomi::VIM::ClusterComputeResource)
             end
 
@@ -447,7 +458,7 @@ class DatacenterFolder
             opts[:dc_name]                = dc_name
 
             networks.each do |nref, net_info|
-                next if net_info[:one_net] || net_info[:clusters][:refs].size < 1
+                next if net_info[:one_net] || net_info[:clusters][:refs].size < 1 || net_info[:uplink]
 
                 opts[:clusters]     = net_info[:clusters]
                 opts[:network_name] = net_info['name']
