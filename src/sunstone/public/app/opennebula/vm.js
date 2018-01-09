@@ -563,6 +563,12 @@ define(function(require) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "save_as_template", action_obj);
     },
+    "lock" : function(params) {
+      OpenNebulaAction.lock(params, RESOURCE);
+    },
+    "unlock" : function(params) {
+      OpenNebulaAction.simple_action(params, RESOURCE, "unlock");
+    },
     "stateStr": function(stateId) {
       return STATES_STR[stateId];
     },
