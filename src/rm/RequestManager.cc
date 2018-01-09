@@ -390,6 +390,8 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vn_unlock(new VirtualNetworkUnlock());
     xmlrpc_c::methodPtr image_lock(new ImageLock());
     xmlrpc_c::methodPtr image_unlock(new ImageUnlock());
+    xmlrpc_c::methodPtr vrouter_lock(new VirtualRouterLock());
+    xmlrpc_c::methodPtr vrouter_unlock(new VirtualRouterUnlock());
 
     // PoolInfo Methods
     xmlrpc_c::methodPtr hostpool_info(new HostPoolInfo());
@@ -958,6 +960,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vrouter.instantiate",vrouter_instantiate);
     RequestManagerRegistry.addMethod("one.vrouter.attachnic", vrouter_attachnic);
     RequestManagerRegistry.addMethod("one.vrouter.detachnic", vrouter_detachnic);
+    RequestManagerRegistry.addMethod("one.vrouter.lock", vrouter_lock);
+    RequestManagerRegistry.addMethod("one.vrouter.unlock", vrouter_unlock);
 
     RequestManagerRegistry.addMethod("one.vrouterpool.info",vrouter_pool_info);
 

@@ -278,4 +278,38 @@ public:
 
     ~MarketPlaceAppUnlock(){};
 };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualRouterLock: public RequestManagerLock
+{
+public:
+    VirtualRouterLock():
+        RequestManagerLock("one.vrouter.lock",
+                           "Lock a VirtualRouter"){
+        Nebula& nd  = Nebula::instance();
+        auth_object = PoolObjectSQL::VROUTER;
+        pool        =  nd.get_vrouterpool();
+    };
+
+    ~VirtualRouterLock(){};
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualRouterUnlock: public RequestManagerUnlock
+{
+public:
+    VirtualRouterUnlock():
+        RequestManagerUnlock("one.vrouter.unlock",
+                           "Lock a VirtualRouter"){
+        Nebula& nd  = Nebula::instance();
+        auth_object = PoolObjectSQL::VROUTER;
+        pool        =  nd.get_vrouterpool();
+    };
+
+    ~VirtualRouterUnlock(){};
+};
 #endif
