@@ -31,6 +31,9 @@ $: << RUBY_LIB_LOCATION
 require 'yaml'
 require 'opennebula/ldap_auth'
 require 'uri'
+require 'rexml/document'
+require 'opennebula/error'
+require 'opennebula/xml_utils'
 
 if defined?(URI::Parser)
     URI_PARSER=URI::Parser.new
@@ -38,9 +41,17 @@ else
     URI_PARSER=URI
 end
 
-user=URI_PARSER.unescape(ARGV[0])
-pass=URI_PARSER.unescape(ARGV[1])
-secret=URI_PARSER.unescape(ARGV[2])
+begin
+    xml = OpenNebula::XMLElement.new
+    xml.initialize_xml(STDIN.read, 'AUTHN')
+
+    user   = URI_PARSER.unescape(xml['/AUTHN/USERNAME'])
+    pass   = URI_PARSER.unescape(xml['/AUTHN/PASSWORD'])
+    secret = URI_PARSER.unescape(xml['/AUTHN/SECRET'])
+rescue
+    STDERR.puts "Invalid XML input"
+    exit(-1)
+end
 
 options=YAML.load(File.read(ETC_LOCATION+'/auth/ldap_auth.conf'))
 
