@@ -2671,16 +2671,13 @@ class VirtualMachine < Template
 
         begin
             # retrieve host from DRS
-            host = config[:cluster].host.first
-
             resourcepool = config[:cluster].resourcePool
 
-            @item.MigrateVM_Task(:host => host, :pool=> resourcepool, :priority => "defaultPriority").wait_for_completion
+            @item.MigrateVM_Task(:pool=> resourcepool, :priority => "defaultPriority").wait_for_completion
         rescue Exception => e
             raise "Cannot migrate VM #{e.message}\n#{e.backtrace}"
         end
     end
-
 
     ############################################################################
     # actions
