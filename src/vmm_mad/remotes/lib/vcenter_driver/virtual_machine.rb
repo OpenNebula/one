@@ -2670,6 +2670,19 @@ class VirtualMachine < Template
         nil
     end
 
+    def migrate(config = {})
+        raise "You need at least 1 parameter" if config.size == 0
+
+        begin
+            # retrieve host from DRS
+            resourcepool = config[:cluster].resourcePool
+
+            @item.MigrateVM_Task(:pool=> resourcepool, :priority => "defaultPriority").wait_for_completion
+        rescue Exception => e
+            raise "Cannot migrate VM #{e.message}\n#{e.backtrace}"
+        end
+    end
+
     ############################################################################
     # actions
     ############################################################################
