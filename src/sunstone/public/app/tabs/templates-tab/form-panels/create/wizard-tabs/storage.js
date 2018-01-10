@@ -90,6 +90,7 @@ define(function(require) {
   }
 
   function _setup(context) {
+    Tips.setup(context);
     var that = this;
 
     that.numberOfDisks = 0;
