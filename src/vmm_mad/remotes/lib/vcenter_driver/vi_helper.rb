@@ -21,6 +21,24 @@ class VIHelper
         end
     end
 
+    require 'scripts_common'
+    def self.check_error(rc, message, _exit=false)
+        if OpenNebula::is_error?(rc)
+            OpenNebula::error_message("\n    Error #{message}: #{rc.message}\n")
+            exit 1 if (_exit)
+
+            raise rc.message
+        end
+    end
+
+    def self.get_cluster_id(clusters)
+        clusters.each do |id|
+            return id unless id == -1
+        end
+
+        return -1
+    end
+
     def self.one_item(the_class, id, exit_if_fail = true)
         item = the_class.new_with_id(id, client)
         rc = item.info

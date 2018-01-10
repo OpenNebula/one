@@ -641,9 +641,9 @@ def self.import_networks(con_ops, options)
                 if !use_defaults
                     message = false
                     print_str =  "\n  * Network found:\n"\
-                                 "      - Name                     : \e[92m#{n[:name]}\e[39m\n"\
-                                 "      - Type                     : #{n[:type]}\n"\
-                                 "      - Vcenter Clusters(host id): "
+                                 "      - Name                        : \e[92m#{n[:name]}\e[39m\n"\
+                                 "      - Type                        : #{n[:type]}\n"\
+                                 "      - Vcenter Clusters(cluster id): "
 
                     unimported = ""
                     import = false
@@ -801,32 +801,16 @@ def self.import_networks(con_ops, options)
                 ar_str << ",SIZE = \"#{size}\"]"
 
                 n[:one] << ar_str
+                opts_net = {
+                    one_object: n[:one],
+                    refs: n[:clusters][:refs],
+                    one_ids: n[:clusters][:one_ids]
+                }
 
-                one_vn = VCenterDriver::VIHelper.new_one_item(OpenNebula::VirtualNetwork)
-                if n[:clusters] #Distributed Port Group
-                    done = []
-                    for i in 0..n[:clusters][:refs].size-1
-                        cl_id = n[:clusters][:one_ids][i]
-                        next if cl_id == -1 || done.include?(cl_id)
+                one_vn = VCenterDriver::Network.create_one_network(opts_net)
 
-                        if done.empty?
-                            rc = one_vn.allocate(n[:one],cl_id.to_i)
-                            one_vn.info
-                        else
-                            one_cluster = VCenterDriver::VIHelper.one_item(OpenNebula::Cluster, cl_id, false)
-                            rc = one_cluster.addvnet(one_vn['ID'].to_i)
-                        end
-                        done << cl_id
-                    end
-                end
-
-                if ::OpenNebula.is_error?(rc)
-                    STDOUT.puts "\n    Error creating virtual network: " +
-                                " #{rc.message}\n"
-                else
-                    STDOUT.puts "\n    OpenNebula virtual network \e[92m#{n[:import_name]}\e[39m " +
-                                "with ID \e[94m#{one_vn.id}\e[39m created with size #{size}!\n"
-                end
+                STDOUT.puts "\n    OpenNebula virtual network \e[92m#{n[:import_name]}\e[39m " +
+                            "with ID \e[94m#{one_vn.id}\e[39m !\n"
             end
         }
     rescue Interrupt => e

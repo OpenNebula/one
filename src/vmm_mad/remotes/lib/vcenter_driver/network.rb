@@ -157,6 +157,36 @@ class Network
         return template
     end
 
+    REQUIRED_ATTRS = [:refs, :one_ids, :one_object]
+    def self.create_one_network(net_config)
+
+        # mandatory parameters:
+        REQUIRED_ATTRS.each do |attr|
+            raise "#{attr} required for importing nics operation!" if net_config[attr].nil?
+        end
+
+        one_vn = VCenterDriver::VIHelper.new_one_item(OpenNebula::VirtualNetwork)
+
+        done = []
+        for i in 0..net_config[:refs].size-1
+            cl_id = net_config[:one_ids][i]
+            next if cl_id == -1 || done.include?(cl_id)
+
+            if done.empty?
+                rc = one_vn.allocate(net_config[:one_object],cl_id.to_i)
+                VCenterDriver::VIHelper.check_error(rc, "create network")
+                one_vn.info
+            else
+                one_cluster = VCenterDriver::VIHelper.one_item(OpenNebula::Cluster, cl_id, false)
+                rc = one_cluster.addvnet(one_vn['ID'].to_i)
+                VCenterDriver::VIHelper.check_error(rc,"addvnet to cluster")
+            end
+            done << cl_id
+        end
+
+        one_vn
+    end
+
     def self.get_network_type(device)
         if device.backing.is_a? RbVmomi::VIM::VirtualEthernetCardDistributedVirtualPortBackingInfo
             return "Distributed Port Group"
