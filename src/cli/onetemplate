@@ -381,7 +381,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             elsif !options[:all].nil?
                 level = 4
             else
-                STDERR.puts "Need to specify a level of lock."
+                STDERR.puts "Need to level of lock."
                 exit -1
             end
             t.lock(level)
