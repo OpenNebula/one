@@ -45,6 +45,7 @@ define(function(require) {
     parentTab: "storage-top-tab",
     listHeader: Locale.tr("Files"),
     infoHeader: Locale.tr("File"),
+    lockable: false,
     subheader: '<span>\
         <span class="total_files"/> <small>'+Locale.tr("TOTAL")+'</small>\
       </span>',

@@ -70,6 +70,7 @@ define(function(require) {
     parentTab: "instances-top-tab",
     listHeader: Locale.tr("VMs"),
     infoHeader: Locale.tr("VM"),
+    lockable: true,
     subheader: '<span class="total_vms"/> <small>' + Locale.tr("TOTAL") + '</small>&emsp;\
         <span class="active_vms"/> <small>' + Locale.tr("ACTIVE") + '</small>&emsp;\
         <span class="off_vms"/> <small>' + Locale.tr("OFF") + '</small>&emsp;\

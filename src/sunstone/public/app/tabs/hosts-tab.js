@@ -54,6 +54,7 @@ define(function(require) {
     parentTab: "infrastructure-top-tab",
     listHeader: Locale.tr("Hosts"),
     infoHeader: Locale.tr("Host"),
+    lockable: false,
     subheader: '<span class="total_hosts"/> <small>' + Locale.tr("TOTAL") + '</small>&emsp;\
         <span class="on_hosts"/> <small>' + Locale.tr("ON") + '</small>&emsp;\
         <span class="off_hosts"/> <small>' + Locale.tr("OFF") + '</small>&emsp;\
