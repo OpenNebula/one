@@ -16,6 +16,7 @@
 
 define(function(require) {
   var Locale = require('utils/locale');
+  var Tips = require('utils/tips');
 
   var Buttons = {
     "Template.refresh" : {
@@ -82,6 +83,29 @@ define(function(require) {
     },
     "Template.edit_labels" : {
       layout: "labels",
+    },
+    "Template.lockA" : {
+      type: "action",
+      text: Locale.tr("Admin") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Lock Admin actions")) + "</span>",
+      layout: "lock_buttons",
+      data: 3
+    },
+    "Template.lockM" : {
+      type: "action",
+      text: Locale.tr("Manage") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Lock Manage actions")) + "</span>",
+      layout: "lock_buttons",
+      data: 2
+    },
+    "Template.lockU" : {
+      type: "action",
+      text: Locale.tr("Use") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Lock Use actions")) + "</span>",
+      layout: "lock_buttons",
+      data: 1
+    },
+    "Template.unlock" : {
+      type: "action",
+      text: Locale.tr("Unlock") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Unlock all actions")) + "</span>",
+      layout: "lock_buttons"
     }
   };
 

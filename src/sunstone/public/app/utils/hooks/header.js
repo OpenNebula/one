@@ -19,11 +19,20 @@ define(function(require) {
   /*
     FUNCTION DEFINITIONS
    */
+  var Locale = require('utils/locale');
+  var Humanize = require('utils/humanize');
 
   function _pre(info, contextTabId) {
     var element = info[Object.keys(info)[0]];
 
     $('.resource-info-header', '#' + contextTabId).text(element.NAME);
+
+    if (element.LOCK){
+      $('.resource-lock-header-small', '#' + contextTabId).html("<i class='header-title fa fa-lock'> "+Locale.tr(Humanize.lock_to_str(element.LOCK.LOCKED))+"</i>");
+      $('.resource-lock-header-small', '#' + contextTabId).show();
+    } else {
+      $('.resource-lock-header-small', '#' + contextTabId).hide();
+    }
   }
 
   function _post(info, contextTabId) {

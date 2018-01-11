@@ -51,6 +51,8 @@ module OpenNebulaJSON
                  when "clone"       then self.clone(action_hash['params'])
                  when "rename"      then self.rename(action_hash['params'])
                  when "delete_recursive" then self.delete_recursive(action_hash['params'])
+                 when "lock"       then self.lock(action_hash['params'])
+                 when "unlock"       then self.unlock(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -139,6 +141,14 @@ module OpenNebulaJSON
         def delete_recursive(params=Hash.new)
             recursive = (params['recursive'] == true)
             self.delete(recursive)
+        end
+
+        def lock(params=Hash.new)
+            super(params['level'].to_i)
+        end
+
+        def unlock(params=Hash.new)
+            super()
         end
     end
 end

@@ -97,6 +97,12 @@ define(function(require) {
         return true;
       }
     },
+    "lock" : function(params) {
+      OpenNebulaAction.lock(params, RESOURCE);
+    },
+    "unlock" : function(params) {
+      OpenNebulaAction.simple_action(params, RESOURCE, "unlock");
+    },
     "cost": function(template) {
       var cost = 0;
       var capacity = template.VMTEMPLATE.TEMPLATE;

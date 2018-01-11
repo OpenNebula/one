@@ -199,30 +199,26 @@ define(function(require) {
       layout: "labels",
     },
     "VM.lockA" : {
-      type: text,
+      type: "action",
       text: Locale.tr("Admin") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Lock Admin actions")) + "</span>",
       layout: "lock_buttons",
-      custom_classes: "state-dependent",
       data: 3
     },
     "VM.lockM" : {
       type: "action",
       text: Locale.tr("Manage") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Lock Manage actions")) + "</span>",
-      custom_classes: "state-dependent",
       layout: "lock_buttons",
       data: 2
     },
     "VM.lockU" : {
-      type: text,
+      type: "action",
       text: Locale.tr("Use") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Lock Use actions")) + "</span>",
-      custom_classes: "state-dependent",
       layout: "lock_buttons",
       data: 1
     },
     "VM.unlock" : {
-      type: text,
+      type: "action",
       text: Locale.tr("Unlock") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Unlock all actions")) + "</span>",
-      custom_classes: "state-dependent",
       layout: "lock_buttons"
     }
   }
