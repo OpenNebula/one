@@ -22,11 +22,13 @@
       </h5>
       <h5 class="header-title only-sunstone-info" hidden>
         <span class="header-resource">
+          {{#if lockable }}
+          <small class="resource-lock-header-small"></small>
+          {{/if}}
           {{{infoHeader}}}
           <small class="resource-id"></small>
           <small class="resource-info-header"></small>
           <small class="resource-info-header-small"></small>
-          <small class="resource-lock-header-small"></small>
         </span>
       </h5>
       <h5 class="header-title only-sunstone-form" hidden>
