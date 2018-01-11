@@ -52,6 +52,7 @@ define(function(require) {
     parentTab: "system-top-tab",
     listHeader: Locale.tr("Groups"),
     infoHeader: Locale.tr("Group"),
+    lockable: false,
     subheader: '<span>\
         <span class="total_groups"/> <small>'+Locale.tr("TOTAL")+'</small>\
       </span>',

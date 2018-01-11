@@ -40,6 +40,7 @@ define(function(require) {
     parentTab: "templates-top-tab",
     listHeader: Locale.tr("VM Groups"),
     infoHeader: Locale.tr("VM Groups"),
+    lockable: true,
     subheader: '<span>\
         <span class="total_vmgroup"/> <small>'+Locale.tr("TOTAL")+'</small>\
         </small>&emsp;\
