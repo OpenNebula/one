@@ -37,6 +37,10 @@ define(function(require) {
   var _actions = {
     "MarketPlaceApp.create" : _commonActions.create(CREATE_DIALOG_ID),
     "MarketPlaceApp.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
+    "MarketPlaceApp.lockM": _commonActions.multipleAction('lock'),
+    "MarketPlaceApp.lockU": _commonActions.multipleAction('lock'),
+    "MarketPlaceApp.lockA": _commonActions.multipleAction('lock'),
+    "MarketPlaceApp.unlock": _commonActions.multipleAction('unlock'),
     "MarketPlaceApp.download_opennebula_dialog" : {
       type: "custom",
       call: function() {
