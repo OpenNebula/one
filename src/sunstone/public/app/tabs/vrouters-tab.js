@@ -49,6 +49,7 @@ define(function(require) {
     parentTab: "instances-top-tab",
     listHeader: Locale.tr("Virtual Routers"),
     infoHeader: Locale.tr("Virtual Router"),
+    lockable: true,
     subheader: '<span>\
         <span class="total_routers"/> <small>'+Locale.tr("TOTAL")+'</small>\
       </span>',
