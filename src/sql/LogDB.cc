@@ -487,35 +487,7 @@ int LogDB::_exec_wr(ostringstream& cmd, int federated_index)
         return -1;
     }
 
-    ReplicaRequest rr(rindex);
-
-    raftm->replicate_log(&rr);
-
-    // Wait for completion
-    rr.wait();
-
-    if ( !raftm->is_leader() ) // Check we are still leaders before applying
-    {
-        NebulaLog::log("DBM", Log::ERROR, "Not applying log record, oned is"
-                " now a follower");
-        rc = -1;
-    }
-    else if ( rr.result == true ) //Record replicated on majority of followers
-    {
-		rc = apply_log_records(rindex);
-    }
-    else
-    {
-        std::ostringstream oss;
-
-        oss << "Cannot replicate log record on followers: " << rr.message;
-
-        NebulaLog::log("DBM", Log::ERROR, oss);
-
-        rc = -1;
-    }
-
-    return rc;
+    return replicate(rindex);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -604,6 +576,46 @@ int LogDB::purge_log()
     int rc = db->exec_wr(oss);
 
     pthread_mutex_unlock(&mutex);
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int LogDB::replicate(int rindex)
+{
+    int rc;
+
+    RaftManager * raftm = Nebula::instance().get_raftm();
+
+    ReplicaRequest rr(rindex);
+
+    raftm->replicate_log(&rr);
+
+    // Wait for completion
+    rr.wait();
+
+    if ( !raftm->is_leader() ) // Check we are still leaders before applying
+    {
+        NebulaLog::log("DBM", Log::ERROR, "Not applying log record, oned is"
+                " now a follower");
+        rc = -1;
+    }
+    else if ( rr.result == true ) //Record replicated on majority of followers
+    {
+		rc = apply_log_records(rindex);
+    }
+    else
+    {
+        std::ostringstream oss;
+
+        oss << "Cannot replicate log record on followers: " << rr.message;
+
+        NebulaLog::log("DBM", Log::ERROR, oss);
+
+        rc = -1;
+    }
 
     return rc;
 }

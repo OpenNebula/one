@@ -1027,6 +1027,7 @@ TM_DEV_FILES="src/tm_mad/dev/clone \
 TM_VCENTER_FILES="src/tm_mad/vcenter/clone \
                  src/tm_mad/vcenter/ln \
                  src/tm_mad/vcenter/mv \
+                 src/tm_mad/vcenter/mv.rb \
                  src/tm_mad/vcenter/mvds \
                  src/tm_mad/vcenter/cpds \
                  src/tm_mad/vcenter/premigrate \
