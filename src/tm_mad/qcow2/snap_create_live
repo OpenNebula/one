@@ -34,7 +34,7 @@ fi
 DRIVER_PATH=$(dirname $0)
 
 source $TMCOMMON
-source ${DRIVER_PATH}/../../vmm/kvm/kvmrc
+source ${DRIVER_PATH}/../../etc/vmm/kvm/kvmrc
 
 SRC_PATH=$(arg_path $SRC)
 SRC_HOST=$(arg_host $SRC)

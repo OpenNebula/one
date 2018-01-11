@@ -37,9 +37,8 @@ Dir[File.expand_path('vnmmad-load.d', File.dirname(__FILE__)) + "/*.rb"].each{ |
 include OpenNebula
 
 begin
-    CONF =  YAML.load_file(
-                File.join(File.dirname(__FILE__), "OpenNebulaNetwork.conf")
-            )
+    NAME = File.join(File.dirname(__FILE__), "../etc/vnm/OpenNebulaNetwork.conf")
+    CONF = YAML.load_file(NAME)
 rescue
     # Default configuration values
     CONF = {

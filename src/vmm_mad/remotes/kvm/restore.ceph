@@ -18,7 +18,7 @@
 
 DRIVER_PATH=$(dirname $0)
 
-source $DRIVER_PATH/kvmrc
+source $DRIVER_PATH/../../etc/vmm/kvm/kvmrc
 source $DRIVER_PATH/../../scripts_common.sh
 
 FILE=$1
@@ -32,7 +32,7 @@ DS_ID=$5
 # Ceph
 #-------------------------------------------------------------------------------
 
-source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
+source ${DRIVER_PATH}/../../etc/datastore/ceph/ceph.conf
 
 XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
 
