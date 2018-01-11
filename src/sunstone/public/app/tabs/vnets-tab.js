@@ -55,6 +55,7 @@ define(function(require) {
     parentTab: "network-top-tab",
     listHeader: Locale.tr("Virtual Networks"),
     infoHeader: Locale.tr("Virtual Network"),
+    lockable: true,
     subheader: '<span class="total_vnets"/> <small>'+Locale.tr("TOTAL")+'</small>&emsp;\
         <span class="addresses_vnets"/> <small>'+Locale.tr("USED IPs")+'</small>',
     resource: 'Network',
