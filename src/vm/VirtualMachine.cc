@@ -461,7 +461,7 @@ const char * VirtualMachine::db_names =
 const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
     "vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
     "gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, "
-    "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
+    "owner_u INTEGER, group_u INTEGER, other_u INTEGER, index(state))";
 
 
 const char * VirtualMachine::monit_table = "vm_monitoring";
