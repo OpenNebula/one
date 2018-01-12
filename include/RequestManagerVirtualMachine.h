@@ -31,8 +31,9 @@ class RequestManagerVirtualMachine: public RequestManagerResourceLocked
 protected:
     RequestManagerVirtualMachine(const string& method_name,
                        const string& help,
-                       const string& params)
-        :RequestManagerResourceLocked(method_name, params, help, 1)
+                       const string& params,
+                       const int id_location = 1)
+        :RequestManagerResourceLocked(method_name, params, help, id_location)
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
@@ -117,7 +118,8 @@ public:
     VirtualMachineAction():
         RequestManagerVirtualMachine("one.vm.action",
                                      "Performs an action on a virtual machine",
-                                     "A:ssi"){};
+                                     "A:ssi",
+                                     2){};
     ~VirtualMachineAction(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
