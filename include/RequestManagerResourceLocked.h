@@ -47,11 +47,14 @@ protected:
     {
         int id      = xmlrpc_c::value_int(paramList.getInt(id_location));
         PoolObjectSQL *obj = pool->get(id, true);
-        PoolObjectSQL::LockStates lck_obj = obj->get_lock_state();
-        obj->unlock();
-        if (!((auth_object & PoolObjectSQL::LockableObject) == 0) && ((int)auth_op <=  (int)lck_obj))
+        if( obj != 0)
         {
-            return true;
+            PoolObjectSQL::LockStates lck_obj = obj->get_lock_state();
+            obj->unlock();
+            if (!((auth_object & PoolObjectSQL::LockableObject) == 0) && ((int)auth_op <=  (int)lck_obj))
+            {
+                return true;
+            }
         }
         return false;
     };
