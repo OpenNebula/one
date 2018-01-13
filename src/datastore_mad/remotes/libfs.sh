@@ -69,6 +69,23 @@ function image_vsize {
 }
 
 #-------------------------------------------------------------------------------
+# Get minimal image size required to download
+#   @return integer number of bytes
+#-------------------------------------------------------------------------------
+function image_size_required {
+    unset REQUIRED
+
+    OUT=$($QEMU_IMG info "${1}" 2>&1)
+    if [ $? -ne 0 ]; then
+        REQUIRED=$(echo "${OUT}" | \
+            grep 'expecting at least [0-9]* bytes' | \
+            sed -e 's/.*expecting at least \([0-9]*\) bytes.*/\1/')
+    fi
+
+    echo "${REQUIRED:-65536}"
+}
+
+#-------------------------------------------------------------------------------
 # Generates an unique image hash. Requires ID to be set
 #   @return hash for the image (empty if error)
 #-------------------------------------------------------------------------------
@@ -230,23 +247,43 @@ function fs_size {
     elif [ -f "${SRC}" ] || (echo "${SRC}" | grep -qe '^https\?://'); then
         IMAGE=$(mktemp)
 
-        # try first download only a part of image
-        $UTILS_PATH/downloader.sh ${DOWNLOADER_ARGS} -c 65536 "${SRC}" - >"${IMAGE}" 2>/dev/null
-        error=$?
-        if [ $error -ne 0 ]; then
-            # better fail here ...
-            log_error "Failed to download image head"
-            echo '0'
-            return
-        fi
+        HEAD_SIZE=0
+        NEW_HEAD_SIZE=$(image_size_required "${IMAGE}")
 
-        TYPE=$(image_format "${IMAGE}")
+        while [ "${HEAD_SIZE}" != "${NEW_HEAD_SIZE}" ]; do
+            HEAD_SIZE=${NEW_HEAD_SIZE}
+
+            # try first download only a part of image
+            $UTILS_PATH/downloader.sh ${DOWNLOADER_ARGS} -c "${HEAD_SIZE}" "${SRC}" - >"${IMAGE}" 2>/dev/null
+            error=$?
+            if [ $error -ne 0 ]; then
+                # better fail here ...
+                log_error "Failed to download image head"
+                echo '0'
+                return
+            fi
+
+            TYPE=$(image_format "${IMAGE}")
+            if [ -z "${TYPE}" ]; then
+                # if unknown image type, maybe we haven't downloaded
+                # enough bytes; check if qemu-img info doesn't complain
+                # on least than expected bytes and redownload more bytes
+                NEW_HEAD_SIZE=$(image_size_required "${IMAGE}")
+                if [ -n "${NEW_HEAD_SIZE}" ] && [ "${NEW_HEAD_SIZE}" != "${HEAD_SIZE}" ]; then
+                    continue  # redownload more bytes
+                else
+                    log_error "Failed to detect image format"
+                    echo '0'
+                    return
+                fi
+            fi
+        done
 
         # raw images requires special handling, as there is no image header
         # with size available and we can't predict image virtual size just
         # from a part of the file
         if [ "${TYPE}" = 'raw' ]; then
-            $UTILS_PATH/downloader.sh ${DOWNLOADER_ARGS} --nodecomp -c 65536 "${SRC}" - >"${IMAGE}" 2>/dev/null
+            $UTILS_PATH/downloader.sh ${DOWNLOADER_ARGS} --nodecomp -c "${HEAD_SIZE}" "${SRC}" - >"${IMAGE}" 2>/dev/null
             error=$?
             if [ $error -ne 0 ]; then
                 # better fail here ...
