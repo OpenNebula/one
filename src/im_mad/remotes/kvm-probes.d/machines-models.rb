@@ -30,7 +30,7 @@ begin
     machines = []
     models   = []
 
-    Open3.popen3("virsh -c qemu:///system capabilities") {|i, o, e, t|
+    Open3.popen3("virsh -r -c qemu:///system capabilities") {|i, o, e, t|
         if t.value.exitstatus != 0
             exit -1
         end
@@ -46,20 +46,65 @@ begin
         a_elem = cap_xml.elements["guest/arch[@name='#{a}']"]
         next if !a_elem
 
-        a_elem.elements.each('machine') { |m|
-            machines << m.text
+        # Evaluate the domain specific machines with higher priority
+        # over the machines listed just inside the architecture.
+        #
+        #  <guest>
+        #    <os_type>hvm</os_type>
+        #    <arch name='x86_64'>
+        #      <wordsize>64</wordsize>
+        #      <emulator>/usr/bin/qemu-system-x86_64</emulator>
+        #      <machine maxCpus='255'>pc-i440fx-2.0</machine>
+        #      <machine canonical='pc-i440fx-2.0' maxCpus='255'>pc</machine>
+        #      ...
+        #      <machine maxCpus='255'>pc-1.0</machine>
+        #      <machine maxCpus='255'>pc-0.13</machine>
+        #      <domain type='qemu'/>
+        #      <domain type='kvm'>
+        #        <emulator>/usr/libexec/qemu-kvm</emulator>
+        #        <machine maxCpus='240'>pc-i440fx-rhel7.4.0</machine>
+        #        <machine canonical='pc-i440fx-rhel7.4.0' maxCpus='240'>pc</machine>
+        #        ...
+        #        <machine maxCpus='240'>rhel6.2.0</machine>
+        #        <machine maxCpus='240'>pc-i440fx-rhel7.3.0</machine>
+        #      </domain>
+        #    </arch>
+        #    ...
+        #  </guest>
+
+        a_machines = []
+
+        ['kvm', 'kqemu', 'qemu', ''].each { |type|
+            if type.empty?
+                d_elem = a_elem
+            else
+                d_elem = a_elem.elements["domain[@type='#{type}']"]
+            end
+
+            if d_elem
+                d_elem.elements.each('machine') { |m|
+                    a_machines << m.text
+                }
+
+                # take only first found domain type
+                unless a_machines.empty?
+                    machines.concat(a_machines)
+                    break
+                end
+            end
         }
 
         cpu_models = ""
-        Open3.popen3("virsh -c qemu:///system cpu-models #{a}") {|i, o, e, t|
+        Open3.popen3("virsh -r -c qemu:///system cpu-models #{a}") {|i, o, e, t|
             break if t.value.exitstatus != 0
 
             cpu_models = o.read
         }
 
         cpu_models.each_line { |l|
-            next if l.empty?
-            models << l.chomp
+            l.chomp!
+            next if l.empty? or l =~ /all CPU models are accepted/i;
+            models << l
         }
     }
 
