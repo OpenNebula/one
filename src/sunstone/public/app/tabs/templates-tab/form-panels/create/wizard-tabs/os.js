@@ -266,26 +266,41 @@ define(function(require) {
     });
     that.initrdFilesTable.refreshResourceTableSelect();
 
-    fillMachineTypes();
+    fillMachineTypesAndCPUModel();
   }
 
-  function fillMachineTypes(){
+  function fillMachineTypesAndCPUModel(){
     OpenNebulaHost.kvmInfo({
       data : {},
       timeout: true,
       success: function (request, kvmInfo){
-        machines = kvmInfo[0].set_kvm_machines;
+        var m = $("#machine-type").html();
+        if (m === undefined){
+          machines = kvmInfo[0].set_kvm_machines;
 
-        var html = "<select wizard_field=\"MACHINE\">";
-        html += '<option value="">' + " " + '</option>';
+          var html = "<select id=\"machine-type\" wizard_field=\"MACHINE\">";
+          html += '<option value="">' + " " + '</option>';
 
-        $.each(machines, function(i, machine){
-          html += "<option value='" + machine + "'>" + machine + "</option>";
-        });
+          $.each(machines, function(i, machine){
+            html += "<option value='" + machine + "'>" + machine + "</option>";
+          });
 
-        html += '</select>';
+          html += '</select>';
 
-        $("#kvm-info").append(html);
+          $("#kvm-info").append(html);
+
+          cpus = kvmInfo[0].set_cpu_models;
+
+          var html = "<select wizard_field=\"MODEL\">";
+          html += '<option value="">' + " " + '</option>';
+          html += '<option value="host-passthrough">host-passthrough</option>';
+
+          $.each(cpus, function(i, cpu){
+            html += "<option value='" + cpu + "'>" + cpu + "</option>";
+          });
+          html += '</select>';
+          $("#cpu-model").append(html);
+        }
       },
       error: function(request, error_json){
         console.error("There was an error requesting the KVM info: "+
@@ -313,6 +328,9 @@ define(function(require) {
 
     var featuresJSON = WizardFields.retrieve('.featuresTab', context)
     if (!$.isEmptyObject(featuresJSON)) { templateJSON['FEATURES'] = featuresJSON; };
+
+    var cpuModelJSON = WizardFields.retrieve('.cpuTab', context);
+    if (!$.isEmptyObject(cpuModelJSON)) { templateJSON['CPU_MODEL'] = cpuModelJSON; };
 
     return templateJSON;
   }
@@ -342,6 +360,12 @@ define(function(require) {
     if (featuresJSON) {
       WizardFields.fill(context, featuresJSON);
       delete templateJSON['FEATURES'];
+    }
+
+    var cpuModelJSON = templateJSON['CPU_MODEL'];
+    if (cpuModelJSON) {
+      WizardFields.fill(context, cpuModelJSON);
+      delete templateJSON['CPU_MODEL'];
     }
   }
 
