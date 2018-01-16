@@ -26,7 +26,7 @@ define(function(require) {
   var WizardFields = require('utils/wizard-fields');
   var FilesTable = require('tabs/files-tab/datatable');
   var UniqueId = require('utils/unique-id');
-
+  var OpenNebulaHost = require('opennebula/host');
   /*
     TEMPLATES
    */
@@ -265,6 +265,33 @@ define(function(require) {
       }
     });
     that.initrdFilesTable.refreshResourceTableSelect();
+
+    fillMachineTypes();
+  }
+
+  function fillMachineTypes(){
+    OpenNebulaHost.kvmInfo({
+      data : {},
+      timeout: true,
+      success: function (request, kvmInfo){
+        machines = kvmInfo[0].set_kvm_machines;
+
+        var html = "<select wizard_field=\"MACHINE\">";
+        html += '<option value="">' + " " + '</option>';
+
+        $.each(machines, function(i, machine){
+          html += "<option value='" + machine + "'>" + machine + "</option>";
+        });
+
+        html += '</select>';
+
+        $("#kvm-info").append(html);
+      },
+      error: function(request, error_json){
+        console.error("There was an error requesting the KVM info: "+
+                      error_json.error.message);
+      }
+    });
   }
 
   function _retrieve(context) {
