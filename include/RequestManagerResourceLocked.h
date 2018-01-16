@@ -51,7 +51,7 @@ protected:
         {
             PoolObjectSQL::LockStates lck_obj = obj->get_lock_state();
             obj->unlock();
-            if (!((auth_object & PoolObjectSQL::LockableObject) == 0) && ((int)auth_op <=  (int)lck_obj))
+            if (!((auth_object & PoolObjectSQL::LockableObject) == 0) && ((int)auth_op >=  (int)lck_obj))
             {
                 return true;
             }
