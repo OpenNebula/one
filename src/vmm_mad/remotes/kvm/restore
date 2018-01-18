@@ -18,7 +18,7 @@
 
 DRIVER_PATH=$(dirname $0)
 
-source $DRIVER_PATH/kvmrc
+source $DRIVER_PATH/../../etc/vmm/kvm/kvmrc
 source $DRIVER_PATH/../../scripts_common.sh
 
 FILE=$1

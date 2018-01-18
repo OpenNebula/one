@@ -34,7 +34,7 @@ DRIVER_PATH=$(dirname $0)
 CEPH_UTILS=${DRIVER_PATH}/ceph_utils.sh
 
 source ${DRIVER_PATH}/../libfs.sh
-source ${DRIVER_PATH}/ceph.conf
+source ${DRIVER_PATH}/../../etc/datastore/ceph/ceph.conf
 
 # -------- Get image and datastore arguments from OpenNebula core ------------
 
