@@ -35,7 +35,7 @@ protected:
         :Request(method_name,params,help)
     {
         auth_object = PoolObjectSQL::ACL;
-        auth_op     = AuthRequest::MANAGE;
+        auth_op     = AuthRequest::MANAGE_NO_LCK;
 
         Nebula& nd  = Nebula::instance();
         aclm        = nd.get_aclm();

@@ -40,7 +40,7 @@ protected:
         vnpool     = nd.get_vnpool();
 
         auth_object = PoolObjectSQL::CLUSTER;
-        auth_op     = AuthRequest::ADMIN;
+        auth_op     = AuthRequest::ADMIN_NO_LCK;
     };
 
     ~RequestManagerCluster(){};

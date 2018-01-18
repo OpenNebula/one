@@ -64,7 +64,7 @@ public:
     HostStatus():
         RequestManagerHost("one.host.status", "Sets the status of the host", "A:sii")
     {
-        auth_op = AuthRequest::ADMIN;
+        auth_op = AuthRequest::ADMIN_NO_LCK;
     };
 
     ~HostStatus(){};
@@ -84,7 +84,7 @@ public:
                             "Returns the host monitoring records",
                             "A:si")
     {
-        auth_op = AuthRequest::USE;
+        auth_op = AuthRequest::USE_NO_LCK;
     };
 
     ~HostMonitoring(){};

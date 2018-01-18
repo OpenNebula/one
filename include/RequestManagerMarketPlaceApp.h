@@ -17,18 +17,18 @@
 #ifndef REQUEST_MANAGER_MARKETPLACEAPP_H
 #define REQUEST_MANAGER_MARKETPLACEAPP_H
 
-#include "RequestManagerResourceLocked.h"
+#include "Request.h"
 #include "Nebula.h"
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class RequestManagerMarketPlaceApp: public RequestManagerResourceLocked
+class RequestManagerMarketPlaceApp: public Request
 {
 protected:
     RequestManagerMarketPlaceApp(const std::string& method_name,
 		const std::string& help, const std::string& params) :
-		RequestManagerResourceLocked(method_name, params, help, 1)
+		Request(method_name, params, help)
     {
         Nebula& nd = Nebula::instance();
         pool       = nd.get_apppool();

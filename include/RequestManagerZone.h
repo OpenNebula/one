@@ -38,7 +38,7 @@ protected:
         pool       = nd.get_zonepool();
 
         auth_object = PoolObjectSQL::ZONE;
-        auth_op     = AuthRequest::ADMIN;
+        auth_op     = AuthRequest::ADMIN_NO_LCK;
     };
 
     ~RequestManagerZone(){};

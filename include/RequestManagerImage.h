@@ -17,7 +17,7 @@
 #ifndef REQUEST_MANAGER_IMAGE_H
 #define REQUEST_MANAGER_IMAGE_H
 
-#include "RequestManagerResourceLocked.h"
+#include "Request.h"
 #include "Nebula.h"
 
 using namespace std;
@@ -26,13 +26,13 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class RequestManagerImage: public RequestManagerResourceLocked
+class RequestManagerImage: public Request
 {
 protected:
     RequestManagerImage(const string& method_name,
                         const string& help,
                         const string& params)
-        :RequestManagerResourceLocked(method_name,params,help, 1)
+        :Request(method_name,params,help)
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_ipool();

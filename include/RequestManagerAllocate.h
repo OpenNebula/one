@@ -278,6 +278,7 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_hpool();
         auth_object = PoolObjectSQL::HOST;
+        auth_op = AuthRequest::CREATE_NO_LCK;
     };
 
     ~HostAllocate(){};
@@ -321,6 +322,7 @@ public:
         pool        = nd.get_upool();
         gpool       = nd.get_gpool();
         auth_object = PoolObjectSQL::USER;
+        auth_op = AuthRequest::CREATE_NO_LCK;
 
         hidden_params.insert(2); // password argument
     };
@@ -354,6 +356,7 @@ public:
         Nebula& nd = Nebula::instance();
         pool       = nd.get_gpool();
         auth_object = PoolObjectSQL::GROUP;
+        auth_op = AuthRequest::CREATE_NO_LCK;
 
         vdcpool     = nd.get_vdcpool();
     };
@@ -384,6 +387,7 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_dspool();
         auth_object = PoolObjectSQL::DATASTORE;
+        auth_op = AuthRequest::CREATE_NO_LCK;
     };
 
     ~DatastoreAllocate(){};
@@ -431,6 +435,7 @@ public:
         Nebula& nd = Nebula::instance();
         pool       = nd.get_clpool();
         auth_object = PoolObjectSQL::CLUSTER;
+        auth_op = AuthRequest::CREATE_NO_LCK;
     };
 
     ~ClusterAllocate(){};
@@ -488,6 +493,7 @@ public:
         Nebula& nd = Nebula::instance();
         pool       = nd.get_zonepool();
         auth_object = PoolObjectSQL::ZONE;
+        auth_op = AuthRequest::CREATE_NO_LCK;
     };
 
     ~ZoneAllocate(){};
@@ -523,6 +529,7 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_secgrouppool();
         auth_object = PoolObjectSQL::SECGROUP;
+        auth_op = AuthRequest::CREATE_NO_LCK;
     };
 
     ~SecurityGroupAllocate(){};
@@ -555,6 +562,7 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vdcpool();
         auth_object = PoolObjectSQL::VDC;
+        auth_op = AuthRequest::CREATE_NO_LCK;
     };
 
     ~VdcAllocate(){};
@@ -624,6 +632,7 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_marketpool();
         auth_object = PoolObjectSQL::MARKETPLACE;
+        auth_op = AuthRequest::CREATE_NO_LCK;
     };
 
     ~MarketPlaceAllocate(){};

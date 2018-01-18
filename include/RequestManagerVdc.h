@@ -46,7 +46,7 @@ protected:
         gpool      = nd.get_gpool();
 
         auth_object = PoolObjectSQL::VDC;
-        auth_op     = AuthRequest::ADMIN;
+        auth_op     = AuthRequest::ADMIN_NO_LCK;
     };
 
     GroupPool*   gpool;
@@ -116,7 +116,7 @@ protected:
         local_zone_id = nd.get_zone_id();
 
         auth_object = PoolObjectSQL::VDC;
-        auth_op     = AuthRequest::ADMIN;
+        auth_op     = AuthRequest::ADMIN_NO_LCK;
     };
 
     bool check_obj_exist;

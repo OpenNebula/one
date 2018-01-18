@@ -17,7 +17,7 @@
 #ifndef REQUEST_MANAGER_DELETE_H_
 #define REQUEST_MANAGER_DELETE_H_
 
-#include "RequestManagerResourceLocked.h"
+#include "Request.h"
 #include "Nebula.h"
 #include "AuthManager.h"
 
@@ -27,13 +27,13 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class RequestManagerDelete: public RequestManagerResourceLocked
+class RequestManagerDelete: public Request
 {
 protected:
     RequestManagerDelete(const string& method_name,
                          const string& params,
                          const string& help)
-        :RequestManagerResourceLocked(method_name, params, help, 1)
+        :Request(method_name, params, help)
     {
         auth_op = AuthRequest::MANAGE;
 
@@ -44,7 +44,7 @@ protected:
 
     RequestManagerDelete(const string& method_name,
                          const string& help)
-        :RequestManagerResourceLocked(method_name, "A:si", help, 1)
+        :Request(method_name, "A:si", help)
     {
         auth_op = AuthRequest::MANAGE;
 
@@ -183,7 +183,7 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_hpool();
         auth_object = PoolObjectSQL::HOST;
-        auth_op     = AuthRequest::ADMIN;
+        auth_op     = AuthRequest::ADMIN_NO_LCK;
     };
 
     ~HostDelete(){};
@@ -220,7 +220,7 @@ public:
         pool       = nd.get_gpool();
 
         auth_object = PoolObjectSQL::GROUP;
-        auth_op     = AuthRequest::ADMIN;
+        auth_op     = AuthRequest::ADMIN_NO_LCK;
     };
 
     ~GroupDelete(){};
@@ -244,7 +244,7 @@ public:
         gpool       = nd.get_gpool();
 
         auth_object = PoolObjectSQL::USER;
-        auth_op     = AuthRequest::ADMIN;
+        auth_op     = AuthRequest::ADMIN_NO_LCK;
     };
 
     ~UserDelete(){};
@@ -268,7 +268,7 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_dspool();
         auth_object = PoolObjectSQL::DATASTORE;
-        auth_op     = AuthRequest::ADMIN;
+        auth_op     = AuthRequest::ADMIN_NO_LCK;
     };
 
     ~DatastoreDelete(){};
@@ -298,7 +298,7 @@ public:
         Nebula& nd = Nebula::instance();
         pool       = nd.get_clpool();
         auth_object = PoolObjectSQL::CLUSTER;
-        auth_op     = AuthRequest::ADMIN;
+        auth_op     = AuthRequest::ADMIN_NO_LCK;
     };
 
     ~ClusterDelete(){};
@@ -338,7 +338,7 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_zonepool();
         auth_object = PoolObjectSQL::ZONE;
-        auth_op     = AuthRequest::ADMIN;
+        auth_op     = AuthRequest::ADMIN_NO_LCK;
     };
 
     ~ZoneDelete(){};
@@ -361,6 +361,7 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_secgrouppool();
         auth_object = PoolObjectSQL::SECGROUP;
+        auth_op     = AuthRequest::ADMIN_NO_LCK;
     };
 
     ~SecurityGroupDelete(){};
@@ -382,7 +383,7 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vdcpool();
         auth_object = PoolObjectSQL::VDC;
-        auth_op     = AuthRequest::ADMIN;
+        auth_op     = AuthRequest::ADMIN_NO_LCK;
     };
 
     ~VdcDelete(){};
@@ -422,6 +423,7 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_marketpool();
         auth_object = PoolObjectSQL::MARKETPLACE;
+        auth_op     = AuthRequest::ADMIN_NO_LCK;
     };
 
     ~MarketPlaceDelete(){};

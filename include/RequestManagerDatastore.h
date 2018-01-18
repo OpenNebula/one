@@ -38,7 +38,7 @@ protected:
         pool        = nd.get_dspool();
 
         auth_object = PoolObjectSQL::DATASTORE;
-        auth_op     = AuthRequest::MANAGE;
+        auth_op     = AuthRequest::MANAGE_NO_LCK;
     };
 
     ~RequestManagerDatastore(){};
