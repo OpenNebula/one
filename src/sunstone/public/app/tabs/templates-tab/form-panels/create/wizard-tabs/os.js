@@ -26,7 +26,7 @@ define(function(require) {
   var WizardFields = require('utils/wizard-fields');
   var FilesTable = require('tabs/files-tab/datatable');
   var UniqueId = require('utils/unique-id');
-
+  var OpenNebulaHost = require('opennebula/host');
   /*
     TEMPLATES
    */
@@ -144,7 +144,7 @@ define(function(require) {
 
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-power-off';
-    this.title = Locale.tr("OS Booting");
+    this.title = Locale.tr("OS & CPU");
     this.classes = "hypervisor only_kvm"
 
     this.kernelFilesTable = new FilesTable(
@@ -265,6 +265,48 @@ define(function(require) {
       }
     });
     that.initrdFilesTable.refreshResourceTableSelect();
+
+    fillMachineTypesAndCPUModel();
+  }
+
+  function fillMachineTypesAndCPUModel(){
+    OpenNebulaHost.kvmInfo({
+      data : {},
+      timeout: true,
+      success: function (request, kvmInfo){
+        var m = $("#machine-type").html();
+        if (m === undefined){
+          machines = kvmInfo[0].set_kvm_machines;
+
+          var html = "<select id=\"machine-type\" wizard_field=\"MACHINE\">";
+          html += '<option value="">' + " " + '</option>';
+
+          $.each(machines, function(i, machine){
+            html += "<option value='" + machine + "'>" + machine + "</option>";
+          });
+
+          html += '</select>';
+
+          $("#kvm-info").append(html);
+
+          cpus = kvmInfo[0].set_cpu_models;
+
+          var html = "<select wizard_field=\"MODEL\">";
+          html += '<option value="">' + " " + '</option>';
+          html += '<option value="host-passthrough">host-passthrough</option>';
+
+          $.each(cpus, function(i, cpu){
+            html += "<option value='" + cpu + "'>" + cpu + "</option>";
+          });
+          html += '</select>';
+          $("#cpu-model").append(html);
+        }
+      },
+      error: function(request, error_json){
+        console.error("There was an error requesting the KVM info: "+
+                      error_json.error.message);
+      }
+    });
   }
 
   function _retrieve(context) {
@@ -286,6 +328,9 @@ define(function(require) {
 
     var featuresJSON = WizardFields.retrieve('.featuresTab', context)
     if (!$.isEmptyObject(featuresJSON)) { templateJSON['FEATURES'] = featuresJSON; };
+
+    var cpuModelJSON = WizardFields.retrieve('.cpuTab', context);
+    if (!$.isEmptyObject(cpuModelJSON)) { templateJSON['CPU_MODEL'] = cpuModelJSON; };
 
     return templateJSON;
   }
@@ -315,6 +360,12 @@ define(function(require) {
     if (featuresJSON) {
       WizardFields.fill(context, featuresJSON);
       delete templateJSON['FEATURES'];
+    }
+
+    var cpuModelJSON = templateJSON['CPU_MODEL'];
+    if (cpuModelJSON) {
+      WizardFields.fill(context, cpuModelJSON);
+      delete templateJSON['CPU_MODEL'];
     }
   }
 

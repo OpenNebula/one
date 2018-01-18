@@ -785,6 +785,7 @@ IM_PROBES_KVM_PROBES_FILES="src/im_mad/remotes/kvm-probes.d/kvm.rb \
                      src/im_mad/remotes/kvm-probes.d/architecture.sh \
                      src/im_mad/remotes/kvm-probes.d/cpu.sh \
                      src/im_mad/remotes/kvm-probes.d/poll.sh \
+                     src/im_mad/remotes/kvm-probes.d/machines-models.rb \
                      src/im_mad/remotes/kvm-probes.d/name.sh \
                      src/im_mad/remotes/kvm-probes.d/pci.rb \
                      src/im_mad/remotes/common.d/monitor_ds.sh \
