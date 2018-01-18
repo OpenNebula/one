@@ -254,11 +254,21 @@ define(function(require) {
       if (!$.isEmptyObject(user.VM_QUOTA)){
         if (quotaMem){
           $("#quotas-mem", context).text( Humanize.size((parseFloat(user.VM_QUOTA.VM.MEMORY_USED) + parseFloat(values.MEMORY)) * 1024) + " / " + Humanize.size(user.VM_QUOTA.VM.MEMORY * 1024));
+          if ((parseFloat(values.MEMORY) + parseFloat(user.VM_QUOTA.VM.MEMORY_USED)) > user.VM_QUOTA.VM.MEMORY){
+            $("#quotas-mem", context).css("color", "red");
+          } else {
+            $("#quotas-mem", context).css("color", "black");
+          }
         } else {
           $("#quotas-mem", context).text( Humanize.size((parseFloat(user.VM_QUOTA.VM.MEMORY_USED) + parseFloat(values.MEMORY)) * 1024) + " / ∞");
         }
         if (quotaCpu){
           $("#quotas-cpu", context).text(((parseFloat(user.VM_QUOTA.VM.CPU_USED) + parseFloat(values.CPU))).toFixed(2) + " / " + user.VM_QUOTA.VM.CPU);
+          if ((parseFloat(values.CPU) + parseFloat(user.VM_QUOTA.VM.CPU_USED)) > user.VM_QUOTA.VM.CPU){
+            $("#quotas-cpu", context).css("color", "red");
+          } else {
+            $("#quotas-cpu", context).css("color", "black");
+          }
         } else {
           $("#quotas-cpu", context).text(((parseFloat(user.VM_QUOTA.VM.CPU_USED) + parseFloat(values.CPU))).toFixed(2) + " / ∞");
         }
@@ -328,6 +338,11 @@ define(function(require) {
           $("#quotas-disks").text(Humanize.size((parseFloat(this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE_USED) + totalSize) * 1024) + " / ∞");
         } else {
           $("#quotas-disks").text(Humanize.size((parseFloat(this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE_USED) + totalSize) * 1024) + " / " + Humanize.size(parseFloat(this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE) * 1024));
+          if ((parseFloat(this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE_USED) + totalSize) > parseFloat(this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE)){
+            $("#quotas-disks", context).css("color", "red");
+          } else {
+            $("#quotas-disks", context).css("color", "black");
+          }
         }
       }
     }
