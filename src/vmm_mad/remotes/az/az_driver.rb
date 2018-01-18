@@ -537,10 +537,9 @@ private
     # Retrieve the instance from Azure. If OpenNebula asks for it, then the
     # vm_name must comply with the notation name_csn
     def get_instance(deploy_id)
-        vm_name = deploy_id.match(/([^_]+)-(.+)/)[1]
         csn     = deploy_id.match(/([^_]+)-(.+)/)[-1]
 
-        instance = @azure_vms.get_virtual_machine(vm_name,csn)
+        instance = @azure_vms.get_virtual_machine(deploy_id,csn)
         if instance
             return instance
         else
