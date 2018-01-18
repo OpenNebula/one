@@ -33,7 +33,7 @@ protected:
                        const string& help)
         :Request(method_name, "A:sis", help)
     {
-        auth_op = AuthRequest::MANAGE;
+        auth_op = AuthRequest::MANAGE_NO_LCK;
     };
 
     ~RequestManagerLock(){};
@@ -59,7 +59,7 @@ protected:
                          const string& help)
         :Request(method_name, "A:sii", help)
     {
-        auth_op = AuthRequest::MANAGE;
+        auth_op = AuthRequest::MANAGE_NO_LCK;
     };
 
     ~RequestManagerUnlock(){};
