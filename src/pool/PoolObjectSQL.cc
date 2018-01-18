@@ -377,6 +377,8 @@ void PoolObjectSQL::get_permissions(PoolObjectAuth& auth)
     auth.other_m = other_m;
     auth.other_a = other_a;
 
+    auth.locked = static_cast<int>(locked);
+
     Clusterable* cl = dynamic_cast<Clusterable*>(this);
 
     if(cl != 0)

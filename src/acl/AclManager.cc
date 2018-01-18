@@ -228,6 +228,15 @@ const bool AclManager::authorize(
     long long user_req;
     long long resource_oid_req;
 
+    if (static_cast<long long int>(op) & 0x10LL) //No lockable object
+    {
+        op = static_cast<AuthRequest::Operation>(op & 0x0FLL);
+    }
+    else if (obj_perms.locked > 0 && obj_perms.locked <= static_cast<long long int>(op))
+    {
+        return false;
+    }
+
     if ( obj_perms.oid >= 0 )
     {
         resource_oid_req = obj_perms.obj_type |
