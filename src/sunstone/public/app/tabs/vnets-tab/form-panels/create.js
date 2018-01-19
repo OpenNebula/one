@@ -232,6 +232,17 @@ define(function(require) {
     $("#vnet_wizard_ar_btn", context).trigger("click");
 
     Tips.setup();
+
+    if (config["mode"] === "kvm"){
+      $("#network_mode option[value=\"vcenter\"]", context).hide();
+    } else if (config["mode"] === "vcenter"){
+      $("#network_mode option[value=\"dummy\"]", context).hide();
+      $("#network_mode option[value=\"fw\"]", context).hide();
+      $("#network_mode option[value=\"ebtables\"]", context).hide();
+      $("#network_mode option[value=\"802.1Q\"]", context).hide();
+      $("#network_mode option[value=\"vxlan\"]", context).hide();
+      $("#network_mode option[value=\"ovswitch\"]", context).hide();
+    }
     return false;
   }
 
