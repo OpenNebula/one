@@ -17,7 +17,7 @@
 #ifndef REQUEST_MANAGER_DELETE_H_
 #define REQUEST_MANAGER_DELETE_H_
 
-#include "RequestManagerResourceLocked.h"
+#include "Request.h"
 #include "Nebula.h"
 #include "AuthManager.h"
 
@@ -27,13 +27,13 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class RequestManagerDelete: public RequestManagerResourceLocked
+class RequestManagerDelete: public Request
 {
 protected:
     RequestManagerDelete(const string& method_name,
                          const string& params,
                          const string& help)
-        :RequestManagerResourceLocked(method_name, params, help, 1)
+        :Request(method_name, params, help)
     {
         auth_op = AuthRequest::MANAGE;
 
@@ -44,7 +44,7 @@ protected:
 
     RequestManagerDelete(const string& method_name,
                          const string& help)
-        :RequestManagerResourceLocked(method_name, "A:si", help, 1)
+        :Request(method_name, "A:si", help)
     {
         auth_op = AuthRequest::MANAGE;
 

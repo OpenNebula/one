@@ -579,7 +579,7 @@ int PoolObjectSQL::lock_db_from_xml()
         rc += xpath(locked_int,   "/*/LOCK/LOCKED", 0);
         rc += xpath(lock_req_id,   "/*/LOCK/REQ_ID", -1);
         rc += xpath(lock_owner,   "/*/LOCK/OWNER", -1);
-        xpath<time_t>(lock_time, "/*/LOCK/EXPIRES", time(0));
+        xpath<time_t>(lock_time, "/*/LOCK/TIME", time(0));
 
         locked = static_cast<LockStates>(locked_int);
     }

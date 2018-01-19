@@ -17,7 +17,7 @@
 #ifndef REQUEST_MANAGER_CHOWN_H_
 #define REQUEST_MANAGER_CHOWN_H_
 
-#include "RequestManagerResourceLocked.h"
+#include "Request.h"
 #include "Nebula.h"
 
 using namespace std;
@@ -26,13 +26,13 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class RequestManagerChown : public RequestManagerResourceLocked
+class RequestManagerChown : public Request
 {
 protected:
     RequestManagerChown(const string& method_name,
                         const string& help,
                         const string& params = "A:siii")
-        :RequestManagerResourceLocked(method_name,params,help, 1)
+        :Request(method_name,params,help)
     {
         auth_op = AuthRequest::MANAGE;
 

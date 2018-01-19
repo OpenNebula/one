@@ -88,7 +88,6 @@ void RequestManagerUnlock::request_execute(xmlrpc_c::paramList const& paramList,
     if ( object == 0 )
     {
         att.resp_id = oid;
-        object->unlock();
         failure_response(NO_EXISTS, att);
         return;
     }
