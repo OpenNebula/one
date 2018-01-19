@@ -520,7 +520,7 @@ end
 ################################################################################
 
 hypervisor = KVM
-file       = 'kvmrc'
+file       = '../../etc/vmm/kvm/kvmrc'
 vars       = %w{LIBVIRT_URI}
 
 load_vars(hypervisor, file, vars)

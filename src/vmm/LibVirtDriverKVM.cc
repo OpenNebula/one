@@ -111,6 +111,11 @@ int LibVirtDriver::deployment_description_kvm(
 
     vector<string> boots;
 
+    const VectorAttribute * cpu_model_v;
+
+    string  cpu_model = "";
+    string  cpu_mode  = "";
+
     vector<const VectorAttribute *> disk;
     const VectorAttribute * context;
 
@@ -385,6 +390,40 @@ int LibVirtDriver::deployment_description_kvm(
     file << "\t</os>" << endl;
 
     // ------------------------------------------------------------------------
+    // CPU SECTION
+    // ------------------------------------------------------------------------
+    cpu_model_v = vm->get_template_attribute("CPU_MODEL");
+
+    if( cpu_model_v != 0 )
+    {
+        cpu_model = cpu_model_v->vector_value("MODEL");
+
+        if ( cpu_model == "host-passthrough" )
+        {
+            cpu_mode = "host-passthrough";
+        }
+        else
+        {
+            cpu_mode = "host-model";
+        }
+
+        //TODO #756 cache, feature
+    }
+
+    if ( !cpu_model.empty() )
+    {
+        file << "\t<cpu mode=" << one_util::escape_xml_attr(cpu_mode) << ">\n";
+
+        if ( cpu_mode == "host-model" )
+        {
+            file << "\t\t<model>" << one_util::escape_xml(cpu_model)
+                 << "</model>\n";
+        }
+
+        file << "\t</cpu>\n";
+    }
+
+    // ------------------------------------------------------------------------
     // DEVICES SECTION
     // ------------------------------------------------------------------------
     file << "\t<devices>" << endl;
@@ -450,7 +489,7 @@ int LibVirtDriver::deployment_description_kvm(
         ceph_secret     = disk[i]->vector_value("CEPH_SECRET");
         ceph_user       = disk[i]->vector_value("CEPH_USER");
         pool_name       = disk[i]->vector_value("POOL_NAME");
-      
+
         iscsi_host      = disk[i]->vector_value("ISCSI_HOST");
         iscsi_user      = disk[i]->vector_value("ISCSI_USER");
         iscsi_usage     = disk[i]->vector_value("ISCSI_USAGE");

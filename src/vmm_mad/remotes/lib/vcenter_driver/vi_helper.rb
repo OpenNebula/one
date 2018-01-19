@@ -59,7 +59,8 @@ class VIHelper
         hash = {}
 
         pool.each_element(Proc.new do |e|
-            next if vcenter_uuid != e["TEMPLATE/VCENTER_INSTANCE_ID"]
+            vcenter_instance_id = e["TEMPLATE/VCENTER_INSTANCE_ID"] || e["USER_TEMPLATE/VCENTER_INSTANCE_ID"]
+            next if vcenter_uuid != vcenter_instance_id
 
             ref = e[attribute]
             hash[ref] = {

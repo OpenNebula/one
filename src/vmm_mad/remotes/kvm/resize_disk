@@ -21,7 +21,7 @@ DISK_ID=$2
 DISK_SIZE=$3
 DRV_ACTION=$4
 
-source $(dirname $0)/kvmrc
+source $(dirname $0)/../../etc/vmm/kvm/kvmrc
 source $(dirname $0)/../../scripts_common.sh
 
 (

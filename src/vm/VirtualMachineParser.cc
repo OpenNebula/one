@@ -681,3 +681,83 @@ error_yy:
     pthread_mutex_unlock(&lex_mutex);
     return -1;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_public_clouds(const char * pname, string& error)
+{
+    vector<VectorAttribute *>           attrs;
+    vector<VectorAttribute *>::iterator it;
+
+    string * str;
+    string p_vatt;
+
+    int rc  = 0;
+    int num = user_obj_template->remove(pname, attrs);
+
+    for (it = attrs.begin(); it != attrs.end(); it++)
+    {
+        str = (*it)->marshall();
+
+        if ( str == 0 )
+        {
+            ostringstream oss;
+            oss << "Internal error processing " << pname;
+            error = oss.str();
+            rc    = -1;
+            break;
+        }
+
+        rc = parse_template_attribute(*str, p_vatt, error);
+
+        delete str;
+
+        if ( rc != 0 )
+        {
+            rc = -1;
+            break;
+        }
+
+        VectorAttribute * nvatt = new VectorAttribute(pname);
+
+        nvatt->unmarshall(p_vatt);
+
+        user_obj_template->set(nvatt);
+    }
+
+    for (int i = 0; i < num ; i++)
+    {
+        delete attrs[i];
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_cpu_model()
+{
+    vector<VectorAttribute *> cm_attr;
+    vector<VectorAttribute *>::iterator it;
+
+    int num = user_obj_template->remove("CPU_MODEL", cm_attr);
+
+    if ( num == 0 )
+    {
+        return 0;
+    }
+
+    it = cm_attr.begin();
+
+    obj_template->set(*it);
+
+    for ( ++it; it != cm_attr.end(); ++it)
+    {
+        delete *it;
+    }
+
+    return 0;
+}
+

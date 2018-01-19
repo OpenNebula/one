@@ -42,7 +42,7 @@ fi
 DRIVER_PATH=$(dirname $0)
 
 source $TMCOMMON
-source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
+source ${DRIVER_PATH}/../../etc/datastore/ceph/ceph.conf
 
 CEPH_UTILS=${DRIVER_PATH}/../../datastore/ceph/ceph_utils.sh
 

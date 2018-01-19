@@ -1903,6 +1903,12 @@ private:
     int parse_os(string& error_str);
 
     /**
+     *  Parse the "CPU_MODEL" attribute of the template
+     *    @return 0 on success
+     */
+    int parse_cpu_model();
+
+    /**
      * Parse the "NIC_DEFAULT" attribute
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
