@@ -34,7 +34,7 @@
             'lang' : '<%= session[:lang] %>',
             'vnc_wss' : '<%= session[:vnc_wss] %>',
             'table_order' : '<%= session[:table_order] %>',
-            'default_view' : '<%= session[:default_view] %>',
+            'default_view' : '<%= session[:defaqult_view] %>',
             'page_length' : '<%= session[:page_length] %>'
         },
         'system_config' : {
@@ -56,7 +56,8 @@
         'vm_logos' : <%= logos_conf.to_json %>,
         'oned_conf' : <%= oned_conf.to_json %>,
         'support' : <%= support.to_json %>,
-        'upgrade' : <%= upgrade.to_json %>
+        'upgrade' : <%= upgrade.to_json %>,
+        'mode' : '<%= session[:mode] %>'
       };
     </script>
 
