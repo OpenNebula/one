@@ -16,7 +16,7 @@ features:
     # True to hide the CPU setting in the VM creation dialog. The CPU setting
     # will be set to the same value as VCPU, that will still be visible for the
     # end users
-    instantiate_hide_cpu: false
+    instantiate_hide_cpu: true
 
     # False to not scale the CPU. Number [0, 1] to scale from VCPU
     instantiate_cpu_factor: false
@@ -30,12 +30,12 @@ tabs:
     provision-tab:
         panel_tabs:
             vm_info_tab: false
-            vm_capacity_tab: false
-            vm_storage_tab: false
-            vm_network_tab: false
-            vm_snapshot_tab: false
+            vm_capacity_tab: true
+            vm_storage_tab: true
+            vm_network_tab: true
+            vm_snapshot_tab: true
             vm_placement_tab: false
-            vm_actions_tab: false
+            vm_actions_tab: true
             vm_conf_tab: false
             vm_template_tab: false
             vm_log_tab: false
@@ -61,17 +61,17 @@ tabs:
             VM.terminate: true
             VM.terminate_hard: true
             VM.resize: false
-            VM.attachdisk: false
-            VM.detachdisk: false
-            VM.disk_saveas: false
-            VM.attachnic: false
-            VM.detachnic: false
-            VM.snapshot_create: false
-            VM.snapshot_revert: false
-            VM.snapshot_delete: false
-            VM.disk_snapshot_create: false
-            VM.disk_snapshot_revert: false
-            VM.disk_snapshot_delete: false
+            VM.attachdisk: true
+            VM.detachdisk: true
+            VM.disk_saveas: true
+            VM.attachnic: true
+            VM.detachnic: true
+            VM.snapshot_create: true
+            VM.snapshot_revert: true
+            VM.snapshot_delete: true
+            VM.disk_snapshot_create: true
+            VM.disk_snapshot_revert: true
+            VM.disk_snapshot_delete: true
             VM.save_as_template: true
         dashboard:
             # Connected user's quotas
