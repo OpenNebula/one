@@ -30,18 +30,19 @@ tabs:
     provision-tab:
         panel_tabs:
             vm_info_tab: false
-            vm_capacity_tab: false
-            vm_storage_tab: false
-            vm_network_tab: false
-            vm_snapshot_tab: false
+            vm_capacity_tab: true
+            vm_storage_tab: true
+            vm_network_tab: true
+            vm_snapshot_tab: true
             vm_placement_tab: false
-            vm_actions_tab: false
+            vm_actions_tab: true
             vm_conf_tab: false
             vm_template_tab: false
             vm_log_tab: false
         provision_tabs:
             flows: true
-            templates: false
+            templates: true
+
         actions: &provisionactions
             # In the cloud view, delete is the equivalent
             # of 'onetemplate chmod --recursive'
@@ -50,7 +51,7 @@ tabs:
             # In the cloud view, delete is the equivalent
             # of 'onetemplate delete --recursive'
             Template.delete: true
-            VM.rename: false
+            VM.rename: true
             VM.resume: true
             VM.reboot: true
             VM.reboot_hard: true
@@ -61,17 +62,17 @@ tabs:
             VM.terminate: true
             VM.terminate_hard: true
             VM.resize: false
-            VM.attachdisk: false
-            VM.detachdisk: false
-            VM.disk_saveas: false
-            VM.attachnic: false
-            VM.detachnic: false
-            VM.snapshot_create: false
-            VM.snapshot_revert: false
-            VM.snapshot_delete: false
-            VM.disk_snapshot_create: false
-            VM.disk_snapshot_revert: false
-            VM.disk_snapshot_delete: false
+            VM.attachdisk: true
+            VM.detachdisk: true
+            VM.disk_saveas: true
+            VM.attachnic: true
+            VM.detachnic: true
+            VM.snapshot_create: true
+            VM.snapshot_revert: true
+            VM.snapshot_delete: true
+            VM.disk_snapshot_create: true
+            VM.disk_snapshot_revert: true
+            VM.disk_snapshot_delete: true
             VM.save_as_template: true
         dashboard:
             # Connected user's quotas
@@ -101,10 +102,9 @@ tabs:
             settings_accounting_tab: true
             settings_showback_tab: true
         actions:
-            # The buttons inside the settings-tab panel settings_info_tab are
-            # configured with users-tab/actions; User.update_password and
-            # User.login_token
-            #
+            # Buttons for settings_info_tab
+            User.update_password: true
+            User.login_token: true
             # Buttons for settings_config_tab
             Settings.change_language: true
             Settings.change_password: true
@@ -113,10 +113,6 @@ tabs:
             Settings.login_token: true
             # Edit button in settings_quotas_tab
             User.quotas_dialog: false
-    users-tab:
-        actions:
-            User.update_password: true
-            User.login_token: true
     vms-tab:
         actions: *provisionactions
     images-tab:
@@ -124,7 +120,7 @@ tabs:
             - 0         # Checkbox
             - 1         # ID
             - 2         # Name
-            - 3         # Owner
+            - 3         # Onwer
             - 4         # Group
             - 5         # Datastore
             #- 6        # Size

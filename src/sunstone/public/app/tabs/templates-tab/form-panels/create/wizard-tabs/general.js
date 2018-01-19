@@ -213,6 +213,14 @@ define(function(require) {
         that.listener.notify();
       });
     }
+
+    if (config["mode"] === "kvm"){
+      $("#kvmRadio", context).click();
+      $("#template_hypervisor_form", context).hide();
+    } else if (config["mode"] === "vcenter"){
+      $("#vcenterRadio", context).click();
+      $("#template_hypervisor_form", context).hide();
+    }
   }
 
   function _retrieve(context) {
