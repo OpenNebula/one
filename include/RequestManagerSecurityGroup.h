@@ -30,7 +30,7 @@ public:
         pool        = nd.get_secgrouppool();
 
         auth_object = PoolObjectSQL::SECGROUP;
-        auth_op     = AuthRequest::MANAGE_NO_LCK;
+        auth_op     = AuthRequest::MANAGE;
     };
 
     ~SecurityGroupCommit(){};

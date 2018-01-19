@@ -67,7 +67,7 @@ public:
                            "Changes user's password",
                            "A:sis")
     {
-        auth_op = AuthRequest::MANAGE_NO_LCK;
+        auth_op = AuthRequest::MANAGE;
         hidden_params.insert(2); // password argument
     };
 
@@ -90,7 +90,7 @@ public:
                            "Changes user's authentication driver",
                            "A:siss")
     {
-        auth_op = AuthRequest::ADMIN_NO_LCK;
+        auth_op = AuthRequest::ADMIN;
         hidden_params.insert(3); // new password argument
     };
 
@@ -113,7 +113,7 @@ public:
                            "Sets user quota limits",
                            "A:sis")
     {
-        auth_op = AuthRequest::ADMIN_NO_LCK;
+        auth_op = AuthRequest::ADMIN;
     };
 
     ~UserSetQuota(){};
@@ -137,7 +137,7 @@ public:
         pool        = nd.get_upool();
 
         auth_object = PoolObjectSQL::USER;
-        auth_op     = AuthRequest::MANAGE_NO_LCK;
+        auth_op     = AuthRequest::MANAGE;
 
         hidden_params.insert(2); // password argument
     };
@@ -162,7 +162,7 @@ public:
                 Request(method_name,params,help)
     {
         auth_object = PoolObjectSQL::USER;
-        auth_op     = AuthRequest::MANAGE_NO_LCK;
+        auth_op     = AuthRequest::MANAGE;
 
         Nebula& nd = Nebula::instance();
         gpool = nd.get_gpool();

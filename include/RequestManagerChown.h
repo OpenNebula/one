@@ -17,7 +17,7 @@
 #ifndef REQUEST_MANAGER_CHOWN_H_
 #define REQUEST_MANAGER_CHOWN_H_
 
-#include "Request.h"
+#include "RequestManagerResourceLocked.h"
 #include "Nebula.h"
 
 using namespace std;
@@ -26,13 +26,13 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class RequestManagerChown : public Request
+class RequestManagerChown : public RequestManagerResourceLocked
 {
 protected:
     RequestManagerChown(const string& method_name,
                         const string& help,
                         const string& params = "A:siii")
-        :Request(method_name,params,help)
+        :RequestManagerResourceLocked(method_name,params,help, 1)
     {
         auth_op = AuthRequest::MANAGE;
 
@@ -185,7 +185,6 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_upool();
         auth_object = PoolObjectSQL::USER;
-        auth_op = AuthRequest::MANAGE_NO_LCK;
     };
 
     ~UserChown(){};
@@ -214,7 +213,6 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_dspool();
         auth_object = PoolObjectSQL::DATASTORE;
-        auth_op = AuthRequest::MANAGE_NO_LCK;
     };
 
     ~DatastoreChown(){};
@@ -261,7 +259,6 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_secgrouppool();
         auth_object = PoolObjectSQL::SECGROUP;
-        auth_op = AuthRequest::MANAGE_NO_LCK;
     };
 
     ~SecurityGroupChown(){};
@@ -308,7 +305,6 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_marketpool();
         auth_object = PoolObjectSQL::MARKETPLACE;
-        auth_op = AuthRequest::MANAGE_NO_LCK;
     };
 
     ~MarketPlaceChown(){};

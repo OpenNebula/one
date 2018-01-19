@@ -17,7 +17,7 @@
 #ifndef REQUEST_MANAGER_VIRTUAL_MACHINE_H_
 #define REQUEST_MANAGER_VIRTUAL_MACHINE_H
 
-#include "Request.h"
+#include "RequestManagerResourceLocked.h"
 #include "Nebula.h"
 
 using namespace std;
@@ -26,13 +26,14 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class RequestManagerVirtualMachine: public Request
+class RequestManagerVirtualMachine: public RequestManagerResourceLocked
 {
 protected:
     RequestManagerVirtualMachine(const string& method_name,
                        const string& help,
-                       const string& params)
-        :Request(method_name, params, help)
+                       const string& params,
+                       const int id_location = 1)
+        :RequestManagerResourceLocked(method_name, params, help, id_location)
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
@@ -117,7 +118,8 @@ public:
     VirtualMachineAction():
         RequestManagerVirtualMachine("one.vm.action",
                                      "Performs an action on a virtual machine",
-                                     "A:ssi"){};
+                                     "A:ssi",
+                                     2){};
     ~VirtualMachineAction(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
@@ -200,6 +202,10 @@ public:
 
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+
+    virtual bool is_locked(xmlrpc_c::paramList const& paramList, RequestAttributes& att){
+        return false;
+    };
 };
 
 /* ------------------------------------------------------------------------- */

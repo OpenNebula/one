@@ -17,7 +17,7 @@
 #ifndef REQUEST_MANAGER_VIRTUAL_NETWORK_H
 #define REQUEST_MANAGER_VIRTUAL_NETWORK_H
 
-#include "Request.h"
+#include "RequestManagerResourceLocked.h"
 #include "Nebula.h"
 
 using namespace std;
@@ -26,12 +26,12 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class RequestManagerVirtualNetwork: public Request
+class RequestManagerVirtualNetwork: public RequestManagerResourceLocked
 {
 protected:
     RequestManagerVirtualNetwork(const string& method_name,
                                  const string& help)
-        :Request(method_name,"A:sis",help)
+        :RequestManagerResourceLocked(method_name,"A:sis",help, 1)
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();
@@ -208,11 +208,11 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class VirtualNetworkReserve: public Request
+class VirtualNetworkReserve: public RequestManagerResourceLocked
 {
 public:
-    VirtualNetworkReserve():Request("one.vn.reserve", "A:sis",
-      "Reserve network addresses")
+    VirtualNetworkReserve():RequestManagerResourceLocked("one.vn.reserve", "A:sis",
+      "Reserve network addresses", 1)
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();

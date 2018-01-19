@@ -57,7 +57,7 @@ public:
                            "Sets group quota limits",
                            "A:sis")
     {
-        auth_op = AuthRequest::ADMIN_NO_LCK;
+        auth_op = AuthRequest::ADMIN;
     };
 
     ~GroupSetQuota(){};
@@ -86,7 +86,7 @@ protected:
         upool       = nd.get_upool();
 
         auth_object = PoolObjectSQL::GROUP;
-        auth_op     = AuthRequest::ADMIN_NO_LCK;
+        auth_op     = AuthRequest::ADMIN;
     };
 
     UserPool*   upool;

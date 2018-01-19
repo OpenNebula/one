@@ -17,7 +17,7 @@
 #ifndef REQUEST_MANAGER_RENAME_H_
 #define REQUEST_MANAGER_RENAME_H_
 
-#include "Request.h"
+#include "RequestManagerResourceLocked.h"
 #include "Nebula.h"
 
 using namespace std;
@@ -26,13 +26,13 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class RequestManagerRename : public Request
+class RequestManagerRename : public RequestManagerResourceLocked
 {
 protected:
     RequestManagerRename(const string& method_name,
                          const string& help,
                          const string& params = "A:sis")
-        :Request(method_name,params,help)
+        :RequestManagerResourceLocked(method_name,params,help, 1)
     {
         pthread_mutex_init(&mutex, 0);
 
@@ -218,7 +218,6 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_clpool();
         auth_object = PoolObjectSQL::CLUSTER;
-        auth_op = AuthRequest::MANAGE_NO_LCK;
     };
 
     ~ClusterRename(){};
@@ -243,7 +242,6 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_dspool();
         auth_object = PoolObjectSQL::DATASTORE;
-        auth_op = AuthRequest::MANAGE_NO_LCK;
     };
 
     ~DatastoreRename(){};
@@ -269,7 +267,7 @@ public:
         pool        = nd.get_hpool();
         auth_object = PoolObjectSQL::HOST;
 
-        auth_op = AuthRequest::ADMIN_NO_LCK;
+        auth_op = AuthRequest::ADMIN;
     };
 
     ~HostRename(){};
@@ -311,7 +309,6 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_secgrouppool();
         auth_object = PoolObjectSQL::SECGROUP;
-        auth_op = AuthRequest::MANAGE_NO_LCK;
     };
 
     ~SecurityGroupRename(){};
@@ -373,7 +370,6 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_marketpool();
         auth_object = PoolObjectSQL::MARKETPLACE;
-        auth_op = AuthRequest::MANAGE_NO_LCK;
     };
 
     ~MarketPlaceRename(){};

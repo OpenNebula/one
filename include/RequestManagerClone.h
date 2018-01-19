@@ -17,7 +17,7 @@
 #ifndef REQUEST_MANAGER_CLONE_H
 #define REQUEST_MANAGER_CLONE_H
 
-#include "Request.h"
+#include "RequestManagerResourceLocked.h"
 #include "RequestManagerVMTemplate.h"
 #include "Nebula.h"
 
@@ -27,12 +27,12 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class RequestManagerClone: public Request
+class RequestManagerClone: public RequestManagerResourceLocked
 {
 protected:
     RequestManagerClone(const string& method_name, const string& help,
         const string& params = "A:sis"):
-        Request(method_name,params,help){};
+        RequestManagerResourceLocked(method_name,params,help,1){};
 
     ~RequestManagerClone(){};
 

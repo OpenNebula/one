@@ -17,7 +17,7 @@
 #ifndef REQUEST_MANAGER_UPDATE_TEMPLATE_H
 #define REQUEST_MANAGER_UPDATE_TEMPLATE_H
 
-#include "Request.h"
+#include "RequestManagerResourceLocked.h"
 #include "Nebula.h"
 
 using namespace std;
@@ -26,12 +26,12 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class RequestManagerUpdateTemplate: public Request
+class RequestManagerUpdateTemplate: public RequestManagerResourceLocked
 {
 protected:
     RequestManagerUpdateTemplate(const string& method_name,
                                  const string& help)
-        :Request(method_name, "A:sis", help)
+        :RequestManagerResourceLocked(method_name, "A:sis", help, 1)
     {
         auth_op = AuthRequest::MANAGE;
     };
@@ -119,7 +119,7 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_hpool();
         auth_object = PoolObjectSQL::HOST;
-        auth_op     = AuthRequest::ADMIN_NO_LCK;
+        auth_op     = AuthRequest::ADMIN;
     };
 
     ~HostUpdateTemplate(){};
@@ -157,7 +157,6 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_upool();
         auth_object = PoolObjectSQL::USER;
-        auth_op = AuthRequest::MANAGE_NO_LCK;
     };
 
     ~UserUpdateTemplate(){};
@@ -176,7 +175,6 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_dspool();
         auth_object = PoolObjectSQL::DATASTORE;
-        auth_op = AuthRequest::MANAGE_NO_LCK;
     };
 
     ~DatastoreUpdateTemplate(){};
@@ -213,7 +211,6 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_clpool();
         auth_object = PoolObjectSQL::CLUSTER;
-        auth_op = AuthRequest::MANAGE_NO_LCK;
     };
 
     ~ClusterUpdateTemplate(){};
@@ -232,7 +229,6 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_zonepool();
         auth_object = PoolObjectSQL::ZONE;
-        auth_op = AuthRequest::MANAGE_NO_LCK;
     };
 
     ~ZoneUpdateTemplate(){};
@@ -251,7 +247,6 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_gpool();
         auth_object = PoolObjectSQL::GROUP;
-        auth_op = AuthRequest::MANAGE_NO_LCK;
     };
 
     ~GroupUpdateTemplate(){};
@@ -270,7 +265,6 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_secgrouppool();
         auth_object = PoolObjectSQL::SECGROUP;
-        auth_op = AuthRequest::MANAGE_NO_LCK;
     };
 
     ~SecurityGroupUpdateTemplate(){};
@@ -289,7 +283,6 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vdcpool();
         auth_object = PoolObjectSQL::VDC;
-        auth_op = AuthRequest::MANAGE_NO_LCK;
     };
 
     ~VdcUpdateTemplate(){};
@@ -326,7 +319,6 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_marketpool();
         auth_object = PoolObjectSQL::MARKETPLACE;
-        auth_op = AuthRequest::MANAGE_NO_LCK;
     };
 
     ~MarketPlaceUpdateTemplate(){};
