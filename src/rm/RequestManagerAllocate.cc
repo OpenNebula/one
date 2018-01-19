@@ -1088,7 +1088,7 @@ bool VirtualRouterAllocate::allocate_authorization(
 
     if (quota_authorization(tmpl, Quotas::VIRTUALROUTER, att, att.resp_msg) == false)
     {
-        return AUTHORIZATION;
+        return false;
     }
 
     return true;

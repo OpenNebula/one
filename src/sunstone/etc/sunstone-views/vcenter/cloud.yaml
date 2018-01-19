@@ -11,7 +11,7 @@ features:
 
     # Allows to change the security groups for each network interface
     # on the VM creation dialog
-    secgroups: true
+    secgroups: false
 
     # True to hide the CPU setting in the VM creation dialog. The CPU setting
     # will be set to the same value as VCPU, that will still be visible for the
@@ -42,6 +42,7 @@ tabs:
         provision_tabs:
             flows: true
             templates: true
+
         actions: &provisionactions
             # In the cloud view, delete is the equivalent
             # of 'onetemplate chmod --recursive'

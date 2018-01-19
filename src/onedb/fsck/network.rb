@@ -170,9 +170,8 @@ module OneDBFsck
 
             counter_no_ar = counters[:vnet][row[:oid]][:no_ar_leases]
 
+            error = false
             counters[:vnet][row[:oid]][:ar_leases].each do |ar_id, counter_ar|
-                error = false
-
                 net_ar = doc.root.at_xpath("AR_POOL/AR[AR_ID=#{ar_id}]")
 
                 if (net_ar.nil?)
