@@ -201,6 +201,7 @@ int Image::insert(SqlDB *db, string& error_str)
     }
 
     state = LOCKED; //LOCKED till the ImageManager copies it to the Repository
+    lock_db(-1,-1, PoolObjectSQL::LockStates::ST_USE);
 
     //--------------------------------------------------------------------------
     // Insert the Image
@@ -809,7 +810,11 @@ void Image::set_state(ImageState _state)
         }
     } else if( _state == LOCKED)
     {
-        lock_db(-1,-1, PoolObjectSQL::LockStates::ST_MANAGE);
+        lock_db(-1,-1, PoolObjectSQL::LockStates::ST_USE);
+    }
+    if (_state != LOCKED )
+    {
+        unlock_db(-1,-1);
     }
 
     state = _state;
