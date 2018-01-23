@@ -42,6 +42,8 @@ public class Image extends PoolElement
     private static final String SNAPSHOTDELETE  = METHOD_PREFIX + "snapshotdelete";
     private static final String SNAPSHOTREVERT  = METHOD_PREFIX + "snapshotrevert";
     private static final String SNAPSHOTFLATTEN = METHOD_PREFIX + "snapshotflatten";
+    private static final String LOCK        = METHOD_PREFIX + "lock";
+    private static final String UNLOCK      = METHOD_PREFIX + "unlock";
 
     private static final String[] IMAGE_STATES =
         {"INIT", "READY", "USED", "DISABLED", "LOCKED",
@@ -321,6 +323,31 @@ public class Image extends PoolElement
     public static OneResponse snapshotFlatten(Client client, int id, int snapId)
     {
         return client.call(SNAPSHOTFLATTEN, id, snapId);
+    }
+
+    /**
+     * lock this Image
+     *
+     * @param client XML-RPC Client.
+     * @param id The Image id.
+     * @param level Lock level.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse lock(Client client, int id, int level)
+    {
+        return client.call(LOCK, id, level);
+    }
+
+    /**
+     * Unlock this Image
+     *
+     * @param client XML-RPC Client.
+     * @param id The Image id.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse unlock(Client client, int id)
+    {
+        return client.call(UNLOCK, id);
     }
 
     // =================================
@@ -620,6 +647,27 @@ public class Image extends PoolElement
     public OneResponse snapshotFlatten(int snapId)
     {
         return snapshotFlatten(client, id, snapId);
+    }
+
+    /**
+     * Lock this Image
+     *
+     * @param level Lock level.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse lock(int level)
+    {
+        return rename(client, id, level);
+    }
+
+    /**
+     * Unlock this Image
+     *
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse unlock()
+    {
+        return rename(client, id);
     }
 
     // =================================
