@@ -1,0 +1,4 @@
+SHELL=/bin/bash
+
+# activate LVM volumes on reboot
+@reboot oneadmin test -x /var/tmp/one/tm/fs_lvm/activate && /var/tmp/one/tm/fs_lvm/activate >/dev/null 2>&1

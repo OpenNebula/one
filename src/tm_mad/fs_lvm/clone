@@ -107,6 +107,8 @@ CLONE_CMD=$(cat <<EOF
     set -e -o pipefail
     mkdir -p $DST_DIR
 
+    hostname -f >"${DST_DIR}/.host" || :
+
     $QEMU_IMG convert -O raw "$SRC_PATH" "$DEV"
     rm -f "$DST_PATH"
     ln -s "$DEV" "$DST_PATH"

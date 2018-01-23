@@ -940,7 +940,8 @@ TM_SHARED_FILES="src/tm_mad/shared/clone \
                  src/tm_mad/shared/cpds \
                  src/tm_mad/shared/resize"
 
-TM_FS_LVM_FILES="src/tm_mad/fs_lvm/clone \
+TM_FS_LVM_FILES="src/tm_mad/fs_lvm/activate \
+                 src/tm_mad/fs_lvm/clone \
                  src/tm_mad/fs_lvm/context \
                  src/tm_mad/fs_lvm/ln \
                  src/tm_mad/fs_lvm/monitor \
