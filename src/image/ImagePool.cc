@@ -297,7 +297,8 @@ int ImagePool::acquire_disk(int               vm_id,
                             int               uid,
                             int&              image_id,
                             Snapshots **      snap,
-                            string&           error_str)
+                            string&           error_str,
+                            bool              attach)
 {
     string  source;
     Image * img = 0;
@@ -314,7 +315,7 @@ int ImagePool::acquire_disk(int               vm_id,
 
     if ( disk->vector_value("IMAGE_ID", iid) == 0 )
     {
-        img = imagem->acquire_image(vm_id, iid, error_str);
+        img = imagem->acquire_image(vm_id, iid, error_str, attach);
 
         if ( img == 0 )
         {
@@ -336,7 +337,7 @@ int ImagePool::acquire_disk(int               vm_id,
             return -1;
         }
 
-        img = imagem->acquire_image(vm_id, source, uiid, error_str);
+        img = imagem->acquire_image(vm_id, source, uiid, error_str, attach);
 
         if ( img == 0 )
         {

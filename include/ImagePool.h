@@ -166,7 +166,8 @@ public:
                      int                uid,
                      int&               image_id,
                      Snapshots **       snaps,
-                     string&            error_str);
+                     string&            error_str,
+                     bool               attach);
     /**
      *  Generates a DISK attribute for VM templates using the Image metadata
      *
