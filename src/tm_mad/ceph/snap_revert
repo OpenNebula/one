@@ -105,6 +105,10 @@ if [ -n "$CEPH_USER" ]; then
     RBD="$RBD --id ${CEPH_USER}"
 fi
 
+if [ -n "$CEPH_KEY" ]; then
+    RBD="$RBD --keyfile ${CEPH_KEY}"
+fi
+
 if [ -n "$CEPH_CONF" ]; then
     RBD="$RBD --conf ${CEPH_CONF}"
 fi
