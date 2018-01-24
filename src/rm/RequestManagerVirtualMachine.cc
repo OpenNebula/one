@@ -69,7 +69,7 @@ bool RequestManagerVirtualMachine::vm_authorization(
     {
         string t_xml;
 
-        ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::IMAGE, 
+        ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::IMAGE,
                 tmpl->to_xml(t_xml));
     }
 

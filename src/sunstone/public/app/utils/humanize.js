@@ -34,7 +34,8 @@ define(function(require) {
     'prettyTimeAxis': _prettyTimeAxis,
     'prettyPrintJSON': _prettyPrintJSON,
     'prettyTimeAgo': _format_date,
-    'prettyTimeDatatable': _prettyTimeDatatable
+    'prettyTimeDatatable': _prettyTimeDatatable,
+    'lock_to_str': _lock_to_str
   }
 
   /*
@@ -299,7 +300,9 @@ define(function(require) {
     return difference_in_seconds;
 
     function _fourdigits(number)  {
-          return (number < 1000) ? number + 1900 : number;}
+      return (number < 1000) ? number + 1900 : number;
+    }
+
 
     //function _plural(number) {
     //  if(parseInt(number) === 1) {
@@ -307,5 +310,23 @@ define(function(require) {
     //  }
     //  return "s";
     //}
+  }
+  function _lock_to_str(level)  {
+    var level_str = "";
+    switch(level) {
+      case "1":
+        level_str = "Use";
+        break;
+      case "2":
+        level_str = "Manage";
+        break;
+      case "3":
+        level_str = "Admin";
+        break;
+      case "4":
+        level_str = "All";
+        break;
+    }
+    return level_str;
   }
 })

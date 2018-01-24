@@ -75,6 +75,10 @@ define(function(require) {
     "VM.recover": _commonActions.multipleAction('recover'),
     "VM.resched": _commonActions.multipleAction('resched'),
     "VM.unresched": _commonActions.multipleAction('unresched'),
+    "VM.lockM": _commonActions.multipleAction('lock'),
+    "VM.lockU": _commonActions.multipleAction('lock'),
+    "VM.lockA": _commonActions.multipleAction('lock'),
+    "VM.unlock": _commonActions.multipleAction('unlock'),
 
     "VM.chmod": _commonActions.singleAction('chmod'),
     "VM.rename": _commonActions.singleAction('rename'),

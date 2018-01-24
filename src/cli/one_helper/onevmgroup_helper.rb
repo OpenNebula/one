@@ -102,6 +102,7 @@ class OneVMGroupHelper < OpenNebulaHelper::OneHelper
         puts str % ["NAME", vmgroup.name]
         puts str % ["USER", vmgroup['UNAME']]
         puts str % ["GROUP", vmgroup['GNAME']]
+        puts str % ["LOCK", OpenNebulaHelper.level_lock_to_str(vmgroup['LOCK/LOCKED'])]
 
         CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
 

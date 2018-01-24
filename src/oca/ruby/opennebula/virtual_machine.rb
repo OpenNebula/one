@@ -47,7 +47,9 @@ module OpenNebula
             :disksnapshotrevert => "vm.disksnapshotrevert",
             :disksnapshotdelete => "vm.disksnapshotdelete",
             :diskresize     => "vm.diskresize",
-            :updateconf     => "vm.updateconf"
+            :updateconf     => "vm.updateconf",
+            :lock     => "vm.lock",
+            :unlock     => "vm.unlock"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
@@ -686,7 +688,17 @@ module OpenNebula
         #   otherwise
 		def updateconf(new_conf)
             return call(VM_METHODS[:updateconf], @pe_id, new_conf)
-		end
+        end
+
+        # Lock a VM
+        def lock(level)
+            return call(VM_METHODS[:lock], @pe_id, level)
+        end
+
+        # Unlock a VM
+        def unlock()
+            return call(VM_METHODS[:unlock], @pe_id)
+        end
 
         ########################################################################
         # Helpers to get VirtualMachine information
@@ -853,7 +865,7 @@ module OpenNebula
                     REMOVE_VNET_ATTRS.each do |attr|
                         nic.delete_element(attr)
                     end
-                    
+
                     replace << "NIC = [ " << nic.template_like_str(".").tr("\n", ",\n") << " ] \n"
                 end
 

@@ -16,6 +16,7 @@
 
 define(function(require) {
   var Locale = require('utils/locale');
+  var Tips = require('utils/tips');
 
   var Buttons = {
     "VirtualRouter.refresh" : {
@@ -53,6 +54,29 @@ define(function(require) {
     },
     "VirtualRouter.edit_labels" : {
       layout: "labels",
+    },
+    "VirtualRouter.lockA" : {
+      type: "action",
+      text: Locale.tr("Admin") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Lock Admin actions")) + "</span>",
+      layout: "lock_buttons",
+      data: 3
+    },
+    "VirtualRouter.lockM" : {
+      type: "action",
+      text: Locale.tr("Manage") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Lock Manage actions")) + "</span>",
+      layout: "lock_buttons",
+      data: 2
+    },
+    "VirtualRouter.lockU" : {
+      type: "action",
+      text: Locale.tr("Use") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Lock Use actions")) + "</span>",
+      layout: "lock_buttons",
+      data: 1
+    },
+    "VirtualRouter.unlock" : {
+      type: "action",
+      text: Locale.tr("Unlock") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Unlock all actions")) + "</span>",
+      layout: "lock_buttons"
     }
   };
 

@@ -265,6 +265,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         puts str % ["NAME", image.name]
         puts str % ["USER", image['UNAME']]
         puts str % ["GROUP",image['GNAME']]
+        puts str % ["LOCK", OpenNebulaHelper.level_lock_to_str(image['LOCK/LOCKED'])]
         puts str % ["DATASTORE",image['DATASTORE']]
         puts str % ["TYPE", image.type_str]
         puts str % ["REGISTER TIME",

@@ -56,7 +56,7 @@ void AuthRequest::add_auth(Operation             op,
         oss << ob_perms.oid << ":";
     }
 
-    oss << operation_to_str(op) << ":";
+    oss << operation_to_str(static_cast<AuthRequest::Operation>(op & 0x0FLL)) << ":";
 
     oss << ob_perms.uid << ":";
 

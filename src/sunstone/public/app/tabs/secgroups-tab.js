@@ -48,6 +48,7 @@ define(function(require) {
     parentTab: "network-top-tab",
     listHeader: Locale.tr("Security Groups"),
     infoHeader: Locale.tr("Security Group"),
+    lockable: false,
     subheader: '<span>\
         <span class="total_secgroups"/> <small>'+Locale.tr("TOTAL")+'</small>\
       </span>',

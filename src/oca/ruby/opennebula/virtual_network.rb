@@ -38,7 +38,9 @@ module OpenNebula
             :release    => "vn.release",
             :rename     => "vn.rename",
             :reserve    => "vn.reserve",
-            :free_ar    => "vn.free_ar"
+            :free_ar    => "vn.free_ar",
+            :lock       => "vn.lock",
+            :unlock     => "vn.unlock"
         }
 
         # Creates a VirtualNetwork description with just its identifier
@@ -328,6 +330,14 @@ module OpenNebula
             end
 
             return array
+        end
+
+        def lock(level)
+            return call(VN_METHODS[:lock], @pe_id, level)
+        end
+
+        def unlock()
+            return call(VN_METHODS[:unlock], @pe_id)
         end
 
     private

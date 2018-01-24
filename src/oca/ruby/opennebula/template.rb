@@ -33,7 +33,9 @@ module OpenNebula
             :chown       => "template.chown",
             :chmod       => "template.chmod",
             :clone       => "template.clone",
-            :rename      => "template.rename"
+            :rename      => "template.rename",
+            :lock        => "template.lock",
+            :unlock      => "template.unlock"
         }
 
         # Creates a Template description with just its identifier
@@ -239,6 +241,16 @@ module OpenNebula
 
         def owner_id
             self['UID'].to_i
+        end
+
+        # Lock a Template
+        def lock(level)
+            return call(TEMPLATE_METHODS[:lock], @pe_id, level)
+        end
+
+        # Unlock a Template
+        def unlock()
+            return call(TEMPLATE_METHODS[:unlock], @pe_id)
         end
 
         def public?

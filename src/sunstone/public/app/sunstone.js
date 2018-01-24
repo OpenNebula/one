@@ -269,6 +269,7 @@ define(function(require) {
         }
 
         var type = button.type + "_button";
+        var data = "";
         var strClass = [type];
         switch (button.type) {
         case "select":
@@ -290,6 +291,10 @@ define(function(require) {
 
         if (button.custom_classes) {
           strClass.push(button.custom_classes);
+        }
+
+        if (button.data) {
+          data = button.data;
         }
 
         var buttonContext;
@@ -329,6 +334,11 @@ define(function(require) {
           text = button.text;
           strClass.push("button");
           buttonCode = "<button class=\"" + strClass.join(" ") + "\" href=\"" + buttonName + "\">" + text + "</button>";
+          break;
+        case "lock_buttons":
+          buttonContext = $("#" + customId + "lock_buttons", buttonsRow);
+          text = button.text;
+          buttonCode = "<li><a class=\"" + strClass.join(" ") + "\" href=\"" + buttonName + "\" data=\"" + data + "\">" + text + "</a></li>";
           break;
         case "vmspause_buttons":
           buttonContext = $("#" + customId + "vmspause_buttons", buttonsRow);
@@ -416,8 +426,8 @@ define(function(require) {
         $("button[data-toggle=" + customId + "vmsstop_buttons]", actionBlock).remove();
       }
 
-      if ($("#" + customId + "vmspause_buttons li", actionBlock).length == 0) {
-        $("button[data-toggle=" + customId + "vmspause_buttons]", actionBlock).remove();
+      if ($("#" + customId + "lock_buttons li", actionBlock).length == 0) {
+        $("button[data-toggle=" + customId + "lock_buttons]", actionBlock).remove();
       }
 
       if ($("#" + customId + "vmsrepeat_buttons li", actionBlock).length == 0) {
@@ -459,6 +469,7 @@ define(function(require) {
     $(document).on("click", ".action_button", function() {
       var error = 0;
       var value = $(this).val();
+      var data = ($(this).attr("data") == "")? undefined: $(this).attr("data");
       if ($.isEmptyObject(value)) {
         value = $(this).attr("href");
       }
@@ -474,10 +485,10 @@ define(function(require) {
       case "multiple": //find the datatable
         var context = $(this).parents(".tab");
         var nodes = action.elements();
-        error = _runAction(value, nodes);
+        error = _runAction(value, nodes, data);
         break;
       default:
-        error = _runAction(value);
+        error = _runAction(value,undefined, data);
       }
 
       return false;

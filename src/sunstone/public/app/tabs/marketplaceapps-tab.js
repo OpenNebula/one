@@ -52,6 +52,7 @@ define(function(require) {
     parentTab: "storage-top-tab",
     listHeader: Locale.tr("Apps"),
     infoHeader: Locale.tr("App"),
+    lockable: true,
     subheader: '<span>\
         <span class="total_apps"/> <small>'+Locale.tr("TOTAL")+'</small>\
       </span>',

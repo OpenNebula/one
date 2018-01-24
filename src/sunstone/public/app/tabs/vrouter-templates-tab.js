@@ -48,6 +48,7 @@ define(function(require) {
     parentTab: "templates-top-tab",
     listHeader: Locale.tr("Virtual Router VM Templates"),
     infoHeader: Locale.tr("Virtual Router VM Template"),
+    lockable: true,
     subheader: '<span>\
         <span class="total_vrouters"/> <small>'+Locale.tr("TOTAL")+'</small>\
       </span>',

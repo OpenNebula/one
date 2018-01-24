@@ -45,7 +45,7 @@ define(function(require) {
       _actions[resource+".show"] =  _commonActions.show(),
       _actions[resource+".refresh"] =  _commonActions.refresh(),
       _actions[resource+".delete"] =  _commonActions.del(),
-      
+
       _actions[resource+".delete_dialog"] =
         {
           type: "custom",
@@ -250,9 +250,13 @@ define(function(require) {
         },
         error: Notifier.onError,
         notify: true
-      }
+      },
+      _actions[resource+".lockA"] =  _commonActions.multipleAction("lock"),
+      _actions[resource+".lockM"] =  _commonActions.multipleAction("lock"),
+      _actions[resource+".lockU"] =  _commonActions.multipleAction("lock"),
+      _actions[resource+".unlock"] =  _commonActions.multipleAction("unlock")
 
-  
+
     return _actions;
   }
 
