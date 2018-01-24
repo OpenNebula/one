@@ -77,25 +77,25 @@ define(function(require) {
     },
     "Network.lockA" : {
       type: "action",
-      text: Locale.tr("Admin") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Lock Admin actions")) + "</span>",
+      text: Locale.tr("Admin"),
       layout: "lock_buttons",
       data: 3
     },
     "Network.lockM" : {
       type: "action",
-      text: Locale.tr("Manage") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Lock Manage actions")) + "</span>",
+      text: Locale.tr("Manage"),
       layout: "lock_buttons",
       data: 2
     },
     "Network.lockU" : {
       type: "action",
-      text: Locale.tr("Use") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Lock Use actions")) + "</span>",
+      text: Locale.tr("Use"),
       layout: "lock_buttons",
       data: 1
     },
     "Network.unlock" : {
       type: "action",
-      text: Locale.tr("Unlock") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Unlock all actions")) + "</span>",
+      text: Locale.tr("Unlock"),
       layout: "lock_buttons"
     }
   };
