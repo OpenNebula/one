@@ -430,6 +430,10 @@ define(function(require) {
         $("button[data-toggle=" + customId + "lock_buttons]", actionBlock).remove();
       }
 
+      if ($("#" + customId + "vmspause_buttons li", actionBlock).length == 0) {
+        $("button[data-toggle=" + customId + "vmspause_buttons]", actionBlock).remove();
+      }
+
       if ($("#" + customId + "vmsrepeat_buttons li", actionBlock).length == 0) {
         $("button[data-toggle=" + customId + "vmsrepeat_buttons]", actionBlock).remove();
       }
