@@ -503,9 +503,18 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
     }
     else if (valid > 0 || valid == -1)
     {
-        if ( egid != -1 && !user->is_in_group(egid) )
+        if ( egid != -1 && (!user->is_in_group(egid) || att.group_ids.find(egid) == att.group_ids.end()) )
         {
             att.resp_msg = "EGID is not in user group list";
+            failure_response(XML_RPC_API,  att);
+
+            user->unlock();
+            return;
+        }
+
+        if ( egid == -1 && user->get_groups() != att.group_ids )
+        {
+            att.resp_msg = "Cannot request unscoped token from scoped token";
             failure_response(XML_RPC_API,  att);
 
             user->unlock();
