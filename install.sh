@@ -247,12 +247,14 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/vcenter.d \
           $VAR_LOCATION/remotes/im/ec2.d \
           $VAR_LOCATION/remotes/im/az.d \
+          $VAR_LOCATION/remotes/im/one.d \
           $VAR_LOCATION/remotes/vmm \
           $VAR_LOCATION/remotes/vmm/lib \
           $VAR_LOCATION/remotes/vmm/kvm \
           $VAR_LOCATION/remotes/vmm/vcenter \
           $VAR_LOCATION/remotes/vmm/ec2 \
           $VAR_LOCATION/remotes/vmm/az \
+          $VAR_LOCATION/remotes/vmm/one \
           $VAR_LOCATION/remotes/vnm \
           $VAR_LOCATION/remotes/vnm/802.1Q \
           $VAR_LOCATION/remotes/vnm/vxlan \
@@ -377,6 +379,7 @@ INSTALL_FILES=(
     IM_PROBES_VCENTER_FILES:$VAR_LOCATION/remotes/im/vcenter.d
     IM_PROBES_EC2_FILES:$VAR_LOCATION/remotes/im/ec2.d
     IM_PROBES_AZ_FILES:$VAR_LOCATION/remotes/im/az.d
+    IM_PROBES_ONE_FILES:$VAR_LOCATION/remotes/im/one.d
     IM_PROBES_VERSION:$VAR_LOCATION/remotes
     AUTH_SSH_FILES:$VAR_LOCATION/remotes/auth/ssh
     AUTH_X509_FILES:$VAR_LOCATION/remotes/auth/x509
@@ -391,6 +394,7 @@ INSTALL_FILES=(
     VMM_EXEC_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/vmm/vcenter
     VMM_EXEC_EC2_SCRIPTS:$VAR_LOCATION/remotes/vmm/ec2
     VMM_EXEC_AZ_SCRIPTS:$VAR_LOCATION/remotes/vmm/az
+    VMM_EXEC_ONE_SCRIPTS:$VAR_LOCATION/remotes/vmm/one
     TM_FILES:$VAR_LOCATION/remotes/tm
     TM_SHARED_FILES:$VAR_LOCATION/remotes/tm/shared
     TM_FS_LVM_FILES:$VAR_LOCATION/remotes/tm/fs_lvm
@@ -597,7 +601,8 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/sunstone/OpenNebulaVNC.rb \
                 src/vmm_mad/remotes/vcenter/vcenter_driver.rb \
                 src/vmm_mad/remotes/az/az_driver.rb \
-                src/vmm_mad/remotes/ec2/ec2_driver.rb"
+                src/vmm_mad/remotes/ec2/ec2_driver.rb \
+                src/vmm_mad/remotes/one/opennebula_driver.rb"
 
 #-------------------------------------------------------------------------------
 # Ruby auth library files, to be installed under $LIB_LOCATION/ruby/opennebula
@@ -771,6 +776,30 @@ VMM_EXEC_AZ_SCRIPTS="src/vmm_mad/remotes/az/cancel \
                      src/vmm_mad/remotes/az/prereconfigure \
                      src/vmm_mad/remotes/az/resize_disk"
 
+#------------------------------------------------------------------------------
+# VMM Driver opennebula scripts, to be installed under $REMOTES_LOCATION/vmm/one
+#------------------------------------------------------------------------------
+
+VMM_EXEC_ONE_SCRIPTS="src/vmm_mad/remotes/one/cancel \
+                     src/vmm_mad/remotes/one/attach_disk \
+                     src/vmm_mad/remotes/one/detach_disk \
+                     src/vmm_mad/remotes/one/attach_nic \
+                     src/vmm_mad/remotes/one/detach_nic \
+                     src/vmm_mad/remotes/one/snapshot_create \
+                     src/vmm_mad/remotes/one/snapshot_revert \
+                     src/vmm_mad/remotes/one/snapshot_delete \
+                     src/vmm_mad/remotes/one/deploy \
+                     src/vmm_mad/remotes/one/migrate \
+                     src/vmm_mad/remotes/one/migrate_local \
+                     src/vmm_mad/remotes/one/restore \
+                     src/vmm_mad/remotes/one/reboot \
+                     src/vmm_mad/remotes/one/reset \
+                     src/vmm_mad/remotes/one/save \
+                     src/vmm_mad/remotes/one/poll \
+                     src/vmm_mad/remotes/one/shutdown \
+                     src/vmm_mad/remotes/one/reconfigure \
+                     src/vmm_mad/remotes/one/prereconfigure"
+
 #-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $REMOTES_LOCATION/im
 #-------------------------------------------------------------------------------
@@ -796,6 +825,8 @@ IM_PROBES_VCENTER_FILES="src/im_mad/remotes/vcenter.d/poll"
 IM_PROBES_EC2_FILES="src/im_mad/remotes/ec2.d/poll"
 
 IM_PROBES_AZ_FILES="src/im_mad/remotes/az.d/poll"
+
+IM_PROBES_ONE_FILES="src/im_mad/remotes/one.d/poll"
 
 IM_PROBES_VERSION="src/im_mad/remotes/VERSION"
 
