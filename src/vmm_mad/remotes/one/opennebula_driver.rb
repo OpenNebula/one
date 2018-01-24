@@ -130,7 +130,7 @@ class OpenNebulaDriver
 
   # DEPLOY action, also sets ports and ip if needed
   def deploy(id, host, xml_text, lcm_state, deploy_id)
-    if true || lcm_state == "BOOT" || lcm_state == "BOOT_FAILURE"
+    if lcm_state == "BOOT" || lcm_state == "BOOT_FAILURE"
       one_info = get_deployment_info(host, xml_text)
 
       #load_default_template_values
