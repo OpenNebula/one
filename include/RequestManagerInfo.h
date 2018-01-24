@@ -33,7 +33,7 @@ protected:
                        const string& help)
         :Request(method_name, "A:si", help)
     {
-        auth_op = AuthRequest::USE;
+        auth_op = AuthRequest::USE_NO_LCK;
 
         leader_only = false;
     };

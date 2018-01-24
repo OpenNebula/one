@@ -131,7 +131,8 @@ public:
         ACTION         = 0x0800,
         XML_RPC_API    = 0x1000,
         INTERNAL       = 0x2000,
-        ALLOCATE       = 0x4000
+        ALLOCATE       = 0x4000,
+        LOCKED         = 0x8000
     };
 
     /**

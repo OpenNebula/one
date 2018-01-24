@@ -32,7 +32,7 @@ protected:
     RequestManagerVirtualMachine(const string& method_name,
                        const string& help,
                        const string& params)
-        :Request(method_name,params,help)
+        :Request(method_name, params, help)
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
@@ -193,13 +193,17 @@ public:
         RequestManagerVirtualMachine("one.vm.monitoring",
                 "Returns the virtual machine monitoring records",
                 "A:si"){
-        auth_op = AuthRequest::USE;
+        auth_op = AuthRequest::USE_NO_LCK;
     };
 
     ~VirtualMachineMonitoring(){};
 
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+
+    virtual bool is_locked(xmlrpc_c::paramList const& paramList, RequestAttributes& att){
+        return false;
+    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -520,9 +524,6 @@ public:
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att);
 };
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
 class VirtualMachineDiskResize : public RequestManagerVirtualMachine
 {

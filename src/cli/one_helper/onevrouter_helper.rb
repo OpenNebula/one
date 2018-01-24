@@ -109,6 +109,7 @@ class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
         puts str % ["NAME", obj.name]
         puts str % ["USER", obj['UNAME']]
         puts str % ["GROUP", obj['GNAME']]
+        puts str % ["LOCK", OpenNebulaHelper.level_lock_to_str(obj['LOCK/LOCKED'])]
         puts
 
         CLIHelper.print_header(str_h1 % "PERMISSIONS",false)

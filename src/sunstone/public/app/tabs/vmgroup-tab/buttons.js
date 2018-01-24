@@ -17,6 +17,7 @@
 define(function(require) {
   var Locale = require('utils/locale');
   var TemplateButtons = require('tabs/templates-tab/buttons');
+  var Tips = require('utils/tips');
 
   var Buttons = {
     "VMGroup.refresh" : {
@@ -51,6 +52,29 @@ define(function(require) {
       type: "confirm",
       text: Locale.tr("Delete"),
       layout: "del"
+    },
+    "VMGroup.lockA" : {
+      type: "action",
+      text: Locale.tr("Admin") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Lock Admin actions")) + "</span>",
+      layout: "lock_buttons",
+      data: 3
+    },
+    "VMGroup.lockM" : {
+      type: "action",
+      text: Locale.tr("Manage") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Lock Manage actions")) + "</span>",
+      layout: "lock_buttons",
+      data: 2
+    },
+    "VMGroup.lockU" : {
+      type: "action",
+      text: Locale.tr("Use") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Lock Use actions")) + "</span>",
+      layout: "lock_buttons",
+      data: 1
+    },
+    "VMGroup.unlock" : {
+      type: "action",
+      text: Locale.tr("Unlock") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Unlock all actions")) + "</span>",
+      layout: "lock_buttons"
     }/*,
     "VMGroup.edit_labels" : {
       layout: "labels",

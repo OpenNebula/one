@@ -64,6 +64,10 @@ define(function(require) {
     "Image.snapshot_flatten": _commonActions.singleAction("snapshot_flatten"),
     "Image.snapshot_revert": _commonActions.singleAction("snapshot_revert"),
     "Image.snapshot_delete": _commonActions.singleAction("snapshot_delete"),
+    "Image.lockM": _commonActions.multipleAction('lock'),
+    "Image.lockU": _commonActions.multipleAction('lock'),
+    "Image.lockA": _commonActions.multipleAction('lock'),
+    "Image.unlock": _commonActions.multipleAction('unlock'),
     "Image.upload_marketplace_dialog" : {
       type: "custom",
       call: function(params) {

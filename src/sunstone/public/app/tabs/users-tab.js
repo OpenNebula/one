@@ -56,6 +56,7 @@ define(function(require) {
     parentTab: "system-top-tab",
     listHeader: Locale.tr("Users"),
     infoHeader: Locale.tr("User"),
+    lockable: false,
     subheader: '<span>\
         <span class="total_users"/> <small>'+Locale.tr("TOTAL")+'</small>\
       </span>',

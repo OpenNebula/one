@@ -208,6 +208,7 @@ string& VMTemplate::to_xml(string& xml, const Template* tmpl) const
     ostringstream   oss;
     string          template_xml;
     string          perm_str;
+    string          lock_str;
 
     oss << "<VMTEMPLATE>"
             << "<ID>"       << oid        << "</ID>"
@@ -216,6 +217,7 @@ string& VMTemplate::to_xml(string& xml, const Template* tmpl) const
             << "<UNAME>"    << uname      << "</UNAME>"
             << "<GNAME>"    << gname      << "</GNAME>"
             << "<NAME>"     << name       << "</NAME>"
+            << lock_db_to_xml(lock_str)
             << perms_to_xml(perm_str)
             << "<REGTIME>"  << regtime    << "</REGTIME>"
             << tmpl->to_xml(template_xml)
@@ -246,6 +248,7 @@ int VMTemplate::from_xml(const string& xml)
     rc += xpath(name,       "/VMTEMPLATE/NAME",    "not_found");
     rc += xpath<time_t>(regtime, "/VMTEMPLATE/REGTIME", 0);
 
+    rc += lock_db_from_xml();
     // Permissions
     rc += perms_from_xml();
 

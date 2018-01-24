@@ -70,6 +70,19 @@ public:
         VMGROUP        = 0x0020000000000000LL
     };
 
+    /**
+     *  OpenNebula objects. This definitions are used for define the level of lock
+     */
+    enum LockStates
+    {
+        ST_NONE      = 0x0LL,
+        ST_USE       = 0x1LL,
+        ST_MANAGE    = 0x2LL,
+        ST_ADMIN     = 0x4LL
+    };
+
+    static const long int LockableObject;
+
     static string type_to_str(ObjectType ob)
     {
         switch (ob)
@@ -92,6 +105,18 @@ public:
             case MARKETPLACE:    return "MARKETPLACE" ; break;
             case MARKETPLACEAPP: return "MARKETPLACEAPP" ; break;
             case VMGROUP:        return "VMGROUP" ; break;
+            default:             return "";
+        }
+    };
+
+    static string lock_state_to_str(LockStates ob)
+    {
+        switch (ob)
+        {
+            case ST_NONE:        return "NONE" ; break;
+            case ST_USE:         return "USE" ; break;
+            case ST_MANAGE:      return "MANAGE" ; break;
+            case ST_ADMIN:       return "ADMIN" ; break;
             default:             return "";
         }
     };
@@ -126,9 +151,10 @@ public:
              other_m(0),
              other_a(0),
              obj_template(0),
-             locked(false),
-             lock_owner(""),
-             lock_expires(0),
+             locked(LockStates::ST_NONE),
+             lock_owner(-1),
+             lock_req_id(-1),
+             lock_time(0),
              table(_table)
     {
         pthread_mutex_init(&mutex,0);
@@ -520,7 +546,7 @@ public:
      *
      * @return 0 if the lock was granted, -1 if the object is already locked
      */
-    int lock_db(const string& owner);
+    int lock_db(const int owner,const int req_id, const int level);
 
     /**
      * Unlocks the DB lock for external applications. The object must be locked
@@ -528,7 +554,17 @@ public:
      *
      * @param owner String to identify who requested the lock
      */
-    void unlock_db(const string& owner);
+    void unlock_db(const int owner, const int req_id);
+
+    /**
+     * Unlocks the DB lock for external applications. The object must be locked
+     * (internal memory mutex) before this method is called
+     *
+     * @param owner String to identify who requested the lock
+     */
+    LockStates get_lock_state(){
+        return locked;
+    }
 
 protected:
 
@@ -730,17 +766,22 @@ protected:
     /**
      *  Flag for the DB lock
      */
-    bool    locked;
+    LockStates    locked;
 
     /**
      *  Owner of the DB lock
      */
-    string  lock_owner;
+    int  lock_owner;
+
+    /**
+     *  Owner of the DB lock
+     */
+    int  lock_req_id;
 
     /**
      *  Expiration time for the DB lock
      */
-    time_t  lock_expires;
+    time_t  lock_time;
 
 private:
     /**

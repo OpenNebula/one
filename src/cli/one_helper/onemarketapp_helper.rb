@@ -150,6 +150,7 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
         puts str % ["GROUP", app['GNAME']]
         puts str % ["MARKETPLACE", app['MARKETPLACE']]
         puts str % ["STATE", OneMarketPlaceAppHelper.state_to_str(app["STATE"])]
+        puts str % ["LOCK", OpenNebulaHelper.level_lock_to_str(app['LOCK/LOCKED'])]
 
         puts
 

@@ -50,6 +50,7 @@ define(function(require) {
     parentTab: "instances-top-tab",
     listHeader: Locale.tr("Services"),
     infoHeader: Locale.tr("Service"),
+    lockable: false,
     subheader: '',
     content: '<div class="row oneflow_services_error_message" hidden>\
         <div class="small-6 columns small-centered text-center">\

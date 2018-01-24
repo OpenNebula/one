@@ -48,6 +48,7 @@ define(function(require) {
     parentTab: "system-top-tab",
     listHeader: Locale.tr("Virtual Data Centers"),
     infoHeader: Locale.tr("Virtual Data Center"),
+    lockable: false,
     subheader: '<span>\
         <span class="total_vdcs"/> <small>'+Locale.tr("TOTAL")+'</small>\
       </span>',

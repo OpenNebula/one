@@ -382,6 +382,18 @@ void RequestManager::register_xml_methods()
     // Lock Methods
     xmlrpc_c::methodPtr doc_lock(new DocumentLock());
     xmlrpc_c::methodPtr doc_unlock(new DocumentUnlock());
+    xmlrpc_c::methodPtr vm_lock(new VirtualMachineLock());
+    xmlrpc_c::methodPtr vm_unlock(new VirtualMachineUnlock());
+    xmlrpc_c::methodPtr template_lock(new VMTemplateLock());
+    xmlrpc_c::methodPtr template_unlock(new VMTemplateUnlock());
+    xmlrpc_c::methodPtr vn_lock(new VirtualNetworkLock());
+    xmlrpc_c::methodPtr vn_unlock(new VirtualNetworkUnlock());
+    xmlrpc_c::methodPtr image_lock(new ImageLock());
+    xmlrpc_c::methodPtr image_unlock(new ImageUnlock());
+    xmlrpc_c::methodPtr vrouter_lock(new VirtualRouterLock());
+    xmlrpc_c::methodPtr vrouter_unlock(new VirtualRouterUnlock());
+    xmlrpc_c::methodPtr vmg_lock(new VMGroupLock());
+    xmlrpc_c::methodPtr vmg_unlock(new VMGroupUnlock());
 
     // PoolInfo Methods
     xmlrpc_c::methodPtr hostpool_info(new HostPoolInfo());
@@ -495,6 +507,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.disksnapshotdelete", vm_dsnap_delete);
     RequestManagerRegistry.addMethod("one.vm.recover", vm_recover);
     RequestManagerRegistry.addMethod("one.vm.updateconf", vm_updateconf);
+    RequestManagerRegistry.addMethod("one.vm.lock", vm_lock);
+    RequestManagerRegistry.addMethod("one.vm.unlock", vm_unlock);
     RequestManagerRegistry.addMethod("one.vm.diskresize", vm_disk_resize);
 
     RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);
@@ -513,7 +527,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.template.chmod", template_chmod);
     RequestManagerRegistry.addMethod("one.template.clone", template_clone);
     RequestManagerRegistry.addMethod("one.template.rename", template_rename);
-
+    RequestManagerRegistry.addMethod("one.template.lock", template_lock);
+    RequestManagerRegistry.addMethod("one.template.unlock", template_unlock);
     RequestManagerRegistry.addMethod("one.templatepool.info",template_pool_info);
 
     /* Host related methods*/
@@ -593,6 +608,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vn.chown", vn_chown);
     RequestManagerRegistry.addMethod("one.vn.chmod", vn_chmod);
     RequestManagerRegistry.addMethod("one.vn.rename", vn_rename);
+    RequestManagerRegistry.addMethod("one.vn.lock", vn_lock);
+    RequestManagerRegistry.addMethod("one.vn.unlock", vn_unlock);
 
     RequestManagerRegistry.addMethod("one.vnpool.info", vnpool_info);
 
@@ -685,6 +702,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.image.snapshotdelete", image_snap_delete);
     RequestManagerRegistry.addMethod("one.image.snapshotrevert", image_snap_revert);
     RequestManagerRegistry.addMethod("one.image.snapshotflatten", image_snap_flatten);
+    RequestManagerRegistry.addMethod("one.image.lock", image_lock);
+    RequestManagerRegistry.addMethod("one.image.unlock", image_unlock);
 
     RequestManagerRegistry.addMethod("one.imagepool.info", imagepool_info);
 
@@ -833,6 +852,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vmgroup.chmod",    vmg_chmod);
     RequestManagerRegistry.addMethod("one.vmgroup.rename",   vmg_rename);
     RequestManagerRegistry.addMethod("one.vmgroup.update",   vmg_update);
+    RequestManagerRegistry.addMethod("one.vmgroup.lock",     vmg_lock);
+    RequestManagerRegistry.addMethod("one.vmgroup.unlock",   vmg_unlock);
 
     RequestManagerRegistry.addMethod("one.vmgrouppool.info", vmgpool_info);
 
@@ -943,6 +964,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vrouter.instantiate",vrouter_instantiate);
     RequestManagerRegistry.addMethod("one.vrouter.attachnic", vrouter_attachnic);
     RequestManagerRegistry.addMethod("one.vrouter.detachnic", vrouter_detachnic);
+    RequestManagerRegistry.addMethod("one.vrouter.lock", vrouter_lock);
+    RequestManagerRegistry.addMethod("one.vrouter.unlock", vrouter_unlock);
 
     RequestManagerRegistry.addMethod("one.vrouterpool.info",vrouter_pool_info);
 
@@ -1008,6 +1031,8 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::method * marketapp_chown_pt;
     xmlrpc_c::method * marketapp_enable_pt;
     xmlrpc_c::method * marketapp_rename_pt;
+    xmlrpc_c::method * marketapp_lock_pt;
+    xmlrpc_c::method * marketapp_unlock_pt;
 
     if (nebula.is_federation_slave())
     {
@@ -1016,6 +1041,8 @@ void RequestManager::register_xml_methods()
         marketapp_chown_pt    = new RequestManagerProxy("one.marketapp.chown");
         marketapp_enable_pt   = new RequestManagerProxy("one.marketapp.enable");
         marketapp_rename_pt   = new RequestManagerProxy("one.marketapp.rename");
+        marketapp_lock_pt   = new RequestManagerProxy("one.marketapp.lock");
+        marketapp_unlock_pt   = new RequestManagerProxy("one.marketapp.unlock");
     }
     else
     {
@@ -1024,6 +1051,8 @@ void RequestManager::register_xml_methods()
         marketapp_chown_pt    = new MarketPlaceAppChown();
         marketapp_enable_pt   = new MarketPlaceAppEnable();
         marketapp_rename_pt   = new MarketPlaceAppRename();
+        marketapp_lock_pt   = new MarketPlaceAppLock();
+        marketapp_unlock_pt   = new MarketPlaceAppUnlock();
 
         xmlrpc_c::methodPtr marketapp_updatedb(new MarketPlaceAppUpdateDB());
         xmlrpc_c::methodPtr marketapp_dropdb(new MarketPlaceAppDropDB());
@@ -1046,6 +1075,8 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr marketapp_chown(marketapp_chown_pt);
     xmlrpc_c::methodPtr marketapp_enable(marketapp_enable_pt);
     xmlrpc_c::methodPtr marketapp_rename(marketapp_rename_pt);
+    xmlrpc_c::methodPtr marketapp_lock(marketapp_lock_pt);
+    xmlrpc_c::methodPtr marketapp_unlock(marketapp_unlock_pt);
 
     xmlrpc_c::methodPtr marketapp_info(new MarketPlaceAppInfo());
     xmlrpc_c::methodPtr marketapppool_info(new MarketPlaceAppPoolInfo());
@@ -1056,6 +1087,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.marketapp.chmod", marketapp_chmod);
     RequestManagerRegistry.addMethod("one.marketapp.chown", marketapp_chown);
     RequestManagerRegistry.addMethod("one.marketapp.enable", marketapp_enable);
+    RequestManagerRegistry.addMethod("one.marketapp.lock", marketapp_lock);
+    RequestManagerRegistry.addMethod("one.marketapp.unlock", marketapp_unlock);
 
     RequestManagerRegistry.addMethod("one.marketapp.info", marketapp_info);
     RequestManagerRegistry.addMethod("one.marketapp.rename", marketapp_rename);

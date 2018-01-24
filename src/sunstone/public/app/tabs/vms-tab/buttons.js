@@ -197,6 +197,29 @@ define(function(require) {
     },
     "VM.edit_labels" : {
       layout: "labels",
+    },
+    "VM.lockA" : {
+      type: "action",
+      text: Locale.tr("Admin") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Lock Admin actions")) + "</span>",
+      layout: "lock_buttons",
+      data: 3
+    },
+    "VM.lockM" : {
+      type: "action",
+      text: Locale.tr("Manage") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Lock Manage actions")) + "</span>",
+      layout: "lock_buttons",
+      data: 2
+    },
+    "VM.lockU" : {
+      type: "action",
+      text: Locale.tr("Use") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Lock Use actions")) + "</span>",
+      layout: "lock_buttons",
+      data: 1
+    },
+    "VM.unlock" : {
+      type: "action",
+      text: Locale.tr("Unlock") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Unlock all actions")) + "</span>",
+      layout: "lock_buttons"
     }
   }
   return Buttons;

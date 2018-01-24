@@ -321,6 +321,7 @@ EOT
         puts str % ["NAME", template.name]
         puts str % ["USER", template['UNAME']]
         puts str % ["GROUP", template['GNAME']]
+        puts str % ["LOCK", OpenNebulaHelper.level_lock_to_str(template['LOCK/LOCKED'])]
         puts str % ["REGISTER TIME",
             OpenNebulaHelper.time_to_str(template['REGTIME'])]
         puts

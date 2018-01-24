@@ -291,6 +291,13 @@ define(function(require) {
       _simple_action(params, resource, "chown", action_obj, path);
     },
 
+    "lock": function(params, resource, path) {
+      var level = params.data.extra_param;
+      var action_obj = {"level": level};
+
+      _simple_action(params, resource, "lock", action_obj, path);
+    },
+
     "chgrp": function(params, resource, path) {
       var id = params.data.extra_param;
       var action_obj = {"owner_id": "-1",
