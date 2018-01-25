@@ -25,7 +25,8 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Image * ImageManager::acquire_image(int vm_id, int image_id, string& error, bool attach)
+Image * ImageManager::acquire_image(int vm_id, int image_id, bool attach,
+        string& error)
 {
     Image * img;
     int     rc;
@@ -41,7 +42,7 @@ Image * ImageManager::acquire_image(int vm_id, int image_id, string& error, bool
         return 0;
     }
 
-    rc = acquire_image(vm_id, img, error, attach);
+    rc = acquire_image(vm_id, img, attach, error);
 
     if ( rc != 0 )
     {
@@ -54,7 +55,8 @@ Image * ImageManager::acquire_image(int vm_id, int image_id, string& error, bool
 
 /* -------------------------------------------------------------------------- */
 
-Image * ImageManager::acquire_image(int vm_id, const string& name, int uid, string& error, bool attach)
+Image * ImageManager::acquire_image(int vm_id, const string& name, int uid,
+        bool attach, string& error)
 {
     Image * img;
     int     rc;
@@ -71,7 +73,7 @@ Image * ImageManager::acquire_image(int vm_id, const string& name, int uid, stri
         return 0;
     }
 
-    rc = acquire_image(vm_id, img, error, attach);
+    rc = acquire_image(vm_id, img, attach, error);
 
     if ( rc != 0 )
     {
@@ -84,7 +86,7 @@ Image * ImageManager::acquire_image(int vm_id, const string& name, int uid, stri
 
 /* -------------------------------------------------------------------------- */
 
-int ImageManager::acquire_image(int vm_id, Image *img, string& error, bool attach)
+int ImageManager::acquire_image(int vm_id, Image *img, bool attach, string& error)
 {
     int rc = 0;
 
@@ -129,24 +131,26 @@ int ImageManager::acquire_image(int vm_id, Image *img, string& error, bool attac
             if (attach)
             {
                 oss << "Cannot acquire image " << img->get_oid()
-                << ", it is locked";
+                    << ", it is locked";
 
                 error = oss.str();
                 rc    = -1;
             }
-
-            img->inc_running(vm_id);
-
-            if ( img->is_persistent() )
-            {
-                img->set_state(Image::LOCKED_USED_PERS);
-            }
             else
             {
-                img->set_state(Image::LOCKED_USED);
-            }
+                img->inc_running(vm_id);
 
-            ipool->update(img);
+                if ( img->is_persistent() )
+                {
+                    img->set_state(Image::LOCKED_USED_PERS);
+                }
+                else
+                {
+                    img->set_state(Image::LOCKED_USED);
+                }
+
+                ipool->update(img);
+            }
         break;
 
         case Image::USED_PERS:
@@ -162,18 +166,21 @@ int ImageManager::acquire_image(int vm_id, Image *img, string& error, bool attac
             img->inc_running(vm_id);
             ipool->update(img);
         break;
+
         case Image::LOCKED_USED:
             if (attach)
             {
                 oss << "Cannot acquire image " << img->get_oid()
-                << ", it is locked";
+                    << ", it is locked";
 
                 error = oss.str();
                 rc    = -1;
             }
-
-            img->inc_running(vm_id);
-            ipool->update(img);
+            else
+            {
+                img->inc_running(vm_id);
+                ipool->update(img);
+            }
         break;
 
         case Image::INIT:

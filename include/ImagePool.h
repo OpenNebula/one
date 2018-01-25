@@ -154,6 +154,7 @@ public:
      *    @param uid of VM owner (to look for the image id within its images)
      *    @param image_id on success returns the acquired image id
      *    @param snaps list of snapshots associated to this image
+     *    @param attach true if attaching the image to a VM
      *    @param error_str string describing the error
      *
      *    @return 0 on success, -1 otherwise
@@ -166,8 +167,8 @@ public:
                      int                uid,
                      int&               image_id,
                      Snapshots **       snaps,
-                     string&            error_str,
-                     bool               attach);
+                     bool               attach,
+                     string&            error_str);
     /**
      *  Generates a DISK attribute for VM templates using the Image metadata
      *

@@ -94,20 +94,20 @@ public:
      *  Try to acquire an image from the repository for a VM.
      *    @param image_id id of image
      *    @param error string describing the error
-     *    @param attach indicates that are trying to make an attachment of the image
+     *    @param attach true if attaching the image to a VM
      *    @return pointer to the image or 0 if could not be acquired
      */
-    Image * acquire_image(int vm_id, int image_id, string& error, bool attach);
+    Image * acquire_image(int vm_id, int image_id, bool attach, string& error);
 
     /**
      *  Try to acquire an image from the repository for a VM.
      *    @param name of the image
      *    @param id of owner
      *    @param error string describing the error
-     *    @param attach indicates that are trying to make an attachment of the image
+     *    @param attach true if attaching the image to a VM
      *    @return pointer to the image or 0 if could not be acquired
      */
-    Image * acquire_image(int vm_id, const string& name, int uid, string& error, bool attach);
+    Image * acquire_image(int vm_id, const string& name, int uid, bool attach, string& error);
 
     /**
      *  Releases an image and triggers any needed operations in the repo
@@ -360,10 +360,10 @@ private:
     /**
      *  Acquires an image updating its state.
      *    @param image pointer to image, it should be locked
-     *    @param attach indicates that are trying to make an attachment of the image
+     *    @param attach true if attaching the image to a VM
      *    @return 0 on success
      */
-    int acquire_image(int vm_id, Image *img, string& error, bool attach);
+    int acquire_image(int vm_id, Image *img, bool attach, string& error);
 
     /**
      *  Moves a file to an image in the repository
