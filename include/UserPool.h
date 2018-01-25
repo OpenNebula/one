@@ -176,7 +176,8 @@ public:
                       string&       uname,
                       string&       gname,
                       set<int>&     group_ids,
-                      int&          umask);
+                      int&          umask,
+                      bool&         is_token);
     /**
      * Returns whether the operations described in a authorization request are
      * authorized ot not.
@@ -260,7 +261,8 @@ private:
                                string&       uname,
                                string&       gname,
                                set<int>&     group_ids,
-                               int&          umask);
+                               int&          umask,
+                               bool&         is_token);
 
     /**
      *  Function to authenticate internal users using a server driver

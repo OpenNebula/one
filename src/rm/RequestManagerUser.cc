@@ -449,6 +449,12 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
         }
     }
 
+    if (att.is_token) {
+        att.resp_msg = "Cannot regenerate token using token";
+        failure_response(AUTHORIZATION, att);
+        return;
+    }
+
     user = static_cast<UserPool *>(pool)->get(uname, true);
 
     if ( user == 0 )

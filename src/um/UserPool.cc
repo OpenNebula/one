@@ -608,7 +608,8 @@ bool UserPool::authenticate_internal(User *        user,
                                      string&       uname,
                                      string&       gname,
                                      set<int>&     group_ids,
-                                     int&          umask)
+                                     int&          umask,
+                                     bool&         is_token)
 {
     ostringstream oss;
 
@@ -685,6 +686,8 @@ bool UserPool::authenticate_internal(User *        user,
             group_ids.clear();
             group_ids.insert(egid);
         }
+
+        is_token = true;
 
         return true;
     }
@@ -1180,7 +1183,8 @@ bool UserPool::authenticate(const string& session,
                             string&       uname,
                             string&       gname,
                             set<int>&     group_ids,
-                            int&          umask)
+                            int&          umask,
+                            bool&         is_token)
 {
     User * user = 0;
     string username;
@@ -1210,7 +1214,7 @@ bool UserPool::authenticate(const string& session,
         else
         {
             ar = authenticate_internal(user, token, password, user_id, group_id,
-                uname, gname, group_ids, umask);
+                uname, gname, group_ids, umask, is_token);
         }
     }
     else

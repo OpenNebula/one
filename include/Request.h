@@ -55,11 +55,14 @@ public:
     int                       resp_id;  /**< Id of the object */
     string                    resp_msg; /**< Additional response message */
 
+    bool                      is_token; /**< If token was used for authentication */
+
     RequestAttributes()
     {
         resp_obj = PoolObjectSQL::NONE;
         resp_id  = -1;
         resp_msg = "";
+        is_token = false;
     };
 
     RequestAttributes(const RequestAttributes& ra)
@@ -84,6 +87,8 @@ public:
         resp_obj = ra.resp_obj;
         resp_id  = ra.resp_id;
         resp_msg = ra.resp_msg;
+
+        is_token = ra.is_token;
     };
 
     RequestAttributes(int _uid, int _gid, const RequestAttributes& ra)
@@ -110,6 +115,8 @@ public:
         resp_obj = PoolObjectSQL::NONE;
         resp_id  = -1;
         resp_msg = "";
+
+        is_token = ra.is_token;
     };
 };
 

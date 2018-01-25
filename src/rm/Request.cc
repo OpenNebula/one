@@ -281,7 +281,7 @@ void Request::execute(
     UserPool* upool     = nd.get_upool();
 
     bool authenticated = upool->authenticate(att.session, att.password,
-        att.uid, att.gid, att.uname, att.gname, att.group_ids, att.umask);
+        att.uid, att.gid, att.uname, att.gname, att.group_ids, att.umask, att.is_token);
 
     if ( log_method_call )
     {
