@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -222,6 +222,7 @@ std::string& MarketPlaceApp::to_xml(std::string& xml) const
 	std::ostringstream oss;
 	std::string        template_xml;
 	std::string        perm_str;
+    string lock_str;
 
     oss << "<MARKETPLACEAPP>"
 			"<ID>"             << oid           << "</ID>"  <<
@@ -229,6 +230,7 @@ std::string& MarketPlaceApp::to_xml(std::string& xml) const
 			"<GID>"            << gid           << "</GID>" <<
 			"<UNAME>"          << uname         << "</UNAME>" <<
 			"<GNAME>"          << gname         << "</GNAME>" <<
+            lock_db_to_xml(lock_str) <<
 			"<REGTIME>"        << regtime       << "</REGTIME>" <<
 			"<NAME>"           << name          << "</NAME>" <<
             "<ZONE_ID>"   << one_util::escape_xml(zone_id)  << "</ZONE_ID>" <<
@@ -293,6 +295,9 @@ int MarketPlaceApp::from_xml(const std::string &xml_str)
 
 	// ----- Permissions -----
     rc += perms_from_xml();
+
+    // ------ Lock -------
+    rc += lock_db_from_xml();
 
 	// ----- TEMPLATE -----
     ObjectXML::get_nodes("/MARKETPLACEAPP/TEMPLATE", content);

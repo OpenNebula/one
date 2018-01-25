@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -31,6 +31,7 @@ define(function(require){
 
   function _calculateCost(context, disk_cost, callback){
     var cost = 0;
+    var totalSize = 0;
 
     $(".diskContainer", context).each(function(){
       var size = 0;
@@ -46,12 +47,13 @@ define(function(require){
           size = disk['SIZE'];
         }
       }
-
+      totalSize += parseFloat(size);
       cost += size * disk_cost;
       cost += $(this).data('disk_snapshot_total_cost');
     });
 
     $(".cost_value", context).text(cost.toFixed(6));
+    $("#quotas-disks", context).text(totalSize.toFixed(2));
 
     if(callback != undefined){
       callback();
@@ -98,8 +100,10 @@ define(function(require){
 
       disksContext.off("change", "input");
 
-      if (disk_cost != 0 && Config.isFeatureEnabled("showback")) {
-        $(".provision_create_template_disk_cost_div", disksContext).show();
+      if (Config.isFeatureEnabled("showback")) {
+        if(disk_cost != 0){
+          $(".provision_create_template_disk_cost_div", disksContext).show();
+        }
 
         disksContext.on("change", "input", function(){
           _calculateCost(disksContext, disk_cost, opts.cost_callback);
@@ -113,8 +117,6 @@ define(function(require){
       var diskContext;
       $(".disksContainer", disksContext).html("");
 
-
-
       $.each(disks, function(disk_id, disk) {
         diskContext = $(
           '<div class="row diskContainer">'+
@@ -125,6 +127,7 @@ define(function(require){
             '</div>' +
           '</div>').appendTo($(".disksContainer", disksContext));
         if (disks_base) {
+          disks_base[disk_id].SIZE = disk.SIZE;
           diskContext.data('template_disk', disks_base[disk_id]);
         }
 
@@ -222,14 +225,17 @@ define(function(require){
         disk = $(this).data("template_disk");
 
         var fields = WizardFields.retrieve(this);
-
-        if (fields.SIZE != undefined){
-          disk['SIZE'] = fields.SIZE;
+        if (disk["SIZE"] && fields["SIZE"] && disk["SIZE"] === fields["SIZE"]){
+          delete disk["SIZE"];
+          disks.push(disk);
         }
-      }
-
-      if (disk) {
-        disks.push(disk);
+        else if (fields.SIZE != undefined){
+          var size = $.extend(true, [], fields.SIZE);
+          var size = size.join("");
+          var diskAux = $.extend(true, {}, disk);
+          diskAux["SIZE"] = fields.SIZE;
+          disks.push(diskAux);
+        }
       }
     });
 

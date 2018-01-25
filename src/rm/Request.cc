@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -327,6 +327,11 @@ void Request::execute(
     else if ( raftm->is_candidate() && leader_only)
     {
         att.resp_msg = "Cannot process request, oned cluster in election mode";
+        failure_response(INTERNAL, att);
+    }
+    else if ( raftm->is_reconciling() && leader_only)
+    {
+        att.resp_msg = "Cannot process request, oned cluster is replicating log";
         failure_response(INTERNAL, att);
     }
     else //leader or solo or !leader_only
@@ -715,6 +720,14 @@ string Request::failure_message(ErrorCode ec, RequestAttributes& att)
             if (!att.resp_msg.empty())
             {
                 oss << " " << att.resp_msg;
+            }
+            break;
+        case LOCKED:
+            oss << "The resource " << obname << " is locked.";
+
+            if ( att.resp_id != -1 )
+            {
+               oss << " [" << att.resp_id << "].";
             }
             break;
     }

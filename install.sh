@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -221,7 +221,10 @@ ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/auth/certificates \
           $ETC_LOCATION/ec2query_templates \
           $ETC_LOCATION/sunstone-views \
-          $ETC_LOCATION/cli"
+          $ETC_LOCATION/cli \
+          $ETC_LOCATION/sunstone-views/kvm \
+          $ETC_LOCATION/sunstone-views/vcenter \
+          $ETC_LOCATION/sunstone-views/mixed"
 
 LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/opennebula \
@@ -241,6 +244,11 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/vcenter_driver"
 
 VAR_DIRS="$VAR_LOCATION/remotes \
+          $VAR_LOCATION/remotes/etc \
+          $VAR_LOCATION/remotes/etc/datastore/ceph \
+          $VAR_LOCATION/remotes/etc/im/kvm-probes.d \
+          $VAR_LOCATION/remotes/etc/vmm/kvm \
+          $VAR_LOCATION/remotes/etc/vnm \
           $VAR_LOCATION/remotes/im \
           $VAR_LOCATION/remotes/im/kvm.d \
           $VAR_LOCATION/remotes/im/kvm-probes.d \
@@ -374,6 +382,7 @@ INSTALL_FILES=(
     IM_PROBES_FILES:$VAR_LOCATION/remotes/im
     IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d
     IM_PROBES_KVM_PROBES_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d
+    IM_PROBES_ETC_KVM_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/kvm-probes.d
     IM_PROBES_VCENTER_FILES:$VAR_LOCATION/remotes/im/vcenter.d
     IM_PROBES_EC2_FILES:$VAR_LOCATION/remotes/im/ec2.d
     IM_PROBES_AZ_FILES:$VAR_LOCATION/remotes/im/az.d
@@ -388,6 +397,7 @@ INSTALL_FILES=(
     VMM_EXEC_LIB_FILES:$VAR_LOCATION/remotes/vmm/lib
     VMM_EXEC_LIB_VCENTER_FILES:$LIB_LOCATION/ruby/vcenter_driver
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
+    VMM_EXEC_ETC_KVM_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/kvm
     VMM_EXEC_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/vmm/vcenter
     VMM_EXEC_EC2_SCRIPTS:$VAR_LOCATION/remotes/vmm/ec2
     VMM_EXEC_AZ_SCRIPTS:$VAR_LOCATION/remotes/vmm/az
@@ -405,6 +415,7 @@ INSTALL_FILES=(
     DATASTORE_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/datastore/dummy
     DATASTORE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/datastore/fs
     DATASTORE_DRIVER_CEPH_SCRIPTS:$VAR_LOCATION/remotes/datastore/ceph
+    DATASTORE_DRIVER_ETC_CEPH_SCRIPTS:$VAR_LOCATION/remotes/etc/datastore/ceph
     DATASTORE_DRIVER_DEV_SCRIPTS:$VAR_LOCATION/remotes/datastore/dev
     DATASTORE_DRIVER_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/datastore/vcenter
     DATASTORE_DRIVER_ISCSI_SCRIPTS:$VAR_LOCATION/remotes/datastore/iscsi_libvirt
@@ -413,6 +424,7 @@ INSTALL_FILES=(
     MARKETPLACE_DRIVER_S3_SCRIPTS:$VAR_LOCATION/remotes/market/s3
     IPAM_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/ipam/dummy
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
+    NETWORK_ETC_FILES:$VAR_LOCATION/remotes/etc/vnm
     NETWORK_8021Q_FILES:$VAR_LOCATION/remotes/vnm/802.1Q
     NETWORK_VXLAN_FILES:$VAR_LOCATION/remotes/vnm/vxlan
     NETWORK_DUMMY_FILES:$VAR_LOCATION/remotes/vnm/dummy
@@ -503,7 +515,9 @@ INSTALL_SUNSTONE_PUBLIC_DEV_DIR=(
 
 INSTALL_SUNSTONE_ETC_FILES=(
     SUNSTONE_ETC_FILES:$ETC_LOCATION
-    SUNSTONE_ETC_VIEW_FILES:$ETC_LOCATION/sunstone-views
+    SUNSTONE_ETC_VIEW_KVM:$ETC_LOCATION/sunstone-views/kvm
+    SUNSTONE_ETC_VIEW_VCENTER:$ETC_LOCATION/sunstone-views/vcenter
+    SUNSTONE_ETC_VIEW_MIXED:$ETC_LOCATION/sunstone-views/mixed
 )
 
 INSTALL_ONEGATE_FILES=(
@@ -677,7 +691,6 @@ VMM_EXEC_LIB_VCENTER_FILES="src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb
 
 VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/deploy \
-                    src/vmm_mad/remotes/kvm/kvmrc \
                     src/vmm_mad/remotes/kvm/migrate \
                     src/vmm_mad/remotes/kvm/migrate_local \
                     src/vmm_mad/remotes/kvm/restore \
@@ -698,6 +711,12 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/reconfigure \
                     src/vmm_mad/remotes/kvm/prereconfigure \
                     src/vmm_mad/remotes/kvm/resize_disk"
+
+#-------------------------------------------------------------------------------
+# VMM configuration KVM scripts, to be installed under $REMOTES_LOCATION/etc/vmm/kvm
+#-------------------------------------------------------------------------------
+
+VMM_EXEC_ETC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/kvmrc"
 
 #-------------------------------------------------------------------------------
 # VMM Driver vCenter scripts, installed under $REMOTES_LOCATION/vmm/vcenter
@@ -785,11 +804,14 @@ IM_PROBES_KVM_PROBES_FILES="src/im_mad/remotes/kvm-probes.d/kvm.rb \
                      src/im_mad/remotes/kvm-probes.d/architecture.sh \
                      src/im_mad/remotes/kvm-probes.d/cpu.sh \
                      src/im_mad/remotes/kvm-probes.d/poll.sh \
+                     src/im_mad/remotes/kvm-probes.d/machines-models.rb \
                      src/im_mad/remotes/kvm-probes.d/name.sh \
                      src/im_mad/remotes/kvm-probes.d/pci.rb \
                      src/im_mad/remotes/common.d/monitor_ds.sh \
                      src/im_mad/remotes/common.d/version.sh \
                      src/im_mad/remotes/common.d/collectd-client-shepherd.sh"
+
+IM_PROBES_ETC_KVM_PROBES_FILES="src/im_mad/remotes/kvm-probes.d/pci.conf"
 
 IM_PROBES_VCENTER_FILES="src/im_mad/remotes/vcenter.d/poll"
 
@@ -823,7 +845,6 @@ AUTH_PLAIN_FILES="src/authm_mad/remotes/plain/authenticate"
 
 NETWORK_FILES="src/vnm_mad/remotes/lib/vnm_driver.rb \
                src/vnm_mad/remotes/lib/vnmmad.rb \
-               src/vnm_mad/remotes/OpenNebulaNetwork.conf \
                src/vnm_mad/remotes/lib/sg_driver.rb \
                src/vnm_mad/remotes/lib/address.rb \
                src/vnm_mad/remotes/lib/command.rb \
@@ -871,6 +892,12 @@ NETWORK_OVSWITCH_FILES="src/vnm_mad/remotes/ovswitch/clean \
 NETWORK_VCENTER_FILES="src/vnm_mad/remotes/vcenter/pre \
                        src/vnm_mad/remotes/vcenter/post \
                        src/vnm_mad/remotes/vcenter/clean"
+
+#-------------------------------------------------------------------------------
+# Virtual Network Manager drivers configuration to be installed under $REMOTES_LOCATION/etc/vnm
+#-------------------------------------------------------------------------------
+
+NETWORK_ETC_FILES="src/vnm_mad/remotes/OpenNebulaNetwork.conf"
 
 #-------------------------------------------------------------------------------
 # IPAM drivers to be installed under $REMOTES_LOCATION/ipam
@@ -1027,6 +1054,7 @@ TM_DEV_FILES="src/tm_mad/dev/clone \
 TM_VCENTER_FILES="src/tm_mad/vcenter/clone \
                  src/tm_mad/vcenter/ln \
                  src/tm_mad/vcenter/mv \
+                 src/tm_mad/vcenter/mv.rb \
                  src/tm_mad/vcenter/mvds \
                  src/tm_mad/vcenter/cpds \
                  src/tm_mad/vcenter/premigrate \
@@ -1102,9 +1130,10 @@ DATASTORE_DRIVER_CEPH_SCRIPTS="src/datastore_mad/remotes/ceph/cp \
                          src/datastore_mad/remotes/ceph/snap_delete \
                          src/datastore_mad/remotes/ceph/snap_revert \
                          src/datastore_mad/remotes/ceph/snap_flatten \
-                         src/datastore_mad/remotes/ceph/ceph.conf \
                          src/datastore_mad/remotes/ceph/ceph_utils.sh \
                          src/datastore_mad/remotes/ceph/export"
+
+DATASTORE_DRIVER_ETC_CEPH_SCRIPTS="src/datastore_mad/remotes/ceph/ceph.conf"
 
 DATASTORE_DRIVER_DEV_SCRIPTS="src/datastore_mad/remotes/dev/cp \
                          src/datastore_mad/remotes/dev/mkfs \
@@ -1574,13 +1603,20 @@ SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf \
                     src/sunstone/etc/sunstone-views.yaml \
                     src/sunstone/etc/sunstone-logos.yaml"
 
-SUNSTONE_ETC_VIEW_FILES="src/sunstone/etc/sunstone-views/admin.yaml \
-                    src/sunstone/etc/sunstone-views/user.yaml \
-                    src/sunstone/etc/sunstone-views/cloud.yaml \
-                    src/sunstone/etc/sunstone-views/cloud_vcenter.yaml \
-                    src/sunstone/etc/sunstone-views/groupadmin.yaml \
-                    src/sunstone/etc/sunstone-views/groupadmin_vcenter.yaml \
-                    src/sunstone/etc/sunstone-views/admin_vcenter.yaml"
+SUNSTONE_ETC_VIEW_KVM="src/sunstone/etc/sunstone-views/kvm/admin.yaml \
+                    src/sunstone/etc/sunstone-views/kvm/user.yaml \
+                    src/sunstone/etc/sunstone-views/kvm/cloud.yaml \
+                    src/sunstone/etc/sunstone-views/kvm/groupadmin.yaml"
+
+SUNSTONE_ETC_VIEW_VCENTER="src/sunstone/etc/sunstone-views/vcenter/admin.yaml \
+                    src/sunstone/etc/sunstone-views/vcenter/user.yaml \
+                    src/sunstone/etc/sunstone-views/vcenter/cloud.yaml \
+                    src/sunstone/etc/sunstone-views/vcenter/groupadmin.yaml"
+
+SUNSTONE_ETC_VIEW_MIXED="src/sunstone/etc/sunstone-views/mixed/admin.yaml \
+                    src/sunstone/etc/sunstone-views/mixed/user.yaml \
+                    src/sunstone/etc/sunstone-views/mixed/cloud.yaml \
+                    src/sunstone/etc/sunstone-views/mixed/groupadmin.yaml"
 
 SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
                        src/sunstone/models/SunstoneServer.rb \

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -428,6 +428,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
     string template_xml;
     string leases_xml;
     string perm_str;
+    string lock_str;
 
     int int_vlan_id_automatic = vlan_id_automatic ? 1 : 0;
 
@@ -439,6 +440,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
             "<UNAME>"  << uname    << "</UNAME>" <<
             "<GNAME>"  << gname    << "</GNAME>" <<
             "<NAME>"   << name     << "</NAME>"  <<
+            lock_db_to_xml(lock_str) <<
             perms_to_xml(perm_str) <<
             Clusterable::to_xml(clusters_xml)    <<
             "<BRIDGE>" << one_util::escape_xml(bridge) << "</BRIDGE>";
@@ -517,6 +519,8 @@ int VirtualNetwork::from_xml(const string &xml_str)
     rc += xpath(gname,  "/VNET/GNAME", "not_found");
     rc += xpath(name,   "/VNET/NAME",  "not_found");
     rc += xpath(bridge, "/VNET/BRIDGE","not_found");
+
+    rc += lock_db_from_xml();
 
     // Permissions
     rc += perms_from_xml();

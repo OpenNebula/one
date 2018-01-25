@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -131,7 +131,8 @@ public:
         ACTION         = 0x0800,
         XML_RPC_API    = 0x1000,
         INTERNAL       = 0x2000,
-        ALLOCATE       = 0x4000
+        ALLOCATE       = 0x4000,
+        LOCKED         = 0x8000
     };
 
     /**

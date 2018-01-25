@@ -11,9 +11,9 @@ enabled_tabs:
     - oneflow-services-tab
     - vrouters-tab
     - templates-top-tab
-    #- templates-tab
+    - templates-tab
     - oneflow-templates-tab
-    #- vrouter-templates-tab
+    - vrouter-templates-tab
     #- storage-top-tab
     #- datastores-tab
     #- images-tab
@@ -23,7 +23,7 @@ enabled_tabs:
     - network-top-tab
     - vnets-tab
     - vnets-topology-tab
-    #- secgroups-tab
+    - secgroups-tab
     #- infrastructure-top-tab
     #- clusters-tab
     #- hosts-tab
@@ -43,12 +43,12 @@ features:
 
     # Allows to change the security groups for each network interface
     # on the VM creation dialog
-    secgroups: false
+    secgroups: true
 
     # True to hide the CPU setting in the VM creation dialog. The CPU setting
     # will be set to the same value as VCPU, that will still be visible for the
     # end users
-    instantiate_hide_cpu: true
+    instantiate_hide_cpu: false
 
     # False to not scale the CPU. Number [0, 1] to scale from VCPU
     instantiate_cpu_factor: false
@@ -90,10 +90,10 @@ tabs:
             Dashboard.refresh: false
             Sunstone.toggle_top: false
         widgets_one_per_row:
-            - vms
-            - users
         widgets_three_per_row:
         widgets_two_per_row:
+            - vms
+            - users
             - groupquotas
             - quotas
         widgets_one_footer:
@@ -323,21 +323,21 @@ tabs:
             vm_template_tab: false
             vm_log_tab: false
         table_columns:
-            - 0       # Checkbox
-            - 1       # ID
-            - 2       # Name
-            #- 3      # Owner
-            - 4       # Group
-            - 5       # Status
-            #- 6      # Used CPU
-            #- 7      # Used Memory
-            #- 8      # Host
-            - 9       # IPs
-            #- 10     # Start Time
-            - 11      # VNC
-            #- 12     # Hidden Template
-            #- 13     # Labels
-            #- 14     # Search data
+            - 0        # Checkbox
+            - 1        # ID
+            - 2        # Name
+            #- 3       # Owner
+            - 4        # Group
+            - 5        # Status
+            #- 6       # Used CPU
+            #- 7       # Used Memory
+            #- 8       # Host
+            - 9        # IPs
+            #- 10      # Start Time
+            - 11       # VNC
+            #- 12      # Hidden Template
+            #- 13      # Labels
+            #- 14      # Search data
         actions:
             VM.refresh: true
             VM.create_dialog: true
@@ -377,7 +377,7 @@ tabs:
             VM.disk_snapshot_delete: false
             VM.resched: false
             VM.unresched: false
-            VM.save_as_template: false
+            VM.save_as_template: true
             VM.updateconf: false
             VM.edit_labels: true
             VM.menu_labels: true
@@ -601,8 +601,8 @@ tabs:
         actions:
             Image.refresh: true
             Image.create_dialog: true
-            Image.import_dialog: true
-            Image.upload_marketplace_dialog: false
+            Image.import_dialog: false
+            Image.upload_marketplace_dialog: true
             Image.rename: true
             Image.chown: true
             Image.chgrp: true
@@ -717,7 +717,7 @@ tabs:
             vnet_info_tab: false
             vnet_ar_list_tab: false
             vnet_leases_tab: true
-            vnet_sg_list_tab: false
+            vnet_sg_list_tab: true
             vnet_vr_list_tab: false
             vnet_clusters_tab: false
         table_columns:

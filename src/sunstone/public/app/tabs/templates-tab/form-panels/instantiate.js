@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -517,9 +517,9 @@ define(function(require) {
           CapacityInputs.fill(capacityContext, template_json.VMTEMPLATE);
 
           if (template_json.VMTEMPLATE.TEMPLATE.HYPERVISOR == "vcenter"){
-            $(".mb_input input", context).attr("pattern", "^([048]|\\d*[13579][26]|\\d*[24680][048])$");
+            $(".memory_input input", context).attr("pattern", "^([048]|\\d*[13579][26]|\\d*[24680][048])$");
           } else {
-            $(".mb_input input", context).removeAttr("pattern");
+            $(".memory_input input", context).removeAttr("pattern");
           }
 
           var cpuCost    = template_json.VMTEMPLATE.TEMPLATE.CPU_COST;

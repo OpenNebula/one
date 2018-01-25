@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -562,6 +562,12 @@ define(function(require) {
     "save_as_template": function(params) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "save_as_template", action_obj);
+    },
+    "lock" : function(params) {
+      OpenNebulaAction.lock(params, RESOURCE);
+    },
+    "unlock" : function(params) {
+      OpenNebulaAction.simple_action(params, RESOURCE, "unlock");
     },
     "stateStr": function(stateId) {
       return STATES_STR[stateId];

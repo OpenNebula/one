@@ -17,13 +17,13 @@ enabled_tabs:
     - storage-top-tab
     - datastores-tab
     - images-tab
-    #- files-tab
-    #- marketplaces-tab
-    #- marketplaceapps-tab
+    - files-tab
+    - marketplaces-tab
+    - marketplaceapps-tab
     - network-top-tab
     - vnets-tab
     - vnets-topology-tab
-    #- secgroups-tab
+    - secgroups-tab
     - infrastructure-top-tab
     - clusters-tab
     - hosts-tab
@@ -43,7 +43,7 @@ features:
 
     # Allows to change the security groups for each network interface
     # on the VM creation dialog
-    secgroups: false
+    secgroups: true
 
     # True to hide the CPU setting in the VM creation dialog. The CPU setting
     # will be set to the same value as VCPU, that will still be visible for the
@@ -57,7 +57,7 @@ features:
     instantiate_persistent: true
 
     # True to show the datastore datatable to instantiate VM
-    show_ds_instantiate: false
+    show_ds_instantiate: true
 
     # True to show the vmgroup datatable to instantiate VM
     show_vmgroup_instantiate: true
@@ -66,7 +66,7 @@ features:
     show_vnet_instantiate: true
 
     # True to show the host datatable to instantiate VM
-    show_host_instantiate: false
+    show_host_instantiate: true
 
     # True to show an input to specify the the VMs and Template path/folder where a vCenter VM will
     # deployed to
@@ -95,6 +95,8 @@ tabs:
             - users
         widgets_three_per_row:
         widgets_two_per_row:
+            - storage
+            - network
         widgets_one_footer:
     system-top-tab:
         panel_tabs:
@@ -148,7 +150,7 @@ tabs:
             - 4         # VMs
             - 5         # Memory
             - 6         # CPU
-            #- 7        # Labels
+            #- 7         # Labels
         actions:
             Group.refresh: true
             Group.create_dialog: true
@@ -224,8 +226,8 @@ tabs:
             Template.chmod: true
             Template.clone_dialog: true
             Template.delete_dialog: true
-            Template.share: false
-            Template.unshare: false
+            Template.share: true
+            Template.unshare: true
             Template.edit_labels: true
             Template.menu_labels: true
         template_creation_tabs:
@@ -291,8 +293,8 @@ tabs:
             VirtualRouterTemplate.chmod: true
             VirtualRouterTemplate.clone_dialog: true
             VirtualRouterTemplate.delete_dialog: true
-            VirtualRouterTemplate.share: false
-            VirtualRouterTemplate.unshare: false
+            VirtualRouterTemplate.share: true
+            VirtualRouterTemplate.unshare: true
             VirtualRouterTemplate.edit_labels: true
             VirtualRouterTemplate.menu_labels: true
         template_creation_tabs:
@@ -345,8 +347,8 @@ tabs:
             VM.chgrp: true
             VM.chmod: true
             VM.deploy: true
-            VM.migrate: false
-            VM.migrate_live: false
+            VM.migrate: true
+            VM.migrate_live: true
             VM.hold: true
             VM.release: true
             VM.suspend: true
@@ -362,18 +364,18 @@ tabs:
             VM.terminate: true
             VM.terminate_hard: true
             VM.resize: true
+            VM.disk_resize: true
             VM.attachdisk: true
             VM.detachdisk: true
             VM.disk_saveas: true
-            VM.disk_resize: true
             VM.attachnic: true
             VM.detachnic: true
             VM.snapshot_create: true
             VM.snapshot_revert: true
             VM.snapshot_delete: true
-            VM.disk_snapshot_create: false
-            VM.disk_snapshot_revert: false
-            VM.disk_snapshot_delete: false
+            VM.disk_snapshot_create: true
+            VM.disk_snapshot_revert: true
+            VM.disk_snapshot_delete: true
             VM.resched: true
             VM.unresched: true
             VM.save_as_template: true
@@ -445,9 +447,9 @@ tabs:
         table_columns:
             - 0         # Checkbox
             - 1         # ID
-            - 2         # Name
-            - 3         # Owner
-            - 4         # Group
+            - 2         # Owner
+            - 3         # Group
+            - 4         # Name
             #- 5        # Labels
             #- 6        # Search data
         actions:
@@ -564,7 +566,7 @@ tabs:
             #- 13       # Search data
         actions:
             Datastore.refresh: true
-            Datastore.create_dialog: false
+            Datastore.create_dialog: true
             Datastore.import_dialog: true
             Datastore.addtocluster: true
             Datastore.rename: true
@@ -580,7 +582,7 @@ tabs:
         panel_tabs:
             image_info_tab: true
             image_vms_tab: true
-            image_snapshots_tab: false
+            image_snapshots_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID
@@ -601,7 +603,7 @@ tabs:
             Image.refresh: true
             Image.create_dialog: true
             Image.import_dialog: true
-            Image.upload_marketplace_dialog: false
+            Image.upload_marketplace_dialog: true
             Image.rename: true
             Image.chown: true
             Image.chgrp: true
@@ -612,9 +614,9 @@ tabs:
             Image.nonpersistent: true
             Image.clone_dialog: true
             Image.delete: true
-            Image.snapshot_flatten: false
-            Image.snapshot_revert: false
-            Image.snapshot_delete: false
+            Image.snapshot_flatten: true
+            Image.snapshot_revert: true
+            Image.snapshot_delete: true
             Image.edit_labels: true
             Image.menu_labels: true
     files-tab:
@@ -716,7 +718,7 @@ tabs:
             vnet_info_tab: true
             vnet_ar_list_tab: true
             vnet_leases_tab: true
-            vnet_sg_list_tab: false
+            vnet_sg_list_tab: true
             vnet_vr_list_tab: true
             vnet_clusters_tab: true
         table_columns:

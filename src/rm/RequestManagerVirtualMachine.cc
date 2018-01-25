@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -69,7 +69,7 @@ bool RequestManagerVirtualMachine::vm_authorization(
     {
         string t_xml;
 
-        ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::IMAGE, 
+        ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::IMAGE,
                 tmpl->to_xml(t_xml));
     }
 

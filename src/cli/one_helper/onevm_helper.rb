@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -516,6 +516,7 @@ in the frontend machine.
         puts str % ["GROUP", vm['GNAME']]
         puts str % ["STATE", vm.state_str]
         puts str % ["LCM_STATE", vm.lcm_state_str]
+        puts str % ["LOCK", OpenNebulaHelper.level_lock_to_str(vm['LOCK/LOCKED'])]
         puts str % ["RESCHED", OpenNebulaHelper.boolean_to_str(vm['RESCHED'])]
         puts str % ["HOST",
             vm['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']] if

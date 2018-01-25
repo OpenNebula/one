@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -28,7 +28,9 @@ module OpenNebula
             :delete      => "vmgroup.delete",
             :chown       => "vmgroup.chown",
             :chmod       => "vmgroup.chmod",
-            :rename      => "vmgroup.rename"
+            :rename      => "vmgroup.rename",
+            :lock        => "vmgroup.lock",
+            :unlock        => "vmgroup.unlock"
         }
 
         # Creates a VMGroup description with just its identifier
@@ -127,6 +129,16 @@ module OpenNebula
         #   otherwise
         def rename(name)
             return call(VMGROUP_METHODS[:rename], @pe_id, name)
+        end
+
+        # Lock a VMGroup
+        def lock(level)
+            return call(VMGROUP_METHODS[:lock], @pe_id, level)
+        end
+
+        # Unlock a VMGroup
+        def unlock()
+            return call(VMGROUP_METHODS[:unlock], @pe_id)
         end
 
         #######################################################################

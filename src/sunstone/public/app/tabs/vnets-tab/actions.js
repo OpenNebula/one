@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -55,6 +55,10 @@ define(function(require) {
     "Network.append_template" : _commonActions.appendTemplate(),
     "Network.update_dialog" : _commonActions.checkAndShowUpdate(),
     "Network.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
+    "Network.lockM": _commonActions.multipleAction('lock'),
+    "Network.lockU": _commonActions.multipleAction('lock'),
+    "Network.lockA": _commonActions.multipleAction('lock'),
+    "Network.unlock": _commonActions.multipleAction('unlock'),
 
     "Network.import_dialog" : {
       type: "custom",

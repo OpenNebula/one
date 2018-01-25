@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -27,6 +27,7 @@ define(function(require) {
   var TemplateUtils = require('utils/template-utils');
   var LabelsUtils = require('utils/labels/utils');
   var SearchDropdown = require('hbs!./datatable/search');
+  var DashboardUtils = require('utils/dashboard');
 
   /*
     CONSTANTS
@@ -173,6 +174,7 @@ define(function(require) {
   }
 
   function _postUpdateView() {
-    $(".total_users").text(this.totalUsers);
+    $(".total_users").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".total_users", this.totalUsers);
   }
 });

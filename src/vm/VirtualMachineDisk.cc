@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -135,6 +135,21 @@ int VirtualMachineDisk::get_image_id(int &id, int uid)
     }
 
     return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string VirtualMachineDisk::get_tm_mad_system()
+{
+    std::string tm_mad_system;
+
+    if (vector_value("TM_MAD_SYSTEM", tm_mad_system) != 0)
+    {
+        return "";
+    }
+
+    return tm_mad_system;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -506,6 +521,37 @@ void VirtualMachineDisk::clear_resize(bool restore)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void VirtualMachineDisk::set_types(const string& ds_name)
+{
+    string type = vector_value("TYPE");
+
+    switch(Image::str_to_disk_type(type))
+    {
+        case Image::RBD_CDROM:
+        case Image::GLUSTER_CDROM:
+        case Image::SHEEPDOG_CDROM:
+        case Image::CD_ROM:
+            if (ds_name != "FILE" && ds_name != "ISCSI" && ds_name != "NONE")
+            {
+                replace("TYPE", ds_name+"_CDROM");
+            }
+            else
+            {
+                replace("TYPE", "CDROM");
+            }
+            break;
+
+        default:
+            replace("TYPE", ds_name);
+            break;
+    }
+
+    replace("DISK_TYPE", ds_name);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -662,7 +708,7 @@ void VirtualMachineDisks::assign_disk_targets(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachineDisks::get_images(int vm_id, int uid,
+int VirtualMachineDisks::get_images(int vm_id, int uid, const std::string& tsys,
         vector<Attribute *> disks, VectorAttribute * vcontext,
         std::string& error_str)
 {
@@ -695,8 +741,17 @@ int VirtualMachineDisks::get_images(int vm_id, int uid,
         // ---------------------------------------------------------------------
         VirtualMachineDisk * disk = new VirtualMachineDisk(vdisk, disk_id);
 
+        if ( !tsys.empty() )
+        {
+            disk->replace("TM_MAD_SYSTEM", tsys);
+        }
+        else
+        {
+            disk->remove("TM_MAD_SYSTEM");
+        }
+
         if ( ipool->acquire_disk(vm_id, disk, disk_id, image_type, dev_prefix,
-                uid, image_id, &snapshots, error_str) != 0 )
+                uid, image_id, &snapshots, false, error_str) != 0 )
         {
             oss << "DISK " << disk_id << ": " << error_str;
             error_str = oss.str();
@@ -959,7 +1014,7 @@ int VirtualMachineDisks::set_attach(int id)
 /* -------------------------------------------------------------------------- */
 
 VirtualMachineDisk * VirtualMachineDisks::set_up_attach(int vmid, int uid,
-        int cluster_id, VectorAttribute * vdisk, VectorAttribute * vcontext,
+        int cluster_id, VectorAttribute * vdisk, const std::string& tsys, VectorAttribute * vcontext,
         string& error)
 {
     set<string> used_targets;
@@ -1021,7 +1076,7 @@ VirtualMachineDisk * VirtualMachineDisks::set_up_attach(int vmid, int uid,
     VirtualMachineDisk * disk = new VirtualMachineDisk(vdisk, max_disk_id + 1);
 
     int rc = ipool->acquire_disk(vmid, disk, max_disk_id + 1, img_type,
-                         dev_prefix, uid, image_id, &snap, error);
+                         dev_prefix, uid, image_id, &snap, true, error);
     if ( rc != 0 )
     {
         return 0;
@@ -1083,6 +1138,14 @@ VirtualMachineDisk * VirtualMachineDisks::set_up_attach(int vmid, int uid,
     // -------------------------------------------------------------------------
 
     disk->set_attach();
+    if ( !tsys.empty() )
+    {
+        disk->replace("TM_MAD_SYSTEM", tsys);
+    }
+    else
+    {
+        disk->remove("TM_MAD_SYSTEM");
+    }
 
     add_attribute(disk, disk->get_disk_id());
 

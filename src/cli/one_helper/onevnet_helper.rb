@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -219,6 +219,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         puts str % ["NAME", vn['NAME']]
         puts str % ["USER", vn['UNAME']]
         puts str % ["GROUP", vn['GNAME']]
+        puts str % ["LOCK", OpenNebulaHelper.level_lock_to_str(vn['LOCK/LOCKED'])]
         puts str % ["CLUSTERS",
             OpenNebulaHelper.clusters_str(vn.retrieve_elements("CLUSTERS/ID"))]
         puts str % ["BRIDGE", vn["BRIDGE"]]

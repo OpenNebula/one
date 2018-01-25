@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -47,7 +47,9 @@ module OpenNebula
             :disksnapshotrevert => "vm.disksnapshotrevert",
             :disksnapshotdelete => "vm.disksnapshotdelete",
             :diskresize     => "vm.diskresize",
-            :updateconf     => "vm.updateconf"
+            :updateconf     => "vm.updateconf",
+            :lock     => "vm.lock",
+            :unlock     => "vm.unlock"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
@@ -686,7 +688,17 @@ module OpenNebula
         #   otherwise
 		def updateconf(new_conf)
             return call(VM_METHODS[:updateconf], @pe_id, new_conf)
-		end
+        end
+
+        # Lock a VM
+        def lock(level)
+            return call(VM_METHODS[:lock], @pe_id, level)
+        end
+
+        # Unlock a VM
+        def unlock()
+            return call(VM_METHODS[:unlock], @pe_id)
+        end
 
         ########################################################################
         # Helpers to get VirtualMachine information
@@ -743,7 +755,9 @@ module OpenNebula
         #
         # @return [Integer, OpenNebula::Error] the new Template ID in case of
         #   success, error otherwise
-        REMOVE_VNET_ATTRS = %w{AR_ID BRIDGE CLUSTER_ID IP MAC TARGET NIC_ID NETWORK_ID VN_MAD SECURITY_GROUPS}
+        REMOVE_VNET_ATTRS = %w{AR_ID BRIDGE CLUSTER_ID IP MAC TARGET NIC_ID
+            NETWORK_ID VN_MAD SECURITY_GROUPS VLAN_ID}
+
         def save_as_template(name,description, persistent=nil)
             img_ids = []
             new_tid = nil
@@ -848,12 +862,11 @@ module OpenNebula
                         rc = Error.new('The NIC_ID is missing from the VM template')
                         raise
                     end
-                     REMOVE_VNET_ATTRS.each do |attr|
+                    REMOVE_VNET_ATTRS.each do |attr|
                         nic.delete_element(attr)
                     end
 
-                    replace << self.template_like_str(
-                        "TEMPLATE", true, "NIC[#{nic}]") << "\n"
+                    replace << "NIC = [ " << nic.template_like_str(".").tr("\n", ",\n") << " ] \n"
                 end
 
                 # Required by the Sunstone Cloud View

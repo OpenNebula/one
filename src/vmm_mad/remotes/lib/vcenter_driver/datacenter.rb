@@ -122,7 +122,6 @@ class DatacenterFolder
     def get_unimported_datastores(dpool, vcenter_instance_name, hpool)
 
         ds_objects = {}
-
         vcenter_uuid = get_vcenter_instance_uuid
 
         fetch! if @items.empty? #Get datacenters
@@ -319,7 +318,6 @@ class DatacenterFolder
 
         network_objects = {}
         vcenter_uuid = get_vcenter_instance_uuid
-
         pc = @vi_client.vim.serviceContent.propertyCollector
 
         #Get all port groups and distributed port groups in vcenter instance
@@ -347,21 +345,28 @@ class DatacenterFolder
                 { :type => 'DistributedVirtualPortgroup', :pathSet => ['name'] }
             ]
         )
-
         result = pc.RetrieveProperties(:specSet => [filterSpec])
 
         networks = {}
         result.each do |r|
             networks[r.obj._ref] = r.to_hash if r.obj.is_a?(RbVmomi::VIM::DistributedVirtualPortgroup) || r.obj.is_a?(RbVmomi::VIM::Network)
             networks[r.obj._ref][:network_type] = r.obj.is_a?(RbVmomi::VIM::DistributedVirtualPortgroup) ? "Distributed Port Group" : "Port Group"
-        end
+            networks[r.obj._ref][:uplink] = false
+            networks[r.obj._ref][:processed] = false
 
+            #Multicluster nets support
+            networks[r.obj._ref][:clusters] = {}
+            networks[r.obj._ref][:clusters][:refs] = []
+            networks[r.obj._ref][:clusters][:one_ids] = []
+            networks[r.obj._ref][:clusters][:names] = []
+        end
         view.DestroyView # Destroy the view
 
-        fetch! if @items.empty? #Get datacenters
+        #Get datacenters
+        fetch! if @items.empty?
 
+        #Iterate over datacenters
         @items.values.each do |dc|
-
             dc_name = dc.item.name
             network_objects[dc_name] = []
 
@@ -392,19 +397,28 @@ class DatacenterFolder
             result = pc.RetrieveProperties(:specSet => [filterSpec])
 
             clusters = {}
-                result.each do |r|
+            result.each do |r|
+                browser = r.obj.environmentBrowser || nil
+                if browser
+                    browser.QueryConfigTarget.distributedVirtualPortgroup.each do |s|
+                        next if networks[s.portgroupKey][:processed]
+
+                        networks[s.portgroupKey][:uplink] = s.uplinkPortgroup
+                        networks[s.portgroupKey][:processed] = true
+                    end
+                end
                 clusters[r.obj._ref] = r.to_hash if r.obj.is_a?(RbVmomi::VIM::ClusterComputeResource)
             end
 
             view.DestroyView # Destroy the view
 
             clusters.each do |ref, info|
-
                 one_host = VCenterDriver::VIHelper.find_by_ref(OpenNebula::HostPool,
                                                                "TEMPLATE/VCENTER_CCR_REF",
                                                                ref,
                                                                vcenter_uuid,
                                                                hpool)
+
                 if !one_host || !one_host['CLUSTER_ID']
                     cluster_id = -1
                 else
@@ -412,59 +426,51 @@ class DatacenterFolder
                 end
 
                 one_cluster = VCenterDriver::ClusterComputeResource.new_from_ref(ref, @vi_client)
-
-                # Determine a host location
-                item = one_cluster.item
-                folders = []
-                while !item.instance_of? RbVmomi::VIM::Datacenter
-                    item = item.parent
-                    if !item.instance_of? RbVmomi::VIM::Datacenter
-                        folders << item.name if item.name != "host"
-                    end
-
-                    if item.nil?
-                        raise "Could not find the host's location"
-                    end
-                end
-
-                location = folders.reverse.join("/")
-                location = "/" if location.empty?
+                location = VCenterDriver::VIHelper.get_location(one_cluster.item)
 
                 network_obj = info['network']
+                cname = info['name']
 
                 network_obj.each do |n|
                     network_ref  = n._ref
-                    network_name = networks[network_ref]['name']
-                    network_type = networks[network_ref][:network_type]
 
-                    one_network = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,
+                    # network can belong to more than 1 cluster
+                    networks[network_ref][:clusters][:refs] << ref
+                    networks[network_ref][:clusters][:one_ids] << cluster_id
+                    networks[network_ref][:clusters][:names] << cname
+
+                    next if networks[network_ref][:clusters][:refs].size > 1
+
+                    # Is the first and first time net:
+                    networks[network_ref][:one_net] = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,
                                                                     "TEMPLATE/VCENTER_NET_REF",
                                                                     network_ref,
                                                                     vcenter_uuid,
                                                                     npool,
                                                                     false)
-                    next if one_network #If the network has been already imported
+                end #networks loop
+            end #clusters loop
 
-                    one_vnet = VCenterDriver::Network.to_one_template(network_name,
-                                                                      network_ref,
-                                                                      network_type,
-                                                                      ref,
-                                                                      info['name'],
-                                                                      vcenter_uuid,
-                                                                      vcenter_instance_name,
-                                                                      dc_name,
-                                                                      cluster_id,
-                                                                      location)
+            #general net_info related to datacenter
+            opts = {}
+            opts[:vcenter_uuid]           = vcenter_uuid
+            opts[:vcenter_instance_name]  = vcenter_instance_name
+            opts[:dc_name]                = dc_name
 
+            networks.each do |nref, net_info|
+                next if net_info[:one_net] || net_info[:clusters][:refs].size < 1 || net_info[:uplink]
 
-                    network_objects[dc_name] << one_vnet
-                end
+                opts[:clusters]     = net_info[:clusters]
+                opts[:network_name] = net_info['name']
+                opts[:network_ref]  = nref
+                opts[:network_type] = net_info[:network_type]
 
-            end # network loop
-        end #datacenters loop
+                network_objects[dc_name] << VCenterDriver::Network.to_one_template(opts)
+            end
+
+        end # datacenters loop
 
         return network_objects
-
     end
 
 end # class DatatacenterFolder

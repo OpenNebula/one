@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -63,6 +63,7 @@ string& VMGroup::to_xml(string& xml) const
     string template_xml;
     string perms_xml;
     string roles_xml;
+    string lock_str;
 
     oss <<
     "<VM_GROUP>"    <<
@@ -73,6 +74,7 @@ string& VMGroup::to_xml(string& xml) const
         "<GNAME>"   << gname    << "</GNAME>"  <<
         "<NAME>"    << name     << "</NAME>"   <<
         perms_to_xml(perms_xml)                <<
+        lock_db_to_xml(lock_str)               <<
         roles.to_xml(roles_xml)                <<
         obj_template->to_xml(template_xml)     <<
     "</VM_GROUP>";
@@ -102,6 +104,9 @@ int VMGroup::from_xml(const string &xml_str)
 
     // Permissions
     rc += perms_from_xml();
+
+    // Lock
+    rc += lock_db_from_xml();
 
     // Get associated template
     ObjectXML::get_nodes("/VM_GROUP/TEMPLATE", content);

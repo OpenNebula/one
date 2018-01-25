@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -28,7 +28,7 @@ include OpenNebula
 module OpenNebulaHelper
     ONE_VERSION=<<-EOT
 OpenNebula #{OpenNebula::VERSION}
-Copyright 2002-2017, OpenNebula Project, OpenNebula Systems
+Copyright 2002-2018, OpenNebula Project, OpenNebula Systems
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may
 not use this file except in compliance with the License. You may obtain
@@ -1265,6 +1265,23 @@ EOT
         if error_message
             File.unlink(path)
             return OpenNebula::Error.new("Remote server error: #{error_message}")
+        end
+    end
+
+    def OpenNebulaHelper.level_lock_to_str(str)
+        level = str.to_i
+        if level == 0
+            "None"
+        elsif level == 1
+            "Use"
+        elsif level == 2
+            "Manage"
+        elsif level == 3
+            "Admin"
+        elsif level == 4
+            "All"
+        else
+            "-"
         end
     end
 end

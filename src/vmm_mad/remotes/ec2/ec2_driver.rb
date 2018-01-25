@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -321,22 +321,22 @@ class EC2Driver
         if !ec2_value(ec2_info, 'USERDATA')
             xml = OpenNebula::XMLElement.new
             xml.initialize_xml(xml_text, 'VM')
-        end
 
-        if xml.has_elements?('TEMPLATE/CONTEXT')
-            # Since there is only 1 level ',' will not be added
-            context_str = xml.template_like_str('TEMPLATE/CONTEXT')
+            if xml.has_elements?('TEMPLATE/CONTEXT')
+                # Since there is only 1 level ',' will not be added
+                context_str = xml.template_like_str('TEMPLATE/CONTEXT')
 
-            if xml['TEMPLATE/CONTEXT/TOKEN'] == 'YES'
-                # TODO use OneGate library
-                token_str = generate_onegate_token(xml)
-                if token_str
-                    context_str << "\nONEGATE_TOKEN=\"#{token_str}\""
+                if xml['TEMPLATE/CONTEXT/TOKEN'] == 'YES'
+                    # TODO use OneGate library
+                    token_str = generate_onegate_token(xml)
+                    if token_str
+                        context_str << "\nONEGATE_TOKEN=\"#{token_str}\""
+                    end
                 end
-            end
 
-            userdata_key = EC2[:run][:args]["USERDATA"][:opt]
-            opts[userdata_key] = Base64.encode64(context_str)
+                userdata_key = EC2[:run][:args]["USERDATA"][:opt]
+                opts[userdata_key] = Base64.encode64(context_str)
+            end
         end
 
         instances = @ec2.create_instances(opts)
@@ -816,7 +816,7 @@ private
             if cpu[:datapoints].size != 0
                 cpu = cpu[:datapoints][-1][:average]
             else
-                cpu = 0
+                cpu = onevm["MONITORING/CPU"] || 0
             end
             cpu = cpu.to_f.round(2).to_s
         rescue => e

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -227,6 +227,15 @@ const bool AclManager::authorize(
     // Build masks for request
     long long user_req;
     long long resource_oid_req;
+
+    if (static_cast<long long int>(op) & 0x10LL) //No lockable object
+    {
+        op = static_cast<AuthRequest::Operation>(op & 0x0FLL);
+    }
+    else if (obj_perms.locked > 0 && obj_perms.locked <= static_cast<long long int>(op))
+    {
+        return false;
+    }
 
     if ( obj_perms.oid >= 0 )
     {

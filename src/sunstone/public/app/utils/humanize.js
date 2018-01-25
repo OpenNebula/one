@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -27,13 +27,15 @@ define(function(require) {
     'sizeFromB': _sizeFromB,
     'sizeFromKB': _sizeFromKB,
     'sizeFromMB': _sizeFromMB,
+    'sizeFromMBArray': _sizeFromMBArray,
     'sizeToMB': _sizeToMB,
     'prettyDuration': _prettyDuration,
     'prettyTime': _prettyTime,
     'prettyTimeAxis': _prettyTimeAxis,
     'prettyPrintJSON': _prettyPrintJSON,
     'prettyTimeAgo': _format_date,
-    'prettyTimeDatatable': _prettyTimeDatatable
+    'prettyTimeDatatable': _prettyTimeDatatable,
+    'lock_to_str': _lock_to_str
   }
 
   /*
@@ -94,6 +96,26 @@ define(function(require) {
     }
 
     var st = value + binarySufix[i];
+    return st;
+  }
+
+  function _sizeFromMBArray(value) {
+    if (typeof(value) === "undefined") {
+      value = 0;
+    }
+    var binarySufix =  ["MB", "GB", "TB"];
+    var i = 0;
+    while (value >= 1024 && i < 2) {
+      value = value / 1024;
+      i++;
+    }
+    value = Math.round(value * 10) / 10;
+
+    if (value - Math.round(value) == 0) {
+      value = Math.round(value);
+    }
+
+    var st = [value, binarySufix[i]];
     return st;
   }
 
@@ -278,7 +300,9 @@ define(function(require) {
     return difference_in_seconds;
 
     function _fourdigits(number)  {
-          return (number < 1000) ? number + 1900 : number;}
+      return (number < 1000) ? number + 1900 : number;
+    }
+
 
     //function _plural(number) {
     //  if(parseInt(number) === 1) {
@@ -286,5 +310,23 @@ define(function(require) {
     //  }
     //  return "s";
     //}
+  }
+  function _lock_to_str(level)  {
+    var level_str = "";
+    switch(level) {
+      case "1":
+        level_str = "Use";
+        break;
+      case "2":
+        level_str = "Manage";
+        break;
+      case "3":
+        level_str = "Admin";
+        break;
+      case "4":
+        level_str = "All";
+        break;
+    }
+    return level_str;
   }
 })

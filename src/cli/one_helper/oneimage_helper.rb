@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -265,6 +265,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         puts str % ["NAME", image.name]
         puts str % ["USER", image['UNAME']]
         puts str % ["GROUP",image['GNAME']]
+        puts str % ["LOCK", OpenNebulaHelper.level_lock_to_str(image['LOCK/LOCKED'])]
         puts str % ["DATASTORE",image['DATASTORE']]
         puts str % ["TYPE", image.type_str]
         puts str % ["REGISTER TIME",

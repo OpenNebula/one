@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -633,6 +633,39 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     ###########################################################################
+    # Update body of a history record
+    ###########################################################################
+    update_history_desc = <<-EOT.unindent
+        Update history record of a VM. History records are defined by its
+        sequence number (SEQ) and VM ID:
+
+            * --id: vm id, example: 156
+            * --seq: sequence number of the record, example: 0
+
+        For example to update the 3rd record of VM 0
+            onedb update-history --id 0 --seq 3
+
+        #{LIVE_ACTION_HELP}
+    EOT
+
+    command :'update-history', update_history_desc, :options => [ID, SEQ] do
+        begin
+            if !options[:id] || !options[:seq]
+                puts "Missing VM ID or SEQ number"
+                return -1
+            end
+
+            action = OneDBLive.new
+            action.update_history_cli(options[:id], options[:seq])
+        rescue Exception => e
+            puts e.message
+            [-1, e.message]
+        end
+
+        0 # exit code
+    end
+
+    ###########################################################################
     # Show object body
     ###########################################################################
     show_body_desc = <<-EOT.unindent
@@ -657,6 +690,39 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
             action = OneDBLive.new
             STDOUT.puts action.show_body_cli(args[0], options[:id])
+        rescue Exception => e
+            puts e.message
+            [-1, e.message]
+        end
+
+        0 # exit code
+    end
+
+    ###########################################################################
+    # Show body of a history record
+    ###########################################################################
+    show_history_desc = <<-EOT.unindent
+        Show body of a history record. History records are defined by its
+        sequence number (SEQ) and VM ID:
+
+            * --id: vm id, example: 156
+            * --seq: sequence number of the record, example: 0
+
+        For example to show the 3rd record of VM 0
+            onedb update-history --id 0 --seq 3
+
+        #{LIVE_ACTION_HELP}
+    EOT
+
+    command :'show-history', show_history_desc, :options => [ID, SEQ] do
+        begin
+            if !options[:id] || !options[:seq]
+                puts "Missing VM ID or SEQ"
+                return -1
+            end
+
+            action = OneDBLive.new
+            STDOUT.puts action.show_history_cli(options[:id], options[:seq])
         rescue Exception => e
             puts e.message
             [-1, e.message]

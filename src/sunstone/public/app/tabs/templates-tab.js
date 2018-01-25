@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -50,6 +50,7 @@ define(function(require) {
     parentTab: "templates-top-tab",
     listHeader: Locale.tr("VM Templates"),
     infoHeader: Locale.tr("VM Template"),
+    lockable: true,
     subheader: '<span>\
         <span class="total_templates"/> <small>'+Locale.tr("TOTAL")+'</small>\
       </span>',

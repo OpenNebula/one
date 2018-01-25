@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -1901,6 +1901,12 @@ private:
      *    @return 0 on success
      */
     int parse_os(string& error_str);
+
+    /**
+     *  Parse the "CPU_MODEL" attribute of the template
+     *    @return 0 on success
+     */
+    int parse_cpu_model();
 
     /**
      * Parse the "NIC_DEFAULT" attribute

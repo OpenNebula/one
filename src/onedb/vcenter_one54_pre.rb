@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -331,6 +331,14 @@ def find_network_by_name(vnpool, name)
     return element
 end
 
+def find_network_by_bridge(vnpool, name)
+    element = vnpool.select do |e|
+        e["BRIDGE"] == name
+    end.first rescue nil
+
+    return element
+end
+
 def find_network_ar(vnet, mac)
     mac_int = mac.delete(":").to_i(16)
     vnet.retrieve_xmlelements("AR_POOL/AR").each do |ar|
@@ -630,6 +638,7 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
             end
         end
 
+
         # If VirtualEthernetCard
         if !device.class.ancestors.index(RbVmomi::VIM::VirtualEthernetCard).nil?
 
@@ -655,11 +664,12 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
                  network_type   = "Port Group"
              end
 
-            network_name   = "#{network_bridge} [#{vm_name}(#{vm_id})]"
+            network_name   = "#{network_bridge} [#{vcenter_name}]"
 
             # Create network if doesn't exist
             if vm_wild
-                network = find_network_by_name(vnpool, network_name)
+                #network = find_network_by_name(vnpool, network_name)
+                network = find_network_by_bridge(vnpool, network_bridge)
             else
                 network = find_network(vnpool, network_ref, ccr_ref, template_ref, vcenter_uuid)
             end
@@ -667,6 +677,7 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
             mac_address = device.macAddress rescue nil
             ar_id = nil
 
+            # network not found
             if !network
                 one_net = ""
                 one_net << "NAME=\"#{network_name}\"\n"
@@ -705,7 +716,9 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
                 raise "\n    ERROR! Could not get network info for vnet #{network_name}. Reason #{rc.message}" if OpenNebula.is_error?(rc)
                 network = one_vn
                 STDOUT.puts "--- Network #{one_vn["NAME"]} with ID #{one_vn["ID"]} has been created"
+            # network found:
             else
+
                 STDOUT.puts "--- Network #{network["NAME"]} with ID #{network["ID"]} already exists"
 
                 ar_id = find_network_ar(network, mac_address)
@@ -1361,12 +1374,12 @@ def add_new_host_attrs(vc_clusters, hpool, one_client, vcenter_ids)
     hosts.each do |host|
         begin
             # Get OpenNebula host and prepare variables
-            one_host        = OpenNebula::Host.new_with_id(host["ID"], one_client)
+            one_host        = OpenNebula::Host.new_with_id(host["ID"], one_client) 
             rc              = one_host.info
             raise rc.message if OpenNebula.is_error?(rc)
             ccr_name = host["NAME"]
             ccr_ref  = nil
-            vi_client       = VCenterDriver::VIClient.new(host["ID"])
+            vi_client       = VCenterDriver::VIClient.new(host["ID"]) rescue next
             vcenter_uuid    = vi_client.vim.serviceContent.about.instanceUuid
             vcenter_version = vi_client.vim.serviceContent.about.apiVersion
 
@@ -1434,7 +1447,7 @@ def create_new_clusters(vc_clusters, hpool, cpool, one_client)
             one_host  = OpenNebula::Host.new_with_id(host["ID"], one_client)
             rc   = one_host.info
             raise rc.message if OpenNebula.is_error?(rc)
-            vi_client       = VCenterDriver::VIClient.new(host["ID"])
+            vi_client       = VCenterDriver::VIClient.new(host["ID"]) rescue next
             vcenter_uuid    = vi_client.vim.serviceContent.about.instanceUuid
             ccr_name = host["NAME"]
 
@@ -1573,7 +1586,8 @@ def inspect_datastores(vc_datastores, vc_clusters, one_clusters, dspool, hpool, 
             # Get cluster's host from its name stored in VCENTER_CLUSTER
             hosts = hpool.retrieve_xmlelements("HOST[NAME=\"#{ccr_name}\"]")
             if hosts.empty?
-                raise "Could not find OpenNebula host associated to VCENTER_CLUSTER"
+                STDERR.puts "Could not find OpenNebula host associated to VCENTER_CLUSTER #{ccr_name}. Not updating datastore #{ds_name}."
+                next
             end
 
             # Check if host already has the ccr moref
@@ -1584,7 +1598,7 @@ def inspect_datastores(vc_datastores, vc_clusters, one_clusters, dspool, hpool, 
 
             # Get OpenNebula host's id and create a Rbvmomi connection
             host_id = hosts.first["ID"]
-            vi_client       = VCenterDriver::VIClient.new(host_id)
+            vi_client       = VCenterDriver::VIClient.new(host_id) rescue next
             vcenter_uuid    = vi_client.vim.serviceContent.about.instanceUuid
             vcenter_name    = vi_client.host
 
@@ -1985,6 +1999,17 @@ def prepare_vnet_xml_templates(vnet_ids, one_client)
         raise rc.message if OpenNebula.is_error?(rc)
         xml_doc = Nokogiri::XML(one_vnet.to_xml, nil, "UTF-8"){|c| c.default_xml.noblanks}
         xml_doc.root.xpath("TEMPLATE/VCENTER_TYPE").remove
+        xml_doc.root.xpath("AR_POOL/AR/USED_LEASES").remove
+
+        xml_doc.search('.//MAC_END').remove
+        xml_doc.search('.//LEASES').remove
+        xml_doc.search('.//IP_END').remove
+        xml_doc.search('.//IP6_ULA').remove
+        xml_doc.search('.//IP6_ULA_END').remove
+        xml_doc.search('.//IP6_GLOBAL').remove
+        xml_doc.search('.//IP6_GLOBAL_END').remove
+
+
         File.open("#{TEMP_DIR}/one_migrate_vnet_#{vnet_id}","w"){|f| f.puts(xml_doc.root.to_s.gsub(/>\s*/, ">").gsub(/\s*</, "<"))}
         STDOUT.puts
         STDOUT.puts "New XML file #{TEMP_DIR}/one_migrate_vnet_#{vnet_id} for vnet \e[96m#{one_vnet["NAME"]}\e[39m \e[92mwas created and attributes were removed\e[39m\n"
@@ -2897,7 +2922,7 @@ def inspect_vms(vc_vmachines, vc_templates, vc_clusters, one_clusters, vmpool, i
             STDOUT.puts
         rescue Exception => e
             STDOUT.puts
-            STDOUT.puts "Wild VM \"#{vm["NAME"]}\" couldn't be migrated. It may require manual intervention. Reason: #{e.message}"
+            STDOUT.puts "VM \"#{vm["NAME"]}\" couldn't be migrated. It may require manual intervention. Reason: #{e.message}"
         ensure
             vi_client.vim.close if vi_client
         end
@@ -2926,7 +2951,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     main do
         begin
-            msg = "  vCenter pre-migrator tool for OpenNebula 5.4 - Version: 1.1.6"
+            msg = "  vCenter pre-migrator tool for OpenNebula 5.4 - Version: 1.1.8"
             logo_banner(msg)
 
             # Initialize opennebula client
@@ -3002,7 +3027,7 @@ CommandParser::CmdParser.new(ARGV) do
             hpool.each do |host|
                 next if host['VM_MAD'] != "vcenter"
 
-                vi_client = VCenterDriver::VIClient.new(host["ID"])
+                vi_client = VCenterDriver::VIClient.new(host["ID"]) rescue next
                 vcenter_uuid = vi_client.vim.serviceContent.about.instanceUuid
                 if vcenter_instances.include?(vcenter_uuid)
                     vi_client.vim.close

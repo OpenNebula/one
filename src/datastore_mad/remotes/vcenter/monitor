@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -44,7 +44,7 @@ ds_ref = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_REF"]
 check_valid ds_ref, "ds_ref"
 
 if ds_id.nil? || ds_ref.nil?
-    STDERR.puts "Not enough information to monitor the image."
+    STDERR.puts "Not enough information to monitor the datastore."
     exit -1
 end
 
@@ -55,7 +55,7 @@ begin
     puts storage.monitor
 
 rescue Exception => e
-    message = "Error monitoring host #{id}."\
+    message = "Error monitoring datastore #{id}."\
               " Reason: \"#{e.message}\"\n#{e.backtrace}"
     STDERR.puts error_message(message)
     exit -1

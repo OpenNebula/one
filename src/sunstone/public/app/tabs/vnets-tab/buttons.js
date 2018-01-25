@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,6 +16,7 @@
 
 define(function(require) {
   var Locale = require('utils/locale');
+  var Tips = require('utils/tips');
 
   var VNetButtons = {
     "Network.refresh" : {
@@ -73,6 +74,29 @@ define(function(require) {
     },
     "Network.edit_labels" : {
       layout: "labels",
+    },
+    "Network.lockA" : {
+      type: "action",
+      text: Locale.tr("Admin"),
+      layout: "lock_buttons",
+      data: 3
+    },
+    "Network.lockM" : {
+      type: "action",
+      text: Locale.tr("Manage"),
+      layout: "lock_buttons",
+      data: 2
+    },
+    "Network.lockU" : {
+      type: "action",
+      text: Locale.tr("Use"),
+      layout: "lock_buttons",
+      data: 1
+    },
+    "Network.unlock" : {
+      type: "action",
+      text: Locale.tr("Unlock"),
+      layout: "lock_buttons"
     }
   };
 

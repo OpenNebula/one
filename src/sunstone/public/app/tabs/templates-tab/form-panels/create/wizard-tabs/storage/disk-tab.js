@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -44,7 +44,11 @@ define(function(require) {
   function DiskTab(diskTabId) {
     this.diskTabId = 'diskTab' + diskTabId + UniqueId.id();
 
-    this.imageTable = new ImageTable(this.diskTabId + 'Table', {'select': true});
+    this.imageTable = new ImageTable(this.diskTabId + 'Table', {
+      'select': true,
+      'selectOptions': {
+        "filter_fn": function(image) { return image.STATE != 5; }
+    }});
   }
 
   DiskTab.prototype.constructor = DiskTab;
@@ -214,6 +218,7 @@ define(function(require) {
         }
 
         this.imageTable.selectResourceTableSelect(selectedResources);
+
       } else if (templateJSON.IMAGE != undefined && templateJSON.IMAGE_UNAME != undefined) {
         var selectedResources = {
           names : {

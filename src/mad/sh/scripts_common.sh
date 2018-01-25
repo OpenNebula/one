@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -38,7 +38,7 @@ MD5SUM=${MD5SUM:-md5sum}
 MKFS=${MKFS:-mkfs}
 MKISOFS=${MKISOFS:-genisoimage}
 MKSWAP=${MKSWAP:-mkswap}
-QEMU_IMG=${QMEMU_IMG:-qemu-img}
+QEMU_IMG=${QEMU_IMG:-qemu-img}
 RADOS=${RADOS:-rados}
 RBD=${RBD:-rbd}
 READLINK=${READLINK:-readlink}

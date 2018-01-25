@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -101,7 +101,7 @@ void Datastore::disk_attribute(
         VirtualMachineDisk *    disk,
         const vector<string>&   inherit_attrs)
 {
-    string st;
+    string st, tm_mad;
     string inherit_val;
     string current_val;
     string type;
@@ -116,16 +116,48 @@ void Datastore::disk_attribute(
 
     disk->replace("CLUSTER_ID", one_util::join(cluster_ids, ','));
 
-    get_template_attribute("CLONE_TARGET", st);
+    tm_mad = disk->get_tm_mad_system();
 
-    if(!st.empty() && disk->vector_value("CLONE_TARGET").empty())
+    if (!tm_mad.empty())
+    {
+        string tm_mad_t = one_util::trim(tm_mad);
+        tm_mad = one_util::toupper(tm_mad_t);
+    }
+
+    if (!tm_mad.empty())
+    {
+        get_template_attribute("CLONE_TARGET_" + tm_mad, st);
+
+        if (st.empty())
+        {
+            get_template_attribute("CLONE_TARGET", st);
+        }
+    }
+    else
+    {
+        get_template_attribute("CLONE_TARGET", st);
+    }
+
+    if(!st.empty())
     {
         disk->replace("CLONE_TARGET", st);
     }
 
-    get_template_attribute("LN_TARGET", st);
+    if (!tm_mad.empty())
+    {
+        get_template_attribute("LN_TARGET_" + tm_mad, st);
 
-    if(!st.empty() && disk->vector_value("LN_TARGET").empty())
+        if (st.empty())
+        {
+            get_template_attribute("LN_TARGET", st);
+        }
+    }
+    else
+    {
+        get_template_attribute("LN_TARGET", st);
+    }
+
+    if(!st.empty())
     {
         disk->replace("LN_TARGET", st);
     }
@@ -135,13 +167,22 @@ void Datastore::disk_attribute(
         current_val = disk->vector_value((*it).c_str());
         get_template_attribute((*it).c_str(), inherit_val);
 
-        if ( current_val.empty() && !inherit_val.empty() && disk->vector_value((*it).c_str()).empty())
+        if ( current_val.empty() && !inherit_val.empty() )
         {
             disk->replace(*it, inherit_val);
         }
     }
 
-    if (disk->is_volatile() && disk->vector_value("DISK_TYPE").empty())
+    if (!tm_mad.empty())
+    {
+        get_template_attribute("DISK_TYPE_" + tm_mad, st);
+
+        if (!st.empty())
+        {
+            disk->set_types(st);
+        }
+    }
+    else if (disk->is_volatile())
     {
         disk->replace("DISK_TYPE", Image::disk_type_to_str(get_disk_type()));
     }
@@ -152,7 +193,7 @@ void Datastore::disk_attribute(
     {
         get_template_attribute("DRIVER", st);
 
-        if(!st.empty() && disk->vector_value("DRIVER").empty())
+        if(!st.empty())
         {
             disk->replace("DRIVER", st);
         }
@@ -280,9 +321,10 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
 {
     const VectorAttribute* vatt;
 
-    string st;
+    std::vector<std::string> modes;
 
     ostringstream oss;
+    std::stringstream ss;
 
     if ( Nebula::instance().get_tm_conf_attribute(tm_mad, vatt) != 0 )
     {
@@ -327,6 +369,52 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
     }
     else
     {
+        string st = vatt->vector_value("TM_MAD_SYSTEM");
+
+        if (!st.empty())
+        {
+            std::vector<std::string>::iterator it;
+
+            replace_template_attribute("TM_MAD_SYSTEM", st);
+
+            modes = one_util::split(st, ',', true);
+
+            string s;
+
+            for (it = modes.begin() ; it != modes.end(); ++it)
+            {
+                string tm_mad_t = one_util::trim(*it);
+                string tm_mad = one_util::toupper(tm_mad_t);
+
+                st = vatt->vector_value("LN_TARGET_" + tm_mad);
+
+                if (check_tm_target_type(st) == -1)
+                {
+                    goto error;
+                }
+
+                replace_template_attribute("LN_TARGET_" + tm_mad, st);
+
+                st = vatt->vector_value("CLONE_TARGET_" + tm_mad);
+
+                if (check_tm_target_type(st) == -1)
+                {
+                    goto error;
+                }
+
+                replace_template_attribute("CLONE_TARGET_" + tm_mad, st);
+
+                st = vatt->vector_value("DISK_TYPE_" + tm_mad);
+
+                if (st.empty())
+                {
+                    goto error;
+                }
+
+                replace_template_attribute("DISK_TYPE_" + tm_mad, st);
+            }
+        }
+
         st = vatt->vector_value("LN_TARGET");
 
         if (check_tm_target_type(st) == -1)

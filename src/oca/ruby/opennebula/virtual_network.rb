@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -38,7 +38,9 @@ module OpenNebula
             :release    => "vn.release",
             :rename     => "vn.rename",
             :reserve    => "vn.reserve",
-            :free_ar    => "vn.free_ar"
+            :free_ar    => "vn.free_ar",
+            :lock       => "vn.lock",
+            :unlock     => "vn.unlock"
         }
 
         # Creates a VirtualNetwork description with just its identifier
@@ -328,6 +330,14 @@ module OpenNebula
             end
 
             return array
+        end
+
+        def lock(level)
+            return call(VN_METHODS[:lock], @pe_id, level)
+        end
+
+        def unlock()
+            return call(VN_METHODS[:unlock], @pe_id)
         end
 
     private

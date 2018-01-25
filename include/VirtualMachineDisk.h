@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -162,6 +162,11 @@ public:
      */
     int get_image_id(int &id, int uid);
 
+    /**
+     *  Return the TM_MAD_SYSTEM attribute
+     */
+    std::string get_tm_mad_system();
+
     /* ---------------------------------------------------------------------- */
     /* Image Manager Interface                                                */
     /* ---------------------------------------------------------------------- */
@@ -319,6 +324,13 @@ public:
      *    @param sys_sz size in system datastore needed
      */
     void datastore_sizes(int& ds_id, long long& img_sz, long long& sys_sz);
+
+    /**
+     *  Update the TYPE and DISK_TYPE attributes based on the system DS
+     *  name
+     *    @param ds_name of the system ds tm_mad
+     */
+    void set_types(const string& ds_name);
 
 private:
 
@@ -478,13 +490,15 @@ public:
      *  Get all disk images for this Virtual Machine
      *  @param vm_id of the VirtualMachine
      *  @param uid of owner
+     *  @param tm_mad_sys tm_mad_sys mode to deploy the disks
      *  @param disks list of DISK Attribute in VirtualMachine Template
      *  @param context attribute, 0 if none
      *  @param error_str Returns the error reason, if any
      *  @return 0 if success
      */
-    int get_images(int vm_id, int uid, vector<Attribute *> disks,
-            VectorAttribute * context, std::string& error_str);
+    int get_images(int vm_id, int uid, const std::string& tm_mad_sys,
+            vector<Attribute *> disks, VectorAttribute * context,
+            std::string& error_str);
 
     /**
      *  Release the images in the disk set
@@ -562,7 +576,8 @@ public:
      *     @return Pointer to the new disk or 0 in case of error
      */
     VirtualMachineDisk * set_up_attach(int vmid, int uid, int cluster_id,
-            VectorAttribute * vdisk, VectorAttribute * vcontext, string& error);
+            VectorAttribute * vdisk, const std::string& tsys,
+            VectorAttribute * vcontext, string& error);
 
     /* ---------------------------------------------------------------------- */
     /* Save as Interface                                                      */

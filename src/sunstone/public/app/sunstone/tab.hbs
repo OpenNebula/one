@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -22,9 +22,12 @@
       </h5>
       <h5 class="header-title only-sunstone-info" hidden>
         <span class="header-resource">
-          {{{infoHeader}}} 
-          <small class="resource-id"></small> 
-          <small class="resource-info-header"></small> 
+          {{#if lockable }}
+          <small class="resource-lock-header-small"></small>
+          {{/if}}
+          {{{infoHeader}}}
+          <small class="resource-id"></small>
+          <small class="resource-info-header"></small>
           <small class="resource-info-header-small"></small>
         </span>
       </h5>

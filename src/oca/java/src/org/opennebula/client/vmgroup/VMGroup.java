@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2002-2017, OpenNebula Project, OpenNebula Systems
+ * Copyright 2002-2018, OpenNebula Project, OpenNebula Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,8 @@ public class VMGroup extends PoolElement{
     private static final String CHOWN           = METHOD_PREFIX + "chown";
     private static final String CHMOD           = METHOD_PREFIX + "chmod";
     private static final String RENAME          = METHOD_PREFIX + "rename";
+    private static final String LOCK            = METHOD_PREFIX + "lock";
+    private static final String UNLOCK          = METHOD_PREFIX + "unlock";
 
     /**
      * Creates a new vmgroup representation.
@@ -197,6 +199,31 @@ public class VMGroup extends PoolElement{
         return client.call(RENAME, id, name);
     }
 
+    /**
+     * lock this vmgroup
+     *
+     * @param client XML-RPC Client.
+     * @param id The id of the target vmgroup.
+     * @param level Lock level.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse lock(Client client, int id, int level)
+    {
+        return client.call(LOCK, id, level);
+    }
+
+    /**
+     * Unlock this vmgroup
+     *
+     * @param client XML-RPC Client.
+     * @param id The id of the target vmgroup.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse unlock(Client client, int id)
+    {
+        return client.call(UNLOCK, id);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -336,6 +363,27 @@ public class VMGroup extends PoolElement{
     public OneResponse rename(String name)
     {
         return rename(client, id, name);
+    }
+
+    /**
+     * Lock this vmgroup
+     *
+     * @param level Lock level.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse lock(int level)
+    {
+        return rename(client, id, level);
+    }
+
+    /**
+     * Unlock this vmgroup
+     *
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse unlock()
+    {
+        return rename(client, id);
     }
 
     // =================================

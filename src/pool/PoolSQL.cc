@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -65,14 +65,14 @@ int PoolSQL::get_lastOID()
 
 /* -------------------------------------------------------------------------- */
 
-static void _set_lastOID(int _last_oid, SqlDB * db, const string& table)
+static int _set_lastOID(int _last_oid, SqlDB * db, const string& table)
 {
     ostringstream oss;
 
     oss << "REPLACE INTO pool_control (tablename, last_oid) VALUES ('" << table
         << "'," << _last_oid << ")";
 
-    db->exec_wr(oss);
+    return db->exec_wr(oss);
 }
 
 void PoolSQL::set_lastOID(int _last_oid)
@@ -137,7 +137,12 @@ int PoolSQL::allocate(PoolObjectSQL *objsql, string& error_str)
 
     objsql->oid = ++lastOID;
 
-    _set_lastOID(lastOID, db, table);
+    if ( _set_lastOID(lastOID, db, table) == -1 )
+    {
+        unlock();
+
+        return -1;
+    }
 
     rc = objsql->insert(db, error_str);
 

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -177,7 +177,7 @@ end
 
 set :cloud_auth, $cloud_auth
 
-$views_config = SunstoneViews.new
+$views_config = SunstoneViews.new($conf[:mode])
 
 #start VNC proxy
 
@@ -333,6 +333,8 @@ helpers do
             session[:zone_id]   = zone.id
 
             session[:federation_mode] = rc['FEDERATION/MODE'].upcase
+
+            session[:mode] = $conf[:mode]
 
             return [204, ""]
         end
@@ -614,7 +616,6 @@ get '/infrastructure' do
     infrastructure = {}
 
     set = Set.new
-
     xml = XMLElement.new
     xml.initialize_xml(hpool.to_xml, 'HOST_POOL')
     xml.each('HOST/HOST_SHARE/PCI_DEVICES/PCI') do |pci|
@@ -635,6 +636,16 @@ get '/infrastructure' do
     end
 
     infrastructure[:vcenter_customizations] = set.to_a
+
+    set_cpu_models = Set.new
+    set_kvm_machines = Set.new
+
+    xml.each('HOST/TEMPLATE') do |kvm|
+        set_cpu_models += kvm['KVM_CPU_MODELS'].split(" ")
+        set_kvm_machines += kvm['KVM_MACHINES'].split(" ")
+    end
+
+    infrastructure[:kvm_info] = { :set_cpu_models => set_cpu_models.to_a, :set_kvm_machines => set_kvm_machines.to_a }
 
     [200, infrastructure.to_json]
 end

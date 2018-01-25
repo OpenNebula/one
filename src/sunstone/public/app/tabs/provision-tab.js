@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -30,7 +30,6 @@ define(function(require) {
   var Showback = require('utils/showback');
   var Humanize = require('utils/humanize');
   var QuotaLimits = require('utils/quotas/quota-limits');
-  var Graphs = require('utils/graphs');
   var RangeSlider = require('utils/range-slider');
   var DisksResize = require('utils/disks-resize');
   var NicsSection = require('utils/nics-section');
@@ -201,6 +200,31 @@ define(function(require) {
         CapacityInputs.html() +
       '</fieldset>');
 
+    if (Config.provision.dashboard.isEnabled("quotas")) {
+      $("#quotas-mem", context).show();
+      $("#quotas-cpu", context).show();
+      var quotaMem = false;
+      var quotaCpu = false;
+
+      var user = this.user;
+      if (!$.isEmptyObject(user.VM_QUOTA)){
+        var memUsed = parseFloat(user.VM_QUOTA.VM.MEMORY_USED);
+        var cpuUsed = parseFloat(user.VM_QUOTA.VM.CPU_USED);
+        if (user.VM_QUOTA.VM.MEMORY === "-1" || user.VM_QUOTA.VM.MEMORY === "-2"){
+          $("#quotas-mem", context).text(Humanize.size(memUsed * 1024) + " / ∞");
+        } else {
+          quotaMem = true;
+          $("#quotas-mem", context).text(Humanize.size(memUsed * 1024) + " / " + Humanize.size(user.VM_QUOTA.VM.MEMORY * 1024));
+        }
+        if (user.VM_QUOTA.VM.CPU === "-1" || user.VM_QUOTA.VM.CPU === "-2"){
+          $("#quotas-cpu", context).text(cpuUsed + " / ∞");
+        } else {
+          quotaCpu = true;
+          $("#quotas-cpu", context).text(cpuUsed + " / " + user.VM_QUOTA.VM.CPU);
+        }
+      }
+    }
+
     CapacityInputs.setup(context);
     CapacityInputs.fill(context, element);
 
@@ -220,6 +244,35 @@ define(function(require) {
 
       $(".memory_value", context).html(memory_value);
       $(".memory_unit", context).html(memory_unit);
+
+      if (!values.MEMORY){
+        values.MEMORY = 0;
+      }
+      if (!values.CPU){
+        values.CPU = 0;
+      }
+      if (!$.isEmptyObject(user.VM_QUOTA)){
+        if (quotaMem){
+          $("#quotas-mem", context).text( Humanize.size((parseFloat(user.VM_QUOTA.VM.MEMORY_USED) + parseFloat(values.MEMORY)) * 1024) + " / " + Humanize.size(user.VM_QUOTA.VM.MEMORY * 1024));
+          if ((parseFloat(values.MEMORY) + parseFloat(user.VM_QUOTA.VM.MEMORY_USED)) > user.VM_QUOTA.VM.MEMORY){
+            $("#quotas-mem", context).css("color", "red");
+          } else {
+            $("#quotas-mem", context).css("color", "black");
+          }
+        } else {
+          $("#quotas-mem", context).text( Humanize.size((parseFloat(user.VM_QUOTA.VM.MEMORY_USED) + parseFloat(values.MEMORY)) * 1024) + " / ∞");
+        }
+        if (quotaCpu){
+          $("#quotas-cpu", context).text(((parseFloat(user.VM_QUOTA.VM.CPU_USED) + parseFloat(values.CPU))).toFixed(2) + " / " + user.VM_QUOTA.VM.CPU);
+          if ((parseFloat(values.CPU) + parseFloat(user.VM_QUOTA.VM.CPU_USED)) > user.VM_QUOTA.VM.CPU){
+            $("#quotas-cpu", context).css("color", "red");
+          } else {
+            $("#quotas-cpu", context).css("color", "black");
+          }
+        } else {
+          $("#quotas-cpu", context).text(((parseFloat(user.VM_QUOTA.VM.CPU_USED) + parseFloat(values.CPU))).toFixed(2) + " / ∞");
+        }
+      }
     });
 
     var cost = 0;
@@ -277,6 +330,22 @@ define(function(require) {
 
       $(".total_cost_div .cost_value", context).text( (total).toFixed(2) );
     }
+
+    if (Config.provision.dashboard.isEnabled("quotas") && !$.isEmptyObject(user.VM_QUOTA)) {
+      if (!$("#quotas-disks").text().includes("/")){
+        var totalSize = parseFloat($("#quotas-disks").text());
+        if (this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE === "-1" || this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE === "-2"){
+          $("#quotas-disks").text(Humanize.size((parseFloat(this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE_USED) + totalSize) * 1024) + " / ∞");
+        } else {
+          $("#quotas-disks").text(Humanize.size((parseFloat(this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE_USED) + totalSize) * 1024) + " / " + Humanize.size(parseFloat(this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE) * 1024));
+          if ((parseFloat(this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE_USED) + totalSize) > parseFloat(this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE)){
+            $("#quotas-disks", context).css("color", "red");
+          } else {
+            $("#quotas-disks", context).css("color", "black");
+          }
+        }
+      }
+    }
   }
 
   function _calculateFlowCost(){
@@ -304,7 +373,7 @@ define(function(require) {
 
     if (Config.provision.dashboard.isEnabled("vms")) {
       $("#provision_dashboard").append(TemplateDashboardVms());
-      
+
       if(!Config.isFeatureEnabled("cloud_vm_create")){
         $('.provision_create_vm_button').hide();
       }
@@ -324,15 +393,6 @@ define(function(require) {
         "userfilter": config["user_id"]
       }
 
-      var no_table = true;
-
-      OpenNebula.VM.accounting({
-          success: function(req, response){
-              Accounting.fillAccounting($("#dashboard_vm_accounting"), req, response, no_table);
-          },
-          error: Notifier.onError,
-          data: options
-      });
 
       OpenNebula.VM.list({
         timeout: true,
@@ -402,17 +462,6 @@ define(function(require) {
         "end_time": end_time
       }
 
-      var no_table = true;
-
-      OpenNebula.VM.accounting({
-          success: function(req, response){
-              Accounting.fillAccounting($("#dashboard_group_vm_accounting"), req, response, no_table);
-          },
-          error: Notifier.onError,
-          data: options
-      });
-
-
       OpenNebula.VM.list({
         timeout: true,
         success: function (request, item_list){
@@ -462,13 +511,14 @@ define(function(require) {
     if (Config.provision.dashboard.isEnabled("quotas")) {
       $("#provision_dashboard").append(TemplateDashboardQuotas());
 
-
+      var that = this;
       OpenNebula.User.show({
         data : {
             id: "-1"
         },
         success: function(request,user_json){
           var user = user_json.USER;
+          that.user = user;
 
           QuotaWidgets.initEmptyQuotas(user);
 
@@ -979,7 +1029,6 @@ define(function(require) {
                   $(".provision_capacity_selector", create_vm_context),
                   template_json.VMTEMPLATE);
 
-                that.original_disks = jQuery.extend(true, {}, template_json.VMTEMPLATE.TEMPLATE.DISK);
                 var disksContext = $(".provision_disk_selector", create_vm_context);
                 disksContext.data("template_json", template_json);
 
@@ -996,6 +1045,15 @@ define(function(require) {
                     cost_callback: _calculateCost,
                     uinput_mb: true
                   });
+                  if (Config.provision.dashboard.isEnabled("quotas") && !$.isEmptyObject(user.VM_QUOTA)) {
+                    $("#quotas-disks").show();
+                    if (this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE === "-1" || this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE === "-2"){
+                      $("#quotas-disks").text(Humanize.size(parseFloat(this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE_USED) * 1024) + " / " + "∞");
+                    } else {
+                      $("#quotas-disks").text(Humanize.size(parseFloat(this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE_USED) * 1024) + " / " + Humanize.size(parseFloat(this.user.VM_QUOTA.VM.SYSTEM_DISK_SIZE) * 1024));
+                    }
+                    $("input", disksContext).change();
+                  }
                 } else {
                   disksContext.html("");
                 }
@@ -1091,31 +1149,15 @@ define(function(require) {
           var vm_name = $("#vm_name", context).val();
           var nics = NicsSection.retrieve(context);
 
-          var odisks = that.original_disks;
-          if (!Array.isArray(odisks)){
-            odisks = [odisks];
-          }
           var disks = DisksResize.retrieve($(".provision_disk_selector", context));
-          $.each(disks, function(dkey, dvalue){
-            $.each(odisks, function(okey, ovalue){
-              if (dvalue.DISK_ID == ovalue.DISK_ID && dvalue.IMAGE_ID){
-                if (dvalue.SIZE != ovalue.SIZE) {
-                  var disk = { IMAGE_ID: dvalue.IMAGE_ID, SIZE: dvalue.SIZE };
-                } else {
-                  var disk = { IMAGE_ID: dvalue.IMAGE_ID };
-                }
-                disks[dkey] = disk;
-              }
-            });
-          });
 
           var extra_info = {
             'vm_name' : vm_name,
             'template': {
             }
-          }
+          };
 
-          var vmgroup = VMGroupSection.retrieve($(".vmgroupContext"+ template_id));
+          var vmgroup = VMGroupSection.retrieve($(".vmgroupContext", context));
 
           if(vmgroup){
             $.extend(extra_info.template, vmgroup);

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -75,6 +75,10 @@ define(function(require) {
     "VM.recover": _commonActions.multipleAction('recover'),
     "VM.resched": _commonActions.multipleAction('resched'),
     "VM.unresched": _commonActions.multipleAction('unresched'),
+    "VM.lockM": _commonActions.multipleAction('lock'),
+    "VM.lockU": _commonActions.multipleAction('lock'),
+    "VM.lockA": _commonActions.multipleAction('lock'),
+    "VM.unlock": _commonActions.multipleAction('unlock'),
 
     "VM.chmod": _commonActions.singleAction('chmod'),
     "VM.rename": _commonActions.singleAction('rename'),
