@@ -751,7 +751,7 @@ int VirtualMachineDisks::get_images(int vm_id, int uid, const std::string& tsys,
         }
 
         if ( ipool->acquire_disk(vm_id, disk, disk_id, image_type, dev_prefix,
-                uid, image_id, &snapshots, error_str) != 0 )
+                uid, image_id, &snapshots, false, error_str) != 0 )
         {
             oss << "DISK " << disk_id << ": " << error_str;
             error_str = oss.str();
@@ -1076,7 +1076,7 @@ VirtualMachineDisk * VirtualMachineDisks::set_up_attach(int vmid, int uid,
     VirtualMachineDisk * disk = new VirtualMachineDisk(vdisk, max_disk_id + 1);
 
     int rc = ipool->acquire_disk(vmid, disk, max_disk_id + 1, img_type,
-                         dev_prefix, uid, image_id, &snap, error);
+                         dev_prefix, uid, image_id, &snap, true, error);
     if ( rc != 0 )
     {
         return 0;
