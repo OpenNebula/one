@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -93,9 +93,9 @@ unset i j XPATH_ELEMENTS
 while IFS= read -r -d '' element; do
         XPATH_ELEMENTS[i++]="$element"
 done < <(onedatastore show -x $DS_ID | $XPATH \
-                    /DATASTORE/TEMPLATE/EC_POOL)
+                    /DATASTORE/TEMPLATE/EC_POOL_NAME)
 
-EC_POOL="${XPATH_ELEMENTS[j++]}"
+EC_POOL_NAME="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
 # Copy Image back to the datastore
@@ -123,12 +123,9 @@ if [ "$RBD_FORMAT" = "2" ]; then
     FORMAT_OPT="--image-format 2"
 fi
 
-if [ -n "$EC_POOL" ]; then
-    EC_POOL_OPT="--data-pool ${EC_POOL}"
+if [ -n "$EC_POOL_NAME" ]; then
+    EC_POOL_OPT="--data-pool ${EC_POOL_NAME}"
 fi
-
-COPY_CMD=$(cat <<EOF
-    RBD="${RBD}"
 
 if [ "${TYPE}" = 'FILE' ]; then
     if [ "$SNAP_ID" != "-1" ]; then

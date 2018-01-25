@@ -93,9 +93,9 @@ unset i j XPATH_ELEMENTS
 while IFS= read -r -d '' element; do
         XPATH_ELEMENTS[i++]="$element"
 done < <(onedatastore show -x $DST_DS_ID | $XPATH \
-                    /DATASTORE/TEMPLATE/EC_POOL)
+                    /DATASTORE/TEMPLATE/EC_POOL_NAME)
 
-EC_POOL="${XPATH_ELEMENTS[j++]}"
+EC_POOL_NAME="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
 # Clone the image and create @snap if it does not exists
@@ -113,8 +113,8 @@ if [ -n "$CEPH_CONF" ]; then
     RBD="$RBD --conf ${CEPH_CONF}"
 fi
 
-if [ -n "$EC_POOL" ]; then
-    EC_POOL_OPT="--data-pool ${EC_POOL}"
+if [ -n "$EC_POOL_NAME" ]; then
+    EC_POOL_OPT="--data-pool ${EC_POOL_NAME}"
 fi
 
 if [ "${TYPE}" = 'FILE' ]; then
