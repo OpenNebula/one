@@ -4,7 +4,8 @@
 *.DS_Store
 .xmlrpc_test/
 .sconsign.dblite
-share/man/*.gz
+share/man/*
+!share/man/build.sh
 src/im_mad/collectd/collectd
 src/scheduler/src/sched/.xmlrpc_test/
 src/scheduler/src/sched/mm_sched
