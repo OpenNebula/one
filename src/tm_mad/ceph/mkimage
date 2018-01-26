@@ -61,7 +61,7 @@ DST_DIR=`dirname $DST_PATH`
 DISK_ID=$(echo $DST|awk -F. '{print $NF}')
 
 #-------------------------------------------------------------------------------
-# Make the new image (file-based)
+#  Get Image information
 #-------------------------------------------------------------------------------
 
 XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
@@ -70,7 +70,7 @@ unset i j XPATH_ELEMENTS
 
 while IFS= read -r -d '' element; do
         XPATH_ELEMENTS[i++]="$element"
-        done < <(onevm show -x $VMID | $XPATH  \
+done < <(onevm show -x $VMID | $XPATH  \
                             /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER \
                             /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_KEY \
                             /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_CONF \
@@ -82,6 +82,19 @@ CEPH_KEY="${XPATH_ELEMENTS[j++]}"
 CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 POOL_NAME="${XPATH_ELEMENTS[j++]:-$POOL_NAME}"
 RBD_FORMAT="${XPATH_ELEMENTS[j++]:-$RBD_FORMAT}"
+
+#-------------------------------------------------------------------------------
+# Get Datastore information
+#-------------------------------------------------------------------------------
+
+unset i j XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+done < <(onedatastore show -x $DSID | $XPATH \
+                            /DATASTORE/TEMPLATE/EC_POOL_NAME)
+
+EC_POOL_NAME="${XPATH_ELEMENTS[j++]}"
 
 QEMU_OPTS=''
 
@@ -104,6 +117,10 @@ if [ "$RBD_FORMAT" = "2" ]; then
     FORMAT_OPT="--image-format 2"
 fi
 
+if [ -n "$EC_POOL_NAME" ]; then
+    EC_POOL_OPT="--data-pool ${EC_POOL_NAME}"
+fi
+
 RBD_SOURCE="${POOL_NAME}/one-sys-${VMID}-${DISK_ID}"
 
 ssh_make_path $DST_HOST $DST_DIR
@@ -117,7 +134,7 @@ MKIMAGE_CMD=$(cat <<EOF
 
     export PATH=/usr/sbin:/sbin:\$PATH
 
-    $RBD create $FORMAT_OPT $RBD_SOURCE --size ${SIZE}
+    $RBD create $FORMAT_OPT ${EC_POOL_OPT} $RBD_SOURCE --size ${SIZE}
 
     if [ "$FSTYPE" = "swap" ]; then
         ${MKFS_CMD}

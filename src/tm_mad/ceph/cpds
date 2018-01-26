@@ -85,6 +85,19 @@ CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 TYPE="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
+# Get Datastore information
+#-------------------------------------------------------------------------------
+
+unset i j XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+done < <(onedatastore show -x $DS_ID | $XPATH \
+                    /DATASTORE/TEMPLATE/EC_POOL_NAME)
+
+EC_POOL_NAME="${XPATH_ELEMENTS[j++]}"
+
+#-------------------------------------------------------------------------------
 # Copy Image back to the datastore
 #-------------------------------------------------------------------------------
 
@@ -108,6 +121,10 @@ fi
 
 if [ "$RBD_FORMAT" = "2" ]; then
     FORMAT_OPT="--image-format 2"
+fi
+
+if [ -n "$EC_POOL_NAME" ]; then
+    EC_POOL_OPT="--data-pool ${EC_POOL_NAME}"
 fi
 
 if [ "${TYPE}" = 'FILE' ]; then
@@ -146,7 +163,7 @@ else
             RBD_DST=\$RBD_DST@$SNAP_ID
         fi
 
-        $RBD copy $RBD_DST $DST
+        $RBD ${EC_POOL_OPT} copy $RBD_DST $DST
 EOF
 )
 fi
