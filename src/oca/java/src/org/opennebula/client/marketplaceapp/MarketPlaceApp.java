@@ -429,7 +429,7 @@ public class MarketPlaceApp extends PoolElement
      */
     public OneResponse lock(int level)
     {
-        return rename(client, id, level);
+        return lock(client, id, level);
     }
 
     /**
@@ -439,7 +439,7 @@ public class MarketPlaceApp extends PoolElement
      */
     public OneResponse unlock()
     {
-        return rename(client, id);
+        return unlock(client, id);
     }
 
     // =================================

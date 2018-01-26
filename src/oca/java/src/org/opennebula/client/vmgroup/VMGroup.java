@@ -373,7 +373,7 @@ public class VMGroup extends PoolElement{
      */
     public OneResponse lock(int level)
     {
-        return rename(client, id, level);
+        return lock(client, id, level);
     }
 
     /**
@@ -383,7 +383,7 @@ public class VMGroup extends PoolElement{
      */
     public OneResponse unlock()
     {
-        return rename(client, id);
+        return unlock(client, id);
     }
 
     // =================================
