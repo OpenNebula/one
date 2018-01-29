@@ -19,6 +19,9 @@ require.config({
     /* Almond */
     'almond': '../bower_components/almond/almond',
 
+    /* Addons */
+    'addons': './addons',
+
     /* jQuery */
     'jquery': '../bower_components/jquery/dist/jquery',
     'jquery-ui': '../bower_components/jquery-ui/jquery-ui',
@@ -357,7 +360,9 @@ require.config({
       deps: [
         'spice-spiceconn'
       ]
-    }
+    },
+
+    'addons': {}
   }
 });
 
