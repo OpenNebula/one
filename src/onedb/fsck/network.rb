@@ -226,9 +226,13 @@ module OneDBFsck
                 leases = allocated.scan(/(\d+) (\d+)/)
 
                 size = net_ar.at_xpath("SIZE").text.to_i
+
                 if leases.length > size
-                    log_error("VNet #{oid} AR #{ar_id} has more allocated leases (#{used_leases}) than"<<
-                                "size (#{size}) that has the AR")
+                    log_error("VNet #{oid} AR #{ar_id} allocated leases "\
+                      "(#{leases.length}) is greater than the AR size (#{size}"\
+                      "). SIZE can be increased with onevnet updatear"\
+                      " #{oid} #{ar_id}")
+
                     error = true
                     net_ar.at_xpath("SIZE").content = leases.length.to_s
                 end
