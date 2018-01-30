@@ -723,7 +723,8 @@ define(function(require) {
         "bSortClasses" : false,
         "bDeferRender": true,
         "aoColumnDefs": [
-        { "bSortable": false, "aTargets": ['_all'] },
+        { "sType": "date", "aTargets": [ 0 ] },
+        { "bSortable": true, "aTargets": [ 0 ] }
         ]
       });
 
@@ -731,7 +732,8 @@ define(function(require) {
         "bSortClasses" : false,
         "bDeferRender": true,
         "aoColumnDefs": [
-        { "bSortable": false, "aTargets": ['_all'] },
+        { "sType": "date", "aTargets": [ 0 ] },
+        { "bSortable": true, "aTargets": [ 0 ] }
         ]
       });
 
@@ -739,7 +741,8 @@ define(function(require) {
         "bSortClasses" : false,
         "bDeferRender": true,
         "aoColumnDefs": [
-        { "bSortable": false, "aTargets": ['_all'] },
+        { "sType": "date", "aTargets": [ 0 ] },
+        { "bSortable": true, "aTargets": [ 0 ] }
         ]
       });
 
