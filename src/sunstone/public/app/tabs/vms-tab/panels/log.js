@@ -93,7 +93,7 @@ define(function(require) {
               colored_log +
             "</div>" +
           "</div>");
-        $(".vm_log_container", context).animate({scrollTop:"500px"}, "slow");
+        $(".vm_log_container", context).animate({scrollTop: $('.vm_log_container').prop("scrollHeight")}, "slow");
 
       },
       error: function(request, error_json) {
