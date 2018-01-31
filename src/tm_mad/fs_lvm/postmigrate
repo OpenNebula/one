@@ -60,4 +60,8 @@ EOF
 ssh_exec_and_log $SRC_HOST "$CMD" \
     "Error running fs_lvm postmigrate"
 
+ssh_exec_and_log "${DST_HOST}" \
+    "hostname -f >\"${DST_PATH}/.host\" || :"
+    "Error modifying .host after fs_lvm postmigrate"
+
 migrate_other "$@"
