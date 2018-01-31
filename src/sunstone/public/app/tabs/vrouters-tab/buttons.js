@@ -55,21 +55,21 @@ define(function(require) {
     "VirtualRouter.edit_labels" : {
       layout: "labels",
     },
-    "VirtualRouter.lockA" : {
-      type: "action",
-      text: Locale.tr("Admin"),
-      layout: "lock_buttons",
-      data: 3
-    },
-    "VirtualRouter.lockM" : {
-      type: "action",
-      text: Locale.tr("Manage"),
-      layout: "lock_buttons",
-      data: 2
-    },
+    // "VirtualRouter.lockA" : {
+    //   type: "action",
+    //   text: Locale.tr("Admin"),
+    //   layout: "lock_buttons",
+    //   data: 3
+    // },
+    // "VirtualRouter.lockM" : {
+    //   type: "action",
+    //   text: Locale.tr("Manage"),
+    //   layout: "lock_buttons",
+    //   data: 2
+    // },
     "VirtualRouter.lockU" : {
       type: "action",
-      text: Locale.tr("Use"),
+      text: Locale.tr("Lock"),
       layout: "lock_buttons",
       data: 1
     },

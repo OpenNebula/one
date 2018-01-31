@@ -198,21 +198,21 @@ define(function(require) {
     "VM.edit_labels" : {
       layout: "labels",
     },
-    "VM.lockA" : {
-      type: "action",
-      text: Locale.tr("Admin"),
-      layout: "lock_buttons",
-      data: 3
-    },
-    "VM.lockM" : {
-      type: "action",
-      text: Locale.tr("Manage"),
-      layout: "lock_buttons",
-      data: 2
-    },
+    // "VM.lockA" : {
+    //   type: "action",
+    //   text: Locale.tr("Admin"),
+    //   layout: "lock_buttons",
+    //   data: 3
+    // },
+    // "VM.lockM" : {
+    //   type: "action",
+    //   text: Locale.tr("Manage"),
+    //   layout: "lock_buttons",
+    //   data: 2
+    // },
     "VM.lockU" : {
       type: "action",
-      text: Locale.tr("Use"),
+      text: Locale.tr("Lock"),
       layout: "lock_buttons",
       data: 1
     },
