@@ -75,21 +75,21 @@ define(function(require) {
     "Network.edit_labels" : {
       layout: "labels",
     },
-    "Network.lockA" : {
-      type: "action",
-      text: Locale.tr("Admin"),
-      layout: "lock_buttons",
-      data: 3
-    },
-    "Network.lockM" : {
-      type: "action",
-      text: Locale.tr("Manage"),
-      layout: "lock_buttons",
-      data: 2
-    },
+    // "Network.lockA" : {
+    //   type: "action",
+    //   text: Locale.tr("Admin"),
+    //   layout: "lock_buttons",
+    //   data: 3
+    // },
+    // "Network.lockM" : {
+    //   type: "action",
+    //   text: Locale.tr("Manage"),
+    //   layout: "lock_buttons",
+    //   data: 2
+    // },
     "Network.lockU" : {
       type: "action",
-      text: Locale.tr("Use"),
+      text: Locale.tr("Lock"),
       layout: "lock_buttons",
       data: 1
     },

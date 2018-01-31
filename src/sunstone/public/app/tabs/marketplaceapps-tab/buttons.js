@@ -68,21 +68,21 @@ define(function(require) {
     "MarketPlaceApp.edit_labels" : {
       layout: "labels",
     },
-    "MarketPlaceApp.lockA" : {
-      type: "action",
-      text: Locale.tr("Admin"),
-      layout: "lock_buttons",
-      data: 3
-    },
-    "MarketPlaceApp.lockM" : {
-      type: "action",
-      text: Locale.tr("Manage"),
-      layout: "lock_buttons",
-      data: 2
-    },
+    // "MarketPlaceApp.lockA" : {
+    //   type: "action",
+    //   text: Locale.tr("Admin"),
+    //   layout: "lock_buttons",
+    //   data: 3
+    // },
+    // "MarketPlaceApp.lockM" : {
+    //   type: "action",
+    //   text: Locale.tr("Manage"),
+    //   layout: "lock_buttons",
+    //   data: 2
+    // },
     "MarketPlaceApp.lockU" : {
       type: "action",
-      text: Locale.tr("Use"),
+      text: Locale.tr("Lock"),
       layout: "lock_buttons",
       data: 1
     },

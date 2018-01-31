@@ -87,6 +87,31 @@ public abstract class Document extends PoolElement
         super(xmlElement, client);
     }
 
+    /**
+     * lock this Document
+     *
+     * @param client XML-RPC Client.
+     * @param id The Image id.
+     * @param level Lock level.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse lock(Client client, int id, int level)
+    {
+        return client.call(LOCK, id, level);
+    }
+
+    /**
+     * Unlock this Document
+     *
+     * @param client XML-RPC Client.
+     * @param id The Image id.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse unlock(Client client, int id)
+    {
+        return client.call(UNLOCK, id);
+    }
+
     // =================================
     // Static XML-RPC methods
     // =================================
@@ -244,24 +269,23 @@ public abstract class Document extends PoolElement
     /**
      * Locks this object
      *
-     * @param owner String to identify the application requestiong the lock
+     * @param level int to identify the lock level
      * @return In case of success, a boolean with true if the lock was granted,
      * and false if the object is already locked.
      */
-    public OneResponse lock(String owner)
+    public OneResponse lock(int level)
     {
-        return client.call(LOCK, id, owner);
+        return client.call(LOCK, id, level);
     }
 
     /**
      * Unlocks this object
      *
-     * @param owner String to identify the application requestiong the lock
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse unlock(String owner)
+    public OneResponse unlock()
     {
-        return client.call(UNLOCK, id, owner);
+        return client.call(UNLOCK, id);
     }
 
     // =================================

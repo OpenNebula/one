@@ -84,21 +84,21 @@ define(function(require) {
     "Template.edit_labels" : {
       layout: "labels",
     },
-    "Template.lockA" : {
-      type: "action",
-      text: Locale.tr("Admin"),
-      layout: "lock_buttons",
-      data: 3
-    },
-    "Template.lockM" : {
-      type: "action",
-      text: Locale.tr("Manage"),
-      layout: "lock_buttons",
-      data: 2
-    },
+    // "Template.lockA" : {
+    //   type: "action",
+    //   text: Locale.tr("Admin"),
+    //   layout: "lock_buttons",
+    //   data: 3
+    // },
+    // "Template.lockM" : {
+    //   type: "action",
+    //   text: Locale.tr("Manage"),
+    //   layout: "lock_buttons",
+    //   data: 2
+    // },
     "Template.lockU" : {
       type: "action",
-      text: Locale.tr("Use"),
+      text: Locale.tr("Lock"),
       layout: "lock_buttons",
       data: 1
     },
