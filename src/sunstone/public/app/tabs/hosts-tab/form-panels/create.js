@@ -121,6 +121,7 @@ define(function(require) {
       $("#im_mad", context).val(this.value).change();
       $(".vcenter_credentials", context).hide();
       $(".ec2_extra", context).hide();
+      $(".one_extra", context).hide();
       $(".drivers", context).hide();
       $("#name_container", context).show();
 
@@ -133,6 +134,9 @@ define(function(require) {
         Sunstone.hideFormPanelSubmit(TAB_ID);
       } else if (this.value == "ec2") {
         $(".ec2_extra", context).show();
+        Sunstone.showFormPanelSubmit(TAB_ID);
+      } else if (this.value == "one") {
+        $(".one_extra", context).show();
         Sunstone.showFormPanelSubmit(TAB_ID);
       } else {
         Sunstone.showFormPanelSubmit(TAB_ID);
@@ -156,6 +160,27 @@ define(function(require) {
     });
 
     context.on("click", "tbody.capacity_ec2 i.remove-capacity", function(){
+      var tr = $(this).closest('tr');
+      tr.remove();
+    });
+
+    context.off("click", ".add_custom_tag", context);
+    context.on("click", ".add_custom_tag", context, function(){
+      $("tbody.capacity_one", context).append(
+          "<tr class='row_capacity_one'>\
+            <td style='display: flex; justify-content: flex-start'>\
+              <input class='capacity_key' type='text' name='key'>\
+            </td>\
+            <td>\
+              <input class='capacity_value' type='number' min='0' name='value'>\
+            </td>\
+            <td style='width: 150%; display: flex; justify-content: flex-end'>\
+              <a href='#'><i class='fa fa-times-circle remove-capacity'></i></a>\
+            </td>\
+          </tr>");
+    });
+
+    context.on("click", "tbody.capacity_one i.remove-capacity", function(){
       var tr = $(this).closest('tr');
       tr.remove();
     });
@@ -264,6 +289,27 @@ define(function(require) {
       host_json["host"]["ec2_access"] = ec2_access;
       if (capacity.length > 0){
         host_json["host"]["capacity"] = capacity;
+      }
+    }
+
+    if(vmm_mad == "one"){
+      var capacity = {};
+      var key = "";
+      var value = "";
+      var user = $('input[name="ONE_USER"]').val();
+      var pass = $('input[name="ONE_PASSWORD"]').val();
+      var endpoint = $('input[name="ONE_ENDPOINT"]').val();
+      $('tr.row_capacity_one',context).each(function() {
+        key = $("input[name='key']", this).val();
+        value = $("input[name='value']", this).val();
+        capacity[key] = value;
+      });
+
+      host_json["host"]["ONE_USER"] = user;
+      host_json["host"]["ONE_PASSWORD"] = pass;
+      host_json["host"]["ONE_ENDPOINT"] = endpoint;
+      if (capacity["CPU"] && capacity["MEMORY"]){
+        host_json["host"]["ONE_CAPACITY"] = capacity;
       }
     }
     //Create the OpenNebula.Host.
