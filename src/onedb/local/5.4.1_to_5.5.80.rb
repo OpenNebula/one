@@ -35,6 +35,10 @@ module Migrator
 
         log_time()
 
+        install_index_on_vm_pool_state()
+
+        log_time()
+
         return true
     end
 
@@ -54,6 +58,20 @@ module Migrator
             node.remove
         end
     end
+
+    def install_index_on_vm_pool_state()
+        db.run "SELECT IF(" +
+                    "exists(" +
+                        "SELECT distinct index_name " +
+                        "FROM information_schema.statistics " +
+                        "WHERE table_schema = 'opennebula' " +
+                            "AND table_name = 'vm_pool' " +
+                            "AND column_name = 'state'), " +
+                    "'SELECT ''Index on vm_pool.state exists'';', " +
+                    "'ALTER TABLE opennebula.vm_pool ADD INDEX (state);') into @a;"
+        db.run "PREPARE stmt1 FROM @a;"
+        db.run "EXECUTE stmt1;"
+        db.run "DEALLOCATE PREPARE stmt1;"
 
     def feature_5189()
         az_driver_conf = "#{ETC_LOCATION}/az_driver.conf.old"

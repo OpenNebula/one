@@ -57,7 +57,7 @@ class OneDBBacKEnd
             vm_pool: "oid INTEGER PRIMARY KEY, name VARCHAR(128), " <<
                 "body MEDIUMTEXT, uid INTEGER, gid INTEGER, " <<
                 "last_poll INTEGER, state INTEGER, lcm_state INTEGER, " <<
-                "owner_u INTEGER, group_u INTEGER, other_u INTEGER",
+                "owner_u INTEGER, group_u INTEGER, other_u INTEGER, index(state)",
             logdb: "log_index INTEGER PRIMARY KEY, term INTEGER, " <<
                 "sqlcmd MEDIUMTEXT, timestamp INTEGER, fed_index INTEGER",
             history: "vid INTEGER, seq INTEGER, body MEDIUMTEXT, " <<
