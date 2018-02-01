@@ -51,14 +51,28 @@ unset i j XPATH_ELEMENTS
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <(onevm show -x $VMID| $XPATH \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/DISK_TYPE \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE \
                     /VM/HISTORY_RECORDS/HISTORY[last\(\)]/TM_MAD)
 
+DISK_TYPE="${XPATH_ELEMENTS[j++]}"
 DISK_SRC="${XPATH_ELEMENTS[j++]}"
 CLONE="${XPATH_ELEMENTS[j++]}"
 TM_MAD="${XPATH_ELEMENTS[j++]}"
 
+#-------------------------------------------------------------------------------
+# Handle Ceph image
+#-------------------------------------------------------------------------------
+
+if [ "$DISK_TYPE" = "RBD" ]; then
+    ${DRIVER_PATH}/../ceph/snap_revert "$1" "$2" "$3" "$4"
+    exit 0
+fi
+
+#-------------------------------------------------------------------------------
+# Revert to snapshot
+#-------------------------------------------------------------------------------
 
 SYSTEM_DS_PATH=$(dirname ${SRC_PATH})
 IMAGE_DS_PATH=$(dirname ${DISK_SRC})
