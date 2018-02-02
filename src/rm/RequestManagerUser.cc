@@ -514,7 +514,7 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
 
         if ( egid == -1 && user->get_groups() != att.group_ids )
         {
-            att.resp_msg = "Cannot request unscoped token from scoped token";
+            att.resp_msg = "Cannot create a full token with a specific group token";
             failure_response(XML_RPC_API,  att);
 
             user->unlock();
