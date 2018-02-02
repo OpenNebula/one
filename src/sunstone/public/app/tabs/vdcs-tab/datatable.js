@@ -114,7 +114,7 @@ define(function(require) {
       groupColumn = 1;
     }
 
-    var color_html = Status.state_lock_to_color("VDC",state, element_json[XML_ROOT]["LOCK"]);
+    var color_html = Status.state_lock_to_color("VDC",false, element_json[XML_ROOT]["LOCK"]);
 
     return [
       '<input class="check_item" type="checkbox" '+

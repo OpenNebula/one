@@ -110,7 +110,7 @@ define(function(require) {
       GNAME: element.GNAME
     }
 
-    var color_html = Status.state_lock_to_color("VROUTER",state, element_json[XML_ROOT]["LOCK"]);
+    var color_html = Status.state_lock_to_color("VROUTER",false, element_json[XML_ROOT]["LOCK"]);
 
     return [
       '<input class="check_item" type="checkbox" '+

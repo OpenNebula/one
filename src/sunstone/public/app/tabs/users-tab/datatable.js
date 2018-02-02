@@ -151,7 +151,7 @@ define(function(require) {
       AUTH_DRIVER: element.AUTH_DRIVER
     }
 
-    var color_html = Status.state_lock_to_color("USER",state, element_json[XML_ROOT]["LOCK"]);
+    var color_html = Status.state_lock_to_color("USER",false, element_json[XML_ROOT]["LOCK"]);
 
     return [
       '<input class="check_item" type="checkbox" '+
