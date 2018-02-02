@@ -57,6 +57,19 @@ define(function(require) {
         UNDEPLOYED:"lightsalmon",
         CLONING:"#4DBBD3",
         CLONING_FAILURE:"#ec5840"
+      },
+      DOCUMENT:{
+        PENDING:"#4DBBD3",
+        DEPLOYING:"#4DBBD3",
+        RUNNING:"#3adb76",
+        UNDEPLOYING:"#4DBBD3",
+        WARNING:"lightsalmon",
+        DONE:"#ec5840",
+        FAILED_UNDEPLOYING:"#ec5840",
+        FAILED_DEPLOYING:"#ec5840",
+        SCALING:"#4DBBD3",
+        FAILED_SCALING:"#ec5840",
+        COOLDOWN:"#4DBBD3"
       }
     };
 
