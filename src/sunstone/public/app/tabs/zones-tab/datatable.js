@@ -23,6 +23,7 @@ define(function(require) {
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
   var LabelsUtils = require('utils/labels/utils');
+  var Status = require('utils/status');
 
   /*
     CONSTANTS
@@ -96,10 +97,13 @@ define(function(require) {
     var element = element_json.ZONE;
     this.totalZones++;
 
+    var color_html = Status.state_lock_to_color("ZONE",state, element_json[this.resource.toUpperCase()]["LOCK"]);
+
     return [
-        '<input class="check_item" type="checkbox" id="' + RESOURCE.toLowerCase() + '_' +
-                             element.ID + '" name="selected_items" value="' +
-                             element.ID + '"/>',
+      '<input class="check_item" type="checkbox" '+
+                          'style="vertical-align: inherit;" id="'+this.resource.toLowerCase()+'_' +
+                           element.ID + '" name="selected_items" value="' +
+                           element.ID + '"/>'+color_html,
         element.ID,
         element.NAME,
         element.TEMPLATE.ENDPOINT,

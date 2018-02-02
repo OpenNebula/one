@@ -21,6 +21,7 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var TemplateUtils = require('utils/template-utils');
   var LabelsUtils = require('utils/labels/utils');
+  var Status = require('utils/status');
 
   var RESOURCE = "VM";
   var XML_ROOT = "VM";
@@ -109,13 +110,16 @@ define(function(require) {
       STIME_BEFORE: element.STIME
     }
 
+    var color_html = Status.state_lock_to_color("VM", OpenNebulaVM.stateStr(element.LCM_STATE), element_json[RESOURCE.toUpperCase()]["LOCK"]);
+
     return [
       '<input class="check_item" '+
+        'style="vertical-align: inherit;"'+
         'type="checkbox" '+
         'id="' + RESOURCE.toLowerCase() + '_' + element.ID + '" '+
         'name="selected_items" '+
         'value="' + element.ID + '" '+
-        'state="'+element.STATE+'" lcm_state="'+element.LCM_STATE+'"/>',
+        'state="'+element.STATE+'" lcm_state="'+element.LCM_STATE+'"/>'+color_html,
       element.ID,
       element.NAME,
       element.UNAME,

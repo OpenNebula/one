@@ -17,6 +17,50 @@
 define(function(require) {
   var Locale = require('utils/locale');
   var TemplateUtils = require('utils/template-utils');
+  var resource_states = {
+    IMAGES:{
+      CLONE:"#4DBBD3",
+      INIT:"#4DBBD3",
+      READY:"#3adb76",
+      USED:"#3adb76",
+      ERROR:"#ec5840",
+      DELETE:"#ec5840",
+      LOCKED:"lightsalmon",
+      DISABLED:"lightsalmon"
+    },
+    HOST:{
+      INIT:"#4DBBD3",
+      ON:"#3adb76",
+      OFF:"#ec5840",
+      DISABLED:"lightsalmon"
+    },
+    DATASTORE:{
+      INIT:"#4DBBD3",
+      READY:"#3adb76",
+      DISABLED:"lightsalmon"
+    },
+    MARKETPLACEAPP:{
+      INIT:"#4DBBD3",
+      READY:"#3adb76",
+      LOCKED:"lightsalmon",
+      ERROR:"#ec5840",
+      DISABLED:"lightsalmon"
+    },
+    VM:{
+      INIT:"#4DBBD3",
+      PENDING:"#4DBBD3",
+      HOLD:"lightsalmon",
+      ACTIVE:"#3adb76",
+      STOPPED:"lightsalmon",
+      SUSPENDED:"lightsalmon",
+      DONE:"#ec5840",
+      FAILED:"#ec5840",
+      POWEROFF:"lightsalmon",
+      UNDEPLOYED:"lightsalmon",
+      CLONING:"#4DBBD3",
+      CLONING_FAILURE:"#ec5840"
+    }
+  };
 
   /*
     CONSTRUCTOR
@@ -35,7 +79,8 @@ define(function(require) {
     'prettyPrintJSON': _prettyPrintJSON,
     'prettyTimeAgo': _format_date,
     'prettyTimeDatatable': _prettyTimeDatatable,
-    'lock_to_str': _lock_to_str
+    'lock_to_str': _lock_to_str,
+    'state_lock_to_color': _state_lock_to_color
   }
 
   /*
@@ -328,5 +373,23 @@ define(function(require) {
         break;
     }
     return level_str;
+  }
+
+  function _state_lock_to_color(resource,state,lock){
+    var color = "transparent";
+    var show_lock = "";
+
+    if (state && resource in resource_states){
+      var available_states = resource_states[resource];
+      if (state in available_states){
+        color = available_states[state];
+      }
+    }
+
+    if (lock){
+      show_lock = "border-left: 3px solid #373537;";
+    }
+
+    return '<span style="'+show_lock+' float:left; margin-right: 3px; width: 5px; height: 20px; background: '+color+';"></span>'
   }
 })

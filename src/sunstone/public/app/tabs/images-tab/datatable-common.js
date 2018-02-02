@@ -26,6 +26,7 @@ define(function(require) {
   var OpenNebulaImage = require('opennebula/image');
   var LabelsUtils = require('utils/labels/utils');
   var SearchDropdown = require('hbs!./datatable/search');
+  var Status = require('utils/status');
 
   /*
     CONSTANTS
@@ -111,11 +112,13 @@ define(function(require) {
       REGTIME_AFTER:  element.REGTIME,
       REGTIME_BEFORE: element.REGTIME
     }
+    var color_html = Status.state_lock_to_color("IMAGES",state, element_json[this.resource.toUpperCase()]["LOCK"]);
 
     return [
-      '<input class="check_item" type="checkbox" id="'+this.resource.toLowerCase()+'_' +
+      '<input class="check_item" type="checkbox" '+
+                          'style="vertical-align: inherit;" id="'+this.resource.toLowerCase()+'_' +
                            element.ID + '" name="selected_items" value="' +
-                           element.ID + '"/>',
+                           element.ID + '"/>'+color_html,
       element.ID,
       element.NAME,
       element.UNAME,

@@ -26,6 +26,7 @@ define(function(require) {
   var QuotaWidgets = require('utils/quotas/quota-widgets');
   var LabelsUtils = require('utils/labels/utils');
   var DashboardUtils = require('utils/dashboard');
+  var Status = require('utils/status');
 
   /*
     CONSTANTS
@@ -139,10 +140,13 @@ define(function(require) {
         default_group_quotas.VM_QUOTA.VM.CPU);
     }
 
+    var color_html = Status.state_lock_to_color("GROUP",false, element_json[this.resource.toUpperCase()]["LOCK"]);
+
     return [
-      '<input class="check_item" type="checkbox" id="'+RESOURCE.toLowerCase()+'_' +
+      '<input class="check_item" type="checkbox" '+
+                          'style="vertical-align: inherit;" id="'+this.resource.toLowerCase()+'_' +
                            element.ID + '" name="selected_items" value="' +
-                           element.ID + '"/>',
+                           element.ID + '"/>'+color_html,
       element.ID,
       element.NAME,
       users_str,

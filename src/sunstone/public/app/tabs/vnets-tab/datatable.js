@@ -28,6 +28,7 @@ define(function(require) {
   var SearchDropdown = require('hbs!./datatable/search');
   var OpenNebulaNetwork = require('opennebula/network');
   var DashboardUtils = require('utils/dashboard');
+  var Status = require('utils/status');
 
   /*
     CONSTANTS
@@ -143,10 +144,13 @@ define(function(require) {
       PARENT_NETWORK: parent_net
     }
 
+    var color_html = Status.state_lock_to_color("VNET",false, element_json[this.resource.toUpperCase()]["LOCK"]);
+
     return [
-      '<input class="check_item" type="checkbox" id="' + RESOURCE.toLowerCase() + '_' +
+      '<input class="check_item" type="checkbox" '+
+                          'style="vertical-align: inherit;" id="'+this.resource.toLowerCase()+'_' +
                            element.ID + '" name="selected_items" value="' +
-                           element.ID + '"/>',
+                           element.ID + '"/>'+color_html,
       element.ID,
       element.NAME,
       element.UNAME,

@@ -22,6 +22,7 @@ define(function(require) {
   var TabDataTable = require('utils/tab-datatable');
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
+  var Status = require('utils/status');
 
   var OpenNebulaUser = require('opennebula/user');
   var OpenNebulaGroup = require('opennebula/group');
@@ -103,10 +104,13 @@ define(function(require) {
 
     this.totalACLs++;
 
+    var color_html = Status.state_lock_to_color("ACL",false, element_json[this.resource.toUpperCase()]["LOCK"]);
+
     return [
-      '<input class="check_item" type="checkbox" id="'+RESOURCE.toLowerCase()+'_' +
+      '<input class="check_item" type="checkbox" '+
+                          'style="vertical-align: inherit;" id="'+this.resource.toLowerCase()+'_' +
                            element.ID + '" name="selected_items" value="' +
-                           element.ID + '"/>',
+                           element.ID + '"/>'+color_html,
       element.ID,
       acl_array[0],
       acl_array[1],
