@@ -151,8 +151,8 @@ define(function(require) {
       selectedContext = $("div.image",  context);
     } else {
       selectedContext = $("div.volatile",  context);
-      var typeKvm = $("#TYPE_KVM", context).val();
-      var typeVcenter = $("#TYPE_VCENTER", context).val();
+      var typeKvm = $("#TYPE_KVM", selectedContext).val();
+      var typeVcenter = $("#TYPE_VCENTER", selectedContext).val();
       var type = "fs";
       if(typeKvm != "fs"){
         type = typeKvm;
@@ -171,7 +171,7 @@ define(function(require) {
       tmpl.TYPE = type;
     }
 
-    if(tmpl.SIZE != undefined && $(".mb_input_unit", context).val() == "GB"){
+    if(tmpl.SIZE != undefined && $(".mb_input_unit", selectedContext).val() == "GB"){
       tmpl.SIZE = tmpl.SIZE * 1024;
       tmpl.SIZE = tmpl.SIZE.toString();
     }
