@@ -144,7 +144,7 @@ define(function(require) {
       PARENT_NETWORK: parent_net
     }
 
-    var color_html = Status.state_lock_to_color("VNET",false, element_json[this.resource.toUpperCase()]["LOCK"]);
+    var color_html = Status.state_lock_to_color("VNET",false, element_json[XML_ROOT]["LOCK"]);
 
     return [
       '<input class="check_item" type="checkbox" '+

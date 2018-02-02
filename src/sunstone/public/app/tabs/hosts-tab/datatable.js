@@ -176,7 +176,7 @@ define(function(require) {
       VM_MAD:   element.VM_MAD
     }
 
-    var color_html = Status.state_lock_to_color("HOST",state, element_json[this.resource.toUpperCase()]["LOCK"]);
+    var color_html = Status.state_lock_to_color("HOST",state, element_json[XML_ROOT]["LOCK"]);
 
     return [
       '<input class="check_item" type="checkbox" '+

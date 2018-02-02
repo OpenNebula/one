@@ -112,7 +112,7 @@ define(function(require) {
       REGTIME_AFTER:  element.REGTIME,
       REGTIME_BEFORE: element.REGTIME
     }
-    var color_html = Status.state_lock_to_color("IMAGES",state, element_json[this.resource.toUpperCase()]["LOCK"]);
+    var color_html = Status.state_lock_to_color("IMAGES",state, element_json[XML_ROOT]["LOCK"]);
 
     return [
       '<input class="check_item" type="checkbox" '+

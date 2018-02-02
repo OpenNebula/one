@@ -140,7 +140,7 @@ define(function(require) {
         default_group_quotas.VM_QUOTA.VM.CPU);
     }
 
-    var color_html = Status.state_lock_to_color("GROUP",false, element_json[this.resource.toUpperCase()]["LOCK"]);
+    var color_html = Status.state_lock_to_color("GROUP",false, element_json[XML_ROOT]["LOCK"]);
 
     return [
       '<input class="check_item" type="checkbox" '+

@@ -110,7 +110,7 @@ define(function(require) {
       STATE: state
     }
 
-    var color_html = Status.state_lock_to_color("SERVICE",state, element_json[this.resource.toUpperCase()]["LOCK"]);
+    var color_html = Status.state_lock_to_color("SERVICE",state, element_json[XML_ROOT]["LOCK"]);
 
     return [
       '<input class="check_item" type="checkbox" '+

@@ -105,7 +105,7 @@ define(function(require) {
       GNAME: element.GNAME
     }
 
-    var color_html = Status.state_lock_to_color("SERVICE_TEMPLATE",false, element_json[this.resource.toUpperCase()]["LOCK"]);
+    var color_html = Status.state_lock_to_color("SERVICE_TEMPLATE",false, element_json[XML_ROOT]["LOCK"]);
 
     return [
       '<input class="check_item" type="checkbox" '+

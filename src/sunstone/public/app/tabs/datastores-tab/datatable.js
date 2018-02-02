@@ -153,7 +153,7 @@ define(function(require) {
       DS_MAD: element.DS_MAD
     }
 
-    var color_html = Status.state_lock_to_color("DATASTORE",state, element_json[this.resource.toUpperCase()]["LOCK"]);
+    var color_html = Status.state_lock_to_color("DATASTORE",state, element_json[XML_ROOT]["LOCK"]);
 
     return [
       '<input class="check_item" type="checkbox" '+
