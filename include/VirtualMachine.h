@@ -1750,22 +1750,7 @@ private:
      *  Bootstraps the database table(s) associated to the VirtualMachine
      *    @return 0 on success
      */
-    static int bootstrap(SqlDB * db)
-    {
-        int rc;
-
-        ostringstream oss_vm(VirtualMachine::db_bootstrap);
-        ostringstream oss_monit(VirtualMachine::monit_db_bootstrap);
-        ostringstream oss_hist(History::db_bootstrap);
-        ostringstream oss_showback(VirtualMachine::showback_db_bootstrap);
-
-        rc =  db->exec_local_wr(oss_vm);
-        rc += db->exec_local_wr(oss_monit);
-        rc += db->exec_local_wr(oss_hist);
-        rc += db->exec_local_wr(oss_showback);
-
-        return rc;
-    };
+    static int bootstrap(SqlDB * db);
 
     /**
      *  Callback function to unmarshall a VirtualMachine object

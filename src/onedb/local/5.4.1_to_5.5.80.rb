@@ -33,6 +33,8 @@ module Migrator
 
         feature_5189()
 
+        feature_1709()
+
         log_time()
 
         return true
@@ -52,6 +54,14 @@ module Migrator
     def delete_element(doc, element)
         doc.search("//#{element}").each do |node|
             node.remove
+        end
+    end
+
+    def feature_1709()
+        indexes = @db.indexes(:vm_pool)
+
+        @db.alter_table(:vm_pool) do
+            add_index :state, name: :state_idx if !indexes[:state_idx]
         end
     end
 

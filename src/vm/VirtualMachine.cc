@@ -483,6 +483,29 @@ const char * VirtualMachine::showback_db_bootstrap =
     "PRIMARY KEY(vmid, year, month))";
 
 /* -------------------------------------------------------------------------- */
+
+int VirtualMachine::bootstrap(SqlDB * db)
+{
+    int rc;
+
+    ostringstream oss_vm(VirtualMachine::db_bootstrap);
+    ostringstream oss_monit(VirtualMachine::monit_db_bootstrap);
+    ostringstream oss_hist(History::db_bootstrap);
+    ostringstream oss_showback(VirtualMachine::showback_db_bootstrap);
+
+    ostringstream oss_index("CREATE INDEX state_idx on vm_pool (state);");
+
+    rc =  db->exec_local_wr(oss_vm);
+    rc += db->exec_local_wr(oss_index);
+
+    rc += db->exec_local_wr(oss_monit);
+    rc += db->exec_local_wr(oss_hist);
+    rc += db->exec_local_wr(oss_showback);
+
+    return rc;
+};
+
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::select(SqlDB * db)
