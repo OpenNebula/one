@@ -506,6 +506,8 @@ define(function(require) {
           emptyValue: true
         });
 
+      $(".ds_select .resource_list_select option[elem_id='0']", context).remove();
+
       $(".ds_quota_table tbody tr", context).last().off(
                                             "change", ".resource_list_select");
 
