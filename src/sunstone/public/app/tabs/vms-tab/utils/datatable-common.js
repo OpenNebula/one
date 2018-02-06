@@ -109,8 +109,12 @@ define(function(require) {
       STIME_AFTER:  element.STIME,
       STIME_BEFORE: element.STIME
     }
-
-    var color_html = Status.state_lock_to_color("VM", OpenNebulaVM.stateStr(element.LCM_STATE), element_json[RESOURCE.toUpperCase()]["LOCK"]);
+    if (OpenNebulaVM.isFailureState(element.LCM_STATE)){
+      value_state = "FAILED"
+    } else {
+      value_state = OpenNebulaVM.stateStr(element.STATE)
+    }
+    var color_html = Status.state_lock_to_color("VM", value_state, element_json[RESOURCE.toUpperCase()]["LOCK"]);
 
     return [
       '<input class="check_item" '+
