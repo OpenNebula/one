@@ -20,9 +20,6 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
     DRIVER = "ovswitch"
     XPATH_FILTER = "TEMPLATE/NIC[VN_MAD='ovswitch']"
-    FIREWALL_PARAMS =  [:black_ports_tcp,
-                        :black_ports_udp,
-                        :icmp]
 
     def initialize(vm, xpath_filter = nil, deploy_id = nil)
         @locking = false
@@ -55,16 +52,40 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
                 tag_trunk_vlans
             end
 
-            # Prevent ARP Cache Poisoning
-            if @nic[:conf][:arp_cache_poisoning] && @nic[:ip]
-                arp_cache_poisoning
-            end
+            # Delete any existing flows on port
+            del_flow "in_port=#{port}"
 
-            # Prevent Mac-spoofing
+            # We are using the flow table hierarchy to create a set of rules
+            # which must be satisfied. The packet flows through the tables,
+            # from to another. Any rule can stop the flow and drop the packet,
+            # but if the lucky packet reaches the end, it's accepted.
+            #
+            # If the OpenNebula virtual network has any IP/MAC-spoofing filter
+            # enabled, the additional table rules are generated. Otherwise,
+            # the tables are left empty and only pass the packet to another
+            # table, or finally accepts the packet.
+            #
+            #   +---------+          +------------+          +-----------+
+            #   | Table 0 | resubmit |  Table 10  | resubmit |  Table 20 |
+            #   |  Main   |--------->| MAC-spoof. |--------->| IP-spoof. |--> NORMAL
+            #   |         |          |   rules    |          |   rules   |
+            #   +---------+          +------------+          +-----------+
+            #        |                    |                       |
+            #        +-> DROP             +-> DROP                +-> DROP
+            #
+            # Tables are defined by following base rules:
+            # in_port=<PORT>,table=0,priority=100,actions=note:VV.VV.VV.VV.NN.NN,resubmit(,10)
+            # in_port=<PORT>,table=10,priority=100,actions=resubmit(,20)
+            # in_port=<PORT>,table=20,priority=100,actions=NORMAL
+            add_flow("table=0,in_port=#{port}", "note:#{port_note},resubmit(,10)", 100)
+            add_flow("table=10,in_port=#{port}", "resubmit(,20)", 100)
+            add_flow("table=20,in_port=#{port}", "normal", 100)
+
+            # MAC-spoofing
             mac_spoofing if nic[:filter_mac_spoofing] =~ /yes/i
 
-            # Apply Firewall
-            configure_fw if FIREWALL_PARAMS & @nic.keys != []
+            # IP-spoofing
+            ip_spoofing if nic[:filter_ip_spoofing] =~ /yes/i
         end
 
         unlock
@@ -115,50 +136,84 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         end
     end
 
-    def arp_cache_poisoning
-        add_flow("in_port=#{port},arp,dl_src=#{@nic[:mac]}",:drop,45000)
-        add_flow("in_port=#{port},arp,dl_src=#{@nic[:mac]},nw_src=#{@nic[:ip]}",:normal,46000)
+
+    # Following IP-spoofing rules may be created:
+    # (if ARP Cache Poisoning) in_port=<PORT>,table=20,arp,arp_spa=<IP>,priority=50000,actions=NORMAL
+    # (if ARP Cache Poisoning) in_port=<PORT>,table=20,arp,priority=49000,actions=drop
+    # in_port=<PORT>,table=20,ip,nw_src=<IP>,priority=45000,actions=NORMAL
+    # in_port=<PORT>,table=20,ipv6,ipv6_src=<IP6>,priority=45000,actions=NORMAL
+    # in_port=<PORT>,table=20,udp,nw_src=0.0.0.0,nw_dst=255.255.255.255,tp_src=68,tp_dst=67,priority=44000,actions=NORMAL
+    # in_port=<PORT>,table=20,icmp6,ipv6_src=::,icmp_type=133,priority=44000,actions=NORMAL
+    # in_port=<PORT>,table=20,icmp6,ipv6_src=::,icmp_type=135,priority=44000,actions=NORMAL
+    # in_port=<PORT>,table=20,ip,priority=40000,actions=drop
+    # in_port=<PORT>,table=20,ipv6,priority=40000,actions=drop
+    #
+    # The particular table also contains the base rule created before:
+    # in_port=<PORT>,table=20,priority=100,actions=NORMAL
+    def ip_spoofing
+        base="table=20,in_port=#{port}"
+        pass="normal"
+
+        ipv4s = Array.new
+
+        [:ip, :vrouter_ip].each do |key|
+            ipv4s << @nic[key] if !@nic[key].nil? && !@nic[key].empty?
+        end
+
+        if !ipv4s.empty?
+            ipv4s.each do |ip|
+                if @nic[:conf][:arp_cache_poisoning]
+                    add_flow("#{base},arp,nw_src=#{ip}", pass, 50000)
+                end
+
+                add_flow("#{base},ip,nw_src=#{ip}", pass, 45000)
+            end
+        end
+
+        if @nic[:conf][:arp_cache_poisoning]
+            add_flow("#{base},arp", :drop, 49000)
+        end
+
+        # BOOTP
+        add_flow("#{base},udp,nw_src=0.0.0.0/32,tp_src=68,nw_dst=255.255.255.255/32,tp_dst=67", pass, 44000)
+
+        ipv6s = Array.new
+
+        [:ip6, :ip6_global, :ip6_link, :ip6_ula].each do |key|
+            ipv6s << @nic[key] if !@nic[key].nil? && !@nic[key].empty?
+        end
+
+        if !ipv6s.empty?
+            ipv6s.each do |ip|
+                add_flow("#{base},ipv6,ipv6_src=#{ip}", pass, 45000)
+            end
+        end
+
+        # ICMPv6 Neighbor Discovery Protocol (ARP replacement for IPv6)
+        add_flow("#{base},icmp6,icmp_type=133,ipv6_src=::", pass, 44000)
+        add_flow("#{base},icmp6,icmp_type=135,ipv6_src=::", pass, 44000)
+
+        add_flow("#{base},ip", :drop, 40000)
+        add_flow("#{base},ipv6", :drop, 40000)
     end
 
+    # Following MAC-spoofing rules may be created:
+    # (if ARP Cache Poisoning) in_port=<PORT>,table=10,arp,dl_src=<MAC>,priority=50000,actions=resubmit(,20)
+    # in_port=<PORT>,table=10,dl_src=<MAC>,priority=45000,actions=resubmit(,20)
+    # in_port=<PORT>,table=10,priority=40000,actions=drop
+    #
+    # The particular table also contains the base rule created before:
+    # in_port=<PORT>,table=10,priority=100,actions=resubmit(,20)
     def mac_spoofing
-        add_flow("in_port=#{port},dl_src=#{@nic[:mac]}",:normal,40000)
-        add_flow("in_port=#{port}",:drop,39000)
-    end
+        base="table=10,in_port=#{port}"
+        pass="resubmit(,20)"
 
-    def configure_fw
-        # TCP
-        if range = @nic[:black_ports_tcp]
-            if range? range
-                range.split(",").each do |p|
-                    base_rule = "tcp,dl_dst=#{@nic[:mac]},tp_dst=#{p}"
-                    base_rule << ",dl_vlan=#{vlan}" if !@nic[:vlan_id].nil?
-
-                    add_flow(base_rule,:drop)
-                end
-            end
+        if @nic[:conf][:arp_cache_poisoning]
+            add_flow("#{base},arp,dl_src=#{@nic[:mac]}", pass, 50000)
         end
 
-        # UDP
-        if range = @nic[:black_ports_udp]
-            if range? range
-                range.split(",").each do |p|
-                    base_rule = "udp,dl_dst=#{@nic[:mac]},tp_dst=#{p}"
-                    base_rule << ",dl_vlan=#{vlan}" if !@nic[:vlan_id].nil?
-
-                    add_flow(base_rule,:drop)
-                end
-            end
-        end
-
-        # ICMP
-        if @nic[:icmp]
-            if %w(no drop).include? @nic[:icmp].downcase
-                base_rule = "icmp,dl_dst=#{@nic[:mac]}"
-                base_rule << ",dl_vlan=#{vlan}" if !@nic[:vlan_id].nil?
-
-                add_flow(base_rule,:drop)
-            end
-        end
+        add_flow("#{base},dl_src=#{@nic[:mac]}", pass, 45000)
+        add_flow(base, :drop, 40000)
     end
 
     def del_flows
@@ -166,18 +221,26 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
         in_port = ""
 
-        dump_flows = "#{command(:ovs_ofctl)} dump-flows #{@nic[:bridge]}"
-        `#{dump_flows}`.lines do |flow|
-            next unless flow.match("#{@nic[:mac]}")
+        cmd_flows = "#{command(:ovs_ofctl)} dump-flows #{@nic[:bridge]}"
+        out_flows = `#{cmd_flows}`
 
-            if (m = flow.match(/in_port=(\d+)/))
-                in_port_tmp = m[1]
+        # searching for flow just by MAC address is legacy,
+        # we preferably look for a flow port with our note
+        ["note:#{port_note}", @nic[:mac]].each do |m|
+            out_flows.lines do |flow|
+                next unless flow.match(m)
 
-                if !the_ports.include?(in_port_tmp)
-                    in_port = in_port_tmp
-                    break
+                if (m = flow.match(/in_port=(\d+)/))
+                    in_port_tmp = m[1]
+
+                    if !the_ports.include?(in_port_tmp)
+                        in_port = in_port_tmp
+                        break
+                    end
                 end
             end
+
+            break unless in_port.empty?
         end
 
         del_flow "in_port=#{in_port}" if !in_port.empty?
@@ -187,7 +250,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         priority = (priority.to_s.empty? ? "" : "priority=#{priority},")
 
         run "#{command(:ovs_ofctl)} add-flow " <<
-            "#{@nic[:bridge]} #{filter},#{priority}actions=#{action}"
+            "#{@nic[:bridge]} '#{filter},#{priority}actions=#{action}'"
     end
 
     def del_flow(filter)
@@ -213,6 +276,12 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         else
             @nic[:port] = ports.first
         end
+    end
+
+    def port_note
+        # dot separated hexadecimal VM_ID, NIC_ID twins,
+        # e.g. for VM_ID=1, NIC_ID=1: "00.00.00.01.00.01"
+        ("%08x%04x" % [@vm['ID'], @nic[:nic_id]]).gsub(/(..)(?=.)/, '\1.')
     end
 
     def range?(range)
