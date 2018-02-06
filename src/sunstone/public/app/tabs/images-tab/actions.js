@@ -64,10 +64,10 @@ define(function(require) {
     "Image.snapshot_flatten": _commonActions.singleAction("snapshot_flatten"),
     "Image.snapshot_revert": _commonActions.singleAction("snapshot_revert"),
     "Image.snapshot_delete": _commonActions.singleAction("snapshot_delete"),
-    "Image.lockM": _commonActions.multipleAction('lock'),
-    "Image.lockU": _commonActions.multipleAction('lock'),
-    "Image.lockA": _commonActions.multipleAction('lock'),
-    "Image.unlock": _commonActions.multipleAction('unlock'),
+    "Image.lockM": _commonActions.multipleAction('lock', false),
+    "Image.lockU": _commonActions.multipleAction('lock', false),
+    "Image.lockA": _commonActions.multipleAction('lock', false),
+    "Image.unlock": _commonActions.multipleAction('unlock', false),
     "Image.upload_marketplace_dialog" : {
       type: "custom",
       call: function(params) {
