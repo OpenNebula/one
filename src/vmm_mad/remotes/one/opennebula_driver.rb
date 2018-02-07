@@ -165,7 +165,7 @@ class OpenNebulaDriver
       end
 
       t = OpenNebula::Template.new_with_id(tid, @client)
-      rc = t.instantiate(REMOTE_NAME_PREFIX+id, false, extra_template, false)
+      rc = t.instantiate(REMOTE_NAME_PREFIX+id, true, extra_template, false)
 
       if OpenNebula.is_error?(rc)
         STDERR.puts(rc.to_str())
@@ -173,8 +173,19 @@ class OpenNebulaDriver
       end
 
       deploy_id = "#{DEPLOY_ID_PREFIX}#{rc}"
-
       vm = get_remote_vm(deploy_id)
+
+      new_context_update = "CONTEXT = [" << context_str <<"]"
+      new_context_update = new_context_update.gsub("\n", ",\n")
+      rc = vm.updateconf(new_context_update)
+
+      if OpenNebula.is_error?(rc)
+        STDERR.puts(rc.to_str())
+        exit(-1)
+      end
+
+      vm.release
+
       rc = vm.update("REMOTE_OPENNEBULA_DEPLOY_ID = \"#{deploy_id}\"", true)
 
       if OpenNebula.is_error?(rc)
