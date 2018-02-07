@@ -291,6 +291,7 @@ define(function(require) {
           var html = "<select id=\"model-cpu\" wizard_field=\"MODEL\">";
           html += "<option value=\"\">" + " " + "</option>";
           html += "<option value=\"host-passthrough\">host-passthrough</option>";
+
           $.each(cpus, function(i, cpu){
             html += "<option value='" + cpu + "'>" + cpu + "</option>";
           });
