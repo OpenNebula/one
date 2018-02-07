@@ -276,7 +276,13 @@ define(function(require) {
       success: function (request, kvmInfo){
         var m = $("#machine-type").html();
         if (m === undefined){
-          machines = kvmInfo[0].set_kvm_machines;
+          if (kvmInfo.length !== 0){
+            machines = kvmInfo[0].set_kvm_machines;
+            cpus = kvmInfo[0].set_cpu_models;
+          } else {
+            machines = kvmInfo;
+            cpus = kvmInfo;
+          }
 
           var html = "<select id=\"machine-type\" wizard_field=\"MACHINE\">";
           html += '<option value="">' + " " + '</option>';
@@ -288,8 +294,6 @@ define(function(require) {
           html += '</select>';
 
           $("#kvm-info").append(html);
-
-          cpus = kvmInfo[0].set_cpu_models;
 
           var html = "<select wizard_field=\"MODEL\">";
           html += '<option value="">' + " " + '</option>';
