@@ -87,6 +87,10 @@ define(function(require) {
             add = true;
           }
 
+          if (resourceXMLRoot === "DATASTORE" && elem.TEMPLATE.TYPE === "SYSTEM_DS"){
+            add = false;
+          }
+
           if (add === true) {
             var val;
 
