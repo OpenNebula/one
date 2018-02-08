@@ -413,24 +413,19 @@ class Template
                         nic_info << nic_tmp
                     end
                 else
+                    config = {}
+                    config[:refs] = nic[:refs]
+
                     # Then the network has to be created as it's not in OpenNebula
                     one_vn = VCenterDriver::VIHelper.new_one_item(OpenNebula::VirtualNetwork)
 
-                    # We're importing unmanaged nics
-                    unmanaged = true
-
-                    # Let's get the OpenNebula host associated to the cluster reference
-                    one_host = VCenterDriver::VIHelper.find_by_ref(OpenNebula::HostPool,
-                                                                  "TEMPLATE/VCENTER_CCR_REF",
-                                                                   ccr_ref,
-                                                                   vc_uuid,
-                                                                   hpool)
-
-                    # Let's get the CLUSTER_ID from the OpenNebula host
-                    if !one_host || !one_host['CLUSTER_ID']
-                        cluster_id = -1
-                    else
-                        cluster_id = one_host['CLUSTER_ID']
+                    # Let's get the OpenNebula hosts ids associated to the clusters references
+                    config[:one_ids] = nic[:refs].map do |ref|
+                        VCenterDriver::VIHelper.find_by_ref(OpenNebula::HostPool,
+                                                            "TEMPLATE/VCENTER_CCR_REF",
+                                                            ref,
+                                                            vc_uuid,
+                                                            hpool)["CLUSTER_ID"] rescue -1
                     end
 
                     # We have to know if we're importing nics from a wild vm
@@ -443,9 +438,6 @@ class Template
                         ar_size   = 255
                     end
 
-                    net_host = VCenterDriver::ClusterComputeResource.new_from_ref(ccr_ref, @vi_client)
-                    location = VCenterDriver::VIHelper.get_location(net_host.item)
-
                     import_opts = {
                         :network_name=>          nic[:net_name],
                         :network_ref=>           nic[:net_ref],
@@ -455,8 +447,6 @@ class Template
                         :vcenter_uuid=>          vc_uuid,
                         :vcenter_instance_name=> vcenter_instance_name,
                         :dc_name=>               dc_name,
-                        :cluster_id=>            cluster_id,
-                        :location=>              location,
                         :unmanaged=>             unmanaged,
                         :template_ref=>          template_ref,
                         :dc_ref=>                dc_ref,
@@ -475,7 +465,9 @@ class Template
                     ar_str << "SIZE=\"#{ar_size}\"\n"
                     ar_str << "]\n"
                     one_vnet[:one] << ar_str
+                    config[:one_object] = one_vnet[:one]
 
+                    cluster_id = VCenterDriver::VIHelper.get_cluster_id(config[:one_ids])
                     if sunstone
                         if !duplicated_networks.include?(nic[:net_name])
                             sunstone_nic = {}
@@ -492,15 +484,9 @@ class Template
                             sunstone_nic_info << sunstone_nic
                         end
                     else
-                        # Allocate the Virtual Network
+                        one_vn = VCenterDriver::Network.create_one_network(config)
                         allocated_networks << one_vn
-                        rc = one_vn.allocate(one_vnet[:one], cluster_id.to_i)
                         VCenterDriver::VIHelper.clean_ref_hash()
-
-                        if OpenNebula.is_error?(rc)
-                            error = "\n    ERROR: Could not allocate virtual network due to #{rc.message}\n"
-                            break
-                        end
 
                         # Add info for One template
                         one_vn.info
@@ -512,6 +498,7 @@ class Template
                         # Refresh npool
                         npool.info_all
                     end
+
                 end
             end
 
@@ -613,6 +600,9 @@ class Template
                     network = RbVmomi::VIM::Network.new(@vi_client.vim, ref)
                 else
                     network = device.backing.network
+                end
+                nic[:refs] = network.host.map do |h|
+                    h.parent._ref if h.parent
                 end
 
                 nic[:mac]       = device.macAddress rescue nil
