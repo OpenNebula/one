@@ -224,7 +224,9 @@ define(function(require){
 
         var fields = WizardFields.retrieve(this);
         if (disk["SIZE"] && fields["SIZE"] && disk["SIZE"] === fields["SIZE"]){
-          delete disk["SIZE"];
+          if (disk["IMAGE_ID"] || disk["IMAGE_NAME"]){
+            delete disk["SIZE"];
+          }
           disks.push(disk);
         }
         else if (fields.SIZE != undefined){
