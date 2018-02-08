@@ -116,8 +116,7 @@ define(function(require) {
 
 
     $('#' + DIALOG_ID + 'Form', context).submit(function() {
-      var new_size = $( ".uinput-slider-val",context).val();
-      new_size = Math.round(parseInt(new_size) / 1024);
+      var new_size = Humanize.sizeToMB($( ".uinput-slider-val",context).val());
       new_size = new_size.toString();
       var obj = {
         "vm_id": that.element.ID,
