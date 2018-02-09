@@ -33,6 +33,41 @@ define(function(require) {
   var CONFIRM_DIALOG_ID = require("utils/dialogs/confirm/dialogId");
   var CONFIRM_WITH_SELECT_DIALOG_ID = require("utils/dialogs/confirm-with-select/dialogId");
   var DASHBOARD_TAB_ID = require("tabs/dashboard-tab/tabId");
+  var DefaultTabsArr = [
+    "dashboard-tab",
+    "system-top-tab",
+    "users-tab",
+    "groups-tab",
+    "vdcs-tab",
+    "acls-tab",
+    "templates-top-tab",
+    "templates-tab",
+    "oneflow-templates-tab",
+    "vrouter-templates-tab",
+    "instances-top-tab",
+    "vms-tab",
+    "oneflow-services-tab",
+    "vrouters-tab",
+    "infrastructure-top-tab",
+    "clusters-tab",
+    "hosts-tab",
+    "zones-tab",
+    "storage-top-tab",
+    "datastores-tab",
+    "images-tab",
+    "files-tab",
+    "marketplaces-tab",
+    "marketplaceapps-tab",
+    "network-top-tab",
+    "vnets-tab",
+    "vnets-topology-tab",
+    "vnets-topology-tab",
+    "support-tab",
+    "settings-tab",
+    "upgrade-top-tab",
+    "vmgroup-tab",
+    "secgroups-tab"
+  ];
 
   var SunstoneCfg = {
     "actions" : {},
@@ -46,6 +81,9 @@ define(function(require) {
 
     $.each(Config.enabledTabs, function(i, tabName){
       var name = "./tabs/" + tabName;
+      if (DefaultTabsArr.indexOf(tabName) == -1){
+        name = "./addons/tabs/" + tabName
+      }
       var tabObj = require(name);
       var _tabId = tabObj.tabId;
       SunstoneCfg["tabs"][_tabId] = tabObj;
@@ -80,6 +118,9 @@ define(function(require) {
   var _addActions = function() {
     $.each(Config.allTabs(), function(i, tabName){
       var name = "./tabs/" + tabName;
+      if (DefaultTabsArr.indexOf(tabName) == -1){
+        name = "./addons/tabs/" + tabName
+      }
       var tabObj = require(name);
 
       var actions = tabObj.actions;

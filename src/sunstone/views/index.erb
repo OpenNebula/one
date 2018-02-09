@@ -105,11 +105,10 @@
 
     <% if $conf[:env] == 'dev' %>
       <script src="bower_components/requirejs/require.js" data-main="app/main"></script>
+      <script>require(["main","addons"]);</script>
     <% else %>
       <script src="bower_components/requirejs/require.js"></script>
-      <script>
-        require(["dist/main", "app/addons"]);
-      </script>
+      <script>require(["dist/main", "app/addons"]);</script>
     <% end %>
   </body>
 </html>
