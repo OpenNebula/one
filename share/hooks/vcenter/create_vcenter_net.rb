@@ -59,6 +59,7 @@ if OpenNebula.is_error?(rc)
     STDERR.puts rc.message
     exit 1
 end
+template.lock(1)
 esx_rollback = [] #Track hosts that require a rollback
 managed = template["TEMPLATE/OPENNEBULA_MANAGED"] != "NO"
 
@@ -92,6 +93,7 @@ begin
         raise rc.message if OpenNebula::is_error? rc
 
         vnet_ref = nil
+        blocked  = false
         ccr_ref = one_host["TEMPLATE/VCENTER_CCR_REF"]
         cluster = VCenterDriver::ClusterComputeResource.new_from_ref(ccr_ref, vi_client)
         dc = cluster.get_dc
@@ -121,6 +123,8 @@ begin
                     end
 
                     vnet_ref = dc.create_dpg(dvs, pg_name, vlan_id, nports)
+                else
+                    blocked = true
                 end
             rescue Exception => e
                 raise e
@@ -161,6 +165,8 @@ begin
                         end
 
                         vnet_ref = esx_host.create_pg(pg_name, sw_name, vlan_id)
+                    else
+                        blocked = true
                     end
 
                 rescue Exception => e
@@ -174,9 +180,11 @@ begin
             if pg_type == "Distributed Port Group"
                 begin
                     esx_host.lock
-                    pnics_available = nil
-                    pnics_available = esx_host.get_available_pnics if pnics && !pnics.empty?
-                    esx_host.assign_proxy_switch(dvs, sw_name, pnics, pnics_available)
+                    if dvs
+                        pnics_available = nil
+                        pnics_available = esx_host.get_available_pnics if pnics && !pnics.empty?
+                        esx_host.assign_proxy_switch(dvs, sw_name, pnics, pnics_available)
+                    end
                 rescue Exception => e
                     raise e
                 ensure
@@ -189,12 +197,15 @@ begin
         # We must update XML so the VCENTER_NET_REF and VCENTER_INSTANCE_ID are added
         one_vnet = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualNetwork, network_id, false)
 
-        rc = one_vnet.update("VCENTER_NET_REF=\"#{vnet_ref}\"\nVCENTER_INSTANCE_ID=\"#{vc_uuid}\"\nVCENTER_NET_STATE=\"READY\"\nVCENTER_NET_ERROR=\"\"\n", true)
+        if blocked
+            rc = one_vnet.update("VCENTER_NET_REF=\"#{vnet_ref}\"\nVCENTER_INSTANCE_ID=\"#{vc_uuid}\"\nVCENTER_NET_STATE=\"ERROR\"\nVCENTER_NET_ERROR=\"vnet already exist in vcenter\"\n", true)
+        else
+            rc = one_vnet.update("VCENTER_NET_REF=\"#{vnet_ref}\"\nVCENTER_INSTANCE_ID=\"#{vc_uuid}\"\nVCENTER_NET_STATE=\"READY\"\nVCENTER_NET_ERROR=\"\"\n", true)
+        end
 
         if OpenNebula.is_error?(rc)
             raise "Could not update VCENTER_NET_REF and VCENTER_INSTANCE_ID for virtual network"
         end
-
 
         # Assign vnet to OpenNebula cluster
         cluster_id = one_host["CLUSTER_ID"]
@@ -256,5 +267,6 @@ rescue Exception => e
 
     exit -1
 ensure
+    template.unlock if !blocked
     vi_client.close_connection if vi_client
 end
