@@ -127,7 +127,7 @@ end
 
 post '/service_template/:id/action' do
     client = af_build_client
-
+    client.set_content_type(content_type)
     resp = client.post('/service_template/' + params[:id] + '/action', @request_body)
 
     af_format_response(resp)
@@ -135,7 +135,7 @@ end
 
 post '/service_template' do
     client = af_build_client
-
+    client.set_content_type(content_type)
     resp = client.post('/service_template', @request_body)
 
     af_format_response(resp)
