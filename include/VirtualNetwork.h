@@ -52,28 +52,30 @@ public:
      */
     enum VirtualNetworkDriver
     {
-        NONE     = 0,
-        DUMMY    = 1,
-        VLAN     = 2,
-        EBTABLES = 3,
-        FW       = 4,
-        OVSWITCH = 5,
-        VXLAN    = 6,
-        VCENTER  = 7
+        NONE           = 0,
+        DUMMY          = 1,
+        VLAN           = 2,
+        EBTABLES       = 3,
+        FW             = 4,
+        OVSWITCH       = 5,
+        VXLAN          = 6,
+        VCENTER        = 7,
+        OVSWITCH_VXLAN = 8
     };
 
     static string driver_to_str(VirtualNetworkDriver ob)
     {
         switch (ob)
         {
-            case NONE:     return "";
-            case DUMMY:    return "dummy";
-            case VLAN:     return "802.1Q";
-            case EBTABLES: return "ebtables";
-            case FW:       return "fw";
-            case OVSWITCH: return "ovswitch";
-            case VXLAN:    return "vxlan";
-            case VCENTER:  return "vcenter";
+            case NONE:           return "";
+            case DUMMY:          return "dummy";
+            case VLAN:           return "802.1Q";
+            case EBTABLES:       return "ebtables";
+            case FW:             return "fw";
+            case OVSWITCH:       return "ovswitch";
+            case VXLAN:          return "vxlan";
+            case VCENTER:        return "vcenter";
+            case OVSWITCH_VXLAN: return "ovswitch_vxlan";
         }
     };
 
@@ -106,6 +108,10 @@ public:
         else if ( ob == "vcenter" )
         {
             return VCENTER;
+        }
+        else if ( ob == "ovswitch_vxlan" )
+        {
+            return OVSWITCH_VXLAN;
         }
         else
         {

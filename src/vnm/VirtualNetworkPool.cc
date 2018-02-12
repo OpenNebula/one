@@ -383,6 +383,7 @@ int VirtualNetworkPool::set_vlan_id(VirtualNetwork * vn)
         case VirtualNetwork::VLAN:
         case VirtualNetwork::VCENTER:
         case VirtualNetwork::OVSWITCH:
+        case VirtualNetwork::OVSWITCH_VXLAN:
             start_vlan = vlan_id_bitmap.get_start_bit();
             hint_vlan  = start_vlan + (vn->get_oid() % (4095 - start_vlan ));
 
