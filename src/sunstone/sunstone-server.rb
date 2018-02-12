@@ -629,23 +629,25 @@ get '/infrastructure' do
 
     set = Set.new
 
-    if !xml['HOST/TEMPLATE/CUSTOMIZATION'].nil?
-        xml.each('HOST/TEMPLATE/CUSTOMIZATION') do |customization|
-            set.add(customization['NAME'])
-        end
+    xml.each('HOST/TEMPLATE/CUSTOMIZATION') do |customization|
+        set.add(customization['NAME'])
+    end
 
-        infrastructure[:vcenter_customizations] = set.to_a
+    infrastructure[:vcenter_customizations] = set.to_a
 
-        set_cpu_models = Set.new
-        set_kvm_machines = Set.new
+    set_cpu_models = Set.new
+    set_kvm_machines = Set.new
 
-        xml.each('HOST/TEMPLATE') do |kvm|
+    xml.each('HOST/TEMPLATE') do |kvm|
+        if !kvm['KVM_CPU_MODELS'].nil?
             set_cpu_models += kvm['KVM_CPU_MODELS'].split(" ")
+        end
+        if !kvm['KVM_MACHINES'].nil?
             set_kvm_machines += kvm['KVM_MACHINES'].split(" ")
         end
-
-        infrastructure[:kvm_info] = { :set_cpu_models => set_cpu_models.to_a, :set_kvm_machines => set_kvm_machines.to_a }
     end
+
+    infrastructure[:kvm_info] = { :set_cpu_models => set_cpu_models.to_a, :set_kvm_machines => set_kvm_machines.to_a }
 
     [200, infrastructure.to_json]
 end
