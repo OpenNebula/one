@@ -354,7 +354,7 @@ module Service
             req.body = body
 
             if path.start_with?('/service_template')
-                if !@content_type.nil?
+                unless @content_type.nil?
                     req.content_type = @content_type
                 end
             end
