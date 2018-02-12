@@ -276,13 +276,8 @@ define(function(require) {
       success: function (request, kvmInfo){
         var m = $("#machine-type").html();
         if (m === undefined){
-          if (kvmInfo.length !== 0){
-            machines = kvmInfo[0].set_kvm_machines;
-            cpus = kvmInfo[0].set_cpu_models;
-          } else {
-            machines = kvmInfo;
-            cpus = kvmInfo;
-          }
+          machines = kvmInfo[0].set_kvm_machines;
+          cpus = kvmInfo[0].set_cpu_models;
 
           var html = "<select id=\"machine-type\" wizard_field=\"MACHINE\">";
           html += '<option value="">' + " " + '</option>';
