@@ -15,11 +15,12 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var TAB_ID = 'storage-top-tab';
+  var Locale = require("utils/locale");
+  var TAB_ID = "storage-top-tab";
 
   var Tab = {
     tabId: TAB_ID,
-    title: 'Storage',
+    title: Locale.tr("Storage"),
     no_content: true
   };
 

@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-07-07 09:21+0200\n"
-"PO-Revision-Date: 2017-07-07 07:22+0000\n"
-"Last-Translator: juanmont <jjmontiel@opennebula.org>\n"
+"PO-Revision-Date: 2017-11-21 07:00+0000\n"
+"Last-Translator: Stefaniu Criste\n"
 "Language-Team: Romanian (Romania) (http://www.transifex.com/opennebula/one/language/ro_RO/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -37,7 +37,7 @@ msgstr "ÎN AȘTEPTARE"
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:54
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:62
 msgid "DEPLOYING"
-msgstr ""
+msgstr "ÎN CONSTRUCȚIE"
 
 #: ../app/opennebula/role.js:46 ../app/opennebula/service.js:28
 #: ../app/opennebula/vm.js:198 ../app/tabs/provision-tab/vms/list.js:863
@@ -45,12 +45,12 @@ msgstr ""
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:46
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:54
 msgid "RUNNING"
-msgstr ""
+msgstr "ÎN UZ"
 
 #: ../app/opennebula/role.js:47 ../app/opennebula/service.js:29
 #: ../app/tabs/provision-tab/flows/list.js:632
 msgid "UNDEPLOYING"
-msgstr ""
+msgstr "ÎN DESTRUCTURARE"
 
 #: ../app/opennebula/role.js:48 ../app/opennebula/service.js:30
 #: ../app/tabs/provision-tab/flows/list.js:648
@@ -64,20 +64,20 @@ msgstr "GATA"
 
 #: ../app/opennebula/role.js:50 ../app/opennebula/service.js:32
 msgid "FAILED_UNDEPLOYING"
-msgstr ""
+msgstr "EȘEC_DESTRUCTURARE"
 
 #: ../app/opennebula/role.js:51 ../app/opennebula/service.js:33
 msgid "FAILED_DEPLOYING"
-msgstr ""
+msgstr "EȘEC_CONSTRUCȚIE"
 
 #: ../app/opennebula/role.js:52 ../app/opennebula/service.js:34
 #: ../app/tabs/provision-tab/flows/list.js:656
 msgid "SCALING"
-msgstr ""
+msgstr "SCALARE"
 
 #: ../app/opennebula/role.js:53 ../app/opennebula/service.js:35
 msgid "FAILED_SCALING"
-msgstr ""
+msgstr "EȘEC_SCALARE"
 
 #: ../app/opennebula/role.js:54 ../app/opennebula/service.js:36
 #: ../app/tabs/provision-tab/flows/list.js:660
@@ -92,11 +92,11 @@ msgstr "INIT"
 
 #: ../app/opennebula/host.js:40
 msgid "MONITORING_MONITORED"
-msgstr ""
+msgstr "MONITORIZARE_MONITORIZAT"
 
 #: ../app/opennebula/host.js:41
 msgid "MONITORED"
-msgstr ""
+msgstr "MONITORIZAT"
 
 #: ../app/opennebula/host.js:42 ../app/opennebula/host.js:54
 #: ../app/opennebula/marketplaceapp.js:27 ../app/opennebula/image.js:28
@@ -113,19 +113,19 @@ msgstr "EROARE"
 #: ../app/opennebula/host.js:58 ../app/opennebula/marketplaceapp.js:28
 #: ../app/opennebula/image.js:26
 msgid "DISABLED"
-msgstr ""
+msgstr "DEZACTIVAT"
 
 #: ../app/opennebula/host.js:44
 msgid "MONITORING_ERROR"
-msgstr ""
+msgstr "MONITORIZARE_EROARE"
 
 #: ../app/opennebula/host.js:45
 msgid "MONITORING_INIT"
-msgstr ""
+msgstr "MONITORIZARE_INITIALIZARE"
 
 #: ../app/opennebula/host.js:46
 msgid "MONITORING_DISABLED"
-msgstr ""
+msgstr "MONITORIZARE_DEZACTIVAT"
 
 #: ../app/opennebula/host.js:47
 msgid "OFFLINE"
@@ -138,11 +138,11 @@ msgstr ""
 #: ../app/opennebula/host.js:53 ../app/opennebula/datastore.js:25
 #: ../app/tabs/hosts-tab.js:58 ../app/tabs/dashboard-tab/hosts.hbs:25
 msgid "ON"
-msgstr ""
+msgstr "PORNIT"
 
 #: ../app/opennebula/host.js:56
 msgid "RETRY"
-msgstr ""
+msgstr "REÎNCEARCĂ"
 
 #: ../app/opennebula/host.js:59 ../app/opennebula/datastore.js:26
 #: ../app/tabs/provision-tab/vms/list.js:924
@@ -152,16 +152,16 @@ msgstr ""
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:70
 #: ../app/tabs/dashboard-tab/hosts.hbs:26
 msgid "OFF"
-msgstr ""
+msgstr "OPRIT"
 
 #: ../app/opennebula/marketplaceapp.js:25 ../app/opennebula/image.js:24
 #: ../app/tabs/provision-tab/vms/list.js:990
 msgid "READY"
-msgstr ""
+msgstr "GATA"
 
 #: ../app/opennebula/marketplaceapp.js:26 ../app/opennebula/image.js:27
 msgid "LOCKED"
-msgstr ""
+msgstr "BLOCAT"
 
 #: ../app/opennebula/marketplaceapp.js:32 ../app/opennebula/vm.js:211
 #: ../app/tabs/provision-tab/vms/list.js:910
@@ -170,7 +170,7 @@ msgstr ""
 #: ../app/tabs/provision-tab/vms/list.js:1013
 #: ../app/tabs/provision-tab/flows/list.js:668
 msgid "UNKNOWN"
-msgstr ""
+msgstr "NECUNOSCUT"
 
 #: ../app/opennebula/marketplaceapp.js:33 ../app/opennebula/datastore.js:29
 msgid "IMAGE"
@@ -186,15 +186,15 @@ msgstr ""
 
 #: ../app/opennebula/image.js:25 ../app/tabs/dashboard-tab/storage.hbs:24
 msgid "USED"
-msgstr ""
+msgstr "UTILIZAT"
 
 #: ../app/opennebula/image.js:29
 msgid "CLONE"
-msgstr ""
+msgstr "CLONARE"
 
 #: ../app/opennebula/image.js:30
 msgid "DELETE"
-msgstr ""
+msgstr "ȘTERGERE"
 
 #: ../app/opennebula/image.js:31
 msgid "USED_PERS"
@@ -211,12 +211,12 @@ msgstr ""
 #: ../app/opennebula/image.js:37
 #: ../app/tabs/images-tab/panels/info-common.js:96
 msgid "OS"
-msgstr ""
+msgstr "OS"
 
 #: ../app/opennebula/image.js:38
 #: ../app/tabs/images-tab/panels/info-common.js:97
 msgid "CDROM"
-msgstr ""
+msgstr "CDROM"
 
 #: ../app/opennebula/image.js:39
 #: ../app/tabs/images-tab/panels/info-common.js:98
@@ -226,26 +226,26 @@ msgstr ""
 #: ../app/opennebula/image.js:40
 #: ../app/tabs/images-tab/panels/info-common.js:103
 msgid "KERNEL"
-msgstr ""
+msgstr "KERNEL"
 
 #: ../app/opennebula/image.js:41
 #: ../app/tabs/images-tab/panels/info-common.js:104
 msgid "RAMDISK"
-msgstr ""
+msgstr "RAMDISK"
 
 #: ../app/opennebula/image.js:42
 #: ../app/tabs/images-tab/panels/info-common.js:105
 msgid "CONTEXT"
-msgstr ""
+msgstr "CONTEXT"
 
 #: ../app/opennebula/vm.js:195
 msgid "LCM_INIT"
-msgstr ""
+msgstr "LCM_INIT"
 
 #: ../app/opennebula/vm.js:196 ../app/opennebula/vm.js:204
 #: ../app/opennebula/vm.js:226
 msgid "PROLOG"
-msgstr ""
+msgstr "PROLOG"
 
 #: ../app/opennebula/vm.js:197 ../app/opennebula/vm.js:214
 #: ../app/opennebula/vm.js:215 ../app/opennebula/vm.js:216
@@ -258,22 +258,22 @@ msgstr "BOOT"
 #: ../app/opennebula/vm.js:238 ../app/opennebula/vm.js:240
 #: ../app/opennebula/vm.js:255
 msgid "MIGRATE"
-msgstr ""
+msgstr "MIGREAZĂ"
 
 #: ../app/opennebula/vm.js:200 ../app/opennebula/vm.js:201
 #: ../app/opennebula/vm.js:202
 msgid "SAVE"
-msgstr ""
+msgstr "SALVEAZĂ"
 
 #: ../app/opennebula/vm.js:205 ../app/opennebula/vm.js:206
 #: ../app/opennebula/vm.js:225
 msgid "EPILOG"
-msgstr ""
+msgstr "EPILOG"
 
 #: ../app/opennebula/vm.js:207 ../app/opennebula/vm.js:208
 #: ../app/opennebula/vm.js:213 ../app/opennebula/vm.js:224
 msgid "SHUTDOWN"
-msgstr ""
+msgstr "OPRIRE"
 
 #: ../app/opennebula/vm.js:209 ../app/opennebula/vm.js:231
 #: ../app/opennebula/vm.js:232 ../app/opennebula/vm.js:233
@@ -284,7 +284,7 @@ msgstr ""
 #: ../app/opennebula/vm.js:244 ../app/opennebula/vm.js:245
 #: ../app/opennebula/vm.js:256
 msgid "FAILURE"
-msgstr ""
+msgstr "EȘEC"
 
 #: ../app/opennebula/vm.js:210 ../app/opennebula/vm.js:218
 msgid "CLEANUP"
@@ -303,12 +303,12 @@ msgstr ""
 #: ../app/opennebula/vm.js:251 ../app/opennebula/vm.js:252
 #: ../app/opennebula/vm.js:253 ../app/opennebula/vm.js:254
 msgid "SNAPSHOT"
-msgstr ""
+msgstr "SNAPSHOT"
 
 #: ../app/opennebula/vm.js:257 ../app/opennebula/vm.js:258
 #: ../app/opennebula/vm.js:259
 msgid "DISK_RSZ"
-msgstr ""
+msgstr "DISK_RSZ"
 
 #: ../app/opennebula/datastore.js:30
 msgid "SYSTEM"
@@ -316,7 +316,7 @@ msgstr "SISTEM"
 
 #: ../app/opennebula/datastore.js:31
 msgid "FILE"
-msgstr ""
+msgstr "FIȘIER"
 
 #: ../app/tabs/vrouters-tab.js:46 ../app/tabs/vrouters-tab.js:50
 #: ../app/tabs/vrouter-templates-tab.js:45
@@ -333,7 +333,7 @@ msgstr "Router virtual"
 
 #: ../app/tabs/clusters-tab/form-panels/create.js:52
 msgid "Create Cluster"
-msgstr ""
+msgstr "Creează Cluster"
 
 #: ../app/tabs/clusters-tab/form-panels/create.js:53
 #: ../app/tabs/datastores-tab/form-panels/create.js:55
@@ -359,11 +359,11 @@ msgstr ""
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:37
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:195
 msgid "Create"
-msgstr ""
+msgstr "Creează"
 
 #: ../app/tabs/clusters-tab/form-panels/create.js:57
 msgid "Update Cluster"
-msgstr ""
+msgstr "Actualizare Cluster"
 
 #: ../app/tabs/clusters-tab/form-panels/create.js:58
 #: ../app/tabs/clusters-tab/buttons.js:33
@@ -465,7 +465,7 @@ msgstr "Atribute"
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:22
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:214
 msgid "VNets"
-msgstr ""
+msgstr "VNet-uri"
 
 #: ../app/tabs/clusters-tab/panels/hosts.js:39
 #: ../app/tabs/clusters-tab/datatable.js:64
@@ -640,16 +640,16 @@ msgstr "Ați ales următorul cluster:"
 
 #: ../app/tabs/clusters-tab/datatable.js:75
 msgid "Please select one or more clusters from the list"
-msgstr ""
+msgstr "Alege unul sau mai multe clustere din listă"
 
 #: ../app/tabs/clusters-tab/datatable.js:76
 msgid "You selected the following clusters:"
-msgstr ""
+msgstr "Ai ales următoarele clustere:"
 
 #: ../app/tabs/clusters-tab/actions.js:33
 #: ../app/tabs/clusters-tab/actions.js:65
 msgid "Cluster created"
-msgstr ""
+msgstr "Clusterul a fost creat"
 
 #: ../app/tabs/system-top-tab.js:23
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:92
@@ -659,15 +659,15 @@ msgstr "Sistem"
 
 #: ../app/tabs/datastores-tab/form-panels/create.js:54
 msgid "Create Datastore"
-msgstr ""
+msgstr "Creează Datastore"
 
 #: ../app/tabs/datastores-tab/form-panels/create.js:345
 msgid "Please select a cluster for this datastore"
-msgstr ""
+msgstr "Alage un cluster pentru acest datastore"
 
 #: ../app/tabs/datastores-tab/form-panels/import.js:50
 msgid "Import vCenter Datastores"
-msgstr ""
+msgstr "Importa datacentere din vCenter"
 
 #: ../app/tabs/datastores-tab/form-panels/import.js:51
 #: ../app/tabs/datastores-tab/buttons.js:33
@@ -684,7 +684,7 @@ msgstr "Import"
 #: ../app/tabs/datastores-tab/buttons.js:39
 #: ../app/tabs/hosts-tab/buttons.js:32 ../app/tabs/vnets-tab/buttons.js:51
 msgid "Select cluster"
-msgstr ""
+msgstr "Alege clusterul"
 
 #: ../app/tabs/datastores-tab/buttons.js:43
 #: ../app/tabs/marketplaceapps-tab/buttons.js:40
@@ -697,7 +697,7 @@ msgstr ""
 #: ../app/tabs/vnets-tab/buttons.js:55 ../app/tabs/vmgroup-tab/buttons.js:38
 #: ../app/tabs/templates-tab/buttons.js:49
 msgid "Change owner"
-msgstr ""
+msgstr "Schimbă proprietarul"
 
 #: ../app/tabs/datastores-tab/buttons.js:46
 #: ../app/tabs/marketplaceapps-tab/buttons.js:43
@@ -710,7 +710,7 @@ msgstr ""
 #: ../app/tabs/vnets-tab/buttons.js:58 ../app/tabs/vmgroup-tab/buttons.js:41
 #: ../app/tabs/templates-tab/buttons.js:52
 msgid "Select the new owner"
-msgstr ""
+msgstr "Alege noul proprietar"
 
 #: ../app/tabs/datastores-tab/buttons.js:50
 #: ../app/tabs/marketplaceapps-tab/buttons.js:47
@@ -723,7 +723,7 @@ msgstr ""
 #: ../app/tabs/vnets-tab/buttons.js:63 ../app/tabs/vmgroup-tab/buttons.js:45
 #: ../app/tabs/templates-tab/buttons.js:56
 msgid "Change group"
-msgstr ""
+msgstr "Schimbă grupul"
 
 #: ../app/tabs/datastores-tab/buttons.js:53
 #: ../app/tabs/marketplaceapps-tab/buttons.js:50
@@ -947,11 +947,11 @@ msgstr "Ați ales următorul datastore:"
 
 #: ../app/tabs/datastores-tab/datatable.js:102
 msgid "Please select one or more datastores from the list"
-msgstr ""
+msgstr "Alege unul sau mai multe datastore-uri din listă"
 
 #: ../app/tabs/datastores-tab/datatable.js:103
 msgid "You selected the following datastores:"
-msgstr ""
+msgstr "Ai ales următoarele datastore-uri:"
 
 #: ../app/tabs/datastores-tab/actions.js:34
 msgid "Datastore created"
@@ -1064,7 +1064,7 @@ msgstr ""
 #: ../app/tabs/provision-tab/templates/list.js:167
 #: ../app/tabs/templates-tab/buttons.js:69
 msgid "Share"
-msgstr ""
+msgstr "Partajează"
 
 #: ../app/tabs/provision-tab/templates/list.js:274
 msgid "Handle with care! This action will immediately destroy the template"
@@ -1083,11 +1083,11 @@ msgstr "Șablonul"
 msgid ""
 "and the image associated will be shared and all the users will be able to "
 "instantiate new VMs using this template."
-msgstr ""
+msgstr "și imaginea asociată vor fi partajate, astfel încât toți utilizatorii vor putea instanția mașini virtuale folosind acest șablon."
 
 #: ../app/tabs/provision-tab/templates/list.js:330
 msgid "Share template"
-msgstr ""
+msgstr "Partajează șablonul"
 
 #: ../app/tabs/provision-tab/templates/list.js:374
 msgid ""
@@ -1157,7 +1157,7 @@ msgstr "Numarul de VMuri pentru rolul"
 
 #: ../app/tabs/provision-tab/flows/list.js:495
 msgid "Be careful, this action will immediately destroy your Service"
-msgstr ""
+msgstr "Atenție, această acțiune va distruge imediat serviciul tău"
 
 #: ../app/tabs/provision-tab/flows/list.js:497
 #: ../app/tabs/provision-tab/flows/list.js:518
@@ -1171,7 +1171,7 @@ msgstr ""
 #: ../app/tabs/provision-tab/flows/list.js:522
 #: ../app/tabs/provision-tab/flows/info.hbs:52
 msgid "Shutdown"
-msgstr ""
+msgstr "Shutdown"
 
 #: ../app/tabs/provision-tab/flows/list.js:636
 msgid "FAILED UNDEPLOYING"
@@ -1197,7 +1197,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:56
 #: ../app/tabs/templates-tab/buttons.js:45
 msgid "Instantiate"
-msgstr ""
+msgstr "Instanțiază"
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:146
 #: ../app/tabs/vrouters-tab/actions.js:32
@@ -1206,7 +1206,7 @@ msgstr "Routerul virtual a fost creat"
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:166
 msgid "Failed to create VMs. Virtual Router may need to be deleted manually."
-msgstr ""
+msgstr "Nu am putut crea mașinile virtuale. E posibil ca routerul virtual sa trebuiască șters manual."
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:198
 #: ../app/tabs/vrouters-tab/form-panels/instantiate.js:116
@@ -1223,7 +1223,7 @@ msgstr "Panou general"
 
 #: ../app/tabs/hosts-tab/form-panels/create.js:54
 msgid "Create Host"
-msgstr ""
+msgstr "Creează Host"
 
 #: ../app/tabs/hosts-tab/buttons.js:34
 msgid "Select the destination cluster"
@@ -1280,11 +1280,11 @@ msgstr "Total +/- rezervat"
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:53
 msgid "Wilds"
-msgstr ""
+msgstr "Orfane"
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:77
 msgid "Could not import the wild VM "
-msgstr ""
+msgstr "Nun am putut importa VM-ul orfan."
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:80
 #: ../app/tabs/hosts-tab/panels/wilds.js:98
@@ -1297,7 +1297,7 @@ msgstr ""
 #: ../app/tabs/hosts-tab/panels/wilds.js:403
 #: ../app/tabs/hosts-tab/panels/wilds/html.hbs:19
 msgid "Import Wilds"
-msgstr ""
+msgstr "importă mașinile orfane"
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:152
 #: ../app/tabs/hosts-tab/panels/wilds.js:382
@@ -1377,7 +1377,7 @@ msgstr ""
 #: ../app/tabs/hosts-tab/datatable.js:91
 #: ../app/tabs/vmgroup-tab/utils/datatable.js:78
 msgid "You selected the following hosts:"
-msgstr ""
+msgstr "Ai ales următoarele host-uri:"
 
 #: ../app/tabs/hosts-tab/datatable.js:252
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:59
@@ -1392,7 +1392,7 @@ msgstr "Memorie reală"
 
 #: ../app/tabs/hosts-tab/actions.js:33
 msgid "Host created"
-msgstr ""
+msgstr "Host-ul a fost creat"
 
 #: ../app/tabs/vdcs-tab/form-panels/create.js:59
 msgid "Create Virtual Data Center"
@@ -1510,12 +1510,12 @@ msgstr "Stare"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:91
 msgid "Registration Time"
-msgstr ""
+msgstr "Înregistrat la"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:92
 #: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:28
 msgid "Marketplace"
-msgstr ""
+msgstr "Piață"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:93
 #: ../app/tabs/marketplaces-tab/datatable.js:89
@@ -1603,7 +1603,7 @@ msgstr "ACTIVE"
 
 #: ../app/tabs/vms-tab.js:77 ../app/tabs/dashboard-tab/vms.hbs:27
 msgid "FAILED"
-msgstr ""
+msgstr "EȘEC"
 
 #: ../app/tabs/secgroups-tab/form-panels/create.js:55
 msgid "Create Security Group"
@@ -1655,7 +1655,7 @@ msgstr ""
 
 #: ../app/tabs/secgroups-tab/actions.js:33
 msgid "Security Group created"
-msgstr ""
+msgstr "Grupul de securitate a fost creat"
 
 #: ../app/tabs/secgroups-tab/actions.js:80
 msgid ""
@@ -1709,15 +1709,15 @@ msgstr "Start"
 #: ../app/tabs/secgroups-tab/utils/common.js:113
 #: ../app/tabs/vms-tab/datatable/search.hbs:30
 msgid "Any"
-msgstr ""
+msgstr "Oricare"
 
 #: ../app/tabs/images-tab/form-panels/import.js:51
 msgid "Import vCenter Images"
-msgstr ""
+msgstr "importă imagini din vCenter"
 
 #: ../app/tabs/images-tab/form-panels/create-common.js:53
 msgid "Create Image"
-msgstr ""
+msgstr "Creează imagine"
 
 #: ../app/tabs/images-tab/form-panels/create-common.js:55
 msgid "Create File"
@@ -1730,11 +1730,11 @@ msgstr "Încărcare..."
 #: ../app/tabs/images-tab/form-panels/create-common.js:381
 #: ../app/tabs/images-tab/form-panels/create-common.js:506
 msgid "Please select a datastore for this image"
-msgstr ""
+msgstr "Definește un datastore pentru această imagine"
 
 #: ../app/tabs/images-tab/form-panels/create-common.js:463
 msgid "Please select a file to upload"
-msgstr ""
+msgstr "Alege un fișier pentru încărcare"
 
 #: ../app/tabs/images-tab/form-panels/create-common.js:471
 msgid "Registering in OpenNebula"
@@ -1743,15 +1743,15 @@ msgstr ""
 #: ../app/tabs/images-tab/buttons.js:32 ../app/tabs/marketplaces-tab.js:53
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:32
 msgid "MarketPlace"
-msgstr ""
+msgstr "Piața"
 
 #: ../app/tabs/images-tab/buttons.js:67
 msgid "Make persistent"
-msgstr ""
+msgstr "Fă-l persistent"
 
 #: ../app/tabs/images-tab/buttons.js:72
 msgid "Make non persistent"
-msgstr ""
+msgstr "Fă-l efemer"
 
 #: ../app/tabs/images-tab/panels/info-common.js:66
 #: ../app/tabs/images-tab/panels/info-common.js:145
@@ -1787,7 +1787,7 @@ msgstr ""
 #: ../app/tabs/images-tab/panels/snapshots.js:202
 #: ../app/tabs/vms-tab/panels/storage.js:675
 msgid "Active"
-msgstr ""
+msgstr "Activ"
 
 #: ../app/tabs/images-tab/datatable-common.js:69
 #: ../app/tabs/vms-tab/panels/placement.js:69 ../app/tabs/datastores-tab.js:51
@@ -1806,7 +1806,7 @@ msgstr "Datastore"
 #: ../app/tabs/images-tab/datatable-common.js:72
 #: ../app/tabs/templates-tab/datatable-common.js:70
 msgid "Registration time"
-msgstr ""
+msgstr "Înregistrat la"
 
 #: ../app/tabs/images-tab/datatable-common.js:73
 #: ../app/tabs/provision-tab/vms/create.hbs:41
@@ -1893,7 +1893,7 @@ msgstr ""
 
 #: ../app/tabs/users-tab/form-panels/create.js:52
 msgid "Create User"
-msgstr ""
+msgstr "Creează utilizator"
 
 #: ../app/tabs/users-tab/form-panels/create.js:95
 msgid "To define secondary groups you need to also set the main group"
@@ -1959,12 +1959,12 @@ msgstr "Parola curentă"
 #: ../app/tabs/users-tab/panels/auth-common.js:119
 #: ../app/utils/tab-datatable/search-input.hbs:41
 msgid "Close"
-msgstr ""
+msgstr "Închide"
 
 #: ../app/tabs/users-tab/panels/accounting-common.js:37
 #: ../app/tabs/groups-tab/panels/accounting.js:39
 msgid "Accounting"
-msgstr ""
+msgstr "Contabilitate"
 
 #: ../app/tabs/users-tab/panels/info-common.js:113
 msgid "ascending"
@@ -1977,7 +1977,7 @@ msgstr "descendent"
 #: ../app/tabs/users-tab/datatable.js:71
 #: ../app/tabs/users-tab/datatable/search.hbs:22
 msgid "Auth driver"
-msgstr ""
+msgstr "Driver autentificare"
 
 #: ../app/tabs/users-tab/datatable.js:74
 #: ../app/tabs/groups-tab/datatable.js:69
@@ -2032,7 +2032,7 @@ msgstr ""
 
 #: ../app/tabs/users-tab/actions.js:37
 msgid "User created"
-msgstr ""
+msgstr "Utilizatorul a fost creat"
 
 #: ../app/tabs/users-tab/utils/user-creation.js:141
 #: ../app/utils/quotas/quota-widgets.js:848
@@ -2072,7 +2072,7 @@ msgstr ""
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:38
 #: ../app/tabs/vms-tab/buttons.js:83
 msgid "Suspend"
-msgstr ""
+msgstr "Suspendă"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:48
 #: ../app/tabs/vms-tab/buttons.js:95
@@ -2091,7 +2091,7 @@ msgstr "Reboot"
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:68
 #: ../app/tabs/vms-tab/buttons.js:113 ../app/tabs/vms-tab/buttons.js:119
 msgid "Power Off"
-msgstr ""
+msgstr "Deconectează"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:73
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:78
@@ -2106,7 +2106,7 @@ msgstr ""
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:82
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:140
 msgid "Terminate"
-msgstr ""
+msgstr "Distruge"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:58
 #: ../app/utils/vmgroup-section.js:145
@@ -2131,7 +2131,7 @@ msgstr ""
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:255
 #: ../app/tabs/vms-tab/datatable.js:169 ../app/tabs/vms-tab/actions.js:153
 msgid "VNC Connection in progress"
-msgstr ""
+msgstr "Conexiune VNC în progres"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:269
 #: ../app/tabs/vms-tab/datatable.js:182 ../app/tabs/vms-tab/actions.js:181
@@ -2145,7 +2145,7 @@ msgstr "Log"
 
 #: ../app/tabs/oneflow-services-tab/datatable.js:77
 msgid "Please select a Service from the list"
-msgstr ""
+msgstr "Alege un serviciu din listă"
 
 #: ../app/tabs/oneflow-services-tab/datatable.js:78
 msgid "You selected the following Service:"
@@ -2199,7 +2199,7 @@ msgstr ""
 #: ../app/tabs/vms-tab/buttons.js:59 ../app/tabs/vms-tab/buttons.js:65
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:52
 msgid "Migrate"
-msgstr ""
+msgstr "Migrează"
 
 #: ../app/tabs/vms-tab/buttons.js:65
 msgid "live"
@@ -2222,7 +2222,7 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:138 ../app/tabs/vms-tab/buttons.js:146
 msgid " Terminate"
-msgstr ""
+msgstr "Distruge"
 
 #: ../app/tabs/vms-tab/buttons.js:140 ../app/tabs/vms-tab/buttons.js:148
 msgid "This will remove information from non-persistent hard disks"
@@ -2251,7 +2251,7 @@ msgstr "eșec"
 
 #: ../app/tabs/vms-tab/buttons.js:171
 msgid "delete"
-msgstr ""
+msgstr "șterge"
 
 #: ../app/tabs/vms-tab/buttons.js:172
 msgid "delete-recreate"
@@ -2378,7 +2378,7 @@ msgstr "Adresă PCI"
 #: ../app/tabs/vms-tab/panels/network.js:87
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:41
 msgid "IPv6 ULA"
-msgstr ""
+msgstr "IPv6 ULA"
 
 #: ../app/tabs/vms-tab/panels/network.js:88
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:42
@@ -2397,7 +2397,7 @@ msgstr "Acțiuni"
 #: ../app/tabs/vms-tab/panels/network.js:98
 #: ../app/tabs/vms-tab/panels/network.js:101
 msgid "Attach nic"
-msgstr ""
+msgstr "Atașează NIC"
 
 #: ../app/tabs/vms-tab/panels/network.js:121
 msgid "Network Monitoring Attributes"
@@ -2405,11 +2405,11 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/panels/network.js:145
 msgid "NET RX"
-msgstr ""
+msgstr "NET RX"
 
 #: ../app/tabs/vms-tab/panels/network.js:161
 msgid "NET TX"
-msgstr ""
+msgstr "NET TX"
 
 #: ../app/tabs/vms-tab/panels/network.js:177
 msgid "NET DOWNLOAD SPEED"
@@ -2582,11 +2582,11 @@ msgstr "Adaugă acțiune"
 
 #: ../app/tabs/vms-tab/panels/actions.js:93
 msgid "terminate"
-msgstr ""
+msgstr "distruge"
 
 #: ../app/tabs/vms-tab/panels/actions.js:94
 msgid "terminate-hard"
-msgstr ""
+msgstr "distruge-forțat"
 
 #: ../app/tabs/vms-tab/panels/actions.js:95
 msgid "hold"
@@ -2856,7 +2856,7 @@ msgstr ""
 
 #: ../app/tabs/marketplaces-tab/actions.js:30
 msgid "MarketPlace created"
-msgstr ""
+msgstr "Piața a fost creată"
 
 #: ../app/tabs/zones-tab/datatable.js:64
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:32
@@ -2865,11 +2865,11 @@ msgstr ""
 
 #: ../app/tabs/zones-tab/datatable.js:71
 msgid "Please select a Zone from the list"
-msgstr ""
+msgstr "Alege o zonă din listă"
 
 #: ../app/tabs/zones-tab/datatable.js:72
 msgid "You selected the following Zone:"
-msgstr ""
+msgstr "Ai ales următoarea zonă:"
 
 #: ../app/tabs/zones-tab/datatable.js:73
 msgid "Please select one or more Zones from the list"
@@ -2889,7 +2889,7 @@ msgstr "Încarcă un fișier"
 
 #: ../app/tabs/marketplaceapps-tab.js:54
 msgid "App"
-msgstr ""
+msgstr "App"
 
 #: ../app/tabs/instances-top-tab.js:23
 msgid "Instances"
@@ -3245,7 +3245,7 @@ msgstr "Prefix global"
 
 #: ../app/tabs/vnets-tab/panels/ar.js:309
 msgid "ULA prefix"
-msgstr ""
+msgstr "Prefix ULA"
 
 #: ../app/tabs/vnets-tab/panels/ar.js:311
 msgid "Used leases"
@@ -3286,7 +3286,7 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/datatable.js:85
 msgid "You selected the following network:"
-msgstr ""
+msgstr "Ai ales următoarea rețea:"
 
 #: ../app/tabs/vnets-tab/datatable.js:86
 msgid "Please select one or more networks from the list"
@@ -5122,7 +5122,7 @@ msgstr ""
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:56
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:75
 msgid "Advanced Options"
-msgstr ""
+msgstr "Opțiuni avansate"
 
 #: ../app/tabs/images-tab/form-panels/create/advanced.hbs:26
 msgid "Write the Image template here"
@@ -5164,13 +5164,13 @@ msgstr ""
 #: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:20
 #: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:20
 msgid "Attach new nic"
-msgstr ""
+msgstr "Atașează NIC nou"
 
 #: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:35
 #: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:29
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:29
 msgid "Attach"
-msgstr ""
+msgstr "Atașează"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:45
 #: ../app/utils/nics-section/dd.hbs:47
@@ -5192,12 +5192,12 @@ msgstr "Interfața de management"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:53
 msgid "Attach NIC"
-msgstr ""
+msgstr "Atașează NIC"
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:20
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:194
 msgid "Login Token"
-msgstr ""
+msgstr "Token autentificare"
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:29
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:199
@@ -5639,7 +5639,7 @@ msgstr ""
 
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:20
 msgid "Create Zone"
-msgstr ""
+msgstr "Creează Zona"
 
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:26
 msgid "Zone Name"
@@ -6136,7 +6136,7 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:177
 msgid "MTU of the interface"
-msgstr ""
+msgstr "MTU pentru interfață"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:185
 msgid "Switch name"
@@ -6667,7 +6667,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:138
 msgid "Tags"
-msgstr ""
+msgstr "Etichete"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:139
 msgid ""
@@ -6954,11 +6954,11 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:45
 msgid "Server port"
-msgstr ""
+msgstr "Portul serverului"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:46
 msgid "Port for the VNC/SPICE server"
-msgstr ""
+msgstr "Portul pentru serverul VNC/SPICE"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:52
 msgid "Keymap"
@@ -6966,7 +6966,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:69
 msgid "Generate random password"
-msgstr ""
+msgstr "Generează o parolă aleatoare"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:77
 msgid "Inputs"
@@ -7006,7 +7006,7 @@ msgstr "Arhitectură CPU"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:49
 msgid "libvirt machine type"
-msgstr ""
+msgstr "tip mașină libvirt"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:57
 msgid "Root device"
@@ -7022,7 +7022,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:78
 msgid "Kernel boot parameters"
-msgstr ""
+msgstr "Parametri de boot kernel"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:86
 msgid "Path to the bootloader executable"
@@ -7039,7 +7039,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:107
 msgid "KERNEL_DS"
-msgstr ""
+msgstr "KERNEL_DS"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:116
 msgid "Path to the OS kernel to boot the image"
@@ -7051,11 +7051,11 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:137
 msgid "INITRD_DS"
-msgstr ""
+msgstr "INITRD_DS"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:147
 msgid "Path to the initrd image"
-msgstr ""
+msgstr "Calea către imaginea initrd"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:158
 msgid "ACPI"
@@ -7084,7 +7084,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:193
 msgid "HYPERV"
-msgstr ""
+msgstr "HYPERV"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:194
 msgid "Add support in the VM for hyper-v features (HYPERV)"
@@ -7712,7 +7712,7 @@ msgstr "boolean"
 #: ../app/utils/user-inputs/row.hbs:38 ../app/utils/user-inputs/row.hbs:55
 #: ../app/utils/user-inputs/row.hbs:72 ../app/utils/user-inputs/row.hbs:82
 msgid "Default value"
-msgstr ""
+msgstr "Valoare implicită"
 
 #: ../app/utils/user-inputs/row.hbs:78
 msgid "Options"

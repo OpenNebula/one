@@ -33,6 +33,7 @@ define(function(require) {
     <option value="pl">Polish (pl)</option>\
     <option value="pt_BR">Portuguese (pt_BR)</option>\
     <option value="pt_PT">Portuguese (pt_PT)</option>\
+    <option value="tr_TR">Turkish (tr_TR)</option>\
     <option value="ru_RU">Russian (ru_RU)</option>\
     <option value="zh_CN">Simplified Chinese (zh_CN)</option>\
     <option value="sk_SK">Slovak (sk_SK)</option>\

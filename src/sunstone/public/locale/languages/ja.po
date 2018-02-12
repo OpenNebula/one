@@ -4,15 +4,17 @@
 # 
 # Translators:
 # Akihiko Ota <skywalker.37th@gmail.com>, 2015
+# nasa9084 <nasa.9084.bassclarinet@gmail.com>, 2017
 # kuromabo <md81bird@hitaki.net>, 2015-2016
+# nasa9084 <nasa.9084.bassclarinet@gmail.com>, 2017
 # Sono Mishiro <selene.jaxa@gmail.com>, 2014-2015
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-07-07 09:21+0200\n"
-"PO-Revision-Date: 2017-07-07 07:22+0000\n"
-"Last-Translator: juanmont <jjmontiel@opennebula.org>\n"
+"PO-Revision-Date: 2017-11-15 05:20+0000\n"
+"Last-Translator: nasa9084 <nasa.9084.bassclarinet@gmail.com>\n"
 "Language-Team: Japanese (http://www.transifex.com/opennebula/one/language/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -96,7 +98,7 @@ msgstr ""
 
 #: ../app/opennebula/host.js:41
 msgid "MONITORED"
-msgstr ""
+msgstr "監視中"
 
 #: ../app/opennebula/host.js:42 ../app/opennebula/host.js:54
 #: ../app/opennebula/marketplaceapp.js:27 ../app/opennebula/image.js:28
@@ -129,7 +131,7 @@ msgstr ""
 
 #: ../app/opennebula/host.js:47
 msgid "OFFLINE"
-msgstr ""
+msgstr "オフライン"
 
 #: ../app/opennebula/host.js:52
 msgid "UPDATE"
@@ -174,7 +176,7 @@ msgstr "UNKNOWN"
 
 #: ../app/opennebula/marketplaceapp.js:33 ../app/opennebula/datastore.js:29
 msgid "IMAGE"
-msgstr ""
+msgstr "イメージ"
 
 #: ../app/opennebula/marketplaceapp.js:34
 msgid "VMTEMPLATE"
@@ -226,7 +228,7 @@ msgstr "DATABLOCK"
 #: ../app/opennebula/image.js:40
 #: ../app/tabs/images-tab/panels/info-common.js:103
 msgid "KERNEL"
-msgstr ""
+msgstr "カーネル"
 
 #: ../app/opennebula/image.js:41
 #: ../app/tabs/images-tab/panels/info-common.js:104
@@ -316,7 +318,7 @@ msgstr ""
 
 #: ../app/opennebula/datastore.js:31
 msgid "FILE"
-msgstr ""
+msgstr "ファイル"
 
 #: ../app/tabs/vrouters-tab.js:46 ../app/tabs/vrouters-tab.js:50
 #: ../app/tabs/vrouter-templates-tab.js:45
@@ -667,7 +669,7 @@ msgstr "このデータストアに対するクラスタを選択してくださ
 
 #: ../app/tabs/datastores-tab/form-panels/import.js:50
 msgid "Import vCenter Datastores"
-msgstr ""
+msgstr "vCenterのデータストアをインポート"
 
 #: ../app/tabs/datastores-tab/form-panels/import.js:51
 #: ../app/tabs/datastores-tab/buttons.js:33
@@ -758,7 +760,7 @@ msgstr "無効"
 #: ../app/tabs/vms-tab/panels/info.js:112
 #: ../app/tabs/vnets-tab/panels/info.js:97
 msgid "vCenter information"
-msgstr ""
+msgstr "vCenterの情報"
 
 #: ../app/tabs/datastores-tab/panels/clusters.js:38
 #: ../app/tabs/vdcs-tab/datatable.js:68 ../app/tabs/clusters-tab.js:46
@@ -1046,7 +1048,7 @@ msgstr "利用可能なテンプレートがありません"
 #: ../app/tabs/provision-tab/templates/list.js:114
 #: ../app/tabs/provision-tab.js:653
 msgid "No labels defined"
-msgstr ""
+msgstr "ラベルが定義されていません"
 
 #: ../app/tabs/provision-tab/templates/list.js:149
 msgid "Create a template by saving a running Virtual Machine"
@@ -1148,7 +1150,7 @@ msgstr "このルールのカーディナリティは変更できません"
 #: ../app/tabs/provision-tab/flows/list.js:504
 #: ../app/tabs/provision-tab/flows/list.js:525
 msgid "Dismiss Alert"
-msgstr ""
+msgstr "アラートを無視する"
 
 #: ../app/tabs/provision-tab/flows/list.js:455
 #: ../app/tabs/provision-tab.js:150
@@ -1157,7 +1159,7 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/flows/list.js:495
 msgid "Be careful, this action will immediately destroy your Service"
-msgstr ""
+msgstr "この操作は直ちにサービスを壊す可能性があるので注意してください"
 
 #: ../app/tabs/provision-tab/flows/list.js:497
 #: ../app/tabs/provision-tab/flows/list.js:518
@@ -1166,7 +1168,7 @@ msgstr "全ての情報が失われるでしょう!"
 
 #: ../app/tabs/provision-tab/flows/list.js:516
 msgid "Be careful, this action will immediately shutdown your Service"
-msgstr ""
+msgstr "この操作は直ちにサービスをシャットダウンする可能性があるので注意してください"
 
 #: ../app/tabs/provision-tab/flows/list.js:522
 #: ../app/tabs/provision-tab/flows/info.hbs:52
@@ -1206,7 +1208,7 @@ msgstr "仮想ルーターを作成しました"
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:166
 msgid "Failed to create VMs. Virtual Router may need to be deleted manually."
-msgstr ""
+msgstr "VMを作製するのに失敗しました。仮想ルータは手動で削除する必要があります。"
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:198
 #: ../app/tabs/vrouters-tab/form-panels/instantiate.js:116
@@ -1460,15 +1462,15 @@ msgstr "作成されたVDC"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export.js:55
 msgid "Download App To OpenNebula"
-msgstr ""
+msgstr "OpenNeblaにAppをダウンロードする"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export.js:56
 msgid "Download"
-msgstr ""
+msgstr "ダウンロード"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:56
 msgid "Create MarketPlace App"
-msgstr ""
+msgstr "マーケットプレイスアプリを作成する"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:61
 msgid "Create MarketPlace App from Image"
@@ -1561,7 +1563,7 @@ msgstr "VMテンプレートを作成しました"
 #: ../app/tabs/marketplaceapps-tab/actions.js:130
 #: ../app/tabs/images-tab/actions.js:94
 msgid "Error"
-msgstr ""
+msgstr "エラー"
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:133
 msgid "This MarketPlace App resides in Zone "
@@ -1713,7 +1715,7 @@ msgstr "任意"
 
 #: ../app/tabs/images-tab/form-panels/import.js:51
 msgid "Import vCenter Images"
-msgstr ""
+msgstr "vCenterイメージをインポートする"
 
 #: ../app/tabs/images-tab/form-panels/create-common.js:53
 msgid "Create Image"
@@ -1734,7 +1736,7 @@ msgstr "このイメージのデータストアを選択してください"
 
 #: ../app/tabs/images-tab/form-panels/create-common.js:463
 msgid "Please select a file to upload"
-msgstr ""
+msgstr "アップロードするファイルを選択してください"
 
 #: ../app/tabs/images-tab/form-panels/create-common.js:471
 msgid "Registering in OpenNebula"
@@ -1743,7 +1745,7 @@ msgstr "OpenNebulaに登録"
 #: ../app/tabs/images-tab/buttons.js:32 ../app/tabs/marketplaces-tab.js:53
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:32
 msgid "MarketPlace"
-msgstr ""
+msgstr "マーケットプレース"
 
 #: ../app/tabs/images-tab/buttons.js:67
 msgid "Make persistent"
@@ -2106,7 +2108,7 @@ msgstr "アンデプロイ"
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:82
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:140
 msgid "Terminate"
-msgstr ""
+msgstr "終了"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:58
 #: ../app/utils/vmgroup-section.js:145
@@ -2222,7 +2224,7 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:138 ../app/tabs/vms-tab/buttons.js:146
 msgid " Terminate"
-msgstr ""
+msgstr "終了"
 
 #: ../app/tabs/vms-tab/buttons.js:140 ../app/tabs/vms-tab/buttons.js:148
 msgid "This will remove information from non-persistent hard disks"
@@ -2239,7 +2241,7 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/buttons.js:168
 msgid "retry"
-msgstr ""
+msgstr "リトライ"
 
 #: ../app/tabs/vms-tab/buttons.js:169
 msgid "success"
@@ -2501,11 +2503,11 @@ msgstr "アクション"
 
 #: ../app/tabs/vms-tab/panels/placement.js:71
 msgid "UID"
-msgstr ""
+msgstr "UID"
 
 #: ../app/tabs/vms-tab/panels/placement.js:72
 msgid "GID"
-msgstr ""
+msgstr "GID"
 
 #: ../app/tabs/vms-tab/panels/placement.js:73
 msgid "ReqID"
@@ -2766,11 +2768,11 @@ msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:68
 msgid "Access Key Id"
-msgstr ""
+msgstr "アクセスキーID"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:73
 msgid "Secret Access Key"
-msgstr ""
+msgstr "シークレットアクセスキー"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:78
 msgid "S3 bucket to store marketapps"
@@ -2816,7 +2818,7 @@ msgstr ""
 msgid ""
 "Split marketapps into chunks of this size (in MB). You should **never** user"
 " a quantity larger than 100. Defaults to 32 (MB)."
-msgstr ""
+msgstr "マーケットアプリをこのサイズ(MB)に分割します。100以上の大きさには**絶対に**市内で下さい。既定値は32(MB)です。"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:127
 msgid "Create MarketPlace"
@@ -6652,7 +6654,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:122
 msgid "Security group IDs"
-msgstr ""
+msgstr "セキュリティグループのID"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:131
 msgid "Subnet ID"
@@ -6923,7 +6925,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:53
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:207
 msgid "Device name"
-msgstr ""
+msgstr "デバイス名"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:54
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:208
@@ -7577,7 +7579,7 @@ msgstr "テンプレートを複製"
 msgid ""
 "You can also clone any Image referenced inside this Template. They will be "
 "cloned to a new Image, and made persistent."
-msgstr ""
+msgstr "このテンプレート内で参照されている任意のイメージを複製することもできます。新しいイメージに複製され、永続化されます。"
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:44
 msgid "Clone with Images"
@@ -7706,13 +7708,13 @@ msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:19
 msgid "boolean"
-msgstr ""
+msgstr "真偽値"
 
 #: ../app/utils/user-inputs/row.hbs:28 ../app/utils/user-inputs/row.hbs:33
 #: ../app/utils/user-inputs/row.hbs:38 ../app/utils/user-inputs/row.hbs:55
 #: ../app/utils/user-inputs/row.hbs:72 ../app/utils/user-inputs/row.hbs:82
 msgid "Default value"
-msgstr ""
+msgstr "既定値"
 
 #: ../app/utils/user-inputs/row.hbs:78
 msgid "Options"
@@ -7770,7 +7772,7 @@ msgstr "ネットワークを選択"
 
 #: ../app/utils/nics-section/dd.hbs:31
 msgid "Force IPv4:"
-msgstr ""
+msgstr "IPv4を強制する:"
 
 #: ../app/utils/nics-section/dd.hbs:33 ../app/utils/nics-section/dd.hbs:72
 msgid "Optionally, you can force the IP assigned to the network interface."
@@ -7780,7 +7782,7 @@ msgstr ""
 msgid ""
 "If checked, each Virtual Machine will have a floating IP added to its "
 "network interface."
-msgstr ""
+msgstr "チェックされている場合、各仮想マシンはネットワークインターフェースからフローティングIPを取得します。"
 
 #: ../app/utils/nics-section/dd.hbs:60
 msgid ""
@@ -7790,7 +7792,7 @@ msgstr "チェックした場合、このネットワークインターフェー
 
 #: ../app/utils/nics-section/dd.hbs:70
 msgid "Force IPv6:"
-msgstr ""
+msgstr "IPv6を強制する:"
 
 #: ../app/utils/nics-section/dd.hbs:88
 msgid ""
@@ -7805,7 +7807,7 @@ msgstr ""
 
 #: ../app/utils/disks-resize/html.hbs:19
 msgid "Disks"
-msgstr ""
+msgstr "ディスク"
 
 #: ../app/utils/vmgroup-section/html.hbs:5
 msgid "Clear"

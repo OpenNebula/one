@@ -11,15 +11,16 @@
 # Lei Zhou <leizho_ray2222@163.com>, 2016
 # Qingye Jiang (John) <qingye.jiang@eucalyptus.com>, 2012
 # Qingye Jiang (John) <qingye.jiang@eucalyptus.com>, 2013
-# tony19955569 <tony19955569@gmail.com>, 2016
+# Rendy Wang <rendywang@gmail.com>, 2017
+# Tony Yu <tony19955569@gmail.com>, 2016
 # 国良 祁 <nateqigl@gmail.com>, 2017
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-07-07 09:21+0200\n"
-"PO-Revision-Date: 2017-07-10 04:37+0000\n"
-"Last-Translator: 国良 祁 <nateqigl@gmail.com>\n"
+"PO-Revision-Date: 2017-11-18 16:16+0000\n"
+"Last-Translator: Rendy Wang <rendywang@gmail.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/opennebula/one/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -986,19 +987,19 @@ msgstr "所有"
 
 #: ../app/tabs/provision-tab/vms/list.js:416
 msgid "GUEST STATE"
-msgstr ""
+msgstr "客户机状态"
 
 #: ../app/tabs/provision-tab/vms/list.js:417
 msgid "VMWARETOOLS RUNNING STATUS"
-msgstr ""
+msgstr "VMWARETOOLS运行状态"
 
 #: ../app/tabs/provision-tab/vms/list.js:419
 msgid "VMWARETOOLS VERSION"
-msgstr ""
+msgstr "VMWARETOOLS版本"
 
 #: ../app/tabs/provision-tab/vms/list.js:419
 msgid "VMWARETOOLS VERSION STATUS"
-msgstr ""
+msgstr "VMWARETOOLS版本状态"
 
 #: ../app/tabs/provision-tab/vms/list.js:527
 #: ../app/tabs/vms-tab/dialogs/saveas-template.js:86
@@ -1291,7 +1292,7 @@ msgstr "Wilds"
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:77
 msgid "Could not import the wild VM "
-msgstr ""
+msgstr "不能导入此虚拟机"
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:80
 #: ../app/tabs/hosts-tab/panels/wilds.js:98
@@ -3813,17 +3814,17 @@ msgstr "位置"
 #: ../app/utils/vcenter/clusters.js:142
 #, javascript-format
 msgid "Select all %1$s Clusters"
-msgstr ""
+msgstr "选中所有 %1$s 个集群"
 
 #: ../app/utils/vcenter/clusters.js:146
 #, javascript-format
 msgid "All %1$s Clusters selected."
-msgstr ""
+msgstr "已选中总计 %1$s 个集群。"
 
 #: ../app/utils/vcenter/clusters.js:147
 #, javascript-format
 msgid "%1$s Clusters selected."
-msgstr ""
+msgstr "已选中 %1$s 个集群 "
 
 #: ../app/utils/vcenter/clusters.js:212 ../app/utils/vcenter/clusters.js:260
 #, javascript-format
@@ -3935,15 +3936,15 @@ msgstr "清除导入的数据仓库"
 
 #: ../app/utils/vcenter/datastores.js:99
 msgid "Total MB"
-msgstr ""
+msgstr "总空间（/MB）"
 
 #: ../app/utils/vcenter/datastores.js:100
 msgid "Free MB"
-msgstr ""
+msgstr "可用（/MB）"
 
 #: ../app/utils/vcenter/datastores.js:101
 msgid "OpenNebula Cluster IDs"
-msgstr ""
+msgstr "OpenNebula 集群 IDs"
 
 #: ../app/utils/vcenter/datastores.js:138
 #, javascript-format
@@ -3990,7 +3991,7 @@ msgstr "选中模版 %1$s "
 
 #: ../app/utils/vcenter/templates.js:186
 msgid "Could not import the template due to "
-msgstr ""
+msgstr "不能导入此模板由于"
 
 #: ../app/utils/vcenter/templates.js:262 ../app/utils/vcenter/templates.js:507
 #, javascript-format
@@ -4443,7 +4444,7 @@ msgstr "需要的，如果使用非默认的ceph配置文件的路径"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:270
 msgid "Ceph keyfile"
-msgstr ""
+msgstr "Ceph keyfile"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:272
 msgid "File containing the secret key of user."
