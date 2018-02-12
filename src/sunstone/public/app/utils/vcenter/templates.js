@@ -411,6 +411,10 @@ define(function(require) {
     that = this;
     $.each($(".vcenter_import_table", context), function() {
       $.each($(this).DataTable().$(".check_item:checked"), function() {
+        var vcenter_ref = $(this).data("import_data").vcenter_ref;
+        var linked = false;
+        var copy = false;
+        var templateName = "";
         var row_context = $(this).closest("tr");
 
         VCenterCommon.importLoading({context : row_context});
@@ -427,21 +431,16 @@ define(function(require) {
           var createCopy = $('.create_copy', rpInput).prop("checked");
           var templateName = $('.template_name', rpInput).val();
 
-          var vcenter_ref = $(this).data("import_data").vcenter_ref;
           if (linkedClone) {
-            var linked = true;
+            linked = true;
 
             if (createCopy && templateName != "") {
-              var copy = true;
-              var template_name  = templateName;
+              copy = true;
+              template_name  = templateName;
             } else {
-              var copy = false;
-              var template_name = "";
+              copy = false;
+              template_name = "";
             }
-          } else {
-            var template_name  = "";
-            var linked = false;
-            var copy = false;
           }
 
           $.each($('.available_rps option:selected', rpInput), function(){
