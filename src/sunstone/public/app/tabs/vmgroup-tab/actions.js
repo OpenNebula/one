@@ -47,10 +47,10 @@ define(function(require) {
     "VMGroup.chown": _commonActions.multipleAction('chown'),
     "VMGroup.chgrp": _commonActions.multipleAction('chgrp'),
     "VMGroup.chmod": _commonActions.singleAction('chmod'),
-    "VMGroup.lockM": _commonActions.multipleAction('lock'),
-    "VMGroup.lockU": _commonActions.multipleAction('lock'),
-    "VMGroup.lockA": _commonActions.multipleAction('lock'),
-    "VMGroup.unlock": _commonActions.multipleAction('unlock')
+    "VMGroup.lockM": _commonActions.multipleAction('lock', false),
+    "VMGroup.lockU": _commonActions.multipleAction('lock', false),
+    "VMGroup.lockA": _commonActions.multipleAction('lock', false),
+    "VMGroup.unlock": _commonActions.multipleAction('unlock', false)
   };
 
   return _actions;

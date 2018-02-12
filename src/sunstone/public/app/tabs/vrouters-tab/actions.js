@@ -34,10 +34,10 @@ define(function(require) {
   var _actions = {
     "VirtualRouter.create" : _commonActions.create(CREATE_DIALOG_ID),
     "VirtualRouter.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
-    "VirtualRouter.lockM": _commonActions.multipleAction('lock'),
-    "VirtualRouter.lockU": _commonActions.multipleAction('lock'),
-    "VirtualRouter.lockA": _commonActions.multipleAction('lock'),
-    "VirtualRouter.unlock": _commonActions.multipleAction('unlock'),
+    "VirtualRouter.lockM": _commonActions.multipleAction('lock', false),
+    "VirtualRouter.lockU": _commonActions.multipleAction('lock', false),
+    "VirtualRouter.lockA": _commonActions.multipleAction('lock', false),
+    "VirtualRouter.unlock": _commonActions.multipleAction('unlock', false),
     "VirtualRouter.instantiate_vms" : {
       type: "custom",
       call: function() {

@@ -116,7 +116,11 @@ define(function(require) {
     }
   }
 
-  function _multipleAction(actionStr) {
+  function _multipleAction(actionStr, notify) {
+    notify_bool = true;
+    if(notify != undefined){
+      notify_bool = notify;
+    }
     var that = this;
     return {
       type: "multiple",
@@ -128,7 +132,7 @@ define(function(require) {
         return Sunstone.getDataTable(that.tabId).elements(opts);
       },
       error: Notifier.onError,
-      notify: true
+      notify: notify_bool
     }
   }
 

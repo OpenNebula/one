@@ -31,6 +31,7 @@ define(function(require) {
   var SearchDropdown = require("hbs!./datatable/search");
   var OpenNebulaAction = require("opennebula/action");
   var Sunstone = require("sunstone");
+  var Status = require('utils/status');
 
 
   /*
@@ -175,10 +176,13 @@ define(function(require) {
       VM_MAD:   element.VM_MAD
     }
 
+    var color_html = Status.state_lock_to_color("HOST",state, element_json[XML_ROOT]["LOCK"]);
+
     return [
-        "<input class=\"check_item\" type=\"checkbox\" id=\"" + RESOURCE.toLowerCase() + "_" +
-                             element.ID + "\" name=\"selected_items\" value=\"" +
-                             element.ID + "\"/>",
+      '<input class="check_item" type="checkbox" '+
+                          'style="vertical-align: inherit;" id="'+this.resource.toLowerCase()+'_' +
+                           element.ID + '" name="selected_items" value="' +
+                           element.ID + '"/>'+color_html,
         element.ID,
         element.NAME,
         element.CLUSTER.length ? element.CLUSTER : "-",
