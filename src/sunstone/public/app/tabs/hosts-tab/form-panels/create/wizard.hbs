@@ -140,17 +140,17 @@
       <fieldset>
         <legend>{{tr "OpenNebula"}}</legend>
         <div class="row">
-          <div class="large-12 columns">
+          <div class="large-6 columns">
             <label for="ONE_USER">{{tr "Remote username"}}</label>
             <input type="text" name="ONE_USER" />
           </div>
-        </div>
-        <div class="row">
           <div class="large-6 columns">
             <label for="ONE_PASSWORD">{{tr "Remote password"}}</label>
             <input type="text" name="ONE_PASSWORD" />
           </div>
-          <div class="large-6 columns">
+        </div>
+        <div class="row">
+          <div class="large-12 columns">
             <label for="ONE_ENDPOINT">{{tr "Remote endpoint"}}</label>
             <input type="text" name="ONE_ENDPOINT" />
           </div>
@@ -158,52 +158,19 @@
         <div class="row">
           <div class="medium-12 columns">
             <label>{{tr "Remote capacity"}}</label>
-            <div class="row">
-              <div class="large-12 columns">
-                <table class="dataTable capacity_table">
-                  <thead>
-                    <tr>
-                      <th>{{tr "Key"}}</th>
-                      <th>{{tr "Value"}}</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody class="capacity_one">
-                    <tr class='row_capacity_one'>
-                      <td style='display: flex; justify-content: flex-start'>
-                        <input class='capacity_key' type='text' name='key' value="CPU">
-                      </td>
-                      <td>
-                        <input class='capacity_value' type='number' min='0' name='value'>
-                      </td>
-                      <td style='width: 150%; display: flex; justify-content: flex-end'>
-                        <a href='#'><i class='fa fa-times-circle remove-capacity'></i></a>
-                      </td>
-                    </tr>
-                    <tr class='row_capacity_one'>
-                      <td style='display: flex; justify-content: flex-start'>
-                        <input class='capacity_key' type='text' name='key' value="MEMORY">
-                      </td>
-                      <td>
-                        <input class='capacity_value' type='number' min='0' name='value'>
-                      </td>
-                      <td style='width: 150%; display: flex; justify-content: flex-end'>
-                        <a href='#'><i class='fa fa-times-circle remove-capacity'></i></a>
-                      </td>
-                    </tr>
-                  </tbody>
-                  <tfoot>
-                    <tr>
-                      <td colspan="3">
-                        <a type="button" class="add_custom_tag button small small-12 secondary radius">
-                          <i class="fa fa-lg fa-plus-circle"></i>
-                        </a>
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-            </div>
+          </div>
+        <div class="row">
+          <div class="large-1 columns"></div>
+          <div class="large-11 columns">
+            <label for="ONE_CAPACITY_CPU">{{tr "CPU"}}</label>
+            <input type="number" name="ONE_CAPACITY_CPU" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="large-1 columns"></div>
+          <div class="large-11 columns">
+            <label for="ONE_CAPACITY_MEMORY">{{tr "Memory"}}</label>
+            <input type="number" name="ONE_CAPACITY_MEMORY" />
           </div>
         </div>
       </fieldset>

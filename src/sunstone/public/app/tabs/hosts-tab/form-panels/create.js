@@ -293,24 +293,18 @@ define(function(require) {
     }
 
     if(vmm_mad == "one"){
-      var capacity = {};
-      var key = "";
-      var value = "";
       var user = $('input[name="ONE_USER"]').val();
       var pass = $('input[name="ONE_PASSWORD"]').val();
       var endpoint = $('input[name="ONE_ENDPOINT"]').val();
-      $('tr.row_capacity_one',context).each(function() {
-        key = $("input[name='key']", this).val();
-        value = $("input[name='value']", this).val();
-        capacity[key] = value;
-      });
+      var cpu = $('input[name="ONE_CAPACITY_CPU"]').val();
+      var memory = $('input[name="ONE_CAPACITY_MEMORY"]').val();
 
       host_json["host"]["ONE_USER"] = user;
       host_json["host"]["ONE_PASSWORD"] = pass;
       host_json["host"]["ONE_ENDPOINT"] = endpoint;
-      if (capacity["CPU"] && capacity["MEMORY"]){
-        host_json["host"]["ONE_CAPACITY"] = capacity;
-      }
+      host_json["host"]["ONE_CAPACITY"] = {};
+      host_json["host"]["ONE_CAPACITY"]["CPU"] = cpu;
+      host_json["host"]["ONE_CAPACITY"]["MEMORY"] = memory;
     }
     //Create the OpenNebula.Host.
     //If it is successfull we refresh the list.
