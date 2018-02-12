@@ -4,11 +4,11 @@ After=syslog.target
 After=network.target
 
 [Service]
-Type=simple
+Type=forking
 Group=oneadmin
 User=oneadmin
-
-ExecStart=/usr/bin/ruby /usr/lib/one/oneflow/oneflow-server.rb
+ExecStart=/usr/bin/oneflow-server start
+ExecStop=/usr/bin/oneflow-server stop
 PIDFile=/var/run/one/oneflow.pid
 
 [Install]
