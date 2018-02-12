@@ -53,7 +53,7 @@ define(function(require) {
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-globe';
     this.title = Locale.tr("Network");
-    this.classes = "hypervisor only_kvm only_vcenter"
+    this.classes = "hypervisor only_kvm only_vcenter";
 
     if(opts.listener != undefined){
       this.listener = opts.listener;

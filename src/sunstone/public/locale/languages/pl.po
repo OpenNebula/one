@@ -6,14 +6,15 @@
 # Dariusz Duszynski <dariusz.duszynski@gmail.com>, 2015-2016
 # Grzegorz Kocur <gkocur@cloudox.pl>, 2013
 # Kamil Szczygieł <k.szczygiel@intratel.pl>, 2013-2014
+# Maczuha Ugabuga <jakpap10@wp.pl>, 2017
 # m.prostko <m.prostko@intratel.pl>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-07-07 09:21+0200\n"
-"PO-Revision-Date: 2017-07-07 07:23+0000\n"
-"Last-Translator: juanmont <jjmontiel@opennebula.org>\n"
+"PO-Revision-Date: 2017-09-17 13:56+0000\n"
+"Last-Translator: Maczuha Ugabuga <jakpap10@wp.pl>\n"
 "Language-Team: Polish (http://www.transifex.com/opennebula/one/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -118,11 +119,11 @@ msgstr ""
 
 #: ../app/opennebula/host.js:44
 msgid "MONITORING_ERROR"
-msgstr ""
+msgstr "BŁĄD_MONITORING"
 
 #: ../app/opennebula/host.js:45
 msgid "MONITORING_INIT"
-msgstr ""
+msgstr "MONITORING_INIT"
 
 #: ../app/opennebula/host.js:46
 msgid "MONITORING_DISABLED"
@@ -130,7 +131,7 @@ msgstr ""
 
 #: ../app/opennebula/host.js:47
 msgid "OFFLINE"
-msgstr ""
+msgstr "OFFLINE"
 
 #: ../app/opennebula/host.js:52
 msgid "UPDATE"
@@ -158,11 +159,11 @@ msgstr "WYŁĄCZONY"
 #: ../app/opennebula/marketplaceapp.js:25 ../app/opennebula/image.js:24
 #: ../app/tabs/provision-tab/vms/list.js:990
 msgid "READY"
-msgstr ""
+msgstr "GOTOWE"
 
 #: ../app/opennebula/marketplaceapp.js:26 ../app/opennebula/image.js:27
 msgid "LOCKED"
-msgstr ""
+msgstr "ZABLOKOWANY"
 
 #: ../app/opennebula/marketplaceapp.js:32 ../app/opennebula/vm.js:211
 #: ../app/tabs/provision-tab/vms/list.js:910
@@ -179,7 +180,7 @@ msgstr "Obraz"
 
 #: ../app/opennebula/marketplaceapp.js:34
 msgid "VMTEMPLATE"
-msgstr ""
+msgstr "VMTEMPLATE"
 
 #: ../app/opennebula/marketplaceapp.js:35
 msgid "SERVICE_TEMPLATE"
@@ -191,11 +192,11 @@ msgstr "ZUŻYTE"
 
 #: ../app/opennebula/image.js:29
 msgid "CLONE"
-msgstr ""
+msgstr "KLONUJ"
 
 #: ../app/opennebula/image.js:30
 msgid "DELETE"
-msgstr ""
+msgstr "USUŃ"
 
 #: ../app/opennebula/image.js:31
 msgid "USED_PERS"
@@ -212,7 +213,7 @@ msgstr ""
 #: ../app/opennebula/image.js:37
 #: ../app/tabs/images-tab/panels/info-common.js:96
 msgid "OS"
-msgstr "SO"
+msgstr "OS"
 
 #: ../app/opennebula/image.js:38
 #: ../app/tabs/images-tab/panels/info-common.js:97
@@ -227,12 +228,12 @@ msgstr "DATABLOCK"
 #: ../app/opennebula/image.js:40
 #: ../app/tabs/images-tab/panels/info-common.js:103
 msgid "KERNEL"
-msgstr ""
+msgstr "KERNEL"
 
 #: ../app/opennebula/image.js:41
 #: ../app/tabs/images-tab/panels/info-common.js:104
 msgid "RAMDISK"
-msgstr ""
+msgstr "RAMDISK"
 
 #: ../app/opennebula/image.js:42
 #: ../app/tabs/images-tab/panels/info-common.js:105
@@ -264,7 +265,7 @@ msgstr "MIGRACJA"
 #: ../app/opennebula/vm.js:200 ../app/opennebula/vm.js:201
 #: ../app/opennebula/vm.js:202
 msgid "SAVE"
-msgstr ""
+msgstr "ZAPISZ"
 
 #: ../app/opennebula/vm.js:205 ../app/opennebula/vm.js:206
 #: ../app/opennebula/vm.js:225
@@ -317,7 +318,7 @@ msgstr "SYSTEM"
 
 #: ../app/opennebula/datastore.js:31
 msgid "FILE"
-msgstr "Plik"
+msgstr "PLIK"
 
 #: ../app/tabs/vrouters-tab.js:46 ../app/tabs/vrouters-tab.js:50
 #: ../app/tabs/vrouter-templates-tab.js:45
@@ -325,12 +326,12 @@ msgstr "Plik"
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:216
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:121
 msgid "Virtual Routers"
-msgstr ""
+msgstr "Wirtualne routery"
 
 #: ../app/tabs/vrouters-tab.js:51 ../app/tabs/vms-tab/panels/info/html.hbs:72
 #: ../app/tabs/vms-tab/datatable/search.hbs:32
 msgid "Virtual Router"
-msgstr ""
+msgstr "Wirtualny router"
 
 #: ../app/tabs/clusters-tab/form-panels/create.js:52
 msgid "Create Cluster"
@@ -637,7 +638,7 @@ msgstr "Wybierz klaster z listy"
 
 #: ../app/tabs/clusters-tab/datatable.js:74
 msgid "You selected the following Cluster:"
-msgstr ""
+msgstr "Wybrałeś następujący klaster:"
 
 #: ../app/tabs/clusters-tab/datatable.js:75
 msgid "Please select one or more clusters from the list"
@@ -759,7 +760,7 @@ msgstr "Wyłącz"
 #: ../app/tabs/vms-tab/panels/info.js:112
 #: ../app/tabs/vnets-tab/panels/info.js:97
 msgid "vCenter information"
-msgstr ""
+msgstr "Informacje vCenter"
 
 #: ../app/tabs/datastores-tab/panels/clusters.js:38
 #: ../app/tabs/vdcs-tab/datatable.js:68 ../app/tabs/clusters-tab.js:46
@@ -969,7 +970,7 @@ msgstr "Maszyny wirtualne"
 #: ../app/tabs/provision-tab/vms/list.js:97
 #: ../app/tabs/provision-tab/vms/list.js:161
 msgid "There are no Virtual Machines"
-msgstr ""
+msgstr "Brak maszyn wirtualnych"
 
 #: ../app/tabs/provision-tab/vms/list.js:245
 #: ../app/tabs/provision-tab/templates/list.js:253
@@ -1004,21 +1005,21 @@ msgstr "Szablon maszyny wirtualnej"
 #: ../app/tabs/provision-tab/vms/list.js:527
 #: ../app/tabs/vms-tab/dialogs/saveas-template.js:86
 msgid "saved successfully"
-msgstr ""
+msgstr "Zapisano pomyślnie"
 
 #: ../app/tabs/provision-tab/vms/list.js:535
 msgid ""
 "VM cloning in the background. The Template will appear as soon as it is "
 "ready, and the VM unlocked."
-msgstr ""
+msgstr "Klonowanie rozpoczęło się w tle. Szablon pojawi się jak tylko będzie gotowy, a maszyna wirtualna odblokowana."
 
 #: ../app/tabs/provision-tab/vms/list.js:873
 msgid "SAVING IMAGE"
-msgstr ""
+msgstr "ZAPISYWANIE OBRAZU"
 
 #: ../app/tabs/provision-tab/vms/list.js:906
 msgid "POWERING OFF"
-msgstr ""
+msgstr "WYŁĄCZANIE"
 
 #: ../app/tabs/provision-tab/vms/list.js:929
 msgid "UNDEPLOYED"
@@ -1026,7 +1027,7 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/vms/list.js:1009
 msgid "DELETING"
-msgstr ""
+msgstr "USUWANIE"
 
 #: ../app/tabs/provision-tab/templates/list.js:55
 #: ../app/tabs/templates-top-tab.js:23
@@ -1042,7 +1043,7 @@ msgstr "Szablony"
 #: ../app/tabs/provision-tab.js:638 ../app/tabs/provision-tab.js:822
 #: ../app/tabs/provision-tab.js:1114
 msgid "There are no templates available"
-msgstr ""
+msgstr "Brak dostępnych szablonów"
 
 #: ../app/tabs/provision-tab/templates/list.js:114
 #: ../app/tabs/provision-tab.js:653
@@ -1051,7 +1052,7 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:149
 msgid "Create a template by saving a running Virtual Machine"
-msgstr ""
+msgstr "Stwórz szablon poprzez zapisanie działającej wirtualnej maszyny"
 
 #: ../app/tabs/provision-tab/templates/list.js:164
 #: ../app/tabs/templates-tab/buttons.js:75
@@ -1069,16 +1070,16 @@ msgstr "Udostępnij"
 
 #: ../app/tabs/provision-tab/templates/list.js:274
 msgid "Handle with care! This action will immediately destroy the template"
-msgstr ""
+msgstr "Uważaj! Ta akcja spowoduje natychmiastowe usunięcie szablonu!"
 
 #: ../app/tabs/provision-tab/templates/list.js:276
 msgid "and the image associated."
-msgstr ""
+msgstr "i powiązanego obrazu."
 
 #: ../app/tabs/provision-tab/templates/list.js:324
 #: ../app/tabs/provision-tab/templates/list.js:372
 msgid "The template"
-msgstr ""
+msgstr "Szablon"
 
 #: ../app/tabs/provision-tab/templates/list.js:326
 msgid ""
@@ -1088,7 +1089,7 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:330
 msgid "Share template"
-msgstr ""
+msgstr "Udostępnij szablon"
 
 #: ../app/tabs/provision-tab/templates/list.js:374
 msgid ""
@@ -1106,12 +1107,12 @@ msgstr ""
 #: ../app/tabs/oneflow-services-tab.js:51
 #: ../app/utils/menu/provision-top-row.hbs:42
 msgid "Services"
-msgstr ""
+msgstr "Usługi"
 
 #: ../app/tabs/provision-tab/flows/list.js:95
 #: ../app/tabs/provision-tab/flows/list.js:154
 msgid "There are no Services"
-msgstr ""
+msgstr "Brak usług"
 
 #: ../app/tabs/provision-tab/flows/list.js:110
 #: ../app/tabs/oneflow-templates-tab.js:57
@@ -1149,7 +1150,7 @@ msgstr ""
 #: ../app/tabs/provision-tab/flows/list.js:504
 #: ../app/tabs/provision-tab/flows/list.js:525
 msgid "Dismiss Alert"
-msgstr ""
+msgstr "Pomiń"
 
 #: ../app/tabs/provision-tab/flows/list.js:455
 #: ../app/tabs/provision-tab.js:150
@@ -1158,16 +1159,16 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/flows/list.js:495
 msgid "Be careful, this action will immediately destroy your Service"
-msgstr ""
+msgstr "Uwaga, ta akcja natychmiastowo usunie twoje usługi"
 
 #: ../app/tabs/provision-tab/flows/list.js:497
 #: ../app/tabs/provision-tab/flows/list.js:518
 msgid "All the information will be lost!"
-msgstr ""
+msgstr "Wszystkie informacje zostaną stracone!"
 
 #: ../app/tabs/provision-tab/flows/list.js:516
 msgid "Be careful, this action will immediately shutdown your Service"
-msgstr ""
+msgstr "Uwaga, ta akcja natychmiastowo wyłączy twoje usługi"
 
 #: ../app/tabs/provision-tab/flows/list.js:522
 #: ../app/tabs/provision-tab/flows/info.hbs:52
@@ -1207,7 +1208,7 @@ msgstr "Utowrzono wirtualny router"
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:166
 msgid "Failed to create VMs. Virtual Router may need to be deleted manually."
-msgstr ""
+msgstr "Niepowodzenie tworzenia wirtualnej maszyny. Może być wymagane ręczne usunięcie wirtualnego routera."
 
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:198
 #: ../app/tabs/vrouters-tab/form-panels/instantiate.js:116
@@ -1228,11 +1229,11 @@ msgstr "Stwórz gospodarza"
 
 #: ../app/tabs/hosts-tab/buttons.js:34
 msgid "Select the destination cluster"
-msgstr ""
+msgstr "Wybierz klaster docelowy"
 
 #: ../app/tabs/hosts-tab/buttons.js:49
 msgid "Offline"
-msgstr ""
+msgstr "Offline"
 
 #: ../app/tabs/hosts-tab/buttons.js:54
 msgid "Delete host"
@@ -1303,7 +1304,7 @@ msgstr ""
 #: ../app/tabs/hosts-tab/panels/wilds.js:152
 #: ../app/tabs/hosts-tab/panels/wilds.js:382
 msgid "VM imported"
-msgstr ""
+msgstr "Wirtualna maszyna zaaimportowana"
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:193
 #: ../app/tabs/hosts-tab/panels/wilds.js:235
@@ -1465,7 +1466,7 @@ msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export.js:56
 msgid "Download"
-msgstr ""
+msgstr "Pobierz"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:56
 msgid "Create MarketPlace App"
@@ -1479,7 +1480,7 @@ msgstr ""
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:40
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:61
 msgid "Version"
-msgstr ""
+msgstr "Wersja"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:88
 #: ../app/tabs/secgroups-tab/utils/common.js:109
@@ -1511,7 +1512,7 @@ msgstr "Stan"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:91
 msgid "Registration Time"
-msgstr ""
+msgstr "Czas rejestracji"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:92
 #: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:28
@@ -1529,19 +1530,19 @@ msgstr "Strefa"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:102
 msgid "Please select an appliance from the list"
-msgstr ""
+msgstr "Proszę wybrać aplikację z listy"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:103
 msgid "You selected the following appliance:"
-msgstr ""
+msgstr "Wybrałeś następującą aplikację:"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:104
 msgid "Please select one or more appliances from the list"
-msgstr ""
+msgstr "Proszę wybrać jedną lub więcej aplikacji z listy:"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:105
 msgid "You selected the following appliances:"
-msgstr ""
+msgstr "Wybrałeś następujące aplikacje:"
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:35
 msgid "MarketPlace App created"
@@ -1557,7 +1558,7 @@ msgstr "Utworzono obraz"
 #: ../app/tabs/templates-tab/actions-common.js:234
 #: ../app/tabs/templates-tab/actions-common.js:247
 msgid "VM Template created"
-msgstr ""
+msgstr "Szablon maszyny wirtualnej utworzony"
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:130
 #: ../app/tabs/images-tab/actions.js:94
@@ -1577,7 +1578,7 @@ msgstr ""
 #: ../app/tabs/marketplaceapps-tab/actions.js:138
 #: ../app/tabs/images-tab/actions.js:101
 msgid "Ok"
-msgstr ""
+msgstr "OK"
 
 #: ../app/tabs/vms-tab.js:72 ../app/tabs/vms-tab/dialogs/migrate.js:138
 #: ../app/tabs/vnets-topology-tab.js:529
@@ -1608,11 +1609,11 @@ msgstr "BŁĄD"
 
 #: ../app/tabs/secgroups-tab/form-panels/create.js:55
 msgid "Create Security Group"
-msgstr ""
+msgstr "Utwórz grupę bezpieczeństwa"
 
 #: ../app/tabs/secgroups-tab/form-panels/create.js:60
 msgid "Update Security Group"
-msgstr ""
+msgstr "Zaktualizuj grupę bezpieczeństwa"
 
 #: ../app/tabs/secgroups-tab/dialogs/clone.js:71
 #: ../app/tabs/users-tab/dialogs/auth-driver.js:78
@@ -1669,12 +1670,12 @@ msgstr ""
 #: ../app/tabs/secgroups-tab/utils/common.js:44
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:48
 msgid "TCP"
-msgstr ""
+msgstr "TCP"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:47
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:49
 msgid "UDP"
-msgstr ""
+msgstr "UDP"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:50
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:50
@@ -1689,12 +1690,12 @@ msgstr ""
 #: ../app/tabs/secgroups-tab/utils/common.js:68
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:41
 msgid "Outbound"
-msgstr ""
+msgstr "Wychodzące"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:71
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:40
 msgid "Inbound"
-msgstr ""
+msgstr "Przychodzące"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:95 ../app/tabs/vnets-tab.js:57
 msgid "Virtual Network"
@@ -1705,7 +1706,7 @@ msgstr "Sieć wirtualna"
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:61
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:46
 msgid "Start"
-msgstr ""
+msgstr "Start"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:113
 #: ../app/tabs/vms-tab/datatable/search.hbs:30
@@ -1783,12 +1784,12 @@ msgstr ""
 
 #: ../app/tabs/images-tab/panels/snapshots.js:164
 msgid "This will delete the image snapshot "
-msgstr ""
+msgstr "Usunie to obraz snapshotu"
 
 #: ../app/tabs/images-tab/panels/snapshots.js:202
 #: ../app/tabs/vms-tab/panels/storage.js:675
 msgid "Active"
-msgstr ""
+msgstr "Aktywne"
 
 #: ../app/tabs/images-tab/datatable-common.js:69
 #: ../app/tabs/vms-tab/panels/placement.js:69 ../app/tabs/datastores-tab.js:51
@@ -4547,7 +4548,7 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:5
 msgid "Be careful, this action will shutdown and destroy your Virtual Machine"
-msgstr ""
+msgstr "Uwaga, ta akcja wyłączy i usunie twoją wirtualną maszynę"
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:9
 msgid ""
