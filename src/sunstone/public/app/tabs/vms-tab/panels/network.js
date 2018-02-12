@@ -49,7 +49,7 @@ define(function(require) {
 
   function Panel(info) {
     this.panelId = PANEL_ID;
-    this.title = Locale.tr("Networkkkk");
+    this.title = Locale.tr("Network");
     this.icon = "fa-globe";
 
     this.element = info[XML_ROOT];
