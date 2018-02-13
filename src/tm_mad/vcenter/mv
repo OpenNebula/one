@@ -24,10 +24,10 @@ DSID=$4
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
-    EXEC_DRIVER=/var/lib/one/remotes/tm/vcenter/mv.rb
+    MIGRATE_DRIVER=/var/lib/one/remotes/vmm/vcenter/migrate
 else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
-    EXEC_DRIVER=$ONE_LOCATION/var/remotes/tm/vcenter/mv.rb
+    MIGRATE_DRIVER=$ONE_LOCATION/var/remotes/vmm/vcenter/migrate
 fi
 
 . $TMCOMMON
@@ -45,6 +45,6 @@ if [ "$SRC" == "$DST" ]; then
     exit 0
 fi
 
-ruby $EXEC_DRIVER $HOST_ORIG $HOST_DEST $VMID $DSID
+ruby $MIGRATE_DRIVER $HOST_DEST $HOST_ORIG $VMID $DSID
 
 exit 0
