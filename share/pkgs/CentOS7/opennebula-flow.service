@@ -7,6 +7,7 @@ After=network.target
 Type=forking
 Group=oneadmin
 User=oneadmin
+ExecStartPre=-/bin/bash -c 'for i in {1..20}; do test -f /var/lib/one/.one/oneflow_auth && break; sleep 1; done'
 ExecStart=/usr/bin/oneflow-server start
 ExecStop=/usr/bin/oneflow-server stop
 PIDFile=/var/run/one/oneflow.pid
