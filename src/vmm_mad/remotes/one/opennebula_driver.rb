@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -110,16 +110,7 @@ class OpenNebulaDriver
 
     secret = "#{region['user']}:#{region['password']}"
 
-    # This breaks the CLI SSL support for Ruby 1.8.7, but is necessary
-    # in order to do template updates, otherwise you get the broken pipe
-    # error (bug #3341)
-    if RUBY_VERSION < '1.9'
-      sync = false
-    else
-      sync = true
-    end
-
-    @client = OpenNebula::Client.new(secret, region['endpoint'], :sync => sync)
+    @client = OpenNebula::Client.new(secret, region['endpoint'], :sync => true)
 
     @cpu    = region['capacity']['cpu']
     @memory = region['capacity']['memory']
@@ -459,36 +450,20 @@ class OpenNebulaDriver
       state = ""
 
       state = case vm.state_str
-      when "INIT"
-        VM_STATE[:active]
-      when "PENDING"
-        VM_STATE[:active]
-      when "HOLD"
+      when "INIT" || "PENDING" || "HOLD" || "CLONING"
         VM_STATE[:active]
       when "ACTIVE"
         case vm.lcm_state_str
-        when /_FAILURE$/
-          VM_STATE[:error]
-        when "UNKNOWN"
+        when /_FAILURE$/ || "UNKNOWN"
           VM_STATE[:error]
         else
           VM_STATE[:active]
         end
-      when "STOPPED"
+      when "STOPPED" || "SUSPENDED"
         VM_STATE[:paused]
-      when "SUSPENDED"
-        VM_STATE[:paused]
-      when "DONE"
+      when "DONE" || "POWEROFF" || "UNDEPLOYED"
         VM_STATE[:deleted]
-      when "FAILED"
-        VM_STATE[:error]
-      when "POWEROFF"
-        VM_STATE[:deleted]
-      when "UNDEPLOYED"
-        VM_STATE[:deleted]
-      when "CLONING"
-        VM_STATE[:active]
-      when "CLONING_FAILURE"
+      when "FAILED" || "CLONING_FAILURE"
         VM_STATE[:error]
       else
         VM_STATE[:unknown]
