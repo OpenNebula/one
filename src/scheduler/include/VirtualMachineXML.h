@@ -333,6 +333,13 @@ public:
     }
 
     /**
+     * Generate new action
+     *
+     * @param attributes to hold the VM actions
+     */
+    int next_action(VectorAttribute& vatt);
+
+    /**
      * Sets an attribute in the VM Template, it must be allocated in the heap
      *
      * @param attributes to hold the VM actions
@@ -368,6 +375,47 @@ public:
      * need to be deleted
      */
     bool clear_log();
+
+private:
+
+    void sum_days(struct tm * next, struct tm * now, int mayor_day, int minor_day, int max_day, int comparative){
+        if (mayor_day >= 0 && minor_day < max_day)
+        {
+            if( mayor_day < comparative ) //next
+            {
+                next->tm_mday = next->tm_mday + ((max_day-1) - comparative + minor_day);
+            }
+            else // same
+            {
+                next->tm_mday = next->tm_mday + (mayor_day - comparative);
+            }
+        }
+    }
+
+    void generate_next_day(int rep, int mayor_day, int minor_day, struct tm * next, struct tm * now)
+    {
+        if ( rep == 0 ) //Repeat every weeks
+        {
+            sum_days(next, now, mayor_day, minor_day, 7, next->tm_wday);
+            next->tm_min = now->tm_min;
+            next->tm_hour = now->tm_hour;
+        }
+
+        if ( rep == 1 ) //Repeat every months
+        {
+            cout << next->tm_mday << endl;
+            sum_days(next, now, mayor_day, minor_day, 32, next->tm_mday);
+            next->tm_min = now->tm_min;
+            next->tm_hour = now->tm_hour;
+        }
+
+        if ( rep == 2 ) //Repeat every months
+        {
+            sum_days(next, now, mayor_day, minor_day, 366, next->tm_yday);
+            next->tm_min = now->tm_min;
+            next->tm_hour = now->tm_hour;
+        }
+    }
 
 protected:
 

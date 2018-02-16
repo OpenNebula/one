@@ -1417,7 +1417,7 @@ int Scheduler::do_scheduled_actions()
             has_done  = vatt->vector_value("DONE", done_time);
             action_st = vatt->vector_value("ACTION");
 
-            if (has_time == 0 && has_done == -1 && action_time < the_time)
+            if (has_time == 0 && (has_done == -1 || (has_done == 0 && done_time < action_time)) && action_time < the_time)
             {
                 ostringstream oss;
 
@@ -1439,7 +1439,7 @@ int Scheduler::do_scheduled_actions()
                 {
                     vatt->remove("MESSAGE");
                     vatt->replace("DONE", static_cast<int>(the_time));
-
+                    vm->next_action(*vatt);
                     oss << "Success.";
                 }
                 else

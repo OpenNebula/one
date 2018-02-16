@@ -499,3 +499,103 @@ bool VirtualMachineXML::is_only_public_cloud() const
 {
     return only_public_cloud;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachineXML::next_action(VectorAttribute& vatt)
+{
+    string days;
+    int rep_mode, end_mode;
+    int end_value;
+    int mayor_day = -1;
+    int minor_day = 366;
+    int start_day;
+    time_t action_time;
+    time_t done_time;
+    vector<string> v_days;
+    set<int> s_days;
+
+    vatt.vector_value("DAYS", days);
+    vatt.vector_value("REP", rep_mode);
+    vatt.vector_value("END_TYPE", end_mode);
+    vatt.vector_value("END_VALUE", end_value);
+    vatt.vector_value("TIME", action_time);
+    vatt.vector_value("DONE", done_time);
+
+    v_days = one_util::split(days, ',', true);
+    for(vector<string>::iterator it = v_days.begin(); it != v_days.end(); ++it) {
+        s_days.insert(atoi((*it).c_str()));
+    }
+
+    time_t t_next = time(0);
+    struct tm next;
+    struct tm start_tm;
+    localtime_r(&t_next, &next);
+    localtime_r(&action_time, &start_tm);
+
+    start_day = start_tm.tm_wday;
+    if (rep_mode == 1)
+    {
+        start_day = start_tm.tm_mday;
+    }
+    else if (rep_mode == 2)
+    {
+        start_day = start_tm.tm_yday;
+    }
+    std::set<int>::iterator it;
+    std::pair<std::set<int>::iterator,bool> ret;
+
+    it = s_days.begin();
+    minor_day = *it;
+
+    ret = s_days.insert(start_day);
+    if ( ret.second == false )
+    {
+        mayor_day = *(ret.first);
+
+        if ( ret.first++ != s_days.end() )
+        {
+            mayor_day = *ret.first;
+        }
+    }
+    else
+    {
+        mayor_day = *((ret.first)++);
+        it = s_days.find(start_day);
+        s_days.erase (it);
+    }
+
+    if ( end_mode == 1 )
+    {
+        int num_rep = end_value;
+        if (num_rep <= 0)
+        {
+            cout << "Finished scheduling actions" << endl;
+            return -1;
+        }
+        end_value = num_rep-1;
+        vatt.replace("END_VALUE", end_value);
+    }
+    else if ( end_mode == 2 )
+    {
+        time_t t_end = end_value;
+        if ( time(0) > t_end )
+        {
+            cout << "Finished scheduling actions" << endl;
+            return -1;
+        }
+    }
+
+    generate_next_day(rep_mode, mayor_day, minor_day, &next, &start_tm);
+    action_time = mktime (&next);
+    if (action_time != -1)
+    {
+        vatt.replace("TIME", action_time);
+    }
+    else
+    {
+        return -1;
+    }
+    return 0;
+}

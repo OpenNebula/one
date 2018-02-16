@@ -167,18 +167,86 @@ error_common:
     return -1;
 }
 
-void VMTemplate::parse_sched_action()
+int VMTemplate::parse_sched_action()
 {
     vector<VectorAttribute *> _sched_actions;
     vector<VectorAttribute *>::iterator i;
+    set<int>::const_iterator it_set;
+    VectorAttribute* vatt;
+    int rep_mode, end_mode;
+    int has_mode, has_end_mode, has_days, has_end_value;
+    int end_value;
+    int first_day, last_day;
+    string days;
+    vector<string> v_days;
+    set<int> s_days;
 
     get_template_attribute("SCHED_ACTION", _sched_actions);
 
     for ( i = _sched_actions.begin(); i != _sched_actions.end() ; ++i)
     {
-        (*i)->remove("DONE");
-        (*i)->remove("MESSAGE");
+        vatt = dynamic_cast<VectorAttribute*>(*i);
+
+        has_mode  = vatt->vector_value("REP", rep_mode);
+        has_days  = vatt->vector_value("DAYS", days);
+
+        if (has_mode == 0 && has_days == 0)
+        {
+            v_days = one_util::split(days, ',', true);
+            for(vector<string>::iterator it = v_days.begin(); it != v_days.end(); ++it) {
+                s_days.insert(atoi((*it).c_str()));
+            }
+            first_day = *s_days.cbegin();
+            last_day = *s_days.cend();
+
+            if (!(rep_mode == 0 && first_day > 0 && last_day < 7)) //WEEK
+            {
+                return -1;
+            }
+            else if (!(rep_mode == 1 && first_day > 0 && last_day < 32)) //MONTH
+            {
+                return -1;
+            }
+            else if (!(rep_mode == 2 && first_day > 0 && last_day < 366)) //YEAR
+            {
+                return -1;
+            }
+        }
+        // else
+        // {
+        //     return -1;
+        // }
+
+        has_end_mode  = vatt->vector_value("END_TYPE", end_mode);
+        has_end_value  = vatt->vector_value("END_VALUE", end_value);
+
+        if (has_end_mode == 0 && has_end_value == 0)
+        {
+            // if (end_mode == 1 && end_value < 0) //N_REP
+            // {
+            //     return -1;
+            // }
+            else if ( end_mode == 2 ) //DATE
+            {
+                time_t value = end_value;
+                struct tm val_tm;
+                localtime_r(&value, &val_tm);
+                time_t out = mktime(&val_tm);
+                if (out == -1)
+                {
+                    return -1;
+                }
+            }
+        }
+        else
+        {
+            return -1;
+        }
+
+        vatt->remove("DONE");
+        vatt->remove("MESSAGE");
     }
+    return 0;
 }
 
 /* ------------------------------------------------------------------------ */
