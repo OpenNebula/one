@@ -414,7 +414,7 @@ define(function(require) {
         var vcenter_ref = $(this).data("import_data").vcenter_ref;
         var linked = false;
         var copy = false;
-        var templateName = "";
+        var template_name = "";
         var row_context = $(this).closest("tr");
 
         VCenterCommon.importLoading({context : row_context});
