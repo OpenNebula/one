@@ -1237,7 +1237,7 @@ define(function(require) {
         }
       }.bind(tabName));
 
-      router.on(new RegExp("(?:#|/)"+tabName+"/(\\d+)"), function(id){
+      router.on(new RegExp("(?:#|/)"+tabName+"/(\\w+)"), function(id){
         _routerShowElement(this, id);
       }.bind(tabName));
 
