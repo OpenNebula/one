@@ -1726,7 +1726,8 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/pbar.gif \
 "
 
-SUNSTONE_PUBLIC_LOGOS_FILES="src/sunstone/public/images/logos/arch.png \
+SUNSTONE_PUBLIC_LOGOS_FILES="src/sunstone/public/images/logos/alt.png \
+                        src/sunstone/public/images/logos/arch.png \
                         src/sunstone/public/images/logos/centos.png \
                         src/sunstone/public/images/logos/debian.png \
                         src/sunstone/public/images/logos/fedora.png \
