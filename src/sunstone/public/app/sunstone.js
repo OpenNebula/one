@@ -66,7 +66,9 @@ define(function(require) {
     "settings-tab",
     "upgrade-top-tab",
     "vmgroup-tab",
-    "secgroups-tab"
+    "secgroups-tab",
+    "provision-tab"
+
   ];
 
   var SunstoneCfg = {
