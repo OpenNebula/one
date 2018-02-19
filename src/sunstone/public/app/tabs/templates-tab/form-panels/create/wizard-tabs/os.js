@@ -267,6 +267,8 @@ define(function(require) {
     });
     that.initrdFilesTable.refreshResourceTableSelect();
 
+    fillMachineTypesAndCPUModel();
+
   }
 
   function fillMachineTypesAndCPUModel(cpuModel, machineType){
@@ -274,27 +276,29 @@ define(function(require) {
       data : {},
       timeout: true,
       success: function (request, kvmInfo){
-        machines = kvmInfo[0].set_kvm_machines;
-        cpus = kvmInfo[0].set_cpu_models;
+        if ($("#model-cpu").html() === undefined){
+          machines = kvmInfo[0].set_kvm_machines;
+          cpus = kvmInfo[0].set_cpu_models;
 
-        var html = "<select id=\"machine-type\" wizard_field=\"MACHINE\">";
-        html += "<option value=\"\">" + " " + "</option>";
-        $.each(machines, function(i, machine){
-          html += "<option value='" + machine + "'>" + machine + "</option>";
-        });
-        html += "</select>";
-        $("#kvm-info").append(html);
+          var html = "<select id=\"machine-type\" wizard_field=\"MACHINE\">";
+          html += "<option value=\"\">" + " " + "</option>";
+          $.each(machines, function(i, machine){
+            html += "<option value='" + machine + "'>" + machine + "</option>";
+          });
+          html += "</select>";
+          $("#kvm-info").append(html);
 
-        var html = "<select id=\"model-cpu\" wizard_field=\"MODEL\">";
-        html += "<option value=\"\">" + " " + "</option>";
-        html += "<option value=\"host-passthrough\">host-passthrough</option>";
-        $.each(cpus, function(i, cpu){
-          html += "<option value='" + cpu + "'>" + cpu + "</option>";
-        });
-        html += "</select>";
-        $("#cpu-model").append(html);
+          var html = "<select id=\"model-cpu\" wizard_field=\"MODEL\">";
+          html += "<option value=\"\">" + " " + "</option>";
+          html += "<option value=\"host-passthrough\">host-passthrough</option>";
+          $.each(cpus, function(i, cpu){
+            html += "<option value='" + cpu + "'>" + cpu + "</option>";
+          });
+          html += "</select>";
+          $("#cpu-model").append(html);
+        }
 
-        if (machineType){ $("#machine-type").val(machineType.MACHINE); }
+        if (machineType && machineType.MACHINE){ $("#machine-type").val(machineType.MACHINE); }
         if (cpuModel){ $("#model-cpu").val(cpuModel.MODEL); }
       },
       error: function(request, error_json){
