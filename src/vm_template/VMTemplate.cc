@@ -74,9 +74,13 @@ int VMTemplate::insert(SqlDB *db, string& error_str)
     erase_template_attribute("NAME", name);
 
     // ---------------------------------------------------------------------
-    // Remove DONE/MESSAGE from SCHED_ACTION
+    // Remove DONE/MESSAGE from SCHED_ACTION and check rest attributes
     // ---------------------------------------------------------------------
-    parse_sched_action();
+    int rc = parse_sched_action(error_str);
+    if (rc == -1)
+    {
+        return rc;
+    }
 
     // ------------------------------------------------------------------------
     // Insert the Template
@@ -167,7 +171,7 @@ error_common:
     return -1;
 }
 
-int VMTemplate::parse_sched_action()
+int VMTemplate::parse_sched_action(string& error_str)
 {
     vector<VectorAttribute *> _sched_actions;
     vector<VectorAttribute *>::iterator i;
@@ -199,33 +203,38 @@ int VMTemplate::parse_sched_action()
             first_day = *s_days.cbegin();
             last_day = *s_days.cend();
 
-            if (!(rep_mode == 0 && first_day > 0 && last_day < 7)) //WEEK
+            if (!(rep_mode == 0 && first_day >= 0 && last_day < 7)) //WEEK [0,6]
             {
+                error_str = "Error parsing days of the week. [0,6]";
                 return -1;
             }
-            else if (!(rep_mode == 1 && first_day > 0 && last_day < 32)) //MONTH
+            else if (!(rep_mode == 1 && first_day >= 1 && last_day < 32)) //MONTH [1,31]
             {
+                error_str = "Error parsing days of the month. [1,31]";
                 return -1;
             }
-            else if (!(rep_mode == 2 && first_day > 0 && last_day < 366)) //YEAR
+            else if (!(rep_mode == 2 && first_day >= 0 && last_day < 366)) //YEAR [0,365]
             {
+                error_str = "Error parsing days of the year. [0,365]";
                 return -1;
             }
         }
-        // else
-        // {
-        //     return -1;
-        // }
+        else
+        {
+            error_str = "Error parsing DAYS and REP.";
+            return -1;
+        }
 
         has_end_mode  = vatt->vector_value("END_TYPE", end_mode);
         has_end_value  = vatt->vector_value("END_VALUE", end_value);
 
         if (has_end_mode == 0 && has_end_value == 0)
         {
-            // if (end_mode == 1 && end_value < 0) //N_REP
-            // {
-            //     return -1;
-            // }
+            if (end_mode == 1 && end_value < 0) //N_REP
+            {
+                error_str = "Error parsing END_VALUE of type N_REP.";
+                return -1;
+            }
             else if ( end_mode == 2 ) //DATE
             {
                 time_t value = end_value;
@@ -234,12 +243,14 @@ int VMTemplate::parse_sched_action()
                 time_t out = mktime(&val_tm);
                 if (out == -1)
                 {
+                    error_str = "Error parsing END_VALUE of type DATE.";
                     return -1;
                 }
             }
         }
         else
         {
+            error_str = "Error parsing END_TYPE and END_VALUE.";
             return -1;
         }
 
@@ -254,7 +265,11 @@ int VMTemplate::parse_sched_action()
 
 int VMTemplate::post_update_template(string& error)
 {
-    parse_sched_action();
+    int rc = parse_sched_action(error);
+    if (rc == -1)
+    {
+        return rc;
+    }
 
     return 0;
 }

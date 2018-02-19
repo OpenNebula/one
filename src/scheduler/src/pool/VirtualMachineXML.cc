@@ -503,6 +503,50 @@ bool VirtualMachineXML::is_only_public_cloud() const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static void sum_days(struct tm * next, struct tm * now, int mayor_day, int minor_day, int max_day, int comparative){
+    if (mayor_day >= 0 && minor_day < max_day)
+    {
+        if( mayor_day <= comparative ) //next
+        {
+            next->tm_mday = next->tm_mday + ((max_day) - comparative + minor_day);
+        }
+        else // same
+        {
+            next->tm_mday = next->tm_mday + (mayor_day - comparative);
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+static void generate_next_day(int rep, int mayor_day, int minor_day, struct tm * next, struct tm * now)
+{
+    if ( rep == 0 ) //Repeat every weeks
+    {
+        sum_days(next, now, mayor_day, minor_day, 7, next->tm_wday);
+        next->tm_min = now->tm_min;
+        next->tm_hour = now->tm_hour;
+    }
+
+    if ( rep == 1 ) //Repeat every months
+    {
+        cout << next->tm_mday << endl;
+        sum_days(next, now, mayor_day, minor_day, 32, next->tm_mday);
+        next->tm_min = now->tm_min;
+        next->tm_hour = now->tm_hour;
+    }
+
+    if ( rep == 2 ) //Repeat every months
+    {
+        sum_days(next, now, mayor_day, minor_day, 366, next->tm_yday);
+        next->tm_min = now->tm_min;
+        next->tm_hour = now->tm_hour;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachineXML::next_action(VectorAttribute& vatt)
 {
     string days;
@@ -528,11 +572,10 @@ int VirtualMachineXML::next_action(VectorAttribute& vatt)
         s_days.insert(atoi((*it).c_str()));
     }
 
-    time_t t_next = time(0);
     struct tm next;
     struct tm start_tm;
-    localtime_r(&t_next, &next);
     localtime_r(&action_time, &start_tm);
+    next = start_tm;
 
     start_day = start_tm.tm_wday;
     if (rep_mode == 1)
@@ -552,16 +595,20 @@ int VirtualMachineXML::next_action(VectorAttribute& vatt)
     ret = s_days.insert(start_day);
     if ( ret.second == false )
     {
-        mayor_day = *(ret.first);
+        mayor_day = *ret.first;
 
-        if ( ret.first++ != s_days.end() )
+        if ( ++ret.first != s_days.end() )
         {
             mayor_day = *ret.first;
         }
     }
     else
     {
-        mayor_day = *((ret.first)++);
+        mayor_day = minor_day;
+        if ( ++ret.first != s_days.end() )
+        {
+            mayor_day = *ret.first;
+        }
         it = s_days.find(start_day);
         s_days.erase (it);
     }

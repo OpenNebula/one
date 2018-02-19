@@ -170,7 +170,7 @@ private:
     /**
      *  This method removes sched_action DONE/MESSAGE attributes
      */
-    int parse_sched_action();
+    int parse_sched_action(string& error_str);
 
 protected:
 
