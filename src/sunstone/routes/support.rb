@@ -171,7 +171,8 @@ post '/support/request' do
             :custom_fields => [
               {:id => SUPPORT[:custom_field_severity], :value => body_hash['severity']},
               {:id => SUPPORT[:custom_field_version], :value => body_hash['opennebula_version']}
-            ]
+            ],
+            :tags => [body_hash['severity']]
           })
 
     if zrequest.save
