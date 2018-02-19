@@ -15,6 +15,14 @@ if [ -z "$IFADDR" ]; then
     exit 1
 fi
 
+###
+
+if which systemctl &>/dev/null && [ -d /etc/systemd ]; then
+    IS_SYSTEMD=yes
+else
+    IS_SYSTEMD=no
+fi
+
 case $ACTION in
 leader)
     sudo ip address add $IFADDR dev $INTERFACE
@@ -26,10 +34,12 @@ leader)
         sleep 1
     done
 
-    if which oneflow-server &>/dev/null &&
-        [ ! -e /var/run/one/oneflow.pid ];
-    then
-        oneflow-server start
+    if [ "${IS_SYSTEMD}" = 'yes' ]; then
+        if systemctl is-enabled opennebula-flow >/dev/null 2>&1; then
+            sudo -n systemctl start opennebula-flow
+        fi
+    elif [ -x /usr/bin/oneflow-server ]; then
+        sudo -n service opennebula-flow start
     fi
     ;;
 
@@ -38,10 +48,12 @@ follower)
         sudo ip address del $IFADDR dev $INTERFACE
     fi
 
-    if which oneflow-server &>/dev/null &&
-        [ -e /var/run/one/oneflow.pid ];
-    then
-        oneflow-server stop
+    if [ "${IS_SYSTEMD}" = 'yes' ]; then
+        if systemctl is-enabled opennebula-flow >/dev/null 2>&1; then
+            sudo -n systemctl stop opennebula-flow
+        fi
+    elif [ -x /usr/bin/oneflow-server ]; then
+        sudo -n service opennebula-flow stop
     fi
     ;;
 

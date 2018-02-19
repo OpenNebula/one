@@ -143,6 +143,15 @@ if xmlrpc_dir!='none':
     main_env.Append(LIBPATH=[xmlrpc_dir+"/lib", xmlrpc_dir+"/lib64"])
     main_env.Append(CPPPATH=[xmlrpc_dir+"/include"])
 
+# systemd
+systemd=ARGUMENTS.get('systemd', 'no')
+if systemd=='yes':
+    main_env.Append(systemd='yes')
+    main_env.Append(CPPFLAGS=["-DSYSTEMD"])
+    main_env.Append(LIBS=['systemd'])
+else:
+    main_env.Append(systemd='no')
+
 # build lex/bison
 build_parsers=ARGUMENTS.get('parsers', 'no')
 if build_parsers=='yes':
