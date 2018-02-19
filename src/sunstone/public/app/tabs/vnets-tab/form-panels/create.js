@@ -173,6 +173,13 @@ define(function(require) {
 
         $("input#bridge", context).attr("required", "");
         break;
+      case "ovswitch_vxlan":
+        $("div.mode_param.ovswitch_vxlan", context).show();
+        $("#vnetCreateSecurityTab-label").hide();
+        $("div.mode_param.ovswitch_vxlan [wizard_field]", context).prop("wizard_field_disabled", false);
+
+        $("input#bridge", context).attr("required", "");
+        break;
       case "vcenter":
         $("div.mode_param.vcenter", context).show();
         $(".sec_groups_datatable", context).hide();
@@ -243,6 +250,7 @@ define(function(require) {
       $("#network_mode option[value=\"802.1Q\"]", context).hide();
       $("#network_mode option[value=\"vxlan\"]", context).hide();
       $("#network_mode option[value=\"ovswitch\"]", context).hide();
+      $("#network_mode option[value=\"ovswitch_vxlan\"]", context).hide();
     }
     return false;
   }
