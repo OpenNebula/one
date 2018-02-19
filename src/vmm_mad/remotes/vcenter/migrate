@@ -55,11 +55,12 @@ begin
 
     # required vcenter objects
     vc_vm = VCenterDriver::VirtualMachine.new_from_ref(vm["/VM/DEPLOY_ID"], vi_client)
-    dst_host = VCenterDriver::ClusterComputeResource.new_from_ref(dst_host["/HOST/TEMPLATE/VCENTER_CCR_REF"],vi_client).item
+    vc_host = VCenterDriver::ClusterComputeResource.new_from_ref(dst_host["/HOST/TEMPLATE/VCENTER_CCR_REF"],vi_client).item
 
-    config = {:cluster => dst_host }
+    config = {:cluster => vc_host }
     vc_vm.migrate(config)
 
+    vm.replace({"VCENTER_CCR_REF" => dst_host["/HOST/TEMPLATE/VCENTER_CCR_REF"] })
 rescue Exception => e
     message = "Cannot migrate for VM #{vm_id}"\
               "failed due to "\
