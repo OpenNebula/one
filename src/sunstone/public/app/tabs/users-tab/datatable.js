@@ -157,7 +157,7 @@ define(function(require) {
       '<input class="check_item" type="checkbox" '+
                           'style="vertical-align: inherit;" id="'+this.resource.toLowerCase()+'_' +
                            element.ID + '" name="selected_items" value="' +
-                           element.ID + '"/>'+color_html,,
+                           element.ID + '"/>'+color_html,
       element.ID,
       element.NAME,
       element.GNAME,

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-201, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,35 +16,5 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-SRC=$1
-DST=$2
-
-VMID=$3
-DSID=$4
-
-if [ -z "${ONE_LOCATION}" ]; then
-    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
-    MIGRATE_DRIVER=/var/lib/one/remotes/vmm/vcenter/migrate
-else
-    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
-    MIGRATE_DRIVER=$ONE_LOCATION/var/remotes/vmm/vcenter/migrate
-fi
-
-. $TMCOMMON
-
-DST_PATH=`arg_path $DST`
-
-HOST_ORIG=`arg_host $SRC`
-HOST_DEST=`arg_host $DST`
-
-if [ `is_disk $DST_PATH` -eq 1 ]; then
-    exit 0
-fi
-
-if [ "$SRC" == "$DST" ]; then
-    exit 0
-fi
-
-ruby $MIGRATE_DRIVER $HOST_DEST $HOST_ORIG $VMID $DSID
-
-exit 0
+SCRIPT_NAME=$(basename $0)
+echo "Action $SCRIPT_NAME not supported" 1>&2

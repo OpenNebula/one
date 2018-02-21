@@ -73,15 +73,28 @@ class VIHelper
         end
     end
 
-    def self.create_ref_hash(attribute, pool, vcenter_uuid)
+    def self.get_ref_key(element, attribute)
+        key = element[attribute]
+
+        tvid = element["TEMPLATE/VCENTER_INSTANCE_ID"]
+        uvid = element["USER_TEMPLATE/VCENTER_INSTANCE_ID"]
+
+        if tvid
+            key += tvid
+        elsif uvid
+            key += uvid
+        end
+
+        return key
+    end
+
+    def self.create_ref_hash(attribute, pool)
         hash = {}
 
         pool.each_element(Proc.new do |e|
-            vcenter_instance_id = e["TEMPLATE/VCENTER_INSTANCE_ID"] || e["USER_TEMPLATE/VCENTER_INSTANCE_ID"]
-            next if vcenter_uuid != vcenter_instance_id
+            refkey = get_ref_key(e, attribute)
 
-            ref = e[attribute]
-            hash[ref] = {
+            hash[refkey] = {
                 opennebula_object: e,
                 opennebula_managed: e["TEMPLATE/OPENNEBULA_MANAGED"],
                 tvcenter_instance_id: e["TEMPLATE/VCENTER_INSTANCE_ID"],
@@ -106,10 +119,14 @@ class VIHelper
         @ref_hash ||= {}
 
         if @ref_hash[attribute].nil? || @ref_hash[attribute] == {}
-            @ref_hash[attribute] = create_ref_hash(attribute, pool, vcenter_uuid)
+            @ref_hash[attribute] = create_ref_hash(attribute, pool)
         end
 
-        e = @ref_hash[attribute][ref]
+        refkey = ""
+        refkey = ref if ref
+        refkey += vcenter_uuid if vcenter_uuid
+
+        e = @ref_hash[attribute][refkey]
 
         return nil if e.nil?
 

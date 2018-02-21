@@ -234,6 +234,26 @@ module OpenNebula
 
             return str
         end
+
+        # Replace the xml pointed by xpath using  a Hash object
+        # one object will be modified taking hash object pairs
+        #
+        # @param [String] xpath
+        # @param [Hash] options object containing pair key-value
+        #
+        # @returns the new xml representation
+        def replace(opts, xpath = "TEMPLATE")
+            if self[xpath]
+                opts.each do |att, value|
+                    xpath_u = xpath+"/#{att}"
+                    docs = retrieve_xmlelements(xpath_u)
+                    if docs.size == 1
+                        docs[0].set_content(value)
+                    end
+                end
+                update(template_like_str(xpath))
+            end
+        end
     end
 
     # Processes the monitoring data in XML returned by OpenNebula
@@ -264,7 +284,6 @@ module OpenNebula
 
         return hash
     end
-
 
     # Alternative method with better performance for huge number of timestamps.
     # For reasonable amounts of data, the current method is quicker
