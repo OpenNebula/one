@@ -28,8 +28,14 @@ CMDS = {
     :XEN   => %w(xentop xl xm),
     :CEPH  => %w(rbd),
     :HA    => [
-        'systemctl * opennebula-flow',
-        'service opennebula-flow *'
+        'systemctl start opennebula-flow',
+        'systemctl stop opennebula-flow',
+        'systemctl start opennebula-gate',
+        'systemctl stop opennebula-gate',
+        'service opennebula-flow start',
+        'service opennebula-flow stop',
+        'service opennebula-gate start',
+        'service opennebula-gate stop'
     ],
 }
 

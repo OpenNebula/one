@@ -38,8 +38,18 @@ leader)
         if systemctl is-enabled opennebula-flow >/dev/null 2>&1; then
             sudo -n systemctl start opennebula-flow
         fi
-    elif [ -x /usr/bin/oneflow-server ]; then
-        sudo -n service opennebula-flow start
+
+        if systemctl is-enabled opennebula-gate >/dev/null 2>&1; then
+            sudo -n systemctl start opennebula-gate
+        fi
+    else
+        if [ -e /usr/lib/one/oneflow/oneflow-server.rb ]; then
+            sudo -n service opennebula-flow start
+        fi
+
+        if [ -e /usr/lib/one/onegate/onegate-server.rb ]; then
+            sudo -n service opennebula-gate start
+        fi
     fi
     ;;
 
@@ -49,11 +59,21 @@ follower)
     fi
 
     if [ "${IS_SYSTEMD}" = 'yes' ]; then
-        if systemctl is-enabled opennebula-flow >/dev/null 2>&1; then
+        if systemctl is-active opennebula-flow >/dev/null 2>&1; then
             sudo -n systemctl stop opennebula-flow
         fi
-    elif [ -x /usr/bin/oneflow-server ]; then
-        sudo -n service opennebula-flow stop
+
+        if systemctl is-active opennebula-gate >/dev/null 2>&1; then
+            sudo -n systemctl stop opennebula-gate
+        fi
+    else
+        if [ -e /usr/lib/one/oneflow/oneflow-server.rb ]; then
+            sudo -n service opennebula-flow stop
+        fi
+
+        if [ -e /usr/lib/one/onegate/onegate-server.rb ]; then
+            sudo -n service opennebula-gate stop
+        fi
     fi
     ;;
 
