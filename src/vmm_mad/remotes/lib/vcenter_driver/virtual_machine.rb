@@ -378,7 +378,7 @@ class Template
                                                                 "TEMPLATE/VCENTER_NET_REF",
                                                                  nic[:net_ref],
                                                                  vc_uuid,
-                                                                 npool, false)
+                                                                 npool)
 
                 #Network is already in OpenNebula
                 if network_found
