@@ -138,6 +138,14 @@ define(function(require) {
       $("#import_wilds", context).attr("disabled", "disabled").on("click.disable", function(e) { return false; });
       $("#import_wilds", context).html('<i class="fa fa-spinner fa-spin"></i>');
 
+      var checked = $(".import_wild_checker:checked", "#datatable_host_wilds");
+      if (checked.length > 1){
+        Notifier.notifySubmit(Locale.tr("Please select one (and just one) wild to import."));
+
+        $("#import_wilds", context).removeAttr("disabled").off("click.disable");
+        $("#import_wilds", context).html(Locale.tr("Import Wilds"));
+        return false;
+      }
       $(".import_wild_checker:checked", "#datatable_host_wilds").each(function() {
         var importHostId = that.element.ID;
         var wild_row       = $(this).closest('tr');

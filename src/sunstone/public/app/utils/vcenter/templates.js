@@ -410,6 +410,11 @@ define(function(require) {
   function _import(context) {
     that = this;
     $.each($(".vcenter_import_table", context), function() {
+      var checked = $(this).DataTable().$(".check_item:checked");
+      if (checked.length > 1){
+        Notifier.notifySubmit(Locale.tr("Please select one (and just one) template to import."));
+        return false;
+      }
       $.each($(this).DataTable().$(".check_item:checked"), function() {
         var vcenter_ref = $(this).data("import_data").vcenter_ref;
         var linked = false;
