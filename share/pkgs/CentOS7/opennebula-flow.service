@@ -1,16 +1,15 @@
 [Unit]
 Description=OpenNebula Flow Service
-After=syslog.target
-After=network.target
+After=syslog.target network.target
+After=opennebula.service
+AssertFileNotEmpty=/var/lib/one/.one/oneflow_auth
 
 [Service]
-Type=forking
+Type=simple
 Group=oneadmin
 User=oneadmin
-ExecStartPre=-/bin/bash -c 'for i in {1..20}; do test -f /var/lib/one/.one/oneflow_auth && break; sleep 1; done'
-ExecStart=/usr/bin/oneflow-server start
-ExecStop=/usr/bin/oneflow-server stop
-PIDFile=/var/run/one/oneflow.pid
+ExecStartPre=-/usr/sbin/logrotate -f /etc/logrotate.d/opennebula-flow -s /var/lib/one/.logrotate.status
+ExecStart=/usr/bin/ruby /usr/lib/one/oneflow/oneflow-server.rb
 
 [Install]
 WantedBy=multi-user.target

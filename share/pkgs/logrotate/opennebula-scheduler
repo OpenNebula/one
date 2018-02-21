@@ -1,0 +1,13 @@
+delaycompress
+dateext
+dateformat -%Y%m%d-%s
+
+compress
+weekly
+rotate 52
+
+/var/log/one/sched.log {
+   missingok
+   notifempty
+   copytruncate
+}

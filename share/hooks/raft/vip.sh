@@ -15,6 +15,14 @@ if [ -z "$IFADDR" ]; then
     exit 1
 fi
 
+###
+
+if which systemctl &>/dev/null && [ -d /etc/systemd ]; then
+    IS_SYSTEMD=yes
+else
+    IS_SYSTEMD=no
+fi
+
 case $ACTION in
 leader)
     sudo ip address add $IFADDR dev $INTERFACE
@@ -26,10 +34,22 @@ leader)
         sleep 1
     done
 
-    if which oneflow-server &>/dev/null &&
-        [ ! -e /var/run/one/oneflow.pid ];
-    then
-        oneflow-server start
+    if [ "${IS_SYSTEMD}" = 'yes' ]; then
+        if systemctl is-enabled opennebula-flow >/dev/null 2>&1; then
+            sudo -n systemctl start opennebula-flow
+        fi
+
+        if systemctl is-enabled opennebula-gate >/dev/null 2>&1; then
+            sudo -n systemctl start opennebula-gate
+        fi
+    else
+        if [ -e /usr/lib/one/oneflow/oneflow-server.rb ]; then
+            sudo -n service opennebula-flow start
+        fi
+
+        if [ -e /usr/lib/one/onegate/onegate-server.rb ]; then
+            sudo -n service opennebula-gate start
+        fi
     fi
     ;;
 
@@ -38,10 +58,22 @@ follower)
         sudo ip address del $IFADDR dev $INTERFACE
     fi
 
-    if which oneflow-server &>/dev/null &&
-        [ -e /var/run/one/oneflow.pid ];
-    then
-        oneflow-server stop
+    if [ "${IS_SYSTEMD}" = 'yes' ]; then
+        if systemctl is-active opennebula-flow >/dev/null 2>&1; then
+            sudo -n systemctl stop opennebula-flow
+        fi
+
+        if systemctl is-active opennebula-gate >/dev/null 2>&1; then
+            sudo -n systemctl stop opennebula-gate
+        fi
+    else
+        if [ -e /usr/lib/one/oneflow/oneflow-server.rb ]; then
+            sudo -n service opennebula-flow stop
+        fi
+
+        if [ -e /usr/lib/one/onegate/onegate-server.rb ]; then
+            sudo -n service opennebula-gate stop
+        fi
     fi
     ;;
 

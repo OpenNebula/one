@@ -26,7 +26,17 @@ CMDS = {
     :ISCSI => %w(iscsiadm tgt-admin tgtadm),
     :OVS   => %w(ovs-ofctl ovs-vsctl),
     :XEN   => %w(xentop xl xm),
-    :CEPH  => %w(rbd)
+    :CEPH  => %w(rbd),
+    :HA    => [
+        'systemctl start opennebula-flow',
+        'systemctl stop opennebula-flow',
+        'systemctl start opennebula-gate',
+        'systemctl stop opennebula-gate',
+        'service opennebula-flow start',
+        'service opennebula-flow stop',
+        'service opennebula-gate start',
+        'service opennebula-gate stop'
+    ],
 }
 
 KEYS = CMDS.keys
@@ -39,10 +49,12 @@ KEYS.each do |label|
 
     _abs_cmds = []
     cmds.each do |cmd|
-        abs_cmd = `which #{cmd} 2>/dev/null`
+        cmd_parts = cmd.split
+        abs_cmd = `which #{cmd_parts[0]} 2>/dev/null`
 
         if !abs_cmd.empty?
-            _abs_cmds << abs_cmd.strip
+            cmd_parts[0] = abs_cmd.strip
+            _abs_cmds << cmd_parts.join(' ')
         else
             not_found_cmds << cmd
         end
