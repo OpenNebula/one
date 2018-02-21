@@ -267,16 +267,16 @@ define(function(require) {
     });
     that.initrdFilesTable.refreshResourceTableSelect();
 
-    fillMachineTypesAndCPUModel();
+    fillMachineTypesAndCPUModel(context);
 
   }
 
-  function fillMachineTypesAndCPUModel(cpuModel, machineType){
+  function fillMachineTypesAndCPUModel(context, cpuModel, machineType){
     OpenNebulaHost.kvmInfo({
       data : {},
       timeout: true,
       success: function (request, kvmInfo){
-        if ($("#model-cpu").html() === undefined){
+        if ($("#model-cpu", context).html() === undefined){
           machines = kvmInfo[0].set_kvm_machines;
           cpus = kvmInfo[0].set_cpu_models;
 
@@ -286,7 +286,7 @@ define(function(require) {
             html += "<option value='" + machine + "'>" + machine + "</option>";
           });
           html += "</select>";
-          $("#kvm-info").append(html);
+          $("#kvm-info", context).append(html);
 
           var html = "<select id=\"model-cpu\" wizard_field=\"MODEL\">";
           html += "<option value=\"\">" + " " + "</option>";
@@ -296,11 +296,11 @@ define(function(require) {
             html += "<option value='" + cpu + "'>" + cpu + "</option>";
           });
           html += "</select>";
-          $("#cpu-model").append(html);
+          $("#cpu-model", context).append(html);
         }
 
-        if (machineType && machineType.MACHINE){ $("#machine-type").val(machineType.MACHINE); }
-        if (cpuModel){ $("#model-cpu").val(cpuModel.MODEL); }
+        if (machineType && machineType.MACHINE){ $("#machine-type", context).val(machineType.MACHINE); }
+        if (cpuModel){ $("#model-cpu", context).val(cpuModel.MODEL); }
       },
       error: function(request, error_json){
         console.error("There was an error requesting the KVM info: " +
@@ -361,7 +361,7 @@ define(function(require) {
       delete templateJSON["FEATURES"];
     }
 
-    fillMachineTypesAndCPUModel(modelJSON, osJSON);
+    fillMachineTypesAndCPUModel(context, modelJSON, osJSON);
 
     delete templateJSON["OS"];
     delete templateJSON["CPU_MODEL"];
