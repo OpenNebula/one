@@ -446,8 +446,7 @@ class DatacenterFolder
                                                                     "TEMPLATE/VCENTER_NET_REF",
                                                                     network_ref,
                                                                     vcenter_uuid,
-                                                                    npool,
-                                                                    false)
+                                                                    npool)
                 end #networks loop
             end #clusters loop
 

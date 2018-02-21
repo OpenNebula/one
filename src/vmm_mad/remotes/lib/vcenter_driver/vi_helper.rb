@@ -39,6 +39,15 @@ class VIHelper
         return -1
     end
 
+    def self.one_managed?(object)
+        if object.class.ancestors.include?(OpenNebula::XMLElement)
+            managed = object["TEMPLATE/OPENNEBULA_MANAGED"] || object["USER_TEMPLATE/OPENNEBULA_MANAGED"]
+
+            return managed != "NO"
+        end
+        return false
+    end
+
     def self.one_item(the_class, id, exit_if_fail = true)
         item = the_class.new_with_id(id, client)
         rc = item.info
@@ -93,13 +102,7 @@ class VIHelper
 
         pool.each_element(Proc.new do |e|
             refkey = get_ref_key(e, attribute)
-
-            hash[refkey] = {
-                opennebula_object: e,
-                opennebula_managed: e["TEMPLATE/OPENNEBULA_MANAGED"],
-                tvcenter_instance_id: e["TEMPLATE/VCENTER_INSTANCE_ID"],
-                uvcenter_instance_id: e["USER_TEMPLATE/VCENTER_INSTANCE_ID"]
-            }
+            hash[refkey] =  e
         end)
 
         hash
@@ -113,8 +116,7 @@ class VIHelper
         end
     end
 
-    def self.find_by_ref(the_class, attribute, ref, vcenter_uuid, pool = nil, one_managed = nil)
-        one_managed = one_managed.nil? || one_managed
+    def self.find_by_ref(the_class, attribute, ref, vcenter_uuid, pool = nil)
         pool = one_pool(the_class, false) if pool.nil?
         @ref_hash ||= {}
 
@@ -126,23 +128,7 @@ class VIHelper
         refkey = ref if ref
         refkey += vcenter_uuid if vcenter_uuid
 
-        e = @ref_hash[attribute][refkey]
-
-        return nil if e.nil?
-
-        if one_managed
-            one_managed_test = (!e[:opennebula_managed] || e[:opennebula_managed] != "NO")
-        else
-            one_managed_test = (!e[:opennebula_managed] || e[:opennebula_managed] != "YES")
-        end
-
-        if one_managed_test &&
-            (e[:tvcenter_instance_id] == vcenter_uuid ||
-             e[:uvcenter_instance_id] == vcenter_uuid)
-            return e[:opennebula_object]
-        end
-
-        return nil
+        return @ref_hash[attribute][refkey]
     end
 
     def self.find_image_by(att, the_class, path, ds_id, pool = nil)
