@@ -27,37 +27,81 @@ TARGET="$3"
 TARGET_INDEX="$4"
 DRV_ACTION="$5"
 
-ATTACH_FILE="$SOURCE.attach"
-
 get_disk_information "ATTACH='YES'"
 
-[ -z "$CACHE" ] && [ -n "$DEFAULT_ATTACH_CACHE" ] && \
-    CACHE="$DEFAULT_ATTACH_CACHE"
-[ -n "$CACHE" ] && CACHE="cache='$CACHE'"
+# defaults
+CACHE=${CACHE:-${DEFAULT_ATTACH_CACHE}}
+CACHE=${CACHE:-default}  # https://github.com/OpenNebula/one/blob/c0d081917224f1d467582b8d8ac052a48040ec00/src/vmm/LibVirtDriverKVM.cc#L459
+DISCARD=${DISCARD:-${DEFAULT_ATTACH_DISCARD}}
+DISK_IO=${DISK_IO:-${DEFAULT_ATTACH_IO}}
+TOTAL_BYTES_SEC=${TOTAL_BYTES_SEC:-${DEFAULT_ATTACH_TOTAL_BYTES_SEC}}
+READ_BYTES_SEC=${READ_BYTES_SEC:-${DEFAULT_ATTACH_READ_BYTES_SEC}}
+WRITE_BYTES_SEC=${WRITE_BYTES_SEC:-${DEFAULT_ATTACH_WRITE_BYTES_SEC}}
+TOTAL_IOPS_SEC=${TOTAL_IOPS_SEC:-${DEFAULT_ATTACH_TOTAL_IOPS_SEC}}
+READ_IOPS_SEC=${READ_IOPS_SEC:-${DEFAULT_ATTACH_READ_IOPS_SEC}}
+WRITE_IOPS_SEC=${WRITE_IOPS_SEC:-${DEFAULT_ATTACH_WRITE_IOPS_SEC}}
 
-[ -z "$DISCARD" ] && [ -n "$DEFAULT_ATTACH_DISCARD" ] && \
-    DISCARD="$DEFAULT_ATTACH_DISCARD"
-[ -n "$DISCARD" ] && DISCARD="discard='$DISCARD'"
+# disk XML
+XML=''
 
-if [ "$READONLY" = "YES" ]; then
-    READONLY="<readonly/>"
-else
-    READONLY=""
+XML+="<disk type='$(xml_esc "${TYPE_XML}")' device='$(xml_esc "${DEVICE}")'>"
+
+XML+=" <driver name='qemu' type='$(xml_esc "${DRIVER}")'"
+[ -n "${CACHE}" ] && XML+=" cache='$(xml_esc "${CACHE}")'"
+[ -n "${DISK_IO}" ] && XML+=" io='$(xml_esc "${DISK_IO}")'"
+[ -n "${DISCARD}" ] && XML+=" discard='$(xml_esc "${DISCARD}")'"
+XML+=" />"
+
+XML+=" <source ${TYPE_SOURCE}='$(xml_esc "${SOURCE}")' ${SOURCE_ARGS}>"
+XML+="  ${SOURCE_HOST}"
+XML+=" </source>"
+
+[ -n "${AUTH}" ] && XML+=" ${AUTH}"
+
+XML+=" <target dev='$(xml_esc "${TARGET}")'/>"
+[ -n "${ORDER}" ] && XML+=" <boot order='$(xml_esc "${ORDER}")'/>"
+[ "${READONLY}" = 'yes' ] && XML+=" <readonly/>"
+
+if [ -n "${TOTAL_BYTES_SEC}${READ_BYTES_SEC}${WRITE_BYTES_SEC}" ] || \
+   [ -n "${TOTAL_IOPS_SEC}${READ_IOPS_SEC}${WRITE_IOPS_SEC}" ];
+then
+    XML+=" <iotune>"
+
+    [ -n "${TOTAL_BYTES_SEC}" ] && \
+        XML+=" <total_bytes_sec>$(xml_esc "${TOTAL_BYTES_SEC}")</total_bytes_sec>"
+    [ -n "${READ_BYTES_SEC}" ] && \
+        XML+=" <read_bytes_sec>$(xml_esc "${READ_BYTES_SEC}")</read_bytes_sec>"
+    [ -n "${WRITE_BYTES_SEC}" ] && \
+        XML+=" <write_bytes_sec>$(xml_esc "${WRITE_BYTES_SEC}")</write_bytes_sec>"
+
+    [ -n "${TOTAL_IOPS_SEC}" ] && \
+        XML+=" <total_iops_sec>$(xml_esc "${TOTAL_IOPS_SEC}")</total_iops_sec>"
+    [ -n "${READ_IOPS_SEC}" ] && \
+        XML+=" <read_iops_sec>$(xml_esc "${READ_IOPS_SEC}")</read_iops_sec>"
+    [ -n "${WRITE_IOPS_SEC}" ] && \
+        XML+=" <write_iops_sec>$(xml_esc "${WRITE_IOPS_SEC}")</write_iops_sec>"
+
+    XML+=" </iotune>"
 fi
 
-cat <<EOF > $ATTACH_FILE
-<disk type='$TYPE_XML' device='$DEVICE'>
-  <driver name='qemu' type='$DRIVER' $CACHE $DISCARD/>
-  <source $TYPE_SOURCE='$SOURCE' $SOURCE_ARGS>
-  $SOURCE_HOST
-  </source>
-  $AUTH
-  <target dev='$TARGET'/>
-  $READONLY
-</disk>
+if [ -z "${DISK_TARGET##sd*}" ]; then
+    CTRL_TARGET=$(( $(LC_CTYPE=C printf '%d' "'${DISK_TARGET##sd}") - 97 ))
+    if [ ${CTRL_TARGET} -ge 0 ] && [ ${CTRL_TARGET} -lt 256 ]; then
+        XML+=" <address type='drive' controller='0' bus='0' target='${CTRL_TARGET}' unit='0'/>"
+    fi
+fi
+
+XML+=" </disk>"
+
+# device attach
+ATTACH_CMD=$(cat <<EOF
+virsh --connect $LIBVIRT_URI attach-device $DOMAIN <(
+cat <<EOT
+${XML}
+EOT
+)
 EOF
+)
 
-exec_and_log "virsh --connect $LIBVIRT_URI attach-device $DOMAIN $ATTACH_FILE" \
-    "Could not attach $SOURCE ($TARGET) to $DOMAIN"
-
-rm -f "$ATTACH_FILE"
+multiline_exec_and_log "${ATTACH_CMD}" \
+    "Could not attach ${SOURCE} (${TARGET}) to ${DOMAIN}"

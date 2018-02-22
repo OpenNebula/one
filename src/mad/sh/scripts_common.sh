@@ -476,6 +476,18 @@ EOF`
     fi
 }
 
+# Escape characters which could be interpreted as XML markup
+function xml_esc
+{
+   R=${1//\'/&apos;}
+   R=${R//\"/&quot;}
+   R=${R//\&/&amp;}
+   R=${R//\</&lt;}
+   R=${R//\>/&gt;}
+
+   echo "${R}"
+}
+
 # TODO -> Use a dynamically loaded scripts directory. Not removing this due
 #         to iSCSI addon: https://github.com/OpenNebula/addon-iscsi
 
@@ -675,6 +687,14 @@ function get_source_xml {
 # * POOL_NAME
 # * SIZE
 # * DISK_TARGET
+# * DISK_IO
+# * ORDER
+# * TOTAL_BYTES_SEC
+# * READ_BYTES_SEC
+# * WRITE_BYTES_SEC
+# * TOTAL_IOPS_SEC
+# * READ_IOPS_SEC
+# * WRITE_IOPS_SEC
 # * TYPE_SOURCE: libvirt xml source name. $TYPE_SOURCE=$SOURCE => file=/my/path
 # * SOURCE: disk source, can be path, ceph pool/image, device...
 # * TYPE_XML
@@ -717,7 +737,15 @@ function get_disk_information {
                         $DISK_XPATH/DISK_TYPE \
                         $DISK_XPATH/POOL_NAME \
                         $DISK_XPATH/SIZE \
-                        $DISK_XPATH/TARGET)
+                        $DISK_XPATH/TARGET \
+                        $DISK_XPATH/IO \
+                        $DISK_XPATH/ORDER \
+                        $DISK_XPATH/TOTAL_BYTES_SEC \
+                        $DISK_XPATH/READ_BYTES_SEC \
+                        $DISK_XPATH/WRITE_BYTES_SEC \
+                        $DISK_XPATH/TOTAL_IOPS_SEC \
+                        $DISK_XPATH/READ_IOPS_SEC \
+                        $DISK_XPATH/WRITE_IOPS_SEC)
 
     VMID="${XPATH_ELEMENTS[j++]}"
     DRIVER="${XPATH_ELEMENTS[j++]:-$DEFAULT_TYPE}"
@@ -739,8 +767,17 @@ function get_disk_information {
     POOL_NAME="${XPATH_ELEMENTS[j++]}"
     SIZE="${XPATH_ELEMENTS[j++]}"
     DISK_TARGET="${XPATH_ELEMENTS[j++]}"
+    DISK_IO="${XPATH_ELEMENTS[j++]}"
+    ORDER="${XPATH_ELEMENTS[j++]}"
+    TOTAL_BYTES_SEC="${XPATH_ELEMENTS[j++]}"
+    READ_BYTES_SEC="${XPATH_ELEMENTS[j++]}"
+    WRITE_BYTES_SEC="${XPATH_ELEMENTS[j++]}"
+    TOTAL_IOPS_SEC="${XPATH_ELEMENTS[j++]}"
+    READ_IOPS_SEC="${XPATH_ELEMENTS[j++]}"
+    WRITE_IOPS_SEC="${XPATH_ELEMENTS[j++]}"
 
     TYPE=$(echo "$TYPE"|tr A-Z a-z)
+    READONLY=$(echo "$READONLY"|tr A-Z a-z)
 
     NAME="$SOURCE"
 
