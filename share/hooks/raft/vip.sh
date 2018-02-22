@@ -59,11 +59,15 @@ follower)
     fi
 
     if [ "${IS_SYSTEMD}" = 'yes' ]; then
-        if systemctl is-active opennebula-flow >/dev/null 2>&1; then
+        if systemctl is-enabled opennebula-flow >/dev/null 2>&1 ||
+           systemctl is-active  opennebula-flow >/dev/null 2>&1;
+        then
             sudo -n systemctl stop opennebula-flow
         fi
 
-        if systemctl is-active opennebula-gate >/dev/null 2>&1; then
+        if systemctl is-enabled opennebula-gate >/dev/null 2>&1 ||
+           systemctl is-active  opennebula-gate >/dev/null 2>&1;
+        then
             sudo -n systemctl stop opennebula-gate
         fi
     else
