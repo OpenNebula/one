@@ -479,6 +479,15 @@ public:
             new_vn->replace("VLAN_ID", vlan_id);
         }
 
+        if ( inner_vlan_id.empty() )
+        {
+            new_vn->replace("INNER_AUTOMATIC_VLAN_ID", "NO");
+        }
+        else
+        {
+            new_vn->replace("INNER_VLAN_ID", inner_vlan_id);
+        }
+
         return new_vn;
     };
 
@@ -513,14 +522,26 @@ private:
     string  phydev;
 
     /**
-     *  VLAN ID of the NIC
+     *  VLAN ID of the NIC. When more than VLAN ID is used this refers to the
+     *  link layer or outer/service VLAN_ID
      */
     string  vlan_id;
+
+    /**
+     *  Used for double tagging of VM traffic. This id refers to the transport
+     *  layer or inner/customer VLAN_ID
+     */
+    string inner_vlan_id;
 
     /**
      *  If the VLAN has been set automatically
      */
     bool  vlan_id_automatic;
+
+    /**
+     *  If the inner VLAN has been set automatically
+     */
+    bool  inner_vlan_id_automatic;
 
     /**
      *  Parent VNET ID if any
@@ -541,6 +562,22 @@ private:
      *  Set of Virtual Router IDs
      */
     ObjectCollection vrouters;
+
+    // *************************************************************************
+    // VLAN ID functions
+    // *************************************************************************
+
+    /**
+     *  This function parses the VLAN attribute and clears the associated
+     *  automatic flag if set.
+     *    @param id_name of the VLAN attribute VLAN_ID or INNER_VLAN_ID
+     *    @param auto_name of automatic flag AUTOMATIC_VLAN_ID or
+     *    INNER_AUTOMATIC_VLAN_ID
+     *    @param id the associated vlan variable
+     *    @param auto the associated automatic variable
+     */
+    void parse_vlan_id(const char * id_name, const char * auto_name,
+            string& id, bool& auto_id);
 
     // *************************************************************************
     // Address allocation funtions

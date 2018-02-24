@@ -46,6 +46,7 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
             Clusterable(_cluster_ids),
             bridge(""),
             vlan_id_automatic(false),
+            inner_vlan_id_automatic(false),
             parent_vid(_pvid),
             vrouters("VROUTERS")
 {
@@ -98,6 +99,30 @@ const char * VirtualNetwork::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VirtualNetwork::parse_vlan_id(const char * id_name, const char * auto_name,
+        string& id, bool& auto_id)
+{
+    string vis;
+
+    if ( PoolObjectSQL::get_template_attribute(id_name, vis) && !vis.empty() )
+    {
+        erase_template_attribute(id_name, id);
+
+        add_template_attribute(id_name, id);
+
+        remove_template_attribute(auto_name);
+
+        auto_id = false;
+    }
+    else
+    {
+        erase_template_attribute(auto_name, auto_id);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualNetwork::insert(SqlDB * db, string& error_str)
 {
     vector<VectorAttribute *> ars;
@@ -137,22 +162,12 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     add_template_attribute("PHYDEV", phydev);
 
-    // ---- VLAN_ID if not set allocated in VirtualNetworkPool, if needed -----
+    // ---- VLAN_IDs if not set will be allocated in VirtualNetworkPool -----
 
-    if (PoolObjectSQL::get_template_attribute("VLAN_ID", vis) && !vis.empty())
-    {
-        erase_template_attribute("VLAN_ID", vlan_id);
+    parse_vlan_id("VLAN_ID", "AUTOMATIC_VLAN_ID", vlan_id, vlan_id_automatic);
 
-        add_template_attribute("VLAN_ID", vlan_id);
-
-        remove_template_attribute("AUTOMATIC_VLAN_ID");
-
-        vlan_id_automatic = false;
-    }
-    else
-    {
-        erase_template_attribute("AUTOMATIC_VLAN_ID", vlan_id_automatic);
-    }
+    parse_vlan_id("INNER_VLAN_ID", "AUTOMATIC_INNER_VLAN_ID", inner_vlan_id,
+            inner_vlan_id_automatic);
 
     // ------------ BRIDGE --------------------
 
@@ -284,6 +299,8 @@ int VirtualNetwork::post_update_template(string& error)
 
     remove_template_attribute("AUTOMATIC_VLAN_ID");
 
+    remove_template_attribute("INNER_AUTOMATIC_VLAN_ID");
+
     if (!vlan_id_automatic)
     {
         erase_template_attribute("VLAN_ID", vlan_id);
@@ -292,6 +309,16 @@ int VirtualNetwork::post_update_template(string& error)
     else
     {
         remove_template_attribute("VLAN_ID");
+    }
+
+    if (!inner_vlan_id_automatic)
+    {
+        erase_template_attribute("INNER_VLAN_ID", inner_vlan_id);
+        add_template_attribute("INNER_VLAN_ID", inner_vlan_id);
+    }
+    else
+    {
+        remove_template_attribute("INNER_VLAN_ID");
     }
 
     erase_template_attribute("BRIDGE",new_bridge);
@@ -431,6 +458,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
     string lock_str;
 
     int int_vlan_id_automatic = vlan_id_automatic ? 1 : 0;
+    int int_inner_vlan_id_automatic = inner_vlan_id_automatic ? 1 : 0;
 
     os <<
         "<VNET>" <<
@@ -481,7 +509,20 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
         os << "<VLAN_ID/>";
     }
 
+    if (!inner_vlan_id.empty())
+    {
+        os << "<INNER_VLAN_ID>" << one_util::escape_xml(inner_vlan_id)
+           << "</INNER_VLAN_ID>";
+    }
+    else
+    {
+        os << "<INNER_VLAN_ID/>";
+    }
+
     os << "<VLAN_ID_AUTOMATIC>" << int_vlan_id_automatic <<"</VLAN_ID_AUTOMATIC>";
+
+    os << "<INNER_VLAN_ID_AUTOMATIC>" << int_inner_vlan_id_automatic
+       << "</INNER_VLAN_ID_AUTOMATIC>";
 
     os << "<USED_LEASES>"<< ar_pool.get_used_addr() << "</USED_LEASES>";
 
@@ -506,7 +547,9 @@ int VirtualNetwork::from_xml(const string &xml_str)
     vector<xmlNodePtr> content;
 
     int rc = 0;
+
     int int_vlan_id_automatic;
+    int int_inner_vlan_id_automatic;
 
     // Initialize the internal XML object
     update_from_str(xml_str);
@@ -527,11 +570,17 @@ int VirtualNetwork::from_xml(const string &xml_str)
 
     xpath(vn_mad, "/VNET/VN_MAD", "");
     xpath(phydev, "/VNET/PHYDEV", "");
-    xpath(vlan_id,"/VNET/VLAN_ID","");
+
+    xpath(vlan_id, "/VNET/VLAN_ID", "");
+    xpath(inner_vlan_id, "/VNET/INNER_VLAN_ID", "");
+
+    xpath(int_vlan_id_automatic, "/VNET/VLAN_ID_AUTOMATIC", 0);
+    xpath(int_inner_vlan_id_automatic, "/VNET/INNER_VLAN_ID_AUTOMATIC", 0);
+
     xpath(parent_vid,"/VNET/PARENT_NETWORK_ID",-1);
-    xpath(int_vlan_id_automatic,"/VNET/VLAN_ID_AUTOMATIC",0);
 
     vlan_id_automatic = int_vlan_id_automatic;
+    inner_vlan_id_automatic = int_inner_vlan_id_automatic;
 
     // Set of cluster IDs
     rc += Clusterable::from_xml(this, "/VNET/");
@@ -619,6 +668,11 @@ int VirtualNetwork::nic_attribute(
     if (!vlan_id.empty())
     {
         nic->replace("VLAN_ID", vlan_id);
+    }
+
+    if (!inner_vlan_id.empty())
+    {
+        nic->replace("INNER_VLAN_ID", vlan_id);
     }
 
     if (parent_vid != -1)
