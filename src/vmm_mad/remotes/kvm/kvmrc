@@ -46,6 +46,12 @@ export SHUTDOWN_TIMEOUT=300
 # is "unmap" (or "on").
 #DEFAULT_ATTACH_DISCARD=unmap
 
+# This parameter will set default IO policy for new attached disks. The default
+# value depends on the version of qemu-kvm which is used. Possible values are
+# 'threads' or 'native'. Uncomment only one of the variants.
+#DEFAULT_ATTACH_IO=threads
+#DEFAULT_ATTACH_IO=native
+
 # This parameters will set the default NIC model and filter for
 # the hot-attached interfaces.
 #DEFAULT_ATTACH_NIC_MODEL=virtio

@@ -39,6 +39,10 @@ get_disk_information "ATTACH='YES'"
     DISCARD="$DEFAULT_ATTACH_DISCARD"
 [ -n "$DISCARD" ] && DISCARD="discard='$DISCARD'"
 
+[ -z "$IO" ] && [ -n "$DEFAULT_ATTACH_IO" ] && \
+    IO="$DEFAULT_ATTACH_IO"
+[ -n "$IO" ] && IO="io='$IO'"
+
 if [ "$READONLY" = "YES" ]; then
     READONLY="<readonly/>"
 else
@@ -47,7 +51,7 @@ fi
 
 cat <<EOF > $ATTACH_FILE
 <disk type='$TYPE_XML' device='$DEVICE'>
-  <driver name='qemu' type='$DRIVER' $CACHE $DISCARD/>
+  <driver name='qemu' type='$DRIVER' $CACHE $DISCARD $IO/>
   <source $TYPE_SOURCE='$SOURCE' $SOURCE_ARGS>
   $SOURCE_HOST
   </source>
