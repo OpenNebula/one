@@ -1,0 +1,73 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+<tr class="create">
+    <td>
+        <div class="switch left">
+            <input class="switch-input" id="schedule_type" type="checkbox" checed>
+            <label class="switch-paddle" for="schedule_type"></label>
+        </div>
+        <label>&nbsp;&nbsp;{{tr "Periodic"}}</label>
+    </td>
+</tr>
+<tr id="tr_schedule_base" class="create">
+    <td>
+        <select id="select_new_action" class="select_new_action" name="select_action">{{{actions}}}</select>
+    </td>
+    <td>
+        <input id="date_input" type="date"/>
+    </td>
+    <td>
+        <input id="time_input" type="time" placeholder="12:30"/>
+    </td>
+</tr>
+<tr class="periodic create">
+    <td>
+        <div class="large-12 columns text-center">
+            <input type="radio" name="rep" id="rep_week" value="week">
+            <label for="rep_week">Weekly</label>
+            <input type="radio" name="rep" id="rep_month" value="month">
+            <label for="rep_month">Monthly</label>
+            <input type="radio" name="rep" id="rep_year" value="year">
+            <label for="rep_year">Yearly</label>
+      </div>
+    </td>
+</tr>
+<tr class="periodic create">
+    <td id="td_days">
+        <!--<input id="DAYS" type="text" placeholder="0,3"/>-->
+    </td>
+</tr>
+<tr class="periodic create">
+    <td>
+        <div class="large-12 columns text-center">
+            <input type="radio" name="end_type" id="end_type_ever" value="ever">
+            <label for="path_image">Ever</label>
+            <input type="radio" name="end_type" id="end_type_n_rep" value="n_rep">
+            <label for="upload_image">Num Rep</label>
+            <input type="radio" name="end_type" id="end_type_date" value="date">
+            <label for="datablock_img">End Date</label>
+      </div>
+    </td>
+</tr>
+<tr class="periodic create">
+    <td id="td_end_value">
+    </td>
+</tr>
+<tr class="create">
+    <td>
+        <button id="add_{{res}}_action_json" class="button small success secondary radius" >{{tr "Add"}}</button>
+    </td>
+</tr>
