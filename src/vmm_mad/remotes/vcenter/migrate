@@ -54,7 +54,7 @@ begin
     dst_host.info
 
     # required vcenter objects
-    vc_vm = VCenterDriver::VirtualMachine.new_from_ref(vm["/VM/DEPLOY_ID"], vi_client)
+    vc_vm = VCenterDriver::VirtualMachine.new_without_id(vi_client, vm["/VM/DEPLOY_ID"])
     vc_host = VCenterDriver::ClusterComputeResource.new_from_ref(dst_host["/HOST/TEMPLATE/VCENTER_CCR_REF"],vi_client).item
 
     config = {:cluster => vc_host }

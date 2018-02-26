@@ -436,7 +436,7 @@ class ClusterComputeResource
 
         vms.each do |vm_ref,info|
             begin
-                vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, @vi_client)
+                vm = VCenterDriver::VirtualMachine.new_without_id(@vi_client, vm_ref)
                 esx_host = esx_hosts[info["runtime.host"]._ref]
                 info[:esx_host_name] = esx_host[:name]
                 info[:esx_host_cpu] = esx_host[:cpu]

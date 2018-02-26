@@ -806,7 +806,7 @@ class Template
 
 
             # Determine the location path for the template
-            vcenter_template = VCenterDriver::VirtualMachine.new_from_ref(template_ref, vi_client)
+            vcenter_template = VCenterDriver::VirtualMachine.new_without_id(vi_client, template_ref)
             item = vcenter_template.item
             folders = []
             while !item.instance_of? RbVmomi::VIM::Datacenter
@@ -857,7 +857,7 @@ class Template
             # Get the OpenNebula's template hash
             one_tmp[:one] = template_to_one(template, vcenter_uuid, template_ccr_ref, template_ccr_name, import_name, host_id)
             return one_tmp
-        rescue
+        rescue Exception => e
             return nil
         end
     end
@@ -883,9 +883,13 @@ class VirtualMachine < Template
 
     include Memoize
 
-    def initialize(item=nil, vi_client=nil)
-        @item = item
+    def initialize(vi_client, ref, one_id)
+        if (ref)
+            @item = RbVmomi::VIM::VirtualMachine.new(vi_client.vim, ref)
+        end
+
         @vi_client = vi_client
+        @vm_id = one_id
         @locking = true
         @vm_info = nil
     end
@@ -909,11 +913,11 @@ class VirtualMachine < Template
     # @return OpenNebula::VirtualMachine or XMLElement
     def one_item
         if !@one_item
-            vm_id = get_vm_id
-
-            raise "Unable to find vm_id." if vm_id.nil?
-
-            @one_item = VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
+            if @vm_id != -1
+                @one_item = VIHelper.one_item(OpenNebula::VirtualMachine, @vm_id)
+            else
+                raise "VCenterDriver::Virtualmachine: OpenNebula ID is mandatory for this vm!"
+            end
         end
 
         @one_item
@@ -1133,14 +1137,11 @@ class VirtualMachine < Template
     # @param one_item OpenNebula::VirtualMachine
     # @param vi_client VCenterDriver::VIClient
     # @return String vmware ref
-    def clone_vm(one_item, vi_client)
-        @one_item = one_item
-        @vi_client = vi_client
-
+    def clone_vm(drv_action)
         vcenter_name = get_vcenter_name
 
-        vc_template_ref = one_item['USER_TEMPLATE/VCENTER_TEMPLATE_REF']
-        vc_template = RbVmomi::VIM::VirtualMachine(vi_client.vim, vc_template_ref)
+        vc_template_ref = drv_action['USER_TEMPLATE/VCENTER_TEMPLATE_REF']
+        vc_template = RbVmomi::VIM::VirtualMachine(@vi_client.vim, vc_template_ref)
 
         ds = get_ds
 
@@ -1148,7 +1149,7 @@ class VirtualMachine < Template
         disk_move_type = :moveAllDiskBackingsAndDisallowSharing
 
         if ds.instance_of? RbVmomi::VIM::Datastore
-            use_linked_clones = one_item['USER_TEMPLATE/VCENTER_LINKED_CLONES']
+            use_linked_clones = drv_action['USER_TEMPLATE/VCENTER_LINKED_CLONES']
             if use_linked_clones && use_linked_clones.downcase == "yes"
                 # Check if all disks in template has delta disks
                 disks = vc_template.config
@@ -1169,7 +1170,7 @@ class VirtualMachine < Template
 
         # Specify vm folder in vSpere's VM and Templates view F#4823
         vcenter_vm_folder = nil
-        vcenter_vm_folder = one_item["USER_TEMPLATE/VCENTER_VM_FOLDER"]
+        vcenter_vm_folder = drv_action["USER_TEMPLATE/VCENTER_VM_FOLDER"]
         vcenter_vm_folder_object = nil
         dc = cluster.get_dc
         if !!vcenter_vm_folder && !vcenter_vm_folder.empty?
@@ -1376,16 +1377,20 @@ class VirtualMachine < Template
         xpath = "TEMPLATE/NIC[OPENNEBULA_MANAGED=\"NO\" or OPENNEBULA_MANAGED=\"no\"]"
         unmanaged_nics = one_item.retrieve_xmlelements(xpath)
 
-        if !unmanaged_nics.empty?
-            index = 0
-            self["config.hardware.device"].each_with_index do |device|
-                if is_nic?(device)
-                    # Edit capacity setting new size in KB
-                    device.macAddress = unmanaged_nics[index]["MAC"]
-                    device_change << { :device => device, :operation => :edit }
-                    index += 1
+        begin
+            if !unmanaged_nics.empty?
+                index = 0
+                self["config.hardware.device"].each_with_index do |device|
+                    if is_nic?(device)
+                        # Edit capacity setting new size in KB
+                        device.macAddress = unmanaged_nics[index]["MAC"]
+                        device_change << { :device => device, :operation => :edit }
+                        index += 1
+                    end
                 end
             end
+        rescue Exception => e
+            raise "There is a problem with your vm NICS, make sure that they are working properly. Error: #{e.message}"
         end
 
         # Save in extraconfig the key for unmanaged disks
@@ -3080,11 +3085,96 @@ class VirtualMachine < Template
         end
     end
 
-    # TODO check with uuid
-    def self.new_from_ref(ref, vi_client)
-        self.new(RbVmomi::VIM::VirtualMachine.new(vi_client.vim, ref), vi_client)
+    # STATIC MEMBERS AND CONSTRUCTORS
+    ###############################################################################################
+
+    def self.get_id(opts = {})
+        id = -1
+
+        if (opts[:name])
+                matches = opts[:name].match(/^one-(\d*)(-(.*))?$/)
+                id = matches[1] if matches
+        end
+
+        if id == -1
+            one_vm = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualMachinePool,
+                                                         "DEPLOY_ID",
+                                                         opts[:ref],
+                                                         opts[:vc_uuid],
+                                                         opts[:pool])
+            id = one_vm["ID"] if one_vm
+        end
+
+        return id
     end
 
+    # Try to build the vcenterdriver virtualmachine without
+    # any opennebula id or object, this constructor can find
+    # inside the opennebula pool until match
+    #
+    # @param vi_client [vi_client] the vcenterdriver client that allows the connection
+    # @param ref [String] vcenter ref to the vm
+    # @param opts [Hash] object with pairs that could contain multiple option
+    #        :vc_uuid: give the vcenter uuid directly
+    #        :name:    the vcenter vm name for extract the opennebula id
+    #
+    # @return [vcenterdriver::vm] the virtual machine
+    def self.new_from_ref(vi_client, ref, opts = {})
+        unless opts[:vc_uuid]
+            opts[:vc_uuid] = vi_client.vim.serviceContent.about.instanceUuid
+        end
+
+        opts[:ref] = ref
+
+        vm_id = VCenterDriver::VirtualMachine.get_id(opts)
+
+        self.new(vi_client, ref, vm_id)
+    end
+
+    # build a vcenterdriver virtual machine from a template
+    # this function is used to instantiate vcenter vms
+    #
+    # @param vi_client [vi_client] the vcenterdriver client that allows the connection
+    # @param drv_action [xmleleent] driver_action that contains the info
+    # @param id [int] the if of the opennebula virtual machine
+    #
+    # @return [vcenterdriver::vm] the virtual machine
+    def self.new_from_clone(vi_client, drv_action, id )
+        spawn = self.new(vi_client, nil, id).tap do |vm|
+            vm.clone_vm(drv_action)
+        end
+
+        return spawn
+    end
+
+    # build a vcenterdriver virtual machine
+    # with the opennebula object linked
+    #
+    # @param vi_client [vi_client] the vcenterdriver client that allows the connection
+    # @param ref [String] vcenter ref to the vm
+    # @param one_item [one::vm] xmlelement of opennebula
+    #
+    # @return [vcenterdriver::vm] the virtual machine
+    def self.new_one(vi_client, ref, one_item)
+        id = one_item["ID"] || one_item["VM/ID"] || -1
+
+        self.new(vi_client, ref, id).tap do |vm|
+            vm.one_item = one_item
+        end
+    end
+
+    # build a vcenterdriver virtual machine
+    # without opennebula object link, use id = -1 instead
+    #
+    # @param vi_client [vi_client] the vcenterdriver client that allows the connection
+    # @param ref [String] vcenter ref to the vm
+    #
+    # @return [vcenterdriver::vm] the virtual machine
+    def self.new_without_id(vi_client, ref)
+        self.new(vi_client, ref, -1)
+    end
+
+    ###############################################################################################
 end # class VirtualMachine
 
 end # module VCenterDriver
