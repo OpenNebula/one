@@ -24,22 +24,8 @@ DOMAIN=$1
 get_nic_information "ATTACH='YES'"
 
 # defaults
-[ -z "${MODEL}" ] && [ -n "${DEFAULT_ATTACH_NIC_MODEL}" ] && \
-    MODEL="${DEFAULT_ATTACH_NIC_MODEL}"
-
-[ -z "${FILTER}" ] && [ -n "${DEFAULT_ATTACH_NIC_FILTER}" ] && \
-    FILTER="${DEFAULT_ATTACH_NIC_FILTER}"
-
-# functions
-function xml_esc
-{
-   R=${1//\'/&apos;}
-   R=${R//\"/&quot;}
-   R=${R//\&/&amp;}
-   R=${R//\</&lt;}
-   R=${R//\>/&gt;}
-   echo "${R}"
-}
+MODEL=${MODEL:-${DEFAULT_ATTACH_NIC_MODEL}}
+FILTER=${FILTER:-${DEFAULT_ATTACH_NIC_FILTER}}
 
 # interface XML
 DEVICE=''
