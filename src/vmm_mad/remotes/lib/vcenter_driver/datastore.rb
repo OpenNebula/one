@@ -60,6 +60,8 @@ class Storage
 
     include Memoize
 
+    CURLBIN = "curl"
+
     def self.new_from_ref(ref, vi_client)
         if ref.start_with?('group-')
             return VCenterDriver::StoragePod.new_from_ref(ref, vi_client)
@@ -478,14 +480,14 @@ class Datastore < Storage
     end
 
     def generate_file_url(path)
-        protocol = self[_connection.http.use_ssl?] ? 'https://' : 'http://'
-        hostname = self[_connection.http.address]
-        port     = self[_connection.http.port]
+        protocol = self["_connection.http.use_ssl?"] ? 'https://' : 'http://'
+        hostname = self["_connection.http.address"]
+        port     = self["_connection.http.port"]
         dcpath   = get_dc_path
 
         # This creates the vcenter file URL for uploading or downloading files
         # e.g:
-        url = "#{protocol}#{hostname}:#{port}/folder/#{path}?dcPath=#{dcpath}&dsName=#{self[name]}"
+        url = "#{protocol}#{hostname}:#{port}/folder/#{path}?dcPath=#{dcpath}&dsName=#{self['name']}"
         return url
     end
 
@@ -493,7 +495,7 @@ class Datastore < Storage
         url = generate_file_url(remote_path)
         pid = spawn(CURLBIN,
                     "-k", '--noproxy', '*', '-f',
-                    "-b", self[_connection.cookie],
+                    "-b", self["_connection.cookie"],
                     url)
 
         Process.waitpid(pid, 0)
@@ -506,7 +508,7 @@ class Datastore < Storage
         rout, wout = IO.pipe
         pid = spawn(CURLBIN,
                     "-I", "-k", '--noproxy', '*', '-f',
-                    "-b", _connection.cookie,
+                    "-b", self["_connection.cookie"],
                     url,
                     :out => wout,
                     :err => '/dev/null')
@@ -527,7 +529,7 @@ class Datastore < Storage
 
         rout, wout = IO.pipe
         pid = spawn CURLBIN, "-k", '--noproxy', '*', '-f',
-                    "-b", _connection.cookie,
+                    "-b", self["_connection.cookie"],
                     url,
                     :out => wout,
                     :err => '/dev/null'

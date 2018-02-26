@@ -1147,11 +1147,14 @@ class VirtualMachine < Template
     # @param one_item OpenNebula::VirtualMachine
     # @param vi_client VCenterDriver::VIClient
     # @return String vmware ref
-    def clone_vm(drv_action)
+   def clone_vm(drv_action, vi_client)
+
+        @vi_client = vi_client
+
         vcenter_name = get_vcenter_name
 
         vc_template_ref = drv_action['USER_TEMPLATE/VCENTER_TEMPLATE_REF']
-        vc_template = RbVmomi::VIM::VirtualMachine(@vi_client.vim, vc_template_ref)
+        vc_template = RbVmomi::VIM::VirtualMachine(vi_client.vim, vc_template_ref)
 
         ds = get_ds
 
@@ -1160,7 +1163,7 @@ class VirtualMachine < Template
 
         if ds.instance_of? RbVmomi::VIM::Datastore
             use_linked_clones = drv_action['USER_TEMPLATE/VCENTER_LINKED_CLONES']
-            if use_linked_clones && use_linked_clones.downcase == "yes"
+            if use_linked_clones && use_linked_clones.downcase == 'yes'
                 # Check if all disks in template has delta disks
                 disks = vc_template.config
                                 .hardware.device.grep(RbVmomi::VIM::VirtualDisk)

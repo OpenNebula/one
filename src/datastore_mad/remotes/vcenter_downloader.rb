@@ -16,7 +16,7 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
@@ -89,7 +89,6 @@ begin
             ds.download_to_stdout(img_src)
         end
     end
-
 rescue Exception => e
     STDERR.puts "Cannot download image #{u.path} from datastore #{ds_id} "\
                 "Reason: \"#{e.message}\"\n#{e.backtrace}"
