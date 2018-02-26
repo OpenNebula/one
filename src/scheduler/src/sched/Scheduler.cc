@@ -1387,6 +1387,8 @@ int Scheduler::do_scheduled_actions()
 
     int action_time;
     int done_time;
+    int rep_time;
+    int has_rep;
     int has_time;
     int has_done;
 
@@ -1415,6 +1417,7 @@ int Scheduler::do_scheduled_actions()
 
             has_time  = vatt->vector_value("TIME", action_time);
             has_done  = vatt->vector_value("DONE", done_time);
+            has_rep  = vatt->vector_value("REP", rep_time);
             action_st = vatt->vector_value("ACTION");
 
             if (has_time == 0 && (has_done == -1 || (has_done == 0 && done_time < action_time)) && action_time < the_time)
@@ -1439,7 +1442,10 @@ int Scheduler::do_scheduled_actions()
                 {
                     vatt->remove("MESSAGE");
                     vatt->replace("DONE", static_cast<int>(the_time));
-                    vm->next_action(*vatt);
+                    if ( has_rep == 0 )
+                    {
+                        vm->next_action(*vatt);
+                    }
                     oss << "Success.";
                 }
                 else

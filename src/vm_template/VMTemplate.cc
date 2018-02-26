@@ -197,32 +197,34 @@ int VMTemplate::parse_sched_action(string& error_str)
         if (has_mode == 0 && has_days == 0)
         {
             v_days = one_util::split(days, ',', true);
-            for(vector<string>::iterator it = v_days.begin(); it != v_days.end(); ++it) {
-                s_days.insert(atoi((*it).c_str()));
+            if ( !v_days.empty() )
+            {
+                for(vector<string>::iterator it = v_days.begin(); it != v_days.end(); ++it) {
+                    s_days.insert(atoi((*it).c_str()));
+                }
+            }
+            else
+            {
+                s_days.insert(atoi((days).c_str()));
             }
             first_day = *s_days.cbegin();
             last_day = *s_days.cend();
 
-            if (!(rep_mode == 0 && first_day >= 0 && last_day < 7)) //WEEK [0,6]
+            if (rep_mode == 0 && !(first_day >= 0 && last_day < 7)) //WEEK [0,6]
             {
                 error_str = "Error parsing days of the week. [0,6]";
                 return -1;
             }
-            else if (!(rep_mode == 1 && first_day >= 1 && last_day < 32)) //MONTH [1,31]
+            else if (rep_mode == 1 && !(first_day >= 1 && last_day < 32)) //MONTH [1,31]
             {
                 error_str = "Error parsing days of the month. [1,31]";
                 return -1;
             }
-            else if (!(rep_mode == 2 && first_day >= 0 && last_day < 366)) //YEAR [0,365]
+            else if (rep_mode == 2 && !(first_day >= 0 && last_day < 366)) //YEAR [0,365]
             {
                 error_str = "Error parsing days of the year. [0,365]";
                 return -1;
             }
-        }
-        else
-        {
-            error_str = "Error parsing DAYS and REP.";
-            return -1;
         }
 
         has_end_mode  = vatt->vector_value("END_TYPE", end_mode);
@@ -247,11 +249,6 @@ int VMTemplate::parse_sched_action(string& error_str)
                     return -1;
                 }
             }
-        }
-        else
-        {
-            error_str = "Error parsing END_TYPE and END_VALUE.";
-            return -1;
         }
 
         vatt->remove("DONE");
