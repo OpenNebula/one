@@ -27,7 +27,7 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
             raise "Could not get OpenNebula HostPool: #{hpool.message}"
         end
 
-        vcenter_vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
+        vcenter_vm = VCenterDriver::VirtualMachine.new_without_id(vi_client, vm_ref)
         vm_name    = vcenter_vm["name"]
 
         wild     = true

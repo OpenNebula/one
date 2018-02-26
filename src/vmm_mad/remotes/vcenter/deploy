@@ -44,24 +44,18 @@ host_id      = drv_action["HISTORY_RECORDS/HISTORY/HID"]
 begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
 
+    one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
+
     if deploy_id && !deploy_id.empty?
+
         # VM is not new, we just need to reconfigure it and to power it on
-        vm = VCenterDriver::VirtualMachine.new_from_ref(deploy_id, vi_client)
-
-        # Setting one_item is optional, but it saves a couple of API calls if
-        # we already have it
-        one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
-        vm.one_item = one_vm
+        vm = VCenterDriver::VirtualMachine.new_one(vi_client, deploy_id, one_vm)
     else
-        # VM is new
-        vm = VCenterDriver::VirtualMachine.new
-
-        # Clone the VM from template and provide XML info
         vc_template_ref = drv_action['USER_TEMPLATE/VCENTER_TEMPLATE_REF']
-        vm.clone_vm(drv_action, vi_client)
 
-        one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
-        vm.one_item = one_vm
+        # VM is new
+        # Clone the VM from template and provide XML info
+        vm = VCenterDriver::VirtualMachine.new_from_clone(vi_client, drv_action, vm_id)
 
         # Set reference to template disks and nics in VM template for detach ops
         vm.reference_unmanaged_devices(vc_template_ref)
