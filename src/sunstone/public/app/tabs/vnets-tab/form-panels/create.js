@@ -226,9 +226,18 @@ define(function(require) {
       }
     });
 
+    $("select[wizard_field=AUTOMATIC_INNER_VLAN_ID]", context).change(function(){
+      if($(this).val() != "") {
+        $("input[wizard_field=\"INNER_VLAN_ID\"]", context).hide().prop("wizard_field_disabled", true);
+      } else {
+        $("input[wizard_field=\"INNER_VLAN_ID\"]", context).show().prop("wizard_field_disabled", false);
+      }
+    });
+
     //Initialize shown options
     $("#network_mode", context).trigger("change");
     $("select[wizard_field=AUTOMATIC_VLAN_ID]", context).trigger("change");
+    $("select[wizard_field=AUTOMATIC_INNER_VLAN_ID]", context).trigger("change");
 
     this.securityGroupsTable.initialize();
 
@@ -398,6 +407,14 @@ define(function(require) {
                                 attr("disabled", "disabled").trigger("change");
     } else {
       $("select[wizard_field=AUTOMATIC_VLAN_ID]", context).val("").
+                                attr("disabled", "disabled").trigger("change");
+    }
+
+    if (element.INNER_VLAN_ID_AUTOMATIC== 1){
+      $("select[wizard_field=AUTOMATIC_INNER_VLAN_ID]", context).val("YES").
+                                attr("disabled", "disabled").trigger("change");
+    } else {
+      $("select[wizard_field=AUTOMATIC_INNER_VLAN_ID]", context).val("").
                                 attr("disabled", "disabled").trigger("change");
     }
 

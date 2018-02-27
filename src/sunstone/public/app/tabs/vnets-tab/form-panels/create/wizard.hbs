@@ -183,13 +183,17 @@
           <input type="text" wizard_field="MTU" name="mtu" id="mtu" />
         </div>
         <div class="medium-3 columns left mode_param ovswitch_vxlan">
-          <label for="link_vlan_id">
-            {{tr "Link VLAN ID"}}
+          <label>
+            {{tr "INNER VLAN ID"}}
             <span class="tip">
               {{tr "First level (outer) VLAN ID"}}
             </span>
+            <select wizard_field="AUTOMATIC_INNER_VLAN_ID">
+              <option value="YES">{{tr "Automatic INNER VLAN ID"}}</option>
+              <option value="">{{tr "Manual INNER VLAN ID"}}</option>
+            </select>
+            <input type="text" wizard_field="INNER_VLAN_ID" name="inner_vlan_id" id="inner_vlan_id" />
           </label>
-          <input type="text" wizard_field="LINK_VLAN_ID" name="link_vlan_id" id="link_vlan_id" />
         </div>
       </div>
       <div class="row">
