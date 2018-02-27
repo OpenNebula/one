@@ -85,15 +85,19 @@ define(function(require) {
       FUNCTION DEFINITIONS
      */
 
-    function _state_lock_to_color(resource,state,lock){
+    function _state_lock_to_color(resource, state, lock, set_color){
       var color = "transparent";
       var show_lock = "";
 
-      if (state && resource in resource_states){
-        var available_states = resource_states[resource];
-        if (state in available_states){
-          color = available_states[state];
+      if ( set_color == undefined ) {
+        if (state && resource in resource_states){
+          var available_states = resource_states[resource];
+          if (state in available_states){
+            color = available_states[state];
+          }
         }
+      } else {
+        color = set_color;
       }
 
       if (lock){
