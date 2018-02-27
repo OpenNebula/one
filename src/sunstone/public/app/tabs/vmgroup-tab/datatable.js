@@ -19,13 +19,13 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var TabDataTable = require('utils/tab-datatable');
-  var SunstoneConfig = require('sunstone-config');
-  var Locale = require('utils/locale');
-  var TemplateUtils = require('utils/template-utils');
-  var LabelsUtils = require('utils/labels/utils');
-  var SearchDropdown = require('hbs!./datatable/search');
-  var Status = require('utils/status');
+  var TabDataTable = require("utils/tab-datatable");
+  var SunstoneConfig = require("sunstone-config");
+  var Locale = require("utils/locale");
+  var TemplateUtils = require("utils/template-utils");
+  var LabelsUtils = require("utils/labels/utils");
+  var SearchDropdown = require("hbs!./datatable/search");
+  var Status = require("utils/status");
 
   /*
     CONSTANTS
@@ -33,10 +33,10 @@ define(function(require) {
 
   var RESOURCE = "VMGroup";
   var XML_ROOT = "VM_GROUP";
-  var TAB_NAME = require('./tabId');
+  var TAB_NAME = require("./tabId");
   var LABELS_COLUMN = 6;
   var SEARCH_COLUMN = 7;
-  var TEMPLATE_ATTR = 'TEMPLATE';
+  var TEMPLATE_ATTR = "TEMPLATE";
 
   /*
     CONSTRUCTOR
@@ -58,7 +58,7 @@ define(function(require) {
           {"bSortable": false, "aTargets": ["check"]},
           {"sWidth": "35px", "aTargets": [0]},
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
-          {"bVisible": false, "aTargets": ['_all']},
+          {"bVisible": false, "aTargets": ["_all"]},
           {"sType": "num", "aTargets": [1]}
       ]
     };
@@ -108,6 +108,10 @@ define(function(require) {
     var numVms = 0;
     this.totalVMGroups++;
 
+    if(!Array.isArray(element.ROLES.ROLE)){
+      element.ROLES.ROLE = [element.ROLES.ROLE];
+    }
+
     for(role_index in element.ROLES.ROLE){
       if(element.ROLES.ROLE[role_index].VMS){
         var vms = element.ROLES.ROLE[role_index].VMS;
@@ -121,21 +125,21 @@ define(function(require) {
       NAME:  element.NAME,
       UNAME: element.UNAME,
       GNAME: element.GNAME
-    }
+    };
 
-    var color_html = Status.state_lock_to_color("VMGROUP",false, element_json[XML_ROOT]["LOCK"]);
+    var color_html = Status.state_lock_to_color("VMGROUP", false, element_json[XML_ROOT]["LOCK"]);
 
     return [
-      '<input class="check_item" type="checkbox" '+
-                          'style="vertical-align: inherit;" id="'+this.resource.toLowerCase()+'_' +
-                           element.ID + '" name="selected_items" value="' +
-                           element.ID + '"/>'+color_html,
+      "<input class=\"check_item\" type=\"checkbox\" "+
+                          "style=\"vertical-align: inherit;\" id=\""+this.resource.toLowerCase()+"_" +
+                           element.ID + "\" name=\"selected_items\" value=\"" +
+                           element.ID + "\"/>"+color_html,
         element.ID,
         element.NAME,
         element.UNAME,
         element.GNAME,
         numVms,
-        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||""),
         btoa(unescape(encodeURIComponent(JSON.stringify(search))))
     ];
   }
