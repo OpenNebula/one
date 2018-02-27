@@ -139,14 +139,14 @@ function exclusive
     ( umask 0027; touch "${LOCK_FILE}" 2>/dev/null )
 
     # open lockfile
-    exec 2>/dev/null {FD}>"${LOCK_FILE}"
+    { exec {FD}>"${LOCK_FILE}"; } 2>/dev/null
     if [ $? -ne 0 ]; then
         log_error "Could not create or open lock ${LOCK_FILE}"
         exit -2
     fi
 
     # acquire lock
-    flock -w "${TIMEOUT}" "${FD}"
+    flock -w "${TIMEOUT}" "${FD}" 2>/dev/null
     if [ $? -ne 0 ]; then
         log_error "Could not acquire exclusive lock on ${LOCK_FILE}"
         exit -2
