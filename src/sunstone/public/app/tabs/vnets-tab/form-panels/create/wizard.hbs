@@ -184,15 +184,15 @@
         </div>
         <div class="medium-3 columns left mode_param ovswitch_vxlan">
           <label>
-            {{tr "INNER VLAN ID"}}
+            {{tr "Outer VLAN ID"}}
             <span class="tip">
-              {{tr "First level (outer) VLAN ID"}}
+              {{tr "First level (outer, service) VLAN ID"}}
             </span>
-            <select wizard_field="AUTOMATIC_INNER_VLAN_ID">
-              <option value="YES">{{tr "Automatic INNER VLAN ID"}}</option>
-              <option value="">{{tr "Manual INNER VLAN ID"}}</option>
+            <select wizard_field="AUTOMATIC_OUTER_VLAN_ID">
+              <option value="YES">{{tr "Automatic Outer VLAN ID"}}</option>
+              <option value="">{{tr "Manual Outer VLAN ID"}}</option>
             </select>
-            <input type="text" wizard_field="INNER_VLAN_ID" name="inner_vlan_id" id="inner_vlan_id" />
+            <input type="text" wizard_field="OUTER_VLAN_ID" name="outer_vlan_id" id="outer_vlan_id" />
           </label>
         </div>
       </div>

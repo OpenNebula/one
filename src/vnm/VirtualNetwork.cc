@@ -46,7 +46,7 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
             Clusterable(_cluster_ids),
             bridge(""),
             vlan_id_automatic(false),
-            inner_vlan_id_automatic(false),
+            outer_vlan_id_automatic(false),
             parent_vid(_pvid),
             vrouters("VROUTERS")
 {
@@ -166,8 +166,8 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     parse_vlan_id("VLAN_ID", "AUTOMATIC_VLAN_ID", vlan_id, vlan_id_automatic);
 
-    parse_vlan_id("INNER_VLAN_ID", "AUTOMATIC_INNER_VLAN_ID", inner_vlan_id,
-            inner_vlan_id_automatic);
+    parse_vlan_id("OUTER_VLAN_ID", "AUTOMATIC_OUTER_VLAN_ID", outer_vlan_id,
+            outer_vlan_id_automatic);
 
     // ------------ BRIDGE --------------------
 
@@ -299,7 +299,7 @@ int VirtualNetwork::post_update_template(string& error)
 
     remove_template_attribute("AUTOMATIC_VLAN_ID");
 
-    remove_template_attribute("INNER_AUTOMATIC_VLAN_ID");
+    remove_template_attribute("AUTOMATIC_OUTER_VLAN_ID");
 
     if (!vlan_id_automatic)
     {
@@ -311,14 +311,14 @@ int VirtualNetwork::post_update_template(string& error)
         remove_template_attribute("VLAN_ID");
     }
 
-    if (!inner_vlan_id_automatic)
+    if (!outer_vlan_id_automatic)
     {
-        erase_template_attribute("INNER_VLAN_ID", inner_vlan_id);
-        add_template_attribute("INNER_VLAN_ID", inner_vlan_id);
+        erase_template_attribute("OUTER_VLAN_ID", outer_vlan_id);
+        add_template_attribute("OUTER_VLAN_ID", outer_vlan_id);
     }
     else
     {
-        remove_template_attribute("INNER_VLAN_ID");
+        remove_template_attribute("OUTER_VLAN_ID");
     }
 
     erase_template_attribute("BRIDGE",new_bridge);
@@ -458,7 +458,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
     string lock_str;
 
     int int_vlan_id_automatic = vlan_id_automatic ? 1 : 0;
-    int int_inner_vlan_id_automatic = inner_vlan_id_automatic ? 1 : 0;
+    int int_outer_vlan_id_automatic = outer_vlan_id_automatic ? 1 : 0;
 
     os <<
         "<VNET>" <<
@@ -509,20 +509,20 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
         os << "<VLAN_ID/>";
     }
 
-    if (!inner_vlan_id.empty())
+    if (!outer_vlan_id.empty())
     {
-        os << "<INNER_VLAN_ID>" << one_util::escape_xml(inner_vlan_id)
-           << "</INNER_VLAN_ID>";
+        os << "<OUTER_VLAN_ID>" << one_util::escape_xml(outer_vlan_id)
+           << "</OUTER_VLAN_ID>";
     }
     else
     {
-        os << "<INNER_VLAN_ID/>";
+        os << "<OUTER_VLAN_ID/>";
     }
 
     os << "<VLAN_ID_AUTOMATIC>" << int_vlan_id_automatic <<"</VLAN_ID_AUTOMATIC>";
 
-    os << "<INNER_VLAN_ID_AUTOMATIC>" << int_inner_vlan_id_automatic
-       << "</INNER_VLAN_ID_AUTOMATIC>";
+    os << "<OUTER_VLAN_ID_AUTOMATIC>" << int_outer_vlan_id_automatic
+       << "</OUTER_VLAN_ID_AUTOMATIC>";
 
     os << "<USED_LEASES>"<< ar_pool.get_used_addr() << "</USED_LEASES>";
 
@@ -549,7 +549,7 @@ int VirtualNetwork::from_xml(const string &xml_str)
     int rc = 0;
 
     int int_vlan_id_automatic;
-    int int_inner_vlan_id_automatic;
+    int int_outer_vlan_id_automatic;
 
     // Initialize the internal XML object
     update_from_str(xml_str);
@@ -572,15 +572,15 @@ int VirtualNetwork::from_xml(const string &xml_str)
     xpath(phydev, "/VNET/PHYDEV", "");
 
     xpath(vlan_id, "/VNET/VLAN_ID", "");
-    xpath(inner_vlan_id, "/VNET/INNER_VLAN_ID", "");
+    xpath(outer_vlan_id, "/VNET/OUTER_VLAN_ID", "");
 
     xpath(int_vlan_id_automatic, "/VNET/VLAN_ID_AUTOMATIC", 0);
-    xpath(int_inner_vlan_id_automatic, "/VNET/INNER_VLAN_ID_AUTOMATIC", 0);
+    xpath(int_outer_vlan_id_automatic, "/VNET/OUTER_VLAN_ID_AUTOMATIC", 0);
 
     xpath(parent_vid,"/VNET/PARENT_NETWORK_ID",-1);
 
     vlan_id_automatic = int_vlan_id_automatic;
-    inner_vlan_id_automatic = int_inner_vlan_id_automatic;
+    outer_vlan_id_automatic = int_outer_vlan_id_automatic;
 
     // Set of cluster IDs
     rc += Clusterable::from_xml(this, "/VNET/");
@@ -670,9 +670,9 @@ int VirtualNetwork::nic_attribute(
         nic->replace("VLAN_ID", vlan_id);
     }
 
-    if (!inner_vlan_id.empty())
+    if (!outer_vlan_id.empty())
     {
-        nic->replace("INNER_VLAN_ID", vlan_id);
+        nic->replace("OUTER_VLAN_ID", outer_vlan_id);
     }
 
     if (parent_vid != -1)

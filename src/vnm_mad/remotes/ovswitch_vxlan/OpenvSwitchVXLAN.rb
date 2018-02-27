@@ -22,7 +22,7 @@ class OpenvSwitchVXLAN < OpenvSwitchVLAN
     include VXLAN
 
     # VXLAN orrides
-    ATTR_VLAN_ID  = :link_vlan_id
+    ATTR_VLAN_ID  = :outer_vlan_id
 
     # DRIVER name and XPATH for relevant NICs
     DRIVER = "ovswitch_vxlan"

@@ -420,8 +420,8 @@ int VirtualNetworkPool::set_vlan_id(VirtualNetwork * vn)
                 vlan_id_bitmap.update(db);
             }
 
-            rcx = set_vxlan_id(vn->get_oid(), vn->inner_vlan_id,
-                    vn->inner_vlan_id_automatic, start_vlan);
+            rcx = set_vxlan_id(vn->get_oid(), vn->outer_vlan_id,
+                    vn->outer_vlan_id_automatic, start_vlan);
 
             if ( rc != 0 || rcx != 0 )
             {

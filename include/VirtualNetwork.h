@@ -479,13 +479,13 @@ public:
             new_vn->replace("VLAN_ID", vlan_id);
         }
 
-        if ( inner_vlan_id.empty() )
+        if ( outer_vlan_id.empty() )
         {
-            new_vn->replace("INNER_AUTOMATIC_VLAN_ID", "NO");
+            new_vn->replace("AUTOMATIC_OUTER_VLAN_ID", "NO");
         }
         else
         {
-            new_vn->replace("INNER_VLAN_ID", inner_vlan_id);
+            new_vn->replace("OUTER_VLAN_ID", outer_vlan_id);
         }
 
         return new_vn;
@@ -529,9 +529,9 @@ private:
 
     /**
      *  Used for double tagging of VM traffic. This id refers to the transport
-     *  layer or inner/customer VLAN_ID
+     *  layer or outer/service VLAN_ID
      */
-    string inner_vlan_id;
+    string outer_vlan_id;
 
     /**
      *  If the VLAN has been set automatically
@@ -539,9 +539,9 @@ private:
     bool  vlan_id_automatic;
 
     /**
-     *  If the inner VLAN has been set automatically
+     *  If the outer VLAN has been set automatically
      */
-    bool  inner_vlan_id_automatic;
+    bool  outer_vlan_id_automatic;
 
     /**
      *  Parent VNET ID if any
@@ -570,9 +570,9 @@ private:
     /**
      *  This function parses the VLAN attribute and clears the associated
      *  automatic flag if set.
-     *    @param id_name of the VLAN attribute VLAN_ID or INNER_VLAN_ID
+     *    @param id_name of the VLAN attribute VLAN_ID or OUTER_VLAN_ID
      *    @param auto_name of automatic flag AUTOMATIC_VLAN_ID or
-     *    INNER_AUTOMATIC_VLAN_ID
+     *    AUTOMATIC_OUTER_VLAN_ID
      *    @param id the associated vlan variable
      *    @param auto the associated automatic variable
      */
