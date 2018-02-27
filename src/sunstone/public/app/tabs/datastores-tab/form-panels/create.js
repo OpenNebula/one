@@ -533,7 +533,7 @@ define(function(require) {
           if (e["NAME"] == mad) {
             if (!$.isEmptyObject(e["REQUIRED_ATTRS"])) {
               $.each(e["REQUIRED_ATTRS"].split(","), function(i, e){
-                $('#' + e.toLowerCase(), dialog).attr('required', true).attr('required_active', '');
+                $('#' + e.trim().toLowerCase(), dialog).attr('required', true).attr('required_active', '');
               });
             }
             return false;
