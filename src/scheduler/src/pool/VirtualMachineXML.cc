@@ -22,6 +22,8 @@
 #include "NebulaUtil.h"
 #include "History.h"
 
+map<int, int> m_months_days = {{0, 31}, {1, 28}, {2, 30}, {3, 31}, {4, 30}, {5, 31}, {6, 30}, {7, 31}, {8, 30}, {9, 31}, {10, 30}, {11, 31}};
+
 void VirtualMachineXML::init_attributes()
 {
     vector<xmlNodePtr> nodes;
@@ -531,14 +533,14 @@ static void generate_next_day(int rep, int mayor_day, int minor_day, struct tm *
     if ( rep == 1 ) //Repeat every months
     {
         cout << next->tm_mday << endl;
-        sum_days(next, now, mayor_day, minor_day, 32, next->tm_mday);
+        sum_days(next, now, mayor_day, minor_day, m_months_days[next->tm_mon] , next->tm_mday);
         next->tm_min = now->tm_min;
         next->tm_hour = now->tm_hour;
     }
 
     if ( rep == 2 ) //Repeat every months
     {
-        sum_days(next, now, mayor_day, minor_day, 366, next->tm_yday);
+        sum_days(next, now, mayor_day, minor_day, 365, next->tm_yday);
         next->tm_min = now->tm_min;
         next->tm_hour = now->tm_hour;
     }
@@ -611,6 +613,10 @@ int VirtualMachineXML::next_action(VectorAttribute& vatt)
         }
         it = s_days.find(start_day);
         s_days.erase (it);
+        if (*--it > mayor_day)
+        {
+            mayor_day = *it;
+        }
     }
 
     if ( end_mode == 1 )
