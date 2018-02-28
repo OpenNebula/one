@@ -308,18 +308,20 @@ class ClusterComputeResource
         return host_info
     end
 
-    def monitor_vms
+    def monitor_vms(host_id)
 
         vc_uuid = @vi_client.vim.serviceContent.about.instanceUuid
         cluster_name = self["name"]
         cluster_ref = self["_ref"]
 
         # Get info of the host where the VM/template is located
-        host_id = nil
-        one_host = VCenterDriver::VIHelper.find_by_ref(OpenNebula::HostPool,
-                                                       "TEMPLATE/VCENTER_CCR_REF",
-                                                       cluster_ref,
-                                                       vc_uuid)
+        one_host = VCenterDriver::VIHelper.one_item(OpenNebula::Host, host_id)
+        if !one_host
+            STDERR.puts "Failed to retieve host with id #{host.id}"
+            STDERR.puts e.inspect
+            STDERR.puts e.backtrace
+        end
+
         host_id = one_host["ID"] if one_host
 
 

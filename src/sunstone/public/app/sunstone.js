@@ -66,7 +66,9 @@ define(function(require) {
     "settings-tab",
     "upgrade-top-tab",
     "vmgroup-tab",
-    "secgroups-tab"
+    "secgroups-tab",
+    "provision-tab"
+
   ];
 
   var SunstoneCfg = {
@@ -1237,7 +1239,7 @@ define(function(require) {
         }
       }.bind(tabName));
 
-      router.on(new RegExp("(?:#|/)"+tabName+"/(\\d+)"), function(id){
+      router.on(new RegExp("(?:#|/)"+tabName+"/(\\w+)"), function(id){
         _routerShowElement(this, id);
       }.bind(tabName));
 

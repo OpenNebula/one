@@ -32,6 +32,10 @@
 #include <sys/stat.h>
 #include <pthread.h>
 
+#ifdef SYSTEMD
+#include <systemd/sd-daemon.h>
+#endif
+
 using namespace std;
 
 /* -------------------------------------------------------------------------- */
@@ -1090,6 +1094,12 @@ void Nebula::start(bool bootstrap_only)
     {
        throw runtime_error("Could not start the Request Manager");
     }
+
+#ifdef SYSTEMD
+    // ---- Notify service manager ----
+
+    sd_notify(0, "READY=1");
+#endif
 
     // -----------------------------------------------------------
     // Wait for a SIGTERM or SIGINT signal

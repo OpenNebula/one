@@ -722,7 +722,8 @@ static const map<std::string, unsigned int> MAX_HOST_VAR_SIZES = {
     {"EC2_SECRET", 41},
     {"AZ_ID", 41},
     {"AZ_CERT", 3130},
-    {"VCENTER_PASSWORD", 22}
+    {"VCENTER_PASSWORD", 22},
+    {"ONE_PASSWORD", 22}
 };
 
 int Host::post_update_template(string& error)
