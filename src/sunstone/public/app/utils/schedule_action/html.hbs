@@ -13,61 +13,57 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
-<tr class="create">
-    <td>
-        <div class="switch left">
-            <input class="switch-input" id="schedule_type" type="checkbox" checed>
-            <label class="switch-paddle" for="schedule_type"></label>
-        </div>
-        <label>&nbsp;&nbsp;{{tr "Periodic"}}</label>
-    </td>
-</tr>
+
 <tr id="tr_schedule_base" class="create">
-    <td>
-        <select id="select_new_action" class="select_new_action" name="select_action">{{{actions}}}</select>
-    </td>
-    <td>
-        <input id="date_input" type="date"/>
-    </td>
-    <td>
-        <input id="time_input" type="time" placeholder="12:30"/>
-    </td>
+	<td>
+		<select style="width: 80%" id="select_new_action" class="select_new_action" name="select_action">{{{actions}}}</select>
+	</td>
+	<td>
+		<input style="width: 80%" id="date_input" type="date" />
+	</td>
+	<td>
+		<input style="width: 80%" id="time_input" type="time" placeholder="12:30" />
+	</td>
+	<td>
+		<input  id="schedule_type" type="checkbox">
+		<label>{{tr "Periodic"}}</label>
+	</td>
 </tr>
 <tr class="periodic create">
-    <td>
-        <div class="large-12 columns text-center">
-            <input type="radio" name="rep" id="rep_week" value="week">
-            <label for="rep_week">Weekly</label>
-            <input type="radio" name="rep" id="rep_month" value="month">
-            <label for="rep_month">Monthly</label>
-            <input type="radio" name="rep" id="rep_year" value="year">
-            <label for="rep_year">Yearly</label>
-      </div>
-    </td>
+	<td colspan="5">
+		<div  style="margin-top: 20px;" class="large-12 columns text-center">
+			<input type="radio" name="rep" id="rep_week" value="week">
+			<label for="rep_week">Weekly</label>
+			<input type="radio" name="rep" id="rep_month" value="month">
+			<label for="rep_month">Monthly</label>
+			<input type="radio" name="rep" id="rep_year" value="year">
+			<label for="rep_year">Yearly</label>
+		</div>
+	</td>
 </tr>
 <tr class="periodic create">
-    <td id="td_days">
-        <!--<input id="DAYS" type="text" placeholder="0,3"/>-->
-    </td>
+	<td id="td_days" style="text-align:center" colspan="5">
+	</td>
 </tr>
 <tr class="periodic create">
-    <td>
-        <div class="large-12 columns text-center">
-            <input type="radio" name="end_type" id="end_type_ever" value="ever">
-            <label for="path_image">Ever</label>
-            <input type="radio" name="end_type" id="end_type_n_rep" value="n_rep">
-            <label for="upload_image">Num Rep</label>
-            <input type="radio" name="end_type" id="end_type_date" value="date">
-            <label for="datablock_img">End Date</label>
-      </div>
-    </td>
+	<td colspan="5">
+		<div class="large-12 columns text-center">
+			<input type="radio" name="end_type" id="end_type_ever" value="ever">
+			<label for="path_image">Ever</label>
+			<input type="radio" name="end_type" id="end_type_n_rep" value="n_rep">
+			<label for="upload_image">Num Rep</label>
+			<input type="radio" name="end_type" id="end_type_date" value="date">
+			<label for="datablock_img">End Date</label>
+		</div>
+	</td>
 </tr>
 <tr class="periodic create">
-    <td id="td_end_value">
-    </td>
+	<td id="td_end_value" colspan="5">
+	</td>
 </tr>
+<br>
 <tr class="create">
-    <td>
-        <button id="add_{{res}}_action_json" class="button small success secondary radius" >{{tr "Add"}}</button>
-    </td>
+	<td>
+		<button style="margin-top: 15px;" id="add_{{res}}_action_json" class="button small success secondary radius">{{tr "Add"}}</button>
+	</td>
 </tr>
