@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -14,33 +16,15 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'vnmmad'
-require 'vxlan'
+$: << File.dirname(__FILE__)
+$: << File.join(File.dirname(__FILE__), "..")
 
-################################################################################
-# This driver tag VM traffic with a VLAN_ID using VXLAN protocol. Features:
-#   - Creates a bridge and bind phisycal device if not present
-#   - Creates a tagged interface for the VM dev.vlan_id
-#
-# Once activated the VM will be attached to this bridge
-################################################################################
-class VXLANDriver < VNMMAD::VLANDriver
-    include VXLAN
+require 'OpenvSwitchVXLAN'
 
-    # DRIVER name and XPATH for relevant NICs
-    DRIVER       = "vxlan"
-    XPATH_FILTER = "TEMPLATE/NIC[VN_MAD='vxlan']"
+template64   = ARGV[0]
+deploy_id    = ARGV[1]
+xpath_filter = OpenvSwitchVXLAN::XPATH_FILTER
 
-    ############################################################################
-    # Create driver device operations are locked
-    ############################################################################
-    def initialize(vm, xpath_filter = nil, deploy_id = nil)
-        @locking = true
+ovs = OpenvSwitchVXLAN.from_base64(template64, xpath_filter, deploy_id)
 
-        @attr_vlan_id  = ATTR_VLAN_ID
-        @attr_vlan_dev = ATTR_VLAN_DEV
-
-        xpath_filter ||= XPATH_FILTER
-        super(vm, xpath_filter, deploy_id)
-    end
-end
+ovs.activate(pre_action=true)

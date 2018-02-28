@@ -173,6 +173,13 @@ define(function(require) {
 
         $("input#bridge", context).attr("required", "");
         break;
+      case "ovswitch_vxlan":
+        $("div.mode_param.ovswitch_vxlan", context).show();
+        $("#vnetCreateSecurityTab-label").hide();
+        $("div.mode_param.ovswitch_vxlan [wizard_field]", context).prop("wizard_field_disabled", false);
+
+        $("input#bridge", context).attr("required", "");
+        break;
       case "vcenter":
         $("div.mode_param.vcenter", context).show();
         $(".sec_groups_datatable", context).hide();
@@ -219,9 +226,18 @@ define(function(require) {
       }
     });
 
+    $("select[wizard_field=AUTOMATIC_OUTER_VLAN_ID]", context).change(function(){
+      if($(this).val() != "") {
+        $("input[wizard_field=\"OUTER_VLAN_ID\"]", context).hide().prop("wizard_field_disabled", true);
+      } else {
+        $("input[wizard_field=\"OUTER_VLAN_ID\"]", context).show().prop("wizard_field_disabled", false);
+      }
+    });
+
     //Initialize shown options
     $("#network_mode", context).trigger("change");
     $("select[wizard_field=AUTOMATIC_VLAN_ID]", context).trigger("change");
+    $("select[wizard_field=AUTOMATIC_OUTER_VLAN_ID]", context).trigger("change");
 
     this.securityGroupsTable.initialize();
 
@@ -243,6 +259,7 @@ define(function(require) {
       $("#network_mode option[value=\"802.1Q\"]", context).hide();
       $("#network_mode option[value=\"vxlan\"]", context).hide();
       $("#network_mode option[value=\"ovswitch\"]", context).hide();
+      $("#network_mode option[value=\"ovswitch_vxlan\"]", context).hide();
     }
     return false;
   }
@@ -390,6 +407,14 @@ define(function(require) {
                                 attr("disabled", "disabled").trigger("change");
     } else {
       $("select[wizard_field=AUTOMATIC_VLAN_ID]", context).val("").
+                                attr("disabled", "disabled").trigger("change");
+    }
+
+    if (element.OUTER_VLAN_ID_AUTOMATIC== 1){
+      $("select[wizard_field=AUTOMATIC_OUTER_VLAN_ID]", context).val("YES").
+                                attr("disabled", "disabled").trigger("change");
+    } else {
+      $("select[wizard_field=AUTOMATIC_OUTER_VLAN_ID]", context).val("").
                                 attr("disabled", "disabled").trigger("change");
     }
 

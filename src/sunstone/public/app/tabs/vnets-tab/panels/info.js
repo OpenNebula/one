@@ -117,6 +117,16 @@ define(function(require) {
       $(".reserve-sunstone-info").removeAttr("title");
     }
     //====
+    var auto_vlan_id = Locale.tr("NO");
+    var auto_outer_vlan_id = Locale.tr("NO");
+
+    if (this.element.VLAN_ID_AUTOMATIC == "1") {
+      auto_vlan_id = Locale.tr("YES");
+    }
+
+    if (this.element.OUTER_VLAN_ID_AUTOMATIC == "1") {
+      auto_outer_vlan_id = Locale.tr("YES");
+    }
 
     return TemplateInfo({
       'element': this.element,
@@ -124,7 +134,9 @@ define(function(require) {
       'reservationTrHTML': reservationTrHTML,
       'permissionsTableHTML': permissionsTableHTML,
       'templateTableHTML': templateTableHTML,
-      'templateTableVcenterHTML': templateTableVcenterHTML
+      'templateTableVcenterHTML': templateTableVcenterHTML,
+      'autoVlanID': auto_vlan_id,
+      'autoOuterVlanID': auto_outer_vlan_id,
     });
   }
 

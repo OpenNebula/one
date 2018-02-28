@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -13,34 +15,7 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
+source $(dirname $0)/../../scripts_common.sh
 
-require 'vnmmad'
-require 'vxlan'
-
-################################################################################
-# This driver tag VM traffic with a VLAN_ID using VXLAN protocol. Features:
-#   - Creates a bridge and bind phisycal device if not present
-#   - Creates a tagged interface for the VM dev.vlan_id
-#
-# Once activated the VM will be attached to this bridge
-################################################################################
-class VXLANDriver < VNMMAD::VLANDriver
-    include VXLAN
-
-    # DRIVER name and XPATH for relevant NICs
-    DRIVER       = "vxlan"
-    XPATH_FILTER = "TEMPLATE/NIC[VN_MAD='vxlan']"
-
-    ############################################################################
-    # Create driver device operations are locked
-    ############################################################################
-    def initialize(vm, xpath_filter = nil, deploy_id = nil)
-        @locking = true
-
-        @attr_vlan_id  = ATTR_VLAN_ID
-        @attr_vlan_dev = ATTR_VLAN_DEV
-
-        xpath_filter ||= XPATH_FILTER
-        super(vm, xpath_filter, deploy_id)
-    end
-end
+log_error "Security groups not supported for ovswitch"
+exit 1

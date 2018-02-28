@@ -34,16 +34,44 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         end
     end
 
-    def activate
+    def activate(pre_action=false)
         lock
+
+        @bridges = get_bridges
 
         process do |nic|
             @nic = nic
 
+            # Get the name of the link vlan device.
+            get_vlan_dev_name
+
+            # Create the bridge.
+            create_bridge
+
+            # Check that no other vlans are connected to this bridge
+            validate_vlan_id if @nic[:conf][:validate_vlan_id]
+
+            if @nic[:vlan_dev]
+                unless @bridges[@nic[:bridge]].include? @nic[:vlan_dev]
+                    create_vlan_dev
+
+                    add_bridge_port(@nic[:vlan_dev])
+                end
+            elsif @nic[:phydev]
+                add_bridge_port(@nic[:phydev])
+            end
+
             if @nic[:tap].nil?
-                STDERR.puts "No tap device found for nic #{@nic[:nic_id]}"
-                unlock
-                exit 1
+                # In net/pre action, we just need to ensure the bridge is
+                # created so the libvirt/QEMU can add VM interfaces into that.
+                # Any other driver actions are done in net/post action.
+                if pre_action
+                    next
+                else
+                    STDERR.puts "No tap device found for nic #{@nic[:nic_id]}"
+                    unlock
+                    exit 1
+                end
             end
 
             # Apply VLAN
@@ -96,6 +124,8 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     def deactivate
         lock
 
+        @bridges = get_bridges
+
         attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
 
         process do |nic|
@@ -107,6 +137,27 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
             # Remove flows
             del_flows
+
+            next if @nic[:phydev].nil?
+            next if @bridges[@nic[:bridge]].nil?
+
+            # Get the name of the vlan device.
+            get_vlan_dev_name
+
+            # Return if the bridge doesn't exist because it was already deleted (handles last vm with multiple nics on the same vlan)
+            next if !@bridges.include? @nic[:bridge]
+
+            # Return if the vlan device is not the only left device in the bridge.
+            next if @bridges[@nic[:bridge]].length > 1 or
+                (@nic[:vlan_dev] and
+                 !@bridges[@nic[:bridge]].include? @nic[:vlan_dev])
+
+            if @nic[:vlan_dev]
+                delete_vlan_dev
+                @bridges[@nic[:bridge]].delete(@nic[:vlan_dev])
+            end
+
+            delete_bridge
         end
 
         unlock
@@ -286,5 +337,85 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
     def range?(range)
         !range.to_s.match(/^\d+(,\d+)*$/).nil?
+    end
+
+private
+    # Generate the name of the vlan device which will be added to the bridge.
+    def get_vlan_dev_name
+        nil
+    end
+
+    # Create a VLAN device.
+    # NEEDS to be implemented by the subclass.
+    def create_vlan_dev
+        nil
+    end
+
+    # Delete a VLAN device
+    # NEEDS to be implemented by the subclass.
+    def delete_vlan_dev
+        nil
+    end
+
+    # Creates an OvS bridge if it does not exists, and brings it up.
+    # This function IS FINAL, exits if action cannot be completed
+    def create_bridge
+        return if @bridges.keys.include? @nic[:bridge]
+
+        OpenNebula.exec_and_log("#{command(:ovs_vsctl)} add-br #{@nic[:bridge]}")
+
+        set_bridge_options
+
+        @bridges[@nic[:bridge]] = Array.new
+
+        OpenNebula.exec_and_log("#{command(:ip)} link set #{@nic[:bridge]} up")
+    end
+
+    # Delete OvS bridge
+    def delete_bridge
+        OpenNebula.exec_and_log("#{command(:ovs_vsctl)} del-br #{@nic[:bridge]}")
+
+        @bridges.delete(@nic[:bridge])
+    end
+
+    # Add port into OvS bridge
+    def add_bridge_port(port)
+        return if @bridges[@nic[:bridge]].include? port
+
+        OpenNebula.exec_and_log("#{command(:ovs_vsctl)} add-port #{@nic[:bridge]} #{port}")
+
+        @bridges[@nic[:bridge]] << port
+    end
+
+    # Calls ovs-vsctl set bridge to set options stored in ovs_bridge_conf
+    def set_bridge_options
+        @nic[:ovs_bridge_conf].each do |option, value|
+            cmd = "#{command(:ovs_vsctl)} set bridge " <<
+                    "#{@nic[:bridge]} #{option}=#{value}"
+
+            OpenNebula.exec_and_log(cmd)
+        end
+    end
+
+    # Get hypervisor bridges
+    #   @return [Hash<String>] with the bridge names
+    def get_bridges
+        bridges = Hash.new
+
+        list_br =`#{command(:ovs_vsctl)} list-br`
+        list_br.split.each do |bridge|
+            bridge = bridge.strip
+
+            if bridge
+                list_ports =`#{command(:ovs_vsctl)} list-ports #{bridge}`
+                bridges[bridge] = list_ports.split("\n")
+            end
+        end
+
+        bridges
+    end
+
+    def validate_vlan_id
+        OpenNebula.log_error("VLAN ID validation not supported with Open vSwitch, skipped.")
     end
 end

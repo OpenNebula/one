@@ -15,32 +15,30 @@
 #--------------------------------------------------------------------------- #
 
 require 'vnmmad'
-require 'vxlan'
+require 'ovswitch/OpenvSwitch'
+require 'vxlan/vxlan'
 
-################################################################################
-# This driver tag VM traffic with a VLAN_ID using VXLAN protocol. Features:
-#   - Creates a bridge and bind phisycal device if not present
-#   - Creates a tagged interface for the VM dev.vlan_id
-#
-# Once activated the VM will be attached to this bridge
-################################################################################
-class VXLANDriver < VNMMAD::VLANDriver
+class OpenvSwitchVXLAN < OpenvSwitchVLAN
     include VXLAN
 
+    # VXLAN orrides
+    ATTR_VLAN_ID  = :outer_vlan_id
+
     # DRIVER name and XPATH for relevant NICs
-    DRIVER       = "vxlan"
-    XPATH_FILTER = "TEMPLATE/NIC[VN_MAD='vxlan']"
+    DRIVER = "ovswitch_vxlan"
+    XPATH_FILTER = "TEMPLATE/NIC[VN_MAD='ovswitch_vxlan']"
 
-    ############################################################################
-    # Create driver device operations are locked
-    ############################################################################
     def initialize(vm, xpath_filter = nil, deploy_id = nil)
-        @locking = true
-
         @attr_vlan_id  = ATTR_VLAN_ID
         @attr_vlan_dev = ATTR_VLAN_DEV
 
         xpath_filter ||= XPATH_FILTER
         super(vm, xpath_filter, deploy_id)
+    end
+
+private
+    # Generate the name of the vlan device which will be added to the bridge.
+    def get_vlan_dev_name
+        @nic[:vlan_dev] = "#{@nic[:phydev]}.#{@nic[@attr_vlan_id]}"
     end
 end

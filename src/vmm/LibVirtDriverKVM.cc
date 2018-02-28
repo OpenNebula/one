@@ -929,8 +929,8 @@ int LibVirtDriver::deployment_description_kvm(
         {
             file << "\t\t<interface type='bridge'>" << endl;
 
-
-            if (VirtualNetwork::str_to_driver(vn_mad) == VirtualNetwork::OVSWITCH)
+            if (VirtualNetwork::str_to_driver(vn_mad) == VirtualNetwork::OVSWITCH ||
+                VirtualNetwork::str_to_driver(vn_mad) == VirtualNetwork::OVSWITCH_VXLAN)
             {
                 file << "\t\t\t<virtualport type='openvswitch'/>" << endl;
             }

@@ -73,6 +73,7 @@ module VNMMAD
             blk = lambda do |nic|
                 add_nic_conf(nic)
                 add_bridge_conf(nic)
+                add_ovs_bridge_conf(nic)
                 add_ip_link_conf(nic)
 
                 block.call(nic)
@@ -104,6 +105,10 @@ module VNMMAD
 
         def add_bridge_conf(nic)
             add_command_conf(nic, :bridge_conf)
+        end
+
+        def add_ovs_bridge_conf(nic)
+            add_command_conf(nic, :ovs_bridge_conf)
         end
 
         def add_ip_link_conf(nic)
