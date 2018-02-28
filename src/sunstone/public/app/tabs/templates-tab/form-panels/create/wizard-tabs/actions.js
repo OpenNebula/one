@@ -82,11 +82,11 @@ define(function(require) {
 
     context.off("click", "#add_temp_action_json");
     context.on("click" , "#add_temp_action_json", function(){
-      var sched_action = ScheduleActions.retrieveNewAction(context)
+      var sched_action = ScheduleActions.retrieveNewAction(context);
       if (sched_action != false) {
         $("#sched_temp_actions_body").append(ScheduleActions.fromJSONtoActionsTable(sched_action));
+        $(".create", context).remove();
       }
-
       return false;
     });
 

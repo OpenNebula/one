@@ -220,6 +220,7 @@ define(function (require) {
 
 		$("#scheduling_" + this.res + "_actions_table tbody tr.create", context).html("");
 		$("#add_scheduling_" + this.res + "_action", context).removeAttr("disabled");
+
 		return sched_action;
 	}
 
