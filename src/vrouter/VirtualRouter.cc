@@ -414,7 +414,7 @@ int VirtualRouter::release_network_leases(const VectorAttribute * nic)
         return -1;
     }
 
-    mac = nic->vector_value("MAC");
+    mac = nic->vector_value("VROUTER_MAC");
 
     vn = vnpool->get(vnid, true);
 
