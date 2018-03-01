@@ -1,1 +1,0 @@
-/home/opennebula/Desktop/billing/src/sunstone/public/app/addons/tabs/invoices-tab.js
