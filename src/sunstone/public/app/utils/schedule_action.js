@@ -39,7 +39,7 @@ define(function (require) {
 				options += "<option value=\"" + action + "\">" + Locale.tr(action) + "</option>";
 			}
 		});
-		$("#scheduling_" + this.res + "_actions_table", context).append(TemplateHTML({
+		$("#scheduling_" + this.res + "_actions_table tbody", context).append(TemplateHTML({
 			"actions": options,
 			"res": that.res
 		}));
@@ -218,7 +218,7 @@ define(function (require) {
 		sched_action.END_TYPE = end_type;
 		sched_action.END_VALUE = end_value;
 
-		$("#scheduling_" + this.res + "_actions_table tbody tr.create", context).html("");
+		$("#scheduling_" + this.res + "_actions_table .create", context).remove();
 		$("#add_scheduling_" + this.res + "_action", context).removeAttr("disabled");
 
 		return sched_action;

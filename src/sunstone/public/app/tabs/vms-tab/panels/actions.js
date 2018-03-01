@@ -63,7 +63,7 @@ define(function(require) {
     var that = this;
     var html = '<div class="row">\
       <div class="large-12 columns">\
-        <table id="scheduling_actions_vms_table" class="info_table dataTable">\
+        <table id="scheduling_vms_actions_table" class="info_table dataTable">\
          <thead>\
            <tr>\
               <th>' + Locale.tr("ID") + '</th>\
@@ -76,9 +76,11 @@ define(function(require) {
               <th colspan="">' + Locale.tr("Actions") + '</th>\
               <th><button id="add_scheduling_vms_action" class="button small success right radius" >' + Locale.tr("Add action") + '</button></th>\
            </tr>\
-          </thead>' +
+          </thead>\
+          <tbody id="sched_vms_actions_body">'+
           vmsfromJSONtoActionsTable(that.element.USER_TEMPLATE.SCHED_ACTION) +
-         '</table>\
+         '</tbody>\
+         </table>\
         </div>\
       </div>';
 
@@ -97,8 +99,14 @@ define(function(require) {
       return false;
     });
 
-    context.off("click", "#submit_scheduling_action");
-    context.on("click", "#submit_scheduling_action", function() {
+    context.off("click", "#add_vms_action_json");
+    context.on("click" , "#add_vms_action_json", function(){
+      var sched_action = ScheduleActions.retrieveNewAction(context);
+      if (sched_action != false) {
+        $("#sched_vms_actions_body").append(ScheduleActions.fromJSONtoActionsTable(sched_action));
+      } else {
+        return false;
+      }
 
       that.element.USER_TEMPLATE.SCHED_ACTION = ScheduleActions.retrieve(context);
 
@@ -106,7 +114,7 @@ define(function(require) {
       var template_str = TemplateUtils.templateToString(that.element.USER_TEMPLATE);
       Sunstone.runAction("VM.update_template", that.element.ID, template_str);
 
-      $("#add_schedulingvms_action", context).removeAttr("disabled");
+      $("#add_scheduling_vms_action", context).removeAttr("disabled");
       return false;
     });
 

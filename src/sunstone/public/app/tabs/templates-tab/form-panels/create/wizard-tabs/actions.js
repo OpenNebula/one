@@ -85,7 +85,6 @@ define(function(require) {
       var sched_action = ScheduleActions.retrieveNewAction(context);
       if (sched_action != false) {
         $("#sched_temp_actions_body").append(ScheduleActions.fromJSONtoActionsTable(sched_action));
-        $(".create", context).remove();
       }
       return false;
     });
