@@ -268,8 +268,6 @@ define(function (require) {
 			} else {
 				rep_str += Humanize.week_days(scheduling_action.DAYS);
 			}
-		} else {
-			rep_str = "None";
 		}
 
 		if (scheduling_action.END_TYPE != undefined) {
