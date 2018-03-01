@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,6 +19,7 @@
 
 #include "PoolSQL.h"
 #include "Host.h"
+#include "CachePool.h"
 
 #include <time.h>
 #include <sstream>
@@ -66,7 +67,19 @@ public:
         int     oid,
         bool    lock)
     {
-        return static_cast<Host *>(PoolSQL::get(oid,lock));
+        Host * h = static_cast<Host *>(PoolSQL::get(oid,lock));
+
+        if ( h != 0 )
+        {
+            HostVM * hv = get_host_vm(oid);
+
+            h->tmp_lost_vms   = &(hv->tmp_lost_vms);
+            h->tmp_zombie_vms = &(hv->tmp_zombie_vms);
+
+            h->prev_rediscovered_vms = &(hv->prev_rediscovered_vms);
+        }
+
+        return h;
     };
 
     /**
@@ -79,7 +92,19 @@ public:
     Host * get(string name, bool lock)
     {
         // The owner is set to -1, because it is not used in the key() method
-        return static_cast<Host *>(PoolSQL::get(name,-1,lock));
+        Host * h = static_cast<Host *>(PoolSQL::get(name,-1,lock));
+
+        if ( h != 0 )
+        {
+            HostVM * hv = get_host_vm(h->oid);
+
+            h->tmp_lost_vms   = &(hv->tmp_lost_vms);
+            h->tmp_zombie_vms = &(hv->tmp_zombie_vms);
+
+            h->prev_rediscovered_vms = &(hv->prev_rediscovered_vms);
+        }
+
+        return h;
     };
 
     /**
@@ -173,6 +198,7 @@ public:
     int drop(PoolObjectSQL * objsql, string& error_msg)
     {
         Host * host = static_cast<Host *>(objsql);
+        int oid = host->oid;
 
         if ( host->get_share_running_vms() > 0 )
         {
@@ -180,7 +206,14 @@ public:
             return -1;
         }
 
-        return PoolSQL::drop(objsql, error_msg);
+        int rc = PoolSQL::drop(objsql, error_msg);
+
+        if ( rc == 0 )
+        {
+            delete_host_vm(oid);
+        }
+
+        return rc;
     };
 
     /**
@@ -265,6 +298,39 @@ public:
     int clean_expired_monitoring();
 
 private:
+    /**
+     * Stores several Host counters to give VMs one monitor grace cycle before
+     * moving them to another state
+     */
+    struct HostVM
+    {
+        /**
+         * Tmp set of lost VM IDs. 
+         */
+        set<int> tmp_lost_vms;
+
+        /**
+         * Tmp set of zombie VM IDs. 
+         */
+        set<int> tmp_zombie_vms;
+
+        /**
+         * VMs reported as found from the poweroff state.
+         */
+        set<int> prev_rediscovered_vms;
+    };
+
+    CachePool<HostVM> cache;
+
+    HostVM * get_host_vm(int oid)
+    {
+        return cache.get_resource(oid);
+    }
+
+    void delete_host_vm(int oid)
+    {
+        cache.delete_resource(oid);
+    }
 
     /**
      *  Factory method to produce Host objects

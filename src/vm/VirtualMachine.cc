@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -89,7 +89,6 @@ VirtualMachine::~VirtualMachine()
     }
 
     delete _log;
-    delete obj_template;
     delete user_obj_template;
 }
 
@@ -484,6 +483,29 @@ const char * VirtualMachine::showback_db_bootstrap =
     "PRIMARY KEY(vmid, year, month))";
 
 /* -------------------------------------------------------------------------- */
+
+int VirtualMachine::bootstrap(SqlDB * db)
+{
+    int rc;
+
+    ostringstream oss_vm(VirtualMachine::db_bootstrap);
+    ostringstream oss_monit(VirtualMachine::monit_db_bootstrap);
+    ostringstream oss_hist(History::db_bootstrap);
+    ostringstream oss_showback(VirtualMachine::showback_db_bootstrap);
+
+    ostringstream oss_index("CREATE INDEX state_idx on vm_pool (state);");
+
+    rc =  db->exec_local_wr(oss_vm);
+    rc += db->exec_local_wr(oss_index);
+
+    rc += db->exec_local_wr(oss_monit);
+    rc += db->exec_local_wr(oss_hist);
+    rc += db->exec_local_wr(oss_showback);
+
+    return rc;
+};
+
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::select(SqlDB * db)
@@ -505,16 +527,20 @@ int VirtualMachine::select(SqlDB * db)
         return rc;
     }
 
-    //Get History Records. Current history is built in from_xml() (if any).
+    //Get History Records.
     if( hasHistory() )
     {
-        last_seq = history->seq - 1;
+        last_seq = history->seq;
+
+        delete history_records[last_seq];
 
         for (int i = last_seq; i >= 0; i--)
         {
             History * hp;
 
             hp = new History(oid, i);
+            history_records[i] = hp;
+
             rc = hp->select(db);
 
             if ( rc != 0)
@@ -522,9 +548,11 @@ int VirtualMachine::select(SqlDB * db)
                 goto error_previous_history;
             }
 
-            history_records[i] = hp;
-
             if ( i == last_seq )
+            {
+                history = hp;
+            }
+            else if ( i == last_seq - 1 )
             {
                 previous_history = hp;
             }
@@ -731,8 +759,8 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     string prefix;
 
     string value;
-    int    ivalue;
-    float  fvalue;
+    long int ivalue;
+    float fvalue;
     set<int> cluster_ids;
     vector<Template *> quotas;
 
@@ -880,6 +908,11 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     {
         goto error_os;
     }
+
+    // ------------------------------------------------------------------------
+    // Check the CPU Model attribute
+    // ------------------------------------------------------------------------
+    parse_cpu_model();
 
     // ------------------------------------------------------------------------
     // PCI Devices (Needs to be parsed before network)
@@ -1395,6 +1428,7 @@ error_common:
 int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
     string& error_str)
 {
+    string tm_mad_system;
     ostringstream   oss;
     set<string>     clouds;
 
@@ -1446,20 +1480,27 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
 
     obj_template->add("AUTOMATIC_REQUIREMENTS", oss.str());
 
+    oss.str("");
+
+    if ( obj_template->get("TM_MAD_SYSTEM", tm_mad_system) )
+    {
+        oss << "(TM_MAD = " << one_util::trim(tm_mad_system) << ") & ";
+    }
+
     // Set automatic System DS requirements
 
     if ( !cluster_ids.empty() )
     {
-        oss.str("");
-
         set<int>::iterator i = cluster_ids.begin();
 
-        oss << "\"CLUSTERS/ID\" @> " << *i;
+        oss << "(\"CLUSTERS/ID\" @> " << *i;
 
         for (++i; i != cluster_ids.end(); i++)
         {
             oss << " | \"CLUSTERS/ID\" @> " << *i;
         }
+
+        oss << ")";
 
         obj_template->add("AUTOMATIC_DS_REQUIREMENTS", oss.str());
     }
@@ -1523,7 +1564,7 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
     db->free_str(sql_name);
     db->free_str(sql_xml);
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     return rc;
 
@@ -1594,7 +1635,7 @@ int VirtualMachine::update_monitoring(SqlDB * db)
 
     db->free_str(sql_xml);
 
-    rc = db->exec(oss);
+    rc = db->exec_local_wr(oss);
 
     return rc;
 
@@ -1747,7 +1788,7 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk,
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::check_resize (
-        float cpu, int memory, int vcpu, string& error_str)
+        float cpu, long int memory, int vcpu, string& error_str)
 {
     if (cpu < 0)
     {
@@ -1773,7 +1814,7 @@ int VirtualMachine::check_resize (
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::resize(float cpu, int memory, int vcpu, string& error_str)
+int VirtualMachine::resize(float cpu, long int memory, int vcpu, string& error_str)
 {
     ostringstream oss;
 
@@ -1935,6 +1976,7 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
     string history_xml;
     string perm_xml;
     string snap_xml;
+    string lock_str;
 
     ostringstream   oss;
 
@@ -1955,6 +1997,7 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
         << "<STIME>"     << stime     << "</STIME>"
         << "<ETIME>"     << etime     << "</ETIME>"
         << "<DEPLOY_ID>" << deploy_id << "</DEPLOY_ID>"
+        << lock_db_to_xml(lock_str)
         << monitoring.to_xml(monitoring_xml)
         << obj_template->to_xml(template_xml)
         << user_obj_template->to_xml(user_template_xml);
@@ -2014,7 +2057,12 @@ int VirtualMachine::from_xml(const string &xml_str)
     int rc = 0;
 
     // Initialize the internal XML object
-    update_from_str(xml_str);
+    rc = update_from_str(xml_str);
+
+    if ( rc != 0 )
+    {
+        return -1;
+    }
 
     // Get class base attributes
     rc += xpath(oid,       "/VM/ID",    -1);
@@ -2048,6 +2096,8 @@ int VirtualMachine::from_xml(const string &xml_str)
 
     prev_state     = static_cast<VmState>(istate);
     prev_lcm_state = static_cast<LcmState>(ilcmstate);
+
+    rc += lock_db_from_xml();
 
     // -------------------------------------------------------------------------
     // Virtual Machine template and attributes
@@ -2117,18 +2167,21 @@ int VirtualMachine::from_xml(const string &xml_str)
     // -------------------------------------------------------------------------
     // Last history entry
     // -------------------------------------------------------------------------
-    ObjectXML::get_nodes("/VM/HISTORY_RECORDS/HISTORY", content);
+    int last_seq;
 
-    if (!content.empty())
+    if ( xpath(last_seq,"/VM/HISTORY_RECORDS/HISTORY/SEQ", -1) == 0 &&
+            last_seq != -1 )
     {
-        history = new History(oid);
-        rc += history->from_xml_node(content[0]);
+        history_records.resize(last_seq + 1);
 
-        history_records.resize(history->seq + 1);
-        history_records[history->seq] = history;
+        for (int i=0; i <= last_seq; ++i)
+        {
+            history_records[i] = 0;
+        }
 
-        ObjectXML::free_nodes(content);
-        content.clear();
+        history = new History(oid, last_seq);
+
+        history_records[last_seq] = history;
     }
 
     // -------------------------------------------------------------------------
@@ -2138,7 +2191,7 @@ int VirtualMachine::from_xml(const string &xml_str)
 
     for (vector<xmlNodePtr>::iterator it=content.begin();it!=content.end();it++)
     {
-        Snapshots * snap = new Snapshots(-1);
+        Snapshots * snap = new Snapshots(-1, false);
 
         rc += snap->from_xml_node(*it);
 
@@ -2214,6 +2267,8 @@ int VirtualMachine::replace_template(
         bool            keep_restricted,
         string&         error)
 {
+    string ra;
+
     VirtualMachineTemplate * new_tmpl =
             new VirtualMachineTemplate(false,'=',"USER_TEMPLATE");
 
@@ -2229,16 +2284,22 @@ int VirtualMachine::replace_template(
         return -1;
     }
 
-    if (keep_restricted)
+    if (user_obj_template != 0)
     {
-        new_tmpl->remove_restricted();
-
-        if (user_obj_template != 0)
+        if (keep_restricted && new_tmpl->check_restricted(ra, user_obj_template))
         {
-            user_obj_template->remove_all_except_restricted();
+            error = "Tried to change restricted attribute: " + ra;
 
-            new_tmpl->merge(user_obj_template);
+            delete new_tmpl;
+            return -1;
         }
+    }
+    else if (keep_restricted && new_tmpl->check_restricted(ra))
+    {
+        error = "Tried to set restricted attribute: " + ra;
+
+        delete new_tmpl;
+        return -1;
     }
 
     delete user_obj_template;
@@ -2258,6 +2319,7 @@ int VirtualMachine::append_template(
 {
     VirtualMachineTemplate * new_tmpl =
             new VirtualMachineTemplate(false,'=',"USER_TEMPLATE");
+    string rname;
 
     if ( new_tmpl == 0 )
     {
@@ -2271,18 +2333,26 @@ int VirtualMachine::append_template(
         return -1;
     }
 
-    if (keep_restricted)
-    {
-        new_tmpl->remove_restricted();
-    }
-
     if (user_obj_template != 0)
     {
+        if (keep_restricted && new_tmpl->check_restricted(rname, user_obj_template))
+        {
+            error ="User Template includes a restricted attribute " + rname;
+            delete new_tmpl;
+            return -1;
+        }
         user_obj_template->merge(new_tmpl);
+
         delete new_tmpl;
     }
     else
     {
+        if (keep_restricted && new_tmpl->check_restricted(rname))
+        {
+            error ="User Template includes a restricted attribute " + rname;
+            delete new_tmpl;
+            return -1;
+        }
         user_obj_template = new_tmpl;
     }
 
@@ -2360,58 +2430,6 @@ void VirtualMachine::get_public_clouds(const string& pname, set<string> &clouds)
             clouds.insert(type);
         }
     }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::parse_public_clouds(const char * pname, string& error)
-{
-    vector<VectorAttribute *>           attrs;
-    vector<VectorAttribute *>::iterator it;
-
-    string * str;
-    string p_vatt;
-
-    int rc  = 0;
-    int num = user_obj_template->remove(pname, attrs);
-
-    for (it = attrs.begin(); it != attrs.end(); it++)
-    {
-        str = (*it)->marshall();
-
-        if ( str == 0 )
-        {
-            ostringstream oss;
-            oss << "Internal error processing " << pname;
-            error = oss.str();
-            rc    = -1;
-            break;
-        }
-
-        rc = parse_template_attribute(*str, p_vatt, error);
-
-        delete str;
-
-        if ( rc != 0 )
-        {
-            rc = -1;
-            break;
-        }
-
-        VectorAttribute * nvatt = new VectorAttribute(pname);
-
-        nvatt->unmarshall(p_vatt);
-
-        user_obj_template->set(nvatt);
-    }
-
-    for (int i = 0; i < num ; i++)
-    {
-        delete attrs[i];
-    }
-
-    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2647,7 +2665,19 @@ int VirtualMachine::get_disk_images(string& error_str)
         context = static_cast<VectorAttribute * >(acontext_disks[0]);
     }
 
-    return disks.get_images(oid, uid, adisks, context, error_str);
+    // -------------------------------------------------------------------------
+    // Deployment mode for the VM disks
+    // -------------------------------------------------------------------------
+    std::string tm_mad_sys;
+
+    if ( user_obj_template->get("TM_MAD_SYSTEM", tm_mad_sys) == true )
+    {
+        user_obj_template->erase("TM_MAD_SYSTEM");
+
+        obj_template->add("TM_MAD_SYSTEM", tm_mad_sys);
+    }
+
+    return disks.get_images(oid, uid, tm_mad_sys, adisks, context, error_str);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2681,7 +2711,14 @@ int VirtualMachine::set_up_attach_disk(VirtualMachineTemplate * tmpl, string& er
 
     VirtualMachineDisk * new_disk;
 
-    new_disk = disks.set_up_attach(oid, uid, get_cid(), new_vdisk, context, err);
+    // -------------------------------------------------------------------------
+    // Deployment mode for the VM disks
+    // -------------------------------------------------------------------------
+    std::string tm_mad_sys;
+
+    obj_template->get("TM_MAD_SYSTEM", tm_mad_sys);
+
+    new_disk = disks.set_up_attach(oid, uid, get_cid(), new_vdisk, tm_mad_sys, context, err);
 
     if ( new_disk == 0 )
     {

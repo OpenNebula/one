@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,6 +20,8 @@
 #include "PoolSQL.h"
 #include "User.h"
 #include "GroupPool.h"
+#include "CachePool.h"
+#include "LoginToken.h"
 
 #include <time.h>
 #include <sstream>
@@ -80,7 +82,14 @@ public:
      */
     User * get(int oid, bool lock)
     {
-        return static_cast<User *>(PoolSQL::get(oid,lock));
+        User * u = static_cast<User *>(PoolSQL::get(oid,lock));
+
+        if ( u != 0 )
+        {
+            u->session = get_session_token(oid);
+        }
+
+        return u;
     };
 
     /**
@@ -93,7 +102,14 @@ public:
     User * get(string name, bool lock)
     {
         // The owner is set to -1, because it is not used in the key() method
-        return static_cast<User *>(PoolSQL::get(name,-1,lock));
+        User * u = static_cast<User *>(PoolSQL::get(name,-1,lock));
+
+        if ( u != 0 )
+        {
+            u->session = get_session_token(u->oid);
+        }
+
+        return u;
     };
 
     /**
@@ -108,6 +124,15 @@ public:
         // Name is enough key because Users can't repeat names.
         return name;
     };
+
+    /**
+     *  Function to get the token password of an user from the pool
+     *    @param uid creator of the object
+     *    @param uid owner of the object, only used if the creator not exists
+     *
+     *    @return the user's token password
+     */
+    string get_token_password(int oid, int bck_oid);
 
     /**
      * Update a particular User. This method does not update the user's quotas
@@ -212,6 +237,18 @@ private:
      **/
     static time_t _session_expiration_time;
 
+    CachePool<SessionToken> cache;
+
+    SessionToken * get_session_token(int oid)
+    {
+        return cache.get_resource(oid);
+    }
+
+    void delete_session_token(int oid)
+    {
+        cache.delete_resource(oid);
+    }
+
     /**
      *  Function to authenticate internal (known) users
      */
@@ -264,7 +301,7 @@ private:
     //--------------------------------------------------------------------------
 
     /**
-     *  Callback function to get output in XML format
+     *  Callback function to  output in XML format
      *    @param num the number of columns read from the DB
      *    @param names the column names
      *    @param vaues the column values

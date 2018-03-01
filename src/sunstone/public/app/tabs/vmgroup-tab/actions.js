@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -45,7 +45,12 @@ define(function(require) {
     "VMGroup.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
     "VMGroup.append_template" : _commonActions.appendTemplate(),
     "VMGroup.chown": _commonActions.multipleAction('chown'),
-    "VMGroup.chgrp": _commonActions.multipleAction('chgrp')
+    "VMGroup.chgrp": _commonActions.multipleAction('chgrp'),
+    "VMGroup.chmod": _commonActions.singleAction('chmod'),
+    "VMGroup.lockM": _commonActions.multipleAction('lock', false),
+    "VMGroup.lockU": _commonActions.multipleAction('lock', false),
+    "VMGroup.lockA": _commonActions.multipleAction('lock', false),
+    "VMGroup.unlock": _commonActions.multipleAction('unlock', false)
   };
 
   return _actions;

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -22,14 +22,17 @@ ID=$2
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
     DATASTORES=/var/lib/one/datastores
+    LIB_LOCATION=/usr/lib/one
 else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
     DATASTORES=$ONE_LOCATION/var/datastores
+    LIB_LOCATION=$ONE_LOCATION/lib
 fi
 
 . $TMCOMMON
 
 DRIVER_PATH=$(dirname $0)
+source ${DRIVER_PATH}/../libfs.sh
 
 # -------- Get image and datastore arguments from OpenNebula core ------------
 
@@ -42,10 +45,12 @@ unset i j XPATH_ELEMENTS
 
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
-done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
+done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
+                    /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
                     /DS_DRIVER_ACTION_DATA/IMAGE/TARGET_SNAPSHOT \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TM_MAD )
 
+BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
 DISK_SRC="${XPATH_ELEMENTS[j++]}"
 SNAP_ID="${XPATH_ELEMENTS[j++]}"
 TM_MAD="${XPATH_ELEMENTS[j++]}"
@@ -58,12 +63,46 @@ SNAP_DIR="${DISK_SRC}.snap"
 SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
 
 if [ "$TM_MAD" = "qcow2" ]; then
-    ACTIVE_SNAP_ID=$(ls ${SNAP_DIR} | sort -n | tail -n 1)
-    ACTIVE_SNAP_PATH="${SNAP_DIR}/${ACTIVE_SNAP_ID}"
+    SNAP_ID_SCRIPT=$(cat <<EOF
+set -e -o pipefail
+ls $SNAP_DIR | grep '^[[:digit:]]*\$' | sort -n | tail -n 1
+EOF
+)
+    if [ -n "$BRIDGE_LIST" ]; then
+        DST_HOST=`get_destination_host $ID`
 
-    rm ${ACTIVE_SNAP_PATH}
-    qemu-img create -f qcow2 -b ${SNAP_PATH} ${ACTIVE_SNAP_PATH}
+        ACTIVE_SNAP_ID=$(ssh_monitor_and_log "$DST_HOST" "$SNAP_ID_SCRIPT" "Error get active snapshot ID" 2>&1)
+        ACTIVE_SNAP_PATH="${SNAP_DIR}/${ACTIVE_SNAP_ID}"
+
+        ssh_exec_and_log "$DST_HOST" "rm $ACTIVE_SNAP_PATH" \
+            "Error deleting $ACTIVE_SNAP_PATH"
+
+        ssh_exec_and_log "$DST_HOST" "qemu-img create -f qcow2 -o backing_fmt=qcow2 -b $SNAP_PATH $ACTIVE_SNAP_PATH" \
+            "Error reverting snapshot to $SNAP_PATH"
+    else
+        ACTIVE_SNAP_ID=$(monitor_and_log "$SNAP_ID_SCRIPT" "Error get active snapshot ID" 2>&1)
+        ACTIVE_SNAP_PATH="${SNAP_DIR}/${ACTIVE_SNAP_ID}"
+
+        exec_and_log "rm ${ACTIVE_SNAP_PATH}" \
+            "Error deleting $ACTIVE_SNAP_PATH"
+
+        exec_and_log "qemu-img create -f qcow2 -o backing_fmt=qcow2 -b ${SNAP_PATH} ${ACTIVE_SNAP_PATH}" \
+            "Error reverting snapshot to $SNAP_PATH"
+    fi
 else
-    mv ${SNAP_PATH} ${DISK_SRC}
-fi
+    if [ -n "$BRIDGE_LIST" ]; then
+        DST_HOST=`get_destination_host $ID`
 
+        ssh_exec_and_log "$DST_HOST" "cp -f ${SNAP_PATH} ${DISK_SRC}.tmp" \
+            "Error copying snapshot $SNAP_PATH"
+
+        ssh_exec_and_log "$DST_HOST" "mv ${DISK_SRC}.tmp ${DISK_SRC}" \
+            "Error moving to $DISK_SRC"
+    else
+        exec_and_log "cp -f ${SNAP_PATH} ${DISK_SRC}.tmp" \
+            "Error copying snapshot $SNAP_PATH"
+
+        exec_and_log "mv ${DISK_SRC}.tmp ${DISK_SRC}" \
+            "Error moving to $DISK_SRC"
+    fi
+fi

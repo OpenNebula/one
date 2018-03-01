@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -144,7 +144,7 @@ class ClusterAddHost : public RequestManagerClusterHost
 {
 public:
     ClusterAddHost():
-        RequestManagerClusterHost("ClusterAddHost",
+        RequestManagerClusterHost("one.cluster.addhost",
                 "Adds a host to the cluster",
                 "A:sii"){};
 
@@ -167,7 +167,7 @@ class ClusterDelHost : public RequestManagerClusterHost
 {
 public:
     ClusterDelHost():
-        RequestManagerClusterHost("ClusterDelHost",
+        RequestManagerClusterHost("one.cluster.delhost",
                 "Deletes a host from its cluster",
                 "A:sii"){};
 
@@ -228,7 +228,7 @@ class ClusterAddDatastore : public RequestManagerClusterDatastore
 {
 public:
     ClusterAddDatastore():
-        RequestManagerClusterDatastore("ClusterAddDatastore",
+        RequestManagerClusterDatastore("one.cluster.adddatastore",
                 "Adds a datastore to the cluster",
                 "A:sii"){};
 
@@ -252,7 +252,7 @@ class ClusterDelDatastore : public RequestManagerClusterDatastore
 {
 public:
     ClusterDelDatastore():
-        RequestManagerClusterDatastore("ClusterDelDatastore",
+        RequestManagerClusterDatastore("one.cluster.deldatastore",
                 "Deletes a datastore from its cluster",
                 "A:sii"){};
 
@@ -313,7 +313,7 @@ class ClusterAddVNet : public RequestManagerClusterVNet
 {
 public:
     ClusterAddVNet():
-        RequestManagerClusterVNet("ClusterAddVNet",
+        RequestManagerClusterVNet("one.cluster.addvnet",
                 "Adds a virtual network to the cluster",
                 "A:sii"){};
 
@@ -337,7 +337,7 @@ class ClusterDelVNet : public RequestManagerClusterVNet
 {
 public:
     ClusterDelVNet():
-        RequestManagerClusterVNet("ClusterDelVNet",
+        RequestManagerClusterVNet("one.cluster.delvnet",
                 "Deletes a virtual network from its cluster",
                 "A:sii"){};
 

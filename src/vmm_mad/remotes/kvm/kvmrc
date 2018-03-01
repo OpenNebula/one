@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -45,3 +45,20 @@ export SHUTDOWN_TIMEOUT=300
 # default value is "ignore" (or its synonym "off"), and the other valid value
 # is "unmap" (or "on").
 #DEFAULT_ATTACH_DISCARD=unmap
+
+# The default DISK I/O policy for new attached disks.
+#DEFAULT_ATTACH_IO=
+
+# These parameters set the default DISK I/O throttling attributes
+# for the new attached disk in case they aren't set.
+#DEFAULT_ATTACH_TOTAL_BYTES_SEC=
+#DEFAULT_ATTACH_READ_BYTES_SEC=
+#DEFAULT_ATTACH_WRITE_BYTES_SEC=
+#DEFAULT_ATTACH_TOTAL_IOPS_SEC=
+#DEFAULT_ATTACH_READ_IOPS_SEC=
+#DEFAULT_ATTACH_WRITE_IOPS_SEC=
+
+# This parameters will set the default NIC model and filter for
+# the hot-attached interfaces.
+#DEFAULT_ATTACH_NIC_MODEL=virtio
+#DEFAULT_ATTACH_NIC_FILTER=clean-traffic

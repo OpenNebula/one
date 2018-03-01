@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -359,17 +359,12 @@ define(function(require) {
       var empty_label = (label == undefined || label == "");
       empty = (empty && empty_label);
 
-      if (empty_label){
+      if (empty_label) {
         $("span.advanced-search-label", context).text("-");
       } else {
         $("span.advanced-search-label", context).text(label);
       }
 
-      if(empty){
-        $("button.search-dropdown", context).addClass("hollow");
-      } else {
-        $("button.search-dropdown", context).removeClass("hollow");
-      }
     });
 
     $.fn.dataTable.ext.search.push(
@@ -1231,16 +1226,17 @@ define(function(require) {
       success_func(request, []);
       Notifier.onError(request, error_json, container);
     }
-
+    var pool_filter = SunstoneConfig.isChangedFilter()? -4 : -2;
     if (that.selectOptions.zone_id == undefined) {
       OpenNebula[that.resource].list({
+        data : {pool_filter : pool_filter},
         timeout: true,
         success: success_func,
         error: error_func
       });
     } else {
       OpenNebula[that.resource].list_in_zone({
-        data: {zone_id: that.selectOptions.zone_id},
+        data: {zone_id: that.selectOptions.zone_id, pool_filter : pool_filter},
         timeout: true,
         success: success_func,
         error: error_func
@@ -1251,7 +1247,9 @@ define(function(require) {
   // TODO: This is probably duplicated somewhere
   function _list() {
     var that = this;
+    var pool_filter = SunstoneConfig.isChangedFilter()? -4 : -2;
     OpenNebula[that.resource].list({
+      data : {pool_filter : pool_filter},
       success: function(req, resp) {
         that.updateView(req, resp);
       },

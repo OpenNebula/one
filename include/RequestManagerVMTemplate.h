@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -55,7 +55,7 @@ class VMTemplateInstantiate : public RequestManagerVMTemplate
 {
 public:
     VMTemplateInstantiate():
-        RequestManagerVMTemplate("TemplateInstantiate", "Instantiates a new "
+        RequestManagerVMTemplate("one.template.instantiate", "Instantiates a new "
             "virtual machine using a template", "A:sisbs")
     {
         auth_op = AuthRequest::USE;

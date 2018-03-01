@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -126,7 +126,7 @@ class VirtualMachineAllocate: public RequestManagerAllocate
 {
 public:
     VirtualMachineAllocate():
-        RequestManagerAllocate("VirtualMachineAllocate",
+        RequestManagerAllocate("one.vm.allocate",
                                "Allocates a new virtual machine",
                                "A:ssb",
                                true)
@@ -162,7 +162,7 @@ class VirtualNetworkAllocate: public RequestManagerAllocate
 {
 public:
     VirtualNetworkAllocate():
-        RequestManagerAllocate("VirtualNetworkAllocate",
+        RequestManagerAllocate("one.vn.allocate",
                                "Allocates a new virtual network",
                                "A:ssi",
                                true)
@@ -209,7 +209,7 @@ class ImageAllocate: public RequestManagerAllocate
 {
 public:
     ImageAllocate():
-        RequestManagerAllocate("ImageAllocate",
+        RequestManagerAllocate("one.image.allocate",
                                "Allocates a new image",
                                "A:ssi",
                                true)
@@ -234,7 +234,7 @@ class TemplateAllocate : public RequestManagerAllocate
 {
 public:
     TemplateAllocate():
-        RequestManagerAllocate("TemplateAllocate",
+        RequestManagerAllocate("one.template.allocate",
                                "Allocates a new virtual machine template",
                                "A:ss",
                                true)
@@ -270,7 +270,7 @@ class HostAllocate : public RequestManagerAllocate
 {
 public:
     HostAllocate():
-        RequestManagerAllocate("HostAllocate",
+        RequestManagerAllocate("one.host.allocate",
                                "Allocates a new host",
                                "A:ssssi",
                                false)
@@ -312,7 +312,7 @@ class UserAllocate: public RequestManagerAllocate
 {
 public:
     UserAllocate():
-        RequestManagerAllocate("UserAllocate",
+        RequestManagerAllocate("one.user.allocate",
                                "Returns user information",
                                "A:ssssA",
                                false)
@@ -346,7 +346,7 @@ class GroupAllocate: public RequestManagerAllocate
 {
 public:
     GroupAllocate():
-        RequestManagerAllocate("GroupAllocate",
+        RequestManagerAllocate("one.group.allocate",
                                "Allocates a new group",
                                "A:ss",
                                false)
@@ -376,7 +376,7 @@ class DatastoreAllocate: public RequestManagerAllocate
 {
 public:
     DatastoreAllocate():
-        RequestManagerAllocate("DatastoreAllocate",
+        RequestManagerAllocate("one.datastore.allocate",
                                "Allocates a new Datastore",
                                "A:ssi",
                                true)
@@ -423,7 +423,7 @@ class ClusterAllocate: public RequestManagerAllocate
 {
 public:
     ClusterAllocate():
-        RequestManagerAllocate("ClusterAllocate",
+        RequestManagerAllocate("one.cluster.allocate",
                                "Allocates a new cluster",
                                "A:ss",
                                false)
@@ -448,7 +448,7 @@ class DocumentAllocate : public RequestManagerAllocate
 {
 public:
     DocumentAllocate():
-        RequestManagerAllocate("DocumentAllocate",
+        RequestManagerAllocate("one.document.allocate",
                                "Allocates a new generic document",
                                "A:ssi",
                                true)
@@ -480,7 +480,7 @@ class ZoneAllocate: public RequestManagerAllocate
 {
 public:
     ZoneAllocate():
-        RequestManagerAllocate("ZoneAllocate",
+        RequestManagerAllocate("one.zone.allocate",
                                "Allocates a new zone",
                                "A:ss",
                                true)
@@ -515,7 +515,7 @@ class SecurityGroupAllocate : public RequestManagerAllocate
 {
 public:
     SecurityGroupAllocate():
-        RequestManagerAllocate("SecurityGroupAllocate",
+        RequestManagerAllocate("one.secgroup.allocate",
                                "Allocates a new security group",
                                "A:ss",
                                true)
@@ -547,7 +547,7 @@ class VdcAllocate : public RequestManagerAllocate
 {
 public:
     VdcAllocate():
-        RequestManagerAllocate("VdcAllocate",
+        RequestManagerAllocate("one.vdc.allocate",
                                "Allocates a new VDC",
                                "A:ss",
                                true)
@@ -580,7 +580,7 @@ class VirtualRouterAllocate : public RequestManagerAllocate
 {
 public:
     VirtualRouterAllocate():
-        RequestManagerAllocate("VirtualRouterAllocate",
+        RequestManagerAllocate("one.vrouter.allocate",
                                "Allocates a new virtual router",
                                "A:ss",
                                true)
@@ -616,7 +616,7 @@ class MarketPlaceAllocate : public RequestManagerAllocate
 {
 public:
     MarketPlaceAllocate():
-        RequestManagerAllocate("MarketPlaceAllocate",
+        RequestManagerAllocate("one.market.allocate",
                                "Allocates a new marketplace",
                                "A:ss",
                                true)
@@ -648,7 +648,7 @@ class MarketPlaceAppAllocate : public RequestManagerAllocate
 {
 public:
     MarketPlaceAppAllocate():
-        RequestManagerAllocate("MarketPlaceAppAllocate",
+        RequestManagerAllocate("one.marketapp.allocate",
                                "Allocates a new marketplace app",
                                "A:ssi",
                                true)
@@ -683,7 +683,7 @@ class VMGroupAllocate : public RequestManagerAllocate
 {
 public:
     VMGroupAllocate():
-        RequestManagerAllocate("VMGroupAllocate",
+        RequestManagerAllocate("one.vmgroup.allocate",
                                "Allocates a new vm group",
                                "A:ss",
                                true)

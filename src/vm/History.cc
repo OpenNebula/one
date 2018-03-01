@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -40,6 +40,9 @@ History::History(
         ObjectXML(),
         oid(_oid),
         seq(_seq),
+        uid(-1),
+        gid(-1),
+        req_id(-1),
         hid(-1),
         hostname(""),
         cid(-1),
@@ -71,6 +74,9 @@ History::History(
     const string& _vm_info):
         oid(_oid),
         seq(_seq),
+        uid(-1),
+        gid(-1),
+        req_id(-1),
         hid(_hid),
         hostname(_hostname),
         cid(_cid),
@@ -185,7 +191,7 @@ int History::insert_replace(SqlDB *db, bool replace)
         <<          stime           << ","
         <<          etime           << ")";
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     db->free_str(sql_xml);
 
@@ -234,9 +240,14 @@ int History::select(SqlDB * db)
 
     set_callback(static_cast<Callbackable::Callback>(&History::select_cb));
 
-    rc = db->exec(oss,this);
+    rc = db->exec_rd(oss,this);
 
     unset_callback();
+
+	if ( hostname.empty() )
+	{
+		rc = -1;
+	}
 
     if ( rc == 0 ) // Regenerate non-persistent data
     {
@@ -255,7 +266,7 @@ int History::drop(SqlDB * db)
 
     oss << "DELETE FROM " << table << " WHERE vid= "<< oid;
 
-    return db->exec(oss);
+    return db->exec_wr(oss);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -332,6 +343,8 @@ string& History::to_xml(string& xml, bool database) const
 
 int History::rebuild_attributes()
 {
+    vector<xmlNodePtr> content;
+
     int int_action;
     int rc = 0;
 
@@ -363,6 +376,24 @@ int History::rebuild_attributes()
     rc += xpath(req_id, "/HISTORY/REQUEST_ID", -1);
 
     action = static_cast<VMAction>(int_action);
+
+    // -------------------------------------------------------------------------
+    ObjectXML::get_nodes("/HISTORY/VM", content);
+
+    if (!content.empty())
+    {
+        ObjectXML vm_info_xml(content[0]);
+
+        ostringstream oss;
+
+        oss << vm_info_xml;
+
+        vm_info = oss.str();
+
+        ObjectXML::free_nodes(content);
+
+        content.clear();
+    }
 
     non_persistent_data();
 

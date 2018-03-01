@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -47,12 +47,15 @@ define(function(require) {
       "you_selected_multiple": Locale.tr("You selected the following files:")
     };
 
+    this.totalFiles = 0;
     ImageCommonDataTable.call(this, RESOURCE, TAB_NAME, dataTableId, conf);
   };
 
   Table.prototype = Object.create(ImageCommonDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
+  Table.prototype.preUpdateView = _preUpdateView;
+  Table.prototype.postUpdateView = _postUpdateView;
 
   return Table;
 
@@ -69,6 +72,15 @@ define(function(require) {
       return false;
     }
 
+    this.totalFiles++;
     return this.elementArrayCommon(element_json);
+  }
+
+  function _preUpdateView() {
+    this.totalFiles = 0;
+  }
+
+  function _postUpdateView() {
+    $(".total_files").text(this.totalFiles);
   }
 });

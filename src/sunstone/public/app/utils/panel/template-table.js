@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -23,6 +23,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Sunstone = require('sunstone');
   var TemplateUtils = require('utils/template-utils');
+  var Notifier = require('utils/notifier');
 
   /*
     Generate the table HTML with the template of the resource and an edit icon
@@ -31,7 +32,10 @@ define(function(require) {
     @param {String} tableName Header of the table (i.e: Locale.tr("Attributes"))
     @returns {String} HTML table
    */
-  function _html(templateJSON, resourceType, tableName) {
+  function _html(templateJSON, resourceType, tableName, modify) {
+    if (!modify) {
+      modify = true;
+    }
     var str =
       '<table id="' + resourceType.toLowerCase() + '_template_table" class="dataTable configuration_attrs">\
         <thead>\
@@ -41,13 +45,15 @@ define(function(require) {
           '</th>\
           </tr>\
          </thead>' +
-       fromJSONtoHTMLTable(templateJSON, resourceType) +
-       '<tr>\
+       fromJSONtoHTMLTable(templateJSON, resourceType, undefined, undefined, modify);
+    if (modify) {
+       str += '<tr>\
            <td class="key_td"><input type="text" name="new_key" id="new_key" /></td>\
            <td class="value_td"><textarea type="text" name="new_value" id="new_value"></textarea></td>\
            <td class="text-right"><button type="button" id="button_add_value" class="button small secondary"><i class="fa fa-lg fa-plus-circle"></i></button>\</td>\
-         </tr>\
-      </table>'
+         </tr>';
+    }
+    str += '</table>'
 
     return str;
   }
@@ -62,7 +68,12 @@ define(function(require) {
       have been deleted from the templateJSON param. Whithout this, a template
       update would permanently delete the missing values from OpenNebula
    */
-  var _setup = function(templateJSON, resourceType, resourceId, context, unshownValues) {
+
+  var _setup = function(templateJSON, resourceType, resourceId, context, unshownValues, templateJSON_Others) {
+
+    if (!templateJSON_Others){
+      templateJSON_Others = templateJSON;
+    }
     // Remove previous listeners
     context.off("keypress", "#new_key");
     context.off("keypress", "#new_value");
@@ -76,23 +87,31 @@ define(function(require) {
     context.off("click", "#button_add_value");
     context.off("click", "#button_add_value_vectorial");
     context.off("click", "#div_add_vectorial");
+    this.templateJSON_Others = templateJSON_Others;
+    var that = this;
 
     // Add listener for add key and add value for Extended Template
     context.on("click", '#button_add_value', function() {
       new_value = $('#new_value', $(this).parent().parent()).val();
       new_key   = $('#new_key', $(this).parent().parent()).val();
 
-      if (new_key != "") {
-        var templateJSON_bk = $.extend({}, templateJSON);
-        if (templateJSON[$.trim(new_key)] && (templateJSON[$.trim(new_key)] instanceof Array)) {
-          templateJSON[$.trim(new_key)].push($.trim(new_value));
-        } else {
-          templateJSON[$.trim(new_key)] = $.trim(new_value);
-        }
-        template_str  = TemplateUtils.templateToString(templateJSON, unshownValues);
+      if (!templateJSON[new_key]){
+        if (new_key != "") {
+          templateJSON = $.extend({}, templateJSON_Others, templateJSON);
+          var templateJSON_bk = $.extend({},templateJSON);
 
-        Sunstone.runAction(resourceType + ".update_template", resourceId, template_str);
-        templateJSON = templateJSON_bk;
+          if (templateJSON[$.trim(new_key)] && (templateJSON[$.trim(new_key)] instanceof Array)) {
+            templateJSON[$.trim(new_key)].push($.trim(new_value));
+          } else {
+            templateJSON[$.trim(new_key)] = $.trim(new_value);
+          }
+          template_str  = TemplateUtils.templateToString(templateJSON, unshownValues);
+
+          Sunstone.runAction(resourceType + ".update_template", resourceId, template_str);
+          templateJSON = templateJSON_bk;
+        }
+      } else {
+        Notifier.notifyError(Locale.tr("Not valid attribute"));
       }
     });
 
@@ -126,10 +145,11 @@ define(function(require) {
 
       // Erase the value from the template
       if (ocurrence != null)
-          templateJSON[field].splice(ocurrence, 1);
+          that.templateJSON_Others[field].splice(ocurrence, 1);
       else
-          delete templateJSON[field];
+          delete that.templateJSON_Others[field];
 
+      templateJSON = $.extend({}, templateJSON_Others, templateJSON);
       template_str = TemplateUtils.templateToString(templateJSON, unshownValues);
 
       // Let OpenNebula know
@@ -160,11 +180,12 @@ define(function(require) {
     context.on("change", ".input_edit_value", function() {
       var key_str          = $.trim(this.id.substring(11, this.id.length));
       var value_str        = $.trim(this.value);
-      var templateJSON_bk = $.extend({}, templateJSON);
+      var templateJSON_bk = $.extend({}, templateJSON_Others);
 
-      delete templateJSON[key_str];
-      templateJSON[key_str] = value_str;
+      delete templateJSON_Others[key_str];
+      templateJSON_Others[key_str] = value_str;
 
+      templateJSON = $.extend({}, templateJSON_Others, templateJSON);
       template_str = TemplateUtils.templateToString(templateJSON, unshownValues);
 
       // Let OpenNebula know
@@ -209,7 +230,7 @@ define(function(require) {
     context.on("change", ".input_edit_value_vectorial", function() {
       var key_str          = $.trim(this.id.substring(11, this.id.length));
       var value_str        = $.trim(this.value);
-      var templateJSON_bk = $.extend({}, templateJSON);
+      var templateJSON_bk = $.extend({}, templateJSON_Others);
 
       var list_of_classes  = this.className.split(" ");
       var ocurrence        = null;
@@ -230,10 +251,11 @@ define(function(require) {
       }
 
       if (ocurrence != null)
-          templateJSON[vectorial_key][ocurrence][key_str] = value_str;
+          templateJSON_Others[vectorial_key][ocurrence][key_str] = value_str;
       else
-          templateJSON[vectorial_key][key_str] = value_str;
+          templateJSON_Others[vectorial_key][key_str] = value_str;
 
+      templateJSON = $.extend({}, templateJSON_Others, templateJSON);
       template_str = TemplateUtils.templateToString(templateJSON, unshownValues);
 
       // Let OpenNebula know
@@ -266,10 +288,11 @@ define(function(require) {
 
       // Erase the value from the template
       if (ocurrence != null)
-          delete templateJSON[vectorial_key][ocurrence][field];
+          delete templateJSON_Others[vectorial_key][ocurrence][field];
       else
-          delete templateJSON[vectorial_key][field];
+          delete templateJSON_Others[vectorial_key][field];
 
+      templateJSON = $.extend({}, templateJSON_Others, templateJSON);
       template_str = TemplateUtils.templateToString(templateJSON, unshownValues);
 
       // Let OpenNebula know
@@ -312,7 +335,7 @@ define(function(require) {
         var list_of_classes  = this.className.split(" ");
         var ocurrence        = null;
         var vectorial_key    = null;
-        var templateJSON_bk = $.extend({}, templateJSON);
+        var templateJSON_bk = $.extend({}, templateJSON_Others);
 
         if (list_of_classes.length != 1) {
           $.each(list_of_classes, function(index, value) {
@@ -332,11 +355,12 @@ define(function(require) {
 
         if (ocurrence != null) {
           ocurrence = ocurrence.substring(10, ocurrence.length);
-          templateJSON[vectorial_key][ocurrence][$('#new_key_vectorial').val()] = $.trim($('#new_value_vectorial').val());
+          templateJSON_Others[vectorial_key][ocurrence][$('#new_key_vectorial').val()] = $.trim($('#new_value_vectorial').val());
         } else {
-          templateJSON[vectorial_key][$('#new_key_vectorial').val()] = $.trim($('#new_value_vectorial').val());
+          templateJSON_Others[vectorial_key][$('#new_key_vectorial').val()] = $.trim($('#new_value_vectorial').val());
         }
 
+        templateJSON = $.extend({}, templateJSON_Others, templateJSON);
         template_str  = TemplateUtils.templateToString(templateJSON, unshownValues);
 
         Sunstone.runAction(resourceType + ".update_template", resourceId, template_str);
@@ -359,7 +383,7 @@ define(function(require) {
   }
 
   // Returns an HTML string with the json keys and values
-  function fromJSONtoHTMLTable(templateJSON, resourceType, vectorial, ocurrence) {
+  function fromJSONtoHTMLTable(templateJSON, resourceType, vectorial, ocurrence, modify) {
     var str = ""
     if (!templateJSON) { return "Not defined";}
     var field = null;
@@ -370,14 +394,15 @@ define(function(require) {
                                templateJSON[field],
                                resourceType,
                                vectorial,
-                               ocurrence);
+                               ocurrence,
+                               modify);
     }
 
     return str;
   }
 
   // Helper for fromJSONtoHTMLTable function
-  function fromJSONtoHTMLRow(field, value, resourceType, vectorial_key, ocurrence) {
+  function fromJSONtoHTMLRow(field, value, resourceType, vectorial_key, ocurrence, modify) {
     var str = "";
 
     // value can be an array
@@ -391,28 +416,32 @@ define(function(require) {
         if (typeof current_value == 'object') {
           str += '<tr id="' + resourceType.toLowerCase() + '_template_table_' + field + '">\
                     <td class="key_td key_vectorial_td">' + Locale.tr(field) + '</td>\
-                    <td class="value_vectorial_td"></td>\
-                    <td class="text-right nowrap">\
-                      <span id="div_add_vectorial">\
-                        <a id="div_add_vectorial_' + field + '" class="add_vectorial_a ocurrence_' + it + ' vectorial_key_' + field + '" href="#"><i class="fa fa-plus-sign"/></a>\
-                      </span>&emsp;\
-                      <span id="div_minus">\
-                        <a id="div_minus_' + field + '" class="remove_vectorial_x ocurrence_' + it + '" href="#"><i class="fa fa-pencil-square-o"/><i class="fa fa-trash-o"/></a>\
-                      </span>\
-                    </td>\
-                  </tr>'
+                    <td class="value_vectorial_td"></td>';
+                    if (modify) {
+                      str += '<td class="text-right nowrap">\
+                        <span id="div_add_vectorial">\
+                          <a id="div_add_vectorial_' + field + '" class="add_vectorial_a ocurrence_' + it + ' vectorial_key_' + field + '" href="#"><i class="fa fa-plus-sign"/></a>\
+                        </span>&emsp;\
+                        <span id="div_minus">\
+                          <a id="div_minus_' + field + '" class="remove_vectorial_x ocurrence_' + it + '" href="#"><i class="fa fa-trash-o"/></a>\
+                        </span>\
+                      </td>';
+                    }
+          str += '</tr>'
 
           str += fromJSONtoHTMLTable(current_value,
                                      resourceType,
                                      field,
-                                     it);
+                                     it,
+                                     modify);
         } else {
           // if it is a single value, create the row for this occurence of the key
           str += fromJSONtoHTMLRow(field,
                                    current_value,
                                    resourceType,
                                    false,
-                                   it);
+                                   it,
+                                   modify);
         }
       }
     } else // or value can be a string
@@ -425,48 +454,55 @@ define(function(require) {
         if (vectorial_key) {
           str += '<tr>\
                     <td class="key_td key_vectorial_td">&emsp;&emsp;' + Locale.tr(field) + '</td>\
-                    <td class="value_td value_vectorial_td value_td_input_' + field + ocurrence_str + ' vectorial_key_' + vectorial_key + '" id="value_td_input_' + field + '">' + TemplateUtils.htmlEncode(value) + '</td>\
-                    <td class="text-right nowrap">\
-                      <span id="div_edit_vectorial">\
-                        <a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + ' vectorial_key_' + vectorial_key + '" href="#"><i class="fa fa-pencil-square-o"/></a>\
-                      </span>&emsp;\
-                      <span id="div_minus_vectorial">\
-                        <a id="div_minus_' + field + '" class="remove_x' + ocurrence_str + ' vectorial_key_' + vectorial_key + '" href="#"><i class="fa fa-trash-o"/></a>\
-                      </span>\
-                    </td>\
-                  </tr>';
+                    <td class="value_td value_vectorial_td value_td_input_' + field + ocurrence_str + ' vectorial_key_' + vectorial_key + '" id="value_td_input_' + field + '">' + TemplateUtils.htmlEncode(value) + '</td>';
+                    if (modify) {
+                      str += '<td class="text-right nowrap">\
+                        <span id="div_edit_vectorial">\
+                          <a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + ' vectorial_key_' + vectorial_key + '" href="#"><i class="fa fa-pencil-square-o"/></a>\
+                        </span>&emsp;\
+                        <span id="div_minus_vectorial">\
+                          <a id="div_minus_' + field + '" class="remove_x' + ocurrence_str + ' vectorial_key_' + vectorial_key + '" href="#"><i class="fa fa-trash-o"/></a>\
+                        </span>\
+                      </td>'
+                    }
+                    str += '</tr>';
         } else {
           // If it is not comming from a vectorial daddy key, it can still vectorial itself
           if (typeof value == 'object') {
             str += '<tr id="' + resourceType.toLowerCase() + '_template_table_' + field + '">\
                       <td class="key_td key_vectorial_td">' + Locale.tr(field) + '</td>\
-                      <td class="value_vectorial_td"></td>\
-                      <td class="text-right nowrap">\
-                        <span id="div_add_vectorial">\
-                          <a id="div_add_vectorial_' + field + '" class="add_vectorial_a' + ocurrence_str + ' vectorial_key_' + field + '" href="#"><i class="fa fa-plus-sign"/></a>\
-                        </span>&emsp;\
-                        <span id="div_minus">\
-                          <a id="div_minus_' + field + '" class="remove_vectorial_x' + ocurrence_str + '" href="#"><i class="fa fa-trash-o"/></a>\
-                        </span>\
-                      </td>'
+                      <td class="value_vectorial_td"></td>';
+                      if (modify) {
+                        str += '<td class="text-right nowrap">\
+                          <span id="div_add_vectorial">\
+                            <a id="div_add_vectorial_' + field + '" class="add_vectorial_a' + ocurrence_str + ' vectorial_key_' + field + '" href="#"><i class="fa fa-plus-sign"/></a>\
+                          </span>&emsp;\
+                          <span id="div_minus">\
+                            <a id="div_minus_' + field + '" class="remove_vectorial_x' + ocurrence_str + '" href="#"><i class="fa fa-trash-o"/></a>\
+                          </span>\
+                        </td>'
+                      }
             str += fromJSONtoHTMLTable(value,
                        resourceType,
                        field,
-                       ocurrence);
+                       ocurrence,
+                       modify);
           } else // or, just a single value
              {
                str += '<tr>\
                         <td class="key_td">' + Locale.tr(field) + '</td>\
-                        <td class="value_td" id="value_td_input_' + field + '">' + TemplateUtils.htmlEncode(value) + '</td>\
-                        <td class="text-right nowrap">\
-                          <span id="div_edit">\
-                            <a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + '" href="#"><i class="fa fa-pencil-square-o"/></a>\
-                          </span>&emsp;\
-                          <span id="div_minus">\
-                            <a id="div_minus_' + field + '" class="remove_x' + ocurrence_str + '" href="#"><i class="fa fa-trash-o"/></a>\
-                          </span>\
-                        </td>\
-                      </tr>';
+                        <td class="value_td" id="value_td_input_' + field + '">' + TemplateUtils.htmlEncode(value) + '</td>';
+                        if (modify) {
+                          str += '<td class="text-right nowrap">\
+                            <span id="div_edit">\
+                              <a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + '" href="#"><i class="fa fa-pencil-square-o"/></a>\
+                            </span>&emsp;\
+                            <span id="div_minus">\
+                              <a id="div_minus_' + field + '" class="remove_x' + ocurrence_str + '" href="#"><i class="fa fa-trash-o"/></a>\
+                            </span>\
+                          </td>';
+                        }
+                      str += '</tr>';
              }
         }
 

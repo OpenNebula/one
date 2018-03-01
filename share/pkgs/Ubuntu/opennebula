@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 ### BEGIN INIT INFO
 # Provides:          opennebula
 # Required-Start:    $remote_fs $syslog
@@ -38,7 +38,22 @@ do_start()
 {
     mkdir -p /var/run/one /var/lock/one
     chown oneadmin /var/run/one /var/lock/one
+    logrotate -f /etc/logrotate.d/opennebula /etc/logrotate.d/opennebula-scheduler
     su oneadmin -s /bin/sh -c 'one start'
+    ONE_START=$?
+
+    # wait for the service to be ready
+    RETRIES=30
+    while ! onegroup list >/dev/null 2>&1; do
+        RETRIES=$((RETRIES - 1))
+        if [ ${RETRIES} -le 0 ]; then
+          return 2
+        fi
+
+        sleep 2
+    done
+
+    return $ONE_START
 }
 
 #
@@ -51,6 +66,7 @@ do_stop()
 
 do_start_sched()
 {
+    logrotate -f /etc/logrotate.d/opennebula-scheduler
     su oneadmin -s /bin/sh -c 'one start-sched'
 }
 

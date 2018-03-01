@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -14,19 +14,22 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
+<br>
 <div class="template-row" element-id="{{element.ID}}">
-  <h5>
-    {{element.NAME}}
-    <span class="total_cost_div" hidden>
-      <small class="cost_value">0.00</small>
-      <small>{{tr "COST"}} / {{tr "HOUR"}}</small>
-    </span>
-  </h5>
-  <span>
-    <img src="{{element.TEMPLATE.LOGO}}">
-  </span>
   <div class="row">
-    <div class="medium-6 small-12 columns capacityContext{{element.ID}}">
+    <div class="medium-2 small-12 columns">
+      <h6>
+        {{element.NAME}}<br>
+        <span class="total_cost_div" hidden>
+          <small class="cost_value">0.00</small>
+          <small>{{tr "COST"}} / {{tr "HOUR"}}</small>
+        </span>
+      </h6>
+      <span>
+        <img src="{{element.TEMPLATE.LOGO}}">
+      </span>
+    </div>
+    <div class="medium-5 small-12 columns capacityContext{{element.ID}}" style="padding-top: 15px; padding-left: 35px">
       <fieldset>
         <legend>
           <i class="fa fa-laptop"></i> {{tr "Capacity"}}
@@ -40,17 +43,83 @@
         </div>
       </fieldset>
     </div>
-    <div class="medium-6 small-12 columns disksContext{{element.ID}}"></div>
+    <div class="medium-5 small-12 columns disksContext{{element.ID}}" style="padding-top: 15px"></div>
   </div>
   <div class="row">
-    <div class="medium-6 small-12 columns template_user_inputs{{element.ID}}"></div>
+    <div class="medium-5 small-12 columns template_user_inputs{{element.ID}}"></div>
   </div>
+  {{#isFeatureEnabled "show_vnet_instantiate"}}
   <div class="row">
     <div class="small-12 columns nicsContext{{element.ID}}">
       <div class="provision_network_selector">
       </div>
     </div>
   </div>
+  {{/isFeatureEnabled}}
+  {{#advancedSection (tr "Advanced options") }}
+  {{#isFeatureEnabled "show_host_instantiate"}}
+  <div class="row">
+    <div class="small-12 columns hostContext{{element.ID}}">
+      <fieldset>
+        <legend>
+          <i class="fa fa-globe"></i> {{tr "Host"}}
+        </legend>
+        <div class="provision_host_selector{{element.ID}}" data-tab-content>{{{hostsDatatable}}}</div>
+        <div class="row">
+            <div class="large-12 columns">
+              <label for="SCHED_REQUIREMENTS">
+                {{tr "Expression"}}
+                {{{tip (tr "Boolean expression that rules out entries from the pool of datastores suitable to run this VM.")}}}
+              </label>
+              <input type="text" wizard_field="SCHED_REQUIREMENTS" id="SCHED_REQUIREMENTS{{element.ID}}" name="requirements" />
+            </div>
+        </div>
+      </fieldset>
+    </div>
+  </div>
+  {{/isFeatureEnabled}}
+  {{#isFeatureEnabled "show_ds_instantiate"}}
+  <div class="row">
+    <div class="small-12 columns dsContext{{element.ID}}">
+      <fieldset>
+        <legend>
+          <i class="fa fa-globe"></i> {{tr "Datastore"}}
+        </legend>
+        <div class="provision_ds_selector{{element.ID}}" data-tab-content>{{{dsDatatable}}}</div>
+        <div class="row">
+            <div class="large-12 columns">
+              <label for="SCHED_DS_REQUIREMENTS">
+                {{tr "Expression"}}
+                {{{tip (tr "Boolean expression that rules out entries from the pool of datastores suitable to run this VM.")}}}
+              </label>
+              <input type="text" wizard_field="SCHED_DS_REQUIREMENTS" id="SCHED_DS_REQUIREMENTS{{element.ID}}" name="requirements" />
+            </div>
+        </div>
+      </fieldset>
+    </div>
+  </div>
+  {{/isFeatureEnabled}}
+  <div class="row">
+    <div class="large-12 columns actionContext{{element.ID}}">
+      <fieldset>
+        <legend>
+          <i class="fa fa-globe"></i> {{tr "Actions"}}
+        </legend>
+        <table id="scheduling_inst_actions_table" class="info_table dataTable">
+          <thead>
+            <tr>
+              <th> {{tr "Action"}} </th>
+              <th> {{tr "Time"}} </th>
+              <th colspan=""> {{tr "Actions"}} </th>
+              <th><button id="add_scheduling_inst_action" class="button small success right radius"> {{tr "Add action"}} </button></th>
+            </tr>
+          </thead>
+          <tbody id="sched_inst_actions_body"></tbody>
+        </table>
+      </fieldset>
+    </div>
+  </div>
+  {{#isFeatureEnabled "show_vmgroup_instantiate"}}
   <div class="row">
     <div class="small-12 columns vmgroupContext{{element.ID}}">
       <fieldset>
@@ -67,10 +136,13 @@
       </fieldset>
     </div>
   </div>
-   <div class="row">
-    <div class="medium-6 small-12 columns deployFolderContext{{element.ID}}">
-      <div class="provision_deploy_folder_selector">
+  {{/isFeatureEnabled}}
+  <div class="row">
+    <div class="medium-6 small-12 columns vcenterVMFolderContext{{element.ID}}">
+      <div class="provision_vcenter_vm_folder_selector">
       </div>
     </div>
   </div>
+  {{/advancedSection}}
 </div>
+<br>

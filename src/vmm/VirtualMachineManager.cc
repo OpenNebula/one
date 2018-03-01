@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -354,16 +354,10 @@ void VirtualMachineManager::deploy_action(int vid)
     }
 
     int uid = vm->get_created_by_uid();
-
+    int owner_id = vm->get_uid();
     vm->unlock();
 
-    User * user = Nebula::instance().get_upool()->get(uid, true);
-
-    if (user != 0)
-    {
-        user->get_template_attribute("TOKEN_PASSWORD", password);
-        user->unlock();
-    }
+    password = Nebula::instance().get_upool()->get_token_password(uid, owner_id);
 
     vm = vmpool->get(vid,true);
 
@@ -422,6 +416,8 @@ void VirtualMachineManager::deploy_action(int vid)
     vmd->deploy(vid, *drv_msg);
 
     delete drv_msg;
+
+    vmpool->update(vm);
 
     vm->unlock();
 
@@ -1213,16 +1209,10 @@ void VirtualMachineManager::restore_action(
     }
 
     int uid = vm->get_created_by_uid();
-
+    int owner_id = vm->get_uid();
     vm->unlock();
 
-    User * user = Nebula::instance().get_upool()->get(uid, true);
-
-    if (user != 0)
-    {
-        user->get_template_attribute("TOKEN_PASSWORD", password);
-        user->unlock();
-    }
+    password = Nebula::instance().get_upool()->get_token_password(uid, owner_id);
 
     vm = vmpool->get(vid,true);
 
@@ -1266,6 +1256,8 @@ void VirtualMachineManager::restore_action(
     vmd->restore(vid, *drv_msg);
 
     delete drv_msg;
+
+    vmpool->update(vm);
 
     vm->unlock();
 
@@ -2273,15 +2265,10 @@ void VirtualMachineManager::attach_nic_action(
     }
 
     int uid = vm->get_created_by_uid();
+    int owner_id = vm->get_uid();
     vm->unlock();
 
-    User * user = Nebula::instance().get_upool()->get(uid, true);
-
-    if (user != 0)
-    {
-        user->get_template_attribute("TOKEN_PASSWORD", password);
-        user->unlock();
-    }
+    password = Nebula::instance().get_upool()->get_token_password(uid, owner_id);
 
     vm = vmpool->get(vid,true);
 
@@ -2326,6 +2313,8 @@ void VirtualMachineManager::attach_nic_action(
     vmd->attach_nic(vid, *drv_msg);
 
     delete drv_msg;
+
+    vmpool->update(vm);
 
     vm->unlock();
 

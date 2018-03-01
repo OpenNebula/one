@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -111,9 +111,12 @@ class OneMarket
                 end
             end
 
+            begin
             if !app["opennebula_template"].nil?
                 vmtmpl64 = template_to_str(JSON.parse(app["opennebula_template"]))
                 print_var(tmpl, "VMTEMPLATE64", Base64::strict_encode64(vmtmpl64))
+            end
+            rescue
             end
 
             appstr << "APP=\"#{Base64::strict_encode64(tmpl)}\"\n"

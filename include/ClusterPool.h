@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -201,7 +201,8 @@ public:
         int rc;
 
         rc  = Cluster::bootstrap(_db);
-        rc += _db->exec(BitMap<0>::bootstrap(Cluster::bitmap_table, oss_bitmap));
+        rc += _db->exec_local_wr(
+                BitMap<0>::bootstrap(Cluster::bitmap_table, oss_bitmap));
 
         return rc;
     };

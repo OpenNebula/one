@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -403,6 +403,34 @@ module OpenNebula
             return @body['shutdown_action']
         end
 
+        # Replaces the template contents
+        #
+        # @param template_json [String] New template contents
+        # @param append [true, false] True to append new attributes instead of
+        #   replace the whole template
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def update(template_json=nil, append=false)
+            if template_json
+                template = JSON.parse(template_json)
+
+                if append
+                    rc = info
+
+                    if OpenNebula.is_error? rc
+                        return rc
+                    end
+
+                    template = @body.merge(template)
+                end
+
+                template_json = template.to_json
+            end
+
+            super(template_json, append)
+        end
+
         # Replaces the raw template contents
         #
         # @param template [String] New template contents, in the form KEY = VAL
@@ -417,6 +445,10 @@ module OpenNebula
 
         private
 
+        # Maximum number of log entries per service
+        # TODO: Make this value configurable
+        MAX_LOG = 50
+
         # @param [Logger::Severity] severity
         # @param [String] message
         def add_log(severity, message)
@@ -428,6 +460,9 @@ module OpenNebula
                 :severity  => severity_str,
                 :message   => message
             }
+
+            # Truncate the number of log entries
+            @body['log'] = @body['log'].last(MAX_LOG)
         end
     end
 end

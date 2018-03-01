@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -25,6 +25,7 @@ define(function(require) {
   var infrastructureWaiting = false;
   var pcisCallbacks = [];
   var customizationsCallbacks = [];
+  var kvmInfoCallbacks = [];
 
   var CACHE_EXPIRE = 300000; //ms
 
@@ -181,6 +182,25 @@ define(function(require) {
       //console.log("Host.vcenterCustomizations. Callback queued");
 
       _infrastructure();
+    },
+    "kvmInfo": function(params){
+      var callback = params.success;
+      var callbackError = params.error;
+      var request = OpenNebulaHelper.request(RESOURCE, "infrastructure");
+
+      if (infrastructureCache &&
+          infrastructureCache["timestamp"] + CACHE_EXPIRE > new Date().getTime()) {
+
+        return callback ?
+            callback(request, infrastructureCache["kvm_info"]) : null;
+      }
+
+      kvmInfoCallbacks.push({
+        success : callback,
+        error : callbackError
+      });
+
+      _infrastructure();
     }
   };
 
@@ -220,10 +240,21 @@ define(function(require) {
           customizations = [customizations];
         }
 
+        var kvm_info = response.kvm_info;
+
+        if (kvm_info == undefined){
+          kvm_info = [];
+        }
+
+        if (!$.isArray(kvm_info)){ // If only 1 convert to array
+          kvm_info = [kvm_info];
+        }
+
         infrastructureCache = {
           timestamp       : new Date().getTime(),
           pcis            : pcis,
-          customizations  : customizations
+          customizations  : customizations,
+          kvm_info        : kvm_info
         };
 
         infrastructureWaiting = false;
@@ -249,6 +280,16 @@ define(function(require) {
         }
 
         customizationsCallbacks = [];
+
+        for (var i = 0; i < kvmInfoCallbacks.length; i++) {
+          var callback = kvmInfoCallbacks[i].success;
+
+          if (callback) {
+            callback(request, kvm_info);
+          }
+        }
+
+        kvmInfoCallbacks = [];
 
         return;
       },

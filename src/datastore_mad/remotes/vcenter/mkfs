@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -17,7 +17,7 @@
 # ---------------------------------------------------------------------------- #
 
 ###############################################################################
-# This script is used retrieve the file size of a disk 
+# This script is used retrieve the file size of a disk
 ###############################################################################
 
 ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
@@ -36,37 +36,47 @@ require 'vcenter_driver'
 drv_action_enc = ARGV[0]
 id             = ARGV[1]
 
-drv_action =OpenNebula::XMLElement.new
+drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
 
-ds_name       = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"]
-hostname      = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
-adapter_type  = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/ADAPTER_TYPE"]
-disk_type     = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/DISK_TYPE"]
-size          = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/SIZE"]
-img_name      = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/NAME"]
+ds_id        = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/ID"]
+ds_ref       = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_REF"]
+ds_image_dir = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_IMAGE_DIR"].match(%r{^/*(.*?)/*$})[1] rescue "one"
+img_id       = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/ID"]
+adapter_type = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/VCENTER_ADAPTER_TYPE"] ||
+                VCenterDriver::VIHelper.get_default("IMAGE/TEMPLATE/VCENTER_ADAPTER_TYPE")
+disk_type    = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/VCENTER_DISK_TYPE"] ||
+                VCenterDriver::VIHelper.get_default("IMAGE/TEMPLATE/VCENTER_DISK_TYPE")
+size         = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/SIZE"]
+fs_type      = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/FSTYPE"]
 
-if ds_name.nil? ||
-   hostname.nil? ||
-   adapter_type.nil? ||
-   disk_type.nil? ||
-   size.nil? ||
-   img_name.nil?
-    STDERR.puts "Not enough information to create the image."
-    exit -1
+check_valid img_id, "img_id"
+check_valid adapter_type, "adapter_type"
+check_valid disk_type, "disk_type"
+check_valid size, "size"
+check_valid ds_ref, "ds_ref"
+
+# TODO path in vCenter? choose a specific directory
+
+img_name = "#{ds_image_dir}/#{img_id}/one-#{img_id}"
+
+if fs_type == "save_as"
+    puts img_name + ".vmdk"
+    exit 0
 end
 
 begin
-    host_id      = VCenterDriver::VIClient.translate_hostname(hostname)
-    vi_client    = VCenterDriver::VIClient.new host_id
+    vi_client = VCenterDriver::VIClient.new_from_datastore(ds_id)
 
-    puts vi_client.create_virtual_disk(img_name,
-                                       ds_name,
-                                       size,
-                                       adapter_type,
-                                       disk_type)
+    ds = VCenterDriver::Datastore.new_from_ref(ds_ref, vi_client)
+
+    puts ds.create_virtual_disk(img_name, size, adapter_type, disk_type)
+
 rescue Exception => e
-    STDERR.puts "Error creating virtual disk in #{ds_name}."\
-                " Reason: #{e.message}"
+    message = "Error creating virtual disk #{img_name}."\
+              " Reason: \"#{e.message}\"\n#{e.backtrace}"
+    STDERR.puts error_message(message)
     exit -1
+ensure
+    vi_client.close_connection if vi_client
 end

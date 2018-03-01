@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -19,7 +19,6 @@ require 'json'
 
 require 'pp'
 
-
 # This class is used by Sunstone to set and return the views available to a user
 # as well as available tabs.
 class SunstoneViews
@@ -32,15 +31,15 @@ class SunstoneViews
     VIEWS_CONFIGURATION_FILE = ETC_LOCATION + "/sunstone-views.yaml"
     VIEWS_CONFIGURATION_DIR  = ETC_LOCATION + "/sunstone-views/"
 
-    def initialize
+    def initialize(mode)
         @views_config = YAML.load_file(VIEWS_CONFIGURATION_FILE)
 
         base_path = SUNSTONE_ROOT_DIR+'/public/js/'
 
         @views = Hash.new
-
-        Dir[VIEWS_CONFIGURATION_DIR+'*.yaml'].each do |p_path|
-            m = p_path.match(/^#{VIEWS_CONFIGURATION_DIR}(.*).yaml$/)
+        Dir[VIEWS_CONFIGURATION_DIR + mode + '/*.yaml'].each do |p_path|
+            reg = VIEWS_CONFIGURATION_DIR + mode + '/'
+            m = p_path.match(/^#{reg}(.*).yaml$/)
             if m && m[1]
                 @views[m[1]] = YAML.load_file(p_path)
             end
@@ -129,6 +128,19 @@ class SunstoneViews
 
     def get_all_views
         @views.keys
+    end
+
+    def get_all_labels(group_name)
+        labels = []
+        if @views_config['labels_groups']
+            if @views_config['labels_groups'][group_name]
+                @views_config['labels_groups'][group_name].each{|l| labels.push(l)}
+            end
+            if @views_config['labels_groups']['default']
+                @views_config['labels_groups']['default'].each{|l| labels.push(l)}
+            end
+        end
+        return labels
     end
 
     def logo

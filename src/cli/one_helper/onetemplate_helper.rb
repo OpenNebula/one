@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -321,6 +321,7 @@ EOT
         puts str % ["NAME", template.name]
         puts str % ["USER", template['UNAME']]
         puts str % ["GROUP", template['GNAME']]
+        puts str % ["LOCK", OpenNebulaHelper.level_lock_to_str(template['LOCK/LOCKED'])]
         puts str % ["REGISTER TIME",
             OpenNebulaHelper.time_to_str(template['REGTIME'])]
         puts

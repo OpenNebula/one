@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -50,7 +50,9 @@ define(function(require) {
     parentTab: "storage-top-tab",
     listHeader: Locale.tr("Images"),
     infoHeader: Locale.tr("Image"),
-    subheader: '',
+    lockable: true,
+    subheader: '<span class="total_images"/> <small>'+Locale.tr("TOTAL")+'</small>&emsp;\
+        <span class="size_images"/> <small>'+Locale.tr("TOTAL SIZE")+'</small>',
     resource: 'Image',
     buttons: Buttons,
     actions: Actions,

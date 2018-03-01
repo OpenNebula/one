@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -32,6 +32,8 @@ require 'scripts_common'
 require 'OpenNebulaDriver'
 require 'getoptlong'
 require 'shellwords'
+require 'rexml/document'
+require 'opennebula'
 
 # This is a generic AuthZ/AuthN driver able to manage multiple authentication
 # protocols (simultaneosly). It also supports the definition of custom
@@ -90,15 +92,6 @@ class AuthDriver < OpenNebulaDriver
         end
     end
 
-    # Works the same as log_method but changes the password by '****'.
-    # The last word is the password for authentication.
-    def log_method_no_password(num, secret)
-        lambda {|message, all=true|
-            m=message.gsub(/ #{Regexp.escape(secret)}$/, ' ****')
-            log(num, m, all)
-        }
-    end
-
     # Authenticate a user based in a string of the form user:secret when using the
     # driver secret is protocol:token
     # @param [String] the id for this request, used by OpenNebula core
@@ -125,12 +118,17 @@ class AuthDriver < OpenNebulaDriver
         authN_path = File.join(@local_scripts_path, driver)
 
         command = File.join(authN_path, ACTION[:authN].downcase)
-        command << ' ' << ([user, password, secret].map do |p|
-            Shellwords.escape(p)
-        end.join(' '))
+
+        stdin_xml = OpenNebula::XMLElement.new
+        stdin_xml.initialize_xml('<AUTHN/>', 'AUTHN')
+        stdin_xml.add_element('/AUTHN',
+            'USERNAME'  => user,
+            'PASSWORD'  => password,
+            'SECRET'    => secret)
 
         rc = LocalCommand.run(command,
-            log_method_no_password(request_id, Shellwords.escape(secret)))
+            log_method(request_id),
+            stdin_xml.to_xml)
 
         result, info = get_info_from_execution(rc)
 
@@ -162,9 +160,21 @@ class AuthDriver < OpenNebulaDriver
             send_message(ACTION[:authZ], result, request_id, "-")
         else
             command = @authZ_cmd.clone
-            command << ' ' << user_id << ' ' << requests.join(' ')
 
-            rc = LocalCommand.run(command, log_method(request_id))
+            stdin_xml = OpenNebula::XMLElement.new
+            stdin_xml.initialize_xml('<AUTHZ/>', 'AUTHZ')
+            stdin_xml.add_element('/AUTHZ',
+                'USERNAME'  => user_id,
+                'REQUESTS'  => nil)
+
+            requests.each do |request|
+                stdin_xml.add_element('/AUTHZ/REQUESTS',
+                    'REQUEST' => request)
+            end
+
+            rc = LocalCommand.run(command,
+                log_method(request_id),
+                stdin_xml.to_xml)
 
             result , info = get_info_from_execution(rc)
 

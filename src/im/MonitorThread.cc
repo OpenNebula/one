@@ -1,6 +1,6 @@
 
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -282,7 +282,7 @@ void MonitorThread::do_message()
                 continue;
             }
 
-            VirtualMachineManagerDriver::process_poll(vm, itm->second, true);
+            VirtualMachineManagerDriver::process_poll(vm, itm->second);
 
             vm->unlock();
         }

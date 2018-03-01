@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -53,7 +53,7 @@ define(function(require) {
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-globe';
     this.title = Locale.tr("Network");
-    this.classes = "hypervisor only_kvm only_vcenter"
+    this.classes = "hypervisor only_kvm only_vcenter";
 
     if(opts.listener != undefined){
       this.listener = opts.listener;

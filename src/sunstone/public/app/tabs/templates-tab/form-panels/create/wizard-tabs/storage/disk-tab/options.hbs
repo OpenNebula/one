@@ -1,5 +1,5 @@
 <div class="row">
-  <div class="medium-6 columns">
+  <div class="medium-6 columns hypervisor only_kvm">
     <label for="TARGET">
       {{tr "Target device"}}
       {{{tip (tr "Device to map image disk. If set, it will overwrite the default device mapping.")}}}
@@ -16,11 +16,12 @@
       <option value="bochs">bochs</option>
       <option value="qcow2">qcow2</option>
       <option value="qed">qed</option>
+      <option value="custom">custom</option>
     </select>
   </div>
 </div>
 <div class="row">
-  <div class="medium-6 columns">
+  <div class="medium-6 columns hypervisor only_kvm">
     <label>
       {{tr "BUS"}}
       <select id="disk_dev_prefix" name="disk_dev_prefix">
@@ -35,7 +36,7 @@
       <input type="text" id="custom_disk_dev_prefix" name="custom_disk_dev_prefix" />
     </div>
   </div>
-  <div class="medium-6 columns">
+  <div class="medium-6 columns hypervisor only_kvm">
     <label for="READONLY">
       {{tr "Read-only"}}
     </label>
@@ -43,6 +44,30 @@
       <option value=""></option>
       <option value="yes">{{tr "yes"}}</option>
       <option value="no">{{tr "no"}}</option>
+    </select>
+  </div>
+  <div class="medium-6 columns hypervisor only_vcenter">
+    <label for="vcenter_adapter_type">
+      {{tr "Bus adapter controller"}}
+    </label>
+    <select wizard_field="VCENTER_ADAPTER_TYPE" name="vcenter_adapter_type" id="vcenter_adapter_type">
+      <option value="" selected="selected"></option>
+      <option value="lsiLogic">lsiLogic</option>
+      <option value="ide">ide</option>
+      <option value="busLogic">busLogic</option>
+      <option value="custom">custom</option>
+    </select>
+  </div>
+  <div class="medium-6 columns only_vcenter">
+    <label for="vcenter_disk_type">
+      {{tr "Disk provisioning type"}}
+    </label>
+    <select wizard_field="VCENTER_DISK_TYPE" name="vcenter_disk_type" id="vcenter_disk_type">
+      <option value="" selected="selected"></option>
+      <option value="thin">Thin</option>
+      <option value="thick">Thick</option>
+      <option value="eagerZeroedThick">Eager Zeroed Thick</option>
+      <option value="custom">custom</option>
     </select>
   </div>
 </div>
@@ -71,7 +96,6 @@
       <option value="native">native</option>
     </select>
   </div>
-  {{#unless volatile}}
   <div class="medium-6 columns hypervisor only_kvm">
     <label for="DISCARD">
       {{tr "Discard"}}
@@ -82,16 +106,27 @@
       <option value="unmap">{{tr "unmap"}}</option>
     </select>
   </div>
-  {{/unless}}
   {{#unless volatile}}
-  <div class="medium-6 columns hypervisor only_kvm">
+  <div class="medium-6 columns hypervisor">
     <label for="SIZE">
-      {{tr "Size on instantiate (MB)"}}
+      {{tr "Size on instantiate"}}
       {{{tip (tr "The size of the disk will be modified to match this size when the template is instantiated")}}}
     </label>
-    <input wizard_field="SIZE" type="number" min="0" id="SIZE" name="SIZE" />
+    <div class="input-group mb_input_wrapper">
+      <div class="input-group-field">
+        <input type="number" wizard_field="SIZE" name="SIZE" id="SIZE" />
+      </div>
+      <div class="input-group-button">
+        <select class="mb_input_unit">
+          <option value="MB">{{tr "MB"}}</option>
+          <option value="GB" selected>{{tr "GB"}}</option>
+        </select>
+      </div>
+    </div>
   </div>
   {{/unless}}
+</div>
+<div class="row vm_param">
   <div class="medium-6 columns hypervisor only_kvm">
     <fieldset>
       <legend>{{tr "IO throttling (bytes/s)"}}</legend>

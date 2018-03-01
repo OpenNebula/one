@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -76,6 +76,9 @@ module OpenNebulaJSON
                  when "unresched"    then self.unresched
                  when "recover"      then self.recover(action_hash['params'])
                  when "save_as_template" then self.save_as_template(action_hash['params'])
+                 when "disk_resize"  then self.disk_resize(action_hash['params'])
+                 when "lock"         then self.lock(action_hash['params'])
+                 when "unlock"       then self.unlock(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -110,6 +113,10 @@ module OpenNebulaJSON
         def disk_saveas(params=Hash.new)
             super(params['disk_id'].to_i, params['image_name'],
                 params['type'], params['snapshot_id'].to_i)
+        end
+
+        def disk_resize(params=Hash.new)
+            super(params['disk_id'].to_i, params['new_size'])
         end
 
         def snapshot_create(params=Hash.new)
@@ -186,6 +193,14 @@ module OpenNebulaJSON
             super(params['name'])
         end
 
+        def lock(params=Hash.new)
+            super(params['level'].to_i)
+        end
+
+        def unlock(params=Hash.new)
+            super()
+        end
+
         def recover(params=Hash.new)
             super(params['result'].to_i)
         end
@@ -193,7 +208,7 @@ module OpenNebulaJSON
         def save_as_template(params=Hash.new)
             vm_new = VirtualMachine.new(VirtualMachine.build_xml(@pe_id),
                                         @client)
-            vm_new.save_as_template(params['name'], params['persistent'])
+            vm_new.save_as_template(params['name'],params['description'], params['persistent'])
         end
     end
 end

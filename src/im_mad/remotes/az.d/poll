@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -34,6 +34,5 @@ az_drv = AzureDriver.new(host)
 begin
     az_drv.monitor_all_vms
 rescue => e
-    STDERR.puts "Error monitoring Azure host: #{e.message}"
-    exit -1
+    OpenNebula.handle_driver_exception("im poll", e, host)
 end

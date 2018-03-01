@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -81,7 +81,7 @@ module VNMMAD
             attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID'] if !do_all
 
             # Process the rules
-            @vm.nics.each do |nic|
+            process do |nic|
                 next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
                 if nic[:security_groups].nil?

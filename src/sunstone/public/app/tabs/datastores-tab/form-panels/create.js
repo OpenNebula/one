@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -183,7 +183,6 @@ define(function(require) {
           break;
         
         case "vcenter":
-          $('input#system_ds_type', dialog).attr('disabled', 'disabled');
           $('input#file_ds_type', dialog).attr('disabled', 'disabled');
           _selectvCenter(dialog);
           break;
@@ -232,7 +231,7 @@ define(function(require) {
     var no_decompress   = $('#no_decompress', dialog).is(':checked');
 
     var bridge_list     = $('#bridge_list', dialog).val();
-    var ds_tmp_dir     = $('#ds_tmp_dir', dialog).val();
+    var ds_tmp_dir      = $('#ds_tmp_dir', dialog).val();
     var vg_name         = $('#vg_name', dialog).val();
     var limit_mb        = $('#limit_mb', dialog).val();
     var gluster_host    = $('#gluster_host', dialog).val();
@@ -244,6 +243,7 @@ define(function(require) {
     var rbd_format      = $('#rbd_format', dialog).val();
     var staging_dir     = $('#staging_dir', dialog).val();
     var ceph_conf       = $('#ceph_conf', dialog).val();
+    var ceph_key        = $('#ceph_key', dialog).val();
     var iscsi_host      = $('#iscsi_host', dialog).val();
     var iscsi_user      = $('#iscsi_user', dialog).val();
     var iscsi_usage     = $('#iscsi_usage', dialog).val();
@@ -318,6 +318,9 @@ define(function(require) {
     if (ceph_conf)
         ds_obj.datastore.ceph_conf = ceph_conf;
 
+    if (ceph_key)
+        ds_obj.datastore.ceph_key = ceph_key;
+
     if (iscsi_host)
         ds_obj.datastore.iscsi_host = iscsi_host;
 
@@ -371,6 +374,7 @@ define(function(require) {
     $('label[for="rbd_format"],input#rbd_format', dialog).parent().hide();
     $('label[for="staging_dir"],input#staging_dir', dialog).parent().hide();
     $('label[for="ceph_conf"],input#ceph_conf', dialog).parent().hide();
+    $('label[for="ceph_key"],input#ceph_key', dialog).parent().hide();
     $('label[for="iscsi_host"],input#iscsi_host', dialog).parent().hide();
     $('label[for="iscsi_user"],input#iscsi_user', dialog).parent().hide();
     $('label[for="iscsi_usage"],input#iscsi_usage', dialog).parent().hide();
@@ -399,6 +403,7 @@ define(function(require) {
     $('label[for="rbd_format"],input#rbd_format', dialog).parent().show();
     $('label[for="staging_dir"],input#staging_dir', dialog).parent().show();
     $('label[for="ceph_conf"],input#ceph_conf', dialog).parent().show();
+    $('label[for="ceph_key"],input#ceph_key', dialog).parent().show();
     $('label[for="iscsi_host"],input#iscsi_host', dialog).parent().show();
     $('label[for="iscsi_user"],input#iscsi_user', dialog).parent().show();
     $('label[for="iscsi_usage"],input#iscsi_usage', dialog).parent().show();
@@ -450,6 +455,7 @@ define(function(require) {
     $('label[for="rbd_format"],input#rbd_format', dialog).parent().fadeIn();
     $('label[for="staging_dir"],input#staging_dir', dialog).parent().fadeIn();
     $('label[for="ceph_conf"],input#ceph_conf', dialog).parent().fadeIn();
+    $('label[for="ceph_key"],input#ceph_key', dialog).parent().fadeIn();
     $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().fadeIn();
     $('label[for="no_decompress"],input#no_decompress', dialog).parent().fadeIn();
     $('label[for="datastore_capacity_check"],input#datastore_capacity_check', dialog).parent().fadeIn();
@@ -527,7 +533,7 @@ define(function(require) {
           if (e["NAME"] == mad) {
             if (!$.isEmptyObject(e["REQUIRED_ATTRS"])) {
               $.each(e["REQUIRED_ATTRS"].split(","), function(i, e){
-                $('#' + e.toLowerCase(), dialog).attr('required', true).attr('required_active', '');
+                $('#' + e.trim().toLowerCase(), dialog).attr('required', true).attr('required_active', '');
               });
             }
             return false;

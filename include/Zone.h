@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -22,6 +22,8 @@
 
 using namespace std;
 
+class ZoneServers;
+class ZoneServer;
 /**
  *  The Zone class.
  */
@@ -44,26 +46,68 @@ public:
      */
     int from_xml(const string &xml_str);
 
-private:
+    /**
+     *  Add servers to this zone
+     *    @param tmpl with SERVER definitions
+     *    @param sid id of the new sever
+     *    @param xmlep endpoint of the new server
+     *    @param error
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int add_server(Template& tmpl, int& sid, string& xmlep, string& error);
 
+    /**
+     *  Delete a server from this zone
+     *    @param it of the SERVER
+     *    @param error if any
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int delete_server(int id, string& error);
+
+    /**
+     *  @return the servers in this zone
+     */
+    ZoneServers * get_servers()
+    {
+        return servers;
+    }
+
+    /**
+	 *  @param server_id
+     *  @return the server
+     */
+	ZoneServer * get_server(int server_id);
+
+    /**
+     *  @return the number of servers in this zone
+     */
+    unsigned int servers_size();
+
+private:
     // -------------------------------------------------------------------------
     // Friends
     // -------------------------------------------------------------------------
-
     friend class ZonePool;
 
-    // *************************************************************************
+    // -------------------------------------------------------------------------
     // Constructor
-    // *************************************************************************
-
+    // -------------------------------------------------------------------------
     Zone(int id, Template* zone_template);
 
     ~Zone();
 
-    // *************************************************************************
-    // DataBase implementation (Private)
-    // *************************************************************************
+    // -------------------------------------------------------------------------
+    // Zone servers
+    // -------------------------------------------------------------------------
+    Template servers_template;
 
+    ZoneServers * servers;
+
+    // -------------------------------------------------------------------------
+    // DataBase implementation (Private)
+    // -------------------------------------------------------------------------
     static const char * db_names;
 
     static const char * db_bootstrap;
@@ -87,7 +131,7 @@ private:
     {
         ostringstream oss(Zone::db_bootstrap);
 
-        return db->exec(oss);
+        return db->exec_local_wr(oss);
     };
 
     /**

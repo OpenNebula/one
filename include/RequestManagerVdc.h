@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -64,11 +64,8 @@ protected:
 class VdcAddGroup : public VdcEditGroup
 {
 public:
-    VdcAddGroup():
-        VdcEditGroup(   "VdcAddGroup",
-                        "Adds a group to the VDC",
-                        "A:sii",
-                        true){};
+    VdcAddGroup():VdcEditGroup("one.vdc.addgroup", "Adds a group to the VDC",
+        "A:sii", true){};
 
     ~VdcAddGroup(){};
 
@@ -82,11 +79,8 @@ public:
 class VdcDelGroup : public VdcEditGroup
 {
 public:
-    VdcDelGroup():
-        VdcEditGroup(   "VdcDelGroup",
-                        "Deletes a group from the VDC",
-                        "A:sii",
-                        false){};
+    VdcDelGroup():VdcEditGroup("one.vdc.delgroup","Deletes a group from the VDC",
+        "A:sii", false){};
 
     ~VdcDelGroup(){};
 
@@ -133,8 +127,8 @@ protected:
 
     PoolObjectSQL::ObjectType res_obj_type;
 
-    virtual int edit_resource(
-            Vdc* vdc, int zone_id, int res_id, string& error_msg) = 0;
+    virtual int edit_resource(Vdc* vdc, int zone_id, int res_id,
+            string& error_msg) = 0;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -143,18 +137,13 @@ protected:
 class VdcAddCluster : public VdcEditResource
 {
 public:
-    VdcAddCluster():
-        VdcEditResource("VdcAddCluster",
-                          "Adds a cluster to the VDC",
-                          "A:siii",
-                          true,
-                          Nebula::instance().get_clpool(),
-                          PoolObjectSQL::CLUSTER){};
+    VdcAddCluster():VdcEditResource("one.vdc.addcluster",
+        "Adds a cluster to the VDC", "A:siii", true,
+        Nebula::instance().get_clpool(), PoolObjectSQL::CLUSTER){};
 
     ~VdcAddCluster(){};
 
-    int edit_resource(
-            Vdc* vdc, int zone_id, int res_id, string& error_msg);
+    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -163,18 +152,13 @@ public:
 class VdcDelCluster : public VdcEditResource
 {
 public:
-    VdcDelCluster():
-        VdcEditResource("VdcDelCluster",
-                          "Deletes a cluster from the VDC",
-                          "A:siii",
-                          false,
-                          Nebula::instance().get_clpool(),
-                          PoolObjectSQL::CLUSTER){};
+    VdcDelCluster():VdcEditResource("one.vdc.delcluster",
+        "Deletes a cluster from the VDC", "A:siii", false,
+        Nebula::instance().get_clpool(), PoolObjectSQL::CLUSTER){};
 
     ~VdcDelCluster(){};
 
-    int edit_resource(
-            Vdc* vdc, int zone_id, int res_id, string& error_msg);
+    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -183,18 +167,12 @@ public:
 class VdcAddHost : public VdcEditResource
 {
 public:
-    VdcAddHost():
-        VdcEditResource(  "VdcAddHost",
-                          "Adds a host to the VDC",
-                          "A:siii",
-                          true,
-                          Nebula::instance().get_hpool(),
-                          PoolObjectSQL::HOST){};
+    VdcAddHost(): VdcEditResource("one.vdc.addhost", "Adds a host to the VDC",
+        "A:siii", true, Nebula::instance().get_hpool(), PoolObjectSQL::HOST){};
 
     ~VdcAddHost(){};
 
-    int edit_resource(
-            Vdc* vdc, int zone_id, int res_id, string& error_msg);
+    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -203,18 +181,12 @@ public:
 class VdcDelHost : public VdcEditResource
 {
 public:
-    VdcDelHost():
-        VdcEditResource(  "VdcDelHost",
-                          "Deletes a host from the VDC",
-                          "A:siii",
-                          false,
-                          Nebula::instance().get_hpool(),
-                          PoolObjectSQL::HOST){};
+    VdcDelHost():VdcEditResource("one.vdc.delhost", "Deletes a host from the VDC",
+        "A:siii", false, Nebula::instance().get_hpool(), PoolObjectSQL::HOST){};
 
     ~VdcDelHost(){};
 
-    int edit_resource(
-            Vdc* vdc, int zone_id, int res_id, string& error_msg);
+    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -223,18 +195,13 @@ public:
 class VdcAddDatastore : public VdcEditResource
 {
 public:
-    VdcAddDatastore():
-        VdcEditResource(  "VdcAddDatastore",
-                          "Adds a datastore to the VDC",
-                          "A:siii",
-                          true,
-                          Nebula::instance().get_dspool(),
-                          PoolObjectSQL::DATASTORE){};
+    VdcAddDatastore():VdcEditResource("one.vdc.adddatastore",
+        "Adds a datastore to the VDC", "A:siii", true,
+        Nebula::instance().get_dspool(), PoolObjectSQL::DATASTORE){};
 
     ~VdcAddDatastore(){};
 
-    int edit_resource(
-            Vdc* vdc, int zone_id, int res_id, string& error_msg);
+    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -243,18 +210,13 @@ public:
 class VdcDelDatastore : public VdcEditResource
 {
 public:
-    VdcDelDatastore():
-        VdcEditResource(  "VdcDelDatastore",
-                          "Deletes a datastore from the VDC",
-                          "A:siii",
-                          false,
-                          Nebula::instance().get_dspool(),
-                          PoolObjectSQL::DATASTORE){};
+    VdcDelDatastore():VdcEditResource("one.vdc.deldatastore",
+        "Deletes a datastore from the VDC", "A:siii", false,
+        Nebula::instance().get_dspool(), PoolObjectSQL::DATASTORE){};
 
     ~VdcDelDatastore(){};
 
-    int edit_resource(
-            Vdc* vdc, int zone_id, int res_id, string& error_msg);
+    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -263,18 +225,13 @@ public:
 class VdcAddVNet : public VdcEditResource
 {
 public:
-    VdcAddVNet():
-        VdcEditResource(  "VdcAddVNet",
-                          "Adds a virtual network to the VDC",
-                          "A:siii",
-                          true,
-                          Nebula::instance().get_vnpool(),
-                          PoolObjectSQL::NET){};
+    VdcAddVNet():VdcEditResource("one.vdc.addvnet",
+        "Adds a virtual network to the VDC", "A:siii", true,
+        Nebula::instance().get_vnpool(), PoolObjectSQL::NET){};
 
     ~VdcAddVNet(){};
 
-    int edit_resource(
-            Vdc* vdc, int zone_id, int res_id, string& error_msg);
+    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -283,22 +240,16 @@ public:
 class VdcDelVNet : public VdcEditResource
 {
 public:
-    VdcDelVNet():
-        VdcEditResource(  "VdcDelVNet",
-                          "Deletes a virtual network from the VDC",
-                          "A:siii",
-                          false,
-                          Nebula::instance().get_vnpool(),
-                          PoolObjectSQL::NET){};
+    VdcDelVNet(): VdcEditResource("one.vdc.delvnet",
+        "Deletes a virtual network from the VDC", "A:siii", false,
+        Nebula::instance().get_vnpool(), PoolObjectSQL::NET){};
 
     ~VdcDelVNet(){};
 
-    int edit_resource(
-            Vdc* vdc, int zone_id, int res_id, string& error_msg);
+    int edit_resource(Vdc* vdc, int zone_id, int res_id, string& error_msg);
 };
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
 
 #endif

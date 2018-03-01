@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -34,6 +34,13 @@ namespace one_util
     std::string log_time(time_t the_time);
 
     std::string log_time();
+
+    /**
+     *  Escape XML entity and character references
+     *  @param in the string to be escaped
+     *  @return a string copy
+     */
+    std::string xml_escape(const std::string& in);
 
     /**
      *  sha1 digest

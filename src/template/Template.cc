@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -331,7 +331,6 @@ int Template::erase(const string& name)
     attributes.erase(index.first,index.second);
 
     return j;
-
 }
 
 /* -------------------------------------------------------------------------- */
@@ -587,24 +586,6 @@ int Template::from_xml_node(const xmlNodePtr node)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void Template::merge(const Template * from_tmpl)
-{
-    multimap<string,Attribute *>::const_iterator it;
-
-    for (it = from_tmpl->attributes.begin(); it != from_tmpl->attributes.end(); ++it)
-    {
-        this->erase(it->first);
-    }
-
-    for (it = from_tmpl->attributes.begin(); it != from_tmpl->attributes.end(); ++it)
-    {
-        this->set(it->second->clone());
-    }
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
 void Template::rebuild_attributes(const xmlNode * root_element)
 {
     xmlNode * cur_node = 0;
@@ -639,241 +620,6 @@ void Template::rebuild_attributes(const xmlNode * root_element)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Template::set_restricted_attributes(vector<const SingleAttribute *>& rattrs,
-    vector<string>& restricted_attributes)
-{
-    for (unsigned int i = 0 ; i < rattrs.size() ; i++ )
-    {
-        string va = rattrs[i]->value();
-        restricted_attributes.push_back(one_util::toupper(va));
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-static int get_attributes(
-        multimap<string, Attribute *>& attributes,
-        const string& name, vector<const Attribute*>& values)
-{
-    multimap<string, Attribute *>::const_iterator       i;
-    pair<multimap<string, Attribute *>::const_iterator,
-    multimap<string, Attribute *>::const_iterator>      index;
-    int                                           j;
-
-    index = attributes.equal_range(name);
-
-    for ( i = index.first,j=0 ; i != index.second ; i++,j++ )
-    {
-        values.push_back(i->second);
-    }
-
-    return j;
-}
-
-bool Template::check(string& rs_attr, const vector<string> &restricted_attributes)
-{
-    size_t pos;
-    string avector, vattr;
-    vector<const Attribute *> values;
-
-    for (unsigned int i=0; i < restricted_attributes.size(); i++)
-    {
-        pos = restricted_attributes[i].find("/");
-
-        if (pos != string::npos) //Vector Attribute
-        {
-            int num;
-
-            avector = restricted_attributes[i].substr(0,pos);
-            vattr   = restricted_attributes[i].substr(pos+1);
-
-            //Template contains the attr
-            if ((num = get_attributes(attributes, avector, values)) > 0 )
-            {
-                const VectorAttribute * attr;
-
-                for (int j=0; j<num ; j++ )
-                {
-                    attr = dynamic_cast<const VectorAttribute *>(values[j]);
-
-                    if (attr == 0)
-                    {
-                        continue;
-                    }
-
-                    if ( !attr->vector_value(vattr.c_str()).empty() )
-                    {
-                        rs_attr = restricted_attributes[i];
-                        return true;
-                    }
-                }
-            }
-        }
-        else //Single Attribute
-        {
-            if (get_attributes(attributes, restricted_attributes[i], values) > 0)
-            {
-                rs_attr = restricted_attributes[i];
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void Template::remove_restricted()
-{}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void Template::remove_all_except_restricted()
-{}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-bool Template::has_restricted()
-{
-    return false;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-static int get_attributes(
-        multimap<string, Attribute *>& attributes,
-        const string& name, vector<Attribute*>& values)
-{
-    multimap<string, Attribute *>::iterator       i;
-    pair<multimap<string, Attribute *>::iterator,
-    multimap<string, Attribute *>::iterator>      index;
-    int                                           j;
-
-    index = attributes.equal_range(name);
-
-    for ( i = index.first,j=0 ; i != index.second ; i++,j++ )
-    {
-        values.push_back(i->second);
-    }
-
-    return j;
-}
-
-void Template::remove_restricted(const vector<string> &restricted_attributes)
-{
-    size_t pos;
-    string avector, vattr;
-    vector<Attribute *> values;
-
-    for (unsigned int i=0; i < restricted_attributes.size(); i++)
-    {
-        pos = restricted_attributes[i].find("/");
-
-        if (pos != string::npos) //Vector Attribute
-        {
-            int num;
-
-            avector = restricted_attributes[i].substr(0,pos);
-            vattr   = restricted_attributes[i].substr(pos+1);
-
-            //Template contains the attr
-            if ((num = get_attributes(attributes, avector,values)) > 0 )
-            {
-                VectorAttribute * attr;
-
-                for (int j=0; j<num ; j++ )
-                {
-                    attr = dynamic_cast<VectorAttribute *>(values[j]);
-
-                    if (attr == 0)
-                    {
-                        continue;
-                    }
-
-                    attr->remove(vattr);
-                }
-            }
-        }
-        else //Single Attribute
-        {
-            erase(restricted_attributes[i]);
-        }
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void Template::remove_all_except_restricted(const vector<string> &restricted_attributes)
-{
-    size_t pos;
-    string avector, vattr;
-    vector<Attribute *> values;
-
-    vector<Attribute *> restricted;
-
-    for (unsigned int i=0; i < restricted_attributes.size(); i++)
-    {
-        pos = restricted_attributes[i].find("/");
-
-        if (pos != string::npos) //Vector Attribute
-        {
-            int num;
-
-            avector = restricted_attributes[i].substr(0,pos);
-            vattr   = restricted_attributes[i].substr(pos+1);
-
-            //Template contains the attr
-            if ((num = get_attributes(attributes, avector,values)) > 0 )
-            {
-                VectorAttribute * attr;
-
-                for (int j=0; j<num ; j++ )
-                {
-                    attr = dynamic_cast<VectorAttribute *>(values[j]);
-
-                    if (attr == 0)
-                    {
-                        continue;
-                    }
-
-                    if ( !attr->vector_value(vattr.c_str()).empty() )
-                    {
-                        restricted.push_back(attr);
-                    }
-                }
-            }
-        }
-        else //Single Attribute
-        {
-            get_attributes(attributes, restricted_attributes[i], restricted);
-        }
-    }
-
-    vector<Attribute *>::iterator res_it;
-
-    for (res_it = restricted.begin(); res_it != restricted.end(); res_it++)
-    {
-        remove(*res_it);
-    }
-
-    clear();
-
-    for (res_it = restricted.begin(); res_it != restricted.end(); res_it++)
-    {
-        set(*res_it);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void Template::clear()
 {
     if (attributes.empty())
@@ -891,3 +637,192 @@ void Template::clear()
     attributes.clear();
 }
 
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/*   RESTRICTED ATTRIBUTES INTERFACE                                          */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Template::merge(const Template * from)
+{
+    multimap<string, Attribute *>::const_iterator it, jt;
+
+    for (it = from->attributes.begin(); it != from->attributes.end(); ++it)
+    {
+        erase(it->first);
+    }
+
+    for (it = from->attributes.begin(); it != from->attributes.end(); ++it)
+    {
+        if ( it->second->type() == Attribute::VECTOR )
+        {
+            VectorAttribute * va = static_cast<VectorAttribute *>(it->second);
+
+            if (!va->value().empty())
+            {
+                set(it->second->clone());
+            }
+        }
+        else //Attribute::SINGLE
+        {
+            set(it->second->clone());
+        }
+    }
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+void Template::parse_restricted(const vector<const SingleAttribute *>& ras,
+        std::map<std::string, std::set<std::string> >& ras_m)
+{
+    vector<const SingleAttribute *>::const_iterator it;
+
+    for (it = ras.begin(); it != ras.end(); ++it)
+    {
+        string va  = (*it)->value();
+        size_t pos = va.find("/");
+
+        if (pos != string::npos) //Vector Attribute
+        {
+            string avector = va.substr(0,pos);
+            string vattr   = va.substr(pos+1);
+
+            map<std::string, std::set<string> >::iterator jt;
+
+            jt = ras_m.find(avector);
+
+            if ( jt == ras_m.end() )
+            {
+                std::set<std::string> aset;
+
+                aset.insert(vattr);
+
+                ras_m.insert(make_pair(avector, aset));
+            }
+            else
+            {
+                jt->second.insert(vattr);
+            }
+        }
+        else
+        {
+            std::set<std::string> eset;
+
+            ras_m.insert(make_pair(va, eset));
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static void restricted_values(const string& vname, const set<string>& vsubs,
+        const Template* tmpl, vector<string>& rstrings)
+{
+    string value;
+
+    vector<const VectorAttribute *>::const_iterator va_it;
+    vector<const VectorAttribute *> va;
+
+    tmpl->get(vname, va);
+
+    for ( va_it = va.begin(); va_it != va.end() ; ++va_it )
+    {
+        for (set<string>::iterator jt = vsubs.begin(); jt != vsubs.end(); ++jt)
+        {
+            if ( (*va_it)->vector_value(*jt, value) == 0 )
+            {
+                rstrings.push_back(*jt + value);
+            }
+        }
+    }
+
+    sort(rstrings.begin(), rstrings.end());
+}
+
+bool Template::check_restricted(string& ra, const Template* base,
+        const std::map<std::string, std::set<std::string> >& ras)
+{
+    std::map<std::string, std::set<std::string> >::const_iterator rit;
+
+    for ( rit = ras.begin(); rit != ras.end(); ++rit )
+    {
+        if (!(rit->second).empty())
+        {
+            vector<string> rvalues, rvalues_base;
+
+            restricted_values(rit->first, rit->second, this, rvalues);
+            restricted_values(rit->first, rit->second, base, rvalues_base);
+
+            if ( rvalues != rvalues_base )
+            {
+                ra = rit->first;
+                return true;
+            }
+        }
+        else
+        {
+            if ( get(rit->first, ra) )
+            {
+                string ra_b;
+
+                base->get(rit->first, ra_b);
+
+                if ( ra_b != ra )
+                {
+                    ra = rit->first;
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool Template::check_restricted(string& ra,
+        const std::map<std::string, std::set<std::string> >& ras)
+{
+    std::map<std::string, std::set<std::string> >::const_iterator rit;
+
+    for ( rit = ras.begin(); rit != ras.end(); ++rit )
+    {
+        const std::set<std::string>& sub = rit->second;
+
+        if (!sub.empty()) //Vector Attribute
+        {
+            // -----------------------------------------------------------------
+            // -----------------------------------------------------------------
+            std::set<std::string>::iterator jt;
+            std::vector<VectorAttribute *>::iterator va_it;
+
+            std::vector<VectorAttribute *> va;
+
+            get(rit->first, va);
+
+            for ( va_it = va.begin(); va_it != va.end() ; ++va_it )
+            {
+                for ( jt = sub.begin(); jt != sub.end(); ++jt )
+                {
+                    if ( (*va_it)->vector_value(*jt, ra) == 0 )
+                    {
+                        ra = *jt;
+                        return true;
+                    }
+                }
+            }
+        }
+        else if ( get(rit->first, ra) ) //Single Attribute
+        {
+            ra = rit->first;
+            return true;
+        }
+    }
+
+    return false;
+}

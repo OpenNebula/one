@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
+
+require 'shellwords'
 
 ################################################################################
 # The VNMMAD module provides the basic abstraction to implement custom
@@ -68,7 +70,83 @@ module VNMMAD
 
         # Executes the given block on each NIC
         def process(&block)
-            @vm.each_nic(block)
+            blk = lambda do |nic|
+                add_nic_conf(nic)
+                add_bridge_conf(nic)
+                add_ovs_bridge_conf(nic)
+                add_ip_link_conf(nic)
+
+                block.call(nic)
+            end
+
+            @vm.each_nic(blk)
+        end
+
+        # Parse network configuration and add it to the nic
+        def add_nic_conf(nic)
+            default_conf = CONF || {}
+            nic_conf = {}
+
+            if nic[:conf]
+                parse_options(nic[:conf]).each do |option, value|
+                    case value.downcase
+                    when 'true', 'yes'
+                        value = true
+                    when 'false', 'no'
+                        value = false
+                    end
+
+                    nic_conf[option.to_sym] = value
+                end
+            end
+
+            nic[:conf] = default_conf.merge(nic_conf)
+        end
+
+        def add_bridge_conf(nic)
+            add_command_conf(nic, :bridge_conf)
+        end
+
+        def add_ovs_bridge_conf(nic)
+            add_command_conf(nic, :ovs_bridge_conf)
+        end
+
+        def add_ip_link_conf(nic)
+            add_command_conf(nic, :ip_link_conf)
+        end
+
+        def add_command_conf(nic, conf_name)
+            default_conf = CONF[conf_name] || {}
+            nic_conf = {}
+
+            # sanitize
+            default_conf.each do |key, value|
+                option  = Shellwords.escape(key.to_s.strip.downcase)
+                if value.class == String
+                    value   = Shellwords.escape(value.strip)
+                end
+
+                nic_conf[option] = value
+            end
+
+            if nic[conf_name]
+                parse_options(nic[conf_name]).each do |option, value|
+                    if value == '__delete__'
+                        nic_conf.delete(option.strip.downcase)
+                    else
+                        option  = Shellwords.escape(option.strip.downcase)
+                        if value == ''
+                            value = nil
+                        else
+                            value = Shellwords.escape(value)
+                        end
+
+                        nic_conf[option] = value
+                    end
+                end
+            end
+
+            nic[conf_name] = nic_conf
         end
 
         # Returns a filter object based on the contents of the template
@@ -88,6 +166,23 @@ module VNMMAD
             end
 
             return cmd_str
+        end
+
+        def parse_options(string)
+            self.class.parse_options(string)
+        end
+
+        def self.parse_options(string)
+            options = {}
+            return options if !string
+
+            string.split(',').each do |op|
+                m = op.match(/^\s*(?<option>[^=]+)\s*=\s*(?<value>.*?)\s*$/)
+
+                options[m['option']] = m['value'] if m
+            end
+
+            options
         end
     end
 end

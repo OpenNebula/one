@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -22,6 +22,7 @@ define(function(require) {
   var TabDataTable = require('utils/tab-datatable');
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
+  var Status = require('utils/status');
 
   var OpenNebulaUser = require('opennebula/user');
   var OpenNebulaGroup = require('opennebula/group');
@@ -53,9 +54,12 @@ define(function(require) {
           { "bSortable": false, "aTargets": ["check",2,3,4,5,6,7] },
           {"sWidth": "35px", "aTargets": [0]},
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
-          {"bVisible": false, "aTargets": ['_all']}
+          {"bVisible": false, "aTargets": ['_all']},
+          {"sType": "num", "aTargets": [1]}
       ]
     };
+
+    this.totalACLs = 0;
 
     this.columns = [
       Locale.tr("ID"),
@@ -82,6 +86,8 @@ define(function(require) {
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
+  Table.prototype.preUpdateView = _preUpdateView;
+  Table.prototype.postUpdateView = _postUpdateView;
 
   return Table;
 
@@ -96,10 +102,15 @@ define(function(require) {
 
     var acl_array = _parseAclString(acl_string);
 
+    this.totalACLs++;
+
+    var color_html = Status.state_lock_to_color("ACL",false, element_json[XML_ROOT]["LOCK"]);
+
     return [
-      '<input class="check_item" type="checkbox" id="'+RESOURCE.toLowerCase()+'_' +
+      '<input class="check_item" type="checkbox" '+
+                          'style="vertical-align: inherit;" id="'+this.resource.toLowerCase()+'_' +
                            element.ID + '" name="selected_items" value="' +
-                           element.ID + '"/>',
+                           element.ID + '"/>'+color_html,
       element.ID,
       acl_array[0],
       acl_array[1],
@@ -262,6 +273,14 @@ define(function(require) {
     }
 
     return zone_str;
+  }
+
+  function _preUpdateView() {
+    this.totalACLs = 0;
+  }
+
+  function _postUpdateView() {
+    $(".total_acl").text(this.totalACLs);
   }
 
 });

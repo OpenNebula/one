@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -28,34 +28,50 @@ $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
 require 'vcenter_driver'
-require 'opennebula'
 
-deploy_id = ARGV[0]
-host      = ARGV[1]
-vm_id     = ARGV[-2]
+vm_ref          = ARGV[0]
+vc_cluster_name = ARGV[1]
+vm_id           = ARGV[2]
 
+host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, vc_cluster_name)
+host_id = host['ID']
 
 drv_action_enc = STDIN.read.gsub("\n","")
-
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc),
                           'VMM_DRIVER_ACTION_DATA')
 
-lcm_state_num = drv_action["/VMM_DRIVER_ACTION_DATA/VM/LCM_STATE"].to_i
-lcm_state     = OpenNebula::VirtualMachine::LCM_STATE[lcm_state_num]
-keep_disks    = !drv_action['/VMM_DRIVER_ACTION_DATA/VM/USER_TEMPLATE/KEEP_DISKS_ON_DONE'].nil? &&
-                 drv_action['/VMM_DRIVER_ACTION_DATA/VM/USER_TEMPLATE/KEEP_DISKS_ON_DONE'].downcase=="yes"
-disks         = [drv_action.to_hash["VMM_DRIVER_ACTION_DATA"]["VM"]["TEMPLATE"]["DISK"]].flatten.compact
+lcm_state = drv_action["/VMM_DRIVER_ACTION_DATA/VM/LCM_STATE"]
+check_valid(lcm_state, "lcm_state")
+lcm_state_str = OpenNebula::VirtualMachine::LCM_STATE[lcm_state.to_i]
 
-cloned_tmplt = nil
-if !drv_action['/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/CLONING_TEMPLATE_ID'].nil?
-    cloned_tmplt  =  drv_action['/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/TEMPLATE_ID']
+if !["SHUTDOWN", "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"].include?(lcm_state_str)
+    STDERR.puts "Wrong lcm state when shutting down VM"
+    exit -1
 end
 
+## TODO copy_template
+
 begin
-    VCenterDriver::VCenterVm.shutdown(deploy_id, host, lcm_state, keep_disks, disks, cloned_tmplt)
+    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+
+    if vm_ref.empty?
+        one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
+        vcenter_vm = VCenterDriver::VIHelper.find_vcenter_vm_by_name(one_vm, host, vi_client)
+        raise "Could not find the undeployed VM in vCenter's inventory using it's name" if !vcenter_vm
+        vm_ref = vcenter_vm._ref
+    end
+
+    vm = VCenterDriver::VirtualMachine.new_without_id(vi_client, vm_ref)
+
+    vm.shutdown #Undeploy, Poweroff or Terminate
+
 rescue Exception => e
-    STDERR.puts "Shutdown of VM #{deploy_id} on host #{host} failed " +
-                "due to \"#{e.message}\""
+    message = "Shutdown of VM #{vm_ref} on vCenter cluster "\
+              "#{vc_cluster_name} failed due to "\
+              "\"#{e.message}\"\n#{e.backtrace}"
+    STDERR.puts error_message(message)
     exit -1
+ensure
+    vi_client.close_connection if vi_client
 end

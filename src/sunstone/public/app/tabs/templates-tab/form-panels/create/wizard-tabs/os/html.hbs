@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -28,6 +28,9 @@
       <li class="tabs-title">
         <a href="#featuresTab{{uniqueId}}">{{tr "Features"}}</a>
       </li>
+      <li class="tabs-title">
+        <a href="#cpuTab{{uniqueId}}">{{tr "CPU Model"}}</a>
+      </li>
     </ul>
   </div>
   <div class="medium-10 columns">
@@ -45,9 +48,8 @@
             </label>
           </div>
           <div class="medium-8 columns hypervisor only_kvm">
-            <label>
-              {{tr "libvirt machine type"}}
-              <input type="text" wizard_field="MACHINE"/>
+            <label id="kvm-info">
+              {{tr "machine type"}}
             </label>
           </div>
         </div>
@@ -224,6 +226,42 @@
             </label>
           </div>
         </div>
+        <div class="row">
+          <div class="medium-6 columns">
+            <label>
+              {{tr "virtio-scsi Queues"}}
+              {{{tip (tr "Number of vCPU queues to use in the virtio-scsi controller. Leave blank to use the default value.")}}}
+              <select wizard_field="VIRTIO_SCSI_QUEUES">
+                <option value=""></option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="14">14</option>
+                <option value="15">15</option>
+                <option value="16">16</option>
+              </select>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="wizard_internal_tab tabs-panel cpuTab" id="cpuTab{{uniqueId}}">
+         <div class="row">
+          <div class="medium-4 columns">
+            <label id="cpu-model">
+              {{tr "CPU Model"}}
+            </label>
+          </div>
+         </div>
       </div>
     </div>
   </div>

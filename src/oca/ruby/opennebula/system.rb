@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -29,7 +29,9 @@ module OpenNebula
             :groupquotainfo     => "groupquota.info",
             :groupquotaupdate   => "groupquota.update",
             :version            => "system.version",
-            :config             => "system.config"
+            :config             => "system.config",
+            :sql                => "system.sql",
+            :sqlquery           => "system.sqlquery"
         }
 
         #######################################################################
@@ -46,6 +48,33 @@ module OpenNebula
         # XML-RPC Methods
         #######################################################################
 
+        # Executes and replicates SQL commands on OpenNebula DB
+        #   @param [String] Sql string
+        #   @param [Boolean] True to replicate command on a federation. To
+        #   operate on federated tables
+        #   @return [Integer, OpenNebula::Error] Sql execution result in case
+        #   of success, Error otherwise
+        def sql_command(sql, federate)
+            return @client.call(SYSTEM_METHODS[:sql], sql, federate)
+        end
+
+        # Executes a SQL query command on OpenNebula DB
+        #   @param [String] Sql string
+        #   @return [String, OpenNebula::Error] Sql execution result in XML 
+        #   format in case of success, Error otherwise
+        #   <QUERY>
+        #     the query sent to oned
+        #   </QUERY>
+        #   <RESULT>
+        #     <ROW>
+        #       <column_name>column_value</column_name>
+        #       ...
+        #     </ROW>
+        #   </RESULT>
+        def sql_query_command(sql)
+            return @client.call(SYSTEM_METHODS[:sqlquery], sql)
+        end
+        #
         # Gets the oned version
         #
         # @return [String, OpenNebula::Error] the oned version in case

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2002-2016, OpenNebula Project, OpenNebula Systems
+ * Copyright 2002-2018, OpenNebula Project, OpenNebula Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ public class MarketPlaceApp extends PoolElement
     private static final String CHOWN       = METHOD_PREFIX + "chown";
     private static final String CHMOD       = METHOD_PREFIX + "chmod";
     private static final String RENAME      = METHOD_PREFIX + "rename";
+    private static final String LOCK        = METHOD_PREFIX + "lock";
+    private static final String UNLOCK      = METHOD_PREFIX + "unlock";
 
     private static final String[] MARKETPLACEAPP_STATES =
         {"INIT", "READY", "LOCKED", "ERROR", "DISABLED"};
@@ -222,6 +224,31 @@ public class MarketPlaceApp extends PoolElement
         return client.call(RENAME, id, name);
     }
 
+    /**
+     * lock this MarketPlaceApp
+     *
+     * @param client XML-RPC Client.
+     * @param id The MarketPlaceApp id.
+     * @param level Lock level.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse lock(Client client, int id, int level)
+    {
+        return client.call(LOCK, id, level);
+    }
+
+    /**
+     * Unlock this MarketPlaceApp
+     *
+     * @param client XML-RPC Client.
+     * @param id The MarketPlaceApp id.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse unlock(Client client, int id)
+    {
+        return client.call(UNLOCK, id);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -392,6 +419,27 @@ public class MarketPlaceApp extends PoolElement
     public OneResponse rename(String name)
     {
         return rename(client, id, name);
+    }
+
+    /**
+     * Lock this MarketPlaceApp
+     *
+     * @param level Lock level.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse lock(int level)
+    {
+        return lock(client, id, level);
+    }
+
+    /**
+     * Unlock this MarketPlaceApp
+     *
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse unlock()
+    {
+        return unlock(client, id);
     }
 
     // =================================

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -46,10 +46,14 @@ public:
      */
     enum Operation
     {
-        USE    = 0x1LL,  /**< Auth. to use an object                   */
-        MANAGE = 0x2LL,  /**< Auth. to perform management actions      */
-        ADMIN  = 0x4LL,  /**< Auth. to perform administrative actions  */
-        CREATE = 0x8LL   /**< Auth. to create an object                */
+        USE           = 0x1LL,   /**< Auth. to use an object                   */
+        USE_NO_LCK    = 0x11LL,  /**< Auth. to use an object no lockable       */
+        MANAGE        = 0x2LL,   /**< Auth. to perform management actions      */
+        MANAGE_NO_LCK = 0x12LL,  /**< Auth. to perform management actions of an object no lockable */
+        ADMIN         = 0x4LL,   /**< Auth. to perform administrative actions  */
+        ADMIN_NO_LCK  = 0x14LL,  /**< Auth. to perform administrative actions of an object no lockable */
+        CREATE        = 0x8LL,   /**< Auth. to create an object                */
+        CREATE_NO_LCK = 0x18LL   /**< Auth. to create an object of an object no lockable */
     };
 
     static string operation_to_str(Operation op)

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -53,14 +53,6 @@ public:
     ~MySqlDB();
 
     /**
-     *  Wraps the mysql_query function call
-     *    @param cmd the SQL command
-     *    @param obj Callbackable obj to call if the query succeeds
-     *    @return 0 on success
-     */
-    int exec(ostringstream& cmd, Callbackable* obj=0, bool quiet=false);
-
-    /**
      *  This function returns a legal SQL string that can be used in an SQL
      *  statement. The string is encoded to an escaped SQL string, taking into
      *  account the current character set of the connection.
@@ -82,6 +74,15 @@ public:
      * @return true if supported
      */
     bool multiple_values_support();
+
+protected:
+    /**
+     *  Wraps the mysql_query function call
+     *    @param cmd the SQL command
+     *    @param obj Callbackable obj to call if the query succeeds
+     *    @return 0 on success
+     */
+    int exec(ostringstream& cmd, Callbackable* obj, bool quiet);
 
 private:
 
@@ -151,13 +152,15 @@ public:
 
     ~MySqlDB(){};
 
-    int exec(ostringstream& cmd, Callbackable* obj=0, bool quiet=false){return -1;};
 
     char * escape_str(const string& str){return 0;};
 
     void free_str(char * str){};
 
     bool multiple_values_support(){return true;};
+
+protected:
+    int exec(ostringstream& cmd, Callbackable* obj, bool quiet){return -1;};
 };
 #endif
 

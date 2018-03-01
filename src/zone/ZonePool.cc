@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "ZonePool.h"
+#include "ZoneServer.h"
 #include "NebulaLog.h"
 #include "Nebula.h"
 #include <sys/types.h>
@@ -27,8 +28,7 @@ const int ZonePool::STANDALONE_ZONE_ID = 0;
 
 /* -------------------------------------------------------------------------- */
 
-ZonePool::ZonePool(SqlDB * db, bool is_federation_slave)
-    :PoolSQL(db, Zone::table, !is_federation_slave, true)
+ZonePool::ZonePool(SqlDB * db, bool is_federation_slave):PoolSQL(db,Zone::table)
 {
     string error_str;
 
@@ -82,8 +82,7 @@ ZonePool::ZonePool(SqlDB * db, bool is_federation_slave)
 
         // The first 100 Zone IDs are reserved for system Zones.
         // Regular ones start from ID 100
-
-        set_update_lastOID(99);
+        set_lastOID(99);
     }
 
     return;
@@ -201,3 +200,36 @@ int ZonePool::drop(PoolObjectSQL * objsql, string& error_msg)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+unsigned int ZonePool::get_zone_servers(int zone_id,
+        std::map<int, std::string>& _serv)
+{
+    unsigned int _num_servers;
+
+    ZoneServers::zone_iterator zit;
+
+    Zone * zone = get(zone_id, true);
+
+    if ( zone == 0 )
+    {
+        _serv.clear();
+        return 0;
+    }
+
+    ZoneServers * followers = zone->get_servers();
+
+    for (zit = followers->begin(); zit != followers->end(); ++zit)
+    {
+        int id = (*zit)->get_id();
+        std::string  edp = (*zit)->vector_value("ENDPOINT");
+
+        _serv.insert(make_pair(id, edp));
+    }
+
+    _num_servers = zone->servers_size();
+
+    zone->unlock();
+
+    return _num_servers;
+}
+

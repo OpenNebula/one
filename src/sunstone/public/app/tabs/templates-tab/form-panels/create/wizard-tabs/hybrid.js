@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -26,6 +26,7 @@ define(function(require) {
   var WizardFields = require('utils/wizard-fields');
   var UniqueId = require('utils/unique-id');
   var CustomTagsTable = require('utils/custom-tags-table');
+  var OpenNebula = require('opennebula');
 
   /*
     TEMPLATES
@@ -103,6 +104,21 @@ define(function(require) {
     });
 
     $("#tf_btn_hybrid", context).trigger("click");
+
+    this.hosts_ec2 = [];
+    var that = this;
+
+    OpenNebula.Host.list({
+      timeout: true,
+      success: function(request, results){
+        $.each(results, function(key, value){
+          if(value.HOST.TEMPLATE.HYPERVISOR == "ec2"){
+            that.hosts_ec2.push({"ID":value.HOST.ID, "NAME": value.HOST.NAME});
+          }
+        });
+        return true;
+      }
+    });
   }
 
   function _retrieve(context) {
@@ -156,7 +172,7 @@ define(function(require) {
 
   function _addProviderTab(provider_id, context) {
     var htmlId  = 'provider' + provider_id + UniqueId.id();
-
+    var that = this;
     var oneInput = "";
 
     if (this.oneEnabled){
@@ -216,6 +232,10 @@ define(function(require) {
 
       if (this.value == "ec2"){
         $(".hybrid_inputs", providerSection).append(EC2HTML());
+        $.each(that.hosts_ec2, function(key, value){
+          $("#HOST", providerSection).append("<option value="+value.ID+">"+value.NAME+"</option>");
+        });
+        $("#HOST", providerSection)
       } else if (this.value == "AZURE"){
         $(".hybrid_inputs", providerSection).append(AzureHTML());
       } else if (this.value == "opennebula"){

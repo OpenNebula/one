@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -142,6 +142,13 @@ private:
     int insert_replace(SqlDB *db, bool replace, string& error_str);
 
     /**
+     *  Execute this method after update the template.
+     *    @param error Returns the error reason, if any
+     *    @return 0 one success
+     */
+    int post_update_template(string& error);
+
+    /**
      *  Bootstraps the database table(s) associated to the VMTemplate
      *    @return 0 on success
      */
@@ -149,7 +156,7 @@ private:
     {
         ostringstream oss(VMTemplate::db_bootstrap);
 
-        return db->exec(oss);
+        return db->exec_local_wr(oss);
     };
 
     /**
@@ -159,6 +166,11 @@ private:
      *    @return 0 on success, -1 otherwise
      */
     int from_xml(const string &xml_str);
+
+    /**
+     *  This method removes sched_action DONE/MESSAGE attributes
+     */
+    void parse_sched_action();
 
 protected:
 

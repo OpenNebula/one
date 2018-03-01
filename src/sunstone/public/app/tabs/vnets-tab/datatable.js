@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -27,6 +27,8 @@ define(function(require) {
   var LabelsUtils = require('utils/labels/utils');
   var SearchDropdown = require('hbs!./datatable/search');
   var OpenNebulaNetwork = require('opennebula/network');
+  var DashboardUtils = require('utils/dashboard');
+  var Status = require('utils/status');
 
   /*
     CONSTANTS
@@ -59,15 +61,16 @@ define(function(require) {
           {"bSortable": false, "aTargets": ["check"]},
           {"sWidth": "35px", "aTargets": [0]},
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
-          {"bVisible": false, "aTargets": ['_all']}
+          {"bVisible": false, "aTargets": ['_all']},
+          {"sType": "num", "aTargets": [1, 6]}
       ]
     }
 
     this.columns = [
       Locale.tr("ID"),
+      Locale.tr("Name"),
       Locale.tr("Owner"),
       Locale.tr("Group"),
-      Locale.tr("Name"),
       Locale.tr("Reservation"),
       Locale.tr("Cluster"),
       Locale.tr("Bridge"),
@@ -79,8 +82,8 @@ define(function(require) {
 
     this.selectOptions = {
       "id_index": 1,
-      "name_index": 4,
-      "uname_index": 2,
+      "name_index": 2,
+      "uname_index": 3,
       "select_resource": Locale.tr("Please select a network from the list"),
       "you_selected": Locale.tr("You selected the following network:"),
       "select_resource_multiple": Locale.tr("Please select one or more networks from the list"),
@@ -141,14 +144,17 @@ define(function(require) {
       PARENT_NETWORK: parent_net
     }
 
+    var color_html = Status.state_lock_to_color("VNET",false, element_json[XML_ROOT]["LOCK"]);
+
     return [
-      '<input class="check_item" type="checkbox" id="' + RESOURCE.toLowerCase() + '_' +
+      '<input class="check_item" type="checkbox" '+
+                          'style="vertical-align: inherit;" id="'+this.resource.toLowerCase()+'_' +
                            element.ID + '" name="selected_items" value="' +
-                           element.ID + '"/>',
+                           element.ID + '"/>'+color_html,
       element.ID,
+      element.NAME,
       element.UNAME,
       element.GNAME,
-      element.NAME,
       element.PARENT_NETWORK_ID.length ? Locale.tr("Yes") : Locale.tr("No"),
       clusters,
       element.BRIDGE,
@@ -165,7 +171,9 @@ define(function(require) {
   }
 
   function _postUpdateView() {
-    $(".total_vnets").text(this.totalVNets);
-    $(".addresses_vnets").text(this.usedLeases);
+    $(".total_vnets").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".total_vnets", this.totalVNets);
+    $(".addresses_vnets").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".addresses_vnets", this.usedLeases);
   }
 });

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -25,6 +25,8 @@ define(function(require) {
   var QuotaDefaults = require('utils/quotas/quota-defaults');
   var QuotaWidgets = require('utils/quotas/quota-widgets');
   var LabelsUtils = require('utils/labels/utils');
+  var DashboardUtils = require('utils/dashboard');
+  var Status = require('utils/status');
 
   /*
     CONSTANTS
@@ -57,7 +59,8 @@ define(function(require) {
           {"sWidth": "35px", "aTargets": [0]},
           {"sWidth": "150px", "aTargets": [4,5,6] },
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
-          {"bVisible": false, "aTargets": ['_all']}
+          {"bVisible": false, "aTargets": ['_all']},
+          {"sType": "num", "aTargets": [1, 3]}
       ]
     };
 
@@ -137,10 +140,13 @@ define(function(require) {
         default_group_quotas.VM_QUOTA.VM.CPU);
     }
 
+    var color_html = Status.state_lock_to_color("GROUP",false, element_json[XML_ROOT]["LOCK"]);
+
     return [
-      '<input class="check_item" type="checkbox" id="'+RESOURCE.toLowerCase()+'_' +
+      '<input class="check_item" type="checkbox" '+
+                          'style="vertical-align: inherit;" id="'+this.resource.toLowerCase()+'_' +
                            element.ID + '" name="selected_items" value="' +
-                           element.ID + '"/>',
+                           element.ID + '"/>'+color_html,
       element.ID,
       element.NAME,
       users_str,
@@ -156,6 +162,7 @@ define(function(require) {
   }
 
   function _postUpdateView() {
-    $(".total_groups").text(this.totalGroups);
+    $(".total_groups").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".total_groups", this.totalGroups);
   }
 });

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -45,6 +45,7 @@ module OpenNebula
                     end
                 end
             end
+            @xml
         end
 
         # Builds a XML document
@@ -144,6 +145,15 @@ module OpenNebula
             }
         end
 
+        # Update the content of the current doc
+        def set_content(content)
+            if NOKOGIRI
+                @xml.content = content
+            else
+                @xml.text = content
+            end
+        end
+
         # Gets an array of text from elements extracted
         # using  the XPATH  expression passed as filter
         def retrieve_elements(filter)
@@ -165,6 +175,23 @@ module OpenNebula
                 return elements_array
             end
 
+        end
+
+        # Iterates over every Element in the XPath and returns an array
+        # with XMLElements
+        # @return [XMLElement]
+        def retrieve_xmlelements(xpath_str)
+            collection = []
+            if NOKOGIRI
+                @xml.xpath(xpath_str).each { |pelem|
+                    collection << XMLElement.new(pelem)
+                }
+            else
+                @xml.elements.each(xpath_str) { |pelem|
+                    collection << XMLElement.new(pelem)
+                }
+            end
+            collection
         end
 
         # Gets an attribute from an element

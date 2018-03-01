@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -26,14 +26,22 @@ int VirtualMachinePoolXML::set_up()
 
     if ( rc == 0 )
     {
+        map<int, ObjectXML*>::iterator it;
+
         if (objects.empty())
         {
             return -2;
         }
 
+        vm_resources.clear();
+
+        for ( it = objects.begin(); it != objects.end(); ++it )
+        {
+            vm_resources.add_resource(it->first);
+        } 
+
         if (NebulaLog::log_level() >= Log::DDDEBUG)
         {
-            map<int,ObjectXML*>::iterator it;
 
             oss << "Pending/rescheduling VM and capacity requirements:" << endl;
 

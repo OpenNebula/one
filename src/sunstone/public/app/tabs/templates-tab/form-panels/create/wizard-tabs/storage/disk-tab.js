@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,18 +19,19 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var Config = require('sunstone-config');
-  var Locale = require('utils/locale');
-  var Tips = require('utils/tips');
-  var ImageTable = require('tabs/images-tab/datatable')
-  var WizardFields = require('utils/wizard-fields');
-  var UniqueId = require('utils/unique-id');
+  var Config = require("sunstone-config");
+  var Locale = require("utils/locale");
+  var Tips = require("utils/tips");
+  var ImageTable = require("tabs/images-tab/datatable")
+  var WizardFields = require("utils/wizard-fields");
+  var UniqueId = require("utils/unique-id");
+  var TemplateUtils = require("utils/template-utils");
 
   /*
     TEMPLATES
    */
 
-  var TemplateHTML = require('hbs!./disk-tab/html');
+  var TemplateHTML = require("hbs!./disk-tab/html");
 
   /*
     CONSTANTS
@@ -41,9 +42,13 @@ define(function(require) {
    */
 
   function DiskTab(diskTabId) {
-    this.diskTabId = 'diskTab' + diskTabId + UniqueId.id();
+    this.diskTabId = "diskTab" + diskTabId + UniqueId.id();
 
-    this.imageTable = new ImageTable(this.diskTabId + 'Table', {'select': true});
+    this.imageTable = new ImageTable(this.diskTabId + "Table", {
+      "select": true,
+      "selectOptions": {
+        "filter_fn": function(image) { return image.STATE != 5; }
+    }});
   }
 
   DiskTab.prototype.constructor = DiskTab;
@@ -61,8 +66,8 @@ define(function(require) {
 
   function _html() {
     return TemplateHTML({
-      'diskTabId': this.diskTabId,
-      'imageTableSelectHTML': this.imageTable.dataTableHTML
+      "diskTabId": this.diskTabId,
+      "imageTableSelectHTML": this.imageTable.dataTableHTML
     });
   }
 
@@ -73,14 +78,14 @@ define(function(require) {
   function _setup(context) {
     var that = this;
     that.imageTable.initialize({
-      'selectOptions': {
-        'select_callback': function(aData, options) {
+      "selectOptions": {
+        "select_callback": function(aData, options) {
           // If the image is selected by Id, avoid overwriting it with name+uname
-          if ($('#IMAGE_ID', context).val() != aData[options.id_index]) {
-            $('#IMAGE_ID', context).val("");
-            $('#IMAGE', context).val(aData[options.name_index]);
-            $('#IMAGE_UNAME', context).val(aData[options.uname_index]);
-            $('#IMAGE_UID', context).val("");
+          if ($("#IMAGE_ID", context).val() != aData[options.id_index]) {
+            $("#IMAGE_ID", context).val("");
+            $("#IMAGE", context).val(aData[options.name_index]);
+            $("#IMAGE_UNAME", context).val(aData[options.uname_index]);
+            $("#IMAGE_UID", context).val("");
           }
         }
       }
@@ -95,38 +100,70 @@ define(function(require) {
       if ($("input[name='" + that.diskTabId + "']:checked", context).val() == "image") {
         imageContext.toggle();
         volatileContext.hide();
-        $("[wizard_field]", imageContext).prop('wizard_field_disabled', false);
-        $("[wizard_field]", volatileContext).prop('wizard_field_disabled', true);
+        $("[wizard_field]", imageContext).prop("wizard_field_disabled", false);
+        $("[wizard_field]", volatileContext).prop("wizard_field_disabled", true);
       } else {
         imageContext.hide();
         volatileContext.toggle();
-        $("[wizard_field]", volatileContext).prop('wizard_field_disabled', false);
-        $("[wizard_field]", imageContext).prop('wizard_field_disabled', true);
+        $("[wizard_field]", volatileContext).prop("wizard_field_disabled", false);
+        $("[wizard_field]", imageContext).prop("wizard_field_disabled", true);
       }
     });
-
-    $("[wizard_field]", imageContext).prop('wizard_field_disabled', false);
-    $("[wizard_field]", volatileContext).prop('wizard_field_disabled', true);
+    $("[wizard_field]", imageContext).prop("wizard_field_disabled", false);
+    $("[wizard_field]", volatileContext).prop("wizard_field_disabled", true);
 
     // Volatile Type FS hides Format, Type SWAP displays Format
-    $("select#TYPE", volatileContext).change(function() {
+    $("select#TYPE_KVM", volatileContext).change(function() {
       var value = $(this).val();
       switch (value){
         case "fs":
-          $("select#FORMAT", volatileContext).parent().show();
+          $("select#FORMAT_KVM", volatileContext).parent().show();
+          if($("select#FORMAT_KVM", volatileContext).val() === "qcow2"){
+            $("select#DRIVER", volatileContext).val("qcow2");
+          }
           break;
         case "swap":
-          $("select#FORMAT", volatileContext).parent().hide();
+          $("select#FORMAT_KVM", volatileContext).parent().hide();
+          $("select#DRIVER", volatileContext).val("");
           break;
       }
     });
 
-    $('input[name="custom_disk_dev_prefix"]',context).parent().hide();
-    $('select#disk_dev_prefix',context).change(function(){
+    // Volatile Type FS hides Format, Type SWAP displays Format
+    $("select#TYPE_VCENTER", volatileContext).change(function() {
+      var value = $(this).val();
+      switch (value){
+        case "fs":
+          $("select#FORMAT_VCENTER", volatileContext).parent().show();
+          if($("select#FORMAT_VCENTER", volatileContext).val() === "qcow2"){
+            $("select#DRIVER", volatileContext).val("qcow2");
+          }
+          break;
+        case "swap":
+          $("select#FORMAT_VCENTER", volatileContext).parent().hide();
+          $("select#DRIVER", volatileContext).val("");
+          break;
+      }
+    });
+
+    $("select[name=format]", volatileContext).change(function(){
+      var value = $(this).val();
+      switch (value){
+        case "qcow2":
+          $("select#DRIVER", volatileContext).val(value);
+          break;
+        default:
+          $("select#DRIVER", volatileContext).val("");
+          break;
+      }
+    });
+
+    $("input[name=\"custom_disk_dev_prefix\"]",context).parent().hide();
+    $("select#disk_dev_prefix",context).change(function(){
       if ($(this).val() == "custom"){
-        $('input[name="custom_disk_dev_prefix"]',context).parent().show();
+        $("input[name=\"custom_disk_dev_prefix\"]",context).parent().show();
       } else {
-        $('input[name="custom_disk_dev_prefix"]',context).parent().hide();
+        $("input[name=\"custom_disk_dev_prefix\"]",context).parent().hide();
       }
     });
   }
@@ -138,36 +175,63 @@ define(function(require) {
       selectedContext = $("div.image",  context);
     } else {
       selectedContext = $("div.volatile",  context);
+      var typeKvm = $("#TYPE_KVM", selectedContext).val();
+      var typeVcenter = $("#TYPE_VCENTER", selectedContext).val();
+      var type = "fs";
+      if(typeKvm != "fs"){
+        type = typeKvm;
+      } else if (typeVcenter != "fs"){
+        type = typeVcenter;
+      }
 
-      if ($("select#TYPE", selectedContext).val() == "swap")
+      if (type == "swap")
       {
         $("select#FORMAT", selectedContext).val("");
       }
     }
 
     var tmpl = WizardFields.retrieve(selectedContext);
-    if(tmpl["SIZE"]){
-      tmpl["SIZE"] = tmpl["SIZE"] * 1024;
+    if(type){
+      tmpl.TYPE = type;
     }
-    else{
+
+    if(tmpl.SIZE != undefined && $(".mb_input_unit", selectedContext).val() == "GB"){
+      tmpl.SIZE = tmpl.SIZE * 1024;
+      tmpl.SIZE = tmpl.SIZE.toString();
+    }
+    var formatKvm = $("#FORMAT_KVM", context).val();
+    var formatVcenter = $("#FORMAT_VCENTER", context).val();
+
+    if(formatKvm != "raw"){
+      tmpl.FORMAT = formatKvm;
+    } else if (formatVcenter != "raw"){
+      tmpl.FORMAT = formatVcenter;
+    }
+
+    if($("input[name='" + this.diskTabId + "']:checked", context).val() == "image" && !tmpl["IMAGE"] && !tmpl["IMAGE_ID"]){
        return {};
     }
-    var dev_prefix = WizardFields.retrieveInput($('#disk_dev_prefix', selectedContext));
+    var dev_prefix = WizardFields.retrieveInput($("#disk_dev_prefix", selectedContext));
     if (dev_prefix != undefined && dev_prefix.length) {
       if (dev_prefix == "custom") {
-        dev_prefix = WizardFields.retrieveInput($('#custom_disk_dev_prefix', selectedContext));
+        dev_prefix = WizardFields.retrieveInput($("#custom_disk_dev_prefix", selectedContext));
       }
       tmpl["DEV_PREFIX"] = dev_prefix;
     }
 
+    $.extend(tmpl, TemplateUtils.stringToTemplate($("#templateStr", context).val()));
     return tmpl;
   }
 
   function _fill(context, templateJSON) {
     var selectedContext;
 
+    if(templateJSON.SIZE){
+      templateJSON.SIZE = templateJSON.SIZE / 1024;
+    }
+
     if (templateJSON.IMAGE_ID || templateJSON.IMAGE) {
-      $('input#' + this.diskTabId + 'radioImage', context).click();
+      $("input#" + this.diskTabId + "radioImage", context).click();
 
       if (templateJSON.IMAGE_ID != undefined) {
         var selectedResources = {
@@ -175,6 +239,7 @@ define(function(require) {
         }
 
         this.imageTable.selectResourceTableSelect(selectedResources);
+
       } else if (templateJSON.IMAGE != undefined && templateJSON.IMAGE_UNAME != undefined) {
         var selectedResources = {
           names : {
@@ -188,21 +253,22 @@ define(function(require) {
 
       selectedContext = $(".image", context);
     } else {
-      $('input#' + this.diskTabId + 'radioVolatile', context).click();
+      $("input#" + this.diskTabId + "radioVolatile", context).click();
 
       selectedContext = $(".volatile", context);
     }
 
     WizardFields.fill(selectedContext, templateJSON);
+    $("#templateStr",context).val(TemplateUtils.templateToString(templateJSON));
 
     var dev_prefix = templateJSON["DEV_PREFIX"];
     if (dev_prefix != undefined && dev_prefix.length) {
-      WizardFields.fillInput($('#disk_dev_prefix', selectedContext), dev_prefix);
+      WizardFields.fillInput($("#disk_dev_prefix", selectedContext), dev_prefix);
 
-      var val = $('#disk_dev_prefix', selectedContext).val();
+      var val = $("#disk_dev_prefix", selectedContext).val();
       if (val == "" || val == undefined){
-        $('#disk_dev_prefix', selectedContext).val("custom").change();
-        WizardFields.fillInput($('#custom_disk_dev_prefix', selectedContext), dev_prefix);
+        $("#disk_dev_prefix", selectedContext).val("custom").change();
+        WizardFields.fillInput($("#custom_disk_dev_prefix", selectedContext), dev_prefix);
       }
     }
   }

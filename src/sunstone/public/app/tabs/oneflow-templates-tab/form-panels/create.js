@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -25,6 +25,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var RoleTab = require('tabs/oneflow-templates-tab/utils/role-tab');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     TEMPLATES
@@ -229,27 +230,22 @@ define(function(require) {
 
     json_template['ready_status_gate'] = ready_status_gate;
 
-    var templateStr = $('textarea#template', $("form#createServiceTemplateFormAdvanced")).val();
-    var template_final = TemplateUtils.mergeTemplates(templateJSON, templateStr);
     if (this.action == "create") {
-      Sunstone.runAction("ServiceTemplate.create", template_final );
+      Sunstone.runAction("ServiceTemplate.create", json_template );
       return false;
     } else if (this.action == "update") {
-      Sunstone.runAction("ServiceTemplate.update",this.resourceId, JSON.stringify(template_final));
+      Sunstone.runAction("ServiceTemplate.update",this.resourceId, JSON.stringify(json_template));
       return false;
     }
   }
 
   function _submitAdvanced(context) {
     var templateStr = $('textarea#template', context).val();
-    var templateJSON = this.retrieve($("form#createServiceTemplateFormWizard"));
-    var template_final = TemplateUtils.mergeTemplates(templateStr, templateJSON, true);
-    template_final = TemplateUtils.templateToString(template_final);
     if (this.action == "create") {
-      Sunstone.runAction("ServiceTemplate.create", JSON.parse(template_final) );
+      Sunstone.runAction("ServiceTemplate.create", JSON.parse(templateStr) );
       return false;
     } else if (this.action == "update") {
-      Sunstone.runAction("ServiceTemplate.update", this.resourceId, template_final);
+      Sunstone.runAction("ServiceTemplate.update", this.resourceId, templateStr);
       return false;
     }
   }

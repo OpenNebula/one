@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,6 +19,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Sunstone = require('sunstone');
   var OpenNebulaHost = require('opennebula/host');
+  var OpenNebulaCluster = require('opennebula/cluster');
   var OpenNebulaError = require('opennebula/error');
   var DomDataTable = require('utils/dom-datatable');
   var Notifier = require('utils/notifier');
@@ -92,7 +93,8 @@ define(function(require) {
               toggleAdvanced : false,
               columns : [
                 '<input type="checkbox" class="check_all"/>',
-                Locale.tr("Name"),
+                Locale.tr("Cluster"),
+                Locale.tr("Location"),
                 ""
               ]
             });
@@ -100,11 +102,21 @@ define(function(require) {
             var newdiv = $(content).appendTo($(".vcenter_datacenter_list", context));
             var tbody = $('#' + tableId + ' tbody', context);
 
-            $.each(elements, function(id, cluster_name) {
-              var opts = { name: cluster_name };
+            $.each(elements, function(id, cluster) {
+              var cluster_name = cluster.simple_name;
+              var cluster_location = cluster.cluster_location;
+              var cluster_hash = cluster.cluster_hash;
+              var rp_list = '<select class="select_rp"><option></option>';
+              if(cluster.rp_list.length > 0){
+                for(var i = 0; i < cluster.rp_list.length; i++){
+                  rp_list += '<option>' + cluster.rp_list[i].name + '</option>';
+                }
+              }
+              rp_list += '</select>';
+              var opts = { name: cluster_name, location: cluster_location, hash: cluster_hash };
               var trow = $(RowTemplate(opts)).appendTo(tbody);
 
-              $(".check_item", trow).data("cluster_name", cluster_name);
+              $(".check_item", trow).data("cluster", cluster);
             });
 
             var elementsTable = new DomDataTable(
@@ -127,12 +139,12 @@ define(function(require) {
 
             elementsTable.initialize();
 
-            $("a.vcenter-table-select-all").text(Locale.tr("Select all %1$s DataCenters", elements.length));
+            $("a.vcenter-table-select-all").text(Locale.tr("Select all %1$s Clusters", elements.length));
 
             VCenterCommon.setupTable({
               context : newdiv,
-              allSelected : Locale.tr("All %1$s DataCenters selected."),
-              selected: Locale.tr("%1$s DataCenters selected.")
+              allSelected : Locale.tr("All %1$s Clusters selected."),
+              selected: Locale.tr("%1$s Clusters selected.")
             });
 
             context.off('click', '.clear_imported');
@@ -163,39 +175,110 @@ define(function(require) {
 
         VCenterCommon.importLoading({context : row_context});
 
-        var host_json = {
-          "host": {
-            "name": $(this).data("cluster_name"),
-            "vm_mad": "vcenter",
-            "vnm_mad": "dummy",
-            "im_mad": "vcenter",
-            "cluster_id": cluster_id
-          }
-        };
+        var cluster_ref = $(this).data("cluster").cluster_ref;
+        var vcenter_uuid = $(this).data("cluster").vcenter_uuid;
+        var vcenter_version = $(this).data("cluster").vcenter_version;
+        var cluster_name = $(this).data("cluster").cluster_name;
 
-        OpenNebulaHost.create({
-          timeout: true,
-          data: host_json,
-          success: function(request, response) {
-            VCenterCommon.importSuccess({
-              context : row_context,
-              message : Locale.tr("Host created successfully. ID: %1$s", response.HOST.ID)
+        if (cluster_id == 0) {
+
+          var cluster_json = {
+            "cluster": {
+              "name": cluster_name
+            }
+          };
+
+          OpenNebulaCluster.create({
+            timeout: true,
+            data: cluster_json,
+            success: function(request, response) {
+
+              var host_json = {
+                "host": {
+                  "name": cluster_name,
+                  "vm_mad": "vcenter",
+                  "vnm_mad": "dummy",
+                  "im_mad": "vcenter",
+                  "cluster_id": response.CLUSTER.ID
+                }
+              };
+
+              OpenNebulaHost.create({
+                timeout: true,
+                data: host_json,
+                success: function(request, response) {
+                  VCenterCommon.importSuccess({
+                    context : row_context,
+                    message : Locale.tr("Host created successfully. ID: %1$s", response.HOST.ID)
+                  });
+
+                  var template_raw =
+                    "VCENTER_USER=\"" + that.opts.vcenter_user + "\"\n" +
+                    "VCENTER_PASSWORD=\"" + that.opts.vcenter_password + "\"\n" +
+                    "VCENTER_HOST=\"" + that.opts.vcenter_host + "\"\n" +
+                    "VCENTER_INSTANCE_ID=\"" + vcenter_uuid + "\"\n" +
+                    "VCENTER_CCR_REF=\"" + cluster_ref + "\"\n" +
+                    "VCENTER_VERSION=\"" + vcenter_version + "\"\n";
+
+                  Sunstone.runAction("Host.update_template", response.HOST.ID, template_raw);
+                },
+                error: function (request, error_json) {
+                  VCenterCommon.importFailure({
+                    context : row_context,
+                    message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
+                  });
+                }
+              });
+            },
+            error: function (request, error_json) {
+              VCenterCommon.importFailure({
+                context : row_context,
+                message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
+              });
+            }
+          });
+
+
+        } else {
+
+          var host_json = {
+              "host": {
+                "name": cluster_name,
+                "vm_mad": "vcenter",
+                "vnm_mad": "dummy",
+                "im_mad": "vcenter",
+                "cluster_id": cluster_id
+              }
+            };
+
+            OpenNebulaHost.create({
+              timeout: true,
+              data: host_json,
+              success: function(request, response) {
+                VCenterCommon.importSuccess({
+                  context : row_context,
+                  message : Locale.tr("Host created successfully. ID: %1$s", response.HOST.ID)
+                });
+
+                var template_raw =
+                  "VCENTER_USER=\"" + that.opts.vcenter_user + "\"\n" +
+                  "VCENTER_PASSWORD=\"" + that.opts.vcenter_password + "\"\n" +
+                  "VCENTER_HOST=\"" + that.opts.vcenter_host + "\"\n" +
+                  "VCENTER_INSTANCE_ID=\"" + vcenter_uuid + "\"\n" +
+                  "VCENTER_CCR_REF=\"" + cluster_ref + "\"\n" +
+                  "VCENTER_VERSION=\"" + vcenter_version + "\"\n";
+
+                Sunstone.runAction("Host.update_template", response.HOST.ID, template_raw);
+              },
+              error: function (request, error_json) {
+                VCenterCommon.importFailure({
+                  context : row_context,
+                  message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
+                });
+              }
             });
+        }
 
-            var template_raw =
-              "VCENTER_USER=\"" + that.opts.vcenter_user + "\"\n" +
-              "VCENTER_PASSWORD=\"" + that.opts.vcenter_password + "\"\n" +
-              "VCENTER_HOST=\"" + that.opts.vcenter_host + "\"\n";
-
-            Sunstone.runAction("Host.update_template", response.HOST.ID, template_raw);
-          },
-          error: function (request, error_json) {
-            VCenterCommon.importFailure({
-              context : row_context,
-              message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
-            });
-          }
-        });
       });
     });
   }

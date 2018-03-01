@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -432,6 +432,10 @@ define(function(require) {
         var name = group_by_name(history);
         series[group_by].name = name;
         series[group_by].label = group_by_prefix+" "+group_by+" "+name;
+      } else {
+        var name = group_by_name(history);
+        series[group_by].name = name;
+        series[group_by].label = group_by_prefix+" "+group_by+" "+name;
       }
 
       var serie = series[group_by].data_points;
@@ -467,6 +471,10 @@ define(function(require) {
 
           var template = history.VM.TEMPLATE;
 
+          if(!template){
+            break;
+          }
+          
           // --- cpu ---
 
           var val = parseFloat(template.CPU) * n_hours;
@@ -715,7 +723,8 @@ define(function(require) {
         "bSortClasses" : false,
         "bDeferRender": true,
         "aoColumnDefs": [
-        { "bSortable": false, "aTargets": ['_all'] },
+        { "sType": "date", "aTargets": [ 0 ] },
+        { "bSortable": true, "aTargets": [ 0 ] }
         ]
       });
 
@@ -723,7 +732,8 @@ define(function(require) {
         "bSortClasses" : false,
         "bDeferRender": true,
         "aoColumnDefs": [
-        { "bSortable": false, "aTargets": ['_all'] },
+        { "sType": "date", "aTargets": [ 0 ] },
+        { "bSortable": true, "aTargets": [ 0 ] }
         ]
       });
 
@@ -731,7 +741,8 @@ define(function(require) {
         "bSortClasses" : false,
         "bDeferRender": true,
         "aoColumnDefs": [
-        { "bSortable": false, "aTargets": ['_all'] },
+        { "sType": "date", "aTargets": [ 0 ] },
+        { "bSortable": true, "aTargets": [ 0 ] }
         ]
       });
 

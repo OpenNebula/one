@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -30,10 +30,21 @@ $: << RUBY_LIB_LOCATION
 
 require 'opennebula/server_x509_auth'
 require 'scripts_common'
+require 'rexml/document'
+require 'opennebula/error'
+require 'opennebula/xml_utils'
 
-user   = ARGV[0] # username as registered in OpenNebula
-pass   = ARGV[1] # password for this user
-secret = ARGV[2] # Base64 encoded secret as obtained from login_token
+begin
+    xml = OpenNebula::XMLElement.new
+    xml.initialize_xml(STDIN.read, 'AUTHN')
+
+    user   = xml['/AUTHN/USERNAME'] # username as registered in OpenNebula
+    pass   = xml['/AUTHN/PASSWORD'] # password for this user
+    secret = xml['/AUTHN/SECRET']   # Base64 encoded secret as obtained from login_token
+rescue
+    STDERR.puts "Invalid XML input"
+    exit(-1)
+end
 
 #OpenNebula.log_debug("Authenticating #{user}, with password #{pass} (#{secret})")
 

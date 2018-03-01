@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -23,6 +23,14 @@
 const string PoolObjectSQL::INVALID_NAME_CHARS = "&|:\\\";/'#{}$<>";
 
 const int PoolObjectSQL::LOCK_DB_EXPIRATION = 120;
+
+const long int PoolObjectSQL::LockableObject = PoolObjectSQL::ObjectType::VM
+                                | PoolObjectSQL::ObjectType::TEMPLATE
+                                | PoolObjectSQL::ObjectType::IMAGE
+                                | PoolObjectSQL::ObjectType::MARKETPLACEAPP
+                                | PoolObjectSQL::ObjectType::NET
+                                | PoolObjectSQL::ObjectType::VROUTER
+                                | PoolObjectSQL::ObjectType::VMGROUP;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -59,7 +67,7 @@ int PoolObjectSQL::select(SqlDB *db)
     boid = oid;
     oid  = -1;
 
-    rc = db->exec(oss, this);
+    rc = db->exec_rd(oss, this);
 
     unset_callback();
 
@@ -101,7 +109,7 @@ int PoolObjectSQL::select(SqlDB *db, const string& _name, int _uid)
     name  = "";
     uid   = -1;
 
-    rc = db->exec(oss, this);
+    rc = db->exec_rd(oss, this);
 
     unset_callback();
 
@@ -125,7 +133,7 @@ int PoolObjectSQL::drop(SqlDB *db)
 
     oss << "DELETE FROM " << table << " WHERE oid=" << oid;
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     if ( rc == 0 )
     {
@@ -172,6 +180,8 @@ void PoolObjectSQL::clear_template_error_message()
 int PoolObjectSQL::replace_template(
         const string& tmpl_str, bool keep_restricted, string& error)
 {
+    string ra;
+
     Template * old_tmpl = 0;
     Template * new_tmpl = get_new_template();
 
@@ -189,19 +199,22 @@ int PoolObjectSQL::replace_template(
 
     if (obj_template != 0)
     {
+        if ( keep_restricted &&  new_tmpl->check_restricted(ra, obj_template) )
+        {
+            error = "Tried to change restricted attribute: " + ra;
+
+            delete new_tmpl;
+            return -1;
+        }
+
         old_tmpl = new Template(*obj_template);
     }
-
-    if (keep_restricted && new_tmpl->has_restricted())
+    else if ( keep_restricted && new_tmpl->check_restricted(ra) )
     {
-        new_tmpl->remove_restricted();
+        error = "Tried to set restricted attribute: " + ra;
 
-        if (obj_template != 0)
-        {
-            obj_template->remove_all_except_restricted();
-
-            new_tmpl->merge(obj_template);
-        }
+        delete new_tmpl;
+        return -1;
     }
 
     delete obj_template;
@@ -237,6 +250,7 @@ int PoolObjectSQL::append_template(
 {
     Template * old_tmpl = 0;
     Template * new_tmpl = get_new_template();
+    string rname;
 
     if ( new_tmpl == 0 )
     {
@@ -250,21 +264,26 @@ int PoolObjectSQL::append_template(
         return -1;
     }
 
-    if (keep_restricted)
-    {
-        new_tmpl->remove_restricted();
-    }
-
     if ( obj_template != 0 )
     {
-        old_tmpl = new Template(*obj_template);
-
+        if (keep_restricted && new_tmpl->check_restricted(rname, obj_template))
+        {
+            error ="User Template includes a restricted attribute " + rname;
+            delete new_tmpl;
+            return -1;
+        }
         obj_template->merge(new_tmpl);
 
         delete new_tmpl;
     }
     else
     {
+        if (keep_restricted && new_tmpl->check_restricted(rname))
+        {
+            error ="User Template includes a restricted attribute " + rname;
+            delete new_tmpl;
+            return -1;
+        }
         obj_template = new_tmpl;
     }
 
@@ -357,6 +376,8 @@ void PoolObjectSQL::get_permissions(PoolObjectAuth& auth)
     auth.other_u = other_u;
     auth.other_m = other_m;
     auth.other_a = other_a;
+
+    auth.locked = static_cast<int>(locked);
 
     Clusterable* cl = dynamic_cast<Clusterable*>(this);
 
@@ -500,16 +521,12 @@ bool PoolObjectSQL::name_is_valid(const string& obj_name,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int PoolObjectSQL::lock_db(const string& owner)
+int PoolObjectSQL::lock_db(const int owner, const int req_id, const int level)
 {
-    if (locked && time(0) < lock_expires)
-    {
-        return -1;
-    }
-
-    locked       = true;
-    lock_expires = time(0) + LOCK_DB_EXPIRATION;
+    locked       = static_cast<LockStates>(level);
+    lock_time = time(0);
     lock_owner   = owner;
+    lock_req_id  = req_id;
 
     return 0;
 }
@@ -517,13 +534,15 @@ int PoolObjectSQL::lock_db(const string& owner)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void PoolObjectSQL::unlock_db(const string& owner)
+void PoolObjectSQL::unlock_db(const int owner, const int req_id)
 {
-    // Check if owner == lock_owner?
-
-    locked       = false;
-    lock_expires = 0;
-    lock_owner   = "";
+    if ( owner == lock_owner )
+    {
+        locked       = LockStates::ST_NONE;
+        lock_time = time(0);
+        lock_owner   = -1;
+        lock_req_id  = -1;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -532,13 +551,15 @@ void PoolObjectSQL::unlock_db(const string& owner)
 string& PoolObjectSQL::lock_db_to_xml(string& xml) const
 {
     ostringstream   oss;
-    int locked_int = locked ? 1 : 0;
-
-    oss << "<LOCK>"
-            << "<LOCKED>"  << locked_int   << "</LOCKED>"
-            << "<OWNER>"   << one_util::escape_xml(lock_owner) << "</OWNER>"
-            << "<EXPIRES>" << lock_expires << "</EXPIRES>"
-        << "</LOCK>";
+    if (locked  != LockStates::ST_NONE)
+    {
+        oss << "<LOCK>"
+                << "<LOCKED>"  << static_cast<int>(locked)   << "</LOCKED>"
+                << "<OWNER>"   << lock_owner << "</OWNER>"
+                << "<TIME>" << lock_time << "</TIME>"
+                << "<REQ_ID>" << lock_req_id << "</REQ_ID>"
+            << "</LOCK>";
+    }
 
     xml = oss.str();
     return xml;
@@ -551,12 +572,17 @@ int PoolObjectSQL::lock_db_from_xml()
 {
     int rc = 0;
     int locked_int;
+    vector<xmlNodePtr> content;
 
-    rc += xpath(locked_int,   "/*/LOCK/LOCKED", 0);
-    rc += xpath(lock_owner,   "/*/LOCK/OWNER", "");
-    rc += xpath<time_t>(lock_expires, "/*/LOCK/EXPIRES", 0);
+    if (ObjectXML::get_nodes("/*/LOCK/LOCKED", content) > 0)
+    {
+        rc += xpath(locked_int,   "/*/LOCK/LOCKED", 0);
+        rc += xpath(lock_req_id,   "/*/LOCK/REQ_ID", -1);
+        rc += xpath(lock_owner,   "/*/LOCK/OWNER", -1);
+        xpath<time_t>(lock_time, "/*/LOCK/TIME", time(0));
 
-    locked = locked_int;
+        locked = static_cast<LockStates>(locked_int);
+    }
 
     return rc;
 }

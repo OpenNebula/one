@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -177,7 +177,7 @@ end
 
 set :cloud_auth, $cloud_auth
 
-$views_config = SunstoneViews.new
+$views_config = SunstoneViews.new($conf[:mode])
 
 #start VNC proxy
 
@@ -200,7 +200,7 @@ SUPPORT = {
     :author_name => "OpenNebula Support Team",
     :support_subscription => "http://opennebula.systems/support/",
     :account => "http://opennebula.systems/buy/",
-    :docs => "http://docs.opennebula.org/5.2/",
+    :docs => "http://docs.opennebula.org/5.4/",
     :community => "http://opennebula.org/support/community/",
     :project => "OpenNebula"
 }
@@ -334,6 +334,8 @@ helpers do
 
             session[:federation_mode] = rc['FEDERATION/MODE'].upcase
 
+            session[:mode] = $conf[:mode]
+
             return [204, ""]
         end
     end
@@ -419,7 +421,7 @@ before do
 
     client = $cloud_auth.client(session[:user], session[:active_zone_endpoint])
 
-    @SunstoneServer = SunstoneServer.new(client,$conf,logger)
+    @SunstoneServer = SunstoneServer.new(client, $conf, logger)
 end
 
 after do
@@ -523,6 +525,7 @@ get '/spice' do
     if !authorized?
         erb :login
     else
+        params[:title] = CGI::escape(params[:title])
         erb :spice
     end
 end
@@ -613,7 +616,6 @@ get '/infrastructure' do
     infrastructure = {}
 
     set = Set.new
-
     xml = XMLElement.new
     xml.initialize_xml(hpool.to_xml, 'HOST_POOL')
     xml.each('HOST/HOST_SHARE/PCI_DEVICES/PCI') do |pci|
@@ -634,6 +636,20 @@ get '/infrastructure' do
     end
 
     infrastructure[:vcenter_customizations] = set.to_a
+
+    set_cpu_models = Set.new
+    set_kvm_machines = Set.new
+
+    xml.each('HOST/TEMPLATE') do |kvm|
+        if !kvm['KVM_CPU_MODELS'].nil?
+            set_cpu_models += kvm['KVM_CPU_MODELS'].split(" ")
+        end
+        if !kvm['KVM_MACHINES'].nil?
+            set_kvm_machines += kvm['KVM_MACHINES'].split(" ")
+        end
+    end
+
+    infrastructure[:kvm_info] = { :set_cpu_models => set_cpu_models.to_a, :set_kvm_machines => set_kvm_machines.to_a }
 
     [200, infrastructure.to_json]
 end
@@ -689,6 +705,7 @@ end
 ##############################################################################
 get '/:pool' do
     zone_client = nil
+    filter = params[:pool_filter]
 
     if params[:zone_id] && session[:federation_mode] != "STANDALONE"
         zone = OpenNebula::Zone.new_with_id(params[:zone_id].to_i,
@@ -701,21 +718,24 @@ get '/:pool' do
                                          zone['TEMPLATE/ENDPOINT'])
     end
 
+    if params[:pool_filter].nil?
+        filter = session[:user_gid]
+    end
+
     @SunstoneServer.get_pool(params[:pool],
-                             session[:user_gid],
+                             filter,
                              zone_client)
 end
 
 ##############################################################################
 # GET Resource information
 ##############################################################################
-
 get '/:resource/:id/template' do
     @SunstoneServer.get_template(params[:resource], params[:id])
 end
 
 get '/:resource/:id' do
-    if params[:extended]
+    if  params[:extended] && params[:extended] != "false"
         @SunstoneServer.get_resource(params[:resource], params[:id], true)
     else
         @SunstoneServer.get_resource(params[:resource], params[:id])

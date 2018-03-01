@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -349,7 +349,9 @@ module OpenNebula
                 rc = vm.terminate(true)
 
                 if OpenNebula.is_error?(rc)
-                    rc = vm.delete
+                    if @@force_deletion
+                        rc = vm.delete
+                    end
                 end
 
                 if OpenNebula.is_error?(rc)
@@ -598,6 +600,10 @@ module OpenNebula
 
         def self.init_default_shutdown(shutdown_action)
             @@default_shutdown = shutdown_action
+        end
+
+        def self.init_force_deletion(force_deletion)
+            @@force_deletion = force_deletion
         end
 
         def self.init_default_vm_name_template(vm_name_template)

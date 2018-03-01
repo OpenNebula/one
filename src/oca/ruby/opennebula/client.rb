@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -39,9 +39,11 @@ module OpenNebula
                 alias :start_element :startElement
 
                 def parse(str)
+
                     Ox.sax_parse(self, StringIO.new(str),
                         :symbolize => false,
-                        :convert_special => true)
+                        :convert_special => true,
+                        :skip => false)
                 end
             end
         end
@@ -67,7 +69,7 @@ module OpenNebula
         end
     end
 
-    DEFAULT_POOL_PAGE_SIZE = 2000
+    DEFAULT_POOL_PAGE_SIZE = 200
 
     if size=ENV['ONE_POOL_PAGE_SIZE']
         if size.strip.match(/^\d+$/) && size.to_i >= 2
@@ -83,6 +85,8 @@ module OpenNebula
     # The client class, represents the connection with the core and handles the
     # xml-rpc calls.
     class Client
+        NO_ONE_AUTH_ERROR = "ONE_AUTH file not present"
+
         attr_accessor :one_auth
         attr_reader   :one_endpoint
 
@@ -127,7 +131,7 @@ module OpenNebula
             elsif File.file?("/var/lib/one/.one/one_auth")
                 @one_auth = File.read("/var/lib/one/.one/one_auth")
             else
-                raise "ONE_AUTH file not present"
+                raise NO_ONE_AUTH_ERROR
             end
 
             @one_auth = @one_auth.rstrip

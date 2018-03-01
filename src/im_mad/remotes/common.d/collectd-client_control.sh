@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -86,10 +86,13 @@ function check_running() {
 
 case $ACTION in
 start)
-    if ! check_running; then
-        start_client
-        write_pid $!
+    if check_running; then
+        stop_client
+        remove_pid_file
     fi
+
+    start_client
+    write_pid $!
 
     # This script returns the run_probes execution
     HYPERVISOR=$1

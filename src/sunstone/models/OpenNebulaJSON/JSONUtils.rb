@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -113,5 +113,31 @@ module OpenNebulaJSON
 
              str
          end
+
+         def hash_to_str(template_hash, delete_values)
+            for del in delete_values
+                template_hash.delete(del)
+            end
+
+            if !template_hash.empty?
+                template_str = ""
+                template_hash.collect do |key,value|
+                    if value.kind_of?(Array)
+                        template_str << key.to_s.upcase << " = \["
+                        for obj in value
+                            if obj.kind_of?(Hash)
+                                obj.collect do |key,value|
+                                    template_str << key.to_s.upcase << " = \""<< value.to_s << "\"\n"
+                                end
+                            end
+                        end
+                        template_str << "\]\n"
+                    else
+                        template_str << key.to_s.upcase << " = \""<< value.to_s << "\"\n"
+                    end
+                end
+            end
+            return template_str
+        end
      end
 end

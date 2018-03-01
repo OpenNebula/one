@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -33,6 +33,7 @@ define(function(require) {
     <option value="pl">Polish (pl)</option>\
     <option value="pt_BR">Portuguese (pt_BR)</option>\
     <option value="pt_PT">Portuguese (pt_PT)</option>\
+    <option value="tr_TR">Turkish (tr_TR)</option>\
     <option value="ru_RU">Russian (ru_RU)</option>\
     <option value="zh_CN">Simplified Chinese (zh_CN)</option>\
     <option value="sk_SK">Slovak (sk_SK)</option>\

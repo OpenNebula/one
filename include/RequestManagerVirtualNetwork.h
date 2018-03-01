@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -63,7 +63,7 @@ class VirtualNetworkAddAddressRange: public RequestManagerVirtualNetwork
 {
 public:
     VirtualNetworkAddAddressRange():
-        RequestManagerVirtualNetwork("VirtualNetworkAddAddressRange",
+        RequestManagerVirtualNetwork("one.vn.add_ar",
                                      "Adds address ranges to a virtual network")
     {
         auth_op = AuthRequest::ADMIN;
@@ -86,8 +86,10 @@ public:
 class VirtualNetworkRmAddressRange : public Request
 {
 public:
+
+
     VirtualNetworkRmAddressRange(
-      const string& name = "VirtualNetworkRmAddressRange",
+      const string& name = "one.vn.rm_ar",
       const string& sign = "A:sii",
       const string& help = "Removes an address range from a virtual network")
         : Request(name, sign, help)
@@ -112,7 +114,7 @@ class VirtualNetworkFreeAddressRange : public VirtualNetworkRmAddressRange
 {
 public:
     VirtualNetworkFreeAddressRange():VirtualNetworkRmAddressRange(
-      "VirtualNetworkFreeAddressRange",
+      "one.vn.free_ar",
       "A:sii",
       "Frees a reserved address range from a virtual network")
     {
@@ -139,7 +141,7 @@ class VirtualNetworkUpdateAddressRange: public RequestManagerVirtualNetwork
 {
 public:
     VirtualNetworkUpdateAddressRange():
-        RequestManagerVirtualNetwork("VirtualNetworkUpdateAddressRange",
+        RequestManagerVirtualNetwork("one.vn.update_ar",
           "Updates address ranges to a virtual network")
     {
         auth_op = AuthRequest::MANAGE;
@@ -170,7 +172,7 @@ class VirtualNetworkHold : public RequestManagerVirtualNetwork
 {
 public:
     VirtualNetworkHold():
-        RequestManagerVirtualNetwork("VirtualNetworkHold",
+        RequestManagerVirtualNetwork("one.vn.hold",
                                      "Holds a virtual network Lease as used"){};
     ~VirtualNetworkHold(){};
 
@@ -190,7 +192,7 @@ class VirtualNetworkRelease : public RequestManagerVirtualNetwork
 {
 public:
     VirtualNetworkRelease():
-        RequestManagerVirtualNetwork("VirtualNetworkRelease",
+        RequestManagerVirtualNetwork("one.vn.release",
                                      "Releases a virtual network Lease on hold"){};
     ~VirtualNetworkRelease(){};
 
@@ -209,7 +211,7 @@ public:
 class VirtualNetworkReserve: public Request
 {
 public:
-    VirtualNetworkReserve():Request("VirtualNetworkReserve", "A:sis",
+    VirtualNetworkReserve():Request("one.vn.reserve", "A:sis",
       "Reserve network addresses")
     {
         Nebula& nd  = Nebula::instance();

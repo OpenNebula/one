@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,6 +17,7 @@
 define(function(require) {
   var OpenNebulaHelper = require('./helper');
   var OpenNebulaError = require('./error');
+  var Config = require('sunstone-config');
 
   var listCache = {};
   var listWaiting = {};
@@ -115,6 +116,10 @@ define(function(require) {
       });
     },
 
+    "cache": function(resource) {
+      return listCache[resource];
+    },
+
     "list": function(params, resource, path, process) {
       var callback = params.success;
       var callbackError = params.error;
@@ -162,13 +167,13 @@ define(function(require) {
       }
 
       listWaiting[cache_name] = true;
-
+      var pool_filter = Config.isChangedFilter()?-4:-2;
       //console.log(cache_name+" list. NO cache, calling ajax");
 
       $.ajax({
         url: reqPath,
         type: "GET",
-        data: {timeout: timeout},
+        data: {timeout: timeout, pool_filter: pool_filter},
         dataType: "json",
         success: function(response) {
           var list;
@@ -235,7 +240,7 @@ define(function(require) {
       $.ajax({
         url: reqPath,
         type: "GET",
-        data: {timeout: timeout, zone_id: params.data.zone_id},
+        data: {timeout: timeout, zone_id: params.data.zone_id, pool_filter: params.data.pool_filter},
         dataType: "json",
         success: function(response) {
           var list = OpenNebulaHelper.pool(resource, response)
@@ -284,6 +289,13 @@ define(function(require) {
                         "group_id": "-1"};
 
       _simple_action(params, resource, "chown", action_obj, path);
+    },
+
+    "lock": function(params, resource, path) {
+      var level = params.data.extra_param;
+      var action_obj = {"level": level};
+
+      _simple_action(params, resource, "lock", action_obj, path);
     },
 
     "chgrp": function(params, resource, path) {

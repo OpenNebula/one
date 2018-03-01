@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -316,15 +316,21 @@ public:
      */
     friend std::ostream& operator<<(std::ostream& os, ObjectXML& oxml)
     {
-        xmlChar * mem;
-        int       size;
+        xmlNodePtr root_node = xmlDocGetRootElement(oxml.xml);
 
-        xmlDocDumpMemory(oxml.xml,&mem,&size);
+        if ( root_node == 0 )
+        {
+            return os;
+        }
 
-        std::string str(reinterpret_cast<char *>(mem));
+        xmlBufferPtr buffer = xmlBufferCreate();
+
+        xmlNodeDump(buffer, oxml.xml, root_node, 0, 0);
+
+        std::string str(reinterpret_cast<char *>(buffer->content));
         os << str;
 
-        xmlFree(mem);
+        xmlBufferFree(buffer);
 
         return os;
     };

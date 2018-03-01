@@ -1,19 +1,16 @@
 [Unit]
 Description=OpenNebula Web UI Server
-After=syslog.target
-After=network.target
+After=syslog.target network.target
 After=opennebula.service
-After=opennebula-novnc.service
-BindTo=opennebula-novnc.service
+Wants=opennebula-novnc.service
+AssertFileNotEmpty=/var/lib/one/.one/sunstone_auth
 
 [Service]
 Type=simple
 Group=oneadmin
 User=oneadmin
-
+ExecStartPre=-/usr/sbin/logrotate -f /etc/logrotate.d/opennebula-sunstone -s /var/lib/one/.logrotate.status
 ExecStart=/usr/bin/ruby /usr/lib/one/sunstone/sunstone-server.rb
-ExecStartPre=-/usr/sbin/logrotate -s /tmp/logrotate.state -f /etc/logrotate.d/opennebula
-PIDFile=/var/run/one/sunstone.pid
 
 [Install]
 WantedBy=multi-user.target

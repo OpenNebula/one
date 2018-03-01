@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -25,22 +25,12 @@ class PoolXML;
  *  This class represents a target resource to schedule a "schedulable"
  *  resource.
  */
-class Resource
+struct Resource
 {
 public:
     Resource(int _oid):oid(_oid), priority(0){};
 
     virtual ~Resource(){};
-
-    static bool cmp (const Resource * a, const Resource * b)
-    {
-        return a->priority < b->priority;
-    };
-
-    bool operator<(const Resource& b) const
-    {
-        return priority < b.priority;
-    };
 
     int   oid;
     float priority;
@@ -76,9 +66,17 @@ public:
     /**
      *  Sort the matched resources in the vector
      */
-    void sort_resources()
+    virtual void sort_resources()
     {
-        sort(resources.begin(), resources.end(), Resource::cmp);
+        struct ResourceCompare
+        {
+            bool operator() (const Resource * a, const Resource * b) const
+            {
+                return a->priority < b->priority;
+            };
+        } cmp;
+
+        std::sort(resources.begin(), resources.end(), cmp);
     }
 
     /**
@@ -106,9 +104,36 @@ public:
         resources.clear();
     }
 
-private:
+protected:
 
     vector<Resource *> resources;
+};
+
+/**
+ *  Abstract class that models an object that can be scheduled over a resource
+ */
+class VirtualMachineResourceMatch: public ResourceMatch
+{
+public:
+    void sort_resources()
+    {
+        struct ResourceCompare
+        {
+            bool operator() (const Resource * a, const Resource * b) const
+            {
+                if ( a->priority == b->priority )
+                {
+                    std::ostringstream oss;
+
+                    return a->oid > b->oid;
+                }
+
+                return a->priority < b->priority;
+            };
+        } cmp;
+
+        std::sort(resources.begin(), resources.end(), cmp);
+    }
 };
 
 #endif /*RESOURCE_H_*/

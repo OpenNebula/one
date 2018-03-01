@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -45,10 +45,7 @@ Document::Document( int id,
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-Document::~Document()
-{
-    delete obj_template;
-}
+Document::~Document(){};
 
 /* ************************************************************************ */
 /* Document :: Database Access Functions                                    */
@@ -154,7 +151,7 @@ int Document::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<            group_u    << ","
         <<            other_u    << ")";
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     db->free_str(sql_name);
     db->free_str(sql_xml);

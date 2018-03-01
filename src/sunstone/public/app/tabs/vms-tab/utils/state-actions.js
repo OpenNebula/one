@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -44,7 +44,7 @@ define(function(require) {
     [];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.POWEROFF] =
-    ["VM.resume", "VM.resize", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.disk_saveas", "VM.disk_snapshot_create", "VM.disk_snapshot_revert", "VM.disk_snapshot_delete", "VM.migrate", "VM.undeploy", "VM.undeploy_hard", "VM.save_as_template", "VM.updateconf", "VM.terminate_hard", "VM.recover"];
+    ["VM.resume", "VM.resize", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.disk_saveas", "VM.disk_snapshot_create", "VM.disk_snapshot_revert", "VM.disk_snapshot_delete", "VM.migrate", "VM.undeploy", "VM.undeploy_hard", "VM.save_as_template", "VM.updateconf", "VM.terminate_hard", "VM.recover", "VM.disk_resize", "VM.snapshot_delete"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.UNDEPLOYED] =
     ["VM.resume", "VM.resize", "VM.deploy", "VM.updateconf", "VM.terminate_hard", "VM.recover"];
@@ -60,7 +60,7 @@ define(function(require) {
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.PROLOG ] = ["VM.updateconf"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.BOOT ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.RUNNING ] =
-    ["VM.stop", "VM.suspend", "VM.reboot", "VM.reboot_hard", "VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.disk_saveas", "VM.disk_snapshot_create", "VM.disk_snapshot_delete", "VM.terminate", "VM.terminate_hard"];
+    ["VM.stop", "VM.suspend", "VM.reboot", "VM.reboot_hard", "VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.disk_saveas", "VM.disk_snapshot_create", "VM.disk_snapshot_delete", "VM.terminate", "VM.terminate_hard", "VM.disk_resize"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.MIGRATE ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.SAVE_STOP ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.SAVE_SUSPEND ] = [];
@@ -71,7 +71,7 @@ define(function(require) {
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.EPILOG ] = ["VM.updateconf"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.SHUTDOWN ] = ["VM.updateconf"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.CANCEL ] = [];
-  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.FAILURE ] = [];
+  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.FAILURE ] = ["VM.terminate"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.CLEANUP_RESUBMIT ] = ["VM.updateconf"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.UNKNOWN ] =
     ["VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live", "VM.resume", "VM.terminate", "VM.terminate_hard"];
@@ -94,21 +94,21 @@ define(function(require) {
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.HOTPLUG_PROLOG_POWEROFF ] = ["VM.updateconf"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.HOTPLUG_EPILOG_POWEROFF ] = ["VM.updateconf"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.BOOT_MIGRATE ] = [];
-  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.BOOT_FAILURE ] = ["VM.updateconf"];
-  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.BOOT_MIGRATE_FAILURE ] = [];
-  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_FAILURE ] = [];
-  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.PROLOG_FAILURE ] = ["VM.updateconf"];
-  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.EPILOG_FAILURE ] = ["VM.updateconf"];
-  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.EPILOG_STOP_FAILURE ] = [];
-  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.EPILOG_UNDEPLOY_FAILURE ] = ["VM.updateconf"];
+  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.BOOT_FAILURE ] = ["VM.updateconf", "VM.terminate"];
+  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.BOOT_MIGRATE_FAILURE ] = ["VM.terminate"];
+  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_FAILURE ] = ["VM.terminate"];
+  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.PROLOG_FAILURE ] = ["VM.updateconf", "VM.terminate"];
+  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.EPILOG_FAILURE ] = ["VM.updateconf", "VM.terminate"];
+  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.EPILOG_STOP_FAILURE ] = ["VM.terminate"];
+  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.EPILOG_UNDEPLOY_FAILURE ] = ["VM.updateconf", "VM.terminate"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_POWEROFF ] = ["VM.updateconf"];
-  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_POWEROFF_FAILURE ] = ["VM.updateconf"];
+  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_POWEROFF_FAILURE ] = ["VM.updateconf", "VM.terminate"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_SUSPEND ] = [];
-  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_SUSPEND_FAILURE ] = [];
-  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.BOOT_UNDEPLOY_FAILURE ] = ["VM.updateconf"];
-  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.BOOT_STOPPED_FAILURE ] = [];
-  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.PROLOG_RESUME_FAILURE ] = [];
-  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.PROLOG_UNDEPLOY_FAILURE ] = ["VM.updateconf"];
+  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_SUSPEND_FAILURE ] = ["VM.terminate"];
+  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.BOOT_UNDEPLOY_FAILURE ] = ["VM.updateconf", "VM.terminate"];
+  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.BOOT_STOPPED_FAILURE ] = ["VM.terminate"];
+  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.PROLOG_RESUME_FAILURE ] = ["VM.terminate"];
+  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.PROLOG_UNDEPLOY_FAILURE ] = ["VM.updateconf", "VM.terminate"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.DISK_SNAPSHOT_POWEROFF ] = ["VM.updateconf"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.DISK_SNAPSHOT_REVERT_POWEROFF ] = ["VM.updateconf"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.DISK_SNAPSHOT_DELETE_POWEROFF ] = ["VM.updateconf"];
@@ -119,7 +119,7 @@ define(function(require) {
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.DISK_SNAPSHOT_REVERT ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.DISK_SNAPSHOT_DELETE ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_UNKNOWN ] = [];
-  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_UNKNOWN_FAILURE ] = [];
+  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_UNKNOWN_FAILURE ] = ["VM.terminate"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.DISK_RESIZE            ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.DISK_RESIZE_POWEROFF   ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.DISK_RESIZE_UNDEPLOYED ] = [];

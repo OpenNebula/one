@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -24,8 +24,6 @@ require 'OpenNebulaJSON/JSONUtils'
 #include JSONUtils
 
 class SunstoneServer < CloudServer
-    # FLAG that will filter the elements retrieved from the Pools
-    POOL_FILTER = Pool::INFO_ALL
 
     # Secs to sleep between checks to see if image upload to repo is finished
     IMAGE_POLL_SLEEP_TIME = 5
@@ -38,14 +36,10 @@ class SunstoneServer < CloudServer
     ############################################################################
     #
     ############################################################################
-    def get_pool(kind,gid, client=nil)
+    def get_pool(kind,user_flag, client=nil)
         client = @client if !client
 
-        if gid == "0"
-            user_flag = Pool::INFO_ALL
-        else
-            user_flag = POOL_FILTER
-        end
+        user_flag = Integer(user_flag)
 
         pool = case kind
             when "group"            then GroupPoolJSON.new(client)
@@ -53,7 +47,7 @@ class SunstoneServer < CloudServer
             when "host"             then HostPoolJSON.new(client)
             when "image"            then ImagePoolJSON.new(client, user_flag)
             when "vmtemplate"       then TemplatePoolJSON.new(client, user_flag)
-            when "vm_group"          then VMGroupPoolJSON.new(client, user_flag)
+            when "vm_group"         then VMGroupPoolJSON.new(client, user_flag)
             when "vm"               then VirtualMachinePoolJSON.new(client, user_flag)
             when "vnet"             then VirtualNetworkPoolJSON.new(client, user_flag)
             when "user"             then UserPoolJSON.new(client)

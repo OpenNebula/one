@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -27,11 +27,14 @@ class TokenAuth
 end
 
 class OneUserHelper < OpenNebulaHelper::OneHelper
-
-    if ENV['HOME']
-        ONE_AUTH = ENV['HOME']+'/.one/one_auth'
+    if ENV['ONE_AUTH']
+        ONE_AUTH = ENV['ONE_AUTH']
     else
-        ONE_AUTH = "/var/lib/one/.one/one_auth"
+        if ENV['HOME']
+            ONE_AUTH = ENV['HOME']+'/.one/one_auth'
+        else
+            ONE_AUTH = "/var/lib/one/.one/one_auth"
+        end
     end
 
     def self.rname
@@ -206,12 +209,14 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
         return -1, token_oned.message if OpenNebula.is_error?(token_oned)
 
+        token_info = "Authentication Token is:\n#{username}:#{token_oned}"
+
         #-----------------------------------------------------------------------
         # Check that ONE_AUTH target can be written
         #-----------------------------------------------------------------------
         if File.file?(ONE_AUTH) && !options[:force]
                 return 0, "File #{ONE_AUTH} exists, use --force to overwrite."\
-                "\nAuthentication Token is:\n#{username}:#{token_oned}"
+                "\n#{token_info}"
         end
 
         #-----------------------------------------------------------------------
@@ -228,7 +233,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
         File.chmod(0600, ONE_AUTH)
 
-        return 0, ''
+        return 0, token_info
     end
 
     def format_pool(options)
@@ -459,6 +464,10 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             username = args[0]
             use_client = false
         else
+            if !defined?(@@client)
+                return -1, "No username in the argument or valid ONE_AUTH found."
+            end
+
             user = self.get_client_user
             username = user['NAME']
             use_client = true

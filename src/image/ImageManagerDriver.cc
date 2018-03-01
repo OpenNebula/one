@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -606,6 +606,8 @@ static void monitor_action(istringstream& is,
                            int            id,
                            const string&  result)
 {
+    static map<int, int> tics;
+
     string  dsinfo64;
     string *dsinfo = 0;
 
@@ -690,6 +692,18 @@ static void monitor_action(istringstream& is,
 
     ds->unlock();
 
+    oss << "Datastore " << ds_name << " (" << id << ") successfully monitored.";
+
+    NebulaLog::log("ImM", Log::DEBUG, oss);
+
+    //Process VM disk information every 10 monitor actions
+    if ( --tics[id] > 0 )
+    {
+        return;
+    }
+
+    tics[id] = 10;
+
     vector<VectorAttribute *> vm_disk_info;
     vector<VectorAttribute *>::iterator it;
 
@@ -706,12 +720,8 @@ static void monitor_action(istringstream& is,
             continue;
         }
 
-        VirtualMachineManagerDriver::process_poll(vm_id, poll_info, false);
+        VirtualMachineManagerDriver::process_poll(vm_id, poll_info);
     }
-
-    oss << "Datastore " << ds_name << " (" << id << ") successfully monitored.";
-
-    NebulaLog::log("ImM", Log::DEBUG, oss);
 
     return;
 }

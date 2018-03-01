@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,7 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-COPYRIGHT_HOLDER="2002-2016, OpenNebula Project, OpenNebula Systems"
+COPYRIGHT_HOLDER="2002-2018, OpenNebula Project, OpenNebula Systems"
 PACKAGE_NAME="OpenNebula"
 
 find ../app -name \*.js > file_list.txt
@@ -25,7 +25,7 @@ xgettext --from-code=utf-8 --copyright-holder="$COPYRIGHT_HOLDER" --package-name
 # xgettext-template project: https://github.com/gmarty/xgettext
 # tail removes the first configuration lines for msgid ""
 
-find ../app -name \*.hbs -exec sh -c "xgettext-template -L Handlebars --from-code utf-8 --force-po --keyword tr {}| tail -n +3 >> messages.po" \;
+find ../app -name \*.hbs -exec sh -c "xgettext-template -L Handlebars --from-code utf-8 --output=/dev/stdout --force-po --keyword tr {}| tail -n +3 >> messages.po" \;
 
 mv messages.po messages.pot
 

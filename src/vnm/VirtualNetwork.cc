@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -46,6 +46,7 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
             Clusterable(_cluster_ids),
             bridge(""),
             vlan_id_automatic(false),
+            outer_vlan_id_automatic(false),
             parent_vid(_pvid),
             vrouters("VROUTERS")
 {
@@ -64,10 +65,7 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VirtualNetwork::~VirtualNetwork()
-{
-    delete obj_template;
-}
+VirtualNetwork::~VirtualNetwork(){};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -97,6 +95,30 @@ const char * VirtualNetwork::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
     " body MEDIUMTEXT, uid INTEGER, gid INTEGER,"
     " owner_u INTEGER, group_u INTEGER, other_u INTEGER,"
     " pid INTEGER, UNIQUE(name,uid))";
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualNetwork::parse_vlan_id(const char * id_name, const char * auto_name,
+        string& id, bool& auto_id)
+{
+    string vis;
+
+    if ( PoolObjectSQL::get_template_attribute(id_name, vis) && !vis.empty() )
+    {
+        erase_template_attribute(id_name, id);
+
+        add_template_attribute(id_name, id);
+
+        remove_template_attribute(auto_name);
+
+        auto_id = false;
+    }
+    else
+    {
+        erase_template_attribute(auto_name, auto_id);
+    }
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -140,22 +162,12 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     add_template_attribute("PHYDEV", phydev);
 
-    // ---- VLAN_ID if not set allocated in VirtualNetworkPool, if needed -----
+    // ---- VLAN_IDs if not set will be allocated in VirtualNetworkPool -----
 
-    if (PoolObjectSQL::get_template_attribute("VLAN_ID", vis) && !vis.empty())
-    {
-        erase_template_attribute("VLAN_ID", vlan_id);
+    parse_vlan_id("VLAN_ID", "AUTOMATIC_VLAN_ID", vlan_id, vlan_id_automatic);
 
-        add_template_attribute("VLAN_ID", vlan_id);
-
-        remove_template_attribute("AUTOMATIC_VLAN_ID");
-
-        vlan_id_automatic = false;
-    }
-    else
-    {
-        erase_template_attribute("AUTOMATIC_VLAN_ID", vlan_id_automatic);
-    }
+    parse_vlan_id("OUTER_VLAN_ID", "AUTOMATIC_OUTER_VLAN_ID", outer_vlan_id,
+            outer_vlan_id_automatic);
 
     // ------------ BRIDGE --------------------
 
@@ -287,6 +299,8 @@ int VirtualNetwork::post_update_template(string& error)
 
     remove_template_attribute("AUTOMATIC_VLAN_ID");
 
+    remove_template_attribute("AUTOMATIC_OUTER_VLAN_ID");
+
     if (!vlan_id_automatic)
     {
         erase_template_attribute("VLAN_ID", vlan_id);
@@ -295,6 +309,16 @@ int VirtualNetwork::post_update_template(string& error)
     else
     {
         remove_template_attribute("VLAN_ID");
+    }
+
+    if (!outer_vlan_id_automatic)
+    {
+        erase_template_attribute("OUTER_VLAN_ID", outer_vlan_id);
+        add_template_attribute("OUTER_VLAN_ID", outer_vlan_id);
+    }
+    else
+    {
+        remove_template_attribute("OUTER_VLAN_ID");
     }
 
     erase_template_attribute("BRIDGE",new_bridge);
@@ -369,7 +393,7 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          other_u     << ","
         <<          parent_vid  << ")";
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     db->free_str(sql_name);
     db->free_str(sql_xml);
@@ -431,8 +455,10 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
     string template_xml;
     string leases_xml;
     string perm_str;
+    string lock_str;
 
     int int_vlan_id_automatic = vlan_id_automatic ? 1 : 0;
+    int int_outer_vlan_id_automatic = outer_vlan_id_automatic ? 1 : 0;
 
     os <<
         "<VNET>" <<
@@ -442,6 +468,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
             "<UNAME>"  << uname    << "</UNAME>" <<
             "<GNAME>"  << gname    << "</GNAME>" <<
             "<NAME>"   << name     << "</NAME>"  <<
+            lock_db_to_xml(lock_str) <<
             perms_to_xml(perm_str) <<
             Clusterable::to_xml(clusters_xml)    <<
             "<BRIDGE>" << one_util::escape_xml(bridge) << "</BRIDGE>";
@@ -482,7 +509,20 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
         os << "<VLAN_ID/>";
     }
 
+    if (!outer_vlan_id.empty())
+    {
+        os << "<OUTER_VLAN_ID>" << one_util::escape_xml(outer_vlan_id)
+           << "</OUTER_VLAN_ID>";
+    }
+    else
+    {
+        os << "<OUTER_VLAN_ID/>";
+    }
+
     os << "<VLAN_ID_AUTOMATIC>" << int_vlan_id_automatic <<"</VLAN_ID_AUTOMATIC>";
+
+    os << "<OUTER_VLAN_ID_AUTOMATIC>" << int_outer_vlan_id_automatic
+       << "</OUTER_VLAN_ID_AUTOMATIC>";
 
     os << "<USED_LEASES>"<< ar_pool.get_used_addr() << "</USED_LEASES>";
 
@@ -507,7 +547,9 @@ int VirtualNetwork::from_xml(const string &xml_str)
     vector<xmlNodePtr> content;
 
     int rc = 0;
+
     int int_vlan_id_automatic;
+    int int_outer_vlan_id_automatic;
 
     // Initialize the internal XML object
     update_from_str(xml_str);
@@ -521,16 +563,24 @@ int VirtualNetwork::from_xml(const string &xml_str)
     rc += xpath(name,   "/VNET/NAME",  "not_found");
     rc += xpath(bridge, "/VNET/BRIDGE","not_found");
 
+    rc += lock_db_from_xml();
+
     // Permissions
     rc += perms_from_xml();
 
     xpath(vn_mad, "/VNET/VN_MAD", "");
     xpath(phydev, "/VNET/PHYDEV", "");
-    xpath(vlan_id,"/VNET/VLAN_ID","");
+
+    xpath(vlan_id, "/VNET/VLAN_ID", "");
+    xpath(outer_vlan_id, "/VNET/OUTER_VLAN_ID", "");
+
+    xpath(int_vlan_id_automatic, "/VNET/VLAN_ID_AUTOMATIC", 0);
+    xpath(int_outer_vlan_id_automatic, "/VNET/OUTER_VLAN_ID_AUTOMATIC", 0);
+
     xpath(parent_vid,"/VNET/PARENT_NETWORK_ID",-1);
-    xpath(int_vlan_id_automatic,"/VNET/VLAN_ID_AUTOMATIC",0);
 
     vlan_id_automatic = int_vlan_id_automatic;
+    outer_vlan_id_automatic = int_outer_vlan_id_automatic;
 
     // Set of cluster IDs
     rc += Clusterable::from_xml(this, "/VNET/");
@@ -618,6 +668,11 @@ int VirtualNetwork::nic_attribute(
     if (!vlan_id.empty())
     {
         nic->replace("VLAN_ID", vlan_id);
+    }
+
+    if (!outer_vlan_id.empty())
+    {
+        nic->replace("OUTER_VLAN_ID", outer_vlan_id);
     }
 
     if (parent_vid != -1)

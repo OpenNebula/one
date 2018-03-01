@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -23,6 +23,7 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var Humanize = require('utils/humanize');
   var TemplateUtils = require('utils/template-utils');
+  var Config = require('sunstone-config');
 
   /*
     CONSTANTS
@@ -83,39 +84,32 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
+    var actions = ["terminate", "terminate-hard", "hold", "release", "stop", "suspend", "resume", "reboot", "reboot-hard", "poweroff", "poweroff-hard", "undeploy", "undeploy-hard", "snapshot-create"];
     context.off('click', '#add_scheduling_action');
     context.on('click', '#add_scheduling_action', function() {
       $("#add_scheduling_action", context).attr("disabled", "disabled");
-      $("#scheduling_actions_table").append('<tr>\
-          <td></td>\
-          <td>\
-            <select id="select_new_action" class="select_new_action" name="select_action">\
-              <option value="terminate">' + Locale.tr("terminate") + '</option>\
-              <option value="terminate-hard">' + Locale.tr("terminate-hard") + '</option>\
-              <option value="hold">' + Locale.tr("hold") + '</option>\
-              <option value="release">' + Locale.tr("release") + '</option>\
-              <option value="stop">' + Locale.tr("stop") + '</option>\
-              <option value="suspend">' + Locale.tr("suspend") + '</option>\
-              <option value="resume">' + Locale.tr("resume") + '</option>\
-              <option value="reboot">' + Locale.tr("reboot") + '</option>\
-              <option value="reboot-hard">' + Locale.tr("reboot-hard") + '</option>\
-              <option value="poweroff">' + Locale.tr("poweroff") + '</option>\
-              <option value="poweroff-hard">' + Locale.tr("poweroff-hard") + '</option>\
-              <option value="undeploy">' + Locale.tr("undeploy") + '</option>\
-              <option value="undeploy-hard">' + Locale.tr("undeploy-hard") + '</option>\
-              <option value="snapshot-create">' + Locale.tr("snapshot-create") + '</option>\
-            </select>\
+      var html = '<tr>\
+        <td></td>\
+        <td>\
+        <select id="select_new_action" class="select_new_action" name="select_action">';
+        $.each(actions, function(key, action){
+          var actionAux = action.replace("-", "_");
+          if (Config.isTabActionEnabled("vms-tab", "VM." + actionAux)){
+            html += '<option value="' + action + '">' + Locale.tr(action) + '</option>';
+          }
+        });
+        html += '</select>\
           </td>\
-         <td>\
-            <input id="date_input" type="date" placeholder="2013/12/30"/>\
-            <input id="time_input" type="time" placeholder="12:30"/>\
-         </td>\
-         <td>\
-            <button id="submit_scheduling_action" class="button small secondary radius" >'              + Locale.tr("Add") + '</button>\
-         </td>\
-         <td colspan=2></td>\
-       </tr>');
-
+            <td>\
+              <input id="date_input" type="date" placeholder="2013/12/30"/>\
+              <input id="time_input" type="time" placeholder="12:30"/>\
+            </td>\
+          <td>\
+            <button id="submit_scheduling_action" class="button small secondary radius" >' + Locale.tr("Add") + '</button>\
+          </td>\
+          <td colspan=2></td>\
+        </tr>';
+        $("#scheduling_actions_table").append(html);
       return false;
     });
 

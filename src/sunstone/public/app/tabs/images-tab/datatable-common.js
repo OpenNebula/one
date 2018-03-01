@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -26,6 +26,7 @@ define(function(require) {
   var OpenNebulaImage = require('opennebula/image');
   var LabelsUtils = require('utils/labels/utils');
   var SearchDropdown = require('hbs!./datatable/search');
+  var Status = require('utils/status');
 
   /*
     CONSTANTS
@@ -57,15 +58,16 @@ define(function(require) {
           {"sWidth": "35px", "aTargets": [0]},
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(tabId)},
           {"bVisible": false, "aTargets": ['_all']},
-          {"sType": "file-size", "aTargets": [ 6 ] }
+          {"sType": "file-size", "aTargets": [ 6 ] },
+          {"sType": "num", "aTargets": [1, 11]}
       ]
     }
 
     this.columns = [
       Locale.tr("ID"),
+      Locale.tr("Name"),
       Locale.tr("Owner"),
       Locale.tr("Group"),
-      Locale.tr("Name"),
       Locale.tr("Datastore"),
       Locale.tr("Size"),
       Locale.tr("Type"),
@@ -110,15 +112,17 @@ define(function(require) {
       REGTIME_AFTER:  element.REGTIME,
       REGTIME_BEFORE: element.REGTIME
     }
+    var color_html = Status.state_lock_to_color("IMAGES",state, element_json[XML_ROOT]["LOCK"]);
 
     return [
-      '<input class="check_item" type="checkbox" id="'+this.resource.toLowerCase()+'_' +
+      '<input class="check_item" type="checkbox" '+
+                          'style="vertical-align: inherit;" id="'+this.resource.toLowerCase()+'_' +
                            element.ID + '" name="selected_items" value="' +
-                           element.ID + '"/>',
+                           element.ID + '"/>'+color_html,
       element.ID,
-      element.UNAME,
-      element.GNAME,
       element.NAME,
+      element.UNAME,
+      element.GNAME,   
       element.DATASTORE,
       Humanize.sizeFromMB(element.SIZE),
       type,

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -197,6 +197,29 @@ define(function(require) {
     },
     "VM.edit_labels" : {
       layout: "labels",
+    },
+    // "VM.lockA" : {
+    //   type: "action",
+    //   text: Locale.tr("Admin"),
+    //   layout: "lock_buttons",
+    //   data: 3
+    // },
+    // "VM.lockM" : {
+    //   type: "action",
+    //   text: Locale.tr("Manage"),
+    //   layout: "lock_buttons",
+    //   data: 2
+    // },
+    "VM.lockU" : {
+      type: "action",
+      text: Locale.tr("Lock"),
+      layout: "lock_buttons",
+      data: 1
+    },
+    "VM.unlock" : {
+      type: "action",
+      text: Locale.tr("Unlock"),
+      layout: "lock_buttons"
     }
   }
   return Buttons;

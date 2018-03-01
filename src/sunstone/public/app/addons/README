@@ -1,0 +1,3 @@
+This directory emulates "app" to maintain consistency with Sunstone.
+
+In the process of minimizing, this directory is not compiled to add addons dynamically to production environments.

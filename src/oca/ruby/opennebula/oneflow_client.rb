@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -333,6 +333,10 @@ module Service
             end
         end
 
+        def set_content_type(content_type)
+            @content_type = content_type
+        end
+
         def get(path)
             req = Net::HTTP::Proxy(@host, @port)::Get.new(path)
 
@@ -349,6 +353,11 @@ module Service
             req = Net::HTTP::Proxy(@host, @port)::Post.new(path)
             req.body = body
 
+            if path.start_with?('/service_template')
+                unless @content_type.nil?
+                    req.content_type = @content_type
+                end
+            end
             do_request(req)
         end
 

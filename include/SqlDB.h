@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -33,14 +33,33 @@ public:
 
     virtual ~SqlDB(){};
 
+    /* ---------------------------------------------------------------------- */
+    /* Database Operations                                                    */
+    /* ---------------------------------------------------------------------- */
+
     /**
-     *  Performs a DB transaction
+     *   Operations on the database:
+     *     - exec_local_wr, perform modifications locally, without replication
+     *     - exec_rd, read only access to local DB
+     *     - exec_wr, update DB and replicate changes
      *    @param sql_cmd the SQL command
      *    @param callbak function to execute on each data returned
-     *    @param quiet True to log errors with DDEBUG level instead of ERROR
      *    @return 0 on success
      */
-    virtual int exec(ostringstream& cmd, Callbackable* obj=0, bool quiet=false) = 0;
+    virtual int exec_local_wr(ostringstream& cmd)
+    {
+        return exec(cmd, 0, false);
+    }
+
+    virtual int exec_rd(ostringstream& cmd, Callbackable* obj)
+    {
+        return exec(cmd, obj, false);
+    }
+
+    virtual int exec_wr(ostringstream& cmd)
+    {
+        return exec(cmd, 0, false);
+    }
 
     /**
      *  This function returns a legal SQL string that can be used in an SQL
@@ -63,6 +82,16 @@ public:
      * @return true if supported
      */
     virtual bool multiple_values_support() = 0;
+
+protected:
+    /**
+     *  Performs a DB transaction
+     *    @param sql_cmd the SQL command
+     *    @param callbak function to execute on each data returned
+     *    @param quiet True to log errors with DDEBUG level instead of ERROR
+     *    @return 0 on success
+     */
+    virtual int exec(ostringstream& cmd, Callbackable* obj, bool quiet) = 0;
 };
 
 #endif /*SQL_DB_H_*/

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -85,12 +85,19 @@ public:
     };
 
     /**
-     *
-     *
+     *  Returns a vector of matched hosts
      */
-    void clear()
+    const vector<Resource *> get_vm_resources()
     {
-        flush();
+        return vm_resources.get_resources();
+    }
+
+    /**
+     *  Sort the VMs in the pool
+     */
+    void sort_vm_resources()
+    {
+        vm_resources.sort_resources();
     }
 
 protected:
@@ -110,6 +117,12 @@ protected:
      * Do live migrations to resched VMs
      */
     bool live_resched;
+
+private:
+    /**
+     *  Stores the list of vms, and it associated user prioty vm_resources.
+     */
+    VirtualMachineResourceMatch vm_resources;
 };
 
 /* -------------------------------------------------------------------------- */

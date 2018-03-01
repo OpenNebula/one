@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -38,7 +38,9 @@ module OpenNebula
             :rename      => "image.rename",
             :snapshotdelete => "image.snapshotdelete",
             :snapshotrevert => "image.snapshotrevert",
-            :snapshotflatten=> "image.snapshotflatten"
+            :snapshotflatten=> "image.snapshotflatten",
+            :lock       => "image.lock",
+            :unlock     => "image.unlock"
         }
 
         IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR CLONE DELETE
@@ -294,6 +296,14 @@ module OpenNebula
         # [return] _Integer_ the element's group ID
         def gid
             self['GID'].to_i
+        end
+
+        def lock(level)
+            return call(IMAGE_METHODS[:lock], @pe_id, level)
+        end
+
+        def unlock()
+            return call(IMAGE_METHODS[:unlock], @pe_id)
         end
 
         def public?

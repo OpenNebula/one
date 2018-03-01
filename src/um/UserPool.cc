@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -56,7 +56,7 @@ UserPool::UserPool(SqlDB * db,
                    vector<const VectorAttribute *> hook_mads,
                    const string&             remotes_location,
                    bool                      is_federation_slave):
-                       PoolSQL(db, User::table, !is_federation_slave, true)
+                       PoolSQL(db, User::table)
 {
     int           one_uid    = -1;
     int           server_uid = -1;
@@ -497,7 +497,15 @@ int UserPool::drop(PoolObjectSQL * objsql, string& error_msg)
         return -1;
     }
 
-    return PoolSQL::drop(objsql, error_msg);
+    int oid = (static_cast<User *>(objsql))->oid;
+    int rc  = PoolSQL::drop(objsql, error_msg);
+
+    if ( rc == 0 )
+    {
+        delete_session_token(oid);
+    }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -680,7 +688,7 @@ bool UserPool::authenticate_internal(User *        user,
 
         return true;
     }
-    else if (user->session.is_valid(token))
+    else if (user->session->is_valid(token))
     {
         user->unlock();
         return true;
@@ -744,7 +752,7 @@ bool UserPool::authenticate_internal(User *        user,
         return false;
     }
 
-    user->session.set(token, _session_expiration_time);
+    user->session->set(token, _session_expiration_time);
 
     if ( !driver_managed_groups || new_gid == -1 || new_group_ids == group_ids )
     {
@@ -937,7 +945,7 @@ bool UserPool::authenticate_server(User *        user,
     uname  = user->name;
     gname  = user->gname;
 
-    result = user->session.is_valid(second_token);
+    result = user->session->is_valid(second_token);
 
     umask  = user->get_umask();
 
@@ -971,7 +979,7 @@ bool UserPool::authenticate_server(User *        user,
 
     if (user != 0)
     {
-        user->session.set(second_token, _session_expiration_time);
+        user->session->set(second_token, _session_expiration_time);
         user->unlock();
     }
 
@@ -1283,7 +1291,7 @@ int UserPool::dump(ostringstream& oss, const string& where, const string& limit)
     set_callback(static_cast<Callbackable::Callback>(&UserPool::dump_cb),
                  static_cast<void *>(&oss));
 
-    rc = db->exec(cmd, this);
+    rc = db->exec_rd(cmd, this);
 
     unset_callback();
 
@@ -1320,3 +1328,24 @@ int UserPool::dump_cb(void * _oss, int num, char **values, char **names)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+string UserPool::get_token_password(int oid, int bck_oid){
+
+    string token_password = "";
+    User * user = get(oid, true);
+
+    if (user != 0)
+    {
+        user->get_template_attribute("TOKEN_PASSWORD", token_password);
+        user->unlock();
+    }
+    else{
+        user = get(bck_oid, true);
+        if (user != 0)
+        {
+            user->get_template_attribute("TOKEN_PASSWORD", token_password);
+            user->unlock();
+        }
+    }
+    return token_password;
+}

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -40,6 +40,30 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     before_proc do
         helper.set_client(options)
     end
+
+    USE={
+        :name  => "use",
+        :large => "--use",
+        :description => "lock use actions"
+    }
+
+    MANAGE={
+        :name  => "manage",
+        :large => "--manage",
+        :description => "lock manage actions"
+    }
+
+    ADMIN={
+        :name  => "admin",
+        :large => "--admin",
+        :description => "lock admin actions"
+    }
+
+    ALL={
+        :name  => "all",
+        :large => "--all",
+        :description => "lock all actions"
+    }
 
     ########################################################################
     # Global Options
@@ -101,8 +125,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
           - using two disks:
 
-            onetempate create --name "test vm" --memory 128 --cpu 1 \\
-                              --disk arch,data
+            onetemplate create --name "test vm" --memory 128 --cpu 1 \\
+                               --disk arch,data
 
     EOT
 
@@ -340,5 +364,44 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :top, top_desc, [:filterflag, nil], :options=>list_options do
         helper.list_pool(options, true, args[0])
+    end
+
+    lock_desc = <<-EOT.unindent
+        Locks a VM with differents levels for lock any actions with this VM, show and
+        monitoring never will be locked.
+        Valid states are: All.
+        Levels:
+        [Use]: locks Admin, Manage and Use actions.
+        [Manage]: locks Manage and Use actions.
+        [Admin]: locks only Admin actions.
+    EOT
+
+    command :lock, lock_desc, :templateid,
+        :options => [USE, MANAGE, ADMIN, ALL] do
+        helper.perform_action(args[0],options,"Template locked") do |t|
+            if !options[:use].nil?
+                level = 1
+            elsif !options[:manage].nil?
+                level = 2
+            elsif !options[:admin].nil?
+                level = 3
+            elsif !options[:all].nil?
+                level = 4
+            else
+                level = 1
+            end
+            t.lock(level)
+        end
+    end
+
+    unlock_desc = <<-EOT.unindent
+        Unlocks a VM for unlock any actions with this VM.
+        Valid states are: All.
+    EOT
+
+    command :unlock, unlock_desc, :templateid do
+        helper.perform_action(args[0],options,"Template unlocked") do |t|
+            t.unlock
+        end
     end
 end

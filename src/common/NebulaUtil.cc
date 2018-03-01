@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -75,6 +75,23 @@ string one_util::log_time(time_t the_time)
 string one_util::log_time()
 {
     return log_time( time(0) );
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+std::string one_util::xml_escape(const std::string& in)
+{
+    std::string result = in;
+
+    result = one_util::gsub(result, "&",  "&amp;");
+    result = one_util::gsub(result, "<",  "&lt;");
+    result = one_util::gsub(result, ">",  "&gt;");
+    result = one_util::gsub(result, "'",  "&apos;");
+    result = one_util::gsub(result, "\"", "&quot;");
+    result = one_util::gsub(result, "\r", "&#x0d;");
+
+    return result;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -157,18 +174,30 @@ string * one_util::base64_decode(const string& in)
 
 string one_util::sha1_digest(const string& in)
 {
-    EVP_MD_CTX     mdctx;
+    EVP_MD_CTX*    mdctx;
     unsigned char  md_value[EVP_MAX_MD_SIZE];
     unsigned int   md_len;
     ostringstream  oss;
 
-    EVP_MD_CTX_init(&mdctx);
-    EVP_DigestInit_ex(&mdctx, EVP_sha1(), NULL);
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+    mdctx = (EVP_MD_CTX*) malloc(sizeof(EVP_MD_CTX));
+    EVP_MD_CTX_init(mdctx);
+#else
+    mdctx = EVP_MD_CTX_new();
+#endif
 
-    EVP_DigestUpdate(&mdctx, in.c_str(), in.length());
+    EVP_DigestInit_ex(mdctx, EVP_sha1(), NULL);
 
-    EVP_DigestFinal_ex(&mdctx,md_value,&md_len);
-    EVP_MD_CTX_cleanup(&mdctx);
+    EVP_DigestUpdate(mdctx, in.c_str(), in.length());
+
+    EVP_DigestFinal_ex(mdctx,md_value, &md_len);
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+    EVP_MD_CTX_cleanup(mdctx);
+    free(mdctx);
+#else
+    EVP_MD_CTX_free(mdctx);
+#endif
 
     for(unsigned int i = 0; i<md_len; i++)
     {
@@ -184,7 +213,7 @@ string one_util::sha1_digest(const string& in)
 
 string * one_util::aes256cbc_encrypt(const string& in, const string password)
 {
-    EVP_CIPHER_CTX ctx;
+    EVP_CIPHER_CTX *ctx;
 
     const unsigned char *key     = (unsigned char*) password.c_str();
     const unsigned char *in_data = (unsigned char*) in.c_str();
@@ -193,11 +222,23 @@ string * one_util::aes256cbc_encrypt(const string& in, const string password)
 
     int outlen1, outlen2;
 
-    EVP_EncryptInit(&ctx, EVP_aes_256_cbc(), key, NULL);
-    EVP_EncryptUpdate(&ctx, out, &outlen1, in_data, in.length());
-    EVP_EncryptFinal(&ctx, out + outlen1, &outlen2);
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+    ctx = (EVP_CIPHER_CTX*) malloc(sizeof(EVP_CIPHER_CTX));
+    EVP_CIPHER_CTX_init(ctx);
+#else
+    ctx = EVP_CIPHER_CTX_new();
+#endif
 
-    EVP_CIPHER_CTX_cleanup(&ctx);
+    EVP_EncryptInit(ctx, EVP_aes_256_cbc(), key, NULL);
+    EVP_EncryptUpdate(ctx, out, &outlen1, in_data, in.length());
+    EVP_EncryptFinal(ctx, out + outlen1, &outlen2);
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+    EVP_CIPHER_CTX_cleanup(ctx);
+    free(ctx);
+#else
+    EVP_CIPHER_CTX_free(ctx);
+#endif
 
     string encrypt((char*) out, (size_t)(outlen1+outlen2));
 

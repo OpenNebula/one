@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,42 +16,20 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-
-# This variable contains the filters for PCI card monitoring. The format
-# is the same as lspci and several filters can be added separated by commas.
-# A nil filter will retrieve all PCI cards.
-#
-# From lspci help:
-#     -d [<vendor>]:[<device>]
-#
-# For example
-#
-# FILTER = '10de:*' # all NVIDIA VGA cards
-# FILTER = '10de:11bf' # only GK104GL [GRID K2]
-# FILTER = '*:10d3' #Only 82574L Gigabit Network cards
-# FILTER = '*:*' # all devices
-# FILTER = '0:0' # no devices
-#
-# You can also filter by the SHORT_ADDRESS, to add only devices in a given address
-#
-# For example
-#
-# SHORT_ADDRESS = [ "07:00.0", "06:00.0" ]
-#
-# Finally you can match devices by device name patterns, only those devices that
-# the pattern will be added to the list.
-#
-# For example
-#
-# DEVICE_NAME  = [ /Virtual Function/, /Gigabit Network/]
-#
-# Note that these filters, if defined, are all applied
-
-FILTER = "0:0"
-SHORT_ADDRESS = []
-DEVICE_NAME   = []
-
 require 'shellwords'
+require 'yaml'
+
+begin
+    NAME = File.join(File.dirname(__FILE__), '../../etc/im/kvm-probes.d/pci.conf')
+    CONF = {
+        :filter        => '0:0',
+        :short_address => [],
+        :device_name   => [],
+    }.merge(YAML.load_file(NAME))
+rescue
+    STDERR.puts "Invalid configuration #{NAME}"
+    exit(-1)
+end
 
 def get_pci(filter=nil)
     command = "lspci -mmnn"
@@ -88,7 +66,7 @@ end
 
 def get_devices(filter=nil)
     if filter
-        filter = filter.split(',')
+        filter = [filter].flatten.map { |f| f.split(',') }.flatten
     else
         filter = [nil]
     end
@@ -98,7 +76,7 @@ def get_devices(filter=nil)
     end.flatten
 end
 
-filter = FILTER
+filter = CONF[:filter]
 
 devices = get_devices(filter)
 
@@ -107,11 +85,11 @@ def pval(name, value)
 end
 
 devices.each do |dev|
-    next if !SHORT_ADDRESS.empty? && !SHORT_ADDRESS.include?(dev[:short_address])
+    next if !CONF[:short_address].empty? && !CONF[:short_address].include?(dev[:short_address])
 
-    if !DEVICE_NAME.empty?
-        matched = DEVICE_NAME.each { |pattern|
-            break true if !(dev[:device_name] =~ pattern).nil?
+    if !CONF[:device_name].empty?
+        matched = CONF[:device_name].each { |pattern|
+            break true if !(dev[:device_name] =~ /#{pattern}/i).nil?
         }
 
         next if matched != true

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -33,6 +33,11 @@ deploy_id = ARGV[0]
 file      = ARGV[1]
 host      = ARGV[2]
 
-ec2_drv = EC2Driver.new(host)
-ec2_drv.save(deploy_id)
+
+begin
+    ec2_drv = EC2Driver.new(host)
+    ec2_drv.save(deploy_id)
+rescue Exception => e
+    OpenNebula.handle_driver_exception("Save", e, host, deploy_id, nil, file)
+end
 

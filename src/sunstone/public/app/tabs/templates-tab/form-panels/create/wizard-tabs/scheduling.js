@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -27,6 +27,7 @@ define(function(require) {
   var TemplateUtils = require('utils/template-utils');
   var HostsTable = require('tabs/hosts-tab/datatable');
   var ClustersTable = require('tabs/clusters-tab/datatable');
+  var DatastoresTable = require('tabs/datastores-tab/datatable');
   var UniqueId = require('utils/unique-id');
 
   /*
@@ -62,6 +63,7 @@ define(function(require) {
     }
     this.hostsTable = new HostsTable('HostsTable' + UniqueId.id(), options);
     this.clustersTable = new ClustersTable('ClustersTable' + UniqueId.id(), options);
+    this.datastoresTable = new DatastoresTable('DatastoresTable' + UniqueId.id(), options);
   }
 
   WizardTab.prototype.constructor = WizardTab;
@@ -81,7 +83,8 @@ define(function(require) {
   function _html() {
     return TemplateHTML({
       'hostsTableSelectHTML': this.hostsTable.dataTableHTML,
-      'clustersTableSelectHTML': this.clustersTable.dataTableHTML
+      'clustersTableSelectHTML': this.clustersTable.dataTableHTML,
+      'dsTableSelectHTML': this.datastoresTable.dataTableHTML
     });
   }
 
@@ -125,6 +128,9 @@ define(function(require) {
     that.hostsTable.refreshResourceTableSelect();
     that.clustersTable.initialize(selectOptions);
     that.clustersTable.refreshResourceTableSelect();
+    that.datastoresTable.initialize(selectOptions);
+    that.datastoresTable.filter("system", 10);
+    that.datastoresTable.refreshResourceTableSelect();
   }
 
   function _retrieve(context) {
@@ -132,7 +138,6 @@ define(function(require) {
   }
 
   function _fill(context, templateJSON) {
-    WizardFields.fill(context, templateJSON);
 
     var reqJSON = templateJSON['SCHED_REQUIREMENTS'];
     if (reqJSON) {
@@ -163,16 +168,22 @@ define(function(require) {
         }
 
       this.clustersTable.selectResourceTableSelect(selectedResources);
-
-      delete templateJSON['SCHED_REQUIREMENTS'];
     }
 
     var dsReqJSON = templateJSON['SCHED_DS_REQUIREMENTS'];
     if (dsReqJSON) {
       var dsReq = TemplateUtils.escapeDoubleQuotes(dsReqJSON);
-      delete templateJSON['SCHED_DS_REQUIREMENTS'];
-    }
+      var ds_id_regexp = /(\s|\||\b)ID=\\"([0-9]+)\\"/g;
+      var ds = [];
+      while (match = ds_id_regexp.exec(dsReq)) {
+        ds.push(match[2])
+      }
+      var selectedResources = {
+        ids : ds
+      }
 
+      this.datastoresTable.selectResourceTableSelect(selectedResources);
+    }
 
     var rankJSON = templateJSON["SCHED_RANK"];
     if (rankJSON) {
@@ -207,12 +218,16 @@ define(function(require) {
 
         delete templateJSON["SCHED_DS_RANK"];
     }
+
+     WizardFields.fill(context, templateJSON);
   }
 
   function _generateRequirements(context) {
       var req_string=[];
+      var req_ds_string=[];
       var selected_hosts = this.hostsTable.retrieveResourceTableSelect();
       var selected_clusters = this.clustersTable.retrieveResourceTableSelect();
+      var selected_ds = this.datastoresTable.retrieveResourceTableSelect();
 
       $.each(selected_hosts, function(index, hostId) {
         req_string.push('ID="'+hostId+'"');
@@ -222,6 +237,11 @@ define(function(require) {
         req_string.push('CLUSTER_ID="'+clusterId+'"');
       });
 
+      $.each(selected_ds, function(index, dsId) {
+        req_ds_string.push('ID="'+dsId+'"');
+      });
+
       $('#SCHED_REQUIREMENTS', context).val(req_string.join(" | "));
+      $('#SCHED_DS_REQUIREMENTS', context).val(req_ds_string.join(" | "));
   };
 });

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -17,6 +17,8 @@
 require 'time'
 require 'rubygems'
 require 'cgi'
+require 'database_schema'
+require 'open3'
 
 begin
     require 'sequel'
@@ -27,6 +29,9 @@ rescue LoadError
 end
 
 class OneDBBacKEnd
+    FEDERATED_TABLES = %w(group_pool user_pool acl zone_pool vdc_pool
+                          marketplace_pool marketplaceapp_pool)
+
     def read_db_version
         connect_db
 
@@ -230,19 +235,43 @@ class BackEndMySQL < OneDBBacKEnd
         @db_name = @db_name[1..-2] if @db_name[0] == ?"
     end
 
-    def bck_file
+    def bck_file(federated = false)
         t = Time.now
-        "#{VAR_LOCATION}/mysql_#{@server}_#{@db_name}_"<<
-        "#{t.year}-#{t.month}-#{t.day}_#{t.hour}:#{t.min}:#{t.sec}.sql"
+
+        bck_name = "#{VAR_LOCATION}/mysql_#{@server}_#{@db_name}_"
+
+        bck_name << "federated_" if federated
+
+        bck_name << "#{t.year}-#{t.month}-#{t.day}_"
+        bck_name << "#{t.hour}:#{t.min}:#{t.sec}.sql"
+
+        bck_name
     end
 
-    def backup(bck_file)
-        cmd = "mysqldump -u #{@user} -p'#{@passwd}' -h #{@server} " +
-              "-P #{@port} --add-drop-table #{@db_name} > #{bck_file}"
+    def backup(bck_file, federated = false)
+        cmd = "mysqldump -u #{@user} -p'#{@passwd}' -h #{@server} " <<
+              "-P #{@port} --add-drop-table #{@db_name} "
+
+        cmd << FEDERATED_TABLES.join(" ") if federated
+
+        cmd << " > #{bck_file}"
 
         rc = system(cmd)
+
         if !rc
             raise "Unknown error running '#{cmd}'"
+        end
+
+        if federated
+            cmd = "mysqldump -u #{@user} -p'#{@passwd}' -h #{@server} " <<
+                  "-P #{@port} #{@db_name} logdb --where=\"fed_index!=-1\" "<<
+                  " >> #{bck_file}"
+
+            rc = system(cmd)
+
+            if !rc
+                raise "Unknown error running '#{cmd}'"
+            end
         end
 
         puts "MySQL dump stored in #{bck_file}"
@@ -251,10 +280,10 @@ class BackEndMySQL < OneDBBacKEnd
         puts
     end
 
-    def restore(bck_file, force=nil)
+    def restore(bck_file, force=nil, federated=false)
         connect_db
 
-        if !force && db_exists?
+        if !federated && !force && db_exists?
             raise "MySQL database #{@db_name} at #{@server} exists," <<
                   " use -f to overwrite."
         end
@@ -293,25 +322,69 @@ class BackEndSQLite < OneDBBacKEnd
         end
     end
 
-    def bck_file
+    def bck_file(federated = false)
         t = Time.now
-        "#{VAR_LOCATION}/one.db_"<<
-        "#{t.year}-#{t.month}-#{t.day}_#{t.hour}:#{t.min}:#{t.sec}.bck"
+        bck_name = "#{VAR_LOCATION}/one.db_"
+
+        bck_name << "federated_" if federated
+
+        bck_name << "#{t.year}-#{t.month}-#{t.day}"
+        bck_name << "_#{t.hour}:#{t.min}:#{t.sec}.bck"
+
+        bck_name
     end
 
-    def backup(bck_file)
-        FileUtils.cp(@sqlite_file, "#{bck_file}")
-        puts "Sqlite database backup stored in #{bck_file}"
-        puts "Use 'onedb restore' or copy the file back to restore the DB."
-        puts
-    end
+    def backup(bck_file, federated = false)
+        if federated
+            puts "Sqlite database backup of federated tables stored in #{bck_file}"
 
-    def restore(bck_file, force=nil)
-        if File.exists?(@sqlite_file) && !force
-            raise "File #{@sqlite_file} exists, use -f to overwrite."
+            File.open(bck_file, "w") do |f|
+                f.puts "-- FEDERATED"
+                FEDERATED_TABLES.each do |table|
+                    f.puts "DROP TABLE IF EXISTS \"#{table}\";"
+                end
+            end
+
+            FEDERATED_TABLES.each do |table|
+                Open3.popen3("sqlite3 #{@sqlite_file} '.dump #{table}' >> #{bck_file}") do |i,o,e,t|
+                    stdout = o.read
+                    if !stdout.empty?
+                        puts stdout
+                    end
+
+                    stderr = e.read
+                    if !stderr.empty?
+                        stderr.lines.each do |line|
+                            STDERR.puts line unless line.match(/^-- Loading/)
+                        end
+                    end
+                end
+
+            end
+        else
+            connect_db
+
+            File.open(bck_file, "w") do |file|
+                @db.tables.each do |table|
+                    file.puts "DROP TABLE IF EXISTS \"#{table}\";"
+                end
+            end
+
+            puts "Sqlite database backup stored in #{bck_file}"
+            system("sqlite3 #{@sqlite_file} .dump >> #{bck_file}")
         end
 
-        FileUtils.cp(bck_file, @sqlite_file)
+        puts "Use 'onedb restore' to restore the DB."
+    end
+
+    def restore(bck_file, force=nil, federated=false)
+        if !federated
+            if File.exists?(@sqlite_file) && !force
+                raise "File #{@sqlite_file} exists, use -f to overwrite."
+            end
+        end
+
+        system("sqlite3 #{@sqlite_file} < #{bck_file}")
         puts "Sqlite database backup restored in #{@sqlite_file}"
     end
 

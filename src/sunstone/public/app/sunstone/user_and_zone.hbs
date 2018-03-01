@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -15,8 +15,16 @@
 {{! -------------------------------------------------------------------------- }}
 
 <ul class="dropdown menu" data-dropdown-menu data-alignment="right">
+  {{#if filterView}}
   <li>
-    <a class="thin-font" href="#">
+    <a class="thin-font" href="#" id="filter-view">
+      <i class="fa fa-filter fa-fw header-icon"></i>
+      <span class="filter-name"></span>
+    </a>
+  </li>
+  {{/if}}
+  <li>
+    <a class="thin-font" href="#" id="userselector">
       <i class="fa fa-user fa-fw header-icon"></i>
       <span class="username">
         {{displayName}}
@@ -41,13 +49,13 @@
       <li>
         <a href="#">
           <i class="fa fa-fw fa-eye"></i>
-          {{tr "Views"}}
+          {{tr "Views"}} ({{mode}})
         </a>
         <ul class="menu">
           {{#each availableViews}}
           <li>
             <a href="#" class="quickconf_view" view="{{this}}">
-              <i class="fa fa-fw"></i> 
+              <i class="fa fa-fw"></i>
               {{this}}
             </a>
           </li>
@@ -55,6 +63,13 @@
         </ul>
       </li>
       {{/if}}
+      <li>
+        <a href="#">
+          <i class="fa fa-fw fa-users"></i>
+          {{tr "Groups"}}
+        </a>
+        <ul class="menu groups-menu"></ul>
+      </li>
     </ul>
   </li>
   <li>

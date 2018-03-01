@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -69,13 +69,6 @@ define(function(require) {
         $("#acct_cpu_graph, #acct_mem_graph, #acct_disk_graph", "#dashboard_user_accounting").html('<span  id="provision_dashboard_total" style="font-size:80px">'+
           '<i class="fa fa-spinner fa-spin"></i>'+
         '</span>')
-        OpenNebulaVM.accounting({
-          success: function(req, response) {
-            Accounting.fillAccounting($("#dashboard_user_accounting"), req, response, no_table);
-          },
-          error: Notifier.onError,
-          data: options
-        });
       }
     },
     'network': {
@@ -88,34 +81,13 @@ define(function(require) {
       'html': require('hbs!./dashboard-tab/hosts'),
       'onShow': function() {
         Sunstone.runAction("Host.list");
+        Sunstone.runAction("Cluster.list");
       }
     },
     'vms': {
       'html': require('hbs!./dashboard-tab/vms'),
       'onShow': function() {
         Sunstone.runAction("VM.list");
-
-        var end_time = -1; // today
-        var start_time =  Math.floor(new Date().getTime() / 1000);
-        start_time = start_time - 604800; // 604800 = 7 days = 7*24*60*60
-
-        var options = {
-          "start_time": start_time,
-          "end_time": end_time
-        }
-
-        var no_table = true;
-
-        $("#acct_cpu_graph, #acct_mem_graph, #acct_disk_graph", "#dashboard_vm_accounting").html('<span  id="provision_dashboard_total" style="font-size:80px">'+
-          '<i class="fa fa-spinner fa-spin"></i>'+
-        '</span>')
-        OpenNebulaVM.accounting({
-          success: function(req, response) {
-            Accounting.fillAccounting($("#dashboard_vm_accounting"), req, response, no_table);
-          },
-          error: Notifier.onError,
-          data: options
-        });
       }
     },
     'groupquotas': {
@@ -283,7 +255,6 @@ define(function(require) {
 
   function _setup() {
     _initialized = true;
-
 
     $(document).on("click", ".show_vms_tab", function(){
       Sunstone.showTab(VMS_TAB_ID);

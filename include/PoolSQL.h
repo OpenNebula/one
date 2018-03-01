@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -45,10 +45,8 @@ public:
      *   @param _db a pointer to the database
      *   @param _table the name of the table supporting the pool (to set the oid
      *   counter). If null the OID counter is not updated.
-     *   @param cache True to enable the cache
-     *   @param cache_by_name True if the objects can be retrieved by name
      */
-    PoolSQL(SqlDB * _db, const char * _table, bool cache, bool cache_by_name);
+    PoolSQL(SqlDB * _db, const char * _table);
 
     virtual ~PoolSQL();
 
@@ -328,43 +326,21 @@ protected:
     /* ---------------------------------------------------------------------- */
     /* Interface to access the lastOID assigned by the pool                   */
     /* ---------------------------------------------------------------------- */
-
     /**
      *  Gets the value of the last identifier assigned by the pool
      *   @return the lastOID of the pool
      */
-    int get_lastOID()
-    {
-        return lastOID;
-    };
+    int get_lastOID();
 
     /**
      *  Sets the lastOID of the pool and updates the control database
      *    @param _lastOID for the pool
      */
-    void set_update_lastOID(int _lastOID)
-    {
-        lastOID = _lastOID;
-
-        update_lastOID();
-    };
+    void set_lastOID(int _lastOID);
 
 private:
 
     pthread_mutex_t mutex;
-
-    /**
-     *  Max size for the pool, to control the memory footprint of the pool. This
-     *  number MUST be greater than the max. number of objects that are
-     *  accessed simultaneously.
-     */
-    static const unsigned int MAX_POOL_SIZE;
-
-    /**
-     *  Last object ID assigned to an object. It must be initialized by the
-     *  target pool.
-     */
-    int lastOID;
 
     /**
      *  Tablename for this pool
@@ -375,35 +351,13 @@ private:
      *  The pool is implemented with a Map of SQL object pointers, using the
      *  OID as key.
      */
-    map<int,PoolObjectSQL *> pool;
-
-    /**
-     * Whether or not this pool uses the cache
-     */
-    bool cache;
-
-    /**
-     * Whether or not this pool uses the name_pool index
-     */
-    bool uses_name_pool;
-
-    /**
-     *  This is a name index for the pool map. The key is the name of the object
-     *  , that may be combained with the owner id.
-     */
-    map<string,PoolObjectSQL *> name_pool;
+    vector<PoolObjectSQL *> pool;
 
     /**
      *  Factory method, must return an ObjectSQL pointer to an allocated pool
      *  specific object.
      */
     virtual PoolObjectSQL * create() = 0;
-
-    /**
-     *  OID queue to implement a FIFO-like replacement policy for the pool
-     *  cache.
-     */
-    queue<int> oid_queue;
 
     /**
      *  Function to lock the pool
@@ -420,14 +374,6 @@ private:
     {
         pthread_mutex_unlock(&mutex);
     };
-
-    /**
-     *  FIFO-like replacement policy function. Before removing an object (pop)
-     *  from  the cache its lock is checked. The object is removed only if
-     *  the associated mutex IS NOT blocked. Otherwise the oid is sent to the
-     *  back of the queue.
-     */
-    void replace();
 
     /**
      * Cleans all the objects in the cache, except the ones locked.
@@ -462,19 +408,8 @@ private:
         return key.str();
     };
 
-    /**
-     *  Inserts the last oid into the pool_control table
-     */
-    void update_lastOID();
-
     /* ---------------------------------------------------------------------- */
     /* ---------------------------------------------------------------------- */
-
-    /**
-     *  Callback to set the lastOID (PoolSQL::PoolSQL)
-     */
-    int  init_cb(void *nil, int num, char **values, char **names);
-
     /**
      *  Callback to store the IDs of pool objects (PoolSQL::search)
      */

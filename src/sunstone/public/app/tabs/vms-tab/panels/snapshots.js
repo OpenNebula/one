@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -127,6 +127,10 @@ define(function(require) {
             if (Config.isTabActionEnabled("vms-tab", "VM.snapshot_delete")) {
               actions += '<a href="VM.snapshot_delete" class="snapshot_delete" ><i class="fa fa-times"/>' + Locale.tr("Delete") + '</a>'
             }
+          } else if (that.element.STATE == OpenNebulaVM.STATES.POWEROFF &&  that.element.HISTORY_RECORDS.HISTORY.VM_MAD == "vcenter"){
+            if (Config.isTabActionEnabled("vms-tab", "VM.snapshot_delete")) {
+              actions += '<a href="VM.snapshot_delete" class="snapshot_delete" ><i class="fa fa-times"/>' + Locale.tr("Delete") + '</a>'
+            }
           }
         }
 
@@ -167,6 +171,7 @@ define(function(require) {
       context.off('click', '.snapshot_revert');
       context.on('click', '.snapshot_revert', function() {
         var dialog = Sunstone.getDialog(REVERT_DIALOG_ID);
+        that.element.snapshot_id = $(this).parents('tr').attr('snapshot_id');
         dialog.setElement(that.element);
         dialog.show();
         return false;

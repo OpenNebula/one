@@ -1,0 +1,16 @@
+<VCENTER>
+ <VM>
+   <TEMPLATE>
+     <NIC>
+       <MODEL>vmxnet3</MODEL>
+     </NIC>
+   </TEMPLATE>
+ </VM>
+ <IMAGE>
+   <TEMPLATE>
+     <DEV_PREFIX>sd</DEV_PREFIX>
+     <VCENTER_DISK_TYPE>thin</DISK_TYPE>
+     <VCENTER_ADAPTER_TYPE>lsiLogic</ADAPTER_TYPE>
+   </TEMPLATE>
+ </IMAGE>
+</VCENTER>

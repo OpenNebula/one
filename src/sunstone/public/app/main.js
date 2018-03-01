@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,6 +18,9 @@ require.config({
   paths: {
     /* Almond */
     'almond': '../bower_components/almond/almond',
+
+    /* Addons */
+    'addons': './addons',
 
     /* jQuery */
     'jquery': '../bower_components/jquery/dist/jquery',
@@ -357,7 +360,9 @@ require.config({
       deps: [
         'spice-spiceconn'
       ]
-    }
+    },
+
+    'addons': {}
   }
 });
 

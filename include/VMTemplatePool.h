@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -27,7 +27,7 @@ class VMTemplatePool : public PoolSQL
 {
 public:
 
-    VMTemplatePool(SqlDB * db) : PoolSQL(db, VMTemplate::table, true, true){};
+    VMTemplatePool(SqlDB * db) : PoolSQL(db, VMTemplate::table){};
 
     ~VMTemplatePool(){};
 

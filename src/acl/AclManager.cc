@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -33,16 +33,36 @@ const char * AclManager::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AclManager::init_cb(void *nil, int num, char **values, char **names)
+static int get_lastOID(SqlDB * db)
 {
-    lastOID = -1;
+    ostringstream oss;
 
-    if ( values[0] != 0 )
-    {
-        lastOID = atoi(values[0]);
-    }
+    int _last_oid = -1;
 
-    return 0;
+    single_cb<int> cb;
+
+    cb.set_callback(&_last_oid);
+
+    oss << "SELECT last_oid FROM pool_control WHERE tablename='acl'";
+
+    db->exec_rd(oss, &cb);
+
+    cb.unset_callback();
+
+    return _last_oid;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static void set_lastOID(SqlDB * db, int lastOID)
+{
+    ostringstream oss;
+
+    oss << "REPLACE INTO pool_control (tablename, last_oid) VALUES ('acl',"
+        << lastOID << ")";
+
+    db->exec_wr(oss);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -52,21 +72,12 @@ AclManager::AclManager(
     int     _zone_id,
     bool    _is_federation_slave,
     time_t  _timer_period)
-        :zone_id(_zone_id), db(_db), lastOID(-1),
-        is_federation_slave(_is_federation_slave), timer_period(_timer_period)
+        :zone_id(_zone_id), db(_db), is_federation_slave(_is_federation_slave),
+        timer_period(_timer_period)
 {
-    ostringstream oss;
+    int lastOID;
 
     pthread_mutex_init(&mutex, 0);
-
-    set_callback(static_cast<Callbackable::Callback> (&AclManager::init_cb));
-
-    oss << "SELECT last_oid FROM pool_control WHERE tablename='" << table
-            << "'";
-
-    db->exec(oss, this);
-
-    unset_callback();
 
     am.addListener(this);
 
@@ -75,6 +86,8 @@ AclManager::AclManager(
     {
         return;
     }
+
+    lastOID = get_lastOID(db);
 
     if (lastOID == -1)
     {
@@ -214,6 +227,15 @@ const bool AclManager::authorize(
     // Build masks for request
     long long user_req;
     long long resource_oid_req;
+
+    if (static_cast<long long int>(op) & 0x10LL) //No lockable object
+    {
+        op = static_cast<AuthRequest::Operation>(op & 0x0FLL);
+    }
+    else if (obj_perms.locked > 0 && obj_perms.locked <= static_cast<long long int>(op))
+    {
+        return false;
+    }
 
     if ( obj_perms.oid >= 0 )
     {
@@ -564,6 +586,8 @@ int AclManager::add_rule(long long user, long long resource, long long rights,
 
     lock();
 
+    int lastOID = get_lastOID(db);
+
     if (lastOID == INT_MAX)
     {
         lastOID = -1;
@@ -607,7 +631,7 @@ int AclManager::add_rule(long long user, long long resource, long long rights,
     acl_rules.insert( make_pair(rule->user, rule) );
     acl_rules_oids.insert( make_pair(rule->oid, rule) );
 
-    update_lastOID();
+    set_lastOID(db, lastOID);
 
     unlock();
 
@@ -636,7 +660,6 @@ error_common:
     error_str = oss.str();
 
     delete rule;
-    lastOID--;
 
     unlock();
 
@@ -1094,25 +1117,9 @@ int AclManager::bootstrap(SqlDB * _db)
 {
     ostringstream oss(db_bootstrap);
 
-    return _db->exec(oss);
+    return _db->exec_local_wr(oss);
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void AclManager::update_lastOID()
-{
-    // db->escape_str is not used for 'table' since its name can't be set in
-    // any way by the user, it is hardcoded.
-
-    ostringstream oss;
-
-    oss << "REPLACE INTO pool_control (tablename, last_oid) VALUES ("
-        << "'" <<   table       << "',"
-        <<          lastOID     << ")";
-
-    db->exec(oss);
-}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -1174,6 +1181,8 @@ int AclManager::select_cb(void *nil, int num, char **values, char **names)
 
 int AclManager::select()
 {
+    multimap<long long, AclRule *>::iterator  it;
+
     ostringstream   oss;
     int             rc;
 
@@ -1183,10 +1192,15 @@ int AclManager::select()
 
     lock();
 
+    for ( it = acl_rules.begin(); it != acl_rules.end(); it++ )
+    {
+        delete it->second;
+    }
+
     acl_rules.clear();
     acl_rules_oids.clear();
 
-    rc = db->exec(oss,this);
+    rc = db->exec_rd(oss,this);
 
     unlock();
 
@@ -1212,7 +1226,7 @@ int AclManager::insert(AclRule * rule, SqlDB * db)
         <<  rule->rights    << ","
         <<  rule->zone      << ")";
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     return rc;
 }
@@ -1229,7 +1243,7 @@ int AclManager::drop(int oid)
     oss << "DELETE FROM " << table << " WHERE "
         << "oid=" << oid;
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     return rc;
 }

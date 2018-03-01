@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -120,7 +120,6 @@ static void monitor_action(
         return;
     }
 
-    std::string   name;
     MarketPlace * market = marketpool->get(id, true);
 
     if (market == 0 )
@@ -128,7 +127,8 @@ static void monitor_action(
         return;
     }
 
-    name    = market->get_name();
+    set<int> apps_mp = market->get_marketapp_ids();
+    std::string name = market->get_name();
 
     market->update_monitor(monitor_data);
 
@@ -143,7 +143,8 @@ static void monitor_action(
 
     for (int i=0; i< num ; i++)
     {
-        int rc = apppool->import(apps[i]->value(), id, name, err);
+        int app_id;
+        int rc = apppool->import(apps[i]->value(), id, name, app_id, err);
 
         if ( rc == -1 )
         {
@@ -161,6 +162,37 @@ static void monitor_action(
 
                 market->unlock();
             }
+        }
+
+        apppool->reset_map_check(app_id);
+
+        apps_mp.erase(app_id);
+    }
+
+    for (set<int>::iterator i = apps_mp.begin(); i != apps_mp.end(); ++i)
+    {
+        if (apppool->test_map_check(*i)) //delete app
+        { 
+            std::string error;
+
+            MarketPlaceApp * app = apppool->get(*i, true);
+
+            if ( app == 0 )
+            {
+                continue;
+            }
+
+            rc = apppool->drop(app, error);
+
+            app->unlock();
+
+            market = marketpool->get(id, true);
+
+            market->del_marketapp(*i);
+
+            marketpool->update(market);
+
+            market->unlock();
         }
     }
 

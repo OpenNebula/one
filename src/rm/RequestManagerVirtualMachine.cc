@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -69,7 +69,8 @@ bool RequestManagerVirtualMachine::vm_authorization(
     {
         string t_xml;
 
-        ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::IMAGE, tmpl->to_xml(t_xml));
+        ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::IMAGE,
+                tmpl->to_xml(t_xml));
     }
 
     if ( vtmpl != 0 )
@@ -678,6 +679,10 @@ int set_vnc_port(VirtualMachine *vm, int cluster_id, RequestAttributes& att)
     int rc;
 
     if (graphics == 0)
+    {
+        return 0;
+    }
+    else if (vm->hasHistory() && vm->get_action()==History::STOP_ACTION)
     {
         return 0;
     }
@@ -1556,6 +1561,7 @@ error_auth:
     goto error_common;
 
 error_allocate:
+    att.resp_obj = PoolObjectSQL::IMAGE;
     quota_rollback(&img_usage, Quotas::DATASTORE, att);
     failure_response(ALLOCATE, att);
     goto error_common;
@@ -1835,7 +1841,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
     {
         string aname;
 
-        if (tmpl.check(aname))
+        if (tmpl.check_restricted(aname))
         {
             att.resp_msg = "Template includes a restricted attribute " + aname;
             failure_response(AUTHORIZATION, att);
@@ -1910,7 +1916,9 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         case VirtualMachine::DONE:
         case VirtualMachine::SUSPENDED:
         case VirtualMachine::ACTIVE:
-            att.resp_msg="Resize action is not available for state "+vm->state_str();
+            att.resp_msg="Resize action is not available for state " +
+                vm->state_str();
+
             failure_response(ACTION, att);
 
             vm->unlock();
@@ -2042,7 +2050,9 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         case VirtualMachine::DONE:
         case VirtualMachine::SUSPENDED:
         case VirtualMachine::ACTIVE:
-            att.resp_msg = "Resize action is not available for state " + vm->state_str();
+            att.resp_msg = "Resize action is not available for state " + 
+                vm->state_str();
+
             failure_response(ACTION, att);
 
             vm->unlock();
@@ -2298,14 +2308,15 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
     {
         string aname;
 
-        if (tmpl.check(aname))
+        if (tmpl.check_restricted(aname))
         {
             att.resp_msg = "NIC includes a restricted attribute " + aname;
             return AUTHORIZATION;
         }
     }
 
-    if (quota_authorization(&tmpl, Quotas::NETWORK, att_quota, att.resp_msg) == false)
+    if (quota_authorization(&tmpl, Quotas::NETWORK, att_quota,
+                att.resp_msg) == false)
     {
         return AUTHORIZATION;
     }
@@ -2654,14 +2665,10 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
         }
 
         img_att_quota = RequestAttributes(img_perms.uid, img_perms.gid, att);
-    }
-
-    if ( vm_ds_quota )
+    } 
+    if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
     {
-        if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
-        {
-            return;
-        }
+        return;
     }
 
     vm_att_quota = RequestAttributes(vm_perms.uid, vm_perms.gid, att);
@@ -2892,7 +2899,7 @@ void VirtualMachineUpdateConf::request_execute(
     {
         string aname;
 
-        if (tmpl.check(aname))
+        if (tmpl.check_restricted(aname))
         {
             att.resp_msg = "Template includes a restricted attribute " + aname;
             failure_response(AUTHORIZATION, att);

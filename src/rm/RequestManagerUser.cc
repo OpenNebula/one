@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -31,7 +31,7 @@ void RequestManagerUser::
         return;
     }
 
-    user = static_cast<User *>(pool->get(id,false));
+    user = (static_cast<UserPool *>(pool))->get(id,false);
 
     if ( user == 0 )
     {
@@ -60,7 +60,7 @@ int UserChangePassword::user_action(int     user_id,
 
     string new_pass = xmlrpc_c::value_string(paramList.getString(2));
 
-    User * user = static_cast<User *>(pool->get(user_id,true));
+    User * user = (static_cast<UserPool *>(pool))->get(user_id,true);
 
     if ( user == 0 )
     {
@@ -112,7 +112,7 @@ int UserChangeAuth::user_action(int     user_id,
 
     User * user;
 
-    user = static_cast<User *>(pool->get(user_id,true));
+    user = (static_cast<UserPool *>(pool))->get(user_id,true);
 
     if ( user == 0 )
     {
@@ -173,7 +173,7 @@ int UserSetQuota::user_action(int     user_id,
         return -1;
     }
 
-    user = static_cast<User *>(pool->get(user_id,true));
+    user = (static_cast<UserPool *>(pool))->get(user_id,true);
 
     if ( user == 0 )
     {
@@ -503,9 +503,18 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
     }
     else if (valid > 0 || valid == -1)
     {
-        if ( egid != -1 && !user->is_in_group(egid) )
+        if ( egid != -1 && (!user->is_in_group(egid) || att.group_ids.count(egid) == 0) )
         {
             att.resp_msg = "EGID is not in user group list";
+            failure_response(XML_RPC_API,  att);
+
+            user->unlock();
+            return;
+        }
+
+        if ( egid == -1 && user->get_groups() != att.group_ids )
+        {
+            att.resp_msg = "Cannot create a full token with a specific group token";
             failure_response(XML_RPC_API,  att);
 
             user->unlock();

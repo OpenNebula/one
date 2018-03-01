@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -64,7 +64,7 @@ int QuotasSQL::select(SqlDB * db)
     oss << "SELECT body FROM " << table()
         << " WHERE " << table_oid_column() << " = " << oid;
 
-    rc = db->exec(oss,this);
+    rc = db->exec_rd(oss,this);
 
     unset_callback();
 
@@ -134,7 +134,7 @@ int QuotasSQL::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          oid             << ","
         << "'" <<   sql_quota_xml   << "')";
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     db->free_str(sql_quota_xml);
 
@@ -166,7 +166,7 @@ int QuotasSQL::drop(SqlDB *db)
     oss << "DELETE FROM " << table()
         << " WHERE " << table_oid_column() << " = " << oid;
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     return rc;
 }

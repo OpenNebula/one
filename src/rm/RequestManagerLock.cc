@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -25,8 +25,8 @@ void RequestManagerLock::request_execute(xmlrpc_c::paramList const& paramList,
                                          RequestAttributes& att)
 {
     int     oid     = xmlrpc_c::value_int(paramList.getInt(1));
-    string  owner   = xmlrpc_c::value_string(paramList.getString(2));
-
+    int level   = xmlrpc_c::value_int(paramList.getInt(2));
+    int owner = att.uid;
     PoolObjectSQL * object;
     string          error_str;
     int             rc;
@@ -45,13 +45,22 @@ void RequestManagerLock::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    rc = lock_db(object, owner);
+    if ((auth_object & PoolObjectSQL::LockableObject) != 0)
+    {
+        rc = lock_db(object, owner, att.req_id, level);
 
-    pool->update(object);
+        pool->update(object);
 
-    object->unlock();
+        object->unlock();
 
-    success_response((rc == 0), att);
+        success_response((rc == 0), att);
+    }
+    else
+    {
+        object->unlock();
+
+        failure_response(AUTHORIZATION, att);
+    }
 
     return;
 }
@@ -63,10 +72,11 @@ void RequestManagerUnlock::request_execute(xmlrpc_c::paramList const& paramList,
                                          RequestAttributes& att)
 {
     int     oid     = xmlrpc_c::value_int(paramList.getInt(1));
-    string  owner   = xmlrpc_c::value_string(paramList.getString(2));
 
     PoolObjectSQL * object;
     string          error_str;
+    int owner = att.uid;
+    int req_id = att.req_id;
 
     if ( basic_authorization(oid, att) == false )
     {
@@ -82,7 +92,7 @@ void RequestManagerUnlock::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    unlock_db(object, owner);
+    unlock_db(object, owner, req_id);
 
     pool->update(object);
 

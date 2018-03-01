@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -21,6 +21,7 @@
   </div>
   <div class="row persistentContainer">
     <div class="large-12 large-centered columns">
+      {{#isFeatureEnabled "instantiate_persistent"}}
       <div class="switch left">
         <input class="switch-input instantiate_pers" id="{{formPanelId}}instantiate_pers" type="checkbox">
         <label class="switch-paddle" for="{{formPanelId}}instantiate_pers">
@@ -31,6 +32,7 @@
         {{tr "Instantiate as persistent"}}
         {{{tip (tr "Creates a private persistent copy of the template plus any image defined in DISK, and instantiates that copy")}}}
       </label>
+       {{/isFeatureEnabled}}
     </div>
   </div>
   <div class="row nameContainer">
@@ -51,6 +53,7 @@
       <input type="number" name="vm_n_times_disabled" id="vm_n_times_disabled" value="1" disabled>
     </div>
     <div class="medium-4 columns">
+      {{#isTabActionEnabled "vms-tab" "VM.hold"}}
       <label>
         <input type="checkbox" name="hold" id="hold"/>
         {{tr "Start on hold"}}
@@ -58,6 +61,7 @@
           {{tr "Sets the new VM to hold state, instead of pending. The scheduler will not deploy VMs in this state. It can be released later, or deployed manually."}}
         </span>
       </label>
+      {{/isTabActionEnabled}}
     </div>
   </div>
   <div class="row">

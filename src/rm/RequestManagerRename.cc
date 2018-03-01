@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -125,8 +125,6 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
     pool->update(object);
 
     object->unlock();
-
-    pool->update_cache_index(old_name, operms.uid, new_name, operms.uid);
 
     batch_rename(oid);
 

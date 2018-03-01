@@ -14,7 +14,7 @@ ConditionPathIsDirectory=/var/run/one
 !ConditionPathExists=/var/run/one/oned.pid
 
 [Service]
-# Start daemon in forground mode, when starting as forking process the
+# Start daemon in foreground mode, when starting as forking process the
 # daemon shuts down without obvious reason.
 ExecStart=/usr/bin/oned -f
 # Log file location must exist

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -1021,7 +1021,7 @@ public:
      *
      *    @return 0 on success
      */
-     int check_resize(float cpu, int memory, int vcpu, string& error_str);
+     int check_resize(float cpu, long int memory, int vcpu, string& error_str);
 
     /**
      *  Resize the VM capacity
@@ -1032,7 +1032,7 @@ public:
      *
      *    @return 0 on success
      */
-     int resize(float cpu, int memory, int vcpu, string& error_str);
+     int resize(float cpu, long int memory, int vcpu, string& error_str);
 
     // ------------------------------------------------------------------------
     // Virtual Machine Disks
@@ -1544,15 +1544,24 @@ public:
      *
      * @return 0 on success
      */
-    int set_active_snapshot(int snap_id);
+    int set_revert_snapshot(int snap_id);
+
+    int set_delete_snapshot(int snap_id);
+
+    /**
+     *  @return the on-going ACTION associated to the ACTIVE snapshot
+     */
+    string get_snapshot_action();
 
     /**
      * Replaces HYPERVISOR_ID for the active SNAPSHOT
      *
      * @param hypervisor_id Id returned by the hypervisor for the newly
-     * created snapshot
+     * created snapshot. The no hypervisor_id version uses the snap_id.
      */
-    void update_snapshot_id(string& hypervisor_id);
+    void update_snapshot_id(const string& hypervisor_id);
+
+    void update_snapshot_id();
 
     /**
      * Cleans the ACTIVE = YES attribute from the snapshots
@@ -1663,7 +1672,7 @@ private:
     /**
      *  Memory in Kilobytes used by the VM
      */
-    int         memory;
+    long int         memory;
 
     /**
      *  CPU usage (percent)
@@ -1741,22 +1750,7 @@ private:
      *  Bootstraps the database table(s) associated to the VirtualMachine
      *    @return 0 on success
      */
-    static int bootstrap(SqlDB * db)
-    {
-        int rc;
-
-        ostringstream oss_vm(VirtualMachine::db_bootstrap);
-        ostringstream oss_monit(VirtualMachine::monit_db_bootstrap);
-        ostringstream oss_hist(History::db_bootstrap);
-        ostringstream oss_showback(VirtualMachine::showback_db_bootstrap);
-
-        rc =  db->exec(oss_vm);
-        rc += db->exec(oss_monit);
-        rc += db->exec(oss_hist);
-        rc += db->exec(oss_showback);
-
-        return rc;
-    };
+    static int bootstrap(SqlDB * db);
 
     /**
      *  Callback function to unmarshall a VirtualMachine object
@@ -1892,6 +1886,12 @@ private:
      *    @return 0 on success
      */
     int parse_os(string& error_str);
+
+    /**
+     *  Parse the "CPU_MODEL" attribute of the template
+     *    @return 0 on success
+     */
+    int parse_cpu_model();
 
     /**
      * Parse the "NIC_DEFAULT" attribute

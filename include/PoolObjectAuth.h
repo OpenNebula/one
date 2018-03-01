@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -45,7 +45,8 @@ public:
         other_a(0),
         disable_all_acl(false),
         disable_cluster_acl(false),
-        disable_group_acl(false) {};
+        disable_group_acl(false),
+        locked(0) {};
 
     void get_acl_rules(AclRule& owner_rule,
                        AclRule& group_rule,
@@ -81,6 +82,8 @@ public:
     bool disable_all_acl;     // All objects of this type (e.g. NET/*)
     bool disable_cluster_acl; // All objects in a cluster (e.g. NET/%100)
     bool disable_group_acl;   // All objects own by this group (e.g. NET/@101)
+
+    int locked;
 };
 
 #endif /*POOL_OBJECT_AUTH_H_*/

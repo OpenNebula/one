@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -15,6 +15,7 @@
 /* ------------------------------------------------------------------------ */
 
 #include "Zone.h"
+#include "ZoneServer.h"
 
 /* ------------------------------------------------------------------------ */
 
@@ -28,11 +29,16 @@ const char * Zone::db_bootstrap = "CREATE TABLE IF NOT EXISTS zone_pool ("
     "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
     "UNIQUE(name))";
 
+const char * ZoneServers::SERVER_NAME    = "SERVER";
+
+const char * ZoneServers::SERVER_ID_NAME = "ID";
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 Zone::Zone(int id, Template* zone_template):
-        PoolObjectSQL(id, ZONE, "", -1, -1, "", "", table)
+        PoolObjectSQL(id, ZONE, "", -1, -1, "", "", table), servers_template(
+                false, '=', "SERVER_POOL"), servers(0)
 {
     if (zone_template != 0)
     {
@@ -49,7 +55,7 @@ Zone::Zone(int id, Template* zone_template):
 
 Zone::~Zone()
 {
-    delete obj_template;
+    delete servers;
 };
 
 /* ************************************************************************ */
@@ -63,9 +69,9 @@ int Zone::insert(SqlDB *db, string& error_str)
 
     ostringstream oss;
 
-    // ---------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // Check default attributes
-    // ---------------------------------------------------------------------
+    // -------------------------------------------------------------------------
 
     erase_template_attribute("NAME", name);
 
@@ -82,9 +88,11 @@ int Zone::insert(SqlDB *db, string& error_str)
         goto error_endpoint;
     }
 
-    // ------------------------------------------------------------------------
+    remove_template_attribute("SERVER");
+
+    // -------------------------------------------------------------------------
     // Insert the Zone
-    // ------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
 
     rc = insert_replace(db, false, error_str);
 
@@ -159,7 +167,7 @@ int Zone::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          other_u             << ")";
 
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     db->free_str(sql_name);
     db->free_str(sql_xml);
@@ -192,14 +200,17 @@ error_common:
 
 string& Zone::to_xml(string& xml) const
 {
-    ostringstream   oss;
-    string          template_xml;
+    ostringstream oss;
+
+    string template_xml;
+    string server_xml;
 
     oss <<
     "<ZONE>"    <<
         "<ID>"   << oid  << "</ID>"   <<
         "<NAME>" << name << "</NAME>" <<
         obj_template->to_xml(template_xml) <<
+        servers_template.to_xml(server_xml) <<
     "</ZONE>";
 
     xml = oss.str();
@@ -207,8 +218,8 @@ string& Zone::to_xml(string& xml) const
     return xml;
 }
 
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int Zone::from_xml(const string& xml)
 {
@@ -222,7 +233,9 @@ int Zone::from_xml(const string& xml)
     rc += xpath(oid, "/ZONE/ID",   -1);
     rc += xpath(name,"/ZONE/NAME", "not_found");
 
-    // Get associated classes
+    // -------------------------------------------------------------------------
+    // Zone template
+    // -------------------------------------------------------------------------
     ObjectXML::get_nodes("/ZONE/TEMPLATE", content);
 
     if (content.empty())
@@ -230,8 +243,22 @@ int Zone::from_xml(const string& xml)
         return -1;
     }
 
-    // Template contents
     rc += obj_template->from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
+    content.clear();
+
+    // -------------------------------------------------------------------------
+    // Zone Server template
+    // -------------------------------------------------------------------------
+    ObjectXML::get_nodes("/ZONE/SERVER_POOL", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    rc += servers_template.from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
     content.clear();
@@ -245,11 +272,13 @@ int Zone::from_xml(const string& xml)
     set_user(0,"");
     set_group(0,"");
 
+    servers = new ZoneServers(&servers_template);
+
     return 0;
 }
 
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int Zone::post_update_template(string& error)
 {
@@ -261,8 +290,72 @@ int Zone::post_update_template(string& error)
         replace_template_attribute("ENDPOINT", "-");
     }
 
+    remove_template_attribute("SERVER");
+
     return 0;
 }
 
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Zone::add_server(Template& tmpl, int& sid, string& xmlep, string& error)
+{
+    vector<VectorAttribute *> vs;
+    vector<VectorAttribute *>::iterator it;
+
+    VectorAttribute * server;
+
+    sid = -1;
+
+    const VectorAttribute * tmpl_server = tmpl.get(ZoneServers::SERVER_NAME);
+
+    if ( tmpl_server == 0 )
+    {
+        return -1;
+    }
+
+    server = new VectorAttribute(tmpl_server);
+
+    if ( servers->add_server(server, sid, error) == -1 )
+    {
+        delete server;
+
+        return -1;
+    }
+
+    xmlep = server->vector_value("ENDPOINT");
+
+    servers_template.set(server);
+
+    return 0;
+}
+
+int Zone::delete_server(int id, string& error)
+{
+    ZoneServer * zs;
+
+    zs = servers->delete_server(id);
+
+    if ( zs == 0 )
+    {
+        error = "SERVER not found in zone";
+        return -1;
+    }
+
+    delete servers_template.remove(zs->vector_attribute());
+
+    delete zs;
+
+    return 0;
+}
+
+unsigned int Zone::servers_size()
+{
+    return servers->size();
+}
+
+ZoneServer * Zone::get_server(int server_id)
+{
+    return servers->get_server(server_id);
+}
+

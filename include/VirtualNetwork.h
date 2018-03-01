@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -52,26 +52,30 @@ public:
      */
     enum VirtualNetworkDriver
     {
-        NONE     = 0,
-        DUMMY    = 1,
-        VLAN     = 2,
-        EBTABLES = 3,
-        FW       = 4,
-        OVSWITCH = 5,
-        VXLAN    = 6
+        NONE           = 0,
+        DUMMY          = 1,
+        VLAN           = 2,
+        EBTABLES       = 3,
+        FW             = 4,
+        OVSWITCH       = 5,
+        VXLAN          = 6,
+        VCENTER        = 7,
+        OVSWITCH_VXLAN = 8
     };
 
     static string driver_to_str(VirtualNetworkDriver ob)
     {
         switch (ob)
         {
-            case NONE:     return "";
-            case DUMMY:    return "dummy";
-            case VLAN:     return "802.1Q";
-            case EBTABLES: return "ebtables";
-            case FW:       return "fw";
-            case OVSWITCH: return "ovswitch";
-            case VXLAN:    return "vxlan";
+            case NONE:           return "";
+            case DUMMY:          return "dummy";
+            case VLAN:           return "802.1Q";
+            case EBTABLES:       return "ebtables";
+            case FW:             return "fw";
+            case OVSWITCH:       return "ovswitch";
+            case VXLAN:          return "vxlan";
+            case VCENTER:        return "vcenter";
+            case OVSWITCH_VXLAN: return "ovswitch_vxlan";
         }
     };
 
@@ -100,6 +104,14 @@ public:
         else if ( ob == "vxlan" )
         {
             return VXLAN;
+        }
+        else if ( ob == "vcenter" )
+        {
+            return VCENTER;
+        }
+        else if ( ob == "ovswitch_vxlan" )
+        {
+            return OVSWITCH_VXLAN;
         }
         else
         {
@@ -467,6 +479,15 @@ public:
             new_vn->replace("VLAN_ID", vlan_id);
         }
 
+        if ( outer_vlan_id.empty() )
+        {
+            new_vn->replace("AUTOMATIC_OUTER_VLAN_ID", "NO");
+        }
+        else
+        {
+            new_vn->replace("OUTER_VLAN_ID", outer_vlan_id);
+        }
+
         return new_vn;
     };
 
@@ -501,14 +522,26 @@ private:
     string  phydev;
 
     /**
-     *  VLAN ID of the NIC
+     *  VLAN ID of the NIC. When more than VLAN ID is used this refers to the
+     *  link layer or outer/service VLAN_ID
      */
     string  vlan_id;
+
+    /**
+     *  Used for double tagging of VM traffic. This id refers to the transport
+     *  layer or outer/service VLAN_ID
+     */
+    string outer_vlan_id;
 
     /**
      *  If the VLAN has been set automatically
      */
     bool  vlan_id_automatic;
+
+    /**
+     *  If the outer VLAN has been set automatically
+     */
+    bool  outer_vlan_id_automatic;
 
     /**
      *  Parent VNET ID if any
@@ -529,6 +562,22 @@ private:
      *  Set of Virtual Router IDs
      */
     ObjectCollection vrouters;
+
+    // *************************************************************************
+    // VLAN ID functions
+    // *************************************************************************
+
+    /**
+     *  This function parses the VLAN attribute and clears the associated
+     *  automatic flag if set.
+     *    @param id_name of the VLAN attribute VLAN_ID or OUTER_VLAN_ID
+     *    @param auto_name of automatic flag AUTOMATIC_VLAN_ID or
+     *    AUTOMATIC_OUTER_VLAN_ID
+     *    @param id the associated vlan variable
+     *    @param auto the associated automatic variable
+     */
+    void parse_vlan_id(const char * id_name, const char * auto_name,
+            string& id, bool& auto_id);
 
     // *************************************************************************
     // Address allocation funtions
@@ -596,7 +645,7 @@ private:
     {
         ostringstream oss_vnet(VirtualNetwork::db_bootstrap);
 
-        return db->exec(oss_vnet);
+        return db->exec_local_wr(oss_vnet);
     };
 
     /**

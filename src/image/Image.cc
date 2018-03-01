@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -60,25 +60,22 @@ Image::Image(int             _uid,
         vm_collection("VMS"),
         img_clone_collection("CLONES"),
         app_clone_collection("APP_CLONES"),
-        snapshots(-1),
+        snapshots(-1, false),
         target_snapshot(-1)
-{
-    if (_image_template != 0)
     {
-        obj_template = _image_template;
-    }
-    else
-    {
-        obj_template = new ImageTemplate;
+        if (_image_template != 0)
+        {
+            obj_template = _image_template;
+        }
+        else
+        {
+            obj_template = new ImageTemplate;
+        }
+
+        set_umask(_umask);
     }
 
-    set_umask(_umask);
-}
-
-Image::~Image()
-{
-    delete obj_template;
-}
+Image::~Image(){};
 
 /* ************************************************************************ */
 /* Image :: Database Access Functions                                       */
@@ -204,6 +201,7 @@ int Image::insert(SqlDB *db, string& error_str)
     }
 
     state = LOCKED; //LOCKED till the ImageManager copies it to the Repository
+    lock_db(-1,-1, PoolObjectSQL::LockStates::ST_USE);
 
     //--------------------------------------------------------------------------
     // Insert the Image
@@ -291,7 +289,7 @@ int Image::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          group_u         << ","
         <<          other_u         << ")";
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     db->free_str(sql_name);
     db->free_str(sql_xml);
@@ -332,6 +330,7 @@ string& Image::to_xml(string& xml) const
     string        clone_collection_xml;
     string        app_clone_collection_xml;
     string        snapshots_xml;
+    string        lock_str;
 
     oss <<
         "<IMAGE>" <<
@@ -341,6 +340,7 @@ string& Image::to_xml(string& xml) const
             "<UNAME>"          << uname           << "</UNAME>"       <<
             "<GNAME>"          << gname           << "</GNAME>"       <<
             "<NAME>"           << name            << "</NAME>"        <<
+            lock_db_to_xml(lock_str)                                  <<
             perms_to_xml(perms_xml)                                   <<
             "<TYPE>"           << type            << "</TYPE>"        <<
             "<DISK_TYPE>"      << disk_type       << "</DISK_TYPE>"   <<
@@ -412,6 +412,7 @@ int Image::from_xml(const string& xml)
     rc += xpath(ds_id,          "/IMAGE/DATASTORE_ID",  -1);
     rc += xpath(ds_name,        "/IMAGE/DATASTORE",     "not_found");
 
+    rc += lock_db_from_xml();
     // Permissions
     rc += perms_from_xml();
 
@@ -807,6 +808,13 @@ void Image::set_state(ImageState _state)
         {
             lcm->trigger(LCMAction::DISK_LOCK_FAILURE, *i);
         }
+    } else if( _state == LOCKED)
+    {
+        lock_db(-1,-1, PoolObjectSQL::LockStates::ST_USE);
+    }
+    if (_state != LOCKED )
+    {
+        unlock_db(-1,-1);
     }
 
     state = _state;
@@ -823,6 +831,7 @@ void Image::set_state_unlock()
 
     switch (state) {
         case LOCKED:
+            unlock_db(-1,-1);
             set_state(READY);
             break;
 

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -56,7 +56,7 @@ define(function(require) {
     });
   }
 
-  function _onShow(context,vmGroupTable=undefined){
+  function _onShow(context, vmGroupTable){
     if(vmGroupTable)
       vmGroupTable.refreshResourceTableSelect();
     $("#role_section",context).hide();
@@ -98,14 +98,14 @@ define(function(require) {
     }
   }
 
-  function _fill(context, templateJSON, vmGroupTable=undefined){
+  function _fill(context, templateJSON, vmGroupTable){
     if(templateJSON.VMGROUP){
       var element = templateJSON.VMGROUP;
       vmGroupTable.selectResourceTableSelect({ids:element.VMGROUP_ID});
       _generate_provision_role_table(context,element.VMGROUP_ID, element.ROLE);
     }
   }
-  function _retrieve(context, vmGroupTable=undefined) {
+  function _retrieve(context, vmGroupTable) {
     if(!vmGroupTable){
       $.each($('.role_table_section',context), function(){
         if(this.innerText != ""){
@@ -134,7 +134,7 @@ define(function(require) {
     return false;
   }
 
-  function _generate_provision_role_table(context, idvmgroup, fill=undefined) {
+  function _generate_provision_role_table(context, idvmgroup, fill) {
     OpenNebula.VMGroup.show({
       data : {
         id: idvmgroup,
@@ -143,18 +143,18 @@ define(function(require) {
         $(".role_table_section").empty();
         var roles = template_json["VM_GROUP"].ROLES.ROLE;
         $(".title_roles",context).text(Locale.tr("Roles")+" "+ template_json["VM_GROUP"].NAME);
-        if(roles){
-          if(Array.isArray(roles)){
+        if (roles){
+          if (Array.isArray(roles)){
             $.each(roles, function(){
               $("<option value='"+this.NAME+"'><label>"+ this.NAME + "</label></option><br/>").appendTo(".role_table_section",context);
             });
           }
-          else{
+          else {
             $("<option value='"+roles.NAME+"'><label>"+ roles.NAME + "</label></option>").appendTo(".role_table_section",context);
           }
           $("#role_section",context).show();
           $(".role_table_section", context).prop('required', true);
-          if(fill){
+          if (fill){
             $('.role_table_section option[value="'+fill+'"]').attr("selected",true);
           }
         }

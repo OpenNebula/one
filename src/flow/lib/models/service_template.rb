@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -209,10 +209,10 @@ module OpenNebula
         def update(template_json, append=false)
             template = JSON.parse(template_json)
 
-            if(append)
-                rc = info()
+            if append
+                rc = info
 
-                if(OpenNebula.is_error?(rc))
+                if OpenNebula.is_error? rc
                     return rc
                 end
 

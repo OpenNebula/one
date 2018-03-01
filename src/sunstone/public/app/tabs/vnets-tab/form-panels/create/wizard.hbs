@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -87,10 +87,12 @@
             <option value="802.1Q">{{tr "802.1Q"}}</option>
             <option value="vxlan">{{tr "VXLAN"}}</option>
             <option value="ovswitch">{{tr "Open vSwitch"}}</option>
+            <option value="ovswitch_vxlan">{{tr "Open vSwitch - VXLAN"}}</option>
+            <option value="vcenter">{{tr "vCenter"}}</option>
             <option value="custom">{{tr "Custom"}}</option>
           </select>
         </div>
-        <div class="large-3 medium-6 columns mode_param custom">
+        <div class="large-3 medium-6 columns mode_param vcenter custom" id="div_vn_mad">
           <label for="vn_mad">
             {{tr "Network Driver (VN_MAD)"}}
           </label>
@@ -115,6 +117,12 @@
           <div class="network_mode_description" value="ovswitch">
             {{tr "Open vSwitch, restrict network access with Open vSwitch Virtual Switch. Security Groups are not applied."}}
           </div>
+          <div class="network_mode_description" value="ovswitch_vxlan">
+            {{tr "Open vSwitch on VXLAN L2 network overlay. Security Groups are not applied."}}
+          </div>
+          <div class="network_mode_description" value="vcenter">
+            {{tr "vSphere standard switches or distributed switches with port groups. Security Groups are not applied."}}
+          </div>
           <div class="network_mode_description" value="custom">
             {{tr "Custom, use a custom virtual network driver."}}
           </div>
@@ -122,7 +130,7 @@
       </div>
       <br>
       <div class="row">
-        <div class="large-6 columns mode_param ebtables 8021Q vxlan fw ovswitch custom">
+        <div class="large-6 columns mode_param ebtables 8021Q vxlan fw ovswitch ovswitch_vxlan custom">
           <label for="mac_spoofing">
             <input type="checkbox" wizard_field="FILTER_MAC_SPOOFING" value="YES" name="mac_spoofing" id="mac_spoofing" />
             {{tr "MAC spoofing filter"}}
@@ -130,7 +138,7 @@
         </div>
       </div>
       <div class="row">
-        <div class="large-6 columns mode_param ebtables 8021Q vxlan fw ovswitch custom">
+        <div class="large-6 columns mode_param ebtables 8021Q vxlan fw ovswitch ovswitch_vxlan custom">
           <label for="ip_spoofing">
             <input type="checkbox" wizard_field="FILTER_IP_SPOOFING" value="YES" name="ip_spoofing" id="ip_spoofing" />
             {{tr "IP spoofing filter"}}
@@ -139,7 +147,7 @@
         </div>
       </div>
       <div class="row">
-        <div class="medium-3 columns left mode_param 8021Q vxlan ovswitch custom">
+        <div class="medium-3 columns left mode_param 8021Q vxlan ovswitch ovswitch_vxlan vcenter custom">
           <label>
             {{tr "VLAN ID"}}
             <select wizard_field="AUTOMATIC_VLAN_ID">
@@ -150,7 +158,7 @@
             <input type="number" wizard_field="VLAN_ID"/>
           </label>
         </div>
-        <div class="medium-3 columns left mode_param 8021Q vxlan custom">
+        <div class="medium-3 columns left mode_param 8021Q vxlan ovswitch_vxlan custom">
           <label for="phydev">
             {{tr "Physical device"}}
             <span class="tip">
@@ -159,11 +167,62 @@
           </label>
           <input type="text" wizard_field="PHYDEV" name="phydev" id="phydev" />
         </div>
-        <div class="medium-3 columns left mode_param 8021Q vxlan custom">
+        <div class="medium-3 columns left mode_param vcenter">
+          <label for="phydev">
+            {{tr "Physical device"}}
+            <span class="tip">
+              {{tr "Physical NIC names for uplinks. Use comma to separate values (e.g vmnic1,vmnic2)"}}
+            </span>
+          </label>
+          <input type="text" wizard_field="PHYDEV" name="phydev" id="phydev" />
+        </div>
+        <div class="medium-3 columns left mode_param 8021Q vxlan ovswitch_vxlan vcenter custom">
           <label for="mtu">
             {{tr "MTU of the interface"}}
           </label>
           <input type="text" wizard_field="MTU" name="mtu" id="mtu" />
+        </div>
+        <div class="medium-3 columns left mode_param ovswitch_vxlan">
+          <label>
+            {{tr "Outer VLAN ID"}}
+            <span class="tip">
+              {{tr "First level (outer, service) VLAN ID"}}
+            </span>
+            <select wizard_field="AUTOMATIC_OUTER_VLAN_ID">
+              <option value="YES">{{tr "Automatic Outer VLAN ID"}}</option>
+              <option value="">{{tr "Manual Outer VLAN ID"}}</option>
+            </select>
+            <input type="text" wizard_field="OUTER_VLAN_ID" name="outer_vlan_id" id="outer_vlan_id" />
+          </label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="medium-3 columns left mode_param vcenter">
+          <label for="vcenter_switch_name">
+            {{tr "Switch name"}}
+          </label>
+          <input type="text" wizard_field="VCENTER_SWITCH_NAME" name="vcenter_switch_name" id="vcenter_switch_name" maxlength="32" />
+        </div>
+        <div class="medium-3 columns left mode_param vcenter">
+          <label>
+            {{tr "Number of ports"}}
+          </label>
+          <input type="number" wizard_field="VCENTER_SWITCH_NPORTS" name="vcenter_switch_nports" id="vcenter_switch_nports" />
+        </div>
+        <div class="medium-3 columns left mode_param vcenter">
+          <label>
+            {{tr "Port group type"}}
+            <select wizard_field="VCENTER_PORTGROUP_TYPE">
+              <option value="Port Group">{{tr "Port group"}}</option>
+              <option value="Distributed Port Group">{{tr "Distributed Port Group"}}</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="medium-6 columns left mode_param vcenter">
+          <label for="vcenter_cluster_id">{{tr "OpenNebula's Host ID"}}</label>
+          <div id="vcenter_cluster_id" name="vcenter_cluster_id"></div>
         </div>
       </div>
     </div>

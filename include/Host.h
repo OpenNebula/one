@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -317,7 +317,7 @@ public:
      *    @return 0 on success
      */
     void del_capacity(int vm_id, long long cpu, long long mem, long long disk,
-            vector<VectorAttribute *> pci)
+            const vector<VectorAttribute *>& pci)
     {
         if ( vm_collection.del(vm_id) == 0 )
         {
@@ -341,7 +341,7 @@ public:
      *    @param disk not used
      *    @return 0 on success
      */
-    void update_capacity(int cpu, int mem, int disk)
+    void update_capacity(int cpu, long int mem, int disk)
     {
         host_share.update(cpu,mem,disk);
     };
@@ -402,7 +402,7 @@ public:
      */
     const set<int>& get_prev_rediscovered_vms() const
     {
-        return prev_rediscovered_vms;
+        return *prev_rediscovered_vms;
     }
 
     /**
@@ -412,7 +412,7 @@ public:
      */
     void set_prev_rediscovered_vms(const set<int>& rediscovered_vms)
     {
-        prev_rediscovered_vms = rediscovered_vms;
+        *prev_rediscovered_vms = rediscovered_vms;
     }
 
 private:
@@ -453,26 +453,26 @@ private:
     /**
      *  The Share represents the logical capacity associated with the host
      */
-    HostShare       host_share;
+    HostShare host_share;
 
     /**
      * Tmp set of lost VM IDs. Used to give lost VMs one grace cycle, in case
      * they reappear.
      */
-    set<int>        tmp_lost_vms;
+    set<int> * tmp_lost_vms;
 
     /**
      * Tmp set of zombie VM IDs. Used to give zombie VMs one grace cycle, in
      * case they are cleaned.
      */
-    set<int>        tmp_zombie_vms;
+    set<int> * tmp_zombie_vms;
 
     /**
      * Set that stores the VMs reported as found from the poweroff state. This
      * is managed from outside the host to avoid deadlocks, as the current
      * VM state is needed
      */
-    set<int>        prev_rediscovered_vms;
+    set<int> * prev_rediscovered_vms;
 
     // -------------------------------------------------------------------------
     //  VM Collection
@@ -532,8 +532,8 @@ private:
         ostringstream oss_host(Host::db_bootstrap);
         ostringstream oss_monit(Host::monit_db_bootstrap);
 
-        rc =  db->exec(oss_host);
-        rc += db->exec(oss_monit);
+        rc =  db->exec_local_wr(oss_host);
+        rc += db->exec_local_wr(oss_monit);
 
         return rc;
     };

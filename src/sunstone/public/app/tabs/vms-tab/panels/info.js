@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -24,6 +24,7 @@ define(function(require) {
   var RenameTr = require('utils/panel/rename-tr');
   var PermissionsTable = require('utils/panel/permissions-table');
   var TemplateTable = require('utils/panel/template-table');
+  var TemplateTableVcenter = require('utils/panel/template-table');
   var OpenNebula = require('opennebula');
   var Sunstone = require('sunstone');
   var Config = require('sunstone-config');
@@ -91,17 +92,24 @@ define(function(require) {
     // Get rid of the unwanted (for show) SCHED_* keys
     var that = this;
     var strippedTemplate = {};
+    var strippedTemplateVcenter = {};
     var unshownValues = {};
 
     $.each(that.element.USER_TEMPLATE, function(key, value) {
       if (key.match(/^SCHED_*/) || key == "USER_INPUTS") {
         unshownValues[key] = value;
-      } else {
+      }
+      else if (key.match(/^VCENTER_*/)){
+        strippedTemplateVcenter[key] = value;
+      }
+      else {
         strippedTemplate[key] = value;
       }
     });
 
-    var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE, Locale.tr("Attributes"));
+    var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE, Locale.tr("Attributes"), true);
+
+    var templateTableVcenterHTML = TemplateTableVcenter.html(strippedTemplateVcenter, RESOURCE, Locale.tr("vCenter information"), false);
 
     var monitoring = $.extend({}, this.element.MONITORING);
     delete monitoring.CPU;
@@ -127,6 +135,7 @@ define(function(require) {
       'IP': IP,
       'resched': resched,
       'permissionsTableHTML': permissionsTableHTML,
+      'templateTableVcenterHTML': templateTableVcenterHTML,
       'templateTableHTML': templateTableHTML,
       'monitoringTableContentHTML': monitoringTableContentHTML,
       'vrouterHTML': vrouterHTML
@@ -139,15 +148,24 @@ define(function(require) {
     // Get rid of the unwanted (for show) SCHED_* keys
     var that = this;
     var strippedTemplate = {};
+    var strippedTemplateVcenter = {};
     var unshownValues = {};
-    $.each(that.element.USER_TEMPLATE, function(key, value) {
-      if (!key.match(/^SCHED_*/)) {
-        strippedTemplate[key] = value;
-      } else {
+     $.each(that.element.USER_TEMPLATE, function(key, value) {
+      if (key.match(/^SCHED_*/) || key == "USER_INPUTS") {
         unshownValues[key] = value;
       }
-    })
+      else if (key.match(/^VCENTER_*/)){
+        strippedTemplateVcenter[key] = value;
+      }
+      else {
+        strippedTemplate[key] = value;
+      }
+    });
+    if($.isEmptyObject(strippedTemplateVcenter)){
+      $('.vcenter', context).hide();
+    }
 
-    TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, unshownValues);
+    TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, unshownValues, strippedTemplateVcenter);
+    TemplateTableVcenter.setup(strippedTemplateVcenter, RESOURCE, this.element.ID, context, unshownValues, strippedTemplate);
   }
 });

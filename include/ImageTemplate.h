@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -33,32 +33,6 @@ public:
 
     ~ImageTemplate(){};
 
-    /**
-     *  Checks the template for RESTRICTED ATTRIBUTES
-     *    @param rs_attr the first restricted attribute found if any
-     *    @return true if a restricted attribute is found in the template
-     */
-    bool check(string& rs_attr)
-    {
-        return Template::check(rs_attr, restricted_attributes);
-    };
-
-    /**
-     * Deletes all restricted attributes
-     */
-    void remove_restricted()
-    {
-        Template::remove_restricted(restricted_attributes);
-    };
-
-    /**
-     * Deletes all the attributes, except the restricted ones
-     */
-    void remove_all_except_restricted()
-    {
-        Template::remove_all_except_restricted(restricted_attributes);
-    };
-
     bool is_saving()
     {
         bool save_as_hot;
@@ -73,25 +47,29 @@ public:
         replace("SAVE_AS_HOT", "YES");
     }
 
+    // -------------------------------------------------------------------------
+    // Restricted attributes interface implementation
+    // -------------------------------------------------------------------------
+    virtual bool check_restricted(string& rs_attr, const Template* base)
+    {
+        return Template::check_restricted(rs_attr, base, restricted);
+    }
+
+    virtual bool check_restricted(string& rs_attr)
+    {
+        return Template::check_restricted(rs_attr, restricted);
+    }
+
+    static void parse_restricted(vector<const SingleAttribute *>& ra)
+    {
+        Template::parse_restricted(ra, restricted);
+    }
+
 private:
-    friend class ImagePool;
-
-    static vector<string> restricted_attributes;
-
-    bool has_restricted()
-    {
-        return restricted_attributes.size() > 0;
-    };
-
     /**
-     * Stores the attributes as restricted, these attributes will be used in
-     * ImageTemplate::check
-     * @param rattrs Attributes to restrict
+     *  Restricted attribute list for ImageTemplates
      */
-    static void set_restricted_attributes(vector<const SingleAttribute *>& rattrs)
-    {
-        Template::set_restricted_attributes(rattrs, restricted_attributes);
-    };
+    static std::map<std::string, std::set<std::string> > restricted;
 };
 
 /* -------------------------------------------------------------------------- */

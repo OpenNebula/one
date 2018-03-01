@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,18 +15,18 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Sunstone = require('sunstone');
-  var Notifier = require('utils/notifier');
-  var Locale = require('utils/locale');
-  var OpenNebulaResource = require('opennebula/servicetemplate');
-  var CommonActions = require('utils/common-actions');
-  var OpenNebulaAction = require('opennebula/action');
-  var Navigation = require('utils/navigation');
+  var Sunstone = require("sunstone");
+  var Notifier = require("utils/notifier");
+  var Locale = require("utils/locale");
+  var OpenNebulaResource = require("opennebula/servicetemplate");
+  var CommonActions = require("utils/common-actions");
+  var OpenNebulaAction = require("opennebula/action");
+  var Navigation = require("utils/navigation");
 
-  var TAB_ID = require('./tabId');
-  var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
-  var INSTANTIATE_DIALOG_ID = require('./form-panels/instantiate/formPanelId');
-  var CLONE_DIALOG_ID = require('./dialogs/clone/dialogId');
+  var TAB_ID = require("./tabId");
+  var CREATE_DIALOG_ID = require("./form-panels/create/formPanelId");
+  var INSTANTIATE_DIALOG_ID = require("./form-panels/instantiate/formPanelId");
+  var CLONE_DIALOG_ID = require("./dialogs/clone/dialogId");
   var XML_ROOT = "DOCUMENT";
   var RESOURCE = "ServiceTemplate";
 
@@ -39,10 +39,10 @@ define(function(require) {
     "ServiceTemplate.show" : _commonActions.show(),
     "ServiceTemplate.refresh" : _commonActions.refresh(),
     "ServiceTemplate.delete" : _commonActions.del(),
-    "ServiceTemplate.chown": _commonActions.multipleAction('chown'),
-    "ServiceTemplate.chgrp": _commonActions.multipleAction('chgrp'),
-    "ServiceTemplate.chmod": _commonActions.singleAction('chmod'),
-    "ServiceTemplate.rename": _commonActions.singleAction('rename'),
+    "ServiceTemplate.chown": _commonActions.multipleAction("chown"),
+    "ServiceTemplate.chgrp": _commonActions.multipleAction("chgrp"),
+    "ServiceTemplate.chmod": _commonActions.singleAction("chmod"),
+    "ServiceTemplate.rename": _commonActions.singleAction("rename"),
     "ServiceTemplate.update" : _commonActions.update(),
     "ServiceTemplate.update_dialog" : _commonActions.checkAndShowUpdate(),
     "ServiceTemplate.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
@@ -85,7 +85,7 @@ define(function(require) {
       type: "custom",
       call: function() {
         var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
-        if (selected_nodes.length != 1) {
+        if (selected_nodes.length !== 1) {
           Notifier.notifyMessage("Please select one (and just one) template to instantiate.");
           return false;
         }
@@ -106,7 +106,7 @@ define(function(require) {
         Sunstone.getDialog(CLONE_DIALOG_ID).show();
       }
     },
-    
+
     "ServiceTemplate.clone" : {
       type: "single",
       call: OpenNebulaResource.clone,

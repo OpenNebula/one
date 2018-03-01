@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -40,6 +40,9 @@ onegroup create newgroup
 onehost create host01 --im dummy --vm dummy
 onehost create host02 --im dummy --vm dummy
 onehost create host03 --im dummy --vm dummy
+
+#Wait to monitor hosts
+sleep 30
 
 onecluster addhost newcluster host03
 

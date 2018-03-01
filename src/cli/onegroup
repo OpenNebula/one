@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -87,13 +87,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :create, create_desc, [:group_name, nil], :options =>
             OpenNebulaHelper::GROUP_OPTIONS do
 
-
-        if !args[0] && options.empty?
-            STDERR.puts "Please use either a group name or command arguments."<<
-            " Run onegroup create -h for more information"
-            next -1
-        end
-
         if options && options[:admin_user]
             if !options[:admin_password]
                 STDERR.puts "Admin user needs password"
@@ -108,11 +101,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             options[:group_admin] = admin_user
         end
 
-        if !options.empty?
-            helper.create_complete_resource(options)
-        elsif args[0]
+        if args[0]
             options[:name] = args[0]
             helper.create_complete_resource(options)
+        elsif options[:name]
+            helper.create_complete_resource(options)
+        else
+            STDERR.puts "Please use either a group name or command arguments."<<
+            " Run onegroup create -h for more information"
+            next -1
         end
     end
 

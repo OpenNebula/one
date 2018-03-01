@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -21,6 +21,7 @@
 #include "HostPool.h"
 #include "VirtualMachinePool.h"
 #include "VirtualRouterPool.h"
+#include "ClusterPool.h"
 
 using namespace std;
 
@@ -82,7 +83,7 @@ class DispatchManager : public ActionListener
 public:
 
     DispatchManager():
-            hpool(0), vmpool(0), vrouterpool(0), tm(0), vmm(0), lcm(0), imagem(0)
+            hpool(0), vmpool(0), clpool(0), vrouterpool(0), tm(0), vmm(0), lcm(0), imagem(0)
     {
         am.addListener(this);
     };
@@ -497,7 +498,12 @@ private:
     VirtualMachinePool *    vmpool;
 
     /**
-     *  Pointer to the Virtual Machine Pool, to access hosts
+     *  Pointer to the Cluster Pool
+     */
+     ClusterPool *    clpool;
+
+    /**
+     *  Pointer to the Virtual Router Pool
      */
     VirtualRouterPool *     vrouterpool;
 

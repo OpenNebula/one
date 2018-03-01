@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -52,10 +52,7 @@ VMGroup::VMGroup(int _uid, int _gid, const string& _uname, const string& _gname,
     set_umask(_umask);
 }
 
-VMGroup::~VMGroup()
-{
-    delete obj_template;
-}
+VMGroup::~VMGroup(){};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -66,6 +63,7 @@ string& VMGroup::to_xml(string& xml) const
     string template_xml;
     string perms_xml;
     string roles_xml;
+    string lock_str;
 
     oss <<
     "<VM_GROUP>"    <<
@@ -76,6 +74,7 @@ string& VMGroup::to_xml(string& xml) const
         "<GNAME>"   << gname    << "</GNAME>"  <<
         "<NAME>"    << name     << "</NAME>"   <<
         perms_to_xml(perms_xml)                <<
+        lock_db_to_xml(lock_str)               <<
         roles.to_xml(roles_xml)                <<
         obj_template->to_xml(template_xml)     <<
     "</VM_GROUP>";
@@ -105,6 +104,9 @@ int VMGroup::from_xml(const string &xml_str)
 
     // Permissions
     rc += perms_from_xml();
+
+    // Lock
+    rc += lock_db_from_xml();
 
     // Get associated template
     ObjectXML::get_nodes("/VM_GROUP/TEMPLATE", content);
@@ -193,7 +195,7 @@ int VMGroup::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          other_u             << ")";
 
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     db->free_str(sql_name);
     db->free_str(sql_xml);

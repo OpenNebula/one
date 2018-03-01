@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -82,31 +82,42 @@ define(function(require) {
     Tips.setup(context);
     $( ".diskSlider", context).html(RangeSlider.html({
         min: that.diskSize,
-        max: Humanize.sizeToMB("500GB"),
+        max: Humanize.sizeToMB("1024GB")*1024,
         initial: that.diskSize,
-        name: "resize"
+        name: "resize",
+        max_value: ""
     }));
     $( ".uinput-slider-val",context).prop('type', 'text');
     $( ".uinput-slider-val",context).val(Humanize.size($( ".uinput-slider",context).val()));
 
-    $( ".uinput-slider", context).on("change", function(){
+    $( ".uinput-slider", context).on("input", function(){
       $( ".uinput-slider-val",context).val(Humanize.size($( ".uinput-slider",context).val()));
       var cost = Humanize.sizeToMB($( ".uinput-slider",context).val())*that.diskCost;
+      if(isNaN(cost)){
+        cost = 0;
+      }
       document.getElementById("new_cost_resize").textContent =  Locale.tr("Cost")+": "+ convertCostNumber(cost);
     });
 
     $( ".uinput-slider-val", context).on("change", function(){
-      $( ".uinput-slider",context).val(Humanize.sizeToMB($( ".uinput-slider-val",context).val()));
+      $( ".uinput-slider",context).val(Humanize.sizeToMB(($( ".uinput-slider-val",context).val()).toString())*1024);
       var cost = Humanize.sizeToMB($( ".uinput-slider",context).val())*that.diskCost;
+      if(isNaN(cost)){
+        cost = 0;
+      }
       document.getElementById("new_cost_resize").textContent =  Locale.tr("Cost")+": "+ convertCostNumber(cost);
     });
 
     var cost = Humanize.sizeToMB($( ".uinput-slider",context).val())*this.diskCost;
+    if(isNaN(cost)){
+        cost = 0;
+    }
     document.getElementById("new_cost_resize").textContent =  Locale.tr("Cost")+": "+ convertCostNumber(cost);
 
 
     $('#' + DIALOG_ID + 'Form', context).submit(function() {
-      var new_size = $( ".uinput-slider",context).val();
+      var new_size = Humanize.sizeToMB($( ".uinput-slider-val",context).val());
+      new_size = new_size.toString();
       var obj = {
         "vm_id": that.element.ID,
         "disk_id" : that.diskId,

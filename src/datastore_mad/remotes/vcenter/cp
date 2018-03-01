@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -16,10 +16,6 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-###############################################################################
-# This script is used retrieve the file size of a disk
-###############################################################################
-
 ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
@@ -33,123 +29,7 @@ end
 $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
-require 'opennebula'
-require 'fileutils'
-require 'tempfile'
-
-def is_remote?(file)
-    file.match(%r{^https?://})
-end
-
-def is_vmdk?(file)
-    type = %x{file #{file}}
-
-    type.include? "VMware"    
-end
-
-def get_type(file)
-    type = %x{file -b --mime-type #{file}}
-    if $?.exitstatus != 0
-        STDERR.puts "Can not read file #{file}"
-        exit(-1)
-    end
-
-    type.strip
-end
-
-def needs_unpack?(file)
-    temp = Tempfile.new('one-')
-    temp.close
-
-    file_path = file
-
-    if is_remote?(file)
-        rc = system("curl --fail -sS -k -L #{file_path} | head -c 1024 > #{temp.path}")
-        if !rc
-            STDERR.puts "Can not download file #{file_path}"
-            exit(-1)
-        end
-        file_path = temp.path
-    end
-
-    type = get_type(file_path)
-    type.gsub!(%r{^application/(x-)?}, '')
-    unpack = %w{bzip2 gzip tar}.include?(type)
-
-    temp.unlink
-
-    unpack
-end
-
-def vmdk_info(file)
-    file_path = file
-
-    if File.directory?(file_path)
-        files = Dir["#{file_path}/*.vmdk"]
-        found = false
-        count = 0
-        last  = nil
-
-        files.each do |f|
-            if get_type(f).strip == "text/plain"
-                file_path = f
-                found = true
-                break
-            else
-                count += 1
-                last = f
-            end
-        end
-
-        if !found
-            if count == 1
-                file_path = last
-                found = true
-            else
-                STDERR.puts "Could not find vmdk"
-                exit(-1)
-            end
-        end
-    end
-
-    case get_type(file_path).strip
-    when "application/octet-stream"
-        return {
-            :type   => :standalone,
-            :file   => file_path,
-            :dir    => File.dirname(file_path)
-        }
-    when "application/x-iso9660-image"
-        return {
-            :type   => :standalone,
-            :file   => file_path,
-            :dir    => File.dirname(file_path),
-            :extension => '.iso'
-        }
-    when "text/plain"
-        info = {
-            :type   => :flat,
-            :file   => file_path,
-            :dir    => File.dirname(file_path)
-        }
-
-        files_list = []
-        descriptor = File.read(file_path).split("\n")
-        flat_files = descriptor.select {|l| l.start_with?("RW")}
-
-        flat_files.each do |f|
-            files_list << info[:dir] + "/" +
-                f.split(" ")[3].chomp.chomp('"').reverse.chomp('"').reverse
-        end
-
-        info[:flat_files] = files_list
-
-        return info
-    else
-        STDERR.puts "Unrecognized file type"
-        exit(-1)
-    end
-end
+require 'vcenter_driver'
 
 drv_action_enc = ARGV[0]
 id             = ARGV[1]
@@ -157,65 +37,63 @@ id             = ARGV[1]
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
 
-img_path = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/PATH"]
-md5      = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5"]
-sha1     = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/SHA1"]
-nodecomp = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/NO_DECOMPRESS"]
-limit_bw = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/LIMIT_TRANSFER_BW"]
-hostname = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
-ds_name  = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"]
+img_path     = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/PATH"]
+ds_id        = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/ID"]
+ds_ref       = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_REF"]
+ds_image_dir = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_IMAGE_DIR"].match(%r{^/*(.*?)/*$})[1] rescue "one"
+md5          = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5"]
+sha1         = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/SHA1"]
+nodecomp     = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/NO_DECOMPRESS"]
+limit_bw     = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/LIMIT_TRANSFER_BW"]
 
+check_valid img_path, "img_path"
 
-if img_path.nil?
-    STDERR.puts "Not enough information to register the image,"\
-                " missing image path."
-    exit(-1)
-end
-
+# if image is already in a vCenter datastore return the path
 if img_path.start_with? "vcenter://"
-    # File already in the vCenter datastore
-
-    puts img_path.sub("vcenter://","")
+    img_path = img_path.sub("vcenter://", "")
+    img_path = VCenterDriver::FileHelper.escape_path(img_path)
+    puts img_path
     exit(0)
 end
 
-downsh_args = " "
-downsh_args += "--md5 #{md5} " if md5 and !md5.empty? and !md5.eql? "-"
-downsh_args += "--sha1 #{sha1} " if sha1 and !sha1.empty?
-downsh_args += "--nodecomp " if nodecomp and !nodecomp.empty?
-downsh_args += "--limit #{limit_bw} " if limit_bw and !limit_bw.empty?
+temp_file = nil
+filename = File.basename(img_path)
+target_path = "#{ds_image_dir}/#{id}"
 
-downloader = "#{File.dirname(__FILE__)}/../downloader.sh #{downsh_args}"
+# If image is in a remote http location it has to be downloaded
+# or if is a zipped file it has to be unzipped in a temp folder
 
-# Generate target path
-str_for_target_path = Time.now.to_s + id.to_s
-target_path = Digest::MD5.hexdigest(str_for_target_path)
+if VCenterDriver::FileHelper.is_remote_or_needs_unpack?(img_path)
+    temp_folder = File.join(VAR_LOCATION, "vcenter/#{target_path}")
+    temp_file = File.join(temp_folder, File.basename(img_path))
 
-files_to_upload = Array.new
+    # Create tmp directory
+    FileUtils.mkdir_p(temp_folder)
 
-file_path = img_path
-skip_download = false
-delete_file = false
-files_to_upload = []
+    # Specify downloader args
+    downsh_args = " "
+    downsh_args << "--md5 #{md5} " if md5 && !md5.empty? && !md5.eql?("-")
+    downsh_args << "--sha1 #{sha1} " if sha1 && !sha1.empty?
+    downsh_args << "--nodecomp " if nodecomp && !nodecomp.empty?
+    downsh_args << "--limit #{limit_bw} " if limit_bw && !limit_bw.empty?
 
-if is_remote?(file_path) || needs_unpack?(file_path)
-    temp_folder = File.join(VAR_LOCATION, "vcenter")
-    temp_file = File.join(temp_folder, File.basename(target_path))
-    FileUtils.mkdir_p(temp_folder) if !File.directory?(temp_folder)
+    downloader = "#{File.dirname(__FILE__)}/../downloader.sh #{downsh_args}"
 
-    rc = system("#{downloader} #{file_path} #{temp_file}")
+    rc = system("#{downloader} #{img_path} #{temp_file}")
+
     if !rc
-        STDERR.puts "Error downloading #{file_path}"
+        STDERR.puts "Error downloading #{img_path}"
         FileUtils.rm_rf(temp_file)
-        exit(-1)
+        exit -1
     end
 
-    delete_file = true
-    original_path = File.basename(file_path)
-    file_path = temp_file
+    img_path = temp_file
 end
 
-info = vmdk_info(file_path)
+# Time to upload files to vCenter
+files_to_upload = []
+
+info = VCenterDriver::FileHelper.vcenter_file_info(img_path)
 extension = info[:extension] || ''
 
 case info[:type]
@@ -227,34 +105,40 @@ when :flat
 end
 
 files_to_upload.each_with_index do |f, index|
-    path = "#{target_path}/#{File.basename(f)}"  
+
+    path = "#{target_path}/#{File.basename(f)}"
 
     # Change path for gzipped standalone file
     if(target_path == File.basename(f))
-        path = "#{target_path}/#{original_path}"
-        
+        path = "#{target_path}/#{filename}"
+
         # remove gz or bz2 if part of filename
-        if path.end_with?("gz") and is_vmdk?(f)
-            path.gsub!(/gz$/,'')              
+        if path.end_with?("gz") && VCenterDriver::FileHelper.is_vmdk?(f)
+            path.gsub!(/gz$/,'')
         end
 
-        if path.end_with?("bz2") and is_vmdk?(f)
-            path.gsub!(/bz2$/,'')              
-        end    
-    end        
+        if path.end_with?("bz2") && VCenterDriver::FileHelper.is_vmdk?(f)
+            path.gsub!(/bz2$/,'')
+        end
+    end
 
-    # Change path if vmdk is part of filename 
-    # but it's not the extension' 
-    if /[^.]+vmdk$/.match(path) and is_vmdk?(f)
+    # Change path if vmdk is part of filename but it's not the extension
+    if !!/[^.]+vmdk$/.match(path) && VCenterDriver::FileHelper.is_vmdk?(f)
         path.gsub!(/vmdk$/,'')
-        extension = '.vmdk'       
+        extension = '.vmdk'
+    end
+
+    # Add iso extension if file is an ISO file
+    if VCenterDriver::FileHelper.is_iso?(f)
+        path = "#{File.dirname(path)}/#{File.basename(path,".*")}"
+        extension = '.iso'
     end
 
     if index == files_to_upload.size - 1
-        uploader_args = hostname + " " + ds_name + " " +
+        uploader_args = ds_id + " " + ds_ref + " " +
             "#{path}#{extension}" + " " + f
     else
-        uploader_args = hostname + " " + ds_name + " " +
+        uploader_args = ds_id + " " + ds_ref + " " +
                         path + " " + f + " &> /dev/null"
     end
 
@@ -262,12 +146,11 @@ files_to_upload.each_with_index do |f, index|
     rc = system(cmd)
 
     if !rc
-        STDERR.puts "Can not upload file #{f}"
-        FileUtils.rm_rf(temp_file) if delete_file
+        STDERR.puts "Cannot upload file #{f}"
+        FileUtils.rm_rf(temp_file) if temp_file
         exit(-1)
     end
 end
 
-
-FileUtils.rm_rf(temp_file) if delete_file
+FileUtils.rm_rf(temp_file) if temp_file
 

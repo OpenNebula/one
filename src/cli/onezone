@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -91,6 +91,43 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    addserver_desc = <<-EOT.unindent
+        Add an OpenNebula server to this zone.
+    EOT
+
+    command :"server-add", addserver_desc, :zoneid, :options =>
+        [ OneZoneHelper::SERVER_NAME, OneZoneHelper::SERVER_ENDPOINT] do
+
+        if options[:server_name].nil? || options[:server_rpc].nil?
+            STDERR.puts "To add a server set:"
+            STDERR.puts "\t-n <server name>"
+            STDERR.puts "\t-r <RPC endpoint>"
+            exit -1
+        end
+
+        template = <<-EOT
+            SERVER = [
+              NAME="#{options[:server_name]}",
+              ENDPOINT="#{options[:server_rpc]}"
+            ]
+        EOT
+
+        helper.perform_action(args[0], options, "server added") do |o|
+            o.add_servers(template)
+        end
+
+    end
+
+    delserver_desc = <<-EOT.unindent
+        Delete an OpenNebula server from this zone.
+    EOT
+
+    command :"server-del", delserver_desc, :zoneid, :serverid do
+        helper.perform_action(args[0], options, "server deleted") do |o|
+            o.delete_servers(args[1].to_i)
+        end
+
+    end
     update_desc = <<-EOT.unindent
         Update the template contents. If a path is not provided the editor will
         be launched to modify the current content.

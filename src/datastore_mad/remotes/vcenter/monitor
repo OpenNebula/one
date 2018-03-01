@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -39,21 +39,26 @@ id             = ARGV[1]
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
 
-ds_name  = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"]
-hostname = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
+ds_id  = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/ID"]
+ds_ref = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_REF"]
+check_valid ds_ref, "ds_ref"
 
-if ds_name.nil? ||
-   hostname.nil?
-    STDERR.puts "Not enough information to monitor the image."
+if ds_id.nil? || ds_ref.nil?
+    STDERR.puts "Not enough information to monitor the datastore."
     exit -1
 end
 
 begin
-    host_id      = VCenterDriver::VIClient.translate_hostname(hostname)
-    vi_client    = VCenterDriver::VIClient.new host_id
+    vi_client = VCenterDriver::VIClient.new_from_datastore(ds_id)
 
-    puts vi_client.monitor_ds(ds_name)
+    storage = VCenterDriver::Storage.new_from_ref(ds_ref, vi_client)
+    puts storage.monitor
+
 rescue Exception => e
-    STDERR.puts "Error monitoring #{ds_name}. Reason: #{e.message}"
+    message = "Error monitoring datastore #{id}."\
+              " Reason: \"#{e.message}\"\n#{e.backtrace}"
+    STDERR.puts error_message(message)
     exit -1
+ensure
+    vi_client.close_connection if vi_client
 end

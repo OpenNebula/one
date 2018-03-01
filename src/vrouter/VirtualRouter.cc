@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -69,10 +69,7 @@ VirtualRouter::VirtualRouter(   int             id,
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-VirtualRouter::~VirtualRouter()
-{
-    delete obj_template;
-}
+VirtualRouter::~VirtualRouter(){};
 
 /* ************************************************************************ */
 /* VirtualRouter :: Database Access Functions                                    */
@@ -272,7 +269,7 @@ int VirtualRouter::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<            group_u    << ","
         <<            other_u    << ")";
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     db->free_str(sql_name);
     db->free_str(sql_xml);
@@ -310,6 +307,7 @@ string& VirtualRouter::to_xml(string& xml) const
     string          template_xml;
     string          vm_collection_xml;
     string          perm_str;
+    string          lock_str;
 
     oss << "<VROUTER>"
             << "<ID>"       << oid        << "</ID>"
@@ -319,6 +317,7 @@ string& VirtualRouter::to_xml(string& xml) const
             << "<GNAME>"    << gname      << "</GNAME>"
             << "<NAME>"     << name       << "</NAME>"
             << perms_to_xml(perm_str)
+            << lock_db_to_xml(lock_str)
             << vms.to_xml(vm_collection_xml)
             << obj_template->to_xml(template_xml)
         << "</VROUTER>";
@@ -349,6 +348,9 @@ int VirtualRouter::from_xml(const string& xml)
 
     // Permissions
     rc += perms_from_xml();
+
+    // Lock
+    rc += lock_db_from_xml();
 
     // Get associated classes
     rc += vms.from_xml(this, "/VROUTER/");
@@ -412,7 +414,7 @@ int VirtualRouter::release_network_leases(const VectorAttribute * nic)
         return -1;
     }
 
-    mac = nic->vector_value("MAC");
+    mac = nic->vector_value("VROUTER_MAC");
 
     vn = vnpool->get(vnid, true);
 
@@ -460,8 +462,7 @@ static void prepare_nic_vm(VectorAttribute * nic)
 
     if (floating)
     {
-        nic->remove("MAC");
-
+        vrouter_prefix(nic, "MAC");
         vrouter_prefix(nic, "IP");
         vrouter_prefix(nic, "IP6_LINK");
         vrouter_prefix(nic, "IP6_ULA");
@@ -662,9 +663,9 @@ int VirtualRouter::detach_nic(int nic_id)
         return -1;
     }
 
-    obj_template->remove(nic);
-
     release_network_leases(nic);
+
+    obj_template->remove(nic);
 
     // Update quotas
     tmpl.set(nic);

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -41,7 +41,7 @@ HostPool::HostPool(SqlDB*                    db,
                    const string&             hook_location,
                    const string&             remotes_location,
                    time_t                    expire_time)
-                        : PoolSQL(db, Host::table, true, true)
+                        : PoolSQL(db, Host::table)
 {
 
     _monitor_expiration = expire_time;
@@ -254,7 +254,7 @@ int HostPool::discover(
         << " WHERE last_mon_time <= " << target_time
         << " ORDER BY last_mon_time ASC LIMIT " << host_limit;
 
-    rc = db->exec(sql,this);
+    rc = db->exec_rd(sql,this);
 
     unset_callback();
 
@@ -303,7 +303,7 @@ int HostPool::clean_expired_monitoring()
     oss << "DELETE FROM " << Host::monit_table
         << " WHERE last_mon_time < " << max_mon_time;
 
-    rc = db->exec(oss);
+    rc = db->exec_local_wr(oss);
 
     return rc;
 }
@@ -318,7 +318,7 @@ int HostPool::clean_all_monitoring()
 
     oss << "DELETE FROM " << Host::monit_table;
 
-    rc = db->exec(oss);
+    rc = db->exec_local_wr(oss);
 
     return rc;
 }

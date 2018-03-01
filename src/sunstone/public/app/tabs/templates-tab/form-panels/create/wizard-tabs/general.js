@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -26,6 +26,7 @@ define(function(require) {
   var Config = require('sunstone-config');
   var UserInputs = require('utils/user-inputs');
   var UniqueId = require('utils/unique-id');
+  var OpenNebula = require('opennebula');
 
   /*
     TEMPLATES
@@ -98,23 +99,23 @@ define(function(require) {
   }
   function convertCostNumber(number){
     if(number >= 1000000){
-      number = (number/1000000).toFixed(2)
+      number = (number/1000000).toFixed(6)
       return number.toString()+"M";
     }
     else if(number >= 1000){
-      number = (number/1000).toFixed(2)
+      number = (number/1000).toFixed(6)
       return number.toString()+"K";
     }
-    return number;
+    return number.toFixed(6);
   }
   function caculatedTotalMemory(context){
-    var memory = document.getElementById('MEMORY_COST').value;
+    var memory_cost = document.getElementById('MEMORY_COST').value;
     var type = document.getElementById('MEMORY_UNIT_COST').value;
-    if(type == "GB")
-      memory *= 1024;
-    memory = memory * 24 * 30; //24 hours and 30 days
+    var real_memory = document.getElementById('MEMORY').value;
+    memory = memory_cost * real_memory * 24 * 30; //24 hours and 30 days
     document.getElementById('total_value_memory').textContent = convertCostNumber(memory);
-    $(".total_memory_cost", context).show();
+    if (memory_cost != "")
+      $(".total_memory_cost", context).show();
   }
 
   function _setup(context) {
@@ -135,16 +136,48 @@ define(function(require) {
     });
 
      context.on("change", "#CPU_COST", function() {
-      var cpu = document.getElementById('CPU_COST').value;
-      document.getElementById('total_value_cpu').textContent = convertCostNumber(cpu * 24 * 30);
+      var cpu = document.getElementById('CPU').value;
+      var cpu_cost = document.getElementById('CPU_COST').value;
+      document.getElementById('total_value_cpu').textContent = convertCostNumber(cpu * cpu_cost * 24 * 30);
       $(".total_cpu_cost", context).show();
       CapacityCreate.calculatedRealCpu();
     });
 
     context.on("change", "#DISK_COST", function() {
-      var disk = document.getElementById('DISK_COST').value;
-      document.getElementById('total_value_disk').textContent = convertCostNumber(disk * 1024 * 24 * 30);
-      $(".total_disk_cost", context).show();
+      that.disk = parseFloat(document.getElementById('DISK_COST').value);
+      if(!isNaN(that.disk)){
+        that.templateDISKS = JSON.parse(localStorage.getItem("disksJSON"));
+        if (that.templateDISKS){
+          OpenNebula.Image.list({
+            timeout: true,
+            success: function(request, obj_files){
+              var totalGB = 0;
+              $.each(that.templateDISKS, function(ikey, ivalue){
+                if (ivalue.IMAGE || ivalue.IMAGE_ID){
+                  $.each(obj_files, function(jkey, jvalue){
+                    if ((ivalue.IMAGE && ivalue.IMAGE === jvalue.IMAGE.NAME && ivalue.IMAGE_UNAME === jvalue.IMAGE.UNAME) || (ivalue.IMAGE_ID && ivalue.IMAGE_ID === jvalue.IMAGE.ID)){
+                      totalGB += jvalue.IMAGE.SIZE / 1024;
+                    }
+                  });
+                } else {
+                  totalGB += ivalue.SIZE / 1024;
+                }
+              });
+              var totalCostDisk = 0;
+              if (!isNaN(totalGB)){
+                totalCostDisk = totalGB * that.disk;
+                document.getElementById('total_value_disk').textContent = convertCostNumber(totalCostDisk * 24 * 30);
+                CapacityCreate.totalCost();
+              } else {
+                document.getElementById('total_value_disk').textContent = totalCostDisk;
+              }
+              $(".total_disk_cost", context).show();
+            }
+          });
+        }
+      } else {
+        document.getElementById('total_value_disk').textContent = 0;
+      }
     });
 
     context.on("change", "#LOGO", function() {
@@ -160,9 +193,15 @@ define(function(require) {
       $(".only_" + this.value).show();
 
       if (this.value == "vcenter"){
-        $("#vcenter_template_uuid", context).attr("required", "");
+        $("#vcenter_template_ref", context).attr("required", "");
+        $("#vcenter_instance_id", context).attr("required", "");
+        $("#vcenter_ccr_ref", context).attr("required", "");
+        $("#MEMORY", context).attr("pattern", "^([048]|\\d*[13579][26]|\\d*[24680][048])$");
       } else {
-        $("#vcenter_template_uuid", context).removeAttr("required");
+        $("#vcenter_template_ref", context).removeAttr("required");
+        $("#vcenter_instance_id", context).removeAttr("required");
+        $("#vcenter_ccr_ref", context).removeAttr("required");
+        $("#MEMORY", context).removeAttr("pattern");
       }
       // There is another listener in context.js setup
     });
@@ -174,28 +213,26 @@ define(function(require) {
         that.listener.notify();
       });
     }
+
+    if (config["mode"] === "kvm"){
+      $("#kvmRadio", context).click();
+      $("#template_hypervisor_form", context).hide();
+    } else if (config["mode"] === "vcenter"){
+      $("#vcenterRadio", context).click();
+      $("#template_hypervisor_form", context).hide();
+    }
   }
 
   function _retrieve(context) {
     var templateJSON = WizardFields.retrieve(context);
-    if(templateJSON["DISK_COST"]){
-      templateJSON["DISK_COST"] = templateJSON["DISK_COST"] * 1024;
-    }
-    else{
-      delete templateJSON["MEMORY_UNIT_COST"];
-    }
-    if(templateJSON["MEMORY_UNIT_COST"] == "GB")
-      templateJSON["MEMORY_COST"] = templateJSON["MEMORY_COST"] * 1024;
     if (templateJSON["HYPERVISOR"] == 'vcenter') {
-      templateJSON["VCENTER_PUBLIC_CLOUD"] = {
-        'TYPE': 'vcenter',
-        'VM_TEMPLATE': WizardFields.retrieveInput($("#vcenter_template_uuid", context))
-      };
+      templateJSON["VCENTER_TEMPLATE_REF"] = WizardFields.retrieveInput($("#vcenter_template_ref", context));
+      templateJSON["VCENTER_CCR_REF"] = WizardFields.retrieveInput($("#vcenter_ccr_ref", context));
+      templateJSON["VCENTER_INSTANCE_ID"] = WizardFields.retrieveInput($("#vcenter_instance_id", context));
 
-      if (Config.isFeatureEnabled("vcenter_deploy_folder")) {
-        templateJSON["DEPLOY_FOLDER"] = WizardFields.retrieveInput($("#vcenter_deploy_folder", context))
+      if (Config.isFeatureEnabled("vcenter_vm_folder")) {
+        templateJSON["VCENTER_VM_FOLDER"] = WizardFields.retrieveInput($("#vcenter_vm_folder", context))
       }
-      templateJSON["KEEP_DISKS_ON_DONE"] = $("#KEEP_DISKS", context).is(':checked')?"YES":"NO"
     }
 
     var sunstone_template = {};
@@ -210,27 +247,6 @@ define(function(require) {
 
     var userInputs = {};
 
-    // Retrieve Datastore Attribute
-    var dsInput = $(".vcenter_datastore_input", context);
-    if (dsInput.length > 0) {
-      var dsModify = WizardFields.retrieveInput($('.modify_datastore', dsInput));
-      var dsInitial = WizardFields.retrieveInput($('.initial_datastore', dsInput));
-      var dsParams = WizardFields.retrieveInput($('.available_datastores', dsInput));
-
-      if (dsModify === 'fixed' && dsInitial !== '') {
-        templateJSON['VCENTER_DATASTORE'] = dsInitial;
-      } else if (dsModify === 'list' && dsParams !== '') {
-        var dsUserInputsStr = UserInputs.marshall({
-            type: 'list',
-            description: Locale.tr("Which datastore you want this VM to run on?"),
-            initial: dsInitial,
-            params: dsParams
-          });
-
-        userInputs['VCENTER_DATASTORE'] = dsUserInputsStr;
-      }
-    }
-
     // Retrieve Resource Pool Attribute
     var rpInput = $(".vcenter_rp_input", context);
     if (rpInput.length > 0) {
@@ -239,7 +255,7 @@ define(function(require) {
       var rpParams = WizardFields.retrieveInput($('.available_rps', rpInput));
 
       if (rpModify === 'fixed' && rpInitial !== '') {
-        templateJSON['RESOURCE_POOL'] = rpInitial;
+        templateJSON['VCENTER_RESOURCE_POOL'] = rpInitial;
       } else if (rpModify === 'list' && rpParams !== '') {
         var rpUserInputs = UserInputs.marshall({
             type: 'list',
@@ -248,7 +264,7 @@ define(function(require) {
             params: WizardFields.retrieveInput($('.available_rps', rpInput))
           });
 
-        userInputs['RESOURCE_POOL'] = rpUserInputs;
+        userInputs['VCENTER_RESOURCE_POOL'] = rpUserInputs;
       }
     }
 
@@ -259,13 +275,27 @@ define(function(require) {
 
     $.extend(true, templateJSON, CapacityCreate.retrieve($("div.capacityCreate", context)));
 
+    if (templateJSON['MEMORY_COST'] && templateJSON['MEMORY_UNIT_COST'] && templateJSON['MEMORY_UNIT_COST'] == "GB") {
+      templateJSON['MEMORY_COST'] = templateJSON['MEMORY_COST']/1024;
+    }
+    if (templateJSON['DISK_COST']) {
+      templateJSON['DISK_COST'] = templateJSON['DISK_COST']/1024;
+    }
     return templateJSON;
   }
 
   function _fill(context, templateJSON) {
+
+    if (templateJSON['MEMORY_COST'] && templateJSON['MEMORY_UNIT_COST'] && templateJSON['MEMORY_UNIT_COST'] == "GB") {
+      templateJSON['MEMORY_COST'] = templateJSON['MEMORY_COST']*1024;
+    }
+    if (templateJSON['DISK_COST']) {
+      templateJSON['DISK_COST'] = templateJSON['DISK_COST']*1024;
+    }
+
+    that.templateDISKS = $.extend(true, {}, templateJSON.DISK);
+    localStorage.setItem("disksJSON", JSON.stringify(that.templateDISKS));
     var sunstone_template = templateJSON.SUNSTONE;
-    if(templateJSON["MEMORY_UNIT_COST"] =="GB")
-      templateJSON["MEMORY_COST"] = templateJSON["MEMORY_COST"] / 1024;
     if (sunstone_template) {
       if (sunstone_template["NETWORK_SELECT"] &&
           sunstone_template["NETWORK_SELECT"].toUpperCase() == "NO") {
@@ -275,24 +305,16 @@ define(function(require) {
       delete sunstone_template["NETWORK_SELECT"];
     }
 
-    if (templateJSON["HYPERVISOR"] == 'vcenter' &&
-      templateJSON["KEEP_DISKS_ON_DONE"] &&
-        templateJSON["KEEP_DISKS_ON_DONE"].toLowerCase() == "yes" ) {
-      $("#KEEP_DISKS", context).attr("checked", "checked");
-    }
-
-    delete templateJSON["KEEP_DISKS_ON_DONE"];
-
-    if (Config.isFeatureEnabled("vcenter_deploy_folder")) {
+    if (Config.isFeatureEnabled("vcenter_vm_folder")) {
       if (templateJSON["HYPERVISOR"] == 'vcenter' &&
-        templateJSON["DEPLOY_FOLDER"]) {
-        WizardFields.fillInput($("#vcenter_deploy_folder", context), templateJSON["DEPLOY_FOLDER"]);
+        templateJSON["VCENTER_VM_FOLDER"]) {
+        WizardFields.fillInput($("#vcenter_vm_folder", context), templateJSON["VCENTER_VM_FOLDER"]);
       }
     } else {
-      $(".vcenter_deploy_folder_input", context).remove();
+      $(".vcenter_vm_folder_input", context).remove();
     }
 
-    delete templateJSON["DEPLOY_FOLDER"];
+    delete templateJSON["VCENTER_VM_FOLDER"];
 
     if (templateJSON["HYPERVISOR"] == 'vcenter') {
       var publicClouds = templateJSON["PUBLIC_CLOUD"];
@@ -304,7 +326,7 @@ define(function(require) {
 
         $.each(publicClouds, function(){
           if(this["TYPE"] == "vcenter"){
-            WizardFields.fillInput($("#vcenter_template_uuid", context), this["VM_TEMPLATE"]);
+            WizardFields.fillInput($("#vcenter_template_ref", context), this["VCENTER_TEMPLATE_REF"]);
             return false;
           }
         });
@@ -317,37 +339,38 @@ define(function(require) {
     }
 
     if (templateJSON["USER_INPUTS"]) {
-      if (templateJSON["USER_INPUTS"]["VCENTER_DATASTORE"]) {
-        var ds = UserInputs.unmarshall(templateJSON["USER_INPUTS"]["VCENTER_DATASTORE"]);
-        $('.modify_datastore', context).val('list');
-        $('.initial_datastore', context).val(ds.initial);
-        $('.available_datastores', context).val(ds.params);
 
-        delete templateJSON["USER_INPUTS"]["VCENTER_DATASTORE"];
-      }
-
-      if (templateJSON["USER_INPUTS"]["RESOURCE_POOL"]) {
-        var rp = UserInputs.unmarshall(templateJSON["USER_INPUTS"]["RESOURCE_POOL"]);
+      if (templateJSON["USER_INPUTS"]["VCENTER_RESOURCE_POOL"]) {
+        var rp = UserInputs.unmarshall(templateJSON["USER_INPUTS"]["VCENTER_RESOURCE_POOL"]);
         $('.modify_rp', context).val('list');
         $('.initial_rp', context).val(rp.initial);
         $('.available_rps', context).val(rp.params);
 
-        delete templateJSON["USER_INPUTS"]["RESOURCE_POOL"];
+        delete templateJSON["USER_INPUTS"]["VCENTER_RESOURCE_POOL"];
       }
     }
 
-    if (templateJSON["VCENTER_DATASTORE"]) {
-      $('.modify_datastore', context).val('fixed');
-      WizardFields.fillInput($('.initial_datastore', context), templateJSON["VCENTER_DATASTORE"]);
 
-      delete templateJSON["VCENTER_DATASTORE"];
+    if (templateJSON["VCENTER_RESOURCE_POOL"]) {
+      $('.modify_rp', context).val('fixed');
+      WizardFields.fillInput($('.initial_rp', context), templateJSON["VCENTER_RESOURCE_POOL"]);
+
+      delete templateJSON["VCENTER_RESOURCE_POOL"];
     }
 
-    if (templateJSON["RESOURCE_POOL"]) {
-      $('.modify_rp', context).val('fixed');
-      WizardFields.fillInput($('.initial_rp', context), templateJSON["RESOURCE_POOL"]);
+    if(templateJSON["VCENTER_TEMPLATE_REF"]){
+      WizardFields.fillInput($("#vcenter_template_ref", context), templateJSON["VCENTER_TEMPLATE_REF"]);
+      delete templateJSON["VCENTER_TEMPLATE_REF"];
+    }
 
-      delete templateJSON["RESOURCE_POOL"];
+    if(templateJSON["VCENTER_CCR_REF"]){
+      WizardFields.fillInput($("#vcenter_ccr_ref", context), templateJSON["VCENTER_CCR_REF"]);
+      delete templateJSON["VCENTER_CCR_REF"];
+    }
+
+    if(templateJSON["VCENTER_INSTANCE_ID"]){
+      WizardFields.fillInput($("#vcenter_instance_id", context), templateJSON["VCENTER_INSTANCE_ID"]);
+      delete templateJSON["VCENTER_INSTANCE_ID"];
     }
 
     CapacityCreate.fill($("div.capacityCreate", context), templateJSON);

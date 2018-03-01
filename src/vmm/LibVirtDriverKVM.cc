@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -111,6 +111,11 @@ int LibVirtDriver::deployment_description_kvm(
 
     vector<string> boots;
 
+    const VectorAttribute * cpu_model_v;
+
+    string  cpu_model = "";
+    string  cpu_mode  = "";
+
     vector<const VectorAttribute *> disk;
     const VectorAttribute * context;
 
@@ -167,6 +172,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  script = "";
     string  model  = "";
     string  ip     = "";
+    string  vrouter_ip = "";
     string  filter = "";
 
     string  i_avg_bw = "";
@@ -203,19 +209,21 @@ int LibVirtDriver::deployment_description_kvm(
 
     const VectorAttribute * features;
 
-    bool pae         = false;
-    bool acpi        = false;
-    bool apic        = false;
-    bool hyperv      = false;
-    bool localtime   = false;
-    bool guest_agent = false;
+    bool pae                = false;
+    bool acpi               = false;
+    bool apic               = false;
+    bool hyperv             = false;
+    bool localtime          = false;
+    bool guest_agent        = false;
+    int  virtio_scsi_queues = 0;
 
-    int pae_found         = -1;
-    int acpi_found        = -1;
-    int apic_found        = -1;
-    int hyperv_found      = -1;
-    int localtime_found   = -1;
-    int guest_agent_found = -1;
+    int pae_found                   = -1;
+    int acpi_found                  = -1;
+    int apic_found                  = -1;
+    int hyperv_found                = -1;
+    int localtime_found             = -1;
+    int guest_agent_found           = -1;
+    int virtio_scsi_queues_found    = -1;
 
     string hyperv_options = "";
 
@@ -382,6 +390,40 @@ int LibVirtDriver::deployment_description_kvm(
     file << "\t</os>" << endl;
 
     // ------------------------------------------------------------------------
+    // CPU SECTION
+    // ------------------------------------------------------------------------
+    cpu_model_v = vm->get_template_attribute("CPU_MODEL");
+
+    if( cpu_model_v != 0 )
+    {
+        cpu_model = cpu_model_v->vector_value("MODEL");
+
+        if ( cpu_model == "host-passthrough" )
+        {
+            cpu_mode = "host-passthrough";
+        }
+        else
+        {
+            cpu_mode = "host-model";
+        }
+
+        //TODO #756 cache, feature
+    }
+
+    if ( !cpu_model.empty() )
+    {
+        file << "\t<cpu mode=" << one_util::escape_xml_attr(cpu_mode) << ">\n";
+
+        if ( cpu_mode == "host-model" )
+        {
+            file << "\t\t<model fallback='allow'>" << one_util::escape_xml(cpu_model)
+                 << "</model>\n";
+        }
+
+        file << "\t</cpu>\n";
+    }
+
+    // ------------------------------------------------------------------------
     // DEVICES SECTION
     // ------------------------------------------------------------------------
     file << "\t<devices>" << endl;
@@ -447,7 +489,7 @@ int LibVirtDriver::deployment_description_kvm(
         ceph_secret     = disk[i]->vector_value("CEPH_SECRET");
         ceph_user       = disk[i]->vector_value("CEPH_USER");
         pool_name       = disk[i]->vector_value("POOL_NAME");
-      
+
         iscsi_host      = disk[i]->vector_value("ISCSI_HOST");
         iscsi_user      = disk[i]->vector_value("ISCSI_USER");
         iscsi_usage     = disk[i]->vector_value("ISCSI_USAGE");
@@ -799,6 +841,19 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t\t</iotune>" << endl;
         }
 
+        // ---- SCSI target ----
+
+        if ( target[0] == 's' && target[1] == 'd' )
+        {
+            int target_number = target[2] - 'a';
+
+            if ( target_number >= 0 && target_number < 256 )
+            {
+                file << "\t\t\t<address type='drive' controller='0' bus='0' " <<
+                     "target='" << target_number << "' unit='0'/>" << endl;
+            }
+        }
+
         file << "\t\t</disk>" << endl;
     }
 
@@ -856,6 +911,8 @@ int LibVirtDriver::deployment_description_kvm(
         ip     = nic[i]->vector_value("IP");
         filter = nic[i]->vector_value("FILTER");
 
+        vrouter_ip = nic[i]->vector_value("VROUTER_IP");
+
         i_avg_bw  = nic[i]->vector_value("INBOUND_AVG_BW");
         i_peak_bw = nic[i]->vector_value("INBOUND_PEAK_BW");
         i_peak_kb = nic[i]->vector_value("INBOUND_PEAK_KB");
@@ -872,8 +929,8 @@ int LibVirtDriver::deployment_description_kvm(
         {
             file << "\t\t<interface type='bridge'>" << endl;
 
-
-            if (VirtualNetwork::str_to_driver(vn_mad) == VirtualNetwork::OVSWITCH)
+            if (VirtualNetwork::str_to_driver(vn_mad) == VirtualNetwork::OVSWITCH ||
+                VirtualNetwork::str_to_driver(vn_mad) == VirtualNetwork::OVSWITCH_VXLAN)
             {
                 file << "\t\t\t<virtualport type='openvswitch'/>" << endl;
             }
@@ -941,8 +998,15 @@ int LibVirtDriver::deployment_description_kvm(
                 file << "\t\t\t<filterref filter="
                          << one_util::escape_xml_attr(*the_filter) << ">\n"
                      << "\t\t\t\t<parameter name='IP' value="
-                         << one_util::escape_xml_attr(ip) << "/>\n"
-                     << "\t\t\t</filterref>\n";
+                         << one_util::escape_xml_attr(ip) << "/>\n";
+
+                if ( !vrouter_ip.empty() )
+                {
+                    file << "\t\t\t\t<parameter name='IP' value="
+                            << one_util::escape_xml_attr(vrouter_ip) << "/>\n";
+                }
+
+                file << "\t\t\t</filterref>\n";
             }
         }
 
@@ -1148,6 +1212,8 @@ int LibVirtDriver::deployment_description_kvm(
         hyperv_found      = features->vector_value("HYPERV", hyperv);
         localtime_found   = features->vector_value("LOCALTIME", localtime);
         guest_agent_found = features->vector_value("GUEST_AGENT", guest_agent);
+        virtio_scsi_queues_found =
+            features->vector_value("VIRTIO_SCSI_QUEUES", virtio_scsi_queues);
     }
 
     if ( pae_found != 0 )
@@ -1178,6 +1244,11 @@ int LibVirtDriver::deployment_description_kvm(
     if ( guest_agent_found != 0 )
     {
         get_default("FEATURES", "GUEST_AGENT", guest_agent);
+    }
+
+    if ( virtio_scsi_queues_found != 0 )
+    {
+        get_default("FEATURES", "VIRTIO_SCSI_QUEUES", virtio_scsi_queues);
     }
 
     if ( acpi || pae || apic || hyperv )
@@ -1223,6 +1294,18 @@ int LibVirtDriver::deployment_description_kvm(
              << "\t\t\t<source mode='bind'/>"
              << "<target type='virtio' name='org.qemu.guest_agent.0'/>" << endl
              << "\t\t</channel>" << endl
+             << "\t</devices>" << endl;
+    }
+
+    if ( virtio_scsi_queues > 0 )
+    {
+        file << "\t<devices>" << endl
+             << "\t\t<controller type='scsi' index='0' model='virtio-scsi'>"
+             << endl;
+
+        file << "\t\t\t<driver queues='" << virtio_scsi_queues << "'/>" << endl;
+
+        file << "\t\t</controller>" << endl
              << "\t</devices>" << endl;
     }
 

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,6 +17,7 @@
 #include "Scheduler.h"
 #include "SchedulerTemplate.h"
 #include "RankPolicy.h"
+#include "UserPriorityPolicy.h"
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -32,19 +33,14 @@ class RankScheduler : public Scheduler
 {
 public:
 
-    RankScheduler():Scheduler(),rp_host(0),rp_ds(0){};
+    RankScheduler():Scheduler(),rp_host(0),rp_ds(0),rp_vm(0){};
 
     ~RankScheduler()
     {
-        if ( rp_host != 0 )
-        {
-            delete rp_host;
-        }
+        delete rp_host;
+        delete rp_ds;
 
-        if ( rp_ds != 0 )
-        {
-            delete rp_ds;
-        }
+        delete rp_vm;
     };
 
     void register_policies(const SchedulerTemplate& conf)
@@ -56,11 +52,17 @@ public:
         rp_ds = new RankDatastorePolicy(dspool, conf.get_ds_policy(), 1.0);
 
         add_ds_policy(rp_ds);
+
+        rp_vm = new UserPriorityPolicy(vmpool, 1.0);
+
+        add_vm_policy(rp_vm);
     };
 
 private:
     RankPolicy * rp_host;
     RankPolicy * rp_ds;
+
+    UserPriorityPolicy * rp_vm;
 };
 
 int main(int argc, char **argv)

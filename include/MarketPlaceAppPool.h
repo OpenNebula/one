@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -24,10 +24,7 @@ class SqlDB;
 class MarketPlaceAppPool : public PoolSQL
 {
 public:
-    MarketPlaceAppPool(
-            SqlDB * db,
-            bool    is_federation_slave)
-                :PoolSQL(db,MarketPlaceApp::table,!is_federation_slave,true){};
+    MarketPlaceAppPool(SqlDB * db):PoolSQL(db, MarketPlaceApp::table){};
 
     ~MarketPlaceAppPool(){};
 
@@ -76,13 +73,14 @@ public:
      *    @param template to generate app with the from_template64 function
      *    @param mp_id of the MarketPlace to store de App
      *    @param mp_name of the MarketPlace
+     *    @param app_id of the imported app
      *    @param error_str Returns the error reason, if any
      *
      *    @return the oid assigned to the object, -1 in case of failure, -2
      *    already imported
      */
     int import(const std::string& t64, int mp_id, const std::string& mp_name,
-            std::string& error_str);
+            int& app_id, std::string& error_str);
 
     /**
      *  Function to get a MarketPlaceApp from the pool
@@ -148,6 +146,31 @@ public:
     {
         return new MarketPlaceApp(-1,-1,"","", 0, 0);
     };
+
+    /**
+     * Check an element into map
+     *   @param map_id of the app
+     *   @return true if the app has to be deleted
+     */
+    bool test_map_check(int map_id);
+
+    /**
+     *  Resets the counter of missing monitors of an app
+     *    @param app_id of the app
+     */
+    void reset_map_check(int app_id);
+
+private:
+
+    /**
+     *  Hash to store the number of times an app was missing from monitor data
+     */
+    map<int, int> map_check;
+
+    /**
+     *  Max number of monitor that an app may be missing before deleting it
+     */
+    static const int MAX_MISSING_MONITORS;
 };
 
 #endif /*MARKETPLACE_POOL_H_*/

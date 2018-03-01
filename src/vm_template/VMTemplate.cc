@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -47,10 +47,7 @@ VMTemplate::VMTemplate(int id,
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-VMTemplate::~VMTemplate()
-{
-    delete obj_template;
-}
+VMTemplate::~VMTemplate(){};
 
 /* ************************************************************************ */
 /* VMTemplate :: Database Access Functions                                  */
@@ -74,13 +71,16 @@ int VMTemplate::insert(SqlDB *db, string& error_str)
     // ---------------------------------------------------------------------
     // Check default attributes
     // ---------------------------------------------------------------------
-
     erase_template_attribute("NAME", name);
+
+    // ---------------------------------------------------------------------
+    // Remove DONE/MESSAGE from SCHED_ACTION
+    // ---------------------------------------------------------------------
+    parse_sched_action();
 
     // ------------------------------------------------------------------------
     // Insert the Template
     // ------------------------------------------------------------------------
-
     return insert_replace(db, false, error_str);
 }
 
@@ -139,7 +139,7 @@ int VMTemplate::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<            group_u    << ","
         <<            other_u    << ")";
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     db->free_str(sql_name);
     db->free_str(sql_xml);
@@ -167,6 +167,30 @@ error_common:
     return -1;
 }
 
+void VMTemplate::parse_sched_action()
+{
+    vector<VectorAttribute *> _sched_actions;
+    vector<VectorAttribute *>::iterator i;
+
+    get_template_attribute("SCHED_ACTION", _sched_actions);
+
+    for ( i = _sched_actions.begin(); i != _sched_actions.end() ; ++i)
+    {
+        (*i)->remove("DONE");
+        (*i)->remove("MESSAGE");
+    }
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int VMTemplate::post_update_template(string& error)
+{
+    parse_sched_action();
+
+    return 0;
+}
+
 /* ************************************************************************ */
 /* VMTemplate :: Misc                                                       */
 /* ************************************************************************ */
@@ -184,6 +208,7 @@ string& VMTemplate::to_xml(string& xml, const Template* tmpl) const
     ostringstream   oss;
     string          template_xml;
     string          perm_str;
+    string          lock_str;
 
     oss << "<VMTEMPLATE>"
             << "<ID>"       << oid        << "</ID>"
@@ -192,6 +217,7 @@ string& VMTemplate::to_xml(string& xml, const Template* tmpl) const
             << "<UNAME>"    << uname      << "</UNAME>"
             << "<GNAME>"    << gname      << "</GNAME>"
             << "<NAME>"     << name       << "</NAME>"
+            << lock_db_to_xml(lock_str)
             << perms_to_xml(perm_str)
             << "<REGTIME>"  << regtime    << "</REGTIME>"
             << tmpl->to_xml(template_xml)
@@ -222,6 +248,7 @@ int VMTemplate::from_xml(const string& xml)
     rc += xpath(name,       "/VMTEMPLATE/NAME",    "not_found");
     rc += xpath<time_t>(regtime, "/VMTEMPLATE/REGTIME", 0);
 
+    rc += lock_db_from_xml();
     // Permissions
     rc += perms_from_xml();
 

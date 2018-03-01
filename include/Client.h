@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -76,6 +76,29 @@ public:
     static int read_oneauth(std::string &secret, std::string& error);
 
 	/**
+     *  Performs a xmlrpc call to the initialized server
+     *    @param method name
+     *    @param plist initialized param list
+     *    @param result of the xmlrpc call
+     */
+    void call(const std::string& method, const xmlrpc_c::paramList& plist,
+		 xmlrpc_c::value * const result);
+
+	/**
+     *  Performs a xmlrpc call
+     *    @param endpoint of server
+     *    @param method name
+     *    @param plist initialized param list
+     *    @param timeout (ms) for the request, set 0 for global xml_rpc timeout
+     *    @param result of the xmlrpc call
+     *    @param error string if any
+     *    @return 0
+     */
+    static int call(const std::string& endpoint, const std::string& method,
+        const xmlrpc_c::paramList& plist, unsigned int _timeout,
+        xmlrpc_c::value * const result, std::string& error);
+
+	/**
      *  Performs an xmlrpc call to the initialized server and credentials.
      *  This method automatically adds the credential argument.
      *    @param method name
@@ -87,14 +110,6 @@ public:
     void call(const std::string &method, const std::string format,
 		xmlrpc_c::value * const result, ...);
 
-	/**
-     *  Performs a xmlrpc call to the initialized server
-     *    @param method name
-     *    @param plist initialized param list
-     *    @param result of the xmlrpc call
-     */
-    void call(const std::string& method, const xmlrpc_c::paramList& plist,
-		 xmlrpc_c::value * const result);
 private:
     /**
      * Creates a new xml-rpc client with specified options.

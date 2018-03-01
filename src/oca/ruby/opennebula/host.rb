@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -223,12 +223,23 @@ module OpenNebula
             xml = OpenNebula::VirtualMachine.build_xml
             vm = OpenNebula::VirtualMachine.new(xml, @client)
 
-            rc = vm.allocate(template)
+            # vCenter wild VMs has a different process
+            # image and vnets objects representing existing nics and disks
+            # must be created and referenced
+            vcenter_wild_vm = wild.key? "VCENTER_TEMPLATE"
+            if vcenter_wild_vm
+                require 'vcenter_driver'
+                host_id = self["ID"]
+                vm_ref  = wild["DEPLOY_ID"]
+                return VCenterDriver::Importer.import_wild(host_id, vm_ref, vm, template)
+            else
+                rc = vm.allocate(template)
 
-            return rc if OpenNebula.is_error?(rc)
+                return rc if OpenNebula.is_error?(rc)
 
-            vm.deploy(id, false)
-            return vm.id
+                vm.deploy(id, false)
+                return vm.id
+            end
         end
 
         #######################################################################

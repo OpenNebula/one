@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -25,7 +25,7 @@
 class RequestManagerAllocateDB: public Request
 {
 protected:
-    RequestManagerAllocateDB(): Request("AllocateDB", "A:ss",
+    RequestManagerAllocateDB(const string& name): Request(name, "A:ss",
             "Allocates a new object from its template representation")
     {
         auth_op = AuthRequest::MANAGE;
@@ -69,7 +69,7 @@ protected:
 class MarketPlaceAppAllocateDB: public RequestManagerAllocateDB
 {
 public:
-    MarketPlaceAppAllocateDB(): RequestManagerAllocateDB()
+    MarketPlaceAppAllocateDB():RequestManagerAllocateDB("one.marketapp.allocatedb")
     {
         auth_object = PoolObjectSQL::MARKETPLACEAPP;
         pool        =  Nebula::instance().get_apppool();
@@ -95,7 +95,7 @@ public:
 class MarketPlaceAllocateDB: public RequestManagerAllocateDB
 {
 public:
-    MarketPlaceAllocateDB(): RequestManagerAllocateDB()
+    MarketPlaceAllocateDB(): RequestManagerAllocateDB("one.market.allocatedb")
     {
         auth_object = PoolObjectSQL::MARKETPLACE;
         pool        =  Nebula::instance().get_marketpool();

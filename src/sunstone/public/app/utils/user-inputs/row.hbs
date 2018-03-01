@@ -16,11 +16,12 @@
         <option value="range">        {{tr "range"}}           </option>
         <option value="range-float">  {{tr "range (float)"}}   </option>
         <option value="list">         {{tr "list"}}            </option>
+        <option value="list-multiple">{{tr "list (multiple)"}} </option>
         <option value="boolean">      {{tr "boolean"}}         </option>
       </select>
     </label>
   </td>
-  <td>
+  <td style="padding-left: 20px">
     <label>{{tr "Description"}}
       <textarea class="user_input_description"/>
     </label>
@@ -36,8 +37,8 @@
     </div>
     <div class="user_input_type_right boolean">
       <label>{{tr "Default value"}}</label>
-      <input type="radio" step="any" name="bool_{{idInput}}" class="user_input_initial" id="radio_yes" value="YES"> {{tr "YES"}}
-      <input type="radio" step="any" name="bool_{{idInput}}" class="user_input_initial" id="radio_no" value="NO"> {{tr "NO"}}
+      {{tr "YES"}} <input style="margin-right: 20px" type="radio" step="any" name="bool_{{idInput}}" class="user_input_initial" id="radio_yes" value="YES">
+      {{tr "NO"}} <input type="radio" step="any" name="bool_{{idInput}}" class="user_input_initial" id="radio_no" value="NO">
     </div>
     <div class="user_input_type_right range">
       <div class="row collapse">
@@ -73,7 +74,7 @@
         <input type="number" step="any" class="user_input_initial" placeholder="8.5"/>
       </label>
     </div>
-    <div class="user_input_type_right list">
+    <div class="user_input_type_right list list-multiple">
       <label style="display: initial;">
         {{tr "Options"}}
         {{{tip (tr "Comma-separated list of options for the drop-down select input")}}}

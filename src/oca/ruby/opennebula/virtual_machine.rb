@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-
 
 require 'opennebula/pool_element'
 
@@ -48,7 +47,9 @@ module OpenNebula
             :disksnapshotrevert => "vm.disksnapshotrevert",
             :disksnapshotdelete => "vm.disksnapshotdelete",
             :diskresize     => "vm.diskresize",
-            :updateconf     => "vm.updateconf"
+            :updateconf     => "vm.updateconf",
+            :lock     => "vm.lock",
+            :unlock     => "vm.unlock"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
@@ -215,6 +216,7 @@ module OpenNebula
         EXTERNAL_IP_ATTRS = [
             'GUEST_IP',
             'AWS_IP_ADDRESS',
+            'AWS_PUBLIC_IP_ADDRESS',
             'AWS_PRIVATE_IP_ADDRESS',
             'AZ_IPADDRESS',
             'SL_PRIMARYIPADDRESS'
@@ -323,6 +325,9 @@ module OpenNebula
             end
         end
 
+        def replace(opts = {})
+            super(opts, "USER_TEMPLATE")
+        end
 
         # Initiates the instance of the VM on the target host.
         #
@@ -341,16 +346,6 @@ module OpenNebula
             ds_id ||= -1
 
             self.info
-
-            # Add dsid as VM template parameter for vcenter
-            if ds_id!=-1 &&
-               !self["/VM/USER_TEMPLATE/PUBLIC_CLOUD/TYPE"].nil? &&
-               self["/VM/USER_TEMPLATE/PUBLIC_CLOUD/TYPE"].downcase == "vcenter"
-                ds = OpenNebula::Datastore.new_with_id(ds_id, @client)
-                rc = ds.info
-                return rc if OpenNebula.is_error?(rc)
-               self.update("VCENTER_DATASTORE=#{ds['/DATASTORE/NAME']}", true)
-            end
 
             return call(VM_METHODS[:deploy],
                         @pe_id,
@@ -696,7 +691,17 @@ module OpenNebula
         #   otherwise
 		def updateconf(new_conf)
             return call(VM_METHODS[:updateconf], @pe_id, new_conf)
-		end
+        end
+
+        # Lock a VM
+        def lock(level)
+            return call(VM_METHODS[:lock], @pe_id, level)
+        end
+
+        # Unlock a VM
+        def unlock()
+            return call(VM_METHODS[:unlock], @pe_id)
+        end
 
         ########################################################################
         # Helpers to get VirtualMachine information
@@ -744,13 +749,6 @@ module OpenNebula
             self['DEPLOY_ID']
         end
 
-        # Returns the deploy_id of the VirtualMachine (numeric value)
-        def keep_disks?
-            !self['USER_TEMPLATE/KEEP_DISKS_ON_DONE'].nil? &&
-                self['USER_TEMPLATE/KEEP_DISKS_ON_DONE'].downcase=="yes"
-        end
-
-
         # Clones the VM's source Template, replacing the disks with live snapshots
         # of the current disks. The VM capacity and NICs are also preserved
         #
@@ -760,10 +758,12 @@ module OpenNebula
         #
         # @return [Integer, OpenNebula::Error] the new Template ID in case of
         #   success, error otherwise
-        def save_as_template(name, persistent=nil)
+        REMOVE_VNET_ATTRS = %w{AR_ID BRIDGE CLUSTER_ID IP MAC TARGET NIC_ID
+            NETWORK_ID VN_MAD SECURITY_GROUPS VLAN_ID}
+
+        def save_as_template(name,description, persistent=nil)
             img_ids = []
             new_tid = nil
-
             begin
                 rc = info()
                 raise if OpenNebula.is_error?(rc)
@@ -788,7 +788,9 @@ module OpenNebula
 
                 # Replace the original template's capacity with the actual VM values
                 replace = ""
-
+                if !description.nil?
+                    replace << "DESCRIPTION = #{description}\n"
+                end
                 cpu = self['TEMPLATE/CPU']
                 if !cpu.nil? && !cpu.empty?
                     replace << "CPU = #{cpu}\n"
@@ -857,21 +859,17 @@ module OpenNebula
                 end
 
                 self.each('TEMPLATE/NIC') do |nic|
+
                     nic_id = nic["NIC_ID"]
                     if nic_id.nil? || nic_id.empty?
                         rc = Error.new('The NIC_ID is missing from the VM template')
                         raise
                     end
-
-                    net_id = nic["NETWORK_ID"]
-
-                    if !net_id.nil? && !net_id.empty?
-                        replace << "NIC = [ NETWORK_ID = #{net_id} ]\n"
-                    else
-                        # This NIC does not use a Virtual Network
-                        replace << self.template_like_str(
-                            "TEMPLATE", true, "NIC[NIC_ID=#{nic_id}]") << "\n"
+                    REMOVE_VNET_ATTRS.each do |attr|
+                        nic.delete_element(attr)
                     end
+
+                    replace << "NIC = [ " << nic.template_like_str(".").tr("\n", ",\n") << " ] \n"
                 end
 
                 # Required by the Sunstone Cloud View

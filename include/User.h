@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -95,7 +95,7 @@ public:
     {
         enabled = false;
 
-        session.reset();
+        session->reset();
 
         login_tokens.reset();
     };
@@ -137,7 +137,7 @@ public:
     int set_auth_driver(const string& _auth_driver, string& error_str)
     {
         auth_driver = _auth_driver;
-        session.reset();
+        session->reset();
 
         return 0;
     };
@@ -286,7 +286,7 @@ private:
     // *************************************************************************
     // Authentication session used to cache authentication calls
     // *************************************************************************
-    SessionToken session;
+    SessionToken * session;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -309,7 +309,7 @@ private:
     {
         ostringstream oss_user(User::db_bootstrap);
 
-        return db->exec(oss_user);
+        return db->exec_local_wr(oss_user);
     };
 
     /**
@@ -371,15 +371,13 @@ protected:
         password(_password),
         auth_driver(_auth_driver),
         enabled(_enabled),
-        groups("GROUPS")
+        groups("GROUPS"),
+        session(0)
     {
         obj_template = new UserTemplate;
     };
 
-    virtual ~User()
-    {
-        delete obj_template;
-    };
+    virtual ~User(){};
 
     // *************************************************************************
     // DataBase implementation

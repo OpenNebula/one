@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -45,7 +45,7 @@ define(function(require) {
       _actions[resource+".show"] =  _commonActions.show(),
       _actions[resource+".refresh"] =  _commonActions.refresh(),
       _actions[resource+".delete"] =  _commonActions.del(),
-      
+
       _actions[resource+".delete_dialog"] =
         {
           type: "custom",
@@ -250,9 +250,13 @@ define(function(require) {
         },
         error: Notifier.onError,
         notify: true
-      }
+      },
+      _actions[resource+".lockA"] =  _commonActions.multipleAction("lock"),
+      _actions[resource+".lockM"] =  _commonActions.multipleAction("lock"),
+      _actions[resource+".lockU"] =  _commonActions.multipleAction("lock"),
+      _actions[resource+".unlock"] =  _commonActions.multipleAction("unlock")
 
-  
+
     return _actions;
   }
 

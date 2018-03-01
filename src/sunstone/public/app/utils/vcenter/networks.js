@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -23,6 +23,7 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var UniqueId = require('utils/unique-id');
   var VCenterCommon = require('./vcenter-common');
+  var Sunstone = require('sunstone');
 
   var TemplateHTML = require('hbs!./common/html');
   var RowTemplate = require('hbs!./networks/row');
@@ -186,6 +187,23 @@ define(function(require) {
                       '</label>' +
                     '</div>';
                   break;
+                  case 'IP6_STATIC':
+                  net_form_str =
+                    '<div class="large-6 medium-6 columns end">' +
+                      '<label>' + Locale.tr("IPv6 address") +
+                        '<input type="text" class="six_static_net"/>' +
+                      '</label>' +
+                    '</div>'+'<div class="large-4 medium-6 columns end">' +
+                      '<label>' + Locale.tr("Prefix length") +
+                        '<input type="text" class="six_prefix_net"/>' +
+                      '</label>' +
+                    '</div>'+
+                    '<div class="large-6 medium-6 columns end">' +
+                      '<label>' + Locale.tr("MAC") +
+                        '<input type="text" class="eth_mac_net" placeholder="' + Locale.tr("Optional") + '"/>' +
+                      '</label>' +
+                    '</div>';
+                  break;
               }
 
               $('.net_options', row_context).html(net_form_str);
@@ -252,6 +270,21 @@ define(function(require) {
             }
 
             break;
+          case 'IP6_STATIC':
+            var mac = $('.six_mac_net', row_context).val();
+            var ip6_static = $('.six_static_net', row_context).val();
+            var prefix = $('.six_prefix_net', row_context).val();
+
+            if (mac) {
+              ar_array.push("MAC=" + mac);
+            }
+            if (ip6_static) {
+              ar_array.push("IP6=" + ip6_static);
+            }
+            if (prefix) {
+              ar_array.push("PREFIX_LENGTH=" + prefix);
+            }
+            break;
         }
 
         network_tmpl += "\nAR=["
@@ -270,22 +303,32 @@ define(function(require) {
           }
         };
 
-        OpenNebulaNetwork.create({
-          timeout: true,
-          data: vnet_json,
-          success: function(request, response) {
-            VCenterCommon.importSuccess({
-              context : row_context,
-              message : Locale.tr("Virtual Network created successfully. ID: %1$s", response.VNET.ID)
-            });
-          },
-          error: function (request, error_json) {
-            VCenterCommon.importFailure({
-              context : row_context,
-              message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
-            });
-          }
-        });
+        var one_cluster_id  = $(this).data("import_data").one_cluster_id;
+
+        if (one_cluster_id != -1){
+          OpenNebulaNetwork.create({
+            timeout: true,
+            data: vnet_json,
+            success: function(request, response) {
+              VCenterCommon.importSuccess({
+                context : row_context,
+                message : Locale.tr("Virtual Network created successfully. ID: %1$s", response.VNET.ID)
+              });
+              Sunstone.runAction("Cluster.addvnet",one_cluster_id,response.VNET.ID);
+            },
+            error: function (request, error_json) {
+              VCenterCommon.importFailure({
+                context : row_context,
+                message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
+              });
+            }
+          });
+        } else {
+          VCenterCommon.importFailure({
+            context : row_context,
+            message : Locale.tr("You need to import the associated vcenter cluster as one host first.")
+          });
+        }
       });
     });
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -126,7 +126,7 @@ class VmmAction
         end
 
         if DriverExecHelper.failed?(result)
-            info << @data[:failed_info]
+            info << ( @data[:failed_info] || "-" )
         elsif !@data["#{@main_action.to_s}_info".to_sym].nil?
             info << @data["#{@main_action.to_s}_info".to_sym]
         end
@@ -139,7 +139,7 @@ class VmmAction
     # List of xpaths required by the VNM driver actions. TEMPLATE/NIC is
     # also required but added separately to the driver xml
     XPATH_LIST = %w(
-        ID DEPLOY_ID
+        ID DEPLOY_ID TEMPLATE/CONTEXT USER_TEMPLATE
         TEMPLATE/SECURITY_GROUP_RULE
         HISTORY_RECORDS/HISTORY/HOSTNAME
         HISTORY_RECORDS/HISTORY/VM_MAD
@@ -739,7 +739,8 @@ class ExecDriver < VirtualMachineDriver
                     id,
                     host,
                     ACTION[:snapshot_create],
-                    :script_name => "snapshot_create")
+                    :script_name => "snapshot_create",
+                    :stdin => xml_data)
     end
 
     #

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -34,6 +34,8 @@ module OpenNebula
             :rename      => "vrouter.rename",
             :attachnic   => "vrouter.attachnic",
             :detachnic   => "vrouter.detachnic",
+            :lock        => "vrouter.lock",
+            :unlock      => "vrouter.unlock"
         }
 
         # Creates a VirtualRouter description with just its identifier
@@ -173,6 +175,16 @@ module OpenNebula
         #   otherwise
         def nic_detach(nic_id)
             return call(VIRTUAL_ROUTER_METHODS[:detachnic], @pe_id, nic_id)
+        end
+
+        # Lock a VRouter
+        def lock(level)
+            return call(VIRTUAL_ROUTER_METHODS[:lock], @pe_id, level)
+        end
+
+        # Unlock a VRouter
+        def unlock()
+            return call(VIRTUAL_ROUTER_METHODS[:unlock], @pe_id)
         end
 
         #######################################################################

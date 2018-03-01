@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -92,7 +92,7 @@ class TemplateDelete : public RequestManagerDelete
 {
 public:
     TemplateDelete():
-        RequestManagerDelete("TemplateDelete",
+        RequestManagerDelete("one.template.delete",
                              "A:sib"
                              "Deletes a virtual machine template")
     {
@@ -120,7 +120,7 @@ class VirtualNetworkDelete: public RequestManagerDelete
 {
 public:
     VirtualNetworkDelete():
-        RequestManagerDelete("VirtualNetworkDelete",
+        RequestManagerDelete("one.vn.delete",
                              "Deletes a virtual network")
     {
         Nebula& nd  = Nebula::instance();
@@ -152,7 +152,7 @@ class ImageDelete: public RequestManagerDelete
 {
 public:
     ImageDelete():
-        RequestManagerDelete("ImageDelete", "Deletes an image")
+        RequestManagerDelete("one.image.delete", "Deletes an image")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_ipool();
@@ -178,7 +178,7 @@ class HostDelete : public RequestManagerDelete
 {
 public:
     HostDelete():
-        RequestManagerDelete("HostDelete", "Deletes a host")
+        RequestManagerDelete("one.host.delete", "Deletes a host")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_hpool();
@@ -214,7 +214,7 @@ class GroupDelete: public RequestManagerDelete
 {
 public:
     GroupDelete():
-        RequestManagerDelete("GroupDelete", "Deletes a group")
+        RequestManagerDelete("one.group.delete", "Deletes a group")
     {
         Nebula& nd = Nebula::instance();
         pool       = nd.get_gpool();
@@ -237,7 +237,7 @@ class UserDelete: public RequestManagerDelete
 {
 public:
     UserDelete():
-        RequestManagerDelete("UserDelete", "Deletes a user")
+        RequestManagerDelete("one.user.delete", "Deletes a user")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_upool();
@@ -263,7 +263,7 @@ class DatastoreDelete: public RequestManagerDelete
 {
 public:
     DatastoreDelete():
-        RequestManagerDelete("DatastoreDelete", "Deletes a datastore")
+        RequestManagerDelete("one.datastore.delete", "Deletes a datastore")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_dspool();
@@ -293,7 +293,7 @@ class ClusterDelete: public RequestManagerDelete
 {
 public:
     ClusterDelete():
-        RequestManagerDelete("ClusterDelete", "Deletes a cluster")
+        RequestManagerDelete("one.cluster.delete", "Deletes a cluster")
     {
         Nebula& nd = Nebula::instance();
         pool       = nd.get_clpool();
@@ -315,7 +315,7 @@ class DocumentDelete : public RequestManagerDelete
 {
 public:
     DocumentDelete():
-        RequestManagerDelete("DocumentDelete",
+        RequestManagerDelete("one.document.delete",
                              "Deletes a generic document")
     {
         Nebula& nd  = Nebula::instance();
@@ -333,7 +333,7 @@ class ZoneDelete: public RequestManagerDelete
 {
 public:
     ZoneDelete():
-        RequestManagerDelete("ZoneDelete", "Deletes a zone")
+        RequestManagerDelete("one.zone.delete", "Deletes a zone")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_zonepool();
@@ -355,7 +355,7 @@ class SecurityGroupDelete : public RequestManagerDelete
 {
 public:
     SecurityGroupDelete():
-        RequestManagerDelete("SecurityGroupDelete",
+        RequestManagerDelete("one.secgroup.delete",
                              "Deletes a security group")
     {
         Nebula& nd  = Nebula::instance();
@@ -377,7 +377,7 @@ class VdcDelete: public RequestManagerDelete
 {
 public:
     VdcDelete():
-        RequestManagerDelete("VdcDelete", "Deletes a VDC")
+        RequestManagerDelete("one.vdc.delete", "Deletes a VDC")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vdcpool();
@@ -395,7 +395,7 @@ class VirtualRouterDelete : public RequestManagerDelete
 {
 public:
     VirtualRouterDelete():
-        RequestManagerDelete("VirtualRouterDelete",
+        RequestManagerDelete("one.vrouter.delete",
                              "Deletes a virtual router")
     {
         Nebula& nd  = Nebula::instance();
@@ -416,7 +416,7 @@ class MarketPlaceDelete : public RequestManagerDelete
 {
 public:
     MarketPlaceDelete():
-        RequestManagerDelete("MarketPlaceDelete",
+        RequestManagerDelete("one.market.delete",
                              "Deletes a marketplace")
     {
         Nebula& nd  = Nebula::instance();
@@ -438,7 +438,7 @@ class MarketPlaceAppDelete : public RequestManagerDelete
 {
 public:
     MarketPlaceAppDelete():
-        RequestManagerDelete("MarketPlaceAppDelete",
+        RequestManagerDelete("one.marketapp.delete",
                              "Deletes a marketplace app")
     {
         Nebula& nd  = Nebula::instance();
@@ -460,7 +460,7 @@ class VMGroupDelete : public RequestManagerDelete
 {
 public:
     VMGroupDelete():
-        RequestManagerDelete("VMGroupDelete",
+        RequestManagerDelete("one.vmgroup.delete",
                              "Deletes a vm group")
     {
         Nebula& nd  = Nebula::instance();

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -38,7 +38,7 @@ void VirtualMachineXML::init_attributes()
 
     xpath(state, "/VM/STATE", -1);
 
-    xpath(memory, "/VM/TEMPLATE/MEMORY", 0);
+    xpath<long int>(memory, "/VM/TEMPLATE/MEMORY", 0);
     xpath<float>(cpu, "/VM/TEMPLATE/CPU", 0);
 
     // ------------------------ RANK & DS_RANK ---------------------------------
@@ -204,7 +204,7 @@ ostream& operator<<(ostream& os, VirtualMachineXML& vm)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineXML::add_requirements(float c, int m, long long d)
+void VirtualMachineXML::add_requirements(float c, long int m, long long d)
 {
     cpu    += c;
     memory += m;

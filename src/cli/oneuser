@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -33,14 +33,26 @@ require 'one_helper/onequota_helper'
 
 require 'uri'
 
-cmd=CommandParser::CmdParser.new(ARGV) do
+cmd = CommandParser::CmdParser.new(ARGV) do
     usage "`oneuser` <command> [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION
 
     helper = OneUserHelper.new
 
     before_proc do
-        helper.set_client(options) if ![:key].include?(@comm_name)
+        if ![:key].include?(@comm_name)
+            begin
+                helper.set_client(options)
+            rescue Exception => e
+                STDERR.puts e.message
+
+                if e.message != OpenNebula::Client::NO_ONE_AUTH_ERROR
+                    STDERR.puts e.backtrace
+                end
+
+                exit 1
+            end
+        end
     end
 
     ########################################################################

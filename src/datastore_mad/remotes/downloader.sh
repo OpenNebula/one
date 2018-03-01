@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -28,6 +28,12 @@ fi
 
 DRIVER_PATH=$(dirname $0)
 
+# Escape single quotes
+function esc_sq
+{
+    echo "$1" | sed -e "s/'/'\\\''/g"
+}
+
 # Execute a command (first parameter) and use the first kb of stdout
 # to determine the file type
 function get_type
@@ -37,7 +43,7 @@ function get_type
     else
         command=$1
 
-        ( $command | head -n 1024 | file -b --mime-type - ) 2>/dev/null
+        ( eval "$command" | head -n 1024 | file -b --mime-type - ) 2>/dev/null
     fi
 }
 
@@ -51,7 +57,10 @@ function get_decompressor
         echo "gunzip -c -"
         ;;
     "application/x-bzip2")
-        echo "bunzip2 -c -"
+        echo "bunzip2 -qc -"
+        ;;
+    "application/x-xz")
+        echo "unxz -c -"
         ;;
     *)
         echo "cat"
@@ -151,8 +160,8 @@ function s3_curl_args
     FROM="$1"
 
     ENDPOINT=${S3_ENDPOINT:-https://s3.amazonaws.com}
-    OBJECT=$(basename $FROM)
-    BUCKET=$(basename $(dirname $FROM))
+    OBJECT=$(basename "$FROM")
+    BUCKET=$(basename $(dirname "$FROM"))
 
     DATE="`date -u +'%a, %d %b %Y %H:%M:%S GMT'`"
     AUTH_STRING="GET\n\n\n${DATE}\n/${BUCKET}/${OBJECT}"
@@ -163,7 +172,7 @@ function s3_curl_args
 
     echo " -H \"Date: ${DATE}\"" \
          " -H \"Authorization: AWS ${S3_ACCESS_KEY_ID}:${SIGNED_AUTH_STRING}\"" \
-         " ${ENDPOINT}/${BUCKET}/${OBJECT}"
+         " '$(esc_sq "${ENDPOINT}/${BUCKET}/${OBJECT}")'"
 }
 
 function get_rbd_cmd
@@ -176,12 +185,13 @@ function get_rbd_cmd
 
     while IFS= read -r -d '' element; do
         URL_ELEMENTS[i++]="$element"
-    done < <($URL_RB    $FROM \
+    done < <($URL_RB    "$FROM" \
                         USER \
                         HOST \
                         SOURCE \
                         PARAM_DS \
                         PARAM_CEPH_USER \
+                        PARAM_CEPH_KEY \
                         PARAM_CEPH_CONF)
 
     USER="${URL_ELEMENTS[j++]}"
@@ -189,6 +199,7 @@ function get_rbd_cmd
     SOURCE="${URL_ELEMENTS[j++]}"
     DS="${URL_ELEMENTS[j++]}"
     CEPH_USER="${URL_ELEMENTS[j++]}"
+    CEPH_KEY="${URL_ELEMENTS[j++]}"
     CEPH_CONF="${URL_ELEMENTS[j++]}"
 
     # Remove leading '/'
@@ -199,17 +210,21 @@ function get_rbd_cmd
     fi
 
     if [ -n "$CEPH_USER" ]; then
-        RBD="$RBD --id ${CEPH_USER}"
+        RBD="$RBD --id '$(esc_sq "${CEPH_USER}")'"
+    fi
+
+    if [ -n "$CEPH_KEY" ]; then
+        RBD="$RBD --keyfile '$(esc_sq "${CEPH_KEY}")'"
     fi
 
     if [ -n "$CEPH_CONF" ]; then
-        RBD="$RBD --conf ${CEPH_CONF}"
+        RBD="$RBD --conf '$(esc_sq "${CEPH_CONF}")'"
     fi
 
-    echo "ssh $DST_HOST $RBD export $SOURCE -"
+    echo "ssh '$(esc_sq "$DST_HOST")' \"$RBD export '$(esc_sq "$SOURCE")' -\""
 }
 
-TEMP=`getopt -o m:s:l:n -l md5:,sha1:,limit:,nodecomp -- "$@"`
+TEMP=`getopt -o m:s:l:c:n -l md5:,sha1:,limit:,max-size:,nodecomp -- "$@"`
 
 if [ $? != 0 ] ; then
     echo "Arguments error"
@@ -238,6 +253,10 @@ while true; do
             export LIMIT_RATE="$2"
             shift 2
             ;;
+        -c|--max-size)
+            export MAX_SIZE="$2"
+            shift 2
+            ;;
         --)
             shift
             break
@@ -251,8 +270,13 @@ done
 FROM="$1"
 TO="$2"
 
-# File used by the hasher function to store the resulting hash
-export HASH_FILE="/tmp/downloader.hash.$$"
+if [ -n "${HASH_TYPE}" -a -n "${MAX_SIZE}" ]; then
+    echo "Hash check not supported for partial downloads" >&2
+    exit -1
+else
+    # File used by the hasher function to store the resulting hash
+    export HASH_FILE="/tmp/downloader.hash.$$"
+fi
 
 GLOBAL_CURL_ARGS="--fail -sS -k -L"
 
@@ -262,7 +286,7 @@ http://*|https://*)
     # -L  to follow redirects
     # -sS to hide output except on failure
     # --limit_rate to limit the bw
-    curl_args="$GLOBAL_CURL_ARGS $FROM"
+    curl_args="$GLOBAL_CURL_ARGS '$(esc_sq "${FROM}")'"
 
     if [ -n "$LIMIT_RATE" ]; then
         curl_args="--limit-rate $LIMIT_RATE $curl_args"
@@ -276,7 +300,7 @@ ssh://*)
     ssh_src=${FROM#ssh://}
     ssh_arg=(${ssh_src/:/ })
 
-    rmt_cmd="'cat ${ssh_arg[1]}'"
+    rmt_cmd="\"cat '$(esc_sq "${ssh_arg[1]}")'\""
 
     command="ssh ${ssh_arg[0]} $rmt_cmd"
     ;;
@@ -290,33 +314,70 @@ s3://*)
         exit -1
     fi
 
-    curl_args="$(s3_curl_args $FROM)"
+    curl_args="$(s3_curl_args "$FROM")"
 
     command="curl $GLOBAL_CURL_ARGS $curl_args"
     ;;
 rbd://*)
-    command="$(get_rbd_cmd $FROM)"
+    command="$(get_rbd_cmd "$FROM")"
     ;;
 vcenter://*)
-    command="$VAR_LOCATION/remotes/datastore/vcenter_downloader.rb \"$FROM\""
+    command="$VAR_LOCATION/remotes/datastore/vcenter_downloader.rb '$(esc_sq "$FROM")'"
     ;;
 *)
     if [ ! -r $FROM ]; then
         echo "Cannot read from $FROM" >&2
         exit -1
     fi
-    command="cat $FROM"
+    command="cat '$(esc_sq "$FROM")'"
     ;;
 esac
 
 file_type=$(get_type "$command")
 decompressor=$(get_decompressor "$file_type")
 
-eval "$command" | tee >( hasher $HASH_TYPE) | decompress "$decompressor" "$TO"
+if [ -z "${MAX_SIZE}" ]; then
+    eval "$command" | \
+        tee >( hasher $HASH_TYPE) | \
+        decompress "$decompressor" "$TO"
 
-if [ "$?" != "0" -o "$PIPESTATUS" != "0" ]; then
-    echo "Error copying" >&2
-    exit -1
+    if [ "$?" != "0" -o "$PIPESTATUS" != "0" ]; then
+        echo "Error copying" >&2
+        exit -1
+    fi
+else
+    # Order of the 'head' command is here on purpose:
+    # 1. We want to download more bytes than needed to get a requested
+    #    number of bytes on the output. Decompressor may need more
+    #    data to decompress the stream.
+    # 2. Decompressor command is also misused to detect SIGPIPE error.
+    eval "$command" | \
+        decompress "$decompressor" "$TO" 2>/dev/null | \
+        head -c "${MAX_SIZE}"
+
+    # Following table shows exit codes of each command
+    # in the pipe for various scenarios:
+    #
+    # ----------------------------------------------------
+    # | $COMMAND | TYPE          | PIPESTATUS | BEHAVIOUR
+    # ----------------------------------------------------
+    # | cat      | partial       | 141 141  0 | OK
+    # | cat      | full          |   0   0  0 | OK
+    # | cat      | error         |   1   0  0 | fail
+    # | curl     | partial       |  23 141  0 | OK
+    # | curl     | full          |   0   0  0 | OK
+    # | curl     | error         |  22   0  0 | fail
+    # | ssh      | partial       | 255 141  0 | OK
+    # | ssh      | full          |   0   0  0 | OK
+    # | ssh      | error ssh     | 255   0  0 | fail
+    # | ssh      | error ssh cat |   1   0  0 | fail
+    if [ \( "${PIPESTATUS[0]}" != '0' -a "${PIPESTATUS[1]}" = '0' \) \
+         -o \( "${PIPESTATUS[1]}" != '0' -a "${PIPESTATUS[1]}" != '141' \) \
+         -o \( "${PIPESTATUS[2]}" != "0" \) ];
+    then
+        echo "Error copying" >&2
+        exit -1
+    fi
 fi
 
 if [ -n "$HASH_TYPE" ]; then
@@ -332,4 +393,3 @@ fi
 if [ "$TO" != "-" ]; then
     unarchive "$TO"
 fi
-

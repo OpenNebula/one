@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -23,29 +23,8 @@
 /* -------------------------------------------------------------------------- */
 
 const size_t ListenerThread::MESSAGE_SIZE = 100000;
-const size_t ListenerThread::BUFFER_SIZE  = 100;
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void ListenerThread::flush_buffer(int fd)
-{
-    lock();
-
-    std::vector<std::string>::iterator it;
-
-    for(it = monitor_data.begin() ; it != monitor_data.end(); ++it)
-    {
-        size_t size = (*it).size();
-        const char * message = (*it).c_str();
-
-        write(fd, message, size);
-    }
-
-    monitor_data.clear();
-
-    unlock();
-}
+pthread_mutex_t ListenerThread::mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -64,11 +43,9 @@ void ListenerThread::monitor_loop()
 
         if (rc > 0 && rc < MESSAGE_SIZE)
         {
-            std::string message(buffer, rc);
-
             lock();
 
-            monitor_data.push_back(message);
+            write(fd, buffer, rc);
 
             unlock();
         }
@@ -126,12 +103,3 @@ void ListenerPool::start_pool()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void ListenerPool::flush_pool()
-{
-    std::vector<ListenerThread>::iterator it;
-
-    for(it = listeners.begin() ; it != listeners.end(); ++it)
-    {
-        (*it).flush_buffer(out_fd);
-    }
-}

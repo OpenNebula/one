@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -190,7 +190,7 @@ int MarketPlaceAppPool::drop(PoolObjectSQL * objsql, std::string& error_msg)
 /* -------------------------------------------------------------------------- */
 
 int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
-        const std::string& mp_name, std::string& error_str)
+        const std::string& mp_name, int& app_id, std::string& error_str)
 {
     // -------------------------------------------------------------------------
     // Build the marketplace app object
@@ -229,6 +229,8 @@ int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
 
     if( mp_aux != 0 ) //Marketplace app already imported
     {
+        app_id = mp_aux->oid;
+
         if ( mp_aux->version != app->version || mp_aux->md5 != app->md5 )
         {
             mp_aux->from_template64(t64, error_str);
@@ -248,15 +250,17 @@ int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
     // -------------------------------------------------------------------------
     if (Nebula::instance().is_federation_slave())
     {
-        int oid = master_allocate(app, error_str);
+        app_id = master_allocate(app, error_str);
 
         app->lock();
         delete app;
 
-        return oid;
+        return app_id;
     }
 
-    return PoolSQL::allocate(app, error_str);
+    app_id = PoolSQL::allocate(app, error_str);
+
+    return app_id;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -308,4 +312,39 @@ int MarketPlaceAppPool::update(PoolObjectSQL * objsql)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+const int MarketPlaceAppPool::MAX_MISSING_MONITORS = 3;
 
+bool MarketPlaceAppPool::test_map_check(int app_id)
+{
+    map<int, int>::iterator it = map_check.find(app_id);
+
+    if ( it == map_check.end() )
+    {
+        return false;
+    }
+
+    it->second++;
+
+    bool to_delete = it->second >= MAX_MISSING_MONITORS;
+
+    if ( to_delete )
+    {
+        map_check.erase(it); 
+    }
+
+    return to_delete;
+}
+
+void MarketPlaceAppPool::reset_map_check(int app_id)
+{
+    map<int, int>::iterator it = map_check.find(app_id);
+
+    if ( it == map_check.end() )
+    {
+        map_check.insert(make_pair(app_id, -1));
+    }
+    else
+    {
+        it->second = -1;
+    }
+}

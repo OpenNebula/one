@@ -4,7 +4,8 @@
 *.DS_Store
 .xmlrpc_test/
 .sconsign.dblite
-share/man/*.gz
+share/man/*
+!share/man/build.sh
 src/im_mad/collectd/collectd
 src/scheduler/src/sched/.xmlrpc_test/
 src/scheduler/src/sched/mm_sched
@@ -15,8 +16,10 @@ src/nebula/oned
 share/doc/one/html
 
 *.class
+src/oca/java/bin
 src/oca/java/jar
 src/oca/java/share/doc
+src/oca/java/java-oca*.tar.gz
 
 src/sunstone/public/.sass-cache
 src/sunstone/public/node_modules
@@ -26,3 +29,6 @@ src/sunstone/public/css/app.min.css
 src/sunstone/public/dist/
 src/sunstone/public/locale/languages/*.js
 .tx/config
+
+share/esx-fw-vnc/*.rpm
+share/esx-fw-vnc/.vagrant*

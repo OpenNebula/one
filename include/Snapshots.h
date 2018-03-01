@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -45,7 +45,7 @@ class VectorAttribute;
 class Snapshots
 {
 public:
-    Snapshots(int _disk_id);
+    Snapshots(int _disk_id, bool orphans);
 
     Snapshots(const Snapshots& s);
 
@@ -231,6 +231,11 @@ private:
      * Id of the disk associated with this snapshot list
      */
     int disk_id;
+
+    /**
+     * Allow to remove parent snapshots and active one
+     */
+    bool orphans;
 
     /**
      * Snapshot pointer map

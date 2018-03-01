@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -33,6 +33,7 @@ require 'yaml'
 require 'rubygems'
 require 'azure'
 require 'uri'
+require 'tempfile'
 
 $: << RUBY_LIB_LOCATION
 
@@ -135,6 +136,7 @@ class AzureDriver
     # Azure constructor, loads credentials and endpoint
     def initialize(host)
         @host = host
+        @to_inst ={}
 
         @public_cloud_az_conf  = YAML::load(File.read(AZ_DRIVER_CONF))
 
@@ -143,67 +145,115 @@ class AzureDriver
         end
 
         @instance_types = @public_cloud_az_conf['instance_types']
+        @instance_types.keys.each{ |key|
+            @to_inst[key.upcase] = key
+        }
 
-        regions = @public_cloud_az_conf['regions']
-        @region = regions[host] || regions["default"]
+        certificate = Tempfile.new("certificate")
+        conn_opts = get_connect_info(host)
+
+        access_id     = conn_opts[:id]
+        endpoint_addr = conn_opts[:endpoint]
+        @region_name   = conn_opts[:region]
+        certificate << conn_opts[:cert]
+
+        certificate.close
 
         # Sanitize region data
-        if @region['pem_management_cert'].nil?
+        if certificate.nil?
             raise "pem_management_cert not defined for #{host}"
         end
 
-        if @region['subscription_id'].nil?
+        if access_id.nil?
             raise "subscription_id not defined for #{host}"
         end
 
         # Set default endpoint if not declared
-        if @region['management_endpoint'].nil?
-           @region['management_endpoint']="https://management.core.windows.net"
+        if endpoint_addr.nil?
+            endpoint_addr="https://management.core.windows.net"
         end
+        ###################################################################
 
         Azure.configure do |config|
-          config.management_certificate = @region['pem_management_cert']
-          config.subscription_id        = @region['subscription_id']
-          config.management_endpoint    = @region['management_endpoint']
+          config.management_certificate = certificate.path
+          config.subscription_id        = access_id
+          config.management_endpoint    = endpoint_addr
         end
+
+		certificate.unlink    # deletes the temp file
 
         @azure_vms = Azure::VirtualMachineManagementService.new
     end
 
+    def get_host_info(client)
+        pool = OpenNebula::HostPool.new(client)
+        pool.info
+        objects=pool.select {|object| object.name==@host }
+
+        objects.first
+    end
+
+    # Check the current template to retrieve
+    # conection info needed for Azure
+    def get_connect_info(host)
+        conn_opts={}
+        client   = OpenNebula::Client.new
+        xmlhost = get_host_info(client)
+
+        system = OpenNebula::System.new(client)
+        config = system.get_configuration
+        raise "Error getting oned configuration : #{config.message}" if OpenNebula.is_error?(config)
+
+        token = config["ONE_KEY"]
+
+        conn_opts = {
+            :cert => xmlhost["TEMPLATE/AZ_CERT"],
+            :id   => xmlhost["TEMPLATE/AZ_ID"]
+        }
+        #conn_opts = OpenNebula.encrypt(conn_opts, token)
+        conn_opts = OpenNebula.decrypt(conn_opts, token)
+
+        conn_opts[:region] = xmlhost["TEMPLATE/REGION_NAME"]
+        conn_opts[:endpoint] = xmlhost["TEMPLATE/AZ_ENDPOINT"]
+
+
+        return conn_opts
+    end
+
     # DEPLOY action
     def deploy(id, host, xml_text, lcm_state, deploy_id)
-      if lcm_state == "BOOT" || lcm_state == "BOOT_FAILURE"
-        load_default_template_values
+        if lcm_state == "BOOT" || lcm_state == "BOOT_FAILURE"
+            load_default_template_values
 
-        az_info = get_deployment_info(host, xml_text)
+            az_info = get_deployment_info(host, xml_text)
 
-        if !az_value(az_info, 'IMAGE')
-            raise "Cannot find IMAGE in deployment file"
-        end
+            if !az_value(az_info, 'IMAGE')
+                raise "Cannot find IMAGE in deployment file"
+            end
 
-        csn = az_value(az_info, 'CLOUD_SERVICE')
+            csn = az_value(az_info, 'CLOUD_SERVICE')
 
-        csn = "csn#{id}" if !csn
+            csn = "csn#{id}" if !csn
 
-        create_params  = create_params(id,csn,az_info)
-        create_options = create_options(id,csn,az_info)
-        instance       = nil
+            create_params  = create_params(id,csn,az_info)
+            create_options = create_options(id,csn,az_info)
+            instance       = nil
 
-        in_silence do
-          instance = @azure_vms.create_virtual_machine(create_params,
-                                                       create_options)
-        end
+            in_silence do
+              instance = @azure_vms.create_virtual_machine(create_params,
+                                                           create_options)
+            end
 
 
-        if instance.class == Azure::VirtualMachineManagement::VirtualMachine
-            puts(instance.vm_name)
+            if instance.class == Azure::VirtualMachineManagement::VirtualMachine
+                puts(instance.vm_name)
+            else
+                raise "Deployment failure " + instance
+            end
         else
-            raise "Deployment failure " + instance
+            restore(deploy_id)
+            deploy_id
         end
-      else
-        restore(deploy_id)
-        deploy_id
-      end
     end
 
     # Shutdown an Azure instance
@@ -248,12 +298,19 @@ class AzureDriver
     def monitor_all_vms
         totalmemory = 0
         totalcpu    = 0
-        @region['capacity'].each { |name, size|
-            cpu, mem = instance_type_capacity(name)
 
-            totalmemory += mem * size.to_i
-            totalcpu    += cpu * size.to_i
-        }
+        host_obj=get_host_info(OpenNebula::Client.new)
+        capacity = host_obj.to_hash["HOST"]["TEMPLATE"]["CAPACITY"]
+        if !capacity.nil? && Hash === capacity
+            capacity.each{ |name, value|
+                cpu, mem = instance_type_capacity(name)
+
+                totalmemory += mem * value.to_i
+                totalcpu    += cpu * value.to_i
+            }
+        else
+            raise "you must define CAPACITY section properly! check the template"
+        end
 
         host_info =  "HYPERVISOR=AZURE\n"
         host_info << "PUBLIC_CLOUD=YES\n"
@@ -295,7 +352,7 @@ class AzureDriver
                 usedcpu    += cpu
                 usedmemory += mem
             end
-          rescue 
+          rescue
             next
           end
         end
@@ -314,115 +371,101 @@ private
     # Get the associated capacity of the instance_type as cpu (in 100 percent
     # e.g. 800 for 8 cores) and memory (in KB)
     def instance_type_capacity(name)
-        return 0, 0 if @instance_types[name].nil?
-        return (@instance_types[name]['cpu'].to_f * 100).to_i ,
-               (@instance_types[name]['memory'].to_f * 1024 * 1024).to_i
+        resource = @instance_types[@to_inst[name]] || @instance_types[name]
+        return 0, 0 if resource.nil?
+        return (resource['cpu'].to_f * 100).to_i ,
+               (resource['memory'].to_f * 1024 * 1024).to_i
     end
 
     # Get the Azure section of the template. If more than one Azure section
     # the LOCATION element is used and matched with the host
     def get_deployment_info(host, xml_text)
         xml = REXML::Document.new xml_text
-
         az = nil
-
         all_az_elements = xml.root.get_elements("//USER_TEMPLATE/PUBLIC_CLOUD")
 
-        # First, let's see if we have an Azure location that matches
-        # our host name
+        # Look for an azure location
+        # if we find the same LOCATION as @region name
+        # means that we have the final location
         all_az_elements.each { |element|
-            cloud_host = element.elements["LOCATION"]
-            type       = element.elements["TYPE"].text
+            type = element.elements["TYPE"].text.downcase
+            location = element.elements["LOCATION"].text.downcase rescue nil
 
-            next if !type.downcase.eql? "azure"
+            next if type  != "azure"
 
-            if cloud_host and cloud_host.text.upcase.eql? host.upcase
+            if location.nil?
                 az = element
+            elsif location && location == @region_name.downcase
+                az = element
+                break
             end
         }
 
+        # If we don't find an Azure location raise an error
         if !az
-              # If we don't find an Azure location, and ONE just
-              # knows about one Azure location, let's use that
-              if all_az_elements.size == 1 and
-                 all_az_elements[0].elements["TYPE"].text.downcase.eql? "azure"
-                  az = all_az_elements[0]
-              else
-                  STDERR.puts(
-                      "Cannot find Azure element in VM template "<<
-                      "or couldn't find any Azure location matching "<<
-                      "one of the templates.")
-                  exit(-1)
-              end
-          end
+            raise "Cannot find Azure element in VM template "<<
+                  "or couldn't find any Azure location matching "<<
+                  "one of the templates."
+        end
 
-         # If LOCATION not explicitly defined, try to get default, if not
-          # try to use hostname as datacenter
-          if !az.elements["LOCATION"]
+        # If LOCATION not explicitly defined, try to get from host, if not
+        # try to use hostname as datacenter
+        if !az.elements["LOCATION"]
             location=REXML::Element.new("LOCATION")
-            if @defaults["LOCATION"]
-              location.text=@defaults["LOCATION"]
-            else
-              location.text=host
-            end
+            location.text = @region_name || @defaults["LOCATION"] || host
             az.elements << location
-          end
+        end
 
-          # Translate region name form keyword to actual value
-          region_keyword = az.elements["LOCATION"].text
-          translated_region = @public_cloud_az_conf["regions"][region_keyword]
-          az.elements["LOCATION"].text=translated_region["region_name"]
-
-          az
+        az
     end
 
     # Retrive the vm information from the Azure instance
     def parse_poll(instance)
-      begin
-        info =  "#{POLL_ATTRIBUTE[:memory]}=0 " \
-                "#{POLL_ATTRIBUTE[:cpu]}=0 " \
-                "#{POLL_ATTRIBUTE[:nettx]}=0 " \
-                "#{POLL_ATTRIBUTE[:netrx]}=0 "
+        begin
+            info =  "#{POLL_ATTRIBUTE[:memory]}=0 " \
+                    "#{POLL_ATTRIBUTE[:cpu]}=0 " \
+                    "#{POLL_ATTRIBUTE[:nettx]}=0 " \
+                    "#{POLL_ATTRIBUTE[:netrx]}=0 "
 
-        state = ""
-        if !instance
-            state = VM_STATE[:deleted]
-        else
-            state = case instance.deployment_status
-            when "Running", "Starting"
-                VM_STATE[:active]
-            when "Suspended", "Stopping",
-                VM_STATE[:paused]
+            state = ""
+            if !instance
+                state = VM_STATE[:deleted]
             else
-                VM_STATE[:unknown]
-            end
-        end
-        info << "#{POLL_ATTRIBUTE[:state]}=#{state} "
-
-        AZ_POLL_ATTRS.map { |key|
-            value = instance.send(key)
-            if !value.nil? && !value.empty?
-                if key.to_s.upcase == "TCP_ENDPOINTS" or
-                   key.to_s.upcase == "UDP_ENDPOINTS"
-                    value_str = format_endpoints(value)
-                elsif value.kind_of?(Hash)
-                    value_str = value.inspect
+                state = case instance.deployment_status
+                when "Running", "Starting"
+                    VM_STATE[:active]
+                when "Suspended", "Stopping",
+                    VM_STATE[:paused]
                 else
-                    value_str = value
+                    VM_STATE[:unknown]
                 end
-
-                info << "AZ_#{key.to_s.upcase}="
-                info << "\\\"#{value_str.gsub("\"","")}\\\" "
-
             end
-        }
+            info << "#{POLL_ATTRIBUTE[:state]}=#{state} "
 
-        info
-      rescue
-        # Unknown state if exception occurs retrieving information from
-        # an instance
-        "#{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:unknown]} "
-      end
+            AZ_POLL_ATTRS.map { |key|
+                value = instance.send(key)
+                if !value.nil? && !value.empty?
+                    if key.to_s.upcase == "TCP_ENDPOINTS" or
+                        key.to_s.upcase == "UDP_ENDPOINTS"
+                        value_str = format_endpoints(value)
+                    elsif value.kind_of?(Hash)
+                        value_str = value.inspect
+                    else
+                        value_str = value
+                    end
+
+                    info << "AZ_#{key.to_s.upcase}="
+                    info << "\\\"#{value_str.gsub("\"","")}\\\" "
+
+                end
+            }
+
+            info
+        rescue
+            # Unknown state if exception occurs retrieving information from
+            # an instance
+            "#{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:unknown]} "
+        end
     end
 
     def format_endpoints(endpoints)
@@ -551,10 +594,9 @@ private
     # Retrieve the instance from Azure. If OpenNebula asks for it, then the
     # vm_name must comply with the notation name_csn
     def get_instance(deploy_id)
-        vm_name = deploy_id.match(/([^_]+)-(.+)/)[1]
         csn     = deploy_id.match(/([^_]+)-(.+)/)[-1]
 
-        instance = @azure_vms.get_virtual_machine(vm_name,csn)
+        instance = @azure_vms.get_virtual_machine(deploy_id,csn)
         if instance
             return instance
         else

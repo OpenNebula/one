@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,6 +19,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var TemplatesTable = require('tabs/templates-tab/datatable');
+  var TemplateUtils = require('utils/template-utils');
 
   var TemplateHTML = require('hbs!./role-tab/html');
   var TemplateElasticityRowHTML = require('hbs!./role-tab/elasticity-row');
@@ -55,6 +56,7 @@ define(function(require) {
   }
 
   function _setup_role_tab_content(role_section) {
+    this.role_section = role_section;
     var that = this;
 
     Tips.setup(role_section);
@@ -96,13 +98,22 @@ define(function(require) {
     $("#tf_btn_elas_policies", role_section).trigger("click");
     $("#tf_btn_sche_policies", role_section).trigger("click");
 
-    role_section.on("change", ".service_network_checkbox", function(){
-      var vm_template_contents = "";
-      $(".service_network_checkbox:checked", role_section).each(function(){
-        vm_template_contents += "NIC=[NETWORK_ID=\"$"+$(this).val()+"\"]\n";
-      });
+    role_section.on("change", ".service_network_checkbox", role_section, function(){
+      var vm_template_contents = {};
+      vm_template_contents["NIC"] = [];
+      var old_template = $(".vm_template_contents", role_section).val();
 
-      $(".vm_template_contents", role_section).val(vm_template_contents);
+      $(".service_network_checkbox:checked", role_section).each(function(){
+        vm_template_contents["NIC"].push({"NETWORK_ID":"$"+$(this).val()});
+      });
+      
+      if(old_template != ""){
+        var template = TemplateUtils.stringToTemplate(old_template);
+        template["NIC"] = vm_template_contents["NIC"];
+        $(".vm_template_contents", role_section).val(TemplateUtils.templateToString(template));
+        return false;
+      }
+      $(".vm_template_contents", role_section).val(TemplateUtils.templateToString(vm_template_contents));
     });
   }
 
@@ -189,6 +200,8 @@ define(function(require) {
     this.templatesTable.selectResourceTableSelect({ids : value.vm_template});
 
     if (value.vm_template_contents){
+      $(".vm_template_contents", context).val(value.vm_template_contents);
+
       $(network_names).each(function(){
         var reg = new RegExp("\\$"+this+"\\b");
 
@@ -196,8 +209,6 @@ define(function(require) {
           $(".service_network_checkbox[value='"+this+"']", context).attr('checked', true).change();
         }
       });
-
-      $(".vm_template_contents", context).val(value.vm_template_contents);
     }
 
     $("select[name='shutdown_action_role']", context).val(value.shutdown_action);

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -28,6 +28,7 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var LabelsUtils = require('utils/labels/utils');
   var SearchDropdown = require('hbs!./datatable/search');
+  var Status = require('utils/status');
 
   /*
     CONSTANTS
@@ -58,15 +59,17 @@ define(function(require) {
           {"bSortable": false, "aTargets": ["check"]},
           {"sWidth": "35px", "aTargets": [0]},
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(tabId)},
-          {"bVisible": false, "aTargets": ['_all']}
+          {"bVisible": false, "aTargets": ['_all']},
+          {"sType": "date-euro", "aTargets": [ 5 ]},
+          {"sType": "num", "aTargets": [1]}
       ]
     }
 
     this.columns = [
-      Locale.tr("ID") ,
-      Locale.tr("Owner") ,
-      Locale.tr("Group"),
+      Locale.tr("ID"),
       Locale.tr("Name"),
+      Locale.tr("Owner"),
+      Locale.tr("Group"),
       Locale.tr("Registration time"),
       Locale.tr("Labels"),
       "search_data"
@@ -74,7 +77,7 @@ define(function(require) {
 
     this.selectOptions = {
       "id_index": 1,
-      "name_index": 4,
+      "name_index": 2,
       "select_resource": Locale.tr("Please select a Template from the list"),
       "you_selected": Locale.tr("You selected the following Template:"),
       "select_resource_multiple": Locale.tr("Please select one or more Templates from the list"),
@@ -110,15 +113,18 @@ define(function(require) {
       REGTIME_BEFORE: element.REGTIME
     }
 
+    var color_html = Status.state_lock_to_color("TEMPLATE",false, element_json[this.xmlRoot.toUpperCase()]["LOCK"]);
+
     return [
-        '<input class="check_item" type="checkbox" id="' + this.resource.toLowerCase() + '_' +
-                             element.ID + '" name="selected_items" value="' +
-                             element.ID + '"/>',
+      '<input class="check_item" type="checkbox" '+
+                          'style="vertical-align: inherit;" id="'+this.resource.toLowerCase()+'_' +
+                           element.ID + '" name="selected_items" value="' +
+                           element.ID + '"/>'+color_html,
         element.ID,
+        element.NAME,
         element.UNAME,
         element.GNAME,
-        element.NAME,
-        Humanize.prettyTime(element.REGTIME),
+        Humanize.prettyTimeDatatable(element.REGTIME),
         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
         btoa(unescape(encodeURIComponent(JSON.stringify(search))))
     ];

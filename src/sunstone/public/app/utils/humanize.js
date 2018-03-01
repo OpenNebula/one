@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,6 +17,50 @@
 define(function(require) {
   var Locale = require('utils/locale');
   var TemplateUtils = require('utils/template-utils');
+  var resource_states = {
+    IMAGES:{
+      CLONE:"#4DBBD3",
+      INIT:"#4DBBD3",
+      READY:"#3adb76",
+      USED:"#3adb76",
+      ERROR:"#ec5840",
+      DELETE:"#ec5840",
+      LOCKED:"lightsalmon",
+      DISABLED:"lightsalmon"
+    },
+    HOST:{
+      INIT:"#4DBBD3",
+      ON:"#3adb76",
+      OFF:"#ec5840",
+      DISABLED:"lightsalmon"
+    },
+    DATASTORE:{
+      INIT:"#4DBBD3",
+      READY:"#3adb76",
+      DISABLED:"lightsalmon"
+    },
+    MARKETPLACEAPP:{
+      INIT:"#4DBBD3",
+      READY:"#3adb76",
+      LOCKED:"lightsalmon",
+      ERROR:"#ec5840",
+      DISABLED:"lightsalmon"
+    },
+    VM:{
+      INIT:"#4DBBD3",
+      PENDING:"#4DBBD3",
+      HOLD:"lightsalmon",
+      ACTIVE:"#3adb76",
+      STOPPED:"lightsalmon",
+      SUSPENDED:"lightsalmon",
+      DONE:"#ec5840",
+      FAILED:"#ec5840",
+      POWEROFF:"lightsalmon",
+      UNDEPLOYED:"lightsalmon",
+      CLONING:"#4DBBD3",
+      CLONING_FAILURE:"#ec5840"
+    }
+  };
 
   /*
     CONSTRUCTOR
@@ -27,12 +71,16 @@ define(function(require) {
     'sizeFromB': _sizeFromB,
     'sizeFromKB': _sizeFromKB,
     'sizeFromMB': _sizeFromMB,
+    'sizeFromMBArray': _sizeFromMBArray,
     'sizeToMB': _sizeToMB,
     'prettyDuration': _prettyDuration,
     'prettyTime': _prettyTime,
     'prettyTimeAxis': _prettyTimeAxis,
     'prettyPrintJSON': _prettyPrintJSON,
-    'prettyTimeAgo': _format_date
+    'prettyTimeAgo': _format_date,
+    'prettyTimeDatatable': _prettyTimeDatatable,
+    'lock_to_str': _lock_to_str,
+    'state_lock_to_color': _state_lock_to_color
   }
 
   /*
@@ -96,16 +144,36 @@ define(function(require) {
     return st;
   }
 
+  function _sizeFromMBArray(value) {
+    if (typeof(value) === "undefined") {
+      value = 0;
+    }
+    var binarySufix =  ["MB", "GB", "TB"];
+    var i = 0;
+    while (value >= 1024 && i < 2) {
+      value = value / 1024;
+      i++;
+    }
+    value = Math.round(value * 10) / 10;
+
+    if (value - Math.round(value) == 0) {
+      value = Math.round(value);
+    }
+
+    var st = [value, binarySufix[i]];
+    return st;
+  }
+
   function _sizeToMB(value){
     var split = value.split("B");
     var factor = split[0].slice(-1);
     var number = parseFloat(split[0]);
     if(factor=="K")
-      number = number * 1024;
+      number = number / 1024;
     else if(factor=="G")
-      number = number * 1024 * 1024;
+      number = number * 1024;
     else if(factor=="T")
-      number = number * 1024 * 1024 * 1024;
+      number = number * 1024 * 1024;
     return number;
   }
 
@@ -240,6 +308,20 @@ define(function(require) {
     return str;
   }
 
+  function _prettyTimeDatatable(seconds) {
+    var d = new Date();
+    d.setTime(seconds * 1000);
+
+    var secs = _pad(d.getSeconds(), 2);
+    var hour = _pad(d.getHours(), 2);
+    var mins = _pad(d.getMinutes(), 2);
+    var day = _pad(d.getDate(), 2);
+    var month = _pad(d.getMonth() + 1, 2); //getMonths returns 0-11
+    var year = d.getFullYear();
+
+    return day + "/" + month + "/" + year + " " + hour + ":" + mins + ":" + secs;
+  }
+
   function _format_date(unix_timestamp) {
     var difference_in_seconds = (Math.round((new Date()).getTime() / 1000)) - unix_timestamp,
         current_date = new Date(unix_timestamp * 1000), minutes, hours;
@@ -263,7 +345,9 @@ define(function(require) {
     return difference_in_seconds;
 
     function _fourdigits(number)  {
-          return (number < 1000) ? number + 1900 : number;}
+      return (number < 1000) ? number + 1900 : number;
+    }
+
 
     //function _plural(number) {
     //  if(parseInt(number) === 1) {
@@ -271,5 +355,41 @@ define(function(require) {
     //  }
     //  return "s";
     //}
+  }
+  function _lock_to_str(level)  {
+    var level_str = "";
+    switch(level) {
+      case "1":
+        level_str = "Use";
+        break;
+      case "2":
+        level_str = "Manage";
+        break;
+      case "3":
+        level_str = "Admin";
+        break;
+      case "4":
+        level_str = "All";
+        break;
+    }
+    return level_str;
+  }
+
+  function _state_lock_to_color(resource,state,lock){
+    var color = "transparent";
+    var show_lock = "";
+
+    if (state && resource in resource_states){
+      var available_states = resource_states[resource];
+      if (state in available_states){
+        color = available_states[state];
+      }
+    }
+
+    if (lock){
+      show_lock = "border-left: 3px solid #373537;";
+    }
+
+    return '<span style="'+show_lock+' float:left; margin-right: 3px; width: 5px; height: 20px; background: '+color+';"></span>'
   }
 })

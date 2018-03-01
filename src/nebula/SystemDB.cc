@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -65,14 +65,14 @@ int SystemDB::shared_bootstrap()
     // db versioning, version of OpenNebula.
     // ---------------------------------------------------------------------
     oss.str(shared_ver_bootstrap);
-    rc = db->exec(oss);
+    rc = db->exec_local_wr(oss);
 
     oss.str("");
     oss << "INSERT INTO " << shared_ver_table << " (" << shared_ver_names << ") "
         << "VALUES (0, '" << Nebula::shared_db_version() << "', " << time(0)
         << ", '" << Nebula::version() << " daemon bootstrap')";
 
-    rc += db->exec(oss);
+    rc += db->exec_local_wr(oss);
 
     return rc;
 };
@@ -89,14 +89,14 @@ int SystemDB::local_bootstrap()
     // pool control, tracks the last ID's assigned to objects
     // ------------------------------------------------------------------------
     oss.str(pc_bootstrap);
-    rc = db->exec(oss);
+    rc = db->exec_local_wr(oss);
 
     // ------------------------------------------------------------------------
     // local db versioning, version of tables that are not replicated in a
     // slave OpenNebula.
     // ------------------------------------------------------------------------
     oss.str(local_ver_bootstrap);
-    rc += db->exec(oss);
+    rc += db->exec_local_wr(oss);
 
     oss.str("");
     oss << "INSERT INTO " << local_ver_table << " (" << local_ver_names << ") "
@@ -104,13 +104,13 @@ int SystemDB::local_bootstrap()
         << ", '" << Nebula::version() << " daemon bootstrap', "
         << Nebula::instance().is_federation_slave() << ")";
 
-    rc += db->exec(oss);
+    rc += db->exec_local_wr(oss);
 
     // ------------------------------------------------------------------------
     // system
     // ------------------------------------------------------------------------
     oss.str(sys_bootstrap);
-    rc += db->exec(oss);
+    rc += db->exec_local_wr(oss);
 
     return rc;
 };
@@ -151,7 +151,7 @@ int SystemDB::check_db_version(const string& table,
     oss << "SELECT version FROM " << table <<" WHERE oid=(SELECT MAX(oid) FROM "
         << table << ")";
 
-    int rc = db->exec(oss, this, true);
+    int rc = db->exec_rd(oss, this);
 
     unset_callback();
 
@@ -301,7 +301,7 @@ int SystemDB::insert_replace(
         << "'" << attr_name << "',"
         << "'" << sql_xml   << "')";
 
-    rc = db->exec(oss);
+    rc = db->exec_wr(oss);
 
     db->free_str(sql_xml);
 
@@ -350,7 +350,7 @@ int SystemDB::select_sys_attribute(const string& attr_name, string& attr_xml)
     oss << "SELECT body FROM " << sys_table << " WHERE name = '"
         << attr_name << "'";
 
-    rc = db->exec(oss, this);
+    rc = db->exec_rd(oss, this);
 
     unset_callback();
 

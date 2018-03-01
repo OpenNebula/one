@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -106,9 +106,10 @@ define(function(require) {
     this.groupsTableEdit.initialize();
     this.groupsTableEdit.refreshResourceTableSelect();
     this.groupsTableEdit.selectResourceTableSelect({ids: this.groups});
+    var that = this;
 
     $("#cancel_update_group").hide(); 
-    that = this;
+    var that = this;
     context.off("click", "#update_group");
     context.on("click", "#update_group", function() {
       ResourceSelect.insert({
@@ -116,6 +117,7 @@ define(function(require) {
         resourceName: 'Group',
         callback : function(response){
           $("#choose_primary_grp").html(response[0].outerHTML);
+          $(".resource_list_select option[elem_id=" + that.element.GID + "]").prop("selected", true);
         }
       });
       $(".show_labels").hide();
@@ -133,6 +135,11 @@ define(function(require) {
     $('#Form_change_second_grp').submit(function() {
       var selectPrimaryGrp = $("#choose_primary_grp  .resource_list_select").val();
       var selectedGroupsList = that.groupsTableEdit.retrieveResourceTableSelect();
+
+      if (selectPrimaryGrp != -1 && selectPrimaryGrp != that.element.GID) { 
+        Sunstone.runAction("User.chgrp", [that.element.ID], selectPrimaryGrp);
+      }
+
       $.each(selectedGroupsList, function(index, groupId) {
         if ($.inArray(groupId, that.groups) === -1) {
           Sunstone.runAction('User.addgroup', [that.element.ID], groupId);
@@ -145,9 +152,6 @@ define(function(require) {
         }
       });
 
-      if (selectPrimaryGrp != -1 && selectPrimaryGrp != that.element.GID) { 
-        Sunstone.runAction("User.chgrp", [that.element.ID], selectPrimaryGrp);
-      }
       $(".select_labels").hide();
       $(".show_labels").show();
       setTimeout(function() {

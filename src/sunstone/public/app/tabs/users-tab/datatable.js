@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -27,6 +27,8 @@ define(function(require) {
   var TemplateUtils = require('utils/template-utils');
   var LabelsUtils = require('utils/labels/utils');
   var SearchDropdown = require('hbs!./datatable/search');
+  var DashboardUtils = require('utils/dashboard');
+  var Status = require('utils/status');
 
   /*
     CONSTANTS
@@ -56,11 +58,12 @@ define(function(require) {
       "bSortClasses" : false,
       "bDeferRender": true,
       "aoColumnDefs": [
-          { "bSortable": false, "aTargets": ["check",6,7,8] },
+          {"bSortable": false, "aTargets": ["check",6,7,8] },
           {"sWidth": "35px", "aTargets": [0]},
-          { "sWidth": "150px", "aTargets": [6,7,8] },
+          {"sWidth": "150px", "aTargets": [6,7,8] },
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
-          {"bVisible": false, "aTargets": ['_all']}
+          {"bVisible": false, "aTargets": ['_all']},
+          {"sType": "num", "aTargets": [1]}
       ]
     };
 
@@ -148,10 +151,13 @@ define(function(require) {
       AUTH_DRIVER: element.AUTH_DRIVER
     }
 
+    var color_html = Status.state_lock_to_color("USER",false, element_json[XML_ROOT]["LOCK"]);
+
     return [
-      '<input class="check_item" type="checkbox" id="'+RESOURCE.toLowerCase()+'_' +
-                           element.ID + '" name="selected_items" ' +
-                           'value="' + element.ID + '"/>',
+      '<input class="check_item" type="checkbox" '+
+                          'style="vertical-align: inherit;" id="'+this.resource.toLowerCase()+'_' +
+                           element.ID + '" name="selected_items" value="' +
+                           element.ID + '"/>'+color_html,
       element.ID,
       element.NAME,
       element.GNAME,
@@ -172,6 +178,7 @@ define(function(require) {
   }
 
   function _postUpdateView() {
-    $(".total_users").text(this.totalUsers);
+    $(".total_users").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".total_users", this.totalUsers);
   }
 });

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -413,6 +413,17 @@ void VirtualNetworkReserve::request_execute(
 
     if (quota_authorization(&qtmpl, Quotas::NETWORK, reservation_att) == false)
     {
+        if (!on_exisiting)
+        {
+            rvn = vnpool->get(rid, true);
+
+            if (rvn != 0)
+            {
+                vnpool->drop(rvn, att.resp_msg);
+
+                rvn->unlock();
+            }
+        }
         return;
     }
 

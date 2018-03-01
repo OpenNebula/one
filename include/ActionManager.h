@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -151,7 +151,17 @@ public:
      *   @param timeout for the periodic action.
      *   @param timer_args arguments for the timer action
      */
-    void loop(time_t timeout, const ActionRequest& trequest);
+    void loop(struct timespec& _timeout, const ActionRequest& trequest);
+
+    void loop(time_t timeout, const ActionRequest& trequest)
+    {
+        struct timespec _timeout;
+
+        _timeout.tv_sec  = timeout;
+        _timeout.tv_nsec = 0;
+
+        loop(_timeout, trequest);
+    }
 
     /**
      * The calling thread will be suspended until an action is triggered.
@@ -162,7 +172,19 @@ public:
     {
         ActionRequest trequest(ActionRequest::TIMER);
 
-        loop(timeout, trequest);
+        struct timespec _timeout;
+
+        _timeout.tv_sec  = timeout;
+        _timeout.tv_nsec = 0;
+
+        loop(_timeout, trequest);
+    }
+
+    void loop(struct timespec& _timeout)
+    {
+        ActionRequest trequest(ActionRequest::TIMER);
+
+        loop(_timeout, trequest);
     }
 
     /**
@@ -172,8 +194,12 @@ public:
     void loop()
     {
         ActionRequest trequest(ActionRequest::TIMER);
+        struct timespec _timeout;
 
-        loop(0, trequest);
+        _timeout.tv_sec  = 0;
+        _timeout.tv_nsec = 0;
+
+        loop(_timeout, trequest);
     }
 
     /**

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -18,6 +18,9 @@ module OpenNebula
     class ServicePool < DocumentPoolJSON
 
         DOCUMENT_TYPE = 100
+
+        @@mutex      = Mutex.new
+        @@mutex_hash = Hash.new
 
         # Class constructor
         #
@@ -48,35 +51,42 @@ module OpenNebula
             service_id = service_id.to_i if service_id
             service = Service.new_with_id(service_id, @client)
 
-            if block_given?
-                locked = false
+            rc = service.info
 
-                while !locked
-                    locked = service.lock()
-
-                    if OpenNebula.is_error?(locked)
-                        return locked
-                    end
-
-                    sleep 1
-                end
-
-                rc = service.info
-
-                if OpenNebula.is_error?(rc)
-                    return rc
-                end
-
-                rc = block.call(service)
-
-                service.unlock()
-
+            if OpenNebula.is_error?(rc)
                 return rc
             else
-                rc = service.info
+                if block_given?
+                    obj_mutex = nil
+                    entry     = nil
 
-                if OpenNebula.is_error?(rc)
-                    return rc
+                    @@mutex.synchronize {
+                        # entry is an array of [Mutex, waiting]
+                        # waiting is the number of threads waiting on this mutex
+                        entry = @@mutex_hash[service_id]
+
+                        if entry.nil?
+                            entry = [Mutex.new, 0]
+                            @@mutex_hash[service_id] = entry
+                        end
+
+                        obj_mutex = entry[0]
+                        entry[1]  = entry[1] + 1
+
+                        if @@mutex_hash.size > 10000
+                            @@mutex_hash.delete_if { |s_id, entry|
+                                entry[1] == 0
+                            }
+                        end
+                    }
+
+                    obj_mutex.synchronize {
+                        block.call(service)
+                    }
+
+                    @@mutex.synchronize {
+                        entry[1] = entry[1] - 1
+                    }
                 end
 
                 return service

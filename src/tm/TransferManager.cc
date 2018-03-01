@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -582,15 +582,10 @@ void TransferManager::prolog_action(int vid)
     }
 
     int uid = vm->get_created_by_uid();
+    int owner_id = vm->get_uid();
     vm->unlock();
 
-    User * user = Nebula::instance().get_upool()->get(uid, true);
-
-    if (user != 0)
-    {
-        user->get_template_attribute("TOKEN_PASSWORD", token_password);
-        user->unlock();
-    }
+    token_password = Nebula::instance().get_upool()->get_token_password(uid, owner_id);
 
     vm = vmpool->get(vid,true);
 
@@ -881,16 +876,10 @@ void TransferManager::prolog_resume_action(int vid)
     }
 
     int uid = vm->get_created_by_uid();
-
+    int owner_id = vm->get_uid();
     vm->unlock();
 
-    User * user = Nebula::instance().get_upool()->get(uid, true);
-
-    if (user != 0)
-    {
-        user->get_template_attribute("TOKEN_PASSWORD", token_password);
-        user->unlock();
-    }
+    token_password = Nebula::instance().get_upool()->get_token_password(uid, owner_id);
 
     vm = vmpool->get(vid,true);
 
@@ -2165,7 +2154,7 @@ void TransferManager::resize_command(VirtualMachine * vm,
     if ( disk->is_volatile() )
     {
         tm_mad = vm->get_tm_mad();
-        ds_id  = vm->get_ds_id();
+        ds_id  = std::to_string(vm->get_ds_id());
     }
     else
     {

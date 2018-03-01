@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -29,7 +29,9 @@
               <td class="key_td">{{tr "Authentication driver"}}</td>
               <td class="value_td" id="change_auth_driver" colspan="2" hidden = "true">{{{userCreationHTML}}}</td>
               <td class="value_td" colspan="2" id="show_auth_driver">{{element.AUTH_DRIVER}}</td>
-              <td><a id="div_edit_auth_driver_link" class="edit_e" href="#"> <i class="fa fa-pencil-square-o right"/></a></td>
+                {{#isTabActionEnabled tabId "User.change_authentication"}}
+                  <td><a id="div_edit_auth_driver_link" class="edit_e" href="#"> <i class="fa fa-pencil-square-o right"/></a></td>
+                {{/isTabActionEnabled}}
             </tr>
             <tr class="passsword_edit">
               <td class="key_td">{{tr "Password"}}</td>

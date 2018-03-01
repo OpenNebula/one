@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -214,17 +214,21 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         CLIHelper.print_header(str_h1 %
             ["VIRTUAL NETWORK #{vn.id.to_s} INFORMATION"])
 
-        str="%-15s: %-20s"
+        str="%-25s: %-20s"
         puts str % ["ID", vn.id.to_s]
         puts str % ["NAME", vn['NAME']]
         puts str % ["USER", vn['UNAME']]
         puts str % ["GROUP", vn['GNAME']]
+        puts str % ["LOCK", OpenNebulaHelper.level_lock_to_str(vn['LOCK/LOCKED'])]
         puts str % ["CLUSTERS",
             OpenNebulaHelper.clusters_str(vn.retrieve_elements("CLUSTERS/ID"))]
         puts str % ["BRIDGE", vn["BRIDGE"]]
         puts str % ["VN_MAD", vn['VN_MAD']] if !vn['VN_MAD'].empty?
         puts str % ["PHYSICAL DEVICE", vn["PHYDEV"]] if !vn["PHYDEV"].empty?
         puts str % ["VLAN ID", vn["VLAN_ID"]] if !vn["VLAN_ID"].empty?
+        puts str % ["AUTOMATIC VLAN ID", vn["VLAN_ID_AUTOMATIC"]=="1" ? "YES" : "NO"]
+        puts str % ["OUTER VLAN ID", vn["OUTER_VLAN_ID"]] if !vn["OUTER_VLAN_ID"].empty?
+        puts str % ["AUTOMATIC OUTER VLAN ID", vn["OUTER_VLAN_ID_AUTOMATIC"]=="1" ? "YES" : "NO"]
         puts str % ["USED LEASES", vn['USED_LEASES']]
         puts
 

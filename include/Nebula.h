@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,7 +17,7 @@
 #ifndef NEBULA_H_
 #define NEBULA_H_
 
-#include "SqlDB.h"
+#include "LogDB.h"
 #include "SystemDB.h"
 
 #include "NebulaTemplate.h"
@@ -51,6 +51,8 @@
 #include "ImageManager.h"
 #include "MarketPlaceManager.h"
 #include "IPAMManager.h"
+#include "RaftManager.h"
+#include "FedReplicaManager.h"
 
 #include "DefaultQuotas.h"
 
@@ -76,6 +78,10 @@ public:
     // --------------------------------------------------------------
     // Pool Accessors
     // --------------------------------------------------------------
+    LogDB * get_logdb()
+    {
+        return logdb;
+    };
 
     VirtualMachinePool * get_vmpool()
     {
@@ -221,6 +227,16 @@ public:
         return ipamm;
     };
 
+    RaftManager * get_raftm()
+    {
+        return raftm;
+    };
+
+    FedReplicaManager * get_frm()
+    {
+        return frm;
+    };
+
     // --------------------------------------------------------------
     // Environment & Configuration
     // --------------------------------------------------------------
@@ -341,7 +357,7 @@ public:
      */
     static string code_version()
     {
-        return "5.2.0"; // bump version
+        return "5.5.80"; // bump version
     }
 
     /**
@@ -350,7 +366,7 @@ public:
      */
     static string shared_db_version()
     {
-        return "5.2.0";
+        return "5.5.80";
     }
 
     /**
@@ -359,7 +375,7 @@ public:
      */
     static string local_db_version()
     {
-        return "5.3.80";
+        return "5.5.80";
     }
 
     /**
@@ -398,6 +414,11 @@ public:
     int get_zone_id()
     {
         return zone_id;
+    };
+
+    int get_server_id()
+    {
+        return server_id;
     };
 
     const string& get_master_oned()
@@ -660,12 +681,12 @@ private:
                             "/DEFAULT_GROUP_QUOTAS/NETWORK_QUOTA",
                             "/DEFAULT_GROUP_QUOTAS/IMAGE_QUOTA",
                             "/DEFAULT_GROUP_QUOTAS/VM_QUOTA"),
-        system_db(0), db(0),
+        system_db(0), logdb(0), fed_logdb(0),
         vmpool(0), hpool(0), vnpool(0), upool(0), ipool(0), gpool(0), tpool(0),
         dspool(0), clpool(0), docpool(0), zonepool(0), secgrouppool(0),
         vdcpool(0), vrouterpool(0), marketpool(0), apppool(0), vmgrouppool(0),
         lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0), authm(0), aclm(0),
-        imagem(0), marketm(0), ipamm(0)
+        imagem(0), marketm(0), ipamm(0), raftm(0), frm(0)
     {
         const char * nl = getenv("ONE_LOCATION");
 
@@ -729,8 +750,11 @@ private:
         delete imagem;
         delete marketm;
         delete ipamm;
+        delete raftm;
+        delete frm;
         delete nebula_configuration;
-        delete db;
+        delete logdb;
+        delete fed_logdb;
         delete system_db;
     };
 
@@ -759,12 +783,13 @@ private:
     OpenNebulaTemplate * nebula_configuration;
 
     // ---------------------------------------------------------------
-    // Federation
+    // Federation - HA
     // ---------------------------------------------------------------
 
     bool    federation_enabled;
     bool    federation_master;
     int     zone_id;
+    int     server_id;
     string  master_oned;
 
     // ---------------------------------------------------------------
@@ -784,7 +809,8 @@ private:
     // Nebula Pools
     // ---------------------------------------------------------------
 
-    SqlDB              * db;
+    LogDB              * logdb;
+    FedLogDB           * fed_logdb;
     VirtualMachinePool * vmpool;
     HostPool           * hpool;
     VirtualNetworkPool * vnpool;
@@ -819,6 +845,8 @@ private:
     ImageManager *          imagem;
     MarketPlaceManager *    marketm;
     IPAMManager *           ipamm;
+    RaftManager *           raftm;
+    FedReplicaManager *     frm;
 
     // ---------------------------------------------------------------
     // Implementation functions

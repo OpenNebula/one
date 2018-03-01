@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -29,6 +29,7 @@ define(function(require) {
   var Vnc = require('utils/vnc');
   var Spice = require('utils/spice');
   var Notifier = require('utils/notifier');
+  var DashboardUtils = require('utils/dashboard');
   var SearchDropdown = require('hbs!./datatable/search');
 
   /*
@@ -60,6 +61,8 @@ define(function(require) {
       "bDeferRender": true,
       "aoColumnDefs": [
           {"sType": "ip-address", "aTargets": [0]},
+          {"sType": "num", "aTargets": [1]},
+          {"sType": "date-euro", "aTargets": [ 10 ]},
           {"bSortable": false, "aTargets": ["check", 6, 7, 11]},
           {"sWidth": "35px", "aTargets": [0]},
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
@@ -148,9 +151,17 @@ define(function(require) {
 
   function _postUpdateView() {
     $(".total_vms").text(this.totalVms);
-    $(".active_vms").text(this.activeVms);
-    $(".pending_vms").text(this.pendingVms);
-    $(".failed_vms").text(this.failedVms);
+    DashboardUtils.counterAnimation(".total_vms", this.totalVms);
+
+    $(".active_vms").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".active_vms", this.activeVms);
+
+    $(".pending_vms").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".pending_vms", this.pendingVms);
+
+    $(".failed_vms").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".failed_vms", this.failedVms);
+
     $(".off_vms").text(this.offVms);
   }
 
@@ -204,4 +215,6 @@ define(function(require) {
     });
 
   }
+
+
 });

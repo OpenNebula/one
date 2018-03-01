@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -79,7 +79,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             " rsync command must be installed in the frontend and nodes."
     }
 
-    CREAT_OPTIONS = [ IM, VMM, OneClusterHelper::CLUSTER ]
+    TYPE = {
+        :name  => "type",
+        :short => "-t remote_provider",
+        :large => "--type remote_provider",
+        :description => "Use type to create a host using Cloud Bursting ",
+        :format => String
+    }
+
+    CREAT_OPTIONS = [ IM, VMM, OneClusterHelper::CLUSTER, TYPE ]
     SYNC_OPTIONS  = [ OneClusterHelper::CLUSTER, FORCE, RSYNC ]
 
     ########################################################################
@@ -102,7 +110,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Creates a new Host
     EOT
 
-    command :create, create_desc, :hostname, :options=>CREAT_OPTIONS do
+    command :create, create_desc, :hostname, [:file, nil], :options=>CREAT_OPTIONS do
         if options[:im].nil? || options[:vm].nil?
             STDERR.puts "Drivers are mandatory to create a host:"
             STDERR.puts "\t -i information driver"
@@ -111,12 +119,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
 
         cid = options[:cluster] || ClusterPool::NONE_CLUSTER_ID
-
         helper.create_resource(options) do |host|
-                host.allocate(args[0],
-                              options[:im],
-                              options[:vm],
-                              cid)
+            if !options[:type].nil?
+                str = helper.set_hybrid(options[:type], args[1])
+            end
+            rc = host.allocate(args[0], options[:im], options[:vm], cid)
+            host.update(str, true) if !OpenNebula.is_error?(rc) && !options[:type].nil?
+
+            rc
         end
     end
 

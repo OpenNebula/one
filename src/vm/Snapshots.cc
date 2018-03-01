@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,27 +20,30 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Snapshots::Snapshots(int _disk_id):
+Snapshots::Snapshots(int _disk_id, bool _orphans):
     snapshot_template(false,'=',"SNAPSHOTS"),
     next_snapshot(0),
     active(-1),
-    disk_id(_disk_id)
+    disk_id(_disk_id),
+    orphans(_orphans)
 {
     if (_disk_id != -1)
     {
-        snapshot_template.add("DISK_ID",_disk_id);
+        snapshot_template.add("DISK_ID", _disk_id);
     }
+
+    snapshot_template.add("ALLOW_ORPHANS", _orphans);
 };
 
 Snapshots::Snapshots(const Snapshots& s):
     snapshot_template(s.snapshot_template),
     next_snapshot(0),
     active(-1),
-    disk_id(-1)
+    disk_id(-1),
+    orphans(false)
 {
     init();
 }
-
 
 Snapshots& Snapshots::operator= (const Snapshots& s)
 {
@@ -49,6 +52,7 @@ Snapshots& Snapshots::operator= (const Snapshots& s)
         next_snapshot = s.next_snapshot;
         active        = s.active;
         disk_id       = s.disk_id;
+        orphans       = s.orphans;
 
         snapshot_template = s.snapshot_template;
 
@@ -115,6 +119,11 @@ void Snapshots::init()
     {
         disk_id = did;
     }
+
+    if ( snapshot_template.get("ALLOW_ORPHANS", orphans) == false )
+    {
+        orphans = false;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -132,32 +141,40 @@ int Snapshots::create_snapshot(const string& name, long long size_mb)
     snapshot->replace("SIZE", size_mb);
     snapshot->replace("ID", next_snapshot);
     snapshot->replace("DATE", static_cast<long long>(time(0)));
-    snapshot->replace("PARENT", active);
 
-    if (active != -1)
+    if (!orphans)
     {
-        VectorAttribute * parent = get_snapshot(active);
+        snapshot->replace("PARENT", active);
 
-        if (parent == 0)
+        if (active != -1)
         {
-            delete snapshot;
-            return -1;
+            VectorAttribute * parent = get_snapshot(active);
+
+            if (parent == 0)
+            {
+                delete snapshot;
+                return -1;
+            }
+
+            string children = parent->vector_value("CHILDREN");
+
+            if (children.empty())
+            {
+                parent->replace("CHILDREN", next_snapshot);
+            }
+            else
+            {
+                ostringstream oss;
+
+                oss << children << "," << next_snapshot;
+
+                parent->replace("CHILDREN", oss.str());
+            }
         }
-
-        string children = parent->vector_value("CHILDREN");
-
-        if (children.empty())
-        {
-            parent->replace("CHILDREN", next_snapshot);
-        }
-        else
-        {
-            ostringstream oss;
-
-            oss << children << "," << next_snapshot;
-
-            parent->replace("CHILDREN", oss.str());
-        }
+    }
+    else
+    {
+        snapshot->replace("PARENT", "-1");
     }
 
     snapshot_template.set(snapshot);
@@ -182,31 +199,35 @@ void Snapshots::delete_snapshot(int id)
         return;
     }
 
-    snapshot->vector_value("PARENT", parent_id);
-
-    if (parent_id != -1)
+    if (!orphans)
     {
-        set<int> child_set;
+        snapshot->vector_value("PARENT", parent_id);
 
-        VectorAttribute * parent = get_snapshot(parent_id);
-
-        if (parent != 0)
+        //Remove this snapshot from parent's children
+        if (parent_id != -1)
         {
-            string children = parent->vector_value("CHILDREN");
+            set<int> child_set;
 
-            one_util::split_unique(children, ',', child_set);
+            VectorAttribute * parent = get_snapshot(parent_id);
 
-            child_set.erase(id);
-
-            children = one_util::join(child_set.begin(), child_set.end(), ',');
-
-            if (children.empty())
+            if (parent != 0)
             {
-                parent->remove("CHILDREN");
-            }
-            else
-            {
-                parent->replace("CHILDREN", children);
+                string children = parent->vector_value("CHILDREN");
+
+                one_util::split_unique(children, ',', child_set);
+
+                child_set.erase(id);
+
+                children = one_util::join(child_set.begin(), child_set.end(), ',');
+
+                if (children.empty())
+                {
+                    parent->remove("CHILDREN");
+                }
+                else
+                {
+                    parent->replace("CHILDREN", children);
+                }
             }
         }
     }
@@ -313,20 +334,23 @@ bool Snapshots::test_delete(int id, string& error) const
         return false;
     }
 
-    snapshot->vector_value("ACTIVE", current);
-
-    if (current)
+    if (!orphans)
     {
-        error = "Cannot delete the active snapshot";
-        return false;
-    }
+        snapshot->vector_value("ACTIVE", current);
 
-    snapshot->vector_value("CHILDREN", children);
+        if (current)
+        {
+            error = "Cannot delete the active snapshot";
+            return false;
+        }
 
-    if (!children.empty())
-    {
-        error = "Cannot delete snapshot with children";
-        return false;
+        snapshot->vector_value("CHILDREN", children);
+
+        if (!children.empty())
+        {
+            error = "Cannot delete snapshot with children";
+            return false;
+        }
     }
 
     return true;

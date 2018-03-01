@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -48,7 +48,8 @@ class OpenNebula::LdapAuth
             :mapping_filename   => 'server1.yaml',
             :mapping_key        => 'GROUP_DN',
             :mapping_default    => 1,
-            :attributes         => [ "memberOf" ]
+            :attributes         => [ "memberOf" ],
+            :rfc2307bis         => true
         }.merge(options)
 
         ops={}
@@ -59,6 +60,15 @@ class OpenNebula::LdapAuth
                 :username => @options[:user],
                 :password => @options[:password]
             }
+        end
+
+        if !@options[:rfc2307bis]
+            @options[:attributes] << @options[:user_field]
+        end
+
+        # fetch the user group field only if we need that
+        if @options[:group] or !@options[:rfc2307bis]
+            @options[:attributes] << @options[:user_group_field]
         end
 
         ops[:host]=@options[:host] if @options[:host]
@@ -122,7 +132,7 @@ class OpenNebula::LdapAuth
 
     def find_user(name)
         begin
-            filter = "#{@options[:user_field]}=#{escape(name)}"
+            filter = Net::LDAP::Filter.eq(@options[:user_field], escape(name))
 
             result = @ldap.search(
                 :base       => @options[:base],
@@ -150,10 +160,11 @@ class OpenNebula::LdapAuth
     end
 
     def is_in_group?(user, group)
+        username = user.first.force_encoding(Encoding::UTF_8)
         result=@ldap.search(
                     :base   => group,
                     :attributes => [@options[:group_field]],
-                    :filter => "(#{@options[:group_field]}=#{user.first})")
+                    :filter => "(#{@options[:group_field]}=#{username})")
 
         if result && result.first
             true
@@ -181,9 +192,22 @@ class OpenNebula::LdapAuth
     def get_groups
         groups = []
 
-        [@user['memberOf']].flatten.each do |group|
-            if @mapping[group]
-                groups << @mapping[group]
+        if @options[:rfc2307bis]
+            [@user['memberOf']].flatten.each do |group|
+                if @mapping[group]
+                    groups << @mapping[group]
+                end
+            end
+        else
+            filter = "(#{@options[:group_field]}=#{@user[@options[:user_group_field]].first})"
+            @ldap.search(
+                :base       => @options[:base],
+                :attributes => [ "dn" ],
+                :filter     => filter
+            ) do |entry|
+                if @mapping[entry.dn]
+                    groups << @mapping[entry.dn]
+                end
             end
         end
 
@@ -210,4 +234,3 @@ private
       string.gsub(FILTER_ESCAPE_RE) { |char| "\\" + FILTER_ESCAPES[char] }
     end
 end
-

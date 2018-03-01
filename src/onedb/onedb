@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -46,7 +46,9 @@ $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+'/onedb'
 
 require 'cli/command_parser'
+require 'optparse/time'
 require 'onedb'
+require 'onedb_live'
 require 'opennebula'
 
 FORCE={
@@ -62,6 +64,12 @@ BACKUP={
     :large => "--backup file",
     :description => "Use this file to store SQL dump",
     :format => String
+}
+
+FEDERATED = {
+    :name        => "federated",
+    :large       => "--federated",
+    :description => "Limit backup/restore to federated tables"
 }
 
 ###############################################################################
@@ -218,6 +226,69 @@ EXTRA={
     :format => Array
 }
 
+###############################################################################
+# Live operation options
+###############################################################################
+
+START_TIME = {
+    :name   => "start_time",
+    :short  => "-s TIME",
+    :large  => "--start TIME" ,
+    :description => "First time to process",
+    :format => Time
+}
+
+END_TIME = {
+    :name   => "end_time",
+    :short  => "-e TIME",
+    :large  => "--end TIME" ,
+    :description => "Last time to process",
+    :format => Time
+}
+
+ID = {
+    :name   => "id",
+    :short  => "-i ID",
+    :large  => "--id ID" ,
+    :description => "Filter by ID",
+    :format => Numeric
+}
+
+SEQ= {
+    :name   => "seq",
+    :large  => "--seq SEQ" ,
+    :description => "Sequence number of a hitory record",
+    :format => Numeric
+}
+
+XPATH = {
+    :name   => "xpath",
+    :short  => "-x ID",
+    :large  => "--xpath ID" ,
+    :description => "Filter by xpath",
+    :format => String
+}
+
+EXPR= {
+    :name   => "expr",
+    :short  => "-e ID",
+    :large  => "--expr ID" ,
+    :description => "Filter by expression (UNAME=oneadmin)",
+    :format => String
+}
+
+DRY= {
+    :name   => "dry",
+    :large  => "--dry" ,
+    :description => "Do not write in the database, output xml"
+}
+
+DELETE= {
+    :name   => "delete",
+    :short  => "-d",
+    :large  => "--delete" ,
+    :description => "Delete all matched xpaths"
+}
 
 cmd=CommandParser::CmdParser.new(ARGV) do
     description <<-EOT.unindent
@@ -239,7 +310,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Dumps the DB to a file specified in the argument
     EOT
 
-    command :backup, backup_desc, [:output_file, nil], :options=>FORCE do
+    command :backup, backup_desc, [:output_file, nil],
+            :options=>[FORCE, FEDERATED] do
+
         begin
             helper = OneDB.new(options)
             helper.backup(args[0], options)
@@ -289,7 +362,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         from the same backend (SQLite or MySQL)
     EOT
 
-    command :restore , restore_desc, [:backup_file, nil], :options=>FORCE do
+    command :restore , restore_desc, :backup_file,
+            :options=>[FORCE, FEDERATED] do
+
         begin
             helper = OneDB.new(options)
             helper.restore(args[0], options)
@@ -332,21 +407,18 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-
     ###########################################################################
-    # Import slave
+    # Migrate vcenter 54
     ###########################################################################
-    import_slave_desc = <<-EOT.unindent
-        Imports an existing federation slave into the federation master database
+    vcenter_one54_desc = <<-EOT.unindent
+        Migrate VM and templates so they can be used by OpenNebula 5.4
     EOT
 
-    command :"import-slave", import_slave_desc, :options=>[FORCE,BACKUP,
-        SLAVE_SERVER,SLAVE_PORT,SLAVE_USERNAME,SLAVE_PASSWORD,
-        SLAVE_DBNAME,SLAVE_BACKUP] do
+    command :"vcenter-one54", vcenter_one54_desc, :options=>[FORCE,BACKUP] do
 
         begin
             helper = OneDB.new(options)
-            helper.import_slave(options)
+            helper.vcenter_one54(options)
         rescue Exception => e
             [-1, e.message]
         end
@@ -387,5 +459,275 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         rescue Exception => e
             [-1, e.message]
         end
+    end
+
+    LIVE_ACTION_HELP = <<-EOT.unindent
+        **WARNING**: This action is done while OpenNebula is running. Make
+        a backup of the datasbase before executing.
+    EOT
+
+    ###########################################################################
+    # Purge history
+    ###########################################################################
+    purge_history_desc = <<-EOT.unindent
+        Deletes all but the last history records from non DONE VMs
+
+        #{LIVE_ACTION_HELP}
+    EOT
+
+    command :'purge-history', purge_history_desc,
+            :options => [START_TIME, END_TIME] do
+        begin
+            action = OneDBLive.new
+            action.purge_history(options)
+        rescue Exception => e
+            puts e.message
+            pp e.backtrace
+            [-1, e.message]
+        end
+
+        0
+    end
+
+    ###########################################################################
+    # Purge VMs in DONE state
+    ###########################################################################
+    purge_done_desc = <<-EOT.unindent
+        Deletes all VMs in DONE state
+
+        #{LIVE_ACTION_HELP}
+    EOT
+
+    command :'purge-done', purge_done_desc,
+            :options => [START_TIME, END_TIME] do
+        begin
+            action = OneDBLive.new
+            action.purge_done_vm(options)
+        rescue Exception => e
+            puts e.name
+            pp e.backtrace
+            [-1, e.message]
+        end
+
+        0 # exit code
+    end
+
+    ###########################################################################
+    # Change value in object body
+    ###########################################################################
+    change_body_desc = <<-EOT.unindent
+        Changes a value from the body of an object. The possible objects are:
+            vm, host, vnet, image, cluster, document, group, marketplace,
+            marketplaceapp, secgroup, template, vrouter, datastore, user, vmgroup, vdc or zone
+
+        You can filter the objects to modify using one of these options:
+
+            * --id: object id, example: 156
+            * --xpath: xpath expression, example: TEMPLATE[count(NIC)>1]
+            * --expr: xpath expression, can use operators =, !=, <, >, <= or >=
+                examples: UNAME=oneadmin, TEMPLATE/NIC/NIC_ID>0
+
+        If you want to change a value use a third parameter. In case you want
+        to delete it use --delete option.
+
+        Change the second network of VMs that belong to "user":
+
+            onedb change-body vm --expr UNAME=user \\
+                '/VM/TEMPLATE/NIC[NETWORK="service"]/NETWORK' new_network
+
+        Delete cache attribute in all disks, write xml, do not modify DB:
+
+            onedb change-body vm '/VM/TEMPLATE/DISK/CACHE' --delete --dry
+
+        Delete cache attribute in all disks in poweroff:
+
+            onedb change-body vm --expr LCM_STATE=8 \\
+                '/VM/TEMPLATE/DISK/CACHE' --delete
+
+        #{LIVE_ACTION_HELP}
+    EOT
+
+    command :'change-body', change_body_desc, :object, :xpath, [:value, nil],
+            :options => [ID, XPATH, EXPR, DRY, DELETE] do
+        begin
+            action = OneDBLive.new
+            action.change_body(args[0], args[1], args[2], options)
+        rescue Exception => e
+            puts e.message
+            [-1, e.message]
+        end
+
+        0 # exit code
+    end
+
+    ###########################################################################
+    # Change value in a history record
+    ###########################################################################
+    change_history_desc = <<-EOT.unindent
+        Changes a value from a history record of a VM. History records are
+        defined by its sequence number (SEQ) and VM ID.
+
+            * --id: vm id, example: 156
+            * --seq: sequence number of the record, example: 0
+
+        The new value for this elemente is set in the third parameter.
+
+        Change the the hostname of first record:
+
+            onedb change-history --id 3 --seq 0 '/HISTORY/HOSTNAME' new_host
+
+        #{LIVE_ACTION_HELP}
+    EOT
+    command :'change-history', change_history_desc, :xpath, :value,
+            :options => [ID, SEQ, DRY] do
+        begin
+            vid = options[:id]
+            seq = options[:seq]
+
+            if !vid || !seq
+                puts "Missing VM ID or SEQ number"
+                return -1
+            end
+
+            action = OneDBLive.new
+            action.change_history(vid, seq, args[0], args[1], options)
+        rescue Exception => e
+            puts e.message
+            [-1, e.message]
+        end
+
+        0 # exit code
+    end
+
+    ###########################################################################
+    # Update object body
+    ###########################################################################
+    update_body_desc = <<-EOT.unindent
+        Update body of an object. The possible objects are:
+        vm, host, vnet, image, cluster, document, group, marketplace,
+        marketplaceapp, secgroup, template, vrouter, datastore, user, vmgroup, vdc or zone.
+        Objects are specified by their ID:
+            * --id: object id, example: 156
+
+        For example to update the XML document of VM 23:
+            onedb update-body vm --id 23
+
+        #{LIVE_ACTION_HELP}
+    EOT
+
+    command :'update-body', update_body_desc, :object, :options => [ID] do
+        begin
+            if !options[:id]
+                puts "Missing object ID"
+                return -1
+            end
+
+            action = OneDBLive.new
+            action.update_body_cli(args[0], options[:id])
+        rescue Exception => e
+            puts e.message
+            [-1, e.message]
+        end
+
+        0 # exit code
+    end
+
+    ###########################################################################
+    # Update body of a history record
+    ###########################################################################
+    update_history_desc = <<-EOT.unindent
+        Update history record of a VM. History records are defined by its
+        sequence number (SEQ) and VM ID:
+
+            * --id: vm id, example: 156
+            * --seq: sequence number of the record, example: 0
+
+        For example to update the 3rd record of VM 0
+            onedb update-history --id 0 --seq 3
+
+        #{LIVE_ACTION_HELP}
+    EOT
+
+    command :'update-history', update_history_desc, :options => [ID, SEQ] do
+        begin
+            if !options[:id] || !options[:seq]
+                puts "Missing VM ID or SEQ number"
+                return -1
+            end
+
+            action = OneDBLive.new
+            action.update_history_cli(options[:id], options[:seq])
+        rescue Exception => e
+            puts e.message
+            [-1, e.message]
+        end
+
+        0 # exit code
+    end
+
+    ###########################################################################
+    # Show object body
+    ###########################################################################
+    show_body_desc = <<-EOT.unindent
+        Show body of an object. The possible objects are:
+        vm, host, vnet, image, cluster, document, group, marketplace,
+        marketplaceapp, secgroup, template, vrouter, datastore, user, vmgroup, vdc or zone.
+        Objects are specified by their ID:
+            * --id: object id, example: 156
+
+        For example to show the XML document of VM 23:
+            onedb show-body vm --id 23
+
+        #{LIVE_ACTION_HELP}
+    EOT
+
+    command :'show-body', show_body_desc, :object, :options => [ID] do
+        begin
+            if !options[:id]
+                puts "Missing object ID"
+                return -1
+            end
+
+            action = OneDBLive.new
+            STDOUT.puts action.show_body_cli(args[0], options[:id])
+        rescue Exception => e
+            puts e.message
+            [-1, e.message]
+        end
+
+        0 # exit code
+    end
+
+    ###########################################################################
+    # Show body of a history record
+    ###########################################################################
+    show_history_desc = <<-EOT.unindent
+        Show body of a history record. History records are defined by its
+        sequence number (SEQ) and VM ID:
+
+            * --id: vm id, example: 156
+            * --seq: sequence number of the record, example: 0
+
+        For example to show the 3rd record of VM 0
+            onedb update-history --id 0 --seq 3
+
+        #{LIVE_ACTION_HELP}
+    EOT
+
+    command :'show-history', show_history_desc, :options => [ID, SEQ] do
+        begin
+            if !options[:id] || !options[:seq]
+                puts "Missing VM ID or SEQ"
+                return -1
+            end
+
+            action = OneDBLive.new
+            STDOUT.puts action.show_history_cli(options[:id], options[:seq])
+        rescue Exception => e
+            puts e.message
+            [-1, e.message]
+        end
+
+        0 # exit code
     end
 end

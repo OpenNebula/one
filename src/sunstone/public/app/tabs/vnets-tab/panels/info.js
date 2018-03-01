@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -31,6 +31,7 @@ define(function(require) {
    */
 
   var TemplateTable = require('utils/panel/template-table');
+  var TemplateTableVcenter = require('utils/panel/template-table');
 
   /*
     CONSTANTS
@@ -74,18 +75,26 @@ define(function(require) {
       "INBOUND_AVG_BW",
       "INBOUND_PEAK_BW",
       "INBOUND_PEAK_KB",
-      "OUTBOUNDD_AVG_BW",
+      "OUTBOUND_AVG_BW",
       "OUTBOUND_PEAK_BW",
       "OUTBOUND_PEAK_KB" ];
 
-    var strippedTemplate = $.extend({}, this.element.TEMPLATE);
-
-    $.each(hiddenKeys, function(i, key){
-      delete strippedTemplate[key];
+    var strippedTemplate = {};
+    var strippedTemplateVcenter = {};
+    $.each(this.element.TEMPLATE, function(key, value) {
+      if (!$.inArray(key, hiddenKeys) > -1) {
+        if (key.match(/^VCENTER_*/)){
+          strippedTemplateVcenter[key] = value;
+        }
+        else {
+          strippedTemplate[key] = value;
+        }
+      }
     });
-
     var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE,
                                               Locale.tr("Attributes"));
+    var templateTableVcenterHTML = TemplateTableVcenter.html(strippedTemplateVcenter, RESOURCE,
+                                              Locale.tr("vCenter information"), false);
     //====
 
     // TODO: move to util?
@@ -108,13 +117,26 @@ define(function(require) {
       $(".reserve-sunstone-info").removeAttr("title");
     }
     //====
+    var auto_vlan_id = Locale.tr("NO");
+    var auto_outer_vlan_id = Locale.tr("NO");
+
+    if (this.element.VLAN_ID_AUTOMATIC == "1") {
+      auto_vlan_id = Locale.tr("YES");
+    }
+
+    if (this.element.OUTER_VLAN_ID_AUTOMATIC == "1") {
+      auto_outer_vlan_id = Locale.tr("YES");
+    }
 
     return TemplateInfo({
       'element': this.element,
       'renameTrHTML': renameTrHTML,
       'reservationTrHTML': reservationTrHTML,
       'permissionsTableHTML': permissionsTableHTML,
-      'templateTableHTML': templateTableHTML
+      'templateTableHTML': templateTableHTML,
+      'templateTableVcenterHTML': templateTableVcenterHTML,
+      'autoVlanID': auto_vlan_id,
+      'autoOuterVlanID': auto_outer_vlan_id,
     });
   }
 
@@ -134,21 +156,27 @@ define(function(require) {
       "OUTBOUND_PEAK_BW",
       "OUTBOUND_PEAK_KB" ];
 
-    var strippedTemplate = $.extend({}, this.element.TEMPLATE);
-
-    $.each(hiddenKeys, function(i, key){
-      delete strippedTemplate[key];
-    });
-
     var hiddenValues = {};
-
-    $.each(hiddenKeys, function(i, key){
-      if (that.element.TEMPLATE[key] != undefined){
-          hiddenValues[key] = that.element.TEMPLATE[key];
+    var strippedTemplate = {};
+    var strippedTemplateVcenter = {};
+    $.each(that.element.TEMPLATE, function(key, value) {
+      if ($.inArray(key, hiddenKeys) > -1) {
+        hiddenValues[key] = value;
       }
+      if (key.match(/^VCENTER_*/)){
+          strippedTemplateVcenter[key] = value;
+        }
+        else {
+          strippedTemplate[key] = value;
+        }
     });
 
-    TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, hiddenValues);
+    if($.isEmptyObject(strippedTemplateVcenter)){
+      $('.vcenter', context).hide();
+    }
+
+    TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, hiddenValues, strippedTemplateVcenter);
+    TemplateTableVcenter.setup(strippedTemplateVcenter, RESOURCE, this.element.ID, context, hiddenValues, strippedTemplate);
     //===
 
     return false;

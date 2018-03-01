@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -37,9 +37,8 @@ Dir[File.expand_path('vnmmad-load.d', File.dirname(__FILE__)) + "/*.rb"].each{ |
 include OpenNebula
 
 begin
-    CONF =  YAML.load_file(
-                File.join(File.dirname(__FILE__), "OpenNebulaNetwork.conf")
-            )
+    NAME = File.join(File.dirname(__FILE__), "../etc/vnm/OpenNebulaNetwork.conf")
+    CONF = YAML.load_file(NAME)
 rescue
     # Default configuration values
     CONF = {
@@ -48,7 +47,8 @@ rescue
         :vxlan_ttl           => "16",
         :vxlan_mtu           => "1500",
         :validate_vlan_id    => false,
-        :vlan_mtu            => "1500"
+        :vlan_mtu            => "1500",
+        :ipset_maxelem       => "65536",
     }
 end
 

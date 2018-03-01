@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -125,6 +125,17 @@ public:
     {
         return PoolSQL::dump(oss, "VDC_POOL", Vdc::table, where, limit);
     };
+
+    /**
+     *  Lists the VDC ids
+     *  @param oids a vector with the oids of the objects.
+     *
+     *  @return 0 on success
+     */
+     int list(std::vector<int>& oids)
+     {
+        return PoolSQL::list(oids, Vdc::table);
+     }
 
     /**
      *  Default name for the default VDC

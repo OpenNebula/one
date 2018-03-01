@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -34,19 +34,19 @@ dfile = ARGV[0]
 host  = ARGV[1]
 id    = ARGV[2]
 
-vm = OpenNebula::VirtualMachine.new_with_id(id, OpenNebula::Client.new)
-vm.info
-
-lcm_state = vm.lcm_state_str
-deploy_id = vm.deploy_id
-
-az_drv = AzureDriver.new(host)
-
-text=File.read(dfile)
-
 begin
+    vm = OpenNebula::VirtualMachine.new_with_id(id, OpenNebula::Client.new)
+    vm.info
+
+    lcm_state = vm.lcm_state_str
+    deploy_id = vm.deploy_id
+
+    az_drv = AzureDriver.new(host)
+
+    text=File.read(dfile)
+
     puts az_drv.deploy(id, host, text, lcm_state, deploy_id)
+
 rescue => e
-    STDERR.puts "Error deploying Azure VM: " + e.message
-    exit -1
+    OpenNebula.handle_driver_exception("Deploy", e, host, deploy_id, id, dfile)
 end

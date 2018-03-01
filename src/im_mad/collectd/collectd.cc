@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "OpenNebulaDriver.h"
+#include "NebulaUtil.h"
 #include <unistd.h>
 #include <string>
 #include <sstream>
@@ -27,13 +28,14 @@
 static const char * usage =
 "\n  collectd [-h] [-a address] [-p port] [-t threads] [-f flush]\n\n"
 "SYNOPSIS\n"
-"  Information Collector for OpenNebula. It should not be started directly\n\n"
+"  Information Collector for OpenNebula. It should not be started directly.\n"
+"  All arguments MUST be passed as a **single** string \n\n"
 "OPTIONS\n"
 "\t-h\tprints this help.\n"
 "\t-a\tAddress to bind the collectd sockect\n"
 "\t-p\tUDP port to listen for monitor information\n"
-"\t-f\tInterval in seconds to flush collected information\n"
-"\t-t\tNumber of threads for the server\n";
+"\t-t\tNumber of threads for the server\n"
+"\t-f and -i\tOptions are ignored\n";
 
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -64,48 +66,65 @@ int main(int argc, char ** argv)
     std::string address = "0.0.0.0";
     int port    = 4124;
     int threads = 50;
-    int flush   = 5;
 
     std::istringstream iss;
     int opt;
 
-    while((opt = getopt(argc,argv,":ha:p:t:f:")) != -1)
-        switch(opt)
+    if ( argv[1] != 0 )
+    {
+        std::string argv_1 = argv[1];
+
+        std::vector<std::string> _argv = one_util::split(argv_1, ' ');
+        int _argc = _argv.size() + 1;
+
+        char ** _argv_c = (char **) malloc(sizeof(char *) * (_argc + 1));
+
+        _argv_c[0] = argv[0];
+
+        for (int i=1 ; i < _argc ; ++i)
         {
-            case 'h':
-                std::cout << usage;
-                return 0;
-                break;
-            case 'a':
-                address = optarg;
-                break;
-
-            case 'p':
-                iss.clear();
-                iss.str(optarg);
-
-                iss >> port;
-                break;
-
-            case 't':
-                iss.clear();
-                iss.str(optarg);
-
-                iss >> threads;
-                break;
-
-            case 'f':
-                iss.clear();
-                iss.str(optarg);
-
-                iss >> flush;
-                break;
-
-            default:
-                std::cerr << usage;
-                return -1;
-                break;
+            _argv_c[i] = const_cast<char *>(_argv[i-1].c_str());
         }
+
+        _argv_c[_argc] = 0;
+
+        while((opt = getopt(_argc, _argv_c, ":ha:p:t:f:i:")) != -1)
+            switch(opt)
+            {
+                case 'h':
+                    std::cout << usage;
+                    return 0;
+                    break;
+                case 'a':
+                    address = optarg;
+                    break;
+
+                case 'p':
+                    iss.clear();
+                    iss.str(optarg);
+
+                    iss >> port;
+                    break;
+
+                case 't':
+                    iss.clear();
+                    iss.str(optarg);
+
+                    iss >> threads;
+                    break;
+
+                case 'f': //Compatibility with previous releases
+                case 'i': //Argument for collectd client
+                    break;
+
+                default:
+                    std::cerr << usage;
+                    return -1;
+                    break;
+            }
+
+        free(_argv_c);
+    }
 
     //--------------------------------------------------------------------------
     // Block all signals before creating server threads
@@ -130,7 +149,7 @@ int main(int argc, char ** argv)
     // -------------------------------------------------------------------------
     // Start the collector and server threads
     // -------------------------------------------------------------------------
-    IMCollectorDriver collectd(address, port, threads, flush);
+    IMCollectorDriver collectd(address, port, threads);
 
     if ( collectd.init_collector() != 0 )
     {

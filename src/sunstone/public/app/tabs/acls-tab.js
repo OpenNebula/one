@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -40,7 +40,10 @@ define(function(require) {
     tabClass: "subTab",
     parentTab: "system-top-tab",
     listHeader: Locale.tr("Access Control Lists"),
-    subheader: '<span/><small></small>&emsp;',
+    lockable: false,
+    subheader: '<span>\
+        <span class="total_acl"/> <small>'+Locale.tr("TOTAL")+'</small>\
+      </span>',
     resource: 'Acl',
     buttons: Buttons,
     actions: Actions,

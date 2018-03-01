@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -24,6 +24,14 @@ define(function(require) {
     'isTabEnabled': function(tabName) {
       var enabled = _config['view']['enabled_tabs'].indexOf(tabName) != -1;
       return enabled;
+    },
+
+    "changeFilter": function(bool) {
+      _config['pool_filter'] = bool;
+    },
+
+    "isChangedFilter": function(){
+      return _config['pool_filter'];
     },
 
     "isTabActionEnabled": function(tabName, actionName, panelName) {
@@ -137,7 +145,6 @@ define(function(require) {
       "logo": (_config['view']["provision_logo"] || "images/one_small_logo.png"),
     },
 
-    'autoRefresh' : _config['view']['autorefresh'],
     'tableOrder': _config['user_config']['table_order'],
     'vncProxyPort': _config['system_config']['vnc_proxy_port'],
     'vncWSS': _config['user_config']['vnc_wss'],
@@ -149,6 +156,8 @@ define(function(require) {
     'enabledTabs': _config['view']['enabled_tabs'],
     'onedConf': _config['oned_conf'],
     'confirmVMActions': _config['view']['confirm_vms'],
+    'scaleFactor': _config['view']['features']['instantiate_cpu_factor'],
+    'filterView': _config['view']['filter_view'],
 
     "allTabs": function() {
       return Object.keys(_config['view']['tabs']);

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -25,8 +25,7 @@ const int    VdcPool::DEFAULT_ID   = 0;
 
 /* -------------------------------------------------------------------------- */
 
-VdcPool::VdcPool(SqlDB * db, bool is_federation_slave)
-    :PoolSQL(db, Vdc::table, !is_federation_slave, true)
+VdcPool::VdcPool(SqlDB * db, bool is_federation_slave): PoolSQL(db, Vdc::table)
 {
     string error_str;
 
@@ -73,8 +72,7 @@ VdcPool::VdcPool(SqlDB * db, bool is_federation_slave)
 
         // The first 100 Vdc IDs are reserved for system Vdcs.
         // Regular ones start from ID 100
-
-        set_update_lastOID(99);
+        set_lastOID(99);
     }
 
     return;

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -171,7 +171,8 @@ post '/support/request' do
             :custom_fields => [
               {:id => SUPPORT[:custom_field_severity], :value => body_hash['severity']},
               {:id => SUPPORT[:custom_field_version], :value => body_hash['opennebula_version']}
-            ]
+            ],
+            :tags => [body_hash['severity']]
           })
 
     if zrequest.save

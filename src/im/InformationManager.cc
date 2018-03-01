@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -177,6 +177,14 @@ void InformationManager::timer_action(const ActionRequest& ar)
     {
         NebulaLog::log("InM",Log::INFO,"--Mark--");
         mark = 0;
+    }
+
+    Nebula& nd          = Nebula::instance();
+    RaftManager * raftm = nd.get_raftm();
+
+    if ( !raftm->is_leader() && !raftm->is_solo() )
+    {
+        return;
     }
 
     hpool->clean_expired_monitoring();

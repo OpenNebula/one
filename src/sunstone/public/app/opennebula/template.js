@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -97,12 +97,19 @@ define(function(require) {
         return true;
       }
     },
+    "lock" : function(params) {
+      OpenNebulaAction.lock(params, RESOURCE);
+    },
+    "unlock" : function(params) {
+      OpenNebulaAction.simple_action(params, RESOURCE, "unlock");
+    },
     "cost": function(template) {
       var cost = 0;
       var capacity = template.VMTEMPLATE.TEMPLATE;
 
       var cpuCost    = capacity.CPU_COST;
       var memoryCost = capacity.MEMORY_COST;
+      var memoryUnitCost = capacity.MEMORY_UNIT_COST;
       var diskCost   = capacity.DISK_COST;
 
       if (cpuCost == undefined){
@@ -122,7 +129,11 @@ define(function(require) {
       }
 
       if (capacity.MEMORY) {
-        cost += capacity.MEMORY * memoryCost;
+        if (memoryUnitCost === "GB"){
+          cost += (capacity.MEMORY / 1024) * memoryCost;
+        } else {
+          cost += capacity.MEMORY * memoryCost;
+        }
       }
 
       if (diskCost != 0) {
@@ -134,9 +145,9 @@ define(function(require) {
           disks = [template_disk];
         }
 
-        $.each(disks, function(i,disk){
+        $.each(disks, function(i, disk){
           if (disk.SIZE) {
-            cost += diskCost * disk.SIZE;
+            cost += diskCost * (disk.SIZE / 1024);
           }
 
           if (disk.DISK_SNAPSHOT_TOTAL_SIZE) {

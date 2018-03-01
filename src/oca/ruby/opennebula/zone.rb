@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -28,7 +28,9 @@ module OpenNebula
             :allocate       => "zone.allocate",
             :update         => "zone.update",
             :rename         => "zone.rename",
-            :delete         => "zone.delete"
+            :delete         => "zone.delete",
+            :addserver      => "zone.addserver",
+            :delserver      => "zone.delserver"
         }
 
         # Creates a Zone description with just its identifier
@@ -102,6 +104,27 @@ module OpenNebula
         #   otherwise
         def rename(name)
             return call(ZONE_METHODS[:rename], @pe_id, name)
+        end
+
+        # Adds servers to this Zone
+        #
+        # @param name [String] Template with zone servers
+        #   SERVER = [ NAME = "<server_name>", ENDPOINT = "<rpc_ep>" ]
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def add_servers(servers)
+            return call(ZONE_METHODS[:addserver], @pe_id, servers)
+        end
+
+        # Delete servers from this Zone
+        #
+        # @param id [Int] Server ID
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def delete_servers(server_id)
+            return call(ZONE_METHODS[:delserver], @pe_id, server_id)
         end
     end
 end

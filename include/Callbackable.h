@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,6 +18,7 @@
 #define CALLBACKABLE_H_
 
 #include <pthread.h>
+#include <sstream>
 
 using namespace std;
 
@@ -103,6 +104,69 @@ private:
      *  Mutex for locking the callback function.
      */
     pthread_mutex_t             mutex;
+};
+
+/* -------------------------------------------------------------------------- */
+/* Classes to obtain values from a DB it support concurrent queries using     */
+/* different objects                                                          */
+/* -------------------------------------------------------------------------- */
+
+template <class T>
+class single_cb : public Callbackable
+{
+public:
+    void set_callback(T * _value)
+    {
+        value = _value;
+
+        Callbackable::set_callback(
+                static_cast<Callbackable::Callback>(&single_cb::callback));
+    }
+
+    virtual int callback(void *nil, int num, char **values, char **names)
+    {
+        if ( values == 0 || values[0] == 0 || num != 1 )
+        {
+            return -1;
+        }
+
+        std::istringstream iss(values[0]);
+
+        iss >> *value;
+
+        return 0;
+    }
+
+private:
+    T * value;
+};
+
+template<>
+class single_cb<std::string> : public Callbackable
+{
+public:
+    void set_callback(std::string * _value)
+    {
+        value = _value;
+
+        Callbackable::set_callback(
+                static_cast<Callbackable::Callback>(&single_cb::callback));
+    }
+
+    virtual int callback(void *nil, int num, char **values, char **names)
+    {
+        if ( values == 0 || values[0] == 0 || num != 1 )
+        {
+            return -1;
+        }
+
+        *value = values[0];
+
+        return 0;
+    }
+
+private:
+    std::string * value;
 };
 
 #endif /*CALLBACKABLE_H_*/

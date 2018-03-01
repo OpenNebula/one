@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -124,6 +124,7 @@ end
 
 Role.init_default_cooldown(conf[:default_cooldown])
 Role.init_default_shutdown(conf[:shutdown_action])
+Role.init_force_deletion(conf[:force_deletion])
 
 conf[:vm_name_template] ||= DEFAULT_VM_NAME_TEMPLATE
 Role.init_default_vm_name_template(conf[:vm_name_template])
@@ -248,20 +249,24 @@ post '/service/:id/action' do
         when 'rename'
             service.rename(opts['name'])
         when 'update'
-            if opts && opts['template_raw']
-                if (opts['append'] == true)
-                    rc = service.update_raw(
-                        opts['template_raw'],
-                        (opts['append'] == true))
-
+            if opts && opts['append']
+                if opts['template_json']
+                    begin
+                        rc = service.update(opts['template_json'], true)
+                        status 204
+                    rescue Validator::ParseException, JSON::ParserError
+                        OpenNebula::Error.new($!.message)
+                    end
+                elsif opts['template_raw']
+                    rc = service.update_raw(opts['template_raw'], true)
                     status 204
                 else
                     OpenNebula::Error.new("Action #{action['perform']}: " <<
-                            "Only supported for append")
+                            "You have to provide a template")
                 end
             else
                 OpenNebula::Error.new("Action #{action['perform']}: " <<
-                        "You have to provide a raw template")
+                        "Only supported for append")
             end
         else
             OpenNebula::Error.new("Action #{action['perform']} not supported")

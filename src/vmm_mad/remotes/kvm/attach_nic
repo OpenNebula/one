@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,35 +16,80 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source $(dirname $0)/kvmrc
+source $(dirname $0)/../../etc/vmm/kvm/kvmrc
 source $(dirname $0)/../../scripts_common.sh
 
 DOMAIN=$1
-MAC=$2
-BRIDGE=$3
-THE_MODEL=$4
-NET_DRV=$5
-TARGET=$6
 
-if [ "$THE_MODEL" != "-" ]; then
-    MODEL="<model type='$THE_MODEL'/>"
+get_nic_information "ATTACH='YES'"
+
+# defaults
+MODEL=${MODEL:-${DEFAULT_ATTACH_NIC_MODEL}}
+FILTER=${FILTER:-${DEFAULT_ATTACH_NIC_FILTER}}
+
+# interface XML
+DEVICE=''
+
+if [ -z "${BRIDGE}" ]; then
+    DEVICE+="<interface type='ethernet'>"
+else
+    DEVICE+="<interface type='bridge'>"
+    if [ "${VN_MAD}" = 'ovswitch' ] || [ "${VN_MAD}" = 'ovswitch_vxlan' ]; then
+        DEVICE+=" <virtualport type='openvswitch'/>"
+    fi
+    DEVICE+=" <source bridge='$(xml_esc "${BRIDGE}")'/>"
 fi
 
-if [ "$NET_DRV" = "ovswitch" ]; then
-    VIRTUALPORT="<virtualport type='openvswitch'/>"
+[ -n "${MAC}" ] && DEVICE+=" <mac address='$(xml_esc "${MAC}")'/>"
+[ -n "${NIC_TARGET}" ] && DEVICE+=" <target dev='$(xml_esc "${NIC_TARGET}")'/>"
+[ -n "${ORDER}" ] && DEVICE+=" <boot order='$(xml_esc "${ORDER}")'/>"
+[ -n "${SCRIPT}" ] && DEVICE+=" <script path='$(xml_esc "${SCRIPT}")'/>"
+[ -n "${MODEL}" ] && DEVICE+=" <model type='$(xml_esc "${MODEL}")'/>"
+
+if [ -n "${IP}" ] && [ -n "${FILTER}" ]; then
+    DEVICE+=" <filterref filter='$(xml_esc "${FILTER}")'>"
+    DEVICE+=" <parameter name='IP' value='$(xml_esc "${IP}")'/>"
+    [ -n "${VROUTER_IP}" ] && DEVICE+=" <parameter name='IP' value='$(xml_esc "${VROUTER_IP}")'/>"
+    DEVICE+=" </filterref>"
 fi
 
-DEVICE=$(cat <<EOF
-<interface type='bridge'>
-    <source bridge='$BRIDGE'/>
-    <mac address='$MAC'/>
-    <target dev='$TARGET'/>
-    $MODEL
-    $VIRTUALPORT
-</interface>
-EOF
-)
+if [ -n "${INBOUND_AVG_BW}${INBOUND_PEAK_BW}${INBOUND_PEAK_KB}" ] || \
+   [ -n "${OUTBOUND_AVG_BW}${OUTBOUND_PEAK_BW}${OUTBOUND_PEAK_KB}" ];
+then
+    DEVICE+=" <bandwidth>"
 
+    if [ -n "${INBOUND_AVG_BW}${INBOUND_PEAK_BW}${INBOUND_PEAK_KB}" ]; then
+        DEVICE+=" <inbound"
+
+        [ -n "${INBOUND_AVG_BW}" ] && \
+            DEVICE+=" average='$(xml_esc "${INBOUND_AVG_BW}")'"
+        [ -n "${INBOUND_PEAK_BW}" ] && \
+            DEVICE+=" peak='$(xml_esc "${INBOUND_PEAK_BW}")'"
+        [ -n "${INBOUND_PEAK_KB}" ] && \
+            DEVICE+=" burst='$(xml_esc "${INBOUND_PEAK_KB}")'"
+
+        DEVICE+=" />"
+    fi
+
+    if [ -n "${OUTBOUND_AVG_BW}${OUTBOUND_PEAK_BW}${OUTBOUND_PEAK_KB}" ]; then
+        DEVICE+=" <outbound"
+
+        [ -n "${OUTBOUND_AVG_BW}" ] && \
+            DEVICE+=" average='$(xml_esc "${OUTBOUND_AVG_BW}")'"
+        [ -n "${OUTBOUND_PEAK_BW}" ] && \
+            DEVICE+=" peak='$(xml_esc "${OUTBOUND_PEAK_BW}")'"
+        [ -n "${OUTBOUND_PEAK_KB}" ] && \
+            DEVICE+=" burst='$(xml_esc "${OUTBOUND_PEAK_KB}")'"
+
+        DEVICE+=" />"
+    fi
+
+    DEVICE+=" </bandwidth>"
+fi
+
+DEVICE+=" </interface>"
+
+# device attach
 ATTACH_CMD=$(cat <<EOF
 virsh --connect $LIBVIRT_URI attach-device $DOMAIN <(
 cat <<EOT
@@ -55,4 +100,4 @@ EOF
 )
 
 multiline_exec_and_log "$ATTACH_CMD" \
-    "Could not attach $SOURCE ($TARGET) to $DOMAIN"
+    "Could not attach NIC ${NIC_ID} ($MAC) to $DOMAIN"

@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -107,6 +107,50 @@
     </table>
   </div>
 </div>
+<div class="row vcenter">
+  <div class="large-9 columns">{{{templateTableVcenterHTML}}}</div>
+</div>
 <div class="row">
   <div class="large-9 columns">{{{templateTableHTML}}}</div>
 </div>
+<div class="row ec2">
+  <div class="large-12 columns">
+    <table class="datatable">
+      <thead>
+        <tr>
+          <th colspan="3">{{tr "EC2"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div id="host_ec2_div" class="row">
+              <div class="row">
+                <div class="large-12 columns">
+                  <table class="datatable">
+                    <thead>
+                      <tr>
+                        <th colspan="3">{{tr "Attributes"}}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {{{ec2_tr}}}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="row">
+                <div class="large-12 columns" id="capacity">
+                  <fieldset class="ec2_capacity">
+                    <legend>{{tr "Capacity"}}</legend>
+                      {{{capacityTableHTML}}}
+                  </fieldset>
+                </div>
+              </div> 
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div> 

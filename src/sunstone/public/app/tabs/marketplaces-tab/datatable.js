@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -27,6 +27,7 @@ define(function(require) {
   var DatastoreCapacityBar = require('../datastores-tab/utils/datastore-capacity-bar');
   var LabelsUtils = require('utils/labels/utils');
   var SearchDropdown = require('hbs!./datatable/search');
+  var Status = require('utils/status');
 
   /*
     CONSTANTS
@@ -74,15 +75,16 @@ define(function(require) {
           {"sWidth": "35px", "aTargets": [0]},
           {"sWidth": "250px", "aTargets": [5]},
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
-          {"bVisible": false, "aTargets": ['_all']}
+          {"bVisible": false, "aTargets": ['_all']},
+          {"sType": "num", "aTargets": [1, 6, 8]}
       ]
     }
 
     this.columns = [
       Locale.tr("ID"),
+      Locale.tr("Name"),
       Locale.tr("Owner"),
       Locale.tr("Group"),
-      Locale.tr("Name"),
       Locale.tr("Capacity"),
       Locale.tr("Apps"),
       Locale.tr("Driver"),
@@ -93,8 +95,8 @@ define(function(require) {
 
     this.selectOptions = {
       "id_index": 1,
-      "name_index": 4,
-      "uname_index": 2,
+      "name_index": 2,
+      "uname_index": 3,
       "select_resource": Locale.tr("Please select a marketplace from the list"),
       "you_selected": Locale.tr("You selected the following marketplace:"),
       "select_resource_multiple": Locale.tr("Please select one or more marketplaces from the list"),
@@ -104,12 +106,16 @@ define(function(require) {
     this.conf.searchDropdownHTML = SearchDropdown({tableId: this.dataTableId});
     this.searchColumn = SEARCH_COLUMN;
 
+    this.totalMarkets = 0;
+
     TabDataTable.call(this);
   };
 
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
+  Table.prototype.preUpdateView = _preUpdateView;
+  Table.prototype.postUpdateView = _postUpdateView;
 
   return Table;
 
@@ -119,6 +125,7 @@ define(function(require) {
 
   function _elementArray(element_json) {
     var element = element_json[XML_ROOT];
+    this.totalMarkets++;
 
     var zone = OpenNebulaZone.getName(element.ZONE_ID);
 
@@ -130,14 +137,17 @@ define(function(require) {
       ZONE:       zone
     }
 
+    var color_html = Status.state_lock_to_color("MARKETPLACE",false, element_json[XML_ROOT]["LOCK"]);
+
     return [
-        '<input class="check_item" type="checkbox" id="'+RESOURCE.toLowerCase()+'_' +
-                             element.ID + '" name="selected_items" value="' +
-                             element.ID + '"/>',
+      '<input class="check_item" type="checkbox" '+
+                          'style="vertical-align: inherit;" id="'+this.resource.toLowerCase()+'_' +
+                           element.ID + '" name="selected_items" value="' +
+                           element.ID + '"/>'+color_html,
         element.ID,
+        element.NAME,
         element.UNAME,
         element.GNAME,
-        element.NAME,
         DatastoreCapacityBar.html(element),
         _lengthOf(element.MARKETPLACEAPPS.ID),
         element.MARKET_MAD,
@@ -155,5 +165,13 @@ define(function(require) {
       l = 1;
 
     return l;
+  }
+
+  function _preUpdateView() {
+    this.totalMarkets = 0;
+  }
+
+  function _postUpdateView() {
+    $(".total_markets").text(this.totalMarkets);
   }
 });

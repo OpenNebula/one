@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -55,6 +55,7 @@ main_env.Append(CPPPATH=[
 main_env.Append(LIBPATH=[
     cwd+'/src/common',
     cwd+'/src/log',
+    cwd+'/src/raft',
     cwd+'/src/sql',
     cwd+'/src/host',
     cwd+'/src/cluster',
@@ -142,6 +143,15 @@ if xmlrpc_dir!='none':
     main_env.Append(LIBPATH=[xmlrpc_dir+"/lib", xmlrpc_dir+"/lib64"])
     main_env.Append(CPPPATH=[xmlrpc_dir+"/include"])
 
+# systemd
+systemd=ARGUMENTS.get('systemd', 'no')
+if systemd=='yes':
+    main_env.Append(systemd='yes')
+    main_env.Append(CPPFLAGS=["-DSYSTEMD"])
+    main_env.Append(LIBS=['systemd'])
+else:
+    main_env.Append(systemd='no')
+
 # build lex/bison
 build_parsers=ARGUMENTS.get('parsers', 'no')
 if build_parsers=='yes':
@@ -211,6 +221,7 @@ main_env.ParseConfig('xml2-config --libs --cflags')
 build_scripts=[
     'src/sql/SConstruct',
     'src/log/SConstruct',
+    'src/raft/SConstruct',
     'src/common/SConstruct',
     'src/template/SConstruct',
     'src/host/SConstruct',
@@ -245,7 +256,6 @@ build_scripts=[
     'src/vrouter/SConstruct',
     'src/market/SConstruct',
     'src/ipamm/SConstruct',
-    'share/man/SConstruct',
     'src/sunstone/public/locale/languages/SConstruct',
     'src/sunstone/public/SConstruct',
     'share/rubygems/SConstruct',

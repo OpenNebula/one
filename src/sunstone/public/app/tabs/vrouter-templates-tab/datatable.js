@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -34,11 +34,14 @@ define(function(require) {
 
   function Table(dataTableId, conf) {
     CommonDataTable.call(this, RESOURCE, TAB_NAME, dataTableId, conf);
+    this.totalVRouters = 0;
   };
 
   Table.prototype = Object.create(CommonDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
+  Table.prototype.preUpdateView = _preUpdateView;
+  Table.prototype.postUpdateView = _postUpdateView;
 
   return Table;
 
@@ -55,6 +58,16 @@ define(function(require) {
       return false;
     }
 
+    this.totalVRouters++;
+
     return this.elementArrayCommon(element_json);
+  }
+
+  function _preUpdateView() {
+    this.totalVRouters = 0;
+  }
+
+  function _postUpdateView() {
+    $(".total_vrouters").text(this.totalVRouters);
   }
 });

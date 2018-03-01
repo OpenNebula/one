@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -38,7 +38,7 @@ MD5SUM=${MD5SUM:-md5sum}
 MKFS=${MKFS:-mkfs}
 MKISOFS=${MKISOFS:-genisoimage}
 MKSWAP=${MKSWAP:-mkswap}
-QEMU_IMG=${QMEMU_IMG:-qemu-img}
+QEMU_IMG=${QEMU_IMG:-qemu-img}
 RADOS=${RADOS:-rados}
 RBD=${RBD:-rbd}
 READLINK=${READLINK:-readlink}
@@ -127,6 +127,36 @@ function error_message
         echo "$1"
         echo "ERROR MESSAGE ------>8--"
     ) 1>&2
+}
+
+# Ensures the code is executed exclusively
+function exclusive
+{
+    LOCK_FILE="/var/lock/one/$1"
+    TIMEOUT=$2
+    shift 2
+
+    ( umask 0027; touch "${LOCK_FILE}" 2>/dev/null )
+
+    # open lockfile
+    { exec {FD}>"${LOCK_FILE}"; } 2>/dev/null
+    if [ $? -ne 0 ]; then
+        log_error "Could not create or open lock ${LOCK_FILE}"
+        exit -2
+    fi
+
+    # acquire lock
+    flock -w "${TIMEOUT}" "${FD}" 2>/dev/null
+    if [ $? -ne 0 ]; then
+        log_error "Could not acquire exclusive lock on ${LOCK_FILE}"
+        exit -2
+    fi
+
+    "$@"
+
+    EXEC_RC=$?
+    eval "exec ${FD}>&-"
+    return $EXEC_RC
 }
 
 # Executes a command, if it fails returns error message and exits
@@ -301,7 +331,7 @@ function force_shutdown {
     if [ "x$error" != "x0" ]; then
         if [ "$FORCE_DESTROY" = "yes" ]; then
             log_error "Timeout shutting down $deploy_id. Destroying it"
-            $($command)
+            ret=$($command)
             sleep 2
         else
             error_message "Timed out shutting down $deploy_id"
@@ -444,6 +474,18 @@ EOF`
 
         exit $SSH_EXEC_RC
     fi
+}
+
+# Escape characters which could be interpreted as XML markup
+function xml_esc
+{
+   R=${1//\'/&apos;}
+   R=${R//\"/&quot;}
+   R=${R//\&/&amp;}
+   R=${R//\</&lt;}
+   R=${R//\>/&gt;}
+
+   echo "${R}"
 }
 
 # TODO -> Use a dynamically loaded scripts directory. Not removing this due
@@ -645,6 +687,14 @@ function get_source_xml {
 # * POOL_NAME
 # * SIZE
 # * DISK_TARGET
+# * DISK_IO
+# * ORDER
+# * TOTAL_BYTES_SEC
+# * READ_BYTES_SEC
+# * WRITE_BYTES_SEC
+# * TOTAL_IOPS_SEC
+# * READ_IOPS_SEC
+# * WRITE_IOPS_SEC
 # * TYPE_SOURCE: libvirt xml source name. $TYPE_SOURCE=$SOURCE => file=/my/path
 # * SOURCE: disk source, can be path, ceph pool/image, device...
 # * TYPE_XML
@@ -687,7 +737,15 @@ function get_disk_information {
                         $DISK_XPATH/DISK_TYPE \
                         $DISK_XPATH/POOL_NAME \
                         $DISK_XPATH/SIZE \
-                        $DISK_XPATH/TARGET)
+                        $DISK_XPATH/TARGET \
+                        $DISK_XPATH/IO \
+                        $DISK_XPATH/ORDER \
+                        $DISK_XPATH/TOTAL_BYTES_SEC \
+                        $DISK_XPATH/READ_BYTES_SEC \
+                        $DISK_XPATH/WRITE_BYTES_SEC \
+                        $DISK_XPATH/TOTAL_IOPS_SEC \
+                        $DISK_XPATH/READ_IOPS_SEC \
+                        $DISK_XPATH/WRITE_IOPS_SEC)
 
     VMID="${XPATH_ELEMENTS[j++]}"
     DRIVER="${XPATH_ELEMENTS[j++]:-$DEFAULT_TYPE}"
@@ -709,8 +767,17 @@ function get_disk_information {
     POOL_NAME="${XPATH_ELEMENTS[j++]}"
     SIZE="${XPATH_ELEMENTS[j++]}"
     DISK_TARGET="${XPATH_ELEMENTS[j++]}"
+    DISK_IO="${XPATH_ELEMENTS[j++]}"
+    ORDER="${XPATH_ELEMENTS[j++]}"
+    TOTAL_BYTES_SEC="${XPATH_ELEMENTS[j++]}"
+    READ_BYTES_SEC="${XPATH_ELEMENTS[j++]}"
+    WRITE_BYTES_SEC="${XPATH_ELEMENTS[j++]}"
+    TOTAL_IOPS_SEC="${XPATH_ELEMENTS[j++]}"
+    READ_IOPS_SEC="${XPATH_ELEMENTS[j++]}"
+    WRITE_IOPS_SEC="${XPATH_ELEMENTS[j++]}"
 
     TYPE=$(echo "$TYPE"|tr A-Z a-z)
+    READONLY=$(echo "$READONLY"|tr A-Z a-z)
 
     NAME="$SOURCE"
 
@@ -802,3 +869,86 @@ function get_disk_information {
     esac
 }
 
+
+# This function extracts information about a NIC. The first parameter
+# is a string with the filter for NICs, for example, to get the interface
+# that's going to be attached, use:
+#
+#     get_nic_information "ATTACH=YES"
+#
+# To get an specific interface ID use:
+#
+#     get_nic_information "NIC_ID=$NIC_ID"
+#
+# The variables set are as follows:
+#
+# * VMID
+# * NIC_ID
+# * BRIDGE
+# * VN_MAD
+# * MAC
+# * NIC_TARGET
+# * SCRIPT
+# * MODEL
+# * IP
+# * FILTER
+# * VROUTER_IP
+# * INBOUND_AVG_BW
+# * INBOUND_PEAK_BW
+# * INBOUND_PEAK_KB
+# * OUTBOUND_AVG_BW
+# * OUTBOUND_PEAK_BW
+# * OUTBOUND_PEAK_KB
+# * ORDER
+
+function get_nic_information {
+    FILTER="$1"
+
+    DRIVER_PATH=$(dirname $0)
+    XPATH="${DRIVER_PATH}/../../datastore/xpath.rb"
+    CMD="$XPATH --stdin"
+
+    unset i j XPATH_ELEMENTS
+
+    NIC_XPATH="/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/NIC[$FILTER]"
+
+    while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+    done < <($CMD       /VMM_DRIVER_ACTION_DATA/VM/ID \
+                        $NIC_XPATH/NIC_ID \
+                        $NIC_XPATH/BRIDGE \
+                        $NIC_XPATH/VN_MAD \
+                        $NIC_XPATH/MAC \
+                        $NIC_XPATH/TARGET \
+                        $NIC_XPATH/SCRIPT \
+                        $NIC_XPATH/MODEL \
+                        $NIC_XPATH/IP \
+                        $NIC_XPATH/FILTER \
+                        $NIC_XPATH/VROUTER_IP \
+                        $NIC_XPATH/INBOUND_AVG_BW \
+                        $NIC_XPATH/INBOUND_PEAK_BW \
+                        $NIC_XPATH/INBOUND_PEAK_KB \
+                        $NIC_XPATH/OUTBOUND_AVG_BW \
+                        $NIC_XPATH/OUTBOUND_PEAK_BW \
+                        $NIC_XPATH/OUTBOUND_PEAK_KB \
+                        $NIC_XPATH/ORDER)
+
+    VMID="${XPATH_ELEMENTS[j++]}"
+    NIC_ID="${XPATH_ELEMENTS[j++]}"
+    BRIDGE="${XPATH_ELEMENTS[j++]}"
+    VN_MAD="${XPATH_ELEMENTS[j++]}"
+    MAC="${XPATH_ELEMENTS[j++]}"
+    NIC_TARGET="${XPATH_ELEMENTS[j++]}"
+    SCRIPT="${XPATH_ELEMENTS[j++]}"
+    MODEL="${XPATH_ELEMENTS[j++]}"
+    IP="${XPATH_ELEMENTS[j++]}"
+    FILTER="${XPATH_ELEMENTS[j++]}"
+    VROUTER_IP="${XPATH_ELEMENTS[j++]}"
+    INBOUND_AVG_BW="${XPATH_ELEMENTS[j++]}"
+    INBOUND_PEAK_BW="${XPATH_ELEMENTS[j++]}"
+    INBOUND_PEAK_KB="${XPATH_ELEMENTS[j++]}"
+    OUTBOUND_AVG_BW="${XPATH_ELEMENTS[j++]}"
+    OUTBOUND_PEAK_BW="${XPATH_ELEMENTS[j++]}"
+    OUTBOUND_PEAK_KB="${XPATH_ELEMENTS[j++]}"
+    ORDER="${XPATH_ELEMENTS[j++]}"
+}

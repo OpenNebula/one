@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -41,7 +41,7 @@ const int    DatastorePool::FILE_DS_ID   = 2;
 DatastorePool::DatastorePool(
         SqlDB * db,
         const vector<const SingleAttribute *>& _inherit_attrs) :
-    PoolSQL(db, Datastore::table, true, true)
+    PoolSQL(db, Datastore::table)
 
 {
     ostringstream oss;
@@ -160,7 +160,7 @@ DatastorePool::DatastorePool(
         }
 
         // User created datastores will start from ID 100
-        set_update_lastOID(99);
+        set_lastOID(99);
     }
 
     return;

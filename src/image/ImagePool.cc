@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -42,7 +42,7 @@ ImagePool::ImagePool(
         vector<const VectorAttribute *>& hook_mads,
         const string&                    remotes_location,
         const vector<const SingleAttribute *>& _inherit_attrs)
-    :PoolSQL(db, Image::table, true, true)
+    :PoolSQL(db, Image::table)
 {
     // Init static defaults
     _default_type       = __default_type;
@@ -67,7 +67,7 @@ ImagePool::ImagePool(
         _default_type = "OS";
     }
 
-    ImageTemplate::set_restricted_attributes(restricted_attrs);
+    ImageTemplate::parse_restricted(restricted_attrs);
 
     register_hooks(hook_mads, remotes_location);
 }
@@ -297,6 +297,7 @@ int ImagePool::acquire_disk(int               vm_id,
                             int               uid,
                             int&              image_id,
                             Snapshots **      snap,
+                            bool              attach,
                             string&           error_str)
 {
     string  source;
@@ -314,7 +315,7 @@ int ImagePool::acquire_disk(int               vm_id,
 
     if ( disk->vector_value("IMAGE_ID", iid) == 0 )
     {
-        img = imagem->acquire_image(vm_id, iid, error_str);
+        img = imagem->acquire_image(vm_id, iid, attach, error_str);
 
         if ( img == 0 )
         {
@@ -336,7 +337,7 @@ int ImagePool::acquire_disk(int               vm_id,
             return -1;
         }
 
-        img = imagem->acquire_image(vm_id, source, uiid, error_str);
+        img = imagem->acquire_image(vm_id, source, uiid, attach, error_str);
 
         if ( img == 0 )
         {

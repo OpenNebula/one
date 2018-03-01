@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -762,7 +762,7 @@ module Migrator
               reserved_vlan_ids << vlan_id
             end
 
-            doc.root.xpath('//VLAN_ID').remove
+            doc.root.xpath("//VLAN_ID[not(parent::AR)]").each {|e| e.remove }
           end
 
           doc.root.add_child(doc.create_element("VLAN_ID")).content = vlan_id

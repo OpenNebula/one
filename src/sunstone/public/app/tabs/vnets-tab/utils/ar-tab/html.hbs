@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -23,31 +23,22 @@
   </div>
 </div>
 <div class="row">
-  <div class="medium-6 columns">
-    <div class="row collapse ar_input type_ip4 type_ip4_6">
-      <label for="{{str_ar_tab_id}}_ip_start">{{tr "First IPv4 address"}}
-      </label>
-      <input wizard_field="IP" type="text" name="IP" id="{{str_ar_tab_id}}_ip_start"/>
-    </div>
-    <div class="row collapse ar_input type_ip4 type_ip4_6 type_ip6 type_ether">
-      <label for="{{str_ar_tab_id}}_mac_start">{{tr "First MAC address"}}
-      </label>
-      <input wizard_field="MAC" type="text" name="MAC" id="{{str_ar_tab_id}}_mac_start" />
-    </div>
+  <div class="medium-6 columns ar_input type_ip4 type_ip4_6">
+    <label for="{{str_ar_tab_id}}_ip_start">{{tr "First IPv4 address"}}</label>
+    <input wizard_field="IP" type="text" name="IP" id="{{str_ar_tab_id}}_ip_start"/>
   </div>
-  <div class="medium-6 columns">
-    <div class="row collapse ar_input type_ip4 type_ip4_6 type_ip6 type_ether">
-      <label for="{{str_ar_tab_id}}_size">{{tr "Size"}}
-      </label>
-      <input wizard_field="SIZE" required type="number" min="0" name="SIZE" id="{{str_ar_tab_id}}_size" />
-    </div>
-    <div class="row collapse ar_input type_ip4_6 type_ip6 switch left">
-        <label for="{{str_ar_tab_id}}_">{{tr "SLAAC"}}
-        </label>
-        <input class="switch-input slaac" id="{{str_ar_tab_id}}_slaac" type="checkbox">
-        <label class="switch-paddle" for="{{str_ar_tab_id}}_slaac">
-        </label>
-    </div>
+  <div class="medium-6 columns ar_input type_ip4 type_ip4_6 type_ip6 type_ether">
+    <label for="{{str_ar_tab_id}}_mac_start">{{tr "First MAC address"}}</label>
+    <input wizard_field="MAC" type="text" name="MAC" id="{{str_ar_tab_id}}_mac_start"/>
+  </div>
+  <div class="medium-6 columns ar_input type_ip4 type_ip4_6 type_ip6 type_ether">
+    <label for="{{str_ar_tab_id}}_size">{{tr "Size"}}</label>
+    <input wizard_field="SIZE" required type="number" min="0" name="SIZE" id="{{str_ar_tab_id}}_size" />
+  </div>
+    <div class="medium-6 columns collapse ar_input type_ip4_6 type_ip6 switch left">
+      <label for="{{str_ar_tab_id}}_">{{tr "SLAAC"}}</label>
+      <input class="switch-input slaac" id="{{str_ar_tab_id}}_slaac" type="checkbox">
+      <label class="switch-paddle" for="{{str_ar_tab_id}}_slaac"></label>
   </div>
 </div>
 <div class="row slaac_true">
@@ -81,7 +72,7 @@
           </div>
         </div>
       </fieldset>
-      <fieldset>
+      <fieldset class="sec_groups_datatable">
         <legend>{{tr "Security Groups"}}</legend>
         <div class="row" id="{{str_ar_tab_id}}_security_groups">
           {{{securityGroupsTableHTML}}}

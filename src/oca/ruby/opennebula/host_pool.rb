@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -53,7 +53,22 @@ module OpenNebula
             super(HOST_POOL_METHODS[:info])
         end
 
+        def info_all()
+            return super(HOST_POOL_METHODS[:info])
+        end
+
+        def info_mine()
+            return super(HOST_POOL_METHODS[:info])
+        end
+
+        def info_group()
+            return super(HOST_POOL_METHODS[:info])
+        end
+
         alias_method :info!, :info
+        alias_method :info_all!, :info_all
+        alias_method :info_mine!, :info_mine
+        alias_method :info_group!, :info_group
 
         # Retrieves the monitoring data for all the Hosts in the pool
         #

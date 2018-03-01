@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -51,8 +51,9 @@
             </div>
           </div>
         </fieldset>
-        <fieldset class="hypervisor only_kvm">
+        <fieldset>
           <legend>{{tr "Datastore Requirements"}}</legend>
+          <div id="req_type" class="ds_select">{{{dsTableSelectHTML}}}</div>
           <div class="row">
             <div class="large-12 columns">
               <label for="SCHED_DS_REQUIREMENTS">

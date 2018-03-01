@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -21,10 +21,8 @@
 
 /* -------------------------------------------------------------------------- */
 
-MarketPlacePool::MarketPlacePool(
-        SqlDB * db,
-        bool    is_federation_slave)
-    :PoolSQL(db, MarketPlace::table, !is_federation_slave, true)
+MarketPlacePool::MarketPlacePool(SqlDB * db, bool is_federation_slave)
+    :PoolSQL(db, MarketPlace::table)
 {
     //Federation slaves do not need to init the pool
     if (is_federation_slave)
@@ -78,8 +76,7 @@ MarketPlacePool::MarketPlacePool(
 
         // The first 100 IDs are reserved for system MarketPlaces.
         // Regular ones start from ID 100
-
-        set_update_lastOID(99);
+        set_lastOID(99);
     }
 
     return;

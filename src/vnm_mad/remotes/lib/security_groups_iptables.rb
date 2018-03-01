@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -146,7 +146,11 @@ module SGIPTables
                 end
 
                 if !sets.include?(set)
-                    cmds.add :ipset, "create #{set} hash:net,port family #{family}"
+                    maxelem = vars[:nic][:conf][:ipset_maxelem] ?
+                        "maxelem #{vars[:nic][:conf][:ipset_maxelem]}" :
+                        "maxelem #{CONF[:ipset_maxelem]}"
+
+                    cmds.add :ipset, "create #{set} hash:net,port family #{family} #{maxelem}"
                     cmds.add command, "-A #{chain} -m set --match-set" \
                         " #{set} #{dir} -j RETURN"
 
@@ -318,10 +322,11 @@ module SGIPTables
 
         vars = {}
 
-        vars[:vm_id]     = vm_id,
-        vars[:nic_id]    = nic_id,
-        vars[:chain]     = "one-#{vm_id}-#{nic_id}",
-        vars[:chain_in]  = "#{vars[:chain]}-i",
+        vars[:nic]       = nic
+        vars[:vm_id]     = vm_id
+        vars[:nic_id]    = nic_id
+        vars[:chain]     = "one-#{vm_id}-#{nic_id}"
+        vars[:chain_in]  = "#{vars[:chain]}-i"
         vars[:chain_out] = "#{vars[:chain]}-o"
 
         if sg_id
@@ -388,12 +393,20 @@ module SGIPTables
         commands.add :ip6tables, "-A #{chain_in} -p icmpv6 --icmpv6-type 135 "\
             "-j ACCEPT"
 
+        ## Allow neighbor solicitations replies to reach the host
+        commands.add :ip6tables, "-A #{chain_in} -p icmpv6 --icmpv6-type 136 "\
+            "-j ACCEPT"
+
         ## Allow routers to send Redirect messages
         commands.add :ip6tables, "-A #{chain_in} -p icmpv6 --icmpv6-type 137 "\
             "-j ACCEPT"
 
         ## Allow the host to send a router solicitation
         commands.add :ip6tables, "-A #{chain_out} -p icmpv6 --icmpv6-type 133 "\
+            "-j ACCEPT"
+
+        ## Allow the host to send neighbor solicitation requests
+        commands.add :ip6tables, "-A #{chain_out} -p icmpv6 --icmpv6-type 135 "\
             "-j ACCEPT"
 
         ## Allow the host to send neighbor solicitation replies
@@ -439,7 +452,7 @@ module SGIPTables
 
             ipv6s = Array.new
 
-            [:ip6_global, :ip6_link, :ip6_ula].each do |key|
+            [:ip6, :ip6_global, :ip6_link, :ip6_ula].each do |key|
                 ipv6s << nic[key] if !nic[key].nil? && !nic[key].empty?
             end
 
@@ -481,9 +494,11 @@ module SGIPTables
         chain_out = vars[:chain_out]
 
         commands = VNMNetwork::Commands.new
-        commands.add :iptables, "-A #{chain_in} -j DROP"
+
+        commands.add :iptables, "-A #{chain_in}  -j DROP"
         commands.add :iptables, "-A #{chain_out} -j DROP"
-        commands.add :ip6tables, "-A #{chain_in} -j DROP"
+
+        commands.add :ip6tables, "-A #{chain_in}  -j DROP"
         commands.add :ip6tables, "-A #{chain_out} -j DROP"
 
         commands.run!
@@ -496,12 +511,15 @@ module SGIPTables
         chain_in  = vars[:chain_in]
         chain_out = vars[:chain_out]
 
-        info              = self.info
-        iptables_forwards = info[:iptables_forwards]
-        iptables_s        = info[:iptables_s]
-        ip6tables_forwards= info[:ip6tables_forwards]
-        ip6tables_s       = info[:ip6tables_s]
-        ipset_list        = info[:ipset_list]
+        info = self.info
+
+        iptables_forwards  = info[:iptables_forwards]
+        iptables_s         = info[:iptables_s]
+
+        ip6tables_forwards = info[:ip6tables_forwards]
+        ip6tables_s        = info[:ip6tables_s]
+
+        ipset_list = info[:ipset_list]
 
         commands = VNMNetwork::Commands.new
 
@@ -524,13 +542,20 @@ module SGIPTables
         remove_chains = []
         iptables_s.lines.each do |line|
             if line.match(/^-N #{chain}(-|$)/)
-                 remove_chains << line.split[1]
+                remove_chains << line.split[1]
             end
         end
         remove_chains.each {|c| commands.add :iptables, "-F #{c}" }
         remove_chains.each {|c| commands.add :iptables, "-X #{c}" }
-        remove_chains.each {|c| commands.add :ip6tables, "-F #{c}" }
-        remove_chains.each {|c| commands.add :ip6tables, "-X #{c}" }
+
+        remove_chains_6 = []
+        ip6tables_s.lines.each do |line|
+            if line.match(/^-N #{chain}(-|$)/)
+                remove_chains_6 << line.split[1]
+            end
+        end
+        remove_chains_6.each {|c| commands.add :ip6tables, "-F #{c}" }
+        remove_chains_6.each {|c| commands.add :ip6tables, "-X #{c}" }
 
         ipset_list.lines.each do |line|
             if line.match(/^#{chain}(-|$)/)

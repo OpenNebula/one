@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -16,10 +16,12 @@
 
 
 <div class="row">
-  <div class="memory_input_wrapper small-12 columns">
-    <label class="" for="MEMORY">
+  <div class="memory_input_wrapper large-8 small-12 columns">
+    <label style="padding: 0; text-align: left" class="small-5 columns" for="MEMORY">
       {{tr "Memory"}}
       {{{tip (tr "Amount of RAM required for the VM, in Megabytes.")}}}
+    </label>
+    <label style="padding: 0; text-align: right; font-size: 95%" class="small-7 columns" id="quotas-mem" hidden>
     </label>
     <div class="memory_input">
     </div>
@@ -27,9 +29,11 @@
 </div>
 <div class="row">
   <div class="cpu_input_wrapper small-12 columns">
-    <label class="" for="CPU">
+    <label style="padding: 0; text-align: left" class="small-5 columns" for="CPU">
       {{tr "CPU"}}
       {{{tip (tr "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5.")}}}
+    </label>
+    <label style="padding: 0; text-align: right" class="small-7 columns" id="quotas-cpu" hidden>
     </label>
     <div class="cpu_input">
     </div>

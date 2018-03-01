@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -78,7 +78,7 @@ define(function(require) {
       $.each(Config.onedConf.IM_MAD, function(index, imMad) {
         if (imMad.SUNSTONE_NAME !== undefined) {
           that.imMadNameList.push({
-              'displayNme': imMad["SUNSTONE_NAME"],
+              'displayName': imMad["SUNSTONE_NAME"],
               'driverName': imMad["NAME"]
           });
         }
@@ -119,23 +119,70 @@ define(function(require) {
     $("#host_type_mad", context).on("change", function() {
       $("#vmm_mad", context).val(this.value).change();
       $("#im_mad", context).val(this.value).change();
+      $(".vcenter_credentials", context).hide();
+      $(".ec2_extra", context).hide();
+      $(".one_extra", context).hide();
+      $(".drivers", context).hide();
+      $("#name_container", context).show();
 
       if (this.value == "custom") {
-        $(".vcenter_credentials", context).hide();
-        $("#name_container", context).show();
         Sunstone.showFormPanelSubmit(TAB_ID);
         $(".drivers", context).show();
       } else if (this.value == "vcenter") {
         $("#name_container", context).hide();
         $(".vcenter_credentials", context).show();
         Sunstone.hideFormPanelSubmit(TAB_ID);
-        $(".drivers", context).hide();
-      } else {
-        $(".vcenter_credentials", context).hide();
-        $("#name_container", context).show();
+      } else if (this.value == "ec2") {
+        $(".ec2_extra", context).show();
         Sunstone.showFormPanelSubmit(TAB_ID);
-        $(".drivers", context).hide();
+      } else if (this.value == "one") {
+        $(".one_extra", context).show();
+        Sunstone.showFormPanelSubmit(TAB_ID);
+      } else {
+        Sunstone.showFormPanelSubmit(TAB_ID);
       }
+    });
+
+    context.off("click", ".add_custom_tag");
+    context.on("click", ".add_custom_tag", function(){
+      $("tbody.capacity_ec2", context).append(
+          "<tr class='row_capacity'>\
+            <td style='display: flex; justify-content: flex-start'>\
+              <input class='capacity_key' type='text' name='key'>\
+            </td>\
+            <td>\
+              <input class='capacity_value' type='number' min='0' name='value'>\
+            </td>\
+            <td style='width: 150%; display: flex; justify-content: flex-end'>\
+              <a href='#''><i class='fa fa-times-circle remove-capacity'></i></a>\
+            </td>\
+          </tr>");
+    });
+
+    context.on("click", "tbody.capacity_ec2 i.remove-capacity", function(){
+      var tr = $(this).closest('tr');
+      tr.remove();
+    });
+
+    context.off("click", ".add_custom_tag", context);
+    context.on("click", ".add_custom_tag", context, function(){
+      $("tbody.capacity_one", context).append(
+          "<tr class='row_capacity_one'>\
+            <td style='display: flex; justify-content: flex-start'>\
+              <input class='capacity_key' type='text' name='key'>\
+            </td>\
+            <td>\
+              <input class='capacity_value' type='number' min='0' name='value'>\
+            </td>\
+            <td style='width: 150%; display: flex; justify-content: flex-end'>\
+              <a href='#'><i class='fa fa-times-circle remove-capacity'></i></a>\
+            </td>\
+          </tr>");
+    });
+
+    context.on("click", "tbody.capacity_one i.remove-capacity", function(){
+      var tr = $(this).closest('tr');
+      tr.remove();
     });
 
     $("#host_type_mad", context).change();
@@ -222,6 +269,43 @@ define(function(require) {
       }
     };
 
+    if(vmm_mad == "ec2"){
+      var capacity = [];
+      var key = "";
+      var value = "";
+      var obj = {};
+      var region_name = $('input[name="REGION_NAME"]').val();
+      var ec2_access = $('input[name="EC2_ACCESS"]').val();
+      var ec2_secret = $('input[name="EC2_SECRET"]').val();
+      $('tr.row_capacity',context).each(function() {
+        key = $("input[name='key']", this).val();
+        value = $("input[name='value']", this).val();
+        obj[key] = value;
+        capacity.push(obj);
+      });
+
+      host_json["host"]["region_name"] = region_name;
+      host_json["host"]["ec2_secret"] = ec2_secret;
+      host_json["host"]["ec2_access"] = ec2_access;
+      if (capacity.length > 0){
+        host_json["host"]["capacity"] = capacity;
+      }
+    }
+
+    if(vmm_mad == "one"){
+      var user = $('input[name="ONE_USER"]').val();
+      var pass = $('input[name="ONE_PASSWORD"]').val();
+      var endpoint = $('input[name="ONE_ENDPOINT"]').val();
+      var cpu = $('input[name="ONE_CAPACITY_CPU"]').val();
+      var memory = $('input[name="ONE_CAPACITY_MEMORY"]').val();
+
+      host_json["host"]["ONE_USER"] = user;
+      host_json["host"]["ONE_PASSWORD"] = pass;
+      host_json["host"]["ONE_ENDPOINT"] = endpoint;
+      host_json["host"]["ONE_CAPACITY"] = {};
+      host_json["host"]["ONE_CAPACITY"]["CPU"] = cpu;
+      host_json["host"]["ONE_CAPACITY"]["MEMORY"] = memory;
+    }
     //Create the OpenNebula.Host.
     //If it is successfull we refresh the list.
     Sunstone.runAction("Host.create", host_json);

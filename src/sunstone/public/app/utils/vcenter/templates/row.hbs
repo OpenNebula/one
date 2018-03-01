@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -15,76 +15,76 @@
 {{! -------------------------------------------------------------------------- }}
 
 <tr>
-  <td>
-    <input type="checkbox" class="check_item"/>
+  <td style="vertical-align: top">
+    <input type="checkbox" class="check_item" style="margin-top: 5px"/>
   </td>
   <td>
     <div class="accordion_advanced vcenter_row">
       <div class="row">
         <div class="large-12 columns">
           <label class="inline">
-            <a href="#{{data.uuid}}Advanced" class="accordion_advanced_toggle"> <i class="fa fa-fw fa-chevron-down"/><i class="fa fa-fw fa-chevron-up"/>
+            <a href="#{{data.vcenter_ref}}Advanced" class="accordion_advanced_toggle"> <i class="fa fa-fw fa-chevron-down"/><i class="fa fa-fw fa-chevron-up"/>
             </a>
-            {{data.name}}
+            {{data.sunstone_template_name}}
           </label>
         </div>
       </div>
       <div class="row">
         <div class="large-11 large-centered columns">
-          <div id="{{data.uuid}}Advanced" class="content" hidden>
-            {{#if datastore}}
-            <div class="vcenter_datastore_input row">
-              <div class="medium-3 columns">
-                <label>
-                  {{tr "Default Datastore"}}
-                  <input type="text" class="initial_datastore" value="{{datastore.initial}}"/>
-                </label>
-              </div>
-              <div class="medium-3 columns">
+          <div id="{{data.vcenter_ref}}Advanced" class="content" hidden>
+            {{#if resourcePool}}
+            <div class="vcenter_rp_input row" style="margin-left: 11px">
+              <div class="medium-4 columns">
                 <label>
                   {{tr "Type"}}
-                  <select class="modify_datastore">
+                  <select class="modify_rp" id="modify_rp_{{id}}">
+                    <option value="default">{{tr "Default"}}</option>
                     <option value="fixed">{{tr "Fixed"}}</option>
                     <option value="list">{{tr "Provide on instantiation"}}</option>
                   </select>
                 </label>
               </div>
-              <div class="medium-4 columns end">
+              <div class="medium-5 columns end" id="div_rp_{{id}}" hidden>
                 <label>
-                  {{tr "Available Datastores"}}
-                  <input type="text" class="available_datastores" value="{{datastore.params}}"/>
+                  {{tr "Available Resource Pools"}}
+                  <span class="tip">
+                    {{tr "Use ctrl key for multiple selection (provide on instantiation)."}}
+                  </span>
+                  <select required style="height: 60px" size="5" class="available_rps" id="available_rps_{{id}}">
+                    {{#each resourcePool.params}}
+                      <option value="{{this}}" selected>{{this}}</option>
+                    {{/each}}
+                  </select>
                 </label>
               </div>
             </div>
-            {{/if}}
-            {{#if resourcePool}}
-            <div class="vcenter_rp_input row">
-              <div class="medium-3 columns">
-                <label>
-                  {{tr "Default Resource Pool"}}
-                  <input type="text" class="initial_rp" value="{{resourcePool.initial}}"/>
-                </label>
-              </div>
-              <div class="medium-3 columns">
-                <label>
-                  {{tr "Type"}}
-                  <select class="modify_rp">
-                    <option value="fixed">{{tr "Fixed"}}</option>
-                    <option value="list">{{tr "Provide on instantiation"}}</option>
-                  </select>
-                </label>
-              </div>
-              <div class="medium-4 columns end">
-                <label>
-                  {{tr "Available Resource Pools"}}
-                  <input type="text" class="available_rps" value="{{resourcePool.params}}"/>
-                </label>
+            <div class="row vcenter_rp_input">
+              <div class="large-11 large-centered columns" style="margin-top: 20px">
+                <div class="medium-2 columns">
+                  <label>
+                    {{tr "Linked clone"}}
+                    <input type="checkbox" class="linked_clone" id="linked_clone_{{id}}"/>
+                  </label>
+                </div>
+                <div class="medium-2 columns" id="create_{{id}}" hidden>
+                  <label>
+                    {{tr "Create copy"}}
+                    <input type="checkbox" class="create_copy" id="create_copy_{{id}}"/>
+                  </label>
+                </div>
+                <div class="medium-5 columns left" id="name_{{id}}" hidden>
+                  <label>
+                    {{tr "Template name"}}
+                    <input class="template_name" id="template_name_{{id}}"/>
+                  </label>
+                </div>
               </div>
             </div>
             {{/if}}
           </div>
         </div>
       </div>
+    </div>
       <div class="row vcenter_import_result_row" style="display:none">
         <div class="large-11 large-centered columns">
           <span class="vcenter_import_result">

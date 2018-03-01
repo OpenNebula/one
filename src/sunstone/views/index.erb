@@ -22,6 +22,9 @@
       var available_views = JSON.parse('["<%=
           $views_config.available_views(session[:user], session[:user_gname]).join('","')
         %>"]')
+      var all_labels = JSON.parse('["<%=
+          $views_config.get_all_labels(session[:user_gname]).join('","')
+        %>"]')
       var all_views = JSON.parse('["<%=
           $views_config.get_all_views.join('","')
         %>"]')
@@ -31,7 +34,7 @@
             'lang' : '<%= session[:lang] %>',
             'vnc_wss' : '<%= session[:vnc_wss] %>',
             'table_order' : '<%= session[:table_order] %>',
-            'default_view' : '<%= session[:default_view] %>',
+            'default_view' : '<%= session[:defaqult_view] %>',
             'page_length' : '<%= session[:page_length] %>'
         },
         'system_config' : {
@@ -42,16 +45,19 @@
         },
         'view' : view,
         'available_views' : available_views,
+        'all_labels' : all_labels,
         'all_views' : all_views,
         'user_id' : '<%= session[:user_id] %>',
         'user_gid' : '<%= session[:user_gid] %>',
         'display_name' : '<%= session[:display_name] %>',
         'zone_name' : '<%= session[:zone_name] %>',
         'zone_id' : '<%= session[:zone_id] %>',
+        'federation_mode' : '<%= session[:federation_mode] %>',
         'vm_logos' : <%= logos_conf.to_json %>,
         'oned_conf' : <%= oned_conf.to_json %>,
         'support' : <%= support.to_json %>,
-        'upgrade' : <%= upgrade.to_json %>
+        'upgrade' : <%= upgrade.to_json %>,
+        'mode' : '<%= session[:mode] %>'
       };
     </script>
 
@@ -76,7 +82,7 @@
           </ul>
         </div>
       <div id="footer" class="text-center large-12 columns">
-        <a href="http://opennebula.org" target="_blank">OpenNebula 5.2.0</a>
+        <a href="http://opennebula.org" target="_blank">OpenNebula 5.5.80</a>
         <br> by
         <a href="http://OpenNebula.systems" target="_blank">OpenNebula Systems</a>.
       </div>
@@ -99,8 +105,10 @@
 
     <% if $conf[:env] == 'dev' %>
       <script src="bower_components/requirejs/require.js" data-main="app/main"></script>
+      <script>require(["main","addons"]);</script>
     <% else %>
-      <script src="dist/main.js?v=<%= OpenNebula::VERSION %>"></script>
+      <script src="bower_components/requirejs/require.js"></script>
+      <script>require(["dist/main", "app/addons"]);</script>
     <% end %>
   </body>
 </html>

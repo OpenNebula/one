@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -123,15 +123,15 @@ void OpenNebulaTemplate::set_multiple_conf_default()
 # dev
 #*******************************************************************************
 */
-    set_conf_tm("dummy",  "NONE",   "SYSTEM", "YES", "YES");
-    set_conf_tm("lvm",    "NONE",   "SELF",   "YES", "NO");
-    set_conf_tm("shared", "NONE",   "SYSTEM", "YES", "YES");
-    set_conf_tm("fs_lvm", "SYSTEM", "SYSTEM", "YES", "NO");
-    set_conf_tm("qcow2",  "NONE",   "SYSTEM", "YES", "NO");
-    set_conf_tm("ssh",    "SYSTEM", "SYSTEM", "NO",  "YES");
-    set_conf_tm("vmfs",   "NONE",   "SYSTEM", "YES", "NO");
-    set_conf_tm("ceph",   "NONE",   "SELF",   "YES", "NO");
-    set_conf_tm("dev",    "NONE",   "NONE",   "YES", "NO");
+    set_conf_tm("dummy",  "NONE",   "SYSTEM", "YES", "YES", "");
+    set_conf_tm("lvm",    "NONE",   "SELF",   "YES", "NO",  "");
+    set_conf_tm("shared", "NONE",   "SYSTEM", "YES", "YES", "");
+    set_conf_tm("fs_lvm", "SYSTEM", "SYSTEM", "YES", "NO",  "raw");
+    set_conf_tm("qcow2",  "NONE",   "SYSTEM", "YES", "NO",  "qcow2");
+    set_conf_tm("ssh",    "SYSTEM", "SYSTEM", "NO",  "YES", "");
+    set_conf_tm("vmfs",   "NONE",   "SYSTEM", "YES", "NO",  "");
+    set_conf_tm("ceph",   "NONE",   "SELF",   "YES", "NO",  "raw");
+    set_conf_tm("dev",    "NONE",   "NONE",   "YES", "NO",  "");
 
     register_multiple_conf_default("TM_MAD_CONF");
 /*
@@ -156,6 +156,9 @@ void OpenNebulaTemplate::set_multiple_conf_default()
     set_conf_ds("shared",         "",                     "NO");
     set_conf_ds("ssh",            "",                     "NO");
     set_conf_ds("vmfs",           "BRIDGE_LIST",          "NO");
+    set_conf_ds("vcenter",
+		"VCENTER_INSTANCE_ID, VCENTER_DS_REF, VCENTER_DC_REF, VCENTER_HOST, VCENTER_USER, VCENTER_PASSWORD",
+		"NO");
     set_conf_ds("ceph",
                 "DISK_TYPE,BRIDGE_LIST,CEPH_HOST,CEPH_USER,CEPH_SECRET",
                 "NO");
@@ -298,7 +301,8 @@ void OpenNebulaTemplate::set_conf_tm(const std::string& name,
                                      const std::string& ln_target,
                                      const std::string& clone_target,
                                      const std::string& shared,
-                                     const std::string& ds_migrate)
+                                     const std::string& ds_migrate,
+                                     const std::string& driver)
 {
     VectorAttribute *   vattribute;
     std::map<std::string,std::string>  vvalue;
@@ -308,6 +312,7 @@ void OpenNebulaTemplate::set_conf_tm(const std::string& name,
     vvalue.insert(make_pair("CLONE_TARGET", clone_target));
     vvalue.insert(make_pair("SHARED", shared));
     vvalue.insert(make_pair("DS_MIGRATE", ds_migrate));
+    vvalue.insert(make_pair("DRIVER", driver));
 
     vattribute = new VectorAttribute("TM_MAD_CONF", vvalue);
     conf_default.insert(make_pair(vattribute->name(), vattribute));
@@ -420,18 +425,37 @@ void OpenNebulaTemplate::set_conf_default()
 #  FEDERATION
 #   MODE
 #   ZONE_ID
+#   SERVER_ID
 #   MASTER_ONED
+#
+#  RAFT
+#   LOG_RETENTION
+#   LOG_PURGE_TIMEOUT
+#   ELECTION_TIMEOUT_MS
+#   BROADCAST_TIMEOUT_MS
+#   XMLRPC_TIMEOUT_MS
 #*******************************************************************************
 */
     // FEDERATION
     vvalue.clear();
     vvalue.insert(make_pair("MODE","STANDALONE"));
     vvalue.insert(make_pair("ZONE_ID","0"));
+    vvalue.insert(make_pair("SERVER_ID","-1"));
     vvalue.insert(make_pair("MASTER_ONED",""));
 
     vattribute = new VectorAttribute("FEDERATION",vvalue);
     conf_default.insert(make_pair(vattribute->name(),vattribute));
 
+    //RAFT
+    vvalue.clear();
+    vvalue.insert(make_pair("LOG_RETENTION","500000"));
+    vvalue.insert(make_pair("LOG_PURGE_TIMEOUT","600"));
+    vvalue.insert(make_pair("ELECTION_TIMEOUT_MS","1500"));
+    vvalue.insert(make_pair("BROADCAST_TIMEOUT_MS","500"));
+    vvalue.insert(make_pair("XMLRPC_TIMEOUT_MS","100"));
+
+    vattribute = new VectorAttribute("RAFT",vvalue);
+    conf_default.insert(make_pair(vattribute->name(),vattribute));
 /*
 #*******************************************************************************
 # Default showback cost

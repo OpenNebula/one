@@ -72,9 +72,6 @@
                   <xs:sequence>
                     <xs:element name="OID" type="xs:integer"/>
                     <xs:element name="SEQ" type="xs:integer"/>
-                    <xs:element name="UID" type="xs:integer"/>
-                    <xs:element name="GID" type="xs:integer"/>
-                    <xs:element name="REQUEST_ID" type="xs:string"/>
                     <xs:element name="HOSTNAME" type="xs:string"/>
                     <xs:element name="HID" type="xs:integer"/>
                     <xs:element name="CID" type="xs:integer"/>
@@ -138,6 +135,9 @@
                       MONITOR_ACTION          = 44
                     -->
                     <xs:element name="ACTION" type="xs:integer"/>
+                    <xs:element name="UID" type="xs:integer"/>
+                    <xs:element name="GID" type="xs:integer"/>
+                    <xs:element name="REQUEST_ID" type="xs:string"/>
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>

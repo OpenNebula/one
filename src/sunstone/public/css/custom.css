@@ -144,3 +144,39 @@ table .markrow,table .markrowchecked{
 	background-color:#f4f4f4;
 	font-weight:normal;
 }
+
+.fadeinout{
+  opacity: 1;
+  animation: fade 1s ease-in-out infinite;
+}
+
+@keyframes fade {
+  0%,100% { opacity: 1 }
+  50% { opacity: 0 }
+}
+
+.card{
+  background-color: #ffffff;
+  text-align: center;
+  border: 3px solid #f8f8f8;
+}
+meter{
+  height: .9rem !important;
+}
+.dashboard-div-titles{
+  text-align: left;
+  margin-top: -20px;
+}
+.dashboard-div-buttons{
+  text-align: right;
+}
+.number-title{
+  margin-top: -15px;
+}
+.label-card{
+  margin-top: -25px;
+}
+.dashboard-fieldset{
+  background-color: #f8f8f8;
+  border: 1px solid #eaeaea;
+}

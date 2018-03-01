@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -23,6 +23,7 @@ define(function(require) {
 
   var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
+  var DashboardUtils = require('utils/dashboard');
   var OpenNebulaImage = require('opennebula/image');
 
   /*
@@ -39,8 +40,8 @@ define(function(require) {
   function Table(dataTableId, conf) {
     this.selectOptions = {
       "id_index": 1,
-      "name_index": 4,
-      "uname_index": 2,
+      "name_index": 2,
+      "uname_index": 3,
       "select_resource": Locale.tr("Please select an image from the list"),
       "you_selected": Locale.tr("You selected the following image:"),
       "select_resource_multiple": Locale.tr("Please select one or more images from the list"),
@@ -83,9 +84,12 @@ define(function(require) {
   }
 
   function _postUpdateView() {
-    var size = Humanize.sizeFromMB(this.sizeImages);
+    var size = Humanize.sizeFromMBArray(this.sizeImages);
 
-    $(".total_images").text(this.totalImages);
-    $(".size_images").text(size);
+    $(".total_images").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".total_images", this.totalImages);
+
+    $(".size_images").removeClass("fadeinout");
+    DashboardUtils.counterAnimationDecimal(".size_images", size[0], size[1]);
   }
 });

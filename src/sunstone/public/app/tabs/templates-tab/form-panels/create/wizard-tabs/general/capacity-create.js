@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -70,49 +70,69 @@ define(function(require) {
   }
   function convertCostNumber(number){
     if(number >= 1000000){
-      number = (number/1000000).toFixed(2)
-      return number.toString()+"M";
+      number = (number / 1000000).toFixed(2)
+      return number.toString() + "M";
     }
-    else if(number >= 1000){
-      number = (number/1000).toFixed(2)
-      return number.toString()+"K";
+    else if (number >= 1000){
+      number = (number / 1000).toFixed(2)
+      return number.toString() + "K";
     }
-    else if (number >= 0 && number < 1000)
+    else if (number >= 0 && number < 1000){
       return number.toFixed(2);
-    else
+    }
+    else {
       return number;
+    }
   }
 
   function _totalCost(){
-    var total = document.getElementById('real_memory_cost').value + document.getElementById('real_cpu_cost').value;
-    document.getElementById('total_cost').textContent = "Total: "+ convertCostNumber(total);
+    var memory = $("#real_memory_cost").val();
+    var cpu = $("#real_cpu_cost").val();
+    var disk_cost = $("#total_value_disk").text();
+    if (disk_cost === "") {
+      disk_cost = 0;
+    } else {
+      disk_cost = parseFloat(disk_cost);
+    }
+
+    if ((memory === undefined || memory === "") && (cpu === undefined || cpu === "")){
+      document.getElementById('total_cost').textContent = "Total: " + disk_cost;
+    } else if(memory === undefined || memory === ""){
+      document.getElementById('total_cost').textContent = "Total: " + convertCostNumber(cpu + disk_cost);
+    } else if(cpu === undefined || cpu === ""){
+      document.getElementById('total_cost').textContent = "Total: " + convertCostNumber(memory + disk_cost);
+    } else {
+      document.getElementById('total_cost').textContent = "Total: " + convertCostNumber(memory + cpu + disk_cost);
+    }
   }
 
   function _calculatedRealMemory(){
-    var memory_cost = document.getElementById('MEMORY_COST').value;
-    var type_cost = document.getElementById('MEMORY_UNIT_COST').value;
-    var memory = document.getElementById('MEMORY').value;
-    var type = document.getElementById('memory_unit').value;
-    if(type_cost == "GB" && type == "MB")
-      memory = (memory/1024)*memory_cost*24*30;
-    else
-      memory = memory*memory_cost*24*30;
-    document.getElementById('real_memory_cost').textContent = "Cost: "+ convertCostNumber(memory);
+    var memory_cost = $("#MEMORY_COST").val();
+    var type_cost = $("#MEMORY_UNIT_COST").val();
+    var memory = $("#MEMORY").val();
+    var type = $("#memory_unit").val();
+    if (type_cost == "GB"){
+      memory = (memory / 1024) * memory_cost * 24 * 30;
+    } else {
+      memory = memory * memory_cost * 24 * 30;
+    }
+    document.getElementById('real_memory_cost').textContent = "Cost: " + convertCostNumber(memory);
     document.getElementById('real_memory_cost').value = memory;
+    document.getElementById('total_value_memory').textContent = memory;
     _totalCost();
   }
 
   function _calculatedRealCpu(){
-    var cpu_cost = document.getElementById('CPU_COST').value;
-    var cpu = document.getElementById('CPU').value;
-    cpu = cpu*cpu_cost*24*30;
-    document.getElementById('real_cpu_cost').textContent = "Cost: "+ convertCostNumber(cpu);
+    var cpu_cost = $("#CPU_COST").val();
+    var cpu = $("#CPU").val();
+    cpu = cpu * cpu_cost * 24 * 30;
+    document.getElementById('real_cpu_cost').textContent = "Cost: " + convertCostNumber(cpu);
     document.getElementById('real_cpu_cost').value = cpu;
+    document.getElementById('total_value_cpu').textContent = cpu;
     _totalCost();
   }
 
   function _setup(context) {
-
     context.on("change", "#MEMORY", function() {
       _calculatedRealMemory();
     });
@@ -192,7 +212,9 @@ define(function(require) {
     $.each(["memory","cpu","vcpu"], function(i,classname){
       $("."+classname+"_modify_type", context).on("change", function(){
         $("."+classname+"_modify_opt", context).hide();
-        $("."+classname+"_modify_opt."+this.value, context).show();
+        if(this.value != ""){
+          $("."+classname+"_modify_opt."+this.value, context).show();
+        }
 
         $("#memory_unit", context).change();
       });

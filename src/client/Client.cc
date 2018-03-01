@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -76,22 +76,35 @@ int Client::read_oneauth(string &secret, string& error_msg)
 {
     string   one_auth_file;
     ifstream file;
+    int rc;
 
-    const char *  one_auth_env = getenv("ONE_AUTH");
+    const char * one_auth_env = getenv("ONE_AUTH");
 
     if (!one_auth_env) //No $ONE_AUTH, read $HOME/.one/one_auth
     {
-        struct passwd * pw_ent;
+        struct passwd pw_ent;
+        struct passwd * result;
 
-        pw_ent = getpwuid(getuid());
+        char   pwdbuffer[16384];
+        size_t pwdlinelen = sizeof(pwdbuffer);
 
-        if ((pw_ent == NULL) || (pw_ent->pw_dir == NULL))
+        rc = getpwuid_r(getuid(), &pw_ent, pwdbuffer, pwdlinelen, &result);
+
+        if (result == 0)
         {
-            error_msg = "Could not get one_auth file location";
+            if (rc == 0)
+            {
+                error_msg = "No matching password record for user";
+            }
+            else
+            {
+                error_msg = "Error accessing password file";
+            }
+
             return -1;
         }
 
-        one_auth_file = pw_ent->pw_dir;
+        one_auth_file = pw_ent.pw_dir;
         one_auth_file += "/.one/one_auth";
 
         one_auth_env = one_auth_file.c_str();
@@ -196,21 +209,17 @@ void Client::call(const std::string &method, const std::string format,
 void Client::call(const std::string& method, const xmlrpc_c::paramList& plist,
      xmlrpc_c::value * const result)
 {
-    xmlrpc_c::clientXmlTransport_curl ctrans;
-    xmlrpc_c::client_xml              client(&ctrans);
+    xmlrpc_c::clientXmlTransport_curl ctrans(
+        xmlrpc_c::clientXmlTransport_curl::constrOpt().timeout(timeout));
 
-    xmlrpc_c::rpcPtr rpc(method, plist);
     xmlrpc_c::carriageParm_curl0 cparam(one_endpoint);
+
+    xmlrpc_c::client_xml client(&ctrans);
+    xmlrpc_c::rpcPtr     rpc(method, plist);
 
     rpc->start(&client, &cparam);
 
-    client.finishAsync(xmlrpc_c::timeout(timeout));
-
-    if (!rpc->isFinished())
-    {
-        rpc->finishErr(girerr::error("XMLRPC method " + method +
-            " timeout, resetting call"));
-    }
+    client.finishAsync(xmlrpc_c::timeout());
 
     if (rpc->isSuccessful())
     {
@@ -223,3 +232,48 @@ void Client::call(const std::string& method, const xmlrpc_c::paramList& plist,
         girerr::error(failure.getDescription());
     }
 };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Client::call(const std::string& endpoint, const std::string& method,
+        const xmlrpc_c::paramList& plist, unsigned int _timeout,
+        xmlrpc_c::value * const result, std::string& error)
+{
+    xmlrpc_c::clientXmlTransport_curl transport(
+        xmlrpc_c::clientXmlTransport_curl::constrOpt().timeout(_timeout));
+
+    xmlrpc_c::carriageParm_curl0  carriage(endpoint);
+
+    xmlrpc_c::client_xml client(&transport);
+    xmlrpc_c::rpcPtr     rpc_client(method, plist);
+
+    int xml_rc = 0;
+
+    try
+    {
+        rpc_client->start(&client, &carriage);
+
+        client.finishAsync(xmlrpc_c::timeout());
+
+        if ( rpc_client->isSuccessful() )
+        {
+            *result = rpc_client->getResult();
+        }
+        else //RPC failed
+        {
+            xmlrpc_c::fault failure = rpc_client->getFault();
+
+            error  = failure.getDescription();
+            xml_rc = -1;
+        }
+    }
+    catch (exception const& e)
+    {
+		error  = e.what();
+        xml_rc = -1;
+    }
+
+    return xml_rc;
+}
+

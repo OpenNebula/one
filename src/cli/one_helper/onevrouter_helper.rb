@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -109,6 +109,7 @@ class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
         puts str % ["NAME", obj.name]
         puts str % ["USER", obj['UNAME']]
         puts str % ["GROUP", obj['GNAME']]
+        puts str % ["LOCK", OpenNebulaHelper.level_lock_to_str(obj['LOCK/LOCKED'])]
         puts
 
         CLIHelper.print_header(str_h1 % "PERMISSIONS",false)

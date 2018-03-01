@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -56,7 +56,7 @@ class ImageEnable : public RequestManagerImage
 {
 public:
     ImageEnable():
-        RequestManagerImage("ImageEnable", "Enables or disables an image",
+        RequestManagerImage("one.image.enable", "Enables or disables an image",
                 "A:sib"){};
 
     ~ImageEnable(){};
@@ -74,7 +74,7 @@ class ImagePersistent : public RequestManagerImage
 {
 public:
     ImagePersistent():
-        RequestManagerImage("ImagePersistent",
+        RequestManagerImage("one.image.persistent",
                             "Makes an image persistent or non-persistent",
                             "A:sib"){};
 
@@ -95,7 +95,7 @@ class ImageChangeType : public RequestManagerImage
 {
 public:
     ImageChangeType():
-        RequestManagerImage("ImageChangeType", "Changes the type of an image",
+        RequestManagerImage("one.image.chtype", "Changes the type of an image",
                             "A:sis"){};
 
     ~ImageChangeType(){};
@@ -113,7 +113,7 @@ class ImageClone : public RequestManagerImage
 {
 public:
     ImageClone():
-        RequestManagerImage("ImageClone", "Clones an existing image", "A:sis")
+        RequestManagerImage("one.image.clone", "Clones an existing image", "A:sis")
     {
         auth_op = AuthRequest::USE;
     };
@@ -136,7 +136,7 @@ class ImageSnapshotRevert : public RequestManagerImage
 {
 public:
     ImageSnapshotRevert():
-        RequestManagerImage("ImageSnapshotRevert",
+        RequestManagerImage("one.image.snapshotrevert",
                 "Reverts image state to a previous snapshot", "A:sii"){};
 
     ~ImageSnapshotRevert(){};
@@ -154,7 +154,7 @@ class ImageSnapshotFlatten : public RequestManagerImage
 {
 public:
     ImageSnapshotFlatten():
-        RequestManagerImage("ImageSnapshotFlatten",
+        RequestManagerImage("one.image.snapshotflatten",
                 "Flattens the selected image snapshot", "A:sii"){};
 
     ~ImageSnapshotFlatten(){};
@@ -172,7 +172,7 @@ class ImageSnapshotDelete : public RequestManagerImage
 {
 public:
     ImageSnapshotDelete():
-        RequestManagerImage("ImageSnapshotDelete",
+        RequestManagerImage("one.image.snapshotdelete",
                 "Deletes a snapshot from image", "A:sii"){};
 
     ~ImageSnapshotDelete(){};

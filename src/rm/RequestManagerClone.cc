@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -198,17 +198,20 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
                 goto error_images;
             }
 
-            ec = img_persistent.request_execute(new_img_id, true, img_att);
-
-            if (ec != SUCCESS)
+            if ( (*disk)->is_managed() )
             {
-                NebulaLog::log("ReM", Log::ERROR, failure_message(ec, img_att));
+                ec = img_persistent.request_execute(new_img_id, true, img_att);
 
-                img_delete.request_execute(img_id, img_att);
+                if (ec != SUCCESS)
+                {
+                    NebulaLog::log("ReM",Log::ERROR,failure_message(ec,img_att));
 
-                att.resp_msg = "Failed to clone images: " + img_att.resp_msg;
+                    img_delete.request_execute(img_id, img_att);
 
-                goto error_images;
+                    att.resp_msg = "Failed to clone images: " + img_att.resp_msg;
+
+                    goto error_images;
+                }
             }
 
             (*disk)->remove("IMAGE");

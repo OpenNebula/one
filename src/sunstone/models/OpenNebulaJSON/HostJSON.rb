@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -26,10 +26,19 @@ module OpenNebulaJSON
                 return host_hash
             end
 
-            self.allocate(host_hash['name'],
+            id = self.allocate(host_hash['name'],
                           host_hash['im_mad'],
                           host_hash['vm_mad'],
                           host_hash['cluster_id'].to_i)
+            delete_values = ['name', 'im_mad', 'vm_mad', 'cluster_id']
+
+            template_str = template_to_str(host_hash, delete_values)
+            if !template_str.nil?
+                params=Hash.new
+                params['template_raw'] = template_str
+                params['append'] = true
+                self.update(params)
+            end
         end
 
         def delete

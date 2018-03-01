@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -78,9 +78,9 @@ extern "C"
 
 %defines
 %locations
-%pure_parser
-%name-prefix = "template__"
-%output      = "template_syntax.cc"
+%pure-parser
+%name-prefix "template__"
+%output      "template_syntax.cc"
 
 %token EQUAL COMMA OBRACKET CBRACKET EQUAL_EMPTY CCDATA
 %token <val_str>    STRING
@@ -121,6 +121,15 @@ attribute:  VARIABLE EQUAL STRING
                 tmpl->set(pattr);
 
                 delete amap;
+            }
+         |  VARIABLE EQUAL OBRACKET CBRACKET
+            {
+                Attribute * pattr;
+                string      name($1);
+
+                pattr   = new VectorAttribute(name);
+
+                tmpl->set(pattr);
             }
          |  VARIABLE EQUAL_EMPTY
             {

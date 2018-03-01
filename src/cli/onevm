@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -137,6 +137,30 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Make the new images persistent"
     }
 
+    USE={
+        :name  => "use",
+        :large => "--use",
+        :description => "lock use actions"
+    }
+
+    MANAGE={
+        :name  => "manage",
+        :large => "--manage",
+        :description => "lock manage actions"
+    }
+
+    ADMIN={
+        :name  => "admin",
+        :large => "--admin",
+        :description => "lock admin actions"
+    }
+
+    ALL={
+        :name  => "all",
+        :large => "--all",
+        :description => "lock all actions"
+    }
+
     ########################################################################
     # Global Options
     ########################################################################
@@ -162,7 +186,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     set :format, :vmid, OneVMHelper.to_id_desc do |arg|
-        helper.to_id(arg)
+        tmp = helper.to_id(arg)
+        @current_vm = tmp[1]
+        tmp
     end
 
     set :format, :vmid_list, OneVMHelper.list_to_id_desc do |arg|
@@ -179,6 +205,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     set :format, :size, "Disk size in MiB" do |arg|
         OpenNebulaHelper.size_in_mb(arg)
+    end
+
+    format :snapshot_id, "Snapshot identifier" do |arg|
+        helper.retrieve_snapshot_id(@current_vm, arg)
     end
 
     ########################################################################
@@ -804,7 +834,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :"snapshot-delete", snapshot_delete_desc, :vmid, :snapshot_id do
         helper.perform_action(args[0],options,"snapshot deleted") do |o|
-            o.snapshot_delete(args[1].to_i)
+            o.snapshot_delete(args[1])
         end
     end
 
@@ -829,7 +859,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :"disk-snapshot-revert", disk_snapshot_revert_desc,
-      :vmid, :diskid, :snapshot_id do
+      :vmid, :diskid, :disk_snapshot_id do
         helper.perform_action(args[0],options,"disk snapshot reverted") do |o|
           o.disk_snapshot_revert(args[1].to_i, args[2].to_i)
         end
@@ -841,7 +871,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         States: RUNNING, POWEROFF, SUSPENDED
     EOT
     command :"disk-snapshot-delete", disk_snapshot_delete_desc,
-      :vmid, :diskid, :snapshot_id do
+      :vmid, :diskid, :disk_snapshot_id do
         helper.perform_action(args[0],options,"disk snapshot deleted") do |o|
           o.disk_snapshot_delete(args[1].to_i, args[2].to_i)
         end
@@ -987,6 +1017,41 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             end
 
             vm.updateconf(template)
+        end
+    end
+
+    lock_desc = <<-EOT.unindent
+        Locks a VM with differents levels for lock any actions with this VM, show and
+        monitoring never will be locked.
+        Aalid states are: All.
+    EOT
+
+    command :lock, lock_desc, :vmid,
+        :options => [USE, MANAGE, ADMIN, ALL] do
+        helper.perform_action(args[0],options,"VM locked") do |vm|
+            if !options[:use].nil?
+                level = 1
+            elsif !options[:manage].nil?
+                level = 2
+            elsif !options[:admin].nil?
+                level = 3
+            elsif !options[:all].nil?
+                level = 4
+            else
+                level = 1
+            end
+            vm.lock(level)
+        end
+    end
+
+    unlock_desc = <<-EOT.unindent
+        Unlocks a VM for unlock any actions with this VM.
+        Valid states are: All.
+    EOT
+
+    command :unlock, unlock_desc, :vmid do
+        helper.perform_action(args[0],options,"VM unlocked") do |vm|
+            vm.unlock
         end
     end
 

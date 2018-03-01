@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -108,8 +108,6 @@ int DispatchManager::import(VirtualMachine * vm, const RequestAttributes& ra)
         vm->set_state(VirtualMachine::RUNNING);
     }
 
-    vmpool->update(vm);
-
     vm->set_stime(the_time);
 
     vm->set_prolog_stime(the_time);
@@ -120,6 +118,8 @@ int DispatchManager::import(VirtualMachine * vm, const RequestAttributes& ra)
     vm->set_last_poll(0);
 
     vmpool->update_history(vm);
+
+    vmpool->update(vm);
 
     return 0;
 }
@@ -214,25 +214,44 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
     Template* tmpl;
     vector<Template *> ds_quotas;
 
+    int vmid;
     int uid;
     int gid;
+    string deploy_id;
     int vrid = -1;
-    int vmid;
+    unsigned int port;
 
     vm->release_network_leases();
+
     vm->release_vmgroup();
+
     vm->release_disk_images(ds_quotas);
+
+    vm->set_state(VirtualMachine::DONE);
+
+    vm->set_state(VirtualMachine::LCM_INIT);
 
     vm->set_exit_time(time(0));
 
-    vm->set_state(VirtualMachine::LCM_INIT);
-    vm->set_state(VirtualMachine::DONE);
+    VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
+
+    if ( graphics != 0 && (graphics->vector_value("PORT", port) == 0) && vm->hasHistory())
+    {
+        graphics->remove("PORT");
+        clpool->release_vnc_port(vm->get_cid(), port);
+    }
+
     vmpool->update(vm);
 
     vmid = vm->get_oid();
     uid  = vm->get_uid();
     gid  = vm->get_gid();
     tmpl = vm->clone_template();
+
+    if (vm->is_imported())
+    {
+        deploy_id = vm->get_deploy_id();
+    }
 
     if (vm->is_vrouter())
     {
@@ -248,6 +267,11 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
     if ( !ds_quotas.empty() )
     {
         Quotas::ds_del(uid, gid, ds_quotas);
+    }
+
+    if (!deploy_id.empty())
+    {
+        vmpool->drop_index(deploy_id);
     }
 
     if (vrid != -1)
@@ -320,6 +344,23 @@ int DispatchManager::terminate(int vid, bool hard, const RequestAttributes& ra,
                     {
                         lcm->trigger(LCMAction::SHUTDOWN, vid, ra);
                     }
+                    break;
+
+                case VirtualMachine::BOOT_FAILURE:
+                case VirtualMachine::BOOT_MIGRATE_FAILURE:
+                case VirtualMachine::PROLOG_MIGRATE_FAILURE:
+                case VirtualMachine::PROLOG_FAILURE:
+                case VirtualMachine::EPILOG_FAILURE:
+                case VirtualMachine::EPILOG_STOP_FAILURE:
+                case VirtualMachine::EPILOG_UNDEPLOY_FAILURE:
+                case VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE:
+                case VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE:
+                case VirtualMachine::BOOT_UNDEPLOY_FAILURE:
+                case VirtualMachine::BOOT_STOPPED_FAILURE:
+                case VirtualMachine::PROLOG_RESUME_FAILURE:
+                case VirtualMachine::PROLOG_UNDEPLOY_FAILURE:
+                case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE:
+                    lcm->trigger(LCMAction::DELETE, vid, ra);
                     break;
 
                 default:
@@ -1428,8 +1469,7 @@ int DispatchManager::snapshot_revert(int vid, int snap_id,
         return -1;
     }
 
-
-    rc = vm->set_active_snapshot(snap_id);
+    rc = vm->set_revert_snapshot(snap_id);
 
     if ( rc == -1 )
     {
@@ -1479,8 +1519,10 @@ int DispatchManager::snapshot_delete(int vid, int snap_id,
         return -1;
     }
 
-    if ( vm->get_state()     != VirtualMachine::ACTIVE ||
-         vm->get_lcm_state() != VirtualMachine::RUNNING )
+    if ( (vm->get_state() != VirtualMachine::ACTIVE ||
+                vm->get_lcm_state() != VirtualMachine::RUNNING) &&
+         (!vmm->is_keep_snapshots(vm->get_vmm_mad()) ||
+                vm->get_state() != VirtualMachine::POWEROFF) )
     {
         oss << "Could not delete snapshot " << snap_id << " for VM " << vid
             << ", wrong state " << vm->state_str() << ".";
@@ -1492,7 +1534,7 @@ int DispatchManager::snapshot_delete(int vid, int snap_id,
         return -1;
     }
 
-    rc = vm->set_active_snapshot(snap_id);
+    rc = vm->set_delete_snapshot(snap_id);
 
     if ( rc == -1 )
     {
@@ -1707,13 +1749,13 @@ int DispatchManager::detach_nic(int vid, int nic_id,const RequestAttributes& ra,
     }
     else
     {
+        vm->log("DiM", Log::INFO, "VM NIC Successfully detached.");
+
         vmpool->update(vm);
 
         vm->unlock();
 
         vmpool->detach_nic_success(vid);
-
-        vm->log("DiM", Log::INFO, "VM NIC Successfully detached.");
     }
 
     return 0;
@@ -1790,10 +1832,6 @@ int DispatchManager::disk_snapshot_create(int vid, int did, const string& name,
         default: break;
     }
 
-    vmpool->update(vm);
-
-    vm->unlock();
-
     switch(state)
     {
         case VirtualMachine::POWEROFF:
@@ -1830,6 +1868,10 @@ int DispatchManager::disk_snapshot_create(int vid, int did, const string& name,
 
         default: break;
     }
+
+    vmpool->update(vm);
+
+    vm->unlock();
 
     return 0;
 }
@@ -1991,10 +2033,6 @@ int DispatchManager::disk_snapshot_delete(int vid, int did, int snap_id,
         default: break;
     }
 
-    vmpool->update(vm);
-
-    vm->unlock();
-
     switch(state)
     {
         case VirtualMachine::ACTIVE:
@@ -2028,6 +2066,10 @@ int DispatchManager::disk_snapshot_delete(int vid, int did, int snap_id,
 
         default: break;
     }
+
+    vmpool->update(vm);
+
+    vm->unlock();
 
     return 0;
 }
@@ -2101,10 +2143,6 @@ int DispatchManager::disk_resize(int vid, int did, long long new_size,
         default: break;
     }
 
-    vmpool->update(vm);
-
-    vm->unlock();
-
     switch(state)
     {
         case VirtualMachine::POWEROFF:
@@ -2141,6 +2179,10 @@ int DispatchManager::disk_resize(int vid, int did, long long new_size,
 
         default: break;
     }
+
+    vmpool->update(vm);
+
+    vm->unlock();
 
     return 0;
 }

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -160,6 +160,11 @@ define(function(require) {
     var secgroups = this.securityGroupsTable.retrieveResourceTableSelect();
     if (secgroups != undefined && secgroups.length != 0){
       data["SECURITY_GROUPS"] = secgroups.join(",");
+    }
+
+    var ipam = $('input[name="IPAM_MAD"]', this.ar_section).val();
+    if(ipam != ""){
+      data["IPAM_MAD"] = ipam;
     }
 
     return data;
