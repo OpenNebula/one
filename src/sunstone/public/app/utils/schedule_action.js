@@ -159,6 +159,7 @@ define(function (require) {
 		var end_type = 1;
 		var days = "";
 		var end_value = 1;
+		var sched_action = {};
 
 		if (time_input_value == "" || date_input_value == "") {
 			return false;
@@ -204,19 +205,19 @@ define(function (require) {
 					return false;
 				}
 			}
+
+			sched_action.DAYS = days;
+			sched_action.REP = rep;
+			sched_action.END_TYPE = end_type;
+			sched_action.END_VALUE = end_value;
 		}
 
 		var time_value = date_input_value + " " + time_input_value;
 		var epoch_str = new Date(time_value);
 		var time = parseInt(epoch_str.getTime()) / 1000;
 
-		var sched_action = {};
 		sched_action.ACTION = new_action;
 		sched_action.TIME = time;
-		sched_action.DAYS = days;
-		sched_action.REP = rep;
-		sched_action.END_TYPE = end_type;
-		sched_action.END_VALUE = end_value;
 
 		$("#scheduling_" + this.res + "_actions_table .create", context).remove();
 		$("#add_scheduling_" + this.res + "_action", context).removeAttr("disabled");
