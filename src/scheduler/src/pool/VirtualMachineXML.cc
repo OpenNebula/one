@@ -517,6 +517,11 @@ static void sum_days(struct tm * next, struct tm * now, int mayor_day, int minor
             next->tm_mday = next->tm_mday + (mayor_day - comparative);
         }
     }
+    if (next->tm_mday > m_months_days[next->tm_mon])
+    {
+        next->tm_mday = next->tm_mday - m_months_days[next->tm_mon];
+        next->tm_mon++;
+    }
 }
 
 /* -------------------------------------------------------------------------- */

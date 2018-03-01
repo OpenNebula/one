@@ -103,6 +103,7 @@ define(function(require) {
     context.on("click" , "#add_vms_action_json", function(){
       var sched_action = ScheduleActions.retrieveNewAction(context);
       if (sched_action != false) {
+        $("#no_actions_tr", context).remove();
         $("#sched_vms_actions_body").append(ScheduleActions.fromJSONtoActionsTable(sched_action));
       } else {
         return false;
