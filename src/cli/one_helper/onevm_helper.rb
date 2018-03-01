@@ -1052,6 +1052,35 @@ in the frontend machine.
                     OpenNebulaHelper.time_to_str(d["TIME"], false) if !d.nil?
                 end
 
+                column :"REP", "", :size=>20 do |d|
+                    str_rep = ""
+                    if !d.nil? && d.key?("REP")
+                        if d["REP"] == "0"
+                            str_rep << "Weekly "
+                        elsif d["REP"] == "1"
+                            str_rep << "Monthly "
+                        elsif d["REP"] == "2"
+                            str_rep << "Yearly "
+                        end
+                        str_rep << d["DAYS"]
+                    end
+                    str_rep if !d.nil?
+                end
+
+                column :"END", "", :size=>20 do |d|
+                    str_end = ""
+                    if !d.nil? && d.key?("END_TYPE")
+                        if d["END_TYPE"] == "0"
+                            str_end << "None"
+                        elsif d["END_TYPE"] == "1"
+                            str_end << "After " << d["END_VALUE"] << " times"
+                        elsif d["END_TYPE"] == "2"
+                            str_end << "On " << OpenNebulaHelper.time_to_str(d["END_VALUE"], false, false, true)
+                        end
+                    end
+                    str_end if !d.nil?
+                end
+
                 column :"DONE", "", :size=>12 do |d|
                     OpenNebulaHelper.time_to_str(d["DONE"], false) if !d.nil?
                 end

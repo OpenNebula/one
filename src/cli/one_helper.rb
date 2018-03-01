@@ -814,15 +814,31 @@ EOT
         end
     end
 
-    def OpenNebulaHelper.time_to_str(time, print_seconds=true)
+    def OpenNebulaHelper.time_to_str(time, print_seconds=true, print_hours=true, print_years=false)
         value=time.to_i
         if value==0
             value='-'
         else
-            if print_seconds
-                value=Time.at(value).strftime("%m/%d %H:%M:%S")
+            if print_hours
+                if print_seconds
+                    if print_years
+                        value=Time.at(value).strftime("%m/%d/%y %H:%M:%S")
+                    else
+                        value=Time.at(value).strftime("%m/%d %H:%M:%S")
+                    end
+                else
+                    if print_years
+                        value=Time.at(value).strftime("%m/%d/%y %H:%M")
+                    else
+                        value=Time.at(value).strftime("%m/%d %H:%M")
+                    end
+                end
             else
-                value=Time.at(value).strftime("%m/%d %H:%M")
+                if print_years
+                    value=Time.at(value).strftime("%m/%d/%y")
+                else
+                    value=Time.at(value).strftime("%m/%d")
+                end
             end
         end
 
