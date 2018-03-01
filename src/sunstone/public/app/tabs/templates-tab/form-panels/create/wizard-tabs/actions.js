@@ -75,7 +75,7 @@ define(function(require) {
     context.off('click', '#add_scheduling_temp_action');
     context.on('click', '#add_scheduling_temp_action', function() {
       $("#add_scheduling_temp_action", context).attr("disabled", "disabled");
-      ScheduleActions.htmlNewAction(actions, context);
+      ScheduleActions.htmlNewAction(actions, context, "temp");
       ScheduleActions.setup(context)
       return false;
     });

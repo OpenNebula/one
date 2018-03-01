@@ -30,7 +30,7 @@ define(function (require) {
 		});
 	}
 
-	function _htmlNewAction(actions, context) {
+	function _htmlNewAction(actions, context, res) {
 		var options = "";
 		var that = this;
 		$.each(actions, function (key, action) {
@@ -39,7 +39,7 @@ define(function (require) {
 				options += "<option value=\"" + action + "\">" + Locale.tr(action) + "</option>";
 			}
 		});
-		$("#scheduling_" + this.res + "_actions_table tbody", context).append(TemplateHTML({
+		$("#scheduling_" + res + "_actions_table tbody", context).append(TemplateHTML({
 			"actions": options,
 			"res": that.res
 		}));
