@@ -225,6 +225,11 @@ int VMTemplate::parse_sched_action(string& error_str)
                 error_str = "Error parsing days of the year. [0,365]";
                 return -1;
             }
+            else if (rep_mode == 3 && (first_day != last_day || s_days.size() > 1)) //YEAR [0,365]
+            {
+                error_str = "Error parsing hour.";
+                return -1;
+            }
         }
 
         has_end_mode  = vatt->vector_value("END_TYPE", end_mode);

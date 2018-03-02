@@ -138,6 +138,14 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         :format     => String
     }
 
+    HOURLY = {
+        :name       => "hourly",
+        :large      => "--hourly hour",
+        :description => "Schedules this action to be executed after" \
+        "the given time. For example: onevm resume 0 --schedule \"09/23 14:15\"",
+        :format     => Numeric
+    }
+
     END_TIME = {
         :name       => "end",
         :large      => "--end number|TIME",
@@ -353,6 +361,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 str_periodic << ", REP = 1, DAYS = \"#{options[:monthly]}\""
             elsif options.key?(:yearly)
                 str_periodic << ", REP = 2, DAYS = \"#{options[:yearly]}\""
+            elsif options.key?(:hourly)
+                str_periodic << ", REP = 3, DAYS = \"#{options[:hourly].to_s}\""
             end
 
             if options.key?(:end)
@@ -1061,8 +1071,12 @@ in the frontend machine.
                             str_rep << "Monthly "
                         elsif d["REP"] == "2"
                             str_rep << "Yearly "
+                        elsif d["REP"] == "3"
+                            str_rep << "Each " << d['DAYS'] << " hours"
                         end
-                        str_rep << d["DAYS"]
+                        if d["REP"] != "3"
+                            str_rep << d["DAYS"]
+                        end
                     end
                     str_rep if !d.nil?
                 end

@@ -505,6 +505,22 @@ bool VirtualMachineXML::is_only_public_cloud() const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static void check_months(struct tm * next){
+    int days_month = m_months_days[next->tm_mon];
+    if(next->tm_year+1900 % 4 == 0 && (next->tm_year+1900 % 100 != 0 || next->tm_year+1900 % 400 == 0) && next->tm_mon == 1)
+    {
+        days_month++;
+    }
+    if (next->tm_mday > days_month)
+    {
+        next->tm_mday = next->tm_mday - m_months_days[next->tm_mon];
+        next->tm_mon++;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 static void sum_days(struct tm * next, struct tm * now, int mayor_day, int minor_day, int max_day, int comparative){
     if (mayor_day >= 0 && minor_day < max_day)
     {
@@ -517,11 +533,7 @@ static void sum_days(struct tm * next, struct tm * now, int mayor_day, int minor
             next->tm_mday = next->tm_mday + (mayor_day - comparative);
         }
     }
-    if (next->tm_mday > m_months_days[next->tm_mon])
-    {
-        next->tm_mday = next->tm_mday - m_months_days[next->tm_mon];
-        next->tm_mon++;
-    }
+    check_months(next);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -595,32 +607,34 @@ int VirtualMachineXML::next_action(VectorAttribute& vatt)
     }
     std::set<int>::iterator it;
     std::pair<std::set<int>::iterator,bool> ret;
-
-    it = s_days.begin();
-    minor_day = *it;
-
-    ret = s_days.insert(start_day);
-    if ( ret.second == false )
+    if (rep_mode != 3)
     {
-        mayor_day = *ret.first;
+        it = s_days.begin();
+        minor_day = *it;
 
-        if ( ++ret.first != s_days.end() )
+        ret = s_days.insert(start_day);
+        if ( ret.second == false )
         {
             mayor_day = *ret.first;
+
+            if ( ++ret.first != s_days.end() )
+            {
+                mayor_day = *ret.first;
+            }
         }
-    }
-    else
-    {
-        mayor_day = minor_day;
-        if ( ++ret.first != s_days.end() )
+        else
         {
-            mayor_day = *ret.first;
-        }
-        it = s_days.find(start_day);
-        s_days.erase (it);
-        if (*--it > mayor_day)
-        {
-            mayor_day = *it;
+            mayor_day = minor_day;
+            if ( ++ret.first != s_days.end() )
+            {
+                mayor_day = *ret.first;
+            }
+            it = s_days.find(start_day);
+            s_days.erase (it);
+            if (*--it > mayor_day)
+            {
+                mayor_day = *it;
+            }
         }
     }
 
@@ -645,7 +659,18 @@ int VirtualMachineXML::next_action(VectorAttribute& vatt)
         }
     }
 
-    generate_next_day(rep_mode, mayor_day, minor_day, &next, &start_tm);
+    if (rep_mode == 3)
+    {
+        it = s_days.begin();
+        int hours = *it;
+        next.tm_min = start_tm.tm_min;
+        next.tm_hour = start_tm.tm_hour + hours;
+        check_months(&next);
+    }
+    else
+    {
+        generate_next_day(rep_mode, mayor_day, minor_day, &next, &start_tm);
+    }
     action_time = mktime (&next);
     if (action_time != -1)
     {
