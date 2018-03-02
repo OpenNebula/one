@@ -981,6 +981,11 @@ class VirtualMachine < Template
         !get_vm_id
     end
 
+    # @return Boolean wheter the vm exists in opennebubla
+    def one_exist?
+        !@vm_id.nil? && @vm_id != -1
+    end
+
     # @return String the vm_id stored in vCenter
     def get_vm_id(vm_pool = nil)
         if defined?(@vm_id) && @vm_id
@@ -3088,24 +3093,25 @@ class VirtualMachine < Template
     # STATIC MEMBERS AND CONSTRUCTORS
     ###############################################################################################
 
-    def self.get_id(opts = {})
-        id = -1
-
+    def self.get_vm(opts = {})
+        # try to retrieve machine from name
         if (opts[:name])
                 matches = opts[:name].match(/^one-(\d*)(-(.*))?$/)
-                id = matches[1] if matches
+                if matches
+                    id = matches[1]
+                    one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, id)
+                end
         end
 
-        if id == -1
+        if one_vm.nil?
             one_vm = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualMachinePool,
                                                          "DEPLOY_ID",
                                                          opts[:ref],
                                                          opts[:vc_uuid],
                                                          opts[:pool])
-            id = one_vm["ID"] if one_vm
         end
 
-        return id
+        return one_vm
     end
 
     # Try to build the vcenterdriver virtualmachine without
@@ -3119,16 +3125,17 @@ class VirtualMachine < Template
     #        :name:    the vcenter vm name for extract the opennebula id
     #
     # @return [vcenterdriver::vm] the virtual machine
-    def self.new_from_ref(vi_client, ref, opts = {})
+    def self.new_from_ref(vi_client, ref, name, opts = {})
         unless opts[:vc_uuid]
             opts[:vc_uuid] = vi_client.vim.serviceContent.about.instanceUuid
         end
 
-        opts[:ref] = ref
+        opts[:name] = name
+        opts[:ref]  = ref
 
-        vm_id = VCenterDriver::VirtualMachine.get_id(opts)
+        one_vm = VCenterDriver::VirtualMachine.get_vm(opts)
 
-        self.new(vi_client, ref, vm_id)
+        self.new_one(vi_client, ref, one_vm)
     end
 
     # build a vcenterdriver virtual machine from a template
@@ -3156,7 +3163,7 @@ class VirtualMachine < Template
     #
     # @return [vcenterdriver::vm] the virtual machine
     def self.new_one(vi_client, ref, one_item)
-        id = one_item["ID"] || one_item["VM/ID"] || -1
+        id = one_item["ID"] || one_item["VM/ID"] rescue -1
 
         self.new(vi_client, ref, id).tap do |vm|
             vm.one_item = one_item

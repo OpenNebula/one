@@ -434,9 +434,14 @@ class ClusterComputeResource
 
         vm_pool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualMachinePool)
 
+        # opts common to all vms
+        opts = {
+            pool: vm_pool,
+            vc_uuid: vc_uuid,
+        }
+
         vms.each do |vm_ref,info|
             begin
-                vm = VCenterDriver::VirtualMachine.new_without_id(@vi_client, vm_ref)
                 esx_host = esx_hosts[info["runtime.host"]._ref]
                 info[:esx_host_name] = esx_host[:name]
                 info[:esx_host_cpu] = esx_host[:cpu]
@@ -445,10 +450,6 @@ class ClusterComputeResource
                 info[:vc_uuid] = vc_uuid
                 info[:host_id] = host_id
                 info[:rp_list] = @rp_list
-
-                vm.vm_info = info
-
-                number = -1
 
                 # Check the running flag
                 running_flag = info["config.extraConfig"].select do |val|
@@ -461,41 +462,29 @@ class ClusterComputeResource
 
                 next if running_flag == "no"
 
-                # Extract vmid if possible
-                matches = info["name"].match(/^one-(\d*)(-(.*))?$/)
-                number  = matches[1] if matches
+                # retrieve vcenter driver machine
+                vm = VCenterDriver::VirtualMachine.new_from_ref(@vi_client, vm_ref, info["name"], opts)
+                id = vm.vm_id
 
-                # Extract vmid from ref and vcenter instance uuid if possible
-                one_vm = nil
-                if number == -1
-                    one_vm = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualMachinePool,
-                                                                "DEPLOY_ID",
-                                                                vm_ref,
-                                                                vc_uuid,
-                                                                vm_pool)
-                    if one_vm
-                        number = one_vm["ID"]
-
-                        next if @monitored_vms.include? number
-                        @monitored_vms << number
-
-                        vm.one_item = one_vm
-                        vm.vm_id = number
-                    end
+                #skip if it's already monitored
+                if vm.one_exist?
+                    next if @monitored_vms.include? id
+                    @monitored_vms << id
                 end
 
+                vm.vm_info = info
                 vm.monitor(stats)
 
                 vm_name = "#{info["name"]} - #{cluster_name}"
-
                 str_info << %Q{
                 VM = [
-                    ID="#{number}",
+                    ID="#{id}",
                     VM_NAME="#{vm_name}",
                     DEPLOY_ID="#{vm_ref}",
                 }
 
-                if number == -1
+                # if the machine does not exist in opennebula it means that is a wild:
+                unless vm.one_exist?
                     vm_template_64 = Base64.encode64(vm.vm_to_one(vm_name)).gsub("\n","")
                     str_info << "VCENTER_TEMPLATE=\"YES\","
                     str_info << "IMPORT_TEMPLATE=\"#{vm_template_64}\","
