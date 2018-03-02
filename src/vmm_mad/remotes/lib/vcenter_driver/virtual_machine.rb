@@ -666,7 +666,7 @@ class Template
         str << "VCENTER_DS_REF = \"#{@vm_info["datastore"].first._ref}\"\n"
 
         vnc_port = nil
-        keymap = nil
+        keymap = VCenterDriver::VIHelper.get_default("VM/TEMPLATE/GRAPHICS/KEYMAP")
 
         @vm_info["config.extraConfig"].select do |xtra|
             if xtra[:key].downcase=="remotedisplay.vnc.port"
