@@ -19,6 +19,7 @@ define(function (require) {
 	var Locale = require("utils/locale");
 	var Humanize = require("utils/humanize");
 	var TemplateUtils = require("utils/template-utils");
+	var Tips = require('utils/tips');
 
 	var TemplateHTML = require("hbs!./schedule_action/html");
 	var TemplateTableHTML = require("hbs!./schedule_action/table");
@@ -43,6 +44,12 @@ define(function (require) {
 			"actions": options,
 			"res": that.res
 		}));
+
+		if (res === "vms"){
+			$("#title", context).prop("colspan", "2");
+			$("#td_days", context).prop("colspan", "5");
+
+		}
 	}
 
 	function _setup(context) {
@@ -74,30 +81,33 @@ define(function (require) {
 			}
 		});
 		var that = this;
-		$("input[name='rep']", context).change(function () {
+		$("select[name='rep']", context).change(function () {
 			var value = $(this).val();
 			that.rep = value;
 			var input_html = "";
 			switch (value) {
 				case "week":
-					input_html = "<div id=\"days_week_value\" class=\"text-center\" style=\"margin: 10px 0 10px 0;\">\
-                    <input type=\"checkbox\" id=\"mon\" name=\"days\" value=\"0\"><label for=\"mon\">" + Locale.tr("Monday") + "</label>\
-                    <input type=\"checkbox\" id=\"tue\" name=\"days\" value=\"1\"><label for=\"tue\">" + Locale.tr("Tuesday") + "</label>\
-                    <input type=\"checkbox\" id=\"wed\" name=\"days\" value=\"2\"><label for=\"wed\">" + Locale.tr("Wednesday") + "</label>\
-                    <input type=\"checkbox\" id=\"thu\" name=\"days\" value=\"3\"><label for=\"thu\">" + Locale.tr("Thursday") + "</label>\
-                    <input type=\"checkbox\" id=\"fri\" name=\"days\" value=\"4\"><label for=\"fri\">" + Locale.tr("Friday") + "</label>\
-                    <input type=\"checkbox\" id=\"sat\" name=\"days\" value=\"5\"><label for=\"sat\">" + Locale.tr("Saturday") + "</label>\
-                    <input type=\"checkbox\" id=\"sun\" name=\"days\" value=\"6\"><label for=\"sun\">" + Locale.tr("Sunday") + "</label>\
+					input_html = "<div id=\"days_week_value\" style=\"margin: 10px 0 10px 0;\">\
+                    <input type=\"checkbox\" id=\"mon\" name=\"days\" value=\"0\"><label for=\"mon\">" + Locale.tr("Mo") + "</label>\
+                    <input type=\"checkbox\" id=\"tue\" name=\"days\" value=\"1\"><label for=\"tue\">" + Locale.tr("Tu") + "</label>\
+                    <input type=\"checkbox\" id=\"wed\" name=\"days\" value=\"2\"><label for=\"wed\">" + Locale.tr("We") + "</label>\
+                    <input type=\"checkbox\" id=\"thu\" name=\"days\" value=\"3\"><label for=\"thu\">" + Locale.tr("Th") + "</label>\
+                    <input type=\"checkbox\" id=\"fri\" name=\"days\" value=\"4\"><label for=\"fri\">" + Locale.tr("Fr") + "</label>\
+                    <input type=\"checkbox\" id=\"sat\" name=\"days\" value=\"5\"><label for=\"sat\">" + Locale.tr("Sa") + "</label>\
+                    <input type=\"checkbox\" id=\"sun\" name=\"days\" value=\"6\"><label for=\"sun\">" + Locale.tr("Su") + "</label>\
                 </div>";
 					break;
 				case "month":
-					input_html = "<input class=\"sched-input\" id=\"days_month_value\" type=\"text\" placeholder=\"1,31\"/>";
+					input_html = "<div style=\"display: -webkit-box;\"><input style=\"margin-right: 4px;\" id=\"days_month_value\" type=\"text\" placeholder=\"1,31\"/>\
+					<span class=\"tip\">"+Locale.tr("Comma separated list of days of the month to repeat the action on. Ex: 1,15,25 repeats the action every first, 15th and 25th day of the month")+" </span></div>";
 					break;
 				case "year":
-					input_html = "<input class=\"sched-input\" id=\"days_year_value\" type=\"text\" placeholder=\"0,365\"/>";
+					input_html = "<div style=\"display: -webkit-box;\"><input style=\"margin-right: 4px;\" id=\"days_year_value\" type=\"text\" placeholder=\"0,365\"/>\
+					<span class=\"tip\">"+Locale.tr("Comma separated list of days of the year to repeat the action on. Ex: 1,30,330 repeats the action every first, 30th and 330th day of the year")+" </span></div>";
 					break;
 			}
 			$("#td_days").html(input_html);
+			Tips.setup(context);
 		});
 
 		$("input[name='end_type']", context).change(function () {
@@ -105,13 +115,12 @@ define(function (require) {
 			that.end_type = value;
 			var input_html = "";
 			var min;
+			$(".end_input", context).prop('disabled', true);
 			switch (value) {
 				case "n_rep":
-					input_html = "<input class=\"sched-input\" id=\"end_value_n_rep\" type=\"number\" placeholder=\"1\"/>";
 					min = 1;
 					break;
 				case "date":
-					input_html = "<input class=\"sched-input\" id=\"end_value_date\" type=\"date\"/>";
 					var today = new Date();
 					var dd = today.getDate();
 					var mm = today.getMonth() + 1;
@@ -125,8 +134,8 @@ define(function (require) {
 					min = yyyy + "-" + mm + "-" + dd;
 					break;
 			}
-			$("#td_end_value", context).html(input_html);
 			$("#end_value_" + value, context).attr("min", min);
+			$("#end_value_" + value, context).prop('disabled', false);
 		});
 
 		context.on("focusout", "#time_input", function () {
