@@ -81,6 +81,8 @@ define(function (require) {
 			}
 		});
 		var that = this;
+		this.rep = "week";
+		this.end_type = "never";
 		$("select[name='rep']", context).change(function () {
 			var value = $(this).val();
 			that.rep = value;
@@ -104,6 +106,13 @@ define(function (require) {
 				case "year":
 					input_html = "<div style=\"display: -webkit-box;\"><input style=\"margin-right: 4px;\" id=\"days_year_value\" type=\"text\" placeholder=\"0,365\"/>\
 					<span class=\"tip\">"+Locale.tr("Comma separated list of days of the year to repeat the action on. Ex: 1,30,330 repeats the action every first, 30th and 330th day of the year")+" </span></div>";
+					break;
+				case "hour":
+					input_html = "<div style=\"display: -webkit-box;\">\
+									<label style=\"margin-right: 5px;\">"+ Locale.tr("Each")+"</label>\
+									<input style=\"margin-right: 4px;\" id=\"days_hour_value\" type=\"number\" placeholder=\"5\"/>\
+									<label> "+ Locale.tr("hours")+"</label>\
+								</div>";
 					break;
 			}
 			$("#td_days").html(input_html);
@@ -188,16 +197,19 @@ define(function (require) {
 			} else if (this.rep == "month") {
 				rep = 1;
 				days = $("#days_month_value", context).val();
-			} else {
+			} else if (this.rep == "year"){
 				rep = 2;
 				days = $("#days_year_value", context).val();
+			} else {
+				rep = 3;
+				days = $("#days_hour_value", context).val();
 			}
 
 			if (days == "") {
 				return false;
 			}
 
-			if (this.end_type == "ever") {
+			if (this.end_type == "never") {
 				end_type = 0;
 			} else if (this.end_type == "n_rep") {
 				end_value = $("#end_value_n_rep", context).val();
@@ -270,12 +282,16 @@ define(function (require) {
 				rep_str = "Monthly ";
 			} else if (scheduling_action.REP == 2) {
 				rep_str = "Yearly ";
+			} else if (scheduling_action.REP == 3) {
+				rep_str = "Each " + scheduling_action.DAYS + " hours";
 			}
 
-			if (scheduling_action.REP != 0) {
-				rep_str += scheduling_action.DAYS;
-			} else {
-				rep_str += Humanize.week_days(scheduling_action.DAYS);
+			if (scheduling_action.REP != 3) {
+				if (scheduling_action.REP != 0) {
+					rep_str += scheduling_action.DAYS;
+				} else {
+					rep_str += Humanize.week_days(scheduling_action.DAYS);
+				}
 			}
 		}
 
