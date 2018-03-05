@@ -458,7 +458,7 @@ define(function(require) {
                     if (modify) {
                       str += '<td class="text-right nowrap">\
                         <span id="div_edit_vectorial">\
-                          <a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + ' vectorial_key_' + vectorial_key + '" href="#"><i class="fas fa-pencil-square-o"/></a>\
+                          <a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + ' vectorial_key_' + vectorial_key + '" href="#"><i class="fas fa-edit"/></a>\
                         </span>&emsp;\
                         <span id="div_minus_vectorial">\
                           <a id="div_minus_' + field + '" class="remove_x' + ocurrence_str + ' vectorial_key_' + vectorial_key + '" href="#"><i class="fas fa-trash-o"/></a>\
@@ -495,7 +495,7 @@ define(function(require) {
                         if (modify) {
                           str += '<td class="text-right nowrap">\
                             <span id="div_edit">\
-                              <a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + '" href="#"><i class="fas fa-pencil-square-o"/></a>\
+                              <a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + '" href="#"><i class="fas fa-edit"/></a>\
                             </span>&emsp;\
                             <span id="div_minus">\
                               <a id="div_minus_' + field + '" class="remove_x' + ocurrence_str + '" href="#"><i class="fas fa-trash-o"/></a>\
