@@ -45,7 +45,7 @@ define(function(require) {
     }
 
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
-    this.icon = 'fa-folder-open-o';
+    this.icon = 'fa-folder-open';
     this.title = Locale.tr("VM Group");
     this.classes = "hypervisor only_kvm only_vcenter"
 
