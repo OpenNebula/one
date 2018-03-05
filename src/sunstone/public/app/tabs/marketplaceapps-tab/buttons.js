@@ -30,7 +30,7 @@ define(function(require) {
     },
     "MarketPlaceApp.download_opennebula_dialog" : {
       type: "action",
-      text: '<i class="fas fa-lg fa-cloud-download"/>'
+      text: '<i class="fas fa-lg fa-cloud-download-alt"/>'
     },
     "MarketPlaceApp.download_local" : {
       type: "action",
