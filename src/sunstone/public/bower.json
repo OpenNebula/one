@@ -3,7 +3,7 @@
   "dependencies": {
     "flot": "0.8.3",
     "jgrowl": "1.4.2",
-    "fontawesome": "4.3.0",
+    "fontawesome": "5.0.7",
     "flot.tooltip": "0.8.4",
     "no-vnc": "0.5.1",
     "resumablejs": "git://github.com/23/resumable.js.git#420cd351c5",
