@@ -35,7 +35,7 @@ define(function(require) {
 
   function Panel(info) {
     this.title = Locale.tr("Showback");
-    this.icon = "fa-money";
+    this.icon = "fa-money-bill-alt";
 
     this.element = info[XML_ROOT];
 
