@@ -46,7 +46,7 @@ define(function(require) {
   var Tab = {
     tabId: TAB_ID,
     title: Locale.tr("Services"),
-    icon: 'fa-files-o',
+    icon: 'fa-copy',
     tabClass: "subTab",
     parentTab: "templates-top-tab",
     listHeader: Locale.tr("Service Templates"),
