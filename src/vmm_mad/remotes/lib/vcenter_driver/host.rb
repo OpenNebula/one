@@ -473,15 +473,18 @@ class ClusterComputeResource
                                                                 vm_ref,
                                                                 vc_uuid,
                                                                 vm_pool)
-                    if one_vm
-                        number = one_vm["ID"]
+                else
+                    one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, number, false)
+                end
 
-                        next if @monitored_vms.include? number
-                        @monitored_vms << number
+                if one_vm
+                    number = one_vm["ID"]
 
-                        vm.one_item = one_vm
-                        vm.vm_id = number
-                    end
+                    next if @monitored_vms.include? number
+                    @monitored_vms << number
+
+                    vm.one_item = one_vm
+                    vm.vm_id = number
                 end
 
                 vm.monitor(stats)
