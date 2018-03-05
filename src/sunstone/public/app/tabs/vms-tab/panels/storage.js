@@ -328,12 +328,12 @@ define(function(require) {
                 var historyLenght = that.element.HISTORY_RECORDS.HISTORY.length - 1;
                 if(that.element.LCM_STATE != "3" || that.element.HISTORY_RECORDS.HISTORY[historyLenght].VM_MAD != "vcenter"){
                   actions += ('<a class="disk_resize nowrap" >\
-                  <i class="fas fa-expand fa-fw" title="Resize"></i></a>');
+                  <i class="fas fa-expand-arrows-alt fa-fw" title="Resize"></i></a>');
                 }
               } else {
                 if(that.element.LCM_STATE != "3" || that.element.HISTORY_RECORDS.HISTORY.VM_MAD != "vcenter"){
                   actions += ('<a class="disk_resize nowrap" >\
-                  <i class="fas fa-expand fa-fw" title="Resize"></i></a>');
+                  <i class="fas fa-expand-arrows-alt fa-fw" title="Resize"></i></a>');
                 }
               }
             }
