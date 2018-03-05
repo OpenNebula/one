@@ -188,7 +188,7 @@ define(function(require) {
       // TODO Add openenbula actions
       /*if (config['view']['autorefresh']) {
         var tabContext = $("#" + tabName);
-        var refreshButton = $(".fa-refresh", $(".action_blocks", tabContext).first());
+        var refreshButton = $(".fa-sync-alt", $(".action_blocks", tabContext).first());
         setInterval(function() {
           if (Sunstone.rightListVisible(tabContext)) {
             refreshButton.click();
@@ -352,7 +352,7 @@ define(function(require) {
           break;
         case "refresh":
           buttonContext = $("#" + customId + "refresh_buttons", buttonsRow);
-          icon = button.icon ? button.icon : "<i class=\"fas fa-refresh\"/>";
+          icon = button.icon ? button.icon : "<i class=\"fas fa-sync-alt\"/>";
           text = button.text ? icon + " " + button.text : icon;
           strClass.push("refresh", "button",  "secondary");
           buttonCode = "<button class=\"" + strClass.join(" ") + "\" href=\"" + buttonName + "\">" + text + "</button>";
@@ -360,7 +360,7 @@ define(function(require) {
         case "top":
           buttonContext = $("#" + customId + "refresh_buttons", buttonsRow);
           text = "<span class=\"fa-stack\">" +
-              "<i class=\"fas fa-refresh fa-stack-2x\" style=\"color: #dfdfdf\"></i>" +
+              "<i class=\"fas fa-sync-alt fa-stack-2x\" style=\"color: #dfdfdf\"></i>" +
               "<i class=\"fas fa-play fa-stack-1x\"></i>" +
             "</span>";
           strClass.push("toggle_top_button", "only-sunstone-list", "button",  "hollow");
