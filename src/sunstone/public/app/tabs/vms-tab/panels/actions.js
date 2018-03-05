@@ -41,7 +41,7 @@ define(function(require) {
   function Panel(info) {
     this.panelId = PANEL_ID;
     this.title = Locale.tr("Actions");
-    this.icon = "fa-calendar";
+    this.icon = "fa-calendar-alt";
 
     this.element = info[XML_ROOT];
 
