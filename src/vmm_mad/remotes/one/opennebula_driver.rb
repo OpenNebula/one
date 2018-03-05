@@ -166,9 +166,11 @@ class OpenNebulaDriver
       deploy_id = "#{DEPLOY_ID_PREFIX}#{rc}"
       vm = get_remote_vm(deploy_id)
 
-      new_context_update = "CONTEXT = [" << context_str <<"]"
-      new_context_update = new_context_update.gsub("\n", ",\n")
-      rc = vm.updateconf(new_context_update)
+      if !context_str.nil?
+        new_context_update = "CONTEXT = [" << context_str <<"]"
+        new_context_update = new_context_update.gsub("\n", ",\n")
+        rc = vm.updateconf(new_context_update)
+      end
 
       if OpenNebula.is_error?(rc)
         STDERR.puts(rc.to_str())
