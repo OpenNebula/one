@@ -162,7 +162,7 @@ define(function(require) {
     });
 
     /*$("#btn_refresh_roles", context).bind("click", function(){
-        $("#btn_refresh_roles", context).html("<i class='fa fa-angle-double-down'></i> "+Locale.tr("Refresh roles"));
+        $("#btn_refresh_roles", context).html("<i class='fas fa-angle-double-down'></i> "+Locale.tr("Refresh roles"));
         that.affinity_role_tab.refresh(context, that.roleTabObjects);
     });*/
     //---------btn_group_vm_roles
@@ -365,11 +365,11 @@ define(function(require) {
     var a = $("<li class='tabs-title'>\
       <a class='text-center' id='"+html_role_id+"' href='#"+html_role_id+"Tab'>\
         <span>\
-          <i class='off-color fa fa-cube fa-3x'/>\
+          <i class='off-color fas fa-cube fa-3x'/>\
           <br>\
           <span id='role_name_text'>"+Locale.tr("Role ")+role_id+"</span>\
         </span>\
-        <i class='fa fa-times-circle remove-tab'></i>\
+        <i class='fas fa-times-circle remove-tab'></i>\
       </a>\
     </li>").appendTo($("ul#roles_tabs", dialog));
 

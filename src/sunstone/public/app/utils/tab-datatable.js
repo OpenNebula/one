@@ -132,7 +132,7 @@ define(function(require) {
         });
 
         if (that.selectOptions.starred_icon == undefined) {
-          that.selectOptions.starred_icon = '<i class="fa fa-star fa-fw"></i>';
+          that.selectOptions.starred_icon = '<i class="fas fa-star fa-fw"></i>';
         }
       }
 
@@ -905,7 +905,7 @@ define(function(require) {
             $('input.check_item', row).prop('checked', true);
           }
 
-          $('#selected_ids_row_' + that.dataTableId, section).append('<span row_id="' + row_id + '" class="radius label">' + row_name + ' <span class="fa fa-times blue"></span></span> ');
+          $('#selected_ids_row_' + that.dataTableId, section).append('<span row_id="' + row_id + '" class="radius label">' + row_name + ' <span class="fas fa-times blue"></span></span> ');
 
           that.selectOptions.select_callback(aData, that.selectOptions);
         }
@@ -1090,7 +1090,7 @@ define(function(require) {
 
         row_name = OpenNebula[that.resource].getName(row_id);
 
-        $('#selected_ids_row_' + that.dataTableId, section).append('<span row_id="' + row_id + '" class="radius label">' + row_name + ' <span class="fa fa-times blue"></span></span> ');
+        $('#selected_ids_row_' + that.dataTableId, section).append('<span row_id="' + row_id + '" class="radius label">' + row_name + ' <span class="fas fa-times blue"></span></span> ');
       });
 
       $('#selected_ids_row_' + that.dataTableId, section).data("ids", data_ids);
@@ -1187,7 +1187,7 @@ define(function(require) {
                     elementArray[that.selectOptions.name_index]);
             } else {
               elementArray[that.selectOptions.name_index] =
-                  ('<i class="fa fa-fw"></i> ' +
+                  ('<i class="fas fa-fw"></i> ' +
                     elementArray[that.selectOptions.name_index]);
             }
           }

@@ -62,7 +62,7 @@ define(function(require) {
       "<div class=\"large-12 columns vm_log_container monospace\" style=\"overflow: auto; height: 500px\">" +
         "<div class=\"text-center\" style=\"height: 100px;\">" +
           "<span style=\"font-size:80px\">" +
-            "<i class=\"fa fa-spinner fa-spin\"></i>" +
+            "<i class=\"fas fa-spinner fa-spin\"></i>" +
           "</span>" +
         "</div>" +
       "</div>" +
@@ -101,7 +101,7 @@ define(function(require) {
           "<div class=\"row\">" +
             "<div class=\"large-12 columns vm_log_container monospace\">" +
               "<div class=\"text-center\" style=\"height: 100px;\">" +
-                "<span class=\"radius secondary label\"><i class=\"fa fa-exclamation-triangle\"></i> "+Locale.tr("Some ad-block extensions are known to filter the '/log?id=' URL")+"</span>" +
+                "<span class=\"radius secondary label\"><i class=\"fas fa-exclamation-triangle\"></i> "+Locale.tr("Some ad-block extensions are known to filter the '/log?id=' URL")+"</span>" +
               "</div>" +
             "</div>" +
           "</div>");

@@ -27,8 +27,8 @@ define(function(require) {
     return new Handlebars.SafeString(
       '<div class="accordion_advanced">'+
         '<a href="#'+html_id+'" class="accordion_advanced_toggle">'+
-            '<i class="fa fa-fw fa-chevron-down"/>'+
-            '<i class="fa fa-fw fa-chevron-up"/>'+
+            '<i class="fas fa-fw fa-chevron-down"/>'+
+            '<i class="fas fa-fw fa-chevron-up"/>'+
             '&nbsp;'+title+
         '</a>'+
         '<div id="'+html_id+'" class="content" hidden>'+

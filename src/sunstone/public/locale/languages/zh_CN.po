@@ -5043,9 +5043,9 @@ msgstr "关闭模态"
 
 #: ../app/tabs/secgroups-tab/panels/vms/html.hbs:19
 msgid ""
-"VMs marked with <i class='fa fa-warning'></i> are waiting to be updated with"
+"VMs marked with <i class='fas fa-warning'></i> are waiting to be updated with"
 " the latest rules:"
-msgstr "虚拟机标记为 <i class='fa fa-warning'></i> 是在等待更新到最新的规则"
+msgstr "虚拟机标记为 <i class='fas fa-warning'></i> 是在等待更新到最新的规则"
 
 #: ../app/tabs/secgroups-tab/panels/vms/html.hbs:31
 msgid "VMs in error. The update to the latest rules failed:"
@@ -6012,8 +6012,8 @@ msgid "Edit administrators"
 msgstr "编辑管理员"
 
 #: ../app/tabs/groups-tab/panels/users/html.hbs:38
-msgid "Users marked with <i class='fa fa-star'></i> are administrators"
-msgstr "用户标记为 <i class='fa fa-star'></i> 是管理员"
+msgid "Users marked with <i class='fas fa-star'></i> are administrators"
+msgstr "用户标记为 <i class='fas fa-star'></i> 是管理员"
 
 #: ../app/tabs/groups-tab/panels/info/html.hbs:44
 msgid "Group Admins Views"

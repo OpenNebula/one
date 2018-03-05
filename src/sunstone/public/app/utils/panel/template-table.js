@@ -50,7 +50,7 @@ define(function(require) {
        str += '<tr>\
            <td class="key_td"><input type="text" name="new_key" id="new_key" /></td>\
            <td class="value_td"><textarea type="text" name="new_value" id="new_value"></textarea></td>\
-           <td class="text-right"><button type="button" id="button_add_value" class="button small secondary"><i class="fa fa-lg fa-plus-circle"></i></button>\</td>\
+           <td class="text-right"><button type="button" id="button_add_value" class="button small secondary"><i class="fas fa-lg fa-plus-circle"></i></button>\</td>\
          </tr>';
     }
     str += '</table>'
@@ -420,10 +420,10 @@ define(function(require) {
                     if (modify) {
                       str += '<td class="text-right nowrap">\
                         <span id="div_add_vectorial">\
-                          <a id="div_add_vectorial_' + field + '" class="add_vectorial_a ocurrence_' + it + ' vectorial_key_' + field + '" href="#"><i class="fa fa-plus-sign"/></a>\
+                          <a id="div_add_vectorial_' + field + '" class="add_vectorial_a ocurrence_' + it + ' vectorial_key_' + field + '" href="#"><i class="fas fa-plus-sign"/></a>\
                         </span>&emsp;\
                         <span id="div_minus">\
-                          <a id="div_minus_' + field + '" class="remove_vectorial_x ocurrence_' + it + '" href="#"><i class="fa fa-trash-o"/></a>\
+                          <a id="div_minus_' + field + '" class="remove_vectorial_x ocurrence_' + it + '" href="#"><i class="fas fa-trash-o"/></a>\
                         </span>\
                       </td>';
                     }
@@ -458,10 +458,10 @@ define(function(require) {
                     if (modify) {
                       str += '<td class="text-right nowrap">\
                         <span id="div_edit_vectorial">\
-                          <a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + ' vectorial_key_' + vectorial_key + '" href="#"><i class="fa fa-pencil-square-o"/></a>\
+                          <a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + ' vectorial_key_' + vectorial_key + '" href="#"><i class="fas fa-pencil-square-o"/></a>\
                         </span>&emsp;\
                         <span id="div_minus_vectorial">\
-                          <a id="div_minus_' + field + '" class="remove_x' + ocurrence_str + ' vectorial_key_' + vectorial_key + '" href="#"><i class="fa fa-trash-o"/></a>\
+                          <a id="div_minus_' + field + '" class="remove_x' + ocurrence_str + ' vectorial_key_' + vectorial_key + '" href="#"><i class="fas fa-trash-o"/></a>\
                         </span>\
                       </td>'
                     }
@@ -475,10 +475,10 @@ define(function(require) {
                       if (modify) {
                         str += '<td class="text-right nowrap">\
                           <span id="div_add_vectorial">\
-                            <a id="div_add_vectorial_' + field + '" class="add_vectorial_a' + ocurrence_str + ' vectorial_key_' + field + '" href="#"><i class="fa fa-plus-sign"/></a>\
+                            <a id="div_add_vectorial_' + field + '" class="add_vectorial_a' + ocurrence_str + ' vectorial_key_' + field + '" href="#"><i class="fas fa-plus-sign"/></a>\
                           </span>&emsp;\
                           <span id="div_minus">\
-                            <a id="div_minus_' + field + '" class="remove_vectorial_x' + ocurrence_str + '" href="#"><i class="fa fa-trash-o"/></a>\
+                            <a id="div_minus_' + field + '" class="remove_vectorial_x' + ocurrence_str + '" href="#"><i class="fas fa-trash-o"/></a>\
                           </span>\
                         </td>'
                       }
@@ -495,10 +495,10 @@ define(function(require) {
                         if (modify) {
                           str += '<td class="text-right nowrap">\
                             <span id="div_edit">\
-                              <a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + '" href="#"><i class="fa fa-pencil-square-o"/></a>\
+                              <a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + '" href="#"><i class="fas fa-pencil-square-o"/></a>\
                             </span>&emsp;\
                             <span id="div_minus">\
-                              <a id="div_minus_' + field + '" class="remove_x' + ocurrence_str + '" href="#"><i class="fa fa-trash-o"/></a>\
+                              <a id="div_minus_' + field + '" class="remove_x' + ocurrence_str + '" href="#"><i class="fas fa-trash-o"/></a>\
                             </span>\
                           </td>';
                         }

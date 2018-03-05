@@ -30,13 +30,13 @@ define(function(require) {
     },
     "Image.upload_marketplace_dialog" : {
       type: "action",
-      text: '<i class="fa fa-share"/> '+ Locale.tr("MarketPlace")
+      text: '<i class="fas fa-share"/> '+ Locale.tr("MarketPlace")
     },
     "Image.import_dialog" : {
       type: "create_dialog",
       layout: "create",
       text:  Locale.tr("Import"),
-      icon: '<i class="fa fa-download"/>'
+      icon: '<i class="fas fa-download"/>'
     },
     "Image.chown" : {
       type: "confirm_with_select",

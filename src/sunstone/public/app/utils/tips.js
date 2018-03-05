@@ -34,16 +34,16 @@ define(function(require) {
         tip_classes.push(position)
       }
       //replace the text with an icon and spans
-      //obj.html('<span data-tooltip class="' + tip_classes.join(' ') + '" data-width="210" title="' + tip + '"><i class="fa fa-question-circle"></i></span>');
-      obj.html('<span data-tooltip aria-haspopup="true" class="has-tip" data-disable-hover="false" title="' + $.trim(tip) + '"><i class="fa fa-question-circle"></i></span>');
+      //obj.html('<span data-tooltip class="' + tip_classes.join(' ') + '" data-width="210" title="' + tip + '"><i class="fas fa-question-circle"></i></span>');
+      obj.html('<span data-tooltip aria-haspopup="true" class="has-tip" data-disable-hover="false" title="' + $.trim(tip) + '"><i class="fas fa-question-circle"></i></span>');
     });
 
     Foundation.reflow(context, 'tooltip');
   }
 
   var _html = function(str) {
-    //return '<span data-tooltip class="" data-width="210" title="' + str + '"><i class="fa fa-question-circle"></i></span>'
-    return '<span data-tooltip aria-haspopup="true" class="has-tip" data-disable-hover="false" title="' + $.trim(str) + '"><i class="fa fa-question-circle"></i></span>';
+    //return '<span data-tooltip class="" data-width="210" title="' + str + '"><i class="fas fa-question-circle"></i></span>'
+    return '<span data-tooltip aria-haspopup="true" class="has-tip" data-disable-hover="false" title="' + $.trim(str) + '"><i class="fas fa-question-circle"></i></span>';
   }
 
   return {

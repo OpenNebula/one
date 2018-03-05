@@ -319,7 +319,7 @@ define(function(require) {
                       <td colspan="2">\
                           <a type="button" \
                             class="button small radius small-12" \
-                            id="image_add_quota_btn"><i class="fa fa-plus"></i>\
+                            id="image_add_quota_btn"><i class="fas fa-plus"></i>\
                             '+Locale.tr("Add a new quota")+'\
                           </a>\
                       </td>\
@@ -471,7 +471,7 @@ define(function(require) {
                     <td colspan="3">\
                         <a type="button" \
                           class="button small radius small-12" \
-                          id="ds_add_quota_btn"><i class="fa fa-plus"></i>\
+                          id="ds_add_quota_btn"><i class="fas fa-plus"></i>\
                           '+Locale.tr("Add a new quota")+'\
                         </a>\
                     </td>\
@@ -626,7 +626,7 @@ define(function(require) {
                 <td colspan="2">\
                   <a type="button" \
                     class="button small radius small-12" \
-                    id="network_add_quota_btn"><i class="fa fa-plus"></i>\
+                    id="network_add_quota_btn"><i class="fas fa-plus"></i>\
                     '+Locale.tr("Add a new quota")+'\
                   </a>\
                 </td>\
@@ -729,7 +729,7 @@ define(function(require) {
           <div class="large-12 columns">\
             <span class="right">\
               <button class="button primary small radius" id="edit_quotas_button">\
-                <span class="fa fa-pencil-square-o"></span> '+Locale.tr("Edit")+'\
+                <span class="fas fa-pencil-square-o"></span> '+Locale.tr("Edit")+'\
               </button>\
               <button class="button alert small radius" id="cancel_quotas_button" style="display: none">\
                 '+Locale.tr("Cancel")+'\
@@ -748,8 +748,8 @@ define(function(require) {
           <div class="large-8 large-centered columns">\
             <div class="text-center">\
               <span class="fa-stack fa-5x" style="color: #dfdfdf">\
-                <i class="fa fa-cloud fa-stack-2x"></i>\
-                <i class="fa fa-align-left fa-stack-1x fa-inverse"></i>\
+                <i class="fas fa-cloud fa-stack-2x"></i>\
+                <i class="fas fa-align-left fa-stack-1x fa-inverse"></i>\
               </span>\
               <br>\
               <p style="font-size: 18px; color: #999">\
@@ -1128,8 +1128,8 @@ define(function(require) {
       html +=
           '<div class="small-5 columns">\
             <div class="button-group">\
-              <a class="button tiny secondary quotabar_edit_btn"><span class="fa fa-pencil"></span></a>\
-              <a class="button tiny secondary quotabar_default_btn"><span class="fa fa-file-o"></span></a>\
+              <a class="button tiny secondary quotabar_edit_btn"><span class="fas fa-pencil"></span></a>\
+              <a class="button tiny secondary quotabar_default_btn"><span class="fas fa-file-o"></span></a>\
               <a class="button tiny secondary quotabar_unlimited_btn"><strong>&infin;</strong></a>\
             </div>\
           </div>\
@@ -1263,10 +1263,10 @@ define(function(require) {
     return '<div class="row">\
         <div class="large-12 columns">\
           <dl id="' + uniqueId + 'Tabs" class="tabs sunstone-info-tabs text-center" data-tabs>\
-               <dd class="tabs-title is-active"><a href="#vm_quota"><i class="fa fa-cloud"></i><br>'+Locale.tr("VM")+'</a></dd>\
-               <dd class="tabs-title"><a href="#datastore_quota"><i class="fa fa-folder-open"></i><br>'+Locale.tr("Datastore")+'</a></dd>\
-               <dd class="tabs-title"><a href="#image_quota"><i class="fa fa-upload"></i><br>'+Locale.tr("Image")+'</a></dd>\
-               <dd class="tabs-title"><a href="#network_quota"><i class="fa fa-globe"></i><br>'+Locale.tr("VNet")+'</a></dd>\
+               <dd class="tabs-title is-active"><a href="#vm_quota"><i class="fas fa-cloud"></i><br>'+Locale.tr("VM")+'</a></dd>\
+               <dd class="tabs-title"><a href="#datastore_quota"><i class="fas fa-folder-open"></i><br>'+Locale.tr("Datastore")+'</a></dd>\
+               <dd class="tabs-title"><a href="#image_quota"><i class="fas fa-upload"></i><br>'+Locale.tr("Image")+'</a></dd>\
+               <dd class="tabs-title"><a href="#network_quota"><i class="fas fa-globe"></i><br>'+Locale.tr("VNet")+'</a></dd>\
           </dl>\
         </div>\
       </div>\

@@ -190,7 +190,7 @@ define(function(require) {
     context.html(
       '<fieldset>' +
         '<legend>' +
-          '<i class="fa fa-laptop fa-lg"></i> '+
+          '<i class="fas fa-laptop fa-lg"></i> '+
           Locale.tr("Capacity") + ' ' +
           '<span class="provision_create_template_cost_div" hidden>' +
             '<span class="cost_value">0.00</span> '+
@@ -668,7 +668,7 @@ define(function(require) {
   function update_provision_flow_templates_datatable(datatable, timeout) {
     datatable.html('<div class="text-center">'+
       '<span class="fa-stack fa-5x">'+
-        '<i class="fa fa-cloud fa-stack-2x"></i>'+
+        '<i class="fas fa-cloud fa-stack-2x"></i>'+
         '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
       '</span>'+
       '<br>'+
@@ -685,8 +685,8 @@ define(function(require) {
           if (item_list.length == 0) {
             datatable.html('<div class="text-center">'+
               '<span class="fa-stack fa-5x">'+
-                '<i class="fa fa-cloud fa-stack-2x"></i>'+
-                '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+                '<i class="fas fa-cloud fa-stack-2x"></i>'+
+                '<i class="fas fa-info-circle fa-stack-1x fa-inverse"></i>'+
               '</span>'+
               '<br>'+
               '<br>'+
@@ -827,7 +827,7 @@ define(function(require) {
               '</span>';
           } else {
             logo = '<span>'+
-              '<i class="fa fa-fw fa-file-text-o"/>'+
+              '<i class="fas fa-fw fa-file-text-o"/>'+
             '</span>';
           }
 
@@ -854,7 +854,7 @@ define(function(require) {
                 '</li>'+
                 '<li class="provision-bullet-item-last text-left">'+
                   '<span>'+
-                    '<i class="fa fa-fw fa-lg fa-user"/> '+
+                    '<i class="fas fa-fw fa-lg fa-user"/> '+
                     owner+
                   '</span>'+
                 '</li>'+
@@ -869,8 +869,8 @@ define(function(require) {
           if (context.$('tr', {"filter": "applied"} ).length == 0) {
             context.html('<div class="text-center">'+
               '<span class="fa-stack fa-5x">'+
-                '<i class="fa fa-cloud fa-stack-2x"></i>'+
-                '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+                '<i class="fas fa-cloud fa-stack-2x"></i>'+
+                '<i class="fas fa-info-circle fa-stack-1x fa-inverse"></i>'+
               '</span>'+
               '<br>'+
               '<br>'+
@@ -997,7 +997,7 @@ define(function(require) {
             if (template_json.VMTEMPLATE.TEMPLATE.LOGO) {
               $(".provision_accordion_template .selected_template_logo").html('<img  src="'+TemplateUtils.htmlEncode(template_json.VMTEMPLATE.TEMPLATE.LOGO)+'">');
             } else {
-              $(".provision_accordion_template .selected_template_logo").html('<i class="fa fa-file-text-o fa-lg"/> ');
+              $(".provision_accordion_template .selected_template_logo").html('<i class="fas fa-file-text-o fa-lg"/> ');
             }
 
             $("#provision_create_vm .total_cost_div").hide();
@@ -1110,7 +1110,7 @@ define(function(require) {
                   UserInputs.vmTemplateInsert(
                       $(".provision_custom_attributes_selector", create_vm_context),
                       template_json,
-                      {text_header: '<i class="fa fa-gears"></i> '+Locale.tr("Custom Attributes")});
+                      {text_header: '<i class="fas fa-gears"></i> '+Locale.tr("Custom Attributes")});
 
                 } else {
                   $(".provision_custom_attributes_selector", create_vm_context).html("");
@@ -1238,8 +1238,8 @@ define(function(require) {
             if (this.$('tr', {"filter": "applied"} ).length == 0) {
               this.html('<div class="text-center">'+
                 '<span class="fa-stack fa-5x">'+
-                  '<i class="fa fa-cloud fa-stack-2x"></i>'+
-                  '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+                  '<i class="fas fa-cloud fa-stack-2x"></i>'+
+                  '<i class="fas fa-info-circle fa-stack-1x fa-inverse"></i>'+
                 '</span>'+
                 '<br>'+
                 '<br>'+
@@ -1264,7 +1264,7 @@ define(function(require) {
               $.each(body.roles, function(index, role) {
                 roles_li +=
                   '<li class="provision-bullet-item">'+
-                    '<i class="fa fa-fw fa-cube"/> '+
+                    '<i class="fas fa-fw fa-cube"/> '+
                     role.name+
                     '<span class="right">'+role.cardinality+" VMs</span>"+
                   '</li>';
@@ -1324,7 +1324,7 @@ define(function(require) {
             $(".provision_accordion_flow_template .selected_template").show();
             $(".provision_accordion_flow_template .select_template").hide();
             $(".provision_accordion_flow_template .selected_template_name").html(TemplateUtils.htmlEncode(data.DOCUMENT.NAME))
-            $(".provision_accordion_flow_template .selected_template_logo").html('<i class="fa fa-cubes fa-lg"/> ');
+            $(".provision_accordion_flow_template .selected_template_logo").html('<i class="fas fa-cubes fa-lg"/> ');
             $(".provision_accordion_flow_template a").first().trigger("click");
 
             var context = $("#provision_create_flow");
@@ -1341,7 +1341,7 @@ define(function(require) {
               var context = $(
                 '<div id="provision_create_flow_role_'+index+'" class="left medium-6 columns provision_create_flow_role">'+
                   '<h5>'+
-                    '<i class="fa fa-cube fa-lg"></i> '+
+                    '<i class="fas fa-cube fa-lg"></i> '+
                     TemplateUtils.htmlEncode(role.name)+
                   '</h5>'+
                   '<div class="row">'+
@@ -1376,7 +1376,7 @@ define(function(require) {
                     UserInputs.vmTemplateInsert(
                         $(".provision_custom_attributes_selector", role_context),
                         template_json,
-                        {text_header: '<i class="fa fa-gears"></i> '+Locale.tr("Custom Attributes")});
+                        {text_header: '<i class="fas fa-gears"></i> '+Locale.tr("Custom Attributes")});
 
                   } else {
                     $(".provision_custom_attributes_selector", role_context).html("");

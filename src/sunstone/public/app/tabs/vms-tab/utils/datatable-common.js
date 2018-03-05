@@ -64,9 +64,9 @@ define(function(require) {
     // VNC icon
     var vncIcon;
     if (OpenNebulaVM.isVNCSupported(element)) {
-      vncIcon = '<a class="vnc" href="#" vm_id="' + element.ID + '"><i class="fa fa-desktop"/></a>';
+      vncIcon = '<a class="vnc" href="#" vm_id="' + element.ID + '"><i class="fas fa-desktop"/></a>';
     } else if (OpenNebulaVM.isSPICESupported(element)) {
-      vncIcon = '<a class="spice" href="#" vm_id="' + element.ID + '"><i class="fa fa-desktop"/></a>';
+      vncIcon = '<a class="spice" href="#" vm_id="' + element.ID + '"><i class="fas fa-desktop"/></a>';
     } else {
       vncIcon = '';
     }

@@ -88,7 +88,7 @@ define(function(require) {
 
     $("#submit_support_comment").on("submit", function(){
       $("button[type=submit]", context).attr("disabled", "disabled");
-      $("button[type=submit]", context).html('<i class="fa fa-spinner fa-spin"></i>');
+      $("button[type=submit]", context).html('<i class="fas fa-spinner fa-spin"></i>');
 
       var request_id = that.element.id;
       var request_json = {
