@@ -323,9 +323,9 @@ define(function(require) {
                   ProgressBar.html(0, 1, fileName) + '\
                 </div>\
                 <div>\
-                  <button id="close_upload_image" class="fa fa-times-circle fa fa-lg close_upload_image">   </button>\
-                  <button id="pause_upload_image" class="fa fa-pause fa fa-lg pause_upload_image">   </button>\
-                  <button id="play_upload_image" class="fa fa-play fa fa-lg play_upload_image" hidden="true">   </button>\
+                  <button id="close_upload_image" class="fas fa-times-circle fas fa-lg close_upload_image">   </button>\
+                  <button id="pause_upload_image" class="fas fa-pause fas fa-lg pause_upload_image">   </button>\
+                  <button id="play_upload_image" class="fas fa-play fas fa-lg play_upload_image" hidden="true">   </button>\
                 </div>\
               </div>\
               <div class="medium-2 columns">\

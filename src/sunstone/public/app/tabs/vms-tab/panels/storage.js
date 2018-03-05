@@ -55,7 +55,7 @@ define(function(require) {
   function Panel(info) {
     this.panelId = PANEL_ID;
     this.title = Locale.tr("Storage");
-    this.icon = "fa-tasks";
+    this.icon = "fa-server";
 
     this.element = info[XML_ROOT];
 
@@ -97,7 +97,7 @@ define(function(require) {
                 <div class="row">\
                   <div class="large-12 columns centered graph" id="vm_st_drb_graph" style="height: 100px;">\
                     <span  id="provision_dashboard_total" style="font-size:80px">\
-                      <i class="fa fa-spinner fa-spin"></i>\
+                      <i class="fas fa-spinner fa-spin"></i>\
                     </span>\
                   </div>\
                 </div>\
@@ -113,7 +113,7 @@ define(function(require) {
                 <div class="row">\
                   <div class="large-12 columns centered graph" id="vm_st_dwb_graph" style="height: 100px;">\
                     <span  id="provision_dashboard_total" style="font-size:80px">\
-                      <i class="fa fa-spinner fa-spin"></i>\
+                      <i class="fas fa-spinner fa-spin"></i>\
                     </span>\
                   </div>\
                 </div>\
@@ -129,7 +129,7 @@ define(function(require) {
                 <div class="row">\
                   <div class="large-12 columns centered graph" id="vm_st_drio_graph" style="height: 100px;">\
                     <span  id="provision_dashboard_total" style="font-size:80px">\
-                      <i class="fa fa-spinner fa-spin"></i>\
+                      <i class="fas fa-spinner fa-spin"></i>\
                     </span>\
                   </div>\
                 </div>\
@@ -145,7 +145,7 @@ define(function(require) {
                 <div class="row">\
                   <div class="large-12 columns centered graph" id="vm_st_dwio_graph" style="height: 100px;">\
                     <span  id="provision_dashboard_total" style="font-size:80px">\
-                      <i class="fa fa-spinner fa-spin"></i>\
+                      <i class="fas fa-spinner fa-spin"></i>\
                     </span>\
                   </div>\
                 </div>\
@@ -293,12 +293,12 @@ define(function(require) {
                 var historyLenght = that.element.HISTORY_RECORDS.HISTORY.length - 1;
                 if(that.element.LCM_STATE != "3" || that.element.HISTORY_RECORDS.HISTORY[historyLenght].VM_MAD != "vcenter"){
                   actions += '<a href="VM.disk_saveas" class="disk_saveas nowrap" >\
-              <i class="fa fa-save fa-fw" title="Saveas"></i></a> &emsp;';
+              <i class="fas fa-save fa-fw" title="Saveas"></i></a> &emsp;';
                 }
               } else {
                 if(that.element.LCM_STATE != "3" || that.element.HISTORY_RECORDS.HISTORY.VM_MAD != "vcenter"){
                   actions += '<a href="VM.disk_saveas" class="disk_saveas nowrap" >\
-              <i class="fa fa-save fa-fw" title="Saveas"></i></a> &emsp;';
+              <i class="fas fa-save fa-fw" title="Saveas"></i></a> &emsp;';
                 }
               }
               //+ Locale.tr("Save as") + ';'
@@ -309,7 +309,7 @@ define(function(require) {
           if (Config.isTabActionEnabled("vms-tab", "VM.detachdisk")) {
             if (StateActions.enabledStateAction("VM.detachdisk", that.element.STATE, that.element.LCM_STATE) && !disk.CONTEXT) {
               actions += ('<a href="VM.detachdisk" class="detachdisk nowrap" >\
-              <i class="fa fa-times fa-fw" title="Detach"></i></a> &emsp;');// + Locale.tr("Detach") +
+              <i class="fas fa-times fa-fw" title="Detach"></i></a> &emsp;');// + Locale.tr("Detach") +
               
             }
           }
@@ -317,7 +317,7 @@ define(function(require) {
           if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_create")) {
             if (StateActions.enabledStateAction("VM.disk_snapshot_create", that.element.STATE, that.element.LCM_STATE) && disk.IMAGE_ID) {
               actions += ('<a href="VM.disk_snapshot_create" class="disk_snapshot_create nowrap" >\
-              <i class="fa fa-camera fa-fw" title="Snapshot"></i></a> &emsp;');//+ Locale.tr("Snapshot") +
+              <i class="fas fa-camera fa-fw" title="Snapshot"></i></a> &emsp;');//+ Locale.tr("Snapshot") +
               
             }
           }
@@ -328,12 +328,12 @@ define(function(require) {
                 var historyLenght = that.element.HISTORY_RECORDS.HISTORY.length - 1;
                 if(that.element.LCM_STATE != "3" || that.element.HISTORY_RECORDS.HISTORY[historyLenght].VM_MAD != "vcenter"){
                   actions += ('<a class="disk_resize nowrap" >\
-                  <i class="fa fa-expand fa-fw" title="Resize"></i></a>');
+                  <i class="fas fa-expand-arrows-alt fa-fw" title="Resize"></i></a>');
                 }
               } else {
                 if(that.element.LCM_STATE != "3" || that.element.HISTORY_RECORDS.HISTORY.VM_MAD != "vcenter"){
                   actions += ('<a class="disk_resize nowrap" >\
-                  <i class="fa fa-expand fa-fw" title="Resize"></i></a>');
+                  <i class="fas fa-expand-arrows-alt fa-fw" title="Resize"></i></a>');
                 }
               }
             }
@@ -386,7 +386,7 @@ define(function(require) {
           "class":          'open-control',
           "orderable":      false,
           "data":           null,
-          "defaultContent": '<span class="fa fa-fw fa-chevron-down"></span>'
+          "defaultContent": '<span class="fas fa-fw fa-chevron-down"></span>'
         },
         {"data": "DISK_ID",   "defaultContent": ""},
         {"data": "TARGET",    "defaultContent": ""},
@@ -686,7 +686,7 @@ define(function(require) {
     var active = (snapshot.ACTIVE == "YES");
 
     if(active){
-      html += '<i class="fa fa-play-circle-o fa-lg" title="'+
+      html += '<i class="fas fa-play-circle-o fa-lg" title="'+
                 Locale.tr("Active")+'"/>' + SPACE;
     }
 

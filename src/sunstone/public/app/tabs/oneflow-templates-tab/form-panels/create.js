@@ -111,7 +111,7 @@ define(function(require) {
             <textarea class="service_network_description"/>\
           </td>\
           <td>\
-            <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>\
+            <a href="#"><i class="fas fa-times-circle remove-tab"></i></a>\
           </td>\
         </tr>');
     });
@@ -425,11 +425,11 @@ define(function(require) {
     var a = $("<li class='tabs-title'>\
       <a class='text-center' id='"+html_role_id+"' href='#"+html_role_id+"Tab'>\
         <span>\
-          <i class='off-color fa fa-cube fa-3x'/>\
+          <i class='off-color fas fa-cube fa-3x'/>\
           <br>\
           <span id='role_name_text'>"+Locale.tr("Role ")+role_id+"</span>\
         </span>\
-        <i class='fa fa-times-circle remove-tab'></i>\
+        <i class='fas fa-times-circle remove-tab'></i>\
       </a>\
     </li>").appendTo($("ul#roles_tabs", dialog));
 

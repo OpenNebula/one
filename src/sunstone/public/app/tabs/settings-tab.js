@@ -53,7 +53,7 @@ define(function(require) {
     resource: 'Settings',
     actions: _actions,
     content: '<span class="fa-stack fa-2x" style="color: #dfdfdf">' +
-      '<i class="fa fa-cloud fa-stack-2x"></i>' +
+      '<i class="fas fa-cloud fa-stack-2x"></i>' +
       '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
     '</span>',
     dialogs: _dialogs,

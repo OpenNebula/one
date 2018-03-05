@@ -28,9 +28,9 @@ define(function(require) {
     $('.resource-info-header', '#' + contextTabId).text(element.NAME);
 
     if (element.LOCK){
-      $('.resource-lock-header-small', '#' + contextTabId).html("<span data-tooltip aria-haspopup='true' class='has-tip' data-disable-hover='false' tabindex='1' title="+Locale.tr(Humanize.lock_to_str(element.LOCK.LOCKED))+"><i class='fa fa-lock fa-2x'/></span>");
+      $('.resource-lock-header-small', '#' + contextTabId).html("<span data-tooltip aria-haspopup='true' class='has-tip' data-disable-hover='false' tabindex='1' title="+Locale.tr(Humanize.lock_to_str(element.LOCK.LOCKED))+"><i class='fas fa-lock fa-2x'/></span>");
     } else {
-      $('.resource-lock-header-small', '#' + contextTabId).html("<i style='color: #cacedd;' class='fa fa-unlock-alt fa-2x'/>");
+      $('.resource-lock-header-small', '#' + contextTabId).html("<i style='color: #cacedd;' class='fas fa-unlock-alt fa-2x'/>");
     }
   }
 

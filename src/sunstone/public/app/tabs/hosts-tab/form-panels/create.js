@@ -154,7 +154,7 @@ define(function(require) {
               <input class='capacity_value' type='number' min='0' name='value'>\
             </td>\
             <td style='width: 150%; display: flex; justify-content: flex-end'>\
-              <a href='#''><i class='fa fa-times-circle remove-capacity'></i></a>\
+              <a href='#''><i class='fas fa-times-circle remove-capacity'></i></a>\
             </td>\
           </tr>");
     });
@@ -175,7 +175,7 @@ define(function(require) {
               <input class='capacity_value' type='number' min='0' name='value'>\
             </td>\
             <td style='width: 150%; display: flex; justify-content: flex-end'>\
-              <a href='#'><i class='fa fa-times-circle remove-capacity'></i></a>\
+              <a href='#'><i class='fas fa-times-circle remove-capacity'></i></a>\
             </td>\
           </tr>");
     });

@@ -66,7 +66,7 @@ define(function(require) {
   function update_provision_templates_datatable(datatable, timeout) {
     datatable.html('<div class="text-center">'+
       '<span class="fa-stack fa-5x">'+
-        '<i class="fa fa-cloud fa-stack-2x"></i>'+
+        '<i class="fas fa-cloud fa-stack-2x"></i>'+
         '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
       '</span>'+
       '<br>'+
@@ -89,8 +89,8 @@ define(function(require) {
           if (item_list.length == 0) {
             datatable.html('<div class="text-center">'+
               '<span class="fa-stack fa-5x">'+
-                '<i class="fa fa-cloud fa-stack-2x"></i>'+
-                '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+                '<i class="fas fa-cloud fa-stack-2x"></i>'+
+                '<i class="fas fa-info-circle fa-stack-1x fa-inverse"></i>'+
               '</span>'+
               '<br>'+
               '<br>'+
@@ -138,8 +138,8 @@ define(function(require) {
         if (this.$('tr', {"filter": "applied"} ).length == 0) {
           this.html('<div class="text-center">'+
             '<span class="fa-stack fa-5x">'+
-              '<i class="fa fa-cloud fa-stack-2x"></i>'+
-              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+              '<i class="fas fa-cloud fa-stack-2x"></i>'+
+              '<i class="fas fa-info-circle fa-stack-1x fa-inverse"></i>'+
             '</span>'+
             '<br>'+
             '<br>'+
@@ -161,16 +161,16 @@ define(function(require) {
           if (data.UID == config['user_id']) {
 
             if (data.PERMISSIONS.GROUP_U == "1") {
-              actions_html += '<a class="provision_confirm_unshare_template_button left" title="'+ Locale.tr("Unshare")+'" href="#"><i class="fa fa-fw fa-lg fa-ban only-on-hover"/></a>';
+              actions_html += '<a class="provision_confirm_unshare_template_button left" title="'+ Locale.tr("Unshare")+'" href="#"><i class="fas fa-fw fa-lg fa-ban only-on-hover"/></a>';
               actions_html += '<span>' + Locale.tr("SHARED") + '</span>';
             } else {
-              actions_html += '<a class="provision_confirm_chmod_template_button left" title="'+ Locale.tr("Share")+'" href="#"><i class="fa fa-fw fa-lg fa-share-alt only-on-hover"/></a>';
+              actions_html += '<a class="provision_confirm_chmod_template_button left" title="'+ Locale.tr("Share")+'" href="#"><i class="fas fa-fw fa-lg fa-share-alt only-on-hover"/></a>';
             }
           }
         }
 
         if (Config.isTabActionEnabled("provision-tab", "Template.delete") && data["PERMISSIONS"]["OWNER_M"] === "1") {
-          actions_html += '<a class="provision_confirm_delete_template_button" title="'+ Locale.tr("Delete")+'"  href="#"><i class="fa fa-fw fa-lg fa-trash-o only-on-hover"/></a>';
+          actions_html += '<a class="provision_confirm_delete_template_button" title="'+ Locale.tr("Delete")+'"  href="#"><i class="fas fa-fw fa-lg fa-trash-alt only-on-hover"/></a>';
         }
 
         var cpu_txt = "";
@@ -199,7 +199,7 @@ define(function(require) {
                 (TemplateUtils.htmlEncode(data.TEMPLATE.DESCRIPTION) || '')+
               '</li>'+
               '<li class="provision-bullet-item" >'+
-                '<i class="fa fa-fw fa-lg fa-laptop"/> '+
+                '<i class="fas fa-fw fa-lg fa-laptop"/> '+
                 cpu_txt+' - '+
                 mem_txt+' - '+
                 get_provision_disk_image(data) +
@@ -209,7 +209,7 @@ define(function(require) {
               '</li>'+
               '<li class="provision-bullet-item-last" >'+
                 '<span class="">'+
-                  '<i class="fa fa-fw fa-lg fa-user"/> '+
+                  '<i class="fas fa-fw fa-lg fa-user"/> '+
                   TemplateUtils.htmlEncode(data.UNAME)+
                 '</span>'+
                 '<span class="right">'+

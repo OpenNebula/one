@@ -101,6 +101,14 @@ if [ -n "$CEPH_CONF" ]; then
     RBD="$RBD --conf ${CEPH_CONF}"
 fi
 
+###
+
+# for running VMs, leave disk resize on kvm/resize_disk
+if [ `lcm_state $VM_ID` -eq 62 ]; then
+    log "Not resizing disk ${SRC_PATH} for running virt. machine directly"
+    exit 0
+fi
+
 if [ "${TYPE}" = 'FILE' ]; then
     RESIZE_CMD=$(cat <<EOF
         ${QEMU_IMG} resize "${SRC_PATH}" "${SIZE}M"

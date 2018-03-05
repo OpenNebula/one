@@ -44,7 +44,7 @@ define(function(require) {
    */
   var _insert = function(opts) {
     var Resource = require('opennebula/' + opts.resourceName.toLowerCase());
-    opts.context.html('<i class="fa fa-spinner fa-spin"></i>');
+    opts.context.html('<i class="fas fa-spinner fa-spin"></i>');
 
     Resource.list({
       timeout: true,

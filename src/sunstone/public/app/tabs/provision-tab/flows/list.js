@@ -68,7 +68,7 @@ define(function(require) {
   function update_provision_flows_datatable(datatable, timeout) {
     datatable.html('<div class="text-center">'+
       '<span class="fa-stack fa-5x">'+
-        '<i class="fa fa-cloud fa-stack-2x"></i>'+
+        '<i class="fas fa-cloud fa-stack-2x"></i>'+
         '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
       '</span>'+
       '<br>'+
@@ -86,8 +86,8 @@ define(function(require) {
           if (item_list.length == 0) {
             datatable.html('<div class="text-center">'+
               '<span class="fa-stack fa-5x">'+
-                '<i class="fa fa-cloud fa-stack-2x"></i>'+
-                '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+                '<i class="fas fa-cloud fa-stack-2x"></i>'+
+                '<i class="fas fa-info-circle fa-stack-1x fa-inverse"></i>'+
               '</span>'+
               '<br>'+
               '<br>'+
@@ -145,8 +145,8 @@ define(function(require) {
         if (this.$('tr', {"filter": "applied"} ).length == 0) {
           this.html('<div class="text-center">'+
             '<span class="fa-stack fa-5x">'+
-              '<i class="fa fa-cloud fa-stack-2x"></i>'+
-              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+              '<i class="fas fa-cloud fa-stack-2x"></i>'+
+              '<i class="fas fa-info-circle fa-stack-1x fa-inverse"></i>'+
             '</span>'+
             '<br>'+
             '<br>'+
@@ -179,7 +179,7 @@ define(function(require) {
 
             roles_li +=
               '<li class="provision-bullet-item"">'+
-                '<i class="fa fa-fw fa-lg fa-cube"/> '+
+                '<i class="fas fa-fw fa-lg fa-cube"/> '+
                 TemplateUtils.htmlEncode(role.name)+
                 '<span class="right">'+TemplateUtils.htmlEncode(rvms.str)+" VMs</span>"+
               '</li>';
@@ -191,7 +191,7 @@ define(function(require) {
               '<li class="provision-title">'+
                 '<a class="provision_info_flow_button" href="#">'+
                   '<span class="'+ state.color +'-color right" title="'+ state.str +'">'+
-                    '<i class="fa fa-square"/>'+
+                    '<i class="fas fa-square"/>'+
                   '</span>'+
                   TemplateUtils.htmlEncode(data.NAME) +
                 '</a>'+
@@ -199,7 +199,7 @@ define(function(require) {
               roles_li +
               '<li class="provision-bullet-item-last">'+
                 '<span>'+
-                  '<i class="fa fa-fw fa-lg fa-user"/> '+
+                  '<i class="fas fa-fw fa-lg fa-user"/> '+
                   TemplateUtils.htmlEncode(data.UNAME)+
                 '</span>'+
                 '<span class="right">'+
@@ -309,18 +309,18 @@ define(function(require) {
               '<li class="provision-title">'+
                 '<span class="without-link '+ state.color +'-color">'+
                   '<span class="'+ state.color +'-color right">'+
-                    '<i class="fa fa-square"/> '+
+                    '<i class="fas fa-square"/> '+
                   '</span>'+
                   state.str+
                 '</span>'+
               '</li>'+
               '<li class="provision-bullet-item-last text-right">'+
                 '<span class="left">'+
-                  '<i class="fa fa-fw fa-lg fa-user"/> '+
+                  '<i class="fas fa-fw fa-lg fa-user"/> '+
                   TemplateUtils.htmlEncode(data.UNAME)+
                 '</span>'+
                 '<span>'+
-                  '<i class="fa fa-fw fa-lg fa-clock-o"/> '+
+                  '<i class="fas fa-fw fa-lg fa-clock-o"/> '+
                   (start_time ? Humanize.prettyTimeAgo(start_time) : "...") +
                   ' - '+
                   'ID: '+
@@ -343,7 +343,7 @@ define(function(require) {
                   '<ul class="provision_role_ul provision-pricing-table menu vertical">'+
                     '<li class="provision-title">'+
                       '<span class="without-link">' +
-                        '<i class="fa fa-fw fa-cube"/> '+
+                        '<i class="fas fa-fw fa-cube"/> '+
                         TemplateUtils.htmlEncode(role.name)+
                       '</span>' +
                     '</li>'+
@@ -361,10 +361,10 @@ define(function(require) {
                     '</li>' +
                     '<li class="provision-bullet-item-buttons">'+
                       '<button class="provision_role_vms_button button medium radius">'+
-                        '<i class="fa fa-th fa-lg"></i>'+
+                        '<i class="fas fa-th fa-lg"></i>'+
                       '</button>'+
                       '<button class="provision_role_cardinality_button button medium success radius">'+
-                        '<i class="fa fa-arrows-h fa-lg"></i>'+
+                        '<i class="fas fa-arrows-h fa-lg"></i>'+
                       '</button>'+
                     '</li>'+
                   '</ul>'+
@@ -388,7 +388,7 @@ define(function(require) {
     context.on("click", ".provision_role_vms_button", function(){
       $(".provision_role_vms_container", context).html('<div class="text-center">'+
         '<span class="fa-stack fa-5x">'+
-          '<i class="fa fa-cloud fa-stack-2x"></i>'+
+          '<i class="fas fa-cloud fa-stack-2x"></i>'+
           '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
         '</span>'+
         '<br>'+

@@ -37,7 +37,7 @@ define(function(require) {
 
   function Panel(info) {
     this.title = Locale.tr("Hosts");
-    this.icon = "fa-hdd-o";
+    this.icon = "fa-hdd";
 
     this.element = info[XML_ROOT];
 

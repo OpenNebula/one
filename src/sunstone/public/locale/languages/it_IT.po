@@ -5045,7 +5045,7 @@ msgstr ""
 
 #: ../app/tabs/secgroups-tab/panels/vms/html.hbs:19
 msgid ""
-"VMs marked with <i class='fa fa-warning'></i> are waiting to be updated with"
+"VMs marked with <i class='fas fa-warning'></i> are waiting to be updated with"
 " the latest rules:"
 msgstr ""
 
@@ -6014,8 +6014,8 @@ msgid "Edit administrators"
 msgstr "Modifica amministratori"
 
 #: ../app/tabs/groups-tab/panels/users/html.hbs:38
-msgid "Users marked with <i class='fa fa-star'></i> are administrators"
-msgstr "Gli Utenti con il simbolo <i class='fa fa-star'></i> sono amministratori"
+msgid "Users marked with <i class='fas fa-star'></i> are administrators"
+msgstr "Gli Utenti con il simbolo <i class='fas fa-star'></i> sono amministratori"
 
 #: ../app/tabs/groups-tab/panels/info/html.hbs:44
 msgid "Group Admins Views"

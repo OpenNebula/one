@@ -76,7 +76,7 @@ define(function(require) {
 
     $("#support_credentials_form", context).on("submit", function(){
       $(".submit_support_credentials_button", context).attr("disabled", "disabled");
-      $(".submit_support_credentials_button", context).html('<i class="fa fa-spinner fa-spin"></i>');
+      $(".submit_support_credentials_button", context).html('<i class="fas fa-spinner fa-spin"></i>');
 
       var data = {
         email : $("#support_email", this).val(),

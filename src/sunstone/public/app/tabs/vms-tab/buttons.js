@@ -86,7 +86,7 @@ define(function(require) {
     },
     "VM.resume" : {
       type: text,
-      text: '<i class="fa fa-play"/>',
+      text: '<i class="fas fa-play"/>',
       layout: "vmsplay_buttons",
       custom_classes : "state-dependent"
     },
@@ -134,7 +134,7 @@ define(function(require) {
     },
     "VM.terminate" : {
       type: "confirm",
-      icon: "<i class='fa fa-trash fa-3' style='color:#ec5840'/>",
+      icon: "<i class='fas fa-trash fa-3' style='color:#ec5840'/>",
       text: Locale.tr(" Terminate"),
       layout: "vmsdelete_buttons",
       tip: Locale.tr("This will remove information from non-persistent hard disks"),
@@ -142,7 +142,7 @@ define(function(require) {
     },
     "VM.terminate_hard" : {
       type: "confirm",
-      icon: "<i class='fa fa-trash fa-3' style='color:#ec5840'/>",
+      icon: "<i class='fas fa-trash fa-3' style='color:#ec5840'/>",
       text: Locale.tr(" Terminate") + ' <span class="label secondary radius">' + Locale.tr("hard") + '</span>',
       layout: "vmsdelete_buttons",
       tip: Locale.tr("This will remove information from non-persistent hard disks"),
@@ -182,17 +182,17 @@ define(function(require) {
     },
     "VM.startvnc" : {
       type: "action",
-      text: '<i class="fa fa-desktop"/> ' + Locale.tr("VNC"),
+      text: '<i class="fas fa-desktop"/> ' + Locale.tr("VNC"),
       custom_classes: "only-sunstone-info vnc-sunstone-info"
     },
     "VM.startspice" : {
       type: "action",
-      text: '<i class="fa fa-desktop"/> ' + Locale.tr("SPICE"),
+      text: '<i class="fas fa-desktop"/> ' + Locale.tr("SPICE"),
       custom_classes: "only-sunstone-info spice-sunstone-info"
     },
     "VM.save_as_template" : {
       type: "action",
-      text: '<i class="fa fa-save"/>',
+      text: '<i class="fas fa-save"/>',
       custom_classes : "state-dependent"
     },
     "VM.edit_labels" : {

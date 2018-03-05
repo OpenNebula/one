@@ -5039,9 +5039,9 @@ msgstr "Zavřít"
 
 #: ../app/tabs/secgroups-tab/panels/vms/html.hbs:19
 msgid ""
-"VMs marked with <i class='fa fa-warning'></i> are waiting to be updated with"
+"VMs marked with <i class='fas fa-warning'></i> are waiting to be updated with"
 " the latest rules:"
-msgstr "Virt. stroje označené s <i class='fa fa-warning'></i> čekají na propagaci aktualizovaných pravidel:"
+msgstr "Virt. stroje označené s <i class='fas fa-warning'></i> čekají na propagaci aktualizovaných pravidel:"
 
 #: ../app/tabs/secgroups-tab/panels/vms/html.hbs:31
 msgid "VMs in error. The update to the latest rules failed:"
@@ -6008,8 +6008,8 @@ msgid "Edit administrators"
 msgstr "Upravit správce"
 
 #: ../app/tabs/groups-tab/panels/users/html.hbs:38
-msgid "Users marked with <i class='fa fa-star'></i> are administrators"
-msgstr "Uživatelé označení s <i class='fa fa-star'></i> jsou správci"
+msgid "Users marked with <i class='fas fa-star'></i> are administrators"
+msgstr "Uživatelé označení s <i class='fas fa-star'></i> jsou správci"
 
 #: ../app/tabs/groups-tab/panels/info/html.hbs:44
 msgid "Group Admins Views"

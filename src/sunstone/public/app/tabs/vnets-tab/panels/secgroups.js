@@ -37,7 +37,7 @@ define(function(require) {
 
   function Panel(info) {
     this.title = Locale.tr("Security");
-    this.icon = "fa-shield";
+    this.icon = "fa-shield-alt";
 
     this.element = info[XML_ROOT];
 
