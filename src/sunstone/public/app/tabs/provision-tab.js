@@ -827,7 +827,7 @@ define(function(require) {
               '</span>';
           } else {
             logo = '<span>'+
-              '<i class="fas fa-fw fa-file-text-o"/>'+
+              '<i class="fas fa-fw fa-file-alt"/>'+
             '</span>';
           }
 
@@ -997,7 +997,7 @@ define(function(require) {
             if (template_json.VMTEMPLATE.TEMPLATE.LOGO) {
               $(".provision_accordion_template .selected_template_logo").html('<img  src="'+TemplateUtils.htmlEncode(template_json.VMTEMPLATE.TEMPLATE.LOGO)+'">');
             } else {
-              $(".provision_accordion_template .selected_template_logo").html('<i class="fas fa-file-text-o fa-lg"/> ');
+              $(".provision_accordion_template .selected_template_logo").html('<i class="fas fa-file-alt fa-lg"/> ');
             }
 
             $("#provision_create_vm .total_cost_div").hide();
