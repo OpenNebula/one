@@ -170,7 +170,7 @@ define(function(require) {
         }
 
         if (Config.isTabActionEnabled("provision-tab", "Template.delete") && data["PERMISSIONS"]["OWNER_M"] === "1") {
-          actions_html += '<a class="provision_confirm_delete_template_button" title="'+ Locale.tr("Delete")+'"  href="#"><i class="fas fa-fw fa-lg fa-trash-o only-on-hover"/></a>';
+          actions_html += '<a class="provision_confirm_delete_template_button" title="'+ Locale.tr("Delete")+'"  href="#"><i class="fas fa-fw fa-lg fa-trash-alt only-on-hover"/></a>';
         }
 
         var cpu_txt = "";

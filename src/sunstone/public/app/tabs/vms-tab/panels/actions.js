@@ -222,7 +222,7 @@ define(function(require) {
        <td class="message_row">' + TemplateUtils.htmlEncode(message_str) + '</td>\
        <td>\
          <div>\
-           <a id="minus_' + scheduling_action.ID + '" class="remove_action_x" href="#"><i class="fas fa-trash-o"/></a>\
+           <a id="minus_' + scheduling_action.ID + '" class="remove_action_x" href="#"><i class="fas fa-trash-alt"/></a>\
          </div>\
        </td>\
      </tr>';

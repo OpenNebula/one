@@ -420,7 +420,7 @@ define(function(require) {
           break;
         case "del":
           buttonContext = $("#" + customId + "delete_buttons", buttonsRow);
-          text = "<i class=\" fas fa-trash-o\"/> ";
+          text = "<i class=\" fas fa-trash-alt\"/> ";
           strClass.push("alert", "button");
           buttonCode = "<button class=\"" + strClass.join(" ") + "\" href=\"" + buttonName + "\">" + text + "</button>";
           break;

@@ -423,7 +423,7 @@ define(function(require) {
                           <a id="div_add_vectorial_' + field + '" class="add_vectorial_a ocurrence_' + it + ' vectorial_key_' + field + '" href="#"><i class="fas fa-plus-sign"/></a>\
                         </span>&emsp;\
                         <span id="div_minus">\
-                          <a id="div_minus_' + field + '" class="remove_vectorial_x ocurrence_' + it + '" href="#"><i class="fas fa-trash-o"/></a>\
+                          <a id="div_minus_' + field + '" class="remove_vectorial_x ocurrence_' + it + '" href="#"><i class="fas fa-trash-alt"/></a>\
                         </span>\
                       </td>';
                     }
@@ -461,7 +461,7 @@ define(function(require) {
                           <a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + ' vectorial_key_' + vectorial_key + '" href="#"><i class="fas fa-edit"/></a>\
                         </span>&emsp;\
                         <span id="div_minus_vectorial">\
-                          <a id="div_minus_' + field + '" class="remove_x' + ocurrence_str + ' vectorial_key_' + vectorial_key + '" href="#"><i class="fas fa-trash-o"/></a>\
+                          <a id="div_minus_' + field + '" class="remove_x' + ocurrence_str + ' vectorial_key_' + vectorial_key + '" href="#"><i class="fas fa-trash-alt"/></a>\
                         </span>\
                       </td>'
                     }
@@ -478,7 +478,7 @@ define(function(require) {
                             <a id="div_add_vectorial_' + field + '" class="add_vectorial_a' + ocurrence_str + ' vectorial_key_' + field + '" href="#"><i class="fas fa-plus-sign"/></a>\
                           </span>&emsp;\
                           <span id="div_minus">\
-                            <a id="div_minus_' + field + '" class="remove_vectorial_x' + ocurrence_str + '" href="#"><i class="fas fa-trash-o"/></a>\
+                            <a id="div_minus_' + field + '" class="remove_vectorial_x' + ocurrence_str + '" href="#"><i class="fas fa-trash-alt"/></a>\
                           </span>\
                         </td>'
                       }
@@ -498,7 +498,7 @@ define(function(require) {
                               <a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + '" href="#"><i class="fas fa-edit"/></a>\
                             </span>&emsp;\
                             <span id="div_minus">\
-                              <a id="div_minus_' + field + '" class="remove_x' + ocurrence_str + '" href="#"><i class="fas fa-trash-o"/></a>\
+                              <a id="div_minus_' + field + '" class="remove_x' + ocurrence_str + '" href="#"><i class="fas fa-trash-alt"/></a>\
                             </span>\
                           </td>';
                         }
