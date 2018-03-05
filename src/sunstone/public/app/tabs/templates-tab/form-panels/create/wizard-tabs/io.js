@@ -47,7 +47,7 @@ define(function(require) {
     }
 
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
-    this.icon = 'fa-exchange';
+    this.icon = 'fa-exchange-alt';
     this.title = Locale.tr("Input/Output");
   }
 

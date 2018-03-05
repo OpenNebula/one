@@ -88,8 +88,8 @@ define(function(require) {
     if (item_list.length == 0) {
       datatable.html('<div class="text-center">' +
         '<span class="fa-stack fa-5x">' +
-          '<i class="fa fa-cloud fa-stack-2x"></i>' +
-          '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>' +
+          '<i class="fas fa-cloud fa-stack-2x"></i>' +
+          '<i class="fas fa-info-circle fa-stack-1x fa-inverse"></i>' +
         '</span>' +
         '<br>' +
         '<br>' +
@@ -107,7 +107,7 @@ define(function(require) {
   function update_provision_vms_datatable(datatable, timeout) {
     datatable.html('<div class="text-center">' +
       '<span class="fa-stack fa-5x">' +
-        '<i class="fa fa-cloud fa-stack-2x"></i>' +
+        '<i class="fas fa-cloud fa-stack-2x"></i>' +
         '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
       '</span>' +
       '<br>' +
@@ -153,8 +153,8 @@ define(function(require) {
         if (this.$('tr', {"filter": "applied"} ).length == 0) {
           this.html('<div class="text-center">'+
             '<span class="fa-stack fa-5x">'+
-              '<i class="fa fa-cloud fa-stack-2x"></i>'+
-              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+              '<i class="fas fa-cloud fa-stack-2x"></i>'+
+              '<i class="fas fa-info-circle fa-stack-1x fa-inverse"></i>'+
             '</span>'+
             '<br>'+
             '<br>'+
@@ -179,7 +179,7 @@ define(function(require) {
 
         var monitoring = "";
         if(data.MONITORING.GUEST_IP){
-          monitoring = '<li class="provision-bullet-item"><span class=""><i class="fa fa-fw fa-lg fa-server"/>' + data.MONITORING.GUEST_IP + '</span></li>';
+          monitoring = '<li class="provision-bullet-item"><span class=""><i class="fas fa-fw fa-lg fa-server"/>' + data.MONITORING.GUEST_IP + '</span></li>';
         }
 
         $(".provision_vms_ul", context).append('<div class="column">'+
@@ -187,12 +187,12 @@ define(function(require) {
               '<li class="provision-title">'+
                 '<a class="provision_info_vm_button">'+
                 '<span class="'+ state.color +'-color right" title="'+state.str+'">'+
-                  '<i class="fa fa-square"/>'+
+                  '<i class="fas fa-square"/>'+
                 '</span>'+
                 data.NAME + '</a>'+
               '</li>'+
               '<li class="provision-bullet-item" >'+
-                '<i class="fa fa-fw fa-lg fa-laptop"/> '+
+                '<i class="fas fa-fw fa-lg fa-laptop"/> '+
                 'x'+data.TEMPLATE.CPU+' - '+
                 ((data.TEMPLATE.MEMORY > 1000) ?
                   (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
@@ -207,7 +207,7 @@ define(function(require) {
               '</li>'+ monitoring +
               '<li class="provision-bullet-item-last" >'+
                 '<span class="">'+
-                  '<i class="fa fa-fw fa-lg fa-user"/> '+
+                  '<i class="fas fa-fw fa-lg fa-user"/> '+
                   data.UNAME+
                 '</span>'+
                 '<span class="right">'+
@@ -374,14 +374,14 @@ define(function(require) {
               '<li class="provision-title">'+
                 '<span class="without-link '+ state.color +'-color">'+
                   '<span class="'+ state.color +'-color right" title="'+state.str+'">'+
-                    '<i class="fa fa-square"/>'+
+                    '<i class="fas fa-square"/>'+
                   '</span>'+
                   state.str+
                 '</span>'+
               '</li>'+
               '<li class="provision-bullet-item" >'+
                 '<span>'+
-                  '<i class="fa fa-fw fa-lg fa-laptop"/> '+
+                  '<i class="fas fa-fw fa-lg fa-laptop"/> '+
                   'x'+TemplateUtils.htmlEncode(data.TEMPLATE.CPU)+' - '+
                   ((data.TEMPLATE.MEMORY > 1000) ?
                     (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
@@ -399,11 +399,11 @@ define(function(require) {
               '</li>'+
               '<li class="provision-bullet-item-last text-right">'+
                 '<span class="left">'+
-                  '<i class="fa fa-fw fa-lg fa-user"/> '+
+                  '<i class="fas fa-fw fa-lg fa-user"/> '+
                   data.UNAME+
                 '</span>'+
                 '<span>'+
-                  '<i class="fa fa-fw fa-lg fa-clock-o"/> '+
+                  '<i class="fas fa-fw fa-lg fa-clock-o"/> '+
                   Humanize.prettyTimeAgo(data.STIME)+
                   ' - '+
                   'ID: '+
@@ -968,7 +968,7 @@ define(function(require) {
   }
 
   function get_provision_ips(data) {
-    return '<i class="fa fa-fw fa-lg fa-globe"></i> ' + OpenNebula.VM.ipsStr(data, ', ');
+    return '<i class="fas fa-fw fa-lg fa-globe"></i> ' + OpenNebula.VM.ipsStr(data, ', ');
   }
 
   // @params

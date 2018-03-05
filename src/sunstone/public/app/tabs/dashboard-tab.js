@@ -67,7 +67,7 @@ define(function(require) {
 
         var no_table = true;
         $("#acct_cpu_graph, #acct_mem_graph, #acct_disk_graph", "#dashboard_user_accounting").html('<span  id="provision_dashboard_total" style="font-size:80px">'+
-          '<i class="fa fa-spinner fa-spin"></i>'+
+          '<i class="fas fa-spinner fa-spin"></i>'+
         '</span>')
       }
     },

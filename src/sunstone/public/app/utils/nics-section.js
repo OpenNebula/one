@@ -313,7 +313,7 @@ define(function(require) {
   function update_provision_networks_datatable(datatable) {
     datatable.html('<div class="text-center">' +
       '<span class="fa-stack fa-5x">' +
-        '<i class="fa fa-cloud fa-stack-2x"></i>' +
+        '<i class="fas fa-cloud fa-stack-2x"></i>' +
         '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
       '</span>' +
       '<br>' +
@@ -329,8 +329,8 @@ define(function(require) {
         if (item_list.length == 0) {
           datatable.html('<div class="text-center">' +
             '<span class="fa-stack fa-5x">' +
-              '<i class="fa fa-cloud fa-stack-2x"></i>' +
-              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>' +
+              '<i class="fas fa-cloud fa-stack-2x"></i>' +
+              '<i class="fas fa-info-circle fa-stack-1x fa-inverse"></i>' +
             '</span>' +
             '<br>' +
             '<br>' +

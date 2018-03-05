@@ -43,7 +43,7 @@ define(function(require) {
 
   function Panel(info) {
     this.title = Locale.tr("Template");
-    this.icon = "fa-file-o";
+    this.icon = "fa-file";
 
     this.element = info[XML_ROOT];
 

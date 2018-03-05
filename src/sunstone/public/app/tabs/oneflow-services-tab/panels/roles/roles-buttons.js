@@ -40,7 +40,7 @@ define(function(require) {
     },
     "Role.resume" : {
       type: "action",
-      text: '<i class="fa fa-play"/>',
+      text: '<i class="fas fa-play"/>',
       layout: "vmsplay_buttons"
     },
     "Role.stop" : {

@@ -37,7 +37,7 @@ define(function(require) {
 
   function Panel(info) {
     this.title = Locale.tr("Log");
-    this.icon = "fa-file-text";
+    this.icon = "fa-file-alt";
 
     this.element = info[XML_ROOT];
 

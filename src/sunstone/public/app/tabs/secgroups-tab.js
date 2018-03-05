@@ -43,7 +43,7 @@ define(function(require) {
   var Tab = {
     tabId: TAB_ID,
     title: Locale.tr("Security Groups"),
-    icon: 'fa-shield',
+    icon: 'fa-shield-alt',
     tabClass: "subTab",
     parentTab: "network-top-tab",
     listHeader: Locale.tr("Security Groups"),

@@ -5036,9 +5036,9 @@ msgstr "Close modal"
 
 #: ../app/tabs/secgroups-tab/panels/vms/html.hbs:19
 msgid ""
-"VMs marked with <i class='fa fa-warning'></i> are waiting to be updated with"
+"VMs marked with <i class='fas fa-warning'></i> are waiting to be updated with"
 " the latest rules:"
-msgstr "Virtuálne stroje označené s <i class='fa fa-warning'></i> čakajú na aktualizáciu najnovšími pravidlami:"
+msgstr "Virtuálne stroje označené s <i class='fas fa-warning'></i> čakajú na aktualizáciu najnovšími pravidlami:"
 
 #: ../app/tabs/secgroups-tab/panels/vms/html.hbs:31
 msgid "VMs in error. The update to the latest rules failed:"
@@ -6005,8 +6005,8 @@ msgid "Edit administrators"
 msgstr "Edituj administrátorov"
 
 #: ../app/tabs/groups-tab/panels/users/html.hbs:38
-msgid "Users marked with <i class='fa fa-star'></i> are administrators"
-msgstr "Používatelia označení s  <i class='fa fa-star'></i>  sú administrátori"
+msgid "Users marked with <i class='fas fa-star'></i> are administrators"
+msgstr "Používatelia označení s  <i class='fas fa-star'></i>  sú administrátori"
 
 #: ../app/tabs/groups-tab/panels/info/html.hbs:44
 msgid "Group Admins Views"

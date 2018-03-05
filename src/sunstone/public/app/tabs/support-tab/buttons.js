@@ -26,13 +26,13 @@ define(function(require) {
     "Support.upload" : {
       type: "action",
       layout: "main",
-      text: '<i class="fa fa-cloud-upload"/> '+Locale.tr("Upload a file"),
+      text: '<i class="fas fa-cloud-upload"/> '+Locale.tr("Upload a file"),
       custom_classes: "only-sunstone-info"
     },
     "Support.signout" : {
       type: "action",
       layout: "main",
-      text: '<i class="fa fa-sign-out fa fa-lg">',
+      text: '<i class="fas fa-sign-out fas fa-lg">',
       tip: "Sign out of Commercial Support",
       alwaysActive: true
     },

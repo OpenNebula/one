@@ -5042,7 +5042,7 @@ msgstr ""
 
 #: ../app/tabs/secgroups-tab/panels/vms/html.hbs:19
 msgid ""
-"VMs marked with <i class='fa fa-warning'></i> are waiting to be updated with"
+"VMs marked with <i class='fas fa-warning'></i> are waiting to be updated with"
 " the latest rules:"
 msgstr ""
 
@@ -6011,8 +6011,8 @@ msgid "Edit administrators"
 msgstr "Bewerk beheerders"
 
 #: ../app/tabs/groups-tab/panels/users/html.hbs:38
-msgid "Users marked with <i class='fa fa-star'></i> are administrators"
-msgstr "Gebruikers gemarkeerd met <i class='fa fa-star'></i> zijn beheerders"
+msgid "Users marked with <i class='fas fa-star'></i> are administrators"
+msgstr "Gebruikers gemarkeerd met <i class='fas fa-star'></i> zijn beheerders"
 
 #: ../app/tabs/groups-tab/panels/info/html.hbs:44
 msgid "Group Admins Views"

@@ -19,18 +19,18 @@
     <div class="large-12 columns">
       {{#isTabActionEnabled "vnets-tab" "Network.add_ar"}}
         <button class="button success small radius" id="add_ar_button">
-          <span class="fa fa-plus"></span> {{tr "Address Range"}}
+          <span class="fas fa-plus"></span> {{tr "Address Range"}}
         </button>
       {{/isTabActionEnabled}}
       <span class="right">
         {{#isTabActionEnabled "vnets-tab" "Network.update_ar"}}
           <button class="button secondary small radius" id="update_ar_button" ar_id="" disabled="disabled">
-            <span class="fa fa-pencil-square-o"></span> {{tr "Update"}}
+            <span class="fas fa-edit"></span> {{tr "Update"}}
           </button>
         {{/isTabActionEnabled}}
         {{#isTabActionEnabled "vnets-tab" "Network.remove_ar"}}
           <button class="button secondary small radius" id="rm_ar_button" ar_id="" disabled="disabled">
-            <span class="fa fa-trash-o"></span> {{tr "Remove"}}
+            <span class="fas fa-trash-alt"></span> {{tr "Remove"}}
           </button>
         {{/isTabActionEnabled}}
       </span>
@@ -66,8 +66,8 @@
     {{#if arList}}
       <div class="text-center">
         <span class="fa-stack fa-5x" style="color: #dfdfdf">
-          <i class="fa fa-cloud fa-stack-2x"></i>
-          <i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>
+          <i class="fas fa-cloud fa-stack-2x"></i>
+          <i class="fas fa-info-circle fa-stack-1x fa-inverse"></i>
         </span>
         <br>
         <br>

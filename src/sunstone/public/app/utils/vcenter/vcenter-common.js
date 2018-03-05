@@ -95,7 +95,7 @@ define(function(require) {
   function _importLoading(opts) {
     $(".vcenter_import_result:not(.success)", opts.context).html(
       '<span class="fa-stack" style="color: #dfdfdf">' +
-        '<i class="fa fa-cloud fa-stack-2x"></i>' +
+        '<i class="fas fa-cloud fa-stack-2x"></i>' +
         '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
       '</span>');
 
@@ -109,8 +109,8 @@ define(function(require) {
   function _importSuccess(opts) {
     $(".vcenter_import_result", opts.context).addClass("success").html(
       '<span class="fa-stack" style="color: #dfdfdf">' +
-        '<i class="fa fa-cloud fa-stack-2x running-color"></i>' +
-        '<i class="fa fa-check fa-stack-1x fa-inverse"></i>' +
+        '<i class="fas fa-cloud fa-stack-2x running-color"></i>' +
+        '<i class="fas fa-check fa-stack-1x fa-inverse"></i>' +
       '</span>');
 
     $(".vcenter_import_response", opts.context).html(opts.message);
@@ -119,8 +119,8 @@ define(function(require) {
   function _importFailure(opts) {
     $(".vcenter_import_result", opts.context).html(
       '<span class="fa-stack" style="color: #dfdfdf">' +
-        '<i class="fa fa-cloud fa-stack-2x error-color"></i>' +
-        '<i class="fa fa-warning fa-stack-1x fa-inverse"></i>' +
+        '<i class="fas fa-cloud fa-stack-2x error-color"></i>' +
+        '<i class="fas fa-warning fa-stack-1x fa-inverse"></i>' +
       '</span>');
 
     $(".vcenter_import_response", opts.context).addClass("error-color").html(

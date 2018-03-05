@@ -49,7 +49,7 @@ define(function(require) {
   var Tab = {
     tabId: TAB_ID,
     title: Locale.tr("Hosts"),
-    icon: 'fa-hdd-o',
+    icon: 'fa-hdd',
     tabClass: "subTab",
     parentTab: "infrastructure-top-tab",
     listHeader: Locale.tr("Hosts"),

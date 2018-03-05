@@ -51,7 +51,7 @@ define(function(require) {
 
   function Panel(info) {
     this.title = Locale.tr("Wilds");
-    this.icon = "fa-hdd-o";
+    this.icon = "fa-hdd";
 
     this.element = info[RESOURCE.toUpperCase()];
 
@@ -136,7 +136,7 @@ define(function(require) {
     context.off("click", '#import_wilds');
     context.on("click", '#import_wilds', function () {
       $("#import_wilds", context).attr("disabled", "disabled").on("click.disable", function(e) { return false; });
-      $("#import_wilds", context).html('<i class="fa fa-spinner fa-spin"></i>');
+      $("#import_wilds", context).html('<i class="fas fa-spinner fa-spin"></i>');
 
       $(".import_wild_checker:checked", "#datatable_host_wilds").each(function() {
         var importHostId = that.element.ID;

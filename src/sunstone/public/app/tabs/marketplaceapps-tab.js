@@ -47,7 +47,7 @@ define(function(require) {
   var Tab = {
     tabId: TAB_ID,
     title: Locale.tr("Apps"),
-    icon: 'fa-cloud-download',
+    icon: 'fa-cloud-download-alt',
     tabClass: "subTab",
     parentTab: "storage-top-tab",
     listHeader: Locale.tr("Apps"),

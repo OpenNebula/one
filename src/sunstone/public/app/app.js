@@ -136,10 +136,10 @@ define(function(require) {
           var groups = obj_user.USER.GROUPS.ID;
           this.primaryGroup = obj_user.USER.GID;
           var groupsHTML = "<li class='groups' value='-2'> <a href='#' value='-2' id='-2'> \
-              <i class='fa fa-fw'></i>" + Locale.tr("All") + "</a></li>";
+              <i class='fas fa-fw'></i>" + Locale.tr("All") + "</a></li>";
           if(this.idGroup == -2){
             var groupsHTML = "<li class='groups' value='-2'> <a href='#' value='-2' id='-2'> \
-              <i class='fa fa-fw fa-check'></i>" + Locale.tr("All") + "</a></li>";
+              <i class='fas fa-fw fa-check'></i>" + Locale.tr("All") + "</a></li>";
           }
 
           if (!$.isArray(groups)){
@@ -158,11 +158,11 @@ define(function(require) {
                   if(id == value.GROUP.ID){
                     if(id == that.idGroup){
                       groupsHTML += "<li class='groups' value='" + id + "'id='" + id + "'> \
-                        <a href='#'><i class='fa fa-fw fa-check'></i>" + value.GROUP.NAME + "\
+                        <a href='#'><i class='fas fa-fw fa-check'></i>" + value.GROUP.NAME + "\
                         </a></li>";
                     } else {
                       groupsHTML += "<li class='groups' value='" + id + "'id='" + id + "'> \
-                        <a href='#'><i class='fa fa-fw'></i>" + value.GROUP.NAME + "\
+                        <a href='#'><i class='fas fa-fw'></i>" + value.GROUP.NAME + "\
                         </a></li>";
                     }
                     return false;
@@ -176,7 +176,7 @@ define(function(require) {
           $('#userselector').on('click', function(){
             $('.groups-menu').empty();
             $('.groups-menu').append(groupsHTML);
-            var primaryGroupChar = '<span class="fa fa-asterisk fa-fw" id="primary-char" \
+            var primaryGroupChar = '<span class="fas fa-asterisk fa-fw" id="primary-char" \
                                     style="float: right"></span>';
             $('#'+ that.primaryGroup + ' a').append(primaryGroupChar);
             $('.groups').on('click', function(){
@@ -215,9 +215,9 @@ define(function(require) {
             var icon;
 
             if(this.ZONE.NAME == config['zone_name']){
-              icon = '<i class="fa fa-fw fa-check"></i>'
+              icon = '<i class="fas fa-fw fa-check"></i>'
             } else {
-              icon = '<i class="fa fa-fw"></i>'
+              icon = '<i class="fas fa-fw"></i>'
             }
 
             $('.zone-ul').append('<li>' +

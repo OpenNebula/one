@@ -52,7 +52,7 @@ define(function(require) {
     }
 
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
-    this.icon = 'fa-tasks';
+    this.icon = 'fa-server';
     this.title = Locale.tr("Storage");
     this.classes = "hypervisor only_kvm only_vcenter"
 
@@ -235,7 +235,7 @@ define(function(require) {
 
   function _renameTabLinks(context) {
     $("#" + LINKS_CONTAINER_ID + " li", context).each(function(index) {
-      $("a", this).html(Locale.tr("Disk") + ' ' + index + " <i class='fa fa-times-circle remove-tab'></i>");
+      $("a", this).html(Locale.tr("Disk") + ' ' + index + " <i class='fas fa-times-circle remove-tab'></i>");
     })
 
     if(this.listener != undefined){
