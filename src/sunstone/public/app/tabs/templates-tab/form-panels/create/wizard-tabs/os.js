@@ -399,8 +399,8 @@ define(function(require) {
         "<td>"+value+"</td>"+
         "<td><label>"+label+"</label></td>"+
         "<td>"+
-          "<button class=\"boot-order-up button radius tiny secondary\"><i class=\"fa fa-lg fa-arrow-up\" aria-hidden=\"true\"></i></button>"+
-          "<button class=\"boot-order-down button radius tiny secondary\"><i class=\"fa fa-lg fa-arrow-down\" aria-hidden=\"true\"></i></button>"+
+          "<button class=\"boot-order-up button radius tiny secondary\"><i class=\"fas fa-lg fa-arrow-up\" aria-hidden=\"true\"></i></button>"+
+          "<button class=\"boot-order-down button radius tiny secondary\"><i class=\"fas fa-lg fa-arrow-down\" aria-hidden=\"true\"></i></button>"+
         "</td>"+
       "</tr>");
   }
@@ -419,7 +419,7 @@ define(function(require) {
       }
 
       $.each(disks, function(i,disk){
-        var label = "<i class=\"fa fa-fw fa-lg fa-tasks\"></i> ";
+        var label = "<i class=\"fas fa-fw fa-lg fa-server\"></i> ";
 		    var disk_name = "disk";
 
         if (disk.IMAGE !== undefined){
@@ -447,7 +447,7 @@ define(function(require) {
         nics = [nics];
       }
       $.each(nics, function(i, nic){
-        var label = "<i class=\"fa fa-fw fa-lg fa-globe\"></i> ";
+        var label = "<i class=\"fas fa-fw fa-lg fa-globe\"></i> ";
 
         if (nic.NETWORK !== undefined){
           label += nic.NETWORK;
