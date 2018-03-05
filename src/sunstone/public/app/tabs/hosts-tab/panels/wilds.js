@@ -51,7 +51,7 @@ define(function(require) {
 
   function Panel(info) {
     this.title = Locale.tr("Wilds");
-    this.icon = "fa-hdd-o";
+    this.icon = "fa-hdd";
 
     this.element = info[RESOURCE.toUpperCase()];
 
