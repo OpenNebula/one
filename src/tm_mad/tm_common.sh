@@ -105,7 +105,7 @@ function lcm_state
 
     while IFS= read -r -d '' element; do
         XPATH_ELEMENTS[i++]="$element"
-    done < <(onevm show -x $VMID| $XPATH \
+    done < <(onevm show -x "${1:-$VMID}" | $XPATH \
                         /VM/LCM_STATE )
 
     LCM_STATE="${XPATH_ELEMENTS[0]}"
