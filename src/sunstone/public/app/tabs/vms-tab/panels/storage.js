@@ -55,7 +55,7 @@ define(function(require) {
   function Panel(info) {
     this.panelId = PANEL_ID;
     this.title = Locale.tr("Storage");
-    this.icon = "fa-tasks";
+    this.icon = "fa-server";
 
     this.element = info[XML_ROOT];
 
