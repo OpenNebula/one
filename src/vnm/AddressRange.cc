@@ -176,8 +176,6 @@ int AddressRange::init_mac(string& error_msg)
 		}
 		else
 		{
-			srand(time(0));
-
 			mac[0] = rand() & 0x0000FFFF;
 			mac[0]+= (rand()<<16) & 0xFFFF0000;
 		}
