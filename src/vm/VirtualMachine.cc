@@ -2471,6 +2471,7 @@ static void replace_vector_values(Template *old_tmpl, Template *new_tmpl,
 };
 
 /* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
 {
@@ -2605,6 +2606,85 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
 
     return 0;
 }
+
+/* -------------------------------------------------------------------------- */
+
+/**
+ * get the values of a vector value, preserving the existing ones
+ */
+static VectorAttribute * get_vector_values(Template *old_tmpl,
+        const char * name, const string * vnames, int num)
+{
+    string value;
+
+    VectorAttribute * old_attr = old_tmpl->get(name);
+    VectorAttribute * new_vattr = new VectorAttribute(name);
+
+    if ( old_attr != 0 )
+    {
+        for (int i=0; i < num; i++)
+        {
+            new_vattr->replace(old_attr->vector_value(vnames[i]), true);
+        }
+    }
+    return new_vattr;
+}
+
+/* -------------------------------------------------------------------------- */
+VirtualMachineTemplate * VirtualMachine::getUpdateconfTemplate(string &err)
+{
+
+    vector<VectorAttribute *> v_vattr;
+    // -------------------------------------------------------------------------
+    // Update OS
+    // -------------------------------------------------------------------------
+    string os_names[] = {"ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER",
+        "BOOT"};
+
+    v_vattr.push_back(get_vector_values(obj_template, "OS", os_names, 6));
+
+    // -------------------------------------------------------------------------
+    // Update FEATURES:
+    // -------------------------------------------------------------------------
+    string features_names[] = {"PAE", "ACPI", "APIC", "LOCALTIME", "HYPERV",
+        "GUEST_AGENT"};
+
+    v_vattr.push_back(get_vector_values(obj_template, "FEATURES", features_names, 6));
+
+    // -------------------------------------------------------------------------
+    // Update INPUT:
+    // -------------------------------------------------------------------------
+    string input_names[] = {"TYPE", "BUS"};
+
+    v_vattr.push_back(get_vector_values(obj_template, "INPUT", input_names, 2));
+
+    // -------------------------------------------------------------------------
+    // Update GRAPHICS:
+    // -------------------------------------------------------------------------
+    string graphics_names[] = {"TYPE", "LISTEN", "PASSWD", "KEYMAP"};
+
+    v_vattr.push_back(get_vector_values(obj_template, "GRAPHICS", graphics_names, 4));
+
+    // -------------------------------------------------------------------------
+    // Update RAW:
+    // -------------------------------------------------------------------------
+    string raw_names[] = {"TYPE", "DATA", "DATA_VMX"};
+
+    v_vattr.push_back(get_vector_values(obj_template, "RAW", raw_names, 3));
+
+    // -------------------------------------------------------------------------
+    // Update CONTEXT: any value
+    // -------------------------------------------------------------------------
+    v_vattr.push_back(obj_template->get("CONTEXT"));
+
+    VirtualMachineTemplate * conf_tmpl = new VirtualMachineTemplate();
+    conf_tmpl->set(v_vattr);
+
+    return conf_tmpl;
+}
+
+/* -------------------------------------------------------------------------- */
+
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
