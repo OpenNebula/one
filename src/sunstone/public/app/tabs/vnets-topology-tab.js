@@ -43,7 +43,7 @@ define(function(require) {
     "NetworkTopology.fit" : {
       type: "action",
       layout: "main",
-      text: '<i class="fa fa-arrows-alt"/>',
+      text: '<i class="fas fa-arrows-alt"/>',
       alwaysActive: true
     },
     "NetworkTopology.collapseVMs" : {

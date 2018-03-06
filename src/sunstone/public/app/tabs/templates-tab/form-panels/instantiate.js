@@ -506,7 +506,7 @@ define(function(require) {
           UserInputs.vmTemplateInsert(
               inputs_div,
               template_json,
-              {text_header: '<i class="fa fa-gears"></i> '+Locale.tr("Custom Attributes")});
+              {text_header: '<i class="fas fa-gears"></i> '+Locale.tr("Custom Attributes")});
 
           Tips.setup(inputs_div);
 

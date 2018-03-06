@@ -53,7 +53,7 @@ define(function(require) {
         <td nowrap class=\"time_row\">" + time_str + "</td>\
         <td>\
           <div>\
-            <a id=\"minus\" class=\"remove_action_x\" href=\"#\"><i class=\"fa fa-trash-o\"/></a>\
+            <a id=\"minus\" class=\"remove_action_x\" href=\"#\"><i class=\"fas fa-trash-alt\"/></a>\
           </div>\
         </td>\
       </tr>";

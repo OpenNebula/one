@@ -188,7 +188,7 @@ define(function(require) {
       // TODO Add openenbula actions
       /*if (config['view']['autorefresh']) {
         var tabContext = $("#" + tabName);
-        var refreshButton = $(".fa-refresh", $(".action_blocks", tabContext).first());
+        var refreshButton = $(".fa-sync-alt", $(".action_blocks", tabContext).first());
         setInterval(function() {
           if (Sunstone.rightListVisible(tabContext)) {
             refreshButton.click();
@@ -230,7 +230,7 @@ define(function(require) {
     var liItem;
     var title = "";
     if (tabInfo.icon) {
-      title += "<i class=\"fa fa-lg fa-fw " + tabInfo.icon + "\"></i> ";
+      title += "<i class=\"fas fa-lg fa-fw " + tabInfo.icon + "\"></i> ";
     }
     title += tabInfo.title;
 
@@ -345,14 +345,14 @@ define(function(require) {
         switch (button.layout) {
         case "create":
           buttonContext = $("#" + customId + "create_buttons", buttonsRow);
-          icon = button.icon ? button.icon : "<i class=\"fa fa-plus\"/>";
+          icon = button.icon ? button.icon : "<i class=\"fas fa-plus\"/>";
           text = button.text ? icon + " " + button.text : icon;
           strClass.push("success", "button");
           buttonCode = "<button class=\"" + strClass.join(" ") + "\" href=\"" + buttonName + "\">" + text + "</button>";
           break;
         case "refresh":
           buttonContext = $("#" + customId + "refresh_buttons", buttonsRow);
-          icon = button.icon ? button.icon : "<i class=\"fa fa-refresh\"/>";
+          icon = button.icon ? button.icon : "<i class=\"fas fa-sync-alt\"/>";
           text = button.text ? icon + " " + button.text : icon;
           strClass.push("refresh", "button",  "secondary");
           buttonCode = "<button class=\"" + strClass.join(" ") + "\" href=\"" + buttonName + "\">" + text + "</button>";
@@ -360,8 +360,8 @@ define(function(require) {
         case "top":
           buttonContext = $("#" + customId + "refresh_buttons", buttonsRow);
           text = "<span class=\"fa-stack\">" +
-              "<i class=\"fa fa-refresh fa-stack-2x\" style=\"color: #dfdfdf\"></i>" +
-              "<i class=\"fa fa-play fa-stack-1x\"></i>" +
+              "<i class=\"fas fa-sync-alt fa-stack-2x\" style=\"color: #dfdfdf\"></i>" +
+              "<i class=\"fas fa-play fa-stack-1x\"></i>" +
             "</span>";
           strClass.push("toggle_top_button", "only-sunstone-list", "button",  "hollow");
           buttonCode = "<a class=\"" + strClass.join(" ") + "\" style=\"padding-left:0px; margin-right: 20px\">" + text + "</a>";
@@ -420,13 +420,13 @@ define(function(require) {
           break;
         case "del":
           buttonContext = $("#" + customId + "delete_buttons", buttonsRow);
-          text = "<i class=\" fa fa-trash-o\"/> ";
+          text = "<i class=\" fas fa-trash-alt\"/> ";
           strClass.push("alert", "button");
           buttonCode = "<button class=\"" + strClass.join(" ") + "\" href=\"" + buttonName + "\">" + text + "</button>";
           break;
         case "labels":
           buttonContext = $("#" + customId + "labels_buttons", buttonsRow);
-          text = "<i class=\"fa fa-tags\"/>";
+          text = "<i class=\"fas fa-tags\"/>";
           strClass.push("only-sunstone-info", "only-sunstone-list", "top_button", "secondary", "button", "dropdown");
           buttonCode = "<button type=\"button\" data-toggle=\"" + customId + "LabelsDropdown\" class=\"" + strClass.join(" ") + "\">" +
             text+"</button>";

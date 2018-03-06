@@ -45,7 +45,7 @@ define(function(require) {
   var Tab = {
     tabId: TAB_ID,
     title: Locale.tr("VMs"),
-    icon: 'fa-file-o',
+    icon: 'fa-file',
     tabClass: "subTab",
     parentTab: "templates-top-tab",
     listHeader: Locale.tr("VM Templates"),

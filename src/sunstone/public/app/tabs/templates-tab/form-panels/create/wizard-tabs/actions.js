@@ -45,7 +45,7 @@ define(function(require) {
     }
 
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
-    this.icon = "fa-calendar";
+    this.icon = "fa-calendar-alt";
     this.title = Locale.tr("Actions");
   }
 

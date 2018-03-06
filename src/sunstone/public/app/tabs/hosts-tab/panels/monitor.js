@@ -46,7 +46,7 @@ define(function(require) {
   function Panel(info) {
     this.panelId = PANEL_ID;
     this.title = Locale.tr("Graphs");
-    this.icon = "fa-bar-chart-o";
+    this.icon = "fa-chart-bar";
     this.element = info[XML_ROOT];
 
     return this;

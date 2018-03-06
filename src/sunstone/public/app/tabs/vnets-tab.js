@@ -50,7 +50,7 @@ define(function(require) {
   var VNetsTab = {
     tabId: TAB_ID,
     title: Locale.tr("Virtual Networks"),
-    icon: 'fa-code-fork',
+    icon: 'fa-code-branch',
     tabClass: "subTab",
     parentTab: "network-top-tab",
     listHeader: Locale.tr("Virtual Networks"),

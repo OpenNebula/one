@@ -205,19 +205,19 @@ define(function(require) {
 
         var info = [];
         if (this.scale_up) {
-          info.push("<i class='fa fa-arrow-up'/>");
+          info.push("<i class='fas fa-arrow-up'/>");
         } else if (this.disposed) {
-          info.push("<i class='fa fa-arrow-down'/>");
+          info.push("<i class='fas fa-arrow-down'/>");
         } else {
           info.push("");
         }
 
         if (that.element.TEMPLATE.BODY.ready_status_gate) {
           if (vm_info.VM.USER_TEMPLATE.READY == "YES") {
-            info.push('<span class="has-tip" title="'+Locale.tr("The VM is ready")+'"><i class="fa fa-check"/></span>');
+            info.push('<span class="has-tip" title="'+Locale.tr("The VM is ready")+'"><i class="fas fa-check"/></span>');
 
           } else {
-            info.push('<span class="has-tip" title="'+Locale.tr("Waiting for the VM to be ready")+'"><i class="fa fa-clock-o"/></span>');
+            info.push('<span class="has-tip" title="'+Locale.tr("Waiting for the VM to be ready")+'"><i class="fas fa-clock-o"/></span>');
           }
         } else {
           info.push("");

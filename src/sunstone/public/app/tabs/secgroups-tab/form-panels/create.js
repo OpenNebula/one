@@ -229,7 +229,7 @@ define(function(require) {
               <td>'+text.ICMP_TYPE+'</td>\
               <td>'+text.ICMPv6_TYPE+'</td>\
               <td>\
-                <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>\
+                <a href="#"><i class="fas fa-times-circle remove-tab"></i></a>\
               </td>\
             </tr>');
 
@@ -354,7 +354,7 @@ define(function(require) {
         <td>'+text.ICMP_TYPE+'</td>\
         <td>'+text.ICMPv6_TYPE+'</td>\
         <td>\
-        <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>\
+        <a href="#"><i class="fas fa-times-circle remove-tab"></i></a>\
         </td>\
         </tr>');
 
