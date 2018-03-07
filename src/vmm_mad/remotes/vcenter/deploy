@@ -79,7 +79,7 @@ begin
 rescue Exception => e
     message   =  "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " +
                  "with #{dfile} failed due to \"#{e.message}\"\n#{e.backtrace}"
-    STDERR.puts error_message(message)
+    OpenNebula.log_error(message)
     exit -1
 ensure
     vi_client.close_connection if vi_client

@@ -1889,7 +1889,7 @@ class VirtualMachine < Template
 
             @item.ReconfigVM_Task(:spec => spec).wait_for_completion
         rescue Exception => e
-            raise "Cannot attach NIC to VM: #{e.message}\n#{e.backtrace}"
+            raise "Cannot attach NIC to VM: #{e.message}\n#{e.backtrace.join("\n")}"
         end
 
     end
@@ -1918,7 +1918,7 @@ class VirtualMachine < Template
         begin
             @item.ReconfigVM_Task(:spec => spec_hash).wait_for_completion
         rescue Exception => e
-            raise "Cannot detach NIC from VM: #{e.message}\n#{e.backtrace}"
+            raise "Cannot detach NIC from VM: #{e.message}\n#{e.backtrace.join("\n")}"
         end
     end
 
@@ -2133,7 +2133,7 @@ class VirtualMachine < Template
                 @item.ReconfigVM_Task(:spec => spec).wait_for_completion
             end
         rescue Exception => e
-            raise "Cannot attach DISK to VM: #{e.message}\n#{e.backtrace}"
+            raise "Cannot attach DISK to VM: #{e.message}\n#{e.backtrace.join("\n")}"
         end
     end
 
@@ -2596,7 +2596,7 @@ class VirtualMachine < Template
             begin
                 @item.CreateSnapshot_Task(snapshot_hash).wait_for_completion
             rescue Exception => e
-                raise "Cannot create snapshot for VM: #{e.message}\n#{e.backtrace}"
+                raise "Cannot create snapshot for VM: #{e.message}\n#{e.backtrace.join("\n")}"
             end
         else
             # B#5045 - If vcenter is 5.5 the snapshot may take longer than
@@ -2634,7 +2634,7 @@ class VirtualMachine < Template
             revert_snapshot_hash = { :_this => snapshot }
             snapshot.RevertToSnapshot_Task(revert_snapshot_hash).wait_for_completion
         rescue Exception => e
-            raise "Cannot revert snapshot of VM: #{e.message}\n#{e.backtrace}"
+            raise "Cannot revert snapshot of VM: #{e.message}\n#{e.backtrace.join("\n")}"
         end
     end
 
@@ -2653,7 +2653,7 @@ class VirtualMachine < Template
             }
             snapshot.RemoveSnapshot_Task(delete_snapshot_hash).wait_for_completion
         rescue Exception => e
-            raise "Cannot delete snapshot of VM: #{e.message}\n#{e.backtrace}"
+            raise "Cannot delete snapshot of VM: #{e.message}\n#{e.backtrace.join("\n")}"
         end
     end
 
@@ -2672,14 +2672,14 @@ class VirtualMachine < Template
 
     def migrate(config = {})
         raise "You need at least 1 parameter" if config.size == 0
-
+        
         begin
             # retrieve host from DRS
             resourcepool = config[:cluster].resourcePool
 
             @item.MigrateVM_Task(:pool=> resourcepool, :priority => "defaultPriority").wait_for_completion
         rescue Exception => e
-            raise "Cannot migrate VM #{e.message}\n#{e.backtrace}"
+            raise "Cannot migrate VM #{e.message}\n#{e.backtrace.join("\n")}"
         end
     end
 
