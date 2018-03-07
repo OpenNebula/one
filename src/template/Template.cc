@@ -764,11 +764,15 @@ bool Template::check_restricted(string& ra, const Template* base,
         }
         else
         {
-            if ( get(rit->first, ra) )
+            if ( base->get(rit->first, ra) )
             {
                 string ra_b;
 
-                base->get(rit->first, ra_b);
+                if ( !get(rit->first, ra_b) )
+                {
+                    ra = rit->first;
+                    return true;
+                }
 
                 if ( ra_b != ra )
                 {
