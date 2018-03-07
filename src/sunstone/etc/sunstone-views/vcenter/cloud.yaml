@@ -26,6 +26,12 @@ features:
 
     # True to allow to create machines to cloud users
     cloud_vm_create: true
+
+    # True to show the monitoring info (VM & VRouters)
+    show_monitoring_info: true
+
+    # True to show the attributes info (VM & VRouters)
+    show_attributes_info: true
 tabs:
     provision-tab:
         panel_tabs:
