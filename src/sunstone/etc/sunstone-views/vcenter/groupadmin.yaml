@@ -71,6 +71,12 @@ features:
     # True to show an input to specify the the VMs and Template path/folder where a vCenter VM will
     # deployed to
     vcenter_vm_folder: false
+
+    # True to show the monitoring info (VM & VRouters)
+    show_monitoring_info: true
+
+    # True to show the attributes info (VM & VRouters)
+    show_attributes_info: true
 tabs:
     dashboard-tab:
         # The following widgets can be used inside any of the '_per_row' settings

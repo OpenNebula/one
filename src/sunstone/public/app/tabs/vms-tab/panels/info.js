@@ -19,31 +19,31 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var Locale = require('utils/locale');
-  var Humanize = require('utils/humanize');
-  var RenameTr = require('utils/panel/rename-tr');
-  var PermissionsTable = require('utils/panel/permissions-table');
-  var TemplateTable = require('utils/panel/template-table');
-  var TemplateTableVcenter = require('utils/panel/template-table');
-  var OpenNebula = require('opennebula');
-  var Sunstone = require('sunstone');
-  var Config = require('sunstone-config');
-  var Navigation = require('utils/navigation');
+  var Locale = require("utils/locale");
+  var Humanize = require("utils/humanize");
+  var RenameTr = require("utils/panel/rename-tr");
+  var PermissionsTable = require("utils/panel/permissions-table");
+  var TemplateTable = require("utils/panel/template-table");
+  var TemplateTableVcenter = require("utils/panel/template-table");
+  var OpenNebula = require("opennebula");
+  var Sunstone = require("sunstone");
+  var Config = require("sunstone-config");
+  var Navigation = require("utils/navigation");
 
   /*
     TEMPLATES
    */
 
-  var TemplateInfo = require('hbs!./info/html');
+  var TemplateInfo = require("hbs!./info/html");
 
   /*
     CONSTANTS
    */
 
-  var TAB_ID = require('../tabId');
-  var PANEL_ID = require('./info/panelId');
-  var RESOURCE = "VM"
-  var XML_ROOT = "VM"
+  var TAB_ID = require("../tabId");
+  var PANEL_ID = require("./info/panelId");
+  var RESOURCE = "VM";
+  var XML_ROOT = "VM";
 
   /*
     CONSTRUCTOR
@@ -76,7 +76,7 @@ define(function(require) {
     var stateStr = OpenNebula.VM.stateStr(this.element.STATE);
     var lcmStateStr = OpenNebula.VM.lcmStateStr(this.element.LCM_STATE);
     var hostnameHTML = OpenNebula.VM.hostnameStrLink(this.element);
-    var vrouterHTML = '--';
+    var vrouterHTML = "--";
 
     var IP = OpenNebula.VM.ipsStr(this.element);
 
@@ -87,7 +87,7 @@ define(function(require) {
     }
 
     var deployId = (typeof(this.element.DEPLOY_ID) == "object" ? "--" : this.element.DEPLOY_ID);
-    var resched = (parseInt(this.element.RESCHED) ? Locale.tr("yes") : Locale.tr("no"))
+    var resched = (parseInt(this.element.RESCHED) ? Locale.tr("yes") : Locale.tr("no"));
 
     // Get rid of the unwanted (for show) SCHED_* keys
     var that = this;
@@ -125,20 +125,20 @@ define(function(require) {
     }
 
     return TemplateInfo({
-      'element': this.element,
-      'renameTrHTML': renameTrHTML,
-      'stateStr': stateStr,
-      'lcmStateStr': lcmStateStr,
-      'hostnameHTML': hostnameHTML,
-      'prettyStartTime': prettyStartTime,
-      'deployId': deployId,
-      'IP': IP,
-      'resched': resched,
-      'permissionsTableHTML': permissionsTableHTML,
-      'templateTableVcenterHTML': templateTableVcenterHTML,
-      'templateTableHTML': templateTableHTML,
-      'monitoringTableContentHTML': monitoringTableContentHTML,
-      'vrouterHTML': vrouterHTML
+      "element": this.element,
+      "renameTrHTML": renameTrHTML,
+      "stateStr": stateStr,
+      "lcmStateStr": lcmStateStr,
+      "hostnameHTML": hostnameHTML,
+      "prettyStartTime": prettyStartTime,
+      "deployId": deployId,
+      "IP": IP,
+      "resched": resched,
+      "permissionsTableHTML": permissionsTableHTML,
+      "templateTableVcenterHTML": templateTableVcenterHTML,
+      "templateTableHTML": templateTableHTML,
+      "monitoringTableContentHTML": monitoringTableContentHTML,
+      "vrouterHTML": vrouterHTML
     });
   }
 
@@ -162,7 +162,7 @@ define(function(require) {
       }
     });
     if($.isEmptyObject(strippedTemplateVcenter)){
-      $('.vcenter', context).hide();
+      $(".vcenter", context).hide();
     }
 
     TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, unshownValues, strippedTemplateVcenter);
