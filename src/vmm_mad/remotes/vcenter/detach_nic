@@ -49,8 +49,8 @@ begin
 
 rescue Exception => e
     message = "Detach NIC for VM #{vm_ref} on vCenter cluster #{vc_cluster_name} "\
-              "failed due to \"#{e.message}\"\n#{e.backtrace}"
-    STDERR.puts error_message(message)
+              "failed due to \"#{e.message}\"\n"
+    OpenNebula.log_error(message)
     exit -1
 ensure
     vi_client.close_connection if vi_client
