@@ -1,5 +1,6 @@
 module VCenterDriver
 require 'digest'
+require 'uri'
 class DatastoreFolder
     attr_accessor :item, :items
 
@@ -403,8 +404,8 @@ class Datastore < Storage
         @item.upload(target_path, source_path)
     end
 
-    def download_file(source, target)
-        @item.download(url_prefix + file, temp_folder + file)
+    def download_file(source_path, target_path)
+        @item.download(source_path, target_path)
     end
 
     # Get file size for image handling
@@ -488,7 +489,7 @@ class Datastore < Storage
         # This creates the vcenter file URL for uploading or downloading files
         # e.g:
         url = "#{protocol}#{hostname}:#{port}/folder/#{path}?dcPath=#{dcpath}&dsName=#{self['name']}"
-        return url
+        return URI.escape(url)
     end
 
     def download_to_stdout(remote_path)

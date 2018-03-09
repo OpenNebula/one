@@ -18,8 +18,8 @@ enabled_tabs:
     - datastores-tab
     - images-tab
     #- files-tab
-    #- marketplaces-tab
-    #- marketplaceapps-tab
+    - marketplaces-tab
+    - marketplaceapps-tab
     - network-top-tab
     - vnets-tab
     - vnets-topology-tab
@@ -611,7 +611,7 @@ tabs:
             Image.refresh: true
             Image.create_dialog: true
             Image.import_dialog: true
-            Image.upload_marketplace_dialog: false
+            Image.upload_marketplace_dialog: true
             Image.rename: true
             Image.chown: true
             Image.chgrp: true
