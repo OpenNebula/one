@@ -5,10 +5,13 @@ module VCenterDriver
 class VIClient
     attr_accessor :vim
     attr_accessor :rp
+    attr_accessor  :vc_name
 
-    def initialize(opts)
+    def initialize(opts, host_id = -1)
         opts = {:insecure => true}.merge(opts)
+        @host_id = host_id
         @vim = RbVmomi::VIM.connect(opts)
+        @vc_name = opts[:host] if opts[:host]
 
         # Get ccr and get rp
         ccr_ref = opts.delete(:ccr)
@@ -29,6 +32,21 @@ class VIClient
 
     def rp_confined?
         !!@rp
+    end
+
+    def get_host_credentials()
+        raise "no host id defined!" if @host_id == -1
+
+        host = OpenNebula::Host.new_with_id(@host_id, OpenNebula::Client.new)
+        rc = host.info
+        if OpenNebula.is_error?(rc)
+            raise "Could not get host info for ID: #{host_id} - #{rc.message}"
+        end
+
+        {pass: host["TEMPLATE/VCENTER_PASSWORD"],
+         user: host["TEMPLATE/VCENTER_USER"],
+         host: @vc_name }
+
     end
 
     def get_resource_pools(ccr, rp = nil, parent_prefix = "", rp_array = [])
@@ -115,7 +133,7 @@ class VIClient
                 :password => password
             }
 
-            self.new(connection)
+            self.new(connection, host_id)
 
         rescue Exception => e
             raise e

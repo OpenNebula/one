@@ -31,46 +31,36 @@ $: << RUBY_LIB_LOCATION+"/cli"
 $: << REMOTES_LOCATION+"vmm/vcenter/"
 
 require 'command_parser'
-require 'one_helper/onehost_helper'
-require 'one_helper/onecluster_helper'
+require 'one_helper/onevcenter_helper'
 require 'vcenter_driver'
-
-def connection_options(object_name, options)
-    if  options[:vuser].nil? ||
-        options[:vcenter].nil?
-        STDERR.puts "vCenter connection parameters are mandatory to import"\
-                    " #{object_name}:\n"\
-                    "\t --vcenter vCenter hostname\n"\
-                    "\t --vuser username to login in vcenter"
-        exit -1
-    end
-
-    password = options[:vpass] || OpenNebulaHelper::OneHelper.get_password
-
-    {
-       :user     => options[:vuser],
-       :password => password,
-       :host     => options[:vcenter]
-    }
-end
 
 cmd=CommandParser::CmdParser.new(ARGV) do
 
     usage "`onevcenter` <command> [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION
 
-    helper = OneHostHelper.new
+    helper = OneVcenterHelper.new
 
     before_proc do
         helper.set_client(options)
     end
 
-    ############################################################################
-    # Global Options
-    ############################################################################
-    cmd_options=CommandParser::OPTIONS-[CommandParser::VERBOSE]
-    set :option, cmd_options+OpenNebulaHelper::CLIENT_OPTIONS
 
+    OBJECT = {
+        :name => "object",
+        :short => "-o object",
+        :large => "--object object ",
+        :format => String,
+        :description => "vCenter object"
+    }
+
+    HOST = {
+        :name => "host",
+        :short => "-h host_id",
+        :large => "--host host_id",
+        :format => String,
+        :description => "OpenNebula host used to authenticate the operation"
+    }
 
     VCENTER = {
         :name   => "vcenter",
@@ -101,14 +91,67 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     }
 
     ############################################################################
-    # Import clusters
+    # Global Options
     ############################################################################
-    hosts_desc = <<-EOT.unindent
-        Import vCenter clusters as OpenNebula hosts
+    cmd_options=CommandParser::OPTIONS-[CommandParser::VERBOSE]
+    set :option, cmd_options+OpenNebulaHelper::CLIENT_OPTIONS
+
+    #format :oid, "vCenter Object identifier" do |arg|
+    #    puts arg
+    #end
+
+
+    ############################################################################
+    # list resources
+    ############################################################################
+    list_desc = <<-EOT.unindent
+        Show a list with unimported vCenter objects
     EOT
 
-    command :hosts, hosts_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
-        con_ops = connection_options("Hosts", options)
+    command :list, list_desc, :options=>[ OBJECT, HOST,VCENTER, USER, PASS ] do
+
+        if options[:host] && options[:object]
+            o = options[:object]
+            vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
+            importer = VCenterDriver::VcImporter.new_(helper.client, vi_client, o)
+
+            list = importer.get_list()
+            helper.list_object(options, list)
+        else
+            puts "for the moment is not supported without the proper authentication"
+        end
+        exit 0
+    end
+
+    import_desc = <<-EOT.unindent
+        Import the the desired vCenter object
+    EOT
+
+    command :import, import_desc, :oid, :options=>[ OBJECT, HOST,VCENTER, USER, PASS, USE_DEFAULTS ] do
+
+        indexes = args.first
+        if options[:host] && options[:object]
+            o = options[:object]
+            vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
+            importer = VCenterDriver::VcImporter.new_(helper.client, vi_client, o)
+
+            importer.get_list()
+
+            importer.process_import(indexes)
+        else
+            puts "for the moment is not supported without the proper authentication"
+        end
+        exit 0
+    end
+
+    ############################################################################
+    # Import clusters
+    ############################################################################
+    host_desc = <<-EOT.unindent
+        Import vCenter clusters as OpenNebula hosts
+    EOT
+    command :hosts, host_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
+        con_ops = helper.connection_options("Hosts", options)
 
         VCenterDriver::Importer.import_clusters(con_ops, options)
 
@@ -123,7 +166,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :templates, templates_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
-        con_ops = connection_options("VM Templates", options)
+        con_ops = helper.connection_options("VM Templates", options)
 
         VCenterDriver::Importer.import_templates(con_ops, options)
 
@@ -151,7 +194,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :networks, network_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
-        con_ops = connection_options("Networks", options)
+        con_ops = helper.connection_options("Networks", options)
 
         VCenterDriver::Importer.import_networks(con_ops, options)
 
@@ -166,7 +209,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :datastores, datastores_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
-        con_ops = connection_options("Datastores", options)
+        con_ops = helper.connection_options("Datastores", options)
 
         VCenterDriver::Importer.import_datastore(con_ops, options)
 
@@ -188,7 +231,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             exit -1
         end
 
-        con_ops = connection_options("Images", options)
+        con_ops = helper.connection_options("Images", options)
 
         VCenterDriver::Importer.import_images(con_ops, ds_name, options)
 
