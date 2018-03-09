@@ -15,18 +15,18 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require){
-  var Locale = require('utils/locale');
-  var Config = require('sunstone-config');
-  var OpenNebula = require('opennebula');
-  var OpenNebulaImage = require('opennebula/image');
-  var UserInputs = require('utils/user-inputs');
-  var WizardFields = require('utils/wizard-fields');
-  var DisksResizeTemplate = require('hbs!./disks-resize/html');
-  var Humanize = require('utils/humanize');
+  var Locale = require("utils/locale");
+  var Config = require("sunstone-config");
+  var OpenNebula = require("opennebula");
+  var OpenNebulaImage = require("opennebula/image");
+  var UserInputs = require("utils/user-inputs");
+  var WizardFields = require("utils/wizard-fields");
+  var DisksResizeTemplate = require("hbs!./disks-resize/html");
+  var Humanize = require("utils/humanize");
 
   return {
-    'insert': _insert,
-    'retrieve': _retrieve
+    "insert": _insert,
+    "retrieve": _retrieve
   };
 
   function _calculateCost(context, disk_cost, callback){
@@ -43,13 +43,13 @@ define(function(require){
       } else{
         disk = $(this).data("template_disk");
 
-        if (disk != undefined && disk['SIZE'] != undefined){
-          size = disk['SIZE'];
+        if (disk != undefined && disk["SIZE"] != undefined){
+          size = disk["SIZE"];
         }
       }
       totalSize += parseFloat(size);
       cost += size * disk_cost;
-      cost += $(this).data('disk_snapshot_total_cost');
+      cost += $(this).data("disk_snapshot_total_cost");
     });
 
     $(".cost_value", context).text(cost.toFixed(6));
@@ -71,21 +71,21 @@ define(function(require){
 
     var disksContext = opts.disksContext;
 
-    var template_disk = opts.template_json.VMTEMPLATE.TEMPLATE.DISK
-    var disks = []
+    var template_disk = opts.template_json.VMTEMPLATE.TEMPLATE.DISK;
+    var disks = [];
     if ($.isArray(template_disk)) {
-      disks = template_disk
+      disks = template_disk;
     } else if (!$.isEmptyObject(template_disk)) {
-      disks = [template_disk]
+      disks = [template_disk];
     }
 
     if (opts.template_base_json) {
-      var template_base_disk = opts.template_base_json.VMTEMPLATE.TEMPLATE.DISK
-      var disks_base = []
+      var template_base_disk = opts.template_base_json.VMTEMPLATE.TEMPLATE.DISK;
+      var disks_base = [];
       if ($.isArray(template_base_disk)) {
-        disks_base = template_base_disk
+        disks_base = template_base_disk;
       } else if (!$.isEmptyObject(template_base_disk)) {
-        disks_base = [template_base_disk]
+        disks_base = [template_base_disk];
       }
     }
 
@@ -119,16 +119,16 @@ define(function(require){
 
       $.each(disks, function(disk_id, disk) {
         diskContext = $(
-          '<div class="row diskContainer">'+
-            '<div class="small-12 columns">'+
-              '<label></label>'+
-            '</div>'+
-            '<div class="large-12 columns diskSlider">' +
-            '</div>' +
-          '</div>').appendTo($(".disksContainer", disksContext));
+          "<div class=\"row diskContainer\">"+
+            "<div class=\"small-12 columns\">"+
+              "<label></label>"+
+            "</div>"+
+            "<div class=\"large-12 columns diskSlider\">" +
+            "</div>" +
+          "</div>").appendTo($(".disksContainer", disksContext));
         if (disks_base) {
           disks_base[disk_id].SIZE = disk.SIZE;
-          diskContext.data('template_disk', disks_base[disk_id]);
+          diskContext.data("template_disk", disks_base[disk_id]);
         }
 
         var disk_snapshot_total_size = 0;
@@ -136,8 +136,8 @@ define(function(require){
           disk_snapshot_total_size = parseInt(disk.DISK_SNAPSHOT_TOTAL_SIZE);
         }
 
-        diskContext.data('disk_snapshot_total_size', disk_snapshot_total_size);
-        diskContext.data('disk_snapshot_total_cost', disk_snapshot_total_size * disk_cost);
+        diskContext.data("disk_snapshot_total_size", disk_snapshot_total_size);
+        diskContext.data("disk_snapshot_total_cost", disk_snapshot_total_size * disk_cost);
 
         var volatile = (disk.IMAGE == undefined && disk.IMAGE_ID == undefined);
 
@@ -149,7 +149,7 @@ define(function(require){
           label = disk.IMAGE ? disk.IMAGE : Locale.tr("Image was not found");
         }
 
-        $("label", diskContext).text(Locale.tr("DISK") + ' ' + disk_id + ': ' + label);
+        $("label", diskContext).text(Locale.tr("DISK") + " " + disk_id + ": " + label);
 
         var persistent =
           ( opts.force_persistent ||
@@ -160,25 +160,25 @@ define(function(require){
             (disk.TYPE && OpenNebulaImage.TYPES[disk.TYPE] == OpenNebulaImage.TYPES.CDROM) );
 
         if (persistent){
-          $("label", diskContext).append('<i class="disk-resize-icon has-tip left fas fa-lg fa-floppy-o" title="' +
-              Locale.tr("Persistent image. The changes will be saved back to the datastore after the VM is shut down") + '"></i>')
+          $("label", diskContext).append("<i class=\"disk-resize-icon has-tip left fas fa-lg fa-floppy-o\" title=\"" +
+              Locale.tr("Persistent image. The changes will be saved back to the datastore after the VM is shut down") + "\"></i>");
 
         }else{
-          $("label", diskContext).append('<i class="disk-resize-icon has-tip left fas fa-lg fa-recycle" title="' +
-              Locale.tr("Non-persistent disk. The changes will be lost once the VM is shut down") + '"></i>')
+          $("label", diskContext).append("<i class=\"disk-resize-icon has-tip left fas fa-lg fa-recycle\" title=\"" +
+              Locale.tr("Non-persistent disk. The changes will be lost once the VM is shut down") + "\"></i>");
 
         }
 
         if (disk.IMAGE_STATE){
           var color_class = OpenNebulaImage.stateColor(disk.IMAGE_STATE) + "-color";
 
-          $("label", diskContext).append('<i class="'+color_class+' disk-resize-icon has-tip left fas fa-square" title="' +
-              Locale.tr("Image state: ") + OpenNebulaImage.stateStr(disk.IMAGE_STATE) + '"></i>')
+          $("label", diskContext).append("<i class=\""+color_class+" disk-resize-icon has-tip left fas fa-square\" title=\"" +
+              Locale.tr("Image state: ") + OpenNebulaImage.stateStr(disk.IMAGE_STATE) + "\"></i>");
         } else if (disk.IMAGE || disk.IMAGE_ID) {
           var color_class = "error-color";
 
-          $("label", diskContext).append('<i class="'+color_class+' disk-resize-icon has-tip left fas fa-square" title="' +
-              Locale.tr("Image was not found") + '"></i>')
+          $("label", diskContext).append("<i class=\""+color_class+" disk-resize-icon has-tip left fas fa-square\" title=\"" +
+              Locale.tr("Image was not found") + "\"></i>");
         } // else is volatile, does not have state
 
         var attr;
@@ -210,7 +210,7 @@ define(function(require){
         } else {
           UserInputs.insertAttributeInputMB(attr, $(".diskSlider", diskContext));
         }
-      })
+      });
 
     } else {
       disksContext.html("");
