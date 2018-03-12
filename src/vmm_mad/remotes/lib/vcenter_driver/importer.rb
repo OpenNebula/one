@@ -49,7 +49,7 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
                                                               wild,
                                                               sunstone,
                                                               vm_name)
-        
+
         return OpenNebula::Error.new(error) if !error.empty?
 
         template << template_nics
@@ -64,7 +64,7 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
             e["TEMPLATE/VCENTER_DC_REF"]      == dc_ref &&
             e["TEMPLATE/VCENTER_INSTANCE_ID"] == vc_uuid
         end.first
-        
+
         return OpenNebula::Error.new("DS with ref #{ds_ref} is not imported in OpenNebula, aborting Wild VM import.") if !ds_one
 
         rc = one_vm.allocate(template)
@@ -127,7 +127,6 @@ def self.import_clusters(con_ops, options)
         dc_folder = VCenterDriver::DatacenterFolder.new(vi_client)
 
         vcenter_instance_name = vi_client.vim.host
-        vc_uuid   = vi_client.vim.serviceContent.about.instanceUuid
 
         # OpenNebula's ClusterPool
         cpool = VCenterDriver::VIHelper.one_pool(OpenNebula::ClusterPool, false)
