@@ -17,9 +17,13 @@
 #--------------------------------------------------------------------------- #
 
 if [ -f /proc/cpuinfo ]; then
+    MODELNAME_EXP="model name"
+    if [[ "$(uname -m)" =~ ^ppc64 ]]; then
+        MODELNAME_EXP="model"
+    fi
 
     echo -n "MODELNAME=\""
-    grep -m 1 "model name" /proc/cpuinfo | cut -d: -f2 | sed -e 's/^ *//' | sed -e 's/$/"/'
+    grep -m 1 "${MODELNAME_EXP}" /proc/cpuinfo | cut -d: -f2 | sed -e 's/^ *//' | sed -e 's/$/"/'
 
 fi
 
