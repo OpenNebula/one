@@ -2439,6 +2439,8 @@ static void replace_vector_values(Template *old_tmpl, Template *new_tmpl,
 
 int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
 {
+    int rc;
+
     switch (state)
     {
         case PENDING:
@@ -2568,7 +2570,83 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
         delete context_bck;
     }
 
+     // ------------------------------------------------------------------------
+    // Check the OS attribute
+    // ------------------------------------------------------------------------
+
+    rc = parse_os(err);
+
+    if ( rc != 0 )
+    {
+        goto error_os;
+    }
+
+    // ------------------------------------------------------------------------
+    // Check the CPU Model attribute
+    // ------------------------------------------------------------------------
+    parse_cpu_model();
+
+    // ------------------------------------------------------------------------
+    // PCI Devices (Needs to be parsed before network)
+    // ------------------------------------------------------------------------
+
+    rc = parse_pci(err);
+
+    if ( rc != 0 )
+    {
+        goto error_pci;
+    }
+
+    // ------------------------------------------------------------------------
+    // Parse the defaults to merge
+    // ------------------------------------------------------------------------
+
+    rc = parse_defaults(err);
+
+    if ( rc != 0 )
+    {
+        goto error_defaults;
+    }
+
+    // ------------------------------------------------------------------------
+    // Parse the virtual router attributes
+    // ------------------------------------------------------------------------
+
+    rc = parse_vrouter(err);
+
+    if ( rc != 0 )
+    {
+        goto error_vrouter;
+    }
+
+    // -------------------------------------------------------------------------
+    // Parse the context & graphics
+    // -------------------------------------------------------------------------
+
+    rc = parse_context(err);
+
+    if ( rc != 0 )
+    {
+        goto error_context;
+    }
+
+    if ( parse_graphics(err) != 0 )
+    {
+        goto error_graphics;
+    }
+
     return 0;
+
+
+error_context:
+error_graphics:
+error_os:
+error_pci:
+error_defaults:
+error_vrouter:
+    NebulaLog::log("ONE",Log::ERROR, err);
+
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
