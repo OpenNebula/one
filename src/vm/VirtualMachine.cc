@@ -889,13 +889,13 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // ------------------------------------------------------------------------
     // Check the CPU Model attribute
     // ------------------------------------------------------------------------
-    parse_cpu_model();
+    parse_cpu_model(user_obj_template);
 
     // ------------------------------------------------------------------------
     // PCI Devices (Needs to be parsed before network)
     // ------------------------------------------------------------------------
 
-    rc = parse_pci(error_str);
+    rc = parse_pci(error_str, user_obj_template);
 
     if ( rc != 0 )
     {
@@ -906,7 +906,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // Parse the defaults to merge
     // ------------------------------------------------------------------------
 
-    rc = parse_defaults(error_str);
+    rc = parse_defaults(error_str, user_obj_template);
 
     if ( rc != 0 )
     {
@@ -917,7 +917,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // Parse the virtual router attributes
     // ------------------------------------------------------------------------
 
-    rc = parse_vrouter(error_str);
+    rc = parse_vrouter(error_str, user_obj_template);
 
     if ( rc != 0 )
     {
@@ -998,7 +998,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         goto error_requirements;
     }
 
-    if ( parse_graphics(error_str) != 0 )
+    if ( parse_graphics(error_str, user_obj_template) != 0 )
     {
         goto error_graphics;
     }
@@ -2584,13 +2584,13 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     // ------------------------------------------------------------------------
     // Check the CPU Model attribute
     // ------------------------------------------------------------------------
-    parse_cpu_model();
+    parse_cpu_model(obj_template);
 
     // ------------------------------------------------------------------------
     // PCI Devices (Needs to be parsed before network)
     // ------------------------------------------------------------------------
 
-    rc = parse_pci(err);
+    rc = parse_pci(err, obj_template);
 
     if ( rc != 0 )
     {
@@ -2601,7 +2601,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     // Parse the defaults to merge
     // ------------------------------------------------------------------------
 
-    rc = parse_defaults(err);
+    rc = parse_defaults(err, obj_template);
 
     if ( rc != 0 )
     {
@@ -2612,7 +2612,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     // Parse the virtual router attributes
     // ------------------------------------------------------------------------
 
-    rc = parse_vrouter(err);
+    rc = parse_vrouter(err, obj_template);
 
     if ( rc != 0 )
     {
@@ -2630,7 +2630,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
         goto error_context;
     }
 
-    if ( parse_graphics(err) != 0 )
+    if ( parse_graphics(err, obj_template) != 0 )
     {
         goto error_graphics;
     }

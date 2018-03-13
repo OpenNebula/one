@@ -237,14 +237,14 @@ int VirtualMachine::parse_os(string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::parse_defaults(string& error_str)
+int VirtualMachine::parse_defaults(string& error_str, Template * tmpl)
 {
     int num;
 
     vector<Attribute *> attr;
     VectorAttribute*    vatt = 0;
 
-    num = user_obj_template->remove("NIC_DEFAULT", attr);
+    num = tmpl->remove("NIC_DEFAULT", attr);
 
     if ( num == 0 )
     {
@@ -296,20 +296,20 @@ error_cleanup:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::parse_vrouter(string& error_str)
+int VirtualMachine::parse_vrouter(string& error_str, Template * tmpl)
 {
     string st;
 
     for (int i = 0; i < NUM_VROUTER_ATTRIBUTES; i++)
     {
-        user_obj_template->get(VROUTER_ATTRIBUTES[i], st);
+        tmpl->get(VROUTER_ATTRIBUTES[i], st);
 
         if (!st.empty())
         {
             obj_template->replace(VROUTER_ATTRIBUTES[i], st);
         }
 
-        user_obj_template->erase(VROUTER_ATTRIBUTES[i]);
+        tmpl->erase(VROUTER_ATTRIBUTES[i]);
     }
 
     return 0;
@@ -358,14 +358,14 @@ static int check_pci_attributes(VectorAttribute * pci, const string& default_bus
     return 0;
 }
 
-int VirtualMachine::parse_pci(string& error_str)
+int VirtualMachine::parse_pci(string& error_str, Template * tmpl)
 {
     vector<VectorAttribute *> array_pci;
     vector<VectorAttribute *>::iterator it;
 
     int pci_id = 0;
 
-    user_obj_template->remove("PCI", array_pci);
+    tmpl->remove("PCI", array_pci);
 
     for (it = array_pci.begin(); it !=array_pci.end(); ++it, ++pci_id)
     {
@@ -393,9 +393,9 @@ int VirtualMachine::parse_pci(string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::parse_graphics(string& error_str)
+int VirtualMachine::parse_graphics(string& error_str, Template * tmpl)
 {
-    VectorAttribute * user_graphics = user_obj_template->get("GRAPHICS");
+    VectorAttribute * user_graphics = tmpl->get("GRAPHICS");
 
     if ( user_graphics == 0 )
     {
@@ -404,8 +404,9 @@ int VirtualMachine::parse_graphics(string& error_str)
 
     VectorAttribute * graphics = new VectorAttribute(user_graphics);
 
-    user_obj_template->erase("GRAPHICS");
+    tmpl->erase("GRAPHICS");
 
+    obj_template->erase("GRAPHICS");
     obj_template->set(graphics);
 
     if ( !graphics->vector_value("PORT").empty() )
@@ -737,12 +738,12 @@ int VirtualMachine::parse_public_clouds(const char * pname, string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::parse_cpu_model()
+int VirtualMachine::parse_cpu_model(Template * tmpl)
 {
     vector<VectorAttribute *> cm_attr;
     vector<VectorAttribute *>::iterator it;
 
-    int num = user_obj_template->remove("CPU_MODEL", cm_attr);
+    int num = tmpl->remove("CPU_MODEL", cm_attr);
 
     if ( num == 0 )
     {
