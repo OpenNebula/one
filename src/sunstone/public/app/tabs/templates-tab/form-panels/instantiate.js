@@ -108,7 +108,8 @@ define(function(require) {
             template_json:    template_json,
             disksContext:     $(".disksContext"  + template_json.VMTEMPLATE.ID, context),
             force_persistent: persistent,
-            cost_callback: that.calculateCost.bind(that)
+            cost_callback: that.calculateCost.bind(that),
+            uinput_mb: true
           });
         });
       });

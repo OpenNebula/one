@@ -919,7 +919,8 @@ define(function(require) {
               template_json: template_json,
               disksContext: disksContext,
               force_persistent: $(this).prop('checked'),
-              cost_callback: _calculateCost
+              cost_callback: _calculateCost,
+              uinput_mb: true
             });
           }
         });
