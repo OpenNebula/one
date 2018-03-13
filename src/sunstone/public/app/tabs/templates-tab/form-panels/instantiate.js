@@ -19,36 +19,36 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var BaseFormPanel = require('utils/form-panels/form-panel');
-  var TemplateHTML = require('hbs!./instantiate/html');
-  var TemplateRowHTML = require('hbs!./instantiate/templateRow');
-  var Sunstone = require('sunstone');
-  var Notifier = require('utils/notifier');
-  var OpenNebulaTemplate = require('opennebula/template');
-  var Locale = require('utils/locale');
-  var Tips = require('utils/tips');
-  var UserInputs = require('utils/user-inputs');
-  var WizardFields = require('utils/wizard-fields');
-  var TemplateUtils = require('utils/template-utils');
-  var DisksResize = require('utils/disks-resize');
-  var NicsSection = require('utils/nics-section');
-  var VMGroupSection = require('utils/vmgroup-section');
-  var VcenterVMFolder = require('utils/vcenter-vm-folder');
-  var CapacityInputs = require('tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs');
-  var Config = require('sunstone-config');
-  var HostsTable = require('tabs/hosts-tab/datatable');
-  var DatastoresTable = require('tabs/datastores-tab/datatable');
-  var Humanize = require('utils/humanize');
-  var TemplateUtils = require('utils/template-utils');
-  var UniqueId = require('utils/unique-id');
-  var Actions = require('utils/actions');
+  var BaseFormPanel = require("utils/form-panels/form-panel");
+  var TemplateHTML = require("hbs!./instantiate/html");
+  var TemplateRowHTML = require("hbs!./instantiate/templateRow");
+  var Sunstone = require("sunstone");
+  var Notifier = require("utils/notifier");
+  var OpenNebulaTemplate = require("opennebula/template");
+  var Locale = require("utils/locale");
+  var Tips = require("utils/tips");
+  var UserInputs = require("utils/user-inputs");
+  var WizardFields = require("utils/wizard-fields");
+  var TemplateUtils = require("utils/template-utils");
+  var DisksResize = require("utils/disks-resize");
+  var NicsSection = require("utils/nics-section");
+  var VMGroupSection = require("utils/vmgroup-section");
+  var VcenterVMFolder = require("utils/vcenter-vm-folder");
+  var CapacityInputs = require("tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs");
+  var Config = require("sunstone-config");
+  var HostsTable = require("tabs/hosts-tab/datatable");
+  var DatastoresTable = require("tabs/datastores-tab/datatable");
+  var Humanize = require("utils/humanize");
+  var TemplateUtils = require("utils/template-utils");
+  var UniqueId = require("utils/unique-id");
+  var Actions = require("utils/actions");
 
   /*
     CONSTANTS
    */
 
-  var FORM_PANEL_ID = require('./instantiate/formPanelId');
-  var TAB_ID = require('../tabId');
+  var FORM_PANEL_ID = require("./instantiate/formPanelId");
+  var TAB_ID = require("../tabId");
 
   /*
     CONSTRUCTOR
@@ -58,10 +58,10 @@ define(function(require) {
     this.formPanelId = FORM_PANEL_ID;
     this.tabId = TAB_ID;
     this.actions = {
-      'instantiate': {
-        'title': Locale.tr("Instantiate VM Template"),
-        'buttonText': Locale.tr("Instantiate"),
-        'resetButton': false
+      "instantiate": {
+        "title": Locale.tr("Instantiate VM Template"),
+        "buttonText": Locale.tr("Instantiate"),
+        "resetButton": false
       }
     };
 
@@ -88,7 +88,7 @@ define(function(require) {
 
   function _html() {
     return TemplateHTML({
-      'formPanelId': this.formPanelId
+      "formPanelId": this.formPanelId
     });
   }
 
@@ -97,7 +97,7 @@ define(function(require) {
 
     if(Config.isFeatureEnabled("instantiate_persistent")){
       $("input.instantiate_pers", context).on("change", function(){
-        var persistent = $(this).prop('checked');
+        var persistent = $(this).prop("checked");
 
         if(persistent){
           $("#vm_n_times_disabled", context).show();
@@ -122,31 +122,31 @@ define(function(require) {
       $("#vm_n_times", context).show();
     }
 
-    context.off('click', '#add_scheduling_inst_action');
-    context.on('click', '#add_scheduling_inst_action', function() {
+    context.off("click", "#add_scheduling_inst_action");
+    context.on("click", "#add_scheduling_inst_action", function() {
       var actions = ["terminate", "terminate-hard", "hold", "release", "stop", "suspend", "resume", "reboot", "reboot-hard", "poweroff", "poweroff-hard", "undeploy", "undeploy-hard", "snapshot-create"];
       $("#add_scheduling_inst_action", context).attr("disabled", "disabled");
-      var html = '<tr>\
+      var html = "<tr>\
       <td></td>\
       <td>\
-      <select id="select_new_action" class="select_new_action" name="select_action">';
+      <select id=\"select_new_action\" class=\"select_new_action\" name=\"select_action\">";
       $.each(actions, function(key, action){
         var actionAux = action.replace("-", "_");
         if (Config.isTabActionEnabled("vms-tab", "VM." + actionAux)){
-          html += '<option value="' + action + '">' + Locale.tr(action) + '</option>';
+          html += "<option value=\"" + action + "\">" + Locale.tr(action) + "</option>";
         }
       });
-      html += '</select>\
+      html += "</select>\
         </td>\
           <td>\
-            <input id="date_input" type="date" placeholder="2013/12/30"/>\
-            <input id="time_input" type="time" placeholder="12:30"/>\
+            <input id=\"date_input\" type=\"date\" placeholder=\"2013/12/30\"/>\
+            <input id=\"time_input\" type=\"time\" placeholder=\"12:30\"/>\
           </td>\
         <td>\
-          <button id="add_inst_action_json" class="button small secondary radius" >' + Locale.tr("Add") + '</button>\
+          <button id=\"add_inst_action_json\" class=\"button small secondary radius\" >" + Locale.tr("Add") + "</button>\
         </td>\
         <td colspan=2></td>\
-      </tr>';
+      </tr>";
       $("#scheduling_inst_actions_table").append(html);
       return false;
     });
@@ -160,7 +160,7 @@ define(function(require) {
         return false;
       }
 
-      var time_value = date_input_value + ' ' + time_input_value;
+      var time_value = date_input_value + " " + time_input_value;
       var epoch_str = new Date(time_value);
       var time = parseInt(epoch_str.getTime()) / 1000;
 
@@ -169,7 +169,7 @@ define(function(require) {
       sched_action.ACTION = new_action;
       sched_action.TIME = time;
 
-      $(this).parents('tr').remove();
+      $(this).parents("tr").remove();
       $("#add_scheduling_inst_action", context).removeAttr("disabled");
 
       $("#sched_inst_actions_body").append(Actions.fromJSONtoActionsTable(sched_action));
@@ -184,7 +184,7 @@ define(function(require) {
 
     context.off("click", ".remove_action_x");
     context.on("click", ".remove_action_x", function(){
-      $(this).parents('tr').remove();
+      $(this).parents("tr").remove();
     });
   }
 
@@ -219,28 +219,28 @@ define(function(require) {
       return false;
     }
 
-    var vm_name = $('#vm_name', context).val();
-    var n_times = $('#vm_n_times', context).val();
+    var vm_name = $("#vm_name", context).val();
+    var n_times = $("#vm_n_times", context).val();
     var n_times_int = 1;
 
     if (n_times.length) {
       n_times_int = parseInt(n_times, 10);
     }
 
-    var hold = $('#hold', context).prop("checked");
+    var hold = $("#hold", context).prop("checked");
 
     var action;
 
     if ($("input.instantiate_pers", context).prop("checked")){
       action = "instantiate_persistent";
       n_times_int = 1;
-    }else{
+    } else {
       action = "instantiate";
     }
 
     $.each(this.selected_nodes, function(index, template_id) {
       var extra_info = {
-        'hold': hold
+        "hold": hold
       };
 
       var tmp_json = WizardFields.retrieve($(".template_user_inputs" + template_id, context));
@@ -258,8 +258,8 @@ define(function(require) {
 
       var networks = NicsSection.retrieve($(".nicsContext"  + template_id, context));
 
-      var vmgroup = VMGroupSection.retrieve($(".vmgroupContext"+ template_id));
-      if(vmgroup){
+      var vmgroup = VMGroupSection.retrieve($(".vmgroupContext"+ template_id, context));
+      if (vmgroup){
         $.extend(tmp_json, vmgroup);
       } else {
         tmp_json.VMGROUP = [];
@@ -321,7 +321,7 @@ define(function(require) {
 
       if (Config.isFeatureEnabled("vcenter_vm_folder")){
         if(!$.isEmptyObject(original_tmpl.TEMPLATE.HYPERVISOR) &&
-          original_tmpl.TEMPLATE.HYPERVISOR === 'vcenter'){
+          original_tmpl.TEMPLATE.HYPERVISOR === "vcenter"){
           $.extend(tmp_json, VcenterVMFolder.retrieveChanges($(".vcenterVMFolderContext"  + template_id)));
         }
       }
@@ -331,7 +331,7 @@ define(function(require) {
 
       $("#scheduling_inst_actions_table tbody tr").each(function(index){
         var first = $(this).children("td")[0];
-        if(!$('select', first).html()){
+        if(!$("select", first).html()){
           var actionJSON = {};
           actionJSON.ID = index;
           $(this).children("td").each(function(index2){
@@ -339,26 +339,26 @@ define(function(require) {
               actionJSON.ACTION = $(this).text();
             else if (index2 == 1){
               var pretty_time = $(this).text();
-              pretty_time = pretty_time.split(' ');
+              pretty_time = pretty_time.split(" ");
               var date = Actions.convertDate(pretty_time[1]);
-              var time_value = date + ' ' + pretty_time[0];
+              var time_value = date + " " + pretty_time[0];
               var epoch_str = new Date(time_value);
               var time = parseInt(epoch_str.getTime()) / 1000;
               actionJSON.TIME = time;
             }
           });
         }
-        if (!$.isEmptyObject(actionJSON)) {actionsJSON.push(actionJSON)};
+        if (!$.isEmptyObject(actionJSON)) {actionsJSON.push(actionJSON);};
       });
 
-      tmp_json['SCHED_ACTION'] = actionsJSON;
+      tmp_json["SCHED_ACTION"] = actionsJSON;
 
       capacityContext = $(".capacityContext"  + template_id, context);
       $.extend(tmp_json, CapacityInputs.retrieveChanges(capacityContext));
 
-      extra_info['template'] = tmp_json;
+      extra_info["template"] = tmp_json;
         for (var i = 0; i < n_times_int; i++) {
-          extra_info['vm_name'] = vm_name.replace(/%i/gi, i); // replace wildcard
+          extra_info["vm_name"] = vm_name.replace(/%i/gi, i); // replace wildcard
 
           Sunstone.runAction("Template."+action, [template_id], extra_info);
         }
@@ -405,14 +405,14 @@ define(function(require) {
           that.template_objects.push(template_json);
 
           var options = {
-            'select': true,
-            'selectOptions': {
-              'multiple_choice': true
+            "select": true,
+            "selectOptions": {
+              "multiple_choice": true
             }
-          }
+          };
 
-          that.hostsTable = new HostsTable('HostsTable' + UniqueId.id(), options);
-          that.datastoresTable = new DatastoresTable('DatastoresTable' + UniqueId.id(), options);
+          that.hostsTable = new HostsTable("HostsTable" + UniqueId.id(), options);
+          that.datastoresTable = new DatastoresTable("DatastoresTable" + UniqueId.id(), options);
 
           templatesContext.append(
             TemplateRowHTML(
@@ -429,19 +429,19 @@ define(function(require) {
           $("#sched_inst_actions_body").append(actions);
 
           var selectOptions = {
-            'selectOptions': {
-              'select_callback': function(aData, options) {
+            "selectOptions": {
+              "select_callback": function(aData, options) {
                 var hostTable = $(".provision_host_selector" + template_json.VMTEMPLATE.ID, context).data("hostsTable");
                 var dsTable = $(".provision_ds_selector" + template_json.VMTEMPLATE.ID, context).data("dsTable");
                 generateRequirements(hostTable, dsTable, context, template_json.VMTEMPLATE.ID);
               },
-              'unselect_callback': function(aData, options) {
+              "unselect_callback": function(aData, options) {
                 var hostTable = $(".provision_host_selector" + template_json.VMTEMPLATE.ID, context).data("hostsTable");
                 var dsTable = $(".provision_ds_selector" + template_json.VMTEMPLATE.ID, context).data("dsTable");
                 generateRequirements(hostTable, dsTable, context, template_json.VMTEMPLATE.ID);
                }
             }
-          }
+          };
           that.hostsTable.initialize(selectOptions);
           that.hostsTable.refreshResourceTableSelect();
           that.datastoresTable.initialize(selectOptions);
@@ -450,7 +450,7 @@ define(function(require) {
 
           var reqJSON = template_json.VMTEMPLATE.TEMPLATE.SCHED_REQUIREMENTS;
           if (reqJSON) {
-            $('#SCHED_REQUIREMENTS' + template_json.VMTEMPLATE.ID, context).val(reqJSON);
+            $("#SCHED_REQUIREMENTS" + template_json.VMTEMPLATE.ID, context).val(reqJSON);
             var req = TemplateUtils.escapeDoubleQuotes(reqJSON);
             var host_id_regexp = /(\s|\||\b)ID=\\"([0-9]+)\\"/g;
             var hosts = [];
@@ -459,13 +459,13 @@ define(function(require) {
             }
             var selectedResources = {
               ids : hosts
-            }
+            };
             that.hostsTable.selectResourceTableSelect(selectedResources);
           }
 
           var dsReqJSON = template_json.VMTEMPLATE.TEMPLATE.SCHED_DS_REQUIREMENTS;
           if (dsReqJSON) {
-            $('#SCHED_DS_REQUIREMENTS' + template_json.VMTEMPLATE.ID, context).val(dsReqJSON);
+            $("#SCHED_DS_REQUIREMENTS" + template_json.VMTEMPLATE.ID, context).val(dsReqJSON);
             var dsReq = TemplateUtils.escapeDoubleQuotes(dsReqJSON);
             var ds_id_regexp = /(\s|\||\b)ID=\\"([0-9]+)\\"/g;
             var ds = [];
@@ -474,7 +474,7 @@ define(function(require) {
             }
             var selectedResources = {
               ids : ds
-            }
+            };
             that.datastoresTable.selectResourceTableSelect(selectedResources);
           }
 
@@ -487,12 +487,12 @@ define(function(require) {
             uinput_mb: true
           });
 
-          $('.memory_input_wrapper', context).removeClass("large-6 medium-8").addClass("large-12 medium-12");
+          $(".memory_input_wrapper", context).removeClass("large-6 medium-8").addClass("large-12 medium-12");
 
           NicsSection.insert(template_json,
             $(".nicsContext"  + template_json.VMTEMPLATE.ID, context),
-            { 'forceIPv4': true,
-              'securityGroups': Config.isFeatureEnabled("secgroups")
+            { "forceIPv4": true,
+              "securityGroups": Config.isFeatureEnabled("secgroups")
             });
 
           VMGroupSection.insert(template_json,
@@ -507,7 +507,7 @@ define(function(require) {
           UserInputs.vmTemplateInsert(
               inputs_div,
               template_json,
-              {text_header: '<i class="fas fa-gears"></i> '+Locale.tr("Custom Attributes")});
+              {text_header: "<i class=\"fas fa-gears\"></i> "+Locale.tr("Custom Attributes")});
 
           Tips.setup(inputs_div);
 
@@ -588,21 +588,21 @@ define(function(require) {
   }
 
   function generateRequirements(hosts_table, ds_table, context, id) {
-      var req_string=[];
-      var req_ds_string=[];
-      var selected_hosts = hosts_table.retrieveResourceTableSelect();
-      var selected_ds = ds_table.retrieveResourceTableSelect();
+    var req_string = [];
+    var req_ds_string = [];
+    var selected_hosts = hosts_table.retrieveResourceTableSelect();
+    var selected_ds = ds_table.retrieveResourceTableSelect();
 
-      $.each(selected_hosts, function(index, hostId) {
-        req_string.push('ID="'+hostId+'"');
-      });
+    $.each(selected_hosts, function(index, hostId) {
+      req_string.push("ID=\"" + hostId + "\"");
+    });
 
-      $.each(selected_ds, function(index, dsId) {
-        req_ds_string.push('ID="'+dsId+'"');
-      });
+    $.each(selected_ds, function(index, dsId) {
+      req_ds_string.push("ID=\"" + dsId + "\"");
+    });
 
-      $('#SCHED_REQUIREMENTS' + id, context).val(req_string.join(" | "));
-      $('#SCHED_DS_REQUIREMENTS' + id, context).val(req_ds_string.join(" | "));
+    $("#SCHED_REQUIREMENTS" + id, context).val(req_string.join(" | "));
+    $("#SCHED_DS_REQUIREMENTS" + id, context).val(req_ds_string.join(" | "));
   }
 
 });
