@@ -431,7 +431,7 @@ def install_gems(packages, bundler = false)
     dist=detect_distro
     if !dist
         if !@interactive
-            STDERR.puts "Distribution not deteced"
+            STDERR.puts "Distribution not detected"
             exit 1
         else
             dist=select_distribution
