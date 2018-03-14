@@ -249,10 +249,17 @@ class Template
             allocated_images = []
 
             vc_disks.each do |disk|
-                datastore_found = VCenterDriver::Storage.get_one_image_ds_by_ref_and_dc(disk[:datastore]._ref,
+                ds_ref = nil
+                begin
+                    ds_ref = disk[:datastore]._ref 
+                rescue
+                    raise "The ISO #{disk[:path_wo_ds].name} cannot be found because the datastore was removed or deleted"
+                end
+                datastore_found = VCenterDriver::Storage.get_one_image_ds_by_ref_and_dc(ds_ref,
                                                                                         dc_ref,
                                                                                         vc_uuid,
                                                                                         dpool)
+            
                 if datastore_found.nil?
                     error = "\n    ERROR: datastore #{disk[:datastore].name}: has to be imported first as an image datastore!\n"
 
