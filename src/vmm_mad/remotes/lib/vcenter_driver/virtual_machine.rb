@@ -251,7 +251,7 @@ class Template
             vc_disks.each do |disk|
                 ds_ref = nil
                 begin
-                    ds_ref = disk[:datastore]._ref 
+                    ds_ref = disk[:datastore]._ref
                 rescue
                     raise "The ISO #{disk[:path_wo_ds].name} cannot be found because the datastore was removed or deleted"
                 end
@@ -259,7 +259,6 @@ class Template
                                                                                         dc_ref,
                                                                                         vc_uuid,
                                                                                         dpool)
-            
                 if datastore_found.nil?
                     error = "\n    ERROR: datastore #{disk[:datastore].name}: has to be imported first as an image datastore!\n"
 
@@ -2679,7 +2678,7 @@ class VirtualMachine < Template
 
     def migrate(config = {})
         raise "You need at least 1 parameter" if config.size == 0
-        
+
         begin
             # retrieve host from DRS
             resourcepool = config[:cluster].resourcePool
