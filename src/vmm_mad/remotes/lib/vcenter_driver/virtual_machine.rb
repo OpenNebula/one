@@ -529,7 +529,7 @@ class Template
     def get_vcenter_disk_key(unit_number, controller_key)
 
         key = nil
-        
+
         @item["config.hardware.device"].each do |device|
             disk = {}
 
