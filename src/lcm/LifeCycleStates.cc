@@ -1871,7 +1871,6 @@ void LifeCycleManager::disk_snapshot_success(int vid)
     const VirtualMachineDisk * disk;
     Snapshots           snaps(-1, false);
     const Snapshots*    tmp_snaps;
-    bool                has_snaps = false;
     string              error_str;
 
     VirtualMachine * vm = vmpool->get(vid,true);
@@ -1925,10 +1924,8 @@ void LifeCycleManager::disk_snapshot_success(int vid)
     vm->clear_snapshot_disk();
 
     tmp_snaps = vm->get_disk_snapshots(disk_id, error_str);
-
-    if(tmp_snaps != 0)
+    if (tmp_snaps != 0)
     {
-        has_snaps = true;
         snaps = *tmp_snaps;
     }
 
@@ -1976,7 +1973,7 @@ void LifeCycleManager::disk_snapshot_success(int vid)
     }
 
     // Update image if it is persistent and ln mode does not clone it
-    if ( img_id != -1 && is_persistent && has_snaps && target == "NONE" )
+    if ( img_id != -1 && is_persistent && target == "NONE" )
     {
         imagem->set_image_snapshots(img_id, snaps);
     }
@@ -2017,7 +2014,6 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
     const VirtualMachineDisk* disk;
     Snapshots           snaps(-1, false);
     const Snapshots*    tmp_snaps;
-    bool                has_snaps = false;
     string              error_str;
 
     bool img_owner, vm_owner;
@@ -2072,10 +2068,8 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
     vm->clear_snapshot_disk();
 
     tmp_snaps = vm->get_disk_snapshots(disk_id, error_str);
-
-    if(tmp_snaps != 0)
+    if (tmp_snaps != 0)
     {
-        has_snaps = true;
         snaps = *tmp_snaps;
     }
 
@@ -2123,7 +2117,7 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
     }
 
     // Update image if it is persistent and ln mode does not clone it
-    if ( img_id != -1 && is_persistent && has_snaps && target != "SYSTEM" )
+    if ( img_id != -1 && is_persistent && target != "SYSTEM" )
     {
         imagem->set_image_snapshots(img_id, snaps);
     }

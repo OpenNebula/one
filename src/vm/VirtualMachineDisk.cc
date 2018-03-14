@@ -839,6 +839,8 @@ void VirtualMachineDisks::release_images(int vmid, bool image_error,
     for (disk_iterator it = begin(); it != end() ; ++it)
     {
         int iid;
+        Snapshots           snaps(-1, false);
+        const Snapshots*    tmp_snaps;
 
         if ( (*it)->vector_value("IMAGE_ID", iid) == 0 )
         {
@@ -856,10 +858,12 @@ void VirtualMachineDisks::release_images(int vmid, bool image_error,
             }
 
             /* ------- Update snapshots on source image if needed ----------- */
-            if ( (*it)->has_snapshots() )
+            tmp_snaps = (*it)->get_snapshots();
+            if (tmp_snaps != 0)
             {
-                imagem->set_image_snapshots(iid, *(*it)->get_snapshots());
+                snaps = *tmp_snaps;
             }
+            imagem->set_image_snapshots(iid, snaps);
 
             /* --------- Compute space to free on image datastore ----------- */
             if ( (*it)->get_tm_target() == "SELF" )
