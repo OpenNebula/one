@@ -135,9 +135,19 @@ define(function(require) {
 
     if (Config.isFeatureEnabled("instantiate_cpu_factor")){
       $("div.cpu_input input", context).prop("disabled", true);
+      var vcpuValue = $("div.vcpu_input input", context).val();
+      if (vcpuValue !== ""){
+        $("div.cpu_input input", context).val($("div.vcpu_input input", context).val() * Config.scaleFactor);
+      } else {
+        $("div.cpu_input input", context).val("");
+      }
       $("div.vcpu_input input", context).on("change", function(){
         var vcpuValue = $("div.vcpu_input input", context).val();
-        $("div.cpu_input input", context).val(vcpuValue * Config.scaleFactor);
+        if (vcpuValue !== ""){
+          $("div.cpu_input input", context).val(vcpuValue * Config.scaleFactor);
+        } else {
+          $("div.cpu_input input", context).val("");
+        }
       });
     }
 
