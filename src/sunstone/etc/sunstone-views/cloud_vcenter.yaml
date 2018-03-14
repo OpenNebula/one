@@ -13,12 +13,10 @@ features:
     # on the VM creation dialog
     secgroups: false
 
-    # True to hide the CPU setting in the VM creation dialog. The CPU setting
-    # will be set to the same value as VCPU, that will still be visible for the
-    # end users
+    # True to hide the CPU setting in the VM creation dialog
     instantiate_hide_cpu: true
 
-    # False to not scale the CPU. Number [0, 1] to scale from VCPU
+    # False to not scale the CPU. Number to scale from VCPU
     instantiate_cpu_factor: false
 
     # True to show the option to make an instance persistent
