@@ -27,6 +27,8 @@ MAX_VCENTER_PASSWORD_LENGTH = 22 #This is the maximum length for a vCenter passw
 
 require 'vcenter_driver'
 
+$importer = nil
+
 helpers do
     def vcenter_client
         hpref        = "HTTP-"
@@ -84,6 +86,19 @@ helpers do
         logger.error("[vCenter] " + msg.to_s)
         error = Error.new(msg.to_s)
         error code, error.to_json
+    end
+
+    def viclient_from_host
+        host_id = params["host"]
+
+        VCenterDriver::VIClient.new_from_host(host_id) if host_id
+    end
+
+    def new_vcenter_importer(type)
+        host_id = params["host"]
+        vi_client = VCenterDriver::VIClient.new_from_host(host_id) if host_id
+        one_client = OpenNebula::Client.new
+        $importer = VCenterDriver::VcImporter.new_(one_client, vi_client, type)
     end
 
 #    def af_format_response(resp)
@@ -437,38 +452,22 @@ end
 
 get '/vcenter/datastores' do
     begin
-        dc_folder = VCenterDriver::DatacenterFolder.new(vcenter_client)
+        new_vcenter_importer("datastores")
 
-        dpool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool, false)
-
-        if dpool.respond_to?(:message)
-            msg = "Could not get OpenNebula DatastorePool: #{dpool.message}"
-            logger.error("[vCenter] " + msg)
-            error = Error.new(msg)
-            error 404, error.to_json
-        end
-
-        hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool, false)
-
-        if hpool.respond_to?(:message)
-            msg = "Could not get OpenNebula HostPool: #{hpool.message}"
-            logger.error("[vCenter] " + msg)
-            error = Error.new(msg)
-            error 404, error.to_json
-        end
-
-        # clean vcenterDriver cache
-        VCenterDriver::VIHelper.clean_ref_hash("TEMPLATE/VCENTER_CCR_REF")
-        datastores = dc_folder.get_unimported_datastores(dpool, vcenter_client.vim.host, hpool)
-        if datastores.nil?
-            msg = "No datacenter found"
-            logger.error("[vCenter] " + msg)
-            error = Error.new(msg)
-            error 404, error.to_json
-        end
-
-        [200, datastores.to_json]
+        [200, $importer.get_list.to_json]
     rescue Exception => e
+        logger.error("[vCenter] " + e.message)
+        error = Error.new(e.message)
+        error 403, error.to_json
+    end
+end
+
+post '/vcenter/datastores' do
+    begin
+        $importer.process_import(params["datastores"])
+        [200, "Dastastores imported successfully".to_json]
+    rescue Exception => e
+        binding.pry
         logger.error("[vCenter] " + e.message)
         error = Error.new(e.message)
         error 403, error.to_json
