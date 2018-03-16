@@ -182,7 +182,7 @@ define(function(require) {
 
       var networks = NicsSection.retrieve($(".nicsContext"  + template_id, context));
 
-      var vmgroup = VMGroupSection.retrieve($(".vmgroupContext"+ template_id));
+      var vmgroup = VMGroupSection.retrieve($(".vmgroupContext"+ template_id, context));
       if(vmgroup){
         $.extend(tmp_json, vmgroup);
       }

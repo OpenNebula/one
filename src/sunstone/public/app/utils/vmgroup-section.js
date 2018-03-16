@@ -108,7 +108,7 @@ define(function(require) {
   function _retrieve(context, vmGroupTable) {
     if(!vmGroupTable){
       $.each($('.role_table_section',context), function(){
-        if(this.innerText != ""){
+        if(this.value === ""){
           this.remove();
         }
       });
