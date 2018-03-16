@@ -27,10 +27,10 @@ define(function(require) {
     CONSTANTS
    */
 
-  var TAB_ID = require('../tabId');
-  var PANEL_ID = require('./log/panelId');
-  var RESOURCE = "VM"
-  var XML_ROOT = "VM"
+  var TAB_ID = require("../tabId");
+  var PANEL_ID = require("./log/panelId");
+  var RESOURCE = "VM";
+  var XML_ROOT = "VM";
 
   /*
     CONSTRUCTOR
@@ -80,7 +80,7 @@ define(function(require) {
         var log_lines = response['vm_log'].split("\n");
         var colored_log = '';
         for (var i = 0; i < log_lines.length; i++) {
-          var line = log_lines[i];
+          var line = escapeHtml(log_lines[i]);
           if (line.match(/\[E\]/)) {
             line = '<span class="vm_log_error">' + line + '</span>';
           }
@@ -91,8 +91,9 @@ define(function(require) {
           '<div class="row">' +
             '<div class="large-11 small-centered columns log-tab">' +
               colored_log +
-            '</div>' +
-          '</div>')
+            "</div>" +
+          "</div>");
+        $(".vm_log_container", context).animate({scrollTop: $(".vm_log_container", context).prop("scrollHeight")}, "slow");
 
       },
       error: function(request, error_json) {
@@ -108,5 +109,14 @@ define(function(require) {
         Notifier.onError(request, error_json);
       }
     });
+  }
+
+  function escapeHtml(log_line) {
+    return log_line
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
   }
 });
