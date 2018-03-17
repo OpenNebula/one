@@ -40,6 +40,40 @@ static const History::VMAction action[15] = {
 
 const ActionSet<History::VMAction> VirtualRouter::SUPPORTED_ACTIONS(action, 15);
 
+/* -------------------------------------------------------------------------- */
+
+static void vrouter_prefix(VectorAttribute* nic, const string& attr)
+{
+    string val;
+
+    if (nic->vector_value(attr.c_str(), val) == 0)
+    {
+        nic->remove(attr);
+        nic->replace("VROUTER_"+attr, val);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+static void prepare_nic_vm(VectorAttribute * nic)
+{
+    bool floating = false;
+    nic->vector_value("FLOATING_IP", floating);
+
+    if (floating)
+    {
+        vrouter_prefix(nic, "MAC");
+        vrouter_prefix(nic, "IP");
+        vrouter_prefix(nic, "IP6_LINK");
+        vrouter_prefix(nic, "IP6_ULA");
+        vrouter_prefix(nic, "IP6_GLOBAL");
+
+        // TODO: remove all other attrs, such as AR, BRIDGE, etc?
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
 /* ************************************************************************ */
 /* VirtualRouter :: Constructor/Destructor                                  */
 /* ************************************************************************ */
@@ -209,6 +243,9 @@ int VirtualRouter::get_network_leases(string& estr)
         {
             return -1;
         }
+
+        prepare_nic_vm(nics[i]);
+
     }
 
     return 0;
@@ -432,39 +469,6 @@ int VirtualRouter::release_network_leases(const VectorAttribute * nic)
     vn->unlock();
 
     return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void vrouter_prefix(VectorAttribute* nic, const string& attr)
-{
-    string val;
-
-    if (nic->vector_value(attr.c_str(), val) == 0)
-    {
-        nic->remove(attr);
-        nic->replace("VROUTER_"+attr, val);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-
-static void prepare_nic_vm(VectorAttribute * nic)
-{
-    bool floating = false;
-    nic->vector_value("FLOATING_IP", floating);
-
-    if (floating)
-    {
-        vrouter_prefix(nic, "MAC");
-        vrouter_prefix(nic, "IP");
-        vrouter_prefix(nic, "IP6_LINK");
-        vrouter_prefix(nic, "IP6_ULA");
-        vrouter_prefix(nic, "IP6_GLOBAL");
-
-        // TODO: remove all other attrs, such as AR, BRIDGE, etc?
-    }
 }
 
 /* -------------------------------------------------------------------------- */
