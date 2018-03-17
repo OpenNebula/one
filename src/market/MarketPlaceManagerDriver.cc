@@ -120,7 +120,7 @@ static void monitor_action(
         return;
     }
 
-    MarketPlace * market = marketpool->get(id, true);
+    MarketPlace * market = marketpool->get(id);
 
     if (market == 0 )
     {
@@ -152,7 +152,7 @@ static void monitor_action(
         }
         else if ( rc >= 0 ) //-2 means app already imported
         {
-            MarketPlace * market = marketpool->get(id, true);
+            MarketPlace * market = marketpool->get(id);
 
             if ( market != 0 )
             {
@@ -172,10 +172,10 @@ static void monitor_action(
     for (set<int>::iterator i = apps_mp.begin(); i != apps_mp.end(); ++i)
     {
         if (apppool->test_map_check(*i)) //delete app
-        { 
+        {
             std::string error;
 
-            MarketPlaceApp * app = apppool->get(*i, true);
+            MarketPlaceApp * app = apppool->get(*i);
 
             if ( app == 0 )
             {
@@ -186,7 +186,7 @@ static void monitor_action(
 
             app->unlock();
 
-            market = marketpool->get(id, true);
+            market = marketpool->get(id);
 
             market->del_marketapp(*i);
 
@@ -238,7 +238,7 @@ static void app_failure_action(
         int                  id,
         const std::string&   msg)
 {
-    MarketPlaceApp * app = apppool->get(id, true);
+    MarketPlaceApp * app = apppool->get(id);
 
     if (app == 0)
     {
@@ -329,7 +329,7 @@ static int import_action(
         goto error_attributes;
     }
 
-    app = apppool->get(id, true);
+    app = apppool->get(id);
 
     if (app == 0)
     {
@@ -394,7 +394,7 @@ static int delete_action(
 
     std::ostringstream eoss("Error removing app from marketplace", std::ios::ate);
 
-    MarketPlaceApp * app = apppool->get(id, true);
+    MarketPlaceApp * app = apppool->get(id);
 
     if ( app == 0 )
     {

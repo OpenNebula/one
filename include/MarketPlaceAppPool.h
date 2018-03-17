@@ -88,9 +88,9 @@ public:
      *    @param lock locks the MarketPlaceApp mutex
      *    @return a pointer to the MarketPlaceApp, 0 if not loaded
      */
-    MarketPlaceApp * get(int oid, bool lock)
+    MarketPlaceApp * get(int oid)
     {
-        return static_cast<MarketPlaceApp *>(PoolSQL::get(oid,lock));
+        return static_cast<MarketPlaceApp *>(PoolSQL::get(oid));
     };
 
     /**
@@ -102,9 +102,9 @@ public:
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    MarketPlaceApp * get(const std::string& name, int uid, bool lock)
+    MarketPlaceApp * get(const std::string& name, int uid)
     {
-        return static_cast<MarketPlaceApp *>(PoolSQL::get(name, uid, lock));
+        return static_cast<MarketPlaceApp *>(PoolSQL::get(name, uid));
     };
 
     /**

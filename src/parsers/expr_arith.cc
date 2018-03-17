@@ -60,68 +60,45 @@
 
 
 /* Substitute the variable and function names.  */
-#define yyparse         expr_bool__parse
-#define yylex           expr_bool__lex
-#define yyerror         expr_bool__error
-#define yydebug         expr_bool__debug
-#define yynerrs         expr_bool__nerrs
+#define yyparse         expr_arith_parse
+#define yylex           expr_arith_lex
+#define yyerror         expr_arith_error
+#define yydebug         expr_arith_debug
+#define yynerrs         expr_arith_nerrs
 
 
 /* Copy the first part of user declarations.  */
-#line 17 "expr_bool.y" /* yacc.c:339  */
+#line 17 "expr_arith.y" /* yacc.c:339  */
 
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <vector>
-#include <algorithm>
-#include <set>
-
-#include <ctype.h>
-#include <string.h>
-#include <fnmatch.h>
-
-#include "expr_bool.h"
-#include "ObjectXML.h"
+#include "expr_arith.h"
+#include "expr_parser.h"
 
 #define YYERROR_VERBOSE
-#define expr_bool__lex expr_lex
+#define expr_arith_lex expr_lex
 
-extern "C"
+
+void expr_arith_error(YYLTYPE * llocp, mem_collector * mc, ObjectXML * oxml,
+        int& result, char ** error_msg, yyscan_t scanner, const char * str);
+
+int expr_arith_lex(YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc,
+    yyscan_t scanner);
+
+int expr_arith_parse(ObjectXML *oxml, int& result, char ** errmsg,
+    yyscan_t scanner)
 {
-    #include "mem_collector.h"
+    mem_collector mc;
+    int           rc;
 
-    void expr_bool__error(
-        YYLTYPE *       llocp,
-        mem_collector * mc,
-        ObjectXML *     oxml,
-        bool&           result,
-        char **         error_msg,
-        const char *    str);
+    mem_collector_init(&mc);
 
-    int expr_bool__lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc);
+    rc = expr_arith_parse(&mc, oxml, result, errmsg, scanner);
 
-    int expr_bool__parse(mem_collector * mc,
-                         ObjectXML *     oxml,
-                         bool&           result,
-                         char **         errmsg);
+    mem_collector_cleanup(&mc);
 
-    int expr_bool_parse(ObjectXML *oxml, bool& result, char ** errmsg)
-    {
-        mem_collector mc;
-        int           rc;
-
-        mem_collector_init(&mc);
-
-        rc = expr_bool__parse(&mc,oxml,result,errmsg);
-
-        mem_collector_cleanup(&mc);
-
-        return rc;
-    }
+    return rc;
 }
 
-#line 125 "expr_bool.cc" /* yacc.c:339  */
+#line 102 "expr_arith.cc" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -140,16 +117,39 @@ extern "C"
 #endif
 
 /* In a future release of Bison, this section will be replaced
-   by #include "expr_bool.hh".  */
-#ifndef YY_EXPR_BOOL_EXPR_BOOL_HH_INCLUDED
-# define YY_EXPR_BOOL_EXPR_BOOL_HH_INCLUDED
+   by #include "expr_arith.hh".  */
+#ifndef YY_EXPR_ARITH_EXPR_ARITH_HH_INCLUDED
+# define YY_EXPR_ARITH_EXPR_ARITH_HH_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
 #endif
 #if YYDEBUG
-extern int expr_bool__debug;
+extern int expr_arith_debug;
 #endif
+/* "%code requires" blocks.  */
+#line 47 "expr_arith.y" /* yacc.c:355  */
+
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <set>
+
+#include <ctype.h>
+#include <string.h>
+#include <fnmatch.h>
+
+#include "mem_collector.h"
+#include "ObjectXML.h"
+
+typedef void * yyscan_t;
+
+int expr_arith_parse(ObjectXML *oxml, int& result, char ** errmsg,
+    yyscan_t scanner);
+
+#line 153 "expr_arith.cc" /* yacc.c:355  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -167,13 +167,13 @@ extern int expr_bool__debug;
 
 union YYSTYPE
 {
-#line 77 "expr_bool.y" /* yacc.c:355  */
+#line 77 "expr_arith.y" /* yacc.c:355  */
 
     char *  val_str;
     int     val_int;
     float   val_float;
 
-#line 177 "expr_bool.cc" /* yacc.c:355  */
+#line 177 "expr_arith.cc" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -197,13 +197,13 @@ struct YYLTYPE
 
 
 
-int expr_bool__parse (mem_collector * mc, ObjectXML *     oxml, bool&           result, char **         error_msg);
+int expr_arith_parse (mem_collector * mc, ObjectXML * oxml, int& result, char ** error_msg, yyscan_t scanner);
 
-#endif /* !YY_EXPR_BOOL_EXPR_BOOL_HH_INCLUDED  */
+#endif /* !YY_EXPR_ARITH_EXPR_ARITH_HH_INCLUDED  */
 
 /* Copy the second part of user declarations.  */
 
-#line 207 "expr_bool.cc" /* yacc.c:358  */
+#line 207 "expr_arith.cc" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -445,18 +445,18 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  13
+#define YYFINAL  10
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   34
+#define YYLAST   25
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  15
+#define YYNTOKENS  12
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  3
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  20
+#define YYNRULES  12
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  34
+#define YYNSTATES  20
 
 /* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
    by yylex, with out-of-bounds checking.  */
@@ -473,16 +473,8 @@ static const yytype_uint8 yytranslate[] =
        0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     3,     2,     2,     2,     2,     4,     2,
-      13,    14,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-      11,     9,    10,     2,    12,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     5,     2,     2,     2,     2,     2,
+      10,    11,     5,     3,     2,     4,     2,     6,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -495,17 +487,24 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     1,     2,     6,     7,
-       8
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     1,     2,     7,     8,
+       9
 };
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    97,    97,    98,   101,   110,   119,   126,   133,   151,
-     158,   165,   172,   179,   197,   205,   213,   234,   235,   236,
-     237
+       0,    99,    99,   100,   103,   104,   105,   106,   107,   108,
+     109,   110,   111
 };
 #endif
 
@@ -514,9 +513,8 @@ static const yytype_uint8 yyrline[] =
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
-  "$end", "error", "$undefined", "'!'", "'&'", "'|'", "INTEGER", "STRING",
-  "FLOAT", "'='", "'>'", "'<'", "'@'", "'('", "')'", "$accept", "stmt",
-  "expr", YY_NULLPTR
+  "$end", "error", "$undefined", "'+'", "'-'", "'*'", "'/'", "INTEGER",
+  "STRING", "FLOAT", "'('", "')'", "$accept", "stmt", "expr", YY_NULLPTR
 };
 #endif
 
@@ -525,15 +523,15 @@ static const char *const yytname[] =
    (internal) symbol number NUM (which must be that of a token).  */
 static const yytype_uint16 yytoknum[] =
 {
-       0,   256,   257,    33,    38,   124,   258,   259,   260,    61,
-      62,    60,    64,    40,    41
+       0,   256,   257,    43,    45,    42,    47,   258,   259,   260,
+      40,    41
 };
 # endif
 
-#define YYPACT_NINF -6
+#define YYPACT_NINF -5
 
 #define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-6)))
+  (!!((Yystate) == (-5)))
 
 #define YYTABLE_NINF -1
 
@@ -544,10 +542,8 @@ static const yytype_uint16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      -2,    -2,     9,    -2,     3,     4,    -6,    -5,    16,    25,
-      26,     0,     2,    -6,    -2,    -2,    19,    -6,    -6,    -6,
-      -6,    -6,    -6,    -6,    22,    -6,    -6,    -6,    -6,    -6,
-      -6,    -6,    -6,    -6
+      11,    11,    -5,    -5,    -5,    11,     5,    19,    -4,     3,
+      -5,    11,    11,    11,    11,    -5,    -4,    -4,    -5,    -5
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -555,22 +551,20 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       3,     0,     0,     0,     0,     2,    19,     0,     0,     0,
-       0,     0,     0,     1,     0,     0,     0,     4,    14,     9,
-       6,    11,     7,    12,     0,    20,    17,    18,     5,    15,
-      10,     8,    16,    13
+       3,     0,     6,     4,     5,     0,     0,     2,    11,     0,
+       1,     0,     0,     0,     0,    12,     7,     8,     9,    10
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -6,    -6,    -1
+      -5,    -5,    -1
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     4,     5
+      -1,     6,     7
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -578,44 +572,38 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_uint8 yytable[] =
 {
-       6,     1,    12,    13,    16,     2,    14,    15,    14,    15,
-      24,     3,     7,    26,    27,     0,    25,     0,     8,     9,
-      10,    11,    17,    18,    19,    28,    29,    30,    31,    32,
-      33,    20,    22,    21,    23
+       8,    13,    14,     0,     9,    10,    11,    12,    13,    14,
+      16,    17,    18,    19,    15,     1,     0,     0,     2,     3,
+       4,     5,    11,    12,    13,    14
 };
 
 static const yytype_int8 yycheck[] =
 {
-       1,     3,     3,     0,     9,     7,     4,     5,     4,     5,
-      10,    13,     3,    14,    15,    -1,    14,    -1,     9,    10,
-      11,    12,     6,     7,     8,     6,     7,     8,     6,     7,
-       8,     6,     6,     8,     8
+       1,     5,     6,    -1,     5,     0,     3,     4,     5,     6,
+      11,    12,    13,    14,    11,     4,    -1,    -1,     7,     8,
+       9,    10,     3,     4,     5,     6
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     3,     7,    13,    16,    17,    17,     3,     9,    10,
-      11,    12,    17,     0,     4,     5,     9,     6,     7,     8,
-       6,     8,     6,     8,    10,    14,    17,    17,     6,     7,
-       8,     6,     7,     8
+       0,     4,     7,     8,     9,    10,    13,    14,    14,    14,
+       0,     3,     4,     5,     6,    11,    14,    14,    14,    14
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    15,    16,    16,    17,    17,    17,    17,    17,    17,
-      17,    17,    17,    17,    17,    17,    17,    17,    17,    17,
-      17
+       0,    12,    13,    13,    14,    14,    14,    14,    14,    14,
+      14,    14,    14
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     1,     0,     3,     4,     3,     3,     4,     3,
-       4,     3,     3,     4,     3,     4,     4,     3,     3,     2,
-       3
+       0,     2,     1,     0,     1,     1,     1,     3,     3,     3,
+       3,     2,     3
 };
 
 
@@ -643,7 +631,7 @@ do                                                              \
     }                                                           \
   else                                                          \
     {                                                           \
-      yyerror (&yylloc, mc, oxml, result, error_msg, YY_("syntax error: cannot back up")); \
+      yyerror (&yylloc, mc, oxml, result, error_msg, scanner, YY_("syntax error: cannot back up")); \
       YYERROR;                                                  \
     }                                                           \
 while (0)
@@ -745,7 +733,7 @@ do {                                                                      \
     {                                                                     \
       YYFPRINTF (stderr, "%s ", Title);                                   \
       yy_symbol_print (stderr,                                            \
-                  Type, Value, Location, mc, oxml, result, error_msg); \
+                  Type, Value, Location, mc, oxml, result, error_msg, scanner); \
       YYFPRINTF (stderr, "\n");                                           \
     }                                                                     \
 } while (0)
@@ -756,7 +744,7 @@ do {                                                                      \
 `----------------------------------------*/
 
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector * mc, ObjectXML *     oxml, bool&           result, char **         error_msg)
+yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector * mc, ObjectXML * oxml, int& result, char ** error_msg, yyscan_t scanner)
 {
   FILE *yyo = yyoutput;
   YYUSE (yyo);
@@ -765,6 +753,7 @@ yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvalue
   YYUSE (oxml);
   YYUSE (result);
   YYUSE (error_msg);
+  YYUSE (scanner);
   if (!yyvaluep)
     return;
 # ifdef YYPRINT
@@ -780,14 +769,14 @@ yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvalue
 `--------------------------------*/
 
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector * mc, ObjectXML *     oxml, bool&           result, char **         error_msg)
+yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector * mc, ObjectXML * oxml, int& result, char ** error_msg, yyscan_t scanner)
 {
   YYFPRINTF (yyoutput, "%s %s (",
              yytype < YYNTOKENS ? "token" : "nterm", yytname[yytype]);
 
   YY_LOCATION_PRINT (yyoutput, *yylocationp);
   YYFPRINTF (yyoutput, ": ");
-  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, oxml, result, error_msg);
+  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, oxml, result, error_msg, scanner);
   YYFPRINTF (yyoutput, ")");
 }
 
@@ -820,7 +809,7 @@ do {                                                            \
 `------------------------------------------------*/
 
 static void
-yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, mem_collector * mc, ObjectXML *     oxml, bool&           result, char **         error_msg)
+yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, mem_collector * mc, ObjectXML * oxml, int& result, char ** error_msg, yyscan_t scanner)
 {
   unsigned long int yylno = yyrline[yyrule];
   int yynrhs = yyr2[yyrule];
@@ -834,7 +823,7 @@ yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule
       yy_symbol_print (stderr,
                        yystos[yyssp[yyi + 1 - yynrhs]],
                        &(yyvsp[(yyi + 1) - (yynrhs)])
-                       , &(yylsp[(yyi + 1) - (yynrhs)])                       , mc, oxml, result, error_msg);
+                       , &(yylsp[(yyi + 1) - (yynrhs)])                       , mc, oxml, result, error_msg, scanner);
       YYFPRINTF (stderr, "\n");
     }
 }
@@ -842,7 +831,7 @@ yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule
 # define YY_REDUCE_PRINT(Rule)          \
 do {                                    \
   if (yydebug)                          \
-    yy_reduce_print (yyssp, yyvsp, yylsp, Rule, mc, oxml, result, error_msg); \
+    yy_reduce_print (yyssp, yyvsp, yylsp, Rule, mc, oxml, result, error_msg, scanner); \
 } while (0)
 
 /* Nonzero means print parse trace.  It is left uninitialized so that
@@ -1100,7 +1089,7 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
 `-----------------------------------------------*/
 
 static void
-yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, mem_collector * mc, ObjectXML *     oxml, bool&           result, char **         error_msg)
+yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, mem_collector * mc, ObjectXML * oxml, int& result, char ** error_msg, yyscan_t scanner)
 {
   YYUSE (yyvaluep);
   YYUSE (yylocationp);
@@ -1108,6 +1097,7 @@ yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocatio
   YYUSE (oxml);
   YYUSE (result);
   YYUSE (error_msg);
+  YYUSE (scanner);
   if (!yymsg)
     yymsg = "Deleting";
   YY_SYMBOL_PRINT (yymsg, yytype, yyvaluep, yylocationp);
@@ -1125,7 +1115,7 @@ yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocatio
 `----------*/
 
 int
-yyparse (mem_collector * mc, ObjectXML *     oxml, bool&           result, char **         error_msg)
+yyparse (mem_collector * mc, ObjectXML * oxml, int& result, char ** error_msg, yyscan_t scanner)
 {
 /* The lookahead symbol.  */
 int yychar;
@@ -1319,7 +1309,7 @@ yybackup:
   if (yychar == YYEMPTY)
     {
       YYDPRINTF ((stderr, "Reading a token: "));
-      yychar = yylex (&yylval, &yylloc, mc);
+      yychar = yylex (&yylval, &yylloc, mc, scanner);
     }
 
   if (yychar <= YYEOF)
@@ -1399,228 +1389,73 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 97 "expr_bool.y" /* yacc.c:1646  */
-    { result=(yyvsp[0].val_int);   }
-#line 1405 "expr_bool.cc" /* yacc.c:1646  */
+#line 99 "expr_arith.y" /* yacc.c:1646  */
+    { result = static_cast<int>((yyvsp[0].val_float));}
+#line 1395 "expr_arith.cc" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 98 "expr_bool.y" /* yacc.c:1646  */
-    { result=true; }
-#line 1411 "expr_bool.cc" /* yacc.c:1646  */
+#line 100 "expr_arith.y" /* yacc.c:1646  */
+    { result = 0; }
+#line 1401 "expr_arith.cc" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 101 "expr_bool.y" /* yacc.c:1646  */
-    {
-            int val = (yyvsp[0].val_int);
-            int rc;
-
-            rc = oxml->search((yyvsp[-2].val_str),val);
-
-            (yyval.val_int) = (rc == 0 && val == (yyvsp[0].val_int));
-        }
-#line 1424 "expr_bool.cc" /* yacc.c:1646  */
+#line 103 "expr_arith.y" /* yacc.c:1646  */
+    { float val; oxml->search((yyvsp[0].val_str), val); (yyval.val_float) = val; }
+#line 1407 "expr_arith.cc" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 110 "expr_bool.y" /* yacc.c:1646  */
-    {
-            int val = (yyvsp[0].val_int);
-            int rc;
-
-            rc = oxml->search((yyvsp[-3].val_str),val);
-
-            (yyval.val_int) = (rc == 0 && val != (yyvsp[0].val_int));
-        }
-#line 1437 "expr_bool.cc" /* yacc.c:1646  */
+#line 104 "expr_arith.y" /* yacc.c:1646  */
+    { (yyval.val_float) = (yyvsp[0].val_float); }
+#line 1413 "expr_arith.cc" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 119 "expr_bool.y" /* yacc.c:1646  */
-    {
-            int val, rc;
-
-            rc = oxml->search((yyvsp[-2].val_str),val);
-            (yyval.val_int) = (rc == 0 && val > (yyvsp[0].val_int));
-        }
-#line 1448 "expr_bool.cc" /* yacc.c:1646  */
+#line 105 "expr_arith.y" /* yacc.c:1646  */
+    { (yyval.val_float) = static_cast<float>((yyvsp[0].val_int)); }
+#line 1419 "expr_arith.cc" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 126 "expr_bool.y" /* yacc.c:1646  */
-    {
-            int val, rc;
-
-            rc = oxml->search((yyvsp[-2].val_str),val);
-            (yyval.val_int) = (rc == 0 && val < (yyvsp[0].val_int));
-        }
-#line 1459 "expr_bool.cc" /* yacc.c:1646  */
+#line 106 "expr_arith.y" /* yacc.c:1646  */
+    { (yyval.val_float) = (yyvsp[-2].val_float) + (yyvsp[0].val_float);}
+#line 1425 "expr_arith.cc" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 133 "expr_bool.y" /* yacc.c:1646  */
-    {
-            std::vector<int> val;
-            std::vector<int>::iterator it;
-
-            (yyval.val_int) = false;
-
-            oxml->search((yyvsp[-3].val_str),val);
-
-            for (it=val.begin(); it != val.end(); ++it)
-            {
-                if ((yyvsp[0].val_int) == *it)
-                {
-                    (yyval.val_int) = true;
-                    break;
-                }
-            }
-        }
-#line 1481 "expr_bool.cc" /* yacc.c:1646  */
+#line 107 "expr_arith.y" /* yacc.c:1646  */
+    { (yyval.val_float) = (yyvsp[-2].val_float) - (yyvsp[0].val_float);}
+#line 1431 "expr_arith.cc" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 151 "expr_bool.y" /* yacc.c:1646  */
-    {
-            float val, rc;
-
-            rc = oxml->search((yyvsp[-2].val_str),val);
-            (yyval.val_int) = (rc == 0 && val == (yyvsp[0].val_float));
-        }
-#line 1492 "expr_bool.cc" /* yacc.c:1646  */
+#line 108 "expr_arith.y" /* yacc.c:1646  */
+    { (yyval.val_float) = (yyvsp[-2].val_float) * (yyvsp[0].val_float);}
+#line 1437 "expr_arith.cc" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 158 "expr_bool.y" /* yacc.c:1646  */
-    {
-            float val, rc;
-
-            rc = oxml->search((yyvsp[-3].val_str),val);
-            (yyval.val_int) = (rc == 0 && val != (yyvsp[0].val_float));
-        }
-#line 1503 "expr_bool.cc" /* yacc.c:1646  */
+#line 109 "expr_arith.y" /* yacc.c:1646  */
+    { (yyval.val_float) = (yyvsp[-2].val_float) / (yyvsp[0].val_float);}
+#line 1443 "expr_arith.cc" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 165 "expr_bool.y" /* yacc.c:1646  */
-    {
-            float val, rc;
-
-            rc = oxml->search((yyvsp[-2].val_str),val);
-            (yyval.val_int) = (rc == 0 && val > (yyvsp[0].val_float));
-        }
-#line 1514 "expr_bool.cc" /* yacc.c:1646  */
+#line 110 "expr_arith.y" /* yacc.c:1646  */
+    { (yyval.val_float) = - (yyvsp[0].val_float);}
+#line 1449 "expr_arith.cc" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 172 "expr_bool.y" /* yacc.c:1646  */
-    {
-            float val, rc;
-
-            rc = oxml->search((yyvsp[-2].val_str),val);
-            (yyval.val_int) = (rc == 0 && val < (yyvsp[0].val_float));
-        }
-#line 1525 "expr_bool.cc" /* yacc.c:1646  */
-    break;
-
-  case 13:
-#line 179 "expr_bool.y" /* yacc.c:1646  */
-    {
-            std::vector<float> val;
-            std::vector<float>::iterator it;
-
-            (yyval.val_int) = false;
-
-            oxml->search((yyvsp[-3].val_str),val);
-
-            for (it=val.begin(); it != val.end(); ++it)
-            {
-                if ((yyvsp[0].val_float) == *it)
-                {
-                    (yyval.val_int) = true;
-                    break;
-                }
-            }
-        }
-#line 1547 "expr_bool.cc" /* yacc.c:1646  */
-    break;
-
-  case 14:
-#line 197 "expr_bool.y" /* yacc.c:1646  */
-    {
-            std::string val;
-            int rc;
-
-            rc = oxml->search((yyvsp[-2].val_str),val);
-            (yyval.val_int) = (rc != 0 || (yyvsp[0].val_str)==0) ? false : fnmatch((yyvsp[0].val_str),val.c_str(),0)==0;
-        }
-#line 1559 "expr_bool.cc" /* yacc.c:1646  */
-    break;
-
-  case 15:
-#line 205 "expr_bool.y" /* yacc.c:1646  */
-    {
-            std::string val;
-            int rc;
-
-            rc = oxml->search((yyvsp[-3].val_str),val);
-            (yyval.val_int) = (rc != 0 || (yyvsp[0].val_str)==0) ? false : fnmatch((yyvsp[0].val_str),val.c_str(),0)!=0;
-        }
-#line 1571 "expr_bool.cc" /* yacc.c:1646  */
-    break;
-
-  case 16:
-#line 213 "expr_bool.y" /* yacc.c:1646  */
-    {
-            std::vector<std::string> val;
-            std::vector<std::string>::iterator it;
-
-            (yyval.val_int) = false;
-
-            if ( (yyvsp[0].val_str) != 0 )
-            {
-                oxml->search((yyvsp[-3].val_str),val);
-
-                for (it=val.begin(); it != val.end(); ++it)
-                {
-                    if ( fnmatch((yyvsp[0].val_str), (*it).c_str(), 0) == 0 )
-                    {
-                        (yyval.val_int) = true;
-                        break;
-                    }
-                }
-            }
-        }
-#line 1596 "expr_bool.cc" /* yacc.c:1646  */
-    break;
-
-  case 17:
-#line 234 "expr_bool.y" /* yacc.c:1646  */
-    { (yyval.val_int) = (yyvsp[-2].val_int) && (yyvsp[0].val_int); }
-#line 1602 "expr_bool.cc" /* yacc.c:1646  */
-    break;
-
-  case 18:
-#line 235 "expr_bool.y" /* yacc.c:1646  */
-    { (yyval.val_int) = (yyvsp[-2].val_int) || (yyvsp[0].val_int); }
-#line 1608 "expr_bool.cc" /* yacc.c:1646  */
-    break;
-
-  case 19:
-#line 236 "expr_bool.y" /* yacc.c:1646  */
-    { (yyval.val_int) = ! (yyvsp[0].val_int); }
-#line 1614 "expr_bool.cc" /* yacc.c:1646  */
-    break;
-
-  case 20:
-#line 237 "expr_bool.y" /* yacc.c:1646  */
-    { (yyval.val_int) =   (yyvsp[-1].val_int); }
-#line 1620 "expr_bool.cc" /* yacc.c:1646  */
+#line 111 "expr_arith.y" /* yacc.c:1646  */
+    { (yyval.val_float) = (yyvsp[-1].val_float);}
+#line 1455 "expr_arith.cc" /* yacc.c:1646  */
     break;
 
 
-#line 1624 "expr_bool.cc" /* yacc.c:1646  */
+#line 1459 "expr_arith.cc" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1671,7 +1506,7 @@ yyerrlab:
     {
       ++yynerrs;
 #if ! YYERROR_VERBOSE
-      yyerror (&yylloc, mc, oxml, result, error_msg, YY_("syntax error"));
+      yyerror (&yylloc, mc, oxml, result, error_msg, scanner, YY_("syntax error"));
 #else
 # define YYSYNTAX_ERROR yysyntax_error (&yymsg_alloc, &yymsg, \
                                         yyssp, yytoken)
@@ -1698,7 +1533,7 @@ yyerrlab:
                 yymsgp = yymsg;
               }
           }
-        yyerror (&yylloc, mc, oxml, result, error_msg, yymsgp);
+        yyerror (&yylloc, mc, oxml, result, error_msg, scanner, yymsgp);
         if (yysyntax_error_status == 2)
           goto yyexhaustedlab;
       }
@@ -1722,7 +1557,7 @@ yyerrlab:
       else
         {
           yydestruct ("Error: discarding",
-                      yytoken, &yylval, &yylloc, mc, oxml, result, error_msg);
+                      yytoken, &yylval, &yylloc, mc, oxml, result, error_msg, scanner);
           yychar = YYEMPTY;
         }
     }
@@ -1779,7 +1614,7 @@ yyerrlab1:
 
       yyerror_range[1] = *yylsp;
       yydestruct ("Error: popping",
-                  yystos[yystate], yyvsp, yylsp, mc, oxml, result, error_msg);
+                  yystos[yystate], yyvsp, yylsp, mc, oxml, result, error_msg, scanner);
       YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
@@ -1821,7 +1656,7 @@ yyabortlab:
 | yyexhaustedlab -- memory exhaustion comes here.  |
 `-------------------------------------------------*/
 yyexhaustedlab:
-  yyerror (&yylloc, mc, oxml, result, error_msg, YY_("memory exhausted"));
+  yyerror (&yylloc, mc, oxml, result, error_msg, scanner, YY_("memory exhausted"));
   yyresult = 2;
   /* Fall through.  */
 #endif
@@ -1833,7 +1668,7 @@ yyreturn:
          user semantic actions for why this is necessary.  */
       yytoken = YYTRANSLATE (yychar);
       yydestruct ("Cleanup: discarding lookahead",
-                  yytoken, &yylval, &yylloc, mc, oxml, result, error_msg);
+                  yytoken, &yylval, &yylloc, mc, oxml, result, error_msg, scanner);
     }
   /* Do not reclaim the symbols of the rule whose action triggered
      this YYABORT or YYACCEPT.  */
@@ -1842,7 +1677,7 @@ yyreturn:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-                  yystos[*yyssp], yyvsp, yylsp, mc, oxml, result, error_msg);
+                  yystos[*yyssp], yyvsp, yylsp, mc, oxml, result, error_msg, scanner);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
@@ -1855,15 +1690,16 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 240 "expr_bool.y" /* yacc.c:1906  */
+#line 114 "expr_arith.y" /* yacc.c:1906  */
 
 
-extern "C" void expr_bool__error(
+void expr_arith_error(
     YYLTYPE *       llocp,
     mem_collector * mc,
     ObjectXML *     oxml,
-    bool&           result,
+    int&            result,
     char **         error_msg,
+    yyscan_t        scanner,
     const char *    str)
 {
     int length;
@@ -1874,7 +1710,7 @@ extern "C" void expr_bool__error(
 
     if (*error_msg != 0)
     {
-      snprintf(*error_msg,
+        snprintf(*error_msg,
             length,
             "%s at line %i, columns %i:%i",
             str,
@@ -1882,6 +1718,4 @@ extern "C" void expr_bool__error(
             llocp->first_column,
             llocp->last_column);
     }
-
-    result = false;
 }

@@ -31,7 +31,7 @@ Image * ImageManager::acquire_image(int vm_id, int image_id, bool attach,
     Image * img;
     int     rc;
 
-    img = ipool->get(image_id,true);
+    img = ipool->get(image_id);
 
     if ( img == 0 )
     {
@@ -61,7 +61,7 @@ Image * ImageManager::acquire_image(int vm_id, const string& name, int uid,
     Image * img;
     int     rc;
 
-    img = ipool->get(name,uid,true);
+    img = ipool->get(name,uid);
 
     if ( img == 0 )
     {
@@ -206,7 +206,7 @@ void ImageManager::release_image(int vm_id, int iid, bool failed)
 {
     ostringstream oss;
 
-    Image * img = ipool->get(iid,true);
+    Image * img = ipool->get(iid);
 
     if ( img == 0 )
     {
@@ -318,7 +318,7 @@ void ImageManager::release_image(int vm_id, int iid, bool failed)
 void ImageManager::release_cloning_resource(
         int iid, PoolObjectSQL::ObjectType ot, int clone_oid)
 {
-    Image * img = ipool->get(iid,true);
+    Image * img = ipool->get(iid);
 
     if ( img == 0 )
     {
@@ -380,7 +380,7 @@ int ImageManager::enable_image(int iid, bool to_enable, string& error_str)
 
     ostringstream oss;
 
-    img = ipool->get(iid,true);
+    img = ipool->get(iid);
 
     if ( img == 0 )
     {
@@ -459,7 +459,7 @@ int ImageManager::delete_image(int iid, string& error_str)
 
     ostringstream oss;
 
-    img = ipool->get(iid,true);
+    img = ipool->get(iid);
 
     if ( img == 0 )
     {
@@ -471,7 +471,7 @@ int ImageManager::delete_image(int iid, string& error_str)
 
     img->unlock();
 
-    ds = dspool->get(ds_id, true);
+    ds = dspool->get(ds_id);
 
     if ( ds == 0 )
     {
@@ -483,7 +483,7 @@ int ImageManager::delete_image(int iid, string& error_str)
 
     ds->unlock();
 
-    img = ipool->get(iid,true);
+    img = ipool->get(iid);
 
     if ( img == 0 )
     {
@@ -604,7 +604,7 @@ int ImageManager::delete_image(int iid, string& error_str)
         release_cloning_image(cloning_id, iid);
     }
 
-    ds = dspool->get(ds_id, true);
+    ds = dspool->get(ds_id);
 
     if ( ds != 0 )
     {
@@ -624,7 +624,7 @@ int ImageManager::delete_image(int iid, string& error_str)
         VirtualMachine*     vm;
         VirtualMachinePool* vmpool = Nebula::instance().get_vmpool();
 
-        if ((vm = vmpool->get(vm_saving_id, true)) != 0)
+        if ((vm = vmpool->get(vm_saving_id)) != 0)
         {
             vm->clear_saveas_state();
 
@@ -646,7 +646,7 @@ int ImageManager::can_clone_image(int cloning_id, ostringstream&  oss_error)
 {
     Image *       img;
 
-    img = ipool->get(cloning_id, true);
+    img = ipool->get(cloning_id);
 
     if (img == 0)
     {
@@ -690,7 +690,7 @@ int ImageManager::set_clone_state(
         PoolObjectSQL::ObjectType ot, int new_id, int cloning_id, string& error)
 {
     int     rc  = 0;
-    Image * img = ipool->get(cloning_id, true);
+    Image * img = ipool->get(cloning_id);
 
     if (img == 0)
     {
@@ -770,7 +770,7 @@ int ImageManager::clone_image(int   new_id,
         return -1;
     }
 
-    img = ipool->get(new_id,true);
+    img = ipool->get(new_id);
 
     if (img == 0)
     {
@@ -821,7 +821,7 @@ int ImageManager::register_image(int iid,
         return -1;
     }
 
-    img = ipool->get(iid,true);
+    img = ipool->get(iid);
 
     if (img == 0)
     {
@@ -1000,7 +1000,7 @@ string * ImageManager::format_message(
 
 void ImageManager::set_image_snapshots(int iid, const Snapshots& s)
 {
-    Image * img = ipool->get(iid,true);
+    Image * img = ipool->get(iid);
 
     if ( img == 0 )
     {
@@ -1039,7 +1039,7 @@ void ImageManager::set_image_snapshots(int iid, const Snapshots& s)
 
 void ImageManager::set_image_size(int iid, long long size)
 {
-    Image * img = ipool->get(iid,true);
+    Image * img = ipool->get(iid);
 
     if ( img == 0 )
     {
@@ -1088,7 +1088,7 @@ int ImageManager::delete_snapshot(int iid, int sid, string& error)
         return -1;
     }
 
-    Image * img = ipool->get(iid,true);
+    Image * img = ipool->get(iid);
 
     if ( img == 0 )
     {
@@ -1105,7 +1105,7 @@ int ImageManager::delete_snapshot(int iid, int sid, string& error)
 
     string ds_data;
 
-    Datastore * ds = dspool->get(ds_id, true);
+    Datastore * ds = dspool->get(ds_id);
 
     if ( ds == 0 )
     {
@@ -1122,7 +1122,7 @@ int ImageManager::delete_snapshot(int iid, int sid, string& error)
     /*    state is READY                                                      */
     /*    snapshot can be deleted (not active, no childs, exists)             */
     /* ---------------------------------------------------------------------- */
-    img = ipool->get(iid,true);
+    img = ipool->get(iid);
 
     if ( img == 0 )
     {
@@ -1181,7 +1181,7 @@ int ImageManager::revert_snapshot(int iid, int sid, string& error)
         return -1;
     }
 
-    Image * img = ipool->get(iid,true);
+    Image * img = ipool->get(iid);
 
     if ( img == 0 )
     {
@@ -1198,7 +1198,7 @@ int ImageManager::revert_snapshot(int iid, int sid, string& error)
 
     string ds_data;
 
-    Datastore * ds = dspool->get(ds_id, true);
+    Datastore * ds = dspool->get(ds_id);
 
     if ( ds == 0 )
     {
@@ -1216,7 +1216,7 @@ int ImageManager::revert_snapshot(int iid, int sid, string& error)
     /*    snapshot exists                                                     */
     /*    snapshot is not the active one                                      */
     /* ---------------------------------------------------------------------- */
-    img = ipool->get(iid,true);
+    img = ipool->get(iid);
 
     if ( img == 0 )
     {
@@ -1285,7 +1285,7 @@ int ImageManager::flatten_snapshot(int iid, int sid, string& error)
         return -1;
     }
 
-    Image * img = ipool->get(iid,true);
+    Image * img = ipool->get(iid);
 
     if ( img == 0 )
     {
@@ -1302,7 +1302,7 @@ int ImageManager::flatten_snapshot(int iid, int sid, string& error)
 
     string ds_data;
 
-    Datastore * ds = dspool->get(ds_id, true);
+    Datastore * ds = dspool->get(ds_id);
 
     if ( ds == 0 )
     {
@@ -1320,7 +1320,7 @@ int ImageManager::flatten_snapshot(int iid, int sid, string& error)
     /*    snapshot exists                                                     */
     /* ---------------------------------------------------------------------- */
 
-    img = ipool->get(iid,true);
+    img = ipool->get(iid);
 
     if ( img == 0 )
     {

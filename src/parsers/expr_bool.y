@@ -14,7 +14,38 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+
 %{
+#include "expr_bool.h"
+#include "expr_parser.h"
+
+#define YYERROR_VERBOSE
+#define expr_bool_lex expr_lex
+
+void expr_bool_error(YYLTYPE * llocp, mem_collector * mc, ObjectXML * oxml,
+    bool& result, char ** error_msg, yyscan_t scanner, const char * str);
+
+int expr_bool_lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc,
+    yyscan_t scanner);
+
+int expr_bool_parse(ObjectXML *oxml, bool& result, char ** errmsg,
+    yyscan_t scanner)
+{
+    mem_collector mc;
+    int           rc;
+
+    mem_collector_init(&mc);
+
+    rc = expr_bool_parse(&mc, oxml, result, errmsg, scanner);
+
+    mem_collector_cleanup(&mc);
+
+    return rc;
+}
+
+%}
+
+%code requires {
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -26,53 +57,24 @@
 #include <string.h>
 #include <fnmatch.h>
 
-#include "expr_bool.h"
+#include "mem_collector.h"
+
 #include "ObjectXML.h"
 
-#define YYERROR_VERBOSE
-#define expr_bool__lex expr_lex
+typedef void * yyscan_t;
 
-extern "C"
-{
-    #include "mem_collector.h"
-
-    void expr_bool__error(
-        YYLTYPE *       llocp,
-        mem_collector * mc,
-        ObjectXML *     oxml,
-        bool&           result,
-        char **         error_msg,
-        const char *    str);
-
-    int expr_bool__lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc);
-
-    int expr_bool__parse(mem_collector * mc,
-                         ObjectXML *     oxml,
-                         bool&           result,
-                         char **         errmsg);
-
-    int expr_bool_parse(ObjectXML *oxml, bool& result, char ** errmsg)
-    {
-        mem_collector mc;
-        int           rc;
-
-        mem_collector_init(&mc);
-
-        rc = expr_bool__parse(&mc,oxml,result,errmsg);
-
-        mem_collector_cleanup(&mc);
-
-        return rc;
-    }
+int expr_bool_parse(ObjectXML *oxml, bool& result, char ** errmsg,
+    yyscan_t scanner);
 }
-%}
 
 %parse-param {mem_collector * mc}
-%parse-param {ObjectXML *     oxml}
-%parse-param {bool&           result}
-%parse-param {char **         error_msg}
+%parse-param {ObjectXML * oxml}
+%parse-param {bool& result}
+%parse-param {char ** error_msg}
+%parse-param {yyscan_t scanner}
 
 %lex-param {mem_collector * mc}
+%lex-param {yyscan_t scanner}
 
 %union {
     char *  val_str;
@@ -83,7 +85,7 @@ extern "C"
 %defines
 %locations
 %pure-parser
-%name-prefix "expr_bool__"
+%name-prefix "expr_bool_"
 %output      "expr_bool.cc"
 
 %left '!' '&' '|'
@@ -239,12 +241,13 @@ expr:   STRING '=' INTEGER {
 
 %%
 
-extern "C" void expr_bool__error(
+void expr_bool_error(
     YYLTYPE *       llocp,
     mem_collector * mc,
     ObjectXML *     oxml,
     bool&           result,
     char **         error_msg,
+    yyscan_t        scanner,
     const char *    str)
 {
     int length;

@@ -80,9 +80,9 @@ public:
      *    @param lock locks the User mutex
      *    @return a pointer to the User, 0 if the User could not be loaded
      */
-    User * get(int oid, bool lock)
+    User * get(int oid)
     {
-        User * u = static_cast<User *>(PoolSQL::get(oid,lock));
+        User * u = static_cast<User *>(PoolSQL::get(oid));
 
         if ( u != 0 )
         {
@@ -99,10 +99,10 @@ public:
      *    @param lock locks the User mutex
      *    @return a pointer to the User, 0 if the User could not be loaded
      */
-    User * get(string name, bool lock)
+    User * get(string name)
     {
         // The owner is set to -1, because it is not used in the key() method
-        User * u = static_cast<User *>(PoolSQL::get(name,-1,lock));
+        User * u = static_cast<User *>(PoolSQL::get(name,-1));
 
         if ( u != 0 )
         {
@@ -110,19 +110,6 @@ public:
         }
 
         return u;
-    };
-
-    /**
-     *  Generate an index key for the object
-     *    @param name of the object
-     *    @param uid owner of the object, only used if needed
-     *
-     *    @return the key, a string
-     */
-    string key(const string& name, int uid)
-    {
-        // Name is enough key because Users can't repeat names.
-        return name;
     };
 
     /**
@@ -296,18 +283,6 @@ private:
     {
         return new User(-1,-1,"","","",UserPool::CORE_AUTH,true);
     };
-
-    //--------------------------------------------------------------------------
-    //--------------------------------------------------------------------------
-
-    /**
-     *  Callback function to  output in XML format
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int dump_cb(void * _oss, int num, char **values, char **names);
 };
 
 #endif /*USER_POOL_H_*/

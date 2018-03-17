@@ -45,7 +45,7 @@ int MarketPlaceManager::import_app(
 
     const MarketPlaceManagerDriver* mpmd;
 
-    MarketPlaceApp * app = apppool->get(appid, true);
+    MarketPlaceApp * app = apppool->get(appid);
 
     if ( app == 0 )
     {
@@ -65,7 +65,7 @@ int MarketPlaceManager::import_app(
     switch (type)
     {
         case MarketPlaceApp::IMAGE:
-            image = ipool->get(origin_id, true);
+            image = ipool->get(origin_id);
 
 			if ( image == 0 )
 			{
@@ -78,7 +78,7 @@ int MarketPlaceManager::import_app(
 
             image->unlock();
 
-            ds = dspool->get(ds_id, true);
+            ds = dspool->get(ds_id);
 
 			if ( ds == 0 )
 			{
@@ -133,7 +133,7 @@ error_type:
 
 error_clone:
 error_common:
-    app = apppool->get(appid, true);
+    app = apppool->get(appid);
 
     if ( app == 0 )
     {
@@ -158,7 +158,7 @@ error_common:
 
 void MarketPlaceManager::release_app_resources(int appid)
 {
-    MarketPlaceApp * app = apppool->get(appid, true);
+    MarketPlaceApp * app = apppool->get(appid);
 
     if (app == 0)
     {
@@ -204,7 +204,7 @@ int MarketPlaceManager::delete_app(int appid, const std::string& market_data,
         return -1;
     }
 
-    app = apppool->get(appid, true);
+    app = apppool->get(appid);
 
     if (app == 0)
     {
@@ -243,7 +243,7 @@ int MarketPlaceManager::delete_app(int appid, const std::string& market_data,
             return -1;
     }
 
-    mp = mppool->get(market_id, true);
+    mp = mppool->get(market_id);
 
     if ( mp != 0 )
     {

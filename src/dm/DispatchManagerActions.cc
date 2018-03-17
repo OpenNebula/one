@@ -276,7 +276,7 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
 
     if (vrid != -1)
     {
-        VirtualRouter* vr = vrouterpool->get(vrid, true);
+        VirtualRouter* vr = vrouterpool->get(vrid);
 
         if (vr != 0)
         {
@@ -298,7 +298,7 @@ int DispatchManager::terminate(int vid, bool hard, const RequestAttributes& ra,
     int rc = 0;
     ostringstream oss;
 
-    VirtualMachine * vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -389,7 +389,7 @@ int DispatchManager::undeploy(int vid, bool hard, const RequestAttributes& ra,
 {
     ostringstream oss;
 
-    VirtualMachine * vm = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -444,7 +444,7 @@ int DispatchManager::poweroff (int vid, bool hard, const RequestAttributes& ra,
 {
     ostringstream oss;
 
-    VirtualMachine * vm = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -499,7 +499,7 @@ int DispatchManager::hold(int vid, const RequestAttributes& ra,
 {
     ostringstream oss;
 
-    VirtualMachine * vm = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -547,7 +547,7 @@ int DispatchManager::release(int vid, const RequestAttributes& ra,
 {
     ostringstream oss;
 
-    VirtualMachine * vm = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -615,7 +615,7 @@ int DispatchManager::stop(int vid, const RequestAttributes& ra,
 {
     ostringstream oss;
 
-    VirtualMachine * vm = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -662,7 +662,7 @@ int DispatchManager::suspend(int vid, const RequestAttributes& ra,
 {
     ostringstream oss;
 
-    VirtualMachine * vm = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -708,7 +708,7 @@ int DispatchManager::resume(int vid, const RequestAttributes& ra,
 {
     ostringstream oss;
 
-    VirtualMachine * vm = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -787,7 +787,7 @@ int DispatchManager::reboot(int vid, bool hard, const RequestAttributes& ra,
 {
     ostringstream oss;
 
-    VirtualMachine * vm = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -845,7 +845,7 @@ int DispatchManager::resched(int vid, bool do_resched,
 {
     ostringstream oss;
 
-    VirtualMachine * vm = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -1005,7 +1005,7 @@ int DispatchManager::delete_vm(VirtualMachine * vm, const RequestAttributes& ra,
 
     if(host_id != -1)
     {
-        Host * host = hpool->get(host_id,true);
+        Host * host = hpool->get(host_id);
 
         if ( host == 0 )
         {
@@ -1192,7 +1192,7 @@ int DispatchManager::attach(int vid, VirtualMachineTemplate * tmpl,
 {
     ostringstream oss;
 
-    VirtualMachine * vm = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -1297,7 +1297,7 @@ int DispatchManager::detach(int vid, int disk_id, const RequestAttributes& ra,
 {
     ostringstream oss;
 
-    VirtualMachine * vm = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -1392,7 +1392,7 @@ int DispatchManager::snapshot_create(int vid, string& name, int& snap_id,
 {
     ostringstream oss;
 
-    VirtualMachine * vm = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -1443,7 +1443,7 @@ int DispatchManager::snapshot_revert(int vid, int snap_id,
 
     int rc;
 
-    VirtualMachine * vm = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -1506,7 +1506,7 @@ int DispatchManager::snapshot_delete(int vid, int snap_id,
 
     int rc;
 
-    VirtualMachine * vm = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -1569,7 +1569,7 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
 {
     ostringstream oss;
 
-    VirtualMachine * vm = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -1671,7 +1671,7 @@ int DispatchManager::detach_nic(int vid, int nic_id,const RequestAttributes& ra,
     ostringstream oss;
     string        tmp_error;
 
-    VirtualMachine * vm = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -1770,7 +1770,7 @@ int DispatchManager::disk_snapshot_create(int vid, int did, const string& name,
     ostringstream oss;
     time_t        the_time;
 
-    VirtualMachine * vm = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -1884,7 +1884,7 @@ int DispatchManager::disk_snapshot_revert(int vid, int did, int snap_id,
 {
     ostringstream oss;
 
-    VirtualMachine * vm = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -1960,7 +1960,7 @@ int DispatchManager::disk_snapshot_delete(int vid, int did, int snap_id,
     ostringstream oss;
     time_t        the_time;
 
-    VirtualMachine * vm = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -2083,7 +2083,7 @@ int DispatchManager::disk_resize(int vid, int did, long long new_size,
     ostringstream oss;
     time_t        the_time;
 
-    VirtualMachine * vm = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {

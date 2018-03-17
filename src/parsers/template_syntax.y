@@ -15,6 +15,36 @@
 /* -------------------------------------------------------------------------- */
 
 %{
+#include "template_syntax.h"
+#include "template_parser.h"
+#include "NebulaUtil.h"
+
+#define YYERROR_VERBOSE
+
+void template_error( YYLTYPE * llocp, mem_collector * mc, Template * tmpl,
+    char ** error_msg, yyscan_t scanner, const char * str);
+
+int template_lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc,
+    yyscan_t scanner);
+
+int template_parse(Template * tmpl, char ** errmsg, yyscan_t scanner)
+{
+    mem_collector mc;
+    int           rc;
+
+    mem_collector_init(&mc);
+
+    rc = template_parse(&mc, tmpl, errmsg, scanner);
+
+    mem_collector_cleanup(&mc);
+
+    return rc;
+}
+
+static string& unescape (string &str);
+%}
+
+%code requires {
 #include <iostream>
 #include <string>
 #include <map>
@@ -23,53 +53,23 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdio.h>
-#include "template_syntax.h"
+
+#include "mem_collector.h"
+
 #include "Template.h"
 
-#define template__lex template_lex
+typedef void * yyscan_t;
 
-#define YYERROR_VERBOSE
-#define TEMPLATE_TO_UPPER(S) transform (S.begin(),S.end(),S.begin(), \
-(int(*)(int))toupper)
-extern "C"
-{
-    #include "mem_collector.h"
-
-    void template__error(
-        YYLTYPE *       llocp,
-        mem_collector * mc,
-        Template *      tmpl,
-        char **         error_msg,
-        const char *    str);
-
-    int template__lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc);
-
-    int template__parse(mem_collector * mc, Template * tmpl, char ** errmsg);
-
-    int template_parse(Template * tmpl, char ** errmsg)
-    {
-        mem_collector mc;
-        int           rc;
-
-        mem_collector_init(&mc);
-
-        rc = template__parse(&mc, tmpl, errmsg);
-
-        mem_collector_cleanup(&mc);
-
-        return rc;
-    }
-
-    static string& unescape (string &str);
+int template_parse(Template * tmpl, char ** errmsg, yyscan_t scanner);
 }
 
-%}
-
 %parse-param {mem_collector * mc}
-%parse-param {Template *      tmpl}
-%parse-param {char **         error_msg}
+%parse-param {Template * tmpl}
+%parse-param {char ** error_msg}
+%parse-param {yyscan_t scanner}
 
 %lex-param {mem_collector * mc}
+%lex-param {yyscan_t scanner}
 
 %union {
     char * val_str;
@@ -79,7 +79,7 @@ extern "C"
 %defines
 %locations
 %pure-parser
-%name-prefix "template__"
+%name-prefix "template_"
 %output      "template_syntax.cc"
 
 %token EQUAL COMMA OBRACKET CBRACKET EQUAL_EMPTY CCDATA
@@ -153,7 +153,7 @@ array_val:  VARIABLE EQUAL STRING
                 string              name($1);
                 string              value($3);
 
-                TEMPLATE_TO_UPPER(name);
+                one_util::toupper(name);
 
                 vattr = new map<string,string>;
                 vattr->insert(make_pair(name,unescape(value)));
@@ -166,7 +166,7 @@ array_val:  VARIABLE EQUAL STRING
                 string               value($5);
                 map<string,string> * attrmap;
 
-                TEMPLATE_TO_UPPER(name);
+                one_util::toupper(name);
 
                 attrmap = static_cast<map<string,string> *>($1);
 
@@ -188,11 +188,12 @@ string& unescape (string &str)
     return str;
 }
 
-extern "C" void template__error(
+void template_error(
     YYLTYPE *       llocp,
     mem_collector * mc,
     Template *      tmpl,
     char **         error_msg,
+    yyscan_t        scanner,
     const char *    str)
 {
     int length;

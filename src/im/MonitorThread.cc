@@ -78,7 +78,7 @@ void MonitorThread::do_message()
         hinfo = zinfo;
     }
 
-    Host* host = hpool->get(host_id,true);
+    Host* host = hpool->get(host_id);
 
     if ( host == 0 )
     {
@@ -148,7 +148,7 @@ void MonitorThread::do_message()
 
     if (cid != -1)
     {
-        Cluster *cluster = cpool->get(cid, true);
+        Cluster *cluster = cpool->get(cid);
 
         if (cluster != 0)
         {
@@ -160,7 +160,7 @@ void MonitorThread::do_message()
 
     for (itm = datastores.begin(); itm != datastores.end(); itm++)
     {
-        ds = dspool->get(itm->first, true);
+        ds = dspool->get(itm->first);
 
         if (ds == 0)
         {
@@ -186,7 +186,7 @@ void MonitorThread::do_message()
 
     ostringstream   oss;
 
-    host = hpool->get(host_id,true);
+    host = hpool->get(host_id);
 
     if ( host == 0 )
     {
@@ -227,7 +227,7 @@ void MonitorThread::do_message()
 
         for (its = lost.begin(); its != lost.end(); its++)
         {
-            VirtualMachine * vm = vmpool->get(*its, true);
+            VirtualMachine * vm = vmpool->get(*its);
 
             if (vm == 0)
             {
@@ -263,7 +263,7 @@ void MonitorThread::do_message()
 
         for (itm = found.begin(); itm != found.end(); itm++)
         {
-            VirtualMachine * vm = vmpool->get(itm->first, true);
+            VirtualMachine * vm = vmpool->get(itm->first);
 
             if (vm == 0)
             {
@@ -289,7 +289,7 @@ void MonitorThread::do_message()
 
         // The rediscovered set is not stored in the DB, the update method
         // is not needed
-        host = hpool->get(host_id,true);
+        host = hpool->get(host_id);
 
         if ( host != 0 )
         {

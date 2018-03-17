@@ -35,7 +35,7 @@ void DatastoreEnable::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    ds = static_cast<Datastore *>(pool->get(id,true));
+    ds = static_cast<Datastore *>(pool->get(id));
 
     if ( ds == 0 )
     {

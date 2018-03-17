@@ -67,7 +67,7 @@ public:
     {
         int rc = -1;
 
-        Cluster * cluster = get(oid, true);
+        Cluster * cluster = get(oid);
 
         if ( cluster != 0 )
         {
@@ -88,7 +88,7 @@ public:
      */
     void release_vnc_port(int oid, unsigned int port)
     {
-        Cluster * cluster = get(oid, true);
+        Cluster * cluster = get(oid);
 
         if ( cluster != 0 )
         {
@@ -111,7 +111,7 @@ public:
     {
         int rc = -1;
 
-        Cluster * cluster = get(oid, true);
+        Cluster * cluster = get(oid);
 
         if ( cluster != 0 )
         {
@@ -147,36 +147,9 @@ public:
      *    @param lock locks the cluster mutex
      *    @return a pointer to the cluster, 0 if the cluster could not be loaded
      */
-    Cluster * get(int oid, bool lock)
+    Cluster * get(int oid)
     {
-        return static_cast<Cluster *>(PoolSQL::get(oid,lock));
-    };
-
-    /**
-     *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
-     *   @param name of the object
-     *   @param lock locks the object if true
-     *
-     *   @return a pointer to the object, 0 in case of failure
-     */
-    Cluster * get(const string& name, bool lock)
-    {
-        // The owner is set to -1, because it is not used in the key() method
-        return static_cast<Cluster *>(PoolSQL::get(name,-1,lock));
-    };
-
-    /**
-     *  Generate an index key for the object
-     *    @param name of the object
-     *    @param uid owner of the object, only used if needed
-     *
-     *    @return the key, a string
-     */
-    string key(const string& name, int uid)
-    {
-        // Name is enough key because Clusters can't repeat names.
-        return name;
+        return static_cast<Cluster *>(PoolSQL::get(oid));
     };
 
     /**
@@ -262,11 +235,6 @@ private:
     {
         return new Cluster(-1,"",0, &vnc_conf);
     };
-
-
-    int get_clusters_cb(
-            void * _cluster_ids, int num, char **values, char **names);
-
 };
 
 #endif /*CLUSTER_POOL_H_*/

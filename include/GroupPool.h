@@ -79,36 +79,9 @@ public:
      *    @param lock locks the group mutex
      *    @return a pointer to the group, 0 if the group could not be loaded
      */
-    Group * get(int oid, bool lock)
+    Group * get(int oid)
     {
-        return static_cast<Group *>(PoolSQL::get(oid,lock));
-    };
-
-    /**
-     *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
-     *   @param name of the object
-     *   @param lock locks the object if true
-     *
-     *   @return a pointer to the object, 0 in case of failure
-     */
-    Group * get(const string& name, bool lock)
-    {
-        // The owner is set to -1, because it is not used in the key() method
-        return static_cast<Group *>(PoolSQL::get(name,-1,lock));
-    };
-
-    /**
-     *  Generate an index key for the object
-     *    @param name of the object
-     *    @param uid owner of the object, only used if needed
-     *
-     *    @return the key, a string
-     */
-    string key(const string& name, int uid)
-    {
-        // Name is enough key because Groups can't repeat names.
-        return name;
+        return static_cast<Group *>(PoolSQL::get(oid));
     };
 
     /**
@@ -120,7 +93,7 @@ public:
     {
         static string error_str = "";
 
-        Group * group = get(gid, true);
+        Group * group = get(gid);
 
         if ( group == 0 )
         {
@@ -190,15 +163,6 @@ private:
     {
         return new Group(-1,"");
     };
-
-    /**
-     *  Callback function to get output in XML format
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int dump_cb(void * _oss, int num, char **values, char **names);
 };
 
 #endif /*GROUP_POOL_H_*/

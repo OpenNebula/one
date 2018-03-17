@@ -16,6 +16,7 @@
 
 #include "Template.h"
 #include "template_syntax.h"
+#include "template_parser.h"
 #include "NebulaUtil.h"
 
 #include <iostream>
@@ -39,57 +40,40 @@ Template::~Template()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-pthread_mutex_t Template::mutex = PTHREAD_MUTEX_INITIALIZER;
-
-extern "C"
-{
-    typedef struct yy_buffer_state * YY_BUFFER_STATE;
-
-    extern FILE *template_in, *template_out;
-
-    int template_parse(Template * tmpl, char ** errmsg);
-
-    int template_lex_destroy();
-
-    YY_BUFFER_STATE template__scan_string(const char * str);
-
-    void template__delete_buffer(YY_BUFFER_STATE);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int Template::parse(const char * filename, char **error_msg)
 {
-    int     rc;
+    int rc;
 
-    pthread_mutex_lock(&mutex);
+    yyscan_t scanner = 0;
+
+    YY_BUFFER_STATE file_buffer = 0;
+
+    template_lex_init(&scanner);
 
     *error_msg = 0;
 
-    template_in = fopen (filename, "r");
+    FILE * template_in = fopen (filename, "r");
 
     if ( template_in == 0 )
     {
-        goto error_open;
+        *error_msg = strdup("Error opening template file");
+
+        return -1;
     }
 
-    rc = template_parse(this,error_msg);
+    file_buffer = template__create_buffer(template_in, YY_BUF_SIZE, scanner);
+
+    template__switch_to_buffer(file_buffer, scanner);
+
+    rc = template_parse(this, error_msg, scanner);
 
     fclose(template_in);
 
-    template_lex_destroy();
+    template__delete_buffer(file_buffer, scanner);
 
-    pthread_mutex_unlock(&mutex);
+    template_lex_destroy(scanner);
 
     return rc;
-
-error_open:
-    *error_msg = strdup("Error opening template file");
-
-    pthread_mutex_unlock(&mutex);
-
-    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -97,40 +81,34 @@ error_open:
 
 int Template::parse(const string &parse_str, char **error_msg)
 {
-    YY_BUFFER_STATE     str_buffer = 0;
-    const char *        str;
-    int                 rc;
+    const char * str;
+    int rc;
 
-    pthread_mutex_lock(&mutex);
+    YY_BUFFER_STATE str_buffer = 0;
+    yyscan_t scanner = 0;
 
     *error_msg = 0;
 
+    template_lex_init(&scanner);
+
     str = parse_str.c_str();
 
-    str_buffer = template__scan_string(str);
+    str_buffer = template__scan_string(str, scanner);
 
     if (str_buffer == 0)
     {
-        goto error_yy;
+        *error_msg=strdup("Error setting scan buffer");
+
+        return -1;
     }
 
-    rc = template_parse(this,error_msg);
+    rc = template_parse(this, error_msg, scanner);
 
-    template__delete_buffer(str_buffer);
+    template__delete_buffer(str_buffer, scanner);
 
-    template_lex_destroy();
-
-    pthread_mutex_unlock(&mutex);
+    template_lex_destroy(scanner);
 
     return rc;
-
-error_yy:
-
-    *error_msg=strdup("Error setting scan buffer");
-
-    pthread_mutex_unlock(&mutex);
-
-    return -1;
 }
 
 /* -------------------------------------------------------------------------- */

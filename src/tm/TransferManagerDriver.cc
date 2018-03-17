@@ -88,7 +88,7 @@ void TransferManagerDriver::protocol(const string& message) const
         return;
 
     // Get the VM from the pool
-    vm = vmpool->get(id,true);
+    vm = vmpool->get(id);
 
     if ( vm == 0 )
     {

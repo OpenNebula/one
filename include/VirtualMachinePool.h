@@ -78,18 +78,16 @@ public:
      *    @return a pointer to the VM, 0 if the VM could not be loaded
      */
     VirtualMachine * get(
-        int     oid,
-        bool    lock)
+        int     oid)
     {
-        return static_cast<VirtualMachine *>(PoolSQL::get(oid,lock));
+        return static_cast<VirtualMachine *>(PoolSQL::get(oid));
     };
 
     /**
      *  Function to get a VM from the pool, string version for VM ID
      */
     VirtualMachine * get(
-        const string& oid_s,
-        bool          lock)
+        const string& oid_s)
     {
         istringstream iss(oid_s);
         int           oid;
@@ -101,7 +99,7 @@ public:
             return 0;
         }
 
-        return static_cast<VirtualMachine *>(PoolSQL::get(oid,lock));
+        return static_cast<VirtualMachine *>(PoolSQL::get(oid));
     };
 
     /**

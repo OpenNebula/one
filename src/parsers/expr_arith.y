@@ -15,6 +15,36 @@
 /* -------------------------------------------------------------------------- */
 
 %{
+#include "expr_arith.h"
+#include "expr_parser.h"
+
+#define YYERROR_VERBOSE
+#define expr_arith_lex expr_lex
+
+
+void expr_arith_error(YYLTYPE * llocp, mem_collector * mc, ObjectXML * oxml,
+        int& result, char ** error_msg, yyscan_t scanner, const char * str);
+
+int expr_arith_lex(YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc,
+    yyscan_t scanner);
+
+int expr_arith_parse(ObjectXML *oxml, int& result, char ** errmsg,
+    yyscan_t scanner)
+{
+    mem_collector mc;
+    int           rc;
+
+    mem_collector_init(&mc);
+
+    rc = expr_arith_parse(&mc, oxml, result, errmsg, scanner);
+
+    mem_collector_cleanup(&mc);
+
+    return rc;
+}
+%}
+
+%code requires {
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -26,54 +56,23 @@
 #include <string.h>
 #include <fnmatch.h>
 
-#include "expr_arith.h"
+#include "mem_collector.h"
 #include "ObjectXML.h"
 
-#define YYERROR_VERBOSE
-#define expr_arith__lex expr_lex
+typedef void * yyscan_t;
 
-extern "C"
-{
-    #include "mem_collector.h"
-
-    void expr_arith__error(
-        YYLTYPE *       llocp,
-        mem_collector * mc,
-        ObjectXML *     oxml,
-        int&            result,
-        char **         error_msg,
-        const char *    str);
-
-    int expr_arith__lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc);
-
-    int expr_arith__parse(mem_collector * mc,
-                          ObjectXML *     oxml,
-                          int&            result,
-                          char **         errmsg);
-
-    int expr_arith_parse(ObjectXML *oxml, int& result, char ** errmsg)
-    {
-        mem_collector mc;
-        int           rc;
-
-        mem_collector_init(&mc);
-
-        rc = expr_arith__parse(&mc,oxml,result,errmsg);
-
-        mem_collector_cleanup(&mc);
-
-        return rc;
-    }
+int expr_arith_parse(ObjectXML *oxml, int& result, char ** errmsg,
+    yyscan_t scanner);
 }
-
-%}
 
 %parse-param {mem_collector * mc}
 %parse-param {ObjectXML * oxml}
-%parse-param {int&        result}
-%parse-param {char **     error_msg}
+%parse-param {int& result}
+%parse-param {char ** error_msg}
+%parse-param {yyscan_t scanner}
 
 %lex-param {mem_collector * mc}
+%lex-param {yyscan_t scanner}
 
 %union {
     char *  val_str;
@@ -84,7 +83,7 @@ extern "C"
 %defines
 %locations
 %pure-parser
-%name-prefix "expr_arith__"
+%name-prefix "expr_arith_"
 %output      "expr_arith.cc"
 
 %left '+' '-'
@@ -114,12 +113,13 @@ expr:   STRING              { float val; oxml->search($1, val); $$ = val; }
 
 %%
 
-extern "C" void expr_arith__error(
+void expr_arith_error(
     YYLTYPE *       llocp,
     mem_collector * mc,
     ObjectXML *     oxml,
     int&            result,
     char **         error_msg,
+    yyscan_t        scanner,
     const char *    str)
 {
     int length;

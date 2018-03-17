@@ -69,8 +69,6 @@ protected:
      * @return 0 if the operation is allowed, -1 otherwise
      */
     virtual int check_name_unique(int oid, int noid, RequestAttributes& att);
-
-    virtual PoolObjectSQL * get(const string& name, int uid, bool lock) = 0;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -94,11 +92,6 @@ public:
     {
         return 0;
     };
-
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
-    {
-        return 0;
-    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -117,11 +110,6 @@ public:
     };
 
     ~TemplateChown(){};
-
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
-    {
-        return static_cast<VMTemplatePool*>(pool)->get(name, uid, lock);
-    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -141,11 +129,6 @@ public:
     };
 
     ~VirtualNetworkChown(){};
-
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
-    {
-        return static_cast<VirtualNetworkPool*>(pool)->get(name, uid, lock);
-    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -164,11 +147,6 @@ public:
     };
 
     ~ImageChown(){};
-
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
-    {
-        return static_cast<ImagePool*>(pool)->get(name, uid, lock);
-    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -194,7 +172,7 @@ public:
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                                  RequestAttributes& att);
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int check_name_unique(int oid, int noid, RequestAttributes& att)
     {
         return 0;
     };
@@ -217,7 +195,7 @@ public:
 
     ~DatastoreChown(){};
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int check_name_unique(int oid, int noid, RequestAttributes& att)
     {
         return 0;
     };
@@ -240,7 +218,7 @@ public:
 
     ~DocumentChown(){};
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int check_name_unique(int oid, int noid, RequestAttributes& att)
     {
         return 0;
     };
@@ -262,11 +240,6 @@ public:
     };
 
     ~SecurityGroupChown(){};
-
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
-    {
-        return static_cast<SecurityGroupPool*>(pool)->get(name, uid, lock);
-    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -285,11 +258,6 @@ public:
     };
 
     ~VirtualRouterChown(){};
-
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
-    {
-        return static_cast<VirtualRouterPool*>(pool)->get(name, uid, lock);
-    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -309,7 +277,7 @@ public:
 
     ~MarketPlaceChown(){};
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int check_name_unique(int oid, int noid, RequestAttributes& att)
     {
         return 0;
     };
@@ -331,11 +299,6 @@ public:
     };
 
     ~MarketPlaceAppChown(){};
-
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
-    {
-        return static_cast<MarketPlaceAppPool *>(pool)->get(name, uid, lock);
-    };
 };
 
 /* -------------------------------------------------------------------------- */
@@ -354,11 +317,6 @@ public:
     };
 
     ~VMGroupChown(){};
-
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
-    {
-        return static_cast<VMGroupPool*>(pool)->get(name, uid, lock);
-    };
 };
 
 #endif

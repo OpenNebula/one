@@ -48,7 +48,8 @@ public:
             int           _port,
             const string& _user,
             const string& _password,
-            const string& _database);
+            const string& _database,
+            int           _connections);
 
     ~MySqlDB();
 
@@ -89,7 +90,7 @@ private:
     /**
      *  Number of concurrent DB connections.
      */
-    static const int  DB_CONNECT_SIZE;
+    int  max_connections;
 
     /**
      * The MySql connection pool handler
@@ -145,7 +146,8 @@ public:
             int    port,
             string user,
             string password,
-            string database)
+            string database,
+            int    connections)
     {
         throw runtime_error("Aborting oned, MySQL support not compiled!");
     };

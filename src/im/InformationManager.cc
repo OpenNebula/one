@@ -202,7 +202,7 @@ void InformationManager::timer_action(const ActionRequest& ar)
 
     for( it=discovered_hosts.begin() ; it!=discovered_hosts.end() ; ++it )
     {
-        host = hpool->get(*it,true);
+        host = hpool->get(*it);
 
         if (host == 0)
         {

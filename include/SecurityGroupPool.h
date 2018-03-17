@@ -67,23 +67,9 @@ public:
      *    @param lock locks the SecurityGroup mutex
      *    @return a pointer to the SecurityGroup, 0 if the SecurityGroup could not be loaded
      */
-    SecurityGroup * get(int oid, bool lock)
+    SecurityGroup * get(int oid)
     {
-        return static_cast<SecurityGroup *>(PoolSQL::get(oid,lock));
-    };
-
-    /**
-     *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
-     *   @param name of the object
-     *   @param uid id of owner
-     *   @param lock locks the object if true
-     *
-     *   @return a pointer to the object, 0 in case of failure
-     */
-    SecurityGroup * get(const string& name, int uid, bool lock)
-    {
-        return static_cast<SecurityGroup *>(PoolSQL::get(name,uid,lock));
+        return static_cast<SecurityGroup *>(PoolSQL::get(oid));
     };
 
     /** Update a particular SecurityGroup

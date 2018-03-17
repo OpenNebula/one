@@ -34,8 +34,8 @@ int VMTemplatePool::allocate (
         string&                  error_str)
 {
     VMTemplate *  vm_template;
-    VMTemplate *  aux = 0;
 
+    int     db_oid;
     string  name;
 
     ostringstream oss;
@@ -54,11 +54,11 @@ int VMTemplatePool::allocate (
     }
 
     // Check for duplicates
-    aux = get(name, uid, false);
+    db_oid = exist(name, uid);
 
-    if( aux != 0 )
+    if( db_oid != -1 )
     {
-            goto error_duplicated;
+        goto error_duplicated;
     }
 
     // ------------------------------------------------------------------------
@@ -71,7 +71,7 @@ int VMTemplatePool::allocate (
 
 
 error_duplicated:
-    oss << "NAME is already taken by TEMPLATE " << aux->get_oid() << ".";
+    oss << "NAME is already taken by TEMPLATE " << db_oid << ".";
     error_str = oss.str();
 
 error_name:

@@ -81,7 +81,7 @@ int VirtualMachineDisk::get_uid(int _uid)
         Nebula&    nd    = Nebula::instance();
         UserPool * upool = nd.get_upool();
 
-        user = upool->get(uname,true);
+        user = upool->get(uname);
 
         if ( user == 0 )
         {
@@ -122,7 +122,7 @@ int VirtualMachineDisk::get_image_id(int &id, int uid)
             return -1;
         }
 
-        Image * image = ipool->get(iname, uiid, true);
+        Image * image = ipool->get(iname, uiid);
 
         if ( image != 0 )
         {
@@ -185,7 +185,7 @@ void VirtualMachineDisk::authorize(int uid, AuthRequest* ar)
             return;
         }
 
-        img = ipool->get(source , uiid, true);
+        img = ipool->get(source , uiid);
 
         if ( img != 0 )
         {
@@ -194,7 +194,7 @@ void VirtualMachineDisk::authorize(int uid, AuthRequest* ar)
     }
     else if ( vector_value("IMAGE_ID", iid) == 0 )
     {
-        img = ipool->get(iid, true);
+        img = ipool->get(iid);
     }
 
     if (img == 0)

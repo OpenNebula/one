@@ -23,7 +23,7 @@ void  DispatchManager::suspend_success_action(int vid)
 {
     VirtualMachine *    vm;
 
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -65,7 +65,7 @@ void  DispatchManager::stop_success_action(int vid)
 {
     VirtualMachine *    vm;
 
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -111,7 +111,7 @@ void  DispatchManager::undeploy_success_action(int vid)
 {
     VirtualMachine *    vm;
 
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -158,7 +158,7 @@ void  DispatchManager::poweroff_success_action(int vid)
 {
     VirtualMachine *    vm;
 
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -206,7 +206,7 @@ void  DispatchManager::done_action(int vid)
     VirtualMachine::LcmState lcm_state;
     VirtualMachine::VmState  dm_state;
 
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -242,7 +242,7 @@ void  DispatchManager::resubmit_action(int vid)
 {
     VirtualMachine * vm;
 
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {

@@ -73,7 +73,7 @@ void VdcEditGroup::request_execute(
         }
     }
 
-    vdc = static_cast<VdcPool*>(pool)->get(vdc_id, true);
+    vdc = static_cast<VdcPool*>(pool)->get(vdc_id);
 
     if ( vdc  == 0 )
     {
@@ -207,7 +207,7 @@ void VdcEditResource::request_execute(
         }
     }
 
-    vdc = static_cast<VdcPool*>(pool)->get(vdc_id, true);
+    vdc = static_cast<VdcPool*>(pool)->get(vdc_id);
 
     if ( vdc  == 0 )
     {

@@ -252,12 +252,12 @@ void Nebula::start(bool bootstrap_only)
     {
         bool db_is_sqlite = true;
 
-        string server  = "localhost";
-        string port_str;
-        int    port    = 0;
-        string user    = "oneadmin";
-        string passwd  = "oneadmin";
-        string db_name = "opennebula";
+        string server;
+        int    port;
+        string user;
+        string passwd;
+        string db_name;
+        int    connections;
 
         const VectorAttribute * _db = nebula_configuration->get("DB");
 
@@ -268,42 +268,36 @@ void Nebula::start(bool bootstrap_only)
             if (value == "mysql")
             {
                 db_is_sqlite = false;
+            }
 
-                value = _db->vector_value("SERVER");
-                if (!value.empty())
-                {
-                    server = value;
-                }
+            if (_db->vector_value("SERVER", server) == -1)
+            {
+                server = "localhost";
+            }
 
-                istringstream   is;
+            if (_db->vector_value("PORT", port)  == -1)
+            {
+                port = 0;
+            }
 
-                port_str = _db->vector_value("PORT");
+            if (_db->vector_value("USER", user) == -1)
+            {
+                user = "oneadmin";
+            }
 
-                is.str(port_str);
-                is >> port;
+            if (_db->vector_value("PASSWD", passwd) == -1)
+            {
+                passwd = "oneadmin";
+            }
 
-                if( is.fail() )
-                {
-                    port = 0;
-                }
+            if (_db->vector_value("DB_NAME", db_name) == -1)
+            {
+                db_name = "opennebula";
+            }
 
-                value = _db->vector_value("USER");
-                if (!value.empty())
-                {
-                    user = value;
-                }
-
-                value = _db->vector_value("PASSWD");
-                if (!value.empty())
-                {
-                    passwd = value;
-                }
-
-                value = _db->vector_value("DB_NAME");
-                if (!value.empty())
-                {
-                    db_name = value;
-                }
+            if (_db->vector_value("CONNECTIONS", connections) == -1)
+            {
+                connections = 50;
             }
         }
 
@@ -313,7 +307,8 @@ void Nebula::start(bool bootstrap_only)
         }
         else
         {
-            db_backend = new MySqlDB(server, port, user, passwd, db_name);
+            db_backend = new MySqlDB(server, port, user, passwd, db_name,
+                    connections);
         }
 
         // ---------------------------------------------------------------------
@@ -758,7 +753,7 @@ void Nebula::start(bool bootstrap_only)
     if ( is_federation_master() && solo )
     {
         // Replica threads are started on master in solo mode.
-        // HA start/stop the replica threads on leader/follower states 
+        // HA start/stop the replica threads on leader/follower states
         frm->start_replica_threads();
     }
 
@@ -1124,6 +1119,7 @@ void Nebula::start(bool bootstrap_only)
 
     im->finalize();
     rm->finalize();
+    authm->finalize();
     hm->finalize();
     imagem->finalize();
     marketm->finalize();
@@ -1142,6 +1138,7 @@ void Nebula::start(bool bootstrap_only)
     pthread_join(im->get_thread_id(),0);
     pthread_join(rm->get_thread_id(),0);
     pthread_join(hm->get_thread_id(),0);
+    pthread_join(authm->get_thread_id(),0);
     pthread_join(imagem->get_thread_id(),0);
     pthread_join(marketm->get_thread_id(),0);
     pthread_join(ipamm->get_thread_id(),0);

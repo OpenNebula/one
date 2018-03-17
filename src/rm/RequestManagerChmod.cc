@@ -86,7 +86,7 @@ Request::ErrorCode RequestManagerChmod::chmod(
         AuthRequest::Operation op = AuthRequest::MANAGE;
         PoolObjectAuth  perms;
 
-        object = pool->get(oid,true);
+        object = pool->get(oid);
 
         if ( object == 0 )
         {
@@ -155,7 +155,7 @@ Request::ErrorCode RequestManagerChmod::chmod(
 
     // ------------- Update the object ---------------------
 
-    object = pool->get(oid,true);
+    object = pool->get(oid);
 
     if ( object == 0 )
     {
@@ -213,7 +213,7 @@ Request::ErrorCode TemplateChmod::chmod(
 		return SUCCESS;
     }
 
-	VMTemplate* tmpl = static_cast<VMTemplatePool*>(pool)->get(oid, true);
+	VMTemplate* tmpl = static_cast<VMTemplatePool*>(pool)->get(oid);
 
 	vector<VectorAttribute *> vdisks;
 	vector<VectorAttribute *>::iterator i;

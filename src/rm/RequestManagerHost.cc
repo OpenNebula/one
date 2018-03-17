@@ -33,7 +33,7 @@ void HostStatus::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    Host * host = hpool->get(id,true);
+    Host * host = hpool->get(id);
 
     if ( host  == 0 )
     {

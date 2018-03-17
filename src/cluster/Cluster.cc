@@ -157,7 +157,7 @@ int Cluster::get_default_system_ds(const set<int>& ds_set)
 
     for (set<int>::const_iterator it = ds_set.begin(); it != ds_set.end(); it++)
     {
-        ds = dspool->get(*it, true);
+        ds = dspool->get(*it);
 
         if (ds == 0)
         {

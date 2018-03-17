@@ -505,12 +505,7 @@ protected:
     };
 
 private:
-
     bool                            replace_mode;
-    /**
-     *  Mutex to perform just one flex-bison parsing at a time
-     */
-    static pthread_mutex_t          mutex;
 
     /**
      * Character to separate key from value when dump onto a string

@@ -492,7 +492,7 @@ int VirtualMachine::parse_context(string& error_str)
 
             for ( it=img_ids.begin() ; it < img_ids.end(); it++ )
             {
-                img = ipool->get(*it, true);
+                img = ipool->get(*it);
 
                 if ( img != 0 )
                 {

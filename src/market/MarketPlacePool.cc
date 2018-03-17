@@ -41,7 +41,7 @@ MarketPlacePool::MarketPlacePool(SqlDB * db, bool is_federation_slave)
 
         Nebula& nd         = Nebula::instance();
         UserPool * upool   = nd.get_upool();
-        User *    oneadmin = upool->get(0, false);
+        User *    oneadmin = upool->get(0);
 
         string error;
 
@@ -57,6 +57,8 @@ MarketPlacePool::MarketPlacePool(SqlDB * db, bool is_federation_slave)
                 oneadmin->get_gname(),
                 oneadmin->get_umask(),
                 default_tmpl);
+
+        oneadmin->unlock();
 
         marketplace->set_permissions(1,1,1, 1,0,0, 1,0,0, error);
 
@@ -96,7 +98,8 @@ int MarketPlacePool::allocate(
         std::string&          error_str)
 {
     MarketPlace * mp;
-    MarketPlace * mp_aux = 0;
+
+    int db_oid;
 
     std::string        name;
     std::ostringstream oss;
@@ -115,9 +118,9 @@ int MarketPlacePool::allocate(
 
     mp->zone_id = Nebula::instance().get_zone_id();
 
-    mp_aux = get(name, false);
+    db_oid = exist(name);
 
-    if( mp_aux != 0 )
+    if( db_oid != -1 )
     {
         goto error_duplicated;
     }
@@ -178,7 +181,7 @@ int MarketPlacePool::allocate(
     return *oid;
 
 error_duplicated:
-    oss << "NAME is already taken by MARKETPLACE " << mp_aux->get_oid();
+    oss << "NAME is already taken by MARKETPLACE " << db_oid;
     error_str = oss.str();
 
 error_name:

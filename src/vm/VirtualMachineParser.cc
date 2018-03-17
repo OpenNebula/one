@@ -36,6 +36,7 @@
 
 #include "vm_file_var_syntax.h"
 #include "vm_var_syntax.h"
+#include "vm_var_parser.h"
 
 /* -------------------------------------------------------------------------- */
 /* Parser constanta                                                           */
@@ -51,8 +52,6 @@ const char*  VirtualMachine::VROUTER_ATTRIBUTES[] = {
         "VROUTER_KEEPALIVED_ID",
         "VROUTER_KEEPALIVED_PASSWORD"};
 const int VirtualMachine::NUM_VROUTER_ATTRIBUTES = 3;
-
-pthread_mutex_t VirtualMachine::lex_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -113,7 +112,7 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
 
     img_id = img_ids.back();
 
-    img = ipool->get(img_id, true);
+    img = ipool->get(img_id);
 
     if ( img == 0 )
     {
@@ -158,7 +157,7 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
         return -1;
     }
 
-    ds = ds_pool->get(ds_id, true);
+    ds = ds_pool->get(ds_id);
 
     if ( ds == 0 )
     {
@@ -545,54 +544,34 @@ void VirtualMachine::parse_well_known_attributes()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-extern "C"
-{
-    typedef struct yy_buffer_state * YY_BUFFER_STATE;
-
-    int vm_var_parse (VirtualMachine * vm,
-                      ostringstream *  parsed,
-                      char **          errmsg);
-
-    int vm_file_var_parse (VirtualMachine * vm,
-                           vector<int> *    img_ids,
-                           char **          errmsg);
-
-    int vm_var_lex_destroy();
-
-    YY_BUFFER_STATE vm_var__scan_string(const char * str);
-
-    void vm_var__delete_buffer(YY_BUFFER_STATE);
-}
-
-/* -------------------------------------------------------------------------- */
-
 int VirtualMachine::parse_template_attribute(const string& attribute,
                                              string&       parsed,
                                              string&       error_str)
 {
-    YY_BUFFER_STATE  str_buffer = 0;
-    const char *     str;
-    int              rc;
-    ostringstream    oss_parsed;
-    char *           error_msg = 0;
+    const char *  str;
+    int           rc;
+    ostringstream oss_parsed;
+    char *        error_msg = 0;
 
-    pthread_mutex_lock(&lex_mutex);
+    YY_BUFFER_STATE str_buffer = 0;
+    yyscan_t        scanner = 0;
+
+    vm_var_lex_init(&scanner);
 
     str        = attribute.c_str();
-    str_buffer = vm_var__scan_string(str);
+    str_buffer = vm_var__scan_string(str, scanner);
 
     if (str_buffer == 0)
     {
-        goto error_yy;
+        log("VM",Log::ERROR,"Error setting scan buffer");
+        return -1;
     }
 
-    rc = vm_var_parse(this, &oss_parsed, &error_msg);
+    rc = vm_var_parse(this, &oss_parsed, &error_msg, scanner);
 
-    vm_var__delete_buffer(str_buffer);
+    vm_var__delete_buffer(str_buffer, scanner);
 
-    vm_var_lex_destroy();
-
-    pthread_mutex_unlock(&lex_mutex);
+    vm_var_lex_destroy(scanner);
 
     if ( rc != 0 && error_msg != 0 )
     {
@@ -609,11 +588,6 @@ int VirtualMachine::parse_template_attribute(const string& attribute,
     parsed = oss_parsed.str();
 
     return rc;
-
-error_yy:
-    log("VM",Log::ERROR,"Error setting scan buffer");
-    pthread_mutex_unlock(&lex_mutex);
-    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -622,13 +596,15 @@ int VirtualMachine::parse_file_attribute(string       attribute,
                                          vector<int>& img_ids,
                                          string&      error)
 {
-    YY_BUFFER_STATE  str_buffer = 0;
-    const char *     str;
-    int              rc;
-    ostringstream    oss_parsed;
-    char *           error_msg = 0;
+    const char *  str;
+    int           rc;
+    ostringstream oss_parsed;
+    char *        error_msg = 0;
 
     size_t non_blank_pos;
+
+    YY_BUFFER_STATE str_buffer = 0;
+    yyscan_t        scanner = 0;
 
     //Removes leading blanks from attribute, these are not managed
     //by the parser as it is common to the other VM varibales
@@ -639,23 +615,22 @@ int VirtualMachine::parse_file_attribute(string       attribute,
         attribute.erase(0, non_blank_pos);
     }
 
-    pthread_mutex_lock(&lex_mutex);
+    vm_var_lex_init(&scanner);
 
     str        = attribute.c_str();
-    str_buffer = vm_var__scan_string(str);
+    str_buffer = vm_var__scan_string(str, scanner);
 
     if (str_buffer == 0)
     {
-        goto error_yy;
+        log("VM",Log::ERROR,"Error setting scan buffer");
+        return -1;
     }
 
-    rc = vm_file_var_parse(this, &img_ids, &error_msg);
+    rc = vm_file_var_parse(this, &img_ids, &error_msg, scanner);
 
-    vm_var__delete_buffer(str_buffer);
+    vm_var__delete_buffer(str_buffer, scanner);
 
-    vm_var_lex_destroy();
-
-    pthread_mutex_unlock(&lex_mutex);
+    vm_var_lex_destroy(scanner);
 
     if ( rc != 0  )
     {
@@ -675,11 +650,6 @@ int VirtualMachine::parse_file_attribute(string       attribute,
     }
 
     return rc;
-
-error_yy:
-    log("VM",Log::ERROR,"Error setting scan buffer");
-    pthread_mutex_unlock(&lex_mutex);
-    return -1;
 }
 
 /* -------------------------------------------------------------------------- */

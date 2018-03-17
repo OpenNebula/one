@@ -22,8 +22,8 @@ int VMGroupPool::allocate(int uid, int gid, const string& uname,
         string& error_str)
 {
     VMGroup * vmgrp;
-    VMGroup * vmgrp_aux = 0;
 
+    int    db_oid;
     string name;
 
     ostringstream os;
@@ -37,9 +37,9 @@ int VMGroupPool::allocate(int uid, int gid, const string& uname,
         goto error_name;
     }
 
-    vmgrp_aux = get(name, uid, false);
+    db_oid = exist(name, uid);
 
-    if( vmgrp_aux != 0 )
+    if( db_oid != -1 )
     {
         goto error_duplicated;
     }
@@ -49,7 +49,7 @@ int VMGroupPool::allocate(int uid, int gid, const string& uname,
     return *oid;
 
 error_duplicated:
-    os << "NAME is already taken by VMGroup " << vmgrp_aux->get_oid() << ".";
+    os << "NAME is already taken by VMGroup " << db_oid << ".";
     error_str = os.str();
 
 error_name:
@@ -78,11 +78,11 @@ VMGroup * VMGroupPool::get_from_attribute(const VectorAttribute *va, int _uid)
             vmg_uid = _uid;
         }
 
-        vmgroup = get(vmg_name, vmg_uid, true);
+        vmgroup = get(vmg_name, vmg_uid);
     }
     else if ( va->vector_value("VMGROUP_ID", vmg_id) == 0 )
     {
-        vmgroup = get(vmg_id, true);
+        vmgroup = get(vmg_id);
     }
 
     return vmgroup;
@@ -146,7 +146,7 @@ void VMGroupPool::del_vm(const VectorAttribute * va, int vid)
         return;
     }
 
-    VMGroup * vmgroup = get(vmg_id, true);
+    VMGroup * vmgroup = get(vmg_id);
 
     if ( vmgroup == 0 )
     {

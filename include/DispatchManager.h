@@ -275,7 +275,7 @@ public:
     {
         VirtualMachine * vm;
 
-        vm = vmpool->get(vid, true);
+        vm = vmpool->get(vid);
 
         if ( vm == 0 )
         {

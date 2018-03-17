@@ -380,7 +380,7 @@ Request::ErrorCode Request::basic_authorization(
 
     if ( oid >= 0 )
     {
-        object = pool->get(oid,true);
+        object = pool->get(oid);
 
         if ( object == 0 )
         {
@@ -437,7 +437,7 @@ bool Request::user_quota_authorization (Template * tmpl,
 
     bool   rc = false;
 
-    user = upool->get(att.uid, true);
+    user = upool->get(att.uid);
 
     if ( user == 0 )
     {
@@ -481,7 +481,7 @@ bool Request::group_quota_authorization (Template * tmpl,
 
     bool   rc = false;
 
-    group = gpool->get(att.gid, true);
+    group = gpool->get(att.gid);
 
     if ( group == 0 )
     {
@@ -523,7 +523,7 @@ void Request::user_quota_rollback(Template *         tmpl,
 
     User * user;
 
-    user = upool->get(att.uid, true);
+    user = upool->get(att.uid);
 
     if ( user == 0 )
     {
@@ -548,7 +548,7 @@ void Request::group_quota_rollback(Template *         tmpl,
 
     Group * group;
 
-    group = gpool->get(att.gid, true);
+    group = gpool->get(att.gid);
 
     if ( group == 0 )
     {
@@ -806,7 +806,7 @@ int Request::get_info(
 {
     PoolObjectSQL * ob;
 
-    if ((ob = pool->get(id,true)) == 0 )
+    if ((ob = pool->get(id)) == 0 )
     {
         if (throw_error)
         {

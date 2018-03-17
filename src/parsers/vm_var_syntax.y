@@ -14,7 +14,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-%{
+%code requires {
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -24,51 +24,45 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "vm_var_syntax.h"
 #include "VirtualMachinePool.h"
 #include "VirtualMachine.h"
 #include "Nebula.h"
 
-#define vm_var__lex vm_var_lex
+#include "mem_collector.h"
+
+typedef void * yyscan_t;
+
+int vm_var_parse (VirtualMachine * vm, ostringstream * parsed, char ** errmsg,
+    yyscan_t scanner);
+}
+
+%{
+#include "vm_var_syntax.h"
+#include "vm_var_parser.h"
+
+#include "NebulaUtil.h"
 
 #define YYERROR_VERBOSE
-#define VM_VAR_TO_UPPER(S) transform (S.begin(),S.end(),S.begin(), \
-(int(*)(int))toupper)
 
-extern "C"
+void vm_var_error(YYLTYPE * llocp, mem_collector *  mc, VirtualMachine * vm, 
+    ostringstream * parsed, char ** errmsg, yyscan_t scanner, const char * str);
+
+int vm_var_lex(YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc,
+    yyscan_t scanner);
+
+int vm_var_parse (VirtualMachine * vm, ostringstream * parsed, char ** errmsg,
+    yyscan_t scanner)
 {
-    #include "mem_collector.h"
+    mem_collector mc;
+    int           rc;
 
-    void vm_var__error(
-        YYLTYPE *        llocp,
-        mem_collector *  mc,
-        VirtualMachine * vm,
-        ostringstream *  parsed,
-        char **          errmsg,
-        const char *     str);
+    mem_collector_init(&mc);
 
-    int vm_var__lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc);
+    rc = vm_var_parse(&mc, vm, parsed, errmsg, scanner);
 
-    int vm_var__parse (mem_collector *  mc,
-                       VirtualMachine * vm,
-                       ostringstream *  parsed,
-                       char **          errmsg);
+    mem_collector_cleanup(&mc);
 
-    int vm_var_parse (VirtualMachine * vm,
-                      ostringstream *  parsed,
-                      char **          errmsg)
-    {
-        mem_collector mc;
-        int           rc;
-
-        mem_collector_init(&mc);
-
-        rc = vm_var__parse(&mc, vm, parsed, errmsg);
-
-        mem_collector_cleanup(&mc);
-
-        return rc;
-    }
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -128,7 +122,7 @@ void get_image_attribute(VirtualMachine * vm,
     // ----------------------------------------------
     // Get the attribute template from the image
     // ----------------------------------------------
-    img = ipool->get(iid, true);
+    img = ipool->get(iid);
 
     if ( img == 0 )
     {
@@ -205,7 +199,7 @@ void get_network_attribute(VirtualMachine * vm,
     // ----------------------------------------------
     // Get the attribute template from the image
     // ----------------------------------------------
-    vn = vnpool->get(vnet_id, true);
+    vn = vnpool->get(vnet_id);
 
     if ( vn == 0 )
     {
@@ -238,7 +232,7 @@ void get_user_attribute(VirtualMachine * vm,
 
     attr_value.clear();
 
-    user = upool->get(vm->get_uid(), true);
+    user = upool->get(vm->get_uid());
 
     if ( user == 0 )
     {
@@ -400,10 +394,12 @@ void insert_vector(VirtualMachine * vm,
 
 %parse-param {mem_collector * mc}
 %parse-param {VirtualMachine * vm}
-%parse-param {ostringstream *  parsed}
-%parse-param {char **          errmsg}
+%parse-param {ostringstream * parsed}
+%parse-param {char ** errmsg}
+%parse-param {yyscan_t scanner}
 
 %lex-param {mem_collector * mc}
+%lex-param {yyscan_t scanner}
 
 %union {
     char * val_str;
@@ -414,7 +410,7 @@ void insert_vector(VirtualMachine * vm,
 %defines
 %locations
 %pure-parser
-%name-prefix "vm_var__"
+%name-prefix "vm_var_"
 %output      "vm_var_syntax.cc"
 
 %token EQUAL COMMA OBRACKET CBRACKET
@@ -441,7 +437,7 @@ vm_variable:RSTRING
     {
         string name($1);
 
-        VM_VAR_TO_UPPER(name);
+        one_util::toupper(name);
 
         insert_single(vm,*parsed,name);
 
@@ -455,8 +451,8 @@ vm_variable:RSTRING
         string name($1);
         string vname($3);
 
-        VM_VAR_TO_UPPER(name);
-        VM_VAR_TO_UPPER(vname);
+        one_util::toupper(name);
+        one_util::toupper(vname);
 
         insert_vector(vm,*parsed,name,vname,"","");
 
@@ -472,9 +468,9 @@ vm_variable:RSTRING
         string vvar($5);
         string vval($7);
 
-        VM_VAR_TO_UPPER(name);
-        VM_VAR_TO_UPPER(vname);
-        VM_VAR_TO_UPPER(vvar);
+        one_util::toupper(name);
+        one_util::toupper(vname);
+        one_util::toupper(vvar);
 
         insert_vector(vm,*parsed,name,vname,vvar,vval);
 
@@ -486,12 +482,13 @@ vm_variable:RSTRING
     ;
 %%
 
-extern "C" void vm_var__error(
+void vm_var_error(
     YYLTYPE *        llocp,
     mem_collector *  mc,
     VirtualMachine * vm,
     ostringstream *  parsed,
     char **          error_msg,
+    yyscan_t        scanner,
     const char *     str)
 {
     int length;

@@ -36,7 +36,7 @@ void RequestManagerLock::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    object = pool->get(oid,true);
+    object = pool->get(oid);
 
     if ( object == 0 )
     {
@@ -83,7 +83,7 @@ void RequestManagerUnlock::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    object = pool->get(oid,true);
+    object = pool->get(oid);
 
     if ( object == 0 )
     {

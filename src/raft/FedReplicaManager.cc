@@ -166,7 +166,7 @@ void FedReplicaManager::update_zones(std::vector<int>& zone_ids)
         }
         else
         {
-            Zone * zone = zpool->get(*it, true);
+            Zone * zone = zpool->get(*it);
 
             if ( zone == 0 )
             {
@@ -204,7 +204,7 @@ void FedReplicaManager::add_zone(int zone_id)
     Nebula& nd       = Nebula::instance();
     ZonePool * zpool = nd.get_zonepool();
 
-    Zone * zone = zpool->get(zone_id, true);
+    Zone * zone = zpool->get(zone_id);
 
     if ( zone == 0 )
     {

@@ -35,7 +35,7 @@ void SecurityGroupCommit::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    sg = static_cast<SecurityGroupPool *>(pool)->get(oid,true);
+    sg = static_cast<SecurityGroupPool *>(pool)->get(oid);
 
     if ( sg == 0 )
     {

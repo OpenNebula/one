@@ -78,18 +78,15 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
 
     // ----------------------- Check name uniqueness ---------------------------
 
-    object = get(new_name, operms.uid, true);
+    int db_id = exist(new_name, operms.uid);
 
-    if ( object != 0 )
+    if ( db_id !=-1  )
     {
         ostringstream oss;
-        int id = object->get_oid();
-
-        object->unlock();
 
         oss << object_name(auth_object) << " cannot be renamed to " << new_name
             << " because it collides with " << object_name(auth_object) << " "
-            << id;
+            << db_id;
 
         att.resp_msg = oss.str();
 
@@ -101,7 +98,7 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
 
     // -------------------------- Update the object ----------------------------
 
-    object = pool->get(oid, true);
+    object = pool->get(oid);
 
     if ( object == 0 )
     {
@@ -140,7 +137,7 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
 
 void ClusterRename::batch_rename(int oid)
 {
-    Cluster * cluster = static_cast<ClusterPool *>(pool)->get(oid, true);
+    Cluster * cluster = static_cast<ClusterPool *>(pool)->get(oid);
 
     if (cluster == 0)
     {
@@ -158,7 +155,7 @@ void ClusterRename::batch_rename(int oid)
 
     for (set<int>::iterator it = hosts.begin(); it != hosts.end(); it++)
     {
-        host = hpool->get(*it, true);
+        host = hpool->get(*it);
 
         if (host != 0)
         {
@@ -178,7 +175,7 @@ void ClusterRename::batch_rename(int oid)
 
 void DatastoreRename::batch_rename(int oid)
 {
-    Datastore * datastore = static_cast<DatastorePool*>(pool)->get(oid, true);
+    Datastore * datastore = static_cast<DatastorePool*>(pool)->get(oid);
 
     if (datastore == 0)
     {
@@ -198,7 +195,7 @@ void DatastoreRename::batch_rename(int oid)
 
     for (it = images.begin(); it != images.end(); it++)
     {
-        image = ipool->get(*it, true);
+        image = ipool->get(*it);
 
         if (image != 0)
         {
@@ -218,7 +215,7 @@ void DatastoreRename::batch_rename(int oid)
 
 void HostRename::batch_rename(int oid)
 {
-    Host * host = static_cast<HostPool*>(pool)->get(oid, true);
+    Host * host = static_cast<HostPool*>(pool)->get(oid);
 
     if (host == 0)
     {
@@ -238,7 +235,7 @@ void HostRename::batch_rename(int oid)
 
     for (it = vms.begin(); it != vms.end(); it++)
     {
-        vm = vmpool->get(*it, true);
+        vm = vmpool->get(*it);
 
         if (vm != 0)
         {
@@ -258,7 +255,7 @@ void HostRename::batch_rename(int oid)
 
 void MarketPlaceRename::batch_rename(int oid)
 {
-    MarketPlace * market = static_cast<MarketPlacePool*>(pool)->get(oid, true);
+    MarketPlace * market = static_cast<MarketPlacePool*>(pool)->get(oid);
 
     if (market == 0)
     {
@@ -278,7 +275,7 @@ void MarketPlaceRename::batch_rename(int oid)
 
     for (it = apps.begin(); it != apps.end(); it++)
     {
-        app = apppool->get(*it, true);
+        app = apppool->get(*it);
 
         if (app != 0)
         {

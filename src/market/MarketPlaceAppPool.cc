@@ -78,7 +78,8 @@ int MarketPlaceAppPool:: allocate(
             std::string&       error_str)
 {
     MarketPlaceApp * mp;
-    MarketPlaceApp * mp_aux = 0;
+
+    int db_oid;
 
     std::string name;
 
@@ -102,9 +103,9 @@ int MarketPlaceAppPool:: allocate(
         goto error_name;
     }
 
-    mp_aux = get(name, uid, false);
+    db_oid = exist(name, uid);
 
-    if( mp_aux != 0 )
+    if( db_oid != -1 )
     {
         goto error_duplicated;
     }
@@ -131,7 +132,7 @@ int MarketPlaceAppPool:: allocate(
     return *oid;
 
 error_duplicated:
-    oss << "NAME is already taken by MARKETPLACEAPP " << mp_aux->get_oid();
+    oss << "NAME is already taken by MARKETPLACEAPP " << db_oid;
     error_str = oss.str();
 
 error_name:
@@ -225,7 +226,7 @@ int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
         }
     }
 
-    MarketPlaceApp * mp_aux = get(app->name, 0, true);
+    MarketPlaceApp * mp_aux = get(app->name, 0);
 
     if( mp_aux != 0 ) //Marketplace app already imported
     {
@@ -329,7 +330,7 @@ bool MarketPlaceAppPool::test_map_check(int app_id)
 
     if ( to_delete )
     {
-        map_check.erase(it); 
+        map_check.erase(it);
     }
 
     return to_delete;

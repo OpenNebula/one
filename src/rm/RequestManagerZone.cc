@@ -98,7 +98,7 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    Zone * zone = (static_cast<ZonePool *>(pool))->get(id, true);
+    Zone * zone = (static_cast<ZonePool *>(pool))->get(id);
 
     if ( zone == 0 )
     {
@@ -153,7 +153,7 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
 
             while (!updated) 
             {
-                Zone * zone = (static_cast<ZonePool *>(pool))->get(id, true);
+                Zone * zone = (static_cast<ZonePool *>(pool))->get(id);
 
                 if ( zone != 0 )
                 {
@@ -202,7 +202,7 @@ void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    Zone * zone = (static_cast<ZonePool *>(pool))->get(id, true);
+    Zone * zone = (static_cast<ZonePool *>(pool))->get(id);
 
     if ( zone == 0 )
     {

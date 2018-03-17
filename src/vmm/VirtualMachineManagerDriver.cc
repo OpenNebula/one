@@ -284,7 +284,7 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
         }
 
         SecurityGroupPool* sgpool = ne.get_secgrouppool();
-        SecurityGroup*     sg     = sgpool->get(sgid, true);
+        SecurityGroup*     sg     = sgpool->get(sgid);
 
         if ( sg != 0 )
         {
@@ -304,7 +304,7 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
             sg->unlock();
         }
 
-        vm = vmpool->get(id,true);
+        vm = vmpool->get(id);
 
         if ( vm != 0 )
         {
@@ -329,7 +329,7 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
     // -------------------------------------------------------------------------
     // VMM actions associated to a single VM
     // -------------------------------------------------------------------------
-    vm = vmpool->get(id,true);
+    vm = vmpool->get(id);
 
     if ( vm == 0 )
     {
@@ -687,7 +687,7 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
 void VirtualMachineManagerDriver::process_poll(int id,const string& monitor_str)
 {
     // Get the VM from the pool
-    VirtualMachine* vm = Nebula::instance().get_vmpool()->get(id,true);
+    VirtualMachine* vm = Nebula::instance().get_vmpool()->get(id);
 
     if ( vm == 0 )
     {

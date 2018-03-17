@@ -202,7 +202,7 @@ string * VirtualMachineManager::format_message(
     ostringstream oss;
 
     string ds_tmpl = "";
-    Datastore * ds = ds_pool->get(ds_id, true);
+    Datastore * ds = ds_pool->get(ds_id);
 
     if ( ds != 0 )
     {
@@ -346,7 +346,7 @@ void VirtualMachineManager::deploy_action(int vid)
     string        vm_tmpl;
     string *      drv_msg;
 
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -359,7 +359,7 @@ void VirtualMachineManager::deploy_action(int vid)
 
     password = Nebula::instance().get_upool()->get_token_password(uid, owner_id);
 
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -467,7 +467,7 @@ void VirtualMachineManager::save_action(
     ostringstream os;
 
     // Get the VM from the pool
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -565,7 +565,7 @@ void VirtualMachineManager::shutdown_action(
     ostringstream os;
 
     // Get the VM from the pool
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -640,7 +640,7 @@ void VirtualMachineManager::reboot_action(
     ostringstream os;
 
     // Get the VM from the pool
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -710,7 +710,7 @@ void VirtualMachineManager::reset_action(
     ostringstream os;
 
     // Get the VM from the pool
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -781,7 +781,7 @@ void VirtualMachineManager::cancel_action(
     const VirtualMachineManagerDriver *   vmd;
 
     // Get the VM from the pool
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -857,7 +857,7 @@ void VirtualMachineManager::cancel_previous_action(
     const VirtualMachineManagerDriver * vmd;
 
     // Get the VM from the pool
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -933,7 +933,7 @@ void VirtualMachineManager::cleanup_action(
     Nebula& nd = Nebula::instance();
 
     // Get the VM from the pool
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -1027,7 +1027,7 @@ void VirtualMachineManager::cleanup_previous_action(int vid)
     Nebula& nd = Nebula::instance();
 
     // Get the VM from the pool
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -1110,7 +1110,7 @@ void VirtualMachineManager::migrate_action(
     string * drv_msg;
 
     // Get the VM from the pool
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -1201,7 +1201,7 @@ void VirtualMachineManager::restore_action(
 
     string* drv_msg;
 
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -1214,7 +1214,7 @@ void VirtualMachineManager::restore_action(
 
     password = Nebula::instance().get_upool()->get_token_password(uid, owner_id);
 
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -1300,7 +1300,7 @@ void VirtualMachineManager::poll_action(
     string * drv_msg;
 
     // Get the VM from the pool
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -1368,7 +1368,7 @@ void VirtualMachineManager::driver_cancel_action(
     const VirtualMachineManagerDriver * vmd;
 
     // Get the VM from the pool
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -1456,7 +1456,7 @@ void VirtualMachineManager::timer_action(const ActionRequest& ar)
 
     for ( it = oids.begin(); it != oids.end(); it++ )
     {
-        vm = vmpool->get(*it,true);
+        vm = vmpool->get(*it);
 
         if ( vm == 0 )
         {
@@ -1548,7 +1548,7 @@ void VirtualMachineManager::attach_action(
     TransferManager * tm = nd.get_tm();
 
     // Get the VM from the pool
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -1689,7 +1689,7 @@ void VirtualMachineManager::detach_action(
     TransferManager * tm = nd.get_tm();
 
     // Get the VM from the pool
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -1793,7 +1793,7 @@ void VirtualMachineManager::snapshot_create_action(int vid)
     string* drv_msg;
 
     // Get the VM from the pool
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -1871,7 +1871,7 @@ void VirtualMachineManager::snapshot_revert_action(int vid)
     string* drv_msg;
 
     // Get the VM from the pool
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -1949,7 +1949,7 @@ void VirtualMachineManager::snapshot_delete_action(int vid)
     string* drv_msg;
 
     // Get the VM from the pool
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -2038,7 +2038,7 @@ void VirtualMachineManager::disk_snapshot_create_action(int vid)
     Nebula& nd           = Nebula::instance();
     TransferManager * tm = nd.get_tm();
 
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -2148,7 +2148,7 @@ void VirtualMachineManager::disk_resize_action(int vid)
     Nebula& nd           = Nebula::instance();
     TransferManager * tm = nd.get_tm();
 
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -2257,7 +2257,7 @@ void VirtualMachineManager::attach_nic_action(
     string  password;
 
     // Get the VM from the pool
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -2270,7 +2270,7 @@ void VirtualMachineManager::attach_nic_action(
 
     password = Nebula::instance().get_upool()->get_token_password(uid, owner_id);
 
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -2361,7 +2361,7 @@ void VirtualMachineManager::detach_nic_action(
     string        error_str;
 
     // Get the VM from the pool
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {

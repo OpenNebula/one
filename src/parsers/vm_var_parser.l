@@ -21,12 +21,13 @@
 #include <pthread.h>
 
 #include "vm_var_syntax.h"
+#include "vm_file_var_syntax.h"
 #include "mem_collector.h"
 
 #define YY_NO_INPUT
 
-#define YY_DECL int vm_var_lex (YYSTYPE *lvalp, YYLTYPE *llocp, \
-                                mem_collector *mc)
+#define YY_DECL int vm_var_lex (YYSTYPE *yylval_param, YYLTYPE *llocp, \
+                                mem_collector *mc, yyscan_t yyscanner)
 
 #define YY_USER_ACTION  llocp->first_line = yylineno;   \
                         llocp->first_column = llocp->last_column;   \
@@ -35,8 +36,11 @@
 
 %option nounput
 %option prefix="vm_var_"
-%option outfile="vm_var_parser.c"
+%option outfile="vm_var_parser.cc"
+%option header-file="vm_var_parser.h"
 %option yylineno
+%option bison-bridge
+%option reentrant
 
 %x VAR
 %x VALUE
@@ -57,29 +61,29 @@
 <VAR>\[[[:blank:]]*            { return OBRACKET;}
 <VAR>[[:blank:]]*\]            { return CBRACKET;}
 
-<VAR>[[:alnum:]_]+             { lvalp->val_str =
+<VAR>[[:alnum:]_]+             { yylval_param->val_str =
                                  mem_collector_strdup(mc,yytext);
                                  return VARIABLE;}
 
-<VALUE>\"[^\"]*\"              { lvalp->val_str =
+<VALUE>\"[^\"]*\"              { yylval_param->val_str =
                                  mem_collector_strdup(mc,yytext+1);
-                                 lvalp->val_str[yyleng-2] = '\0';
+                                 yylval_param->val_str[yyleng-2] = '\0';
                                  BEGIN(VAR);
                                  return STRING;}
 
-<VALUE>[[:alnum:]]+            { lvalp->val_str =
+<VALUE>[[:alnum:]]+            { yylval_param->val_str =
                                  mem_collector_strdup(mc,yytext);
                                  BEGIN(VAR);
                                  return STRING;}
 
-<VAR>\$                        { lvalp->val_char = '\0';
+<VAR>\$                        { yylval_param->val_char = '\0';
                                  return EOA;}
 
-<VAR>.                         { lvalp->val_char = *yytext;
+<VAR>.                         { yylval_param->val_char = *yytext;
                                  BEGIN(INITIAL);
                                  return EOA;}
 
-<VAR><<EOF>>                   { lvalp->val_char = '\0';
+<VAR><<EOF>>                   { yylval_param->val_char = '\0';
                                  BEGIN(INITIAL);
                                  return EOA;}
 
@@ -87,11 +91,11 @@
  /* Just copy the string verbatim till we find a variable (starts with $)     */
  /* ------------------------------------------------------------------------- */
 
-[^\$]+  { lvalp->val_str = mem_collector_strdup(mc,yytext); return RSTRING;}
+[^\$]+  { yylval_param->val_str = mem_collector_strdup(mc,yytext); return RSTRING;}
 
 %%
 
-int vm_var_wrap()
+int vm_var_wrap(yyscan_t scanner)
 {
     return 1;
 }

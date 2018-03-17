@@ -30,30 +30,47 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-#ifndef YY_VM_FILE_VAR_VM_FILE_VAR_SYNTAX_HH_INCLUDED
-# define YY_VM_FILE_VAR_VM_FILE_VAR_SYNTAX_HH_INCLUDED
+#ifndef YY_EXPR_ARITH_EXPR_ARITH_HH_INCLUDED
+# define YY_EXPR_ARITH_EXPR_ARITH_HH_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
 #endif
 #if YYDEBUG
-extern int vm_file_var__debug;
+extern int expr_arith_debug;
 #endif
+/* "%code requires" blocks.  */
+#line 47 "expr_arith.y" /* yacc.c:1909  */
+
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <set>
+
+#include <ctype.h>
+#include <string.h>
+#include <fnmatch.h>
+
+#include "mem_collector.h"
+#include "ObjectXML.h"
+
+typedef void * yyscan_t;
+
+int expr_arith_parse(ObjectXML *oxml, int& result, char ** errmsg,
+    yyscan_t scanner);
+
+#line 65 "expr_arith.hh" /* yacc.c:1909  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
   enum yytokentype
   {
-    EQUAL = 258,
-    COMMA = 259,
-    OBRACKET = 260,
-    CBRACKET = 261,
-    EOA = 262,
-    STRING = 263,
-    VARIABLE = 264,
-    RSTRING = 265,
-    INTEGER = 266
+    INTEGER = 258,
+    STRING = 259,
+    FLOAT = 260
   };
 #endif
 
@@ -62,13 +79,13 @@ extern int vm_file_var__debug;
 
 union YYSTYPE
 {
-#line 210 "vm_file_var_syntax.y" /* yacc.c:1909  */
+#line 77 "expr_arith.y" /* yacc.c:1909  */
 
-    char * val_str;
-    int    val_int;
-    char   val_char;
+    char *  val_str;
+    int     val_int;
+    float   val_float;
 
-#line 72 "vm_file_var_syntax.hh" /* yacc.c:1909  */
+#line 89 "expr_arith.hh" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -90,4 +107,8 @@ struct YYLTYPE
 # define YYLTYPE_IS_TRIVIAL 1
 #endif
 
-#endif /* !YY_VM_FILE_VAR_VM_FILE_VAR_SYNTAX_HH_INCLUDED  */
+
+
+int expr_arith_parse (mem_collector * mc, ObjectXML * oxml, int& result, char ** error_msg, yyscan_t scanner);
+
+#endif /* !YY_EXPR_ARITH_EXPR_ARITH_HH_INCLUDED  */

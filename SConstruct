@@ -49,10 +49,12 @@ add_bison(main_env)
 # Include dirs
 main_env.Append(CPPPATH=[
     cwd+'/include',
+    cwd+'/src/parsers'
 ])
 
 # Library dirs
 main_env.Append(LIBPATH=[
+    cwd+'/src/parsers',
     cwd+'/src/common',
     cwd+'/src/log',
     cwd+'/src/raft',
@@ -219,6 +221,7 @@ main_env.ParseConfig('xml2-config --libs --cflags')
 
 # SCONS scripts to build
 build_scripts=[
+    'src/parsers/SConstruct',
     'src/sql/SConstruct',
     'src/log/SConstruct',
     'src/raft/SConstruct',

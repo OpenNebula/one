@@ -239,7 +239,7 @@ void MarketPlaceManager::monitor_market(int mp_id)
         return;
     }
 
-    MarketPlace * mp = mppool->get(mp_id, true);
+    MarketPlace * mp = mppool->get(mp_id);
 
     if ( mp == 0 )
     {

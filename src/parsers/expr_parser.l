@@ -24,7 +24,8 @@
 
 #define YY_NO_INPUT
 
-#define YY_DECL int expr_lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector *mc)
+#define YY_DECL int expr_lex (YYSTYPE *yylval_param, YYLTYPE *llocp, \
+        mem_collector *mc, yyscan_t yyscanner)
 
 #define YY_USER_ACTION  llocp->first_line = yylineno;               \
                         llocp->first_column = llocp->last_column;   \
@@ -33,7 +34,10 @@
 
 %option nounput
 %option prefix="expr_"
-%option outfile="expr_parser.c"
+%option outfile="expr_parser.cc"
+%option header-file="expr_parser.h"
+%option reentrant
+%option bison-bridge
 %option yylineno
 
 %%
@@ -43,22 +47,22 @@
 
   /* --- Strings, also quoted form --- */
 
-[A-Za-z][0-9A-Za-z_]* { lvalp->val_str = mem_collector_strdup(mc,yytext);
+[A-Za-z][0-9A-Za-z_]* { yylval_param->val_str = mem_collector_strdup(mc,yytext);
                         return STRING;}
 
-\"\"        { lvalp->val_str = NULL;
+\"\"        { yylval_param->val_str = NULL;
               return STRING;}
 
-\"[^\"]*\"  { lvalp->val_str = mem_collector_strdup(mc,yytext+1);
-              lvalp->val_str[yyleng-2] = '\0';
+\"[^\"]*\"  { yylval_param->val_str = mem_collector_strdup(mc,yytext+1);
+              yylval_param->val_str[yyleng-2] = '\0';
               return STRING;}
 
   /* --- Numbers --- */
 
--?[0-9]+         { lvalp->val_int = atoi(yytext);
+-?[0-9]+         { yylval_param->val_int = atoi(yytext);
                    return INTEGER;}
 
--?[0-9]+\.[0-9]+ { lvalp->val_float = atof(yytext);
+-?[0-9]+\.[0-9]+ { yylval_param->val_float = atof(yytext);
                    return FLOAT;}
 
     /* --- blanks --- */
@@ -67,7 +71,7 @@
 
 %%
 
-int expr_wrap()
+int expr_wrap(yyscan_t scanner)
 {
     return 1;
 }

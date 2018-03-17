@@ -265,7 +265,7 @@ void Quotas::quota_del(QuotaType type, int uid, int gid, Template * tmpl)
 
     if ( uid != UserPool::ONEADMIN_ID )
     {
-        user = upool->get(uid, true);
+        user = upool->get(uid);
 
         if ( user != 0 )
         {
@@ -279,7 +279,7 @@ void Quotas::quota_del(QuotaType type, int uid, int gid, Template * tmpl)
 
     if ( gid != GroupPool::ONEADMIN_ID )
     {
-        group = gpool->get(gid, true);
+        group = gpool->get(gid);
 
         if ( group != 0 )
         {
@@ -315,7 +315,7 @@ void Quotas::ds_del_recreate(int uid, int gid, vector<Template *>& ds_quotas)
 
         if ( img_owner )
         {
-            Image* img = ipool->get(image_id, true);
+            Image* img = ipool->get(image_id);
 
             if(img != 0)
             {

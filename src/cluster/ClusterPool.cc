@@ -56,7 +56,7 @@ ClusterPool::ClusterPool(SqlDB * db, const VectorAttribute * _vnc_conf):
             goto error_bootstrap;
         }
 
-        Cluster* cluster = get(DEFAULT_CLUSTER_ID, true);
+        Cluster* cluster = get(DEFAULT_CLUSTER_ID);
 
         if (cluster == 0)
         {
@@ -95,6 +95,8 @@ int ClusterPool::allocate(string name, int * oid, string& error_str)
 
     ostringstream oss;
 
+    int db_oid;
+
     // Check name
     if ( !PoolObjectSQL::name_is_valid(name, error_str) )
     {
@@ -102,9 +104,9 @@ int ClusterPool::allocate(string name, int * oid, string& error_str)
     }
 
     // Check for duplicates
-    cluster = get(name, false);
+    db_oid = exist(name);
 
-    if( cluster != 0 )
+    if( db_oid != -1 )
     {
         goto error_duplicated;
     }
@@ -119,7 +121,7 @@ int ClusterPool::allocate(string name, int * oid, string& error_str)
 
 
 error_duplicated:
-    oss << "NAME is already taken by CLUSTER " << cluster->get_oid() << ".";
+    oss << "NAME is already taken by CLUSTER " << db_oid << ".";
     error_str = oss.str();
 
 error_name:
@@ -217,15 +219,16 @@ void ClusterPool::cluster_acl_filter(ostringstream& filter,
 int ClusterPool::query_datastore_clusters(int oid, set<int> &cluster_ids)
 {
     ostringstream oss;
+    set_cb<int>   cb;
 
-    set_callback(static_cast<Callbackable::Callback>(&ClusterPool::get_clusters_cb),
-                 static_cast<void *>(&cluster_ids));
+    cb.set_callback(&cluster_ids);
 
-    oss << "SELECT cid FROM " << Cluster::datastore_table << " WHERE oid = " << oid;
+    oss << "SELECT cid FROM " << Cluster::datastore_table << " WHERE oid = "
+        << oid;
 
-    int rc = db->exec_rd(oss, this);
+    int rc = db->exec_rd(oss, &cb);
 
-    unset_callback();
+    cb.unset_callback();
 
     if ( rc != 0 )
     {
@@ -241,15 +244,15 @@ int ClusterPool::query_datastore_clusters(int oid, set<int> &cluster_ids)
 int ClusterPool::query_vnet_clusters(int oid, set<int> &cluster_ids)
 {
     ostringstream oss;
+    set_cb<int>   cb;
 
-    set_callback(static_cast<Callbackable::Callback>(&ClusterPool::get_clusters_cb),
-                 static_cast<void *>(&cluster_ids));
+    cb.set_callback(&cluster_ids);
 
-    oss << "SELECT cid FROM " << Cluster::network_table << " WHERE oid = " << oid;
+    oss << "SELECT cid FROM " << Cluster::network_table << " WHERE oid = "<<oid;
 
-    int rc = db->exec_rd(oss, this);
+    int rc = db->exec_rd(oss, &cb);
 
-    unset_callback();
+    cb.unset_callback();
 
     if ( rc != 0 )
     {
@@ -261,17 +264,3 @@ int ClusterPool::query_vnet_clusters(int oid, set<int> &cluster_ids)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-int ClusterPool::get_clusters_cb(
-        void * _cluster_ids, int num, char **values, char **names)
-{
-    if ( num == 0 || values == 0 || values[0] == 0 )
-    {
-        return -1;
-    }
-
-    int cluster_id = atoi(values[0]);
-    static_cast<set<int>*>(_cluster_ids)->insert(cluster_id);
-
-    return 0;
-}

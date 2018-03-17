@@ -21,8 +21,6 @@
  * Doc: http://dev.mysql.com/doc/refman/5.5/en/c-api-function-overview.html
  ********/
 
-const int MySqlDB::DB_CONNECT_SIZE = 10;
-
 /* -------------------------------------------------------------------------- */
 
 MySqlDB::MySqlDB(
@@ -30,9 +28,10 @@ MySqlDB::MySqlDB(
         int           _port,
         const string& _user,
         const string& _password,
-        const string& _database)
+        const string& _database,
+        int           _max_connections)
 {
-    vector<MYSQL *> connections(DB_CONNECT_SIZE);
+    vector<MYSQL *> connections(_max_connections);
     MYSQL * rc;
 
     ostringstream oss;
@@ -43,11 +42,13 @@ MySqlDB::MySqlDB(
     password = _password;
     database = _database;
 
+    max_connections = _max_connections;
+
     // Initialize the MySQL library
     mysql_library_init(0, NULL, NULL);
 
     // Create connection pool to the server
-    for (int i=0 ; i < DB_CONNECT_SIZE ; i++)
+    for (int i=0 ; i < max_connections ; i++)
     {
         connections[i] = mysql_init(NULL);
 
@@ -61,7 +62,12 @@ MySqlDB::MySqlDB(
                                 0);
         if ( rc == NULL)
         {
-            throw runtime_error("Could not open connect to database server.");
+            ostringstream oss;
+
+            oss << "Could not open connect to database server: "
+                << mysql_error(connections[i]);
+
+            throw runtime_error(oss.str());
         }
     }
 
@@ -78,7 +84,12 @@ MySqlDB::MySqlDB(
 
     if ( rc == NULL)
     {
-        throw runtime_error("Could not open connect to database server.");
+        ostringstream oss;
+
+        oss << "Could not open connect to database server: "
+            << mysql_error(db_escape_connect);
+
+        throw runtime_error(oss.str());
     }
 
     //Connect to the database & initialize connection pool
@@ -92,11 +103,16 @@ MySqlDB::MySqlDB(
     oss.str("");
     oss << "USE " << database;
 
-    for (int i=0 ; i < DB_CONNECT_SIZE ; i++)
+    for (int i=0 ; i < max_connections ; i++)
     {
         if ( mysql_query(connections[i], oss.str().c_str()) != 0 )
         {
-            throw runtime_error("Could not connect to the database.");
+            ostringstream oss;
+
+            oss << "Could not connect to database server: "
+                << mysql_error(connections[i]);
+
+            throw runtime_error(oss.str());
         }
 
         db_connect.push(connections[i]);

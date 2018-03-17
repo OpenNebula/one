@@ -54,7 +54,7 @@ void VirtualRouterInstantiate::request_execute(
     /* ---------------------------------------------------------------------- */
     /* Get the Virtual Router NICs                                            */
     /* ---------------------------------------------------------------------- */
-    vr = vrpool->get(vrid, true);
+    vr = vrpool->get(vrid);
 
     if (vr == 0)
     {
@@ -97,7 +97,7 @@ void VirtualRouterInstantiate::request_execute(
         }
     }
 
-    VMTemplate * tmpl = tpool->get(tmpl_id,true);
+    VMTemplate * tmpl = tpool->get(tmpl_id);
 
     if ( tmpl == 0 )
     {
@@ -149,7 +149,7 @@ void VirtualRouterInstantiate::request_execute(
         vms.push_back(vid);
     }
 
-    vr = vrpool->get(vrid, true);
+    vr = vrpool->get(vrid);
 
     if (vr != 0)
     {
@@ -210,7 +210,7 @@ void VirtualRouterAttachNic::request_execute(
     // -------------------------------------------------------------------------
     // Authorize the operation & check quotas
     // -------------------------------------------------------------------------
-    vr = vrpool->get(vrid, true);
+    vr = vrpool->get(vrid);
 
     if (vr == 0)
     {
@@ -249,7 +249,7 @@ void VirtualRouterAttachNic::request_execute(
     // -------------------------------------------------------------------------
     // Attach NIC to the Virtual Router
     // -------------------------------------------------------------------------
-    vr = vrpool->get(vrid, true);
+    vr = vrpool->get(vrid);
 
     if (vr == 0)
     {
@@ -318,7 +318,7 @@ void VirtualRouterDetachNic::request_execute(
     // -------------------------------------------------------------------------
     // Authorize the operation
     // -------------------------------------------------------------------------
-    vr = vrpool->get(vrid, true);
+    vr = vrpool->get(vrid);
 
     if (vr == 0)
     {
@@ -348,7 +348,7 @@ void VirtualRouterDetachNic::request_execute(
     // -------------------------------------------------------------------------
     // Detach the NIC from the Virtual Router
     // -------------------------------------------------------------------------
-    vr = vrpool->get(vrid, true);
+    vr = vrpool->get(vrid);
 
     if (vr == 0)
     {

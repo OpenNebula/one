@@ -46,7 +46,7 @@ protected:
             return;
         }
 
-        PoolObjectSQL * object = pool->get(oid,true);
+        PoolObjectSQL * object = pool->get(oid);
 
         if ( object == 0 )
         {
