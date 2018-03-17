@@ -17,13 +17,11 @@
 #ifndef POOL_SQL_H_
 #define POOL_SQL_H_
 
-#include <map>
 #include <string>
-#include <queue>
-#include <set>
 
 #include "SqlDB.h"
 #include "PoolObjectSQL.h"
+#include "PoolSQLCache.h"
 #include "Log.h"
 #include "Hook.h"
 
@@ -35,7 +33,7 @@ using namespace std;
  * multithreaded applications. Any modification or access function to the pool
  * SHOULD block the mutex.
  */
-class PoolSQL: public Callbackable, public Hookable
+class PoolSQL: public Hookable
 {
 public:
     /**
@@ -68,21 +66,29 @@ public:
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    PoolObjectSQL * get(int oid, bool lock);
+    PoolObjectSQL * get(int oid);
 
     /**
-     * Updates the cache name index. Must be called when the owner of an object
-     * is changed
+     *  Check if there is an object with the same for a given user
+     *    @param name of object
+     *    @param ouid of user
      *
-     * @param old_name Object's name before the change
-     * @param old_uid Object's owner ID before the change
-     * @param new_name Object's name after the change
-     * @param new_uid Object's owner ID after the change
+     *    @return oid of the object if it exists, -1 otherwise
      */
-    void update_cache_index(string& old_name,
-                            int     old_uid,
-                            string& new_name,
-                            int     new_uid);
+    int exist(const string& name, int ouid)
+    {
+        return PoolObjectSQL::select_oid(db, table.c_str(), name, ouid);
+    }
+
+    int exist(const string& name)
+    {
+        return PoolObjectSQL::select_oid(db, table.c_str(), name, -1);
+    }
+
+    int exist(int oid)
+    {
+        return PoolObjectSQL::exist(db, table.c_str(), oid);
+    }
 
     /**
      *  Finds a set objects that satisfies a given condition
@@ -142,7 +148,7 @@ public:
      */
     virtual int drop(PoolObjectSQL * objsql, string& error_msg)
     {
-        int rc = objsql->drop(db);
+        int rc  = objsql->drop(db);
 
         if ( rc != 0 )
         {
@@ -156,11 +162,6 @@ public:
 
         return 0;
     };
-
-    /**
-     *  Removes all the elements from the pool
-     */
-    void clean();
 
     /**
      *  Dumps the pool in XML format. A filter can be also added to the
@@ -260,7 +261,7 @@ protected:
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    PoolObjectSQL * get(const string& name, int uid, bool lock);
+    PoolObjectSQL * get(const string& name, int uid);
 
     /**
      *  Pointer to the database.
@@ -348,10 +349,10 @@ private:
     string table;
 
     /**
-     *  The pool is implemented with a Map of SQL object pointers, using the
-     *  OID as key.
+     *  The pool cache is implemented with a Map of SQL object pointers,
+     *  using the OID as key.
      */
-    vector<PoolObjectSQL *> pool;
+    PoolSQLCache cache;
 
     /**
      *  Factory method, must return an ObjectSQL pointer to an allocated pool
@@ -374,55 +375,6 @@ private:
     {
         pthread_mutex_unlock(&mutex);
     };
-
-    /**
-     * Cleans all the objects in the cache, except the ones locked.
-     * The object with the given oid will not be ignored if locked, the
-     * method will wait for it to be unlocked and ensure it is erased from
-     * the cache
-     *
-     * @param oid
-     */
-    void flush_cache(int oid);
-
-    /**
-     * Same as flush_cache(int), but with the object name-uid key
-     *
-     * @param name_key
-     */
-    void flush_cache(const string& name_key);
-
-    /**
-     *  Generate an index key for the object
-     *    @param name of the object
-     *    @param uid owner of the object, only used if needed
-     *
-     *    @return the key, a string
-     */
-    virtual string key(const string& name, int uid)
-    {
-        ostringstream key;
-
-        key << name << ':' << uid;
-
-        return key.str();
-    };
-
-    /* ---------------------------------------------------------------------- */
-    /* ---------------------------------------------------------------------- */
-    /**
-     *  Callback to store the IDs of pool objects (PoolSQL::search)
-     */
-    int  search_cb(void *_oids, int num, char **values, char **names);
-
-    /**
-     *  Callback function to get output in XML format
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int dump_cb(void * _oss, int num, char **values, char **names);
 };
 
 #endif /*POOL_SQL_H_*/

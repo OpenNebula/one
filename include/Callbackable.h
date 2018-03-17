@@ -19,12 +19,13 @@
 
 #include <pthread.h>
 #include <sstream>
+#include <set>
+#include <vector>
 
 using namespace std;
 
 /**
- * ObjectSQL class. Provides a SQL backend interface, it should be implemented
- * by persistent objects.
+ *  This class represents a SQL callback
  */
 class Callbackable
 {
@@ -141,6 +142,8 @@ private:
     T * value;
 };
 
+/* -------------------------------------------------------------------------- */
+
 template<>
 class single_cb<std::string> : public Callbackable
 {
@@ -167,6 +170,123 @@ public:
 
 private:
     std::string * value;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+template <class T>
+class set_cb : public Callbackable
+{
+public:
+    void set_callback(std::set<T> * _ids)
+    {
+        ids = _ids;
+
+        Callbackable::set_callback(
+                static_cast<Callbackable::Callback>(&set_cb::callback));
+    };
+
+    int callback(void * nil, int num, char **values, char **names)
+    {
+        if ( num == 0 || values == 0 || values[0] == 0 )
+        {
+            return -1;
+        }
+
+        std::istringstream iss(values[0]);
+
+        T value;
+
+        iss >> value;
+
+        ids->insert(value);
+
+        return 0;
+    };
+
+private:
+
+    set<T> * ids;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+template<class T>
+class vector_cb : public Callbackable
+{
+public:
+    void set_callback(vector<T> * _oids)
+    {
+        oids = _oids;
+
+        Callbackable::set_callback(
+                static_cast<Callbackable::Callback>(&vector_cb::callback));
+    };
+
+    int callback(void * nil, int num, char **values, char **names)
+    {
+        if ( num == 0 || values == 0 || values[0] == 0 )
+        {
+            return -1;
+        }
+
+        std::istringstream iss(values[0]);
+
+        T value;
+
+        iss >> value;
+
+        oids->push_back(value);
+
+        return 0;
+    };
+
+private:
+
+    vector<T> *  oids;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class stream_cb : public Callbackable
+{
+public:
+    stream_cb(int _total): total_values(_total){};
+
+    void set_callback(ostringstream * _oss)
+    {
+        oss = _oss;
+
+        Callbackable::set_callback(
+                static_cast<Callbackable::Callback>(&stream_cb::callback));
+    };
+
+    int callback(void * nil, int num, char **values, char **names)
+    {
+        if ( (!values[0]) || (num != total_values) )
+        {
+            return -1;
+        }
+
+        for (int i=0; i < total_values; i++)
+        {
+            if ( values[i] != NULL )
+            {
+                *oss << values[i];
+            }
+        }
+
+        return 0;
+    };
+
+private:
+
+    int total_values;
+
+    ostringstream * oss;
 };
 
 #endif /*CALLBACKABLE_H_*/

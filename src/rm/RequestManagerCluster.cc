@@ -74,7 +74,7 @@ void RequestManagerCluster::action_generic(
     }
 
     // ------------- Set new cluster id in object ---------------------
-    get(object_id, true, &object, &cluster_obj);
+    get(object_id, &object, &cluster_obj);
 
     if ( object == 0 )
     {
@@ -105,7 +105,7 @@ void RequestManagerCluster::action_generic(
     object->unlock();
 
     // ------------- Add/del object to new cluster ---------------------
-    cluster = clpool->get(cluster_id, true);
+    cluster = clpool->get(cluster_id);
 
     if ( cluster == 0 )
     {
@@ -114,7 +114,7 @@ void RequestManagerCluster::action_generic(
         failure_response(NO_EXISTS, att);
 
         // Rollback
-        get(object_id, true, &object, &cluster_obj);
+        get(object_id, &object, &cluster_obj);
 
         if ( object != 0 )
         {
@@ -151,7 +151,7 @@ void RequestManagerCluster::action_generic(
         failure_response(ACTION, att);
 
         // Rollback
-        get(object_id, true, &object, &cluster_obj);
+        get(object_id, &object, &cluster_obj);
 
         if ( object != 0 )
         {
@@ -236,7 +236,7 @@ void RequestManagerClusterHost::add_generic(
     }
 
     // ------------- Set new cluster id in object ---------------------
-    host = hpool->get(host_id, true);
+    host = hpool->get(host_id);
 
     if ( host == 0 )
     {
@@ -263,7 +263,7 @@ void RequestManagerClusterHost::add_generic(
     host->unlock();
 
     // ------------- Add object to new cluster ---------------------
-    cluster = clpool->get(cluster_id, true);
+    cluster = clpool->get(cluster_id);
 
     if ( cluster == 0 )
     {
@@ -272,7 +272,7 @@ void RequestManagerClusterHost::add_generic(
         failure_response(NO_EXISTS, att);
 
         // Rollback
-        host = hpool->get(host_id, true);
+        host = hpool->get(host_id);
 
         if ( host != 0 )
         {
@@ -293,7 +293,7 @@ void RequestManagerClusterHost::add_generic(
         failure_response(INTERNAL, att);
 
         // Rollback
-        host = hpool->get(host_id, true);
+        host = hpool->get(host_id);
 
         if ( host != 0 )
         {
@@ -313,7 +313,7 @@ void RequestManagerClusterHost::add_generic(
 
     // ------------- Remove host from old cluster ---------------------
 
-    cluster = clpool->get(old_cluster_id, true);
+    cluster = clpool->get(old_cluster_id);
 
     if ( cluster == 0 )
     {

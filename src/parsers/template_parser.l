@@ -25,8 +25,8 @@
 
 #define YY_NO_INPUT
 
-#define YY_DECL int template_lex (YYSTYPE *lvalp, YYLTYPE *llocp, \
-                                  mem_collector *mc)
+#define YY_DECL int template_lex (YYSTYPE *yylval_param, YYLTYPE *llocp, \
+                                  mem_collector *mc, yyscan_t yyscanner)
 
 #define YY_USER_ACTION  llocp->first_line = yylineno;   \
                         llocp->first_column = llocp->last_column;   \
@@ -35,8 +35,11 @@
 
 %option nounput
 %option prefix="template_"
-%option outfile="template_parser.c"
+%option outfile="template_parser.cc"
+%option header-file="template_parser.h"
+%option bison-bridge
 %option yylineno
+%option reentrant
 
 %x VALUE
 
@@ -54,7 +57,7 @@ CDATA "\]\]\>"
  /* ------------------------------------------------------------------------- */
  /* Variable: Alpha numeric charatcers and '_'                                */
  /* ------------------------------------------------------------------------- */
-[[:alnum:]_]+  { lvalp->val_str = mem_collector_strdup(mc,yytext);
+[[:alnum:]_]+  { yylval_param->val_str = mem_collector_strdup(mc,yytext);
                  return VARIABLE; }
 
  /* ------------------------------------------------------------------------ */
@@ -78,17 +81,27 @@ CDATA "\]\]\>"
  /*   - Anything but  =,][# and blanks                                       */
  /* ------------------------------------------------------------------------ */
 
-<VALUE>.*{CDATA}.*   { BEGIN(INITIAL); return CCDATA;}
+<VALUE>.*{CDATA}.*   {
+    BEGIN(INITIAL);
+    return CCDATA;
+}
 
-<VALUE>\"{VALUE_STRING}\" { lvalp->val_str = mem_collector_strdup(mc,yytext+1);
-                             lvalp->val_str[yyleng-2] = '\0';
-                             BEGIN(INITIAL); return STRING; }
+<VALUE>\"{VALUE_STRING}\" {
+    yylval_param->val_str = mem_collector_strdup(mc,yytext+1);
+    yylval_param->val_str[yyleng-2] = '\0';
+    BEGIN(INITIAL);
+    return STRING;
+}
 
-<VALUE>{STRING}   { lvalp->val_str = mem_collector_strdup(mc,yytext);
-                    BEGIN(INITIAL); return STRING;}
+<VALUE>{STRING}   {
+    yylval_param->val_str = mem_collector_strdup(mc,yytext);
+    BEGIN(INITIAL);
+    return STRING;
+}
+
 %%
 
-int template_wrap()
+int template_wrap(yyscan_t scanner)
 {
     return 1;
 }

@@ -87,8 +87,7 @@ void PoolSQL::set_lastOID(int _last_oid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-PoolSQL::PoolSQL(SqlDB * _db, const char * _table):
-    db(_db), table(_table)
+PoolSQL::PoolSQL(SqlDB * _db, const char * _table):db(_db), table(_table)
 {
     pthread_mutex_init(&mutex,0);
 };
@@ -101,15 +100,6 @@ PoolSQL::~PoolSQL()
     vector<PoolObjectSQL *>::iterator it;
 
     pthread_mutex_lock(&mutex);
-
-    for ( it = pool.begin(); it != pool.end(); ++it)
-    {
-        (*it)->lock();
-
-        delete *it;
-    }
-
-    pthread_mutex_unlock(&mutex);
 
     pthread_mutex_destroy(&mutex);
 }
@@ -171,18 +161,18 @@ int PoolSQL::allocate(PoolObjectSQL *objsql, string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-PoolObjectSQL * PoolSQL::get(int oid, bool olock)
+PoolObjectSQL * PoolSQL::get(int oid)
 {
     if ( oid < 0 )
     {
         return 0;
     }
 
-    lock();
+    PoolObjectSQL * objectsql;
 
-    flush_cache(oid);
+    cache.lock_line(oid);
 
-    PoolObjectSQL * objectsql = create();
+    objectsql = create();
 
     objectsql->oid = oid;
 
@@ -190,23 +180,16 @@ PoolObjectSQL * PoolSQL::get(int oid, bool olock)
 
     if ( rc != 0 )
     {
-        objectsql->lock();
-
         delete objectsql;
 
-        unlock();
+        cache.set_line(oid, 0);
 
         return 0;
     }
 
-    pool.push_back(objectsql);
+    objectsql->lock();
 
-    if ( olock == true )
-    {
-        objectsql->lock();
-    }
-
-    unlock();
+    cache.set_line(oid, objectsql);
 
     return objectsql;
 }
@@ -214,142 +197,20 @@ PoolObjectSQL * PoolSQL::get(int oid, bool olock)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-PoolObjectSQL * PoolSQL::get(const string& name, int ouid, bool olock)
+PoolObjectSQL * PoolSQL::get(const string& name, int ouid)
 {
-    lock();
 
-    string name_key = key(name, ouid);
+    int oid = PoolObjectSQL::select_oid(db, table.c_str(), name, ouid);
 
-    flush_cache(name_key);
-
-    PoolObjectSQL * objectsql = create();
-
-    int rc = objectsql->select(db, name, ouid);
-
-    if ( rc != 0 )
+    if ( oid == -1 )
     {
-        objectsql->lock();
-
-        delete objectsql;
-
-        unlock();
-
         return 0;
     }
 
-    pool.push_back(objectsql);
-
-    if ( olock == true )
-    {
-        objectsql->lock();
-    }
-
-    unlock();
-
-    return objectsql;
+    return get(oid);
 }
 
 /* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void PoolSQL::flush_cache(int oid)
-{
-    for (vector<PoolObjectSQL *>::iterator it = pool.begin(); it != pool.end();)
-    {
-        // The object we are looking for in ::get(). Wait until it is unlocked()
-        if ((*it)->oid == oid)
-        {
-            (*it)->lock();
-        }
-        else
-        {
-            // Any other locked object is just ignored
-            int rc = pthread_mutex_trylock(&((*it)->mutex));
-
-            if ( rc == EBUSY ) // In use by other thread
-            {
-                it++;
-                continue;
-            }
-        }
-
-        delete *it;
-
-        it = pool.erase(it);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void PoolSQL::flush_cache(const string& name_key)
-{
-    for (vector<PoolObjectSQL *>::iterator it = pool.begin(); it != pool.end();)
-    {
-        string okey = key((*it)->name, (*it)->uid);
-
-        // The object we are looking for in ::get(). Wait until it is unlocked()
-        if ( name_key == okey)
-        {
-            (*it)->lock();
-        }
-        else
-        {
-            // Any other locked object is just ignored
-            int rc = pthread_mutex_trylock(&((*it)->mutex));
-
-            if ( rc == EBUSY ) // In use by other thread
-            {
-                it++;
-                continue;
-            }
-        }
-
-        delete *it;
-
-        it = pool.erase(it);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void PoolSQL::clean()
-{
-    vector<PoolObjectSQL *>::iterator it;
-
-    lock();
-
-    for (it = pool.begin(); it != pool.end(); ++it)
-    {
-        (*it)->lock();
-
-        delete *it;
-    }
-
-    pool.clear();
-
-    unlock();
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int PoolSQL::dump_cb(void * _oss, int num, char **values, char **names)
-{
-    ostringstream * oss;
-
-    oss = static_cast<ostringstream *>(_oss);
-
-    if ( (!values[0]) || (num != 1) )
-    {
-        return -1;
-    }
-
-    *oss << values[0];
-    return 0;
-}
-
 /* -------------------------------------------------------------------------- */
 
 int PoolSQL::dump(ostringstream& oss, const string& elem_name, const char* table,
@@ -382,41 +243,24 @@ int PoolSQL::dump(ostringstream& oss, const string& root_elem_name,
 {
     int rc;
 
+    stream_cb cb(1);
+
     oss << "<" << root_elem_name << ">";
 
-    set_callback(static_cast<Callbackable::Callback>(&PoolSQL::dump_cb),
-                 static_cast<void *>(&oss));
+    cb.set_callback(&oss);
 
-    rc = db->exec_rd(sql_query, this);
+    rc = db->exec_rd(sql_query, &cb);
 
     add_extra_xml(oss);
 
     oss << "</" << root_elem_name << ">";
 
-    unset_callback();
+    cb.unset_callback();
 
     return rc;
 }
 
 /* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int PoolSQL:: search_cb(void * _oids, int num, char **values, char **names)
-{
-    vector<int> *  oids;
-
-    oids = static_cast<vector<int> *>(_oids);
-
-    if ( num == 0 || values == 0 || values[0] == 0 )
-    {
-        return -1;
-    }
-
-    oids->push_back(atoi(values[0]));
-
-    return 0;
-}
-
 /* -------------------------------------------------------------------------- */
 
 int PoolSQL::search(
@@ -427,8 +271,9 @@ int PoolSQL::search(
     ostringstream   sql;
     int             rc;
 
-    set_callback(static_cast<Callbackable::Callback>(&PoolSQL::search_cb),
-                 static_cast<void *>(&oids));
+    vector_cb<int> cb;
+
+    cb.set_callback(&oids);
 
     sql  << "SELECT oid FROM " <<  table;
 
@@ -437,9 +282,9 @@ int PoolSQL::search(
         sql << " WHERE " << where;
     }
 
-    rc = db->exec_rd(sql, this);
+    rc = db->exec_rd(sql, &cb);
 
-    unset_callback();
+    cb.unset_callback();
 
     return rc;
 }
@@ -668,3 +513,7 @@ void PoolSQL::register_hooks(vector<const VectorAttribute *> hook_mads,
         }
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+

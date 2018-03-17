@@ -207,7 +207,7 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     if ( cluster_id != ClusterPool::NONE_CLUSTER_ID )
     {
-        cluster = clpool->get(cluster_id, true);
+        cluster = clpool->get(cluster_id);
 
         if ( cluster == 0 )
         {
@@ -226,7 +226,7 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
 
             cluster->unlock();
 
-            obj = pool->get(id, true);
+            obj = pool->get(id);
 
             if ( obj != 0 )
             {
@@ -384,7 +384,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     // ------------------------- Check Datastore exists ------------------------
 
-    if ((ds = dspool->get(ds_id,true)) == 0 )
+    if ((ds = dspool->get(ds_id)) == 0 )
     {
         att.resp_id  = ds_id;
         att.resp_obj = PoolObjectSQL::DATASTORE;
@@ -426,7 +426,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     {
         // This image comes from a MarketPlaceApp. Get the Market info and
         // the size.
-        app = apppool->get(app_id, true);
+        app = apppool->get(app_id);
 
         if ( app == 0 )
         {
@@ -444,7 +444,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
         app->unlock();
 
-        market = marketpool->get(market_id, true);
+        market = marketpool->get(market_id);
 
         if ( market == 0 )
         {
@@ -591,7 +591,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
         return;
     }
 
-    ds = dspool->get(ds_id, true);
+    ds = dspool->get(ds_id);
 
     if ( ds != 0 )  // TODO: error otherwise or leave image in ERROR?
     {
@@ -720,7 +720,7 @@ bool UserAllocate::allocate_authorization(
     {
         int tmp_gid = xmlrpc_c::value_int(*it);
 
-        Group* group = gpool->get(tmp_gid, true);
+        Group* group = gpool->get(tmp_gid);
 
         if (group == 0)
         {
@@ -847,7 +847,7 @@ Request::ErrorCode GroupAllocate::pool_allocate(
         return Request::INTERNAL;
     }
 
-    Vdc* vdc = vdcpool->get(VdcPool::DEFAULT_ID, true);
+    Vdc* vdc = vdcpool->get(VdcPool::DEFAULT_ID);
 
     if (vdc != 0)
     {
@@ -1137,7 +1137,7 @@ Request::ErrorCode MarketPlaceAppAllocate::pool_allocate(
     // ---------------------------------------------------------------------- //
     // Get Marketplace information for this app                               //
     // ---------------------------------------------------------------------- //
-    MarketPlace * mp = mppool->get(mp_id, true);
+    MarketPlace * mp = mppool->get(mp_id);
 
     if ( mp == 0 )
     {
@@ -1178,13 +1178,13 @@ Request::ErrorCode MarketPlaceAppAllocate::pool_allocate(
         return Request::INTERNAL;
     }
 
-    mp = mppool->get(mp_id, true);
+    mp = mppool->get(mp_id);
 
     if ( mp == 0 )
     {
         att.resp_msg = "Marketplace no longer exists";
 
-        MarketPlaceApp * app = appool->get(id, true);
+        MarketPlaceApp * app = appool->get(id);
 
         if ( app != 0 )
         {

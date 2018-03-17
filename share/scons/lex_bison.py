@@ -43,7 +43,7 @@ def emitter_lex(target, source, env):
     
 def add_lex(environment):
     lex_bld=SCons.Builder.Builder(action=build_lex,
-                    suffix='.c',
+                    suffix='.cc',
                     src_suffix='.l',
                     emitter=emitter_lex)
     environment.Append(BUILDERS={'Lex':lex_bld})

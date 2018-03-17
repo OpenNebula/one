@@ -14,7 +14,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-%{
+%code requires {
 #include <iostream>
 #include <vector>
 #include <string>
@@ -24,52 +24,45 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "vm_file_var_syntax.h"
 #include "ImagePool.h"
 #include "UserPool.h"
 #include "VirtualMachine.h"
 #include "Nebula.h"
 
-#define vm_file_var__lex vm_var_lex
+#include "mem_collector.h"
+
+typedef void * yyscan_t;
+
+int vm_file_var_parse (VirtualMachine * vm, vector<int> * img_ids,
+    char ** errmsg, yyscan_t scanner);
+}
+
+%{
+#include "vm_file_var_syntax.h"
+#include "vm_var_parser.h"
 
 #define YYERROR_VERBOSE
-#define VM_VAR_TO_UPPER(S) transform (S.begin(),S.end(),S.begin(), \
-(int(*)(int))toupper)
+#define vm_file_var_lex vm_var_lex
 
-extern "C"
+void vm_file_var_error(YYLTYPE * llocp, mem_collector *  mc, VirtualMachine * vm,
+    vector<int> * img_ids, char ** errmsg, yyscan_t scanner, const char * str);
+
+int vm_var_lex(YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc,
+    yyscan_t scanner);
+
+int vm_file_var_parse (VirtualMachine * vm, vector<int> * img_ids,
+    char ** errmsg, yyscan_t scanner)
 {
-    #include "mem_collector.h"
+    mem_collector mc;
+    int           rc;
 
-    void vm_file_var__error(
-        YYLTYPE *        llocp,
-        mem_collector *  mc,
-        VirtualMachine * vm,
-        vector<int> *    img_ids,
-        char **          errmsg,
-        const char *     str);
+    mem_collector_init(&mc);
 
-    int vm_file_var__lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc);
+    rc = vm_file_var_parse(&mc, vm, img_ids, errmsg, scanner);
 
-    int vm_file_var__parse (mem_collector *  mc,
-                            VirtualMachine * vm,
-                            vector<int> *    img_ids,
-                            char **          errmsg);
+    mem_collector_cleanup(&mc);
 
-    int vm_file_var_parse (VirtualMachine * vm,
-                           vector<int> *    img_ids,
-                           char **          errmsg)
-    {
-        mem_collector mc;
-        int           rc;
-
-        mem_collector_init(&mc);
-
-        rc = vm_file_var__parse(&mc, vm, img_ids, errmsg);
-
-        mem_collector_cleanup(&mc);
-
-        return rc;
-    }
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -120,7 +113,7 @@ int get_image_path(VirtualMachine * vm,
             delete vfile;
         }
 
-        img = ipool->get(val1, uid, true);
+        img = ipool->get(val1, uid);
 
         if ( img == 0 )
         {
@@ -141,7 +134,7 @@ int get_image_path(VirtualMachine * vm,
 
         if ( !is.fail() )
         {
-            img = ipool->get(iid, true);
+            img = ipool->get(iid);
         }
 
         if ( img == 0 )
@@ -168,7 +161,7 @@ int get_image_path(VirtualMachine * vm,
 
     set<int> gids;
 
-    user = upool->get(vm->get_uid(), true);
+    user = upool->get(vm->get_uid());
 
     if (user != 0)
     {
@@ -203,9 +196,11 @@ int get_image_path(VirtualMachine * vm,
 %parse-param {mem_collector *  mc}
 %parse-param {VirtualMachine * vm}
 %parse-param {vector<int> *    img_ids}
-%parse-param {char **          errmsg}
+%parse-param {char **  errmsg}
+%parse-param {yyscan_t scanner}
 
 %lex-param {mem_collector * mc}
+%lex-param {yyscan_t scanner}
 
 %union {
     char * val_str;
@@ -215,9 +210,9 @@ int get_image_path(VirtualMachine * vm,
 
 %defines
 %locations
-%pure_parser
-%name-prefix = "vm_file_var__"
-%output      = "vm_file_var_syntax.cc"
+%pure-parser
+%name-prefix "vm_file_var_"
+%output      "vm_file_var_syntax.cc"
 
 %token EQUAL COMMA OBRACKET CBRACKET
 
@@ -244,8 +239,8 @@ vm_variable:
 
         string result;
 
-        VM_VAR_TO_UPPER(file);
-        VM_VAR_TO_UPPER(var1);
+        one_util::toupper(file);
+        one_util::toupper(var1);
 
         if (get_image_path(vm, file, var1, val1, "", "", img_ids, result) == -1)
         {
@@ -264,9 +259,9 @@ vm_variable:
 
         string result;
 
-        VM_VAR_TO_UPPER(file);
-        VM_VAR_TO_UPPER(var1);
-        VM_VAR_TO_UPPER(var2);
+        one_util::toupper(file);
+        one_util::toupper(var1);
+        one_util::toupper(var2);
 
         if (get_image_path(vm, file, var1, val1, var2, val2, img_ids, result) == -1)
         {
@@ -278,12 +273,13 @@ vm_variable:
     ;
 %%
 
-extern "C" void vm_file_var__error(
+void vm_file_var_error(
     YYLTYPE *        llocp,
     mem_collector *  mc,
     VirtualMachine * vm,
     vector<int> *    img_ids,
     char **          error_msg,
+    yyscan_t         scanner,
     const char *     str)
 {
     int length;

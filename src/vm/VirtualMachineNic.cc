@@ -48,7 +48,7 @@ int VirtualMachineNic::release_network_leases(int vmid)
         return -1;
     }
 
-    VirtualNetwork * vn = vnpool->get(vnid, true);
+    VirtualNetwork * vn = vnpool->get(vnid);
 
     if ( vn == 0 )
     {
@@ -97,7 +97,7 @@ int VirtualMachineNic::get_uid(int _uid, string& error)
     else if ( !(uname = vector_value("NETWORK_UNAME")).empty() )
     {
         UserPool * upool = Nebula::instance().get_upool();
-        User * user      = upool->get(uname,true);
+        User * user      = upool->get(uname);
 
         if ( user == 0 )
         {
@@ -136,7 +136,7 @@ void VirtualMachineNic::authorize(PoolObjectSQL::ObjectType ot, int uid,
 
     for(set<int>::iterator it = sgroups.begin(); it != sgroups.end(); it++)
     {
-        SecurityGroup * sgroup = sgpool->get(*it, true);
+        SecurityGroup * sgroup = sgpool->get(*it);
 
         if(sgroup != 0)
         {

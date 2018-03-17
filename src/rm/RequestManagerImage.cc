@@ -107,7 +107,7 @@ Request::ErrorCode ImagePersistent::request_execute(
         return ec;
     }
 
-    image = ipool->get(id,true);
+    image = ipool->get(id);
 
     if ( image == 0 )
     {
@@ -129,7 +129,7 @@ Request::ErrorCode ImagePersistent::request_execute(
 
     image->unlock();
 
-    ds = dspool->get(ds_id, true);
+    ds = dspool->get(ds_id);
 
     if ( ds == 0 )
     {
@@ -142,7 +142,7 @@ Request::ErrorCode ImagePersistent::request_execute(
 
     ds->unlock();
 
-    image = ipool->get(id,true);
+    image = ipool->get(id);
 
     if ( image == 0 )
     {
@@ -221,7 +221,7 @@ void ImageChangeType::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    image = static_cast<Image *>(pool->get(id,true));
+    image = static_cast<Image *>(pool->get(id));
 
     if ( image == 0 )
     {
@@ -344,7 +344,7 @@ Request::ErrorCode ImageClone::request_execute(
 
     // ------------------------- Get source Image info -------------------------
 
-    img = ipool->get(clone_id, true);
+    img = ipool->get(clone_id);
 
     if ( img == 0 )
     {
@@ -396,7 +396,7 @@ Request::ErrorCode ImageClone::request_execute(
 
     // ----------------------- Get target Datastore info -----------------------
 
-    ds = dspool->get(ds_id, true);
+    ds = dspool->get(ds_id);
 
     if ( ds == 0 )
     {
@@ -432,7 +432,7 @@ Request::ErrorCode ImageClone::request_execute(
 
     if (ds_id != ds_id_orig) //check same DS_MAD
     {
-        ds = dspool->get(ds_id_orig, true);
+        ds = dspool->get(ds_id_orig);
 
         if (ds == 0)
         {
@@ -547,7 +547,7 @@ Request::ErrorCode ImageClone::request_execute(
         return ALLOCATE;
     }
 
-    ds = dspool->get(ds_id, true);
+    ds = dspool->get(ds_id);
 
     if ( ds != 0 )  // TODO: error otherwise or leave image in ERROR?
     {

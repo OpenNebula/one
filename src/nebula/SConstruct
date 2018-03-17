@@ -62,6 +62,7 @@ env.Prepend(LIBS=[
     'nebula_log',
     'nebula_client',
     'nebula_xml',
+    'nebula_parsers',
     'nebula_secgroup',
     'nebula_vdc',
     'nebula_vrouter',

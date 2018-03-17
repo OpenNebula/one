@@ -104,8 +104,8 @@ int ZonePool::allocate(
         string&     error_str)
 {
     Zone * zone;
-    Zone * zone_aux = 0;
 
+    int    db_oid;
     string name;
 
     ostringstream oss;
@@ -132,9 +132,9 @@ int ZonePool::allocate(
         goto error_name;
     }
 
-    zone_aux = get(name,false);
+    db_oid = exist(name);
 
-    if( zone_aux != 0 )
+    if( db_oid != -1 )
     {
         goto error_duplicated;
     }
@@ -144,7 +144,7 @@ int ZonePool::allocate(
     return *oid;
 
 error_duplicated:
-    oss << "NAME is already taken by Zone " << zone_aux->get_oid() << ".";
+    oss << "NAME is already taken by Zone " << db_oid << ".";
     error_str = oss.str();
 
 error_name:
@@ -208,7 +208,7 @@ unsigned int ZonePool::get_zone_servers(int zone_id,
 
     ZoneServers::zone_iterator zit;
 
-    Zone * zone = get(zone_id, true);
+    Zone * zone = get(zone_id);
 
     if ( zone == 0 )
     {

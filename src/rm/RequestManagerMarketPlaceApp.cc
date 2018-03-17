@@ -33,7 +33,7 @@ void MarketPlaceAppEnable::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    app = static_cast<MarketPlaceApp *>(pool->get(id, true));
+    app = static_cast<MarketPlaceApp *>(pool->get(id));
 
     if ( app == 0 )
     {

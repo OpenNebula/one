@@ -1839,10 +1839,6 @@ private:
     // -------------------------------------------------------------------------
     // Attribute Parser
     // -------------------------------------------------------------------------
-    /**
-     * Mutex to perform just one attribute parse at a time
-     */
-    static pthread_mutex_t lex_mutex;
 
     /**
      *  Attributes not allowed in NIC_DEFAULT to avoid authorization bypass and

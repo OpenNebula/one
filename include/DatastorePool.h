@@ -101,36 +101,9 @@ public:
      *    @param lock locks the Datastore mutex
      *    @return a pointer to the Datastore, 0 if the Datastore could not be loaded
      */
-    Datastore * get(int oid, bool lock)
+    Datastore * get(int oid)
     {
-        return static_cast<Datastore *>(PoolSQL::get(oid,lock));
-    };
-
-    /**
-     *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
-     *   @param name of the object
-     *   @param lock locks the object if true
-     *
-     *   @return a pointer to the object, 0 in case of failure
-     */
-    Datastore * get(const string& name, bool lock)
-    {
-        // The owner is set to -1, because it is not used in the key() method
-        return static_cast<Datastore *>(PoolSQL::get(name,-1,lock));
-    };
-
-    /**
-     *  Generate an index key for the object
-     *    @param name of the object
-     *    @param uid owner of the object, only used if needed
-     *
-     *    @return the key, a string
-     */
-    string key(const string& name, int uid)
-    {
-        // Name is enough key because Datastores can't repeat names.
-        return name;
+        return static_cast<Datastore *>(PoolSQL::get(oid));
     };
 
     /**

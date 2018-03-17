@@ -60,7 +60,7 @@ Request::ErrorCode RequestManagerClone::clone(int source_id, const string &name,
     int rc;
     PoolObjectAuth perms;
 
-    PoolObjectSQL * source_obj = pool->get(source_id, true);
+    PoolObjectSQL * source_obj = pool->get(source_id);
 
     if ( source_obj == 0 )
     {
@@ -161,7 +161,7 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
     RequestAttributes img_att(att);
     img_att.resp_obj    = PoolObjectSQL::IMAGE;
 
-    VMTemplate * vmtmpl = tpool->get(new_id, true);
+    VMTemplate * vmtmpl = tpool->get(new_id);
 
     if (vmtmpl == 0)
     {
@@ -226,7 +226,7 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
         ndisk++;
     }
 
-    vmtmpl = tpool->get(new_id, true);
+    vmtmpl = tpool->get(new_id);
 
     if (vmtmpl == 0)
     {

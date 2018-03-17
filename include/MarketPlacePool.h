@@ -67,34 +67,9 @@ public:
      *    @param lock locks the MarketPlace mutex
      *    @return a pointer to the MarketPlace, 0 if not loaded
      */
-    MarketPlace * get(int oid, bool lock)
+    MarketPlace * get(int oid)
     {
-        return static_cast<MarketPlace *>(PoolSQL::get(oid,lock));
-    };
-
-    /**
-     *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
-     *   @param name of the object
-     *   @param lock locks the object if true
-     *
-     *   @return a pointer to the object, 0 in case of failure
-     */
-    MarketPlace * get(const std::string& name, bool lock)
-    {
-        return static_cast<MarketPlace *>(PoolSQL::get(name,-1,lock));
-    };
-
-    /**
-     *  Generate an index key for the object
-     *    @param name of the object
-     *    @param uid owner of the object, only used if needed
-     *
-     *    @return the key, a string
-     */
-    string key(const std::string& name, int uid)
-    {
-        return name;
+        return static_cast<MarketPlace *>(PoolSQL::get(oid));
     };
 
     /** Update a particular MarketPlace

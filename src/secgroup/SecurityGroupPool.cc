@@ -38,7 +38,7 @@ SecurityGroupPool::SecurityGroupPool(SqlDB * db):PoolSQL(db,SecurityGroup::table
 
         Nebula& nd         = Nebula::instance();
         UserPool * upool   = nd.get_upool();
-        User *    oneadmin = upool->get(0, false);
+        User *    oneadmin = upool->get(0);
 
         string error;
 
@@ -54,6 +54,8 @@ SecurityGroupPool::SecurityGroupPool(SqlDB * db):PoolSQL(db,SecurityGroup::table
                 oneadmin->get_gname(),
                 oneadmin->get_umask(),
                 default_tmpl);
+
+        oneadmin->unlock();
 
         secgroup->set_permissions(1,1,1,1,0,0,1,0,0,error);
 
@@ -88,8 +90,8 @@ int SecurityGroupPool::allocate(
         string&         error_str)
 {
     SecurityGroup * secgroup;
-    SecurityGroup * secgroup_aux = 0;
 
+    int    db_oid;
     string name;
 
     ostringstream oss;
@@ -107,9 +109,9 @@ int SecurityGroupPool::allocate(
         goto error_name;
     }
 
-    secgroup_aux = get(name,uid,false);
+    db_oid = exist(name, uid);
 
-    if( secgroup_aux != 0 )
+    if( db_oid != -1 )
     {
         goto error_duplicated;
     }
@@ -119,7 +121,7 @@ int SecurityGroupPool::allocate(
     return *oid;
 
 error_duplicated:
-    oss << "NAME is already taken by SecurityGroup " << secgroup_aux->get_oid() << ".";
+    oss << "NAME is already taken by SecurityGroup " << db_oid << ".";
     error_str = oss.str();
 
 error_name:
@@ -141,7 +143,7 @@ void SecurityGroupPool::get_security_group_rules(int vmid, int sgid,
     int vnet_id;
     VirtualNetworkPool* vnet_pool = Nebula::instance().get_vnpool();
 
-    SecurityGroup* sg = get(sgid, true);
+    SecurityGroup* sg = get(sgid);
 
     if (sg == 0)
     {
@@ -167,7 +169,7 @@ void SecurityGroupPool::get_security_group_rules(int vmid, int sgid,
 
             VectorAttribute* rule = *rule_it;
 
-            VirtualNetwork* vnet  = vnet_pool->get(vnet_id, true);
+            VirtualNetwork* vnet  = vnet_pool->get(vnet_id);
 
             if (vnet == 0)
             {
@@ -200,7 +202,7 @@ void SecurityGroupPool::release_security_groups(int id, set<int>& sgs)
 
     for (it = sgs.begin(); it != sgs.end(); it++)
     {
-        sg = get(*it, true);
+        sg = get(*it);
 
         if (sg == 0)
         {

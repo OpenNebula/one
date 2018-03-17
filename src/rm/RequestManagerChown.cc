@@ -39,7 +39,7 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
 
     PoolObjectSQL *   object;
 
-    object = pool->get(oid,true);
+    object = pool->get(oid);
 
     if ( object == 0 )
     {
@@ -170,7 +170,7 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
             quota_rollback(it->second, it->first, att_old);
         }
 
-        object = pool->get(oid,true);
+        object = pool->get(oid);
     }
 
     // -------------------------------------------------------------------------
@@ -228,7 +228,7 @@ int RequestManagerChown::check_name_unique(int oid, int noid, RequestAttributes&
     int             obj_oid;
     ostringstream   oss;
 
-    object = pool->get(oid, true);
+    object = pool->get(oid);
 
     if ( object == 0 )
     {
@@ -241,13 +241,10 @@ int RequestManagerChown::check_name_unique(int oid, int noid, RequestAttributes&
 
     object->unlock();
 
-    object = get(name, noid, true);
+    obj_oid = pool->exist(name, noid);
 
-    if ( object != 0 )
+    if ( obj_oid != -1 )
     {
-        obj_oid = object->get_oid();
-        object->unlock();
-
         oss << object_name(PoolObjectSQL::USER) << " ["<<noid<<"] already owns "
             << object_name(auth_object) << " ["<<obj_oid<<"] with NAME " << name;
 
@@ -358,7 +355,7 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
     }
     else
     {
-        object = pool->get(oid,true);
+        object = pool->get(oid);
 
         if ( object == 0 )
         {
@@ -425,7 +422,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ((user = upool->get(oid,true)) == 0 )
+    if ((user = upool->get(oid)) == 0 )
     {
         att.resp_obj = PoolObjectSQL::USER;
         att.resp_id  = oid;
@@ -499,7 +496,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     // ------------- Change users primary group ---------------------
 
-    user = upool->get(oid,true);
+    user = upool->get(oid);
 
     if ( user == 0 )
     {
@@ -537,7 +534,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     // ------------- Updates new group with this new user ---------------------
 
-    group = gpool->get(ngid, true);
+    group = gpool->get(ngid);
 
     if( group == 0 )
     {
@@ -559,7 +556,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (remove_old_group)
     {
-        group = gpool->get(old_gid, true);
+        group = gpool->get(old_gid);
 
         if( group != 0 )
         {

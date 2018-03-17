@@ -60,201 +60,45 @@
 
 
 /* Substitute the variable and function names.  */
-#define yyparse         vm_file_var__parse
-#define yylex           vm_file_var__lex
-#define yyerror         vm_file_var__error
-#define yydebug         vm_file_var__debug
-#define yynerrs         vm_file_var__nerrs
+#define yyparse         expr_arith_parse
+#define yylex           expr_arith_lex
+#define yyerror         expr_arith_error
+#define yydebug         expr_arith_debug
+#define yynerrs         expr_arith_nerrs
 
 
 /* Copy the first part of user declarations.  */
-#line 17 "vm_file_var_syntax.y" /* yacc.c:339  */
+#line 17 "expr_arith.y" /* yacc.c:339  */
 
-#include <iostream>
-#include <vector>
-#include <string>
-#include <map>
-#include <algorithm>
-
-#include <ctype.h>
-#include <string.h>
-
-#include "vm_file_var_syntax.h"
-#include "ImagePool.h"
-#include "UserPool.h"
-#include "VirtualMachine.h"
-#include "Nebula.h"
-
-#define vm_file_var__lex vm_var_lex
+#include "expr_arith.h"
+#include "expr_parser.h"
 
 #define YYERROR_VERBOSE
-#define VM_VAR_TO_UPPER(S) transform (S.begin(),S.end(),S.begin(), \
-(int(*)(int))toupper)
+#define expr_arith_lex expr_lex
 
-extern "C"
+
+void expr_arith_error(YYLTYPE * llocp, mem_collector * mc, ObjectXML * oxml,
+        int& result, char ** error_msg, yyscan_t scanner, const char * str);
+
+int expr_arith_lex(YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc,
+    yyscan_t scanner);
+
+int expr_arith_parse(ObjectXML *oxml, int& result, char ** errmsg,
+    yyscan_t scanner)
 {
-    #include "mem_collector.h"
+    mem_collector mc;
+    int           rc;
 
-    void vm_file_var__error(
-        YYLTYPE *        llocp,
-        mem_collector *  mc,
-        VirtualMachine * vm,
-        vector<int> *    img_ids,
-        char **          errmsg,
-        const char *     str);
+    mem_collector_init(&mc);
 
-    int vm_file_var__lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc);
+    rc = expr_arith_parse(&mc, oxml, result, errmsg, scanner);
 
-    int vm_file_var__parse (mem_collector *  mc,
-                            VirtualMachine * vm,
-                            vector<int> *    img_ids,
-                            char **          errmsg);
+    mem_collector_cleanup(&mc);
 
-    int vm_file_var_parse (VirtualMachine * vm,
-                           vector<int> *    img_ids,
-                           char **          errmsg)
-    {
-        mem_collector mc;
-        int           rc;
-
-        mem_collector_init(&mc);
-
-        rc = vm_file_var__parse(&mc, vm, img_ids, errmsg);
-
-        mem_collector_cleanup(&mc);
-
-        return rc;
-    }
+    return rc;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int get_image_path(VirtualMachine * vm,
-                   const string&    var_name,
-                   const string&    var1,
-                   const string&    val1,
-                   const string&    var2,
-                   const string&    val2,
-                   vector<int> *    img_ids,
-                   string&          error_str)
-{
-    Nebula& nd = Nebula::instance();
-
-    ImagePool * ipool = nd.get_ipool();
-    UserPool *  upool = nd.get_upool();
-    Image  *    img   = 0;
-    User  *     user  = 0;
-    int         iid   = -1;
-
-    PoolObjectAuth  perm;
-
-    if (var_name != "FILE" )
-    {
-        error_str = "Must use FILE variable for attribute.";
-        return -1;
-    }
-
-    if ( var1 == "IMAGE" )
-    {
-        int uid = vm->get_uid();
-
-        if ( !var2.empty() )
-        {
-            VectorAttribute *  vfile;
-            map<string,string> file_values;
-
-            file_values.insert(make_pair(var1, val1));
-            file_values.insert(make_pair(var2, val2));
-
-            vfile = new VectorAttribute("FILE", file_values);
-
-            VirtualMachineDisk file_disk(vfile, 0);
-            uid   = file_disk.get_uid(uid);
-
-            delete vfile;
-        }
-
-        img = ipool->get(val1, uid, true);
-
-        if ( img == 0 )
-        {
-            ostringstream oss;
-            oss << "User " << uid << " does not own an image with name: " << val1
-                << " . Set IMAGE_UNAME or IMAGE_UID of owner.";
-
-            error_str = oss.str();
-
-            return -1;
-        }
-    }
-    else if ( var1 == "IMAGE_ID" )
-    {
-        istringstream is(val1);
-
-        is >> iid;
-
-        if ( !is.fail() )
-        {
-            img = ipool->get(iid, true);
-        }
-
-        if ( img == 0 )
-        {
-            ostringstream oss;
-            oss << "Image with ID: " << iid  << " does not exist";
-
-            error_str = oss.str();
-
-            return -1;
-        }
-    }
-    else
-    {
-        error_str = "Cannot get image, set IMAGE_ID or IMAGE.";
-        return -1;
-    }
-
-    iid = img->get_oid();
-
-    img->get_permissions(perm);
-
-    img->unlock();
-
-    set<int> gids;
-
-    user = upool->get(vm->get_uid(), true);
-
-    if (user != 0)
-    {
-        gids = user->get_groups();
-        user->unlock();
-    }
-    else
-    {
-        gids.insert(vm->get_gid());
-    }
-
-    AuthRequest ar(vm->get_uid(), gids);
-
-    ar.add_auth(AuthRequest::USE, perm);
-
-    if (UserPool::authorize(ar) == -1)
-    {
-        error_str = "User not authorize to use image.";
-        return -1;
-    }
-
-    img_ids->push_back(iid);
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-
-#line 258 "vm_file_var_syntax.cc" /* yacc.c:339  */
+#line 102 "expr_arith.cc" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -273,31 +117,48 @@ int get_image_path(VirtualMachine * vm,
 #endif
 
 /* In a future release of Bison, this section will be replaced
-   by #include "vm_file_var_syntax.hh".  */
-#ifndef YY_VM_FILE_VAR_VM_FILE_VAR_SYNTAX_HH_INCLUDED
-# define YY_VM_FILE_VAR_VM_FILE_VAR_SYNTAX_HH_INCLUDED
+   by #include "expr_arith.hh".  */
+#ifndef YY_EXPR_ARITH_EXPR_ARITH_HH_INCLUDED
+# define YY_EXPR_ARITH_EXPR_ARITH_HH_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
 #endif
 #if YYDEBUG
-extern int vm_file_var__debug;
+extern int expr_arith_debug;
 #endif
+/* "%code requires" blocks.  */
+#line 47 "expr_arith.y" /* yacc.c:355  */
+
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <set>
+
+#include <ctype.h>
+#include <string.h>
+#include <fnmatch.h>
+
+#include "mem_collector.h"
+#include "ObjectXML.h"
+
+typedef void * yyscan_t;
+
+int expr_arith_parse(ObjectXML *oxml, int& result, char ** errmsg,
+    yyscan_t scanner);
+
+#line 153 "expr_arith.cc" /* yacc.c:355  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
   enum yytokentype
   {
-    EQUAL = 258,
-    COMMA = 259,
-    OBRACKET = 260,
-    CBRACKET = 261,
-    EOA = 262,
-    STRING = 263,
-    VARIABLE = 264,
-    RSTRING = 265,
-    INTEGER = 266
+    INTEGER = 258,
+    STRING = 259,
+    FLOAT = 260
   };
 #endif
 
@@ -306,13 +167,13 @@ extern int vm_file_var__debug;
 
 union YYSTYPE
 {
-#line 210 "vm_file_var_syntax.y" /* yacc.c:355  */
+#line 77 "expr_arith.y" /* yacc.c:355  */
 
-    char * val_str;
-    int    val_int;
-    char   val_char;
+    char *  val_str;
+    int     val_int;
+    float   val_float;
 
-#line 316 "vm_file_var_syntax.cc" /* yacc.c:355  */
+#line 177 "expr_arith.cc" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -336,13 +197,13 @@ struct YYLTYPE
 
 
 
-int vm_file_var__parse (mem_collector *  mc, VirtualMachine * vm, vector<int> *    img_ids, char **          errmsg);
+int expr_arith_parse (mem_collector * mc, ObjectXML * oxml, int& result, char ** error_msg, yyscan_t scanner);
 
-#endif /* !YY_VM_FILE_VAR_VM_FILE_VAR_SYNTAX_HH_INCLUDED  */
+#endif /* !YY_EXPR_ARITH_EXPR_ARITH_HH_INCLUDED  */
 
 /* Copy the second part of user declarations.  */
 
-#line 346 "vm_file_var_syntax.cc" /* yacc.c:358  */
+#line 207 "expr_arith.cc" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -584,23 +445,23 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  5
+#define YYFINAL  10
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   16
+#define YYLAST   25
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  12
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  3
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  5
+#define YYNRULES  12
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  18
+#define YYNSTATES  20
 
 /* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
    by yylex, with out-of-bounds checking.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   266
+#define YYMAXUTOK   260
 
 #define YYTRANSLATE(YYX)                                                \
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -613,6 +474,7 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+      10,    11,     5,     3,     2,     4,     2,     6,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -633,16 +495,16 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8,     9,    10,    11
+       2,     2,     2,     2,     2,     2,     1,     2,     7,     8,
+       9
 };
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-static const yytype_uint16 yyrline[] =
+static const yytype_uint8 yyrline[] =
 {
-       0,   234,   234,   235,   239,   257
+       0,    99,    99,   100,   103,   104,   105,   106,   107,   108,
+     109,   110,   111
 };
 #endif
 
@@ -651,9 +513,8 @@ static const yytype_uint16 yyrline[] =
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
-  "$end", "error", "$undefined", "EQUAL", "COMMA", "OBRACKET", "CBRACKET",
-  "EOA", "STRING", "VARIABLE", "RSTRING", "INTEGER", "$accept",
-  "vm_string", "vm_variable", YY_NULLPTR
+  "$end", "error", "$undefined", "'+'", "'-'", "'*'", "'/'", "INTEGER",
+  "STRING", "FLOAT", "'('", "')'", "$accept", "stmt", "expr", YY_NULLPTR
 };
 #endif
 
@@ -662,15 +523,15 @@ static const char *const yytname[] =
    (internal) symbol number NUM (which must be that of a token).  */
 static const yytype_uint16 yytoknum[] =
 {
-       0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
-     265,   266
+       0,   256,   257,    43,    45,    42,    47,   258,   259,   260,
+      40,    41
 };
 # endif
 
-#define YYPACT_NINF -8
+#define YYPACT_NINF -5
 
 #define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-8)))
+  (!!((Yystate) == (-5)))
 
 #define YYTABLE_NINF -1
 
@@ -681,8 +542,8 @@ static const yytype_uint16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      -7,    -1,     0,    -8,    -4,    -8,    -8,     3,     2,    -3,
-      -2,     1,     8,    -8,     4,     7,     9,    -8
+      11,    11,    -5,    -5,    -5,    11,     5,    19,    -4,     3,
+      -5,    11,    11,    11,    11,    -5,    -4,    -4,    -5,    -5
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -690,20 +551,20 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,     0,     0,     2,     0,     1,     3,     0,     0,     0,
-       0,     0,     0,     4,     0,     0,     0,     5
+       3,     0,     6,     4,     5,     0,     0,     2,    11,     0,
+       1,     0,     0,     0,     0,    12,     7,     8,     9,    10
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -8,    -8,    12
+      -5,    -5,    -1
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     2,     3
+      -1,     6,     7
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -711,34 +572,38 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_uint8 yytable[] =
 {
-       5,    10,     1,    11,     4,     7,     8,    12,    13,     1,
-       9,    14,    15,    16,     6,     0,    17
+       8,    13,    14,     0,     9,    10,    11,    12,    13,    14,
+      16,    17,    18,    19,    15,     1,     0,     0,     2,     3,
+       4,     5,    11,    12,    13,    14
 };
 
 static const yytype_int8 yycheck[] =
 {
-       0,     4,     9,     6,     5,     9,     3,     9,     7,     9,
-       8,     3,     8,     6,     2,    -1,     7
+       1,     5,     6,    -1,     5,     0,     3,     4,     5,     6,
+      11,    12,    13,    14,    11,     4,    -1,    -1,     7,     8,
+       9,    10,     3,     4,     5,     6
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     9,    13,    14,     5,     0,    14,     9,     3,     8,
-       4,     6,     9,     7,     3,     8,     6,     7
+       0,     4,     7,     8,     9,    10,    13,    14,    14,    14,
+       0,     3,     4,     5,     6,    11,    14,    14,    14,    14
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    12,    13,    13,    14,    14
+       0,    12,    13,    13,    14,    14,    14,    14,    14,    14,
+      14,    14,    14
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     1,     2,     7,    11
+       0,     2,     1,     0,     1,     1,     1,     3,     3,     3,
+       3,     2,     3
 };
 
 
@@ -766,7 +631,7 @@ do                                                              \
     }                                                           \
   else                                                          \
     {                                                           \
-      yyerror (&yylloc, mc, vm, img_ids, errmsg, YY_("syntax error: cannot back up")); \
+      yyerror (&yylloc, mc, oxml, result, error_msg, scanner, YY_("syntax error: cannot back up")); \
       YYERROR;                                                  \
     }                                                           \
 while (0)
@@ -868,7 +733,7 @@ do {                                                                      \
     {                                                                     \
       YYFPRINTF (stderr, "%s ", Title);                                   \
       yy_symbol_print (stderr,                                            \
-                  Type, Value, Location, mc, vm, img_ids, errmsg); \
+                  Type, Value, Location, mc, oxml, result, error_msg, scanner); \
       YYFPRINTF (stderr, "\n");                                           \
     }                                                                     \
 } while (0)
@@ -879,15 +744,16 @@ do {                                                                      \
 `----------------------------------------*/
 
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector *  mc, VirtualMachine * vm, vector<int> *    img_ids, char **          errmsg)
+yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector * mc, ObjectXML * oxml, int& result, char ** error_msg, yyscan_t scanner)
 {
   FILE *yyo = yyoutput;
   YYUSE (yyo);
   YYUSE (yylocationp);
   YYUSE (mc);
-  YYUSE (vm);
-  YYUSE (img_ids);
-  YYUSE (errmsg);
+  YYUSE (oxml);
+  YYUSE (result);
+  YYUSE (error_msg);
+  YYUSE (scanner);
   if (!yyvaluep)
     return;
 # ifdef YYPRINT
@@ -903,14 +769,14 @@ yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvalue
 `--------------------------------*/
 
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector *  mc, VirtualMachine * vm, vector<int> *    img_ids, char **          errmsg)
+yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector * mc, ObjectXML * oxml, int& result, char ** error_msg, yyscan_t scanner)
 {
   YYFPRINTF (yyoutput, "%s %s (",
              yytype < YYNTOKENS ? "token" : "nterm", yytname[yytype]);
 
   YY_LOCATION_PRINT (yyoutput, *yylocationp);
   YYFPRINTF (yyoutput, ": ");
-  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, vm, img_ids, errmsg);
+  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, oxml, result, error_msg, scanner);
   YYFPRINTF (yyoutput, ")");
 }
 
@@ -943,7 +809,7 @@ do {                                                            \
 `------------------------------------------------*/
 
 static void
-yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, mem_collector *  mc, VirtualMachine * vm, vector<int> *    img_ids, char **          errmsg)
+yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, mem_collector * mc, ObjectXML * oxml, int& result, char ** error_msg, yyscan_t scanner)
 {
   unsigned long int yylno = yyrline[yyrule];
   int yynrhs = yyr2[yyrule];
@@ -957,7 +823,7 @@ yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule
       yy_symbol_print (stderr,
                        yystos[yyssp[yyi + 1 - yynrhs]],
                        &(yyvsp[(yyi + 1) - (yynrhs)])
-                       , &(yylsp[(yyi + 1) - (yynrhs)])                       , mc, vm, img_ids, errmsg);
+                       , &(yylsp[(yyi + 1) - (yynrhs)])                       , mc, oxml, result, error_msg, scanner);
       YYFPRINTF (stderr, "\n");
     }
 }
@@ -965,7 +831,7 @@ yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule
 # define YY_REDUCE_PRINT(Rule)          \
 do {                                    \
   if (yydebug)                          \
-    yy_reduce_print (yyssp, yyvsp, yylsp, Rule, mc, vm, img_ids, errmsg); \
+    yy_reduce_print (yyssp, yyvsp, yylsp, Rule, mc, oxml, result, error_msg, scanner); \
 } while (0)
 
 /* Nonzero means print parse trace.  It is left uninitialized so that
@@ -1223,14 +1089,15 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
 `-----------------------------------------------*/
 
 static void
-yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, mem_collector *  mc, VirtualMachine * vm, vector<int> *    img_ids, char **          errmsg)
+yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, mem_collector * mc, ObjectXML * oxml, int& result, char ** error_msg, yyscan_t scanner)
 {
   YYUSE (yyvaluep);
   YYUSE (yylocationp);
   YYUSE (mc);
-  YYUSE (vm);
-  YYUSE (img_ids);
-  YYUSE (errmsg);
+  YYUSE (oxml);
+  YYUSE (result);
+  YYUSE (error_msg);
+  YYUSE (scanner);
   if (!yymsg)
     yymsg = "Deleting";
   YY_SYMBOL_PRINT (yymsg, yytype, yyvaluep, yylocationp);
@@ -1248,7 +1115,7 @@ yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocatio
 `----------*/
 
 int
-yyparse (mem_collector *  mc, VirtualMachine * vm, vector<int> *    img_ids, char **          errmsg)
+yyparse (mem_collector * mc, ObjectXML * oxml, int& result, char ** error_msg, yyscan_t scanner)
 {
 /* The lookahead symbol.  */
 int yychar;
@@ -1442,7 +1309,7 @@ yybackup:
   if (yychar == YYEMPTY)
     {
       YYDPRINTF ((stderr, "Reading a token: "));
-      yychar = yylex (&yylval, &yylloc, mc);
+      yychar = yylex (&yylval, &yylloc, mc, scanner);
     }
 
   if (yychar <= YYEOF)
@@ -1521,55 +1388,74 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-        case 4:
-#line 240 "vm_file_var_syntax.y" /* yacc.c:1646  */
-    {
-        string file((yyvsp[-6].val_str));
-        string var1((yyvsp[-4].val_str));
-        string val1((yyvsp[-2].val_str));
+        case 2:
+#line 99 "expr_arith.y" /* yacc.c:1646  */
+    { result = static_cast<int>((yyvsp[0].val_float));}
+#line 1395 "expr_arith.cc" /* yacc.c:1646  */
+    break;
 
-        string result;
+  case 3:
+#line 100 "expr_arith.y" /* yacc.c:1646  */
+    { result = 0; }
+#line 1401 "expr_arith.cc" /* yacc.c:1646  */
+    break;
 
-        VM_VAR_TO_UPPER(file);
-        VM_VAR_TO_UPPER(var1);
-
-        if (get_image_path(vm, file, var1, val1, "", "", img_ids, result) == -1)
-        {
-            img_ids->clear();
-            *errmsg = strdup(result.c_str());
-            YYABORT;
-        }
-    }
-#line 1544 "vm_file_var_syntax.cc" /* yacc.c:1646  */
+  case 4:
+#line 103 "expr_arith.y" /* yacc.c:1646  */
+    { float val; oxml->search((yyvsp[0].val_str), val); (yyval.val_float) = val; }
+#line 1407 "expr_arith.cc" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 258 "vm_file_var_syntax.y" /* yacc.c:1646  */
-    {
-        string file((yyvsp[-10].val_str));
-        string var1((yyvsp[-8].val_str));
-        string val1((yyvsp[-6].val_str));
-        string var2((yyvsp[-4].val_str));
-        string val2((yyvsp[-2].val_str));
+#line 104 "expr_arith.y" /* yacc.c:1646  */
+    { (yyval.val_float) = (yyvsp[0].val_float); }
+#line 1413 "expr_arith.cc" /* yacc.c:1646  */
+    break;
 
-        string result;
+  case 6:
+#line 105 "expr_arith.y" /* yacc.c:1646  */
+    { (yyval.val_float) = static_cast<float>((yyvsp[0].val_int)); }
+#line 1419 "expr_arith.cc" /* yacc.c:1646  */
+    break;
 
-        VM_VAR_TO_UPPER(file);
-        VM_VAR_TO_UPPER(var1);
-        VM_VAR_TO_UPPER(var2);
+  case 7:
+#line 106 "expr_arith.y" /* yacc.c:1646  */
+    { (yyval.val_float) = (yyvsp[-2].val_float) + (yyvsp[0].val_float);}
+#line 1425 "expr_arith.cc" /* yacc.c:1646  */
+    break;
 
-        if (get_image_path(vm, file, var1, val1, var2, val2, img_ids, result) == -1)
-        {
-            img_ids->clear();
-            *errmsg = strdup(result.c_str());
-            YYABORT;
-        }
-    }
-#line 1569 "vm_file_var_syntax.cc" /* yacc.c:1646  */
+  case 8:
+#line 107 "expr_arith.y" /* yacc.c:1646  */
+    { (yyval.val_float) = (yyvsp[-2].val_float) - (yyvsp[0].val_float);}
+#line 1431 "expr_arith.cc" /* yacc.c:1646  */
+    break;
+
+  case 9:
+#line 108 "expr_arith.y" /* yacc.c:1646  */
+    { (yyval.val_float) = (yyvsp[-2].val_float) * (yyvsp[0].val_float);}
+#line 1437 "expr_arith.cc" /* yacc.c:1646  */
+    break;
+
+  case 10:
+#line 109 "expr_arith.y" /* yacc.c:1646  */
+    { (yyval.val_float) = (yyvsp[-2].val_float) / (yyvsp[0].val_float);}
+#line 1443 "expr_arith.cc" /* yacc.c:1646  */
+    break;
+
+  case 11:
+#line 110 "expr_arith.y" /* yacc.c:1646  */
+    { (yyval.val_float) = - (yyvsp[0].val_float);}
+#line 1449 "expr_arith.cc" /* yacc.c:1646  */
+    break;
+
+  case 12:
+#line 111 "expr_arith.y" /* yacc.c:1646  */
+    { (yyval.val_float) = (yyvsp[-1].val_float);}
+#line 1455 "expr_arith.cc" /* yacc.c:1646  */
     break;
 
 
-#line 1573 "vm_file_var_syntax.cc" /* yacc.c:1646  */
+#line 1459 "expr_arith.cc" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1620,7 +1506,7 @@ yyerrlab:
     {
       ++yynerrs;
 #if ! YYERROR_VERBOSE
-      yyerror (&yylloc, mc, vm, img_ids, errmsg, YY_("syntax error"));
+      yyerror (&yylloc, mc, oxml, result, error_msg, scanner, YY_("syntax error"));
 #else
 # define YYSYNTAX_ERROR yysyntax_error (&yymsg_alloc, &yymsg, \
                                         yyssp, yytoken)
@@ -1647,7 +1533,7 @@ yyerrlab:
                 yymsgp = yymsg;
               }
           }
-        yyerror (&yylloc, mc, vm, img_ids, errmsg, yymsgp);
+        yyerror (&yylloc, mc, oxml, result, error_msg, scanner, yymsgp);
         if (yysyntax_error_status == 2)
           goto yyexhaustedlab;
       }
@@ -1671,7 +1557,7 @@ yyerrlab:
       else
         {
           yydestruct ("Error: discarding",
-                      yytoken, &yylval, &yylloc, mc, vm, img_ids, errmsg);
+                      yytoken, &yylval, &yylloc, mc, oxml, result, error_msg, scanner);
           yychar = YYEMPTY;
         }
     }
@@ -1728,7 +1614,7 @@ yyerrlab1:
 
       yyerror_range[1] = *yylsp;
       yydestruct ("Error: popping",
-                  yystos[yystate], yyvsp, yylsp, mc, vm, img_ids, errmsg);
+                  yystos[yystate], yyvsp, yylsp, mc, oxml, result, error_msg, scanner);
       YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
@@ -1770,7 +1656,7 @@ yyabortlab:
 | yyexhaustedlab -- memory exhaustion comes here.  |
 `-------------------------------------------------*/
 yyexhaustedlab:
-  yyerror (&yylloc, mc, vm, img_ids, errmsg, YY_("memory exhausted"));
+  yyerror (&yylloc, mc, oxml, result, error_msg, scanner, YY_("memory exhausted"));
   yyresult = 2;
   /* Fall through.  */
 #endif
@@ -1782,7 +1668,7 @@ yyreturn:
          user semantic actions for why this is necessary.  */
       yytoken = YYTRANSLATE (yychar);
       yydestruct ("Cleanup: discarding lookahead",
-                  yytoken, &yylval, &yylloc, mc, vm, img_ids, errmsg);
+                  yytoken, &yylval, &yylloc, mc, oxml, result, error_msg, scanner);
     }
   /* Do not reclaim the symbols of the rule whose action triggered
      this YYABORT or YYACCEPT.  */
@@ -1791,7 +1677,7 @@ yyreturn:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-                  yystos[*yyssp], yyvsp, yylsp, mc, vm, img_ids, errmsg);
+                  yystos[*yyssp], yyvsp, yylsp, mc, oxml, result, error_msg, scanner);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
@@ -1804,16 +1690,17 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 279 "vm_file_var_syntax.y" /* yacc.c:1906  */
+#line 114 "expr_arith.y" /* yacc.c:1906  */
 
 
-extern "C" void vm_file_var__error(
-    YYLTYPE *        llocp,
-    mem_collector *  mc,
-    VirtualMachine * vm,
-    vector<int> *    img_ids,
-    char **          error_msg,
-    const char *     str)
+void expr_arith_error(
+    YYLTYPE *       llocp,
+    mem_collector * mc,
+    ObjectXML *     oxml,
+    int&            result,
+    char **         error_msg,
+    yyscan_t        scanner,
+    const char *    str)
 {
     int length;
 

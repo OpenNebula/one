@@ -71,9 +71,9 @@ public:
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    Document * get(int oid, bool lock)
+    Document * get(int oid)
     {
-        return static_cast<Document *>(PoolSQL::get(oid,lock));
+        return static_cast<Document *>(PoolSQL::get(oid));
     };
 
     /**

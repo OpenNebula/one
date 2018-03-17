@@ -37,8 +37,32 @@
 # define YYDEBUG 0
 #endif
 #if YYDEBUG
-extern int vm_var__debug;
+extern int vm_var_debug;
 #endif
+/* "%code requires" blocks.  */
+#line 17 "vm_var_syntax.y" /* yacc.c:1909  */
+
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <map>
+#include <algorithm>
+
+#include <ctype.h>
+#include <string.h>
+
+#include "VirtualMachinePool.h"
+#include "VirtualMachine.h"
+#include "Nebula.h"
+
+#include "mem_collector.h"
+
+typedef void * yyscan_t;
+
+int vm_var_parse (VirtualMachine * vm, ostringstream * parsed, char ** errmsg,
+    yyscan_t scanner);
+
+#line 66 "vm_var_syntax.hh" /* yacc.c:1909  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -62,13 +86,13 @@ extern int vm_var__debug;
 
 union YYSTYPE
 {
-#line 408 "vm_var_syntax.y" /* yacc.c:1909  */
+#line 404 "vm_var_syntax.y" /* yacc.c:1909  */
 
     char * val_str;
     int    val_int;
     char   val_char;
 
-#line 72 "vm_var_syntax.hh" /* yacc.c:1909  */
+#line 96 "vm_var_syntax.hh" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -89,5 +113,9 @@ struct YYLTYPE
 # define YYLTYPE_IS_DECLARED 1
 # define YYLTYPE_IS_TRIVIAL 1
 #endif
+
+
+
+int vm_var_parse (mem_collector * mc, VirtualMachine * vm, ostringstream * parsed, char ** errmsg, yyscan_t scanner);
 
 #endif /* !YY_VM_VAR_VM_VAR_SYNTAX_HH_INCLUDED  */

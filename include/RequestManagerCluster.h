@@ -99,7 +99,7 @@ protected:
 
     virtual int del_object(Cluster* cluster, int id, string& error_msg) = 0;
 
-    virtual void get(int oid, bool lock, PoolObjectSQL ** object, Clusterable ** cluster_obj) = 0;
+    virtual void get(int oid, PoolObjectSQL ** object, Clusterable ** cluster_obj) = 0;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -212,9 +212,9 @@ public:
         return cluster->del_datastore(id, error_msg);
     };
 
-    virtual void get(int oid, bool lock, PoolObjectSQL ** object, Clusterable ** cluster_obj)
+    virtual void get(int oid, PoolObjectSQL ** object, Clusterable ** cluster_obj)
     {
-        Datastore * ds = dspool->get(oid, lock);
+        Datastore * ds = dspool->get(oid);
 
         *object      = static_cast<PoolObjectSQL *>(ds);
         *cluster_obj = static_cast<Clusterable *>(ds);
@@ -297,9 +297,9 @@ public:
         return cluster->del_vnet(id, error_msg);
     };
 
-    virtual void get(int oid, bool lock, PoolObjectSQL ** object, Clusterable ** cluster_obj)
+    virtual void get(int oid, PoolObjectSQL ** object, Clusterable ** cluster_obj)
     {
-        VirtualNetwork * vnet = vnpool->get(oid, lock);
+        VirtualNetwork * vnet = vnpool->get(oid);
 
         *object      = static_cast<PoolObjectSQL *>(vnet);
         *cluster_obj = static_cast<Clusterable *>(vnet);

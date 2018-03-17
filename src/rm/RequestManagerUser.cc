@@ -23,7 +23,6 @@ void RequestManagerUser::
                     RequestAttributes& att)
 {
     int    id  = xmlrpc_c::value_int(paramList.getInt(1));
-    User * user;
     string error_str;
 
     if ( basic_authorization(id, att) == false )
@@ -31,9 +30,7 @@ void RequestManagerUser::
         return;
     }
 
-    user = (static_cast<UserPool *>(pool))->get(id,false);
-
-    if ( user == 0 )
+    if ( pool->exist(id) == -1 )
     {
         att.resp_id = id;
         failure_response(NO_EXISTS, att);
@@ -60,7 +57,7 @@ int UserChangePassword::user_action(int     user_id,
 
     string new_pass = xmlrpc_c::value_string(paramList.getString(2));
 
-    User * user = (static_cast<UserPool *>(pool))->get(user_id,true);
+    User * user = (static_cast<UserPool *>(pool))->get(user_id);
 
     if ( user == 0 )
     {
@@ -112,7 +109,7 @@ int UserChangeAuth::user_action(int     user_id,
 
     User * user;
 
-    user = (static_cast<UserPool *>(pool))->get(user_id,true);
+    user = (static_cast<UserPool *>(pool))->get(user_id);
 
     if ( user == 0 )
     {
@@ -173,7 +170,7 @@ int UserSetQuota::user_action(int     user_id,
         return -1;
     }
 
-    user = (static_cast<UserPool *>(pool))->get(user_id,true);
+    user = (static_cast<UserPool *>(pool))->get(user_id);
 
     if ( user == 0 )
     {
@@ -210,7 +207,7 @@ void UserEditGroup::
     PoolObjectAuth uperms;
     PoolObjectAuth gperms;
 
-    User* user = upool->get(user_id,true);
+    User* user = upool->get(user_id);
 
     if ( user == 0 )
     {
@@ -290,7 +287,7 @@ int UserAddGroup::secondary_group_action(
 
     int rc;
 
-    user = upool->get(user_id,true);
+    user = upool->get(user_id);
 
     if ( user == 0 )
     {
@@ -311,11 +308,11 @@ int UserAddGroup::secondary_group_action(
 
     user->unlock();
 
-    group = gpool->get(group_id, true);
+    group = gpool->get(group_id);
 
     if( group == 0 )
     {
-        user = upool->get(user_id,true);
+        user = upool->get(user_id);
 
         if ( user != 0 )
         {
@@ -353,7 +350,7 @@ int UserDelGroup::secondary_group_action(
 
     int rc;
 
-    user = upool->get(user_id,true);
+    user = upool->get(user_id);
 
     rc = user->del_group(group_id);
 
@@ -381,7 +378,7 @@ int UserDelGroup::secondary_group_action(
 
     user->unlock();
 
-    group = gpool->get(group_id, true);
+    group = gpool->get(group_id);
 
     if( group == 0 )
     {
@@ -425,7 +422,7 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
     {
         PoolObjectAuth perms;
 
-        user = static_cast<UserPool *>(pool)->get(uname, true);
+        user = static_cast<UserPool *>(pool)->get(uname);
 
         if ( user == 0 )
         {
@@ -449,7 +446,7 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
         }
     }
 
-    user = static_cast<UserPool *>(pool)->get(uname, true);
+    user = static_cast<UserPool *>(pool)->get(uname);
 
     if ( user == 0 )
     {

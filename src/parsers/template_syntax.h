@@ -37,8 +37,29 @@
 # define YYDEBUG 0
 #endif
 #if YYDEBUG
-extern int template__debug;
+extern int template_debug;
 #endif
+/* "%code requires" blocks.  */
+#line 47 "template_syntax.y" /* yacc.c:1909  */
+
+#include <iostream>
+#include <string>
+#include <map>
+#include <algorithm>
+
+#include <ctype.h>
+#include <string.h>
+#include <stdio.h>
+
+#include "mem_collector.h"
+
+#include "Template.h"
+
+typedef void * yyscan_t;
+
+int template_parse(Template * tmpl, char ** errmsg, yyscan_t scanner);
+
+#line 63 "template_syntax.hh" /* yacc.c:1909  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -66,7 +87,7 @@ union YYSTYPE
     char * val_str;
     void * val_attr;
 
-#line 70 "template_syntax.hh" /* yacc.c:1909  */
+#line 91 "template_syntax.hh" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -87,5 +108,9 @@ struct YYLTYPE
 # define YYLTYPE_IS_DECLARED 1
 # define YYLTYPE_IS_TRIVIAL 1
 #endif
+
+
+
+int template_parse (mem_collector * mc, Template * tmpl, char ** error_msg, yyscan_t scanner);
 
 #endif /* !YY_TEMPLATE_TEMPLATE_SYNTAX_HH_INCLUDED  */

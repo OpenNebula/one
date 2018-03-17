@@ -115,7 +115,6 @@ public:
              gid(_gid),
              uname(_uname),
              gname(_gname),
-             valid(true),
              owner_u(1),
              owner_m(1),
              owner_a(0),
@@ -271,24 +270,6 @@ public:
     /* --------------------------------------------------------------------- */
 
     /**
-     *  Check if the object is valid
-     *    @return true if object is valid
-     */
-    const bool& isValid() const
-    {
-       return valid;
-    };
-
-    /**
-     *  Set the object valid flag
-     *  @param _valid new valid flag
-     */
-    void set_valid(const bool _valid)
-    {
-        valid = _valid;
-    };
-
-    /**
      *  Function to lock the object
      */
     void lock()
@@ -302,6 +283,15 @@ public:
     void unlock()
     {
         pthread_mutex_unlock(&mutex);
+    };
+
+    /**
+     *  Try to lock the object
+     *    @return 0 on success or error_code
+     */
+    int trylock()
+    {
+        return pthread_mutex_trylock(&mutex);
     };
 
     /**
@@ -558,6 +548,27 @@ protected:
     virtual int select(SqlDB *db, const string& _name, int _uid);
 
     /**
+     *  Search oid by its name and owner
+     *    @param db pointer to the db
+     *    @param _table for the objects
+     *    @param _name of the object
+     *    @param _uid of owner
+     *    @return -1 if not found or oid otherwise
+     */
+    static int select_oid(SqlDB *db, const char * _table, const string& _name,
+            int _uid);
+
+    /**
+     *  Check if the object exists
+     *    @param db pointer to the db
+     *    @param _table for the objects
+     *    @param _oid of the object
+     *
+     *    @return -1 if not found or oid otherwise
+     */
+    static int exist(SqlDB *db, const char * _table, int _oid);
+
+    /**
      *  Drops object from the database
      *    @param db pointer to the db
      *    @return 0 on success
@@ -689,11 +700,6 @@ protected:
      *  Name of the object's group,, empty if group is not used
      */
     string  gname;
-
-    /**
-     *  The contents of this object are valid
-     */
-    bool    valid;
 
     /**
      *  Permissions for the owner user

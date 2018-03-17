@@ -111,6 +111,14 @@ public:
     int start();
 
     /**
+     *
+     */
+    void finalize()
+    {
+        am.finalize();
+    };
+
+    /**
      *  Loads Virtual Machine Manager Mads defined in configuration file
      *   @param uid of the user executing the driver. When uid is 0 the nebula
      *   identity will be used. Otherwise the Mad will be loaded through the

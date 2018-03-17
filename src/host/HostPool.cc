@@ -157,6 +157,8 @@ int HostPool::allocate (
     Host *        host;
     ostringstream oss;
 
+    int db_oid;
+
     if ( !PoolObjectSQL::name_is_valid(hostname, error_str) )
     {
         goto error_name;
@@ -172,9 +174,9 @@ int HostPool::allocate (
         goto error_vmm;
     }
 
-    host = get(hostname,false);
+    db_oid = exist(hostname);
 
-    if ( host !=0)
+    if ( db_oid != -1 )
     {
         goto error_duplicated;
     }
@@ -204,7 +206,7 @@ error_vmm:
     goto error_common;
 
 error_duplicated:
-    oss << "NAME is already taken by HOST " << host->get_oid() << ".";
+    oss << "NAME is already taken by HOST " << db_oid << ".";
     error_str = oss.str();
 
 error_name:
@@ -217,46 +219,23 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int HostPool::discover_cb(void * _set, int num, char **values, char **names)
-{
-    set<int> *  discovered_hosts;
-    string      im_mad;
-    int         hid;
-
-    discovered_hosts = static_cast<set<int> *>(_set);
-
-    if ( (num<1) || (values[0] == 0) )
-    {
-        return -1;
-    }
-
-    hid = atoi(values[0]);
-
-    discovered_hosts->insert(hid);
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-
 int HostPool::discover(
         set<int> *  discovered_hosts,
         int         host_limit,
         time_t      target_time)
 {
-    ostringstream   sql;
-    int             rc;
+    ostringstream sql;
+    set_cb<int>   cb;
 
-    set_callback(static_cast<Callbackable::Callback>(&HostPool::discover_cb),
-                 static_cast<void *>(discovered_hosts));
+    cb.set_callback(discovered_hosts);
 
     sql << "SELECT oid FROM " << Host::table
         << " WHERE last_mon_time <= " << target_time
         << " ORDER BY last_mon_time ASC LIMIT " << host_limit;
 
-    rc = db->exec_rd(sql,this);
+    int rc = db->exec_rd(sql, &cb);
 
-    unset_callback();
+    cb.unset_callback();
 
     return rc;
 }

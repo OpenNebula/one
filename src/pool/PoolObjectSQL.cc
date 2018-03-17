@@ -74,6 +74,80 @@ int PoolObjectSQL::select(SqlDB *db)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int PoolObjectSQL::select_oid(SqlDB *db, const char * _table,
+        const string& _name, int _uid)
+{
+    char * sql_name = db->escape_str(_name.c_str());
+
+    if ( sql_name == 0 )
+    {
+        return -1;
+    }
+
+    ostringstream oss;
+
+    oss << "SELECT oid FROM " << _table << " WHERE name = '" << sql_name << "'";
+
+    if ( _uid != -1 )
+    {
+        oss << " AND uid = " << _uid;
+    }
+
+    int bd_oid = -1;
+
+    single_cb<int> oid_cb;
+
+    oid_cb.set_callback(&bd_oid);
+
+    int rc = db->exec_rd(oss, &oid_cb);
+
+    oid_cb.unset_callback();
+
+    db->free_str(sql_name);
+
+    if (rc != 0)
+    {
+        return -1;
+    }
+
+    return bd_oid;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int PoolObjectSQL::exist(SqlDB *db, const char * _table, int _oid)
+{
+    if ( _oid < 0 )
+    {
+        return -1;
+    }
+
+    ostringstream oss;
+
+    oss << "SELECT oid FROM " << _table << " WHERE oid = '" << _oid  << "'";
+
+    int bd_oid = -1;
+
+    single_cb<int> oid_cb;
+
+    oid_cb.set_callback(&bd_oid);
+
+    int rc = db->exec_rd(oss, &oid_cb);
+
+    oid_cb.unset_callback();
+
+    if (rc != 0)
+    {
+        return -1;
+    }
+
+    return bd_oid;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int PoolObjectSQL::select(SqlDB *db, const string& _name, int _uid)
 {
     ostringstream oss;
@@ -126,11 +200,6 @@ int PoolObjectSQL::drop(SqlDB *db)
     oss << "DELETE FROM " << table << " WHERE oid=" << oid;
 
     rc = db->exec_wr(oss);
-
-    if ( rc == 0 )
-    {
-        set_valid(false);
-    }
 
     return rc;
 }

@@ -50,7 +50,7 @@ void GroupSetQuota::
         return;
     }
 
-    group = static_cast<Group *>(pool->get(id,true));
+    group = static_cast<Group *>(pool->get(id));
 
     if ( group == 0 )
     {
@@ -136,7 +136,7 @@ void GroupEditAdmin::request_execute(
         }
     }
 
-    group = static_cast<GroupPool*>(pool)->get(group_id, true);
+    group = static_cast<GroupPool*>(pool)->get(group_id);
 
     if ( group  == 0 )
     {

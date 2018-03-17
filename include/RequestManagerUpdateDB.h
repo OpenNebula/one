@@ -65,7 +65,7 @@ protected:
     ErrorCode request_execute(int oid, const std::string& xml,
             RequestAttributes& att)
     {
-        PoolObjectSQL * object = pool->get(oid,true);
+        PoolObjectSQL * object = pool->get(oid);
 
         if ( object == 0 )
         {

@@ -96,6 +96,8 @@ error_groups:
 
 int GroupPool::allocate(string name, int * oid, string& error_str)
 {
+    int db_oid;
+
     Group * group;
 
     ostringstream   oss;
@@ -116,9 +118,9 @@ int GroupPool::allocate(string name, int * oid, string& error_str)
     }
 
     // Check for duplicates
-    group = get(name, false);
+    db_oid = exist(name);
 
-    if( group != 0 )
+    if( db_oid != -1 )
     {
         goto error_duplicated;
     }
@@ -132,7 +134,7 @@ int GroupPool::allocate(string name, int * oid, string& error_str)
     return *oid;
 
 error_duplicated:
-    oss << "NAME is already taken by GROUP " << group->get_oid() << ".";
+    oss << "NAME is already taken by GROUP " << db_oid << ".";
     error_str = oss.str();
 
 error_name:
@@ -246,12 +248,13 @@ int GroupPool::dump(ostringstream& oss, const string& where, const string& limit
 
     oss << "<GROUP_POOL>";
 
-    set_callback(static_cast<Callbackable::Callback>(&GroupPool::dump_cb),
-                 static_cast<void *>(&oss));
+    stream_cb cb(2);
 
-    rc = db->exec_rd(cmd, this);
+    cb.set_callback(&oss);
 
-    unset_callback();
+    rc = db->exec_rd(cmd, &cb);
+
+    cb.unset_callback();
 
     oss << Nebula::instance().get_default_group_quota().to_xml(def_quota_xml);
 
@@ -260,29 +263,6 @@ int GroupPool::dump(ostringstream& oss, const string& where, const string& limit
     return rc;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int GroupPool::dump_cb(void * _oss, int num, char **values, char **names)
-{
-    ostringstream * oss;
-
-    oss = static_cast<ostringstream *>(_oss);
-
-    if ( (!values[0]) || (num != 2) )
-    {
-        return -1;
-    }
-
-    *oss << values[0];
-
-    if (values[1] != NULL)
-    {
-        *oss << values[1];
-    }
-
-    return 0;
-}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

@@ -64,10 +64,9 @@ public:
      *    @return a pointer to the Host, 0 if the Host could not be loaded
      */
     Host * get(
-        int     oid,
-        bool    lock)
+        int     oid)
     {
-        Host * h = static_cast<Host *>(PoolSQL::get(oid,lock));
+        Host * h = static_cast<Host *>(PoolSQL::get(oid));
 
         if ( h != 0 )
         {
@@ -89,10 +88,10 @@ public:
      *    @param lock locks the Host mutex
      *    @return a pointer to the Host, 0 if the Host could not be loaded
      */
-    Host * get(string name, bool lock)
+    Host * get(string name)
     {
         // The owner is set to -1, because it is not used in the key() method
-        Host * h = static_cast<Host *>(PoolSQL::get(name,-1,lock));
+        Host * h = static_cast<Host *>(PoolSQL::get(name,-1));
 
         if ( h != 0 )
         {
@@ -153,7 +152,7 @@ public:
             vector<VectorAttribute *> pci)
     {
         int rc = 0;
-        Host * host = get(oid, true);
+        Host * host = get(oid);
 
         if ( host != 0 )
         {
@@ -183,7 +182,7 @@ public:
     void del_capacity(int oid, int vm_id, int cpu, int mem, int disk,
             vector<VectorAttribute *> pci)
     {
-        Host *  host = get(oid, true);
+        Host *  host = get(oid);
 
         if ( host != 0 )
         {

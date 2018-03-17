@@ -47,7 +47,7 @@ void RequestManagerVirtualNetwork::
         return;
     }
 
-    vn = static_cast<VirtualNetwork *>(pool->get(id,true));
+    vn = static_cast<VirtualNetwork *>(pool->get(id));
 
     if ( vn == 0 )
     {
@@ -96,7 +96,7 @@ void VirtualNetworkRmAddressRange::
     // -------------------------------------------------------------------------
     // Get VNET and data for reservations
     // -------------------------------------------------------------------------
-    vn = static_cast<VirtualNetwork *>(pool->get(id,true));
+    vn = static_cast<VirtualNetwork *>(pool->get(id));
 
     if ( vn == 0 )
     {
@@ -137,7 +137,7 @@ void VirtualNetworkRmAddressRange::
 
     if (parent != -1 && parent_ar != -1 && !mac.empty() && rc == 0)
     {
-        vn = static_cast<VirtualNetwork *>(pool->get(parent, true));
+        vn = static_cast<VirtualNetwork *>(pool->get(parent));
 
         if ( vn != 0 )
         {
@@ -235,7 +235,7 @@ void VirtualNetworkReserve::request_execute(
             return;
         }
 
-        rvn = vnpool->get(rid,true);
+        rvn = vnpool->get(rid);
 
         if (rvn == 0)
         {
@@ -319,7 +319,7 @@ void VirtualNetworkReserve::request_execute(
     // -------------------------------------------------------------------------
     // Authorize the operation Parent:USE Reservation:MANAGE
     // -------------------------------------------------------------------------
-    vn = vnpool->get(id,true);
+    vn = vnpool->get(id);
 
     if ( vn == 0 )
     {
@@ -381,7 +381,7 @@ void VirtualNetworkReserve::request_execute(
         }
     }
 
-    rvn = vnpool->get(rid, true);
+    rvn = vnpool->get(rid);
 
     if (rvn == 0)
     {
@@ -415,7 +415,7 @@ void VirtualNetworkReserve::request_execute(
     {
         if (!on_exisiting)
         {
-            rvn = vnpool->get(rid, true);
+            rvn = vnpool->get(rid);
 
             if (rvn != 0)
             {
@@ -465,7 +465,7 @@ void VirtualNetworkReserve::request_execute(
 
         if (!on_exisiting)
         {
-            rvn = vnpool->get(rid, true);
+            rvn = vnpool->get(rid);
 
             if (rvn != 0)
             {
@@ -489,7 +489,7 @@ void VirtualNetworkReserve::request_execute(
 
         for (set<int>::iterator i=cluster_ids.begin(); i!= cluster_ids.end(); i++)
         {
-            Cluster * cluster = clpool->get(*i, true);
+            Cluster * cluster = clpool->get(*i);
 
             if ( cluster != 0 )
             {

@@ -58,9 +58,9 @@ public:
      *    @param lock locks the VMGroup mutex
      *    @return a pointer to the VMGroup, 0 if the VMGroup could not be loaded
      */
-    VMGroup * get(int oid, bool lock)
+    VMGroup * get(int oid)
     {
-        return static_cast<VMGroup *>(PoolSQL::get(oid, lock));
+        return static_cast<VMGroup *>(PoolSQL::get(oid));
     };
 
     /**
@@ -72,9 +72,9 @@ public:
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    VMGroup * get(const std::string& name, int uid, bool lock)
+    VMGroup * get(const std::string& name, int uid)
     {
-        return static_cast<VMGroup *>(PoolSQL::get(name, uid, lock));
+        return static_cast<VMGroup *>(PoolSQL::get(name, uid));
     };
 
     /** Update a VMGroup

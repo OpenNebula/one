@@ -100,9 +100,9 @@ public:
      *    @param lock locks the Image mutex
      *    @return a pointer to the Image, 0 if the Image could not be loaded
      */
-    Image * get(int oid, bool lock)
+    Image * get(int oid)
     {
-        return static_cast<Image *>(PoolSQL::get(oid,lock));
+        return static_cast<Image *>(PoolSQL::get(oid));
     };
 
     /**
@@ -114,9 +114,9 @@ public:
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    Image * get(const string& name, int uid, bool lock)
+    Image * get(const string& name, int uid)
     {
-        return static_cast<Image *>(PoolSQL::get(name,uid,lock));
+        return static_cast<Image *>(PoolSQL::get(name,uid));
     };
 
     /**

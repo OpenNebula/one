@@ -61,7 +61,7 @@ VdcPool::VdcPool(SqlDB * db, bool is_federation_slave): PoolSQL(db, Vdc::table)
             goto error_bootstrap;
         }
 
-        Vdc* vdc = get(rc, true);
+        Vdc* vdc = get(rc);
 
         vdc->add_group(GroupPool::USERS_ID, error_str);
         vdc->add_cluster(Nebula::instance().get_zone_id(), Vdc::ALL_RESOURCES, error_str);
@@ -94,8 +94,8 @@ int VdcPool::allocate(
         string&     error_str)
 {
     Vdc * vdc;
-    Vdc * vdc_aux = 0;
 
+    int    db_oid;
     string name;
 
     ostringstream oss;
@@ -122,9 +122,9 @@ int VdcPool::allocate(
         goto error_name;
     }
 
-    vdc_aux = get(name,false);
+    db_oid = exist(name);
 
-    if( vdc_aux != 0 )
+    if( db_oid != -1 )
     {
         goto error_duplicated;
     }
@@ -134,7 +134,7 @@ int VdcPool::allocate(
     return *oid;
 
 error_duplicated:
-    oss << "NAME is already taken by Vdc " << vdc_aux->get_oid() << ".";
+    oss << "NAME is already taken by Vdc " << db_oid << ".";
     error_str = oss.str();
 
 error_name:

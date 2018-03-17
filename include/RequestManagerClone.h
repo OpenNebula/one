@@ -153,7 +153,7 @@ protected:
     int pool_allocate(int sid, Template * tmpl, int& id, RequestAttributes& att)
     {
         DocumentPool * docpool = static_cast<DocumentPool *>(pool);
-        Document * doc         = docpool->get(sid, true);
+        Document * doc         = docpool->get(sid);
 
         if ( doc == 0 )
         {

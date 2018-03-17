@@ -50,10 +50,7 @@ protected:
      *  Gets and object by name and owner. Default implementation returns no
      *  object
      */
-    virtual PoolObjectSQL * get(const string& name, int uid, bool lock)
-    {
-        return 0;
-    }
+    virtual int exist(const string& name, int uid) = 0;
 
     /**
      *  Batch rename of related objects. Default implementation does nothing
@@ -119,6 +116,11 @@ public:
     };
 
     ~VirtualMachineRename(){};
+
+    int exist(const string& name, int uid)
+    {
+        return -1;
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -138,10 +140,10 @@ public:
 
     ~TemplateRename(){};
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int exist(const string& name, int uid)
     {
-        return static_cast<VMTemplatePool*>(pool)->get(name, uid, lock);
-    };
+        return pool->exist(name, uid);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -161,10 +163,10 @@ public:
 
     ~VirtualNetworkRename(){};
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int exist(const string& name, int uid)
     {
-        return static_cast<VirtualNetworkPool*>(pool)->get(name, uid, lock);
-    };
+        return pool->exist(name, uid);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -183,10 +185,10 @@ public:
 
     ~ImageRename(){};
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int exist(const string& name, int uid)
     {
-        return static_cast<ImagePool*>(pool)->get(name, uid, lock);
-    };
+        return pool->exist(name, uid);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -204,6 +206,11 @@ public:
     };
 
     ~DocumentRename(){};
+
+    int exist(const string& name, int uid)
+    {
+        return -1;
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -222,10 +229,10 @@ public:
 
     ~ClusterRename(){};
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int exist(const string& name, int uid)
     {
-        return static_cast<ClusterPool*>(pool)->get(name, lock);
-    };
+        return pool->exist(name);
+    }
 
     void batch_rename(int oid);
 };
@@ -246,10 +253,10 @@ public:
 
     ~DatastoreRename(){};
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int exist(const string& name, int uid)
     {
-        return static_cast<DatastorePool*>(pool)->get(name, lock);
-    };
+        return pool->exist(name);
+    }
 
     void batch_rename(int oid);
 };
@@ -272,10 +279,10 @@ public:
 
     ~HostRename(){};
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int exist(const string& name, int uid)
     {
-        return static_cast<HostPool*>(pool)->get(name, lock);
-    };
+        return pool->exist(name);
+    }
 
     void batch_rename(int oid);
 };
@@ -295,6 +302,11 @@ public:
     };
 
     ~ZoneRename(){};
+
+    int exist(const string& name, int uid)
+    {
+        return pool->exist(name);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -313,10 +325,10 @@ public:
 
     ~SecurityGroupRename(){};
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int exist(const string& name, int uid)
     {
-        return static_cast<SecurityGroupPool*>(pool)->get(name, uid, lock);
-    };
+        return pool->exist(name, uid);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -334,6 +346,11 @@ public:
     };
 
     ~VdcRename(){};
+
+    int exist(const string& name, int uid)
+    {
+        return pool->exist(name);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -352,10 +369,10 @@ public:
 
     ~VirtualRouterRename(){};
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int exist(const string& name, int uid)
     {
-        return static_cast<VirtualRouterPool*>(pool)->get(name, uid, lock);
-    };
+        return -1;
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -374,10 +391,10 @@ public:
 
     ~MarketPlaceRename(){};
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int exist(const string& name, int uid)
     {
-        return static_cast<MarketPlacePool*>(pool)->get(name, lock);
-    };
+        return pool->exist(name);
+    }
 
     void batch_rename(int oid);
 };
@@ -398,10 +415,10 @@ public:
 
     ~MarketPlaceAppRename(){};
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int exist(const string& name, int uid)
     {
-        return static_cast<MarketPlaceAppPool*>(pool)->get(name, uid, lock);
-    };
+        return pool->exist(name, uid);
+    }
 };
 
 /* -------------------------------------------------------------------------- */
@@ -420,10 +437,10 @@ public:
 
     ~VMGroupRename(){};
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int exist(const string& name, int uid)
     {
-        return static_cast<VMGroupPool*>(pool)->get(name, uid, lock);
-    };
+        return pool->exist(name, uid);
+    }
 };
 
 #endif

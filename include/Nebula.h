@@ -458,7 +458,7 @@ public:
     {
         if ( uid != -1 )
         {
-            User * user = upool->get(uid, true);
+            User * user = upool->get(uid);
 
             if ( user == 0 )
             {
@@ -481,7 +481,7 @@ public:
             user->unlock();
         }
 
-        Group * group = gpool->get(gid, true);
+        Group * group = gpool->get(gid);
 
         if ( group == 0 )
         {

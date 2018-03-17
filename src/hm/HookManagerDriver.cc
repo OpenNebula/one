@@ -135,7 +135,7 @@ void HookManagerDriver::protocol(const string& message) const
         return;
     }
 
-    vm = vmpool->get(id,true);
+    vm = vmpool->get(id);
 
     if ( vm == 0 )
     {

@@ -90,7 +90,7 @@ void RequestManagerUpdateTemplate::request_execute(
     }
 
 
-    object = pool->get(oid,true);
+    object = pool->get(oid);
 
     if ( object == 0 )
     {

@@ -32,7 +32,7 @@ static Request::ErrorCode delete_authorization(PoolSQL* pool,
         return Request::SUCCESS;
     }
 
-    PoolObjectSQL * object = pool->get(oid, true);
+    PoolObjectSQL * object = pool->get(oid);
 
     if ( object == 0 )
     {
@@ -98,7 +98,7 @@ Request::ErrorCode RequestManagerDelete::delete_object(int oid,
         return ec;
     }
 
-    PoolObjectSQL * object = pool->get(oid, true);
+    PoolObjectSQL * object = pool->get(oid);
 
     if ( object == 0 )
     {
@@ -144,7 +144,7 @@ int RequestManagerDelete::drop(PoolObjectSQL * object, bool recursive,
 
 	for(it = cluster_ids.begin(); it != cluster_ids.end(); it++)
 	{
-		Cluster * cluster = clpool->get(*it, true);
+		Cluster * cluster = clpool->get(*it);
 
 		if( cluster != 0 )
 		{
@@ -296,7 +296,7 @@ int GroupDelete::drop(PoolObjectSQL * object, bool recursive,
 
     for (it = vdcs.begin() ; it != vdcs.end() ; ++it)
     {
-        Vdc * vdc = vdcpool->get(*it, true);
+        Vdc * vdc = vdcpool->get(*it);
 
         if ( vdc == 0 )
         {
@@ -362,7 +362,7 @@ int UserDelete::drop(PoolObjectSQL * object, bool recursive,
 
         for ( it = group_set.begin(); it != group_set.end(); it++ )
         {
-            group = gpool->get(*it, true);
+            group = gpool->get(*it);
 
             if( group == 0 )
             {
@@ -426,7 +426,7 @@ int VirtualNetworkDelete::drop(PoolObjectSQL * object, bool recursive,
 
     if (pvid != -1)
     {
-        vnet = (static_cast<VirtualNetworkPool *>(pool))->get(pvid, true);
+        vnet = (static_cast<VirtualNetworkPool *>(pool))->get(pvid);
 
         if (vnet == 0)
         {
@@ -536,7 +536,7 @@ int MarketPlaceAppDelete::drop(PoolObjectSQL * object, bool recursive,
         return -1;
     }
 
-    MarketPlace * mp = marketpool->get(mp_id, true);
+    MarketPlace * mp = marketpool->get(mp_id);
 
     if ( mp == 0 )
     {
@@ -601,7 +601,7 @@ int MarketPlaceDelete::drop(PoolObjectSQL * object, bool recursive,
 
     for ( set<int>::iterator i = apps.begin(); i != apps.end(); ++i )
     {
-        app = apppool->get(*i, true);
+        app = apppool->get(*i);
 
         if ( app == 0 )
         {
@@ -625,7 +625,7 @@ int MarketPlaceDelete::drop(PoolObjectSQL * object, bool recursive,
 
     MarketPlacePool* mppool = static_cast<MarketPlacePool *>(pool);
 
-    mp = mppool->get(mp_id, true);
+    mp = mppool->get(mp_id);
 
     if (mp == 0)
     {

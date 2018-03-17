@@ -179,7 +179,7 @@ static int cp_action(istringstream& is,
 
     ostringstream oss;
 
-    image = ipool->get(id,true);
+    image = ipool->get(id);
 
     if ( image == 0 )
     {
@@ -275,7 +275,7 @@ static int clone_action(istringstream& is,
     Nebula& nd        = Nebula::instance();
     ImageManager * im = nd.get_imagem();
 
-    image = ipool->get(id, true);
+    image = ipool->get(id);
 
     if ( image == 0 )
     {
@@ -384,7 +384,7 @@ static int mkfs_action(istringstream& is,
     VirtualMachinePool * vmpool = nd.get_vmpool();
     TransferManager *  tm       = nd.get_tm();
 
-    image = ipool->get(id, true);
+    image = ipool->get(id);
 
     if ( image == 0 )
     {
@@ -457,7 +457,7 @@ static int mkfs_action(istringstream& is,
         return ds_id;
     }
 
-    vm = vmpool->get(vm_id, true);
+    vm = vmpool->get(vm_id);
 
     if ( vm == 0 )
     {
@@ -490,7 +490,7 @@ error_save_state:
     oss << "Image created to save as disk but VM is no longer running";
 
 error_save:
-    image = ipool->get(id, true);
+    image = ipool->get(id);
 
     if ( image == 0 )
     {
@@ -517,7 +517,7 @@ error:
 
     if (is_saving && vm_id != -1)
     {
-        if ((vm = vmpool->get(vm_id, true)) != 0)
+        if ((vm = vmpool->get(vm_id)) != 0)
         {
             vm->clear_saveas_state();
 
@@ -549,7 +549,7 @@ static int rm_action(istringstream& is,
 
     ostringstream oss;
 
-    image = ipool->get(id, true);
+    image = ipool->get(id);
 
     if ( image == 0 )
     {
@@ -677,7 +677,7 @@ static void monitor_action(istringstream& is,
     monitor_data.get("FREE_MB", free);
     monitor_data.get("USED_MB", used);
 
-    Datastore * ds = dspool->get(id, true);
+    Datastore * ds = dspool->get(id);
 
     if (ds == 0 )
     {
@@ -739,7 +739,7 @@ static void snap_delete_action(istringstream& is,
     long long   snap_size;
     int         ds_id, uid, gid;
 
-    Image * image = ipool->get(id, true);
+    Image * image = ipool->get(id);
 
     if ( image == 0 )
     {
@@ -813,7 +813,7 @@ static void snap_revert_action(istringstream& is,
     ostringstream oss;
     string info;
 
-    Image * image = ipool->get(id, true);
+    Image * image = ipool->get(id);
 
     if ( image == 0 )
     {
@@ -874,7 +874,7 @@ static void snap_flatten_action(istringstream& is,
     long long   snap_size;
     int         ds_id, uid, gid;
 
-    Image * image = ipool->get(id, true);
+    Image * image = ipool->get(id);
 
     if ( image == 0 )
     {

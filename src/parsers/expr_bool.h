@@ -30,15 +30,39 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-#ifndef YY_EXPR_ARITH_EXPR_ARITH_HH_INCLUDED
-# define YY_EXPR_ARITH_EXPR_ARITH_HH_INCLUDED
+#ifndef YY_EXPR_BOOL_EXPR_BOOL_HH_INCLUDED
+# define YY_EXPR_BOOL_EXPR_BOOL_HH_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
 #endif
 #if YYDEBUG
-extern int expr_arith__debug;
+extern int expr_bool_debug;
 #endif
+/* "%code requires" blocks.  */
+#line 48 "expr_bool.y" /* yacc.c:1909  */
+
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <set>
+
+#include <ctype.h>
+#include <string.h>
+#include <fnmatch.h>
+
+#include "mem_collector.h"
+
+#include "ObjectXML.h"
+
+typedef void * yyscan_t;
+
+int expr_bool_parse(ObjectXML *oxml, bool& result, char ** errmsg,
+    yyscan_t scanner);
+
+#line 66 "expr_bool.hh" /* yacc.c:1909  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -56,13 +80,13 @@ extern int expr_arith__debug;
 
 union YYSTYPE
 {
-#line 78 "expr_arith.y" /* yacc.c:1909  */
+#line 79 "expr_bool.y" /* yacc.c:1909  */
 
     char *  val_str;
     int     val_int;
     float   val_float;
 
-#line 66 "expr_arith.hh" /* yacc.c:1909  */
+#line 90 "expr_bool.hh" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -84,4 +108,8 @@ struct YYLTYPE
 # define YYLTYPE_IS_TRIVIAL 1
 #endif
 
-#endif /* !YY_EXPR_ARITH_EXPR_ARITH_HH_INCLUDED  */
+
+
+int expr_bool_parse (mem_collector * mc, ObjectXML * oxml, bool& result, char ** error_msg, yyscan_t scanner);
+
+#endif /* !YY_EXPR_BOOL_EXPR_BOOL_HH_INCLUDED  */

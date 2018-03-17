@@ -191,7 +191,7 @@ void ImageManager::monitor_datastore(int ds_id)
         return;
     }
 
-    Datastore * ds = dspool->get(ds_id, true);
+    Datastore * ds = dspool->get(ds_id);
 
     if ( ds == 0 )
     {

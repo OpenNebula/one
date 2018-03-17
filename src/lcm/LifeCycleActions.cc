@@ -27,7 +27,7 @@ void  LifeCycleManager::deploy_action(const LCMAction& la)
 
     int vid = la.vm_id();
 
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -106,7 +106,7 @@ void  LifeCycleManager::suspend_action(const LCMAction& la)
 {
     int vid = la.vm_id();
 
-    VirtualMachine * vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -151,7 +151,7 @@ void  LifeCycleManager::stop_action(const LCMAction& la)
 {
     int vid = la.vm_id();
 
-    VirtualMachine * vm = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -221,7 +221,7 @@ void  LifeCycleManager::migrate_action(const LCMAction& la)
 
     int vid = la.vm_id();
 
-    VirtualMachine * vm = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -346,7 +346,7 @@ void  LifeCycleManager::live_migrate_action(const LCMAction& la)
 
     int vid = la.vm_id();
 
-    VirtualMachine * vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -405,7 +405,7 @@ void  LifeCycleManager::live_migrate_action(const LCMAction& la)
 void  LifeCycleManager::shutdown_action(const LCMAction& la, bool hard)
 {
     int vid = la.vm_id();
-    VirtualMachine * vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -498,7 +498,7 @@ void  LifeCycleManager::undeploy_action(const LCMAction& la, bool hard)
 {
     int vid = la.vm_id();
     unsigned int port;
-    VirtualMachine * vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -602,7 +602,7 @@ void  LifeCycleManager::poweroff_hard_action(const LCMAction& la)
 
 void  LifeCycleManager::poweroff_action(int vid, bool hard, const LCMAction& la)
 {
-    VirtualMachine * vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -659,7 +659,7 @@ void  LifeCycleManager::restore_action(const LCMAction& la)
 
     int vid = la.vm_id();
 
-    VirtualMachine * vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -714,7 +714,7 @@ void  LifeCycleManager::restart_action(const LCMAction& la)
 {
     int vid = la.vm_id();
 
-    VirtualMachine * vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -772,7 +772,7 @@ void LifeCycleManager::delete_action(const LCMAction& la)
     int image_id = -1;
     int vid      = la.vm_id();
 
-    VirtualMachine * vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -807,7 +807,7 @@ void LifeCycleManager::delete_action(const LCMAction& la)
 
     if ( image_id != -1 )
     {
-        Image * image = ipool->get(image_id, true);
+        Image * image = ipool->get(image_id);
 
         if ( image != 0 )
         {
@@ -839,7 +839,7 @@ void LifeCycleManager::delete_recreate_action(const LCMAction& la)
 
     int vid = la.vm_id();
 
-    vm = vmpool->get(vid,true);
+    vm = vmpool->get(vid);
 
     if ( vm == 0 )
     {
@@ -884,7 +884,7 @@ void LifeCycleManager::delete_recreate_action(const LCMAction& la)
 
     if ( image_id != -1 )
     {
-        Image* image = ipool->get(image_id, true);
+        Image* image = ipool->get(image_id);
 
         if ( image != 0 )
         {
@@ -1665,7 +1665,7 @@ void  LifeCycleManager::updatesg_action(const LCMAction& la)
     VirtualMachine * vm;
 
     int sgid = la.vm_id();
-    SecurityGroup  * sg = sgpool->get(sgid, true);
+    SecurityGroup  * sg = sgpool->get(sgid);
 
     if ( sg == 0 )
     {
@@ -1692,7 +1692,7 @@ void  LifeCycleManager::updatesg_action(const LCMAction& la)
             return;
         }
 
-        vm = vmpool->get(vmid, true);
+        vm = vmpool->get(vmid);
 
         if ( vm == 0 )
         {
@@ -1809,7 +1809,7 @@ void  LifeCycleManager::updatesg_action(const LCMAction& la)
 
         vm->unlock();
 
-        sg = sgpool->get(sgid, true);
+        sg = sgpool->get(sgid);
 
         if ( sg == 0 )
         {

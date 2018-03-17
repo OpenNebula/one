@@ -60,66 +60,45 @@
 
 
 /* Substitute the variable and function names.  */
-#define yyparse         template__parse
-#define yylex           template__lex
-#define yyerror         template__error
-#define yydebug         template__debug
-#define yynerrs         template__nerrs
+#define yyparse         template_parse
+#define yylex           template_lex
+#define yyerror         template_error
+#define yydebug         template_debug
+#define yynerrs         template_nerrs
 
 
 /* Copy the first part of user declarations.  */
 #line 17 "template_syntax.y" /* yacc.c:339  */
 
-#include <iostream>
-#include <string>
-#include <map>
-#include <algorithm>
-
-#include <ctype.h>
-#include <string.h>
-#include <stdio.h>
 #include "template_syntax.h"
-#include "Template.h"
-
-#define template__lex template_lex
+#include "template_parser.h"
+#include "NebulaUtil.h"
 
 #define YYERROR_VERBOSE
-#define TEMPLATE_TO_UPPER(S) transform (S.begin(),S.end(),S.begin(), \
-(int(*)(int))toupper)
-extern "C"
+
+void template_error( YYLTYPE * llocp, mem_collector * mc, Template * tmpl,
+    char ** error_msg, yyscan_t scanner, const char * str);
+
+int template_lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc,
+    yyscan_t scanner);
+
+int template_parse(Template * tmpl, char ** errmsg, yyscan_t scanner)
 {
-    #include "mem_collector.h"
+    mem_collector mc;
+    int           rc;
 
-    void template__error(
-        YYLTYPE *       llocp,
-        mem_collector * mc,
-        Template *      tmpl,
-        char **         error_msg,
-        const char *    str);
+    mem_collector_init(&mc);
 
-    int template__lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector * mc);
+    rc = template_parse(&mc, tmpl, errmsg, scanner);
 
-    int template__parse(mem_collector * mc, Template * tmpl, char ** errmsg);
+    mem_collector_cleanup(&mc);
 
-    int template_parse(Template * tmpl, char ** errmsg)
-    {
-        mem_collector mc;
-        int           rc;
-
-        mem_collector_init(&mc);
-
-        rc = template__parse(&mc, tmpl, errmsg);
-
-        mem_collector_cleanup(&mc);
-
-        return rc;
-    }
-
-    static string& unescape (string &str);
+    return rc;
 }
 
+static string& unescape (string &str);
 
-#line 123 "template_syntax.cc" /* yacc.c:339  */
+#line 102 "template_syntax.cc" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -146,8 +125,29 @@ extern "C"
 # define YYDEBUG 0
 #endif
 #if YYDEBUG
-extern int template__debug;
+extern int template_debug;
 #endif
+/* "%code requires" blocks.  */
+#line 47 "template_syntax.y" /* yacc.c:355  */
+
+#include <iostream>
+#include <string>
+#include <map>
+#include <algorithm>
+
+#include <ctype.h>
+#include <string.h>
+#include <stdio.h>
+
+#include "mem_collector.h"
+
+#include "Template.h"
+
+typedef void * yyscan_t;
+
+int template_parse(Template * tmpl, char ** errmsg, yyscan_t scanner);
+
+#line 151 "template_syntax.cc" /* yacc.c:355  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -199,7 +199,7 @@ struct YYLTYPE
 
 
 
-int template__parse (mem_collector * mc, Template *      tmpl, char **         error_msg);
+int template_parse (mem_collector * mc, Template * tmpl, char ** error_msg, yyscan_t scanner);
 
 #endif /* !YY_TEMPLATE_TEMPLATE_SYNTAX_HH_INCLUDED  */
 
@@ -635,7 +635,7 @@ do                                                              \
     }                                                           \
   else                                                          \
     {                                                           \
-      yyerror (&yylloc, mc, tmpl, error_msg, YY_("syntax error: cannot back up")); \
+      yyerror (&yylloc, mc, tmpl, error_msg, scanner, YY_("syntax error: cannot back up")); \
       YYERROR;                                                  \
     }                                                           \
 while (0)
@@ -737,7 +737,7 @@ do {                                                                      \
     {                                                                     \
       YYFPRINTF (stderr, "%s ", Title);                                   \
       yy_symbol_print (stderr,                                            \
-                  Type, Value, Location, mc, tmpl, error_msg); \
+                  Type, Value, Location, mc, tmpl, error_msg, scanner); \
       YYFPRINTF (stderr, "\n");                                           \
     }                                                                     \
 } while (0)
@@ -748,7 +748,7 @@ do {                                                                      \
 `----------------------------------------*/
 
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector * mc, Template *      tmpl, char **         error_msg)
+yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector * mc, Template * tmpl, char ** error_msg, yyscan_t scanner)
 {
   FILE *yyo = yyoutput;
   YYUSE (yyo);
@@ -756,6 +756,7 @@ yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvalue
   YYUSE (mc);
   YYUSE (tmpl);
   YYUSE (error_msg);
+  YYUSE (scanner);
   if (!yyvaluep)
     return;
 # ifdef YYPRINT
@@ -771,14 +772,14 @@ yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvalue
 `--------------------------------*/
 
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector * mc, Template *      tmpl, char **         error_msg)
+yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, mem_collector * mc, Template * tmpl, char ** error_msg, yyscan_t scanner)
 {
   YYFPRINTF (yyoutput, "%s %s (",
              yytype < YYNTOKENS ? "token" : "nterm", yytname[yytype]);
 
   YY_LOCATION_PRINT (yyoutput, *yylocationp);
   YYFPRINTF (yyoutput, ": ");
-  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, tmpl, error_msg);
+  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, mc, tmpl, error_msg, scanner);
   YYFPRINTF (yyoutput, ")");
 }
 
@@ -811,7 +812,7 @@ do {                                                            \
 `------------------------------------------------*/
 
 static void
-yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, mem_collector * mc, Template *      tmpl, char **         error_msg)
+yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, mem_collector * mc, Template * tmpl, char ** error_msg, yyscan_t scanner)
 {
   unsigned long int yylno = yyrline[yyrule];
   int yynrhs = yyr2[yyrule];
@@ -825,7 +826,7 @@ yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule
       yy_symbol_print (stderr,
                        yystos[yyssp[yyi + 1 - yynrhs]],
                        &(yyvsp[(yyi + 1) - (yynrhs)])
-                       , &(yylsp[(yyi + 1) - (yynrhs)])                       , mc, tmpl, error_msg);
+                       , &(yylsp[(yyi + 1) - (yynrhs)])                       , mc, tmpl, error_msg, scanner);
       YYFPRINTF (stderr, "\n");
     }
 }
@@ -833,7 +834,7 @@ yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule
 # define YY_REDUCE_PRINT(Rule)          \
 do {                                    \
   if (yydebug)                          \
-    yy_reduce_print (yyssp, yyvsp, yylsp, Rule, mc, tmpl, error_msg); \
+    yy_reduce_print (yyssp, yyvsp, yylsp, Rule, mc, tmpl, error_msg, scanner); \
 } while (0)
 
 /* Nonzero means print parse trace.  It is left uninitialized so that
@@ -1091,13 +1092,14 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
 `-----------------------------------------------*/
 
 static void
-yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, mem_collector * mc, Template *      tmpl, char **         error_msg)
+yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, mem_collector * mc, Template * tmpl, char ** error_msg, yyscan_t scanner)
 {
   YYUSE (yyvaluep);
   YYUSE (yylocationp);
   YYUSE (mc);
   YYUSE (tmpl);
   YYUSE (error_msg);
+  YYUSE (scanner);
   if (!yymsg)
     yymsg = "Deleting";
   YY_SYMBOL_PRINT (yymsg, yytype, yyvaluep, yylocationp);
@@ -1115,7 +1117,7 @@ yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocatio
 `----------*/
 
 int
-yyparse (mem_collector * mc, Template *      tmpl, char **         error_msg)
+yyparse (mem_collector * mc, Template * tmpl, char ** error_msg, yyscan_t scanner)
 {
 /* The lookahead symbol.  */
 int yychar;
@@ -1309,7 +1311,7 @@ yybackup:
   if (yychar == YYEMPTY)
     {
       YYDPRINTF ((stderr, "Reading a token: "));
-      yychar = yylex (&yylval, &yylloc, mc);
+      yychar = yylex (&yylval, &yylloc, mc, scanner);
     }
 
   if (yychar <= YYEOF)
@@ -1399,7 +1401,7 @@ yyreduce:
 
                 tmpl->set(pattr);
             }
-#line 1403 "template_syntax.cc" /* yacc.c:1646  */
+#line 1405 "template_syntax.cc" /* yacc.c:1646  */
     break;
 
   case 7:
@@ -1416,7 +1418,7 @@ yyreduce:
 
                 delete amap;
             }
-#line 1420 "template_syntax.cc" /* yacc.c:1646  */
+#line 1422 "template_syntax.cc" /* yacc.c:1646  */
     break;
 
   case 8:
@@ -1430,7 +1432,7 @@ yyreduce:
 
                 tmpl->set(pattr);
             }
-#line 1434 "template_syntax.cc" /* yacc.c:1646  */
+#line 1436 "template_syntax.cc" /* yacc.c:1646  */
     break;
 
   case 9:
@@ -1438,7 +1440,7 @@ yyreduce:
     {
                 YYABORT;
             }
-#line 1442 "template_syntax.cc" /* yacc.c:1646  */
+#line 1444 "template_syntax.cc" /* yacc.c:1646  */
     break;
 
   case 10:
@@ -1448,14 +1450,14 @@ yyreduce:
                 string              name((yyvsp[-2].val_str));
                 string              value((yyvsp[0].val_str));
 
-                TEMPLATE_TO_UPPER(name);
+                one_util::toupper(name);
 
                 vattr = new map<string,string>;
                 vattr->insert(make_pair(name,unescape(value)));
 
                 (yyval.val_attr) = static_cast<void *>(vattr);
             }
-#line 1459 "template_syntax.cc" /* yacc.c:1646  */
+#line 1461 "template_syntax.cc" /* yacc.c:1646  */
     break;
 
   case 11:
@@ -1465,18 +1467,18 @@ yyreduce:
                 string               value((yyvsp[0].val_str));
                 map<string,string> * attrmap;
 
-                TEMPLATE_TO_UPPER(name);
+                one_util::toupper(name);
 
                 attrmap = static_cast<map<string,string> *>((yyvsp[-4].val_attr));
 
                 attrmap->insert(make_pair(name,unescape(value)));
                 (yyval.val_attr) = (yyvsp[-4].val_attr);
             }
-#line 1476 "template_syntax.cc" /* yacc.c:1646  */
+#line 1478 "template_syntax.cc" /* yacc.c:1646  */
     break;
 
 
-#line 1480 "template_syntax.cc" /* yacc.c:1646  */
+#line 1482 "template_syntax.cc" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1527,7 +1529,7 @@ yyerrlab:
     {
       ++yynerrs;
 #if ! YYERROR_VERBOSE
-      yyerror (&yylloc, mc, tmpl, error_msg, YY_("syntax error"));
+      yyerror (&yylloc, mc, tmpl, error_msg, scanner, YY_("syntax error"));
 #else
 # define YYSYNTAX_ERROR yysyntax_error (&yymsg_alloc, &yymsg, \
                                         yyssp, yytoken)
@@ -1554,7 +1556,7 @@ yyerrlab:
                 yymsgp = yymsg;
               }
           }
-        yyerror (&yylloc, mc, tmpl, error_msg, yymsgp);
+        yyerror (&yylloc, mc, tmpl, error_msg, scanner, yymsgp);
         if (yysyntax_error_status == 2)
           goto yyexhaustedlab;
       }
@@ -1578,7 +1580,7 @@ yyerrlab:
       else
         {
           yydestruct ("Error: discarding",
-                      yytoken, &yylval, &yylloc, mc, tmpl, error_msg);
+                      yytoken, &yylval, &yylloc, mc, tmpl, error_msg, scanner);
           yychar = YYEMPTY;
         }
     }
@@ -1635,7 +1637,7 @@ yyerrlab1:
 
       yyerror_range[1] = *yylsp;
       yydestruct ("Error: popping",
-                  yystos[yystate], yyvsp, yylsp, mc, tmpl, error_msg);
+                  yystos[yystate], yyvsp, yylsp, mc, tmpl, error_msg, scanner);
       YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
@@ -1677,7 +1679,7 @@ yyabortlab:
 | yyexhaustedlab -- memory exhaustion comes here.  |
 `-------------------------------------------------*/
 yyexhaustedlab:
-  yyerror (&yylloc, mc, tmpl, error_msg, YY_("memory exhausted"));
+  yyerror (&yylloc, mc, tmpl, error_msg, scanner, YY_("memory exhausted"));
   yyresult = 2;
   /* Fall through.  */
 #endif
@@ -1689,7 +1691,7 @@ yyreturn:
          user semantic actions for why this is necessary.  */
       yytoken = YYTRANSLATE (yychar);
       yydestruct ("Cleanup: discarding lookahead",
-                  yytoken, &yylval, &yylloc, mc, tmpl, error_msg);
+                  yytoken, &yylval, &yylloc, mc, tmpl, error_msg, scanner);
     }
   /* Do not reclaim the symbols of the rule whose action triggered
      this YYABORT or YYACCEPT.  */
@@ -1698,7 +1700,7 @@ yyreturn:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-                  yystos[*yyssp], yyvsp, yylsp, mc, tmpl, error_msg);
+                  yystos[*yyssp], yyvsp, yylsp, mc, tmpl, error_msg, scanner);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
@@ -1726,11 +1728,12 @@ string& unescape (string &str)
     return str;
 }
 
-extern "C" void template__error(
+void template_error(
     YYLTYPE *       llocp,
     mem_collector * mc,
     Template *      tmpl,
     char **         error_msg,
+    yyscan_t        scanner,
     const char *    str)
 {
     int length;
