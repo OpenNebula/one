@@ -259,6 +259,12 @@ public:
      */
      void set_image_snapshots(int iid, const Snapshots& s);
 
+     /**
+      *  Clear the snapshots of an image by setting an empty set.
+      *    @param iid id of image
+      */
+     void clear_image_snapshots(int iid);
+
     /**
      *  Set the size for the given image. The image MUST be persistent
      *  and of type OS or DATABLOCK.

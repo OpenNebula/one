@@ -158,6 +158,14 @@ public:
     };
 
     /**
+     *  @return true if snapshot_pool is empty
+     */
+    bool empty() const
+    {
+        return snapshot_pool.empty();
+    };
+
+    /**
      *   Check if snapshot exists
      *   @param snap_id of the snapshot
      *   @return true if the snapshot with snap_id exisits

@@ -1072,9 +1072,15 @@ void VirtualMachinePool::delete_attach_disk(int vid)
                 Quotas::quota_del(Quotas::VM, uid, gid, &tmpl);
             }
 
-            if ( disk->has_snapshots() )
+            const Snapshots * snaps = disk->get_snapshots();
+
+            if (snaps != 0)
             {
-                imagem->set_image_snapshots(image_id, *disk->get_snapshots());
+                imagem->set_image_snapshots(image_id, *snaps);
+            }
+            else
+            {
+                imagem->clear_image_snapshots(image_id);
             }
 
             imagem->release_image(oid, image_id, false);
