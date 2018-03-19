@@ -120,7 +120,7 @@ void LoginTokenPool::reset_expired()
 
 /* -------------------------------------------------------------------------- */
 
-bool LoginTokenPool::is_valid(const std::string& utk, int& egid)
+bool LoginTokenPool::is_valid(const std::string& utk, int& egid, bool& exists_token)
 {
     std::map<std::string, LoginToken *>::iterator it;
 
@@ -129,17 +129,21 @@ bool LoginTokenPool::is_valid(const std::string& utk, int& egid)
 
     if ( it == tokens.end() )
     {
+        exists_token = false;
         return false;
     }
 
     if ( it->second->is_valid(utk, egid) == true)
     {
+        exists_token = true;
         return true;
     }
 
     delete it->second;
 
     tokens.erase(it);
+
+    exists_token = true;
 
     return false;
 }

@@ -199,7 +199,7 @@ public:
      *    stores the effective gid. If the token is invali, it is removed
      *    from the pool.
      */
-    bool is_valid(const std::string& utk, int& egid);
+    bool is_valid(const std::string& utk, int& egid, bool& exists_token);
 
     /**
      *  Load the tokens from its XML representation.
