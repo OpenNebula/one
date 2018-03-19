@@ -911,9 +911,15 @@ void VirtualMachineDisks::release_images(int vmid, bool image_error,
             }
 
             /* ------- Update snapshots on source image if needed ----------- */
-            if ( (*it)->has_snapshots() )
+            const Snapshots * snaps = (*it)->get_snapshots();
+
+            if (snaps != 0)
             {
-                imagem->set_image_snapshots(iid, *(*it)->get_snapshots());
+                imagem->set_image_snapshots(iid, *snaps);
+            }
+            else
+            {
+                imagem->clear_image_snapshots(iid);
             }
 
             /* --------- Compute space to free on image datastore ----------- */

@@ -1027,11 +1027,28 @@ void ImageManager::set_image_snapshots(int iid, const Snapshots& s)
         return;
     }
 
-    img->set_snapshots(s);
+    if (s.empty())
+    {
+        img->clear_snapshots();
+    }
+    else
+    {
+        img->set_snapshots(s);
+    }
 
     ipool->update(img);
 
     img->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void ImageManager::clear_image_snapshots(int iid)
+{
+    Snapshots _snaps(-1, false);
+
+    set_image_snapshots(iid, _snaps);
 }
 
 /* -------------------------------------------------------------------------- */
