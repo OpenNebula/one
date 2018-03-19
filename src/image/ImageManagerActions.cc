@@ -999,7 +999,14 @@ void ImageManager::set_image_snapshots(int iid, const Snapshots& s)
         return;
     }
 
-    img->set_snapshots(s);
+    if (s.empty())
+    {
+        img->clear_snapshots();
+    }
+    else
+    {
+        img->set_snapshots(s);
+    }
 
     ipool->update(img);
 
