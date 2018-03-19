@@ -336,7 +336,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     end
 
     def range?(range)
-        !range.to_s.match(/^\d+(,\d+)*$/).nil?
+        !range.to_s.match(/^\d+([,-]\d+)*$/).nil?
     end
 
 private
