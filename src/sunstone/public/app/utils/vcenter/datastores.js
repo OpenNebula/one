@@ -16,28 +16,30 @@
 
 define(function(require) {
   // Dependencies
-  var Locale = require('utils/locale');
-  var OpenNebulaDatastore = require('opennebula/datastore');
-  var OpenNebulaError = require('opennebula/error');
-  var DomDataTable = require('utils/dom-datatable');
-  var Notifier = require('utils/notifier');
-  var UniqueId = require('utils/unique-id');
-  var VCenterCommon = require('./vcenter-common');
-  var Sunstone = require('sunstone');
+  var Locale = require("utils/locale");
+  var OpenNebulaDatastore = require("opennebula/datastore");
+  var OpenNebulaError = require("opennebula/error");
+  var DomDataTable = require("utils/dom-datatable");
+  var Notifier = require("utils/notifier");
+  var UniqueId = require("utils/unique-id");
+  var VCenterCommon = require("./vcenter-common");
+  var Sunstone = require("sunstone");
 
-  var TemplateHTML = require('hbs!./common/html');
-  var RowTemplate = require('hbs!./datastores/row');
-  var EmptyFieldsetHTML = require('hbs!./common/empty-fieldset');
-  var FieldsetTableHTML = require('hbs!./common/fieldset-table');
+  var TemplateHTML = require("hbs!./common/html");
+  var RowTemplate = require("hbs!./datastores/row");
+  var EmptyFieldsetHTML = require("hbs!./common/empty-fieldset");
+  var FieldsetTableHTML = require("hbs!./common/fieldset-table");
+
+  var path = "/vcenter/datastores";
 
   function VCenterDatastores() {
     return this;
   }
 
   VCenterDatastores.prototype = {
-    'html': VCenterCommon.html,
-    'insert': _fillVCenterDatastores,
-    'import': _import
+    "html": VCenterCommon.html,
+    "insert": _fillVCenterDatastores,
+    "import": _import
   };
   VCenterDatastores.prototype.constructor = VCenterDatastores;
 
@@ -53,8 +55,6 @@ define(function(require) {
   */
   function _fillVCenterDatastores(opts) {
     this.opts = opts;
-
-    var path = '/vcenter/datastores';
 
     var context = $(".vcenter_import", opts.container);
     context.html(TemplateHTML());
@@ -83,7 +83,7 @@ define(function(require) {
             tableId : tableId,
             toggleAdvanced : false,
             columns : [
-              '<input type="checkbox" class="check_all"/>',
+              "<input type=\"checkbox\" class=\"check_all\"/>",
               Locale.tr("Name"),
               Locale.tr("vCenter ref"),
               Locale.tr("Datacenter"),
@@ -94,13 +94,13 @@ define(function(require) {
           });
 
           var newdiv = $(content).appendTo($(".vcenter_datacenter_list", context));
-          var tbody = $('#' + tableId + ' tbody', context);
+          var tbody = $("#" + tableId + " tbody", context);
 
           $.each(response, function(datastore_name, element){
             if (element.cluster.length !== 0){
               var opts = { name: element.simple_name, vcenter_ref: element.ref, datacenter: element.datacenter, cluster: element.cluster, free_mb: element.free_mb, total_mb: element.total_mb };
               var trow = $(RowTemplate(opts)).appendTo(tbody);
-              $('.check_item', trow).data("import_data", element);
+              $(".check_item", trow).data("import_data", element);
             }
           });
 
@@ -115,7 +115,7 @@ define(function(require) {
                 "bDeferRender": false,
                 "ordering": false,
                 "aoColumnDefs": [
-                {"sWidth": "35px", "aTargets": [0]},
+                { "sWidth": "35px", "aTargets": [0] },
                 ],
               },
               "customTrListener": function(tableObj, tr){ return false; }
@@ -129,8 +129,8 @@ define(function(require) {
             selected: Locale.tr("%1$s Datastores selected.")
           });
 
-          context.off('click', '.clear_imported');
-          context.on('click', '.clear_imported', function() {
+          context.off("click", ".clear_imported");
+          context.on("click", ".clear_imported", function() {
             _fillVCenterDatastores(opts);
             return false;
           });
@@ -158,7 +158,6 @@ define(function(require) {
       return false;
     }
 
-    var path = "vcenter/datastores";
     $.ajax({
       url: path,
       type: "POST",
