@@ -15,12 +15,14 @@
 {{! -------------------------------------------------------------------------- }}
 
 <div id="import_datastores_form_wrapper">
-  <form data-abide novalidate id="{{formPanelId}}Wizard" class="custom creation">
-  </form>
   <div class="row collapse">
     {{{vCenterHostsHTML}}}
   </div>
-  <button class="button radius" id="get-vcenter-ds"> {{tr "Get Datastores"}} </button>
+  <div style="float:left">
+    <button class="button radius" id="get-vcenter-ds"> {{tr "Get Datastores"}} </button>
+    <button class="button right success" id="import_vcenter_datastores" disabled>{{tr "Import"}}</button>
+  </div>
+  <br><br><br>
   <div class="row collapse">
     {{{vCenterDatastoresHTML}}}
   </div>

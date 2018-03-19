@@ -47,14 +47,10 @@ define(function(require) {
     Retrieve the list of Datastores from vCenter and fill the container with them
 
     opts = {
-      datacenter: "Datacenter Name",
-      cluster: "Cluster Name",
-      container: Jquery div to inject the html,
-      vcenter_user: vCenter Username,
-      vcenter_password: vCenter Password,
-      vcenter_host: vCenter Host
+      container: JQuery div to inject the html,
+      selectedHost: Host selected for vCenter credentials
     }
-   */
+  */
   function _fillVCenterDatastores(opts) {
     this.opts = opts;
 
@@ -162,9 +158,6 @@ define(function(require) {
       return false;
     }
 
-    var row_context = $(this).closest("tr");
-    VCenterCommon.importLoading({context : row_context});
-
     var path = "vcenter/datastores";
     $.ajax({
       url: path,
@@ -176,10 +169,7 @@ define(function(require) {
         $("#get-vcenter-ds").click();
       },
       error: function (request, error_json) {
-        VCenterCommon.importFailure({
-          context : row_context,
-          message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
-        });
+        Notifier.notifyError(Locale.tr("Cannot contact server: is it running and reachable?"));
       }
     });
   }

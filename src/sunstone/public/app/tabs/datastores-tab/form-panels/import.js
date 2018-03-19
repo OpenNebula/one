@@ -105,10 +105,17 @@ define(function(require) {
           container: context,
           selectedHost: selectedHost
         });
+        $("#import_vcenter_datastores", this.parentElement).prop("disabled", false);
       }
       else {
         Notifier.notifyMessage("You need select a vCenter host first");
       }
+    });
+
+    $(context).off("click", "#import_vcenter_datastores");
+    $(context).on("click", "#import_vcenter_datastores", function(){
+      that.vCenterDatastores.import(context);
+      return false;
     });
 
     return false;
@@ -125,5 +132,6 @@ define(function(require) {
   }
 
   function _onShow(context) {
+    $("#datastores-tab .submit_button").hide();
   }
 });
