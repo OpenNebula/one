@@ -215,8 +215,20 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         # Check that ONE_AUTH target can be written
         #-----------------------------------------------------------------------
         if File.file?(ONE_AUTH) && !options[:force]
+            puts "  * Do you want to overwrite the file #{ONE_AUTH}? (Y|N): "
+
+            answer = STDIN.readline.chop
+
+            case answer
+            when 'Y', 'y', 'yes', 'YES', 'Yes'
+                puts "overwriting #{ONE_AUTH} ..."
+            when 'N', 'n', 'no', 'NO', 'No'
                 return 0, "File #{ONE_AUTH} exists, use --force to overwrite."\
                 "\n#{token_info}"
+            else
+                puts "Not valid option."
+                return -1
+            end
         end
 
         #-----------------------------------------------------------------------
