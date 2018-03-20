@@ -45,17 +45,17 @@ public:
 
     void start();
 
-    virtual void register_policies(const SchedulerTemplate& conf) = 0;
+    virtual void register_policies(const SchedulerTemplate& conf){};
 
-    template <class T>
-    static T& getInstance(){
-        static T obj;
-        return obj;
-    };
-
-    float get_mem_factor()
+    static Scheduler& instance()
     {
-        return factor;
+        static Scheduler _sched;
+        return _sched;
+    }
+
+    float get_mem_ds_scale()
+    {
+        return mem_ds_scale;
     };
 
 protected:
@@ -76,7 +76,7 @@ protected:
         machines_limit(0),
         dispatch_limit(0),
         host_dispatch_limit(0),
-        factor(0)
+        mem_ds_scale(0)
     {
         am.addListener(this);
     };
@@ -209,7 +209,7 @@ private:
     /**
      *  multiplication factor to calculate datastore usage. memory * factor
      */
-    float factor;
+    float mem_ds_scale;
 
     /**
      * oned runtime configuration values

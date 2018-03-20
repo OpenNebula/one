@@ -348,7 +348,8 @@ void VirtualMachineXML::init_storage_usage()
         }
     }
 
-    float factor = Scheduler::getInstance<RankScheduler>().get_mem_factor();
+    float factor = Scheduler::instance().get_mem_ds_scale();
+
     if (this->memory > 0 && factor >= 0)
     {
         system_ds_usage += this->memory * factor;

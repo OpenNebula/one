@@ -155,7 +155,7 @@ void Scheduler::start()
 
     conf.get("LIVE_RESCHEDS", live_rescheds);
 
-    conf.get("FACTOR", factor);
+    conf.get("MEMORY_SYSTEM_DS_SCALE", mem_ds_scale);
 
     // -----------------------------------------------------------
     // Log system & Configuration File
@@ -1096,7 +1096,7 @@ void Scheduler::dispatch()
     const vector<Resource *> vm_rs = vmpool->get_vm_resources();
 
     //--------------------------------------------------------------------------
-    dss << "Dispatching VMs to hosts:\n" 
+    dss << "Dispatching VMs to hosts:\n"
         << "\tVMID\tPriority\tHost\tSystem DS\n"
         << "\t--------------------------------------------------------------\n";
     //--------------------------------------------------------------------------

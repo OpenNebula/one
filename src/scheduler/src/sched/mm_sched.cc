@@ -25,7 +25,7 @@
 
 int main(int argc, char **argv)
 {
-    Scheduler& sched = Scheduler::getInstance<RankScheduler>();
+    Scheduler& sched = RankScheduler::instance();
 
     try
     {
