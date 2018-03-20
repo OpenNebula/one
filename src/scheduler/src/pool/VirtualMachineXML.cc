@@ -21,6 +21,7 @@
 #include "DatastorePoolXML.h"
 #include "NebulaUtil.h"
 #include "History.h"
+#include "RankScheduler.h"
 
 void VirtualMachineXML::init_attributes()
 {
@@ -347,6 +348,12 @@ void VirtualMachineXML::init_storage_usage()
         }
     }
 
+    float factor = Scheduler::getInstance<RankScheduler>().get_mem_factor();
+    if (this->memory > 0 && factor >= 0)
+    {
+        system_ds_usage += this->memory * factor;
+    }
+
     for (int i = 0; i < num ; i++)
     {
         delete disks[i];
@@ -358,7 +365,7 @@ void VirtualMachineXML::init_storage_usage()
 
 void VirtualMachineXML::log(const string &st)
 {
-    if (user_template == 0 || st.empty())
+    if ( user_template == 0 || st.empty())
     {
         return;
     }

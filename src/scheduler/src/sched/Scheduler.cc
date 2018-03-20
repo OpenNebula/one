@@ -155,6 +155,8 @@ void Scheduler::start()
 
     conf.get("LIVE_RESCHEDS", live_rescheds);
 
+    conf.get("FACTOR", factor);
+
     // -----------------------------------------------------------
     // Log system & Configuration File
     // -----------------------------------------------------------
