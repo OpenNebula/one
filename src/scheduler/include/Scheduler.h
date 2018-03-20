@@ -47,6 +47,17 @@ public:
 
     virtual void register_policies(const SchedulerTemplate& conf) = 0;
 
+    template <class T>
+    static T& getInstance(){
+        static T obj;
+        return obj;
+    };
+
+    float get_mem_factor()
+    {
+        return factor;
+    };
+
 protected:
 
     Scheduler():
@@ -64,7 +75,8 @@ protected:
         one_xmlrpc(""),
         machines_limit(0),
         dispatch_limit(0),
-        host_dispatch_limit(0)
+        host_dispatch_limit(0),
+        factor(0)
     {
         am.addListener(this);
     };
@@ -193,6 +205,11 @@ private:
      *  OpenNebula zone id.
      */
     int zone_id;
+
+    /**
+     *  multiplication factor to calculate datastore usage. memory * factor
+     */
+    float factor;
 
     /**
      * oned runtime configuration values
