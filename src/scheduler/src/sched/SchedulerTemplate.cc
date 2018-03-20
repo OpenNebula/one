@@ -109,6 +109,12 @@ void SchedulerTemplate::set_conf_default()
     vattribute = new VectorAttribute("DEFAULT_DS_SCHED",vvalue);
     conf_default.insert(make_pair(vattribute->name(),vattribute));
 
+    //FACTOR
+    value = "0";
+
+    attribute = new SingleAttribute("FACTOR",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
     //LOG CONFIGURATION
     vvalue.clear();
     vvalue.insert(make_pair("SYSTEM","file"));
