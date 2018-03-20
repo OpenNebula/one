@@ -113,7 +113,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         if options[:host] && options[:object]
             o = options[:object]
             vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
-            importer = VCenterDriver::VcImporter.new_(helper.client, vi_client, o)
+            importer = VCenterDriver::VcImporter.new_child(helper.client, vi_client, o)
 
             list = importer.get_list()
             helper.list_object(options, list)
@@ -133,11 +133,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         if options[:host] && options[:object]
             o = options[:object]
             vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
-            importer = VCenterDriver::VcImporter.new_(helper.client, vi_client, o)
+            importer = VCenterDriver::VcImporter.new_child(helper.client, vi_client, o)
 
             importer.get_list()
 
             importer.process_import(indexes)
+
+
+            importer.stdout
         else
             puts "for the moment is not supported without the proper authentication"
         end

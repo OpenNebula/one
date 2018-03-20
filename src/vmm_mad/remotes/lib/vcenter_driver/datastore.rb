@@ -675,7 +675,7 @@ class DsImporter < VCenterDriver::VcImporter
     end
 
     def add_cluster(cid, eid)
-        one_cluster = @clusters[cid]
+        one_cluster = @info[:clusters][cid]
         raise "no cluster defined" unless one_cluster
 
         rc = one_cluster.adddatastore(eid)
@@ -683,8 +683,8 @@ class DsImporter < VCenterDriver::VcImporter
 
     def remove_default(id)
         cid = 0
-        @clusters[cid] ||= VCenterDriver::VIHelper.one_item(OpenNebula::Cluster, cid.to_s, false)
-        @clusters[cid].deldatastore(id.to_i)
+        @info[:clusters][cid] ||= VCenterDriver::VIHelper.one_item(OpenNebula::Cluster, cid.to_s, false)
+        @info[:clusters][cid].deldatastore(id.to_i)
     end
 
     def import(selected)
@@ -701,16 +701,25 @@ class DsImporter < VCenterDriver::VcImporter
         pair     = selected[:ds]
         clusters = selected[:cluster]
 
+        res = {id: [], name: selected[:simple_name]}
+        @info[:rollback] = []
         pair.each do |ds|
             create(ds[:one]) do |one_object|
                 one_object.info
                 id = one_object['ID']
+                res[:id] << id
 
                 add_clusters(id, clusters)
 
                 inner.call(one_object, @vi_client.get_host_credentials)
             end
         end
+
+        return res
+    end
+
+    def rollback
+        # not implemented
     end
 
 end

@@ -98,7 +98,7 @@ helpers do
         host_id = params["host"]
         vi_client = VCenterDriver::VIClient.new_from_host(host_id) if host_id
         one_client = OpenNebula::Client.new
-        $importer = VCenterDriver::VcImporter.new_(one_client, vi_client, type)
+        $importer = VCenterDriver::VcImporter.new_child(one_client, vi_client, type)
     end
 
 #    def af_format_response(resp)
@@ -465,7 +465,9 @@ end
 post '/vcenter/datastores' do
     begin
         $importer.process_import(params["datastores"])
-        [200, "Dastastores imported successfully".to_json]
+
+        output = $importer.out
+        [200, output.to_json]
     rescue Exception => e
         binding.pry
         logger.error("[vCenter] " + e.message)
