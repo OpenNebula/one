@@ -1670,9 +1670,9 @@ private:
     string      deploy_id;
 
     /**
-     *  Memory in Kilobytes used by the VM
+     *  Memory in MB used by the VM
      */
-    long int         memory;
+    long int    memory;
 
     /**
      *  CPU usage (percent)

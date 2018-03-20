@@ -43,12 +43,6 @@ public:
         delete rp_vm;
     };
 
-    static RankScheduler& getInstance()
-    {
-        static RankScheduler r_sched;
-        return r_sched;
-    }
-
     void register_policies(const SchedulerTemplate& conf)
     {
         rp_host = new RankHostPolicy(hpool, conf.get_policy(), 1.0);
