@@ -93,7 +93,7 @@ class Storage
             one_image[:template] << "NAME=\"#{image_name}\"\n"
             one_image[:template] << "PATH=\"vcenter://#{image_path}\"\n"
             one_image[:template] << "TYPE=\"#{image_type}\"\n"
-            one_image[:template] << "PERSISTENT=\"NO\"\n"
+            one_image[:template] << "PERSISTENT=\"YES\"\n"
             one_image[:template] << "VCENTER_IMPORTED=\"YES\"\n"
             one_image[:template] << "DEV_PREFIX=\"#{image_prefix}\"\n"
         else
@@ -649,4 +649,3 @@ class Datastore < Storage
 end # class Datastore
 
 end # module VCenterDriver
-
