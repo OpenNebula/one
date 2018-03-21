@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/OpenNebula/docker-machine-opennebula"
+	"docker_machine"
 	"github.com/docker/machine/libmachine/drivers/plugin"
 )
 

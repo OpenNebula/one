@@ -264,7 +264,7 @@ build_scripts=[
     'share/rubygems/SConstruct',
     'src/im_mad/collectd/SConstruct',
     'src/client/SConstruct',
-    'src/docker-machine/SConstruct'
+    'src/docker_machine/SConstruct'
 ]
 
 for script in build_scripts:

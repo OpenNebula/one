@@ -12,29 +12,12 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/OpenNebula/docker-machine-opennebula"
-  packages = ["."]
-  revision = "57822cc5284d2cc895f0a32296afd5a3997c428a"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/OpenNebula/goca"
-  packages = ["."]
-  revision = "39640cef9bfb9058b2aeb437aa05b1be1b8e4f35"
-
-[[projects]]
-  name = "github.com/Sirupsen/logrus"
-  packages = ["."]
-  revision = "d682213848ed68c0a260ca37d6dd5ace8423f5ba"
-  version = "v1.0.4"
-
-[[projects]]
   name = "github.com/docker/docker"
   packages = [
     "pkg/term",
     "pkg/term/windows"
   ]
-  revision = "675e6224329dd46a8e5e52d7035da88fc97def94"
+  revision = "0c1006f1abc1af7aa6b9847754370d054dfa6c68"
 
 [[projects]]
   name = "github.com/docker/machine"
@@ -51,7 +34,8 @@
     "libmachine/version",
     "version"
   ]
-  revision = "49dfaa70fdc869c65d9f6c50c355624356ab383b"
+  revision = "89b833253d9412716a0291cbdccc94454c33d1b5"
+  version = "v0.14.0"
 
 [[projects]]
   branch = "master"
@@ -60,6 +44,13 @@
   revision = "0826b98aaa29c0766956cb40d45cf7482a597671"
 
 [[projects]]
+  name = "github.com/sirupsen/logrus"
+  packages = ["."]
+  revision = "c155da19408a8799da419ed3eeb0cb5db0ad5dbc"
+  version = "v1.0.5"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/crypto"
   packages = [
     "curve25519",
@@ -70,23 +61,25 @@
     "ssh",
     "ssh/terminal"
   ]
-  revision = "39efaea5da11abd5e2b90a435b1f338cdb94619c"
+  revision = "c3a3ad6d03f7a915c0f7e194b7152974bb73d287"
 
 [[projects]]
+  branch = "master"
   name = "golang.org/x/net"
   packages = [
     "html",
     "html/atom"
   ]
-  revision = "0744d001aa8470aaa53df28d32e5ceeb8af9bd70"
+  revision = "6078986fec03a1dcc236c34816c71b0e05018fda"
 
 [[projects]]
+  branch = "master"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows"
   ]
-  revision = "4fe5d7925040acd225bf9c7cee65e82d07f06bff"
+  revision = "7ceb54c8418b8f9cdf0177b511d5cbb06e9fae39"
 
 [[projects]]
   branch = "v2"
@@ -97,6 +90,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d5cb5cb5e9fd4a09bc200005694d18951dbe21d8932c8500ea5353199f6ed6e0"
+  inputs-digest = "8e5052c0521dfead3dd5b8672b0d2f066c70177a5e5a3ba4abd1449d087b98aa"
   solver-name = "gps-cdcl"
   solver-version = 1

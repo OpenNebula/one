@@ -24,6 +24,19 @@
 #   go-tests = true
 #   unused-packages = true
 
+required = ["github.com/kolo/xmlrpc", "gopkg.in/xmlpath.v2"]
+
+[[constraint]]
+  name = "github.com/docker/machine"
+  version = "0.14.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/kolo/xmlrpc"
+
+[[constraint]]
+  branch = "v2"
+  name = "gopkg.in/xmlpath.v2"
 
 [prune]
   go-tests = true
