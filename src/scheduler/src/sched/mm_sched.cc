@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RankScheduler.h"
+#include "Scheduler.h"
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -25,7 +26,7 @@
 
 int main(int argc, char **argv)
 {
-    Scheduler& sched = RankScheduler::instance();
+    Scheduler& sched = Scheduler::instance(new RankScheduler());
 
     try
     {
