@@ -30,6 +30,7 @@ $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cli"
 $: << REMOTES_LOCATION+"vmm/vcenter/"
 
+require 'pry'
 require 'command_parser'
 require 'one_helper/onevcenter_helper'
 require 'vcenter_driver'
@@ -112,6 +113,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         if options[:host] && options[:object]
             o = options[:object]
+
+            helper.set_object(o)
             vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
             importer = VCenterDriver::VcImporter.new_child(helper.client, vi_client, o)
 
@@ -132,13 +135,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         indexes = args.first
         if options[:host] && options[:object]
             o = options[:object]
+            helper.set_object(o)
             vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
             importer = VCenterDriver::VcImporter.new_child(helper.client, vi_client, o)
 
             importer.get_list()
 
-            importer.process_import(indexes)
-
+            importer.process_import(indexes) do |object_info|
+                helper.cli_dialogue(object_info)
+            end
 
             importer.stdout
         else

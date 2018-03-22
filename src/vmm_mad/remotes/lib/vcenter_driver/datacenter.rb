@@ -240,6 +240,7 @@ class DatacenterFolder
 
     def get_unimported_templates(vi_client, tpool)
         template_objects = {}
+        import_id = 0
         vcenter_uuid = get_vcenter_instance_uuid
 
         vcenter_instance_name = vi_client.vim.host
@@ -249,8 +250,6 @@ class DatacenterFolder
         @items.values.each do |dc|
             rp_cache = {}
             dc_name = dc.item.name
-            template_objects[dc_name] = []
-
 
             view = vi_client.vim.serviceContent.viewManager.CreateContainerView({
                 container: dc.item.vmFolder,
@@ -295,6 +294,9 @@ class DatacenterFolder
 
             templates.each do |template|
 
+                tref      = template['_ref']
+                next if template_objects[tref]
+
                 one_template = VCenterDriver::VIHelper.find_by_ref(OpenNebula::TemplatePool,
                                                                    "TEMPLATE/VCENTER_TEMPLATE_REF",
                                                                    template['_ref'],
@@ -305,7 +307,12 @@ class DatacenterFolder
 
                 one_template = VCenterDriver::Template.get_xml_template(template, vcenter_uuid, vi_client, vcenter_instance_name, dc_name, rp_cache)
 
-                template_objects[dc_name] << one_template if !!one_template
+                if !!one_template
+                    one_template[:import_id] = import_id
+                    one_template[:vcenter] = vcenter_instance_name
+                    import_id += 1
+                    template_objects[tref] = one_template
+                end
             end
         end
 

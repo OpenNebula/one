@@ -16,7 +16,7 @@ class VirtualMachineFolder
     def fetch!
         VIClient.get_entities(@item, "VirtualMachine").each do |item|
             item_name = item._ref
-            @items[item_name.to_sym] = VirtualMachine.new(item)
+            @items[item_name.to_sym] = VirtualMachine.new_with_item(item)
         end
     end
 
@@ -836,6 +836,8 @@ class Template
             # the object being imported
             one_tmp = {}
             one_tmp[:name]                  = import_name
+            one_tmp[:ref]                   = template_ref
+            one_tmp[:dc_name]               = dc_name
             one_tmp[:template_name]         = template_name
             one_tmp[:sunstone_template_name]= "#{template_name} [ Cluster: #{template_ccr_name} - Template location: #{location} ]"
             one_tmp[:template_hash]         = template_hash
@@ -848,6 +850,7 @@ class Template
             one_tmp[:rp_list]               = rp_list
             one_tmp[:template]              = template
             one_tmp[:import_disks_and_nics] = true # By default we import disks and nics
+
 
             # Get the host ID of the OpenNebula host which represents the vCenter Cluster
             host_id = nil
@@ -926,6 +929,11 @@ class VirtualMachine < Template
         end
 
         @one_item
+    end
+
+    # set the vmware item directly to the vm
+    def set_item(item)
+        @item = item
     end
 
     # The OpenNebula host
@@ -3161,6 +3169,18 @@ class VirtualMachine < Template
     end
 
     # build a vcenterdriver virtual machine
+    # with the vmware item already linked
+    #
+    # @param vm_item the vmware VM item that it's going to be associated
+    #
+    # @return [vcenterdriver::vm] the virtual machine
+    def self.new_with_item(vm_item)
+        self.new(nil, nil, -1).tap do |vm|
+            vm.set_item(vm_item)
+        end
+    end
+
+    # build a vcenterdriver virtual machine
     # with the opennebula object linked
     #
     # @param vi_client [vi_client] the vcenterdriver client that allows the connection
@@ -3190,4 +3210,146 @@ class VirtualMachine < Template
     ###############################################################################################
 end # class VirtualMachine
 
+class VmImporter < VCenterDriver::VcImporter
+
+    def initialize(one_client, vi_client)
+        super(one_client, vi_client)
+        @one_class = OpenNebula::Template
+    end
+
+    def get_list(&block)
+        dc_folder = VCenterDriver::DatacenterFolder.new(@vi_client)
+
+        # Get OpenNebula's templates pool
+        tpool = VCenterDriver::VIHelper.one_pool(OpenNebula::TemplatePool, false)
+        if tpool.respond_to?(:message)
+            raise "Could not get OpenNebula TemplatePool: #{tpool.message}"
+        end
+
+        @list = dc_folder.get_unimported_templates(@vi_client, tpool)
+    end
+
+    def create_pools()
+        dpool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool)
+        if dpool.respond_to?(:message)
+            raise "Could not get OpenNebula DatastorePool: #{dpool.message}"
+        end
+        ipool = VCenterDriver::VIHelper.one_pool(OpenNebula::ImagePool)
+        if ipool.respond_to?(:message)
+            raise "Could not get OpenNebula ImagePool: #{ipool.message}"
+        end
+        npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool)
+        if npool.respond_to?(:message)
+            raise "Could not get OpenNebula VirtualNetworkPool: #{npool.message}"
+        end
+        hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool)
+        if hpool.respond_to?(:message)
+            raise "Could not get OpenNebula VirtualNetworkPool: #{hpool.message}"
+        end
+
+        return dpool, ipool, npool, hpool
+    end
+
+    def rp_opts(type, rps)
+        str = ""
+
+        return str if (type == "default") || rps.empty?
+
+
+        if (type == "fixed")
+            str << "VCENTER_RESOURCE_POOL=\"#{rps}\"\n"
+        else
+            default = rps.first
+            rps_str = rps.join(',')
+
+            str << "USER_INPUTS=["
+            str << "VCENTER_RESOURCE_POOL=\"M|list|resource pool list|#{rps_str}|#{default}\""
+            str << "]"
+        end
+
+        return str
+    end
+
+    def import(selected)
+        opts = @info[selected[:ref]][:opts]
+        working_template = selected
+
+        vcenter = selected[:vcenter]
+        vc_uuid = selected[:vcenter_instance_uuid]
+        dc      = selected[:dc_name]
+
+        linked_clone     = opts[:linked_clone] == '1'
+        copy             = opts[:copy] == '1'
+        deploy_in_folder = !opts[:folder].empty?
+
+        res = {id: [], name: selected[:name]}
+        dpool, ipool, npool, hpool = create_pools
+
+        template = VCenterDriver::Template.new_from_ref(selected[:vcenter_ref], @vi_client)
+
+        # Linked clones and copy preparation
+        if linked_clone
+            if copy # reached this point we need to delete the template if something go wrong
+                error, template_copy_ref = selected[:template].create_template_copy(opts[:name])
+                raise "There is a problem creating creating your copy: #{error}" unless template_copy_ref
+
+                template = VCenterDriver::Template.new_from_ref(template_copy_ref, @vi_client)
+                @rollback << Raction.new(template, :delete_template)
+
+                one_template = VCenterDriver::Template.get_xml_template(template, vc_uuid, @vi_client, vcenter, dc)
+                raise "There is a problem obtaining info from your template's copy" unless one_template
+                working_template = one_template
+            end
+
+            lc_error, use_lc = template.create_delta_disks
+            raise "Something was wront with create delta disk operation" if lc_error
+            working_template[:one] << "\nVCENTER_LINKED_CLONES=\"YES\"\n" if use_lc
+        end
+
+        working_template[:one] << "VCENTER_VM_FOLDER=\"#{opts[:folder]}\"\n" if deploy_in_folder
+
+        create(working_template[:one]) do |one_object|
+            @rollback << Raction.new(one_object, :delete)
+            one_object.info
+            id = one_object['ID']
+            res[:id] << id
+
+            type = {:object => "template", :id => id}
+            error, template_disks, allocated_images = template.import_vcenter_disks(vc_uuid, dpool, ipool, type)
+
+            #rollback stack
+            allocated_images.reverse.each do |i|
+                @rollback.unshift(Raction.new(i, :delete))
+            end
+            raise error if !error.empty?
+
+            working_template[:one] << template_disks
+
+            template_moref = template_copy_ref ? template_copy_ref : selected[:vcenter_ref]
+			wild = false
+			error, template_nics, allocated_nets = template.import_vcenter_nics(vc_uuid,
+                                                                            npool,
+                                                                            hpool,
+                                                                            vcenter,
+                                                                            template_moref,
+                                                                            wild,
+                                                                            false,
+                                                                            template["name"],
+                                                                            id,
+                                                                            dc)
+            #rollback stack
+            allocated_nets.reverse.each do |n|
+                @rollback.unshift(Raction.new(n, :delete))
+            end
+            raise error if !error.empty?
+
+            working_template[:one] << rp_opts(opts[:type], opts[:resourcepool])
+
+            one_object.update(working_template[:one])
+        end
+
+        return res
+    end
+
+end
 end # module VCenterDriver

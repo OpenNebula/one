@@ -3,17 +3,28 @@ module VCenterDriver
         attr_accessor :list
 
         protected
+
+        class Raction
+            def initialize(object, method)
+                @object = object
+                @action = method
+            end
+
+            def apply
+                @object.method(@action).call
+            end
+        end
+
         ########################################
         # ABSTRACT INTERFACE
         ########################################
-
         MESS = "missing method from parent"
 
-        def get_list;    raise MESS end
+        def get_list;             raise MESS end
         def add_cluster(cid, eid) raise MESS end
-        def remove_default(id) raise MESS end
-        def import(selected) raise MESS end
-        def rollback; raise MESS end
+        def remove_default(id)    raise MESS end
+        def import(selected)      raise MESS end
+        def rollback;             raise MESS end
         ########################################
 
         public
@@ -26,6 +37,7 @@ module VCenterDriver
 
             @list = {}
             @info = {}
+            @rollback = []
             @info[:clusters] = {}
         end
 
@@ -33,6 +45,8 @@ module VCenterDriver
             case type
             when "datastores"
                 VCenterDriver::DsImporter.new(one_client, vi_client)
+            when "templates"
+                VCenterDriver::VmImporter.new(one_client, vi_client)
             else
                 raise "unknown object type"
             end
@@ -62,7 +76,7 @@ module VCenterDriver
             { success: @info[:success], error: @info[:error] }
         end
 
-        def process_import(indexes, opts = {})
+        def process_import(indexes, opts = {}, &block)
             raise "the list is empty" if list_empty?
             indexes = indexes.gsub(/\s+/, "").split(",")
 
@@ -72,17 +86,17 @@ module VCenterDriver
             indexes.each do |index|
                 begin
                     @info[index] = {}
-                    @info[index][:opts] = opts[index]
-
-                    # select object from importer mem
                     selected = get_element(index)
 
+                    @info[index][:opts] = block_given? ? block.call(selected) : opts[index]
+
+                    # import the object
                     @info[:success] << import(selected)
                 rescue Exception => e
                     @info[:error] << index
                     @info[index][:e] =  e
 
-                    rollback
+                    apply_rollback
                 end
             end
         end
@@ -120,5 +134,14 @@ module VCenterDriver
             end
             remove_default(one_id)
         end
+
+        def apply_rollback
+            if !@rollback.empty?
+                @rollback.each do |action|
+                    action.apply
+                end
+            end
+        end
     end
+
 end
