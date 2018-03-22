@@ -164,11 +164,24 @@ define(function(require) {
       data: { datastores: vcenter_refs, timeout: false },
       dataType: "json",
       success: function(response){
-        Notifier.notifyMessage("Datastores imported successfully");
+        var success = response.success;
+        if (success.length !== 0){
+          $.each(success, function(key, value){
+            var ds1 = Navigation.link(value.id[0], "datastores-tab", value.id[0]);
+            var ds2 = Navigation.link(value.id[1], "datastores-tab", value.id[1]);
+            Notifier.notifyMessage("Datastore " + value.name + " imported as " + ds1 + " " + ds2 + " successfully");
+          });
+        }
+        var error = response.error;
+        if (error.length !== 0){
+          $.each(error, function(key, value){
+            Notifier.notifyError("Datastore with ref " + value + " could not be imported");
+          });
+        }
         $("#get-vcenter-ds").click();
       },
       error: function (request, error_json) {
-        Notifier.notifyError(Locale.tr("Cannot contact server: is it running and reachable?"));
+        Notifier.notifyError(request.responseJSON.error.message);
       }
     });
   }
