@@ -59,7 +59,7 @@ module VCenterDriver
         end
 
         def output
-            { sucess: @info[:sucess], error: @out[:error] }
+            { success: @info[:success], error: @info[:error] }
         end
 
         def process_import(indexes, opts = {})
