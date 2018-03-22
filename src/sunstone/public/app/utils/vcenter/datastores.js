@@ -89,7 +89,8 @@ define(function(require) {
               Locale.tr("Datacenter"),
               Locale.tr("Total MB"),
               Locale.tr("Free MB"),
-              Locale.tr("OpenNebula Cluster IDs")
+              Locale.tr("OpenNebula Cluster IDs"),
+              ""
             ]
           });
 
@@ -150,6 +151,8 @@ define(function(require) {
     var table = $("table.vcenter_import_table", context);
     $.each(table.DataTable().$(".check_item:checked"), function(){
       vcenter_refs.push($(this).data("import_data").ref);
+      var row_context = $(this).closest("tr");
+      VCenterCommon.importLoading({context : row_context});
     });
     vcenter_refs = vcenter_refs.join(",");
 
