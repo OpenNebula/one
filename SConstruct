@@ -167,6 +167,9 @@ main_env.Append(rubygems=ARGUMENTS.get('rubygems', 'no'))
 # Sunstone minified files generation
 main_env.Append(sunstone=ARGUMENTS.get('sunstone', 'no'))
 
+# Docker-machine addon generation
+main_env.Append(docker_machine=ARGUMENTS.get('docker_machine', 'no'))
+
 if not main_env.GetOption('clean'):
     try:
         if mysql=='yes':
@@ -263,7 +266,8 @@ build_scripts=[
     'src/sunstone/public/SConstruct',
     'share/rubygems/SConstruct',
     'src/im_mad/collectd/SConstruct',
-    'src/client/SConstruct'
+    'src/client/SConstruct',
+    'src/docker_machine/SConstruct'
 ]
 
 for script in build_scripts:
