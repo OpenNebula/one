@@ -42,15 +42,20 @@ class  SchedulerTemplate;
 class Scheduler: public ActionListener
 {
 public:
-
     void start();
 
     virtual void register_policies(const SchedulerTemplate& conf){};
 
-    static Scheduler& instance()
+    static Scheduler& instance(Scheduler* the_sched=0)
     {
-        static Scheduler _sched;
-        return _sched;
+        static Scheduler * sched = 0;
+
+        if ( the_sched != 0)
+        {
+            sched = the_sched;
+        }
+
+        return *sched;
     }
 
     float get_mem_ds_scale()
