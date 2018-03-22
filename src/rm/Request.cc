@@ -80,6 +80,7 @@ void Request::log_method_invoked(const RequestAttributes& att,
 {
     std::ostringstream oss;
     std::ostringstream oss_limit;
+    
     unsigned int next = 0;
     int limit = DEFAULT_LOG_LIMIT;
     char mod;
@@ -92,9 +93,9 @@ void Request::log_method_invoked(const RequestAttributes& att,
         }
         else
         {
-            if ((unsigned)j+1 < format_str.length())
+            if (j+1 < format_str.length())
             {
-                mod = format_str[j+1];
+                mod = format_str[++j];
             }
             else
             {
@@ -141,7 +142,9 @@ void Request::log_method_invoked(const RequestAttributes& att,
 
                 case 'l':
                     next = j+1;
-                    while ((unsigned)next+1 < format_str.length() && isdigit(format_str[++next])){
+                    
+                    while (next++ < format_str.length() && isdigit(format_str[next]))
+                    {
                         oss_limit << format_str[next];
                         j = j+1;
                     }
