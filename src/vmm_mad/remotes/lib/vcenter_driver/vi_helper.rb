@@ -21,6 +21,12 @@ class VIHelper
         end
     end
 
+    def self.check_opts(opts, att_list)
+        att_list.each do |att|
+            raise "#{att} option is mandatory" if opts[att].nil?
+        end
+    end
+
     def self.one_item(the_class, id, exit_if_fail = true)
         item = the_class.new_with_id(id, client)
         rc = item.info
