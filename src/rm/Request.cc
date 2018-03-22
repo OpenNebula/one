@@ -141,11 +141,9 @@ void Request::log_method_invoked(const RequestAttributes& att,
                 break;
 
                 case 'l':
-                    next = j+1;
-                    
-                    while (next++ < format_str.length() && isdigit(format_str[next]))
+                    while ( (j+1) < format_str.length() && isdigit(format_str[j+1]))
                     {
-                        oss_limit << format_str[next];
+                        oss_limit << format_str[j+1];
                         j = j+1;
                     }
 
