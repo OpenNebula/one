@@ -450,6 +450,7 @@ get '/vcenter/images/:ds_name' do
     end
 end
 
+require 'pry'
 get '/vcenter/datastores' do
     begin
         new_vcenter_importer("datastores")
@@ -466,10 +467,8 @@ post '/vcenter/datastores' do
     begin
         $importer.process_import(params["datastores"])
 
-        output = $importer.out
-        [200, output.to_json]
+        [200, $importer.output.to_json]
     rescue Exception => e
-        binding.pry
         logger.error("[vCenter] " + e.message)
         error = Error.new(e.message)
         error 403, error.to_json
