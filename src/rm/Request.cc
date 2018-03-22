@@ -79,6 +79,10 @@ void Request::log_method_invoked(const RequestAttributes& att,
         const std::string& method_name, const std::set<int>& hidden_params)
 {
     std::ostringstream oss;
+    std::ostringstream oss_limit;
+    unsigned int next = 0;
+    int limit = DEFAULT_LOG_LIMIT;
+    char mod;
 
     for (unsigned int j = 0 ;j < format_str.length() - 1; j++ )
     {
@@ -88,7 +92,14 @@ void Request::log_method_invoked(const RequestAttributes& att,
         }
         else
         {
-            char mod = format_str[j+1];
+            if ((unsigned)j+1 < format_str.length())
+            {
+                mod = format_str[j+1];
+            }
+            else
+            {
+                break;
+            }
 
             switch(mod)
             {
@@ -129,6 +140,17 @@ void Request::log_method_invoked(const RequestAttributes& att,
                 break;
 
                 case 'l':
+                    next = j+1;
+                    while ((unsigned)next+1 < format_str.length() && isdigit(format_str[++next])){
+                        oss_limit << format_str[next];
+                        j = j+1;
+                    }
+
+                    if ( !oss_limit.str().empty() )
+                    {
+                        limit = stoi(oss_limit.str());
+                    }
+
                     for (unsigned int i=1; i<paramList.size(); i++)
                     {
                         if ( hidden_params.count(i) == 1 )
@@ -137,7 +159,7 @@ void Request::log_method_invoked(const RequestAttributes& att,
                         }
                         else
                         {
-                            log_xmlrpc_value(paramList[i], oss);
+                            log_xmlrpc_value(paramList[i], oss, limit);
                         }
                     }
                 break;
@@ -183,7 +205,7 @@ void Request::log_result(const RequestAttributes& att, const string& method_name
 
         for (unsigned int i=1; i<vvalue.size()-1; i++)
         {
-            log_xmlrpc_value(vvalue[i], oss);
+            log_xmlrpc_value(vvalue[i], oss, DEFAULT_LOG_LIMIT);
         }
 
         NebulaLog::log("ReM", Log::DEBUG, oss);
@@ -200,9 +222,9 @@ void Request::log_result(const RequestAttributes& att, const string& method_name
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Request::log_xmlrpc_value(const xmlrpc_c::value& v, std::ostringstream& oss)
+void Request::log_xmlrpc_value(const xmlrpc_c::value& v, std::ostringstream& oss,const int limit)
 {
-    size_t st_limit = 20;
+    size_t st_limit = limit;
     size_t st_newline;
 
     switch (v.type())
@@ -225,7 +247,7 @@ void Request::log_xmlrpc_value(const xmlrpc_c::value& v, std::ostringstream& oss
             break;
         case xmlrpc_c::value::TYPE_STRING:
             st_newline =
-                    static_cast<string>(xmlrpc_c::value_string(v)).find("\n");
+                    static_cast<string>(xmlrpc_c::value_string(v)).length();
 
             if ( st_newline < st_limit )
             {
