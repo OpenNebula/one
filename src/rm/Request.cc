@@ -81,7 +81,6 @@ void Request::log_method_invoked(const RequestAttributes& att,
     std::ostringstream oss;
     std::ostringstream oss_limit;
     
-    unsigned int next = 0;
     int limit = DEFAULT_LOG_LIMIT;
     char mod;
 
