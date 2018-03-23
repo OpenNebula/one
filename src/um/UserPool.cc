@@ -664,7 +664,9 @@ bool UserPool::authenticate_internal(User *        user,
     // -------------------------------------------------------------------------
     // Check if token is a login or session token, and set EGID if needed
     // -------------------------------------------------------------------------
-    if ( user->login_tokens.is_valid(token, egid) )
+    bool exists_token = false;
+
+    if ( user->login_tokens.is_valid(token, egid, exists_token) )
     {
         if ( egid != -1 && !user->is_in_group(egid) )
         {
@@ -694,6 +696,11 @@ bool UserPool::authenticate_internal(User *        user,
     {
         user->unlock();
         return true;
+    }
+    else if ( exists_token )
+    {
+        user->unlock();
+        goto auth_failure_token;
     }
 
     user->unlock();
@@ -864,12 +871,16 @@ auth_failure_driver:
     NebulaLog::log("AuM",Log::ERROR,oss);
 
     goto auth_failure;
-
+	
+auth_failure_token:
+    NebulaLog::log("AuM", Log::ERROR, "Token has expired.");
+    goto auth_failure;
+	
 auth_failure_nodriver:
     NebulaLog::log("AuM",Log::ERROR,
         "Auth Error: Authentication driver not enabled. "
         "Check AUTH_MAD in oned.conf");
-
+	
 auth_failure:
     user_id  = -1;
     group_id = -1;
