@@ -1902,28 +1902,28 @@ private:
      *  Parse the "CPU_MODEL" attribute of the template
      *    @return 0 on success
      */
-    int parse_cpu_model();
+    int parse_cpu_model(Template * tmpl);
 
     /**
      * Parse the "NIC_DEFAULT" attribute
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int parse_defaults(string& error_str);
+    int parse_defaults(string& error_str, Template * tmpl);
 
     /**
      * Parse virtual router related attributes
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int parse_vrouter(string& error_str);
+    int parse_vrouter(string& error_str, Template * tmpl);
 
     /**
      * Parse the "PCI" attribute of the template and checks mandatory attributes
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int parse_pci(string& error_str);
+    int parse_pci(string& error_str, Template * tmpl);
 
     /**
      *  Parse the "SCHED_REQUIREMENTS" attribute of the template by substituting
@@ -1937,7 +1937,7 @@ private:
      *  Parse the "GRAPHICS" attribute and generates a default PORT if not
      *  defined
      */
-    int parse_graphics(string& error_str);
+    int parse_graphics(string& error_str, Template * tmpl);
 
     /**
      * Searches the meaningful attributes and moves them from the user template

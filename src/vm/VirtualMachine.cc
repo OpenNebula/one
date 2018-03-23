@@ -889,13 +889,13 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // ------------------------------------------------------------------------
     // Check the CPU Model attribute
     // ------------------------------------------------------------------------
-    parse_cpu_model();
+    parse_cpu_model(user_obj_template);
 
     // ------------------------------------------------------------------------
     // PCI Devices (Needs to be parsed before network)
     // ------------------------------------------------------------------------
 
-    rc = parse_pci(error_str);
+    rc = parse_pci(error_str, user_obj_template);
 
     if ( rc != 0 )
     {
@@ -906,7 +906,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // Parse the defaults to merge
     // ------------------------------------------------------------------------
 
-    rc = parse_defaults(error_str);
+    rc = parse_defaults(error_str, user_obj_template);
 
     if ( rc != 0 )
     {
@@ -917,7 +917,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // Parse the virtual router attributes
     // ------------------------------------------------------------------------
 
-    rc = parse_vrouter(error_str);
+    rc = parse_vrouter(error_str, user_obj_template);
 
     if ( rc != 0 )
     {
@@ -998,7 +998,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         goto error_requirements;
     }
 
-    if ( parse_graphics(error_str) != 0 )
+    if ( parse_graphics(error_str, user_obj_template) != 0 )
     {
         goto error_graphics;
     }
@@ -2496,7 +2496,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     // Update OS
     // -------------------------------------------------------------------------
     string os_names[] = {"ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER",
-        "BOOT"};
+        "BOOT", "KERNEL_CMD", "ROOT"};
 
     replace_vector_values(obj_template, &tmpl, "OS", os_names, 6);
 
@@ -2556,8 +2556,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
         obj_template->remove(context_bck);
         obj_template->set(context_new);
 
-        if ( generate_token_context(context_new, err) != 0 ||
-               generate_network_context(context_new, err) != 0  )
+        if ( parse_context(err) != 0 )
         {
             obj_template->erase("CONTEXT");
             obj_template->set(context_bck);
@@ -2566,6 +2565,15 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
         }
 
         delete context_bck;
+    }
+
+    // -------------------------------------------------------------------------
+    // Parse the context & graphics
+    // -------------------------------------------------------------------------
+    if ( parse_graphics(err, obj_template) != 0 )
+    {
+        NebulaLog::log("ONE",Log::ERROR, err);
+        return -1;
     }
 
     return 0;
