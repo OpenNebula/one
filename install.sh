@@ -685,6 +685,7 @@ VMM_EXEC_LIB_FILES="src/vmm_mad/remotes/lib/poll_common.rb"
 
 VMM_EXEC_LIB_VCENTER_FILES="src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb
                     src/vmm_mad/remotes/lib/vcenter_driver/vi_client.rb \
+                    src/vmm_mad/remotes/lib/vcenter_driver/vcenter_importer.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/importer.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/file_helper.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/host.rb \
@@ -1587,6 +1588,7 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/onevmgroup_helper.rb \
                    src/cli/one_helper/onevrouter_helper.rb \
                    src/cli/one_helper/onemarketapp_helper.rb \
+                   src/cli/one_helper/onevcenter_helper.rb \
                    src/cli/one_helper/onemarket_helper.rb"
 
 CLI_BIN_FILES="src/cli/onevm \
