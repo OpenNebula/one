@@ -450,7 +450,6 @@ get '/vcenter/images/:ds_name' do
     end
 end
 
-require 'pry'
 get '/vcenter/datastores' do
     begin
         new_vcenter_importer("datastores")

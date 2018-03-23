@@ -1587,6 +1587,7 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/onevmgroup_helper.rb \
                    src/cli/one_helper/onevrouter_helper.rb \
                    src/cli/one_helper/onemarketapp_helper.rb \
+                   src/cli/one_helper/onevcenter_helper.rb \
                    src/cli/one_helper/onemarket_helper.rb"
 
 CLI_BIN_FILES="src/cli/onevm \
