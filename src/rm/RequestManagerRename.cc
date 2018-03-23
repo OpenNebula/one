@@ -242,7 +242,7 @@ void HostRename::batch_rename(int oid)
             if (vm->hasHistory() && vm->get_hid() == oid)
             {
                 vm->set_hostname(host_name);
-                vmpool->update(vm);
+                vmpool->update_history(vm);
             }
 
             vm->unlock();
