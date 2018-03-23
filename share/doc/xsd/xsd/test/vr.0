@@ -1,0 +1,24 @@
+NAME = vr0
+
+KEEPALIVED_ID = 12345
+KEEPALIVED_PASSWORD = abc123456
+
+NIC = [
+    FLOATING_IP = YES,
+    NETWORK = "Blue LAN",
+    NETWORK_UID = "0"
+]
+
+NIC = [
+    FLOATING_IP = YES,
+    NETWORK = "R",
+    NETWORK_UID = "0",
+    AR_ID = 0
+]
+
+NIC = [
+    VROUTER_MANAGEMENT = YES,
+    NETWORK = "R",
+    NETWORK_UID = "0",
+    AR_ID = 1
+]

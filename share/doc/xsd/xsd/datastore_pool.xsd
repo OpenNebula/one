@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+  targetNamespace="http://opennebula.org/XMLSchema" xmlns="http://opennebula.org/XMLSchema">
+  <xs:include schemaLocation="datastore.xsd"/>
+  <xs:element name="DATASTORE_POOL">
+    <xs:complexType>
+      <xs:sequence maxOccurs="1" minOccurs="1">
+        <xs:element ref="DATASTORE" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
