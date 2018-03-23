@@ -431,7 +431,10 @@ private:
      * @param v value to format
      * @param oss stream to write v
      */
-    static void log_xmlrpc_value(const xmlrpc_c::value& v, std::ostringstream& oss);
+    static void log_xmlrpc_value(const xmlrpc_c::value& v, std::ostringstream& oss, const int limit);
+
+    // Default number of character to show in the log. Option %l<number>
+    const static int DEFAULT_LOG_LIMIT = 20;
 };
 
 /* -------------------------------------------------------------------------- */
