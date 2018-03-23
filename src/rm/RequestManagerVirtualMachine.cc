@@ -2927,6 +2927,31 @@ void VirtualMachineUpdateConf::request_execute(
     }
     else
     {
+        ClusterPool * cpool = Nebula::instance().get_clpool();
+        VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
+
+        unsigned int port;
+        int rc;
+        int cluster_id;
+
+        if (graphics != 0 && graphics->vector_value("PORT", port) != 0)
+        {
+            cluster_id = vm->get_cid();
+
+            rc = cpool->get_vnc_port(cluster_id, vm->get_oid(), port);
+
+            if ( rc == 0 )
+            {
+                graphics->replace("PORT", port);
+
+                Nebula::instance().get_vmpool()->update(vm);
+            }
+            else
+            {
+                att.resp_msg = "No free VNC ports available in the cluster";
+                failure_response(INTERNAL, att);
+            }
+        }
         success_response(id, att);
     }
 
