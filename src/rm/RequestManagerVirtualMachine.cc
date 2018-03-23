@@ -2050,7 +2050,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         case VirtualMachine::DONE:
         case VirtualMachine::SUSPENDED:
         case VirtualMachine::ACTIVE:
-            att.resp_msg = "Resize action is not available for state " + 
+            att.resp_msg = "Resize action is not available for state " +
                 vm->state_str();
 
             failure_response(ACTION, att);
@@ -2665,7 +2665,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
         }
 
         img_att_quota = RequestAttributes(img_perms.uid, img_perms.gid, att);
-    } 
+    }
     if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
     {
         return;
@@ -2927,6 +2927,30 @@ void VirtualMachineUpdateConf::request_execute(
     }
     else
     {
+        ClusterPool * cpool = Nebula::instance().get_clpool();
+        VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
+
+        unsigned int port;
+        int rc;
+        int cluster_id;
+
+        if (graphics != 0 && graphics->vector_value("PORT", port) != 0)
+        {
+            cluster_id = vm->get_cid();
+
+            rc = cpool->get_vnc_port(cluster_id, vm->get_oid(), port);
+
+            if ( rc == 0 )
+            {
+                graphics->replace("PORT", port);
+            }
+            else
+            {
+                att.resp_msg = "No free VNC ports available in the cluster";
+                failure_response(INTERNAL, att);
+            }
+        }
+
         success_response(id, att);
     }
 
