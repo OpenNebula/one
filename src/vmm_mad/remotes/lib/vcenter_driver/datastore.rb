@@ -656,4 +656,79 @@ class Datastore < Storage
     end
 end # class Datastore
 
+class DsImporter < VCenterDriver::VcImporter
+
+    def initialize(one_client, vi_client)
+        super(one_client, vi_client)
+        @one_class = OpenNebula::Datastore
+    end
+
+    def get_list(&block)
+        dc_folder = VCenterDriver::DatacenterFolder.new(@vi_client)
+
+        # one pool creation
+        dpool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool, false)
+        if dpool.respond_to?(:message)
+            raise "Could not get OpenNebula DatastorePool: #{dpool.message}"
+        end
+
+        # OpenNebula's HostPool
+        hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool, false)
+        if hpool.respond_to?(:message)
+            raise "Could not get OpenNebula HostPool: #{hpool.message}"
+        end
+
+        rs = dc_folder.get_unimported_datastores(dpool, @vi_client.vc_name, hpool)
+        @list = rs
+    end
+
+    def add_cluster(cid, eid)
+        one_cluster = @info[:clusters][cid]
+        raise "no cluster defined" unless one_cluster
+
+        rc = one_cluster.adddatastore(eid)
+    end
+
+    def remove_default(id)
+        cid = 0
+        @info[:clusters][cid] ||= VCenterDriver::VIHelper.one_item(OpenNebula::Cluster, cid.to_s, false)
+        @info[:clusters][cid].deldatastore(id.to_i)
+    end
+
+    def import(selected)
+        inner = ->(object, auth) {
+                one = ""
+                one << "VCENTER_HOST=\"#{auth[:host]}\"\n"
+                one << "VCENTER_USER=\"#{auth[:user]}\"\n"
+                one << "VCENTER_PASSWORD=\"#{auth[:pass]}\"\n"
+
+                rc = object.update(one, true)
+        }
+
+        # Datastore info comes in a pair (SYS, IMG)
+        pair     = selected[:ds]
+        clusters = selected[:cluster]
+
+        res = {id: [], name: selected[:simple_name]}
+        @info[:rollback] = []
+        pair.each do |ds|
+            create(ds[:one]) do |one_object|
+                one_object.info
+                id = one_object['ID']
+                res[:id] << id
+
+                add_clusters(id, clusters)
+
+                inner.call(one_object, @vi_client.get_host_credentials)
+            end
+        end
+
+        return res
+    end
+
+    def rollback
+        # not implemented
+    end
+
+end
 end # module VCenterDriver

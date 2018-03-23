@@ -121,43 +121,48 @@ class DatacenterFolder
 
     def get_unimported_datastores(dpool, vcenter_instance_name, hpool)
 
+        import_id = 0
         ds_objects = {}
         vcenter_uuid = get_vcenter_instance_uuid
 
-        fetch! if @items.empty? #Get datacenters
+        #Get datacenters
+        fetch! if @items.empty?
 
         @items.values.each do |dc|
             clusters_in_ds = {}
             dc_name = dc.item.name
             dc_ref  = dc.item._ref
-            ds_objects[dc_name] = []
 
             datastore_folder = dc.datastore_folder
             datastore_folder.fetch!
 
             datastore_folder.items.values.each do |ds|
 
-                name, capacity, freeSpace = ds.item.collect("name",
-                                                            "summary.capacity",
-                                                            "summary.freeSpace")
+                name, capacity, freeSpace = ds.item.collect("name", "summary.capacity", "summary.freeSpace")
 
                 ds_name     = "#{name}"
                 ds_total_mb = ((capacity.to_i / 1024) / 1024)
                 ds_free_mb  = ((freeSpace.to_i / 1024) / 1024)
+                ds_ref      = ds['_ref']
+
+                ds_objects[ds_ref] = {}
+                ds_objects[ds_ref][:ref]         = ds_ref
+                ds_objects[ds_ref][:import_id]   = import_id
+                ds_objects[ds_ref][:datacenter]  = dc_name
+                ds_objects[ds_ref][:vcenter]     = vcenter_instance_name
+                ds_objects[ds_ref][:simple_name] = "#{ds_name}"
+                ds_objects[ds_ref][:total_mb]    = ds_total_mb
+                ds_objects[ds_ref][:free_mb]     = ds_free_mb
+                ds_objects[ds_ref][:ds]          = []
+                ds_objects[ds_ref][:cluster]     = []
 
                 if ds.instance_of? VCenterDriver::Datastore
-                    ds_hash = {}
-                    ds_hash[:simple_name] = "#{ds_name}"
-                    ds_hash[:total_mb]    = ds_total_mb
-                    ds_hash[:free_mb]     = ds_free_mb
-                    ds_hash[:ds]          = []
-                    ds_hash[:cluster]     = []
-
                     hosts = ds["host"]
                     hosts.each do |host|
                         cluster_ref = host.key.parent._ref
                         if !clusters_in_ds.key?(cluster_ref)
                             clusters_in_ds[cluster_ref] = nil
+
                             # Try to locate cluster ref in host's pool
                             one_cluster = VCenterDriver::VIHelper.find_by_ref(OpenNebula::HostPool,
                                                                "TEMPLATE/VCENTER_CCR_REF",
@@ -165,44 +170,32 @@ class DatacenterFolder
                                                                vcenter_uuid,
                                                                hpool)
                             if one_cluster
-                                ds_hash[:cluster] << one_cluster["CLUSTER_ID"].to_i
+                                ds_objects[ds_ref][:cluster] << one_cluster["CLUSTER_ID"].to_i
                                 clusters_in_ds[cluster_ref] = one_cluster["CLUSTER_ID"].to_i
                             end
                         else
-                            ds_hash[:cluster] << clusters_in_ds[cluster_ref] if clusters_in_ds[cluster_ref] && !ds_hash[:cluster].include?(clusters_in_ds[cluster_ref])
+                            ds_objects[ds_ref][:cluster] << clusters_in_ds[cluster_ref] if clusters_in_ds[cluster_ref] && !ds_objects[ds_ref][:cluster].include?(clusters_in_ds[cluster_ref])
                         end
                     end
 
-                    already_image_ds = VCenterDriver::Storage.exists_one_by_ref_dc_and_type?(ds["_ref"], dc_ref, vcenter_uuid, "IMAGE_DS", dpool)
+                    already_image_ds = VCenterDriver::Storage.exists_one_by_ref_dc_and_type?(ds_ref, dc_ref, vcenter_uuid, "IMAGE_DS", dpool)
 
                     if !already_image_ds
-                        ds_hash[:name] = "#{ds_name} [#{vcenter_instance_name} - #{dc_name}] (IMG)"
-                        object = ds.to_one_template(ds_hash, vcenter_uuid, dc_name, dc_ref, "IMAGE_DS")
-                        ds_hash[:ds] << object if !object.nil?
+                        ds_objects[ds_ref][:name] = "#{ds_name} [#{vcenter_instance_name} - #{dc_name}] (IMG)"
+                        object = ds.to_one_template(ds_objects[ds_ref], vcenter_uuid, dc_name, dc_ref, "IMAGE_DS")
+                        ds_objects[ds_ref][:ds] << object if !object.nil?
                     end
 
-                    already_system_ds = VCenterDriver::Storage.exists_one_by_ref_dc_and_type?(ds["_ref"], dc_ref, vcenter_uuid, "SYSTEM_DS", dpool)
+                    already_system_ds = VCenterDriver::Storage.exists_one_by_ref_dc_and_type?(ds_ref, dc_ref, vcenter_uuid, "SYSTEM_DS", dpool)
 
                     if !already_system_ds
-                        ds_hash[:name] = "#{ds_name} [#{vcenter_instance_name} - #{dc_name}] (SYS)"
-                        object = ds.to_one_template(ds_hash, vcenter_uuid, dc_name, dc_ref, "SYSTEM_DS")
-                        ds_hash[:ds] << object if !object.nil?
+                        ds_objects[ds_ref][:name] = "#{ds_name} [#{vcenter_instance_name} - #{dc_name}] (SYS)"
+                        object = ds.to_one_template(ds_objects[ds_ref], vcenter_uuid, dc_name, dc_ref, "SYSTEM_DS")
+                        ds_objects[ds_ref][:ds] << object if !object.nil?
                     end
 
-                    ds_hash[:name] = "#{ds_name} [#{vcenter_instance_name} - #{dc_name}]"
-
-                    ds_objects[dc_name] << ds_hash if !ds_hash[:ds].empty?
-
-                end
-
-                if ds.instance_of? VCenterDriver::StoragePod
-                    ds_hash = {}
-                    ds_hash[:simple_name] = "#{ds_name}"
-                    ds_hash[:total_mb] = ds_total_mb
-                    ds_hash[:free_mb]  = ds_free_mb
-                    ds_hash[:ds]      = []
-                    ds_hash[:cluster] = []
-
+                    ds_objects[ds_ref][:name] = "#{ds_name} [#{vcenter_instance_name} - #{dc_name}]"
+                elsif ds.instance_of? VCenterDriver::StoragePod
                     ds['children'].each do |sp_ds|
                         hosts = sp_ds.host
                         hosts.each do |host|
@@ -216,25 +209,30 @@ class DatacenterFolder
                                                                 vcenter_uuid,
                                                                 hpool)
                                 if one_cluster
-                                    ds_hash[:cluster] << one_cluster["CLUSTER_ID"].to_i
+                                    ds_objects[ds_ref][:cluster] << one_cluster["CLUSTER_ID"].to_i
                                     clusters_in_ds[cluster_ref] = one_cluster["CLUSTER_ID"].to_i
                                 end
                             else
-                                ds_hash[:cluster] << clusters_in_ds[cluster_ref] if clusters_in_ds[cluster_ref] && !ds_hash[:cluster].include?(clusters_in_ds[cluster_ref])
+                                ds_objects[ds_ref][:cluster] << clusters_in_ds[cluster_ref] if clusters_in_ds[cluster_ref] && !ds_objects[ds_ref][:cluster].include?(clusters_in_ds[cluster_ref])
                             end
                         end
                     end
 
-                    already_system_ds = VCenterDriver::Storage.exists_one_by_ref_dc_and_type?(ds["_ref"], dc_ref, vcenter_uuid, "SYSTEM_DS", dpool)
+                    already_system_ds = VCenterDriver::Storage.exists_one_by_ref_dc_and_type?(ds_ref, dc_ref, vcenter_uuid, "SYSTEM_DS", dpool)
 
                     if !already_system_ds
-                        ds_hash[:name] = "#{ds_name} [#{vcenter_instance_name} - #{dc_name}] (StorDRS)"
-                        object = ds.to_one_template(ds_hash, vcenter_uuid, dc_name, dc_ref, "SYSTEM_DS")
-                        ds_hash[:ds] << object if !object.nil?
+                        ds_objects[ds_ref][:name] = "#{ds_name} [#{vcenter_instance_name} - #{dc_name}] (StorDRS)"
+                        object = ds.to_one_template(ds_objects[ds_ref], vcenter_uuid, dc_name, dc_ref, "SYSTEM_DS")
+                        ds_objects[ds_ref][:ds] << object if !object.nil?
                     end
-
-                    ds_objects[dc_name] << ds_hash if !ds_hash[:ds].empty?
                 end
+
+                if ds_objects[ds_ref][:ds].empty?
+                    ds_objects.delete(ds_ref)
+                else
+                    import_id += 1
+                end
+
             end
         end
         ds_objects

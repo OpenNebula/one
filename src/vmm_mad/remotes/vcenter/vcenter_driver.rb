@@ -48,6 +48,7 @@ require 'openssl'
 # vCenter Library                                                              #
 # ---------------------------------------------------------------------------- #
 
+require 'vcenter_importer.rb'
 require 'memoize'
 require 'vi_client'
 require 'vi_helper'
