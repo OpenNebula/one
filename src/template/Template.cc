@@ -730,10 +730,17 @@ bool Template::check_restricted(string& ra, const Template* base,
         }
         else
         {
+            // +---------+--------+--------------------+
+            // | current | base   | outcome            |
+            // +---------+--------+--------------------+
+            // |  YES    | YES/NO | Error if different |
+            // |  NO     | YES    | Add to current     |
+            // |  NO     | NO     | Nop                |
+            // +---------+--------+--------------------+
+            string ra_b;
+
             if ( get(rit->first, ra) )
             {
-                string ra_b;
-
                 base->get(rit->first, ra_b);
 
                 if ( ra_b != ra )
@@ -741,6 +748,10 @@ bool Template::check_restricted(string& ra, const Template* base,
                     ra = rit->first;
                     return true;
                 }
+            }
+            else if ( base->get(rit->first, ra_b) )
+            {
+                add(rit->first, ra_b);
             }
         }
     }
