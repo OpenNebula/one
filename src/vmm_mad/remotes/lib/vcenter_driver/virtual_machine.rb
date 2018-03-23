@@ -71,6 +71,10 @@ class Template
         end
     end
 
+    def wild?
+        self.class == VCenterDriver::VirtualMachine
+    end
+
     def get_dc
         item = @item
 
@@ -264,13 +268,8 @@ class Template
                     break
                 end
 
-                image_import = VCenterDriver::Datastore.get_image_import_template(disk[:datastore].name,
-                                                                                  disk[:path],
-                                                                                  disk[:type],
-                                                                                  disk[:prefix],
-                                                                                  ipool,
-                                                                                  type,
-                                                                                  datastore_found["ID"])
+                opts = {:persistent => wild? ? "YES":"NO"}
+                image_import = VCenterDriver::Datastore.get_image_import_template(disk, ipool, type, datastore_found["ID"], opts)
                 #Image is already in the datastore
                 if image_import[:one]
                     # This is the disk info

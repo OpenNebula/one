@@ -68,7 +68,15 @@ class Storage
         end
     end
 
-    def self.get_image_import_template(ds_name, image_path, image_type, image_prefix, ipool, type, ds_id)
+    def self.get_image_import_template(disk, ipool, type, ds_id, opts = {})
+
+        VCenterDriver::VIHelper.check_opts(opts, [:persistent])
+
+        ds_name      = disk[:datastore].name
+        image_path   = disk[:path]
+        image_type   = disk[:type]
+        image_prefix = disk[:prefix]
+
         one_image = {}
         one_image[:template] = ""
 
@@ -93,7 +101,7 @@ class Storage
             one_image[:template] << "NAME=\"#{image_name}\"\n"
             one_image[:template] << "PATH=\"vcenter://#{image_path}\"\n"
             one_image[:template] << "TYPE=\"#{image_type}\"\n"
-            one_image[:template] << "PERSISTENT=\"YES\"\n"
+            one_image[:template] << "PERSISTENT=\"#{opts[:persistent]}\"\n"
             one_image[:template] << "VCENTER_IMPORTED=\"YES\"\n"
             one_image[:template] << "DEV_PREFIX=\"#{image_prefix}\"\n"
         else
