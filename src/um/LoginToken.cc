@@ -133,17 +133,16 @@ bool LoginTokenPool::is_valid(const std::string& utk, int& egid, bool& exists_to
         return false;
     }
 
+    exists_token = true;
+    
     if ( it->second->is_valid(utk, egid) == true)
     {
-        exists_token = true;
         return true;
     }
 
     delete it->second;
 
     tokens.erase(it);
-
-    exists_token = true;
 
     return false;
 }
