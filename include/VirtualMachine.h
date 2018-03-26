@@ -1167,6 +1167,14 @@ public:
      */
     int updateconf(VirtualMachineTemplate& tmpl, string &err);
 
+    /**
+     *  get the configuration attributes based on a template.
+     *    @param err description if any
+     *
+     *    @return vector with the attributes
+     */
+    VirtualMachineTemplate * getUpdateconfTemplate(string &err);
+
     // -------------------------------------------------------------------------
     // "Save as" Disk related functions (save_as hot)
     // -------------------------------------------------------------------------

@@ -2895,19 +2895,6 @@ void VirtualMachineUpdateConf::request_execute(
         return;
     }
 
-    if ( att.uid != UserPool::ONEADMIN_ID && att.gid != GroupPool::ONEADMIN_ID )
-    {
-        string aname;
-
-        if (tmpl.check_restricted(aname))
-        {
-            att.resp_msg = "Template includes a restricted attribute " + aname;
-            failure_response(AUTHORIZATION, att);
-
-            return;
-        }
-    }
-
     /* ---------------------------------------------------------------------- */
     /* Update VirtualMachine Configuration                                    */
     /* ---------------------------------------------------------------------- */
@@ -2919,6 +2906,20 @@ void VirtualMachineUpdateConf::request_execute(
         att.resp_id = id;
         failure_response(NO_EXISTS, att);
         return;
+    }
+
+    if ( att.uid != UserPool::ONEADMIN_ID && att.gid != GroupPool::ONEADMIN_ID )
+    {
+        string aname;
+        VirtualMachineTemplate * old_conf_tmpl = vm->getUpdateconfTemplate(att.resp_msg);
+
+        if (tmpl.check_restricted(aname, old_conf_tmpl))
+        {
+            att.resp_msg = "Template includes a restricted attribute " + aname;
+            failure_response(AUTHORIZATION, att);
+
+            return;
+        }
     }
 
     if ( vm->updateconf(tmpl, att.resp_msg) != 0 )
