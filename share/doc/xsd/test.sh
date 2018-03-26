@@ -34,12 +34,14 @@ mkdir -p samples/marketplaceapp     samples/marketplaceapp_pool
 touch output.log
 cp oned.conf /etc/one/oned.conf
 
-
+echo "Creating new cluster..." >> output.log
 onecluster create newcluster
+echo "Creating new group..." >> output.log
 onegroup create newgroup
 
 
 # Host
+echo "Creating new hosts..." >> output.log
 onehost create host01 --im dummy --vm dummy
 onehost create host02 --im dummy --vm dummy
 onehost create host03 --im dummy --vm dummy
@@ -57,6 +59,7 @@ onehost list -x > samples/host_pool/0.xml
 
 
 # VNets
+echo "Creating new vnets..." >> output.log
 onevnet list -x > samples/vnet_pool/1.xml
 
 onevnet create test/vnet.0
@@ -66,9 +69,11 @@ onevnet list -x > samples/vnet_pool/2.xml
 onevnet create test/vnet.1
 onevnet create test/vnet.2
 
+echo "Adding vnets to cluster..." >> output.log
 onecluster addvnet newcluster 0
 onecluster addvnet newcluster 2
 
+echo "Reserving vnet..." >> output.log
 onevnet reserve 1 --address_range 1 --size 2 --name reserve
 
 for i in `onevnet list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
@@ -78,6 +83,7 @@ done
 onevnet list -x > samples/vnet_pool/3.xml
 
 # Cluster
+echo "Creating new empty cluster..." >> output.log
 onecluster create emptycluster
 
 for i in `onecluster list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
@@ -88,6 +94,7 @@ onecluster list -x > samples/cluster_pool/0.xml
 
 
 # Image
+echo "Creating new images..." >> output.log
 oneimage list -x > samples/image_pool/1.xml
 
 oneimage create test/image.0 -d default
@@ -101,9 +108,11 @@ oneimage list -x > samples/image_pool/3.xml
 
 
 # Datastore
+echo "Creating new datastores..." >> output.log
 onedatastore create test/datastore.0
 onedatastore create test/datastore.1
 
+echo "Adding datastores to cluster..." >> output.log
 onecluster adddatastore newcluster 100
 onecluster adddatastore newcluster 101
 
@@ -115,6 +124,7 @@ onedatastore list -x > samples/datastore_pool/0.xml
 
 
 # User
+echo "Creating new users..." >> output.log
 oneuser defaultquota test/quota.txt
 
 oneuser create newuser abc
@@ -132,6 +142,7 @@ oneuser list -x > samples/user_pool/0.xml
 
 
 # Group
+echo "Creating new empty group..." >> output.log
 onegroup defaultquota test/quota.txt
 
 onegroup create emptygroup
@@ -143,11 +154,15 @@ done
 onegroup list -x > samples/group_pool/0.xml
 
 # VDC
+echo "Creating new empty vdc..." >> output.log
 onevdc create emptyvdc
 
 onevdc create newvdc
+echo "Adding group to vnc..." >> output.log
 onevdc addgroup newvdc newgroup
+echo "Adding host to vnc..." >> output.log
 onevdc addhost newvdc 0 host01
+echo "Adding cluster to vnc..." >> output.log
 onevdc addcluster newvdc 0 newcluster
 
 for i in `onevdc list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
@@ -158,6 +173,7 @@ onevdc list -x > samples/vdc_pool/0.xml
 
 
 # Template
+echo "Creating new template..." >> output.log
 onetemplate list -x > samples/vmtemplate_pool/1.xml
 
 onetemplate create test/template.0 --user newuser --password abc
@@ -171,6 +187,7 @@ done
 onetemplate list -x > samples/vmtemplate_pool/2.xml
 
 # VM
+echo "Instantiating a template..." >> output.log
 onetemplate instantiate 0 -m 2 --user newuser --password abc
 onetemplate instantiate 1 -m 2 --user newuser --password abc
 
@@ -184,6 +201,7 @@ done
 
 sleep 5
 
+echo "Executing action with a vm..." >> output.log
 onevm migrate --live 0 host02
 onevm terminate --hard 1
 onevm poweroff 2
@@ -218,6 +236,7 @@ done
 
 onevrouter list -x > samples/vrouter_pool/0.xml
 
+echo "Working with markets..." >> output.log
 # Marketplace
 
 for i in `onemarket list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do

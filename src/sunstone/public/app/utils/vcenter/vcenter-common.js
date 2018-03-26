@@ -96,7 +96,7 @@ define(function(require) {
     $(".vcenter_import_result:not(.success)", opts.context).html(
       '<span class="fa-stack" style="color: #dfdfdf">' +
         '<i class="fas fa-cloud fa-stack-2x"></i>' +
-        '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
+        '<i class="fas fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
       '</span>');
 
     $(".vcenter_import_result_row", opts.context).show();

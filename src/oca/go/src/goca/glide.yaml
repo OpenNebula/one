@@ -1,0 +1,4 @@
+package: github.com/OpenNebula/goca
+import:
+- package: github.com/kolo/xmlrpc
+- package: gopkg.in/xmlpath.v2

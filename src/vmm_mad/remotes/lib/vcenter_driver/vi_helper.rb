@@ -35,17 +35,21 @@ class VIHelper
         clusters.each do |id|
             return id unless id == -1
         end
-
         return -1
     end
 
     def self.one_managed?(object)
         if object.class.ancestors.include?(OpenNebula::XMLElement)
             managed = object["TEMPLATE/OPENNEBULA_MANAGED"] || object["USER_TEMPLATE/OPENNEBULA_MANAGED"]
-
             return managed != "NO"
         end
         return false
+    end
+
+    def self.check_opts(opts, att_list)
+        att_list.each do |att|
+            raise "#{att} option is mandatory" if opts[att].nil?
+        end
     end
 
     def self.one_item(the_class, id, exit_if_fail = true)

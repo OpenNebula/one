@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://opennebula.org/XMLSchema" elementFormDefault="qualified" targetNamespace="http://opennebula.org/XMLSchema">
+  <xs:element name="IMAGE">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="ID" type="xs:integer"/>
+        <xs:element name="UID" type="xs:integer"/>
+        <xs:element name="GID" type="xs:integer"/>
+        <xs:element name="UNAME" type="xs:string"/>
+        <xs:element name="GNAME" type="xs:string"/>
+        <xs:element name="NAME" type="xs:string"/>
+        <xs:element name="LOCK" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="LOCKED" type="xs:integer"/>
+              <xs:element name="OWNER" type="xs:integer"/>
+              <xs:element name="TIME" type="xs:integer"/>
+              <xs:element name="REQ_ID" type="xs:integer"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="PERMISSIONS" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="OWNER_U" type="xs:integer"/>
+              <xs:element name="OWNER_M" type="xs:integer"/>
+              <xs:element name="OWNER_A" type="xs:integer"/>
+              <xs:element name="GROUP_U" type="xs:integer"/>
+              <xs:element name="GROUP_M" type="xs:integer"/>
+              <xs:element name="GROUP_A" type="xs:integer"/>
+              <xs:element name="OTHER_U" type="xs:integer"/>
+              <xs:element name="OTHER_M" type="xs:integer"/>
+              <xs:element name="OTHER_A" type="xs:integer"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="TYPE" type="xs:integer"/>
+        <xs:element name="DISK_TYPE" type="xs:integer"/>
+        <xs:element name="PERSISTENT" type="xs:integer"/>
+        <xs:element name="REGTIME" type="xs:integer"/>
+        <xs:element name="SOURCE" type="xs:string"/>
+        <xs:element name="PATH" type="xs:string"/>
+        <xs:element name="FSTYPE" type="xs:string"/>
+        <xs:element name="SIZE" type="xs:integer"/>
+
+        <!-- STATE values,
+          INIT      = 0, Initialization state
+          READY     = 1, Image ready to use
+          USED      = 2, Image in use
+          DISABLED  = 3, Image can not be instantiated by a VM
+          LOCKED    = 4, FS operation for the Image in process
+          ERROR     = 5, Error state the operation FAILED
+          CLONE     = 6, Image is being cloned
+          DELETE    = 7, DS is deleting the image
+          USED_PERS = 8, Image is in use and persistent
+          LOCKED_USED = 9,      FS operation in progress, VMs waiting
+          LOCKED_USED_PERS = 10 FS operation in progress, VMs waiting. Persistent
+        -->
+        <xs:element name="STATE" type="xs:integer"/>
+        <xs:element name="RUNNING_VMS" type="xs:integer"/>
+        <xs:element name="CLONING_OPS" type="xs:integer"/>
+        <xs:element name="CLONING_ID" type="xs:integer"/>
+        <xs:element name="TARGET_SNAPSHOT" type="xs:integer"/>
+        <xs:element name="DATASTORE_ID" type="xs:integer"/>
+        <xs:element name="DATASTORE" type="xs:string"/>
+        <xs:element name="VMS">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="CLONES">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="APP_CLONES">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="TEMPLATE" type="xs:anyType"/>
+        <xs:element name="SNAPSHOTS">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ALLOW_ORPHANS" type="xs:string"/>
+              <xs:element name="SNAPSHOT" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="CHILDREN" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="ACTIVE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="DATE" type="xs:integer"/>
+                    <xs:element name="ID" type="xs:integer"/>
+                    <xs:element name="NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="PARENT" type="xs:integer"/>
+                    <xs:element name="SIZE" type="xs:integer"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
