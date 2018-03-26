@@ -41,7 +41,7 @@ GEM
     mime-types (2.99.2)
     mini_portile2 (2.1.0)
     multipart-post (2.0.0)
-    mysql (2.9.1)
+    mysql2 (0.4.10)
     net-ldap (0.12.1)
     nokogiri (1.6.8)
       mini_portile2 (~> 2.1.0)
@@ -91,7 +91,7 @@ DEPENDENCIES
   configparser
   curb
   memcache-client
-  mysql
+  mysql2
   net-ldap (< 0.13)
   nokogiri
   ox
@@ -107,4 +107,4 @@ DEPENDENCIES
   zendesk_api (< 1.14.0)
 
 BUNDLED WITH
-   1.13.0
+   1.16.1
