@@ -130,7 +130,6 @@ oneuser defaultquota test/quota.txt
 oneuser create newuser abc
 oneuser chgrp newuser newgroup
 
-echo "Creating token for an user..." >> output.log
 echo "no" | oneuser token-create --user newuser --password abc --time 123
 echo "no" | oneuser token-create --user newuser --password abc --time 456
 echo "no" | oneuser token-create --user newuser --password abc --time 789
@@ -193,7 +192,6 @@ onetemplate instantiate 0 -m 2 --user newuser --password abc
 onetemplate instantiate 1 -m 2 --user newuser --password abc
 
 # Virtual Routers
-echo "Creating new vrouters..." >> output.log
 onevrouter create test/vr.0
 onevrouter instantiate 0 vr-tmpl -m 2
 
@@ -256,7 +254,6 @@ done
 onemarketapp list -x > samples/marketplaceapp_pool/0.xml
 
 # VMGroups
-echo "Creating new vmgroups..." >> output.log
 onevmgroup list -x > samples/vm_group_pool/1.xml
 
 onevmgroup create test/vm_group.0
@@ -267,7 +264,6 @@ for i in `onevmgroup list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
     onevmgroup show $i -x > samples/vm_group/$i.xml
 done
 
-echo "Executing xmllint..." >> output.log
 for i in  cluster datastore group vdc host image vmtemplate user vm vnet vrouter marketplace marketplaceapp vm_group
 do
     POOL_NAME="$i""_pool"
