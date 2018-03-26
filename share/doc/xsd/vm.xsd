@@ -43,6 +43,16 @@
         <xs:element name="STIME" type="xs:integer"/>
         <xs:element name="ETIME" type="xs:integer"/>
         <xs:element name="DEPLOY_ID" type="xs:string"/>
+        <xs:element name="LOCK" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="LOCKED" type="xs:integer"/>
+              <xs:element name="OWNER" type="xs:integer"/>
+              <xs:element name="TIME" type="xs:integer"/>
+              <xs:element name="REQ_ID" type="xs:integer"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
         <xs:element name="MONITORING">
         <!--
           <xs:complexType>
@@ -147,6 +157,7 @@
         <xs:element name="SNAPSHOTS" minOccurs="0" maxOccurs="unbounded">
           <xs:complexType>
             <xs:sequence>
+              <xs:element name="ALLOW_ORPHANS" type="xs:string"/>
               <xs:element name="DISK_ID" type="xs:integer"/>
               <xs:element name="SNAPSHOT" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>

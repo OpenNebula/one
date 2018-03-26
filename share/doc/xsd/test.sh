@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -26,10 +26,13 @@ mkdir -p samples/vmtemplate samples/vmtemplate_pool
 mkdir -p samples/user       samples/user_pool
 mkdir -p samples/vm         samples/vm_pool
 mkdir -p samples/vnet       samples/vnet_pool
+mkdir -p samples/vm_group    samples/vm_group_pool
 mkdir -p samples/acct
 mkdir -p samples/vrouter            samples/vrouter_pool
 mkdir -p samples/marketplace        samples/marketplace_pool
 mkdir -p samples/marketplaceapp     samples/marketplaceapp_pool
+touch output.log
+cp oned.conf /etc/one/oned.conf
 
 
 onecluster create newcluster
@@ -117,9 +120,9 @@ oneuser defaultquota test/quota.txt
 oneuser create newuser abc
 oneuser chgrp newuser newgroup
 
-oneuser token-create --user newuser --password abc --time 123
-oneuser token-create --user newuser --password abc --time 456
-oneuser token-create --user newuser --password abc --time 789
+echo "no" | oneuser token-create --user newuser --password abc --time 123
+echo "no" | oneuser token-create --user newuser --password abc --time 456
+echo "no" | oneuser token-create --user newuser --password abc --time 789
 
 for i in `oneuser list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
     oneuser show $i -x > samples/user/$i.xml
@@ -172,7 +175,6 @@ onetemplate instantiate 0 -m 2 --user newuser --password abc
 onetemplate instantiate 1 -m 2 --user newuser --password abc
 
 # Virtual Routers
-
 onevrouter create test/vr.0
 onevrouter instantiate 0 vr-tmpl -m 2
 
@@ -185,10 +187,21 @@ sleep 5
 onevm migrate --live 0 host02
 onevm terminate --hard 1
 onevm poweroff 2
+onevm poweroff 0
 
 sleep 5
 
-onevm suspend 0
+onevm snapshot-create 0
+
+sleep 5
+
+onevm resume 0
+
+sleep 5
+
+onevm disk-attach 0 -i 1
+onevm disk-snapshot-create 0 0 disk_snapshot
+
 onevm resume 2
 
 sleep 5
@@ -221,7 +234,18 @@ done
 
 onemarketapp list -x > samples/marketplaceapp_pool/0.xml
 
-for i in  cluster datastore group vdc host image vmtemplate user vm vnet vrouter marketplace marketplaceapp
+# VMGroups
+onevmgroup list -x > samples/vm_group_pool/1.xml
+
+onevmgroup create test/vm_group.0
+
+onevmgroup list -x > samples/vm_group_pool/2.xml
+
+for i in `onevmgroup list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
+    onevmgroup show $i -x > samples/vm_group/$i.xml
+done
+
+for i in  cluster datastore group vdc host image vmtemplate user vm vnet vrouter marketplace marketplaceapp vm_group
 do
     POOL_NAME="$i""_pool"
 
@@ -229,16 +253,15 @@ do
     sed -i "s%<${i^^}_POOL/>%<${i^^}_POOL xmlns='http://opennebula.org/XMLSchema' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://opennebula.org/XMLSchema ../../$POOL_NAME.xsd'/>%" samples/$POOL_NAME/*.xml
     sed -i "s%<${i^^}_POOL>%<${i^^}_POOL xmlns='http://opennebula.org/XMLSchema' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://opennebula.org/XMLSchema ../../$POOL_NAME.xsd'>%" samples/$POOL_NAME/*.xml
 
-    xmllint --noout --schema $i.xsd samples/$i/*
-    xmllint --noout --schema $POOL_NAME.xsd samples/$POOL_NAME/*
+    xmllint --noout --schema $i.xsd samples/$i/* >> output.log 2>&1
+    xmllint --noout --schema $POOL_NAME.xsd samples/$POOL_NAME/* >> output.log 2>&1
 done
-
 
 # Accounting
 oneacct -x > samples/acct/0.xml
 
 sed -i "s%<HISTORY_RECORDS>%<HISTORY_RECORDS xmlns='http://opennebula.org/XMLSchema' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://opennebula.org/XMLSchema ../../acct.xsd'>%" samples/acct/*.xml
 
-xmllint --noout --schema acct.xsd samples/acct/*
+xmllint --noout --schema acct.xsd samples/acct/* >> output.log 2>&1
 
 exit 0
