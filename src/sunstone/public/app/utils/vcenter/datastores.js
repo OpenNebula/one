@@ -31,6 +31,7 @@ define(function(require) {
   var FieldsetTableHTML = require("hbs!./common/fieldset-table");
 
   var path = "/vcenter/datastores";
+  var resource = "Datastore";
 
   function VCenterDatastores() {
     return this;
@@ -97,8 +98,10 @@ define(function(require) {
           var newdiv = $(content).appendTo($(".vcenter_datacenter_list", context));
           var tbody = $("#" + tableId + " tbody", context);
 
+          var ds_num = 0;
           $.each(response, function(datastore_name, element){
             if (element.cluster.length !== 0){
+              ds_num++;
               var opts = { name: element.simple_name, vcenter_ref: element.ref, datacenter: element.datacenter, cluster: element.cluster, free_mb: element.free_mb, total_mb: element.total_mb };
               var trow = $(RowTemplate(opts)).appendTo(tbody);
               $(".check_item", trow).data("import_data", element);
@@ -124,6 +127,8 @@ define(function(require) {
 
           elementsTable.initialize();
 
+          $("a.vcenter-table-select-all", context).text(Locale.tr("Select all %1$s Datastores", ds_num));
+
           VCenterCommon.setupTable({
             context : newdiv,
             allSelected : Locale.tr("All %1$s Datastores selected."),
@@ -145,7 +150,6 @@ define(function(require) {
   }
 
   function _import(context) {
-    var that = this;
     var vcenter_refs = [];
 
     var table = $("table.vcenter_import_table", context);
@@ -167,24 +171,14 @@ define(function(require) {
       data: { datastores: vcenter_refs, timeout: false },
       dataType: "json",
       success: function(response){
-        var success = response.success;
-        if (success.length !== 0){
-          $.each(success, function(key, value){
-            var ds1 = Navigation.link(value.id[0], "datastores-tab", value.id[0]);
-            var ds2 = Navigation.link(value.id[1], "datastores-tab", value.id[1]);
-            Notifier.notifyMessage("Datastore " + value.name + " imported as " + ds1 + " " + ds2 + " successfully");
-          });
-        }
-        var error = response.error;
-        if (error.length !== 0){
-          $.each(error, function(key, value){
-            Notifier.notifyError("Datastore with ref " + value + " could not be imported");
-          });
-        }
+        VCenterCommon.jGrowlSuccess({success : response.success, resource : resource, link_tab : "datastores-tab"});
+        VCenterCommon.jGrowlFailure({error : response.error, resource : resource});
+
         $("#get-vcenter-ds").click();
       },
       error: function (request, error_json) {
         Notifier.notifyError(request.responseJSON.error.message);
+        $("#get-vcenter-ds").click();
       }
     });
   }

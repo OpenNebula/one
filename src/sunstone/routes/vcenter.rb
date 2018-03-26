@@ -137,27 +137,21 @@ end
 
 get '/vcenter/templates' do
     begin
-        dc_folder = VCenterDriver::DatacenterFolder.new(vcenter_client)
+        new_vcenter_importer("templates")
 
-        tpool = VCenterDriver::VIHelper.one_pool(OpenNebula::TemplatePool, false)
+        [200, $importer.get_list.to_json]
+    rescue Exception => e
+        logger.error("[vCenter] " + e.message)
+        error = Error.new(e.message)
+        error 403, error.to_json
+    end
+end
 
-        if tpool.respond_to?(:message)
-            msg = "Could not get OpenNebula TemplatePool: #{tpool.message}"
-            logger.error("[vCenter] " + msg)
-            error = Error.new(msg)
-            error 404, error.to_json
-        end
+post '/vcenter/templates' do
+    begin
+        $importer.process_import(params["templates"], params["opts"])
 
-        templates = dc_folder.get_unimported_templates(vcenter_client, tpool)
-
-        if templates.nil?
-            msg = "No datacenter found"
-            logger.error("[vCenter] " + msg)
-            error = Error.new(msg)
-            error 404, error.to_json
-        end
-
-        [200, templates.to_json]
+        [200, $importer.output.to_json]
     rescue Exception => e
         logger.error("[vCenter] " + e.message)
         error = Error.new(e.message)

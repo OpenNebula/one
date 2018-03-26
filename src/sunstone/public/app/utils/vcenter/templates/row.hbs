@@ -59,23 +59,33 @@
               </div>
             </div>
             <div class="row vcenter_rp_input">
-              <div class="large-11 large-centered columns" style="margin-top: 20px">
+              <div class="large-12 large-centered columns" style="margin-top: 20px;margin-left: 11px">
+                <div class="medium-4 columns" id="folder_{{id}}">
+                  <label>
+                    {{tr "Folder"}}
+                    <input type="text" class="folder" id="folder_{{id}}"/>
+                  </label>
+                </div>
+                <div class="medium-4 columns left" id="name_{{id}}" hidden>
+                  <label>
+                    {{tr "Template name"}}
+                    <input type="text" class="template_name" id="template_name_{{id}}"/>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="row vcenter_rp_input">
+              <div class="large-12 large-centered columns" style="margin-top: 20px;margin-left: 11px">
                 <div class="medium-2 columns">
                   <label>
                     {{tr "Linked clone"}}
                     <input type="checkbox" class="linked_clone" id="linked_clone_{{id}}"/>
                   </label>
                 </div>
-                <div class="medium-2 columns" id="create_{{id}}" hidden>
+                <div class="medium-2 columns left div_create" id="create_{{id}}" hidden>
                   <label>
                     {{tr "Create copy"}}
                     <input type="checkbox" class="create_copy" id="create_copy_{{id}}"/>
-                  </label>
-                </div>
-                <div class="medium-5 columns left" id="name_{{id}}" hidden>
-                  <label>
-                    {{tr "Template name"}}
-                    <input class="template_name" id="template_name_{{id}}"/>
                   </label>
                 </div>
               </div>
@@ -85,14 +95,8 @@
         </div>
       </div>
     </div>
-      <div class="row vcenter_import_result_row" style="display:none">
-        <div class="large-11 large-centered columns">
-          <span class="vcenter_import_result">
-          </span>&nbsp;
-          <span class="vcenter_import_response">
-          </span>
-        </div>
-      </div>
-    </div>
+  </td>
+  <td>
+    <span class="vcenter_import_result"></span>
   </td>
 </tr>

@@ -131,7 +131,7 @@ define(function(require) {
 
           elementsTable.initialize();
 
-          $("a.vcenter-table-select-all").text(Locale.tr("Select all %1$s Images", response.length));
+          $("a.vcenter-table-select-all", context).text(Locale.tr("Select all %1$s Images", response.length));
 
           VCenterCommon.setupTable({
             context : newdiv,

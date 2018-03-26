@@ -93,7 +93,8 @@ define(function(require) {
               toggleAdvanced : true,
               columns : [
                 '<input type="checkbox" class="check_all"/>',
-                Locale.tr("Network")
+                Locale.tr("Network"),
+                ""
               ]
             });
 
@@ -126,7 +127,7 @@ define(function(require) {
 
             elementsTable.initialize();
 
-            $("a.vcenter-table-select-all").text(Locale.tr("Select all %1$s Networks", elements.length));
+            $("a.vcenter-table-select-all", context).text(Locale.tr("Select all %1$s Networks", elements.length));
 
             VCenterCommon.setupTable({
               context : newdiv,

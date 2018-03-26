@@ -16,6 +16,8 @@
 
 define(function(require) {
   var sprintf = require("sprintf").sprintf
+  var Notifier = require("utils/notifier");
+  var Navigation = require('utils/navigation');
 
   function _html() {
     return '<div class="vcenter_import"></div>';
@@ -127,11 +129,29 @@ define(function(require) {
       opts.message);
   }
 
+  function _jGrowlSuccess(opts){
+    var success = opts.success;
+    $.each(success, function(key, value){
+      var rs1 = Navigation.link(value.id[0], opts.link_tab, value.id[0]);
+      var rs2 = Navigation.link(value.id[1], opts.link_tab, value.id[1]);
+      Notifier.notifyMessage(opts.resource + " " + value.name + " imported as " + rs1 + " " + rs2 + " successfully");
+    });
+  }
+
+  function _jGrowlFailure(opts){
+    var error = opts.error;
+    $.each(error, function(key, value){
+      Notifier.notifyError(opts.resource + " with ref " + value + " could not be imported");
+    });
+  }
+
   return {
     'html': _html,
     'setupTable': _setupTable,
     'importLoading': _importLoading,
     'importSuccess': _importSuccess,
-    'importFailure': _importFailure
+    'importFailure': _importFailure,
+    'jGrowlSuccess': _jGrowlSuccess,
+    'jGrowlFailure': _jGrowlFailure
   };
 });
