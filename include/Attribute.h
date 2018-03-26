@@ -433,6 +433,14 @@ public:
         attribute_value.clear();
     }
 
+    /**
+     *  @return true if the vector attribute contains no values
+     */
+    bool empty()
+    {
+        return attribute_value.empty();
+    }
+
 private:
 
     static const char * magic_sep;

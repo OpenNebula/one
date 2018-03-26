@@ -2435,11 +2435,21 @@ void VirtualMachine::get_public_clouds(const string& pname, set<string> &clouds)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static std::map<std::string,std::vector<std::string>> UPDATECONF_ATTRS = {
+		{"OS", {"ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER",
+           "BOOT", "KERNEL_CMD", "ROOT"} },
+		{"FEATURES", {"PAE", "ACPI", "APIC", "LOCALTIME", "HYPERV",
+		   "GUEST_AGENT"} },
+		{"INPUT", {"TYPE", "BUS"} },
+		{"GRAPHICS", {"TYPE", "LISTEN", "PASSWD", "KEYMAP"} },
+		{"RAW", {"TYPE", "DATA", "DATA_VMX"} }
+	};
+
 /**
  * Replaces the values of a vector value, preserving the existing ones
  */
 static void replace_vector_values(Template *old_tmpl, Template *new_tmpl,
-        const char * name, const string * vnames, int num)
+        const char * name)
 {
     string value;
 
@@ -2456,20 +2466,64 @@ static void replace_vector_values(Template *old_tmpl, Template *new_tmpl,
     }
     else
     {
-        for (int i=0; i < num; i++)
+		std::vector<std::string> vnames = UPDATECONF_ATTRS[name];
+		std::vector<std::string>::iterator it;
+
+        for (it = vnames.begin(); it != vnames.end(); ++it)
         {
-            if ( new_attr->vector_value(vnames[i], value) == -1 )
+            if ( new_attr->vector_value(*it, value) == -1 )
             {
-                old_attr->remove(vnames[i]);
+                old_attr->remove(*it);
             }
             else
             {
-                old_attr->replace(vnames[i], value);
+                old_attr->replace(*it, value);
             }
         }
     }
 };
 
+/**
+ * returns a copy the values of a vector value
+ */
+static void copy_vector_values(Template *old_tmpl, Template *new_tmpl,
+        const char * name)
+{
+    string value;
+
+    VectorAttribute * old_attr = old_tmpl->get(name);
+
+    if ( old_attr == 0 )
+    {
+        return;
+    }
+
+    VectorAttribute * new_vattr = new VectorAttribute(name);
+
+    std::vector<std::string> vnames = UPDATECONF_ATTRS[name];
+    std::vector<std::string>::iterator it;
+
+    for (it = vnames.begin(); it != vnames.end(); ++it)
+    {
+        std::string vval = old_attr->vector_value(*it);
+
+        if (!vval.empty())
+        {
+            new_vattr->replace(*it, vval);
+        }
+    }
+
+    if ( new_vattr->empty() )
+    {
+        delete new_vattr;
+    }
+    else
+    {
+        new_tmpl->set(new_vattr);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
@@ -2528,46 +2582,22 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     }
 
     // -------------------------------------------------------------------------
-    // Update OS
+    // Update OS, FEATURES, INPUT, GRAPHICS, RAW
     // -------------------------------------------------------------------------
-    string os_names[] = {"ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER",
-        "BOOT", "KERNEL_CMD", "ROOT"};
-
-    replace_vector_values(obj_template, &tmpl, "OS", os_names, 6);
+    replace_vector_values(obj_template, &tmpl, "OS");
 
     if ( set_boot_order(obj_template, err) != 0 )
     {
         return -1;
     }
 
-    // -------------------------------------------------------------------------
-    // Update FEATURES:
-    // -------------------------------------------------------------------------
-    string features_names[] = {"PAE", "ACPI", "APIC", "LOCALTIME", "HYPERV",
-        "GUEST_AGENT"};
+    replace_vector_values(obj_template, &tmpl, "FEATURES");
 
-    replace_vector_values(obj_template, &tmpl, "FEATURES", features_names, 6);
+    replace_vector_values(obj_template, &tmpl, "INPUT");
 
-    // -------------------------------------------------------------------------
-    // Update INPUT:
-    // -------------------------------------------------------------------------
-    string input_names[] = {"TYPE", "BUS"};
+    replace_vector_values(obj_template, &tmpl, "GRAPHICS");
 
-    replace_vector_values(obj_template, &tmpl, "INPUT", input_names, 2);
-
-    // -------------------------------------------------------------------------
-    // Update GRAPHICS:
-    // -------------------------------------------------------------------------
-    string graphics_names[] = {"TYPE", "LISTEN", "PASSWD", "KEYMAP"};
-
-    replace_vector_values(obj_template, &tmpl, "GRAPHICS", graphics_names, 4);
-
-    // -------------------------------------------------------------------------
-    // Update RAW:
-    // -------------------------------------------------------------------------
-    string raw_names[] = {"TYPE", "DATA", "DATA_VMX"};
-
-    replace_vector_values(obj_template, &tmpl, "RAW", raw_names, 3);
+    replace_vector_values(obj_template, &tmpl, "RAW");
 
     // -------------------------------------------------------------------------
     // Update CONTEXT: any value
@@ -2603,7 +2633,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     }
 
     // -------------------------------------------------------------------------
-    // Parse the context & graphics
+    // Parse graphics attribute
     // -------------------------------------------------------------------------
     if ( parse_graphics(err, obj_template) != 0 )
     {
@@ -2612,6 +2642,33 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     }
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+VirtualMachineTemplate * VirtualMachine::get_updateconf_template()
+{
+    VirtualMachineTemplate * conf_tmpl = new VirtualMachineTemplate();
+
+    copy_vector_values(obj_template, conf_tmpl, "OS");
+
+    copy_vector_values(obj_template, conf_tmpl, "FEATURES");
+
+    copy_vector_values(obj_template, conf_tmpl, "INPUT");
+
+    copy_vector_values(obj_template, conf_tmpl, "GRAPHICS");
+
+    copy_vector_values(obj_template, conf_tmpl, "RAW");
+
+	VectorAttribute * context = obj_template->get("CONTEXT");
+
+	if ( context != 0 )
+	{
+		conf_tmpl->set(context->clone());
+	}
+
+    return conf_tmpl;
 }
 
 /* -------------------------------------------------------------------------- */

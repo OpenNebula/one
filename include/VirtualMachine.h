@@ -1167,6 +1167,13 @@ public:
      */
     int updateconf(VirtualMachineTemplate& tmpl, string &err);
 
+    /**
+     *  Get the configuration attributes used in an updateconf API call.
+     *    @param err description if any
+     *    @return template with the attributes
+     */
+    VirtualMachineTemplate * get_updateconf_template();
+
     // -------------------------------------------------------------------------
     // "Save as" Disk related functions (save_as hot)
     // -------------------------------------------------------------------------
