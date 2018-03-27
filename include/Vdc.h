@@ -107,6 +107,8 @@ public:
      */
     void del_rule(int group_id, int zone_id, int id);
 
+    void insert_defult_rules(string default_vdc_acl, PoolObjectSQL::ObjectType type);
+
 private:
     /**
      *  <ZONE_ID, RESOURCE_ID> pairs for the resource set

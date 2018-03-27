@@ -53,7 +53,8 @@ public:
         ADMIN         = 0x4LL,   /**< Auth. to perform administrative actions  */
         ADMIN_NO_LCK  = 0x14LL,  /**< Auth. to perform administrative actions of an object no lockable */
         CREATE        = 0x8LL,   /**< Auth. to create an object                */
-        CREATE_NO_LCK = 0x18LL   /**< Auth. to create an object of an object no lockable */
+        CREATE_NO_LCK = 0x18LL,   /**< Auth. to create an object of an object no lockable */
+        NONE          = 0x0LL
     };
 
     static string operation_to_str(Operation op)
@@ -66,6 +67,15 @@ public:
             case CREATE: return "CREATE";
             default:     return "";
         }
+    };
+
+    static Operation str_to_operation(string str)
+    {
+            if      (str == "USE")    return USE;
+            else if (str == "MANAGE") return MANAGE;
+            else if (str == "ADMIN")  return ADMIN;
+            else if (str == "CREATE") return CREATE;
+            else     return NONE;
     };
 
     /**

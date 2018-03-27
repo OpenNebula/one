@@ -109,6 +109,29 @@ public:
         }
     };
 
+    static ObjectType str_to_type(string type)
+    {
+        if ( type == "VM" )                  return VM ;
+        else if ( type == "HOST" )           return HOST ;
+        else if ( type == "NET" )            return NET ;
+        else if ( type == "IMAGE" )          return IMAGE ;
+        else if ( type == "USER" )           return USER ;
+        else if ( type == "TEMPLATE" )       return TEMPLATE ;
+        else if ( type == "GROUP" )          return GROUP ;
+        else if ( type == "ACL" )            return ACL ;
+        else if ( type == "DATASTORE" )      return DATASTORE ;
+        else if ( type == "CLUSTER" )        return CLUSTER ;
+        else if ( type == "DOCUMENT" )       return DOCUMENT ;
+        else if ( type == "ZONE" )           return ZONE ;
+        else if ( type == "SECGROUP" )       return SECGROUP ;
+        else if ( type == "VDC" )            return VDC ;
+        else if ( type == "VROUTER" )        return VROUTER ;
+        else if ( type == "MARKETPLACE" )    return MARKETPLACE ;
+        else if ( type == "MARKETPLACEAPP" ) return MARKETPLACEAPP ;
+        else if ( type == "VMGROUP" )        return VMGROUP ;
+        else                                 return NONE;
+    };
+
     static string lock_state_to_str(LockStates ob)
     {
         switch (ob)
