@@ -14,7 +14,7 @@ features:
     secgroups: false
 
     # True to hide the CPU setting in the VM creation dialog
-    instantiate_hide_cpu: true
+    instantiate_hide_cpu: false
 
     # False to not scale the CPU. Number to scale from VCPU
     instantiate_cpu_factor: false
