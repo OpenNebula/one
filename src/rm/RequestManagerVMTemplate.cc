@@ -156,6 +156,12 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
 
     rtmpl->unlock();
 
+    if ( !as_uid_gid(tmpl, id, att) )
+    {
+        delete tmpl;
+        return AUTHORIZATION;
+    }
+
     ErrorCode ec = merge(tmpl, str_uattrs, att);
 
     if (ec != SUCCESS)

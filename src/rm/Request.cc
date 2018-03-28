@@ -851,3 +851,103 @@ int Request::get_info(
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+bool Request::as_uid_gid(Template *         tmpl,
+                             int            oid,
+                             RequestAttributes& att)
+{
+    User *  user;
+
+    string ngname;
+    string uname;
+
+    PoolObjectAuth uperms;
+    PoolObjectAuth ngperms;
+    int uid = att.uid, as_uid = -1, as_gid = -1;
+    set<int> gids = att.group_ids;
+    int rc;
+
+    UserPool * upool = Nebula::instance().get_upool();
+    GroupPool * gpool = Nebula::instance().get_gpool();
+
+    rc = tmpl->get("AS_UID", as_uid);
+    if ( rc != 0 )
+    {
+        tmpl->erase("AS_UID");
+        att.uid = as_uid;
+    }
+
+    rc = tmpl->get("AS_GID", as_gid);
+    if ( rc != 0 )
+    {
+        tmpl->erase("AS_GID");
+        att.gid = as_gid;
+    }
+
+    if ( as_gid == 0 && as_uid == 0)
+    {
+        return true;
+    }
+
+    if ( as_gid != 0 && as_gid < 0 )
+    {
+        att.resp_msg = "Wrong group ID";
+        failure_response(XML_RPC_API, att);
+        return false;
+    }
+    else
+    {
+        rc = get_info(gpool, as_gid, PoolObjectSQL::GROUP, att, ngperms, ngname,true);
+
+        if ( rc == -1 )
+        {
+            return false;
+        }
+        att.gname = ngname;
+    }
+
+    if (as_uid != 0 && (user = upool->get(as_uid)) == 0 )
+    {
+        att.resp_obj = PoolObjectSQL::USER;
+        att.resp_id  = oid;
+        failure_response(NO_EXISTS, att);
+        user->unlock();
+        return false;
+    }
+    else if ( as_uid != 0 )
+    {
+        user->get_permissions(uperms);
+
+        uname = user->get_name();
+        att.uname = uname;
+
+        user->unlock();
+    }
+
+    if ( uid != 0 )
+    {
+        AuthRequest ar(uid, gids);
+
+        if (as_uid != 0)
+        {
+            ar.add_auth(AuthRequest::MANAGE, uperms); // MANAGE USER
+        }
+        if (as_gid != 0)
+        {
+            ar.add_auth(AuthRequest::MANAGE, ngperms); // MANAGE GROUP
+        }
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            att.resp_msg = ar.message;
+            failure_response(AUTHORIZATION, att);
+
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
