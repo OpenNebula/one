@@ -591,7 +591,6 @@ BIN_FILES="src/nebula/oned \
            src/cli/onevcenter \
            src/onedb/onedb \
            src/mad/utils/tty_expect \
-           src/docker_machine/src/docker_machine/bin/docker-machine-driver-opennebula \
            share/scripts/one"
 
 #-------------------------------------------------------------------------------
