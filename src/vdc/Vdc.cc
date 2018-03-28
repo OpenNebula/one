@@ -397,19 +397,24 @@ int Vdc::del_group(int group_id, string& error_msg)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void ResourceSet::insert_defult_rules(string default_vdc_acl, PoolObjectSQL::ObjectType type)
+void ResourceSet::insert_defult_rules(string name_attr, PoolObjectSQL::ObjectType type)
 {
+    string default_vdc_acl;
     vector<string> vdc_acl;
     vector<string>::const_iterator it;
     long long op = AuthRequest::NONE;
+    AuthRequest::Operation user_op;
+
+    Nebula::instance().get_configuration_attribute(name_attr, default_vdc_acl);
 
     vdc_acl = one_util::split(default_vdc_acl, '+', true);
 
     for (it = vdc_acl.begin(); it != vdc_acl.end(); ++it)
     {
-        if ( *it != "" && *it != "-" && AuthRequest::str_to_operation(*it) != AuthRequest::NONE )
+        user_op = AuthRequest::str_to_operation(*it);
+        if ( *it != "" && *it != "-" && user_op != AuthRequest::NONE )
         {
-            op = op | AuthRequest::str_to_operation(*it);
+            op = op | user_op;
         }
     }
     if ( op != AuthRequest::NONE )
@@ -427,6 +432,7 @@ ResourceSet::ResourceSet(PoolObjectSQL::ObjectType _type):type(_type)
     vector<string> cluster_res = { "HOST", "NET", "DATASTORE" };
     vector<string>::const_iterator it_c;
     string str_type;
+    string name_attr= "";
 
     switch(type)
     {
@@ -435,10 +441,9 @@ ResourceSet::ResourceSet(PoolObjectSQL::ObjectType _type):type(_type)
         case PoolObjectSQL::NET:
         case PoolObjectSQL::DATASTORE:
             xml_name = PoolObjectSQL::type_to_str(type);
+            name_attr = "DEFAULT_VDC_" + xml_name + "_ACL";
 
-            Nebula::instance().get_configuration_attribute("DEFAULT_VDC_" + xml_name + "_ACL",default_vdc_acl);
-
-            insert_defult_rules(default_vdc_acl, type);
+            insert_defult_rules(name_attr, type);
 
         break;
         // @<gid> HOST/%<cid> MANAGE #<zid>
@@ -447,9 +452,9 @@ ResourceSet::ResourceSet(PoolObjectSQL::ObjectType _type):type(_type)
 
             for (it_c = cluster_res.begin(); it_c != cluster_res.end(); ++it_c)
             {
-                Nebula::instance().get_configuration_attribute("DEFAULT_VDC_CLUSTER_" + *it_c + "_ACL",default_vdc_acl);
+                name_attr = "DEFAULT_VDC_CLUSTER_" + *it_c + "_ACL";
 
-                insert_defult_rules(default_vdc_acl, PoolObjectSQL::str_to_type(*it_c));
+                insert_defult_rules(name_attr, PoolObjectSQL::str_to_type(*it_c));
             }
 
             xml_name = "CLUSTER";

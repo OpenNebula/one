@@ -107,7 +107,6 @@ public:
      */
     void del_rule(int group_id, int zone_id, int id);
 
-    void insert_defult_rules(string default_vdc_acl, PoolObjectSQL::ObjectType type);
 
 private:
     /**
@@ -129,6 +128,14 @@ private:
      *  XML Name of the resource
      */
      string xml_name;
+
+    /**
+     *  Insert acl rules into rules attribute.
+     *
+     *  @param default_vdc_acl the mask for the acls.
+     *  @param type Object type for the acls.
+     */
+     void insert_defult_rules(string default_vdc_acl, PoolObjectSQL::ObjectType type);
  };
 
 /**
