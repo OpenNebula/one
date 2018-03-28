@@ -397,34 +397,66 @@ int Vdc::del_group(int group_id, string& error_msg)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
+void ResourceSet::insert_defult_rules(string name_attr, PoolObjectSQL::ObjectType type)
+{
+    string default_vdc_acl;
+    vector<string> vdc_acl;
+    vector<string>::const_iterator it;
+    long long op = AuthRequest::NONE;
+    AuthRequest::Operation user_op;
+
+    Nebula::instance().get_configuration_attribute(name_attr, default_vdc_acl);
+
+    vdc_acl = one_util::split(default_vdc_acl, '+', true);
+
+    for (it = vdc_acl.begin(); it != vdc_acl.end(); ++it)
+    {
+        user_op = AuthRequest::str_to_operation(*it);
+        if ( *it != "" && *it != "-" && user_op != AuthRequest::NONE )
+        {
+            op = op | user_op;
+        }
+    }
+    if ( op != AuthRequest::NONE )
+    {
+        rules.insert(make_pair( type , op ));
+    }
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
 ResourceSet::ResourceSet(PoolObjectSQL::ObjectType _type):type(_type)
 {
+    string default_vdc_acl;
+    vector<string> cluster_res = { "HOST", "NET", "DATASTORE" };
+    vector<string>::const_iterator it_c;
+    string str_type;
+    string name_attr= "";
+
     switch(type)
     {
         // @<gid> HOST/#<hid> MANAGE #<zid>
         case PoolObjectSQL::HOST:
-            rules.insert(make_pair(PoolObjectSQL::HOST, AuthRequest::MANAGE));
-            xml_name = "HOST";
-        break;
-
-        // @<gid> NET/#<vnetid> USE #<zone>
         case PoolObjectSQL::NET:
-            rules.insert(make_pair(PoolObjectSQL::NET, AuthRequest::USE));
-            xml_name = "VNET";
-        break;
-
-        // @<gid> DATASTORE/#<dsid> USE #<zone>
         case PoolObjectSQL::DATASTORE:
-            rules.insert(make_pair(PoolObjectSQL::DATASTORE, AuthRequest::USE));
-            xml_name = "DATASTORE";
-        break;
+            xml_name = PoolObjectSQL::type_to_str(type);
+            name_attr = "DEFAULT_VDC_" + xml_name + "_ACL";
 
+            insert_defult_rules(name_attr, type);
+
+        break;
         // @<gid> HOST/%<cid> MANAGE #<zid>
         // @<gid> DATASTORE+NET/%<cid> USE #<zid>
         case PoolObjectSQL::CLUSTER:
-            rules.insert(make_pair(PoolObjectSQL::HOST, AuthRequest::MANAGE));
-            rules.insert(make_pair(PoolObjectSQL::NET|PoolObjectSQL::DATASTORE,
-                AuthRequest::USE));
+
+            for (it_c = cluster_res.begin(); it_c != cluster_res.end(); ++it_c)
+            {
+                name_attr = "DEFAULT_VDC_CLUSTER_" + *it_c + "_ACL";
+
+                insert_defult_rules(name_attr, PoolObjectSQL::str_to_type(*it_c));
+            }
+
             xml_name = "CLUSTER";
         break;
 
