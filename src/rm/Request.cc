@@ -875,6 +875,24 @@ bool Request::as_uid_gid(Template *         tmpl,
     {
         tmpl->erase("AS_UID");
         att.uid = as_uid;
+
+        if ((user = upool->get(as_uid)) == 0 )
+        {
+            att.resp_obj = PoolObjectSQL::USER;
+            att.resp_id  = oid;
+            failure_response(NO_EXISTS, att);
+            user->unlock();
+            return false;
+        }
+        else if ( as_uid != 0 )
+        {
+            user->get_permissions(uperms);
+
+            uname = user->get_name();
+            att.uname = uname;
+
+            user->unlock();
+        }
     }
 
     rc = tmpl->get("AS_GID", as_gid);
@@ -882,46 +900,28 @@ bool Request::as_uid_gid(Template *         tmpl,
     {
         tmpl->erase("AS_GID");
         att.gid = as_gid;
+
+        if ( as_gid < 0 )
+        {
+            att.resp_msg = "Wrong group ID";
+            failure_response(XML_RPC_API, att);
+            return false;
+        }
+        else
+        {
+            rc = get_info(gpool, as_gid, PoolObjectSQL::GROUP, att, ngperms, ngname,true);
+
+            if ( rc == -1 )
+            {
+                return false;
+            }
+            att.gname = ngname;
+        }
     }
 
     if ( as_gid == 0 && as_uid == 0)
     {
         return true;
-    }
-
-    if ( as_gid != 0 && as_gid < 0 )
-    {
-        att.resp_msg = "Wrong group ID";
-        failure_response(XML_RPC_API, att);
-        return false;
-    }
-    else
-    {
-        rc = get_info(gpool, as_gid, PoolObjectSQL::GROUP, att, ngperms, ngname,true);
-
-        if ( rc == -1 )
-        {
-            return false;
-        }
-        att.gname = ngname;
-    }
-
-    if (as_uid != 0 && (user = upool->get(as_uid)) == 0 )
-    {
-        att.resp_obj = PoolObjectSQL::USER;
-        att.resp_id  = oid;
-        failure_response(NO_EXISTS, att);
-        user->unlock();
-        return false;
-    }
-    else if ( as_uid != 0 )
-    {
-        user->get_permissions(uperms);
-
-        uname = user->get_name();
-        att.uname = uname;
-
-        user->unlock();
     }
 
     if ( uid != 0 )
