@@ -57,12 +57,36 @@
   </div>
   {{/isFeatureEnabled}}
   {{#advancedSection (tr "Advanced options") }}
+  {{#isFeatureEnabled "show_as_uid_instantiate"}}
+  <div class="row">
+    <div class="small-12 columns usersContext{{element.ID}}">
+      <fieldset>
+        <legend>
+          <i class="fas fa-user"></i> {{tr "Instantiate as a different user"}}
+        </legend>
+        <div class="provision_uid_selector{{element.ID}}" data-tab-content>{{{usersDatatable}}}</div>
+      </fieldset>
+    </div>
+  </div>
+  {{/isFeatureEnabled}}
+  {{#isFeatureEnabled "show_as_gid_instantiate"}}
+  <div class="row">
+    <div class="small-12 columns groupContext{{element.ID}}">
+      <fieldset>
+        <legend>
+          <i class="fas fa-users"></i> {{tr "Instantiate as a different group"}}
+        </legend>
+        <div class="provision_gid_selector{{element.ID}}" data-tab-content>{{{groupDatatable}}}</div>
+      </fieldset>
+    </div>
+  </div>
+  {{/isFeatureEnabled}}
   {{#isFeatureEnabled "show_host_instantiate"}}
   <div class="row">
     <div class="small-12 columns hostContext{{element.ID}}">
       <fieldset>
         <legend>
-          <i class="fas fa-globe"></i> {{tr "Host"}}
+          <i class="fas fa-hdd"></i> {{tr "Host"}}
         </legend>
         <div class="provision_host_selector{{element.ID}}" data-tab-content>{{{hostsDatatable}}}</div>
         <div class="row">
@@ -83,7 +107,7 @@
     <div class="small-12 columns dsContext{{element.ID}}">
       <fieldset>
         <legend>
-          <i class="fas fa-globe"></i> {{tr "Datastore"}}
+          <i class="fas fa-folder-open"></i> {{tr "Datastore"}}
         </legend>
         <div class="provision_ds_selector{{element.ID}}" data-tab-content>{{{dsDatatable}}}</div>
         <div class="row">
@@ -103,7 +127,7 @@
     <div class="large-12 columns actionContext{{element.ID}}">
       <fieldset>
         <legend>
-          <i class="fas fa-globe"></i> {{tr "Actions"}}
+          <i class="fas fa-calendar-alt"></i> {{tr "Actions"}}
         </legend>
         <table id="scheduling_inst_actions_table" class="info_table dataTable">
           <thead>
