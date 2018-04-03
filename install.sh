@@ -47,11 +47,12 @@ usage() {
  echo "-r: remove Opennebula, only useful if -d was not specified, otherwise"
  echo "    rm -rf \$ONE_LOCATION would do the job"
  echo "-l: creates symlinks instead of copying files, useful for development"
+ echo "-e: install OpenNebula docker machine driver"
  echo "-h: prints this help"
 }
 #-------------------------------------------------------------------------------
 
-PARAMETERS="hkrlcspou:g:d:"
+PARAMETERS="ehkrlcspou:g:d:"
 
 if [ $(getopt --version | tr -d " ") = "--" ]; then
     TEMP_OPT=`getopt $PARAMETERS "$@"`
@@ -77,9 +78,11 @@ ONEFLOW="no"
 ONEADMIN_USER=`id -u`
 ONEADMIN_GROUP=`id -g`
 SRC_DIR=$PWD
+DOCKER_MACHINE="no"
 
 while true ; do
     case "$1" in
+        -e) DOCKER_MACHINE="yes"   ; shift ;;
         -h) usage; exit 0;;
         -k) INSTALL_ETC="no"   ; shift ;;
         -r) UNINSTALL="yes"   ; shift ;;
@@ -121,6 +124,7 @@ if [ -z "$ROOT" ] ; then
     MAN_LOCATION="/usr/share/man/man1"
     VM_LOCATION="/var/lib/one/vms"
     DOCS_LOCATION="/usr/share/docs/one"
+    DOCKER_MACHINE_LOCATION="src/docker_machine/src/docker_machine/bin/docker-machine-driver-opennebula"
 
     if [ "$CLIENT" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION"
@@ -149,6 +153,9 @@ if [ -z "$ROOT" ] ; then
         DELETE_DIRS="$MAKE_DIRS"
 
         CHOWN_DIRS=""
+    elif [ "$DOCKER_MACHINE" = "yes" ]; then
+        mkdir $SHARE_LOCATION/docker_machine
+        mv $DOCKER_MACHINE_LOCATION $SHARE_LOCATION/docker_machine
     else
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION $DOCS_LOCATION \
@@ -177,7 +184,8 @@ else
     MAN_LOCATION="$ROOT/share/man/man1"
     VM_LOCATION="$VAR_LOCATION/vms"
     DOCS_LOCATION="$ROOT/share/docs"
-
+    DOCKER_MACHINE_LOCATION="src/docker_machine/src/docker_machine/bin/docker-machine-driver-opennebula"
+    
     if [ "$CLIENT" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION"
 
@@ -197,6 +205,9 @@ else
                    $ETC_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
+    elif [ "$DOCKER_MACHINE" = "yes" ]; then
+        mkdir $SHARE_LOCATION/docker_machine
+        mv $DOCKER_MACHINE_LOCATION $SHARE_LOCATION/docker_machine
     else
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION $SYSTEM_DS_LOCATION \
@@ -213,7 +224,8 @@ fi
 
 SHARE_DIRS="$SHARE_LOCATION/examples \
             $SHARE_LOCATION/websockify \
-            $SHARE_LOCATION/esx-fw-vnc"
+            $SHARE_LOCATION/esx-fw-vnc \
+            $SHARE_LOCATION/docker_machine"
 
 ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/hm \

@@ -7,5 +7,3 @@ export GOPATH=$GOPATH:$GOCA_PATH:$ADDON_PATH
 
 cd src/docker_machine/
 make build
-
-mv src/docker_machine/bin/docker-machine-driver-opennebula $BIN_LOCATION
