@@ -385,7 +385,7 @@ protected:
      *    @param tmpl describing the object
      *    @param att the specific request attributes
      */
-    bool as_uid_gid(Template * tmpl, int oid, RequestAttributes& att);
+    ErrorCode as_uid_gid(Template * tmpl, RequestAttributes& att);
 
 private:
     /* ---------------------------------------------------------------------- */

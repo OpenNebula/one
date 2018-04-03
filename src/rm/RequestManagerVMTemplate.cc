@@ -169,10 +169,12 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
         tmpl->merge(extra_attrs);
     }
 
-    if ( !as_uid_gid(tmpl, id, att) )
+    ec = as_uid_gid(tmpl, att);
+
+    if ( ec != SUCCESS )
     {
         delete tmpl;
-        return AUTHORIZATION;
+        return ec;
     }
 
     /* ---------------------------------------------------------------------- */

@@ -852,17 +852,14 @@ int Request::get_info(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool Request::as_uid_gid(Template *         tmpl,
-                             int            oid,
+Request::ErrorCode Request::as_uid_gid(Template *         tmpl,
                              RequestAttributes& att)
 {
-    User *  user;
-
-    string ngname;
+    string gname;
     string uname;
 
     PoolObjectAuth uperms;
-    PoolObjectAuth ngperms;
+    PoolObjectAuth gperms;
     int uid = att.uid, as_uid = -1, as_gid = -1;
     set<int> gids = att.group_ids;
     int rc;
@@ -870,83 +867,76 @@ bool Request::as_uid_gid(Template *         tmpl,
     UserPool * upool = Nebula::instance().get_upool();
     GroupPool * gpool = Nebula::instance().get_gpool();
 
-    rc = tmpl->get("AS_UID", as_uid);
-    if ( rc != 0 )
+    if ( tmpl->get("AS_UID", as_uid) )
     {
         tmpl->erase("AS_UID");
-        att.uid = as_uid;
+        rc = get_info(upool, as_uid, PoolObjectSQL::USER, att, uperms, uname,true);
 
-        if ((user = upool->get(as_uid)) == 0 )
+        if ( rc == -1 )
         {
-            att.resp_obj = PoolObjectSQL::USER;
-            att.resp_id  = oid;
-            failure_response(NO_EXISTS, att);
-            user->unlock();
-            return false;
-        }
-        else if ( as_uid != 0 )
-        {
-            user->get_permissions(uperms);
-
-            uname = user->get_name();
-            att.uname = uname;
-
-            user->unlock();
+            return NO_EXISTS;
         }
     }
+    else
+    {
+        as_uid = -1;
+    }
 
-    rc = tmpl->get("AS_GID", as_gid);
-    if ( rc != 0 )
+    if ( tmpl->get("AS_GID", as_gid) )
     {
         tmpl->erase("AS_GID");
-        att.gid = as_gid;
+        rc = get_info(gpool, as_gid, PoolObjectSQL::GROUP, att, gperms, gname,true);
 
-        if ( as_gid < 0 )
+        if ( rc == -1 )
         {
-            att.resp_msg = "Wrong group ID";
-            failure_response(XML_RPC_API, att);
-            return false;
-        }
-        else
-        {
-            rc = get_info(gpool, as_gid, PoolObjectSQL::GROUP, att, ngperms, ngname,true);
-
-            if ( rc == -1 )
-            {
-                return false;
-            }
-            att.gname = ngname;
+            return NO_EXISTS;
         }
     }
-
-    if ( as_gid == 0 && as_uid == 0)
+    else
     {
-        return true;
+        as_gid = -1;
+    }
+
+    if ( as_gid == -1 && as_uid == -1)
+    {
+        return SUCCESS;
     }
 
     if ( uid != 0 )
     {
         AuthRequest ar(uid, gids);
 
-        if (as_uid != 0)
+        if (as_uid > 0)
         {
             ar.add_auth(AuthRequest::MANAGE, uperms); // MANAGE USER
         }
-        if (as_gid != 0)
+        if (as_gid > 0)
         {
-            ar.add_auth(AuthRequest::MANAGE, ngperms); // MANAGE GROUP
+            ar.add_auth(AuthRequest::MANAGE, gperms); // MANAGE GROUP
         }
 
         if (UserPool::authorize(ar) == -1)
         {
             att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
-
-            return false;
+            return AUTHORIZATION;
         }
     }
 
-    return true;
+    if ( as_uid > 0 )
+    {
+        att.uid = as_uid;
+        att.uname = uname;
+    }
+
+    if ( as_gid > 0 )
+    {
+        att.gid = as_gid;
+        att.gname = gname;
+        att.group_ids.clear();
+        att.group_ids.insert(as_gid);
+    }
+
+    return SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */
