@@ -71,7 +71,10 @@ void  LifeCycleManager::save_success_action(int vid)
 
         vm->get_requirements(cpu, mem, disk, pci);
 
-        hpool->del_capacity(vm->get_previous_hid(),vm->get_oid(),cpu,mem,disk,pci);
+        if ( vm->get_hid() != vm->get_previous_hid() )
+        {
+            hpool->del_capacity(vm->get_previous_hid(),vm->get_oid(),cpu,mem,disk,pci);
+        }
 
         //----------------------------------------------------
 
