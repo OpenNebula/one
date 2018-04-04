@@ -90,10 +90,25 @@ fi
 # Move the image back to the datastore
 #-------------------------------------------------------------------------------
 
-# for current image of the running VMs, don't touch image directly,
-# but ask export the content via blockcopy
+# For current image of the running VMs, don't touch the image directly,
+# but export the content via blockcopy. If that's not possible (old QEMU),
+# domfsfreeze or suspend the domain before.
 if [ "${LCM_STATE}" = '26' ] && [ "${SNAP_ID}" = '-1' ]; then
-    CPDS_CMD_EXPORT="virsh -c ${LIBVIRT_URI} blockcopy ${DEPLOY_ID} ${DISK_TARGET} ${DST_PATH} --wait --finish"
+    CPDS_CMD_EXPORT=$(cat <<EOF
+if ! virsh -c ${LIBVIRT_URI} blockcopy ${DEPLOY_ID} ${DISK_TARGET} ${DST_PATH} --wait --finish; then
+    if virsh -c ${LIBVIRT_URI} domfsfreeze ${DEPLOY_ID}; then
+        trap "virsh -c ${LIBVIRT_URI} domfsthaw ${DEPLOY_ID}" EXIT TERM INT HUP
+    elif virsh -c ${LIBVIRT_URI} suspend ${DEPLOY_ID}; then
+        trap "virsh -c ${LIBVIRT_URI} resume ${DEPLOY_ID}" EXIT TERM INT HUP
+    else
+        error_message "Could not domfsfreeze or suspend domain"
+        exit 1
+    fi
+
+    ${QEMU_IMG} convert ${SRC_PATH} -O qcow2 ${DST_PATH}
+fi
+EOF
+)
 else
     CPDS_CMD_EXPORT="${QEMU_IMG} convert ${SRC_PATH} -O qcow2 ${DST_PATH}"
 fi
