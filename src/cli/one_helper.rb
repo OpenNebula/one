@@ -361,6 +361,18 @@ EOT
             :format => String,
             :description => "In a vCenter environment sets the the VMs and Template folder where the VM will be placed in." \
             " The path uses slashes to separate folders. For example: --vcenter_vm_folder \"/Management/VMs\""
+        },
+        {
+            :name   => 'as_uid',
+            :large  => '--as_uid uid',
+            :format => Integer,
+            :description => 'The User ID to instantiate the VM'
+        },
+        {
+            :name   => 'as_gid',
+            :large  => '--as_gid gid',
+            :format => Integer,
+            :description => 'The Group ID to instantiate the VM'
         }
     ]
 
@@ -1097,6 +1109,9 @@ EOT
         template<<"VCPU=#{options[:vcpu]}\n" if options[:vcpu]
         template<<"MEMORY=#{options[:memory]}\n" if options[:memory]
         template<<"#{options[:raw]}\n" if options[:raw]
+
+        template<<"AS_UID=#{options[:as_uid]}\n" if options[:as_uid]
+        template<<"AS_GID=#{options[:as_gid]}\n" if options[:as_gid]
 
         if options[:disk]
             res=create_disk_net(options[:disk], 'DISK', 'IMAGE')

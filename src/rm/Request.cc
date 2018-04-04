@@ -851,3 +851,93 @@ int Request::get_info(
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+Request::ErrorCode Request::as_uid_gid(Template *         tmpl,
+                             RequestAttributes& att)
+{
+    string gname;
+    string uname;
+
+    PoolObjectAuth uperms;
+    PoolObjectAuth gperms;
+    int uid = att.uid, as_uid = -1, as_gid = -1;
+    set<int> gids = att.group_ids;
+    int rc;
+
+    UserPool * upool = Nebula::instance().get_upool();
+    GroupPool * gpool = Nebula::instance().get_gpool();
+
+    if ( tmpl->get("AS_UID", as_uid) )
+    {
+        tmpl->erase("AS_UID");
+        rc = get_info(upool, as_uid, PoolObjectSQL::USER, att, uperms, uname,true);
+
+        if ( rc == -1 )
+        {
+            return NO_EXISTS;
+        }
+    }
+    else
+    {
+        as_uid = -1;
+    }
+
+    if ( tmpl->get("AS_GID", as_gid) )
+    {
+        tmpl->erase("AS_GID");
+        rc = get_info(gpool, as_gid, PoolObjectSQL::GROUP, att, gperms, gname,true);
+
+        if ( rc == -1 )
+        {
+            return NO_EXISTS;
+        }
+    }
+    else
+    {
+        as_gid = -1;
+    }
+
+    if ( as_gid == -1 && as_uid == -1)
+    {
+        return SUCCESS;
+    }
+
+    if ( uid != 0 )
+    {
+        AuthRequest ar(uid, gids);
+
+        if (as_uid > 0)
+        {
+            ar.add_auth(AuthRequest::MANAGE, uperms); // MANAGE USER
+        }
+        if (as_gid > 0)
+        {
+            ar.add_auth(AuthRequest::MANAGE, gperms); // MANAGE GROUP
+        }
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            att.resp_msg = ar.message;
+            return AUTHORIZATION;
+        }
+    }
+
+    if ( as_uid > 0 )
+    {
+        att.uid = as_uid;
+        att.uname = uname;
+    }
+
+    if ( as_gid > 0 )
+    {
+        att.gid = as_gid;
+        att.gname = gname;
+        att.group_ids.clear();
+        att.group_ids.insert(as_gid);
+    }
+
+    return SUCCESS;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
