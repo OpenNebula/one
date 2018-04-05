@@ -25,12 +25,14 @@ if !ONE_LOCATION
     ETC_LOCATION = "/etc/one"
     SHARE_LOCATION = "/usr/share/one"
     RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
+    SUNSTONE_LOCATION = "/usr/lib/one/sunstone"
 else
     VAR_LOCATION = ONE_LOCATION + "/var"
     LOG_LOCATION = ONE_LOCATION + "/var"
     ETC_LOCATION = ONE_LOCATION + "/etc"
     SHARE_LOCATION = ONE_LOCATION + "/share"
-    RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
+    RUBY_LIB_LOCATION = ONE_LOCATION + "/lib/ruby"
+    SUNSTONE_LOCATION = ONE_LOCATION + "/usr/lib/one/sunstone"
 end
 
 SUNSTONE_AUTH             = VAR_LOCATION + "/.one/sunstone_auth"
@@ -346,12 +348,16 @@ helpers do
         session.clear
         return [204, ""]
     end
+
+    def load_addons
+      addons_location = SUNSTONE_LOCATION + "/public/app/addons/dist/*"
+      puts Dir[addons_location ].select{ |f| File.file? f }.map{ |f| File.basename f } 
+    end
 end
 
 before do
     cache_control :no_store
     content_type 'application/json', :charset => 'utf-8'
-
     @request_body = request.body.read
     request.body.rewind
 
@@ -451,6 +457,7 @@ end
 # HTML Requests
 ##############################################################################
 get '/' do
+    load_addons
     content_type 'text/html', :charset => 'utf-8'
     if !authorized?
         return erb :login
