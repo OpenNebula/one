@@ -27,16 +27,13 @@
             </a>
             {{data.name}}
             - <i>{{data.type}}</i>
-            {{#if data.cluster}} - {{tr "Cluster"}}: <i>{{data.cluster}}</i>{{/if}}
-            {{#if data.cluster_location}} - {{tr "Location"}}: <i>{{data.cluster_location}}</i>{{/if}}
-            {{#if data.one_cluster_id}} - {{tr "OpenNebula Cluster ID"}}: <i>{{data.one_cluster_id}}</i>{{/if}}
             {{#if data.vlan}} - {{tr "VLAN"}}: <i><span class="vlaninfo">{{data.vlan}}</span></i>{{/if}}
           </label>
         </div>
       </div>
       <div class="row">
         <div id="{{data.uuid}}Advanced" class="content row" hidden>
-          <div class="vcenter_rp_input row" style="margin-left: 59px">
+          <div class="row" style="margin-left: 59px">
             <div class="large-2 medium-3 small-6 columns">
               <label>
                 {{tr "Size"}}
@@ -47,10 +44,10 @@
               <label>
                 {{tr "Type"}}
                 <select class="type_select">
-                  <option value="ETHER">eth</option>
-                  <option value="IP4">ipv4</option>
-                  <option value="IP6">ipv6</option>
-                  <option value="IP6_STATIC">ipv6 static</option>
+                  <option value="ether">eth</option>
+                  <option value="ip4">ipv4</option>
+                  <option value="ip6">ipv6</option>
+                  <option value="ip6_static">ipv6 static</option>
                 </select>
               </label>
             </div>
@@ -64,6 +61,30 @@
                 </div>
               </div>
             </div>
+          </div>
+          <div class="row" style="margin-left: 59px">
+            <div class="large-7 medium-5 small-10 columns">
+              <label>
+                {{tr "Cluster(s) to import"}}
+                <span class="tip">
+                  {{tr "Use ctrl key for multiple selection"}}
+                </span>
+                <select size="4" id="vnet-clusters" multiple="true">
+                  {{#each importedClusters}}
+                    <option value="{{this.id}}" selected>{{this.name}}</option>
+                  {{/each}}
+                </select>
+              </label>
+            </div>
+            <div class="large-3 medium-5 small-10 columns">
+              <label>
+                {{tr "Unimported Cluster(s)"}}
+                <select size="4" disabled>
+                  {{#each unimportedClusters}}
+                    <option value="{{this.id}}">{{this.name}}</option>
+                  {{/each}}
+                </select>
+              </label>
           </div>
         </div>
       </div>

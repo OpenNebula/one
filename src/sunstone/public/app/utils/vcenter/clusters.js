@@ -89,11 +89,11 @@ define(function(require) {
             content = FieldsetTableHTML({
               tableId : tableId,
               title : datacenter_name + ' ' + Locale.tr("DataCenter"),
-              clearImported : Locale.tr("Clear Imported DataCenters"),
               toggleAdvanced : false,
               columns : [
                 '<input type="checkbox" class="check_all"/>',
                 Locale.tr("Cluster"),
+                Locale.tr("vCenter ref"),
                 Locale.tr("Location"),
                 ""
               ]
@@ -105,15 +105,15 @@ define(function(require) {
             $.each(elements, function(id, cluster) {
               var cluster_name = cluster.simple_name;
               var cluster_location = cluster.cluster_location;
-              var cluster_hash = cluster.cluster_hash;
+              var cluster_ref = cluster.cluster_ref;
               var rp_list = '<select class="select_rp"><option></option>';
-              if(cluster.rp_list.length > 0){
-                for(var i = 0; i < cluster.rp_list.length; i++){
+              if (cluster.rp_list.length > 0){
+                for (var i = 0; i < cluster.rp_list.length; i++){
                   rp_list += '<option>' + cluster.rp_list[i].name + '</option>';
                 }
               }
               rp_list += '</select>';
-              var opts = { name: cluster_name, location: cluster_location, hash: cluster_hash };
+              var opts = { name: cluster_name, location: cluster_location, cluster_ref: cluster_ref };
               var trow = $(RowTemplate(opts)).appendTo(tbody);
 
               $(".check_item", trow).data("cluster", cluster);
@@ -131,8 +131,8 @@ define(function(require) {
                   //"ordering": false,
                   "aoColumnDefs": [
                     {"sWidth": "35px", "aTargets": [0]},
-                    {"bSortable": false, "aTargets": [0,2]},
-                    {"bSortable": true, "aTargets": [1]},
+                    {"bSortable": false, "aTargets": [0,3,4]},
+                    {"bSortable": true, "aTargets": [1,2]},
                   ],
                 }
               });

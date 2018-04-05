@@ -68,80 +68,83 @@ define(function(require) {
     $.ajax({
       url: path,
       type: "GET",
-      data: { host: opts.selectedHost, timeout: false},
+      data: { host: opts.selectedHost, timeout: false },
       dataType: "json",
       success: function(response){
         $(".vcenter_datacenter_list", context).html("");
 
-        if (response.length === 0){
+        var vcenter_name = Object.keys(response)[0];
+        response = response[vcenter_name];
+
+        if (Object.keys(response).length === 0){
           content = EmptyFieldsetHTML({
-            title : Locale.tr("vCenter Templates"),
+            title : Locale.tr("vCenter Templates") + ": " + vcenter_name,
             message : Locale.tr("No new templates found")
           });
           $(".vcenter_datacenter_list", context).append(content);
 
         } else {
           var tableId = "vcenter_import_table_" + UniqueId.id();
-            content = FieldsetTableHTML({
-              tableId : tableId,
-              title : Locale.tr("vCenter Templates"),
-              toggleAdvanced : true,
-              columns : [
-                "<input type=\"checkbox\" class=\"check_all\"/>",
-                Locale.tr("Template"),
-                ""
-              ]
+          content = FieldsetTableHTML({
+            tableId : tableId,
+            title : Locale.tr("vCenter Templates") + ": " + vcenter_name,
+            toggleAdvanced : true,
+            columns : [
+              "<input type=\"checkbox\" class=\"check_all\"/>",
+              Locale.tr("Template"),
+              ""
+            ]
+          });
+
+          var newdiv = $(content).appendTo($(".vcenter_datacenter_list", context));
+          var tbody = $("#" + tableId + " tbody", context);
+
+          $.each(response, function(template_name, element){
+            var opts = {};
+            opts.data = element;
+            opts.id = UniqueId.id();
+            if (element.rp && element.rp !== "") {
+              opts.resourcePool = UserInputs.unmarshall(element.rp);
+              opts.resourcePool.params = opts.resourcePool.params.split(",");
+            }
+            var trow = $(RowTemplate(opts)).appendTo(tbody);
+            Tips.setup(trow);
+            setupAdvanced(opts, trow);
+            $(".check_item", trow).data("import_data", element);
+          });
+
+          var elementsTable = new DomDataTable(
+            tableId,
+            {
+              actions: false,
+              info: false,
+              dataTableOptions: {
+                "bAutoWidth": false,
+                "bSortClasses" : false,
+                "bDeferRender": false,
+                "ordering": false,
+                "aoColumnDefs": [
+                { "sWidth": "35px", "aTargets": [0] },
+                ],
+              },
+              "customTrListener": function(tableObj, tr){ return false; }
             });
 
-            var newdiv = $(content).appendTo($(".vcenter_datacenter_list", context));
-            var tbody = $("#" + tableId + " tbody", context);
+          elementsTable.initialize();
 
-            $.each(response, function(template_name, element){
-              var opts = {};
-              opts.data = element;
-              opts.id = UniqueId.id();
-              if (element.rp && element.rp !== "") {
-                opts.resourcePool = UserInputs.unmarshall(element.rp);
-                opts.resourcePool.params = opts.resourcePool.params.split(",");
-              }
-              var trow = $(RowTemplate(opts)).appendTo(tbody);
-              Tips.setup(trow);
-              setupAdvanced(opts, trow);
-              $(".check_item", trow).data("import_data", element);
-            });
+          $("a.vcenter-table-select-all", context).text(Locale.tr("Select all %1$s Templates", Object.keys(response).length));
 
-            var elementsTable = new DomDataTable(
-              tableId,
-              {
-                actions: false,
-                info: false,
-                dataTableOptions: {
-                  "bAutoWidth": false,
-                  "bSortClasses" : false,
-                  "bDeferRender": false,
-                  "ordering": false,
-                  "aoColumnDefs": [
-                  { "sWidth": "35px", "aTargets": [0] },
-                  ],
-                },
-                "customTrListener": function(tableObj, tr){ return false; }
-              });
+          VCenterCommon.setupTable({
+            context : newdiv,
+            allSelected : Locale.tr("All %1$s Templates selected."),
+            selected: Locale.tr("%1$s Templates selected.")
+          });
 
-            elementsTable.initialize();
-
-            $("a.vcenter-table-select-all", context).text(Locale.tr("Select all %1$s Templates", Object.keys(response).length));
-
-            VCenterCommon.setupTable({
-              context : newdiv,
-              allSelected : Locale.tr("All %1$s Templates selected."),
-              selected: Locale.tr("%1$s Templates selected.")
-            });
-
-            context.off("click", ".clear_imported");
-            context.on("click", ".clear_imported", function() {
-              _fillVCenterDatastores(opts);
-              return false;
-            });
+          context.off("click", ".clear_imported");
+          context.on("click", ".clear_imported", function() {
+            _fillVCenterDatastores(opts);
+            return false;
+          });
         }
       },
       error: function(response){

@@ -23,7 +23,6 @@ define(function(require) {
   var Notifier = require("utils/notifier");
   var UniqueId = require("utils/unique-id");
   var VCenterCommon = require("./vcenter-common");
-  var Sunstone = require("sunstone");
 
   var TemplateHTML = require("hbs!./common/html");
   var RowTemplate = require("hbs!./datastores/row");
@@ -69,9 +68,12 @@ define(function(require) {
       success: function(response){
         $(".vcenter_datacenter_list", context).html("");
 
-        if (response.length === 0){
+        var vcenter_name = Object.keys(response)[0];
+        response = response[vcenter_name];
+
+        if (Object.keys(response).length === 0){
           content = EmptyFieldsetHTML({
-            title : Locale.tr("vCenter Datastores"),
+            title : Locale.tr("vCenter Datastores") + ": " + vcenter_name,
             message : Locale.tr("No new datastores found")
           });
           $(".vcenter_datacenter_list", context).append(content);
@@ -80,7 +82,7 @@ define(function(require) {
         else {
           var tableId = "vcenter_import_table" + UniqueId.id();
           content = FieldsetTableHTML({
-            title: Locale.tr("vCenter Datastores"),
+            title: Locale.tr("vCenter Datastores") + ": " + vcenter_name,
             tableId : tableId,
             toggleAdvanced : false,
             columns : [
@@ -117,12 +119,13 @@ define(function(require) {
                 "bAutoWidth": false,
                 "bSortClasses" : false,
                 "bDeferRender": false,
-                "ordering": false,
                 "aoColumnDefs": [
-                { "sWidth": "35px", "aTargets": [0] },
+                  {"sWidth": "35px", "aTargets": [0]},
+                  {"bSortable": false, "aTargets": [6,7]},
+                  {"bSortable": true, "aTargets": [1,2,3]},
+                  {"sType": "num", "aTargets": [4,5]}
                 ],
-              },
-              "customTrListener": function(tableObj, tr){ return false; }
+              }
             });
 
           elementsTable.initialize();

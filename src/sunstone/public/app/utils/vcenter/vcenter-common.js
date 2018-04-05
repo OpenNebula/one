@@ -113,7 +113,7 @@ define(function(require) {
       '<span class="fa-stack" style="color: #dfdfdf">' +
         '<i class="fas fa-cloud fa-stack-2x running-color"></i>' +
         '<i class="fas fa-check fa-stack-1x fa-inverse"></i>' +
-      '</span>');
+      '</span>&nbsp&nbsp');
 
     $(".vcenter_import_response", opts.context).html(opts.message);
   }
@@ -122,8 +122,8 @@ define(function(require) {
     $(".vcenter_import_result", opts.context).html(
       '<span class="fa-stack" style="color: #dfdfdf">' +
         '<i class="fas fa-cloud fa-stack-2x error-color"></i>' +
-        '<i class="fas fa-warning fa-stack-1x fa-inverse"></i>' +
-      '</span>');
+        '<i class="fas fa-exclamation fa-stack-1x fa-inverse"></i>' +
+      '</span>&nbsp&nbsp');
 
     $(".vcenter_import_response", opts.context).addClass("error-color").html(
       opts.message);

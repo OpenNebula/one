@@ -209,10 +209,10 @@ define(function(require) {
             $("#vcenter_user", context).attr("disabled", "disabled");
             $("#vcenter_password", context).attr("disabled", "disabled");
             $("#vcenter_host", context).attr("disabled", "disabled");
-            $("#get_vcenter_clusters", context).hide();
             $(".import_vcenter_clusters_div", context).show();
           }
-        })
+        });
+        $("#import_vcenter_clusters", this.parentElement).prop("disabled", false);
       })
       .on("submit", function(ev) {
         ev.preventDefault();
