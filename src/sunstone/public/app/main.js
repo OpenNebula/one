@@ -128,6 +128,7 @@ require.config({
         'foundation',
         'jquery',
         'addons/start', 
+        'addons/end',
         'tabs/provision-tab',
         'tabs/dashboard-tab',
         'tabs/system-top-tab',
