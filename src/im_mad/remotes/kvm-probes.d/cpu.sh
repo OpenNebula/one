@@ -18,7 +18,7 @@
 
 if [ -f /proc/cpuinfo ]; then
     MODELNAME_EXP="model name"
-    if [[ "$(uname -m)" =~ ^ppc64 ]]; then
+    if (uname -m | grep -Eq ^ppc64); then
         MODELNAME_EXP="model"
     fi
 
