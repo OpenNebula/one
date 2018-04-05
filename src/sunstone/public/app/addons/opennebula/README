@@ -1,3 +1,0 @@
-This dir emulates 'app/opennebula'.
-
-From here the ajax requests will be made to the OpenNebula driver.

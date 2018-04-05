@@ -153,7 +153,11 @@ module OpenNebula
             @async = !options[:sync]
 
             timeout=nil
-            timeout=options[:timeout] if options[:timeout]
+            if options[:timeout]
+                timeout = options[:timeout]
+            elsif ENV['ONE_XMLRPC_TIMEOUT']
+                timeout = ENV['ONE_XMLRPC_TIMEOUT'].to_i
+            end
 
             http_proxy=nil
             http_proxy=options[:http_proxy] if options[:http_proxy]

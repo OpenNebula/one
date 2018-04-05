@@ -75,6 +75,12 @@ features:
 
     # True to show the attributes info (VM & VRouters)
     show_attributes_info: true
+
+    # True to show the user datatable to instantiate VM
+    show_as_uid_instantiate: true
+
+    # True to show the group datatable to instantiate VM
+    show_as_gid_instantiate: true
 tabs:
     dashboard-tab:
         # The following widgets can be used inside any of the '_per_row' settings

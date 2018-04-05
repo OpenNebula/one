@@ -381,6 +381,12 @@ protected:
     static void quota_rollback(Template * tmpl, Quotas::QuotaType qtype,
         RequestAttributes& att);
 
+    /**
+     *    @param tmpl describing the object
+     *    @param att the specific request attributes
+     */
+    ErrorCode as_uid_gid(Template * tmpl, RequestAttributes& att);
+
 private:
     /* ---------------------------------------------------------------------- */
     /* Functions to manage user and group quotas                              */

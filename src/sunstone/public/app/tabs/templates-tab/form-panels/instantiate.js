@@ -38,6 +38,8 @@ define(function(require) {
   var Config = require("sunstone-config");
   var HostsTable = require("tabs/hosts-tab/datatable");
   var DatastoresTable = require("tabs/datastores-tab/datatable");
+  var UsersTable = require("tabs/users-tab/datatable");
+  var GroupTable = require("tabs/groups-tab/datatable");
   var Humanize = require("utils/humanize");
   var TemplateUtils = require("utils/template-utils");
   var UniqueId = require("utils/unique-id");
@@ -279,6 +281,16 @@ define(function(require) {
         tmp_json.SCHED_DS_REQUIREMENTS = [];
       }
 
+      var as_uid = that.usersTable.retrieveResourceTableSelect();
+      if (as_uid){
+        tmp_json.AS_UID = as_uid;
+      }
+
+      var as_gid = that.groupTable.retrieveResourceTableSelect();
+      if (as_gid){
+        tmp_json.AS_GID = as_gid;
+      }
+
       var nics = [];
       var pcis = [];
 
@@ -411,19 +423,32 @@ define(function(require) {
             }
           };
 
+          var options_unique = {
+            "select": true,
+            "selectOptions": {
+              "multiple_choice": false
+            }
+          };
+
           that.hostsTable = new HostsTable("HostsTable" + UniqueId.id(), options);
           that.datastoresTable = new DatastoresTable("DatastoresTable" + UniqueId.id(), options);
+          that.usersTable = new UsersTable("UsersTable" + UniqueId.id(), options_unique);
+          that.groupTable = new GroupTable("GroupTable" + UniqueId.id(), options_unique);
 
           templatesContext.append(
             TemplateRowHTML(
               { element: template_json.VMTEMPLATE,
                 capacityInputsHTML: CapacityInputs.html(),
                 hostsDatatable: that.hostsTable.dataTableHTML,
-                dsDatatable: that.datastoresTable.dataTableHTML
+                dsDatatable: that.datastoresTable.dataTableHTML,
+                usersDatatable: that.usersTable.dataTableHTML,
+                groupDatatable: that.groupTable.dataTableHTML
               }) );
 
           $(".provision_host_selector" + template_json.VMTEMPLATE.ID, context).data("hostsTable", that.hostsTable);
           $(".provision_ds_selector" + template_json.VMTEMPLATE.ID, context).data("dsTable", that.datastoresTable);
+          $(".provision_uid_selector" + template_json.VMTEMPLATE.ID, context).data("usersTable", that.usersTable);
+          $(".provision_gid_selector" + template_json.VMTEMPLATE.ID, context).data("groupTable", that.groupTable);
 
           var actions = Actions.fromJSONtoActionsTable(template_json.VMTEMPLATE.TEMPLATE.SCHED_ACTION);
           $("#sched_inst_actions_body").append(actions);
@@ -447,6 +472,12 @@ define(function(require) {
           that.datastoresTable.initialize(selectOptions);
           that.datastoresTable.filter("system", 10);
           that.datastoresTable.refreshResourceTableSelect();
+
+          //select_options
+          that.usersTable.initialize();
+          that.usersTable.refreshResourceTableSelect();
+          that.groupTable.initialize();
+          that.groupTable.refreshResourceTableSelect();
 
           var reqJSON = template_json.VMTEMPLATE.TEMPLATE.SCHED_REQUIREMENTS;
           if (reqJSON) {
@@ -476,6 +507,22 @@ define(function(require) {
               ids : ds
             };
             that.datastoresTable.selectResourceTableSelect(selectedResources);
+          }
+
+          var asuidJSON = template_json.VMTEMPLATE.TEMPLATE.AS_UID;
+          if (asuidJSON) {
+            var selectedResources = {
+              ids : asuidJSON
+            };
+            that.usersTable.selectResourceTableSelect(selectedResources);
+          }
+
+          var asgidJSON = template_json.VMTEMPLATE.TEMPLATE.AS_GID;
+          if (asgidJSON) {
+            var selectedResources = {
+              ids : asgidJSON
+            };
+            that.groupTable.selectResourceTableSelect(selectedResources);
           }
 
           DisksResize.insert({

@@ -169,6 +169,14 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
         tmpl->merge(extra_attrs);
     }
 
+    ec = as_uid_gid(tmpl, att);
+
+    if ( ec != SUCCESS )
+    {
+        delete tmpl;
+        return ec;
+    }
+
     /* ---------------------------------------------------------------------- */
     /* Store the template attributes in the VM                                */
     /* ---------------------------------------------------------------------- */
