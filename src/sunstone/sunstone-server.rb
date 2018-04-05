@@ -109,6 +109,8 @@ rescue Exception => e
     exit 1
 end
 
+ENV['ONE_XMLRPC_TIMEOUT'] = $conf[:one_xmlrpc_timeout].to_s unless ENV['ONE_XMLRPC_TIMEOUT']
+
 $conf[:debug_level] ||= 3
 
 # Set Sunstone Session Timeout
