@@ -64,17 +64,15 @@ module OpenNebulaCloudAuth
 
                 username = parser.escape(username)
                 password = parser.escape(password)
-
                 client = OpenNebula::Client.new("#{username}:#{password}", @conf[:one_xmlrpc])
                 user   = OpenNebula::User.new_with_id(OpenNebula::User::SELF, client)
-
                 rc = user.info
             end
             if OpenNebula.is_error?(rc)
                 if logger
                     logger.error{ "User #{username} could not be authenticated"}
                     logger.error { rc.message }
-                    throw Exception(rc.message) if rc.is_exml_rpc_call?()
+                    raise rc.message if rc.is_exml_rpc_call?()
                 end
                 return nil
             end
