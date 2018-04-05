@@ -3217,7 +3217,7 @@ class VmImporter < VCenterDriver::VcImporter
         @one_class = OpenNebula::Template
     end
 
-    def get_list(&block)
+    def get_list(args = {})
         dc_folder = VCenterDriver::DatacenterFolder.new(@vi_client)
 
         # Get OpenNebula's templates pool
@@ -3308,10 +3308,7 @@ class VmImporter < VCenterDriver::VcImporter
 
         working_template[:one] << "VCENTER_VM_FOLDER=\"#{opts[:folder]}\"\n" if deploy_in_folder
 
-        create(working_template[:one]) do |one_object|
-            @rollback << Raction.new(one_object, :delete)
-            one_object.info
-            id = one_object['ID']
+        create(working_template[:one]) do |one_object, id|
             res[:id] << id
 
             type = {:object => "template", :id => id}

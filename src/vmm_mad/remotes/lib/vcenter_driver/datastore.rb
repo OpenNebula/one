@@ -546,6 +546,8 @@ class Datastore < Storage
 
     def get_images
         img_templates = []
+        images = {}
+        imid = -1
         ds_id = nil
         ds_name = self['name']
 
@@ -612,11 +614,13 @@ class Datastore < Storage
                         disk_prefix = VCenterDriver::VIHelper.get_default("IMAGE/TEMPLATE/DEV_PREFIX")
                     end
 
-                    # Generate a crypto hash and get the first 12 characters
+                    # Generate a crypto hash
                     # this hash is used to avoid name collisions
-                    full_name       = "#{image_name} - #{ds_name} [#{image_path}]"
-                    image_hash      = sha256.hexdigest(full_name)[0..11]
-                    import_name     = "#{image_name} - #{ds_name} [#{image_hash}]"
+                    opts = {
+                        name: image_name,
+                        key:  "#{image_name} - #{ds_name} [#{image_path}]"
+                    }
+                    import_name = images.key?(image_name) ? VCenterDriver::VIHelper.generate_name(opts, 3) : image_name
 
                     # Set template
                     one_image =  "NAME=\"#{import_name}\"\n"
@@ -634,8 +638,10 @@ class Datastore < Storage
 
                     if !image_found
                         # Add template to image array
-                        img_templates << {
+                        images[import_name] =  {
+                            :import_id   => imid+=1,
                             :name        => import_name,
+                            :ref         => import_name,
                             :path        => image_path,
                             :size        => image_size.to_s,
                             :type        => image.class.to_s,
@@ -650,7 +656,7 @@ class Datastore < Storage
             raise "Could not find images. Reason: #{e.message}/#{e.backtrace}"
         end
 
-        return img_templates
+        return images
     end
 
     # This is never cached
@@ -715,9 +721,7 @@ class DsImporter < VCenterDriver::VcImporter
         res = {id: [], name: selected[:simple_name]}
         @info[:rollback] = []
         pair.each do |ds|
-            create(ds[:one]) do |one_object|
-                one_object.info
-                id = one_object['ID']
+            create(ds[:one]) do |one_object, id|
                 res[:id] << id
 
                 add_clusters(id, clusters)
@@ -728,9 +732,51 @@ class DsImporter < VCenterDriver::VcImporter
 
         return res
     end
+end
 
-    def rollback
-        # not implemented
+class ImageImporter < VCenterDriver::VcImporter
+
+    def initialize(one_client, vi_client)
+        super(one_client, vi_client)
+        @one_class = OpenNebula::Image
+    end
+
+    def get_list(args = {})
+
+        ds_ref   = args[:datastore][:ds_ref]
+        one_ds   = args[:datastore][:one_item]
+
+        raise "can't retrieve ref info from openNebula datastore" unless ds_ref
+
+        ds = VCenterDriver::Datastore.new_from_ref(ds_ref, @vi_client).tap do |spawn|
+            spawn.one_item = one_ds
+        end
+
+        vc_uuid   = @vi_client.vim.serviceContent.about.instanceUuid
+        one_ds_instance_id = one_ds['TEMPLATE/VCENTER_INSTANCE_ID']
+
+        if one_ds_instance_id != vc_uuid
+            raise "Datastore is not in the same vCenter instance provided in credentials"
+        end
+
+        @list = ds.get_images
+    end
+
+    def import(selected)
+        resource = VCenterDriver::VIHelper.new_one_item(@one_class)
+        message = "Error creating the OpenNebula resource"
+        info = selected[:one]
+        dsid = selected[:dsid].to_i
+        name = selected[:name]
+
+        rc = resource.allocate(info, dsid)
+        VCenterDriver::VIHelper.check_error(rc, message)
+
+        resource.info
+        id = resource['ID']
+        @rollback << Raction.new(resource, :delete)
+
+        {id: id, name: name}
     end
 
 end

@@ -30,7 +30,6 @@ $: << RUBY_LIB_LOCATION
 $: << RUBY_LIB_LOCATION+"/cli"
 $: << REMOTES_LOCATION+"vmm/vcenter/"
 
-require 'pry'
 require 'command_parser'
 require 'one_helper/onevcenter_helper'
 require 'vcenter_driver'
@@ -61,6 +60,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :large => "--host host_id",
         :format => String,
         :description => "OpenNebula host used to authenticate the operation"
+    }
+
+    DATASTORE = {
+        :name => "datastore",
+        :short => "-d datastore_id",
+        :large => "--datastore datastore_id",
+        :format => String,
+        :description => "OpenNebula datastore used"
     }
 
     VCENTER = {
@@ -109,16 +116,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Show a list with unimported vCenter objects
     EOT
 
-    command :list, list_desc, :options=>[ OBJECT, HOST,VCENTER, USER, PASS ] do
-
+    command :list, list_desc, :options=>[ OBJECT, HOST, DATASTORE, VCENTER, USER, PASS ] do
         if options[:host] && options[:object]
-            o = options[:object]
-
-            helper.set_object(o)
+            args = helper.parse_opts(options)
             vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
-            importer = VCenterDriver::VcImporter.new_child(helper.client, vi_client, o)
+            importer = VCenterDriver::VcImporter.new_child(helper.client, vi_client, options[:object])
 
-            list = importer.get_list()
+            list = importer.get_list(args)
             helper.list_object(options, list)
         else
             puts "for the moment is not supported without the proper authentication"
@@ -130,16 +134,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Import the the desired vCenter object
     EOT
 
-    command :import, import_desc, :oid, :options=>[ OBJECT, HOST,VCENTER, USER, PASS, USE_DEFAULTS ] do
+    command :import, import_desc, :oid, :options=>[ OBJECT, HOST, DATASTORE, VCENTER, USER, PASS, USE_DEFAULTS ] do
 
         indexes = args.first
         if options[:host] && options[:object]
-            o = options[:object]
-            helper.set_object(o)
+            args  = helper.parse_opts(options)
             vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
-            importer = VCenterDriver::VcImporter.new_child(helper.client, vi_client, o)
+            importer = VCenterDriver::VcImporter.new_child(helper.client, vi_client, options[:object])
 
-            importer.get_list()
+            importer.get_list(args)
 
             importer.process_import(indexes) do |object_info|
                 helper.cli_dialogue(object_info)
@@ -220,28 +223,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         con_ops = helper.connection_options("Datastores", options)
 
         VCenterDriver::Importer.import_datastore(con_ops, options)
-
-        exit 0
-    end
-
-    ############################################################################
-    # Import images
-    ############################################################################
-    images_desc = <<-EOT.unindent
-        Import vCenter Images into OpenNebula
-    EOT
-
-    command :images, images_desc, :ds_name, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
-        ds_name = args[0]
-
-        if !ds_name
-            STDERR.puts "Datastore name needed to import images from"
-            exit -1
-        end
-
-        con_ops = helper.connection_options("Images", options)
-
-        VCenterDriver::Importer.import_images(con_ops, ds_name, options)
 
         exit 0
     end

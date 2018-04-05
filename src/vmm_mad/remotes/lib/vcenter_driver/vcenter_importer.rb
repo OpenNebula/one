@@ -20,11 +20,10 @@ module VCenterDriver
         ########################################
         MESS = "missing method from parent"
 
-        def get_list;             raise MESS end
+        def get_list(args = {})   raise MESS end
         def add_cluster(cid, eid) raise MESS end
         def remove_default(id)    raise MESS end
         def import(selected)      raise MESS end
-        def rollback;             raise MESS end
         ########################################
 
         public
@@ -47,6 +46,10 @@ module VCenterDriver
                 VCenterDriver::DsImporter.new(one_client, vi_client)
             when "templates"
                 VCenterDriver::VmImporter.new(one_client, vi_client)
+            when "networks"
+                VCenterDriver::NetImporter.new(one_client, vi_client)
+            when "images"
+                VCenterDriver::ImageImporter.new(one_client, vi_client)
             else
                 raise "unknown object type"
             end
@@ -61,7 +64,8 @@ module VCenterDriver
 
         def stdout
             @info[:success].each do |o|
-                puts "Datastore #{o[:name]} with ids: #{o[:id].join(' ')} created!"
+                id = o[:id].join(' ') rescue nil || o[:id]
+                puts "#{o[:name]} with ids: #{id} created!"
                 puts
             end
 
@@ -111,7 +115,10 @@ module VCenterDriver
             rc = resource.allocate(info)
             VCenterDriver::VIHelper.check_error(rc, message)
 
-            rc = block.call(resource)
+            resource.info
+            id = resource['ID']
+            @rollback << Raction.new(resource, :delete)
+            rc = block.call(resource, id)
         end
 
         def list_empty?
@@ -129,7 +136,7 @@ module VCenterDriver
         def add_clusters(one_id, clusters, &block)
             clusters.each do |cid|
                 @info[:clusters][cid] ||= VCenterDriver::VIHelper.one_item(OpenNebula::Cluster, cid.to_s, false)
-                rc =  add_cluster(cid.to_i, one_id.to_i)
+                rc =  add_cluster(cid, one_id.to_i)
                 VCenterDriver::VIHelper.check_error(rc, "add element to cluster")
             end
             remove_default(one_id)

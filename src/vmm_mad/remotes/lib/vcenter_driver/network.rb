@@ -127,8 +127,7 @@ class Network
         one_tmp[:bridge]           = network_name
         one_tmp[:type]             = network_type
         one_tmp[:one_cluster_id]   = cluster_id
-        one_tmp[:vcenter_net_ref]  = network_ref
-        one_tmp[:clusters]         = opts[:clusters] || nil
+        one_tmp[:ref]  = network_ref
 
         one_tmp[:one] = to_one(network_import_name, network_name, network_ref, network_type,
                                vcenter_uuid, unmanaged, template_ref, dc_ref, template_id)
@@ -281,5 +280,99 @@ class DistributedVirtualSwitch < Network
     end
 end # class DistributedVirtualSwitch
 
+class NetImporter < VCenterDriver::VcImporter
+
+    def initialize(one_client, vi_client)
+        super(one_client, vi_client)
+        @one_class = OpenNebula::VirtualNetwork
+    end
+
+    def get_list(args = {})
+	    dc_folder = VCenterDriver::DatacenterFolder.new(@vi_client)
+
+        # OpenNebula's VirtualNetworkPool
+        npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool, false)
+        if npool.respond_to?(:message)
+            raise "Could not get OpenNebula VirtualNetworkPool: #{npool.message}"
+        end
+
+        # Get OpenNebula's host pool
+        hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool, false)
+        if hpool.respond_to?(:message)
+            raise "Could not get OpenNebula HostPool: #{hpool.message}"
+        end
+
+        rs = dc_folder.get_unimported_networks(npool, @vi_client.vc_name,hpool)
+		@list = rs
+    end
+
+    def add_cluster(cid, eid)
+        one_cluster = @info[:clusters][cid]
+        raise "no cluster defined" unless one_cluster
+
+        rc = one_cluster.addvnet(eid)
+    end
+
+    def remove_default(id)
+        cid = 0
+        @info[:clusters][cid] ||= VCenterDriver::VIHelper.one_item(OpenNebula::Cluster, cid.to_s, false)
+        @info[:clusters][cid].delvnet(id.to_i)
+    end
+
+    def build_ar(opts)
+        str =  "\nAR=[TYPE=\""
+        type = opts[:type].downcase
+
+        case type
+        when "4", "ip4"
+        	str << "IP4\""
+        	str << ",IP=" + opts[:ip] if opts[:ip]
+        	str << ",MAC=" + opts[:mac] if opts[:mac]
+        when 'ip6'
+            str << "IP6\""
+            str << ",MAC=" + opts[:mac] if opts[:mac]
+            str << ",GLOBAL_PREFIX=" + opts[:global_prefix] if opts[:global_prefix]
+            str << ",ULA_PREFIX=" + ula_prefix if ula_prefix
+        when 'ether', 'e'
+            str << "ETHER\""
+            str << ",MAC=" + opts[:mac] if opts[:mac]
+        when 'ip6_static'
+            str << "IP6_STATIC\""
+            str << ",MAC=" + opts[:mac] if opts[:mac]
+            str << ",IP6=" + opts[:ip6] if opts[:ip6]
+            str << ",PREFIX_LENGTH=" + prefix_length if prefix_length
+        end
+
+        str << ",SIZE = \"#{opts[:size]}\"]"
+
+        return str
+    end
+
+    def import(selected)
+        opts = @info[selected[:ref]][:opts]
+
+        net = VCenterDriver::Network.new_from_ref(selected[:ref], @vi_client)
+        vid = VCenterDriver::Network.retrieve_vlanid(net.item) if net
+
+        if vid
+            vlanid = VCenterDriver::Network.vlanid(vid)
+
+            # we have vlan id
+            if /\A\d+\z/.match(vlanid)
+                selected[:one] << "VCENTER_VLAN_ID=\"#{vlanid}\"\n"
+            end
+        end
+
+        selected[:one] << build_ar(opts)
+
+        res = {id: [], name: selected[:name]}
+        create(selected[:one]) do |one_object, id|
+            res[:id] << id
+            add_clusters(id, selected[:clusters][:one_ids])
+        end
+
+        return res
+    end
+end
 end # module VCenterDriver
 

@@ -29,20 +29,46 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
     TABLE = {
         VOBJECT::DATASTORE => {
             :struct  => ["DATASTORE_LIST", "DATASTORE"],
-            :columns => [:IMID, :REF, :VCENTER, :NAME, :CLUSTERS],
+            :columns => {:IMID => 10, :REF => 10, :VCENTER => 10, :NAME => 10, :CLUSTERS => 10},
+            :cli     => [:host],
             :dialogue => ->(arg){}
         },
         VOBJECT::TEMPLATE => {
             :struct  => ["TEMPLATE_LIST", "TEMPLATE"],
-            :columns => [:IMID, :REF, :VCENTER, :NAME, :CLUSTERS],
+            :columns => {:IMID => 10, :REF => 10, :VCENTER => 10, :NAME => 10 , :CLUSTERS => 10},
+            :cli     => [:host],
             :dialogue => ->(arg){ OneVcenterHelper.template_dialogue(arg) }
         },
         VOBJECT::NETWORK => {
             :struct  => ["NETWORK_LIST", "NETWORK"],
-            :columns => [:IMID, :REF, :VCENTER, :NAME],
+            :columns => {:IMID => 10, :REF => 10, :VCENTER => 10 , :NAME => 10},
+            :cli     => [:host],
+            :dialogue => ->(arg){ OneVcenterHelper.network_dialogue(arg) }
+        },
+        VOBJECT::IMAGE => {
+            :struct  => ["IMAGE_LIST", "IMAGE"],
+            :columns => {:IMID => 5,:REF => 20, :PATH => 20},
+            :cli     => [:host, :datastore],
             :dialogue => ->(arg){}
         }
     }
+
+
+    #######################
+    # CLI
+    ########################
+    def datastore(arg)
+        ds = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, arg)
+
+        {
+            ds_ref: ds['TEMPLATE/VCENTER_DS_REF'],
+            one_item: ds
+        }
+    end
+
+    def host(arg)
+    end
+    ########################
 
     def set_object(type)
         type = type.downcase
@@ -50,6 +76,10 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
             @vobject = VOBJECT::DATASTORE
         elsif (type == "templates")
             @vobject = VOBJECT::TEMPLATE
+        elsif (type =="networks")
+            @vobject = VOBJECT::NETWORK
+        elsif (type == "images")
+            @vobject = VOBJECT::IMAGE
         end
     end
 
@@ -83,30 +113,47 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
         return TABLE[@vobject][:dialogue].(object_info)
     end
 
+    def parse_opts(opts)
+        set_object(opts[:object])
+
+        res = {}
+
+        TABLE[@vobject][:cli].each do |arg|
+            raise "#{arg} it's mandadory for this op" if opts[arg].nil?
+            res[arg] = self.method(arg).call(opts[arg])
+        end
+
+        return res
+    end
+
     def format_list()
-        vcenter_object = @vobject
+        config = TABLE[@vobject][:columns]
         table = CLIHelper::ShowTable.new() do
-            column :IMID, "identifier for ...", :size=>4 do |d|
+            column :IMID, "identifier for ...", :size=>config[:IMID] || 4 do |d|
                 d[:import_id]
             end
 
-            column :REF, "ref", :left, :size=>15 do |d|
+            column :REF, "ref", :left, :size=>config[:REF] || 15 do |d|
                 d[:ref]
             end
 
-            column :VCENTER, "vCenter", :left, :size=>20 do |d|
+            column :VCENTER, "vCenter", :left, :size=>config[:VCENTER] || 20 do |d|
                 d[:vcenter]
             end
 
-            column :NAME, "Name", :left, :size=>20 do |d|
+            column :NAME, "Name", :left, :size=>config[:NAME] || 20 do |d|
                 d[:name] || d[:simple_name]
             end
 
-            column :CLUSTERS, "CLUSTERS", :left, :size=>10 do |d|
-                d[:cluster].to_s
+            column :CLUSTERS, "CLUSTERS", :left, :size=>config[:CLUSTERS] || 10 do |d|
+                d[:cluster].to_s || d[:clusters][:one_ids].to_s
             end
 
-            default(*TABLE[vcenter_object][:columns])
+            column :PATH, "PATH", :left, :size=>config[:PATH] || 10 do |d|
+                d[:path]
+            end
+
+            default(*config.keys)
         end
 
         table
@@ -205,5 +252,91 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
         end
 
         return opts
+    end
+
+    def self.network_dialogue(n)
+        ask = -> (question, default = ""){
+            STDOUT.print question
+            answer = STDIN.gets.strip
+
+            answer = default if answer.empty?
+
+            return answer
+        }
+
+		size="255"
+		ar_type="ether"
+		first_ip=""
+		first_mac=""
+		slaac=""
+		global_prefix=""
+		ula_prefix=""
+		ip6_address = ""
+		prefix_length = ""
+
+		question =  "    How many VMs are you planning"\
+					" to fit into this network [255]? "
+        size = ask.call(question, "255")
+
+		question = "    What type of Virtual Network"\
+				   " do you want to create (IPv[4],IPv[6], [E]thernet)?"
+        type_answer = ask.call(question, "ether")
+
+		if ["4","6","ether", "e", "ip4", "ip6" ].include?(type_answer.downcase)
+			ar_type = type_answer.downcase
+		else
+			ar_type = "ether"
+			STDOUT.puts "    Type [#{type_answer}] not supported,"\
+						" defaulting to Ethernet."
+		end
+
+        question_ip  = "    Please input the first IP in the range: "
+        question_mac = "    Please input the first MAC in the range [Enter for default]: "
+
+		case ar_type.downcase
+		when "4", "ip4"
+			first_ip = ask.call(question_ip)
+			firts_mac = ask.call(question_mac)
+		when "6", "ip6"
+			firts_mac = ask.call(question_mac)
+
+			question =   "    Do you want to use SLAAC "\
+						 "Stateless Address Autoconfiguration? ([y]/n): "
+			slaac_answer = ask.call(question)
+
+			if slaac_answer == 'n'
+				slaac = false
+				question =  "    Please input the IPv6 address (cannot be empty): "
+				ip6_address = ask.call(question)
+
+				question =  "    Please input the Prefix length (cannot be empty): "
+				prefix_length = ask.call(question)
+                ar_type = "ip6"
+			else
+				slaac = true
+				question =  "    Please input the GLOBAL PREFIX "\
+							"[Enter for default]: "
+				gp_answer = ask.call(question)
+
+				question=  "    Please input the ULA PREFIX "\
+						   "[Enter for default]: "
+				ula_answer = ask.call(question)
+                ar_type = "ip6_static"
+			end
+		when "e", "ether"
+			first_mac = ask.call(question_mac)
+		end
+
+        opts = {
+            size: size,
+            type: ar_type,
+            ip: first_ip,
+            mac: first_mac,
+            slaac: slaac,
+            global_prefix: global_prefix,
+            ula_refix: ula_prefix,
+            ip6: ip6_address,
+            prefix_length: prefix_length
+        }
     end
 end

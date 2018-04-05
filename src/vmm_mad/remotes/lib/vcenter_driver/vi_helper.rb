@@ -86,6 +86,16 @@ class VIHelper
         end
     end
 
+    def self.generate_name(opts, nbytes)
+        raise "nBytes must be a positive Integer" if nbytes <= 0
+
+        @sha256 ||= Digest::SHA256.new
+        chain = opts[:key]
+        hash  = @sha256.hexdigest(chain)[0..nbytes-=1]
+
+        return "#{opts[:name]}-#{hash}"
+    end
+
     def self.get_ref_key(element, attribute)
         key = element[attribute]
 
