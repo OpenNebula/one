@@ -148,7 +148,7 @@ class FileHelper
         descriptor_filename = File.basename descriptor_url.path
         # Build array of files to download
         files_to_download = [descriptor_filename]
-        image_source = vcenter_url.host + vcenter_url.path
+        image_source = descriptor_url.host + descriptor_url.path
         descriptor_content = ds.get_text_file image_source
         flat_files = descriptor_content.select{|l| l.start_with?("RW")}
         flat_files.each do |file|
@@ -157,15 +157,15 @@ class FileHelper
             file_to_download = file.split(" ")[3][1..-2]
             files_to_download << file_to_download
             if ds.is_descriptor?(descriptor_url.host + "/" + file_to_download)
-                files_to_download << download_all_filenames_in_descriptor(descriptor_url.host + "/" +file_to_download)
+                files_to_download << download_all_filenames_in_descriptor(descriptor_url.host + "/" + file_to_download)
             end
         end
 
-        return file_to_download
+        return files_to_download
     end
 
 
-    def self.download_vmdks(files_to_download, url_prefix, temp_folder)
+    def self.download_vmdks(files_to_download, url_prefix, temp_folder, ds)
         # Download files
         url_prefix = url_prefix + "/"
 
@@ -176,27 +176,27 @@ class FileHelper
         end
     end
 
-    # Receives a VMDK descriptor or file, downloads all 
+    # Receives a VMDK descriptor or file, downloads all
     # related files, creates a tar.gz and dumps it in stdout
     def self.dump_vmdk_tar_gz(vcenter_url, ds)
         image_source = vcenter_url.host + vcenter_url.path
-        if ds.is_descriptor?(image_source) 
-            files_to_download = self.get_all_filenames_in_descriptor(vcenter_url, ds)  
+        if ds.is_descriptor?(image_source)
+            files_to_download = self.get_all_filenames_in_descriptor(vcenter_url, ds)
 
             descriptor_name = File.basename vcenter_url.path
             temp_folder = VAR_LOCATION + "/vcenter/" + descriptor_name + "/"
             FileUtils.mkdir_p(temp_folder) if !File.directory?(temp_folder)
 
-            self.download_vmdks(files_to_download, vcenter_url.host, temp_folder)
+            self.download_vmdks(files_to_download, vcenter_url.host, temp_folder, ds)
 
             # Create tar.gz
             rs = system("cd #{temp_folder} && tar czf #{descriptor_name}.tar.gz #{files_to_download.join(' ')} >& /dev/null")
             (FileUtils.rm_rf(temp_folder) ; raise "Error creating tar file for #{descriptor_name}") unless rs
-    
+
             # Cat file to stdout
             rs = system("cat #{temp_folder + descriptor_name}.tar.gz")
             (FileUtils.rm_rf(temp_folder) ; raise "Error reading tar for #{descriptor_name}") unless rs
-    
+
             # Delete tar.gz
             rs = system("cd #{temp_folder} && rm #{descriptor_name}.tar.gz #{files_to_download.join(' ')}")
             (FileUtils.rm_rf(temp_folder) ; raise "Error removing tar for #{descriptor_name}") unless rs

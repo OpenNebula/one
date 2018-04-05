@@ -51,7 +51,7 @@ begin
 rescue Exception => e
     STDERR.puts "Cannot download image #{vcenter_url.path} from datastore #{ds_id} "\
                 "Reason: \"#{e.message}\"\n#{e.backtrace}"
-    exit -1
+    exit(-1)
 ensure
     vi_client.close_connection if vi_client
 end
