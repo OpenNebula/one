@@ -127,6 +127,7 @@ require.config({
       deps: [
         'foundation',
         'jquery',
+        'addons/start', 
         'tabs/provision-tab',
         'tabs/dashboard-tab',
         'tabs/system-top-tab',
