@@ -32,6 +32,9 @@ define(function(require) {
       OpenNebulaAction.del(params, RESOURCE);
     },
     "list": function(params) {
+      if (params.options === undefined){
+        params.options = { force: true };
+      }
       OpenNebulaAction.list(params, RESOURCE, null, function(response) {
         var list = OpenNebulaHelper.pool(RESOURCE, response);
 

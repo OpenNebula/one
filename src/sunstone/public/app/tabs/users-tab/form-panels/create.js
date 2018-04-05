@@ -101,5 +101,6 @@ define(function(require) {
   }
 
   function _onShow(context) {
+    this.userCreation.onShow(context);
   }
 });
