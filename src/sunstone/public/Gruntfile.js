@@ -72,7 +72,6 @@ module.exports = function(grunt) {
           modules: [
             {
               name: 'main',
-              excludeShallow: ['addons'],
               include: ['almond']
             },
             {
