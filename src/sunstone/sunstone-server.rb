@@ -348,11 +348,6 @@ helpers do
         session.clear
         return [204, ""]
     end
-
-    def load_addons
-      addons_location = SUNSTONE_LOCATION + "/public/app/addons/dist/*"
-      puts Dir[addons_location ].select{ |f| File.file? f }
-    end
 end
 
 before do
@@ -457,7 +452,6 @@ end
 # HTML Requests
 ##############################################################################
 get '/' do
-    load_addons
     content_type 'text/html', :charset => 'utf-8'
     if !authorized?
         return erb :login
