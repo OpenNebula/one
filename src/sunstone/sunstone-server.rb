@@ -349,7 +349,7 @@ helpers do
 
     def load_addons
       addons_location = SUNSTONE_LOCATION + "/public/app/addons/dist/*"
-      puts Dir[addons_location ].select{ |f| File.file? f }.map{ |f| File.basename f } 
+      puts Dir[addons_location ].select{ |f| File.file? f }
     end
 end
 
