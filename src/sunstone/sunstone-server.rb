@@ -109,7 +109,9 @@ rescue Exception => e
     exit 1
 end
 
-ENV['ONE_XMLRPC_TIMEOUT'] = $conf[:one_xmlrpc_timeout].to_s unless ENV['ONE_XMLRPC_TIMEOUT']
+if $conf[:one_xmlrpc_timeout]
+    ENV['ONE_XMLRPC_TIMEOUT'] = $conf[:one_xmlrpc_timeout].to_s unless ENV['ONE_XMLRPC_TIMEOUT']
+end
 
 $conf[:debug_level] ||= 3
 
