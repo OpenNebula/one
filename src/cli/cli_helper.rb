@@ -369,7 +369,7 @@ module CLIHelper
         def filter_data!(data, filter)
             # TBD: add more operators
             # operators=/(==|=|!=|<|<=|>|>=)/
-            operators=/(=)/
+            operators=/(=|!=)/
 
             stems=filter.map do |s|
                 m=s.match(/^(.*?)#{operators}(.*?)$/)
@@ -394,15 +394,16 @@ module CLIHelper
                 end
             end
 
-            data.reject! do |d|
+            data.select! do |d|
                 pass=true
 
                 stems.each do |s|
-                    if d[s[:index]]!=s[:right]
+
+                    if d[s[:index]].public_send(s[:operator] == "=" ? "==" : s[:operator], s[:right])
                         pass=false
                         break
                     end
-                end
+                end 
 
                 !pass
             end
