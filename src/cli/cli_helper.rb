@@ -403,7 +403,7 @@ module CLIHelper
                         pass=false
                         break
                     end
-                end 
+                end
 
                 !pass
             end
