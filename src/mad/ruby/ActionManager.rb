@@ -196,14 +196,16 @@ class ActionManager
 
             if action[:threaded]
                 thread = Thread.new {
-                    action[:method].call(*action[:args])
+                    begin
+                        action[:method].call(*action[:args])
+                    ensure
+                        @threads_mutex.synchronize {
+                            @num_running -= 1
+                            delete_running_action(action[:id])
 
-                    @threads_mutex.synchronize {
-                        @num_running -= 1
-                        delete_running_action(action[:id])
-
-                        @threads_cond.signal
-                    }
+                            @threads_cond.signal
+                        }
+                    end
                 }
 
                 action[:thread] = thread
