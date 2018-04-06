@@ -19,9 +19,6 @@ require.config({
     /* Almond */
     'almond': '../bower_components/almond/almond',
 
-    /* Addons */
-    'addons': './addons',
-
     /* jQuery */
     'jquery': '../bower_components/jquery/dist/jquery',
     'jquery-ui': '../bower_components/jquery-ui/jquery-ui',
@@ -127,8 +124,6 @@ require.config({
       deps: [
         'foundation',
         'jquery',
-        'addons/start', 
-        'addons/end',
         'tabs/provision-tab',
         'tabs/dashboard-tab',
         'tabs/system-top-tab',
@@ -161,7 +156,9 @@ require.config({
         'tabs/settings-tab',
         'tabs/support-tab',
         'tabs/upgrade-top-tab',
-        'tabs/vmgroup-tab'
+        'tabs/vmgroup-tab',
+        'addons/start',
+        'addons/end'
       ]
     },
 
@@ -362,9 +359,7 @@ require.config({
       deps: [
         'spice-spiceconn'
       ]
-    },
-
-    'addons': {}
+    }
   }
 });
 
