@@ -93,7 +93,7 @@
               {{#if description}}
                 <span class="tip">{{description}}</span>
                 {{/if}}
-                <a id="link_{{link}}"">{{tr "Image"}}</a>
+                <a id="link_{{link}}">{{tr "Image"}}</a>
               </h6>
               <table class="dataTable">
                 <tr>
@@ -154,15 +154,15 @@
             <div class="large-6 columns">
               {{tr "Make new images persistent by default"}}
               <span class="tip">
-                {{tr "Control the default value for the PERSISTENT attribute on image creation (oneimage create). By default images are no persistent if not set."}}
+                {{tr "Control the default value for the PERSISTENT attribute on image creation (oneimage create)."}}
               </span>
             </div>
             <div class="large-4 columns">
-              <div class="switch left">
-                <input class="switch-input" id="default_image_persistent_new" name="DEFAULT_IMAGE_PERSISTENT_NEW" type="checkbox">
-                <label class="switch-paddle" for="default_image_persistent_new">
-                </label>
-              </div>
+              <select id="default_image_persistent_new">
+                <option val=""></option>
+                <option val="YES"> {{tr "YES"}}</option>
+                <option val="NO"> {{tr "NO"}}</option>
+              </select>
             </div>
           </div>
           <div class="row">
@@ -173,11 +173,11 @@
               </span>
             </div>
             <div class="large-4 columns">
-              <div class="switch left">
-                <input class="switch-input " id="default_image_persistent" name="DEFAULT_IMAGE_PERSISTENT" type="checkbox">
-                <label class="switch-paddle" for="default_image_persistent">
-                </label>
-              </div>
+              <select id="default_image_persistent">
+                <option val=""></option>
+                <option val="YES"> {{tr "YES"}}</option>
+                <option val="NO"> {{tr "NO"}}</option>
+              </select>
             </div>
           </div>
         </fieldset>
