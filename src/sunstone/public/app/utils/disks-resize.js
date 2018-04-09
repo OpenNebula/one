@@ -225,19 +225,12 @@ define(function(require){
         disk = $(this).data("template_disk");
 
         var fields = WizardFields.retrieve(this);
-        if (disk["SIZE"] && fields["SIZE"] && disk["SIZE"] === fields["SIZE"]){
-          if (disk["IMAGE_ID"] || disk["IMAGE_NAME"]){
-            delete disk["SIZE"];
-          }
-          disks.push(disk);
-        }
-        else if (fields.SIZE != undefined){
-          var size = $.extend(true, [], fields.SIZE);
-          var size = size.join("");
-          var diskAux = $.extend(true, {}, disk);
-          diskAux["SIZE"] = fields.SIZE;
-          disks.push(diskAux);
-        }
+
+        var size = $.extend(true, [], fields.SIZE);
+        var size = size.join("");
+        var diskAux = $.extend(true, {}, disk);
+        diskAux["SIZE"] = fields.SIZE;
+        disks.push(diskAux);
       }
     });
 
