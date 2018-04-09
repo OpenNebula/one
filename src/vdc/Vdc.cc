@@ -397,7 +397,7 @@ int Vdc::del_group(int group_id, string& error_msg)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void ResourceSet::insert_defult_rules(string name_attr, PoolObjectSQL::ObjectType type)
+void ResourceSet::insert_default_rules(string name_attr, PoolObjectSQL::ObjectType type)
 {
     string default_vdc_acl;
     vector<string> vdc_acl;
@@ -443,7 +443,7 @@ ResourceSet::ResourceSet(PoolObjectSQL::ObjectType _type):type(_type)
             xml_name = PoolObjectSQL::type_to_str(type);
             name_attr = "DEFAULT_VDC_" + xml_name + "_ACL";
 
-            insert_defult_rules(name_attr, type);
+            insert_default_rules(name_attr, type);
 
         break;
         // @<gid> HOST/%<cid> MANAGE #<zid>
@@ -454,7 +454,7 @@ ResourceSet::ResourceSet(PoolObjectSQL::ObjectType _type):type(_type)
             {
                 name_attr = "DEFAULT_VDC_CLUSTER_" + *it_c + "_ACL";
 
-                insert_defult_rules(name_attr, PoolObjectSQL::str_to_type(*it_c));
+                insert_default_rules(name_attr, PoolObjectSQL::str_to_type(*it_c));
             }
 
             xml_name = "CLUSTER";

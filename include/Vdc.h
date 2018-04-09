@@ -135,7 +135,7 @@ private:
      *  @param default_vdc_acl the mask for the acls.
      *  @param type Object type for the acls.
      */
-     void insert_defult_rules(string default_vdc_acl, PoolObjectSQL::ObjectType type);
+     void insert_default_rules(string default_vdc_acl, PoolObjectSQL::ObjectType type);
  };
 
 /**
