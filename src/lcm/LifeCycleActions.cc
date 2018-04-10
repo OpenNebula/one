@@ -310,10 +310,10 @@ void  LifeCycleManager::migrate_action(const LCMAction& la)
 
         vm->get_requirements(cpu, mem, disk, pci);
 
+        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
+
         if ( vm->get_hid() != vm->get_previous_hid() )
         {
-            hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
-
             hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem,
                 disk, pci);
         }
