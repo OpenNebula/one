@@ -179,8 +179,19 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         if range? range
             ovs_vsctl_cmd = "#{command(:ovs_vsctl)} set Port #{@nic[:tap]}"
 
+            # Configure VLAN trunks in 2 tries. First, try with the range
+            # provided by the user. If that fails, try igain and expand
+            # integer intervals (x-y) supported since Open vSwitch 2.7.0
+            # into the list of values.
             cmd = "#{ovs_vsctl_cmd} trunks=#{range}"
-            run cmd
+            `#{cmd} 2>&1 1>/dev/null`
+
+            if $?.exitstatus == 0
+                OpenNebula.log "Executed \"#{cmd}\"."
+            else
+                cmd = "#{ovs_vsctl_cmd} trunks=#{expand_range(range)}"
+                run cmd
+            end
 
             cmd = "#{ovs_vsctl_cmd} vlan_mode=native-untagged"
             run cmd
@@ -338,6 +349,25 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     def range?(range)
         !range.to_s.match(/^\d+([,-]\d+)*$/).nil?
     end
+
+    def expand_range(range)
+        items = []
+
+        range.split(',').each do |i|
+            l, r = i.split('-')
+
+            if r.nil?
+                items << i
+            elsif r >= l
+                items.concat((l..r).to_a)
+            else
+                items.concat((r..l).to_a)
+            end
+        end
+
+        items.uniq.join(',')
+    end
+
 
 private
     # Generate the name of the vlan device which will be added to the bridge.
