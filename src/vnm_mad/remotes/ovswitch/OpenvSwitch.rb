@@ -179,19 +179,12 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         if range? range
             ovs_vsctl_cmd = "#{command(:ovs_vsctl)} set Port #{@nic[:tap]}"
 
-            # Configure VLAN trunks in 2 tries. First, try with the range
-            # provided by the user. If that fails, try igain and expand
-            # integer intervals (x-y) supported since Open vSwitch 2.7.0
-            # into the list of values.
-            cmd = "#{ovs_vsctl_cmd} trunks=#{range}"
-            `#{cmd} 2>&1 1>/dev/null`
-
-            if $?.exitstatus == 0
-                OpenNebula.log "Executed \"#{cmd}\"."
-            else
-                cmd = "#{ovs_vsctl_cmd} trunks=#{expand_range(range)}"
-                run cmd
-            end
+            # Open vSwitch 2.7.0+ allows range intervals (x-y), but
+            # we need to support even older versions. We expand the
+            # intervals into the list of values [x,x+1,...,y-1,y],
+            # which should work for all.
+            cmd = "#{ovs_vsctl_cmd} trunks=#{expand_range(range)}"
+            run cmd
 
             cmd = "#{ovs_vsctl_cmd} vlan_mode=native-untagged"
             run cmd
