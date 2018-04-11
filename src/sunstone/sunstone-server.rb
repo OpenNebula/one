@@ -356,50 +356,53 @@ helpers do
     end
 
     def load_addons
-        tmp = File.open(TMP_FILE, "w")
-        main = File.new(MAIN_FILE_PATH)
+        tmp   = File.open(TMP_FILE, "w")
+        main  = File.new(MAIN_FILE_PATH)
         files = Dir[ADDONS_LOCATION].select{ |f| File.file? f }
-        if files.length == 0 then return ""
+        
+        if files.length == 0 then 
+            return ""
         end
-        lines=main.gets
+            
+        lines = main.gets
         while lines != nil
-            tmp<<lines
+            tmp << lines
+            
             if lines.include? "// start-addon-section //"
-                load_start_section files, tmp
+                load_start_section(files, tmp)
             end
+            
             if lines.include? "'addons/start'"
-                load_list_start files, tmp
+                load_list_start(files, tmp)
             end
-            lines=main.gets
+            
+            lines = main.gets
         end
+            
         FileUtils.mv(TMP_FILE, MAIN_FILE_PATH)
         files.each do |file|
             FileUtils.rm(file)
         end
     end
 
-    def load_start_section files, tmp
-        puts files
+    def load_start_section(files, tmp)
         files.each do |file|
-            add=File.new(file)
-            boolist=false
+            add     = File.new(file)
+            boolist = false
             add.each do |line|
                 if line.include? "// list-start //"
                     boolist = true
                 end
-                if !boolist
-                    tmp<<line
-                end
+                tmp << line if !boolist
             end
-                add.close
+            add.close
         end
     end
 
-    def load_list_start files, tmp
-        puts files
+    def load_list_start(files, tmp)
         files.each do |file|
-            add=File.new(file)
-            line=add.gets
+            add  = File.new(file)
+            line = add.gets
             while line != nil
                 if line.include? "// list-start //"
                     line=add.gets
