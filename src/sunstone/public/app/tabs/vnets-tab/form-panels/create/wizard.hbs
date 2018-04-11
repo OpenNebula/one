@@ -150,15 +150,15 @@
         <div class="medium-3 columns left mode_param 8021Q vxlan ovswitch ovswitch_vxlan vcenter custom">
           <label>
             {{tr "VLAN ID"}}
-            <select wizard_field="AUTOMATIC_VLAN_ID">
+            <select id="automatic_vlan_id" wizard_field="AUTOMATIC_VLAN_ID">
               <option value="YES">{{tr "Automatic VLAN ID"}}</option>
               <option value="NO">{{tr "No VLAN network"}}</option>
               <option value="">{{tr "Manual VLAN ID"}}</option>
             </select>
-            <input type="number" wizard_field="VLAN_ID"/>
+            <input id="manual_id" type="number" wizard_field="VLAN_ID"/>
           </label>
         </div>
-        <div class="medium-3 columns left mode_param 8021Q vxlan ovswitch_vxlan custom">
+        <div class="medium-3 columns left mode_param 8021Q vxlan ovswitch ovswitch_vxlan custom">
           <label for="phydev">
             {{tr "Physical device"}}
             <span class="tip">

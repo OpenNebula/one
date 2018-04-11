@@ -133,8 +133,12 @@ define(function(require) {
       $("input#vn_mad", context).removeAttr("value");
       $("#vcenter_switch_name", context).removeAttr("required");
       $("#vcenter_cluster_id", context).removeAttr("required");
+      $("#phydev", context).removeAttr("required");
       $(".sec_groups_datatable", context).show();
       $("#vnetCreateSecurityTab-label").show();
+      $("#automatic_vlan_id option[value='NO']", context).show();
+      $("input[wizard_field=\"VLAN_ID\"]", context).removeAttr("required");
+
       switch ($(this).val()) {
       case "dummy":
         $("div.mode_param.dummy", context).show();
@@ -153,32 +157,38 @@ define(function(require) {
         $("div.mode_param.8021Q [wizard_field]", context).prop("wizard_field_disabled", false);
 
         $("input#bridge", context).removeAttr("required");
+        $("#phydev", context).attr("required", "");
+        $("#automatic_vlan_id option[value='NO']", context).hide();
         break;
       case "vxlan":
         $("div.mode_param.vxlan", context).show();
         $("div.mode_param.vxlan [wizard_field]", context).prop("wizard_field_disabled", false);
 
         $("input#bridge", context).removeAttr("required");
+        $("#automatic_vlan_id option[value='NO']", context).hide();
         break;
       case "ebtables":
         $("div.mode_param.ebtables", context).show();
         $("div.mode_param.ebtables [wizard_field]", context).prop("wizard_field_disabled", false);
 
         $("input#bridge", context).attr("required", "");
+        $("#phydev", context).attr("required", "");
         break;
       case "ovswitch":
         $("div.mode_param.ovswitch", context).show();
         $("#vnetCreateSecurityTab-label").hide();
         $("div.mode_param.ovswitch [wizard_field]", context).prop("wizard_field_disabled", false);
 
-        $("input#bridge", context).attr("required", "");
+        $("input#bridge", context).removeAttr("required");
+        $("#phydev", context).attr("required", "");
         break;
       case "ovswitch_vxlan":
         $("div.mode_param.ovswitch_vxlan", context).show();
         $("#vnetCreateSecurityTab-label").hide();
         $("div.mode_param.ovswitch_vxlan [wizard_field]", context).prop("wizard_field_disabled", false);
 
-        $("input#bridge", context).attr("required", "");
+        $("input#bridge", context).removeAttr("required");
+        $("#phydev", context).attr("required", "");
         break;
       case "vcenter":
         $("div.mode_param.vcenter", context).show();
@@ -216,21 +226,33 @@ define(function(require) {
 
       $("div.network_mode_description").hide();
       $("div.network_mode_description[value=\"" + $(this).val() + "\"]").show();
+
+      if ($("input[wizard_field=\"VLAN_ID\"]", context).is(":visible")){
+        $("input[wizard_field=\"VLAN_ID\"]", context).attr("required", "");
+      } else {
+        $("input[wizard_field=\"VLAN_ID\"]", context).removeAttr("required");
+      }
+
+      if ($("input[wizard_field=\"OUTER_VLAN_ID\"]", context).is(":visible")){
+        $("input[wizard_field=\"OUTER_VLAN_ID\"]", context).attr("required", "");
+      } else {
+        $("input[wizard_field=\"OUTER_VLAN_ID\"]", context).removeAttr("required");
+      }
     });
 
     $("select[wizard_field=AUTOMATIC_VLAN_ID]", context).change(function(){
       if($(this).val() != "") {
-        $("input[wizard_field=\"VLAN_ID\"]", context).hide().prop("wizard_field_disabled", true);
+        $("input[wizard_field=\"VLAN_ID\"]", context).hide().prop("wizard_field_disabled", true).removeAttr("required");
       } else {
-        $("input[wizard_field=\"VLAN_ID\"]", context).show().prop("wizard_field_disabled", false);
+        $("input[wizard_field=\"VLAN_ID\"]", context).show().prop("wizard_field_disabled", false).attr("required", "");
       }
     });
 
     $("select[wizard_field=AUTOMATIC_OUTER_VLAN_ID]", context).change(function(){
       if($(this).val() != "") {
-        $("input[wizard_field=\"OUTER_VLAN_ID\"]", context).hide().prop("wizard_field_disabled", true);
+        $("input[wizard_field=\"OUTER_VLAN_ID\"]", context).hide().prop("wizard_field_disabled", true).removeAttr("required");
       } else {
-        $("input[wizard_field=\"OUTER_VLAN_ID\"]", context).show().prop("wizard_field_disabled", false);
+        $("input[wizard_field=\"OUTER_VLAN_ID\"]", context).show().prop("wizard_field_disabled", false).attr("required", "");
       }
     });
 
