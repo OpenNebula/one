@@ -115,12 +115,12 @@ define(function(require) {
     var disksJSON = [];
     var diskJSON;
     $.each(this.diskTabObjects, function(id, diskTab) {
-      diskJSON = diskTab.retrieve($('#' + diskTab.diskTabId, context))
-      if (!$.isEmptyObject(diskJSON)) {disksJSON.push(diskJSON)};
-    })
+      diskJSON = diskTab.retrieve($("#" + diskTab.diskTabId, context));
+      if (!$.isEmptyObject(diskJSON)) { disksJSON.push(diskJSON); };
+    });
 
     if (disksJSON.length > 0) {
-      templateJSON['DISK'] = disksJSON;
+      templateJSON["DISK"] = disksJSON;
       localStorage.setItem("disksJSON", JSON.stringify(disksJSON));
       $("#DISK_COST").trigger("change");
     };
