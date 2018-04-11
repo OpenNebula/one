@@ -149,7 +149,6 @@ class DatacenterFolder
                 ds_objects[ds_ref][:ref]         = ds_ref
                 ds_objects[ds_ref][:import_id]   = import_id
                 ds_objects[ds_ref][:datacenter]  = dc_name
-                ds_objects[ds_ref][:vcenter]     = vcenter_instance_name
                 ds_objects[ds_ref][:simple_name] = "#{ds_name}"
                 ds_objects[ds_ref][:total_mb]    = ds_total_mb
                 ds_objects[ds_ref][:free_mb]     = ds_free_mb
@@ -235,7 +234,8 @@ class DatacenterFolder
 
             end
         end
-        ds_objects
+
+        { vcenter_instance_name => ds_objects }
     end
 
     def get_unimported_templates(vi_client, tpool)
@@ -316,7 +316,7 @@ class DatacenterFolder
             end
         end
 
-        template_objects
+        { vcenter_instance_name => template_objects }
     end
 
     def get_unimported_networks(npool,vcenter_instance_name, hpool)
@@ -410,7 +410,7 @@ class DatacenterFolder
                 browser = r.obj.environmentBrowser || nil
                 if browser
                     browser.QueryConfigTarget.distributedVirtualPortgroup.each do |s|
-                        next if networks[s.portgroupKey][:processed]
+                        next if !networks.key?(s.portgroupKey) || networks[s.portgroupKey][:processed]
 
                         networks[s.portgroupKey][:uplink] = s.uplinkPortgroup
                         networks[s.portgroupKey][:processed] = true
@@ -427,7 +427,6 @@ class DatacenterFolder
             opts[:vcenter_instance_name]  = vcenter_instance_name
             opts[:dc_name]                = dc_name
 
-            imid = 0
             clusters.each do |ref, info|
                 one_host = VCenterDriver::VIHelper.find_by_ref(OpenNebula::HostPool,
                                                                "TEMPLATE/VCENTER_CCR_REF",
@@ -454,9 +453,6 @@ class DatacenterFolder
 
                     if !networks[network_ref][:uplink]
 
-                        networks[network_ref][:import_id] = imid
-                        imid += 1
-
                         # network can belong to more than 1 cluster
                         networks[network_ref][:clusters][:refs] << ref
                         networks[network_ref][:clusters][:one_ids] << cluster_id
@@ -478,7 +474,10 @@ class DatacenterFolder
             end #clusters loop
         end # datacenters loop
 
-        return networks
+        imid = -1
+        networks.map{ |k,v| v[:import_id] = imid += 1 }
+
+        { vcenter_instance_name => networks }
     end
 
 end # class DatatacenterFolder

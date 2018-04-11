@@ -5,13 +5,14 @@ module VCenterDriver
         protected
 
         class Raction
-            def initialize(object, method)
+            def initialize(object, method, args = [])
                 @object = object
                 @action = method
+                @args = args
             end
 
             def apply
-                @object.method(@action).call
+                @object.method(@action).call(*@args)
             end
         end
 
@@ -35,13 +36,15 @@ module VCenterDriver
             @one_client = one_client
 
             @list = {}
+
             @info = {}
-            @rollback = []
             @info[:clusters] = {}
+            @info[:success] = []
+            @info[:error]   = []
         end
 
         def self.new_child(one_client, vi_client, type)
-            case type
+            case type.downcase
             when "datastores"
                 VCenterDriver::DsImporter.new(one_client, vi_client)
             when "templates"
@@ -80,19 +83,33 @@ module VCenterDriver
             { success: @info[:success], error: @info[:error] }
         end
 
+        def import_bulk(range = nil)
+            raise "the list is empty" if list_empty?
+
+            list = @list.values[0]
+            indexes = list.keys.join(',')
+
+            process_import(indexes)
+        end
+
         def process_import(indexes, opts = {}, &block)
             raise "the list is empty" if list_empty?
             indexes = indexes.gsub(/\s+/, "").split(",")
 
-            @info[:success] = []
-            @info[:error]   = []
-
             indexes.each do |index|
                 begin
+                    @rollback = []
                     @info[index] = {}
+
                     selected = get_element(index)
 
-                    @info[index][:opts] = block_given? ? block.call(selected) : opts[index]
+                    if block_given?
+                        @info[index][:opts] = block.call(selected)
+                    elsif opts[index]
+                        @info[index][:opts] = opts[index]
+                    else
+                        @info[index][:opts] = defaults
+                    end
 
                     # import the object
                     @info[:success] << import(selected)
@@ -126,9 +143,11 @@ module VCenterDriver
         end
 
         def get_element(ref)
-            raise "the list is empty" if list_empty?
+            raise "the list is empty" if list_empty? || list.values[0].empty?
 
-            return @list[ref] if @list[ref]
+            list = @list.values[0]
+
+            return list[ref] if list[ref]
 
             raise "#{ref} not found!"
         end
@@ -148,6 +167,10 @@ module VCenterDriver
                     action.apply
                 end
             end
+        end
+
+        def defaults
+            {}
         end
     end
 

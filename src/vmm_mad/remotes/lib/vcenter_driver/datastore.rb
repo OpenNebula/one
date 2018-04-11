@@ -292,6 +292,7 @@ class Datastore < Storage
                   "Got '#{item.class} instead."
         end
 
+        @vi_client = vi_client
         @item = item
         @one_item = {}
     end
@@ -655,8 +656,9 @@ class Datastore < Storage
         rescue Exception => e
             raise "Could not find images. Reason: #{e.message}/#{e.backtrace}"
         end
+        vname = @vi_client.vc_name || ""
 
-        return images
+        { vname => images }
     end
 
     # This is never cached
@@ -672,7 +674,7 @@ class DsImporter < VCenterDriver::VcImporter
         @one_class = OpenNebula::Datastore
     end
 
-    def get_list(&block)
+    def get_list(args = {})
         dc_folder = VCenterDriver::DatacenterFolder.new(@vi_client)
 
         # one pool creation
@@ -745,6 +747,7 @@ class ImageImporter < VCenterDriver::VcImporter
 
         ds_ref   = args[:datastore][:ds_ref]
         one_ds   = args[:datastore][:one_item]
+
 
         raise "can't retrieve ref info from openNebula datastore" unless ds_ref
 

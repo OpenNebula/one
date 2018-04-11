@@ -3339,6 +3339,7 @@ class VmImporter < VCenterDriver::VcImporter
                 @rollback.unshift(Raction.new(n, :delete))
             end
             raise error if !error.empty?
+            working_template[:one] << template_nics
 
             working_template[:one] << rp_opts(opts[:type], opts[:resourcepool])
 
@@ -3346,6 +3347,17 @@ class VmImporter < VCenterDriver::VcImporter
         end
 
         return res
+    end
+
+    def defaults
+        opts = {
+            linked_clone: '0',
+            copy: '0',
+            name: '',
+            folder: '',
+            resourcepool: [],
+            type: ''
+        }
     end
 
 end

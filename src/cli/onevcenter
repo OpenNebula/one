@@ -98,6 +98,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :format => String
     }
 
+    ALL = {
+        :name   => "all",
+        :large  => "--all",
+        :description => "Import all list",
+        :format => String
+    }
+
     ############################################################################
     # Global Options
     ############################################################################
@@ -123,6 +130,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             importer = VCenterDriver::VcImporter.new_child(helper.client, vi_client, options[:object])
 
             list = importer.get_list(args)
+
             helper.list_object(options, list)
         else
             puts "for the moment is not supported without the proper authentication"
@@ -134,7 +142,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Import the the desired vCenter object
     EOT
 
-    command :import, import_desc, :oid, :options=>[ OBJECT, HOST, DATASTORE, VCENTER, USER, PASS, USE_DEFAULTS ] do
+    command :import, import_desc, :oid, :options=>[ OBJECT, HOST, DATASTORE ] do
 
         indexes = args.first
         if options[:host] && options[:object]
@@ -147,6 +155,24 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             importer.process_import(indexes) do |object_info|
                 helper.cli_dialogue(object_info)
             end
+
+            importer.stdout
+        else
+            puts "for the moment is not supported without the proper authentication"
+        end
+        exit 0
+    end
+
+    command :import_defaults, import_desc, :options=>[ OBJECT, HOST, DATASTORE ] do
+
+        if options[:host] && options[:object]
+            args  = helper.parse_opts(options)
+            vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
+            importer = VCenterDriver::VcImporter.new_child(helper.client, vi_client, options[:object])
+            importer.get_list(args)
+
+
+            importer.import_bulk
 
             importer.stdout
         else

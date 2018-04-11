@@ -324,25 +324,22 @@ class NetImporter < VCenterDriver::VcImporter
         type = opts[:type].downcase
 
         case type
-        when "4", "ip4"
+        when "4", "ip4", "ip"
         	str << "IP4\""
-        	str << ",IP=" + opts[:ip] if opts[:ip]
-        	str << ",MAC=" + opts[:mac] if opts[:mac]
+            str << ",IP=\"#{opts[:ip]}\"" if opts[:ip]
         when 'ip6'
             str << "IP6\""
-            str << ",MAC=" + opts[:mac] if opts[:mac]
-            str << ",GLOBAL_PREFIX=" + opts[:global_prefix] if opts[:global_prefix]
-            str << ",ULA_PREFIX=" + ula_prefix if ula_prefix
+            str << ",GLOBAL_PREFIX=\"#{opts[:global_prefix]}\"" if opts[:global_prefix]
+            str << ",ULA_PREFIX=\"#{opts[:ula_prefix]}\""       if opts[:ula_prefix]
         when 'ether', 'e'
             str << "ETHER\""
-            str << ",MAC=" + opts[:mac] if opts[:mac]
         when 'ip6_static'
             str << "IP6_STATIC\""
-            str << ",MAC=" + opts[:mac] if opts[:mac]
-            str << ",IP6=" + opts[:ip6] if opts[:ip6]
-            str << ",PREFIX_LENGTH=" + prefix_length if prefix_length
+            str << ",IP6=\"#{opts[:ip6]}\"" if opts[:ip6]
+            str << ",PREFIX_LENGTH=\"#{opts[:prefix_length]}\"" if opts[:prefix_length]
         end
 
+        str << ",MAC=\"#{opts[:mac]}\"" if opts[:mac]
         str << ",SIZE = \"#{opts[:size]}\"]"
 
         return str
@@ -372,6 +369,10 @@ class NetImporter < VCenterDriver::VcImporter
         end
 
         return res
+    end
+
+    def defaults
+        { size: "255", type: "ether" }
     end
 end
 end # module VCenterDriver
