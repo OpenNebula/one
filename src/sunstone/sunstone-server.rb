@@ -42,6 +42,10 @@ CONFIGURATION_FILE        = ETC_LOCATION + "/sunstone-server.conf"
 PLUGIN_CONFIGURATION_FILE = ETC_LOCATION + "/sunstone-plugins.yaml"
 LOGOS_CONFIGURATION_FILE = ETC_LOCATION + "/sunstone-logos.yaml"
 
+ADDONS_LOCATION = SUNSTONE_LOCATION+"/public/app/addons/dist/*"
+MAIN_FILE_PATH = SUNSTONE_LOCATION+"/public/dist/main.js"
+TMP_FILE = SUNSTONE_LOCATION+"/public/dist/main.tmp"
+
 SUNSTONE_ROOT_DIR = File.dirname(__FILE__)
 
 $: << RUBY_LIB_LOCATION
@@ -352,57 +356,62 @@ helpers do
     end
 
     def load_addons
-        puts "Loading addons..."
-        addons_location = SUNSTONE_LOCATION+"/public/app/addons/dist/*"
-        main_file_path = SUNSTONE_LOCATION+"/public/dist/main.js"
-        tmp_file = SUNSTONE_LOCATION+"/public/dist/main.tmp"
-        tmp = File.open(tmp_file, "w")
-        main = File.new(main_file_path)
-        files = Dir[addons_location].select{ |f| File.file? f }
+        tmp = File.open(TMP_FILE, "w")
+        main = File.new(MAIN_FILE_PATH)
+        files = Dir[ADDONS_LOCATION].select{ |f| File.file? f }
         if files.length == 0 then return ""
         end
-        l=main.gets
-        while l != nil
-            tmp<<l
-            if l.include? "// start-addon-section //"
-                files.each do |file|
-                    add=File.new(file)
-                    boolist=false
-                    add.each do |line|
-                        if line.include? "// list-start //"
-                            boolist = true
-                        end
-                        if !boolist
-                            tmp<<line
-                        end
-                    end
-                    add.close
-                end
+        lines=main.gets
+        while lines != nil
+            tmp<<lines
+            if lines.include? "// start-addon-section //"
+                load_start_section files, tmp
             end
-            if l.include? "'addons/start'"
-                files.each do |file|
-                    add=File.new(file)
-                    line=add.gets
-                    while line != nil
-                        if line.include? "// list-start //"
-                            line=add.gets
-                            while line != nil
-                                tmp<<line
-                                line=add.gets
-                            end
-                        end
-                        line=add.gets
-                    end
-                    add.close
-                end
+            if lines.include? "'addons/start'"
+                load_list_start files, tmp
             end
-            l=main.gets
+            lines=main.gets
         end
-        FileUtils.mv(tmp_file, main_file_path)
+        FileUtils.mv(TMP_FILE, MAIN_FILE_PATH)
         files.each do |file|
             FileUtils.rm(file)
         end
-        puts "Addons load success"
+    end
+
+    def load_start_section files, tmp
+        puts files
+        files.each do |file|
+            add=File.new(file)
+            boolist=false
+            add.each do |line|
+                if line.include? "// list-start //"
+                    boolist = true
+                end
+                if !boolist
+                    tmp<<line
+                end
+            end
+                add.close
+        end
+    end
+
+    def load_list_start files, tmp
+        puts files
+        files.each do |file|
+            add=File.new(file)
+            line=add.gets
+            while line != nil
+                if line.include? "// list-start //"
+                    line=add.gets
+                    while line != nil
+                        tmp<<line
+                        line=add.gets
+                    end
+                end
+                line=add.gets
+            end
+            add.close
+        end
     end
 end
 
@@ -481,7 +490,6 @@ before do
     client = $cloud_auth.client(session[:user], session[:active_zone_endpoint])
 
     @SunstoneServer = SunstoneServer.new(client, $conf, logger)
-    load_addons
 end
 
 after do
@@ -509,6 +517,7 @@ end
 # HTML Requests
 ##############################################################################
 get '/' do
+    load_addons
     content_type 'text/html', :charset => 'utf-8'
     if !authorized?
         return erb :login
