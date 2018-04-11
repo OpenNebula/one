@@ -120,6 +120,67 @@ void VirtualNetwork::parse_vlan_id(const char * id_name, const char * auto_name,
     }
 }
 
+int VirtualNetwork::parse_phydev_vlans(string& vn_mad,
+        bool& outer_vlan_id_automatic, string& outer_vlan_id,
+        bool& vlan_id_automatic,  string& vlan_id,
+        string& phydev, string& error_str)
+{
+    ostringstream       ose;
+    bool check_phydev = false;
+
+    switch (VirtualNetwork::str_to_driver(vn_mad))
+    {
+        case VirtualNetwork::OVSWITCH_VXLAN:
+            if ( outer_vlan_id_automatic == false && outer_vlan_id.empty() )
+            {
+                goto error_outer_vlan_id;
+            }
+            check_phydev = true;
+        break;
+        case VirtualNetwork::OVSWITCH:
+            check_phydev = true;
+        break;
+        case VirtualNetwork::VXLAN:
+        case VirtualNetwork::VLAN:
+            if ( vlan_id_automatic == false && vlan_id.empty() )
+            {
+                goto error_vlan_id;
+            }
+            check_phydev = true;
+        break;
+        case VirtualNetwork::VCENTER:
+        case VirtualNetwork::NONE:
+        case VirtualNetwork::DUMMY:
+        case VirtualNetwork::EBTABLES:
+        case VirtualNetwork::FW:
+            break;
+    }
+    if ( check_phydev && phydev.empty())
+    {
+        goto error_phydev;
+    }
+    return 0;
+
+error_phydev:
+    ose << "PHY_DEV have to be set in Virtual Network template.";
+    goto error_common;
+
+error_outer_vlan_id:
+    ose << "No OUTER_VLAN_ID or AUTOMATIC_OUTER_VLAN_ID in template for"
+        << "Virtual Network.";
+    goto error_common;
+
+error_vlan_id:
+    ose << "No VLAN_ID or AUTOMATIC_VLAN_ID in template for"
+        << "Virtual Network.";
+    goto error_common;
+
+error_common:
+    error_str = ose.str();
+    NebulaLog::log("VNM", Log::ERROR, ose);
+    return -1;
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -169,33 +230,34 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     parse_vlan_id("OUTER_VLAN_ID", "AUTOMATIC_OUTER_VLAN_ID", outer_vlan_id,
             outer_vlan_id_automatic);
 
+    rc = parse_phydev_vlans(vn_mad, outer_vlan_id_automatic, outer_vlan_id,
+                vlan_id_automatic, vlan_id, phydev, error_str);
+
+    if (rc != 0)
+    {
+        return -1;
+    }
+
     // ------------ BRIDGE --------------------
 
     erase_template_attribute("BRIDGE",bridge);
 
     if (bridge.empty())
     {
-        if (phydev.empty())
+        ostringstream oss;
+
+        oss << "onebr";
+
+        if (!vlan_id.empty())
         {
-            goto error_bridge;
+            oss << "." << vlan_id;
         }
         else
         {
-            ostringstream oss;
-
-            oss << "onebr";
-
-            if (!vlan_id.empty())
-            {
-                oss << "." << vlan_id;
-            }
-            else
-            {
-                oss << oid;
-            }
-
-            bridge = oss.str();
+            oss << oid;
         }
+
+        bridge = oss.str();
     }
 
     add_template_attribute("BRIDGE", bridge);
@@ -257,10 +319,6 @@ error_name:
 
 error_vn_mad:
     ose << "No VN_MAD in template for Virtual Network.";
-    goto error_common;
-
-error_bridge:
-    ose << "BRIDGE or PHY_DEV have to be set in Virtual Network template.";
     goto error_common;
 
 error_db:
