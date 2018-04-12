@@ -31,6 +31,18 @@ using namespace std;
 class ResourceSet
 {
 public:
+    static string type_to_vdc_str(PoolObjectSQL::ObjectType type)
+    {
+        switch (type)
+        {
+            case PoolObjectSQL::HOST:           return "HOST" ; break;
+            case PoolObjectSQL::NET:            return "VNET" ; break;
+            case PoolObjectSQL::DATASTORE:      return "DATASTORE" ; break;
+            case PoolObjectSQL::CLUSTER:        return "CLUSTER" ; break;
+            default:             return "";
+        }
+    }
+
     /**
      *  Constructor for the ResourceSet, ACL rules are set based on the
      *  resource type
