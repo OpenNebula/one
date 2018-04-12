@@ -94,7 +94,7 @@ function hasher
     fi
 }
 
-# Unarchives a tar or a zip a file to a directpry with the same name.
+# Unarchives a tar or a zip a file to a directory with the same name.
 function unarchive
 {
     TO="$1"
