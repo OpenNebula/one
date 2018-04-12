@@ -75,7 +75,7 @@ SOURCE="${BASE_URL%/}/${APPNAME}"
 
 if [ -n "$BRIDGE_LIST" ]; then
     DST_HOST=`get_destination_host $ID`
-    CP_CMD="$UTILS_PATH/downloader.sh '${IMPORT_SOURCE}' -"
+    CP_CMD="$UTILS_PATH/downloader.sh -n '${IMPORT_SOURCE}' -"
 
     exec_and_log "eval $CP_CMD | $SSH ${DST_HOST} $DD of=${DST_PATH} bs=64k" \
                  "Error dumping ${IMPORT_SOURCE} to ${DST_HOST}:${DST_PATH}"
@@ -84,7 +84,7 @@ if [ -n "$BRIDGE_LIST" ]; then
     #TODO This should call a ds operation
     #fi
 else
-    CP_CMD="$UTILS_PATH/downloader.sh ${IMPORT_SOURCE} ${DST_PATH}"
+    CP_CMD="$UTILS_PATH/downloader.sh -n ${IMPORT_SOURCE} ${DST_PATH}"
     exec_and_log "$CP_CMD" "Error copying ${IMPORT_SOURCE} to ${DST_PATH}"
 
     if [ "${DISPOSE}" = "YES" ]; then
