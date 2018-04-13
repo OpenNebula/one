@@ -1149,12 +1149,10 @@ class VirtualMachine < Template
     # @return String vmware ref
    def clone_vm(drv_action)
 
-        @vi_client = vi_client
-
         vcenter_name = get_vcenter_name
 
         vc_template_ref = drv_action['USER_TEMPLATE/VCENTER_TEMPLATE_REF']
-        vc_template = RbVmomi::VIM::VirtualMachine(vi_client.vim, vc_template_ref)
+        vc_template = RbVmomi::VIM::VirtualMachine(@vi_client.vim, vc_template_ref)
 
         ds = get_ds
 
