@@ -185,7 +185,7 @@ define(function(require) {
                            element.ID + '"/>'+color_html,
         element.ID,
         element.NAME,
-        element.CLUSTER.length ? element.CLUSTER : "-",
+        element.CLUSTER_ID.length ? element.CLUSTER_ID : "-",
         element.HOST_SHARE.RUNNING_VMS, //rvm
         cpuBars.real,
         cpuBars.allocated,
