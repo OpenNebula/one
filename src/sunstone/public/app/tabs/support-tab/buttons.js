@@ -32,7 +32,7 @@ define(function(require) {
     "Support.signout" : {
       type: "action",
       layout: "main",
-      text: '<i class="fas fa-sign-out fas fa-lg">',
+      text: '<i class="fas fa-sign-out-alt fas fa-lg">',
       tip: "Sign out of Commercial Support",
       alwaysActive: true
     },
