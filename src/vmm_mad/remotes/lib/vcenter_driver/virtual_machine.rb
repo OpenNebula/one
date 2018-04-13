@@ -1147,7 +1147,7 @@ class VirtualMachine < Template
     # @param one_item OpenNebula::VirtualMachine
     # @param vi_client VCenterDriver::VIClient
     # @return String vmware ref
-   def clone_vm(drv_action, vi_client)
+   def clone_vm(drv_action)
 
         @vi_client = vi_client
 
