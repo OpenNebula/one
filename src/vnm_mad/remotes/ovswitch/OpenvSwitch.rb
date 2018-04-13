@@ -179,7 +179,11 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         if range? range
             ovs_vsctl_cmd = "#{command(:ovs_vsctl)} set Port #{@nic[:tap]}"
 
-            cmd = "#{ovs_vsctl_cmd} trunks=#{range}"
+            # Open vSwitch 2.7.0+ allows range intervals (x-y), but
+            # we need to support even older versions. We expand the
+            # intervals into the list of values [x,x+1,...,y-1,y],
+            # which should work for all.
+            cmd = "#{ovs_vsctl_cmd} trunks=#{expand_range(range)}"
             run cmd
 
             cmd = "#{ovs_vsctl_cmd} vlan_mode=native-untagged"
@@ -336,8 +340,27 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     end
 
     def range?(range)
-        !range.to_s.match(/^\d+(,\d+)*$/).nil?
+        !range.to_s.match(/^\d+([,-]\d+)*$/).nil?
     end
+
+    def expand_range(range)
+        items = []
+
+        range.split(',').each do |i|
+            l, r = i.split('-')
+
+            if r.nil?
+                items << i
+            elsif r >= l
+                items.concat((l..r).to_a)
+            else
+                items.concat((r..l).to_a)
+            end
+        end
+
+        items.uniq.join(',')
+    end
+
 
 private
     # Generate the name of the vlan device which will be added to the bridge.
