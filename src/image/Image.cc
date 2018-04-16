@@ -891,18 +891,19 @@ bool Image::test_set_persistent(Template * image_template, int uid, int gid,
     }
 
     int rc = nd.get_configuration_attribute(uid, gid, conf_name, per_oned);
-
-    if ( rc != 0 || per_oned.empty() ) //No DEFAULT_* defined or empty value
+  
+    bool has_persistent = image_template->get("PERSISTENT", persistent);
+  
+    if ( rc == 0 && !has_persistent )
     {
-        image_template->get("PERSISTENT", persistent);
-    }
-    else if ( rc == 0 && one_util::toupper(per_oned) == "YES" )
-    {
-        persistent = true;
-    }
-    else
-    {
-        persistent = false;
+        if ( one_util::toupper(per_oned) == "YES" )
+        {
+            persistent = true;
+        }
+        else if ( one_util::toupper(per_oned) == "NO" )
+        {
+            persistent = false;
+        }
     }
 
     image_template->replace("PERSISTENT", persistent);
