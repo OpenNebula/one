@@ -891,8 +891,10 @@ bool Image::test_set_persistent(Template * image_template, int uid, int gid,
     }
 
     int rc = nd.get_configuration_attribute(uid, gid, conf_name, per_oned);
-
-    if ( rc == 0 && !image_template->get("PERSISTENT", persistent) )
+  
+    bool has_persistent = image_template->get("PERSISTENT", persistent);
+  
+    if ( rc == 0 && !has_persistent )
     {
         if ( one_util::toupper(per_oned) == "YES" )
         {
