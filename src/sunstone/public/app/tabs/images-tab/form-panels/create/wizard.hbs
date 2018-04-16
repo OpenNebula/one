@@ -57,10 +57,20 @@
   {{#isTabActionEnabled "images-tab" "Image.persistent"}}
     <div class="row">
       <div class="large-4 columns">
-        <input type="checkbox" id="img_persistent" name="img_persistent" value="YES" />
-        <label for="img_persistent">
-          {{tr "This image is persistent"}}
-        </label>
+        <div class="row">
+          <div class="large-8 columns">
+            <label>
+              {{tr "This image is persistent"}}
+            </label>
+          </div>
+          <div class="large-4 columns">
+            <select id="img_persistent">
+              <option val=""></option>
+              <option val="YES"> {{tr "YES"}}</option>
+              <option val="NO"> {{tr "NO"}}</option>
+            </select>
+          </div>
+        </div>
       </div>
     </div>
   {{/isTabActionEnabled}}
