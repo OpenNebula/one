@@ -66,6 +66,10 @@ target_path = "#{ds_image_dir}/#{id}"
 if VCenterDriver::FileHelper.is_remote_or_needs_unpack?(img_path)
     temp_folder = File.join(VAR_LOCATION, "vcenter/#{target_path}")
     temp_file = File.join(temp_folder, File.basename(img_path))
+    # if the original file doesn't have the .vmdk extension, add it
+    if !temp_file.match(/\.vmdk$/)
+      temp_file += ".vmdk"
+    end
 
     # Create tmp directory
     FileUtils.mkdir_p(temp_folder)
@@ -153,4 +157,3 @@ files_to_upload.each_with_index do |f, index|
 end
 
 FileUtils.rm_rf(temp_file) if temp_file
-
