@@ -170,7 +170,7 @@ define(function(require) {
                   if (e["PERSISTENT_ONLY"] != undefined &&
                       e["PERSISTENT_ONLY"].toLowerCase() == "yes") {
                       $('#img_persistent', context).prop('disabled', true);
-                      $('#img_persistent', context).prop('checked', true);
+                      $('#img_persistent', context).val("YES");
                       pers_forced = true;
                       return false;
                   }
@@ -395,7 +395,10 @@ define(function(require) {
     var type = WizardFields.retrieveInput($('#img_type', context));
     img_json["TYPE"] = type;
 
-    img_json["PERSISTENT"] = $('#img_persistent:checked', context).length ? "YES" : "NO";
+    img_json["PERSISTENT"] = $('#img_persistent', context).val();
+    if ( img_json["PERSISTENT"] == "" ){
+      delete img_json["PERSISTENT"]
+    }
 
     var dev_prefix = WizardFields.retrieveInput($('#img_dev_prefix', context));
     if (dev_prefix != undefined && dev_prefix.length) {
