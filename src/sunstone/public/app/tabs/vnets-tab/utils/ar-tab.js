@@ -209,5 +209,10 @@ define(function(require) {
     $('input[wizard_field="IPAM_MAD"]',this.ar_section).prop("disabled", true);
     $('input[wizard_field="IP"]',this.ar_section).prop("disabled", true);
     $('input[wizard_field="MAC"]',this.ar_section).prop("disabled", true);
+
+    if (ar_json["PARENT_NETWORK_AR_ID"]){
+      $("#update_ar_size", this.ar_section).prop("disabled", true);
+      delete ar_json["PARENT_NETWORK_AR_ID"];
+    }
   }
 });
