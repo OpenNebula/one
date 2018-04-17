@@ -227,7 +227,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         puts str % ["PHYSICAL DEVICE", vn["PHYDEV"]] if !vn["PHYDEV"].empty?
         puts str % ["VLAN ID", vn["VLAN_ID"]] if !vn["VLAN_ID"].empty?
         puts str % ["AUTOMATIC VLAN ID", vn["VLAN_ID_AUTOMATIC"]=="1" ? "YES" : "NO"]
-        puts str % ["OUTER VLAN ID", vn["OUTER_VLAN_ID"]] if !vn["OUTER_VLAN_ID"].empty?
+        puts str % ["OUTER VLAN ID", vn["OUTER_VLAN_ID"]] if !vn["OUTER_VLAN_ID"]
         puts str % ["AUTOMATIC OUTER VLAN ID", vn["OUTER_VLAN_ID_AUTOMATIC"]=="1" ? "YES" : "NO"]
         puts str % ["USED LEASES", vn['USED_LEASES']]
         puts
