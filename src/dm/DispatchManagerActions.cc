@@ -1091,10 +1091,8 @@ int DispatchManager::delete_recreate(VirtualMachine * vm,
     int rc = 0;
 
     Template * vm_quotas_snp = 0;
-    Template * vm_quotas_rsz = 0;
 
     vector<Template *> ds_quotas_snp;
-    vector<Template *> ds_quotas_rsz;
 
     int vm_uid, vm_gid;
 
@@ -1123,10 +1121,8 @@ int DispatchManager::delete_recreate(VirtualMachine * vm,
             vm_uid = vm->get_uid();
             vm_gid = vm->get_gid();
 
-            vm->delete_non_persistent_disk_snapshots(&vm_quotas_rsz,
-                    ds_quotas_rsz);
-            vm->delete_non_persistent_disk_resizes(&vm_quotas_rsz,
-                    ds_quotas_rsz);
+            vm->delete_non_persistent_disk_snapshots(&vm_quotas_snp,
+                    ds_quotas_snp);
 
         case VirtualMachine::HOLD:
             if (vm->hasHistory())
@@ -1162,23 +1158,11 @@ int DispatchManager::delete_recreate(VirtualMachine * vm,
         Quotas::ds_del_recreate(vm_uid, vm_gid, ds_quotas_snp);
     }
 
-    if ( !ds_quotas_rsz.empty() )
-    {
-        Quotas::ds_del_recreate(vm_uid, vm_gid, ds_quotas_rsz);
-    }
-
     if ( vm_quotas_snp != 0 )
     {
         Quotas::vm_del(vm_uid, vm_gid, vm_quotas_snp);
 
         delete vm_quotas_snp;
-    }
-
-    if ( vm_quotas_rsz != 0 )
-    {
-        Quotas::vm_del(vm_uid, vm_gid, vm_quotas_rsz);
-
-        delete vm_quotas_rsz;
     }
 
     return rc;

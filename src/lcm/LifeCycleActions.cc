@@ -829,10 +829,8 @@ void LifeCycleManager::delete_action(const LCMAction& la)
 void LifeCycleManager::delete_recreate_action(const LCMAction& la)
 {
     Template * vm_quotas_snp = 0;
-    Template * vm_quotas_rsz = 0;
 
     vector<Template *> ds_quotas_snp;
-    vector<Template *> ds_quotas_rsz;
 
     int vm_uid, vm_gid;
 
@@ -876,9 +874,6 @@ void LifeCycleManager::delete_recreate_action(const LCMAction& la)
             vm->delete_non_persistent_disk_snapshots(&vm_quotas_snp,
                     ds_quotas_snp);
 
-            vm->delete_non_persistent_disk_resizes(&vm_quotas_rsz,
-                    ds_quotas_rsz);
-
             vmpool->update(vm);
         break;
     }
@@ -904,23 +899,11 @@ void LifeCycleManager::delete_recreate_action(const LCMAction& la)
         Quotas::ds_del_recreate(vm_uid, vm_gid, ds_quotas_snp);
     }
 
-    if ( !ds_quotas_rsz.empty() )
-    {
-        Quotas::ds_del_recreate(vm_uid, vm_gid, ds_quotas_rsz);
-    }
-
     if ( vm_quotas_snp != 0 )
     {
         Quotas::vm_del(vm_uid, vm_gid, vm_quotas_snp);
 
         delete vm_quotas_snp;
-    }
-
-    if ( vm_quotas_rsz != 0 )
-    {
-        Quotas::vm_del(vm_uid, vm_gid, vm_quotas_rsz);
-
-        delete vm_quotas_rsz;
     }
 }
 

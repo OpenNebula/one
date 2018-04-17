@@ -1374,18 +1374,6 @@ public:
         return disks.set_up_resize(disk_id, size, error);
     }
 
-    /**
-     * Restore original disk sizes  for non-persistentand for persistent disks
-     * in no shared system ds.
-     *     @param vm_quotas The SYSTEM_DISK_SIZE freed by the deleted snapshots
-     *     @param ds_quotas The DS SIZE freed from image datastores.
-     */
-    void delete_non_persistent_disk_resizes(Template **vm_quotas,
-        vector<Template *>& ds_quotas)
-    {
-        disks.delete_non_persistent_resizes(vm_quotas, ds_quotas);
-    }
-
     // ------------------------------------------------------------------------
     // NIC Hotplug related functions
     // ------------------------------------------------------------------------
