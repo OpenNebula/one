@@ -374,6 +374,10 @@ class NetImporter < VCenterDriver::VcImporter
     def defaults
         { size: "255", type: "ether" }
     end
+
+    def attr
+        "TEMPLATE/VCENTER_NET_REF"
+    end
 end
 end # module VCenterDriver
 

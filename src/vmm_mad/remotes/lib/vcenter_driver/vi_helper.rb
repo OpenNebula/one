@@ -122,11 +122,27 @@ class VIHelper
         hash
     end
 
-    def self.clean_ref_hash(attr = nil)
-        if attr.nil?
-            @ref_hash = {}
-        else
-            @ref_hash[attr] = {} unless @ref_hash.nil?
+    def self.clean_ref_hash()
+        @ref_hash = {}
+    end
+
+    def self.add_ref_hash(attr, one_object)
+        raise "cache is empty!" unless @ref_hash
+
+        refkey = get_ref_key(one_object, attr)
+
+        if @ref_hash[attr]
+            @ref_hash[attr][refkey] = one_object
+        end
+    end
+
+    def self.remove_ref_hash(attr, one_object)
+        raise "cache is empty!" unless @ref_hash
+
+        refkey = get_ref_key(one_object, attr)
+
+        if @ref_hash[attr]
+            @ref_hash[attr].delete(refkey)
         end
     end
 

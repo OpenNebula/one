@@ -3339,8 +3339,8 @@ class VmImporter < VCenterDriver::VcImporter
                 @rollback.unshift(Raction.new(n, :delete))
             end
             raise error if !error.empty?
-            working_template[:one] << template_nics
 
+            working_template[:one] << template_nics
             working_template[:one] << rp_opts(opts[:type], opts[:resourcepool])
 
             one_object.update(working_template[:one])
@@ -3358,6 +3358,10 @@ class VmImporter < VCenterDriver::VcImporter
             resourcepool: [],
             type: ''
         }
+    end
+
+    def attr
+        "TEMPLATE/VCENTER_TEMPLATE_REF"
     end
 
 end

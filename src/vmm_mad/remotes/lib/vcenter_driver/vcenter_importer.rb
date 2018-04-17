@@ -27,6 +27,10 @@ module VCenterDriver
         def import(selected)      raise MESS end
         ########################################
 
+        def attr
+            false
+        end
+
         public
         ########################################
         # Constructors
@@ -136,6 +140,12 @@ module VCenterDriver
             id = resource['ID']
             @rollback << Raction.new(resource, :delete)
             rc = block.call(resource, id)
+
+            # update vCenter cache (future work)
+            #if attr
+            #    VCenterDriver::VIHelper.add_ref_hash(attr, resource)
+            #    @rollback << Raction.new(VCenterDriver::VIHelper, :remove_ref_hash, [attr, resource])
+            #end
         end
 
         def list_empty?
