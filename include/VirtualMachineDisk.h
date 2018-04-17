@@ -727,15 +727,6 @@ public:
     void delete_non_persistent_snapshots(Template **vm_quotas,
         vector<Template *> &ds_quotas);
 
-    /**
-     * Restores the disk original size for non-persistent and for persistent
-     * disks in no shared system ds.
-     *     @param vm_quotas The SYSTEM_DISK_SIZE freed by the deleted snapshots
-     *     @param ds_quotas The DS SIZE freed from image datastores.
-     */
-    void delete_non_persistent_resizes(Template **vm_quotas,
-        vector<Template *> &ds_quotas);
-
 protected:
 
     VirtualMachineAttribute * attribute_factory(VectorAttribute * va,
