@@ -122,6 +122,7 @@ bool VirtualMachineAllocate::allocate_authorization(
     }
 
     vector<Template *> ds_quotas;
+    vector<Template *> applied;
     vector<Template *>::iterator it;
 
     bool ds_quota_auth = true;
@@ -134,8 +135,23 @@ bool VirtualMachineAllocate::allocate_authorization(
         {
             ds_quota_auth = false;
         }
+        else
+        {
+            applied.push_back(*it);
+        }
+    }
 
-        delete *it;
+    if ( ds_quota_auth == false )
+    {
+        for ( it = applied.begin() ; it != applied.end() ; ++it )
+        {
+            quota_rollback(*it, Quotas::DATASTORE, att);
+        }
+
+        for ( it = ds_quotas.begin() ; it != ds_quotas.end() ; ++it )
+        {
+            delete *it;
+        }
     }
 
     return ds_quota_auth;
@@ -272,7 +288,20 @@ Request::ErrorCode VirtualMachineAllocate::pool_allocate(
 
     if ( rc < 0 )
     {
+        vector<Template *> ds_quotas;
+        vector<Template *>::iterator it;
+
         quota_rollback(&tmpl_back, Quotas::VIRTUALMACHINE, att);
+
+        VirtualMachineDisks::extended_info(att.uid, &tmpl_back);
+
+        VirtualMachineDisks::image_ds_quotas(&tmpl_back, ds_quotas);
+
+        for ( it = ds_quotas.begin() ; it != ds_quotas.end() ; ++it )
+        {
+            quota_rollback(*it, Quotas::DATASTORE, att);
+            delete *it;
+        }
 
         return Request::INTERNAL;
     }
