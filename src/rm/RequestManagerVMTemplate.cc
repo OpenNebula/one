@@ -131,9 +131,13 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
     VMTemplatePool *    tpool   = nd.get_tpool();
 
     VirtualMachineTemplate * tmpl;
-    VirtualMachineTemplate * extended_tmpl = 0;
-    VirtualMachineTemplate   uattrs;
-    VMTemplate *             rtmpl;
+    VirtualMachineTemplate extended_tmpl;
+    VirtualMachineTemplate uattrs;
+    VMTemplate *           rtmpl;
+
+    vector<Template *> ds_quotas;
+    vector<Template *> applied;
+    vector<Template *>::iterator it;
 
     string aname;
     string tmpl_name;
@@ -209,7 +213,8 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
             tmpl->to_xml(tmpl_str);
 
             // CREATE TEMPLATE
-            ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::TEMPLATE, tmpl_str);
+            ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::TEMPLATE,
+                    tmpl_str);
         }
 
         VirtualMachine::set_auth_request(att.uid, ar, tmpl);
@@ -222,15 +227,51 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
             return AUTHORIZATION;
         }
 
-        extended_tmpl = new VirtualMachineTemplate(*tmpl);
+        extended_tmpl = *tmpl;
 
-        VirtualMachineDisks::extended_info(att.uid, extended_tmpl);
+        VirtualMachineDisks::extended_info(att.uid, &extended_tmpl);
 
-        if (quota_authorization(extended_tmpl, Quotas::VIRTUALMACHINE, att,
+        if (quota_authorization(&extended_tmpl, Quotas::VIRTUALMACHINE, att,
                     att.resp_msg) == false)
         {
             delete tmpl;
-            delete extended_tmpl;
+            return AUTHORIZATION;
+        }
+
+        bool ds_quota_auth = true;
+
+        VirtualMachineDisks::image_ds_quotas(&extended_tmpl, ds_quotas);
+
+        for ( it = ds_quotas.begin() ; it != ds_quotas.end() ; ++it )
+        {
+            if ( quota_authorization(*it, Quotas::DATASTORE, att, att.resp_msg)
+                    == false )
+            {
+                ds_quota_auth = false;
+                break;
+            }
+            else
+            {
+                applied.push_back(*it);
+            }
+        }
+
+        if ( ds_quota_auth == false )
+        {
+            quota_rollback(&extended_tmpl, Quotas::VIRTUALMACHINE, att);
+
+            for ( it = applied.begin() ; it != applied.end() ; ++it )
+            {
+                quota_rollback(*it, Quotas::DATASTORE, att);
+            }
+
+            for ( it = ds_quotas.begin() ; it != ds_quotas.end() ; ++it )
+            {
+                delete *it;
+            }
+
+            delete tmpl;
+
             return AUTHORIZATION;
         }
     }
@@ -240,17 +281,21 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
 
     if ( rc < 0 )
     {
-        if (extended_tmpl != 0)
-        {
-            quota_rollback(extended_tmpl, Quotas::VIRTUALMACHINE, att);
-        }
+        quota_rollback(&extended_tmpl, Quotas::VIRTUALMACHINE, att);
 
-        delete extended_tmpl;
+        for ( it = ds_quotas.begin() ; it != ds_quotas.end() ; ++it )
+        {
+            quota_rollback(*it, Quotas::DATASTORE, att);
+            delete *it;
+        }
 
         return ALLOCATE;
     }
 
-    delete extended_tmpl;
+    for ( it = ds_quotas.begin() ; it != ds_quotas.end() ; ++it )
+    {
+        delete *it;
+    }
 
     return SUCCESS;
 }
