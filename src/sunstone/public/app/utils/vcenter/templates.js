@@ -18,15 +18,12 @@ define(function(require) {
   // Dependencies
   var Locale = require("utils/locale");
   var OpenNebulaTemplate = require("opennebula/template");
-  var OpenNebulaNetwork = require("opennebula/network");
-  var OpenNebulaImage = require("opennebula/image");
   var OpenNebulaError = require("opennebula/error");
   var DomDataTable = require("utils/dom-datatable");
   var UserInputs = require("utils/user-inputs");
   var Notifier = require("utils/notifier");
   var UniqueId = require("utils/unique-id");
   var VCenterCommon = require("./vcenter-common");
-  var Sunstone = require("sunstone");
   var Tips = require("utils/tips");
 
   var TemplateHTML = require("hbs!./common/html");
