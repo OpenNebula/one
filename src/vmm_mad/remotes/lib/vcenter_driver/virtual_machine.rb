@@ -1,5 +1,6 @@
 module VCenterDriver
 require 'digest'
+require 'resolv'
 class VirtualMachineFolder
     attr_accessor :item, :items
 
@@ -355,7 +356,7 @@ class Template
         nic_info = ""
         error = ""
         sunstone_nic_info = []
-
+        ar_ids = {}
         begin
             lock #Lock import operation, to avoid concurrent creation of networks
 
@@ -388,27 +389,162 @@ class Template
                 #Network is already in OpenNebula
                 if network_found
 
-                    # Create the new size 1 AR
-                    ar_tmp = ""
-                    ar_tmp << "AR=[\n"
-                    ar_tmp << "TYPE=\"ETHER\",\n"
-                    if wild && nic[:mac]
-                        ar_tmp << "MAC=\"#{nic[:mac]}\",\n"
-                        ar_tmp << "SIZE=\"1\"\n"
-                    else
-                        ar_tmp << "SIZE=\"255\"\n"
+                    if wild
+
+                        # get the network as a array of hashes
+                        ar_tmp = ""
+                        ars = network_found.to_hash["VNET"]["AR_POOL"]["AR"]
+                        ars = [ars] if ars.class.to_s.eql? "Hash"
+
+                        # guess the ar type of the new nic
+                        ar_type = "ETHER" # by default
+                        if nic[:ipv4] && nic[:ipv6]
+                            ar_type = "IP4_6_STATIC"
+                        elsif nic[:ipv6]
+                            ar_type = "IP6_STATIC"
+                        else
+                            ar_type = "IP4"
+                        end
+                        found, removed = false
+                        index = 0
+                        while !found && !removed && index < ars.length do
+                            ar = ars[index]
+                            if ar["MAC"].eql? nic[:mac]
+                                if ar["TYPE"].eql? ar_type
+                                    if ar["TYPE"].eql? "ETHER"
+                                        if ar.has_key? "ALLOCATED"
+                                            if ar["ALLOCATED"].to_s.empty?
+                                                found = true
+                                            else
+                                                raise "There is a VM using this MAC: #{nic[:mac]}\n"
+                                            end
+                                        end
+                                    elsif ar["TYPE"].eql? "IP4"
+                                        if ar["IP"].eql? nic[:ipv4]
+                                            if ar["ALLOCATED"].to_s.empty?
+                                                found = true
+                                            else
+                                                raise raise "There is a VM using this MAC #{nic[:mac]} and this IP #{nic[:ipv4]}\n"
+                                            end
+                                        else
+                                            if ar["ALLOCATED"].to_s.empty?
+                                                removed = true
+                                                network_found.rm_ar(ar["AR_ID"])
+                                                
+                                            else
+                                                raise raise "There is a VM using this MAC #{nic[:mac]} and this IP #{nic[:ipv4]}\n"
+                                            end
+                                        end
+                                    elsif ar["TYPE"].eql? "IP6_STATIC"
+                                        if ar["IP6"].eql? nic[:ipv6]
+                                            if ar["ALLOCATED"].to_s.empty?
+                                                found = true
+                                            else
+                                                raise "There is a VM using this AR\n"
+                                            end
+                                        else
+                                            if ar["ALLOCATED"].to_s.empty?
+                                                removed = true
+                                                network_found.rm_ar(ar["AR_ID"])
+                                            else
+                                                raise "There is a VM using this MAC: #{nic[:mac]}\n"
+                                            end
+                                        end
+                                    else # IP4_6_STATIC
+                                        if ar["IP6"].eql? nic[:ipv6] and ar["IP"].eql? nic[:ipv4]
+                                            if ar["ALLOCATED"].to_s.empty?
+                                                found = true
+                                            else
+                                                raise "There is a VM using this AR\n"
+                                            end
+                                        else
+                                            if ar["ALLOCATED"].to_s.empty?
+                                                removed = true
+                                                network_found.rm_ar(ar["AR_ID"])
+                                            else
+                                                raise "There is a VM using this MAC: #{nic[:mac]}\n"
+                                            end
+                                        end
+                                    end
+                                else
+                                    if ar["ALLOCATED"].to_s.empty?
+                                        removed = true
+                                        network_found.rm_ar(ar["AR_ID"])
+                                    else
+                                        raise "There is a VM using this MAC: #{nic[:mac]}\n"
+                                    end
+                                end
+                            end
+                            index += 1
+                        end
+
+                        if removed || !found
+                            if ar_type.eql? "IP4_6_STATIC"
+                                ar_tmp << "AR=[\n"
+                                ar_tmp << "TYPE=\"IP4_6_STATIC\",\n"
+                                ar_tmp << "IP=\"#{nic[:ipv4]}\",\n"
+                                ar_tmp << "MAC=\"#{nic[:mac]}\",\n"
+                                ar_tmp << "IP6=\"#{nic[:ipv6]}\",\n"
+                                ar_tmp << "PREFIX_LENGTH=\"64\",\n"
+                                ar_tmp << "SIZE=\"1\"\n"
+                                ar_tmp << "]\n"
+                            elsif ar_type.eql? "IP6_STATIC"
+                                ar_tmp << "AR=[\n"
+                                ar_tmp << "TYPE=\"IP6_STATIC\",\n"
+                                ar_tmp << "MAC=\"#{nic[:mac]}\",\n"
+                                ar_tmp << "IP6=\"#{nic[:ipv6]}\",\n"
+                                ar_tmp << "PREFIX_LENGTH=\"64\",\n"
+                                ar_tmp << "SIZE=\"1\"\n"
+                                ar_tmp << "]\n"
+                            elsif ar_type.eql? "IP4"
+                                ar_tmp << "AR=[\n"
+                                ar_tmp << "TYPE=\"IP4\",\n"
+                                ar_tmp << "IP=\"#{nic[:ipv4]}\",\n"
+                                ar_tmp << "MAC=\"#{nic[:mac]}\",\n"
+                                ar_tmp << "SIZE=\"1\"\n"
+                                ar_tmp << "]\n"
+                            else
+                                ar_tmp << "AR=[\n"
+                                ar_tmp << "TYPE=\"ETHER\",\n"
+                                ar_tmp << "MAC=\"#{nic[:mac]}\",\n"
+                                ar_tmp << "SIZE=\"1\"\n"
+                                ar_tmp << "]\n"
+                            end
+
+                            network_found.add_ar(ar_tmp)
+                            network_found.info
+                            value = []
+                            arsNew = network_found.to_hash["VNET"]["AR_POOL"]["AR"]
+                            arsNew = [arsNew] if ars.class.to_s.eql? "Hash"
+
+                            if ar_ids.has_key?(nic[:net_ref])
+                                ref = nic[:net_ref]
+                                value = ar_ids[ref.to_s]
+                                value.insert(value.length, arsNew.last["AR_ID"])
+                                ar_ids.store(nic[:net_ref], value)
+                            else
+                                value.insert(value.length , arsNew.last["AR_ID"])
+                                ar_ids.store(nic[:net_ref], [arsNew.last["AR_ID"]])
+                            end
+                            arsNew.clear
+                            arsNew = nil
+                        end
+
+                        ars.clear
+                        ars = nil
+                        # This is the existing nic info
+                        nic_tmp = ""
+                        nic_tmp << "NIC=[\n"
+                        nic_tmp << "NETWORK_ID=\"#{network_found["ID"]}\",\n"
+                        nic_tmp << "MAC=\"#{nic[:mac]}\",\n" if nic[:mac]
+                        nic_tmp << "VCENTER_ADDITIONALS_IP4=\"#{nic[:ipv4_additionals]}\",\n" if nic[:ipv4_additionals]
+                        nic_tmp << "IP6=\"#{nic[:ipv6]}\",\n" if nic[:ipv6]
+                        nic_tmp << "IP6_GLOBAL=\"#{nic[:ipv6_global]}\",\n" if nic[:ipv6_global]
+                        nic_tmp << "IP6_ULA=\"#{nic[:ipv6_ula]}\",\n" if nic[:ipv6_ula]
+                        nic_tmp << "VCENTER_ADDITIONALS_IP6=\"#{nic[:ipv6_additionals]}\",\n" if nic[:ipv6_additionals]
+                        nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
+                        nic_tmp << "]\n"
                     end
-                    ar_tmp << "]\n"
-                    network_found.add_ar(ar_tmp)
-
-                    # This is the existing nic info
-                    nic_tmp = ""
-                    nic_tmp << "NIC=[\n"
-                    nic_tmp << "NETWORK_ID=\"#{network_found["ID"]}\",\n"
-                    nic_tmp << "MAC=\"#{nic[:mac]}\",\n" if wild && nic[:mac]
-                    nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
-                    nic_tmp << "]\n"
-
                     if sunstone
                         sunstone_nic = {}
                         sunstone_nic[:type] = "EXISTING_NIC"
@@ -519,9 +655,9 @@ class Template
             end
         end
 
-        return error, nic_info, allocated_networks if !sunstone
+        return error, nic_info, ar_ids, allocated_networks if !sunstone
 
-        return error, sunstone_nic_info, allocated_networks if sunstone
+        return error, sunstone_nic_info, ar_ids, allocated_networks if sunstone
     end
 
     def get_vcenter_disk_key(unit_number, controller_key)
@@ -586,6 +722,7 @@ class Template
 
     def get_vcenter_nics
         nics = []
+        num_device = 0
         @item["config.hardware.device"].each do |device|
             nic     = {}
             network = nil
@@ -610,15 +747,97 @@ class Template
                     h.parent._ref if h.parent
                 end
 
-                nic[:mac]       = device.macAddress rescue nil
+                ipAddresses = @item["guest.net"][num_device].ipConfig.ipAddress
+                if !ipAddresses.empty?
+                    nic[:ipv4], nic[:ipv4_additionals] = nil
+                    nic[:ipv6], nic[:ipv6_ula], nic[:ipv6_global], nic[:ipv6_additionals] = nil
+                    index = 0
+                    while index < ipAddresses.length
+                        ip = ipAddresses[index].ipAddress
+                        if ip =~ Resolv::IPv4::Regex
+                            if nic[:ipv4]
+                                if nic[:ipv4_additionals] 
+                                    nic[:ipv4_additionals] += ',' + ip
+                                else 
+                                    nic[:ipv4_additionals] = ip
+                                end
+                            else
+                                nic[:ipv4] = ip
+                            end
+                        elsif ipAddresses[index].ipAddress =~ Resolv::IPv6::Regex
+                            if get_ipv6_prefix(ip, 3) == "2000"
+                                if nic[:ipv6_global]
+                                    if nic[:ipv6_additionals] 
+                                        nic[:ipv6_additionals] += ',' + ip
+                                    else 
+                                        nic[:ipv6_additionals] = ip
+                                    end
+                                else
+                                    nic[:ipv6_global] = ip
+                                end
+                            elsif get_ipv6_prefix(ip, 10) == "fe80"
+                                nic[:ipv6] = ip
+                            elsif get_ipv6_prefix(ip, 7) == "fc00"
+                                if nic[:ipv6_ula]
+                                    if nic[:ipv6_additionals] 
+                                        nic[:ipv6_additionals] += ',' + ip
+                                    else 
+                                        nic[:ipv6_additionals] = ip
+                                    end
+                                else 
+                                    nic[:ipv6_ula] = ip
+                                end
+                            end
+                        end
+                        index += 1
+                    end
+                end
+
+                nic[:mac]       = @item["guest.net"][num_device].macAddress rescue nil
                 nic[:net_name]  = network.name
                 nic[:net_ref]   = network._ref
                 nic[:pg_type]   = VCenterDriver::Network.get_network_type(device)
 
                 nics << nic
+                num_device += 1
             end
         end
         return nics
+    end
+
+    def get_ipv6_prefix(ipv6, prefix_length)
+
+        # spliteo 
+        ipSlice = ipv6.split(":").map{ |elem| elem.hex }.map{ |elem| 
+    
+            int, dec = elem.divmod(1)
+            bin = "#{int.to_s(2)}"
+    
+            while dec > 0
+                int, dec = (dec * 2).divmod(1)
+                bin << int.to_s
+            end
+    
+            elem = bin
+        }.map{ |elem| elem.rjust(16, '0') }
+    
+        ipChain = ipSlice.join
+        prefix = ipChain[0, prefix_length]
+    
+        cont = 0
+        limit = prefix.length
+        index = 0
+        slices = []
+    
+        while cont < limit
+            slices[index] = prefix.slice(cont, 4)
+            slices[index] = slices[index].ljust(4, '0')
+            index +=1
+            cont+=4
+        end
+        
+        finalPrefix = slices.map{|elem| "%0x" % elem.to_i(2) }.join.ljust(4, '0')
+        return finalPrefix
     end
 
     #  Checks if a RbVmomi::VIM::VirtualDevice is a disk or a cdrom

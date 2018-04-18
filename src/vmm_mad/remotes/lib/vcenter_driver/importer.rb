@@ -40,7 +40,7 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
         template << template_disks
 
         # Create images or get nics information for template
-        error, template_nics = vcenter_vm.import_vcenter_nics(vc_uuid,
+        error, template_nics, ar_ids = vcenter_vm.import_vcenter_nics(vc_uuid,
                                                               npool,
                                                               hpool,
                                                               vc_name,
@@ -48,8 +48,16 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
                                                               wild,
                                                               sunstone,
                                                               vm_name)
-
-        return OpenNebula::Error.new(error) if !error.empty?
+                                                              
+        if !error.empty?
+            ar_ids.each do |key, value|
+                network = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,"TEMPLATE/VCENTER_NET_REF", key, vc_uuid, npool)
+                value.each do |ar|
+                    network.rm_ar(ar)
+                end
+            end
+            return OpenNebula::Error.new(error) if !error.empty?
+        end
 
         template << template_nics
 
@@ -64,13 +72,37 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
             e["TEMPLATE/VCENTER_INSTANCE_ID"] == vc_uuid
         end.first
 
-        return OpenNebula::Error.new("DS with ref #{ds_ref} is not imported in OpenNebula, aborting Wild VM import.") if !ds_one
+        if !ds_one
+            ar_ids.each do |key, value|
+                network = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,"TEMPLATE/VCENTER_NET_REF", key, vc_uuid, npool)
+                value.each do |ar|
+                    network.rm_ar(ar)
+                end
+            end
+            return OpenNebula::Error.new("DS with ref #{ds_ref} is not imported in OpenNebula, aborting Wild VM import.") 
+        end
 
         rc = one_vm.allocate(template)
-        return rc if OpenNebula.is_error?(rc)
+        if OpenNebula.is_error?(rc)
+            ar_ids.each do |key, value|
+                network = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,"TEMPLATE/VCENTER_NET_REF", key, vc_uuid, npool)
+                value.each do |ar|
+                    network.rm_ar(ar)
+                end
+            end
+            return rc
+        end
 
         rc = one_vm.deploy(host_id, false, ds_one.id)
-        return rc if OpenNebula.is_error?(rc)
+        if OpenNebula.is_error?(rc)
+            ar_ids.each do |key, value|
+                network = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,"TEMPLATE/VCENTER_NET_REF", key, vc_uuid, npool)
+                value.each do |ar|
+                    network.rm_ar(ar)
+                end
+            end
+            return rc
+        end
 
         # Set reference to template disks and nics in VM template
         vcenter_vm.one_item = one_vm
