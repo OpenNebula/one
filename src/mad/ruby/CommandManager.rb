@@ -83,22 +83,9 @@ class GenericCommand
     def run
         std = nil
         process = Proc.new do
-            std = execute
+            @stdout, @stderr, _status = execute
 
-            # Close standard IO descriptors
-            if @stdin
-                std[0] << @stdin
-                std[0].flush
-            end
-            std[0].close if !std[0].closed?
-
-            @stdout=std[1].read
-            std[1].close if !std[1].closed?
-
-            @stderr=std[2].read
-            std[2].close if !std[2].closed?
-
-            @code=get_exit_code(@stderr)
+            @code = get_exit_code(@stderr)
 
             if @code!=0
                 log("Command execution fail: #{command}")
@@ -161,8 +148,8 @@ class LocalCommand < GenericCommand
 private
 
     def execute
-        Open3.popen3("#{command} ; echo ExitCode: $? 1>&2",
-                        :pgroup => true)
+        Open3.capture3("#{command} ; echo ExitCode: $? 1>&2",
+                        :pgroup => true, :stdin_data => @stdin)
     end
 end
 
@@ -189,10 +176,10 @@ private
 
     def execute
         if @stdin
-            Open3.popen3("ssh #{@host} #{@command} ; echo ExitCode: $? 1>&2",
-                            :pgroup => true)
+            Open3.capture3("ssh #{@host} #{@command} ; echo ExitCode: $? 1>&2",
+                            :pgroup => true, :stdin_data => @stdin)
         else
-            Open3.popen3("ssh -n #{@host} #{@command} ; echo ExitCode: $? 1>&2",
+            Open3.capture3("ssh -n #{@host} #{@command} ; echo ExitCode: $? 1>&2",
                             :pgroup => true)
         end
     end
