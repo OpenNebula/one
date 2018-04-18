@@ -194,7 +194,8 @@ define(function(require) {
       }
       tmpl["DEV_PREFIX"] = dev_prefix;
     }
-    $.extend(tmpl, TemplateUtils.stringToTemplate($('#templateStr',context).val()));
+
+    $.extend(TemplateUtils.stringToTemplate($("#templateStr", context).val()), tmpl);
     return tmpl;
   }
 
