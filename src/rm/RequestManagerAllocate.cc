@@ -143,15 +143,17 @@ bool VirtualMachineAllocate::allocate_authorization(
 
     if ( ds_quota_auth == false )
     {
+        quota_rollback(&aux_tmpl, Quotas::VIRTUALMACHINE, att);
+
         for ( it = applied.begin() ; it != applied.end() ; ++it )
         {
             quota_rollback(*it, Quotas::DATASTORE, att);
         }
+    }
 
-        for ( it = ds_quotas.begin() ; it != ds_quotas.end() ; ++it )
-        {
-            delete *it;
-        }
+    for ( it = ds_quotas.begin() ; it != ds_quotas.end() ; ++it )
+    {
+        delete *it;
     }
 
     return ds_quota_auth;
