@@ -16,10 +16,20 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+MODEL=''
+
 if [ -f /proc/cpuinfo ]; then
+    for NAME in 'model name' 'cpu'; do
+        MODEL=$(grep -m1 "^${NAME}[[:space:]]*:" /proc/cpuinfo | \
+            cut -d: -f2 | \
+            sed -e 's/^ *//')
 
-    echo -n "MODELNAME=\""
-    grep -m 1 "model name" /proc/cpuinfo | cut -d: -f2 | sed -e 's/^ *//' | sed -e 's/$/"/'
-
+        if [ -n "${MODEL}" ]; then
+            break
+        fi
+    done
 fi
 
+if [ -n "${MODEL}" ]; then
+    echo "MODELNAME=\"${MODEL}\""
+fi
