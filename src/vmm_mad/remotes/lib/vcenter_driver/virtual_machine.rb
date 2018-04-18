@@ -1,5 +1,6 @@
 module VCenterDriver
 require 'digest'
+require 'resolv'
 class VirtualMachineFolder
     attr_accessor :item, :items
 
@@ -390,25 +391,56 @@ class Template
 
                     # Create the new size 1 AR
                     ar_tmp = ""
-                    ar_tmp << "AR=[\n"
-                    ar_tmp << "TYPE=\"ETHER\",\n"
-                    if wild && nic[:mac]
-                        ar_tmp << "MAC=\"#{nic[:mac]}\",\n"
-                        ar_tmp << "SIZE=\"1\"\n"
-                    else
-                        ar_tmp << "SIZE=\"255\"\n"
+                    if wild
+                        if nic[:mac] && nic[:ipv4] && nic[:ipv6]
+                            ar_tmp << "AR=[\n"
+                            ar_tmp << "TYPE=\"IP4_6_STATIC\",\n"
+                            ar_tmp << "IP=\"#{nic[:ipv4]}\",\n"
+                            ar_tmp << "MAC=\"#{nic[:mac]}\",\n"
+                            ar_tmp << "IP6=\"#{nic[:ipv6]}\",\n"
+                            ar_tmp << "PREFIX_LENGTH=\"64\",\n"
+                            ar_tmp << "SIZE=\"1\"\n"
+                            ar_tmp << "]\n"
+                        elsif nic[:mac] && nic[:ipv6]
+                            ar_tmp << "AR=[\n"
+                            ar_tmp << "TYPE=\"IP6_STATIC\",\n"
+                            ar_tmp << "MAC=\"#{nic[:mac]}\",\n"
+                            ar_tmp << "IP6=\"#{nic[:ipv6]}\",\n"
+                            ar_tmp << "PREFIX_LENGTH=\"64\",\n"
+                            ar_tmp << "SIZE=\"1\"\n"
+                            ar_tmp << "]\n"
+                        elsif nic[:mac] && nic[:ipv4]
+                            ar_tmp << "AR=[\n"
+                            ar_tmp << "TYPE=\"IP4\",\n"
+                            ar_tmp << "IP=\"#{nic[:ipv4]}\",\n"
+                            ar_tmp << "MAC=\"#{nic[:mac]}\",\n"
+                            ar_tmp << "SIZE=\"1\"\n"
+                            ar_tmp << "]\n"
+                        else
+                            ar_tmp << "AR=[\n"
+                            ar_tmp << "TYPE=\"ETHER\",\n"
+                            ar_tmp << "MAC=\"#{nic[:mac]}\",\n"
+                            ar_tmp << "SIZE=\"1\"\n"
+                            ar_tmp << "]\n"
+                        end
+                        network_found.add_ar(ar_tmp)
+                        network_found.info
+                        last_id = network_found.to_hash["VNET"]["AR_POOL"]["AR"].last["AR_ID"]
+                        # This is the existing nic info
+                        nic_tmp = ""
+                        nic_tmp << "NIC=[\n"
+                        nic_tmp << "AR_ID=\"#{last_id}\",\n"
+                        nic_tmp << "NETWORK_ID=\"#{network_found["ID"]}\",\n"
+                        nic_tmp << "MAC=\"#{nic[:mac]}\",\n" if nic[:mac]
+                        nic_tmp << "VCENTER_IP=\"#{nic[:ipv4]}\",\n" if nic[:ipv4]
+                        nic_tmp << "VCENTER_ADDITIONALS_IP4=\"#{nic[:ipv4_additionals]}\",\n" if nic[:ipv4_additionals]
+                        nic_tmp << "VCENTER_IP6=\"#{nic[:ipv6]}\",\n" if nic[:ipv6]
+                        nic_tmp << "IP6_GLOBAL=\"#{nic[:ipv6_global]}\",\n" if nic[:ipv6_global]
+                        nic_tmp << "IP6_ULA=\"#{nic[:ipv6_ula]}\",\n" if nic[:ipv6_ula]
+                        nic_tmp << "VCENTER_ADDITIONALS_IP6=\"#{nic[:ipv6_additionals]}\",\n" if nic[:ipv6_additionals]
+                        nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
+                        nic_tmp << "]\n"
                     end
-                    ar_tmp << "]\n"
-                    network_found.add_ar(ar_tmp)
-
-                    # This is the existing nic info
-                    nic_tmp = ""
-                    nic_tmp << "NIC=[\n"
-                    nic_tmp << "NETWORK_ID=\"#{network_found["ID"]}\",\n"
-                    nic_tmp << "MAC=\"#{nic[:mac]}\",\n" if wild && nic[:mac]
-                    nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
-                    nic_tmp << "]\n"
-
                     if sunstone
                         sunstone_nic = {}
                         sunstone_nic[:type] = "EXISTING_NIC"
@@ -586,6 +618,7 @@ class Template
 
     def get_vcenter_nics
         nics = []
+        num_device = 0
         @item["config.hardware.device"].each do |device|
             nic     = {}
             network = nil
@@ -610,15 +643,95 @@ class Template
                     h.parent._ref if h.parent
                 end
 
-                nic[:mac]       = device.macAddress rescue nil
+                ipAddresses = @item["guest.net"][num_device].ipConfig.ipAddress
+                if !ipAddresses.empty?
+                    nic[:ipv4], nic[:ipv4_additionals] = nil
+                    nic[:ipv6], nic[:ipv6_ula], nic[:ipv6_global], nic[:ipv6_additionals] = nil
+                    index = 0
+                    while index < ipAddresses.length
+                        ip = ipAddresses[index].ipAddress
+                        if ip =~ Resolv::IPv4::Regex
+                            if nic[:ipv4]
+                                if nic[:ipv4_additionals] 
+                                    nic[:ipv4_additionals] += ',' + ip
+                                else 
+                                    nic[:ipv4_additionals] = ip
+                                end
+                            else
+                                nic[:ipv4] = ip
+                            end
+                        elsif ipAddresses[index].ipAddress =~ Resolv::IPv6::Regex
+                            if get_ipv6_prefix(ip, 3) == "2000"
+                                if nic[:ipv6_global]
+                                    if nic[:ipv6_additionals] 
+                                        nic[:ipv6_additionals] += ',' + ip
+                                    else 
+                                        nic[:ipv6_additionals] = ip
+                                    end
+                                else
+                                    nic[:ipv6_global] = ip
+                                end
+                            elsif get_ipv6_prefix(ip, 10) == "fe80"
+                                nic[:ipv6] = ip
+                            elsif get_ipv6_prefix(ip, 7) == "fc00"
+                                if nic[:ipv6_ula]
+                                    if nic[:ipv6_additionals] 
+                                        nic[:ipv6_additionals] += ',' + ip
+                                    else 
+                                        nic[:ipv6_additionals] = ip
+                                    end
+                                else 
+                                    nic[:ipv6_ula] = ip
+                                end
+                            end
+                        end
+                        index += 1
+                    end
+                end
+                nic[:mac]       = @item["guest.net"][num_device].macAddress rescue nil
                 nic[:net_name]  = network.name
                 nic[:net_ref]   = network._ref
                 nic[:pg_type]   = VCenterDriver::Network.get_network_type(device)
 
                 nics << nic
+                num_device += 1
             end
         end
         return nics
+    end
+
+    def get_ipv6_prefix(ipv6, prefix_length)
+
+        ipSlice = ipv6.split(":").map{ |elem| elem.hex }.map{ |elem| 
+    
+            int, dec = elem.divmod(1)
+            bin = "#{int.to_s(2)}"
+    
+            while dec > 0
+                int, dec = (dec * 2).divmod(1)
+                bin << int.to_s
+            end
+    
+            elem = bin
+        }.map{ |elem| elem.rjust(16, '0') }
+    
+        ipChain = ipSlice.join
+        prefix = ipChain[0, prefix_length]
+    
+        cont = 0
+        limit = prefix.length
+        index = 0
+        slices = []
+    
+        while cont < limit
+            slices[index] = prefix.slice(cont, 4)
+            slices[index] = slices[index].ljust(4, '0')
+            index +=1
+            cont+=4
+        end
+        
+        finalPrefix = slices.map{|elem| "%0x" % elem.to_i(2) }.join.ljust(4, '0')
+        return finalPrefix
     end
 
     #  Checks if a RbVmomi::VIM::VirtualDevice is a disk or a cdrom
