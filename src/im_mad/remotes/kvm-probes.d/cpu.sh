@@ -16,14 +16,20 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+MODEL=''
+
 if [ -f /proc/cpuinfo ]; then
-    MODELNAME_EXP="model name"
-    if (uname -m | grep -Eq ^ppc64); then
-        MODELNAME_EXP="model"
-    fi
+    for NAME in 'model name' 'cpu'; do
+        MODEL=$(grep -m1 "^${NAME}[[:space:]]*:" /proc/cpuinfo | \
+            cut -d: -f2 | \
+            sed -e 's/^ *//')
 
-    echo -n "MODELNAME=\""
-    grep -m 1 "${MODELNAME_EXP}" /proc/cpuinfo | cut -d: -f2 | sed -e 's/^ *//' | sed -e 's/$/"/'
-
+        if [ -n "${MODEL}" ]; then
+            break
+        fi
+    done
 fi
 
+if [ -n "${MODEL}" ]; then
+    echo "MODELNAME=\"${MODEL}\""
+fi
