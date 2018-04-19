@@ -3427,9 +3427,11 @@ class VmImporter < VCenterDriver::VcImporter
             type = {:object => "template", :id => id}
             error, template_disks, allocated_images = template.import_vcenter_disks(vc_uuid, dpool, ipool, type)
 
-            #rollback stack
-            allocated_images.reverse.each do |i|
-                @rollback.unshift(Raction.new(i, :delete))
+            if allocated_images
+                #rollback stack
+                allocated_images.reverse.each do |i|
+                    @rollback.unshift(Raction.new(i, :delete))
+                end
             end
             raise error if !error.empty?
 
@@ -3447,9 +3449,11 @@ class VmImporter < VCenterDriver::VcImporter
                                                                             template["name"],
                                                                             id,
                                                                             dc)
-            #rollback stack
-            allocated_nets.reverse.each do |n|
-                @rollback.unshift(Raction.new(n, :delete))
+            if allocated_nets
+                #rollback stack
+                allocated_nets.reverse.each do |n|
+                    @rollback.unshift(Raction.new(n, :delete))
+                end
             end
             raise error if !error.empty?
 
