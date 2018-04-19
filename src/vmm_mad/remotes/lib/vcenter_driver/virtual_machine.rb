@@ -356,7 +356,7 @@ class Template
         nic_info = ""
         error = ""
         sunstone_nic_info = []
-
+        ar_ids = {}
         begin
             lock #Lock import operation, to avoid concurrent creation of networks
 
@@ -389,7 +389,6 @@ class Template
                 #Network is already in OpenNebula
                 if network_found
 
-                    # Create the new size 1 AR
                     ar_tmp = ""
                     if wild
                         if nic[:mac] && nic[:ipv4] && nic[:ipv6]
@@ -425,14 +424,28 @@ class Template
                         end
                         network_found.add_ar(ar_tmp)
                         network_found.info
-                        last_id = network_found.to_hash["VNET"]["AR_POOL"]["AR"].last["AR_ID"]
+                        value = []
+                        arsNew = network_found.to_hash["VNET"]["AR_POOL"]["AR"]
+                        arsNew = [arsNew] if arsNew.class.to_s.eql? "Hash"
+                        last_id = arsNew.last["AR_ID"]
+                        if ar_ids.has_key?(nic[:net_ref])
+                            ref = nic[:net_ref]
+                            value = ar_ids[ref.to_s]
+                            value.insert(value.length, arsNew.last["AR_ID"])
+                            ar_ids.store(nic[:net_ref], value)
+                        else
+                            value.insert(value.length , arsNew.last["AR_ID"])
+                            ar_ids.store(nic[:net_ref], [arsNew.last["AR_ID"]])
+                        end
+                        arsNew.clear
+                        arsNew = nil
+
                         # This is the existing nic info
                         nic_tmp = ""
                         nic_tmp << "NIC=[\n"
                         nic_tmp << "AR_ID=\"#{last_id}\",\n"
                         nic_tmp << "NETWORK_ID=\"#{network_found["ID"]}\",\n"
                         nic_tmp << "MAC=\"#{nic[:mac]}\",\n" if nic[:mac]
-                        nic_tmp << "VCENTER_IP=\"#{nic[:ipv4]}\",\n" if nic[:ipv4]
                         nic_tmp << "VCENTER_ADDITIONALS_IP4=\"#{nic[:ipv4_additionals]}\",\n" if nic[:ipv4_additionals]
                         nic_tmp << "VCENTER_IP6=\"#{nic[:ipv6]}\",\n" if nic[:ipv6]
                         nic_tmp << "IP6_GLOBAL=\"#{nic[:ipv6_global]}\",\n" if nic[:ipv6_global]
@@ -441,16 +454,16 @@ class Template
                         nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
                         nic_tmp << "]\n"
                     else
-                    ar_tmp << "AR=[\n"
-                    ar_tmp << "SIZE=\"255\"\n"
-                    ar_tmp << "]\n"
-                    network_found.add_ar(ar_tmp)
-                    nic_tmp = ""
-                    nic_tmp << "NIC=[\n"
-                    nic_tmp << "NETWORK_ID=\"#{network_found["ID"]}\",\n"
-                    nic_tmp << "MAC=\"#{nic[:mac]}\",\n" if wild && nic[:mac]
-                    nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
-                    nic_tmp << "]\n"
+                        ar_tmp << "AR=[\n"
+                        ar_tmp << "SIZE=\"255\"\n"
+                        ar_tmp << "]\n"
+                        network_found.add_ar(ar_tmp)
+                        nic_tmp = ""
+                        nic_tmp << "NIC=[\n"
+                        nic_tmp << "NETWORK_ID=\"#{network_found["ID"]}\",\n"
+                        nic_tmp << "MAC=\"#{nic[:mac]}\",\n" if nic[:mac]
+                        nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
+                        nic_tmp << "]\n"
                     end
                     if sunstone
                         sunstone_nic = {}
@@ -653,6 +666,7 @@ class Template
                 nic[:refs] = network.host.map do |h|
                     h.parent._ref if h.parent
                 end
+                
                 if wild
                     ipAddresses = @item["guest.net"][num_device].ipConfig.ipAddress
                     if !ipAddresses.empty?
@@ -700,6 +714,7 @@ class Template
                         end
                     end
                     nic[:mac] = @item["guest.net"][num_device].macAddress rescue nil
+                    num_device += 1
                 else 
                     nic[:mac] = device.macAddress rescue nil
                 end
@@ -708,7 +723,6 @@ class Template
                 nic[:pg_type]   = VCenterDriver::Network.get_network_type(device)
 
                 nics << nic
-                num_device += 1
             end
         end
         return nics
