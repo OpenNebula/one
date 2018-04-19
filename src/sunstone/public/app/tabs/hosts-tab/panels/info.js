@@ -195,7 +195,7 @@ define(function(require) {
       $("#update_reserved_hosts", context).prop("disabled", true);
       var reservedCPU = parseInt($("#textInput_reserved_cpu_hosts", context).val());
       var CPU = parseInt(that.element.HOST_SHARE.FREE_CPU);
-      var reservedMem = Humanize.sizeToMB($("#textInput_reserved_mem_hosts").val()) * 1024;
+      var reservedMem = parseInt(Humanize.sizeToMB($("#textInput_reserved_mem_hosts").val()) * 1024);
       var MEM = parseInt(that.element.HOST_SHARE.FREE_MEM);
       if (parseInt(that.element.HOST_SHARE.USED_CPU) > 0){
         CPU += parseInt(that.element.HOST_SHARE.USED_CPU);
