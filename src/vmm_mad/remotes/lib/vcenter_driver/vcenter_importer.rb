@@ -96,6 +96,13 @@ module VCenterDriver
             process_import(indexes)
         end
 
+        def list(opts = {})
+            list = get_list(opts)
+            VCenterDriver::VIHelper.clean_ref_hash
+
+            return list
+        end
+
         def process_import(indexes, opts = {}, &block)
             raise "the list is empty" if list_empty?
             indexes = indexes.gsub(/\s+/, "").split(",")

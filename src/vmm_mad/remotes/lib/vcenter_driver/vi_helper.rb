@@ -122,7 +122,7 @@ class VIHelper
         hash
     end
 
-    def self.clean_ref_hash()
+    def self.clean_ref_hash
         @ref_hash = {}
     end
 
