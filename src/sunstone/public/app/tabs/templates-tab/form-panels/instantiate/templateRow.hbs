@@ -48,6 +48,7 @@
   <div class="row">
     <div class="medium-5 small-12 columns template_user_inputs{{element.ID}}"></div>
   </div>
+  {{#advancedSection (tr "Network") }}
   {{#isFeatureEnabled "show_vnet_instantiate"}}
   <div class="row">
     <div class="small-12 columns nicsContext{{element.ID}}">
@@ -56,7 +57,8 @@
     </div>
   </div>
   {{/isFeatureEnabled}}
-  {{#advancedSection (tr "Advanced options") }}
+  {{/advancedSection}}
+  {{#advancedSection (tr "User / Group") }}
   {{#isFeatureEnabled "show_as_uid_instantiate"}}
   <div class="row">
     <div class="small-12 columns usersContext{{element.ID}}">
@@ -81,6 +83,8 @@
     </div>
   </div>
   {{/isFeatureEnabled}}
+  {{/advancedSection}}
+  {{#advancedSection (tr "Host") }}
   {{#isFeatureEnabled "show_host_instantiate"}}
   <div class="row">
     <div class="small-12 columns hostContext{{element.ID}}">
@@ -102,6 +106,8 @@
     </div>
   </div>
   {{/isFeatureEnabled}}
+  {{/advancedSection}}
+  {{#advancedSection (tr "Datastore") }}
   {{#isFeatureEnabled "show_ds_instantiate"}}
   <div class="row">
     <div class="small-12 columns dsContext{{element.ID}}">
@@ -123,11 +129,13 @@
     </div>
   </div>
   {{/isFeatureEnabled}}
+  {{/advancedSection}}
+  {{#advancedSection (tr "Actions") }}
   <div class="row">
     <div class="large-12 columns actionContext{{element.ID}}">
       <fieldset>
         <legend>
-          <i class="fas fa-calendar-alt"></i> {{tr "Actions"}}
+          <i class="fas fa-calendar-alt"></i> {{tr "Schedule Actions for VM"}}
         </legend>
         <table id="scheduling_inst_actions_table" class="info_table dataTable">
           <thead>
@@ -143,12 +151,14 @@
       </fieldset>
     </div>
   </div>
+  {{/advancedSection}}
+  {{#advancedSection (tr "VM Group") }}
   {{#isFeatureEnabled "show_vmgroup_instantiate"}}
   <div class="row">
     <div class="small-12 columns vmgroupContext{{element.ID}}">
       <fieldset>
         <legend>
-          <i class="fas fa-globe"></i> {{tr "VM Group"}}
+          <i class="fas fa-globe"></i> {{tr "Associate VM to a VM Group"}}
         </legend>
         <div>
           <a class="button small provision_add_vmgroup">
@@ -161,12 +171,12 @@
     </div>
   </div>
   {{/isFeatureEnabled}}
+  {{/advancedSection}}
   <div class="row">
     <div class="medium-6 small-12 columns vcenterVMFolderContext{{element.ID}}">
       <div class="provision_vcenter_vm_folder_selector">
       </div>
     </div>
   </div>
-  {{/advancedSection}}
 </div>
 <br>
