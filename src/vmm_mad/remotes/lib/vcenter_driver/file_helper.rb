@@ -203,7 +203,7 @@ class FileHelper
         else
             # Setting "." as the source will read from the stdin
             VCenterDriver::VIClient.in_stderr_silence do
-                ds.download_to_stdout(img_src)
+                ds.download_to_stdout(image_source)
             end
         end
     end
