@@ -781,6 +781,7 @@ void RaftManager::timer_action(const ActionRequest& ar)
 {
     static int mark_tics  = 0;
     static int purge_tics = 0;
+    ostringstream oss;
 
     mark_tics++;
     purge_tics++;
@@ -800,9 +801,23 @@ void RaftManager::timer_action(const ActionRequest& ar)
 
         NebulaLog::log("RCM", Log::INFO, "Purging obsolete LogDB records");
 
-        logdb->purge_log();
+        int rc = logdb->purge_log();
 
-        purge_tics = 0;
+        if ( rc != 0 )
+        {
+            purge_tics = (purge_period_ms - 60000)/timer_period_ms;
+            oss << rc << " logDB records have been purged";
+            NebulaLog::log("RCM", Log::INFO,  oss);
+            oss.str("");
+            if ( purge_tics < 0 )
+            {
+                purge_tics = 0;
+            }
+        }
+        else
+        {
+            purge_tics = 0;
+        }
     }
 
 	// Leadership

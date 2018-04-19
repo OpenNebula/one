@@ -31,7 +31,7 @@ class Callbackable
 {
 public:
 
-    Callbackable():cb(0),arg(0)
+    Callbackable():cb(0),arg(0),affected_rows(0)
     {
         pthread_mutex_init(&mutex,0);
     };
@@ -90,6 +90,23 @@ public:
         pthread_mutex_unlock(&mutex);
     }
 
+     /**
+     *  set affected rows variable
+     */
+    void set_affected_rows(int num_rows)
+    {
+        affected_rows = num_rows;
+    }
+
+    /**
+     *  get affected rows variable
+     */
+    int get_affected_rows()
+    {
+        return affected_rows;
+    }
+
+
 private:
     /**
      *  SQL callback to be executed for each row result of an SQL statement
@@ -100,6 +117,11 @@ private:
      *  Custom arguments for the callback
      */
     void *   arg;
+
+    /**
+     * num of affected rows
+     */
+    int affected_rows;
 
     /**
      *  Mutex for locking the callback function.
@@ -288,5 +310,27 @@ private:
 
     ostringstream * oss;
 };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class empty_cb : public Callbackable
+{
+public:
+
+    void set_callback(){};
+    void set_callback(Callback _cb, void * _arg = 0){};
+
+    int callback(void * nil, int num, char **values, char **names)
+    {
+        return 0;
+    };
+
+    bool isCallBackSet()
+    {
+        return false;
+    };
+};
+
 
 #endif /*CALLBACKABLE_H_*/

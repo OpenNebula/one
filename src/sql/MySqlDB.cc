@@ -159,6 +159,8 @@ int MySqlDB::exec(ostringstream& cmd, Callbackable* obj, bool quiet)
 {
     int          rc;
 
+    MYSQL_RES *         result;
+
     const char * c_str;
     string       str;
 
@@ -208,17 +210,24 @@ int MySqlDB::exec(ostringstream& cmd, Callbackable* obj, bool quiet)
         return -1;
     }
 
+    if ( (obj != 0) )
+    {
+        // Retrieve the entire result set all at once
+        result = mysql_store_result(db);
+        mysql_field_count(db);
+        int num_rows = mysql_affected_rows(db);
+        if ( num_rows > 0)
+        {
+            obj->set_affected_rows(num_rows);
+        }
+    }
 
     if ( (obj != 0) && (obj->isCallBackSet()) )
     {
 
-        MYSQL_RES *         result;
         MYSQL_ROW           row;
         MYSQL_FIELD *       fields;
         unsigned int        num_fields;
-
-        // Retrieve the entire result set all at once
-        result = mysql_store_result(db);
 
         if (result == NULL)
         {

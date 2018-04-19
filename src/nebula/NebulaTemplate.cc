@@ -434,6 +434,7 @@ void OpenNebulaTemplate::set_conf_default()
 #   ELECTION_TIMEOUT_MS
 #   BROADCAST_TIMEOUT_MS
 #   XMLRPC_TIMEOUT_MS
+#   LIMIT_PURGE
 #*******************************************************************************
 */
     // FEDERATION
@@ -453,6 +454,7 @@ void OpenNebulaTemplate::set_conf_default()
     vvalue.insert(make_pair("ELECTION_TIMEOUT_MS","1500"));
     vvalue.insert(make_pair("BROADCAST_TIMEOUT_MS","500"));
     vvalue.insert(make_pair("XMLRPC_TIMEOUT_MS","100"));
+    vvalue.insert(make_pair("LIMIT_PURGE","10000"));
 
     vattribute = new VectorAttribute("RAFT",vvalue);
     conf_default.insert(make_pair(vattribute->name(),vattribute));

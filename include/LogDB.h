@@ -82,7 +82,7 @@ private:
 class LogDB : public SqlDB, Callbackable
 {
 public:
-    LogDB(SqlDB * _db, bool solo, unsigned int log_retention);
+    LogDB(SqlDB * _db, bool solo, unsigned int log_retention, unsigned int limit_purge);
 
     virtual ~LogDB();
 
@@ -281,6 +281,11 @@ private:
      *  Max number of records to keep in the database
      */
     unsigned int log_retention;
+
+    /**
+     *  Max number of logs purged on each call.
+     */
+    unsigned int limit_purge;
 
     // -------------------------------------------------------------------------
     // Federated Log
