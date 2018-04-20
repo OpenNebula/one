@@ -29,7 +29,8 @@
 usage() {
  echo
  echo "Usage: install.sh [-u install_user] [-g install_group] [-k keep conf]"
- echo "                  [-d ONE_LOCATION] [-c cli|ec2] [-r] [-h]"
+ echo "                  [-d ONE_LOCATION] [-c cli|ec2] [-r]"
+ echo "                  [-s] [-p] [-G] [-f] [-l] [-e] [-h]"
  echo
  echo "-u: user that will run opennebula, defaults to user executing install.sh"
  echo "-g: group of the user that will run opennebula, defaults to user"
@@ -52,15 +53,9 @@ usage() {
 }
 #-------------------------------------------------------------------------------
 
-PARAMETERS="ehkrlcspou:g:d:"
+PARAMETERS=":u:g:d:ehkrlcsporlfG"
 
-if [ $(getopt --version | tr -d " ") = "--" ]; then
-    TEMP_OPT=`getopt $PARAMETERS "$@"`
-else
-    TEMP_OPT=`getopt -o $PARAMETERS -n 'install.sh' -- "$@"`
-fi
-
-if [ $? != 0 ] ; then
+if [ $# = 0 ] ; then
     usage
     exit 1
 fi
@@ -80,23 +75,22 @@ ONEADMIN_GROUP=`id -g`
 SRC_DIR=$PWD
 DOCKER_MACHINE="no"
 
-while true ; do
-    case "$1" in
-        -e) DOCKER_MACHINE="yes"   ; shift ;;
+while getopts $PARAMETERS opt ; do
+    case $opt in
+        -e) DOCKER_MACHINE="yes" ;;
         -h) usage; exit 0;;
-        -k) INSTALL_ETC="no"   ; shift ;;
-        -r) UNINSTALL="yes"   ; shift ;;
-        -l) LINK="yes" ; shift ;;
-        -c) CLIENT="yes"; INSTALL_ETC="no" ; shift ;;
-        -G) ONEGATE="yes"; shift ;;
-        -s) SUNSTONE="yes"; shift ;;
-        -p) SUNSTONE_DEV="no"; shift ;;
-        -f) ONEFLOW="yes"; shift ;;
-        -u) ONEADMIN_USER="$2" ; shift 2;;
-        -g) ONEADMIN_GROUP="$2"; shift 2;;
-        -d) ROOT="$2" ; shift 2 ;;
-        --) shift ; break ;;
-        *)  usage; exit 1 ;;
+        -k) INSTALL_ETC="no" ;;
+        -r) UNINSTALL="yes" ;;
+        -l) LINK="yes" ;;
+        -c) CLIENT="yes"; INSTALL_ETC="no" ;;
+        -G) ONEGATE="yes" ;;
+        -s) SUNSTONE="yes" ;;
+        -p) SUNSTONE_DEV="no" ;;
+        -f) ONEFLOW="yes" ;;
+        -u) ONEADMIN_USER="$OPTARG" ;;
+        -g) ONEADMIN_GROUP="$OPTARG" ;;
+        -d) ROOT="$OPTARG" ;;
+        \?) usage; exit 1 ;;
     esac
 done
 
