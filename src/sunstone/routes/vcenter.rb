@@ -129,7 +129,7 @@ get '/vcenter/datastores' do
     begin
         new_vcenter_importer("datastores")
 
-        [200, $importer.list.to_json]
+        [200, $importer.retrieve_resources.to_json]
     rescue Exception => e
         logger.error("[vCenter] " + e.message)
         error = Error.new(e.message)
@@ -153,7 +153,7 @@ get '/vcenter/templates' do
     begin
         new_vcenter_importer("templates")
 
-        [200, $importer.list.to_json]
+        [200, $importer.retrieve_resources.to_json]
     rescue Exception => e
         logger.error("[vCenter] " + e.message)
         error = Error.new(e.message)
@@ -177,7 +177,7 @@ get '/vcenter/networks' do
     begin
         new_vcenter_importer("networks")
 
-        [200, $importer.list.to_json]
+        [200, $importer.retrieve_resources.to_json]
     rescue Exception => e
         logger.error("[vCenter] " + e.message)
         error = Error.new(e.message)
@@ -208,7 +208,7 @@ get '/vcenter/images' do
             one_item: ds
         }
 
-        [200, $importer.list({datastore: opts}).to_json]
+        [200, $importer.retrieve_resources({datastore: opts}).to_json]
     rescue Exception => e
         logger.error("[vCenter] " + e.message)
         error = Error.new(e.message)
