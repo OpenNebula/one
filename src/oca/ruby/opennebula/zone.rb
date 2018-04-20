@@ -55,6 +55,10 @@ module OpenNebula
             super(xml,client)
         end
 
+        def add_element(elem, name)
+            return elem.add_child(elem.document.create_element(name))
+        end
+
         #######################################################################
         # XML-RPC Methods for the Zone Object
         #######################################################################
@@ -66,7 +70,40 @@ module OpenNebula
             super(ZONE_METHODS[:info], 'ZONE')
         end
 
+        # Retrieves the information extended of the given Zone.
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def info_extended()
+            info()
+            options = {}
+            options[:timeout] = 5 #5 sec
+            @xml.xpath("SERVER_POOL/SERVER").each do |doc_elem|
+                server_data = []
+                server_attr = {}
+                endpoint = doc_elem.xpath("ENDPOINT").text
+                next if endpoint.nil?
+
+                client = OpenNebula::Client.new(nil, endpoint, options)
+
+                xml_doc = Nokogiri::XML(client.call("zone.raftstatus"))
+
+                server_data.push({"key"=>"STATE", "value"=> xml_doc.at_xpath("RAFT/STATE").text})
+                server_data.push({"key"=>"TERM",  "value"=> xml_doc.at_xpath("RAFT/TERM").text})
+                server_data.push({"key"=>"VOTEDFOR", "value"=> xml_doc.at_xpath("RAFT/VOTEDFOR").text})
+                server_data.push({"key"=>"COMMIT", "value"=> xml_doc.at_xpath("RAFT/COMMIT").text})
+                server_data.push({"key"=>"LOG_INDEX", "value"=> xml_doc.at_xpath("RAFT/LOG_INDEX").text})
+                server_data.push({"key"=>"FEDLOG_INDEX", "value"=> xml_doc.at_xpath("RAFT/FEDLOG_INDEX").text})
+
+                server_data.each do |obj|
+                    elem = Nokogiri::XML::Node.new obj["key"], @xml.document
+                    elem.content = obj["value"]
+                    doc_elem.add_child(elem)
+                end
+            end
+        end
+
         alias_method :info!, :info
+        alias_method :info_extended!, :info_extended
 
         # Allocates a new Zone in OpenNebula
         #
