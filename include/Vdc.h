@@ -35,11 +35,11 @@ public:
     {
         switch (type)
         {
-            case PoolObjectSQL::HOST:           return "HOST" ; break;
-            case PoolObjectSQL::NET:            return "VNET" ; break;
-            case PoolObjectSQL::DATASTORE:      return "DATASTORE" ; break;
-            case PoolObjectSQL::CLUSTER:        return "CLUSTER" ; break;
-            default:             return "";
+            case PoolObjectSQL::HOST:      return "HOST";
+            case PoolObjectSQL::NET:       return "VNET";
+            case PoolObjectSQL::DATASTORE: return "DATASTORE";
+            case PoolObjectSQL::CLUSTER:   return "CLUSTER";
+            default: return "";
         }
     }
 
