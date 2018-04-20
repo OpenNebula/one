@@ -129,7 +129,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
             importer = VCenterDriver::VcImporter.new_child(helper.client, vi_client, options[:object])
 
-            list = importer.list(args)
+            list = importer.retrieve_resources(args)
 
             helper.list_object(options, list)
         else
@@ -150,7 +150,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
             importer = VCenterDriver::VcImporter.new_child(helper.client, vi_client, options[:object])
 
-            importer.list(args)
+            importer.retrieve_resources(args)
 
             importer.process_import(indexes) do |object_info|
                 helper.cli_dialogue(object_info)
@@ -169,7 +169,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             args  = helper.parse_opts(options)
             vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
             importer = VCenterDriver::VcImporter.new_child(helper.client, vi_client, options[:object])
-            importer.list(args)
+            importer.retrieve_resources(args)
 
 
             importer.import_bulk

@@ -4,6 +4,16 @@ module VCenterDriver
 
         protected
 
+		#
+		# Object used for stack action and perform rollback
+		#
+        # Constructor:
+        # @param object [Ruby Object] Any object related to the action.
+		# @param method [Symbol] Symbol representing the method (must belong to object)
+		# @param args   [Array] Array with list of arguments, will be passed to method
+		#
+		# apply:
+        # The stored @object call ther @method with @args
         class Raction
             def initialize(object, method, args = [])
                 @object = object
@@ -16,25 +26,68 @@ module VCenterDriver
             end
         end
 
-        ########################################
-        # ABSTRACT INTERFACE
-        ########################################
-        MESS = "missing method from parent"
-
-        def get_list(args = {})   raise MESS end
-        def add_cluster(cid, eid) raise MESS end
-        def remove_default(id)    raise MESS end
-        def import(selected)      raise MESS end
-        ########################################
-
         def attr
             false
         end
 
+        #######################################################################
+        # ABSTRACT INTERFACE
+        #######################################################################
+        #
+        # This Interface should be implemented by the specific importer.
+
+        MESS = "missing method from parent"
+
+		#
+		# Retrieves a list with the unimported resources
+		# The importer needs to perform this operation
+		# before any import operation,
+        #
+		# @param args [Hash] Hash with the needed arguments
+		#
+		# @return [Hash{String => Hash}] operation results.
+		#
+        def get_list(args = {})   raise MESS end
+
+		#
+		# Add certain resource to OpenNebula Cluster.
+		#
+		# @param cid [Int] opennebula cluster id
+		# @param eid [Int] the id of the imported opennebula resource
+        #
+        def add_cluster(cid, eid) raise MESS end
+
+		#
+		# Remove the imported resource from the default cluster
+		#
+		# @param id [Int] id of the imported resource
+		#
+        def remove_default(id)    raise MESS end
+
+		#
+		# Retrieves information about the run-time state of a virtual machine.
+		#
+		# @param selected [Hash] Hash with the info of the vCenter object that will
+        # be imported
+		#
+		# @return [Hash{:id => [], :name => String}] operation results.
+		#
+        def import(selected)      raise MESS end
+
+
         public
-        ########################################
+
+        #######################################################################
         # Constructors
-        ########################################
+        #######################################################################
+        #
+		#
+
+		# Builds a vCenter importer
+		#
+		# @param one_client [OpenNebula::Client] OpenNebula ruby Client
+		# @param vi_client  [VCenterDriver::VIClient] vCenter driver Client
+		#
         def initialize(one_client, vi_client)
             @vi_client  = vi_client
             @one_client = one_client
@@ -47,6 +100,15 @@ module VCenterDriver
             @info[:error]   = []
         end
 
+		#
+		# Allow us to spawn a specific importer child
+		#
+		# @param one_client [OpenNebula::Client] OpenNebula ruby Client
+		# @param vi_client  [VCenterDriver::VIClient] vCenter driver Client
+		# @param type       [String] to choose the specific child
+		#
+		# @return [VCImporter] the vCenter importer that will handle any operation
+		#
         def self.new_child(one_client, vi_client, type)
             case type.downcase
             when "datastores"
@@ -61,14 +123,20 @@ module VCenterDriver
                 raise "unknown object type"
             end
         end
-        ########################################
 
+		#
+		# @return [String] the object type of the importer
+		#
         def one_str
             return @one_class.to_s.split('::').last if @one_class
 
             "OpenNebula object"
         end
 
+        #
+        # Prints feedback of the realized import operations
+        # throught STDOUT
+        #
         def stdout
             @info[:success].each do |o|
                 id = o[:id].join(' ') rescue nil || o[:id]
@@ -83,6 +151,11 @@ module VCenterDriver
             end
         end
 
+        #
+        # Importer return value
+        #
+        # @ return [Hash{:sucess =>[[]] , :error => {}}
+        #
         def output
             { success: @info[:success], error: @info[:error] }
         end
@@ -96,13 +169,38 @@ module VCenterDriver
             process_import(indexes)
         end
 
-        def list(opts = {})
+        #
+        # Wrapper of get_list, needed for clean the cache
+        # get_list populates @ref_hash cache at vCenter driver
+        # level, with this function you still can reuse the importer.
+        #
+		# @param opts [Hash] Hash with the needed arguments
+        #
+        # @ return [Hash] the list of unimported resources
+        #
+        def retrieve_resources(opts = {})
             list = get_list(opts)
             VCenterDriver::VIHelper.clean_ref_hash
 
             return list
         end
 
+        #
+        # This method handles all the importation.
+        # Will be in charge of call the specific import operation
+        # of the specific importer.
+        #
+		# @param indexes [Array] Array with all the indexes that
+        # points to the selected object of the list.
+        # @param opts    [Hash] Hash with the options.
+        # In sunstone context this options will contain every
+        # index associated to his own resource opt
+        #
+        # Example:
+        # {"vm-343" => {linked: '0', copy: '0'...}
+        #
+        # @ return [Hash] the list of unimported resources
+        #
         def process_import(indexes, opts = {}, &block)
             raise "the list is empty" if list_empty?
             indexes = indexes.gsub(/\s+/, "").split(",")
@@ -136,6 +234,14 @@ module VCenterDriver
 
         protected
 
+
+		#
+		# Create and allocate a Opennebula Object.
+		#
+		# @param info [String] Info passed to opennebula Core.
+		#
+		# @return [&block] the allocated object through a block.
+		#
         def create(info, &block)
             resource = VCenterDriver::VIHelper.new_one_item(@one_class)
             message = "Error creating the OpenNebula resource"
@@ -155,10 +261,20 @@ module VCenterDriver
             #end
         end
 
+		#
+		# Asks if @łist is empty
+		#
         def list_empty?
             @list == {}
         end
 
+		#
+		# Gets a certain element from the list, ref given.
+		#
+		# @param ref [String] vCenter reference and index of importer list.
+		#
+		# @return [Hash] Hash with all the info related to the reference
+		#
         def get_element(ref)
             raise "the list is empty" if list_empty? || list.values[0].empty?
 
@@ -169,6 +285,14 @@ module VCenterDriver
             raise "#{ref} not found!"
         end
 
+		#
+		# Add the imported resources to n OpenNebula Clusters.
+        # And remove the default one(0).
+		#
+		# @param one_id   [Int] The id of the imported OpenNebula object.
+		# @param clusters [Array] Array with all the ids of the desired
+        # OpenNebula clusters.
+		#
         def add_clusters(one_id, clusters, &block)
             clusters.each do |cid|
                 @info[:clusters][cid] ||= VCenterDriver::VIHelper.one_item(OpenNebula::Cluster, cid.to_s, false)
@@ -178,6 +302,10 @@ module VCenterDriver
             remove_default(one_id)
         end
 
+		#
+		# Call this function to use the rollback Stack, and delete every
+        # corrupted object created by the importer.
+		#
         def apply_rollback
             if !@rollback.empty?
                 @rollback.each do |action|
@@ -186,6 +314,9 @@ module VCenterDriver
             end
         end
 
+		#
+        # Default opts
+        #
         def defaults
             {}
         end
