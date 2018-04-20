@@ -2632,6 +2632,8 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
             return -1;
         }
 
+        context_new = obj_template->get("CONTEXT");
+
         if ( !files_ds.empty() )
         {
             context_new->replace("FILES_DS", files_ds);
