@@ -666,55 +666,56 @@ class Template
                 nic[:refs] = network.host.map do |h|
                     h.parent._ref if h.parent
                 end
-                
                 if wild
-                    ipAddresses = @item["guest.net"][num_device].ipConfig.ipAddress
-                    if !ipAddresses.empty?
-                        nic[:ipv4], nic[:ipv4_additionals] = nil
-                        nic[:ipv6], nic[:ipv6_ula], nic[:ipv6_global], nic[:ipv6_additionals] = nil
-                        index = 0
-                        while index < ipAddresses.length
-                            ip = ipAddresses[index].ipAddress
-                            if ip =~ Resolv::IPv4::Regex
-                                if nic[:ipv4]
-                                    if nic[:ipv4_additionals] 
-                                        nic[:ipv4_additionals] += ',' + ip
-                                    else 
-                                        nic[:ipv4_additionals] = ip
-                                    end
-                                else
-                                    nic[:ipv4] = ip
-                                end
-                            elsif ipAddresses[index].ipAddress =~ Resolv::IPv6::Regex
-                                if get_ipv6_prefix(ip, 3) == "2000"
-                                    if nic[:ipv6_global]
-                                        if nic[:ipv6_additionals] 
-                                            nic[:ipv6_additionals] += ',' + ip
+                    if !@item["guest.net"].empty?
+                        ipAddresses = @item["guest.net"][num_device].ipConfig.ipAddress
+                        if !ipAddresses.nil? && !ipAddresses.empty?
+                            nic[:ipv4], nic[:ipv4_additionals] = nil
+                            nic[:ipv6], nic[:ipv6_ula], nic[:ipv6_global], nic[:ipv6_additionals] = nil
+                            index = 0
+                            while index < ipAddresses.length
+                                ip = ipAddresses[index].ipAddress
+                                if ip =~ Resolv::IPv4::Regex
+                                    if nic[:ipv4]
+                                        if nic[:ipv4_additionals] 
+                                            nic[:ipv4_additionals] += ',' + ip
                                         else 
-                                            nic[:ipv6_additionals] = ip
+                                            nic[:ipv4_additionals] = ip
                                         end
                                     else
-                                        nic[:ipv6_global] = ip
+                                        nic[:ipv4] = ip
                                     end
-                                elsif get_ipv6_prefix(ip, 10) == "fe80"
-                                    nic[:ipv6] = ip
-                                elsif get_ipv6_prefix(ip, 7) == "fc00"
-                                    if nic[:ipv6_ula]
-                                        if nic[:ipv6_additionals] 
-                                            nic[:ipv6_additionals] += ',' + ip
-                                        else 
-                                            nic[:ipv6_additionals] = ip
+                                elsif ipAddresses[index].ipAddress =~ Resolv::IPv6::Regex
+                                    if get_ipv6_prefix(ip, 3) == "2000"
+                                        if nic[:ipv6_global]
+                                            if nic[:ipv6_additionals] 
+                                                nic[:ipv6_additionals] += ',' + ip
+                                            else 
+                                                nic[:ipv6_additionals] = ip
+                                            end
+                                        else
+                                            nic[:ipv6_global] = ip
                                         end
-                                    else 
-                                        nic[:ipv6_ula] = ip
+                                    elsif get_ipv6_prefix(ip, 10) == "fe80"
+                                        nic[:ipv6] = ip
+                                    elsif get_ipv6_prefix(ip, 7) == "fc00"
+                                        if nic[:ipv6_ula]
+                                            if nic[:ipv6_additionals] 
+                                                nic[:ipv6_additionals] += ',' + ip
+                                            else 
+                                                nic[:ipv6_additionals] = ip
+                                            end
+                                        else 
+                                            nic[:ipv6_ula] = ip
+                                        end
                                     end
                                 end
+                                index += 1
                             end
-                            index += 1
                         end
+                        nic[:mac] = @item["guest.net"][num_device].macAddress rescue nil
+                        num_device += 1
                     end
-                    nic[:mac] = @item["guest.net"][num_device].macAddress rescue nil
-                    num_device += 1
                 else 
                     nic[:mac] = device.macAddress rescue nil
                 end

@@ -50,10 +50,12 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
                                                               vm_name)
 
         if !error.empty?
-            ar_ids.each do |key, value|
-                network = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,"TEMPLATE/VCENTER_NET_REF", key, vc_uuid, npool)
-                value.each do |ar|
-                    network.rm_ar(ar)
+            if !ar_ids.nil?
+                ar_ids.each do |key, value|
+                    network = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,"TEMPLATE/VCENTER_NET_REF", key, vc_uuid, npool)
+                    value.each do |ar|
+                        network.rm_ar(ar)
+                    end
                 end
             end
             return OpenNebula::Error.new(error) if !error.empty?
@@ -73,10 +75,12 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
         end.first
 
         if !ds_one
-            ar_ids.each do |key, value|
-                network = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,"TEMPLATE/VCENTER_NET_REF", key, vc_uuid, npool)
-                value.each do |ar|
-                    network.rm_ar(ar)
+            if !ar_ids.nil?
+                ar_ids.each do |key, value|
+                    network = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,"TEMPLATE/VCENTER_NET_REF", key, vc_uuid, npool)
+                    value.each do |ar|
+                        network.rm_ar(ar)
+                    end
                 end
             end
             return OpenNebula::Error.new("DS with ref #{ds_ref} is not imported in OpenNebula, aborting Wild VM import.") 
@@ -84,10 +88,12 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
 
         rc = one_vm.allocate(template)
         if OpenNebula.is_error?(rc)
-            ar_ids.each do |key, value|
-                network = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,"TEMPLATE/VCENTER_NET_REF", key, vc_uuid, npool)
-                value.each do |ar|
-                    network.rm_ar(ar)
+            if !ar_ids.nil?
+                ar_ids.each do |key, value|
+                    network = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,"TEMPLATE/VCENTER_NET_REF", key, vc_uuid, npool)
+                    value.each do |ar|
+                        network.rm_ar(ar)
+                    end
                 end
             end
             return rc
@@ -95,10 +101,12 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
 
         rc = one_vm.deploy(host_id, false, ds_one.id)
         if OpenNebula.is_error?(rc)
-            ar_ids.each do |key, value|
-                network = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,"TEMPLATE/VCENTER_NET_REF", key, vc_uuid, npool)
-                value.each do |ar|
-                    network.rm_ar(ar)
+            if !ar_ids.nil?
+                ar_ids.each do |key, value|
+                    network = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,"TEMPLATE/VCENTER_NET_REF", key, vc_uuid, npool)
+                    value.each do |ar|
+                        network.rm_ar(ar)
+                    end
                 end
             end
             return rc
