@@ -120,16 +120,19 @@ class Network
         vm_or_template_name   = opts[:vm_or_template_name] || nil
         template_id           = opts[:template_id] || nil
 
+        bridge_name = network_name
+        network_name = network_name.gsub("/","_")
+
         network_import_name = generate_name(network_name, {:vcenter_name=>vcenter_instance_name, :dc_name=>dc_name})
 
-        one_tmp[:name]             = network_name
+        one_tmp[:name]             = bridge_name
         one_tmp[:import_name]      = network_import_name
-        one_tmp[:bridge]           = network_name
+        one_tmp[:bridge]           = bridge_name
         one_tmp[:type]             = network_type
         one_tmp[:one_cluster_id]   = cluster_id
         one_tmp[:ref]  = network_ref
 
-        one_tmp[:one] = to_one(network_import_name, network_name, network_ref, network_type,
+        one_tmp[:one] = to_one(network_import_name, bridge_name, network_ref, network_type,
                                vcenter_uuid, unmanaged, template_ref, dc_ref, template_id)
         return one_tmp
     end
