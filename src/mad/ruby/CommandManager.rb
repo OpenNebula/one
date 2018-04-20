@@ -16,7 +16,6 @@
 
 require 'pp'
 require 'open3'
-require 'stringio'
 require 'timeout'
 
 # Generic command executor that holds the code shared by all the command
@@ -70,45 +69,31 @@ class GenericCommand
         @logger.call(message, all) if @logger
     end
 
-    def kill(pid)
-        # executed processes now have its own process group to be able
-        # to kill all children
-        pgid = Process.getpgid(pid)
-
-        # Kill all processes belonging to process group
-        Process.kill("HUP", pgid * -1)
-    end
-
     # Runs the command
     def run
-        std = nil
-        process = Proc.new do
-            @stdout, @stderr, _status = execute
-
-            @code = get_exit_code(@stderr)
-
-            if @code!=0
-                log("Command execution fail: #{command}")
-                log(@stderr)
-            end
-        end
-
         begin
-            if @timeout
-                Timeout.timeout(@timeout, nil, &process)
-            else
-                process.call
+            # https://redmine.ruby-lang.org/issues/4681
+            Timeout.timeout(@timeout) do
+                Timeout.timeout(@timeout) do
+                    @stdout, @stderr, status = execute
+
+                    if status && status.exited?
+                        @code = status.exitstatus
+                    else
+                        @code = 255
+                    end
+
+                    if @code != 0
+                        log("Command execution fail (exit code: #{@code}): #{command}")
+                        log(@stderr)
+                    end
+                end
             end
         rescue Timeout::Error
             error_message = "Timeout executing #{command}"
             log(error_message)
 
             @stderr = ERROR_OPEN + "\n" + error_message + "\n" + ERROR_CLOSE
-
-            3.times {|n| std[n].close if !std[n].closed? }
-
-            pid = std[-1].pid
-            self.kill(pid)
 
             @code = 255
         end
@@ -125,19 +110,12 @@ class GenericCommand
 
 private
 
-    # Gets exit code from STDERR
-    def get_exit_code(str)
-        tmp=str.scan(/^ExitCode: (\d*)$/)
-        return nil if !tmp[0]
-        tmp[0][0].to_i
-    end
-
     # Low level command execution. This method has to be redefined
     # for each kind of command execution. Returns an array with
-    # +stdin+, +stdout+ and +stderr+ handlers of the command execution.
+    # +stdout+, +stderr+ and +status+ of the command execution.
     def execute
         puts "About to execute \"#{@command}\""
-        [StringIO.new, StringIO.new, StringIO.new]
+        ['', '', nil]
     end
 
 end
@@ -148,7 +126,7 @@ class LocalCommand < GenericCommand
 private
 
     def execute
-        Open3.capture3("#{command} ; echo ExitCode: $? 1>&2",
+        Open3.capture3("#{command}",
                         :pgroup => true, :stdin_data => @stdin)
     end
 end
@@ -176,10 +154,10 @@ private
 
     def execute
         if @stdin
-            Open3.capture3("ssh #{@host} #{@command} ; echo ExitCode: $? 1>&2",
+            Open3.capture3("ssh #{@host} #{@command}",
                             :pgroup => true, :stdin_data => @stdin)
         else
-            Open3.capture3("ssh -n #{@host} #{@command} ; echo ExitCode: $? 1>&2",
+            Open3.capture3("ssh -n #{@host} #{@command}",
                             :pgroup => true)
         end
     end
