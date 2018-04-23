@@ -76,6 +76,12 @@ class Template
         self.class == VCenterDriver::VirtualMachine
     end
 
+    def online?
+        raise "vcenter item not found!" unless @item
+
+        !@item["guest.net"].empty?
+    end
+
     def get_dc
         item = @item
 
@@ -370,7 +376,7 @@ class Template
             ccr_name = self["runtime.host.parent.name"]
 
             #Get disks and info required
-            vc_nics = get_vcenter_nics(wild)
+            vc_nics = get_vcenter_nics()
 
             # Track allocated networks for rollback
             allocated_networks = []
@@ -640,91 +646,98 @@ class Template
         return disks
     end
 
-    def get_vcenter_nics(wild)
+    def retrieve_from_device(device)
+        res = {}
+
+        # Let's find out if it is a standard or distributed network
+        # If distributed, it needs to be instantitaed from the ref
+        if device.backing.is_a? RbVmomi::VIM::VirtualEthernetCardDistributedVirtualPortBackingInfo
+            if device.backing.port.portKey.match(/^[a-z]+-\d+$/)
+                ref = device.backing.port.portKey
+            elsif device.backing.port.portgroupKey.match(/^[a-z]+-\d+$/)
+                ref = device.backing.port.portgroupKey
+            else
+                raise "Cannot get hold of Network for device #{device}"
+            end
+
+            network = RbVmomi::VIM::Network.new(@vi_client.vim, ref)
+        else
+            network = device.backing.network
+        end
+
+        res[:refs] = network.host.map do |h|
+            h.parent._ref if h.parent
+        end
+
+        res[:net_name]  = network.name
+        res[:net_ref]   = network._ref
+        res[:pg_type]   = VCenterDriver::Network.get_network_type(device)
+        res[:network]   = network
+
+        res
+    end
+
+    def get_vcenter_nics()
         nics = []
         num_device = 0
         @item["config.hardware.device"].each do |device|
-            nic     = {}
-            network = nil
-            if is_nic?(device)
+            next unless is_nic?(device)
 
-                # Let's find out if it is a standard or distributed network
-                # If distributed, it needs to be instantitaed from the ref
-                if device.backing.is_a? RbVmomi::VIM::VirtualEthernetCardDistributedVirtualPortBackingInfo
-                    if device.backing.port.portKey.match(/^[a-z]+-\d+$/)
-                        ref = device.backing.port.portKey
-                    elsif device.backing.port.portgroupKey.match(/^[a-z]+-\d+$/)
-                        ref = device.backing.port.portgroupKey
-                    else
-                        raise "Cannot get hold of Network for device #{device}"
-                    end
+            nic = retrieve_from_device(device)
 
-                    network = RbVmomi::VIM::Network.new(@vi_client.vim, ref)
-                else
-                    network = device.backing.network
-                end
-                nic[:refs] = network.host.map do |h|
-                    h.parent._ref if h.parent
-                end
-                if wild
-                    if !@item["guest.net"].empty?
-                        ipAddresses = @item["guest.net"][num_device].ipConfig.ipAddress
-                        if !ipAddresses.nil? && !ipAddresses.empty?
-                            nic[:ipv4], nic[:ipv4_additionals] = nil
-                            nic[:ipv6], nic[:ipv6_ula], nic[:ipv6_global], nic[:ipv6_additionals] = nil
-                            index = 0
-                            while index < ipAddresses.length
-                                ip = ipAddresses[index].ipAddress
-                                if ip =~ Resolv::IPv4::Regex
-                                    if nic[:ipv4]
-                                        if nic[:ipv4_additionals] 
-                                            nic[:ipv4_additionals] += ',' + ip
-                                        else 
-                                            nic[:ipv4_additionals] = ip
+            if wild?
+                nic[:mac] = device.macAddress rescue nil
+
+                if online?
+                    inets = @item["guest.net"].map.with_index { |x,i| [x.macAddress, x] }.to_h
+                    ipAddresses = inets[nic[:mac]].ipConfig.ipAddress
+
+                    if !ipAddresses.nil? && !ipAddresses.empty?
+                        nic[:ipv4], nic[:ipv4_additionals] = nil
+                        nic[:ipv6], nic[:ipv6_ula], nic[:ipv6_global], nic[:ipv6_additionals] = nil
+                        for i in 0...ipAddresses.length
+                            ip = ipAddresses[i].ipAddress
+                            if ip =~ Resolv::IPv4::Regex
+                                if nic[:ipv4]
+                                    if nic[:ipv4_additionals]
+                                        nic[:ipv4_additionals] += ',' + ip
+                                    else
+                                        nic[:ipv4_additionals] = ip
+                                    end
+                                else
+                                    nic[:ipv4] = ip
+                                end
+                            elsif ipAddresses[i].ipAddress =~ Resolv::IPv6::Regex
+                                if get_ipv6_prefix(ip, 3) == "2000"
+                                    if nic[:ipv6_global]
+                                        if nic[:ipv6_additionals]
+                                            nic[:ipv6_additionals] += ',' + ip
+                                        else
+                                            nic[:ipv6_additionals] = ip
                                         end
                                     else
-                                        nic[:ipv4] = ip
+                                        nic[:ipv6_global] = ip
                                     end
-                                elsif ipAddresses[index].ipAddress =~ Resolv::IPv6::Regex
-                                    if get_ipv6_prefix(ip, 3) == "2000"
-                                        if nic[:ipv6_global]
-                                            if nic[:ipv6_additionals] 
-                                                nic[:ipv6_additionals] += ',' + ip
-                                            else 
-                                                nic[:ipv6_additionals] = ip
-                                            end
+                                elsif get_ipv6_prefix(ip, 10) == "fe80"
+                                    nic[:ipv6] = ip
+                                elsif get_ipv6_prefix(ip, 7) == "fc00"
+                                    if nic[:ipv6_ula]
+                                        if nic[:ipv6_additionals]
+                                            nic[:ipv6_additionals] += ',' + ip
                                         else
-                                            nic[:ipv6_global] = ip
+                                            nic[:ipv6_additionals] = ip
                                         end
-                                    elsif get_ipv6_prefix(ip, 10) == "fe80"
-                                        nic[:ipv6] = ip
-                                    elsif get_ipv6_prefix(ip, 7) == "fc00"
-                                        if nic[:ipv6_ula]
-                                            if nic[:ipv6_additionals] 
-                                                nic[:ipv6_additionals] += ',' + ip
-                                            else 
-                                                nic[:ipv6_additionals] = ip
-                                            end
-                                        else 
-                                            nic[:ipv6_ula] = ip
-                                        end
+                                    else
+                                        nic[:ipv6_ula] = ip
                                     end
                                 end
-                                index += 1
                             end
                         end
-                        nic[:mac] = @item["guest.net"][num_device].macAddress rescue nil
-                        num_device += 1
                     end
-                else 
-                    nic[:mac] = device.macAddress rescue nil
                 end
-                nic[:net_name]  = network.name
-                nic[:net_ref]   = network._ref
-                nic[:pg_type]   = VCenterDriver::Network.get_network_type(device)
-
-                nics << nic
             end
+
+            nics << nic
         end
         return nics
     end
