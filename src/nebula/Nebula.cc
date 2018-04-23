@@ -236,12 +236,14 @@ void Nebula::start(bool bootstrap_only)
     time_t log_purge;
 
     unsigned int log_retention;
+    unsigned int limit_purge;
 
     vatt->vector_value("LOG_PURGE_TIMEOUT", log_purge);
     vatt->vector_value("ELECTION_TIMEOUT_MS", election_ms);
     vatt->vector_value("BROADCAST_TIMEOUT_MS", bcast_ms);
     vatt->vector_value("XMLRPC_TIMEOUT_MS", xmlrpc_ms);
     vatt->vector_value("LOG_RETENTION", log_retention);
+    vatt->vector_value("LIMIT_PURGE", limit_purge);
 
     Log::set_zone_id(zone_id);
 
@@ -342,7 +344,7 @@ void Nebula::start(bool bootstrap_only)
             }
         }
 
-        logdb = new LogDB(db_backend, solo, log_retention);
+        logdb = new LogDB(db_backend, solo, log_retention, limit_purge);
 
         if ( federation_master )
         {
