@@ -891,7 +891,7 @@ bool Image::test_set_persistent(Template * image_template, int uid, int gid,
     string per_oned;
     string conf_name;
 
-    bool persistent = false;
+    bool persistent  = false;
     bool tmpl_persis = false;
 
     if ( is_allocate )
@@ -903,35 +903,32 @@ bool Image::test_set_persistent(Template * image_template, int uid, int gid,
         conf_name = "DEFAULT_IMAGE_PERSISTENT";
     }
 
+    bool has_persistent = image_template->get("PERSISTENT", tmpl_persis);
+
+    // Get default persistent value from user, group or oned.conf
+    // If no default value found the use PERSISTENT from image template
     int rc = nd.get_configuration_attribute(uid, gid, conf_name, per_oned);
 
     if ( rc == 0 )
     {
-        if ( one_util::toupper(per_oned) == "YES" )
-        {
-            persistent = true;
-        }
-        else if ( one_util::toupper(per_oned) == "NO" )
-        {
-            persistent = false;
-        }
-    }
-
-    bool has_persistent = image_template->get("PERSISTENT", tmpl_persis);
-
-    if ( is_allocate )
-    {
-        if ( has_persistent )
+        if ( per_oned.empty() )
         {
             persistent = tmpl_persis;
+        }
+        else if (one_util::toupper(per_oned) == "YES")
+        {
+            persistent = true;
         }
     }
     else
     {
-        if (rc != 0 || ( rc == 0 && one_util::toupper(per_oned) == "" ) )
-        {
-            persistent = tmpl_persis;
-        }
+        persistent = tmpl_persis;
+    }
+
+    // Honor template persistent value for ne.image.allocate
+    if (is_allocate && has_persistent)
+    {
+        persistent = tmpl_persis;
     }
 
     image_template->replace("PERSISTENT", persistent);
