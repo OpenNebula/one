@@ -87,8 +87,6 @@ public:
         cb  = 0;
         arg = 0;
 
-        affected_rows = 0;
-
         pthread_mutex_unlock(&mutex);
     }
 
