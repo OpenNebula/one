@@ -50,8 +50,8 @@ define(function(require) {
     }
 
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
-    this.icon = 'fa-ellipsis-h';
-    this.title = Locale.tr("Other");
+    this.icon = 'fa-tag';
+    this.title = Locale.tr("Tags");
   }
 
   WizardTab.prototype.constructor = WizardTab;
