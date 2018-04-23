@@ -157,23 +157,14 @@ bool MySqlDB::multiple_values_support()
 
 int MySqlDB::exec(ostringstream& cmd, Callbackable* obj, bool quiet)
 {
-    int          rc;
-
-    MYSQL_RES *         result;
-
-    const char * c_str;
-    string       str;
-
-    str   = cmd.str();
-    c_str = str.c_str();
+    string str         = cmd.str();
+    const char * c_str = str.c_str();
 
     Log::MessageType error_level = quiet ? Log::DDEBUG : Log::ERROR;
 
-    MYSQL *db;
+    MYSQL * db = get_db_connection();
 
-    db = get_db_connection();
-
-    rc = mysql_query(db, c_str);
+    int rc = mysql_query(db, c_str);
 
     if (rc != 0)
     {
@@ -210,66 +201,66 @@ int MySqlDB::exec(ostringstream& cmd, Callbackable* obj, bool quiet)
         return -1;
     }
 
-    if ( (obj != 0) )
+    if (obj != 0)
     {
         // Retrieve the entire result set all at once
-        result = mysql_store_result(db);
-        mysql_field_count(db);
+        MYSQL_RES * result = mysql_store_result(db);
+
         int num_rows = mysql_affected_rows(db);
+
         if ( num_rows > 0)
         {
             obj->set_affected_rows(num_rows);
         }
-    }
 
-    if ( (obj != 0) && (obj->isCallBackSet()) )
-    {
-
-        MYSQL_ROW           row;
-        MYSQL_FIELD *       fields;
-        unsigned int        num_fields;
-
-        if (result == NULL)
+        if ( obj->isCallBackSet() )
         {
-            ostringstream   oss;
-            const char *    err_msg = mysql_error(db);
-            int             err_num = mysql_errno(db);
+            MYSQL_ROW           row;
+            MYSQL_FIELD *       fields;
+            unsigned int        num_fields;
 
-            oss << "SQL command was: " << c_str;
-            oss << ", error " << err_num << " : " << err_msg;
-
-            NebulaLog::log("ONE",error_level,oss);
-
-            free_db_connection(db);
-
-            return -1;
-        }
-
-        // Fetch the names of the fields
-        num_fields  = mysql_num_fields(result);
-        fields      = mysql_fetch_fields(result);
-
-        char ** names = new char*[num_fields];
-
-        for(unsigned int i = 0; i < num_fields; i++)
-        {
-            names[i] = fields[i].name;
-        }
-
-        // Fetch each row, and call-back the object waiting for them
-        while((row = mysql_fetch_row(result)))
-        {
-            if ( obj->do_callback(num_fields, row, names) != 0 )
+            if (result == NULL)
             {
-                rc = -1;
-                break;
+                ostringstream   oss;
+                const char *    err_msg = mysql_error(db);
+                int             err_num = mysql_errno(db);
+
+                oss << "SQL command was: " << c_str;
+                oss << ", error " << err_num << " : " << err_msg;
+
+                NebulaLog::log("ONE",error_level,oss);
+
+                free_db_connection(db);
+
+                return -1;
             }
+
+            // Fetch the names of the fields
+            num_fields  = mysql_num_fields(result);
+            fields      = mysql_fetch_fields(result);
+
+            char ** names = new char*[num_fields];
+
+            for(unsigned int i = 0; i < num_fields; i++)
+            {
+                names[i] = fields[i].name;
+            }
+
+            // Fetch each row, and call-back the object waiting for them
+            while((row = mysql_fetch_row(result)))
+            {
+                if ( obj->do_callback(num_fields, row, names) != 0 )
+                {
+                    rc = -1;
+                    break;
+                }
+            }
+
+            delete[] names;
         }
 
         // Free the result object
         mysql_free_result(result);
-
-        delete[] names;
     }
 
     free_db_connection(db);

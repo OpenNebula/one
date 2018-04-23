@@ -104,9 +104,9 @@ int LogDBRecord::select_cb(void *nil, int num, char **values, char **names)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-LogDB::LogDB(SqlDB * _db, bool _solo, unsigned int _lret, unsigned int _lpurge):solo(_solo), db(_db),
-    next_index(0), last_applied(-1), last_index(-1), last_term(-1),
-    log_retention(_lret), limit_purge(_lpurge)
+LogDB::LogDB(SqlDB * _db, bool _solo, unsigned int _lret, unsigned int _lp):
+    solo(_solo), db(_db), next_index(0), last_applied(-1), last_index(-1),
+    last_term(-1), log_retention(_lret), limit_purge(_lp)
 {
     int r, i;
 
@@ -205,8 +205,6 @@ int LogDB::get_log_record(unsigned int index, LogDBRecord& lr)
     {
         prev_index = 0;
     }
-
-    lr.index = index + 1;
 
     oss << "SELECT c.log_index, c.term, c.sqlcmd,"
         << " c.timestamp, c.fed_index, p.log_index, p.term"
@@ -575,7 +573,7 @@ int LogDB::purge_log()
     oss << "DELETE FROM logdb WHERE timestamp > 0 AND log_index >= 0 "
         << "AND log_index < "  << delete_index << " LIMIT " << limit_purge;
 
-    int rc = db->exec_rd(oss, &cb);
+    int rc = db->exec_wr(oss, &cb);
 
     pthread_mutex_unlock(&mutex);
 
@@ -583,6 +581,7 @@ int LogDB::purge_log()
     {
         return cb.get_affected_rows();
     }
+
     return rc;
 }
 

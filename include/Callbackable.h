@@ -52,7 +52,7 @@ public:
      *    @param ptr to the callback function
      *    @param arg custom arguments for the callback function
      */
-    void set_callback(Callback _cb, void * _arg = 0)
+    virtual void set_callback(Callback _cb, void * _arg = 0)
     {
         pthread_mutex_lock(&mutex);
 
@@ -64,7 +64,7 @@ public:
      *  Test if the CallBack is set for the object.
      *    @return true if the callback is set
      */
-    bool isCallBackSet()
+    virtual bool isCallBackSet()
     {
         return (cb != 0);
     };
@@ -86,6 +86,8 @@ public:
     {
         cb  = 0;
         arg = 0;
+
+        affected_rows = 0;
 
         pthread_mutex_unlock(&mutex);
     }
@@ -317,14 +319,7 @@ private:
 class empty_cb : public Callbackable
 {
 public:
-
-    void set_callback(){};
     void set_callback(Callback _cb, void * _arg = 0){};
-
-    int callback(void * nil, int num, char **values, char **names)
-    {
-        return 0;
-    };
 
     bool isCallBackSet()
     {

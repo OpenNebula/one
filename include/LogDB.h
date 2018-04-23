@@ -82,7 +82,8 @@ private:
 class LogDB : public SqlDB, Callbackable
 {
 public:
-    LogDB(SqlDB * _db, bool solo, unsigned int log_retention, unsigned int limit_purge);
+    LogDB(SqlDB * _db, bool solo, unsigned int log_retention,
+            unsigned int limit_purge);
 
     virtual ~LogDB();
 
@@ -168,6 +169,11 @@ public:
     int exec_wr(ostringstream& cmd)
     {
         return _exec_wr(cmd, -1);
+    }
+
+    int exec_wr(ostringstream& cmd, Callbackable* obj)
+    {
+        return exec_wr(cmd);
     }
 
     int exec_federated_wr(ostringstream& cmd)

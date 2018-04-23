@@ -61,12 +61,12 @@ public:
         return exec(cmd, 0, false);
     }
 
-    virtual int exec_wr_cb(ostringstream& cmd, Callbackable* obj)
+    virtual int exec_wr(ostringstream& cmd, Callbackable* obj)
     {
         return exec(cmd, obj, false);
     }
 
-    /**
+   /**
      *  This function returns a legal SQL string that can be used in an SQL
      *  statement.
      *    @param str the string to be escaped

@@ -796,19 +796,19 @@ void RaftManager::timer_action(const ActionRequest& ar)
     // Database housekeeping
     if ( (purge_tics * timer_period_ms) >= purge_period_ms )
     {
+        ostringstream oss;
+
         Nebula& nd    = Nebula::instance();
         LogDB * logdb = nd.get_logdb();
 
-        NebulaLog::log("RCM", Log::INFO, "Purging obsolete LogDB records");
+        oss << "Purging obsolete LogDB records: ";
 
         int rc = logdb->purge_log();
 
-        if ( rc != 0 )
+        if ( rc != 0 ) //logs removed, wakeup again in 60s to purge reaming
         {
-            purge_tics = (purge_period_ms - 60000)/timer_period_ms;
-            oss << rc << " logDB records have been purged";
-            NebulaLog::log("RCM", Log::INFO,  oss);
-            oss.str("");
+            purge_tics = (int) ((purge_period_ms - 60000)/timer_period_ms);
+
             if ( purge_tics < 0 )
             {
                 purge_tics = 0;
@@ -818,6 +818,10 @@ void RaftManager::timer_action(const ActionRequest& ar)
         {
             purge_tics = 0;
         }
+
+        oss << rc << " records purged";
+
+        NebulaLog::log("RCM", Log::INFO, oss);
     }
 
 	// Leadership
