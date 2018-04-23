@@ -27,6 +27,8 @@ define(function(require) {
   var UserInputs = require('utils/user-inputs');
   var UniqueId = require('utils/unique-id');
   var OpenNebula = require('opennebula');
+  var UsersTable = require("tabs/users-tab/datatable");
+  var GroupTable = require("tabs/groups-tab/datatable");
 
   /*
     TEMPLATES
@@ -53,9 +55,19 @@ define(function(require) {
     this.icon = 'fa-laptop';
     this.title = Locale.tr("General");
 
-    if(opts.listener != undefined){
+    if (opts.listener != undefined){
       this.listener = opts.listener;
     }
+
+    var opts = {
+      "select": true,
+      "selectOptions": {
+        "multiple_choice": false
+      }
+    };
+
+    this.usersTable = new UsersTable("UsersTable" + UniqueId.id(), opts);
+    this.groupTable = new GroupTable("GroupTable" + UniqueId.id(), opts);
   }
 
   WizardTab.prototype.constructor = WizardTab;
@@ -74,7 +86,9 @@ define(function(require) {
   function _html() {
     return TemplateHTML({
       'capacityCreateHTML': CapacityCreate.html(),
-      'logos': Config.vmLogos
+      'logos': Config.vmLogos,
+      'usersDatatable': this.usersTable.dataTableHTML,
+      'groupDatatable': this.groupTable.dataTableHTML
     });
   }
 
@@ -120,6 +134,11 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
+
+    this.usersTable.initialize();
+    this.usersTable.refreshResourceTableSelect();
+    this.groupTable.initialize();
+    this.groupTable.refreshResourceTableSelect();
 
     $(document).on('click', "[href='#" + this.wizardTabId + "']", function(){
       //context.foundation('slider', 'reflow');
@@ -281,6 +300,16 @@ define(function(require) {
     if (templateJSON['DISK_COST']) {
       templateJSON['DISK_COST'] = templateJSON['DISK_COST']/1024;
     }
+
+    var as_uid = this.usersTable.retrieveResourceTableSelect();
+    if (as_uid){
+      templateJSON["AS_UID"] = as_uid;
+    }
+
+    var as_gid = this.groupTable.retrieveResourceTableSelect();
+    if (as_gid){
+      templateJSON["AS_GID"] = as_gid;
+    }
     return templateJSON;
   }
 
@@ -350,7 +379,6 @@ define(function(require) {
       }
     }
 
-
     if (templateJSON["VCENTER_RESOURCE_POOL"]) {
       $('.modify_rp', context).val('fixed');
       WizardFields.fillInput($('.initial_rp', context), templateJSON["VCENTER_RESOURCE_POOL"]);
@@ -358,22 +386,40 @@ define(function(require) {
       delete templateJSON["VCENTER_RESOURCE_POOL"];
     }
 
-    if(templateJSON["VCENTER_TEMPLATE_REF"]){
+    if (templateJSON["VCENTER_TEMPLATE_REF"]){
       WizardFields.fillInput($("#vcenter_template_ref", context), templateJSON["VCENTER_TEMPLATE_REF"]);
       delete templateJSON["VCENTER_TEMPLATE_REF"];
     }
 
-    if(templateJSON["VCENTER_CCR_REF"]){
+    if (templateJSON["VCENTER_CCR_REF"]){
       WizardFields.fillInput($("#vcenter_ccr_ref", context), templateJSON["VCENTER_CCR_REF"]);
       delete templateJSON["VCENTER_CCR_REF"];
     }
 
-    if(templateJSON["VCENTER_INSTANCE_ID"]){
+    if (templateJSON["VCENTER_INSTANCE_ID"]){
       WizardFields.fillInput($("#vcenter_instance_id", context), templateJSON["VCENTER_INSTANCE_ID"]);
       delete templateJSON["VCENTER_INSTANCE_ID"];
     }
 
     CapacityCreate.fill($("div.capacityCreate", context), templateJSON);
+
+    if (templateJSON["AS_UID"]){
+      var asuidJSON = templateJSON["AS_UID"];
+      var selectedResources = {
+        ids : asuidJSON
+      };
+      this.usersTable.selectResourceTableSelect(selectedResources);
+      delete templateJSON["AS_UID"];
+    }
+
+    if (templateJSON["AS_GID"]){
+      var asgidJSON = templateJSON["AS_GID"];
+      var selectedResources = {
+        ids : asgidJSON
+      };
+      this.groupTable.selectResourceTableSelect(selectedResources);
+      delete templateJSON["AS_GID"];
+    }
 
     WizardFields.fill(context, templateJSON);
   }

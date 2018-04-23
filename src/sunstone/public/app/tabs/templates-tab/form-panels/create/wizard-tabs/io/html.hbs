@@ -111,4 +111,42 @@
       </div>
     </fieldset>
   </div>
+  <div class="medium-12 columns hypervisor only_kvm">
+    <fieldset class="hypervisor only_kvm vm_updateconf_hide">
+      <legend>{{tr "PCI Devices"}}</legend>
+      <div class="row">
+        <div class="large-12 columns text-center">
+          <span class="radius secondary label">
+            <i class="fas fa-exclamation-triangle"/> {{tr "PCI passthrough of network devices is configured per NIC, in the \"Network\" tab. Do not add network devices here"}}
+          </span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="large-12 columns">
+          <table class="dataTable pci_devices">
+            <thead>
+              <tr>
+                <th style="width:50%">{{tr "Device name"}}</th>
+                <th>{{tr "Vendor"}}</th>
+                <th>{{tr "Device"}}</th>
+                <th>{{tr "Class"}}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="5">
+                  <a type="button" class="add_pci button small small-12 secondary radius">
+                    <i class="fas fa-lg fa-plus-circle"></i>
+                  </a>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </fieldset>
+  </div>
 </div>
