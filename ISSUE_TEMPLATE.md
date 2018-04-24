@@ -22,6 +22,7 @@
 - [ ] 5.4.8
 - [ ] 5.4.9
 - [ ] 5.4.10
+- [ ] 5.4.11
 - [ ] Development build
 
 ## Component
