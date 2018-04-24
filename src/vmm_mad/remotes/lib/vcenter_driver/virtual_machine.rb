@@ -744,34 +744,34 @@ class Template
 
     def get_ipv6_prefix(ipv6, prefix_length)
 
-        ipSlice = ipv6.split(":").map{ |elem| elem.hex }.map{ |elem| 
-    
+        ipSlice = ipv6.split(":").map{ |elem| elem.hex }.map{ |elem|
+
             int, dec = elem.divmod(1)
             bin = "#{int.to_s(2)}"
-    
+
             while dec > 0
                 int, dec = (dec * 2).divmod(1)
                 bin << int.to_s
             end
-    
+
             elem = bin
         }.map{ |elem| elem.rjust(16, '0') }
-    
+
         ipChain = ipSlice.join
         prefix = ipChain[0, prefix_length]
-    
+
         cont = 0
         limit = prefix.length
         index = 0
         slices = []
-    
+
         while cont < limit
             slices[index] = prefix.slice(cont, 4)
             slices[index] = slices[index].ljust(4, '0')
             index +=1
             cont+=4
         end
-        
+
         finalPrefix = slices.map{|elem| "%0x" % elem.to_i(2) }.join.ljust(4, '0')
         return finalPrefix
     end
@@ -823,7 +823,7 @@ class Template
         str << "IMPORT_STATE =\"#{@state}\"\n"
 
         # Get DS information
-        str << "VCENTER_DS_REF = \"#{@vm_info["datastore"].first._ref}\"\n"
+        str << "VCENTER_DS_REF = \"#{@vm_info["datastore"].last._ref}\"\n"
 
         vnc_port = nil
         keymap = VCenterDriver::VIHelper.get_default("VM/TEMPLATE/GRAPHICS/KEYMAP")
