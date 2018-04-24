@@ -875,7 +875,7 @@ define(function(require) {
       call({data:dataArg, success: callback, error:err});
       break;
     case "single":
-      if (extraParam) {
+      if (extraParam !== undefined) {
         call({
           data:{
             id:dataArg,
