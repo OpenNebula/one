@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include <unistd.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -224,7 +225,7 @@ int main(int argc, char **argv)
             break;
     }
 
-    return 0;
+    _exit(-1);
 
 error_chdir:
     cerr << "Error: cannot change to dir " << wd << "\n";
