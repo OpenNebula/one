@@ -100,14 +100,18 @@ class Network
 
         one_tmp = {}
 
+        bridge_name = network_name
+        network_name = network_name.gsub("/","_")
+
+
         hash_name = "#{network_name} - #{ccr_name.tr(" ", "_")} [#{vcenter_instance_name} - #{dc_name}]_#{cluster_location}"
         sha256 = Digest::SHA256.new
         network_hash = sha256.hexdigest(hash_name)[0..11]
         network_import_name = "#{network_name} - #{ccr_name.tr(" ", "_")} [#{vcenter_instance_name} - #{dc_name}]_#{network_hash}"
 
-        one_tmp[:name]             = network_name
+        one_tmp[:name]             = bridge_name
         one_tmp[:import_name]      = network_import_name
-        one_tmp[:bridge]           = network_name
+        one_tmp[:bridge]           = bridge_name
         one_tmp[:type]             = network_type
         one_tmp[:cluster]          = ccr_name
         one_tmp[:cluster_location] = cluster_location
@@ -115,7 +119,7 @@ class Network
         one_tmp[:one_cluster_id]   = cluster_id
         one_tmp[:vcenter_net_ref]  = network_ref
 
-        one_tmp[:one] = to_one(network_import_name, network_name, network_ref, network_type,
+        one_tmp[:one] = to_one(network_import_name, bridge_name, network_ref, network_type,
                              ccr_ref, vcenter_uuid, unmanaged, template_ref, dc_ref, template_id)
         return one_tmp
     end
