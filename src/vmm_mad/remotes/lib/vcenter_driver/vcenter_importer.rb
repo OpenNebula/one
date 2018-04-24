@@ -139,9 +139,9 @@ module VCenterDriver
         #
         def stdout
             @info[:success].each do |o|
-                id = o[:id].join(' ') rescue nil || o[:id]
-                puts "#{o[:name]} with ids: #{id} created!"
-                puts
+                o[:id].each do |id|
+                    puts "ID: #{id}"
+                end
             end
 
             @info[:error].each do |index|
@@ -203,7 +203,7 @@ module VCenterDriver
         #
         def process_import(indexes, opts = {}, &block)
             raise "the list is empty" if list_empty?
-            indexes = indexes.gsub(/\s+/, "").split(",")
+            indexes = indexes.gsub(/\s*\,\s*/,',').strip.split(",")
 
             indexes.each do |index|
                 begin

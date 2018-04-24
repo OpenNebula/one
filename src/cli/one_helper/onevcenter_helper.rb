@@ -29,25 +29,25 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
     TABLE = {
         VOBJECT::DATASTORE => {
             :struct  => ["DATASTORE_LIST", "DATASTORE"],
-            :columns => {:IMID => 5, :REF => 15, :NAME => 25, :CLUSTERS => 10},
+            :columns => {:IMID => 5, :REF => 15, :NAME => 50, :CLUSTERS => 10},
             :cli     => [:host],
             :dialogue => ->(arg){}
         },
         VOBJECT::TEMPLATE => {
             :struct  => ["TEMPLATE_LIST", "TEMPLATE"],
-            :columns => {:IMID => 5, :REF => 10, :NAME => 35},
+            :columns => {:IMID => 5, :REF => 10, :NAME => 50},
             :cli     => [:host],
             :dialogue => ->(arg){ OneVcenterHelper.template_dialogue(arg) }
         },
         VOBJECT::NETWORK => {
             :struct  => ["NETWORK_LIST", "NETWORK"],
-            :columns => {:IMID => 5, :REF => 15, :NAME => 10},
+            :columns => {:IMID => 5, :REF => 15, :NAME => 30, :CLUSTERS => 20},
             :cli     => [:host],
             :dialogue => ->(arg){ OneVcenterHelper.network_dialogue(arg) }
         },
         VOBJECT::IMAGE => {
             :struct  => ["IMAGE_LIST", "IMAGE"],
-            :columns => {:IMID => 5,:REF => 20, :PATH => 20},
+            :columns => {:IMID => 5,:REF => 35, :PATH => 60},
             :cli     => [:host, :datastore],
             :dialogue => ->(arg){}
         }
@@ -90,6 +90,15 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
             @vobject = VOBJECT::NETWORK
         elsif (type == "images")
             @vobject = VOBJECT::IMAGE
+        else
+            puts "unknown #{type} type option"
+            puts "  -o options:"
+            puts "      datastores"
+            puts "      templates"
+            puts "      networks"
+            puts "      images"
+
+            exit 0
         end
     end
 
@@ -156,7 +165,8 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
             end
 
             column :CLUSTERS, "CLUSTERS", :left, :size=>config[:CLUSTERS] || 10 do |d|
-                d[:cluster].to_s || d[:clusters][:one_ids].to_s
+                d = d[:clusters] if d[:clusters]
+                d[:one_ids] || d[:cluster].to_s
             end
 
             column :PATH, "PATH", :left, :size=>config[:PATH] || 10 do |d|
