@@ -142,15 +142,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Import the the desired vCenter object
     EOT
 
-    command :import, import_desc, :oid, :options=>[ OBJECT, HOST, DATASTORE ] do
+    command :import, import_desc, [:oid, nil], :options=>[ OBJECT, HOST, DATASTORE ] do
 
-        indexes = args.first
         if options[:host] && options[:object]
-            args  = helper.parse_opts(options)
             vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
             importer = VCenterDriver::VcImporter.new_child(helper.client, vi_client, options[:object])
 
-            importer.retrieve_resources(args)
+            importer.retrieve_resources(helper.parse_opts(options))
+            indexes = importer.get_indexes(args.first)
 
             importer.process_import(indexes) do |object_info|
                 helper.cli_dialogue(object_info)
@@ -163,16 +162,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         exit 0
     end
 
-    command :import_defaults, import_desc, :options=>[ OBJECT, HOST, DATASTORE ] do
+    command :import_defaults, import_desc, [:oid, nil] , :options=>[ OBJECT, HOST, DATASTORE ] do
 
         if options[:host] && options[:object]
-            args  = helper.parse_opts(options)
             vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
             importer = VCenterDriver::VcImporter.new_child(helper.client, vi_client, options[:object])
-            importer.retrieve_resources(args)
+            importer.retrieve_resources(helper.parse_opts(options))
+            indexes = importer.get_indexes(args.first)
 
-
-            importer.import_bulk
+            importer.process_import(indexes)
 
             importer.stdout
         else
@@ -195,61 +193,4 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         exit 0
     end
 
-    ############################################################################
-    # Import templates
-    ############################################################################
-    templates_desc = <<-EOT.unindent
-        Import vCenter VM Templates into OpenNebula
-    EOT
-
-    command :templates, templates_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
-        con_ops = helper.connection_options("VM Templates", options)
-
-        VCenterDriver::Importer.import_templates(con_ops, options)
-
-        exit 0
-    end
-
-    ############################################################################
-    # Import vms (deprecated)
-    ############################################################################
-    vms_desc = <<-EOT.unindent
-        Deprecated action in onevcenter, please use onehost importvm instead
-    EOT
-
-    command :vms, vms_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
-        STDERR.puts "Deprecated action in onevcenter, please use onehost "\
-                    "importvm instead"
-        exit -1
-    end
-
-    ############################################################################
-    # Import networks
-    ############################################################################
-    network_desc = <<-EOT.unindent
-        Import vCenter networks into OpenNebula
-    EOT
-
-    command :networks, network_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
-        con_ops = helper.connection_options("Networks", options)
-
-        VCenterDriver::Importer.import_networks(con_ops, options)
-
-        exit 0
-    end
-
-    ############################################################################
-    # Import datastores
-    ############################################################################
-    datastores_desc = <<-EOT.unindent
-        Import vCenter Datastores into OpenNebula
-    EOT
-
-    command :datastores, datastores_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
-        con_ops = helper.connection_options("Datastores", options)
-
-        VCenterDriver::Importer.import_datastore(con_ops, options)
-
-        exit 0
-    end
 end
