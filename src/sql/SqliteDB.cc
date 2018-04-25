@@ -136,9 +136,10 @@ int SqliteDB::exec(ostringstream& cmd, Callbackable* obj, bool quiet)
     }while( (rc == SQLITE_BUSY || rc == SQLITE_IOERR) &&
             (counter < 10));
 
-    if ( (obj != 0) )
+    if (obj != 0)
     {
         int num_rows = sqlite3_changes(db);
+   
         if ( num_rows > 0)
         {
             obj->set_affected_rows(num_rows);
