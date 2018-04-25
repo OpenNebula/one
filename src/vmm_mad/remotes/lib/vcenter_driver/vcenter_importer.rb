@@ -160,13 +160,37 @@ module VCenterDriver
             { success: @info[:success], error: @info[:error] }
         end
 
-        def import_bulk(range = nil)
+        #
+        # Parse arguments usually given by command line interface
+        # with the purpose of retrieve a list of selected indexes
+        # by the users.
+        #
+		# @param args [nil | Array | String] range, names or nil
+        #
+        # @ return [Aarray] the list of selected indexes
+        #
+        def get_indexes(args = nil)
             raise "the list is empty" if list_empty?
 
             list = @list.values[0]
-            indexes = list.keys.join(',')
+            indexes = ''
+            keys = list.keys
 
-            process_import(indexes)
+            return keys.join(',') unless args
+
+            if (args.include?('..'))
+                range = Range.new(*args.split("..").map(&:to_i))
+
+                if range.first != range.last
+                    for i in range
+                        indexes << "#{keys[i]}, "
+                    end
+
+                    return indexes
+                end
+            end
+
+            return args
         end
 
         #
@@ -320,6 +344,7 @@ module VCenterDriver
         def defaults
             {}
         end
+
     end
 
 end
