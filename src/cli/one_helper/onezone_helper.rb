@@ -34,6 +34,20 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
         :description => "Zone server RPC endpoint"
     }
 
+    def show_resource(id, options)
+        resource = retrieve_resource(id)
+
+        rc = resource.info_extended
+        return -1, rc.message if OpenNebula.is_error?(rc)
+
+        if options[:xml]
+            return 0, resource.to_xml(true)
+        else
+            format_resource(resource, options)
+            return 0
+        end
+    end
+
     def self.rname
         "ZONE"
     end
@@ -117,44 +131,6 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
         zone_hash=zone.to_hash
 
         if zone.has_elements?("/ZONE/SERVER_POOL/SERVER")
-            servers = zone_hash["ZONE"]["SERVER_POOL"]["SERVER"]
-
-            [servers].flatten.each { |s|
-                endpoint = s["ENDPOINT"]
-
-                next if endpoint.nil?
-
-                options[:timeout] = 5 #5 sec
-                client = OpenNebula::Client.new(nil, endpoint, options)
-
-                xml_doc = client.call("zone.raftstatus")
-
-                if OpenNebula::is_error?(xml_doc)
-                    s["STATE"]     = "error"
-                    s["TERM"]      = "-"
-                    s["VOTEDFOR"]  = "-"
-                    s["COMMIT"  ]  = "-"
-                    s["LOG_INDEX"] = "-"
-
-                    next
-                end
-
-                xml_doc = Nokogiri::XML(xml_doc)
-
-                s["STATE"] = case xml_doc.root.at_xpath("STATE").text
-                     when "0" then "solo"
-                     when "1" then "candidate"
-                     when "2" then "follower"
-                     when "3" then "leader"
-                     else "-"
-                 end
-                s["TERM"]      = xml_doc.root.at_xpath("TERM").text
-                s["VOTEDFOR"]  = xml_doc.root.at_xpath("VOTEDFOR").text
-                s["COMMIT"]    = xml_doc.root.at_xpath("COMMIT").text
-
-                s["LOG_INDEX"]    = xml_doc.root.at_xpath("LOG_INDEX").text
-                s["FEDLOG_INDEX"] = xml_doc.root.at_xpath("FEDLOG_INDEX").text
-            }
 
             puts
             CLIHelper.print_header(str_h1 % "ZONE SERVERS",false)
@@ -188,6 +164,16 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
                 end
 
                 column :"STATE", "", :left, :size=>10 do |d|
+                    if OpenNebula::is_error?(d)
+                            d['STATE']     = "error"
+                    end
+                    d["STATE"] = case d["STATE"]
+                        when "0" then "solo"
+                        when "1" then "candidate"
+                        when "2" then "follower"
+                        when "3" then "leader"
+                        else "-"
+                    end
                     d["STATE"] if !d.nil?
                 end
 
