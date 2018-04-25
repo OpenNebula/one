@@ -794,13 +794,15 @@ EOT
     end
 
     def OpenNebulaHelper.size_in_mb(size)
-        m = size.match(/^(\d+(?:\.\d+)?)(m|mb|g|gb)?$/i)
+        m = size.match(/^(\d+(?:\.\d+)?)(t|tb|m|mb|g|gb)?$/i)
 
         if !m
             # return OpenNebula::Error.new('Size value malformed')
             return -1, 'Size value malformed'
         else
             multiplier=case m[2]
+            when /(t|tb)/i
+                1024*1024
             when /(g|gb)/i
                 1024
             else

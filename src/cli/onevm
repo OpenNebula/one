@@ -879,6 +879,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     disk_resize_desc = <<-EOT.unindent
         Resizes a VM disk. The new size should be larger than the old one.
+        The valid units are:
+            - T: TiB
+            - G: GiB
+            - M: MiB
+            By default is MiB.
 
         States: RUNNING, POWEROFF
     EOT
