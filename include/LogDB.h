@@ -211,6 +211,11 @@ public:
         return db->multiple_values_support();
     }
 
+    bool limit_support()
+    {
+        return db->limit_support();
+    }
+
     // -------------------------------------------------------------------------
     // Database methods
     // -------------------------------------------------------------------------
@@ -400,6 +405,11 @@ public:
     bool multiple_values_support()
     {
         return _logdb->multiple_values_support();
+    }
+
+    bool limit_support()
+    {
+        return _logdb->limit_support();
     }
 
 protected:

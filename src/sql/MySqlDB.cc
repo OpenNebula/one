@@ -155,6 +155,13 @@ bool MySqlDB::multiple_values_support()
 
 /* -------------------------------------------------------------------------- */
 
+bool MySqlDB::limit_support()
+{
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+
 int MySqlDB::exec(ostringstream& cmd, Callbackable* obj, bool quiet)
 {
     string str         = cmd.str();

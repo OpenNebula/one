@@ -49,6 +49,13 @@ SqliteDB::SqliteDB(const string& db_name)
 
     rc = sqlite3_open(db_name.c_str(), &db);
 
+    enable_limit = sqlite3_compileoption_used("SQLITE_ENABLE_UPDATE_DELETE_LIMIT");
+
+    if (enable_limit)
+    {
+        NebulaLog::log("ONE",Log::INFO , "sqlite has enabled: SQLITE_ENABLE_UPDATE_DELETE_LIMIT");
+    }
+
     if ( rc != SQLITE_OK )
     {
         throw runtime_error("Could not open database.");
@@ -72,6 +79,12 @@ bool SqliteDB::multiple_values_support()
     // have ended in segfault. A transaction seems to perform better
     //return SQLITE_VERSION_NUMBER >= 3007011;
     return false;
+}
+
+/* -------------------------------------------------------------------------- */
+bool SqliteDB::limit_support()
+{
+    return enable_limit == 1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -122,6 +135,16 @@ int SqliteDB::exec(ostringstream& cmd, Callbackable* obj, bool quiet)
         }
     }while( (rc == SQLITE_BUSY || rc == SQLITE_IOERR) &&
             (counter < 10));
+
+    if (obj != 0)
+    {
+        int num_rows = sqlite3_changes(db);
+   
+        if ( num_rows > 0)
+        {
+            obj->set_affected_rows(num_rows);
+        }
+    }
 
     unlock();
 
