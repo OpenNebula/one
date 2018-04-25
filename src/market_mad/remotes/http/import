@@ -77,7 +77,7 @@ if [ -n "$BRIDGE_LIST" ]; then
     DST_HOST=`get_destination_host $ID`
     CP_CMD="$UTILS_PATH/downloader.sh -n '${IMPORT_SOURCE}' -"
 
-    exec_and_log "eval $CP_CMD | $SSH ${DST_HOST} $DD of=${DST_PATH} bs=64k" \
+    multiline_exec_and_log "set -e -o pipefail; $CP_CMD | $SSH ${DST_HOST} $DD of=${DST_PATH} bs=64k" \
                  "Error dumping ${IMPORT_SOURCE} to ${DST_HOST}:${DST_PATH}"
 
     #if [ "${DISPOSE}" = "YES" ]; then

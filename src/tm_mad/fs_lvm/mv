@@ -116,6 +116,7 @@ EOF
 
         # delete old volume and update device symlinks
         DELETE_CMD=$(cat <<EOF
+            set -e -o pipefail
             ${SUDO} ${LVREMOVE} -f ${SRC_DEV}
             ${SUDO} ${SYNC}
 
@@ -126,7 +127,7 @@ EOF
 
         LOCK="tm-fs_lvm-${SRC_DS_SYS_ID}.lock"
         exclusive "${LOCK}" 120 ssh_exec_and_log "${SRC_HOST}" "${DELETE_CMD}" \
-            "Error dumping ${SRC} to ${DST}"
+            "Error deleting old LV ${SRC_DEV}"
     fi
 
     # activate
