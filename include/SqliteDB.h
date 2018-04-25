@@ -71,6 +71,14 @@ public:
      */
     bool multiple_values_support();
 
+    /**
+     * Returns true if this Database can use LIMIT in queries with DELETE
+     *  and UPDATE
+     *
+     * @return true if supported
+     */
+    bool limit_support();
+
 protected:
     /**
      *  Wraps the sqlite3_exec function call, and locks the DB mutex.
@@ -92,6 +100,11 @@ private:
      *  Pointer to the database.
      */
     sqlite3 *           db;
+
+    /**
+     *  LIMIT for DELETE and UPDATE queries is enabled
+     */
+    int                 enable_limit;
 
     /**
      *  Function to lock the DB
@@ -127,6 +140,8 @@ public:
     void free_str(char * str){};
 
     bool multiple_values_support(){return true;};
+
+    bool limit_support(){return enable_limit;};
 
 protected:
     int exec(ostringstream& cmd, Callbackable* obj, bool quiet){return -1;};

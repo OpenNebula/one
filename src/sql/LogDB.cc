@@ -571,7 +571,12 @@ int LogDB::purge_log()
 
     // keep the last "log_retention" records as well as those not applied to DB
     oss << "DELETE FROM logdb WHERE timestamp > 0 AND log_index >= 0 "
-        << "AND log_index < "  << delete_index << " LIMIT " << limit_purge;
+            << "AND log_index < "  << delete_index;
+
+    if ( db->limit_support() )
+    {
+        oss << " LIMIT " << limit_purge;
+    }
 
     int rc = db->exec_wr(oss, &cb);
 

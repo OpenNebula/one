@@ -88,6 +88,14 @@ public:
      */
     virtual bool multiple_values_support() = 0;
 
+    /**
+     * Returns true if this Database can use LIMIT in queries with DELETE
+     *  and UPDATE
+     *
+     * @return true if supported
+     */
+    virtual bool limit_support() = 0;
+
 protected:
     /**
      *  Performs a DB transaction

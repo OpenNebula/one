@@ -76,6 +76,14 @@ public:
      */
     bool multiple_values_support();
 
+    /**
+     * Returns true if this Database can use LIMIT in queries with DELETE
+     *  and UPDATE
+     *
+     * @return true if supported
+     */
+    bool limit_support();
+
 protected:
     /**
      *  Wraps the mysql_query function call
@@ -160,6 +168,8 @@ public:
     void free_str(char * str){};
 
     bool multiple_values_support(){return true;};
+
+    bool limit_support(){return true;};
 
 protected:
     int exec(ostringstream& cmd, Callbackable* obj, bool quiet){return -1;};
