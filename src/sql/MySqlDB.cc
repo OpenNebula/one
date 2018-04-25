@@ -157,7 +157,7 @@ bool MySqlDB::multiple_values_support()
 
 bool MySqlDB::limit_support()
 {
-    return enable_limit;
+    return true;
 }
 
 /* -------------------------------------------------------------------------- */
