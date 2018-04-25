@@ -141,7 +141,7 @@ public:
 
     bool multiple_values_support(){return true;};
 
-    bool limit_support(){return enable_limit;};
+    bool limit_support(){return true;};
 
 protected:
     int exec(ostringstream& cmd, Callbackable* obj, bool quiet){return -1;};
