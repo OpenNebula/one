@@ -84,7 +84,7 @@ bool SqliteDB::multiple_values_support()
 /* -------------------------------------------------------------------------- */
 bool SqliteDB::limit_support()
 {
-    return enable_limit;
+    return enable_limit == 1;
 }
 
 /* -------------------------------------------------------------------------- */
