@@ -357,6 +357,79 @@ class Template
 
     end
 
+    def create_ar(nic, with_id = false)
+        ar_tmp = ""
+        if nic[:mac] && nic[:ipv4] && nic[:ipv6]
+            ar_tmp << "AR=[\n"
+            ar_tmp << "AR_ID=0,\n" if with_id
+            ar_tmp << "TYPE=\"IP4_6_STATIC\",\n"
+            ar_tmp << "IP=\"#{nic[:ipv4]}\",\n"
+            ar_tmp << "MAC=\"#{nic[:mac]}\",\n"
+            ar_tmp << "IP6=\"#{nic[:ipv6]}\",\n"
+            ar_tmp << "PREFIX_LENGTH=\"64\",\n"
+            ar_tmp << "SIZE=\"1\"\n"
+            ar_tmp << "]\n"
+        elsif nic[:mac] && nic[:ipv6]
+            ar_tmp << "AR=[\n"
+            ar_tmp << "AR_ID=0,\n" if with_id
+            ar_tmp << "TYPE=\"IP6_STATIC\",\n"
+            ar_tmp << "MAC=\"#{nic[:mac]}\",\n"
+            ar_tmp << "IP6=\"#{nic[:ipv6]}\",\n"
+            ar_tmp << "PREFIX_LENGTH=\"64\",\n"
+            ar_tmp << "SIZE=\"1\"\n"
+            ar_tmp << "]\n"
+        elsif nic[:mac] && nic[:ipv4]
+            ar_tmp << "AR=[\n"
+            ar_tmp << "AR_ID=0,\n" if with_id
+            ar_tmp << "TYPE=\"IP4\",\n"
+            ar_tmp << "IP=\"#{nic[:ipv4]}\",\n"
+            ar_tmp << "MAC=\"#{nic[:mac]}\",\n"
+            ar_tmp << "SIZE=\"1\"\n"
+            ar_tmp << "]\n"
+        else
+            ar_tmp << "AR=[\n"
+            ar_tmp << "AR_ID=0,\n" if with_id
+            ar_tmp << "TYPE=\"ETHER\",\n"
+            ar_tmp << "MAC=\"#{nic[:mac]}\",\n"
+            ar_tmp << "SIZE=\"1\"\n"
+            ar_tmp << "]\n"
+        end
+        ar_tmp
+    end
+
+    def save_ar_ids(network_found, nic, ar_ids, start_ids = false)
+        if start_ids
+            value = []
+            arsNew = network_found.to_hash["VNET"]["AR_POOL"]["AR"]
+            arsNew = [arsNew] if arsNew.class.to_s.eql? "Hash"
+            last_id = 0
+            if ar_ids.has_key?(nic[:net_ref])
+                ref = nic[:net_ref]
+                value = ar_ids[ref.to_s]
+                value.insert(value.length, last_id.to_s)
+                ar_ids.store(nic[:net_ref], value)
+            else
+                value.insert(value.length , last_id.to_s)
+                ar_ids.store(nic[:net_ref], value)
+            end
+        else
+            value = []
+            arsNew = network_found.to_hash["VNET"]["AR_POOL"]["AR"]
+            arsNew = [arsNew] if arsNew.class.to_s.eql? "Hash"
+            last_id = arsNew.last["AR_ID"]
+            if ar_ids.has_key?(nic[:net_ref])
+                ref = nic[:net_ref]
+                value = ar_ids[ref.to_s]
+                value.insert(value.length, last_id)
+                ar_ids.store(nic[:net_ref], value)
+            else
+                value.insert(value.length , last_id)
+                ar_ids.store(nic[:net_ref], value)
+            end
+        end
+        last_id
+    end
+
     def import_vcenter_nics(vc_uuid, npool, hpool, vcenter_instance_name,
                             template_ref, wild, sunstone=false, vm_name=nil, vm_id=nil, dc_name=nil)
         nic_info = ""
@@ -376,7 +449,7 @@ class Template
             ccr_name = self["runtime.host.parent.name"]
 
             #Get disks and info required
-            vc_nics = get_vcenter_nics()
+            vc_nics = get_vcenter_nics
 
             # Track allocated networks for rollback
             allocated_networks = []
@@ -391,61 +464,13 @@ class Template
                                                                  nic[:net_ref],
                                                                  vc_uuid,
                                                                  npool)
-
                 #Network is already in OpenNebula
                 if network_found
-
-                    ar_tmp = ""
-                    if wild
-                        if nic[:mac] && nic[:ipv4] && nic[:ipv6]
-                            ar_tmp << "AR=[\n"
-                            ar_tmp << "TYPE=\"IP4_6_STATIC\",\n"
-                            ar_tmp << "IP=\"#{nic[:ipv4]}\",\n"
-                            ar_tmp << "MAC=\"#{nic[:mac]}\",\n"
-                            ar_tmp << "IP6=\"#{nic[:ipv6]}\",\n"
-                            ar_tmp << "PREFIX_LENGTH=\"64\",\n"
-                            ar_tmp << "SIZE=\"1\"\n"
-                            ar_tmp << "]\n"
-                        elsif nic[:mac] && nic[:ipv6]
-                            ar_tmp << "AR=[\n"
-                            ar_tmp << "TYPE=\"IP6_STATIC\",\n"
-                            ar_tmp << "MAC=\"#{nic[:mac]}\",\n"
-                            ar_tmp << "IP6=\"#{nic[:ipv6]}\",\n"
-                            ar_tmp << "PREFIX_LENGTH=\"64\",\n"
-                            ar_tmp << "SIZE=\"1\"\n"
-                            ar_tmp << "]\n"
-                        elsif nic[:mac] && nic[:ipv4]
-                            ar_tmp << "AR=[\n"
-                            ar_tmp << "TYPE=\"IP4\",\n"
-                            ar_tmp << "IP=\"#{nic[:ipv4]}\",\n"
-                            ar_tmp << "MAC=\"#{nic[:mac]}\",\n"
-                            ar_tmp << "SIZE=\"1\"\n"
-                            ar_tmp << "]\n"
-                        else
-                            ar_tmp << "AR=[\n"
-                            ar_tmp << "TYPE=\"ETHER\",\n"
-                            ar_tmp << "MAC=\"#{nic[:mac]}\",\n"
-                            ar_tmp << "SIZE=\"1\"\n"
-                            ar_tmp << "]\n"
-                        end
+                    if wild?
+                        ar_tmp = create_ar(nic)
                         network_found.add_ar(ar_tmp)
                         network_found.info
-                        value = []
-                        arsNew = network_found.to_hash["VNET"]["AR_POOL"]["AR"]
-                        arsNew = [arsNew] if arsNew.class.to_s.eql? "Hash"
-                        last_id = arsNew.last["AR_ID"]
-                        if ar_ids.has_key?(nic[:net_ref])
-                            ref = nic[:net_ref]
-                            value = ar_ids[ref.to_s]
-                            value.insert(value.length, arsNew.last["AR_ID"])
-                            ar_ids.store(nic[:net_ref], value)
-                        else
-                            value.insert(value.length , arsNew.last["AR_ID"])
-                            ar_ids.store(nic[:net_ref], [arsNew.last["AR_ID"]])
-                        end
-                        arsNew.clear
-                        arsNew = nil
-
+                        last_id = save_ar_ids(network_found, nic, ar_ids)
                         # This is the existing nic info
                         nic_tmp = ""
                         nic_tmp << "NIC=[\n"
@@ -460,14 +485,9 @@ class Template
                         nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
                         nic_tmp << "]\n"
                     else
-                        ar_tmp << "AR=[\n"
-                        ar_tmp << "SIZE=\"255\"\n"
-                        ar_tmp << "]\n"
-                        network_found.add_ar(ar_tmp)
                         nic_tmp = ""
                         nic_tmp << "NIC=[\n"
                         nic_tmp << "NETWORK_ID=\"#{network_found["ID"]}\",\n"
-                        nic_tmp << "MAC=\"#{nic[:mac]}\",\n" if nic[:mac]
                         nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
                         nic_tmp << "]\n"
                     end
@@ -494,17 +514,11 @@ class Template
                                                             vc_uuid,
                                                             hpool)["CLUSTER_ID"] rescue -1
                     end
-
-                    # We have to know if we're importing nics from a wild vm
-                    # or from a template
-                    if wild
+                    if wild?
                         unmanaged = "wild"
-                        ar_size   = 1
                     else
                         unmanaged = "template"
-                        ar_size   = 255
                     end
-
                     import_opts = {
                         :network_name=>          nic[:net_name],
                         :network_ref=>           nic[:net_ref],
@@ -524,14 +538,17 @@ class Template
                     # Prepare the Virtual Network template
                     one_vnet = VCenterDriver::Network.to_one_template(import_opts)
 
-                    # By default add an ethernet range to network size 255
-                    ar_str = ""
-                    ar_str << "AR=[\n"
-                    ar_str << "TYPE=\"ETHER\",\n"
-                    ar_str << "MAC=\"#{nic[:mac]}\",\n" if wild && nic[:mac]
-                    ar_str << "SIZE=\"#{ar_size}\"\n"
-                    ar_str << "]\n"
-                    one_vnet[:one] << ar_str
+                    # always has to be created because of templates when they are instanciated
+                    ar_tmp = ""
+                    ar_tmp << "AR=[\n"
+                    ar_tmp << "TYPE=\"ETHER\",\n"
+                    ar_tmp << "SIZE=255\n"
+                    ar_tmp << "]\n"
+                    if wild?
+                        ar_tmp << create_ar(nic, true)
+                    end
+
+                    one_vnet[:one] << ar_tmp
                     config[:one_object] = one_vnet[:one]
 
                     cluster_id = VCenterDriver::VIHelper.get_cluster_id(config[:one_ids])
@@ -555,20 +572,34 @@ class Template
                         allocated_networks << one_vn
                         VCenterDriver::VIHelper.clean_ref_hash()
 
-                        # Add info for One template
                         one_vn.info
-                        nic_info << "NIC=[\n"
-                        nic_info << "NETWORK_ID=\"#{one_vn["ID"]}\",\n"
-                        nic_info << "OPENNEBULA_MANAGED=\"NO\"\n"
-                        nic_info << "]\n"
+                        if wild?
+                            last_id = save_ar_ids(one_vn, nic, ar_ids)
+                            nic_info = ""
+                            nic_info << "NIC=[\n"
+                            nic_info << "AR_ID=\"#{last_id}\",\n"
+                            nic_info << "NETWORK_ID=\"#{one_vn.id}\",\n"
+                            nic_info << "MAC=\"#{nic[:mac]}\",\n" if nic[:mac]
+                            nic_info << "VCENTER_ADDITIONALS_IP4=\"#{nic[:ipv4_additionals]}\",\n" if nic[:ipv4_additionals]
+                            nic_info << "VCENTER_IP6=\"#{nic[:ipv6]}\",\n" if nic[:ipv6]
+                            nic_info << "IP6_GLOBAL=\"#{nic[:ipv6_global]}\",\n" if nic[:ipv6_global]
+                            nic_info << "IP6_ULA=\"#{nic[:ipv6_ula]}\",\n" if nic[:ipv6_ula]
+                            nic_info << "VCENTER_ADDITIONALS_IP6=\"#{nic[:ipv6_additionals]}\",\n" if nic[:ipv6_additionals]
+                            nic_info << "OPENNEBULA_MANAGED=\"NO\"\n"
+                            nic_info << "]\n"
+                        else
+                            nic_info = ""
+                            nic_info << "NIC=[\n"
+                            nic_info << "NETWORK_ID=\"#{one_vn.id}\",\n"
+                            nic_info << "OPENNEBULA_MANAGED=\"NO\"\n"
+                            nic_info << "]\n"
+                        end
 
                         # Refresh npool
                         npool.info_all
                     end
-
                 end
             end
-
         rescue Exception => e
             error = "\n    There was an error trying to create a virtual network to repesent a vCenter network for a VM or VM Template. Reason: #{e.message}"
         ensure
@@ -581,9 +612,9 @@ class Template
             end
         end
 
-        return error, nic_info, allocated_networks if !sunstone
+        return error, nic_info, ar_ids, allocated_networks if !sunstone
 
-        return error, sunstone_nic_info, allocated_networks if sunstone
+        return error, sunstone_nic_info, ar_ids, allocated_networks if sunstone
     end
 
     def get_vcenter_disk_key(unit_number, controller_key)
@@ -677,101 +708,101 @@ class Template
         res
     end
 
-    def get_vcenter_nics()
+    def get_vcenter_nics
         nics = []
         num_device = 0
         @item["config.hardware.device"].each do |device|
             next unless is_nic?(device)
 
             nic = retrieve_from_device(device)
-
+            nic[:mac] = device.macAddress rescue nil
             if wild?
-                nic[:mac] = device.macAddress rescue nil
-
                 if online?
                     inets = @item["guest.net"].map.with_index { |x,i| [x.macAddress, x] }.to_h
                     ipAddresses = inets[nic[:mac]].ipConfig.ipAddress
-
                     if !ipAddresses.nil? && !ipAddresses.empty?
                         nic[:ipv4], nic[:ipv4_additionals] = nil
                         nic[:ipv6], nic[:ipv6_ula], nic[:ipv6_global], nic[:ipv6_additionals] = nil
-                        for i in 0...ipAddresses.length
-                            ip = ipAddresses[i].ipAddress
-                            if ip =~ Resolv::IPv4::Regex
-                                if nic[:ipv4]
-                                    if nic[:ipv4_additionals]
-                                        nic[:ipv4_additionals] += ',' + ip
-                                    else
-                                        nic[:ipv4_additionals] = ip
-                                    end
-                                else
-                                    nic[:ipv4] = ip
-                                end
-                            elsif ipAddresses[i].ipAddress =~ Resolv::IPv6::Regex
-                                if get_ipv6_prefix(ip, 3) == "2000"
-                                    if nic[:ipv6_global]
-                                        if nic[:ipv6_additionals]
-                                            nic[:ipv6_additionals] += ',' + ip
-                                        else
-                                            nic[:ipv6_additionals] = ip
-                                        end
-                                    else
-                                        nic[:ipv6_global] = ip
-                                    end
-                                elsif get_ipv6_prefix(ip, 10) == "fe80"
-                                    nic[:ipv6] = ip
-                                elsif get_ipv6_prefix(ip, 7) == "fc00"
-                                    if nic[:ipv6_ula]
-                                        if nic[:ipv6_additionals]
-                                            nic[:ipv6_additionals] += ',' + ip
-                                        else
-                                            nic[:ipv6_additionals] = ip
-                                        end
-                                    else
-                                        nic[:ipv6_ula] = ip
-                                    end
-                                end
-                            end
-                        end
+                        fill_nic(ipAddresses, nic)
                     end
                 end
             end
-
             nics << nic
         end
         return nics
     end
 
+    def fill_nic(ipAddresses, nic)
+        for i in 0...ipAddresses.length
+            ip = ipAddresses[i].ipAddress
+            if ip =~ Resolv::IPv4::Regex
+                if nic[:ipv4]
+                    if nic[:ipv4_additionals]
+                        nic[:ipv4_additionals] += ',' + ip
+                    else
+                        nic[:ipv4_additionals] = ip
+                    end
+                else
+                    nic[:ipv4] = ip
+                end
+            elsif ipAddresses[i].ipAddress =~ Resolv::IPv6::Regex
+                if get_ipv6_prefix(ip, 3) == "2000"
+                    if nic[:ipv6_global]
+                        if nic[:ipv6_additionals]
+                            nic[:ipv6_additionals] += ',' + ip
+                        else
+                            nic[:ipv6_additionals] = ip
+                        end
+                    else
+                        nic[:ipv6_global] = ip
+                    end
+                elsif get_ipv6_prefix(ip, 10) == "fe80"
+                    nic[:ipv6] = ip
+                elsif get_ipv6_prefix(ip, 7) == "fc00"
+                    if nic[:ipv6_ula]
+                        if nic[:ipv6_additionals]
+                            nic[:ipv6_additionals] += ',' + ip
+                        else
+                            nic[:ipv6_additionals] = ip
+                        end
+                    else
+                        nic[:ipv6_ula] = ip
+                    end
+                end
+            end
+        end
+    end
+
     def get_ipv6_prefix(ipv6, prefix_length)
 
-        ipSlice = ipv6.split(":").map{ |elem| elem.hex }.map{ |elem| 
-    
+        ipSlice = ipv6.split(":").map{ |elem| elem.hex }.map{ |elem|
+
             int, dec = elem.divmod(1)
             bin = "#{int.to_s(2)}"
-    
+
             while dec > 0
                 int, dec = (dec * 2).divmod(1)
                 bin << int.to_s
             end
-    
+
             elem = bin
         }.map{ |elem| elem.rjust(16, '0') }
-    
+
         ipChain = ipSlice.join
         prefix = ipChain[0, prefix_length]
-    
+
         cont = 0
         limit = prefix.length
         index = 0
         slices = []
-    
+
         while cont < limit
             slices[index] = prefix.slice(cont, 4)
             slices[index] = slices[index].ljust(4, '0')
             index +=1
             cont+=4
         end
-        
+
         finalPrefix = slices.map{|elem| "%0x" % elem.to_i(2) }.join.ljust(4, '0')
         return finalPrefix
     end
@@ -3481,7 +3512,7 @@ class VmImporter < VCenterDriver::VcImporter
 
             template_moref = template_copy_ref ? template_copy_ref : selected[:vcenter_ref]
 			wild = false
-			error, template_nics, allocated_nets = template.import_vcenter_nics(vc_uuid,
+			error, template_nics, ar_ids, allocated_nets = template.import_vcenter_nics(vc_uuid,
                                                                             npool,
                                                                             hpool,
                                                                             vcenter,
