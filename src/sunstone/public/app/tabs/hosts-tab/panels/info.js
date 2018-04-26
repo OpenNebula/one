@@ -191,7 +191,7 @@ define(function(require) {
     }
 
     //.off and .on prevent multiple clicks events
-    $(document).off("click", "#update_reserved_hosts").on("click", ".update_reserved", function(){
+    $(context).off("click", "#update_reserved_hosts").on("click", "#update_reserved_hosts", function(){
       $("#update_reserved_hosts", context).prop("disabled", true);
       var reservedCPU = parseInt($("#textInput_reserved_cpu_hosts", context).val());
       var CPU = parseInt(that.element.HOST_SHARE.FREE_CPU);
@@ -212,7 +212,7 @@ define(function(require) {
 
     $("#change_bar_cpu_hosts", context).on("input", function(){
       changeColorInputCPU(that.element.HOST_SHARE.TOTAL_CPU);
-     $("#textInput_reserved_cpu_hosts", context).val($("#change_bar_cpu_hosts", context).val());
+      $("#textInput_reserved_cpu_hosts", context).val($("#change_bar_cpu_hosts", context).val());
     });
 
     $("#textInput_reserved_cpu_hosts", context).on("input", function(){
