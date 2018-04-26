@@ -120,21 +120,21 @@ void VirtualNetwork::parse_vlan_id(const char * id_name, const char * auto_name,
     }
 }
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 /*
-+---------------+---------+--------+--------------------------+----------------+
-|    Driver     | PHY_DEV | BRIDGE |         VLAN_ID          |      OTHER     |
-+---------------+---------+--------+--------------------------+----------------+
-| vcenter       | no      | yes    | no                       | VCENTER_NET_REF|
-| dummy         | no      | yes    | no                       |                |
-| ebtables      | no      | yes    | no                       |                |
-| fw            | no      | yes    | no                       |                |
-| 802.1q        | yes     | opt    | yes or AUTOMATIC         |                |
-| vxlan         | yes     | opt    | yes or AUTOMATIC         |                |
-| ovswtich      | yes     | opt    | opt                      |                |
-| ovswitch_vlan | yes     | opt    | OUTER or AUTOMATIC_OUTER |                |
-+---------------+---------+--------+--------------------------+----------------+
++----------------+---------+--------+--------------------------+----------------+
+|    Driver      | PHY_DEV | BRIDGE |         VLAN_ID          |      OTHER     |
++----------------+---------+--------+--------------------------+----------------+
+| vcenter        | no      | yes    | no                       | VCENTER_NET_REF|
+| dummy          | no      | yes    | no                       |                |
+| ebtables       | no      | yes    | no                       |                |
+| fw             | no      | yes    | no                       |                |
+| 802.1q         | yes     | opt    | yes or AUTOMATIC         |                |
+| vxlan          | yes     | opt    | yes or AUTOMATIC         |                |
+| ovswitch       | yes     | opt    | yes or AUTOMATIC         |                |
+| ovswitch_vxlan | yes     | opt    | OUTER or AUTOMATIC_OUTER |                |
++----------------+---------+--------+--------------------------+----------------+
 */
 int VirtualNetwork::parse_phydev_vlans(string& estr)
 {
