@@ -579,10 +579,13 @@ private:
     void parse_vlan_id(const char * id_name, const char * auto_name,
             string& id, bool& auto_id);
 
-    int parse_phydev_vlans(string& vn_mad,
-            bool& outer_vlan_id_automatic, string& outer_vlan_id,
-            bool& vlan_id_automatic,  string& vlan_id,
-            string& phydev, string& error_str);
+    /**
+     *  Check consistency of PHY_DEV, BRIDGE and VLAN attributes depending on
+     *  the network driver
+     *    @param error_str describing the error
+     *    @return 0 on success -1 otherwise
+     */
+    int parse_phydev_vlans(string& error_str);
 
     // *************************************************************************
     // Address allocation funtions

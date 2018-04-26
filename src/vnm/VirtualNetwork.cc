@@ -120,65 +120,100 @@ void VirtualNetwork::parse_vlan_id(const char * id_name, const char * auto_name,
     }
 }
 
-int VirtualNetwork::parse_phydev_vlans(string& vn_mad,
-        bool& outer_vlan_id_automatic, string& outer_vlan_id,
-        bool& vlan_id_automatic,  string& vlan_id,
-        string& phydev, string& error_str)
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+/*
++---------------+---------+--------+--------------------------+----------------+
+|    Driver     | PHY_DEV | BRIDGE |         VLAN_ID          |      OTHER     |
++---------------+---------+--------+--------------------------+----------------+
+| vcenter       | no      | yes    | no                       | VCENTER_NET_REF|
+| dummy         | no      | yes    | no                       |                |
+| ebtables      | no      | yes    | no                       |                |
+| fw            | no      | yes    | no                       |                |
+| 802.1q        | yes     | opt    | yes or AUTOMATIC         |                |
+| vxlan         | yes     | opt    | yes or AUTOMATIC         |                |
+| ovswtich      | yes     | opt    | opt                      |                |
+| ovswitch_vlan | yes     | opt    | OUTER or AUTOMATIC_OUTER |                |
++---------------+---------+--------+--------------------------+----------------+
+*/
+int VirtualNetwork::parse_phydev_vlans(string& estr)
 {
-    ostringstream       ose;
     bool check_phydev = false;
+    bool check_bridge = false;
+    bool check_vlan   = false;
+    bool check_outer  = false;
+
+    bool check_other  = false;
+    vector<string> other;
 
     switch (VirtualNetwork::str_to_driver(vn_mad))
     {
-        case VirtualNetwork::OVSWITCH_VXLAN:
-            if ( outer_vlan_id_automatic == false && outer_vlan_id.empty() )
-            {
-                goto error_outer_vlan_id;
-            }
-            check_phydev = true;
-        break;
-        case VirtualNetwork::OVSWITCH:
-            check_phydev = true;
-        break;
-        case VirtualNetwork::VXLAN:
-        case VirtualNetwork::VLAN:
-            if ( vlan_id_automatic == false && vlan_id.empty() )
-            {
-                goto error_vlan_id;
-            }
-            check_phydev = true;
-        break;
         case VirtualNetwork::VCENTER:
-        case VirtualNetwork::NONE:
+            other.push_back("VCENTER_NET_REF");
+
         case VirtualNetwork::DUMMY:
         case VirtualNetwork::EBTABLES:
         case VirtualNetwork::FW:
+            check_bridge = true;
             break;
+
+        case VirtualNetwork::VXLAN:
+        case VirtualNetwork::VLAN:
+            check_phydev = true;
+            check_vlan   = true;
+            break;
+
+        case VirtualNetwork::OVSWITCH_VXLAN:
+            check_outer  = true;
+
+        case VirtualNetwork::OVSWITCH:
+            check_phydev = true;
+            break;
+
+        case VirtualNetwork::NONE:
+            return 0;
     }
+
     if ( check_phydev && phydev.empty())
     {
-        goto error_phydev;
+        estr = "PHY_DEV is mandatory for driver " + vn_mad;
+        return -1;
     }
+
+    if ( check_bridge && bridge.empty())
+    {
+        estr = "BRIDGE is mandatory for driver " + vn_mad;
+        return -1;
+    }
+
+    if ( check_vlan && !vlan_id_automatic && vlan_id.empty() )
+    {
+        estr = "VLAN_ID (or AUTOMATIC) is mandatory for driver " + vn_mad;
+        return -1;
+    }
+
+    if ( check_outer && !outer_vlan_id_automatic && outer_vlan_id.empty() )
+    {
+        estr = "OUTER_VLAN_ID (or AUTOMATIC) is mandatory for driver " + vn_mad;
+        return -1;
+    }
+
+    if ( check_other )
+    {
+        vector<string>::iterator it;
+        string value;
+
+        for ( it = other.begin(); it != other.end() ; ++it)
+        {
+            if (!PoolObjectSQL::get_template_attribute((*it).c_str(), value))
+            {
+                estr = *it + " is mandatory for driver " + vn_mad;
+                return -1;
+            }
+        }
+    }
+
     return 0;
-
-error_phydev:
-    ose << "PHY_DEV have to be set in Virtual Network template.";
-    goto error_common;
-
-error_outer_vlan_id:
-    ose << "No OUTER_VLAN_ID or AUTOMATIC_OUTER_VLAN_ID in template for"
-        << "Virtual Network.";
-    goto error_common;
-
-error_vlan_id:
-    ose << "No VLAN_ID or AUTOMATIC_VLAN_ID in template for"
-        << "Virtual Network.";
-    goto error_common;
-
-error_common:
-    error_str = ose.str();
-    NebulaLog::log("VNM", Log::ERROR, ose);
-    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -195,18 +230,21 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     //--------------------------------------------------------------------------
     // VirtualNetwork Attributes from the template
+    // NAME
+    // VN_MAD
+    // PHYDEV
+    // BRIDGE
+    // VLAN_ID / AUTOMATIC_VLAN_ID
+    // OUTER_VLAN_ID / AUTOMATIC_OUTER_VLAN_ID
+    //
+    // Note: VLAN_IDs if not set will be allocated in VirtualNetworkPool
     //--------------------------------------------------------------------------
-
-    // ------------ NAME ----------------------
-
     erase_template_attribute("NAME",name);
 
     if (name.empty())
     {
         goto error_name;
     }
-
-    // ------------ VN_MAD --------------------
 
     erase_template_attribute("VN_MAD", vn_mad);
 
@@ -217,30 +255,26 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     add_template_attribute("VN_MAD", vn_mad);
 
-    // ------------ PHYDEV --------------------
-
     erase_template_attribute("PHYDEV", phydev);
 
     add_template_attribute("PHYDEV", phydev);
 
-    // ---- VLAN_IDs if not set will be allocated in VirtualNetworkPool -----
+    erase_template_attribute("BRIDGE",bridge);
 
     parse_vlan_id("VLAN_ID", "AUTOMATIC_VLAN_ID", vlan_id, vlan_id_automatic);
 
     parse_vlan_id("OUTER_VLAN_ID", "AUTOMATIC_OUTER_VLAN_ID", outer_vlan_id,
             outer_vlan_id_automatic);
 
-    rc = parse_phydev_vlans(vn_mad, outer_vlan_id_automatic, outer_vlan_id,
-                vlan_id_automatic, vlan_id, phydev, error_str);
+    // -------------------------------------------------------------------------
+    // Check consistency for PHYDEV, BRIDGE and VLAN_IDs based on the driver
+    // -------------------------------------------------------------------------
+    rc = parse_phydev_vlans(error_str);
 
     if (rc != 0)
     {
-        return -1;
+        goto error_parse;
     }
-
-    // ------------ BRIDGE --------------------
-
-    erase_template_attribute("BRIDGE",bridge);
 
     if (bridge.empty())
     {
@@ -314,20 +348,18 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     return 0;
 
 error_name:
-    ose << "No NAME in template for Virtual Network.";
+    error_str = "No NAME in template for Virtual Network.";
     goto error_common;
 
 error_vn_mad:
-    ose << "No VN_MAD in template for Virtual Network.";
+    error_str = "No VN_MAD in template for Virtual Network.";
     goto error_common;
 
+error_parse:
 error_db:
 error_ar:
-    ose << error_str;
-
 error_common:
-    error_str = ose.str();
-    NebulaLog::log("VNM", Log::ERROR, ose);
+    NebulaLog::log("VNM", Log::ERROR, error_str);
     return -1;
 }
 
