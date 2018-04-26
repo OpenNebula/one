@@ -337,7 +337,6 @@ def self.import_templates(con_ops, options)
             tmps.each{ |t|
                 template = nil
                 template_copy_ref = nil
-
                 if !use_defaults
                     STDOUT.print "\n  * VM Template found:\n"\
                                     "      - Name       : \e[92m#{t[:template_name]}\e[39m\n"\
@@ -487,7 +486,7 @@ def self.import_templates(con_ops, options)
                 template_moref = template_copy_ref ? template_copy_ref : t[:vcenter_ref]
 
                 wild = false # We are not importing from a Wild VM
-                error, template_nics, allocated_nets = template.import_vcenter_nics(vc_uuid,
+                error, template_nics, ar_ids, allocated_nets = template.import_vcenter_nics(vc_uuid,
                                                                                     npool,
                                                                                     hpool,
                                                                                     options[:vcenter],
