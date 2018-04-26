@@ -203,7 +203,8 @@ public:
             PoolObjectSQL::ObjectType   ot,
             VirtualMachineNic *         nic,
             int                         uid,
-            AuthRequest *               ar);
+            AuthRequest *               ar,
+            set<int> &                  sgs);
 
     //--------------------------------------------------------------------------
     // VNET Reservation interface

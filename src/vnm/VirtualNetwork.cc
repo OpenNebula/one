@@ -1194,7 +1194,21 @@ int VirtualNetwork::reserve_addr_by_mac(int rid, unsigned int rsize,
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 bool VirtualNetwork::is_reservation() const
 {
     return parent_vid != -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualNetwork::get_security_groups(set<int> & sgs){
+    std::set<int>::const_iterator it;
+    for (it = security_groups.begin(); it != security_groups.end(); it++)
+    {
+        sgs.insert(*it);
+    }
 }
