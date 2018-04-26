@@ -72,29 +72,27 @@ class GenericCommand
     # Runs the command
     def run
         begin
-            # https://redmine.ruby-lang.org/issues/4681
-            Timeout.timeout(@timeout) do
-                Timeout.timeout(@timeout) do
-                    @stdout, @stderr, status = execute
+            @stdout, @stderr, status = execute
 
-                    if status && status.exited?
-                        @code = status.exitstatus
-                    else
-                        @code = 255
-                    end
-
-                    if @code != 0
-                        log("Command execution fail (exit code: #{@code}): #{command}")
-                        log(@stderr)
-                    end
-                end
+            if status && status.exited?
+                @code = status.exitstatus
+            else
+                @code = 255
             end
-        rescue Timeout::Error
-            error_message = "Timeout executing #{command}"
+
+            if @code != 0
+                log("Command execution failed (exit code: #{@code}): #{command}")
+                log(@stderr)
+            end
+        rescue Exception => e
+            if e.is_a?(Timeout::Error)
+                error_message = "Timeout executing #{command}"
+            else
+                error_message = "Internal error #{e}"
+            end
+
             log(error_message)
-
             @stderr = ERROR_OPEN + "\n" + error_message + "\n" + ERROR_CLOSE
-
             @code = 255
         end
 
@@ -118,6 +116,59 @@ private
         ['', '', nil]
     end
 
+    # modified Open3.capture with terminator thread
+    # to deal with timeouts
+    def capture3_timeout(*cmd)
+        if Hash === cmd.last
+            opts = cmd.pop.dup
+        else
+            opts = {}
+        end
+
+        stdin_data = opts.delete(:stdin_data) || ''
+        binmode = opts.delete(:binmode)
+
+        Open3.popen3(*cmd, opts) {|i, o, e, t|
+            if binmode
+                i.binmode
+                o.binmode
+                e.binmode
+            end
+
+            out_reader = Thread.new { o.read }
+            err_reader = Thread.new { e.read }
+            terminator = Thread.new {
+                if @timeout and @timeout>0
+                    begin
+                        pid = Process.getpgid(t.pid) * -1
+                    rescue
+                        pid = t.pid
+                    end
+
+                    if pid
+                        begin
+                            sleep @timeout
+                            Process.kill('TERM', pid)
+                        rescue
+                        end
+
+                        raise Timeout::Error
+                    end
+                end
+            }
+
+            i.write stdin_data
+            i.close
+
+            out = [out_reader.value, err_reader.value, t.value]
+
+            terminator.kill
+            terminator.value
+
+            out
+        }
+    end
+
 end
 
 # Executes commands in the machine where it is called. See documentation
@@ -126,7 +177,7 @@ class LocalCommand < GenericCommand
 private
 
     def execute
-        Open3.capture3("#{command}",
+        capture3_timeout("#{command}",
                         :pgroup => true, :stdin_data => @stdin)
     end
 end
@@ -154,10 +205,10 @@ private
 
     def execute
         if @stdin
-            Open3.capture3("ssh #{@host} #{@command}",
+            capture3_timeout("ssh #{@host} #{@command}",
                             :pgroup => true, :stdin_data => @stdin)
         else
-            Open3.capture3("ssh -n #{@host} #{@command}",
+            capture3_timeout("ssh -n #{@host} #{@command}",
                             :pgroup => true)
         end
     end
