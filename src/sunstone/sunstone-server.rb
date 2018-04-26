@@ -359,26 +359,26 @@ helpers do
         tmp   = File.open(TMP_FILE, "w")
         main  = File.new(MAIN_FILE_PATH)
         files = Dir[ADDONS_LOCATION].select{ |f| File.file? f }
-        
-        if files.length == 0 then 
+
+        if files.length == 0 then
             return ""
         end
-            
+
         lines = main.gets
         while lines != nil
             tmp << lines
-            
+
             if lines.include? "// start-addon-section //"
                 load_start_section(files, tmp)
             end
-            
+
             if lines.include? "'addons/start'"
                 load_list_start(files, tmp)
             end
-            
+
             lines = main.gets
         end
-            
+
         FileUtils.mv(TMP_FILE, MAIN_FILE_PATH)
         files.each do |file|
             FileUtils.rm(file)
@@ -520,7 +520,7 @@ end
 # HTML Requests
 ##############################################################################
 get '/' do
-    load_addons
+    #load_addons
     content_type 'text/html', :charset => 'utf-8'
     if !authorized?
         return erb :login
