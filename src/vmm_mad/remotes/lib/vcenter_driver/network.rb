@@ -123,7 +123,8 @@ class Network
         bridge_name = network_name
         network_name = network_name.gsub("/","_")
 
-        network_import_name = generate_name(network_name, {:vcenter_name=>vcenter_instance_name, :dc_name=>dc_name})
+
+        network_import_name = VCenterDriver::VIHelper.one_name(OpenNebula::TemplatePool, network_name, network_ref+vcenter_uuid)
 
         one_tmp[:name]             = bridge_name
         one_tmp[:import_name]      = network_import_name

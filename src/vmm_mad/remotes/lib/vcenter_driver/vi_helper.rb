@@ -87,13 +87,31 @@ class VIHelper
     end
 
     def self.generate_name(opts, nbytes)
-        raise "nBytes must be a positive Integer" if nbytes <= 0
+
+        return opts[:name] if nbytes <= 0
 
         @sha256 ||= Digest::SHA256.new
         chain = opts[:key]
-        hash  = @sha256.hexdigest(chain)[0..nbytes-=1]
+        hash  = @sha256.hexdigest(chain)[0..nbytes-1]
 
         return "#{opts[:name]}-#{hash}"
+    end
+
+    def self.one_name(the_class, name, key, pool = nil, bytes = 0)
+
+        # Remove \u007F character that comes from vcenter
+        name = name.tr("\u007F", "")
+        pool = one_pool(the_class) if pool.nil?
+
+        import_name = generate_name({name: name, key: key}, bytes)
+
+        begin
+            find_by_name(the_class, import_name, pool)
+        rescue RuntimeError => e
+            return import_name
+        end
+
+        one_name(the_class, name, key, pool, bytes+2)
     end
 
     def self.get_ref_key(element, attribute)

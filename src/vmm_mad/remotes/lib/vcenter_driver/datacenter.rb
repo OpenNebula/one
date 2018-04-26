@@ -51,8 +51,6 @@ class DatacenterFolder
 
         fetch! if @items.empty? # Get datacenters
 
-        sha256 = Digest::SHA256.new # Prepare crypto hash generator
-
         # Loop through datacenters
         @items.values.each do |dc|
             dc_name = dc.item.name
@@ -90,15 +88,10 @@ class DatacenterFolder
                 location   = folders.reverse.join("/")
                 location = "/" if location.empty?
 
-                # Generate a crypto hash and take the first 12 characters to
-                # avoid name collisions.
-                full_name = "#{ccr['name']}_[#{vcenter_instance_name}-#{dc_name}]_#{location}"
-                cluster_hash = sha256.hexdigest(full_name)[0..11]
-
                 # Setting host import name and replace spaces and weird characters
-                cluster_name = "#{ccr['name']}_[#{vcenter_instance_name}-#{dc_name}]_#{cluster_hash}"
-                cluster_name = cluster_name.tr(" ", "_")
-                cluster_name = cluster_name.tr("\u007F", "") # Remove \u007F character that comes from vcenter
+                cluster_name = "#{ccr['name']}".tr(" ", "_")
+                cluster_name = VCenterDriver::VIHelper.one_name(OpenNebula::HostPool, cluster_name, ccr['_ref']+vcenter_uuid, hpool)
+
 
                 # Prepare hash for import tool
                 host_info = {}
@@ -106,7 +99,6 @@ class DatacenterFolder
                 host_info[:cluster_name]     = cluster_name
                 host_info[:cluster_ref]      = ccr['_ref']
                 host_info[:cluster_location] = location
-                host_info[:cluster_hash]     = cluster_hash
                 host_info[:vcenter_uuid]     = vcenter_uuid
                 host_info[:vcenter_version]  = vcenter_version
                 host_info[:rp_list]          = rpools
@@ -179,8 +171,9 @@ class DatacenterFolder
 
                     already_image_ds = VCenterDriver::Storage.exists_one_by_ref_dc_and_type?(ds_ref, dc_ref, vcenter_uuid, "IMAGE_DS", dpool)
 
+                    key = ds_ref+vcenter_uuid
                     if !already_image_ds
-                        ds_objects[ds_ref][:name] = "#{ds_name} [#{vcenter_instance_name} - #{dc_name}] (IMG)"
+                        ds_objects[ds_ref][:name] = VCenterDriver::VIHelper.one_name(OpenNebula::DatastorePool, "#{ds_name}(IMG)", key)
                         object = ds.to_one_template(ds_objects[ds_ref], vcenter_uuid, dc_name, dc_ref, "IMAGE_DS")
                         ds_objects[ds_ref][:ds] << object if !object.nil?
                     end
@@ -188,12 +181,12 @@ class DatacenterFolder
                     already_system_ds = VCenterDriver::Storage.exists_one_by_ref_dc_and_type?(ds_ref, dc_ref, vcenter_uuid, "SYSTEM_DS", dpool)
 
                     if !already_system_ds
-                        ds_objects[ds_ref][:name] = "#{ds_name} [#{vcenter_instance_name} - #{dc_name}] (SYS)"
+                        ds_objects[ds_ref][:name] = VCenterDriver::VIHelper.one_name(OpenNebula::DatastorePool, "#{ds_name}(SYS)", key)
                         object = ds.to_one_template(ds_objects[ds_ref], vcenter_uuid, dc_name, dc_ref, "SYSTEM_DS")
                         ds_objects[ds_ref][:ds] << object if !object.nil?
                     end
 
-                    ds_objects[ds_ref][:name] = "#{ds_name} [#{vcenter_instance_name} - #{dc_name}]"
+                    ds_objects[ds_ref][:name] = "#{ds_name}"
                 elsif ds.instance_of? VCenterDriver::StoragePod
                     ds['children'].each do |sp_ds|
                         hosts = sp_ds.host

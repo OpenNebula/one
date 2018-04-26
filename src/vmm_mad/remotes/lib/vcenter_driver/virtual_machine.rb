@@ -1010,12 +1010,10 @@ class Template
             location = "/" if location.empty?
 
             # Generate a crypto hash for the template name and take the first 12 chars
-            sha256            = Digest::SHA256.new
-            full_name         = "#{template_name} - #{template_ccr_name} [#{vcenter_instance_name} - #{dc_name}]_#{location}"
-            template_hash     = sha256.hexdigest(full_name)[0..11]
+            import_name = VCenterDriver::VIHelper.one_name(OpenNebula::TemplatePool, template_name, template_ref+vcenter_uuid)
+
             template_name     = template_name.tr("\u007F", "")
             template_ccr_name = template_ccr_name.tr("\u007F", "")
-            import_name       = "#{template_name} - #{template_ccr_name} #{template_hash}"
 
             # Prepare the Hash that will be used by importers to display
             # the object being imported
@@ -1025,7 +1023,6 @@ class Template
             one_tmp[:dc_name]               = dc_name
             one_tmp[:template_name]         = template_name
             one_tmp[:sunstone_template_name]= "#{template_name} [ Cluster: #{template_ccr_name} - Template location: #{location} ]"
-            one_tmp[:template_hash]         = template_hash
             one_tmp[:template_location]     = location
             one_tmp[:vcenter_ccr_ref]       = template_ccr_ref
             one_tmp[:vcenter_ref]           = template_ref
