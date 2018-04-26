@@ -2941,7 +2941,7 @@ void VirtualMachineUpdateConf::request_execute(
         int rc;
         int cluster_id;
 
-        if (graphics != 0 && graphics->vector_value("PORT", port) == 0)
+        if (graphics != 0 && graphics->vector_value("PORT", port) == -1)
         {
             cluster_id = vm->get_cid();
 
