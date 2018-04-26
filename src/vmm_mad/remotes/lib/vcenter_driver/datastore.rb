@@ -779,7 +779,7 @@ class ImageImporter < VCenterDriver::VcImporter
         id = resource['ID']
         @rollback << Raction.new(resource, :delete)
 
-        {id: id, name: name}
+        return {id: [id], name: name}
     end
 
 end
