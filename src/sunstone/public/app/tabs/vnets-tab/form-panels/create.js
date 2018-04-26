@@ -166,13 +166,13 @@ define(function(require) {
 
         $("input#bridge", context).removeAttr("required");
         $("#automatic_vlan_id option[value='NO']", context).hide();
+        $("#phydev", context).attr("required", "");
         break;
       case "ebtables":
         $("div.mode_param.ebtables", context).show();
         $("div.mode_param.ebtables [wizard_field]", context).prop("wizard_field_disabled", false);
 
         $("input#bridge", context).attr("required", "");
-        $("#phydev", context).attr("required", "");
         break;
       case "ovswitch":
         $("div.mode_param.ovswitch", context).show();
