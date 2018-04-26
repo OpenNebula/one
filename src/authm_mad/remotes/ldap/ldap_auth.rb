@@ -131,31 +131,26 @@ class OpenNebula::LdapAuth
     end
 
     def find_user(name)
-        begin
-            filter = Net::LDAP::Filter.eq(@options[:user_field], escape(name))
+        filter = Net::LDAP::Filter.eq(@options[:user_field], escape(name))
 
-            result = @ldap.search(
-                :base       => @options[:base],
-                :attributes => @options[:attributes],
-                :filter     => filter
-            )
+        result = @ldap.search(
+            :base       => @options[:base],
+            :attributes => @options[:attributes],
+            :filter     => filter
+        )
+
+        if result && result.first
+            @user = result.first
+            [@user.dn, @user[@options[:user_group_field]]]
+        else
+            result=@ldap.search(:base => name)
 
             if result && result.first
                 @user = result.first
-                [@user.dn, @user[@options[:user_group_field]]]
+                [name, @user[@options[:user_group_field]]]
             else
-                result=@ldap.search(:base => name)
-
-                if result && result.first
-                    @user = result.first
-                    [name, @user[@options[:user_group_field]]]
-                else
-                    [nil, nil]
-                end
+                [nil, nil]
             end
-        rescue Exception => e
-            STDERR.puts e.message
-            [nil, nil]
         end
     end
 
