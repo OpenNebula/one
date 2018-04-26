@@ -407,7 +407,7 @@ void MarketPlaceApp::to_template(Template * tmpl) const
     tmpl->replace("FROM_APP_NAME", get_name());
     tmpl->replace("PATH", get_source());
     tmpl->replace("FORMAT", get_format());
-    tmpl->replace("MD5", get_md5());
+    tmpl->replace("FROM_APP_MD5", get_md5());
 }
 
 /* --------------------------------------------------------------------------- */
