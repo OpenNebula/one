@@ -378,7 +378,7 @@ public:
     void get_security_groups(set<int>& sgs)
     {
         std::set<int>::const_iterator it;
-        for (it = security_groups.begin(); it != security_groups.end(); it++)
+        for (it = security_groups.begin(); it != security_groups.end(); ++it)
         {
             sgs.insert(*it);
         }
