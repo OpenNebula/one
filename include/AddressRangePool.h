@@ -310,7 +310,7 @@ public:
 
     /**
      *  Gets a the security group set of all ARs
-     *    @sgs set with all the SG ids
+     *    @param sgs set with all the SG ids
      */
     void get_all_security_groups(set<int>& sgs);
 
