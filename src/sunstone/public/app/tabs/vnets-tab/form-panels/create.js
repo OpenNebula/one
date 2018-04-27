@@ -352,6 +352,8 @@ define(function(require) {
       network_json["SECURITY_GROUPS"] = secgroups.join(",");
     }
 
+    var cluster_id = $(".resource_list_select", $('#vnet_cluster_id', context)).val();
+
     $.extend(network_json, CustomTagsTable.retrieve($("#vnetCreateContextTab", context)));
 
     $(".ar_tab", context).each(function() {
@@ -368,7 +370,8 @@ define(function(require) {
 
     if (this.action == "create") {
       network_json = {
-        "vnet" : network_json
+        "vnet" : network_json,
+        "cluster_id": cluster_id
       };
 
       Sunstone.runAction("Network.create", network_json);
@@ -402,6 +405,20 @@ define(function(require) {
       var ar_id = $(this).attr("ar_id");
       that.arTabObjects[ar_id].onShow();
     });
+
+    if (this.action === "create"){
+      $("div#vnet_cluster_div", context).show();
+      var cluster_id = $("div#vnet_cluster_id .resource_list_select", context).val();
+      if (!cluster_id) cluster_id = "0";
+
+      ResourceSelect.insert({
+        context: $('#vnet_cluster_id', context),
+        resourceName: 'Cluster',
+        initValue: cluster_id
+      });
+    } else {
+      $("div#vnet_cluster_div", context).hide();
+    }
   }
 
   function _fill(context, element) {
