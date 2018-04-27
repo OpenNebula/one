@@ -535,6 +535,16 @@ const set<int>& AddressRangePool::get_security_groups(int ar_id) const
     return it->second->get_security_groups();
 }
 
+void AddressRangePool::get_all_security_groups(set<int>& sgs)
+{
+    map<unsigned int, AddressRange *>::const_iterator it;
+
+    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    {
+        it->second->get_security_groups(sgs);
+    }
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

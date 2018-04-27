@@ -128,11 +128,11 @@ void VirtualMachineNic::authorize(PoolObjectSQL::ObjectType ot, int uid,
     VirtualNetworkPool * vnpool = nd.get_vnpool();
     SecurityGroupPool *  sgpool = nd.get_secgrouppool();
 
-    vnpool->authorize_nic(ot, this, uid, ar);
-
     set<int> sgroups;
 
     get_security_groups(sgroups);
+
+    vnpool->authorize_nic(ot, this, uid, ar, sgroups);
 
     for(set<int>::iterator it = sgroups.begin(); it != sgroups.end(); it++)
     {

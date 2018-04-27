@@ -460,6 +460,12 @@ public:
     int get_template_attribute(const char * name, int& value, int ar_id) const;
 
     /**
+     *  Adds the security group of the VNet and its ARs to the given set
+     *    @param sgs to put the sg ids in
+     */
+    void get_security_groups(set<int> & sgs);
+
+    /**
      *    @return A copy of the VNET Template
      */
     VirtualNetworkTemplate * clone_template() const

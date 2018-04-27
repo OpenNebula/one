@@ -302,7 +302,8 @@ void VirtualNetworkPool::authorize_nic(
         PoolObjectSQL::ObjectType   ot,
         VirtualMachineNic *         nic,
         int                         uid,
-        AuthRequest *               ar)
+        AuthRequest *               ar,
+        set<int> &                  sgs)
 {
     string           network;
     VirtualNetwork * vnet = 0;
@@ -333,6 +334,8 @@ void VirtualNetworkPool::authorize_nic(
     }
 
     vnet->get_permissions(perm);
+
+    vnet->get_security_groups(sgs);
 
     vnet->unlock();
 
