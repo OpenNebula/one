@@ -1205,11 +1205,14 @@ bool VirtualNetwork::is_reservation() const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualNetwork::get_security_groups(set<int> & sgs){
+void VirtualNetwork::get_security_groups(set<int> & sgs)
+{
     std::set<int>::const_iterator it;
+  
     for (it = security_groups.begin(); it != security_groups.end(); it++)
     {
         sgs.insert(*it);
     }
+  
     ar_pool.get_all_security_groups(sgs);
 }
