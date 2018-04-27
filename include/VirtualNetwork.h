@@ -580,7 +580,7 @@ private:
             string& id, bool& auto_id);
 
     /**
-     *  Check consistency of PHY_DEV, BRIDGE and VLAN attributes depending on
+     *  Check consistency of PHYDEV, BRIDGE and VLAN attributes depending on
      *  the network driver
      *    @param error_str describing the error
      *    @return 0 on success -1 otherwise
@@ -676,7 +676,7 @@ private:
     int from_xml(const string &xml_str);
 
     /**
-     * Updates the BRIDGE, PHY_DEV, and VLAN_ID attributes.
+     * Updates the BRIDGE, PHYDEV, and VLAN_ID attributes.
      *    @param error string describing the error if any
      *    @return 0 on success
      */
