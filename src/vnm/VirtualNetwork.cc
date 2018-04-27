@@ -124,7 +124,7 @@ void VirtualNetwork::parse_vlan_id(const char * id_name, const char * auto_name,
 //-------------------------------------------------------------------------------
 /*
 +----------------+---------+--------+--------------------------+----------------+
-|    Driver      | PHY_DEV | BRIDGE |         VLAN_ID          |      OTHER     |
+|    Driver      | PHYDEV | BRIDGE |         VLAN_ID          |      OTHER     |
 +----------------+---------+--------+--------------------------+----------------+
 | vcenter        | no      | yes    | no                       | VCENTER_NET_REF|
 | dummy          | no      | yes    | no                       |                |
@@ -176,7 +176,7 @@ int VirtualNetwork::parse_phydev_vlans(string& estr)
 
     if ( check_phydev && phydev.empty())
     {
-        estr = "PHY_DEV is mandatory for driver " + vn_mad;
+        estr = "PHYDEV is mandatory for driver " + vn_mad;
         return -1;
     }
 
