@@ -309,7 +309,8 @@ public:
     const set<int>& get_security_groups(int ar_id) const;
 
     /**
-     *  Gets a reference to a the security group set of all ARs
+     *  Gets a the security group set of all ARs
+     *    @sgs set with all the SG ids
      */
     void get_all_security_groups(set<int>& sgs);
 
