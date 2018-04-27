@@ -1211,4 +1211,5 @@ void VirtualNetwork::get_security_groups(set<int> & sgs){
     {
         sgs.insert(*it);
     }
+    ar_pool.get_all_security_groups(sgs);
 }

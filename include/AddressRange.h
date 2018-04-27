@@ -372,6 +372,18 @@ public:
         return security_groups;
     }
 
+    /**
+     *  Copy security groups into set
+     */
+    void get_security_groups(set<int>& sgs)
+    {
+        std::set<int>::const_iterator it;
+        for (it = security_groups.begin(); it != security_groups.end(); it++)
+        {
+            sgs.insert(*it);
+        }
+    }
+
     /*
      *  add_ar from AddressRangePool needs to access the internal representation
      *  of the AR to include it in the ARPool template.
