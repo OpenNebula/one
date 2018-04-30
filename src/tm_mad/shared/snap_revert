@@ -79,7 +79,12 @@ SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
 SNAP_PATH_RELATIVE=$(basename ${SNAP_PATH})
 CURRENT_PATH="${CURRENT_PATH:-${DISK_PATH}}"
 
-CMD="rm \"${CURRENT_PATH}\" ; cp \"${SNAP_PATH}\" \"${CURRENT_PATH}\""
+CMD=$(cat <<EOF
+    set -e -o pipefail
+    rm "${CURRENT_PATH}"
+    cp "${SNAP_PATH}" "${CURRENT_PATH}"
+EOF
+)
 
 ssh_exec_and_log "${SRC_HOST}" "${CMD}" \
                  "Error reverting snapshot to ${SNAP_PATH}"

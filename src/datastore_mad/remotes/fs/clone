@@ -64,7 +64,15 @@ DST=`generate_image_path`
 if [ -n "$BRIDGE_LIST" ]; then
     log "Copying remotely local image $SRC to the image repository"
     DST_HOST=`get_destination_host $ID`
-    ssh_exec_and_log "$DST_HOST" "mkdir -p $BASE_PATH; cp -f $SRC $DST" "Error copying $SRC to $DST in $DST_HOST"
+
+    CMD=$(cat <<EOF
+        set -e -o pipefail
+        mkdir -p $BASE_PATH
+        cp -f $SRC $DST
+EOF
+)
+
+    ssh_exec_and_log "$DST_HOST" "${CMD}" "Error copying $SRC to $DST in $DST_HOST"
 else
     log "Copying local image $SRC to the image repository"
     mkdir -p "$BASE_PATH"
