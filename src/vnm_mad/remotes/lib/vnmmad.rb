@@ -49,6 +49,7 @@ rescue
         :validate_vlan_id    => false,
         :vlan_mtu            => "1500",
         :ipset_maxelem       => "65536",
+        :keep_empty_bridge   => false,
     }
 end
 
