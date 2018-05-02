@@ -135,6 +135,9 @@ private
                 e.binmode
             end
 
+            terminator_e = nil
+            mutex = Mutex.new
+
             out_reader = Thread.new { o.read }
             err_reader = Thread.new { e.read }
             terminator = Thread.new {
@@ -148,11 +151,14 @@ private
                     if pid
                         begin
                             sleep @timeout
-                            Process.kill('TERM', pid)
-                        rescue
+
+                            mutex.synchronize do
+                                terminator_e = Timeout::Error
+                            end
+                        ensure
                         end
 
-                        raise Timeout::Error
+                        Process.kill('TERM', pid)
                     end
                 end
             }
@@ -162,8 +168,9 @@ private
 
             out = [out_reader.value, err_reader.value, t.value]
 
+            mutex.lock
             terminator.kill
-            terminator.value
+            raise terminator_e if terminator_e
 
             out
         }
