@@ -30,6 +30,9 @@ features:
 
     # True to show the attributes info (VM & VRouters)
     show_attributes_info: true
+
+    # True to show the vCenter info (VM & VRouters)
+    show_vcenter_info: true
 tabs:
     provision-tab:
         panel_tabs:
