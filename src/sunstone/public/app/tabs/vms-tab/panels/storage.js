@@ -602,7 +602,7 @@ define(function(require) {
         return false;
       });
     }
-    if (Config.isTabActionEnabled("vms-tab", "VM.resize")) {
+    if (Config.isTabActionEnabled("vms-tab", "VM.disk_resize")) {
     context.off('click', '.disk_resize');
       context.on('click', '.disk_resize', function() {
         var disk_id = $(this).parents('tr').attr('disk_id');
@@ -629,7 +629,7 @@ define(function(require) {
         return false;
       });
     }
-   
+
     Tree.setup(context);
   }
 
