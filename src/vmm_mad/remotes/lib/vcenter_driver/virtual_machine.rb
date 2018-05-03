@@ -575,7 +575,6 @@ class Template
                         one_vn.info
                         if wild?
                             last_id = save_ar_ids(one_vn, nic, ar_ids)
-                            nic_info = ""
                             nic_info << "NIC=[\n"
                             nic_info << "AR_ID=\"#{last_id}\",\n"
                             nic_info << "NETWORK_ID=\"#{one_vn.id}\",\n"
