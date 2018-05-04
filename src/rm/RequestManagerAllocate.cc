@@ -492,6 +492,8 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
         oss << size_mb;
         size_str = oss.str();
+
+        tmpl->erase("DRIVER");
     }
     else
     {
