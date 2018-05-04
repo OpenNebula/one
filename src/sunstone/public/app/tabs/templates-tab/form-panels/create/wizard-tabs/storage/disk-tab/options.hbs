@@ -146,6 +146,25 @@
   </div>
   <div class="medium-6 columns hypervisor only_kvm">
     <fieldset>
+      <legend>{{tr "Max IO throttling (bytes/s)"}}</legend>
+      <label for="TOTAL_BYTES_SEC_MAX_LENGTH">
+        {{tr "Maximum total (read+write) bytes/s"}}
+      </label>
+      <input wizard_field="TOTAL_BYTES_SEC_MAX_LENGTH" type="number" min="0" id="TOTAL_BYTES_SEC_MAX_LENGTH" name="TOTAL_BYTES_SEC_MAX_LENGTH" />
+      <label for="READ_BYTES_SEC_MAX_LENGTH">
+        {{tr "Maximum read bytes/s"}}
+      </label>
+      <input wizard_field="READ_BYTES_SEC_MAX_LENGTH" type="number" min="0" id="READ_BYTES_SEC_MAX_LENGTH" name="READ_BYTES_SEC_MAX_LENGTH" />
+      <label for="WRITE_BYTES_SEC">
+        {{tr "Maximum write bytes/s"}}
+      </label>
+      <input wizard_field="WRITE_BYTES_SEC_MAX" type="number" min="0" id="WRITE_BYTES_SEC_MAX" name="WRITE_BYTES_SEC_MAX" />
+    </fieldset>
+  </div>
+</div>
+<div class="row vm_param">
+  <div class="medium-6 columns hypervisor only_kvm">
+    <fieldset>
       <legend>{{tr "IO throttling (IOPS)"}}</legend>
       <label for="TOTAL_IOPS_SEC">
         {{tr "Total (read+write) IOPS"}}
@@ -159,6 +178,23 @@
         {{tr "Write IOPS Sec"}}
       </label>
       <input wizard_field="WRITE_IOPS_SEC" type="number" min="0" id="WRITE_IOPS_SEC" name="WRITE_IOPS_SEC" />
+    </fieldset>
+  </div>
+  <div class="medium-6 columns hypervisor only_kvm">
+    <fieldset>
+      <legend>{{tr "Max IO throttling (IOPS)"}}</legend>
+      <label for="TOTAL_IOPS_SEC_MAX_LENGTH">
+        {{tr "Maximum total (read+write) IOPS"}}
+      </label>
+      <input wizard_field="TOTAL_IOPS_SEC_MAX_LENGTH" type="number" min="0" id="TOTAL_IOPS_SEC_MAX_LENGTH" name="TOTAL_IOPS_SEC_MAX_LENGTH" />
+      <label for="READ_IOPS_SEC_MAX_LENGTH">
+        {{tr "Maximum read IOPS"}}
+      </label>
+      <input wizard_field="READ_IOPS_SEC_MAX_LENGTH" type="number" min="0" id="READ_IOPS_SEC_MAX_LENGTH" name="READ_IOPS_SEC_MAX_LENGTH" />
+      <label for="WRITE_IOPS_SEC_MAX">
+        {{tr "Maximum write IOPS Sec"}}
+      </label>
+      <input wizard_field="WRITE_IOPS_SEC_MAX" type="number" min="0" id="WRITE_IOPS_SEC_MAX" name="WRITE_IOPS_SEC_MAX" />
     </fieldset>
   </div>
 </div>

@@ -142,19 +142,31 @@ int LibVirtDriver::deployment_description_kvm(
     string  gluster_host    = "";
     string  gluster_volume  = "";
 
-    string  total_bytes_sec = "";
-    string  read_bytes_sec  = "";
-    string  write_bytes_sec = "";
-    string  total_iops_sec  = "";
-    string  read_iops_sec   = "";
-    string  write_iops_sec  = "";
+    string  total_bytes_sec            = "";
+    string  total_bytes_sec_max_length = "";
+    string  read_bytes_sec             = "";
+    string  read_bytes_sec_max_length  = "";
+    string  write_bytes_sec            = "";
+    string  write_bytes_sec_max        = "";
+    string  total_iops_sec             = "";
+    string  total_iops_sec_max_length  = "";
+    string  read_iops_sec              = "";
+    string  read_iops_sec_max_length   = "";
+    string  write_iops_sec             = "";
+    string  write_iops_sec_max         = "";
 
-    string  default_total_bytes_sec = "";
-    string  default_read_bytes_sec  = "";
-    string  default_write_bytes_sec = "";
-    string  default_total_iops_sec  = "";
-    string  default_read_iops_sec   = "";
-    string  default_write_iops_sec  = "";
+    string  default_total_bytes_sec            = "";
+    string  default_total_bytes_sec_max_length = "";
+    string  default_read_bytes_sec             = "";
+    string  default_read_bytes_sec_max_length  = "";
+    string  default_write_bytes_sec            = "";
+    string  default_write_bytes_sec_max        = "";
+    string  default_total_iops_sec             = "";
+    string  default_total_iops_sec_max_length  = "";
+    string  default_read_iops_sec              = "";
+    string  default_read_iops_sec_max_length   = "";
+    string  default_write_iops_sec             = "";
+    string  default_write_iops_sec_max         = "";
 
     int     disk_id;
     int     order;
@@ -462,11 +474,17 @@ int LibVirtDriver::deployment_description_kvm(
     get_default("DISK", "IO", default_driver_disk_io);
     get_default("DISK", "DISCARD", default_driver_discard);
     get_default("DISK", "TOTAL_BYTES_SEC", default_total_bytes_sec);
+    get_default("DISK", "TOTAL_BYTES_SEC_MAX_LENGTH", default_total_bytes_sec_max_length);
     get_default("DISK", "READ_BYTES_SEC", default_read_bytes_sec);
+    get_default("DISK", "READ_BYTES_SEC_MAX_LENGTH", default_read_bytes_sec_max_length);
     get_default("DISK", "WRITE_BYTES_SEC", default_write_bytes_sec);
+    get_default("DISK", "WRITE_BYTES_SEC_MAX", default_write_bytes_sec_max);
     get_default("DISK", "TOTAL_IOPS_SEC", default_total_iops_sec);
+    get_default("DISK", "TOTAL_IOPS_SEC_MAX_LENGTH", default_total_iops_sec_max_length);
     get_default("DISK", "READ_IOPS_SEC", default_read_iops_sec);
+    get_default("DISK", "READ_IOPS_SEC_MAX_LENGTH", default_read_iops_sec_max_length);
     get_default("DISK", "WRITE_IOPS_SEC", default_write_iops_sec);
+    get_default("DISK", "WRITE_IOPS_SEC_MAX", default_write_iops_sec_max);
 
     // ------------------------------------------------------------------------
 
@@ -500,15 +518,26 @@ int LibVirtDriver::deployment_description_kvm(
 
         sheepdog_host   = disk[i]->vector_value("SHEEPDOG_HOST");
         total_bytes_sec = disk[i]->vector_value("TOTAL_BYTES_SEC");
-        read_bytes_sec  = disk[i]->vector_value("READ_BYTES_SEC");
-        write_bytes_sec = disk[i]->vector_value("WRITE_BYTES_SEC");
-        total_iops_sec  = disk[i]->vector_value("TOTAL_IOPS_SEC");
-        read_iops_sec   = disk[i]->vector_value("READ_IOPS_SEC");
-        write_iops_sec  = disk[i]->vector_value("WRITE_IOPS_SEC");
+        total_bytes_sec_max_length = disk[i]->vector_value("TOTAL_BYTES_SEC_MAX_LENGTH");
+        read_bytes_sec             = disk[i]->vector_value("READ_BYTES_SEC");
+        read_bytes_sec_max_length  = disk[i]->vector_value("READ_BYTES_SEC_MAX_LENGTH");
+        write_bytes_sec            = disk[i]->vector_value("WRITE_BYTES_SEC");
+        write_bytes_sec_max        = disk[i]->vector_value("WRITE_BYTES_SEC_MAX");
+        total_iops_sec             = disk[i]->vector_value("TOTAL_IOPS_SEC");
+        total_iops_sec_max_length  = disk[i]->vector_value("TOTAL_IOPS_SEC_MAX_LENGTH");
+        read_iops_sec              = disk[i]->vector_value("READ_IOPS_SEC");
+        read_iops_sec_max_length   = disk[i]->vector_value("READ_IOPS_SEC_MAX_LENGTH");
+        write_iops_sec             = disk[i]->vector_value("WRITE_IOPS_SEC");
+        write_iops_sec_max         = disk[i]->vector_value("WRITE_IOPS_SEC_MAX");
 
         if ( total_bytes_sec.empty() && !default_total_bytes_sec.empty())
         {
             total_bytes_sec = default_total_bytes_sec;
+        }
+
+        if ( total_bytes_sec_max_length.empty() && !default_total_bytes_sec_max_length.empty())
+        {
+            total_bytes_sec_max_length = default_total_bytes_sec_max_length;
         }
 
         if ( read_bytes_sec.empty() && !default_read_bytes_sec.empty())
@@ -516,9 +545,19 @@ int LibVirtDriver::deployment_description_kvm(
             read_bytes_sec = default_read_bytes_sec;
         }
 
+        if ( read_bytes_sec_max_length.empty() && !default_read_bytes_sec_max_length.empty())
+        {
+            read_bytes_sec_max_length = default_read_bytes_sec_max_length;
+        }
+
         if ( write_bytes_sec.empty() && !default_write_bytes_sec.empty())
         {
             write_bytes_sec = default_write_bytes_sec;
+        }
+
+        if ( write_bytes_sec_max.empty() && !default_write_bytes_sec_max.empty())
+        {
+            write_bytes_sec_max = default_write_bytes_sec_max;
         }
 
         if ( total_iops_sec.empty() && !default_total_iops_sec.empty())
@@ -526,14 +565,29 @@ int LibVirtDriver::deployment_description_kvm(
             total_iops_sec = default_total_iops_sec;
         }
 
+        if ( total_iops_sec_max_length.empty() && !default_total_iops_sec_max_length.empty())
+        {
+            total_iops_sec_max_length = default_total_iops_sec_max_length;
+        }
+
         if ( read_iops_sec.empty() && !default_read_iops_sec.empty())
         {
             read_iops_sec = default_read_iops_sec;
         }
 
+        if ( read_iops_sec_max_length.empty() && !default_read_iops_sec_max_length.empty())
+        {
+            read_iops_sec_max_length = default_read_iops_sec_max_length;
+        }
+
         if ( write_iops_sec.empty() && !default_write_iops_sec.empty())
         {
             write_iops_sec = default_write_iops_sec;
+        }
+
+        if ( write_iops_sec_max.empty() && !default_write_iops_sec_max.empty())
+        {
+            write_iops_sec_max = default_write_iops_sec_max;
         }
 
         disk[i]->vector_value_str("DISK_ID", disk_id);
@@ -792,7 +846,13 @@ int LibVirtDriver::deployment_description_kvm(
 
         if (!(total_bytes_sec.empty() && read_bytes_sec.empty() &&
               write_bytes_sec.empty() && total_iops_sec.empty() &&
-              read_iops_sec.empty() && write_iops_sec.empty()))
+              read_iops_sec.empty() && write_iops_sec.empty() &&
+              total_bytes_sec_max_length.empty() &&
+              read_bytes_sec_max_length.empty() &&
+              write_bytes_sec_max.empty() &&
+              total_iops_sec_max_length.empty() &&
+              read_iops_sec_max_length.empty() &&
+              write_iops_sec_max.empty() ))
         {
             file << "\t\t\t<iotune>" << endl;
 
@@ -803,11 +863,25 @@ int LibVirtDriver::deployment_description_kvm(
                      << "</total_bytes_sec>\n";
             }
 
+            if ( !total_bytes_sec_max_length.empty() )
+            {
+                file << "\t\t\t\t<total_bytes_sec_max_length>"
+                     << one_util::escape_xml(total_bytes_sec_max_length)
+                     << "</total_bytes_sec_max_length>\n";
+            }
+
             if ( !read_bytes_sec.empty() )
             {
                 file << "\t\t\t\t<read_bytes_sec>"
                      << one_util::escape_xml(read_bytes_sec)
                      << "</read_bytes_sec>\n";
+            }
+
+            if ( !read_bytes_sec_max_length.empty() )
+            {
+                file << "\t\t\t\t<read_bytes_sec_max_length>"
+                     << one_util::escape_xml(read_bytes_sec_max_length)
+                     << "</read_bytes_sec_max_length>\n";
             }
 
             if ( !write_bytes_sec.empty() )
@@ -817,11 +891,25 @@ int LibVirtDriver::deployment_description_kvm(
                      << "</write_bytes_sec>\n";
             }
 
+            if ( !write_bytes_sec_max.empty() )
+            {
+                file << "\t\t\t\t<write_bytes_sec_max>"
+                     << one_util::escape_xml(write_bytes_sec_max)
+                     << "</write_bytes_sec_max>\n";
+            }
+
             if ( !total_iops_sec.empty() )
             {
                 file << "\t\t\t\t<total_iops_sec>"
                      << one_util::escape_xml(total_iops_sec)
                      << "</total_iops_sec>\n";
+            }
+
+            if ( !total_iops_sec_max_length.empty() )
+            {
+                file << "\t\t\t\t<total_iops_sec_max_length>"
+                     << one_util::escape_xml(total_iops_sec_max_length)
+                     << "</total_iops_sec_max_length>\n";
             }
 
             if ( !read_iops_sec.empty() )
@@ -831,11 +919,25 @@ int LibVirtDriver::deployment_description_kvm(
                      << "</read_iops_sec>\n";
             }
 
+            if ( !read_iops_sec_max_length.empty() )
+            {
+                file << "\t\t\t\t<read_iops_sec_max_length>"
+                     << one_util::escape_xml(read_iops_sec_max_length)
+                     << "</read_iops_sec_max_length>\n";
+            }
+
             if ( !write_iops_sec.empty() )
             {
                 file << "\t\t\t\t<write_iops_sec>"
                      << one_util::escape_xml(write_iops_sec)
                      << "</write_iops_sec>\n";
+            }
+
+            if ( !write_iops_sec_max.empty() )
+            {
+                file << "\t\t\t\t<write_iops_sec_max>"
+                     << one_util::escape_xml(write_iops_sec_max)
+                     << "</write_iops_sec_max>\n";
             }
 
             file << "\t\t\t</iotune>" << endl;
