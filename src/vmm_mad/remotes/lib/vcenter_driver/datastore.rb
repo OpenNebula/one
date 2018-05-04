@@ -566,9 +566,6 @@ class Datastore < Storage
         ds_id = @one_item["ID"]
 
         begin
-            # Prepare sha256 crypto generator
-            sha256        = Digest::SHA256.new
-
             # Create Search Spec
             search_params = get_search_params(ds_name)
 
@@ -617,11 +614,8 @@ class Datastore < Storage
 
                     # Generate a crypto hash
                     # this hash is used to avoid name collisions
-                    opts = {
-                        name: image_name,
-                        key:  "#{image_name} - #{ds_name} [#{image_path}]"
-                    }
-                    import_name = images.key?(image_name) ? VCenterDriver::VIHelper.generate_name(opts, 3) : image_name
+                    key = "#{image_name}#{ds_name}#{image_path}"
+                    import_name = VCenterDriver::VIHelper.one_name(OpenNebula::ImagePool, image_name, key, ipool)
 
                     # Set template
                     one_image =  "NAME=\"#{import_name}\"\n"
