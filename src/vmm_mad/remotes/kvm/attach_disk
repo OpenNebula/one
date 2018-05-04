@@ -29,17 +29,49 @@ DRV_ACTION="$5"
 
 get_disk_information "ATTACH='YES'"
 
+function insert_sec() {
+    base=$1
+    s=$2
+    sm=$3
+    sml=$4
+
+    if [ -n "${s}" ]; then
+        XML+=" <${name}_sec>$(xml_esc "${s}")</${name}_sec>"
+    fi
+
+    if [ -n "${sm}" ]; then
+
+        XML+=" <${name}_sec_max>$(xml_esc "${sm}")</${name}_sec_max>"
+
+        if [ -n "${sml}" ]; then
+            XML+=" <${name}_sec_max_length>$(xml_esc "${sml}")</${name}_sec_max_length>"
+        fi
+    fi
+}
+
 # defaults
 CACHE=${CACHE:-${DEFAULT_ATTACH_CACHE}}
 CACHE=${CACHE:-default}  # https://github.com/OpenNebula/one/blob/c0d081917224f1d467582b8d8ac052a48040ec00/src/vmm/LibVirtDriverKVM.cc#L459
 DISCARD=${DISCARD:-${DEFAULT_ATTACH_DISCARD}}
 DISK_IO=${DISK_IO:-${DEFAULT_ATTACH_IO}}
 TOTAL_BYTES_SEC=${TOTAL_BYTES_SEC:-${DEFAULT_ATTACH_TOTAL_BYTES_SEC}}
+TOTAL_BYTES_SEC_MAX_LENGTH=${TOTAL_BYTES_SEC_MAX_LENGTH:-${DEFAULT_ATTACH_TOTAL_BYTES_SEC_MAX_LENGTH}}
+TOTAL_BYTES_SEC_MAX=${TOTAL_BYTES_SEC_MAX:-${DEFAULT_ATTACH_TOTAL_BYTES_SEC_MAX}}
 READ_BYTES_SEC=${READ_BYTES_SEC:-${DEFAULT_ATTACH_READ_BYTES_SEC}}
+READ_BYTES_SEC_MAX_LENGTH=${READ_BYTES_SEC_MAX_LENGTH:-${DEFAULT_ATTACH_READ_BYTES_SEC_MAX_LENGTH}}
+READ_BYTES_SEC_MAX=${READ_BYTES_SEC_MAX:-${DEFAULT_ATTACH_READ_BYTES_SEC_MAX}}
 WRITE_BYTES_SEC=${WRITE_BYTES_SEC:-${DEFAULT_ATTACH_WRITE_BYTES_SEC}}
+WRITE_BYTES_SEC_MAX_LENGTH=${WRITE_BYTES_SEC_MAX_LENGTH:-${DEFAULT_ATTACH_WRITE_BYTES_SEC_MAX_LENGTH}}
+WRITE_BYTES_SEC_MAX=${WRITE_BYTES_SEC_MAX:-${DEFAULT_ATTACH_WRITE_BYTES_SEC_MAX}}
 TOTAL_IOPS_SEC=${TOTAL_IOPS_SEC:-${DEFAULT_ATTACH_TOTAL_IOPS_SEC}}
+TOTAL_IOPS_SEC_MAX_LENGTH=${TOTAL_IOPS_SEC_MAX_LENGTH:-${DEFAULT_ATTACH_TOTAL_IOPS_SEC_MAX_LENGTH}}
+TOTAL_IOPS_SEC_MAX=${TOTAL_IOPS_SEC_MAX:-${DEFAULT_ATTACH_TOTAL_IOPS_SEC_MAX}}
 READ_IOPS_SEC=${READ_IOPS_SEC:-${DEFAULT_ATTACH_READ_IOPS_SEC}}
+READ_IOPS_SEC_MAX_LENGTH=${READ_IOPS_SEC_MAX_LENGTH:-${DEFAULT_ATTACH_READ_IOPS_SEC_MAX_LENGTH}}
+READ_IOPS_SEC_MAX=${READ_IOPS_SEC_MAX:-${DEFAULT_ATTACH_READ_IOPS_SEC_MAX}}
 WRITE_IOPS_SEC=${WRITE_IOPS_SEC:-${DEFAULT_ATTACH_WRITE_IOPS_SEC}}
+WRITE_IOPS_SEC_MAX_LENGTH=${WRITE_IOPS_SEC_MAX_LENGTH:-${DEFAULT_ATTACH_WRITE_IOPS_SEC_MAX_LENGTH}}
+WRITE_IOPS_SEC_MAX=${WRITE_IOPS_SEC_MAX:-${DEFAULT_ATTACH_WRITE_IOPS_SEC_MAX}}
 
 # disk XML
 XML=''
@@ -63,23 +95,23 @@ XML+=" <target dev='$(xml_esc "${TARGET}")'/>"
 [ "${READONLY}" = 'yes' ] && XML+=" <readonly/>"
 
 if [ -n "${TOTAL_BYTES_SEC}${READ_BYTES_SEC}${WRITE_BYTES_SEC}" ] || \
-   [ -n "${TOTAL_IOPS_SEC}${READ_IOPS_SEC}${WRITE_IOPS_SEC}" ];
+   [ -n "${TOTAL_BYTES_SEC_MAX}${READ_BYTES_SEC_MAX}${WRITE_BYTES_SEC_MAX}" ] || \
+   [ -n "${TOTAL_IOPS_SEC}${READ_IOPS_SEC}${WRITE_IOPS_SEC}" ] || \
+   [ -n "${TOTAL_IOPS_SEC_MAX}${READ_IOPS_SEC_MAX}${WRITE_IOPS_SEC_MAX}" ];
 then
     XML+=" <iotune>"
 
-    [ -n "${TOTAL_BYTES_SEC}" ] && \
-        XML+=" <total_bytes_sec>$(xml_esc "${TOTAL_BYTES_SEC}")</total_bytes_sec>"
-    [ -n "${READ_BYTES_SEC}" ] && \
-        XML+=" <read_bytes_sec>$(xml_esc "${READ_BYTES_SEC}")</read_bytes_sec>"
-    [ -n "${WRITE_BYTES_SEC}" ] && \
-        XML+=" <write_bytes_sec>$(xml_esc "${WRITE_BYTES_SEC}")</write_bytes_sec>"
+    insert_sec "read_bytes" $READ_BYTES_SEC $READ_BYTES_SEC_MAX $READ_BYTES_SEC_MAX_LENGTH
 
-    [ -n "${TOTAL_IOPS_SEC}" ] && \
-        XML+=" <total_iops_sec>$(xml_esc "${TOTAL_IOPS_SEC}")</total_iops_sec>"
-    [ -n "${READ_IOPS_SEC}" ] && \
-        XML+=" <read_iops_sec>$(xml_esc "${READ_IOPS_SEC}")</read_iops_sec>"
-    [ -n "${WRITE_IOPS_SEC}" ] && \
-        XML+=" <write_iops_sec>$(xml_esc "${WRITE_IOPS_SEC}")</write_iops_sec>"
+    insert_sec "write_bytes" $WRITE_BYTES_SEC $WRITE_BYTES_SEC_MAX $WRITE_BYTES_SEC_MAX_LENGTH
+
+    insert_sec "total_bytes" $TOTAL_BYTES_SEC $TOTAL_BYTES_SEC_MAX $TOTAL_BYTES_SEC_MAX_LENGTH
+
+    insert_sec "read_iops" $READ_IOPS_SEC $READ_IOPS_SEC_MAX $READ_IOPS_SEC_MAX_LENGTH
+
+    insert_sec "write_iops" $WRITE_IOPS_SEC $WRITE_IOPS_SEC_MAX $WRITE_IOPS_SEC_MAX_LENGTH
+
+    insert_sec "total_iops" $TOTAL_IOPS_SEC $TOTAL_IOPS_SEC_MAX $TOTAL_IOPS_SEC_MAX_LENGTH
 
     XML+=" </iotune>"
 fi
