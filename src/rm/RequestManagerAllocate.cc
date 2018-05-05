@@ -493,6 +493,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
         oss << size_mb;
         size_str = oss.str();
 
+	//Do not use DRIVER from APP but from Datastore
         tmpl->erase("DRIVER");
     }
     else
