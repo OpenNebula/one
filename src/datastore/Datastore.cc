@@ -138,7 +138,7 @@ void Datastore::disk_attribute(
         get_template_attribute("CLONE_TARGET", st);
     }
 
-    if(!st.empty())
+    if(!st.empty() && disk->vector_value("CLONE_TARGET").empty())
     {
         disk->replace("CLONE_TARGET", st);
     }
@@ -157,7 +157,7 @@ void Datastore::disk_attribute(
         get_template_attribute("LN_TARGET", st);
     }
 
-    if(!st.empty())
+    if(!st.empty() && disk->vector_value("LN_TARGET").empty())
     {
         disk->replace("LN_TARGET", st);
     }
@@ -182,7 +182,7 @@ void Datastore::disk_attribute(
             disk->set_types(st);
         }
     }
-    else if (disk->is_volatile())
+    else if (disk->is_volatile() && disk->vector_value("DISK_TYPE").empty())
     {
         disk->replace("DISK_TYPE", Image::disk_type_to_str(get_disk_type()));
     }
@@ -193,7 +193,7 @@ void Datastore::disk_attribute(
     {
         get_template_attribute("DRIVER", st);
 
-        if(!st.empty())
+        if(!st.empty() && disk->vector_value("DRIVER").empty())
         {
             disk->replace("DRIVER", st);
         }
