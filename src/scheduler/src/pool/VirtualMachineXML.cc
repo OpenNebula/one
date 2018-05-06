@@ -17,12 +17,11 @@
 #include <algorithm>
 
 #include "VirtualMachineXML.h"
+#include "ScheduledAction.h"
 #include "DatastoreXML.h"
 #include "DatastorePoolXML.h"
 #include "NebulaUtil.h"
 #include "History.h"
-
-map<int, int> m_months_days = {{0, 31}, {1, 28}, {2, 30}, {3, 31}, {4, 30}, {5, 31}, {6, 30}, {7, 31}, {8, 30}, {9, 31}, {10, 30}, {11, 31}};
 
 void VirtualMachineXML::init_attributes()
 {
@@ -505,180 +504,12 @@ bool VirtualMachineXML::is_only_public_cloud() const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static void check_months(struct tm * next){
-    int days_month = m_months_days[next->tm_mon];
-    if(next->tm_year+1900 % 4 == 0 && (next->tm_year+1900 % 100 != 0 || next->tm_year+1900 % 400 == 0) && next->tm_mon == 1)
-    {
-        days_month++;
-    }
-    if (next->tm_mday > days_month)
-    {
-        next->tm_mday = next->tm_mday - m_months_days[next->tm_mon];
-        next->tm_mon++;
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-static void sum_days(struct tm * next, struct tm * now, int mayor_day, int minor_day, int max_day, int comparative){
-    if (mayor_day >= 0 && minor_day < max_day)
-    {
-        if( mayor_day <= comparative ) //next
-        {
-            next->tm_mday = next->tm_mday + ((max_day) - comparative + minor_day);
-        }
-        else // same
-        {
-            next->tm_mday = next->tm_mday + (mayor_day - comparative);
-        }
-    }
-    check_months(next);
-}
-
-/* -------------------------------------------------------------------------- */
-
-static void generate_next_day(int rep, int mayor_day, int minor_day, struct tm * next, struct tm * now)
-{
-    if ( rep == 0 ) //Repeat every weeks
-    {
-        sum_days(next, now, mayor_day, minor_day, 7, next->tm_wday);
-        next->tm_min = now->tm_min;
-        next->tm_hour = now->tm_hour;
-    }
-
-    if ( rep == 1 ) //Repeat every months
-    {
-        cout << next->tm_mday << endl;
-        sum_days(next, now, mayor_day, minor_day, m_months_days[next->tm_mon] , next->tm_mday);
-        next->tm_min = now->tm_min;
-        next->tm_hour = now->tm_hour;
-    }
-
-    if ( rep == 2 ) //Repeat every months
-    {
-        sum_days(next, now, mayor_day, minor_day, 365, next->tm_yday);
-        next->tm_min = now->tm_min;
-        next->tm_hour = now->tm_hour;
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int VirtualMachineXML::next_action(VectorAttribute& vatt)
 {
-    string days;
-    int rep_mode, end_mode;
-    int end_value;
-    int mayor_day = -1;
-    int minor_day = 366;
-    int start_day;
-    time_t action_time;
-    time_t done_time;
-    vector<string> v_days;
-    set<int> s_days;
+    SchedAction action(&vatt, -1);
 
-    vatt.vector_value("DAYS", days);
-    vatt.vector_value("REP", rep_mode);
-    vatt.vector_value("END_TYPE", end_mode);
-    vatt.vector_value("END_VALUE", end_value);
-    vatt.vector_value("TIME", action_time);
-    vatt.vector_value("DONE", done_time);
-
-    v_days = one_util::split(days, ',', true);
-    for(vector<string>::iterator it = v_days.begin(); it != v_days.end(); ++it) {
-        s_days.insert(atoi((*it).c_str()));
-    }
-
-    struct tm next;
-    struct tm start_tm;
-    localtime_r(&action_time, &start_tm);
-    next = start_tm;
-
-    start_day = start_tm.tm_wday;
-    if (rep_mode == 1)
-    {
-        start_day = start_tm.tm_mday;
-    }
-    else if (rep_mode == 2)
-    {
-        start_day = start_tm.tm_yday;
-    }
-    std::set<int>::iterator it;
-    std::pair<std::set<int>::iterator,bool> ret;
-    if (rep_mode != 3)
-    {
-        it = s_days.begin();
-        minor_day = *it;
-
-        ret = s_days.insert(start_day);
-        if ( ret.second == false )
-        {
-            mayor_day = *ret.first;
-
-            if ( ++ret.first != s_days.end() )
-            {
-                mayor_day = *ret.first;
-            }
-        }
-        else
-        {
-            mayor_day = minor_day;
-            if ( ++ret.first != s_days.end() )
-            {
-                mayor_day = *ret.first;
-            }
-            it = s_days.find(start_day);
-            s_days.erase (it);
-            if (*--it > mayor_day)
-            {
-                mayor_day = *it;
-            }
-        }
-    }
-
-    if ( end_mode == 1 )
-    {
-        int num_rep = end_value;
-        if (num_rep <= 0)
-        {
-            cout << "Finished scheduling actions" << endl;
-            return -1;
-        }
-        end_value = num_rep-1;
-        vatt.replace("END_VALUE", end_value);
-    }
-    else if ( end_mode == 2 )
-    {
-        time_t t_end = end_value;
-        if ( time(0) > t_end )
-        {
-            cout << "Finished scheduling actions" << endl;
-            return -1;
-        }
-    }
-
-    if (rep_mode == 3)
-    {
-        it = s_days.begin();
-        int hours = *it;
-        next.tm_min = start_tm.tm_min;
-        next.tm_hour = start_tm.tm_hour + hours;
-        check_months(&next);
-    }
-    else
-    {
-        generate_next_day(rep_mode, mayor_day, minor_day, &next, &start_tm);
-    }
-    action_time = mktime (&next);
-    if (action_time != -1)
-    {
-        vatt.replace("TIME", action_time);
-    }
-    else
-    {
-        return -1;
-    }
-    return 0;
+    return action.next_action();
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

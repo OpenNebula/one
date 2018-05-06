@@ -15,8 +15,7 @@
 /* ------------------------------------------------------------------------ */
 
 #include "VMTemplate.h"
-
-#define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
+#include "ScheduledAction.h"
 
 /* ************************************************************************ */
 /* VMTemplate :: Constructor/Destructor                                     */
@@ -77,6 +76,7 @@ int VMTemplate::insert(SqlDB *db, string& error_str)
     // Remove DONE/MESSAGE from SCHED_ACTION and check rest attributes
     // ---------------------------------------------------------------------
     int rc = parse_sched_action(error_str);
+
     if (rc == -1)
     {
         return rc;
@@ -173,93 +173,9 @@ error_common:
 
 int VMTemplate::parse_sched_action(string& error_str)
 {
-    vector<VectorAttribute *> _sched_actions;
-    vector<VectorAttribute *>::iterator i;
-    set<int>::const_iterator it_set;
-    VectorAttribute* vatt;
-    int rep_mode, end_mode;
-    int has_mode, has_end_mode, has_days, has_end_value;
-    int end_value;
-    int first_day, last_day;
-    string days;
-    vector<string> v_days;
-    set<int> s_days;
+    SchedActions sactions(obj_template);
 
-    get_template_attribute("SCHED_ACTION", _sched_actions);
-
-    for ( i = _sched_actions.begin(); i != _sched_actions.end() ; ++i)
-    {
-        vatt = dynamic_cast<VectorAttribute*>(*i);
-
-        has_mode  = vatt->vector_value("REP", rep_mode);
-        has_days  = vatt->vector_value("DAYS", days);
-
-        if (has_mode == 0 && has_days == 0)
-        {
-            v_days = one_util::split(days, ',', true);
-            if ( !v_days.empty() )
-            {
-                for(vector<string>::iterator it = v_days.begin(); it != v_days.end(); ++it) {
-                    s_days.insert(atoi((*it).c_str()));
-                }
-            }
-            else
-            {
-                s_days.insert(atoi((days).c_str()));
-            }
-            first_day = *s_days.cbegin();
-            last_day = *s_days.cend();
-
-            if (rep_mode == 0 && !(first_day >= 0 && last_day < 7)) //WEEK [0,6]
-            {
-                error_str = "Error parsing days of the week. [0,6]";
-                return -1;
-            }
-            else if (rep_mode == 1 && !(first_day >= 1 && last_day < 32)) //MONTH [1,31]
-            {
-                error_str = "Error parsing days of the month. [1,31]";
-                return -1;
-            }
-            else if (rep_mode == 2 && !(first_day >= 0 && last_day < 366)) //YEAR [0,365]
-            {
-                error_str = "Error parsing days of the year. [0,365]";
-                return -1;
-            }
-            else if (rep_mode == 3 && (first_day != last_day || s_days.size() > 1)) //YEAR [0,365]
-            {
-                error_str = "Error parsing hour.";
-                return -1;
-            }
-        }
-
-        has_end_mode  = vatt->vector_value("END_TYPE", end_mode);
-        has_end_value  = vatt->vector_value("END_VALUE", end_value);
-
-        if (has_end_mode == 0 && has_end_value == 0)
-        {
-            if (end_mode == 1 && end_value < 0) //N_REP
-            {
-                error_str = "Error parsing END_VALUE of type N_REP.";
-                return -1;
-            }
-            else if ( end_mode == 2 ) //DATE
-            {
-                time_t value = end_value;
-                struct tm val_tm;
-                localtime_r(&value, &val_tm);
-                time_t out = mktime(&val_tm);
-                if (out == -1)
-                {
-                    error_str = "Error parsing END_VALUE of type DATE.";
-                    return -1;
-                }
-            }
-        }
-
-        vatt->remove("DONE");
-        vatt->remove("MESSAGE");
-    }
-    return 0;
+    return sactions.parse(error_str);
 }
 
 /* ------------------------------------------------------------------------ */
