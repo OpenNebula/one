@@ -628,6 +628,7 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/oca/ruby/deprecated/OpenNebula.rb \
                 src/oca/ruby/opennebula.rb \
                 src/sunstone/OpenNebulaVNC.rb \
+                src/sunstone/OpenNebulaAddons.rb \
                 src/vmm_mad/remotes/vcenter/vcenter_driver.rb \
                 src/vmm_mad/remotes/az/az_driver.rb \
                 src/vmm_mad/remotes/ec2/ec2_driver.rb \
@@ -2039,6 +2040,11 @@ if [ "$INSTALL_ETC" = "yes" ] ; then
 
         LINK=$OLD_LINK
    done
+fi
+
+if [ "$SUNSTONE" = "yes" ] || [ "$SUNSTONE_DEV" = "yes" ] ; then
+    mkdir $VAR_LOCATION/sunstone && touch $VAR_LOCATION/sunstone/main.js
+    ln -s $VAR_LOCATION/sunstone/main.js $SUNSTONE_LOCATION/public/dist/main.js
 fi
 
 # --- Set ownership or remove OpenNebula directories ---
