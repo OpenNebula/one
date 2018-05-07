@@ -145,8 +145,19 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
             res[arg] = self.method(arg).call(opts[arg])
         end
 
+        res[:config] = parse_file(opts[:configuration]) if opts[:configuration]
 
         return res
+    end
+
+    def parse_file(path)
+        begin
+            config = YAML::load(File.read(path))
+        rescue Exception => e
+            str_error="Unable to read '#{path}'. Invalid YAML syntax:\n"
+
+            raise str_error
+        end
     end
 
     def format_list()
@@ -200,6 +211,8 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
             resourcepool: [],
             type: ''
         }
+
+        STDOUT.print "\n- Template: \e[92m#{t[:template_name]}\e[39m\n\n"\
 
         # LINKED CLONE OPTION
         STDOUT.print "\n    For faster deployment operations"\
@@ -284,6 +297,8 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
             return answer
         }
 
+        STDOUT.print "\n- Network: \e[92m#{n[:name]}\e[39m\n\n"\
+
         opts = { size: "255", type: "ether" }
 
 		question =  "    How many VMs are you planning"\
@@ -291,7 +306,7 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
         opts[:size] = ask.call(question, "255")
 
 		question = "    What type of Virtual Network"\
-				   " do you want to create (IPv[4],IPv[6], [E]thernet)?"
+				   " do you want to create (IPv[4],IPv[6], [E]thernet)? "
         type_answer = ask.call(question, "ether")
 
         supported_types = ["4","6","ether", "e", "ip4", "ip6" ]

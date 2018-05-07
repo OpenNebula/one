@@ -3397,6 +3397,16 @@ class VmImporter < VCenterDriver::VcImporter
     def initialize(one_client, vi_client)
         super(one_client, vi_client)
         @one_class = OpenNebula::Template
+
+        @defaults = {
+            linked_clone: '0',
+            copy: '0',
+            name: '',
+            folder: '',
+            resourcepool: [],
+            type: ''
+        }
+
     end
 
     def get_list(args = {})
@@ -3533,17 +3543,6 @@ class VmImporter < VCenterDriver::VcImporter
         end
 
         return res
-    end
-
-    def defaults
-        opts = {
-            linked_clone: '0',
-            copy: '0',
-            name: '',
-            folder: '',
-            resourcepool: [],
-            type: ''
-        }
     end
 
     def attr

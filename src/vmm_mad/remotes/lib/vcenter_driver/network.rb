@@ -289,6 +289,7 @@ class NetImporter < VCenterDriver::VcImporter
     def initialize(one_client, vi_client)
         super(one_client, vi_client)
         @one_class = OpenNebula::VirtualNetwork
+        @defaults = { size: "255", type: "ether" }
     end
 
     def get_list(args = {})
@@ -330,7 +331,8 @@ class NetImporter < VCenterDriver::VcImporter
         case type
         when "4", "ip4", "ip"
         	str << "IP4\""
-            str << ",IP=\"#{opts[:ip]}\"" if opts[:ip]
+            opts[:ip] = "192.168.1.1" if opts[:ip].empty?
+            str << ",IP=\"#{opts[:ip]}\""
         when 'ip6'
             str << "IP6\""
             str << ",GLOBAL_PREFIX=\"#{opts[:global_prefix]}\"" if opts[:global_prefix]
@@ -373,10 +375,6 @@ class NetImporter < VCenterDriver::VcImporter
         end
 
         return res
-    end
-
-    def defaults
-        { size: "255", type: "ether" }
     end
 
     def attr
