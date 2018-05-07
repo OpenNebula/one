@@ -115,11 +115,11 @@ bool SchedAction::days_in_range(Repeat r, std::string& error)
         "Days in a week have to be in [0,6] range", //WEEKLY - 0
         "Days in a month have to be in [0,31] range", // MONTHLY - 1
         "Days in a year have to be in [0,365] range", // YEARLY - 2
-        "Hours have to be in [0,23] range" // HOURLY - 3
+        "Hours have to be in [0,168] range" // HOURLY - 3
     };
 
     static int fday[] = {0,1,0,1};
-    static int lday[] = {7,32,366,24};
+    static int lday[] = {7,32,366,168};
 
     bool extra_check;
 
@@ -135,8 +135,8 @@ bool SchedAction::days_in_range(Repeat r, std::string& error)
         return true;
     }
 
-    int _fday = *(_d.cbegin());
-    int _lday = *(_d.cend());
+    int _fday = *(_d.begin());
+    int _lday = *(_d.rbegin());
 
     switch(r)
     {
@@ -184,9 +184,7 @@ bool SchedAction::ends_in_range(EndOn eo, std::string& error)
     {
         struct tm val_tm;
 
-        time_t value = end_value;
-
-        localtime_r(&value, &val_tm);
+        localtime_r((time_t *)&end_value, &val_tm);
 
         time_t out = mktime(&val_tm);
 
@@ -239,83 +237,45 @@ int SchedAction::parse(std::string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-map<int, int> MONTHS_DAYS = {{0, 31}, {1, 28}, {2, 30}, {3, 31}, {4, 30},
-    {5, 31}, {6, 30}, {7, 31}, {8, 30}, {9, 31}, {10, 30}, {11, 31}};
-
-/* -------------------------------------------------------------------------- */
-
-static void check_months(struct tm * next)
+static int days_in_period(SchedAction::Repeat& r, int month, int year)
 {
-    int days_month = MONTHS_DAYS[next->tm_mon];
+    static map<int, int> MONTHS_DAYS = {{0, 31}, {1, 28}, {2, 31}, {3, 30},
+        {4, 31}, {5, 30}, {6, 31}, {7, 31}, {8, 30}, {9, 31}, {10, 30},
+        {11, 31}};
 
-    if ( next->tm_year+1900 % 4 == 0 && ( next->tm_year+1900 % 100 != 0 ||
-                next->tm_year+1900 % 400 == 0) && next->tm_mon == 1)
+    int leap_year  = 0;
+    int leap_month = 0;
+
+    year += 1900;
+
+    if (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0))
     {
-        days_month++;
-    }
+        leap_year = 1;
 
-    if ( next->tm_mday > days_month)
-    {
-        next->tm_mday = next->tm_mday - MONTHS_DAYS[next->tm_mon];
-        next->tm_mon++;
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-
-static void sum_days(struct tm * next, struct tm * now, int mayor_day,
-    int minor_day, int max_day, int comparative)
-{
-    if (mayor_day >= 0 && minor_day < max_day)
-    {
-        if( mayor_day <= comparative ) //next
+        if ( month == 1 )
         {
-            next->tm_mday = next->tm_mday + (max_day - comparative + minor_day);
-        }
-        else // same
-        {
-            next->tm_mday = next->tm_mday + (mayor_day - comparative);
+            leap_month = 1;
         }
     }
-
-    check_months(next);
-}
-
-/* -------------------------------------------------------------------------- */
-
-static void generate_next_day(int rep, int mayor_day, int minor_day,
-    struct tm * next, struct tm * now)
-{
-    SchedAction::Repeat r = static_cast<SchedAction::Repeat>(rep);
 
     switch(r)
     {
         case SchedAction::WEEKLY:
-            sum_days(next, now, mayor_day, minor_day, 7, next->tm_wday);
+            return 7;
 
-            next->tm_min  = now->tm_min;
-            next->tm_hour = now->tm_hour;
-            break;
-
+        //Return value for months assume month day starts in 0
         case SchedAction::MONTHLY:
-            sum_days(next, now, mayor_day, minor_day, MONTHS_DAYS[next->tm_mon],
-                next->tm_mday);
-
-            next->tm_min  = now->tm_min;
-            next->tm_hour = now->tm_hour;
-            break;
+            return MONTHS_DAYS[month] + leap_month;
 
         case SchedAction::YEARLY:
-            sum_days(next, now, mayor_day, minor_day, 365, next->tm_yday);
-
-            next->tm_min  = now->tm_min;
-            next->tm_hour = now->tm_hour;
-            break;
+            return 365 + leap_year;
 
         case SchedAction::HOURLY:
         case SchedAction::NONE:
-            break;
+            return 0;
     }
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -376,29 +336,44 @@ int SchedAction::next_action()
     }
 
     /* ---------------------------------------------------------------------  */
-    /* Compute next event for the action                                      */
+    /* Compute next event for the action - HOURLY                             */
     /* ---------------------------------------------------------------------  */
-
     time_t action_time;
-    struct tm start_tm;
 
-    localtime_r(&action_time, &start_tm);
+    vector_value("TIME", action_time);
 
-    struct tm next = start_tm;
-    int start_day;
+    if ( r == HOURLY )
+    {
+        action_time += *(_days.begin()) * 3600;
+
+        replace("TIME", action_time);
+
+        return 0;
+    }
+
+    /* ---------------------------------------------------------------------  */
+    /* Compute next event for the action - WEEKLY, MONTHLY & YEARLY           */
+    /* ---------------------------------------------------------------------  */
+    time_t current = time(0);
+
+    struct tm current_tm;
+
+    int cday;
+
+    localtime_r(&current, &current_tm);
 
     switch(r)
     {
         case WEEKLY:
-            start_day = start_tm.tm_wday;
+            cday   = current_tm.tm_wday;
             break;
 
         case MONTHLY:
-            start_day = start_tm.tm_mday;
+            cday   = current_tm.tm_mday;
             break;
 
         case YEARLY:
-            start_day = start_tm.tm_yday;
+            cday   = current_tm.tm_yday;
             break;
 
         case HOURLY:
@@ -406,66 +381,28 @@ int SchedAction::next_action()
             break;
     }
 
-    std::set<int>::iterator it = _days.begin();
+    std::set<int>::iterator it = _days.lower_bound(cday);
 
-    if ( r != HOURLY ) //WEEKLY, MONTHLY, YEARLY
+    int delta = 0;
+
+    if (it == _days.end()) //after last day in range
     {
+        int pdays = days_in_period(r, current_tm.tm_mon, current_tm.tm_year);
 
-        int minor_day = *it;
-        int mayor_day;
-
-        std::pair<std::set<int>::iterator, bool> ret = _days.insert(start_day);
-
-        if ( ret.second == false )
-        {
-            mayor_day = *(ret.first);
-
-            if ( ++ret.first != _days.end() )
-            {
-                mayor_day = *(ret.first);
-            }
-        }
-        else
-        {
-            mayor_day = minor_day;
-
-            if ( ++ret.first != _days.end() )
-            {
-                mayor_day = *(ret.first);
-            }
-
-            it = _days.find(start_day);
-
-            _days.erase(it);
-
-            if (*(--it) > mayor_day)
-            {
-                mayor_day = *it;
-            }
-        }
-
-        generate_next_day(r, mayor_day, minor_day, &next, &start_tm);
+        delta = pdays - cday + *(_days.begin()); //assume start day is 0
     }
-    else //HOURLY
+    else if (cday < *(_days.begin())) //before first day in range
     {
-        int hours = *it;
-
-        next.tm_min  = start_tm.tm_min;
-        next.tm_hour = start_tm.tm_hour + hours;
-
-        check_months(&next);
+        delta = *(_days.begin()) - cday;
+    }
+    else if (*it != cday ) //is not today
+    {
+        delta = *it - cday;
     }
 
-    action_time = mktime(&next);
+    action_time += delta * 24 * 3600;
 
-    if (action_time != -1)
-    {
-        replace("TIME", action_time);
-    }
-    else
-    {
-        return -1;
-    }
+    replace("TIME", action_time);
 
     return 0;
 }
