@@ -39,8 +39,8 @@ public:
     enum EndOn
     {
         END_NONE = -1,
-        TIMES    = 1,
-        DATE     = 2
+        TIMES    = 0,
+        DATE     = 1
     };
 
     SchedAction(VectorAttribute *va, int id):VirtualMachineAttribute(va, id){};

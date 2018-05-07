@@ -21,7 +21,7 @@ int SchedAction::repeat(Repeat& r)
 {
     r = NONE;
 
-    std::string rep_s = vector_value("REP");
+    std::string rep_s = vector_value("REPEAT");
 
     if ( rep_s.empty() )
     {
