@@ -97,6 +97,11 @@ public:
     int parse(std::string& error);
 
     /**
+     *  @return true if the action needs to be executed.
+     */
+    bool is_due();
+
+    /**
      *  Compute the next action, updating the TIME attribute for this action
      *    @return -1 if action ended 0 otherwise
      */
@@ -123,7 +128,7 @@ public:
 
         tmpl->get("SCHED_ACTION", vas);
 
-        init_attribute_map("", vas);
+        init_attribute_map("TIME", vas);
     };
 
     virtual ~SchedActions(){};
@@ -146,6 +151,11 @@ public:
         }
 
         return 0;
+    }
+
+    bool empty()
+    {
+        return a_set.empty();
     }
 
     /* ---------------------------------------------------------------------- */

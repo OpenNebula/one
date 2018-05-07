@@ -281,6 +281,20 @@ static int days_in_period(SchedAction::Repeat& r, int month, int year)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+bool SchedAction::is_due()
+{
+    time_t action_time, done_time;
+
+    bool has_done = vector_value("DONE", done_time) == 0;
+
+    vector_value("TIME", action_time);
+
+    return ((!has_done || done_time < action_time) && action_time < time(0));
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int SchedAction::next_action()
 {
     Repeat r;

@@ -25,6 +25,7 @@
 #include "Resource.h"
 
 #include "VirtualMachineTemplate.h"
+#include "ScheduledAction.h"
 
 class ImageDatastorePoolXML;
 
@@ -325,19 +326,10 @@ public:
      *
      * @param attributes to hold the VM actions
      */
-    void get_actions(vector<Attribute *>& attributes) const
+    SchedActions * get_actions()
     {
-        attributes.clear();
-
-        user_template->remove("SCHED_ACTION", attributes);
+        return new SchedActions(user_template);
     }
-
-    /**
-     * Generate new action
-     *
-     * @param attributes to hold the VM actions
-     */
-    int next_action(VectorAttribute& vatt);
 
     /**
      * Sets an attribute in the VM Template, it must be allocated in the heap
