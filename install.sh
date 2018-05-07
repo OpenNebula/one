@@ -124,7 +124,6 @@ if [ -z "$ROOT" ] ; then
     MAN_LOCATION="/usr/share/man/man1"
     VM_LOCATION="/var/lib/one/vms"
     DOCS_LOCATION="/usr/share/docs/one"
-    DOCKER_MACHINE_LOCATION="src/docker_machine/src/docker_machine/bin/docker-machine-driver-opennebula"
 
     if [ "$CLIENT" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION"
@@ -154,8 +153,11 @@ if [ -z "$ROOT" ] ; then
 
         CHOWN_DIRS=""
     elif [ "$DOCKER_MACHINE" = "yes" ]; then
-        mkdir $SHARE_LOCATION/docker_machine
-        mv $DOCKER_MACHINE_LOCATION $SHARE_LOCATION/docker_machine
+        MAKE_DIRS="$BIN_LOCATION"
+
+        DELETE_DIRS="$MAKE_DIRS"
+
+        CHOWN_DIRS=""
     else
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION $DOCS_LOCATION \
@@ -184,7 +186,6 @@ else
     MAN_LOCATION="$ROOT/share/man/man1"
     VM_LOCATION="$VAR_LOCATION/vms"
     DOCS_LOCATION="$ROOT/share/docs"
-    DOCKER_MACHINE_LOCATION="src/docker_machine/src/docker_machine/bin/docker-machine-driver-opennebula"
     
     if [ "$CLIENT" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION"
@@ -206,8 +207,9 @@ else
 
         DELETE_DIRS="$MAKE_DIRS"
     elif [ "$DOCKER_MACHINE" = "yes" ]; then
-        mkdir $SHARE_LOCATION/docker_machine
-        mv $DOCKER_MACHINE_LOCATION $SHARE_LOCATION/docker_machine
+        MAKE_DIRS="$BIN_LOCATION"
+
+        DELETE_DIRS="$MAKE_DIRS"
     else
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION $SYSTEM_DS_LOCATION \
@@ -224,8 +226,7 @@ fi
 
 SHARE_DIRS="$SHARE_LOCATION/examples \
             $SHARE_LOCATION/websockify \
-            $SHARE_LOCATION/esx-fw-vnc \
-            $SHARE_LOCATION/docker_machine"
+            $SHARE_LOCATION/esx-fw-vnc"
 
 ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/hm \
@@ -558,6 +559,10 @@ INSTALL_ONEFLOW_FILES=(
 
 INSTALL_ONEFLOW_ETC_FILES=(
     ONEFLOW_ETC_FILES:$ETC_LOCATION
+)
+
+INSTALL_DOCKER_MACHINE_FILES=(
+    DOCKER_MACHINE_BIN_FILES:$BIN_LOCATION
 )
 
 INSTALL_ETC_FILES=(
@@ -1879,6 +1884,11 @@ ONEFLOW_LIB_MODELS_FILES="src/flow/lib/models/role.rb \
                           src/flow/lib/models/service_template_pool.rb \
                           src/flow/lib/models/service_template.rb"
 
+#-----------------------------------------------------------------------------
+# Docker Machine files
+#-----------------------------------------------------------------------------
+
+DOCKER_MACHINE_BIN_FILES="src/docker_machine/src/docker_machine/bin/docker-machine-driver-opennebula"
 
 #-----------------------------------------------------------------------------
 # MAN files
@@ -1987,6 +1997,8 @@ elif [ "$SUNSTONE" = "yes" ]; then
   fi
 elif [ "$ONEFLOW" = "yes" ]; then
     INSTALL_SET="${INSTALL_ONEFLOW_FILES[@]}"
+elif [ "$DOCKER_MACHINE" = "yes" ]; then
+    INSTALL_SET="${INSTALL_DOCKER_MACHINE_FILES[@]}"
 elif [ "$SUNSTONE_DEV" = "no" ]; then
     INSTALL_SET="${INSTALL_FILES[@]} \
                  ${INSTALL_SUNSTONE_FILES[@]} ${INSTALL_SUNSTONE_PUBLIC_MINIFIED_FILES[@]}\
