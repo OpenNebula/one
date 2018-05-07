@@ -190,7 +190,7 @@ class FileHelper
             self.download_vmdks(files_to_download, vcenter_url.host, temp_folder, ds)
 
             # Create tar.gz
-            rs = system("cd #{temp_folder} && tar czf #{descriptor_name}.tar.gz #{files_to_download.join(' ')} >& /dev/null")
+            rs = system("cd #{temp_folder} && tar czf #{descriptor_name}.tar.gz #{files_to_download.join(' ')} > /dev/null 2>&1")
             (FileUtils.rm_rf(temp_folder) ; raise "Error creating tar file for #{descriptor_name}") unless rs
 
             # Cat file to stdout
@@ -203,7 +203,27 @@ class FileHelper
         else
             # Setting "." as the source will read from the stdin
             VCenterDriver::VIClient.in_stderr_silence do
-                ds.download_to_stdout(image_source)
+                descriptor_name = File.basename vcenter_url.path
+                file_to_download = [vcenter_url.path]
+                temp_folder = VAR_LOCATION + "/vcenter/" + descriptor_name + "/"
+
+                FileUtils.mkdir_p(temp_folder + File.dirname(vcenter_url.path) + "/") if !File.directory?(temp_folder + File.dirname(vcenter_url.path) + "/")
+
+                self.download_vmdks(file_to_download, vcenter_url.host, temp_folder, ds)
+                
+                temp_folder = temp_folder +  File.dirname(vcenter_url.path)
+
+                # Create tar.gz
+                rs = system("cd #{temp_folder} && tar czf #{descriptor_name}.tar.gz #{descriptor_name} > /dev/null 2>&1")
+                (FileUtils.rm_rf(temp_folder) ; raise "Error creating tar file for #{descriptor_name}") unless rs
+
+                # Cat file to stdout
+                rs = system("cat #{temp_folder + "/" + descriptor_name}.tar.gz")
+                (FileUtils.rm_rf(temp_folder) ; raise "Error reading tar for #{descriptor_name}") unless rs
+
+                # Delete tar.gz
+                rs = system("cd #{temp_folder} && rm #{descriptor_name}.tar.gz #{descriptor_name}")
+                (FileUtils.rm_rf(temp_folder) ; raise "Error removing tar for #{descriptor_name}") unless rs
             end
         end
     end
