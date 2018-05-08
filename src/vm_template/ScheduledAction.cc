@@ -53,7 +53,7 @@ int SchedAction::repeat(Repeat& r)
 
 int SchedAction::endon(EndOn& eo)
 {
-    eo = NEVER;
+    eo = END_NONE;
 
     std::string et_s = vector_value("END_TYPE");
 
@@ -72,7 +72,7 @@ int SchedAction::endon(EndOn& eo)
         return -1;
     }
 
-    if ( v_eo < TIMES || v_eo > DATE )
+    if ( v_eo < NEVER || v_eo > DATE )
     {
         return -1;
     }
@@ -169,7 +169,7 @@ bool SchedAction::ends_in_range(EndOn eo, std::string& error)
     int end_value;
     int rc = vector_value("END_VALUE", end_value);
 
-    if ( rc == -1 )
+    if ( rc == -1 && eo != NEVER )
     {
         error = "Missing END_VALUE";
         return false;

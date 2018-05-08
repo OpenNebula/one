@@ -38,6 +38,7 @@ public:
 
     enum EndOn
     {
+        END_NONE = -1,
         NEVER    = 0,
         TIMES    = 1,
         DATE     = 2
