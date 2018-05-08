@@ -17,27 +17,21 @@
 require 'rubygems'
 require 'json'
 
-ADDONS_LOCATION = SUNSTONE_LOCATION + "/public/app/addons/dist/*"
-MAIN_DIST_PATH = SUNSTONE_LOCATION + "/public/dist/main-dist.js"
-MAIN_PATH = VAR_LOCATION + "/sunstone/main.js"
+ADDONS_LOCATION = SUNSTONE_LOCATION + "/public/app/addons/dist"
+MAIN_DIST_PATH  = SUNSTONE_LOCATION + "/public/dist/main-dist.js"
+MAIN_PATH       = VAR_LOCATION + "/sunstone/main.js"
 
 class OpenNebulaAddons
     def initialize(logger)
         @logger = logger
-        @main_folder = File.join(VAR_LOCATION, "sunstone")
 
-        begin
-            Dir.mkdir(@main_folder)
-        rescue Exception => e
-            @logger.error "Cannot create sunstone folder"
-            @logger.error e.message
-        end
+        main      = File.new(MAIN_PATH, "w")
+        main_dist = File.new(MAIN_DIST_PATH, "r")
 
-        main = File.open(MAIN_PATH, "w")
-        main_dist = File.new(MAIN_DIST_PATH)
-        files = Dir[ADDONS_LOCATION].select{ |f| File.file? f }
+        files = Dir["#{ADDONS_LOCATION}/*"].select{ |f| File.file? f }
 
         lines = main_dist.gets
+
         while lines != nil
             main << lines
 
@@ -57,22 +51,21 @@ class OpenNebulaAddons
 
     def load_start_section(files, tmp)
         files.each do |file|
-            add     = File.new(file)
-            boolist = false
+            add = File.new(file, "r")
+
             add.each do |line|
-                if line.include? "// list-start //"
-                    boolist = true
-                end
-                tmp << line if !boolist
+                tmp << line if !line.include? "// list-start //"
             end
+
             add.close
         end
     end
 
     def load_list_start(files, tmp)
         files.each do |file|
-            add  = File.new(file)
+            add  = File.new(file, "r")
             line = add.gets
+
             while line != nil
                 if line.include? "// list-start //"
                     line = add.gets
@@ -83,6 +76,7 @@ class OpenNebulaAddons
                 end
                 line = add.gets
             end
+
             add.close
         end
     end
