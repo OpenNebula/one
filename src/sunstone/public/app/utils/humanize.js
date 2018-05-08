@@ -62,6 +62,8 @@ define(function(require) {
     }
   };
 
+  var week_days_str = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
   /*
     CONSTRUCTOR
    */
@@ -80,7 +82,8 @@ define(function(require) {
     'prettyTimeAgo': _format_date,
     'prettyTimeDatatable': _prettyTimeDatatable,
     'lock_to_str': _lock_to_str,
-    'state_lock_to_color': _state_lock_to_color
+    'state_lock_to_color': _state_lock_to_color,
+    'week_days': _week_days
   }
 
   /*
@@ -391,5 +394,14 @@ define(function(require) {
     }
 
     return '<span style="'+show_lock+' float:left; margin-right: 3px; width: 5px; height: 20px; background: '+color+';"></span>'
+  }
+
+  function _week_days(days){
+      var days = days.split(",");
+      var str = "";
+      days.forEach(function(day){
+        str += week_days_str[day] + ",";
+      });
+      return str.slice(0, -1);
   }
 })

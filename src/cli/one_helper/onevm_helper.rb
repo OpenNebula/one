@@ -114,6 +114,45 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         :format     => Time
     }
 
+    WEEKLY = {
+        :name       => "weekly",
+        :large      => "--weekly days",
+        :description => "Schedules this action to be executed after" \
+        "the given time. For example: onevm resume 0 --schedule \"09/23 14:15\"",
+        :format     => String
+    }
+
+    MONTHLY = {
+        :name       => "monthly",
+        :large      => "--monthly days",
+        :description => "Schedules this action to be executed after" \
+        "the given time. For example: onevm resume 0 --schedule \"09/23 14:15\"",
+        :format     => String
+    }
+
+    YEARLY = {
+        :name       => "yearly",
+        :large      => "--yearly days",
+        :description => "Schedules this action to be executed after" \
+        "the given time. For example: onevm resume 0 --schedule \"09/23 14:15\"",
+        :format     => String
+    }
+
+    HOURLY = {
+        :name       => "hourly",
+        :large      => "--hourly hour",
+        :description => "Schedules this action to be executed after" \
+        "the given time. For example: onevm resume 0 --schedule \"09/23 14:15\"",
+        :format     => Numeric
+    }
+
+    END_TIME = {
+        :name       => "end",
+        :large      => "--end number|TIME",
+        :description => "----",
+        :format     => String
+    }
+
     ALL_TEMPLATE = {
         :name       => "all",
         :large      => "--all",
@@ -314,6 +353,31 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             ids, options,
             "#{action} scheduled at #{options[:schedule]}") do |vm|
 
+            str_periodic = ""
+
+            if options.key?(:weekly)
+                str_periodic << ", REPEAT = 0, DAYS = \"#{options[:weekly]}\""
+            elsif options.key?(:monthly)
+                str_periodic << ", REPEAT = 1, DAYS = \"#{options[:monthly]}\""
+            elsif options.key?(:yearly)
+                str_periodic << ", REPEAT = 2, DAYS = \"#{options[:yearly]}\""
+            elsif options.key?(:hourly)
+                str_periodic << ", REPEAT = 3, DAYS = \"#{options[:hourly].to_s}\""
+            end
+
+            if options.key?(:end)
+                begin
+                    end_date = Date.parse(options[:end])
+                    str_periodic << ", END_TYPE = 2, END_VALUE = #{end_date.to_time.to_i}"
+                rescue ArgumentError
+                    if options[:end].to_i > 0
+                        str_periodic << ", END_TYPE = 1, END_VALUE = #{options[:end].to_i}"
+                    end
+                end
+            elsif str_periodic != ""
+                str_periodic << ", END_TYPE = 0"
+            end
+
             rc = vm.info
 
             if OpenNebula.is_error?(rc)
@@ -331,7 +395,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
             tmp_str = vm.user_template_str
 
-            tmp_str << "\nSCHED_ACTION = [ID = #{id}, ACTION = #{action}, TIME = #{options[:schedule].to_i}]"
+            tmp_str << "\nSCHED_ACTION = [ID = #{id}, ACTION = #{action}, TIME = #{options[:schedule].to_i}" << str_periodic << "]"
 
             vm.update(tmp_str)
         end
@@ -996,6 +1060,39 @@ in the frontend machine.
 
                 column :"SCHEDULED", "", :size=>12 do |d|
                     OpenNebulaHelper.time_to_str(d["TIME"], false) if !d.nil?
+                end
+
+                column :"REPEAT", "", :size=>20 do |d|
+                    str_rep = ""
+                    if !d.nil? && d.key?("REPEAT")
+                        if d["REPEAT"] == "0"
+                            str_rep << "Weekly "
+                        elsif d["REPEAT"] == "1"
+                            str_rep << "Monthly "
+                        elsif d["REPEAT"] == "2"
+                            str_rep << "Yearly "
+                        elsif d["REPEAT"] == "3"
+                            str_rep << "Each " << d['DAYS'] << " hours"
+                        end
+                        if d["REPEAT"] != "3"
+                            str_rep << d["DAYS"]
+                        end
+                    end
+                    str_rep if !d.nil?
+                end
+
+                column :"END", "", :size=>20 do |d|
+                    str_end = ""
+                    if !d.nil? && d.key?("END_TYPE")
+                        if d["END_TYPE"] == "0"
+                            str_end << "None"
+                        elsif d["END_TYPE"] == "1"
+                            str_end << "After " << d["END_VALUE"] << " times"
+                        elsif d["END_TYPE"] == "2"
+                            str_end << "On " << OpenNebulaHelper.time_to_str(d["END_VALUE"], false, false, true)
+                        end
+                    end
+                    str_end if !d.nil?
                 end
 
                 column :"DONE", "", :size=>12 do |d|

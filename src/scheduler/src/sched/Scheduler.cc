@@ -34,6 +34,7 @@
 #include "NebulaLog.h"
 #include "PoolObjectAuth.h"
 #include "NebulaUtil.h"
+#include "ScheduledAction.h"
 
 using namespace std;
 
@@ -1381,86 +1382,74 @@ int Scheduler::do_scheduled_actions()
     const map<int, ObjectXML*>  vms = vmapool->get_objects();
     map<int, ObjectXML*>::const_iterator vm_it;
 
-    vector<Attribute *> attributes;
-    vector<Attribute *>::iterator it;
-
-    VectorAttribute* vatt;
-
-    int action_time;
-    int done_time;
-    int has_time;
-    int has_done;
-
     string action_st, error_msg;
 
-    time_t the_time = time(0);
-    string time_str = one_util::log_time(the_time);
+    string time_str = one_util::log_time(time(0));
 
     for (vm_it=vms.begin(); vm_it != vms.end(); vm_it++)
     {
-        vm = static_cast<VirtualMachineXML*>(vm_it->second);
+        SchedActions::schedaction_iterator action;
 
-        vm->get_actions(attributes);
+        vm = static_cast<VirtualMachineXML *>(vm_it->second);
 
-        // TODO: Sort actions by TIME
-        for (it=attributes.begin(); it != attributes.end(); it++)
+        SchedActions * sas = vm->get_actions();
+
+        for ( action = sas->begin(); action != sas->end(); ++action)
         {
-            vatt = dynamic_cast<VectorAttribute*>(*it);
+            ostringstream oss;
 
-            if (vatt == 0)
+            if (!(*action)->is_due())
             {
-                delete *it;
-
                 continue;
             }
 
-            has_time  = vatt->vector_value("TIME", action_time);
-            has_done  = vatt->vector_value("DONE", done_time);
-            action_st = vatt->vector_value("ACTION");
+            action_st = (*action)->vector_value("ACTION");
 
-            if (has_time == 0 && has_done == -1 && action_time < the_time)
+            int rc = VirtualMachineXML::parse_action_name(action_st);
+
+            oss << "Executing action '" << action_st << "' for VM "
+                << vm->get_oid() << " : ";
+
+            if ( rc != 0 )
             {
-                ostringstream oss;
-
-                int rc = VirtualMachineXML::parse_action_name(action_st);
-
-                oss << "Executing action '" << action_st << "' for VM "
-                    << vm->get_oid() << " : ";
-
-                if ( rc != 0 )
-                {
-                    error_msg = "This action is not supported.";
-                }
-                else
-                {
-                    rc = vmapool->action(vm->get_oid(), action_st, error_msg);
-                }
+                error_msg = "This action is not supported.";
+            }
+            else
+            {
+                rc = vmapool->action(vm->get_oid(), action_st, error_msg);
 
                 if (rc == 0)
                 {
-                    vatt->remove("MESSAGE");
-                    vatt->replace("DONE", static_cast<int>(the_time));
+                    (*action)->remove("MESSAGE");
+
+                    (*action)->replace("DONE", time(0));
+
+                    (*action)->next_action();
 
                     oss << "Success.";
                 }
-                else
-                {
-                    ostringstream oss_aux;
-
-                    oss_aux << time_str << " : " << error_msg;
-
-                    vatt->replace("MESSAGE", oss_aux.str());
-
-                    oss << "Failure. " << error_msg;
-                }
-
-                NebulaLog::log("VM", Log::INFO, oss);
             }
 
-            vm->set_attribute(vatt);
+            if ( rc != 0 )
+            {
+                ostringstream oss_aux;
+
+                oss_aux << time_str << " : " << error_msg;
+
+                (*action)->replace("MESSAGE", oss_aux.str());
+
+                oss << "Failure. " << error_msg;
+            }
+
+            NebulaLog::log("VM", Log::INFO, oss);
         }
 
-        vmpool->update(vm);
+        if ( sas->empty() != 0 ) //Do not update VMs without SCHED_ACTION
+        {
+            vmpool->update(vm);
+        }
+
+        delete sas;
     }
 
     return 0;
