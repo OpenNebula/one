@@ -83,9 +83,9 @@ define(function (require) {
 		var that = this;
 		this.rep = "week";
 		this.end_type = "never";
-		$("select[name='rep']", context).change(function () {
+		$("select[name='repeat']", context).change(function () {
 			var value = $(this).val();
-			that.rep = value;
+			that.repeat = value;
 			var input_html = "";
 			switch (value) {
 				case "week":
@@ -110,7 +110,7 @@ define(function (require) {
 				case "hour":
 					input_html = "<div style=\"display: -webkit-box;\">\
 									<label style=\"margin-right: 5px;\">"+ Locale.tr("Each")+"</label>\
-									<input style=\"margin-right: 4px;\" id=\"days_hour_value\" type=\"number\" placeholder=\"5\"/>\
+									<input style=\"margin-right: 4px;\" id=\"days_hour_value\" min=\"0\" max=\"168\" type=\"number\" placeholder=\"5\"/>\
 									<label> "+ Locale.tr("hours")+"</label>\
 								</div>";
 					break;
@@ -185,19 +185,19 @@ define(function (require) {
 
 		if (periodic) {
 
-			if (!this.rep || !this.end_type) {
+			if (!this.repeat || !this.end_type) {
 				return false;
 			}
 
-			if (this.rep == "week") {
+			if (this.repeat == "week") {
 				$("input[name='days']:checked").each(function () {
 					days = days + (this).value + ",";
 				});
 				days = days.slice(0, -1);
-			} else if (this.rep == "month") {
+			} else if (this.repeat == "month") {
 				rep = 1;
 				days = $("#days_month_value", context).val();
-			} else if (this.rep == "year"){
+			} else if (this.repeat == "year"){
 				rep = 2;
 				days = $("#days_year_value", context).val();
 			} else {
@@ -228,7 +228,7 @@ define(function (require) {
 			}
 
 			sched_action.DAYS = days;
-			sched_action.REP = rep;
+			sched_action.REPEAT = rep;
 			sched_action.END_TYPE = end_type;
 			sched_action.END_VALUE = end_value;
 		}
@@ -275,19 +275,19 @@ define(function (require) {
 		var rep_str = "";
 		var end_str = "";
 
-		if (scheduling_action.REP != undefined) {
-			if (scheduling_action.REP == 0) {
+		if (scheduling_action.REPEAT != undefined) {
+			if (scheduling_action.REPEAT == 0) {
 				rep_str = "Weekly ";
-			} else if (scheduling_action.REP == 1) {
+			} else if (scheduling_action.REPEAT == 1) {
 				rep_str = "Monthly ";
-			} else if (scheduling_action.REP == 2) {
+			} else if (scheduling_action.REPEAT == 2) {
 				rep_str = "Yearly ";
-			} else if (scheduling_action.REP == 3) {
+			} else if (scheduling_action.REPEAT == 3) {
 				rep_str = "Each " + scheduling_action.DAYS + " hours";
 			}
 
-			if (scheduling_action.REP != 3) {
-				if (scheduling_action.REP != 0) {
+			if (scheduling_action.REPEAT != 3) {
+				if (scheduling_action.REPEAT != 0) {
 					rep_str += scheduling_action.DAYS;
 				} else {
 					rep_str += Humanize.week_days(scheduling_action.DAYS);
