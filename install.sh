@@ -124,6 +124,7 @@ if [ -z "$ROOT" ] ; then
     MAN_LOCATION="/usr/share/man/man1"
     VM_LOCATION="/var/lib/one/vms"
     DOCS_LOCATION="/usr/share/docs/one"
+    MAIN_JS_LOCATION="$VAR_LOCATION/sunstone"
     DOCKER_MACHINE_LOCATION="src/docker_machine/src/docker_machine/bin/docker-machine-driver-opennebula"
 
     if [ "$CLIENT" = "yes" ]; then
@@ -134,7 +135,7 @@ if [ -z "$ROOT" ] ; then
         CHOWN_DIRS=""
     elif [ "$SUNSTONE" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION \
-                   $SUNSTONE_LOCATION $ETC_LOCATION"
+                   $SUNSTONE_LOCATION $ETC_LOCATION $MAIN_JS_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
 
@@ -161,7 +162,7 @@ if [ -z "$ROOT" ] ; then
                    $INCLUDE_LOCATION $SHARE_LOCATION $DOCS_LOCATION \
                    $LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION \
                    $SYSTEM_DS_LOCATION $DEFAULT_DS_LOCATION $MAN_LOCATION \
-                   $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION"
+                   $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION $MAIN_JS_LOCATION"
 
         DELETE_DIRS="$LIB_LOCATION $ETC_LOCATION $LOG_LOCATION $VAR_LOCATION \
                      $RUN_LOCATION $SHARE_DIRS"
@@ -184,8 +185,9 @@ else
     MAN_LOCATION="$ROOT/share/man/man1"
     VM_LOCATION="$VAR_LOCATION/vms"
     DOCS_LOCATION="$ROOT/share/docs"
+    MAIN_JS_LOCATION="$VAR_LOCATION/sunstone"
     DOCKER_MACHINE_LOCATION="src/docker_machine/src/docker_machine/bin/docker-machine-driver-opennebula"
-    
+
     if [ "$CLIENT" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION"
 
@@ -197,7 +199,7 @@ else
         DELETE_DIRS="$MAKE_DIRS"
     elif [ "$SUNSTONE" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION \
-                   $SUNSTONE_LOCATION $ETC_LOCATION"
+                   $SUNSTONE_LOCATION $ETC_LOCATION $MAIN_JS_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
     elif [ "$ONEFLOW" = "yes" ]; then
@@ -212,7 +214,7 @@ else
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION $SYSTEM_DS_LOCATION \
                    $DEFAULT_DS_LOCATION $MAN_LOCATION $DOCS_LOCATION \
-                   $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION"
+                   $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION $MAIN_JS_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
 
@@ -2042,14 +2044,14 @@ if [ "$INSTALL_ETC" = "yes" ] ; then
    done
 fi
 
-if [ "$SUNSTONE" = "yes" ] || [ "$SUNSTONE_DEV" = "yes" ] ; then
-    mkdir $VAR_LOCATION/sunstone && touch $VAR_LOCATION/sunstone/main.js
-    ln -s $VAR_LOCATION/sunstone/main.js $SUNSTONE_LOCATION/public/dist/main.js
-fi
-
 # --- Set ownership or remove OpenNebula directories ---
 
 if [ "$UNINSTALL" = "no" ] ; then
+    if [ "$SUNSTONE" = "yes" ] || [ "$SUNSTONE_DEV" = "yes" ] ; then
+        touch $VAR_LOCATION/sunstone/main.js
+        rm $SUNSTONE_LOCATION/public/dist/main.js
+        ln -s $VAR_LOCATION/sunstone/main.js $SUNSTONE_LOCATION/public/dist/main.js
+    fi
     for d in $CHOWN_DIRS; do
         chown -R $ONEADMIN_USER:$ONEADMIN_GROUP $DESTDIR$d
     done
