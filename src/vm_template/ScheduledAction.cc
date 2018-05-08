@@ -53,7 +53,7 @@ int SchedAction::repeat(Repeat& r)
 
 int SchedAction::endon(EndOn& eo)
 {
-    eo = END_NONE;
+    eo = NEVER;
 
     std::string et_s = vector_value("END_TYPE");
 
