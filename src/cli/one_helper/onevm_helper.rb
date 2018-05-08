@@ -356,13 +356,13 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             str_periodic = ""
 
             if options.key?(:weekly)
-                str_periodic << ", REP = 0, DAYS = \"#{options[:weekly]}\""
+                str_periodic << ", REPEAT = 0, DAYS = \"#{options[:weekly]}\""
             elsif options.key?(:monthly)
-                str_periodic << ", REP = 1, DAYS = \"#{options[:monthly]}\""
+                str_periodic << ", REPEAT = 1, DAYS = \"#{options[:monthly]}\""
             elsif options.key?(:yearly)
-                str_periodic << ", REP = 2, DAYS = \"#{options[:yearly]}\""
+                str_periodic << ", REPEAT = 2, DAYS = \"#{options[:yearly]}\""
             elsif options.key?(:hourly)
-                str_periodic << ", REP = 3, DAYS = \"#{options[:hourly].to_s}\""
+                str_periodic << ", REPEAT = 3, DAYS = \"#{options[:hourly].to_s}\""
             end
 
             if options.key?(:end)
@@ -1062,19 +1062,19 @@ in the frontend machine.
                     OpenNebulaHelper.time_to_str(d["TIME"], false) if !d.nil?
                 end
 
-                column :"REP", "", :size=>20 do |d|
+                column :"REPEAT", "", :size=>20 do |d|
                     str_rep = ""
-                    if !d.nil? && d.key?("REP")
-                        if d["REP"] == "0"
+                    if !d.nil? && d.key?("REPEAT")
+                        if d["REPEAT"] == "0"
                             str_rep << "Weekly "
-                        elsif d["REP"] == "1"
+                        elsif d["REPEAT"] == "1"
                             str_rep << "Monthly "
-                        elsif d["REP"] == "2"
+                        elsif d["REPEAT"] == "2"
                             str_rep << "Yearly "
-                        elsif d["REP"] == "3"
+                        elsif d["REPEAT"] == "3"
                             str_rep << "Each " << d['DAYS'] << " hours"
                         end
-                        if d["REP"] != "3"
+                        if d["REPEAT"] != "3"
                             str_rep << d["DAYS"]
                         end
                     end
