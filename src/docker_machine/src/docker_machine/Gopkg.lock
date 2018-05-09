@@ -4,36 +4,24 @@
 [[projects]]
   branch = "master"
   name = "github.com/Azure/go-ansiterm"
-  packages = [
-    ".",
-    "winterm"
-  ]
+  packages = [".","winterm"]
   revision = "d6e3b3328b783f23731bc4d058875b0371ff8109"
 
 [[projects]]
   branch = "master"
+  name = "github.com/OpenNebula/one"
+  packages = ["src/oca/go/src/goca"]
+  revision = "master"
+
+[[projects]]
+  branch = "master"
   name = "github.com/docker/docker"
-  packages = [
-    "pkg/term",
-    "pkg/term/windows"
-  ]
+  packages = ["pkg/term","pkg/term/windows"]
   revision = "0c1006f1abc1af7aa6b9847754370d054dfa6c68"
 
 [[projects]]
   name = "github.com/docker/machine"
-  packages = [
-    "libmachine/drivers",
-    "libmachine/drivers/plugin",
-    "libmachine/drivers/plugin/localbinary",
-    "libmachine/drivers/rpc",
-    "libmachine/log",
-    "libmachine/mcnflag",
-    "libmachine/mcnutils",
-    "libmachine/ssh",
-    "libmachine/state",
-    "libmachine/version",
-    "version"
-  ]
+  packages = ["libmachine/drivers","libmachine/drivers/plugin","libmachine/drivers/plugin/localbinary","libmachine/drivers/rpc","libmachine/log","libmachine/mcnflag","libmachine/mcnutils","libmachine/ssh","libmachine/state","libmachine/version","version"]
   revision = "89b833253d9412716a0291cbdccc94454c33d1b5"
   version = "v0.14.0"
 
@@ -52,33 +40,19 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
-  packages = [
-    "curve25519",
-    "ed25519",
-    "ed25519/internal/edwards25519",
-    "internal/chacha20",
-    "poly1305",
-    "ssh",
-    "ssh/terminal"
-  ]
+  packages = ["curve25519","ed25519","ed25519/internal/edwards25519","internal/chacha20","poly1305","ssh","ssh/terminal"]
   revision = "c3a3ad6d03f7a915c0f7e194b7152974bb73d287"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
-  packages = [
-    "html",
-    "html/atom"
-  ]
+  packages = ["html","html/atom"]
   revision = "6078986fec03a1dcc236c34816c71b0e05018fda"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
-  packages = [
-    "unix",
-    "windows"
-  ]
+  packages = ["unix","windows"]
   revision = "7ceb54c8418b8f9cdf0177b511d5cbb06e9fae39"
 
 [[projects]]
@@ -90,6 +64,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8e5052c0521dfead3dd5b8672b0d2f066c70177a5e5a3ba4abd1449d087b98aa"
+  inputs-digest = "6ef5dc5036a75692652fb575393bee64c35bf61c3c8362fa2817dffa01b46173"
   solver-name = "gps-cdcl"
   solver-version = 1

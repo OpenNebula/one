@@ -7,7 +7,8 @@ import (
 	"io/ioutil"
 	"strconv"
 	"time"
-	"goca"
+
+	"github.com/OpenNebula/one/src/oca/go/src/goca"
 
 	"github.com/docker/machine/libmachine/drivers"
 	"github.com/docker/machine/libmachine/log"

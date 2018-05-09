@@ -27,6 +27,10 @@
 required = ["github.com/kolo/xmlrpc", "gopkg.in/xmlpath.v2"]
 
 [[constraint]]
+  name = "github.com/OpenNebula/one"
+  branch = "master"
+
+[[constraint]]
   name = "github.com/docker/machine"
   version = "0.14.0"
 
