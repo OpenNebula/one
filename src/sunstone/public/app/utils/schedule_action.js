@@ -228,13 +228,13 @@ define(function (require) {
 			} else if (this.end_type === "date") {
 				end_type = 2;
 				end_date = $("#end_value_date", context).val();
-				var time_value = end_date + " " + time_input_value;
-				var epoch_str = new Date(time_value);
-				end_value = parseInt(epoch_str.getTime()) / 1000;
-				if (end_value === "") {
+				if (end_date === "") {
 					Notifier.notifyError("End date not defined.");
 					return false;
 				}
+				var time_value = end_date + " " + time_input_value;
+				var epoch_str = new Date(time_value);
+				end_value = parseInt(epoch_str.getTime()) / 1000;
 			}
 
 			sched_action.DAYS = days;
