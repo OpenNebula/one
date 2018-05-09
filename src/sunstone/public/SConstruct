@@ -20,7 +20,9 @@ import os
 
 Import('env')
 
+
 if env['sunstone']=='yes':
+    os.system("mv dist/main.js ../")
     print "Generating Sunstone minified files\n"
     exit_code=os.system("grunt --gruntfile ./Gruntfile.js sass")
     if exit_code != 0:
@@ -31,3 +33,5 @@ if env['sunstone']=='yes':
     if exit_code != 0:
         print "Error generating minifying Sunstone files\n"
         exit(-1)
+    os.system("mv dist/main.js dist/main-dist.js && mv dist/main.js.map dist/main-dist.js.map")
+    os.system("mv -f ../main.js dist/main.js")

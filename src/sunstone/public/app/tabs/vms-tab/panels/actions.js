@@ -24,6 +24,7 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var TemplateUtils = require('utils/template-utils');
   var Config = require('sunstone-config');
+  var ScheduleActions = require('utils/schedule_action');
 
   /*
     CONSTANTS
@@ -62,99 +63,59 @@ define(function(require) {
     var that = this;
     var html = '<div class="row">\
       <div class="large-12 columns">\
-        <table id="scheduling_actions_table" class="info_table dataTable">\
+        <table id="scheduling_vms_actions_table" class="info_table dataTable">\
          <thead>\
            <tr>\
               <th>' + Locale.tr("ID") + '</th>\
               <th>' + Locale.tr("Action") + '</th>\
               <th>' + Locale.tr("Time") + '</th>\
+              <th>' + Locale.tr("Rep") + '</th>\
+              <th>' + Locale.tr("End") + '</th>\
               <th>' + Locale.tr("Done") + '</th>\
               <th>' + Locale.tr("Message") + '</th>\
               <th colspan="">' + Locale.tr("Actions") + '</th>\
-              <th><button id="add_scheduling_action" class="button small success right radius" >' + Locale.tr("Add action") + '</button></th>\
+              <th><button id="add_scheduling_vms_action" class="button small success right radius" >' + Locale.tr("Add action") + '</button></th>\
            </tr>\
-          </thead>' +
-            fromJSONtoActionsTable(that.element.USER_TEMPLATE.SCHED_ACTION) +
-         '</table>\
+          </thead>\
+          <tbody id="sched_vms_actions_body">'+
+          vmsfromJSONtoActionsTable(that.element.USER_TEMPLATE.SCHED_ACTION) +
+         '</tbody>\
+         </table>\
         </div>\
       </div>';
 
+    ScheduleActions.htmlTable("vms") //only charge the resource attribute
     return html;
   }
 
   function _setup(context) {
     var that = this;
     var actions = ["terminate", "terminate-hard", "hold", "release", "stop", "suspend", "resume", "reboot", "reboot-hard", "poweroff", "poweroff-hard", "undeploy", "undeploy-hard", "snapshot-create"];
-    context.off('click', '#add_scheduling_action');
-    context.on('click', '#add_scheduling_action', function() {
-      $("#add_scheduling_action", context).attr("disabled", "disabled");
-      var html = '<tr>\
-        <td></td>\
-        <td>\
-        <select id="select_new_action" class="select_new_action" name="select_action">';
-        $.each(actions, function(key, action){
-          var actionAux = action.replace("-", "_");
-          if (Config.isTabActionEnabled("vms-tab", "VM." + actionAux)){
-            html += '<option value="' + action + '">' + Locale.tr(action) + '</option>';
-          }
-        });
-        html += '</select>\
-          </td>\
-            <td>\
-              <input id="date_input" type="date" placeholder="2013/12/30"/>\
-              <input id="time_input" type="time" placeholder="12:30"/>\
-            </td>\
-          <td>\
-            <button id="submit_scheduling_action" class="button small secondary radius" >' + Locale.tr("Add") + '</button>\
-          </td>\
-          <td colspan=2></td>\
-        </tr>';
-        $("#scheduling_actions_table").append(html);
+    context.off('click', '#add_scheduling_vms_action');
+    context.on('click', '#add_scheduling_vms_action', function() {
+      $("#add_scheduling_vms_action", context).attr("disabled", "disabled");
+      ScheduleActions.htmlNewAction(actions, context, "vms");
+      ScheduleActions.setup(context)
       return false;
     });
 
-    context.off("click", "#submit_scheduling_action");
-    context.on("click", "#submit_scheduling_action", function() {
-      var date_input_value = $("#date_input", context).val();
-      var time_input_value = $("#time_input", context).val();
-
-      if (date_input_value == "" || time_input_value == "")
-        return false;
-
-      var time_value = date_input_value + ' ' + time_input_value
-
-      // Calculate MAX_ID
-      var max_id = -1;
-
-      if (that.element.USER_TEMPLATE.SCHED_ACTION) {
-        if (!that.element.USER_TEMPLATE.SCHED_ACTION.length) {
-          var tmp_element = that.element.USER_TEMPLATE.SCHED_ACTION;
-          that.element.USER_TEMPLATE.SCHED_ACTION = new Array();
-          that.element.USER_TEMPLATE.SCHED_ACTION.push(tmp_element);
-        }
-
-        $.each(that.element.USER_TEMPLATE.SCHED_ACTION, function(i, element) {
-          if (max_id < element.ID)
-            max_id = element.ID
-        })
+    context.off("click", "#add_vms_action_json");
+    context.on("click" , "#add_vms_action_json", function(){
+      var sched_action = ScheduleActions.retrieveNewAction(context);
+      if (sched_action != false) {
+        $("#no_actions_tr", context).remove();
+        $("#sched_vms_actions_body").append(ScheduleActions.fromJSONtoActionsTable(sched_action));
       } else {
-        that.element.USER_TEMPLATE.SCHED_ACTION = new Array();
+        return false;
       }
 
-      var new_action = {};
-      new_action.ID  = parseInt(max_id) + 1;
-      new_action.ACTION = $("#select_new_action", context).val();
-      var epoch_str   = new Date(time_value);
-
-      new_action.TIME = parseInt(epoch_str.getTime()) / 1000;
-
-      that.element.USER_TEMPLATE.SCHED_ACTION.push(new_action);
+      that.element.USER_TEMPLATE.SCHED_ACTION = ScheduleActions.retrieve(context);
 
       // Let OpenNebula know
       var template_str = TemplateUtils.templateToString(that.element.USER_TEMPLATE);
       Sunstone.runAction("VM.update_template", that.element.ID, template_str);
 
-      $("#add_scheduling_action", context).removeAttr("disabled");
+      $("#add_scheduling_vms_action", context).removeAttr("disabled");
       return false;
     });
 
@@ -179,7 +140,7 @@ define(function(require) {
   }
 
   // Returns an HTML string with the json keys and values
-  function fromJSONtoActionsTable(actions_array) {
+  function vmsfromJSONtoActionsTable(actions_array) {
     var str = ""
     var empty = '\
       <tr id="no_actions_tr">\
@@ -201,24 +162,22 @@ define(function(require) {
     }
 
     $.each(actions_array, function(index, scheduling_action) {
-      str += fromJSONtoActionRow(scheduling_action);
+      str += "<tr class='tr_action_"+scheduling_action.ID+"' data='" + JSON.stringify(scheduling_action) + "'>";
+      str += '<td class="id_row">' + TemplateUtils.htmlEncode(scheduling_action.ID) + '</td>'
+      var actions = ScheduleActions.fromJSONtoActionsTable([scheduling_action], scheduling_action.ID, true);
+      str += actions;
+      str += vmsfromJSONtoActionRow(scheduling_action);
     });
 
     return str;
   }
 
   // Helper for fromJSONtoHTMLTable function
-  function fromJSONtoActionRow(scheduling_action) {
+  function vmsfromJSONtoActionRow(scheduling_action) {
     var done_str    = scheduling_action.DONE ? (Humanize.prettyTime(scheduling_action.DONE)) : "";
     var message_str = scheduling_action.MESSAGE ? scheduling_action.MESSAGE : "";
-    var time_str    = Humanize.prettyTime(scheduling_action.TIME);
 
-    var str = "";
-    str += '<tr class="tr_action_' + scheduling_action.ID + '">\
-       <td class="id_row">' + TemplateUtils.htmlEncode(scheduling_action.ID) + '</td>\
-       <td class="action_row">' + TemplateUtils.htmlEncode(scheduling_action.ACTION) + '</td>\
-       <td nowrap class="time_row">' + time_str + '</td>\
-       <td class="done_row">' + done_str + '</td>\
+    var str = '<td class="done_row">' + done_str + '</td>\
        <td class="message_row">' + TemplateUtils.htmlEncode(message_str) + '</td>\
        <td>\
          <div>\

@@ -17,6 +17,7 @@
 #include <algorithm>
 
 #include "VirtualMachineXML.h"
+#include "ScheduledAction.h"
 #include "DatastoreXML.h"
 #include "DatastorePoolXML.h"
 #include "NebulaUtil.h"
@@ -507,3 +508,6 @@ bool VirtualMachineXML::is_only_public_cloud() const
 {
     return only_public_cloud;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
