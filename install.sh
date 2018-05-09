@@ -2063,7 +2063,7 @@ fi
 if [ "$UNINSTALL" = "no" ] ; then
     if [ "$SUNSTONE" = "yes" ] || [ "$SUNSTONE_DEV" = "yes" ] ; then
         touch $DESTDIR$VAR_LOCATION/sunstone/main.js
-        rm $DESTDIR$SUNSTONE_LOCATION/public/dist/main.js
+        rm -f $DESTDIR$SUNSTONE_LOCATION/public/dist/main.js
         ln -s $VAR_LOCATION/sunstone/main.js $DESTDIR$SUNSTONE_LOCATION/public/dist/main.js
     fi
     for d in $CHOWN_DIRS; do
