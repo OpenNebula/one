@@ -2048,9 +2048,9 @@ fi
 
 if [ "$UNINSTALL" = "no" ] ; then
     if [ "$SUNSTONE" = "yes" ] || [ "$SUNSTONE_DEV" = "yes" ] ; then
-        touch $VAR_LOCATION/sunstone/main.js
-        rm $SUNSTONE_LOCATION/public/dist/main.js
-        ln -s $VAR_LOCATION/sunstone/main.js $SUNSTONE_LOCATION/public/dist/main.js
+        touch $DESTDIR$VAR_LOCATION/sunstone/main.js
+        rm $DESTDIR$SUNSTONE_LOCATION/public/dist/main.js
+        ln -s $VAR_LOCATION/sunstone/main.js $DESTDIR$SUNSTONE_LOCATION/public/dist/main.js
     fi
     for d in $CHOWN_DIRS; do
         chown -R $ONEADMIN_USER:$ONEADMIN_GROUP $DESTDIR$d
