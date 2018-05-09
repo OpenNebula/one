@@ -19,7 +19,8 @@ define(function (require) {
 	var Locale = require("utils/locale");
 	var Humanize = require("utils/humanize");
 	var TemplateUtils = require("utils/template-utils");
-	var Tips = require('utils/tips');
+	var Tips = require("utils/tips");
+	var Notifier = require("utils/notifier");
 
 	var TemplateHTML = require("hbs!./schedule_action/html");
 	var TemplateTableHTML = require("hbs!./schedule_action/table");
@@ -81,7 +82,7 @@ define(function (require) {
 			}
 		});
 		var that = this;
-		this.rep = "week";
+		this.repeat = "week";
 		this.end_type = "never";
 		$("select[name='repeat']", context).change(function () {
 			var value = $(this).val();
@@ -124,7 +125,7 @@ define(function (require) {
 			that.end_type = value;
 			var input_html = "";
 			var min;
-			$(".end_input", context).prop('disabled', true);
+			$(".end_input", context).prop("disabled", true);
 			switch (value) {
 				case "n_rep":
 					min = 1;
@@ -135,16 +136,16 @@ define(function (require) {
 					var mm = today.getMonth() + 1;
 					var yyyy = today.getFullYear();
 					if (dd < 10) {
-						dd = "0" + dd
+						dd = "0" + dd;
 					}
 					if (mm < 10) {
-						mm = "0" + mm
+						mm = "0" + mm;
 					}
 					min = yyyy + "-" + mm + "-" + dd;
 					break;
 			}
 			$("#end_value_" + value, context).attr("min", min);
-			$("#end_value_" + value, context).prop('disabled', false);
+			$("#end_value_" + value, context).prop("disabled", false);
 		});
 
 		context.on("focusout", "#time_input", function () {
@@ -163,7 +164,7 @@ define(function (require) {
 				actionJSON = JSON.parse($(this).attr("data"));
 				actionJSON.ID = index;
 			}
-			if (!$.isEmptyObject(actionJSON)) { actionsJSON.push(actionJSON) };
+			if (!$.isEmptyObject(actionJSON)) { actionsJSON.push(actionJSON); };
 		});
 		return actionsJSON;
 	}
@@ -179,7 +180,13 @@ define(function (require) {
 		var end_value = 1;
 		var sched_action = {};
 
-		if (time_input_value == "" || date_input_value == "") {
+		if (date_input_value === "") {
+			Notifier.notifyError("Date not defined.");
+			return false;
+		}
+
+		if (time_input_value === ""){
+			Notifier.notifyError("Time not defined.");
 			return false;
 		}
 
@@ -189,15 +196,15 @@ define(function (require) {
 				return false;
 			}
 
-			if (this.repeat == "week") {
+			if (this.repeat === "week") {
 				$("input[name='days']:checked").each(function () {
 					days = days + (this).value + ",";
 				});
 				days = days.slice(0, -1);
-			} else if (this.repeat == "month") {
+			} else if (this.repeat === "month") {
 				rep = 1;
 				days = $("#days_month_value", context).val();
-			} else if (this.repeat == "year"){
+			} else if (this.repeat === "year"){
 				rep = 2;
 				days = $("#days_year_value", context).val();
 			} else {
@@ -205,24 +212,27 @@ define(function (require) {
 				days = $("#days_hour_value", context).val();
 			}
 
-			if (days == "") {
+			if (days === "") {
+				Notifier.notifyError("Hours or days not defined.");
 				return false;
 			}
 
-			if (this.end_type == "never") {
+			if (this.end_type === "never") {
 				end_type = 0;
-			} else if (this.end_type == "n_rep") {
+			} else if (this.end_type === "n_rep") {
 				end_value = $("#end_value_n_rep", context).val();
-				if (end_value == "") {
+				if (end_value === "") {
+					Notifier.notifyError("Repetition number not defined.");
 					return false;
 				}
-			} else if (this.end_type == "date") {
+			} else if (this.end_type === "date") {
 				end_type = 2;
 				end_date = $("#end_value_date", context).val();
 				var time_value = end_date + " " + time_input_value;
 				var epoch_str = new Date(time_value);
 				end_value = parseInt(epoch_str.getTime()) / 1000;
-				if (end_value == "") {
+				if (end_value === "") {
+					Notifier.notifyError("End date not defined.");
 					return false;
 				}
 			}
@@ -275,19 +285,19 @@ define(function (require) {
 		var rep_str = "";
 		var end_str = "";
 
-		if (scheduling_action.REPEAT != undefined) {
-			if (scheduling_action.REPEAT == 0) {
+		if (scheduling_action.REPEAT !== undefined) {
+			if (scheduling_action.REPEAT === 0) {
 				rep_str = "Weekly ";
-			} else if (scheduling_action.REPEAT == 1) {
+			} else if (scheduling_action.REPEAT === 1) {
 				rep_str = "Monthly ";
-			} else if (scheduling_action.REPEAT == 2) {
+			} else if (scheduling_action.REPEAT === 2) {
 				rep_str = "Yearly ";
-			} else if (scheduling_action.REPEAT == 3) {
+			} else if (scheduling_action.REPEAT === 3) {
 				rep_str = "Each " + scheduling_action.DAYS + " hours";
 			}
 
-			if (scheduling_action.REPEAT != 3) {
-				if (scheduling_action.REPEAT != 0) {
+			if (scheduling_action.REPEAT !== 3) {
+				if (scheduling_action.REPEAT !== 0) {
 					rep_str += scheduling_action.DAYS;
 				} else {
 					rep_str += Humanize.week_days(scheduling_action.DAYS);
@@ -295,28 +305,28 @@ define(function (require) {
 			}
 		}
 
-		if (scheduling_action.END_TYPE != undefined) {
-			if (scheduling_action.END_TYPE == 0) {
+		if (scheduling_action.END_TYPE !== undefined) {
+			if (scheduling_action.END_TYPE === 0) {
 				end_str = "None";
-			} else if (scheduling_action.END_TYPE == 1) {
+			} else if (scheduling_action.END_TYPE === 1) {
 				end_str = "After " + scheduling_action.END_VALUE + " times";
-			} else if (scheduling_action.END_TYPE == 2) {
+			} else if (scheduling_action.END_TYPE === 2) {
 				end_str = "on " + Humanize.prettyTime(scheduling_action.END_VALUE);
 			}
 		}
 
 		var str = "";
-		if (action_id == undefined) {
+		if (action_id === undefined) {
 			str += "<tr class='tr_action' data='" + JSON.stringify(scheduling_action) + "'>";
 		}
 		str += "<td class='action_row'>" + TemplateUtils.htmlEncode(scheduling_action.ACTION) + "</td>\
         <td nowrap class='time_row'>" + time_str + "</td>\
         <td nowrap class='rep_row'>" + rep_str + "</td>\
         <td nowrap class='end_row'>" + end_str + "</td>";
-		if (minus == undefined) {
+		if (minus === undefined) {
 			str += "<td>\
                 <div>\
-                <a id='minus' class='remove_action_x' href='#'><i class='fa fa-trash-o'/></a>\
+                <a id='minus' class='remove_action_x' href='#'><i class='fas fa-trash-alt'/></a>\
                 </div>\
             </td>\
             </tr>";
