@@ -45,6 +45,9 @@ class OpenNebulaAddons
 
             lines = main_dist.gets
         end
+
+        main_dist.close
+        main.close
     end
 
     private
@@ -64,6 +67,7 @@ class OpenNebulaAddons
     def load_list_start(files, tmp)
         files.each do |file|
             add  = File.new(file, "r")
+
             line = add.gets
 
             while line != nil
