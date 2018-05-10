@@ -31,6 +31,7 @@
 #include "NebulaLog.h"
 #include "NebulaUtil.h"
 #include "Snapshots.h"
+#include "ScheduledAction.h"
 
 #include "Nebula.h"
 
@@ -3077,5 +3078,26 @@ void VirtualMachine::release_vmgroup()
     VMGroupPool * vmgrouppool = Nebula::instance().get_vmgrouppool();
 
     vmgrouppool->del_vm(thegroup, get_oid());
+}
+
+int VirtualMachine::parse_sched_action(string& error_str)
+{
+    SchedActions sactions(user_obj_template);
+
+    return sactions.parse(error_str);
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int VirtualMachine::post_update_template(string& error)
+{
+    int rc = parse_sched_action(error);
+    if (rc == -1)
+    {
+        return rc;
+    }
+
+    return 0;
 }
 
