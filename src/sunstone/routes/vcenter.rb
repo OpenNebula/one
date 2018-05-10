@@ -116,6 +116,8 @@ get '/vcenter' do
             error 404, error.to_json
         end
 
+        VCenterDriver::VIHelper.clean_ref_hash
+
         rs = dc_folder.get_unimported_hosts(hpool,vcenter_client.vim.host)
         [200, rs.to_json]
     rescue Exception => e
