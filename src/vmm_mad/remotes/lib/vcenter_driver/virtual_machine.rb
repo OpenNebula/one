@@ -466,31 +466,28 @@ class Template
                                                                  npool)
                 #Network is already in OpenNebula
                 if network_found
+                    nic_tmp = "NIC=[\n"
+                    nic_tmp << "NETWORK_ID=\"#{network_found["ID"]}\",\n"
+
                     if wild?
                         ar_tmp = create_ar(nic)
                         network_found.add_ar(ar_tmp)
                         network_found.info
                         last_id = save_ar_ids(network_found, nic, ar_ids)
+
                         # This is the existing nic info
-                        nic_tmp = ""
-                        nic_tmp << "NIC=[\n"
                         nic_tmp << "AR_ID=\"#{last_id}\",\n"
-                        nic_tmp << "NETWORK_ID=\"#{network_found["ID"]}\",\n"
                         nic_tmp << "MAC=\"#{nic[:mac]}\",\n" if nic[:mac]
                         nic_tmp << "VCENTER_ADDITIONALS_IP4=\"#{nic[:ipv4_additionals]}\",\n" if nic[:ipv4_additionals]
                         nic_tmp << "VCENTER_IP6=\"#{nic[:ipv6]}\",\n" if nic[:ipv6]
                         nic_tmp << "IP6_GLOBAL=\"#{nic[:ipv6_global]}\",\n" if nic[:ipv6_global]
                         nic_tmp << "IP6_ULA=\"#{nic[:ipv6_ula]}\",\n" if nic[:ipv6_ula]
                         nic_tmp << "VCENTER_ADDITIONALS_IP6=\"#{nic[:ipv6_additionals]}\",\n" if nic[:ipv6_additionals]
-                        nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
-                        nic_tmp << "]\n"
-                    else
-                        nic_tmp = ""
-                        nic_tmp << "NIC=[\n"
-                        nic_tmp << "NETWORK_ID=\"#{network_found["ID"]}\",\n"
-                        nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
-                        nic_tmp << "]\n"
                     end
+
+                    nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
+                    nic_tmp << "]\n"
+
                     if sunstone
                         sunstone_nic = {}
                         sunstone_nic[:type] = "EXISTING_NIC"
@@ -499,6 +496,8 @@ class Template
                     else
                         nic_info << nic_tmp
                     end
+
+                # network not found:
                 else
                     config = {}
                     config[:refs] = nic[:refs]
@@ -514,11 +513,13 @@ class Template
                                                             vc_uuid,
                                                             hpool)["CLUSTER_ID"] rescue -1
                     end
+
                     if wild?
                         unmanaged = "wild"
                     else
                         unmanaged = "template"
                     end
+
                     import_opts = {
                         :network_name=>          nic[:net_name],
                         :network_ref=>           nic[:net_ref],
@@ -544,14 +545,15 @@ class Template
                     ar_tmp << "TYPE=\"ETHER\",\n"
                     ar_tmp << "SIZE=255\n"
                     ar_tmp << "]\n"
+
                     if wild?
                         ar_tmp << create_ar(nic, true)
                     end
 
                     one_vnet[:one] << ar_tmp
                     config[:one_object] = one_vnet[:one]
-
                     cluster_id = VCenterDriver::VIHelper.get_cluster_id(config[:one_ids])
+
                     if sunstone
                         if !duplicated_networks.include?(nic[:net_name])
                             sunstone_nic = {}
@@ -567,32 +569,31 @@ class Template
                             sunstone_nic[:network_name] = nic[:net_name]
                             sunstone_nic_info << sunstone_nic
                         end
+
+                    # not sunstone:
                     else
                         one_vn = VCenterDriver::Network.create_one_network(config)
                         allocated_networks << one_vn
                         VCenterDriver::VIHelper.clean_ref_hash()
-
                         one_vn.info
+
+                        nic_tmp = "NIC=[\n"
+                        nic_tmp << "NETWORK_ID=\"#{one_vn.id}\",\n"
+
                         if wild?
                             last_id = save_ar_ids(one_vn, nic, ar_ids)
-                            nic_info << "NIC=[\n"
-                            nic_info << "AR_ID=\"#{last_id}\",\n"
-                            nic_info << "NETWORK_ID=\"#{one_vn.id}\",\n"
-                            nic_info << "MAC=\"#{nic[:mac]}\",\n" if nic[:mac]
-                            nic_info << "VCENTER_ADDITIONALS_IP4=\"#{nic[:ipv4_additionals]}\",\n" if nic[:ipv4_additionals]
-                            nic_info << "VCENTER_IP6=\"#{nic[:ipv6]}\",\n" if nic[:ipv6]
-                            nic_info << "IP6_GLOBAL=\"#{nic[:ipv6_global]}\",\n" if nic[:ipv6_global]
-                            nic_info << "IP6_ULA=\"#{nic[:ipv6_ula]}\",\n" if nic[:ipv6_ula]
-                            nic_info << "VCENTER_ADDITIONALS_IP6=\"#{nic[:ipv6_additionals]}\",\n" if nic[:ipv6_additionals]
-                            nic_info << "OPENNEBULA_MANAGED=\"NO\"\n"
-                            nic_info << "]\n"
-                        else
-                            nic_info = ""
-                            nic_info << "NIC=[\n"
-                            nic_info << "NETWORK_ID=\"#{one_vn.id}\",\n"
-                            nic_info << "OPENNEBULA_MANAGED=\"NO\"\n"
-                            nic_info << "]\n"
+                            nic_tmp << "AR_ID=\"#{last_id}\",\n"
+                            nic_tmp << "MAC=\"#{nic[:mac]}\",\n" if nic[:mac]
+                            nic_tmp << "VCENTER_ADDITIONALS_IP4=\"#{nic[:ipv4_additionals]}\",\n" if nic[:ipv4_additionals]
+                            nic_tmp << "VCENTER_IP6=\"#{nic[:ipv6]}\",\n" if nic[:ipv6]
+                            nic_tmp << "IP6_GLOBAL=\"#{nic[:ipv6_global]}\",\n" if nic[:ipv6_global]
+                            nic_tmp << "IP6_ULA=\"#{nic[:ipv6_ula]}\",\n" if nic[:ipv6_ula]
+                            nic_tmp << "VCENTER_ADDITIONALS_IP6=\"#{nic[:ipv6_additionals]}\",\n" if nic[:ipv6_additionals]
                         end
+
+                        nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
+                        nic_tmp << "]\n"
+                        nic_info << nic_tmp
 
                         # Refresh npool
                         npool.info_all
@@ -3518,6 +3519,7 @@ class VmImporter < VCenterDriver::VcImporter
 
             template_moref = template_copy_ref ? template_copy_ref : selected[:vcenter_ref]
 			wild = false
+
 			error, template_nics, ar_ids, allocated_nets = template.import_vcenter_nics(vc_uuid,
                                                                             npool,
                                                                             hpool,
@@ -3528,6 +3530,7 @@ class VmImporter < VCenterDriver::VcImporter
                                                                             template["name"],
                                                                             id,
                                                                             dc)
+
             if allocated_nets
                 #rollback stack
                 allocated_nets.reverse.each do |n|
