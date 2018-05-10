@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 #-------------------------------------------------------------------------------
 usage() {
  echo
@@ -28,14 +30,6 @@ install_patch() {
 
     bower install --force --allow-root --config.interactive=false
 
-    grunt --gruntfile ./Gruntfile.js sass
-
-    grunt --gruntfile ./Gruntfile.js requirejs
-
-    mv dist/main.js dist/main-dist.js
-
-    mv dist/main.js.map dist/main-dist.js.map
-
     PATCH_DIR="./patches/"
 
     for i in `ls ${PATCH_DIR}` ; do
@@ -43,6 +37,15 @@ install_patch() {
             patch -p1 <"${PATCH_DIR}/$i"
         fi
     done
+
+    grunt --gruntfile ./Gruntfile.js sass
+
+    grunt --gruntfile ./Gruntfile.js requirejs
+
+    mv -f dist/main.js dist/main-dist.js
+
+    mv -f dist/main.js.map dist/main-dist.js.map
+
 }
 #-------------------------------------------------------------------------------
 
