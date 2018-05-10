@@ -414,9 +414,9 @@ int LibVirtDriver::deployment_description_kvm(
     {
         file << "\t<cpu mode=" << one_util::escape_xml_attr(cpu_mode) << ">\n";
 
-        if ( cpu_mode == "host-model" )
+        if ( cpu_mode == "custom" )
         {
-            file << "\t\t<model fallback='allow'>" << one_util::escape_xml(cpu_model)
+            file << "\t\t<model fallback='forbid'>" << one_util::escape_xml(cpu_model)
                  << "</model>\n";
         }
 
