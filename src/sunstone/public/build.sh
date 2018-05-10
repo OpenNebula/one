@@ -44,8 +44,6 @@ install_patch() {
 
     mv -f dist/main.js dist/main-dist.js
 
-    mv -f dist/main.js.map dist/main-dist.js.map
-
 }
 #-------------------------------------------------------------------------------
 
