@@ -70,6 +70,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "OpenNebula datastore used"
     }
 
+    CONFIG = {
+        :name => "configuration",
+        :large => "--config file",
+        :format => String,
+        :description => "Configuration file for custom options"
+    }
+
     VCENTER = {
         :name   => "vcenter",
         :large  => "--vcenter vCenter" ,
@@ -162,7 +169,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         exit 0
     end
 
-    command :import_defaults, import_desc, [:oid, nil] , :options=>[ OBJECT, HOST, DATASTORE ] do
+    command :import_defaults, import_desc, [:oid, nil] , :options=>[ OBJECT, HOST, DATASTORE, CONFIG ] do
 
         if options[:host] && options[:object]
             vi_client = VCenterDriver::VIClient.new_from_host(options[:host])

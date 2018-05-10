@@ -190,6 +190,12 @@ module VCenterDriver
                 end
             end
 
+            if args !~ /\D/
+                ind = args.to_i
+
+                return keys[ind]
+            end
+
             return args
         end
 
@@ -204,7 +210,10 @@ module VCenterDriver
         #
         def retrieve_resources(opts = {})
             list = get_list(opts)
+
+            @defaults = opts[:config] if opts[:config]
             VCenterDriver::VIHelper.clean_ref_hash
+
 
             return list
         end
@@ -342,6 +351,8 @@ module VCenterDriver
         # Default opts
         #
         def defaults
+            return @defaults if @defaults
+
             {}
         end
 
