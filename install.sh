@@ -329,7 +329,7 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/models/OpenNebulaJSON \
                $SUNSTONE_LOCATION/views"
 
-SUNSTONE_MINIFIED_DIRS="SUNSTONE_LOCATION/public \
+SUNSTONE_MINIFIED_DIRS="$SUNSTONE_LOCATION/public \
                $SUNSTONE_LOCATION/public/dist \
                $SUNSTONE_LOCATION/public/dist/console \
                $SUNSTONE_LOCATION/public/css \
@@ -1717,7 +1717,8 @@ SUNSTONE_VIEWS_FILES="src/sunstone/views/index.erb \
 SUNSTONE_PUBLIC_JS_FILES="src/sunstone/public/dist/login.js \
                         src/sunstone/public/dist/login.js.map \
                         src/sunstone/public/dist/main.js \
-                        src/sunstone/public/dist/main.js.map"
+                        src/sunstone/public/dist/main.js.map \
+                        src/sunstone/public/dist/main-dist.js"
 
 SUNSTONE_PUBLIC_JS_CONSOLE_FILES="src/sunstone/public/dist/console/vnc.js \
                         src/sunstone/public/dist/console/vnc.js.map \
