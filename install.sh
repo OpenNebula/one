@@ -334,7 +334,9 @@ SUNSTONE_MINIFIED_DIRS="$SUNSTONE_LOCATION/public \
                $SUNSTONE_LOCATION/public/dist/console \
                $SUNSTONE_LOCATION/public/css \
                $SUNSTONE_LOCATION/public/css/opensans \
-               $SUNSTONE_LOCATION/public/bower_components/fontawesome/fonts \
+               $SUNSTONE_LOCATION/public/bower_components/fontawesome \
+               $SUNSTONE_LOCATION/public/bower_components/fontawesome/web-fonts-with-css \
+               $SUNSTONE_LOCATION/public/bower_components/fontawesome/web-fonts-with-css/webfonts \
                $SUNSTONE_LOCATION/public/locale/languages \
                $SUNSTONE_LOCATION/public/images \
                $SUNSTONE_LOCATION/public/images/logos"
