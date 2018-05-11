@@ -1058,6 +1058,14 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     }
 
     // ------------------------------------------------------------------------
+    // Parse VM actions
+    // ------------------------------------------------------------------------
+    if ( parse_sched_action(error_str) == -1 )
+    {
+        goto error_rollback;
+    }
+
+    // ------------------------------------------------------------------------
 
     parse_well_known_attributes();
 
@@ -2285,6 +2293,22 @@ int VirtualMachine::replace_template(
         return -1;
     }
 
+    /* ---------------------------------------------------------------------- */
+    /*  Parse attributes in USER_TEMPLATE:                                    */
+    /*  - SCHED_ACTION                                                        */
+    /* ---------------------------------------------------------------------- */
+    SchedActions sactions(new_tmpl);
+
+    if ( sactions.parse(error, false) == -1 )
+    {
+        delete new_tmpl;
+        return -1;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Replace new_tmpl to the current user_template                          */
+    /* ---------------------------------------------------------------------- */
+
     if (user_obj_template != 0)
     {
         if (keep_restricted && new_tmpl->check_restricted(ra, user_obj_template))
@@ -2300,13 +2324,6 @@ int VirtualMachine::replace_template(
         error = "Tried to set restricted attribute: " + ra;
 
         delete new_tmpl;
-        return -1;
-    }
-
-    if (post_update_template(error) == -1)
-    {
-        delete user_obj_template;
-
         return -1;
     }
 
@@ -2341,6 +2358,21 @@ int VirtualMachine::append_template(
         return -1;
     }
 
+    /* ---------------------------------------------------------------------- */
+    /*  Parse attributes in USER_TEMPLATE:                                    */
+    /*  - SCHED_ACTION                                                        */
+    /* ---------------------------------------------------------------------- */
+    SchedActions sactions(new_tmpl);
+
+    if ( sactions.parse(error, false) == -1 )
+    {
+        delete new_tmpl;
+        return -1;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Append new_tmpl to the current user_template                           */
+    /* ---------------------------------------------------------------------- */
     if (user_obj_template != 0)
     {
         if (keep_restricted && new_tmpl->check_restricted(rname, user_obj_template))
@@ -2362,13 +2394,6 @@ int VirtualMachine::append_template(
             return -1;
         }
         user_obj_template = new_tmpl;
-    }
-
-    if (post_update_template(error) == -1)
-    {
-        delete user_obj_template;
-
-        return -1;
     }
 
     return 0;
@@ -3094,24 +3119,13 @@ void VirtualMachine::release_vmgroup()
     vmgrouppool->del_vm(thegroup, get_oid());
 }
 
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
 int VirtualMachine::parse_sched_action(string& error_str)
 {
     SchedActions sactions(user_obj_template);
 
     return sactions.parse(error_str, false);
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int VirtualMachine::post_update_template(string& error)
-{
-    int rc = parse_sched_action(error);
-    if (rc == -1)
-    {
-        return rc;
-    }
-
-    return 0;
 }
 
