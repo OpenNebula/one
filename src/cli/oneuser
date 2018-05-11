@@ -449,7 +449,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         Changes the given User's password
     EOT
 
-    command :passwd, passwd_desc, [:username, :userid], [:password, nil],
+    command :passwd, passwd_desc, [:userid], [:password, nil],
             :options=>auth_options do
         if args[1]
             pass = args[1]

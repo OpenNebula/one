@@ -757,8 +757,12 @@ EOT
 
             rc = pool.info
             if OpenNebula.is_error?(rc)
-                return -1, "OpenNebula #{self.class.rname} name not " <<
+                if rc.message.empty?
+                    return -1, "OpenNebula #{self.class.rname} name not " <<
                            "found, use the ID instead"
+                else
+                    return -1,rc.message
+                end
             end
 
             return 0, pool
