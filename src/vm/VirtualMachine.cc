@@ -2303,6 +2303,13 @@ int VirtualMachine::replace_template(
         return -1;
     }
 
+    if (post_update_template(error) == -1)
+    {
+        delete user_obj_template;
+
+        return -1;
+    }
+
     delete user_obj_template;
 
     user_obj_template = new_tmpl;
@@ -2355,6 +2362,13 @@ int VirtualMachine::append_template(
             return -1;
         }
         user_obj_template = new_tmpl;
+    }
+
+    if (post_update_template(error) == -1)
+    {
+        delete user_obj_template;
+
+        return -1;
     }
 
     return 0;
