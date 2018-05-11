@@ -93,9 +93,10 @@ public:
      *  This function parse and checks the sched action attributes: REPEAT, DAYS
      *  , END_TYPE, END_DATE. It also removed DONE and MESSAGE.
      *    @param error
+     *    @param clean indicates if the user wants to remove DONE and MESSAGE
      *    @return 0 if success -1 otherwise
      */
-    int parse(std::string& error);
+    int parse(std::string& error, bool clean);
 
     /**
      *  @return true if the action needs to be executed.
@@ -139,13 +140,14 @@ public:
     /**
      *  Parse the ScheduleActions of a template
      *    @param error
+     *    @param clean indicates if the user wants to remove DONE and MESSAGE
      *    @return -1 in case of error 0 otherwise
      */
-    int parse(std::string& error)
+    int parse(std::string& error, bool clean)
     {
         for ( schedaction_iterator action = begin(); action != end(); ++action)
         {
-            if ( (*action)->parse(error) == -1 )
+            if ( (*action)->parse(error, clean) == -1 )
             {
                 return -1;
             }

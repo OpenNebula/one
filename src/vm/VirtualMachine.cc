@@ -3098,7 +3098,7 @@ int VirtualMachine::parse_sched_action(string& error_str)
 {
     SchedActions sactions(user_obj_template);
 
-    return sactions.parse(error_str);
+    return sactions.parse(error_str, false);
 }
 
 /* ------------------------------------------------------------------------ */
