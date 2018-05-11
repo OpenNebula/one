@@ -201,7 +201,7 @@ bool SchedAction::ends_in_range(EndOn eo, std::string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int SchedAction::parse(std::string& error)
+int SchedAction::parse(std::string& error, bool clean)
 {
     Repeat r;
     EndOn  eo;
@@ -228,8 +228,11 @@ int SchedAction::parse(std::string& error)
         return -1;
     }
 
-    remove("DONE");
-    remove("MESSAGE");
+    if (clean)
+    {
+        remove("DONE");
+        remove("MESSAGE");
+    }
 
     return 0;
 }

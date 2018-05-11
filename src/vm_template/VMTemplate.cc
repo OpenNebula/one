@@ -175,7 +175,7 @@ int VMTemplate::parse_sched_action(string& error_str)
 {
     SchedActions sactions(obj_template);
 
-    return sactions.parse(error_str);
+    return sactions.parse(error_str, true);
 }
 
 /* ------------------------------------------------------------------------ */

@@ -2052,6 +2052,19 @@ private:
      */
     int parse_public_clouds(const char *name, string& error);
 
+    /**
+     * Child classes can process the new template set with replace_template or
+     * append_template with this method
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     */
+    int post_update_template(string& error);
+
+    /**
+     *  This method removes sched_action DONE/MESSAGE attributes
+     */
+    int parse_sched_action(string& error_str);
+
 protected:
 
     //**************************************************************************

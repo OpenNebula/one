@@ -31,6 +31,7 @@
 #include "NebulaLog.h"
 #include "NebulaUtil.h"
 #include "Snapshots.h"
+#include "ScheduledAction.h"
 
 #include "Nebula.h"
 
@@ -2302,6 +2303,13 @@ int VirtualMachine::replace_template(
         return -1;
     }
 
+    if (post_update_template(error) == -1)
+    {
+        delete user_obj_template;
+
+        return -1;
+    }
+
     delete user_obj_template;
 
     user_obj_template = new_tmpl;
@@ -2354,6 +2362,13 @@ int VirtualMachine::append_template(
             return -1;
         }
         user_obj_template = new_tmpl;
+    }
+
+    if (post_update_template(error) == -1)
+    {
+        delete user_obj_template;
+
+        return -1;
     }
 
     return 0;
@@ -3077,5 +3092,26 @@ void VirtualMachine::release_vmgroup()
     VMGroupPool * vmgrouppool = Nebula::instance().get_vmgrouppool();
 
     vmgrouppool->del_vm(thegroup, get_oid());
+}
+
+int VirtualMachine::parse_sched_action(string& error_str)
+{
+    SchedActions sactions(user_obj_template);
+
+    return sactions.parse(error_str, false);
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int VirtualMachine::post_update_template(string& error)
+{
+    int rc = parse_sched_action(error);
+    if (rc == -1)
+    {
+        return rc;
+    }
+
+    return 0;
 }
 
