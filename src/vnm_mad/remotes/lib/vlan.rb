@@ -105,7 +105,8 @@ module VNMMAD
 
                 # Delete the vlan device.
                 OpenNebula.exec_and_log("#{command(:ip)} link delete"\
-                    " #{@nic[:vlan_dev]}")
+                    " #{@nic[:vlan_dev]}") if @nic[:vlan_dev] != @nic[:phydev]
+
                 @bridges[@nic[:bridge]].delete(@nic[:vlan_dev])
 
                 # Delete the bridge.

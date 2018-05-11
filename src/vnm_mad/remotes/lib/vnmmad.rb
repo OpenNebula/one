@@ -30,6 +30,7 @@ require 'security_groups_iptables'
 require 'vnm_driver'
 require 'sg_driver'
 require 'vlan'
+require 'dummy_vlan'
 require 'scripts_common'
 
 Dir[File.expand_path('vnmmad-load.d', File.dirname(__FILE__)) + "/*.rb"].each{ |f| require f }

@@ -909,6 +909,7 @@ NETWORK_FILES="src/vnm_mad/remotes/lib/vnm_driver.rb \
                src/vnm_mad/remotes/lib/command.rb \
                src/vnm_mad/remotes/lib/vm.rb \
                src/vnm_mad/remotes/lib/vlan.rb \
+               src/vnm_mad/remotes/lib/dummy_vlan.rb \
                src/vnm_mad/remotes/lib/security_groups.rb \
                src/vnm_mad/remotes/lib/security_groups_iptables.rb \
                src/vnm_mad/remotes/lib/nic.rb"

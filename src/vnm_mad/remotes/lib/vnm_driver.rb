@@ -87,7 +87,7 @@ module VNMMAD
             default_conf = CONF || {}
             nic_conf = {}
 
-            if nic[:conf]
+            if nic[:conf] and nic[:conf].is_a? String
                 parse_options(nic[:conf]).each do |option, value|
                     case value.downcase
                     when 'true', 'yes'
@@ -129,7 +129,7 @@ module VNMMAD
                 nic_conf[option] = value
             end
 
-            if nic[conf_name]
+            if nic[conf_name] and nic[conf_name].is_a? String
                 parse_options(nic[conf_name]).each do |option, value|
                     if value == '__delete__'
                         nic_conf.delete(option.strip.downcase)
