@@ -5,6 +5,7 @@ class VIHelper
     ETC_LOCATION = "/etc/one/" if !defined?(ETC_LOCATION)
     VCENTER_DRIVER_DEFAULT = "#{ETC_LOCATION}/vcenter_driver.default"
     VM_PREFIX_DEFAULT = "one-$i-"
+    SEMAPHORE = Mutex.new
 
     def self.client
         @@client ||= OpenNebula::Client.new
@@ -141,7 +142,9 @@ class VIHelper
     end
 
     def self.clean_ref_hash
-        @ref_hash = {}
+        SEMAPHORE.synchronize do
+            @ref_hash = {}
+        end
     end
 
     def self.add_ref_hash(attr, one_object)
@@ -149,8 +152,10 @@ class VIHelper
 
         refkey = get_ref_key(one_object, attr)
 
-        if @ref_hash[attr]
-            @ref_hash[attr][refkey] = one_object
+        SEMAPHORE.synchronize do
+            if @ref_hash[attr]
+                @ref_hash[attr][refkey] = one_object
+            end
         end
     end
 
@@ -159,24 +164,32 @@ class VIHelper
 
         refkey = get_ref_key(one_object, attr)
 
-        if @ref_hash[attr]
-            @ref_hash[attr].delete(refkey)
+        SEMAPHORE.synchronize do
+            if @ref_hash[attr]
+                @ref_hash[attr].delete(refkey)
+            end
         end
     end
 
     def self.find_by_ref(the_class, attribute, ref, vcenter_uuid, pool = nil)
+        result = nil
         pool = one_pool(the_class, false) if pool.nil?
-        @ref_hash ||= {}
 
-        if @ref_hash[attribute].nil? || @ref_hash[attribute] == {}
-            @ref_hash[attribute] = create_ref_hash(attribute, pool)
+        SEMAPHORE.synchronize do
+            @ref_hash ||= {}
+
+            if @ref_hash[attribute].nil? || @ref_hash[attribute] == {}
+                  @ref_hash[attribute] = result = create_ref_hash(attribute, pool)
+            end
+
+            refkey = ""
+            refkey = ref if ref
+            refkey += vcenter_uuid if vcenter_uuid
+
+            result = @ref_hash[attribute][refkey]
         end
 
-        refkey = ""
-        refkey = ref if ref
-        refkey += vcenter_uuid if vcenter_uuid
-
-        return @ref_hash[attribute][refkey]
+        return result
     end
 
     def self.find_image_by(att, the_class, path, ds_id, pool = nil)
