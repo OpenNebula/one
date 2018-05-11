@@ -16,7 +16,7 @@
 
 require 'vnmmad'
 
-class EbtablesVLAN < VNMMAD::VNMDriver
+class EbtablesVLAN < VNMMAD::DummyVLANDriver
 
     DRIVER = "ebtables"
     XPATH_FILTER = "TEMPLATE/NIC[VN_MAD='ebtables']"
@@ -34,29 +34,33 @@ class EbtablesVLAN < VNMMAD::VNMDriver
 
     # Activates ebtables rules
     #
-    def activate
-        lock
+    def activate(pre_action=false)
+        if pre_action
+            super()
+        else
+            lock
 
-        process do |nic|
-            tap = nic[:tap]
-            if tap
-                iface_mac = nic[:mac]
+            process do |nic|
+                tap = nic[:tap]
+                if tap
+                    iface_mac = nic[:mac]
 
-                mac     = iface_mac.split(':')
-                mac[-1] = '00'
+                    mac     = iface_mac.split(':')
+                    mac[-1] = '00'
 
-                net_mac = mac.join(':')
+                    net_mac = mac.join(':')
 
-                in_rule="FORWARD -s ! #{net_mac}/ff:ff:ff:ff:ff:00 " <<
-                        "-o #{tap} -j DROP"
-                out_rule="FORWARD -s ! #{iface_mac} -i #{tap} -j DROP"
+                    in_rule="FORWARD -s ! #{net_mac}/ff:ff:ff:ff:ff:00 " <<
+                            "-o #{tap} -j DROP"
+                    out_rule="FORWARD -s ! #{iface_mac} -i #{tap} -j DROP"
 
-                ebtables(in_rule) if nic[:filter_mac_spoofing] =~ /yes/i
-                ebtables(out_rule)
+                    ebtables(in_rule) if nic[:filter_mac_spoofing] =~ /yes/i
+                    ebtables(out_rule)
+                end
             end
-        end
 
-        unlock
+            unlock
+        end
 
         return 0
     end
@@ -87,6 +91,8 @@ class EbtablesVLAN < VNMMAD::VNMDriver
         end
 
         unlock
+
+        super
 
         return 0
     end

@@ -1,5 +1,3 @@
-#!/usr/bin/env ruby
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -16,25 +14,25 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-$: << File.dirname(__FILE__)
-$: << File.join(File.dirname(__FILE__), "..")
+module VNMMAD
+    class DummyVLANDriver< VNMMAD::VLANDriver
+        def initialize(vm, xpath_filter, deploy_id = nil)
+            @locking = true
 
-require 'vnmmad'
+            super(vm, xpath_filter, deploy_id)
+        end
 
-template64   = ARGV[0]
-deploy_id    = nil
-xpath_filter = "TEMPLATE/NIC[VN_MAD='fw']"
+        def create_vlan_dev
+            true
+        end
 
-begin
-    hm = VNMMAD::DummyVLANDriver.from_base64(template64, xpath_filter, deploy_id)
-    hm.deactivate
+    private
+        def get_vlan_dev_name
+            @nic[:vlan_dev] = @nic[:phydev] if @nic[:phydev]
+        end
 
-    filter_driver = VNMMAD::VNMDriver.filter_driver(template64,
-                                                    xpath_filter,
-                                                    deploy_id)
-    filter_driver.deactivate
-rescue Exception => e
-    OpenNebula.log_error(e.message)
-    OpenNebula.log_error(e.backtrace)
-    exit 1
+        def validate_vlan_id
+            true
+        end
+    end
 end

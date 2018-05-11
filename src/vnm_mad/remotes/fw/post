@@ -23,7 +23,7 @@ require 'vnmmad'
 
 template64   = ARGV[0]
 deploy_id    = ARGV[1]
-xpath_filter = nil
+xpath_filter = "TEMPLATE/NIC[VN_MAD='fw']"
 
 begin
     filter_driver = VNMMAD::VNMDriver.filter_driver(template64,
