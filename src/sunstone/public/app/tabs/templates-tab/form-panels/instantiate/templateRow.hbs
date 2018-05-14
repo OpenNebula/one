@@ -58,13 +58,13 @@
   </div>
   {{/isFeatureEnabled}}
   {{/advancedSection}}
-  {{#advancedSection (tr "User / Group") }}
+  {{#advancedSection (tr "Instantiate as different user / group")}}
   {{#isFeatureEnabled "show_as_uid_instantiate"}}
   <div class="row">
     <div class="small-12 columns usersContext{{element.ID}}">
       <fieldset>
         <legend>
-          <i class="fas fa-user"></i> {{tr "Instantiate as a different user"}}
+          <i class="fas fa-user"></i>
         </legend>
         <div class="provision_uid_selector{{element.ID}}" data-tab-content>{{{usersDatatable}}}</div>
       </fieldset>
@@ -76,7 +76,7 @@
     <div class="small-12 columns groupContext{{element.ID}}">
       <fieldset>
         <legend>
-          <i class="fas fa-users"></i> {{tr "Instantiate as a different group"}}
+          <i class="fas fa-users"></i>
         </legend>
         <div class="provision_gid_selector{{element.ID}}" data-tab-content>{{{groupDatatable}}}</div>
       </fieldset>
@@ -84,13 +84,13 @@
   </div>
   {{/isFeatureEnabled}}
   {{/advancedSection}}
-  {{#advancedSection (tr "Host") }}
+  {{#advancedSection (tr "Deploy VM in a specific Host") }}
   {{#isFeatureEnabled "show_host_instantiate"}}
   <div class="row">
     <div class="small-12 columns hostContext{{element.ID}}">
       <fieldset>
         <legend>
-          <i class="fas fa-hdd"></i> {{tr "Deploy VM in a specific Host"}}
+          <i class="fas fa-hdd"></i>
         </legend>
         <div class="provision_host_selector{{element.ID}}" data-tab-content>{{{hostsDatatable}}}</div>
         <div class="row">
@@ -107,13 +107,13 @@
   </div>
   {{/isFeatureEnabled}}
   {{/advancedSection}}
-  {{#advancedSection (tr "Datastore") }}
+  {{#advancedSection (tr "Deploy VM in a specific Datastore") }}
   {{#isFeatureEnabled "show_ds_instantiate"}}
   <div class="row">
     <div class="small-12 columns dsContext{{element.ID}}">
       <fieldset>
         <legend>
-          <i class="fas fa-folder-open"></i> {{tr "Deploy VM in a specific Datastore"}}
+          <i class="fas fa-folder-open"></i>
         </legend>
         <div class="provision_ds_selector{{element.ID}}" data-tab-content>{{{dsDatatable}}}</div>
         <div class="row">
@@ -130,25 +130,25 @@
   </div>
   {{/isFeatureEnabled}}
   {{/advancedSection}}
-  {{#advancedSection (tr "Actions") }}
+  {{#advancedSection (tr "Schedule Actions for VM") }}
   <div class="row">
     <div class="large-12 columns actionContext{{element.ID}}">
       <fieldset>
         <legend>
-          <i class="fas fa-calendar-alt"></i> {{tr "Schedule Actions for VM"}}
+          <i class="fas fa-calendar-alt"></i>
         </legend>
         {{{table_sched_actions}}}
       </fieldset>
     </div>
   </div>
   {{/advancedSection}}
-  {{#advancedSection (tr "VM Group") }}
+  {{#advancedSection (tr "Associate VM to a VM Group") }}
   {{#isFeatureEnabled "show_vmgroup_instantiate"}}
   <div class="row">
     <div class="small-12 columns vmgroupContext{{element.ID}}">
       <fieldset>
         <legend>
-          <i class="fas fa-globe"></i> {{tr "Associate VM to a VM Group"}}
+          <i class="fas fa-globe"></i>
         </legend>
         <div>
           <a class="button small provision_add_vmgroup">

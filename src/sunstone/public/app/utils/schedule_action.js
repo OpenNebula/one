@@ -156,6 +156,7 @@ define(function (require) {
 	}
 
 	function _retrieve(context) {
+		$("#scheduling_" + this.res + "_actions_table .create", context).remove();
 		var actionsJSON = [];
 		$("#scheduling_" + this.res + "_actions_table tbody tr").each(function (index) {
 			var first = $(this).children("td")[0];
@@ -286,18 +287,18 @@ define(function (require) {
 		var end_str = "";
 
 		if (scheduling_action.REPEAT !== undefined) {
-			if (scheduling_action.REPEAT === 0) {
+			if (scheduling_action.REPEAT == 0) {
 				rep_str = "Weekly ";
-			} else if (scheduling_action.REPEAT === 1) {
+			} else if (scheduling_action.REPEAT == 1) {
 				rep_str = "Monthly ";
-			} else if (scheduling_action.REPEAT === 2) {
+			} else if (scheduling_action.REPEAT == 2) {
 				rep_str = "Yearly ";
-			} else if (scheduling_action.REPEAT === 3) {
+			} else if (scheduling_action.REPEAT == 3) {
 				rep_str = "Each " + scheduling_action.DAYS + " hours";
 			}
 
-			if (scheduling_action.REPEAT !== 3) {
-				if (scheduling_action.REPEAT !== 0) {
+			if (scheduling_action.REPEAT != 3) {
+				if (scheduling_action.REPEAT != 0) {
 					rep_str += scheduling_action.DAYS;
 				} else {
 					rep_str += Humanize.week_days(scheduling_action.DAYS);
@@ -306,11 +307,11 @@ define(function (require) {
 		}
 
 		if (scheduling_action.END_TYPE !== undefined) {
-			if (scheduling_action.END_TYPE === 0) {
+			if (scheduling_action.END_TYPE == 0) {
 				end_str = "None";
-			} else if (scheduling_action.END_TYPE === 1) {
+			} else if (scheduling_action.END_TYPE == 1) {
 				end_str = "After " + scheduling_action.END_VALUE + " times";
-			} else if (scheduling_action.END_TYPE === 2) {
+			} else if (scheduling_action.END_TYPE == 2) {
 				end_str = "on " + Humanize.prettyTime(scheduling_action.END_VALUE);
 			}
 		}
