@@ -726,7 +726,7 @@ get '/:pool' do
     end
 
     if params[:pool_filter].nil?
-        filter = session[:user_gid]
+        filter = session[:user_uid]
     end
 
     @SunstoneServer.get_pool(params[:pool],
