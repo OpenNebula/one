@@ -485,7 +485,8 @@ define(function(require) {
           NicsSection.insert(template_json,
             $(".nicsContext"  + template_json.VMTEMPLATE.ID, context),
             { "forceIPv4": true,
-              "securityGroups": Config.isFeatureEnabled("secgroups")
+              "securityGroups": Config.isFeatureEnabled("secgroups"),
+              "name": " "
             });
 
           VMGroupSection.insert(template_json,

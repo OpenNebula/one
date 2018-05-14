@@ -293,7 +293,12 @@ define(function(require) {
    */
   function _generate_provision_network_accordion(context, options) {
     context.off();
-    context.html(TemplateSection());
+    var name = "Network";
+    if (options.name)
+      name = options.name;
+    context.html(TemplateSection({
+      "name": Locale.tr(name)
+    }));
 
     if (options.hide_add_button == true){
       $(".provision_add_network_interface", context).hide();
