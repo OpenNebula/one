@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -15,44 +17,19 @@
 #--------------------------------------------------------------------------- #
 
 $: << File.dirname(__FILE__)
-$: << File.join(File.dirname(__FILE__), '..')
+$: << File.join(File.dirname(__FILE__), "..")
 
-require 'rexml/document'
-require 'base64'
-require 'yaml'
+require 'vnmmad'
 
-require 'command'
-require 'vm'
-require 'nic'
-require 'address'
-require 'security_groups'
-require 'security_groups_iptables'
-require 'vnm_driver'
-require 'sg_driver'
-require 'vlan'
-require 'no_vlan'
-require 'scripts_common'
-
-Dir[File.expand_path('vnmmad-load.d', File.dirname(__FILE__)) + "/*.rb"].each{ |f| require f }
-
-include OpenNebula
+template64   = ARGV[0]
+deploy_id    = nil
+xpath_filter = "TEMPLATE/NIC[VN_MAD='bridge']"
 
 begin
-    NAME = File.join(File.dirname(__FILE__), "../etc/vnm/OpenNebulaNetwork.conf")
-    CONF = YAML.load_file(NAME)
-rescue
-    # Default configuration values
-    CONF = {
-        :arp_cache_poisoning => true,
-        :vxlan_mc            => "239.0.0.0",
-        :vxlan_ttl           => "16",
-        :vxlan_mtu           => "1500",
-        :validate_vlan_id    => false,
-        :vlan_mtu            => "1500",
-        :ipset_maxelem       => "65536",
-        :keep_empty_bridge   => false,
-    }
+    hm = VNMMAD::NoVLANDriver.from_base64(template64, xpath_filter, deploy_id)
+    hm.deactivate
+rescue Exception => e
+    OpenNebula.log_error(e.message)
+    OpenNebula.log_error(e.backtrace)
+    exit 1
 end
-
-# Set PATH
-ENV['PATH'] = "#{ENV['PATH']}:/bin:/sbin:/usr/bin"

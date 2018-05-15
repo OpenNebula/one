@@ -26,7 +26,7 @@ deploy_id    = nil
 xpath_filter = "TEMPLATE/NIC[VN_MAD='fw']"
 
 begin
-    hm = VNMMAD::DummyVLANDriver.from_base64(template64, xpath_filter, deploy_id)
+    hm = VNMMAD::NoVLANDriver.from_base64(template64, xpath_filter, deploy_id)
     hm.deactivate
 
     filter_driver = VNMMAD::VNMDriver.filter_driver(template64,

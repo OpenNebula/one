@@ -84,10 +84,12 @@ module VNMMAD
 
         # Parse network configuration and add it to the nic
         def add_nic_conf(nic)
+            return if nic[:conf] and nic[:conf].instance_of? Hash
+
             default_conf = CONF || {}
             nic_conf = {}
 
-            if nic[:conf] and nic[:conf].is_a? String
+            if nic[:conf]
                 parse_options(nic[:conf]).each do |option, value|
                     case value.downcase
                     when 'true', 'yes'
@@ -116,6 +118,8 @@ module VNMMAD
         end
 
         def add_command_conf(nic, conf_name)
+            return if nic[conf_name] and nic[conf_name].instance_of? Hash
+
             default_conf = CONF[conf_name] || {}
             nic_conf = {}
 
@@ -129,7 +133,7 @@ module VNMMAD
                 nic_conf[option] = value
             end
 
-            if nic[conf_name] and nic[conf_name].is_a? String
+            if nic[conf_name]
                 parse_options(nic[conf_name]).each do |option, value|
                     if value == '__delete__'
                         nic_conf.delete(option.strip.downcase)

@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -14,25 +16,14 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-module VNMMAD
-    class DummyVLANDriver< VNMMAD::VLANDriver
-        def initialize(vm, xpath_filter, deploy_id = nil)
-            @locking = true
+$: << File.dirname(__FILE__)
+$: << File.join(File.dirname(__FILE__), "..")
 
-            super(vm, xpath_filter, deploy_id)
-        end
+require 'vnmmad'
 
-        def create_vlan_dev
-            true
-        end
+template64   = ARGV[0]
+deploy_id    = ARGV[1]
+xpath_filter = "TEMPLATE/NIC[VN_MAD='bridge']"
 
-    private
-        def get_vlan_dev_name
-            @nic[:vlan_dev] = @nic[:phydev] if @nic[:phydev]
-        end
-
-        def validate_vlan_id
-            true
-        end
-    end
-end
+hm = VNMMAD::NoVLANDriver.from_base64(template64, xpath_filter, deploy_id)
+exit hm.activate

@@ -60,7 +60,8 @@ public:
         OVSWITCH       = 5,
         VXLAN          = 6,
         VCENTER        = 7,
-        OVSWITCH_VXLAN = 8
+        OVSWITCH_VXLAN = 8,
+        BRIDGE         = 9
     };
 
     static string driver_to_str(VirtualNetworkDriver ob)
@@ -76,6 +77,7 @@ public:
             case VXLAN:          return "vxlan";
             case VCENTER:        return "vcenter";
             case OVSWITCH_VXLAN: return "ovswitch_vxlan";
+            case BRIDGE:         return "bridge";
         }
     };
 
@@ -112,6 +114,10 @@ public:
         else if ( ob == "ovswitch_vxlan" )
         {
             return OVSWITCH_VXLAN;
+        }
+        else if ( ob == "bridge" )
+        {
+            return BRIDGE;
         }
         else
         {

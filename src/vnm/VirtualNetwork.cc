@@ -124,10 +124,11 @@ void VirtualNetwork::parse_vlan_id(const char * id_name, const char * auto_name,
 //-------------------------------------------------------------------------------
 /*
 +----------------+---------+--------+--------------------------+----------------+
-|    Driver      | PHYDEV | BRIDGE |         VLAN_ID          |      OTHER     |
+|    Driver      | PHYDEV  | BRIDGE |         VLAN_ID          |      OTHER     |
 +----------------+---------+--------+--------------------------+----------------+
 | vcenter        | no      | yes    | no                       | VCENTER_NET_REF|
 | dummy          | no      | yes    | no                       |                |
+| bridge         | no      | yes    | no                       |                |
 | ebtables       | no      | yes    | no                       |                |
 | fw             | no      | yes    | no                       |                |
 | 802.1q         | yes     | opt    | yes or AUTOMATIC         |                |
@@ -152,6 +153,7 @@ int VirtualNetwork::parse_phydev_vlans(string& estr)
             other.push_back("VCENTER_NET_REF");
 
         case VirtualNetwork::DUMMY:
+        case VirtualNetwork::BRIDGE:
         case VirtualNetwork::EBTABLES:
         case VirtualNetwork::FW:
             check_bridge = true;
@@ -1298,11 +1300,11 @@ bool VirtualNetwork::is_reservation() const
 void VirtualNetwork::get_security_groups(set<int> & sgs)
 {
     std::set<int>::const_iterator it;
-  
+
     for (it = security_groups.begin(); it != security_groups.end(); it++)
     {
         sgs.insert(*it);
     }
-  
+
     ar_pool.get_all_security_groups(sgs);
 }

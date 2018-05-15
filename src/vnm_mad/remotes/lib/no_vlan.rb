@@ -14,45 +14,25 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-$: << File.dirname(__FILE__)
-$: << File.join(File.dirname(__FILE__), '..')
+module VNMMAD
+    class NoVLANDriver< VNMMAD::VLANDriver
+        def initialize(vm, xpath_filter, deploy_id = nil)
+            @locking = true
 
-require 'rexml/document'
-require 'base64'
-require 'yaml'
+            super(vm, xpath_filter, deploy_id)
+        end
 
-require 'command'
-require 'vm'
-require 'nic'
-require 'address'
-require 'security_groups'
-require 'security_groups_iptables'
-require 'vnm_driver'
-require 'sg_driver'
-require 'vlan'
-require 'no_vlan'
-require 'scripts_common'
+        def create_vlan_dev
+            true
+        end
 
-Dir[File.expand_path('vnmmad-load.d', File.dirname(__FILE__)) + "/*.rb"].each{ |f| require f }
+    private
+        def get_vlan_dev_name
+            @nic[:vlan_dev] = @nic[:phydev] if @nic[:phydev]
+        end
 
-include OpenNebula
-
-begin
-    NAME = File.join(File.dirname(__FILE__), "../etc/vnm/OpenNebulaNetwork.conf")
-    CONF = YAML.load_file(NAME)
-rescue
-    # Default configuration values
-    CONF = {
-        :arp_cache_poisoning => true,
-        :vxlan_mc            => "239.0.0.0",
-        :vxlan_ttl           => "16",
-        :vxlan_mtu           => "1500",
-        :validate_vlan_id    => false,
-        :vlan_mtu            => "1500",
-        :ipset_maxelem       => "65536",
-        :keep_empty_bridge   => false,
-    }
+        def validate_vlan_id
+            true
+        end
+    end
 end
-
-# Set PATH
-ENV['PATH'] = "#{ENV['PATH']}:/bin:/sbin:/usr/bin"

@@ -461,6 +461,7 @@ int VirtualNetworkPool::set_vlan_id(VirtualNetwork * vn)
 
         case VirtualNetwork::NONE:
         case VirtualNetwork::DUMMY:
+        case VirtualNetwork::BRIDGE:
         case VirtualNetwork::EBTABLES:
         case VirtualNetwork::FW:
             break;
