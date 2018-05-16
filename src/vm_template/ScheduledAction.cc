@@ -59,7 +59,7 @@ int SchedAction::endon(EndOn& eo)
 
     if ( et_s.empty() )
     {
-        return 0;
+        return -2;
     }
 
     std::istringstream iss(et_s);
@@ -164,7 +164,7 @@ bool SchedAction::days_in_range(Repeat r, std::string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool SchedAction::ends_in_range(EndOn eo, std::string& error)
+int SchedAction::ends_in_range(EndOn eo, std::string& error)
 {
     int end_value;
     int rc = vector_value("END_VALUE", end_value);
@@ -172,13 +172,13 @@ bool SchedAction::ends_in_range(EndOn eo, std::string& error)
     if ( rc == -1 && eo != NEVER )
     {
         error = "Missing END_VALUE";
-        return false;
+        return -2;
     }
 
     if ( eo == TIMES && end_value <= 0 )
     {
         error = "Error parsing END_VALUE, times has to be greater than 0";
-        return false;
+        return -1;
     }
     else if ( eo == DATE )
     {
@@ -191,11 +191,11 @@ bool SchedAction::ends_in_range(EndOn eo, std::string& error)
         if (out == -1)
         {
             error = "Error parsing END_VALUE, wrong format for date.";
-            return false;
+            return -1;
         }
     }
 
-    return true;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -205,6 +205,7 @@ int SchedAction::parse(std::string& error, bool clean)
 {
     Repeat r;
     EndOn  eo;
+    int rc_e, rc_ev;
 
     if ( repeat(r) == -1 )
     {
@@ -212,21 +213,29 @@ int SchedAction::parse(std::string& error, bool clean)
         return -1;
     }
 
-    if ( endon(eo) == -1 )
+    rc_e  = endon(eo);
+    rc_ev = ends_in_range(eo, error);
+    
+    if ( rc_e == -1 )
     {
         error = "Error parsing END_TYPE attribute";
         return -1;
     }
-
+    else if ( rc_e == -2 && rc_ev != -2 )
+    {
+        error = "Error END_VALUE defined but not valid END_TYPE found";
+        return -1;
+    }
+    else if ( rc_e == 0 && rc_ev != 0 )
+    {
+        return -1;
+    }
+        
     if ( !days_in_range(r, error) )
     {
         return -1;
     }
 
-    if ( !ends_in_range(eo, error) )
-    {
-        return -1;
-    }
 
     if (clean)
     {

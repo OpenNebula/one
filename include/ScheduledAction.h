@@ -85,9 +85,9 @@ public:
      *    @param eo end type (date, times)
      *    @param error in case of error
      *
-     *    @return true if days are in range false (error) if not
+     *    @return 0 if days are in range -1 (error) if not or -2 (not defined)
      */
-    bool ends_in_range(EndOn eo, std::string& error);
+    int ends_in_range(EndOn eo, std::string& error);
 
     /**
      *  This function parse and checks the sched action attributes: REPEAT, DAYS
