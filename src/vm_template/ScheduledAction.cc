@@ -213,34 +213,29 @@ int SchedAction::parse(std::string& error, bool clean)
         return -1;
     }
 
-    rc_e = endon(eo);
+    rc_e  = endon(eo);
     rc_ev = ends_in_range(eo, error);
+    
     if ( rc_e == -1 )
     {
         error = "Error parsing END_TYPE attribute";
         return -1;
     }
-    else if ( rc_e == -2)
+    else if ( rc_e == -2 && rc_ev != -2 )
     {
-        if ( rc_ev == -2 )
-        {
-            return 0;
-        }
-        else
-        {
-            return -1;
-        }
+        error = "Error END_VALUE defined but not valid END_TYPE found";
+        return -1;
     }
-
+    else if ( rc_e == 0 && rc_ev != 0 )
+    {
+        return -1;
+    }
+        
     if ( !days_in_range(r, error) )
     {
         return -1;
     }
 
-    if ( rc_ev == -2 || rc_ev == -1 )
-    {
-        return -1;
-    }
 
     if (clean)
     {
