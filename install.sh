@@ -284,6 +284,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vnm/802.1Q \
           $VAR_LOCATION/remotes/vnm/vxlan \
           $VAR_LOCATION/remotes/vnm/dummy \
+          $VAR_LOCATION/remotes/vnm/bridge \
           $VAR_LOCATION/remotes/vnm/ebtables \
           $VAR_LOCATION/remotes/vnm/fw \
           $VAR_LOCATION/remotes/vnm/ovswitch \
@@ -452,6 +453,7 @@ INSTALL_FILES=(
     NETWORK_8021Q_FILES:$VAR_LOCATION/remotes/vnm/802.1Q
     NETWORK_VXLAN_FILES:$VAR_LOCATION/remotes/vnm/vxlan
     NETWORK_DUMMY_FILES:$VAR_LOCATION/remotes/vnm/dummy
+    NETWORK_BRIDGE_FILES:$VAR_LOCATION/remotes/vnm/bridge
     NETWORK_EBTABLES_FILES:$VAR_LOCATION/remotes/vnm/ebtables
     NETWORK_FW_FILES:$VAR_LOCATION/remotes/vnm/fw
     NETWORK_OVSWITCH_FILES:$VAR_LOCATION/remotes/vnm/ovswitch
@@ -909,7 +911,7 @@ NETWORK_FILES="src/vnm_mad/remotes/lib/vnm_driver.rb \
                src/vnm_mad/remotes/lib/command.rb \
                src/vnm_mad/remotes/lib/vm.rb \
                src/vnm_mad/remotes/lib/vlan.rb \
-               src/vnm_mad/remotes/lib/dummy_vlan.rb \
+               src/vnm_mad/remotes/lib/no_vlan.rb \
                src/vnm_mad/remotes/lib/security_groups.rb \
                src/vnm_mad/remotes/lib/security_groups_iptables.rb \
                src/vnm_mad/remotes/lib/nic.rb"
@@ -932,6 +934,11 @@ NETWORK_DUMMY_FILES="src/vnm_mad/remotes/dummy/clean \
                     src/vnm_mad/remotes/dummy/post \
                     src/vnm_mad/remotes/dummy/update_sg \
                     src/vnm_mad/remotes/dummy/pre"
+
+NETWORK_BRIDGE_FILES="src/vnm_mad/remotes/bridge/clean \
+                    src/vnm_mad/remotes/bridge/post \
+                    src/vnm_mad/remotes/bridge/update_sg \
+                    src/vnm_mad/remotes/bridge/pre"
 
 NETWORK_EBTABLES_FILES="src/vnm_mad/remotes/ebtables/clean \
                     src/vnm_mad/remotes/ebtables/post \

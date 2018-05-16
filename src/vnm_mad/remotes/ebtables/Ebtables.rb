@@ -16,7 +16,7 @@
 
 require 'vnmmad'
 
-class EbtablesVLAN < VNMMAD::DummyVLANDriver
+class EbtablesVLAN < VNMMAD::NoVLANDriver
 
     DRIVER = "ebtables"
     XPATH_FILTER = "TEMPLATE/NIC[VN_MAD='ebtables']"
