@@ -294,10 +294,16 @@ define(function(require) {
   function _generate_provision_network_accordion(context, options) {
     context.off();
     var name = "Network";
-    if (options.name)
+    if (options.name){
       name = options.name;
+    }
+    var fieldset = true;
+    if (options.fieldset !== undefined){
+      fieldset = options.fieldset;
+    }
     context.html(TemplateSection({
-      "name": Locale.tr(name)
+      "name": Locale.tr(name),
+      "fieldset": fieldset
     }));
 
     if (options.hide_add_button == true){

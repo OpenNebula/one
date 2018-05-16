@@ -48,7 +48,7 @@
   <div class="row">
     <div class="medium-5 small-12 columns template_user_inputs{{element.ID}}"></div>
   </div>
-  {{#advancedSection (tr "Network") }}
+  {{#advancedImportationSection "<i class=\"fas fa-code-branch\"></i>" (tr "Network") }}
   {{#isFeatureEnabled "show_vnet_instantiate"}}
   <div class="row">
     <div class="small-12 columns nicsContext{{element.ID}}">
@@ -57,15 +57,12 @@
     </div>
   </div>
   {{/isFeatureEnabled}}
-  {{/advancedSection}}
-  {{#advancedSection (tr "Instantiate as different user / group")}}
+  {{/advancedImportationSection}}
+  {{#advancedImportationSection "<i class=\"fas fa-user\"></i>" (tr "Instantiate as different User / Group")}}
   {{#isFeatureEnabled "show_as_uid_instantiate"}}
   <div class="row">
     <div class="small-12 columns usersContext{{element.ID}}">
       <fieldset>
-        <legend>
-          <i class="fas fa-user"></i>
-        </legend>
         <div class="provision_uid_selector{{element.ID}}" data-tab-content>{{{usersDatatable}}}</div>
       </fieldset>
     </div>
@@ -75,23 +72,17 @@
   <div class="row">
     <div class="small-12 columns groupContext{{element.ID}}">
       <fieldset>
-        <legend>
-          <i class="fas fa-users"></i>
-        </legend>
         <div class="provision_gid_selector{{element.ID}}" data-tab-content>{{{groupDatatable}}}</div>
       </fieldset>
     </div>
   </div>
   {{/isFeatureEnabled}}
-  {{/advancedSection}}
-  {{#advancedSection (tr "Deploy VM in a specific Host") }}
+  {{/advancedImportationSection}}
+  {{#advancedImportationSection "<i class=\"fas fa-hdd\"></i>" (tr "Deploy VM in a specific Host") }}
   {{#isFeatureEnabled "show_host_instantiate"}}
   <div class="row">
     <div class="small-12 columns hostContext{{element.ID}}">
       <fieldset>
-        <legend>
-          <i class="fas fa-hdd"></i>
-        </legend>
         <div class="provision_host_selector{{element.ID}}" data-tab-content>{{{hostsDatatable}}}</div>
         <div class="row">
             <div class="large-12 columns">
@@ -106,15 +97,12 @@
     </div>
   </div>
   {{/isFeatureEnabled}}
-  {{/advancedSection}}
-  {{#advancedSection (tr "Deploy VM in a specific Datastore") }}
+  {{/advancedImportationSection}}
+  {{#advancedImportationSection "<i class=\"fas fa-folder-open\"></i>" (tr "Deploy VM in a specific Datastore") }}
   {{#isFeatureEnabled "show_ds_instantiate"}}
   <div class="row">
     <div class="small-12 columns dsContext{{element.ID}}">
       <fieldset>
-        <legend>
-          <i class="fas fa-folder-open"></i>
-        </legend>
         <div class="provision_ds_selector{{element.ID}}" data-tab-content>{{{dsDatatable}}}</div>
         <div class="row">
             <div class="large-12 columns">
@@ -129,27 +117,21 @@
     </div>
   </div>
   {{/isFeatureEnabled}}
-  {{/advancedSection}}
-  {{#advancedSection (tr "Schedule Actions for VM") }}
+  {{/advancedImportationSection}}
+  {{#advancedImportationSection "<i class=\"fas fa-calendar-alt\"></i>" (tr "Schedule Actions for VM") }}
   <div class="row">
     <div class="large-12 columns actionContext{{element.ID}}">
       <fieldset>
-        <legend>
-          <i class="fas fa-calendar-alt"></i>
-        </legend>
         {{{table_sched_actions}}}
       </fieldset>
     </div>
   </div>
-  {{/advancedSection}}
-  {{#advancedSection (tr "Associate VM to a VM Group") }}
+  {{/advancedImportationSection}}
+  {{#advancedImportationSection "<i class=\"fas fa-folder-open\"></i>" (tr "Associate VM to a VM Group") }}
   {{#isFeatureEnabled "show_vmgroup_instantiate"}}
   <div class="row">
     <div class="small-12 columns vmgroupContext{{element.ID}}">
       <fieldset>
-        <legend>
-          <i class="fas fa-globe"></i>
-        </legend>
         <div>
           <a class="button small provision_add_vmgroup">
             <i class="fas fa-lg fa-plus-circle add_vmgroup"></i> {{tr "VM Group"}}
@@ -161,7 +143,7 @@
     </div>
   </div>
   {{/isFeatureEnabled}}
-  {{/advancedSection}}
+  {{/advancedImportationSection}}
   <div class="row">
     <div class="medium-6 small-12 columns vcenterVMFolderContext{{element.ID}}">
       <div class="provision_vcenter_vm_folder_selector">
