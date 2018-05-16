@@ -229,8 +229,11 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         range.split(',').each do |i|
             l, r = i.split('-')
 
+            l = l.to_i
+            r = r.to_i unless r.nil?
+
             if r.nil?
-                items << i
+                items << l
             elsif r >= l
                 items.concat((l..r).to_a)
             else
