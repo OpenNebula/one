@@ -85,25 +85,22 @@ Request::ErrorCode RequestManagerClone::clone(int source_id, const string &name,
     tmpl->erase("NAME");
     tmpl->set(new SingleAttribute("NAME", name));
 
-    if ( att.uid != 0 )
+    string tmpl_str = "";
+
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(auth_op, perms); //USE OBJECT
+
+    tmpl->to_xml(tmpl_str);
+
+    ar.add_create_auth(att.uid, att.gid, auth_object, tmpl_str);
+
+    if (UserPool::authorize(ar) == -1)
     {
-        string tmpl_str = "";
+        att.resp_msg = ar.message;
 
-        AuthRequest ar(att.uid, att.group_ids);
-
-        ar.add_auth(auth_op, perms); //USE OBJECT
-
-        tmpl->to_xml(tmpl_str);
-
-        ar.add_create_auth(att.uid, att.gid, auth_object, tmpl_str);
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-
-            delete tmpl;
-            return AUTHORIZATION;
-        }
+        delete tmpl;
+        return AUTHORIZATION;
     }
 
     rc = pool_allocate(source_id, tmpl, new_id, att);

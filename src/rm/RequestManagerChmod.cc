@@ -81,76 +81,73 @@ Request::ErrorCode RequestManagerChmod::chmod(
 {
     PoolObjectSQL * object;
 
-    if ( att.uid != 0 && att.gid != 0)
+    AuthRequest::Operation op = AuthRequest::MANAGE;
+    PoolObjectAuth  perms;
+
+    object = pool->get(oid);
+
+    if ( object == 0 )
     {
-        AuthRequest::Operation op = AuthRequest::MANAGE;
-        PoolObjectAuth  perms;
+        att.resp_id = oid;
+        return NO_EXISTS;
+    }
 
-        object = pool->get(oid);
+    object->get_permissions(perms);
 
-        if ( object == 0 )
+    object->unlock();
+
+    if ( owner_a == perms.owner_a )
+    {
+        owner_a = -1;
+    }
+
+    if ( group_a == perms.group_a )
+    {
+        group_a = -1;
+    }
+
+    if ( other_u == perms.other_u )
+    {
+        other_u = -1;
+    }
+
+    if ( other_m == perms.other_m )
+    {
+        other_m = -1;
+    }
+
+    if ( other_a == perms.other_a )
+    {
+        other_a = -1;
+    }
+
+    if ( owner_a != -1 || group_a != -1 || other_a != -1 )
+    {
+        op = AuthRequest::ADMIN;
+    }
+
+    if ( other_u != -1 || other_m != -1 || other_a != -1 )
+    {
+        bool enable_other;
+
+        Nebula::instance().get_configuration_attribute(
+                "ENABLE_OTHER_PERMISSIONS", enable_other);
+
+        if ( !enable_other )
         {
-            att.resp_id = oid;
-            return NO_EXISTS;
-        }
-
-        object->get_permissions(perms);
-
-        object->unlock();
-
-        if ( owner_a == perms.owner_a )
-        {
-            owner_a = -1;
-        }
-
-        if ( group_a == perms.group_a )
-        {
-            group_a = -1;
-        }
-
-        if ( other_u == perms.other_u )
-        {
-            other_u = -1;
-        }
-
-        if ( other_m == perms.other_m )
-        {
-            other_m = -1;
-        }
-
-        if ( other_a == perms.other_a )
-        {
-            other_a = -1;
-        }
-
-        if ( owner_a != -1 || group_a != -1 || other_a != -1 )
-        {
-            op = AuthRequest::ADMIN;
-        }
-
-        if ( other_u != -1 || other_m != -1 || other_a != -1 )
-        {
-            bool enable_other;
-
-            Nebula::instance().get_configuration_attribute(
-                    "ENABLE_OTHER_PERMISSIONS", enable_other);
-
-            if ( !enable_other )
-            {
-                att.resp_msg = "'other' permissions is disabled in oned.conf";
-                return AUTHORIZATION;
-            }
-        }
-
-        AuthRequest ar(att.uid, att.group_ids);
-
-        ar.add_auth(op, perms);
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
+            att.resp_msg = "'other' permissions is disabled in oned.conf";
             return AUTHORIZATION;
         }
+    }
+
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(op, perms);
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+        return AUTHORIZATION;
     }
 
     // ------------- Update the object ---------------------

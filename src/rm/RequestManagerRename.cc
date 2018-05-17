@@ -61,19 +61,16 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
 
     // ------------- Set authorization request for non-oneadmin's --------------
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(auth_op, operms); // MANAGE OBJECT
+
+    if (UserPool::authorize(ar) == -1)
     {
-        AuthRequest ar(att.uid, att.group_ids);
-
-        ar.add_auth(auth_op, operms); // MANAGE OBJECT
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
-            clear_rename(oid);
-            return;
-        }
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
+        clear_rename(oid);
+        return;
     }
 
     // ----------------------- Check name uniqueness ---------------------------

@@ -46,12 +46,6 @@ bool RequestManagerVirtualMachine::vm_authorization(
         return false;
     }
 
-    if ( att.uid == 0 )
-    {
-        object->unlock();
-        return true;
-    }
-
     object->get_permissions(vm_perms);
 
     object->unlock();
@@ -2287,20 +2281,18 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
 
     vm->unlock();
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(AuthRequest::MANAGE, vm_perms);
+
+    VirtualMachine::set_auth_request(att.uid, ar, &tmpl);
+
+    if (UserPool::authorize(ar) == -1)
     {
-        AuthRequest ar(att.uid, att.group_ids);
-
-        ar.add_auth(AuthRequest::MANAGE, vm_perms);
-
-        VirtualMachine::set_auth_request(att.uid, ar, &tmpl);
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            return AUTHORIZATION;
-        }
+        att.resp_msg = ar.message;
+        return AUTHORIZATION;
     }
+
 
     RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
 
@@ -2410,17 +2402,14 @@ Request::ErrorCode VirtualMachineDetachNic::request_execute(int id, int nic_id,
 
     vm->unlock();
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(AuthRequest::MANAGE, vm_perms);
+
+    if (UserPool::authorize(ar) == -1)
     {
-        AuthRequest ar(att.uid, att.group_ids);
-
-        ar.add_auth(AuthRequest::MANAGE, vm_perms);
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            return AUTHORIZATION;
-        }
+        att.resp_msg = ar.message;
+        return AUTHORIZATION;
     }
 
     // -------------------------------------------------------------------------
