@@ -156,7 +156,7 @@ public:
 
     bool core_authorize()
     {
-        return ( uid == 0 || self_authorize );
+        return self_authorize;
     }
 
     bool core_authenticate()
