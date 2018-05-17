@@ -140,9 +140,9 @@ define(function(require) {
       $("input[wizard_field=\"VLAN_ID\"]", context).removeAttr("required");
 
       switch ($(this).val()) {
-      case "dummy":
-        $("div.mode_param.dummy", context).show();
-        $("div.mode_param.dummy [wizard_field]", context).prop("wizard_field_disabled", false);
+      case "bridge":
+        $("div.mode_param.bridge", context).show();
+        $("div.mode_param.bridge [wizard_field]", context).prop("wizard_field_disabled", false);
 
         $("input#bridge", context).attr("required", "");
         break;
