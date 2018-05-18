@@ -87,23 +87,48 @@ static void do_network_hosts(ofstream& file,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static int to_i(const string& sval)
+{
+    int ival;
+
+    istringstream iss(sval);
+
+    iss >> ival;
+
+    if (iss.fail() || !iss.eof())
+    {
+        return -1;
+    }
+
+    return ival;
+}
+
 static void insert_sec(ofstream& file, const string& base, const string& s,
         const string& sm, const string& sml)
 {
-    int s_i  = 0;
+    int s_i = 0;
 
     if (!s.empty())
     {
-        file << "\t\t\t\t<" << base << "_sec>"
-             << one_util::escape_xml(s)
-             <<"</" << base << "_sec>\n";
+        s_i = to_i(s);
 
-        s_i = stoi(s);
+        if (s_i < 0)
+        {
+            return;
+        }
+
+        file << "\t\t\t\t<" << base << "_sec>" << one_util::escape_xml(s)
+             << "</" << base << "_sec>\n";
     }
 
     if (!sm.empty())
     {
-        int sm_i = stoi(sm);
+        int sm_i = to_i(sm);
+
+        if (sm_i < 0)
+        {
+            return;
+        }
 
         if ( sm_i > s_i )
         {
@@ -113,6 +138,13 @@ static void insert_sec(ofstream& file, const string& base, const string& s,
 
             if (!sml.empty())
             {
+                int sml_i = to_i(sml);
+
+                if (sml_i < 0)
+                {
+                    return;
+                }
+
                 file << "\t\t\t\t<" << base << "_sec_max_length>"
                      << one_util::escape_xml(sml)
                      << "</" << base << "_sec_max_length>\n";
@@ -120,7 +152,6 @@ static void insert_sec(ofstream& file, const string& base, const string& s,
         }
     }
 }
-
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -883,8 +914,11 @@ int LibVirtDriver::deployment_description_kvm(
 
         file << "/>" << endl;
 
-        // ---- I/O Options  ----
-
+        // ---- I/O Options ----
+        // - total cannot be set if read or write
+        // - max_length cannot be set if no max
+        // - max has to be greater than value
+        // ---------------------
         if (!(total_bytes_sec.empty() &&
               total_bytes_sec_max.empty() &&
               read_bytes_sec.empty() &&
@@ -900,23 +934,33 @@ int LibVirtDriver::deployment_description_kvm(
         {
             file << "\t\t\t<iotune>" << endl;
 
-            insert_sec(file, "read_bytes", read_bytes_sec ,
-                    read_bytes_sec_max , read_bytes_sec_max_length);
+            if ( total_bytes_sec.empty() && total_bytes_sec_max.empty() )
+            {
+                insert_sec(file, "read_bytes", read_bytes_sec ,
+                        read_bytes_sec_max , read_bytes_sec_max_length);
 
-            insert_sec(file, "write_bytes", write_bytes_sec ,
-                    write_bytes_sec_max , write_bytes_sec_max_length);
+                insert_sec(file, "write_bytes", write_bytes_sec ,
+                        write_bytes_sec_max , write_bytes_sec_max_length);
+            }
+            else
+            {
+                insert_sec(file, "total_bytes", total_bytes_sec ,
+                        total_bytes_sec_max , total_bytes_sec_max_length);
+            }
 
-            insert_sec(file, "total_bytes", total_bytes_sec ,
-                    total_bytes_sec_max , total_bytes_sec_max_length);
+            if ( total_iops_sec.empty() && total_iops_sec_max.empty() )
+            {
+                insert_sec(file, "read_iops", read_iops_sec ,
+                        read_iops_sec_max , read_iops_sec_max_length);
 
-            insert_sec(file, "read_iops", read_iops_sec ,
-                    read_iops_sec_max , read_iops_sec_max_length);
-
-            insert_sec(file, "write_iops", write_iops_sec ,
-                    write_iops_sec_max , write_iops_sec_max_length);
-
-            insert_sec(file, "total_iops", total_iops_sec ,
-                    total_iops_sec_max , total_iops_sec_max_length);
+                insert_sec(file, "write_iops", write_iops_sec ,
+                        write_iops_sec_max , write_iops_sec_max_length);
+            }
+            else
+            {
+                insert_sec(file, "total_iops", total_iops_sec ,
+                        total_iops_sec_max , total_iops_sec_max_length);
+            }
 
             file << "\t\t\t</iotune>" << endl;
         }

@@ -37,13 +37,18 @@ function insert_sec() {
 
     if [ -n "${s}" ]; then
         XML+="<${name}_sec>$(xml_esc "${s}")</${name}_sec>"
+    else
+        s="0"
     fi
 
-    if [ -n "${sm}" -a ${sm} -gt ${s} ]; then
-        XML+="<${name}_sec_max>$(xml_esc "${sm}")</${name}_sec_max>"
+    if [ -n "${sm}" ]; then
+        if [ "${sm}" -gt "${s}" ]; then
+            XML+="<${name}_sec_max>$(xml_esc "${sm}")</${name}_sec_max>"
 
-        if [ -n "${sml}" ]; then
-            XML+="<${name}_sec_max_length>$(xml_esc "${sml}")</${name}_sec_max_length>"
+            if [ -n "${sml}" ]; then
+                XML+="<${name}_sec_max_length>$(xml_esc "${sml}")"
+                XML+="</${name}_sec_max_length>"
+            fi
         fi
     fi
 }
@@ -100,17 +105,27 @@ if [ -n "${TOTAL_BYTES_SEC}${READ_BYTES_SEC}${WRITE_BYTES_SEC}" ] || \
 then
     XML+="<iotune>"
 
-    insert_sec "read_bytes" "${READ_BYTES_SEC}" "${READ_BYTES_SEC_MAX}" "${READ_BYTES_SEC_MAX_LENGTH}"
+    if [ -n "${TOTAL_BYTES_SEC}${TOTAL_BYTES_SEC_MAX}" ]; then
+        insert_sec "total_bytes" "${TOTAL_BYTES_SEC}" "${TOTAL_BYTES_SEC_MAX}" \
+            "${TOTAL_BYTES_SEC_MAX_LENGTH}"
+    else
+        insert_sec "read_bytes" "${READ_BYTES_SEC}" "${READ_BYTES_SEC_MAX}" \
+            "${READ_BYTES_SEC_MAX_LENGTH}"
 
-    insert_sec "write_bytes" "${WRITE_BYTES_SEC}" "${WRITE_BYTES_SEC_MAX}" "${WRITE_BYTES_SEC_MAX_LENGTH}"
+        insert_sec "write_bytes" "${WRITE_BYTES_SEC}" "${WRITE_BYTES_SEC_MAX}" \
+            "${WRITE_BYTES_SEC_MAX_LENGTH}"
+    fi
 
-    insert_sec "total_bytes" "${TOTAL_BYTES_SEC}" "${TOTAL_BYTES_SEC_MAX}" "${TOTAL_BYTES_SEC_MAX_LENGTH}"
+    if [ -n "${TOTAL_BYTES_SEC}${TOTAL_BYTES_SEC_MAX}" ]; then
+        insert_sec "total_iops" "${TOTAL_IOPS_SEC}" "${TOTAL_IOPS_SEC_MAX}" \
+            "${TOTAL_IOPS_SEC_MAX_LENGTH}"
+    else
+        insert_sec "read_iops" "${READ_IOPS_SEC}" "${READ_IOPS_SEC_MAX}" \
+            "${READ_IOPS_SEC_MAX_LENGTH}"
 
-    insert_sec "read_iops" "${READ_IOPS_SEC}" "${READ_IOPS_SEC_MAX}" "${READ_IOPS_SEC_MAX_LENGTH}"
-
-    insert_sec "write_iops" "${WRITE_IOPS_SEC}" "${WRITE_IOPS_SEC_MAX}" "${WRITE_IOPS_SEC_MAX_LENGTH}"
-
-    insert_sec "total_iops" "${TOTAL_IOPS_SEC}" "${TOTAL_IOPS_SEC_MAX}" "${TOTAL_IOPS_SEC_MAX_LENGTH}"
+        insert_sec "write_iops" "${WRITE_IOPS_SEC}" "${WRITE_IOPS_SEC_MAX}" \
+            "${WRITE_IOPS_SEC_MAX_LENGTH}"
+    fi
 
     XML+="</iotune>"
 fi
