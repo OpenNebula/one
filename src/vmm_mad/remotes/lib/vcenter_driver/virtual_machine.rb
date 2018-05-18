@@ -709,7 +709,23 @@ class Template
     end
 
     def get_vcenter_nics
+        parse_live = ->(inets_raw) {
+            h = nil
+            begin
+                h = inets_raw.to_h
+            rescue NoMethodError
+                h = {}
+                inets_raw.each do |nic_dev|
+                    h[nic_dev[0]] = nic_dev[1]
+                end
+            end
+
+            return h
+        }
+
         nics = []
+        inets_raw = nil
+        inets = {}
         num_device = 0
         @item["config.hardware.device"].each do |device|
             next unless is_nic?(device)
@@ -718,7 +734,9 @@ class Template
             nic[:mac] = device.macAddress rescue nil
             if wild?
                 if online?
-                    inets = @item["guest.net"].map.with_index { |x,i| [x.macAddress, x] }.to_h
+                    inets_raw = @item["guest.net"].map.with_index { |x,i| [x.macAddress, x] } unless inets_raw
+                    inets = parse_live.call(inets_raw) if inets.empty?
+
                     ipAddresses = inets[nic[:mac]].ipConfig.ipAddress
                     if !ipAddresses.nil? && !ipAddresses.empty?
                         nic[:ipv4], nic[:ipv4_additionals] = nil
@@ -729,6 +747,7 @@ class Template
             end
             nics << nic
         end
+
         return nics
     end
 
