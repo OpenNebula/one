@@ -90,24 +90,33 @@ static void do_network_hosts(ofstream& file,
 static void insert_sec(ofstream& file, const string& base, const string& s,
         const string& sm, const string& sml)
 {
+    int s_i  = 0;
+
     if (!s.empty())
     {
         file << "\t\t\t\t<" << base << "_sec>"
              << one_util::escape_xml(s)
              <<"</" << base << "_sec>\n";
+
+        s_i = stoi(s);
     }
 
     if (!sm.empty())
     {
-        file << "\t\t\t\t<" << base << "_sec_max>"
-             << one_util::escape_xml(sm)
-             << "</" << base << "_sec_max>\n";
+        int sm_i = stoi(sm);
 
-        if (!sml.empty())
+        if ( sm_i > s_i )
         {
-            file << "\t\t\t\t<" << base << "_sec_max_length>"
-                 << one_util::escape_xml(sml)
-                 << "</" << base << "_sec_max_length>\n";
+            file << "\t\t\t\t<" << base << "_sec_max>"
+                 << one_util::escape_xml(sm)
+                 << "</" << base << "_sec_max>\n";
+
+            if (!sml.empty())
+            {
+                file << "\t\t\t\t<" << base << "_sec_max_length>"
+                     << one_util::escape_xml(sml)
+                     << "</" << base << "_sec_max_length>\n";
+            }
         }
     }
 }
