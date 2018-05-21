@@ -539,7 +539,7 @@ class Template
                     # Prepare the Virtual Network template
                     one_vnet = VCenterDriver::Network.to_one_template(import_opts)
 
-                    # always has to be created because of templates when they are instanciated
+                    # always has to be created because of templates when they are instantiated
                     ar_tmp = ""
                     ar_tmp << "AR=[\n"
                     ar_tmp << "TYPE=\"ETHER\",\n"
