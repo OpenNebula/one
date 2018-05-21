@@ -141,7 +141,8 @@ define(function(require) {
   function _jGrowlFailure(opts){
     var error = opts.error;
     $.each(error, function(key, value){
-      Notifier.notifyError(opts.resource + " with ref " + value + " could not be imported");
+      id = Object.keys(value)[0];
+      Notifier.notifyError(opts.resource + " with ref " + id + " could not be imported\n"+ value[id]);
     });
   }
 
