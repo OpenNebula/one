@@ -328,6 +328,8 @@ module VCenterDriver
 		#
         def add_clusters(one_id, clusters, &block)
             clusters.each do |cid|
+                next if cid < 0
+
                 @info[:clusters][cid] ||= VCenterDriver::VIHelper.one_item(OpenNebula::Cluster, cid.to_s, false)
                 rc =  add_cluster(cid, one_id.to_i)
                 VCenterDriver::VIHelper.check_error(rc, "add element to cluster")
