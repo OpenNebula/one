@@ -448,7 +448,7 @@ class DatacenterFolder
 
                         # network can belong to more than 1 cluster
                         networks[network_ref][:clusters][:refs] << ref
-                        networks[network_ref][:clusters][:one_ids] << cluster_id
+                        networks[network_ref][:clusters][:one_ids] << cluster_id.to_i
                         networks[network_ref][:clusters][:names] << cname
                         networks[network_ref][:vcenter] = vcenter_instance_name
 
