@@ -256,7 +256,7 @@ module VCenterDriver
                     # import the object
                     @info[:success] << import(selected)
                 rescue Exception => e
-                    @info[:error] << index
+                    @info[:error] << {index => e.message}
                     @info[index][:e] =  e
 
                     apply_rollback
