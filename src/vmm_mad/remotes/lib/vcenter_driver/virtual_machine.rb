@@ -1194,10 +1194,10 @@ class VirtualMachine < Template
 
     # @return Boolean whether the VM exists in vCenter
     def is_new?
-        !get_vm_id
+        one_item["DEPLOY_ID"].empty?
     end
 
-    # @return Boolean wheter the vm exists in opennebubla
+    # @return Boolean wheter the vm exists in OpenNebula
     def one_exist?
         !@vm_id.nil? && @vm_id != -1
     end
