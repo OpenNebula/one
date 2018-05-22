@@ -555,9 +555,10 @@ int Host::update_monitoring(SqlDB * db)
     return rc;
 
 error_xml:
-    db->free_str(sql_xml);
+    error_str = "could not transform the Host to XML: ";
+    error_str += sql_xml;
 
-    error_str = "could not transform the Host to XML.";
+    db->free_str(sql_xml);
 
     goto error_common;
 

@@ -207,12 +207,13 @@ void MonitorThread::do_message()
 
     hpool->update(host);
 
-    hpool->update_monitoring(host);
+    if ( hpool->update_monitoring(host) == 0 )
+    {
+        oss << "Host " << host->get_name() << " (" << host->get_oid() << ")"
+            << " successfully monitored.";
 
-    oss << "Host " << host->get_name() << " (" << host->get_oid() << ")"
-        << " successfully monitored.";
-
-    NebulaLog::log("InM", Log::DEBUG, oss);
+        NebulaLog::log("InM", Log::DEBUG, oss);
+    }
 
     host->unlock();
 
