@@ -166,43 +166,9 @@ int ImagePool::allocate (
     }
 
     // ---------------------------------------------------------------------
-    // Get FSTYPE
+    // Set TM_MAD to infer FSTYPE if needed
     // ---------------------------------------------------------------------
-    img->get_template_attribute("FSTYPE", fs_type);
-
-    if (!fs_type.empty())
-    {
-        img->fs_type = fs_type;
-    }
-    else
-    {
-        img->get_template_attribute("DRIVER", driver);
-
-        if (!driver.empty())
-        {
-            // infer fs_type from driver
-            one_util::tolower(driver);
-
-            if (driver == "qcow2")
-            {
-                img->fs_type = "qcow2";
-            }
-            else
-            {
-                img->fs_type = "raw";
-            }
-        } else {
-            // no driver, infer ds_type from tm_mad
-            if (tm_mad == "qcow2")
-            {
-                img->fs_type = "qcow2";
-            }
-            else
-            {
-                img->fs_type = "raw";
-            }
-        }
-    }
+    img->replace_template_attribute("TM_MAD", tm_mad);
 
     // ---------------------------------------------------------------------
     // Insert the Object in the pool & Register the image in the repository
@@ -234,11 +200,8 @@ int ImagePool::allocate (
         }
         else
         {
-            rc = imagem->clone_image(*oid,
-                                     cloning_id,
-                                     ds_data,
-                                     extra_data,
-                                     error_str);
+            rc = imagem->clone_image(*oid, cloning_id, ds_data, extra_data,
+                    error_str);
 
             if (rc == -1)
             {

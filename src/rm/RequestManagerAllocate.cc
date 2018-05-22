@@ -360,6 +360,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     string ds_data;
     string ds_mad;
     string tm_mad;
+    string ds_driver;
 
     bool   ds_persistent_only;
 
@@ -447,6 +448,8 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     ds_mad             = ds->get_ds_mad();
     tm_mad             = ds->get_tm_mad();
 
+    ds->get_template_attribute("DRIVER", ds_driver);
+
     ds->to_xml(ds_data);
 
     ds->unlock();
@@ -493,8 +496,11 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
         oss << size_mb;
         size_str = oss.str();
 
-	//Do not use DRIVER from APP but from Datastore
-        tmpl->erase("DRIVER");
+        //Do not use DRIVER from APP but from Datastore
+        if (!ds_driver.empty() )
+        {
+            tmpl->erase("DRIVER");
+        }
     }
     else
     {
