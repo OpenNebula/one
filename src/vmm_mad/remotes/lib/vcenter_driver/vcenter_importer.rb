@@ -144,7 +144,11 @@ module VCenterDriver
                 end
             end
 
-            @info[:error].each do |index|
+            puts
+            puts
+
+            @info[:error].each do |error|
+                index = error.first[0]
                 e = @info[index][:e]
                 puts "Error: Couldn't import #{index} due to #{e.message}!"
                 puts
