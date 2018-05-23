@@ -115,16 +115,13 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
         VirtualMachineDisks::extended_info(att.uid, extended_tmpl);
     }
 
-    if ( att.uid != UserPool::ONEADMIN_ID && att.gid != GroupPool::ONEADMIN_ID )
+    if (UserPool::authorize(ar) == -1)
     {
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
 
-            delete extended_tmpl;
-            return;
-        }
+        delete extended_tmpl;
+        return;
     }
 
     vm_tmpl = tpool->get(oid);

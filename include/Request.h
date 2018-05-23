@@ -111,6 +111,22 @@ public:
         resp_id  = -1;
         resp_msg = "";
     };
+
+    bool is_admin()
+    {
+        return uid == UserPool::ONEADMIN_ID ||
+            group_ids.count(GroupPool::ONEADMIN_ID) == 1;
+    }
+
+    bool is_oneadmin()
+    {
+        return uid == UserPool::ONEADMIN_ID;
+    }
+
+    bool is_oneadmin_group()
+    {
+        return gid == GroupPool::ONEADMIN_ID;
+    }
 };
 
 /**

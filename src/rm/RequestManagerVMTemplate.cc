@@ -200,80 +200,77 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
 
     //--------------------------------------------------------------------------
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(AuthRequest::USE, perms); //USE TEMPLATE
+
+    if (!str_uattrs.empty())
     {
-        AuthRequest ar(att.uid, att.group_ids);
+        string tmpl_str;
 
-        ar.add_auth(AuthRequest::USE, perms); //USE TEMPLATE
+        tmpl->to_xml(tmpl_str);
 
-        if (!str_uattrs.empty())
+        // CREATE TEMPLATE
+        ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::TEMPLATE,
+                tmpl_str);
+    }
+
+    VirtualMachine::set_auth_request(att.uid, ar, tmpl);
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+
+        delete tmpl;
+        return AUTHORIZATION;
+    }
+
+    extended_tmpl = *tmpl;
+
+    VirtualMachineDisks::extended_info(att.uid, &extended_tmpl);
+
+    if (quota_authorization(&extended_tmpl, Quotas::VIRTUALMACHINE, att,
+                att.resp_msg) == false)
+    {
+        delete tmpl;
+        return AUTHORIZATION;
+    }
+
+    bool ds_quota_auth = true;
+
+    VirtualMachineDisks::image_ds_quotas(&extended_tmpl, ds_quotas);
+
+    for ( it = ds_quotas.begin() ; it != ds_quotas.end() ; ++it )
+    {
+        if ( quota_authorization(*it, Quotas::DATASTORE, att, att.resp_msg)
+                == false )
         {
-            string tmpl_str;
-
-            tmpl->to_xml(tmpl_str);
-
-            // CREATE TEMPLATE
-            ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::TEMPLATE,
-                    tmpl_str);
+            ds_quota_auth = false;
+            break;
         }
-
-        VirtualMachine::set_auth_request(att.uid, ar, tmpl);
-
-        if (UserPool::authorize(ar) == -1)
+        else
         {
-            att.resp_msg = ar.message;
-
-            delete tmpl;
-            return AUTHORIZATION;
+            applied.push_back(*it);
         }
+    }
 
-        extended_tmpl = *tmpl;
+    if ( ds_quota_auth == false )
+    {
+        quota_rollback(&extended_tmpl, Quotas::VIRTUALMACHINE, att);
 
-        VirtualMachineDisks::extended_info(att.uid, &extended_tmpl);
-
-        if (quota_authorization(&extended_tmpl, Quotas::VIRTUALMACHINE, att,
-                    att.resp_msg) == false)
+        for ( it = applied.begin() ; it != applied.end() ; ++it )
         {
-            delete tmpl;
-            return AUTHORIZATION;
+            quota_rollback(*it, Quotas::DATASTORE, att);
         }
-
-        bool ds_quota_auth = true;
-
-        VirtualMachineDisks::image_ds_quotas(&extended_tmpl, ds_quotas);
 
         for ( it = ds_quotas.begin() ; it != ds_quotas.end() ; ++it )
         {
-            if ( quota_authorization(*it, Quotas::DATASTORE, att, att.resp_msg)
-                    == false )
-            {
-                ds_quota_auth = false;
-                break;
-            }
-            else
-            {
-                applied.push_back(*it);
-            }
+            delete *it;
         }
 
-        if ( ds_quota_auth == false )
-        {
-            quota_rollback(&extended_tmpl, Quotas::VIRTUALMACHINE, att);
+        delete tmpl;
 
-            for ( it = applied.begin() ; it != applied.end() ; ++it )
-            {
-                quota_rollback(*it, Quotas::DATASTORE, att);
-            }
-
-            for ( it = ds_quotas.begin() ; it != ds_quotas.end() ; ++it )
-            {
-                delete *it;
-            }
-
-            delete tmpl;
-
-            return AUTHORIZATION;
-        }
+        return AUTHORIZATION;
     }
 
     rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
@@ -326,7 +323,7 @@ Request::ErrorCode VMTemplateInstantiate::merge(
         return SUCCESS;
 	}
 
-	if (att.uid!=UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
+	if (!att.is_admin())
 	{
         if (uattrs.check_restricted(aname, tmpl))
 		{

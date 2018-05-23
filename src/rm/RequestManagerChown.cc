@@ -303,36 +303,33 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     // ------------- Set authorization request for non-oneadmin's --------------
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+
+    rc = get_info(pool, oid, auth_object, att, operms, oname, true);
+
+    if ( rc == -1 )
     {
-        AuthRequest ar(att.uid, att.group_ids);
+        return;
+    }
 
-        rc = get_info(pool, oid, auth_object, att, operms, oname, true);
+    ar.add_auth(auth_op, operms); // MANAGE OBJECT
 
-        if ( rc == -1 )
-        {
-            return;
-        }
+    if ( noid > -1  )
+    {
+        ar.add_auth(AuthRequest::MANAGE, nuperms); // MANAGE USER
+    }
 
-        ar.add_auth(auth_op, operms); // MANAGE OBJECT
+    if ( ngid > -1  )
+    {
+        ar.add_auth(AuthRequest::USE, ngperms); // USE GROUP
+    }
 
-        if ( noid > -1  )
-        {
-            ar.add_auth(AuthRequest::MANAGE, nuperms); // MANAGE USER
-        }
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
 
-        if ( ngid > -1  )
-        {
-            ar.add_auth(AuthRequest::USE, ngperms); // USE GROUP
-        }
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
-
-            return;
-        }
+        return;
     }
 
     // --------------- Check name uniqueness -----------------------------------
@@ -478,20 +475,17 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(auth_op, uperms);           // MANAGE USER
+    ar.add_auth(AuthRequest::USE, ngperms); // USE GROUP
+
+    if (UserPool::authorize(ar) == -1)
     {
-        AuthRequest ar(att.uid, att.group_ids);
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
 
-        ar.add_auth(auth_op, uperms);           // MANAGE USER
-        ar.add_auth(AuthRequest::USE, ngperms); // USE GROUP
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
-
-            return;
-        }
+        return;
     }
 
     // ------------- Change users primary group ---------------------

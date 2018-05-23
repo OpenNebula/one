@@ -40,7 +40,7 @@ protected:
         std::string error;
         int oid = xmlrpc_c::value_int(pl.getInt(1));
 
-        if ( att.uid != UserPool::ONEADMIN_ID )
+        if (!att.is_oneadmin())
         {
             failure_response(AUTHORIZATION, att);
             return;

@@ -481,46 +481,43 @@ Request::ErrorCode ImageClone::request_execute(
         return ACTION;
     }
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+    string      tmpl_str;
+
+    // ------------------ Check permissions and ACLs  ----------------------
+    // Create image
+    // Use original image
+    // Use target datastore
+    // Use original datastore, if different
+    // ---------------------------------------------------------------------
+    tmpl->to_xml(tmpl_str);
+
+    ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::IMAGE, tmpl_str);
+
+    ar.add_auth(AuthRequest::USE, perms);
+
+    ar.add_auth(AuthRequest::USE, ds_perms);
+
+    if (ds_id != ds_id_orig)
     {
-        AuthRequest ar(att.uid, att.group_ids);
-        string      tmpl_str;
+        ar.add_auth(AuthRequest::USE, ds_perms_orig);
+    }
 
-        // ------------------ Check permissions and ACLs  ----------------------
-        // Create image
-        // Use original image
-        // Use target datastore
-        // Use original datastore, if different
-        // ---------------------------------------------------------------------
-        tmpl->to_xml(tmpl_str);
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
 
-        ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::IMAGE, tmpl_str);
+        delete tmpl;
+        return AUTHORIZATION;
+    }
 
-        ar.add_auth(AuthRequest::USE, perms);
+    // -------------------------- Check Quotas  ----------------------------
 
-        ar.add_auth(AuthRequest::USE, ds_perms);
-
-        if (ds_id != ds_id_orig)
-        {
-            ar.add_auth(AuthRequest::USE, ds_perms_orig);
-        }
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-
-            delete tmpl;
-            return AUTHORIZATION;
-        }
-
-        // -------------------------- Check Quotas  ----------------------------
-
-        if ( quota_authorization(&img_usage, Quotas::DATASTORE, att,
-                    att.resp_msg) == false )
-        {
-            delete tmpl;
-            return AUTHORIZATION;
-        }
+    if ( quota_authorization(&img_usage, Quotas::DATASTORE, att,
+                att.resp_msg) == false )
+    {
+        delete tmpl;
+        return AUTHORIZATION;
     }
 
     rc = ipool->allocate(att.uid,

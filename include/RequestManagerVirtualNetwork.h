@@ -154,7 +154,7 @@ public:
                       RequestAttributes& att,
                       string& error_str)
     {
-        if (att.uid!=UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
+        if (!att.is_admin())
         {
             return vn->update_ar(tmpl, true, error_str);
         }

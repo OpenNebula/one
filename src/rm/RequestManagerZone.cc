@@ -151,7 +151,7 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
         {
             bool updated = false;
 
-            while (!updated) 
+            while (!updated)
             {
                 Zone * zone = (static_cast<ZonePool *>(pool))->get(id);
 
@@ -281,7 +281,7 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
 
     LogDBRecord lr, prev_lr;
 
-    if ( att.uid != 0 )
+    if (!att.is_oneadmin())
     {
         att.resp_id  = current_term;
 
@@ -432,7 +432,7 @@ void ZoneVoteRequest::request_execute(xmlrpc_c::paramList const& paramList,
 
     logdb->get_last_record_index(log_index, log_term);
 
-    if ( att.uid != 0 )
+    if (!att.is_oneadmin())
     {
         att.resp_id  = current_term;
 
@@ -522,7 +522,7 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
     int prev   = xmlrpc_c::value_int(paramList.getInt(2));
     string sql = xmlrpc_c::value_string(paramList.getString(3));
 
-    if ( att.uid != 0 )
+    if (!att.is_oneadmin())
     {
         att.resp_id  = -1;
 
