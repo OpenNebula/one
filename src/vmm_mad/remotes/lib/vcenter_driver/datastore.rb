@@ -268,10 +268,8 @@ end # class Storage
 class StoragePod < Storage
 
     def initialize(item, vi_client=nil)
-        if !item.instance_of? RbVmomi::VIM::StoragePod
-            raise "Expecting type 'RbVmomi::VIM::StoragePod'. " <<
-                  "Got '#{item.class} instead."
-        end
+
+        check_item(item, RbVmomi::VIM::StoragePod)
 
         @item = item
     end
@@ -287,11 +285,7 @@ class Datastore < Storage
     attr_accessor :one_item
 
     def initialize(item, vi_client=nil)
-        if !item.instance_of? RbVmomi::VIM::Datastore
-            raise "Expecting type 'RbVmomi::VIM::Datastore'. " <<
-                  "Got '#{item.class} instead."
-        end
-
+        check_item(item, RbVmomi::VIM::Datastore)
         @vi_client = vi_client
         @item = item
         @one_item = {}

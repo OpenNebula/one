@@ -60,6 +60,7 @@ require 'network'
 require 'file_helper'
 require 'importer'
 
+CHECK_REFS = true
 # ---------------------------------------------------------------------------- #
 # Helper functions                                                             #
 # ---------------------------------------------------------------------------- #
@@ -76,5 +77,19 @@ def check_valid(parameter, label)
     if parameter.nil? || parameter.empty?
         STDERR.puts error_message("The parameter '#{label}' is required for this action.")
         exit -1
+    end
+end
+
+def check_item(item, target_class)
+    begin
+        item.name if CHECK_REFS
+        if target_class
+            if !item.instance_of?(target_class)
+                raise "Expecting type 'RbVmomi::VIM::#{target_class}'. " <<
+                        "Got '#{item.class} instead."
+            end
+        end
+    rescue RbVmomi::Fault => e
+        raise "Reference \"#{item._ref}\" error. The reference does not exist"
     end
 end

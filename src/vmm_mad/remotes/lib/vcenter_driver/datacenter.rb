@@ -481,10 +481,8 @@ class Datacenter
     DPG_CREATE_TIMEOUT = 240
 
     def initialize(item, vi_client=nil)
-        if !item.instance_of? RbVmomi::VIM::Datacenter
-            raise "Expecting type 'RbVmomi::VIM::Datacenter'. " <<
-                  "Got '#{item.class} instead."
-        end
+
+        check_item(item, RbVmomi::VIM::Datacenter)
 
         @vi_client = vi_client
         @item = item
