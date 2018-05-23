@@ -6,6 +6,7 @@ class VirtualMachineFolder
 
     def initialize(item)
         @item = item
+        check_item(@item, nil)
         @items = {}
     end
 
@@ -53,6 +54,7 @@ class Template
 
     def initialize(item=nil, vi_client=nil)
         @item = item
+        check_item(@item, nil) if (@item)
         @vi_client = vi_client
         @locking = true
     end
@@ -1097,6 +1099,7 @@ class VirtualMachine < Template
     def initialize(vi_client, ref, one_id)
         if (ref)
             @item = RbVmomi::VIM::VirtualMachine.new(vi_client.vim, ref)
+            check_item(@item, RbVmomi::VIM::VirtualMachine)
         end
 
         @vi_client = vi_client

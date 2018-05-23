@@ -51,10 +51,10 @@ class Network
     include Memoize
 
     def initialize(item, vi_client=nil)
-        if !item.instance_of?(RbVmomi::VIM::Network)  &&
-           !item.instance_of?(RbVmomi::VIM::DistributedVirtualPortgroup )
-            raise "Expecting type 'RbVmomi::VIM::Network'. " <<
-                  "Got '#{item.class} instead."
+        begin
+            check_item(item, RbVmomi::VIM::Network)
+        rescue
+            check_item(item, RbVmomi::VIM::DistributedVirtualPortgroup)
         end
 
         @vi_client = vi_client
@@ -218,10 +218,8 @@ end # class Network
 class PortGroup < Network
 
     def initialize(item, vi_client=nil)
-        if !item.instance_of?(RbVmomi::VIM::Network)
-            raise "Expecting type 'RbVmomi::VIM::Network'. " <<
-                  "Got '#{item.class} instead."
-        end
+
+        check_item(item, RbVmomi::VIM::Network)
 
         @vi_client = vi_client
         @item = item
@@ -246,10 +244,8 @@ end # class PortGroup
 class DistributedPortGroup < Network
 
     def initialize(item, vi_client=nil)
-        if !item.instance_of?(RbVmomi::VIM::DistributedVirtualPortgroup )
-           raise "Expecting type 'RbVmomi::VIM::DistributedVirtualPortgroup'. " <<
-                  "Got '#{item.class} instead."
-        end
+
+        check_item(item, RbVmomi::VIM::DistributedVirtualPortgroup)
 
         @vi_client = vi_client
         @item = item
@@ -274,10 +270,8 @@ end # class DistributedPortGroup
 class DistributedVirtualSwitch < Network
 
     def initialize(item, vi_client=nil)
-        if !item.instance_of?(RbVmomi::VIM::VmwareDistributedVirtualSwitch )
-           raise "Expecting type 'RbVmomi::VIM::VmwareDistributedVirtualSwitch'. " <<
-                  "Got '#{item.class} instead."
-        end
+
+        check_item(item, RbVmomi::VIM::VmwareDistributedVirtualSwitch)
 
         @vi_client = vi_client
         @item = item
