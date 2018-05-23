@@ -302,7 +302,11 @@ define(function(require) {
         $("#get-vcenter-networks").click();
       },
       error: function(request, error_json){
-        Notifier.notifyError(request.responseJSON.error.message);
+        if (request.responseJSON === undefined){
+          Notifier.notifyError("Empty response received from server. Check your setup to avoid timeouts");
+        } else {
+          Notifier.notifyError(request.responseJSON.error.message);
+        }
         $("#get-vcenter-networks").click();
       }
     });
