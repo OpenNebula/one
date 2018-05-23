@@ -72,13 +72,13 @@ void AuthRequest::add_auth(Operation             op,
 
     if ( uid == 0 || gids.count( GroupPool::ONEADMIN_ID ) == 1 )
     {
-        lock = aclm->oneadmin_authorize(ob_perms, op);
-        auth = lock;
+        auth = aclm->oneadmin_authorize(ob_perms, op);
+        lock = true;
     }
     else
     {
-        lock = false;
         auth = aclm->authorize(uid, gids, ob_perms, op);
+        lock = false;
     }
 
     oss << auth; // Store the ACL authorization result in the request

@@ -203,9 +203,9 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
                 {
                     NebulaLog::log("ReM",Log::ERROR,failure_message(ec,img_att));
 
-                    img_delete.request_execute(img_id, img_att);
-
                     att.resp_msg = "Failed to clone images: " + img_att.resp_msg;
+
+                    img_delete.request_execute(new_img_id, img_att);
 
                     goto error_images;
                 }
