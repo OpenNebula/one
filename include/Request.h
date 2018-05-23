@@ -112,18 +112,18 @@ public:
         resp_msg = "";
     };
 
-    bool is_admin()
+    bool is_admin() const
     {
         return uid == UserPool::ONEADMIN_ID ||
             group_ids.count(GroupPool::ONEADMIN_ID) == 1;
     }
 
-    bool is_oneadmin()
+    bool is_oneadmin() const
     {
         return uid == UserPool::ONEADMIN_ID;
     }
 
-    bool is_oneadmin_group()
+    bool is_oneadmin_group() const
     {
         return gid == GroupPool::ONEADMIN_ID;
     }
