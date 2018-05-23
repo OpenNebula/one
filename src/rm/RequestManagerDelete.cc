@@ -27,11 +27,6 @@ static Request::ErrorCode delete_authorization(PoolSQL* pool,
 {
     PoolObjectAuth  perms;
 
-    if ( att.uid == 0 )
-    {
-        return Request::SUCCESS;
-    }
-
     PoolObjectSQL * object = pool->get(oid);
 
     if ( object == 0 )

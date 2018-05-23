@@ -34,6 +34,7 @@ void AuthRequest::add_auth(Operation             op,
 {
     ostringstream oss;
     bool          auth;
+    bool          lock;
 
     oss << ob_perms.type_to_str() << ":";
 
@@ -66,15 +67,16 @@ void AuthRequest::add_auth(Operation             op,
 
     // Default conditions that grants permission :
     // User is oneadmin, or is in the oneadmin group
+    Nebula&     nd   = Nebula::instance();
+    AclManager* aclm = nd.get_aclm();
+
     if ( uid == 0 || gids.count( GroupPool::ONEADMIN_ID ) == 1 )
     {
-        auth = true;
+        lock = aclm->oneadmin_authorize(ob_perms, op)? true: false;
+        auth = lock;
     }
     else
     {
-        Nebula&     nd   = Nebula::instance();
-        AclManager* aclm = nd.get_aclm();
-
         auth = aclm->authorize(uid, gids, ob_perms, op);
     }
 
@@ -95,8 +97,15 @@ void AuthRequest::add_auth(Operation             op,
             oss << "; ";
         }
 
-        oss << "Not authorized to perform " << operation_to_str(op)
+        if ( !lock )
+        {
+            oss << "Not authorized to perform " << operation_to_str(op)
             << " " << ob_perms.type_to_str();
+        }
+        else
+        {
+            oss << "The resource is locked.";
+        }
 
         if ( ob_perms.oid != -1 )
         {

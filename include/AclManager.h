@@ -86,6 +86,17 @@ public:
                          AuthRequest::Operation op);
 
     /**
+     *  Takes an authorization request for oneadmin
+     *  and checks if the resource is locked
+     *
+     *    @param obj_perms The object's permission attributes
+     *    @param op The operation to be authorized
+     *    @return true if the authorization is granted for oneadmin
+     */
+    const bool oneadmin_authorize(const PoolObjectAuth&  obj_perms,
+                         AuthRequest::Operation op);
+
+    /**
      *  Adds a new rule to the ACL rule set
      *
      *    @param user 64 bit ID and flags

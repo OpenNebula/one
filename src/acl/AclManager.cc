@@ -419,6 +419,28 @@ const bool AclManager::authorize(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+const bool AclManager::oneadmin_authorize(
+        const PoolObjectAuth&   obj_perms,
+        AuthRequest::Operation  op)
+{
+
+    // Build masks for request
+
+    if (static_cast<long long int>(op) & 0x10LL) //No lockable object
+    {
+        return true;
+    }
+    else if (obj_perms.locked > 0 && obj_perms.locked <= static_cast<long long int>(op))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 bool AclManager::match_rules_wrapper(
         long long             user_req,
         long long             resource_oid_req,

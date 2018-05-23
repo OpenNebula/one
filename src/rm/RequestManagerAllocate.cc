@@ -545,50 +545,47 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     img_usage.add("DATASTORE", ds_id);
     img_usage.add("SIZE", size_str);
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+    string  tmpl_str;
+    string  aname;
+
+    // ------------ Check template for restricted attributes  --------------
+
+    if ( att.uid != UserPool::ONEADMIN_ID &&
+            att.gid != GroupPool::ONEADMIN_ID )
     {
-        AuthRequest ar(att.uid, att.group_ids);
-        string  tmpl_str;
-        string  aname;
-
-        // ------------ Check template for restricted attributes  --------------
-
-        if ( att.uid != UserPool::ONEADMIN_ID &&
-                att.gid != GroupPool::ONEADMIN_ID )
+        if (tmpl->check_restricted(aname))
         {
-            if (tmpl->check_restricted(aname))
-            {
-                att.resp_msg = "Template includes a restricted attribute "+aname;
-                failure_response(AUTHORIZATION, att);
-
-                delete tmpl;
-                return;
-            }
-        }
-
-        // ------------------ Check permissions and ACLs  ----------------------
-        tmpl->to_xml(tmpl_str);
-
-        ar.add_create_auth(att.uid, att.gid, auth_object, tmpl_str);
-
-        ar.add_auth(AuthRequest::USE, ds_perms); // USE DATASTORE
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
+            att.resp_msg = "Template includes a restricted attribute "+aname;
             failure_response(AUTHORIZATION, att);
 
             delete tmpl;
             return;
         }
+    }
 
-        // -------------------------- Check Quotas  ----------------------------
+    // ------------------ Check permissions and ACLs  ----------------------
+    tmpl->to_xml(tmpl_str);
 
-        if ( quota_authorization(&img_usage, Quotas::DATASTORE, att) == false )
-        {
-            delete tmpl;
-            return;
-        }
+    ar.add_create_auth(att.uid, att.gid, auth_object, tmpl_str);
+
+    ar.add_auth(AuthRequest::USE, ds_perms); // USE DATASTORE
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
+
+        delete tmpl;
+        return;
+    }
+
+    // -------------------------- Check Quotas  ----------------------------
+
+    if ( quota_authorization(&img_usage, Quotas::DATASTORE, att) == false )
+    {
+        delete tmpl;
+        return;
     }
 
     // ------------------------- Check persistent only -------------------------

@@ -411,22 +411,12 @@ Request::ErrorCode Request::basic_authorization(
             return NO_EXISTS;
         }
 
-        if ( att.uid == 0 )
-        {
-            object->unlock();
-            return SUCCESS;
-        }
-
         object->get_permissions(perms);
 
         object->unlock();
     }
     else
     {
-        if ( att.uid == 0 )
-        {
-            return SUCCESS;
-        }
 
         perms.obj_type = auth_object;
     }
