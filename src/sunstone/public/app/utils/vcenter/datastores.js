@@ -121,7 +121,7 @@ define(function(require) {
                 "bDeferRender": false,
                 "aoColumnDefs": [
                   {"sWidth": "35px", "aTargets": [0]},
-                  {"bSortable": false, "aTargets": [6,7]},
+                  {"bSortable": false, "aTargets": [0,6,7]},
                   {"bSortable": true, "aTargets": [1,2,3]},
                   {"sType": "num", "aTargets": [4,5]}
                 ],
