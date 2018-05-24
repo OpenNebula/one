@@ -1179,9 +1179,7 @@ define(function(require) {
             }
           }
 
-          if (nics.length > 0) {
-            extra_info.template.nic = nics;
-          }
+          extra_info.template.NIC = nics;
 
           if (disks.length > 0) {
             extra_info.template.DISK = disks;
