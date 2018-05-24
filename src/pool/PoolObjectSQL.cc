@@ -592,10 +592,10 @@ bool PoolObjectSQL::name_is_valid(const string& obj_name,
 
 int PoolObjectSQL::lock_db(const int owner, const int req_id, const int level)
 {
-    locked       = static_cast<LockStates>(level);
-    lock_time = time(0);
-    lock_owner   = owner;
-    lock_req_id  = req_id;
+    locked      = static_cast<LockStates>(level);
+    lock_time   = time(0);
+    lock_owner  = owner;
+    lock_req_id = req_id;
 
     return 0;
 }
@@ -603,15 +603,21 @@ int PoolObjectSQL::lock_db(const int owner, const int req_id, const int level)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void PoolObjectSQL::unlock_db(const int owner, const int req_id)
+int PoolObjectSQL::unlock_db(const int owner, const int req_id)
 {
-    if ( owner == lock_owner )
+    int rc = -1;
+
+    if ( owner == -1 || owner == lock_owner )
     {
-        locked       = LockStates::ST_NONE;
-        lock_time = time(0);
-        lock_owner   = -1;
-        lock_req_id  = -1;
+        locked      = LockStates::ST_NONE;
+        lock_time   = time(0);
+        lock_owner  = -1;
+        lock_req_id = -1;
+
+        rc = 0;
     }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */

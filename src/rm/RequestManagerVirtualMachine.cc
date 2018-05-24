@@ -2293,7 +2293,6 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
         return AUTHORIZATION;
     }
 
-
     RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
 
     if (!att.is_admin())

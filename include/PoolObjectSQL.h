@@ -559,15 +559,16 @@ public:
      *
      * @return 0 if the lock was granted, -1 if the object is already locked
      */
-    int lock_db(const int owner,const int req_id, const int level);
+    int lock_db(const int owner, const int req_id, const int level);
 
     /**
      * Unlocks the DB lock for external applications. The object must be locked
      * (internal memory mutex) before this method is called
      *
-     * @param owner String to identify who requested the lock
+     * @param owner String to identify who requested the lock. -1 to bypass check
+     * @return 0 if object was unlocked -1 otherwise (owner != lock_owner)
      */
-    void unlock_db(const int owner, const int req_id);
+    int unlock_db(const int owner, const int req_id);
 
     /**
      * Unlocks the DB lock for external applications. The object must be locked

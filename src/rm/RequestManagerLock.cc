@@ -24,9 +24,10 @@ using namespace std;
 void RequestManagerLock::request_execute(xmlrpc_c::paramList const& paramList,
                                          RequestAttributes& att)
 {
-    int     oid     = xmlrpc_c::value_int(paramList.getInt(1));
-    int level   = xmlrpc_c::value_int(paramList.getInt(2));
+    int oid   = xmlrpc_c::value_int(paramList.getInt(1));
+    int level = xmlrpc_c::value_int(paramList.getInt(2));
     int owner = att.uid;
+
     PoolObjectSQL * object;
     string          error_str;
     int             rc;
@@ -75,7 +76,8 @@ void RequestManagerUnlock::request_execute(xmlrpc_c::paramList const& paramList,
 
     PoolObjectSQL * object;
     string          error_str;
-    int owner = att.uid;
+
+    int owner  = att.uid;
     int req_id = att.req_id;
 
     if ( basic_authorization(oid, att) == false )
@@ -92,7 +94,19 @@ void RequestManagerUnlock::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    unlock_db(object, owner, req_id);
+    if ( att.is_admin() ) //admins can unlock even if nor owners of lock
+    {
+        owner = -1;
+    }
+
+    if ( unlock_db(object, owner, req_id) == -1 )
+    {
+        att.resp_msg = "Cannot unlock: Lock is owned by another user";
+        failure_response(ACTION, att);
+
+        object->unlock();
+        return;
+    }
 
     pool->update(object);
 

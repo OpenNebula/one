@@ -121,7 +121,7 @@ public:
     ~ImageClone(){};
 
     ErrorCode request_execute(int clone_id, const string &name, int ds_id,
-        int &new_id, RequestAttributes& att);
+        bool persistent, int &new_id, RequestAttributes& att);
 
 protected:
 

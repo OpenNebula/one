@@ -184,7 +184,8 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
 
             oss << name << "-disk-" << ndisk;
 
-            ec = img_clone.request_execute(img_id,oss.str(),-1, new_img_id,img_att);
+            ec = img_clone.request_execute(img_id, oss.str(), -1,
+                    (*disk)->is_managed(), new_img_id, img_att);
 
             if ( ec != SUCCESS)
             {
@@ -193,22 +194,6 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
                 att.resp_msg = "Failed to clone images: " + img_att.resp_msg;
 
                 goto error_images;
-            }
-
-            if ( (*disk)->is_managed() )
-            {
-                ec = img_persistent.request_execute(new_img_id, true, img_att);
-
-                if (ec != SUCCESS)
-                {
-                    NebulaLog::log("ReM",Log::ERROR,failure_message(ec,img_att));
-
-                    att.resp_msg = "Failed to clone images: " + img_att.resp_msg;
-
-                    img_delete.request_execute(new_img_id, img_att);
-
-                    goto error_images;
-                }
             }
 
             (*disk)->remove("IMAGE");

@@ -302,7 +302,7 @@ void ImageClone::request_execute(
         ds_id = xmlrpc_c::value_int(paramList.getInt(3));
     }
 
-    ErrorCode ec = request_execute(clone_id, name, ds_id, new_id, att);
+    ErrorCode ec = request_execute(clone_id, name, ds_id, false, new_id, att);
 
     if ( ec == SUCCESS )
     {
@@ -321,6 +321,7 @@ Request::ErrorCode ImageClone::request_execute(
         int             clone_id,
         const string&   name,
         int             ds_id,
+        bool            persistent,
         int             &new_id,
         RequestAttributes& att)
 {
@@ -391,8 +392,17 @@ Request::ErrorCode ImageClone::request_execute(
 
     img->unlock();
 
-    //Update persistent attribute from base image if needed
-    Image::test_set_persistent(tmpl, att.uid, att.gid, false);
+    //--------------------------------------------------------------------------
+    // Set image persistent attribute
+    //--------------------------------------------------------------------------
+    if ( persistent )
+    {
+        tmpl->replace("PERSISTENT", persistent);
+    }
+    else //Update from base image
+    {
+        Image::test_set_persistent(tmpl, att.uid, att.gid, false);
+    }
 
     // ----------------------- Get target Datastore info -----------------------
 
