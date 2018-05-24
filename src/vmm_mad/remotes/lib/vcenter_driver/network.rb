@@ -361,6 +361,7 @@ class NetImporter < VCenterDriver::VcImporter
         end
 
         selected[:one] << build_ar(opts)
+        selected[:clusters][:one_ids] = opts["selected_clusters"].each.map(&:to_i) if opts["selected_clusters"]
 
         res = {id: [], name: selected[:name]}
         create(selected[:one]) do |one_object, id|
