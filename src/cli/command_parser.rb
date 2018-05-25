@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -53,7 +53,7 @@ module CommandParser
     class CmdParser
         attr_reader :options, :args
 
-        def initialize(args=[], &block)
+        def initialize(args=[], addons=nil, &block)
             @available_options = Array.new
             @commands = Hash.new
             @command_list = Array.new
@@ -72,6 +72,15 @@ module CommandParser
             define_default_formats
 
             instance_eval(&block)
+
+            if defined?(addons) and !addons.nil? 
+                if addons.length > 0
+                    addons.each do |addon_path|
+                        addon_code = File.read(addon_path)
+                        instance_eval(addon_code)
+                    end
+                end
+            end
 
             self.run
         end
