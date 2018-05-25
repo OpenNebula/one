@@ -47,7 +47,7 @@ const (
 	defaultCPU          = "1"
 	defaultVCPU         = "1"
 	defaultMemory       = "1024"
-	defaultStartRetries = "50"
+	defaultStartRetries = "600"
 	// This is the contextualization script that will be executed by OpenNebula
 	contextScript = `#!/bin/sh
 
