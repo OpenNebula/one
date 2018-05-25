@@ -144,11 +144,13 @@
   </div>
   {{/isFeatureEnabled}}
   {{/advancedImportationSection}}
+  {{#advancedImportationSection "<i class=\"fas fa-folder\"></i>" (tr "vCenter Deployment") }}
   <div class="row">
     <div class="medium-6 small-12 columns vcenterVMFolderContext{{element.ID}}">
       <div class="provision_vcenter_vm_folder_selector">
       </div>
     </div>
   </div>
+  {{/advancedImportationSection}}
 </div>
 <br>
