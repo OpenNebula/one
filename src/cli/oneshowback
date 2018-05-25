@@ -32,7 +32,9 @@ require 'one_helper/oneacct_helper'
 
 require 'json'
 
-cmd = CommandParser::CmdParser.new(ARGV) do
+addons = Dir["/var/lib/one/addons/oneshowback-*.rb"]
+
+cmd=CommandParser::CmdParser.new(ARGV, addons) do
 
     @formats = Hash.new
 

@@ -34,7 +34,9 @@ require 'command_parser'
 require 'one_helper/onevcenter_helper'
 require 'vcenter_driver'
 
-cmd=CommandParser::CmdParser.new(ARGV) do
+addons = Dir["/var/lib/one/addons/onevcenter-*.rb"]
+
+cmd=CommandParser::CmdParser.new(ARGV, addons) do
 
     usage "`onevcenter` <command> [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION

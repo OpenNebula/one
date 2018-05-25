@@ -31,7 +31,9 @@ require 'command_parser'
 require 'one_helper/onevnet_helper'
 require 'one_helper/onecluster_helper'
 
-cmd=CommandParser::CmdParser.new(ARGV) do
+addons = Dir["/var/lib/one/addons/onevnet-*.rb"]
+
+cmd=CommandParser::CmdParser.new(ARGV, addons) do
     usage "`onevnet` <command> [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION
 
