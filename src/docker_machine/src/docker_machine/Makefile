@@ -3,8 +3,14 @@ SHELL := /bin/bash
 BUILD_ID := $(shell head -c20 /dev/urandom|od -An -tx1|tr -d ' \n')
 REPO_ROOT ?= $(shell realpath ../../../../)
 GOCA_PATH ?= ${REPO_ROOT}/src/oca/go
-GOPATH := $(GOPATH):${REPO_ROOT}/src/docker_machine
+GOPATH_REPO ?= ${REPO_ROOT}/src/docker_machine
 USE_LOCAL_GOCA ?= yes
+
+ifeq ($(GOPATH),)
+GOPATH := $(GOPATH_REPO)
+else
+GOPATH := $(GOPATH):$(GOPATH_REPO)
+endif
 
 .PHONY: clean build
 
