@@ -53,7 +53,7 @@ module CommandParser
     class CmdParser
         attr_reader :options, :args
 
-        def initialize(args=[], addons, &block)
+        def initialize(args=[], addons=nil, &block)
             @available_options = Array.new
             @commands = Hash.new
             @command_list = Array.new
@@ -73,10 +73,12 @@ module CommandParser
 
             instance_eval(&block)
 
-            if defined?(addons) and addons.length > 0
-                addons.each do |addon_path|
-                    addon_code = File.read(addon_path)
-                    instance_eval(addon_code)
+            if defined?(addons) and !addons.nil? 
+                if addons.length > 0
+                    addons.each do |addon_path|
+                        addon_code = File.read(addon_path)
+                        instance_eval(addon_code)
+                    end
                 end
             end
 
