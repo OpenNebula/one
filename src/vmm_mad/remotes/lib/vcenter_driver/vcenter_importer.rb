@@ -74,7 +74,6 @@ module VCenterDriver
 		#
         def import(selected)      raise MESS end
 
-
         public
 
         #######################################################################
@@ -144,7 +143,6 @@ module VCenterDriver
                 end
             end
 
-            puts
             puts
 
             @info[:error].each do |error|

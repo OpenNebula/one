@@ -131,7 +131,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :list, list_desc, :options=>[ OBJECT, HOST, DATASTORE, VCENTER, USER, PASS ] do
-        if options[:host] && options[:object]
+        begin
             args = helper.parse_opts(options)
             vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
             importer = VCenterDriver::VcImporter.new_child(helper.client, vi_client, options[:object])
@@ -139,9 +139,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             list = importer.retrieve_resources(args)
 
             helper.list_object(options, list)
-        else
-            puts "for the moment is not supported without the proper authentication"
+        rescue Exception => e
+            puts e.message
         end
+
         exit 0
     end
 
@@ -151,7 +152,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :import, import_desc, [:oid, nil], :options=>[ OBJECT, HOST, DATASTORE ] do
 
-        if options[:host] && options[:object]
+        begin
             vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
             importer = VCenterDriver::VcImporter.new_child(helper.client, vi_client, options[:object])
 
@@ -163,15 +164,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             end
 
             importer.stdout
-        else
-            puts "for the moment is not supported without the proper authentication"
+        rescue Exception => e
+            puts e.message
         end
+
         exit 0
     end
 
     command :import_defaults, import_desc, [:oid, nil] , :options=>[ OBJECT, HOST, DATASTORE, CONFIG ] do
 
-        if options[:host] && options[:object]
+        begin
             vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
             importer = VCenterDriver::VcImporter.new_child(helper.client, vi_client, options[:object])
             importer.retrieve_resources(helper.parse_opts(options))
@@ -180,9 +182,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             importer.process_import(indexes)
 
             importer.stdout
-        else
-            puts "for the moment is not supported without the proper authentication"
+        rescue Exception => e
+            puts e.message
         end
+
         exit 0
     end
 

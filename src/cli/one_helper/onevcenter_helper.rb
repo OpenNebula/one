@@ -19,6 +19,9 @@ require 'one_helper'
 
 class OneVcenterHelper < OpenNebulaHelper::OneHelper
 
+    #
+    # vCenter importer will divide rvmomi resources
+    # in this group, makes parsing easier.
     module VOBJECT
       DATASTORE = 1
       TEMPLATE = 2
@@ -26,6 +29,25 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
       IMAGE = 4
     end
 
+    #
+    # onevcenter helper main constant
+    # This will control everything displayed on STDOUT
+    # Resources (above) uses this table
+    #
+    # struct:   [Array] LIST FORMAT for opennebula cli
+    #           related methods: * cli_format
+    #
+    # columns:  [Hash(column => Integer)] Will be used in the list command, Integer represent nbytes
+    #           related methods: * format_list
+    #
+    # cli:      [Array] with mandatory args, for example image listing needs a datastore
+    #           related methods: * parse_opts
+    #
+    # dialogue: [Lambda] Used only for Vobject that require a previous dialogue with the user, will be triggered
+    #                    on importation process
+    #           related methods: * network_dialogue
+    #                            * template_dialogue
+    #
     TABLE = {
         VOBJECT::DATASTORE => {
             :struct  => ["DATASTORE_LIST", "DATASTORE"],
@@ -54,9 +76,16 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
     }
 
 
-    #######################
+    ################################################################
     # CLI ARGS
-    ########################
+    ################################################################
+
+    # these methods will be used by table :cli property
+    # the purpose is to inject code when -d option in this case is used
+    #
+	# @param arg [String] The parameter passed to the option:w
+    #
+
     def datastore(arg)
         ds = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, arg)
 
@@ -68,9 +97,14 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
 
     def host(arg)
     end
+
     ########################
 
 
+    # In list command you can use this method to print a header
+    #
+	# @param vcenter_host [String] this text will be displayed
+    #
     def show_header(vcenter_host)
         CLIHelper.scr_bold
         CLIHelper.scr_underline
@@ -80,6 +114,11 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
 
     end
 
+    # Using for parse a String into a VOBJECT
+    # We will use VOBJECT instances for handle any operatiion
+    #
+	# @param type [String] String representing the vCenter resource
+    #
     def set_object(type)
         type = type.downcase
         if (type == "datastores")
@@ -102,6 +141,10 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
         end
     end
 
+    # Handles connection to vCenter.
+    #
+	# @param options [Hash] options for the connection
+    #
     def connection_options(object_name, options)
         if  options[:vuser].nil? || options[:vcenter].nil?
             raise "vCenter connection parameters are mandatory to import"\
@@ -122,6 +165,8 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
         {TABLE[@vobject][:struct].first => {TABLE[@vobject][:struct].last => hash.values}}
     end
 
+    # This method will print a list for a vcenter_resource.
+    #
     def list_object(options, list)
         vcenter_host = list.keys[0]
         list = cli_format(list.values.first)
@@ -132,10 +177,21 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
         table.show(list)
     end
 
+    # handles :cli section of TABLE
+    # used for executing the dialogue in some VOBJECTS
+    #
+    # @param object_info [Hash] This is the object with all the info related to the object
+    #                           that will be imported
+    #
     def cli_dialogue(object_info)
         return TABLE[@vobject][:dialogue].(object_info)
     end
 
+    # This method iterates over the possible options for certain resources
+    # and will raise an error in case of missing mandatory param
+    #
+    # @param opts [Hash] options object passed to the onecenter tool
+    #
     def parse_opts(opts)
         set_object(opts[:object])
 
@@ -150,6 +206,12 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
         return res
     end
 
+    # This method will parse a yaml
+    # Only used for a feature that adds the posibility
+    # of import resources with custom params (bulk)
+    #
+    # @param path [String] Path of the file
+    #
     def parse_file(path)
         begin
             config = YAML::load(File.read(path))
@@ -160,6 +222,10 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
         end
     end
 
+    # Use the attributes provided by TABLE
+    # with the purpose of build a complete CLI list
+    # OpenNebula way
+    #
     def format_list()
         config = TABLE[@vobject][:columns]
         table = CLIHelper::ShowTable.new() do
@@ -190,6 +256,9 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
         table
     end
 
+    ################################################################
+    # CLI DIALOGUES
+    ################################################################
     def self.template_dialogue(t)
         rps_list = -> {
             return "" if t[:rp_list].empty?
