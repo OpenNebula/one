@@ -67,7 +67,7 @@ BASE_URL="${XPATH_ELEMENTS[i++]}"
 BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
 PUBLIC_DIR="${XPATH_ELEMENTS[i++]}"
 
-# -------- Copy source to public folder an generarte App data ------------
+# -------- Copy source to public folder an generate App data ------------
 
 APPNAME=`generate_image_hash`
 DST_PATH="${PUBLIC_DIR%/}/${APPNAME}"
