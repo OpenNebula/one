@@ -146,7 +146,9 @@ end
 # Commands
 #
 
-cmd=CommandParser::CmdParser.new(ARGV) do
+addons = Dir["/var/lib/one/addons/oneflow-template-*.rb"]
+
+cmd=CommandParser::CmdParser.new(ARGV, addons) do
     usage "`oneflow-template` <command> [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION
 
