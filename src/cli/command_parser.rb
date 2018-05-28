@@ -73,14 +73,12 @@ module CommandParser
 
             instance_eval(&block)
 
-            addons = Dir["#{OpenNebulaHelper::CLI_ADDONS_LOCATION}/#{@name.tr('`', '')}/*"]
+            addons = Dir["#{OpenNebulaHelper::CLI_ADDONS_LOCATION}/#{File.basename($0)}/*"]
             if defined?(addons) and !addons.nil? 
-                if addons.length > 0
                     addons.each do |addon_path|
                         addon_code = File.read(addon_path)
                         instance_eval(addon_code)
                     end
-                end
             end
 
             self.run
