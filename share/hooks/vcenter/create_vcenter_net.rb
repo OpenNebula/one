@@ -53,33 +53,43 @@ def wait_vlanid(vnet)
     end
 end
 
-template = OpenNebula::VirtualNetwork.new_with_id(network_id, OpenNebula::Client.new)
-rc = template.info
+def update_net(vnet, content)
+    vnet.unlock
+    rc = vnet.update(content, true)
+    vnet.lock(1)
+
+    if OpenNebula.is_error?(rc)
+        raise "Could not update the virtual network"
+    end
+end
+
+one_vnet = OpenNebula::VirtualNetwork.new_with_id(network_id, OpenNebula::Client.new)
+rc = one_vnet.info
 if OpenNebula.is_error?(rc)
     STDERR.puts rc.message
     exit 1
 end
-template.lock(1)
+one_vnet.lock(1)
 esx_rollback = [] #Track hosts that require a rollback
-managed = template["TEMPLATE/OPENNEBULA_MANAGED"] != "NO"
+managed = one_vnet["TEMPLATE/OPENNEBULA_MANAGED"] != "NO"
 
 begin
     # Step 0. Only execute for vcenter network driver && managed by one
-    if template["VN_MAD"] == "vcenter" && managed
-        wait_vlanid(template) if template["VLAN_ID_AUTOMATIC"] == '1'
+    if one_vnet["VN_MAD"] == "vcenter" && managed
+        wait_vlanid(one_vnet) if one_vnet["VLAN_ID_AUTOMATIC"] == '1'
         # Step 1. Extract vnet settings
-        host_id =  template["TEMPLATE/VCENTER_ONE_HOST_ID"]
+        host_id =  one_vnet["TEMPLATE/VCENTER_ONE_HOST_ID"]
         raise "We require the ID of the OpenNebula host representing a vCenter cluster" if !host_id
 
-        pnics     =  template["TEMPLATE/PHYDEV"]
-        pg_name   =  template["TEMPLATE/BRIDGE"]
-        pg_type   =  template["TEMPLATE/VCENTER_PORTGROUP_TYPE"]
-        sw_name   =  template["TEMPLATE/VCENTER_SWITCH_NAME"]
-        mtu       =  template["TEMPLATE/MTU"]
-        vlan_id   =  template["VLAN_ID"] || 0
+        pnics     =  one_vnet["TEMPLATE/PHYDEV"]
+        pg_name   =  one_vnet["TEMPLATE/BRIDGE"]
+        pg_type   =  one_vnet["TEMPLATE/VCENTER_PORTGROUP_TYPE"]
+        sw_name   =  one_vnet["TEMPLATE/VCENTER_SWITCH_NAME"]
+        mtu       =  one_vnet["TEMPLATE/MTU"]
+        vlan_id   =  one_vnet["VLAN_ID"] || 0
 
-        if template["TEMPLATE/VCENTER_SWITCH_NPORTS"]
-            nports  =  template["TEMPLATE/VCENTER_SWITCH_NPORTS"]
+        if one_vnet["TEMPLATE/VCENTER_SWITCH_NPORTS"]
+            nports  =  one_vnet["TEMPLATE/VCENTER_SWITCH_NPORTS"]
         else
             nports  = pg_type == "Port Group" ? 128 : 8
         end
@@ -149,7 +159,7 @@ begin
                     pg = esx_host.pg_exists(pg_name)
 
                     # Disallow changes of switch name for existing pg
-                    if pg && esx_host.pg_changes_sw?(pg, switch_name)
+                    if pg && esx_host.pg_changes_sw?(pg, sw_name)
                         raise "The port group already exists in this host "\
                               " for a different vCenter standard switch and this kind of "
                               " change is not supported."
@@ -195,16 +205,11 @@ begin
 
 
         # We must update XML so the VCENTER_NET_REF and VCENTER_INSTANCE_ID are added
-        one_vnet = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualNetwork, network_id, false)
 
         if blocked
-            rc = one_vnet.update("VCENTER_NET_REF=\"#{vnet_ref}\"\nVCENTER_INSTANCE_ID=\"#{vc_uuid}\"\nVCENTER_NET_STATE=\"ERROR\"\nVCENTER_NET_ERROR=\"vnet already exist in vcenter\"\n", true)
+            update_net(one_vnet,"VCENTER_NET_REF=\"#{vnet_ref}\"\nVCENTER_INSTANCE_ID=\"#{vc_uuid}\"\nVCENTER_NET_STATE=\"ERROR\"\nVCENTER_NET_ERROR=\"vnet already exist in vcenter\"\n")
         else
-            rc = one_vnet.update("VCENTER_NET_REF=\"#{vnet_ref}\"\nVCENTER_INSTANCE_ID=\"#{vc_uuid}\"\nVCENTER_NET_STATE=\"READY\"\nVCENTER_NET_ERROR=\"\"\n", true)
-        end
-
-        if OpenNebula.is_error?(rc)
-            raise "Could not update VCENTER_NET_REF and VCENTER_INSTANCE_ID for virtual network"
+            update_net(one_vnet,"VCENTER_NET_REF=\"#{vnet_ref}\"\nVCENTER_INSTANCE_ID=\"#{vc_uuid}\"\nVCENTER_NET_STATE=\"READY\"\nVCENTER_NET_ERROR=\"\"\n")
         end
 
         # Assign vnet to OpenNebula cluster
@@ -214,6 +219,8 @@ begin
             if OpenNebula.is_error?(one_cluster)
                 STDOUT.puts "Error retrieving cluster #{cluster_id}: #{rc.message}. You may have to place this vnet in the right cluster by hand"
             end
+
+            one_vnet.unlock
 
             rc = one_cluster.addvnet(network_id.to_i)
             if OpenNebula.is_error?(rc)
@@ -229,6 +236,8 @@ begin
             if OpenNebula.is_error?(rc)
                 STDOUT.puts "Error removing vnet #{network_id} from default OpenNebula cluster: #{rc.message}."
             end
+
+            one_vnet.lock(1)
         end
     end
 
@@ -257,16 +266,10 @@ rescue Exception => e
         end
     end
 
-    one_vnet = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualNetwork, network_id, false)
-
-    rc = one_vnet.update("VCENTER_NET_STATE=\"ERROR\"\nVCENTER_NET_ERROR=\"#{e.message}\"\n", true)
-
-    if OpenNebula.is_error?(rc)
-        raise "Could not update VCENTER_NET_REF and VCENTER_INSTANCE_ID for virtual network"
-    end
+    update_net(one_vnet, "VCENTER_NET_STATE=\"ERROR\"\nVCENTER_NET_ERROR=\"#{e.message}\"\n")
 
     exit -1
 ensure
-    template.unlock if !blocked
+    one_vnet.unlock
     vi_client.close_connection if vi_client
 end
