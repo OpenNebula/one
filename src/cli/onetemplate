@@ -31,7 +31,9 @@ require 'command_parser'
 require 'one_helper/onetemplate_helper'
 require 'one_helper/onevm_helper'
 
-cmd=CommandParser::CmdParser.new(ARGV) do
+addons = Dir["/var/lib/one/addons/onetemplate-*.rb"]
+
+cmd=CommandParser::CmdParser.new(ARGV, addons) do
     usage "`onetemplate` <command> [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION
 

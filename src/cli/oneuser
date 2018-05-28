@@ -33,7 +33,9 @@ require 'one_helper/onequota_helper'
 
 require 'uri'
 
-cmd = CommandParser::CmdParser.new(ARGV) do
+addons = Dir["/var/lib/one/addons/oneuser-*.rb"]
+
+cmd=CommandParser::CmdParser.new(ARGV, addons) do
     usage "`oneuser` <command> [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION
 

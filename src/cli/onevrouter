@@ -32,7 +32,9 @@ require 'one_helper/onevrouter_helper'
 require 'one_helper/onetemplate_helper'
 require 'one_helper/onevm_helper'
 
-cmd=CommandParser::CmdParser.new(ARGV) do
+addons = Dir["/var/lib/one/addons/onevrouter-*.rb"]
+
+cmd=CommandParser::CmdParser.new(ARGV, addons) do
     usage "`onevrouter` <command> [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION
 
