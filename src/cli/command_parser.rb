@@ -53,7 +53,7 @@ module CommandParser
     class CmdParser
         attr_reader :options, :args
 
-        def initialize(args=[], addons=nil, &block)
+        def initialize(args=[], &block)
             @available_options = Array.new
             @commands = Hash.new
             @command_list = Array.new
@@ -73,6 +73,7 @@ module CommandParser
 
             instance_eval(&block)
 
+            addons = Dir["#{OpenNebulaHelper::CLI_ADDONS_LOCATION}/#{@name.tr('`', '')}/*"]
             if defined?(addons) and !addons.nil? 
                 if addons.length > 0
                     addons.each do |addon_path|

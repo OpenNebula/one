@@ -34,9 +34,7 @@ require 'one_helper/onemarketapp_helper'
 require 'one_helper/onemarket_helper'
 require 'one_helper/onedatastore_helper'
 
-addons = Dir["/var/lib/one/addons/onemarketapp-*.rb"]
-
-cmd=CommandParser::CmdParser.new(ARGV, addons) do
+cmd=CommandParser::CmdParser.new(ARGV) do
     usage "`onemarket` <command> [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION
 

@@ -30,9 +30,7 @@ $: << RUBY_LIB_LOCATION+"/cli"
 require 'command_parser'
 require 'one_helper/oneacl_helper'
 
-addons = Dir["/var/lib/one/addons/oneacl-*.rb"]
-
-cmd=CommandParser::CmdParser.new(ARGV, addons) do
+cmd=CommandParser::CmdParser.new(ARGV) do
     usage "`oneacl` <command> [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION
 

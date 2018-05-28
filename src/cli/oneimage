@@ -31,9 +31,7 @@ require 'command_parser'
 require 'one_helper/oneimage_helper'
 require 'one_helper/onedatastore_helper'
 
-addons = Dir["/var/lib/one/addons/oneimage-*.rb"]
-
-cmd=CommandParser::CmdParser.new(ARGV, addons) do
+cmd=CommandParser::CmdParser.new(ARGV) do
     usage "`oneimage` <command> [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION
 

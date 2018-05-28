@@ -30,9 +30,7 @@ $: << RUBY_LIB_LOCATION+"/cli"
 require 'command_parser'
 require 'one_helper/onevmgroup_helper'
 
-addons = Dir["/var/lib/one/addons/onevmgroup-*.rb"]
-
-cmd=CommandParser::CmdParser.new(ARGV, addons) do
+cmd=CommandParser::CmdParser.new(ARGV) do
     usage "`onevmgroup` <command> [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION
 

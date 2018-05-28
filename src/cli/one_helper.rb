@@ -38,9 +38,11 @@ EOT
     if ONE_LOCATION
         TABLE_CONF_PATH=ONE_LOCATION+"/etc/cli"
         VAR_LOCATION=ONE_LOCATION+"/var" if !defined?(VAR_LOCATION)
+        CLI_ADDONS_LOCATION=ONE_LOCATION+"/lib/ruby/cli/addons"
     else
         TABLE_CONF_PATH="/etc/one/cli"
         VAR_LOCATION="/var/lib/one" if !defined?(VAR_LOCATION)
+        CLI_ADDONS_LOCATION="/usr/lib/one/ruby/cli/addons"
     end
 
     EDITOR_PATH='/usr/bin/vi'
