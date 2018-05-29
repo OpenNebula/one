@@ -671,12 +671,15 @@ bool TemplateAllocate::allocate_authorization(
     VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);
 
     // ------------ Check template for restricted attributes -------------------
-    if (ttmpl->check_restricted(aname))
+    if (!att.is_admin())
     {
-        att.resp_msg = "VM Template includes a restricted attribute " + aname;
+        if (ttmpl->check_restricted(aname))
+        {
+            att.resp_msg = "VM Template includes a restricted attribute "+aname;
 
-        failure_response(AUTHORIZATION, att);
-        return false;
+            failure_response(AUTHORIZATION, att);
+            return false;
+        }
     }
 
     return true;
