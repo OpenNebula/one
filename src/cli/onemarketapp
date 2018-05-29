@@ -337,7 +337,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Valid states are: All.
     EOT
 
-    command :unlock, unlock_desc, :vmid do
+    command :unlock, unlock_desc, :appid do
         helper.perform_action(args[0],options,"MarketPlaceApp unlocked") do |app|
             app.unlock
         end
