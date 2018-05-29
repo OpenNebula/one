@@ -572,7 +572,9 @@ class Datastore < Storage
 
                 # Remove [datastore] from file path
                 folderpath = ""
+                size = result.folderPath.size
                 if result.folderPath[-1] != "]"
+                    result.folderPath[size] = '/' if result.folderPath[-1] != '/'
                     folderpath = result.folderPath.sub(/^\[#{ds_name}\] /, "")
                 end
 
