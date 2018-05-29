@@ -69,7 +69,7 @@ bool RequestManagerVirtualMachine::vm_authorization(
 
     if ( vtmpl != 0 )
     {
-        VirtualMachine::set_auth_request(att.uid, ar, vtmpl);
+        VirtualMachine::set_auth_request(att.uid, ar, vtmpl, true);
     }
 
     if ( ds_perm != 0 )
@@ -2285,7 +2285,7 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
 
     ar.add_auth(AuthRequest::MANAGE, vm_perms);
 
-    VirtualMachine::set_auth_request(att.uid, ar, &tmpl);
+    VirtualMachine::set_auth_request(att.uid, ar, &tmpl, true);
 
     if (UserPool::authorize(ar) == -1)
     {

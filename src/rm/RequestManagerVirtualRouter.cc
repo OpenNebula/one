@@ -224,7 +224,7 @@ void VirtualRouterAttachNic::request_execute(
 
     ar.add_auth(AuthRequest::MANAGE, vr_perms); // MANAGE VROUTER
 
-    VirtualRouter::set_auth_request(att.uid, ar, &tmpl); // USE VNET
+    VirtualRouter::set_auth_request(att.uid, ar, &tmpl, true); // USE VNET
 
     if (UserPool::authorize(ar) == -1)
     {

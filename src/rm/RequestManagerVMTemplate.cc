@@ -215,7 +215,7 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
                 tmpl_str);
     }
 
-    VirtualMachine::set_auth_request(att.uid, ar, tmpl);
+    VirtualMachine::set_auth_request(att.uid, ar, tmpl, true);
 
     if (UserPool::authorize(ar) == -1)
     {
