@@ -709,7 +709,7 @@ class DsImporter < VCenterDriver::VcImporter
         # Datastore info comes in a pair (SYS, IMG)
         pair     = selected[:ds]
         clusters = selected[:cluster]
-        clusters = opts["selected_clusters"].each.map(&:to_i) if opts["selected_clusters"]
+        clusters = opts["selected_clusters"].each.map(&:to_i) if opts && opts["selected_clusters"]
 
         res = {id: [], name: selected[:simple_name]}
         @info[:rollback] = []

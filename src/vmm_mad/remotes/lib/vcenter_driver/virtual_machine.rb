@@ -1253,7 +1253,7 @@ class VirtualMachine < Template
 
         #Get ref for req_rp
         rp_list    = cluster.get_resource_pool_list
-        req_rp_ref = rp_list.select { |rp| rp[:name] == req_rp }.first[:ref] rescue nil
+        req_rp_ref = rp_list.select { |rp| rp[:name].downcase == req_rp }.first[:ref] rescue nil
 
         if vi_client.rp_confined?
             if req_rp_ref && req_rp_ref != vi_client.rp._ref
