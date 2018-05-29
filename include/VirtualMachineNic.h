@@ -77,14 +77,14 @@ public:
      *    @param uid of user making the request
      *    @param ar auth request
      */
-    void authorize(int uid, AuthRequest* ar)
+    void authorize(int uid, AuthRequest* ar, bool check_lock)
     {
-        authorize(PoolObjectSQL::VM, uid, ar);
+        authorize(PoolObjectSQL::VM, uid, ar, check_lock);
     }
 
-    void authorize_vrouter(int uid, AuthRequest* ar)
+    void authorize_vrouter(int uid, AuthRequest* ar, bool check_lock)
     {
-        authorize(PoolObjectSQL::VROUTER, uid, ar);
+        authorize(PoolObjectSQL::VROUTER, uid, ar, check_lock);
     }
 
     /**
@@ -102,7 +102,8 @@ private:
      *    @param uid of user making the request
      *    @param ar auth request
      */
-    void authorize(PoolObjectSQL::ObjectType ot, int uid, AuthRequest* ar);
+    void authorize(PoolObjectSQL::ObjectType ot, int uid, AuthRequest* ar,
+                    bool check_lock);
 };
 
 

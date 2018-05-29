@@ -121,7 +121,7 @@ int VirtualMachineNic::get_uid(int _uid, string& error)
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineNic::authorize(PoolObjectSQL::ObjectType ot, int uid,
-        AuthRequest* ar)
+        AuthRequest* ar, bool check_lock)
 {
     Nebula& nd = Nebula::instance();
 
@@ -132,7 +132,7 @@ void VirtualMachineNic::authorize(PoolObjectSQL::ObjectType ot, int uid,
 
     get_security_groups(sgroups);
 
-    vnpool->authorize_nic(ot, this, uid, ar, sgroups);
+    vnpool->authorize_nic(ot, this, uid, ar, sgroups, check_lock);
 
     for(set<int>::iterator it = sgroups.begin(); it != sgroups.end(); it++)
     {
@@ -146,7 +146,14 @@ void VirtualMachineNic::authorize(PoolObjectSQL::ObjectType ot, int uid,
 
             sgroup->unlock();
 
-            ar->add_auth(AuthRequest::USE, perm);
+            if ( check_lock )
+            {
+                ar->add_auth(AuthRequest::USE, perm);
+            }
+            else
+            {
+                ar->add_auth(AuthRequest::USE_NO_LCK, perm);
+            }
         }
     }
 }

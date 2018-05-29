@@ -1260,7 +1260,7 @@ public:
      *    @param  tmpl the virtual machine template
      */
     static void set_auth_request(int uid, AuthRequest& ar,
-            VirtualMachineTemplate *tmpl);
+            VirtualMachineTemplate *tmpl, bool check_lock);
 
     // -------------------------------------------------------------------------
     // Attach Disk Interface

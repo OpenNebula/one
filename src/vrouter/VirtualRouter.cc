@@ -707,14 +707,15 @@ VectorAttribute* VirtualRouter::get_nic(int nic_id) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualRouter::set_auth_request(int uid, AuthRequest& ar, Template *tmpl)
+void VirtualRouter::set_auth_request(int uid, AuthRequest& ar, Template *tmpl,
+                                    bool check_lock)
 {
     VirtualMachineNics::nic_iterator nic;
     VirtualMachineNics tnics(tmpl);
 
     for( nic = tnics.begin(); nic != tnics.end(); ++nic)
     {
-        (*nic)->authorize_vrouter(uid, &ar);
+        (*nic)->authorize_vrouter(uid, &ar, check_lock);
     }
 }
 

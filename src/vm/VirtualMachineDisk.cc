@@ -165,7 +165,7 @@ void VirtualMachineDisk::extended_info(int uid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineDisk::authorize(int uid, AuthRequest* ar)
+void VirtualMachineDisk::authorize(int uid, AuthRequest* ar, bool check_lock)
 {
     string  source;
     Image * img = 0;
@@ -206,7 +206,14 @@ void VirtualMachineDisk::authorize(int uid, AuthRequest* ar)
 
     img->unlock();
 
-    ar->add_auth(AuthRequest::USE, perm);
+    if ( check_lock )
+    {
+        ar->add_auth(AuthRequest::USE, perm);
+    }
+    else
+    {
+        ar->add_auth(AuthRequest::USE_NO_LCK, perm);
+    }
 }
 
 /* -------------------------------------------------------------------------- */

@@ -204,7 +204,8 @@ public:
             VirtualMachineNic *         nic,
             int                         uid,
             AuthRequest *               ar,
-            set<int> &                  sgs);
+            set<int> &                  sgs,
+            bool                 check_lock);
 
     //--------------------------------------------------------------------------
     // VNET Reservation interface

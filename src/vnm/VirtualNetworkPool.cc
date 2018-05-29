@@ -303,7 +303,8 @@ void VirtualNetworkPool::authorize_nic(
         VirtualMachineNic *         nic,
         int                         uid,
         AuthRequest *               ar,
-        set<int> &                  sgs)
+        set<int> &                  sgs,
+        bool                 check_lock)
 {
     string           network;
     VirtualNetwork * vnet = 0;
@@ -339,7 +340,14 @@ void VirtualNetworkPool::authorize_nic(
 
     vnet->unlock();
 
-    ar->add_auth(AuthRequest::USE, perm);
+    if ( check_lock )
+    {
+        ar->add_auth(AuthRequest::USE, perm);
+    }
+    else
+    {
+        ar->add_auth(AuthRequest::USE_NO_LCK, perm);
+    }
 }
 
 /* -------------------------------------------------------------------------- */

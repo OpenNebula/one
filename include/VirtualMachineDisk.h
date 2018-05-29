@@ -181,7 +181,7 @@ public:
      *    @param uid of user making the request
      *    @param ar auth request
      */
-    void authorize(int uid, AuthRequest* ar);
+    void authorize(int uid, AuthRequest* ar, bool check_lock);
 
     /* ---------------------------------------------------------------------- */
     /* Snapshots Interface                                                    */
