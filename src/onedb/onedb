@@ -43,12 +43,14 @@ else
 end
 
 $: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+'/cli'
 $: << RUBY_LIB_LOCATION+'/onedb'
 
 require 'cli/command_parser'
 require 'optparse/time'
 require 'onedb'
 require 'onedb_live'
+require 'one_helper'
 require 'opennebula'
 
 FORCE={
