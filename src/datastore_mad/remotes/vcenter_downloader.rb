@@ -33,8 +33,9 @@ require 'vcenter_driver'
 require 'uri'
 require 'cgi'
 require 'fileutils'
+require 'addressable'
 
-vcenter_url     = URI.parse(ARGV[0])
+vcenter_url     = Addressable::URI.parse(ARGV[0])
 
 params          = CGI.parse(vcenter_url.query)
 ds_id           = params["param_dsid"][0]
