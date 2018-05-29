@@ -392,7 +392,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         [Admin]: locks only Admin actions.
     EOT
 
-    command :lock, lock_desc, :vmid,
+    command :lock, lock_desc, :imageid,
         :options => [USE, MANAGE, ADMIN, ALL] do
         helper.perform_action(args[0],options,"Image locked") do |i|
             if !options[:use].nil?
@@ -415,7 +415,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Valid states are: All.
     EOT
 
-    command :unlock, unlock_desc, :vmid do
+    command :unlock, unlock_desc, :imageid do
         helper.perform_action(args[0],options,"Image unlocked") do |i|
             i.unlock
         end

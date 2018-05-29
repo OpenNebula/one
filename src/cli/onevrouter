@@ -349,7 +349,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         [Admin]: locks only Admin actions.
     EOT
 
-    command :lock, lock_desc, :vmid,
+    command :lock, lock_desc, :vrouterid,
         :options => [USE, MANAGE, ADMIN, ALL] do
         helper.perform_action(args[0],options,"VRouter locked") do |vr|
             if !options[:use].nil?
@@ -372,7 +372,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         valid states are: All.
     EOT
 
-    command :unlock, unlock_desc, :vmid do
+    command :unlock, unlock_desc, :vrouterid do
         helper.perform_action(args[0],options,"VRouter unlocked") do |vr|
             vr.unlock
         end

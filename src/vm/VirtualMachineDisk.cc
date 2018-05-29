@@ -206,13 +206,14 @@ void VirtualMachineDisk::authorize(int uid, AuthRequest* ar, bool check_lock)
 
     img->unlock();
 
-    if ( check_lock )
+    //cloning disks can be used with lock, lcm will track image state updates.
+    if (is_cloning() || !check_lock)
     {
-        ar->add_auth(AuthRequest::USE, perm);
+        ar->add_auth(AuthRequest::USE_NO_LCK, perm);
     }
     else
     {
-        ar->add_auth(AuthRequest::USE_NO_LCK, perm);
+        ar->add_auth(AuthRequest::USE, perm);
     }
 }
 
