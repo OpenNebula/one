@@ -113,7 +113,7 @@ bool SchedAction::days_in_range(Repeat r, std::string& error)
 {
     static const char * e[] = {
         "Days in a week have to be in [0,6] range", //WEEKLY - 0
-        "Days in a month have to be in [0,31] range", // MONTHLY - 1
+        "Days in a month have to be in [1,31] range", // MONTHLY - 1
         "Days in a year have to be in [0,365] range", // YEARLY - 2
         "Hours have to be in [0,168] range" // HOURLY - 3
     };
@@ -215,7 +215,7 @@ int SchedAction::parse(std::string& error, bool clean)
 
     rc_e  = endon(eo);
     rc_ev = ends_in_range(eo, error);
-    
+
     if ( rc_e == -1 )
     {
         error = "Error parsing END_TYPE attribute";
@@ -230,7 +230,7 @@ int SchedAction::parse(std::string& error, bool clean)
     {
         return -1;
     }
-        
+
     if ( !days_in_range(r, error) )
     {
         return -1;
