@@ -160,7 +160,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
             end
 
             column :CLUSTERS, "Cluster IDs", :left, :size=>10 do |d|
-                OpenNebulaHelper.clusters_str(d["CLUSTERS"]["ID"])
+                OpenNebulaHelper.clusters_str(d["CLUSTERS"]["ID"]) rescue "-"
             end
 
             column :BRIDGE, "Bridge associated to the Virtual Network", :left,
