@@ -198,6 +198,9 @@ public:
      *  Generates an Authorization token for a NIC attribute
      *    @param nic the nic to be authorized
      *    @param ar the AuthRequest
+     *    @param  check_lock for check if the resource is lock or not
+     *    @param uid of user making the request
+     *    @param sgs to check the security groups
      */
     void authorize_nic(
             PoolObjectSQL::ObjectType   ot,

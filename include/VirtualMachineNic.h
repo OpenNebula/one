@@ -76,6 +76,7 @@ public:
      *  requirements
      *    @param uid of user making the request
      *    @param ar auth request
+     *    @param  check_lock for check if the resource is lock or not
      */
     void authorize(int uid, AuthRequest* ar, bool check_lock)
     {

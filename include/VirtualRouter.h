@@ -155,6 +155,7 @@ public:
      *    @param  uid for template owner
      *    @param  ar the AuthRequest object
      *    @param  tmpl the virtual router template
+     *    @param  check_lock for check if the resource is lock or not
      */
     static void set_auth_request(int uid, AuthRequest& ar, Template *tmpl,
                                 bool check_lock);
