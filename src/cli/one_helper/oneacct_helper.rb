@@ -184,6 +184,7 @@ class AcctHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.unit_to_str(total_disk_size * 1024.0, {})
             rescue
                 "-"
+            end
         end
 
         default :VID, :HOSTNAME, :ACTION, :START_TIME, :END_TIME, :MEMORY, :CPU, :NETRX, :NETTX, :DISK

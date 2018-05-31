@@ -72,6 +72,7 @@ class OneVMGroupHelper < OpenNebulaHelper::OneHelper
                     roles_names
                 rescue
                     "-"
+                end
             end
 
             default :ID, :USER, :GROUP, :NAME, :VMS, :ROLES
