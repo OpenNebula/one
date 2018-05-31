@@ -90,7 +90,7 @@ bool VirtualMachineAllocate::allocate_authorization(
 
     ar.add_create_auth(att.uid, att.gid, auth_object, tmpl->to_xml(t64));
 
-    VirtualMachine::set_auth_request(att.uid, ar, ttmpl);
+    VirtualMachine::set_auth_request(att.uid, ar, ttmpl, true);
 
     if (UserPool::authorize(ar) == -1)
     {
@@ -1088,7 +1088,7 @@ bool VirtualRouterAllocate::allocate_authorization(
 
     ar.add_create_auth(att.uid, att.gid, auth_object, tmpl->to_xml(tmpl_str));
 
-    VirtualRouter::set_auth_request(att.uid, ar, tmpl);
+    VirtualRouter::set_auth_request(att.uid, ar, tmpl, true);
 
     if (UserPool::authorize(ar) == -1)
     {

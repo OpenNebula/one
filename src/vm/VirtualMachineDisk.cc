@@ -165,7 +165,7 @@ void VirtualMachineDisk::extended_info(int uid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineDisk::authorize(int uid, AuthRequest* ar)
+void VirtualMachineDisk::authorize(int uid, AuthRequest* ar, bool check_lock)
 {
     string  source;
     Image * img = 0;
@@ -207,7 +207,7 @@ void VirtualMachineDisk::authorize(int uid, AuthRequest* ar)
     img->unlock();
 
     //cloning disks can be used with lock, lcm will track image state updates.
-    if (is_cloning())
+    if (is_cloning() || !check_lock)
     {
         ar->add_auth(AuthRequest::USE_NO_LCK, perm);
     }

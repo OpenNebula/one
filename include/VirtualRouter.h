@@ -156,7 +156,8 @@ public:
      *    @param  ar the AuthRequest object
      *    @param  tmpl the virtual router template
      */
-    static void set_auth_request(int uid, AuthRequest& ar, Template *tmpl);
+    static void set_auth_request(int uid, AuthRequest& ar, Template *tmpl,
+                                bool check_lock);
 
     /**
      * Checks if the given action is supported for Virtual Router VMs

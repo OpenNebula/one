@@ -1946,14 +1946,15 @@ bool VirtualMachine::is_vrouter()
 
 void VirtualMachine::set_auth_request(int uid,
                                       AuthRequest& ar,
-                                      VirtualMachineTemplate *tmpl)
+                                      VirtualMachineTemplate *tmpl,
+                                      bool check_lock)
 {
     VirtualMachineDisks::disk_iterator disk;
     VirtualMachineDisks tdisks(tmpl, false);
 
     for( disk = tdisks.begin(); disk != tdisks.end(); ++disk)
     {
-        (*disk)->authorize(uid, &ar);
+        (*disk)->authorize(uid, &ar, check_lock);
     }
 
     VirtualMachineNics::nic_iterator nic;
@@ -1961,7 +1962,7 @@ void VirtualMachine::set_auth_request(int uid,
 
     for( nic = tnics.begin(); nic != tnics.end(); ++nic)
     {
-        (*nic)->authorize(uid, &ar);
+        (*nic)->authorize(uid, &ar, check_lock);
     }
 
     const VectorAttribute * vmgroup = tmpl->get("VMGROUP");
