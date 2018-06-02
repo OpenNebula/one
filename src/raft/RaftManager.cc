@@ -562,6 +562,12 @@ void RaftManager::follower(unsigned int _term)
 
     requests.clear();
 
+    //Reset heartbeat when turning into follower when a higher term is found:
+    // 1. On vote request
+    // 2. On heartbeat response
+    // 3. On log replicate request
+	clock_gettime(CLOCK_REALTIME, &last_heartbeat);
+
     pthread_mutex_unlock(&mutex);
 
     if ( nd.is_federation_master() )
