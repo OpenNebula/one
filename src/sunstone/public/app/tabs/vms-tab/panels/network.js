@@ -299,10 +299,15 @@ define(function(require) {
 
         var pci_address = is_pci ? nic.ADDRESS : '';
 
+        var ipStr = "IP";
+        if (nic.IP6 !== undefined){
+          ipStr = "IP6"
+        }
+
         nic_dt_data.push({
           NIC_ID : nic.NIC_ID,
           NETWORK : Navigation.link(nic.NETWORK, "vnets-tab", nic.NETWORK_ID),
-          IP : _ipTr(nic, "IP"),
+          IP : _ipTr(nic, ipStr),
           MAC : nic.MAC,
           PCI_ADDRESS: pci_address,
           IP6_ULA : _ipTr(nic, "IP6_ULA"),
