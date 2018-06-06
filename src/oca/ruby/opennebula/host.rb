@@ -17,6 +17,7 @@
 
 require 'opennebula/pool_element'
 require 'base64'
+require 'yaml'
 
 module OpenNebula
     class Host < PoolElement
@@ -127,6 +128,12 @@ module OpenNebula
         def flush()
             self.disable
 
+            begin
+                action = YAML.load_file("/etc/one/cli/onehost.yaml")[:default_actions][0][:flush]
+            rescue Exception => e
+                STDERR.puts e
+            end
+
             vm_pool = OpenNebula::VirtualMachinePool.new(@client,
                                                 VirtualMachinePool::INFO_ALL_VM)
 
@@ -139,7 +146,14 @@ module OpenNebula
             vm_pool.each do |vm|
                 hid = vm['HISTORY_RECORDS/HISTORY[last()]/HID']
                 if hid == self['ID']
-                    vm.resched
+                    case action
+                    when "resched"
+                        vm.resched
+                    when "delete-recreate"
+                        vm.recover(4)
+                    else
+                        vm.resched
+                    end
                 end
             end
         end
