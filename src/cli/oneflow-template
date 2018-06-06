@@ -146,7 +146,7 @@ end
 # Commands
 #
 
-cmd=CommandParser::CmdParser.new(ARGV) do
+cmd = CommandParser::CmdParser.new(ARGV) do
     usage "`oneflow-template` <command> [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION
 

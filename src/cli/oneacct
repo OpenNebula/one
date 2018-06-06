@@ -32,7 +32,7 @@ require 'one_helper/oneacct_helper'
 
 require 'json'
 
-cmd=CommandParser::CmdParser.new(ARGV) do
+cmd = CommandParser::CmdParser.new(ARGV) do
     usage "`oneacct` [<options>]"
     description ""
     version OpenNebulaHelper::ONE_VERSION
