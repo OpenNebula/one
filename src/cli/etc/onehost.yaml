@@ -74,3 +74,6 @@
 - :ALLOCATED_CPU
 - :ALLOCATED_MEM
 - :STAT
+
+:default_actions:
+  - :flush: resched
