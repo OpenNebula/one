@@ -51,7 +51,6 @@ require 'optparse/time'
 require 'onedb'
 require 'onedb_live'
 require 'cli/one_helper'
-#require 'opennebula'
 
 FORCE={
     :name => "force",
