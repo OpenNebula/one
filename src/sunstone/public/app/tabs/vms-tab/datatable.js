@@ -150,7 +150,7 @@ define(function(require) {
   }
 
   function _postUpdateView() {
-    $(".total_vms").text(this.totalVms);
+    $(".total_vms").removeClass("fadeinout");
     DashboardUtils.counterAnimation(".total_vms", this.totalVms);
 
     $(".active_vms").removeClass("fadeinout");
