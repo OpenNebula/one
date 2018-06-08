@@ -46,6 +46,10 @@ fi
 [ -n "${SCRIPT}" ] && DEVICE+=" <script path='$(xml_esc "${SCRIPT}")'/>"
 [ -n "${MODEL}" ] && DEVICE+=" <model type='$(xml_esc "${MODEL}")'/>"
 
+if [ -n "${VIRTIO_QUEUES}" ] && [ -n "${MODEL}" ] && [ "${MODEL}" == "virtio" ]; then
+    DEVICE+=" <driver name='vhost' queues='$(xml_esc "${VIRTIO_QUEUES}")'/>"
+fi
+
 if [ -n "${IP}" ] && [ -n "${FILTER}" ]; then
     DEVICE+=" <filterref filter='$(xml_esc "${FILTER}")'>"
     DEVICE+=" <parameter name='IP' value='$(xml_esc "${IP}")'/>"
