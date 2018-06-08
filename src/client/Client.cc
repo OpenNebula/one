@@ -260,7 +260,14 @@ int Client::call(const std::string& endpoint, const std::string& method,
 
         client.setInterrupt(&int_flag);
 
-        client.finishAsync(_timeout);
+        if ( _timeout == 0 )
+        {
+            client.finishAsync(xmlrpc_c::timeout());
+        }
+        else
+        {
+            client.finishAsync(_timeout);
+        }
 
         if ( rpc_client->isFinished() )
         {
