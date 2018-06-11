@@ -514,7 +514,7 @@ string History::action_to_str(VMAction action)
             st = "update";
         break;
         case SNAPSHOT_CREATE_ACTION:
-            st = "snapshot-resize";
+            st = "snapshot-create";
         break;
         case SNAPSHOT_DELETE_ACTION:
             st = "snapshot-delete";
@@ -679,7 +679,7 @@ int History::action_from_str(const string& st, VMAction& action)
     {
         action = UPDATE_ACTION;
     }
-    else if ( st == "snapshot-resize")
+    else if ( st == "snapshot-create")
     {
         action = SNAPSHOT_CREATE_ACTION;
     }
