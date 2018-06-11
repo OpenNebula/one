@@ -3503,7 +3503,6 @@ class VmImporter < VCenterDriver::VcImporter
         dpool, ipool, npool, hpool = create_pools
 
         template = VCenterDriver::Template.new_from_ref(selected[:vcenter_ref], @vi_client)
-
         # Linked clones and copy preparation
         if linked_clone
             if copy # reached this point we need to delete the template if something go wrong
