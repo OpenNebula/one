@@ -76,6 +76,8 @@ public:
      */
     int do_callback(int num, char **values, char **names)
     {
+        ++affected_rows;
+
         return (this->*cb)(arg, num, values, names);
     };
 
