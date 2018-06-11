@@ -125,14 +125,8 @@ module OpenNebula
             set_status("OFFLINE")
         end
 
-        def flush()
+        def flush(action)
             self.disable
-
-            begin
-                action = YAML.load_file("/etc/one/cli/onehost.yaml")[:default_actions][0][:flush]
-            rescue Exception => e
-                STDERR.puts e
-            end
 
             vm_pool = OpenNebula::VirtualMachinePool.new(@client,
                                                 VirtualMachinePool::INFO_ALL_VM)
