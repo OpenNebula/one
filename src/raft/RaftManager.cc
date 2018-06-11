@@ -1040,10 +1040,15 @@ void RaftManager::request_vote()
 
         logdb->update_raft_state(raft_state_xml);
 
-        srand(_server_id);
+        srand(_server_id+1);
 
-        ms = rand() % 500 + election_timeout.tv_sec * 1000
+        ms = rand() % 1000 + election_timeout.tv_sec * 1000
             + election_timeout.tv_nsec / 1000000;
+
+        oss.str("");
+
+        oss << "No leader found, starting new election in " << ms << "ms"; 
+        NebulaLog::log("RCM", Log::INFO, oss);
 
         set_timeout(ms, etimeout);
 
