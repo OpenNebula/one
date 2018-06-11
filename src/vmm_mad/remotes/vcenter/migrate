@@ -15,7 +15,6 @@
 # See the License for the specific language governing permissions and          #
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
-
 ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
@@ -35,7 +34,7 @@ src_host = ARGV[-3]
 dst_host = ARGV[-4]
 
 begin
-    
+
     one_client = OpenNebula::Client.new
 
     pool = OpenNebula::HostPool.new(one_client)
@@ -61,9 +60,9 @@ begin
     config = {:cluster => vc_host }
     vc_vm.migrate(config)
 
-    vm.replace({"VCENTER_CCR_REF" => dst_host["/HOST/TEMPLATE/VCENTER_CCR_REF"] })
+    vm.replace({"VCENTER_CCR_REF" => dst_host["/HOST/TEMPLATE/VCENTER_CCR_REF"], "VCENTER_ESX_HOST" => dst_host["/HOST/TEMPLATE/HOST/HOSTNAME"]})
 rescue Exception => e
-    
+
     message = "Cannot migrate for VM #{vm_id}"\
               "failed due to "\
               "\"#{e.message}\"\n"

@@ -945,6 +945,7 @@ class Template
 
         str << "VCENTER_TEMPLATE_REF =\"#{template["_ref"]}\"\n"
         str << "VCENTER_CCR_REF =\"#{ccr_ref}\"\n"
+        str << "VCENTER_ESX_HOST = \"unknown\"\n"
 
         str << "GRAPHICS = [\n"\
                "  TYPE     =\"vnc\",\n"
@@ -3503,7 +3504,6 @@ class VmImporter < VCenterDriver::VcImporter
         dpool, ipool, npool, hpool = create_pools
 
         template = VCenterDriver::Template.new_from_ref(selected[:vcenter_ref], @vi_client)
-
         # Linked clones and copy preparation
         if linked_clone
             if copy # reached this point we need to delete the template if something go wrong
