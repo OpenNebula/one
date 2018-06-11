@@ -2898,7 +2898,6 @@ void VirtualMachineUpdateConf::request_execute(
     /* ---------------------------------------------------------------------- */
     /* Update VirtualMachine Configuration                                    */
     /* ---------------------------------------------------------------------- */
-
     vm = static_cast<VirtualMachinePool *>(pool)->get(id);
 
     if (vm == 0)
@@ -2931,39 +2930,44 @@ void VirtualMachineUpdateConf::request_execute(
     if ( vm->updateconf(tmpl, att.resp_msg) != 0 )
     {
         failure_response(INTERNAL, att);
+
+        vm->unlock();
+        return;
     }
-    else
+
+    /* ---------------------------------------------------------------------- */
+    /* Update PORT if a new GRAPHICS section has been added & VM is deployed. */
+    /* ---------------------------------------------------------------------- */
+    VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
+
+    unsigned int port;
+    VirtualMachine::VmState state = vm->get_state();
+
+    if (graphics != 0 && graphics->vector_value("PORT", port) == -1 &&
+        (state == VirtualMachine::ACTIVE || state == VirtualMachine::POWEROFF ||
+          state == VirtualMachine::SUSPENDED))
     {
         ClusterPool * cpool = Nebula::instance().get_clpool();
-        VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
 
-        unsigned int port;
-        int rc;
-        int cluster_id;
+        int rc = cpool->get_vnc_port(vm->get_cid(), vm->get_oid(), port);
 
-        if (graphics != 0 && graphics->vector_value("PORT", port) == -1)
+        if ( rc != 0 )
         {
-            cluster_id = vm->get_cid();
+            att.resp_msg = "No free VNC ports available in the cluster";
+            failure_response(INTERNAL, att);
 
-            rc = cpool->get_vnc_port(cluster_id, vm->get_oid(), port);
-
-            if ( rc == 0 )
-            {
-                graphics->replace("PORT", port);
-            }
-            else
-            {
-                att.resp_msg = "No free VNC ports available in the cluster";
-                failure_response(INTERNAL, att);
-            }
+            vm->unlock();
+            return;
         }
 
-        success_response(id, att);
+        graphics->replace("PORT", port);
     }
 
     static_cast<VirtualMachinePool *>(pool)->update(vm);
 
     vm->unlock();
+
+    success_response(id, att);
 }
 
 /* -------------------------------------------------------------------------- */
