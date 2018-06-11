@@ -1,8 +1,6 @@
 module VCenterDriver
 class Importer
 
-VNC_ESX_HOST_FOLDER = "/tmp"
-
 def self.import_wild(host_id, vm_ref, one_vm, template)
 
     begin
@@ -62,6 +60,7 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
         end
 
         template << template_nics
+        template << "VCENTER_ESX_HOST = #{vcenter_vm["runtime.host.name"].to_s}\n"
 
         # Get DS_ID for the deployment, the wild VM needs a System DS
         dc_ref = vcenter_vm.get_dc.item._ref
@@ -83,7 +82,7 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
                     end
                 end
             end
-            return OpenNebula::Error.new("DS with ref #{ds_ref} is not imported in OpenNebula, aborting Wild VM import.") 
+            return OpenNebula::Error.new("DS with ref #{ds_ref} is not imported in OpenNebula, aborting Wild VM import.")
         end
 
         rc = one_vm.allocate(template)
@@ -136,12 +135,6 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
             spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
             vcenter_vm.item.ReconfigVM_Task(:spec => spec).wait_for_completion
         end
-
-        # Add VCENTER_ESX_HOST to MONITOR info so VNC works for running VMs F#4242
-        esx_host = vcenter_vm["runtime.host.name"].to_s
-        f = File.open(File.join(VNC_ESX_HOST_FOLDER, "vcenter_vnc_#{one_vm.id}"), 'w')
-        f.write(esx_host)
-        f.close
 
         return one_vm.id
 

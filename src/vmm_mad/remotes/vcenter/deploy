@@ -29,8 +29,6 @@ $: << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
-VNC_ESX_HOST_FOLDER = "/tmp"
-
 dfile        = ARGV[0]
 cluster_name = ARGV[1]
 vm_id        = ARGV[2]
@@ -42,21 +40,18 @@ deploy_id    = drv_action["DEPLOY_ID"]
 host_id      = drv_action["HISTORY_RECORDS/HISTORY/HID"]
 
 begin
-    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
 
+    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
     one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
 
     if deploy_id && !deploy_id.empty?
-
         # VM is not new, we just need to reconfigure it and to power it on
         vm = VCenterDriver::VirtualMachine.new_one(vi_client, deploy_id, one_vm)
     else
         vc_template_ref = drv_action['USER_TEMPLATE/VCENTER_TEMPLATE_REF']
-
         # VM is new
         # Clone the VM from template and provide XML info
         vm = VCenterDriver::VirtualMachine.new_from_clone(vi_client, drv_action, vm_id)
-
         # Set reference to template disks and nics in VM template for detach ops
         vm.reference_unmanaged_devices(vc_template_ref)
     end
@@ -68,11 +63,7 @@ begin
     vm.poweron
     vm.set_running(true)
 
-    # Add VCENTER_ESX_HOST to MONITOR info so VNC works for running VMs F#4242
-    esx_host = vm["runtime.host.name"]
-    f = File.open(File.join(VNC_ESX_HOST_FOLDER, "vcenter_vnc_#{one_vm["ID"]}"), 'w')
-    f.write(esx_host)
-    f.close
+    vm.one_item.update("VCENTER_ESX_HOST = #{vm["runtime.host.name"]}", true)
 
     puts vm['_ref']
 
