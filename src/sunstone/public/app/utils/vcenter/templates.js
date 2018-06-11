@@ -201,7 +201,7 @@ define(function(require) {
 
       opts[ref] = {};
 
-      opts[ref].type = $(".modify_rp", row_context).val();
+      opts[ref].type = ($(".modify_rp", row_context).val() ? $(".modify_rp", row_context).val() : "default");
 
       var rpInput = $(".vcenter_rp_input", row_context);
       var rpParams = [];
