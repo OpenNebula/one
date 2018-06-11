@@ -945,7 +945,6 @@ class Template
 
         str << "VCENTER_TEMPLATE_REF =\"#{template["_ref"]}\"\n"
         str << "VCENTER_CCR_REF =\"#{ccr_ref}\"\n"
-        str << "VCENTER_ESX_HOST = \"unknown\"\n"
 
         str << "GRAPHICS = [\n"\
                "  TYPE     =\"vnc\",\n"
