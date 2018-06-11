@@ -215,11 +215,6 @@ int MySqlDB::exec(ostringstream& cmd, Callbackable* obj, bool quiet)
 
         int num_rows = mysql_affected_rows(db);
 
-        if ( num_rows > 0)
-        {
-            obj->set_affected_rows(num_rows);
-        }
-
         if ( obj->isCallBackSet() )
         {
             MYSQL_ROW           row;
@@ -264,6 +259,11 @@ int MySqlDB::exec(ostringstream& cmd, Callbackable* obj, bool quiet)
             }
 
             delete[] names;
+        }
+
+        if ( obj->get_affected_rows() == 0 && num_rows > 0)
+        {
+            obj->set_affected_rows(num_rows);
         }
 
         // Free the result object
