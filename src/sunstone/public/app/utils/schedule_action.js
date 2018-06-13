@@ -162,8 +162,10 @@ define(function (require) {
 			var first = $(this).children("td")[0];
 			if (!$("select", first).html()) {
 				var actionJSON = {};
-				actionJSON = JSON.parse($(this).attr("data"));
-				actionJSON.ID = index;
+				if ($(this).attr("data")){
+					actionJSON = JSON.parse($(this).attr("data"));
+					actionJSON.ID = index;
+				}
 			}
 			if (!$.isEmptyObject(actionJSON)) { actionsJSON.push(actionJSON); };
 		});
