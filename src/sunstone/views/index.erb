@@ -28,7 +28,9 @@
       var all_views = JSON.parse('["<%=
           $views_config.get_all_views.join('","')
         %>"]')
-
+      if ('<%= $conf[:addons] %>'){
+        var addons = JSON.parse('<%= $conf[:addons].to_json %>');
+      }
       var config = {
         'user_config' : {
             'lang' : '<%= session[:lang] %>',
