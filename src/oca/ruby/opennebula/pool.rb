@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -25,7 +25,7 @@ module OpenNebula
         alias_method :each_with_xpath, :each
 
         PAGINATED_POOLS=%w{VM_POOL IMAGE_POOL TEMPLATE_POOL VN_POOL
-                           DOCUMENT_POOL SECGROUP_POOL}
+                           DOCUMENT_POOL SECGROUP_POOL1}
 
     protected
         #pool:: _String_ XML name of the root element
@@ -174,20 +174,39 @@ module OpenNebula
         # The default page size can be changed with the environment variable
         # ONE_POOL_PAGE_SIZE. Any value > 2 will set a page size, a non
         # numeric value disables pagination.
-        def get_hash(size=nil)
+        def get_hash(size=nil, current=nil)
+
             allow_paginated = PAGINATED_POOLS.include?(@pool_name)
 
             if OpenNebula.pool_page_size && allow_paginated &&
-                    ( ( size && size >= 2 ) || !size )
+                    ( ( size && size >= 2 ) || !size ) && !current
                 size = OpenNebula.pool_page_size if !size
                 hash=info_paginated(size)
 
                 return hash if OpenNebula.is_error?(hash)
                 { @pool_name => { @element_name => hash } }
+
+            elsif OpenNebula.pool_page_size && allow_paginated &&
+                ( ( size && size >= 1 ) || !size ) && current
+
+                size = OpenNebula.pool_page_size if !size
+                hash=get_info_page(size, current)
+
+                return hash if OpenNebula.is_error?(hash)
+                { @pool_name => { @element_name => hash } }
+
             else
                 rc=info
                 return rc if OpenNebula.is_error?(rc)
                 to_hash
+                # rc = ""
+                # OpenNebula.profile("no_page.info") {
+                    # rc=info
+                # }
+                # return rc if OpenNebula.is_error?(rc)
+                # OpenNebula.profile("no_page.to_hash") {
+                    # to_hash
+                # }
             end
         end
 
@@ -197,12 +216,14 @@ module OpenNebula
         def info_paginated(size)
             array=Array.new
             current=0
-
             parser=ParsePoolSax.new(@pool_name, @element_name)
+
+	    counter = 0
 
             while true
                 a=@client.call("#{@pool_name.delete('_').downcase}.info",
                     @user_id, current, -size, -1)
+
                 return a if OpenNebula.is_error?(a)
 
                 a_array=parser.parse(a)
@@ -210,8 +231,36 @@ module OpenNebula
                 array   += a_array
                 current += size
 
+		        counter += 1
+
                 break if !a || a_array.length<size
             end
+
+            array.compact!
+            array=nil if array.length == 0
+
+            array
+        end
+
+        #Gets a specific, custom info page
+        #
+        # size:: _Integer_ size of each page
+        # current:: Integer  defines the start point of the page
+        def get_info_page(size, current)
+            array=Array.new
+            current = 0 if !current
+
+            parser=ParsePoolSax.new(@pool_name, @element_name)
+
+            #a=@client.call("#{@pool_name.delete('_').downcase}.info",
+            #@user_id, current, -size, -1)
+            a=@client.call("#{@pool_name.delete('_').downcase}.info",
+            @user_id, current, -size, -1)
+            return a if OpenNebula.is_error?(a)
+
+            a_array=parser.parse(a)
+
+            array = a_array
 
             array.compact!
             array=nil if array.length == 0

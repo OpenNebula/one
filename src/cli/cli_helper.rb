@@ -259,7 +259,7 @@ module CLIHelper
         private
 
         def print_table(data, options)
-            CLIHelper.print_header(header_str) if !options[:csv]
+            CLIHelper.print_header(header_str) if !options[:csv] && !options[:noheader]
             data ? print_data(data, options) : puts
         end
 

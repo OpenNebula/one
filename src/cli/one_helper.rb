@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'cli_helper'
+require 'io/console'
 
 begin
     require 'opennebula'
@@ -76,6 +77,12 @@ EOT
         :large => "--describe",
         :description => "Describe list columns"
     }
+
+    # PAGINATED={
+        # :name  => "paginated",
+        # :large => "--paginated",
+        # :description => "Shows output in sections"
+    # }
 
     APPEND = {
         :name => "append",
@@ -523,7 +530,9 @@ EOT
                 rc=pool.info
                 return -1, rc.message if OpenNebula.is_error?(rc)
                 return 0, pool.to_xml(true)
-            else
+
+            elsif options[:once]
+
                 table = format_pool(options)
 
                 if top
@@ -548,6 +557,65 @@ EOT
                     table.show(array, options)
                 end
 
+                return 0
+
+            else
+
+                table = format_pool(options)
+                terminal_lines = %x[tput lines].to_i - 3
+
+                rname=self.class.rname
+                @rname = rname
+
+
+                t1 = Thread.new {
+                    array = []
+                    current = 0
+                    #size = 10
+                    size = OpenNebula.pool_page_size if !size
+                    @array_storage = []
+                    @array_storage_filed=false
+                    while true
+                        array=pool.get_hash(size, current)
+                        return -1, array.message if OpenNebula.is_error?(array)
+
+                        #break if !array["VM_POOL"]["VM"]
+
+                        for i in 0..size-1 do
+                            break if @array_storage_filed
+                            if array["#{@rname}_POOL"][@rname] && array["#{@rname}_POOL"][@rname][i]
+                                @array_storage.push({"#{@rname}_POOL" => {rname => [array["#{@rname}_POOL"][rname][i]]}})
+                                #puts array_storage
+                            else
+                                @array_storage_filed = true
+                            end
+                        end
+
+                        break if @array_storage_filed
+                        current += size
+                    end
+                }
+                t1.join
+
+                        elements=array["#{rname}_POOL"][rname]
+                        #####???????????????????????????????????????????
+                        if options[:ids] && elements
+                            elements.reject! do |element|
+                                !options[:ids].include?(element['ID'].to_i)
+                            end
+                        end
+                        #####???????????????????????????????????????????
+
+                        table.show(nil, options)
+                        options[:noheader] = true
+                        for i in 1..terminal_lines
+                            break if @array_storage_filed && @array_storage.length == 0
+                            table.show(@array_storage.shift, options)
+                        end
+                        while !@array_storage_filed || @array_storage.length > 0
+                            STDIN.getch
+                            table.show(@array_storage.shift, options)
+                        end                           
                 return 0
             end
         end
