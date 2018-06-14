@@ -56,12 +56,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Device where the image will be attached"
     }
 
-    ONCE={
-        :name  => "once",
-        :large => "--once",
-        :description => "Shows the whole output at once"
-    }
-
     PREFIX={
         :name => "prefix",
         :large => "--prefix prefix",
@@ -917,7 +911,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :list, list_desc, [:filterflag, nil],
             :options=>CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS+
-            [OpenNebulaHelper::DESCRIBE]+[ONCE] do
+            [OpenNebulaHelper::DESCRIBE]+[OpenNebulaHelper::ONCE] do
         options[:once] = true if !$stdout.isatty
         helper.list_pool(options, false, args[0])
     end

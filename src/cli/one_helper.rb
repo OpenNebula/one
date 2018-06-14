@@ -78,11 +78,11 @@ EOT
         :description => "Describe list columns"
     }
 
-    # PAGINATED={
-        # :name  => "paginated",
-        # :large => "--paginated",
-        # :description => "Shows output in sections"
-    # }
+    ONCE={
+        :name  => "once",
+        :large => "--once",
+        :description => "Shows the whole output at once"
+    }
 
     APPEND = {
         :name => "append",
@@ -562,7 +562,8 @@ EOT
             else
 
                 table = format_pool(options)
-                terminal_lines = %x[tput lines].to_i - 3
+                # terminal_lines = %x[tput lines].to_i - 3
+                terminal_lines, columns = $stdin.winsize
 
                 rname=self.class.rname
                 @rname = rname
@@ -579,13 +580,10 @@ EOT
                         array=pool.get_hash(size, current)
                         return -1, array.message if OpenNebula.is_error?(array)
 
-                        #break if !array["VM_POOL"]["VM"]
-
                         for i in 0..size-1 do
                             break if @array_storage_filed
                             if array["#{@rname}_POOL"][@rname] && array["#{@rname}_POOL"][@rname][i]
                                 @array_storage.push({"#{@rname}_POOL" => {rname => [array["#{@rname}_POOL"][rname][i]]}})
-                                #puts array_storage
                             else
                                 @array_storage_filed = true
                             end
@@ -596,7 +594,7 @@ EOT
                     end
                 }
                 t1.join
-
+                
                         elements=array["#{rname}_POOL"][rname]
                         #####???????????????????????????????????????????
                         if options[:ids] && elements
@@ -609,13 +607,39 @@ EOT
                         table.show(nil, options)
                         options[:noheader] = true
                         for i in 1..terminal_lines
-                            break if @array_storage_filed && @array_storage.length == 0
-                            table.show(@array_storage.shift, options)
+                           break if @array_storage_filed && @array_storage.length == 0
+                           table.show(@array_storage.shift, options)
                         end
+                        interrupted = false
+
                         while !@array_storage_filed || @array_storage.length > 0
                             STDIN.getch
-                            table.show(@array_storage.shift, options)
-                        end                           
+                           table.show(@array_storage.shift, options)
+                        end        
+                        
+                        
+
+                        
+                        
+                        # do HTTP request
+                        
+
+
+                        
+                        # lines = []
+                        # lines.push(table.show(nil, options))
+                        # options[:noheader] = true
+                        # puts "before while"
+                        # while !@array_storage_filed || @array_storage.length > 0
+                            # lines.push(table.show(@array_storage.shift, options))
+                        # end
+                        # puts "starting less"
+                        # IO.popen("less", "w") { |f|
+                            # lines.each do |line|
+                                # puts(line)
+                            # end
+                        # }
+                        
                 return 0
             end
         end
