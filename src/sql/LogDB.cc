@@ -467,6 +467,12 @@ int LogDB::_exec_wr(ostringstream& cmd, int federated_index)
         if ( rc == 0 && Nebula::instance().is_federation_enabled() )
         {
             insert_log_record(0, cmd, time(0), federated_index);
+
+            pthread_mutex_lock(&mutex);
+
+            last_applied = last_index;
+
+            pthread_mutex_unlock(&mutex);
         }
 
         return rc;
@@ -561,6 +567,9 @@ int LogDB::purge_log()
 
     pthread_mutex_lock(&mutex);
 
+    /* ---------------------------------------------------------------------- */
+    /* Non-federated records                                                  */
+    /* ---------------------------------------------------------------------- */
     if ( last_index < log_retention )
     {
         pthread_mutex_unlock(&mutex);
@@ -571,9 +580,34 @@ int LogDB::purge_log()
 
     // keep the last "log_retention" records as well as those not applied to DB
     oss << "DELETE FROM logdb WHERE timestamp > 0 AND log_index >= 0 "
-        << "AND log_index < "  << delete_index;
+        << "AND fed_index = -1 AND log_index < "  << delete_index;
 
     int rc = db->exec_wr(oss);
+
+    /* ---------------------------------------------------------------------- */
+    /* Federated records                                                      */
+    /* ---------------------------------------------------------------------- */
+    if ( fed_log.size() < log_retention) 
+    {
+        pthread_mutex_unlock(&mutex);
+        return 0;
+    }
+
+    int fed_records_delete = fed_log.size() - log_retention;
+
+    std::set<int>::iterator it = fed_log.begin();
+
+    for (int i=0; i < fed_records_delete; ++i)
+    {
+        oss.str("");
+
+        oss << "DELETE FROM logdb WHERE timestamp > 0 AND log_index >= 0 "
+            << "AND fed_index = "  << *it;
+
+        db->exec_wr(oss);
+
+        it = fed_log.erase(it);
+    }
 
     pthread_mutex_unlock(&mutex);
 
