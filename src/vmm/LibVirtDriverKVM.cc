@@ -174,6 +174,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  ip     = "";
     string  vrouter_ip = "";
     string  filter = "";
+    string  virtio_queues = "";
 
     string  i_avg_bw = "";
     string  i_peak_bw = "";
@@ -902,14 +903,15 @@ int LibVirtDriver::deployment_description_kvm(
 
     for(int i=0; i<num; i++)
     {
-        bridge = nic[i]->vector_value("BRIDGE");
-        vn_mad = nic[i]->vector_value("VN_MAD");
-        mac    = nic[i]->vector_value("MAC");
-        target = nic[i]->vector_value("TARGET");
-        script = nic[i]->vector_value("SCRIPT");
-        model  = nic[i]->vector_value("MODEL");
-        ip     = nic[i]->vector_value("IP");
-        filter = nic[i]->vector_value("FILTER");
+        bridge        = nic[i]->vector_value("BRIDGE");
+        vn_mad        = nic[i]->vector_value("VN_MAD");
+        mac           = nic[i]->vector_value("MAC");
+        target        = nic[i]->vector_value("TARGET");
+        script        = nic[i]->vector_value("SCRIPT");
+        model         = nic[i]->vector_value("MODEL");
+        ip            = nic[i]->vector_value("IP");
+        filter        = nic[i]->vector_value("FILTER");
+        virtio_queues = nic[i]->vector_value("VIRTIO_QUEUES");
 
         vrouter_ip = nic[i]->vector_value("VROUTER_IP");
 
@@ -978,6 +980,13 @@ int LibVirtDriver::deployment_description_kvm(
         {
             file << "\t\t\t<model type="
                  << one_util::escape_xml_attr(*the_model) << "/>\n";
+
+            if(!virtio_queues.empty() && *the_model == "virtio")
+            {
+                file << "\t\t\t<driver name='vhost' queues="
+                     << one_util::escape_xml_attr(virtio_queues)
+                     << "/>\n";
+            }
         }
 
         if (!ip.empty() )
