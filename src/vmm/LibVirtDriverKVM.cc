@@ -1089,14 +1089,6 @@ int LibVirtDriver::deployment_description_kvm(
                  << "/>\n";
         }
 
-        if( !virtio_queues.empty() && ( (!model.empty() && model == "virtio")
-            || (!default_model.empty() && default_model == "virtio") )  )
-        {
-            file << "\t\t\t<driver name='vhost' queues="
-                 << one_util::escape_xml_attr(virtio_queues)
-                 << "/>\n";
-        }
-
         string * the_model = 0;
 
         if (!model.empty())
@@ -1112,6 +1104,13 @@ int LibVirtDriver::deployment_description_kvm(
         {
             file << "\t\t\t<model type="
                  << one_util::escape_xml_attr(*the_model) << "/>\n";
+
+            if(!virtio_queues.empty() && *the_model == "virtio")
+            {
+                file << "\t\t\t<driver name='vhost' queues="
+                     << one_util::escape_xml_attr(virtio_queues)
+                     << "/>\n";
+            }
         }
 
         if (!ip.empty() )
