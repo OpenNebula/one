@@ -130,16 +130,20 @@ module CLIHelper
     end
 
     # Print header
-    def CLIHelper.print_header(str, underline=true)
-        if $stdout.tty?
-            scr_bold
-            scr_underline if underline
-            print str
-            scr_restore
+    def CLIHelper.print_header(str, underline=true, options)
+        if options[:less]
+            $less_editor.puts str
         else
-            print str
+            if $stdout.tty?
+                scr_bold
+                scr_underline if underline
+                print str
+                scr_restore
+            else
+                print str
+            end
+            puts
         end
-        puts
     end
 
     module HashWithSearch
@@ -259,8 +263,8 @@ module CLIHelper
         private
 
         def print_table(data, options)
-            CLIHelper.print_header(header_str) if !options[:csv] && !options[:noheader]
-            data ? print_data(data, options) : puts
+            CLIHelper.print_header(header_str, options) if !options[:csv] && !options[:noheader]
+            data ? print_data(data, options) : puts 
         end
 
         def print_data(data, options)
@@ -278,6 +282,18 @@ module CLIHelper
                 if options[:csv]
                     puts CSV.generate_line(@default_columns)
                     res_data.each {|l| puts CSV.generate_line(l) }
+                elsif options[:less]
+                    res_data.each{|l|
+                        $less_editor.puts (0..ncolumns-1).collect{ |i|
+                            dat=l[i]
+                            col=@default_columns[i]
+
+                            str=format_str(col, dat)
+                            str=CLIHelper.color_state(str) if i==stat_column
+                            
+                            str
+                        }.join(' ').rstrip
+                    }
                 else
                     res_data.each{|l|
                         puts (0..ncolumns-1).collect{ |i|
@@ -286,7 +302,7 @@ module CLIHelper
 
                             str=format_str(col, dat)
                             str=CLIHelper.color_state(str) if i==stat_column
-
+                            
                             str
                         }.join(' ').rstrip
                     }

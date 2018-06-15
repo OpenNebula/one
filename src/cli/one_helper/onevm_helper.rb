@@ -260,13 +260,12 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 cluster_names[c["ID"]] = c["NAME"]
             end
         end
-
         table = CLIHelper::ShowTable.new(config_file, self) do
             column :ID, "ONE identifier for Virtual Machine", :size=>6 do |d|
                 d["ID"]
             end
 
-            column :NAME, "Name of the Virtual Machine", :left,
+            column :NAME, "Name of the Virtual Machine", :left, :donottruncate,
                     :size=>15 do |d|
                 if d["RESCHED"] == "1"
                     "*#{d["NAME"]}"
@@ -275,12 +274,12 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 end
             end
 
-            column :USER, "Username of the Virtual Machine owner", :left,
+            column :USER, "Username of the Virtual Machine owner", :left, :donottruncate,
                     :size=>8 do |d|
                 helper.user_name(d, options)
             end
 
-            column :GROUP, "Group of the Virtual Machine", :left,
+            column :GROUP, "Group of the Virtual Machine", :left, :donottruncate,
                     :size=>8 do |d|
                 helper.group_name(d, options)
             end

@@ -604,41 +604,22 @@ EOT
                         end
                         #####???????????????????????????????????????????
 
+                        options[:less] = true
+                        $less_editor = IO.popen("less", "w")
                         table.show(nil, options)
                         options[:noheader] = true
                         for i in 1..terminal_lines
                            break if @array_storage_filed && @array_storage.length == 0
-                           table.show(@array_storage.shift, options)
+                           table.show(@array_storage.shift, options) if @array_storage.length > 0
+                           if !@array_storage_filed && @array_storage.length == 0
+                                sleep 0.5
+                                i = i-1
+                           end 
                         end
-                        interrupted = false
-
                         while !@array_storage_filed || @array_storage.length > 0
-                            STDIN.getch
-                           table.show(@array_storage.shift, options)
-                        end        
-                        
-                        
-
-                        
-                        
-                        # do HTTP request
-                        
-
-
-                        
-                        # lines = []
-                        # lines.push(table.show(nil, options))
-                        # options[:noheader] = true
-                        # puts "before while"
-                        # while !@array_storage_filed || @array_storage.length > 0
-                            # lines.push(table.show(@array_storage.shift, options))
-                        # end
-                        # puts "starting less"
-                        # IO.popen("less", "w") { |f|
-                            # lines.each do |line|
-                                # puts(line)
-                            # end
-                        # }
+                            table.show(@array_storage.shift, options) if @array_storage.length > 0
+                        end 
+                        $less_editor.close
                         
                 return 0
             end
