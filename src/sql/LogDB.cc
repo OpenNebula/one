@@ -568,7 +568,7 @@ int LogDB::purge_log()
     pthread_mutex_lock(&mutex);
 
     /* ---------------------------------------------------------------------- */
-    /* Non-federated records                                                  */
+    /* Non-federated records. Keep last log_retention records                 */
     /* ---------------------------------------------------------------------- */
     if ( last_index < log_retention )
     {
@@ -576,7 +576,6 @@ int LogDB::purge_log()
         return 0;
     }
 
-    // keep the last "log_retention" records as well as those not applied to DB
     oss << "DELETE FROM logdb WHERE timestamp > 0 AND log_index >= 0 "
         << "AND fed_index = -1 AND log_index < ("
         << "  SELECT MIN(i.log_index) FROM ("
@@ -589,29 +588,28 @@ int LogDB::purge_log()
     int rc = db->exec_wr(oss);
 
     /* ---------------------------------------------------------------------- */
-    /* Federated records                                                      */
+    /* Federated records. Keep last log_retention federated records           */
     /* ---------------------------------------------------------------------- */
     if ( fed_log.size() < log_retention) 
     {
         pthread_mutex_unlock(&mutex);
-        return 0;
+        return rc;
     }
 
-    int fed_records_delete = fed_log.size() - log_retention;
+    oss.str("");
 
-    std::set<int>::iterator it = fed_log.begin();
+    oss << "DELETE FROM logdb WHERE timestamp > 0 AND log_index >= 0 "
+        << "AND fed_index != -1 AND log_index < ("
+        << "  SELECT MIN(i.log_index) FROM ("
+        << "    SELECT log_index FROM logdb WHERE fed_index != -1 AND"
+        << "      timestamp > 0 AND log_index >= 0 "
+        << "      ORDER BY log_index DESC LIMIT " << log_retention
+        << "  ) AS i"
+        << ")";
 
-    for (int i=0; i < fed_records_delete; ++i)
-    {
-        oss.str("");
+    rc += db->exec_wr(oss);
 
-        oss << "DELETE FROM logdb WHERE timestamp > 0 AND log_index >= 0 "
-            << "AND fed_index = "  << *it;
-
-        db->exec_wr(oss);
-
-        it = fed_log.erase(it);
-    }
+    build_federated_index();
 
     pthread_mutex_unlock(&mutex);
 
