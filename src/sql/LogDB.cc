@@ -563,85 +563,71 @@ int LogDB::purge_log()
 {
     std::ostringstream oss;
 
-    int rc = 0;
+    empty_cb cb;
 
-    int fed_records_delete = 0;
-    int records_delete     = 0 ;
+    int rc = 0;
 
     pthread_mutex_lock(&mutex);
 
     /* ---------------------------------------------------------------------- */
-    /* Non-federated records                                                  */
+    /* Non-federated records. Keep last log_retention records                 */
     /* ---------------------------------------------------------------------- */
-    int delete_index = last_applied - log_retention;
+    oss << "DELETE FROM logdb WHERE timestamp > 0 AND log_index >= 0 "
+        << "AND fed_index = -1 AND log_index < ("
+        << "  SELECT MIN(i.log_index) FROM ("
+        << "    SELECT log_index FROM logdb WHERE fed_index = -1 AND"
+        << "      timestamp > 0 AND log_index >= 0 "
+        << "      ORDER BY log_index DESC LIMIT " << log_retention
+        << "  ) AS i"
+        << ")";
 
-    if ( delete_index > 0 )
+    if ( db->limit_support() )
     {
-        empty_cb cb;
+        oss << " LIMIT " << limit_purge;
+    }
 
-        // keep the last "log_retention" records as well as those not applied 
-        oss << "DELETE FROM logdb WHERE timestamp > 0 AND log_index >= 0 "
-            << "AND fed_index = -1 AND log_index < ("
-            << "  SELECT MIN(i.log_index) FROM ("
-            << "    SELECT log_index FROM logdb WHERE fed_index = -1 AND"
-            << "      timestamp > 0 AND log_index >= 0 "
-            << "      ORDER BY log_index DESC LIMIT " << log_retention
-            << "  ) AS i"
-            << ")";
-
-        if ( db->limit_support() )
-        {
-            oss << " LIMIT " << limit_purge;
-        }
-
-        rc = db->exec_wr(oss, &cb);
-
-        if ( rc != -1 )
-        {
-            records_delete = cb.get_affected_rows();
-        }
+    if ( db->exec_wr(oss, &cb) != -1 )
+    {
+        rc = cb.get_affected_rows();
     }
 
     /* ---------------------------------------------------------------------- */
-    /* Federated records                                                      */
+    /* Federated records. Keep last log_retention federated records           */
     /* ---------------------------------------------------------------------- */
-    if ( fed_log.size() < log_retention) 
+    if ( fed_log.size() < log_retention ) 
     {
-        fed_records_delete = 0;
-    }
-    else
-    {
-        fed_records_delete = fed_log.size() - log_retention;
+        pthread_mutex_unlock(&mutex);
 
-        if ( fed_records_delete > limit_purge )
-        {
-            fed_records_delete = limit_purge;
-        }
+        return rc;
     }
 
-    std::set<int>::iterator it = fed_log.begin();
+    cb.set_affected_rows(0);
 
-    for (int i=0; i < fed_records_delete; ++i)
+    oss.str("");
+
+    oss << "DELETE FROM logdb WHERE timestamp > 0 AND log_index >= 0 "
+        << "AND fed_index != -1 AND log_index < ("
+        << "  SELECT MIN(i.log_index) FROM ("
+        << "    SELECT log_index FROM logdb WHERE fed_index != -1 AND"
+        << "      timestamp > 0 AND log_index >= 0 "
+        << "      ORDER BY log_index DESC LIMIT " << log_retention
+        << "  ) AS i"
+        << ")";
+
+    if ( db->limit_support() )
     {
-        oss.str("");
-
-        oss << "DELETE FROM logdb WHERE timestamp > 0 AND log_index >= 0 "
-            << "AND fed_index = "  << *it;
-
-        db->exec_wr(oss);
-
-        it = fed_log.erase(it);
+        oss << " LIMIT " << limit_purge;
     }
+
+    if ( db->exec_wr(oss, &cb) != -1 )
+    {
+        rc += cb.get_affected_rows();
+    }
+
+    build_federated_index();
 
     pthread_mutex_unlock(&mutex);
-
-    records_delete += fed_records_delete ;
     
-    if ( records_delete > 0 )
-    {
-        return records_delete;
-    }
-
     return rc;
 }
 
