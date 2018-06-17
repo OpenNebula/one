@@ -811,18 +811,11 @@ void RaftManager::timer_action(const ActionRequest& ar)
 
         int rc = logdb->purge_log();
 
-        if ( rc != 0 ) //logs removed, wakeup again in 60s to purge reaming
+        purge_tics = 0;
+
+        if (rc > 0 && purge_period_ms > 60000) //logs removed, wakeup in 60s 
         {
             purge_tics = (int) ((purge_period_ms - 60000)/timer_period_ms);
-
-            if ( purge_tics < 0 )
-            {
-                purge_tics = 0;
-            }
-        }
-        else
-        {
-            purge_tics = 0;
         }
 
         oss << rc << " records purged";
