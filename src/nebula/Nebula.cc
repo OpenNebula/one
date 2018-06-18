@@ -480,10 +480,16 @@ void Nebula::start(bool bootstrap_only)
     MadManager::mad_manager_system_init();
 
     time_t timer_period;
-    time_t monitor_period;
+    time_t monitor_interval_host;
+    time_t monitor_interval_datastore;
+    time_t monitor_interval_market;
+    time_t monitor_interval_vm;
 
     nebula_configuration->get("MANAGER_TIMER", timer_period);
-    nebula_configuration->get("MONITORING_INTERVAL", monitor_period);
+    nebula_configuration->get("MONITORING_INTERVAL_HOST", monitor_interval_host);
+    nebula_configuration->get("MONITORING_INTERVAL_IMAGE", monitor_interval_datastore);
+    nebula_configuration->get("MONITORING_INTERVAL_MARKET", monitor_interval_market);
+    nebula_configuration->get("MONITORING_INTERVAL_VM", monitor_interval_vm);
 
     // ---- ACL Manager ----
     try
@@ -779,7 +785,7 @@ void Nebula::start(bool bootstrap_only)
 
         nebula_configuration->get("VM_INDIVIDUAL_MONITORING", do_poll);
 
-        poll_period = monitor_period * 2.5;
+        poll_period = monitor_interval_vm * 2.5;
 
         vmm = new VirtualMachineManager(
             timer_period,
@@ -834,7 +840,7 @@ void Nebula::start(bool bootstrap_only)
         im = new InformationManager(hpool,
                                     clpool,
                                     timer_period,
-                                    monitor_period,
+                                    monitor_interval_host,
                                     host_limit,
                                     monitor_threads,
                                     remotes_location,
@@ -929,7 +935,7 @@ void Nebula::start(bool bootstrap_only)
         nebula_configuration->get("DATASTORE_MAD", image_mads);
 
         imagem = new ImageManager(timer_period,
-                                  monitor_period,
+                                  monitor_interval_datastore,
                                   ipool,
                                   dspool,
                                   image_mads);
@@ -953,7 +959,7 @@ void Nebula::start(bool bootstrap_only)
 
         nebula_configuration->get("MARKET_MAD", mmads);
 
-        marketm = new MarketPlaceManager(timer_period, monitor_period, mmads);
+        marketm = new MarketPlaceManager(timer_period, monitor_interval_market, mmads);
     }
     catch (bad_alloc&)
     {

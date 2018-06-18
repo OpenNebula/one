@@ -153,9 +153,9 @@ sys  = OpenNebula::System.new(client)
 conf = sys.get_configuration
 
 begin
-    MONITORING_INTERVAL = conf['MONITORING_INTERVAL'] || 60
+    MONITORING_INTERVAL = conf['MONITORING_INTERVAL_HOST'] || 60
 rescue Exception => e
-    log_error "Could not get MONITORING_INTERVAL"
+    log_error "Could not get MONITORING_INTERVAL_HOST"
     log_error e.to_s
     exit_error
 end
