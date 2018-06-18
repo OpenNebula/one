@@ -217,7 +217,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :list, list_desc,
             :options=>CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS+
-            [OpenNebulaHelper::DESCRIBE] do
+            [OpenNebulaHelper::DESCRIBE]+[OpenNebulaHelper::NONINTERACTIVE] do
+        options[:noninteractive] = true if !$stdout.isatty
         helper.list_pool(options)
     end
 

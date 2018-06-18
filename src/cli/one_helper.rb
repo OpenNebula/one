@@ -78,10 +78,10 @@ EOT
         :description => "Describe list columns"
     }
 
-    ONCE={
-        :name  => "once",
-        :large => "--once",
-        :description => "Shows the whole output at once"
+    NONINTERACTIVE={
+        :name  => "noninteractive",
+        :large => "--non-interactive",
+        :description => "Shows the whole output at once, noninteractively"
     }
 
     APPEND = {
@@ -531,7 +531,7 @@ EOT
                 return -1, rc.message if OpenNebula.is_error?(rc)
                 return 0, pool.to_xml(true)
 
-            elsif options[:once]
+            elsif options[:noninteractive]
 
                 table = format_pool(options)
 
@@ -596,13 +596,11 @@ EOT
                 t1.join
                 
                         elements=array["#{rname}_POOL"][rname]
-                        #####???????????????????????????????????????????
                         if options[:ids] && elements
                             elements.reject! do |element|
                                 !options[:ids].include?(element['ID'].to_i)
                             end
                         end
-                        #####???????????????????????????????????????????
 
                         options[:less] = true
                         $less_editor = IO.popen("less", "w")
