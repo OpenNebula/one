@@ -146,7 +146,7 @@ define(function(require) {
     },
 
     'tableOrder': _config['user_config']['table_order'],
-    'vncProxyPort': _config['system_config']['vnc_proxy_port'],
+    'vncProxyPort': _config['system_config']['vnc_client_port'] || _config['system_config']['vnc_proxy_port'].split(':')[1] || _config['system_config']['vnc_proxy_port'],
     'vncWSS': _config['user_config']['vnc_wss'],
     'requestVNCPassword': _config['system_config']['vnc_request_password'],
     'logo': (_config['view']["small_logo"] || "images/one_small_logo.png"),
