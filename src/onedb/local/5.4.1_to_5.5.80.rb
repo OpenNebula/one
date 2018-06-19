@@ -35,12 +35,42 @@ module Migrator
 
         feature_1709()
 
+        feature_1377()
+
         log_time()
 
         return true
     end
 
     private
+
+    def feature_1377()
+        @db.run "ALTER TABLE document_pool RENAME TO old_document_pool;"
+        @db.run "CREATE TABLE document_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, type INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
+
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_document_pool") do |row|
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+                delete_element(doc, "LOCK")
+
+                @db[:document_pool].insert(
+                    :oid        => row[:oid],
+                    :name       => row[:name],
+                    :body       => doc.root.to_s,
+                    :type       => row[:type],
+                    :uid        => row[:uid],
+                    :gid        => row[:gid],
+                    :owner_u    => row[:owner_u],
+                    :group_u    => row[:group_u],
+                    :other_u    => row[:other_u]
+                )
+            end
+        end
+
+      @db.run "DROP TABLE old_document_pool;"
+
+    end
 
     def xpath(doc, sxpath)
         element = doc.root.at_xpath(sxpath)
