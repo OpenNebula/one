@@ -42,8 +42,6 @@ ClusterPool * MonitorThread::cpool;
 
 VirtualMachinePool * MonitorThread::vmpool;
 
-time_t MonitorThread::monitor_interval;
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -319,9 +317,6 @@ MonitorThreadPool::MonitorThreadPool(int max_thr):concurrent_threads(max_thr),
     MonitorThread::cpool  = Nebula::instance().get_clpool();
 
     MonitorThread::vmpool = Nebula::instance().get_vmpool();
-
-    Nebula::instance().get_configuration_attribute("MONITORING_INTERVAL",
-        MonitorThread::monitor_interval);
 
     MonitorThread::mthpool= this;
 
