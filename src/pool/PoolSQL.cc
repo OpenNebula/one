@@ -225,7 +225,7 @@ int PoolSQL::dump(ostringstream& oss, const string& elem_name, const char* table
         cmd << " WHERE " << where;
     }
 
-    cmd << " ORDER BY oid";
+    cmd << " ORDER BY oid DESC";
 
     if ( !limit.empty() )
     {
