@@ -487,7 +487,7 @@ void Nebula::start(bool bootstrap_only)
 
     nebula_configuration->get("MANAGER_TIMER", timer_period);
     nebula_configuration->get("MONITORING_INTERVAL_HOST", monitor_interval_host);
-    nebula_configuration->get("MONITORING_INTERVAL_IMAGE", monitor_interval_datastore);
+    nebula_configuration->get("MONITORING_INTERVAL_DATASTORE", monitor_interval_datastore);
     nebula_configuration->get("MONITORING_INTERVAL_MARKET", monitor_interval_market);
     nebula_configuration->get("MONITORING_INTERVAL_VM", monitor_interval_vm);
 
@@ -777,7 +777,6 @@ void Nebula::start(bool bootstrap_only)
         int    vm_limit;
 
         bool   do_poll;
-        time_t poll_period = 0;
 
         nebula_configuration->get("VM_PER_INTERVAL", vm_limit);
 
@@ -785,11 +784,9 @@ void Nebula::start(bool bootstrap_only)
 
         nebula_configuration->get("VM_INDIVIDUAL_MONITORING", do_poll);
 
-        poll_period = monitor_interval_vm * 2.5;
-
         vmm = new VirtualMachineManager(
             timer_period,
-            poll_period,
+            monitor_interval_vm,
             do_poll,
             vm_limit,
             vmm_mads);
