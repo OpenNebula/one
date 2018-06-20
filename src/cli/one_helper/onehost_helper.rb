@@ -105,7 +105,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.cluster_str(d["CLUSTER"])
             end
 
-            column :RVM, "Number of Virtual Machines running", :size=>3 do |d|
+            column :TVM, "Total Virtual Machines allocated to the Host", :size=>3 do |d|
                 d["HOST_SHARE"]["RUNNING_VMS"] || 0
             end
 
@@ -210,7 +210,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 OneHostHelper.state_to_str(d["STATE"])
             end
 
-            default :ID, :NAME, :CLUSTER, :RVM, :ALLOCATED_CPU, :ALLOCATED_MEM, :STAT
+            default :ID, :NAME, :CLUSTER, :TVM, :ALLOCATED_CPU, :ALLOCATED_MEM, :STAT
         end
 
         table
