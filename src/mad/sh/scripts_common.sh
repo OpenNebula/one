@@ -32,6 +32,7 @@ LVCREATE=${LVCREATE:-lvcreate}
 LVREMOVE=${LVREMOVE:-lvremove}
 LVCHANGE=${LVCHANGE:-lvchange}
 LVSCAN=${LVSCAN:-lvscan}
+LVEXTEND=${LVEXTEND:-lvextend}
 LVS=${LVS:-lvs}
 LN=${LN:-ln}
 MD5SUM=${MD5SUM:-md5sum}
