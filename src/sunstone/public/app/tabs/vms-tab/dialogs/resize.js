@@ -22,10 +22,9 @@ define(function(require) {
   var BaseDialog = require('utils/dialogs/dialog');
   var TemplateHTML = require('hbs!./resize/html');
   var Sunstone = require('sunstone');
-  var Notifier = require('utils/notifier');
   var Tips = require('utils/tips');
   var CapacityInputs = require('tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs');
-  var WizardFields = require('utils/wizard-fields');
+  var Config = require('sunstone-config');
 
   /*
     CONSTANTS
@@ -71,6 +70,8 @@ define(function(require) {
 
     Tips.setup(context);
 
+    $("#enforce", context).attr("checked", Config.isFeatureEnabled("resize_enforce"));
+
     $('#' + DIALOG_ID + 'Form', context).submit(function() {
       var templateJSON = CapacityInputs.retrieveChanges(context);
 
@@ -98,8 +99,6 @@ define(function(require) {
 
     CapacityInputs.fill(context, that.element);
 
-    // TODO context.foundation('slider', 'reflow');
-    
     return false;
   }
 
