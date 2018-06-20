@@ -28,6 +28,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var Locale = require('utils/locale');
   var OpenNebulaVM = require('opennebula/vm');
+  var Config = require('sunstone-config');
 
   /*
     CONSTANTS
@@ -83,6 +84,8 @@ define(function(require) {
     that.datastoresTable.initialize();
 
     Tips.setup(context);
+
+    $("#enforce", context).attr("checked", Config.isFeatureEnabled("migrate_enforce"));
 
     $('#' + DIALOG_ID + 'Form', context).submit(function() {
       var extra_info = {};

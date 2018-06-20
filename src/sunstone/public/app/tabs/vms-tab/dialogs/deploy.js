@@ -26,6 +26,7 @@ define(function(require) {
   var HostsTable = require('tabs/hosts-tab/datatable');
   var Notifier = require('utils/notifier');
   var Tips = require('utils/tips');
+  var Config = require('sunstone-config');
 
   /*
     CONSTANTS
@@ -80,6 +81,8 @@ define(function(require) {
     that.datastoresTable.initialize();
 
     Tips.setup(context);
+
+    $("#enforce", context).attr("checked", Config.isFeatureEnabled("deploy_enforce"));
 
     $('#' + DIALOG_ID + 'Form', context).submit(function() {
       var extra_info = {};
