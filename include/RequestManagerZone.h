@@ -84,6 +84,22 @@ public:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+class ZoneSyncServer : public RequestManagerZone
+{
+public:
+    ZoneSyncServer():
+        RequestManagerZone("one.zone.syncserver", "Sync a server to zone",
+                "A:sis"){};
+
+    ~ZoneSyncServer(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 class ZoneReplicateLog : public RequestManagerZone
 {
 public:

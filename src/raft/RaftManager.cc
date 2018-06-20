@@ -1286,4 +1286,10 @@ std::string& RaftManager::to_xml(std::string& raft_xml)
     return raft_xml;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
+void RaftManager::reset_index(int follower_id)
+{
+    //TODO
+}

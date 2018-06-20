@@ -128,6 +128,17 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
 
     end
+
+    syncserver_desc = <<-EOT.unindent
+        Sync an OpenNebula server from the list of out of sync servers.
+    EOT
+
+    command :"server-sync", syncserver_desc, :zoneid, :serverid do
+        helper.perform_action(args[0], options, "server synchronized") do |o|
+            o.sync_servers(args[1].to_i)
+        end
+    end
+
     update_desc = <<-EOT.unindent
         Update the template contents. If a path is not provided the editor will
         be launched to modify the current content.

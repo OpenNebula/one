@@ -806,6 +806,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr zone_rename(zone_rename_pt);
     xmlrpc_c::methodPtr zone_addserver(new ZoneAddServer());
     xmlrpc_c::methodPtr zone_delserver(new ZoneDeleteServer());
+    xmlrpc_c::methodPtr zone_syncserver(new ZoneSyncServer());
     xmlrpc_c::methodPtr zone_replicatelog(new ZoneReplicateLog());
     xmlrpc_c::methodPtr zone_voterequest(new ZoneVoteRequest());
     xmlrpc_c::methodPtr zone_raftstatus(new ZoneRaftStatus());
@@ -826,6 +827,7 @@ void RequestManager::register_xml_methods()
 
     RequestManagerRegistry.addMethod("one.zone.addserver", zone_addserver);
     RequestManagerRegistry.addMethod("one.zone.delserver", zone_delserver);
+    RequestManagerRegistry.addMethod("one.zone.syncserver", zone_syncserver);
 
     RequestManagerRegistry.addMethod("one.zonepool.info",zonepool_info);
 
