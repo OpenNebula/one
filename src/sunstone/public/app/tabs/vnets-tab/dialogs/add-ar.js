@@ -68,11 +68,10 @@ define(function(require) {
   function _setup(context) {
     var that = this;
     Foundation.reflow(context, 'abide');
-    
+
     that.arTab.setup(context, "add_ar");
 
     $('#submit_ar_reset_button', context).click(function(){
-      Sunstone.getDialog(DIALOG_ID).reset();
       Sunstone.getDialog(DIALOG_ID).show();
     });
 
