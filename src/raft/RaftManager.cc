@@ -1291,5 +1291,16 @@ std::string& RaftManager::to_xml(std::string& raft_xml)
 
 void RaftManager::reset_index(int follower_id)
 {
-    //TODO
+    std::map<int, unsigned int>::iterator next_it;
+
+    pthread_mutex_lock(&mutex);
+
+    next_it = next.find(follower_id);
+
+    if ( next_it != next.end() )
+    {
+        next_it->second = commit;
+    }
+
+    pthread_mutex_unlock(&mutex);
 }
