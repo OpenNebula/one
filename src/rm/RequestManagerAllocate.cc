@@ -353,6 +353,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     string ds_driver;
 
     bool   ds_persistent_only;
+    bool check_capacity =  true;
 
     Datastore::DatastoreType ds_type;
 
@@ -362,6 +363,11 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     string str_tmpl = xmlrpc_c::value_string(params.getString(1));
     int    ds_id    = xmlrpc_c::value_int(params.getInt(2));
+
+    if ( params.size() > 3 && att.is_admin() )
+    {
+        check_capacity = xmlrpc_c::value_boolean(params.getBoolean(3));
+    }
 
     Nebula&  nd  = Nebula::instance();
 
@@ -433,7 +439,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     ds_name            = ds->get_name();
     ds_disk_type       = ds->get_disk_type();
-    ds_check           = ds->get_avail_mb(avail);
+    ds_check           = ds->get_avail_mb(avail) && check_capacity;
     ds_persistent_only = ds->is_persistent_only();
     ds_mad             = ds->get_ds_mad();
     tm_mad             = ds->get_tm_mad();
