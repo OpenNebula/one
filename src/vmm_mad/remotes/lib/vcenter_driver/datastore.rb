@@ -765,7 +765,7 @@ class ImageImporter < VCenterDriver::VcImporter
         dsid = selected[:dsid].to_i
         name = selected[:name]
 
-        rc = resource.allocate(info, dsid)
+        rc = resource.allocate(info, dsid, false)
         VCenterDriver::VIHelper.check_error(rc, message)
 
         resource.info
