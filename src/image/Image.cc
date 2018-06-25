@@ -598,6 +598,17 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
         }
     }
 
+    //Image is being copied/cloned
+    if ( state == Image::LOCKED_USED || state == Image::LOCKED_USED_PERS 
+            || state == Image::LOCKED )
+    {
+        disk->replace("CLONING", "YES");
+    }
+    else
+    {
+        disk->remove("CLONING");
+    }
+
     //--------------------------------------------------------------------------
     //   TYPE attribute
     //--------------------------------------------------------------------------
