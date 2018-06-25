@@ -82,6 +82,21 @@ if [ $FILE_SIZE -gt $SIZE ]; then
     SIZE="$FILE_SIZE"
 fi
 
+# Compute the seek start for zeroing of the new LV as the smaller
+# number of ONE or file image virtual size. We start to zero from
+# 1 MiB before the end of image size prior to the copying.
+if [ "${FILE_SIZE}" -lt "${SIZE}" ]; then
+	ZERO_SEEK_BYTES=$FILE_SIZE
+else
+	ZERO_SEEK_BYTES=$SIZE
+fi
+
+if [ "${ZERO_SEEK_BYTES}" -gt 0 ]; then
+	ZERO_SEEK_BYTES=$(( (ZERO_SEEK_BYTES-1) * 1024 * 1024 ))
+else
+	ZERO_SEEK_BYTES=0
+fi
+
 #-------------------------------------------------------------------------------
 # Create the snapshot and link it
 #-------------------------------------------------------------------------------
@@ -108,6 +123,12 @@ CLONE_CMD=$(cat <<EOF
     mkdir -p $DST_DIR
 
     hostname -f >"${DST_DIR}/.host" || :
+
+    # zero trailing space
+    LVSIZE=\$(${SUDO} ${LVS} --nosuffix --noheadings --units B -o lv_size "${DEV}" | tr -d '[:blank:]')
+    ${DD} if=/dev/zero of="${DEV}" bs=64k \
+        oflag=seek_bytes iflag=count_bytes \
+        seek="${ZERO_SEEK_BYTES}" count="\$(( LVSIZE - ${ZERO_SEEK_BYTES} ))"
 
     $QEMU_IMG convert -O raw "$SRC_PATH" "$DEV"
     rm -f "$DST_PATH"
