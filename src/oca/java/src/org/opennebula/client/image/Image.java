@@ -97,7 +97,7 @@ public class Image extends PoolElement
             Client  client,
             String  description,
             int     datastoreId,
-            boolean check_capacity)
+            boolean check_capacity = true)
     {
         return client.call(ALLOCATE, description, datastoreId, check_capacity);
     }
