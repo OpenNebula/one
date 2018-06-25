@@ -211,7 +211,7 @@ public:
     ImageAllocate():
         RequestManagerAllocate("one.image.allocate",
                                "Allocates a new image",
-                               "A:ssi",
+                               "A:ssib",
                                true)
     {
         Nebula& nd  = Nebula::instance();
