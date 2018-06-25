@@ -352,7 +352,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     string tm_mad;
     string ds_driver;
 
-    bool   ds_persistent_only;
+    bool ds_persistent_only;
     bool check_capacity =  true;
 
     Datastore::DatastoreType ds_type;
