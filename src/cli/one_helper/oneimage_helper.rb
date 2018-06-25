@@ -160,6 +160,14 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         OpenNebulaHelper::DRY
     ]
 
+    IMAGE = {
+        :name => "no_check_capacity",
+        :large => "--no_check_capacity",
+        :description =>
+            "Check Datastore capacity. By Default YES",
+        :format => String
+    }
+
     def self.rname
         "IMAGE"
     end

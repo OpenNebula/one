@@ -75,7 +75,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     list_options << OpenNebulaHelper::NUMERIC
     list_options << OpenNebulaHelper::DESCRIBE
 
-    CREATE_OPTIONS = [OneDatastoreHelper::DATASTORE]
+    CREATE_OPTIONS = [OneDatastoreHelper::DATASTORE, OneImageHelper::IMAGE]
 
     ########################################################################
     # Formatters for arguments
@@ -147,6 +147,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             exit -1
         end
 
+        check_capacity = options[:no_check_capacity].nil? ? false : true;
+
         if args[0] && OpenNebulaHelper.create_template_options_used?(options)
             STDERR.puts "You can not use both template file and template"<<
                 " creation options."
@@ -173,7 +175,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                     exit 0
                 end
 
-                image.allocate(template, options[:datastore])
+                image.allocate(template, options[:datastore], check_capacity)
             rescue => e
                 STDERR.puts e.messsage
                 exit -1
