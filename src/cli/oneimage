@@ -362,7 +362,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Lists Images in the pool
     EOT
 
-    command :list, list_desc, [:filterflag, nil], :options=>[OpenNebulaHelper::NONINTERACTIVE]+list_options do
+    command :list, list_desc, [:filterflag, nil], :options=>list_options do
         options[:noninteractive] = true if !$stdout.isatty
         helper.list_pool(options, false, args[0])
     end

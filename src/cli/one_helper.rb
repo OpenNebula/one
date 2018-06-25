@@ -78,12 +78,6 @@ EOT
         :description => "Describe list columns"
     }
 
-    NONINTERACTIVE={
-        :name  => "noninteractive",
-        :large => "--non-interactive",
-        :description => "Shows the whole output at once, noninteractively"
-    }
-
     APPEND = {
         :name => "append",
         :short => "-a",
@@ -572,7 +566,7 @@ EOT
                 t1 = Thread.new {
                     array = []
                     current = 0
-                    #size = 10
+                    # size = 10
                     size = OpenNebula.pool_page_size if !size
                     @array_storage = []
                     @array_storage_filed=false
