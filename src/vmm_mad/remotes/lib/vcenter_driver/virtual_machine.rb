@@ -314,7 +314,7 @@ class Template
                         # Then the image is created as it's not in the datastore
                         one_i = VCenterDriver::VIHelper.new_one_item(OpenNebula::Image)
                         allocated_images << one_i
-                        rc = one_i.allocate(image_import[:template], datastore_found['ID'].to_i)
+                        rc = one_i.allocate(image_import[:template], datastore_found['ID'].to_i, false)
 
                         if OpenNebula.is_error?(rc)
                             error = "    Error creating disk from template: #{rc.message}\n"
