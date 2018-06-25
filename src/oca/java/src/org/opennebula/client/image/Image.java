@@ -88,6 +88,24 @@ public class Image extends PoolElement
      * @param client XML-RPC Client.
      * @param description A string containing the template of the image.
      * @param datastoreId The Datastore ID
+     *
+     * @return If successful the message contains the associated
+     * id generated for this Image.
+     */
+    public static OneResponse allocate(
+            Client  client,
+            String  description,
+            int     datastoreId)
+    {
+        return client.call(ALLOCATE, description, datastoreId, false);
+    }
+
+    /**
+     * Allocates a new Image in OpenNebula.
+     *
+     * @param client XML-RPC Client.
+     * @param description A string containing the template of the image.
+     * @param datastoreId The Datastore ID
      * @param check_capacity to check datastore capacity
      *
      * @return If successful the message contains the associated
@@ -97,9 +115,9 @@ public class Image extends PoolElement
             Client  client,
             String  description,
             int     datastoreId,
-            boolean check_capacity = true)
+            boolean no_check_capacity)
     {
-        return client.call(ALLOCATE, description, datastoreId, check_capacity);
+        return client.call(ALLOCATE, description, datastoreId, no_check_capacity);
     }
 
     /**
