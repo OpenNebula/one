@@ -176,7 +176,7 @@ int Snapshots::create_snapshot(const string& name, long long size_mb)
         snapshot->replace("PARENT", "-1");
     }
 
-    snapshot_template.replace("NEXT_SNAPSHOST", next_snapshot + 1);
+    snapshot_template.replace("NEXT_SNAPSHOT", next_snapshot + 1);
 
     snapshot_template.set(snapshot);
 
