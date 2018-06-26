@@ -101,14 +101,14 @@ class OneVMGroupHelper < OpenNebulaHelper::OneHelper
         str_h1="%-80s"
 
         CLIHelper.print_header(
-            str_h1 % "VM GROUP #{vmgroup['ID']} INFORMATION")
+            str_h1 % "VM GROUP #{vmgroup['ID']} INFORMATION",true,options)
         puts str % ["ID", vmgroup.id.to_s]
         puts str % ["NAME", vmgroup.name]
         puts str % ["USER", vmgroup['UNAME']]
         puts str % ["GROUP", vmgroup['GNAME']]
         puts str % ["LOCK", OpenNebulaHelper.level_lock_to_str(vmgroup['LOCK/LOCKED'])]
 
-        CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
+        CLIHelper.print_header(str_h1 % "PERMISSIONS",false,options)
 
         puts
 
@@ -123,7 +123,7 @@ class OneVMGroupHelper < OpenNebulaHelper::OneHelper
 
         puts
 
-        CLIHelper.print_header(str_h1 % "ROLES", false)
+        CLIHelper.print_header(str_h1 % "ROLES", false,options)
 
         if !vmgroup.to_hash['VM_GROUP']['ROLES']['ROLE'].nil?
             roles = [vmgroup.to_hash['VM_GROUP']['ROLES']['ROLE']].flatten
@@ -169,7 +169,7 @@ class OneVMGroupHelper < OpenNebulaHelper::OneHelper
 
         puts
 
-        CLIHelper.print_header(str_h1 % "TEMPLATE CONTENTS",false)
+        CLIHelper.print_header(str_h1 % "TEMPLATE CONTENTS",false,options)
         puts vmgroup.template_str
     end
 end

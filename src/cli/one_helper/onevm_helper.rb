@@ -572,7 +572,7 @@ in the frontend machine.
         end
 
         CLIHelper.print_header(
-            str_h1 % "VIRTUAL MACHINE #{vm['ID']} INFORMATION")
+            str_h1 % "VIRTUAL MACHINE #{vm['ID']} INFORMATION", true, options)
         puts str % ["ID", vm.id.to_s]
         puts str % ["NAME", vm.name]
         puts str % ["USER", vm['UNAME']]
@@ -597,7 +597,7 @@ in the frontend machine.
 
         puts
 
-        CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE MONITORING",false)
+        CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE MONITORING",false, options)
 
         vm_monitoring = vm_hash['VM']['MONITORING']
 
@@ -639,7 +639,7 @@ in the frontend machine.
 
         puts
 
-        CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
+        CLIHelper.print_header(str_h1 % "PERMISSIONS",false,options)
 
         ["OWNER", "GROUP", "OTHER"].each { |e|
             mask = "---"
@@ -678,7 +678,7 @@ in the frontend machine.
 
         if !vm_disks.empty?
             puts
-            CLIHelper.print_header(str_h1 % "VM DISKS",false)
+            CLIHelper.print_header(str_h1 % "VM DISKS",false,options)
             CLIHelper::ShowTable.new(nil, self) do
                 column :ID, "", :size=>3 do |d|
                     d["DISK_ID"]
@@ -1111,12 +1111,12 @@ in the frontend machine.
                 vm.delete_element("/VM/USER_TEMPLATE/SCHED_ACTION")
             end
 
-            CLIHelper.print_header(str_h1 % "USER TEMPLATE",false)
+            CLIHelper.print_header(str_h1 % "USER TEMPLATE",false,options)
             puts vm.template_like_str('USER_TEMPLATE')
         end
 
         puts
-        CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE TEMPLATE",false)
+        CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE TEMPLATE",false,options)
         puts vm.template_str
     end
 

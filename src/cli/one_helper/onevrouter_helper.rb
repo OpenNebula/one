@@ -104,7 +104,7 @@ class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
         str_h1="%-80s"
 
         CLIHelper.print_header(
-            str_h1 % "VIRTUAL ROUTER #{obj['ID']} INFORMATION")
+            str_h1 % "VIRTUAL ROUTER #{obj['ID']} INFORMATION",true,options)
         puts str % ["ID", obj.id.to_s]
         puts str % ["NAME", obj.name]
         puts str % ["USER", obj['UNAME']]
@@ -112,7 +112,7 @@ class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
         puts str % ["LOCK", OpenNebulaHelper.level_lock_to_str(obj['LOCK/LOCKED'])]
         puts
 
-        CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
+        CLIHelper.print_header(str_h1 % "PERMISSIONS",false,options)
 
         ["OWNER", "GROUP", "OTHER"].each { |e|
             mask = "---"
@@ -125,7 +125,7 @@ class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
 
         if obj.has_elements?("/VROUTER/TEMPLATE/NIC")
             puts
-            CLIHelper.print_header(str_h1 % "VIRTUAL ROUTER NICS",false)
+            CLIHelper.print_header(str_h1 % "VIRTUAL ROUTER NICS",false,options)
 
             nic_default = {"NETWORK" => "-",
                            "IP" => "-"}
@@ -215,12 +215,12 @@ class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
 
         puts
 
-        CLIHelper.print_header(str_h1 % "TEMPLATE CONTENTS",false)
+        CLIHelper.print_header(str_h1 % "TEMPLATE CONTENTS",false,options)
         puts obj.template_str
 
         puts
 
-        CLIHelper.print_header("%-15s" % "VIRTUAL MACHINES")
+        CLIHelper.print_header("%-15s" % "VIRTUAL MACHINES",true,options)
         obj.vm_ids.each do |id|
             puts "%-15s" % [id]
         end

@@ -180,7 +180,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
     end
 
     def show_ar(vn, ar_id)
-        CLIHelper.print_header("%-80s" % ["TEMPLATE FOR AR #{ar_id}"], false)
+        CLIHelper.print_header("%-80s" % ["TEMPLATE FOR AR #{ar_id}"], false,options)
 
         begin
             template = vn.template_like_str("AR_POOL/AR[AR_ID=#{ar_id}]")
@@ -212,7 +212,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
 
         str_h1="%-80s"
         CLIHelper.print_header(str_h1 %
-            ["VIRTUAL NETWORK #{vn.id.to_s} INFORMATION"])
+            ["VIRTUAL NETWORK #{vn.id.to_s} INFORMATION"],true,options)
 
         str="%-25s: %-20s"
         puts str % ["ID", vn.id.to_s]
@@ -232,7 +232,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         puts str % ["USED LEASES", vn['USED_LEASES']]
         puts
 
-        CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
+        CLIHelper.print_header(str_h1 % "PERMISSIONS",false,options)
 
         ["OWNER", "GROUP", "OTHER"].each { |e|
             mask = "---"
@@ -245,13 +245,13 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
 
         puts
 
-        CLIHelper.print_header(str_h1 % ["VIRTUAL NETWORK TEMPLATE"], false)
+        CLIHelper.print_header(str_h1 % ["VIRTUAL NETWORK TEMPLATE"], false,options)
 
         puts vn.template_str(false)
 
         puts
 
-        CLIHelper.print_header(str_h1 % ["ADDRESS RANGE POOL"], false)
+        CLIHelper.print_header(str_h1 % ["ADDRESS RANGE POOL"], false,options)
 
         arlist = []
 
@@ -261,7 +261,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
 
         arlist.each do |ar|
 
-            CLIHelper.print_header("%-80s" % "AR #{ar["AR_ID"]}")
+            CLIHelper.print_header("%-80s" % "AR #{ar["AR_ID"]}",true,options)
 
             str="%-15s: %-20s"
             puts str % ["SIZE", ar["SIZE"]]
@@ -271,7 +271,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
             puts
 
             format = "%-10s %34s %34s"
-            CLIHelper.print_header(format % ["RANGE", "FIRST", "LAST"], false)
+            CLIHelper.print_header(format % ["RANGE", "FIRST", "LAST"], false,options)
 
             puts format % ["MAC", ar["MAC"], ar["MAC_END"]]
 
@@ -295,7 +295,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         end
 
         puts
-        CLIHelper.print_header(str_h1 % ["LEASES"], false)
+        CLIHelper.print_header(str_h1 % ["LEASES"], false,options)
 
         ar_list = []
 
@@ -349,7 +349,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
 
         puts
 
-        CLIHelper.print_header("%-15s" % "VIRTUAL ROUTERS")
+        CLIHelper.print_header("%-15s" % "VIRTUAL ROUTERS",true,options)
         vn.vrouter_ids.each do |id|
             puts "%-15s" % [id]
         end

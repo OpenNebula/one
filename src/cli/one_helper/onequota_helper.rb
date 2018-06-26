@@ -196,7 +196,7 @@ class OneQuotaHelper
 
         puts
 
-        CLIHelper.print_header(str_h1 % "RESOURCE USAGE & QUOTAS",false)
+        CLIHelper.print_header(str_h1 % "RESOURCE USAGE & QUOTAS",false,options)
 
         puts
 

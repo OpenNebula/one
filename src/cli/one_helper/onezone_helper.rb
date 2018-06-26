@@ -123,7 +123,7 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
         str="%-18s: %-20s"
         str_h1="%-80s"
 
-        CLIHelper.print_header(str_h1 % "ZONE #{zone['ID']} INFORMATION")
+        CLIHelper.print_header(str_h1 % "ZONE #{zone['ID']} INFORMATION",true,options)
         puts str % ["ID",   zone.id.to_s]
         puts str % ["NAME", zone.name]
         puts
@@ -133,7 +133,7 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
         if zone.has_elements?("/ZONE/SERVER_POOL/SERVER")
 
             puts
-            CLIHelper.print_header(str_h1 % "ZONE SERVERS",false)
+            CLIHelper.print_header(str_h1 % "ZONE SERVERS",false,options)
 
             CLIHelper::ShowTable.new(nil, self) do
 
@@ -151,7 +151,7 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
             end.show([zone_hash['ZONE']['SERVER_POOL']['SERVER']].flatten, {})
 
             puts
-            CLIHelper.print_header(str_h1 % "HA & FEDERATION SYNC STATUS",false)
+            CLIHelper.print_header(str_h1 % "HA & FEDERATION SYNC STATUS",false,options)
 
             CLIHelper::ShowTable.new(nil, self) do
 
@@ -199,7 +199,7 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
 
         puts
 
-        CLIHelper.print_header(str_h1 % "ZONE TEMPLATE", false)
+        CLIHelper.print_header(str_h1 % "ZONE TEMPLATE", false,options)
         puts zone.template_str
     end
 end

@@ -268,7 +268,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         str="%-15s: %-20s"
         str_h1="%-80s"
 
-        CLIHelper.print_header(str_h1 % "IMAGE #{image['ID']} INFORMATION")
+        CLIHelper.print_header(str_h1 % "IMAGE #{image['ID']} INFORMATION",true,options)
         puts str % ["ID",   image.id.to_s]
         puts str % ["NAME", image.name]
         puts str % ["USER", image['UNAME']]
@@ -288,7 +288,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         puts str % ["RUNNING_VMS", image['RUNNING_VMS']]
         puts
 
-        CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
+        CLIHelper.print_header(str_h1 % "PERMISSIONS",false,options)
 
         ["OWNER", "GROUP", "OTHER"].each { |e|
             mask = "---"
@@ -301,17 +301,17 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
 
         if image.has_elements?("/IMAGE/SNAPSHOTS/SNAPSHOT")
             puts
-            CLIHelper.print_header(str_h1 % "IMAGE SNAPSHOTS",false)
+            CLIHelper.print_header(str_h1 % "IMAGE SNAPSHOTS",false,options)
             format_snapshots(image)
         end
 
         puts
 
-        CLIHelper.print_header(str_h1 % "IMAGE TEMPLATE",false)
+        CLIHelper.print_header(str_h1 % "IMAGE TEMPLATE",false,options)
         puts image.template_str
 
         puts
-        CLIHelper.print_header("VIRTUAL MACHINES", false)
+        CLIHelper.print_header("VIRTUAL MACHINES", false,options)
         puts
 
         vms=image.retrieve_elements("VMS/ID")

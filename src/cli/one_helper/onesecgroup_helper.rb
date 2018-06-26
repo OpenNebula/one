@@ -105,13 +105,13 @@ class OneSecurityGroupHelper < OpenNebulaHelper::OneHelper
         str_h1="%-80s"
 
         CLIHelper.print_header(
-            str_h1 % "SECURITY GROUP #{secgroup['ID']} INFORMATION")
+            str_h1 % "SECURITY GROUP #{secgroup['ID']} INFORMATION",true,options)
         puts str % ["ID", secgroup.id.to_s]
         puts str % ["NAME", secgroup.name]
         puts str % ["USER", secgroup['UNAME']]
         puts str % ["GROUP", secgroup['GNAME']]
 
-        CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
+        CLIHelper.print_header(str_h1 % "PERMISSIONS",false,options)
 
         ["OWNER", "GROUP", "OTHER"].each { |e|
             mask = "---"
@@ -124,7 +124,7 @@ class OneSecurityGroupHelper < OpenNebulaHelper::OneHelper
 
         puts
 
-        CLIHelper.print_header(str_h1 % "VIRTUAL MACHINES", false)
+        CLIHelper.print_header(str_h1 % "VIRTUAL MACHINES", false,options)
 
         updated, outdated, error = secgroup.vm_ids
 
@@ -134,7 +134,7 @@ class OneSecurityGroupHelper < OpenNebulaHelper::OneHelper
 
         puts
 
-        CLIHelper.print_header(str_h1 % ["RULES"], false)
+        CLIHelper.print_header(str_h1 % ["RULES"], false,options)
 
         if !secgroup.to_hash['SECURITY_GROUP']['TEMPLATE']['RULE'].nil?
             rule_list = [secgroup.to_hash['SECURITY_GROUP']['TEMPLATE']['RULE']].flatten
@@ -196,7 +196,7 @@ class OneSecurityGroupHelper < OpenNebulaHelper::OneHelper
 
         puts
 
-        CLIHelper.print_header(str_h1 % "TEMPLATE CONTENTS",false)
+        CLIHelper.print_header(str_h1 % "TEMPLATE CONTENTS",false,options)
         puts secgroup.template_str
     end
 end

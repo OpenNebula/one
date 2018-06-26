@@ -432,7 +432,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         str_h1 = "%-80s"
 
         CLIHelper.print_header(
-            str_h1 % "HOST #{host.id.to_s} INFORMATION", true)
+            str_h1 % "HOST #{host.id.to_s} INFORMATION", true,options)
 
         puts str % ["ID", host.id.to_s]
         puts str % ["NAME", host.name]
@@ -443,16 +443,16 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         puts str % ["LAST MONITORING TIME", OpenNebulaHelper.time_to_str(host['LAST_MON_TIME'])]
         puts
 
-        CLIHelper.print_header(str_h1 % "HOST SHARES", false)
+        CLIHelper.print_header(str_h1 % "HOST SHARES", false,options)
         puts str % ["RUNNING VMS", host['HOST_SHARE/RUNNING_VMS']]
 
-        CLIHelper.print_header(str_h1 % "MEMORY", false)
+        CLIHelper.print_header(str_h1 % "MEMORY", false,options)
           puts str % ["  TOTAL", OpenNebulaHelper.unit_to_str(host['HOST_SHARE/TOTAL_MEM'].to_i, {})]
           puts str % ["  TOTAL +/- RESERVED", OpenNebulaHelper.unit_to_str(host['HOST_SHARE/MAX_MEM'].to_i, {})]
           puts str % ["  USED (REAL)", OpenNebulaHelper.unit_to_str(host['HOST_SHARE/USED_MEM'].to_i, {})]
           puts str % ["  USED (ALLOCATED)", OpenNebulaHelper.unit_to_str(host['HOST_SHARE/MEM_USAGE'].to_i, {})]
 
-        CLIHelper.print_header(str_h1 % "CPU", false)
+        CLIHelper.print_header(str_h1 % "CPU", false,options)
           puts str % ["  TOTAL", host['HOST_SHARE/TOTAL_CPU']]
           puts str % ["  TOTAL +/- RESERVED", host['HOST_SHARE/MAX_CPU']]
           puts str % ["  USED (REAL)", host['HOST_SHARE/USED_CPU']]
@@ -468,14 +468,14 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         end
 
         datastores.each do |datastore|
-            CLIHelper.print_header(str_h1 % "LOCAL SYSTEM DATASTORE ##{datastore['ID']} CAPACITY", false)
+            CLIHelper.print_header(str_h1 % "LOCAL SYSTEM DATASTORE ##{datastore['ID']} CAPACITY", false,options)
             puts str % ["TOTAL:", OpenNebulaHelper.unit_to_str(datastore['TOTAL_MB'].to_i, {},'M')]
             puts str % ["USED: ", OpenNebulaHelper.unit_to_str(datastore['USED_MB'].to_i, {},'M')]
             puts str % ["FREE:",  OpenNebulaHelper.unit_to_str(datastore['FREE_MB'].to_i, {},'M')]
             puts
         end
 
-        CLIHelper.print_header(str_h1 % "MONITORING INFORMATION", false)
+        CLIHelper.print_header(str_h1 % "MONITORING INFORMATION", false,options)
 
         wilds = host.wilds
 
@@ -496,12 +496,12 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         end
 
         puts
-        CLIHelper.print_header("WILD VIRTUAL MACHINES", false)
+        CLIHelper.print_header("WILD VIRTUAL MACHINES", false,options)
         puts
 
         format = "%-30.30s %36s %4s %10s"
         CLIHelper.print_header(format % ["NAME", "IMPORT_ID", "CPU", "MEMORY"],
-                               true)
+                               true,options)
 
         wilds.each do |wild|
           if wild['IMPORT_TEMPLATE']
@@ -525,7 +525,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         end
 
         puts
-        CLIHelper.print_header("VIRTUAL MACHINES", false)
+        CLIHelper.print_header("VIRTUAL MACHINES", false,options)
         puts
 
         onevm_helper=OneVMHelper.new
@@ -535,7 +535,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
     def print_pcis(pcis)
         puts
-        CLIHelper.print_header("PCI DEVICES", false)
+        CLIHelper.print_header("PCI DEVICES", false,options)
         puts
 
         table=CLIHelper::ShowTable.new(nil, self) do

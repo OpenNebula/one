@@ -316,7 +316,7 @@ EOT
         str_h1="%-80s"
 
         CLIHelper.print_header(
-            str_h1 % "TEMPLATE #{template['ID']} INFORMATION")
+            str_h1 % "TEMPLATE #{template['ID']} INFORMATION",true,options)
         puts str % ["ID", template.id.to_s]
         puts str % ["NAME", template.name]
         puts str % ["USER", template['UNAME']]
@@ -326,7 +326,7 @@ EOT
             OpenNebulaHelper.time_to_str(template['REGTIME'])]
         puts
 
-        CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
+        CLIHelper.print_header(str_h1 % "PERMISSIONS",false,options)
 
         ["OWNER", "GROUP", "OTHER"].each { |e|
             mask = "---"
@@ -338,7 +338,7 @@ EOT
         }
         puts
 
-        CLIHelper.print_header(str_h1 % "TEMPLATE CONTENTS",false)
+        CLIHelper.print_header(str_h1 % "TEMPLATE CONTENTS",false,options)
         puts template.template_str
     end
 end

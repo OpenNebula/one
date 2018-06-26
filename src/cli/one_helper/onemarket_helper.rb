@@ -111,7 +111,7 @@ class OneMarketPlaceHelper < OpenNebulaHelper::OneHelper
         str="%-15s: %-20s"
         str_h1="%-80s"
 
-        CLIHelper.print_header(str_h1 % "MARKETPLACE #{market['ID']} INFORMATION")
+        CLIHelper.print_header(str_h1 % "MARKETPLACE #{market['ID']} INFORMATION",true,options)
         puts str % ["ID",    market.id.to_s]
         puts str % ["NAME",  market.name]
         puts str % ["USER",  market['UNAME']]
@@ -120,14 +120,14 @@ class OneMarketPlaceHelper < OpenNebulaHelper::OneHelper
         puts str % ["MARKET_MAD", market['MARKET_MAD']]
         puts
 
-        CLIHelper.print_header(str_h1 % "MARKETPLACE CAPACITY", false)
+        CLIHelper.print_header(str_h1 % "MARKETPLACE CAPACITY", false,options)
 
         puts str % ["TOTAL:", OpenNebulaHelper.unit_to_str(market['TOTAL_MB'].to_i,{},'M')]
         puts str % ["FREE:",  OpenNebulaHelper.unit_to_str(market['FREE_MB'].to_i, {},'M')]
         puts str % ["USED: ", OpenNebulaHelper.unit_to_str(market['USED_MB'].to_i, {},'M')]
         puts
 
-        CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
+        CLIHelper.print_header(str_h1 % "PERMISSIONS",false,options)
 
         ["OWNER", "GROUP", "OTHER"].each { |e|
             mask = "---"
@@ -139,12 +139,12 @@ class OneMarketPlaceHelper < OpenNebulaHelper::OneHelper
         }
         puts
 
-        CLIHelper.print_header(str_h1 % "MARKETPLACE TEMPLATE", false)
+        CLIHelper.print_header(str_h1 % "MARKETPLACE TEMPLATE", false,options)
         puts market.template_str
 
         puts
 
-        CLIHelper.print_header("%-15s" % "MARKETAPPS")
+        CLIHelper.print_header("%-15s" % "MARKETAPPS",true,options)
         market.marketapp_ids.each do |id|
             puts "%-15s" % [id]
         end

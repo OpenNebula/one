@@ -102,7 +102,7 @@ class OneVdcHelper < OpenNebulaHelper::OneHelper
         str="%-18s: %-20s"
         str_h1="%-80s"
 
-        CLIHelper.print_header(str_h1 % "VDC #{vdc['ID']} INFORMATION")
+        CLIHelper.print_header(str_h1 % "VDC #{vdc['ID']} INFORMATION",true,options)
         puts str % ["ID",   vdc.id.to_s]
         puts str % ["NAME", vdc.name]
 
@@ -123,7 +123,7 @@ class OneVdcHelper < OpenNebulaHelper::OneHelper
             res_array = vdc_hash['VDC']["#{resource}S"][resource]
             if(res_array != nil)
                 puts
-                CLIHelper.print_header(str_h1 % "#{resource}S", false)
+                CLIHelper.print_header(str_h1 % "#{resource}S", false,options)
 
                 CLIHelper::ShowTable.new(nil, self) do
                     column :"ZONE", "", :right, :size=>7 do |d|
@@ -138,7 +138,7 @@ class OneVdcHelper < OpenNebulaHelper::OneHelper
         end
 
         puts
-        CLIHelper.print_header(str_h1 % "VDC TEMPLATE", false)
+        CLIHelper.print_header(str_h1 % "VDC TEMPLATE", false,options)
         puts vdc.template_str
     end
 end

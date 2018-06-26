@@ -277,12 +277,12 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
         str="%-15s: %-20s"
         str_h1="%-80s"
 
-        CLIHelper.print_header(str_h1 % "GROUP #{group['ID']} INFORMATION")
+        CLIHelper.print_header(str_h1 % "GROUP #{group['ID']} INFORMATION",true,options)
         puts str % ["ID",   group.id.to_s]
         puts str % ["NAME", group.name]
         puts
 
-        CLIHelper.print_header(str_h1 % "GROUP TEMPLATE",false)
+        CLIHelper.print_header(str_h1 % "GROUP TEMPLATE",false,options)
         puts group.template_str
         puts
 

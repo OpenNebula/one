@@ -511,7 +511,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         str="%-16s: %-20s"
         str_h1="%-80s"
 
-        CLIHelper.print_header(str_h1 % "USER #{user['ID']} INFORMATION")
+        CLIHelper.print_header(str_h1 % "USER #{user['ID']} INFORMATION",true,options)
         puts str % ["ID",          user.id.to_s]
         puts str % ["NAME",        user.name]
         puts str % ["GROUP",       user['GNAME']]
@@ -529,7 +529,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         gid = user['GID']
         tokens = [user_hash['USER']['LOGIN_TOKEN']].flatten.compact
 
-        CLIHelper.print_header(str_h1 % "TOKENS",false)
+        CLIHelper.print_header(str_h1 % "TOKENS",false,options)
         if tokens && !tokens.empty?
             CLIHelper::ShowTable.new(nil, self) do
                 column :ID, "", :size=>7 do |d|
@@ -574,7 +574,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
         puts
 
-        CLIHelper.print_header(str_h1 % "USER TEMPLATE",false)
+        CLIHelper.print_header(str_h1 % "USER TEMPLATE",false,options)
         puts user.template_str
 
         default_quotas = nil

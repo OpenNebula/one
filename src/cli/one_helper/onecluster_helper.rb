@@ -99,29 +99,29 @@ class OneClusterHelper < OpenNebulaHelper::OneHelper
         str="%-18s: %-20s"
         str_h1="%-80s"
 
-        CLIHelper.print_header(str_h1 % "CLUSTER #{cluster['ID']} INFORMATION")
+        CLIHelper.print_header(str_h1 % "CLUSTER #{cluster['ID']} INFORMATION",true,options)
         puts str % ["ID",   cluster.id.to_s]
         puts str % ["NAME", cluster.name]
         puts
 
-        CLIHelper.print_header(str_h1 % "CLUSTER TEMPLATE", false)
+        CLIHelper.print_header(str_h1 % "CLUSTER TEMPLATE", false,options)
         puts cluster.template_str
 
         puts
 
-        CLIHelper.print_header("%-15s" % ["HOSTS"])
+        CLIHelper.print_header("%-15s" % ["HOSTS"],true,options)
         cluster.host_ids.each do |id|
             puts "%-15s" % [id]
         end
 
         puts
-        CLIHelper.print_header("%-15s" % ["VNETS"])
+        CLIHelper.print_header("%-15s" % ["VNETS"],true,options)
         cluster.vnet_ids.each do |id|
             puts "%-15s" % [id]
         end
 
         puts
-        CLIHelper.print_header("%-15s" % ["DATASTORES"])
+        CLIHelper.print_header("%-15s" % ["DATASTORES"],true,options)
         cluster.datastore_ids.each do |id|
             puts "%-15s" % [id]
         end

@@ -142,7 +142,7 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
         str="%-15s: %-20s"
         str_h1="%-80s"
 
-        CLIHelper.print_header(str_h1 % "MARKETPLACE APP #{app['ID']} INFORMATION")
+        CLIHelper.print_header(str_h1 % "MARKETPLACE APP #{app['ID']} INFORMATION",true,options)
         puts str % ["ID",    app.id.to_s]
         puts str % ["NAME",  app.name]
         puts str % ["TYPE",  app.type_str]
@@ -154,7 +154,7 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
 
         puts
 
-        CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
+        CLIHelper.print_header(str_h1 % "PERMISSIONS",false,options)
 
         ["OWNER", "GROUP", "OTHER"].each { |e|
             mask = "---"
@@ -166,7 +166,7 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
         }
         puts
 
-        CLIHelper.print_header(str_h1 % "DETAILS", false)
+        CLIHelper.print_header(str_h1 % "DETAILS", false,options)
 
         puts str % ["SOURCE", app['SOURCE']]
         puts str % ["MD5", app['MD5']]
@@ -180,13 +180,13 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
 
         puts
 
-        CLIHelper.print_header(str_h1 % "IMPORT TEMPLATE", false)
+        CLIHelper.print_header(str_h1 % "IMPORT TEMPLATE", false,options)
 
         puts Base64.decode64(app['APPTEMPLATE64'])
 
         puts
 
-        CLIHelper.print_header(str_h1 % "MARKETPLACE APP TEMPLATE", false)
+        CLIHelper.print_header(str_h1 % "MARKETPLACE APP TEMPLATE", false,options)
         puts app.template_str
 
         puts
