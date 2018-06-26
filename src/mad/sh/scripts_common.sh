@@ -32,6 +32,7 @@ LVCREATE=${LVCREATE:-lvcreate}
 LVREMOVE=${LVREMOVE:-lvremove}
 LVCHANGE=${LVCHANGE:-lvchange}
 LVSCAN=${LVSCAN:-lvscan}
+LVEXTEND=${LVEXTEND:-lvextend}
 LVS=${LVS:-lvs}
 LN=${LN:-ln}
 MD5SUM=${MD5SUM:-md5sum}
@@ -928,6 +929,7 @@ function get_disk_information {
 # * MODEL
 # * IP
 # * FILTER
+# * VIRTIO_QUEUES
 # * VROUTER_IP
 # * INBOUND_AVG_BW
 # * INBOUND_PEAK_BW
@@ -960,6 +962,7 @@ function get_nic_information {
                         $NIC_XPATH/MODEL \
                         $NIC_XPATH/IP \
                         $NIC_XPATH/FILTER \
+                        $NIC_XPATH/VIRTIO_QUEUES \
                         $NIC_XPATH/VROUTER_IP \
                         $NIC_XPATH/INBOUND_AVG_BW \
                         $NIC_XPATH/INBOUND_PEAK_BW \
@@ -979,6 +982,7 @@ function get_nic_information {
     MODEL="${XPATH_ELEMENTS[j++]}"
     IP="${XPATH_ELEMENTS[j++]}"
     FILTER="${XPATH_ELEMENTS[j++]}"
+    VIRTIO_QUEUES="${XPATH_ELEMENTS[j++]}"
     VROUTER_IP="${XPATH_ELEMENTS[j++]}"
     INBOUND_AVG_BW="${XPATH_ELEMENTS[j++]}"
     INBOUND_PEAK_BW="${XPATH_ELEMENTS[j++]}"

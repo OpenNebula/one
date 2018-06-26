@@ -106,7 +106,6 @@ public:
      */
     void clear()
     {
-        next_snapshot = 0;
         active        = -1;
         disk_id       = -1;
 

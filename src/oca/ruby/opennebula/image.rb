@@ -115,8 +115,8 @@ module OpenNebula
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def allocate(description, ds_id)
-            super(IMAGE_METHODS[:allocate],description, ds_id)
+        def allocate(description, ds_id, check_capacity=true)
+            super(IMAGE_METHODS[:allocate],description, ds_id, check_capacity)
         end
 
         # Replaces the template contents

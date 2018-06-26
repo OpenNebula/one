@@ -215,7 +215,11 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
                 tmpl_str);
     }
 
-    VirtualMachine::set_auth_request(att.uid, ar, tmpl, true);
+    extended_tmpl = *tmpl;
+
+    VirtualMachineDisks::extended_info(att.uid, &extended_tmpl);
+
+    VirtualMachine::set_auth_request(att.uid, ar, &extended_tmpl, true);
 
     if (UserPool::authorize(ar) == -1)
     {
@@ -224,10 +228,6 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
         delete tmpl;
         return AUTHORIZATION;
     }
-
-    extended_tmpl = *tmpl;
-
-    VirtualMachineDisks::extended_info(att.uid, &extended_tmpl);
 
     if (quota_authorization(&extended_tmpl, Quotas::VIRTUALMACHINE, att,
                 att.resp_msg) == false)

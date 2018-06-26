@@ -465,6 +465,12 @@ int LogDB::_exec_wr(ostringstream& cmd, int federated_index)
         if ( rc == 0 && Nebula::instance().is_federation_enabled() )
         {
             insert_log_record(0, cmd, time(0), federated_index);
+
+            pthread_mutex_lock(&mutex);
+
+            last_applied = last_index;
+
+            pthread_mutex_unlock(&mutex);
         }
 
         return rc;
@@ -557,36 +563,71 @@ int LogDB::purge_log()
 {
     std::ostringstream oss;
 
-    pthread_mutex_lock(&mutex);
-
-    if ( last_index < log_retention )
-    {
-        pthread_mutex_unlock(&mutex);
-        return 0;
-    }
-
-    unsigned int delete_index = last_applied - log_retention;
-
     empty_cb cb;
 
-    // keep the last "log_retention" records as well as those not applied to DB
+    int rc = 0;
+
+    pthread_mutex_lock(&mutex);
+
+    /* ---------------------------------------------------------------------- */
+    /* Non-federated records. Keep last log_retention records                 */
+    /* ---------------------------------------------------------------------- */
     oss << "DELETE FROM logdb WHERE timestamp > 0 AND log_index >= 0 "
-            << "AND log_index < "  << delete_index;
+        << "AND fed_index = -1 AND log_index < ("
+        << "  SELECT MIN(i.log_index) FROM ("
+        << "    SELECT log_index FROM logdb WHERE fed_index = -1 AND"
+        << "      timestamp > 0 AND log_index >= 0 "
+        << "      ORDER BY log_index DESC LIMIT " << log_retention
+        << "  ) AS i"
+        << ")";
 
     if ( db->limit_support() )
     {
         oss << " LIMIT " << limit_purge;
     }
 
-    int rc = db->exec_wr(oss, &cb);
-
-    pthread_mutex_unlock(&mutex);
-
-    if ( rc != -1 )
+    if ( db->exec_wr(oss, &cb) != -1 )
     {
-        return cb.get_affected_rows();
+        rc = cb.get_affected_rows();
     }
 
+    /* ---------------------------------------------------------------------- */
+    /* Federated records. Keep last log_retention federated records           */
+    /* ---------------------------------------------------------------------- */
+    if ( fed_log.size() < log_retention ) 
+    {
+        pthread_mutex_unlock(&mutex);
+
+        return rc;
+    }
+
+    cb.set_affected_rows(0);
+
+    oss.str("");
+
+    oss << "DELETE FROM logdb WHERE timestamp > 0 AND log_index >= 0 "
+        << "AND fed_index != -1 AND log_index < ("
+        << "  SELECT MIN(i.log_index) FROM ("
+        << "    SELECT log_index FROM logdb WHERE fed_index != -1 AND"
+        << "      timestamp > 0 AND log_index >= 0 "
+        << "      ORDER BY log_index DESC LIMIT " << log_retention
+        << "  ) AS i"
+        << ")";
+
+    if ( db->limit_support() )
+    {
+        oss << " LIMIT " << limit_purge;
+    }
+
+    if ( db->exec_wr(oss, &cb) != -1 )
+    {
+        rc += cb.get_affected_rows();
+    }
+
+    build_federated_index();
+
+    pthread_mutex_unlock(&mutex);
+    
     return rc;
 }
 

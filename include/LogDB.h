@@ -155,7 +155,7 @@ public:
     /**
      *  Purge log records. Delete old records applied to database upto the
      *  LOG_RETENTION configuration variable.
-     *    @return 0 on success
+     *    @return number of records deleted from DB
      */
     int purge_log();
 
