@@ -106,7 +106,7 @@ public class Image extends PoolElement
      * @param client XML-RPC Client.
      * @param description A string containing the template of the image.
      * @param datastoreId The Datastore ID
-     * @param check_capacity to check datastore capacity
+     * @param no_check_capacity to check datastore capacity
      *
      * @return If successful the message contains the associated
      * id generated for this Image.
