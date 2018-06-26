@@ -218,7 +218,7 @@ int PoolSQL::dump(ostringstream& oss, const string& elem_name, const char* table
 {
     bool decreasing_order = false;
     Nebula::instance().get_configuration_attribute("DECREASING_ORDER", decreasing_order);
-    
+
     ostringstream   cmd;
 
     cmd << "SELECT body FROM " << table;
