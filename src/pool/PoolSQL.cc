@@ -216,6 +216,9 @@ PoolObjectSQL * PoolSQL::get(const string& name, int ouid)
 int PoolSQL::dump(ostringstream& oss, const string& elem_name, const char* table,
     const string& where, const string& limit)
 {
+    bool decreasing_order;
+    nebula_configuration->get("DECREASING_ORDER",decreasing_order);
+    
     ostringstream   cmd;
 
     cmd << "SELECT body FROM " << table;
@@ -225,7 +228,14 @@ int PoolSQL::dump(ostringstream& oss, const string& elem_name, const char* table
         cmd << " WHERE " << where;
     }
 
-    cmd << " ORDER BY oid DESC";
+    if ( decreasing_order == true)
+    {
+        cmd << " ORDER BY oid DESC";
+    }
+    else
+    {
+        cmd << " ORDER BY oid";
+    }    
 
     if ( !limit.empty() )
     {
