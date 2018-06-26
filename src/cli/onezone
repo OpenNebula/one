@@ -129,13 +129,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     end
 
-    syncserver_desc = <<-EOT.unindent
-        Sync an OpenNebula server from the list of out of sync servers.
+    resetserver_desc = <<-EOT.unindent
+        Reset follower log index. This should be trigger when a follower DB has
+        been reset.
     EOT
 
-    command :"server-sync", syncserver_desc, :zoneid, :serverid do
-        helper.perform_action(args[0], options, "server synchronized") do |o|
-            o.sync_servers(args[1].to_i)
+    command :"server-reset", resetserver_desc, :zoneid, :serverid do
+        helper.perform_action(args[0], options, "server reset") do |o|
+            o.reset_server(args[1].to_i)
         end
     end
 

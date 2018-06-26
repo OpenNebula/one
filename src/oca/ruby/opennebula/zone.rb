@@ -31,7 +31,7 @@ module OpenNebula
             :delete         => "zone.delete",
             :addserver      => "zone.addserver",
             :delserver      => "zone.delserver",
-            :syncserver     => "zone.syncserver"
+            :resetserver    => "zone.resetserver"
         }
 
         # Creates a Zone description with just its identifier
@@ -175,8 +175,8 @@ module OpenNebula
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def sync_servers(server_id)
-            return call(ZONE_METHODS[:syncserver], @pe_id, server_id)
+        def reset_server(server_id)
+            return call(ZONE_METHODS[:resetserver], @pe_id, server_id)
         end
 
         private

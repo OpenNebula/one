@@ -84,14 +84,14 @@ public:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-class ZoneSyncServer : public RequestManagerZone
+class ZoneResetServer : public RequestManagerZone
 {
 public:
-    ZoneSyncServer():
-        RequestManagerZone("one.zone.syncserver", "Sync a server to zone",
+    ZoneResetServer():
+        RequestManagerZone("one.zone.resetserver", "Reset server log index",
                 "A:sis"){};
 
-    ~ZoneSyncServer(){};
+    ~ZoneResetServer(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);

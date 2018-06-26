@@ -257,7 +257,7 @@ void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void ZoneSyncServer::request_execute(xmlrpc_c::paramList const& paramList,
+void ZoneResetServer::request_execute(xmlrpc_c::paramList const& paramList,
     RequestAttributes& att)
 {
     Nebula& nd = Nebula::instance();
@@ -278,14 +278,6 @@ void ZoneSyncServer::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( basic_authorization(id, att) == false )
     {
-        return;
-    }
-
-    if ( pool->exist(id) == -1 )
-    {
-        att.resp_id = id;
-        failure_response(NO_EXISTS, att);
-
         return;
     }
 
