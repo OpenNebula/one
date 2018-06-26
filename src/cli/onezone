@@ -128,6 +128,18 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
 
     end
+
+    resetserver_desc = <<-EOT.unindent
+        Reset follower log index. This should be trigger when a follower DB has
+        been reset.
+    EOT
+
+    command :"server-reset", resetserver_desc, :zoneid, :serverid do
+        helper.perform_action(args[0], options, "server reset") do |o|
+            o.reset_server(args[1].to_i)
+        end
+    end
+
     update_desc = <<-EOT.unindent
         Update the template contents. If a path is not provided the editor will
         be launched to modify the current content.

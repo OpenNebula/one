@@ -30,7 +30,8 @@ module OpenNebula
             :rename         => "zone.rename",
             :delete         => "zone.delete",
             :addserver      => "zone.addserver",
-            :delserver      => "zone.delserver"
+            :delserver      => "zone.delserver",
+            :resetserver    => "zone.resetserver"
         }
 
         # Creates a Zone description with just its identifier
@@ -166,6 +167,16 @@ module OpenNebula
         #   otherwise
         def delete_servers(server_id)
             return call(ZONE_METHODS[:delserver], @pe_id, server_id)
+        end
+
+        # Reset index for a follower
+        #
+        # @param id [Int] Server ID
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def reset_server(server_id)
+            return call(ZONE_METHODS[:resetserver], @pe_id, server_id)
         end
 
         private

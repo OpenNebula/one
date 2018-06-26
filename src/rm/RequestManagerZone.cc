@@ -257,6 +257,38 @@ void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void ZoneResetServer::request_execute(xmlrpc_c::paramList const& paramList,
+    RequestAttributes& att)
+{
+    Nebula& nd = Nebula::instance();
+
+    int id     = xmlrpc_c::value_int(paramList.getInt(1));
+    int zs_id  = xmlrpc_c::value_int(paramList.getInt(2));
+
+    string error_str;
+
+    if ( id != nd.get_zone_id() )
+    {
+        att.resp_msg = "Servers have to be deleted through the target zone"
+             " endpoints";
+        failure_response(ACTION, att);
+
+        return;
+    }
+
+    if ( basic_authorization(id, att) == false )
+    {
+        return;
+    }
+
+	nd.get_raftm()->reset_index(zs_id);
+
+    success_response(id, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
     RequestAttributes& att)
 {

@@ -286,6 +286,12 @@ public:
      */
 	void delete_server(int follower_id);
 
+    /**
+     *  Reset index for a follower.
+     *    @param follower_id id of server
+     */
+	void reset_index(int follower_id);
+
 private:
     friend void * raft_manager_loop(void *arg);
 

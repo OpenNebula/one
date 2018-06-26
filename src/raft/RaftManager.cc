@@ -313,6 +313,7 @@ void RaftManager::add_server(int follower_id, const std::string& endpoint)
     }
 
     num_servers++;
+
     servers.insert(std::make_pair(follower_id, endpoint));
 
 	next.insert(std::make_pair(follower_id, log_index + 1));
@@ -1290,4 +1291,27 @@ std::string& RaftManager::to_xml(std::string& raft_xml)
     return raft_xml;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
+void RaftManager::reset_index(int follower_id)
+{
+    std::map<int, unsigned int>::iterator next_it;
+
+	unsigned int log_index, log_term;
+
+	LogDB * logdb = Nebula::instance().get_logdb();
+
+    logdb->get_last_record_index(log_index, log_term);
+
+    pthread_mutex_lock(&mutex);
+
+    next_it = next.find(follower_id);
+
+    if ( next_it != next.end() )
+    {
+        next_it->second = log_index + 1;
+    }
+
+    pthread_mutex_unlock(&mutex);
+}
