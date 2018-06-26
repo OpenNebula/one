@@ -41,6 +41,17 @@ DST_HOST=`arg_host $DST`
 
 DS_SYS_ID=$(echo $DST_PATH | grep -E '\/disk\.[[:digit:]]+$' | $AWK -F '/' '{print $(NF-2)}')
 
+# Zero space
+ZERO_CMD=$(cat <<EOF
+    set -x
+    DEV=\$(readlink $DST_PATH)
+
+    if echo "\$DEV" | grep "^/dev/" &>/dev/null; then
+        ${DD} if=/dev/zero of="\${DEV}" bs=64k || :
+    fi
+EOF
+)
+
 # Delete the device if it's a clone (LVM snapshot)
 DELETE_CMD=$(cat <<EOF
     set -x
@@ -63,6 +74,9 @@ EOF
 )
 
 if [ -n "${DS_SYS_ID}" ]; then
+    ssh_exec_and_log "$DST_HOST" "$ZERO_CMD" \
+        "Error cleaning $DST_PATH"
+
     LOCK="tm-fs_lvm-${DS_SYS_ID}.lock"
     exclusive "${LOCK}" 120 ssh_exec_and_log "$DST_HOST" "$DELETE_CMD" \
         "Error deleting $DST_PATH"
