@@ -597,7 +597,7 @@ EOT
                         end
 
                         options[:less] = true
-                        $less_editor = IO.popen("less", "w")
+                        $less_editor = IO.popen("less -XE", "w")
                         table.show(nil, options)
                         options[:noheader] = true
                         for i in 1..terminal_lines
