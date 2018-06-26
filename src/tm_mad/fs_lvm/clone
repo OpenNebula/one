@@ -78,6 +78,10 @@ TM_MAD="${XPATH_ELEMENTS[j++]}"
 
 FILE_SIZE=`fs_size "${SRC_PATH}" YES`
 
+if [ $? -ne 0 ]; then
+    FILE_SIZE=0
+fi
+
 if [ $FILE_SIZE -gt $SIZE ]; then
     SIZE="$FILE_SIZE"
 fi
@@ -86,15 +90,15 @@ fi
 # number of ONE or file image virtual size. We start to zero from
 # 1 MiB before the end of image size prior to the copying.
 if [ "${FILE_SIZE}" -lt "${SIZE}" ]; then
-	ZERO_SEEK_BYTES=$FILE_SIZE
+    ZERO_SEEK_BYTES=$FILE_SIZE
 else
-	ZERO_SEEK_BYTES=$SIZE
+    ZERO_SEEK_BYTES=$SIZE
 fi
 
 if [ "${ZERO_SEEK_BYTES}" -gt 0 ]; then
-	ZERO_SEEK_BYTES=$(( (ZERO_SEEK_BYTES-1) * 1024 * 1024 ))
+    ZERO_SEEK_BYTES=$(( (ZERO_SEEK_BYTES-1) * 1024 * 1024 ))
 else
-	ZERO_SEEK_BYTES=0
+    ZERO_SEEK_BYTES=0
 fi
 
 #-------------------------------------------------------------------------------
