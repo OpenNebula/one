@@ -33,6 +33,8 @@ Snapshots::Snapshots(int _disk_id, bool _orphans):
     }
 
     snapshot_template.add("ALLOW_ORPHANS", _orphans);
+
+    snapshot_template.add("NEXT_SNAPSHOT", 0);
 };
 
 Snapshots::Snapshots(const Snapshots& s):
@@ -105,11 +107,6 @@ void Snapshots::init()
             active = id;
         }
 
-        if (id >= next_snapshot)
-        {
-            next_snapshot = id + 1;
-        }
-
         snapshot_pool.insert(pair<int, VectorAttribute *>(id, snap[i]));
     }
 
@@ -119,6 +116,8 @@ void Snapshots::init()
     {
         disk_id = did;
     }
+
+    snapshot_template.get("NEXT_SNAPSHOT", next_snapshot);
 
     if ( snapshot_template.get("ALLOW_ORPHANS", orphans) == false )
     {
@@ -176,6 +175,8 @@ int Snapshots::create_snapshot(const string& name, long long size_mb)
     {
         snapshot->replace("PARENT", "-1");
     }
+
+    snapshot_template.replace("NEXT_SNAPSHOST", next_snapshot + 1);
 
     snapshot_template.set(snapshot);
 
