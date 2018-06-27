@@ -1142,6 +1142,14 @@ class VirtualMachine < Template
         @item = item
     end
 
+    def disk_real_path(disk, disk_id)
+        sppath = disk["SOURCE"].split(".")
+
+        raise "vm image path error!" if sppath.size != 2 || sppath.last != 'vmdk'
+
+        img_path = "#{sppath[0]}-#{@vm_id}-#{disk_id}.#{sppath[1]}"
+    end
+
     # The OpenNebula host
     # @return OpenNebula::Host or XMLElement
     def host
