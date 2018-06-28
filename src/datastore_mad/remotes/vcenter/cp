@@ -31,6 +31,18 @@ $: << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
+def is_the_file_location?(target_path, f)
+    return target_path == File.basename(f)
+end
+
+def is_last_file_to_upload?(index, files_to_upload)
+    return index == files_to_upload.size - 1
+end
+
+def there_is_not_system_error?(rc)
+    return !rc
+end
+
 drv_action_enc = ARGV[0]
 id             = ARGV[1]
 
@@ -85,7 +97,7 @@ if VCenterDriver::FileHelper.is_remote_or_needs_unpack?(img_path)
 
     rc = system("#{downloader} #{img_path} #{temp_file}")
 
-    if !rc
+    if there_is_not_system_error(rc)
         STDERR.puts "Error downloading #{img_path}"
         FileUtils.rm_rf(temp_file)
         exit -1
@@ -113,7 +125,7 @@ files_to_upload.each_with_index do |f, index|
     path = "#{target_path}/#{File.basename(f)}"
 
     # Change path for gzipped standalone file
-    if(target_path == File.basename(f))
+    if is_the_file_location?(target_path, f)
         path = "#{target_path}/#{filename}"
 
         # remove gz or bz2 if part of filename
@@ -138,7 +150,7 @@ files_to_upload.each_with_index do |f, index|
         extension = '.iso'
     end
 
-    if index == files_to_upload.size - 1
+    if is_last_file_to_upload?(index, files_to_upload)
         uploader_args = ds_id + " " + ds_ref + " " +
             "#{path}#{extension}" + " " + f
     else
@@ -149,7 +161,7 @@ files_to_upload.each_with_index do |f, index|
     cmd = "#{File.dirname(__FILE__)}/../vcenter_uploader.rb #{uploader_args}"
     rc = system(cmd)
 
-    if !rc
+    if there_is_not_system_error?(rc)
         STDERR.puts "Cannot upload file #{f}"
         FileUtils.rm_rf(temp_file) if temp_file
         exit(-1)

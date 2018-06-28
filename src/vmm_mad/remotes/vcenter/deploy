@@ -29,6 +29,10 @@ $: << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
+def is_deploy_id_valid?(deploy_id)
+    return deploy_id && !deploy_id.empty?
+end
+
 dfile        = ARGV[0]
 cluster_name = ARGV[1]
 vm_id        = ARGV[2]
@@ -44,7 +48,7 @@ begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
     one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
 
-    if deploy_id && !deploy_id.empty?
+    if is_deploy_id_valid?(deploy_id)
         # VM is not new, we just need to reconfigure it and to power it on
         vm = VCenterDriver::VirtualMachine.new_one(vi_client, deploy_id, one_vm)
     else
