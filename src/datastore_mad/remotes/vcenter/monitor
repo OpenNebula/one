@@ -33,6 +33,10 @@ $: << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
+def is_not_dsid_or_dsref_valid?(ds_id, ds_ref)
+    return ds_id.nil? || ds_ref.nil?
+end
+
 drv_action_enc = ARGV[0]
 id             = ARGV[1]
 
@@ -43,7 +47,7 @@ ds_id  = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/ID"]
 ds_ref = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_REF"]
 check_valid ds_ref, "ds_ref"
 
-if ds_id.nil? || ds_ref.nil?
+if is_not_dsid_or_dsref_valid?(ds_id, ds_ref)
     STDERR.puts "Not enough information to monitor the datastore."
     exit -1
 end
