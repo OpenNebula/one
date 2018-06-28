@@ -25,6 +25,10 @@ else
     ZENDESK_API_GEM = true
 end
 
+if RUBY_VERSION < "2.1"
+    require 'scrub_rb'
+end
+
 helpers do
     def zendesk_client
         client = ZendeskAPI::Client.new do |config|
