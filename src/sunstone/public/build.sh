@@ -38,11 +38,15 @@ install_patch() {
         fi
     done
 
+    mv -f dist/main.js dist/main.js-var
+
     grunt --gruntfile ./Gruntfile.js sass
 
     grunt --gruntfile ./Gruntfile.js requirejs
 
     mv -f dist/main.js dist/main-dist.js
+    
+    mv dist/main.js-var dist/main.js
 
 }
 #-------------------------------------------------------------------------------
