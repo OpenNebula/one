@@ -9,7 +9,7 @@ usage() {
  echo
  echo "-d: install build dependencies (bower, grunt)"
  echo "-c: clean build"
- echo "-l: recreate links to main.js"
+ echo "-l: preserve main.js"
  echo "-h: prints this help"
 }
 
