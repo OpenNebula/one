@@ -5,10 +5,11 @@ set -e
 #-------------------------------------------------------------------------------
 usage() {
  echo
- echo "Usage: build.sh [-d] [-c] [-h]"
+ echo "Usage: build.sh [-d] [-c] [-l] [-h]"
  echo
  echo "-d: install build dependencies (bower, grunt)"
  echo "-c: clean build"
+ echo "-l: preserve main.js"
  echo "-h: prints this help"
 }
 
@@ -38,16 +39,24 @@ install_patch() {
         fi
     done
 
+    if [ "$DO_LINK" = "yes" ]; then
+        mv -f dist/main.js ./main.js
+    fi
+
     grunt --gruntfile ./Gruntfile.js sass
 
     grunt --gruntfile ./Gruntfile.js requirejs
 
     mv -f dist/main.js dist/main-dist.js
 
+    if [ "$DO_LINK" = "yes" ]; then
+        mv ./main.js dist/main.js
+    fi
+
 }
 #-------------------------------------------------------------------------------
 
-PARAMETERS="dch"
+PARAMETERS="dlch"
 
 if [ $(getopt --version | tr -d " ") = "--" ]; then
     TEMP_OPT=`getopt $PARAMETERS "$@"`
@@ -57,6 +66,7 @@ fi
 
 DEPENDENCIES="no"
 CLEAN="no"
+DO_LINK="no"
 
 eval set -- "$TEMP_OPT"
 
@@ -64,6 +74,7 @@ while true ; do
     case "$1" in
         -d) DEPENDENCIES="yes"   ; shift ;;
         -c) CLEAN="yes"   ; shift ;;
+        -l) DO_LINK="yes"   ; shift ;;
         -h) usage; exit 0;;
         --) shift ; break ;;
         *)  usage; exit 1 ;;
