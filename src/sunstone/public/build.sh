@@ -40,7 +40,7 @@ install_patch() {
     done
 
     if [ "$DO_LINK" = "yes" ]; then
-        mv -f dist/main.js dist/main.js-var
+        mv -f dist/main.js ./main.js
     fi
 
     grunt --gruntfile ./Gruntfile.js sass
@@ -50,7 +50,7 @@ install_patch() {
     mv -f dist/main.js dist/main-dist.js
 
     if [ "$DO_LINK" = "yes" ]; then
-        mv dist/main.js-var dist/main.js
+        mv ./main.js dist/main.js
     fi
 
 }
