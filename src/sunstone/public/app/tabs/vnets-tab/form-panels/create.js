@@ -144,13 +144,13 @@ define(function(require) {
         $("div.mode_param.bridge", context).show();
         $("div.mode_param.bridge [wizard_field]", context).prop("wizard_field_disabled", false);
 
-        $("input#bridge", context).attr("required", "");
+        $("input#bridge", context).removeAttr("required");
         break;
       case "fw":
         $("div.mode_param.fw", context).show();
         $("div.mode_param.fw [wizard_field]", context).prop("wizard_field_disabled", false);
 
-        $("input#bridge", context).attr("required", "");
+        $("input#bridge", context).removeAttr("required");
         break;
       case "802.1Q":
         $("div.mode_param.8021Q", context).show();
@@ -172,7 +172,7 @@ define(function(require) {
         $("div.mode_param.ebtables", context).show();
         $("div.mode_param.ebtables [wizard_field]", context).prop("wizard_field_disabled", false);
 
-        $("input#bridge", context).attr("required", "");
+        $("input#bridge", context).removeAttr("required");
         break;
       case "ovswitch":
         $("div.mode_param.ovswitch", context).show();
@@ -180,7 +180,6 @@ define(function(require) {
         $("div.mode_param.ovswitch [wizard_field]", context).prop("wizard_field_disabled", false);
 
         $("input#bridge", context).removeAttr("required");
-        $("#phydev", context).attr("required", "");
         break;
       case "ovswitch_vxlan":
         $("div.mode_param.ovswitch_vxlan", context).show();
@@ -275,7 +274,7 @@ define(function(require) {
     if (config["mode"] === "kvm"){
       $("#network_mode option[value=\"vcenter\"]", context).hide();
     } else if (config["mode"] === "vcenter"){
-      $("#network_mode option[value=\"dummy\"]", context).hide();
+      $("#network_mode option[value=\"bridge\"]", context).hide();
       $("#network_mode option[value=\"fw\"]", context).hide();
       $("#network_mode option[value=\"ebtables\"]", context).hide();
       $("#network_mode option[value=\"802.1Q\"]", context).hide();
