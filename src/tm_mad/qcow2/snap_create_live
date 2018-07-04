@@ -140,13 +140,18 @@ if virsh -c $LIBVIRT_URI domfsfreeze $DEPLOY_ID ; then
 elif virsh -c $LIBVIRT_URI suspend $DEPLOY_ID; then
     trap "virsh -c $LIBVIRT_URI resume $DEPLOY_ID" EXIT TERM INT HUP
 else
-    error_message "Could not domfsfreeze or suspend domain"
+    echo "Could not domfsfreeze or suspend domain" >&2
     exit 1
 fi
 
 # older qemu-img requires relative backing file paths
 # to be resolvable from the current directory
 cd "${SNAP_DIR}"
+
+if [ -e "${SNAP_PATH}" ]; then
+    echo "Snapshot file ${SNAP_PATH} already exists." >&2
+    exit 1
+fi
 
 $QEMU_IMG create -o backing_fmt=qcow2 -b "\${PREVIOUS_SNAP}" \
     -f qcow2 ${QCOW2_OPTIONS} "${SNAP_PATH}"
