@@ -366,7 +366,7 @@ public:
      */
     static string shared_db_version()
     {
-        return "5.5.80";
+        return "5.6.0";
     }
 
     /**
@@ -375,7 +375,7 @@ public:
      */
     static string local_db_version()
     {
-        return "5.5.80";
+        return "5.6.0";
     }
 
     /**

@@ -46,13 +46,32 @@ module Migrator
 
     private
 
+    def xpath(doc, sxpath)
+        element = doc.root.at_xpath(sxpath)
+        if !element.nil?
+            element.text
+        else
+            ""
+        end
+    end
+
+    def delete_element(doc, element)
+        doc.search("//#{element}").each do |node|
+            node.remove
+        end
+    end
+
     def feature_1377()
+        @db.run "DROP TABLE IF EXISTS old_document_pool;"
         @db.run "ALTER TABLE document_pool RENAME TO old_document_pool;"
-        @db.run "CREATE TABLE document_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, type INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
+
+        create_table(:document_pool)
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_document_pool") do |row|
-                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING) { |c| 
+                    c.default_xml.noblanks
+                }
 
                 delete_element(doc, "LOCK")
 
@@ -71,22 +90,6 @@ module Migrator
         end
 
       @db.run "DROP TABLE old_document_pool;"
-
-    end
-
-    def xpath(doc, sxpath)
-        element = doc.root.at_xpath(sxpath)
-        if !element.nil?
-            element.text
-        else
-            ""
-        end
-    end
-
-    def delete_element(doc, element)
-        doc.search("//#{element}").each do |node|
-            node.remove
-        end
     end
 
     def feature_1709()
@@ -117,7 +120,8 @@ module Migrator
         regions = az_conf["regions"]
 
         if !regions
-            STDERR.puts "  > Regions not found in Az config file, skipping migration"
+            STDERR.puts "  > Regions not found in Az config file, " << 
+                "skipping migration"
             return
         end
 
@@ -167,20 +171,34 @@ module Migrator
     end
 
     def bug_2189()
+        @db.run "DROP TABLE IF EXISTS old_image_pool;"
         @db.run "ALTER TABLE image_pool RENAME TO old_image_pool;"
-        @db.run "CREATE TABLE image_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid) );"
+
+        create_table(:image_pool)
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_image_pool") do |row|
-                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){
+                    |c| c.default_xml.noblanks
+                }
 
-                if ( !doc.xpath("//SNAPSHOTS/SNAPSHOT/ID").max.nil? )
-                    next_snapshot = doc.xpath("//SNAPSHOTS/SNAPSHOT/ID").max.text.to_i + 1
+                max = doc.xpath("//SNAPSHOTS/SNAPSHOT/ID").max
+
+                if max
+                    next_snapshot = max.text.to_i + 1
                 else
                     next_snapshot = 0
                 end
 
-                doc.xpath("//SNAPSHOTS").first.add_child(doc.create_element("NEXT_SNAPSHOT")).content = next_snapshot
+                sxml = doc.xpath("//SNAPSHOTS")
+
+                if !sxml
+                    ns = doc.create_element("NEXT_SNAPSHOT")
+
+                    ns.content = next_snapshot
+
+                    sxml = sxml.first.add_child(ns)
+                end
 
                 @db[:image_pool].insert(
                     :oid      => row[:oid],
@@ -196,20 +214,34 @@ module Migrator
 
         @db.run "DROP TABLE old_image_pool;"
 
+        @db.run "DROP TABLE IF EXISTS old_vm_pool;"
         @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
-        @db.run "CREATE TABLE vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
+
+        create_table(:vm_pool)
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_vm_pool") do |row|
-                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){ |c| 
+                    c.default_xml.noblanks
+                }
 
-                if ( !doc.xpath("//SNAPSHOTS/SNAPSHOT/ID").max.nil? )
-                    next_snapshot = doc.xpath("//SNAPSHOTS/SNAPSHOT/ID").max.text.to_i + 1
+                max = doc.xpath("//SNAPSHOTS/SNAPSHOT/ID").max
+
+                if max
+                    next_snapshot = max.text.to_i + 1
                 else
                     next_snapshot = 0
                 end
 
-                doc.xpath("//SNAPSHOTS").first.add_child(doc.create_element("NEXT_SNAPSHOT")).content = next_snapshot
+                sxml = doc.xpath("//SNAPSHOTS")
+
+                if !sxml
+                    ns = doc.create_element("NEXT_SNAPSHOT")
+
+                    ns.content = next_snapshot
+
+                    sxml = sxml.first.add_child(ns)
+                end
 
                 @db[:vm_pool].insert(
                     :oid        => row[:oid],
@@ -227,6 +259,5 @@ module Migrator
         end
 
         @db.run "DROP TABLE old_vm_pool;"
-
     end
 end
