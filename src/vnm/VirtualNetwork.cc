@@ -123,7 +123,7 @@ void VirtualNetwork::parse_vlan_id(const char * id_name, const char * auto_name,
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
 /* 
-LIST OF MANDAROTY ARGUMENTS FOR NETWORK DEFINITION
+LIST OF MANDATORY ARGUMENTS FOR NETWORK DEFINITION
 
 +----------------+---------+--------+--------------------------+----------------+
 |    Driver      | PHYDEV  | BRIDGE |         VLAN_ID          |      OTHER     |
