@@ -122,19 +122,21 @@ void VirtualNetwork::parse_vlan_id(const char * id_name, const char * auto_name,
 
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
-/*
+/* 
+LIST OF MANDAROTY ARGUMENTS FOR NETWORK DEFINITION
+
 +----------------+---------+--------+--------------------------+----------------+
 |    Driver      | PHYDEV  | BRIDGE |         VLAN_ID          |      OTHER     |
 +----------------+---------+--------+--------------------------+----------------+
 | vcenter        | no      | yes    | no                       | VCENTER_NET_REF|
 | dummy          | no      | yes    | no                       |                |
-| bridge         | no      | yes    | no                       |                |
-| ebtables       | no      | yes    | no                       |                |
-| fw             | no      | yes    | no                       |                |
-| 802.1q         | yes     | opt    | yes or AUTOMATIC         |                |
-| vxlan          | yes     | opt    | yes or AUTOMATIC         |                |
-| ovswitch       | yes     | opt    | yes or AUTOMATIC         |                |
-| ovswitch_vxlan | yes     | opt    | OUTER or AUTOMATIC_OUTER |                |
+| bridge         | no      | no     | no                       |                |
+| ebtables       | no      | no     | no                       |                |
+| fw             | no      | no     | no                       |                |
+| 802.1q         | yes     | no     | yes or AUTOMATIC         |                |
+| vxlan          | yes     | no     | yes or AUTOMATIC         |                |
+| ovswitch       | no      | no     | yes or AUTOMATIC         |                |
+| ovswitch_vxlan | yes     | no     | OUTER or AUTOMATIC_OUTER |                |
 +----------------+---------+--------+--------------------------+----------------+
 */
 int VirtualNetwork::parse_phydev_vlans(string& estr)
@@ -153,9 +155,6 @@ int VirtualNetwork::parse_phydev_vlans(string& estr)
             other.push_back("VCENTER_NET_REF");
 
         case VirtualNetwork::DUMMY:
-        case VirtualNetwork::BRIDGE:
-        case VirtualNetwork::EBTABLES:
-        case VirtualNetwork::FW:
             check_bridge = true;
             break;
 
@@ -168,8 +167,10 @@ int VirtualNetwork::parse_phydev_vlans(string& estr)
         case VirtualNetwork::OVSWITCH_VXLAN:
             check_outer  = true;
 
+        case VirtualNetwork::BRIDGE:
         case VirtualNetwork::OVSWITCH:
-            check_phydev = true;
+        case VirtualNetwork::EBTABLES:
+        case VirtualNetwork::FW:
             break;
 
         case VirtualNetwork::NONE:
