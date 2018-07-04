@@ -32,7 +32,7 @@ public class OneSystem
     private static final String GROUP_QUOTA_INFO    = "groupquota.info";
     private static final String GROUP_QUOTA_UPDATE  = "groupquota.update";
 
-    public static final String VERSION = "5.5.95";
+    public static final String VERSION = "5.6.0";
 
     public OneSystem(Client client)
     {
