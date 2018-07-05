@@ -32,6 +32,8 @@ require 'rexml/document'
 require 'opennebula/error'
 require 'opennebula/xml_utils'
 
+AUTH_DRIVER = "dummy"
+
 begin
     xml = OpenNebula::XMLElement.new
     xml.initialize_xml(STDIN.read, 'AUTHN')
@@ -44,4 +46,4 @@ rescue
     exit(-1)
 end
 
-puts "core #{user} #{secret}"
+puts "#{AUTH_DRIVER} #{user} #{secret}"
