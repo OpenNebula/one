@@ -972,9 +972,6 @@ class ExecDriver < VirtualMachineDriver
             :parameters => [:deploy_id, target_device, target_path]
         }
 
-        STDERR.puts "TM_COMMAND"
-        STDERR.puts tm_command.inspect
-
         action.run(steps)
     end
 
