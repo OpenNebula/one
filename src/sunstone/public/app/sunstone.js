@@ -683,7 +683,7 @@ define(function(require) {
     var hashRes = ["Dashboard", "Settings", "NetworkTopology"];
     var res = SunstoneCfg["tabs"][tabName]["resource"];
     if (res) {
-      if (!hashRes.includes(res)){
+      if (hashRes.indexOf(res) < 0){
         Sunstone.runAction(res + ".list");
       } else {
         Sunstone.runAction(res + ".refresh");
