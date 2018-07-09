@@ -55,6 +55,7 @@ GEM
     rack (1.6.10)
     rack-protection (1.5.5)
       rack
+    scrub_rb (1.0.1)
     sequel (5.7.1)
     sinatra (1.4.8)
       rack (~> 1.5)
@@ -98,6 +99,7 @@ DEPENDENCIES
   parse-cron
   public_suffix (< 3.0.0)
   rack (< 2.0.0)
+  scrub_rb
   sequel
   sinatra
   sqlite3
