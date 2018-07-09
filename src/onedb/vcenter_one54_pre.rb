@@ -1058,19 +1058,19 @@ def template_unmanaged_discover(devices, ccr_name, ccr_ref,
                 template_pool.info(-1, template_id.to_i, template_id.to_i)
 
                 #get owner
-                uid_image = template_pool.instance_variable_get(:@xml)[0].xpath("/VMTEMPLATE_POOL/VMTEMPLATE/UID").first.children.first.text
-                gid_image = template_pool.instance_variable_get(:@xml)[0].xpath("/VMTEMPLATE_POOL/VMTEMPLATE/GID").first.children.first.text
+                uid_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/UID"]
+                gid_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/GID"]
 
 		        #get permissions
-                owu_image = template_pool.instance_variable_get(:@xml)[0].xpath("/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/OWNER_U").first.children.first.text
-                owm_image = template_pool.instance_variable_get(:@xml)[0].xpath("/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/OWNER_M").first.children.first.text
-                owa_image = template_pool.instance_variable_get(:@xml)[0].xpath("/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/OWNER_A").first.children.first.text
-                gu_image = template_pool.instance_variable_get(:@xml)[0].xpath("/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/GROUP_U").first.children.first.text
-                gm_image = template_pool.instance_variable_get(:@xml)[0].xpath("/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/GROUP_M").first.children.first.text
-                ga_image = template_pool.instance_variable_get(:@xml)[0].xpath("/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/GROUP_A").first.children.first.text
-                ou_image = template_pool.instance_variable_get(:@xml)[0].xpath("/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/OTHER_U").first.children.first.text
-                om_image = template_pool.instance_variable_get(:@xml)[0].xpath("/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/OTHER_M").first.children.first.text
-                oa_image = template_pool.instance_variable_get(:@xml)[0].xpath("/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/OTHER_A").first.children.first.text
+                owu_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/OWNER_U"]
+                owm_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/OWNER_M"]
+                owa_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/OWNER_A"]
+                gu_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/GROUP_U"]
+                gm_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/GROUP_M"]
+                ga_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/GROUP_A"]
+                ou_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/OTHER_U"]
+                om_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/OTHER_M"]
+                oa_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/OTHER_A"]
 
                 #Create image
                 one_image = ""
