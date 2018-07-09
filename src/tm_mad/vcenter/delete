@@ -56,6 +56,8 @@ def detach_and_destroy(disk, vm, disk_id, prev_ds_ref, vi_client)
         # Needed for poweroff machines too
         ds_ref, img_path = vm.detach_disk(disk)
 
+        return unless not_a_cd(disk)
+
         # Disk could't be detached, use OpenNebula info
         if !(ds_ref && img_path && !img_path.empty?)
             img_path = vm.disk_real_path(disk, disk_id)
@@ -108,7 +110,7 @@ vm = nil
 begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
 
-    if !!vm_ref && !vm_ref.empty?
+    if vm_ref && !vm_ref.empty?
         vm = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vmid)
     else
         # we try to get vcenter item
@@ -143,7 +145,7 @@ if path.match(/disk\.\d+$/)
         disk = one_vm.retrieve_xmlelements("TEMPLATE/DISK[DISK_ID=#{disk_id}]").first
 
         if !vm.has_snapshots?
-            if can_detach(disk, one_vm) && not_a_cd(disk)
+            if can_detach(disk, one_vm)
                 detach_and_destroy(disk, vm, disk_id, ds_ref, vi_client)
             end
         end
