@@ -397,8 +397,6 @@ class BackEndSQLite < OneDBBacKEnd
             end
 
             File.write("#{bck_file}",File.open("#{bck_file}",&:read).gsub("logdb_tmp","logdb"))
-
-            File.write("#{bck_file}",File.open("#{bck_file}",&:read).gsub("CREATE TABLE logdb", "CREATE TABLE IF NOT EXISTS logdb"))
         else
             connect_db
 
