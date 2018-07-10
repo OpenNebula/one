@@ -350,6 +350,7 @@ class BackEndSQLite < OneDBBacKEnd
                 FEDERATED_TABLES.each do |table|
                     f.puts "DROP TABLE IF EXISTS \"#{table}\";"
                 end
+                f.puts "DROP TABLE IF EXISTS \"logdb\";"
             end
 
             FEDERATED_TABLES.each do |table|
@@ -368,6 +369,34 @@ class BackEndSQLite < OneDBBacKEnd
                 end
 
             end
+
+            rc = system("sqlite3 #{@sqlite_file} 'CREATE TABLE logdb_tmp AS SELECT * FROM logdb WHERE fed_index!=-1;'")
+
+            if !rc
+                raise "Error creating logdb_tmp."
+            end
+
+            Open3.popen3("sqlite3 #{@sqlite_file} '.dump logdb_tmp' >> #{bck_file}") do |i,o,e,t|
+                stdout = o.read
+                if !stdout.empty?
+                    puts stdout
+                end
+
+                stderr = e.read
+                if !stderr.empty?
+                    stderr.lines.each do |line|
+                        STDERR.puts line unless line.match(/^-- Loading/)
+                    end
+                end
+            end
+
+            rc = system("sqlite3 #{@sqlite_file} 'DROP TABLE logdb_tmp;'")
+
+            if !rc
+                raise "Error trying to drop the logdb tmp table."
+            end
+
+            File.write("#{bck_file}",File.open("#{bck_file}",&:read).gsub("logdb_tmp","logdb"))
         else
             connect_db
 
