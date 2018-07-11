@@ -16,6 +16,8 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
+input = STDIN.read
+
 ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
