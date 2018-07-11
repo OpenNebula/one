@@ -56,7 +56,7 @@ define(function(require) {
     renderer: 'foundation',
     autoWidth: false,
     language: {
-      "sLengthMenu": "_MENU_",
+      "url": "../locale/languages/" + datatable_lang,
       "emptyTable": TemplateEmptyTable()
     }
   } );
