@@ -1080,6 +1080,12 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         goto error_update;
     }
 
+    //-------------------------------------------------------------------------
+    //Check for missing unlock callbacks during creation
+    //-------------------------------------------------------------------------
+    
+    Nebula::instance().get_lcm()->trigger(LCMAction::DISK_LOCK_SUCCESS, oid);
+
     return 0;
 
 error_update:
