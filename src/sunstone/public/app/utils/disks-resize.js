@@ -79,7 +79,7 @@ define(function(require){
       disks = [template_disk];
     }
 
-    if (opts.template_base_json) {
+    if (opts.template_base_json && opts.template_base_json.VMTEMPLATE) {
       var template_base_disk = opts.template_base_json.VMTEMPLATE.TEMPLATE.DISK;
       var disks_base = [];
       if ($.isArray(template_base_disk)) {
