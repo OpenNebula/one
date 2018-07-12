@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
@@ -16,35 +16,39 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-SRC=$1
-DST=$2
+ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
 
-VMID=$3
-DSID=$4
-
-if [ -z "${ONE_LOCATION}" ]; then
-    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
-    MIGRATE_DRIVER=/var/lib/one/remotes/vmm/vcenter/migrate
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
 else
-    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
-    MIGRATE_DRIVER=$ONE_LOCATION/var/remotes/vmm/vcenter/migrate
-fi
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+end
 
-. $TMCOMMON
+$: << RUBY_LIB_LOCATION
+$: << File.dirname(__FILE__)
 
-DST_PATH=`arg_path $DST`
+require 'vcenter_driver'
 
-HOST_ORIG=`arg_host $SRC`
-HOST_DEST=`arg_host $DST`
+src  = ARGV[0]
+dst  = ARGV[1]
+vmid = ARGV[2]
+dsid = ARGV[3]
 
-if [ `is_disk $DST_PATH` -eq 1 ]; then
-    exit 0
-fi
+begin
+    dst_path  = OpenNebula.arg_path(dst)
 
-if [ "$SRC" == "$DST" ]; then
-    exit 0
-fi
+    host_orig = OpenNebula.arg_host(src)
+    host_dest = OpenNebula.arg_host(dst)
 
-ruby $MIGRATE_DRIVER $HOST_DEST $HOST_ORIG $VMID $DSID
+    exit 0 if OpenNebula.is_disk?(dst_path)
+    exit 0 if src == dst
 
-exit 0
+    VCenterDriver::VirtualMachine.migrate_routine(vmid, host_orig,  host_dest)
+
+rescue StandardError => e
+    message = "Cannot migrate for VM #{vmid}"\
+              'failed due to '\
+              "\"#{e.message}\"\n"
+    OpenNebula.log_error(message)
+    exit(-1)
+end

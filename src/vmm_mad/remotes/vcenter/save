@@ -44,12 +44,7 @@ lcm_state = drv_action['/VMM_DRIVER_ACTION_DATA/VM/LCM_STATE']
 check_valid(lcm_state, 'lcm_state')
 lcm_state_str = OpenNebula::VirtualMachine::LCM_STATE[lcm_state.to_i]
 
-if lcm_state_str == 'SAVE_MIGRATE'
-    STDERR.puts 'Migration between vCenters cluster not supported'
-    exit(-1)
-end
-
-if !(%{'SAVE_SUSPEND', 'SAVE_STOP'}).include?(lcm_state_str)
+if !(%{'SAVE_SUSPEND', 'SAVE_STOP', 'SAVE_MIGRATE'}).include?(lcm_state_str)
     STDERR.puts "Wrong lcm state #{lcm_state_str} }when saving VM"
     exit(-1)
 end
