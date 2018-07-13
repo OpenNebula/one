@@ -1083,8 +1083,11 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     //-------------------------------------------------------------------------
     //Check for missing unlock callbacks during creation
     //-------------------------------------------------------------------------
-    
-    Nebula::instance().get_lcm()->trigger(LCMAction::DISK_LOCK_SUCCESS, oid);
+
+    if ( state == VirtualMachine::CLONING )
+    {
+        Nebula::instance().get_lcm()->trigger(LCMAction::DISK_LOCK_SUCCESS,oid);
+    }
 
     return 0;
 
