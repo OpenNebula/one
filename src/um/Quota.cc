@@ -408,6 +408,12 @@ VectorAttribute * Quota::new_quota(VectorAttribute * va)
 
         limit = va->vector_value_str(metrics[i], limit_f);
 
+        if ( limit_f == -3 )
+        {
+            limit_f = DEFAULT;
+            limit = DEFAULT_STR;
+        }
+
         if (( limit_f == -1 && limit == "" )    // NaN
             ||
             // Negative. Default & unlimited allowed
@@ -422,6 +428,8 @@ VectorAttribute * Quota::new_quota(VectorAttribute * va)
 
         limits.insert(make_pair(metrics[i], one_util::float_to_str(limit_f)));
         limits.insert(make_pair(metrics_used, "0"));
+
+        limit_f = -3;
     }
 
     string id = va->vector_value("ID");
