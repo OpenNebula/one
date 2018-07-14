@@ -24,6 +24,7 @@
  *  VM  = [
  *        VMS               = <Max. number of VMs>
  *        MEMORY            = <Max. number of MB requested by VMs>
+ *        RUNNING_MEMORY    = <Max. number of MB requested by RUNNING VMs>
  *        CPU               = <Max. number of CPU units requested by VMs>
  *        SYSTEM_DISK_SIZE  = <Max. number of system disk MB>
  *        VMS_USED          = Current number of VMs

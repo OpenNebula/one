@@ -229,6 +229,9 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
         return AUTHORIZATION;
     }
 
+    extended_tmpl.add("LCM_STATE", VirtualMachine::RUNNING);
+    extended_tmpl.add("STATE", VirtualMachine::ACTIVE);
+
     if (quota_authorization(&extended_tmpl, Quotas::VIRTUALMACHINE, att,
                 att.resp_msg) == false)
     {

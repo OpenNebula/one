@@ -224,6 +224,16 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
     string deploy_id;
     int vrid = -1;
     unsigned int port;
+    int last_state =  vm->get_state();
+    int last_lcm_state = vm->get_lcm_state();
+
+    ostringstream oss;
+
+    oss << "------------free_vm_resources---------" << "\n"
+        << "STATE: " << last_state << "\n"
+        << "LCM_STATE: " << last_lcm_state;
+
+    NebulaLog::log("DDDDD",Log::INFO, oss);
 
     vm->release_network_leases();
 
@@ -263,6 +273,9 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
     }
 
     vm->unlock();
+
+    tmpl->replace("LCM_STATE", last_lcm_state);
+    tmpl->replace("STATE", last_state);
 
     Quotas::vm_del(uid, gid, tmpl);
 
