@@ -31,12 +31,15 @@ require 'ec2_driver'
 
 deploy_id = ARGV[0]
 host      = ARGV[1]
-
-
+vm_id     = ARGV[2]
 
 begin
+    one = OpenNebula::Client.new()
+    vm = OpenNebula::VirtualMachine.new_with_id(vm_id, one)
+    vm.info
+
     ec2_drv = EC2Driver.new(host)
-    ec2_drv.cancel(deploy_id)
+    ec2_drv.cancel(deploy_id, vm.lcm_state_str)
 rescue Exception => e
     OpenNebula.handle_driver_exception("Cancel", e, host, deploy_id)
 end
