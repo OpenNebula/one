@@ -93,3 +93,15 @@ def check_item(item, target_class)
         raise "Reference \"#{item._ref}\" error. The reference does not exist"
     end
 end
+
+def wait_deploy_timeout(vm, timeout_deploy = 300)
+    time_start = Time.now
+    begin
+        time_running = Time.now - time_start
+        if time_running.to_i >= timeout_deploy
+            raise "reached deploy timeout"
+        end
+        sleep(2)
+        state = vm.item.summary.runtime.powerState
+    end until(state == "poweredOn")
+end
