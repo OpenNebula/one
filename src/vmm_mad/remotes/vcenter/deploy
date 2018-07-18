@@ -66,6 +66,9 @@ begin
 
     vm.reconfigure
     vm.poweron
+
+    wait_deploy_timeout(vm)
+
     vm.set_running(true)
 
     vm.one_item.update("VCENTER_ESX_HOST = #{vm['runtime.host.name']}", true)
