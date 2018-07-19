@@ -232,7 +232,7 @@ class EC2Driver
         @host_id = host_id
 
         if host['PM_MAD']
-				@state_change_timeout = PUBLIC_CLOUD_EC2_CONF['state_wait_pm_timeout_seconds'] ? PUBLIC_CLOUD_EC2_CONF['state_wait_pm_timeout_seconds'].to_i : STATE_WAIT_PM_TIMEOUT_SECONDS
+	    @state_change_timeout = PUBLIC_CLOUD_EC2_CONF['state_wait_pm_timeout_seconds'] ? PUBLIC_CLOUD_EC2_CONF['state_wait_pm_timeout_seconds'].to_i : STATE_WAIT_PM_TIMEOUT_SECONDS
         else
             @state_change_timeout = PUBLIC_CLOUD_EC2_CONF['state_wait_timeout_seconds'].to_i
         end
