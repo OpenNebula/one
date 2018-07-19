@@ -998,12 +998,3 @@ private
         onegate_token_64 = Base64.encode64(onegate_token).chop
     end
 end
-
-def error_message(message)
-    error_str = "ERROR MESSAGE --8<------\n"
-    error_str << message
-    error_str << "\nERROR MESSAGE ------>8--"
-
-    return error_str
-end
-
