@@ -371,12 +371,15 @@ define(function(require) {
             edgeLabel = lease.IP6_LINK;
           }
 
-          nodes.push({
-            id: nodeId,
-            level: level+1,
-            label: "VMset "+lease.VM,
-            group: "vm",
-            vnet: vnetId});
+          if (!nodeIndex[nodeId]){
+            nodeIndex[nodeId] = true;
+            nodes.push({
+              id: nodeId,
+              level: level+1,
+              label: "VMset "+lease.VM,
+              group: "vm",
+              vnet: vnetId});
+          }
 
           edges.push({from: vnetNodeId, to: nodeId, label: edgeLabel + " / ..."});
         }
