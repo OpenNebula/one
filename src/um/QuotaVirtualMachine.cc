@@ -47,32 +47,20 @@ bool QuotaVirtualMachine::check(Template * tmpl,
     map<string, float> vm_request;
 
     int         memory;
+    int         vms;
     float       cpu;
     long long   size;
 
-    int state;
-    bool has_state;
+    int state, prev_state;
+    bool has_state, has_prev_state;
 
+    has_prev_state = tmpl->get("PREV_STATE", prev_state);
     has_state = tmpl->get("STATE", state);
 
     if ( tmpl->get("MEMORY", memory) == false  || memory <= 0 )
     {
         error = "MEMORY attribute must be a positive integer value";
         return false;
-    }
-
-    if ( has_state &&
-        (( state == VirtualMachine::ACTIVE ) ||
-        ( state == VirtualMachine::HOLD ) ||
-        ( state == VirtualMachine::PENDING )))
-    {
-        vm_request.insert(make_pair("RUNNING_MEMORY", memory));
-        vm_request.insert(make_pair("RUNNING_VMS",1));
-    }
-    else
-    {
-        vm_request.insert(make_pair("RUNNING_MEMORY", 0));
-        vm_request.insert(make_pair("RUNNING_VMS",0));
     }
 
     if ( tmpl->get("CPU", cpu) == false || cpu <= 0 )
@@ -82,8 +70,32 @@ bool QuotaVirtualMachine::check(Template * tmpl,
     }
 
     size = VirtualMachineDisks::system_ds_size(tmpl);
+    vms = 1;
 
-    vm_request.insert(make_pair("VMS",1));
+    if ( has_state &&
+        (( state == VirtualMachine::ACTIVE ) ||
+        ( state == VirtualMachine::HOLD ) ||
+        ( state == VirtualMachine::PENDING )))
+    {
+        vm_request.insert(make_pair("RUNNING_MEMORY", memory));
+        vm_request.insert(make_pair("RUNNING_VMS",1));
+
+        if ( has_prev_state == true )
+        {
+            size = 0;
+            memory = 0;
+            vms = 0;
+            cpu = 0;
+        }
+    }
+    else
+    {
+        vm_request.insert(make_pair("RUNNING_MEMORY", 0));
+        vm_request.insert(make_pair("RUNNING_VMS",0));
+    }
+
+
+    vm_request.insert(make_pair("VMS", vms));
     vm_request.insert(make_pair("MEMORY", memory));
     vm_request.insert(make_pair("CPU", cpu));
     vm_request.insert(make_pair("SYSTEM_DISK_SIZE", size));
@@ -102,10 +114,11 @@ void QuotaVirtualMachine::del(Template * tmpl)
     float       cpu;
     long long   size;
 
-    int state;
-    bool has_state;
+    int state, prev_state;
+    bool has_state, has_prev_state;
 
     has_state = tmpl->get("STATE", state);
+    has_prev_state = tmpl->get("PREV_STATE", prev_state);
 
     if ( tmpl->get("MEMORY", memory) == false )
     {
@@ -122,16 +135,23 @@ void QuotaVirtualMachine::del(Template * tmpl)
         vms = 1;
     }
 
-    if ( has_state &&
-        (( state == VirtualMachine::ACTIVE ) ||
-        ( state == VirtualMachine::HOLD ) ||
-        ( state == VirtualMachine::PENDING )))
+    size = VirtualMachineDisks::system_ds_size(tmpl);
+
+    if ( has_prev_state &&
+        (( prev_state == VirtualMachine::ACTIVE ) ||
+        ( prev_state == VirtualMachine::HOLD ) ||
+        ( prev_state == VirtualMachine::PENDING )))
     {
         vm_request.insert(make_pair("RUNNING_MEMORY", memory));
         vm_request.insert(make_pair("RUNNING_VMS",vms));
+        if ( has_state && state != VirtualMachine::DONE )
+        {
+            memory = 0;
+            cpu = 0;
+            vms = 0;
+            size = 0;
+        }
     }
-
-    size = VirtualMachineDisks::system_ds_size(tmpl);
 
     vm_request.insert(make_pair("VMS", vms));
     vm_request.insert(make_pair("MEMORY", memory));
