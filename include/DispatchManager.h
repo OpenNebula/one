@@ -22,6 +22,7 @@
 #include "VirtualMachinePool.h"
 #include "VirtualRouterPool.h"
 #include "ClusterPool.h"
+#include "UserPool.h"
 
 using namespace std;
 
@@ -493,9 +494,14 @@ private:
     HostPool *              hpool;
 
     /**
-     *  Pointer to the Virtual Machine Pool, to access hosts
+     *  Pointer to the Virtual Machine Pool, to access VMs
      */
     VirtualMachinePool *    vmpool;
+
+    /**
+     *  Pointer to the User Pool, to access user
+     */
+    UserPool *    upool;
 
     /**
      *  Pointer to the Cluster Pool

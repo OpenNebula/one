@@ -16,12 +16,16 @@
 
 #include "DispatchManager.h"
 #include "NebulaLog.h"
-
+#include "Quotas.h"
 #include "Nebula.h"
 
 void  DispatchManager::suspend_success_action(int vid)
 {
     VirtualMachine *    vm;
+    VirtualMachineTemplate * clone_tmpl;
+    string error_str;
+
+    int uid, gid;
 
     vm = vmpool->get(vid);
 
@@ -29,6 +33,8 @@ void  DispatchManager::suspend_success_action(int vid)
     {
         return;
     }
+
+    clone_tmpl = vm->clone_template();
 
     if ((vm->get_state() == VirtualMachine::ACTIVE) &&
         (vm->get_lcm_state() == VirtualMachine::SAVE_SUSPEND ||
@@ -51,9 +57,22 @@ void  DispatchManager::suspend_success_action(int vid)
         oss << "suspend_success action received but VM " << vid
             << " not in ACTIVE state";
         NebulaLog::log("DiM",Log::ERROR,oss);
+
+        vm->unlock();
+        return;
     }
 
+    clone_tmpl->add("PREV_STATE", vm->get_prev_state());
+    clone_tmpl->add("STATE", vm->get_state());
+
+    uid = vm->get_uid();
+    gid = vm->get_gid();
+
     vm->unlock();
+
+    Quotas::vm_del(uid, gid, clone_tmpl);
+
+    delete clone_tmpl;
 
     return;
 }
@@ -64,6 +83,10 @@ void  DispatchManager::suspend_success_action(int vid)
 void  DispatchManager::stop_success_action(int vid)
 {
     VirtualMachine *    vm;
+    VirtualMachineTemplate * clone_tmpl;
+    string error_str;
+
+    int uid, gid;
 
     vm = vmpool->get(vid);
 
@@ -71,6 +94,8 @@ void  DispatchManager::stop_success_action(int vid)
     {
         return;
     }
+
+    clone_tmpl = vm->clone_template();
 
     if ((vm->get_state() == VirtualMachine::ACTIVE) &&
         (vm->get_lcm_state() == VirtualMachine::EPILOG_STOP ||
@@ -97,9 +122,21 @@ void  DispatchManager::stop_success_action(int vid)
         oss << "stop_success action received but VM " << vid
             << " not in ACTIVE state";
         NebulaLog::log("DiM",Log::ERROR,oss);
+        vm->unlock();
+        return;
     }
 
+    clone_tmpl->add("PREV_STATE", vm->get_prev_state());
+    clone_tmpl->add("STATE", vm->get_state());
+
+    uid = vm->get_uid();
+    gid = vm->get_gid();
+
     vm->unlock();
+
+    Quotas::vm_del(uid, gid, clone_tmpl);
+
+    delete clone_tmpl;
 
     return;
 }
@@ -110,6 +147,10 @@ void  DispatchManager::stop_success_action(int vid)
 void  DispatchManager::undeploy_success_action(int vid)
 {
     VirtualMachine *    vm;
+    VirtualMachineTemplate * clone_tmpl;
+    string error_str;
+
+    int uid, gid;
 
     vm = vmpool->get(vid);
 
@@ -117,6 +158,8 @@ void  DispatchManager::undeploy_success_action(int vid)
     {
         return;
     }
+
+    clone_tmpl = vm->clone_template();
 
     if ((vm->get_state() == VirtualMachine::ACTIVE) &&
         (vm->get_lcm_state() == VirtualMachine::EPILOG_UNDEPLOY ||
@@ -144,9 +187,22 @@ void  DispatchManager::undeploy_success_action(int vid)
         oss << "undeploy_success action received but VM " << vid
             << " not in ACTIVE state";
         NebulaLog::log("DiM",Log::ERROR,oss);
+
+        vm->unlock();
+        return;
     }
 
+    clone_tmpl->add("PREV_STATE", vm->get_prev_state());
+    clone_tmpl->add("STATE", vm->get_state());
+
+    uid = vm->get_uid();
+    gid = vm->get_gid();
+
     vm->unlock();
+
+    Quotas::vm_del(uid, gid, clone_tmpl);
+
+    delete clone_tmpl;
 
     return;
 }
@@ -157,6 +213,10 @@ void  DispatchManager::undeploy_success_action(int vid)
 void  DispatchManager::poweroff_success_action(int vid)
 {
     VirtualMachine *    vm;
+    VirtualMachineTemplate * clone_tmpl;
+    string error_str;
+
+    int uid, gid;
 
     vm = vmpool->get(vid);
 
@@ -164,6 +224,9 @@ void  DispatchManager::poweroff_success_action(int vid)
     {
         return;
     }
+
+    clone_tmpl = vm->clone_template();
+    clone_tmpl->add("STATE", vm->get_state());
 
     if ((vm->get_state() == VirtualMachine::ACTIVE) &&
         (vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF ||
@@ -189,9 +252,22 @@ void  DispatchManager::poweroff_success_action(int vid)
         oss << "poweroff_success action received but VM " << vid
             << " not in ACTIVE state";
         NebulaLog::log("DiM",Log::ERROR,oss);
+
+        vm->unlock();
+        return;
     }
 
+    clone_tmpl->add("PREV_STATE", vm->get_prev_state());
+    clone_tmpl->add("STATE", vm->get_state());
+
+    uid = vm->get_uid();
+    gid = vm->get_gid();
+
     vm->unlock();
+
+    Quotas::vm_del(uid, gid, clone_tmpl);
+
+    delete clone_tmpl;
 
     return;
 }
@@ -202,6 +278,10 @@ void  DispatchManager::poweroff_success_action(int vid)
 void  DispatchManager::done_action(int vid)
 {
     VirtualMachine * vm;
+    VirtualMachineTemplate * clone_tmpl;
+    string error_str;
+
+    int uid, gid;
 
     VirtualMachine::LcmState lcm_state;
     VirtualMachine::VmState  dm_state;
@@ -213,8 +293,16 @@ void  DispatchManager::done_action(int vid)
         return;
     }
 
+    clone_tmpl = vm->clone_template();
+
     lcm_state = vm->get_lcm_state();
     dm_state  = vm->get_state();
+
+    clone_tmpl->add("PREV_STATE", dm_state);
+    clone_tmpl->add("STATE", VirtualMachine::DONE);
+
+    uid = vm->get_uid();
+    gid = vm->get_gid();
 
     if ((dm_state == VirtualMachine::ACTIVE) &&
           (lcm_state == VirtualMachine::EPILOG ||
@@ -232,6 +320,10 @@ void  DispatchManager::done_action(int vid)
         vm->unlock();
     }
 
+    Quotas::vm_del(uid, gid, clone_tmpl);
+
+    delete clone_tmpl;
+
     return;
 }
 
@@ -241,6 +333,11 @@ void  DispatchManager::done_action(int vid)
 void  DispatchManager::resubmit_action(int vid)
 {
     VirtualMachine * vm;
+    VirtualMachineTemplate * clone_tmpl;
+    User * user;
+    string error_str;
+
+    int uid, rc;
 
     vm = vmpool->get(vid);
 
@@ -257,9 +354,33 @@ void  DispatchManager::resubmit_action(int vid)
 
         vm->set_state(VirtualMachine::PENDING);
 
+        clone_tmpl = vm->clone_template();
+
         vmpool->update(vm);
 
+        uid = vm->get_uid();
+
         vm->unlock();
+
+        user = upool->get(uid);
+
+        if ( user == 0 )
+        {
+            return;
+        }
+
+        DefaultQuotas default_quotas = Nebula::instance().get_default_user_quota();
+
+        rc = user->quota.quota_check(Quotas::VIRTUALMACHINE, clone_tmpl, default_quotas, error_str);
+
+        if (rc == true)
+        {
+            upool->update_quotas(user);
+        }
+
+        delete clone_tmpl;
+
+        user->unlock();
     }
 }
 

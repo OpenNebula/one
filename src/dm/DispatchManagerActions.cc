@@ -22,6 +22,7 @@
 #include "ImageManager.h"
 #include "Quotas.h"
 #include "Request.h"
+#include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -215,7 +216,6 @@ error:
 
 void DispatchManager::free_vm_resources(VirtualMachine * vm)
 {
-    Template* tmpl;
     vector<Template *> ds_quotas;
 
     int vmid;
@@ -224,16 +224,6 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
     string deploy_id;
     int vrid = -1;
     unsigned int port;
-    int last_state =  vm->get_state();
-    int last_lcm_state = vm->get_lcm_state();
-
-    ostringstream oss;
-
-    oss << "------------free_vm_resources---------" << "\n"
-        << "STATE: " << last_state << "\n"
-        << "LCM_STATE: " << last_lcm_state;
-
-    NebulaLog::log("DDDDD",Log::INFO, oss);
 
     vm->release_network_leases();
 
@@ -260,7 +250,6 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
     vmid = vm->get_oid();
     uid  = vm->get_uid();
     gid  = vm->get_gid();
-    tmpl = vm->clone_template();
 
     if (vm->is_imported())
     {
@@ -273,13 +262,6 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
     }
 
     vm->unlock();
-
-    tmpl->replace("LCM_STATE", last_lcm_state);
-    tmpl->replace("STATE", last_state);
-
-    Quotas::vm_del(uid, gid, tmpl);
-
-    delete tmpl;
 
     if ( !ds_quotas.empty() )
     {
@@ -724,6 +706,11 @@ int DispatchManager::resume(int vid, const RequestAttributes& ra,
         string& error_str)
 {
     ostringstream oss;
+    VirtualMachineTemplate * clone_tmpl;
+    User * user;
+    DefaultQuotas default_quotas = Nebula::instance().get_default_user_quota();
+
+    int uid, rc;
 
     VirtualMachine * vm = vmpool->get(vid);
 
@@ -767,7 +754,32 @@ int DispatchManager::resume(int vid, const RequestAttributes& ra,
         goto error_state;
     }
 
+    clone_tmpl = vm->clone_template();
+    clone_tmpl->add("PREV_STATE", vm->get_prev_state());
+
+    uid = vm->get_uid();
+
     vm->unlock();
+
+    user = upool->get(uid);
+
+    if ( user == 0 )
+    {
+        return -1;
+    }
+
+    clone_tmpl->add("STATE", VirtualMachine::PENDING);
+
+    rc = user->quota.quota_check(Quotas::VIRTUALMACHINE, clone_tmpl, default_quotas, error_str);
+
+    if (rc == true)
+    {
+        upool->update_quotas(user);
+    }
+
+    delete clone_tmpl;
+
+    user->unlock();
 
     return 0;
 
