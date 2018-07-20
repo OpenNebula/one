@@ -15,17 +15,17 @@
 # See the License for the specific language governing permissions and          #
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
-ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+
+ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' unless defined?(RUBY_LIB_LOCATION)
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' unless defined?(RUBY_LIB_LOCATION)
 end
 
-$: << RUBY_LIB_LOCATION
-$: << File.dirname(__FILE__)
-
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
@@ -34,7 +34,6 @@ src_host = ARGV[-3]
 dst_host = ARGV[-4]
 
 begin
-
     one_client = OpenNebula::Client.new
 
     pool = OpenNebula::HostPool.new(one_client)
@@ -43,7 +42,7 @@ begin
     src_id = pool["/HOST_POOL/HOST[NAME='#{src_host}']/ID"].to_i
     dst_id = pool["/HOST_POOL/HOST[NAME='#{dst_host}']/ID"].to_i
 
-    vi_client  = VCenterDriver::VIClient.new_from_host(src_id)
+    vi_client = VCenterDriver::VIClient.new_from_host(src_id)
 
     # required one objects
     vm = OpenNebula::VirtualMachine.new_with_id(vm_id, one_client)
@@ -54,21 +53,21 @@ begin
     dst_host.info
 
     # required vcenter objects
-    vc_vm = VCenterDriver::VirtualMachine.new_without_id(vi_client, vm["/VM/DEPLOY_ID"])
-    vc_host = VCenterDriver::ClusterComputeResource.new_from_ref(dst_host["/HOST/TEMPLATE/VCENTER_CCR_REF"],vi_client).item
+    vc_vm = VCenterDriver::VirtualMachine.new_without_id(vi_client, vm['/VM/DEPLOY_ID'])
+    ccr_ref  = dst_host['/HOST/TEMPLATE/VCENTER_CCR_REF']
+    esx_host = dst_host['HOST/TEMPLATE/HOST/HOSTNAME']
+    vc_host  = VCenterDriver::ClusterComputeResource.new_from_ref(ccr_ref, vi_client).item
 
-    config = {:cluster => vc_host }
+    config = { :cluster => vc_host }
     vc_vm.migrate(config)
 
-    vm.replace({"VCENTER_CCR_REF" => dst_host["/HOST/TEMPLATE/VCENTER_CCR_REF"], "VCENTER_ESX_HOST" => dst_host["/HOST/TEMPLATE/HOST/HOSTNAME"]})
-rescue Exception => e
-
+    vm.replace({ 'VCENTER_CCR_REF' => ccr_ref, 'VCENTER_ESX_HOST' => esx_host })
+rescue StandardError => e
     message = "Cannot migrate for VM #{vm_id}"\
-              "failed due to "\
+              'failed due to '\
               "\"#{e.message}\"\n"
     OpenNebula.log_error(message)
-    exit -1
+    exit(-1)
 ensure
     vi_client.close_connection if vi_client
 end
-# raise "Cannot migrate VM #{e.message}\n#{e.backtrace.join("\n")}"

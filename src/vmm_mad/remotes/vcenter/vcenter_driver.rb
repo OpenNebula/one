@@ -18,25 +18,25 @@
 # Set up the environment for the driver                                        #
 # ---------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-   BIN_LOCATION = "/usr/bin" if !defined?(BIN_LOCATION)
-   LIB_LOCATION = "/usr/lib/one" if !defined?(LIB_LOCATION)
-   ETC_LOCATION = "/etc/one/" if !defined?(ETC_LOCATION)
-   VAR_LOCATION = "/var/lib/one" if !defined?(VAR_LOCATION)
+   BIN_LOCATION = '/usr/bin'     unless defined?(BIN_LOCATION)
+   LIB_LOCATION = '/usr/lib/one' unless defined?(LIB_LOCATION)
+   ETC_LOCATION = '/etc/one/'    unless defined?(ETC_LOCATION)
+   VAR_LOCATION = '/var/lib/one' unless defined?(VAR_LOCATION)
 else
-   BIN_LOCATION = ONE_LOCATION + "/bin"  if !defined?(BIN_LOCATION)
-   LIB_LOCATION = ONE_LOCATION + "/lib"  if !defined?(LIB_LOCATION)
-   ETC_LOCATION = ONE_LOCATION + "/etc/" if !defined?(ETC_LOCATION)
-   VAR_LOCATION = ONE_LOCATION + "/var/" if !defined?(VAR_LOCATION)
+   BIN_LOCATION = ONE_LOCATION + '/bin'  unless defined?(BIN_LOCATION)
+   LIB_LOCATION = ONE_LOCATION + '/lib'  unless defined?(LIB_LOCATION)
+   ETC_LOCATION = ONE_LOCATION + '/etc/' unless defined?(ETC_LOCATION)
+   VAR_LOCATION = ONE_LOCATION + '/var/' unless defined?(VAR_LOCATION)
 end
 
 ENV['LANG'] = 'C'
 
-$: << LIB_LOCATION + '/ruby/vendors/rbvmomi/lib'
-$: << LIB_LOCATION + '/ruby'
-$: << LIB_LOCATION + '/ruby/vcenter_driver'
+$LOAD_PATH << LIB_LOCATION + '/ruby/vendors/rbvmomi/lib'
+$LOAD_PATH << LIB_LOCATION + '/ruby'
+$LOAD_PATH << LIB_LOCATION + '/ruby/vcenter_driver'
 
 require 'rbvmomi'
 require 'yaml'
@@ -70,13 +70,13 @@ def error_message(message)
     error_str << message
     error_str << "\nERROR MESSAGE ------>8--"
 
-    return error_str
+    error_str
 end
 
 def check_valid(parameter, label)
     if parameter.nil? || parameter.empty?
         STDERR.puts error_message("The parameter '#{label}' is required for this action.")
-        exit -1
+        exit(-1)
     end
 end
 
@@ -85,11 +85,23 @@ def check_item(item, target_class)
         item.name if CHECK_REFS
         if target_class
             if !item.instance_of?(target_class)
-                raise "Expecting type 'RbVmomi::VIM::#{target_class}'. " <<
+                raise "Expecting type 'RbVmomi::VIM::#{target_class}'. " \
                         "Got '#{item.class} instead."
             end
         end
     rescue RbVmomi::Fault => e
-        raise "Reference \"#{item._ref}\" error. The reference does not exist"
+        raise "Reference \"#{item._ref}\" error [#{e.message}]. The reference does not exist"
     end
 end
+
+def wait_deploy_timeout(vm, timeout_deploy = 300)
+    time_start = Time.now
+    begin
+        time_running = Time.now - time_start
+        raise 'reached deploy timeout' if time_running.to_i >= timeout_deploy
+
+        sleep(2)
+        state = vm.item.summary.runtime.powerState
+    end until(state == "poweredOn")
+end
+>>>>>>> 974f2e449... Rubocop linting in vcenter library
