@@ -36,7 +36,7 @@ vm_id        = ARGV[2]
 ## Helpers
 
 def deploy_id_valid?(deploy_id)
-    deploy_id && !deploy_id.empty?
+  deploy_id && !deploy_id.empty?
 end
 
 drv_action = OpenNebula::XMLElement.new
@@ -46,8 +46,8 @@ deploy_id    = drv_action['DEPLOY_ID']
 host_id      = drv_action['HISTORY_RECORDS/HISTORY/HID']
 
 begin
-    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-    one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
+  vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+  one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
 
     if deploy_id_valid?(deploy_id)
         # VM is not new, we just need to reconfigure it and to power it on
