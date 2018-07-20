@@ -372,10 +372,13 @@ int Quota::update_limits(
     {
         limit = va->vector_value_str(metrics[i], limit_f);
 
-        if (( limit_f == -1 && limit == "" )    // NaN
-            ||
+        if (limit == "")
+        {
+            limit_f = DEFAULT;
+        }
+
             // Negative. Default & unlimited allowed
-            ( !is_default && limit_f < 0 && limit_f != UNLIMITED && limit_f != DEFAULT )
+        if (( !is_default && limit_f < 0 && limit_f != UNLIMITED && limit_f != DEFAULT )
             ||
             // Negative. Unlimited allowed
             ( is_default && limit_f < 0 && limit_f != UNLIMITED )
@@ -408,10 +411,13 @@ VectorAttribute * Quota::new_quota(VectorAttribute * va)
 
         limit = va->vector_value_str(metrics[i], limit_f);
 
-        if (( limit_f == -1 && limit == "" )    // NaN
-            ||
+        if (limit == "")
+        {
+            limit_f = DEFAULT;
+            limit = DEFAULT_STR;
+        }
             // Negative. Default & unlimited allowed
-            ( !is_default && limit_f < 0 && limit_f != UNLIMITED && limit_f != DEFAULT )
+        if (( !is_default && limit_f < 0 && limit_f != UNLIMITED && limit_f != DEFAULT )
             ||
             // Negative. Unlimited allowed
             ( is_default && limit_f < 0 && limit_f != UNLIMITED )
