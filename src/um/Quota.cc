@@ -79,6 +79,11 @@ void Quota::add_to_quota(VectorAttribute * attr, const string& va_name, float nu
 
     total += num;
 
+    if ( total < 0 )
+    {
+        total = 0;
+    }
+
     attr->replace(va_name, one_util::float_to_str(total));
 }
 
