@@ -17,9 +17,9 @@
 require 'digest'
 require 'resolv'
 
-class VirtualMachineFolder
-i
 module VCenterDriver
+
+class VirtualMachineFolder
     attr_accessor :item, :items
 
     def initialize(item)
