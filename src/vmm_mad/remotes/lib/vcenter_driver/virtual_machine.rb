@@ -89,6 +89,9 @@ class Template
     def unlock
         if @locking
             @locking_file.close
+            if File.exist?("/tmp/vcenter-importer-lock")
+                File.delete("/tmp/vcenter-importer-lock")
+            end
         end
     end
 
