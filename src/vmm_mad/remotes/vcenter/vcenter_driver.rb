@@ -104,4 +104,3 @@ def wait_deploy_timeout(vm, timeout_deploy = 300)
         state = vm.item.summary.runtime.powerState
     end until(state == "poweredOn")
 end
->>>>>>> 974f2e449... Rubocop linting in vcenter library
