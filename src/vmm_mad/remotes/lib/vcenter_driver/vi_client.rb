@@ -47,8 +47,12 @@ class VIClient
     end
 
     def load_vcenter_configuration
-        vcenter_conf = YAML::load(File.open("#{ETC_LOCATION}/vcenter_driver.conf"))
-        vcenter_conf
+        begin
+            vcenter_conf = YAML::load(File.open("#{ETC_LOCATION}/vcenter_driver.conf"))
+            vcenter_conf
+        rescue
+            Hash.new
+        end
     end
 
     def get_property_vcenter_conf(key)
