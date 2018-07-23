@@ -35,7 +35,7 @@ drv_action_enc = ARGV[4]
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'VMM_DRIVER_ACTION_DATA')
 
-vc_cluster_name = drv_action['VMM_DRIVER_ACTION_DATA/HOST']
+vc_cluster_name = drv_action['/VMM_DRIVER_ACTION_DATA/HOST']
 host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, vc_cluster_name)
 host_id = host['ID']
 
