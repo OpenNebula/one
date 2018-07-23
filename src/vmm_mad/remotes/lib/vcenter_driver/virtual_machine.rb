@@ -1479,7 +1479,9 @@ class VirtualMachine < Template
         return self['_ref']
     end
 
-    #The exception will be handle outside this method
+    # This method raises an exception if the timeout is reached
+    # The exception needs to be handled in the VMM drivers and any
+    # process that uses this method
     def wait_deploy_timeout
         timeout_deploy = @vi_client.get_property_vcenter_conf(:vm_poweron_wait_default)
         time_start = Time.now
