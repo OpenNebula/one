@@ -71,6 +71,8 @@ bool VirtualMachineAllocate::allocate_authorization(
     string      t64;
     string      aname;
 
+    int memory, cpu;
+
     VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);
 
     // ------------ Check template for restricted attributes -------------------
@@ -106,8 +108,12 @@ bool VirtualMachineAllocate::allocate_authorization(
 
     VirtualMachineDisks::extended_info(att.uid, &aux_tmpl);
 
-    aux_tmpl.add("LCM_STATE", VirtualMachine::RUNNING);
-    aux_tmpl.add("STATE", VirtualMachine::ACTIVE);
+    aux_tmpl.get("MEMORY", memory);
+    aux_tmpl.get("CPU", cpu);
+
+    aux_tmpl.add("RUNNING_MEMORY", memory);
+    aux_tmpl.add("RUNNING_CPU", cpu);
+    aux_tmpl.add("RUNNING_VMS", 1);
 
     if ( quota_authorization(&aux_tmpl, Quotas::VIRTUALMACHINE, att) == false )
     {

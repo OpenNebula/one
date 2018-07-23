@@ -3130,3 +3130,17 @@ int VirtualMachine::parse_sched_action(string& error_str)
     return sactions.parse(error_str, false);
 }
 
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+VirtualMachineTemplate * VirtualMachine::get_quota_template()
+{
+    VirtualMachineTemplate * clone_tmpl = new VirtualMachineTemplate();
+
+    clone_tmpl->add("MEMORY", memory);
+    clone_tmpl->add("CPU", cpu);
+    clone_tmpl->add("DISK", obj_template->get("DISK"));
+    clone_tmpl->add("NIC", obj_template->get("NIC"));
+
+    return clone_tmpl;
+}

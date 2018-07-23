@@ -1603,6 +1603,12 @@ public:
         disks.clear_cloning_image_id(image_id, source);
     }
 
+    /**
+     * Get a template only with the necessary attributes to update the
+     * quotas
+     */
+    VirtualMachineTemplate * get_quota_template();
+
 private:
 
     // -------------------------------------------------------------------------

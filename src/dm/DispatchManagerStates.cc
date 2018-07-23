@@ -26,6 +26,7 @@ void  DispatchManager::suspend_success_action(int vid)
     string error_str;
 
     int uid, gid;
+    int memory, cpu;
 
     vm = vmpool->get(vid);
 
@@ -33,8 +34,6 @@ void  DispatchManager::suspend_success_action(int vid)
     {
         return;
     }
-
-    clone_tmpl = vm->clone_template();
 
     if ((vm->get_state() == VirtualMachine::ACTIVE) &&
         (vm->get_lcm_state() == VirtualMachine::SAVE_SUSPEND ||
@@ -62,8 +61,24 @@ void  DispatchManager::suspend_success_action(int vid)
         return;
     }
 
-    clone_tmpl->add("PREV_STATE", vm->get_prev_state());
-    clone_tmpl->add("STATE", vm->get_state());
+    clone_tmpl = vm->get_quota_template();
+
+    if ( (vm->get_prev_state() == VirtualMachine::ACTIVE) ||
+         (vm->get_prev_state() == VirtualMachine::PENDING) ||
+         (vm->get_prev_state() == VirtualMachine::HOLD) )
+    {
+        clone_tmpl->get("MEMORY", memory);
+        clone_tmpl->get("CPU", cpu);
+
+        clone_tmpl->add("RUNNING_MEMORY", memory);
+        clone_tmpl->add("RUNNING_CPU", cpu);
+        clone_tmpl->add("RUNNING_VMS", 1);
+        clone_tmpl->replace("MEMORY", 0);
+        clone_tmpl->replace("CPU", 0);
+        clone_tmpl->replace("VMS", 0);
+        clone_tmpl->replace("DISK", 0);
+        clone_tmpl->replace("NIC", 0);
+    }
 
     uid = vm->get_uid();
     gid = vm->get_gid();
@@ -87,6 +102,7 @@ void  DispatchManager::stop_success_action(int vid)
     string error_str;
 
     int uid, gid;
+    int memory, cpu;
 
     vm = vmpool->get(vid);
 
@@ -94,8 +110,6 @@ void  DispatchManager::stop_success_action(int vid)
     {
         return;
     }
-
-    clone_tmpl = vm->clone_template();
 
     if ((vm->get_state() == VirtualMachine::ACTIVE) &&
         (vm->get_lcm_state() == VirtualMachine::EPILOG_STOP ||
@@ -126,8 +140,24 @@ void  DispatchManager::stop_success_action(int vid)
         return;
     }
 
-    clone_tmpl->add("PREV_STATE", vm->get_prev_state());
-    clone_tmpl->add("STATE", vm->get_state());
+    clone_tmpl = vm->get_quota_template();
+
+    if ( (vm->get_prev_state() == VirtualMachine::ACTIVE) ||
+         (vm->get_prev_state() == VirtualMachine::PENDING) ||
+         (vm->get_prev_state() == VirtualMachine::HOLD) )
+    {
+        clone_tmpl->get("MEMORY", memory);
+        clone_tmpl->get("CPU", cpu);
+
+        clone_tmpl->add("RUNNING_MEMORY", memory);
+        clone_tmpl->add("RUNNING_CPU", cpu);
+        clone_tmpl->add("RUNNING_VMS", 1);
+        clone_tmpl->replace("MEMORY", 0);
+        clone_tmpl->replace("CPU", 0);
+        clone_tmpl->replace("VMS", 0);
+        clone_tmpl->replace("DISK", 0);
+        clone_tmpl->replace("NIC", 0);
+    }
 
     uid = vm->get_uid();
     gid = vm->get_gid();
@@ -151,6 +181,7 @@ void  DispatchManager::undeploy_success_action(int vid)
     string error_str;
 
     int uid, gid;
+    int memory, cpu;
 
     vm = vmpool->get(vid);
 
@@ -158,8 +189,6 @@ void  DispatchManager::undeploy_success_action(int vid)
     {
         return;
     }
-
-    clone_tmpl = vm->clone_template();
 
     if ((vm->get_state() == VirtualMachine::ACTIVE) &&
         (vm->get_lcm_state() == VirtualMachine::EPILOG_UNDEPLOY ||
@@ -192,8 +221,24 @@ void  DispatchManager::undeploy_success_action(int vid)
         return;
     }
 
-    clone_tmpl->add("PREV_STATE", vm->get_prev_state());
-    clone_tmpl->add("STATE", vm->get_state());
+    clone_tmpl = vm->get_quota_template();
+
+    if ( (vm->get_prev_state() == VirtualMachine::ACTIVE) ||
+         (vm->get_prev_state() == VirtualMachine::PENDING) ||
+         (vm->get_prev_state() == VirtualMachine::HOLD) )
+    {
+        clone_tmpl->get("MEMORY", memory);
+        clone_tmpl->get("CPU", cpu);
+
+        clone_tmpl->add("RUNNING_MEMORY", memory);
+        clone_tmpl->add("RUNNING_CPU", cpu);
+        clone_tmpl->add("RUNNING_VMS", 1);
+        clone_tmpl->replace("MEMORY", 0);
+        clone_tmpl->replace("CPU", 0);
+        clone_tmpl->replace("VMS", 0);
+        clone_tmpl->replace("DISK", 0);
+        clone_tmpl->replace("NIC", 0);
+    }
 
     uid = vm->get_uid();
     gid = vm->get_gid();
@@ -217,6 +262,7 @@ void  DispatchManager::poweroff_success_action(int vid)
     string error_str;
 
     int uid, gid;
+    int memory, cpu;
 
     vm = vmpool->get(vid);
 
@@ -224,9 +270,6 @@ void  DispatchManager::poweroff_success_action(int vid)
     {
         return;
     }
-
-    clone_tmpl = vm->clone_template();
-    clone_tmpl->add("STATE", vm->get_state());
 
     if ((vm->get_state() == VirtualMachine::ACTIVE) &&
         (vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF ||
@@ -257,8 +300,24 @@ void  DispatchManager::poweroff_success_action(int vid)
         return;
     }
 
-    clone_tmpl->add("PREV_STATE", vm->get_prev_state());
-    clone_tmpl->add("STATE", vm->get_state());
+    clone_tmpl = vm->get_quota_template();
+
+    if ( (vm->get_prev_state() == VirtualMachine::ACTIVE) ||
+         (vm->get_prev_state() == VirtualMachine::PENDING) ||
+         (vm->get_prev_state() == VirtualMachine::HOLD) )
+    {
+        clone_tmpl->get("MEMORY", memory);
+        clone_tmpl->get("CPU", cpu);
+
+        clone_tmpl->add("RUNNING_MEMORY", memory);
+        clone_tmpl->add("RUNNING_CPU", cpu);
+        clone_tmpl->add("RUNNING_VMS", 1);
+        clone_tmpl->replace("MEMORY", 0);
+        clone_tmpl->replace("CPU", 0);
+        clone_tmpl->replace("VMS", 0);
+        clone_tmpl->replace("DISK", 0);
+        clone_tmpl->replace("NIC", 0);
+    }
 
     uid = vm->get_uid();
     gid = vm->get_gid();
@@ -282,6 +341,7 @@ void  DispatchManager::done_action(int vid)
     string error_str;
 
     int uid, gid;
+    int memory, cpu;
 
     VirtualMachine::LcmState lcm_state;
     VirtualMachine::VmState  dm_state;
@@ -293,13 +353,22 @@ void  DispatchManager::done_action(int vid)
         return;
     }
 
-    clone_tmpl = vm->clone_template();
-
     lcm_state = vm->get_lcm_state();
     dm_state  = vm->get_state();
 
-    clone_tmpl->add("PREV_STATE", dm_state);
-    clone_tmpl->add("STATE", VirtualMachine::DONE);
+    clone_tmpl = vm->get_quota_template();
+
+    if ( (vm->get_state() == VirtualMachine::ACTIVE) ||
+         (vm->get_state() == VirtualMachine::PENDING) ||
+         (vm->get_state() == VirtualMachine::HOLD) )
+    {
+        clone_tmpl->get("MEMORY", memory);
+        clone_tmpl->get("CPU", cpu);
+
+        clone_tmpl->add("RUNNING_MEMORY", memory);
+        clone_tmpl->add("RUNNING_CPU", cpu);
+        clone_tmpl->add("RUNNING_VMS", 1);
+    }
 
     uid = vm->get_uid();
     gid = vm->get_gid();
@@ -338,6 +407,7 @@ void  DispatchManager::resubmit_action(int vid)
     string error_str;
 
     int uid, rc;
+    int memory, cpu;
 
     vm = vmpool->get(vid);
 
@@ -354,7 +424,7 @@ void  DispatchManager::resubmit_action(int vid)
 
         vm->set_state(VirtualMachine::PENDING);
 
-        clone_tmpl = vm->clone_template();
+        clone_tmpl = vm->get_quota_template();
 
         vmpool->update(vm);
 
@@ -370,6 +440,13 @@ void  DispatchManager::resubmit_action(int vid)
         }
 
         DefaultQuotas default_quotas = Nebula::instance().get_default_user_quota();
+
+        clone_tmpl->get("MEMORY", memory);
+        clone_tmpl->get("CPU", cpu);
+
+        clone_tmpl->add("RUNNING_MEMORY", memory);
+        clone_tmpl->add("RUNNING_CPU", cpu);
+        clone_tmpl->add("RUNNING_VMS", 1);
 
         rc = user->quota.quota_check(Quotas::VIRTUALMACHINE, clone_tmpl, default_quotas, error_str);
 
