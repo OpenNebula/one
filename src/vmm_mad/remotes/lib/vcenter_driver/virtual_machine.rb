@@ -1483,6 +1483,7 @@ class VirtualMachine < Template
         return self['_ref']
     end
 
+    #The exception will be handle outside this method
     def wait_deploy_timeout
         timeout_deploy = @vi_client.get_property_vcenter_conf(:vm_poweron_wait_default)
         time_start = Time.now

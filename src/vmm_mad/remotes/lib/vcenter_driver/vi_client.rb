@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-
 require 'openssl'
 require 'yaml'
 
@@ -48,7 +47,7 @@ class VIClient
     end
 
     def load_vcenter_configuration
-        vcenter_conf = YAML::load(File.open("/etc/one/vcenter_driver.conf"))
+        vcenter_conf = YAML::load(File.open("#{ETC_LOCATION}/vcenter_driver.conf"))
         vcenter_conf
     end
 
