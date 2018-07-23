@@ -1488,6 +1488,7 @@ class VirtualMachine < Template
     # process that uses this method
     def wait_deploy_timeout
         timeout_deploy = @vi_client.get_property_vcenter_conf(:vm_poweron_wait_default)
+        timeout_deploy = 300 if timeout_deploy.nil?
         time_start = Time.now
         begin
             time_running = Time.now - time_start
