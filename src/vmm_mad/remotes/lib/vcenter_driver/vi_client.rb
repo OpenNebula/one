@@ -22,7 +22,7 @@ module VCenterDriver
 class VIClient
     attr_accessor :vim
     attr_accessor :rp
-    attr_accessor   :vc_name
+    attr_accessor :vc_name
 
     def initialize(opts, host_id = -1)
         opts = {:insecure => true}.merge(opts)
