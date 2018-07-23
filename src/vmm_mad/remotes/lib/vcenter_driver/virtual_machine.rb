@@ -1483,6 +1483,15 @@ class VirtualMachine < Template
         return self['_ref']
     end
 
+    def wait_deploy_timeout
+        timeout_deploy = @vi_client.get_property_vcenter_conf(:vm_poweron_wait_default)
+        time_start = Time.now
+        begin
+            time_running = Time.now - time_start
+            sleep(2)
+        end until(is_powered_on? && time_running.to_i < timeout_deploy)
+        raise 'Reached deploy timeout' if time_running.to_i >= timeout_deploy
+    end
 
     def storagepod_clonevm_task(vc_template, vcenter_name, clone_spec, storpod, vcenter_vm_folder_object, dc)
 
@@ -2987,7 +2996,8 @@ class VirtualMachine < Template
     end
 
     def poweron
-       @item.PowerOnVM_Task.wait_for_completion
+        @item.PowerOnVM_Task.wait_for_completion
+        wait_deploy_timeout
     end
 
     def is_powered_on?

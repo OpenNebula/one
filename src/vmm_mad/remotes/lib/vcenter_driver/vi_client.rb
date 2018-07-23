@@ -15,20 +15,21 @@
 #--------------------------------------------------------------------------- #
 
 require 'openssl'
+require 'yaml'
 
 module VCenterDriver
 
 class VIClient
     attr_accessor :vim
     attr_accessor :rp
-    attr_accessor  :vc_name
+    attr_accessor :vc_name
 
     def initialize(opts, host_id = -1)
         opts = {:insecure => true}.merge(opts)
         @host_id = host_id
         @vim = RbVmomi::VIM.connect(opts)
         @vc_name = opts[:host] if opts[:host]
-
+        @vcenter_conf = load_vcenter_configuration
         # Get ccr and get rp
         ccr_ref = opts.delete(:ccr)
         if ccr_ref
@@ -43,6 +44,19 @@ class VIClient
                     @rp = RbVmomi::VIM::ResourcePool(@vim, rp_ref) if rp_ref
                 end
             end
+        end
+    end
+
+    def load_vcenter_configuration
+        vcenter_conf = YAML::load(File.open("/etc/one/vcenter_driver.conf"))
+        vcenter_conf
+    end
+
+    def get_property_vcenter_conf(key)
+        if @vcenter_conf.key?(key)
+            return @vcenter_conf[key]
+        else
+            return nil
         end
     end
 
