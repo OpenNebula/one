@@ -377,7 +377,7 @@ int Quota::update_limits(
     {
         limit = va->vector_value_str(metrics[i], limit_f);
 
-        if (( limit_f == -1 && limit == "" )    // NaN
+        if (( limit == "" )    // NaN
             ||
             // Negative. Default & unlimited allowed
             ( !is_default && limit_f < 0 && limit_f != UNLIMITED && limit_f != DEFAULT )
