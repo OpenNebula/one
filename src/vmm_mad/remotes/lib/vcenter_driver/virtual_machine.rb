@@ -2976,10 +2976,7 @@ class VirtualMachine < Template
     end
 
     def poweron
-        ## If need in the future, you can power on VMs from datacenter
-        ## dc = get_dc
-        ## dc.power_on_vm(@item)
-        @item.PowerOnVM_Task.wait_for_completion
+       @item.PowerOnVM_Task.wait_for_completion
     end
 
     def is_powered_on?
