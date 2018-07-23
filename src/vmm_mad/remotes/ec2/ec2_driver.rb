@@ -231,12 +231,6 @@ class EC2Driver
         @host    = host
         @host_id = host_id
 
-        if host['PM_MAD']
-	    @state_change_timeout = PUBLIC_CLOUD_EC2_CONF['state_wait_pm_timeout_seconds'] ? PUBLIC_CLOUD_EC2_CONF['state_wait_pm_timeout_seconds'].to_i : STATE_WAIT_PM_TIMEOUT_SECONDS
-        else
-            @state_change_timeout = PUBLIC_CLOUD_EC2_CONF['state_wait_timeout_seconds'].to_i
-        end
-
         @instance_types = PUBLIC_CLOUD_EC2_CONF['instance_types']
 
         conn_opts = get_connect_info(host)
@@ -257,6 +251,16 @@ class EC2Driver
 
         if (proxy_uri = PUBLIC_CLOUD_EC2_CONF['proxy_uri'])
             Aws.config(:proxy_uri => proxy_uri)
+        end
+
+        if @provision_type == :host
+            if PUBLIC_CLOUD_EC2_CONF['state_wait_pm_timeout_seconds']
+                @state_change_timeout = PUBLIC_CLOUD_EC2_CONF['state_wait_pm_timeout_seconds'].to_i
+            else
+                @state_change_timeout = STATE_WAIT_PM_TIMEOUT_SECONDS
+            end
+        else
+            @state_change_timeout = PUBLIC_CLOUD_EC2_CONF['state_wait_timeout_seconds'].to_i
         end
 
         @ec2 = Aws::EC2::Resource.new
@@ -289,6 +293,12 @@ class EC2Driver
             @tmplBase = 'TEMPLATE/PROVISION'
         else
             @tmplBase = 'TEMPLATE'
+        end
+
+        if xmlhost["TEMPLATE/PM_MAD"]
+            @provision_type = :host
+        else
+            @provision_type = :vm
         end
 
         conn_opts = {
@@ -355,7 +365,7 @@ class EC2Driver
         #   is provided by the user
         if !ec2_value(ec2_info, 'USERDATA')
             xml = OpenNebula::XMLElement.new
-            xml.initialize_xml(xml_text, host['PM_MAD'] ? 'HOST' : 'VM')
+            xml.initialize_xml(xml_text, @provision_type == :host ? 'HOST' : 'VM')
 
             if xml.has_elements?('TEMPLATE/CONTEXT')
                 # if requested, we generated cloud-init compatible data
@@ -426,7 +436,7 @@ class EC2Driver
             @ec2.client.associate_address(address)
         end
 
-        if host['PM_MAD']
+        if @provision_type == :host
             instance.create_tags(tags: [{
                 key: 'Name',
                 value: host['//HOST/TEMPLATE/PROVISION/HOSTNAME']
@@ -634,7 +644,7 @@ private
         ec2 = nil
         ec2_deprecated = nil
 
-        if host['PM_MAD']
+        if @provision_type == :host
             all_ec2_elements = xml.root.get_elements("//TEMPLATE/PROVISION")
         else
             all_ec2_elements = xml.root.get_elements("//USER_TEMPLATE/PUBLIC_CLOUD")
