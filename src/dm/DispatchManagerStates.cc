@@ -61,24 +61,7 @@ void  DispatchManager::suspend_success_action(int vid)
         return;
     }
 
-    clone_tmpl = vm->get_quota_template();
-
-    if ( (vm->get_prev_state() == VirtualMachine::ACTIVE) ||
-         (vm->get_prev_state() == VirtualMachine::PENDING) ||
-         (vm->get_prev_state() == VirtualMachine::HOLD) )
-    {
-        clone_tmpl->get("MEMORY", memory);
-        clone_tmpl->get("CPU", cpu);
-
-        clone_tmpl->add("RUNNING_MEMORY", memory);
-        clone_tmpl->add("RUNNING_CPU", cpu);
-        clone_tmpl->add("RUNNING_VMS", 1);
-        clone_tmpl->replace("MEMORY", 0);
-        clone_tmpl->replace("CPU", 0);
-        clone_tmpl->replace("VMS", 0);
-        clone_tmpl->replace("DISK", 0);
-        clone_tmpl->replace("NIC", 0);
-    }
+    clone_tmpl = get_quota_template(vm, true);
 
     uid = vm->get_uid();
     gid = vm->get_gid();
@@ -140,24 +123,7 @@ void  DispatchManager::stop_success_action(int vid)
         return;
     }
 
-    clone_tmpl = vm->get_quota_template();
-
-    if ( (vm->get_prev_state() == VirtualMachine::ACTIVE) ||
-         (vm->get_prev_state() == VirtualMachine::PENDING) ||
-         (vm->get_prev_state() == VirtualMachine::HOLD) )
-    {
-        clone_tmpl->get("MEMORY", memory);
-        clone_tmpl->get("CPU", cpu);
-
-        clone_tmpl->add("RUNNING_MEMORY", memory);
-        clone_tmpl->add("RUNNING_CPU", cpu);
-        clone_tmpl->add("RUNNING_VMS", 1);
-        clone_tmpl->replace("MEMORY", 0);
-        clone_tmpl->replace("CPU", 0);
-        clone_tmpl->replace("VMS", 0);
-        clone_tmpl->replace("DISK", 0);
-        clone_tmpl->replace("NIC", 0);
-    }
+    clone_tmpl = get_quota_template(vm, true);
 
     uid = vm->get_uid();
     gid = vm->get_gid();
@@ -221,24 +187,7 @@ void  DispatchManager::undeploy_success_action(int vid)
         return;
     }
 
-    clone_tmpl = vm->get_quota_template();
-
-    if ( (vm->get_prev_state() == VirtualMachine::ACTIVE) ||
-         (vm->get_prev_state() == VirtualMachine::PENDING) ||
-         (vm->get_prev_state() == VirtualMachine::HOLD) )
-    {
-        clone_tmpl->get("MEMORY", memory);
-        clone_tmpl->get("CPU", cpu);
-
-        clone_tmpl->add("RUNNING_MEMORY", memory);
-        clone_tmpl->add("RUNNING_CPU", cpu);
-        clone_tmpl->add("RUNNING_VMS", 1);
-        clone_tmpl->replace("MEMORY", 0);
-        clone_tmpl->replace("CPU", 0);
-        clone_tmpl->replace("VMS", 0);
-        clone_tmpl->replace("DISK", 0);
-        clone_tmpl->replace("NIC", 0);
-    }
+    clone_tmpl = get_quota_template(vm, true);
 
     uid = vm->get_uid();
     gid = vm->get_gid();
@@ -300,24 +249,7 @@ void  DispatchManager::poweroff_success_action(int vid)
         return;
     }
 
-    clone_tmpl = vm->get_quota_template();
-
-    if ( (vm->get_prev_state() == VirtualMachine::ACTIVE) ||
-         (vm->get_prev_state() == VirtualMachine::PENDING) ||
-         (vm->get_prev_state() == VirtualMachine::HOLD) )
-    {
-        clone_tmpl->get("MEMORY", memory);
-        clone_tmpl->get("CPU", cpu);
-
-        clone_tmpl->add("RUNNING_MEMORY", memory);
-        clone_tmpl->add("RUNNING_CPU", cpu);
-        clone_tmpl->add("RUNNING_VMS", 1);
-        clone_tmpl->replace("MEMORY", 0);
-        clone_tmpl->replace("CPU", 0);
-        clone_tmpl->replace("VMS", 0);
-        clone_tmpl->replace("DISK", 0);
-        clone_tmpl->replace("NIC", 0);
-    }
+    clone_tmpl = get_quota_template(vm, true);
 
     uid = vm->get_uid();
     gid = vm->get_gid();
@@ -356,19 +288,7 @@ void  DispatchManager::done_action(int vid)
     lcm_state = vm->get_lcm_state();
     dm_state  = vm->get_state();
 
-    clone_tmpl = vm->get_quota_template();
-
-    if ( (vm->get_state() == VirtualMachine::ACTIVE) ||
-         (vm->get_state() == VirtualMachine::PENDING) ||
-         (vm->get_state() == VirtualMachine::HOLD) )
-    {
-        clone_tmpl->get("MEMORY", memory);
-        clone_tmpl->get("CPU", cpu);
-
-        clone_tmpl->add("RUNNING_MEMORY", memory);
-        clone_tmpl->add("RUNNING_CPU", cpu);
-        clone_tmpl->add("RUNNING_VMS", 1);
-    }
+    clone_tmpl = get_quota_template(vm, false);
 
     uid = vm->get_uid();
     gid = vm->get_gid();
@@ -424,7 +344,7 @@ void  DispatchManager::resubmit_action(int vid)
 
         vm->set_state(VirtualMachine::PENDING);
 
-        clone_tmpl = vm->get_quota_template();
+        clone_tmpl = get_quota_template(vm, false);
 
         vmpool->update(vm);
 
@@ -440,13 +360,6 @@ void  DispatchManager::resubmit_action(int vid)
         }
 
         DefaultQuotas default_quotas = Nebula::instance().get_default_user_quota();
-
-        clone_tmpl->get("MEMORY", memory);
-        clone_tmpl->get("CPU", cpu);
-
-        clone_tmpl->add("RUNNING_MEMORY", memory);
-        clone_tmpl->add("RUNNING_CPU", cpu);
-        clone_tmpl->add("RUNNING_VMS", 1);
 
         rc = user->quota.quota_check(Quotas::VIRTUALMACHINE, clone_tmpl, default_quotas, error_str);
 

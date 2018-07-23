@@ -574,6 +574,8 @@ private:
     };
 
     void user_action(const ActionRequest& ar);
+
+    VirtualMachineTemplate * get_quota_template(const VirtualMachine * vm, bool only_running);
 };
 
 #endif /*DISPATCH_MANAGER_H*/

@@ -114,3 +114,34 @@ void DispatchManager::init_managers()
     upool       = nd.get_upool();
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+VirtualMachineTemplate * DispatchManager::get_quota_template(const VirtualMachine * vm, bool only_running)
+{
+    VirtualMachineTemplate * clone_tmpl = vm->get_quota_template();
+
+    if ( (vm->get_prev_state() == VirtualMachine::ACTIVE) ||
+         (vm->get_prev_state() == VirtualMachine::PENDING) ||
+         (vm->get_prev_state() == VirtualMachine::HOLD) )
+    {
+        clone_tmpl->get("MEMORY", memory);
+        clone_tmpl->get("CPU", cpu);
+
+        clone_tmpl->add("RUNNING_MEMORY", memory);
+        clone_tmpl->add("RUNNING_CPU", cpu);
+        clone_tmpl->add("RUNNING_VMS", 1);
+
+        if (only_running)
+        {
+            clone_tmpl->replace("MEMORY", 0);
+            clone_tmpl->replace("CPU", 0);
+            clone_tmpl->replace("VMS", 0);
+            clone_tmpl->replace("DISK", 0);
+            clone_tmpl->replace("NIC", 0);
+        }
+    }
+
+    return clone_tmpl;
+}
+
