@@ -1128,7 +1128,7 @@ define(function(require) {
       html +=
           '<div class="small-5 columns">\
             <div class="button-group">\
-              <a class="button tiny secondary quotabar_edit_btn"><span class="fas fa-pencil"></span></a>\
+              <a class="button tiny secondary quotabar_edit_btn"><span class="fas fa-pencil-alt"></span></a>\
               <a class="button tiny secondary quotabar_default_btn"><span class="fas fa-file"></span></a>\
               <a class="button tiny secondary quotabar_unlimited_btn"><strong>&infin;</strong></a>\
             </div>\
