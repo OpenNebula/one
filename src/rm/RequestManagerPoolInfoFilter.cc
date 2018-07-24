@@ -438,8 +438,11 @@ void RequestManagerPoolInfoFilter::dump(
         const string&      or_clause)
 {
     ostringstream oss;
-    string        where_string, limit_clause;
-    int           rc;
+
+    std::string where_string, limit_clause;
+    std::string desc;
+
+    int rc;
 
     if ( filter_flag < GROUP )
     {
@@ -466,7 +469,11 @@ void RequestManagerPoolInfoFilter::dump(
         oss.str("");
     }
 
-    rc = pool->dump(oss, where_string, limit_clause);
+    Nebula::instance().get_configuration_attribute(att.uid, att.gid, 
+            "API_LIST_ORDER", desc);
+
+    rc = pool->dump(oss, where_string, limit_clause,
+            one_util::toupper(desc) == "DESC");
 
     if ( rc != 0 )
     {
@@ -528,10 +535,14 @@ void VirtualNetworkPoolInfo::request_execute(
     /* ---------------------------------------------------------------------- */
     /*  Get the VNET pool                                                     */
     /* ---------------------------------------------------------------------- */
-
     ostringstream pool_oss;
+    std::string   desc;
 
-    int rc = pool->dump(pool_oss, where_string.str(), limit_clause.str());
+    Nebula::instance().get_configuration_attribute(att.uid, att.gid, 
+            "API_LIST_ORDER", desc);
+
+    int rc = pool->dump(pool_oss, where_string.str(), limit_clause.str(),
+            one_util::toupper(desc) == "DESC");
 
     if ( rc != 0 )
     {

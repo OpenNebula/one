@@ -178,10 +178,12 @@ public:
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
      *  @param limit parameters used for pagination
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit);
+    int dump(ostringstream& oss, const string& where, const string& limit,
+            bool desc);
 
     /**
      *  Name for the OpenNebula core authentication process

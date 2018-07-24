@@ -102,14 +102,15 @@ public:
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
      *  @param limit parameters used for pagination
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
     int dump(std::ostringstream& oss, const std::string& where,
-		const std::string& limit)
+		const std::string& limit, bool desc)
     {
         return PoolSQL::dump(oss, "MARKETPLACE_POOL", MarketPlace::table, where,
-                             limit);
+                             limit, desc);
     };
 
     /**

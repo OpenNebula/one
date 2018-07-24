@@ -132,14 +132,19 @@ module CLIHelper
     # Print header
     def CLIHelper.print_header(str, underline=true)
         if $stdout.tty?
-            scr_bold
-            scr_underline if underline
-            print str
-            scr_restore
+            print_tty_header(str, underline)
         else
             print str
         end
         puts
+    end
+
+    # Pretty print header
+    def CLIHelper.print_tty_header(str, underline=true)
+        scr_bold
+        scr_underline if underline
+        print str
+        scr_restore
     end
 
     module HashWithSearch
@@ -256,10 +261,18 @@ module CLIHelper
             end
         end
 
+        def print_tty_header
+            CLIHelper.print_tty_header(header_str)
+            puts
+        end
+
         private
 
         def print_table(data, options)
-            CLIHelper.print_header(header_str) if !options[:csv]
+            if !options[:csv] && !options[:noheader]
+                CLIHelper.print_header(header_str) 
+            end
+
             data ? print_data(data, options) : puts
         end
 
