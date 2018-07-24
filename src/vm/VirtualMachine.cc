@@ -3136,11 +3136,13 @@ int VirtualMachine::parse_sched_action(string& error_str)
 VirtualMachineTemplate * VirtualMachine::get_quota_template()
 {
     VirtualMachineTemplate * clone_tmpl = new VirtualMachineTemplate();
+    int memory, cpu;
+
+    obj_template->get("MEMORY", memory);
+    obj_template->get("CPU", cpu);
 
     clone_tmpl->add("MEMORY", memory);
     clone_tmpl->add("CPU", cpu);
-    clone_tmpl->add("DISK", obj_template->get("DISK"));
-    clone_tmpl->add("NIC", obj_template->get("NIC"));
 
     return clone_tmpl;
 }

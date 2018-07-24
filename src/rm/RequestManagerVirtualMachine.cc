@@ -478,6 +478,8 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
     int    rc;
 
+    int memory, cpu;
+
     Nebula& nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
 
@@ -486,6 +488,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
     AuthRequest::Operation op;
     History::VMAction action;
+    VirtualMachineTemplate * clone_tmpl;
 
     VirtualMachine * vm;
 
@@ -513,6 +516,22 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
+    clone_tmpl = vm->get_quota_template();
+
+    clone_tmpl->get("MEMORY", memory);
+    clone_tmpl->get("CPU", cpu);
+
+    clone_tmpl->add("RUNNING_MEMORY", memory);
+    clone_tmpl->add("RUNNING_CPU", cpu);
+    clone_tmpl->add("RUNNING_VMS", 1);
+
+    clone_tmpl->replace("MEMORY", 0);
+    clone_tmpl->replace("CPU", 0);
+
+    RequestAttributes& att_aux(att);
+    att_aux.uid = vm->get_uid();
+    att_aux.gid = vm->get_gid();
+
     if (vm->is_imported() && !vm->is_imported_action_supported(action))
     {
         att.resp_msg = "Action \"" + action_st + "\" is not supported for "
@@ -536,6 +555,14 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     vm->unlock();
+
+     if ( action == History::RESUME_ACTION && !quota_authorization(clone_tmpl, Quotas::VIRTUALMACHINE, att_aux, att.resp_msg) )
+    {
+        delete clone_tmpl;
+
+        failure_response(ACTION, att);
+        return;
+    }
 
     switch (action)
     {
