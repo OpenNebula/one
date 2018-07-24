@@ -117,13 +117,15 @@ void DispatchManager::init_managers()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VirtualMachineTemplate * DispatchManager::get_quota_template(const VirtualMachine * vm, bool only_running)
+VirtualMachineTemplate * DispatchManager::get_quota_template(VirtualMachine * vm, bool only_running)
 {
+    int memory, cpu;
+
     VirtualMachineTemplate * clone_tmpl = vm->get_quota_template();
 
-    if ( (vm->get_prev_state() == VirtualMachine::ACTIVE) ||
-         (vm->get_prev_state() == VirtualMachine::PENDING) ||
-         (vm->get_prev_state() == VirtualMachine::HOLD) )
+    if ( (vm->get_state() == VirtualMachine::ACTIVE) ||
+         (vm->get_state() == VirtualMachine::PENDING) ||
+         (vm->get_state() == VirtualMachine::HOLD) )
     {
         clone_tmpl->get("MEMORY", memory);
         clone_tmpl->get("CPU", cpu);
@@ -137,8 +139,6 @@ VirtualMachineTemplate * DispatchManager::get_quota_template(const VirtualMachin
             clone_tmpl->replace("MEMORY", 0);
             clone_tmpl->replace("CPU", 0);
             clone_tmpl->replace("VMS", 0);
-            clone_tmpl->replace("DISK", 0);
-            clone_tmpl->replace("NIC", 0);
         }
     }
 
