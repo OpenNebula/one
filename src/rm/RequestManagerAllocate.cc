@@ -114,6 +114,7 @@ bool VirtualMachineAllocate::allocate_authorization(
     aux_tmpl.add("RUNNING_MEMORY", memory);
     aux_tmpl.add("RUNNING_CPU", cpu);
     aux_tmpl.add("RUNNING_VMS", 1);
+    aux_tmpl.add("VMS", 1);
 
     if ( quota_authorization(&aux_tmpl, Quotas::VIRTUALMACHINE, att) == false )
     {

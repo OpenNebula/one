@@ -527,6 +527,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
     clone_tmpl->replace("MEMORY", 0);
     clone_tmpl->replace("CPU", 0);
+    clone_tmpl->add("VMS", 0);
 
     RequestAttributes& att_aux(att);
     att_aux.uid = vm->get_uid();

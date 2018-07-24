@@ -64,7 +64,11 @@ bool QuotaVirtualMachine::check(Template * tmpl,
     }
 
     size = VirtualMachineDisks::system_ds_size(tmpl);
-    vms = 1;
+
+    if ( tmpl->get("VMS", vms) == false || vms < 0 )
+    {
+        vms = 1;
+    }
 
     if ( tmpl->get("RUNNING_MEMORY", running_memory) )
     {

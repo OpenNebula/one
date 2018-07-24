@@ -236,6 +236,7 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
     extended_tmpl.add("RUNNING_MEMORY", memory);
     extended_tmpl.add("RUNNING_CPU", cpu);
     extended_tmpl.add("RUNNING_VMS", 1);
+    extended_tmpl.add("VMS", 1);
 
     if (quota_authorization(&extended_tmpl, Quotas::VIRTUALMACHINE, att,
                 att.resp_msg) == false)
