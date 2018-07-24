@@ -26,7 +26,6 @@ void  DispatchManager::suspend_success_action(int vid)
     string error_str;
 
     int uid, gid;
-    int memory, cpu;
 
     vm = vmpool->get(vid);
 
@@ -43,6 +42,8 @@ void  DispatchManager::suspend_success_action(int vid)
          vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED||
          vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED))
     {
+        clone_tmpl = get_quota_template(vm, true);
+
         vm->set_state(VirtualMachine::SUSPENDED);
 
         vm->set_state(VirtualMachine::LCM_INIT);
@@ -85,7 +86,6 @@ void  DispatchManager::stop_success_action(int vid)
     string error_str;
 
     int uid, gid;
-    int memory, cpu;
 
     vm = vmpool->get(vid);
 
@@ -98,6 +98,8 @@ void  DispatchManager::stop_success_action(int vid)
         (vm->get_lcm_state() == VirtualMachine::EPILOG_STOP ||
          vm->get_lcm_state() == VirtualMachine::PROLOG_RESUME))
     {
+        clone_tmpl = get_quota_template(vm, true);
+
         vm->set_state(VirtualMachine::STOPPED);
 
         vm->set_state(VirtualMachine::LCM_INIT);
@@ -123,8 +125,6 @@ void  DispatchManager::stop_success_action(int vid)
         return;
     }
 
-    clone_tmpl = get_quota_template(vm, true);
-
     uid = vm->get_uid();
     gid = vm->get_gid();
 
@@ -147,7 +147,6 @@ void  DispatchManager::undeploy_success_action(int vid)
     string error_str;
 
     int uid, gid;
-    int memory, cpu;
 
     vm = vmpool->get(vid);
 
@@ -161,6 +160,8 @@ void  DispatchManager::undeploy_success_action(int vid)
          vm->get_lcm_state() == VirtualMachine::DISK_RESIZE_UNDEPLOYED ||
          vm->get_lcm_state() == VirtualMachine::PROLOG_UNDEPLOY))
     {
+        clone_tmpl = get_quota_template(vm, true);
+
         vm->set_state(VirtualMachine::UNDEPLOYED);
 
         vm->set_state(VirtualMachine::LCM_INIT);
@@ -187,8 +188,6 @@ void  DispatchManager::undeploy_success_action(int vid)
         return;
     }
 
-    clone_tmpl = get_quota_template(vm, true);
-
     uid = vm->get_uid();
     gid = vm->get_gid();
 
@@ -211,7 +210,6 @@ void  DispatchManager::poweroff_success_action(int vid)
     string error_str;
 
     int uid, gid;
-    int memory, cpu;
 
     vm = vmpool->get(vid);
 
@@ -231,6 +229,8 @@ void  DispatchManager::poweroff_success_action(int vid)
          vm->get_lcm_state() == VirtualMachine::DISK_RESIZE_POWEROFF ||
          vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE))
     {
+        clone_tmpl = get_quota_template(vm, true);
+
         vm->set_state(VirtualMachine::POWEROFF);
 
         vm->set_state(VirtualMachine::LCM_INIT);
@@ -248,8 +248,6 @@ void  DispatchManager::poweroff_success_action(int vid)
         vm->unlock();
         return;
     }
-
-    clone_tmpl = get_quota_template(vm, true);
 
     uid = vm->get_uid();
     gid = vm->get_gid();
@@ -269,11 +267,7 @@ void  DispatchManager::poweroff_success_action(int vid)
 void  DispatchManager::done_action(int vid)
 {
     VirtualMachine * vm;
-    VirtualMachineTemplate * clone_tmpl;
     string error_str;
-
-    int uid, gid;
-    int memory, cpu;
 
     VirtualMachine::LcmState lcm_state;
     VirtualMachine::VmState  dm_state;
@@ -287,11 +281,6 @@ void  DispatchManager::done_action(int vid)
 
     lcm_state = vm->get_lcm_state();
     dm_state  = vm->get_state();
-
-    clone_tmpl = get_quota_template(vm, false);
-
-    uid = vm->get_uid();
-    gid = vm->get_gid();
 
     if ((dm_state == VirtualMachine::ACTIVE) &&
           (lcm_state == VirtualMachine::EPILOG ||
@@ -309,10 +298,6 @@ void  DispatchManager::done_action(int vid)
         vm->unlock();
     }
 
-    Quotas::vm_del(uid, gid, clone_tmpl);
-
-    delete clone_tmpl;
-
     return;
 }
 
@@ -322,12 +307,6 @@ void  DispatchManager::done_action(int vid)
 void  DispatchManager::resubmit_action(int vid)
 {
     VirtualMachine * vm;
-    VirtualMachineTemplate * clone_tmpl;
-    User * user;
-    string error_str;
-
-    int uid, rc;
-    int memory, cpu;
 
     vm = vmpool->get(vid);
 
@@ -344,33 +323,9 @@ void  DispatchManager::resubmit_action(int vid)
 
         vm->set_state(VirtualMachine::PENDING);
 
-        clone_tmpl = get_quota_template(vm, false);
-
         vmpool->update(vm);
 
-        uid = vm->get_uid();
-
         vm->unlock();
-
-        user = upool->get(uid);
-
-        if ( user == 0 )
-        {
-            return;
-        }
-
-        DefaultQuotas default_quotas = Nebula::instance().get_default_user_quota();
-
-        rc = user->quota.quota_check(Quotas::VIRTUALMACHINE, clone_tmpl, default_quotas, error_str);
-
-        if (rc == true)
-        {
-            upool->update_quotas(user);
-        }
-
-        delete clone_tmpl;
-
-        user->unlock();
     }
 }
 
