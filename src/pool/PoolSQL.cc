@@ -214,7 +214,7 @@ PoolObjectSQL * PoolSQL::get(const string& name, int ouid)
 /* -------------------------------------------------------------------------- */
 
 int PoolSQL::dump(ostringstream& oss, const string& elem_name, const char* table,
-    const string& where, const string& limit)
+    const string& where, const string& limit, bool desc)
 {
     ostringstream   cmd;
 
@@ -226,6 +226,11 @@ int PoolSQL::dump(ostringstream& oss, const string& elem_name, const char* table
     }
 
     cmd << " ORDER BY oid";
+
+    if ( desc == true )
+    {
+        cmd << " DESC";
+    }
 
     if ( !limit.empty() )
     {

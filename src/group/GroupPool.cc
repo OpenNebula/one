@@ -222,7 +222,8 @@ int GroupPool::drop(PoolObjectSQL * objsql, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int GroupPool::dump(ostringstream& oss, const string& where, const string& limit)
+int GroupPool::dump(ostringstream& oss, const string& where, 
+    const string& limit, bool desc)
 {
     int     rc;
     string  def_quota_xml;
@@ -240,6 +241,11 @@ int GroupPool::dump(ostringstream& oss, const string& where, const string& limit
     }
 
     cmd << " ORDER BY oid";
+
+    if ( desc == true )
+    {
+        cmd << " DESC";
+    }
 
     if ( !limit.empty() )
     {

@@ -168,12 +168,13 @@ public:
      *  query
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where)
+    int dump(ostringstream& oss, const string& where, bool desc)
     {
-        return dump(oss, where, "");
+        return dump(oss, where, "", desc);
     }
 
     /**
@@ -182,12 +183,13 @@ public:
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
      *  @param limit parameters used for pagination
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
 
     virtual int dump(ostringstream& oss, const string& where,
-                     const string& limit) = 0;
+                     const string& limit, bool desc) = 0;
 
     // -------------------------------------------------------------------------
     // Function to generate dump filters
@@ -276,6 +278,7 @@ protected:
      *  @param table Pool table name
      *  @param where filter for the objects, defaults to all
      *  @param limit parameters used for pagination
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
@@ -283,7 +286,8 @@ protected:
              const string&  elem_name,
              const char *   table,
              const string&  where,
-             const string&  limit);
+             const string&  limit,
+             bool           desc);
 
     /**
      *  Dumps the pool in XML format. A filter can be also added to the
@@ -292,15 +296,17 @@ protected:
      *  @param elem_name Name of the root xml pool name
      *  @param table Pool table name
      *  @param where filter for the objects, defaults to all
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
     int dump(ostringstream& oss,
              const string&  elem_name,
              const char *   table,
-             const string&  where)
+             const string&  where,
+             bool           desc)
     {
-        return dump(oss, elem_name, table, where, "");
+        return dump(oss, elem_name, table, where, "", desc);
     }
 
     /**

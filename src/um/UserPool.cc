@@ -1275,7 +1275,8 @@ int UserPool::authorize(AuthRequest& ar)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int UserPool::dump(ostringstream& oss, const string& where, const string& limit)
+int UserPool::dump(ostringstream& oss, const string& where, const string& limit,
+        bool desc)
 {
     int     rc;
     string  def_quota_xml;
@@ -1293,6 +1294,11 @@ int UserPool::dump(ostringstream& oss, const string& where, const string& limit)
     }
 
     cmd << " ORDER BY oid";
+
+    if ( desc == true )
+    {
+        cmd << " DESC";
+    }
 
     if ( !limit.empty() )
     {
