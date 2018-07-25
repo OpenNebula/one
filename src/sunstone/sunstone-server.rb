@@ -183,7 +183,12 @@ end
 
 set :cloud_auth, $cloud_auth
 
-$views_config = SunstoneViews.new($conf[:mode])
+begin
+    $views_config = SunstoneViews.new($conf[:mode])
+rescue StandardError => e
+    logger.error { e.message }
+    exit -1
+end
 
 #start VNC proxy
 

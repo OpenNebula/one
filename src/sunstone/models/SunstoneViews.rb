@@ -32,11 +32,19 @@ class SunstoneViews
     VIEWS_CONFIGURATION_DIR  = ETC_LOCATION + "/sunstone-views/"
 
     def initialize(mode)
+
+        raise "Sunstone configuration file does not contain default view mode, aborting" if mode.nil?
+
         @views_config = YAML.load_file(VIEWS_CONFIGURATION_FILE)
 
         base_path = SUNSTONE_ROOT_DIR+'/public/js/'
 
         @views = Hash.new
+
+        raise "The #{mode} view directory does not exists, aborting" if Dir[VIEWS_CONFIGURATION_DIR + mode].empty?
+
+        raise "The #{mode} view directory is empty, aborting" if Dir[VIEWS_CONFIGURATION_DIR + mode + '/*.yaml'].empty?
+
         Dir[VIEWS_CONFIGURATION_DIR + mode + '/*.yaml'].each do |p_path|
             reg = VIEWS_CONFIGURATION_DIR + mode + '/'
             m = p_path.match(/^#{reg}(.*).yaml$/)
