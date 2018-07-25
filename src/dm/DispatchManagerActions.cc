@@ -223,11 +223,25 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
     int vmid;
     int uid;
     int gid;
+    int memory, cpu;
     string deploy_id;
     int vrid = -1;
     unsigned int port;
 
-    clone_tmpl = get_quota_template(vm, false);
+    clone_tmpl = vm->clone_template();
+
+    if ( (vm->get_state() == VirtualMachine::ACTIVE) ||
+         (vm->get_state() == VirtualMachine::PENDING) ||
+         (vm->get_state() == VirtualMachine::HOLD) )
+    {
+        clone_tmpl->get("MEMORY", memory);
+        clone_tmpl->get("CPU", cpu);
+
+        clone_tmpl->add("RUNNING_MEMORY", memory);
+        clone_tmpl->add("RUNNING_CPU", cpu);
+        clone_tmpl->add("RUNNING_VMS", 1);
+    }
+    clone_tmpl->add("VMS", 1);
 
     clone_tmpl->replace("STATE", VirtualMachine::DONE);
 
@@ -716,8 +730,6 @@ int DispatchManager::resume(int vid, const RequestAttributes& ra,
         string& error_str)
 {
     ostringstream oss;
-
-    int rc;
 
     VirtualMachine * vm = vmpool->get(vid);
 

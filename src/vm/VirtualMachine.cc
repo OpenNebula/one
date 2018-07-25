@@ -3143,6 +3143,7 @@ VirtualMachineTemplate * VirtualMachine::get_quota_template()
 
     clone_tmpl->add("MEMORY", memory);
     clone_tmpl->add("CPU", cpu);
+    clone_tmpl->add("NIC", obj_template->get("NIC"));
 
     return clone_tmpl;
 }

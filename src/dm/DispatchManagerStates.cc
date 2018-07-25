@@ -62,8 +62,6 @@ void  DispatchManager::suspend_success_action(int vid)
         return;
     }
 
-    clone_tmpl = get_quota_template(vm, true);
-
     uid = vm->get_uid();
     gid = vm->get_gid();
 
