@@ -956,7 +956,7 @@ define(function(require) {
             }
 
             /*Check Images*/
-            if(that.resource_info.IMAGE_QUOTA.IMAGE){
+            if (!$.isEmptyObject(group_json.GROUP.IMAGE_QUOTA) && that.resource_info.IMAGE_QUOTA.IMAGE){
               var imageQuota = that.resource_info.IMAGE_QUOTA.IMAGE;
               if (!Array.isArray(imageQuota)){
                 imageQuota = [that.resource_info.IMAGE_QUOTA.IMAGE];
@@ -976,7 +976,7 @@ define(function(require) {
             }
 
             /*Check VNets*/
-            if(that.resource_info.NETWORK_QUOTA.NETWORK){
+            if (!$.isEmptyObject(group_json.GROUP.NETWORK_QUOTA) && that.resource_info.NETWORK_QUOTA.NETWORK){
               var vnetQuota = that.resource_info.NETWORK_QUOTA.NETWORK;
               if (!Array.isArray(vnetQuota)){
                 vnetQuota = [that.resource_info.NETWORK_QUOTA.NETWORK];
@@ -996,7 +996,7 @@ define(function(require) {
             }
 
             /*Check Datastores*/
-            if(that.resource_info.DATASTORE_QUOTA.DATASTORE){
+            if (!$.isEmptyObject(group_json.GROUP.DATASTORE_QUOTA) && that.resource_info.DATASTORE_QUOTA.DATASTORE){
               var dsQuota = that.resource_info.DATASTORE_QUOTA.DATASTORE;
               if (!Array.isArray(dsQuota)){
                 dsQuota = [that.resource_info.DATASTORE_QUOTA.DATASTORE];
