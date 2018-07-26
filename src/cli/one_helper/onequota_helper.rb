@@ -383,7 +383,7 @@ class OneQuotaHelper
 
         if !ds_quotas[0].nil?
             CLIHelper::ShowTable.new(nil, self) do
-                column :"DATASTORE ID", "", :size=>12 do |d|
+                column :"ID", "", :size=>12 do |d|
                     d["ID"] if !d.nil?
                 end
 
@@ -434,7 +434,7 @@ class OneQuotaHelper
 
         if !net_quotas[0].nil?
             CLIHelper::ShowTable.new(nil, self) do
-                column :"NETWORK ID", "", :size=>12 do |d|
+                column :"ID", "", :size=>12 do |d|
                     d["ID"] if !d.nil?
                 end
 
@@ -465,7 +465,7 @@ class OneQuotaHelper
 
         if !image_quotas[0].nil?
             CLIHelper::ShowTable.new(nil, self) do
-                column :"IMAGE ID", "", :size=>12 do |d|
+                column :"ID", "", :size=>12 do |d|
                     d["ID"] if !d.nil?
                 end
 
