@@ -74,15 +74,27 @@ bool QuotaVirtualMachine::check(Template * tmpl,
     {
         vm_request.insert(make_pair("RUNNING_MEMORY", running_memory));
     }
+    else
+    {
+        vm_request.insert(make_pair("RUNNING_MEMORY", 0));
+    }
 
     if ( tmpl->get("RUNNING_CPU", running_cpu) )
     {
         vm_request.insert(make_pair("RUNNING_CPU", running_cpu));
     }
+    else
+    {
+        vm_request.insert(make_pair("RUNNING_CPU", 0));
+    }
 
     if ( tmpl->get("RUNNING_VMS", running_vms) )
     {
         vm_request.insert(make_pair("RUNNING_VMS", running_vms));
+    }
+    else
+    {
+        vm_request.insert(make_pair("RUNNING_VMS", 0));
     }
 
     vm_request.insert(make_pair("VMS", vms));
