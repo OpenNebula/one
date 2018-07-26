@@ -586,26 +586,29 @@ define(function(require) {
     if (no_table) {
       $(".acct_table",context).hide();
     } else {
-      $("#acct_cpu_datatable",context).dataTable().fnClearTable();
-      $("#acct_cpu_datatable",context).dataTable().fnDestroy();
+      if ($.fn.DataTable.isDataTable($('#acct_cpu_datatable', context))){
+        $("#acct_cpu_datatable",context).dataTable().fnClearTable();
+        $("#acct_cpu_datatable",context).dataTable().fnDestroy();
+      }
 
       $("#acct_cpu_datatable thead",context).remove();
       $("#acct_cpu_datatable",context).width("100%");
 
-
-      $("#acct_mem_datatable",context).dataTable().fnClearTable();
-      $("#acct_mem_datatable",context).dataTable().fnDestroy();
+      if ($.fn.DataTable.isDataTable($('#acct_mem_datatable', context))){
+        $("#acct_mem_datatable",context).dataTable().fnClearTable();
+        $("#acct_mem_datatable",context).dataTable().fnDestroy();
+      }
 
       $("#acct_mem_datatable thead",context).remove();
       $("#acct_mem_datatable",context).width("100%");
 
-
-      $("#acct_disk_datatable",context).dataTable().fnClearTable();
-      $("#acct_disk_datatable",context).dataTable().fnDestroy();
+      if ($.fn.DataTable.isDataTable($('#acct_disk_datatable', context))){
+        $("#acct_disk_datatable",context).dataTable().fnClearTable();
+        $("#acct_disk_datatable",context).dataTable().fnDestroy();
+      }
 
       $("#acct_disk_datatable thead",context).remove();
       $("#acct_disk_datatable",context).width("100%");
-
 
       cpu_plot_data = cpu_plot.getData();
       mem_plot_data = mem_plot.getData();
@@ -722,6 +725,7 @@ define(function(require) {
       var acct_cpu_dataTable = $("#acct_cpu_datatable",context).dataTable({
         "bSortClasses" : false,
         "bDeferRender": true,
+        "bDestroy": true,
         "aoColumnDefs": [
         { "sType": "date", "aTargets": [ 0 ] },
         { "bSortable": true, "aTargets": [ 0 ] }
@@ -731,6 +735,7 @@ define(function(require) {
       var acct_mem_dataTable = $("#acct_mem_datatable",context).dataTable({
         "bSortClasses" : false,
         "bDeferRender": true,
+        "bDestroy": true,
         "aoColumnDefs": [
         { "sType": "date", "aTargets": [ 0 ] },
         { "bSortable": true, "aTargets": [ 0 ] }
@@ -740,6 +745,7 @@ define(function(require) {
       var acct_disk_dataTable = $("#acct_disk_datatable",context).dataTable({
         "bSortClasses" : false,
         "bDeferRender": true,
+        "bDestroy": true,
         "aoColumnDefs": [
         { "sType": "date", "aTargets": [ 0 ] },
         { "bSortable": true, "aTargets": [ 0 ] }
