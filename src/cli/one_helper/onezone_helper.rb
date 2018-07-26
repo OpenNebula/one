@@ -104,7 +104,7 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
             "#{ENV['HOME']}/.one/one_endpoint"
 
         else
-
+            puts "Type: export ONE_XMLRPC=#{zone['TEMPLATE/ENDPOINT']}"
         end
         return 0
     end
