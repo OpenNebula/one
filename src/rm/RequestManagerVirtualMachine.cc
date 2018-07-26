@@ -962,8 +962,6 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         dm->deploy(vm, att);
     }
 
-    vm->unlock();
-
     success_response(id, att);
 }
 
