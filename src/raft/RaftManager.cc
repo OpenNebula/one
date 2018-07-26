@@ -653,6 +653,11 @@ void RaftManager::replicate_success(int follower_id)
     match_it->second = replicated_index;
     next_it->second  = replicated_index + 1;
 
+    std::ostringstream oss;
+
+    oss << "Follower: " << follower_id << " Next: " << next_it->second;
+    NebulaLog::log("RCM", Log::INFO, oss);
+
     it = requests.find(replicated_index);
 
     if ( it != requests.end() )
@@ -691,6 +696,11 @@ void RaftManager::replicate_failure(int follower_id)
         if ( next_it->second > 0 )
         {
             next_it->second = next_it->second - 1;
+
+            std::ostringstream oss;
+
+            oss << "Follower: " << follower_id << " Next: " << next_it->second;
+            NebulaLog::log("RCM", Log::INFO, oss);
         }
     }
 
