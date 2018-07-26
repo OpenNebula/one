@@ -196,7 +196,7 @@ class OneQuotaHelper
 
         puts
 
-        CLIHelper.print_header(str_h1 % "RESOURCE USAGE & QUOTAS",false)
+        CLIHelper.print_header(str_h1 % "VMS USAGE & QUOTAS",false)
 
         puts
 
@@ -210,12 +210,18 @@ class OneQuotaHelper
             limit = LIMIT_DEFAULT
 
             vm_quotas = [{
-                "VMS"         => limit,
-                "VMS_USED"    => "0",
-                "CPU"         => limit,
-                "CPU_USED"    => "0",
-                "MEMORY"      => limit,
-                "MEMORY_USED" => "0",
+                "VMS"                   => limit,
+                "VMS_USED"              => "0",
+                "CPU"                   => limit,
+                "CPU_USED"              => "0",
+                "MEMORY"                => limit,
+                "MEMORY_USED"           => "0",
+                "RUNNING_VMS"           => limit,
+                "RUNNING_VMS_USED"      => "0",
+                "RUNNING_CPU"           => limit,
+                "RUNNING_CPU_USED"      => "0",
+                "RUNNING_MEMORY"        => limit,
+                "RUNNING_MEMORY_USED"   => "0",
                 "SYSTEM_DISK_SIZE"      => limit,
                 "SYSTEM_DISK_SIZE_USED" => "0"
             }]
@@ -223,7 +229,7 @@ class OneQuotaHelper
 
         if !vm_quotas[0].nil?
             CLIHelper::ShowTable.new(nil, self) do
-                column :"NUMBER OF VMS", "", :right, :size=>17 do |d|
+                column :"VMS", "", :right, :size=>17 do |d|
                     if !d.nil?
                         elem = 'VMS'
                         limit = d[elem]
@@ -297,6 +303,82 @@ class OneQuotaHelper
             puts
         end
 
+        CLIHelper.print_header(str_h1 % "VMS USAGE & QUOTAS - RUNNING",false)
+
+        puts
+
+        if !vm_quotas[0].nil?
+            CLIHelper::ShowTable.new(nil, self) do
+                column :"RUNNING VMS", "", :right, :size=>17 do |d|
+                    if !d.nil?
+                        elem = 'RUNNING_VMS'
+                        limit = d[elem] || LIMIT_UNLIMITED
+                        limit = helper.get_default_limit(
+                            limit, "VM_QUOTA/VM/#{elem}")
+
+                        if d["RUNNING_VMS_USED"].nil?
+                            d["RUNNING_VMS_USED"] = 0
+                        end
+
+                        if limit == LIMIT_UNLIMITED
+                            "%7d /       -" % [d["RUNNING_VMS_USED"]]
+                        else
+                            "%7d / %7d" % [d["RUNNING_VMS_USED"], limit]
+                        end
+                    end
+                end
+
+                column :"RUNNING MEMORY", "", :right, :size=>20 do |d|
+                    if !d.nil?
+                        elem = 'RUNNING_MEMORY'
+                        limit = d[elem] || LIMIT_UNLIMITED
+                        limit = helper.get_default_limit(
+                            limit, "VM_QUOTA/VM/#{elem}")
+
+                        if d["RUNNING_MEMORY_USED"].nil?
+                            d["RUNNING_MEMORY_USED"] = 0
+                        end
+
+                        if limit == LIMIT_UNLIMITED
+                            "%8s /        -" % [
+                                OpenNebulaHelper.unit_to_str(d["RUNNING_MEMORY_USED"].to_i,{},"M")
+                            ]
+                        else
+                            "%8s / %8s" % [
+                                OpenNebulaHelper.unit_to_str(d["RUNNING_MEMORY_USED"].to_i,{},"M"),
+                                OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")
+                            ]
+                        end
+                    end
+                end
+
+                column :"RUNNING CPU", "", :right, :size=>20 do |d|
+                    if !d.nil?
+                        elem = 'RUNNING_CPU'
+                        limit = d[elem] || LIMIT_UNLIMITED
+                        limit = helper.get_default_limit(
+                            limit, "VM_QUOTA/VM/#{elem}")
+
+                        if d["RUNNING_CPU_USED"].nil?
+                            d["RUNNING_CPU_USED"] = 0
+                        end
+
+                        if limit == LIMIT_UNLIMITED
+                            "%8.2f /        -" % [d["RUNNING_CPU_USED"]]
+                        else
+                            "%8.2f / %8.2f" % [d["RUNNING_CPU_USED"], limit]
+                        end
+                    end
+                end
+            end.show(vm_quotas, {})
+
+            puts
+        end
+
+        CLIHelper.print_header(str_h1 % "DATASTORE USAGE & QUOTAS",false)
+
+        puts
+
         ds_quotas = [qh['DATASTORE_QUOTA']['DATASTORE']].flatten
 
         if !ds_quotas[0].nil?
@@ -344,6 +426,10 @@ class OneQuotaHelper
             puts
         end
 
+        CLIHelper.print_header(str_h1 % "NETWORK USAGE & QUOTAS",false)
+
+        puts
+
         net_quotas = [qh['NETWORK_QUOTA']['NETWORK']].flatten
 
         if !net_quotas[0].nil?
@@ -370,6 +456,10 @@ class OneQuotaHelper
 
             puts
         end
+
+        CLIHelper.print_header(str_h1 % "IMAGE USAGE & QUOTAS",false)
+
+        puts
 
         image_quotas = [qh['IMAGE_QUOTA']['IMAGE']].flatten
 
