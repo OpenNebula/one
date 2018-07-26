@@ -145,3 +145,32 @@ VirtualMachineTemplate * DispatchManager::get_quota_template(VirtualMachine * vm
     return clone_tmpl;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void DispatchManager::update_user_quotas(int uid, VirtualMachineTemplate * quota_tmpl, string error)
+{
+    int           rc_user;
+
+    User * user;
+
+    user = upool->get(uid);
+
+    if ( user == 0 )
+    {
+        error = "User not found";
+        return;
+    }
+
+    DefaultQuotas default_user_quotas = Nebula::instance().get_default_user_quota();
+
+    rc_user = user->quota.quota_check(Quotas::VIRTUALMACHINE, quota_tmpl, default_user_quotas, error);
+
+    if (rc_user == true)
+    {
+        upool->update_quotas(user);
+    }
+
+    user->unlock();
+}
+

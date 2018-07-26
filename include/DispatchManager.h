@@ -576,6 +576,8 @@ private:
     void user_action(const ActionRequest& ar);
 
     VirtualMachineTemplate * get_quota_template(VirtualMachine * vm, bool only_running);
+
+    void update_user_quotas(int uid, VirtualMachineTemplate * quota_tmpl, string error);
 };
 
 #endif /*DISPATCH_MANAGER_H*/
