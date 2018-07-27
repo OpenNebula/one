@@ -171,8 +171,6 @@ class Network
             template += "VCENTER_FROM_WILD=\"#{template_id}\"\n"
         end
 
-        #template += "VCENTER_CCR_REF=\"#{ccr_ref}\"\n" if !unmanaged
-
         template += "VCENTER_TEMPLATE_REF=\"#{template_ref}\"\n" if template_ref
 
         return template
@@ -388,10 +386,6 @@ class NetImporter < VCenterDriver::VcImporter
         end
 
         return res
-    end
-
-    def attr
-        "TEMPLATE/VCENTER_NET_REF"
     end
 end
 end # module VCenterDriver

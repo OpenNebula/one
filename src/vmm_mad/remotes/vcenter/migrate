@@ -34,11 +34,13 @@ src_host = ARGV[-3]
 dst_host = ARGV[-4]
 
 begin
-    VCenterDriver::VirtualMachine.migrate_routine(vm_id, src_host,  dst_host)
+    VCenterDriver::VirtualMachine.migrate_routine(vm_id,
+                                                  src_host,
+                                                  dst_host)
 rescue StandardError => e
     message = "Cannot migrate for VM #{vm_id}"\
               'failed due to '\
-              "\"#{e.message}\"\n"
+              "\"#{e.message}\"."
     OpenNebula.log_error(message)
     exit(-1)
 end

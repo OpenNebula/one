@@ -33,7 +33,8 @@ vm_ref          = ARGV[0]
 vc_cluster_name = ARGV[1]
 vm_id           = ARGV[2]
 
-host    = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, vc_cluster_name)
+host    = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool,
+                                               vc_cluster_name)
 host_id = host['ID']
 
 begin
@@ -44,9 +45,9 @@ begin
 
     puts vm.info
 rescue StandardError => e
-    message = "Cannot poll info for VM #{vm_ref} with OpenNebula id #{vm_id} on vCenter cluster "\
-              "#{vc_cluster_name} failed due to "\
-              "\"#{e.message}\"\n#{e.backtrace.join("\n")}"
+    message = "Cannot poll info for VM #{vm_ref} with OpenNebula id #{vm_id}" \
+              " on vCenter cluster #{vc_cluster_name} failed due to " \
+              "\"#{e.message}\"."
     OpenNebula.log_error(message)
     exit(-1)
 ensure

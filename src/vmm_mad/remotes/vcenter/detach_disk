@@ -35,7 +35,8 @@ vc_cluster_name  = ARGV[-1]
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(STDIN.read), 'VMM_DRIVER_ACTION_DATA')
 
-host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, vc_cluster_name)
+host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool,
+                                            vc_cluster_name)
 host_id = host['ID']
 
 begin
@@ -44,12 +45,12 @@ begin
     vm = VCenterDriver::VirtualMachine.new_without_id(vi_client, vm_ref)
 
     if vm.has_snapshots?
-        raise 'vCenter doesn\'t allow to remove a virtual disk if it\'s part of a '\
-              'snapshot of the virtual machine.'
+        raise 'vCenter doesn\'t allow to remove a virtual disk if it\'s part ' \
+              'of a snapshot of the virtual machine.'
     end
 rescue StandardError => e
-    message = "Detach DISK for VM #{vm_ref} on vCenter cluster #{vc_cluster_name} "\
-              "failed due to \"#{e.message}\"\n#{e.backtrace.join("\n")}"
+    message = "Detach DISK for VM #{vm_ref} on vCenter cluster " \
+              "#{vc_cluster_name} failed due to \"#{e.message}\"."
     OpenNebula.log_error(message)
     exit(-1)
 ensure
