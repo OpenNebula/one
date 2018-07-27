@@ -18,7 +18,9 @@ require 'set'
 require 'digest'
 
 module VCenterDriver
+
 class DatacenterFolder
+
     attr_accessor :items
 
     def initialize(vi_client)
@@ -32,7 +34,7 @@ class DatacenterFolder
     #   { dc_ref [Symbol] => Datacenter object }
     ########################################################################
     def fetch!
-        VIClient.get_entities(@vi_client.vim.root, "Datacenter").each do |item|
+        VIClient.get_entities(@vi_client.vim.root, 'Datacenter').each do |item|
             item_name = item._ref
             @items[item_name.to_sym] = Datacenter.new(item)
         end

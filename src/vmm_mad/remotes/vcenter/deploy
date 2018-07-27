@@ -36,7 +36,7 @@ vm_id        = ARGV[2]
 ## Helpers
 
 def deploy_id_valid?(deploy_id)
-  deploy_id && !deploy_id.empty?
+    deploy_id && !deploy_id.empty?
 end
 
 drv_action = OpenNebula::XMLElement.new
@@ -46,24 +46,25 @@ deploy_id    = drv_action['DEPLOY_ID']
 host_id      = drv_action['HISTORY_RECORDS/HISTORY/HID']
 
 begin
-  vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-  one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
+    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+    one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
 
     if deploy_id_valid?(deploy_id)
         # VM is not new, we just need to reconfigure it and to power it on
         vm = VCenterDriver::VirtualMachine.new_one(vi_client, deploy_id, one_vm)
     else
         vc_template_ref = drv_action['USER_TEMPLATE/VCENTER_TEMPLATE_REF']
-        # VM is new
-        # Clone the VM from template and provide XML info
-        vm = VCenterDriver::VirtualMachine.new_from_clone(vi_client, drv_action, vm_id)
+        # VM is new, clone the VM from template
+        vm = VCenterDriver::VirtualMachine.new_from_clone(vi_client,
+                                                          drv_action,
+                                                          vm_id)
         # Set reference to template disks and nics in VM template for detach ops
         vm.reference_unmanaged_devices(vc_template_ref)
     end
 
-    # Resize unmanaged disks
     vm.resize_unmanaged_disks
 
+    # Synchronize the OpenNebula VM representation with vCenter VM
     vm.reconfigure
     vm.poweron
     vm.set_running(true)
@@ -73,7 +74,7 @@ begin
     puts vm['_ref']
 rescue StandardError => e
     message =  "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " \
-               "with #{dfile} failed due to \"#{e.message}\"\n#{e.backtrace}"
+               "with #{dfile} failed due to \"#{e.message}\"."
     OpenNebula.log_error(message)
     exit(-1)
 ensure

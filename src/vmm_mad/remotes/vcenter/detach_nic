@@ -35,7 +35,8 @@ vc_cluster_name = ARGV[3]
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(STDIN.read), 'VMM_DRIVER_ACTION_DATA')
 
-host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, vc_cluster_name)
+host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool,
+                                            vc_cluster_name)
 host_id = host['ID']
 
 begin
@@ -47,8 +48,8 @@ begin
 
     vm.detach_nic
 rescue StandardError => e
-    message = "Detach NIC for VM #{vm_ref} on vCenter cluster #{vc_cluster_name} "\
-              "failed due to \"#{e.message}\"\n"
+    message = "Detach NIC for VM #{vm_ref} on vCenter cluster " \
+              "#{vc_cluster_name} failed due to \"#{e.message}\"."
     OpenNebula.log_error(message)
     exit(-1)
 ensure
