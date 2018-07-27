@@ -125,6 +125,8 @@ VirtualMachineTemplate * DispatchManager::get_quota_template(VirtualMachine * vm
 
     if ( (vm->get_state() == VirtualMachine::ACTIVE) ||
          (vm->get_state() == VirtualMachine::PENDING) ||
+         (vm->get_state() == VirtualMachine::CLONING) ||
+         (vm->get_state() == VirtualMachine::CLONING_FAILURE) ||
          (vm->get_state() == VirtualMachine::HOLD) )
     {
         clone_tmpl->get("MEMORY", memory);
