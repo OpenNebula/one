@@ -186,12 +186,11 @@ int RaftReplicaThread::replicate()
 
     int next_index = raftm->get_next_index(follower_id);
 
-    ostringstream ess;
-
     if ( logdb->get_log_record(next_index, lr) != 0 )
     {
-        ess << "FAILURE load index: " << next_index << " Follower: " 
-            << follower_id;
+        ostringstream ess;
+
+        ess << "Failed to load log record at index: " << next_index;
 
         NebulaLog::log("RCM", Log::ERROR, ess);
 
@@ -201,21 +200,12 @@ int RaftReplicaThread::replicate()
     if ( raftm->xmlrpc_replicate_log(follower_id, &lr, success, follower_term,
                 error) != 0 )
     {
-        ess << "FAILURE xmlrpc index: " << next_index << ", error: " << error
-            << " Follower: " << follower_id;
-
-        NebulaLog::log("RCM", Log::DEBUG, ess);
-
         return -1;
     }
 
     if ( success )
     {
-        ess << "SUCCESS index: " << next_index << " Follower: " << follower_id;
         raftm->replicate_success(follower_id);
-
-
-        NebulaLog::log("RCM", Log::DEBUG, ess);
     }
     else
     {
@@ -232,11 +222,6 @@ int RaftReplicaThread::replicate()
         }
         else
         {
-            ess << "FAILURE API index: " << next_index << ", error: " << error
-                << " Follower: " << follower_id;
-
-            NebulaLog::log("RCM", Log::DEBUG, ess);
-
             raftm->replicate_failure(follower_id);
         }
     }

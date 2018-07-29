@@ -573,11 +573,6 @@ int VirtualNetwork::from_xml(const string &xml_str)
         return -1;
     }
 
-    if ( oid == 2 )
-    {
-        NebulaLog::log("NET", Log::DEBUG, xml_str);
-    }
-
     return 0;
 }
 
