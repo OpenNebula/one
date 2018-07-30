@@ -575,8 +575,11 @@ module CommandParser
                     }
 
                     unless argument
-                        puts error_msg if error_msg
-                        puts "command #{name}: argument #{id} must be one of #{format.join(', ')}"
+                        if error_msg
+                            puts error_msg
+                        else
+                            puts "command #{name}: argument #{id} must be one of #{format.join(', ')}"
+                        end
                         exit -1
                     end
 
