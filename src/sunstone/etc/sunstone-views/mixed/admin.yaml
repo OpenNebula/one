@@ -246,6 +246,8 @@ tabs:
             Template.delete_dialog: true
             Template.share: true
             Template.unshare: true
+            Template.lockU: true
+            Template.unlock: true
             Template.edit_labels: true
             Template.menu_labels: true
         template_creation_tabs:
@@ -398,6 +400,8 @@ tabs:
             VM.unresched: true
             VM.save_as_template: true
             VM.updateconf: true
+            VM.lockU: true
+            VM.unlock: true
             VM.edit_labels: true
             VM.menu_labels: true
     oneflow-services-tab:
@@ -480,6 +484,8 @@ tabs:
             VirtualRouter.delete: true
             VirtualRouter.attachnic: true
             VirtualRouter.detachnic: true
+            VirtualRouter.lockU: true
+            VirtualRouter.unlock: true
             VirtualRouter.edit_labels: true
             VirtualRouter.menu_labels: true
     infrastructure-top-tab:
@@ -635,6 +641,8 @@ tabs:
             Image.snapshot_flatten: true
             Image.snapshot_revert: true
             Image.snapshot_delete: true
+            Image.lockU: true
+            Image.unlock: true
             Image.edit_labels: true
             Image.menu_labels: true
     files-tab:
@@ -693,6 +701,8 @@ tabs:
             MarketPlace.chgrp: true
             MarketPlace.chmod: true
             MarketPlace.delete: true
+            MarketPlace.lockU: true
+            MarketPlace.unlock: true
             MarketPlace.edit_labels: true
             MarketPlace.menu_labels: true
     marketplaceapps-tab:
@@ -769,6 +779,8 @@ tabs:
             Network.add_ar: true
             Network.remove_ar: true
             Network.update_ar: true
+            Network.lockU: true
+            Network.unlock: true
             Network.edit_labels: true
             Network.menu_labels: true
     vnets-topology-tab:
@@ -858,3 +870,5 @@ tabs:
            VMGroup.chmod: true
            VMGroup.chown: true
            VMGroup.chgrp: true
+           VMGroup.lockU: true
+           VMGroup.unlock: true
