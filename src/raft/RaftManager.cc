@@ -74,7 +74,7 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
 
         bsr << "bootstrap state";
 
-        logdb->insert_log_record(-1, -1, bsr, 0, -1);
+        logdb->insert_log_record(-1, -1, bsr, 0, -1, false);
 
         raft_state.replace("TERM", 0);
         raft_state.replace("VOTEDFOR", -1);
@@ -547,17 +547,6 @@ void RaftManager::follower(unsigned int _term)
 
     NebulaLog::log("RCM", Log::INFO, "oned is set to follower mode");
 
-    std::map<int, ReplicaRequest *>::iterator it;
-
-    for ( it = requests.begin() ; it != requests.end() ; ++it )
-    {
-        it->second->result = false;
-        it->second->timeout= false;
-        it->second->message= "oned is now follower";
-
-        it->second->notify();
-    }
-
     next.clear();
     match.clear();
 
@@ -610,7 +599,7 @@ void RaftManager::replicate_log(ReplicaRequest * request)
     {
         request->to_commit(num_servers / 2 );
 
-        requests.insert(std::make_pair(request->index(), request));
+        requests.set(request->index(), request);
     }
 
     if ( num_servers > 1 )
@@ -634,9 +623,9 @@ void RaftManager::replicate_success(int follower_id)
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
 
-	unsigned int db_last_index, db_last_term;
+	unsigned int db_lindex, db_lterm;
 
-    logdb->get_last_record_index(db_last_index, db_last_term);
+    logdb->get_last_record_index(db_lindex, db_lterm);
 
     pthread_mutex_lock(&mutex);
 
@@ -654,21 +643,12 @@ void RaftManager::replicate_success(int follower_id)
     match_it->second = replicated_index;
     next_it->second  = replicated_index + 1;
 
-    it = requests.find(replicated_index);
-
-    if ( it != requests.end() )
+    if ( requests.add_replica(replicated_index) == 0 )
     {
-        it->second->inc_replicas();
-
-        if ( it->second->to_commit() == 0 )
-        {
-            requests.erase(it);
-
-            commit = replicated_index;
-        }
+        commit = replicated_index;
     }
-
-    if ((db_last_index > replicated_index) && (state == LEADER))
+        
+    if ( requests.need_replica(db_lindex, replicated_index) && state == LEADER )
     {
         replica_manager.replicate(follower_id);
     }

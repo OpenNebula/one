@@ -120,7 +120,7 @@ LogDB::LogDB(SqlDB * _db, bool _solo, unsigned int _lret, unsigned int _lp):
 
         oss << time(0);
 
-        insert_log_record(0, 0, oss, time(0), -1);
+        insert_log_record(0, 0, oss, time(0), -1, false);
     }
 
     setup_index(r, i);
@@ -288,7 +288,7 @@ int LogDB::update_raft_state(std::string& raft_xml)
 /* -------------------------------------------------------------------------- */
 
 int LogDB::insert(int index, int term, const std::string& sql, time_t tstamp,
-        int fed_index)
+        int fed_index, bool replace)
 {
     std::ostringstream oss;
 
@@ -310,7 +310,16 @@ int LogDB::insert(int index, int term, const std::string& sql, time_t tstamp,
         return -1;
     }
 
-    oss << "INSERT INTO " << table << " ("<< db_names <<") VALUES ("
+    if (replace)
+    {
+        oss << "REPLACE";
+    }
+    else
+    {
+        oss << "INSERT";
+    }
+
+    oss << " INTO " << table << " ("<< db_names <<") VALUES ("
         << index << "," << term << "," << "'" << sql_db << "'," << tstamp
         << "," << fed_index << ")";
 
@@ -387,13 +396,19 @@ int LogDB::insert_log_record(unsigned int term, std::ostringstream& sql,
         _fed_index = fed_index;
     }
 
-    if ( insert(index, term, sql.str(), timestamp, _fed_index) != 0 )
+    if ( insert(index, term, sql.str(), timestamp, _fed_index, false) != 0 )
     {
         NebulaLog::log("DBM", Log::ERROR, "Cannot insert log record in DB");
 
         pthread_mutex_unlock(&mutex);
 
         return -1;
+    }
+
+    //allocate a replication request if log record is going to be replicated
+    if ( timestamp == 0 )
+    {
+        Nebula::instance().get_raftm()->replicate_allocate(next_index);
     }
 
     last_index = next_index;
@@ -416,13 +431,13 @@ int LogDB::insert_log_record(unsigned int term, std::ostringstream& sql,
 /* -------------------------------------------------------------------------- */
 
 int LogDB::insert_log_record(unsigned int index, unsigned int term,
-        std::ostringstream& sql, time_t timestamp, int fed_index)
+        std::ostringstream& sql, time_t timestamp, int fed_index, bool replace)
 {
     int rc;
 
     pthread_mutex_lock(&mutex);
 
-    rc = insert(index, term, sql.str(), timestamp, fed_index);
+    rc = insert(index, term, sql.str(), timestamp, fed_index, replace);
 
     if ( rc == 0 )
     {

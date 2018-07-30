@@ -425,7 +425,7 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
 
     ostringstream sql_oss(sql);
 
-    if ( logdb->insert_log_record(index, term, sql_oss, 0, fed_index) != 0 )
+    if (logdb->insert_log_record(index, term, sql_oss, 0, fed_index, true) != 0)
     {
         att.resp_msg = "Error writing log record";
         att.resp_id  = current_term;

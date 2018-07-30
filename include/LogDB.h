@@ -120,11 +120,13 @@ public:
      *    @param sql command of the record
      *    @param timestamp associated to this record
      *    @param fed_index index in the federation -1 if not federated
+     *    @param replace if true will replace the record if it exists
      *
      *    @return -1 on failure, index of the inserted record on success
      */
     int insert_log_record(unsigned int index, unsigned int term,
-            std::ostringstream& sql, time_t timestamp, int fed_index);
+            std::ostringstream& sql, time_t timestamp, int fed_index,
+            bool replace);
 
     /**
      *  Replicate a log record on followers. It will also replicate any missing
@@ -350,10 +352,12 @@ private:
      *    @param sql command to modify DB state
      *    @param ts timestamp of record application to DB state
      *    @param fi the federated index -1 if none
+     *    @param replace if true will replace the record if it exists
      *
      *    @return 0 on success
      */
-    int insert(int index, int term, const std::string& sql, time_t ts, int fi);
+    int insert(int index, int term, const std::string& sql, time_t ts, int fi,
+            bool replace);
 
     /**
      *  Inserts a new log record in the database. If the record is successfully
