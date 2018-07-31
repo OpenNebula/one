@@ -19,6 +19,8 @@
 
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/registry.hpp>
+#include <sys/socket.h>
+#include <netdb.h>
 
 #include "RequestManager.h"
 #include "AuthRequest.h"
@@ -130,8 +132,8 @@ public:
 };
 
 struct tcpPortAddr {
-    unsigned char  ipAddr[4];
-    unsigned short portNumber;
+    string  host;
+    string  portNumber;
 };
 
 /**

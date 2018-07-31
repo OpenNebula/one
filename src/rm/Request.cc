@@ -20,6 +20,9 @@
 
 #include "PoolObjectAuth.h"
 
+#define MAX_HOST      1025
+#define MAX_SERV      32
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* RequestLog Methods                                                         */
@@ -168,10 +171,7 @@ void Request::log_method_invoked(const RequestAttributes& att,
                 break;
 
                 case 'A':
-                    oss << (int)retval.ipAddr[0] << "." <<
-                                                 (int)retval.ipAddr[1] << "." <<
-                                                 (int)retval.ipAddr[2] << "." <<
-                                                 (int)retval.ipAddr[3];
+                    oss << retval.host;
                 break;
 
                 case 'P':
@@ -950,6 +950,8 @@ Request::ErrorCode Request::as_uid_gid(Template *         tmpl,
 tcpPortAddr Request::resolve_ip_addr(const xmlrpc_c::callInfo * callInfoPtr)
 {
     struct tcpPortAddr retval;
+    char hostname[MAX_HOST];
+    char service[MAX_SERV];
 
     const xmlrpc_c::callInfo_serverAbyss * const callInfoP(
             dynamic_cast<const xmlrpc_c::callInfo_serverAbyss *>(callInfoPtr));
@@ -960,19 +962,10 @@ tcpPortAddr Request::resolve_ip_addr(const xmlrpc_c::callInfo * callInfoPtr)
     struct abyss_unix_chaninfo * const chanInfoP(
         static_cast<struct abyss_unix_chaninfo *>(chanInfoPtr));
 
-    const struct sockaddr_in * const sockAddrInP(
-        static_cast<struct sockaddr_in *>((void *)&chanInfoP->peerAddr));
+    getnameinfo(&chanInfoP->peerAddr, chanInfoP->peerAddrLen, hostname, sizeof(hostname), service, sizeof(service), 0);
 
-    const unsigned char * const ipAddr(
-        static_cast<const unsigned char *>(
-            (const void *)&sockAddrInP->sin_addr.s_addr)
-        );   // 4 byte array
-
-    retval.ipAddr[0] = ipAddr[0];
-    retval.ipAddr[1] = ipAddr[1];
-    retval.ipAddr[2] = ipAddr[2];
-    retval.ipAddr[3] = ipAddr[3];
-    retval.portNumber = ntohs(sockAddrInP->sin_port);
+    retval.host = std::string(hostname);
+    retval.portNumber = std::string(service);
 
     return retval;
 }
