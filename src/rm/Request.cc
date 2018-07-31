@@ -76,11 +76,14 @@ string Request::object_name(PoolObjectSQL::ObjectType ob)
 
 void Request::log_method_invoked(const RequestAttributes& att,
         const xmlrpc_c::paramList&  paramList, const string& format_str,
-        const std::string& method_name, const std::set<int>& hidden_params)
+        const std::string& method_name, const std::set<int>& hidden_params,
+        const xmlrpc_c::callInfo * callInfoPtr)
 {
     std::ostringstream oss;
     std::ostringstream oss_limit;
-    
+
+    tcpPortAddr retval = resolve_ip_addr(callInfoPtr);
+
     int limit = DEFAULT_LOG_LIMIT;
     char mod;
 
@@ -162,6 +165,17 @@ void Request::log_method_invoked(const RequestAttributes& att,
                             log_xmlrpc_value(paramList[i], oss, limit);
                         }
                     }
+                break;
+
+                case 'A':
+                    oss << (int)retval.ipAddr[0] << "." <<
+                                                 (int)retval.ipAddr[1] << "." <<
+                                                 (int)retval.ipAddr[2] << "." <<
+                                                 (int)retval.ipAddr[3];
+                break;
+
+                case 'P':
+                    oss << retval.portNumber;
                 break;
 
                 default:
@@ -288,6 +302,7 @@ const long long Request::xmlrpc_timeout = 10000;
 
 void Request::execute(
         xmlrpc_c::paramList const& _paramList,
+        const xmlrpc_c::callInfo * _callInfoP,
         xmlrpc_c::value *   const  _retval)
 {
     RequestAttributes att;
@@ -308,7 +323,7 @@ void Request::execute(
     if ( log_method_call )
     {
         log_method_invoked(att, _paramList, format_str, method_name,
-                hidden_params);
+                hidden_params, _callInfoP);
     }
 
     if ( authenticated == false )
@@ -931,3 +946,33 @@ Request::ErrorCode Request::as_uid_gid(Template *         tmpl,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+tcpPortAddr Request::resolve_ip_addr(const xmlrpc_c::callInfo * callInfoPtr)
+{
+    struct tcpPortAddr retval;
+
+    const xmlrpc_c::callInfo_serverAbyss * const callInfoP(
+            dynamic_cast<const xmlrpc_c::callInfo_serverAbyss *>(callInfoPtr));
+
+    void * chanInfoPtr;
+    SessionGetChannelInfo(callInfoP->abyssSessionP, &chanInfoPtr);
+
+    struct abyss_unix_chaninfo * const chanInfoP(
+        static_cast<struct abyss_unix_chaninfo *>(chanInfoPtr));
+
+    const struct sockaddr_in * const sockAddrInP(
+        static_cast<struct sockaddr_in *>((void *)&chanInfoP->peerAddr));
+
+    const unsigned char * const ipAddr(
+        static_cast<const unsigned char *>(
+            (const void *)&sockAddrInP->sin_addr.s_addr)
+        );   // 4 byte array
+
+    retval.ipAddr[0] = ipAddr[0];
+    retval.ipAddr[1] = ipAddr[1];
+    retval.ipAddr[2] = ipAddr[2];
+    retval.ipAddr[3] = ipAddr[3];
+    retval.portNumber = ntohs(sockAddrInP->sin_port);
+
+    return retval;
+}

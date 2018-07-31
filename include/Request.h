@@ -129,11 +129,16 @@ public:
     }
 };
 
+struct tcpPortAddr {
+    unsigned char  ipAddr[4];
+    unsigned short portNumber;
+};
+
 /**
  *  The Request Class represents the basic abstraction for the OpenNebula
  *  XML-RPC API. This interface must be implemented by any XML-RPC API call
  */
-class Request: public xmlrpc_c::method
+class Request: public xmlrpc_c::method2
 {
 public:
     /**
@@ -226,7 +231,7 @@ protected:
      *    @param _retval value to be returned to the client
      */
     virtual void execute(xmlrpc_c::paramList const& _paramList,
-        xmlrpc_c::value * const _retval);
+        const xmlrpc_c::callInfo * _callInfoP, xmlrpc_c::value * const _retval);
 
     /**
      *  Actual Execution method for the request. Must be implemented by the
@@ -437,7 +442,8 @@ private:
      */
     static void log_method_invoked(const RequestAttributes& att,
         const xmlrpc_c::paramList&  paramList, const string& format_str,
-        const std::string& method_name, const std::set<int>& hidden_params);
+        const std::string& method_name, const std::set<int>& hidden_params,
+        const xmlrpc_c::callInfo * callInfoP);
 
     /**
      * Logs the method result, including the output data or error message
@@ -455,6 +461,13 @@ private:
      * @param oss stream to write v
      */
     static void log_xmlrpc_value(const xmlrpc_c::value& v, std::ostringstream& oss, const int limit);
+
+    /**
+     *  Resolves the IP and PORT througth info ptr
+     *    @param callInfoPtr pointer to info structure
+     *  return struct with the IP and PORT
+     */
+    static tcpPortAddr resolve_ip_addr(const xmlrpc_c::callInfo * callInfoPtr);
 
     // Default number of character to show in the log. Option %l<number>
     const static int DEFAULT_LOG_LIMIT = 20;
