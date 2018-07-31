@@ -20,6 +20,11 @@
 
 #include "PoolObjectAuth.h"
 
+#include <xmlrpc-c/abyss.h>
+
+#include <sys/socket.h>
+#include <netdb.h>
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* RequestLog Methods                                                         */
@@ -74,15 +79,52 @@ string Request::object_name(PoolObjectSQL::ObjectType ob)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static void get_client_ip(const xmlrpc_c::callInfo * call_info, char * const
+        ip, char * const port)
+{
+    struct abyss_unix_chaninfo * unix_ci;
+
+    const xmlrpc_c::callInfo_serverAbyss * abyss_ci =
+            static_cast<const xmlrpc_c::callInfo_serverAbyss *>(call_info);
+
+    SessionGetChannelInfo(abyss_ci->abyssSessionP, (void **) &unix_ci);
+
+    // -------------------------------------------------------------------------
+    // NOTE: This only works for IPv4 as abyss_unix_chaninfo is not IPv6 ready
+    // it should use sockaddr_storage for peerAddr, and set peerAddrLen properly
+    // This could be bypassed with getpeername if library exposes access to
+    // channel implementation, i.e. socket fd
+    // -------------------------------------------------------------------------
+
+    int rc = getnameinfo(&(unix_ci->peerAddr), unix_ci->peerAddrLen, ip,
+            NI_MAXHOST, port, NI_MAXSERV, NI_NUMERICHOST|NI_NUMERICSERV);
+
+    if ( rc != 0 )
+    {
+        ip[0] = '-';
+        ip[1] = '\0';
+
+        port[0] = '-';
+        port[1] = '\0';
+    }
+}
+
 void Request::log_method_invoked(const RequestAttributes& att,
         const xmlrpc_c::paramList&  paramList, const string& format_str,
-        const std::string& method_name, const std::set<int>& hidden_params)
+        const std::string& method_name, const std::set<int>& hidden_params,
+        const xmlrpc_c::callInfo * call_info)
 {
     std::ostringstream oss;
     std::ostringstream oss_limit;
-    
+
     int limit = DEFAULT_LOG_LIMIT;
     char mod;
+
+    char ip[NI_MAXHOST];
+    char port[NI_MAXSERV];
+
+    ip[0]   = '\0';
+    port[0] = '\0';
 
     for (unsigned int j = 0 ;j < format_str.length() - 1; j++ )
     {
@@ -162,6 +204,24 @@ void Request::log_method_invoked(const RequestAttributes& att,
                             log_xmlrpc_value(paramList[i], oss, limit);
                         }
                     }
+                break;
+
+                case 'A':
+                    if ( ip[0] == '\0' )
+                    {
+                        get_client_ip(call_info, ip, port);
+                    }
+
+                    oss << ip;
+                break;
+
+                case 'P':
+                    if ( port[0] == '\0' )
+                    {
+                        get_client_ip(call_info, ip, port);
+                    }
+
+                    oss << port;
                 break;
 
                 default:
@@ -288,6 +348,7 @@ const long long Request::xmlrpc_timeout = 10000;
 
 void Request::execute(
         xmlrpc_c::paramList const& _paramList,
+        const xmlrpc_c::callInfo * _callInfoP,
         xmlrpc_c::value *   const  _retval)
 {
     RequestAttributes att;
@@ -308,7 +369,7 @@ void Request::execute(
     if ( log_method_call )
     {
         log_method_invoked(att, _paramList, format_str, method_name,
-                hidden_params);
+                hidden_params, _callInfoP);
     }
 
     if ( authenticated == false )
