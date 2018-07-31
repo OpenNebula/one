@@ -133,7 +133,7 @@ public:
  *  The Request Class represents the basic abstraction for the OpenNebula
  *  XML-RPC API. This interface must be implemented by any XML-RPC API call
  */
-class Request: public xmlrpc_c::method
+class Request: public xmlrpc_c::method2
 {
 public:
     /**
@@ -171,6 +171,8 @@ public:
      *    %g -- group id
      *    %G -- group name
      *    %a -- auth token
+     *    %A -- client IP address (only IPv4)
+     *    %a -- client port (only IPv4)
      *    %% -- %
      */
     static void set_call_log_format(const string& log_format)
@@ -226,7 +228,7 @@ protected:
      *    @param _retval value to be returned to the client
      */
     virtual void execute(xmlrpc_c::paramList const& _paramList,
-        xmlrpc_c::value * const _retval);
+        const xmlrpc_c::callInfo * _callInfoP, xmlrpc_c::value * const _retval);
 
     /**
      *  Actual Execution method for the request. Must be implemented by the
@@ -434,10 +436,12 @@ private:
      * @param paramList list of XML parameters
      * @param format_str for the log
      * @param hidden_params params not to be shown
+     * @param callInfoP information of client
      */
     static void log_method_invoked(const RequestAttributes& att,
         const xmlrpc_c::paramList&  paramList, const string& format_str,
-        const std::string& method_name, const std::set<int>& hidden_params);
+        const std::string& method_name, const std::set<int>& hidden_params,
+        const xmlrpc_c::callInfo * callInfoP);
 
     /**
      * Logs the method result, including the output data or error message
@@ -453,8 +457,10 @@ private:
      *
      * @param v value to format
      * @param oss stream to write v
+     * @param limit of characters to wirte
      */
-    static void log_xmlrpc_value(const xmlrpc_c::value& v, std::ostringstream& oss, const int limit);
+    static void log_xmlrpc_value(const xmlrpc_c::value& v,
+            std::ostringstream& oss, const int limit);
 
     // Default number of character to show in the log. Option %l<number>
     const static int DEFAULT_LOG_LIMIT = 20;
