@@ -74,7 +74,7 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
 
         bsr << "bootstrap state";
 
-        logdb->insert_log_record(-1, -1, bsr, 0, -1);
+        logdb->insert_log_record(-1, -1, bsr, 0, -1, false);
 
         raft_state.replace("TERM", 0);
         raft_state.replace("VOTEDFOR", -1);
