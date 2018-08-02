@@ -364,7 +364,7 @@ define(function(require) {
                         '<i class="fas fa-th fa-lg"></i>'+
                       '</button>'+
                       '<button class="provision_role_cardinality_button button medium success radius">'+
-                        '<i class="fas fa-arrows-h fa-lg"></i>'+
+                        '<i class="fas fa-arrows-alt-h fa-lg"></i>'+
                       '</button>'+
                     '</li>'+
                   '</ul>'+
