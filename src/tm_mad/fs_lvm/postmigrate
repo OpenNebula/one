@@ -51,7 +51,9 @@ CMD=$(cat <<EOF
         if [ -L "\$disk" ]; then
             DEVICE=\$(readlink "\$disk")
 
-            $SUDO $LVCHANGE -an \$DEVICE
+            if echo "\$DEVICE" | grep -q '^/dev/vg-one'; then
+                $SUDO $LVCHANGE -an \$DEVICE
+            fi
         fi
     done
 EOF
