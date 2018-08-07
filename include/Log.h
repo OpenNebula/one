@@ -59,6 +59,28 @@ public:
     }
 
     // -------------------------------------------------------------------------
+    // Profiler Interface
+    // -------------------------------------------------------------------------
+    static void start_timer(struct timespec * estart)
+    {
+        clock_gettime(CLOCK_MONOTONIC, estart);
+    }
+
+    static double stop_timer(struct timespec * estart)
+    {
+        double sec;
+
+        struct timespec eend;
+
+        clock_gettime(CLOCK_MONOTONIC, &eend);
+
+        sec = (eend.tv_sec + (eend.tv_nsec * 1e-9)) - (estart->tv_sec +
+            (estart->tv_nsec * 1e-9));
+
+        return sec;
+    }
+
+    // -------------------------------------------------------------------------
     // Logger interface
     // -------------------------------------------------------------------------
 
