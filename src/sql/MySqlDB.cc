@@ -169,6 +169,10 @@ int MySqlDB::exec(ostringstream& cmd, Callbackable* obj, bool quiet)
 
     Log::MessageType error_level = quiet ? Log::DDEBUG : Log::ERROR;
 
+    struct timespec timer;
+
+    Log::start_timer(&timer);
+
     MYSQL * db = get_db_connection();
 
     int rc = mysql_query(db, c_str);
@@ -271,6 +275,18 @@ int MySqlDB::exec(ostringstream& cmd, Callbackable* obj, bool quiet)
     }
 
     free_db_connection(db);
+
+    double sec = Log::stop_timer(&timer);
+
+    if ( sec > 0.5 )
+    {
+        std::ostringstream oss;
+
+        oss << "Slow query (" << one_util::float_to_str(sec) << "s) detected: "
+            << str;
+
+        NebulaLog::log("SQL", Log::WARNING, oss);
+    }
 
     return rc;
 }
