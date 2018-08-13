@@ -64,6 +64,13 @@ public:
         BRIDGE         = 9
     };
 
+    enum BridgeType {
+        LINUX               = 0,
+        OPENVSWITCH         = 1,
+        VCENTER_PORT_GROUPS = 2,
+        UNDEFINED           = 3
+    };
+
     static string driver_to_str(VirtualNetworkDriver ob)
     {
         switch (ob)
@@ -122,6 +129,36 @@ public:
         else
         {
             return NONE;
+        }
+    };
+
+    static string bridge_type_to_str(BridgeType ob)
+    {
+        switch (ob)
+        {
+            case LINUX:               return "linux";
+            case OPENVSWITCH:         return "openvswitch";
+            case VCENTER_PORT_GROUPS: return "vcenter_port_groups";
+        }
+    };
+
+    static BridgeType str_to_bridge_type(const string& ob)
+    {
+        if ( ob == "linux" )
+        {
+            return LINUX;
+        }
+        else if ( ob == "openvswitch" )
+        {
+            return OPENVSWITCH;
+        }
+        else if ( ob == "vcenter_port_groups" )
+        {
+            return VCENTER_PORT_GROUPS;
+        }
+        else
+        {
+            return UNDEFINED;
         }
     };
 
@@ -574,6 +611,11 @@ private:
      *  Set of Virtual Router IDs
      */
     ObjectCollection vrouters;
+
+    /**
+     *  Bridge type of the VirtualNetwork
+     */
+    string bridge_type;
 
     // *************************************************************************
     // VLAN ID functions

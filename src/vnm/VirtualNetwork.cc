@@ -564,7 +564,8 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
             lock_db_to_xml(lock_str) <<
             perms_to_xml(perm_str) <<
             Clusterable::to_xml(clusters_xml)    <<
-            "<BRIDGE>" << one_util::escape_xml(bridge) << "</BRIDGE>";
+            "<BRIDGE>" << one_util::escape_xml(bridge) << "</BRIDGE>"
+            "<BRIDGE_TYPE>" << one_util::escape_xml(bridge_type) << "</BRIDGE_TYPE>";
 
     if (parent_vid != -1)
     {
@@ -663,6 +664,7 @@ int VirtualNetwork::from_xml(const string &xml_str)
 
     xpath(vn_mad, "/VNET/VN_MAD", "");
     xpath(phydev, "/VNET/PHYDEV", "");
+    xpath(bridge_type, "/VNET/BRIDGE_TYPE", "");
 
     xpath(vlan_id, "/VNET/VLAN_ID", "");
     xpath(outer_vlan_id, "/VNET/OUTER_VLAN_ID", "");
@@ -784,6 +786,34 @@ int VirtualNetwork::nic_attribute(
     set<int> cluster_ids = get_cluster_ids();
 
     nic->replace("CLUSTER_ID", one_util::join(cluster_ids, ','));
+
+    if (nic->vector_value("BRIDGE_TYPE").empty() ||
+        str_to_bridge_type(nic->vector_value("BRIDGE_TYPE")) == UNDEFINED)
+    {
+        if (!bridge_type.empty() &&
+            !str_to_bridge_type(bridge_type) == UNDEFINED)
+        {
+            nic->replace("BRIDGE_TYPE", bridge_type);
+        }
+        else if (str_to_driver(vn_mad) == OVSWITCH ||
+            str_to_driver(vn_mad) == OVSWITCH_VXLAN)
+        {
+            nic->replace("BRIDGE_TYPE", bridge_type_to_str(OPENVSWITCH));
+        }
+        else if (str_to_driver(vn_mad) == VCENTER)
+        {
+            nic->replace("TECHNOLOGY", bridge_type_to_str(VCENTER_PORT_GROUPS));
+        }
+        else
+        {
+            nic->replace("TECHNOLOGY", bridge_type_to_str(LINUX_BRIDGE));
+        }
+    }
+
+    if (brdige_type != nic->vector_value("BRIDGE_TYPE"))
+    {
+        bridge_type = nic->vector_value("BRIDGE_TYPE");
+    }
 
     for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)
     {
