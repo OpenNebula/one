@@ -270,6 +270,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  vrouter_ip = "";
     string  filter = "";
     string  virtio_queues = "";
+    string  bridge_type = "";
 
     string  i_avg_bw = "";
     string  i_peak_bw = "";

@@ -787,33 +787,10 @@ int VirtualNetwork::nic_attribute(
 
     nic->replace("CLUSTER_ID", one_util::join(cluster_ids, ','));
 
-    if (nic->vector_value("BRIDGE_TYPE").empty() ||
-        str_to_bridge_type(nic->vector_value("BRIDGE_TYPE")) == UNDEFINED)
-    {
-        if (!bridge_type.empty() &&
-            !str_to_bridge_type(bridge_type) == UNDEFINED)
-        {
-            nic->replace("BRIDGE_TYPE", bridge_type);
-        }
-        else if (str_to_driver(vn_mad) == OVSWITCH ||
-            str_to_driver(vn_mad) == OVSWITCH_VXLAN)
-        {
-            nic->replace("BRIDGE_TYPE", bridge_type_to_str(OPENVSWITCH));
-        }
-        else if (str_to_driver(vn_mad) == VCENTER)
-        {
-            nic->replace("TECHNOLOGY", bridge_type_to_str(VCENTER_PORT_GROUPS));
-        }
-        else
-        {
-            nic->replace("TECHNOLOGY", bridge_type_to_str(LINUX_BRIDGE));
-        }
-    }
 
-    if (brdige_type != nic->vector_value("BRIDGE_TYPE"))
-    {
-        bridge_type = nic->vector_value("BRIDGE_TYPE");
-    }
+    parse_bridge_type(nic->vector_value("BRIDGE_TYPE"));
+
+    nic->replace("BRIDGE_TYPE", bridge_type);
 
     for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)
     {
@@ -1338,4 +1315,31 @@ void VirtualNetwork::get_security_groups(set<int> & sgs)
     }
 
     ar_pool.get_all_security_groups(sgs);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualNetwork::parse_bridge_type(const string& br_type){
+
+    if (!(str_to_bridge_type(br_type) == UNDEFINED))
+    {
+        bridge_type = br_type;
+    }
+    else if (str_to_bridge_type(bridge_type) == UNDEFINED)
+    {
+        VirtualNetworkDriver vn_mad_driver = str_to_driver(vn_mad);
+
+        if (vn_mad_driver == OVSWITCH || vn_mad_driver == OVSWITCH_VXLAN)
+        {
+            bridge_type = bridge_type_to_str(OPENVSWITCH);
+        }
+        else if (vn_mad_driver == VCENTER)
+        {
+            bridge_type = bridge_type_to_str(VCENTER_PORT_GROUPS);
+        }
+        else {
+            bridge_type = bridge_type_to_str(LINUX);
+        }
+    }
 }

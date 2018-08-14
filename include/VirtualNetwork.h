@@ -139,6 +139,7 @@ public:
             case LINUX:               return "linux";
             case OPENVSWITCH:         return "openvswitch";
             case VCENTER_PORT_GROUPS: return "vcenter_port_groups";
+            default:                   return "";
         }
     };
 
@@ -685,6 +686,17 @@ private:
     {
         return ar_pool.allocate_by_ip6(ip, ot, oid, nic, inherit);
     }
+
+    // *************************************************************************
+    // BRIDGE TYPE functions
+    // *************************************************************************
+
+    /**
+     *  This function parses the BRIDGE TYPE attribute.
+     *
+     *    @param br_type the bridge type associated to the nic
+     */
+    void parse_bridge_type(const string& br_type);
 
     // *************************************************************************
     // DataBase implementation (Private)
