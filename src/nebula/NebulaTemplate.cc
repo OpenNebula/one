@@ -500,7 +500,7 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("TIMEOUT", "15");
     set_conf_single("RPC_LOG", "NO");
     set_conf_single("MESSAGE_SIZE", "1073741824");
-    set_conf_single("LOG_CALL_FORMAT", "Req:%i UID:%u %m invoked %l");
+    set_conf_single("LOG_CALL_FORMAT", "Req:%i UID:%u IP:%A %m invoked %l");
 
 /*
 #*******************************************************************************
