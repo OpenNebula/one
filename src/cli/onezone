@@ -36,6 +36,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     helper = OneZoneHelper.new
 
+    ENDPOINT = {
+        :name   => "notoverwrite",
+        :large  => "--not-overwrite" ,
+        :description => "Not overwrite endpoint file located in home folder, by default is true",
+        :format => String
+    }
+
     before_proc do
         helper.set_client(options)
     end
@@ -191,7 +198,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Set shell session access point for the CLI to the given Zone
     EOT
 
-    command :set, set_desc,:zoneid do
-        helper.set_zone(args[0])
+    command :set, set_desc,:zoneid, :options=>ENDPOINT do
+        if options.has_key? :notoverwrite
+            helper.set_zone(args[0], false)
+        else
+            helper.set_zone(args[0])
+        end
     end
 end
