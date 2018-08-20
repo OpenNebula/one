@@ -200,6 +200,13 @@ int RaftReplicaThread::replicate()
     if ( raftm->xmlrpc_replicate_log(follower_id, &lr, success, follower_term,
                 error) != 0 )
     {
+        std::ostringstream oss;
+
+        oss << "Faild to replicate log record at index: " << next_index
+            << " on follower: " << follower_id << ", error: " << error;
+
+        NebulaLog::log("RCM", Log::DEBUG, oss);
+
         return -1;
     }
 
