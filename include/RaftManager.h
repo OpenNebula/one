@@ -92,12 +92,12 @@ public:
     void replicate_log(ReplicaRequest * rr);
 
     /**
-     *  @return true if there is a replication request set (i.e. thread waiting
-     *  for the replication)
+     *  Allocate a replica request fot the given index.
+     *    @param rindex of the record for the request
      */
-    bool is_replica_request_set(int rindex)
+    void replicate_allocate(int rindex)
     {
-        return requests.is_set(rindex);
+        requests.allocate(rindex);
     }
 
     /**

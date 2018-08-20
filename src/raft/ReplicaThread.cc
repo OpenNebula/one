@@ -186,12 +186,6 @@ int RaftReplicaThread::replicate()
 
     int next_index = raftm->get_next_index(follower_id);
 
-    //Do not trigger the log replication if the DB writer thread is not ready
-    if ( !raftm->is_replica_request_set(next_index) )
-    {
-        return 0;
-    }
-
     if ( logdb->get_log_record(next_index, lr) != 0 )
     {
         ostringstream ess;
@@ -206,13 +200,6 @@ int RaftReplicaThread::replicate()
     if ( raftm->xmlrpc_replicate_log(follower_id, &lr, success, follower_term,
                 error) != 0 )
     {
-        std::ostringstream oss;
-
-        oss << "Faild to replicate log record at index: " << next_index
-            << " on follower: " << follower_id << ", error: " << error;
-
-        NebulaLog::log("RCM", Log::DEBUG, oss);
-
         return -1;
     }
 
