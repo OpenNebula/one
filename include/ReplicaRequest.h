@@ -135,7 +135,7 @@ public:
 
         std::map<int, ReplicaRequest *>::iterator it = requests.find(rindex);
 
-        if ( it != requests.end() && it->second != 0 )
+        if ( it != requests.end() )
         {
             it->second->add_replica();
 
@@ -153,25 +153,6 @@ public:
     }
 
     /**
-     *  Allocated an empty replica request. It marks a writer thread will wait
-     *  on this request.
-     *    @param rindex of the request
-     */
-    void allocate(int rindex)
-    {
-        pthread_mutex_lock(&mutex);
-
-        std::map<int, ReplicaRequest *>::iterator it = requests.find(rindex);
-
-        if ( it == requests.end() )
-        {
-            requests.insert(std::make_pair(rindex, (ReplicaRequest*) 0));
-        }
-
-        pthread_mutex_unlock(&mutex);
-    }
-
-    /**
      * Set the replication request associated to this index. If there is no
      * previous request associated to the index it is created.
      *   @param rindex of the request
@@ -186,10 +167,6 @@ public:
         if ( it == requests.end() )
         {
             requests.insert(std::make_pair(rindex, rr));
-        }
-        else if ( it->second == 0 )
-        {
-            it->second = rr;
         }
 
         pthread_mutex_unlock(&mutex);
@@ -241,7 +218,7 @@ public:
 
         bool rc = true;
 
-        if ( it != requests.end() && it->second == 0 )
+        if ( it != requests.end() )
         {
             rc = false;
         }
@@ -249,6 +226,25 @@ public:
         pthread_mutex_unlock(&mutex);
 
         return rc;
+    }
+
+    /**
+     *  @return true if a thread is ready and waiting for this request index 
+     *  (rindex)
+     */
+    bool is_set(int rindex)
+    {
+        bool ready = false;
+
+        pthread_mutex_lock(&mutex);
+
+        std::map<int, ReplicaRequest *>::iterator it = requests.find(rindex);
+
+        ready = it != requests.end();
+
+        pthread_mutex_unlock(&mutex);
+
+        return ready;
     }
 
 private:
