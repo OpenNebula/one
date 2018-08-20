@@ -36,6 +36,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     helper = OneZoneHelper.new
 
+    ENDPOINT = {
+        :name => "keep",
+        :short  => "-k",
+        :large => "--keep",
+        :description => "Not overwrite endpoint file located in home folder, just a temporary zone.",
+        :format => String
+    }
+
     before_proc do
         helper.set_client(options)
     end
@@ -191,7 +199,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Set shell session access point for the CLI to the given Zone
     EOT
 
-    command :set, set_desc,:zoneid do
-        helper.set_zone(args[0])
+    command :set, set_desc,:zoneid, :options=>ENDPOINT do
+        if options.has_key? :keep
+            helper.set_zone(args[0], true)
+        else
+            helper.set_zone(args[0], false)
+        end
     end
 end
