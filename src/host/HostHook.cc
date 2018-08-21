@@ -87,6 +87,14 @@ void merge_state(Host::HostState &state)
     {
         state = Host::DISABLED;
     }
+    else if (state == Host::MONITORING_MONITORED)
+    {
+        state = Host::MONITORED;
+    }
+    else if (state == Host::MONITORING_INIT)
+    {
+        state = Host::INIT;
+    }
 }
 
 // -----------------------------------------------------------------------------
