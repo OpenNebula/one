@@ -329,6 +329,8 @@ void RaftManager::add_server(int follower_id, const std::string& endpoint)
 
 	heartbeat_manager.add_replica_thread(follower_id);
 
+    replica_manager.replicate(follower_id);
+
 	pthread_mutex_unlock(&mutex);
 };
 
