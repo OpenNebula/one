@@ -1902,9 +1902,8 @@ class VirtualMachine < Template
             nics_in_template[nic["MAC"]] = nic
         }
 
-        # Check nics in VM
-        # Always are removed and then we will create the nics with possible new configuration
-        # made in OpenNebula
+        # Remove all NICs in the spawned VM, they'll be recreated
+	# using the configuration of the NICs defined in OpenNebula
         self["config.hardware.device"].each do |dv|
             if is_nic?(dv)
                 # B4897 - It was detached in poweroff, remove it from VM
