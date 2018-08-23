@@ -174,7 +174,6 @@ int AddressRangePool::from_xml_node(const xmlNodePtr node)
 }
 
 /* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
 int AddressRangePool::rm_ar(unsigned int ar_id, string& error_msg)
 {
@@ -195,6 +194,8 @@ int AddressRangePool::rm_ar(unsigned int ar_id, string& error_msg)
     }
 
     AddressRange * ar_ptr = it->second;
+
+    ar_ptr->free_addr(ar_id, error_msg);
 
     ar_pool.erase(it);
 
