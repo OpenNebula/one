@@ -51,6 +51,9 @@ rescue StandardError => e
     message = "Cancel VM #{vm_ref} failed due to "\
               "\"#{e.message}\"\n#{e.backtrace.join("\n")}"
     OpenNebula.log_error(message)
+    if vi_client.get_property_vcenter_conf(:debug_information)
+        STDERR.puts "#{message} #{e.backtrace}"
+    end
     exit(-1)
 ensure
     vi_client.close_connection if vi_client
