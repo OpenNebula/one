@@ -1902,19 +1902,15 @@ class VirtualMachine < Template
             nics_in_template[nic["MAC"]] = nic
         }
 
-        # Check nics in VM
+        # Remove all NICs in the spawned VM, they'll be recreated
+	# using the configuration of the NICs defined in OpenNebula
         self["config.hardware.device"].each do |dv|
             if is_nic?(dv)
-                if nics_in_template.key?(dv.macAddress)
-                    # Remove nic that is already in the XML to avoid duplicate
-                    nics_in_template.delete(dv.macAddress)
-                else
-                    # B4897 - It was detached in poweroff, remove it from VM
-                    device_change << {
-                        :operation => :remove,
-                        :device    => dv
-                    }
-                end
+                # B4897 - It was detached in poweroff, remove it from VM
+                device_change << {
+                    :operation => :remove,
+                    :device    => dv
+                }
             end
         end
 
@@ -1944,7 +1940,7 @@ class VirtualMachine < Template
 
         mac       = nic["MAC"]
         pg_name   = nic["BRIDGE"]
-        model     = nic["VCENTER_NET_MODEL"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/MODEL")
+        model     = one_item.retrieve_xmlelements("TEMPLATE/NIC_DEFAULT/MODEL") || nic["VCENTER_NET_MODEL"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/MODEL")
         vnet_ref  = nic["VCENTER_NET_REF"]
         backing   = nil
 
@@ -2043,7 +2039,7 @@ class VirtualMachine < Template
     def calculate_add_nic_spec_autogenerate_mac(nic)
 
         pg_name   = nic["BRIDGE"]
-        model     = nic["VCENTER_NET_MODEL"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/MODEL")
+        model     = one_item.retrieve_xmlelements("TEMPLATE/NIC_DEFAULT/MODEL") || nic["VCENTER_NET_MODEL"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/MODEL")
         vnet_ref  = nic["VCENTER_NET_REF"]
         backing   = nil
 
