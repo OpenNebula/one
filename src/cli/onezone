@@ -40,7 +40,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :name => "keep",
         :short  => "-k",
         :large => "--keep",
-        :description => "Not overwrite endpoint file located in home folder, just a temporary zone.",
+        :description => "Don't overwrite endpoint file located in home folder, use it as a temporary zone.",
         :format => String
     }
 
