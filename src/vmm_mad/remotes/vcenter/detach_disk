@@ -52,6 +52,8 @@ rescue StandardError => e
     message = "Detach DISK for VM #{vm_ref} on vCenter cluster " \
               "#{vc_cluster_name} failed due to \"#{e.message}\"."
     OpenNebula.log_error(message)
+    if vi_client.get_property_vcenter_conf(:debug_information)
+        STDERR.puts "#{message} #{e.backtrace}"
     exit(-1)
 ensure
     vi_client.close_connection if vi_client

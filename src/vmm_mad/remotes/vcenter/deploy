@@ -76,6 +76,8 @@ rescue StandardError => e
     message =  "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " \
                "with #{dfile} failed due to \"#{e.message}\"."
     OpenNebula.log_error(message)
+    if vi_client.get_property_vcenter_conf(:debug_information)
+        STDERR.puts "#{message} #{e.backtrace}"
     exit(-1)
 ensure
     vi_client.close_connection if vi_client
