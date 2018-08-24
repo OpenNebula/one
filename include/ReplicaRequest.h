@@ -196,6 +196,24 @@ public:
     }
 
     /**
+     *  Remove a replication request associated to this index
+     *   @param rindex of the request
+     */
+    void remove(int rindex)
+    {
+        pthread_mutex_lock(&mutex);
+
+        std::map<int, ReplicaRequest *>::iterator it = requests.find(rindex);
+
+        if ( it != requests.end() )
+        {
+            requests.erase(it);
+        }
+
+        pthread_mutex_unlock(&mutex);
+    }
+
+    /**
      *  Notify all writers and clear the replica map
      */
     void clear()

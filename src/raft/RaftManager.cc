@@ -581,6 +581,8 @@ void RaftManager::replicate_log(ReplicaRequest * request)
     {
         request->notify();
 
+        requests.remove(request->index());
+
         pthread_mutex_unlock(&mutex);
         return;
     }
@@ -593,6 +595,8 @@ void RaftManager::replicate_log(ReplicaRequest * request)
         request->timeout = false;
 
         commit = request->index();
+
+        requests.remove(request->index());
     }
     else
     {
