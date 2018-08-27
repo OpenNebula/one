@@ -25,40 +25,42 @@
 <div id="disk_type" class="image">
   {{{imageTableSelectHTML}}}
   <br>
-  {{#advancedSection (tr "Advanced options") }}
-  <fieldset>
-    <legend>{{tr "Image"}}</legend>
-    <div class="row">
-      <div class="medium-6 columns">
-        <label for="IMAGE_ID">
-          {{tr "Image ID"}}
-        </label>
-        <input type="text" wizard_field="IMAGE_ID" id="IMAGE_ID" name="IMAGE_ID"/>
+  <div id="image_values">
+     {{#advancedSection (tr "Advanced options") }}
+    <fieldset>
+      <legend>{{tr "Image"}}</legend>
+      <div class="row">
+        <div class="medium-6 columns">
+          <label for="IMAGE_ID">
+            {{tr "Image ID"}}
+          </label>
+          <input type="text" wizard_field="IMAGE_ID" id="IMAGE_ID" name="IMAGE_ID"/>
+        </div>
+        <div class="medium-6 columns">
+          <label for="IMAGE">
+            {{tr "Image name"}}
+          </label>
+          <input type="text" wizard_field="IMAGE" id="IMAGE" name="IMAGE"/>
+        </div>
       </div>
-      <div class="medium-6 columns">
-        <label for="IMAGE">
-          {{tr "Image name"}}
-        </label>
-        <input type="text" wizard_field="IMAGE" id="IMAGE" name="IMAGE"/>
+      <div class="row">
+        <div class="medium-6 columns">
+          <label for="IMAGE_UID">
+            {{tr "Image owner's user ID"}}
+          </label>
+          <input type="text" wizard_field="IMAGE_UID" id="IMAGE_UID" name="IMAGE_UID"/>
+        </div>
+        <div class="medium-6 columns">
+          <label for="IMAGE_UNAME">
+            {{tr "Image owner's user name"}}
+          </label>
+          <input type="text" wizard_field="IMAGE_UNAME" id="IMAGE_UNAME" name="IMAGE_UNAME"/>
+        </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="medium-6 columns">
-        <label for="IMAGE_UID">
-          {{tr "Image owner's user ID"}}
-        </label>
-        <input type="text" wizard_field="IMAGE_UID" id="IMAGE_UID" name="IMAGE_UID"/>
-      </div>
-      <div class="medium-6 columns">
-        <label for="IMAGE_UNAME">
-          {{tr "Image owner's user name"}}
-        </label>
-        <input type="text" wizard_field="IMAGE_UNAME" id="IMAGE_UNAME" name="IMAGE_UNAME"/>
-      </div>
-    </div>
-  </fieldset>
+    </fieldset>
   {{> ./options volatile=false }}
   {{/advancedSection}}
+  </div>
 </div>
 <div id="disk_type" class="volatile" style="display: none;">
   <div class="row">
@@ -106,7 +108,9 @@
     </div>
   </div>
   <br>
+  {{#isAdvancedEnabled "show_attach_disk_advanced"}}
   {{#advancedSection (tr "Advanced options") }}
   {{> ./options volatile=true }}
   {{/advancedSection}}
+  {{/isAdvancedEnabled}}
 </div>

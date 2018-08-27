@@ -33,6 +33,11 @@ features:
 
     # True to show the vCenter info (VM & VRouters)
     show_vcenter_info: true
+
+    # True to show advanced options
+    show_attach_disk_advanced: true
+
+    show_attach_nic_advanced: true
 tabs:
     provision-tab:
         panel_tabs:

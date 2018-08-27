@@ -166,6 +166,10 @@ define(function(require) {
         $("input[name=\"custom_disk_dev_prefix\"]",context).parent().hide();
       }
     });
+
+    if (!Config.isAdvancedEnabled("show_attach_disk_advanced")){
+      $("#image_values", context).hide();
+    }
   }
 
   function _retrieve(context) {
