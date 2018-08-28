@@ -239,7 +239,7 @@ module OpenNebula
                 require 'vcenter_driver'
                 host_id = self["ID"]
                 vm_ref  = wild["DEPLOY_ID"]
-                return VCenterDriver::Importer.import_wild(host_id, vm_ref, vm, template)
+                return VCenterDriver::VmImporter.import_wild(host_id, vm_ref, vm, template)
             else
                 rc = vm.allocate(template)
 
