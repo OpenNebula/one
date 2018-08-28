@@ -65,7 +65,7 @@ bool QuotaVirtualMachine::check(Template * tmpl,
 
     size = VirtualMachineDisks::system_ds_size(tmpl);
 
-    if ( tmpl->get("VMS", vms) == false || vms < 0 )
+    if ( tmpl->get("VMS", vms) == false )
     {
         vms = 1;
     }
@@ -179,29 +179,34 @@ bool QuotaVirtualMachine::update(Template * tmpl,
 {
     map<string, float> vm_request;
 
-    int         delta_memory;
-    float       delta_cpu;
+    int         delta_memory, delta_running_memory, delta_running_vms;
+    float       delta_cpu, delta_running_cpu;
     long long   delta_size;
 
-    bool running = is_running_quota(tmpl, false);
 
     if ( tmpl->get("MEMORY", delta_memory) == true )
     {
-        if ( running )
-        {
-            vm_request.insert(make_pair("RUNNING_MEMORY", delta_memory));
-            vm_request.insert(make_pair("RUNNING_VMS", 1));
-        }
         vm_request.insert(make_pair("MEMORY", delta_memory));
+    }
+
+    if ( tmpl->get("RUNNING_MEMORY", delta_running_memory) == true )
+    {
+        vm_request.insert(make_pair("RUNNING_MEMORY", delta_running_memory));
+    }
+
+    if ( tmpl->get("RUNNING_VMS", delta_running_vms) == true )
+    {
+        vm_request.insert(make_pair("RUNNING_VMS", delta_running_vms));
     }
 
     if ( tmpl->get("CPU", delta_cpu) == true )
     {
-        if ( running )
-        {
-            vm_request.insert(make_pair("RUNNING_CPU", delta_cpu));
-        }
         vm_request.insert(make_pair("CPU", delta_cpu));
+    }
+
+    if ( tmpl->get("RUNNING_CPU", delta_running_cpu) == true )
+    {
+        vm_request.insert(make_pair("RUNNING_CPU", delta_running_cpu));
     }
 
     delta_size = VirtualMachineDisks::system_ds_size(tmpl);
@@ -212,23 +217,4 @@ bool QuotaVirtualMachine::update(Template * tmpl,
     }
 
     return check_quota("", vm_request, default_quotas, error);
-}
-
-bool QuotaVirtualMachine::is_running_quota(Template* tmpl, bool check_prev_state)
-{
-    int state;
-    bool has_state;
-    if (check_prev_state)
-    {
-        has_state = tmpl->get("PREV_STATE", state);
-    }
-    else
-    {
-        has_state = tmpl->get("STATE", state);
-    }
-
-    return has_state &&
-            (( state == VirtualMachine::ACTIVE ) ||
-            ( state == VirtualMachine::HOLD ) ||
-            ( state == VirtualMachine::PENDING ));
 }

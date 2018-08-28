@@ -117,11 +117,11 @@ void DispatchManager::init_managers()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VirtualMachineTemplate * DispatchManager::get_quota_template(VirtualMachine * vm, bool only_running)
+void DispatchManager::get_quota_template(VirtualMachine * vm, VirtualMachineTemplate& quota_tmpl, bool only_running)
 {
     int memory, cpu;
 
-    VirtualMachineTemplate * clone_tmpl = vm->get_quota_template();
+    vm->get_quota_template(quota_tmpl);
 
     if ( (vm->get_state() == VirtualMachine::ACTIVE) ||
          (vm->get_state() == VirtualMachine::PENDING) ||
@@ -129,22 +129,20 @@ VirtualMachineTemplate * DispatchManager::get_quota_template(VirtualMachine * vm
          (vm->get_state() == VirtualMachine::CLONING_FAILURE) ||
          (vm->get_state() == VirtualMachine::HOLD) )
     {
-        clone_tmpl->get("MEMORY", memory);
-        clone_tmpl->get("CPU", cpu);
+        quota_tmpl.get("MEMORY", memory);
+        quota_tmpl.get("CPU", cpu);
 
-        clone_tmpl->add("RUNNING_MEMORY", memory);
-        clone_tmpl->add("RUNNING_CPU", cpu);
-        clone_tmpl->add("RUNNING_VMS", 1);
+        quota_tmpl.add("RUNNING_MEMORY", memory);
+        quota_tmpl.add("RUNNING_CPU", cpu);
+        quota_tmpl.add("RUNNING_VMS", 1);
 
         if (only_running)
         {
-            clone_tmpl->replace("MEMORY", 0);
-            clone_tmpl->replace("CPU", 0);
-            clone_tmpl->replace("VMS", 0);
+            quota_tmpl.replace("MEMORY", 0);
+            quota_tmpl.replace("CPU", 0);
+            quota_tmpl.replace("VMS", 0);
         }
     }
-
-    return clone_tmpl;
 }
 
 /* -------------------------------------------------------------------------- */

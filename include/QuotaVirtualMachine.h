@@ -128,9 +128,6 @@ protected:
 
     static const int NUM_VM_METRICS;
 
-private:
-
-    bool is_running_quota(Template* tmpl, bool check_prev_state);
 };
 
 #endif /*QUOTA_VIRTUALMACHINE_H_*/

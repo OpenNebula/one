@@ -32,7 +32,7 @@ int DispatchManager::deploy (VirtualMachine * vm, const RequestAttributes& ra)
     ostringstream oss;
     int           vid;
     int           uid;
-    VirtualMachineTemplate * quota_tmpl = 0;
+    VirtualMachineTemplate quota_tmpl;
     string error;
     bool do_quotas = false;
 
@@ -65,7 +65,7 @@ int DispatchManager::deploy (VirtualMachine * vm, const RequestAttributes& ra)
         {
             uid = vm->get_uid();
 
-            quota_tmpl = get_quota_template(vm, true);
+            get_quota_template(vm, quota_tmpl, true);
         }
 
         lcm->trigger(LCMAction::DEPLOY, vid, ra);
@@ -77,9 +77,9 @@ int DispatchManager::deploy (VirtualMachine * vm, const RequestAttributes& ra)
 
     vm->unlock();
 
-    if ( quota_tmpl != 0)
+    if ( do_quotas )
     {
-        update_user_quotas(uid, quota_tmpl, error);
+        update_user_quotas(uid, &quota_tmpl, error);
     }
 
     return 0;
@@ -105,7 +105,8 @@ int DispatchManager::import(VirtualMachine * vm, const RequestAttributes& ra)
 
     int uid;
 
-    VirtualMachineTemplate * quota_tmpl = 0;
+    VirtualMachineTemplate quota_tmpl;
+    bool do_quotas = false;
 
     string error;
 
@@ -146,7 +147,8 @@ int DispatchManager::import(VirtualMachine * vm, const RequestAttributes& ra)
 
         uid = vm->get_uid();
 
-        quota_tmpl = get_quota_template(vm, true);
+        get_quota_template(vm, quota_tmpl, true);
+        do_quotas = true;
     }
 
     vm->set_stime(the_time);
@@ -164,9 +166,9 @@ int DispatchManager::import(VirtualMachine * vm, const RequestAttributes& ra)
 
     vm->unlock();
 
-    if ( quota_tmpl != 0)
+    if ( do_quotas )
     {
-        update_user_quotas(uid, quota_tmpl, error);
+        update_user_quotas(uid, &quota_tmpl, error);
     }
 
     return 0;
@@ -261,7 +263,7 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
 {
     vector<Template *> ds_quotas;
 
-    VirtualMachineTemplate * clone_tmpl;
+    Template * quota_tmpl;
 
     int vmid;
     int uid;
@@ -271,22 +273,22 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
     int vrid = -1;
     unsigned int port;
 
-    clone_tmpl = vm->clone_template();
+    quota_tmpl = vm->clone_template(); //get_quota_template(vm, quota_tmpl, false);
 
     if ( (vm->get_state() == VirtualMachine::ACTIVE) ||
          (vm->get_state() == VirtualMachine::PENDING) ||
          (vm->get_state() == VirtualMachine::HOLD) )
     {
-        clone_tmpl->get("MEMORY", memory);
-        clone_tmpl->get("CPU", cpu);
+        quota_tmpl->get("MEMORY", memory);
+        quota_tmpl->get("CPU", cpu);
 
-        clone_tmpl->add("RUNNING_MEMORY", memory);
-        clone_tmpl->add("RUNNING_CPU", cpu);
-        clone_tmpl->add("RUNNING_VMS", 1);
+        quota_tmpl->add("RUNNING_MEMORY", memory);
+        quota_tmpl->add("RUNNING_CPU", cpu);
+        quota_tmpl->add("RUNNING_VMS", 1);
     }
-    clone_tmpl->add("VMS", 1);
+    quota_tmpl->add("VMS", 1);
 
-    clone_tmpl->replace("STATE", VirtualMachine::DONE);
+    quota_tmpl->replace("STATE", VirtualMachine::DONE);
 
     vm->release_network_leases();
 
@@ -326,9 +328,7 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
 
     vm->unlock();
 
-    Quotas::vm_del(uid, gid, clone_tmpl);
-
-    delete clone_tmpl;
+    Quotas::vm_del(uid, gid, quota_tmpl);
 
     if ( !ds_quotas.empty() )
     {
@@ -1157,7 +1157,7 @@ int DispatchManager::delete_recreate(VirtualMachine * vm,
     int rc = 0;
 
     Template * vm_quotas_snp = 0;
-    VirtualMachineTemplate * quota_tmpl = 0;
+    VirtualMachineTemplate quota_tmpl;
     bool do_quotas = false;
 
     vector<Template *> ds_quotas_snp;
@@ -1211,7 +1211,7 @@ int DispatchManager::delete_recreate(VirtualMachine * vm,
 
             if ( do_quotas )
             {
-                quota_tmpl = get_quota_template(vm, true);
+                get_quota_template(vm, quota_tmpl, true);
             }
         break;
 
@@ -1240,9 +1240,9 @@ int DispatchManager::delete_recreate(VirtualMachine * vm,
         delete vm_quotas_snp;
     }
 
-    if ( quota_tmpl != 0)
+    if ( do_quotas )
     {
-        update_user_quotas(vm_uid, quota_tmpl, error);
+        update_user_quotas(vm_uid, &quota_tmpl, error);
     }
 
     return rc;

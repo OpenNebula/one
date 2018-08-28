@@ -1604,10 +1604,11 @@ public:
     }
 
     /**
-     * Get a template only with the necessary attributes to update the
+     * fill a template only with the necessary attributes to update the
      * quotas
+     *  @param template that will be filled
      */
-    VirtualMachineTemplate * get_quota_template();
+    void get_quota_template(VirtualMachineTemplate& quota_tmpl);
 
 private:
 

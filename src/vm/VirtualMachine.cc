@@ -3133,17 +3133,13 @@ int VirtualMachine::parse_sched_action(string& error_str)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-VirtualMachineTemplate * VirtualMachine::get_quota_template()
+void VirtualMachine::get_quota_template(VirtualMachineTemplate& quota_tmpl)
 {
-    VirtualMachineTemplate * clone_tmpl = new VirtualMachineTemplate();
     int memory, cpu;
 
     obj_template->get("MEMORY", memory);
     obj_template->get("CPU", cpu);
 
-    clone_tmpl->add("MEMORY", memory);
-    clone_tmpl->add("CPU", cpu);
-    clone_tmpl->add("NIC", obj_template->get("NIC"));
-
-    return clone_tmpl;
+    quota_tmpl.add("MEMORY", memory);
+    quota_tmpl.add("CPU", cpu);
 }

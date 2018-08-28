@@ -488,7 +488,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
     AuthRequest::Operation op;
     History::VMAction action;
-    VirtualMachineTemplate * clone_tmpl;
+    VirtualMachineTemplate quota_tmpl;
 
     VirtualMachine * vm;
 
@@ -516,18 +516,18 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    clone_tmpl = vm->get_quota_template();
+    vm->get_quota_template(quota_tmpl);
 
-    clone_tmpl->get("MEMORY", memory);
-    clone_tmpl->get("CPU", cpu);
+    quota_tmpl.get("MEMORY", memory);
+    quota_tmpl.get("CPU", cpu);
 
-    clone_tmpl->add("RUNNING_MEMORY", memory);
-    clone_tmpl->add("RUNNING_CPU", cpu);
-    clone_tmpl->add("RUNNING_VMS", 1);
+    quota_tmpl.add("RUNNING_MEMORY", memory);
+    quota_tmpl.add("RUNNING_CPU", cpu);
+    quota_tmpl.add("RUNNING_VMS", 1);
 
-    clone_tmpl->replace("MEMORY", 0);
-    clone_tmpl->replace("CPU", 0);
-    clone_tmpl->add("VMS", 0);
+    quota_tmpl.replace("MEMORY", 0);
+    quota_tmpl.replace("CPU", 0);
+    quota_tmpl.add("VMS", 0);
 
     RequestAttributes& att_aux(att);
     att_aux.uid = vm->get_uid();
@@ -557,10 +557,8 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
     vm->unlock();
 
-     if ( action == History::RESUME_ACTION && !quota_authorization(clone_tmpl, Quotas::VIRTUALMACHINE, att_aux, att.resp_msg) )
+     if ( action == History::RESUME_ACTION && !quota_authorization(&quota_tmpl, Quotas::VIRTUALMACHINE, att_aux, att.resp_msg) )
     {
-        delete clone_tmpl;
-
         failure_response(ACTION, att);
         return;
     }

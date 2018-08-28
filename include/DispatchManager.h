@@ -575,7 +575,13 @@ private:
 
     void user_action(const ActionRequest& ar);
 
-    VirtualMachineTemplate * get_quota_template(VirtualMachine * vm, bool only_running);
+    /**
+    * fill a template only with the necessary attributes to update the quotas
+    * @param vm with the attributes
+    * @param template that will be filled
+    * @param bool to specify if the template only should have the running quotas
+    */
+    void get_quota_template(VirtualMachine * vm, VirtualMachineTemplate& quota_tmpl, bool only_running);
 
     void update_user_quotas(int uid, VirtualMachineTemplate * quota_tmpl, string error);
 };

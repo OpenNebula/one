@@ -22,7 +22,7 @@
 void  DispatchManager::suspend_success_action(int vid)
 {
     VirtualMachine *    vm;
-    VirtualMachineTemplate * clone_tmpl;
+    VirtualMachineTemplate quota_tmpl;
     string error_str;
 
     int uid, gid;
@@ -42,7 +42,7 @@ void  DispatchManager::suspend_success_action(int vid)
          vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED||
          vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED))
     {
-        clone_tmpl = get_quota_template(vm, true);
+        get_quota_template(vm, quota_tmpl, true);
 
         vm->set_state(VirtualMachine::SUSPENDED);
 
@@ -67,9 +67,7 @@ void  DispatchManager::suspend_success_action(int vid)
 
     vm->unlock();
 
-    Quotas::vm_del(uid, gid, clone_tmpl);
-
-    delete clone_tmpl;
+    Quotas::vm_del(uid, gid, &quota_tmpl);
 
     return;
 }
@@ -80,7 +78,7 @@ void  DispatchManager::suspend_success_action(int vid)
 void  DispatchManager::stop_success_action(int vid)
 {
     VirtualMachine *    vm;
-    VirtualMachineTemplate * clone_tmpl;
+    VirtualMachineTemplate quota_tmpl;
     string error_str;
 
     int uid, gid;
@@ -96,7 +94,7 @@ void  DispatchManager::stop_success_action(int vid)
         (vm->get_lcm_state() == VirtualMachine::EPILOG_STOP ||
          vm->get_lcm_state() == VirtualMachine::PROLOG_RESUME))
     {
-        clone_tmpl = get_quota_template(vm, true);
+        get_quota_template(vm, quota_tmpl, true);
 
         vm->set_state(VirtualMachine::STOPPED);
 
@@ -128,9 +126,7 @@ void  DispatchManager::stop_success_action(int vid)
 
     vm->unlock();
 
-    Quotas::vm_del(uid, gid, clone_tmpl);
-
-    delete clone_tmpl;
+    Quotas::vm_del(uid, gid, &quota_tmpl);
 
     return;
 }
@@ -141,7 +137,7 @@ void  DispatchManager::stop_success_action(int vid)
 void  DispatchManager::undeploy_success_action(int vid)
 {
     VirtualMachine *    vm;
-    VirtualMachineTemplate * clone_tmpl;
+    VirtualMachineTemplate quota_tmpl;
     string error_str;
 
     int uid, gid;
@@ -158,7 +154,7 @@ void  DispatchManager::undeploy_success_action(int vid)
          vm->get_lcm_state() == VirtualMachine::DISK_RESIZE_UNDEPLOYED ||
          vm->get_lcm_state() == VirtualMachine::PROLOG_UNDEPLOY))
     {
-        clone_tmpl = get_quota_template(vm, true);
+        get_quota_template(vm, quota_tmpl, true);
 
         vm->set_state(VirtualMachine::UNDEPLOYED);
 
@@ -191,9 +187,8 @@ void  DispatchManager::undeploy_success_action(int vid)
 
     vm->unlock();
 
-    Quotas::vm_del(uid, gid, clone_tmpl);
+    Quotas::vm_del(uid, gid, &quota_tmpl);
 
-    delete clone_tmpl;
 
     return;
 }
@@ -204,7 +199,7 @@ void  DispatchManager::undeploy_success_action(int vid)
 void  DispatchManager::poweroff_success_action(int vid)
 {
     VirtualMachine *    vm;
-    VirtualMachineTemplate * clone_tmpl;
+    VirtualMachineTemplate quota_tmpl;
     string error_str;
 
     int uid, gid;
@@ -227,7 +222,7 @@ void  DispatchManager::poweroff_success_action(int vid)
          vm->get_lcm_state() == VirtualMachine::DISK_RESIZE_POWEROFF ||
          vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE))
     {
-        clone_tmpl = get_quota_template(vm, true);
+        get_quota_template(vm, quota_tmpl, true);
 
         vm->set_state(VirtualMachine::POWEROFF);
 
@@ -252,9 +247,7 @@ void  DispatchManager::poweroff_success_action(int vid)
 
     vm->unlock();
 
-    Quotas::vm_del(uid, gid, clone_tmpl);
-
-    delete clone_tmpl;
+    Quotas::vm_del(uid, gid, &quota_tmpl);
 
     return;
 }
