@@ -435,7 +435,7 @@ class Template
     end
 
     def import_vcenter_nics(vc_uuid, npool, hpool, vcenter_instance_name,
-                            template_ref, wild, vm_name=nil, vm_id=nil, dc_name=nil)
+                            template_ref, vm_id=nil, dc_name=nil)
         nic_info = ""
         error = ""
         ar_ids = {}
@@ -528,7 +528,6 @@ class Template
                         :unmanaged=>             unmanaged,
                         :template_ref=>          template_ref,
                         :dc_ref=>                dc_ref,
-                        :vm_or_template_name=>   vm_name,
                         :template_id=>           vm_id
                     }
 
@@ -3569,15 +3568,12 @@ class VmImporter < VCenterDriver::VcImporter
             working_template[:one] << template_disks
 
             template_moref = template_copy_ref ? template_copy_ref : selected[:vcenter_ref]
-			wild = false
 
 			error, template_nics, ar_ids, allocated_nets = template.import_vcenter_nics(vc_uuid,
                                                                             npool,
                                                                             hpool,
                                                                             vcenter,
                                                                             template_moref,
-                                                                            wild,
-                                                                            template["name"],
                                                                             id,
                                                                             dc)
 
