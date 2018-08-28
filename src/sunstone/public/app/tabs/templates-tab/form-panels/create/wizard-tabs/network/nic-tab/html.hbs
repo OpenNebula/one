@@ -16,6 +16,7 @@
 
   {{{vnetsTableSelectHTML}}}
   <br>
+  <div id="nic_values">
   {{#advancedSection (tr "Advanced options") }}
   <fieldset>
     <legend>{{tr "Choose Network"}}</legend>
@@ -54,7 +55,7 @@
         </label>
         <input type="text" wizard_field="OPENNEBULA_MANAGED" id="OPENNEBULA_MANAGED" name="OPENNEBULA_MANAGED"/>
       </div>
-    </div> 
+    </div>
   </fieldset>
   <fieldset>
     <legend>{{tr "Override Network Values IPv4"}}</legend>
@@ -286,3 +287,4 @@
     </fieldset>
   </div>
   {{/advancedSection}}
+</div>

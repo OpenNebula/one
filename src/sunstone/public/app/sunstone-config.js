@@ -80,6 +80,14 @@ define(function(require) {
       }
     },
 
+    "isAdvancedEnabled": function(featureName) {
+      if (_config['view']['features'] && featureName in _config['view']['features']) {
+        return _config['view']['features'][featureName];
+      } else {
+        return true;
+      }
+    },
+
     "tabTableColumns": function(tabName) {
       if (!_config['view']['tabs'][tabName]) {
         return [];
