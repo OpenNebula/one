@@ -45,10 +45,9 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
         vm_name    = vcenter_vm["name"]
 
         wild     = true
-        sunstone = false
 
         type = {:object => "VM", :id => vm_name}
-        error, template_disks = vcenter_vm.import_vcenter_disks(vc_uuid, dpool, ipool, type, sunstone)
+        error, template_disks = vcenter_vm.import_vcenter_disks(vc_uuid, dpool, ipool, type)
         return OpenNebula::Error.new(error) if !error.empty?
 
         template << template_disks
@@ -59,7 +58,6 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
                                                               hpool,
                                                               vc_name,
                                                               vm_ref,
-                                                              sunstone,
                                                               vm_name)
 
         if !error.empty?
