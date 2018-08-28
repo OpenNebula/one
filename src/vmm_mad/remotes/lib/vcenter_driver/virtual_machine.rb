@@ -264,10 +264,9 @@ class Template
     # @param type [object] contains the type of the object(:object) and identificator(:id)
     # @return error, template_disks
     ########################################################################
-    def import_vcenter_disks(vc_uuid, dpool, ipool, type,  sunstone=false)
+    def import_vcenter_disks(vc_uuid, dpool, ipool, type)
         disk_info = ""
         error = ""
-        sunstone_disk_info = []
 
         begin
             lock #Lock import operation, to avoid concurrent creation of images
@@ -314,51 +313,36 @@ class Template
                     disk_tmp << "IMAGE_ID=\"#{image_import[:one]["ID"]}\",\n"
                     disk_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
                     disk_tmp << "]\n"
-                    if sunstone
-                        sunstone_disk = {}
-                        sunstone_disk[:type] = "EXISTING_DISK"
-                        sunstone_disk[:image_tmpl] = disk_tmp
-                        sunstone_disk_info << sunstone_disk
-                    else
-                        disk_info << disk_tmp
-                    end
+                    disk_info << disk_tmp
 
                 elsif !image_import[:template].empty?
 
-                    if sunstone
-                        sunstone_disk = {}
-                        sunstone_disk[:type] = "NEW_DISK"
-                        sunstone_disk[:image_tmpl] = image_import[:template]
-                        sunstone_disk[:ds_id] = datastore_found['ID'].to_i
-                        sunstone_disk_info << sunstone_disk
-                    else
-                        # Then the image is created as it's not in the datastore
-                        one_i = VCenterDriver::VIHelper.new_one_item(OpenNebula::Image)
-                        allocated_images << one_i
-                        rc = one_i.allocate(image_import[:template], datastore_found['ID'].to_i, false)
+                    # Then the image is created as it's not in the datastore
+                    one_i = VCenterDriver::VIHelper.new_one_item(OpenNebula::Image)
+                    allocated_images << one_i
+                    rc = one_i.allocate(image_import[:template], datastore_found['ID'].to_i, false)
 
-                        if OpenNebula.is_error?(rc)
-                            error = "    Error creating disk from template: #{rc.message}\n"
-                            break
-                        end
-
-                        # Monitor image, we need READY state
-                        one_i.info
-                        start_time = Time.now
-
-                        while one_i.state_str != "READY" and Time.now - start_time < 300
-                            sleep 1
-                            one_i.info
-                        end
-
-
-                        #Add info for One template
-                        one_i.info
-                        disk_info << "DISK=[\n"
-                        disk_info << "IMAGE_ID=\"#{one_i["ID"]}\",\n"
-                        disk_info << "OPENNEBULA_MANAGED=\"NO\"\n"
-                        disk_info << "]\n"
+                    if OpenNebula.is_error?(rc)
+                        error = "    Error creating disk from template: #{rc.message}\n"
+                        break
                     end
+
+                    # Monitor image, we need READY state
+                    one_i.info
+                    start_time = Time.now
+
+                    while one_i.state_str != "READY" and Time.now - start_time < 300
+                        sleep 1
+                        one_i.info
+                    end
+
+
+                    #Add info for One template
+                    one_i.info
+                    disk_info << "DISK=[\n"
+                    disk_info << "IMAGE_ID=\"#{one_i["ID"]}\",\n"
+                    disk_info << "OPENNEBULA_MANAGED=\"NO\"\n"
+                    disk_info << "]\n"
                 end
             end
 
@@ -374,10 +358,7 @@ class Template
             end
         end
 
-        return error, sunstone_disk_info, allocated_images if sunstone
-
-        return error, disk_info, allocated_images if !sunstone
-
+        return error, disk_info, allocated_images
     end
 
     def create_ar(nic, with_id = false)
@@ -454,10 +435,9 @@ class Template
     end
 
     def import_vcenter_nics(vc_uuid, npool, hpool, vcenter_instance_name,
-                            template_ref, wild, sunstone=false, vm_name=nil, vm_id=nil, dc_name=nil)
+                            template_ref, wild, vm_name=nil, vm_id=nil, dc_name=nil)
         nic_info = ""
         error = ""
-        sunstone_nic_info = []
         ar_ids = {}
         begin
             lock #Lock import operation, to avoid concurrent creation of networks
@@ -511,14 +491,7 @@ class Template
                     nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
                     nic_tmp << "]\n"
 
-                    if sunstone
-                        sunstone_nic = {}
-                        sunstone_nic[:type] = "EXISTING_NIC"
-                        sunstone_nic[:network_tmpl] = nic_tmp
-                        sunstone_nic_info << sunstone_nic
-                    else
-                        nic_info << nic_tmp
-                    end
+                    nic_info << nic_tmp
 
                 # network not found:
                 else
@@ -577,50 +550,31 @@ class Template
                     config[:one_object] = one_vnet[:one]
                     cluster_id = VCenterDriver::VIHelper.get_cluster_id(config[:one_ids])
 
-                    if sunstone
-                        if !duplicated_networks.include?(nic[:net_name])
-                            sunstone_nic = {}
-                            sunstone_nic[:type] = "NEW_NIC"
-                            sunstone_nic[:network_name] = nic[:net_name]
-                            sunstone_nic[:network_tmpl] = one_vnet[:one]
-                            sunstone_nic[:one_cluster_id] = cluster_id.to_i
-                            sunstone_nic_info << sunstone_nic
-                            duplicated_networks << nic[:net_name]
-                        else
-                            sunstone_nic = {}
-                            sunstone_nic[:type] = "DUPLICATED_NIC"
-                            sunstone_nic[:network_name] = nic[:net_name]
-                            sunstone_nic_info << sunstone_nic
-                        end
+                    one_vn = VCenterDriver::Network.create_one_network(config)
+                    allocated_networks << one_vn
+                    VCenterDriver::VIHelper.clean_ref_hash()
+                    one_vn.info
 
-                    # not sunstone:
-                    else
-                        one_vn = VCenterDriver::Network.create_one_network(config)
-                        allocated_networks << one_vn
-                        VCenterDriver::VIHelper.clean_ref_hash()
-                        one_vn.info
+                    nic_tmp = "NIC=[\n"
+                    nic_tmp << "NETWORK_ID=\"#{one_vn.id}\",\n"
 
-                        nic_tmp = "NIC=[\n"
-                        nic_tmp << "NETWORK_ID=\"#{one_vn.id}\",\n"
-
-                        if wild?
-                            last_id = save_ar_ids(one_vn, nic, ar_ids)
-                            nic_tmp << "AR_ID=\"#{last_id}\",\n"
-                            nic_tmp << "MAC=\"#{nic[:mac]}\",\n" if nic[:mac]
-                            nic_tmp << "VCENTER_ADDITIONALS_IP4=\"#{nic[:ipv4_additionals]}\",\n" if nic[:ipv4_additionals]
-                            nic_tmp << "VCENTER_IP6=\"#{nic[:ipv6]}\",\n" if nic[:ipv6]
-                            nic_tmp << "IP6_GLOBAL=\"#{nic[:ipv6_global]}\",\n" if nic[:ipv6_global]
-                            nic_tmp << "IP6_ULA=\"#{nic[:ipv6_ula]}\",\n" if nic[:ipv6_ula]
-                            nic_tmp << "VCENTER_ADDITIONALS_IP6=\"#{nic[:ipv6_additionals]}\",\n" if nic[:ipv6_additionals]
-                        end
-
-                        nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
-                        nic_tmp << "]\n"
-                        nic_info << nic_tmp
-
-                        # Refresh npool
-                        npool.info_all
+                    if wild?
+                        last_id = save_ar_ids(one_vn, nic, ar_ids)
+                        nic_tmp << "AR_ID=\"#{last_id}\",\n"
+                        nic_tmp << "MAC=\"#{nic[:mac]}\",\n" if nic[:mac]
+                        nic_tmp << "VCENTER_ADDITIONALS_IP4=\"#{nic[:ipv4_additionals]}\",\n" if nic[:ipv4_additionals]
+                        nic_tmp << "VCENTER_IP6=\"#{nic[:ipv6]}\",\n" if nic[:ipv6]
+                        nic_tmp << "IP6_GLOBAL=\"#{nic[:ipv6_global]}\",\n" if nic[:ipv6_global]
+                        nic_tmp << "IP6_ULA=\"#{nic[:ipv6_ula]}\",\n" if nic[:ipv6_ula]
+                        nic_tmp << "VCENTER_ADDITIONALS_IP6=\"#{nic[:ipv6_additionals]}\",\n" if nic[:ipv6_additionals]
                     end
+
+                    nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
+                    nic_tmp << "]\n"
+                    nic_info << nic_tmp
+
+                    # Refresh npool
+                    npool.info_all
                 end
             end
         rescue Exception => e
@@ -635,9 +589,7 @@ class Template
             end
         end
 
-        return error, nic_info, ar_ids, allocated_networks if !sunstone
-
-        return error, sunstone_nic_info, ar_ids, allocated_networks if sunstone
+        return error, nic_info, ar_ids, allocated_networks
     end
 
     def get_vcenter_disk_key(unit_number, controller_key)
@@ -3625,7 +3577,6 @@ class VmImporter < VCenterDriver::VcImporter
                                                                             vcenter,
                                                                             template_moref,
                                                                             wild,
-                                                                            false,
                                                                             template["name"],
                                                                             id,
                                                                             dc)
