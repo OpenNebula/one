@@ -44,8 +44,6 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
         vcenter_vm = VCenterDriver::VirtualMachine.new_without_id(vi_client, vm_ref)
         vm_name    = vcenter_vm["name"]
 
-        wild     = true
-
         type = {:object => "VM", :id => vm_name}
         error, template_disks = vcenter_vm.import_vcenter_disks(vc_uuid, dpool, ipool, type)
         return OpenNebula::Error.new(error) if !error.empty?
@@ -53,12 +51,12 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
         template << template_disks
 
         # Create images or get nics information for template
-        error, template_nics, ar_ids = vcenter_vm.import_vcenter_nics(vc_uuid,
-                                                              npool,
-                                                              hpool,
-                                                              vc_name,
-                                                              vm_ref,
-                                                              vm_name)
+        error, template_nics, ar_ids = vcenter_vm
+                                       .import_vcenter_nics(vc_uuid,
+                                                            npool,
+                                                            hpool,
+                                                            vc_name,
+                                                            vm_ref)
 
         if !error.empty?
             if !ar_ids.nil?

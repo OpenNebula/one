@@ -135,7 +135,6 @@ class Network
         unmanaged             = opts[:unmanaged] || nil
         template_ref          = opts[:template_ref] || nil
         dc_ref                = opts[:dc_ref] || nil
-        vm_or_template_name   = opts[:vm_or_template_name] || nil
         template_id           = opts[:template_id] || nil
 
         bridge_name = network_name
