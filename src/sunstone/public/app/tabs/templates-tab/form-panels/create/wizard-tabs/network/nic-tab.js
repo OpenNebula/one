@@ -152,6 +152,10 @@ define(function(require) {
     CreateUtils.setupPCIRows($(".pci-row", context));
 
     $("input.pci-type-nic", context).change();
+
+    if (!Config.isAdvancedEnabled("show_attach_nic_advanced")){
+      $("#nic_values", context).hide();
+    }
   }
 
   function _retrieve(context) {
