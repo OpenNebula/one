@@ -43,6 +43,8 @@ require 'yaml'
 require 'opennebula'
 require 'base64'
 require 'openssl'
+require 'digest'
+require 'resolv'
 
 # ---------------------------------------------------------------------------- #
 # vCenter Library                                                              #
@@ -55,8 +57,8 @@ require 'vi_helper'
 require 'datacenter'
 require 'host'
 require 'datastore'
-require 'virtual_machine'
 require 'vm_template'
+require 'virtual_machine'
 require 'network'
 require 'file_helper'
 require 'importer'

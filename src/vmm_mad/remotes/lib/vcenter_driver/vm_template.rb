@@ -1,3 +1,21 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+module VCenterDriver
+
 class Template
 
     attr_accessor :item
@@ -989,5 +1007,300 @@ class Template
     def self.new_from_ref(ref, vi_client)
         self.new(RbVmomi::VIM::VirtualMachine.new(vi_client.vim, ref), vi_client)
     end
+
+end
+
+class VmImporter < VCenterDriver::VcImporter
+
+    def initialize(one_client, vi_client)
+        super(one_client, vi_client)
+        @one_class = OpenNebula::Template
+
+        @defaults = {
+            linked_clone: '0',
+            copy: '0',
+            name: '',
+            folder: '',
+            resourcepool: [],
+            type: ''
+        }
+
+    end
+
+    def get_list(args = {})
+        dc_folder = VCenterDriver::DatacenterFolder.new(@vi_client)
+
+        # Get OpenNebula's templates pool
+        tpool = VCenterDriver::VIHelper.one_pool(OpenNebula::TemplatePool, false)
+        if tpool.respond_to?(:message)
+            raise "Could not get OpenNebula TemplatePool: #{tpool.message}"
+        end
+
+        @list = dc_folder.get_unimported_templates(@vi_client, tpool)
+    end
+
+    def create_pools()
+        dpool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool)
+        if dpool.respond_to?(:message)
+            raise "Could not get OpenNebula DatastorePool: #{dpool.message}"
+        end
+        ipool = VCenterDriver::VIHelper.one_pool(OpenNebula::ImagePool)
+        if ipool.respond_to?(:message)
+            raise "Could not get OpenNebula ImagePool: #{ipool.message}"
+        end
+        npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool)
+        if npool.respond_to?(:message)
+            raise "Could not get OpenNebula VirtualNetworkPool: #{npool.message}"
+        end
+        hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool)
+        if hpool.respond_to?(:message)
+            raise "Could not get OpenNebula VirtualNetworkPool: #{hpool.message}"
+        end
+
+        return dpool, ipool, npool, hpool
+    end
+
+    def rp_opts(type, rps)
+        str = ""
+
+        return str if (type == "default") || rps.empty?
+
+
+        if (type == "fixed")
+            str << "VCENTER_RESOURCE_POOL=\"#{rps}\"\n"
+        else
+            default = rps.first
+            rps_str = rps.join(',')
+
+            str << "USER_INPUTS=["
+            str << "VCENTER_RESOURCE_POOL=\"M|list|resource pool list|#{rps_str}|#{default}\""
+            str << "]"
+        end
+
+        return str
+    end
+
+    def import(selected)
+        opts = @info[selected[:ref]][:opts]
+        working_template = selected
+
+        vcenter = selected[:vcenter]
+        vc_uuid = selected[:vcenter_instance_uuid]
+        dc      = selected[:dc_name]
+
+        linked_clone     = opts[:linked_clone] == '1'
+        copy             = opts[:copy] == '1'
+        deploy_in_folder = !opts[:folder].empty?
+
+        res = {id: [], name: selected[:name]}
+        dpool, ipool, npool, hpool = create_pools
+
+        template = VCenterDriver::Template.new_from_ref(selected[:vcenter_ref], @vi_client)
+        # Linked clones and copy preparation
+        if linked_clone
+            if copy # reached this point we need to delete the template if something go wrong
+                error, template_copy_ref = selected[:template].create_template_copy(opts[:name])
+                raise "There is a problem creating creating your copy: #{error}" unless template_copy_ref
+
+                template = VCenterDriver::Template.new_from_ref(template_copy_ref, @vi_client)
+                @rollback << Raction.new(template, :delete_template)
+
+                one_template = VCenterDriver::Template.get_xml_template(template, vc_uuid, @vi_client, vcenter, dc)
+                raise "There is a problem obtaining info from your template's copy" unless one_template
+                working_template = one_template
+            end
+
+            lc_error, use_lc = template.create_delta_disks
+            raise "Something was wront with create delta disk operation" if lc_error
+            working_template[:one] << "\nVCENTER_LINKED_CLONES=\"YES\"\n" if use_lc
+        end
+
+        working_template[:one] << "VCENTER_VM_FOLDER=\"#{opts[:folder]}\"\n" if deploy_in_folder
+
+        create(working_template[:one]) do |one_object, id|
+            res[:id] << id
+
+            type = {:object => "template", :id => id}
+            error, template_disks, allocated_images = template.import_vcenter_disks(vc_uuid, dpool, ipool, type)
+
+            if allocated_images
+                #rollback stack
+                allocated_images.reverse.each do |i|
+                    @rollback.unshift(Raction.new(i, :delete))
+                end
+            end
+            raise error if !error.empty?
+
+            working_template[:one] << template_disks
+
+            template_moref = template_copy_ref ? template_copy_ref : selected[:vcenter_ref]
+
+			error, template_nics, ar_ids, allocated_nets = template.import_vcenter_nics(vc_uuid,
+                                                                            npool,
+                                                                            hpool,
+                                                                            vcenter,
+                                                                            template_moref,
+                                                                            id,
+                                                                            dc)
+
+            if allocated_nets
+                #rollback stack
+                allocated_nets.reverse.each do |n|
+                    @rollback.unshift(Raction.new(n, :delete))
+                end
+            end
+            raise error if !error.empty?
+
+            working_template[:one] << template_nics
+            working_template[:one] << rp_opts(opts[:type], opts[:resourcepool])
+
+            one_object.update(working_template[:one])
+        end
+
+        return res
+    end
+
+    def attr
+        "TEMPLATE/VCENTER_TEMPLATE_REF"
+    end
+
+    def self.import_wild(host_id, vm_ref, one_vm, template)
+        begin
+            vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+            vc_uuid   = vi_client.vim.serviceContent.about.instanceUuid
+            vc_name   = vi_client.vim.host
+
+            dpool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool)
+            if dpool.respond_to?(:message)
+                raise "Could not get OpenNebula DatastorePool: #{dpool.message}"
+            end
+            ipool = VCenterDriver::VIHelper.one_pool(OpenNebula::ImagePool)
+            if ipool.respond_to?(:message)
+                raise "Could not get OpenNebula ImagePool: #{ipool.message}"
+            end
+            npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool)
+            if npool.respond_to?(:message)
+                raise "Could not get OpenNebula VirtualNetworkPool: #{npool.message}"
+            end
+            hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool)
+            if hpool.respond_to?(:message)
+                raise "Could not get OpenNebula HostPool: #{hpool.message}"
+            end
+
+            vcenter_vm = VCenterDriver::VirtualMachine.new_without_id(vi_client, vm_ref)
+            vm_name    = vcenter_vm["name"]
+
+            type = {:object => "VM", :id => vm_name}
+            error, template_disks = vcenter_vm.import_vcenter_disks(vc_uuid, dpool, ipool, type)
+            return OpenNebula::Error.new(error) if !error.empty?
+
+            template << template_disks
+
+            # Create images or get nics information for template
+            error, template_nics, ar_ids = vcenter_vm
+                                           .import_vcenter_nics(vc_uuid,
+                                                                npool,
+                                                                hpool,
+                                                                vc_name,
+                                                                vm_ref)
+
+            if !error.empty?
+                if !ar_ids.nil?
+                    ar_ids.each do |key, value|
+                        network = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,"TEMPLATE/VCENTER_NET_REF", key, vc_uuid, npool)
+                        value.each do |ar|
+                            network.rm_ar(ar)
+                        end
+                    end
+                end
+                return OpenNebula::Error.new(error) if !error.empty?
+            end
+
+            template << template_nics
+            template << "VCENTER_ESX_HOST = #{vcenter_vm["runtime.host.name"].to_s}\n"
+
+            # Get DS_ID for the deployment, the wild VM needs a System DS
+            dc_ref = vcenter_vm.get_dc.item._ref
+            ds_ref = template.match(/^VCENTER_DS_REF *= *"(.*)" *$/)[1]
+
+            ds_one = dpool.select do |e|
+                e["TEMPLATE/TYPE"]                == "SYSTEM_DS" &&
+                e["TEMPLATE/VCENTER_DS_REF"]      == ds_ref &&
+                e["TEMPLATE/VCENTER_DC_REF"]      == dc_ref &&
+                e["TEMPLATE/VCENTER_INSTANCE_ID"] == vc_uuid
+            end.first
+
+            if !ds_one
+                if !ar_ids.nil?
+                    ar_ids.each do |key, value|
+                        network = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,"TEMPLATE/VCENTER_NET_REF", key, vc_uuid, npool)
+                        value.each do |ar|
+                            network.rm_ar(ar)
+                        end
+                    end
+                end
+                return OpenNebula::Error.new("DS with ref #{ds_ref} is not imported in OpenNebula, aborting Wild VM import.")
+            end
+
+            rc = one_vm.allocate(template)
+            if OpenNebula.is_error?(rc)
+                if !ar_ids.nil?
+                    ar_ids.each do |key, value|
+                        network = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,"TEMPLATE/VCENTER_NET_REF", key, vc_uuid, npool)
+                        value.each do |ar|
+                            network.rm_ar(ar)
+                        end
+                    end
+                end
+                return rc
+            end
+
+            rc = one_vm.deploy(host_id, false, ds_one.id)
+            if OpenNebula.is_error?(rc)
+                if !ar_ids.nil?
+                    ar_ids.each do |key, value|
+                        network = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,"TEMPLATE/VCENTER_NET_REF", key, vc_uuid, npool)
+                        value.each do |ar|
+                            network.rm_ar(ar)
+                        end
+                    end
+                end
+                return rc
+            end
+
+            # Set reference to template disks and nics in VM template
+            vcenter_vm.one_item = one_vm
+            vcenter_vm.reference_unmanaged_devices(vm_ref)
+
+            # Set vnc configuration F#5074
+            vnc_port  = one_vm["TEMPLATE/GRAPHICS/PORT"]
+            elapsed_seconds = 0
+
+            # Let's update the info to gather VNC port
+            until vnc_port || elapsed_seconds > 30
+                sleep(1)
+                one_vm.info
+                vnc_port  = one_vm["TEMPLATE/GRAPHICS/PORT"]
+                elapsed_seconds += 1
+            end
+
+            if vnc_port
+                vcenter_vm.one_item = one_vm
+                extraconfig   = []
+                extraconfig  += vcenter_vm.extraconfig_vnc
+                spec_hash     = { :extraConfig  => extraconfig }
+                spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+                vcenter_vm.item.ReconfigVM_Task(:spec => spec).wait_for_completion
+            end
+
+            return one_vm.id
+
+        rescue Exception => e
+            vi_client.close_connection if vi_client
+            return OpenNebula::Error.new("#{e.message}/#{e.backtrace}")
+        end
+    end
+
+end
 
 end
