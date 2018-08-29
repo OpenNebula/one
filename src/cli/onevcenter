@@ -198,7 +198,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :hosts, host_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
         con_ops = helper.connection_options("Hosts", options)
 
-        VCenterDriver::Importer.import_clusters(con_ops, options)
+        VCenterDriver::VcImporter.import_clusters(con_ops, options)
 
         exit 0
     end
