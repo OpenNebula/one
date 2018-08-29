@@ -718,6 +718,7 @@ VMM_EXEC_LIB_VCENTER_FILES="src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb
                     src/vmm_mad/remotes/lib/vcenter_driver/vi_helper.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/memoize.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/datacenter.rb \
+                    src/vmm_mad/remotes/lib/vcenter_driver/vm_template.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/network.rb"
 
 #-------------------------------------------------------------------------------
