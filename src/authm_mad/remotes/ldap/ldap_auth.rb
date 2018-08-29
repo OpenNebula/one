@@ -209,3 +209,4 @@ class OpenNebula::LdapAuth
         groups.delete(false)
         groups.compact.uniq
     end
+end
