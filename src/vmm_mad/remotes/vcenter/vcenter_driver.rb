@@ -61,7 +61,6 @@ require 'vm_template'
 require 'virtual_machine'
 require 'network'
 require 'file_helper'
-require 'importer'
 
 CHECK_REFS = true
 # ---------------------------------------------------------------------------- #
