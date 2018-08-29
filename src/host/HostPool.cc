@@ -130,6 +130,26 @@ HostPool::HostPool(SqlDB*                    db,
 
             state_hook = true;
         }
+        else if ( on == "OFFLINE" )
+        {
+            HostStateHook * hook;
+
+            hook = new HostStateHook(name, cmd, arg, remote, Host::OFFLINE);
+
+            add_hook(hook);
+
+            state_hook = true;
+        }
+        else if ( on == "ENABLE" )
+        {
+            HostStateHook * hook;
+
+            hook = new HostStateHook(name, cmd, arg, remote, Host::INIT);
+
+            add_hook(hook);
+
+            state_hook = true;
+        }
     }
 
     if ( state_hook )
