@@ -81,10 +81,24 @@ void merge_state(Host::HostState &state)
 {
     switch(state)
     {
-        case Host::MONITORING_ERROR:        state = Host::ERROR;
-        case Host::MONITORING_DISABLED:     state = Host::DISABLED;
-        case Host::MONITORING_MONITORED:    state = Host::MONITORED;
-        case Host::MONITORING_INIT:         state = Host::INIT;
+        case Host::INIT:
+        case Host::MONITORED:
+        case Host::ERROR:
+        case Host::DISABLED:
+        case Host::OFFLINE:
+            break;
+        case Host::MONITORING_ERROR:
+            state = Host::ERROR;
+            break;
+        case Host::MONITORING_DISABLED:
+            state = Host::DISABLED;
+            break;
+        case Host::MONITORING_MONITORED:
+            state = Host::MONITORED;
+            break;
+        case Host::MONITORING_INIT:
+            state = Host::INIT;
+            break;
     }
 }
 
