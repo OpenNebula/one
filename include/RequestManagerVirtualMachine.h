@@ -221,6 +221,18 @@ public:
 
     ~VirtualMachineAttach(){};
 
+    /**
+     * Process a DISK attahment request to a Virtual Machine
+     *   @param id of the VirtualMachine
+     *   @param tl with the new DISK description
+     *   @param att attributes of this request
+     *   @return ErroCode as defined in Request
+     */
+    ErrorCode request_execute(int id, VirtualMachineTemplate& tl,
+        RequestAttributes& att);
+
+protected:
+
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att);
 };
