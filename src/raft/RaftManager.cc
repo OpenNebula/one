@@ -581,13 +581,24 @@ void RaftManager::replicate_log(ReplicaRequest * request)
     {
         request->notify();
 
-        requests.remove(request->index());
-
         pthread_mutex_unlock(&mutex);
         return;
     }
 
-    if ( num_servers <= 1 )
+    //Count servers that need to replicate this record
+    int to_commit = num_servers / 2; 
+
+    std::map<int, unsigned int>::iterator it;
+
+    for (it = next.begin(); it != next.end() && to_commit > 0; ++it)
+    {
+        if ( request->index() < (int) it->second )
+        {
+            to_commit--;
+        }
+    }
+
+    if ( to_commit <= 0 )
     {
         request->notify();
 
@@ -595,12 +606,10 @@ void RaftManager::replicate_log(ReplicaRequest * request)
         request->timeout = false;
 
         commit = request->index();
-
-        requests.remove(request->index());
     }
     else
     {
-        request->to_commit(num_servers / 2 );
+        request->to_commit(to_commit);
 
         requests.set(request->index(), request);
     }

@@ -135,7 +135,7 @@ public:
 
         std::map<int, ReplicaRequest *>::iterator it = requests.find(rindex);
 
-        if ( it != requests.end() && it->second != 0 )
+        if ( it != requests.end() )
         {
             it->second->add_replica();
 
@@ -153,25 +153,6 @@ public:
     }
 
     /**
-     *  Allocated an empty replica request. It marks a writer thread will wait
-     *  on this request.
-     *    @param rindex of the request
-     */
-    void allocate(int rindex)
-    {
-        pthread_mutex_lock(&mutex);
-
-        std::map<int, ReplicaRequest *>::iterator it = requests.find(rindex);
-
-        if ( it == requests.end() )
-        {
-            requests.insert(std::make_pair(rindex, (ReplicaRequest*) 0));
-        }
-
-        pthread_mutex_unlock(&mutex);
-    }
-
-    /**
      * Set the replication request associated to this index. If there is no
      * previous request associated to the index it is created.
      *   @param rindex of the request
@@ -186,28 +167,6 @@ public:
         if ( it == requests.end() )
         {
             requests.insert(std::make_pair(rindex, rr));
-        }
-        else if ( it->second == 0 )
-        {
-            it->second = rr;
-        }
-
-        pthread_mutex_unlock(&mutex);
-    }
-
-    /**
-     *  Remove a replication request associated to this index
-     *   @param rindex of the request
-     */
-    void remove(int rindex)
-    {
-        pthread_mutex_lock(&mutex);
-
-        std::map<int, ReplicaRequest *>::iterator it = requests.find(rindex);
-
-        if ( it != requests.end() )
-        {
-            requests.erase(it);
         }
 
         pthread_mutex_unlock(&mutex);
@@ -248,28 +207,18 @@ public:
      */
     bool need_replica(int db_index, int rindex)
     {
-        if ( db_index <= rindex )
+        bool rc = false;
+
+        if ( db_index > rindex )
         {
-            return false;
+            return true;
         }
-
-        pthread_mutex_lock(&mutex);
-
-        std::map<int,ReplicaRequest *>::iterator it = requests.find(rindex + 1);
-
-        bool rc = true;
-
-        if ( it != requests.end() && it->second == 0 )
-        {
-            rc = false;
-        }
-
-        pthread_mutex_unlock(&mutex);
 
         return rc;
     }
 
 private:
+
     pthread_mutex_t mutex;
 
     /**
