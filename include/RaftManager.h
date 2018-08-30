@@ -92,15 +92,6 @@ public:
     void replicate_log(ReplicaRequest * rr);
 
     /**
-     *  Allocate a replica request fot the given index.
-     *    @param rindex of the record for the request
-     */
-    void replicate_allocate(int rindex)
-    {
-        requests.allocate(rindex);
-    }
-
-    /**
      *  Finalizes the Raft Consensus Manager
      */
     void finalize()
