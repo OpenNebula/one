@@ -180,3 +180,15 @@ meter{
   background-color: #f8f8f8;
   border: 1px solid #eaeaea;
 }
+
+.tabs.vertical .tabs-title.is-active {
+  border-left:  .1538461538rem solid #4DBBD3 !important;
+  border-top:  .1538461538rem solid #4DBBD3 !important;
+  border-bottom:  .1538461538rem solid #4DBBD3 !important;
+  border-right:  0px;
+}
+
+.tabs-content.vertical {
+  border-left: .1538461538rem solid #4DBBD3 !important;
+  min-height: 200px;
+}
