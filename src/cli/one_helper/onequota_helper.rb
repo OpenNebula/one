@@ -35,8 +35,11 @@ class OneQuotaHelper
         #
         #  VM = [
         #    VMS              = <Max. number of VMs>
+        #    RUNNING_VMS      = <Max. number of running VMs>
         #    MEMORY           = <Max. allocated memory (MB)>
+        #    RUNNING_MEMORY   = <Max. running memory (MB)>
         #    CPU              = <Max. allocated CPU>
+        #    RUNNING_CPU      = <Max. running CPU>
         #    SYSTEM_DISK_SIZE = <Max. allocated system disk (MB)>
         #  ]
         #
