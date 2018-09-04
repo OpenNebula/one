@@ -524,17 +524,6 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if (vm->is_vrouter() && !VirtualRouter::is_action_supported(action))
-    {
-        att.resp_msg = "Action \"" + action_st + "\" is not supported for "
-            "virtual router VMs";
-
-        failure_response(ACTION, att);
-
-        vm->unlock();
-        return;
-    }
-
     vm->unlock();
 
     switch (action)
@@ -1088,15 +1077,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    if (vm->is_vrouter() && !VirtualRouter::is_action_supported(action))
-    {
-        att.resp_msg = "Migration is not supported for virtual router VMs";
-        failure_response(ACTION, att);
-
-        vm->unlock();
-        return;
-    }
-
     // Get System DS information from current History record
     c_ds_id  = vm->get_ds_id();
     c_tm_mad = vm->get_tm_mad();
@@ -1640,8 +1620,7 @@ void VirtualMachineAttach::request_execute(
         return;
     }
 
-    if (vm->is_vrouter() &&
-            !VirtualRouter::is_action_supported(History::NIC_ATTACH_ACTION))
+    if (vm->is_vrouter())
     {
         att.resp_msg = "Action is not supported for virtual router VMs";
         failure_response(Request::ACTION, att);
@@ -1793,7 +1772,7 @@ void VirtualMachineDetach::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if (vm->is_vrouter() && !VirtualRouter::is_action_supported(History::NIC_DETACH_ACTION))
+    if (vm->is_vrouter())
     {
         att.resp_msg = "Action is not supported for virtual router VMs";
         failure_response(ACTION, att);
@@ -2253,8 +2232,7 @@ void VirtualMachineAttachNic::request_execute(
         return;
     }
 
-    if (vm->is_vrouter() &&
-            !VirtualRouter::is_action_supported(History::NIC_ATTACH_ACTION))
+    if (vm->is_vrouter())
     {
         att.resp_msg = "Action is not supported for virtual router VMs";
         failure_response(Request::ACTION, att);
@@ -2389,8 +2367,7 @@ void VirtualMachineDetachNic::request_execute(
         return;
     }
 
-    if (vm->is_vrouter() &&
-            !VirtualRouter::is_action_supported(History::NIC_DETACH_ACTION))
+    if (vm->is_vrouter())
     {
         att.resp_msg = "Action is not supported for virtual router VMs";
         failure_response(Request::ACTION, att);
