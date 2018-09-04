@@ -218,6 +218,15 @@ public:
     int hold_by_ip6(const string& ip);
 
     /**
+     *  Sets the given address (by index) as free
+     *    @param index of the address
+     *    @param msg describing the error if any
+     *
+     *    @return 0 if success
+     */
+    virtual int free_addr(unsigned int index, string& msg) = 0;
+
+    /**
      *  Frees a previous allocated address, referenced by its MAC/IP address
      *  @param ot the object type of the owner of the address
      *  @param obid the id of the owner of the address
@@ -378,7 +387,7 @@ public:
     void get_security_groups(set<int>& sgs)
     {
         std::set<int>::const_iterator it;
-        
+
         for (it = security_groups.begin(); it != security_groups.end(); ++it)
         {
             sgs.insert(*it);
@@ -485,15 +494,6 @@ protected:
      *    @return 0 if success
      */
     virtual int get_addr(unsigned int& index, unsigned int sz, string& msg) = 0;
-
-    /**
-     *  Sets the given address (by index) as free
-     *    @param index of the address
-     *    @param msg describing the error if any
-     *
-     *    @return 0 if success
-     */
-    virtual int free_addr(unsigned int index, string& msg) = 0;
 
     /* ---------------------------------------------------------------------- */
     /* Allocated addresses                                                    */
