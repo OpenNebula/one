@@ -27,9 +27,6 @@ module OpenNebulaJSON
             end
 
             cluster_id = parse_json(template_json, 'cluster_id')
-            if OpenNebula.is_error?(cluster_id)
-                return cluster_id
-            end
 
             if vnet_hash['vnet_raw']
                 template = vnet_hash['vnet_raw']
@@ -37,7 +34,9 @@ module OpenNebulaJSON
                 template = template_to_str(vnet_hash)
             end
 
-            self.allocate(template, cluster_id.to_i)
+            if !OpenNebula.is_error?(cluster_id)
+                self.allocate(template, cluster_id.to_i)
+            end
         end
 
         def perform_action(template_json)
