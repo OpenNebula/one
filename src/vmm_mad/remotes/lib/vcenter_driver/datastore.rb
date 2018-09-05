@@ -668,6 +668,46 @@ class Datastore < Storage
     def self.new_from_ref(ref, vi_client)
         self.new(RbVmomi::VIM::Datastore.new(vi_client.vim, ref), vi_client)
     end
+
+    # detach disk from vCenter vm if possible, destroy the disk on FS
+    def self.detach_and_destroy(disk, vm, disk_id, prev_ds_ref, vi_client)
+        # it's not a CDROM (CLONE=NO)
+        is_cd = !(disk["CLONE"].nil? || disk["CLONE"] == "YES")
+
+        begin
+            # Detach disk if possible (VM is reconfigured) and gather vCenter info
+            # Needed for poweroff machines too
+            ds_ref, img_path = vm.detach_disk(disk)
+
+            return if is_cd
+
+            # Disk could't be detached, use OpenNebula info
+            if !(ds_ref && img_path && !img_path.empty?)
+                img_path = vm.disk_real_path(disk, disk_id)
+                ds_ref = prev_ds_ref
+            end
+
+            # If disk was already detached we have no way to remove it
+            ds = VCenterDriver::Datastore.new_from_ref(ds_ref, vi_client)
+
+
+            search_params = ds.get_search_params(ds['name'],
+                                                File.dirname(img_path),
+                                                File.basename(img_path))
+
+            # Perform search task and return results
+            search_task = ds['browser'].SearchDatastoreSubFolders_Task(search_params)
+            search_task.wait_for_completion
+
+            ds.delete_virtual_disk(img_path)
+            img_dir = File.dirname(img_path)
+            ds.rm_directory(img_dir) if ds.dir_empty?(img_dir)
+        rescue Exception => e
+            if !e.message.start_with?('FileNotFound')
+                raise e.message # Ignore FileNotFound
+            end
+        end
+    end
 end # class Datastore
 
 class DsImporter < VCenterDriver::VcImporter
