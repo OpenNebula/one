@@ -409,10 +409,34 @@ void  LifeCycleManager::shutdown_action(const LCMAction& la, bool hard)
 {
     int vid = la.vm_id();
     VirtualMachine * vm = vmpool->get(vid);
+    VirtualMachineTemplate quota_tmpl;
+    string error;
 
     if ( vm == 0 )
     {
         return;
+    }
+
+    int uid = vm->get_uid();
+    int gid = vm->get_gid();
+
+    std::string memory, cpu;
+
+    vm->get_template_attribute("MEMORY", memory);
+    vm->get_template_attribute("CPU", cpu);
+
+    if ( (vm->get_state() == VirtualMachine::SUSPENDED) ||
+        (vm->get_state() == VirtualMachine::POWEROFF) ||
+        (vm->get_state() == VirtualMachine::STOPPED) ||
+        (vm->get_state() == VirtualMachine::UNDEPLOYED))
+    {
+        quota_tmpl.add("RUNNING_MEMORY", memory);
+        quota_tmpl.add("RUNNING_CPU", cpu);
+        quota_tmpl.add("RUNNING_VMS", 1);
+
+        quota_tmpl.add("MEMORY", 0);
+        quota_tmpl.add("CPU", 0);
+        quota_tmpl.add("VMS", 0);
     }
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
@@ -452,6 +476,8 @@ void  LifeCycleManager::shutdown_action(const LCMAction& la, bool hard)
         vm->set_state(VirtualMachine::ACTIVE);
         vm->set_state(VirtualMachine::EPILOG);
 
+        Quotas::vm_check(uid, gid, &quota_tmpl, error);
+
         vm->set_action(History::TERMINATE_ACTION, la.uid(), la.gid(),
                     la.req_id());
 
@@ -470,6 +496,8 @@ void  LifeCycleManager::shutdown_action(const LCMAction& la, bool hard)
     {
         vm->set_state(VirtualMachine::ACTIVE);
         vm->set_state(VirtualMachine::EPILOG);
+
+        Quotas::vm_check(uid, gid, &quota_tmpl, error);
 
         vm->set_action(History::TERMINATE_ACTION, la.uid(), la.gid(),
                     la.req_id());
