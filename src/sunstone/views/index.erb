@@ -43,6 +43,7 @@
             'marketplace_url' : '<%= $conf[:marketplace_url] %>',
             'vnc_request_password' : <%= $conf[:vnc_request_password] || false %>,
             'vnc_proxy_port' : '<%= $vnc.proxy_port %>',
+            'vnc_client_port' : '<%= $conf[:vnc_client_port] %>',
             'max_upload_file_size' : <%= $conf[:max_upload_file_size] ? $conf[:max_upload_file_size] : "undefined" %>
         },
         'view' : view,
