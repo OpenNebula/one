@@ -305,13 +305,6 @@ class BackEndMySQL < OneDBBacKEnd
 
         begin
             @db = Sequel.connect(endpoint)
-
-            encoding = "utf8mb4"
-            @db.fetch("SELECT @@CHARACTER_SET_DATABASE;") do |row|
-                encoding = row[:@@CHARACTER_SET_DATABASE]
-            end
-
-            @db = Sequel.connect(endpoint + "?encoding=#{encoding}")
         rescue Exception => e
             raise "Error connecting to DB: " + e.message
         end
