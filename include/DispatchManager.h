@@ -22,6 +22,7 @@
 #include "VirtualMachinePool.h"
 #include "VirtualRouterPool.h"
 #include "ClusterPool.h"
+#include "UserPool.h"
 
 using namespace std;
 
@@ -493,9 +494,14 @@ private:
     HostPool *              hpool;
 
     /**
-     *  Pointer to the Virtual Machine Pool, to access hosts
+     *  Pointer to the Virtual Machine Pool, to access VMs
      */
     VirtualMachinePool *    vmpool;
+
+    /**
+     *  Pointer to the User Pool, to access user
+     */
+    UserPool *    upool;
 
     /**
      *  Pointer to the Cluster Pool
@@ -568,6 +574,15 @@ private:
     };
 
     void user_action(const ActionRequest& ar);
+
+    /**
+    * Fill a template only with the necessary attributes to update the quotas
+    *   @param vm with the attributes
+    *   @param template that will be filled
+    *   @param only_running true to not add CPU, MEMORY and VMS counters
+    */
+    void get_quota_template(VirtualMachine * vm, 
+            VirtualMachineTemplate& quota_tmpl, bool only_running);
 };
 
 #endif /*DISPATCH_MANAGER_H*/

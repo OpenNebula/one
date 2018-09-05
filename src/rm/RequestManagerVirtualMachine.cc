@@ -478,6 +478,8 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
     int    rc;
 
+    std::string memory, cpu;
+
     Nebula& nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
 
@@ -486,6 +488,8 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
     AuthRequest::Operation op;
     History::VMAction action;
+
+    VirtualMachineTemplate quota_tmpl;
 
     VirtualMachine * vm;
 
@@ -513,6 +517,21 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
+    vm->get_template_attribute("MEMORY", memory);
+    vm->get_template_attribute("CPU", cpu);
+
+    quota_tmpl.add("RUNNING_MEMORY", memory);
+    quota_tmpl.add("RUNNING_CPU", cpu);
+    quota_tmpl.add("RUNNING_VMS", 1);
+
+    quota_tmpl.add("VMS", 0);
+    quota_tmpl.add("MEMORY", 0);
+    quota_tmpl.add("CPU", 0);
+
+    RequestAttributes& att_aux(att);
+    att_aux.uid = vm->get_uid();
+    att_aux.gid = vm->get_gid();
+
     if (vm->is_imported() && !vm->is_imported_action_supported(action))
     {
         att.resp_msg = "Action \"" + action_st + "\" is not supported for "
@@ -536,6 +555,14 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     vm->unlock();
+
+     if ( action == History::RESUME_ACTION && 
+             !quota_authorization(&quota_tmpl, Quotas::VIRTUALMACHINE, att_aux, 
+                 att.resp_msg) )
+    {
+        failure_response(ACTION, att);
+        return;
+    }
 
     switch (action)
     {
@@ -922,7 +949,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     // ------------------------------------------------------------------------
-    // deploy the VM
+    // deploy the VM (import/deploy unlocks the vm object)
     // ------------------------------------------------------------------------
 
     if (vm->is_imported())
@@ -933,8 +960,6 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     {
         dm->deploy(vm, att);
     }
-
-    vm->unlock();
 
     success_response(id, att);
 }

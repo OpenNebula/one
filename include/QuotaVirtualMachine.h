@@ -22,13 +22,19 @@
 /**
  *  VM Quotas, defined as:
  *  VM  = [
- *        VMS               = <Max. number of VMs>
- *        MEMORY            = <Max. number of MB requested by VMs>
- *        CPU               = <Max. number of CPU units requested by VMs>
- *        SYSTEM_DISK_SIZE  = <Max. number of system disk MB>
- *        VMS_USED          = Current number of VMs
- *        MEMORY_USED       = Overall Memory requested
- *        CPU_USED          = Overall CPU requested
+ *        VMS                   = <Max. number of VMs>
+ *        RUNNING_VMS           = <Max. number of RUNNING VMS>
+ *        MEMORY                = <Max. number of MB requested by VMs>
+ *        RUNNING_MEMORY        = <Max. number of MB requested by RUNNING VMs>
+ *        CPU                   = <Max. number of CPU units requested by VMs>
+ *        RUNNING_CPU           = <Max. number of running CPU units requested by VMs>
+ *        SYSTEM_DISK_SIZE      = <Max. number of system disk MB>
+ *        VMS_USED              = Current number of VMs
+ *        RUNNING_VMS_USED      = Current number of running VMs
+ *        MEMORY_USED           = Overall Memory requested
+ *        RUNNING_MEMORY_USED   = Overall running Memory requested
+ *        CPU_USED              = Overall CPU requested
+ *        RUNNING_CPU_USED      = Overall running CPU requested
  *        SYSTEM_DISK_SIZE_USED = Overall system disk requested
  *    ]
  *
@@ -121,6 +127,7 @@ protected:
     static const char * VM_METRICS[];
 
     static const int NUM_VM_METRICS;
+
 };
 
 #endif /*QUOTA_VIRTUALMACHINE_H_*/
