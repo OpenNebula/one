@@ -235,7 +235,7 @@ define(function(require) {
 
   function _renameTabLinks(context) {
     $("#" + LINKS_CONTAINER_ID + " li", context).each(function(index) {
-      $("a", this).html(Locale.tr("Disk") + ' ' + index + " <i class='fas fa-times-circle remove-tab'></i>");
+      $("a", this).html(Locale.tr("DISK") + ' ' + index + " <i class='fas fa-times-circle remove-tab'></i>");
     })
 
     if(this.listener != undefined){
