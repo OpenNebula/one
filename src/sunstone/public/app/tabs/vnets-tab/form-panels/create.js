@@ -300,7 +300,7 @@ define(function(require) {
     // Append the new div containing the tab and add the tab to the list
     var a = $("<li class='tabs-title'>" +
         "<a id='ar_tab" + str_ar_tab_id + "' href='#" + str_ar_tab_id + "Tab'>" +
-        Locale.tr("Address Range") + " <i class='fas fa-times-circle remove-tab'></i></a></li>"
+        Locale.tr("AR") + " <i class='fas fa-times-circle remove-tab'></i></a></li>"
       ).appendTo($("ul#vnet_wizard_ar_tabs", context));
 
     $(html_tab_content).appendTo($("#vnet_wizard_ar_tabs_content", context));
