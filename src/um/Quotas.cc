@@ -292,6 +292,48 @@ void Quotas::quota_del(QuotaType type, int uid, int gid, Template * tmpl)
     }
 }
 
+void Quotas::quota_check(QuotaType type, int uid, int gid, Template * tmpl,
+        string& error)
+{
+    Nebula&     nd    = Nebula::instance();
+    UserPool *  upool = nd.get_upool();
+    GroupPool * gpool = nd.get_gpool();
+
+    if ( uid != UserPool::ONEADMIN_ID )
+    {
+        User * user = upool->get(uid);
+
+        if ( user != 0 )
+        {
+            DefaultQuotas defaultq = nd.get_default_user_quota();
+
+            if ( user->quota.quota_check(type, tmpl, defaultq, error) )
+            {
+                upool->update_quotas(user);
+            }
+
+            user->unlock();
+        }
+    }
+
+    if ( gid != GroupPool::ONEADMIN_ID )
+    {
+        Group * group = gpool->get(gid);
+
+        if ( group != 0 )
+        {
+            DefaultQuotas defaultq = nd.get_default_group_quota();
+
+            if ( group->quota.quota_check(type, tmpl, defaultq, error) )
+            {
+                gpool->update_quotas(group);
+            }
+
+            group->unlock();
+        }
+    }
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

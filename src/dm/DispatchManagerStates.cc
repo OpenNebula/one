@@ -16,12 +16,16 @@
 
 #include "DispatchManager.h"
 #include "NebulaLog.h"
-
+#include "Quotas.h"
 #include "Nebula.h"
 
 void  DispatchManager::suspend_success_action(int vid)
 {
     VirtualMachine *    vm;
+    VirtualMachineTemplate quota_tmpl;
+    string error_str;
+
+    int uid, gid;
 
     vm = vmpool->get(vid);
 
@@ -38,6 +42,8 @@ void  DispatchManager::suspend_success_action(int vid)
          vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED||
          vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED))
     {
+        get_quota_template(vm, quota_tmpl, true);
+
         vm->set_state(VirtualMachine::SUSPENDED);
 
         vm->set_state(VirtualMachine::LCM_INIT);
@@ -51,9 +57,17 @@ void  DispatchManager::suspend_success_action(int vid)
         oss << "suspend_success action received but VM " << vid
             << " not in ACTIVE state";
         NebulaLog::log("DiM",Log::ERROR,oss);
+
+        vm->unlock();
+        return;
     }
 
+    uid = vm->get_uid();
+    gid = vm->get_gid();
+
     vm->unlock();
+
+    Quotas::vm_del(uid, gid, &quota_tmpl);
 
     return;
 }
@@ -64,6 +78,10 @@ void  DispatchManager::suspend_success_action(int vid)
 void  DispatchManager::stop_success_action(int vid)
 {
     VirtualMachine *    vm;
+    VirtualMachineTemplate quota_tmpl;
+    string error_str;
+
+    int uid, gid;
 
     vm = vmpool->get(vid);
 
@@ -76,6 +94,8 @@ void  DispatchManager::stop_success_action(int vid)
         (vm->get_lcm_state() == VirtualMachine::EPILOG_STOP ||
          vm->get_lcm_state() == VirtualMachine::PROLOG_RESUME))
     {
+        get_quota_template(vm, quota_tmpl, true);
+
         vm->set_state(VirtualMachine::STOPPED);
 
         vm->set_state(VirtualMachine::LCM_INIT);
@@ -97,9 +117,16 @@ void  DispatchManager::stop_success_action(int vid)
         oss << "stop_success action received but VM " << vid
             << " not in ACTIVE state";
         NebulaLog::log("DiM",Log::ERROR,oss);
+        vm->unlock();
+        return;
     }
 
+    uid = vm->get_uid();
+    gid = vm->get_gid();
+
     vm->unlock();
+
+    Quotas::vm_del(uid, gid, &quota_tmpl);
 
     return;
 }
@@ -110,6 +137,10 @@ void  DispatchManager::stop_success_action(int vid)
 void  DispatchManager::undeploy_success_action(int vid)
 {
     VirtualMachine *    vm;
+    VirtualMachineTemplate quota_tmpl;
+    string error_str;
+
+    int uid, gid;
 
     vm = vmpool->get(vid);
 
@@ -123,6 +154,8 @@ void  DispatchManager::undeploy_success_action(int vid)
          vm->get_lcm_state() == VirtualMachine::DISK_RESIZE_UNDEPLOYED ||
          vm->get_lcm_state() == VirtualMachine::PROLOG_UNDEPLOY))
     {
+        get_quota_template(vm, quota_tmpl, true);
+
         vm->set_state(VirtualMachine::UNDEPLOYED);
 
         vm->set_state(VirtualMachine::LCM_INIT);
@@ -144,9 +177,18 @@ void  DispatchManager::undeploy_success_action(int vid)
         oss << "undeploy_success action received but VM " << vid
             << " not in ACTIVE state";
         NebulaLog::log("DiM",Log::ERROR,oss);
+
+        vm->unlock();
+        return;
     }
 
+    uid = vm->get_uid();
+    gid = vm->get_gid();
+
     vm->unlock();
+
+    Quotas::vm_del(uid, gid, &quota_tmpl);
+
 
     return;
 }
@@ -157,6 +199,10 @@ void  DispatchManager::undeploy_success_action(int vid)
 void  DispatchManager::poweroff_success_action(int vid)
 {
     VirtualMachine *    vm;
+    VirtualMachineTemplate quota_tmpl;
+    string error_str;
+
+    int uid, gid;
 
     vm = vmpool->get(vid);
 
@@ -176,6 +222,8 @@ void  DispatchManager::poweroff_success_action(int vid)
          vm->get_lcm_state() == VirtualMachine::DISK_RESIZE_POWEROFF ||
          vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE))
     {
+        get_quota_template(vm, quota_tmpl, true);
+
         vm->set_state(VirtualMachine::POWEROFF);
 
         vm->set_state(VirtualMachine::LCM_INIT);
@@ -189,9 +237,17 @@ void  DispatchManager::poweroff_success_action(int vid)
         oss << "poweroff_success action received but VM " << vid
             << " not in ACTIVE state";
         NebulaLog::log("DiM",Log::ERROR,oss);
+
+        vm->unlock();
+        return;
     }
 
+    uid = vm->get_uid();
+    gid = vm->get_gid();
+
     vm->unlock();
+
+    Quotas::vm_del(uid, gid, &quota_tmpl);
 
     return;
 }
@@ -202,6 +258,7 @@ void  DispatchManager::poweroff_success_action(int vid)
 void  DispatchManager::done_action(int vid)
 {
     VirtualMachine * vm;
+    string error_str;
 
     VirtualMachine::LcmState lcm_state;
     VirtualMachine::VmState  dm_state;

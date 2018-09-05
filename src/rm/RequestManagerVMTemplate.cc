@@ -120,6 +120,7 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
         RequestAttributes& att)
 {
     int rc;
+    std::string memory, cpu;
 
     ostringstream sid;
 
@@ -228,6 +229,14 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
         delete tmpl;
         return AUTHORIZATION;
     }
+
+    extended_tmpl.get("MEMORY", memory);
+    extended_tmpl.get("CPU", cpu);
+
+    extended_tmpl.add("RUNNING_MEMORY", memory);
+    extended_tmpl.add("RUNNING_CPU", cpu);
+    extended_tmpl.add("RUNNING_VMS", 1);
+    extended_tmpl.add("VMS", 1);
 
     if (quota_authorization(&extended_tmpl, Quotas::VIRTUALMACHINE, att,
                 att.resp_msg) == false)

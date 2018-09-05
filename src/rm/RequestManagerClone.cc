@@ -140,7 +140,6 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
     // -------------------------------------------------------------------------
 	ImageDelete     img_delete;
 	ImageClone      img_clone;
-    ImagePersistent img_persistent;
 
 	TemplateDelete tmpl_delete;
 
