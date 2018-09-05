@@ -257,6 +257,10 @@ while true; do
             export MAX_SIZE="$2"
             shift 2
             ;;
+        --convert)
+            export CONVERT="$2"
+            shift 2
+            ;;
         --)
             shift
             break
@@ -392,4 +396,41 @@ fi
 # Unarchive only if the destination is filesystem
 if [ "$TO" != "-" ]; then
     unarchive "$TO"
+fi
+
+# Function to know what is the original image type
+# Figure out what type of image it is
+function get_original_type
+{
+    command_get_type="qemu-img info "$TO""
+    output_get_type=$(eval "$command_get_type")
+
+    split=$(echo $output_get_type | tr ":" "\n")
+    count=0
+    format=""
+
+    for pal in $split
+    do
+        if [ "$count" == 4 ]; then
+            format=$pal
+            break
+        fi
+        count=$((count+1))
+    done
+    echo $format
+}
+
+# Convert the image to a given type into a tmp image with qemu-img
+if [ ! -z "$CONVERT" ]; then
+
+    tmpimage=$TO".tmp"
+
+    original_type=$(get_original_type)
+    convert_type=$CONVERT
+
+    convert="qemu-img convert -f "$original_type" -O "$convert_type" "$TO" "$tmpimage""
+
+    # Move tmp image to get the final image
+    mvcommand="mv "$tmpimage" "$TO""
+    eval "$mvcommand"
 fi
