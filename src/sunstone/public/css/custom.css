@@ -160,7 +160,7 @@ table .markrow,table .markrowchecked{
   text-align: center;
   border: 3px solid #f8f8f8;
 }
-meter{
+meter {
   height: .9rem !important;
 }
 .dashboard-div-titles{
@@ -182,13 +182,17 @@ meter{
 }
 
 .tabs.vertical .tabs-title.is-active {
-  border-left:  .1538461538rem solid #4DBBD3 !important;
-  border-top:  .1538461538rem solid #4DBBD3 !important;
-  border-bottom:  .1538461538rem solid #4DBBD3 !important;
+  border: .1538461538rem solid #4DBBD3;
   border-right:  0px;
+  border-radius: 15px 0px 0px 15px;
+  padding-left: 10px;
 }
 
 .tabs-content.vertical {
-  border-left: .1538461538rem solid #4DBBD3 !important;
+  border-left: .1538461538rem solid #4DBBD3;
   min-height: 200px;
+}
+
+.tabs-content.vertical.disks-container {
+  min-height: 400px;
 }
