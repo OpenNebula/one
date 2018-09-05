@@ -2241,11 +2241,9 @@ class VirtualMachine < Template
                 persistent = VCenterDriver::VIHelper.find_persistent_image_by_source(source, ipool)
 
                 if !persistent
-                    detach_disk_array << {
-                        :fileOperation => :destroy,
-                        :operation => :remove,
-                        :device    => d[:device]
-                    }
+                    op = {operation: :remove, device: d[:device]}
+                    op[:fileOperation] = :destroy unless d[:type] == "CDROM"
+                    detach_disk_array << op
                 end
 
                 # Remove reference opennebula.disk if exist
