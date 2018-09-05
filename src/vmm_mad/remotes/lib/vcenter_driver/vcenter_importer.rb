@@ -223,11 +223,11 @@ module VCenterDriver
         # @ return [Hash] the list of unimported resources
         #
         def retrieve_resources(opts = {})
+            VCenterDriver::VIHelper.clean_ref_hash
+
             list = get_list(opts)
 
             @defaults = opts[:config] if opts[:config]
-            VCenterDriver::VIHelper.clean_ref_hash
-
 
             return list
         end
