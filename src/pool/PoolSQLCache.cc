@@ -41,18 +41,12 @@ void PoolSQLCache::lock_line(int oid)
     {
         cl = new CacheLine(0);
 
-        cl->active++;
-
         cache.insert(make_pair(oid, cl));
-
-        unlock();
-
-        cl->lock();
-
-        return;
     }
-
-    cl = it->second;
+    else
+    {
+        cl = it->second;
+    }
 
     cl->active++;
 
@@ -65,9 +59,9 @@ void PoolSQLCache::lock_line(int oid)
         cl->object->lock();
 
         delete cl->object;
-    }
 
-    cl->object = 0;
+        cl->object = 0;
+    }
 
     return;
 }
