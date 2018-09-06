@@ -228,7 +228,10 @@
   <fieldset>
     <legend>{{tr "Security Groups"}}</legend>
     <div name="str_nic_tab_id" str_nic_tab_id="{{nicTabId}}">
-      {{{secgroupsTableSelectHTML}}}
+      {{{secgroupsTableSelectHTML}}}<br>
+      <span class="radius warning label">
+        <i class="fas fa-exclamation-triangle"/> {{tr "Security Groups belonging to the selected Virtual Network will be applied and cannot be unselected"}}
+      </span>
     </div>
   </fieldset>
   {{! Hidden inputs for white/black ports and icmp drop. These inputs are
