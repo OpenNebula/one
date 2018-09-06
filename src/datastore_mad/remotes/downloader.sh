@@ -224,7 +224,7 @@ function get_rbd_cmd
     echo "ssh '$(esc_sq "$DST_HOST")' \"$RBD export '$(esc_sq "$SOURCE")' -\""
 }
 
-TEMP=`getopt -o m:s:l:c:n -l md5:,sha1:,limit:,max-size:,nodecomp -- "$@"`
+TEMP=`getopt -o m:s:l:c:n -l md5:,sha1:,limit:,max-size:,convert:,nodecom -- "$@"`
 
 if [ $? != 0 ] ; then
     echo "Arguments error" >&2
@@ -428,9 +428,13 @@ if [ ! -z "$CONVERT" ]; then
     original_type=$(get_original_type)
     convert_type=$CONVERT
 
-    convert="qemu-img convert -f "$original_type" -O "$convert_type" "$TO" "$tmpimage""
+    # if the type of the image differs from the target type we need to convert the image
+    if [ "$original_type" != "$convert_type" ]; then
+        convert="qemu-img convert -f "$original_type" -O "$convert_type" "$TO" "$tmpimage""
+        eval "$convert"
 
-    # Move tmp image to get the final image
-    mvcommand="mv "$tmpimage" "$TO""
-    eval "$mvcommand"
+        # Move tmp image to get the final image
+        mvcommand="mv "$tmpimage" "$TO""
+        eval "$mvcommand"
+    fi
 fi
