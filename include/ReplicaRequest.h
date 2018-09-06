@@ -135,7 +135,7 @@ public:
 
         std::map<int, ReplicaRequest *>::iterator it = requests.find(rindex);
 
-        if ( it != requests.end() )
+        if ( it != requests.end() && it->second != 0 )
         {
             it->second->add_replica();
 
@@ -153,6 +153,20 @@ public:
     }
 
     /**
+     *  Allocated an empty replica request. It marks a writer thread will wait
+     *  on this request.
+     *    @param rindex of the request
+     */
+    void allocate(int rindex)
+    {
+        pthread_mutex_lock(&mutex);
+
+        requests.insert(std::make_pair(rindex, (ReplicaRequest*) 0));
+
+        pthread_mutex_unlock(&mutex);
+    }
+
+    /**
      * Set the replication request associated to this index. If there is no
      * previous request associated to the index it is created.
      *   @param rindex of the request
@@ -167,6 +181,28 @@ public:
         if ( it == requests.end() )
         {
             requests.insert(std::make_pair(rindex, rr));
+        }
+        else if ( it->second == 0 )
+        {
+            it->second = rr;
+        }
+
+        pthread_mutex_unlock(&mutex);
+    }
+
+    /**
+     *  Remove a replication request associated to this index
+     *   @param rindex of the request
+     */
+    void remove(int rindex)
+    {
+        pthread_mutex_lock(&mutex);
+
+        std::map<int, ReplicaRequest *>::iterator it = requests.find(rindex);
+
+        if ( it != requests.end() )
+        {
+            requests.erase(it);
         }
 
         pthread_mutex_unlock(&mutex);
@@ -198,6 +234,23 @@ public:
         requests.clear();
 
         pthread_mutex_unlock(&mutex);
+    }
+
+    /**
+     *  @return true if a replica request is set for this index
+     */
+    bool is_replicable(int rindex)
+    {
+        pthread_mutex_lock(&mutex);
+
+        std::map<int, ReplicaRequest *>::iterator it = requests.find(rindex);
+
+        bool rc = it == requests.end() || 
+            (it != requests.end() && it->second != 0);
+
+        pthread_mutex_unlock(&mutex);
+
+        return rc;
     }
 
 private:

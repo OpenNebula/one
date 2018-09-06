@@ -405,6 +405,12 @@ int LogDB::insert_log_record(unsigned int term, std::ostringstream& sql,
         return -1;
     }
 
+    //allocate a replication request if log record is going to be replicated
+    if ( timestamp == 0 )
+    {
+        Nebula::instance().get_raftm()->replicate_allocate(next_index);
+    }
+
     last_index = next_index;
 
     last_term  = term;
