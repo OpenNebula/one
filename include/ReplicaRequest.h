@@ -209,10 +209,13 @@ public:
     {
         bool rc = false;
 
-        if ( db_index > rindex )
-        {
-            return true;
-        }
+        pthread_mutex_lock(&mutex);
+
+        std::map<int, ReplicaRequest *>::iterator it = requests.find(rindex);
+
+        rc = db_index > rindex && it != requests.end();
+
+        pthread_mutex_unlock(&mutex);
 
         return rc;
     }
