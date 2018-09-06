@@ -895,7 +895,7 @@ define(function(require) {
 
           $('#selected_ids_row_' + that.dataTableId + ' span[row_id="' + row_id + '"]', section).remove();
 
-          that.selectOptions.unselect_callback();
+          that.selectOptions.unselect_callback(aData, that.selectOptions);
         } else {
           ids[row_id] = true;
 

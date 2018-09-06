@@ -20,13 +20,13 @@ define(function(require) {
    */
 
   var Config = require('sunstone-config');
-  var Locale = require('utils/locale');
-  var Tips = require('utils/tips');
+  var OpenNebulaNetwork = require('opennebula/network');
   var VNetsTable = require('tabs/vnets-tab/datatable');
   var SecgroupsTable = require('tabs/secgroups-tab/datatable');
   var WizardFields = require('utils/wizard-fields');
   var UniqueId = require('utils/unique-id');
   var CreateUtils = require('../utils');
+  var Notifier = require('utils/notifier');
 
   /*
     TEMPLATES
@@ -43,6 +43,7 @@ define(function(require) {
    */
 
   function NicTab(nicTabId) {
+    that = this;
     this.nicTabId = 'nicTab' + nicTabId + UniqueId.id();
 
     this.vnetsTable = new VNetsTable(this.nicTabId + 'Table', {'select': true});
@@ -50,7 +51,12 @@ define(function(require) {
     var secgroupSelectOptions = {
       'select': true,
       'selectOptions': {
-        "multiple_choice": true
+        "multiple_choice": true,
+        'unselect_callback': function(aData, options){
+          if (that.secGroups && that.secGroups.includes(aData[options.id_index])){
+            $("div[name='str_nic_tab_id'] table tbody tr td:contains('" + aData[options.name_index] + "')").click();
+          }
+        }
       }
     }
     this.secgroupsTable = new SecgroupsTable(this.nicTabId + 'SGTable', secgroupSelectOptions);
@@ -98,6 +104,18 @@ define(function(require) {
         'select_callback': function(aData, options) {
           // If the net is selected by Id, avoid overwriting it with name+uname
           if ($('#NETWORK_ID', context).val() != aData[options.id_index]) {
+            OpenNebulaNetwork.show({
+              data : {
+                id: aData[options.id_index]
+              },
+              timeout: true,
+              success: function (request, vn){
+                that.secGroups = vn["VNET"]["TEMPLATE"]["SECURITY_GROUPS"].split(",");
+                that.secgroupsTable.selectResourceTableSelect(
+                  { ids : that.secGroups });
+              },
+              error: Notifier.onError
+            });
             $('#NETWORK_ID', context).val("");
             $('#NETWORK', context).val(aData[options.name_index]);
             $('#NETWORK_UNAME', context).val(aData[options.uname_index]);
@@ -106,10 +124,10 @@ define(function(require) {
         }
       }
     });
-    that.vnetsTable.refreshResourceTableSelect();
 
     that.secgroupsTable.initialize();
     that.secgroupsTable.refreshResourceTableSelect();
+    that.vnetsTable.refreshResourceTableSelect();
 
     $("input.pci-type-nic", context).on("change", function(){
       var tbody = $(".pci-row tbody", context);
