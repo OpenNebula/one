@@ -374,7 +374,14 @@ int Quota::update_limits(
 
         if (limit == "")
         {
-            limit_f = DEFAULT;
+            if ( is_default )
+            {
+                limit_f = UNLIMITED;
+            }
+            else
+            {
+                limit_f = DEFAULT;
+            }
         }
 
             // Negative. Default & unlimited allowed
@@ -413,8 +420,14 @@ VectorAttribute * Quota::new_quota(VectorAttribute * va)
 
         if (limit == "")
         {
-            limit_f = DEFAULT;
-            limit = DEFAULT_STR;
+            if ( is_default )
+            {
+                limit_f = UNLIMITED;
+            }
+            else
+            {
+                limit_f = DEFAULT;
+            }
         }
             // Negative. Default & unlimited allowed
         if (( !is_default && limit_f < 0 && limit_f != UNLIMITED && limit_f != DEFAULT )
