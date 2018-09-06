@@ -428,7 +428,7 @@ if [ ! -z "$CONVERT" ]; then
     original_type=$(get_original_type)
     convert_type=$CONVERT
 
-    # if not equals, we have to convert the imagen but not if they are equals.
+    # if the type of the image differs from the target type we need to convert the image
     if [ "$original_type" != "$convert_type" ]; then
         convert="qemu-img convert -f "$original_type" -O "$convert_type" "$TO" "$tmpimage""
         eval "$convert"
