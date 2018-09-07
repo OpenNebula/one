@@ -581,6 +581,8 @@ void RaftManager::replicate_log(ReplicaRequest * request)
     {
         request->notify();
 
+        requests.remove(request->index());
+
         pthread_mutex_unlock(&mutex);
         return;
     }
@@ -592,9 +594,15 @@ void RaftManager::replicate_log(ReplicaRequest * request)
 
     for (it = next.begin(); it != next.end() && to_commit > 0; ++it)
     {
-        if ( request->index() < (int) it->second )
+        int rindex = request->index();
+
+        if ( rindex < (int) it->second )
         {
             to_commit--;
+        }
+		 else if ( rindex == (int) it->second )
+		 {
+            replica_manager.replicate(it->first);
         }
     }
 
@@ -606,17 +614,14 @@ void RaftManager::replicate_log(ReplicaRequest * request)
         request->timeout = false;
 
         commit = request->index();
+
+        requests.remove(request->index());
     }
     else
     {
         request->to_commit(to_commit);
 
         requests.set(request->index(), request);
-    }
-
-    if ( num_servers > 1 )
-    {
-        replica_manager.replicate();
     }
 
     pthread_mutex_unlock(&mutex);
@@ -660,7 +665,8 @@ void RaftManager::replicate_success(int follower_id)
         commit = replicated_index;
     }
         
-    if ( requests.need_replica(db_lindex, replicated_index) && state == LEADER )
+    if ( db_lindex > replicated_index && requests.is_set(replicated_index + 1)
+            && state == LEADER )
     {
         replica_manager.replicate(follower_id);
     }
