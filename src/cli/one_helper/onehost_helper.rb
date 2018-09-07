@@ -296,6 +296,9 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
             # Skip this host from remote syncing if it's OFFLINE
             next if Host::HOST_STATES[state.to_i] == 'OFFLINE'
 
+            # Skip this host if it is a vCenter cluster
+            next if vm_mad == "vcenter"
+
             host_version=host['TEMPLATE/VERSION']
 
             begin
