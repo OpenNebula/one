@@ -92,7 +92,6 @@ if VCenterDriver::FileHelper.is_remote_or_needs_unpack?(img_path)
     downsh_args << "--sha1 #{sha1} " if sha1 && !sha1.empty?
     downsh_args << "--nodecomp " if nodecomp && !nodecomp.empty?
     downsh_args << "--limit #{limit_bw} " if limit_bw && !limit_bw.empty?
-    downsh_args << "--convert vmdk"
 
     downloader = "#{File.dirname(__FILE__)}/../downloader.sh #{downsh_args}"
 
