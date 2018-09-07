@@ -239,13 +239,14 @@ public:
     /**
      *  @return true if a replica request is set for this index
      */
-    bool is_set(int rindex)
+    bool is_replicable(int rindex)
     {
         pthread_mutex_lock(&mutex);
 
         std::map<int, ReplicaRequest *>::iterator it = requests.find(rindex);
 
-        bool rc = it != requests.end() && it->second != 0;
+        bool rc = it == requests.end() || 
+            (it != requests.end() && it->second != 0);
 
         pthread_mutex_unlock(&mutex);
 

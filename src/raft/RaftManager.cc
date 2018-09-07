@@ -600,8 +600,8 @@ void RaftManager::replicate_log(ReplicaRequest * request)
         {
             to_commit--;
         }
-        else
-        {
+		 else if ( rindex == (int) it->second )
+		 {
             replica_manager.replicate(it->first);
         }
     }
@@ -665,8 +665,8 @@ void RaftManager::replicate_success(int follower_id)
         commit = replicated_index;
     }
         
-    if ( db_lindex > replicated_index && requests.is_set(replicated_index + 1)
-            && state == LEADER )
+    if (db_lindex > replicated_index && state == LEADER &&
+            requests.is_replicable(replicated_index + 1))
     {
         replica_manager.replicate(follower_id);
     }
