@@ -37,6 +37,8 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
     int old_uid;
     int old_gid;
 
+    std::string memory, cpu;
+
     PoolObjectSQL *   object;
 
     object = pool->get(oid);
@@ -65,6 +67,20 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
         }
 
         Template * tmpl = vm->clone_template();
+
+        if ( (vm->get_state() == VirtualMachine::ACTIVE) ||
+         (vm->get_state() == VirtualMachine::PENDING) ||
+         (vm->get_state() == VirtualMachine::CLONING) ||
+         (vm->get_state() == VirtualMachine::CLONING_FAILURE) ||
+         (vm->get_state() == VirtualMachine::HOLD) )
+        {
+            vm->get_template_attribute("MEMORY", memory);
+            vm->get_template_attribute("CPU", cpu);
+
+            tmpl->add("RUNNING_MEMORY", memory);
+            tmpl->add("RUNNING_CPU", cpu);
+            tmpl->add("RUNNING_VMS", 1);
+        }
 
         quota_map.insert(make_pair(Quotas::VIRTUALMACHINE, tmpl));
 
