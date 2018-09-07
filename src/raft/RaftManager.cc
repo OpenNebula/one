@@ -600,8 +600,8 @@ void RaftManager::replicate_log(ReplicaRequest * request)
         {
             to_commit--;
         }
-		 else if ( rindex == (int) it->second )
-		 {
+        else
+        {
             replica_manager.replicate(it->first);
         }
     }
