@@ -46,6 +46,7 @@ module KVM
     # Constants for KVM operations
     CONF={
         :dominfo    => 'virsh --connect LIBVIRT_URI --readonly dominfo',
+        :domstate   => 'virsh --connect LIBVIRT_URI --readonly domstate',
         :list       => 'virsh --connect LIBVIRT_URI --readonly list',
         :dumpxml    => 'virsh --connect LIBVIRT_URI --readonly dumpxml',
         :domifstat  => 'virsh --connect LIBVIRT_URI --readonly domifstat',
@@ -74,6 +75,7 @@ module KVM
 
         vm[:name] = one_vm
         vm[:pid]  = psinfo[1]
+        vm[:reason] = dom_state_reason(one_vm)
 
         cpu = get_cpu_info({one_vm => vm})
 
@@ -82,7 +84,7 @@ module KVM
 
         values=Hash.new
 
-        values[:state]  = get_state(dominfo['State'])
+        values[:state]  = get_state(dominfo['State'], vm[:reason])
         values[:cpu]    = cpu[vm[:pid]] if cpu[vm[:pid]]
         values[:memory] = [resident_mem, max_mem].max
 
@@ -124,6 +126,7 @@ module KVM
                 info[:psinfo]  = psinfo
                 info[:name]    = vm
                 info[:pid]     = psinfo[1]
+                info[:reason]  = dom_state_reason(vm)
 
                 vms[vm]=info
             end
@@ -140,13 +143,11 @@ module KVM
 
             values = Hash.new
 
-            values[:state]  = get_state(dominfo['State'])
+            values[:state]  = get_state(dominfo['State'], vm[:reason])
             values[:cpu]    = cpu[vm[:pid]] if cpu[vm[:pid]]
             values[:memory] = [resident_mem, max_mem].max
 
             xml = dump_xml(name)
-
-            values.merge!(get_interface_statistics(name, xml))
 
             if !name.match(/^one-\d+/)
                 uuid, template = xml_to_one(xml)
@@ -155,7 +156,10 @@ module KVM
                 vm[:name] = uuid
             end
 
-            values.merge!(get_diskio_statistics(name, xml))
+            if (values[:state] == 'a') && (vm[:reason] != 'migrating')
+                values.merge!(get_interface_statistics(name, xml))
+                values.merge!(get_diskio_statistics(name, xml))
+            end
 
             vms_info[vm[:name]] = values
         end
@@ -274,6 +278,19 @@ module KVM
         hash
     end
 
+    # Get reason for KVM domain status
+    #   @param the ID of the VM as defined in libvirt
+    #   @return [String] with reason (e.g. user, unknown, saving, migrating)
+    # Example execution of domstate
+    #   paused (user)
+    def self.dom_state_reason(vmid)
+        text = `#{virsh(:domstate)} #{vmid} --reason 2>/dev/null`
+        return nil if $?.exitstatus != 0
+
+        text =~ /^[^ ]+ \(([^)]+)\)/
+        return $1 || 'missing'
+    end
+
     # Get dumpxml output of a VM
     #   @param the ID of the VM as defined in libvirt
     #   @return [String] xml output of virsh dumpxml
@@ -377,17 +394,26 @@ module KVM
     #
     # Libvirt states for the guest are
     #  * 'running' state refers to guests which are currently active on a CPU.
-    #  * 'blocked' not running or runnable (waiting on I/O or in a sleep mode).
+    #  * 'idle' ('blocked') not running or runnable (waiting on I/O or in a sleep mode).
     #  * 'paused' after virsh suspend.
-    #  * 'shutdown' guest in the process of shutting down.
+    #  * 'in shutdown' ('shutdown') guest in the process of shutting down.
     #  * 'dying' the domain has not completely shutdown or crashed.
     #  * 'crashed' guests have failed while running and are no longer running.
-    #
-    def self.get_state(state)
+    #  * 'pmsuspended' suspended by guest power management (e.g. S3 state)
+    def self.get_state(state, reason='missing')
         case state.gsub('-', '')
-            when *%w{running blocked shutdown dying idle paused}
+            when 'running', 'idle', 'blocked', 'in shutdown', 'shutdown', 'dying'
                 'a'
-            when 'crashed'
+            when 'paused'
+                case reason
+                    when 'migrating'
+                        'a'
+                    when 'I/O error', 'watchdog', 'crashed', 'post-copy failed', 'user', 'unknown'
+                        'e'
+                    else
+                        'a'
+                end
+            when 'crashed', 'pmsuspended'
                 'e'
             else
                 '-'
