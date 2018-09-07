@@ -224,7 +224,7 @@ function get_rbd_cmd
     echo "ssh '$(esc_sq "$DST_HOST")' \"$RBD export '$(esc_sq "$SOURCE")' -\""
 }
 
-TEMP=`getopt -o m:s:l:c:n -l md5:,sha1:,limit:,max-size:,convert:,nodecom -- "$@"`
+TEMP=`getopt -o m:s:l:c:n -l md5:,sha1:,limit:,max-size:,convert:,nodecomp -- "$@"`
 
 if [ $? != 0 ] ; then
     echo "Arguments error" >&2
