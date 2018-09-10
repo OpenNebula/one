@@ -72,10 +72,11 @@ end
 one_vnet.lock(1)
 esx_rollback = [] #Track hosts that require a rollback
 managed = one_vnet["TEMPLATE/OPENNEBULA_MANAGED"] != "NO"
+imported = one_vnet["TEMPLATE/VCENTER_IMPORTED"]
 
 begin
     # Step 0. Only execute for vcenter network driver && managed by one
-    if one_vnet["VN_MAD"] == "vcenter" && managed
+    if one_vnet["VN_MAD"] == "vcenter" && managed && imported.nil?
         wait_vlanid(one_vnet) if one_vnet["VLAN_ID_AUTOMATIC"] == '1'
         # Step 1. Extract vnet settings
         host_id =  one_vnet["TEMPLATE/VCENTER_ONE_HOST_ID"]
