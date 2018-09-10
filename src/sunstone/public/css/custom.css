@@ -193,7 +193,7 @@ meter {
   border: .1538461538rem solid #4DBBD3;
   border-right:  0px;
   border-radius: 15px 0px 0px 15px;
-  padding-left: 10px;
+  padding-left: 15px;
 }
 
 .tabs-content.vertical {
