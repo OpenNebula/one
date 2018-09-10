@@ -734,7 +734,7 @@ bool Template::check_restricted(string& ra, const Template* base,
             restricted_values(rit->first, rit->second, this, rvalues);
             restricted_values(rit->first, rit->second, base, rvalues_base);
 
-            if ( rvalues != rvalues_base )
+            if ( rvalues != rvalues_base && !rvalues.empty())
             {
                 ra = rit->first;
                 return true;
