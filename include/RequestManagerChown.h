@@ -253,11 +253,24 @@ public:
                             "Changes ownership of a virtual router")
     {
         Nebula& nd  = Nebula::instance();
-        pool        = nd.get_vrouterpool();
-        auth_object = PoolObjectSQL::VROUTER;
+        vrpool      = nd.get_vrouterpool();
+        pool        = nd.get_vmpool();
+        auth_object = PoolObjectSQL::VM;
     };
 
     ~VirtualRouterChown(){};
+
+    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
+                                 RequestAttributes& att);
+
+    int check_name_unique(int oid, int noid, RequestAttributes& att)
+    {
+        return 0;
+    };
+
+private:
+
+    VirtualRouterPool  * vrpool;
 };
 
 /* ------------------------------------------------------------------------- */
