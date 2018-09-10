@@ -116,7 +116,9 @@ fieldset legend {
 }
 
 .labels-tree li .labeltree-line{
-	color:#8a8a8a;
+  color:#8a8a8a;
+  display: inline-block;
+  padding: 0 0 0 .5rem;
 }
 .labels-tree li .labeltree-line:hover{
 	color:#0a0a0a;
@@ -127,6 +129,12 @@ fieldset legend {
 }
 .labels-tree .tree-toggle:hover{
 	color:#0a0a0a;
+}
+#menu .labels-tree{
+  padding: .5rem 0;
+}
+.labels-tree li{
+  padding:  .1rem 0;
 }
 
 /*----TABLE----*/
@@ -185,7 +193,7 @@ meter {
   border: .1538461538rem solid #4DBBD3;
   border-right:  0px;
   border-radius: 15px 0px 0px 15px;
-  padding-left: 10px;
+  padding-left: 15px;
 }
 
 .tabs-content.vertical {
