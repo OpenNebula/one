@@ -566,3 +566,162 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     return;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualRouterChown::request_execute(xmlrpc_c::paramList const& paramList,
+                                          RequestAttributes& att)
+{
+    int oid  = xmlrpc_c::value_int(paramList.getInt(1));
+    int noid = xmlrpc_c::value_int(paramList.getInt(2));
+    int ngid = xmlrpc_c::value_int(paramList.getInt(3));
+
+    int rc;
+
+    string oname;
+    string nuname;
+    string ngname;
+
+    PoolObjectAuth  operms;
+    PoolObjectAuth  nuperms;
+    PoolObjectAuth  ngperms;
+
+    VirtualRouter * vrouter;
+    PoolObjectSQL * vm;
+
+    set<int>::const_iterator  it;
+    set<int> vms;
+
+    bool error_vm_quotas = false;
+
+    // ------------- Check new user and group id's ---------------------
+
+    if ( noid > -1  )
+    {
+        rc = get_info(upool,noid,PoolObjectSQL::USER,att,nuperms,nuname,true);
+
+        if ( rc == -1 )
+        {
+            return;
+        }
+    }
+
+    if ( ngid > -1  )
+    {
+        rc = get_info(gpool,ngid,PoolObjectSQL::GROUP,att,ngperms,ngname,true);
+
+        if ( rc == -1 )
+        {
+            return;
+        }
+    }
+
+    // ------------- Set authorization request for non-oneadmin's --------------
+
+    AuthRequest ar(att.uid, att.group_ids);
+
+    rc = get_info(vrpool, oid, PoolObjectSQL::VROUTER, att, operms, oname, true);
+
+    if ( rc == -1 )
+    {
+        return;
+    }
+
+    ar.add_auth(auth_op, operms); // MANAGE OBJECT
+
+    if ( noid > -1  )
+    {
+        ar.add_auth(AuthRequest::MANAGE, nuperms); // MANAGE USER
+    }
+
+    if ( ngid > -1  )
+    {
+        ar.add_auth(AuthRequest::USE, ngperms); // USE GROUP
+    }
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
+
+        return;
+    }
+
+    // --------------- Check name uniqueness -----------------------------------
+
+    if ( noid != -1 )
+    {
+        if ( check_name_unique(oid, noid, att) != 0 )
+        {
+            return;
+        }
+    }
+
+    vrouter = vrpool->get(oid);
+
+    if ( vrouter == 0 )
+    {
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
+        return;
+    }
+
+    if ( noid != -1 )
+    {
+        vrouter->set_user(noid, nuname);
+    }
+
+    if ( ngid != -1 )
+    {
+        vrouter->set_group(ngid, ngname);
+    }
+
+    vrpool->update(vrouter);
+
+    vms = vrouter->get_vms();
+
+    vrouter->unlock();
+
+    // --------------- Update the object and check quotas ----------------------
+
+    for (it = vms.begin(); it != vms.end(); it++)
+    {
+        int vm_id = *it;
+
+        vm = get_and_quota(vm_id, noid, ngid, att);
+
+        if ( vm == 0 )
+        {
+            error_vm_quotas = true;
+
+            continue;
+        }
+
+        if ( noid != -1 )
+        {
+            vm->set_user(noid, nuname);
+        }
+
+        if ( ngid != -1 )
+        {
+            vm->set_group(ngid, ngname);
+        }
+
+        pool->update(vm);
+
+        vm->unlock();
+    }
+
+    if ( error_vm_quotas )
+    {
+        failure_response(INTERNAL, att);
+    }
+    else
+    {
+        success_response(oid, att);
+    }
+
+    return;
+}
+
