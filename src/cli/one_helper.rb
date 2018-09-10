@@ -541,7 +541,10 @@ EOT
         def stop_pager(lpid)
             $stdout.close
 
-            Process.wait(lpid)
+            begin
+                Process.wait(lpid)
+            rescue Errno::ECHILD
+            end
         end
 
         def print_page(pool, options)
@@ -599,6 +602,9 @@ EOT
 
                 if elements < size
                     return 0
+                elsif !pool.is_paginated?
+                    stop_pager(ppid)
+                    return 0
                 end
 
                 # ------- Rest of the pages in the pool, piped to pager --------
@@ -612,6 +618,12 @@ EOT
                     return -1, rc.message if OpenNebula.is_error?(rc)
 
                     current += size
+
+                    begin
+                        Process.waitpid(ppid, Process::WNOHANG)
+                    rescue Errno::ECHILD
+                        break
+                    end
 
                     elements, hash = print_page(pool, options)
 
