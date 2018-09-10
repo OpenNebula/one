@@ -264,3 +264,85 @@ Request::ErrorCode TemplateChmod::chmod(
 	return SUCCESS;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualRouterChmod::request_execute(xmlrpc_c::paramList const& paramList,
+                                          RequestAttributes& att)
+{
+    int oid     = xmlrpc_c::value_int(paramList.getInt(1));
+
+    int owner_u = xmlrpc_c::value_int(paramList.getInt(2));
+    int owner_m = xmlrpc_c::value_int(paramList.getInt(3));
+    int owner_a = xmlrpc_c::value_int(paramList.getInt(4));
+
+    int group_u = xmlrpc_c::value_int(paramList.getInt(5));
+    int group_m = xmlrpc_c::value_int(paramList.getInt(6));
+    int group_a = xmlrpc_c::value_int(paramList.getInt(7));
+
+    int other_u = xmlrpc_c::value_int(paramList.getInt(8));
+    int other_m = xmlrpc_c::value_int(paramList.getInt(9));
+    int other_a = xmlrpc_c::value_int(paramList.getInt(10));
+
+    bool recursive = false;
+
+    VirtualRouter * vrouter;
+
+    set<int>::const_iterator  it;
+    set<int> vms;
+
+    if (paramList.size() > 11)
+    {
+        recursive = xmlrpc_c::value_boolean(paramList.getBoolean(11));
+    }
+
+    vrouter = vrpool->get(oid);
+
+    if ( vrouter == 0 )
+    {
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
+    }
+
+    vms = vrouter->get_vms();
+
+    vrouter->unlock();
+
+    ErrorCode ec = chmod(vrpool, oid,
+                        owner_u, owner_m, owner_a,
+                        group_u, group_m, group_a,
+                        other_u, other_m, other_a,
+                        recursive, att);
+
+    if ( ec != SUCCESS )
+    {
+        failure_response(ec, att);
+        return;
+    }
+
+    for (it = vms.begin(); it != vms.end(); it++)
+    {
+        int vm_id = *it;
+
+        ErrorCode ec_aux = chmod(pool, vm_id,
+                        owner_u, owner_m, owner_a,
+                        group_u, group_m, group_a,
+                        other_u, other_m, other_a,
+                        recursive, att);
+
+        if ( ec_aux != SUCCESS )
+        {
+            ec = ec_aux;
+        }
+    }
+
+    if ( ec == SUCCESS )
+    {
+        success_response(oid, att);
+    }
+    else
+    {
+        failure_response(ec, att);
+    }
+}
+
