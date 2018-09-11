@@ -34,6 +34,11 @@ Layout/EmptyLinesAroundClassBody:
 
 Layout/EmptyLinesAroundModuleBody:
     EnforcedStyle: empty_lines
+
+# it's mandatory to left a empty line before guard clause
+Layout/EmptyLineAfterGuardClause:
+    Enabled: true
+
 ###
 
 #######
@@ -67,10 +72,6 @@ Style/EmptyElse:
 # use for instead of each
 Style/For:
     EnforcedStyle: each
-
-# it's mandatory to left a empty line before guard clause
-Style/EmptyLineAfterGuardClause:
-    Enabled: true
 
 # declare key, value pairs with =>
 Style/HashSyntax:
