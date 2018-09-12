@@ -402,6 +402,12 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     object->unlock();
 
+    if ( auth_object != PoolObjectSQL::VROUTER )
+    {
+        success_response(oid, att);
+        return;
+    }
+
     // --------------- Recursive change associated VM objects ------------------
     // IMPORTANT!: pool/auth_object members are redirected to the VM pool to 
     // chown VMs
