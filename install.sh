@@ -1972,7 +1972,7 @@ MAN_FILES="share/man/oneacct.1.gz \
 # Docs Files
 #-----------------------------------------------------------------------------
 
-DOCS_FILES="LICENSE NOTICE README.md"
+DOCS_FILES="LICENSE LICENSE.addons NOTICE README.md"
 
 #-----------------------------------------------------------------------------
 # Ruby VENDOR files
