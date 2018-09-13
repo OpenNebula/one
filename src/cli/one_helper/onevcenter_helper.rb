@@ -120,6 +120,8 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
 	# @param type [String] String representing the vCenter resource
     #
     def set_object(type)
+        raise "you need to use -o option!" unless type
+
         type = type.downcase
         if (type == "datastores")
             @vobject = VOBJECT::DATASTORE
