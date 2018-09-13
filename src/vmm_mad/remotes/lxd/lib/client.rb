@@ -59,6 +59,7 @@ module LXDRequests
   def patch(uri, data)
     uri = fix_uri(uri) # Fix monkeypatch not working
     get_response(Net::HTTP::Patch.new(uri), data)
+  end
 end
 
 # LXD API Client
