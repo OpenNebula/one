@@ -51,7 +51,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :short => "-o object",
         :large => "--object object ",
         :format => String,
-        :description => "vCenter object"
+        :description => "vCenter object: [datastores, templates, networks, datastores, images]"
     }
 
     HOST = {
@@ -128,8 +128,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ############################################################################
     list_desc = <<-EOT.unindent
         Show a list with unimported vCenter objects
-    EOT
 
+        Examples:
+           - listing available templates:
+
+             onevcenter list -o templates -h <host_id>
+
+           - listing available images:
+
+             onevcenter list -o datastores -h <host_id> -d <ds-img_id>
+    EOT
     command :list, list_desc, :options=>[ OBJECT, HOST, DATASTORE, VCENTER, USER, PASS ] do
         begin
             args = helper.parse_opts(options)
@@ -148,6 +156,19 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     import_desc = <<-EOT.unindent
         Import the the desired vCenter object
+
+        Examples:
+           - importing first datastore
+
+             onevcenter list -o templates -h <host_id>
+
+           - importing 2 concrete templates:
+
+             onevcenter import "vm-1252, vm-553, vm-1248" -o templates -h <host_id>
+
+           - importing a image range:
+
+             onevcenter import 0..10 -o images -h <host_id> -d <ds-img_id>
     EOT
 
     command :import, import_desc, [:oid, nil], :options=>[ OBJECT, HOST, DATASTORE ] do
@@ -194,6 +215,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ############################################################################
     host_desc = <<-EOT.unindent
         Import vCenter clusters as OpenNebula hosts
+
+        Example:
+           - Get available clusters:
+
+             onevcenter hosts --vcenter <vcenter> --vuser <vcenter_user> --vpass <password>
     EOT
     command :hosts, host_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
         con_ops = helper.connection_options("Hosts", options)
