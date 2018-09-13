@@ -1,0 +1,7 @@
+#!/usr/bin/ruby
+
+require 'net/http'
+require 'socket'
+require 'json'
+
+sock = Net::BufferedIO.new(UNIXSocket.new('/var/lib/lxd/unix.socket'))
