@@ -65,10 +65,10 @@ public:
     };
 
     enum BridgeType {
-        LINUX               = 0,
-        OPENVSWITCH         = 1,
-        VCENTER_PORT_GROUPS = 2,
-        UNDEFINED           = 3
+        UNDEFINED           = 0,
+        LINUX               = 1,
+        OPENVSWITCH         = 2,
+        VCENTER_PORT_GROUPS = 3
     };
 
     static string driver_to_str(VirtualNetworkDriver ob)
@@ -136,10 +136,14 @@ public:
     {
         switch (ob)
         {
-            case LINUX:               return "linux";
-            case OPENVSWITCH:         return "openvswitch";
-            case VCENTER_PORT_GROUPS: return "vcenter_port_groups";
-            default:                   return "";
+            case UNDEFINED:
+            case LINUX:
+                return "linux";
+            case OPENVSWITCH:
+                return "openvswitch";
+            case VCENTER_PORT_GROUPS:
+                return "vcenter_port_groups";
+                break;
         }
     };
 
@@ -696,7 +700,7 @@ private:
      *
      *    @param br_type the bridge type associated to the nic
      */
-    void parse_bridge_type(const string& br_type);
+    int parse_bridge_type(const string &vn_mad, string &error_str);
 
     // *************************************************************************
     // DataBase implementation (Private)

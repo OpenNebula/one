@@ -28,6 +28,8 @@
 
 #include "NebulaUtil.h"
 
+#include "Nebula.h"
+
 #define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
 
 /* ************************************************************************** */
@@ -298,6 +300,16 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     }
 
     add_template_attribute("BRIDGE", bridge);
+
+    erase_template_attribute("BRIDGE_TYPE", bridge_type);
+
+    rc = parse_bridge_type(vn_mad, error_str);
+
+    if (rc != 0){
+        goto error_common;
+    }
+
+    add_template_attribute("BRIDGE_TYPE", bridge_type);
 
     //--------------------------------------------------------------------------
     // Get the Address Ranges
@@ -788,9 +800,10 @@ int VirtualNetwork::nic_attribute(
     nic->replace("CLUSTER_ID", one_util::join(cluster_ids, ','));
 
 
-    parse_bridge_type(nic->vector_value("BRIDGE_TYPE"));
-
-    nic->replace("BRIDGE_TYPE", bridge_type);
+    if (!bridge_type.empty())
+    {
+        nic->replace("BRIDGE_TYPE", bridge_type);
+    }
 
     for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)
     {
@@ -1320,26 +1333,41 @@ void VirtualNetwork::get_security_groups(set<int> & sgs)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualNetwork::parse_bridge_type(const string& br_type){
+int VirtualNetwork::parse_bridge_type(const string &vn_mad, string &error_str)
+{
+    const VectorAttribute* vatt;
+    std::string br_type;
 
-    if (!(str_to_bridge_type(br_type) == UNDEFINED))
+    ostringstream oss;
+
+    if ( Nebula::instance().get_vn_conf_attribute(vn_mad, vatt) != 0 )
     {
+        goto error_conf;
+    }
+
+    if ( vatt->vector_value("BRIDGE_TYPE", br_type) == -1)
+    {
+        goto error;
+    }
+    else {
+        if (str_to_bridge_type(br_type) == UNDEFINED)
+        {
+            goto error;
+        }
         bridge_type = br_type;
     }
-    else if (str_to_bridge_type(bridge_type) == UNDEFINED)
-    {
-        VirtualNetworkDriver vn_mad_driver = str_to_driver(vn_mad);
 
-        if (vn_mad_driver == OVSWITCH || vn_mad_driver == OVSWITCH_VXLAN)
-        {
-            bridge_type = bridge_type_to_str(OPENVSWITCH);
-        }
-        else if (vn_mad_driver == VCENTER)
-        {
-            bridge_type = bridge_type_to_str(VCENTER_PORT_GROUPS);
-        }
-        else {
-            bridge_type = bridge_type_to_str(LINUX);
-        }
-    }
+    return 0;
+
+error_conf:
+    oss << "VN_MAD named \"" << vn_mad << "\" is not defined in oned.conf";
+    goto error_common;
+
+error:
+    oss << "Attribute bridge type in VN_MAD_CONF for "
+        << vn_mad << " is missing or has wrong value in oned.conf";
+
+error_common:
+    error_str = oss.str();
+    return -1;
 }
