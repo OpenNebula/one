@@ -201,6 +201,34 @@ void OpenNebulaTemplate::set_multiple_conf_default()
     register_multiple_conf_default("AUTH_MAD_CONF");
 }
 
+/*
+#*******************************************************************************
+# Virtual Network Configuration
+#*******************************************************************************
+#dummy
+#802.1Q
+#ebtables
+#fw
+#ovswitch
+#vxlan
+#vcenter
+#ovswitch_vxlan
+#bridge
+#******
+*/
+
+    set_conf_vn("dummy", "linux");
+    set_conf_vn("802.1Q", "linux");
+    set_conf_vn("ebtables", "linux");
+    set_conf_vn("fw", "linux");
+    set_conf_vn("ovswitch", "openvswitch");
+    set_conf_vn("vxlan", "linux");
+    set_conf_vn("vcenter", "vcenter_port_groups");
+    set_conf_vn("ovswitch_vxlan", "openvswitch");
+    set_conf_vn("bridge", "linux");
+
+    register_multiple_conf_default("VN_MAD_CONF");
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -356,6 +384,23 @@ void OpenNebulaTemplate::set_conf_auth(const std::string& name,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void OpenNebulaTemplate::set_conf_vn(const std::string& name,
+                                         const std::string& bridge_type)
+{
+    VectorAttribute *   vattribute;
+    std::map<std::string,std::string>  vvalue;
+
+    vvalue.insert(make_pair("NAME", name));
+    vvalue.insert(make_pair("BRIDGE_TYPE", bridge_type));
+
+    vattribute = new VectorAttribute("VN_MAD_CONF", vvalue);
+    conf_default.insert(make_pair(vattribute->name(), vattribute));
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 
 void OpenNebulaTemplate::set_conf_default()
 {
