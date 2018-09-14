@@ -1010,7 +1010,7 @@ public:
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int automatic_requirements(set<int>& cluster_ids, string& error_str);
+    int automatic_requirements(set<int>& cluster_ids, set<int> datastore_ids, string& error_str);
 
     /**
      *  Checks if the resize parameters are valid

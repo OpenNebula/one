@@ -991,6 +991,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     bool   c_is_public_cloud;
 
     set<int> cluster_ids;
+    set<int> datastore_ids;
     string   error_str;
 
     bool auth = false;
@@ -1152,7 +1153,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    int rc = vm->automatic_requirements(cluster_ids, error_str);
+    int rc = vm->automatic_requirements(cluster_ids, datastore_ids, error_str);
 
     vmpool->update(vm);
 

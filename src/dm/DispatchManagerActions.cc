@@ -633,7 +633,8 @@ int DispatchManager::release(int vid, const RequestAttributes& ra,
     if (vm->get_state() == VirtualMachine::HOLD)
     {
         set<int> cluster_ids;
-        int rc = vm->automatic_requirements(cluster_ids, error_str);
+        set<int> datastore_ids;
+        int rc = vm->automatic_requirements(cluster_ids, datastore_ids, error_str);
 
         if (rc != 0)
         {
@@ -795,7 +796,8 @@ int DispatchManager::resume(int vid, const RequestAttributes& ra,
         vm->get_state() == VirtualMachine::UNDEPLOYED )
     {
         set<int> cluster_ids;
-        int rc = vm->automatic_requirements(cluster_ids, error_str);
+        set<int> datastore_ids;
+        int rc = vm->automatic_requirements(cluster_ids, datastore_ids, error_str);;
 
         if (rc != 0)
         {
@@ -935,7 +937,8 @@ int DispatchManager::resched(int vid, bool do_resched,
         if (do_resched)
         {
             set<int> cluster_ids;
-            int rc = vm->automatic_requirements(cluster_ids, error_str);
+            set<int> datastore_ids;
+            int rc = vm->automatic_requirements(cluster_ids, datastore_ids, error_str);
 
             if (rc != 0)
             {
