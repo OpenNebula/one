@@ -199,7 +199,6 @@ void OpenNebulaTemplate::set_multiple_conf_default()
     set_conf_auth("server_x509", "NO", "NO", "-1");
 
     register_multiple_conf_default("AUTH_MAD_CONF");
-}
 
 /*
 #*******************************************************************************
@@ -228,6 +227,7 @@ void OpenNebulaTemplate::set_multiple_conf_default()
     set_conf_vn("bridge", "linux");
 
     register_multiple_conf_default("VN_MAD_CONF");
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

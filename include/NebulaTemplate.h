@@ -173,6 +173,12 @@ private:
                        const std::string& max_token_time);
 
     /**
+     * Sets a the defaults for a Network drivers
+     */
+    void set_conf_vn(const std::string& name,
+                     const std::string& bridge_type);
+
+    /**
      *  Sets auth permissions for vm operations
      */
     int set_vm_auth_ops(std::string& error);

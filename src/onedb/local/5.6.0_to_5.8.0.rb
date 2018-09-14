@@ -19,17 +19,16 @@ module Migrator
     end
 
     def up
+        feature_2253()
+
         return true
     end
 
     private
 
     def feature_2253()
-        @db.run "DROP TABLE IF EXISTS old_network_pool;"
-        @db.run "ALTER TABLE network_pool RENAME TO old_network_pool;"
-
         @db.transaction do
-            @db.fetch("SELECT * FROM old_network_pool") do |row|
+            @db.fetch("SELECT * FROM network_pool") do |row|
                 doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING) { |c|
                     c.default_xml.noblanks
                 }
@@ -41,13 +40,10 @@ module Migrator
                     bridge_type.add_child(bridge_type_by_vn_mad(vn_mad))
                     doc.root.at_xpath("/VNET").add_child(bridge_type)
 
-                    row[:body] = doc.root.to_s
-                    @db[:network_pool].insert(row)
+                    @db.run("UPDATE network_pool SET body = '#{doc.root.to_s}' where oid = #{row[:oid]}")
                 end
             end
         end
-
-        @db.run "DROP TABLE old_vnet_pool;"
     end
 
     def bridge_type_by_vn_mad(vn_mad)
