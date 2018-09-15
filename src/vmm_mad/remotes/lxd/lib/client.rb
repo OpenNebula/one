@@ -24,7 +24,12 @@ require 'json'
 #
 module LXDRequests
 
-    attr_reader :api
+    # Enable communication with LXD via unix socket
+    begin
+        SOCK = Net::BufferedIO.new(UNIXSocket.new('/var/lib/lxd/unix.socket'))
+    rescue StandardError
+        STDERR.puts('ERROR: Could not open LXD socket')
+    end
 
     #
     # TODO rescue errors on socket creation
