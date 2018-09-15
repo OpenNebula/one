@@ -47,17 +47,11 @@ module LXDRequests
     # +data+:: +string+ for post/put requests (may be nil)
     def get_response(request, data)
         request.body = JSON.dump(data) unless data.nil?
-
-        request.exec(@sock, '1.1', request.path)
-
-        loop do
-            response = Net::HTTPResponse.read_new(@sock)
-
-            break unless response.is_a?(Net::HTTPContinue)
-        end
-
-        response.reading_body(@sock, request.response_body_permitted?) {}
-
+        request.exec(SOCK, '1.1', request.path)
+        begin
+            response = Net::HTTPResponse.read_new(SOCK)
+        end while response.is_a?(Net::HTTPContinue)
+        response.reading_body(SOCK, request.response_body_permitted?) {}
         JSON.parse(response.body)
     end
 
