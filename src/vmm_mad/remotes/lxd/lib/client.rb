@@ -1,3 +1,5 @@
+#!/usr/bin/ruby
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -19,10 +21,10 @@ require 'socket'
 require 'json'
 
 #
-# Base requests to interact with LXD. This class wraps API calls through the
-# rest interface
+# LXD API Client. This class is used to interact with LXD. Wraps API calls
+# through the REST API
 #
-module LXDRequests
+class LXDClient
 
     # Enable communication with LXD via unix socket
     begin
@@ -31,20 +33,17 @@ module LXDRequests
         STDERR.puts('ERROR: Could not open LXD socket')
     end
 
-    #
-    # TODO rescue errors on socket creation
-    #
-    def initialize
-        @sock = Net::BufferedIO.new(UNIXSocket.new('/var/lib/lxd/unix.socket'))
+    API = '/1.0'.freeze
+    HEADER = { 'Host' => 'localhost' }.freeze
 
-        @api    = '/1.0/'
-        @header = { 'Host' => 'localhost' }
-    end
+
+    private
 
     # Returns the HTTPResponse body as a hash
     # Params:
     # +request+:: +Net::HTTP::Request+ made to the http server
-    # +data+:: +string+ for post/put requests (may be nil)
+    # +data+:: +string+ for post/put/patch requests that send data to the server (may be nil)
+
     def get_response(request, data)
         request.body = JSON.dump(data) unless data.nil?
         request.exec(SOCK, '1.1', request.path)
@@ -55,91 +54,41 @@ module LXDRequests
         JSON.parse(response.body)
     end
 
+    public
+
     # Performs HTTP::Get
     # Params:
     # +uri+:: +string+ API path
     def get(uri)
-        get_response(Net::HTTP::Get.new("#{@api}#{uri}", @header), nil)
+        get_response(Net::HTTP::Get.new("#{API}/#{uri}", HEADER), data = nil)
     end
 
     # Performs HTTP::Delete
     # Params:
     # +uri+:: +string+ API path
     def delete(uri)
-        get_response(Net::HTTP::Delete.new("#{@api}#{uri}", @header), nil)
+        get_response(Net::HTTP::Delete.new("#{API}/#{uri}", HEADER), data = nil)
     end
 
     # Performs HTTP::Put
     # Params:
     # +uri+:: +string+ API path
     def put(uri, data)
-        get_response(Net::HTTP::Put.new("#{@api}#{uri}", @header), data)
+        get_response(Net::HTTP::Put.new("#{API}/#{uri}", HEADER), data)
     end
 
     # Performs HTTP::Post
     # Params:
     # +uri+:: +string+ API path
     def post(uri, data)
-        get_response(Net::HTTP::Post.new("#{@api}#{uri}", @header), data)
+        get_response(Net::HTTP::Post.new("#{API}/#{uri}", HEADER), data)
     end
 
     # Performs HTTP::Patch
     # Params:
     # +uri+:: +string+ API path
     def patch(uri, data)
-        get_response(Net::HTTP::Patch.new("#{@api}#{uri}", @header), data)
+        get_response(Net::HTTP::Patch.new("#{API}/#{uri}", HEADER), data)
     end
-
-end
-
-# LXD API Client. This class is used to interact with lxd
-#
-class LXDClient
-
-    include LXDRequests
-
-    def initialize
-        super
-
-        @containers = "#{@api}containers/"
-        @operations = "#{@api}operations/"
-    end
-
-    # # Containers
-    # module Containers
-    #   # Retrieve all containers.
-    #   def all; end
-
-    #   # Returns boolean indicating if the container exists.
-    #   def exist(name); end
-
-    #   # Get a specific container, by its name
-    #   def get(name); end9
-
-    #   # Create a new containerputs. This method requires the container config as the first parameter.
-    #   def create(sock, uri)
-    #     request = Net::HTTP::Post.new("/1.0/#{uri}", initheader = { 'Host' => 'localhost' })
-
-    #     request.body = JSON.dump(
-    #       'name' => 'ruby',
-    #       'source' => {
-    #         'type' => 'none'
-    #       }
-    #     )
-
-    #     request.exec(sock, '1.1', "/1.0/#{uri}")
-    #     request
-    #   end
-
-    # end
-
-    # # Operations
-    # module Operations
-    #   # Get a specific operation, by its id.
-    #   def get(operation); end
-
-    #   # get an operation, but wait until it is complete before returning the operation object.
-    #   def wait_for(operation); end
-    # end
 
 end
