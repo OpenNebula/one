@@ -19,10 +19,11 @@
 class Container
 
     attr_reader :name
-    attr_accessor :devices, :config
+    attr_accessor :devices, :config, :info
 
     CONTAINERS = 'containers'
     OPERATIONS = 'operations'
+    ABSENT = { 'error' => 'not found', 'error_code' => 404, 'type' => 'error' }
 
     def initialize(info, client)
         @client = client
@@ -38,12 +39,18 @@ class Container
         # Params:
         # +name+:: container name
         def get(name, client)
-            info = client.get("#{CONTAINERS}/#{name}")['metadata'] # config is stored in metadata key
-            Container.new(info, client)
+            if exist(name, client)
+                info = client.get("#{CONTAINERS}/#{name}")['metadata'] # config is stored in metadata key
+                Container.new(info, client)
+            else
+                err = "ERROR: getting container \"#{name}\" \n#{ABSENT}"
+                raise Exception, err
+                # raise err
+            end
         end
 
         # Returns an array of containers objects
-        def get_containers(client)
+        def get_all(client)
             container_names = client.get(CONTAINERS)['metadata'] # array of container names
             containers = []
             container_names.each do |name|
@@ -53,16 +60,13 @@ class Container
             containers
         end
 
-    end
+        # Returns boolean indicating if the container exists(true) or not (false)
+        def exist(name, client)
+            # TODO: output could be another error in case of unexpected behaviour
+            client.get("#{CONTAINERS}/#{name}") != ABSENT
+        end
 
-    # # Returns boolean indicating if the container exists(true) or not (false)
-    # def exist(container)
-    #     if container.key?('error') && container['error'] == 'not found'
-    #         false
-    #     elsif container.key?('metadata') && container['metadata'].key?('name')
-    #         true
-    #     end
-    # end
+    end
 
     # # Create a new empty container
     # def create(name)
