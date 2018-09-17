@@ -36,25 +36,6 @@ class LXDClient
     API = '/1.0'.freeze
     HEADER = { 'Host' => 'localhost' }.freeze
 
-    private
-
-    # Returns the HTTPResponse body as a hash
-    # Params:
-    # +request+:: +Net::HTTP::Request+ made to the http server
-    # +data+:: +string+ for post/put/patch requests that send data to the server (may be nil)
-
-    def get_response(request, data)
-        request.body = JSON.dump(data) unless data.nil?
-        request.exec(SOCK, '1.1', request.path)
-        begin
-            response = Net::HTTPResponse.read_new(SOCK)
-        end while response.is_a?(Net::HTTPContinue)
-        response.reading_body(SOCK, request.response_body_permitted?) {}
-        JSON.parse(response.body)
-    end
-
-    public
-
     # Performs HTTP::Get
     # Params:
     # +uri+:: +string+ API path
@@ -88,6 +69,23 @@ class LXDClient
     # +uri+:: +string+ API path
     def patch(uri, data)
         get_response(Net::HTTP::Patch.new("#{API}/#{uri}", HEADER), data)
+    end
+
+    private
+
+    # Returns the HTTPResponse body as a hash
+    # Params:
+    # +request+:: +Net::HTTP::Request+ made to the http server
+    # +data+:: +string+ for post/put/patch requests that send data to the server (may be nil)
+
+    def get_response(request, data)
+        request.body = JSON.dump(data) unless data.nil?
+        request.exec(SOCK, '1.1', request.path)
+        begin
+            response = Net::HTTPResponse.read_new(SOCK)
+        end while response.is_a?(Net::HTTPContinue)
+        response.reading_body(SOCK, request.response_body_permitted?) {}
+        JSON.parse(response.body)
     end
 
 end
