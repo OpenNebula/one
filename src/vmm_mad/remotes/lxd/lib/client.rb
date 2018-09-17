@@ -36,7 +36,6 @@ class LXDClient
     API = '/1.0'.freeze
     HEADER = { 'Host' => 'localhost' }.freeze
 
-
     private
 
     # Returns the HTTPResponse body as a hash

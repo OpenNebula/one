@@ -30,7 +30,11 @@ class Container
         @info = info
         @name = info['name']
         @config = info['config']
+        # @config_expanded = info['config']
         @devices = info['devices']
+        # @devices_expanded = info['devices']
+        # @status
+        # @status_code
     end
 
     class << self
@@ -66,6 +70,10 @@ class Container
             client.get("#{CONTAINERS}/#{name}") != ABSENT
         end
 
+        # def delete(_name, client)
+        #     client.delete
+        # end
+
     end
 
     # # Create a new empty container
@@ -74,49 +82,38 @@ class Container
     #     @client.post(CONTAINERS, data)
     # end
 
-    # def change_state(name, action)
-    #     put(CONTAINERS + name + '/state', { :action => action })
-    # end
+    def start
+        change_state(__method__, false, nil, nil)
+    end
 
-    # def start(name)
-    #     JSON
-    #         .change_state(name, { :action => 'start' })
-    # end
+    def stop
+        change_state(__method__, false, nil, nil)
+    end
 
-    # def stop(name)
-    #     change_state(name, { :action => 'stop' })
-    # end
+    def restart
+        change_state(__method__, false, nil, nil)
+    end
 
-    # def restart(name)
-    #     change_state(name, { :action => 'restart' })
-    # end
+    def freeze
+        change_state(__method__, false, nil, nil)
+    end
 
-    # # Client.containers.get(container) or .create(container)
-    # def freeze(name)
-    #     change_state(name, { :action => 'freeze' })
-    # end
+    def unfreeze
+        change_state(__method__, false, nil, nil)
+    end
 
-    # def unfreeze(name)
-    #     change_state(name, { :action => 'unfreeze' })
-    # end
+    private
 
-    # def delete(sock, uri)
-    #     request = Net::HTTP::Delete.new("/1.0/#{uri}", initheader = { 'Host' => 'localhost' })
-    #     request.exec(sock, '1.1', "/1.0/#{uri}")
-    #     request
-    # end
+    def change_state(action, force, timeout, stateful)
+        # TODO: set default values for timeout, force and stateful
+        data = {
+            :action => action, # State change action (stop, start, restart, freeze or unfreeze)
+            :timeout => timeout, # A timeout after which the state change is considered as failed
+            :force => force, # Force the state change (currently only valid for stop and restart where it means killing the container)
+            :stateful => stateful # Whether to store or restore runtime state before stopping or startiong (only valid for stop and start, defaults to false)
+        }
 
-    # def update(sock, uri)
-    #     request = Net::HTTP::Patch.new("/1.0/#{uri}", initheader = { 'Host' => 'localhost' })
-
-    #     request.body = JSON.dump(
-    #         { :config => {
-    #             'limits.cpu' => '4'
-    #         } }
-    #     )
-
-    #     request.exec(sock, '1.1', "/1.0/#{uri}")
-    #     request
-    # end
+        @client.put("#{CONTAINERS}/#{@name}/state", data)
+    end
 
 end
