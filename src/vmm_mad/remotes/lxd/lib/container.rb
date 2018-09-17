@@ -91,26 +91,27 @@ class Container
         @client.put("#{CONTAINERS}/#{@name}", @info)
         update_local
     end
+
     # Status Control
 
-    def start
-        change_state(__method__, false, nil, nil)
+    def start(options = {})
+        change_state(__method__, options)
     end
 
-    def stop
-        change_state(__method__, false, nil, nil)
+    def stop(options = {})
+        change_state(__method__, options)
     end
 
-    def restart
-        change_state(__method__, false, nil, nil)
+    def restart(options = {})
+        change_state(__method__, options)
     end
 
-    def freeze
-        change_state(__method__, false, nil, nil)
+    def freeze(options = {})
+        change_state(__method__, options)
     end
 
-    def unfreeze
-        change_state(__method__, false, nil, nil)
+    def unfreeze(options = {})
+        change_state(__method__, options)
     end
 
     private
@@ -128,16 +129,10 @@ class Container
         @devices_expanded = info['expanded_devices']
     end
 
-    def change_state(action, force, timeout, stateful)
-        # TODO: set default values for timeout, force and stateful
-        data = {
-            :action => action, # State change action (stop, start, restart, freeze or unfreeze)
-            :timeout => timeout, # A timeout after which the state change is considered as failed
-            :force => force, # Force the state change (currently only valid for stop and restart where it means killing the container)
-            :stateful => stateful # Whether to store or restore runtime state before stopping or startiong (only valid for stop and start, defaults to false)
-        }
-
-        @client.put("#{CONTAINERS}/#{@name}/state", data)
+    # def change_state(action, force, stateful, timeout)
+    def change_state(action, options)
+        options.update({ :action => action })
+        @client.put("#{CONTAINERS}/#{@name}/state", options)
     end
 
 end
