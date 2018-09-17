@@ -28,19 +28,42 @@ module Migrator
 
     def feature_2253()
         @db.transaction do
+            #update virtual networks
             @db.fetch("SELECT * FROM network_pool") do |row|
                 doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING) { |c|
                     c.default_xml.noblanks
                 }
 
-                if doc.root.at_xpath("BRIDGE_TYPE").to_s == ""
-                    vn_mad = doc.root.at_xpath("/VNET/VN_MAD").text
+                next unless doc.root.at_xpath("BRIDGE_TYPE").to_s.empty?
 
+                vn_mad = doc.root.at_xpath("/VNET/VN_MAD").text
+
+                bridge_type = doc.create_element("BRIDGE_TYPE")
+                bridge_type.add_child(bridge_type_by_vn_mad(vn_mad))
+                doc.root.at_xpath("/VNET").add_child(bridge_type)
+
+                @db.run("UPDATE network_pool SET body = '#{doc.root.to_s}' where oid = #{row[:oid]}")
+                end
+            end
+
+            #updates VM's nics
+            @db.fetch("SELECT * FROM vm_pool") do |row|
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING) { |c|
+                    c.default_xml.noblanks
+                }
+
+                next if doc.root.at_xpath("TEMPLATE/NIC").to_s.empty?
+
+                doc.root.xpath("//NIC").map do |nic|
+                    next unless nic.xpath("BRIDGE_TYPE").to_s.empty?
+
+                    vn_mad = nic.xpath("VN_MAD").text
                     bridge_type = doc.create_element("BRIDGE_TYPE")
                     bridge_type.add_child(bridge_type_by_vn_mad(vn_mad))
-                    doc.root.at_xpath("/VNET").add_child(bridge_type)
+                    nic.add_child(bridge_type)
+                end
 
-                    @db.run("UPDATE network_pool SET body = '#{doc.root.to_s}' where oid = #{row[:oid]}")
+                @db.run("UPDATE vm_pool SET body = '#{doc.root.to_s}' where oid = #{row[:oid]}")
                 end
             end
         end

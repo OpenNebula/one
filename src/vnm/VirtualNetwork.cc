@@ -305,7 +305,8 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     rc = parse_bridge_type(vn_mad, error_str);
 
-    if (rc != 0){
+    if (rc != 0)
+    {
         goto error_common;
     }
 
@@ -1349,7 +1350,8 @@ int VirtualNetwork::parse_bridge_type(const string &vn_mad, string &error_str)
     {
         goto error;
     }
-    else {
+    else
+    {
         if (str_to_bridge_type(br_type) == UNDEFINED)
         {
             goto error;
