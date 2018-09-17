@@ -16,9 +16,12 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+#
+# LXD Container abstraction
+#
 class Container
 
-    attr_reader :name
+    attr_reader :name, :status, :status_code, :config_expanded, :devices_expanded
     attr_accessor :devices, :config, :info
 
     CONTAINERS = 'containers'
@@ -29,12 +32,7 @@ class Container
         @client = client
         @info = info
         @name = info['name']
-        @config = info['config']
-        # @config_expanded = info['config']
-        @devices = info['devices']
-        # @devices_expanded = info['devices']
-        # @status
-        # @status_code
+        set_attr
     end
 
     class << self
@@ -44,7 +42,8 @@ class Container
         # +name+:: container name
         def get(name, client)
             if exist(name, client)
-                info = client.get("#{CONTAINERS}/#{name}")['metadata'] # config is stored in metadata key
+                # config is stored in metadata key
+                info = client.get("#{CONTAINERS}/#{name}")['metadata']
                 Container.new(info, client)
             else
                 err = "ERROR: getting container \"#{name}\" \n#{ABSENT}"
@@ -53,9 +52,10 @@ class Container
             end
         end
 
-        # Returns an array of containers objects
+        # Returns an array of container objects
         def get_all(client)
-            container_names = client.get(CONTAINERS)['metadata'] # array of container names
+            # array of container names
+            container_names = client.get(CONTAINERS)['metadata']
             containers = []
             container_names.each do |name|
                 name = name.split('/').last
@@ -70,19 +70,18 @@ class Container
             client.get("#{CONTAINERS}/#{name}") != ABSENT
         end
 
-        # def delete(_name, client)
-        #     client.delete
-        # end
-
     end
 
     # Create a container without a base image
     def create
         @info['source'] = { 'type' => 'none' }
         @client.post(CONTAINERS, @info)
-        @info = @client.get("#{CONTAINERS}/#{@name}")['metadata']
+        sleep 2 # TODO: implement dealing with async operations
+        update_local
+        set_attr
     end
 
+    # Delete container
     def delete
         stop
         # should be better to query the status first
@@ -91,6 +90,11 @@ class Container
         @client.delete("#{CONTAINERS}/#{@name}")
     end
 
+    # Updates the container in LXD server with the new configuration
+    def update
+        @client.put("#{CONTAINERS}/#{@name}", @info)
+        update_local
+    end
     # Status Control
 
     def start
@@ -114,6 +118,19 @@ class Container
     end
 
     private
+
+    def update_local
+        @info = @client.get("#{CONTAINERS}/#{@name}")['metadata']
+    end
+
+    def set_attr
+        @status = @info['status']
+        @status_code = @info['status_code']
+        @config = info['config']
+        @config_expanded = info['expanded_config']
+        @devices = info['devices']
+        @devices_expanded = info['expanded_devices']
+    end
 
     def change_state(action, force, timeout, stateful)
         # TODO: set default values for timeout, force and stateful
