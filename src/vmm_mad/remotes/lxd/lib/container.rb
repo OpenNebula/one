@@ -83,10 +83,6 @@ class Container
 
     # Delete container
     def delete
-        stop
-        # should be better to query the status first
-        # although there is no conflict if stopped already
-        sleep 2 # TODO: implement dealing with async operations
         @client.delete("#{CONTAINERS}/#{@name}")
     end
 
