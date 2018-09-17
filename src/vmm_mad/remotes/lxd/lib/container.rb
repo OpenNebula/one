@@ -29,6 +29,8 @@ class Container
     # TODO: could do better
     ABSENT = { 'error' => 'not found', 'error_code' => 404, 'type' => 'error' }
 
+    # Creates the container object in memory.
+    # Can be later created in LXD using create method
     def initialize(info, client)
         @client = client
         @info = info
@@ -117,11 +119,13 @@ class Container
 
     private
 
+    # Syncs the container in LXD with the container object in memory
     def update_local
         @info = @client.get("#{CONTAINERS}/#{@name}")['metadata']
         set_attr
     end
 
+    # Updates container attr from @info
     def set_attr
         @status = @info['status']
         @status_code = @info['status_code']
@@ -131,6 +135,8 @@ class Container
         @devices_expanded = info['expanded_devices']
     end
 
+    # Performs an action on the container that changes the execution status.
+    # Accepts optional args
     def change_state(action, options)
         options.update({ :action => action })
         @client.put("#{CONTAINERS}/#{@name}/state", options)
