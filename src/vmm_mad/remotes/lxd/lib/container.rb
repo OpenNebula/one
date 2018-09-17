@@ -26,6 +26,7 @@ class Container
 
     CONTAINERS = 'containers'
     OPERATIONS = 'operations'
+    # TODO: could do better
     ABSENT = { 'error' => 'not found', 'error_code' => 404, 'type' => 'error' }
 
     def initialize(info, client)
@@ -118,6 +119,7 @@ class Container
 
     def update_local
         @info = @client.get("#{CONTAINERS}/#{@name}")['metadata']
+        set_attr
     end
 
     def set_attr
@@ -129,10 +131,11 @@ class Container
         @devices_expanded = info['expanded_devices']
     end
 
-    # def change_state(action, force, stateful, timeout)
     def change_state(action, options)
         options.update({ :action => action })
         @client.put("#{CONTAINERS}/#{@name}/state", options)
+        sleep 2 # TODO: implement dealing with async operations
+        update_local
     end
 
 end
