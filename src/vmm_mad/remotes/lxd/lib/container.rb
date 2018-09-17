@@ -26,6 +26,16 @@ class Container
 
     CONTAINERS = 'containers'
     OPERATIONS = 'operations'
+
+    # Error format, always have type: error,
+    # the rest is variable
+    # {
+    #     "type": "error",
+    #     "error": "Failure",
+    #     "error_code": 400,
+    #     "metadata": {} # More details about the error
+    # }
+    
     # TODO: could do better
     ABSENT = { 'error' => 'not found', 'error_code' => 404, 'type' => 'error' }
 
