@@ -76,11 +76,22 @@ class Container
 
     end
 
-    # # Create a new empty container
-    # def create(name)
-    #     data = { 'name' => name, 'source' => { 'type' => 'none' } }
-    #     @client.post(CONTAINERS, data)
-    # end
+    # Create a container without a base image
+    def create
+        @info['source'] = { 'type' => 'none' }
+        @client.post(CONTAINERS, @info)
+        @info = @client.get("#{CONTAINERS}/#{@name}")['metadata']
+    end
+
+    def delete
+        stop
+        # should be better to query the status first
+        # although there is no conflict if stopped already
+        sleep 2 # TODO: implement dealing with async operations
+        @client.delete("#{CONTAINERS}/#{@name}")
+    end
+
+    # Status Control
 
     def start
         change_state(__method__, false, nil, nil)
