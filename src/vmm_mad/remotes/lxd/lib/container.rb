@@ -44,7 +44,7 @@ class Container
     def initialize(info, client)
         @client = client
         @info = info
-        @name = info['name']
+        @name = @info['name']
         set_attr
     end
 
@@ -137,11 +137,13 @@ class Container
 
     # Updates container attr from @info
     def set_attr
+        # TODO: make this variables, somehow pointers to @info,
+        # TODO: to avoid calling this method
         @status = @info['status']
         @status_code = @info['status_code']
-        @config = info['config']
+        @config = @info['config']
         @config_expanded = info['expanded_config']
-        @devices = info['devices']
+        @devices = @info['devices']
         @devices_expanded = info['expanded_devices']
     end
 
