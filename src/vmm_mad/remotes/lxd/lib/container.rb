@@ -27,8 +27,7 @@ class Container
     CONTAINERS = 'containers'
     OPERATIONS = 'operations'
 
-    # Error format, always have type: error,
-    # the rest is variable
+    # Error format, always have type: error, the rest is variable
     # {
     #     "type": "error",
     #     "error": "Failure",
@@ -147,6 +146,11 @@ class Container
         @devices_expanded = info['expanded_devices']
     end
 
+    # Syncs the container in LXD with the container object in memory
+    def update_local
+        @info = @client.get("#{CONTAINERS}/#{@name}")['metadata']
+        set_attr
+    end
     # Performs an action on the container that changes the execution status.
     # Accepts optional args
     def change_state(action, options)
