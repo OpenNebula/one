@@ -31,7 +31,7 @@ class LXDClient
 
     # Enable communication with LXD via unix socket
     begin
-        SOCK = Net::BufferedIO.new(UNIXSocket.new('/var/lib/lxd/unixx.socket'))
+        SOCK = Net::BufferedIO.new(UNIXSocket.new('/var/lib/lxd/unix.socket'))
     rescue StandardError
         OpenNebula.log_error('Could not open LXD socket')
         Process.exit(1)
@@ -85,10 +85,16 @@ class LXDClient
     def get_response(request, data)
         request.body = JSON.dump(data) unless data.nil?
         request.exec(SOCK, '1.1', request.path)
-        begin
+        response = nil
+
+        loop do
             response = Net::HTTPResponse.read_new(SOCK)
-        end while response.is_a?(Net::HTTPContinue)
+
+            break unless response.is_a?(Net::HTTPContinue)
+        end
+
         response.reading_body(SOCK, request.response_body_permitted?) {}
+
         JSON.parse(response.body)
     end
 
