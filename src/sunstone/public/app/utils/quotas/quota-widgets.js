@@ -375,7 +375,7 @@ define(function(require) {
             info.VM_QUOTA.VM.RUNNING_MEMORY,
             default_quotas.VM_QUOTA.VM.RUNNING_MEMORY,
             {   mb: true,
-                quota_name: "VM_MEMORY"
+                quota_name: "RUNNING_VM_MEMORY"
             });
     } else {
       running_memory_bar = _editableQuotaBar(
