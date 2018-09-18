@@ -34,7 +34,7 @@ class Container
     #     "error_code": 400,
     #     "metadata": {} # More details about the error
     # }
-    
+
     # TODO: could do better
     ABSENT = { 'error' => 'not found', 'error_code' => 404, 'type' => 'error' }
 
@@ -87,21 +87,17 @@ class Container
     # Create a container without a base image
     def create
         @info['source'] = { 'type' => 'none' }
-        @client.post(CONTAINERS, @info)
-        sleep 2 # TODO: implement dealing with async operations
-        update_local
-        set_attr
+        wait(@client.post(CONTAINERS, @info))
     end
 
     # Delete container
     def delete
-        @client.delete("#{CONTAINERS}/#{@name}")
+        wait(@client.delete("#{CONTAINERS}/#{@name}"))
     end
 
     # Updates the container in LXD server with the new configuration
     def update
-        @client.put("#{CONTAINERS}/#{@name}", @info)
-        update_local
+        wait(@client.put("#{CONTAINERS}/#{@name}", @info))
     end
 
     # Status Control
@@ -128,12 +124,6 @@ class Container
 
     private
 
-    # Syncs the container in LXD with the container object in memory
-    def update_local
-        @info = @client.get("#{CONTAINERS}/#{@name}")['metadata']
-        set_attr
-    end
-
     # Updates container attr from @info
     def set_attr
         # TODO: make this variables, somehow pointers to @info,
@@ -151,13 +141,22 @@ class Container
         @info = @client.get("#{CONTAINERS}/#{@name}")['metadata']
         set_attr
     end
+
+    # Waits for an operation to be completed
+    def wait(response, timeout = '')
+        operation_id = response['operation'].split('/').last
+        timeout = timeout.to_s if timeout.is_a? Integer
+        timeout = "?timeout=#{timeout}" unless timeout == ''
+        operation = @client.get("#{OPERATIONS}/#{operation_id}/wait#{timeout}")
+        update_local
+        operation
+    end
+
     # Performs an action on the container that changes the execution status.
     # Accepts optional args
     def change_state(action, options)
         options.update({ :action => action })
-        @client.put("#{CONTAINERS}/#{@name}/state", options)
-        sleep 2 # TODO: implement dealing with async operations
-        update_local
+        wait(@client.put("#{CONTAINERS}/#{@name}/state", options))
     end
 
 end
