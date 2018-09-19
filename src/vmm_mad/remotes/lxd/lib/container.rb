@@ -24,16 +24,8 @@ class Container
     attr_reader :name, :status, :status_code, :config_expanded, :devices_expanded
     attr_accessor :devices, :config, :info
 
-    CONTAINERS = 'containers'
-    OPERATIONS = 'operations'
-
-    # Error format, always have type: error, the rest is variable
-    # {
-    #     "type": "error",
-    #     "error": "Failure",
-    #     "error_code": 400,
-    #     "metadata": {} # More details about the error
-    # }
+    CONTAINERS = 'containers'.freeze
+    OPERATIONS = 'operations'.freeze
 
     # Creates the container object in memory.
     # Can be later created in LXD using create method

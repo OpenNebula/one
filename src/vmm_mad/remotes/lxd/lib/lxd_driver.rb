@@ -28,8 +28,8 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << File.dirname(__FILE__)
 
 require 'opennebula'
-require 'client'
-require 'container'
+require_relative 'client'
+require_relative 'container'
 
 module LXDdriver
 
