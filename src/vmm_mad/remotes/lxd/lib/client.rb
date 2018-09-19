@@ -96,7 +96,7 @@ class LXDClient
         response = JSON.parse(response.body)
 
         if response['type'] == 'error'
-            STDERR.puts response
+            OpenNebula.log_error(response)
             raise LXDError, response
         else
             response
@@ -105,9 +105,12 @@ class LXDClient
 
 end
 
+# Error used for raising LXDClient exception when response is error return value
 class LXDError < StandardError
 
+    attr_reader :body
     def initialize(msg = 'LXD API error')
+        @body = msg
         super
     end
 

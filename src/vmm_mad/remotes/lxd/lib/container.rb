@@ -35,9 +35,6 @@ class Container
     #     "metadata": {} # More details about the error
     # }
 
-    # TODO: could do better
-    ABSENT = { 'error' => 'not found', 'error_code' => 404, 'type' => 'error' }
-
     # Creates the container object in memory.
     # Can be later created in LXD using create method
     def initialize(info, client)
@@ -54,14 +51,13 @@ class Container
         # +name+:: container name
         def get(name, client)
             if exist(name, client)
-                # config is stored in metadata key
                 info = client.get("#{CONTAINERS}/#{name}")['metadata']
                 Container.new(info, client)
             else
-                err = "ERROR: getting container \"#{name}\" \n#{ABSENT}"
-                raise Exception, err
-                # raise err
+                OpenNebula.log_info("Container #{name} already exists")
             end
+        rescue LXDError => exception
+            raise exception
         end
 
         # Returns an array of container objects
@@ -78,8 +74,10 @@ class Container
 
         # Returns boolean indicating if the container exists(true) or not (false)
         def exist(name, client)
-            # TODO: output could be another error in case of unexpected behaviour
-            client.get("#{CONTAINERS}/#{name}") != ABSENT
+            client.get("#{CONTAINERS}/#{name}")
+            true
+        rescue LXDError => exception
+            raise exception if exception.body['error_code'] != 404
         end
 
     end
@@ -156,7 +154,6 @@ class Container
     def wait?(response, timeout, wait)
         if wait == false
             wait(response, timeout)
-            # TODO: support timeout value
         else
             response
         end
