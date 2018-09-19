@@ -16,8 +16,18 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require_relative 'lib/container'
-require_relative 'lib/client'
+require_relative 'lib/lxd_driver'
+
+dfile = ARGV[0]
+vm_id = ARGV[2]
+
+xml = OpenNebula::XMLElement.new
+xml.initialize_xml(STDIN.read, 'VM')
+
+client = LXDClient.new
+info = LXDdriver::Info.new(xml)
+
+container = Container.new(info, client)
 
 STDERR.puts('not implemented')
 Process.exit(-1)
