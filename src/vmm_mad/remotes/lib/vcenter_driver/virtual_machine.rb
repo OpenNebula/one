@@ -65,6 +65,68 @@ end # class VirtualMachineFolder
 
 
 class VirtualMachine < VCenterDriver::Template
+
+    # Resource base class
+    class Resource
+        def initialize(id, one_res, vc_res)
+            @id      = id
+            @one_res = one_res
+            @vc_res  = vc_res
+        end
+
+        def managed?
+            !(@one_res['OPENNEBULA_MANAGED'] && @one_res['OPENNEBULA_MANAGED'].downcase == "no")
+        end
+    end
+
+    class Nic < Resource
+        def initialize(id, one_res, vc_res)
+            super(id, one_res, vc_res)
+        end
+    end
+
+    class Disk < Resource
+        def initialize(id, one_res, vc_res)
+            super(id, one_res, vc_res)
+        end
+
+        def path
+            @vc_res[:path_wo_ds]
+        end
+
+        def ds
+            @vc_res[:datastore]
+        end
+
+        def ds_ref
+            @one_res['VCENTER_DS_REF']
+        end
+
+        def key
+            @vc_res[:key]
+        end
+
+        def prefix
+            @vc_res[:prefix]
+        end
+
+        def type
+            @vc_res[:type]
+        end
+
+        def file
+            path.split('/').last
+        end
+
+        def persistent?
+            @one_res['PERSISTENT'] == 'YES'
+        end
+
+        def connected?
+            @vc_res[:device].connectable.connected
+        end
+    end
+
     VM_PREFIX_DEFAULT = "one-$i-"
 
     POLL_ATTRIBUTE    = OpenNebula::VirtualMachine::Driver::POLL_ATTRIBUTE
@@ -88,6 +150,7 @@ class VirtualMachine < VCenterDriver::Template
         @vm_id = one_id
         @locking = true
         @vm_info = nil
+        @disks = {}
     end
 
     ############################################################################
@@ -118,6 +181,7 @@ class VirtualMachine < VCenterDriver::Template
 
         @one_item
     end
+
 
     # set the vmware item directly to the vm
     def set_item(item)
@@ -352,8 +416,7 @@ class VirtualMachine < VCenterDriver::Template
     # @param one_item OpenNebula::VirtualMachine
     # @param vi_client VCenterDriver::VIClient
     # @return String vmware ref
-   def clone_vm(drv_action)
-
+    def clone_vm(drv_action)
         vcenter_name = get_vcenter_name
 
         vc_template_ref = drv_action['USER_TEMPLATE/VCENTER_TEMPLATE_REF']
@@ -565,6 +628,126 @@ class VirtualMachine < VCenterDriver::Template
         clone_parameters[:customization] = cs if cs
 
         clone_parameters
+    end
+
+    def nics
+        @nics.size == get_one_nics.size
+    end
+
+    def synced_disks?
+        @disks.size == get_one_disks.size
+    end
+
+    def disks
+        return @disks if synced_disks?
+
+        sync_disks
+    end
+
+    def get_template_ref
+        one_item['USER_TEMPLATE/VCENTER_TEMPLATE_REF']
+    end
+
+    def get_one_disks
+        one_item.retrieve_xmlelements("TEMPLATE/DISK")
+    end
+
+    def get_one_nics
+        one_item.retrieve_xmlelements("TEMPLATE/NICS")
+    end
+
+    def query_disk(one_disk, keys, vc_disks)
+        index = one_disk["DISK_ID"]
+        perst = one_disk["PERSISTENT"]
+
+        if keys["opennebula.disk.#{index}"]
+            key =  keys["opennebula.disk.#{index}"].to_i
+            query = vc_disks.select {|dev| key == dev[:key]}
+        else
+            path = perst ? one_disk['SOURCE'] : disk_real_path(one_disk, index)
+            query = vc_disks.select {|dev| path == dev[:path_wo_ds]}
+        end
+
+        raise "opennebula disk #{index} not found in vCenter" unless query.size == 1
+
+        return query.first
+    end
+
+    def sync_nics
+    end
+
+    def sync_disks
+
+        keys = get_unmanaged_keys
+        vc_disks  = get_vcenter_disks
+        one_disks = get_one_disks
+        size = one_disks.size
+
+        one_disks.each do |one_disk|
+            index = one_disk["DISK_ID"]
+
+            disk = query_disk(one_disk, keys, vc_disks)
+
+            vc_dev = vc_disks.delete(disk)
+
+            @disks[index] = Disk.new(index.to_i, one_disk, vc_dev)
+        end
+
+        @disks
+    end
+
+    def disk(index, opts = {})
+        return @disks[index] if @disks[index] && opts[:sync].nil?
+        one_disk = one_item.retrieve_xmlelements("TEMPLATE/DISK[DISK_ID='#{index}']").first rescue nil
+
+        raise "disk #{index} not found" unless one_disk
+
+        keys = opts[:keys].nil? ? get_unmanaged_keys : opts[:keys]
+        vc_disks = opts[:disks].nil? ? get_vcenter_disks : opts[:disks]
+
+        vc_disk = query_disk(one_disk, keys, vc_disks)
+
+        @disks[index] = Disk.new(index.to_i, one_disk, vc_disk)
+    end
+
+    def resize_unmanaged_disks(disk, new_size)
+
+        resize_hash = {}
+        disks       = []
+        found       = false
+
+        unmanaged_keys = get_unmanaged_keys
+        vc_disks = get_vcenter_disks
+
+        vc_disks.each do |vcenter_disk|
+            if unmanaged_keys.key?("opennebula.disk.#{disk["DISK_ID"]}")
+                device_key = unmanaged_keys["opennebula.disk.#{disk["DISK_ID"]}"].to_i
+
+                if device_key == vcenter_disk[:key].to_i
+
+                    if disk["SIZE"].to_i <= disk["ORIGINAL_SIZE"].to_i
+                        raise "Disk size cannot be shrinked."
+                    end
+
+                    # Edit capacity setting new size in KB
+                    d = vcenter_disk[:device]
+                    d.capacityInKB = disk["SIZE"].to_i * 1024
+                    disks <<   { :device => d, :operation => :edit }
+
+                    found = true
+                    break
+                end
+            end
+        end
+
+        raise "Unmanaged disk could not be found to apply resize operation." if !found
+
+        if !disks.empty?
+            resize_hash[:deviceChange] = disks
+            @item.ReconfigVM_Task(:spec => resize_hash).wait_for_completion
+        else
+            raise "Device was not found after attaching it to VM in poweroff."
+        end
     end
 
     def reference_unmanaged_devices(template_ref)
