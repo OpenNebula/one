@@ -89,13 +89,26 @@ class LXDClient
 
         loop do
             response = Net::HTTPResponse.read_new(SOCK)
-
             break unless response.is_a?(Net::HTTPContinue)
         end
 
         response.reading_body(SOCK, request.response_body_permitted?) {}
+        response = JSON.parse(response.body)
 
-        JSON.parse(response.body)
+        if response['type'] == 'error'
+            STDERR.puts response
+            raise LXDError, response
+        else
+            response
+        end
+    end
+
+end
+
+class LXDError < StandardError
+
+    def initialize(msg = 'LXD API error')
+        super
     end
 
 end
