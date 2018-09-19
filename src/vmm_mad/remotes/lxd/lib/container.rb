@@ -85,19 +85,19 @@ class Container
     end
 
     # Create a container without a base image
-    def create
+    def create(wait: true, timeout: '')
         @info['source'] = { 'type' => 'none' }
-        wait(@client.post(CONTAINERS, @info))
+        wait?(@client.post(CONTAINERS, @info), wait, timeout)
     end
 
     # Delete container
-    def delete
-        wait(@client.delete("#{CONTAINERS}/#{@name}"))
+    def delete(wait: true, timeout: '')
+        wait?(@client.delete("#{CONTAINERS}/#{@name}"), wait, timeout)
     end
 
     # Updates the container in LXD server with the new configuration
-    def update
-        wait(@client.put("#{CONTAINERS}/#{@name}", @info))
+    def update(wait: true, timeout: '')
+        wait?(@client.put("#{CONTAINERS}/#{@name}", @info), wait, timeout)
     end
 
     # Status Control
@@ -143,7 +143,7 @@ class Container
     end
 
     # Waits for an operation to be completed
-    def wait(response, timeout = '')
+    def wait(response, timeout)
         operation_id = response['operation'].split('/').last
         timeout = timeout.to_s if timeout.is_a? Integer
         timeout = "?timeout=#{timeout}" unless timeout == ''
@@ -152,11 +152,24 @@ class Container
         operation
     end
 
+    # Waits or no for response depending on wait value
+    def wait?(response, timeout, wait)
+        if wait == false
+            wait(response, timeout)
+            # TODO: support timeout value
+        else
+            response
+        end
+    end
+
     # Performs an action on the container that changes the execution status.
     # Accepts optional args
     def change_state(action, options)
         options.update({ :action => action })
-        wait(@client.put("#{CONTAINERS}/#{@name}/state", options))
+        timeout = options[:timeout]
+        timeout ||= ''
+        response = @client.put("#{CONTAINERS}/#{@name}/state", options)
+        wait?(response, options[:wait], timeout)
     end
 
 end
