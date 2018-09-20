@@ -76,6 +76,7 @@
           RECOVER_ACTION          = 42
           RETRY_ACTION            = 43
           MONITOR_ACTION          = 44
+          DISK_SNAPSHOT_RENAME_ACTION = 45
         -->
         <xs:element name="ACTION" type="xs:integer"/>
         <xs:element name="UID" type="xs:integer"/>
