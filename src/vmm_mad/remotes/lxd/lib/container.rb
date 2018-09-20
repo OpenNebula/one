@@ -42,12 +42,8 @@ class Container
         # Params:
         # +name+:: container name
         def get(name, client)
-            if exist(name, client)
                 info = client.get("#{CONTAINERS}/#{name}")['metadata']
                 Container.new(info, client)
-            else
-                OpenNebula.log_info("Container #{name} already exists")
-            end
         rescue LXDError => exception
             raise exception
         end
@@ -65,11 +61,13 @@ class Container
         end
 
         # Returns boolean indicating if the container exists(true) or not (false)
-        def exist(name, client)
+        def exist?(name, client)
             client.get("#{CONTAINERS}/#{name}")
             true
         rescue LXDError => exception
             raise exception if exception.body['error_code'] != 404
+
+            false
         end
 
     end

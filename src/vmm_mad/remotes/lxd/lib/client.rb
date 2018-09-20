@@ -93,14 +93,10 @@ class LXDClient
 
         response.reading_body(SOCK, request.response_body_permitted?) {}
         response = JSON.parse(response.body)
+        raise LXDError, response if response['type'] == 'error'
 
-        if response['type'] == 'error'
-            OpenNebula.log_error(response)
-            raise LXDError, response
-        else
             response
         end
-    end
 
 end
 
