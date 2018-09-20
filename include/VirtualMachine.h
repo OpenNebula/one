@@ -1482,6 +1482,19 @@ public:
     }
 
     /**
+     *  Renames the snap_id from the list
+     *    @param disk_id of the disk
+     *    @param snap_id of the snapshot
+     *    @param new_name of the snapshot
+     *    @return 0 on success
+     */
+    int rename_disk_snapshot(int disk_id, int snap_id, const string& new_name,
+            string& error_str)
+    {
+        return disks.rename_snapshot(disk_id, snap_id, new_name, error_str);
+    }
+
+    /**
      * Deletes all the disk snapshots for non-persistent disks and for persistent
      * disks in no shared system ds.
      *     @param vm_quotas The SYSTEM_DISK_SIZE freed by the deleted snapshots
