@@ -16,6 +16,9 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require_relative 'container'
+require_relative 'client'
+
 ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
@@ -28,8 +31,6 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << File.dirname(__FILE__)
 
 require 'opennebula'
-require_relative 'client'
-require_relative 'container'
 
 module LXDdriver
 

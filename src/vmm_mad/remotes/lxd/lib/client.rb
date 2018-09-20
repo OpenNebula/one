@@ -19,7 +19,6 @@
 require 'net/http'
 require 'socket'
 require 'json'
-require_relative '../../../scripts_common.rb'
 
 #
 # LXD API Client. This class is used to interact with LXD. Wraps API calls
@@ -33,7 +32,7 @@ class LXDClient
     begin
         SOCK = Net::BufferedIO.new(UNIXSocket.new('/var/lib/lxd/unix.socket'))
     rescue StandardError
-        OpenNebula.log_error('Could not open LXD socket')
+        STDERR.puts('Could not open LXD socket')
         Process.exit(1)
     end
 
