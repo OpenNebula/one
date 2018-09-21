@@ -320,7 +320,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             vms.map!{|e| e.to_i }
             onevm_helper=OneVMHelper.new
             onevm_helper.client=@client
-            onevm_helper.list_pool({:ids=>vms}, false)
+            onevm_helper.list_pool({:ids=>vms, :no_pager => true}, false)
         end
     end
 
