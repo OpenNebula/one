@@ -31,6 +31,7 @@ end
 $: << RUBY_LIB_LOCATION
 
 require 'pp'
+require 'shellwords'
 require 'OpenNebulaDriver'
 require 'CommandManager'
 require 'getoptlong'
@@ -98,7 +99,7 @@ class TransferManagerDriver < OpenNebulaDriver
     def do_transfer_action(id, command)
         cmd  = command[0].downcase
         tm   = command[1]
-        args = command[2..-1].join(" ")
+        args = command[2..-1].map{|e| Shellwords.escape(e)}.join(" ")
 
         if not @types.include?(tm)
             return RESULT[:failure], "Transfer Driver '#{tm}' not available"
