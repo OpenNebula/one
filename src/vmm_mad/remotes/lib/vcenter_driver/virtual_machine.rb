@@ -74,6 +74,18 @@ class VirtualMachine < VCenterDriver::Template
             @vc_res  = vc_res
         end
 
+        def id
+            @id
+        end
+
+        def one_item
+            @one_res
+        end
+
+        def vc_item
+            @vc_res
+        end
+
         def managed?
             !(@one_res['OPENNEBULA_MANAGED'] && @one_res['OPENNEBULA_MANAGED'].downcase == "no")
         end
@@ -90,11 +102,47 @@ class VirtualMachine < VCenterDriver::Template
             super(id, one_res, vc_res)
         end
 
+        def self.one_disk(id, one_res)
+            @error_message = "vCenter device does not exist at the moment"
+            self.new(id, one_res, nil)
+        end
+
+        def self.vc_disk(vc_res)
+            @error_message = "one disk does not exist at the moment"
+            self.new(nil, nil, vc_res)
+        end
+
+        def exists?
+            return true if @vc_res
+
+            false
+        end
+
+        def detached?
+            return true unless @one_res
+
+            false
+        end
+
+        def storpod?
+           @one_res["VCENTER_DS_REF"].start_with?('group-')
+        end
+
+        def device
+            raise @error_message unless exists?
+
+            @vc_res[:device]
+        end
+
         def path
+            raise @error_message unless exists?
+
             @vc_res[:path_wo_ds]
         end
 
         def ds
+            raise @error_message unless exists?
+
             @vc_res[:datastore]
         end
 
@@ -102,15 +150,22 @@ class VirtualMachine < VCenterDriver::Template
             @one_res['VCENTER_DS_REF']
         end
 
+
         def key
+            raise @error_message unless exists?
+
             @vc_res[:key]
         end
 
         def prefix
+            raise @error_message unless exists?
+
             @vc_res[:prefix]
         end
 
         def type
+            raise @error_message unless exists?
+
             @vc_res[:type]
         end
 
@@ -118,12 +173,68 @@ class VirtualMachine < VCenterDriver::Template
             path.split('/').last
         end
 
+        def is_cd?
+            !(@one_res["CLONE"].nil? || @one_res["CLONE"] == "YES")
+        end
+
+        def config(action)
+            raise @error_message unless exists?
+
+            reference = {}
+            reference[:key] = "opennebula.disk.#{@id}"
+
+            if action == :delete
+                reference[:value] = ""
+            elsif action == :attach
+                puts "not supported"
+            end
+
+            reference
+        end
+
         def persistent?
             @one_res['PERSISTENT'] == 'YES'
         end
 
+        def volatile?
+            @one_res["TYPE"] && @one_res["TYPE"].downcase == "fs"
+        end
+
         def connected?
+            raise @error_message unless @vc_res
+
             @vc_res[:device].connectable.connected
+        end
+
+        # Shrink not supported (nil). Size is in KB
+        def new_size
+            if @one_res["ORIGINAL_SIZE"]
+                original_size = @one_res["ORIGINAL_SIZE"].to_i
+                new_size      = @one_res["SIZE"].to_i
+
+                new_size = new_size > original_size ? new_size * 1024 : nil
+            end
+        end
+
+        def destroy()
+            return if is_cd?
+            raise "This device does not exist in vCetenter" unless exists?
+
+            ds       = VCenterDriver::Datastore.new(self.ds)
+            img_path = self.path
+
+            begin
+                img_dir = File.dirname(img_path)
+                search_params = ds.get_search_params(ds['name'],img_dir, File.basename(img_path))
+                search_task = ds['browser'].SearchDatastoreSubFolders_Task(search_params)
+                search_task.wait_for_completion
+                ds.delete_virtual_disk(img_path)
+                ds.rm_directory(img_dir) if ds.dir_empty?(img_dir)
+            rescue Exception => e
+                if !e.message.start_with?('FileNotFound')
+                    raise e.message # Ignore FileNotFound
+                end
+            end
         end
     end
 
@@ -189,11 +300,21 @@ class VirtualMachine < VCenterDriver::Template
     end
 
     def disk_real_path(disk, disk_id)
-        sppath = disk["SOURCE"].split(".")
+        volatile = disk['TYPE'] == 'fs'
 
-        raise "vm image path error!" if sppath.size != 2 || sppath.last != 'vmdk'
+        if volatile
+            dir = disk['VCENTER_DS_VOLATILE_DIR'] || 'one-volatile'
+            img_path = "#{dir}/#{@vm_id}/one-#{@vm_id}-#{disk_id}.vmdk"
+        else
+            source = disk['SOURCE'].gsub('%20', ' ')
+            folder = File.dirname(source)
+            ext    = File.extname(source)
+            file   = File.basename(source, ext)
 
-        img_path = "#{sppath[0]}-#{@vm_id}-#{disk_id}.#{sppath[1]}"
+            img_path = "#{folder}/#{file}-#{@vm_id}-#{disk_id}#{ext}"
+        end
+
+        return img_path
     end
 
     # The OpenNebula host
@@ -634,14 +755,34 @@ class VirtualMachine < VCenterDriver::Template
         @nics.size == get_one_nics.size
     end
 
-    def synced_disks?
-        @disks.size == get_one_disks.size
+    def disks
+        info_disks
     end
 
-    def disks
-        return @disks if synced_disks?
+    def no_remote_disks()
+        no_remote = []
+        disks.each do |id, disk|
+            no_remote << disk unless disk.exists?
+        end
 
-        sync_disks
+        no_remote
+    end
+
+    def remote_disks()
+        remote = []
+        disks.each do |id, disk|
+            remote << disk if disk.detached?
+        end
+
+        remote
+    end
+
+    def disks_synced?
+        no_remote_disks().empty? && remote_disks().empty?
+    end
+
+    def sync_disks()
+        return if disks_synced?
     end
 
     def get_template_ref
@@ -657,57 +798,71 @@ class VirtualMachine < VCenterDriver::Template
     end
 
     def query_disk(one_disk, keys, vc_disks)
-        index = one_disk["DISK_ID"]
-        perst = one_disk["PERSISTENT"]
+        index    = one_disk['DISK_ID']
+        cloned   = one_disk["CLONE"].nil? || one_disk["CLONE"] == "YES"
 
         if keys["opennebula.disk.#{index}"]
             key =  keys["opennebula.disk.#{index}"].to_i
             query = vc_disks.select {|dev| key == dev[:key]}
         else
-            path = perst ? one_disk['SOURCE'] : disk_real_path(one_disk, index)
+            path = !cloned ? one_disk['SOURCE'] : disk_real_path(one_disk, index)
             query = vc_disks.select {|dev| path == dev[:path_wo_ds]}
         end
 
-        raise "opennebula disk #{index} not found in vCenter" unless query.size == 1
+        #raise "opennebula disk #{index} not found in vCenter" unless query.size == 1
+        return nil if query.size != 1
 
-        return query.first
+        query.first
     end
 
     def sync_nics
     end
 
-    def sync_disks
-
+    def info_disks
+        @disks = {}
         keys = get_unmanaged_keys
         vc_disks  = get_vcenter_disks
         one_disks = get_one_disks
-        size = one_disks.size
+        size_one  = one_disks.size
+        size_vc   = vc_disks.size
 
         one_disks.each do |one_disk|
             index = one_disk["DISK_ID"]
 
             disk = query_disk(one_disk, keys, vc_disks)
 
-            vc_dev = vc_disks.delete(disk)
+            vc_dev = vc_disks.delete(disk) if disk
 
-            @disks[index] = Disk.new(index.to_i, one_disk, vc_dev)
+            if vc_dev
+                @disks[index] = Disk.new(index.to_i, one_disk, vc_dev)
+            else
+                @disks[index] = Disk.one_disk(index.to_i, one_disk)
+            end
         end
+
+        vc_disks.each {|d| @disks[d[:path_wo_ds]] = Disk.vc_disk(d)}
 
         @disks
     end
 
     def disk(index, opts = {})
+        index = index.to_s
+
         return @disks[index] if @disks[index] && opts[:sync].nil?
+
         one_disk = one_item.retrieve_xmlelements("TEMPLATE/DISK[DISK_ID='#{index}']").first rescue nil
 
         raise "disk #{index} not found" unless one_disk
 
         keys = opts[:keys].nil? ? get_unmanaged_keys : opts[:keys]
         vc_disks = opts[:disks].nil? ? get_vcenter_disks : opts[:disks]
-
         vc_disk = query_disk(one_disk, keys, vc_disks)
 
-        @disks[index] = Disk.new(index.to_i, one_disk, vc_disk)
+        if vc_disk
+            @disks[index] = Disk.new(index.to_i, one_disk, vc_disk)
+        else
+            @disks[index] = Disk.one_disk(index.to_i, one_disk)
+        end
     end
 
     def resize_unmanaged_disks(disk, new_size)
@@ -925,7 +1080,6 @@ class VirtualMachine < VCenterDriver::Template
         extra_config
     end
 
-
     def reconfigure
         extraconfig   = []
         device_change = []
@@ -1049,7 +1203,7 @@ class VirtualMachine < VCenterDriver::Template
         }
 
         # Remove all NICs in the spawned VM, they'll be recreated
-	# using the configuration of the NICs defined in OpenNebula
+	    # using the configuration of the NICs defined in OpenNebula
         self["config.hardware.device"].each do |dv|
             if is_nic?(dv)
                 # B4897 - It was detached in poweroff, remove it from VM
@@ -1403,6 +1557,93 @@ class VirtualMachine < VCenterDriver::Template
         return onevm_disks_vector
     end
 
+    # TODO
+    def attach_disks_specs()
+        attach_disk_array = []
+        attach_spod_array = []
+        attach_spod_disk_info = {}
+
+        no_remote_disks.each_with_index do |disk, i|
+            if disk.storpod?
+                spec = calculate_add_disk_spec(disk.one_item, i)
+                attach_spod_array << spec
+                unit_ctrl = "#{spec[:device].controllerKey}-#{spec[:device].unitNumber}"
+                attach_spod_disk_info[unit_ctrl] = disk.id
+            else
+                attach_disk_array << calculate_add_disk_spec(disk.one_item, i)
+            end
+        end
+
+        return attach_disk_array, attach_spod_array, attach_spod_disk_info
+    end
+
+    # TODO
+    def detach_disks_specs()
+        detach_disk_array = []
+        extra_config      = []
+        keys = get_unmanaged_keys
+
+        remote_disks.each do |d|
+            source = VCenterDriver::FileHelper.escape_path(d.path)
+            persistent = VCenterDriver::VIHelper.find_persistent_image_by_source(source, ipool)
+
+            if !persistent
+                op = {operation: :remove, device: d.device}
+                op[:fileOperation] = :destroy unless d.type == "CDROM"
+                detach_disk_array << op
+            end
+
+            # Remove reference opennebula.disk if exist
+            keys.each do |key, value|
+                if value.to_i == d.key
+                    reference = {}
+                    reference[:key]   = key
+                    reference[:value] = ""
+                    extra_config << reference
+                    break
+                end
+            end
+        end
+
+        return detach_disks_array, extra_config
+    end
+
+    # TODO
+    def sync_detached_disks()
+        device_change, extra_config = detach_disks_specs
+
+        return if device_change.empty?
+
+        spec_hash = {}
+        spec_hash[:deviceChange] = device_change if !device_change.empty?
+        spec_hash[:extraConfig] = extra_config  if !extra_config.empty?
+
+        # Reconfigure for disks detached from original template
+        spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+        @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+    end
+
+    # TODO
+    # calling this method should reconfigure the machine adding one disks
+    # that are not existing in vCenter
+    def sync_attached_disks()
+        spec_hash     = {}
+        device_change = []
+
+        device_change_ds, device_change_spod, device_change_spod_ids = attach_disks_specs
+        device_change += device_change_ds
+
+        # Create volatile disks in StorageDRS if any
+        if !device_change_spod.empty?
+            spec_hash[:extraConfig] = create_storagedrs_disks(device_change_spod, device_change_spod_ids)
+        end
+
+        # Common reconfigure task
+        spec_hash[:deviceChange] = device_change
+        spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+        @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+    end
+
     def device_attach_disks(onevm_disks_vector, vc_disks)
 
         disks = one_item.retrieve_xmlelements("TEMPLATE/DISK")
@@ -1600,8 +1841,40 @@ class VirtualMachine < VCenterDriver::Template
         end
     end
 
+    def ndetach_disk(disk)
+        return unless disk.exists?
 
-    # Detach DISK from VM
+        spec_hash = {}
+        spec_hash[:extraConfig] = [disk.config(:delete)] unless disk.managed?
+        spec_hash[:deviceChange] = [{
+            :operation => :remove,
+            :device => disk.device
+        }]
+
+        begin
+            @item.ReconfigVM_Task(:spec => spec_hash).wait_for_completion
+        rescue Exception => e
+            raise "Cannot detach DISK from VM: #{e.message}\n#{e.backtrace}"
+        end
+    end
+
+    def destroy_disk(disk)
+        one_vm = one_item
+
+        detachable= !(one_vm["LCM_STATE"].to_i == 11 && !disk.managed?)
+        detachable = detachable && !has_snapshots?
+
+        return unless detachable
+
+        ndetach_disk(disk)
+        disk.destroy()
+
+        @disks.delete(disk.id.to_s)
+    end
+
+    #DEPRECATED
+    #TODO: remove any reference to this method,
+    #       use ndetach disk instead
     def detach_disk(disk)
         spec_hash = {}
         img_path = ""
@@ -1854,6 +2127,27 @@ class VirtualMachine < VCenterDriver::Template
         end
     end
 
+    #TODO
+    def resize_disk(disk_id)
+        disk = self.disk(disk_id)
+        new_size = disk.new_size
+
+        return unless new_size
+
+        if !disk.exists?
+        end
+
+        # TODO:
+        #   not existings disks
+
+        # Edit capacity setting new size in KB
+        d = disk.device
+        d.capacityInKB = new_size
+        resize_hash[:deviceChange] = [{ :device => d, :operation => :edit }]
+        @item.ReconfigVM_Task(:spec => resize_hash).wait_for_completion
+    end
+
+
     def has_snapshots?
         self['rootSnapshot'] && !self['rootSnapshot'].empty?
     end
@@ -1864,6 +2158,10 @@ class VirtualMachine < VCenterDriver::Template
         rescue
             return false #one_item may not be retrieved if deploy_id hasn't been set
         end
+    end
+
+    def use_linked_clone?
+        one_item["USER_TEMPLATE/VCENTER_LINKED_CLONES"] && one_item["USER_TEMPLATE/VCENTER_LINKED_CLONES"].upcase == "YES"
     end
 
     def find_free_ide_controller(position=0)
