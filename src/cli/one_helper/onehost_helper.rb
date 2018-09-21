@@ -533,7 +533,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
         onevm_helper=OneVMHelper.new
         onevm_helper.client=@client
-        onevm_helper.list_pool({:filter=>["HOST=#{host.name}"]}, false)
+        onevm_helper.list_pool({:filter=>["HOST=#{host.name}"], :no_pager => true}, false)
     end
 
     def print_pcis(pcis)
