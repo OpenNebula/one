@@ -130,33 +130,19 @@ class Container
         set_attr
     end
 
-    # Waits for an operation to be completed
-    def wait(response, timeout)
-        operation_id = response['operation'].split('/').last
-        timeout = timeout.to_s if timeout.is_a? Integer
-        timeout = "?timeout=#{timeout}" unless timeout == ''
-        operation = @client.get("#{OPERATIONS}/#{operation_id}/wait#{timeout}")
-        update_local
-        operation
-    end
-
     # Waits or no for response depending on wait value
-    def wait?(response, timeout, wait)
-        if wait == false
-            wait(response, timeout)
-        else
-            response
-        end
+    def wait?(response, wait, timeout)
+        @client.wait(response, timeout) unless wait == false
     end
 
     # Performs an action on the container that changes the execution status.
     # Accepts optional args
     def change_state(action, options)
         options.update({ :action => action })
-        timeout = options[:timeout]
-        timeout ||= ''
         response = @client.put("#{CONTAINERS}/#{@name}/state", options)
-        wait?(response, options[:wait], timeout)
+        wait?(response, options[:wait], options[:timeout])
+        update_local
+        @status
     end
 
 end

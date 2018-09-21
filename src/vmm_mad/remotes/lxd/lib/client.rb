@@ -74,6 +74,14 @@ class LXDClient
         get_response(Net::HTTP::Patch.new("#{API}/#{uri}", HEADER), data)
     end
 
+    # Waits for an operation returned in response to be completed
+    def wait(response, timeout)
+        operation_id = response['operation'].split('/').last
+        timeout = timeout.to_s if timeout.is_a? Integer
+        timeout = "?timeout=#{timeout}" unless timeout == ''
+        get("operations/#{operation_id}/wait#{timeout}")
+    end
+
     private
 
     # Returns the HTTPResponse body as a hash
