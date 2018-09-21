@@ -46,6 +46,7 @@ module OpenNebula
             :disksnapshotcreate => "vm.disksnapshotcreate",
             :disksnapshotrevert => "vm.disksnapshotrevert",
             :disksnapshotdelete => "vm.disksnapshotdelete",
+            :disksnapshotrename => "vm.disksnapshotrename",
             :diskresize     => "vm.diskresize",
             :updateconf     => "vm.updateconf",
             :lock     => "vm.lock",
@@ -647,6 +648,18 @@ module OpenNebula
         #   otherwise
         def disk_snapshot_delete(disk_id, snap_id)
           return call(VM_METHODS[:disksnapshotdelete], @pe_id, disk_id, snap_id)
+        end
+
+        # Renames a disk snapshot
+        #
+        # @param disk_id  [Integer] Id of the disk
+        # @param snap_id  [Integer] Id of the snapshot
+        # @param new_name [String]  New name for the snapshot
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def disk_snapshot_rename(disk_id, snap_id, new_name)
+            return call(VM_METHODS[:disksnapshotrename], @pe_id, disk_id, snap_id, new_name)
         end
 
         # Changes the size of a disk
