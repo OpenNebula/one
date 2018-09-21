@@ -38,15 +38,6 @@ require 'vcenter_driver'
 
 VM_PREFIX_DEFAULT = "one-$i-"
 
-# Don't do a detach if unmanaged disks and state is terminate (EPILOG)
-def can_detach(disk, vm)
-
-    one_vm = vm.one_item
-    detachable= !(one_vm["LCM_STATE"].to_i == 11 && disk["OPENNEBULA_MANAGED"] && disk["OPENNEBULA_MANAGED"].upcase == "NO")
-
-    return detachable && !vm.has_snapshots?
-end
-
 path = ARGV[0]
 vmid = ARGV[1]
 dsid = ARGV[2]
@@ -97,20 +88,17 @@ begin
 
         # Get disk info, destroy it if is possible
         disk_id = img_path.split(".")[-1]
-        disk = one_vm.retrieve_xmlelements("TEMPLATE/DISK[DISK_ID=#{disk_id}]").first
-        if can_detach(disk, vm)
-            VCenterDriver::Datastore.detach_and_destroy(disk, vm, disk_id, ds_ref, vi_client)
-        end
+        disk = vm.disk(disk_id)
+        vm.destroy_disk(disk)
     else
         @error_message = "Error unregistering vm #{vmid} (#{vm_ref})."
         vm.poweroff_hard if vm.is_powered_on?
         vm.remove_all_snapshots if vm.has_snapshots?
 
-        disks = one_vm.retrieve_xmlelements("TEMPLATE/DISK")
-        disks.each do |d|
-            managed_disk = !d["OPENNEBULA_MANAGED"] || d["OPENNEBULA_MANAGED"].upcase != "NO"
-            vm.detach_disk(d) if d["PERSISTENT"] == "YES"
+        vm.disks.each do |disk_id, disk|
+            vm.ndetach_disk(disk) if disk.persistent?
         end
+
         vm.destroy
     end
 

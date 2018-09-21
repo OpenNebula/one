@@ -80,29 +80,18 @@ target_path_escaped = VCenterDriver::FileHelper.get_img_name_from_path(src_path_
 target_path = VCenterDriver::FileHelper.unescape_path(target_path_escaped)
 
 begin
-    vi_client     = VCenterDriver::VIClient.new_from_host(host_id)
+    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+    one_disk = one_vm.retrieve_xmlelements("TEMPLATE/DISK[SOURCE=\"#{src_path_escaped}\"]").select{|e| e['DISK_ID'] == disk_id}.first rescue nil
 
-    # Find disk info
-    disk = one_vm.retrieve_xmlelements("TEMPLATE/DISK[SOURCE=\"#{src_path_escaped}\"]").select{|e| e['DISK_ID'] == disk_id}.first rescue nil
+    raise "Cannot find disk element in vm template" if !one_disk
 
-    raise "Cannot find disk element in vm template" if !disk
-
-    new_size = nil
-    # Check if resize is needed
-    if disk["ORIGINAL_SIZE"]
-        original_size = disk["ORIGINAL_SIZE"].to_i
-        new_size      = disk["SIZE"].to_i
-
-        # Shrink not supported (nil). Size is in KB
-        new_size = new_size > original_size ? new_size * 1024 : nil
-    end
+    disk = VCenterDriver::VirtualMachine::Disk.one_disk(disk_id, one_disk)
+    new_size = disk.new_size
 
     # TODO: we should think about what to do with swap_disks
-    managed_disk   = !(disk['OPENNEBULA_MANAGED'] && disk['OPENNEBULA_MANAGED'].downcase == "no")
-    is_volatile    = disk["TYPE"] && disk["TYPE"].downcase == "fs"
     is_storage_drs = target_ds_ref.start_with?('group-')
 
-    return 0 if !managed_disk || (is_storage_drs && is_volatile)
+    return 0 if !disk.managed? || (is_storage_drs && disk.volatile?)
 
     raise "Non persistent images not supported for StorageDRS datastores" if is_storage_drs
 

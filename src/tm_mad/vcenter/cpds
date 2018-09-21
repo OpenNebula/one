@@ -75,27 +75,9 @@ begin
     end
 
     # Get source and target ds ref
-    disk = one_vm.retrieve_xmlelements("TEMPLATE/DISK[DISK_ID=#{disk_id}]").first
-
-    source_ds_ref = ""
-
-    # If disk is unmanaged get the reference from template
-    if disk["OPENNEBULA_MANAGED"] && disk["OPENNEBULA_MANAGED"].downcase == "no"
-        unmanaged_keys = vm.get_unmanaged_keys
-        device_key = unmanaged_keys["opennebula.disk.#{disk["DISK_ID"]}"].to_i
-        vc_disks  = vm.get_vcenter_disks
-        disk_hash = vm.get_device_filename_and_ds_from_key(device_key, vc_disks)
-        src_path  = disk_hash[:path_wo_ds]
-        source_ds_ref = disk_hash[:datastore]._ref
-    else
-        # Get image source path
-        src_path_escaped = VCenterDriver::FileHelper.get_img_name(disk, vmid, vm['name'])
-        src_path = VCenterDriver::FileHelper.unescape_path(src_path_escaped)
-
-        source_ds = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, source_ds_id)
-        source_ds_ref = source_ds['TEMPLATE/VCENTER_DS_REF']
-        ##source_ds_ref = disk["VCENTER_DS_REF"]
-    end
+    disk          = vm.disk(disk_id)
+    src_path      = disk.path
+    source_ds_ref = disk.ds_ref
 
     source_ds_vc = VCenterDriver::Datastore.new_from_ref(source_ds_ref, vi_client)
 
