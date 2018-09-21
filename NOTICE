@@ -6,21 +6,6 @@ Copyright 2002-2018, OpenNebula Project, OpenNebula Systems (formerly C12G Labs)
 You can find  more information about the project, release notes and
 documentation at www.OpenNebula.org
 
-AUTHORS
-
-- Ruben Santiago Montero (rsmontero@opennebula.org)
-- Ignacio Martin Llorente (imllorente@opennebula.org)
-
-ACKNOWLEDGEMENTS
-
-The following people have contributed to the development of the technology
-- Javier Fontan Muiños (jfontan@opennebula.org)
-- Constantino Vazquez Blanco (tinova@opennebula.org)
-- Jaime Melis Bayo (jmelis@opennebula.org)
-- Carlos Martin Sanchez (cmartin@opennebula.org)
-- Daniel Molina Aranda (dmolina@opennebula.org)
-- Hector Sanjuan Redondo (hsanjuan@opennebula.org)
-
 LICENSE
 
 OpenNebula is licensed under the Apache License, Version 2.0 (the
