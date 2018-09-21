@@ -21,11 +21,10 @@
 #
 class Container
 
-    attr_reader :name, :status, :status_code, :config_expanded, :devices_expanded
-    attr_accessor :devices, :config, :info
+    attr_reader :name, :status, :status_code, :info
+    attr_accessor :devices, :config, :config_expanded, :devices_expanded
 
     CONTAINERS = 'containers'.freeze
-    OPERATIONS = 'operations'.freeze
 
     # Creates the container object in memory.
     # Can be later created in LXD using create method
@@ -42,8 +41,8 @@ class Container
         # Params:
         # +name+:: container name
         def get(name, client)
-                info = client.get("#{CONTAINERS}/#{name}")['metadata']
-                Container.new(info, client)
+            info = client.get("#{CONTAINERS}/#{name}")['metadata']
+            Container.new(info, client)
         rescue LXDError => exception
             raise exception
         end
@@ -76,6 +75,7 @@ class Container
     def create(wait: true, timeout: '')
         @info['source'] = { 'type' => 'none' }
         wait?(@client.post(CONTAINERS, @info), wait, timeout)
+        update_local
     end
 
     # Delete container
