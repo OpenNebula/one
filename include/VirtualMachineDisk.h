@@ -265,6 +265,12 @@ public:
      */
     int rename_snapshot(int snap_id, const string& new_name, string& str_error)
     {
+        if (!snapshots)
+        {
+            str_error = "The VM does not have any snapshot";
+            return -1;
+        }
+
         return snapshots->rename_snapshot(snap_id, new_name, str_error);
     }
 
