@@ -18,5 +18,18 @@
 
 require_relative 'lib/lxd_driver'
 
-STDERR.puts('not implemented')
-Process.exit(-1)
+OpenNebula.log_info('Begin ' + LXDdriver::SEP)
+
+vm_name = ARGV[0]
+host = ARGV[1]
+vm_id = ARGV[2]
+
+client = LXDClient.new
+container = Container.get(vm_name, client)
+
+container.stop
+raise LXDError unless system('sudo umount /home/dann1/one-0.img')
+
+container.delete
+
+OpenNebula.log_info('End ' + LXDdriver::SEP)
