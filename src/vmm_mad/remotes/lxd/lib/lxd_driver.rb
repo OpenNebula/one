@@ -18,6 +18,7 @@
 
 require_relative 'container'
 require_relative 'client'
+require_relative '/var/tmp/one/scripts_common'
 
 ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
@@ -28,11 +29,12 @@ else
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
-$LOAD_PATH << File.dirname(__FILE__)
 
 require 'opennebula'
 
 module LXDdriver
+
+    SEP = '-' * 40
 
     # Container Info
     class Info < Hash
@@ -43,33 +45,45 @@ module LXDdriver
 
         def initialize(xml)
             self.xml = xml
-            self['name'] = ''
+            self['name'] = 'one-' + single_element('ID')
             self['config'] = {}
             self['devices'] = {}
-        end
-
-        def name
-            name = single_element('ID')
-            self['name'] = 'one-' + name.to_s
+            memory
+            cpu
+            # network
+            # storage
+            # vnc
         end
 
         # Creates a dictionary for LXD containing $MEMORY RAM allocated
         def memory
-            ram = single_element(TEMPLATE_PREFIX + 'MEMORY')
+            ram = single_element_pre('MEMORY')
             ram = ram.to_s + 'MB'
-            self['config'].merge!({ 'limits.memory' => ram })
+            self['config']['limits.memory'] = ram
         end
 
-        # Creates a dictionary for LXD containing $CPU percentage per core assigned to the container
+        # Creates a dictionary for LXD  $CPU percentage per core assigned to the container
         def cpu
-            cpu = single_element(TEMPLATE_PREFIX + 'CPU')
+            cpu = single_element_pre('CPU')
+            vcpu = single_element_pre('VCPU')
             cpu = (cpu.to_f * 100).to_i.to_s + '%'
-            self['config'].merge!({ 'limits.cpu.allowance' => cpu })
+            self['config']['limits.cpu.allowance'] = cpu
+            self['config']['limits.cpu'] = vcpu
         end
+
+        def network; end
+
+        def storage; end
+
+        def vnc; end
 
         # Returns PATH's instance in XML
         def single_element(path)
             xml[path]
+        end
+
+        def single_element_pre(path)
+            single_element(TEMPLATE_PREFIX + path)
         end
 
         # Returns an Array with PATH's instances in XML
@@ -77,6 +91,10 @@ module LXDdriver
             elements = []
             xml.retrieve_xmlelements(path).each {|d| elements.append(d.to_hash) }
             elements
+        end
+
+        def multiple_elements_pre(path)
+            multiple_elements(TEMPLATE_PREFIX + path)
         end
 
     end

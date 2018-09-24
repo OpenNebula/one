@@ -18,16 +18,35 @@
 
 require_relative 'lib/lxd_driver'
 
+OpenNebula.log_info('Begin ' + LXDdriver::SEP)
+
 dfile = ARGV[0]
 vm_id = ARGV[2]
 
+# Map one xml into LXD config
 xml = OpenNebula::XMLElement.new
 xml.initialize_xml(STDIN.read, 'VM')
-
-client = LXDClient.new
 info = LXDdriver::Info.new(xml)
 
+# Create container
+client = LXDClient.new
 container = Container.new(info, client)
+container.create
 
-STDERR.puts('not implemented')
-Process.exit(-1)
+# Setup required mounts
+system('sudo mount /home/dann1/one-0.img /var/lib/lxd/containers/one-0/')
+
+# Start container
+# TODO: validate existing container
+begin
+    raise LXDError, container.status if container.start != 'Running'
+rescue LXDError => e
+    system('sudo umount /home/dann1/one-0.img')
+    OpenNebula.log_error('Container failed to start')
+    container.delete
+    raise e
+end
+
+# VNC
+
+OpenNebula.log_info('End ' + LXDdriver::SEP)
