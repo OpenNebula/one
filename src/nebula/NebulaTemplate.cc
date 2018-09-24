@@ -794,6 +794,7 @@ static int _set_vm_auth_ops(const std::string& ops_str,
             ops_set.set(History::DISK_SNAPSHOT_CREATE_ACTION);
             ops_set.set(History::DISK_SNAPSHOT_DELETE_ACTION);
             ops_set.set(History::DISK_SNAPSHOT_REVERT_ACTION);
+            ops_set.set(History::DISK_SNAPSHOT_RENAME_ACTION);
         }
         else if ( the_op == "terminate" )
         {
