@@ -28,7 +28,13 @@ client = LXDClient.new
 container = Container.get(vm_name, client)
 
 container.stop
-raise LXDError unless system('sudo umount /home/dann1/one-0.img')
+
+begin
+    raise 'Failed to execute umounts' unless system('sudo umount /home/dann1/one-0.img')
+rescue StandardError => e
+    container.start
+    raise e
+end
 
 container.delete
 
