@@ -22,6 +22,8 @@ require_relative 'lib/lxd_driver'
 LXDriver.log_init
 
 dfile = ARGV[0]
+# TODO: save dfile
+# TODO: put dfile path in container.config
 vm_id = ARGV[2]
 
 # Map one xml into LXD config
@@ -29,16 +31,28 @@ xml = OpenNebula::XMLElement.new
 xml.initialize_xml(STDIN.read, 'VM')
 info = LXDriver::Info.new(xml)
 
-# Create container
+# Create container object
 client = LXDClient.new
 container = Container.new(info, client)
-container.create
+
+# Validate possible existing container
+if Container.exist?(container.name, client)
+    OpenNebula.log_info('Overriding container')
+    container = Container.get(container.name, client)
+    raise LXDError, 'A container with the same ID is already running' if container.status == 'Running'
+
+    container.config.update(info['config'])
+    container.devices.update(info['devices'])
+    container.update
+else
+    container.create
+end
 
 # Setup required mounts
-system('sudo mount /home/dann1/one-0.img /var/lib/lxd/containers/one-0/')
+# TODO: mappers
+system("sudo mount /home/dann1/one-0.img /var/lib/lxd/containers/#{container.name}/")
 
 # Start container
-# TODO: validate existing container
 begin
     raise LXDError, container.status if container.start != 'Running'
 rescue LXDError => e
@@ -49,5 +63,6 @@ rescue LXDError => e
 end
 
 # VNC
+# TODO: VNC server
 
 LXDriver.log_end(t0)
