@@ -16,9 +16,10 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+t0 = Time.now
 require_relative 'lib/lxd_driver'
 
-OpenNebula.log_info('Begin ' + LXDdriver::SEP)
+LXDriver.log_init
 
 dfile = ARGV[0]
 vm_id = ARGV[2]
@@ -26,7 +27,7 @@ vm_id = ARGV[2]
 # Map one xml into LXD config
 xml = OpenNebula::XMLElement.new
 xml.initialize_xml(STDIN.read, 'VM')
-info = LXDdriver::Info.new(xml)
+info = LXDriver::Info.new(xml)
 
 # Create container
 client = LXDClient.new
@@ -49,4 +50,4 @@ end
 
 # VNC
 
-OpenNebula.log_info('End ' + LXDdriver::SEP)
+LXDriver.log_end(t0)

@@ -32,7 +32,7 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 
 require 'opennebula'
 
-module LXDdriver
+module LXDriver
 
     SEP = '-' * 40
 
@@ -72,6 +72,7 @@ module LXDdriver
             self['config']['limits.cpu'] = vcpu
         end
 
+        # Sets up the network interfaces configuration in devices
         def network
             nics = multiple_elements_pre('NIC')
             nics.each do |nic|
@@ -111,6 +112,23 @@ module LXDdriver
 
         def multiple_elements_pre(path)
             multiple_elements(TEMPLATE_PREFIX + path)
+        end
+
+    end
+
+    class << self
+
+        def log_init
+            OpenNebula.log_info('Begin ' + SEP)
+        end
+
+        def log_end(t0)
+            time = time(t0)
+            OpenNebula.log_info("End #{time} #{SEP[(time.size - 1)..-1]}")
+        end
+
+        def time(t0)
+            time = (Time.now - t0).to_s
         end
 
     end

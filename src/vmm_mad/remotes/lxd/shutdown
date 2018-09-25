@@ -16,9 +16,10 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+t0 = Time.now
 require_relative 'lib/lxd_driver'
 
-OpenNebula.log_info('Begin ' + LXDdriver::SEP)
+LXDriver.log_init
 
 vm_name = ARGV[0]
 host = ARGV[1]
@@ -38,4 +39,4 @@ end
 
 container.delete
 
-OpenNebula.log_info('End ' + LXDdriver::SEP)
+LXDriver.log_end(t0)
