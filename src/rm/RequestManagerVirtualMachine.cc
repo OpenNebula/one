@@ -2947,13 +2947,15 @@ void VirtualMachineDiskSnapshotRename::request_execute(xmlrpc_c::paramList const
     if ( rc != 0 )
     {
         failure_response(ACTION, att);
+	
+	vm->unlock();
+	    
+	return;
     }
-    else
-    {
-        success_response(id, att);
+    
+    success_response(id, att);
         
-	pool->update(vm);
-    }
+    pool->update(vm);
 
     vm->unlock();
 
