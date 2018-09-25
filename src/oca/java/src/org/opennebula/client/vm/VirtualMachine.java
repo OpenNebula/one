@@ -51,6 +51,7 @@ public class VirtualMachine extends PoolElement{
     private static final String DISKSNAPSHOTCREATE  = METHOD_PREFIX + "disksnapshotcreate";
     private static final String DISKSNAPSHOTREVERT  = METHOD_PREFIX + "disksnapshotrevert";
     private static final String DISKSNAPSHOTDELETE  = METHOD_PREFIX + "disksnapshotdelete";
+    private static final String DISKSNAPSHOTRENAME  = METHOD_PREFIX + "disksnapshotrename";
     private static final String DISKRESIZE          = METHOD_PREFIX + "diskresize";
     private static final String UPDATECONF          = METHOD_PREFIX + "updateconf";
 
@@ -574,6 +575,23 @@ public class VirtualMachine extends PoolElement{
     {
         return client.call(DISKSNAPSHOTDELETE, id, diskId, snapId);
     }
+
+    /**
+     * Deletes a disk snapshot
+     *
+     * @param client XML-RPC Client.
+     * @param id The VM id of the target VM.
+     * @param diskId Id of the disk
+     * @param snapId Id of the snapshot
+     * @param new_name New name of the snapshot
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse diskSnapshotRename(Client client, int id,
+        int diskId, int snapId, String new_name)
+    {
+        return client.call(DISKSNAPSHOTRENAME, id, diskId, snapId, new_name);
+    }
+
 
     /**
      * Resize VM disk
