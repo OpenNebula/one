@@ -79,7 +79,8 @@ class LXDClient
         operation_id = response['operation'].split('/').last
         timeout = timeout.to_s if timeout.is_a? Integer
         timeout = "?timeout=#{timeout}" unless timeout == ''
-        get("operations/#{operation_id}/wait#{timeout}")
+        response = get("operations/#{operation_id}/wait#{timeout}")
+        raise LXDError, response if response['metadata']['status'] == 'Failure'
     end
 
     private
@@ -103,8 +104,8 @@ class LXDClient
         response = JSON.parse(response.body)
         raise LXDError, response if response['type'] == 'error'
 
-            response
-        end
+        response
+    end
 
 end
 
