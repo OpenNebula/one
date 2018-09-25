@@ -50,8 +50,9 @@ module LXDdriver
             self['devices'] = {}
             memory
             cpu
-            # network
+            network
             # storage
+            # context
             # vnc
         end
 
@@ -62,7 +63,7 @@ module LXDdriver
             self['config']['limits.memory'] = ram
         end
 
-        # Creates a dictionary for LXD  $CPU percentage per core assigned to the container
+        # Creates a dictionary for LXD  $CPU percentage and cores
         def cpu
             cpu = single_element_pre('CPU')
             vcpu = single_element_pre('VCPU')
@@ -71,7 +72,22 @@ module LXDdriver
             self['config']['limits.cpu'] = vcpu
         end
 
-        def network; end
+        def network
+            nics = multiple_elements_pre('NIC')
+            nics.each do |nic|
+                info = nic['NIC']
+                name = "eth#{info['NIC_ID']}"
+                eth = { 'name' => name, 'host_name' => info['TARGET'],
+                        'parent' => info['BRIDGE'], 'hwaddr' => info['MAC'],
+                        'nictype' => 'bridged', 'type' => 'nic' }
+
+                # Optional args
+                eth['limits.ingress'] = info['INBOUND_AVG_BW'] if info['INBOUND_AVG_BW']
+                eth['limits.egress'] = info['OUTBOUND_AVG_BW'] if info['OUTBOUND_AVG_BW']
+
+                self['devices'][name] = eth
+            end
+        end
 
         def storage; end
 
