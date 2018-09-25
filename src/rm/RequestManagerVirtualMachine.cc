@@ -2951,14 +2951,13 @@ void VirtualMachineDiskSnapshotRename::request_execute(xmlrpc_c::paramList const
     else
     {
         success_response(id, att);
+        
+	pool->update(vm);
     }
-
-    pool->update(vm);
 
     vm->unlock();
 
     return;
-
 }
 
 /* -------------------------------------------------------------------------- */
