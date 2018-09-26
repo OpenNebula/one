@@ -1,100 +1,90 @@
 {
-  "name": "Open Sans",
-  "designer": "Steve Matteson",
-  "license": "Apache2",
+  "name": "Comic Sans",
+  "designer": "Vincent Connare",
+  "license": "Proprietary af",
   "visibility": "External",
   "category": "Sans Serif",
   "size": 113987,
   "fonts": [
     {
-      "name": "Open Sans",
+      "name": "Comic Sans",
       "style": "normal",
       "weight": 300,
-      "filename": "OpenSans-Light.ttf",
-      "postScriptName": "OpenSans-Light",
-      "fullName": "Open Sans Light",
-      "copyright": "Digitized data copyright © 2010-2011, Google Corporation."
+      "filename": "ComicSans-Light.ttf",
+      "postScriptName": "ComicSans-Light",
+      "fullName": "Comic Sans Light"
     },
     {
-      "name": "Open Sans",
+      "name": "Comic Sans",
       "style": "italic",
       "weight": 300,
-      "filename": "OpenSans-LightItalic.ttf",
-      "postScriptName": "OpenSansLight-Italic",
-      "fullName": "Open Sans Light Italic",
-      "copyright": "Digitized data copyright © 2010-2011, Google Corporation."
+      "filename": "ComicSans-LightItalic.ttf",
+      "postScriptName": "ComicSansLight-Italic",
+      "fullName": "Comic Sans Light Italic"
     },
     {
-      "name": "Open Sans",
+      "name": "Comic Sans",
       "style": "normal",
       "weight": 400,
-      "filename": "OpenSans-Regular.ttf",
-      "postScriptName": "OpenSans",
-      "fullName": "Open Sans",
-      "copyright": "Digitized data copyright © 2010-2011, Google Corporation."
+      "filename": "ComicSans-Regular.ttf",
+      "postScriptName": "ComicSans",
+      "fullName": "Comic Sans"
     },
     {
-      "name": "Open Sans",
+      "name": "Comic Sans",
       "style": "italic",
       "weight": 400,
-      "filename": "OpenSans-Italic.ttf",
-      "postScriptName": "OpenSans-Italic",
-      "fullName": "Open Sans Italic",
-      "copyright": "Digitized data copyright © 2010-2011, Google Corporation."
+      "filename": "ComicSans-Italic.ttf",
+      "postScriptName": "ComicSans-Italic",
+      "fullName": "Comic Sans Italic"
     },
     {
-      "name": "Open Sans",
+      "name": "Comic Sans",
       "style": "normal",
       "weight": 600,
-      "filename": "OpenSans-Semibold.ttf",
-      "postScriptName": "OpenSans-Semibold",
-      "fullName": "Open Sans Semibold",
-      "copyright": "Digitized data copyright © 2011, Google Corporation."
+      "filename": "ComicSans-Semibold.ttf",
+      "postScriptName": "ComicSans-Semibold",
+      "fullName": "Comic Sans Semibold"
     },
     {
-      "name": "Open Sans",
+      "name": "Comic Sans",
       "style": "italic",
       "weight": 600,
-      "filename": "OpenSans-SemiboldItalic.ttf",
-      "postScriptName": "OpenSans-SemiboldItalic",
-      "fullName": "Open Sans Semibold Italic",
-      "copyright": "Digitized data copyright © 2010-2011, Google Corporation."
+      "filename": "ComicSans-SemiboldItalic.ttf",
+      "postScriptName": "ComicSans-SemiboldItalic",
+      "fullName": "Comic Sans Semibold Italic"
     },
     {
-      "name": "Open Sans",
+      "name": "Comic Sans",
       "style": "normal",
       "weight": 700,
-      "filename": "OpenSans-Bold.ttf",
-      "postScriptName": "OpenSans-Bold",
-      "fullName": "Open Sans Bold",
-      "copyright": "Digitized data copyright © 2010-2011, Google Corporation."
+      "filename": "ComicSans-Bold.ttf",
+      "postScriptName": "ComicSans-Bold",
+      "fullName": "Comic Sans Bold"
     },
     {
-      "name": "Open Sans",
+      "name": "Comic Sans",
       "style": "italic",
       "weight": 700,
-      "filename": "OpenSans-BoldItalic.ttf",
-      "postScriptName": "OpenSans-BoldItalic",
-      "fullName": "Open Sans Bold Italic",
-      "copyright": "Digitized data copyright © 2010-2011, Google Corporation."
+      "filename": "ComicSans-BoldItalic.ttf",
+      "postScriptName": "ComicSans-BoldItalic",
+      "fullName": "Comic Sans Bold Italic"
     },
     {
-      "name": "Open Sans",
+      "name": "Comic Sans",
       "style": "normal",
       "weight": 800,
-      "filename": "OpenSans-ExtraBold.ttf",
-      "postScriptName": "OpenSans-Extrabold",
-      "fullName": "Open Sans Extrabold",
-      "copyright": "Digitized data copyright © 2011, Google Corporation."
+      "filename": "ComicSans-ExtraBold.ttf",
+      "postScriptName": "ComicSans-Extrabold",
+      "fullName": "Comic Sans Extrabold"
     },
     {
-      "name": "Open Sans",
+      "name": "Comic Sans",
       "style": "italic",
       "weight": 800,
-      "filename": "OpenSans-ExtraBoldItalic.ttf",
-      "postScriptName": "OpenSans-ExtraboldItalic",
-      "fullName": "Open Sans Extrabold Italic",
-      "copyright": "Digitized data copyright © 2010-2011, Google Corporation."
+      "filename": "ComicSans-ExtraBoldItalic.ttf",
+      "postScriptName": "ComicSans-ExtraboldItalic",
+      "fullName": "Comic Sans Extrabold Italic"
     }
   ],
   "subsets": [
