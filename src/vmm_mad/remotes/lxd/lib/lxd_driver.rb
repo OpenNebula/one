@@ -18,7 +18,7 @@
 
 require_relative 'container'
 require_relative 'client'
-require_relative '/var/tmp/one/scripts_common'
+require_relative '../../../scripts_common.rb'
 
 ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
