@@ -23,7 +23,6 @@ LXDriver.log_init
 
 xml_path = ARGV[0] # Deployment path
 xml_file = STDIN.read
-LXDriver.save_deployment(xml_file, xml_path)
 
 # Map one xml into LXD config
 xml = OpenNebula::XMLElement.new
@@ -47,23 +46,14 @@ else
     container.create
 end
 
-# TODO: add this to Info.new
-container.config.update({ 'user.xml' => xml_path })
-container.update
+LXDriver.save_deployment(xml_file, xml_path, container)
 
 # Setup required mounts
 # TODO: mappers
 system("sudo mount /home/dann1/one-0.img /var/lib/lxd/containers/#{container.name}/")
 
 # Start container
-begin
-    raise LXDError, container.status if container.start != 'Running'
-rescue LXDError => e
-    system('sudo umount /home/dann1/one-0.img')
-    OpenNebula.log_error('Container failed to start')
-    container.delete
-    raise e
-end
+LXDriver.start_container(container)
 
 # VNC
 # TODO: VNC server

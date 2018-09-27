@@ -131,10 +131,21 @@ module LXDriver
             time = (Time.now - t0).to_s
         end
 
-        def save_deployment(xml, path)
+        def save_deployment(xml, path, container)
             f = File.new(path, 'w')
             f.write(xml)
             f.close
+            container.config['user.xml'] = path
+            container.update
+        end
+
+        def start_container(container)
+            raise LXDError, container.status if container.start != 'Running'
+        rescue LXDError => e
+            system('sudo umount /home/dann1/one-0.img')
+            OpenNebula.log_error('Container failed to start')
+            container.delete
+            raise e
         end
 
     end
