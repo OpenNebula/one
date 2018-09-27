@@ -21,14 +21,13 @@ require_relative 'lib/lxd_driver'
 
 LXDriver.log_init
 
-dfile = ARGV[0]
-# TODO: save dfile
-# TODO: put dfile path in container.config
-vm_id = ARGV[2]
+xml_path = ARGV[0] # Deployment path
+xml_file = STDIN.read
+LXDriver.save_deployment(xml_file, xml_path)
 
 # Map one xml into LXD config
 xml = OpenNebula::XMLElement.new
-xml.initialize_xml(STDIN.read, 'VM')
+xml.initialize_xml(xml_file, 'VM')
 info = LXDriver::Info.new(xml)
 
 # Create container object
@@ -47,6 +46,10 @@ if Container.exist?(container.name, client)
 else
     container.create
 end
+
+# TODO: add this to Info.new
+container.config.update({ 'user.xml' => xml_path })
+container.update
 
 # Setup required mounts
 # TODO: mappers

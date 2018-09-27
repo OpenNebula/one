@@ -131,6 +131,12 @@ module LXDriver
             time = (Time.now - t0).to_s
         end
 
+        def save_deployment(xml, path)
+            f = File.new(path, 'w')
+            f.write(xml)
+            f.close
+        end
+
     end
 
 end
