@@ -27,6 +27,7 @@ xml_file = STDIN.read
 # Map one xml into LXD config
 xml = OpenNebula::XMLElement.new
 xml.initialize_xml(xml_file, 'VM')
+# TODO: deal with missing parameters
 info = LXDriver::Info.new(xml)
 
 # Create container object

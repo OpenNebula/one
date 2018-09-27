@@ -83,8 +83,8 @@ module LXDriver
                         'nictype' => 'bridged', 'type' => 'nic' }
 
                 # Optional args
-                eth['limits.ingress'] = info['INBOUND_AVG_BW'] if info['INBOUND_AVG_BW']
-                eth['limits.egress'] = info['OUTBOUND_AVG_BW'] if info['OUTBOUND_AVG_BW']
+                eth['limits.ingress'] = nic_unit(info['INBOUND_AVG_BW']) if info['INBOUND_AVG_BW']
+                eth['limits.egress'] = nic_unit(info['OUTBOUND_AVG_BW']) if info['OUTBOUND_AVG_BW']
 
                 self['devices'][name] = eth
             end
@@ -93,6 +93,12 @@ module LXDriver
         def storage; end
 
         def vnc; end
+
+        def nic_unit(limit)
+            (limit.to_i * 8).to_s + 'kbit'
+        end
+
+        def method_name; end
 
         # Returns PATH's instance in XML
         def single_element(path)
