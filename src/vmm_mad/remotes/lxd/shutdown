@@ -21,12 +21,10 @@ require_relative 'lib/lxd_driver'
 
 LXDriver.log_init
 
-vm_name = ARGV[0]
-host = ARGV[1]
 vm_id = ARGV[2]
 
 client = LXDClient.new
-container = Container.get(vm_name, client)
+container = Container.get('one-' + vm_id, client)
 
 container.stop
 
