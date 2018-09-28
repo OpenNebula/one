@@ -35,6 +35,7 @@ require 'opennebula'
 module LXDriver
 
     SEP = '-' * 40
+    CONTAINERS = '/var/lib/lxd/containers/' # TODO: Fix hardcode
 
     # Container Info
     class Info < Hash

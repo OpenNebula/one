@@ -50,10 +50,11 @@ end
 LXDriver.save_deployment(xml_file, xml_path, container)
 
 # Setup required mounts
-# TODO: mappers
-# system('mapper/<mapper_script> <map|unmap> <source_disk> <directory> ')
+# TODO: mappers data parsing from xml
+# TODO: mapper for rootfs
+# TODO: mapper for datablocks
 
-system("sudo mount /home/dann1/one-0.img /var/lib/lxd/containers/#{container.name}/")
+system("#{__dir__}/mapper/qcow2.rb map #{LXDriver::CONTAINERS + container.name} /home/dann1/one-0.qcow2")
 
 # Start container
 LXDriver.start_container(container)
