@@ -149,7 +149,7 @@ module LXDriver
         def start_container(container)
             raise LXDError, container.status if container.start != 'Running'
         rescue LXDError => e
-            system('sudo umount /home/dann1/one-0.img')
+            system("#{__dir__}/mapper/qcow2.rb unmap #{LXDriver::CONTAINERS + container.name}")
             OpenNebula.log_error('Container failed to start')
             container.delete
             raise e
