@@ -95,7 +95,7 @@ module LXDriver
         # Sets up the storage devices configuration in devices
         def storage
             disks = multiple_elements_pre('DISK')
-        end9
+        end
 
         def vnc; end
 
