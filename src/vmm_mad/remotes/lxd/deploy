@@ -54,7 +54,8 @@ LXDriver.save_deployment(xml_file, xml_path, container)
 # TODO: mapper for rootfs
 # TODO: mapper for datablocks
 
-system("#{__dir__}/mapper/qcow2.rb map #{LXDriver::CONTAINERS + container.name} /home/dann1/one-0.qcow2")
+mapping = system("#{__dir__}/mapper/qcow2.rb map #{LXDriver::CONTAINERS + container.name} /home/dann1/one-0.qcow2")
+raise StandardError, 'mapping failed' unless mapping
 
 # Start container
 LXDriver.start_container(container)
