@@ -51,6 +51,8 @@ LXDriver.save_deployment(xml_file, xml_path, container)
 
 # Setup required mounts
 # TODO: mappers
+# system('mapper/<mapper_script> <map|unmap> <source_disk> <directory> ')
+
 system("sudo mount /home/dann1/one-0.img /var/lib/lxd/containers/#{container.name}/")
 
 # Start container
