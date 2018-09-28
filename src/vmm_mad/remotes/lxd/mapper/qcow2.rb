@@ -4,20 +4,18 @@ require_relative 'mount'
 include Mount
 
 action = ARGV[0] # map/unmap
-disk = ARGV[1] # image file path
-directory = ARGV[2] # drectory to mount image/the image is mounted
-
-datastore_path = '/var/lib/one/datastore'
-containers = '/var/lib/lxd/containers'
+directory = ARGV[1] # drectory to mount image/the image is mounted
+disk = ARGV[2] # image file path
 
 # modprobe nbd
 def map(disk)
-    block
-    exec("qemu-nbd -c /dev/#{block} #{datastore}/#{disk}")
+    device = block
+    system("sudo qemu-nbd -c #{device} #{disk}")
+    device
 end
 
 def unmap(block)
-    exec("qemu-nbd -d /dev/#{block}")
+    system("sudo qemu-nbd -d #{block}")
 end
 
 # Returns the first valid nbd block in which to map the qcow2 disk
@@ -42,9 +40,10 @@ def valid(array)
 end
 
 if action == 'map'
-    Mount.mount(map(disk), directory)
+    device = map(disk)
+    Mount.mount(device, directory)
 elsif action == 'unmap'
-    block = detect(directory)
+    device = Mount.detect(directory)
     Mount.umount(directory)
-    unmap(block)
+    unmap(device)
 end
