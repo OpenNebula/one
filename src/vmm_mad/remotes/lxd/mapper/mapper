@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 
-module Mount
+module Mapper
 
     class << self
 

@@ -35,13 +35,10 @@ begin
 
     # TODO: mapper for rootfs
     st_driver = 'qcow2'
-
-    mapper = "#{__dir__}/mapper/#{st_driver}.rb"
     dir = (LXDriver::CONTAINERS + container.name).to_s
 
-    unmapped = system("#{mapper} unmap #{dir}")
-
-    raise StandardError, 'unmapped failed' unless unmapped
+    require_relative "mapper/#{st_driver}"
+    Mapper.run('unmap', dir)
 rescue StandardError => e
     container.start
     raise e

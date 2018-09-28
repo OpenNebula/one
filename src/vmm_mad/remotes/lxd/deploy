@@ -59,14 +59,11 @@ LXDriver.save_deployment(xml_file, xml_path, container)
 ds_id = '0'
 disk_id = '0'
 st_driver = 'qcow2'
-
-mapper = "#{__dir__}/mapper/#{st_driver}.rb"
-dir = (LXDriver::CONTAINERS + container.name).to_s
+dir = LXDriver::CONTAINERS + container.name
 device = "#{LXDriver::DATASTORES}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
 
-mapping = system("#{mapper} map #{dir} #{device}")
-
-raise StandardError, 'mapping failed' unless mapping
+require_relative "mapper/#{st_driver}"
+Mapper.run('map', dir, device)
 
 # Start container
 LXDriver.start_container(container)
