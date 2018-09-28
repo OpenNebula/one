@@ -36,6 +36,7 @@ module LXDriver
 
     SEP = '-' * 40
     CONTAINERS = '/var/lib/lxd/containers/' # TODO: Fix hardcode
+    DATASTORES = '/var/lib/one/datastores/' # TODO: Fix hardcode
 
     # Container Info
     class Info < Hash
@@ -91,7 +92,10 @@ module LXDriver
             end
         end
 
-        def storage; end
+        # Sets up the storage devices configuration in devices
+        def storage
+            disks = multiple_elements_pre('DISK')
+        end9
 
         def vnc; end
 
@@ -154,6 +158,18 @@ module LXDriver
             container.delete
             raise e
         end
+
+        # def storage_init
+        #     rootfs_init
+        #     datablocks_init
+        #     context_init
+        # end
+
+        # def storage_end
+        #     rootfs_init
+        #     datablocks_init
+        #     context_init
+        # end
 
     end
 

@@ -27,12 +27,20 @@ client = LXDClient.new
 container = Container.get('one-' + vm_id, client)
 
 container.stop
+
 begin
     # TODO: mappers data parsing from xml
-    # TODO: mapper for rootfs
     # TODO: mapper for datablocks
+    # TODO: mapper for context
 
-    unmapped = system("#{__dir__}/mapper/qcow2.rb unmap #{LXDriver::CONTAINERS + container.name}")
+    # TODO: mapper for rootfs
+    st_driver = 'qcow2'
+
+    mapper = "#{__dir__}/mapper/#{st_driver}.rb"
+    dir = (LXDriver::CONTAINERS + container.name).to_s
+
+    unmapped = system("#{mapper} unmap #{dir}")
+
     raise StandardError, 'unmapped failed' unless unmapped
 rescue StandardError => e
     container.start

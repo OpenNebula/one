@@ -22,6 +22,7 @@ require_relative 'lib/lxd_driver'
 LXDriver.log_init
 
 xml_path = ARGV[0] # Deployment path
+vm_id = ARGV[2] # Deployment path
 xml_file = STDIN.read
 
 # Map one xml into LXD config
@@ -51,10 +52,20 @@ LXDriver.save_deployment(xml_file, xml_path, container)
 
 # Setup required mounts
 # TODO: mappers data parsing from xml
-# TODO: mapper for rootfs
 # TODO: mapper for datablocks
+# TODO: context
 
-mapping = system("#{__dir__}/mapper/qcow2.rb map #{LXDriver::CONTAINERS + container.name} /home/dann1/one-0.qcow2")
+# TODO: mapper for rootfs
+ds_id = '0'
+disk_id = '0'
+st_driver = 'qcow2'
+
+mapper = "#{__dir__}/mapper/#{st_driver}.rb"
+dir = (LXDriver::CONTAINERS + container.name).to_s
+device = "#{LXDriver::DATASTORES}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
+
+mapping = system("#{mapper} map #{dir} #{device}")
+
 raise StandardError, 'mapping failed' unless mapping
 
 # Start container
