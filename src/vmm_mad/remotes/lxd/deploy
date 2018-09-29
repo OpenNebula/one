@@ -39,7 +39,8 @@ container = Container.new(info, client)
 if Container.exist?(container.name, client)
     OpenNebula.log_info('Overriding container')
     container = Container.get(container.name, client)
-    raise LXDError, 'A container with the same ID is already running' if container.status == 'Running'
+    err_msg = 'A container with the same ID is already running'
+    raise LXDError, err_msg if container.status == 'Running'
 
     container.config.update(info['config'])
     container.devices.update(info['devices'])

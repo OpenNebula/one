@@ -33,6 +33,7 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 
 require 'opennebula'
 
+# Tools required by the vmm scripts
 module LXDriver
 
     SEP = '-' * 40
@@ -134,13 +135,13 @@ module LXDriver
             OpenNebula.log_info('Begin ' + SEP)
         end
 
-        def log_end(t0)
-            time = time(t0)
+        def log_end(time)
+            time = time(time)
             OpenNebula.log_info("End #{time} #{SEP[(time.size - 1)..-1]}")
         end
 
-        def time(t0)
-            time = (Time.now - t0).to_s
+        def time(time)
+            (Time.now - time).to_s
         end
 
         def save_deployment(xml, path, container)
