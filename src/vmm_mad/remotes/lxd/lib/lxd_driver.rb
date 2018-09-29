@@ -94,8 +94,55 @@ module LXDriver
         end
 
         # Sets up the storage devices configuration in devices
+        # TODO: readonly
+        # TODO: Read boot order
         def storage
             disks = multiple_elements_pre('DISK')
+            boot_order = single_element_pre('OS/BOOT')
+
+            bootme = 0
+            bootme = boot_order.split('disk')[1] if boot_order != ''
+
+            rootfs
+            datablock
+            context
+        end
+
+        def rootfs(bootme)
+            #  info = disk['DISK']
+            #  self['rootfs'] = disks[0]
+
+            # root_info = multiple_elements_pre('DISK')[bootme]['DISK']
+
+            # Optional args
+            # io = {'limits.read' => '', 'limits.write' => '', 'limits.max' => '' }
+            # io['limits.ingress'] = nic_unit(info['INBOUND_AVG_BW']) if info['INBOUND_AVG_BW']
+            # io['limits.egress'] = nic_unit(info['OUTBOUND_AVG_BW']) if info['OUTBOUND_AVG_BW']
+        end
+
+        def datablock
+            # disks.each do |disk|
+            #     next if info['DISK_ID'] == bootme
+
+            #         name = "disk#{info['DISK_ID']}"
+            #         ds_id = info['DATASTORE_ID']
+            #         disk_id = info['DISK_ID']
+            #         vm_id = info['VM_ID']
+            #         driver = info['DRIVER']
+
+            #         device = device_path(ds_id, vm_id, disk_id)
+
+            #         # TODO: Mapping actions should be done outside of initialize
+            #         # Mapper.run('map', dir, driver, device)
+
+            #         disk = {}
+            #         self['devices'][name] = disk
+            #         end
+            # end
+        end
+
+        def device_path(ds_id, vm_id, disk_id)
+            "#{DATASTORES}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
         end
 
         def context; end
