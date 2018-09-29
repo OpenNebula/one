@@ -62,8 +62,7 @@ st_driver = 'qcow2'
 dir = LXDriver::CONTAINERS + container.name
 device = "#{LXDriver::DATASTORES}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
 
-require_relative "mapper/#{st_driver}"
-Mapper.run('map', dir, device)
+Mapper.run('map', dir, st_driver, device)
 
 # Start container
 LXDriver.start_container(container)

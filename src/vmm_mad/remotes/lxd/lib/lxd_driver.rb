@@ -18,6 +18,7 @@
 
 require_relative 'container'
 require_relative 'client'
+require_relative '../mapper/mapper'
 require_relative '../../../scripts_common.rb'
 
 ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
@@ -153,23 +154,12 @@ module LXDriver
         def start_container(container)
             raise LXDError, container.status if container.start != 'Running'
         rescue LXDError => e
+            # TODO: Fix mapper
             Mapper.run('unmap', LXDriver::CONTAINERS + container.name)
             OpenNebula.log_error('Container failed to start')
             container.delete
             raise e
         end
-
-        # def storage_init
-        #     rootfs_init
-        #     datablocks_init
-        #     context_init
-        # end
-
-        # def storage_end
-        #     rootfs_init
-        #     datablocks_init
-        #     context_init
-        # end
 
     end
 

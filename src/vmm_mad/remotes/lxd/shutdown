@@ -37,8 +37,7 @@ begin
     st_driver = 'qcow2'
     dir = (LXDriver::CONTAINERS + container.name).to_s
 
-    require_relative "mapper/#{st_driver}"
-    Mapper.run('unmap', dir)
+    Mapper.run('unmap', dir, st_driver)
 rescue StandardError => e
     container.start
     raise e
