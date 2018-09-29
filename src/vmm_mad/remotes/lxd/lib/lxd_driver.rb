@@ -56,7 +56,6 @@ module LXDriver
             cpu
             network
             # storage
-            # context
             # vnc
         end
 
@@ -99,13 +98,13 @@ module LXDriver
             disks = multiple_elements_pre('DISK')
         end
 
+        def context; end
+
         def vnc; end
 
         def nic_unit(limit)
             (limit.to_i * 8).to_s + 'kbit'
         end
-
-        def method_name; end
 
         # Returns PATH's instance in XML
         def single_element(path)
