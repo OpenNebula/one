@@ -28,6 +28,8 @@
 
 #include "NebulaUtil.h"
 
+#include "Nebula.h"
+
 #define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
 
 /* ************************************************************************** */
@@ -299,6 +301,17 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     add_template_attribute("BRIDGE", bridge);
 
+    erase_template_attribute("BRIDGE_TYPE", bridge_type);
+
+    rc = parse_bridge_type(vn_mad, error_str);
+
+    if (rc != 0)
+    {
+        goto error_common;
+    }
+
+    add_template_attribute("BRIDGE_TYPE", bridge_type);
+
     //--------------------------------------------------------------------------
     // Get the Address Ranges
     //--------------------------------------------------------------------------
@@ -564,7 +577,8 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
             lock_db_to_xml(lock_str) <<
             perms_to_xml(perm_str) <<
             Clusterable::to_xml(clusters_xml)    <<
-            "<BRIDGE>" << one_util::escape_xml(bridge) << "</BRIDGE>";
+            "<BRIDGE>" << one_util::escape_xml(bridge) << "</BRIDGE>"
+            "<BRIDGE_TYPE>" << one_util::escape_xml(bridge_type) << "</BRIDGE_TYPE>";
 
     if (parent_vid != -1)
     {
@@ -663,6 +677,7 @@ int VirtualNetwork::from_xml(const string &xml_str)
 
     xpath(vn_mad, "/VNET/VN_MAD", "");
     xpath(phydev, "/VNET/PHYDEV", "");
+    xpath(bridge_type, "/VNET/BRIDGE_TYPE", "");
 
     xpath(vlan_id, "/VNET/VLAN_ID", "");
     xpath(outer_vlan_id, "/VNET/OUTER_VLAN_ID", "");
@@ -784,6 +799,12 @@ int VirtualNetwork::nic_attribute(
     set<int> cluster_ids = get_cluster_ids();
 
     nic->replace("CLUSTER_ID", one_util::join(cluster_ids, ','));
+
+
+    if (!bridge_type.empty())
+    {
+        nic->replace("BRIDGE_TYPE", bridge_type);
+    }
 
     for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)
     {
@@ -1308,4 +1329,47 @@ void VirtualNetwork::get_security_groups(set<int> & sgs)
     }
 
     ar_pool.get_all_security_groups(sgs);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::parse_bridge_type(const string &vn_mad, string &error_str)
+{
+    const VectorAttribute* vatt;
+    std::string br_type;
+
+    ostringstream oss;
+
+    if ( Nebula::instance().get_vn_conf_attribute(vn_mad, vatt) != 0 )
+    {
+        goto error_conf;
+    }
+
+    if ( vatt->vector_value("BRIDGE_TYPE", br_type) == -1)
+    {
+        goto error;
+    }
+    else
+    {
+        if (str_to_bridge_type(br_type) == UNDEFINED)
+        {
+            goto error;
+        }
+        bridge_type = br_type;
+    }
+
+    return 0;
+
+error_conf:
+    oss << "VN_MAD named \"" << vn_mad << "\" is not defined in oned.conf";
+    goto error_common;
+
+error:
+    oss << "Attribute bridge type in VN_MAD_CONF for "
+        << vn_mad << " is missing or has wrong value in oned.conf";
+
+error_common:
+    error_str = oss.str();
+    return -1;
 }
