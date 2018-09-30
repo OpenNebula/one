@@ -101,11 +101,11 @@ module LXDriver
             boot_order = single_element_pre('OS/BOOT')
 
             bootme = 0
-            bootme = boot_order.split('disk')[1] if boot_order != ''
+            bootme = boot_order.split(',')[0][-1] if boot_order != ''
 
-            rootfs
-            datablock
-            context
+            disks.each {|d| disks.insert(0, d).uniq if d['ID'] == bootme }
+
+            self['rootfs'] = info['DISK'][0]
         end
 
         def rootfs(bootme)
@@ -139,10 +139,6 @@ module LXDriver
             #         self['devices'][name] = disk
             #         end
             # end
-        end
-
-        def device_path(ds_id, vm_id, disk_id)
-            "#{DATASTORES}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
         end
 
         def context; end
@@ -188,6 +184,36 @@ module LXDriver
 
         def time(time)
             (Time.now - time).to_s
+        end
+
+        def disk(disks)
+            disks.each do |disk|
+
+                vm_id = disk['VM_ID']
+                ds_id = disk['DATASTORE_ID']
+                disk_id = disk['DISK_ID']
+                st_driver = disk['DRIVER']
+                device = device_path(ds_id, vm_id, disk_id)
+
+                if disk['DISK_ID'].zero? # rootfs
+                    source = CONTAINERS + container.name
+                    # io = {'limits.read' => '', 'limits.write' => '', 'limits.max' => '' }
+                    # io['limits.ingress'] = nic_unit(info['INBOUND_AVG_BW']) if info['INBOUND_AVG_BW']
+                    # io['limits.egress'] = nic_unit(info['OUTBOUND_AVG_BW']) if info['OUTBOUND_AVG_BW']
+                # else
+                #     name = "disk#{disk['DISK_ID']}"
+                #     source = info['SOURCE']
+                #     path = info['PATH']
+
+                #     disk = {}
+                #     self['devices'][name] = disk
+
+                Mapper.run('map', source, st_driver, device)
+            end
+        end
+
+        def device_path(ds_id, vm_id, disk_id)
+            "#{DATASTORES}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
         end
 
         def save_deployment(xml, path, container)
