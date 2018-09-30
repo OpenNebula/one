@@ -581,7 +581,7 @@ EOT
         # output
         #-----------------------------------------------------------------------
         def list_pool_table(table, pool, options, filter_flag)
-            if $stdout.isatty 
+            if $stdout.isatty and (!options.key?:no_pager) 
                 size = $stdout.winsize[0] - 1 
 
                 # ----------- First page, check if pager is needed -------------

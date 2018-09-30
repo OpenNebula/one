@@ -270,6 +270,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  vrouter_ip = "";
     string  filter = "";
     string  virtio_queues = "";
+    string  bridge_type = "";
 
     string  i_avg_bw = "";
     string  i_peak_bw = "";
@@ -1036,6 +1037,7 @@ int LibVirtDriver::deployment_description_kvm(
         ip            = nic[i]->vector_value("IP");
         filter        = nic[i]->vector_value("FILTER");
         virtio_queues = nic[i]->vector_value("VIRTIO_QUEUES");
+        bridge_type   = nic[i]->vector_value("BRDIGE_TYPE");
 
         vrouter_ip = nic[i]->vector_value("VROUTER_IP");
 
@@ -1055,8 +1057,7 @@ int LibVirtDriver::deployment_description_kvm(
         {
             file << "\t\t<interface type='bridge'>" << endl;
 
-            if (VirtualNetwork::str_to_driver(vn_mad) == VirtualNetwork::OVSWITCH ||
-                VirtualNetwork::str_to_driver(vn_mad) == VirtualNetwork::OVSWITCH_VXLAN)
+            if (VirtualNetwork::str_to_bridge_type(bridge_type) == VirtualNetwork::OPENVSWITCH)
             {
                 file << "\t\t\t<virtualport type='openvswitch'/>" << endl;
             }

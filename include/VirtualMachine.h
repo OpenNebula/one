@@ -1010,7 +1010,12 @@ public:
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int automatic_requirements(set<int>& cluster_ids, string& error_str);
+    int automatic_requirements(set<int>& cluster_ids, string& error_str)
+    {
+        std::set<int> datastore_ids;
+
+        return automatic_requirements(cluster_ids, datastore_ids, error_str);
+    }
 
     /**
      *  Checks if the resize parameters are valid
@@ -2003,6 +2008,16 @@ private:
      *  @return 0 if success
      */
     int get_vmgroup(string& error);
+
+    /**
+     * Adds automatic placement requirements: Datastore and Cluster
+     *    @param cluster_ids set of viable clusters for this VM
+     *    @param ds_ids set of viable datastores for this VM
+     *    @param error_str Returns the error reason, if any
+     *    @return 0 on success
+     */
+    int automatic_requirements(set<int>& cluster_ids, set<int>& ds_ids,
+            string& error_str);
 
     // ------------------------------------------------------------------------
     // Public cloud templates related functions

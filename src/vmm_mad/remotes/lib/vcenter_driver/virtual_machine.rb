@@ -576,6 +576,7 @@ class VirtualMachine < VCenterDriver::Template
         xpath = "TEMPLATE/DISK[OPENNEBULA_MANAGED=\"NO\" or OPENNEBULA_MANAGED=\"no\"]"
         unmanaged_disks = one_item.retrieve_xmlelements(xpath)
 
+        # unmanaged disks:
         if !unmanaged_disks.empty?
 
             # Get vcenter VM disks to know real path of cloned disk
@@ -592,13 +593,18 @@ class VirtualMachine < VCenterDriver::Template
             # Try to find index of disks in template disks
             unmanaged_disks.each do |unmanaged_disk|
                 unmanaged_disk_source = VCenterDriver::FileHelper.unescape_path(unmanaged_disk["SOURCE"])
-                index = template_disks_vector.index(unmanaged_disk_source)
-                if index
-                    reference = {}
-                    reference[:key]   = "opennebula.disk.#{unmanaged_disk["DISK_ID"]}"
-                    reference[:value] = "#{vcenter_disks[index][:key]}"
-                    extraconfig << reference
+                template_disk = template_disks.select{|d| d[:path_wo_ds] == unmanaged_disk_source }.first
+
+                if template_disk
+                    vcenter_disk  = vcenter_disks.select{|d| d[:key] == template_disk[:key] && d[:device].deviceInfo.summary == template_disk[:device].deviceInfo.summary}.first
                 end
+
+                raise "disk with path #{unmanaged_disk_source} not found in the vCenter VM" if !defined?(vcenter_disk) || vcenter_disk.empty?
+
+                reference = {}
+                reference[:key]   = "opennebula.disk.#{unmanaged_disk["DISK_ID"]}"
+                reference[:value] = "#{vcenter_disk[:key]}"
+                extraconfig << reference
             end
         end
 
