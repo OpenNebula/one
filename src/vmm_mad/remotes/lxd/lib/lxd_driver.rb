@@ -57,7 +57,6 @@ module LXDriver
             cpu
             network
             storage
-            # vnc
         end
 
         # Creates a dictionary for LXD containing $MEMORY RAM allocated
@@ -94,29 +93,45 @@ module LXDriver
             end
         end
 
+        def nic_unit(limit)
+            (limit.to_i * 8).to_s + 'kbit'
+        end
+
+        ###############
+        #   Storage   #
+        ###############
+
         # Sets up the storage devices configuration in devices
         # TODO: readonly
-        # TODO: Read boot order
+        # TODO: io
+        # TODO: source
+        # TODO: path
         def storage
-            disks = multiple_elements_pre('DISK')
-            boot_order = single_element_pre('OS/BOOT')
+            # disks = multiple_elements_pre('DISK')
+            # boot_order = single_element_pre('OS/BOOT')
+            #     name = "disk#{disk['DISK_ID']}"
+            #     self['devices'][name] = disk
 
-            bootme = 0
-            bootme = boot_order.split(',')[0][-1] if boot_order != ''
+            #     path = info['PATH']
+            # bootme = 0
+            # bootme = boot_order.split(',')[0][-1] if boot_order != ''
 
-            disks.each {|d| disks.insert(0, d).uniq if d['ID'] == bootme }
+            # disks.each {|d| disks.insert(0, d).uniq if d['ID'] == bootme }
 
-            self['disks'] = disks
-            self['rootfs'] = disks[0]
+            # self['disks'] = disks
+            # self['rootfs'] = disks[0]
+            #     disk = { 'path' => path, 'source' => source }
+
+            # io = {'limits.read' => '', 'limits.write' => '', 'limits.max' => '' }
+            # io['limits.read'] = nic_unit(info['INBOUND_AVG_BW']) if info['INBOUND_AVG_BW']
+            # io['limits.write'] = nic_unit(info['OUTBOUND_AVG_BW']) if info['OUTBOUND_AVG_BW']
         end
 
         def context; end
 
-        def vnc; end
-
-        def nic_unit(limit)
-            (limit.to_i * 8).to_s + 'kbit'
-        end
+        ###############
+        # XML Parsing #
+        ###############
 
         # Returns PATH's instance in XML
         def single_element(path)
@@ -155,38 +170,41 @@ module LXDriver
             (Time.now - time).to_s
         end
 
-        def disk(disks, id)
+        def disk(info)
+            disks = info.multiple_elements_pre('DISK')
+            ds_id = 0 # TODO: fix hardcoded datastore_id
+            vm_id = info.single_element_pre('VMID')
+
+            # TODO: Add support when path is /
+            bootme = '0'
+            boot_order = info.single_element_pre('OS/BOOT')
+            bootme = boot_order.split(',')[0][-1] if boot_order != ''
+
             disks.each do |disk|
                 info = disk['DISK']
-                vm_id = id
-                ds_id = 0 # TODO: fix hardcoded datastore_id
                 disk_id = info['DISK_ID']
-                st_driver = info['DRIVER']
                 device = device_path(ds_id, vm_id, disk_id)
-                # io = {'limits.read' => '', 'limits.write' => '', 'limits.max' => '' }
-                # io['limits.read'] = nic_unit(info['INBOUND_AVG_BW']) if info['INBOUND_AVG_BW']
-                # io['limits.write'] = nic_unit(info['OUTBOUND_AVG_BW']) if info['OUTBOUND_AVG_BW']
+                mountpoint = CONTAINERS + 'one-' + vm_id
 
-                if disk_id.to_i.zero? # rootfs
-                    source = CONTAINERS + 'one-' + vm_id
-                    mapper = select_driver(st_driver)
-                    mapper.run('map', source, device)
-                # else
-                #     name = "disk#{disk['DISK_ID']}"
-                #     source = info['SOURCE']
-                #     path = info['PATH']
-
-                #     disk = { 'path' => path, 'source' => source }
-
-                #     self['devices'][name] = disk
-                #     mapper = select_driver(st_driver)
-                #     mapper.run('map', source, device)
+                # TODO: extra disks
+                if disk_id != bootme # rootfs
+                    mountpoint = device_mapper_dir(ds_id, vm_id, disk_id)
+                    raise "failed to create #{mountpoint}" if system("mkdir -p #{mountpoint}")
                 end
+
+                mapper = select_driver(info['DRIVER'])
+                mapper.run('map', mountpoint, device)
             end
         end
 
         def device_path(ds_id, vm_id, disk_id)
             "#{DATASTORES}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
+        end
+
+        def device_mapper_dir(ds_id, vm_id, disk_id)
+            # TODO: improve from device_path
+            # TODO: use for Info.storage in 'source'
+            "#{DATASTORES}/#{ds_id}/#{vm_id}/mapper/disk.#{disk_id}"
         end
 
         def select_driver(driver)
@@ -215,6 +233,8 @@ module LXDriver
             container.delete
             raise e
         end
+
+        def vnc; end
 
     end
 

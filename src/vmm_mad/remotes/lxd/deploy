@@ -52,12 +52,7 @@ end
 LXDriver.save_deployment(xml_file, xml_path, container)
 
 # Setup required mounts
-# TODO: mappers data parsing from xml
-# TODO: mapper for datablocks
-# TODO: context
-
-# TODO: mapper for rootfs
-LXDriver.disk(info['disks'], vm_id)
+LXDriver.disk(info)
 
 # Start container
 LXDriver.start_container(container)

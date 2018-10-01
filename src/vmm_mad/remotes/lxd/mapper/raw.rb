@@ -23,6 +23,7 @@ class RAW < Mapper
 
     class << self
 
+        # TODO: losetup can be avoided
         def map(disk)
             `sudo losetup -f --show #{disk}`.chomp
         end
