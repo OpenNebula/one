@@ -1,7 +1,8 @@
 #!/usr/bin/ruby
 
+# Mapping disks on the host
 # TODO: mve mappers to lib
-module Mapper
+class Mapper
 
     class << self
 
@@ -17,8 +18,7 @@ module Mapper
           `df -h #{path} | grep /dev | awk '{print $1}'`
       end
 
-      def run(action, directory, driver, disk = nil)
-          require_relative driver
+      def run(action, directory, disk = nil)
           case action
           when 'map'
               device = map(disk)

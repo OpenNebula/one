@@ -18,7 +18,8 @@
 
 require_relative 'container'
 require_relative 'client'
-require_relative '../mapper/mapper'
+require_relative '../mapper/raw'
+require_relative '../mapper/qcow2'
 require_relative '../../../scripts_common.rb'
 
 ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
@@ -55,7 +56,7 @@ module LXDriver
             memory
             cpu
             network
-            # storage
+            storage
             # vnc
         end
 
@@ -105,40 +106,8 @@ module LXDriver
 
             disks.each {|d| disks.insert(0, d).uniq if d['ID'] == bootme }
 
-            self['rootfs'] = info['DISK'][0]
-        end
-
-        def rootfs(bootme)
-            #  info = disk['DISK']
-            #  self['rootfs'] = disks[0]
-
-            # root_info = multiple_elements_pre('DISK')[bootme]['DISK']
-
-            # Optional args
-            # io = {'limits.read' => '', 'limits.write' => '', 'limits.max' => '' }
-            # io['limits.ingress'] = nic_unit(info['INBOUND_AVG_BW']) if info['INBOUND_AVG_BW']
-            # io['limits.egress'] = nic_unit(info['OUTBOUND_AVG_BW']) if info['OUTBOUND_AVG_BW']
-        end
-
-        def datablock
-            # disks.each do |disk|
-            #     next if info['DISK_ID'] == bootme
-
-            #         name = "disk#{info['DISK_ID']}"
-            #         ds_id = info['DATASTORE_ID']
-            #         disk_id = info['DISK_ID']
-            #         vm_id = info['VM_ID']
-            #         driver = info['DRIVER']
-
-            #         device = device_path(ds_id, vm_id, disk_id)
-
-            #         # TODO: Mapping actions should be done outside of initialize
-            #         # Mapper.run('map', dir, driver, device)
-
-            #         disk = {}
-            #         self['devices'][name] = disk
-            #         end
-            # end
+            self['disks'] = disks
+            self['rootfs'] = disks[0]
         end
 
         def context; end
@@ -186,34 +155,47 @@ module LXDriver
             (Time.now - time).to_s
         end
 
-        def disk(disks)
+        def disk(disks, id)
             disks.each do |disk|
-
-                vm_id = disk['VM_ID']
-                ds_id = disk['DATASTORE_ID']
-                disk_id = disk['DISK_ID']
-                st_driver = disk['DRIVER']
+                info = disk['DISK']
+                vm_id = id
+                ds_id = 0 # TODO: fix hardcoded datastore_id
+                disk_id = info['DISK_ID']
+                st_driver = info['DRIVER']
                 device = device_path(ds_id, vm_id, disk_id)
+                # io = {'limits.read' => '', 'limits.write' => '', 'limits.max' => '' }
+                # io['limits.read'] = nic_unit(info['INBOUND_AVG_BW']) if info['INBOUND_AVG_BW']
+                # io['limits.write'] = nic_unit(info['OUTBOUND_AVG_BW']) if info['OUTBOUND_AVG_BW']
 
-                if disk['DISK_ID'].zero? # rootfs
-                    source = CONTAINERS + container.name
-                    # io = {'limits.read' => '', 'limits.write' => '', 'limits.max' => '' }
-                    # io['limits.ingress'] = nic_unit(info['INBOUND_AVG_BW']) if info['INBOUND_AVG_BW']
-                    # io['limits.egress'] = nic_unit(info['OUTBOUND_AVG_BW']) if info['OUTBOUND_AVG_BW']
+                if disk_id.to_i.zero? # rootfs
+                    source = CONTAINERS + 'one-' + vm_id
+                    mapper = select_driver(st_driver)
+                    mapper.run('map', source, device)
                 # else
                 #     name = "disk#{disk['DISK_ID']}"
                 #     source = info['SOURCE']
                 #     path = info['PATH']
 
-                #     disk = {}
-                #     self['devices'][name] = disk
+                #     disk = { 'path' => path, 'source' => source }
 
-                Mapper.run('map', source, st_driver, device)
+                #     self['devices'][name] = disk
+                #     mapper = select_driver(st_driver)
+                #     mapper.run('map', source, device)
+                end
             end
         end
 
         def device_path(ds_id, vm_id, disk_id)
             "#{DATASTORES}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
+        end
+
+        def select_driver(driver)
+            case driver
+            when 'raw'
+                RAW
+            when 'qcow2'
+                QCOW2
+            end
         end
 
         def save_deployment(xml, path, container)

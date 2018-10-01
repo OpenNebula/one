@@ -57,7 +57,7 @@ LXDriver.save_deployment(xml_file, xml_path, container)
 # TODO: context
 
 # TODO: mapper for rootfs
-LXDriver.disk(info['DISK'])
+LXDriver.disk(info['disks'], vm_id)
 
 # Start container
 LXDriver.start_container(container)
