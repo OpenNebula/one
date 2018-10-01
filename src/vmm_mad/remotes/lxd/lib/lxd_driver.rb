@@ -53,6 +53,8 @@ module LXDriver
             self['name'] = 'one-' + single_element('ID')
             self['config'] = {}
             self['devices'] = {}
+
+            # TODO: deal with missing parameters
             memory
             cpu
             network
@@ -170,31 +172,36 @@ module LXDriver
             (Time.now - time).to_s
         end
 
-        def disk(info)
+        def disk(info, action)
+            # TODO: improve use of conditions for root and actions
             disks = info.multiple_elements_pre('DISK')
-            ds_id = 0 # TODO: fix hardcoded datastore_id
+            ds_id = 0 # TODO: Get from history records
             vm_id = info.single_element_pre('VMID')
-
-            # TODO: Add support when path is /
-            bootme = '0'
-            boot_order = info.single_element_pre('OS/BOOT')
-            bootme = boot_order.split(',')[0][-1] if boot_order != ''
+            bootme = get_rootfs_id(info)
 
             disks.each do |disk|
                 info = disk['DISK']
                 disk_id = info['DISK_ID']
-                device = device_path(ds_id, vm_id, disk_id)
                 mountpoint = CONTAINERS + 'one-' + vm_id
+                device = nil
 
-                # TODO: extra disks
-                if disk_id != bootme # rootfs
+                if disk_id != bootme # non_rootfs
                     mountpoint = device_mapper_dir(ds_id, vm_id, disk_id)
-                    raise "failed to create #{mountpoint}" if system("mkdir -p #{mountpoint}")
+                    raise "failed to create #{mountpoint}" unless system("mkdir -p #{mountpoint}")
                 end
-
+                
                 mapper = select_driver(info['DRIVER'])
-                mapper.run('map', mountpoint, device)
+                device = device_path(ds_id, vm_id, disk_id) if action == 'map'
+                mapper.run(action, mountpoint, device)
             end
+        end
+
+        def get_rootfs_id(info)
+            # TODO: Add support when path is /
+            bootme = '0'
+            boot_order = info.single_element_pre('OS/BOOT')
+            bootme = boot_order.split(',')[0][-1] if boot_order != ''
+            bootme
         end
 
         def device_path(ds_id, vm_id, disk_id)
@@ -224,11 +231,10 @@ module LXDriver
             container.update
         end
 
-        def start_container(container)
+        def start_container(container, info)
             raise LXDError, container.status if container.start != 'Running'
         rescue LXDError => e
-            # TODO: Fix mapper
-            Mapper.run('unmap', LXDriver::CONTAINERS + container.name)
+            disk(info, 'unmap')
             OpenNebula.log_error('Container failed to start')
             container.delete
             raise e

@@ -17,8 +17,9 @@
 #--------------------------------------------------------------------------- #
 
 # Mapping disks on the host
-# TODO: mve mappers to lib
 class Mapper
+    # TODO: move mappers to lib?
+    # TODO: format empty datablocks 
 
     class << self
 

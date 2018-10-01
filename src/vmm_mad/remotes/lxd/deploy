@@ -26,9 +26,9 @@ vm_id = ARGV[2] # Deployment path
 xml_file = STDIN.read
 
 # Map one xml into LXD config
+# TODO: make method
 xml = OpenNebula::XMLElement.new
 xml.initialize_xml(xml_file, 'VM')
-# TODO: deal with missing parameters
 info = LXDriver::Info.new(xml)
 
 # Create container object
@@ -52,7 +52,7 @@ end
 LXDriver.save_deployment(xml_file, xml_path, container)
 
 # Setup required mounts
-LXDriver.disk(info)
+LXDriver.disk(info, 'map')
 
 # Start container
 LXDriver.start_container(container)
@@ -62,4 +62,4 @@ LXDriver.start_container(container)
 
 LXDriver.log_end(t0)
 
-puts 'one-' + vm_id
+puts container.name
