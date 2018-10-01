@@ -39,7 +39,6 @@ module LXDriver
 
     SEP = '-' * 40
     CONTAINERS = '/var/lib/lxd/containers/' # TODO: Fix hardcode
-    DATASTORES = '/var/lib/one/datastores/' # TODO: Fix hardcode
 
     # Container Info
     class Info < Hash
@@ -51,8 +50,8 @@ module LXDriver
         def initialize(xml_file)
             xml = OpenNebula::XMLElement.new
             xml.initialize_xml(xml_file, 'VM')
-
             self.xml = xml
+
             self['name'] = 'one-' + single_element('ID')
             self['config'] = {}
             self['devices'] = {}
@@ -132,6 +131,14 @@ module LXDriver
             # io['limits.write'] = nic_unit(info['OUTBOUND_AVG_BW']) if info['OUTBOUND_AVG_BW']
         end
 
+        # gets opennebula datastores path
+        def get_datastores
+            disk = multiple_elements_pre('DISK')[0]['DISK']
+            source = disk['SOURCE']
+            ds_id = disk['DATASTORE_ID']
+            source.split(ds_id + '/')[0]
+        end
+
         def context; end
 
         ###############
@@ -179,23 +186,23 @@ module LXDriver
         def disk(info, action)
             # TODO: improve use of conditions for root and actions
             disks = info.multiple_elements_pre('DISK')
-            ds_id = 0 # TODO: Get from history records
+            ds_id = info.single_element('//HISTORY_RECORDS/HISTORY/DS_ID')
+            dss_path = info.get_datastores
             vm_id = info.single_element_pre('VMID')
             bootme = get_rootfs_id(info)
+            mountpoint = CONTAINERS + 'one-' + vm_id
 
             disks.each do |disk|
                 info = disk['DISK']
                 disk_id = info['DISK_ID']
-                mountpoint = CONTAINERS + 'one-' + vm_id
-                device = nil
 
                 if disk_id != bootme # non_rootfs
-                    mountpoint = device_mapper_dir(ds_id, vm_id, disk_id)
-                    raise "failed to create #{mountpoint}" unless system("mkdir -p #{mountpoint}")
+                    mountpoint = device_mapper_dir(dss_path, ds_id, vm_id, disk_id)
+                    raise "failed to create #{mountpoint}" if action == 'map' && !system("mkdir -p #{mountpoint}")
                 end
-                
+
                 mapper = select_driver(info['DRIVER'])
-                device = device_path(ds_id, vm_id, disk_id) if action == 'map'
+                device = device_path(dss_path, ds_id, vm_id, disk_id)
                 mapper.run(action, mountpoint, device)
             end
         end
@@ -209,14 +216,14 @@ module LXDriver
             bootme
         end
 
-        def device_path(ds_id, vm_id, disk_id)
-            "#{DATASTORES}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
+        def device_path(dss_path, ds_id, vm_id, disk_id)
+            "#{dss_path}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
         end
 
-        def device_mapper_dir(ds_id, vm_id, disk_id)
+        def device_mapper_dir(dss_path, ds_id, vm_id, disk_id)
             # TODO: improve from device_path
             # TODO: use for Info.storage in 'source'
-            "#{DATASTORES}/#{ds_id}/#{vm_id}/mapper/disk.#{disk_id}"
+            "#{dss_path}/#{ds_id}/#{vm_id}/mapper/disk.#{disk_id}"
         end
 
         def select_driver(driver)
