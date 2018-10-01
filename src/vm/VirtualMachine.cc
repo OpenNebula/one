@@ -763,6 +763,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     long int ivalue;
     float fvalue;
     set<int> cluster_ids;
+    set<int> datastore_ids;
     vector<Template *> quotas;
 
     ostringstream oss;
@@ -1015,7 +1016,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         goto error_requirements;
     }
 
-    rc = automatic_requirements(cluster_ids, error_str);
+    rc = automatic_requirements(cluster_ids, datastore_ids, error_str);
 
     if ( rc != 0 )
     {
@@ -1157,6 +1158,39 @@ error_common:
 /* ------------------------------------------------------------------------ */
 
 /**
+ * @return -1 for incompatible datastore IDs, -2 for missing datastore IDs
+ */
+static int check_and_set_datastores_id(const set<int> &csystem_ds, 
+        set<int> &ds_ids)
+{
+    if ( csystem_ds.empty() )
+    {
+        return -2;
+    }
+
+    if ( ds_ids.empty() )
+    {
+        ds_ids = csystem_ds;
+
+        return 0;
+    }
+
+    set<int> intersection = one_util::set_intersection(ds_ids, csystem_ds);
+
+    if (intersection.empty())
+    {
+        return -1;
+    }
+
+    ds_ids = intersection;
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+
+
+/**
  * @return -1 for incompatible cluster IDs, -2 for missing cluster IDs
  */
 static int check_and_set_cluster_id(
@@ -1188,7 +1222,8 @@ static int check_and_set_cluster_id(
         return 0;
     }
 
-    set<int> intersection = one_util::set_intersection(cluster_ids, vatt_cluster_ids);
+    set<int> intersection = one_util::set_intersection(cluster_ids,
+            vatt_cluster_ids);
 
     if (intersection.empty())
     {
@@ -1441,10 +1476,76 @@ error_common:
 }
 
 /* ------------------------------------------------------------------------ */
+
+/**
+ * Returns the list of Datastore IDs where the VM can be deployed, based
+ * on the images and his image datastores
+ *
+ * @param tmpl of the VirtualMachine
+ * @param datastore_ids set of Cluster IDs
+ * @param error_str Returns the error reason, if any
+ * @return 0 on success
+ */
+static int get_datastore_requirements(Template *tmpl, set<int>& ds_ids, 
+        string& error_str)
+{
+    ostringstream oss;
+
+    vector<VectorAttribute*> vatts;
+    set<int> csystem_ds;
+
+    DatastorePool * ds_pool = Nebula::instance().get_dspool();
+
+    int incomp_id;
+
+    // Get cluster id from all DISK vector attributes (IMAGE Datastore)
+    int num_vatts = tmpl->get("DISK",vatts);
+
+    for(int i=0; i<num_vatts; i++)
+    {
+        int val;
+
+        if (vatts[i]->vector_value("DATASTORE_ID", val) != 0)
+        {
+            continue;
+        }
+
+        Datastore * ds = ds_pool->get(val);
+
+        if ( ds != 0)
+        {
+            ds->get_compatible_system_ds(csystem_ds);
+
+            ds->unlock();
+
+            int rc = check_and_set_datastores_id(csystem_ds, ds_ids);
+
+            if ( rc != 0 )
+            {
+                incomp_id = i;
+                goto error_disk;
+            }
+        }
+    }
+
+    return 0;
+
+error_disk:
+    oss << "Incompatible system datastore in DISK. Images Datastore for DISK "
+        << incomp_id
+        << " has not the same complatible system datastore"
+        << "(system datastores " << one_util::join(ds_ids, ',') << ")";
+
+    error_str = oss.str();
+
+    return -1;
+}
+
+/* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
 int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
-    string& error_str)
+        set<int>& datastore_ids, string& error_str)
 {
     string tm_mad_system;
     ostringstream   oss;
@@ -1459,6 +1560,8 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
     {
         return -1;
     }
+
+    rc = get_datastore_requirements(obj_template, datastore_ids, error_str);
 
     if ( !cluster_ids.empty() )
     {
@@ -1507,18 +1610,40 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
 
     // Set automatic System DS requirements
 
-    if ( !cluster_ids.empty() )
+    if ( !cluster_ids.empty() || !datastore_ids.empty() )
     {
-        set<int>::iterator i = cluster_ids.begin();
-
-        oss << "(\"CLUSTERS/ID\" @> " << *i;
-
-        for (++i; i != cluster_ids.end(); i++)
+        if ( !cluster_ids.empty() )
         {
-            oss << " | \"CLUSTERS/ID\" @> " << *i;
+            set<int>::iterator i = cluster_ids.begin();
+
+            oss << "(\"CLUSTERS/ID\" @> " << *i;
+
+            for (++i; i != cluster_ids.end(); i++)
+            {
+                oss << " | \"CLUSTERS/ID\" @> " << *i;
+            }
+
+            oss << ")";
+
+            if ( !datastore_ids.empty() )
+            {
+                oss << " & ";
+            }
         }
 
-        oss << ")";
+        if ( !datastore_ids.empty() )
+        {
+            set<int>::iterator i = datastore_ids.begin();
+
+            oss << "(\"ID\" @> " << *i;
+
+            for (++i; i != datastore_ids.end(); i++)
+            {
+                oss << " | \"ID\" @> " << *i;
+            }
+
+            oss << ")";
+        }
 
         obj_template->add("AUTOMATIC_DS_REQUIREMENTS", oss.str());
     }

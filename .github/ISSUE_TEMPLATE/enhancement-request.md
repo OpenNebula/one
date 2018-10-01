@@ -11,7 +11,7 @@ Brief description of the new functionality
 How are you going to use this new feature? Why do you need it? 
 
 **Interface Changes**
-Describe any changed you'd like to see to current interfaces incluing Sunstone, CLI or/and API  
+Describe any changed you'd like to see to current interfaces including Sunstone, CLI or/and API  
 
 **Additional Context**
 Add any other context or screenshots about the feature request here. Or any other alternative you have considered to addressed this new feature.

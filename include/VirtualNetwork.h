@@ -64,6 +64,13 @@ public:
         BRIDGE         = 9
     };
 
+    enum BridgeType {
+        UNDEFINED           = 0,
+        LINUX               = 1,
+        OPENVSWITCH         = 2,
+        VCENTER_PORT_GROUPS = 3
+    };
+
     static string driver_to_str(VirtualNetworkDriver ob)
     {
         switch (ob)
@@ -122,6 +129,41 @@ public:
         else
         {
             return NONE;
+        }
+    };
+
+    static string bridge_type_to_str(BridgeType ob)
+    {
+        switch (ob)
+        {
+            case UNDEFINED:
+            case LINUX:
+                return "linux";
+            case OPENVSWITCH:
+                return "openvswitch";
+            case VCENTER_PORT_GROUPS:
+                return "vcenter_port_groups";
+                break;
+        }
+    };
+
+    static BridgeType str_to_bridge_type(const string& ob)
+    {
+        if ( ob == "linux" )
+        {
+            return LINUX;
+        }
+        else if ( ob == "openvswitch" )
+        {
+            return OPENVSWITCH;
+        }
+        else if ( ob == "vcenter_port_groups" )
+        {
+            return VCENTER_PORT_GROUPS;
+        }
+        else
+        {
+            return UNDEFINED;
         }
     };
 
@@ -575,6 +617,11 @@ private:
      */
     ObjectCollection vrouters;
 
+    /**
+     *  Bridge type of the VirtualNetwork
+     */
+    string bridge_type;
+
     // *************************************************************************
     // VLAN ID functions
     // *************************************************************************
@@ -643,6 +690,17 @@ private:
     {
         return ar_pool.allocate_by_ip6(ip, ot, oid, nic, inherit);
     }
+
+    // *************************************************************************
+    // BRIDGE TYPE functions
+    // *************************************************************************
+
+    /**
+     *  This function parses the BRIDGE TYPE attribute.
+     *
+     *    @param br_type the bridge type associated to the nic
+     */
+    int parse_bridge_type(const string &vn_mad, string &error_str);
 
     // *************************************************************************
     // DataBase implementation (Private)

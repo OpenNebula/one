@@ -56,7 +56,17 @@ protected:
     PoolObjectSQL * get_and_quota(int                       oid,
                                   int                       new_uid,
                                   int                       new_gid,
-                                  RequestAttributes&        att);
+                                  RequestAttributes&        att)
+    {
+        return get_and_quota(oid, new_uid, new_gid, att, pool, auth_object);
+    }
+
+    PoolObjectSQL * get_and_quota(int                       oid,
+                                  int                       new_uid,
+                                  int                       new_gid,
+                                  RequestAttributes&        att,
+                                  PoolSQL *                 pool,
+                                  PoolObjectSQL::ObjectType auth_object);
 
     /**
      * Checks if the new owner cannot has other object with the same name (if

@@ -34,6 +34,11 @@ Layout/EmptyLinesAroundClassBody:
 
 Layout/EmptyLinesAroundModuleBody:
     EnforcedStyle: empty_lines
+
+# it's mandatory to left a empty line before guard clause
+Layout/EmptyLineAfterGuardClause:
+    Enabled: true
+
 ###
 
 #######
@@ -47,7 +52,7 @@ Style/SignalException:
     EnforcedStyle: only_raise
 
 Style/BracesAroundHashParameters:
-    EnforcedStyle: braces
+    EnforcedStyle: context_dependent
 
 Style/ConditionalAssignment:
     EnforcedStyle: assign_inside_condition
@@ -67,10 +72,6 @@ Style/EmptyElse:
 # use for instead of each
 Style/For:
     EnforcedStyle: each
-
-# it's mandatory to left a empty line before guard clause
-Style/EmptyLineAfterGuardClause:
-    Enabled: true
 
 # declare key, value pairs with =>
 Style/HashSyntax:
@@ -115,6 +116,9 @@ Style/RescueModifier:
 Style/MutableConstant:
     Enabled: false
 
+Style/SymbolProc:
+    Enabled: false
+
 ######
 # LINT
 ######
@@ -155,6 +159,9 @@ Lint/ShadowingOuterLocalVariable:
 # METRICS
 ########
 
+Metrics/BlockLength:
+    Enabled: False
+
 # Line Length config:
 Metrics/LineLength:
     Max: 80
@@ -164,10 +171,29 @@ Metrics/ParameterLists:
     Max: 5
     CountKeywordArgs: true
 
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+# Block nesting is 4
+Metrics/BlockNesting:
+  Max: 5
+
+Metrics/AbcSize:
+  Enabled: false
+
+# Disable method length
+Metrics/MethodLength:
+  Enabled: false
 
 # uppercase constant mandatory
 Naming/ConstantName:
     Enabled: true
+
+Naming/HeredocDelimiterNaming:
+    Enabled: false
 
 ###
 # Bundler

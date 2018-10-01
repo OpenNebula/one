@@ -74,7 +74,7 @@ module CommandParser
             instance_eval(&block)
 
             addons = Dir["#{OpenNebulaHelper::CLI_ADDONS_LOCATION}/#{File.basename($0)}/*"]
-            if defined?(addons) and !addons.nil? 
+            if defined?(addons) and !addons.nil?
                     addons.each do |addon_path|
                         addon_code = File.read(addon_path)
                         instance_eval(addon_code)
@@ -280,6 +280,10 @@ module CommandParser
         #   end
         #
         def command(name, desc, *args_format, &block)
+            if name.is_a? (Array)
+                name = name.join(" ").to_sym
+            end
+
             cmd = Hash.new
             cmd[:desc] = desc
             cmd[:arity] = 0
@@ -432,8 +436,17 @@ module CommandParser
                 comm      = @main
             elsif
                 if @args[0] && !@args[0].match(/^-/)
-                    @comm_name = comm_name = @args.shift.to_sym
-                    comm      = @commands[comm_name]
+                    while comm.nil? and @args.size > 0 do
+                        current = @args.shift
+
+                        if comm_name.empty?
+                            @comm_name = comm_name = "#{current}".to_sym
+                        else
+                            @comm_name = comm_name = "#{comm_name} #{current}".to_sym
+                        end
+
+                        comm      = @commands[comm_name]
+                    end
                 end
             end
 

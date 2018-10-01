@@ -27,7 +27,9 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
     int                       oid,
     int                       new_uid,
     int                       new_gid,
-    RequestAttributes&        att)
+    RequestAttributes&        att,
+    PoolSQL *                 pool,
+    PoolObjectSQL::ObjectType auth_object)
 {
     std::map<Quotas::QuotaType, Template *> quota_map;
     std::map<Quotas::QuotaType, Template *> quota_to_rback;
@@ -402,20 +404,25 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     object->unlock();
 
+    if ( auth_object != PoolObjectSQL::VROUTER )
+    {
+        success_response(oid, att);
+        return;
+    }
+
     // --------------- Recursive change associated VM objects ------------------
     // IMPORTANT!: pool/auth_object members are redirected to the VM pool to 
     // chown VMs
     // -------------------------------------------------------------------------
     bool error_vm_quotas = false;
 
-    pool        = Nebula::instance().get_vmpool();
-    auth_object = PoolObjectSQL::VM;
+    PoolSQL * vm_pool = Nebula::instance().get_vmpool();
 
     for (set<int>::const_iterator it = vms.begin(); it != vms.end(); it++)
     {
         int vm_id = *it;
 
-        PoolObjectSQL * vm = get_and_quota(vm_id, noid, ngid, att);
+        PoolObjectSQL * vm = get_and_quota(vm_id, noid, ngid, att, vm_pool, PoolObjectSQL::VM);
 
         if ( vm == 0 )
         {
@@ -434,7 +441,7 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
             vm->set_group(ngid, ngname);
         }
 
-        pool->update(vm);
+        vm_pool->update(vm);
 
         vm->unlock();
     }

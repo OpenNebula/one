@@ -804,7 +804,10 @@ class Template
         str << "IMPORT_STATE =\"#{@state}\"\n"
 
         # Get DS information
-        str << "VCENTER_DS_REF = \"#{@vm_info["datastore"].last._ref}\"\n"
+        if !@vm_info["datastore"].last._ref.nil?
+            str << "VCENTER_DS_REF = \"#{@vm_info["datastore"].last._ref}\"\n"
+        end
+
 
         vnc_port = nil
         keymap = VCenterDriver::VIHelper.get_default("VM/TEMPLATE/GRAPHICS/KEYMAP")

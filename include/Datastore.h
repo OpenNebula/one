@@ -248,6 +248,18 @@ public:
      */
     int enable(bool enable, string& error_str);
 
+    /**
+     * Return a set with compatible system ds for an image ds
+     */
+    void get_compatible_system_ds(set<int> &compatible_sys_ds)
+    {
+        string compatible_sys_ds_str;
+
+        get_template_attribute("COMPATIBLE_SYS_DS", compatible_sys_ds_str);
+
+        one_util::split_unique(compatible_sys_ds_str, ',', compatible_sys_ds);
+    }
+
 private:
 
     // -------------------------------------------------------------------------

@@ -57,13 +57,7 @@ LXDriver.save_deployment(xml_file, xml_path, container)
 # TODO: context
 
 # TODO: mapper for rootfs
-ds_id = '0'
-disk_id = '0'
-st_driver = 'qcow2'
-dir = LXDriver::CONTAINERS + container.name
-device = "#{LXDriver::DATASTORES}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
-
-Mapper.run('map', dir, st_driver, device)
+LXDriver.disk(info['disks'], vm_id)
 
 # Start container
 LXDriver.start_container(container)
@@ -72,3 +66,5 @@ LXDriver.start_container(container)
 # TODO: VNC server
 
 LXDriver.log_end(t0)
+
+puts 'one-' + vm_id

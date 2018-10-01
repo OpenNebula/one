@@ -2,7 +2,8 @@
 
 require_relative 'mapper'
 
-module Mapper
+# Mapping QCOW2 disks
+class QCOW2 < Mapper
 
     class << self
 

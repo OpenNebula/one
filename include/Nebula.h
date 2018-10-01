@@ -518,6 +518,15 @@ public:
     };
 
     /**
+     * Gets a VN configuration attribute
+     */
+    int get_vn_conf_attribute(const std::string& vn_name,
+        const VectorAttribute* &value) const
+    {
+        return get_conf_attribute("VN_MAD_CONF", vn_name, value);
+    }
+
+    /**
      *  Gets a TM configuration attribute
      */
     int get_tm_conf_attribute(const string& tm_name,
