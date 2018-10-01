@@ -1,6 +1,9 @@
 #!/usr/bin/ruby
 
-module Mapper
+require_relative 'mapper'
+
+# Mapping RAW disks
+class RAW < Mapper
 
     class << self
 
