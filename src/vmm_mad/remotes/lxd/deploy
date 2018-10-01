@@ -66,3 +66,5 @@ LXDriver.start_container(container)
 # TODO: VNC server
 
 LXDriver.log_end(t0)
+
+puts 'one-' + vm_id
