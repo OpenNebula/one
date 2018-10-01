@@ -27,11 +27,7 @@ client = LXDClient.new
 container = Container.get('one-' + vm_id, client)
 
 xml_file = File.open(container.config['user.xml'])
-
-# TODO: make method
-xml = OpenNebula::XMLElement.new
-xml.initialize_xml(xml_file, 'VM')
-info = LXDriver::Info.new(xml)
+info = LXDriver::Info.new(xml_file)
 
 container.stop
 

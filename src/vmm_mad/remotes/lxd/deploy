@@ -22,14 +22,11 @@ require_relative 'lib/lxd_driver'
 LXDriver.log_init
 
 xml_path = ARGV[0] # Deployment path
-vm_id = ARGV[2] # Deployment path
+vm_id = ARGV[2]
 xml_file = STDIN.read
 
 # Map one xml into LXD config
-# TODO: make method
-xml = OpenNebula::XMLElement.new
-xml.initialize_xml(xml_file, 'VM')
-info = LXDriver::Info.new(xml)
+info = LXDriver::Info.new(xml_file)
 
 # Create container object
 client = LXDClient.new
@@ -55,7 +52,7 @@ LXDriver.save_deployment(xml_file, xml_path, container)
 LXDriver.disk(info, 'map')
 
 # Start container
-LXDriver.start_container(container)
+LXDriver.start_container(container, info)
 
 # VNC
 # TODO: VNC server

@@ -48,7 +48,10 @@ module LXDriver
 
         TEMPLATE_PREFIX = '//TEMPLATE/'
 
-        def initialize(xml)
+        def initialize(xml_file)
+            xml = OpenNebula::XMLElement.new
+            xml.initialize_xml(xml_file, 'VM')
+
             self.xml = xml
             self['name'] = 'one-' + single_element('ID')
             self['config'] = {}
@@ -172,6 +175,7 @@ module LXDriver
             (Time.now - time).to_s
         end
 
+        # Sets up the container mounts for type: disk devices
         def disk(info, action)
             # TODO: improve use of conditions for root and actions
             disks = info.multiple_elements_pre('DISK')
@@ -196,6 +200,7 @@ module LXDriver
             end
         end
 
+        # Returns the diskid corresponding to the root device
         def get_rootfs_id(info)
             # TODO: Add support when path is /
             bootme = '0'
