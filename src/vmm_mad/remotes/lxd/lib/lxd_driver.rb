@@ -212,7 +212,7 @@ module LXDriver
             # TODO: Add support when path is /
             bootme = '0'
             boot_order = info.single_element_pre('OS/BOOT')
-            bootme = boot_order.split(',')[0][-1] if boot_order != ''
+            bootme = boot_order.split(',')[0][-1] unless boot_order == '' || boot_order.nil?
             bootme
         end
 
