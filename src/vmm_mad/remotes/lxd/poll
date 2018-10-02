@@ -39,22 +39,43 @@ module LXD
 
             return { :state => '-' } unless vm
 
-            values = get_values(vm)
+            vm_info = get_values([vm]).first.last
 
-            return values
+            vm_info
         end
 
-        def get_values(container)
-            values =  {
-                :name => container.name,
-                :state => get_state(container)
-            }
-            return values unless values[:state] == 'a'
+        def get_values(vms)
+            vms_info = {}
 
-            values[:cpu] = get_cpu(container.name)
-            values[:memory] = get_memory(container.name)
+            running_containers = []
+            vms.each do |container|
+                values =  {
+                    :name => container.name,
+                    :state => get_state(container)
+                }
+                next unless values[:state] == 'a'
 
-            values
+                values[:memory] = get_memory(values[:name])
+                running_containers.append(values[:name])
+
+                # if !name.match(/^one-\d+/) # Wild VMs
+                #     uuid, template = xml_to_one(xml)
+                #     values[:template] = Base64.encode64(template).delete("\n")
+                #     values[:vm_name] = name
+                #     vm[:name] = uuid
+                # end
+
+                vms_info[values[:name]] = values
+            end
+
+            unless running_containers.empty?
+                cpu = get_cpu(running_containers)
+                vms.each do |container|
+                    vms_info[container.name][:cpu] = cpu[container.name] if cpu[container.name]
+                end
+            end
+
+            vms_info
         end
 
         def get_state(container)
@@ -85,18 +106,24 @@ module LXD
             stat / 1024
         end
 
-        def get_cpu(vm_name)
+        def get_cpu(vm_names)
             multiplier = %x{nproc}.to_i * 100
 
             start_cpu_jiffies = get_cpu_jiffies
-            start_cpu_used = get_process_jiffies(vm_name).to_f
+
+            cpu_used = {}
+            vm_names.each do |vm_name|
+                cpu_used[vm_name] = get_process_jiffies(vm_name).to_f
+            end
 
             sleep 1
 
             cpu_jiffies = get_cpu_jiffies - start_cpu_jiffies
 
-            cpu_used = (get_process_jiffies(vm_name) - start_cpu_used) / cpu_jiffies
-            cpu_used = (cpu_used * multiplier).round(2)
+            vm_names.each do |vm_name|
+                cpu_used[vm_name] = (get_process_jiffies(vm_name).to_f - cpu_used[vm_name]) / cpu_jiffies
+                cpu_used[vm_name] = (cpu_used[vm_name] * multiplier).round(2)
+            end
 
             cpu_used
         end
