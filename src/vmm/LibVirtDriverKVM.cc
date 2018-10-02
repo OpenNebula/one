@@ -500,7 +500,7 @@ int LibVirtDriver::deployment_description_kvm(
         }
         else
         {
-            cpu_mode = "host-model";
+            cpu_mode = "custom";
         }
 
         //TODO #756 cache, feature
