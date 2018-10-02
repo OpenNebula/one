@@ -122,6 +122,7 @@ define(function(require) {
     $(context).off("click", "#import_vcenter_images");
     $(context).on("click", "#import_vcenter_images", function(){
       that.vCenterImages.import(context);
+      $("#images-tabrefresh_buttons button").click();
       return false;
     });
 

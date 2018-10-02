@@ -45,6 +45,13 @@ define(function(require) {
   var RESOURCE = "VM";
   var XML_ROOT = "VM";
 
+  setInterval(function() {
+    var tab = $('#' + TAB_ID);
+    if (Sunstone.rightInfoVisible(tab)){
+      $("#vms-tabrefresh_buttons button").click();
+    }
+  }, Config.autorefreshInfo("vms-tab"));
+
   /*
     CONSTRUCTOR
    */
