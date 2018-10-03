@@ -116,6 +116,7 @@ define(function(require) {
     $(context).off("click", "#import_vcenter_templates");
     $(context).on("click", "#import_vcenter_templates", function(){
       that.vCenterTemplates.import(context);
+      $("#templates-tabrefresh_buttons button").click();
       return false;
     });
 
