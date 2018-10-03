@@ -16,10 +16,14 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'fileutils'
+
 # Mapping disks on the host
 class Mapper
+
     # TODO: move mappers to lib?
-    # TODO: format empty datablocks 
+    # TODO: format empty datablocks
+    # TODO: multiple partitions
 
     class << self
 
@@ -38,6 +42,7 @@ class Mapper
       def run(action, directory, disk = nil)
           case action
           when 'map'
+              FileUtils.mkdir_p directory
               device = map(disk)
               mount(device, directory)
           when 'unmap'

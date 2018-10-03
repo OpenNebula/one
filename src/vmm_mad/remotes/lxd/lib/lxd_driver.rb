@@ -141,6 +141,14 @@ module LXDriver
 
         def context; end
 
+        class << self
+
+            def device_path(dss_path, ds_id, vm_id, disk_id)
+                "#{dss_path}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
+            end
+
+        end
+
         ###############
         # XML Parsing #
         ###############
@@ -190,19 +198,14 @@ module LXDriver
             dss_path = info.get_datastores
             vm_id = info.single_element_pre('VMID')
             bootme = get_rootfs_id(info)
-            mountpoint = CONTAINERS + 'one-' + vm_id
 
             disks.each do |disk|
                 info = disk['DISK']
                 disk_id = info['DISK_ID']
-
-                if disk_id != bootme # non_rootfs
-                    mountpoint = device_mapper_dir(dss_path, ds_id, vm_id, disk_id)
-                    raise "failed to create #{mountpoint}" if action == 'map' && !system("mkdir -p #{mountpoint}")
-                end
-
+                mountpoint = Info.device_path(dss_path, ds_id, "#{vm_id}/mapper", disk_id)
+                mountpoint = CONTAINERS + 'one-' + vm_id if disk_id == bootme
                 mapper = select_driver(info['DRIVER'])
-                device = device_path(dss_path, ds_id, vm_id, disk_id)
+                device = Info.device_path(dss_path, ds_id, vm_id, disk_id)
                 mapper.run(action, mountpoint, device)
             end
         end
@@ -214,16 +217,6 @@ module LXDriver
             boot_order = info.single_element_pre('OS/BOOT')
             bootme = boot_order.split(',')[0][-1] if boot_order != ''
             bootme
-        end
-
-        def device_path(dss_path, ds_id, vm_id, disk_id)
-            "#{dss_path}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
-        end
-
-        def device_mapper_dir(dss_path, ds_id, vm_id, disk_id)
-            # TODO: improve from device_path
-            # TODO: use for Info.storage in 'source'
-            "#{dss_path}/#{ds_id}/#{vm_id}/mapper/disk.#{disk_id}"
         end
 
         def select_driver(driver)
