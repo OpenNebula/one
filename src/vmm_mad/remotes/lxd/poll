@@ -33,7 +33,7 @@ module LXD
 
         # Get the information of a single VM. In case of error the VM is reported
         # as not found.
-        # @param vm_id [String] with the VM information
+        # @param one_vm [String] with the VM name
         def get_vm_info(one_vm)
             vm = Container.get(one_vm, CLIENT)
 
@@ -42,6 +42,18 @@ module LXD
             vm_info = get_values([vm]).first.last
 
             vm_info
+        end
+
+        # Gets the information of all VMs
+        #
+        # @return [Hash, nil] Hash with the VM information or nil in case of error
+        def get_all_vm_info
+            vms = Container.get_all(CLIENT)
+
+            return nil unless vms
+
+            vms_info = get_values(vms)
+            vms_info
         end
 
         def get_values(vms)
@@ -53,6 +65,7 @@ module LXD
                     :name => container.name,
                     :state => get_state(container)
                 }
+                vms_info[values[:name]] = values
                 next unless values[:state] == 'a'
 
                 values[:memory] = get_memory(values[:name])
@@ -65,7 +78,7 @@ module LXD
                 #     vm[:name] = uuid
                 # end
 
-                vms_info[values[:name]] = values
+                vms_info[values[:name]][:memory] = values[:memory]
             end
 
             unless running_containers.empty?
@@ -78,6 +91,15 @@ module LXD
             vms_info
         end
 
+        # Get and translate LXD state to Opennebula monitor state
+        #  @param state [String] libvirt state
+        #  @return [String] OpenNebula state
+        #
+        # LXD states for the guest are
+        #  * 'running' state refers to containers which are currently active.
+        #  * 'frozen' after lxc freeze (suspended).
+        #  * 'stopped' container not running or in the process of shutting down.
+        #  * 'failure' container have failed.
         def get_state(container)
             begin
                 status = container.status.downcase
@@ -106,8 +128,11 @@ module LXD
             stat / 1024
         end
 
+        # Gathers process information from a set of VMs.
+        #   @param vm_names [Array] of vms indexed by name. Value is a hash with :pid
+        #   @return  [Hash] with ps information
         def get_cpu(vm_names)
-            multiplier = %x{nproc}.to_i * 100
+            multiplier = `nproc`.to_i * 100
 
             start_cpu_jiffies = get_cpu_jiffies
 
