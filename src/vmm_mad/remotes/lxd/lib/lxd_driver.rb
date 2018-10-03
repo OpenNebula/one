@@ -40,16 +40,13 @@ module LXDriver
     # Container Info
     class Info < Hash
 
-        attr_accessor :xml
-
         TEMPLATE_PREFIX = '//TEMPLATE/'
 
         def initialize(xml_file)
-            xml = OpenNebula::XMLElement.new
-            xml.initialize_xml(xml_file, 'VM')
-            self.xml = xml
+            @xml = OpenNebula::XMLElement.new
+            @xml.initialize_xml(xml_file, 'VM')
 
-            self['name'] = 'one-' + single_element('ID')
+            self['name'] = 'one-' + xml_single_element('ID')
             self['config'] = {}
             self['devices'] = {}
 
@@ -62,15 +59,15 @@ module LXDriver
 
         # Creates a dictionary for LXD containing $MEMORY RAM allocated
         def memory
-            ram = single_element_pre('MEMORY')
+            ram = single_element('MEMORY')
             ram = ram.to_s + 'MB'
             self['config']['limits.memory'] = ram
         end
 
         # Creates a dictionary for LXD  $CPU percentage and cores
         def cpu
-            cpu = single_element_pre('CPU')
-            vcpu = single_element_pre('VCPU')
+            cpu = single_element('CPU')
+            vcpu = single_element('VCPU')
             cpu = (cpu.to_f * 100).to_i.to_s + '%'
             self['config']['limits.cpu.allowance'] = cpu
             self['config']['limits.cpu'] = vcpu
@@ -78,7 +75,7 @@ module LXDriver
 
         # Sets up the network interfaces configuration in devices
         def network
-            nics = multiple_elements_pre('NIC')
+            nics = multiple_elements('NIC')
             nics.each do |nic|
                 info = nic['NIC']
                 name = "eth#{info['NIC_ID']}"
@@ -108,8 +105,8 @@ module LXDriver
         # TODO: source
         # TODO: path
         def storage
-            # disks = multiple_elements_pre('DISK')
-            # boot_order = single_element_pre('OS/BOOT')
+            # disks = multiple_elements('DISK')
+            # boot_order = single_element('OS/BOOT')
             #     name = "disk#{disk['DISK_ID']}"
             #     self['devices'][name] = disk
 
@@ -131,7 +128,7 @@ module LXDriver
 
         # gets opennebula datastores path
         def get_datastores
-            disk = multiple_elements_pre('DISK')[0]['DISK']
+            disk = multiple_elements('DISK')[0]['DISK']
             source = disk['SOURCE']
             ds_id = disk['DATASTORE_ID']
             source.split(ds_id + '/')[0]
@@ -152,23 +149,23 @@ module LXDriver
         ###############
 
         # Returns PATH's instance in XML
-        def single_element(path)
-            xml[path]
+        def xml_single_element(path)
+            @xml[path]
         end
 
-        def single_element_pre(path)
-            single_element(TEMPLATE_PREFIX + path)
+        def single_element(path)
+            xml_single_element(TEMPLATE_PREFIX + path)
         end
 
         # Returns an Array with PATH's instances in XML
-        def multiple_elements(path)
+        def xml_multiple_elements(path)
             elements = []
-            xml.retrieve_xmlelements(path).each {|d| elements.append(d.to_hash) }
+            @xml.retrieve_xmlelements(path).each {|d| elements.append(d.to_hash) }
             elements
         end
 
-        def multiple_elements_pre(path)
-            multiple_elements(TEMPLATE_PREFIX + path)
+        def multiple_elements(path)
+            xml_multiple_elements(TEMPLATE_PREFIX + path)
         end
 
     end
@@ -197,7 +194,7 @@ module LXDriver
         def get_rootfs_id(info)
             # TODO: Add support when path is /
             bootme = '0'
-            boot_order = info.single_element_pre('OS/BOOT')
+            boot_order = info.single_element('OS/BOOT')
             bootme = boot_order.split(',')[0][-1] if boot_order != ''
             bootme
         end
@@ -232,10 +229,10 @@ module LXDriver
         # Sets up the container mounts for type: disk devices
         def container_storage(info, action)
             # TODO: improve use of conditions for root and actions
-            disks = info.multiple_elements_pre('DISK')
-            ds_id = info.single_element('//HISTORY_RECORDS/HISTORY/DS_ID')
+            disks = info.multiple_elements('DISK')
+            ds_id = info.xml_single_element('//HISTORY_RECORDS/HISTORY/DS_ID')
             dss_path = info.get_datastores
-            vm_id = info.single_element_pre('VMID')
+            vm_id = info.single_element('VMID')
             bootme = get_rootfs_id(info)
 
             disks.each do |disk|
@@ -261,7 +258,8 @@ module LXDriver
             raise e
         end
 
-        def container_exist?(container, client)
+        # Creates or overrides a container if one existed
+        def container_create(container, client)
             config = container.config
             devices = container.devices
             if Container.exist?(container.name, client)
@@ -278,7 +276,8 @@ module LXDriver
             end
         end
 
-        def vnc; end
+        # TODO: VNC server
+        def vnc(info); end
 
     end
 
