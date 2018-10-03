@@ -92,15 +92,12 @@ class Storage
         VCenterDriver::VIHelper.check_opts(opts, [:persistent])
 
         ds_name      = disk[:datastore].name
-        image_path   = disk[:path]
+        image_path   = disk[:path_wo_ds]
         image_type   = disk[:type]
         image_prefix = disk[:prefix]
 
         one_image = {}
         one_image[:template] = ""
-
-        # Remove ds info from path
-        image_path.sub!(/^\[#{ds_name}\] /, "")
 
         # Get image name
         file_name = File.basename(image_path).gsub(/\.vmdk$/,"")
