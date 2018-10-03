@@ -16,23 +16,20 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require_relative 'container'
-require_relative 'client'
-require_relative '../mapper/raw'
-require_relative '../mapper/qcow2'
-require_relative '../../../scripts_common.rb'
-
 ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
-
 if !ONE_LOCATION
     RUBY_LIB_LOCATION = '/usr/lib/one/ruby' unless defined?(RUBY_LIB_LOCATION)
 else
     RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' unless defined?(RUBY_LIB_LOCATION)
 end
+[RUBY_LIB_LOCATION, __dir__].each {|dir| $LOAD_PATH << dir }
 
-$LOAD_PATH << RUBY_LIB_LOCATION
-
-require 'opennebula'
+require 'rest/container'
+require 'rest/client'
+require 'mapper/raw'
+require 'mapper/qcow2'
+require 'scripts_common' #TODO: Check if works on node-only VM
+require 'opennebula' #TODO: Check if works on node-only VM
 
 # Tools required by the vmm scripts
 module LXDriver
@@ -126,6 +123,7 @@ module LXDriver
             # self['rootfs'] = disks[0]
             #     disk = { 'path' => path, 'source' => source }
 
+            # TODO: hash['key'] = value if value exist 
             # io = {'limits.read' => '', 'limits.write' => '', 'limits.max' => '' }
             # io['limits.read'] = nic_unit(info['INBOUND_AVG_BW']) if info['INBOUND_AVG_BW']
             # io['limits.write'] = nic_unit(info['OUTBOUND_AVG_BW']) if info['OUTBOUND_AVG_BW']
@@ -177,6 +175,10 @@ module LXDriver
 
     class << self
 
+        ###############
+        ##   Misc    ##
+        ###############
+
         def log_init
             OpenNebula.log_info('Begin ' + SEP)
         end
@@ -189,28 +191,6 @@ module LXDriver
         # Returns the time passed since time
         def time(time)
             (Time.now - time).to_s
-        end
-
-        # Sets up the container mounts for type: disk devices
-        def disk(info, action)
-            # TODO: improve use of conditions for root and actions
-            disks = info.multiple_elements_pre('DISK')
-            ds_id = info.single_element('//HISTORY_RECORDS/HISTORY/DS_ID')
-            dss_path = info.get_datastores
-            vm_id = info.single_element_pre('VMID')
-            bootme = get_rootfs_id(info)
-
-            disks.each do |disk|
-                info = disk['DISK']
-                disk_id = info['DISK_ID']
-
-                mountpoint = Info.device_path(dss_path, ds_id, "#{vm_id}/mapper", disk_id)
-                mountpoint = CONTAINERS + 'one-' + vm_id if disk_id == bootme
-                
-                mapper = select_driver(info['DRIVER'])
-                device = Info.device_path(dss_path, ds_id, vm_id, disk_id)
-                mapper.run(action, mountpoint, device)
-            end
         end
 
         # Returns the diskid corresponding to the root device
@@ -232,8 +212,12 @@ module LXDriver
             end
         end
 
+        ###############
+        #  Container  #
+        ###############
+
         # Saves deployment path to container yaml
-        def save_deployment(xml, path, container)
+        def deployment_save(xml, path, container)
             f = File.new(path, 'w')
             f.write(xml)
             f.close
@@ -241,12 +225,34 @@ module LXDriver
             container.update
         end
 
-        def get_deployment(container)
+        def deployment_get(container)
             Info.new(File.open(container.config['user.xml']))
         end
 
+        # Sets up the container mounts for type: disk devices
+        def container_storage(info, action)
+            # TODO: improve use of conditions for root and actions
+            disks = info.multiple_elements_pre('DISK')
+            ds_id = info.single_element('//HISTORY_RECORDS/HISTORY/DS_ID')
+            dss_path = info.get_datastores
+            vm_id = info.single_element_pre('VMID')
+            bootme = get_rootfs_id(info)
+
+            disks.each do |disk|
+                info = disk['DISK']
+                disk_id = info['DISK_ID']
+
+                mountpoint = Info.device_path(dss_path, ds_id, "#{vm_id}/mapper", disk_id)
+                mountpoint = CONTAINERS + 'one-' + vm_id if disk_id == bootme
+
+                mapper = select_driver(info['DRIVER'])
+                device = Info.device_path(dss_path, ds_id, vm_id, disk_id)
+                mapper.run(action, mountpoint, device)
+            end
+        end
+
         # Reverts changes if container fails to start
-        def start_container(container, info)
+        def container_start(container, info)
             raise LXDError, container.status if container.start != 'Running'
         rescue LXDError => e
             disk(info, 'unmap')

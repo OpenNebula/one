@@ -47,13 +47,13 @@ else
 end
 
 # TODO: save xml instead of path
-LXDriver.save_deployment(xml_file, xml_path, container)
+LXDriver.deployment_save(xml_file, xml_path, container)
 
 # Setup required mounts
-LXDriver.disk(info, 'map')
+LXDriver.container_storage(info, 'map')
 
 # Start container
-LXDriver.start_container(container, info)
+LXDriver.container_start(container, info)
 
 # VNC
 # TODO: VNC server

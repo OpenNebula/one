@@ -26,12 +26,12 @@ vm_id = ARGV[2]
 client = LXDClient.new
 container = Container.get('one-' + vm_id, client)
 
-info = LXDriver.get_deployment(container)
+info = LXDriver.deployment_get(container)
 
 container.stop
 
 begin
-    LXDriver.disk(info, 'unmap')
+    LXDriver.container_storage(info, 'unmap')
 rescue StandardError => e
     container.start
     raise e
