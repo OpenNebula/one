@@ -33,18 +33,7 @@ client = LXDClient.new
 container = Container.new(info, client)
 
 # Validate possible existing container
-if Container.exist?(container.name, client)
-    OpenNebula.log_info('Overriding container')
-    container = Container.get(container.name, client)
-    err_msg = 'A container with the same ID is already running'
-    raise LXDError, err_msg if container.status == 'Running'
-
-    container.config.update(info['config'])
-    container.devices.update(info['devices'])
-    container.update
-else
-    container.create
-end
+LXDriver.container_exist?(container, client)
 
 # TODO: save xml instead of path
 LXDriver.deployment_save(xml_file, xml_path, container)

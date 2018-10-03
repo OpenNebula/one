@@ -28,8 +28,8 @@ require 'rest/container'
 require 'rest/client'
 require 'mapper/raw'
 require 'mapper/qcow2'
-require 'scripts_common' #TODO: Check if works on node-only VM
-require 'opennebula' #TODO: Check if works on node-only VM
+require 'scripts_common' # TODO: Check if works on node-only VM
+require 'opennebula' # TODO: Check if works on node-only VM
 
 # Tools required by the vmm scripts
 module LXDriver
@@ -123,7 +123,7 @@ module LXDriver
             # self['rootfs'] = disks[0]
             #     disk = { 'path' => path, 'source' => source }
 
-            # TODO: hash['key'] = value if value exist 
+            # TODO: hash['key'] = value if value exist
             # io = {'limits.read' => '', 'limits.write' => '', 'limits.max' => '' }
             # io['limits.read'] = nic_unit(info['INBOUND_AVG_BW']) if info['INBOUND_AVG_BW']
             # io['limits.write'] = nic_unit(info['OUTBOUND_AVG_BW']) if info['OUTBOUND_AVG_BW']
@@ -259,6 +259,23 @@ module LXDriver
             OpenNebula.log_error('Container failed to start')
             container.delete
             raise e
+        end
+
+        def container_exist?(container, client)
+            config = container.config
+            devices = container.devices
+            if Container.exist?(container.name, client)
+                OpenNebula.log_info('Overriding container')
+                container = Container.get(container.name, client)
+                err_msg = 'A container with the same ID is already running'
+                raise LXDError, err_msg if container.status == 'Running'
+
+                container.config.update(config)
+                container.devices.update(devices)
+                container.update
+            else
+                container.create
+            end
         end
 
         def vnc; end
