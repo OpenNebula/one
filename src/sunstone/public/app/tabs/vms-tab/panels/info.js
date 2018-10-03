@@ -27,8 +27,8 @@ define(function(require) {
   var TemplateTableVcenter = require("utils/panel/template-table");
   var OpenNebula = require("opennebula");
   var Sunstone = require("sunstone");
-  var Config = require("sunstone-config");
   var Navigation = require("utils/navigation");
+  var Config = require("sunstone-config");
 
   /*
     TEMPLATES
@@ -44,6 +44,13 @@ define(function(require) {
   var PANEL_ID = require("./info/panelId");
   var RESOURCE = "VM";
   var XML_ROOT = "VM";
+
+  setInterval(function() {
+    var tab = $('#' + TAB_ID);
+    if (Sunstone.rightInfoVisible(tab)){
+      $("#vms-tabrefresh_buttons button").click();
+    }
+  }, Config.autorefreshInfo("vms-tab"));
 
   /*
     CONSTRUCTOR
@@ -167,5 +174,6 @@ define(function(require) {
 
     TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, unshownValues, strippedTemplateVcenter);
     TemplateTableVcenter.setup(strippedTemplateVcenter, RESOURCE, this.element.ID, context, unshownValues, strippedTemplate);
+
   }
 });

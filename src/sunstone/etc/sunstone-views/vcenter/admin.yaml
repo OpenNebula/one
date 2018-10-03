@@ -402,6 +402,7 @@ tabs:
             VM.unlock: true
             VM.edit_labels: true
             VM.menu_labels: true
+        autorefresh_info: 5000 # ms
     oneflow-services-tab:
         panel_tabs:
             service_info_tab: true
