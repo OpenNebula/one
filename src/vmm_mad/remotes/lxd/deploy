@@ -46,6 +46,7 @@ else
     container.create
 end
 
+# TODO: save xml instead of path
 LXDriver.save_deployment(xml_file, xml_path, container)
 
 # Setup required mounts

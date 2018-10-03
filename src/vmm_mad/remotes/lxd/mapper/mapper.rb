@@ -35,10 +35,12 @@ class Mapper
           shell("sudo umount #{path}")
       end
 
+      # Returns the block device associated to a mount
       def detect(path)
           `df -h #{path} | grep /dev | awk '{print $1}'`
       end
 
+      # Maps/unmamps a disk file to/from a directory
       def run(action, directory, disk = nil)
           case action
           when 'map'

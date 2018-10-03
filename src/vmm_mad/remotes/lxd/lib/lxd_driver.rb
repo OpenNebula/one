@@ -186,6 +186,7 @@ module LXDriver
             OpenNebula.log_info("End #{time} #{SEP[(time.size - 1)..-1]}")
         end
 
+        # Returns the time passed since time
         def time(time)
             (Time.now - time).to_s
         end
@@ -202,8 +203,10 @@ module LXDriver
             disks.each do |disk|
                 info = disk['DISK']
                 disk_id = info['DISK_ID']
+
                 mountpoint = Info.device_path(dss_path, ds_id, "#{vm_id}/mapper", disk_id)
                 mountpoint = CONTAINERS + 'one-' + vm_id if disk_id == bootme
+                
                 mapper = select_driver(info['DRIVER'])
                 device = Info.device_path(dss_path, ds_id, vm_id, disk_id)
                 mapper.run(action, mountpoint, device)
@@ -219,6 +222,7 @@ module LXDriver
             bootme
         end
 
+        # Returns a mapper class depending on the driver string
         def select_driver(driver)
             case driver
             when 'raw'
@@ -235,6 +239,10 @@ module LXDriver
             f.close
             container.config['user.xml'] = path
             container.update
+        end
+
+        def get_deployment(container)
+            Info.new(File.open(container.config['user.xml']))
         end
 
         # Reverts changes if container fails to start

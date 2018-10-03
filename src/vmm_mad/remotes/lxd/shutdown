@@ -26,8 +26,7 @@ vm_id = ARGV[2]
 client = LXDClient.new
 container = Container.get('one-' + vm_id, client)
 
-xml_file = File.open(container.config['user.xml'])
-info = LXDriver::Info.new(xml_file)
+info = LXDriver.get_deployment(container)
 
 container.stop
 
