@@ -67,10 +67,11 @@ module LXDriver
         # Creates a dictionary for LXD  $CPU percentage and cores
         def cpu
             cpu = single_element('CPU')
-            vcpu = single_element('VCPU')
             cpu = (cpu.to_f * 100).to_i.to_s + '%'
             self['config']['limits.cpu.allowance'] = cpu
-            self['config']['limits.cpu'] = vcpu
+
+            vcpu = single_element('VCPU')
+            self['config']['limits.cpu'] = vcpu if vcpu
         end
 
         # Sets up the network interfaces configuration in devices
@@ -83,12 +84,21 @@ module LXDriver
                         'parent' => info['BRIDGE'], 'hwaddr' => info['MAC'],
                         'nictype' => 'bridged', 'type' => 'nic' }
 
-                # Optional args
-                eth['limits.ingress'] = nic_unit(info['INBOUND_AVG_BW']) if info['INBOUND_AVG_BW']
-                eth['limits.egress'] = nic_unit(info['OUTBOUND_AVG_BW']) if info['OUTBOUND_AVG_BW']
-
-                self['devices'][name] = eth
+                self['devices'][name] = nic_io(eth, info)
             end
+        end
+
+        # Returns a hash with QoS NIC values if defined
+        def nic_io(nic, info)
+            lxd_limits = %w[limits.ingress limits.egress]
+            one_limits = %w[INBOUND_AVG_BW OUTBOUND_AVG_BW]
+            nic_limits = self.class.keyfexist(lxd_limits, one_limits, info)
+            if nic_limits != {}
+                nic_limits.each do |limit, value|
+                    nic_limits[limit] = nic_unit(value)
+                end
+            end
+            nic.update(nic_limits)
         end
 
         def nic_unit(limit)
@@ -140,6 +150,16 @@ module LXDriver
 
             def device_path(dss_path, ds_id, vm_id, disk_id)
                 "#{dss_path}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
+            end
+
+            # Creates a hash with the keys defined in lxd_keys if the corresponding key in xml_keys with the same index is defined in info
+            def keyfexist(lxd_keys, xml_keys, info)
+                hash = {}
+                0.upto(lxd_keys.length) do |i|
+                    value = info[xml_keys[i]]
+                    hash[lxd_keys[i]] = value if value
+                end
+                hash
             end
 
         end
