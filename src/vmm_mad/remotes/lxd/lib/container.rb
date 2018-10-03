@@ -88,6 +88,11 @@ class Container
         wait?(@client.put("#{CONTAINERS}/#{@name}", @info), wait, timeout)
     end
 
+    # Returns the container current state
+    def monitor
+        @client.get("#{CONTAINERS}/#{@name}/state")
+    end
+
     # Status Control
 
     def start(options = {})
@@ -138,7 +143,7 @@ class Container
     # Performs an action on the container that changes the execution status.
     # Accepts optional args
     def change_state(action, options)
-        options.update({ :action => action })
+        options.update(:action => action)
         response = @client.put("#{CONTAINERS}/#{@name}/state", options)
         wait?(response, options[:wait], options[:timeout])
         update_local

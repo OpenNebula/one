@@ -235,6 +235,7 @@ module LXDriver
             end
         end
 
+        # Saves deployment path to container yaml
         def save_deployment(xml, path, container)
             f = File.new(path, 'w')
             f.write(xml)
@@ -243,6 +244,7 @@ module LXDriver
             container.update
         end
 
+        # Reverts changes if container fails to start
         def start_container(container, info)
             raise LXDError, container.status if container.start != 'Running'
         rescue LXDError => e
