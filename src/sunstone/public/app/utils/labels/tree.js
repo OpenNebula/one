@@ -107,7 +107,7 @@ define(function(require) {
       }
 
       html += '<div class="labeltree-line">';
-      html += '<i class="fas fa-fw fa-square-o labelsCheckbox"></i> ';
+      html += '<i class="fas fa-fw fa-square labelsCheckbox"></i> ';
 
       html += tree.htmlStr;
       html += '</div>';
