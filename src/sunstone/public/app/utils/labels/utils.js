@@ -294,7 +294,7 @@ define(function (require) {
     labelsDropdown.on('keypress', '.newLabelInput', function (e) {
       var ev = e || window.event;
       var key = ev.keyCode;
-      var labelName = $(this).val();
+      var labelName = $(this).val().trim();
 
       if (key == 13 && !ev.altKey && labelName != '') {
         var labelsArray, labelIndex;
