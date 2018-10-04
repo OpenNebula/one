@@ -198,7 +198,7 @@ define(function(require){
     var active = (snapshot.ACTIVE == "YES");
 
     if(active){
-      html += '<i class="fas fa-play-circle-o fa-lg" title="'+
+      html += '<i class="fas fa-play-circle fa-lg" title="'+
               Locale.tr("Active")+'"/>' + SPACE;
     }
 
