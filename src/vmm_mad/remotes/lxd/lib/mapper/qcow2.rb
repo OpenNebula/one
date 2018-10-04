@@ -43,6 +43,7 @@ class QCOW2 < Mapper
             '/dev/nbd' + valid(nbds)
         end
 
+        # logic to return the first available nbd
         def valid(array)
             ref = 0
             array.each do |number|

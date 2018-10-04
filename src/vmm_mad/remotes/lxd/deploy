@@ -25,37 +25,21 @@ xml_path = ARGV[0] # Deployment path
 vm_id = ARGV[2]
 xml_file = STDIN.read
 
-# Map one xml into LXD config
+# Map one xml into LXD yaml
 info = LXDriver::Info.new(xml_file)
 
 # Create container object
 client = LXDClient.new
 container = Container.new(info, client)
 
-# Validate possible existing container
-if Container.exist?(container.name, client)
-    OpenNebula.log_info('Overriding container')
-    container = Container.get(container.name, client)
-    err_msg = 'A container with the same ID is already running'
-    raise LXDError, err_msg if container.status == 'Running'
-
-    container.config.update(info['config'])
-    container.devices.update(info['devices'])
-    container.update
-else
-    container.create
-end
-
-LXDriver.save_deployment(xml_file, xml_path, container)
-
+# Create LXD container
+LXDriver.container_create(container, client)
 # Setup required mounts
-LXDriver.disk(info, 'map')
+LXDriver.container_storage(info, 'map')
+LXDriver.container_start(container, info)
+LXDriver.deployment_save(xml_file, xml_path, container)
 
-# Start container
-LXDriver.start_container(container, info)
-
-# VNC
-# TODO: VNC server
+LXDriver.vnc(info)
 
 LXDriver.log_end(t0)
 
