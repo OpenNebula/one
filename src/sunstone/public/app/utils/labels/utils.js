@@ -206,9 +206,9 @@ define(function (require) {
 
       // Reset label checkboxes
       $('.labelsCheckbox', labelsDropdown)
-        .removeClass('fa-minus-square-o')
-        .removeClass('fa-check-square-o')
-        .addClass('fa-square-o');
+        .removeClass('fa-minus-square')
+        .removeClass('fa-check-square')
+        .addClass('fa-square');
 
       var labelsCheckbox;
       $.each(labelsIndexed, function (labelName, numberOfItems) {
@@ -217,12 +217,12 @@ define(function (require) {
         if (labelsCheckbox.length > 0) {
           if (numberOfItems == selectedItems.length) {
             $(labelsCheckbox[0])
-              .removeClass('fa-square-o')
-              .addClass('fa-check-square-o');
+              .removeClass('fa-square')
+              .addClass('fa-check-square');
           } else {
             $(labelsCheckbox[0])
-              .removeClass('fa-square-o')
-              .addClass('fa-minus-square-o');
+              .removeClass('fa-square')
+              .addClass('fa-minus-square');
           }
         }
       });
@@ -238,12 +238,12 @@ define(function (require) {
       var action;
       var that = $(".labelsCheckbox", this);
 
-      if ($(that).hasClass('fa-square-o')) {
+      if ($(that).hasClass('fa-square')) {
         action = 'add';
-        $(that).removeClass('fa-square-o').addClass('fa-check-square-o');
+        $(that).removeClass('fa-square').addClass('fa-check-square');
       } else {
         action = 'remove';
-        $(that).removeClass('fa-check-square-o fa-minus-square-o').addClass('fa-square-o');
+        $(that).removeClass('fa-check-square fa-minus-square').addClass('fa-square');
       }
       OpenNebulaUser.show({
         data: {
