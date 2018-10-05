@@ -40,6 +40,22 @@ module VCenterDriver
             def apply
                 @object.method(@action).call(*@args)
             end
+            def self.delete_ars(ar_ids, opts)
+                error = opts[:error]
+
+                raise error if ar_ids.nil?
+
+                key     = opts[:key]
+                vc_uuid = opts[:uuid]
+                npool   = opts[:npool]
+
+                ar_ids.each do |key, value|
+                    network = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,"TEMPLATE/VCENTER_NET_REF", key, vc_uuid, npool)
+                    value.each{|ar| network.rm_ar(ar) }
+                end
+
+                raise error
+            end
         end
 
         #######################################################################
@@ -317,7 +333,7 @@ module VCenterDriver
 		# @return [Hash] Hash with all the info related to the reference
 		#
         def get_element(ref)
-            raise "the list is empty" if list_empty? || list.values[0].empty?
+            raise "the list is empty" if list_empty? || @list.values[0].empty?
 
             list = @list.values[0]
 
@@ -364,6 +380,27 @@ module VCenterDriver
             return @defaults if @defaults
 
             {}
+        end
+
+        def create_pools()
+            dpool = VCenterDriver::VIHelper.one_pool(OpenNebula::DatastorePool)
+            if dpool.respond_to?(:message)
+                raise "Could not get OpenNebula DatastorePool: #{dpool.message}"
+            end
+            ipool = VCenterDriver::VIHelper.one_pool(OpenNebula::ImagePool)
+            if ipool.respond_to?(:message)
+                raise "Could not get OpenNebula ImagePool: #{ipool.message}"
+            end
+            npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool)
+            if npool.respond_to?(:message)
+                raise "Could not get OpenNebula VirtualNetworkPool: #{npool.message}"
+            end
+            hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool)
+            if hpool.respond_to?(:message)
+                raise "Could not get OpenNebula VirtualNetworkPool: #{hpool.message}"
+            end
+
+            return dpool, ipool, npool, hpool
         end
 
         def self.import_clusters(con_ops, options)
@@ -487,5 +524,4 @@ module VCenterDriver
         end
 
     end
-
 end
