@@ -2903,8 +2903,6 @@ class VirtualMachine < Template
             #@item.RelocateVM_Task(spec: relocate_spec, priority: "defaultPriority").wait_for_completion
 
             @item.MigrateVM_Task(:pool=> resourcepool, :priority => "defaultPriority").wait_for_completion
-
-            return get_esx_name
         rescue Exception => e
             raise "Cannot migrate VM #{e.message}\n#{e.backtrace.join("\n")}"
         end
@@ -3363,9 +3361,9 @@ class VirtualMachine < Template
         vc_host  = VCenterDriver::ClusterComputeResource.new_from_ref(ccr_ref, vi_client).item
 
         config = { :cluster => vc_host }
-        esx = vc_vm.migrate(config)
+        vc_vm.migrate(config)
 
-        vm.replace({ 'VCENTER_CCR_REF' => ccr_ref, 'VCENTER_ESX_HOST' => esx })
+        vm.replace({'VCENTER_CCR_REF' => ccr_ref})
     end
 
     # Try to build the vcenterdriver virtualmachine without

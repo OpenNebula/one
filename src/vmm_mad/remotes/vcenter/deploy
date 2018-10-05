@@ -68,10 +68,8 @@ begin
     vm.reconfigure
     vm.poweron
     vm.set_running(true)
-
-    vm.one_item.update("VCENTER_ESX_HOST = #{vm['runtime.host.name']}", true)
-
     puts vm['_ref']
+
 rescue StandardError => e
     message =  "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " \
                "with #{dfile} failed due to \"#{e.message}\"."

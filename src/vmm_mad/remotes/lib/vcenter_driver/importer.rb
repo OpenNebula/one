@@ -71,7 +71,6 @@ def self.import_wild(host_id, vm_ref, one_vm, template)
         end
 
         template << template_nics
-        template << "VCENTER_ESX_HOST = #{vcenter_vm["runtime.host.name"].to_s}\n"
 
         # Get DS_ID for the deployment, the wild VM needs a System DS
         dc_ref = vcenter_vm.get_dc.item._ref
