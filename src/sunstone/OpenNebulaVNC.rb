@@ -213,9 +213,7 @@ class OpenNebulaVNC
 
         # If it is a vCenter VM
         if vm_resource['USER_TEMPLATE/HYPERVISOR'] == "vcenter"
-            if vm_resource['USER_TEMPLATE/VCENTER_ESX_HOST']
-                host = vm_resource['USER_TEMPLATE/VCENTER_ESX_HOST']
-            elsif vm_resource['MONITORING/VCENTER_ESX_HOST']
+            if vm_resource['MONITORING/VCENTER_ESX_HOST']
                 host = vm_resource['MONITORING/VCENTER_ESX_HOST']
             else
                 return error(400,"Could not determine the vCenter ESX host where the VM is running. Wait till the VCENTER_ESX_HOST attribute is retrieved once the host has been monitored")
