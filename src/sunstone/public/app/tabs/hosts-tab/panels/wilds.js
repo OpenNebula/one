@@ -25,12 +25,9 @@ define(function(require) {
   var CanImportWilds = require('../utils/can-import-wilds');
   var OpenNebulaHost = require('opennebula/host');
   var OpenNebulaAction = require('opennebula/action');
-  var OpenNebulaNetwork = require('opennebula/network');
-  var OpenNebulaImage = require('opennebula/image');
-  var OpenNebulaError = require('opennebula/error');
-  var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
   var Navigation = require('utils/navigation');
+  var VCenterCommon = require('utils/vcenter/vcenter-common');
 
   /*
     TEMPLATES
@@ -113,6 +110,7 @@ define(function(require) {
           ];
 
           that.dataTableWildHosts.fnAddData(wilds_list_array);
+          $(".import_wild_checker.import_" + index, context).data("import_data", elem);
         }
       });
     }
@@ -138,54 +136,92 @@ define(function(require) {
       $("#import_wilds", context).attr("disabled", "disabled").on("click.disable", function(e) { return false; });
       $("#import_wilds", context).html('<i class="fas fa-spinner fa-spin"></i>');
 
-      $(".import_wild_checker:checked", "#datatable_host_wilds").each(function() {
-        var importHostId = that.element.ID;
-        var wild_row       = $(this).closest('tr');
+      if (that.element.TEMPLATE.HYPERVISOR === "vcenter"){
+        var path = "/vcenter/wild";
+        var resource = "Wild";
+        var vcenter_refs = [];
+        var opts = {};
+        $(".import_wild_checker:checked", "#datatable_host_wilds").each(function() {
+          var wild_obj = $(this).data("import_data");
+          var ref = wild_obj.DEPLOY_ID;
+          vcenter_refs.push(ref);
+          opts[ref] = wild_obj;
+        });
 
-        var aData = that.dataTableWildHosts.fnGetData(wild_row);
-        var vmName = aData[1];
-        var remoteID = aData[2];
-
-        var dataJSON = {
-          'id': importHostId,
-          'extra_param': {
-            'name': vmName
-          }
-        };
-
-        // Create the VM in OpenNebula
-        OpenNebulaHost.import_wild({
-          timeout: true,
-          data: dataJSON,
-          success: function(request, response) {
-            OpenNebulaAction.clear_cache("VM");
-            Notifier.notifyCustom(Locale.tr("VM imported"),
-              Navigation.link(" ID: " + response.VM.ID, "vms-tab", response.VM.ID),
-              false);
-
-            // Delete row (shouldn't be there in next monitorization)
-            that.dataTableWildHosts.fnDeleteRow(wild_row);
-
-            $("#import_wilds", context).removeAttr("disabled").off("click.disable");
-            $("#import_wilds", context).html(Locale.tr("Import Wilds"));
+        $.ajax({
+          url: path,
+          type: "POST",
+          data: {
+            wilds: vcenter_refs.join(","),
+            opts: opts,
+            host: that.element.ID,
+            timeout: false
+          },
+          dataType: "json",
+          success: function(response){
+            $.each(response.success, function(key, value){
+              Notifier.notifyCustom(Locale.tr("VM imported"),
+              Navigation.link(" ID: " + value, "vms-tab", value), false);
+            });
+            VCenterCommon.jGrowlFailure({error : response.error, resource : resource});
           },
           error: function (request, error_json) {
-            var msg;
-            if (error_json.error.message){
-              msg = error_json.error.message;
+            if (request.responseJSON === undefined){
+              Notifier.notifyError("Empty response received from server. Check your setup to avoid timeouts");
             } else {
-              msg = Locale.tr("Cannot contact server: is it running and reachable?");
+              Notifier.notifyError(request.responseJSON.error.message);
             }
-
-            Notifier.notifyError(msg);
-
+          },
+          complete: function (data) {
             $("#import_wilds", context).removeAttr("disabled").off("click.disable");
             $("#import_wilds", context).html(Locale.tr("Import Wilds"));
           }
         });
-      });
+      } else {
+        $(".import_wild_checker:checked", "#datatable_host_wilds").each(function() {
+          var wild_row = $(this).closest('tr');
+          var aData = that.dataTableWildHosts.fnGetData(wild_row);
+
+          var dataJSON = {
+            'id': that.element.ID,
+            'extra_param': {
+              'name': aData[1]
+            }
+          };
+
+          // Create the VM in OpenNebula
+          OpenNebulaHost.import_wild({
+            timeout: true,
+            data: dataJSON,
+            success: function(request, response) {
+              OpenNebulaAction.clear_cache("VM");
+              Notifier.notifyCustom(Locale.tr("VM imported"),
+              Navigation.link(" ID: " + response.VM.ID, "vms-tab", response.VM.ID), false);
+              // Delete row (shouldn't be there in next monitorization)
+              that.dataTableWildHosts.fnDeleteRow(wild_row);
+            },
+            error: function (request, error_json) {
+              wildsError(error_json, context);
+            },
+            complete: function (data) {
+              $("#import_wilds", context).removeAttr("disabled").off("click.disable");
+              $("#import_wilds", context).html(Locale.tr("Import Wilds"));
+            }
+          });
+        });
+      }
     });
 
     return false;
+  }
+
+  function wildsError(error_json, context){
+    var msg;
+    if (error_json.error.message){
+      msg = error_json.error.message;
+    } else {
+      msg = Locale.tr("Cannot contact server: is it running and reachable?");
+    }
+    Notifier.notifyError(msg);
   }
 });

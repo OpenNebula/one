@@ -230,21 +230,11 @@ post '/vcenter/images' do
     end
 end
 
-post '/vcenter/wild_rollback/:vm_id' do
+post '/vcenter/wild' do
     begin
-        vm_id = params[:vm_id]
-        one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id.to_s, false)
 
-        if OpenNebula.is_error?(one_vm)
-            raise "Error finding VM #{vm_id}: #{rc.message}\n"
-        end
 
-        rc =  one_vm.delete
-        if OpenNebula.is_error?(rc)
-            raise "Error deleting VM #{vm_id}: #{rc.message}\n"
-        end
-
-        [200, "VM #{vm_id} deleted in rollback.".to_json]
+        [200, $importer.output.to_json]
     rescue Exception => e
         logger.error("[vCenter] " + e.message)
         error = Error.new(e.message)
