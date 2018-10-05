@@ -660,10 +660,13 @@ class Template
             nic[:mac] = device.macAddress rescue nil
             if wild?
                 if online?
-                    inets_raw = @item["guest.net"].map.with_index { |x,i| [x.macAddress, x] } unless inets_raw
+                    inets_raw ||= @item["guest.net"].map.with_index { |x,i| [x.macAddress, x] }
                     inets = parse_live.call(inets_raw) if inets.empty?
 
-                    ipAddresses = inets[nic[:mac]].ipConfig.ipAddress
+                    if !inets[nic[:mac]]
+                        ipAddresses = inets[nic[:mac]].ipConfig.ipAddress
+                    end
+
                     if !ipAddresses.nil? && !ipAddresses.empty?
                         nic[:ipv4], nic[:ipv4_additionals] = nil
                         nic[:ipv6], nic[:ipv6_ula], nic[:ipv6_global], nic[:ipv6_additionals] = nil
