@@ -16,8 +16,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require_relative 'lib/container'
-require_relative 'lib/client'
+require_relative 'lib/rest/container'
+require_relative 'lib/rest/client'
 require_relative '../lib/poll_common'
 
 ################################################################################
@@ -65,19 +65,23 @@ module LXD
                     :name => container.name,
                     :state => get_state(container)
                 }
+
+                # unless values[:name] =~ /^one-\d+/ # Wild VMs
+                #     uuid, template = xml_to_one(container)
+                #     values[:template] = Base64.encode64(template).delete("\n")
+                #     values[:vm_name] = name
+                #     values[:name] = uuid
+                # end
+
                 vms_info[values[:name]] = values
                 next unless values[:state] == 'a'
 
+                vmd = container.monitor['metadata']
+
                 values[:memory] = get_memory(values[:name])
+                values[:netrx], values[:nettx] = get_net_statistics(vmd['network'])
+
                 running_containers.append(values[:name])
-
-                # if !name.match(/^one-\d+/) # Wild VMs
-                #     uuid, template = xml_to_one(xml)
-                #     values[:template] = Base64.encode64(template).delete("\n")
-                #     values[:vm_name] = name
-                #     vm[:name] = uuid
-                # end
-
                 vms_info[values[:name]][:memory] = values[:memory]
             end
 
@@ -126,6 +130,20 @@ module LXD
         def get_memory(vm_name)
             stat = File.read('/sys/fs/cgroup/memory/lxc/' + vm_name + '/memory.usage_in_bytes').to_i
             stat / 1024
+        end
+
+        def get_net_statistics(vmd)
+            netrx = 0
+            nettx = 0
+
+            vmd.each do |interface, values|
+                next if interface == 'lo'
+
+                netrx += values['counters']['bytes_received']
+                nettx += values['counters']['bytes_sent']
+            end
+
+            [netrx, nettx]
         end
 
         # Gathers process information from a set of VMs.
@@ -181,6 +199,26 @@ module LXD
 
             jiffies
         end
+
+#         def yaml_to_one(container)
+#             name = container.name
+#             vcpu = REXML::XPath.first(doc, '/domain/vcpu').text
+#             memory = container.config['limits.memory'] # TODO: check unit
+#             arch = REXML::XPath.first(doc, '/domain/os/type').attributes['arch']
+
+#             template = <<EOT
+# NAME="#{name}"
+# CPU=#{vcpu}
+# VCPU=#{vcpu}
+# MEMORY=#{memory}
+# HYPERVISOR="lxd"
+# IMPORT_VM_ID="#{uuid}"
+# OS=[ARCH="#{arch}"]
+# EOT
+
+#             return template
+
+#         end
 
     end
 
