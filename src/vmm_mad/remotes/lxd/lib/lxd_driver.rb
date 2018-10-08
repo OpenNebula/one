@@ -308,9 +308,15 @@ module LXDriver
             Info.new(File.open(container.config['user.xml']))
         end
 
+        def context(info, action)
+            mountpoint = info.context['context']['source']
+            device = mountpoint.dup
+            device.slice!('/mapper')
+            RAW.run(action, mountpoint, device)
+        end
+
         # Sets up the container mounts for type: disk devices
         def container_storage(info, action)
-            # TODO: improve use of conditions for root and actions
             disks = info.multiple_elements('DISK')
             ds_id = info.get_sysds_id
             dss_path = info.get_datastores
@@ -328,6 +334,8 @@ module LXDriver
                 device = info.device_path(dss_path, ds_id, vm_id, disk_id)
                 mapper.run(action, mountpoint, device)
             end
+
+            context(info, action) if info.single_element('CONTEXT')
         end
 
         # Reverts changes if container fails to start
