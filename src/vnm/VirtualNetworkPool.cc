@@ -49,7 +49,6 @@ VirtualNetworkPool::VirtualNetworkPool(
     const VectorAttribute *             _vlan_conf,
     const VectorAttribute *             _vxlan_conf):
         PoolSQL(db, VirtualNetwork::table), vlan_conf(_vlan_conf),
-        vlan_id_bitmap(vlan_conf, VLAN_BITMAP_ID, vlan_table),
         vxlan_conf(_vxlan_conf)
 {
     istringstream iss;
@@ -58,6 +57,8 @@ VirtualNetworkPool::VirtualNetworkPool(
     unsigned int  tmp;
 
     vector<const SingleAttribute *>::const_iterator it;
+
+    BitMap<4096> vlan_id_bitmap(vlan_conf, VLAN_BITMAP_ID, vlan_table);
 
     string mac = prefix;
 
@@ -353,8 +354,7 @@ void VirtualNetworkPool::authorize_nic(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static int set_8021Q_id(int vnid, string& vlan_var, bool& auto_var,
-        BitMap<4096>& bitmap)
+int VirtualNetworkPool::set_8021Q_id(int vnid, string& vlan_var, bool& auto_var)
 {
     if ( !vlan_var.empty() || !auto_var )
     {
@@ -364,6 +364,13 @@ static int set_8021Q_id(int vnid, string& vlan_var, bool& auto_var,
     unsigned int vlan_id;
     ostringstream oss;
 
+    BitMap<4096> bitmap(vlan_conf, VLAN_BITMAP_ID, vlan_table);
+
+    if ( bitmap.select(VLAN_BITMAP_ID, db) != 0 )
+    {
+        return -1;
+    }
+
     unsigned int start_vlan = bitmap.get_start_bit();
     unsigned int hint_vlan  = start_vlan + (vnid % (4095 - start_vlan));
 
@@ -371,6 +378,8 @@ static int set_8021Q_id(int vnid, string& vlan_var, bool& auto_var,
     {
         return -1;
     }
+
+    bitmap.update(db);
 
     oss << vlan_id;
 
@@ -380,8 +389,7 @@ static int set_8021Q_id(int vnid, string& vlan_var, bool& auto_var,
     return vlan_id;
 }
 
-static int set_vxlan_id(int vnid, string& vlan_var, bool& auto_var,
-        unsigned int start_vlan)
+int VirtualNetworkPool::set_vxlan_id(int vnid, string& vlan_var, bool& auto_var)
 {
     if ( !vlan_var.empty() || !auto_var )
     {
@@ -389,6 +397,14 @@ static int set_vxlan_id(int vnid, string& vlan_var, bool& auto_var,
     }
 
     ostringstream oss;
+
+    unsigned int start_vlan;
+
+    if (vxlan_conf.vector_value("START", start_vlan) != 0)
+    {
+        start_vlan = 2; //default in oned.conf
+    }
+
     unsigned int vlan_id = start_vlan + vnid;
 
     oss << vlan_id;
@@ -403,7 +419,6 @@ static int set_vxlan_id(int vnid, string& vlan_var, bool& auto_var,
 
 int VirtualNetworkPool::set_vlan_id(VirtualNetwork * vn)
 {
-    unsigned int start_vlan;
     int rc, rcx;
 
     if ( vn->vn_mad.empty() )
@@ -411,28 +426,18 @@ int VirtualNetworkPool::set_vlan_id(VirtualNetwork * vn)
         return 0;
     }
 
-    if (vxlan_conf.vector_value("START", start_vlan) != 0)
-    {
-        start_vlan = 2; //default in oned.conf
-    }
-
     switch (VirtualNetwork::str_to_driver(vn->vn_mad))
     {
         case VirtualNetwork::OVSWITCH_VXLAN:
-            rc = set_8021Q_id(vn->get_oid(), vn->vlan_id, vn->vlan_id_automatic,
-                    vlan_id_bitmap);
+            rc = set_8021Q_id(vn->get_oid(), vn->vlan_id, vn->vlan_id_automatic);
 
             if ( rc == -1 )
             {
                 return -1;
             }
-            else if ( rc != 0 )
-            {
-                vlan_id_bitmap.update(db);
-            }
 
             rcx = set_vxlan_id(vn->get_oid(), vn->outer_vlan_id,
-                    vn->outer_vlan_id_automatic, start_vlan);
+                    vn->outer_vlan_id_automatic);
 
             if ( rc != 0 || rcx != 0 )
             {
@@ -441,8 +446,7 @@ int VirtualNetworkPool::set_vlan_id(VirtualNetwork * vn)
             break;
 
         case VirtualNetwork::VXLAN:
-            rcx = set_vxlan_id(vn->get_oid(), vn->vlan_id, vn->vlan_id_automatic,
-                    start_vlan);
+            rcx = set_vxlan_id(vn->get_oid(), vn->vlan_id, vn->vlan_id_automatic);
 
             if ( rcx != 0 )
             {
@@ -453,8 +457,7 @@ int VirtualNetworkPool::set_vlan_id(VirtualNetwork * vn)
         case VirtualNetwork::VLAN:
         case VirtualNetwork::VCENTER:
         case VirtualNetwork::OVSWITCH:
-            rc = set_8021Q_id(vn->get_oid(), vn->vlan_id, vn->vlan_id_automatic,
-                    vlan_id_bitmap);
+            rc = set_8021Q_id(vn->get_oid(), vn->vlan_id, vn->vlan_id_automatic);
 
             if ( rc == -1 )
             {
@@ -462,7 +465,6 @@ int VirtualNetworkPool::set_vlan_id(VirtualNetwork * vn)
             }
             else if ( rc != 0 )
             {
-                vlan_id_bitmap.update(db);
                 update(vn);
             }
             break;
@@ -505,17 +507,29 @@ void VirtualNetworkPool::release_vlan_id(VirtualNetwork *vn)
     is.str(vn->vlan_id);
     is >> vlan_id;
 
+    BitMap<4096> bitmap(vlan_conf, VLAN_BITMAP_ID, vlan_table);
+
     switch (VirtualNetwork::str_to_driver(vn->vn_mad))
     {
         case VirtualNetwork::VLAN:
         case VirtualNetwork::VCENTER:
         case VirtualNetwork::OVSWITCH:
         case VirtualNetwork::OVSWITCH_VXLAN:
-            vlan_id_bitmap.reset(vlan_id);
-            vlan_id_bitmap.update(db);
+            if ( bitmap.select(VLAN_BITMAP_ID, db) != 0 )
+            {
+                return;
+            }
+
+            bitmap.reset(vlan_id);
+            bitmap.update(db);
             break;
 
-        default:
+        case VirtualNetwork::NONE:
+        case VirtualNetwork::DUMMY:
+        case VirtualNetwork::EBTABLES:
+        case VirtualNetwork::FW:
+        case VirtualNetwork::VXLAN:
+        case VirtualNetwork::BRIDGE:
             break;
     }
 }
