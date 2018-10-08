@@ -20,6 +20,8 @@ require_relative 'lib/rest/container'
 require_relative 'lib/rest/client'
 require_relative '../lib/poll_common'
 
+require 'base64'
+
 ################################################################################
 #
 #  LXD Monitor Module
@@ -67,10 +69,9 @@ module LXD
                 }
 
                 # unless values[:name] =~ /^one-\d+/ # Wild VMs
-                #     uuid, template = xml_to_one(container)
+                #     template = yaml_to_one(container)
                 #     values[:template] = Base64.encode64(template).delete("\n")
-                #     values[:vm_name] = name
-                #     values[:name] = uuid
+                #     values[:vm_name] = values[:name]
                 # end
 
                 vms_info[values[:name]] = values
@@ -202,9 +203,9 @@ module LXD
 
 #         def yaml_to_one(container)
 #             name = container.name
-#             vcpu = REXML::XPath.first(doc, '/domain/vcpu').text
+#             vcpu = container.config['limits.cpu.allowance'].split('%').to_i / 100
 #             memory = container.config['limits.memory'] # TODO: check unit
-#             arch = REXML::XPath.first(doc, '/domain/os/type').attributes['arch']
+#             arch = container.info['architecture']
 
 #             template = <<EOT
 # NAME="#{name}"
@@ -212,12 +213,11 @@ module LXD
 # VCPU=#{vcpu}
 # MEMORY=#{memory}
 # HYPERVISOR="lxd"
-# IMPORT_VM_ID="#{uuid}"
+# IMPORT_VM_ID="#{name}"
 # OS=[ARCH="#{arch}"]
 # EOT
 
-#             return template
-
+#             template
 #         end
 
     end
