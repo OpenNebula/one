@@ -3,12 +3,17 @@
 t0 = Time.now
 require_relative 'lib/lxd_driver'
 
+LXDriver.log_init
+
 vm_name = ARGV[0]
 vm_id = ARGV[2]
 
 client = LXDClient.new
 container = Container.get(vm_name, client)
-container.devices.delete('context')
+
+mountpoint = container.devices.delete('context')['source']
 container.update
+# TODO: iso loop doesn't unmount in first nic_attach
+LXDriver.context(mountpoint, 'unmap')
 
 LXDriver.log_end(t0)

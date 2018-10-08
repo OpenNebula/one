@@ -3,6 +3,8 @@
 t0 = Time.now
 require_relative 'lib/lxd_driver'
 
+LXDriver.log_init
+
 vm_name = ARGV[0]
 iso_path = ARGV[2]
 vm_id = ARGV[3]
