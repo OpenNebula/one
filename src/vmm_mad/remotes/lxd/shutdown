@@ -29,7 +29,7 @@ container = Container.get(vm_name, client)
 
 info = LXDriver.deployment_get(container)
 
-if ARGV.include?('force')
+if ARGV[-1] == 'force'
     container.stop(:force => true)
 else
     container.stop
