@@ -63,27 +63,25 @@ module LXD
 
             running_containers = []
             vms.each do |container|
-                values =  {
-                    :name => container.name,
-                    :state => get_state(container)
-                }
+                name = container.name
+                values[:state] = get_state(container)
 
-                # unless values[:name] =~ /^one-\d+/ # Wild VMs
+                # unless name =~ /^one-\d+/ # Wild VMs
                 #     template = yaml_to_one(container)
                 #     values[:template] = Base64.encode64(template).delete("\n")
-                #     values[:vm_name] = values[:name]
+                #     values[:vm_name] = name
                 # end
 
-                vms_info[values[:name]] = values
+                vms_info[name] = values
                 next unless values[:state] == 'a'
 
                 vmd = container.monitor['metadata']
 
-                values[:memory] = get_memory(values[:name])
+                values[:memory] = get_memory(name)
                 values[:netrx], values[:nettx] = get_net_statistics(vmd['network'])
 
-                running_containers.append(values[:name])
-                vms_info[values[:name]][:memory] = values[:memory]
+                running_containers.append(name)
+                vms_info[name][:memory] = values[:memory]
             end
 
             unless running_containers.empty?
