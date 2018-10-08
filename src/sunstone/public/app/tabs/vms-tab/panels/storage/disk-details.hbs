@@ -22,6 +22,11 @@
         <span class="fas fa-save fa-fw"></span>{{tr "Save as"}}
       </button>
       {{/isTabActionEnabled}}
+      {{#isTabActionEnabled "vms-tab" "VM.disk_snapshot_rename"}}
+      <button class="disk_snapshot_rename button secondary small radius" disabled="disabled">
+        <span class="fas fa-edit fa-fw"></span>{{tr "Rename"}}
+      </button>
+      {{/isTabActionEnabled}}
       {{#isTabActionEnabled "vms-tab" "VM.disk_snapshot_revert"}}
       <button class="disk_snapshot_revert button secondary small radius" disabled="disabled">
         <span class="fas fa-reply fa-fw"></span>{{tr "Revert"}}

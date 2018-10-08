@@ -57,6 +57,7 @@ module OpenNebulaJSON
                  when "snapshot_delete"       then self.snapshot_delete(action_hash['params'])
                  when "disk_snapshot_create"  then self.disk_snapshot_create(action_hash['params'])
                  when "disk_snapshot_revert"  then self.disk_snapshot_revert(action_hash['params'])
+                 when "disk_snapshot_rename"  then self.disk_snapshot_rename(action_hash['params'])
                  when "disk_snapshot_delete"  then self.disk_snapshot_delete(action_hash['params'])
                  when "terminate"    then self.terminate(action_hash['params'])
                  when "reboot"       then self.reboot(action_hash['params'])
@@ -137,6 +138,10 @@ module OpenNebulaJSON
 
         def disk_snapshot_revert(params=Hash.new)
             super(params['disk_id'].to_i, params['snapshot_id'].to_i)
+        end
+
+        def disk_snapshot_rename(params=Hash.new)
+            super(params['disk_id'].to_i, params['snapshot_id'].to_i, params['new_name'])
         end
 
         def disk_snapshot_delete(params=Hash.new)

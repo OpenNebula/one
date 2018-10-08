@@ -98,6 +98,7 @@ define(function(require) {
     "VM.snapshot_delete": _commonActions.singleAction('snapshot_delete'),
     "VM.disk_snapshot_create": _commonActions.singleAction('disk_snapshot_create'),
     "VM.disk_snapshot_revert": _commonActions.singleAction('disk_snapshot_revert'),
+    "VM.disk_snapshot_rename": _commonActions.singleAction('disk_snapshot_rename'),
     "VM.disk_snapshot_delete": _commonActions.singleAction('disk_snapshot_delete'),
     "VM.disk_saveas" : _commonActions.singleAction('disk_saveas'),
 
