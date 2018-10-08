@@ -87,9 +87,7 @@ module LXDriver
             nics.each do |nic|
                 info = nic['NIC']
                 name = "eth#{info['NIC_ID']}"
-                eth = { 'name' => name, 'host_name' => info['TARGET'],
-                        'parent' => info['BRIDGE'], 'hwaddr' => info['MAC'],
-                        'nictype' => 'bridged', 'type' => 'nic' }
+                eth = LXDriver.nic(name, info['TARGET'], info['BRIDGE'], info['MAC'])
 
                 self['devices'][name] = nic_io(eth, info)
             end
@@ -116,7 +114,6 @@ module LXDriver
         ###############
 
         # Sets up the storage devices configuration in devices
-        # TODO: io
         def storage
             disks = multiple_elements('DISK')
 
@@ -193,12 +190,11 @@ module LXDriver
             "#{dss_path}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
         end
 
-        # TODO:
         def context
             info = complex_element('CONTEXT')
             disk_id = info['DISK_ID']
             source = device_path(get_datastores, get_sysds_id, "#{vm_id}/mapper", disk_id)
-            data = { 'type' => 'disk', 'source' => source, 'path' => '/mnt' }
+            data = LXDriver.disk(source, '/mnt')
             { 'context' => data }
         end
 
@@ -216,7 +212,8 @@ module LXDriver
             limits
         end
 
-        # Creates a hash with the keys defined in lxd_keys if the corresponding key in xml_keys with the same index is defined in info
+        # Creates a hash with the keys defined in lxd_keys if the
+        # corresponding key in xml_keys with the same index is defined in info
         def keyfexist(lxd_keys, xml_keys, info)
             hash = {}
             0.upto(lxd_keys.length) do |i|
@@ -291,6 +288,20 @@ module LXDriver
             end
         end
 
+        # TODO: QoS
+        # Creates a nic hash
+        def nic(name, host_name, bridge, mac)
+            { 'name' => name, 'host_name' => host_name,
+              'parent' => bridge, 'hwaddr' => mac,
+              'nictype' => 'bridged', 'type' => 'nic' }
+        end
+
+        # TODO: IO
+        # Creates a disk hash
+        def disk(source, path)
+            { 'type' => 'disk', 'source' => source, 'path' => path }
+        end
+
         ###############
         #  Container  #
         ###############
@@ -308,8 +319,8 @@ module LXDriver
             Info.new(File.open(container.config['user.xml']))
         end
 
-        def context(info, action)
-            mountpoint = info.context['context']['source']
+        # Mount context iso in the LXD node
+        def context(mountpoint, action)
             device = mountpoint.dup
             device.slice!('/mapper')
             RAW.run(action, mountpoint, device)
@@ -335,7 +346,9 @@ module LXDriver
                 mapper.run(action, mountpoint, device)
             end
 
-            context(info, action) if info.single_element('CONTEXT')
+            if info.single_element('CONTEXT')
+                context(info.context['context']['source'], action)
+            end
         end
 
         # Reverts changes if container fails to start

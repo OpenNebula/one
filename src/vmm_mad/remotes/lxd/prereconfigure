@@ -1,0 +1,14 @@
+#!/usr/bin/ruby
+
+t0 = Time.now
+require_relative 'lib/lxd_driver'
+
+vm_name = ARGV[0]
+vm_id = ARGV[2]
+
+client = LXDClient.new
+container = Container.get(vm_name, client)
+container.devices.delete('context')
+container.update
+
+LXDriver.log_end(t0)
