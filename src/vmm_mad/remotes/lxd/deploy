@@ -26,11 +26,12 @@ vm_id = ARGV[2]
 xml_file = STDIN.read
 
 # Map one xml into LXD yaml
-info = LXDriver::Info.new(xml_file)
+info = LXDriver::XML.new(xml_file)
+yaml = LXDriver::YAML.new(info)
 
 # Create container object
 client = LXDClient.new
-container = Container.new(info, client)
+container = Container.new(yaml, client)
 
 # Create LXD container
 LXDriver.container_create(container, client)
