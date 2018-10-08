@@ -40,6 +40,9 @@ module LXDriver
     # Container Info
     class Info < Hash
 
+        # TODO: separate hash creation funcions and utility functions to avoid recreating hashes on non container creation actions
+        # TODO: Create hash with one => lxd mappings
+
         TEMPLATE_PREFIX = '//TEMPLATE/'
 
         def initialize(xml_file)
@@ -74,6 +77,10 @@ module LXDriver
             self['config']['limits.cpu'] = vcpu if vcpu
         end
 
+        ###############
+        #   Network   #
+        ###############
+
         # Sets up the network interfaces configuration in devices
         def network
             nics = multiple_elements('NIC')
@@ -90,13 +97,12 @@ module LXDriver
 
         # Returns a hash with QoS NIC values if defined
         def nic_io(nic, info)
-            lxd_limits = %w[limits.ingress limits.egress]
-            one_limits = %w[INBOUND_AVG_BW OUTBOUND_AVG_BW]
-            nic_limits = self.class.keyfexist(lxd_limits, one_limits, info)
-            if nic_limits != {}
-                nic_limits.each do |limit, value|
-                    nic_limits[limit] = nic_unit(value)
-                end
+            lxdl = %w[limits.ingress limits.egress]
+            onel = %w[INBOUND_AVG_BW OUTBOUND_AVG_BW]
+
+            nic_limits = io(lxdl, onel, info)
+            nic_limits.each do |key, value|
+                nic_limits[key] = nic_unit(value)
             end
             nic.update(nic_limits)
         end
@@ -110,49 +116,53 @@ module LXDriver
         ###############
 
         # Sets up the storage devices configuration in devices
-        # TODO: readonly
         # TODO: io
-        # TODO: source
-        # TODO: path
         def storage
             disks = multiple_elements('DISK')
-            ds_id = xml_single_element('//HISTORY_RECORDS/HISTORY/DS_ID')
-            dss_path = get_datastores
-            vm_id = single_element('VMID')
-
-            bootme = get_rootfs_id
-            disks.each {|d| disks.insert(0, d).uniq if d['ID'] == bootme }
-
-            # root
 
             # disks
-            nonroot = disks[1..-1]
-            nonroot.each do |disk|
-                info = disk['DISK']
-                disk_id = info['DISK_ID']
-                source = self.class.device_path(dss_path, ds_id, "#{vm_id}/mapper", disk_id)
-                readonly = true if info['READONLY'] = 'YES'
-                disk_config = { 'type' => 'disk', 'path' => info['TARGET'],
-                                'source' => source }
+            if disks.length > 1
+                ds_id = xml_single_element('//HISTORY_RECORDS/HISTORY/DS_ID')
+                dss_path = get_datastores
+                vm_id = single_element('VMID')
+                bootme = get_rootfs_id
+                disks.each {|d| disks.insert(0, d).uniq if d['ID'] == bootme }
 
-                self['devices']['disk' + disk_id] = disk_io(disk_config, info)
+                disks[1..-1].each do |disk|
+                    info = disk['DISK']
+                    disk_id = info['DISK_ID']
+
+                    source = device_path(dss_path, ds_id, "#{vm_id}/mapper", disk_id)
+                    path = info['TARGET'] # TODO: path is TARGET: hda, hdc, hdd
+                    path = '/mnt' unless path.include?('/')
+
+                    disk_config = { 'type' => 'disk', 'path' => path, 'source' => source }
+                    disk_config.update(disk_common(info))
+
+                    self['devices']['disk' + disk_id] = disk_config
+                end
             end
 
-            # disk_io
+            # root
+            info = disks[0]['DISK']
+            root = { 'type' => 'disk', 'path' => '/', 'pool' => 'default' }
+            self['devices']['root'] = root.update(disk_common(info))
+
+            # context
             self['devices'].update(context) if single_element('CONTEXT')
         end
 
-        def disk(info, dss_path, ds_id, vm_id)
-            disk_id = info['DISK_ID']
-            source = self.class.device_path(dss_path, ds_id, "#{vm_id}/mapper", disk_id)
-            path = info['TARGET']
-            { 'source' => source, 'path' => path }
+        def disk_common(info)
+            config = { 'readonly' => 'false' }
+            config['readonly'] = 'true' if info['READONLY'] == 'yes'
+            disk_io(config, info)
         end
 
-        def disk_io(disk_config, info)
-            # io = {'limits.read' => '', 'limits.write' => '', 'limits.max' => '' }
-            # io['limits.read'] = nic_unit(info['INBOUND_AVG_BW']) if info['INBOUND_AVG_BW']
-            # io['limits.write'] = nic_unit(info['OUTBOUND_AVG_BW']) if info['OUTBOUND_AVG_BW']
+        # TODO: TOTAL_IOPS_SEC
+        def disk_io(disk, info)
+            lxdl = %w[limits.read limits.write limits.max]
+            onel = %w[READ_BYTES_SEC WRITE_BYTES_SEC TOTAL_BYTES_SEC]
+            disk.update(io(lxdl, onel, info))
         end
 
         # Returns the diskid corresponding to the root device
@@ -172,25 +182,35 @@ module LXDriver
             source.split(ds_id + '/')[0]
         end
 
+        def device_path(dss_path, ds_id, vm_id, disk_id)
+            "#{dss_path}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
+        end
+
         # TODO:
         def context; end
 
-        class << self
+        ###############
+        #    Misc     #
+        ###############
 
-            def device_path(dss_path, ds_id, vm_id, disk_id)
-                "#{dss_path}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
-            end
-
-            # Creates a hash with the keys defined in lxd_keys if the corresponding key in xml_keys with the same index is defined in info
-            def keyfexist(lxd_keys, xml_keys, info)
-                hash = {}
-                0.upto(lxd_keys.length) do |i|
-                    value = info[xml_keys[i]]
-                    hash[lxd_keys[i]] = value if value
+        def io(lxdl, onel, info)
+            limits = keyfexist(lxdl, onel, info)
+            if limits != {}
+                limits.each do |limit, value|
+                    limits[limit] = value
                 end
-                hash
             end
+            limits
+        end
 
+        # Creates a hash with the keys defined in lxd_keys if the corresponding key in xml_keys with the same index is defined in info
+        def keyfexist(lxd_keys, xml_keys, info)
+            hash = {}
+            0.upto(lxd_keys.length) do |i|
+                value = info[xml_keys[i]]
+                hash[lxd_keys[i]] = value if value
+            end
+            hash
         end
 
         ###############
@@ -276,14 +296,14 @@ module LXDriver
             bootme = info.get_rootfs_id
 
             disks.each do |disk|
-                info = disk['DISK']
-                disk_id = info['DISK_ID']
+                disk_info = disk['DISK']
+                disk_id = disk_info['DISK_ID']
 
-                mountpoint = Info.device_path(dss_path, ds_id, "#{vm_id}/mapper", disk_id)
+                mountpoint = info.device_path(dss_path, ds_id, "#{vm_id}/mapper", disk_id)
                 mountpoint = CONTAINERS + 'one-' + vm_id if disk_id == bootme
 
-                mapper = select_driver(info['DRIVER'])
-                device = Info.device_path(dss_path, ds_id, vm_id, disk_id)
+                mapper = select_driver(disk_info['DRIVER'])
+                device = info.device_path(dss_path, ds_id, vm_id, disk_id)
                 mapper.run(action, mountpoint, device)
             end
         end
