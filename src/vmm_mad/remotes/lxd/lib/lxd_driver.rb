@@ -42,6 +42,7 @@ module LXDriver
 
         # TODO: separate hash creation funcions and utility functions to avoid recreating hashes on non container creation actions
         # TODO: Create hash with one => lxd mappings
+        # TODO: Create method/attr per xml requested item
 
         TEMPLATE_PREFIX = '//TEMPLATE/'
 
@@ -53,7 +54,6 @@ module LXDriver
             self['config'] = {}
             self['devices'] = {}
 
-            # TODO: deal with missing parameters
             memory
             cpu
             network
@@ -122,9 +122,9 @@ module LXDriver
 
             # disks
             if disks.length > 1
-                ds_id = xml_single_element('//HISTORY_RECORDS/HISTORY/DS_ID')
+                ds_id = get_sysds_id
                 dss_path = get_datastores
-                vm_id = single_element('VMID')
+                vm_id = vm_id
                 bootme = get_rootfs_id
                 disks.each {|d| disks.insert(0, d).uniq if d['ID'] == bootme }
 
@@ -134,7 +134,7 @@ module LXDriver
 
                     source = device_path(dss_path, ds_id, "#{vm_id}/mapper", disk_id)
                     path = info['TARGET'] # TODO: path is TARGET: hda, hdc, hdd
-                    path = '/mnt' unless path.include?('/')
+                    path = '/mnt/mnt' unless path.include?('/')
 
                     disk_config = { 'type' => 'disk', 'path' => path, 'source' => source }
                     disk_config.update(disk_common(info))
@@ -165,6 +165,7 @@ module LXDriver
             disk.update(io(lxdl, onel, info))
         end
 
+        # TODO: attr
         # Returns the diskid corresponding to the root device
         def get_rootfs_id
             # TODO: Add support when path is /
@@ -174,7 +175,13 @@ module LXDriver
             bootme
         end
 
+        # TODO: attr
+        def get_sysds_id
+            xml_single_element('//HISTORY_RECORDS/HISTORY/DS_ID')
+        end
+
         # gets opennebula datastores path
+        # TODO: attr
         def get_datastores
             disk = multiple_elements('DISK')[0]['DISK']
             source = disk['SOURCE']
@@ -187,7 +194,13 @@ module LXDriver
         end
 
         # TODO:
-        def context; end
+        def context
+            info = complex_element('CONTEXT')
+            disk_id = info['DISK_ID']
+            source = device_path(get_datastores, get_sysds_id, "#{vm_id}/mapper", disk_id)
+            data = { 'type' => 'disk', 'source' => source, 'path' => '/mnt' }
+            { 'context' => data }
+        end
 
         ###############
         #    Misc     #
@@ -213,6 +226,11 @@ module LXDriver
             hash
         end
 
+        # TODO: attr
+        def vm_id
+            single_element('VMID')
+        end
+
         ###############
         # XML Parsing #
         ###############
@@ -235,6 +253,10 @@ module LXDriver
 
         def multiple_elements(path)
             xml_multiple_elements(TEMPLATE_PREFIX + path)
+        end
+
+        def complex_element(path)
+            multiple_elements(path)[0][path]
         end
 
     end
@@ -290,9 +312,9 @@ module LXDriver
         def container_storage(info, action)
             # TODO: improve use of conditions for root and actions
             disks = info.multiple_elements('DISK')
-            ds_id = info.xml_single_element('//HISTORY_RECORDS/HISTORY/DS_ID')
+            ds_id = info.get_sysds_id
             dss_path = info.get_datastores
-            vm_id = info.single_element('VMID')
+            vm_id = info.vm_id
             bootme = info.get_rootfs_id
 
             disks.each do |disk|
@@ -312,7 +334,7 @@ module LXDriver
         def container_start(container, info)
             raise LXDError, container.status if container.start != 'Running'
         rescue LXDError => e
-            disk(info, 'unmap')
+            container_storage(info, 'unmap')
             OpenNebula.log_error('Container failed to start')
             container.delete
             raise e
