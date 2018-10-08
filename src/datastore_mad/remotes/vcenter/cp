@@ -71,6 +71,7 @@ end
 temp_file = nil
 filename = File.basename(img_path)
 target_path = "#{ds_image_dir}/#{id}"
+ext = File.extname(filename)
 
 # If image is in a remote http location it has to be downloaded
 # or if is a zipped file it has to be unzipped in a temp folder
@@ -151,8 +152,12 @@ files_to_upload.each_with_index do |f, index|
     end
 
     if is_last_file_to_upload?(index, files_to_upload)
-        uploader_args = ds_id + " " + ds_ref + " " +
-            "#{path}#{extension}" + " " + f
+        if ext == ""
+            uploader_args = ds_id + " " + ds_ref + " "
+                            + "#{path}#{extension}" + " " + f
+        else
+            uploader_args = ds_id + " " + ds_ref + " " + path + " " + f
+        end
     else
         uploader_args = ds_id + " " + ds_ref + " " +
                         path + " " + f + " &> /dev/null"
