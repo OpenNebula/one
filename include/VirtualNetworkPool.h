@@ -277,11 +277,6 @@ private:
      */
     const VectorAttribute vlan_conf;
 
-    /**
-     *  Bitmap with vlan_id in use for the 802.1Q driver
-     */
-    BitMap<4096> vlan_id_bitmap;
-
    /**
     *  ID for the VLAN_BITMAP, to store it in the DB
     */
@@ -323,6 +318,16 @@ private:
      *    @return 0 on success
      */
     int set_vlan_id(VirtualNetwork * vn);
+
+    /**
+     *  Helper functions to compute the next vlan_id for 802.1Q and VXLAN.
+     *    @param vnid network id
+     *    @param vlan_var, attribute to store the vlan_id
+     *    @param auto_var, attribute to flag this vlan_id as auto generated
+     */
+    int set_8021Q_id(int vnid, string& vlan_var, bool& auto_var);
+
+    int set_vxlan_id(int vnid, string& vlan_var, bool& auto_var);
 
     /**
      *  Free a previously allocated VLAN ID if needed
