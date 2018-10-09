@@ -457,12 +457,12 @@ const char * VirtualMachine::table = "vm_pool";
 
 const char * VirtualMachine::db_names =
     "oid, name, body, uid, gid, last_poll, state, lcm_state, "
-    "owner_u, group_u, other_u";
+    "owner_u, group_u, other_u, short_body";
 
 const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
     "vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
     "gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, "
-    "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
+    "owner_u INTEGER, group_u INTEGER, other_u INTEGER, short_body MEDIUMTEXT)";
 
 
 const char * VirtualMachine::monit_table = "vm_monitoring";
@@ -1659,9 +1659,10 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
     ostringstream   oss;
     int             rc;
 
-    string xml_body;
+    string xml_body, short_xml_body;
     char * sql_name;
     char * sql_xml;
+    char * sql_short_xml;
 
     sql_name =  db->escape_str(name.c_str());
 
@@ -1680,6 +1681,18 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
     if ( validate_xml(sql_xml) != 0 )
     {
         goto error_xml;
+    }
+
+    sql_short_xml = db->escape_str(to_xml_short(short_xml_body).c_str());
+
+    if ( sql_short_xml == 0 )
+    {
+        goto error_body_short;
+    }
+
+    if ( validate_xml(sql_short_xml) != 0 )
+    {
+        goto error_xml_short;
     }
 
     if(replace)
@@ -1702,15 +1715,20 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          lcm_state       << ","
         <<          owner_u         << ","
         <<          group_u         << ","
-        <<          other_u         << ")";
+        <<          other_u         << ","
+        << "'" <<   sql_short_xml   << "'"
+        << ")";
 
     db->free_str(sql_name);
     db->free_str(sql_xml);
+    db->free_str(sql_short_xml);
 
     rc = db->exec_wr(oss);
 
     return rc;
 
+error_xml_short:
+    db->free_str(sql_short_xml);
 error_xml:
     db->free_str(sql_name);
     db->free_str(sql_xml);
@@ -1719,6 +1737,8 @@ error_xml:
 
     goto error_common;
 
+error_body_short:
+    db->free_str(sql_xml);
 error_body:
     db->free_str(sql_name);
     goto error_generic;
@@ -2180,6 +2200,95 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
         {
             oss << snapshots->to_xml(snap_xml);
         }
+    }
+
+    oss << "</VM>";
+
+    xml = oss.str();
+
+    return xml;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& VirtualMachine::to_xml_short(string& xml)
+{
+    string disks_xml, monitoring_xml, user_template_xml, history_xml, nics_xml;
+    ostringstream   oss;
+    string cpu_tmpl, mem_tmpl, auto_reqs, auto_ds_reqs;
+
+    obj_template->get("CPU", cpu_tmpl);
+    obj_template->get("MEMORY", mem_tmpl);
+    obj_template->get("AUTOMATIC_REQUIREMENTS", auto_reqs);
+    obj_template->get("AUTOMATIC_DS_REQUIREMENTS", auto_ds_reqs);
+
+    oss << "<VM>"
+        << "<ID>"        << oid       << "</ID>"
+        << "<UID>"       << uid       << "</UID>"
+        << "<GID>"       << gid       << "</GID>"
+        << "<UNAME>"     << uname     << "</UNAME>"
+        << "<GNAME>"     << gname     << "</GNAME>"
+        << "<NAME>"      << name      << "</NAME>"
+        << "<LAST_POLL>" << last_poll << "</LAST_POLL>"
+        << "<STATE>"     << state     << "</STATE>"
+        << "<LCM_STATE>" << lcm_state << "</LCM_STATE>"
+        << "<RESCHED>"   << resched   << "</RESCHED>"
+        << "<STIME>"     << stime     << "</STIME>"
+        << "<ETIME>"     << etime     << "</ETIME>"
+        << "<DEPLOY_ID>" << deploy_id << "</DEPLOY_ID>";
+
+    oss << "<TEMPLATE>"
+        << "<CPU>"       << cpu_tmpl  << "</CPU>"
+        << "<MEMORY>"    << mem_tmpl  << "</MEMORY>"
+        << disks.to_xml_short(disks_xml)
+        << nics.to_xml_short(nics_xml);
+
+    VectorAttribute * graph = obj_template->get("GRAPHICS");
+
+    if ( graph != 0 )
+    {
+        graph->to_xml(oss);
+    }
+
+    if (!auto_reqs.empty())
+    {
+        oss << "<AUTOMATIC_REQUIREMENTS>";
+        oss << one_util::escape_xml(auto_reqs);
+        oss << "</AUTOMATIC_REQUIREMENTS>";
+    }
+
+    if (!auto_ds_reqs.empty())
+    {
+        oss << "<AUTOMATIC_DS_REQUIREMENTS>";
+        oss << one_util::escape_xml(auto_ds_reqs);
+        oss << "</AUTOMATIC_DS_REQUIREMENTS>";
+    }
+
+    oss << "</TEMPLATE>"
+        << monitoring.to_xml_short(monitoring_xml)
+        << user_obj_template->to_xml_short(user_template_xml);
+
+    if ( hasHistory() )
+    {
+        oss << "<HISTORY_RECORDS>";
+        oss << history_records[history_records.size() - 1]->to_xml_short(history_xml);
+        oss << "</HISTORY_RECORDS>";
+    }
+    else
+    {
+        oss << "<HISTORY_RECORDS/>";
+    }
+
+    std::vector<VectorAttribute *> vm_groups;
+
+    if (obj_template->get("VMGROUP", vm_groups) > 0)
+    {
+        for (std::vector<VectorAttribute *>::iterator it = vm_groups.begin();
+				it != vm_groups.end() ; it++)
+		{
+			(*it)->to_xml(oss);
+		}
     }
 
     oss << "</VM>";

@@ -488,7 +488,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ((user = upool->get(oid)) == 0 )
+    if ((user = upool->get_ro(oid)) == 0 )
     {
         att.resp_obj = PoolObjectSQL::USER;
         att.resp_id  = oid;

@@ -206,7 +206,7 @@ void UserEditGroup::
     PoolObjectAuth uperms;
     PoolObjectAuth gperms;
 
-    User* user = upool->get(user_id);
+    User* user = upool->get_ro(user_id);
 
     if ( user == 0 )
     {
@@ -416,7 +416,7 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
 
     PoolObjectAuth perms;
 
-    user = static_cast<UserPool *>(pool)->get(uname);
+    user = static_cast<UserPool *>(pool)->get_ro(uname);
 
     if ( user == 0 )
     {

@@ -462,7 +462,7 @@ int DispatchManager::undeploy(int vid, bool hard, const RequestAttributes& ra,
 {
     ostringstream oss;
 
-    VirtualMachine * vm = vmpool->get(vid);
+    VirtualMachine * vm = vmpool->get_ro(vid);
 
     if ( vm == 0 )
     {
@@ -517,7 +517,7 @@ int DispatchManager::poweroff (int vid, bool hard, const RequestAttributes& ra,
 {
     ostringstream oss;
 
-    VirtualMachine * vm = vmpool->get(vid);
+    VirtualMachine * vm = vmpool->get_ro(vid);
 
     if ( vm == 0 )
     {
@@ -688,7 +688,7 @@ int DispatchManager::stop(int vid, const RequestAttributes& ra,
 {
     ostringstream oss;
 
-    VirtualMachine * vm = vmpool->get(vid);
+    VirtualMachine * vm = vmpool->get_ro(vid);
 
     if ( vm == 0 )
     {
@@ -735,7 +735,7 @@ int DispatchManager::suspend(int vid, const RequestAttributes& ra,
 {
     ostringstream oss;
 
-    VirtualMachine * vm = vmpool->get(vid);
+    VirtualMachine * vm = vmpool->get_ro(vid);
 
     if ( vm == 0 )
     {
@@ -1078,7 +1078,7 @@ int DispatchManager::delete_vm(VirtualMachine * vm, const RequestAttributes& ra,
 
     if(host_id != -1)
     {
-        Host * host = hpool->get(host_id);
+        Host * host = hpool->get_ro(host_id);
 
         if ( host == 0 )
         {

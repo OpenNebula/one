@@ -357,7 +357,7 @@ void Quotas::ds_del_recreate(int uid, int gid, vector<Template *>& ds_quotas)
 
         if ( img_owner )
         {
-            Image* img = ipool->get(image_id);
+            Image* img = ipool->get_ro(image_id);
 
             if(img != 0)
             {

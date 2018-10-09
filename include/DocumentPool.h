@@ -77,6 +77,19 @@ public:
     };
 
     /**
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database).
+     *   @param oid the object unique identifier
+     *   @param lock locks the object if true
+     *
+     *   @return a pointer to the object, 0 in case of failure
+     */
+    Document * get_ro(int oid)
+    {
+        return static_cast<Document *>(PoolSQL::get_ro(oid));
+    };
+
+    /**
      *  Dumps the pool in XML format. A filter can be also added to the
      *  query
      *  @param oss the output stream to dump the pool contents
@@ -86,10 +99,10 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit,
+    int dump(string& oss, const string& where, const string& limit,
             bool desc)
     {
-        return PoolSQL::dump(oss, "DOCUMENT_POOL", Document::table, where,
+        return PoolSQL::dump(oss, "DOCUMENT_POOL", "body", Document::table, where,
                              limit, desc);
     };
 

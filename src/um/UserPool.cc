@@ -76,7 +76,7 @@ UserPool::UserPool(SqlDB * db,
 
     _session_expiration_time = __session_expiration_time;
 
-    User * oneadmin_user = get(0);
+    User * oneadmin_user = get_ro(0);
 
     //Slaves do not need to init the pool, just the oneadmin username
     if (is_federation_slave)
@@ -941,7 +941,7 @@ bool UserPool::authenticate_server(User *        user,
         goto wrong_server_token;
     }
 
-    user = get(target_username);
+    user = get_ro(target_username);
 
     if ( user == 0 )
     {
@@ -1275,7 +1275,7 @@ int UserPool::authorize(AuthRequest& ar)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int UserPool::dump(ostringstream& oss, const string& where, const string& limit,
+int UserPool::dump(string& oss, const string& where, const string& limit,
         bool desc)
 {
     int     rc;
@@ -1305,9 +1305,9 @@ int UserPool::dump(ostringstream& oss, const string& where, const string& limit,
         cmd << " LIMIT " << limit;
     }
 
-    oss << "<USER_POOL>";
+    oss.append("<USER_POOL>");
 
-    stream_cb cb(2);
+    string_cb cb(2);
 
     cb.set_callback(&oss);
 
@@ -1315,9 +1315,9 @@ int UserPool::dump(ostringstream& oss, const string& where, const string& limit,
 
     cb.unset_callback();
 
-    oss << Nebula::instance().get_default_user_quota().to_xml(def_quota_xml);
+    oss.append(Nebula::instance().get_default_user_quota().to_xml(def_quota_xml));
 
-    oss << "</USER_POOL>";
+    oss.append("</USER_POOL>");
 
     return rc;
 }
@@ -1328,15 +1328,17 @@ int UserPool::dump(ostringstream& oss, const string& where, const string& limit,
 string UserPool::get_token_password(int oid, int bck_oid){
 
     string token_password = "";
-    User * user = get(oid);
+    User * user = get_ro(oid);
 
     if (user != 0)
     {
         user->get_template_attribute("TOKEN_PASSWORD", token_password);
         user->unlock();
     }
-    else{
-        user = get(bck_oid);
+    else
+    {
+        user = get_ro(bck_oid);
+
         if (user != 0)
         {
             user->get_template_attribute("TOKEN_PASSWORD", token_password);

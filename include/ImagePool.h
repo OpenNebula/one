@@ -105,6 +105,17 @@ public:
         return static_cast<Image *>(PoolSQL::get(oid));
     };
 
+     /**
+     **  Function to get a read only Image from the pool, if the object is not in memory
+     *  it is loaded from the DB
+     *    @param oid Image unique id
+     *    @return a pointer to the Image, 0 if the Image could not be loaded
+     */
+    Image * get_ro(int oid)
+    {
+        return static_cast<Image *>(PoolSQL::get(oid));
+    };
+
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
      *  database).
@@ -117,6 +128,19 @@ public:
     Image * get(const string& name, int uid)
     {
         return static_cast<Image *>(PoolSQL::get(name,uid));
+    };
+
+    /**
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database).
+     *   @param name of the object
+     *   @param uid id of owner
+     *
+     *   @return a pointer to the object, 0 in case of failure
+     */
+    Image * get_ro(const string& name, int uid)
+    {
+        return static_cast<Image *>(PoolSQL::get_ro(name,uid));
     };
 
     /**
@@ -138,10 +162,10 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit,
+    int dump(string& oss, const string& where, const string& limit,
             bool desc)
     {
-        return PoolSQL::dump(oss, "IMAGE_POOL", Image::table, where, limit, 
+        return PoolSQL::dump(oss, "IMAGE_POOL", "body", Image::table, where, limit, 
             desc);
     }
 

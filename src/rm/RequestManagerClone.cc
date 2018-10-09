@@ -157,7 +157,7 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
     RequestAttributes img_att(att);
     img_att.resp_obj    = PoolObjectSQL::IMAGE;
 
-    VMTemplate * vmtmpl = tpool->get(new_id);
+    VMTemplate * vmtmpl = tpool->get_ro(new_id);
 
     if (vmtmpl == 0)
     {

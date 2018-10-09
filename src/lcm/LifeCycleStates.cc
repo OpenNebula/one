@@ -968,7 +968,7 @@ void  LifeCycleManager::cleanup_callback_action(int vid)
 
     VirtualMachine::LcmState state;
 
-    vm = vmpool->get(vid);
+    vm = vmpool->get_ro(vid);
 
     if ( vm == 0 )
     {
@@ -1951,7 +1951,7 @@ void LifeCycleManager::disk_snapshot_success(int vid)
     {
         if ( img_owner )
         {
-            Image* img = ipool->get(img_id);
+            Image* img = ipool->get_ro(img_id);
 
             if(img != 0)
             {
@@ -2095,7 +2095,7 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
     {
         if ( img_owner )
         {
-            Image* img = ipool->get(img_id);
+            Image* img = ipool->get_ro(img_id);
 
             if(img != 0)
             {
@@ -2154,7 +2154,7 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
 
 void LifeCycleManager::disk_lock_success(int vid)
 {
-    VirtualMachine * vm = vmpool->get(vid);
+    VirtualMachine * vm = vmpool->get_ro(vid);
     Image *          image;
 
     if ( vm == 0 )
@@ -2182,7 +2182,7 @@ void LifeCycleManager::disk_lock_success(int vid)
 
     for (set<int>::iterator id = ids.begin(); id != ids.end(); id++)
     {
-        image = ipool->get(*id);
+        image = ipool->get_ro(*id);
 
         if (image != 0)
         {
@@ -2402,7 +2402,7 @@ void LifeCycleManager::disk_resize_failure(int vid)
     // Restore quotas
     if ( img_quota && img_id != -1 )
     {
-        Image* img = ipool->get(img_id);
+        Image* img = ipool->get_ro(img_id);
 
         if(img != 0)
         {

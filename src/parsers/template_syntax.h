@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.4.  */
+/* A Bison parser, made by GNU Bison 3.1.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@
 extern int template_debug;
 #endif
 /* "%code requires" blocks.  */
-#line 47 "template_syntax.y" /* yacc.c:1909  */
+#line 47 "template_syntax.y" /* yacc.c:1913  */
 
 #include <iostream>
 #include <string>
@@ -59,7 +59,7 @@ typedef void * yyscan_t;
 
 int template_parse(Template * tmpl, char ** errmsg, yyscan_t scanner);
 
-#line 63 "template_syntax.hh" /* yacc.c:1909  */
+#line 63 "template_syntax.hh" /* yacc.c:1913  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -82,12 +82,12 @@ int template_parse(Template * tmpl, char ** errmsg, yyscan_t scanner);
 
 union YYSTYPE
 {
-#line 74 "template_syntax.y" /* yacc.c:1909  */
+#line 74 "template_syntax.y" /* yacc.c:1913  */
 
     char * val_str;
     void * val_attr;
 
-#line 91 "template_syntax.hh" /* yacc.c:1909  */
+#line 91 "template_syntax.hh" /* yacc.c:1913  */
 };
 
 typedef union YYSTYPE YYSTYPE;

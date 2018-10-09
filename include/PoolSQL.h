@@ -62,11 +62,19 @@ public:
      *  Gets an object from the pool (if needed the object is loaded from the
      *  database).
      *   @param oid the object unique identifier
-     *   @param lock locks the object if true
      *
      *   @return a pointer to the object, 0 in case of failure
      */
     PoolObjectSQL * get(int oid);
+
+    /**
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database).
+     *   @param oid the object unique identifier
+     *
+     *   @return a pointer to the object, 0 in case of failure
+     */
+    PoolObjectSQL * get_ro(int oid);
 
     /**
      *  Check if there is an object with the same for a given user
@@ -172,7 +180,7 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, bool desc)
+    int dump(string& oss, const string& where, bool desc)
     {
         return dump(oss, where, "", desc);
     }
@@ -188,7 +196,7 @@ public:
      *  @return 0 on success
      */
 
-    virtual int dump(ostringstream& oss, const string& where,
+    virtual int dump(string& oss, const string& where,
                      const string& limit, bool desc) = 0;
 
     // -------------------------------------------------------------------------
@@ -259,11 +267,20 @@ protected:
      *  database).
      *   @param name of the object
      *   @param uid id of owner
-     *   @param lock locks the object if true
      *
      *   @return a pointer to the object, 0 in case of failure
      */
     PoolObjectSQL * get(const string& name, int uid);
+
+    /**
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database).
+     *   @param name of the object
+     *   @param uid id of owner
+     *
+     *   @return a pointer to the object, 0 in case of failure
+     */
+    PoolObjectSQL * get_ro(const string& name, int uid);
 
     /**
      *  Pointer to the database.
@@ -282,8 +299,9 @@ protected:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss,
+    int dump(string& oss,
              const string&  elem_name,
+             const string&  column,
              const char *   table,
              const string&  where,
              const string&  limit,
@@ -300,13 +318,13 @@ protected:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss,
+    int dump(string& oss,
              const string&  elem_name,
              const char *   table,
              const string&  where,
              bool           desc)
     {
-        return dump(oss, elem_name, table, where, "", desc);
+        return dump(oss, elem_name, "body", table, where, "", desc);
     }
 
     /**
@@ -318,17 +336,9 @@ protected:
      *
      *   @return 0 on success
      */
-    int dump(ostringstream&  oss,
+    int dump(string&  oss,
              const string&   root_elem_name,
              ostringstream&  sql_query);
-
-    /**
-     * Child classes can add extra elements to the dump xml, right after all the
-     * pool objects
-     *
-     * @param oss The output stream to dump the xml contents
-     */
-    virtual void add_extra_xml(ostringstream&  oss){};
 
     /* ---------------------------------------------------------------------- */
     /* Interface to access the lastOID assigned by the pool                   */

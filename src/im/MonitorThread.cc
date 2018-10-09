@@ -146,7 +146,7 @@ void MonitorThread::do_message()
 
     if (cid != -1)
     {
-        Cluster *cluster = cpool->get(cid);
+        Cluster * cluster = cpool->get_ro(cid);
 
         if (cluster != 0)
         {
@@ -158,7 +158,7 @@ void MonitorThread::do_message()
 
     for (itm = datastores.begin(); itm != datastores.end(); itm++)
     {
-        ds = dspool->get(itm->first);
+        ds = dspool->get_ro(itm->first);
 
         if (ds == 0)
         {
@@ -226,7 +226,7 @@ void MonitorThread::do_message()
 
         for (its = lost.begin(); its != lost.end(); its++)
         {
-            VirtualMachine * vm = vmpool->get(*its);
+            VirtualMachine * vm = vmpool->get_ro(*its);
 
             if (vm == 0)
             {
@@ -288,14 +288,8 @@ void MonitorThread::do_message()
 
         // The rediscovered set is not stored in the DB, the update method
         // is not needed
-        host = hpool->get(host_id);
 
-        if ( host != 0 )
-        {
-            host->set_prev_rediscovered_vms(rediscovered_vms);
-
-            host->unlock();
-        }
+        hpool->update_prev_rediscovered_vms(host_id, rediscovered_vms);
     }
 };
 

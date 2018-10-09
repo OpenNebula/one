@@ -459,7 +459,7 @@ int ImageManager::delete_image(int iid, string& error_str)
 
     ostringstream oss;
 
-    img = ipool->get(iid);
+    img = ipool->get_ro(iid);
 
     if ( img == 0 )
     {
@@ -471,7 +471,7 @@ int ImageManager::delete_image(int iid, string& error_str)
 
     img->unlock();
 
-    ds = dspool->get(ds_id);
+    ds = dspool->get_ro(ds_id);
 
     if ( ds == 0 )
     {
@@ -646,7 +646,7 @@ int ImageManager::can_clone_image(int cloning_id, ostringstream&  oss_error)
 {
     Image *       img;
 
-    img = ipool->get(cloning_id);
+    img = ipool->get_ro(cloning_id);
 
     if (img == 0)
     {
@@ -770,7 +770,7 @@ int ImageManager::clone_image(int   new_id,
         return -1;
     }
 
-    img = ipool->get(new_id);
+    img = ipool->get_ro(new_id);
 
     if (img == 0)
     {
@@ -1105,7 +1105,7 @@ int ImageManager::delete_snapshot(int iid, int sid, string& error)
         return -1;
     }
 
-    Image * img = ipool->get(iid);
+    Image * img = ipool->get_ro(iid);
 
     if ( img == 0 )
     {
@@ -1122,7 +1122,7 @@ int ImageManager::delete_snapshot(int iid, int sid, string& error)
 
     string ds_data;
 
-    Datastore * ds = dspool->get(ds_id);
+    Datastore * ds = dspool->get_ro(ds_id);
 
     if ( ds == 0 )
     {
@@ -1198,7 +1198,7 @@ int ImageManager::revert_snapshot(int iid, int sid, string& error)
         return -1;
     }
 
-    Image * img = ipool->get(iid);
+    Image * img = ipool->get_ro(iid);
 
     if ( img == 0 )
     {
@@ -1215,7 +1215,7 @@ int ImageManager::revert_snapshot(int iid, int sid, string& error)
 
     string ds_data;
 
-    Datastore * ds = dspool->get(ds_id);
+    Datastore * ds = dspool->get_ro(ds_id);
 
     if ( ds == 0 )
     {
@@ -1302,7 +1302,7 @@ int ImageManager::flatten_snapshot(int iid, int sid, string& error)
         return -1;
     }
 
-    Image * img = ipool->get(iid);
+    Image * img = ipool->get_ro(iid);
 
     if ( img == 0 )
     {
@@ -1319,7 +1319,7 @@ int ImageManager::flatten_snapshot(int iid, int sid, string& error)
 
     string ds_data;
 
-    Datastore * ds = dspool->get(ds_id);
+    Datastore * ds = dspool->get_ro(ds_id);
 
     if ( ds == 0 )
     {

@@ -47,7 +47,7 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    object = pool->get(oid);
+    object = pool->get_ro(oid);
 
     if ( object == 0 )
     {
@@ -86,7 +86,7 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
         extended = xmlrpc_c::value_boolean(paramList.getBoolean(2));
     }
 
-    vm_tmpl = tpool->get(oid);
+    vm_tmpl = tpool->get_ro(oid);
 
     if ( vm_tmpl == 0 )
     {
@@ -124,7 +124,7 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    vm_tmpl = tpool->get(oid);
+    vm_tmpl = tpool->get_ro(oid);
 
     if ( vm_tmpl == 0 )
     {

@@ -97,7 +97,7 @@ int VirtualMachineNic::get_uid(int _uid, string& error)
     else if ( !(uname = vector_value("NETWORK_UNAME")).empty() )
     {
         UserPool * upool = Nebula::instance().get_upool();
-        User * user      = upool->get(uname);
+        User * user      = upool->get_ro(uname);
 
         if ( user == 0 )
         {
@@ -136,7 +136,7 @@ void VirtualMachineNic::authorize(PoolObjectSQL::ObjectType ot, int uid,
 
     for(set<int>::iterator it = sgroups.begin(); it != sgroups.end(); it++)
     {
-        SecurityGroup * sgroup = sgpool->get(*it);
+        SecurityGroup * sgroup = sgpool->get_ro(*it);
 
         if(sgroup != 0)
         {
@@ -156,6 +156,44 @@ void VirtualMachineNic::authorize(PoolObjectSQL::ObjectType ot, int uid,
             }
         }
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+#define XML_NIC_ATTR(Y,X) ( Y << "<" << X << ">" << \
+        one_util::escape_xml(vector_value(X)) << "</" << X << ">") 
+
+void VirtualMachineNic::to_xml_short(std::ostringstream& oss) const
+{
+    std::string ip      = vector_value("IP");
+    std::string ip6     = vector_value("IP6");
+    std::string ip6_ula = vector_value("IP6_ULA");
+
+    oss << "<NIC>";
+
+    if (!ip.empty())
+    {
+        oss << "<IP>" << one_util::escape_xml(ip) << "</IP>";
+    }
+
+    if (!ip6.empty())
+    {
+        oss << "<IP6>" << one_util::escape_xml(ip6) << "</IP6>";
+    }
+
+    if (!ip6_ula.empty())
+    {
+        oss << "<IP6_ULA>" << one_util::escape_xml(ip6_ula) << "</IP6_ULA>";
+    }
+
+    XML_NIC_ATTR(oss, "MAC");
+    XML_NIC_ATTR(oss, "NETWORK");
+    XML_NIC_ATTR(oss, "NETWORK_ID");
+    XML_NIC_ATTR(oss, "NIC_ID");
+    XML_NIC_ATTR(oss, "SECURITY_GROUPS");
+
+    oss << "</NIC>";
 }
 
 /* -------------------------------------------------------------------------- */
@@ -338,3 +376,21 @@ int VirtualMachineNics::set_up_attach_nic(int vmid, int uid, int cluster_id,
 
     return 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+std::string& VirtualMachineNics::to_xml_short(std::string& xml)
+{
+    std::ostringstream oss;
+
+    for ( nic_iterator nic = begin() ; nic != end() ; ++nic )
+    {
+        (*nic)->to_xml_short(oss);
+    }
+
+    xml = oss.str();
+
+    return xml;
+}
+

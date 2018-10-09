@@ -43,7 +43,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         clone_template = xmlrpc_c::value_boolean(paramList.getBoolean(5));
     }
 
-    VMTemplate * tmpl = static_cast<VMTemplatePool* > (pool)->get(id);
+    VMTemplate * tmpl = static_cast<VMTemplatePool* > (pool)->get_ro(id);
 
     if ( tmpl == 0 )
     {
@@ -146,7 +146,7 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
     /* ---------------------------------------------------------------------- */
     /* Get, check and clone the template                                      */
     /* ---------------------------------------------------------------------- */
-    rtmpl = tpool->get(id);
+    rtmpl = tpool->get_ro(id);
 
     if ( rtmpl == 0 )
     {

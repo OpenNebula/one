@@ -22,6 +22,8 @@
 #include <set>
 #include <vector>
 
+#include <string.h>
+
 using namespace std;
 
 /**
@@ -275,6 +277,46 @@ private:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+class string_cb : public Callbackable
+{
+public:
+    string_cb(int _total):total_values(_total){};
+
+    void set_callback(std::string * _str)
+    {
+        str = _str;
+
+        Callbackable::set_callback(
+                static_cast<Callbackable::Callback>(&string_cb::callback));
+    };
+
+    int callback(void * nil, int num, char **values, char **names)
+    {
+        if ( (!values[0]) || (num != total_values) )
+        {
+            return -1;
+        }
+
+        for (int i=0; i < total_values; i++)
+        {
+            if ( values[i] != NULL )
+            {
+                str->append(values[i]);
+            }
+        }
+
+        return 0;
+    };
+
+private:
+    int total_values;
+
+    std::string * str;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 class stream_cb : public Callbackable
 {
 public:
@@ -326,6 +368,5 @@ public:
         return false;
     };
 };
-
 
 #endif /*CALLBACKABLE_H_*/

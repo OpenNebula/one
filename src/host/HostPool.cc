@@ -264,7 +264,7 @@ int HostPool::discover(
 /* -------------------------------------------------------------------------- */
 
 int HostPool::dump_monitoring(
-        ostringstream& oss,
+        string& oss,
         const string&  where)
 {
     ostringstream cmd;

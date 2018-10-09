@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.4.  */
+/* A Bison parser, made by GNU Bison 3.1.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.0.4"
+#define YYBISON_VERSION "3.1"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -145,7 +145,7 @@ int get_image_path(VirtualMachine * vm,
             delete vfile;
         }
 
-        img = ipool->get(val1, uid);
+        img = ipool->get_ro(val1, uid);
 
         if ( img == 0 )
         {
@@ -166,7 +166,7 @@ int get_image_path(VirtualMachine * vm,
 
         if ( !is.fail() )
         {
-            img = ipool->get(iid);
+            img = ipool->get_ro(iid);
         }
 
         if ( img == 0 )
@@ -189,11 +189,11 @@ int get_image_path(VirtualMachine * vm,
 
     img->get_permissions(perm);
 
-    img->unlock();
+    img->unlock();;
 
     set<int> gids;
 
-    user = upool->get(vm->get_uid());
+    user = upool->get_ro(vm->get_uid());
 
     if (user != 0)
     {
@@ -358,13 +358,13 @@ typedef signed char yytype_int8;
 #ifdef YYTYPE_UINT16
 typedef YYTYPE_UINT16 yytype_uint16;
 #else
-typedef unsigned short int yytype_uint16;
+typedef unsigned short yytype_uint16;
 #endif
 
 #ifdef YYTYPE_INT16
 typedef YYTYPE_INT16 yytype_int16;
 #else
-typedef short int yytype_int16;
+typedef short yytype_int16;
 #endif
 
 #ifndef YYSIZE_T
@@ -376,7 +376,7 @@ typedef short int yytype_int16;
 #  include <stddef.h> /* INFRINGES ON USER NAME SPACE */
 #  define YYSIZE_T size_t
 # else
-#  define YYSIZE_T unsigned int
+#  define YYSIZE_T unsigned
 # endif
 #endif
 
@@ -428,7 +428,7 @@ typedef short int yytype_int16;
 # define YYUSE(E) /* empty */
 #endif
 
-#if defined __GNUC__ && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
+#if defined __GNUC__ && ! defined __ICC && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
 /* Suppress an incorrect diagnostic about yylval being uninitialized.  */
 # define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN \
     _Pragma ("GCC diagnostic push") \
@@ -598,7 +598,7 @@ union yyalloc
 #define YYMAXUTOK   266
 
 #define YYTRANSLATE(YYX)                                                \
-  ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
+  ((unsigned) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
 
 /* YYTRANSLATE[TOKEN-NUM] -- Symbol number corresponding to TOKEN-NUM
    as returned by yylex, without out-of-bounds checking.  */
@@ -941,7 +941,7 @@ do {                                                            \
 static void
 yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, mem_collector *  mc, VirtualMachine * vm, vector<int> *    img_ids, char **  errmsg, yyscan_t scanner)
 {
-  unsigned long int yylno = yyrline[yyrule];
+  unsigned long yylno = yyrline[yyrule];
   int yynrhs = yyr2[yyrule];
   int yyi;
   YYFPRINTF (stderr, "Reducing stack by rule %d (line %lu):\n",
@@ -1167,6 +1167,7 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
       case N:                               \
         yyformat = S;                       \
       break
+    default: /* Avoid compiler warnings. */
       YYCASE_(0, YY_("syntax error"));
       YYCASE_(1, YY_("syntax error, unexpected %s"));
       YYCASE_(2, YY_("syntax error, unexpected %s, expecting %s"));
@@ -1407,7 +1408,7 @@ YYLTYPE yylloc = yyloc_default;
       yylsp = yyls + yysize - 1;
 
       YYDPRINTF ((stderr, "Stack size increased to %lu\n",
-                  (unsigned long int) yystacksize));
+                  (unsigned long) yystacksize));
 
       if (yyss + yystacksize - 1 <= yyssp)
         YYABORT;
@@ -1513,13 +1514,14 @@ yyreduce:
      GCC warning that YYVAL may be used uninitialized.  */
   yyval = yyvsp[1-yylen];
 
-  /* Default location.  */
+  /* Default location. */
   YYLLOC_DEFAULT (yyloc, (yylsp - yylen), yylen);
+  yyerror_range[1] = yyloc;
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
         case 4:
-#line 235 "vm_file_var_syntax.y" /* yacc.c:1646  */
+#line 235 "vm_file_var_syntax.y" /* yacc.c:1651  */
     {
         string file((yyvsp[-6].val_str));
         string var1((yyvsp[-4].val_str));
@@ -1537,11 +1539,11 @@ yyreduce:
             YYABORT;
         }
     }
-#line 1541 "vm_file_var_syntax.cc" /* yacc.c:1646  */
+#line 1543 "vm_file_var_syntax.cc" /* yacc.c:1651  */
     break;
 
   case 5:
-#line 253 "vm_file_var_syntax.y" /* yacc.c:1646  */
+#line 253 "vm_file_var_syntax.y" /* yacc.c:1651  */
     {
         string file((yyvsp[-10].val_str));
         string var1((yyvsp[-8].val_str));
@@ -1562,11 +1564,11 @@ yyreduce:
             YYABORT;
         }
     }
-#line 1566 "vm_file_var_syntax.cc" /* yacc.c:1646  */
+#line 1568 "vm_file_var_syntax.cc" /* yacc.c:1651  */
     break;
 
 
-#line 1570 "vm_file_var_syntax.cc" /* yacc.c:1646  */
+#line 1572 "vm_file_var_syntax.cc" /* yacc.c:1651  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1689,7 +1691,6 @@ yyerrorlab:
   if (/*CONSTCOND*/ 0)
      goto yyerrorlab;
 
-  yyerror_range[1] = yylsp[1-yylen];
   /* Do not reclaim the symbols of the rule whose action triggered
      this YYERROR.  */
   YYPOPSTACK (yylen);
@@ -1801,7 +1802,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 274 "vm_file_var_syntax.y" /* yacc.c:1906  */
+#line 274 "vm_file_var_syntax.y" /* yacc.c:1910  */
 
 
 void vm_file_var_error(

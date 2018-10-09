@@ -86,10 +86,16 @@ class OneDBBacKEnd
                        "UNIQUE(name)"
         },
         "5.4.0" => {},
-        "5.6.0" => {}
+        "5.6.0" => {},
+        "5.7.8" => {
+            vm_pool: "oid INTEGER PRIMARY KEY, name VARCHAR(128), " <<
+                "body MEDIUMTEXT, uid INTEGER, gid INTEGER, " <<
+                "last_poll INTEGER, state INTEGER, lcm_state INTEGER, " <<
+                "owner_u INTEGER, group_u INTEGER, other_u INTEGER, short_body MEDIUMTEXT",
+        }
     }
 
-    LATEST_DB_VERSION = "5.6.0"
+    LATEST_DB_VERSION = "5.7.8"
 
     def get_schema(type, version = nil)
         if !version
@@ -118,7 +124,7 @@ class OneDBBacKEnd
         # Find latest type definition
         versions.each do |v|
             schema = VERSION_SCHEMA[v][type]
-            next if schema
+            break if schema
         end
 
         schema = SCHEMA[type] if !schema

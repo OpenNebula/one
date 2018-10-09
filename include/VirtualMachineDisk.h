@@ -333,6 +333,12 @@ public:
      */
     void set_types(const string& ds_name);
 
+    /**
+     *  Marshall disk attributes in XML format with just essential information
+     *    @param stream to write the disk XML description
+     */
+    void to_xml_short(std::ostringstream& oss) const;
+
 private:
 
     Snapshots * snapshots;
@@ -742,6 +748,12 @@ public:
      */
     void delete_non_persistent_snapshots(Template **vm_quotas,
         vector<Template *> &ds_quotas);
+
+    /**
+     *  Marshall disks in XML format with just essential information
+     *    @param xml string to write the disk XML description
+     */
+    std::string& to_xml_short(std::string& xml);
 
 protected:
 

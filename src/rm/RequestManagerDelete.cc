@@ -531,7 +531,7 @@ int MarketPlaceAppDelete::drop(PoolObjectSQL * object, bool recursive,
         return -1;
     }
 
-    MarketPlace * mp = marketpool->get(mp_id);
+    MarketPlace * mp = marketpool->get_ro(mp_id);
 
     if ( mp == 0 )
     {

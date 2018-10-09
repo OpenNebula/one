@@ -210,7 +210,7 @@ Request::ErrorCode TemplateChmod::chmod(
 		return SUCCESS;
     }
 
-	VMTemplate* tmpl = static_cast<VMTemplatePool*>(pool)->get(oid);
+	VMTemplate* tmpl = static_cast<VMTemplatePool*>(pool)->get_ro(oid);
 
 	vector<VectorAttribute *> vdisks;
 	vector<VectorAttribute *>::iterator i;
@@ -296,7 +296,7 @@ void VirtualRouterChmod::request_execute(xmlrpc_c::paramList const& paramList,
         recursive = xmlrpc_c::value_boolean(paramList.getBoolean(11));
     }
 
-    vrouter = vrpool->get(oid);
+    vrouter = vrpool->get_ro(oid);
 
     if ( vrouter == 0 )
     {

@@ -85,22 +85,34 @@ public:
     };
 
     /**
+     *  Function to get a read only group from the pool, if the object is not in memory
+     *  it is loaded from the DB
+     *    @param oid group unique id
+     *    @param lock locks the group mutex
+     *    @return a pointer to the group, 0 if the group could not be loaded
+     */
+    Group * get_ro(int oid)
+    {
+        return static_cast<Group *>(PoolSQL::get_ro(oid));
+    };
+
+    /**
      *  Returns the name of a group
      *    @param id of the group
      *    @return name of the group
      */
-    const string& get_name(int gid)
+    const string get_name(int gid)
     {
         static string error_str = "";
 
-        Group * group = get(gid);
+        Group * group = get_ro(gid);
 
         if ( group == 0 )
         {
             return error_str;
         }
 
-        const string& gname = group->get_name();
+        const string gname = group->get_name();
 
         group->unlock();
 
@@ -152,7 +164,7 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit,
+    int dump(string& oss, const string& where, const string& limit,
             bool desc);
 
 private:

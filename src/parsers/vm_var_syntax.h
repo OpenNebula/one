@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.4.  */
+/* A Bison parser, made by GNU Bison 3.1.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@
 extern int vm_var_debug;
 #endif
 /* "%code requires" blocks.  */
-#line 17 "vm_var_syntax.y" /* yacc.c:1909  */
+#line 17 "vm_var_syntax.y" /* yacc.c:1913  */
 
 #include <iostream>
 #include <sstream>
@@ -62,7 +62,7 @@ typedef void * yyscan_t;
 int vm_var_parse (VirtualMachine * vm, ostringstream * parsed, char ** errmsg,
     yyscan_t scanner);
 
-#line 66 "vm_var_syntax.hh" /* yacc.c:1909  */
+#line 66 "vm_var_syntax.hh" /* yacc.c:1913  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -86,13 +86,13 @@ int vm_var_parse (VirtualMachine * vm, ostringstream * parsed, char ** errmsg,
 
 union YYSTYPE
 {
-#line 404 "vm_var_syntax.y" /* yacc.c:1909  */
+#line 404 "vm_var_syntax.y" /* yacc.c:1913  */
 
     char * val_str;
     int    val_int;
     char   val_char;
 
-#line 96 "vm_var_syntax.hh" /* yacc.c:1909  */
+#line 96 "vm_var_syntax.hh" /* yacc.c:1913  */
 };
 
 typedef union YYSTYPE YYSTYPE;

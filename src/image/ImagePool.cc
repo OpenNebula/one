@@ -442,7 +442,7 @@ void ImagePool::disk_attribute(
 
     if ( disk->vector_value("IMAGE_ID", iid) == 0 )
     {
-        img = get(iid);
+        img = get_ro(iid);
     }
     else if ( disk->vector_value("IMAGE", source) == 0 )
     {
@@ -450,7 +450,7 @@ void ImagePool::disk_attribute(
 
         if ( uiid != -1)
         {
-            img = get(source, uiid);
+            img = get_ro(source, uiid);
         }
     }
 

@@ -111,6 +111,14 @@ public:
      */
     string& to_xml(string& xml) const;
 
+    /**
+     * Function to print the History object into a string in
+     * XML format with reduce information
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    string& to_xml_short(string& xml) const;
+
 private:
     friend class VirtualMachine;
     friend class VirtualMachinePool;

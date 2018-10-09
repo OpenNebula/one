@@ -202,7 +202,6 @@ int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
 
     if ( app->from_template64(t64, error_str) != 0 )
     {
-        app->lock();
         delete app;
 
         return -1;
@@ -240,7 +239,6 @@ int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
 
         mp_aux->unlock();
 
-        app->lock();
         delete app;
 
         return -2;
@@ -253,7 +251,6 @@ int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
     {
         app_id = master_allocate(app, error_str);
 
-        app->lock();
         delete app;
 
         return app_id;

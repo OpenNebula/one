@@ -102,7 +102,7 @@ bool RequestManagerVirtualMachine::quota_resize_authorization(
         RequestAttributes&  att)
 {
     PoolObjectAuth      vm_perms;
-    VirtualMachine *    vm = Nebula::instance().get_vmpool()->get(oid);
+    VirtualMachine *    vm = Nebula::instance().get_vmpool()->get_ro(oid);
 
     if (vm == 0)
     {
@@ -220,7 +220,7 @@ int RequestManagerVirtualMachine::get_default_ds_information(
 
     ds_id = -1;
 
-    cluster = clpool->get(cluster_id);
+    cluster = clpool->get_ro(cluster_id);
 
     if (cluster == 0)
     {
@@ -269,7 +269,7 @@ int RequestManagerVirtualMachine::get_ds_information(int ds_id,
 {
     Nebula& nd = Nebula::instance();
 
-    Datastore * ds = nd.get_dspool()->get(ds_id);
+    Datastore * ds = nd.get_dspool()->get_ro(ds_id);
 
     ds_cluster_ids.clear();
 
@@ -327,7 +327,7 @@ int RequestManagerVirtualMachine::get_host_information(
     Nebula&    nd    = Nebula::instance();
     HostPool * hpool = nd.get_hpool();
 
-    Host *     host  = hpool->get(hid);
+    Host *     host  = hpool->get_ro(hid);
 
     if ( host == 0 )
     {
@@ -379,7 +379,7 @@ bool RequestManagerVirtualMachine::check_host(
 
     vm->get_requirements(cpu, mem, disk, pci);
 
-    host = hpool->get(hid);
+    host = hpool->get_ro(hid);
 
     if (host == 0)
     {
@@ -846,7 +846,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     }
     else
     {
-        Datastore * ds = dspool->get(ds_id);
+        Datastore * ds = dspool->get_ro(ds_id);
 
         if (ds == 0 )
         {
@@ -1026,7 +1026,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     }
     else
     {
-        Datastore * ds = dspool->get(ds_id);
+        Datastore * ds = dspool->get_ro(ds_id);
 
         if (ds == 0 )
         {
@@ -1148,7 +1148,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     vm->unlock();
 
     // Check we are migrating to a compatible cluster
-    Host * host = nd.get_hpool()->get(c_hid);
+    Host * host = nd.get_hpool()->get_ro(c_hid);
 
     if (host == 0)
     {
@@ -1359,7 +1359,7 @@ void VirtualMachineDiskSaveas::request_execute(
     // -------------------------------------------------------------------------
     // Get the data of the Image to be saved
     // -------------------------------------------------------------------------
-    img = ipool->get(iid_orig);
+    img = ipool->get_ro(iid_orig);
 
     if ( img == 0 )
     {
@@ -1396,7 +1396,7 @@ void VirtualMachineDiskSaveas::request_execute(
     // -------------------------------------------------------------------------
     // Get the data of the DataStore for the new image & size
     // -------------------------------------------------------------------------
-    if ((ds = dspool->get(ds_id)) == 0 )
+    if ((ds = dspool->get_ro(ds_id)) == 0 )
     {
         goto error_ds;
     }
@@ -1590,7 +1590,7 @@ void VirtualMachineMonitoring::request_execute(
     int  id = xmlrpc_c::value_int(paramList.getInt(1));
     int  rc;
 
-    ostringstream oss;
+    string oss;
 
     bool auth = vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op);
 
@@ -1608,7 +1608,7 @@ void VirtualMachineMonitoring::request_execute(
         return;
     }
 
-    success_response(oss.str(), att);
+    success_response(oss, att);
 
     return;
 }
@@ -1898,7 +1898,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
     tmpl.get("VCPU", nvcpu);
     tmpl.get("MEMORY", nmemory);
 
-    vm = vmpool->get(id);
+    vm = vmpool->get_ro(id);
 
     if (vm == 0)
     {
@@ -2313,7 +2313,7 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
     // -------------------------------------------------------------------------
     // Authorize the operation, restricted attributes & check quotas
     // -------------------------------------------------------------------------
-    vm = vmpool->get(id);
+    vm = vmpool->get_ro(id);
 
     if ( vm == 0 )
     {
@@ -2434,7 +2434,7 @@ Request::ErrorCode VirtualMachineDetachNic::request_execute(int id, int nic_id,
     // -------------------------------------------------------------------------
     // Authorize the operation
     // -------------------------------------------------------------------------
-    vm = vmpool->get(id);
+    vm = vmpool->get_ro(id);
 
     if ( vm == 0 )
     {
@@ -2676,7 +2676,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     {
         PoolObjectAuth img_perms;
 
-        Image* img = ipool->get(img_id);
+        Image* img = ipool->get_ro(img_id);
 
         if (img == 0)
         {
@@ -2857,7 +2857,7 @@ void VirtualMachineDiskSnapshotDelete::request_execute(
     {
         PoolObjectAuth img_perms;
 
-        Image* img = ipool->get(img_id);
+        Image* img = ipool->get_ro(img_id);
 
         if (img == 0)
         {
@@ -3103,7 +3103,7 @@ void VirtualMachineDiskResize::request_execute(
 
         if ( img_id != -1 )
         {
-            Image* img = ipool->get(img_id);
+            Image* img = ipool->get_ro(img_id);
 
             if (img == 0)
             {

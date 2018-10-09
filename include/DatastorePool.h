@@ -107,6 +107,17 @@ public:
     };
 
     /**
+     *  Function to get a read only Datastore from the pool, if the object is not in memory
+     *  it is loaded from the DB
+     *    @param oid Datastore unique id
+     *    @return a pointer to the Datastore, 0 if the Datastore could not be loaded
+     */
+    Datastore * get_ro(int oid)
+    {
+        return static_cast<Datastore *>(PoolSQL::get_ro(oid));
+    }
+
+    /**
      *  Drops the Datastore data in the data base. The object mutex SHOULD be
      *  locked.
      *    @param objsql a pointer to the Datastore object
@@ -135,10 +146,10 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit,
+    int dump(string& oss, const string& where, const string& limit,
             bool desc)
     {
-        return PoolSQL::dump(oss, "DATASTORE_POOL", Datastore::table, where,
+        return PoolSQL::dump(oss, "DATASTORE_POOL", "body", Datastore::table, where,
                              limit, desc);
     };
 

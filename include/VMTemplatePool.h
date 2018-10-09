@@ -68,6 +68,18 @@ public:
     };
 
     /**
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database).
+     *   @param oid the object unique identifier
+     *
+     *   @return a pointer to the object, 0 in case of failure
+     */
+    VMTemplate * get_ro(int oid)
+    {
+        return static_cast<VMTemplate *>(PoolSQL::get_ro(oid));
+    };
+
+    /**
      *  Dumps the pool in XML format. A filter can be also added to the
      *  query
      *  @param oss the output stream to dump the pool contents
@@ -77,10 +89,10 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit,
+    int dump(string& oss, const string& where, const string& limit,
             bool desc)
     {
-        return PoolSQL::dump(oss, "VMTEMPLATE_POOL", VMTemplate::table, where,
+        return PoolSQL::dump(oss, "VMTEMPLATE_POOL", "body", VMTemplate::table, where,
                              limit, desc);
     };
 

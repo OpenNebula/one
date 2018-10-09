@@ -107,7 +107,7 @@ Request::ErrorCode ImagePersistent::request_execute(
         return ec;
     }
 
-    image = ipool->get(id);
+    image = ipool->get_ro(id);
 
     if ( image == 0 )
     {
@@ -129,7 +129,7 @@ Request::ErrorCode ImagePersistent::request_execute(
 
     image->unlock();
 
-    ds = dspool->get(ds_id);
+    ds = dspool->get_ro(ds_id);
 
     if ( ds == 0 )
     {
@@ -345,7 +345,7 @@ Request::ErrorCode ImageClone::request_execute(
 
     // ------------------------- Get source Image info -------------------------
 
-    img = ipool->get(clone_id);
+    img = ipool->get_ro(clone_id);
 
     if ( img == 0 )
     {
@@ -406,7 +406,7 @@ Request::ErrorCode ImageClone::request_execute(
 
     // ----------------------- Get target Datastore info -----------------------
 
-    ds = dspool->get(ds_id);
+    ds = dspool->get_ro(ds_id);
 
     if ( ds == 0 )
     {
@@ -442,7 +442,7 @@ Request::ErrorCode ImageClone::request_execute(
 
     if (ds_id != ds_id_orig) //check same DS_MAD
     {
-        ds = dspool->get(ds_id_orig);
+        ds = dspool->get_ro(ds_id_orig);
 
         if (ds == 0)
         {

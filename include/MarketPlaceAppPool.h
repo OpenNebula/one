@@ -94,6 +94,16 @@ public:
     };
 
     /**
+     *  Function to get a read only MarketPlaceApp from the pool
+     *    @param oid MarketPlaceApp unique id
+     *    @return a pointer to the MarketPlaceApp, 0 if not loaded
+     */
+    MarketPlaceApp * get_ro(int oid)
+    {
+        return static_cast<MarketPlaceApp *>(PoolSQL::get_ro(oid));
+    };
+
+    /**
      *  Gets an object from the pool (if needed the object is loaded from the
      *  database).
      *   @param name of the object
@@ -105,6 +115,19 @@ public:
     MarketPlaceApp * get(const std::string& name, int uid)
     {
         return static_cast<MarketPlaceApp *>(PoolSQL::get(name, uid));
+    };
+
+    /**
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database).
+     *   @param name of the object
+     *   @param uid id of owner
+     *
+     *   @return a pointer to the object, 0 in case of failure
+     */
+    MarketPlaceApp * get_ro(const std::string& name, int uid)
+    {
+        return static_cast<MarketPlaceApp *>(PoolSQL::get_ro(name, uid));
     };
 
     /**
@@ -126,10 +149,10 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(std::ostringstream& oss, const std::string& where,
+    int dump(std::string& oss, const std::string& where,
 		const std::string& limit, bool desc)
     {
-        return PoolSQL::dump(oss, "MARKETPLACEAPP_POOL", MarketPlaceApp::table,
+        return PoolSQL::dump(oss, "MARKETPLACEAPP_POOL", "body", MarketPlaceApp::table,
                 where, limit, desc);
     };
 

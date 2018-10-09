@@ -14,9 +14,12 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "RequestManager.h"
-#include "NebulaLog.h"
 #include <cerrno>
+
+#include "NebulaLog.h"
+
+#include "RequestManager.h"
+#include "RequestManagerConnection.h"
 
 #include "RequestManagerPoolInfoFilter.h"
 #include "RequestManagerInfo.h"
@@ -117,49 +120,118 @@ extern "C" void * rm_action_loop(void *arg)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+/**
+ *  Connection class is used to pass arguments to connection threads.
+ */
+struct Connection 
+{
+    Connection(int c, ConnectionManager * cm):conn_fd(c), conn_manager(cm){};
 
+    int conn_fd;
+
+    ConnectionManager * conn_manager;
+};
+
+/**
+ *  Connection Thread runs a xml-rpc method for a connected client
+ */
+extern "C" void * rm_do_connection(void *arg)
+{
+    Connection * rc = static_cast<Connection *>(arg);
+
+    rc->conn_manager->run_connection(rc->conn_fd);
+
+    rc->conn_manager->del();
+
+    close(rc->conn_fd);
+
+    pthread_exit(0);
+
+    delete rc;
+
+    return 0;
+};
+
+/**
+ *  Connection Manager Thread waits for client connections and starts a new 
+ *  thread to handle the request.
+ */
 extern "C" void * rm_xml_server_loop(void *arg)
 {
-    RequestManager *    rm;
-
     if ( arg == 0 )
     {
         return 0;
     }
 
-    rm = static_cast<RequestManager *>(arg);
+    RequestManager * rm = static_cast<RequestManager *>(arg);
 
+    // -------------------------------------------------------------------------
     // Set cancel state for the thread
-
+    // -------------------------------------------------------------------------
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,0);
 
     pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,0);
 
-    //Start the server
+    listen(rm->socket_fd, rm->max_conn_backlog);
 
-    xmlrpc_c::serverAbyss::constrOpt opt = xmlrpc_c::serverAbyss::constrOpt();
+    pthread_attr_t pattr;
+    pthread_t      thread_id;
 
-    opt.registryP(&rm->RequestManagerRegistry);
-    opt.keepaliveTimeout(rm->keepalive_timeout);
-    opt.keepaliveMaxConn(rm->keepalive_max_conn);
-    opt.timeout(rm->timeout);
-    opt.socketFd(rm->socket_fd);
+    pthread_attr_init (&pattr);
+    pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_DETACHED);
 
-    if (!rm->xml_log_file.empty())
+    // -------------------------------------------------------------------------
+    // Main connection loop
+    // -------------------------------------------------------------------------
+    ConnectionManager *cm =new ConnectionManager(rm, rm->max_conn);
+
+    while (true)
     {
-        opt.logFileName(rm->xml_log_file);
+        ostringstream oss;
+
+        cm->wait();
+
+        struct sockaddr_storage addr;
+
+        socklen_t addr_len = sizeof(struct sockaddr_storage);
+
+        int client_fd = accept(rm->socket_fd, (struct sockaddr*) &addr, 
+                &addr_len);
+
+        int nc = cm->add();
+
+        oss << "Number of active connections: " << nc; 
+
+        NebulaLog::log("ReM", Log::ERROR, oss);
+
+        Connection * rc = new Connection(client_fd, cm);
+
+        pthread_create(&thread_id, &pattr, rm_do_connection, (void *) rc);
     }
 
-#ifndef OLD_XMLRPC
-    opt.maxConn(rm->max_conn);
-    opt.maxConnBacklog(rm->max_conn_backlog);
-#endif
-
-    rm->AbyssServer = new xmlrpc_c::serverAbyss(opt);
-
-    rm->AbyssServer->run();
+    delete cm;
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+xmlrpc_c::serverAbyss * RequestManager::create_abyss()
+{
+    xmlrpc_c::serverAbyss::constrOpt opt = xmlrpc_c::serverAbyss::constrOpt();
+
+    opt.registryP(&RequestManagerRegistry);
+    opt.keepaliveTimeout(keepalive_timeout);
+    opt.keepaliveMaxConn(keepalive_max_conn);
+    opt.timeout(timeout);
+
+    if (!xml_log_file.empty())
+    {
+        opt.logFileName(xml_log_file);
+    }
+
+    return new xmlrpc_c::serverAbyss(opt);
 }
 
 /* -------------------------------------------------------------------------- */

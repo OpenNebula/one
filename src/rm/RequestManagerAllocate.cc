@@ -422,7 +422,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     // ------------------------- Check Datastore exists ------------------------
 
-    if ((ds = dspool->get(ds_id)) == 0 )
+    if ((ds = dspool->get_ro(ds_id)) == 0 )
     {
         att.resp_id  = ds_id;
         att.resp_obj = PoolObjectSQL::DATASTORE;
@@ -466,7 +466,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     {
         // This image comes from a MarketPlaceApp. Get the Market info and
         // the size.
-        app = apppool->get(app_id);
+        app = apppool->get_ro(app_id);
 
         if ( app == 0 )
         {
@@ -484,7 +484,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
         app->unlock();
 
-        market = marketpool->get(market_id);
+        market = marketpool->get_ro(market_id);
 
         if ( market == 0 )
         {
@@ -755,7 +755,7 @@ bool UserAllocate::allocate_authorization(
     {
         int tmp_gid = xmlrpc_c::value_int(*it);
 
-        Group* group = gpool->get(tmp_gid);
+        Group* group = gpool->get_ro(tmp_gid);
 
         if (group == 0)
         {
@@ -1167,7 +1167,7 @@ Request::ErrorCode MarketPlaceAppAllocate::pool_allocate(
     // ---------------------------------------------------------------------- //
     // Get Marketplace information for this app                               //
     // ---------------------------------------------------------------------- //
-    MarketPlace * mp = mppool->get(mp_id);
+    MarketPlace * mp = mppool->get_ro(mp_id);
 
     if ( mp == 0 )
     {

@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.4.  */
+/* A Bison parser, made by GNU Bison 3.1.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@
 extern int expr_arith_debug;
 #endif
 /* "%code requires" blocks.  */
-#line 47 "expr_arith.y" /* yacc.c:1909  */
+#line 47 "expr_arith.y" /* yacc.c:1913  */
 
 #include <iostream>
 #include <sstream>
@@ -61,7 +61,7 @@ typedef void * yyscan_t;
 int expr_arith_parse(ObjectXML *oxml, int& result, char ** errmsg,
     yyscan_t scanner);
 
-#line 65 "expr_arith.hh" /* yacc.c:1909  */
+#line 65 "expr_arith.hh" /* yacc.c:1913  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -79,13 +79,13 @@ int expr_arith_parse(ObjectXML *oxml, int& result, char ** errmsg,
 
 union YYSTYPE
 {
-#line 77 "expr_arith.y" /* yacc.c:1909  */
+#line 77 "expr_arith.y" /* yacc.c:1913  */
 
     char *  val_str;
     int     val_int;
     float   val_float;
 
-#line 89 "expr_arith.hh" /* yacc.c:1909  */
+#line 89 "expr_arith.hh" /* yacc.c:1913  */
 };
 
 typedef union YYSTYPE YYSTYPE;

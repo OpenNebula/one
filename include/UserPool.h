@@ -93,6 +93,24 @@ public:
     };
 
     /**
+     *  Function to get a read only User from the pool, if the object is not in memory
+     *  it is loaded from the DB
+     *    @param oid User unique id
+     *    @return a pointer to the User, 0 if the User could not be loaded
+     */
+    User * get_ro(int oid)
+    {
+        User * u = static_cast<User *>(PoolSQL::get_ro(oid));
+
+        if ( u != 0 )
+        {
+            u->session = get_session_token(oid);
+        }
+
+        return u;
+    };
+
+    /**
      *  Function to get a User from the pool, if the object is not in memory
      *  it is loaded from the DB
      *    @param username
@@ -103,6 +121,25 @@ public:
     {
         // The owner is set to -1, because it is not used in the key() method
         User * u = static_cast<User *>(PoolSQL::get(name,-1));
+
+        if ( u != 0 )
+        {
+            u->session = get_session_token(u->oid);
+        }
+
+        return u;
+    };
+
+    /**
+     *  Function to get a read only User from the pool, if the object is not in memory
+     *  it is loaded from the DB
+     *    @param username
+     *    @return a pointer to the User, 0 if the User could not be loaded
+     */
+    User * get_ro(string name)
+    {
+        // The owner is set to -1, because it is not used in the key() method
+        User * u = static_cast<User *>(PoolSQL::get_ro(name,-1));
 
         if ( u != 0 )
         {
@@ -182,7 +219,7 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit,
+    int dump(string& oss, const string& where, const string& limit,
             bool desc);
 
     /**

@@ -840,7 +840,7 @@ void Request::success_response(const string& val, RequestAttributes& att)
     vector<xmlrpc_c::value> arrayData;
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
-    arrayData.push_back(xmlrpc_c::value_string(val));
+    arrayData.push_back(static_cast<xmlrpc_c::value_string>(val));
     arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
 
     xmlrpc_c::value_array arrayresult(arrayData);

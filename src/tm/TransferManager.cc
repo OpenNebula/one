@@ -86,7 +86,7 @@ void TransferManager::user_action(const ActionRequest& ar)
 
     Nebula& nd = Nebula::instance();
 
-    VirtualMachine * vm = vmpool->get(vid);
+    VirtualMachine * vm = vmpool->get_ro(vid);
 
     if (vm == 0)
     {
@@ -574,25 +574,17 @@ void TransferManager::prolog_action(int vid)
     // -------------------------------------------------------------------------
     // Setup & Transfer script
     // -------------------------------------------------------------------------
-    vm = vmpool->get(vid);
+    vm = vmpool->get_ro(vid);
 
     if (vm == 0)
     {
         return;
     }
 
-    int uid = vm->get_created_by_uid();
+    int uid      = vm->get_created_by_uid();
     int owner_id = vm->get_uid();
-    vm->unlock();
 
     token_password = Nebula::instance().get_upool()->get_token_password(uid, owner_id);
-
-    vm = vmpool->get(vid);
-
-    if (vm == 0)
-    {
-        return;
-    }
 
     VirtualMachineDisks& disks = vm->get_disks();
 
@@ -676,6 +668,14 @@ void TransferManager::prolog_action(int vid)
 
         if ( update )
         {
+            vm->unlock();
+
+            vm = vmpool->get(vid);                                                                                                                                                                
+            if (vm == 0)
+            {
+                goto error_attributes;
+            }
+
             vmpool->update(vm);
         }
     }
@@ -737,7 +737,7 @@ void TransferManager::prolog_migr_action(int vid)
     // -------------------------------------------------------------------------
     // Setup & Transfer script
     // -------------------------------------------------------------------------
-    vm = vmpool->get(vid);
+    vm = vmpool->get_ro(vid);
 
     if (vm == 0)
     {
@@ -868,25 +868,17 @@ void TransferManager::prolog_resume_action(int vid)
     // -------------------------------------------------------------------------
     // Setup & Transfer script
     // -------------------------------------------------------------------------
-    vm = vmpool->get(vid);
+    vm = vmpool->get_ro(vid);
 
     if (vm == 0)
     {
         return;
     }
 
-    int uid = vm->get_created_by_uid();
+    int uid      = vm->get_created_by_uid();
     int owner_id = vm->get_uid();
-    vm->unlock();
 
     token_password = Nebula::instance().get_upool()->get_token_password(uid, owner_id);
-
-    vm = vmpool->get(vid);
-
-    if (vm == 0)
-    {
-        return;
-    }
 
     VirtualMachineDisks& disks = vm->get_disks();
 
@@ -1010,7 +1002,7 @@ void TransferManager::prolog_attach_action(int vid)
     // Setup & Transfer script
     // -------------------------------------------------------------------------
 
-    vm = vmpool->get(vid);
+    vm = vmpool->get_ro(vid);
 
     if (vm == 0)
     {
@@ -1192,7 +1184,7 @@ void TransferManager::epilog_action(bool local, int vid)
     // ------------------------------------------------------------------------
     // Setup & Transfer script
     // ------------------------------------------------------------------------
-    vm = vmpool->get(vid);
+    vm = vmpool->get_ro(vid);
 
     if (vm == 0)
     {
@@ -1301,7 +1293,7 @@ void TransferManager::epilog_stop_action(int vid)
     // ------------------------------------------------------------------------
     // Setup & Transfer script
     // ------------------------------------------------------------------------
-    vm = vmpool->get(vid);
+    vm = vmpool->get_ro(vid);
 
     if (vm == 0)
     {
@@ -1550,7 +1542,7 @@ void TransferManager::epilog_delete_action(bool local, int vid)
     // ------------------------------------------------------------------------
     // Setup & Transfer script
     // ------------------------------------------------------------------------
-    vm = vmpool->get(vid);
+    vm = vmpool->get_ro(vid);
 
     if (vm == 0)
     {
@@ -1623,7 +1615,7 @@ void TransferManager::epilog_delete_previous_action(int vid)
     // ------------------------------------------------------------------------
     // Setup & Transfer script
     // ------------------------------------------------------------------------
-    vm = vmpool->get(vid);
+    vm = vmpool->get_ro(vid);
 
     if (vm == 0)
     {
@@ -1696,7 +1688,7 @@ void TransferManager::epilog_delete_both_action(int vid)
     // ------------------------------------------------------------------------
     // Setup & Transfer script
     // ------------------------------------------------------------------------
-    vm = vmpool->get(vid);
+    vm = vmpool->get_ro(vid);
 
     if (vm == 0)
     {
@@ -1771,7 +1763,7 @@ void TransferManager::epilog_detach_action(int vid)
     // ------------------------------------------------------------------------
     // Setup & Transfer script
     // ------------------------------------------------------------------------
-    vm = vmpool->get(vid);
+    vm = vmpool->get_ro(vid);
 
     if (vm == 0)
     {
@@ -1870,7 +1862,7 @@ void TransferManager::driver_cancel_action(int vid)
         return;
     }
 
-    vm = vmpool->get(vid);
+    vm = vmpool->get_ro(vid);
 
     if (vm == 0)
     {
@@ -1920,7 +1912,7 @@ void TransferManager::saveas_hot_action(int vid)
     // ------------------------------------------------------------------------
     // Setup & Transfer script
     // ------------------------------------------------------------------------
-    vm = vmpool->get(vid);
+    vm = vmpool->get_ro(vid);
 
     if (vm == 0)
     {
@@ -2071,7 +2063,7 @@ void TransferManager::do_snapshot_action(int vid, const char * snap_action)
         goto error_driver;
     }
 
-    vm = vmpool->get(vid);
+    vm = vmpool->get_ro(vid);
 
     if (vm == 0)
     {
@@ -2195,7 +2187,7 @@ void TransferManager::resize_action(int vid)
         goto error_driver;
     }
 
-    vm = vmpool->get(vid);
+    vm = vmpool->get_ro(vid);
 
     if (vm == 0)
     {

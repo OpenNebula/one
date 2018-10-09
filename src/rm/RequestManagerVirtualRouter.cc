@@ -54,7 +54,7 @@ void VirtualRouterInstantiate::request_execute(
     /* ---------------------------------------------------------------------- */
     /* Get the Virtual Router NICs                                            */
     /* ---------------------------------------------------------------------- */
-    vr = vrpool->get(vrid);
+    vr = vrpool->get_ro(vrid);
 
     if (vr == 0)
     {
@@ -94,7 +94,7 @@ void VirtualRouterInstantiate::request_execute(
         return;
     }
 
-    VMTemplate * tmpl = tpool->get(tmpl_id);
+    VMTemplate * tmpl = tpool->get_ro(tmpl_id);
 
     if ( tmpl == 0 )
     {
@@ -207,7 +207,7 @@ void VirtualRouterAttachNic::request_execute(
     // -------------------------------------------------------------------------
     // Authorize the operation & check quotas
     // -------------------------------------------------------------------------
-    vr = vrpool->get(vrid);
+    vr = vrpool->get_ro(vrid);
 
     if (vr == 0)
     {
@@ -312,7 +312,7 @@ void VirtualRouterDetachNic::request_execute(
     // -------------------------------------------------------------------------
     // Authorize the operation
     // -------------------------------------------------------------------------
-    vr = vrpool->get(vrid);
+    vr = vrpool->get_ro(vrid);
 
     if (vr == 0)
     {

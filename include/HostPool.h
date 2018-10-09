@@ -81,6 +81,44 @@ public:
         return h;
     };
 
+    void update_prev_rediscovered_vms(int hoid,
+        const set<int>& prev_rediscovered_vms)
+    {
+
+        if (hoid < 0)
+        {
+            return;
+        }
+
+        HostVM * hv = get_host_vm(hoid);
+
+        hv->prev_rediscovered_vms = prev_rediscovered_vms;
+    }
+
+    /**
+     *  Function to get a read only Host from the pool, if the object is not in memory
+     *  it is loaded from the DB
+     *    @param oid Host unique id
+     *    @return a pointer to the Host, 0 if the Host could not be loaded
+     */
+    Host * get_ro(
+        int     oid)
+    {
+        Host * h = static_cast<Host *>(PoolSQL::get_ro(oid));
+
+        if ( h != 0 )
+        {
+            HostVM * hv = get_host_vm(oid);
+
+            h->tmp_lost_vms   = &(hv->tmp_lost_vms);
+            h->tmp_zombie_vms = &(hv->tmp_zombie_vms);
+
+            h->prev_rediscovered_vms = &(hv->prev_rediscovered_vms);
+        }
+
+        return h;
+    };
+
     /**
      *  Function to get a Host from the pool, if the object is not in memory
      *  it is loaded from the DB
@@ -92,6 +130,31 @@ public:
     {
         // The owner is set to -1, because it is not used in the key() method
         Host * h = static_cast<Host *>(PoolSQL::get(name,-1));
+
+        if ( h != 0 )
+        {
+            HostVM * hv = get_host_vm(h->oid);
+
+            h->tmp_lost_vms   = &(hv->tmp_lost_vms);
+            h->tmp_zombie_vms = &(hv->tmp_zombie_vms);
+
+            h->prev_rediscovered_vms = &(hv->prev_rediscovered_vms);
+        }
+
+        return h;
+    };
+
+    /**
+     *  Function to get a Host from the pool, if the object is not in memory
+     *  it is loaded from the DB
+     *    @param hostname
+     *    @param lock locks the Host mutex
+     *    @return a pointer to the Host, 0 if the Host could not be loaded
+     */
+    Host * get_ro(string name)
+    {
+        // The owner is set to -1, because it is not used in the key() method
+        Host * h = static_cast<Host *>(PoolSQL::get_ro(name,-1));
 
         if ( h != 0 )
         {
@@ -225,10 +288,10 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit,
+    int dump(string& oss, const string& where, const string& limit,
         bool desc)
     {
-        return PoolSQL::dump(oss, "HOST_POOL", Host::table, where, limit, desc);
+        return PoolSQL::dump(oss, "HOST_POOL", "body", Host::table, where, limit, desc);
     };
 
     /**
@@ -253,8 +316,7 @@ public:
      *
      *  @return 0 on success
      */
-    int dump_monitoring(ostringstream& oss,
-                        const string&  where);
+    int dump_monitoring(string& oss, const string&  where);
 
     /**
      *  Dumps the HOST monitoring information for a single HOST
@@ -264,8 +326,7 @@ public:
      *
      *  @return 0 on success
      */
-    int dump_monitoring(ostringstream& oss,
-                        int            hostid)
+    int dump_monitoring(string& oss, int hostid)
     {
         ostringstream filter;
 

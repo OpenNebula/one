@@ -98,6 +98,18 @@ public:
     };
 
     /**
+     *  Function to get a read only VN from the pool, if the object is not in memory
+     *  it is loaded from the DB
+     *    @param oid VN unique id
+     *    @param lock locks the VN mutex
+     *    @return a pointer to the VN, 0 if the VN could not be loaded
+     */
+    VirtualNetwork * get_ro(int oid)
+    {
+        return static_cast<VirtualNetwork *>(PoolSQL::get_ro(oid));
+    };
+
+    /**
      *  Gets an object from the pool (if needed the object is loaded from the
      *  database).
      *   @param name of the object
@@ -109,6 +121,20 @@ public:
     VirtualNetwork * get(const string& name, int uid)
     {
         return static_cast<VirtualNetwork *>(PoolSQL::get(name,uid));
+    };
+
+    /**
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database).
+     *   @param name of the object
+     *   @param uid id of owner
+     *   @param lock locks the object if true
+     *
+     *   @return a pointer to the object, 0 in case of failure
+     */
+    VirtualNetwork * get_ro(const string& name, int uid)
+    {
+        return static_cast<VirtualNetwork *>(PoolSQL::get_ro(name,uid));
     };
 
     /**
@@ -137,10 +163,10 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit, 
+    int dump(string& oss, const string& where, const string& limit, 
             bool desc)
     {
-        return PoolSQL::dump(oss, "VNET_POOL", VirtualNetwork::table, where,
+        return PoolSQL::dump(oss, "VNET_POOL", "body", VirtualNetwork::table, where,
                              limit, desc);
     }
 
@@ -302,11 +328,12 @@ private:
     VirtualNetwork * get_nic_by_name(VirtualMachineNic * nic,
                                      const string&     name,
                                      int               _uidi,
+                                     bool              ro,
                                      string&           error);
     /**
      *  Function to get a VirtualNetwork by its id, as provided by a VM template
      */
-    VirtualNetwork * get_nic_by_id(const string& id_s, string& error);
+    VirtualNetwork * get_nic_by_id(const string& id_s, bool ro, string& error);
 
     //--------------------------------------------------------------------------
     // VLAN ID management functions
