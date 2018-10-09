@@ -420,7 +420,24 @@ VirtualMachine * RequestManagerVirtualMachine::get_vm(int id,
 {
     VirtualMachine * vm;
 
-    vm = static_cast<VirtualMachine *>(pool->get(id));
+    vm = static_cast<VirtualMachinePool *>(pool)->get(id);
+
+    if ( vm == 0 )
+    {
+        att.resp_id = id;
+        failure_response(NO_EXISTS, att);
+        return 0;
+    }
+
+    return vm;
+}
+
+VirtualMachine * RequestManagerVirtualMachine::get_vm_ro(int id,
+                                                      RequestAttributes& att)
+{
+    VirtualMachine * vm;
+
+    vm = static_cast<VirtualMachinePool *>(pool)->get_ro(id);
 
     if ( vm == 0 )
     {
@@ -735,6 +752,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     DatastorePool * dspool = nd.get_dspool();
 
     VirtualMachine * vm;
+    VirtualMachineTemplate  tmpl;
 
     string hostname;
     string vmm_mad;
@@ -745,13 +763,14 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     PoolObjectAuth * auth_ds_perms;
 
     string tm_mad;
+    string error_str;
 
     bool auth = false;
+    bool check_nic_auto = false;
 
     // ------------------------------------------------------------------------
     // Get request parameters and information about the target host
     // ------------------------------------------------------------------------
-
     int  id      = xmlrpc_c::value_int(paramList.getInt(1));
     int  hid     = xmlrpc_c::value_int(paramList.getInt(2));
     bool enforce = false;
@@ -767,6 +786,21 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         ds_id = xmlrpc_c::value_int(paramList.getInt(4));
     }
 
+    if ( paramList.size() > 5 ) // Template with network scheduling results
+    {
+        std::string str_tmpl = xmlrpc_c::value_string(paramList.getString(5));
+
+        check_nic_auto = !str_tmpl.empty();
+
+        int rc = tmpl.parse_str_or_xml(str_tmpl, att.resp_msg);
+
+        if ( rc != 0 )
+        {
+            failure_response(INTERNAL, att);
+            return;
+        }
+    }
+
     if (get_host_information(hid,
                              hostname,
                              vmm_mad,
@@ -778,11 +812,11 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
+
     // ------------------------------------------------------------------------
     // Get information about the system DS to use (tm_mad & permissions)
     // ------------------------------------------------------------------------
-
-    if ((vm = get_vm(id, att)) == 0)
+    if ((vm = get_vm_ro(id, att)) == 0)
     {
         return;
     }
@@ -793,7 +827,12 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
          vm->get_action() == History::UNDEPLOY_HARD_ACTION))
     {
         ds_id = vm->get_ds_id();
+
+        check_nic_auto = false;
     }
+
+    int uid = vm->get_uid();
+    int gid = vm->get_gid();
 
     vm->unlock();
 
@@ -867,8 +906,37 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     // ------------------------------------------------------------------------
     // Authorize request
     // ------------------------------------------------------------------------
+    if ( check_nic_auto ) //Authorize network schedule and quotas
+    {
+        RequestAttributes att_quota(uid, gid, att);
 
-    auth = vm_authorization(id, 0, 0, att, &host_perms, auth_ds_perms, 0, auth_op);
+        if (!att.is_admin())
+        {
+            string aname;
+
+            if (tmpl.check_restricted(aname))
+            {
+                att.resp_msg = "NIC includes a restricted attribute " + aname;
+
+                failure_response(AUTHORIZATION, att);
+                return;
+            }
+        }
+
+        if (!quota_authorization(&tmpl, Quotas::NETWORK, att_quota, att.resp_msg))
+        {
+            failure_response(AUTHORIZATION, att);
+            return;
+        }
+
+        auth = vm_authorization(id, 0, &tmpl, att, &host_perms, auth_ds_perms,0,
+                    auth_op);
+    }
+    else
+    {
+        auth = vm_authorization(id, 0, 0, att, &host_perms, auth_ds_perms, 0,
+                    auth_op);
+    }
 
     if (auth == false)
     {
@@ -906,6 +974,17 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         failure_response(ACTION, att);
         return;
     }
+
+    if ( check_nic_auto && vm->get_auto_network_leases(&tmpl, error_str) != 0 )
+    {
+        att.resp_msg = error_str;
+        failure_response(ACTION, att);
+
+        vm->unlock();
+        return;
+    }
+
+    static_cast<VirtualMachinePool *>(pool)->update(vm);
 
     // ------------------------------------------------------------------------
     // Add deployment dependent attributes to VM

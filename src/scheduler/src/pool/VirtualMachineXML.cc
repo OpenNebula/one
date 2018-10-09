@@ -99,6 +99,55 @@ void VirtualMachineXML::init_attributes()
         ds_requirements = automatic_ds_requirements;
     }
 
+    // ------------------- NIC REQUIREMENTS -------------------------------------
+
+    if (get_nodes("/VM/TEMPLATE/NIC", nodes) > 0)
+    {
+        std::string net_mode;
+
+        vector<xmlNodePtr>::iterator it_nodes;
+
+        for (it_nodes = nodes.begin(); it_nodes != nodes.end(); ++it_nodes)
+        {
+            VirtualMachineTemplate * nic_template = new VirtualMachineTemplate;
+
+            nic_template->from_xml_node(*it_nodes);
+
+            bool rc = nic_template->get("NETWORK_MODE", net_mode);
+            one_util::toupper(net_mode);
+
+            if ( rc && net_mode == "AUTO" )
+            {
+                std::string requirements, rank;
+                int nic_id;
+
+                nic_template->get("NIC_ID", nic_id);
+
+                nics_ids_auto.insert(nic_id);
+
+                VirtualMachineNicXML * the_nic = new VirtualMachineNicXML();
+
+                nics.insert(make_pair(nic_id, the_nic));
+
+                if ( nic_template->get("SCHED_REQUIREMENTS", requirements) )
+                {
+                    the_nic->set_requirements(requirements);
+                }
+
+                if ( nic_template->get("SCHED_RANK", rank) )
+                {
+                    the_nic->set_rank(rank);
+                }
+            }
+
+            delete nic_template;
+        }
+
+        free_nodes(nodes);
+    }
+
+    nodes.clear();
+
     // ---------------- HISTORY HID, DSID, RESCHED & TEMPLATE ------------------
 
     xpath(hid,  "/VM/HISTORY_RECORDS/HISTORY/HID", -1);
@@ -199,6 +248,25 @@ ostream& operator<<(ostream& os, VirtualMachineXML& vm)
     }
 
     os << endl;
+
+    set<int> nics_ids = vm.get_nics_ids();
+
+    for (set<int>::iterator it = nics_ids.begin(); it != nics_ids.end(); it++)
+    {
+        os << "\tNIC_ID: "<< *it << endl
+        << "\t-----------------------------------"  << endl;
+        os << "\tPRI\tID - NETWORKS"<< endl
+        << "\t------------------------"  << endl;
+
+        const vector<Resource *> net_resources = vm.nics[*it]->get_match_networks();
+
+        for (i = net_resources.rbegin(); i != net_resources.rend() ; i++)
+        {
+            os << "\t" << (*i)->priority << "\t" << (*i)->oid << endl;
+        }
+
+        os << endl;
+    }
 
     return os;
 };

@@ -130,6 +130,16 @@ void VirtualMachineNic::authorize(PoolObjectSQL::ObjectType ot, int uid,
 
     set<int> sgroups;
 
+    string net_mode = "";
+
+    net_mode = this->vector_value("NETWORK_MODE");
+    one_util::toupper(net_mode);
+
+    if ( net_mode == "AUTO" )
+    {
+        return;
+    }
+
     get_security_groups(sgroups);
 
     vnpool->authorize_nic(ot, this, uid, ar, sgroups, check_lock);
@@ -170,6 +180,10 @@ void VirtualMachineNic::to_xml_short(std::ostringstream& oss) const
     std::string ip6     = vector_value("IP6");
     std::string ip6_ula = vector_value("IP6_ULA");
 
+    std::string reqs = vector_value("SCHED_REQUIREMENTS");
+    std::string rank = vector_value("SCHED_RANK");
+    std::string mode = vector_value("NETWORK_MODE");
+
     oss << "<NIC>";
 
     if (!ip.empty())
@@ -185,6 +199,22 @@ void VirtualMachineNic::to_xml_short(std::ostringstream& oss) const
     if (!ip6_ula.empty())
     {
         oss << "<IP6_ULA>" << one_util::escape_xml(ip6_ula) << "</IP6_ULA>";
+    }
+
+    if (!mode.empty())
+    {
+        oss << "<NETWORK_MODE>" << one_util::escape_xml(mode) << "</NETWORK_MODE>";
+    }
+
+    if (!reqs.empty())
+    {
+        oss << "<SCHED_REQUIREMENTS>" << one_util::escape_xml(reqs) 
+            << "</SCHED_REQUIREMENTS>";
+    }
+
+    if (!rank.empty())
+    {
+        oss << "<SCHED_RANK>" << one_util::escape_xml(rank) << "</SCHED_RANK>";
     }
 
     XML_NIC_ATTR(oss, "MAC");
@@ -216,6 +246,7 @@ int VirtualMachineNics::get_network_leases(int vm_id, int uid,
         vector<VectorAttribute*>& sgs, std::string& error_str)
 {
     Nebula& nd = Nebula::instance();
+
     VirtualNetworkPool * vnpool = nd.get_vnpool();
     SecurityGroupPool * sgpool  = nd.get_secgrouppool();
 
@@ -232,20 +263,83 @@ int VirtualMachineNics::get_network_leases(int vm_id, int uid,
         VectorAttribute * vnic  = static_cast<VectorAttribute *>(*it);
         VirtualMachineNic * nic = new VirtualMachineNic(vnic, nic_id);
 
-        if ( nic_default != 0 )
+        std::string net_mode = vnic->vector_value("NETWORK_MODE");
+        one_util::toupper(net_mode);
+
+        if (net_mode != "AUTO"  )
         {
-            nic->merge(nic_default, false);
+            if ( nic_default != 0 )
+            {
+                nic->merge(nic_default, false);
+            }
+
+            if ( vnpool->nic_attribute(PoolObjectSQL::VM, nic, nic_id, uid,
+                    vm_id, error_str) == -1 )
+            {
+                return -1;
+            }
+
+            nic->get_security_groups(sg_ids);
+        }
+        else
+        {
+            nic->replace("NIC_ID", nic_id);
         }
 
-        if ( vnpool->nic_attribute(PoolObjectSQL::VM, nic, nic_id, uid,
+        add_attribute(nic, nic->get_nic_id());
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Get the secutiry groups                                                */
+    /* ---------------------------------------------------------------------- */
+    sgpool->get_security_group_rules(vm_id, sg_ids, sgs);
+
+    return 0;
+}
+
+int VirtualMachineNics::get_auto_network_leases(int vm_id, int uid, 
+        VectorAttribute * nic_default, vector<VectorAttribute*>& sgs, 
+        std::string& error_str)
+{
+    Nebula& nd = Nebula::instance();
+
+    VirtualNetworkPool * vnpool = nd.get_vnpool();
+    SecurityGroupPool * sgpool  = nd.get_secgrouppool();
+
+    set<int> sg_ids;
+
+    /* ---------------------------------------------------------------------- */
+    /* Get the interface network information                                  */
+    /* ---------------------------------------------------------------------- */
+    for ( nic_iterator nic = begin() ; nic != end() ; ++nic )
+    {
+        int nic_id;
+
+        std::string net_mode = (*nic)->vector_value("NETWORK_MODE");
+        one_util::toupper(net_mode);
+
+        if ( net_mode != "AUTO" )
+        {
+            continue;
+        }
+
+        if ( (*nic)->vector_value("NIC_ID", nic_id) != 0 )
+        {
+            continue;
+        }
+
+        if ( nic_default != 0 )
+        {
+            (*nic)->merge(nic_default, false);
+        }
+
+        if ( vnpool->nic_attribute(PoolObjectSQL::VM, *nic, nic_id, uid,
                 vm_id, error_str) == -1 )
         {
             return -1;
         }
 
-        nic->get_security_groups(sg_ids);
-
-        add_attribute(nic, nic->get_nic_id());
+        (*nic)->get_security_groups(sg_ids);
     }
 
     /* ---------------------------------------------------------------------- */

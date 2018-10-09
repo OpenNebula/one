@@ -325,6 +325,8 @@ void Scheduler::start()
     vm_roles_pool = new VirtualMachineRolePoolXML(client, machines_limit);
     vmpool = new VirtualMachinePoolXML(client, machines_limit, live_rescheds==1);
 
+    vnetpool = new VirtualNetworkPoolXML(client);
+
     vmgpool = new VMGroupPoolXML(client);
 
     vmapool = new VirtualMachineActionsPoolXML(client, machines_limit);
@@ -476,6 +478,13 @@ int Scheduler::set_up_pools()
     }
 
     rc = vm_roles_pool->set_up();
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    rc = vnetpool->set_up();
 
     if ( rc != 0 )
     {
@@ -716,6 +725,107 @@ static bool match_system_ds(AclXML * acls, UserPoolXML * upool,
     return true;
 }
 
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+/**
+ *  Match network for this VM that:
+ *    1. Meet user/policy requirements
+ *    2. Have enough leases to host the VM
+ *
+ *  @param acl pool
+ *  @param users the user pool
+ *  @param vm the virtual machine
+ *  @param vdisk vm requirement
+ *  @param net to evaluate vm assgiment
+ *  @param n_auth number of nets authorized for the user, incremented if needed
+ *  @param n_error number of requirement errors, incremented if needed
+ *  @param n_matched number of networks that fullfil VM sched_requirements
+ *  @param n_fits number of networks with leases that fits the VM requirements
+ *  @param error, string describing why the host is not valid
+ *  @return true for a positive match
+ */
+static bool match_network(AclXML * acls, UserPoolXML * upool,
+    VirtualMachineXML* vm, int nic_id, VirtualNetworkXML * net, int& n_auth,
+    int& n_error, int& n_fits, int &n_matched, string &error)
+{
+    // -------------------------------------------------------------------------
+    // Check if user is authorized
+    // -------------------------------------------------------------------------
+    if ( vm->get_uid() != 0 && vm->get_gid() != 0 )
+    {
+        PoolObjectAuth netperms;
+
+        net->get_permissions(netperms);
+
+        UserXML * user = upool->get(vm->get_uid());
+
+        if (user == 0)
+        {
+            error = "User does not exists.";
+            return false;
+        }
+
+        const vector<int> vgids = user->get_gids();
+
+        set<int> gids(vgids.begin(), vgids.end());
+
+        if ( !acls->authorize(vm->get_uid(), gids, netperms, AuthRequest::USE))
+        {
+            error = "Permission denied.";
+            return false;
+        }
+    }
+
+    n_auth++;
+
+    if ( !net->test_leases(error) )
+    {
+        return false;
+    }
+
+    n_fits++;
+
+    // -------------------------------------------------------------------------
+    // Evaluate VM requirements for NICS
+    // -------------------------------------------------------------------------
+    if (!vm->get_nic_requirements(nic_id).empty())
+    {
+        char * estr;
+
+        bool matched = true;
+
+        if (net->eval_bool(vm->get_nic_requirements(nic_id), matched, &estr) != 0)
+        {
+            ostringstream oss;
+
+            n_error++;
+
+            oss << "Error in REQUIREMENTS - NIC_ID(" << nic_id <<"): '"
+                << vm->get_nic_requirements(nic_id) << "', error: " << estr;
+
+            vm->log(oss.str());
+
+            error = oss.str();
+
+            free(estr);
+
+            return false;
+        }
+
+        if (matched == false)
+        {
+            error = "It does not fulfill NIC REQUIREMENTS.";
+            return false;
+        }
+    }
+
+    n_matched++;
+
+    return true;
+}
+
 /* -------------------------------------------------------------------------- */
 
 static void log_match(int vid, const string& msg)
@@ -747,6 +857,7 @@ void Scheduler::match_schedule()
 
     HostXML * host;
     DatastoreXML *ds;
+    VirtualNetworkXML *net;
 
     string m_error;
 
@@ -759,12 +870,15 @@ void Scheduler::match_schedule()
     const map<int, ObjectXML*> hosts       = hpool->get_objects();
     const map<int, ObjectXML*> datastores  = dspool->get_objects();
     const map<int, ObjectXML*> users       = upool->get_objects();
+    const map<int, ObjectXML*> nets        = vnetpool->get_objects();
 
     double total_cl_match_time = 0;
     double total_host_match_time = 0;
     double total_host_rank_time = 0;
     double total_ds_match_time = 0;
     double total_ds_rank_time = 0;
+    double total_net_match_time = 0;
+    double total_net_rank_time = 0;
 
     time_t stime = time(0);
 
@@ -1014,6 +1128,117 @@ void Scheduler::match_schedule()
         vm->sort_match_datastores();
 
         total_ds_rank_time += profile(false);
+
+        // ---------------------------------------------------------------------
+        // Match Networks for this VM
+        // ---------------------------------------------------------------------
+
+        profile(true);
+
+        set<int>::iterator it_nic;
+        set<int> nics_ids = vm->get_nics_ids();
+
+        bool not_matched = false;
+
+        for (it_nic = nics_ids.begin(); it_nic != nics_ids.end(); ++it_nic)
+        {
+            n_resources = 0;
+
+            n_auth    = 0;
+            n_matched = 0;
+            n_error   = 0;
+            n_fits    = 0;
+
+            int nic_id = *it_nic;
+
+            for (obj_it = nets.begin(); obj_it != nets.end(); ++obj_it)
+            {
+                net = static_cast<VirtualNetworkXML *>(obj_it->second);
+
+                if (match_network(acls, upool, vm, nic_id, net, n_auth, n_error,
+                            n_fits, n_matched, m_error))
+                {
+                    vm->add_match_network(net->get_oid(), nic_id);
+
+                    n_resources++;
+                }
+                else
+                {
+                    if (n_error > 0)
+                    {
+                        log_match(vm->get_oid(), "Cannot schedule VM. " + m_error);
+                        break;
+                    }
+                    else if (NebulaLog::log_level() >= Log::DDEBUG)
+                    {
+                        ostringstream oss;
+                        oss << "Network " << net->get_oid() << " discarded for VM "
+                            << vm->get_oid() << " and NIC " << nic_id << ". " << m_error;
+
+                        NebulaLog::log("SCHED", Log::DDEBUG, oss);
+                    }
+                }
+            }
+
+            if (n_resources == 0)
+            {
+                if (n_error == 0)//No syntax error
+                {
+                    if (nets.size() == 0)
+                    {
+                        vm->log("No networks found to run VMs");
+                    }
+                    else if (n_auth == 0)
+                    {
+                        vm->log("User is not authorized to use any network");
+                    }
+                    else if (n_fits == 0)
+                    {
+                        vm->log("No network with enough capacity for the VM");
+                    }
+                    else if (n_matched == 0)
+                    {
+                        ostringstream oss;
+
+                        oss << "No network meet leases "
+                            << "and SCHED_NIC_REQUIREMENTS: "
+                            << vm->get_nic_requirements(nic_id);
+
+                        vm->log(oss.str());
+                    }
+                }
+
+                vm->clear_match_hosts();
+                vm->clear_match_datastores();
+
+                vmpool->update(vm);
+
+                log_match(vm->get_oid(), "Cannot schedule VM, there is no "
+                    "suitable network.");
+
+                break;
+
+                not_matched = true;
+            }
+
+            profile(true);
+
+            for (it = nic_policies.begin() ; it != nic_policies.end() ; it++)
+            {
+                (*it)->schedule(vm->get_nic(nic_id));
+            }
+
+            vm->sort_match_networks(nic_id);
+
+            total_net_rank_time += profile(false);
+        }
+
+        if ( not_matched )
+        {
+            continue;
+        }
+
+        total_net_match_time += profile(false);
     }
 
     if (NebulaLog::log_level() >= Log::DDEBUG)
@@ -1021,20 +1246,24 @@ void Scheduler::match_schedule()
         ostringstream oss;
 
         oss << "Match Making statistics:\n"
-            << "\tNumber of VMs:            "
+            << "\tNumber of VMs:             "
             << pending_vms.size() << endl
-            << "\tTotal time:               "
-            << one_util::float_to_str(time(0) - stime) << "s" << endl
-            << "\tTotal Cluster Match time: "
-            << one_util::float_to_str(total_cl_match_time) << "s" << endl
-            << "\tTotal Host Match time:    "
+            << "\tTotal time:                "
+            << one_util::float_to_str(time(0) - stime)       << "s" << endl
+            << "\tTotal Cluster Match time:  "
+            << one_util::float_to_str(total_cl_match_time)   << "s" << endl
+            << "\tTotal Host Match time:     "
             << one_util::float_to_str(total_host_match_time) << "s" << endl
-            << "\tTotal Host Ranking time:  "
-            << one_util::float_to_str(total_host_rank_time) << "s" << endl
-            << "\tTotal DS Match time:      "
-            << one_util::float_to_str(total_ds_match_time) << "s" << endl
-            << "\tTotal DS Ranking time:    "
-            << one_util::float_to_str(total_ds_rank_time) << "s" << endl;
+            << "\tTotal Host Ranking time:   "
+            << one_util::float_to_str(total_host_rank_time)  << "s" << endl
+            << "\tTotal DS Match time:       "
+            << one_util::float_to_str(total_ds_match_time)   << "s" << endl
+            << "\tTotal DS Ranking time:     "
+            << one_util::float_to_str(total_ds_rank_time)    << "s" << endl
+            << "\tTotal Network Match time:  "
+            << one_util::float_to_str(total_net_match_time)   << "s" << endl
+            << "\tTotal Network Ranking time:"
+            << one_util::float_to_str(total_net_rank_time)    << "s" << endl;
 
         NebulaLog::log("SCHED", Log::DDEBUG, oss);
     }
@@ -1064,6 +1293,7 @@ void Scheduler::dispatch()
 {
     HostXML *           host;
     DatastoreXML *      ds;
+    VirtualNetworkXML * net;
     VirtualMachineXML * vm;
 
     ostringstream dss;
@@ -1073,15 +1303,17 @@ void Scheduler::dispatch()
     long long dsk;
     vector<VectorAttribute *> pci;
 
-    int hid, dsid, cid;
+    int hid, dsid, cid, netid;
 
     unsigned int dispatched_vms = 0;
     bool dispatched, matched;
     char * estr;
 
-    vector<Resource *>::const_reverse_iterator i, j, k;
+    vector<Resource *>::const_reverse_iterator i, j, k, n;
 
     vector<SchedulerPolicy *>::iterator sp_it;
+
+    ostringstream extra;
 
     //--------------------------------------------------------------------------
     // Schedule pending VMs according to the VM policies (e.g. User priority)
@@ -1282,11 +1514,111 @@ void Scheduler::dispatch()
                 continue;
             }
 
+             //------------------------------------------------------------------
+            // Get the highest ranked network
+            //------------------------------------------------------------------
+            extra.clear();
+
+            set<int> nics_ids = vm->get_nics_ids();
+
+            map<int, int> matched_networks;
+
+            unsigned int num_mached_networks = 0;
+
+            set<int>::iterator it;
+
+            for(it = nics_ids.begin(); it != nics_ids.end(); ++it)
+            {
+                int nic_id = *it;
+
+                const vector<Resource *> net_resources = vm->get_match_networks(nic_id);
+
+                netid = -1;
+
+                for (n = net_resources.rbegin() ; n != net_resources.rend(); n++)
+                {
+                    net = vnetpool->get((*n)->oid);
+
+                    if ( net == 0 )
+                    {
+                        continue;
+                    }
+
+                    //--------------------------------------------------------------
+                    // Test cluster membership for datastore and selected host
+                    //--------------------------------------------------------------
+                    if (! net->is_in_cluster(cid))
+                    {
+                        continue;
+                    }
+
+                    //--------------------------------------------------------------
+                    // Test network leases
+                    //--------------------------------------------------------------
+                    if ( !net->test_leases() )
+                    {
+                        continue;
+                    }
+
+                    net->add_lease();
+
+                    //--------------------------------------------------------------
+                    //Select this DS to dispatch VM
+                    //--------------------------------------------------------------
+                    netid = (*n)->oid;
+
+                    break;
+                }
+
+                if ( netid == -1 )
+                {
+                    break;
+                }
+
+                if ( matched_networks.find(netid) != matched_networks.end() )
+                {
+                    matched_networks[netid] += 1;
+                }
+                else
+                {
+                    matched_networks[netid] = 1;
+                }
+
+                num_mached_networks++;
+
+                extra << "NIC=[NIC_ID=\"" << nic_id 
+                      << "\", NETWORK_MODE=\"auto\" , NETWORK_ID=\"" << netid 
+                      << "\"]";
+            }
+
+            if ( num_mached_networks < nics_ids.size())
+            {
+                map<int,int>::iterator it;
+
+                for (it = matched_networks.begin(); it != matched_networks.end(); it++)
+                {
+                    net = vnetpool->get(it->first);
+
+                    net->rollback_leases(it->second);
+                }
+
+                continue;
+            }
+
             //------------------------------------------------------------------
             // Dispatch and update host and DS capacity, and dispatch counters
             //------------------------------------------------------------------
-            if (vmpool->dispatch((*k)->oid, hid, dsid, vm->is_resched()) != 0)
+            if (vmpool->dispatch((*k)->oid, hid, dsid, vm->is_resched(), extra.str()) != 0)
             {
+                map<int,int>::iterator it;
+
+                for ( it = matched_networks.begin(); it != matched_networks.end(); it++)
+                {
+                    net = vnetpool->get(it->first);
+
+                    net->rollback_leases(it->second);
+                }
+
                 continue;
             }
 
@@ -1356,8 +1688,8 @@ void Scheduler::dispatch()
         if (!dispatched)
         {
             vm->log("Cannot dispatch VM to any Host. Possible reasons: Not "
-                "enough capacity in Host or System DS, or dispatch limit "
-                "reached");
+                "enough capacity in Host or System DS, dispatch limit "
+                "reached, or limit of free leases reached.");
             vmpool->update(vm);
         }
     }

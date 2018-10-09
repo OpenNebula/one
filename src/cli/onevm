@@ -483,15 +483,21 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :deploy, deploy_desc, [:range,:vmid_list], :hostid, [:datastoreid,nil],
-            :options=>[ENFORCE] do
+            :options=>[ENFORCE, OneVMHelper::FILE] do
         host_id = args[1]
         verbose = "deploying in host #{host_id}"
 
         enforce = options[:enforce].nil? ? false : options[:enforce]
         ds_id = args[2].nil? ? -1 : args[2]
 
+        extra_template = nil
+
+        if options[:file]
+            extra_template = File.read(options[:file])
+        end
+
         helper.perform_actions(args[0],options,verbose) do |vm|
-            vm.deploy(host_id, enforce, ds_id)
+            vm.deploy(host_id, enforce, ds_id, extra_template)
         end
     end
 

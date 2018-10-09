@@ -246,7 +246,8 @@ EOT
             :description => "Networks to attach. To use a network owned by"<<
                             " other user use user[network]. Additional"<<
                             " attributes are supported like with the --disk"<<
-                            " option.",
+                            " option. Also you can use auto if you want that" <<
+                            " OpenNebula select automatically the network",
             :format => Array
         },
         {
@@ -1241,15 +1242,19 @@ EOT
             user, object=*res
 
             template<<"#{section.upcase}=[\n"
-            template<<"  #{name.upcase}_UNAME=\"#{user}\",\n" if user
-            extra_attributes.each do |extra_attribute|
-                key, value = extra_attribute.split("=")
-                template<<"  #{key.upcase}=\"#{value}\",\n"
-            end
-            if object.match(/^\d+$/)
-                template<<"  #{name.upcase}_ID=#{object}\n"
+            if object.casecmp? "auto"
+                template<<"  NETWORK_MODE=\"#{object}\"\n"
             else
-                template<<"  #{name.upcase}=\"#{object}\"\n"
+                template<<"  #{name.upcase}_UNAME=\"#{user}\",\n" if user
+                extra_attributes.each do |extra_attribute|
+                    key, value = extra_attribute.split("=")
+                    template<<"  #{key.upcase}=\"#{value}\",\n"
+                end
+                if object.match(/^\d+$/)
+                    template<<"  #{name.upcase}_ID=#{object}\n"
+                else
+                    template<<"  #{name.upcase}=\"#{object}\"\n"
+                end
             end
             template<<"]\n"
         end if objects

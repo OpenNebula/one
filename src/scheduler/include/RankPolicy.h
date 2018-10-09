@@ -118,14 +118,14 @@ private:
 
     const vector<Resource *> get_match_resources(ObjectXML *obj)
     {
-        VirtualMachineXML * vm = dynamic_cast<VirtualMachineXML *>(obj);
+        VirtualMachineXML * vm = static_cast<VirtualMachineXML *>(obj);
 
         return vm->get_match_hosts();
     };
 
     const string& get_rank(ObjectXML *obj)
     {
-        VirtualMachineXML * vm = dynamic_cast<VirtualMachineXML *>(obj);
+        VirtualMachineXML * vm = static_cast<VirtualMachineXML *>(obj);
 
         if (vm->get_rank().empty())
         {
@@ -150,14 +150,14 @@ private:
 
     const vector<Resource *> get_match_resources(ObjectXML *obj)
     {
-        VirtualMachineXML * vm = dynamic_cast<VirtualMachineXML *>(obj);
+        VirtualMachineXML * vm = static_cast<VirtualMachineXML *>(obj);
 
         return vm->get_match_datastores();
     };
 
     const string& get_rank(ObjectXML *obj)
     {
-        VirtualMachineXML * vm = dynamic_cast<VirtualMachineXML *>(obj);
+        VirtualMachineXML * vm = static_cast<VirtualMachineXML *>(obj);
 
         if (vm->get_ds_rank().empty())
         {
@@ -165,6 +165,39 @@ private:
         }
 
         return vm->get_ds_rank();
+    };
+};
+
+class RankNetworkPolicy : public RankPolicy
+{
+public:
+
+    RankNetworkPolicy(VirtualNetworkPoolXML * pool, const string&  dr,float w=1.0):
+            RankPolicy(pool, dr, w){};
+
+    ~RankNetworkPolicy(){};
+
+private:
+
+    const vector<Resource *> get_match_resources(ObjectXML *obj)
+    {
+        VirtualMachineNicXML * nic = static_cast<VirtualMachineNicXML *>(obj);
+
+        return nic->get_match_networks();
+    };
+
+    const string& get_rank(ObjectXML *obj)
+    {
+        VirtualMachineNicXML * nic = static_cast<VirtualMachineNicXML *>(obj);
+
+        const std::string& nr = nic->get_rank();
+
+        if (nr.empty())
+        {
+            return default_rank;
+        }
+
+        return nr;
     };
 };
 

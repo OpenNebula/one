@@ -24,6 +24,7 @@
 #include "ClusterPoolXML.h"
 #include "DatastorePoolXML.h"
 #include "VirtualMachinePoolXML.h"
+#include "VirtualNetworkPoolXML.h"
 #include "SchedulerPolicy.h"
 #include "ActionManager.h"
 #include "AclXML.h"
@@ -74,6 +75,7 @@ protected:
         img_dspool(0),
         vmpool(0),
         vm_roles_pool(0),
+        vnetpool(0),
         vmgpool(0),
         vmapool(0),
         timer(0),
@@ -93,6 +95,7 @@ protected:
 
         delete vmpool;
         delete vm_roles_pool;
+        delete vnetpool;
         delete vmapool;
 
         delete dspool;
@@ -119,6 +122,8 @@ protected:
     VirtualMachinePoolXML *     vmpool;
     VirtualMachineRolePoolXML * vm_roles_pool;
 
+    VirtualNetworkPoolXML *     vnetpool;
+
     VMGroupPoolXML * vmgpool;
 
     VirtualMachineActionsPoolXML* vmapool;
@@ -140,6 +145,11 @@ protected:
     void add_vm_policy(SchedulerPolicy *policy)
     {
         vm_policies.push_back(policy);
+    }
+
+    void add_nic_policy(SchedulerPolicy *policy)
+    {
+        nic_policies.push_back(policy);
     }
 
     // ---------------------------------------------------------------
@@ -182,6 +192,7 @@ private:
     vector<SchedulerPolicy *> host_policies;
     vector<SchedulerPolicy *> ds_policies;
     vector<SchedulerPolicy *> vm_policies;
+    vector<SchedulerPolicy *> nic_policies;
 
     // ---------------------------------------------------------------
     // Configuration attributes

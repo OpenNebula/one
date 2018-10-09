@@ -69,7 +69,7 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    that.nicTab.setup(context, {hide_pci: true});
+    that.nicTab.setup(context, {hide_pci: true, hide_auto: true});
 
     Tips.setup(context);
 

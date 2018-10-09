@@ -645,9 +645,9 @@ public class VirtualMachine extends PoolElement{
      * default, set it to -1
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse deploy(int hostId, boolean enforce, int dsId)
+    public OneResponse deploy(int hostId, boolean enforce, int dsId, String extra_template)
     {
-        return client.call(DEPLOY, id, hostId, enforce, dsId);
+        return client.call(DEPLOY, id, hostId, enforce, dsId, extra_template);
     }
 
     /**
@@ -659,7 +659,7 @@ public class VirtualMachine extends PoolElement{
      */
     public OneResponse deploy(int hostId)
     {
-        return deploy(hostId, false, -1);
+        return deploy(hostId, false, -1, "");
     }
 
     /**

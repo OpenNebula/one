@@ -256,6 +256,9 @@ public:
             VectorAttribute * nic_default, std::vector<VectorAttribute *>& sgs,
             std::string& estr);
 
+    int get_auto_network_leases(int vm_id, int uid, VectorAttribute * nic_default, 
+            vector<VectorAttribute*>& sgs, std::string& error_str);
+
     /**
      *  Release all the network leases and SG associated to the set
      *    @param vmid of the VM

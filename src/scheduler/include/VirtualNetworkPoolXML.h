@@ -14,43 +14,46 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef SCHEDULER_TEMPLATE_H_
-#define SCHEDULER_TEMPLATE_H_
 
-#include "NebulaTemplate.h"
+#ifndef VNET_POOL_XML_H_
+#define VNET_POOL_XML_H_
 
+#include "PoolXML.h"
+#include "VirtualNetworkXML.h"
 
-class SchedulerTemplate : public NebulaTemplate
+using namespace std;
+
+class VirtualNetworkPoolXML : public PoolXML
 {
 public:
 
-    SchedulerTemplate(const string& etc_location):
-        NebulaTemplate(etc_location, conf_name)
-        {};
+    VirtualNetworkPoolXML(Client* client):PoolXML(client) {};
 
-    ~SchedulerTemplate(){};
+    ~VirtualNetworkPoolXML(){};
 
-    string get_policy() const;
-
-    string get_ds_policy() const;
-
-    string get_nics_policy() const;
-
-private:
-    /**
-     *  Name for the configuration file, oned.conf
-     */
-    static const char * conf_name;
+    int set_up();
 
     /**
-     *  Sets the defaults value for the template
+     *  Gets an object from the pool
+     *   @param oid the object unique identifier
+     *
+     *   @return a pointer to the object, 0 in case of failure
      */
-    void set_conf_default();
+    VirtualNetworkXML * get(int oid) const
+    {
+        return static_cast<VirtualNetworkXML *>(PoolXML::get(oid));
+    };
 
-    /**
-     *  Sets the defaults value for multiple attributes
-     */
-    void set_multiple_conf_default(){};
+protected:
+
+    int get_suitable_nodes(vector<xmlNodePtr>& content)
+    {
+        return get_nodes("/VNET_POOL/VNET", content);
+    };
+
+    void add_object(xmlNodePtr node);
+
+    int load_info(xmlrpc_c::value &result);
 };
 
-#endif /*SCHEDULER_TEMPLATE_H_*/
+#endif /* VNET_POOL_XML_H_ */

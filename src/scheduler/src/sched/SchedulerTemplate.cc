@@ -109,6 +109,13 @@ void SchedulerTemplate::set_conf_default()
     vattribute = new VectorAttribute("DEFAULT_DS_SCHED",vvalue);
     conf_default.insert(make_pair(vattribute->name(),vattribute));
 
+    //DEFAULT_NIC_SCHED
+    vvalue.clear();
+    vvalue.insert(make_pair("POLICY","1"));
+
+    vattribute = new VectorAttribute("DEFAULT_NIC_SCHED",vvalue);
+    conf_default.insert(make_pair(vattribute->name(),vattribute));
+
     //"MEMORY_SYSTEM_DS_SCALE"
     value = "0";
 
@@ -201,6 +208,51 @@ string SchedulerTemplate::get_ds_policy() const
 
         case 1: //Striping
             rank = "FREE_MB";
+        break;
+
+        case 2: //Custom
+            rank = sched->vector_value("RANK");
+        break;
+
+        case 3: //Fixed
+            rank = "PRIORITY";
+        break;
+
+        default:
+            rank = "";
+    }
+
+    return rank;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string SchedulerTemplate::get_nics_policy() const
+{
+    int    policy;
+    string rank;
+
+    istringstream iss;
+
+    const  VectorAttribute * sched = get("DEFAULT_NIC_SCHED");
+
+    if (sched == 0)
+    {
+        return "";
+    }
+
+    iss.str(sched->vector_value("POLICY"));
+    iss >> policy;
+
+    switch (policy)
+    {
+        case 0: //Packing
+            rank = "- USED_LEASES";
+        break;
+
+        case 1: //Striping
+            rank = "USED_LEASES";
         break;
 
         case 2: //Custom

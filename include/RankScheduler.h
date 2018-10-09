@@ -33,12 +33,13 @@ class RankScheduler : public Scheduler
 {
 public:
 
-    RankScheduler():Scheduler(),rp_host(0),rp_ds(0),rp_vm(0){};
+    RankScheduler():Scheduler(),rp_host(0),rp_ds(0),rp_nics(0), rp_vm(0){};
 
     ~RankScheduler()
     {
         delete rp_host;
         delete rp_ds;
+        delete rp_nics;
 
         delete rp_vm;
     };
@@ -56,11 +57,16 @@ public:
         rp_vm = new UserPriorityPolicy(vmpool, 1.0);
 
         add_vm_policy(rp_vm);
+
+        rp_nics = new RankNetworkPolicy(vnetpool, conf.get_nics_policy(), 1.0);
+
+        add_nic_policy(rp_nics);
     };
 
 private:
     RankPolicy * rp_host;
     RankPolicy * rp_ds;
+    RankPolicy * rp_nics;
 
     UserPriorityPolicy * rp_vm;
 };

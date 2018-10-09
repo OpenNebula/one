@@ -91,12 +91,17 @@ define(function(require) {
    * @param  {Object}  context  jquery selector
    * @param  {Object}  options
    *                   options.hide_pci {bool} true to disable the pci checkbox
+   *                   options.hide_auto {bool} true to disable the selection mode auto checkbox
    */
   function _setup(context, options) {
     var that = this;
 
     if (options != undefined && options.hide_pci == true){
       $("input.pci-type-nic", context).attr('disabled', 'disabled');
+    }
+
+    if (options != undefined && options.hide_auto == true){
+      $(".only_create", context).hide();
     }
 
     that.vnetsTable.initialize({
@@ -156,6 +161,20 @@ define(function(require) {
     if (!Config.isAdvancedEnabled("show_attach_nic_advanced")){
       $("#nic_values", context).hide();
     }
+
+    $("input#"+this.nicTabId+"_network_mode", context).on("change", function(){
+      var network_mode_on = $(this).prop("checked");
+
+      if(network_mode_on){
+        $(".no_auto", context).hide();
+        $(".auto", context).show();
+      } else {
+        $(".auto", context).hide();
+        $(".no_auto", context).show();
+      }
+    });
+
+    $(".auto", context).hide();
   }
 
   function _retrieve(context) {
@@ -182,6 +201,20 @@ define(function(require) {
 
     if ($("input.pci-type-nic", context).prop("checked")){
       nicJSON["NIC_PCI"] = true;
+    }
+
+    if( $("input#"+this.nicTabId+"_network_mode", context).prop("checked") ){
+      nicJSON["NETWORK_MODE"] = "auto";
+      var req = $("input#"+this.nicTabId+"_SCHED_REQUIREMENTS", context).val();
+      var rank = $("input#"+this.nicTabId+"_SCHED_RANK", context).val();
+
+      if ( req !== "" ){
+        nicJSON["SCHED_REQUIREMENTS"] = req;
+      }
+
+      if ( rank !== "" ){
+        nicJSON["SCHED_RANK"] = rank;
+      }
     }
 
     return nicJSON;
@@ -245,6 +278,20 @@ define(function(require) {
 
     if (templateJSON["TYPE"] == "NIC"){
       $("input.pci-type-nic", context).click();
+    }
+
+    if ( templateJSON["NETWORK_MODE"] && templateJSON["NETWORK_MODE"] === "auto" ) {
+      $("input#"+this.nicTabId+"_network_mode", context).prop("checked", true);
+      $(".no_auto", context).hide();
+      $(".auto", context).show();
+
+      if ( templateJSON["SCHED_REQUIREMENTS"] ) {
+        $("input#"+this.nicTabId+"_SCHED_REQUIREMENTS", context).val(templateJSON["SCHED_REQUIREMENTS"]);
+      }
+
+      if ( templateJSON["SCHED_RANK"] ) {
+        $("input#"+this.nicTabId+"_SCHED_RANK", context).val(templateJSON["SCHED_RANK"]);
+      }
     }
 
     WizardFields.fill(context, templateJSON);

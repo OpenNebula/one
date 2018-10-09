@@ -1002,7 +1002,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // Parse the context & requirements
     // -------------------------------------------------------------------------
 
-    rc = parse_context(error_str);
+    rc = parse_context(error_str, false); //Don't generate context for auto NICs
 
     if ( rc != 0 )
     {
@@ -2908,7 +2908,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
         obj_template->remove(context_bck);
         obj_template->set(context_new);
 
-        if ( parse_context(err) != 0 )
+        if ( parse_context(err, true) != 0 )
         {
             obj_template->erase("CONTEXT");
             obj_template->set(context_bck);
@@ -3161,9 +3161,82 @@ int VirtualMachine::clear_saveas_state()
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-/* VirtualMachine Nic interface                                                */
+/* VirtualMachine Nic interface                                               */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int VirtualMachine::get_auto_network_leases(VirtualMachineTemplate * tmpl, 
+        string& estr)
+{
+    vector<VectorAttribute *> vnics;
+    vector<VectorAttribute*>::iterator it;
+
+    int nic_id;
+
+    /* ---------------------------------------------------------------------- */
+    /* Update auto NICs with the scheduling resulti                           */
+    /* ---------------------------------------------------------------------- */
+    tmpl->get("NIC", vnics);
+
+    for (it = vnics.begin(); it != vnics.end(); ++it)
+    {
+        std::string net_mode;
+
+        (*it)->vector_value("NIC_ID", nic_id);
+
+        VirtualMachineNic * nic = get_nic(nic_id);
+
+        net_mode = nic->vector_value("NETWORK_MODE");
+        one_util::toupper(net_mode);
+
+        string network_id = nic->vector_value("NETWORK_ID");
+
+        if (nic == 0 || net_mode != "AUTO" || !network_id.empty())
+        {
+            std::ostringstream oss;
+
+            oss << "NIC_ID "<< nic_id << " not found or not AUTO";
+            estr = oss.str();
+
+            return -1;
+        }
+
+        nic->replace("NETWORK_ID", (*it)->vector_value("NETWORK_ID"));
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Get the network leases & security groups for NICs in auto mode         */
+    /* ---------------------------------------------------------------------- */
+    vector<VectorAttribute*> sgs;
+
+    vector<Attribute *> anics;
+
+    VectorAttribute * nic_default = obj_template->get("NIC_DEFAULT");
+
+    if (nics.get_auto_network_leases(oid, uid, nic_default, sgs, estr) == -1)
+    {
+        return -1;
+    }
+
+    obj_template->set(sgs);
+
+    /* ---------------------------------------------------------------------- */
+    /* Generate the CONTEXT for NICs in auto mode                             */
+    /* ---------------------------------------------------------------------- */
+    VectorAttribute * context = obj_template->get("CONTEXT");
+
+    if ( context == 0 )
+    {
+        return 0;
+    }
+
+    if ( generate_network_context(context, estr, true) != 0 )
+    {
+        return -1;
+    }
+
+    return 0;
+}
 
 int VirtualMachine::get_network_leases(string& estr)
 {
@@ -3172,7 +3245,7 @@ int VirtualMachine::get_network_leases(string& estr)
     /*   * NIC                                                                */
     /*   * PCI + TYPE = NIC                                                   */
     /* ---------------------------------------------------------------------- */
-    vector<Attribute  * > anics;
+    vector<Attribute *> anics;
 
     user_obj_template->remove("NIC", anics);
 

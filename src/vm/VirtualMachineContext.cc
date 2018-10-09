@@ -106,7 +106,14 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
     }
 
     //Generate dynamic context attributes
-    if ( generate_network_context(context, error_str) != 0 )
+    int rc = generate_network_context(context, error_str, false); //no AUTO mode
+
+    if ( rc == 0 )
+    {
+        rc = generate_network_context(context, error_str, true); //AUTO mode
+    }
+
+    if ( rc != 0 )
     {
         ostringstream oss;
 
@@ -274,11 +281,16 @@ static void parse_context_network(const std::vector<ContextVariable>& cvars,
     }
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int VirtualMachine::generate_network_context(VectorAttribute* context,
-        string& error_str)
+        string& error_str, bool only_auto)
 {
     bool net_context;
+    string net_mode = "";
+
+    bool parse_vnets = false; //VNETs needs parse, NIC context generated
 
     context->vector_value("NETWORK", net_context);
 
@@ -304,8 +316,23 @@ int VirtualMachine::generate_network_context(VectorAttribute* context,
 
     for(int i=0; i<num_vatts; i++)
     {
+        std::string net_mode = vatts[i]->vector_value("NETWORK_MODE");
+        one_util::toupper(net_mode);
+
+        if ( net_mode == "AUTO" && !only_auto )
+        {
+            continue;
+        }
+
         parse_context_network(NETWORK_CONTEXT, &tmp_context, vatts[i]);
         parse_context_network(NETWORK6_CONTEXT, &tmp_context, vatts[i]);
+
+        parse_vnets = true;
+    }
+
+    if (!parse_vnets)
+    {
+        return 0;
     }
 
     str = tmp_context.marshall();
@@ -437,7 +464,7 @@ int VirtualMachine::generate_token_context(VectorAttribute * context, string& e)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::parse_context(string& error_str)
+int VirtualMachine::parse_context(string& error_str, bool all_nics)
 {
     VectorAttribute * context = obj_template->get("CONTEXT");
 
@@ -453,8 +480,21 @@ int VirtualMachine::parse_context(string& error_str)
     // -------------------------------------------------------------------------
     // Add network context and parse variables
     // -------------------------------------------------------------------------
-    if (parse_context_variables(&context, error_str) == -1 ||
-            generate_network_context(context, error_str) == -1 )
+    if ( parse_context_variables(&context, error_str) == -1 )
+    {
+        return -1;
+    }
+
+    int rc;
+
+    rc = generate_network_context(context, error_str, false);
+
+    if ( rc != -1 && all_nics )
+    {
+        rc = generate_network_context(context, error_str, true);
+    }
+
+    if ( rc == -1 )
     {
         return -1;
     }

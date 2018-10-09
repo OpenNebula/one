@@ -341,9 +341,10 @@ module OpenNebula
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def deploy(host_id, enforce=false, ds_id=-1)
+        def deploy(host_id, enforce=false, ds_id=-1, extra_template="")
             enforce ||= false
             ds_id ||= -1
+            extra_template ||= ""
 
             self.info
 
@@ -351,7 +352,8 @@ module OpenNebula
                         @pe_id,
                         host_id.to_i,
                         enforce,
-                        ds_id.to_i)
+                        ds_id.to_i,
+                        extra_template)
         end
 
         # Shutdowns an already deployed VM
