@@ -42,8 +42,8 @@ usage() {
  echo "-c: install client utilities: OpenNebula cli and ec2 client files"
  echo "-s: install OpenNebula Sunstone"
  echo "-p: do not install OpenNebula Sunstone non-minified files"
- echo "-G: install OpenNebula Gate"
- echo "-f: install OpenNebula Flow"
+ echo "-G: install only OpenNebula Gate"
+ echo "-f: install only OpenNebula Flow"
  echo "-r: remove Opennebula, only useful if -d was not specified, otherwise"
  echo "    rm -rf \$ONE_LOCATION would do the job"
  echo "-l: creates symlinks instead of copying files, useful for development"
@@ -52,7 +52,7 @@ usage() {
 }
 #-------------------------------------------------------------------------------
 
-PARAMETERS="ehkrlcspou:g:d:"
+PARAMETERS="ehkrlcspofGu:g:d:"
 
 if [ $(getopt --version | tr -d " ") = "--" ]; then
     TEMP_OPT=`getopt $PARAMETERS "$@"`

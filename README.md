@@ -141,6 +141,8 @@ where **install_options** can be one or more of:
     -r      remove Opennebula, only useful if -d was not specified,
             otherwise rm -rf $ONE_LOCATION would do the job
     -p      do not install OpenNebula Sunstone non-minified files
+    -G      install only OpenNebula Gate
+    -f      install only OpenNebula Flow
     -h      prints installer help
 
 
