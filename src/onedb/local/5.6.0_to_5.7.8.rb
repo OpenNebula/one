@@ -37,7 +37,7 @@ module Migrator
 
     def up
         feature_2253
-
+        feature_2489
         true
     end
 
@@ -102,6 +102,26 @@ module Migrator
         @db.run 'DROP TABLE old_vm_pool;'
     end
 
+    def feature_2489
+        @db.run 'DROP TABLE IF EXISTS old_vm_pool;'
+        @db.run 'ALTER TABLE vm_pool RENAME TO old_vm_pool;'
+        create_table(:vm_pool, nil, db_version)
+
+        @db.transaction do
+            @db.fetch('SELECT * FROM old_vm_pool') do |row|
+                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) do |c|
+                    c.default_xml.noblanks
+                end
+
+                row[:short_body] = gen_short_body(doc)
+
+                @db[:vm_pool].insert(row)
+            end
+        end
+
+        @db.run 'DROP TABLE old_vm_pool;'
+    end
+
     def bridge_type_by_vn_mad(vn_mad)
         case vn_mad
         when 'vcenter'
@@ -111,6 +131,106 @@ module Migrator
         else
             return 'linux'
         end
+    end
+
+    def gen_short_body(body)
+        short_body = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
+            xml.VM{
+                xml.ID body.root.xpath('ID').text
+                xml.UID body.root.xpath('UID').text
+                xml.GID body.root.xpath('GID').text
+                xml.UNAME body.root.xpath('UNAME').text
+                xml.GNAME body.root.xpath('GNAME').text
+                xml.NAME body.root.xpath('NAME').text
+                xml.LAST_POLL body.root.xpath('LAST_POLL').text
+                xml.STATE body.root.xpath('STATE').text
+                xml.LCM_STATE body.root.xpath('LCM_STATE').text
+                xml.RESCHED body.root.xpath('RESCHED').text
+                xml.STIME body.root.xpath('STIME').text
+                xml.ETIME body.root.xpath('ETIME').text
+                xml.DEPLOY_ID body.root.xpath('DEPLOY_ID').text
+                xml.TEMPLATE {
+                    xml.AUTOMATIC_REQUIREMENTS body.root.xpath('TEMPLATE/AUTOMATIC_REQUIREMENTS').text
+                    xml.AUTOMATIC_DS_REQUIREMENTS body.root.xpath('TEMPLATE/AUTOMATIC_DS_REQUIREMENTS').text
+                    xml.CPU body.root.xpath('TEMPLATE/CPU').text
+
+                    body.root.xpath('TEMPLATE//DISK').each do |disk|
+                        xml.DISK {
+                            xml.DATASTORE disk.xpath('DATASTORE').text
+                            xml.DATASTORE_ID disk.xpath('DATASTORE_ID').text
+                            xml.DISK_ID disk.xpath('DISK_ID').text
+                            xml.IMAGE disk.xpath('IMAGE').text
+                            xml.IMAGE_ID disk.xpath('IMAGE_ID').text
+                            xml.SIZE disk.xpath('SIZE').text
+                            xml.TARGET disk.xpath('TARGET').text
+                            xml.TYPE disk.xpath('TYPE').text
+                            xml.CLONE disk.xpath('CLONE').text
+                            xml.CLONE_TARGET disk.xpath('CLONE_TARGET').text
+                            xml.LN_TARGET disk.xpath('LN_TARGET').text
+                            xml.DISK_SNAPSHOT_TOTAL_SIZE disk.xpath('DISK_SNAPSHOT_TOTAL_SIZE').text
+                        }
+                    end
+
+                    xml.GRAPHICS {
+                        xml.LISTEN body.root.xpath('TEMPLATE/GRAPHICS/LISTEN').text
+                        xml.PASSWD body.root.xpath('TEMPLATE/GRAPHICS/PASSWD').text
+                        xml.PORT body.root.xpath('TEMPLATE/GRAPHICS/PORT').text
+                        xml.RANDOM_PASSWD body.root.xpath('TEMPLATE/GRAPHICS/RANDOM_PASSWD').text
+                        xml.TYPE body.root.xpath('TEMPLATE/GRAPHICS/TYPE').text
+                    }
+
+                    xml.MEMORY body.root.xpath('TEMPLATE/MEMORY').text
+
+                    body.root.xpath("TEMPLATE//NIC").each do |nic|
+                        xml.NIC {
+                            xml.IP nic.xpath('IP').text
+                            xml.IP nic.xpath('IP6').text
+                            xml.IP nic.xpath('IP6_ULA').text
+                            xml.MAC nic.xpath('MAC').text
+                            xml.NETWORK nic.xpath('NETWORK').text
+                            xml.NETWORK_ID nic.xpath('NETWORK_ID').text
+                            xml.NIC_ID nic.xpath('NIC_ID').text
+                            xml.SECURITY_GROUPS nic.xpath('SECURITY_GROUPS').text
+                        }
+                    end
+                }
+
+                xml.MONITORING {
+                    xml.CPU body.root.xpath('MONITORING/CPU').text
+                    xml.MEMORY body.root.xpath('MONITORING/MEMORY').text
+                    xml.STATE body.root.xpath('MONITORING/STATE').text
+                }
+
+                xml.USER_TEMPLATE {
+                    xml.LABELS body.root.xpath('USER_TEMPLATE/LABELS').text unless body.root.xpath('USER_TEMPLATE/LABELS').text.empty?
+                    xml.SCHED_RANK body.root.xpath('USER_TEMPLATE/SCHED_RANK').text unless body.root.xpath('USER_TEMPLATE/SCHED_RANK').text.empty?
+                    xml.RANK body.root.xpath('USER_TEMPLATE/RANK').text unless body.root.xpath('USER_TEMPLATE/RANK').text.empty?
+                    xml.SCHED_DS_RANK body.root.xpath('USER_TEMPLATE/SCHED_DS_RANK').text unless body.root.xpath('USER_TEMPLATE/SCHED_DS_RANK').text.empty?
+                    xml.PUBLIC_CLOUD body.root.xpath('USER_TEMPLATE/PUBLIC_CLOUD').text unless body.root.xpath('USER_TEMPLATE/PUBLIC_CLOUD').text.empty?
+                    xml.EC2 body.root.xpath('USER_TEMPLATE/EC2').text unless body.root.xpath('USER_TEMPLATE/EC2').text.empty?
+                    xml.SCHED_REQUIREMENTS body.root.xpath('USER_TEMPLATE/SCHED_REQUIREMENTS').text unless body.root.xpath('USER_TEMPLATE/SCHED_REQUIREMENTS').text.empty?
+                    xml.SCHED_DS_REQUIREMENTS body.root.xpath('USER_TEMPLATE/SCHED_DS_REQUIREMENTS').text unless body.root.xpath('USER_TEMPLATE/SCHED_DS_REQUIREMENTS').text.empty?
+                    xml.SCHED_MESSAGE body.root.xpath('USER_TEMPLATE/SCHED_MESSAGE').text unless body.root.xpath('USER_TEMPLATE/SCHED_MESSAGE').text.empty?
+                    xml.USER_PRIORITY body.root.xpath('USER_TEMPLATE/USER_PRIORITY').text unless body.root.xpath('USER_TEMPLATE/USER_PRIORITY').text.empty?
+                }
+
+                xml.HISTORY_RECORDS {
+                    body.root.xpath('HISTORY_RECORDS//HISTORY').last do |hr|
+                        xml.HISTORY {
+                            xml.OID hr.xpath('OID').text
+                            xml.SEQ hr.xpath('SEQ').text
+                            xml.HOSTNAME hr.xpath('HOSTNAME').text
+                            xml.HID hr.xpath('HID').text
+                            xml.CID hr.xpath('CID').text
+                            xml.DS_ID hr.xpath('DS_ID').text
+                            xml.ACTION hr.xpath('ACTION').text
+                        }
+                    end
+                }
+            }
+        end
+
+        Nokogiri::XML(short_body.to_xml).root.to_s
     end
 
 end
