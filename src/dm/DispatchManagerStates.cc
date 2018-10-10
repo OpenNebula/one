@@ -277,7 +277,7 @@ void  DispatchManager::done_action(int vid)
           (lcm_state == VirtualMachine::EPILOG ||
            lcm_state == VirtualMachine::CLEANUP_DELETE))
     {
-        free_vm_resources(vm);
+        free_vm_resources(vm, true);
     }
     else
     {

@@ -116,6 +116,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "No recover action possible, delete and recreate the VM"
     }
 
+    DELETE_DB={
+        :name  => "deletedb",
+        :large => "--delete-db",
+        :description => "No recover action possible, delete the VM from the DB"
+    }
+
     INTERACTIVE={
         :name  => "interactive",
         :large => "--interactive",
@@ -586,10 +592,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         States for a retry recover: Any *FAILURE state
         States for delete: Any
         States for delete-recreate: Any but STOP/UNDEPLOYED
+        States for delete-db: Any
     EOT
 
     command :recover, recover_desc, [:range,:vmid_list],
-        :options => [SUCCESS, FAILURE, RETRY, INTERACTIVE, DELETE, RECREATE] do
+        :options => [SUCCESS, FAILURE, RETRY, INTERACTIVE, DELETE, RECREATE, DELETE_DB] do
         if !options[:success].nil?
             result = 1
         elsif !options[:failure].nil?
@@ -600,6 +607,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             result = 3
         elsif !options[:recreate].nil?
             result = 4
+        elsif !options[:deletedb].nil?
+            result = 5
         else
             STDERR.puts "Need to specify the result of the pending action."
             STDERR.puts "\t--success recover the VM by succeeding the missing action."
@@ -607,6 +616,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             STDERR.puts "\t--retry recover the VM by retrying the last failed action."
             STDERR.puts "\t--delete no recover possible, delete the VM."
             STDERR.puts "\t--recreate no recover possible, delete and recreate the VM."
+            STDERR.puts "\t--delete-db No recover possible, delete the VM from the DB"
             exit -1
         end
 
