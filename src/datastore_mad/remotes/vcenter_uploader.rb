@@ -50,7 +50,7 @@ begin
     puts target_path
 
 rescue Exception => e
-    STDERR.puts "Cannot upload image to datastore #{ds_name} "\
+    STDERR.puts "Cannot upload image to datastore #{ds_id} "\
                 "Reason: \"#{e.message}\"\n#{e.backtrace}"
     exit -1
 ensure
