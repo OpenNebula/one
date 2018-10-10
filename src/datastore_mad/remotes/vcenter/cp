@@ -71,7 +71,6 @@ end
 temp_file = nil
 filename = File.basename(img_path)
 target_path = "#{ds_image_dir}/#{id}"
-ext = File.extname(filename)
 
 # If image is in a remote http location it has to be downloaded
 # or if is a zipped file it has to be unzipped in a temp folder
@@ -80,8 +79,8 @@ if VCenterDriver::FileHelper.is_remote_or_needs_unpack?(img_path)
     temp_folder = File.join(VAR_LOCATION, "vcenter/#{target_path}")
     temp_file = File.join(temp_folder, File.basename(img_path))
     # if the original file doesn't have the .vmdk extension, add it
-    if !temp_file.match(/\.vmdk$/)
-      temp_file += ".vmdk"
+    if !temp_file.match(/\.vmdk$/) && !temp_file.match(/\.iso$/)
+        temp_file += ".vmdk"
     end
 
     # Create tmp directory
@@ -152,15 +151,9 @@ files_to_upload.each_with_index do |f, index|
     end
 
     if is_last_file_to_upload?(index, files_to_upload)
-        if ext == ""
-            uploader_args = ds_id + " " + ds_ref + " "
-                            + "#{path}#{extension}" + " " + f
-        else
-            uploader_args = ds_id + " " + ds_ref + " " + path + " " + f
-        end
+        uploader_args = "#{ds_id} #{ds_ref} #{path}#{extension} #{f}"
     else
-        uploader_args = ds_id + " " + ds_ref + " " +
-                        path + " " + f + " &> /dev/null"
+        uploader_args = "#{ds_id} #{ds_ref} #{path} #{f} &> /dev/null"
     end
 
     cmd = "#{File.dirname(__FILE__)}/../vcenter_uploader.rb #{uploader_args}"
