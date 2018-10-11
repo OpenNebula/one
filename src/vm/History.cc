@@ -512,6 +512,9 @@ string History::action_to_str(VMAction action)
         case DISK_SNAPSHOT_DELETE_ACTION:
             st = "disk-snapshot-delete";
         break;
+        case DISK_SNAPSHOT_RENAME_ACTION:
+            st = "disk-snapshot-rename";
+        break;
         case DISK_RESIZE_ACTION:
             st = "disk-resize";
         break;
@@ -669,6 +672,10 @@ int History::action_from_str(const string& st, VMAction& action)
     else if (st == "disk-snapshot-snap-delete")
     {
         action = DISK_SNAPSHOT_DELETE_ACTION;
+    }
+    else if (st == "disk-snapshot-rename")
+    {
+        action = DISK_SNAPSHOT_RENAME_ACTION;
     }
     else if (st == "disk-resize")
     {

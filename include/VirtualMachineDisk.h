@@ -257,6 +257,24 @@ public:
     }
 
     /**
+     * Renames a snapshot
+     *
+     * @param id_snap of the snapshot
+     * @param new_name of the snapshot
+     * @return 0 on success
+     */
+    int rename_snapshot(int snap_id, const string& new_name, string& str_error)
+    {
+        if (!snapshots)
+        {
+            str_error = "The VM does not have any snapshot";
+            return -1;
+        }
+
+        return snapshots->rename_snapshot(snap_id, new_name, str_error);
+    }
+
+    /**
      *  Creates a new snapshot of the disk
      *    @param name a description for this snapshot
      *    @param error if any
@@ -739,6 +757,15 @@ public:
      */
     void delete_snapshot(int disk_id, int snap_id, Template **ds_quota,
             Template **vm_quota, bool& io, bool& vo);
+
+    /**
+     *  Renames a given snapshot
+     *    @param disk_id of the disk
+     *    @param snap_id of the snapshot
+     *    @param new_name of the snapshot
+     *    @return 0 on success
+     */
+    int rename_snapshot(int disk_id, int snap_id, const string& new_name, string& str_error);
 
     /**
      * Deletes all the disk snapshots for non-persistent disks and for persistent

@@ -376,6 +376,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vm_dsnap_create(new VirtualMachineDiskSnapshotCreate());
     xmlrpc_c::methodPtr vm_dsnap_revert(new VirtualMachineDiskSnapshotRevert());
     xmlrpc_c::methodPtr vm_dsnap_delete(new VirtualMachineDiskSnapshotDelete());
+    xmlrpc_c::methodPtr vm_dsnap_rename(new VirtualMachineDiskSnapshotRename());
     xmlrpc_c::methodPtr vm_recover(new VirtualMachineRecover());
     xmlrpc_c::methodPtr vm_updateconf(new VirtualMachineUpdateConf());
     xmlrpc_c::methodPtr vm_disk_resize(new VirtualMachineDiskResize());
@@ -577,6 +578,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.disksnapshotcreate", vm_dsnap_create);
     RequestManagerRegistry.addMethod("one.vm.disksnapshotrevert", vm_dsnap_revert);
     RequestManagerRegistry.addMethod("one.vm.disksnapshotdelete", vm_dsnap_delete);
+    RequestManagerRegistry.addMethod("one.vm.disksnapshotrename", vm_dsnap_rename);
     RequestManagerRegistry.addMethod("one.vm.recover", vm_recover);
     RequestManagerRegistry.addMethod("one.vm.updateconf", vm_updateconf);
     RequestManagerRegistry.addMethod("one.vm.lock", vm_lock);

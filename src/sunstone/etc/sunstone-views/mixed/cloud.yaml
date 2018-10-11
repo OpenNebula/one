@@ -84,6 +84,7 @@ tabs:
             VM.snapshot_delete: true
             VM.disk_snapshot_create: true
             VM.disk_snapshot_revert: true
+            VM.disk_snapshot_rename: true
             VM.disk_snapshot_delete: true
             VM.save_as_template: true
             VM.lockU: true

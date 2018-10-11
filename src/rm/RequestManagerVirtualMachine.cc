@@ -2978,6 +2978,72 @@ void VirtualMachineDiskSnapshotDelete::request_execute(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VirtualMachineDiskSnapshotRename::request_execute(xmlrpc_c::paramList const& paramList,
+            RequestAttributes& att)
+{
+    VirtualMachine *  vm;
+
+    ostringstream oss;
+
+    const VirtualMachineDisk * disk;
+
+    int rc;
+
+    int id               = xmlrpc_c::value_int(paramList.getInt(1));
+    int did              = xmlrpc_c::value_int(paramList.getInt(2));
+    int snap_id          = xmlrpc_c::value_int(paramList.getInt(3));
+    string new_snap_name = xmlrpc_c::value_string(paramList.getString(4));
+
+    if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
+    {
+        return;
+    }
+
+    if ((vm = get_vm(id, att)) == 0)
+    {
+        oss << "Could not rename the snapshot for VM " << id
+            << ", VM does not exist";
+
+        att.resp_msg = oss.str();
+
+        return;
+    }
+
+    disk = (const_cast<const VirtualMachine *>(vm))->get_disk(did);
+
+    if (disk == 0)
+    {
+        att.resp_msg = "VM disk does not exist";
+        failure_response(ACTION, att);
+
+        vm->unlock();
+
+        return;
+    }
+
+    rc = vm->rename_disk_snapshot(did, snap_id, new_snap_name, att.resp_msg);
+
+    if ( rc != 0 )
+    {
+        failure_response(ACTION, att);
+	
+	vm->unlock();
+	    
+	return;
+    }
+    
+    success_response(id, att);
+        
+    pool->update(vm);
+
+    vm->unlock();
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachineUpdateConf::request_execute(
         xmlrpc_c::paramList const& paramList, RequestAttributes& att)
 {

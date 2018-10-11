@@ -1403,6 +1403,23 @@ void VirtualMachineDisks::delete_snapshot(int disk_id, int snap_id,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachineDisks::rename_snapshot(int disk_id, int snap_id, const string& new_name,
+        string& error_str)
+{
+    VirtualMachineDisk * disk = get_disk(disk_id);
+
+    if (disk == 0)
+    {
+        error_str = "VM disk does not exist";
+        return -1;
+    }
+
+    return disk->rename_snapshot(snap_id, new_name, error_str);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachineDisks::delete_non_persistent_snapshots(Template **vm_quotas,
         vector<Template *> &ds_quotas)
 {

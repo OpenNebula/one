@@ -523,6 +523,28 @@ private:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+class VirtualMachineDiskSnapshotRename: public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineDiskSnapshotRename():
+        RequestManagerVirtualMachine("one.vm.disksnapshotrename",
+                           "Rename a disk snapshot",
+                           "A:siiis"){
+        Nebula& nd = Nebula::instance();
+
+        //All VM disk snapshot operations are set to the same auth value
+        auth_op = nd.get_vm_auth_op(History::DISK_SNAPSHOT_RENAME_ACTION);
+    };
+
+    ~VirtualMachineDiskSnapshotRename(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 class VirtualMachineUpdateConf: public RequestManagerVirtualMachine
 {
 public:

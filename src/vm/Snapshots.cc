@@ -274,6 +274,24 @@ int Snapshots::active_snapshot(int id)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int Snapshots::rename_snapshot(int id, const string& name, string& str_error)
+{
+    VectorAttribute * snapshot = get_snapshot(id);
+
+    if (snapshot == 0)
+    {
+        str_error = "Snapshot does not exist";
+        return -1;
+    }
+
+    snapshot->replace("NAME", name);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 const VectorAttribute * Snapshots::get_snapshot(int id) const
 {
     map<int, VectorAttribute *>::const_iterator it;

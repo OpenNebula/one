@@ -393,6 +393,7 @@ tabs:
             VM.snapshot_delete: true
             VM.disk_snapshot_create: false
             VM.disk_snapshot_revert: false
+            VM.disk_snapshot_rename: false
             VM.disk_snapshot_delete: false
             VM.resched: true
             VM.unresched: true

@@ -43,6 +43,7 @@ define(function(require) {
   var ATTACH_DISK_DIALOG_ID = require('../dialogs/attach-disk/dialogId');
   var DISK_SNAPSHOT_DIALOG_ID = require('../dialogs/disk-snapshot/dialogId');
   var DISK_SAVEAS_DIALOG_ID = require('../dialogs/disk-saveas/dialogId');
+  var DISK_SNAPSHOT_RENAME_DIALOG_ID = require('../dialogs/disk-snapshot-rename/dialogId');
   var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
   var DISK_RESIZE_DIALOG_ID = require('../dialogs/disk-resize/dialogId');
   var RESOURCE = "VM"
@@ -524,10 +525,12 @@ define(function(require) {
       // Enable/disable buttons
       if ($(this).is(":checked")) {
         $(".disk_snapshot_saveas", snapshotsSection).prop('disabled', false);
+        $(".disk_snapshot_rename", snapshotsSection).prop('disabled', false);
         $(".disk_snapshot_revert", snapshotsSection).prop('disabled', false);
         $(".disk_snapshot_delete", snapshotsSection).prop('disabled', false);
       } else {
         $(".disk_snapshot_saveas", snapshotsSection).prop('disabled', true);
+        $(".disk_snapshot_rename", snapshotsSection).prop('disabled', true);
         $(".disk_snapshot_revert", snapshotsSection).prop('disabled', true);
         $(".disk_snapshot_delete", snapshotsSection).prop('disabled', true);
       }
@@ -542,6 +545,27 @@ define(function(require) {
         var snapshot_id = $(".snapshot_check_item:checked", snapshotsSection).attr('snapshot_id');
 
         var dialog = Sunstone.getDialog(DISK_SAVEAS_DIALOG_ID);
+        dialog.setParams(
+          { element: that.element,
+            diskId: disk_id,
+            snapshotId: snapshot_id
+          });
+
+        dialog.reset();
+        dialog.show();
+        return false;
+      });
+    }
+
+    if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_rename")) {
+      context.off('click', '.disk_snapshot_rename');
+      context.on('click', '.disk_snapshot_rename', function() {
+        var snapshotsSection = $(this).closest('.snapshots');
+
+        var disk_id = snapshotsSection.attr('disk_id');
+        var snapshot_id = $(".snapshot_check_item:checked", snapshotsSection).attr('snapshot_id');
+
+        var dialog = Sunstone.getDialog(DISK_SNAPSHOT_RENAME_DIALOG_ID);
         dialog.setParams(
           { element: that.element,
             diskId: disk_id,
