@@ -26,6 +26,7 @@ end
 
 require 'rest/container'
 require 'rest/client'
+require 'xml_tools'
 require 'mapper/raw'
 require 'mapper/qcow2'
 require 'scripts_common' # TODO: Check if works on node-only VM
@@ -36,139 +37,6 @@ module LXDriver
 
     SEP = '-' * 40
     CONTAINERS = '/var/lib/lxd/containers/' # TODO: Fix hardcode
-
-    # Container Info
-    class Info < Hash
-
-        TEMPLATE_PREFIX = '//TEMPLATE/'
-
-        def initialize(xml_file)
-            @xml = OpenNebula::XMLElement.new
-            @xml.initialize_xml(xml_file, 'VM')
-
-            self['name'] = 'one-' + xml_single_element('ID')
-            self['config'] = {}
-            self['devices'] = {}
-
-            # TODO: deal with missing parameters
-            memory
-            cpu
-            network
-            storage
-        end
-
-        # Creates a dictionary for LXD containing $MEMORY RAM allocated
-        def memory
-            ram = single_element('MEMORY')
-            ram = ram.to_s + 'MB'
-            self['config']['limits.memory'] = ram
-        end
-
-        # Creates a dictionary for LXD  $CPU percentage and cores
-        def cpu
-            cpu = single_element('CPU')
-            vcpu = single_element('VCPU')
-            cpu = (cpu.to_f * 100).to_i.to_s + '%'
-            self['config']['limits.cpu.allowance'] = cpu
-            self['config']['limits.cpu'] = vcpu
-        end
-
-        # Sets up the network interfaces configuration in devices
-        def network
-            nics = multiple_elements('NIC')
-            nics.each do |nic|
-                info = nic['NIC']
-                name = "eth#{info['NIC_ID']}"
-                eth = { 'name' => name, 'host_name' => info['TARGET'],
-                        'parent' => info['BRIDGE'], 'hwaddr' => info['MAC'],
-                        'nictype' => 'bridged', 'type' => 'nic' }
-
-                # Optional args
-                eth['limits.ingress'] = nic_unit(info['INBOUND_AVG_BW']) if info['INBOUND_AVG_BW']
-                eth['limits.egress'] = nic_unit(info['OUTBOUND_AVG_BW']) if info['OUTBOUND_AVG_BW']
-
-                self['devices'][name] = eth
-            end
-        end
-
-        def nic_unit(limit)
-            (limit.to_i * 8).to_s + 'kbit'
-        end
-
-        ###############
-        #   Storage   #
-        ###############
-
-        # Sets up the storage devices configuration in devices
-        # TODO: readonly
-        # TODO: io
-        # TODO: source
-        # TODO: path
-        def storage
-            # disks = multiple_elements('DISK')
-            # boot_order = single_element('OS/BOOT')
-            #     name = "disk#{disk['DISK_ID']}"
-            #     self['devices'][name] = disk
-
-            #     path = info['PATH']
-            # bootme = 0
-            # bootme = boot_order.split(',')[0][-1] if boot_order != ''
-
-            # disks.each {|d| disks.insert(0, d).uniq if d['ID'] == bootme }
-
-            # self['disks'] = disks
-            # self['rootfs'] = disks[0]
-            #     disk = { 'path' => path, 'source' => source }
-
-            # TODO: hash['key'] = value if value exist
-            # io = {'limits.read' => '', 'limits.write' => '', 'limits.max' => '' }
-            # io['limits.read'] = nic_unit(info['INBOUND_AVG_BW']) if info['INBOUND_AVG_BW']
-            # io['limits.write'] = nic_unit(info['OUTBOUND_AVG_BW']) if info['OUTBOUND_AVG_BW']
-        end
-
-        # gets opennebula datastores path
-        def get_datastores
-            disk = multiple_elements('DISK')[0]['DISK']
-            source = disk['SOURCE']
-            ds_id = disk['DATASTORE_ID']
-            source.split(ds_id + '/')[0]
-        end
-
-        def context; end
-
-        class << self
-
-            def device_path(dss_path, ds_id, vm_id, disk_id)
-                "#{dss_path}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
-            end
-
-        end
-
-        ###############
-        # XML Parsing #
-        ###############
-
-        # Returns PATH's instance in XML
-        def xml_single_element(path)
-            @xml[path]
-        end
-
-        def single_element(path)
-            xml_single_element(TEMPLATE_PREFIX + path)
-        end
-
-        # Returns an Array with PATH's instances in XML
-        def xml_multiple_elements(path)
-            elements = []
-            @xml.retrieve_xmlelements(path).each {|d| elements.append(d.to_hash) }
-            elements
-        end
-
-        def multiple_elements(path)
-            xml_multiple_elements(TEMPLATE_PREFIX + path)
-        end
-
-    end
 
     class << self
 
@@ -190,13 +58,56 @@ module LXDriver
             (Time.now - time).to_s
         end
 
-        # Returns the diskid corresponding to the root device
-        def get_rootfs_id(info)
-            # TODO: Add support when path is /
-            bootme = '0'
-            boot_order = info.single_element_pre('OS/BOOT')
-            bootme = boot_order.split(',')[0][-1] unless boot_order == '' || boot_order.nil?
-            bootme
+        ###############
+        #   Network   #
+        ###############
+
+        # TODO: QoS
+        # Creates a nic hash
+        def nic(name, host_name, bridge, mac)
+            { 'name' => name, 'host_name' => host_name,
+              'parent' => bridge, 'hwaddr' => mac,
+              'nictype' => 'bridged', 'type' => 'nic' }
+        end
+
+        def nic_unit(limit)
+            (limit.to_i * 8).to_s + 'kbit'
+        end
+
+        # Returns a hash with QoS NIC values if defined
+        def nic_io(nic, info)
+            lxdl = %w[limits.ingress limits.egress]
+            onel = %w[INBOUND_AVG_BW OUTBOUND_AVG_BW]
+
+            nic_limits = io(lxdl, onel, info)
+            nic_limits.each do |key, value|
+                nic_limits[key] = nic_unit(value)
+            end
+            nic.update(nic_limits)
+        end
+
+        ###############
+        #   Storage   #
+        ###############
+
+        # TODO: IO
+        # TODO: disk_common
+        # Creates a disk hash
+        def disk(source, path)
+            { 'type' => 'disk', 'source' => source, 'path' => path }
+        end
+
+        def disk_common(info)
+            config = { 'readonly' => 'false' }
+            config['readonly'] = 'true' if info['READONLY'] == 'yes'
+            disk_io(config, info)
+        end
+
+        # TODO: TOTAL_IOPS_SEC
+        def disk_io(disk, info)
+            lxdl = %w[limits.read limits.write limits.max]
+            onel = %w[READ_BYTES_SEC WRITE_BYTES_SEC TOTAL_BYTES_SEC]
+            disk.update(io(lxdl, onel, info))
         end
 
         # Returns a mapper class depending on the driver string
@@ -209,10 +120,40 @@ module LXDriver
             end
         end
 
+        def device_path(info, vm_id, disk_id)
+            "#{info.datastores}/#{info.sysds_id}/#{vm_id}/disk.#{disk_id}"
+        end
+
         ###############
-        #  Container  #
+        #    Misc     #
         ###############
 
+        # Creates a hash with the keys defined in lxd_keys if the
+        # corresponding key in xml_keys with the same index is defined in info
+        def keyfexist(lxd_keys, xml_keys, info)
+            hash = {}
+            0.upto(lxd_keys.length) do |i|
+                value = info[xml_keys[i]]
+                hash[lxd_keys[i]] = value if value
+            end
+            hash
+        end
+
+        # Maps existing one_limits into lxd_limits
+        def io(lxdl, onel, info)
+            limits = keyfexist(lxdl, onel, info)
+            if limits != {}
+                limits.each do |limit, value|
+                    limits[limit] = value
+                end
+            end
+            limits
+        end
+
+        # TODO: VNC server
+        def vnc(info); end
+
+        # TODO: Check if not needed (XML available STDIN)
         # Saves deployment path to container yaml
         def deployment_save(xml, path, container)
             f = File.new(path, 'w')
@@ -223,28 +164,39 @@ module LXDriver
         end
 
         def deployment_get(container)
-            Info.new(File.open(container.config['user.xml']))
+            XML.new(File.open(container.config['user.xml']))
+        end
+
+        ###############
+        #  Container  #
+        ###############
+
+        # Mount context iso in the LXD node
+        def context(mountpoint, action)
+            device = mountpoint.dup
+            device.slice!('/mapper')
+            RAW.run(action, mountpoint, device)
         end
 
         # Sets up the container mounts for type: disk devices
         def container_storage(info, action)
-            # TODO: improve use of conditions for root and actions
             disks = info.multiple_elements('DISK')
-            ds_id = info.xml_single_element('//HISTORY_RECORDS/HISTORY/DS_ID')
-            dss_path = info.get_datastores
-            vm_id = info.single_element('VMID')
-            bootme = get_rootfs_id(info)
+            vm_id = info.vm_id
 
             disks.each do |disk|
-                info = disk['DISK']
-                disk_id = info['DISK_ID']
+                disk_info = disk['DISK']
+                disk_id = disk_info['DISK_ID']
 
-                mountpoint = Info.device_path(dss_path, ds_id, "#{vm_id}/mapper", disk_id)
-                mountpoint = CONTAINERS + 'one-' + vm_id if disk_id == bootme
+                mountpoint = device_path(info, "#{vm_id}/mapper", disk_id)
+                mountpoint = CONTAINERS + 'one-' + vm_id if disk_id == info.rootfs_id
 
-                mapper = select_driver(info['DRIVER'])
-                device = Info.device_path(dss_path, ds_id, vm_id, disk_id)
+                mapper = select_driver(disk_info['DRIVER'])
+                device = device_path(info, vm_id, disk_id)
                 mapper.run(action, mountpoint, device)
+            end
+
+            if info.complex_element('CONTEXT')
+                context(info.context['context']['source'], action)
             end
         end
 
@@ -252,7 +204,7 @@ module LXDriver
         def container_start(container, info)
             raise LXDError, container.status if container.start != 'Running'
         rescue LXDError => e
-            disk(info, 'unmap')
+            container_storage(info, 'unmap')
             OpenNebula.log_error('Container failed to start')
             container.delete
             raise e
@@ -275,9 +227,6 @@ module LXDriver
                 container.create
             end
         end
-
-        # TODO: VNC server
-        def vnc(info); end
 
     end
 

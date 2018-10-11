@@ -29,7 +29,7 @@ class RAW < Mapper
         end
 
         def unmap(block)
-            shell("losetup -d #{block}")
+            shell("sudo losetup -d #{block}")
         end
 
     end

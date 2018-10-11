@@ -1,0 +1,32 @@
+#!/usr/bin/ruby
+
+t0 = Time.now
+require_relative 'lib/lxd_driver'
+
+LXDriver.log_init
+
+vm_name = ARGV[0]
+mac = ARGV[1]
+bridge = ARGV[2]
+model = ARGV[3]
+net_drv = ARGV[4]
+host_nic = ARGV[5]
+vm_id = ARGV[6]
+host = ARGV[7]
+
+# Create container object
+# OpenNebula.log(STDIN.read)
+xml_file = STDIN.read
+# info = LXDriver::Info.new(xml_file)
+
+client = LXDClient.new
+container = Container.get(vm_name, client)
+
+name = "eth#{host_nic.split('-')[-1]}"
+eth = LXDriver.nic(name, host_nic, bridge, mac)
+
+# TODO: get QoS data from STDIN
+container.devices.update(name => eth)
+container.update
+
+LXDriver.log_end(t0)

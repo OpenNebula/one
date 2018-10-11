@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,10 +16,20 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+MODEL=''
+
 if [ -f /proc/cpuinfo ]; then
-    if grep -Fq "model name" /proc/cpuinfo; then
-        echo -n "MODELNAME=\""
-        grep -m 1 "model name" /proc/cpuinfo | cut -d: -f2 | sed -e 's/^ *//' | sed -e 's/$/"/'
-    fi
+    for NAME in 'model name' 'cpu'; do
+        MODEL=$(grep -m1 "^${NAME}[[:space:]]*:" /proc/cpuinfo | \
+            cut -d: -f2 | \
+            sed -e 's/^ *//')
+
+        if [ -n "${MODEL}" ]; then
+            break
+        fi
+    done
 fi
 
+if [ -n "${MODEL}" ]; then
+    echo "MODELNAME=\"${MODEL}\""
+fi

@@ -1,0 +1,27 @@
+#!/usr/bin/ruby
+
+t0 = Time.now
+require_relative 'lib/lxd_driver'
+
+LXDriver.log_init
+
+vm_name = ARGV[0]
+mac = ARGV[1]
+vm_id = ARGV[2]
+host = ARGV[3]
+
+client = LXDClient.new
+container = Container.get(vm_name, client)
+
+def detect_nic(devices, mac)
+    devices.each do |device, config|
+        if device.include?('eth')
+            return device if config['hwaddr'] == mac
+        end
+    end
+end
+
+container.devices.delete(detect_nic(container.devices, mac))
+container.update
+
+LXDriver.log_end(t0)

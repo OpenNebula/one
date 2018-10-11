@@ -1,10 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2014-2016, OpenNebula Project (OpenNebula.org), C12G Labs        #
-#                                                                            #
-# Authors: José Manuel de la Fé Herrero   jmdelafe92@gmail.com               #
-#          Sergio Vega Gutiérrez          sergiojvg92@gmail.com              #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -30,21 +27,24 @@ end
 ######
 
 ENV['LANG'] = 'C'
+ENV['LC_ALL'] = 'C'
+
+nodeinfo_text = `virsh -c qemu:///system nodeinfo`
+exit(-1) if $?.exitstatus != 0
+
+nodeinfo_text.split(/\n/).each{|line|
+    if     line =~ /^CPU\(s\)/
+        $total_cpu   = line.split(':')[1].strip.to_i * 100
+    elsif  line =~ /^CPU frequency/
+        $cpu_speed   = line.split(':')[1].strip.split(' ')[0]
+    elsif  line =~ /^Memory size/
+        $total_memory = line.split(':')[1].strip.split(' ')[0]
+    end
+}
 
 ######
 #  CPU
 ######
-cpu = `lscpu`
-exit(-1) if $?.exitstatus != 0
-
-cpu.split(/\n/).each{|line|
-    if     line.match('^CPU\(s\)')
-        $total_cpu   = line.split(":")[1].strip.to_i * 100
-    elsif  line.match('^CPU MHz')
-        $cpu_speed   = line.split(":")[1].strip.split(".")[0]
-    end
-}
-
 vmstat = `vmstat 1 2`
 $free_cpu = $total_cpu * ((vmstat.split("\n").to_a.last.split)[14].to_i)/100
 $used_cpu = $total_cpu - $free_cpu
@@ -67,7 +67,7 @@ $free_memory = $total_memory - $used_memory
 ######
 #  INTERFACE
 ######
-NETINTERFACE = "eth|em|enp|p[0-9]+p[0-9]+"
+NETINTERFACE = 'eth|bond|em|enp|p[0-9]+p[0-9]+'
 
 net_text=`cat /proc/net/dev`
 exit(-1) if $?.exitstatus != 0
@@ -75,13 +75,13 @@ exit(-1) if $?.exitstatus != 0
 $netrx = 0
 $nettx = 0
 
-net_text.split(/\n/).each{|line|
-    if line.match("^ *#{NETINTERFACE}")
-        arr   = line.split(":")[1].split(" ")
-        $netrx += arr[0].to_i
-        $nettx += arr[8].to_i
-    end
-}
+net_text.split(/\n/).each do |line|
+    next unless line =~ /^ *#{NETINTERFACE}/
+
+    arr     = line.split(':')[1].split(' ')
+    $netrx += arr[0].to_i
+    $nettx += arr[8].to_i
+end
 
 print_info("HYPERVISOR","lxd")
 

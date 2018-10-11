@@ -21,7 +21,6 @@ require 'fileutils'
 # Mapping disks on the host
 class Mapper
 
-    # TODO: move mappers to lib?
     # TODO: format empty datablocks
     # TODO: multiple partitions
 
