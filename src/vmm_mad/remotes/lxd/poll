@@ -63,6 +63,7 @@ module LXD
 
             running_containers = []
             vms.each do |container|
+                values = {}
                 name = container.name
                 values[:state] = get_state(container)
 
