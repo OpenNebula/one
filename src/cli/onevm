@@ -870,28 +870,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         States: RUNNING, POWEROFF, SUSPENDED
     EOT
-
     command :"disk-snapshot-delete", disk_snapshot_delete_desc,
       :vmid, :diskid, :disk_snapshot_id do
         helper.perform_action(args[0],options,"disk snapshot deleted") do |o|
           o.disk_snapshot_delete(args[1].to_i, args[2].to_i)
-        end
-    end
-
-    disk_snapshot_rename_desc = <<-EOT.unindent
-        Renames a disk snapshot.
-    EOT
-
-    command :"disk-snapshot-rename", disk_snapshot_rename_desc,
-      :vmid, :diskid, :disk_snapshot_id, :new_snapshot_name do
-        helper.perform_action(args[0],options,"disk snapshot rename") do |o|
-            is_num = true if Integer(args[2]) rescue false
-
-            if !is_num
-                OpenNebula::Error.new("The disk snapshot ID must be an integer")
-            else
-                o.disk_snapshot_rename(args[1].to_i, args[2].to_i, args[3].to_s)
-            end
         end
     end
 
