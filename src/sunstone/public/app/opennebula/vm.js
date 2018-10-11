@@ -471,6 +471,10 @@ define(function(require) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "disk_snapshot_revert", action_obj);
     },
+    "disk_snapshot_rename": function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "disk_snapshot_rename", action_obj);
+    },
     "disk_snapshot_delete": function(params) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "disk_snapshot_delete", action_obj);
