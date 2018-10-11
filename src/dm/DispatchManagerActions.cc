@@ -1283,6 +1283,7 @@ int DispatchManager::delete_vm_db(VirtualMachine * vm,
     {
         case VirtualMachine::SUSPENDED:
         case VirtualMachine::POWEROFF:
+        case VirtualMachine::ACTIVE:
             vm->get_requirements(cpu, mem, disk, pci);
 
             hpool->del_capacity(vm->get_hid(), vid, cpu, mem, disk, pci);
@@ -1294,7 +1295,6 @@ int DispatchManager::delete_vm_db(VirtualMachine * vm,
         case VirtualMachine::HOLD:
         case VirtualMachine::CLONING:
         case VirtualMachine::CLONING_FAILURE:
-        case VirtualMachine::ACTIVE:
             free_vm_resources(vm, false);
         break;
 
