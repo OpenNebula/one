@@ -346,7 +346,7 @@ void VirtualMachineManager::deploy_action(int vid)
     string        vm_tmpl;
     string *      drv_msg;
 
-    vm = vmpool->get_ro(vid);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -468,7 +468,7 @@ void VirtualMachineManager::save_action(
     ostringstream os;
 
     // Get the VM from the pool
-    vm = vmpool->get_ro(vid);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -566,7 +566,7 @@ void VirtualMachineManager::shutdown_action(
     ostringstream os;
 
     // Get the VM from the pool
-    vm = vmpool->get_ro(vid);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -641,7 +641,7 @@ void VirtualMachineManager::reboot_action(
     ostringstream os;
 
     // Get the VM from the pool
-    vm = vmpool->get_ro(vid);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -711,7 +711,7 @@ void VirtualMachineManager::reset_action(
     ostringstream os;
 
     // Get the VM from the pool
-    vm = vmpool->get_ro(vid);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -782,7 +782,7 @@ void VirtualMachineManager::cancel_action(
     const VirtualMachineManagerDriver *   vmd;
 
     // Get the VM from the pool
-    vm = vmpool->get_ro(vid);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -858,7 +858,7 @@ void VirtualMachineManager::cancel_previous_action(
     const VirtualMachineManagerDriver * vmd;
 
     // Get the VM from the pool
-    vm = vmpool->get_ro(vid);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -934,7 +934,7 @@ void VirtualMachineManager::cleanup_action(
     Nebula& nd = Nebula::instance();
 
     // Get the VM from the pool
-    vm = vmpool->get_ro(vid);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -1028,7 +1028,7 @@ void VirtualMachineManager::cleanup_previous_action(int vid)
     Nebula& nd = Nebula::instance();
 
     // Get the VM from the pool
-    vm = vmpool->get_ro(vid);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -1111,7 +1111,7 @@ void VirtualMachineManager::migrate_action(
     string * drv_msg;
 
     // Get the VM from the pool
-    vm = vmpool->get_ro(vid);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -1202,7 +1202,7 @@ void VirtualMachineManager::restore_action(
 
     string* drv_msg;
 
-    vm = vmpool->get_ro(vid);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -1302,7 +1302,7 @@ void VirtualMachineManager::poll_action(
     string * drv_msg;
 
     // Get the VM from the pool
-    vm = vmpool->get_ro(vid);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -1370,7 +1370,7 @@ void VirtualMachineManager::driver_cancel_action(
     const VirtualMachineManagerDriver * vmd;
 
     // Get the VM from the pool
-    vm = vmpool->get_ro(vid);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -1550,7 +1550,7 @@ void VirtualMachineManager::attach_action(
     TransferManager * tm = nd.get_tm();
 
     // Get the VM from the pool
-    vm = vmpool->get_ro(vid);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -1691,7 +1691,7 @@ void VirtualMachineManager::detach_action(
     TransferManager * tm = nd.get_tm();
 
     // Get the VM from the pool
-    vm = vmpool->get_ro(vid);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -1795,7 +1795,7 @@ void VirtualMachineManager::snapshot_create_action(int vid)
     string* drv_msg;
 
     // Get the VM from the pool
-    vm = vmpool->get_ro(vid);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -1873,7 +1873,7 @@ void VirtualMachineManager::snapshot_revert_action(int vid)
     string* drv_msg;
 
     // Get the VM from the pool
-    vm = vmpool->get_ro(vid);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -1951,7 +1951,7 @@ void VirtualMachineManager::snapshot_delete_action(int vid)
     string* drv_msg;
 
     // Get the VM from the pool
-    vm = vmpool->get_ro(vid);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -2150,7 +2150,7 @@ void VirtualMachineManager::disk_resize_action(int vid)
     Nebula& nd           = Nebula::instance();
     TransferManager * tm = nd.get_tm();
 
-    vm = vmpool->get_ro(vid);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
@@ -2363,7 +2363,7 @@ void VirtualMachineManager::detach_nic_action(
     string        error_str;
 
     // Get the VM from the pool
-    vm = vmpool->get_ro(vid);
+    vm = vmpool->get(vid);
 
     if (vm == 0)
     {
