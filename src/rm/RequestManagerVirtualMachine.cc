@@ -2496,6 +2496,7 @@ void VirtualMachineRecover::request_execute(
 
         case 3: //delete
         case 4: //delete-recreate set same as delete in OpenNebulaTemplate
+        case 5: //delete-db
             aop = nd.get_vm_auth_op(History::DELETE_ACTION);
             break;
 
@@ -2539,6 +2540,9 @@ void VirtualMachineRecover::request_execute(
 
         case 4: //delete-recreate
             rc = dm->delete_recreate(vm, att, error);
+            break;
+        case 5:
+            rc = dm->delete_vm_db(vm, att, error);
             break;
     }
 
