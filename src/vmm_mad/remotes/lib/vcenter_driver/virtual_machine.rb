@@ -2492,10 +2492,10 @@ class VmmImporter < VCenterDriver::VcImporter
     end
 
     def import(selected)
-        vm_ref     = selected["DEPLOY_ID"]
-        vm         = selected[:one_item] || build
-        template   = selected[:template] || Base64.decode64(selected['IMPORT_TEMPLATE'])
-        host_id    = selected[:host]     || @list.keys[0]
+        vm_ref     = selected["DEPLOY_ID"] || selected[:wild]["DEPLOY_ID"]
+        vm         = selected[:one_item]   || build
+        template   = selected[:template]   || Base64.decode64(selected['IMPORT_TEMPLATE'])
+        host_id    = selected[:host]       || @list.keys[0]
 
         vc_uuid    = @vi_client.vim.serviceContent.about.instanceUuid
         vc_name    = @vi_client.vim.host
