@@ -662,7 +662,7 @@ module OpenNebula
         # Recovers an ACTIVE VM
         #
         # @param result [Integer] Recover with failure (0), success (1),
-        # retry (2), delete (3), delete-recreate (4)
+        # retry (2), delete (3), delete-recreate (4), delete-db (5)
         # @param result [info] Additional information needed to recover the VM
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
