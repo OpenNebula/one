@@ -836,7 +836,8 @@ int ImageManager::register_image(int iid,
     {
         string source = img->get_source();
 
-        if ( img->is_saving() || img->get_type() == Image::DATABLOCK )
+        if ( img->is_saving() || img->get_type() == Image::DATABLOCK 
+            || ((img->get_type() == Image::OS) && source.empty()))
         {
             imd->mkfs(img->get_oid(), *drv_msg);
 
@@ -921,6 +922,20 @@ int ImageManager::stat_image(Template*     img_tmpl,
 
             if (res.empty())
             {
+                if (Image::str_to_type(type_att) == Image::OS)
+                {
+                    long long size_l;
+
+                    if (!img_tmpl->get("SIZE", size_l))
+                    {
+                        res = "Wrong number or missing SIZE attribute.";
+                        return -1;
+                    }
+
+                    img_tmpl->get("SIZE", res);
+
+                    return 0;
+                }
                 res = "Either PATH or SOURCE are required for " + type_att;
                 return -1;
             }

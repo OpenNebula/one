@@ -185,7 +185,7 @@ int Image::insert(SqlDB *db, string& error_str)
 
     if (!is_saving())
     {
-        if ( source.empty() && path.empty() && type != DATABLOCK )
+        if ( source.empty() && path.empty() && type != DATABLOCK && type != OS)
         {
             goto error_no_path;
         }
