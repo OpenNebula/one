@@ -1053,8 +1053,9 @@ public:
     /**
      *  Releases all disk images taken by this Virtual Machine
      *    @param quotas disk space to free from image datastores
+     *    @param check_state to update image state based on VM state
      */
-    void release_disk_images(vector<Template *>& quotas);
+    void release_disk_images(vector<Template *>& quotas, bool check_state);
 
     /**
      *  @return reference to the VirtualMachine disks

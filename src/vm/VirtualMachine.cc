@@ -1108,7 +1108,7 @@ error_graphics:
     goto error_rollback;
 
 error_rollback:
-    release_disk_images(quotas);
+    release_disk_images(quotas, true);
 
 error_leases_rollback:
     release_network_leases();
@@ -3042,11 +3042,21 @@ int VirtualMachine::get_disk_images(string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::release_disk_images(vector<Template *>& quotas)
+void VirtualMachine::release_disk_images(vector<Template *>& quotas, 
+        bool set_state)
 {
-    bool image_error = (state == ACTIVE && lcm_state != EPILOG) &&
-                        state != PENDING && state != HOLD &&
-                        state != CLONING && state != CLONING_FAILURE;
+    bool image_error;
+
+    if ( set_state )
+    {
+        image_error = (state == ACTIVE && lcm_state != EPILOG) &&
+                       state != PENDING && state != HOLD &&
+                       state != CLONING && state != CLONING_FAILURE;
+    }
+    else
+    {
+        image_error = false;
+    }
 
     disks.release_images(oid, image_error, quotas);
 }

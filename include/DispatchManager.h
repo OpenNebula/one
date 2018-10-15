@@ -297,6 +297,15 @@ public:
             string& error_str);
 
     /**
+     *  Ends a VM life cycle inside ONE but let the VM running at the Hipervisor.
+     *    @param vm VirtualMachine object
+     *    @param ra information about the API call request
+     *    @return 0 on success, the VM mutex is unlocked
+     */
+    int delete_vm_db(VirtualMachine * vm, const RequestAttributes& ra,
+            string& error_str);
+
+    /**
      *  Recover the last operation on the VM
      *    @param vm VirtualMachine object
      *    @param success if the operation is assumed to succeed or not
@@ -541,7 +550,7 @@ private:
     /**
      *  Frees the resources associated to a VM: disks, ip addresses and Quotas
      */
-    void free_vm_resources(VirtualMachine * vm);
+    void free_vm_resources(VirtualMachine * vm, bool check_images);
 
     //--------------------------------------------------------------------------
     // DM Actions associated with a VM state transition
