@@ -3054,6 +3054,14 @@ void VirtualMachine::release_disk_images(vector<Template *>& quotas)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+ void VirtualMachine::release_disk_images_no_check(vector<Template *>& quotas)
+ {
+     disks.release_images(oid, false, quotas);
+ }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachine::set_up_attach_disk(VirtualMachineTemplate * tmpl, string& err)
 {
     VectorAttribute * new_vdisk = tmpl->get("DISK");

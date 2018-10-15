@@ -263,7 +263,7 @@ error:
 /* ************************************************************************** */
 /* ************************************************************************** */
 
-void DispatchManager::free_vm_resources(VirtualMachine * vm)
+void DispatchManager::free_vm_resources(VirtualMachine * vm, bool check_images)
 {
     vector<Template *> ds_quotas;
 
@@ -298,7 +298,14 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
 
     vm->release_vmgroup();
 
-    vm->release_disk_images(ds_quotas);
+    if (check_images)
+    {
+        vm->release_disk_images(ds_quotas);
+    }
+    else
+    {
+        vm->release_disk_images_no_check(ds_quotas);
+    }
 
     vm->set_state(VirtualMachine::DONE);
 
@@ -397,7 +404,7 @@ int DispatchManager::terminate(int vid, bool hard, const RequestAttributes& ra,
         case VirtualMachine::HOLD:
         case VirtualMachine::CLONING:
         case VirtualMachine::CLONING_FAILURE:
-            free_vm_resources(vm);
+            free_vm_resources(vm, true);
             break;
 
         case VirtualMachine::DONE:
@@ -1115,7 +1122,7 @@ int DispatchManager::delete_vm(VirtualMachine * vm, const RequestAttributes& ra,
                 tm->trigger(TMAction::EPILOG_DELETE, vid);
             }
 
-            free_vm_resources(vm);
+            free_vm_resources(vm, true);
         break;
 
         case VirtualMachine::STOPPED:
@@ -1129,7 +1136,7 @@ int DispatchManager::delete_vm(VirtualMachine * vm, const RequestAttributes& ra,
                 tm->trigger(TMAction::EPILOG_DELETE, vid);
             }
 
-            free_vm_resources(vm);
+            free_vm_resources(vm, true);
         break;
 
         case VirtualMachine::INIT:
@@ -1137,7 +1144,7 @@ int DispatchManager::delete_vm(VirtualMachine * vm, const RequestAttributes& ra,
         case VirtualMachine::HOLD:
         case VirtualMachine::CLONING:
         case VirtualMachine::CLONING_FAILURE:
-            free_vm_resources(vm);
+            free_vm_resources(vm, true);
         break;
 
         case VirtualMachine::ACTIVE:
@@ -1254,6 +1261,49 @@ int DispatchManager::delete_recreate(VirtualMachine * vm,
     }
 
     return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::delete_vm_db(VirtualMachine * vm,
+            const RequestAttributes& ra, string& error_str)
+{
+    ostringstream oss;
+
+    int cpu, mem, disk;
+    vector<VectorAttribute *> pci;
+
+    int vid = vm->get_oid();
+
+    oss << "Deleting VM from DB " << vm->get_oid();
+    NebulaLog::log("DiM",Log::DEBUG,oss);
+
+    switch (vm->get_state())
+    {
+        case VirtualMachine::SUSPENDED:
+        case VirtualMachine::POWEROFF:
+        case VirtualMachine::ACTIVE:
+            vm->get_requirements(cpu, mem, disk, pci);
+
+            hpool->del_capacity(vm->get_hid(), vid, cpu, mem, disk, pci);
+
+        case VirtualMachine::STOPPED:
+        case VirtualMachine::UNDEPLOYED:
+        case VirtualMachine::INIT:
+        case VirtualMachine::PENDING:
+        case VirtualMachine::HOLD:
+        case VirtualMachine::CLONING:
+        case VirtualMachine::CLONING_FAILURE:
+            free_vm_resources(vm, false);
+        break;
+
+        case VirtualMachine::DONE:
+            vm->unlock();
+        break;
+    }
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
