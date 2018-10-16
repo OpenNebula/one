@@ -179,7 +179,7 @@ define(function(require) {
                     <br/>\
                     <br/>Delete: This will delete the selected VMs\
                     <br/>Delete-recreate: This will delete and recreate VMs to PENDING state\
-                    <br/>Delete-db: This will delete the selected VMs, but will **NOT** perform any action on the hypervisor"),
+                    <br/>Delete-db: This will delete the selected VMs, but will not perform any action on the hypervisor"),
       custom_classes : "state-dependent"
     },
     "VM.startvnc" : {
