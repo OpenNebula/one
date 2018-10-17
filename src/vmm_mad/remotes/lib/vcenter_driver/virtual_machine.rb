@@ -1028,7 +1028,7 @@ class VirtualMachine < VCenterDriver::Template
 
         network = network.first
 
-        card_num = 1 # start in one, we want the next avaliable id
+        card_num = 1 # start in one, we want the next available id
 
         @item["config.hardware.device"].each do |dv|
             card_num += 1 if is_nic?(dv)
