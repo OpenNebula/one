@@ -1896,13 +1896,24 @@ class VirtualMachine < Template
 
     # Returns an array of actions to be included in :deviceChange
     def calculate_add_nic_spec(nic)
-
         mac       = nic["MAC"]
         pg_name   = nic["BRIDGE"]
-        model     = one_item.retrieve_xmlelements("TEMPLATE/NIC_DEFAULT/MODEL") || nic["VCENTER_NET_MODEL"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/MODEL")
+        mode = ""
+        if !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').nil? &&
+            !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').empty?
+            model = one_item['TEMPLATE/NIC_DEFAULT/MODEL']
+            File.open("/tmp/culo", 'w') {|f| f.write("Lo pilla del nic default: #{model}\n") }
+        elsif  (model.nil? || model.empty?) &&
+            !nic['MODEL'].nil? &&
+            !nic['MODEL'].empty?
+            model = nic['MODEL']
+            File.open("/tmp/culo", 'w') {|f| f.write("Lo pilla del nic: #{model}\n") }
+        else
+            model = VCenterDriver::VIHelper.get_default('VM/TEMPLATE/NIC/MODEL')
+            File.open("/tmp/culo", 'w') {|f| f.write("Lo pilla vcenter default #{model}\n") }
+        end
         vnet_ref  = nic["VCENTER_NET_REF"]
         backing   = nil
-
         limit_in  = nic["INBOUND_PEAK_BW"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/INBOUND_PEAK_BW")
         limit_out = nic["OUTBOUND_PEAK_BW"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/OUTBOUND_PEAK_BW")
         limit     = nil
@@ -1996,9 +2007,21 @@ class VirtualMachine < Template
 
      # Returns an array of actions to be included in :deviceChange
     def calculate_add_nic_spec_autogenerate_mac(nic)
-
         pg_name   = nic["BRIDGE"]
-        model     = one_item.retrieve_xmlelements("TEMPLATE/NIC_DEFAULT/MODEL") || nic["VCENTER_NET_MODEL"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/MODEL")
+        model = ""
+        if !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').nil? &&
+            !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').empty?
+            model = one_item['TEMPLATE/NIC_DEFAULT/MODEL']
+            File.open("/tmp/culo", 'w') {|f| f.write("Lo pilla del nic default: #{model}\n") }
+        elsif  (model.nil? || model.empty?) &&
+            !nic['MODEL'].nil? &&
+            !nic['MODEL'].empty?
+            model = nic['MODEL']
+            File.open("/tmp/culo", 'w') {|f| f.write("Lo pilla del nic: #{model}\n") }
+        else
+            model = VCenterDriver::VIHelper.get_default('VM/TEMPLATE/NIC/MODEL')
+            File.open("/tmp/culo", 'w') {|f| f.write("Lo pilla del vcenter default: #{model}\n") }
+        end
         vnet_ref  = nic["VCENTER_NET_REF"]
         backing   = nil
 
