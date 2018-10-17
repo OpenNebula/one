@@ -903,7 +903,17 @@ class VirtualMachine < VCenterDriver::Template
 
         mac       = nic["MAC"]
         pg_name   = nic["BRIDGE"]
-        model     = one_item.retrieve_xmlelements("TEMPLATE/NIC_DEFAULT/MODEL") || nic["VCENTER_NET_MODEL"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/MODEL")
+        mode = ''
+        if !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').nil? &&
+            !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').empty?
+            model = one_item['TEMPLATE/NIC_DEFAULT/MODEL']
+        elsif  (model.nil? || model.empty?) &&
+            !nic['MODEL'].nil? &&
+            !nic['MODEL'].empty?
+            model = nic['MODEL']
+        else
+            model = VCenterDriver::VIHelper.get_default('VM/TEMPLATE/NIC/MODEL')
+        end
         vnet_ref  = nic["VCENTER_NET_REF"]
         backing   = nil
 
@@ -1002,7 +1012,17 @@ class VirtualMachine < VCenterDriver::Template
     def calculate_add_nic_spec_autogenerate_mac(nic)
 
         pg_name   = nic["BRIDGE"]
-        model     = one_item.retrieve_xmlelements("TEMPLATE/NIC_DEFAULT/MODEL") || nic["VCENTER_NET_MODEL"] || VCenterDriver::VIHelper.get_default("VM/TEMPLATE/NIC/MODEL")
+        mode = ''
+        if !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').nil? &&
+            !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').empty?
+            model = one_item['TEMPLATE/NIC_DEFAULT/MODEL']
+        elsif  (model.nil? || model.empty?) &&
+            !nic['MODEL'].nil? &&
+            !nic['MODEL'].empty?
+            model = nic['MODEL']
+        else
+            model = VCenterDriver::VIHelper.get_default('VM/TEMPLATE/NIC/MODEL')
+        end
         vnet_ref  = nic["VCENTER_NET_REF"]
         backing   = nil
 
