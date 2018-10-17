@@ -1898,12 +1898,9 @@ class VirtualMachine < Template
     def calculate_add_nic_spec(nic)
         mac       = nic["MAC"]
         pg_name   = nic["BRIDGE"]
-        if !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').nil? &&
-            !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').empty?
+        if !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').nil? && !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').empty?
             model = one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL')
-        elsif  (model.nil? || model.empty?) &&
-            !nic['MODEL'].nil? &&
-            !nic['MODEL'].empty?
+        elsif  (model.nil? || model.empty?) && !nic['MODEL'].nil? && !nic['MODEL'].empty?
             model = nic['MODEL']
         else
             model = VCenterDriver::VIHelper.get_default('VM/TEMPLATE/NIC/MODEL')
@@ -2004,12 +2001,9 @@ class VirtualMachine < Template
      # Returns an array of actions to be included in :deviceChange
     def calculate_add_nic_spec_autogenerate_mac(nic)
         pg_name   = nic["BRIDGE"]
-        if !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').nil? &&
-            !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').empty?
+        if !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').nil? && !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').empty?
             model = one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL')
-        elsif  (model.nil? || model.empty?) &&
-            !nic['MODEL'].nil? &&
-            !nic['MODEL'].empty?
+        elsif  (model.nil? || model.empty?) && !nic['MODEL'].nil? && !nic['MODEL'].empty?
             model = nic['MODEL']
         else
             model = VCenterDriver::VIHelper.get_default('VM/TEMPLATE/NIC/MODEL')
