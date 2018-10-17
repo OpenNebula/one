@@ -16,22 +16,22 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
 end
 
-$: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+"/cli"
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
 
 require 'command_parser'
 require 'one_helper/oneacl_helper'
 
-cmd=CommandParser::CmdParser.new(ARGV) do
-    usage "`oneacl` <command> [<args>] [<options>]"
+CommandParser::CmdParser.new(ARGV) do
+    usage '`oneacl` <command> [<args>] [<options>]'
     version OpenNebulaHelper::ONE_VERSION
 
     helper = OneAclHelper.new
@@ -43,7 +43,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ########################################################################
     # Global Options
     ########################################################################
-    set :option, CommandParser::OPTIONS+OpenNebulaHelper::CLIENT_OPTIONS
+    set :option, CommandParser::OPTIONS + OpenNebulaHelper::CLIENT_OPTIONS
 
     ########################################################################
     # Formatters for arguments
@@ -60,7 +60,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Adds a new ACL rule
     EOT
 
-    command :create, addrule_desc, [:user,:rulestr], [:resource, nil],
+    command :create, addrule_desc, [:user, :rulestr], [:resource, nil],
             [:rights, nil] do
         case args.length
         when 1
@@ -70,9 +70,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 next -1, new_args.message
             end
         when 3, 4
-            new_args=args
+            new_args = args
         else
-            next -1, "Wrong number of arguments, must be 1 or 4"
+            next -1, 'Wrong number of arguments, must be 1 or 4'
         end
 
         helper.create_resource(options) do |rule|
@@ -85,7 +85,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :delete, delrule_desc, [:range] do
-        helper.perform_actions(args[0],options,"deleted") do |obj|
+        helper.perform_actions(args[0], options, 'deleted') do |obj|
             obj.delete
         end
     end
@@ -94,8 +94,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Lists the ACL rule set
     EOT
 
-    command :list, list_desc,:options=>[OpenNebulaHelper::XML,
-            OpenNebulaHelper::DESCRIBE] do
-        helper.list_pool( options )
+    command :list, list_desc, :options => [OpenNebulaHelper::XML,
+                                           OpenNebulaHelper::DESCRIBE] do
+        helper.list_pool(options)
     end
 end
