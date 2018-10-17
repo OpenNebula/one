@@ -1898,7 +1898,6 @@ class VirtualMachine < Template
     def calculate_add_nic_spec(nic)
         mac       = nic["MAC"]
         pg_name   = nic["BRIDGE"]
-        mode = ""
         if !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').nil? &&
             !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').empty?
             model = one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL')
@@ -2005,7 +2004,6 @@ class VirtualMachine < Template
      # Returns an array of actions to be included in :deviceChange
     def calculate_add_nic_spec_autogenerate_mac(nic)
         pg_name   = nic["BRIDGE"]
-        model = ""
         if !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').nil? &&
             !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').empty?
             model = one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL')
