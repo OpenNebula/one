@@ -1902,12 +1902,15 @@ class VirtualMachine < Template
         if !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').nil? &&
             !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').empty?
             model = one_item['TEMPLATE/NIC_DEFAULT/MODEL']
+            File.open("/tmp/culo", 'w') {|f| f.write("Lo pilla del nic default: #{model}\n") }
         elsif  (model.nil? || model.empty?) &&
             !nic['MODEL'].nil? &&
             !nic['MODEL'].empty?
             model = nic['MODEL']
+            File.open("/tmp/culo", 'w') {|f| f.write("Lo pilla del nic: #{model}\n") }
         else
             model = VCenterDriver::VIHelper.get_default('VM/TEMPLATE/NIC/MODEL')
+            File.open("/tmp/culo", 'w') {|f| f.write("Lo pilla vcenter default #{model}\n") }
         end
         vnet_ref  = nic["VCENTER_NET_REF"]
         backing   = nil
@@ -2009,12 +2012,15 @@ class VirtualMachine < Template
         if !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').nil? &&
             !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').empty?
             model = one_item['TEMPLATE/NIC_DEFAULT/MODEL']
+            File.open("/tmp/culo", 'w') {|f| f.write("Lo pilla del nic default: #{model}\n") }
         elsif  (model.nil? || model.empty?) &&
             !nic['MODEL'].nil? &&
             !nic['MODEL'].empty?
             model = nic['MODEL']
+            File.open("/tmp/culo", 'w') {|f| f.write("Lo pilla del nic: #{model}\n") }
         else
             model = VCenterDriver::VIHelper.get_default('VM/TEMPLATE/NIC/MODEL')
+            File.open("/tmp/culo", 'w') {|f| f.write("Lo pilla del vcenter default: #{model}\n") }
         end
         vnet_ref  = nic["VCENTER_NET_REF"]
         backing   = nil
