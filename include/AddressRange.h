@@ -104,6 +104,11 @@ public:
         return (type & 0x00000008) != 0;
     }
 
+    bool is_ipam() const
+    {
+        return !attr->vector_value("IPAM_MAD").empty() && attr->vector_value("IPAM_MAD") != "internal";
+    }
+
     // *************************************************************************
     // Address Range initialization functions
     // *************************************************************************

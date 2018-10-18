@@ -68,6 +68,14 @@ private:
     }
 
     /**
+     *  Unregister an AddressRange from the IPAM
+     */
+    void unregister_address_range(int id, const std::string& arg) const
+    {
+        send_message("UNREGISTER_ADDRESS_RANGE", id, arg);
+    }
+
+    /**
      *  Get a free address (or range)
      */
     void get_address(int id, const std::string& arg) const

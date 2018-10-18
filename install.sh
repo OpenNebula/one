@@ -977,6 +977,7 @@ NETWORK_ETC_FILES="src/vnm_mad/remotes/OpenNebulaNetwork.conf"
 # IPAM drivers to be installed under $REMOTES_LOCATION/ipam
 #-------------------------------------------------------------------------------
 IPAM_DRIVER_DUMMY_SCRIPTS="src/ipamm_mad/remotes/dummy/register_address_range \
+               src/ipamm_mad/remotes/dummy/unregister_address_range \
                src/ipamm_mad/remotes/dummy/allocate_address \
                src/ipamm_mad/remotes/dummy/get_address \
                src/ipamm_mad/remotes/dummy/free_address"
