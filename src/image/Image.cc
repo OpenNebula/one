@@ -185,7 +185,7 @@ int Image::insert(SqlDB *db, string& error_str)
 
     if (!is_saving())
     {
-        if ( source.empty() && path.empty() && type != DATABLOCK )
+        if ( source.empty() && path.empty() && type != DATABLOCK && type != OS)
         {
             goto error_no_path;
         }
@@ -194,7 +194,7 @@ int Image::insert(SqlDB *db, string& error_str)
             goto error_path_and_source;
         }
 
-        if ( path.empty() && type == Image::DATABLOCK )
+        if ( path.empty() && (type == Image::DATABLOCK || type == Image::OS))
         {
             if ( fs_type.empty() )
             {
