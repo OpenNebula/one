@@ -836,21 +836,21 @@ int ImageManager::register_image(int iid,
     {
         string source = img->get_source();
 
-        if ( img->is_saving() || img->get_type() == Image::DATABLOCK 
-            || ((img->get_type() == Image::OS) && source.empty()))
-        {
-            imd->mkfs(img->get_oid(), *drv_msg);
-
-            oss << "Creating disk at " << source << " of "<<  img->get_size()
-                << "Mb (type: " <<  img->get_fstype() << ")";
-        }
-        else if ( !source.empty() ) //Source in Template
+        if ( !source.empty() ) //Source in Template
         {
             img->set_state_unlock();
             ipool->update(img);
 
             oss << "Using source " << source
                 << " from template for image " << img->get_name();
+        }
+        else if ( img->is_saving() || img->get_type() == Image::DATABLOCK 
+                || img->get_type() == Image::OS)
+        {
+            imd->mkfs(img->get_oid(), *drv_msg);
+
+            oss << "Creating disk at " << source << " of "<<  img->get_size()
+                << "Mb (type: " <<  img->get_fstype() << ")";
         }
     }
     else //PATH -> COPY TO REPOSITORY AS SOURCE
@@ -896,7 +896,6 @@ int ImageManager::stat_image(Template*     img_tmpl,
 
     switch (Image::str_to_type(type_att))
     {
-        case Image::OS:
         case Image::CDROM:
         case Image::KERNEL:
         case Image::RAMDISK:
@@ -922,20 +921,6 @@ int ImageManager::stat_image(Template*     img_tmpl,
 
             if (res.empty())
             {
-                if (Image::str_to_type(type_att) == Image::OS)
-                {
-                    long long size_l;
-
-                    if (!img_tmpl->get("SIZE", size_l))
-                    {
-                        res = "Wrong number or missing SIZE attribute.";
-                        return -1;
-                    }
-
-                    img_tmpl->get("SIZE", res);
-
-                    return 0;
-                }
                 res = "Either PATH or SOURCE are required for " + type_att;
                 return -1;
             }
@@ -944,11 +929,29 @@ int ImageManager::stat_image(Template*     img_tmpl,
                      << one_util::xml_escape(res)
                      << "</PATH></IMAGE>";
             break;
+                    
+        case Image::OS:
+            img_tmpl->get("SOURCE", res);
+
+            if (!res.empty()) //SOURCE in Image
+            {
+                long long size_l;
+
+                if (!img_tmpl->get("SIZE", size_l))
+                {
+                    res = "Wrong number or missing SIZE attribute.";
+                    return -1;
+                }
+
+                img_tmpl->get("SIZE", res);
+
+                return 0;
+            }
 
         case Image::DATABLOCK:
             img_tmpl->get("PATH", res);
 
-            if (res.empty())//no PATH
+            if (res.empty())//no PATH, created using mkfs
             {
                 long long size_l;
 
