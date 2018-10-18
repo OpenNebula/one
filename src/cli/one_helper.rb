@@ -1241,8 +1241,8 @@ require 'io/console'
 		    return [-1, "#{section.capitalize} \"#{obj}\" malformed"] if !res
 		    user, object=*res
 
-		    template<<"#{section.upcase}=[\n"
-	    if object.downcase == "auto"
+			template<<"#{section.upcase}=[\n"
+	    	if object.downcase == "auto"
                 template<<"  NETWORK_MODE=\"#{object}\"\n"
             else
                 template<<"  #{name.upcase}_UNAME=\"#{user}\",\n" if user

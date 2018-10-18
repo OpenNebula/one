@@ -257,7 +257,7 @@ CommandParser::CmdParser.new(ARGV) do
                     user_inputs = OneTemplateHelper.get_user_inputs(t.to_hash)
                 end
 
-                extra_template << '\n' << user_inputs
+                extra_template << "\n#{user_inputs}"
 
                 persistent = !options[:persistent].nil?
 
