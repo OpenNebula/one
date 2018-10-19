@@ -208,8 +208,8 @@ define(function(require) {
   function _submitAdvanced(context) {
     if (this.action == "create") {
       var template = $("textarea#template", context).val();
-      var vm_group_json = {vm_group: {vm_group_raw: template}};
-      Sunstone.runAction("VMGroup.create",vm_group_json);
+      var vm_group_json = { vm_group: { vm_grp_raw: template } };
+      Sunstone.runAction("VMGroup.create", vm_group_json);
       return false;
     } else if (this.action == "update") {
       var template_raw = $("textarea#template", context).val();
