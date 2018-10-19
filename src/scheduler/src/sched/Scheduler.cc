@@ -108,6 +108,7 @@ void Scheduler::start()
     ostringstream oss;
 
     string etc_path;
+    string diff_vnets_str;
 
     unsigned int live_rescheds;
 
@@ -156,6 +157,22 @@ void Scheduler::start()
     conf.get("LIVE_RESCHEDS", live_rescheds);
 
     conf.get("MEMORY_SYSTEM_DS_SCALE", mem_ds_scale);
+
+    conf.get("DIFFERENT_VNETS", diff_vnets_str);
+
+    one_util::toupper(diff_vnets_str);
+
+    if (diff_vnets_str != "" )
+    {
+        if ( diff_vnets_str == "NO" )
+        {
+            diff_vnets = false;
+        }
+        else if ( diff_vnets_str == "YES" )
+        {
+            diff_vnets = true;
+        }
+    }
 
     // -----------------------------------------------------------
     // Log system & Configuration File
@@ -1537,6 +1554,11 @@ void Scheduler::dispatch()
 
                 for (n = net_resources.rbegin() ; n != net_resources.rend(); n++)
                 {
+                    if ( diff_vnets && matched_networks.find((*n)->oid) != matched_networks.end() )
+                    {
+                        continue;
+                    }
+
                     net = vnetpool->get((*n)->oid);
 
                     if ( net == 0 )
