@@ -711,7 +711,7 @@ extern int yylex \
 #undef yyTABLES_NAME
 #endif
 
-#line 97 "vm_var_parser.l"
+#line 96 "vm_var_parser.l"
 
 
 #line 717 "vm_var_parser.h"
