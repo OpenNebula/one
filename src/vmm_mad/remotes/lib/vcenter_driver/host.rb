@@ -509,8 +509,9 @@ class ClusterComputeResource
                 str_info << "POLL=\"#{vm.info.gsub('"', "\\\"")}\"]"
 
             rescue Exception => e
-                STDERR.puts e.inspect
-                STDERR.puts e.backtrace
+                tmp_str = e.inspect
+                tmp_str << e.backtrace.join("\n")
+                str_info << "ERROR=\"#{Base64.encode64(tmp_str).gsub("\n","")}\"]"
             end
         end
 

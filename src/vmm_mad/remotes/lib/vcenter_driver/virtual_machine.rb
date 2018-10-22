@@ -852,7 +852,9 @@ class Template
         str << "IMPORT_STATE =\"#{@state}\"\n"
 
         # Get DS information
-        if !@vm_info["datastore"].last._ref.nil?
+        if !@vm_info["datastore"].nil?
+           !@vm_info["datastore"].last.nil? &&
+           !@vm_info["datastore"].last._ref.nil?
             str << "VCENTER_DS_REF = \"#{@vm_info["datastore"].last._ref}\"\n"
         end
 
