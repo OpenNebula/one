@@ -86,8 +86,41 @@ class VirtualMachine < VCenterDriver::Template
             @vc_res
         end
 
+        def one?
+            return true if @one_res
+
+            false
+        end
+
+        def exists?
+            return true if @vc_res
+
+            false
+        end
+
+        def no_exists?
+            !exists?
+        end
+
+        def synced?
+            one? && exists?
+        end
+
+        def unsynced?
+            !synced?
+        end
+
+        def detached?
+            !one?
+        end
+
         def managed?
-            !(@one_res['OPENNEBULA_MANAGED'] && @one_res['OPENNEBULA_MANAGED'].downcase == "no")
+            if @one_res
+                !(@one_res['OPENNEBULA_MANAGED'] &&
+                  @one_res['OPENNEBULA_MANAGED'].downcase == "no")
+            else
+
+            end
         end
     end
 
@@ -112,17 +145,6 @@ class VirtualMachine < VCenterDriver::Template
             self.new(nil, nil, vc_res)
         end
 
-        def exists?
-            return true if @vc_res
-
-            false
-        end
-
-        def detached?
-            return true unless @one_res
-
-            false
-        end
 
         def storpod?
            @one_res["VCENTER_DS_REF"].start_with?('group-')
@@ -149,7 +171,6 @@ class VirtualMachine < VCenterDriver::Template
         def ds_ref
             @one_res['VCENTER_DS_REF']
         end
-
 
         def key
             raise @error_message unless exists?
@@ -179,17 +200,23 @@ class VirtualMachine < VCenterDriver::Template
 
         def config(action)
             raise @error_message unless exists?
-
-            reference = {}
-            reference[:key] = "opennebula.disk.#{@id}"
+            config = {}
 
             if action == :delete
-                reference[:value] = ""
+                config[:key] = "opennebula.disk.#{@id}"
+                config[:value] = ""
+            elsif action == :resize
+                if new_size
+                    d = device
+                    d.capacityInKB = new_size
+                    config[:device] = d
+                    config[:operation] = :edit
+                end
             elsif action == :attach
                 puts "not supported"
             end
 
-            reference
+            config
         end
 
         def persistent?
@@ -206,13 +233,29 @@ class VirtualMachine < VCenterDriver::Template
             @vc_res[:device].connectable.connected
         end
 
+        def get_size()
+            @size if @size
+        end
+
+        def set_size(size)
+            size=size.to_i
+
+            if @one_res["ORIGINAL_SIZE"] && @one_res["ORIGINAL_SIZE"].to_i >= size
+                raise "'disk-resize' cannot decrease the disk's size"
+            end
+
+            @size = size
+        end
+
         # Shrink not supported (nil). Size is in KB
         def new_size
-            if @one_res["ORIGINAL_SIZE"]
-                original_size = @one_res["ORIGINAL_SIZE"].to_i
-                new_size      = @one_res["SIZE"].to_i
+            return @size * 1024 if @size
 
-                new_size = new_size > original_size ? new_size * 1024 : nil
+            if @one_res["ORIGINAL_SIZE"]
+                osize = @one_res["ORIGINAL_SIZE"].to_i
+                nsize = @one_res["SIZE"].to_i
+
+                new_size = nsize > osize ? nsize * 1024 : nil
             end
         end
 
@@ -618,8 +661,10 @@ class VirtualMachine < VCenterDriver::Template
                 end
             end
         end
+
         # @item is populated
         @item = vm
+        reference_unmanaged_devices(vc_template_ref)
 
         return self['_ref']
     end
@@ -756,33 +801,25 @@ class VirtualMachine < VCenterDriver::Template
     end
 
     def disks
+        return @disks unless @disks.empty?
+
         info_disks
     end
 
-    def no_remote_disks()
-        no_remote = []
+    def disks_each(condition)
+        i = 0
         disks.each do |id, disk|
-            no_remote << disk unless disk.exists?
+            next unless disk.method(condition).call
+
+            yield disk, i
+            i+=1
         end
-
-        no_remote
-    end
-
-    def remote_disks()
-        remote = []
-        disks.each do |id, disk|
-            remote << disk if disk.detached?
-        end
-
-        remote
     end
 
     def disks_synced?
-        no_remote_disks().empty? && remote_disks().empty?
-    end
+        disks_each(:unsynced?){ return false }
 
-    def sync_disks()
-        return if disks_synced?
+        true
     end
 
     def get_template_ref
@@ -820,11 +857,10 @@ class VirtualMachine < VCenterDriver::Template
 
     def info_disks
         @disks = {}
+
         keys = get_unmanaged_keys
         vc_disks  = get_vcenter_disks
         one_disks = get_one_disks
-        size_one  = one_disks.size
-        size_vc   = vc_disks.size
 
         one_disks.each do |one_disk|
             index = one_disk["DISK_ID"]
@@ -906,7 +942,6 @@ class VirtualMachine < VCenterDriver::Template
     end
 
     def reference_unmanaged_devices(template_ref)
-
         extraconfig   = []
         device_change = []
 
@@ -1078,6 +1113,36 @@ class VirtualMachine < VCenterDriver::Template
         end
 
         extra_config
+    end
+
+    # TODO
+    # Synchronize the OpenNebula VM representation with vCenter VM
+    def sync
+        extraconfig   = []
+        device_change = []
+
+        sync_disks(:all)
+
+        # get token and context
+        extraconfig += extraconfig_context
+
+        # vnc configuration (for config_array hash)
+        extraconfig += extraconfig_vnc
+
+        # device_change hash (nics)
+        device_change += device_change_nics
+
+        # Set CPU, memory and extraconfig
+        num_cpus = one_item["TEMPLATE/VCPU"] || 1
+        spec_hash = {
+            :numCPUs      => num_cpus.to_i,
+            :memoryMB     => one_item["TEMPLATE/MEMORY"],
+            :extraConfig  => extraconfig,
+            :deviceChange => device_change
+        }
+
+        spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+        @item.ReconfigVM_Task(:spec => spec).wait_for_completion
     end
 
     def reconfigure
@@ -1563,7 +1628,7 @@ class VirtualMachine < VCenterDriver::Template
         attach_spod_array = []
         attach_spod_disk_info = {}
 
-        no_remote_disks.each_with_index do |disk, i|
+        disks_each(:no_exists?) do |disk, i|
             if disk.storpod?
                 spec = calculate_add_disk_spec(disk.one_item, i)
                 attach_spod_array << spec
@@ -1581,9 +1646,9 @@ class VirtualMachine < VCenterDriver::Template
     def detach_disks_specs()
         detach_disk_array = []
         extra_config      = []
-        keys = get_unmanaged_keys
-
-        remote_disks.each do |d|
+        keys = get_unmanaged_keys.invert
+        ipool = VCenterDriver::VIHelper.one_pool(OpenNebula::ImagePool)
+        disks_each(:detached?) do |d|
             source = VCenterDriver::FileHelper.escape_path(d.path)
             persistent = VCenterDriver::VIHelper.find_persistent_image_by_source(source, ipool)
 
@@ -1594,54 +1659,32 @@ class VirtualMachine < VCenterDriver::Template
             end
 
             # Remove reference opennebula.disk if exist
-            keys.each do |key, value|
-                if value.to_i == d.key
-                    reference = {}
-                    reference[:key]   = key
-                    reference[:value] = ""
-                    extra_config << reference
-                    break
-                end
-            end
+            extra_config << disk.config(:delete) if keys["#{d.key}"]
         end
 
-        return detach_disks_array, extra_config
+        return detach_disk_array, extra_config
     end
 
     # TODO
-    def sync_detached_disks()
-        device_change, extra_config = detach_disks_specs
+    def sync_disks(option = :nil)
+        spec_hash       = {}
+        device_change_d = []
+        extra_config    = []
 
-        return if device_change.empty?
+        device_change_d, extra_config = detach_disks_specs if option == :all
+        device_change_a, device_change_spod, device_change_spod_ids = attach_disks_specs
+        spec_hash[:extraConfig]  = extra_config  if !extra_config.empty?
 
-        spec_hash = {}
-        spec_hash[:deviceChange] = device_change if !device_change.empty?
-        spec_hash[:extraConfig] = extra_config  if !extra_config.empty?
-
-        # Reconfigure for disks detached from original template
-        spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
-        @item.ReconfigVM_Task(:spec => spec).wait_for_completion
-    end
-
-    # TODO
-    # calling this method should reconfigure the machine adding one disks
-    # that are not existing in vCenter
-    def sync_attached_disks()
-        spec_hash     = {}
-        device_change = []
-
-        device_change_ds, device_change_spod, device_change_spod_ids = attach_disks_specs
-        device_change += device_change_ds
-
-        # Create volatile disks in StorageDRS if any
         if !device_change_spod.empty?
             spec_hash[:extraConfig] = create_storagedrs_disks(device_change_spod, device_change_spod_ids)
         end
 
-        # Common reconfigure task
-        spec_hash[:deviceChange] = device_change
+        spec_hash[:deviceChange] = device_change_a + device_change_d
+
         spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
         @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+
+        info_disks
     end
 
     def device_attach_disks(onevm_disks_vector, vc_disks)
@@ -1841,6 +1884,7 @@ class VirtualMachine < VCenterDriver::Template
         end
     end
 
+    # TODO
     def ndetach_disk(disk)
         return unless disk.exists?
 
@@ -1858,11 +1902,12 @@ class VirtualMachine < VCenterDriver::Template
         end
     end
 
+    # TODO
     def destroy_disk(disk)
         one_vm = one_item
 
         detachable= !(one_vm["LCM_STATE"].to_i == 11 && !disk.managed?)
-        detachable = detachable && !has_snapshots?
+        detachable = detachable && !has_snapshots? && disk.exists?
 
         return unless detachable
 
@@ -2127,26 +2172,30 @@ class VirtualMachine < VCenterDriver::Template
         end
     end
 
-    #TODO
-    def resize_disk(disk_id)
-        disk = self.disk(disk_id)
-        new_size = disk.new_size
-
-        return unless new_size
-
-        if !disk.exists?
+    # TODO
+    def nresize_unmanaged_disks
+        spec = {deviceChange: []}
+        disks_each(:one?) do |d|
+            next unless !d.managed? && d.new_size
+            spec[:deviceChange] << d.config(:resize)
         end
 
-        # TODO:
-        #   not existings disks
-
-        # Edit capacity setting new size in KB
-        d = disk.device
-        d.capacityInKB = new_size
-        resize_hash[:deviceChange] = [{ :device => d, :operation => :edit }]
-        @item.ReconfigVM_Task(:spec => resize_hash).wait_for_completion
+        @item.ReconfigVM_Task(:spec => spec).wait_for_completion
     end
 
+    #TODO
+    def resize_disk(disk)
+        if !disk.exists?
+            size = disk.get_size
+            sync_disks
+            disk = disk(disk.id)
+            disk.set_size(size)
+        end
+
+        spec = {deviceChange: [disk.config(:resize)]}
+
+        @item.ReconfigVM_Task(spec: spec).wait_for_completion
+    end
 
     def has_snapshots?
         self['rootSnapshot'] && !self['rootSnapshot'].empty?
