@@ -47,6 +47,12 @@
 %%
 
  /* ------------------------------------------------------------------------- */
+ /* Just copy the string verbatim till we find a variable (starts with $)     */
+ /* ------------------------------------------------------------------------- */
+
+([^\$\\]|"\\\$"|\\[^\$])+  { yylval_param->val_str = mem_collector_strdup(mc,yytext); return RSTRING;}
+
+ /* ------------------------------------------------------------------------- */
  /* Parse variables in the form:                                              */
  /*   $VARIABLE                                                               */
  /*   $VARIABLE[ATTR]                                                         */
@@ -86,13 +92,6 @@
 <VAR><<EOF>>                   { yylval_param->val_char = '\0';
                                  BEGIN(INITIAL);
                                  return EOA;}
-
- /* ------------------------------------------------------------------------- */
- /* Just copy the string verbatim till we find a variable (starts with $)     */
- /* ------------------------------------------------------------------------- */
-
-[^\$]+  { yylval_param->val_str = mem_collector_strdup(mc,yytext); return RSTRING;}
-
 %%
 
 int vm_var_wrap(yyscan_t scanner)
