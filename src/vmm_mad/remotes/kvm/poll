@@ -80,13 +80,13 @@ module KVM
         cpu = get_cpu_info({one_vm => vm})
 
         resident_mem = psinfo[5].to_i
-        max_mem      = dominfo['Max memory'].split(/\s+/).first.to_i
+        swap_mem     = get_swap_usage(vm[:pid]).to_i
 
         values=Hash.new
 
         values[:state]  = get_state(dominfo['State'], vm[:reason])
         values[:cpu]    = cpu[vm[:pid]] if cpu[vm[:pid]]
-        values[:memory] = [resident_mem, max_mem].max
+        values[:memory] = resident_mem + swap_mem
 
         xml = dump_xml(one_vm)
 
@@ -139,13 +139,13 @@ module KVM
             dominfo = vm[:dominfo]
 
             resident_mem = ps_data[5].to_i
-            max_mem      = dominfo['Max memory'].split(/\s+/).first.to_i
+            swap_mem     = get_swap_usage(vm[:pid]).to_i
 
             values = Hash.new
 
             values[:state]  = get_state(dominfo['State'], vm[:reason])
             values[:cpu]    = cpu[vm[:pid]] if cpu[vm[:pid]]
-            values[:memory] = [resident_mem, max_mem].max
+            values[:memory] = resident_mem + swap_mem
 
             xml = dump_xml(name)
 
@@ -241,6 +241,14 @@ module KVM
     def self.process_info(uuid)
         ps=`ps auxwww | grep -- '-uuid #{uuid}' | grep -v grep`
         ps.split(/\s+/)
+    end
+
+    # Gets the swap allocation of given process
+    #   @param pid [String] process id
+    #   @return [Integer] of swap allocation of given process
+    def self.get_swap_usage(pid)
+        swap=`cat /proc/#{pid}/status 2>/dev/null | grep VmSwap`
+        swap.split()[1] || 0
     end
 
     # Gets the info of a domain by its id
