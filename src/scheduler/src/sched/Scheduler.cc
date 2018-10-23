@@ -1534,13 +1534,13 @@ void Scheduler::dispatch()
              //------------------------------------------------------------------
             // Get the highest ranked network
             //------------------------------------------------------------------
-            extra.clear();
+            extra.str("");
 
             set<int> nics_ids = vm->get_nics_ids();
 
             map<int, int> matched_networks;
 
-            unsigned int num_mached_networks = 0;
+            unsigned int num_matched_networks = 0;
 
             set<int>::iterator it;
 
@@ -1606,14 +1606,14 @@ void Scheduler::dispatch()
                     matched_networks[netid] = 1;
                 }
 
-                num_mached_networks++;
+                num_matched_networks++;
 
-                extra << "NIC=[NIC_ID=\"" << nic_id 
-                      << "\", NETWORK_MODE=\"auto\" , NETWORK_ID=\"" << netid 
+                extra << "NIC=[NIC_ID=\"" << nic_id
+                      << "\", NETWORK_MODE=\"auto\" , NETWORK_ID=\"" << netid
                       << "\"]";
             }
 
-            if ( num_mached_networks < nics_ids.size())
+            if ( num_matched_networks < nics_ids.size())
             {
                 map<int,int>::iterator it;
 
