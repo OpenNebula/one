@@ -23,7 +23,7 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VMTemplatePool::allocate (
+int VNTemplatePool::allocate (
         int                      uid,
         int                      gid,
         const string&            uname,
@@ -33,7 +33,7 @@ int VMTemplatePool::allocate (
         int *                    oid,
         string&                  error_str)
 {
-    VMTemplate *  vm_template;
+    VNTemplate *  vn_template;
 
     int     db_oid;
     string  name;
@@ -41,7 +41,7 @@ int VMTemplatePool::allocate (
     ostringstream oss;
 
     // ------------------------------------------------------------------------
-    // Build a new VMTemplate object
+    // Build a new VNTemplate object
     // ------------------------------------------------------------------------
     vn_template = new VNTemplate(-1, uid, gid, uname, gname, umask, template_contents);
 

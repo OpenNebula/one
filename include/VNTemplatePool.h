@@ -92,7 +92,7 @@ public:
     int dump(string& oss, const string& where, const string& limit,
             bool desc)
     {
-        return PoolSQL::dump(oss, "VNTEMPLATE_POOL", "body", VMTemplate::table, where,
+        return PoolSQL::dump(oss, "VNTEMPLATE_POOL", "body", VNTemplate::table, where,
                              limit, desc);
     };
 
@@ -116,4 +116,4 @@ private:
     };
 };
 
-#endif /*VMTEMPLATE_POOL_H_*/
+#endif /*VNTEMPLATE_POOL_H_*/

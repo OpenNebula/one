@@ -31,6 +31,8 @@ public:
 
     ~VirtualNetworkTemplate(){};
 
+    VirtualNetworkTemplate(VirtualNetworkTemplate& vnt):Template(vnt){};
+    
     // -------------------------------------------------------------------------
     // Restricted attributes interface implementation
     // -------------------------------------------------------------------------
