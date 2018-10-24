@@ -138,6 +138,7 @@ define(function(require) {
       var value = $(this).val();
       switch (value){
       case "DATABLOCK":
+      case "OS":
         $('#datablock_img', context).removeAttr("disabled");
         break;
       default:
