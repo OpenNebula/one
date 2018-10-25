@@ -1553,6 +1553,7 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
 
     obj_template->erase("AUTOMATIC_REQUIREMENTS");
     obj_template->erase("AUTOMATIC_DS_REQUIREMENTS");
+    obj_template->erase("AUTOMATIC_NIC_REQUIREMENTS");
 
     int rc = get_cluster_requirements(obj_template, cluster_ids, error_str);
 
@@ -1624,6 +1625,8 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
             }
 
             oss << ")";
+
+            obj_template->add("AUTOMATIC_NIC_REQUIREMENTS", oss.str());
 
             if ( !datastore_ids.empty() )
             {
@@ -2216,12 +2219,13 @@ string& VirtualMachine::to_xml_short(string& xml)
 {
     string disks_xml, monitoring_xml, user_template_xml, history_xml, nics_xml;
     ostringstream   oss;
-    string cpu_tmpl, mem_tmpl, auto_reqs, auto_ds_reqs;
+    string cpu_tmpl, mem_tmpl, auto_reqs, auto_ds_reqs, auto_nic_reqs;
 
     obj_template->get("CPU", cpu_tmpl);
     obj_template->get("MEMORY", mem_tmpl);
     obj_template->get("AUTOMATIC_REQUIREMENTS", auto_reqs);
     obj_template->get("AUTOMATIC_DS_REQUIREMENTS", auto_ds_reqs);
+    obj_template->get("AUTOMATIC_NIC_REQUIREMENTS", auto_nic_reqs);
 
     oss << "<VM>"
         << "<ID>"        << oid       << "</ID>"
@@ -2263,6 +2267,13 @@ string& VirtualMachine::to_xml_short(string& xml)
         oss << "<AUTOMATIC_DS_REQUIREMENTS>";
         oss << one_util::escape_xml(auto_ds_reqs);
         oss << "</AUTOMATIC_DS_REQUIREMENTS>";
+    }
+
+    if (!auto_nic_reqs.empty())
+    {
+        oss << "<AUTOMATIC_NIC_REQUIREMENTS>";
+        oss << one_util::escape_xml(auto_nic_reqs);
+        oss << "</AUTOMATIC_NIC_REQUIREMENTS>";
     }
 
     oss << "</TEMPLATE>"
