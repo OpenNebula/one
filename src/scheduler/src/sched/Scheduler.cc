@@ -108,7 +108,6 @@ void Scheduler::start()
     ostringstream oss;
 
     string etc_path;
-    string diff_vnets_str;
 
     unsigned int live_rescheds;
 
@@ -158,21 +157,7 @@ void Scheduler::start()
 
     conf.get("MEMORY_SYSTEM_DS_SCALE", mem_ds_scale);
 
-    conf.get("DIFFERENT_VNETS", diff_vnets_str);
-
-    one_util::toupper(diff_vnets_str);
-
-    if (diff_vnets_str != "" )
-    {
-        if ( diff_vnets_str == "NO" )
-        {
-            diff_vnets = false;
-        }
-        else if ( diff_vnets_str == "YES" )
-        {
-            diff_vnets = true;
-        }
-    }
+    conf.get("DIFFERENT_VNETS", diff_vnets);
 
     // -----------------------------------------------------------
     // Log system & Configuration File
