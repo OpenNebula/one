@@ -281,6 +281,9 @@ fi
 GLOBAL_CURL_ARGS="--fail -sS -k -L"
 
 case "$FROM" in
+https://us.images.linuxcontainers.org*)
+    command="$VAR_LOCATION/remotes/datastore/linuxcontainers_downloader.sh '$(esc_sq "$FROM")'"
+    ;;
 http://*|https://*)
     # -k  so it does not check the certificate
     # -L  to follow redirects
