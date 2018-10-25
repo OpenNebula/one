@@ -27,6 +27,7 @@ define(function(require) {
   var UniqueId = require('utils/unique-id');
   var CreateUtils = require('../utils');
   var Notifier = require('utils/notifier');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     TEMPLATES
@@ -45,6 +46,14 @@ define(function(require) {
   function NicTab(nicTabId) {
     that = this;
     this.nicTabId = 'nicTab' + nicTabId + UniqueId.id();
+
+    var options = {
+      'select': true,
+      'selectOptions': {
+        'multiple_choice': true
+      }
+    }
+    this.vnetsTableAuto = new VNetsTable(this.nicTabId + 'TableAuto', options);
 
     this.vnetsTable = new VNetsTable(this.nicTabId + 'Table', {'select': true});
 
@@ -68,6 +77,7 @@ define(function(require) {
   NicTab.prototype.onShow = _onShow;
   NicTab.prototype.retrieve = _retrieve;
   NicTab.prototype.fill = _fill;
+  NicTab.prototype.generateRequirements = _generateRequirements;
 
   return NicTab;
 
@@ -79,12 +89,14 @@ define(function(require) {
     return TemplateHTML({
       'nicTabId': this.nicTabId,
       'vnetsTableSelectHTML': this.vnetsTable.dataTableHTML,
+      'vnetsTableAutoSelectHTML': this.vnetsTableAuto.dataTableHTML,
       'secgroupsTableSelectHTML': this.secgroupsTable.dataTableHTML
     });
   }
 
   function _onShow(context, panelForm) {
     this.vnetsTable.refreshResourceTableSelect();
+    this.vnetsTableAuto.refreshResourceTableSelect();
   }
 
   /**
@@ -134,6 +146,20 @@ define(function(require) {
     that.secgroupsTable.refreshResourceTableSelect();
     that.vnetsTable.refreshResourceTableSelect();
 
+    var selectOptions = {
+      'selectOptions': {
+        'select_callback': function(aData, options) {
+          that.generateRequirements(context)
+        },
+        'unselect_callback': function(aData, options) {
+          that.generateRequirements(context)
+        }
+      }
+    }
+
+    that.vnetsTableAuto.initialize(selectOptions);
+    that.vnetsTableAuto.refreshResourceTableSelect();
+
     $("input.pci-type-nic", context).on("change", function(){
       var tbody = $(".pci-row tbody", context);
 
@@ -175,6 +201,18 @@ define(function(require) {
     });
 
     $(".auto", context).hide();
+
+    context.on("change", "input[name='" + that.nicTabId + "_req_select']", function() {
+      if ($("input[name='" + that.nicTabId + "_req_select']:checked").val() == "vnet_select") {
+        $("#"+ that.nicTabId +"_vnetTable",context).show();
+      } else {
+        $("#"+ that.nicTabId +"_vnetTable",context).hide();
+      }
+    });
+
+    context.on("change", "input[name='" + that.nicTabId + "_rank_select']", function() {
+      $("input#"+that.nicTabId+"_SCHED_RANK", context).val(this.value);
+    });
   }
 
   function _retrieve(context) {
@@ -292,8 +330,50 @@ define(function(require) {
       if ( templateJSON["SCHED_RANK"] ) {
         $("input#"+this.nicTabId+"_SCHED_RANK", context).val(templateJSON["SCHED_RANK"]);
       }
+
+      var reqJSON = templateJSON['SCHED_REQUIREMENTS'];
+      if (reqJSON) {
+        var req = TemplateUtils.escapeDoubleQuotes(reqJSON);
+
+        var net_id_regexp = /(\s|\||\b)ID=\\"([0-9]+)\\"/g;
+
+        var nets = [];
+        while (match = net_id_regexp.exec(req)) {
+            nets.push(match[2])
+        }
+
+        var selectedResources = {
+            ids : nets
+          }
+
+        this.vnetsTableAuto.selectResourceTableSelect(selectedResources);
+      }
+
+      var rankJSON = templateJSON["SCHED_RANK"];
+      if (rankJSON) {
+          var striping_regexp = /^-USED_LEASES$/;
+          var packing_regexp = /^USED_LEASES$/;
+
+          if (striping_regexp.test(rankJSON)) {
+              $("input[name='" + this.nicTabId + "_rank_select']#stripingRadio", context).click();
+          }
+          else if (packing_regexp.test(rankJSON)) {
+              $("input[name='" + this.nicTabId + "_rank_select']#packingRadio", context).click();
+          }
+      }
     }
 
     WizardFields.fill(context, templateJSON);
   }
+
+  function _generateRequirements(context) {
+    var req_string=[];
+    var selected_vnets = this.vnetsTableAuto.retrieveResourceTableSelect();
+
+    $.each(selected_vnets, function(index, netID) {
+      req_string.push('ID=\\"'+netID+'\\"');
+    });
+
+    $("input#"+this.nicTabId+"_SCHED_REQUIREMENTS", context).val(req_string.join(" | "));
+  };
 });

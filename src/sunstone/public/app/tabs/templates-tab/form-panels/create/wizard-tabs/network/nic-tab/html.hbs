@@ -30,21 +30,56 @@
       </div>
     </div>
     <div class="auto">
+      <fieldset>
+          <legend>{{tr "Network Requirements"}}</legend>
+          <div class="row">
+            <div class="large-12 columns text-center">
+              <input type="radio" id="vnet_req" name="{{nicTabId}}_req_select" value="vnet_select">
+              <label for="vnet_req">{{tr "Select Vnets "}}</label>
+              <input type="radio" id="custom_req"  name="{{nicTabId}}_req_select" value="custom" checked>
+              <label for="custom_req">{{tr "Custom expression "}}</label>
+            </div>
+          </div>
+          <br>
+          <div id="{{nicTabId}}_vnetTable" class="net_select" hidden>{{{vnetsTableAutoSelectHTML}}}</div>
+          <div class="row">
+            <div class="large-12 columns">
+              <label for="{{nicTabId}}_SCHED_REQUIREMENTS">
+                {{tr "Expression"}}
+                {{{tip (tr "Boolean expression that rules out entries from the pool of datastores suitable to run this VM.")}}}
+              </label>
+              <input type="text" id="{{nicTabId}}_SCHED_REQUIREMENTS" name="requirements" />
+            </div>
+          </div>
+        </fieldset>
       <div class="row autoContainer">
-        <div class="large-12 large-centered columns">
-          <label for="{{nicTabId}}_SCHED_REQUIREMENTS">
-              {{tr "Requirements"}}
-            </label>
-            <input type="text" id="{{nicTabId}}_SCHED_REQUIREMENTS" name="SCHED_REQUIREMENTS"/>
-        </div>
-      </div>
-      <div class="row autoContainer">
-        <div class="large-12 large-centered columns">
-          <label for="{{nicTabId}}_SCHED_RANK">
-              {{tr "Rank"}}
-            </label>
-            <input type="text" id="{{nicTabId}}_SCHED_RANK" name="SCHED_RANK"/>
-        </div>
+        <fieldset class="nic_rank">
+          <legend>{{tr "Network Rank"}}</legend>
+          <div class="row">
+            <div class="large-12 columns text-center">
+              <input type="radio" id="packingRadio" name="{{nicTabId}}_rank_select" value="USED_LEASES">
+              <label for="packingRadio">
+                {{tr "Packing"}}
+                {{{tip (tr "Pack the VMs in the vnet to reduce VM fragmentation")}}}
+              </label>
+              <input type="radio"  id="stripingRadio" name="{{nicTabId}}_rank_select" value="-USED_LEASES">
+              <label for="stripingRadio">
+                {{tr "Stripping"}}
+                {{{tip (tr "Spread the VMs in the vnets")}}}
+              </label>
+            </div>
+          </div>
+          <br>
+          <div class="row">
+            <div class="large-12 columns">
+              <label for="{{nicTabId}}_SCHED_RANK">
+                {{tr "Expression"}}
+                {{{tip (tr "This field sets which attribute will be used to sort the suitable vnets for this VM")}}}
+              </label>
+              <input type="text" id="{{nicTabId}}_SCHED_RANK" name="RANK" />
+            </div>
+          </div>
+        </fieldset>
       </div>
     </div>
   </div>
