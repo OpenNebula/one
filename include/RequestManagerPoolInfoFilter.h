@@ -247,6 +247,26 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+class VirtualNetworkTemplatePoolInfo: public RequestManagerPoolInfoFilter
+{
+public:
+    VirtualNetworkTemplatePoolInfo():
+        RequestManagerPoolInfoFilter("one.vntemplatepool.info",
+                                     "Returns the virtual network template pool",
+                                     "A:siii")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vntpool();
+        auth_object = PoolObjectSQL::VNTEMPLATE;
+    };
+
+    ~VirtualNetworkTemplatePoolInfo(){};
+
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 class ImagePoolInfo: public RequestManagerPoolInfoFilter
 {
 public:

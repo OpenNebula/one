@@ -263,6 +263,39 @@ public:
             PoolObjectAuth *cluster_perms);
 };
 
+class VirtualNetworkTemplateAllocate : public RequestManagerAllocate
+{
+public:
+    VirtualNetworkTemplateAllocate():
+        RequestManagerAllocate("one.template.allocate",
+                               "Allocates a new virtual machine template",
+                               "A:ss",
+                               true)
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_tpool();
+        auth_object = PoolObjectSQL::TEMPLATE;
+    };
+
+    ~VirtualNetworkTemplateAllocate(){};
+
+    /* --------------------------------------------------------------------- */
+
+    Template * get_object_template()
+    {
+        return new VirtualMachineTemplate;
+    };
+
+    Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
+                                     Template *                  tmpl,
+                                     int&                        id,
+                                     RequestAttributes&          att);
+
+    bool allocate_authorization(xmlrpc_c::paramList const&  paramList,
+            Template *obj_template, RequestAttributes&  att,
+            PoolObjectAuth *cluster_perms);
+};
+
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 

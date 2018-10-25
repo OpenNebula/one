@@ -421,6 +421,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr secg_allocate(new SecurityGroupAllocate());
     xmlrpc_c::methodPtr vrouter_allocate(new VirtualRouterAllocate());
     xmlrpc_c::methodPtr vmg_allocate(new VMGroupAllocate());
+    xmlrpc_c::methodPtr vntemplate_allocate(new VirtualNetworkTemplateAllocate());
 
     // Clone Methods
     xmlrpc_c::methodPtr template_clone(new VMTemplateClone());
@@ -444,6 +445,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr host_info(new HostInfo());
     xmlrpc_c::methodPtr template_info(new TemplateInfo());
     xmlrpc_c::methodPtr vn_info(new VirtualNetworkInfo());
+    xmlrpc_c::methodPtr vntemplate_info(new VirtualNetworkTemplateInfo());
     xmlrpc_c::methodPtr image_info(new ImageInfo());
     xmlrpc_c::methodPtr datastore_info(new DatastoreInfo());
     xmlrpc_c::methodPtr cluster_info(new ClusterInfo());
@@ -474,6 +476,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vm_pool_info(new VirtualMachinePoolInfo());
     xmlrpc_c::methodPtr template_pool_info(new TemplatePoolInfo());
     xmlrpc_c::methodPtr vnpool_info(new VirtualNetworkPoolInfo());
+    xmlrpc_c::methodPtr vntemplate_pool_info(new VirtualNetworkTemplatePoolInfo());
     xmlrpc_c::methodPtr imagepool_info(new ImagePoolInfo());
     xmlrpc_c::methodPtr clusterpool_info(new ClusterPoolInfo());
     xmlrpc_c::methodPtr docpool_info(new DocumentPoolInfo());
@@ -604,6 +607,18 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.template.lock", template_lock);
     RequestManagerRegistry.addMethod("one.template.unlock", template_unlock);
     RequestManagerRegistry.addMethod("one.templatepool.info",template_pool_info);
+
+    /* VN Template related methods */
+    //RequestManagerRegistry.addMethod("one.vntemplate.update", template_update);
+    //RequestManagerRegistry.addMethod("one.vntemplate.instantiate",template_instantiate);
+    RequestManagerRegistry.addMethod("one.vntemplate.allocate",vntemplate_allocate);
+    //RequestManagerRegistry.addMethod("one.vntemplate.delete", template_delete);
+    //RequestManagerRegistry.addMethod("one.vntemplate.info", template_info);
+    //RequestManagerRegistry.addMethod("one.vntemplate.chown", template_chown);
+    //RequestManagerRegistry.addMethod("one.vntemplate.chmod", template_chmod);
+    //RequestManagerRegistry.addMethod("one.vntemplate.clone", template_clone);
+    //RequestManagerRegistry.addMethod("one.vntemplate.rename", template_rename);
+    RequestManagerRegistry.addMethod("one.vntemplatepool.info",vntemplate_pool_info);
 
     /* Host related methods*/
     RequestManagerRegistry.addMethod("one.host.status", host_status);

@@ -128,6 +128,31 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+
+class VirtualNetworkTemplateInfo: public RequestManagerInfo
+{
+public:
+    VirtualNetworkTemplateInfo():
+        RequestManagerInfo("one.vntemplate.info",
+                           "Returns virtual network template information")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vntpool()();
+        auth_object = PoolObjectSQL::VNTEMPLATE;
+    };
+
+    ~VirtualNetworkTemplateInfo(){};
+
+    /* -------------------------------------------------------------------- */
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+};
+
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 class ImageInfo: public RequestManagerInfo
 {
 public:

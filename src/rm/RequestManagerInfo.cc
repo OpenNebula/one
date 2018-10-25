@@ -156,6 +156,94 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+void VirtualNetworkTemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
+                                         RequestAttributes& att)
+{
+    VNTemplatePool *         tpool   = static_cast<VNTemplatePool *>(pool);
+    VirtualNetworkTemplate * extended_tmpl = 0;
+    VNTemplate *             vn_tmpl;
+
+    PoolObjectAuth perms;
+
+    int             oid = xmlrpc_c::value_int(paramList.getInt(1));
+    bool            extended = false;
+    string          str;
+
+    if ( paramList.size() > 2 )
+    {
+        extended = xmlrpc_c::value_boolean(paramList.getBoolean(2));
+    }
+
+    vm_tmpl = tpool->get_ro(oid);
+
+    if ( vm_tmpl == 0 )
+    {
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
+        return;
+    }
+
+    if (extended)
+    {
+        extended_tmpl = vm_tmpl->clone_template();
+    }
+
+    vm_tmpl->get_permissions(perms);
+
+    vm_tmpl->unlock();
+
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(auth_op, perms); //USE TEMPLATE
+
+    if (extended)
+    {
+        VirtualMachine::set_auth_request(att.uid, ar, extended_tmpl, false);
+
+        VirtualMachineDisks::extended_info(att.uid, extended_tmpl);
+    }
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
+
+        delete extended_tmpl;
+        return;
+    }
+
+    vm_tmpl = tpool->get_ro(oid);
+
+    if ( vm_tmpl == 0 )
+    {
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
+
+        delete extended_tmpl;
+        return;
+    }
+
+    if (extended)
+    {
+        vm_tmpl->to_xml(str, extended_tmpl);
+
+        delete extended_tmpl;
+    }
+    else
+    {
+        vm_tmpl->to_xml(str);
+    }
+
+    vm_tmpl->unlock();
+
+    success_response(str, att);
+
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 void VirtualNetworkInfo::to_xml(RequestAttributes& att, PoolObjectSQL * object,
     string& str)
 {
