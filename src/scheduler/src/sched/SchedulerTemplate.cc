@@ -122,6 +122,12 @@ void SchedulerTemplate::set_conf_default()
     attribute = new SingleAttribute("MEMORY_SYSTEM_DS_SCALE",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 
+    //DIFFERENT_VNETS
+    value = "YES";
+
+    attribute = new SingleAttribute("DIFFERENT_VNETS",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
     //LOG CONFIGURATION
     vvalue.clear();
     vvalue.insert(make_pair("SYSTEM","file"));
