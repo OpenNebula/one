@@ -15,6 +15,7 @@
 /* ------------------------------------------------------------------------ */
 
 #include "VNTemplate.h"
+#include "VirtualNetwork.h"
 
 /* ************************************************************************ */
 /* VNTemplate :: Constructor/Destructor                                     */
@@ -81,16 +82,15 @@ int VNTemplate::insert(SqlDB *db, string& error_str)
     // ---------------------------------------------------------------------
     erase_template_attribute("NAME", name);
 
-    get_template_attribute("VNMAD", vn_mad)
+    get_template_attribute("VNMAD", vn_mad);
     if (vn_mad.empty())
     {
-        goto error_generic;
+        goto error_vnmad;
     }
 
     switch (VirtualNetwork::str_to_driver(vn_mad))
     {
         case VirtualNetwork::VCENTER:
-            string vcneter_net_ref;
             other.push_back("VCENTER_NET_REF");
     
         case VirtualNetwork::DUMMY:
@@ -161,6 +161,11 @@ int VNTemplate::insert(SqlDB *db, string& error_str)
     // Insert the Template
     // ------------------------------------------------------------------------
     return insert_replace(db, false, error_str);
+
+error_vnmad:
+    error_str = "Error inserting Template in DB. VN_MAD is mandatory";
+
+    return -1;
 }
 
 /* ------------------------------------------------------------------------ */

@@ -27,7 +27,7 @@ class VNTemplatePool : public PoolSQL
 {
 public:
 
-    VNTemplatePool(SqlDB * db) : PoolSQL(db, VNetTemplate::table){};
+    VNTemplatePool(SqlDB * db) : PoolSQL(db, VNTemplate::table){};
 
     ~VNTemplatePool(){};
 

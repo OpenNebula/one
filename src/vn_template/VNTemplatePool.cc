@@ -29,7 +29,7 @@ int VNTemplatePool::allocate (
         const string&            uname,
         const string&            gname,
         int                      umask,
-        VirtualMachineTemplate * template_contents,
+        VirtualNetworkTemplate * template_contents,
         int *                    oid,
         string&                  error_str)
 {

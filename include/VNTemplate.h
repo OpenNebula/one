@@ -61,10 +61,10 @@ public:
     }
 
     /**
-     *  Returns a copy of the VirtualMachineTemplate
-     *    @return A copy of the VirtualMachineTemplate
+     *  Returns a copy of the VirtualNetworkTemplate
+     *    @return A copy of the VirtualNetworkTemplate
      */
-    VirtualMachineTemplate * clone_template() const
+    VirtualNetworkTemplate * clone_template() const
     {
         return new VirtualNetworkTemplate(
                 *(static_cast<VirtualNetworkTemplate *>(obj_template)));
