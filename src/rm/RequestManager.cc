@@ -618,6 +618,8 @@ void RequestManager::register_xml_methods()
     //RequestManagerRegistry.addMethod("one.vntemplate.chmod", template_chmod);
     //RequestManagerRegistry.addMethod("one.vntemplate.clone", template_clone);
     //RequestManagerRegistry.addMethod("one.vntemplate.rename", template_rename);
+    //RequestManagerRegistry.addMethod("one.vntemplate.lock", template_lock);
+    //RequestManagerRegistry.addMethod("one.vntemplate.unlock", template_unlock);
     RequestManagerRegistry.addMethod("one.vntemplatepool.info",vntemplate_pool_info);
 
     /* Host related methods*/

@@ -52,7 +52,7 @@ VNTemplate::~VNTemplate(){};
 /* VNTemplate :: Database Access Functions                                  */
 /* ************************************************************************ */
 
-const char * VNTemplate::table = "vntemplate_pool";
+const char * VNTemplate::table = "vn_template_pool";
 
 const char * VNTemplate::db_names =
         "oid, name, body, uid, gid, owner_u, group_u, other_u";
@@ -82,7 +82,7 @@ int VNTemplate::insert(SqlDB *db, string& error_str)
     // ---------------------------------------------------------------------
     erase_template_attribute("NAME", name);
 
-    get_template_attribute("VNMAD", vn_mad);
+    get_template_attribute("VN_MAD", vn_mad);
     if (vn_mad.empty())
     {
         goto error_vnmad;

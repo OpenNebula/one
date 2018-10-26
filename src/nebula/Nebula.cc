@@ -666,6 +666,7 @@ void Nebula::start(bool bootstrap_only)
         vdcpool  = new VdcPool(db_ptr, is_federation_slave());
 
         tpool = new VMTemplatePool(logdb);
+        vntpool = new VNTemplatePool(logdb);
 
         secgrouppool = new SecurityGroupPool(logdb);
 

@@ -137,7 +137,7 @@ public:
                            "Returns virtual network template information")
     {
         Nebula& nd  = Nebula::instance();
-        pool        = nd.get_vntpool()();
+        pool        = nd.get_vntpool();
         auth_object = PoolObjectSQL::VNTEMPLATE;
     };
 
