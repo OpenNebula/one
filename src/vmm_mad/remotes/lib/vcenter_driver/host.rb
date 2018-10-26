@@ -457,6 +457,7 @@ class ClusterComputeResource
         }
 
         vms.each do |vm_ref,info|
+            vm_info = ""
             begin
                 esx_host = esx_hosts[info["runtime.host"]._ref]
                 info[:esx_host_name] = esx_host[:name]
@@ -492,7 +493,7 @@ class ClusterComputeResource
                 vm.monitor(stats)
 
                 vm_name = "#{info["name"]} - #{cluster_name}"
-                str_info << %Q{
+                vm_info << %Q{
                 VM = [
                     ID="#{id}",
                     VM_NAME="#{vm_name}",
@@ -502,22 +503,37 @@ class ClusterComputeResource
                 # if the machine does not exist in opennebula it means that is a wild:
                 unless vm.one_exist?
                     vm_template_64 = Base64.encode64(vm.vm_to_one(vm_name)).gsub("\n","")
-                    str_info << "VCENTER_TEMPLATE=\"YES\","
-                    str_info << "IMPORT_TEMPLATE=\"#{vm_template_64}\","
+                    vm_info << "VCENTER_TEMPLATE=\"YES\","
+                    vm_info << "IMPORT_TEMPLATE=\"#{vm_template_64}\","
                 end
 
-                str_info << "POLL=\"#{vm.info.gsub('"', "\\\"")}\"]"
-
+                vm_info << "POLL=\"#{vm.info.gsub('"', "\\\"")}\"]"
             rescue Exception => e
-                tmp_str = e.inspect
-                tmp_str << e.backtrace.join("\n")
-                str_info << "ERROR=\"#{Base64.encode64(tmp_str).gsub("\n","")}\"]"
+                vm_info = error_monitoring(e, vm_ref, info)
             end
+
+            str_info << vm_info
         end
 
         view.DestroyView # Destroy the view
 
         return str_info, last_mon_time
+    end
+
+    def error_monitoring(e, vm_ref, info = {})
+        error_info = ''
+        vm_name = info['name'] || nil
+        tmp_str = e.inspect
+        tmp_str << e.backtrace.join("\n")
+
+        error_info << %Q{
+        VM = [
+            VM_NAME="#{vm_name}",
+            DEPLOY_ID="#{vm_ref}",
+        }
+
+        error_info << "ERROR=\"#{Base64.encode64(tmp_str).gsub("\n","")}\"]"
+
     end
 
     def monitor_customizations
