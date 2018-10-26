@@ -2347,7 +2347,7 @@ class VirtualMachine < VCenterDriver::Template
                 matches = opts[:name].match(/^one-(\d*)(-(.*))?$/)
                 if matches
                     id = matches[1]
-                    one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, id)
+                    one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, id, false)
                 end
         end
 
