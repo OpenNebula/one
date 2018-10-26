@@ -2908,9 +2908,8 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     }
     else if ( context_bck != 0 && context_new != 0 )
     {
-        string files_ds = context_bck->vector_value("FILES_DS");
-        string files_ds_new = "";
-        files_ds_new = context_new->vector_value("FILES_DS");
+        string files_ds     = context_bck->vector_value("FILES_DS");
+        string files_ds_new = context_new->vector_value("FILES_DS");
 
         context_new = context_new->clone();
         context_new->remove("FILES_DS");
