@@ -16,27 +16,26 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
-    REMOTES_LOCATION="/var/lib/one/remotes/"
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    REMOTES_LOCATION = '/var/lib/one/remotes/'
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
-    REMOTES_LOCATION=ONE_LOCATION+"/var/remotes/"
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    REMOTES_LOCATION = ONE_LOCATION + '/var/remotes/'
 end
 
-$: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+"/cli"
-$: << REMOTES_LOCATION+"vmm/vcenter/"
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
+$LOAD_PATH << REMOTES_LOCATION + 'vmm/vcenter/'
 
 require 'command_parser'
 require 'one_helper/onevcenter_helper'
 require 'vcenter_driver'
 
-cmd=CommandParser::CmdParser.new(ARGV) do
-
-    usage "`onevcenter` <command> [<args>] [<options>]"
+CommandParser::CmdParser.new(ARGV) do
+    usage '`onevcenter` <command> [<args>] [<options>]'
     version OpenNebulaHelper::ONE_VERSION
 
     helper = OneVcenterHelper.new
@@ -45,83 +44,78 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.set_client(options)
     end
 
-
     OBJECT = {
-        :name => "object",
-        :short => "-o object",
-        :large => "--object object ",
+        :name => 'object',
+        :short => '-o object',
+        :large => '--object object ',
         :format => String,
-        :description => "vCenter object: [datastores, templates, networks, datastores, images]"
+        :description => 'vCenter object: [datastores, templates,'\
+                        'networks, datastores, images]'
     }
 
     HOST = {
-        :name => "host",
-        :short => "-h host_id",
-        :large => "--host host_id",
+        :name => 'host',
+        :short => '-h host_id',
+        :large => '--host host_id',
         :format => String,
-        :description => "OpenNebula host used to authenticate the operation"
+        :description => 'OpenNebula host used to authenticate the operation'
     }
 
     DATASTORE = {
-        :name => "datastore",
-        :short => "-d datastore_id",
-        :large => "--datastore datastore_id",
+        :name => 'datastore',
+        :short => '-d datastore_id',
+        :large => '--datastore datastore_id',
         :format => String,
-        :description => "OpenNebula datastore used"
+        :description => 'OpenNebula datastore used'
     }
 
     CONFIG = {
-        :name => "configuration",
-        :large => "--config file",
+        :name => 'configuration',
+        :large => '--config file',
         :format => String,
-        :description => "Configuration file for custom options"
+        :description => 'Configuration file for custom options'
     }
 
     VCENTER = {
-        :name   => "vcenter",
-        :large  => "--vcenter vCenter" ,
-        :description => "The vCenter hostname",
+        :name   => 'vcenter',
+        :large  => '--vcenter vCenter',
+        :description => 'The vCenter hostname',
         :format => String
     }
 
     USER = {
-        :name   => "vuser",
-        :large  => "--vuser username" ,
-        :description => "The username to interact with vCenter",
+        :name   => 'vuser',
+        :large  => '--vuser username',
+        :description => 'The username to interact with vCenter',
         :format => String
     }
 
     PASS = {
-        :name   => "vpass",
-        :large  => "--vpass password",
-        :description => "The password for the user",
+        :name   => 'vpass',
+        :large  => '--vpass password',
+        :description => 'The password for the user',
         :format => String
     }
 
     USE_DEFAULTS = {
-        :name   => "defaults",
-        :large  => "--use-defaults",
-        :description => "Use defaults for answers to questions",
+        :name   => 'defaults',
+        :large  => '--use-defaults',
+        :description => 'Use defaults for answers to questions',
         :format => String
     }
 
     ALL = {
-        :name   => "all",
-        :large  => "--all",
-        :description => "Import all list",
+        :name   => 'all',
+        :large  => '--all',
+        :description => 'Import all list',
         :format => String
     }
 
     ############################################################################
     # Global Options
     ############################################################################
-    cmd_options=CommandParser::OPTIONS-[CommandParser::VERBOSE]
-    set :option, cmd_options+OpenNebulaHelper::CLIENT_OPTIONS
-
-    #format :oid, "vCenter Object identifier" do |arg|
-    #    puts arg
-    #end
-
+    cmd_options = CommandParser::OPTIONS - [CommandParser::VERBOSE]
+    set :option, cmd_options + OpenNebulaHelper::CLIENT_OPTIONS
 
     ############################################################################
     # list resources
@@ -138,16 +132,20 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
              onevcenter list -o datastores -h <host_id> -d <ds-img_id>
     EOT
-    command :list, list_desc, :options=>[ OBJECT, HOST, DATASTORE, VCENTER, USER, PASS ] do
+
+    command :list,
+            list_desc,
+            :options => [OBJECT, HOST, DATASTORE, VCENTER, USER, PASS] do
         begin
             args = helper.parse_opts(options)
             vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
-            importer = VCenterDriver::VcImporter.new_child(helper.client, vi_client, options[:object])
+            importer = VCenterDriver::VcImporter
+                       .new_child(helper.client, vi_client, options[:object])
 
             list = importer.retrieve_resources(args)
 
             helper.list_object(options, list)
-        rescue Exception => e
+        rescue StandardError => e
             puts e.message
         end
 
@@ -171,11 +169,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
              onevcenter import 0..10 -o images -h <host_id> -d <ds-img_id>
     EOT
 
-    command :import, import_desc, [:oid, nil], :options=>[ OBJECT, HOST, DATASTORE ] do
-
+    command :import,
+            import_desc, [:oid, nil],
+            :options => [OBJECT, HOST, DATASTORE] do
         begin
             vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
-            importer = VCenterDriver::VcImporter.new_child(helper.client, vi_client, options[:object])
+            importer = VCenterDriver::VcImporter.new_child(helper.client,
+                                                           vi_client,
+                                                           options[:object])
 
             importer.retrieve_resources(helper.parse_opts(options))
             indexes = importer.get_indexes(args.first)
@@ -185,25 +186,29 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             end
 
             importer.stdout
-        rescue Exception => e
+        rescue StandardError => e
             puts e.message
         end
 
         exit 0
     end
 
-    command :import_defaults, import_desc, [:oid, nil] , :options=>[ OBJECT, HOST, DATASTORE, CONFIG ] do
-
+    command :import_defaults,
+            import_desc,
+            [:oid, nil],
+            :options => [OBJECT, HOST, DATASTORE, CONFIG] do
         begin
             vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
-            importer = VCenterDriver::VcImporter.new_child(helper.client, vi_client, options[:object])
+            importer = VCenterDriver::VcImporter.new_child(helper.client,
+                                                           vi_client,
+                                                           options[:object])
             importer.retrieve_resources(helper.parse_opts(options))
             indexes = importer.get_indexes(args.first)
 
             importer.process_import(indexes)
 
             importer.stdout
-        rescue Exception => e
+        rescue StandardError => e
             puts e.message
         end
 
@@ -221,12 +226,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
              onevcenter hosts --vcenter <vcenter> --vuser <vcenter_user> --vpass <password>
     EOT
-    command :hosts, host_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
-        con_ops = helper.connection_options("Hosts", options)
+    command :hosts,
+            host_desc,
+            :options => [VCENTER, USER, PASS, USE_DEFAULTS] do
+        con_ops = helper.connection_options('Hosts', options)
 
         VCenterDriver::VcImporter.import_clusters(con_ops, options)
 
         exit 0
     end
-
 end
