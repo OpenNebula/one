@@ -87,7 +87,7 @@ class OneDBBacKEnd
         },
         "5.4.0" => {},
         "5.6.0" => {},
-        "5.7.8" => {
+        "5.7.80" => {
             vm_pool: "oid INTEGER PRIMARY KEY, name VARCHAR(128), " <<
                 "body MEDIUMTEXT, uid INTEGER, gid INTEGER, " <<
                 "last_poll INTEGER, state INTEGER, lcm_state INTEGER, " <<
@@ -95,7 +95,7 @@ class OneDBBacKEnd
         }
     }
 
-    LATEST_DB_VERSION = "5.7.8"
+    LATEST_DB_VERSION = "5.7.80"
 
     def get_schema(type, version = nil)
         if !version
