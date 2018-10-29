@@ -28,7 +28,7 @@ VNTemplate::VNTemplate(int id,
                        const string& _gname,
                        int umask,
                        VirtualNetworkTemplate * _template_contents):
-        PoolObjectSQL(id,TEMPLATE,"",_uid,_gid,_uname,_gname,table),
+        PoolObjectSQL(id,VNTEMPLATE,"",_uid,_gid,_uname,_gname,table),
         regtime(time(0))
 {
     if (_template_contents != 0)

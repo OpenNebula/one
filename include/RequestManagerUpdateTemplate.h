@@ -71,6 +71,24 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+class VirtualNetworkTemplateUpdateTemplate: public RequestManagerUpdateTemplate
+{
+public:
+    VirtualNetworkTemplateUpdateTemplate():
+        RequestManagerUpdateTemplate("one.template.update",
+                                     "Updates a virtual network template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vntpool();
+        auth_object = PoolObjectSQL::VNTEMPLATE;
+    };
+
+    ~VirtualNetworkTemplateUpdateTemplate(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 class VirtualMachineUpdateTemplate: public RequestManagerUpdateTemplate
 {
 public:

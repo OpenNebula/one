@@ -408,6 +408,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr secg_update(new SecurityGroupUpdateTemplate());
     xmlrpc_c::methodPtr vrouter_update(new VirtualRouterUpdateTemplate());
     xmlrpc_c::methodPtr vmg_update(new VMGroupUpdateTemplate());
+    xmlrpc_c::methodPtr vntemplate_update(new VirtualNetworkTemplateUpdateTemplate());
 
     // Allocate Methods
     xmlrpc_c::methodPtr vm_allocate(new VirtualMachineAllocate());
@@ -427,6 +428,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr template_clone(new VMTemplateClone());
     xmlrpc_c::methodPtr doc_clone(new DocumentClone());
     xmlrpc_c::methodPtr secg_clone(new SecurityGroupClone());
+    xmlrpc_c::methodPtr vntemplate_clone(new VNTemplateClone());
 
     // Delete Methods
     xmlrpc_c::methodPtr host_delete(new HostDelete());
@@ -512,6 +514,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr secg_chown(new SecurityGroupChown());
     xmlrpc_c::methodPtr vrouter_chown(new VirtualRouterChown());
     xmlrpc_c::methodPtr vmg_chown(new VMGroupChown());
+    xmlrpc_c::methodPtr vntemplate_chown(new VirtualNetworkTemplateChown());
 
     // Chmod Methods
     xmlrpc_c::methodPtr vm_chmod(new VirtualMachineChmod());
@@ -523,6 +526,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr secg_chmod(new SecurityGroupChmod());
     xmlrpc_c::methodPtr vrouter_chmod(new VirtualRouterChmod());
     xmlrpc_c::methodPtr vmg_chmod(new VMGroupChmod());
+    xmlrpc_c::methodPtr vntemplate_chmod(new VirtualNetworkTemplateChmod());
 
     // Cluster Methods
     xmlrpc_c::methodPtr cluster_addhost(new ClusterAddHost());
@@ -550,6 +554,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr secg_rename(new SecurityGroupRename());
     xmlrpc_c::methodPtr vrouter_rename(new VirtualRouterRename());
     xmlrpc_c::methodPtr vmg_rename(new VMGroupRename());
+    xmlrpc_c::methodPtr vntemplate_rename(new VirtualNetworkTemplateRename());
 
     // Virtual Router Methods
     xmlrpc_c::methodPtr vrouter_instantiate(new VirtualRouterInstantiate());
@@ -610,15 +615,15 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.templatepool.info",template_pool_info);
 
     /* VN Template related methods */
-    //RequestManagerRegistry.addMethod("one.vntemplate.update", template_update);
+    RequestManagerRegistry.addMethod("one.vntemplate.update", vntemplate_update);
     //RequestManagerRegistry.addMethod("one.vntemplate.instantiate",template_instantiate);
     RequestManagerRegistry.addMethod("one.vntemplate.allocate",vntemplate_allocate);
     RequestManagerRegistry.addMethod("one.vntemplate.delete", vntemplate_delete);
     RequestManagerRegistry.addMethod("one.vntemplate.info", vntemplate_info);
-    //RequestManagerRegistry.addMethod("one.vntemplate.chown", template_chown);
-    //RequestManagerRegistry.addMethod("one.vntemplate.chmod", template_chmod);
-    //RequestManagerRegistry.addMethod("one.vntemplate.clone", template_clone);
-    //RequestManagerRegistry.addMethod("one.vntemplate.rename", template_rename);
+    RequestManagerRegistry.addMethod("one.vntemplate.chown", vntemplate_chown);
+    RequestManagerRegistry.addMethod("one.vntemplate.chmod", vntemplate_chmod);
+    RequestManagerRegistry.addMethod("one.vntemplate.clone", vntemplate_clone);
+    RequestManagerRegistry.addMethod("one.vntemplate.rename", vntemplate_rename);
     //RequestManagerRegistry.addMethod("one.vntemplate.lock", template_lock);
     //RequestManagerRegistry.addMethod("one.vntemplate.unlock", template_unlock);
     RequestManagerRegistry.addMethod("one.vntemplatepool.info",vntemplate_pool_info);

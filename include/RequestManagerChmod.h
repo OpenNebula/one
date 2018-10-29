@@ -95,6 +95,32 @@ protected:
         int other_m, int other_a, bool recursive, RequestAttributes& att);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkTemplateChmod : public RequestManagerChmod
+{
+public:
+    VirtualNetworkTemplateChmod():
+        RequestManagerChmod("one.template.chmod", "Changes permission bits of a "
+            "virtual network template", "A:siiiiiiiiiib")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vntpool();
+        auth_object = PoolObjectSQL::VNTEMPLATE;
+    };
+
+    ~VirtualNetworkTemplateChmod(){};
+
+    ErrorCode request_execute(PoolSQL * pool, int oid, int owner_u, int owner_m,
+        int owner_a, int group_u, int group_m, int group_a, int other_u,
+        int other_m, int other_a, bool recursive, RequestAttributes& att)
+    {
+        return chmod(pool, oid, owner_u, owner_m, owner_a, group_u, group_m,
+                group_a, other_u, other_m, other_a, recursive, att);
+    }
+};
+
 /* ------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
