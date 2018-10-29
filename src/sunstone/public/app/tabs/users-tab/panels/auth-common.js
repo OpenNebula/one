@@ -41,6 +41,7 @@ define(function(require) {
   var XML_ROOT = "USER";
   var PASSWORD_DIALOG_ID = require('tabs/users-tab/dialogs/password/dialogId');
   var LOGIN_TOKEN_DIALOG_ID = require('tabs/users-tab/dialogs/login-token/dialogId');
+  var TWO_FACTOR_AUTH_DIALOG_ID = require('tabs/users-tab/dialogs/two-factor-auth/dialogId');
   var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
 
   /*
@@ -105,6 +106,34 @@ define(function(require) {
 
     TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, hiddenValues);
     //===
+
+    // Change two factor auth
+    if (that.element.TEMPLATE.SUNSTONE && that.element.TEMPLATE.SUNSTONE.TWO_FACTOR_AUTH_SECRET) {
+      $("#manage_two_factor_auth", context).html(Locale.tr("Disable"));
+    } else {
+      if (that.element.ID == config['user_id']) {
+        $("#manage_two_factor_auth", context).html(Locale.tr("Manage two factor authentication"));
+      } else {
+        $("#manage_two_factor_auth", context).prop("disabled", true);
+        $("#manage_two_factor_auth", context).html(Locale.tr("No"));
+      }
+    }
+
+    context.off("click", "#manage_two_factor_auth");
+    context.on("click", "#manage_two_factor_auth", function() {
+      var sunstone_setting = that.element.TEMPLATE.SUNSTONE || {};
+      if (sunstone_setting.TWO_FACTOR_AUTH_SECRET) {
+        Sunstone.runAction(
+          "User.disable_sunstone_two_factor_auth",
+          that.element.ID,
+          {current_sunstone_setting: sunstone_setting}
+        );
+      } else {
+        Sunstone.getDialog(TWO_FACTOR_AUTH_DIALOG_ID).setParams({element: that.element, sunstone_setting: sunstone_setting});
+        Sunstone.getDialog(TWO_FACTOR_AUTH_DIALOG_ID).reset();
+        Sunstone.getDialog(TWO_FACTOR_AUTH_DIALOG_ID).show();
+      }
+    });
 
     // View password button
     context.off("click", "#view_password");

@@ -29,6 +29,8 @@ gem 'sinatra'               # sunstone, cloud, oneflow
 gem 'thin'                  # sunstone, cloud
 gem 'rack', '< 2.0.0'       # sunstone, cloud, oneflow
 gem 'memcache-client'       # sunstone
+gem 'rotp'                  # sunstone
+gem 'rqrcode'               # sunstone
 gem 'amazon-ec2'            # cloud
 gem 'uuidtools'             # cloud
 gem 'curb'                  # cloud

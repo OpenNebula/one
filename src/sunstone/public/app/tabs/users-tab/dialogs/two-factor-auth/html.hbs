@@ -1,0 +1,67 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
+<div id="{{dialogId}}" class="large reveal" role="dialog" data-reveal >
+  <div class="row">
+    <div class="large-12 columns">
+      <h3 class="subheader">{{tr "Two Factor Authentication"}}</h3>
+    </div>
+  </div>
+  <div class="confirm-resources-header"></div>
+  <div class="reveal-body">
+    <div class="row">
+      <div class="large-12 columns">
+        <br/>
+        <p>
+          {{tr "Two factor authentication can be enabled for loging into Sunestone UI."}}
+        </p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="large-6 columns">
+        <div id="qr_code"></div>
+      </div>
+      <div class="large-6 columns">
+        <ul>
+          <li>
+            {{tr "Get authenticator app: "}}
+            <a href="https://authy.com/download/">
+              {{tr "Authy"}}
+            </a>,
+            <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en">
+              {{tr "Google Authenticator"}}
+            </a>,
+            <a href="https://www.microsoft.com/en-us/p/microsoft-authenticator/9nblgggzmcj6?activetab=pivot:overviewtab">
+              {{tr "Microsoft Authenticator"}}
+            </a>.
+          </li>
+          <li>
+            {{tr "Scan this Barcode."}}
+          </li>
+          <li>
+            {{tr "Enter Verification Code."}}
+            <input value="" type="text" size="15" id="token" class="box"/>
+            <input value="" type="hidden" id="secret"/>
+            <button id="enable_btn" type="button" class="button radius">{{tr "Enable"}}</button>
+          </li>
+        </ul> 
+      </div>
+    </div>
+    <button class="close-button" data-close aria-label="{{tr "Close modal"}}" type="button">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+</div>

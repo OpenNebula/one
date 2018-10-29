@@ -27,13 +27,14 @@ define(function(require) {
       var username = params.data.username;
       var password = params.data.password;
       var remember = params.remember;
+      var two_factor_auth_token = params.two_factor_auth_token;
 
       var request = OpenNebulaHelper.request(RESOURCE, "login");
 
       $.ajax({
         url: "login",
         type: "POST",
-        data: {remember: remember},
+        data: {remember: remember, two_factor_auth_token: two_factor_auth_token},
         beforeSend : function(req) {
           if (username && password) {
               var token = username + ':' + password;

@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'OpenNebulaJSON/JSONUtils'
+require 'two_factor_auth'
 
 module OpenNebulaJSON
     class UserJSON < OpenNebula::User
@@ -43,6 +44,8 @@ module OpenNebulaJSON
                  when "chgrp"        then self.chgrp(action_hash['params'])
                  when "chauth"       then self.chauth(action_hash['params'])
                  when "update"       then self.update(action_hash['params'])
+                 when "enable_two_factor_auth"  then self.enable_two_factor_auth(action_hash['params'])
+                 when "disable_two_factor_auth"  then self.disable_two_factor_auth(action_hash['params'])
                  when "set_quota"    then self.set_quota(action_hash['params'])
                  when "addgroup"     then self.addgroup(action_hash['params'])
                  when "delgroup"     then self.delgroup(action_hash['params'])
@@ -72,6 +75,26 @@ module OpenNebulaJSON
             else
                 super(params['template_raw'])
             end
+        end
+
+        def enable_two_factor_auth(params=Hash.new)
+            unless TwoFactorAuth.authenticate(secret: params["secret"], token: params["token"])
+              return OpenNebula::Error.new("Invalid token.")
+            end
+
+            sunstone_setting = { "sunstone" => params["current_sunstone_setting"].merge("TWO_FACTOR_AUTH_SECRET" => params["secret"]) }
+            template_raw = template_to_str(sunstone_setting)
+            update_params = { "template_raw" => template_raw, "append" => true }
+            update(update_params)
+        end
+
+        def disable_two_factor_auth(params=Hash.new)
+            sunstone_setting = params["current_sunstone_setting"]
+            sunstone_setting.delete("TWO_FACTOR_AUTH_SECRET")
+            sunstone_setting = { "sunstone" => sunstone_setting }
+	    template_raw = template_to_str_sunstone_with_explicite_empty_value(sunstone_setting)
+            update_params = { "template_raw" => template_raw, "append" => true }
+            update(update_params)
         end
 
         def set_quota(params=Hash.new)
