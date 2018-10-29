@@ -171,6 +171,21 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         :description=> "Does not communicate with the guest OS"
     }
 
+    ALIAS = {
+        :name       => "alias",
+        :short      => "-a alias",
+        :large      => "--alias alias",
+        :description=> "Attach the NIC as an ALIAS",
+        :format     => String
+    }
+
+    NIC_NAME = {
+        :name       => "nic_name",
+        :large      => "--nic_name name",
+        :description=> "Name of the NIC",
+        :format     => String
+    }
+
     def self.rname
         "VM"
     end
@@ -800,132 +815,138 @@ in the frontend machine.
 
         extra_ips.uniq!
 
-        if vm.has_elements?("/VM/TEMPLATE/NIC") ||
-           vm.has_elements?("/VM/TEMPLATE/PCI[NIC_ID>-1]") || !extra_ips.empty?
+        ['NIC', 'NIC_ALIAS'].each do |type|
+            if vm.has_elements?("/VM/TEMPLATE/#{type}") ||
+               vm.has_elements?("/VM/TEMPLATE/PCI[NIC_ID>-1]") || !extra_ips.empty?
 
-            puts
-            CLIHelper.print_header(str_h1 % "VM NICS",false)
+                puts
+                CLIHelper.print_header(str_h1 % "VM #{type == 'NIC' ? 'NICS' : 'ALIAS'}",false)
 
-            nic_default = {"NETWORK" => "-",
-                           "IP" => "-",
-                           "MAC"=> "-",
-                           "BRIDGE"=>"-"}
+                nic_default = {"NETWORK" => "-",
+                               "IP" => "-",
+                               "MAC"=> "-",
+                               "BRIDGE"=>"-"}
 
-            shown_ips = []
+                shown_ips = []
 
-            array_id = 0
-            vm_nics = [vm_hash['VM']['TEMPLATE']['NIC']]
+                array_id = 0
+                vm_nics = [vm_hash['VM']['TEMPLATE'][type]]
 
-            vm_pcis = [vm_hash['VM']['TEMPLATE']['PCI']].flatten.compact
+                if type == 'NIC'
+                    vm_pcis = [vm_hash['VM']['TEMPLATE']['PCI']].flatten.compact
 
-            vm_pcis.each do |pci|
-                if !pci['NIC_ID'].nil?
-                    vm_nics << pci
-                end
-            end
-
-            vm_nics.flatten!
-            vm_nics.compact!
-
-            vm_nics.each {|nic|
-
-                next if nic.has_key?("CLI_DONE")
-
-                ["IP6_LINK", "IP6_ULA", "IP6_GLOBAL", "IP6"].each do |attr|
-                    if nic.has_key?(attr)
-                        shown_ips << nic[attr]
-
-                        ipstr = {"IP"           => nic.delete(attr),
-                                 "CLI_DONE"     => true,
-                                 "DOUBLE_ENTRY" => true}
-                        vm_nics.insert(array_id+1,ipstr)
-
-                        array_id += 1
+                    vm_pcis.each do |pci|
+                        if !pci['NIC_ID'].nil?
+                            vm_nics << pci
+                        end
                     end
                 end
 
-                ["VROUTER_IP", "VROUTER_IP6_LINK",
-                 "VROUTER_IP6_ULA", "VROUTER_IP6_GLOBAL"].each do |attr|
-                    if nic.has_key?(attr)
-                        shown_ips << nic[attr]
+                vm_nics.flatten!
+                vm_nics.compact!
 
-                        ipstr = {"IP"           => nic.delete(attr) + " (VRouter)",
-                                 "CLI_DONE"     => true,
-                                 "DOUBLE_ENTRY" => true}
-                        vm_nics.insert(array_id+1,ipstr)
+                vm_nics.each {|nic|
 
-                        array_id += 1
+                    next if nic.has_key?("CLI_DONE")
+
+                    ["IP6_LINK", "IP6_ULA", "IP6_GLOBAL", "IP6"].each do |attr|
+                        if nic.has_key?(attr)
+                            shown_ips << nic[attr]
+
+                            ipstr = {"IP"           => nic.delete(attr),
+                                     "CLI_DONE"     => true,
+                                     "DOUBLE_ENTRY" => true}
+                            vm_nics.insert(array_id+1,ipstr)
+
+                            array_id += 1
+                        end
                     end
-                end
 
-                shown_ips << nic["IP"] if nic.has_key?("IP")
+                    ["VROUTER_IP", "VROUTER_IP6_LINK",
+                     "VROUTER_IP6_ULA", "VROUTER_IP6_GLOBAL"].each do |attr|
+                        if nic.has_key?(attr)
+                            shown_ips << nic[attr]
 
-                nic.merge!(nic_default) {|k,v1,v2| v1}
-                array_id += 1
-            }
+                            ipstr = {"IP"           => nic.delete(attr) + " (VRouter)",
+                                     "CLI_DONE"     => true,
+                                     "DOUBLE_ENTRY" => true}
+                            vm_nics.insert(array_id+1,ipstr)
 
-            extra_ips -= shown_ips
+                            array_id += 1
+                        end
+                    end
 
-            # Add extra IPs to the VM NICS table
-            extra_ips.each do |ip|
-                vm_nics << {
-                    "NIC_ID"        => "-",
-                    "IP"            => ip,
-                    "NETWORK"       => "Additional IP",
-                    "BRIDGE"        => "-"
+                    shown_ips << nic["IP"] if nic.has_key?("IP")
+
+                    nic.merge!(nic_default) {|k,v1,v2| v1}
+                    array_id += 1
                 }
+
+                extra_ips -= shown_ips
+
+                # Add extra IPs to the VM NICS table
+                extra_ips.each do |ip|
+                    vm_nics << {
+                        "NIC_ID"        => "-",
+                        "IP"            => ip,
+                        "NETWORK"       => "Additional IP",
+                        "BRIDGE"        => "-"
+                    }
+                end
+
+                CLIHelper::ShowTable.new(nil, self) do
+                    column :ID, "", :size=>3 do |d|
+                        if d["DOUBLE_ENTRY"]
+                            ""
+                        else
+                            d["NIC_ID"]
+                        end
+                    end
+
+                    column :NETWORK, "", :left, :size=>20 do |d|
+                        if d["DOUBLE_ENTRY"]
+                            ""
+                        else
+                            d["NETWORK"]
+                        end
+                    end
+
+                    column :BRIDGE, "", :left, :size=>12 do |d|
+                        if d["DOUBLE_ENTRY"]
+                            ""
+                        else
+                            d["BRIDGE"]
+                        end
+                    end
+
+                    column :IP, "",:left, :donottruncate, :size=>15 do |d|
+                        d["IP"]
+                    end
+
+                    column :MAC, "", :left, :size=>17 do |d|
+                        if d["DOUBLE_ENTRY"]
+                            ""
+                        else
+                            d["MAC"]
+                        end
+                    end
+
+                    if type == 'NIC'
+                        column :PCI_ID, "", :left, :size=>8 do |d|
+                            if d["DOUBLE_ENTRY"]
+                                ""
+                            else
+                                d["PCI_ID"]
+                            end
+                        end
+                    end
+
+                end.show(vm_nics,{})
+
+                while vm.has_elements?("/VM/TEMPLATE/#{type}")
+                    vm.delete_element("/VM/TEMPLATE/#{type}")
+                end if !options[:all]
             end
-
-            CLIHelper::ShowTable.new(nil, self) do
-                column :ID, "", :size=>3 do |d|
-                    if d["DOUBLE_ENTRY"]
-                        ""
-                    else
-                        d["NIC_ID"]
-                    end
-                end
-
-                column :NETWORK, "", :left, :size=>20 do |d|
-                    if d["DOUBLE_ENTRY"]
-                        ""
-                    else
-                        d["NETWORK"]
-                    end
-                end
-
-                column :BRIDGE, "", :left, :size=>12 do |d|
-                    if d["DOUBLE_ENTRY"]
-                        ""
-                    else
-                        d["BRIDGE"]
-                    end
-                end
-
-                column :IP, "",:left, :donottruncate, :size=>15 do |d|
-                    d["IP"]
-                end
-
-                column :MAC, "", :left, :size=>17 do |d|
-                    if d["DOUBLE_ENTRY"]
-                        ""
-                    else
-                        d["MAC"]
-                    end
-                end
-
-                column :PCI_ID, "", :left, :size=>8 do |d|
-                    if d["DOUBLE_ENTRY"]
-                        ""
-                    else
-                        d["PCI_ID"]
-                    end
-                end
-
-            end.show(vm_nics,{})
-
-            while vm.has_elements?("/VM/TEMPLATE/NIC")
-                vm.delete_element("/VM/TEMPLATE/NIC")
-            end if !options[:all]
         end
 
         while vm.has_elements?("/VM/TEMPLATE/NIC")

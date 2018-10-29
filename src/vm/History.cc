@@ -506,6 +506,12 @@ string History::action_to_str(VMAction action)
         case NIC_DETACH_ACTION:
             st = "nic-detach";
         break;
+        case ALIAS_ATTACH_ACTION:
+            st = "alias-attach";
+        break;
+        case ALIAS_DETACH_ACTION:
+            st = "alias-detach";
+        break;
         case DISK_SNAPSHOT_CREATE_ACTION:
             st = "disk-snapshot-create";
         break;
@@ -664,6 +670,14 @@ int History::action_from_str(const string& st, VMAction& action)
     else if (st == "nic-detach")
     {
         action = NIC_DETACH_ACTION;
+    }
+    else if (st == "alias-attach")
+    {
+        action = ALIAS_ATTACH_ACTION;
+    }
+    else if (st == "alias-detach")
+    {
+        action = ALIAS_DETACH_ACTION;
     }
     else if (st == "disk-snapshot-create")
     {

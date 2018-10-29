@@ -101,6 +101,58 @@ public:
      */
     void to_xml_short(std::ostringstream& oss) const;
 
+    /**
+     * Check is a nic is alias or not
+     */
+    bool is_alias() const
+    {
+        return name() == "NIC_ALIAS";
+    }
+
+    /*
+     * Set nic NAME attribute if not empty, defaults to NAME = NIC${NIC_ID}
+     */
+    std::string set_nic_name()
+    {
+        std::string name = vector_value("NAME");
+
+        if (!name.empty())
+        {
+            return name;
+        }
+
+        std::ostringstream oss;
+
+        oss << "NIC" << get_id();
+
+        replace("NAME", oss.str());
+
+        return oss.str();
+    }
+
+    /*
+     * Set nic alias NAME attribute defaults to NAME = NIC${PARENT_ID}_ALIAS${ALIAS_ID}
+     *   @param parent_id for the alias
+     *   @return alias name
+     */
+    std::string set_nic_alias_name(int parent_id)
+    {
+        std::string name = vector_value("NAME");
+
+        if (!name.empty())
+        {
+            return name;
+        }
+
+        std::ostringstream oss;
+
+        oss << "NIC" << parent_id << "_" << "ALIAS" << get_id();
+
+        replace("NAME", oss.str());
+
+        return oss.str();
+    }
+
 private:
     /**
      *  Fills the authorization request for this NIC based on the VNET and SG
@@ -133,10 +185,13 @@ public:
         VirtualMachineAttributeSet(false)
     {
         std::vector<VectorAttribute *> vas;
+        std::vector<VectorAttribute *> alias;
         std::vector<VectorAttribute *> pcis;
         std::vector<VectorAttribute *>::iterator it;
 
         tmpl->get(NIC_NAME, vas);
+
+        tmpl->get(NIC_ALIAS_NAME, alias);
 
         tmpl->get("PCI", pcis);
 
@@ -146,6 +201,11 @@ public:
             {
                 vas.push_back(*it);
             }
+        }
+
+        for ( it=alias.begin(); it != alias.end(); ++it)
+        {
+            vas.push_back(*it);
         }
 
         init(vas, false);
@@ -224,11 +284,21 @@ public:
     /* NIC interface                                                          */
     /* ---------------------------------------------------------------------- */
     /**
-     * Returns the NIC attribute for a disk
+     * Returns the NIC attribute for a network interface
      *   @param nic_id of the NIC
      *   @return pointer to the attribute ir null if not found
      */
     VirtualMachineNic * get_nic(int nic_id) const
+    {
+        return static_cast<VirtualMachineNic *>(get_attribute(nic_id));
+    }
+
+    /**
+     * Deletes the NIC attribute from the VM NICs
+     *   @param nic_id of the NIC
+     *   @return pointer to the attribute or null if not found
+     */
+    VirtualMachineNic * delete_nic(int nic_id)
     {
         return static_cast<VirtualMachineNic *>(get_attribute(nic_id));
     }
@@ -323,6 +393,8 @@ protected:
 
 private:
     static const char * NIC_NAME; //"NIC"
+
+    static const char * NIC_ALIAS_NAME; //"NIC_ALIAS"
 
     static const char * NIC_ID_NAME; //"NIC_ID"
 };

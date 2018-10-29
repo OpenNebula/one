@@ -77,7 +77,9 @@ public:
         RECOVER_ACTION         = 42,        // "one.vm.recover"
         RETRY_ACTION           = 43,        // "one.vm.recover"
         MONITOR_ACTION         = 44,        // internal, monitoring process
-        DISK_SNAPSHOT_RENAME_ACTION = 45    // "one.vm.disksnapshotrename"
+        DISK_SNAPSHOT_RENAME_ACTION = 45,   // "one.vm.disksnapshotrename"
+        ALIAS_ATTACH_ACTION      = 46,      // "one.vm.attachnic"
+        ALIAS_DETACH_ACTION      = 47       // "one.vm.detachnic"
     };
 
     static string action_to_str(VMAction action);

@@ -1752,7 +1752,14 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
 
         vm->set_etime(the_time);
 
-        vm->set_action(History::NIC_ATTACH_ACTION, ra.uid, ra.gid, ra.req_id);
+        if ( tmpl->get("NIC") != 0 )
+        {
+            vm->set_action(History::NIC_ATTACH_ACTION, ra.uid, ra.gid, ra.req_id);
+        }
+        else
+        {
+            vm->set_action(History::ALIAS_ATTACH_ACTION, ra.uid, ra.gid, ra.req_id);
+        }
 
         vmpool->update_history(vm);
 
@@ -1843,7 +1850,14 @@ int DispatchManager::detach_nic(int vid, int nic_id,const RequestAttributes& ra,
 
         vm->set_etime(the_time);
 
-        vm->set_action(History::NIC_DETACH_ACTION, ra.uid, ra.gid, ra.req_id);
+        if ( !vm->get_nic(nic_id)->is_alias() )
+        {
+            vm->set_action(History::NIC_DETACH_ACTION, ra.uid, ra.gid, ra.req_id);
+        }
+        else
+        {
+            vm->set_action(History::ALIAS_DETACH_ACTION, ra.uid, ra.gid, ra.req_id);
+        }
 
         vmpool->update_history(vm);
 

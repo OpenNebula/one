@@ -604,6 +604,12 @@ VectorAttribute * VirtualRouter::attach_nic(
 
     nics.clear();
 
+    if ( tmpl->get("NIC_ALIAS") != 0 )
+    {
+        error_str = "Alias can't be attached to virtual router.";
+        return 0;
+    }
+
     if ( tmpl->get("NIC", nics) != 1 )
     {
         error_str = "The template must contain one NIC attribute";

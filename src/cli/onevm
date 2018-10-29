@@ -764,13 +764,17 @@ CommandParser::CmdParser.new(ARGV) do
         Attaches a NIC to a running VM. When using --file add only one
         NIC instance.
 
+        To attach a nic alias, use --file or --alias option.
+
         States: RUNNING, POWEROFF
     EOT
 
     command :"nic-attach", nic_attach_desc, :vmid,
             :options => [OneVMHelper::FILE,
                          OneVMHelper::NETWORK,
-                         OneVMHelper::IP] do
+                         OneVMHelper::IP,
+                         OneVMHelper::ALIAS,
+                         OneVMHelper::NIC_NAME] do
 
         if options[:file].nil? && options[:network].nil?
             STDERR.puts 'Provide a template file or a network:'
@@ -784,10 +788,33 @@ CommandParser::CmdParser.new(ARGV) do
         else
             network_id = options[:network]
             ip = options[:ip]
+            nic_alias = options[:alias]
+            nic_name = options[:nic_name]
+
             if ip
-                template = "NIC = [ NETWORK_ID = #{network_id}, IP = #{ip} ]"
+                if !nic_alias && !nic_name
+                    template = "NIC = [ NETWORK_ID = #{network_id}, IP = #{ip} ]"
+                elsif !nic_alias && nic_name
+                    template = "NIC = [ NETWORK_ID = #{network_id},
+                                        IP = #{ip},
+                                        NAME = #{nic_name} ]"
+                else
+                    template = "NIC_ALIAS = \
+                                [ NETWORK_ID = #{network_id},\
+                                  IP = #{ip},\
+                                  PARENT = #{nic_alias} ]"
+                end
             else
-                template = "NIC = [ NETWORK_ID = #{network_id} ]"
+                if !nic_alias && !nic_name
+                    template = "NIC = [ NETWORK_ID = #{network_id} ]"
+                elsif !nic_alias && nic_name
+                    template = "NIC = [ NETWORK_ID = #{network_id},
+                                        NAME = #{nic_name} ]"
+                else
+                    template = "NIC_ALIAS = \
+                                [ NETWORK_ID = #{network_id},\
+                                  PARENT = #{nic_alias} ]"
+                end
             end
         end
 

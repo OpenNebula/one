@@ -2374,7 +2374,7 @@ int VirtualMachine::from_xml(const string &xml_str)
     }
     rc += obj_template->from_xml_node(content[0]);
 
-    vector<VectorAttribute *> vdisks, vnics, pcis;
+    vector<VectorAttribute *> vdisks, vnics, alias, pcis;
     vector<VectorAttribute *>::iterator it;
 
     obj_template->get("DISK", vdisks);
@@ -2382,6 +2382,8 @@ int VirtualMachine::from_xml(const string &xml_str)
     disks.init(vdisks, true);
 
     obj_template->get("NIC", vnics);
+
+    obj_template->get("NIC_ALIAS", alias);
 
     obj_template->get("PCI", pcis);
 
@@ -2391,6 +2393,11 @@ int VirtualMachine::from_xml(const string &xml_str)
         {
             vnics.push_back(*it);
         }
+    }
+
+    for (it =alias.begin(); it != alias.end(); ++it)
+    {
+        vnics.push_back(*it);
     }
 
     nics.init(vnics, true);
@@ -3264,9 +3271,11 @@ int VirtualMachine::get_network_leases(string& estr)
     /* ---------------------------------------------------------------------- */
     /* Get the NIC attributes:                                                */
     /*   * NIC                                                                */
+    /*   * NIC_ALIAS                                                          */
     /*   * PCI + TYPE = NIC                                                   */
     /* ---------------------------------------------------------------------- */
     vector<Attribute *> anics;
+    vector<Attribute *> alias;
 
     user_obj_template->remove("NIC", anics);
 
@@ -3280,6 +3289,23 @@ int VirtualMachine::get_network_leases(string& estr)
         else
         {
             obj_template->set(*it);
+            ++it;
+        }
+    }
+
+    user_obj_template->remove("NIC_ALIAS", alias);
+
+    for (vector<Attribute*>::iterator it = alias.begin(); it != alias.end(); )
+    {
+        if ( (*it)->type() != Attribute::VECTOR )
+        {
+            delete *it;
+            it = alias.erase(it);
+        }
+        else
+        {
+            obj_template->set(*it);
+            anics.push_back(*it);
             ++it;
         }
     }
@@ -3330,8 +3356,13 @@ int VirtualMachine::set_up_attach_nic(VirtualMachineTemplate * tmpl, string& err
 
     if ( new_nic == 0 )
     {
-        err = "Wrong format or missing NIC attribute";
-        return -1;
+        new_nic = tmpl->get("NIC_ALIAS");
+
+        if ( new_nic == 0 )
+        {
+            err = "Wrong format or missing NIC/NIC_ALIAS attribute";
+            return -1;
+        }
     }
 
     new_nic = new_nic->clone();
@@ -3372,6 +3403,10 @@ int VirtualMachine::set_up_attach_nic(VirtualMachineTemplate * tmpl, string& err
 
 int VirtualMachine::set_detach_nic(int nic_id)
 {
+    std::set<int> a_ids;
+
+    int parent_id, alias_id;
+
     VirtualMachineNic * nic = nics.get_nic(nic_id);
 
     if ( nic == 0 )
@@ -3381,7 +3416,72 @@ int VirtualMachine::set_detach_nic(int nic_id)
 
     nic->set_attach();
 
-    clear_nic_context(nic_id);
+    /*------------------------------------------------------------------------*/
+    /* Clear context of the NIC or NIC_ALIAS                                  */
+    /* 1. NIC with alias will also clear context for the NIC_ALIAS            */
+    /* 2. NIC_ALIAS will update the ALIAS_IDs list                            */
+    /*------------------------------------------------------------------------*/
+    if ( !nic->is_alias() )
+    {
+        clear_nic_context(nic_id);
+
+        one_util::split_unique(nic->vector_value("ALIAS_IDS"), ',', a_ids);
+
+        for(std::set<int>::iterator it = a_ids.begin(); it != a_ids.end(); ++it)
+        {
+            VirtualMachineNic *alias = nics.get_nic(*it);
+
+            if ( alias == 0 )
+            {
+                continue;
+            }
+
+            if ( alias->vector_value("ALIAS_ID", alias_id) != 0 )
+            {
+                continue;
+            }
+
+            clear_nic_alias_context(nic_id, alias_id);
+        }
+    }
+    else
+    {
+        std::ostringstream oss;
+
+        if ( nic->vector_value("ALIAS_ID", alias_id) != 0 ||
+                nic->vector_value("PARENT_ID", parent_id) != 0 )
+        {
+            return -1;
+        }
+
+        clear_nic_alias_context(parent_id, alias_id);
+
+        nic = nics.get_nic(parent_id);
+
+        if ( nic == 0 )
+        {
+            return -1;
+        }
+
+        one_util::split_unique(nic->vector_value("ALIAS_IDS"), ',', a_ids);
+
+        for(std::set<int>::iterator it = a_ids.begin(); it != a_ids.end(); ++it)
+        {
+            if ( *it == nic_id )
+            {
+                continue;
+            }
+
+            if ( !oss.str().empty() )
+            {
+                oss << ",";
+            }
+
+            oss << *it;
+        }
+
+        nic->replace("ALIAS_IDS", oss.str());
+    }
 
     return 0;
 }

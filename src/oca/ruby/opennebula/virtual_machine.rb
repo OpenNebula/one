@@ -212,7 +212,8 @@ module OpenNebula
             disk-snapshot-create disk-snapshot-delete terminate terminate-hard
             disk-resize deploy chown chmod updateconf rename resize update
             snapshot-resize snapshot-delete snapshot-revert disk-saveas
-            disk-snapshot-revert recover retry monitor disk-snapshot-rename}
+            disk-snapshot-revert recover retry monitor disk-snapshot-rename
+            alias-attach alias-detach}
 
         EXTERNAL_IP_ATTRS = [
             'GUEST_IP',
