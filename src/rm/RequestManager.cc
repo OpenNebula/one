@@ -439,6 +439,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr secg_delete(new SecurityGroupDelete());
     xmlrpc_c::methodPtr vrouter_delete(new VirtualRouterDelete());
     xmlrpc_c::methodPtr vmg_delete(new VMGroupDelete());
+    xmlrpc_c::methodPtr vntemplate_delete(new VirtualNetworkTemplateDelete());
 
     // Info Methods
     xmlrpc_c::methodPtr vm_info(new VirtualMachineInfo());
@@ -612,7 +613,7 @@ void RequestManager::register_xml_methods()
     //RequestManagerRegistry.addMethod("one.vntemplate.update", template_update);
     //RequestManagerRegistry.addMethod("one.vntemplate.instantiate",template_instantiate);
     RequestManagerRegistry.addMethod("one.vntemplate.allocate",vntemplate_allocate);
-    //RequestManagerRegistry.addMethod("one.vntemplate.delete", template_delete);
+    RequestManagerRegistry.addMethod("one.vntemplate.delete", vntemplate_delete);
     RequestManagerRegistry.addMethod("one.vntemplate.info", vntemplate_info);
     //RequestManagerRegistry.addMethod("one.vntemplate.chown", template_chown);
     //RequestManagerRegistry.addMethod("one.vntemplate.chmod", template_chmod);

@@ -268,13 +268,13 @@ class VirtualNetworkTemplateAllocate : public RequestManagerAllocate
 public:
     VirtualNetworkTemplateAllocate():
         RequestManagerAllocate("one.template.allocate",
-                               "Allocates a new virtual machine template",
+                               "Allocates a new virtual network template",
                                "A:ss",
                                true)
     {
         Nebula& nd  = Nebula::instance();
-        pool        = nd.get_tpool();
-        auth_object = PoolObjectSQL::TEMPLATE;
+        pool        = nd.get_vntpool();
+        auth_object = PoolObjectSQL::VNTEMPLATE;
     };
 
     ~VirtualNetworkTemplateAllocate(){};
