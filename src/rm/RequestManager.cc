@@ -613,7 +613,7 @@ void RequestManager::register_xml_methods()
     //RequestManagerRegistry.addMethod("one.vntemplate.instantiate",template_instantiate);
     RequestManagerRegistry.addMethod("one.vntemplate.allocate",vntemplate_allocate);
     //RequestManagerRegistry.addMethod("one.vntemplate.delete", template_delete);
-    //RequestManagerRegistry.addMethod("one.vntemplate.info", template_info);
+    RequestManagerRegistry.addMethod("one.vntemplate.info", vntemplate_info);
     //RequestManagerRegistry.addMethod("one.vntemplate.chown", template_chown);
     //RequestManagerRegistry.addMethod("one.vntemplate.chmod", template_chmod);
     //RequestManagerRegistry.addMethod("one.vntemplate.clone", template_clone);
