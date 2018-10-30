@@ -131,7 +131,7 @@ class VNTemplateClone : public RequestManagerClone
 {
 public:
     VNTemplateClone():
-        RequestManagerClone("one.template.clone",
+        RequestManagerClone("one.vntemplate.clone",
                 "Clone a virtual network template", "A:sisb")
     {
         Nebula& nd  = Nebula::instance();

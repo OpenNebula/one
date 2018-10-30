@@ -120,7 +120,7 @@ class VirtualNetworkTemplateDelete : public RequestManagerDelete
 {
 public:
     VirtualNetworkTemplateDelete():
-        RequestManagerDelete("one.template.delete",
+        RequestManagerDelete("one.vntemplate.delete",
                              "A:sib",
                              "Deletes a virtual network template")
     {

@@ -46,7 +46,8 @@ const PoolObjectSQL::ObjectType AclRule::pool_objects[] = {
             PoolObjectSQL::VROUTER,
             PoolObjectSQL::MARKETPLACE,
             PoolObjectSQL::MARKETPLACEAPP,
-            PoolObjectSQL::VMGROUP
+            PoolObjectSQL::VMGROUP,
+            PoolObjectSQL::VNTEMPLATE
 };
 
 const int AclRule::num_auth_operations = 4;
@@ -63,7 +64,7 @@ const long long AclRule::INVALID_CLUSTER_OBJECTS =
         PoolObjectSQL::CLUSTER | PoolObjectSQL::DOCUMENT | PoolObjectSQL::ZONE |
         PoolObjectSQL::SECGROUP | PoolObjectSQL::VDC | PoolObjectSQL::VROUTER |
         PoolObjectSQL::MARKETPLACE | PoolObjectSQL::MARKETPLACEAPP |
-        PoolObjectSQL::VMGROUP;
+        PoolObjectSQL::VMGROUP | PoolObjectSQL::VNTEMPLATE;
 
 const long long AclRule::INVALID_GROUP_OBJECTS =
         PoolObjectSQL::HOST | PoolObjectSQL::GROUP | PoolObjectSQL::CLUSTER |

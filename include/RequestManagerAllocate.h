@@ -267,7 +267,7 @@ class VirtualNetworkTemplateAllocate : public RequestManagerAllocate
 {
 public:
     VirtualNetworkTemplateAllocate():
-        RequestManagerAllocate("one.template.allocate",
+        RequestManagerAllocate("one.vntemplate.allocate",
                                "Allocates a new virtual network template",
                                "A:ss",
                                true)

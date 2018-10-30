@@ -153,7 +153,7 @@ class VirtualNetworkTemplateRename : public RequestManagerRename
 {
 public:
     VirtualNetworkTemplateRename():
-        RequestManagerRename("one.template.rename",
+        RequestManagerRename("one.vntemplate.rename",
                              "Renames a virtual network template")
     {
         Nebula& nd  = Nebula::instance();

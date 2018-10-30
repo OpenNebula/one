@@ -472,6 +472,8 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vrouter_unlock(new VirtualRouterUnlock());
     xmlrpc_c::methodPtr vmg_lock(new VMGroupLock());
     xmlrpc_c::methodPtr vmg_unlock(new VMGroupUnlock());
+    xmlrpc_c::methodPtr vntemplate_lock(new VNTemplateLock());
+    xmlrpc_c::methodPtr vntemplate_unlock(new VNTemplateUnlock());
 
     // PoolInfo Methods
     xmlrpc_c::methodPtr hostpool_info(new HostPoolInfo());
@@ -624,8 +626,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vntemplate.chmod", vntemplate_chmod);
     RequestManagerRegistry.addMethod("one.vntemplate.clone", vntemplate_clone);
     RequestManagerRegistry.addMethod("one.vntemplate.rename", vntemplate_rename);
-    //RequestManagerRegistry.addMethod("one.vntemplate.lock", template_lock);
-    //RequestManagerRegistry.addMethod("one.vntemplate.unlock", template_unlock);
+    RequestManagerRegistry.addMethod("one.vntemplate.lock", vntemplate_lock);
+    RequestManagerRegistry.addMethod("one.vntemplate.unlock", vntemplate_unlock);
     RequestManagerRegistry.addMethod("one.vntemplatepool.info",vntemplate_pool_info);
 
     /* Host related methods*/

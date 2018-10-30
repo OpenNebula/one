@@ -129,7 +129,7 @@ class VirtualNetworkTemplateChown : public RequestManagerChown
 {
 public:
     VirtualNetworkTemplateChown():
-        RequestManagerChown("one.template.chown",
+        RequestManagerChown("one.vntemplate.chown",
                             "Changes ownership of a virtual network template")
     {
         Nebula& nd  = Nebula::instance();
