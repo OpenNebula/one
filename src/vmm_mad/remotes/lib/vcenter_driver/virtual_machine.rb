@@ -987,14 +987,19 @@ class VirtualMachine < VCenterDriver::Template
 
         begin
             if !unmanaged_nics.empty?
+                unics = unmanaged_nics.size
                 index = 0
-                self["config.hardware.device"].each_with_index do |device|
-                    if is_nic?(device)
-                        # Edit capacity setting new size in KB
-                        device.macAddress = unmanaged_nics[index]["MAC"]
-                        device_change << { :device => device, :operation => :edit }
-                        index += 1
-                    end
+                self["config.hardware.device"].each do |device|
+                    next unless is_nic?(device)
+
+                    name = unmanaged_nics[index]["BRIDGE"]
+                    next unless name == device.deviceInfo.summary
+
+                    # Edit capacity setting new size in KB
+                    device.macAddress = unmanaged_nics[index]["MAC"]
+                    device_change << { :device => device, :operation => :edit }
+                    index += 1
+                    break if index == unics
                 end
             end
         rescue Exception => e
