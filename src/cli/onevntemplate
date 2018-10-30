@@ -115,12 +115,11 @@ CommandParser::CmdParser.new(ARGV) do
         Examples:
           - using a Virtual Network Template description file:
 
-            onevntemplate create vm_description.tmpl
+            onevntemplate create vn_description.tmpl
 
     EOT
 
     command :create, create_desc, [:file, nil], :options =>
-            [OneVNTemplateHelper::VN_NAME] + OpenNebulaHelper::TEMPLATE_OPTIONS +
             [OpenNebulaHelper::DRY] do
 
         helper.create_resource(options) do |tmpl|
@@ -143,16 +142,13 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     clone_desc = <<-EOT.unindent
-        Creates a new Template from an existing one
+        Creates a new VN Template from an existing one
     EOT
 
-    command :clone, clone_desc, :templateid, :name,
-            :options => OneTemplateHelper::RECURSIVE do
-
-        recursive = (options[:recursive] == true)
+    command :clone, clone_desc, :templateid, :name do
 
         helper.perform_action(args[0], options, 'cloned') do |t|
-            res = t.clone(args[1], recursive)
+            res = t.clone(args[1], false)
 
             if !OpenNebula.is_error?(res)
                 puts "ID: #{res}"
@@ -163,22 +159,19 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     delete_desc = <<-EOT.unindent
-        Deletes the given Template
+        Deletes the given VN Template
     EOT
 
-    command :delete, delete_desc, [:range, :templateid_list],
-            :options => OneTemplateHelper::RECURSIVE do
-
-        recursive = (options[:recursive] == true)
+    command :delete, delete_desc, [:range, :templateid_list] do
 
         helper.perform_actions(args[0], options, 'deleted') do |t|
-            t.delete(recursive)
+            t.delete(false)
         end
     end
 
     instantiate_desc = <<-EOT.unindent
-        Creates a new VM instance from the given Template. This VM can be
-        managed with the 'onevm' command.
+        Creates a new VN instance from the given VN Template. This VN can be
+        managed with the 'onevnet' command.
 
         The source Template can be modified adding or replacing attributes with
         the optional file argument, or with the options.
@@ -238,7 +231,7 @@ CommandParser::CmdParser.new(ARGV) do
                 res = t.instantiate(name, on_hold, extra_template, persistent)
 
                 if !OpenNebula.is_error?(res)
-                    puts "VM ID: #{res}"
+                    puts "VN ID: #{res}"
                 end
 
                 res
@@ -251,7 +244,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     chgrp_desc = <<-EOT.unindent
-        Changes the Template group
+        Changes the VN Template group
     EOT
 
     command :chgrp, chgrp_desc, [:range, :templateid_list], :groupid do
@@ -261,7 +254,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     chown_desc = <<-EOT.unindent
-        Changes the Template owner and group
+        Changes the VN Template owner and group
     EOT
 
     command :chown, chown_desc, [:range, :templateid_list], :userid,
@@ -273,11 +266,10 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     chmod_desc = <<-EOT.unindent
-        Changes the Template permissions
+        Changes the VN Template permissions
     EOT
 
-    command :chmod, chmod_desc, [:range, :templateid_list], :octet,
-            :options => OneTemplateHelper::RECURSIVE do
+    command :chmod, chmod_desc, [:range, :templateid_list], :octet do
 
         recursive = (options[:recursive] == true)
 
@@ -287,7 +279,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     update_desc = <<-EOT.unindent
-        Update the template contents. If a path is not provided the editor will
+        Update the VN template contents. If a path is not provided the editor will
         be launched to modify the current content.
     EOT
 
@@ -308,11 +300,11 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     list_desc = <<-EOT.unindent
-        Lists Templates in the pool
+        Lists VN Templates in the pool
     EOT
 
     rename_desc = <<-EOT.unindent
-        Renames the Template
+        Renames the VN Template
     EOT
 
     command :rename, rename_desc, :templateid, :name do
@@ -326,7 +318,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     show_desc = <<-EOT.unindent
-        Shows information for the given Template
+        Shows information for the given VN Template
     EOT
 
     command :show, show_desc, :templateid,
@@ -344,7 +336,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     lock_desc = <<-EOT.unindent
-        Locks a VM with differents levels for lock any actions with this VM,
+        Locks a VN template with differents levels for lock any actions with this VN template,
         show and monitoring never will be locked.
         Valid states are: All.
         Levels:
@@ -355,7 +347,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :lock, lock_desc, :templateid,
             :options => [USE, MANAGE, ADMIN, ALL] do
-        helper.perform_action(args[0], options, 'Template locked') do |t|
+        helper.perform_action(args[0], options, 'VN Template locked') do |t|
             if !options[:use].nil?
                 level = 1
             elsif !options[:manage].nil?
@@ -372,12 +364,12 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     unlock_desc = <<-EOT.unindent
-        Unlocks a VM for unlock any actions with this VM.
+        Unlocks a VN template for unlock any actions with this VN template.
         Valid states are: All.
     EOT
 
     command :unlock, unlock_desc, :templateid do
-        helper.perform_action(args[0], options, 'Template unlocked') do |t|
+        helper.perform_action(args[0], options, 'VN Template unlocked') do |t|
             t.unlock
         end
     end
