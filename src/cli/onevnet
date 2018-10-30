@@ -168,7 +168,7 @@ CommandParser::CmdParser.new(ARGV) do
                 end
 
                 if options[:ip6]
-                    m = %r{/([\h:]*)\/(\d.*)$/}.match(options[:ip6])
+                    m = %r{([\h:]*)\/(\d.*)$}.match(options[:ip6])
 
                     if m.nil? || m[1].nil?
                         STDERR.puts 'Missing or wrong IP6'
