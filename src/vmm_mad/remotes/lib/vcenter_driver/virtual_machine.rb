@@ -672,15 +672,17 @@ class VirtualMachine < VCenterDriver::Template
     # This method raises an exception if the timeout is reached
     # The exception needs to be handled in the VMM drivers and any
     # process that uses this method
-    def wait_deploy_timeout
-        timeout_deploy = @vi_client.get_property_vcenter_conf(:vm_poweron_wait_default)
-        timeout_deploy = 300 if timeout_deploy.nil?
+    def wait_timeout(action, timeout = 300)
+        conf = @vi_client.get_property_vcenter_conf(:vm_poweron_wait_default)
+
+        timeout    = conf || timeout
         time_start = Time.now
+
         begin
-            time_running = Time.now - time_start
-            sleep(2)
-        end until(is_powered_on? && time_running.to_i < timeout_deploy)
-        raise 'Reached deploy timeout' if time_running.to_i >= timeout_deploy
+            sleep(1)
+            condition = (Time.now-time_start).to_i >= timeout
+            raise 'Reached deploy timeout' if condition
+        end until send(action)
     end
 
     def storagepod_clonevm_task(vc_template, vcenter_name, clone_spec, storpod, vcenter_vm_folder_object, dc)
@@ -2474,20 +2476,16 @@ class VirtualMachine < VCenterDriver::Template
 
     def shutdown
         begin
-            @item.ShutdownGuest
-            # Check if VM has been powered off
-            (0..VM_SHUTDOWN_TIMEOUT).each do
-                break if @item.runtime.powerState == "poweredOff"
-                sleep 1
+            if vm_tools?
+                @item.ShutdownGuest
+            else
+                poweroff_hard
             end
-        rescue
-            # Ignore ShutdownGuest exceptions, maybe VM hasn't openvm tools
+        rescue RbVmomi::Fault => e
+            error = e.message.split(':').first
+            raise e.message if error != 'InvalidPowerState'
         end
-
-        # If VM hasn't been powered off, do it now
-        if @item.runtime.powerState != "poweredOff"
-            poweroff_hard
-        end
+        wait_timeout(:is_powered_off?)
     end
 
     def destroy
@@ -2511,12 +2509,22 @@ class VirtualMachine < VCenterDriver::Template
     end
 
     def poweron
-        @item.PowerOnVM_Task.wait_for_completion
-        wait_deploy_timeout
+        begin
+            @item.PowerOnVM_Task.wait_for_completion
+        rescue RbVmomi::Fault => e
+            error = e.message.split(':').first
+            raise e.message if error != 'InvalidPowerState'
+        end
+
+        wait_timeout(:is_powered_on?)
     end
 
     def is_powered_on?
         return @item.runtime.powerState == "poweredOn"
+    end
+
+    def is_powered_off?
+        return @item.runtime.powerState == "poweredOff"
     end
 
     def poweroff_hard
@@ -2525,6 +2533,10 @@ class VirtualMachine < VCenterDriver::Template
 
     def remove_all_snapshots
         @item.RemoveAllSnapshots_Task.wait_for_completion
+    end
+
+    def vm_tools?
+        @item.guest.toolsRunningStatus == 'guestToolsRunning'
     end
 
     def set_running(state)
