@@ -50,6 +50,7 @@
 #include "RequestManagerMarketPlaceApp.h"
 #include "RequestManagerVirtualRouter.h"
 #include "RequestManagerSecurityGroup.h"
+#include "RequestManagerVNTemplate.h"
 
 #include "RequestManagerSystem.h"
 #include "RequestManagerProxy.h"
@@ -359,6 +360,9 @@ void RequestManager::register_xml_methods()
     // VMTemplate Methods
     xmlrpc_c::methodPtr template_instantiate(new VMTemplateInstantiate());
 
+    // VNTemplate Methods
+    xmlrpc_c::methodPtr vntemplate_instantiate(new VNTemplateInstantiate());
+
     // VirtualMachine Methods
     xmlrpc_c::methodPtr vm_deploy(new VirtualMachineDeploy());
     xmlrpc_c::methodPtr vm_migrate(new VirtualMachineMigrate());
@@ -618,7 +622,7 @@ void RequestManager::register_xml_methods()
 
     /* VN Template related methods */
     RequestManagerRegistry.addMethod("one.vntemplate.update", vntemplate_update);
-    //RequestManagerRegistry.addMethod("one.vntemplate.instantiate",template_instantiate);
+    RequestManagerRegistry.addMethod("one.vntemplate.instantiate",vntemplate_instantiate);
     RequestManagerRegistry.addMethod("one.vntemplate.allocate",vntemplate_allocate);
     RequestManagerRegistry.addMethod("one.vntemplate.delete", vntemplate_delete);
     RequestManagerRegistry.addMethod("one.vntemplate.info", vntemplate_info);
