@@ -62,12 +62,15 @@ begin
         vm.reference_unmanaged_devices(vc_template_ref)
     end
 
-    vm.resize_unmanaged_disks
+    if vm.is_powered_off?
+        vm.resize_unmanaged_disks
 
-    # Synchronize the OpenNebula VM representation with vCenter VM
-    vm.reconfigure
-    vm.poweron
-    vm.set_running(true)
+        # Synchronize the OpenNebula VM representation with vCenter VM
+        vm.reconfigure
+        vm.poweron
+        vm.set_running(true)
+    end
+
     puts vm['_ref']
 
 rescue StandardError => e
