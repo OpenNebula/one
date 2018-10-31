@@ -59,10 +59,12 @@ begin
                                                           vm_id)
     end
 
-    vm.nresize_unmanaged_disks
-    vm.sync
-    vm.poweron
-    vm.set_running(true)
+    if vm.is_powered_off?
+        vm.nresize_unmanaged_disks
+        vm.sync
+        vm.poweron
+        vm.set_running(true)
+    end
 
     puts vm['_ref']
 rescue StandardError => e
