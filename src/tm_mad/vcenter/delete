@@ -64,7 +64,7 @@ begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
 
     if vm_ref && !vm_ref.empty?
-        vm = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vmid)
+        vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
     else
         # we try to get vcenter item
         vcenter_vm = VCenterDriver::VIHelper.find_vcenter_vm_by_name(one_vm, host, vi_client)
@@ -73,7 +73,7 @@ begin
         raise "Could not find the undeployed VM in vCenter's inventory using it's name" if !vcenter_vm
 
         vm_ref = vcenter_vm._ref
-        vm = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vmid)
+        vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
     end
 
     vm.one_item = one_vm
