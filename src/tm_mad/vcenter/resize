@@ -57,8 +57,8 @@ begin
     end
 
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-    vm = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vmid )
-
+    vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
+    
     # Cannot resize if VM has snapshots
     if vm.has_snapshots?
         raise "'disk-resize' operation is not supported for VMs with system snapshots."
