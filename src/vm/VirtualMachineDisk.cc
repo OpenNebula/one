@@ -1625,7 +1625,7 @@ int VirtualMachineDisks::check_tm_mad(const string& tm_mad)
     {
         int ds_img_id;
         Datastore * ds_img;
-        string ln_target, clone_target;
+        string ln_target, clone_target, disk_type;
         string tm_mad_disk, tm_mad_sys, _tm_mad;
         _tm_mad = tm_mad;
 
@@ -1648,7 +1648,7 @@ int VirtualMachineDisks::check_tm_mad(const string& tm_mad)
                 return -1;
             }
 
-            if ( ds_img->get_tm_mad_targets(tm_mad, ln_target, clone_target) != 0 )
+            if ( ds_img->get_tm_mad_targets(tm_mad, ln_target, clone_target, disk_type) != 0 )
             {
                 return -1;
             }
@@ -1657,6 +1657,7 @@ int VirtualMachineDisks::check_tm_mad(const string& tm_mad)
 
             (*it)->replace("CLONE_TARGET", clone_target);
             (*it)->replace("LN_TARGET", ln_target);
+            (*it)->replace("DISK_TYPE", disk_type);
             (*it)->replace("TM_MAD_SYSTEM", one_util::tolower(tm_mad_sys));
         }
         else

@@ -1098,7 +1098,7 @@ bool Datastore::is_persistent_only()
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Datastore::get_tm_mad_targets(const string &tm_mad, string& ln_target, string& clone_target)
+int Datastore::get_tm_mad_targets(const string &tm_mad, string& ln_target, string& clone_target, string& disk_type)
 {
     if (!tm_mad.empty())
     {
@@ -1115,6 +1115,13 @@ int Datastore::get_tm_mad_targets(const string &tm_mad, string& ln_target, strin
         get_template_attribute("LN_TARGET_" + tm_mad_t, ln_target);
 
         if (ln_target.empty())
+        {
+            return -1;
+        }
+
+        get_template_attribute("DISK_TYPE_" + tm_mad_t, disk_type);
+
+        if (disk_type.empty())
         {
             return -1;
         }

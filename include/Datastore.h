@@ -264,7 +264,7 @@ public:
      *  Verify the proper definition of the TM_MAD by checking the attributes
      *  related to the TM defined in TM_MAD_CONF
      */
-    int get_tm_mad_targets(const string &tm_mad, string& ln_target, string& clone_target);
+    int get_tm_mad_targets(const string &tm_mad, string& ln_target, string& clone_target, string& disk_type);
 
 private:
 
