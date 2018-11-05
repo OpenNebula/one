@@ -763,6 +763,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     PoolObjectAuth * auth_ds_perms;
 
     string tm_mad;
+    string ln_target, clone_target;
     string error_str;
 
     bool auth = false;
@@ -976,6 +977,15 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     if ( check_nic_auto && vm->get_auto_network_leases(&tmpl, error_str) != 0 )
+    {
+        att.resp_msg = error_str;
+        failure_response(ACTION, att);
+
+        vm->unlock();
+        return;
+    }
+
+    if ( vm->check_tm_mad_disks(tm_mad) != 0)
     {
         att.resp_msg = error_str;
         failure_response(ACTION, att);

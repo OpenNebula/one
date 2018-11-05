@@ -1274,7 +1274,8 @@ public:
      *    @param  uid for template owner
      *    @param  ar the AuthRequest object
      *    @param  tmpl the virtual machine template
-     *    @param  check_lock for check if the resource is lock or not
+     *    @param  
+     * lock for check if the resource is lock or not
      */
     static void set_auth_request(int uid, AuthRequest& ar,
             VirtualMachineTemplate *tmpl, bool check_lock);
@@ -1639,6 +1640,13 @@ public:
      *    @return 0 if success
      */
     int get_auto_network_leases(VirtualMachineTemplate * tmpl, string &estr);
+
+    /**
+     *  Check if a tm_mad is valid for the Virtual Machine Disks and set
+     *  clone_target and ln_target
+     *  @param tm_mad is the tm_mad for system datastore chosen
+     */
+    int check_tm_mad_disks(const string& tm_mad);
 
 private:
 
