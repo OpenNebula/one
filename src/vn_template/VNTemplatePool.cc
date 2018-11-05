@@ -71,7 +71,7 @@ int VNTemplatePool::allocate (
 
 
 error_duplicated:
-    oss << "NAME is already taken by TEMPLATE " << db_oid << ".";
+    oss << "NAME is already taken by VN TEMPLATE " << db_oid << ".";
     error_str = oss.str();
 
 error_name:

@@ -128,13 +128,7 @@ int VirtualNetworkPool::allocate (
     vn = new VirtualNetwork(uid, gid, uname, gname, umask, pvid,
                             cluster_ids, vn_template);
 
-    // Check name
-    vn->PoolObjectSQL::get_template_attribute("NAME", name);
 
-    if ( !PoolObjectSQL::name_is_valid(name, error_str) )
-    {
-        goto error_name;
-    }
 
     // Check for duplicates
     db_oid = exist(name, uid);

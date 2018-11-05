@@ -230,8 +230,54 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     ostringstream       ose;
 
     string sg_str, vis;
+    
+    string value;
+    string name;
+    string prefix;
 
+    
     int rc, num_ars;
+
+    ostringstream oss;
+
+    // ------------------------------------------------------------------------
+    // Set a name if the VN has not got one and VN_ID
+    // ------------------------------------------------------------------------
+    obj_template->erase("VNID");
+    obj_template->add("VNID", oid);
+
+    obj_template->get("TEMPLATE_ID", value);
+    obj_template->erase("TEMPLATE_ID");
+
+    if (!value.empty())
+    {
+        obj_template->add("TEMPLATE_ID", value);
+    }
+
+    obj_template->get("NAME",name);
+    obj_template->erase("NAME");
+
+    obj_template->get("TEMPLATE_NAME", prefix);
+    obj_template->erase("TEMPLATE_NAME");
+
+    if (prefix.empty())
+    {
+        prefix = "one";
+    }
+
+    if (name.empty() == true)
+    {
+        oss.str("");
+        oss << prefix << "-" << oid;
+        name = oss.str();
+    }
+
+    if ( !PoolObjectSQL::name_is_valid(name, error_str) )
+    {
+        goto error_name;
+    }
+
+    this->name = name;
 
     //--------------------------------------------------------------------------
     // VirtualNetwork Attributes from the template
@@ -244,7 +290,6 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     //
     // Note: VLAN_IDs if not set will be allocated in VirtualNetworkPool
     //--------------------------------------------------------------------------
-    erase_template_attribute("NAME",name);
 
     if (name.empty())
     {
