@@ -163,8 +163,7 @@ int VirtualNetworkPool::allocate (
 error_duplicated:
     oss << "NAME is already taken by NET " << db_oid << ".";
     error_str = oss.str();
-
-error_name:
+    
     delete vn;
     *oid = -1;
 

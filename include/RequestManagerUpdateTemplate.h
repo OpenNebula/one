@@ -75,7 +75,7 @@ class VirtualNetworkTemplateUpdateTemplate: public RequestManagerUpdateTemplate
 {
 public:
     VirtualNetworkTemplateUpdateTemplate():
-        RequestManagerUpdateTemplate("one.template.update",
+        RequestManagerUpdateTemplate("one.vntemplate.update",
                                      "Updates a virtual network template")
     {
         Nebula& nd  = Nebula::instance();

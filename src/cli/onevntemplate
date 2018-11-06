@@ -80,7 +80,9 @@ CommandParser::CmdParser.new(ARGV) do
         OneVNTemplateHelper::VN_NAME,
         OneVNTemplateHelper::MULTIPLE,
         OneVNTemplateHelper::USERDATA,
-        OneVNTemplateHelper::EXTENDED
+        OneVNTemplateHelper::EXTENDED,
+        OpenNebulaHelper::AS_USER,
+        OpenNebulaHelper::AS_GROUP
     ]
 
     ########################################################################
@@ -182,6 +184,12 @@ CommandParser::CmdParser.new(ARGV) do
             :options => instantiate_options do
         exit_code = 0
 
+        if args[1] && OpenNebulaHelper.create_template_options_used?(options)
+            STDERR.puts 'You cannot use both template file and template' \
+                        ' creation options.'
+            next -1
+        end
+
         number = options[:multiple] || 1
         user_inputs = nil
 
@@ -201,15 +209,15 @@ CommandParser::CmdParser.new(ARGV) do
 
                 if args[1]
                     extra_template = File.read(args[1])
-                #else
-                #    res = OpenNebulaHelper.create_template(options, t)
-#
-                #    if res.first != 0
-                #        STDERR.puts res.last
-                #        next -1
-                #    end
-#
-                #    extra_template = res.last
+                else
+                    res = OpenNebulaHelper.create_template(options, t)
+
+                    if res.first != 0
+                        STDERR.puts res.last
+                        next -1
+                    end
+
+                    extra_template = res.last
                 end
 
                 #if !user_inputs

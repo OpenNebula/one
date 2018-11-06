@@ -179,6 +179,20 @@ EOT
         }
     ]
 
+    AS_USER = {
+            :name   => 'as_uid',
+            :large  => '--as_uid uid',
+            :format => Integer,
+            :description => 'The User ID to instantiate the VM'
+    }
+
+    AS_GROUP = {
+            :name   => 'as_gid',
+            :large  => '--as_gid gid',
+            :format => Integer,
+            :description => 'The Group ID to instantiate the VM'
+    }
+    
     #NOTE: Other options defined using this array, add new options at the end
     TEMPLATE_OPTIONS=[
         {
@@ -368,18 +382,8 @@ EOT
             :description => "In a vCenter environment sets the the VMs and Template folder where the VM will be placed in." \
             " The path uses slashes to separate folders. For example: --vcenter_vm_folder \"/Management/VMs\""
         },
-        {
-            :name   => 'as_uid',
-            :large  => '--as_uid uid',
-            :format => Integer,
-            :description => 'The User ID to instantiate the VM'
-        },
-        {
-            :name   => 'as_gid',
-            :large  => '--as_gid gid',
-            :format => Integer,
-            :description => 'The Group ID to instantiate the VM'
-        }
+        AS_GROUP,
+        AS_USER
     ]
 
     FORCE={
