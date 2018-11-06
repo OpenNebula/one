@@ -72,7 +72,8 @@ module OpenNebula
             "VROUTER"       =>  0x4000000000000,
             "MARKETPLACE"   =>  0x8000000000000,
             "MARKETPLACEAPP"=> 0x10000000000000,
-            "VMGROUP"       => 0x20000000000000
+            "VMGROUP"       => 0x20000000000000,
+            "VNTEMPLATE"    => 0x40000000000000
         }
 
         RIGHTS =

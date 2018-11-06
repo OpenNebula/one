@@ -28,7 +28,7 @@ const long long AclRule::CLUSTER_ID     = 0x0000000800000000LL;
 
 const long long AclRule::NONE_ID        = 0x1000000000000000LL;
 
-const int AclRule::num_pool_objects = 17;
+const int AclRule::num_pool_objects = 18;
 const PoolObjectSQL::ObjectType AclRule::pool_objects[] = {
             PoolObjectSQL::VM,
             PoolObjectSQL::HOST,
@@ -240,7 +240,7 @@ bool AclRule::malformed(string& error_str) const
         oss << "[resource] type is missing";
     }
 
-    if ( (resource & 0xFFC0000000000000LL) != 0 )
+    if ( (resource & 0xFFA0000000000000LL) != 0 )
     {
         if ( error )
         {
