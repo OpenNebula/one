@@ -1621,7 +1621,7 @@ int VirtualMachineDisks::check_tm_mad(const string& tm_mad)
 {
     DatastorePool * dspool = Nebula::instance().get_dspool();
 
-    string _tm_mad = tm_mad;
+    std::string _tm_mad = tm_mad;
     
     one_util::toupper(_tm_mad);
 
@@ -1629,7 +1629,7 @@ int VirtualMachineDisks::check_tm_mad(const string& tm_mad)
     {
         int ds_img_id;
                 
-        string tm_mad_disk
+        std::string tm_mad_disk;
 
         (*it)->vector_value("TM_MAD", tm_mad_disk);
 
@@ -1642,7 +1642,7 @@ int VirtualMachineDisks::check_tm_mad(const string& tm_mad)
 
         if ( (*it)->vector_value("DATASTORE_ID", ds_img_id) == 0 )
         {
-	    string ln_target, clone_target, disk_type;
+            std::string ln_target, clone_target, disk_type;
 
             Datastore * ds_img = dspool->get_ro(ds_img_id);
 
