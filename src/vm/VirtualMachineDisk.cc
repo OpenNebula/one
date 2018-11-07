@@ -1621,17 +1621,18 @@ int VirtualMachineDisks::check_tm_mad(const string& tm_mad)
 {
     DatastorePool * dspool = Nebula::instance().get_dspool();
 
+    string _tm_mad = tm_mad;
+    
+    one_util::toupper(_tm_mad);
+
     for (disk_iterator it = begin(); it != end() ; ++it)
     {
         int ds_img_id;
-        Datastore * ds_img;
-        string ln_target, clone_target, disk_type;
-        string tm_mad_disk, tm_mad_sys, _tm_mad;
-        _tm_mad = tm_mad;
-
-        one_util::toupper(_tm_mad);
+                
+        string tm_mad_disk
 
         (*it)->vector_value("TM_MAD", tm_mad_disk);
+
         one_util::toupper(tm_mad_disk);
 
         if ( _tm_mad == tm_mad_disk)
@@ -1641,7 +1642,9 @@ int VirtualMachineDisks::check_tm_mad(const string& tm_mad)
 
         if ( (*it)->vector_value("DATASTORE_ID", ds_img_id) == 0 )
         {
-            ds_img = dspool->get_ro(ds_img_id);
+	    string ln_target, clone_target, disk_type;
+
+            Datastore * ds_img = dspool->get_ro(ds_img_id);
 
             if ( ds_img == 0 )
             {
@@ -1653,12 +1656,10 @@ int VirtualMachineDisks::check_tm_mad(const string& tm_mad)
                 return -1;
             }
 
-            tm_mad_sys = tm_mad;
-
             (*it)->replace("CLONE_TARGET", clone_target);
             (*it)->replace("LN_TARGET", ln_target);
             (*it)->replace("DISK_TYPE", disk_type);
-            (*it)->replace("TM_MAD_SYSTEM", one_util::tolower(tm_mad_sys));
+            (*it)->replace("TM_MAD_SYSTEM", tm_mad);
         }
         else
         {
