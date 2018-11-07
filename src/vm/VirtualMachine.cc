@@ -3474,9 +3474,10 @@ int VirtualMachine::parse_sched_action(string& error_str)
 int VirtualMachine::check_tm_mad_disks(const string& tm_mad)
 {
     string tm_mad_sys;
+    
     obj_template->get("TM_MAD_SYSTEM", tm_mad_sys);
 
-    if ( tm_mad_sys != "" ) // VM has TM_MAD_SYSTEM already defined
+    if ( !tm_mad_sys.empty() ) // VM has TM_MAD_SYSTEM already defined
     {
         return 0;
     }
