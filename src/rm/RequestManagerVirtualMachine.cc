@@ -763,7 +763,6 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     PoolObjectAuth * auth_ds_perms;
 
     string tm_mad;
-    string ln_target, clone_target;
     string error_str;
 
     bool auth = false;
