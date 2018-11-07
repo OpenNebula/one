@@ -225,7 +225,7 @@ int VirtualMachinePoolXML::update(int vid, const string &st) const
 
     try
     {
-        client->call("one.vm.update", "is", &result, vid, st.c_str());
+        client->call("one.vm.update", "isi", &result, vid, st.c_str(), 1);
     }
     catch (exception const& e)
     {
