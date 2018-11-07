@@ -29,24 +29,24 @@ fi
 output=$tmp_dir/$id.$extension
 
 curl $rootfs_url --output $output --silent
-qemu-img create -f raw $tmp_dir/$id.raw 2G  > /dev/null 2>&1
+qemu-img create -f raw $tmp_dir/$id.raw 5G  > /dev/null 2>&1
 mkfs.ext4 -F $tmp_dir/$id.raw > /dev/null 2>&1
 mkdir $tmp_dir/$id
 sudo mount $tmp_dir/$id.raw $tmp_dir/$id
 sudo chown oneadmin:oneadmin $tmp_dir/$id
-#sudo mkdir $tmp_dir/$id/rootfs
-mkdir $tmp_dir/$id/rootfs
-#sudo chown oneadmin:oneadmin $tmp_dir/$id/rootfs
-echo "sudo tar $untar_options $output -C $tmp_dir/$id/rootfs" >> /tmp/log
-sudo tar $untar_options $output -C $tmp_dir/$id/rootfs > /dev/null 2>&1
+##sudo mkdir $tmp_dir/$id/rootfs
+#mkdir $tmp_dir/$id/rootfs
+##sudo chown oneadmin:oneadmin $tmp_dir/$id/rootfs
+#echo "sudo tar $untar_options $output -C $tmp_dir/$id" >> /tmp/log
+sudo tar $untar_options $output -C $tmp_dir/$id > /dev/null 2>&1
 sync
 
-cp $common_dir/metadata.yaml $tmp_dir/$id/metadata.yaml
-cp -r $common_dir/templates $tmp_dir/$id/templates
+#cp $common_dir/metadata.yaml $tmp_dir/$id/metadata.yaml
+#cp -r $common_dir/templates $tmp_dir/$id/templates
 
-sed -i -e "s/description_goes_here/$distro $version ($date)/g" $tmp_dir/$id/metadata.yaml
-sed -i -e "s/distro_goes_here/$distro/g" $tmp_dir/$id/metadata.yaml
-sed -i -e "s/version_goes_here/$version/g" $tmp_dir/$id/metadata.yaml
+#sed -i -e "s/description_goes_here/$distro $version ($date)/g" $tmp_dir/$id/metadata.yaml
+#sed -i -e "s/distro_goes_here/$distro/g" $tmp_dir/$id/metadata.yaml
+#sed -i -e "s/version_goes_here/$version/g" $tmp_dir/$id/metadata.yaml
 
 case "$rootfs_url" in
 *ubuntu*|*debian*)
@@ -100,12 +100,17 @@ EOT
     ;;
 esac
 
-cat << EOF | sudo chroot $tmp_dir/$id/rootfs $terminal
+cat << EOF | sudo chroot $tmp_dir/$id $terminal
 $commands
 EOF
 sync
 
 rm -f $output
 sudo umount $tmp_dir/$id
+
+#######Temporal
+#qemu-img convert -f raw -O qcow2 $tmp_dir/$id.raw $tmp_dir/$id.qcow2 > /dev/null 2>&1
+
 rmdir $tmp_dir/$id
 cat $tmp_dir/$id.raw && rm -f $tmp_dir/$id.raw
+#cat $tmp_dir/$id.qcow2 && rm -f $tmp_dir/$id.qcow2
