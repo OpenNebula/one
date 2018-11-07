@@ -240,7 +240,7 @@ bool AclRule::malformed(string& error_str) const
         oss << "[resource] type is missing";
     }
 
-    if ( (resource & 0xFFA0000000000000LL) != 0 )
+    if ( (resource & 0xFF80000000000000LL) != 0 )
     {
         if ( error )
         {

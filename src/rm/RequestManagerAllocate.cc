@@ -739,6 +739,11 @@ bool VirtualNetworkTemplateAllocate::allocate_authorization(
     string      t64;
     string      aname;
 
+    if (!RequestManagerAllocate::allocate_authorization(paramList, tmpl, att, cluster_perms))
+    {
+        return false;
+    }
+
     VirtualNetworkTemplate * ttmpl = static_cast<VirtualNetworkTemplate *>(tmpl);
 
     // ------------ Check template for restricted attributes -------------------
