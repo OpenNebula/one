@@ -357,12 +357,6 @@ public:
      */
     void to_xml_short(std::ostringstream& oss) const;
 
-    /**
-     *  Check if a tm_mad is valid and set clone_target and ln_target
-     *  @param tm_mad is the tm_mad for system datastore chosen
-     */
-    int check_tm_mad(const string& tm_mad);
-
 private:
 
     Snapshots * snapshots;
@@ -793,7 +787,7 @@ public:
      *  clone_target and ln_target
      *  @param tm_mad is the tm_mad for system datastore chosen
      */
-    int check_tm_mad(const string& tm_mad);
+    int check_tm_mad(const string& tm_mad, string& error);
 
 protected:
 

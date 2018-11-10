@@ -1646,7 +1646,7 @@ public:
      *  clone_target and ln_target
      *  @param tm_mad is the tm_mad for system datastore chosen
      */
-    int check_tm_mad_disks(const string& tm_mad);
+    int check_tm_mad_disks(const string& tm_mad, string& error);
 
 private:
 

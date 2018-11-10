@@ -3471,7 +3471,7 @@ int VirtualMachine::parse_sched_action(string& error_str)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int VirtualMachine::check_tm_mad_disks(const string& tm_mad)
+int VirtualMachine::check_tm_mad_disks(const string& tm_mad, string& error)
 {
     string tm_mad_sys;
     
@@ -3481,7 +3481,7 @@ int VirtualMachine::check_tm_mad_disks(const string& tm_mad)
     {
         return 0;
     }
-    if ( disks.check_tm_mad(tm_mad) != 0 )
+    if ( disks.check_tm_mad(tm_mad, error) != 0 )
     {
         return -1;
     }

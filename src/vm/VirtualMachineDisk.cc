@@ -1617,7 +1617,7 @@ std::string& VirtualMachineDisks::to_xml_short(std::string& xml)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachineDisks::check_tm_mad(const string& tm_mad)
+int VirtualMachineDisks::check_tm_mad(const string& tm_mad, string& error)
 {
     DatastorePool * dspool = Nebula::instance().get_dspool();
 
@@ -1648,11 +1648,14 @@ int VirtualMachineDisks::check_tm_mad(const string& tm_mad)
 
             if ( ds_img == 0 )
             {
+                error = "Datastore does not exist";
                 return -1;
             }
 
-            if ( ds_img->get_tm_mad_targets(tm_mad, ln_target, clone_target, disk_type) != 0 )
+            if ( ds_img->get_tm_mad_targets(tm_mad, ln_target, clone_target, 
+                        disk_type) != 0 )
             {
+                error = "Image Datastore does not support transfer mode: " + tm_mad;
                 return -1;
             }
 
@@ -1663,6 +1666,7 @@ int VirtualMachineDisks::check_tm_mad(const string& tm_mad)
         }
         else
         {
+            error = "Image datastore not defined for VM DISK";
             return -1;
         }
 
