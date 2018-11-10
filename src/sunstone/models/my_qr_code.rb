@@ -17,12 +17,12 @@
 require 'rqrcode'
 
 class MyQrCode
-  def self.build(code:)
+  def self.build(code)
     qr_code = RQRCode::QRCode.new(code)
-    new(qr_code: qr_code)
+    new(qr_code)
   end
 
-  def initialize(qr_code:)
+  def initialize(qr_code)
     @qr_code = qr_code
   end
 

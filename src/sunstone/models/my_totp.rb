@@ -17,12 +17,12 @@
 require 'rotp'
 
 class MyTotp
-  def self.build(secret:)
+  def self.build(secret)
     totp = ROTP::TOTP.new(secret, issuer: 'Sunstone')
-    new(totp: totp)
+    new(totp)
   end
 
-  def initialize(totp:)
+  def initialize(totp)
     @totp = totp
     @five_minutes = 5 * 60
   end
@@ -31,7 +31,7 @@ class MyTotp
     @totp.verify(token, drift_ahead: @five_minutes, drift_behind: @five_minutes)
   end
 
-  def provisioning_uri(account_name:)
+  def provisioning_uri(account_name)
     @totp.provisioning_uri(account_name)
   end
 end

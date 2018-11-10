@@ -78,7 +78,7 @@ module OpenNebulaJSON
         end
 
         def enable_two_factor_auth(params=Hash.new)
-            unless TwoFactorAuth.authenticate(secret: params["secret"], token: params["token"])
+            unless TwoFactorAuth.authenticate(params["secret"], params["token"])
               return OpenNebula::Error.new("Invalid token.")
             end
 
