@@ -17,8 +17,8 @@
 require 'rotp'
 
 class MyTotp
-  def self.build(secret)
-    totp = ROTP::TOTP.new(secret, issuer: 'Sunstone')
+  def self.build(secret, issuer)
+    totp = ROTP::TOTP.new(secret, issuer: issuer)
     new(totp)
   end
 

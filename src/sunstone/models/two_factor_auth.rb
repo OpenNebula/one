@@ -18,7 +18,7 @@ require 'my_totp'
 
 module TwoFactorAuth
   def self.authenticate(secret, token)
-    totp = MyTotp.build(secret)
+    totp = MyTotp.build(secret, nil)
     totp.verify(token)
   end
 end
