@@ -118,7 +118,7 @@ class Storage
             one_image[:template] << "PATH=\"vcenter://#{image_path}\"\n"
             one_image[:template] << "TYPE=\"#{image_type}\"\n"
             one_image[:template] << "PERSISTENT=\"#{opts[:persistent]}\"\n"
-            one_image[:template] << "VCENTER_IMPORTED=\"YES\"\n"
+            one_image[:template] << "VCENTER_IMPORTED=\"YES\"\n" unless CONFIG[:delete_images]
             one_image[:template] << "DEV_PREFIX=\"#{image_prefix}\"\n"
         else
             # Return the image XML if it already exists
@@ -631,7 +631,7 @@ class Datastore < Storage
                     one_image << "PATH=\"vcenter://#{image_path}\"\n"
                     one_image << "PERSISTENT=\"NO\"\n"
                     one_image << "TYPE=\"#{image_type}\"\n"
-                    one_image << "VCENTER_IMPORTED=\"YES\"\n"
+                    one_image << "VCENTER_IMPORTED=\"YES\"\n" unless CONFIG[:delete_images]
                     one_image << "DEV_PREFIX=\"#{disk_prefix}\"\n"
 
                     # Check image hasn't already been imported
