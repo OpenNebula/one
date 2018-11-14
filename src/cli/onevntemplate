@@ -29,7 +29,7 @@ $LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
 
 require 'command_parser'
 require 'one_helper/onevntemplate_helper'
-require 'one_helper/onevm_helper'
+require 'one_helper/onevnet_helper'
 require 'pry'
 
 CommandParser::CmdParser.new(ARGV) do
@@ -181,14 +181,8 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :instantiate, instantiate_desc, :templateid, [:file, nil],
-            :options => instantiate_options do
+            :options => instantiate_options + OneVNetHelper::ADDAR_OPTIONS do
         exit_code = 0
-
-        if args[1] && OpenNebulaHelper.create_template_options_used?(options)
-            STDERR.puts 'You cannot use both template file and template' \
-                        ' creation options.'
-            next -1
-        end
 
         number = options[:multiple] || 1
         user_inputs = nil
@@ -218,14 +212,12 @@ CommandParser::CmdParser.new(ARGV) do
                     end
 
                     extra_template = res.last
+
+                    if OneVNetHelper.add_ar_options_used?(options)
+                        extra_template << OpenNebulaHelper.create_ar(options)
+                    end
                 end
-
-                #if !user_inputs
-                #    user_inputs = OneVNTemplateHelper.get_user_inputs(t.to_hash)
-                #end
-
-                #extra_template << "\n#{user_inputs}"
-
+                
                 res = t.instantiate(name, extra_template)
 
                 if !OpenNebula.is_error?(res)
