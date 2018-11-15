@@ -109,7 +109,6 @@ Request::ErrorCode VNTemplateInstantiate::request_execute(int id, string name,
 
     tmpl_name   = rtmpl->get_name();
     tmpl        = rtmpl->clone_template();
-    //cluster_ids = rtmpl->get_cluster_ids();
 
     rtmpl->get_permissions(perms);
 

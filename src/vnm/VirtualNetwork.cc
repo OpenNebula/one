@@ -240,9 +240,9 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     ostringstream oss;
 
-    // ------------------------------------------------------------------------
-    // Set a name if the VN has not got one and VN_ID
-    // ------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------
+    // Set a name if the VN has not got one (and is created via template) and VN_ID
+    // -----------------------------------------------------------------------------
     obj_template->erase("VNID");
     obj_template->add("VNID", oid);
 
@@ -253,16 +253,16 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     {
         obj_template->add("TEMPLATE_ID", value);
     }
-
+    
     obj_template->get("NAME",name);
     obj_template->erase("NAME");
 
     obj_template->get("TEMPLATE_NAME", prefix);
     obj_template->erase("TEMPLATE_NAME");
 
-    if (prefix.empty())
+    if (prefix.empty() && name.empty())
     {
-        prefix = "one";
+        goto error_name;
     }
 
     if (name.empty() == true)
