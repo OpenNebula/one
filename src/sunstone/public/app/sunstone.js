@@ -1185,7 +1185,11 @@ define(function(require) {
   };
 
   var _rightInfoVisible = function(context) {
-    return $(".sunstone-info", context).is(":visible");
+    return $(".sunstone-info", context).is(":visible")
+  };
+
+  var _infoTabVisible = function(context, tab) {
+    return $(tab, $(".sunstone-info", context)).is(":visible")
   };
 
   var _rightListVisible = function(context) {
@@ -1285,6 +1289,7 @@ define(function(require) {
 
 
     "rightInfoVisible": _rightInfoVisible,
+    "infoTabVisible": _infoTabVisible,
     "rightListVisible": _rightListVisible,
     "rightInfoResourceId": _rightInfoResourceId,
 
