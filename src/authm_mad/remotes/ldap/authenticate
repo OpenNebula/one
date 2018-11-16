@@ -126,7 +126,7 @@ order.each do |name|
 
                     # authentication success
                     group_list = groups.join(' ')
-                    escaped_user = URI_PARSER.escape(user)
+                    escaped_user = URI_PARSER.escape(user).strip.downcase
                     escaped_secret = URI_PARSER.escape(user_name)
 
                     puts "ldap #{escaped_user} #{escaped_secret} #{group_list}"
