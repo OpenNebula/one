@@ -57,7 +57,6 @@ md5          = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5"]
 sha1         = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/SHA1"]
 nodecomp     = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/NO_DECOMPRESS"]
 limit_bw     = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/LIMIT_TRANSFER_BW"]
-image_id     = drv_action['/DS_DRIVER_ACTION_DATA/IMAGE/ID']
 
 check_valid img_path, "img_path"
 
