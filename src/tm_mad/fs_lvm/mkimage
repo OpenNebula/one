@@ -1,1 +1,147 @@
-../shared/mkimage
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# mkimage size format host:remote_system_ds/disk.i vmid dsid
+#   - size in MB of the image
+#   - format for the image
+#   - host is the target host to deploy the VM
+#   - remote_system_ds is the path for the system datastore in the host
+#   - vmid is the id of the VM
+#   - dsid is the target datastore (0 is the system datastore)
+
+SIZE=$1
+FSTYPE=$2
+DST=$3
+
+VM_ID=$4
+DS_ID=$5
+
+if [ -z "${ONE_LOCATION}" ]; then
+    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+else
+    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+fi
+
+DRIVER_PATH=$(dirname $0)
+
+source $TMCOMMON
+source ${DRIVER_PATH}/../../datastore/libfs.sh
+
+#-------------------------------------------------------------------------------
+# Set dst path and dir
+#-------------------------------------------------------------------------------
+
+DST_PATH=`arg_path $DST`
+DST_HOST=`arg_host $DST`
+DST_DIR=`dirname $DST_PATH`
+
+DST_DS_PATH="$(dirname $(dirname $(dirname $DST_PATH)))"
+
+DS_SYS_ID=$(echo $DST_DIR | $AWK -F '/' '{print $(NF-1)}')
+
+#-------------------------------------------------------------------------------
+# Get Image information
+#-------------------------------------------------------------------------------
+
+DISK_ID=$(basename ${DST_PATH} | cut -d. -f2)
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+unset i j XPATH_ELEMENTS
+
+FILE_SIZE=`fs_size "${SRC_PATH}" YES`
+
+if [ $? -ne 0 ]; then
+    FILE_SIZE=0
+fi
+
+if [ $FILE_SIZE -gt $SIZE ]; then
+    SIZE="$FILE_SIZE"
+fi
+
+# Compute the seek start for zeroing of the new LV as the smaller
+# number of ONE or file image virtual size. We start to zero from
+# 1 MiB before the end of image size prior to the copying.
+if [ "${FILE_SIZE}" -lt "${SIZE}" ]; then
+    ZERO_SEEK_BYTES=$FILE_SIZE
+else
+    ZERO_SEEK_BYTES=$SIZE
+fi
+
+if [ "${ZERO_SEEK_BYTES}" -gt 0 ]; then
+    ZERO_SEEK_BYTES=$(( (ZERO_SEEK_BYTES-1) * 1024 * 1024 ))
+else
+    ZERO_SEEK_BYTES=0
+fi
+
+#-------------------------------------------------------------------------------
+# Create the snapshot and link it
+#-------------------------------------------------------------------------------
+
+LV_NAME="lv-one-$VM_ID-$DISK_ID"
+VG_NAME="vg-one-$DS_SYS_ID"
+DEV="/dev/${VG_NAME}/${LV_NAME}"
+
+# Execute lvcreate with a lock in the frontend
+CREATE_CMD=$(cat <<EOF
+    set -e -o pipefail
+    $SUDO $SYNC
+    $SUDO $LVSCAN
+    $SUDO $LVCREATE --wipesignatures n -L${SIZE}M -n $LV_NAME $VG_NAME
+EOF
+)
+
+MKFS_CMD=`mkfs_command $DST_PATH $FSTYPE $SIZE`
+
+LOCK="tm-fs_lvm-${DS_SYS_ID}.lock"
+exclusive "${LOCK}" 120 ssh_exec_and_log "$DST_HOST" "$CREATE_CMD" \
+        "Error creating LV named $LV_NAME"
+
+# if user requested a swap, we need to create a local
+# swap formatted image and upload into existing Ceph image
+MKFS_CMD=`mkfs_command $DST_PATH $FSTYPE $SIZE`
+
+MKIMAGE_CMD=$(cat <<EOF
+    set -e -o pipefail
+    mkdir -p $DST_DIR
+
+    hostname -f >"${DST_DIR}/.host" || :
+
+    # zero trailing space
+    LVSIZE=\$(${SUDO} ${LVS} --nosuffix --noheadings --units B -o lv_size "${DEV}" | tr -d '[:blank:]')
+    ${DD} if=/dev/zero of="${DEV}" bs=16M \
+        oflag=seek_bytes iflag=count_bytes \
+        seek="${ZERO_SEEK_BYTES}" count="\$(( LVSIZE - ${ZERO_SEEK_BYTES} ))"
+
+    if [ "$FSTYPE" = "swap" ]; then
+        ${MKFS_CMD}
+
+        ${QEMU_IMG} convert -n \
+            -f raw "${DST_PATH}" \
+            -O raw "${DEV}"
+    fi
+
+    rm -f "$DST_PATH"
+    ln -s "$DEV" "$DST_PATH"
+
+EOF
+)
+
+ssh_exec_and_log "$DST_HOST" "$MKIMAGE_CMD" \
+        "Could not create image $DST_PATH"
+exit 0
