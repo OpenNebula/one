@@ -160,9 +160,116 @@ func (image *Image) StateString() (string, error) {
 	return ImageState(state).String(), nil
 }
 
+// Clone clones an existing image. It returns the clone ID
+func (image *Image) Clone(cloneName string, dsid int) (uint, error) {
+	response, err := client.Call("one.image.clone", image.ID, cloneName, dsid)
+	if err != nil {
+		return 0, err
+	}
+
+	return uint(response.BodyInt()), nil
+}
+
+// Update will modify the image's template. If appendTemplate is 0, it will
+// replace the whole template. If its 1, it will merge.
+func (image *Image) Update(tpl string, appendTemplate int) error {
+	_, err := client.Call("one.image.update", image.ID, tpl, appendTemplate)
+	return err
+}
+
+// Chtype changes the type of the Image
+func (image *Image) Chtype(newType string) error {
+	_, err := client.Call("one.image.chtype", image.ID, newType)
+	return err
+}
+
+// Chown changes the owner/group of the image. If uid or gid is -1 it will not
+// change
+func (image *Image) Chown(uid, gid int) error {
+	_, err := client.Call("one.image.chown", image.ID, uid, gid)
+	return err
+}
+
+// Chmod changes the permissions of the image. If any perm is -1 it will not
+// change
+func (image *Image) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
+	_, err := client.Call("one.image.chmod", image.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
+	return err
+}
+
+// Rename changes the name of the image
+func (image *Image) Rename(newName string) error {
+	_, err := client.Call("one.image.rename", image.ID, newName)
+	return err
+}
+
+// SnapshotDelete will delete a snapshot from the image
+func (image *Image) SnapshotDelete(snapID int) error {
+	_, err := client.Call("one.image.snapshotdelete", image.ID, snapID)
+	return err
+}
+
+// SnapshotRevert reverts image state to a previous snapshot
+func (image *Image) SnapshotRevert(snapID int) error {
+	_, err := client.Call("one.image.snapshotrevert", image.ID, snapID)
+	return err
+}
+
+// SnapshotFlatten flattens the snapshot image and discards others
+func (image *Image) SnapshotFlatten(snapID int) error {
+	_, err := client.Call("one.image.snapshotflatten", image.ID, snapID)
+	return err
+}
+
+// Enable enables (or disables) the image
+func (image *Image) Enable(enable bool) error {
+	_, err := client.Call("one.image.enable", image.ID, enable)
+	return err
+}
+
+// Persistent sets the image as persistent (or not)
+func (image *Image) Persistent(persistent bool) error {
+	_, err := client.Call("one.image.persistent", image.ID, persistent)
+	return err
+}
+
+// Lock locks the image following block level.
+func (image *Image) Lock(level uint) error {
+	_, err := client.Call("one.image.lock", image.ID, level)
+	return err
+}
+
+// Unlock unlocks the image.
+func (image *Image) Unlock() error {
+	_, err := client.Call("one.image.unlock", image.ID)
+	return err
+}
+
 // Delete will remove the image from OpenNebula, which will remove it from the
 // backend.
 func (image *Image) Delete() error {
 	_, err := client.Call("one.image.delete", image.ID)
 	return err
+}
+
+// Lock actions
+
+// LockUse locks USE actions for the image
+func (image *Image) LockUse() error {
+    return image.Lock(1)
+}
+
+// LockManage locks MANAGE actions for the image
+func (image *Image) LockManage() error {
+    return image.Lock(2)
+}
+
+// LockAdmin locks ADMIN actions for the image
+func (image *Image) LockAdmin() error {
+    return image.Lock(3)
+}
+
+// LockAll locks all actions for the image
+func (image *Image) LockAll() error {
+    return image.Lock(4)
 }
