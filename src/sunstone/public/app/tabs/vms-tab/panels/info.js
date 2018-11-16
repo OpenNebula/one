@@ -47,7 +47,7 @@ define(function(require) {
 
   setInterval(function() {
     var tab = $('#' + TAB_ID);
-    if (Sunstone.rightInfoVisible(tab)){
+    if (Sunstone.infoTabVisible(tab, "#vm_info_tab")){
       $("#vms-tabrefresh_buttons button").click();
     }
   }, Config.autorefreshInfo("vms-tab"));
