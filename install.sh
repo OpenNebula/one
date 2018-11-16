@@ -60,8 +60,6 @@ if [ $# = 0 ] ; then
     exit 1
 fi
 
-eval set -- "$TEMP_OPT"
-
 INSTALL_ETC="yes"
 UNINSTALL="no"
 LINK="no"
@@ -75,24 +73,26 @@ ONEADMIN_GROUP=`id -g`
 SRC_DIR=$PWD
 DOCKER_MACHINE="no"
 
-while getopts $PARAMETERS opt ; do
+while getopts $PARAMETERS opt 
+do
     case $opt in
-        -e) DOCKER_MACHINE="yes" ;;
-        -h) usage; exit 0;;
-        -k) INSTALL_ETC="no" ;;
-        -r) UNINSTALL="yes" ;;
-        -l) LINK="yes" ;;
-        -c) CLIENT="yes"; INSTALL_ETC="no" ;;
-        -G) ONEGATE="yes" ;;
-        -s) SUNSTONE="yes" ;;
-        -p) SUNSTONE_DEV="no" ;;
-        -f) ONEFLOW="yes" ;;
-        -u) ONEADMIN_USER="$OPTARG" ;;
-        -g) ONEADMIN_GROUP="$OPTARG" ;;
-        -d) ROOT="$OPTARG" ;;
+        e) DOCKER_MACHINE="yes" ;;
+        h) usage; exit 0;;
+        k) INSTALL_ETC="no" ;;
+        r) UNINSTALL="yes" ;;
+        l) LINK="yes" ;;
+        c) CLIENT="yes"; INSTALL_ETC="no" ;;
+        G) ONEGATE="yes" ;;
+        s) SUNSTONE="yes" ;;
+        p) SUNSTONE_DEV="no" ;;
+        f) ONEFLOW="yes" ;;
+        u) ONEADMIN_USER="$OPTARG" ;;
+        g) ONEADMIN_GROUP="$OPTARG" ;;
+        d) ROOT="$OPTARG" ;;
         \?) usage; exit 1 ;;
     esac
 done
+shift $(($OPTIND - 1))
 
 #-------------------------------------------------------------------------------
 # Definition of locations
