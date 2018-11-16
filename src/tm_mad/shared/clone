@@ -75,6 +75,10 @@ SIZE="${XPATH_ELEMENTS[j++]}"
 ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
 TM_MAD="${XPATH_ELEMENTS[j++]}"
 
+if [ "$TM_MAD" = "fs_lvm" ]; then
+    exec $DRIVER_PATH/../fs_lvm/clone "$@"
+fi
+
 if [ "$TM_MAD" = "ssh" ]; then
     MONITOR="ssh"
 else
