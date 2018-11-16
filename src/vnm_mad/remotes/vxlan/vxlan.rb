@@ -95,7 +95,12 @@ module VXLAN
 
         text.each_line do |line|
             m = line.match(/^\s*inet6? ([a-f:\d\.]+)/i)
-            return m[1] if m
+            if m
+                next if m[1].start_with?('127.')
+                next if m[1] == '::1'
+                return m[1]
+            end
         end
+        return nil
     end
 end
