@@ -214,6 +214,12 @@ define(function(require) {
   }
 
   function _postUpdateView() {
+    var time = 2000;
+
+    if ( !SunstoneConfig.doCountAnimation ){
+      time = 1;
+    }
+
     $(".total_hosts").text(this.totalHosts);
     $(".on_hosts").text(this.onHosts);
     $(".off_hosts").text(this.offHosts);
@@ -236,7 +242,7 @@ define(function(require) {
     var percentage = ratio_allocated_cpu > 100 ? 100 : ratio_allocated_cpu;
     $("#dashboard_host_allocated_cpu_meter").animate({
       value: percentage,
-    }, 2000, "swing");
+    }, time, "swing");
 
     var ratio_real_cpu = 0;
     if (this.maxCPU > 0) {
@@ -255,7 +261,7 @@ define(function(require) {
     var percentage = ratio_real_cpu > 100 ? 100 : ratio_real_cpu;
     $("#dashboard_host_real_cpu_meter").animate({
       value: percentage,
-    }, 2000, "swing");
+    }, time, "swing");
 
     var ratio_allocated_mem = 0;
     if (this.maxMemory > 0) {
@@ -274,7 +280,7 @@ define(function(require) {
     var percentage = ratio_allocated_mem > 100 ? 100 : ratio_allocated_mem;
     $("#dashboard_host_allocated_mem_meter").animate({
       value: percentage,
-    }, 2000, "swing");
+    }, time, "swing");
 
     var ratio_real_mem = 0;
     if (this.maxMemory > 0) {
@@ -293,7 +299,7 @@ define(function(require) {
     var percentage = ratio_real_mem > 100 ? 100 : ratio_real_mem;
     $("#dashboard_host_real_mem_meter").animate({
       value: percentage,
-    }, 2000, "swing");
+    }, time, "swing");
 
   }
 

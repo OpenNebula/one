@@ -203,7 +203,7 @@ extern "C" void * rm_xml_server_loop(void *arg)
 
         oss << "Number of active connections: " << nc; 
 
-        NebulaLog::log("ReM", Log::ERROR, oss);
+        NebulaLog::log("ReM", Log::DDEBUG, oss);
 
         Connection * rc = new Connection(client_fd, cm);
 

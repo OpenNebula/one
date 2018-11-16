@@ -1553,6 +1553,7 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
 
     obj_template->erase("AUTOMATIC_REQUIREMENTS");
     obj_template->erase("AUTOMATIC_DS_REQUIREMENTS");
+    obj_template->erase("AUTOMATIC_NIC_REQUIREMENTS");
 
     int rc = get_cluster_requirements(obj_template, cluster_ids, error_str);
 
@@ -1624,6 +1625,8 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
             }
 
             oss << ")";
+
+            obj_template->add("AUTOMATIC_NIC_REQUIREMENTS", oss.str());
 
             if ( !datastore_ids.empty() )
             {
@@ -2216,12 +2219,13 @@ string& VirtualMachine::to_xml_short(string& xml)
 {
     string disks_xml, monitoring_xml, user_template_xml, history_xml, nics_xml;
     ostringstream   oss;
-    string cpu_tmpl, mem_tmpl, auto_reqs, auto_ds_reqs;
+    string cpu_tmpl, mem_tmpl, auto_reqs, auto_ds_reqs, auto_nic_reqs;
 
     obj_template->get("CPU", cpu_tmpl);
     obj_template->get("MEMORY", mem_tmpl);
     obj_template->get("AUTOMATIC_REQUIREMENTS", auto_reqs);
     obj_template->get("AUTOMATIC_DS_REQUIREMENTS", auto_ds_reqs);
+    obj_template->get("AUTOMATIC_NIC_REQUIREMENTS", auto_nic_reqs);
 
     oss << "<VM>"
         << "<ID>"        << oid       << "</ID>"
@@ -2263,6 +2267,13 @@ string& VirtualMachine::to_xml_short(string& xml)
         oss << "<AUTOMATIC_DS_REQUIREMENTS>";
         oss << one_util::escape_xml(auto_ds_reqs);
         oss << "</AUTOMATIC_DS_REQUIREMENTS>";
+    }
+
+    if (!auto_nic_reqs.empty())
+    {
+        oss << "<AUTOMATIC_NIC_REQUIREMENTS>";
+        oss << one_util::escape_xml(auto_nic_reqs);
+        oss << "</AUTOMATIC_NIC_REQUIREMENTS>";
     }
 
     oss << "</TEMPLATE>"
@@ -2897,7 +2908,8 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     }
     else if ( context_bck != 0 && context_new != 0 )
     {
-        string files_ds = context_bck->vector_value("FILES_DS");
+        string files_ds     = context_bck->vector_value("FILES_DS");
+        string files_ds_new = context_new->vector_value("FILES_DS");
 
         context_new = context_new->clone();
         context_new->remove("FILES_DS");
@@ -2918,7 +2930,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
 
         context_new = obj_template->get("CONTEXT");
 
-        if ( !files_ds.empty() )
+        if ( !files_ds.empty() && !files_ds_new.empty())
         {
             context_new->replace("FILES_DS", files_ds);
         }
@@ -3454,6 +3466,29 @@ int VirtualMachine::parse_sched_action(string& error_str)
     SchedActions sactions(user_obj_template);
 
     return sactions.parse(error_str, false);
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int VirtualMachine::check_tm_mad_disks(const string& tm_mad, string& error)
+{
+    string tm_mad_sys;
+    
+    obj_template->get("TM_MAD_SYSTEM", tm_mad_sys);
+
+    if ( !tm_mad_sys.empty() ) // VM has TM_MAD_SYSTEM already defined
+    {
+        return 0;
+    }
+    if ( disks.check_tm_mad(tm_mad, error) != 0 )
+    {
+        return -1;
+    }
+
+    obj_template->add("TM_MAD_SYSTEM", tm_mad);
+
+    return 0;
 }
 
 /* ------------------------------------------------------------------------ */

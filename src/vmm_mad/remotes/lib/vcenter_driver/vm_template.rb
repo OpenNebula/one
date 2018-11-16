@@ -404,7 +404,7 @@ class Template
             ccr_name = self["runtime.host.parent.name"]
 
             #Get disks and info required
-            vc_nics = get_vcenter_nics
+            vc_nics = get_vcenter_nics_hash
 
             # Track allocated networks for rollback
             allocated_networks = []
@@ -603,6 +603,13 @@ class Template
         return disks
     end
 
+    def get_vcenter_nics
+        nics = []
+        self["config.hardware.device"].each { |device| nics << device if is_nic?(device)}
+
+        nics
+    end
+
     def retrieve_from_device(device)
         res = {}
 
@@ -634,7 +641,7 @@ class Template
         res
     end
 
-    def get_vcenter_nics
+    def get_vcenter_nics_hash
         parse_live = ->(inets_raw) {
             h = nil
             begin

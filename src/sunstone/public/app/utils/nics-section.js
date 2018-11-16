@@ -24,6 +24,7 @@ define(function(require) {
   var TemplateDD = require('hbs!./nics-section/dd');
   var SecurityGroupsTable = require('tabs/secgroups-tab/datatable');
   var VNetsTable = require('tabs/vnets-tab/datatable');
+  var TemplateUtils = require('utils/template-utils');
 
   var provision_nic_accordion_dd_id = 0;
 
@@ -120,11 +121,11 @@ define(function(require) {
         var req = $("input#"+that.id+"_SCHED_REQUIREMENTS", $(this)).val();
         var rank = $("input#"+that.id+"_SCHED_RANK", $(this)).val();
 
-        if ( req !== "" ){
+        if ( req && req !== "" ){
           nic["SCHED_REQUIREMENTS"] = req;
         }
 
-        if ( rank !== "" ){
+        if ( rank && rank !== "" ){
           nic["SCHED_RANK"] = rank;
         }
       }
@@ -219,6 +220,14 @@ define(function(require) {
       options = {};
     }
 
+    var vnetsTableAuto = new VNetsTable('vnet_nics_section_auto_'+provision_nic_accordion_dd_id,
+    {
+      'select': true,
+      'selectOptions': {
+        'multiple_choice': true
+      }
+    });
+
     var vnetsTable = new VNetsTable(
       'vnet_nics_section_'+provision_nic_accordion_dd_id,
       { 'select': true });
@@ -238,10 +247,37 @@ define(function(require) {
 
     var dd_context = $(TemplateDD({
       vnetsTableHTML: vnetsTable.dataTableHTML,
+      vnetsTableAutoHTML: vnetsTableAuto.dataTableHTML,
       securityGroupsTableHTML: sgHtml,
       provision_nic_accordion_dd_id: provision_nic_accordion_dd_id,
       options: options
     })).appendTo(context);
+
+    var selectOptions = {
+      'selectOptions': {
+        'select_callback': function(aData, options) {
+            var req_string=[];
+            var selected_vnets = vnetsTableAuto.retrieveResourceTableSelect();
+
+            $.each(selected_vnets, function(index, netID) {
+              req_string.push('ID=\\"'+netID+'\\"');
+            });
+            $(".SCHED_REQUIREMENTS", dd_context).val(req_string.join(" | "));
+        },
+        'unselect_callback': function(aData, options) {
+          var req_string=[];
+          var selected_vnets = vnetsTableAuto.retrieveResourceTableSelect();
+
+          $.each(selected_vnets, function(index, netID) {
+            req_string.push('ID="'+netID+'"');
+          });
+          $(".SCHED_REQUIREMENTS", dd_context).val(req_string.join(" | "));
+        }
+      }
+    }
+
+    vnetsTableAuto.initialize(selectOptions);
+    vnetsTableAuto.refreshResourceTableSelect();
 
     $(".nic-section-entry", dd_context).data("template_nic", options.nic);
     $(".nic-section-entry", dd_context).data("vnetsTable", vnetsTable);
@@ -265,7 +301,20 @@ define(function(require) {
       }
     });
 
+    $("input[name='provision_accordion_dd_"+provision_nic_accordion_dd_id+"_req_select']", dd_context).on("change", function() {
+      if (this.value == "vnet_select") {
+        $(".net_select",dd_context).show();
+      } else {
+        $(".net_select",dd_context).hide();
+      }
+    });
+
+    $("input[name='provision_accordion_dd_"+provision_nic_accordion_dd_id+"_rank_select']", dd_context).on("change", function() {
+      $(".SCHED_RANK", dd_context).val(this.value);
+    });
+
     if ( options.nic && options.nic["NETWORK_MODE"] && options.nic["NETWORK_MODE"] === "auto" ) {
+
       $("input#provision_accordion_dd_"+provision_nic_accordion_dd_id+"_network_mode", dd_context).prop("checked", true);
       $(".no_auto", dd_context).hide();
       $(".auto", dd_context).show();
@@ -276,6 +325,37 @@ define(function(require) {
 
       if ( options.nic["SCHED_RANK"] ) {
         $("input#provision_accordion_dd_"+provision_nic_accordion_dd_id+"_SCHED_RANK", dd_context).val(options.nic["SCHED_RANK"]);
+      }
+
+      var reqJSON = options.nic['SCHED_REQUIREMENTS'];
+      if (reqJSON) {
+        var req = TemplateUtils.escapeDoubleQuotes(reqJSON);
+
+        var net_id_regexp = /(\s|\||\b)ID=\\"([0-9]+)\\"/g;
+
+        var nets = [];
+        while (match = net_id_regexp.exec(req)) {
+            nets.push(match[2])
+        }
+
+        var selectedResourcesAuto = {
+            ids : nets
+          }
+
+        vnetsTableAuto.selectResourceTableSelect(selectedResourcesAuto);
+      }
+
+      var rankJSON = options.nic["SCHED_RANK"];
+      if (rankJSON) {
+          var striping_regexp = /^-USED_LEASES$/;
+          var packing_regexp = /^USED_LEASES$/;
+
+          if (striping_regexp.test(rankJSON)) {
+              $("input[name='provision_accordion_dd_"+provision_nic_accordion_dd_id+"_rank_select']#stripingRadio", context).click();
+          }
+          else if (packing_regexp.test(rankJSON)) {
+              $("input[name='provision_accordion_dd_"+provision_nic_accordion_dd_id+"_rank_select']#packingRadio", context).click();
+          }
       }
     }
 

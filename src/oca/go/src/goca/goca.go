@@ -32,9 +32,10 @@ type oneClient struct {
 }
 
 type response struct {
-	status  bool
-	body    string
-	bodyInt int
+	status   bool
+	body     string
+	bodyInt  int
+	bodyBool bool
 }
 
 // Resource implements an OpenNebula Resource methods. *XMLResource implements
@@ -125,6 +126,7 @@ func (c *oneClient) Call(method string, args ...interface{}) (*response, error) 
 		status  bool
 		body    string
 		bodyInt int64
+		bodyBool bool
 	)
 
 	if c.xmlrpcClientError != nil {
@@ -152,13 +154,16 @@ func (c *oneClient) Call(method string, args ...interface{}) (*response, error) 
 	if ok == false {
 		bodyInt, ok = result[1].(int64)
 		if ok == false {
-			log.Fatal("Unexpected XML-RPC response. Expected: Index 0 Int or String")
+			bodyBool, ok = result[1].(bool)
+			if ok == false {
+				log.Fatal("Unexpected XML-RPC response. Expected: Index 0 Int or String")
+			}
 		}
 	}
 
 	// TODO: errCode? result[2]
 
-	r := &response{status, body, int(bodyInt)}
+	r := &response{status, body, int(bodyInt), bodyBool}
 
 	if status == false {
 		err = errors.New(body)

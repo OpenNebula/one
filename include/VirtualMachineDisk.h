@@ -782,6 +782,13 @@ public:
      */
     std::string& to_xml_short(std::string& xml);
 
+    /**
+     *  Check if a tm_mad is valid for each Virtual Machine Disk and set
+     *  clone_target and ln_target
+     *  @param tm_mad is the tm_mad for system datastore chosen
+     */
+    int check_tm_mad(const string& tm_mad, string& error);
+
 protected:
 
     VirtualMachineAttribute * attribute_factory(VectorAttribute * va,

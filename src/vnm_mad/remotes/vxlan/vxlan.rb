@@ -24,14 +24,30 @@ module VXLAN
     # This function creates and activate a VLAN device
     ############################################################################
     def create_vlan_dev
-        begin
-            ipaddr = IPAddr.new @nic[:conf][:vxlan_mc]
-        rescue
-            ipaddr = IPAddr.new "239.0.0.0"
-        end
+        vxlan_mode = @nic[:conf][:vxlan_mode] || 'multicast'
+        group = ""
 
-        mc  = ipaddr.to_i + @nic[@attr_vlan_id].to_i
-        mcs = IPAddr.new(mc, Socket::AF_INET).to_s
+        if vxlan_mode.downcase == 'evpn'
+            vxlan_tep = @nic[:conf][:vxlan_tep] || 'dev'
+
+            if vxlan_tep.downcase == 'dev'
+                tep = "dev #{@nic[:phydev]}"
+            else
+                tep = "local #{get_interface_first_ip(@nic[:phydev])}"
+            end
+        else
+            begin
+                ipaddr = IPAddr.new @nic[:conf][:vxlan_mc]
+            rescue
+                ipaddr = IPAddr.new "239.0.0.0"
+            end
+
+            mc  = ipaddr.to_i + @nic[@attr_vlan_id].to_i
+            mcs = IPAddr.new(mc, Socket::AF_INET).to_s
+
+            group = "group #{mcs}"
+            tep   = "dev #{@nic[:phydev]}"
+        end
 
         mtu = @nic[:mtu] ? "mtu #{@nic[:mtu]}" : "mtu #{@nic[:conf][:vxlan_mtu]}"
         ttl = @nic[:conf][:vxlan_ttl] ? "ttl #{@nic[:conf][:vxlan_ttl]}" : ""
@@ -50,8 +66,8 @@ module VXLAN
         end
 
         OpenNebula.exec_and_log("#{command(:ip)} link add #{@nic[@attr_vlan_dev]}"\
-            " #{mtu} type vxlan id #{@nic[@attr_vlan_id]} group #{mcs} #{ttl}"\
-            " dev #{@nic[:phydev]} #{ip_link_conf}")
+            " #{mtu} type vxlan id #{@nic[@attr_vlan_id]} #{group} #{ttl}"\
+            " #{tep} #{ip_link_conf}")
 
         OpenNebula.exec_and_log("#{command(:ip)} link set #{@nic[@attr_vlan_dev]} up")
     end
@@ -71,5 +87,20 @@ module VXLAN
         end
 
         nil
+    end
+
+    def get_interface_first_ip(name)
+        text = %x(#{command(:ip)} addr show dev #{name})
+        return nil if $?.exitstatus != 0
+
+        text.each_line do |line|
+            m = line.match(/^\s*inet6? ([a-f:\d\.]+)/i)
+            if m
+                next if m[1].start_with?('127.')
+                next if m[1] == '::1'
+                return m[1]
+            end
+        end
+        return nil
     end
 end

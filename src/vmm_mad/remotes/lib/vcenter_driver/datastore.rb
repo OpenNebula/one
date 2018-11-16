@@ -118,7 +118,7 @@ class Storage
             one_image[:template] << "PATH=\"vcenter://#{image_path}\"\n"
             one_image[:template] << "TYPE=\"#{image_type}\"\n"
             one_image[:template] << "PERSISTENT=\"#{opts[:persistent]}\"\n"
-            one_image[:template] << "VCENTER_IMPORTED=\"YES\"\n"
+            one_image[:template] << "VCENTER_IMPORTED=\"YES\"\n" unless CONFIG[:delete_images]
             one_image[:template] << "DEV_PREFIX=\"#{image_prefix}\"\n"
         else
             # Return the image XML if it already exists
@@ -183,6 +183,7 @@ class Storage
 
     def to_one(ds_hash, vcenter_uuid, dc_name, dc_ref)
         one = ""
+        one << "DRIVER=\"vcenter\"\n"
         one << "NAME=\"#{ds_hash[:name]}\"\n"
         one << "TM_MAD=vcenter\n"
         one << "VCENTER_INSTANCE_ID=\"#{vcenter_uuid}\"\n"
@@ -631,7 +632,7 @@ class Datastore < Storage
                     one_image << "PATH=\"vcenter://#{image_path}\"\n"
                     one_image << "PERSISTENT=\"NO\"\n"
                     one_image << "TYPE=\"#{image_type}\"\n"
-                    one_image << "VCENTER_IMPORTED=\"YES\"\n"
+                    one_image << "VCENTER_IMPORTED=\"YES\"\n" unless CONFIG[:delete_images]
                     one_image << "DEV_PREFIX=\"#{disk_prefix}\"\n"
 
                     # Check image hasn't already been imported
@@ -667,6 +668,46 @@ class Datastore < Storage
     # This is never cached
     def self.new_from_ref(ref, vi_client)
         self.new(RbVmomi::VIM::Datastore.new(vi_client.vim, ref), vi_client)
+    end
+
+    # detach disk from vCenter vm if possible, destroy the disk on FS
+    def self.detach_and_destroy(disk, vm, disk_id, prev_ds_ref, vi_client)
+        # it's not a CDROM (CLONE=NO)
+        is_cd = !(disk["CLONE"].nil? || disk["CLONE"] == "YES")
+
+        begin
+            # Detach disk if possible (VM is reconfigured) and gather vCenter info
+            # Needed for poweroff machines too
+            ds_ref, img_path = vm.detach_disk(disk)
+
+            return if is_cd
+
+            # Disk could't be detached, use OpenNebula info
+            if !(ds_ref && img_path && !img_path.empty?)
+                img_path = vm.disk_real_path(disk, disk_id)
+                ds_ref = prev_ds_ref
+            end
+
+            # If disk was already detached we have no way to remove it
+            ds = VCenterDriver::Datastore.new_from_ref(ds_ref, vi_client)
+
+
+            search_params = ds.get_search_params(ds['name'],
+                                                File.dirname(img_path),
+                                                File.basename(img_path))
+
+            # Perform search task and return results
+            search_task = ds['browser'].SearchDatastoreSubFolders_Task(search_params)
+            search_task.wait_for_completion
+
+            ds.delete_virtual_disk(img_path)
+            img_dir = File.dirname(img_path)
+            ds.rm_directory(img_dir) if ds.dir_empty?(img_dir)
+        rescue Exception => e
+            if !e.message.start_with?('FileNotFound')
+                raise e.message # Ignore FileNotFound
+            end
+        end
     end
 end # class Datastore
 

@@ -636,7 +636,7 @@ function get_source_xml {
         BCK_IFS=$IFS
         IFS=':'
 
-        unset k HOST_PARTS SOURCE_HOST
+        unset k HOST_PARTS
 
         for part in $host ; do
             HOST_PARTS[k++]="$part"
@@ -836,7 +836,7 @@ function get_disk_information {
         fi
 
         SOURCE_ARGS="protocol='iscsi'"
-        SOURCE_HOST=$(get_source_xml $ISCSI_HOST)
+        SOURCE_HOST=$(get_source_xml "$ISCSI_HOST")
 
         if [ -n "$ISCSI_USAGE" -a -n "$ISCSI_USER" ]; then
             AUTH="<auth username='$ISCSI_USER'>\
@@ -866,7 +866,7 @@ function get_disk_information {
         fi
 
         SOURCE_ARGS="protocol='rbd'"
-        SOURCE_HOST=$(get_source_xml $CEPH_HOST)
+        SOURCE_HOST=$(get_source_xml "$CEPH_HOST")
 
         if [ -n "$CEPH_USER" -a -n "$CEPH_SECRET" ]; then
             AUTH="<auth username='$CEPH_USER'>\

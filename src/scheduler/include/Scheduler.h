@@ -83,7 +83,8 @@ protected:
         machines_limit(0),
         dispatch_limit(0),
         host_dispatch_limit(0),
-        mem_ds_scale(0)
+        mem_ds_scale(0),
+        diff_vnets(false)
     {
         am.addListener(this);
     };
@@ -226,6 +227,11 @@ private:
      *  multiplication factor to calculate datastore usage. memory * factor
      */
     float mem_ds_scale;
+
+    /**
+     *  Boolean to dispatch the VM inside different vnets
+     */
+    bool diff_vnets;
 
     /**
      * oned runtime configuration values

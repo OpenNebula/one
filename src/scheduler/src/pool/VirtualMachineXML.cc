@@ -33,6 +33,7 @@ void VirtualMachineXML::init_attributes()
 
     string automatic_requirements;
     string automatic_ds_requirements;
+    string automatic_nic_requirements;
 
     xpath(oid, "/VM/ID", -1);
     xpath(uid, "/VM/UID", -1);
@@ -101,6 +102,8 @@ void VirtualMachineXML::init_attributes()
 
     // ------------------- NIC REQUIREMENTS -------------------------------------
 
+    xpath(automatic_nic_requirements, "/VM/TEMPLATE/AUTOMATIC_NIC_REQUIREMENTS", "");
+
     if (get_nodes("/VM/TEMPLATE/NIC", nodes) > 0)
     {
         std::string net_mode;
@@ -131,6 +134,15 @@ void VirtualMachineXML::init_attributes()
 
                 if ( nic_template->get("SCHED_REQUIREMENTS", requirements) )
                 {
+                    if ( !automatic_nic_requirements.empty() )
+                    {
+                        ostringstream oss;
+
+                        oss << automatic_nic_requirements << " & ( " << requirements << " )";
+
+                        requirements = oss.str();
+                    }
+
                     the_nic->set_requirements(requirements);
                 }
 

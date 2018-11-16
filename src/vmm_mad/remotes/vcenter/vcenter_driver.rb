@@ -38,6 +38,20 @@ $LOAD_PATH << LIB_LOCATION + '/ruby/vendors/rbvmomi/lib'
 $LOAD_PATH << LIB_LOCATION + '/ruby'
 $LOAD_PATH << LIB_LOCATION + '/ruby/vcenter_driver'
 
+class VCenterConf < Hash
+    DEFAULT_CONFIGURATION = {
+        delete_images: false
+    }
+
+    def initialize
+        self.replace(DEFAULT_CONFIGURATION)
+        begin
+            self.merge!(YAML.load_file("#{VAR_LOCATION}/remotes/etc/vmm/vcenter/vcenterc"))
+        rescue
+        end
+    end
+end
+
 require 'rbvmomi'
 require 'yaml'
 require 'opennebula'
@@ -63,6 +77,11 @@ require 'network'
 require 'file_helper'
 
 CHECK_REFS = true
+
+module VCenterDriver
+    CONFIG = VCenterConf.new
+end
+
 # ---------------------------------------------------------------------------- #
 # Helper functions                                                             #
 # ---------------------------------------------------------------------------- #

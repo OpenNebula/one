@@ -10,10 +10,12 @@ module OneDBFsck
 
         @fixes_user = users_fix = {}
 
-        @db.fetch("SELECT oid,body,gid FROM user_pool") do |row|
+        name_seen = {}
+        @db.fetch("SELECT oid,body,gid,name FROM user_pool") do |row|
             doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
             gid = doc.root.at_xpath('GID').text.to_i
+            auth_driver = doc.root.at_xpath('AUTH_DRIVER').text
             user_gid = gid
             user_gids = Set.new
 
@@ -75,6 +77,18 @@ module OneDBFsck
                     "table has GID column #{row[:gid]}", !db_version[:is_slave])
 
                 users_fix[row[:oid]] = {:body => doc.root.to_s, :gid => user_gid}
+            end
+
+            if auth_driver == 'ldap'
+                if ! name_seen[row[:name].downcase]
+                    name_seen[row[:name].downcase] = [row[:oid] , row[:name]]
+                else
+                    log_error(
+                        "User id:#{row[:oid]} has conficting name #{row[:name]}, "<<
+                        "another user id:#{name_seen[row[:name].downcase][0]} "<<
+                        "with name #{name_seen[row[:name].downcase][1] } is present",
+                        repaired=false)
+                end
             end
         end
     end

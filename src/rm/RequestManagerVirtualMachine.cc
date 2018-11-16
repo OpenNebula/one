@@ -975,9 +975,16 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ( check_nic_auto && vm->get_auto_network_leases(&tmpl, error_str) != 0 )
+    if ( check_nic_auto && vm->get_auto_network_leases(&tmpl, att.resp_msg) != 0 )
     {
-        att.resp_msg = error_str;
+        failure_response(ACTION, att);
+
+        vm->unlock();
+        return;
+    }
+
+    if ( vm->check_tm_mad_disks(tm_mad, att.resp_msg) != 0)
+    {
         failure_response(ACTION, att);
 
         vm->unlock();

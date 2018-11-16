@@ -4,6 +4,7 @@ link_logo:
 text_link_logo:
 confirm_vms: false
 filter-view: true
+do_count_animation: true
 enabled_tabs:
     - dashboard-tab
     - instances-top-tab
