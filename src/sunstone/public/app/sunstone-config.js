@@ -169,7 +169,8 @@ define(function(require) {
     'onedConf': _config['oned_conf'],
     'confirmVMActions': _config['view']['confirm_vms'],
     'scaleFactor': _config['view']['features']['instantiate_cpu_factor'],
-    'filterView': _config['view']['filter_view'],
+    'filterView': _config['view']['filter-view'],
+    'doCountAnimation': _config['view']['do_count_animation'],
 
     "allTabs": function() {
       return Object.keys(_config['view']['tabs']);
