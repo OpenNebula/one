@@ -183,6 +183,7 @@ class Storage
 
     def to_one(ds_hash, vcenter_uuid, dc_name, dc_ref)
         one = ""
+        one << "DRIVER=\"vcenter\"\n"
         one << "NAME=\"#{ds_hash[:name]}\"\n"
         one << "TM_MAD=vcenter\n"
         one << "VCENTER_INSTANCE_ID=\"#{vcenter_uuid}\"\n"
