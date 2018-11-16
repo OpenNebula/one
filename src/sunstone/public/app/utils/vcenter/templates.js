@@ -201,7 +201,7 @@ define(function(require) {
 
       opts[ref] = {};
 
-      opts[ref].type = $(".modify_rp", row_context).val();
+      opts[ref].type = ($(".modify_rp", row_context).val() ? $(".modify_rp", row_context).val() : "default");
 
       var rpInput = $(".vcenter_rp_input", row_context);
       var rpParams = [];
@@ -250,7 +250,11 @@ define(function(require) {
         $("#get-vcenter-templates").click();
       },
       error: function(request, error_json){
-        Notifier.notifyError(request.responseJSON.error.message);
+        if (request.responseJSON === undefined){
+          Notifier.notifyError("Empty response received from server. Check your setup to avoid timeouts");
+        } else {
+          Notifier.notifyError(request.responseJSON.error.message);
+        }
         $("#get-vcenter-templates").click();
       }
     });

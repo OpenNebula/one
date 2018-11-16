@@ -16,16 +16,16 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' unless defined?(RUBY_LIB_LOCATION)
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' unless defined?(RUBY_LIB_LOCATION)
 end
 
-$: << RUBY_LIB_LOCATION
-$: << File.dirname(__FILE__)
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
@@ -35,23 +35,18 @@ vc_cluster_name = ARGV[-1]
 host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, vc_cluster_name)
 host_id = host['ID']
 
-drv_action_enc = STDIN.read.gsub("\n","")
+drv_action_enc = STDIN.read.delete("\n")
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc),
                           'VMM_DRIVER_ACTION_DATA')
 
-lcm_state = drv_action["/VMM_DRIVER_ACTION_DATA/VM/LCM_STATE"]
-check_valid(lcm_state, "lcm_state")
+lcm_state = drv_action['/VMM_DRIVER_ACTION_DATA/VM/LCM_STATE']
+check_valid(lcm_state, 'lcm_state')
 lcm_state_str = OpenNebula::VirtualMachine::LCM_STATE[lcm_state.to_i]
 
-if lcm_state_str == "SAVE_MIGRATE"
-    STDERR.puts "Migration between vCenters cluster not supported"
-    exit -1
-end
-
-if !["SAVE_SUSPEND", "SAVE_STOP"].include?(lcm_state_str)
-    STDERR.puts "Wrong lcm state when saving VM"
-    exit -1
+if !(%{'SAVE_SUSPEND', 'SAVE_STOP', 'SAVE_MIGRATE'}).include?(lcm_state_str)
+    STDERR.puts "Wrong lcm state #{lcm_state_str} }when saving VM"
+    exit(-1)
 end
 
 begin
@@ -61,12 +56,15 @@ begin
 
     vm.suspend
 
-rescue Exception => e
+rescue StandardError => e
     message = "Save of VM #{vm_ref} on vCenter cluster "\
               "#{vc_cluster_name} failed due to "\
               "\"#{e.message}\"\n#{e.backtrace.join("\n")}"
     OpenNebula.log_error(message)
-    exit -1
+    if vi_client.get_property_vcenter_conf(:debug_information)
+        STDERR.puts "#{message} #{e.backtrace}"
+    end
+    exit(-1)
 ensure
     vi_client.close_connection if vi_client
 end

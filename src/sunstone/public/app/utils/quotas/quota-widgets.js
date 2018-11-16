@@ -49,14 +49,20 @@ define(function(require) {
     if ($.isEmptyObject(resource.VM_QUOTA) && resource.ID != 0){
       resource.VM_QUOTA = {
         VM: {
-          VMS         : QUOTA_LIMIT_DEFAULT,
-          VMS_USED    : 0,
-          CPU         : QUOTA_LIMIT_DEFAULT,
-          CPU_USED    : 0,
-          MEMORY      : QUOTA_LIMIT_DEFAULT,
-          MEMORY_USED : 0,
+          VMS                   : QUOTA_LIMIT_DEFAULT,
+          VMS_USED              : 0,
+          CPU                   : QUOTA_LIMIT_DEFAULT,
+          CPU_USED              : 0,
+          MEMORY                : QUOTA_LIMIT_DEFAULT,
+          MEMORY_USED           : 0,
           SYSTEM_DISK_SIZE      : QUOTA_LIMIT_DEFAULT,
-          SYSTEM_DISK_SIZE_USED : 0
+          SYSTEM_DISK_SIZE_USED : 0,
+          RUNNING_VMS           : QUOTA_LIMIT_DEFAULT,
+          RUNNING_VMS_USED      : 0,
+          RUNNING_CPU           : QUOTA_LIMIT_DEFAULT,
+          RUNNING_CPU_USED      : 0,
+          RUNNING_MEMORY        : QUOTA_LIMIT_DEFAULT,
+          RUNNING_MEMORY_USED   : 0
         }
       };
     }
@@ -249,6 +255,147 @@ define(function(require) {
 
     return quotas_tab_html;
   }
+
+  /**
+   * Returns a widget with the RUNNING VM quotas
+   * @param  {Object} info User/Group object
+   * @param  {Object} default_quotas default quotas for Users/Groups
+   * @return {string} html string
+   */
+  function _runningVmsWidget(info, default_quotas){
+    var empty_quotas = $.isEmptyObject(info.VM_QUOTA);
+
+    var quotas_tab_html = "";
+
+    if (empty_quotas){
+      quotas_tab_html +=
+        '<fieldset style="display: none" class="editable_quota">';
+    } else {
+      quotas_tab_html +=
+        '<fieldset>';
+    }
+
+    var running_vms_bar;
+
+    if (!empty_quotas){
+      running_vms_bar = _editableQuotaBar(
+        info.VM_QUOTA.VM.RUNNING_VMS_USED,
+        info.VM_QUOTA.VM.RUNNING_VMS,
+        default_quotas.VM_QUOTA.VM.RUNNING_VMS,
+        { quota_name: "RUNNING_VM_VMS"});
+    } else {
+      running_vms_bar = _editableQuotaBar(
+        0,
+        QUOTA_LIMIT_DEFAULT,
+        default_quotas.VM_QUOTA.VM.VMS,
+        { quota_name: "RUNNING_VM_VMS"});
+    }
+
+    quotas_tab_html +=
+        '<legend>' + Locale.tr("Running VMs") + '</legend>\
+        <div>'+running_vms_bar+'</div>\
+        <br>\
+      </fieldset>'
+
+    return quotas_tab_html;
+  }
+
+  /**
+   * Returns a widget with the RUNNING CPU quotas
+   * @param  {Object} info User/Group object
+   * @param  {Object} default_quotas default quotas for Users/Groups
+   * @return {string} html string
+   */
+  function _runningCpuWidget(info, default_quotas){
+    var empty_quotas = $.isEmptyObject(info.VM_QUOTA);
+
+    var quotas_tab_html = "";
+
+    if (empty_quotas){
+      quotas_tab_html +=
+        '<fieldset style="display: none" class="editable_quota">';
+    } else {
+      quotas_tab_html +=
+        '<fieldset>';
+    }
+
+    var running_cpu_bar;
+
+    if (!empty_quotas){
+      running_cpu_bar = _editableQuotaBar(
+            info.VM_QUOTA.VM.RUNNING_CPU_USED,
+            info.VM_QUOTA.VM.RUNNING_CPU,
+            default_quotas.VM_QUOTA.VM.RUNNING_CPU,
+            {   is_float: true,
+                quota_name: "RUNNING_VM_CPU"
+            });
+    } else {
+      running_cpu_bar = _editableQuotaBar(
+            0,
+            QUOTA_LIMIT_DEFAULT,
+            default_quotas.VM_QUOTA.VM.RUNNING_CPU,
+            {   is_float: true,
+                quota_name: "RUNNING_VM_CPU"
+            });
+    }
+
+    quotas_tab_html +=
+        '<legend>' + Locale.tr("Running CPU") + '</legend>\
+        <div>'+running_cpu_bar+'</div>\
+        <br>\
+        </fieldset>'
+
+    return quotas_tab_html;
+  }
+
+  /**
+   * Returns a widget with the RUNNING MEMORY quotas
+   * @param  {Object} info User/Group object
+   * @param  {Object} default_quotas default quotas for Users/Groups
+   * @return {string} html string
+   */
+  function _runningMemoryWidget(info, default_quotas){
+    var empty_quotas = $.isEmptyObject(info.VM_QUOTA);
+
+    var quotas_tab_html = "";
+
+    if (empty_quotas){
+      quotas_tab_html +=
+        '<fieldset style="display: none" class="editable_quota">';
+    } else {
+      quotas_tab_html +=
+        '<fieldset>';
+    }
+
+    var running_memory_bar;
+
+    if (!empty_quotas){
+      running_memory_bar = _editableQuotaBar(
+            info.VM_QUOTA.VM.RUNNING_MEMORY_USED,
+            info.VM_QUOTA.VM.RUNNING_MEMORY,
+            default_quotas.VM_QUOTA.VM.RUNNING_MEMORY,
+            {   mb: true,
+                quota_name: "RUNNING_VM_MEMORY"
+            });
+    } else {
+      running_memory_bar = _editableQuotaBar(
+            0,
+            QUOTA_LIMIT_DEFAULT,
+            default_quotas.VM_QUOTA.VM.RUNNING_MEMORY,
+            {   mb: true,
+                quota_name: "RUNNING_VM_MEMORY"
+            });
+    }
+
+    quotas_tab_html +=
+        '<legend>' + Locale.tr("Running Memory") + '</legend>\
+        <div>'+running_memory_bar+'</div>\
+        <br>\
+        </fieldset>'
+
+    return quotas_tab_html;
+  }
+
 
   /**
    * Returns a widget with the image quotas
@@ -714,6 +861,9 @@ define(function(require) {
     var cpu_quota = _cpuWidget(resource_info, default_quotas);
     var memory_quota = _memoryWidget(resource_info, default_quotas);
     var system_disk_size_quota = _systemDiskWidget(resource_info, default_quotas);
+    var running_vms_quota = _runningVmsWidget(resource_info, default_quotas);
+    var running_cpu_quota = _runningCpuWidget(resource_info, default_quotas);
+    var running_memory_quota = _runningMemoryWidget(resource_info, default_quotas);
 
     var image_quota = _imageWidget(resource_info, default_quotas);
     var network_quota = _networkWidget(resource_info, default_quotas);
@@ -763,11 +913,18 @@ define(function(require) {
     quotas_html +=
         '<div class="row">\
           <div class="medium-6 columns">' + vms_quota + '</div>\
+          <div class="medium-6 columns">' + running_vms_quota + '</div>\
+        </div>\
+        <div class="row">\
           <div class="medium-6 columns">' + cpu_quota + '</div>\
+          <div class="medium-6 columns">' + running_cpu_quota+ '</div>\
         </div>\
         <div class="row">\
           <div class="medium-6 columns">' + memory_quota + '</div>\
-          <div class="medium-6 columns">' + system_disk_size_quota+ '</div>\
+          <div class="medium-6 columns">' + running_memory_quota+ '</div>\
+        </div>\
+        <div class="row">\
+          <div class="medium-6 columns">' + system_disk_size_quota + '</div>\
         </div>\
         <br><br>\
         <div class="row">\
@@ -869,10 +1026,13 @@ define(function(require) {
     var obj = {};
 
     obj["VM"] = {
-      "CPU"           : input_val( $("div[quota_name=VM_CPU] input", parent_container) ),
-      "MEMORY"        : input_val( $("div[quota_name=VM_MEMORY] input", parent_container) ),
-      "VMS"           : input_val( $("div[quota_name=VM_VMS] input", parent_container) ),
-      "SYSTEM_DISK_SIZE" : input_val( $("div[quota_name=VM_SYSTEM_DISK_SIZE] input", parent_container) )
+      "CPU"              : input_val( $("div[quota_name=VM_CPU] input", parent_container) ),
+      "MEMORY"           : input_val( $("div[quota_name=VM_MEMORY] input", parent_container) ),
+      "VMS"              : input_val( $("div[quota_name=VM_VMS] input", parent_container) ),
+      "SYSTEM_DISK_SIZE" : input_val( $("div[quota_name=VM_SYSTEM_DISK_SIZE] input", parent_container) ),
+      "RUNNING_CPU"      : input_val( $("div[quota_name=RUNNING_VM_CPU] input", parent_container) ),
+      "RUNNING_MEMORY"   : input_val( $("div[quota_name=RUNNING_VM_MEMORY] input", parent_container) ),
+      "RUNNING_VMS"      : input_val( $("div[quota_name=RUNNING_VM_VMS] input", parent_container) ),
     };
 
     $.each($("tr.image_quota_tr", parent_container), function(){
@@ -953,10 +1113,22 @@ define(function(require) {
                 $("div[quota_name=VM_SYSTEM_DISK_SIZE] .progress-text", that.parent_container).text(Humanize.size(that.resource_info.VM_QUOTA.VM.SYSTEM_DISK_SIZE_USED * 1024) + " / " + Humanize.size(group_json.GROUP.VM_QUOTA.VM.SYSTEM_DISK_SIZE * 1024));
                 $("div[quota_name=VM_SYSTEM_DISK_SIZE] input", that.parent_container).val(group_json.GROUP.VM_QUOTA.VM.SYSTEM_DISK_SIZE);
               }
+              if (group_json.GROUP.VM_QUOTA.VM.RUNNING_VMS != "-1" && group_json.GROUP.VM_QUOTA.VM.RUNNING_VMS != "-2" && parseInt(group_json.GROUP.VM_QUOTA.VM.RUNNING_VMS) < parseInt(that.resource_info.VM_QUOTA.VM.RUNNING_VMS)){
+                $("div[quota_name=VM_RUNNING_VMS] .progress-text", that.parent_container).text(that.resource_info.VM_QUOTA.VM.RUNNING_VMS_USED + " / " + group_json.GROUP.VM_QUOTA.VM.RUNNING_VMS);
+                $("div[quota_name=VM_RUNNING_VMS] input", that.parent_container).val(group_json.GROUP.VM_QUOTA.VM.RUNNING_VMS);
+              }
+              if (group_json.GROUP.VM_QUOTA.VM.RUNNING_CPU != "-1" && group_json.GROUP.VM_QUOTA.VM.RUNNING_CPU != "-2" && parseInt(group_json.GROUP.VM_QUOTA.VM.RUNNING_CPU) < parseInt(that.resource_info.VM_QUOTA.VM.RUNNING_CPU)){
+                $("div[quota_name=VM_RUNNING_CPU] .progress-text", that.parent_container).text(that.resource_info.VM_QUOTA.VM.RUNNING_CPU_USED + " / " + group_json.GROUP.VM_QUOTA.VM.RUNNING_CPU);
+                $("div[quota_name=VM_RUNNING_CPU] input", that.parent_container).val(group_json.GROUP.VM_QUOTA.VM.RUNNING_CPU);
+              }
+              if (group_json.GROUP.VM_QUOTA.VM.RUNNING_MEMORY != "-1" && group_json.GROUP.VM_QUOTA.VM.RUNNING_MEMORY != "-2" && parseInt(group_json.GROUP.VM_QUOTA.VM.RUNNING_MEMORY) < parseInt(that.resource_info.VM_QUOTA.VM.RUNNING_MEMORY)){
+                $("div[quota_name=VM_RUNNING_MEMORY] .progress-text", that.parent_container).text(Humanize.size(that.resource_info.VM_QUOTA.VM.RUNNING_MEMORY_USED * 1024) + " / " + Humanize.size(group_json.GROUP.VM_QUOTA.VM.RUNNING_MEMORY * 1024));
+                $("div[quota_name=VM_RUNNING_MEMORY] input", that.parent_container).val(group_json.GROUP.VM_QUOTA.VM.RUNNING_MEMORY);
+              }
             }
 
             /*Check Images*/
-            if(that.resource_info.IMAGE_QUOTA.IMAGE){
+            if (!$.isEmptyObject(group_json.GROUP.IMAGE_QUOTA) && that.resource_info.IMAGE_QUOTA.IMAGE){
               var imageQuota = that.resource_info.IMAGE_QUOTA.IMAGE;
               if (!Array.isArray(imageQuota)){
                 imageQuota = [that.resource_info.IMAGE_QUOTA.IMAGE];
@@ -976,7 +1148,7 @@ define(function(require) {
             }
 
             /*Check VNets*/
-            if(that.resource_info.NETWORK_QUOTA.NETWORK){
+            if (!$.isEmptyObject(group_json.GROUP.NETWORK_QUOTA) && that.resource_info.NETWORK_QUOTA.NETWORK){
               var vnetQuota = that.resource_info.NETWORK_QUOTA.NETWORK;
               if (!Array.isArray(vnetQuota)){
                 vnetQuota = [that.resource_info.NETWORK_QUOTA.NETWORK];
@@ -996,7 +1168,7 @@ define(function(require) {
             }
 
             /*Check Datastores*/
-            if(that.resource_info.DATASTORE_QUOTA.DATASTORE){
+            if (!$.isEmptyObject(group_json.GROUP.DATASTORE_QUOTA) && that.resource_info.DATASTORE_QUOTA.DATASTORE){
               var dsQuota = that.resource_info.DATASTORE_QUOTA.DATASTORE;
               if (!Array.isArray(dsQuota)){
                 dsQuota = [that.resource_info.DATASTORE_QUOTA.DATASTORE];
@@ -1128,7 +1300,7 @@ define(function(require) {
       html +=
           '<div class="small-5 columns">\
             <div class="button-group">\
-              <a class="button tiny secondary quotabar_edit_btn"><span class="fas fa-pencil"></span></a>\
+              <a class="button tiny secondary quotabar_edit_btn"><span class="fas fa-pencil-alt"></span></a>\
               <a class="button tiny secondary quotabar_default_btn"><span class="fas fa-file"></span></a>\
               <a class="button tiny secondary quotabar_unlimited_btn"><strong>&infin;</strong></a>\
             </div>\
@@ -1321,6 +1493,9 @@ define(function(require) {
     var cpu_quota = _cpuWidget(resource_info, default_quotas);
     var memory_quota = _memoryWidget(resource_info, default_quotas);
     var system_disk_size_quota = _systemDiskWidget(resource_info, default_quotas);
+    var running_vms_quota = _runningVmsWidget(resource_info, default_quotas);
+    var running_cpu_quota = _runningCpuWidget(resource_info, default_quotas);
+    var running_memory_quota = _runningMemoryWidget(resource_info, default_quotas);
 
     var image_quota = _imageWidget(resource_info, default_quotas);
     var network_quota = _networkWidget(resource_info, default_quotas);
@@ -1328,8 +1503,11 @@ define(function(require) {
 
     $("#vm_quota", context).html(
         '<div class="medium-6 columns">' + vms_quota + '</div>\
+        <div class="medium-6 columns">' + running_vms_quota + '</div>\
         <div class="medium-6 columns">' + cpu_quota + '</div>\
+        <div class="medium-6 columns">' + running_cpu_quota + '</div>\
         <div class="medium-6 columns">' + memory_quota + '</div>\
+        <div class="medium-6 columns">' + running_memory_quota + '</div>\
         <div class="medium-6 columns">' + system_disk_size_quota+ '</div>');
 
     $("#datastore_quota", context).html(

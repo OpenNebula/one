@@ -81,7 +81,7 @@ int VirtualMachineDisk::get_uid(int _uid)
         Nebula&    nd    = Nebula::instance();
         UserPool * upool = nd.get_upool();
 
-        user = upool->get(uname);
+        user = upool->get_ro(uname);
 
         if ( user == 0 )
         {
@@ -122,7 +122,7 @@ int VirtualMachineDisk::get_image_id(int &id, int uid)
             return -1;
         }
 
-        Image * image = ipool->get(iname, uiid);
+        Image * image = ipool->get_ro(iname, uiid);
 
         if ( image != 0 )
         {
@@ -165,7 +165,7 @@ void VirtualMachineDisk::extended_info(int uid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineDisk::authorize(int uid, AuthRequest* ar)
+void VirtualMachineDisk::authorize(int uid, AuthRequest* ar, bool check_lock)
 {
     string  source;
     Image * img = 0;
@@ -185,7 +185,7 @@ void VirtualMachineDisk::authorize(int uid, AuthRequest* ar)
             return;
         }
 
-        img = ipool->get(source , uiid);
+        img = ipool->get_ro(source , uiid);
 
         if ( img != 0 )
         {
@@ -194,7 +194,7 @@ void VirtualMachineDisk::authorize(int uid, AuthRequest* ar)
     }
     else if ( vector_value("IMAGE_ID", iid) == 0 )
     {
-        img = ipool->get(iid);
+        img = ipool->get_ro(iid);
     }
 
     if (img == 0)
@@ -206,7 +206,15 @@ void VirtualMachineDisk::authorize(int uid, AuthRequest* ar)
 
     img->unlock();
 
-    ar->add_auth(AuthRequest::USE, perm);
+    //cloning disks can be used with lock, lcm will track image state updates.
+    if (is_cloning() || !check_lock)
+    {
+        ar->add_auth(AuthRequest::USE_NO_LCK, perm);
+    }
+    else
+    {
+        ar->add_auth(AuthRequest::USE, perm);
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -548,6 +556,28 @@ void VirtualMachineDisk::set_types(const string& ds_name)
     }
 
     replace("DISK_TYPE", ds_name);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+#define XML_DISK_ATTR(Y,X) ( Y << "<" << X << ">" << \
+        one_util::escape_xml(vector_value(X)) << "</" << X << ">") 
+
+void VirtualMachineDisk::to_xml_short(std::ostringstream& oss) const
+{
+    oss << "<DISK>" ;
+    XML_DISK_ATTR(oss, "DISK_ID");
+    XML_DISK_ATTR(oss, "DATASTORE");
+    XML_DISK_ATTR(oss, "DATASTORE_ID");
+    XML_DISK_ATTR(oss, "IMAGE");
+    XML_DISK_ATTR(oss, "IMAGE_ID");
+    XML_DISK_ATTR(oss, "SIZE");
+    XML_DISK_ATTR(oss, "TYPE");
+    XML_DISK_ATTR(oss, "CLONE");
+    XML_DISK_ATTR(oss, "CLONE_TARGET");
+    XML_DISK_ATTR(oss, "LN_TARGET");
+    XML_DISK_ATTR(oss, "DISK_SNAPSHOT_TOTAL_SIZE");
+    oss << "</DISK>";
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1373,6 +1403,23 @@ void VirtualMachineDisks::delete_snapshot(int disk_id, int snap_id,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachineDisks::rename_snapshot(int disk_id, int snap_id, const string& new_name,
+        string& error_str)
+{
+    VirtualMachineDisk * disk = get_disk(disk_id);
+
+    if (disk == 0)
+    {
+        error_str = "VM disk does not exist";
+        return -1;
+    }
+
+    return disk->rename_snapshot(snap_id, new_name, error_str);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachineDisks::delete_non_persistent_snapshots(Template **vm_quotas,
         vector<Template *> &ds_quotas)
 {
@@ -1552,4 +1599,73 @@ int VirtualMachineDisks::get_saveas_info(int& disk_id, string& source,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+std::string& VirtualMachineDisks::to_xml_short(std::string& xml)
+{
+    std::ostringstream oss;
+
+    for ( disk_iterator disk = begin() ; disk != end() ; ++disk )
+    {
+        (*disk)->to_xml_short(oss);
+    }
+
+    xml = oss.str();
+
+    return xml;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachineDisks::check_tm_mad(const string& tm_mad, string& error)
+{
+    DatastorePool * dspool = Nebula::instance().get_dspool();
+
+    std::string _tm_mad = tm_mad;
+
+    one_util::toupper(_tm_mad);
+
+    for (disk_iterator it = begin(); it != end() ; ++it)
+    {
+        int ds_img_id;
+        VirtualMachineDisk * disk = *it;
+
+        std::string tm_mad_disk;
+
+        disk->vector_value("TM_MAD", tm_mad_disk);
+
+        one_util::toupper(tm_mad_disk);
+
+        if ( _tm_mad == tm_mad_disk)
+        {
+            continue;
+        }
+
+        if ( disk->vector_value("DATASTORE_ID", ds_img_id) == 0 )
+        {
+            std::string ln_target, clone_target, disk_type;
+
+            Datastore * ds_img = dspool->get_ro(ds_img_id);
+
+            if ( ds_img == 0 )
+            {
+                error = "Datastore does not exist";
+                return -1;
+            }
+
+            if ( ds_img->get_tm_mad_targets(tm_mad, ln_target, clone_target,
+                        disk_type) != 0 )
+            {
+                error = "Image Datastore does not support transfer mode: " + tm_mad;
+                return -1;
+            }
+
+            disk->replace("CLONE_TARGET", clone_target);
+            disk->replace("LN_TARGET", ln_target);
+            disk->replace("DISK_TYPE", disk_type);
+            disk->replace("TM_MAD_SYSTEM", tm_mad);
+        }
+    }
+    return 0;
+}
 

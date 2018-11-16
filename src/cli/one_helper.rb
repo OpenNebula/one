@@ -16,6 +16,9 @@
 
 require 'cli_helper'
 
+require 'open3'
+require 'io/console'
+
 begin
     require 'opennebula'
 rescue Exception => e
@@ -38,9 +41,11 @@ EOT
     if ONE_LOCATION
         TABLE_CONF_PATH=ONE_LOCATION+"/etc/cli"
         VAR_LOCATION=ONE_LOCATION+"/var" if !defined?(VAR_LOCATION)
+        CLI_ADDONS_LOCATION=ONE_LOCATION+"/lib/ruby/cli/addons"
     else
         TABLE_CONF_PATH="/etc/one/cli"
         VAR_LOCATION="/var/lib/one" if !defined?(VAR_LOCATION)
+        CLI_ADDONS_LOCATION="/usr/lib/one/ruby/cli/addons"
     end
 
     EDITOR_PATH='/usr/bin/vi'
@@ -241,7 +246,8 @@ EOT
             :description => "Networks to attach. To use a network owned by"<<
                             " other user use user[network]. Additional"<<
                             " attributes are supported like with the --disk"<<
-                            " option.",
+                            " option. Also you can use auto if you want that" <<
+                            " OpenNebula select automatically the network",
             :format => Array
         },
         {
@@ -503,51 +509,255 @@ EOT
             end
         end
 
+        #-----------------------------------------------------------------------
+        #  List pool functions
+        #-----------------------------------------------------------------------
+        def start_pager
+            pager = ENV['ONE_PAGER'] || 'less'
+
+            # Start pager, defaults to less
+            p_r, p_w = IO.pipe
+
+            lpid = fork do
+                $stdin.reopen(p_r)
+
+                p_r.close
+                p_w.close
+
+                Kernel.select [$stdin]
+
+                exec([pager, pager])
+            end
+            
+            # Send listing to pager pipe
+            $stdout.close
+            $stdout = p_w.dup
+
+            p_w.close
+            p_r.close
+
+            return lpid
+        end
+
+        def stop_pager(lpid)
+            $stdout.close
+
+            begin
+                Process.wait(lpid)
+            rescue Errno::ECHILD
+            end
+        end
+
+        def print_page(pool, options)
+            page = nil
+
+            if options[:xml]
+                elements = 0
+                page     = ""
+
+                pool.each {|e| 
+                    elements += 1 
+                    page << e.to_xml(true) << "\n"
+                }
+            else
+            
+                pname = pool.pool_name
+                ename = pool.element_name
+
+                page  = pool.to_hash
+                elems = page["#{pname}"]["#{ename}"]
+
+                if elems.class == Array
+                    elements = elems.length
+                else
+                    elements = 1
+                end
+            end
+
+            return elements, page
+        end
+
+        #-----------------------------------------------------------------------
+        # List the pool in table form, it uses pagination for interactive
+        # output
+        #-----------------------------------------------------------------------
+        def list_pool_table(table, pool, options, filter_flag)
+            if $stdout.isatty and (!options.key?:no_pager) 
+                size = $stdout.winsize[0] - 1 
+
+                # ----------- First page, check if pager is needed -------------
+                rc = pool.get_page(size, 0)
+                ps = ""
+
+                return -1, rc.message if OpenNebula.is_error?(rc)
+
+                elements, hash = print_page(pool, options)
+
+                ppid = -1
+
+                if elements >= size
+                    ppid = start_pager
+                end
+
+                table.show(hash, options)
+
+                if elements < size
+                    return 0
+                elsif !pool.is_paginated?
+                    stop_pager(ppid)
+                    return 0
+                end
+
+                # ------- Rest of the pages in the pool, piped to pager --------
+                current = size
+
+                options[:noheader] = true
+
+                loop do
+                    rc = pool.get_page(size, current)
+
+                    return -1, rc.message if OpenNebula.is_error?(rc)
+
+                    current += size
+
+                    begin
+                        Process.waitpid(ppid, Process::WNOHANG)
+                    rescue Errno::ECHILD
+                        break
+                    end
+
+                    elements, hash = print_page(pool, options)
+
+                    table.show(hash, options)
+
+                    $stdout.flush
+
+                    break if elements < size
+                end
+
+                stop_pager(ppid)
+            else
+                array = pool.get_hash
+                return -1, array.message if OpenNebula.is_error?(array)
+
+                rname    = self.class.rname
+                elements = array["#{rname}_POOL"][rname]
+
+               if options[:ids] && elements
+                    elements.reject! do |element|
+                        !options[:ids].include?(element['ID'].to_i)
+                    end
+                end
+
+                table.show(array, options)
+            end
+
+            return 0
+        end
+
+        #-----------------------------------------------------------------------
+        # List pool in XML format, pagination is used in interactive output
+        #-----------------------------------------------------------------------
+        def list_pool_xml(pool, options, filter_flag)
+            if $stdout.isatty 
+                size = $stdout.winsize[0] - 1 
+
+                # ----------- First page, check if pager is needed -------------
+                rc = pool.get_page(size, 0)
+                ps = ""
+
+                return -1, rc.message if OpenNebula.is_error?(rc)
+
+                pname = pool.pool_name
+
+                elements, page = print_page(pool, options)
+
+                ppid = -1
+
+                if elements >= size
+                    ppid = start_pager
+                end
+
+                puts "<#{pname}>"
+
+                puts page
+
+                if elements < size
+                    puts "</#{pname}>"
+                    return 0
+                end
+
+                # ------- Rest of the pages in the pool, piped to pager --------
+                current = size
+
+                loop do
+                    rc = pool.get_page(size, current)
+
+                    return -1, rc.message if OpenNebula.is_error?(rc)
+
+                    current += size
+
+                    elements, page = print_page(pool, options)
+
+                    puts page
+
+                    $stdout.flush
+
+                    break if elements < size
+                end
+
+                puts "</#{pname}>"
+
+                stop_pager(ppid)
+            else
+                rc = pool.info
+
+                return -1, rc.message if OpenNebula.is_error?(rc)
+
+                puts pool.to_xml(true)
+            end
+
+            return 0
+        end
+
+        #-----------------------------------------------------------------------
+        # List pool table in top-like form
+        #-----------------------------------------------------------------------
+        def list_pool_top(table, pool, options)
+            table.top(options) {
+                array = pool.get_hash
+
+                return -1, array.message if OpenNebula.is_error?(array)
+
+                array
+            }
+
+            return 0
+        end
+
 
         def list_pool(options, top=false, filter_flag=nil)
-            if options[:describe]
-                table = format_pool(options)
+            table = format_pool(options)
 
+            if options[:describe]
                 table.describe_columns
+
                 return 0
             end
 
             filter_flag ||= OpenNebula::Pool::INFO_ALL
 
-            pool = factory_pool(filter_flag)
+            pool  = factory_pool(filter_flag)
 
-            if options[:xml]
-                # TODO: use paginated functions
-                rc=pool.info
-                return -1, rc.message if OpenNebula.is_error?(rc)
-                return 0, pool.to_xml(true)
+            if top
+                return list_pool_top(table, pool, options)
+            elsif options[:xml]
+                return list_pool_xml(pool, options, filter_flag)
             else
-                table = format_pool(options)
-
-                if top
-                    table.top(options) {
-                        array=pool.get_hash
-                        return -1, array.message if OpenNebula.is_error?(array)
-
-                        array
-                    }
-                else
-                    array=pool.get_hash
-                    return -1, array.message if OpenNebula.is_error?(array)
-
-                    rname=self.class.rname
-                    elements=array["#{rname}_POOL"][rname]
-                    if options[:ids] && elements
-                        elements.reject! do |element|
-                            !options[:ids].include?(element['ID'].to_i)
-                        end
-                    end
-
-                    table.show(array, options)
-                end
-
-                return 0
+                return list_pool_table(table, pool, options, filter_flag)
             end
+
+            return 0
         end
 
         def show_resource(id, options)
@@ -757,8 +967,12 @@ EOT
 
             rc = pool.info
             if OpenNebula.is_error?(rc)
-                return -1, "OpenNebula #{self.class.rname} name not " <<
+                if rc.message.empty?
+                    return -1, "OpenNebula #{self.class.rname} name not " <<
                            "found, use the ID instead"
+                else
+                    return -1,rc.message
+                end
             end
 
             return 0, pool
@@ -794,13 +1008,15 @@ EOT
     end
 
     def OpenNebulaHelper.size_in_mb(size)
-        m = size.match(/^(\d+(?:\.\d+)?)(m|mb|g|gb)?$/i)
+        m = size.match(/^(\d+(?:\.\d+)?)(t|tb|m|mb|g|gb)?$/i)
 
         if !m
             # return OpenNebula::Error.new('Size value malformed')
             return -1, 'Size value malformed'
         else
             multiplier=case m[2]
+            when /(t|tb)/i
+                1024*1024
             when /(g|gb)/i
                 1024
             else
@@ -826,15 +1042,34 @@ EOT
         end
     end
 
-    def OpenNebulaHelper.time_to_str(time, print_seconds=true)
-        value=time.to_i
+    def OpenNebulaHelper.time_to_str(time, print_seconds=true, 
+        print_hours=true, print_years=false)
+
+        value = time.to_i
+
         if value==0
             value='-'
         else
-            if print_seconds
-                value=Time.at(value).strftime("%m/%d %H:%M:%S")
+            if print_hours
+                if print_seconds
+                    if print_years
+                        value=Time.at(value).strftime("%m/%d/%y %H:%M:%S")
+                    else
+                        value=Time.at(value).strftime("%m/%d %H:%M:%S")
+                    end
+                else
+                    if print_years
+                        value=Time.at(value).strftime("%m/%d/%y %H:%M")
+                    else
+                        value=Time.at(value).strftime("%m/%d %H:%M")
+                    end
+                end
             else
-                value=Time.at(value).strftime("%m/%d %H:%M")
+                if print_years
+                    value=Time.at(value).strftime("%m/%d/%y")
+                else
+                    value=Time.at(value).strftime("%m/%d")
+                end
             end
         end
 
@@ -1007,15 +1242,19 @@ EOT
             user, object=*res
 
             template<<"#{section.upcase}=[\n"
-            template<<"  #{name.upcase}_UNAME=\"#{user}\",\n" if user
-            extra_attributes.each do |extra_attribute|
-                key, value = extra_attribute.split("=")
-                template<<"  #{key.upcase}=\"#{value}\",\n"
-            end
-            if object.match(/^\d+$/)
-                template<<"  #{name.upcase}_ID=#{object}\n"
+            if object.downcase == "auto"
+                template<<"  NETWORK_MODE=\"#{object}\"\n"
             else
-                template<<"  #{name.upcase}=\"#{object}\"\n"
+                template<<"  #{name.upcase}_UNAME=\"#{user}\",\n" if user
+                extra_attributes.each do |extra_attribute|
+                    key, value = extra_attribute.split("=")
+                    template<<"  #{key.upcase}=\"#{value}\",\n"
+                end
+                if object.match(/^\d+$/)
+                    template<<"  #{name.upcase}_ID=#{object}\n"
+                else
+                    template<<"  #{name.upcase}=\"#{object}\"\n"
+                end
             end
             template<<"]\n"
         end if objects

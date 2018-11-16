@@ -83,6 +83,8 @@ fi
 # Move the image back to the datastore
 #-------------------------------------------------------------------------------
 CPSCRIPT=$(cat <<EOF
+set -e -o pipefail
+
 SRC_READLN=\$($READLINK -f $SRC_PATH)
 DST_READLN=\$($READLINK -f $DST_PATH)
 

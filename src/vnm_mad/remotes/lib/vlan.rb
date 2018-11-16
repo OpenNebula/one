@@ -97,12 +97,16 @@ module VNMMAD
                 # Return if the bridge doesn't exist because it was already deleted (handles last vm with multiple nics on the same vlan)
                 next if !@bridges.include? @nic[:bridge]
 
+                # Return if we want to keep the empty bridge
+                next if @nic[:conf][:keep_empty_bridge]
+
                 # Return if the vlan device is not the only left device in the bridge.
                 next if @bridges[@nic[:bridge]].length > 1 or !@bridges[@nic[:bridge]].include? @nic[:vlan_dev]
 
                 # Delete the vlan device.
                 OpenNebula.exec_and_log("#{command(:ip)} link delete"\
-                    " #{@nic[:vlan_dev]}")
+                    " #{@nic[:vlan_dev]}") if @nic[:vlan_dev] != @nic[:phydev]
+
                 @bridges[@nic[:bridge]].delete(@nic[:vlan_dev])
 
                 # Delete the bridge.

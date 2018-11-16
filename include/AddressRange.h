@@ -104,6 +104,11 @@ public:
         return (type & 0x00000008) != 0;
     }
 
+    bool is_ipam() const
+    {
+        return !attr->vector_value("IPAM_MAD").empty() && attr->vector_value("IPAM_MAD") != "internal";
+    }
+
     // *************************************************************************
     // Address Range initialization functions
     // *************************************************************************
@@ -370,6 +375,19 @@ public:
     const set<int>& get_security_groups() const
     {
         return security_groups;
+    }
+
+    /**
+     *  Copy security groups into set
+     */
+    void get_security_groups(set<int>& sgs)
+    {
+        std::set<int>::const_iterator it;
+        
+        for (it = security_groups.begin(); it != security_groups.end(); ++it)
+        {
+            sgs.insert(*it);
+        }
     }
 
     /*

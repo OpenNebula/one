@@ -31,11 +31,6 @@ bool RequestManagerAllocate::allocate_authorization(
         RequestAttributes&  att,
         PoolObjectAuth *    cluster_perms)
 {
-    if ( att.uid == 0 )
-    {
-        return true;
-    }
-
     string tmpl_str = "";
 
     AuthRequest ar(att.uid, att.group_ids);
@@ -72,20 +67,17 @@ bool VirtualMachineAllocate::allocate_authorization(
         RequestAttributes&  att,
         PoolObjectAuth *    cluster_perms)
 {
-    if ( att.uid == 0 )
-    {
-        return true;
-    }
-
     AuthRequest ar(att.uid, att.group_ids);
     string      t64;
     string      aname;
+
+    std::string memory, cpu;
 
     VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);
 
     // ------------ Check template for restricted attributes -------------------
 
-    if ( att.uid != 0 && att.gid != GroupPool::ONEADMIN_ID )
+    if (!att.is_admin())
     {
         if (ttmpl->check_restricted(aname))
         {
@@ -100,7 +92,7 @@ bool VirtualMachineAllocate::allocate_authorization(
 
     ar.add_create_auth(att.uid, att.gid, auth_object, tmpl->to_xml(t64));
 
-    VirtualMachine::set_auth_request(att.uid, ar, ttmpl);
+    VirtualMachine::set_auth_request(att.uid, ar, ttmpl, true);
 
     if (UserPool::authorize(ar) == -1)
     {
@@ -115,6 +107,14 @@ bool VirtualMachineAllocate::allocate_authorization(
     VirtualMachineTemplate aux_tmpl(*ttmpl);
 
     VirtualMachineDisks::extended_info(att.uid, &aux_tmpl);
+
+    aux_tmpl.get("MEMORY", memory);
+    aux_tmpl.get("CPU", cpu);
+
+    aux_tmpl.add("RUNNING_MEMORY", memory);
+    aux_tmpl.add("RUNNING_CPU", cpu);
+    aux_tmpl.add("RUNNING_VMS", 1);
+    aux_tmpl.add("VMS", 1);
 
     if ( quota_authorization(&aux_tmpl, Quotas::VIRTUALMACHINE, att) == false )
     {
@@ -360,8 +360,10 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     string ds_data;
     string ds_mad;
     string tm_mad;
+    string ds_driver;
 
-    bool   ds_persistent_only;
+    bool ds_persistent_only;
+    bool check_capacity =  true;
 
     Datastore::DatastoreType ds_type;
 
@@ -371,6 +373,11 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     string str_tmpl = xmlrpc_c::value_string(params.getString(1));
     int    ds_id    = xmlrpc_c::value_int(params.getInt(2));
+
+    if ( params.size() > 3 && att.is_admin() )
+    {
+        check_capacity = xmlrpc_c::value_boolean(params.getBoolean(3));
+    }
 
     Nebula&  nd  = Nebula::instance();
 
@@ -415,7 +422,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     // ------------------------- Check Datastore exists ------------------------
 
-    if ((ds = dspool->get(ds_id)) == 0 )
+    if ((ds = dspool->get_ro(ds_id)) == 0 )
     {
         att.resp_id  = ds_id;
         att.resp_obj = PoolObjectSQL::DATASTORE;
@@ -442,10 +449,12 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     ds_name            = ds->get_name();
     ds_disk_type       = ds->get_disk_type();
-    ds_check           = ds->get_avail_mb(avail);
+    ds_check           = ds->get_avail_mb(avail) && check_capacity;
     ds_persistent_only = ds->is_persistent_only();
     ds_mad             = ds->get_ds_mad();
     tm_mad             = ds->get_tm_mad();
+
+    ds->get_template_attribute("DRIVER", ds_driver);
 
     ds->to_xml(ds_data);
 
@@ -457,7 +466,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     {
         // This image comes from a MarketPlaceApp. Get the Market info and
         // the size.
-        app = apppool->get(app_id);
+        app = apppool->get_ro(app_id);
 
         if ( app == 0 )
         {
@@ -475,7 +484,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
         app->unlock();
 
-        market = marketpool->get(market_id);
+        market = marketpool->get_ro(market_id);
 
         if ( market == 0 )
         {
@@ -492,6 +501,12 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
         oss << size_mb;
         size_str = oss.str();
+
+        //Do not use DRIVER from APP but from Datastore
+        if (!ds_driver.empty() )
+        {
+            tmpl->erase("DRIVER");
+        }
     }
     else
     {
@@ -536,50 +551,46 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     img_usage.add("DATASTORE", ds_id);
     img_usage.add("SIZE", size_str);
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+    string  tmpl_str;
+    string  aname;
+
+    // ------------ Check template for restricted attributes  --------------
+
+    if (!att.is_admin())
     {
-        AuthRequest ar(att.uid, att.group_ids);
-        string  tmpl_str;
-        string  aname;
-
-        // ------------ Check template for restricted attributes  --------------
-
-        if ( att.uid != UserPool::ONEADMIN_ID &&
-                att.gid != GroupPool::ONEADMIN_ID )
+        if (tmpl->check_restricted(aname))
         {
-            if (tmpl->check_restricted(aname))
-            {
-                att.resp_msg = "Template includes a restricted attribute "+aname;
-                failure_response(AUTHORIZATION, att);
-
-                delete tmpl;
-                return;
-            }
-        }
-
-        // ------------------ Check permissions and ACLs  ----------------------
-        tmpl->to_xml(tmpl_str);
-
-        ar.add_create_auth(att.uid, att.gid, auth_object, tmpl_str);
-
-        ar.add_auth(AuthRequest::USE, ds_perms); // USE DATASTORE
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
+            att.resp_msg = "Template includes a restricted attribute "+aname;
             failure_response(AUTHORIZATION, att);
 
             delete tmpl;
             return;
         }
+    }
 
-        // -------------------------- Check Quotas  ----------------------------
+    // ------------------ Check permissions and ACLs  ----------------------
+    tmpl->to_xml(tmpl_str);
 
-        if ( quota_authorization(&img_usage, Quotas::DATASTORE, att) == false )
-        {
-            delete tmpl;
-            return;
-        }
+    ar.add_create_auth(att.uid, att.gid, auth_object, tmpl_str);
+
+    ar.add_auth(AuthRequest::USE, ds_perms); // USE DATASTORE
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
+
+        delete tmpl;
+        return;
+    }
+
+    // -------------------------- Check Quotas  ----------------------------
+
+    if ( quota_authorization(&img_usage, Quotas::DATASTORE, att) == false )
+    {
+        delete tmpl;
+        return;
     }
 
     // ------------------------- Check persistent only -------------------------
@@ -669,11 +680,6 @@ bool TemplateAllocate::allocate_authorization(
         RequestAttributes&  att,
         PoolObjectAuth *    cluster_perms)
 {
-    if ( att.uid == UserPool::ONEADMIN_ID || att.gid == GroupPool::ONEADMIN_ID )
-    {
-        return true;
-    }
-
     AuthRequest ar(att.uid, att.group_ids);
     string      t64;
     string      aname;
@@ -681,12 +687,15 @@ bool TemplateAllocate::allocate_authorization(
     VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);
 
     // ------------ Check template for restricted attributes -------------------
-    if (ttmpl->check_restricted(aname))
+    if (!att.is_admin())
     {
-        att.resp_msg = "VM Template includes a restricted attribute " + aname;
+        if (ttmpl->check_restricted(aname))
+        {
+            att.resp_msg = "VM Template includes a restricted attribute "+aname;
 
-        failure_response(AUTHORIZATION, att);
-        return false;
+            failure_response(AUTHORIZATION, att);
+            return false;
+        }
     }
 
     return true;
@@ -729,11 +738,6 @@ bool UserAllocate::allocate_authorization(
         RequestAttributes&  att,
         PoolObjectAuth *    cluster_perms)
 {
-    if ( att.uid == 0 )
-    {
-        return true;
-    }
-
     vector<xmlrpc_c::value> param_arr;
     vector<xmlrpc_c::value>::const_iterator it;
 
@@ -751,7 +755,7 @@ bool UserAllocate::allocate_authorization(
     {
         int tmp_gid = xmlrpc_c::value_int(*it);
 
-        Group* group = gpool->get(tmp_gid);
+        Group* group = gpool->get_ro(tmp_gid);
 
         if (group == 0)
         {
@@ -1093,11 +1097,6 @@ bool VirtualRouterAllocate::allocate_authorization(
         RequestAttributes&  att,
         PoolObjectAuth *    cluster_perms)
 {
-    if ( att.uid == 0 )
-    {
-        return true;
-    }
-
     AuthRequest ar(att.uid, att.group_ids);
     string      tmpl_str;
 
@@ -1105,7 +1104,7 @@ bool VirtualRouterAllocate::allocate_authorization(
 
     ar.add_create_auth(att.uid, att.gid, auth_object, tmpl->to_xml(tmpl_str));
 
-    VirtualRouter::set_auth_request(att.uid, ar, tmpl);
+    VirtualRouter::set_auth_request(att.uid, ar, tmpl, true);
 
     if (UserPool::authorize(ar) == -1)
     {
@@ -1168,7 +1167,7 @@ Request::ErrorCode MarketPlaceAppAllocate::pool_allocate(
     // ---------------------------------------------------------------------- //
     // Get Marketplace information for this app                               //
     // ---------------------------------------------------------------------- //
-    MarketPlace * mp = mppool->get(mp_id);
+    MarketPlace * mp = mppool->get_ro(mp_id);
 
     if ( mp == 0 )
     {

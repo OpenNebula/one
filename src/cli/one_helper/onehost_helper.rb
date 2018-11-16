@@ -105,8 +105,8 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.cluster_str(d["CLUSTER"])
             end
 
-            column :RVM, "Number of Virtual Machines running", :size=>3 do |d|
-                d["HOST_SHARE"]["RUNNING_VMS"]
+            column :TVM, "Total Virtual Machines allocated to the Host", :size=>3 do |d|
+                d["HOST_SHARE"]["RUNNING_VMS"] || 0
             end
 
             column :ZVM, "Number of Virtual Machine zombies", :size=>3 do |d|
@@ -114,12 +114,12 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
             end
 
             column :TCPU, "Total CPU percentage", :size=>4 do |d|
-                d["HOST_SHARE"]["MAX_CPU"]
+                d["HOST_SHARE"]["MAX_CPU"] || 0
             end
 
             column :FCPU, "Free CPU percentage", :size=>4 do |d|
                 d["HOST_SHARE"]["MAX_CPU"].to_i-
-                    d["HOST_SHARE"]["USED_CPU"].to_i
+                    d["HOST_SHARE"]["USED_CPU"].to_i rescue "-"
             end
 
             column :ACPU, "Available cpu percentage (not reserved by VMs)",
@@ -132,13 +132,13 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
             column :TMEM, "Total Memory", :size=>7 do |d|
                 OpenNebulaHelper.unit_to_str(
                     d["HOST_SHARE"]["MAX_MEM"].to_i,
-                    options)
+                    options) rescue "-"
             end
 
             column :FMEM, "Free Memory", :size=>7 do |d|
                 OpenNebulaHelper.unit_to_str(
                     d["HOST_SHARE"]["FREE_MEM"].to_i,
-                    options)
+                    options) rescue "-"
             end
 
             column :AMEM, "Available Memory (not reserved by VMs)",
@@ -210,7 +210,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 OneHostHelper.state_to_str(d["STATE"])
             end
 
-            default :ID, :NAME, :CLUSTER, :RVM, :ALLOCATED_CPU, :ALLOCATED_MEM, :STAT
+            default :ID, :NAME, :CLUSTER, :TVM, :ALLOCATED_CPU, :ALLOCATED_MEM, :STAT
         end
 
         table
@@ -295,6 +295,9 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
             # Skip this host from remote syncing if it's OFFLINE
             next if Host::HOST_STATES[state.to_i] == 'OFFLINE'
+
+            # Skip this host if it is a vCenter cluster
+            next if vm_mad == "vcenter"
 
             host_version=host['TEMPLATE/VERSION']
 
@@ -530,7 +533,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
         onevm_helper=OneVMHelper.new
         onevm_helper.client=@client
-        onevm_helper.list_pool({:filter=>["HOST=#{host.name}"]}, false)
+        onevm_helper.list_pool({:filter=>["HOST=#{host.name}"], :no_pager => true}, false)
     end
 
     def print_pcis(pcis)

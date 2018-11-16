@@ -84,6 +84,18 @@ public:
     };
 
     /**
+     *  Function to get a read only VM from the pool, if the object is not
+     *  in memory it is loade from the DB
+     *    @param oid VM unique id
+     *    @return a pointer to the VM, 0 if the VM could not be loaded
+     */
+    VirtualMachine * get_ro(
+        int     oid)
+    {
+        return static_cast<VirtualMachine *>(PoolSQL::get_ro(oid));
+    };
+
+    /**
      *  Function to get a VM from the pool, string version for VM ID
      */
     VirtualMachine * get(
@@ -100,6 +112,25 @@ public:
         }
 
         return static_cast<VirtualMachine *>(PoolSQL::get(oid));
+    };
+
+    /**
+     *  Function to get a read only VM from the pool, string version for VM ID
+     */
+    VirtualMachine * get_ro(
+        const string& oid_s)
+    {
+        istringstream iss(oid_s);
+        int           oid;
+
+        iss >> oid;
+
+        if ( iss.fail() )
+        {
+            return 0;
+        }
+
+        return static_cast<VirtualMachine *>(PoolSQL::get_ro(oid));
     };
 
     /**
@@ -246,13 +277,15 @@ public:
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
      *  @param limit parameters used for pagination
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit)
+    int dump(string& oss, const string& where, const string& limit,
+            bool desc)
     {
-        return PoolSQL::dump(oss, "VM_POOL", VirtualMachine::table, where,
-                             limit);
+        return PoolSQL::dump(oss, "VM_POOL", "short_body", VirtualMachine::table, where,
+                             limit, desc);
     };
 
     /**
@@ -263,7 +296,7 @@ public:
      *
      *  @return 0 on success
      */
-    int dump_acct(ostringstream& oss,
+    int dump_acct(string& oss,
                   const string&  where,
                   int            time_start,
                   int            time_end);
@@ -284,7 +317,7 @@ public:
      *
      *  @return 0 on success
      */
-    int dump_showback(ostringstream& oss,
+    int dump_showback(string& oss,
                       const string&  where,
                       int            start_month,
                       int            start_year,
@@ -300,8 +333,7 @@ public:
      *
      *  @return 0 on success
      */
-    int dump_monitoring(ostringstream& oss,
-                        const string&  where);
+    int dump_monitoring(string& oss, const string&  where);
 
     /**
      *  Dumps the VM monitoring information  for a single VM
@@ -311,8 +343,7 @@ public:
      *
      *  @return 0 on success
      */
-    int dump_monitoring(ostringstream& oss,
-                        int            vmid)
+    int dump_monitoring(string& oss, int vmid)
     {
         ostringstream filter;
 

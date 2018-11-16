@@ -294,12 +294,18 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
                     if q['VM_QUOTA']['VM'].nil? && d["ID"].to_i != 0
                         q['VM_QUOTA']['VM'] = {
-                            "VMS"         => OneQuotaHelper::LIMIT_DEFAULT,
-                            "VMS_USED"    => "0",
-                            "CPU"         => OneQuotaHelper::LIMIT_DEFAULT,
-                            "CPU_USED"    => "0",
-                            "MEMORY"      => OneQuotaHelper::LIMIT_DEFAULT,
-                            "MEMORY_USED" => "0",
+                            "VMS"                   => OneQuotaHelper::LIMIT_DEFAULT,
+                            "VMS_USED"              => "0",
+                            "CPU"                   => OneQuotaHelper::LIMIT_DEFAULT,
+                            "CPU_USED"              => "0",
+                            "MEMORY"                => OneQuotaHelper::LIMIT_DEFAULT,
+                            "MEMORY_USED"           => "0",
+                            "RUNNING_VMS"           => OneQuotaHelper::LIMIT_DEFAULT,
+                            "RUNNING_VMS_USED"      => "0",
+                            "RUNNING_CPU"           => OneQuotaHelper::LIMIT_DEFAULT,
+                            "RUNNING_CPU_USED"      => "0",
+                            "RUNNING_MEMORY"        => OneQuotaHelper::LIMIT_DEFAULT,
+                            "RUNNING_MEMORY_USED"   => "0",
                             "SYSTEM_DISK_SIZE"      => OneQuotaHelper::LIMIT_DEFAULT,
                             "SYSTEM_DISK_SIZE_USED" => "0"
                         }
@@ -333,12 +339,18 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
                     if q['VM_QUOTA']['VM'].nil? && d["ID"].to_i != 0
                         q['VM_QUOTA']['VM'] = {
-                            "VMS"         => OneQuotaHelper::LIMIT_DEFAULT,
-                            "VMS_USED"    => "0",
-                            "CPU"         => OneQuotaHelper::LIMIT_DEFAULT,
-                            "CPU_USED"    => "0",
-                            "MEMORY"      => OneQuotaHelper::LIMIT_DEFAULT,
-                            "MEMORY_USED" => "0",
+                            "VMS"                   => OneQuotaHelper::LIMIT_DEFAULT,
+                            "VMS_USED"              => "0",
+                            "CPU"                   => OneQuotaHelper::LIMIT_DEFAULT,
+                            "CPU_USED"              => "0",
+                            "MEMORY"                => OneQuotaHelper::LIMIT_DEFAULT,
+                            "MEMORY_USED"           => "0",
+                            "RUNNING_VMS"           => OneQuotaHelper::LIMIT_DEFAULT,
+                            "RUNNING_VMS_USED"      => "0",
+                            "RUNNING_CPU"           => OneQuotaHelper::LIMIT_DEFAULT,
+                            "RUNNING_CPU_USED"      => "0",
+                            "RUNNING_MEMORY"        => OneQuotaHelper::LIMIT_DEFAULT,
+                            "RUNNING_MEMORY_USED"   => "0",
                             "SYSTEM_DISK_SIZE"      => OneQuotaHelper::LIMIT_DEFAULT,
                             "SYSTEM_DISK_SIZE_USED" => "0"
                         }
@@ -375,12 +387,18 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
                     if q['VM_QUOTA']['VM'].nil? && d["ID"].to_i != 0
                         q['VM_QUOTA']['VM'] = {
-                            "VMS"         => OneQuotaHelper::LIMIT_DEFAULT,
-                            "VMS_USED"    => "0",
-                            "CPU"         => OneQuotaHelper::LIMIT_DEFAULT,
-                            "CPU_USED"    => "0",
-                            "MEMORY"      => OneQuotaHelper::LIMIT_DEFAULT,
-                            "MEMORY_USED" => "0",
+                            "VMS"                   => OneQuotaHelper::LIMIT_DEFAULT,
+                            "VMS_USED"              => "0",
+                            "CPU"                   => OneQuotaHelper::LIMIT_DEFAULT,
+                            "CPU_USED"              => "0",
+                            "MEMORY"                => OneQuotaHelper::LIMIT_DEFAULT,
+                            "MEMORY_USED"           => "0",
+                            "RUNNING_VMS"           => OneQuotaHelper::LIMIT_DEFAULT,
+                            "RUNNING_VMS_USED"      => "0",
+                            "RUNNING_CPU"           => OneQuotaHelper::LIMIT_DEFAULT,
+                            "RUNNING_CPU_USED"      => "0",
+                            "RUNNING_MEMORY"        => OneQuotaHelper::LIMIT_DEFAULT,
+                            "RUNNING_MEMORY_USED"   => "0",
                             "SYSTEM_DISK_SIZE"      => OneQuotaHelper::LIMIT_DEFAULT,
                             "SYSTEM_DISK_SIZE_USED" => "0"
                         }

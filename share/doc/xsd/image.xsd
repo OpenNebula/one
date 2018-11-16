@@ -84,11 +84,20 @@
             </xs:sequence>
           </xs:complexType>
         </xs:element>
-        <xs:element name="TEMPLATE" type="xs:anyType"/>
+        <xs:element name="TEMPLATE">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+              <xs:element name="VCENTER_IMPORTED" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
         <xs:element name="SNAPSHOTS">
           <xs:complexType>
             <xs:sequence>
               <xs:element name="ALLOW_ORPHANS" type="xs:string"/>
+              <xs:element name="NEXT_SNAPSHOT" type="xs:string"/>
               <xs:element name="SNAPSHOT" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                   <xs:sequence>

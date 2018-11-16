@@ -6,14 +6,20 @@ if RUBY_VERSION < '1.9.0'
     gem 'zendesk_api', '< 1.5'
 else
     gem 'nokogiri'
-    gem 'net-ldap', '< 0.13'
-    gem 'zendesk_api', '< 1.14.0'
+    gem 'net-ldap'
+    gem 'zendesk_api'
 end
 
-if RUBY_VERSION < '2.4.0'
-    gem 'rack', '< 2.0.0'
-else
-    gem 'rack'
+if RUBY_VERSION >= '2.0.0' and RUBY_VERSION < '2.1.0'
+    gem 'public_suffix', '< 3.0.0'
+end
+
+if RUBY_VERSION >= '2.4.0'
+    gem 'xmlrpc'
+end
+
+if RUBY_VERSION < '2.1'
+    gem 'scrub_rb'
 end
 
 gem 'sqlite3'               # quota, onedb
@@ -21,6 +27,7 @@ gem 'treetop', '>= 1.6.3'   # oneflow
 gem 'sequel'                # quota, oneb
 gem 'sinatra'               # sunstone, cloud, oneflow
 gem 'thin'                  # sunstone, cloud
+gem 'rack', '< 2.0.0'       # sunstone, cloud, oneflow
 gem 'memcache-client'       # sunstone
 gem 'amazon-ec2'            # cloud
 gem 'uuidtools'             # cloud
@@ -33,6 +40,3 @@ gem 'parse-cron'            # oneflow
 gem 'aws-sdk', '~> 2.5'     # ec2_hybrid
 gem 'ox'                    # oca
 gem 'mysql2'                # onedb
-
-
-

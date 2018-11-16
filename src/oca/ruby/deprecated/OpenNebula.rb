@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# OCA file names use snake case (excep for opennebula that is a single
+# OCA file names use snake case (except for opennebula that is a single
 # word). This file will be deleted in a future release. Use instead:
 
 # require "opennebula"
@@ -23,4 +23,3 @@
 $stderr.puts 'Requiring "OpenNebula" is deprecated. Use "opennebula".'
 
 require "opennebula"
-

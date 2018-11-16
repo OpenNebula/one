@@ -691,6 +691,12 @@ func (vm *VM) SnapshotRevert(snapID int) error {
 	return err
 }
 
+// DiskSnapshotRename renames a snapshot
+func (vm *VM) DiskSnapshotRename(diskID, snapID int, newName string) error {
+	_, err := client.Call("one.vm.disksnapshotrename", vm.ID, diskID, snapID, newName)
+	return err
+}
+
 // Attach a new disk to the virtual machine. diskTemplate is a string containing
 // a single DISK vector attribute. Syntax can be the usual attribute=value or
 // XML

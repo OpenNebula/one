@@ -34,6 +34,8 @@ public:
 
     string get_ds_policy() const;
 
+    string get_nics_policy() const;
+
 private:
     /**
      *  Name for the configuration file, oned.conf

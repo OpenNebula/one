@@ -736,6 +736,7 @@ define(function(require) {
     require("./vms-tab/dialogs/attach-disk"),
     require("./vms-tab/dialogs/disk-snapshot"),
     require("./vms-tab/dialogs/disk-saveas"),
+    require("./vms-tab/dialogs/disk-snapshot-rename"),
     require("./vms-tab/dialogs/attach-nic"),
     require("./vms-tab/dialogs/revert"),
     require("./vms-tab/dialogs/snapshot"),
@@ -1179,9 +1180,7 @@ define(function(require) {
             }
           }
 
-          if (nics.length > 0) {
-            extra_info.template.nic = nics;
-          }
+          extra_info.template.NIC = nics;
 
           if (disks.length > 0) {
             extra_info.template.DISK = disks;

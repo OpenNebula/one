@@ -1,7 +1,26 @@
-module VCenterDriver
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
 require 'set'
 require 'digest'
+
+module VCenterDriver
+
 class DatacenterFolder
+
     attr_accessor :items
 
     def initialize(vi_client)
@@ -15,7 +34,7 @@ class DatacenterFolder
     #   { dc_ref [Symbol] => Datacenter object }
     ########################################################################
     def fetch!
-        VIClient.get_entities(@vi_client.vim.root, "Datacenter").each do |item|
+        VIClient.get_entities(@vi_client.vim.root, 'Datacenter').each do |item|
             item_name = item._ref
             @items[item_name.to_sym] = Datacenter.new(item)
         end
@@ -50,8 +69,6 @@ class DatacenterFolder
         vcenter_version = get_vcenter_api_version
 
         fetch! if @items.empty? # Get datacenters
-
-        sha256 = Digest::SHA256.new # Prepare crypto hash generator
 
         # Loop through datacenters
         @items.values.each do |dc|
@@ -90,15 +107,10 @@ class DatacenterFolder
                 location   = folders.reverse.join("/")
                 location = "/" if location.empty?
 
-                # Generate a crypto hash and take the first 12 characters to
-                # avoid name collisions.
-                full_name = "#{ccr['name']}_[#{vcenter_instance_name}-#{dc_name}]_#{location}"
-                cluster_hash = sha256.hexdigest(full_name)[0..11]
-
                 # Setting host import name and replace spaces and weird characters
-                cluster_name = "#{ccr['name']}_[#{vcenter_instance_name}-#{dc_name}]_#{cluster_hash}"
-                cluster_name = cluster_name.tr(" ", "_")
-                cluster_name = cluster_name.tr("\u007F", "") # Remove \u007F character that comes from vcenter
+                cluster_name = "#{ccr['name']}".tr(" ", "_")
+                cluster_name = VCenterDriver::VIHelper.one_name(OpenNebula::HostPool, cluster_name, ccr['_ref']+vcenter_uuid, hpool)
+
 
                 # Prepare hash for import tool
                 host_info = {}
@@ -106,7 +118,6 @@ class DatacenterFolder
                 host_info[:cluster_name]     = cluster_name
                 host_info[:cluster_ref]      = ccr['_ref']
                 host_info[:cluster_location] = location
-                host_info[:cluster_hash]     = cluster_hash
                 host_info[:vcenter_uuid]     = vcenter_uuid
                 host_info[:vcenter_version]  = vcenter_version
                 host_info[:rp_list]          = rpools
@@ -179,8 +190,9 @@ class DatacenterFolder
 
                     already_image_ds = VCenterDriver::Storage.exists_one_by_ref_dc_and_type?(ds_ref, dc_ref, vcenter_uuid, "IMAGE_DS", dpool)
 
+                    key = ds_ref+vcenter_uuid
                     if !already_image_ds
-                        ds_objects[ds_ref][:name] = "#{ds_name} [#{vcenter_instance_name} - #{dc_name}] (IMG)"
+                        ds_objects[ds_ref][:name] = VCenterDriver::VIHelper.one_name(OpenNebula::DatastorePool, "#{ds_name}(IMG)", key)
                         object = ds.to_one_template(ds_objects[ds_ref], vcenter_uuid, dc_name, dc_ref, "IMAGE_DS")
                         ds_objects[ds_ref][:ds] << object if !object.nil?
                     end
@@ -188,12 +200,12 @@ class DatacenterFolder
                     already_system_ds = VCenterDriver::Storage.exists_one_by_ref_dc_and_type?(ds_ref, dc_ref, vcenter_uuid, "SYSTEM_DS", dpool)
 
                     if !already_system_ds
-                        ds_objects[ds_ref][:name] = "#{ds_name} [#{vcenter_instance_name} - #{dc_name}] (SYS)"
+                        ds_objects[ds_ref][:name] = VCenterDriver::VIHelper.one_name(OpenNebula::DatastorePool, "#{ds_name}(SYS)", key)
                         object = ds.to_one_template(ds_objects[ds_ref], vcenter_uuid, dc_name, dc_ref, "SYSTEM_DS")
                         ds_objects[ds_ref][:ds] << object if !object.nil?
                     end
 
-                    ds_objects[ds_ref][:name] = "#{ds_name} [#{vcenter_instance_name} - #{dc_name}]"
+                    ds_objects[ds_ref][:name] = "#{ds_name}"
                 elsif ds.instance_of? VCenterDriver::StoragePod
                     ds['children'].each do |sp_ds|
                         hosts = sp_ds.host
@@ -455,7 +467,7 @@ class DatacenterFolder
 
                         # network can belong to more than 1 cluster
                         networks[network_ref][:clusters][:refs] << ref
-                        networks[network_ref][:clusters][:one_ids] << cluster_id
+                        networks[network_ref][:clusters][:one_ids] << cluster_id.to_i
                         networks[network_ref][:clusters][:names] << cname
                         networks[network_ref][:vcenter] = vcenter_instance_name
 
@@ -488,10 +500,8 @@ class Datacenter
     DPG_CREATE_TIMEOUT = 240
 
     def initialize(item, vi_client=nil)
-        if !item.instance_of? RbVmomi::VIM::Datacenter
-            raise "Expecting type 'RbVmomi::VIM::Datacenter'. " <<
-                  "Got '#{item.class} instead."
-        end
+
+        check_item(item, RbVmomi::VIM::Datacenter)
 
         @vi_client = vi_client
         @item = item

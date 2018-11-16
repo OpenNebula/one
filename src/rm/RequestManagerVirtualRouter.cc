@@ -54,7 +54,7 @@ void VirtualRouterInstantiate::request_execute(
     /* ---------------------------------------------------------------------- */
     /* Get the Virtual Router NICs                                            */
     /* ---------------------------------------------------------------------- */
-    vr = vrpool->get(vrid);
+    vr = vrpool->get_ro(vrid);
 
     if (vr == 0)
     {
@@ -83,21 +83,18 @@ void VirtualRouterInstantiate::request_execute(
         return;
     }
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(AuthRequest::MANAGE, vr_perms); // MANAGE VROUTER
+
+    if (UserPool::authorize(ar) == -1)
     {
-        AuthRequest ar(att.uid, att.group_ids);
-
-        ar.add_auth(AuthRequest::MANAGE, vr_perms); // MANAGE VROUTER
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
-            return;
-        }
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
+        return;
     }
 
-    VMTemplate * tmpl = tpool->get(tmpl_id);
+    VMTemplate * tmpl = tpool->get_ro(tmpl_id);
 
     if ( tmpl == 0 )
     {
@@ -210,7 +207,7 @@ void VirtualRouterAttachNic::request_execute(
     // -------------------------------------------------------------------------
     // Authorize the operation & check quotas
     // -------------------------------------------------------------------------
-    vr = vrpool->get(vrid);
+    vr = vrpool->get_ro(vrid);
 
     if (vr == 0)
     {
@@ -223,20 +220,17 @@ void VirtualRouterAttachNic::request_execute(
 
     vr->unlock();
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(AuthRequest::MANAGE, vr_perms); // MANAGE VROUTER
+
+    VirtualRouter::set_auth_request(att.uid, ar, &tmpl, true); // USE VNET
+
+    if (UserPool::authorize(ar) == -1)
     {
-        AuthRequest ar(att.uid, att.group_ids);
-
-        ar.add_auth(AuthRequest::MANAGE, vr_perms); // MANAGE VROUTER
-
-        VirtualRouter::set_auth_request(att.uid, ar, &tmpl); // USE VNET
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
-            return;
-        }
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
+        return;
     }
 
     RequestAttributes att_quota(vr_perms.uid, vr_perms.gid, att);
@@ -318,7 +312,7 @@ void VirtualRouterDetachNic::request_execute(
     // -------------------------------------------------------------------------
     // Authorize the operation
     // -------------------------------------------------------------------------
-    vr = vrpool->get(vrid);
+    vr = vrpool->get_ro(vrid);
 
     if (vr == 0)
     {
@@ -331,18 +325,15 @@ void VirtualRouterDetachNic::request_execute(
 
     vr->unlock();
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(AuthRequest::MANAGE, vr_perms); // MANAGE VROUTER
+
+    if (UserPool::authorize(ar) == -1)
     {
-        AuthRequest ar(att.uid, att.group_ids);
-
-        ar.add_auth(AuthRequest::MANAGE, vr_perms); // MANAGE VROUTER
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
-            return;
-        }
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
+        return;
     }
 
     // -------------------------------------------------------------------------

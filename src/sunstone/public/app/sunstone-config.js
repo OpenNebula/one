@@ -80,6 +80,14 @@ define(function(require) {
       }
     },
 
+    "isAdvancedEnabled": function(featureName) {
+      if (_config['view']['features'] && featureName in _config['view']['features']) {
+        return _config['view']['features'][featureName];
+      } else {
+        return true;
+      }
+    },
+
     "tabTableColumns": function(tabName) {
       if (!_config['view']['tabs'][tabName]) {
         return [];
@@ -122,6 +130,10 @@ define(function(require) {
       return _config['user_config']["table_order"];
     },
 
+    "autorefreshInfo": function(tabName) {
+      return _config['view']['tabs'][tabName]['autorefresh_info'] || 10000;
+    },
+
     "provision": {
       "dashboard": {
         "isEnabled": function(widget) {
@@ -146,7 +158,7 @@ define(function(require) {
     },
 
     'tableOrder': _config['user_config']['table_order'],
-    'vncProxyPort': _config['system_config']['vnc_proxy_port'],
+    'vncProxyPort': _config['system_config']['vnc_client_port'] || _config['system_config']['vnc_proxy_port'].split(':')[1] || _config['system_config']['vnc_proxy_port'],
     'vncWSS': _config['user_config']['vnc_wss'],
     'requestVNCPassword': _config['system_config']['vnc_request_password'],
     'logo': (_config['view']["small_logo"] || "images/one_small_logo.png"),
@@ -157,7 +169,8 @@ define(function(require) {
     'onedConf': _config['oned_conf'],
     'confirmVMActions': _config['view']['confirm_vms'],
     'scaleFactor': _config['view']['features']['instantiate_cpu_factor'],
-    'filterView': _config['view']['filter_view'],
+    'filterView': _config['view']['filter-view'],
+    'doCountAnimation': _config['view']['do_count_animation'],
 
     "allTabs": function() {
       return Object.keys(_config['view']['tabs']);

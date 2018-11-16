@@ -31,12 +31,15 @@ require 'ec2_driver'
 
 deploy_id = ARGV[0]
 host      = ARGV[1]
-
-
+drv_action_enc = STDIN.read.gsub("\n","")
 
 begin
+    drv_action = OpenNebula::XMLElement.new
+    drv_action.initialize_xml(Base64.decode64(drv_action_enc),'VMM_DRIVER_ACTION_DATA')
+    lcm_state = OpenNebula::VirtualMachine::LCM_STATE[drv_action["/VMM_DRIVER_ACTION_DATA/VM/LCM_STATE"].to_i]
+
     ec2_drv = EC2Driver.new(host)
-    ec2_drv.cancel(deploy_id)
+    ec2_drv.cancel(deploy_id, lcm_state)
 rescue Exception => e
     OpenNebula.handle_driver_exception("Cancel", e, host, deploy_id)
 end

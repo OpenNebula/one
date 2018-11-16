@@ -24,6 +24,9 @@ module OpenNebula
         include Enumerable
         alias_method :each_with_xpath, :each
 
+        attr_reader :pool_name
+        attr_reader :element_name
+
         PAGINATED_POOLS=%w{VM_POOL IMAGE_POOL TEMPLATE_POOL VN_POOL
                            DOCUMENT_POOL SECGROUP_POOL}
 
@@ -132,12 +135,13 @@ module OpenNebula
         # xml_method:: _String_ the name of the XML-RPC method
         # args:: _Array_ with additional arguments for the info call
         # [return] nil in case of success or an Error object
-        def xmlrpc_info(xml_method,*args)
-            rc = @client.call(xml_method,*args)
+        def xmlrpc_info(xml_method, *args)
+            rc = @client.call(xml_method, *args)
 
             if !OpenNebula.is_error?(rc)
-                initialize_xml(rc,@pool_name)
-                rc   = nil
+                initialize_xml(rc, @pool_name)
+
+                rc = nil
             end
 
             return rc
@@ -179,14 +183,17 @@ module OpenNebula
 
             if OpenNebula.pool_page_size && allow_paginated &&
                     ( ( size && size >= 2 ) || !size )
+
                 size = OpenNebula.pool_page_size if !size
-                hash=info_paginated(size)
+                hash = info_paginated(size)
 
                 return hash if OpenNebula.is_error?(hash)
+
                 { @pool_name => { @element_name => hash } }
             else
-                rc=info
+                rc = info
                 return rc if OpenNebula.is_error?(rc)
+
                 to_hash
             end
         end
@@ -195,14 +202,15 @@ module OpenNebula
         #
         # size:: _Integer_ size of each page
         def info_paginated(size)
-            array=Array.new
-            current=0
+            array   = Array.new
+            current = 0
 
-            parser=ParsePoolSax.new(@pool_name, @element_name)
+            parser = ParsePoolSax.new(@pool_name, @element_name)
 
             while true
-                a=@client.call("#{@pool_name.delete('_').downcase}.info",
-                    @user_id, current, -size, -1)
+                a = @client.call("#{@pool_name.delete('_').downcase}.info",
+                        @user_id, current, -size, -1)
+
                 return a if OpenNebula.is_error?(a)
 
                 a_array=parser.parse(a)
@@ -214,9 +222,35 @@ module OpenNebula
             end
 
             array.compact!
-            array=nil if array.length == 0
+            array = nil if array.length == 0
 
             array
+        end
+
+        # Gets a hash from a info page from pool
+        # size:: nil => default page size
+        #        > 0 => page size    
+        # current first element of the page
+        # hash:: return page as a hash
+        def get_page(size, current)
+            rc = nil
+
+            if PAGINATED_POOLS.include?(@pool_name) 
+                size = OpenNebula.pool_page_size if (!size || size == 0)
+                rc   = @client.call("#{@pool_name.delete('_').downcase}.info",
+                            @user_id, current, -size, -1)
+
+                initialize_xml(rc, @pool_name)
+            else
+                rc = info
+            end
+
+            return rc 
+        end
+
+        # Return true if pool is paginated
+        def is_paginated?
+            PAGINATED_POOLS.include?(@pool_name) 
         end
     end
 end

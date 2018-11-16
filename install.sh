@@ -43,8 +43,8 @@ usage() {
  echo "-c: install client utilities: OpenNebula cli and ec2 client files"
  echo "-s: install OpenNebula Sunstone"
  echo "-p: do not install OpenNebula Sunstone non-minified files"
- echo "-G: install OpenNebula Gate"
- echo "-f: install OpenNebula Flow"
+ echo "-G: install only OpenNebula Gate"
+ echo "-f: install only OpenNebula Flow"
  echo "-r: remove Opennebula, only useful if -d was not specified, otherwise"
  echo "    rm -rf \$ONE_LOCATION would do the job"
  echo "-l: creates symlinks instead of copying files, useful for development"
@@ -118,6 +118,7 @@ if [ -z "$ROOT" ] ; then
     MAN_LOCATION="/usr/share/man/man1"
     VM_LOCATION="/var/lib/one/vms"
     DOCS_LOCATION="/usr/share/docs/one"
+    MAIN_JS_LOCATION="$VAR_LOCATION/sunstone"
     DOCKER_MACHINE_LOCATION="src/docker_machine/src/docker_machine/bin/docker-machine-driver-opennebula"
 
     if [ "$CLIENT" = "yes" ]; then
@@ -128,7 +129,7 @@ if [ -z "$ROOT" ] ; then
         CHOWN_DIRS=""
     elif [ "$SUNSTONE" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION \
-                   $SUNSTONE_LOCATION $ETC_LOCATION"
+                   $SUNSTONE_LOCATION $ETC_LOCATION $MAIN_JS_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
 
@@ -148,14 +149,17 @@ if [ -z "$ROOT" ] ; then
 
         CHOWN_DIRS=""
     elif [ "$DOCKER_MACHINE" = "yes" ]; then
-        mkdir $SHARE_LOCATION/docker_machine
-        mv $DOCKER_MACHINE_LOCATION $SHARE_LOCATION/docker_machine
+        MAKE_DIRS="$BIN_LOCATION"
+
+        DELETE_DIRS="$MAKE_DIRS"
+
+        CHOWN_DIRS=""
     else
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION $DOCS_LOCATION \
                    $LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION \
                    $SYSTEM_DS_LOCATION $DEFAULT_DS_LOCATION $MAN_LOCATION \
-                   $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION"
+                   $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION $MAIN_JS_LOCATION"
 
         DELETE_DIRS="$LIB_LOCATION $ETC_LOCATION $LOG_LOCATION $VAR_LOCATION \
                      $RUN_LOCATION $SHARE_DIRS"
@@ -178,8 +182,9 @@ else
     MAN_LOCATION="$ROOT/share/man/man1"
     VM_LOCATION="$VAR_LOCATION/vms"
     DOCS_LOCATION="$ROOT/share/docs"
+    MAIN_JS_LOCATION="$VAR_LOCATION/sunstone"
     DOCKER_MACHINE_LOCATION="src/docker_machine/src/docker_machine/bin/docker-machine-driver-opennebula"
-    
+
     if [ "$CLIENT" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION"
 
@@ -191,7 +196,7 @@ else
         DELETE_DIRS="$MAKE_DIRS"
     elif [ "$SUNSTONE" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION \
-                   $SUNSTONE_LOCATION $ETC_LOCATION"
+                   $SUNSTONE_LOCATION $ETC_LOCATION $MAIN_JS_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
     elif [ "$ONEFLOW" = "yes" ]; then
@@ -200,13 +205,14 @@ else
 
         DELETE_DIRS="$MAKE_DIRS"
     elif [ "$DOCKER_MACHINE" = "yes" ]; then
-        mkdir $SHARE_LOCATION/docker_machine
-        mv $DOCKER_MACHINE_LOCATION $SHARE_LOCATION/docker_machine
+        MAKE_DIRS="$BIN_LOCATION"
+
+        DELETE_DIRS="$MAKE_DIRS"
     else
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION $SYSTEM_DS_LOCATION \
                    $DEFAULT_DS_LOCATION $MAN_LOCATION $DOCS_LOCATION \
-                   $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION"
+                   $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION $MAIN_JS_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
 
@@ -218,8 +224,7 @@ fi
 
 SHARE_DIRS="$SHARE_LOCATION/examples \
             $SHARE_LOCATION/websockify \
-            $SHARE_LOCATION/esx-fw-vnc \
-            $SHARE_LOCATION/docker_machine"
+            $SHARE_LOCATION/esx-fw-vnc"
 
 ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/hm \
@@ -254,6 +259,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/etc/datastore/ceph \
           $VAR_LOCATION/remotes/etc/im/kvm-probes.d \
           $VAR_LOCATION/remotes/etc/vmm/kvm \
+          $VAR_LOCATION/remotes/etc/vmm/vcenter \
           $VAR_LOCATION/remotes/etc/vnm \
           $VAR_LOCATION/remotes/im \
           $VAR_LOCATION/remotes/im/kvm.d \
@@ -273,6 +279,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vnm/802.1Q \
           $VAR_LOCATION/remotes/vnm/vxlan \
           $VAR_LOCATION/remotes/vnm/dummy \
+          $VAR_LOCATION/remotes/vnm/bridge \
           $VAR_LOCATION/remotes/vnm/ebtables \
           $VAR_LOCATION/remotes/vnm/fw \
           $VAR_LOCATION/remotes/vnm/ovswitch \
@@ -318,12 +325,14 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/models/OpenNebulaJSON \
                $SUNSTONE_LOCATION/views"
 
-SUNSTONE_MINIFIED_DIRS="SUNSTONE_LOCATION/public \
+SUNSTONE_MINIFIED_DIRS="$SUNSTONE_LOCATION/public \
                $SUNSTONE_LOCATION/public/dist \
                $SUNSTONE_LOCATION/public/dist/console \
                $SUNSTONE_LOCATION/public/css \
                $SUNSTONE_LOCATION/public/css/opensans \
-               $SUNSTONE_LOCATION/public/bower_components/fontawesome/fonts \
+               $SUNSTONE_LOCATION/public/bower_components/fontawesome \
+               $SUNSTONE_LOCATION/public/bower_components/fontawesome/web-fonts-with-css \
+               $SUNSTONE_LOCATION/public/bower_components/fontawesome/web-fonts-with-css/webfonts \
                $SUNSTONE_LOCATION/public/locale/languages \
                $SUNSTONE_LOCATION/public/images \
                $SUNSTONE_LOCATION/public/images/logos"
@@ -409,6 +418,7 @@ INSTALL_FILES=(
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_ETC_KVM_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/kvm
     VMM_EXEC_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/vmm/vcenter
+    VMM_EXEC_ETC_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/vcenter
     VMM_EXEC_EC2_SCRIPTS:$VAR_LOCATION/remotes/vmm/ec2
     VMM_EXEC_AZ_SCRIPTS:$VAR_LOCATION/remotes/vmm/az
     VMM_EXEC_ONE_SCRIPTS:$VAR_LOCATION/remotes/vmm/one
@@ -439,6 +449,7 @@ INSTALL_FILES=(
     NETWORK_8021Q_FILES:$VAR_LOCATION/remotes/vnm/802.1Q
     NETWORK_VXLAN_FILES:$VAR_LOCATION/remotes/vnm/vxlan
     NETWORK_DUMMY_FILES:$VAR_LOCATION/remotes/vnm/dummy
+    NETWORK_BRIDGE_FILES:$VAR_LOCATION/remotes/vnm/bridge
     NETWORK_EBTABLES_FILES:$VAR_LOCATION/remotes/vnm/ebtables
     NETWORK_FW_FILES:$VAR_LOCATION/remotes/vnm/fw
     NETWORK_OVSWITCH_FILES:$VAR_LOCATION/remotes/vnm/ovswitch
@@ -496,7 +507,7 @@ INSTALL_SUNSTONE_FILES=(
 INSTALL_SUNSTONE_PUBLIC_MINIFIED_FILES=(
   SUNSTONE_PUBLIC_JS_FILES:$SUNSTONE_LOCATION/public/dist
   SUNSTONE_PUBLIC_JS_CONSOLE_FILES:$SUNSTONE_LOCATION/public/dist/console
-  SUNSTONE_PUBLIC_FONT_AWSOME:$SUNSTONE_LOCATION/public/bower_components/fontawesome/fonts
+  SUNSTONE_PUBLIC_FONT_AWSOME:$SUNSTONE_LOCATION/public/bower_components/fontawesome/web-fonts-with-css/webfonts
   SUNSTONE_PUBLIC_CSS_FILES:$SUNSTONE_LOCATION/public/css
   SUNSTONE_PUBLIC_IMAGES_FILES:$SUNSTONE_LOCATION/public/images
   SUNSTONE_PUBLIC_LOGOS_FILES:$SUNSTONE_LOCATION/public/images/logos
@@ -552,6 +563,10 @@ INSTALL_ONEFLOW_FILES=(
 
 INSTALL_ONEFLOW_ETC_FILES=(
     ONEFLOW_ETC_FILES:$ETC_LOCATION
+)
+
+INSTALL_DOCKER_MACHINE_FILES=(
+    DOCKER_MACHINE_BIN_FILES:$BIN_LOCATION
 )
 
 INSTALL_ETC_FILES=(
@@ -622,6 +637,7 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/oca/ruby/deprecated/OpenNebula.rb \
                 src/oca/ruby/opennebula.rb \
                 src/sunstone/OpenNebulaVNC.rb \
+                src/sunstone/OpenNebulaAddons.rb \
                 src/vmm_mad/remotes/vcenter/vcenter_driver.rb \
                 src/vmm_mad/remotes/az/az_driver.rb \
                 src/vmm_mad/remotes/ec2/ec2_driver.rb \
@@ -691,13 +707,13 @@ VMM_EXEC_LIB_FILES="src/vmm_mad/remotes/lib/poll_common.rb"
 VMM_EXEC_LIB_VCENTER_FILES="src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb
                     src/vmm_mad/remotes/lib/vcenter_driver/vi_client.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/vcenter_importer.rb \
-                    src/vmm_mad/remotes/lib/vcenter_driver/importer.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/file_helper.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/host.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/virtual_machine.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/vi_helper.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/memoize.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/datacenter.rb \
+                    src/vmm_mad/remotes/lib/vcenter_driver/vm_template.rb \
                     src/vmm_mad/remotes/lib/vcenter_driver/network.rb"
 
 #-------------------------------------------------------------------------------
@@ -756,6 +772,12 @@ VMM_EXEC_VCENTER_SCRIPTS="src/vmm_mad/remotes/vcenter/cancel \
                          src/vmm_mad/remotes/vcenter/reconfigure \
                          src/vmm_mad/remotes/vcenter/preconfigure \
                          src/vmm_mad/remotes/vcenter/prereconfigure"
+
+#-------------------------------------------------------------------------------
+# VMM configuration VCENTER scripts, to be installed under $REMOTES_LOCATION/etc/vmm/vcenter
+#-------------------------------------------------------------------------------
+
+VMM_EXEC_ETC_VCENTER_SCRIPTS="src/vmm_mad/remotes/vcenter/vcenterc"
 
 #------------------------------------------------------------------------------
 # VMM Driver EC2 scripts, to be installed under $REMOTES_LOCATION/vmm/ec2
@@ -891,6 +913,7 @@ NETWORK_FILES="src/vnm_mad/remotes/lib/vnm_driver.rb \
                src/vnm_mad/remotes/lib/command.rb \
                src/vnm_mad/remotes/lib/vm.rb \
                src/vnm_mad/remotes/lib/vlan.rb \
+               src/vnm_mad/remotes/lib/no_vlan.rb \
                src/vnm_mad/remotes/lib/security_groups.rb \
                src/vnm_mad/remotes/lib/security_groups_iptables.rb \
                src/vnm_mad/remotes/lib/nic.rb"
@@ -913,6 +936,11 @@ NETWORK_DUMMY_FILES="src/vnm_mad/remotes/dummy/clean \
                     src/vnm_mad/remotes/dummy/post \
                     src/vnm_mad/remotes/dummy/update_sg \
                     src/vnm_mad/remotes/dummy/pre"
+
+NETWORK_BRIDGE_FILES="src/vnm_mad/remotes/bridge/clean \
+                    src/vnm_mad/remotes/bridge/post \
+                    src/vnm_mad/remotes/bridge/update_sg \
+                    src/vnm_mad/remotes/bridge/pre"
 
 NETWORK_EBTABLES_FILES="src/vnm_mad/remotes/ebtables/clean \
                     src/vnm_mad/remotes/ebtables/post \
@@ -951,6 +979,7 @@ NETWORK_ETC_FILES="src/vnm_mad/remotes/OpenNebulaNetwork.conf"
 # IPAM drivers to be installed under $REMOTES_LOCATION/ipam
 #-------------------------------------------------------------------------------
 IPAM_DRIVER_DUMMY_SCRIPTS="src/ipamm_mad/remotes/dummy/register_address_range \
+               src/ipamm_mad/remotes/dummy/unregister_address_range \
                src/ipamm_mad/remotes/dummy/allocate_address \
                src/ipamm_mad/remotes/dummy/get_address \
                src/ipamm_mad/remotes/dummy/free_address"
@@ -1287,7 +1316,9 @@ ONEDB_SHARED_MIGRATOR_FILES="src/onedb/shared/2.0_to_2.9.80.rb \
                              src/onedb/shared/5.2.0_to_5.3.80.rb \
                              src/onedb/shared/5.3.80_to_5.4.0.rb \
                              src/onedb/shared/5.4.0_to_5.4.1.rb \
-                             src/onedb/shared/5.4.1_to_5.5.80.rb"
+                             src/onedb/shared/5.4.1_to_5.5.80.rb \
+                             src/onedb/shared/5.5.80_to_5.6.0.rb \
+                             src/onedb/shared/5.6.0_to_5.7.80.rb"
 
 ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/4.5.80_to_4.7.80.rb \
                             src/onedb/local/4.7.80_to_4.9.80.rb \
@@ -1299,8 +1330,9 @@ ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/4.5.80_to_4.7.80.rb \
                             src/onedb/local/4.90.0_to_5.3.80.rb \
                             src/onedb/local/5.3.80_to_5.4.0.rb \
                             src/onedb/local/5.4.0_to_5.4.1.rb \
-                            src/onedb/local/5.4.1_to_5.5.80.rb"
-
+                            src/onedb/local/5.4.1_to_5.5.80.rb \
+                            src/onedb/local/5.5.80_to_5.6.0.rb \
+                            src/onedb/local/5.6.0_to_5.7.80.rb"
 
 ONEDB_PATCH_FILES="src/onedb/patches/4.14_monitoring.rb \
                    src/onedb/patches/history_times.rb"
@@ -1320,7 +1352,8 @@ EC2_ETC_FILES="src/vmm_mad/remotes/ec2/ec2_driver.conf \
 AZ_ETC_FILES="src/vmm_mad/remotes/az/az_driver.conf \
               src/vmm_mad/remotes/az/az_driver.default"
 
-VCENTER_ETC_FILES="src/vmm_mad/remotes/lib/vcenter_driver/vcenter_driver.default"
+VCENTER_ETC_FILES="src/vmm_mad/remotes/lib/vcenter_driver/vcenter_driver.default \
+                   src/vmm_mad/remotes/lib/vcenter_driver/vcenter_driver.conf"
 
 #-------------------------------------------------------------------------------
 # Virtualization drivers config. files, to be installed under $ETC_LOCATION
@@ -1701,7 +1734,8 @@ SUNSTONE_VIEWS_FILES="src/sunstone/views/index.erb \
 SUNSTONE_PUBLIC_JS_FILES="src/sunstone/public/dist/login.js \
                         src/sunstone/public/dist/login.js.map \
                         src/sunstone/public/dist/main.js \
-                        src/sunstone/public/dist/main.js.map"
+                        src/sunstone/public/dist/main.js.map \
+                        src/sunstone/public/dist/main-dist.js"
 
 SUNSTONE_PUBLIC_JS_CONSOLE_FILES="src/sunstone/public/dist/console/vnc.js \
                         src/sunstone/public/dist/console/vnc.js.map \
@@ -1721,11 +1755,21 @@ SUNSTONE_PUBLIC_CSS_FILES="src/sunstone/public/css/app.min.css \
                 src/sunstone/public/css/spice-custom.css \
                 src/sunstone/public/css/login.css"
 
-SUNSTONE_PUBLIC_FONT_AWSOME="src/sunstone/public/bower_components/fontawesome/fonts/fontawesome-webfont.eot \
-                src/sunstone/public/bower_components/fontawesome/fonts/fontawesome-webfont.woff2 \
-                src/sunstone/public/bower_components/fontawesome/fonts/fontawesome-webfont.woff \
-                src/sunstone/public/bower_components/fontawesome/fonts/fontawesome-webfont.ttf \
-                src/sunstone/public/bower_components/fontawesome/fonts/fontawesome-webfont.svg"
+SUNSTONE_PUBLIC_FONT_AWSOME="src/sunstone/public/bower_components/fontawesome/web-fonts-with-css/webfonts/fa-brands-400.eot \
+                src/sunstone/public/bower_components/fontawesome/web-fonts-with-css/webfonts/fa-brands-400.svg \
+                src/sunstone/public/bower_components/fontawesome/web-fonts-with-css/webfonts/fa-brands-400.ttf \
+                src/sunstone/public/bower_components/fontawesome/web-fonts-with-css/webfonts/fa-brands-400.woff \
+                src/sunstone/public/bower_components/fontawesome/web-fonts-with-css/webfonts/fa-brands-400.woff2 \
+                src/sunstone/public/bower_components/fontawesome/web-fonts-with-css/webfonts/fa-regular-400.eot \
+                src/sunstone/public/bower_components/fontawesome/web-fonts-with-css/webfonts/fa-regular-400.svg \
+                src/sunstone/public/bower_components/fontawesome/web-fonts-with-css/webfonts/fa-regular-400.ttf \
+                src/sunstone/public/bower_components/fontawesome/web-fonts-with-css/webfonts/fa-regular-400.woff \
+                src/sunstone/public/bower_components/fontawesome/web-fonts-with-css/webfonts/fa-regular-400.woff2 \
+                src/sunstone/public/bower_components/fontawesome/web-fonts-with-css/webfonts/fa-solid-900.eot \
+                src/sunstone/public/bower_components/fontawesome/web-fonts-with-css/webfonts/fa-solid-900.svg \
+                src/sunstone/public/bower_components/fontawesome/web-fonts-with-css/webfonts/fa-solid-900.ttf \
+                src/sunstone/public/bower_components/fontawesome/web-fonts-with-css/webfonts/fa-solid-900.woff \
+                src/sunstone/public/bower_components/fontawesome/web-fonts-with-css/webfonts/fa-solid-900.woff2"
 
 SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/favicon.ico \
@@ -1873,6 +1917,11 @@ ONEFLOW_LIB_MODELS_FILES="src/flow/lib/models/role.rb \
                           src/flow/lib/models/service_template_pool.rb \
                           src/flow/lib/models/service_template.rb"
 
+#-----------------------------------------------------------------------------
+# Docker Machine files
+#-----------------------------------------------------------------------------
+
+DOCKER_MACHINE_BIN_FILES="src/docker_machine/src/docker_machine/bin/docker-machine-driver-opennebula"
 
 #-----------------------------------------------------------------------------
 # MAN files
@@ -1928,7 +1977,7 @@ MAN_FILES="share/man/oneacct.1.gz \
 # Docs Files
 #-----------------------------------------------------------------------------
 
-DOCS_FILES="LICENSE NOTICE README.md"
+DOCS_FILES="LICENSE LICENSE.addons NOTICE README.md"
 
 #-----------------------------------------------------------------------------
 # Ruby VENDOR files
@@ -1981,6 +2030,8 @@ elif [ "$SUNSTONE" = "yes" ]; then
   fi
 elif [ "$ONEFLOW" = "yes" ]; then
     INSTALL_SET="${INSTALL_ONEFLOW_FILES[@]}"
+elif [ "$DOCKER_MACHINE" = "yes" ]; then
+    INSTALL_SET="${INSTALL_DOCKER_MACHINE_FILES[@]}"
 elif [ "$SUNSTONE_DEV" = "no" ]; then
     INSTALL_SET="${INSTALL_FILES[@]} \
                  ${INSTALL_SUNSTONE_FILES[@]} ${INSTALL_SUNSTONE_PUBLIC_MINIFIED_FILES[@]}\
@@ -2038,6 +2089,11 @@ fi
 # --- Set ownership or remove OpenNebula directories ---
 
 if [ "$UNINSTALL" = "no" ] ; then
+    if [ "$SUNSTONE" = "yes" ] || [ "$SUNSTONE_DEV" = "yes" ] ; then
+        touch $DESTDIR$VAR_LOCATION/sunstone/main.js
+        rm -f $DESTDIR$SUNSTONE_LOCATION/public/dist/main.js
+        ln -s $VAR_LOCATION/sunstone/main.js $DESTDIR$SUNSTONE_LOCATION/public/dist/main.js
+    fi
     for d in $CHOWN_DIRS; do
         chown -R $ONEADMIN_USER:$ONEADMIN_GROUP $DESTDIR$d
     done

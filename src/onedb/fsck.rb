@@ -52,8 +52,8 @@ require 'fsck/template'
 require 'fsck/quotas'
 
 module OneDBFsck
-    VERSION = "5.5.80"
-    LOCAL_VERSION = "5.5.80"
+    VERSION = "5.7.80"
+    LOCAL_VERSION = "5.7.80"
 
     def db_version
         if defined?(@db_version) && @db_version

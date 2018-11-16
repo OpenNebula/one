@@ -74,13 +74,17 @@ public:
     };
 
     /**
-     *
+     *  Stops the main RM thread.
      */
     void finalize()
     {
         am.finalize();
     };
 
+    /**
+     *  @return an AbyssServer to run xmlrpc connections
+     */
+    xmlrpc_c::serverAbyss * create_abyss();
 
 private:
 
@@ -95,12 +99,12 @@ private:
     /**
      *  Thread id for the RequestManager
      */
-    pthread_t               rm_thread;
+    pthread_t rm_thread;
 
     /**
      *  Thread id for the XML Server
      */
-    pthread_t               rm_xml_server_thread;
+    pthread_t rm_xml_server_thread;
 
     /**
      *  Port number where the connection will be open
@@ -150,17 +154,12 @@ private:
     /**
      *  Action engine for the Manager
      */
-    ActionManager   am;
+    ActionManager am;
 
     /**
      *  To register XML-RPC methods
      */
     xmlrpc_c::registry RequestManagerRegistry;
-
-    /**
-     *  The XML-RPC server
-     */
-    xmlrpc_c::serverAbyss *  AbyssServer;
 
     /**
      *  Register the XML-RPC API Calls
@@ -182,18 +181,12 @@ private:
 
         NebulaLog::log("ReM",Log::INFO,"XML-RPC server stopped.");
 
-        delete AbyssServer;
-
         if ( socket_fd != -1 )
         {
             close(socket_fd);
         }
     };
 };
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
 #endif
 

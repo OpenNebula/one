@@ -22,6 +22,7 @@
 #include "ImageManager.h"
 #include "Quotas.h"
 #include "Request.h"
+#include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -29,7 +30,14 @@
 int DispatchManager::deploy (VirtualMachine * vm, const RequestAttributes& ra)
 {
     ostringstream oss;
-    int           vid;
+    int vid;
+    int uid;
+    int gid;
+
+    string error;
+
+    VirtualMachineTemplate quota_tmpl;
+    bool do_quotas = false;
 
     if ( vm == 0 )
     {
@@ -46,15 +54,33 @@ int DispatchManager::deploy (VirtualMachine * vm, const RequestAttributes& ra)
          vm->get_state() == VirtualMachine::STOPPED ||
          vm->get_state() == VirtualMachine::UNDEPLOYED )
     {
+        do_quotas = vm->get_state() == VirtualMachine::STOPPED ||
+             vm->get_state() == VirtualMachine::UNDEPLOYED;
+
         vm->set_state(VirtualMachine::ACTIVE);
 
         vmpool->update(vm);
+
+        if ( do_quotas )
+        {
+            uid = vm->get_uid();
+            gid = vm->get_gid();
+
+            get_quota_template(vm, quota_tmpl, true);
+        }
 
         lcm->trigger(LCMAction::DEPLOY, vid, ra);
     }
     else
     {
         goto error;
+    }
+
+    vm->unlock();
+
+    if ( do_quotas )
+    {
+        Quotas::vm_check(uid, gid, &quota_tmpl, error);
     }
 
     return 0;
@@ -64,6 +90,8 @@ error:
     oss << "Could not deploy VM " << vid
         << ", wrong state " << vm->state_str() << ".";
     NebulaLog::log("DiM",Log::ERROR,oss);
+
+    vm->unlock();
 
     return -1;
 }
@@ -75,6 +103,14 @@ int DispatchManager::import(VirtualMachine * vm, const RequestAttributes& ra)
 {
     ostringstream oss;
     string import_state;
+
+    int uid;
+    int gid;
+
+    VirtualMachineTemplate quota_tmpl;
+    bool do_quotas = false;
+
+    string error;
 
     if ( vm == 0 )
     {
@@ -101,11 +137,22 @@ int DispatchManager::import(VirtualMachine * vm, const RequestAttributes& ra)
     {
         vm->set_state(VirtualMachine::POWEROFF);
         vm->set_state(VirtualMachine::LCM_INIT);
+
+        //Close this History Record
+        vm->set_etime(the_time);
+        vm->set_running_etime(the_time);
     }
     else
     {
         vm->set_state(VirtualMachine::ACTIVE);
         vm->set_state(VirtualMachine::RUNNING);
+
+        uid = vm->get_uid();
+        gid = vm->get_gid();
+
+        get_quota_template(vm, quota_tmpl, true);
+
+        do_quotas = true;
     }
 
     vm->set_stime(the_time);
@@ -120,6 +167,13 @@ int DispatchManager::import(VirtualMachine * vm, const RequestAttributes& ra)
     vmpool->update_history(vm);
 
     vmpool->update(vm);
+
+    vm->unlock();
+
+    if ( do_quotas )
+    {
+        Quotas::vm_check(uid, gid, &quota_tmpl, error);
+    }
 
     return 0;
 }
@@ -209,10 +263,11 @@ error:
 /* ************************************************************************** */
 /* ************************************************************************** */
 
-void DispatchManager::free_vm_resources(VirtualMachine * vm)
+void DispatchManager::free_vm_resources(VirtualMachine * vm, bool check_images)
 {
-    Template* tmpl;
     vector<Template *> ds_quotas;
+
+    Template * quota_tmpl;
 
     int vmid;
     int uid;
@@ -221,11 +276,29 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
     int vrid = -1;
     unsigned int port;
 
+    quota_tmpl = vm->clone_template(); 
+
+    if ( (vm->get_state() == VirtualMachine::ACTIVE) ||
+         (vm->get_state() == VirtualMachine::PENDING) ||
+         (vm->get_state() == VirtualMachine::HOLD) )
+    {
+        std::string memory, cpu;
+
+        quota_tmpl->get("MEMORY", memory);
+        quota_tmpl->get("CPU", cpu);
+
+        quota_tmpl->add("RUNNING_MEMORY", memory);
+        quota_tmpl->add("RUNNING_CPU", cpu);
+        quota_tmpl->add("RUNNING_VMS", 1);
+    }
+
+    quota_tmpl->add("VMS", 1);
+
     vm->release_network_leases();
 
     vm->release_vmgroup();
 
-    vm->release_disk_images(ds_quotas);
+    vm->release_disk_images(ds_quotas, check_images);
 
     vm->set_state(VirtualMachine::DONE);
 
@@ -235,7 +308,8 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
 
     VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
 
-    if ( graphics != 0 && (graphics->vector_value("PORT", port) == 0) && vm->hasHistory())
+    if ( graphics != 0 && graphics->vector_value("PORT", port) == 0 
+            && vm->hasHistory())
     {
         graphics->remove("PORT");
         clpool->release_vnc_port(vm->get_cid(), port);
@@ -246,7 +320,6 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
     vmid = vm->get_oid();
     uid  = vm->get_uid();
     gid  = vm->get_gid();
-    tmpl = vm->clone_template();
 
     if (vm->is_imported())
     {
@@ -260,9 +333,9 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
 
     vm->unlock();
 
-    Quotas::vm_del(uid, gid, tmpl);
+    Quotas::vm_del(uid, gid, quota_tmpl);
 
-    delete tmpl;
+    delete quota_tmpl;
 
     if ( !ds_quotas.empty() )
     {
@@ -324,7 +397,7 @@ int DispatchManager::terminate(int vid, bool hard, const RequestAttributes& ra,
         case VirtualMachine::HOLD:
         case VirtualMachine::CLONING:
         case VirtualMachine::CLONING_FAILURE:
-            free_vm_resources(vm);
+            free_vm_resources(vm, true);
             break;
 
         case VirtualMachine::DONE:
@@ -389,7 +462,7 @@ int DispatchManager::undeploy(int vid, bool hard, const RequestAttributes& ra,
 {
     ostringstream oss;
 
-    VirtualMachine * vm = vmpool->get(vid);
+    VirtualMachine * vm = vmpool->get_ro(vid);
 
     if ( vm == 0 )
     {
@@ -444,7 +517,7 @@ int DispatchManager::poweroff (int vid, bool hard, const RequestAttributes& ra,
 {
     ostringstream oss;
 
-    VirtualMachine * vm = vmpool->get(vid);
+    VirtualMachine * vm = vmpool->get_ro(vid);
 
     if ( vm == 0 )
     {
@@ -615,7 +688,7 @@ int DispatchManager::stop(int vid, const RequestAttributes& ra,
 {
     ostringstream oss;
 
-    VirtualMachine * vm = vmpool->get(vid);
+    VirtualMachine * vm = vmpool->get_ro(vid);
 
     if ( vm == 0 )
     {
@@ -662,7 +735,7 @@ int DispatchManager::suspend(int vid, const RequestAttributes& ra,
 {
     ostringstream oss;
 
-    VirtualMachine * vm = vmpool->get(vid);
+    VirtualMachine * vm = vmpool->get_ro(vid);
 
     if ( vm == 0 )
     {
@@ -1005,7 +1078,7 @@ int DispatchManager::delete_vm(VirtualMachine * vm, const RequestAttributes& ra,
 
     if(host_id != -1)
     {
-        Host * host = hpool->get(host_id);
+        Host * host = hpool->get_ro(host_id);
 
         if ( host == 0 )
         {
@@ -1042,7 +1115,7 @@ int DispatchManager::delete_vm(VirtualMachine * vm, const RequestAttributes& ra,
                 tm->trigger(TMAction::EPILOG_DELETE, vid);
             }
 
-            free_vm_resources(vm);
+            free_vm_resources(vm, true);
         break;
 
         case VirtualMachine::STOPPED:
@@ -1056,7 +1129,7 @@ int DispatchManager::delete_vm(VirtualMachine * vm, const RequestAttributes& ra,
                 tm->trigger(TMAction::EPILOG_DELETE, vid);
             }
 
-            free_vm_resources(vm);
+            free_vm_resources(vm, true);
         break;
 
         case VirtualMachine::INIT:
@@ -1064,7 +1137,7 @@ int DispatchManager::delete_vm(VirtualMachine * vm, const RequestAttributes& ra,
         case VirtualMachine::HOLD:
         case VirtualMachine::CLONING:
         case VirtualMachine::CLONING_FAILURE:
-            free_vm_resources(vm);
+            free_vm_resources(vm, true);
         break;
 
         case VirtualMachine::ACTIVE:
@@ -1091,6 +1164,9 @@ int DispatchManager::delete_recreate(VirtualMachine * vm,
     int rc = 0;
 
     Template * vm_quotas_snp = 0;
+
+    VirtualMachineTemplate quota_tmpl;
+    bool do_quotas = false;
 
     vector<Template *> ds_quotas_snp;
 
@@ -1124,6 +1200,8 @@ int DispatchManager::delete_recreate(VirtualMachine * vm,
             vm->delete_non_persistent_disk_snapshots(&vm_quotas_snp,
                     ds_quotas_snp);
 
+            do_quotas = true;
+
         case VirtualMachine::HOLD:
             if (vm->hasHistory())
             {
@@ -1138,6 +1216,11 @@ int DispatchManager::delete_recreate(VirtualMachine * vm,
             vm->set_state(VirtualMachine::PENDING);
 
             vmpool->update(vm);
+
+            if ( do_quotas )
+            {
+                get_quota_template(vm, quota_tmpl, true);
+            }
         break;
 
         case VirtualMachine::ACTIVE: //Cleanup VM resources before PENDING
@@ -1165,7 +1248,55 @@ int DispatchManager::delete_recreate(VirtualMachine * vm,
         delete vm_quotas_snp;
     }
 
+    if ( do_quotas )
+    {
+        Quotas::vm_check(vm_uid, vm_gid, &quota_tmpl, error);
+    }
+
     return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::delete_vm_db(VirtualMachine * vm,
+            const RequestAttributes& ra, string& error_str)
+{
+    ostringstream oss;
+
+    int cpu, mem, disk;
+    vector<VectorAttribute *> pci;
+
+    int vid = vm->get_oid();
+
+    oss << "Deleting VM from DB " << vm->get_oid();
+    NebulaLog::log("DiM",Log::DEBUG,oss);
+
+    switch (vm->get_state())
+    {
+        case VirtualMachine::SUSPENDED:
+        case VirtualMachine::POWEROFF:
+        case VirtualMachine::ACTIVE:
+            vm->get_requirements(cpu, mem, disk, pci);
+
+            hpool->del_capacity(vm->get_hid(), vid, cpu, mem, disk, pci);
+
+        case VirtualMachine::STOPPED:
+        case VirtualMachine::UNDEPLOYED:
+        case VirtualMachine::INIT:
+        case VirtualMachine::PENDING:
+        case VirtualMachine::HOLD:
+        case VirtualMachine::CLONING:
+        case VirtualMachine::CLONING_FAILURE:
+            free_vm_resources(vm, false);
+        break;
+
+        case VirtualMachine::DONE:
+            vm->unlock();
+        break;
+    }
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1502,10 +1633,17 @@ int DispatchManager::snapshot_delete(int vid, int snap_id,
 
         return -1;
     }
-
+    
+    bool is_keep_snapshots = false;
+    
+    if ( vm->hasHistory() )
+    {
+        is_keep_snapshots = vmm->is_keep_snapshots(vm->get_vmm_mad());
+    }
+    
     if ( (vm->get_state() != VirtualMachine::ACTIVE ||
                 vm->get_lcm_state() != VirtualMachine::RUNNING) &&
-         (!vmm->is_keep_snapshots(vm->get_vmm_mad()) ||
+         (!is_keep_snapshots ||
                 vm->get_state() != VirtualMachine::POWEROFF) )
     {
         oss << "Could not delete snapshot " << snap_id << " for VM " << vid

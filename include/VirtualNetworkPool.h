@@ -98,6 +98,18 @@ public:
     };
 
     /**
+     *  Function to get a read only VN from the pool, if the object is not in memory
+     *  it is loaded from the DB
+     *    @param oid VN unique id
+     *    @param lock locks the VN mutex
+     *    @return a pointer to the VN, 0 if the VN could not be loaded
+     */
+    VirtualNetwork * get_ro(int oid)
+    {
+        return static_cast<VirtualNetwork *>(PoolSQL::get_ro(oid));
+    };
+
+    /**
      *  Gets an object from the pool (if needed the object is loaded from the
      *  database).
      *   @param name of the object
@@ -109,6 +121,20 @@ public:
     VirtualNetwork * get(const string& name, int uid)
     {
         return static_cast<VirtualNetwork *>(PoolSQL::get(name,uid));
+    };
+
+    /**
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database).
+     *   @param name of the object
+     *   @param uid id of owner
+     *   @param lock locks the object if true
+     *
+     *   @return a pointer to the object, 0 in case of failure
+     */
+    VirtualNetwork * get_ro(const string& name, int uid)
+    {
+        return static_cast<VirtualNetwork *>(PoolSQL::get_ro(name,uid));
     };
 
     /**
@@ -133,13 +159,15 @@ public:
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
      *  @param limit parameters used for pagination
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit)
+    int dump(string& oss, const string& where, const string& limit, 
+            bool desc)
     {
-        return PoolSQL::dump(oss, "VNET_POOL", VirtualNetwork::table, where,
-                             limit);
+        return PoolSQL::dump(oss, "VNET_POOL", "body", VirtualNetwork::table, where,
+                             limit, desc);
     }
 
     /**
@@ -198,12 +226,17 @@ public:
      *  Generates an Authorization token for a NIC attribute
      *    @param nic the nic to be authorized
      *    @param ar the AuthRequest
+     *    @param  check_lock for check if the resource is lock or not
+     *    @param uid of user making the request
+     *    @param sgs to check the security groups
      */
     void authorize_nic(
             PoolObjectSQL::ObjectType   ot,
             VirtualMachineNic *         nic,
             int                         uid,
-            AuthRequest *               ar);
+            AuthRequest *               ar,
+            set<int> &                  sgs,
+            bool                 check_lock);
 
     //--------------------------------------------------------------------------
     // VNET Reservation interface
@@ -270,11 +303,6 @@ private:
      */
     const VectorAttribute vlan_conf;
 
-    /**
-     *  Bitmap with vlan_id in use for the 802.1Q driver
-     */
-    BitMap<4096> vlan_id_bitmap;
-
    /**
     *  ID for the VLAN_BITMAP, to store it in the DB
     */
@@ -300,11 +328,12 @@ private:
     VirtualNetwork * get_nic_by_name(VirtualMachineNic * nic,
                                      const string&     name,
                                      int               _uidi,
+                                     bool              ro,
                                      string&           error);
     /**
      *  Function to get a VirtualNetwork by its id, as provided by a VM template
      */
-    VirtualNetwork * get_nic_by_id(const string& id_s, string& error);
+    VirtualNetwork * get_nic_by_id(const string& id_s, bool ro, string& error);
 
     //--------------------------------------------------------------------------
     // VLAN ID management functions
@@ -316,6 +345,16 @@ private:
      *    @return 0 on success
      */
     int set_vlan_id(VirtualNetwork * vn);
+
+    /**
+     *  Helper functions to compute the next vlan_id for 802.1Q and VXLAN.
+     *    @param vnid network id
+     *    @param vlan_var, attribute to store the vlan_id
+     *    @param auto_var, attribute to flag this vlan_id as auto generated
+     */
+    int set_8021Q_id(int vnid, string& vlan_var, bool& auto_var);
+
+    int set_vxlan_id(int vnid, string& vlan_var, bool& auto_var);
 
     /**
      *  Free a previously allocated VLAN ID if needed

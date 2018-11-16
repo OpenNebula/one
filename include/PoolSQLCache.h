@@ -50,19 +50,7 @@ public:
      *
      *  @param oid of the object
      */
-    void lock_line(int oid);
-
-    /**
-     *  Sets the reference of the active object and unlocks the cache line. The
-     *  mutex of the object MUST be locked
-     *
-     *  @param oid of the object
-     *  @param object to be inserted int the cache
-     *
-     *  @return 0 on success
-     *
-     */
-    int set_line(int oid, PoolObjectSQL * object);
+    pthread_mutex_t * lock_line(int oid);
 
 private:
     /**
@@ -71,15 +59,13 @@ private:
      */
     struct CacheLine
     {
-        CacheLine(PoolObjectSQL * o):active(0), object(o)
+        CacheLine():active(0)
         {
             pthread_mutex_init(&mutex, 0);
         };
 
         ~CacheLine()
         {
-            delete object;
-
             pthread_mutex_destroy(&mutex);
         }
 
@@ -99,7 +85,7 @@ private:
         }
 
         /**
-         *  Concurrent access to cache line
+         *  Concurrent access to object
          */
         pthread_mutex_t mutex;
 
@@ -107,11 +93,6 @@ private:
          *  Number of threads waiting on the line mutex
          */
         int active;
-
-        /**
-         *  Reference to the object
-         */
-        PoolObjectSQL * object;
     };
 
     /**

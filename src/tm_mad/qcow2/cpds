@@ -101,7 +101,7 @@ if ! virsh -c ${LIBVIRT_URI} blockcopy ${DEPLOY_ID} ${DISK_TARGET} ${DST_PATH} -
     elif virsh -c ${LIBVIRT_URI} suspend ${DEPLOY_ID}; then
         trap "virsh -c ${LIBVIRT_URI} resume ${DEPLOY_ID}" EXIT TERM INT HUP
     else
-        error_message "Could not domfsfreeze or suspend domain"
+        echo "Could not domfsfreeze or suspend domain" >&2
         exit 1
     fi
 

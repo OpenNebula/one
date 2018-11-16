@@ -147,6 +147,9 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
             # Return if the bridge doesn't exist because it was already deleted (handles last vm with multiple nics on the same vlan)
             next if !@bridges.include? @nic[:bridge]
 
+            # Return if we want to keep the empty bridge
+            next if @nic[:conf][:keep_empty_bridge]
+
             # Return if the vlan device is not the only left device in the bridge.
             next if @bridges[@nic[:bridge]].length > 1 or
                 (@nic[:vlan_dev] and
@@ -349,8 +352,11 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         range.split(',').each do |i|
             l, r = i.split('-')
 
+            l = l.to_i
+            r = r.to_i unless r.nil?
+
             if r.nil?
-                items << i
+                items << l
             elsif r >= l
                 items.concat((l..r).to_a)
             else

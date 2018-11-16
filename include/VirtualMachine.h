@@ -876,6 +876,14 @@ public:
 
     /**
      * Function to print the VirtualMachine object into a string in
+     * XML format, with reduced information
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    string& to_xml_short(string& xml);
+
+    /**
+     * Function to print the VirtualMachine object into a string in
      * XML format, with extended information (full history records)
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
@@ -1010,7 +1018,12 @@ public:
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int automatic_requirements(set<int>& cluster_ids, string& error_str);
+    int automatic_requirements(set<int>& cluster_ids, string& error_str)
+    {
+        std::set<int> datastore_ids;
+
+        return automatic_requirements(cluster_ids, datastore_ids, error_str);
+    }
 
     /**
      *  Checks if the resize parameters are valid
@@ -1040,8 +1053,9 @@ public:
     /**
      *  Releases all disk images taken by this Virtual Machine
      *    @param quotas disk space to free from image datastores
+     *    @param check_state to update image state based on VM state
      */
-    void release_disk_images(vector<Template *>& quotas);
+    void release_disk_images(vector<Template *>& quotas, bool check_state);
 
     /**
      *  @return reference to the VirtualMachine disks
@@ -1146,6 +1160,8 @@ public:
      *    @param  files space separated list of paths to be included in the CBD
      *    @param  disk_id CONTEXT/DISK_ID attribute value
      *    @param  password Password to encrypt the token, if it is set
+     *    @param  only_auto boolean to generate context only for vnets
+     *            with NETWORK_MODE = auto
      *    @return -1 in case of error, 0 if the VM has no context, 1 on success
      */
     int generate_context(string &files, int &disk_id, const string& password);
@@ -1258,9 +1274,11 @@ public:
      *    @param  uid for template owner
      *    @param  ar the AuthRequest object
      *    @param  tmpl the virtual machine template
+     *    @param  
+     * lock for check if the resource is lock or not
      */
     static void set_auth_request(int uid, AuthRequest& ar,
-            VirtualMachineTemplate *tmpl);
+            VirtualMachineTemplate *tmpl, bool check_lock);
 
     // -------------------------------------------------------------------------
     // Attach Disk Interface
@@ -1476,6 +1494,19 @@ public:
     }
 
     /**
+     *  Renames the snap_id from the list
+     *    @param disk_id of the disk
+     *    @param snap_id of the snapshot
+     *    @param new_name of the snapshot
+     *    @return 0 on success
+     */
+    int rename_disk_snapshot(int disk_id, int snap_id, const string& new_name,
+            string& error_str)
+    {
+        return disks.rename_snapshot(disk_id, snap_id, new_name, error_str);
+    }
+
+    /**
      * Deletes all the disk snapshots for non-persistent disks and for persistent
      * disks in no shared system ds.
      *     @param vm_quotas The SYSTEM_DISK_SIZE freed by the deleted snapshots
@@ -1601,6 +1632,21 @@ public:
     {
         disks.clear_cloning_image_id(image_id, source);
     }
+
+    /**
+     *  Get network leases with NETWORK_MODE = auto for this Virtual Machine
+     *    @pram tmpl with the scheduling results for the auto NICs
+     *    @param estr description if any
+     *    @return 0 if success
+     */
+    int get_auto_network_leases(VirtualMachineTemplate * tmpl, string &estr);
+
+    /**
+     *  Check if a tm_mad is valid for the Virtual Machine Disks and set
+     *  clone_target and ln_target
+     *  @param tm_mad is the tm_mad for system datastore chosen
+     */
+    int check_tm_mad_disks(const string& tm_mad, string& error);
 
 private:
 
@@ -1934,9 +1980,12 @@ private:
      *  netowrking updates.
      *    @param context attribute of the VM
      *    @param error string if any
+     *    @param  only_auto boolean to generate context only for vnets 
+     *            with NETWORK_MODE = auto
      *    @return 0 on success
      */
-    int generate_network_context(VectorAttribute * context, string& error);
+    int generate_network_context(VectorAttribute * context, string& error, 
+            bool only_auto);
 
     /**
      *  Deletes the NETWORK related CONTEXT section for the given nic, i.e.
@@ -1965,9 +2014,11 @@ private:
      *  Parse the "CONTEXT" attribute of the template by substituting
      *  $VARIABLE, $VARIABLE[ATTR] and $VARIABLE[ATTR, ATTR = VALUE]
      *    @param error_str Returns the error reason, if any
+     *    @param  only_auto boolean to parse only the context for vnets
+     *            with NETWORK_MODE = auto
      *    @return 0 on success
      */
-    int parse_context(string& error_str);
+    int parse_context(string& error_str, bool all_nics);
 
     /**
      * Parses the current contents of the context vector attribute, without
@@ -1984,7 +2035,7 @@ private:
     // Management helpers: NIC, DISK and VMGROUP
     // -------------------------------------------------------------------------
     /**
-     *  Get all network leases for this Virtual Machine
+     *  Get network leases (no auto NICs, NETWORK_MODE != auto) for this VM
      *  @return 0 if success
      */
     int get_network_leases(string &error_str);
@@ -2002,6 +2053,16 @@ private:
      *  @return 0 if success
      */
     int get_vmgroup(string& error);
+
+    /**
+     * Adds automatic placement requirements: Datastore and Cluster
+     *    @param cluster_ids set of viable clusters for this VM
+     *    @param ds_ids set of viable datastores for this VM
+     *    @param error_str Returns the error reason, if any
+     *    @return 0 on success
+     */
+    int automatic_requirements(set<int>& cluster_ids, set<int>& ds_ids,
+            string& error_str);
 
     // ------------------------------------------------------------------------
     // Public cloud templates related functions
@@ -2051,6 +2112,13 @@ private:
      * Same as above but specifies the attribute name to handle old versions
      */
     int parse_public_clouds(const char *name, string& error);
+
+    /**
+     *  This method removes sched_action DONE/MESSAGE attributes
+     *    @param error_str with error description
+     *    @return -1 in case of error 0 otherwise
+     */
+    int parse_sched_action(string& error_str);
 
 protected:
 

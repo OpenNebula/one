@@ -94,6 +94,7 @@ define(function(require) {
         forceIPv6:true,
         forceIPv4:true,
         management: true,
+        hide_auto_button: true,
         securityGroups: Config.isFeatureEnabled("secgroups")});
 
     $(".vr_attributes #name", context).on("input", function(){

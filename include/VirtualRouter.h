@@ -155,18 +155,10 @@ public:
      *    @param  uid for template owner
      *    @param  ar the AuthRequest object
      *    @param  tmpl the virtual router template
+     *    @param  check_lock for check if the resource is lock or not
      */
-    static void set_auth_request(int uid, AuthRequest& ar, Template *tmpl);
-
-    /**
-     * Checks if the given action is supported for Virtual Router VMs
-     * @param action VM action to check
-     * @return true if the action is supported for Virtual Router VMs
-     */
-    static bool is_action_supported(History::VMAction action)
-    {
-        return SUPPORTED_ACTIONS.is_set(action);
-    }
+    static void set_auth_request(int uid, AuthRequest& ar, Template *tmpl,
+                                bool check_lock);
 
 
     // -------------------------------------------------------------------------
@@ -187,8 +179,6 @@ private:
     // Friends
     // -------------------------------------------------------------------------
     friend class VirtualRouterPool;
-
-    static const ActionSet<History::VMAction> SUPPORTED_ACTIONS;
 
     // *************************************************************************
     // Attributes

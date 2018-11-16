@@ -190,4 +190,30 @@
       {{{tip (tr "Virtual Routers create Virtual Machines from a source Template. This checkbox makes this template available to be selected in the New Virtual Router wizard")}}}
     </label>
   </div>
+</div><br><br>
+{{#advancedSection (tr "User / Group") }}
+{{#isFeatureEnabled "show_as_uid_instantiate"}}
+<div class="row">
+  <div class="small-12 columns usersContext{{element.ID}}">
+    <fieldset>
+      <legend>
+        <i class="fas fa-user"></i> {{tr "Instantiate as a different user"}}
+      </legend>
+      <div class="provision_uid_selector{{element.ID}}">{{{usersDatatable}}}</div>
+    </fieldset>
+  </div>
 </div>
+{{/isFeatureEnabled}}
+{{#isFeatureEnabled "show_as_gid_instantiate"}}
+<div class="row">
+  <div class="small-12 columns groupContext{{element.ID}}">
+    <fieldset>
+      <legend>
+        <i class="fas fa-users"></i> {{tr "Instantiate as a different group"}}
+      </legend>
+      <div class="provision_gid_selector{{element.ID}}">{{{groupDatatable}}}</div>
+    </fieldset>
+  </div>
+</div>
+{{/isFeatureEnabled}}
+{{/advancedSection}}

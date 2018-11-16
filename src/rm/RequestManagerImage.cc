@@ -107,7 +107,7 @@ Request::ErrorCode ImagePersistent::request_execute(
         return ec;
     }
 
-    image = ipool->get(id);
+    image = ipool->get_ro(id);
 
     if ( image == 0 )
     {
@@ -129,7 +129,7 @@ Request::ErrorCode ImagePersistent::request_execute(
 
     image->unlock();
 
-    ds = dspool->get(ds_id);
+    ds = dspool->get_ro(ds_id);
 
     if ( ds == 0 )
     {
@@ -302,7 +302,7 @@ void ImageClone::request_execute(
         ds_id = xmlrpc_c::value_int(paramList.getInt(3));
     }
 
-    ErrorCode ec = request_execute(clone_id, name, ds_id, new_id, att);
+    ErrorCode ec = request_execute(clone_id, name, ds_id, false, new_id, att);
 
     if ( ec == SUCCESS )
     {
@@ -321,6 +321,7 @@ Request::ErrorCode ImageClone::request_execute(
         int             clone_id,
         const string&   name,
         int             ds_id,
+        bool            persistent,
         int             &new_id,
         RequestAttributes& att)
 {
@@ -344,7 +345,7 @@ Request::ErrorCode ImageClone::request_execute(
 
     // ------------------------- Get source Image info -------------------------
 
-    img = ipool->get(clone_id);
+    img = ipool->get_ro(clone_id);
 
     if ( img == 0 )
     {
@@ -391,12 +392,21 @@ Request::ErrorCode ImageClone::request_execute(
 
     img->unlock();
 
-    //Update persistent attribute from base image if needed
-    Image::test_set_persistent(tmpl, att.uid, att.gid, false);
+    //--------------------------------------------------------------------------
+    // Set image persistent attribute
+    //--------------------------------------------------------------------------
+    if ( persistent )
+    {
+        tmpl->replace("PERSISTENT", persistent);
+    }
+    else //Update from base image
+    {
+        Image::test_set_persistent(tmpl, att.uid, att.gid, false);
+    }
 
     // ----------------------- Get target Datastore info -----------------------
 
-    ds = dspool->get(ds_id);
+    ds = dspool->get_ro(ds_id);
 
     if ( ds == 0 )
     {
@@ -432,7 +442,7 @@ Request::ErrorCode ImageClone::request_execute(
 
     if (ds_id != ds_id_orig) //check same DS_MAD
     {
-        ds = dspool->get(ds_id_orig);
+        ds = dspool->get_ro(ds_id_orig);
 
         if (ds == 0)
         {
@@ -481,46 +491,43 @@ Request::ErrorCode ImageClone::request_execute(
         return ACTION;
     }
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+    string      tmpl_str;
+
+    // ------------------ Check permissions and ACLs  ----------------------
+    // Create image
+    // Use original image
+    // Use target datastore
+    // Use original datastore, if different
+    // ---------------------------------------------------------------------
+    tmpl->to_xml(tmpl_str);
+
+    ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::IMAGE, tmpl_str);
+
+    ar.add_auth(AuthRequest::USE, perms);
+
+    ar.add_auth(AuthRequest::USE, ds_perms);
+
+    if (ds_id != ds_id_orig)
     {
-        AuthRequest ar(att.uid, att.group_ids);
-        string      tmpl_str;
+        ar.add_auth(AuthRequest::USE, ds_perms_orig);
+    }
 
-        // ------------------ Check permissions and ACLs  ----------------------
-        // Create image
-        // Use original image
-        // Use target datastore
-        // Use original datastore, if different
-        // ---------------------------------------------------------------------
-        tmpl->to_xml(tmpl_str);
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
 
-        ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::IMAGE, tmpl_str);
+        delete tmpl;
+        return AUTHORIZATION;
+    }
 
-        ar.add_auth(AuthRequest::USE, perms);
+    // -------------------------- Check Quotas  ----------------------------
 
-        ar.add_auth(AuthRequest::USE, ds_perms);
-
-        if (ds_id != ds_id_orig)
-        {
-            ar.add_auth(AuthRequest::USE, ds_perms_orig);
-        }
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-
-            delete tmpl;
-            return AUTHORIZATION;
-        }
-
-        // -------------------------- Check Quotas  ----------------------------
-
-        if ( quota_authorization(&img_usage, Quotas::DATASTORE, att,
-                    att.resp_msg) == false )
-        {
-            delete tmpl;
-            return AUTHORIZATION;
-        }
+    if ( quota_authorization(&img_usage, Quotas::DATASTORE, att,
+                att.resp_msg) == false )
+    {
+        delete tmpl;
+        return AUTHORIZATION;
     }
 
     rc = ipool->allocate(att.uid,

@@ -16,16 +16,16 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' unless defined?(RUBY_LIB_LOCATION)
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' unless defined?(RUBY_LIB_LOCATION)
 end
 
-$: << RUBY_LIB_LOCATION
-$: << File.dirname(__FILE__)
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
@@ -44,27 +44,29 @@ snap_name = drv_action["VM/TEMPLATE/SNAPSHOT[ACTIVE='YES']/NAME"]
 begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
 
-
-    one_vm = drv_action.retrieve_xmlelements("VM").first
+    one_vm = drv_action.retrieve_xmlelements('VM').first
     vm = VCenterDriver::VirtualMachine.new_one(vi_client, vm_ref, one_vm)
 
-    persistent_disks = one_vm.retrieve_xmlelements("TEMPLATE/DISK[PERSISTENT=YES]")
+    persistent_disks = one_vm.retrieve_xmlelements('TEMPLATE/DISK[PERSISTENT=YES]')
 
     if !persistent_disks.empty?
         STDERR.puts "Snapshot of VM #{vm_ref} on vCenter cluster "\
                     "#{vc_cluster_name} cannot be performed if "\
-                    "it contains persistent disks"
+                    'it contains persistent disks.'
         exit 1
     end
 
     puts vm.create_snapshot(snap_id, snap_name)
 
-rescue Exception => e
+rescue StandardError => e
     message = "Snapshot of VM #{vm_ref} on vCenter cluster "\
               "#{vc_cluster_name} failed due to "\
               "\"#{e.message}\"\n"
     OpenNebula.log_error(message)
-    exit -1
+    if vi_client.get_property_vcenter_conf(:debug_information)
+        STDERR.puts "#{message} #{e.backtrace}"
+    end
+    exit(-1)
 ensure
     vi_client.close_connection if vi_client
 end

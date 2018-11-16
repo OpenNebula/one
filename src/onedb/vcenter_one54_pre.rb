@@ -1054,6 +1054,24 @@ def template_unmanaged_discover(devices, ccr_name, ccr_ref,
 
                 image_size = get_image_size(RbVmomi::VIM::Datastore.new(vi_client.vim, ds_ref), image_path_escaped)
 
+                template_pool = OpenNebula::TemplatePool.new(one_client)
+                template_pool.info(-1, template_id.to_i, template_id.to_i)
+
+                #get owner
+                uid_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/UID"]
+                gid_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/GID"]
+
+		        #get permissions
+                owu_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/OWNER_U"]
+                owm_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/OWNER_M"]
+                owa_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/OWNER_A"]
+                gu_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/GROUP_U"]
+                gm_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/GROUP_M"]
+                ga_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/GROUP_A"]
+                ou_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/OTHER_U"]
+                om_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/OTHER_M"]
+                oa_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/OTHER_A"]
+
                 #Create image
                 one_image = ""
                 one_image << "NAME=\"#{image_name}\"\n"
@@ -1067,6 +1085,12 @@ def template_unmanaged_discover(devices, ccr_name, ccr_ref,
                 one_i = OpenNebula::Image.new(OpenNebula::Image.build_xml, one_client)
                 rc = one_i.allocate(one_image, ds["ID"].to_i)
                 raise "\n    ERROR! Could not create image for template #{template_name}. Reason #{rc.message}" if OpenNebula.is_error?(rc)
+
+                rc = one_i.chown(uid_image.to_i, gid_image.to_i)
+                raise "\n    ERROR! Could not set the owner for image #{image_name}. Reason #{rc.message}" if OpenNebula.is_error?(rc)
+
+                rc = one_i.chmod(owu_image.to_i, owm_image.to_i, owa_image.to_i, gu_image.to_i, gm_image.to_i, ga_image.to_i, ou_image.to_i, om_image.to_i, oa_image.to_i)
+                raise "\n    ERROR! Could not set the permissions for image #{image_name}. Reason #{rc.message}" if OpenNebula.is_error?(rc)
 
                 rc = one_i.info
                 raise "\n    ERROR! Could not get image info for template #{template_name}. Reason #{rc.message}" if OpenNebula.is_error?(rc)

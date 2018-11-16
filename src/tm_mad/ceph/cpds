@@ -161,9 +161,11 @@ else
             fi
 
             RBD_DST=\$RBD_DST@$SNAP_ID
+        else
+            RBD_DST=$RBD_DST
         fi
 
-        $RBD ${EC_POOL_OPT} copy $RBD_DST $DST
+        $RBD ${EC_POOL_OPT} copy \$RBD_DST $DST
 EOF
 )
 fi

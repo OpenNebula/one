@@ -1,18 +1,34 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
 require 'openssl'
+require 'yaml'
 
 module VCenterDriver
 
 class VIClient
     attr_accessor :vim
     attr_accessor :rp
-    attr_accessor  :vc_name
+    attr_accessor :vc_name
 
     def initialize(opts, host_id = -1)
         opts = {:insecure => true}.merge(opts)
         @host_id = host_id
         @vim = RbVmomi::VIM.connect(opts)
         @vc_name = opts[:host] if opts[:host]
-
+        @vcenter_conf = load_vcenter_configuration
         # Get ccr and get rp
         ccr_ref = opts.delete(:ccr)
         if ccr_ref
@@ -27,6 +43,23 @@ class VIClient
                     @rp = RbVmomi::VIM::ResourcePool(@vim, rp_ref) if rp_ref
                 end
             end
+        end
+    end
+
+    def load_vcenter_configuration
+        begin
+            vcenter_conf = YAML::load(File.open("#{ETC_LOCATION}/vcenter_driver.conf"))
+            vcenter_conf
+        rescue
+            Hash.new
+        end
+    end
+
+    def get_property_vcenter_conf(key)
+        if @vcenter_conf.key?(key)
+            return @vcenter_conf[key]
+        else
+            return nil
         end
     end
 

@@ -341,6 +341,29 @@ string& History::to_xml(string& xml, bool database) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+string& History::to_xml_short(string& xml) const
+{
+    ostringstream oss;
+
+    oss <<
+        "<HISTORY>" <<
+          "<OID>" << oid << "</OID>" <<
+          "<SEQ>" << seq << "</SEQ>" <<
+          "<HOSTNAME>" << one_util::escape_xml(hostname) << "</HOSTNAME>" <<
+          "<HID>"    << hid   << "</HID>"   <<
+          "<CID>"    << cid   << "</CID>"   <<
+          "<DS_ID>"  << ds_id << "</DS_ID>" <<
+          "<ACTION>" << one_util::escape_xml(action) << "</ACTION>" <<
+        "</HISTORY>";
+
+   xml = oss.str();
+
+   return xml;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int History::rebuild_attributes()
 {
     vector<xmlNodePtr> content;
@@ -489,6 +512,9 @@ string History::action_to_str(VMAction action)
         case DISK_SNAPSHOT_DELETE_ACTION:
             st = "disk-snapshot-delete";
         break;
+        case DISK_SNAPSHOT_RENAME_ACTION:
+            st = "disk-snapshot-rename";
+        break;
         case DISK_RESIZE_ACTION:
             st = "disk-resize";
         break;
@@ -514,7 +540,7 @@ string History::action_to_str(VMAction action)
             st = "update";
         break;
         case SNAPSHOT_CREATE_ACTION:
-            st = "snapshot-resize";
+            st = "snapshot-create";
         break;
         case SNAPSHOT_DELETE_ACTION:
             st = "snapshot-delete";
@@ -647,6 +673,10 @@ int History::action_from_str(const string& st, VMAction& action)
     {
         action = DISK_SNAPSHOT_DELETE_ACTION;
     }
+    else if (st == "disk-snapshot-rename")
+    {
+        action = DISK_SNAPSHOT_RENAME_ACTION;
+    }
     else if (st == "disk-resize")
     {
         action = DISK_RESIZE_ACTION;
@@ -679,7 +709,7 @@ int History::action_from_str(const string& st, VMAction& action)
     {
         action = UPDATE_ACTION;
     }
-    else if ( st == "snapshot-resize")
+    else if ( st == "snapshot-create")
     {
         action = SNAPSHOT_CREATE_ACTION;
     }

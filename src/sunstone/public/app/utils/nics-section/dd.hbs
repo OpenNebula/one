@@ -21,75 +21,144 @@
     <i class="right fas fa-times-circle remove-tab provision_remove_nic"></i>
   </a>
   <div id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}" class="accordion-content nic-section-entry" data-tab-content>
-    <div class="row collapse">
-      {{{vnetsTableHTML}}}
-    </div>
-    <div class="row">
-      {{#if options.forceIPv4}}
-        <div class="medium-6 columns">
-          <label>
-            {{tr "Force IPv4:"}}
-            <span class="tip">
-              {{tr "Optionally, you can force the IP assigned to the network interface."}}
-            </span>
-            {{#if options.nic.IP}}
-            <input type="text" class="manual_ip4" value="{{options.nic.IP}}"/>
-            {{else}}
-            <input type="text" class="manual_ip4"/>
-            {{/if}}
+    <div class="only_template">
+      <div class="row autoContainer">
+        <div class="large-12 large-centered columns">
+          <div class="switch left">
+            <input class="switch-input" id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_network_mode" type="checkbox">
+            <label class="switch-paddle" for="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_network_mode">
+            </label>
+          </div>
+          <label class="left">
+            &nbsp;&nbsp;
+            {{tr "Automatic selection"}}
+            {{{tip (tr "The Schedule will decide which is the bets virtual network")}}}
           </label>
         </div>
-      {{/if}}
-      {{#if options.floatingIP}}
-      <div class="medium-6 columns">
-        <label class="inline">
-          <input type="checkbox" class="floating_ip" />
-          {{tr "Floating IP"}}
-          <span class="tip">
-            {{tr "If checked, each Virtual Machine will have a floating IP added to its network interface."}}
-          </span>
-        </label>
       </div>
-      {{/if}}
-      {{#if options.management}}
-      <div class="medium-6 columns">
-        <label>
-          <input type="checkbox" class="management" />
-          {{tr "Management Interface"}}
-          <span class="tip">
-            {{tr "If checked, this network interface will be a Virtual Router management interface. Traffic will not be forwarded."}}
-          </span>
-        </label>
+      <div class="auto">
+        <fieldset>
+          <legend>{{tr "Network Requirements"}}</legend>
+          <div class="row">
+            <div class="large-12 columns text-center">
+              <input type="radio" id="vnet_req" name="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_req_select" value="vnet_select">
+              <label for="vnet_req">{{tr "Select Vnets "}}</label>
+              <input type="radio" id="custom_req"  name="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_req_select" value="custom" checked>
+              <label for="custom_req">{{tr "Custom expression "}}</label>
+            </div>
+          </div>
+          <br>
+          <div id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_vnetTable" class="net_select" hidden>{{{vnetsTableAutoHTML}}}</div>
+          <div class="row">
+            <div class="large-12 columns">
+              <label for="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_SCHED_REQUIREMENTS">
+                {{tr "Expression"}}
+                {{{tip (tr "Boolean expression that rules out entries from the pool of datastores suitable to run this VM.")}}}
+              </label>
+              <input type="text" class="SCHED_REQUIREMENTS" id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_SCHED_REQUIREMENTS" name="requirements"/>
+            </div>
+          </div>
+        </fieldset>
+        <fieldset class="nic_rank">
+          <legend>{{tr "Network Rank"}}</legend>
+          <div class="row">
+            <div class="large-12 columns text-center">
+              <input type="radio" id="packingRadio" name="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_rank_select" value="USED_LEASES">
+              <label for="packingRadio">
+                {{tr "Packing"}}
+                {{{tip (tr "Pack the VMs in the vnet to reduce VM fragmentation")}}}
+              </label>
+              <input type="radio"  id="stripingRadio" name="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_rank_select" value="-USED_LEASES">
+              <label for="stripingRadio">
+                {{tr "Stripping"}}
+                {{{tip (tr "Spread the VMs in the vnets")}}}
+              </label>
+            </div>
+          </div>
+          <br>
+          <div class="row">
+            <div class="large-12 columns">
+              <label for="{{nicTabId}}_SCHED_RANK">
+                {{tr "Expression"}}
+                {{{tip (tr "This field sets which attribute will be used to sort the suitable vnets for this VM")}}}
+              </label>
+              <input type="text" class="SCHED_RANK" id="{{nicTabId}}_SCHED_RANK" name="RANK"/>
+            </div>
+          </div>
+        </fieldset>
       </div>
-      {{/if}}
     </div>
-    <div class="row">
-      {{#if options.forceIPv6}}
+    <div class="no_auto">
+      <div class="row collapse">
+        {{{vnetsTableHTML}}}
+      </div>
+      <div class="row">
+        {{#if options.forceIPv4}}
+          <div class="medium-6 columns">
+            <label>
+              {{tr "Force IPv4:"}}
+              <span class="tip">
+                {{tr "Optionally, you can force the IP assigned to the network interface."}}
+              </span>
+              {{#if options.nic.IP}}
+              <input type="text" class="manual_ip4" value="{{options.nic.IP}}"/>
+              {{else}}
+              <input type="text" class="manual_ip4"/>
+              {{/if}}
+            </label>
+          </div>
+        {{/if}}
+        {{#if options.floatingIP}}
         <div class="medium-6 columns">
-          <label>
-            {{tr "Force IPv6:"}}
+          <label class="inline">
+            <input type="checkbox" class="floating_ip" />
+            {{tr "Floating IP"}}
             <span class="tip">
-              {{tr "Optionally, you can force the IP assigned to the network interface."}}
+              {{tr "If checked, each Virtual Machine will have a floating IP added to its network interface."}}
             </span>
-            {{#if options.nic.IP6}}
-            <input type="text" class="manual_ip6" value="{{options.nic.IP6}}"/>
-            {{else}}
-            <input type="text" class="manual_ip6"/>
-            {{/if}}
           </label>
         </div>
+        {{/if}}
+        {{#if options.management}}
+        <div class="medium-6 columns">
+          <label>
+            <input type="checkbox" class="management" />
+            {{tr "Management Interface"}}
+            <span class="tip">
+              {{tr "If checked, this network interface will be a Virtual Router management interface. Traffic will not be forwarded."}}
+            </span>
+          </label>
+        </div>
+        {{/if}}
+      </div>
+      <div class="row">
+        {{#if options.forceIPv6}}
+          <div class="medium-6 columns">
+            <label>
+              {{tr "Force IPv6:"}}
+              <span class="tip">
+                {{tr "Optionally, you can force the IP assigned to the network interface."}}
+              </span>
+              {{#if options.nic.IP6}}
+              <input type="text" class="manual_ip6" value="{{options.nic.IP6}}"/>
+              {{else}}
+              <input type="text" class="manual_ip6"/>
+              {{/if}}
+            </label>
+          </div>
+        {{/if}}
+      </div>
+      {{#if options.securityGroups}}
+      <div class="row collapse">
+        <h6>
+          {{tr "Security Groups"}}&nbsp;
+          <span class="tip">
+            {{tr "You can add Security Groups to this network interface. These IDs do not overwrite the ones defined in the Virtual Network. All the Security Group IDs are combined, and applied to the Virtual Machine instance."}}
+          </span>
+        </h6>
+        {{{securityGroupsTableHTML}}}
+      </div>
       {{/if}}
     </div>
-    {{#if options.securityGroups}}
-    <div class="row collapse">
-      <h6>
-        {{tr "Security Groups"}}&nbsp;
-        <span class="tip">
-          {{tr "You can add Security Groups to this network interface. These IDs do not overwrite the ones defined in the Virtual Network. All the Security Group IDs are combined, and applied to the Virtual Machine instance."}}
-        </span>
-      </h6>
-      {{{securityGroupsTableHTML}}}
-    </div>
-    {{/if}}
   </div>
 </dd>

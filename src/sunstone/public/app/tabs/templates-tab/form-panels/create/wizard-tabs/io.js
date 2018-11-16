@@ -24,6 +24,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var WizardFields = require('utils/wizard-fields');
   var UniqueId = require('utils/unique-id');
+  var CreateUtils = require('./utils');
 
   /*
     TEMPLATES
@@ -115,6 +116,15 @@ define(function(require) {
     context.on('click', "i.remove-tab", function() {
       $(this).closest("tr").remove()
     });
+
+    context.off("click", ".add_pci");
+    context.on("click", ".add_pci", function(){
+      var tr = $(CreateUtils.pciRowHTML()).appendTo( $(".pci_devices tbody", context) );
+
+      CreateUtils.fillPCIRow({tr: tr, remove: true});
+    });
+
+    CreateUtils.setupPCIRows($(".pci_devices", context));
   }
 
   function _retrieve(context) {
@@ -138,6 +148,18 @@ define(function(require) {
     });
 
     if (!$.isEmptyObject(inputsJSON)) { templateJSON['INPUT'] = inputsJSON; };
+
+    $('.pci_devices tbody tr', context).each(function(i,row){
+      var pci = WizardFields.retrieve(row);
+
+      if (!$.isEmptyObject(pci)){
+        if (templateJSON['PCI'] == undefined){
+          templateJSON['PCI'] = [];
+        }
+
+        templateJSON['PCI'].push(pci);
+      }
+    });
 
     return templateJSON;
   }
@@ -191,7 +213,28 @@ define(function(require) {
         cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
       });
 
-      delete templateJSON['INPUT']
+      delete templateJSON['INPUT'];
     }
+
+    $(".pci_devices i.remove-tab", context).trigger("click");
+
+    var pcis = templateJSON['PCI'];
+
+    if (pcis == undefined){
+      pcis = [];
+    }
+
+    if (!$.isArray(pcis)){ // If only 1 convert to array
+      pcis = [pcis];
+    }
+
+    $.each(pcis, function(i, pci){
+      $(".add_pci", context).trigger("click");
+      var tr = $('.pci_devices tbody tr', context).last();
+
+      WizardFields.fill(tr, pci);
+    });
+
+    delete templateJSON.PCI;
   }
 });

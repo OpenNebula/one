@@ -459,7 +459,7 @@ int ImageManager::delete_image(int iid, string& error_str)
 
     ostringstream oss;
 
-    img = ipool->get(iid);
+    img = ipool->get_ro(iid);
 
     if ( img == 0 )
     {
@@ -471,7 +471,7 @@ int ImageManager::delete_image(int iid, string& error_str)
 
     img->unlock();
 
-    ds = dspool->get(ds_id);
+    ds = dspool->get_ro(ds_id);
 
     if ( ds == 0 )
     {
@@ -646,7 +646,7 @@ int ImageManager::can_clone_image(int cloning_id, ostringstream&  oss_error)
 {
     Image *       img;
 
-    img = ipool->get(cloning_id);
+    img = ipool->get_ro(cloning_id);
 
     if (img == 0)
     {
@@ -770,7 +770,7 @@ int ImageManager::clone_image(int   new_id,
         return -1;
     }
 
-    img = ipool->get(new_id);
+    img = ipool->get_ro(new_id);
 
     if (img == 0)
     {
@@ -836,20 +836,21 @@ int ImageManager::register_image(int iid,
     {
         string source = img->get_source();
 
-        if ( img->is_saving() || img->get_type() == Image::DATABLOCK )
-        {
-            imd->mkfs(img->get_oid(), *drv_msg);
-
-            oss << "Creating disk at " << source << " of "<<  img->get_size()
-                << "Mb (type: " <<  img->get_fstype() << ")";
-        }
-        else if ( !source.empty() ) //Source in Template
+        if ( !source.empty() ) //Source in Template
         {
             img->set_state_unlock();
             ipool->update(img);
 
             oss << "Using source " << source
                 << " from template for image " << img->get_name();
+        }
+        else if ( img->is_saving() || img->get_type() == Image::DATABLOCK 
+                || img->get_type() == Image::OS)
+        {
+            imd->mkfs(img->get_oid(), *drv_msg);
+
+            oss << "Creating disk at " << source << " of "<<  img->get_size()
+                << "Mb (type: " <<  img->get_fstype() << ")";
         }
     }
     else //PATH -> COPY TO REPOSITORY AS SOURCE
@@ -895,7 +896,6 @@ int ImageManager::stat_image(Template*     img_tmpl,
 
     switch (Image::str_to_type(type_att))
     {
-        case Image::OS:
         case Image::CDROM:
         case Image::KERNEL:
         case Image::RAMDISK:
@@ -929,11 +929,29 @@ int ImageManager::stat_image(Template*     img_tmpl,
                      << one_util::xml_escape(res)
                      << "</PATH></IMAGE>";
             break;
+                    
+        case Image::OS:
+            img_tmpl->get("SOURCE", res);
+
+            if (!res.empty()) //SOURCE in Image
+            {
+                long long size_l;
+
+                if (!img_tmpl->get("SIZE", size_l))
+                {
+                    res = "Wrong number or missing SIZE attribute.";
+                    return -1;
+                }
+
+                img_tmpl->get("SIZE", res);
+
+                return 0;
+            }
 
         case Image::DATABLOCK:
             img_tmpl->get("PATH", res);
 
-            if (res.empty())//no PATH
+            if (res.empty())//no PATH, created using mkfs
             {
                 long long size_l;
 
@@ -1105,7 +1123,7 @@ int ImageManager::delete_snapshot(int iid, int sid, string& error)
         return -1;
     }
 
-    Image * img = ipool->get(iid);
+    Image * img = ipool->get_ro(iid);
 
     if ( img == 0 )
     {
@@ -1122,7 +1140,7 @@ int ImageManager::delete_snapshot(int iid, int sid, string& error)
 
     string ds_data;
 
-    Datastore * ds = dspool->get(ds_id);
+    Datastore * ds = dspool->get_ro(ds_id);
 
     if ( ds == 0 )
     {
@@ -1198,7 +1216,7 @@ int ImageManager::revert_snapshot(int iid, int sid, string& error)
         return -1;
     }
 
-    Image * img = ipool->get(iid);
+    Image * img = ipool->get_ro(iid);
 
     if ( img == 0 )
     {
@@ -1215,7 +1233,7 @@ int ImageManager::revert_snapshot(int iid, int sid, string& error)
 
     string ds_data;
 
-    Datastore * ds = dspool->get(ds_id);
+    Datastore * ds = dspool->get_ro(ds_id);
 
     if ( ds == 0 )
     {
@@ -1302,7 +1320,7 @@ int ImageManager::flatten_snapshot(int iid, int sid, string& error)
         return -1;
     }
 
-    Image * img = ipool->get(iid);
+    Image * img = ipool->get_ro(iid);
 
     if ( img == 0 )
     {
@@ -1319,7 +1337,7 @@ int ImageManager::flatten_snapshot(int iid, int sid, string& error)
 
     string ds_data;
 
-    Datastore * ds = dspool->get(ds_id);
+    Datastore * ds = dspool->get_ro(ds_id);
 
     if ( ds == 0 )
     {

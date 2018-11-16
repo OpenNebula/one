@@ -411,16 +411,28 @@ define(function(require) {
                 '</span>'+
               '</li>');
 
-          var vcenter_info = "";
-          if(data.MONITORING.VCENTER_GUEST_STATE){
-            vcenter_info = "<thead><tr><th>" + Locale.tr("vCenter information") + "</th></tr></thead><tbody>" +
-            "<tr><td>" + Locale.tr("GUEST STATE") + "</td><td>" + data.MONITORING.VCENTER_GUEST_STATE + "</td>" +
-             "<td>" + Locale.tr("VMWARETOOLS RUNNING STATUS") + "</td><td>" +
-             data.MONITORING.VCENTER_VMWARETOOLS_RUNNING_STATUS + "</td></tr>" +
-             "<tr><td>" + Locale.tr("VMWARETOOLS VERSION") + "</td><td>" + data.MONITORING.VCENTER_VMWARETOOLS_VERSION + "</td><td>" + Locale.tr("VMWARETOOLS VERSION STATUS") + "</td><td>" + data.MONITORING.VCENTER_VMWARETOOLS_VERSION_STATUS + "</td></tr></tbody>";
+          if (Config.isFeatureEnabled("show_vcenter_info") && data.USER_TEMPLATE.HYPERVISOR === "vcenter"){
+            var vcenter_info = "";
+            if (Object.keys(data.MONITORING).length !== 0){
+              vcenter_info = "<thead><tr><th>" + Locale.tr("vCenter information") + "</th></tr></thead>" +
+                "<tbody>" +
+                  "<tr>" +
+                    "<td>" + Locale.tr("GUEST STATE") + "</td>" +
+                    "<td>" + ((data.MONITORING.VCENTER_GUEST_STATE) ? data.MONITORING.VCENTER_GUEST_STATE : "-") + "</td>" +
+                    "<td>" + Locale.tr("VMWARETOOLS RUNNING STATUS") + "</td>" +
+                    "<td>" + ((data.MONITORING.VCENTER_VMWARETOOLS_RUNNING_STATUS) ? data.MONITORING.VCENTER_VMWARETOOLS_RUNNING_STATUS : "-") + "</td>" +
+                  "</tr>" +
+                  "<tr>" +
+                    "<td>" + Locale.tr("VMWARETOOLS VERSION") + "</td>" +
+                    "<td>" + ((data.MONITORING.VCENTER_VMWARETOOLS_VERSION) ? data.MONITORING.VCENTER_VMWARETOOLS_VERSION : "-") + "</td>" +
+                    "<td>" + Locale.tr("VMWARETOOLS VERSION STATUS") + "</td>" +
+                    "<td>" + ((data.MONITORING.VCENTER_VMWARETOOLS_VERSION_STATUS) ? data.MONITORING.VCENTER_VMWARETOOLS_VERSION_STATUS : "-") + "</td>" +
+                  "</tr>" +
+                "</tbody>";
+            }
+            $(".provision-sunstone-vcenter-list", context).html(vcenter_info);
           }
 
-          $(".provision-sunstone-vcenter-list", context).html(vcenter_info);
           $(".provision_confirm_action:first", context).html("");
 
           $(".provision_info_vm", context).css('visibility', 'visible');

@@ -72,7 +72,7 @@ define(function(require){
         read_only: true,
         fixed_ids: ids,
         starred_ids: updatingIds,
-        starred_icon: '<i class="fas fa-warning fa-fw"></i>'
+        starred_icon: '<i class="fas fa-exclamation-triangle fa-fw"></i>'
       }
     };
 

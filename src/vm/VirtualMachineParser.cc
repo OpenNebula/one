@@ -112,7 +112,7 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
 
     img_id = img_ids.back();
 
-    img = ipool->get(img_id);
+    img = ipool->get_ro(img_id);
 
     if ( img == 0 )
     {
@@ -157,7 +157,7 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
         return -1;
     }
 
-    ds = ds_pool->get(ds_id);
+    ds = ds_pool->get_ro(ds_id);
 
     if ( ds == 0 )
     {

@@ -177,18 +177,14 @@ public:
              lock_owner(-1),
              lock_req_id(-1),
              lock_time(0),
+             mutex(0),
              table(_table)
     {
-        pthread_mutex_init(&mutex,0);
     };
 
     virtual ~PoolObjectSQL()
     {
         delete obj_template;
-
-        pthread_mutex_unlock(&mutex);
-
-        pthread_mutex_destroy(&mutex);
     };
 
     /* --------------------------------------------------------------------- */
@@ -317,30 +313,18 @@ public:
                                 string& error_str);
 
     /* --------------------------------------------------------------------- */
-
     /**
-     *  Function to lock the object
-     */
-    void lock()
-    {
-        pthread_mutex_lock(&mutex);
-    };
-
-    /**
-     *  Function to unlock the object
+     *  Function to unlock the object. It also frees associated resources. Object
+     *  cannot be access after unlocking it
      */
     void unlock()
     {
-        pthread_mutex_unlock(&mutex);
-    };
+        if (!ro && mutex != 0)
+        {
+            pthread_mutex_unlock(mutex);
+        }
 
-    /**
-     *  Try to lock the object
-     *    @return 0 on success or error_code
-     */
-    int trylock()
-    {
-        return pthread_mutex_trylock(&mutex);
+        delete this;
     };
 
     /**
@@ -559,15 +543,16 @@ public:
      *
      * @return 0 if the lock was granted, -1 if the object is already locked
      */
-    int lock_db(const int owner,const int req_id, const int level);
+    int lock_db(const int owner, const int req_id, const int level);
 
     /**
      * Unlocks the DB lock for external applications. The object must be locked
      * (internal memory mutex) before this method is called
      *
-     * @param owner String to identify who requested the lock
+     * @param owner String to identify who requested the lock. -1 to bypass check
+     * @return 0 if object was unlocked -1 otherwise (owner != lock_owner)
      */
-    void unlock_db(const int owner, const int req_id);
+    int unlock_db(const int owner, const int req_id);
 
     /**
      * Unlocks the DB lock for external applications. The object must be locked
@@ -813,6 +798,11 @@ protected:
      */
     time_t  lock_time;
 
+    /**
+     * Attribute for check if is a read only object
+     */
+    bool  ro;
+
 private:
     /**
      *  Characters that can not be in a name
@@ -833,7 +823,7 @@ private:
      * The mutex for the PoolObject. This implementation assumes that the mutex
      * IS LOCKED when the class destructor is called.
      */
-    pthread_mutex_t mutex;
+    pthread_mutex_t * mutex;
 
     /**
      *  Pointer to the SQL table for the PoolObjectSQL

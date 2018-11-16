@@ -199,6 +199,34 @@ void OpenNebulaTemplate::set_multiple_conf_default()
     set_conf_auth("server_x509", "NO", "NO", "-1");
 
     register_multiple_conf_default("AUTH_MAD_CONF");
+
+/*
+#*******************************************************************************
+# Virtual Network Configuration
+#*******************************************************************************
+#dummy
+#802.1Q
+#ebtables
+#fw
+#ovswitch
+#vxlan
+#vcenter
+#ovswitch_vxlan
+#bridge
+#******
+*/
+
+    set_conf_vn("dummy", "linux");
+    set_conf_vn("802.1Q", "linux");
+    set_conf_vn("ebtables", "linux");
+    set_conf_vn("fw", "linux");
+    set_conf_vn("ovswitch", "openvswitch");
+    set_conf_vn("vxlan", "linux");
+    set_conf_vn("vcenter", "vcenter_port_groups");
+    set_conf_vn("ovswitch_vxlan", "openvswitch");
+    set_conf_vn("bridge", "linux");
+
+    register_multiple_conf_default("VN_MAD_CONF");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -357,6 +385,23 @@ void OpenNebulaTemplate::set_conf_auth(const std::string& name,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void OpenNebulaTemplate::set_conf_vn(const std::string& name,
+                                         const std::string& bridge_type)
+{
+    VectorAttribute *   vattribute;
+    std::map<std::string,std::string>  vvalue;
+
+    vvalue.insert(make_pair("NAME", name));
+    vvalue.insert(make_pair("BRIDGE_TYPE", bridge_type));
+
+    vattribute = new VectorAttribute("VN_MAD_CONF", vvalue);
+    conf_default.insert(make_pair(vattribute->name(), vattribute));
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+
 void OpenNebulaTemplate::set_conf_default()
 {
     VectorAttribute *   vattribute;
@@ -368,7 +413,10 @@ void OpenNebulaTemplate::set_conf_default()
 # Daemon configuration attributes
 #-------------------------------------------------------------------------------
 #  MANAGER_TIMER
-#  MONITORING_INTERVAL
+#  MONITORING_INTERVAL_HOST
+#  MONITORING_INTERVAL_VM
+#  MONITORING_INTERVAL_MARKET
+#  MONITORING_INTERVAL_DATASTORE
 #  MONITORING_THREADS
 #  HOST_PER_INTERVAL
 #  HOST_MONITORING_EXPIRATION_TIME
@@ -380,11 +428,15 @@ void OpenNebulaTemplate::set_conf_default()
 #  DB
 #  SCRIPTS_REMOTE_DIR
 #  VM_SUBMIT_ON_HOLD
+#  API_LIST_ORDER
 #  VNC_PORTS
 #*******************************************************************************
 */
     set_conf_single("MANAGER_TIMER", "15");
-    set_conf_single("MONITORING_INTERVAL", "60");
+    set_conf_single("MONITORING_INTERVAL_HOST", "180");
+    set_conf_single("MONITORING_INTERVAL_VM", "180");
+    set_conf_single("MONITORING_INTERVAL_MARKET", "600");
+    set_conf_single("MONITORING_INTERVAL_DATASTORE", "300");
     set_conf_single("MONITORING_THREADS", "50");
     set_conf_single("HOST_PER_INTERVAL", "15");
     set_conf_single("HOST_MONITORING_EXPIRATION_TIME", "43200");
@@ -395,6 +447,7 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("LISTEN_ADDRESS", "0.0.0.0");
     set_conf_single("SCRIPTS_REMOTE_DIR", "/var/tmp/one");
     set_conf_single("VM_SUBMIT_ON_HOLD", "NO");
+    set_conf_single("API_LIST_ORDER", "DESC");
 
     //DB CONFIGURATION
     vvalue.insert(make_pair("BACKEND","sqlite"));
@@ -434,6 +487,7 @@ void OpenNebulaTemplate::set_conf_default()
 #   ELECTION_TIMEOUT_MS
 #   BROADCAST_TIMEOUT_MS
 #   XMLRPC_TIMEOUT_MS
+#   LIMIT_PURGE
 #*******************************************************************************
 */
     // FEDERATION
@@ -453,6 +507,7 @@ void OpenNebulaTemplate::set_conf_default()
     vvalue.insert(make_pair("ELECTION_TIMEOUT_MS","1500"));
     vvalue.insert(make_pair("BROADCAST_TIMEOUT_MS","500"));
     vvalue.insert(make_pair("XMLRPC_TIMEOUT_MS","100"));
+    vvalue.insert(make_pair("LIMIT_PURGE","100000"));
 
     vattribute = new VectorAttribute("RAFT",vvalue);
     conf_default.insert(make_pair(vattribute->name(),vattribute));
@@ -490,7 +545,7 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("TIMEOUT", "15");
     set_conf_single("RPC_LOG", "NO");
     set_conf_single("MESSAGE_SIZE", "1073741824");
-    set_conf_single("LOG_CALL_FORMAT", "Req:%i UID:%u %m invoked %l");
+    set_conf_single("LOG_CALL_FORMAT", "Req:%i UID:%u IP:%A %m invoked %l");
 
 /*
 #*******************************************************************************
@@ -739,6 +794,7 @@ static int _set_vm_auth_ops(const std::string& ops_str,
             ops_set.set(History::DISK_SNAPSHOT_CREATE_ACTION);
             ops_set.set(History::DISK_SNAPSHOT_DELETE_ACTION);
             ops_set.set(History::DISK_SNAPSHOT_REVERT_ACTION);
+            ops_set.set(History::DISK_SNAPSHOT_RENAME_ACTION);
         }
         else if ( the_op == "terminate" )
         {

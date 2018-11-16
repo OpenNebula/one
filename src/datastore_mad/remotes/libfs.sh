@@ -220,7 +220,12 @@ function bzip_file_size {
 #   @param $1 - Path to the image
 #   @param $2 - NO_DECOMPRESS
 #   @param $3 - BW LIMIT
-#   @return size of the image in Mb
+#   @return status code
+#     - on success: 0
+#     - on failure: != 0
+#   @return stdout with data
+#     - on success: size of image in MiB
+#     - on failure: error message
 #-------------------------------------------------------------------------------
 function fs_size {
     SRC=$1
@@ -242,7 +247,7 @@ function fs_size {
 
     # limit only on local or remote http(s)
     if [ -d "${SRC}" ]; then
-        SIZE=`du -sb "${SRC}" | cut -f1`
+        SIZE=`set -o pipefail; du -sb "${SRC}" | cut -f1`
         error=$?
     elif [ -f "${SRC}" ] || (echo "${SRC}" | grep -qe '^https\?://'); then
         IMAGE=$(mktemp)
@@ -258,9 +263,8 @@ function fs_size {
             error=$?
             if [ $error -ne 0 ]; then
                 # better fail here ...
-                log_error "Failed to download image head"
-                echo '0'
-                return
+                echo "Failed to get image head"
+                return 1
             fi
 
             TYPE=$(image_format "${IMAGE}")
@@ -272,9 +276,8 @@ function fs_size {
                 if [ -n "${NEW_HEAD_SIZE}" ] && [ "${NEW_HEAD_SIZE}" != "${HEAD_SIZE}" ]; then
                     continue  # redownload more bytes
                 else
-                    log_error "Failed to detect image format"
-                    echo '0'
-                    return
+                    echo "Failed to detect image format"
+                    return 1
                 fi
             fi
         done
@@ -287,9 +290,8 @@ function fs_size {
             error=$?
             if [ $error -ne 0 ]; then
                 # better fail here ...
-                log_error "Failed to download image head"
-                echo '0'
-                return
+                echo "Failed to get image head"
+                return 1
             fi
 
             ORIG_TYPE=$(file_type "${IMAGE}")
@@ -343,8 +345,8 @@ function fs_size {
                             error=$?
                         fi
                     else
-                        log_error 'Unsupported remote image format'
-                        error=1
+                        echo 'Unsupported remote image format'
+                        return 1
                     fi
                     ;;
                 "application/x-xz")
@@ -356,8 +358,8 @@ function fs_size {
                             error=$?
                         fi
                     else
-                        log_error 'Unsupported remote image format'
-                        error=1
+                        echo 'Unsupported remote image format'
+                        return 1
                     fi
                     ;;
                 "application/x-bzip2")
@@ -369,8 +371,8 @@ function fs_size {
                             error=$?
                         fi
                     else
-                        log_error 'Unsupported remote image format'
-                        error=1
+                        echo 'Unsupported remote image format'
+                        return 1
                     fi
                     ;;
                 *)
@@ -387,8 +389,8 @@ function fs_size {
                                 error=$?
                             fi
                         else
-                            log_error 'Unsupported remote image format'
-                            error=1
+                            echo 'Unsupported remote image format'
+                            return 1
                         fi
                     fi
                     ;;
@@ -401,19 +403,28 @@ function fs_size {
         if [ -f "${IMAGE}" ]; then
             unlink "${IMAGE}" 2>/dev/null
         fi
+    else
+        echo 'File not found'
+        return 1
     fi
 
     #####
 
-    SIZE=$(echo $SIZE | tr -d "\r")
+    SIZE=$(echo ${SIZE:-0} | tr -d "\r")
 
-    if [ $error -ne 0 ]; then
-        SIZE=0
+    if [ $error -ne 0 ] || [ "${SIZE}" = '0' ]; then
+        SIZE='Runtime error during size estimation'
+
+        if [ $error -eq 0 ]; then
+            error=1
+        fi
     else
         SIZE=$((($SIZE+1048575)/1048576))
     fi
 
-    echo "$SIZE"
+    echo "${SIZE}"
+
+    return $error
 }
 
 #-------------------------------------------------------------------------------

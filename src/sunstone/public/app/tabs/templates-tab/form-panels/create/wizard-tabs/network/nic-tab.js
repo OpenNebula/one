@@ -20,13 +20,14 @@ define(function(require) {
    */
 
   var Config = require('sunstone-config');
-  var Locale = require('utils/locale');
-  var Tips = require('utils/tips');
+  var OpenNebulaNetwork = require('opennebula/network');
   var VNetsTable = require('tabs/vnets-tab/datatable');
   var SecgroupsTable = require('tabs/secgroups-tab/datatable');
   var WizardFields = require('utils/wizard-fields');
   var UniqueId = require('utils/unique-id');
   var CreateUtils = require('../utils');
+  var Notifier = require('utils/notifier');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     TEMPLATES
@@ -43,14 +44,28 @@ define(function(require) {
    */
 
   function NicTab(nicTabId) {
+    that = this;
     this.nicTabId = 'nicTab' + nicTabId + UniqueId.id();
+
+    var options = {
+      'select': true,
+      'selectOptions': {
+        'multiple_choice': true
+      }
+    }
+    this.vnetsTableAuto = new VNetsTable(this.nicTabId + 'TableAuto', options);
 
     this.vnetsTable = new VNetsTable(this.nicTabId + 'Table', {'select': true});
 
     var secgroupSelectOptions = {
       'select': true,
       'selectOptions': {
-        "multiple_choice": true
+        "multiple_choice": true,
+        'unselect_callback': function(aData, options){
+          if (that.secGroups && that.secGroups.includes(aData[options.id_index])){
+            $("div[name='str_nic_tab_id'] table tbody tr td:contains('" + aData[options.name_index] + "')").click();
+          }
+        }
       }
     }
     this.secgroupsTable = new SecgroupsTable(this.nicTabId + 'SGTable', secgroupSelectOptions);
@@ -62,6 +77,7 @@ define(function(require) {
   NicTab.prototype.onShow = _onShow;
   NicTab.prototype.retrieve = _retrieve;
   NicTab.prototype.fill = _fill;
+  NicTab.prototype.generateRequirements = _generateRequirements;
 
   return NicTab;
 
@@ -73,18 +89,21 @@ define(function(require) {
     return TemplateHTML({
       'nicTabId': this.nicTabId,
       'vnetsTableSelectHTML': this.vnetsTable.dataTableHTML,
+      'vnetsTableAutoSelectHTML': this.vnetsTableAuto.dataTableHTML,
       'secgroupsTableSelectHTML': this.secgroupsTable.dataTableHTML
     });
   }
 
   function _onShow(context, panelForm) {
     this.vnetsTable.refreshResourceTableSelect();
+    this.vnetsTableAuto.refreshResourceTableSelect();
   }
 
   /**
    * @param  {Object}  context  jquery selector
    * @param  {Object}  options
    *                   options.hide_pci {bool} true to disable the pci checkbox
+   *                   options.hide_auto {bool} true to disable the selection mode auto checkbox
    */
   function _setup(context, options) {
     var that = this;
@@ -93,11 +112,27 @@ define(function(require) {
       $("input.pci-type-nic", context).attr('disabled', 'disabled');
     }
 
+    if (options != undefined && options.hide_auto == true){
+      $(".only_create", context).hide();
+    }
+
     that.vnetsTable.initialize({
       'selectOptions': {
         'select_callback': function(aData, options) {
           // If the net is selected by Id, avoid overwriting it with name+uname
           if ($('#NETWORK_ID', context).val() != aData[options.id_index]) {
+            OpenNebulaNetwork.show({
+              data : {
+                id: aData[options.id_index]
+              },
+              timeout: true,
+              success: function (request, vn){
+                that.secGroups = vn["VNET"]["TEMPLATE"]["SECURITY_GROUPS"].split(",");
+                that.secgroupsTable.selectResourceTableSelect(
+                  { ids : that.secGroups });
+              },
+              error: Notifier.onError
+            });
             $('#NETWORK_ID', context).val("");
             $('#NETWORK', context).val(aData[options.name_index]);
             $('#NETWORK_UNAME', context).val(aData[options.uname_index]);
@@ -106,10 +141,24 @@ define(function(require) {
         }
       }
     });
-    that.vnetsTable.refreshResourceTableSelect();
 
     that.secgroupsTable.initialize();
     that.secgroupsTable.refreshResourceTableSelect();
+    that.vnetsTable.refreshResourceTableSelect();
+
+    var selectOptions = {
+      'selectOptions': {
+        'select_callback': function(aData, options) {
+          that.generateRequirements(context)
+        },
+        'unselect_callback': function(aData, options) {
+          that.generateRequirements(context)
+        }
+      }
+    }
+
+    that.vnetsTableAuto.initialize(selectOptions);
+    that.vnetsTableAuto.refreshResourceTableSelect();
 
     $("input.pci-type-nic", context).on("change", function(){
       var tbody = $(".pci-row tbody", context);
@@ -134,6 +183,36 @@ define(function(require) {
     CreateUtils.setupPCIRows($(".pci-row", context));
 
     $("input.pci-type-nic", context).change();
+
+    if (!Config.isAdvancedEnabled("show_attach_nic_advanced")){
+      $("#nic_values", context).hide();
+    }
+
+    $("input#"+this.nicTabId+"_network_mode", context).on("change", function(){
+      var network_mode_on = $(this).prop("checked");
+
+      if(network_mode_on){
+        $(".no_auto", context).hide();
+        $(".auto", context).show();
+      } else {
+        $(".auto", context).hide();
+        $(".no_auto", context).show();
+      }
+    });
+
+    $(".auto", context).hide();
+
+    context.on("change", "input[name='" + that.nicTabId + "_req_select']", function() {
+      if ($("input[name='" + that.nicTabId + "_req_select']:checked").val() == "vnet_select") {
+        $("#"+ that.nicTabId +"_vnetTable",context).show();
+      } else {
+        $("#"+ that.nicTabId +"_vnetTable",context).hide();
+      }
+    });
+
+    context.on("change", "input[name='" + that.nicTabId + "_rank_select']", function() {
+      $("input#"+that.nicTabId+"_SCHED_RANK", context).val(this.value);
+    });
   }
 
   function _retrieve(context) {
@@ -160,6 +239,20 @@ define(function(require) {
 
     if ($("input.pci-type-nic", context).prop("checked")){
       nicJSON["NIC_PCI"] = true;
+    }
+
+    if( $("input#"+this.nicTabId+"_network_mode", context).prop("checked") ){
+      nicJSON["NETWORK_MODE"] = "auto";
+      var req = $("input#"+this.nicTabId+"_SCHED_REQUIREMENTS", context).val();
+      var rank = $("input#"+this.nicTabId+"_SCHED_RANK", context).val();
+
+      if ( req !== "" ){
+        nicJSON["SCHED_REQUIREMENTS"] = req;
+      }
+
+      if ( rank !== "" ){
+        nicJSON["SCHED_RANK"] = rank;
+      }
     }
 
     return nicJSON;
@@ -225,6 +318,62 @@ define(function(require) {
       $("input.pci-type-nic", context).click();
     }
 
+    if ( templateJSON["NETWORK_MODE"] && templateJSON["NETWORK_MODE"] === "auto" ) {
+      $("input#"+this.nicTabId+"_network_mode", context).prop("checked", true);
+      $(".no_auto", context).hide();
+      $(".auto", context).show();
+
+      if ( templateJSON["SCHED_REQUIREMENTS"] ) {
+        $("input#"+this.nicTabId+"_SCHED_REQUIREMENTS", context).val(templateJSON["SCHED_REQUIREMENTS"]);
+      }
+
+      if ( templateJSON["SCHED_RANK"] ) {
+        $("input#"+this.nicTabId+"_SCHED_RANK", context).val(templateJSON["SCHED_RANK"]);
+      }
+
+      var reqJSON = templateJSON['SCHED_REQUIREMENTS'];
+      if (reqJSON) {
+        var req = TemplateUtils.escapeDoubleQuotes(reqJSON);
+
+        var net_id_regexp = /(\s|\||\b)ID=\\"([0-9]+)\\"/g;
+
+        var nets = [];
+        while (match = net_id_regexp.exec(req)) {
+            nets.push(match[2])
+        }
+
+        var selectedResources = {
+            ids : nets
+          }
+
+        this.vnetsTableAuto.selectResourceTableSelect(selectedResources);
+      }
+
+      var rankJSON = templateJSON["SCHED_RANK"];
+      if (rankJSON) {
+          var striping_regexp = /^-USED_LEASES$/;
+          var packing_regexp = /^USED_LEASES$/;
+
+          if (striping_regexp.test(rankJSON)) {
+              $("input[name='" + this.nicTabId + "_rank_select']#stripingRadio", context).click();
+          }
+          else if (packing_regexp.test(rankJSON)) {
+              $("input[name='" + this.nicTabId + "_rank_select']#packingRadio", context).click();
+          }
+      }
+    }
+
     WizardFields.fill(context, templateJSON);
   }
+
+  function _generateRequirements(context) {
+    var req_string=[];
+    var selected_vnets = this.vnetsTableAuto.retrieveResourceTableSelect();
+
+    $.each(selected_vnets, function(index, netID) {
+      req_string.push('ID=\\"'+netID+'\\"');
+    });
+
+    $("input#"+this.nicTabId+"_SCHED_REQUIREMENTS", context).val(req_string.join(" | "));
+  };
 });

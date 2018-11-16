@@ -19,6 +19,12 @@
 #include "AddressRangeInternal.h"
 #include "AddressRangeIPAM.h"
 
+#include "IPAMRequest.h"
+#include "IPAMManager.h"
+
+#include "Nebula.h"
+#include "NebulaUtil.h"
+
 using namespace std;
 
 AddressRangePool::AddressRangePool():ar_template(false,'=',"AR_POOL"),
@@ -195,6 +201,27 @@ int AddressRangePool::rm_ar(unsigned int ar_id, string& error_msg)
     }
 
     AddressRange * ar_ptr = it->second;
+
+    if(ar_ptr->is_ipam())
+    {
+        IPAMManager * ipamm = Nebula::instance().get_ipamm();
+
+        std::ostringstream ar_xml;
+
+        ar_ptr->to_xml(ar_xml);
+
+        IPAMRequest ir(ar_xml.str());
+
+        ipamm->trigger(IPMAction::UNREGISTER_ADDRESS_RANGE, &ir);
+
+        ir.wait();
+
+        if (ir.result != true)
+        {
+            error_msg = ir.message;
+            return -1;
+        }
+    }
 
     ar_pool.erase(it);
 
@@ -533,6 +560,16 @@ const set<int>& AddressRangePool::get_security_groups(int ar_id) const
     }
 
     return it->second->get_security_groups();
+}
+
+void AddressRangePool::get_all_security_groups(set<int>& sgs)
+{
+    map<unsigned int, AddressRange *>::const_iterator it;
+
+    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    {
+        it->second->get_security_groups(sgs);
+    }
 }
 
 /* -------------------------------------------------------------------------- */

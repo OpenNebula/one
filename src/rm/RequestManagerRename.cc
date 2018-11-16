@@ -61,19 +61,16 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
 
     // ------------- Set authorization request for non-oneadmin's --------------
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(auth_op, operms); // MANAGE OBJECT
+
+    if (UserPool::authorize(ar) == -1)
     {
-        AuthRequest ar(att.uid, att.group_ids);
-
-        ar.add_auth(auth_op, operms); // MANAGE OBJECT
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
-            clear_rename(oid);
-            return;
-        }
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
+        clear_rename(oid);
+        return;
     }
 
     // ----------------------- Check name uniqueness ---------------------------
@@ -137,7 +134,7 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
 
 void ClusterRename::batch_rename(int oid)
 {
-    Cluster * cluster = static_cast<ClusterPool *>(pool)->get(oid);
+    Cluster * cluster = static_cast<ClusterPool *>(pool)->get_ro(oid);
 
     if (cluster == 0)
     {
@@ -175,7 +172,7 @@ void ClusterRename::batch_rename(int oid)
 
 void DatastoreRename::batch_rename(int oid)
 {
-    Datastore * datastore = static_cast<DatastorePool*>(pool)->get(oid);
+    Datastore * datastore = static_cast<DatastorePool*>(pool)->get_ro(oid);
 
     if (datastore == 0)
     {
@@ -215,14 +212,14 @@ void DatastoreRename::batch_rename(int oid)
 
 void HostRename::batch_rename(int oid)
 {
-    Host * host = static_cast<HostPool*>(pool)->get(oid);
+    Host * host = static_cast<HostPool*>(pool)->get_ro(oid);
 
     if (host == 0)
     {
         return;
     }
 
-    const set<int> & vms = host->get_vm_ids();
+    set<int> vms = host->get_vm_ids();
 
     set<int>::iterator it;
 
@@ -255,14 +252,14 @@ void HostRename::batch_rename(int oid)
 
 void MarketPlaceRename::batch_rename(int oid)
 {
-    MarketPlace * market = static_cast<MarketPlacePool*>(pool)->get(oid);
+    MarketPlace * market = static_cast<MarketPlacePool*>(pool)->get_ro(oid);
 
     if (market == 0)
     {
         return;
     }
 
-    const std::set<int> & apps = market->get_marketapp_ids();
+    std::set<int> apps = market->get_marketapp_ids();
 
     std::set<int>::iterator it;
 

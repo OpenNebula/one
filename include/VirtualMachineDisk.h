@@ -180,8 +180,9 @@ public:
      *  requirements
      *    @param uid of user making the request
      *    @param ar auth request
+     *    @param  check_lock for check if the resource is lock or not
      */
-    void authorize(int uid, AuthRequest* ar);
+    void authorize(int uid, AuthRequest* ar, bool check_lock);
 
     /* ---------------------------------------------------------------------- */
     /* Snapshots Interface                                                    */
@@ -253,6 +254,24 @@ public:
     bool has_snapshots()
     {
         return (snapshots != 0);
+    }
+
+    /**
+     * Renames a snapshot
+     *
+     * @param id_snap of the snapshot
+     * @param new_name of the snapshot
+     * @return 0 on success
+     */
+    int rename_snapshot(int snap_id, const string& new_name, string& str_error)
+    {
+        if (!snapshots)
+        {
+            str_error = "The VM does not have any snapshot";
+            return -1;
+        }
+
+        return snapshots->rename_snapshot(snap_id, new_name, str_error);
     }
 
     /**
@@ -331,6 +350,12 @@ public:
      *    @param ds_name of the system ds tm_mad
      */
     void set_types(const string& ds_name);
+
+    /**
+     *  Marshall disk attributes in XML format with just essential information
+     *    @param stream to write the disk XML description
+     */
+    void to_xml_short(std::ostringstream& oss) const;
 
 private:
 
@@ -734,6 +759,15 @@ public:
             Template **vm_quota, bool& io, bool& vo);
 
     /**
+     *  Renames a given snapshot
+     *    @param disk_id of the disk
+     *    @param snap_id of the snapshot
+     *    @param new_name of the snapshot
+     *    @return 0 on success
+     */
+    int rename_snapshot(int disk_id, int snap_id, const string& new_name, string& str_error);
+
+    /**
      * Deletes all the disk snapshots for non-persistent disks and for persistent
      * disks in no shared system ds.
      *     @param vm_quotas The SYSTEM_DISK_SIZE freed by the deleted snapshots
@@ -741,6 +775,19 @@ public:
      */
     void delete_non_persistent_snapshots(Template **vm_quotas,
         vector<Template *> &ds_quotas);
+
+    /**
+     *  Marshall disks in XML format with just essential information
+     *    @param xml string to write the disk XML description
+     */
+    std::string& to_xml_short(std::string& xml);
+
+    /**
+     *  Check if a tm_mad is valid for each Virtual Machine Disk and set
+     *  clone_target and ln_target
+     *  @param tm_mad is the tm_mad for system datastore chosen
+     */
+    int check_tm_mad(const string& tm_mad, string& error);
 
 protected:
 

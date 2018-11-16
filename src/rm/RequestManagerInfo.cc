@@ -47,7 +47,7 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    object = pool->get(oid);
+    object = pool->get_ro(oid);
 
     if ( object == 0 )
     {
@@ -86,7 +86,7 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
         extended = xmlrpc_c::value_boolean(paramList.getBoolean(2));
     }
 
-    vm_tmpl = tpool->get(oid);
+    vm_tmpl = tpool->get_ro(oid);
 
     if ( vm_tmpl == 0 )
     {
@@ -110,24 +110,21 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (extended)
     {
-        VirtualMachine::set_auth_request(att.uid, ar, extended_tmpl);
+        VirtualMachine::set_auth_request(att.uid, ar, extended_tmpl, false);
 
         VirtualMachineDisks::extended_info(att.uid, extended_tmpl);
     }
 
-    if ( att.uid != UserPool::ONEADMIN_ID && att.gid != GroupPool::ONEADMIN_ID )
+    if (UserPool::authorize(ar) == -1)
     {
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
 
-            delete extended_tmpl;
-            return;
-        }
+        delete extended_tmpl;
+        return;
     }
 
-    vm_tmpl = tpool->get(oid);
+    vm_tmpl = tpool->get_ro(oid);
 
     if ( vm_tmpl == 0 )
     {

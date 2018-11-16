@@ -112,7 +112,7 @@ The argument expression *[OPTIONAL]* is used to set non-default values for:
         mysql       yes if you want to build mysql support
         xmlrpc      path-to-xmlrpc-install
         parsers     yes if you want to rebuild flex/bison files
-        new_xmlpc   yes if you have an xmlrpc-c version >= 1.31
+        new_xmlrpc  yes if you have an xmlrpc-c version >= 1.31
         sunstone    yes if you want to build sunstone minified files
         systemd     yes if you want to build systemd support
 
@@ -141,6 +141,8 @@ where **install_options** can be one or more of:
     -r      remove Opennebula, only useful if -d was not specified,
             otherwise rm -rf $ONE_LOCATION would do the job
     -p      do not install OpenNebula Sunstone non-minified files
+    -G      install only OpenNebula Gate
+    -f      install only OpenNebula Flow
     -h      prints installer help
 
 

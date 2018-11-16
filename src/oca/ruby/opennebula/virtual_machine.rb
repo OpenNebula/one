@@ -46,6 +46,7 @@ module OpenNebula
             :disksnapshotcreate => "vm.disksnapshotcreate",
             :disksnapshotrevert => "vm.disksnapshotrevert",
             :disksnapshotdelete => "vm.disksnapshotdelete",
+            :disksnapshotrename => "vm.disksnapshotrename",
             :diskresize     => "vm.diskresize",
             :updateconf     => "vm.updateconf",
             :lock     => "vm.lock",
@@ -211,7 +212,7 @@ module OpenNebula
             disk-snapshot-create disk-snapshot-delete terminate terminate-hard
             disk-resize deploy chown chmod updateconf rename resize update
             snapshot-resize snapshot-delete snapshot-revert disk-saveas
-            disk-snapshot-revert recover retry monitor}
+            disk-snapshot-revert recover retry monitor disk-snapshot-rename}
 
         EXTERNAL_IP_ATTRS = [
             'GUEST_IP',
@@ -341,9 +342,10 @@ module OpenNebula
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def deploy(host_id, enforce=false, ds_id=-1)
+        def deploy(host_id, enforce=false, ds_id=-1, extra_template="")
             enforce ||= false
             ds_id ||= -1
+            extra_template ||= ""
 
             self.info
 
@@ -351,7 +353,8 @@ module OpenNebula
                         @pe_id,
                         host_id.to_i,
                         enforce,
-                        ds_id.to_i)
+                        ds_id.to_i,
+                        extra_template)
         end
 
         # Shutdowns an already deployed VM
@@ -649,6 +652,18 @@ module OpenNebula
           return call(VM_METHODS[:disksnapshotdelete], @pe_id, disk_id, snap_id)
         end
 
+        # Renames a disk snapshot
+        #
+        # @param disk_id  [Integer] Id of the disk
+        # @param snap_id  [Integer] Id of the snapshot
+        # @param new_name [String]  New name for the snapshot
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def disk_snapshot_rename(disk_id, snap_id, new_name)
+            return call(VM_METHODS[:disksnapshotrename], @pe_id, disk_id, snap_id, new_name)
+        end
+
         # Changes the size of a disk
         #
         # @param disk_id [Integer] Id of the disk
@@ -662,7 +677,7 @@ module OpenNebula
         # Recovers an ACTIVE VM
         #
         # @param result [Integer] Recover with failure (0), success (1),
-        # retry (2), delete (3), delete-recreate (4)
+        # retry (2), delete (3), delete-recreate (4), delete-db (5)
         # @param result [info] Additional information needed to recover the VM
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise

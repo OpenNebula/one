@@ -586,12 +586,12 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static const flex_int16_t yy_accept[34] =
+static const flex_int16_t yy_accept[36] =
     {   0,
-        0,    0,    0,    0,    0,    0,   13,   11,    1,   10,
-       10,   12,    9,    3,    6,    2,    4,    5,   12,    8,
-       11,    0,    3,    2,    5,    3,    6,    2,    4,    0,
-        7,    8,    0
+        0,    0,    0,    0,    0,    0,   13,    1,    2,   12,
+       11,   11,   12,   10,    4,    7,    3,    5,    6,   12,
+        9,    1,    0,    0,    4,    3,    6,    4,    7,    3,
+        5,    0,    8,    9,    0
     } ;
 
 static const YY_CHAR yy_ec[256] =
@@ -605,7 +605,7 @@ static const YY_CHAR yy_ec[256] =
         8,    1,    1,    1,    7,    7,    7,    7,    7,    7,
         7,    7,    7,    7,    7,    7,    7,    7,    7,    7,
         7,    7,    7,    7,    7,    7,    7,    7,    7,    7,
-        9,    1,   10,    1,   11,    1,    7,    7,    7,    7,
+        9,   10,   11,    1,   12,    1,    7,    7,    7,    7,
 
         7,    7,    7,    7,    7,    7,    7,    7,    7,    7,
         7,    7,    7,    7,    7,    7,    7,    7,    7,    7,
@@ -626,52 +626,56 @@ static const YY_CHAR yy_ec[256] =
         1,    1,    1,    1,    1
     } ;
 
-static const YY_CHAR yy_meta[12] =
+static const YY_CHAR yy_meta[13] =
     {   0,
         1,    1,    1,    1,    2,    1,    3,    1,    1,    1,
-        3
+        1,    3
     } ;
 
-static const flex_int16_t yy_base[39] =
+static const flex_int16_t yy_base[41] =
     {   0,
-       41,   40,    0,    0,    8,   12,   44,    0,   47,   47,
-       18,   47,   47,   41,    0,   40,   39,   47,   32,   20,
-        0,    0,   23,   21,   47,   20,    0,   19,   16,   13,
-       47,    7,   47,   28,   31,   34,   10,   37
+        0,    6,   16,    0,   25,   29,   45,   34,   59,   37,
+       59,   35,   59,   59,   38,    0,   37,   36,   59,   31,
+       27,   21,   25,    0,   13,   12,   59,   11,    0,   10,
+        7,    4,   59,    0,   59,   46,   49,   52,    0,   55
     } ;
 
-static const flex_int16_t yy_def[39] =
+static const flex_int16_t yy_def[41] =
     {   0,
-       34,   34,   33,    3,   35,   35,   33,   36,   33,   33,
-       33,   33,   33,   33,   37,   33,   33,   33,   38,   33,
-       36,   11,   33,   33,   33,   33,   37,   33,   33,   38,
-       33,   33,    0,   33,   33,   33,   33,   33
+       36,   36,   35,    3,   37,   37,   35,   38,   35,   38,
+       35,   35,   35,   35,   35,   39,   35,   35,   35,   40,
+       35,   38,   38,   12,   35,   35,   35,   35,   39,   35,
+       35,   40,   35,   35,    0,   35,   35,   35,   35,   35
     } ;
 
-static const flex_int16_t yy_nxt[59] =
+static const flex_int16_t yy_nxt[72] =
     {   0,
-       10,   11,   12,   10,   13,   14,   15,   16,   17,   18,
-       15,   19,   27,   32,   20,   19,   31,   29,   20,   22,
-       28,   26,   28,   23,   26,   24,   32,   25,    8,    8,
-        8,   12,   12,   12,   21,   31,   21,   30,   30,   30,
-       29,   28,   26,   33,    9,    9,    7,   33,   33,   33,
-       33,   33,   33,   33,   33,   33,   33,   33
+       35,   35,   29,   35,    9,   35,   34,   33,   31,   10,
+        9,   30,   28,   30,   28,   10,   11,   12,   13,   11,
+       14,   15,   16,   17,   18,   11,   19,   16,   20,   22,
+       23,   21,   20,   34,   33,   21,   24,   31,   30,   28,
+       25,   22,   26,   23,   35,   27,    8,    8,    8,   13,
+       13,   13,   22,   35,   22,   32,   32,   32,    7,   35,
+       35,   35,   35,   35,   35,   35,   35,   35,   35,   35,
+       35
     } ;
 
-static const flex_int16_t yy_chk[59] =
+static const flex_int16_t yy_chk[72] =
     {   0,
-        3,    3,    3,    3,    3,    3,    3,    3,    3,    3,
-        3,    5,   37,   32,    5,    6,   30,   29,    6,   11,
-       28,   26,   24,   11,   23,   11,   20,   11,   34,   34,
-       34,   35,   35,   35,   36,   19,   36,   38,   38,   38,
-       17,   16,   14,    7,    2,    1,   33,   33,   33,   33,
-       33,   33,   33,   33,   33,   33,   33,   33
+        0,    0,   39,    0,    1,    0,   34,   32,   31,    1,
+        2,   30,   28,   26,   25,    2,    3,    3,    3,    3,
+        3,    3,    3,    3,    3,    3,    3,    3,    5,   23,
+       22,    5,    6,   21,   20,    6,   12,   18,   17,   15,
+       12,   10,   12,    8,    7,   12,   36,   36,   36,   37,
+       37,   37,   38,    0,   38,   40,   40,   40,   35,   35,
+       35,   35,   35,   35,   35,   35,   35,   35,   35,   35,
+       35
     } ;
 
 /* Table of booleans, true if rule could match eol. */
 static const flex_int32_t yy_rule_can_match_eol[13] =
     {   0,
-0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0,     };
+1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,     };
 
 /* The intent behind this definition is that it'll catch
  * any uses of REJECT which flex missed.
@@ -714,9 +718,9 @@ static const flex_int32_t yy_rule_can_match_eol[13] =
 #define YY_USER_ACTION  llocp->first_line = yylineno;   \
                         llocp->first_column = llocp->last_column;   \
                         llocp->last_column += yyleng;
-#line 717 "vm_var_parser.cc"
+#line 721 "vm_var_parser.cc"
 
-#line 719 "vm_var_parser.cc"
+#line 723 "vm_var_parser.cc"
 
 #define INITIAL 0
 #define VAR 1
@@ -995,11 +999,7 @@ YY_DECL
 
 #line 50 "vm_var_parser.l"
  /* ------------------------------------------------------------------------- */
- /* Parse variables in the form:                                              */
- /*   $VARIABLE                                                               */
- /*   $VARIABLE[ATTR]                                                         */
- /*   $VARIABLE[ATTR,ATTR=VALUE]                                              */
- /*   $NUM.CONTEXT_VARIABLE                                                   */
+ /* Just copy the string verbatim till we find a variable (starts with $)     */
  /* ------------------------------------------------------------------------- */
 
 #line 1005 "vm_var_parser.cc"
@@ -1029,13 +1029,13 @@ yy_match:
 			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
-				if ( yy_current_state >= 34 )
+				if ( yy_current_state >= 36 )
 					yy_c = yy_meta[yy_c];
 				}
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
 			++yy_cp;
 			}
-		while ( yy_base[yy_current_state] != 47 );
+		while ( yy_base[yy_current_state] != 59 );
 
 yy_find_action:
 		yy_act = yy_accept[yy_current_state];
@@ -1072,89 +1072,93 @@ do_action:	/* This label is used only to access EOF actions. */
 			goto yy_find_action;
 
 case 1:
+/* rule 1 can match eol */
 YY_RULE_SETUP
-#line 58 "vm_var_parser.l"
-{ BEGIN VAR;}
+#line 54 "vm_var_parser.l"
+{ yylval_param->val_str = mem_collector_strdup(mc,yytext); return RSTRING;}
 	YY_BREAK
+/* ------------------------------------------------------------------------- */
+/* Parse variables in the form:                                              */
+/*   $VARIABLE                                                               */
+/*   $VARIABLE[ATTR]                                                         */
+/*   $VARIABLE[ATTR,ATTR=VALUE]                                              */
+/*   $NUM.CONTEXT_VARIABLE                                                   */
+/* ------------------------------------------------------------------------- */
 case 2:
 YY_RULE_SETUP
-#line 60 "vm_var_parser.l"
-{ BEGIN VALUE; return EQUAL; }
+#line 64 "vm_var_parser.l"
+{ BEGIN VAR;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 61 "vm_var_parser.l"
-{ return COMMA;}
+#line 66 "vm_var_parser.l"
+{ BEGIN VALUE; return EQUAL; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 62 "vm_var_parser.l"
-{ return OBRACKET;}
+#line 67 "vm_var_parser.l"
+{ return COMMA;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 63 "vm_var_parser.l"
-{ return CBRACKET;}
+#line 68 "vm_var_parser.l"
+{ return OBRACKET;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 65 "vm_var_parser.l"
+#line 69 "vm_var_parser.l"
+{ return CBRACKET;}
+	YY_BREAK
+case 7:
+YY_RULE_SETUP
+#line 71 "vm_var_parser.l"
 { yylval_param->val_str =
                                  mem_collector_strdup(mc,yytext);
                                  return VARIABLE;}
 	YY_BREAK
-case 7:
-/* rule 7 can match eol */
+case 8:
+/* rule 8 can match eol */
 YY_RULE_SETUP
-#line 69 "vm_var_parser.l"
+#line 75 "vm_var_parser.l"
 { yylval_param->val_str =
                                  mem_collector_strdup(mc,yytext+1);
                                  yylval_param->val_str[yyleng-2] = '\0';
                                  BEGIN(VAR);
                                  return STRING;}
 	YY_BREAK
-case 8:
+case 9:
 YY_RULE_SETUP
-#line 75 "vm_var_parser.l"
+#line 81 "vm_var_parser.l"
 { yylval_param->val_str =
                                  mem_collector_strdup(mc,yytext);
                                  BEGIN(VAR);
                                  return STRING;}
 	YY_BREAK
-case 9:
+case 10:
 YY_RULE_SETUP
-#line 80 "vm_var_parser.l"
+#line 86 "vm_var_parser.l"
 { yylval_param->val_char = '\0';
                                  return EOA;}
 	YY_BREAK
-case 10:
+case 11:
 YY_RULE_SETUP
-#line 83 "vm_var_parser.l"
+#line 89 "vm_var_parser.l"
 { yylval_param->val_char = *yytext;
                                  BEGIN(INITIAL);
                                  return EOA;}
 	YY_BREAK
 case YY_STATE_EOF(VAR):
-#line 87 "vm_var_parser.l"
+#line 93 "vm_var_parser.l"
 { yylval_param->val_char = '\0';
                                  BEGIN(INITIAL);
                                  return EOA;}
 	YY_BREAK
-/* ------------------------------------------------------------------------- */
-/* Just copy the string verbatim till we find a variable (starts with $)     */
-/* ------------------------------------------------------------------------- */
-case 11:
-/* rule 11 can match eol */
-YY_RULE_SETUP
-#line 95 "vm_var_parser.l"
-{ yylval_param->val_str = mem_collector_strdup(mc,yytext); return RSTRING;}
-	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 97 "vm_var_parser.l"
+#line 96 "vm_var_parser.l"
 ECHO;
 	YY_BREAK
-#line 1157 "vm_var_parser.cc"
+#line 1161 "vm_var_parser.cc"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(VALUE):
 	yyterminate();
@@ -1454,7 +1458,7 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
-			if ( yy_current_state >= 34 )
+			if ( yy_current_state >= 36 )
 				yy_c = yy_meta[yy_c];
 			}
 		yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
@@ -1483,11 +1487,11 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
-		if ( yy_current_state >= 34 )
+		if ( yy_current_state >= 36 )
 			yy_c = yy_meta[yy_c];
 		}
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
-	yy_is_jam = (yy_current_state == 33);
+	yy_is_jam = (yy_current_state == 35);
 
 	(void)yyg;
 	return yy_is_jam ? 0 : yy_current_state;
@@ -2305,7 +2309,7 @@ void yyfree (void * ptr , yyscan_t yyscanner)
 
 #define YYTABLES_NAME "yytables"
 
-#line 97 "vm_var_parser.l"
+#line 96 "vm_var_parser.l"
 
 
 int vm_var_wrap(yyscan_t scanner)

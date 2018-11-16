@@ -17,6 +17,7 @@
 
 require 'opennebula/pool_element'
 require 'base64'
+require 'yaml'
 
 module OpenNebula
     class Host < PoolElement
@@ -124,7 +125,7 @@ module OpenNebula
             set_status("OFFLINE")
         end
 
-        def flush()
+        def flush(action)
             self.disable
 
             vm_pool = OpenNebula::VirtualMachinePool.new(@client,
@@ -139,7 +140,14 @@ module OpenNebula
             vm_pool.each do |vm|
                 hid = vm['HISTORY_RECORDS/HISTORY[last()]/HID']
                 if hid == self['ID']
-                    vm.resched
+                    case action
+                    when "resched"
+                        vm.resched
+                    when "delete-recreate"
+                        vm.recover(4)
+                    else
+                        vm.resched
+                    end
                 end
             end
         end
@@ -229,9 +237,10 @@ module OpenNebula
             vcenter_wild_vm = wild.key? "VCENTER_TEMPLATE"
             if vcenter_wild_vm
                 require 'vcenter_driver'
-                host_id = self["ID"]
-                vm_ref  = wild["DEPLOY_ID"]
-                return VCenterDriver::Importer.import_wild(host_id, vm_ref, vm, template)
+                vi_client = VCenterDriver::VIClient.new_from_host(self["ID"])
+                importer  = VCenterDriver::VmmImporter.new(@client, vi_client)
+
+                return importer.import({wild: wild, template: template, one_item: vm, host: self['ID']})
             else
                 rc = vm.allocate(template)
 

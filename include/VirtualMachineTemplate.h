@@ -76,6 +76,8 @@ public:
         Template::parse_restricted(ra, restricted);
     }
 
+    string& to_xml_short(string& xml) const;
+
 private:
     /**
      *  Restricted attribute list for VirtualMachineTemplates

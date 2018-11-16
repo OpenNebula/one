@@ -696,15 +696,16 @@ void Template::parse_restricted(const vector<const SingleAttribute *>& ras,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static void restricted_values(const string& vname, const set<string>& vsubs,
+static bool restricted_values(const string& vname, const set<string>& vsubs,
         const Template* tmpl, vector<string>& rstrings)
 {
     string value;
+    bool exists;
 
     vector<const VectorAttribute *>::const_iterator va_it;
     vector<const VectorAttribute *> va;
 
-    tmpl->get(vname, va);
+    exists = tmpl->get(vname, va);
 
     for ( va_it = va.begin(); va_it != va.end() ; ++va_it )
     {
@@ -718,6 +719,8 @@ static void restricted_values(const string& vname, const set<string>& vsubs,
     }
 
     sort(rstrings.begin(), rstrings.end());
+
+    return exists;
 }
 
 bool Template::check_restricted(string& ra, const Template* base,
@@ -730,11 +733,12 @@ bool Template::check_restricted(string& ra, const Template* base,
         if (!(rit->second).empty())
         {
             vector<string> rvalues, rvalues_base;
+            bool has_restricted;
 
-            restricted_values(rit->first, rit->second, this, rvalues);
+            has_restricted = restricted_values(rit->first, rit->second, this, rvalues);
             restricted_values(rit->first, rit->second, base, rvalues_base);
 
-            if ( rvalues != rvalues_base )
+            if ( rvalues != rvalues_base && has_restricted)
             {
                 ra = rit->first;
                 return true;

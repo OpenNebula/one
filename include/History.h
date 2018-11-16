@@ -76,7 +76,8 @@ public:
         DISK_SNAPSHOT_REVERT_ACTION = 41,   // "one.vm.disksnapshotrevert"
         RECOVER_ACTION         = 42,        // "one.vm.recover"
         RETRY_ACTION           = 43,        // "one.vm.recover"
-        MONITOR_ACTION         = 44         // internal, monitoring process
+        MONITOR_ACTION         = 44,        // internal, monitoring process
+        DISK_SNAPSHOT_RENAME_ACTION = 45    // "one.vm.disksnapshotrename"
     };
 
     static string action_to_str(VMAction action);
@@ -110,6 +111,14 @@ public:
      *  @return a reference to the generated string
      */
     string& to_xml(string& xml) const;
+
+    /**
+     * Function to print the History object into a string in
+     * XML format with reduce information
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    string& to_xml_short(string& xml) const;
 
 private:
     friend class VirtualMachine;

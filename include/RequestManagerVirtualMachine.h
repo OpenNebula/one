@@ -104,6 +104,8 @@ protected:
                     RequestAttributes& att);
 
     VirtualMachine * get_vm(int id, RequestAttributes& att);
+
+    VirtualMachine * get_vm_ro(int id, RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -133,7 +135,7 @@ public:
     VirtualMachineDeploy():
         RequestManagerVirtualMachine("one.vm.deploy",
                                      "Deploys a virtual machine",
-                                     "A:siibi")
+                                     "A:siibis")
     {
         auth_op = Nebula::instance().get_vm_auth_op(History::DEPLOY_ACTION);
     };
@@ -220,6 +222,18 @@ public:
     };
 
     ~VirtualMachineAttach(){};
+
+    /**
+     * Process a DISK attahment request to a Virtual Machine
+     *   @param id of the VirtualMachine
+     *   @param tl with the new DISK description
+     *   @param att attributes of this request
+     *   @return ErroCode as defined in Request
+     */
+    ErrorCode request_execute(int id, VirtualMachineTemplate& tl,
+        RequestAttributes& att);
+
+protected:
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att);
@@ -504,6 +518,28 @@ public:
 
 private:
     ImagePool* ipool;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineDiskSnapshotRename: public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineDiskSnapshotRename():
+        RequestManagerVirtualMachine("one.vm.disksnapshotrename",
+                           "Rename a disk snapshot",
+                           "A:siiis"){
+        Nebula& nd = Nebula::instance();
+
+        //All VM disk snapshot operations are set to the same auth value
+        auth_op = nd.get_vm_auth_op(History::DISK_SNAPSHOT_RENAME_ACTION);
+    };
+
+    ~VirtualMachineDiskSnapshotRename(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
 };
 
 /* -------------------------------------------------------------------------- */

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -26,19 +26,25 @@ mkdir -p samples/vmtemplate samples/vmtemplate_pool
 mkdir -p samples/user       samples/user_pool
 mkdir -p samples/vm         samples/vm_pool
 mkdir -p samples/vnet       samples/vnet_pool
-mkdir -p samples/vm_group    samples/vm_group_pool
+mkdir -p samples/vm_group   samples/vm_group_pool
 mkdir -p samples/acct
 mkdir -p samples/vrouter            samples/vrouter_pool
 mkdir -p samples/marketplace        samples/marketplace_pool
 mkdir -p samples/marketplaceapp     samples/marketplaceapp_pool
+mkdir -p samples/zone       samples/zone_pool
 touch output.log
 cp oned.conf /etc/one/oned.conf
+
+## VCENTER CONFIGURATION
+vcenter="vcenter.vcenter65-1"
+vuser="administrator@vsphere.local"
+vpass="Pantufl4."
+########################
 
 echo "Creating new cluster..." >> output.log
 onecluster create newcluster
 echo "Creating new group..." >> output.log
 onegroup create newgroup
-
 
 # Host
 echo "Creating new hosts..." >> output.log
@@ -51,36 +57,15 @@ sleep 30
 
 onecluster addhost newcluster host03
 
+echo "Importing defaults hosts from $vcenter" >> output.log
+onevcenter hosts --vcenter $vcenter --vuser $vuser --vpass $vpass --use-defaults
+sleep 10
+
 for i in `onehost list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
     onehost show $i -x > samples/host/$i.xml
 done
 
 onehost list -x > samples/host_pool/0.xml
-
-
-# VNets
-echo "Creating new vnets..." >> output.log
-onevnet list -x > samples/vnet_pool/1.xml
-
-onevnet create test/vnet.0
-
-onevnet list -x > samples/vnet_pool/2.xml
-
-onevnet create test/vnet.1
-onevnet create test/vnet.2
-
-echo "Adding vnets to cluster..." >> output.log
-onecluster addvnet newcluster 0
-onecluster addvnet newcluster 2
-
-echo "Reserving vnet..." >> output.log
-onevnet reserve 1 --address_range 1 --size 2 --name reserve
-
-for i in `onevnet list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
-    onevnet show $i -x > samples/vnet/$i.xml
-done
-
-onevnet list -x > samples/vnet_pool/3.xml
 
 # Cluster
 echo "Creating new empty cluster..." >> output.log
@@ -91,7 +76,6 @@ for i in `onecluster list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
 done
 
 onecluster list -x > samples/cluster_pool/0.xml
-
 
 # Image
 echo "Creating new images..." >> output.log
@@ -116,12 +100,15 @@ echo "Adding datastores to cluster..." >> output.log
 onecluster adddatastore newcluster 100
 onecluster adddatastore newcluster 101
 
+echo "Import datastore from $vcenter" >> output.log
+onevcenter import_defaults -o datastores -h 5
+sleep 15
+
 for i in `onedatastore list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
     onedatastore show $i -x > samples/datastore/$i.xml
 done
 
 onedatastore list -x > samples/datastore_pool/0.xml
-
 
 # User
 echo "Creating new users..." >> output.log
@@ -130,6 +117,7 @@ oneuser defaultquota test/quota.txt
 oneuser create newuser abc
 oneuser chgrp newuser newgroup
 
+echo "Creating token for an user..." >> output.log
 echo "no" | oneuser token-create --user newuser --password abc --time 123
 echo "no" | oneuser token-create --user newuser --password abc --time 456
 echo "no" | oneuser token-create --user newuser --password abc --time 789
@@ -180,6 +168,9 @@ onetemplate create test/template.0 --user newuser --password abc
 onetemplate create test/template.1 --user newuser --password abc
 onetemplate create test/vr-template.0
 
+echo "Import templates from $vcenter" >> output.log
+onevcenter import_defaults -o templates 1..3 -h 5
+
 for i in `onetemplate list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
     onetemplate show $i -x > samples/vmtemplate/$i.xml
 done
@@ -192,8 +183,15 @@ onetemplate instantiate 0 -m 2 --user newuser --password abc
 onetemplate instantiate 1 -m 2 --user newuser --password abc
 
 # Virtual Routers
+echo "Creating new vrouters..." >> output.log
 onevrouter create test/vr.0
 onevrouter instantiate 0 vr-tmpl -m 2
+sleep 10
+for i in `onevrouter list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
+    onevrouter show $i -x > samples/vrouter/$i.xml
+done
+
+onevrouter list -x > samples/vrouter_pool/0.xml
 
 for i in `onevm list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
     onevm deploy $i host01
@@ -224,17 +222,41 @@ onevm resume 2
 
 sleep 5
 
+echo "Import wilds from $vcenter" >> output.log
+onehost importvm 'Cluster2' 'wild00 - Cluster2' >> output.log
+sleep 15
+onehost importvm 'Cluster2' 'wild01 - Cluster2' >> output.log
+sleep 15
+
 for i in `onevm list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
     onevm show $i -x > samples/vm/$i.xml
 done
 
 onevm list -x > samples/vm_pool/0.xml
 
-for i in `onevrouter list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
-    onevrouter show $i -x > samples/vrouter/$i.xml
+# VNets
+echo "Creating new vnets..." >> output.log
+onevnet list -x > samples/vnet_pool/1.xml
+
+onevnet create test/vnet.0
+
+onevnet list -x > samples/vnet_pool/2.xml
+
+onevnet create test/vnet.1
+onevnet create test/vnet.2
+
+echo "Adding vnets to cluster..." >> output.log
+onecluster addvnet newcluster 0
+onecluster addvnet newcluster 2
+
+echo "Reserving vnet..." >> output.log
+onevnet reserve 1 --address_range 1 --size 2 --name reserve
+
+for i in `onevnet list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
+    onevnet show $i -x > samples/vnet/$i.xml
 done
 
-onevrouter list -x > samples/vrouter_pool/0.xml
+onevnet list -x > samples/vnet_pool/3.xml
 
 echo "Working with markets..." >> output.log
 # Marketplace
@@ -254,6 +276,7 @@ done
 onemarketapp list -x > samples/marketplaceapp_pool/0.xml
 
 # VMGroups
+echo "Creating new vmgroups..." >> output.log
 onevmgroup list -x > samples/vm_group_pool/1.xml
 
 onevmgroup create test/vm_group.0
@@ -264,6 +287,17 @@ for i in `onevmgroup list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
     onevmgroup show $i -x > samples/vm_group/$i.xml
 done
 
+# VMGroups
+echo "Creating new servers into zone 0..." >> output.log
+onezone list -x > samples/zone_pool/1.xml
+
+onezone server-add 0 -n server-0 -r http://localhost:2633/RPC2
+
+onevmgroup list -x > samples/vm_group_pool/2.xml
+
+onezone show 0 -x > samples/zone/1.xml
+
+echo "Executing xmllint..." >> output.log
 for i in  cluster datastore group vdc host image vmtemplate user vm vnet vrouter marketplace marketplaceapp vm_group
 do
     POOL_NAME="$i""_pool"

@@ -86,6 +86,12 @@ mkdir -p "${SNAP_DIR}"
 PREVIOUS_SNAP=\$(readlink $SYSTEM_DS_DISK_PATH)
 
 cd "${SNAP_DIR}"
+
+if [ -e "${SNAP_PATH}" ]; then
+    echo "Snapshot file ${SNAP_PATH} already exists." >&2
+    exit 1
+fi
+
 qemu-img create -f qcow2 -o backing_fmt=qcow2 -b "\${PREVIOUS_SNAP}" "${SNAP_PATH}"
 ln -sf $SNAP_PATH_SHORT $SYSTEM_DS_DISK_PATH
 EOT

@@ -16,7 +16,6 @@
 
 require 'pp'
 require 'open3'
-require 'stringio'
 require 'timeout'
 
 # Generic command executor that holds the code shared by all the command
@@ -70,46 +69,30 @@ class GenericCommand
         @logger.call(message, all) if @logger
     end
 
-    def kill(pid)
-        # executed processes now have its own process group to be able
-        # to kill all children
-        pgid = Process.getpgid(pid)
-
-        # Kill all processes belonging to process group
-        Process.kill("HUP", pgid * -1)
-    end
-
     # Runs the command
     def run
-        std = nil
-        process = Proc.new do
-            @stdout, @stderr, _status = execute
+        begin
+            @stdout, @stderr, status = execute
 
-            @code = get_exit_code(@stderr)
+            if status && status.exited?
+                @code = status.exitstatus
+            else
+                @code = 255
+            end
 
-            if @code!=0
-                log("Command execution fail: #{command}")
+            if @code != 0
+                log("Command execution failed (exit code: #{@code}): #{command}")
                 log(@stderr)
             end
-        end
-
-        begin
-            if @timeout
-                Timeout.timeout(@timeout, nil, &process)
+        rescue Exception => e
+            if e.is_a?(Timeout::Error)
+                error_message = "Timeout executing #{command}"
             else
-                process.call
+                error_message = "Internal error #{e}"
             end
-        rescue Timeout::Error
-            error_message = "Timeout executing #{command}"
+
             log(error_message)
-
             @stderr = ERROR_OPEN + "\n" + error_message + "\n" + ERROR_CLOSE
-
-            3.times {|n| std[n].close if !std[n].closed? }
-
-            pid = std[-1].pid
-            self.kill(pid)
-
             @code = 255
         end
 
@@ -125,19 +108,72 @@ class GenericCommand
 
 private
 
-    # Gets exit code from STDERR
-    def get_exit_code(str)
-        tmp=str.scan(/^ExitCode: (\d*)$/)
-        return nil if !tmp[0]
-        tmp[0][0].to_i
-    end
-
     # Low level command execution. This method has to be redefined
     # for each kind of command execution. Returns an array with
-    # +stdin+, +stdout+ and +stderr+ handlers of the command execution.
+    # +stdout+, +stderr+ and +status+ of the command execution.
     def execute
         puts "About to execute \"#{@command}\""
-        [StringIO.new, StringIO.new, StringIO.new]
+        ['', '', nil]
+    end
+
+    # modified Open3.capture with terminator thread
+    # to deal with timeouts
+    def capture3_timeout(*cmd)
+        if Hash === cmd.last
+            opts = cmd.pop.dup
+        else
+            opts = {}
+        end
+
+        stdin_data = opts.delete(:stdin_data) || ''
+        binmode = opts.delete(:binmode)
+
+        Open3.popen3(*cmd, opts) {|i, o, e, t|
+            if binmode
+                i.binmode
+                o.binmode
+                e.binmode
+            end
+
+            terminator_e = nil
+            mutex = Mutex.new
+
+            out_reader = Thread.new { o.read }
+            err_reader = Thread.new { e.read }
+            terminator = Thread.new {
+                if @timeout and @timeout>0
+                    begin
+                        pid = Process.getpgid(t.pid) * -1
+                    rescue
+                        pid = t.pid
+                    end
+
+                    if pid
+                        begin
+                            sleep @timeout
+
+                            mutex.synchronize do
+                                terminator_e = Timeout::Error
+                            end
+                        ensure
+                        end
+
+                        Process.kill('TERM', pid)
+                    end
+                end
+            }
+
+            i.write stdin_data
+            i.close
+
+            out = [out_reader.value, err_reader.value, t.value]
+
+            mutex.lock
+            terminator.kill
+            raise terminator_e if terminator_e
+
+            out
+        }
     end
 
 end
@@ -148,7 +184,7 @@ class LocalCommand < GenericCommand
 private
 
     def execute
-        Open3.capture3("#{command} ; echo ExitCode: $? 1>&2",
+        capture3_timeout("#{command}",
                         :pgroup => true, :stdin_data => @stdin)
     end
 end
@@ -176,10 +212,10 @@ private
 
     def execute
         if @stdin
-            Open3.capture3("ssh #{@host} #{@command} ; echo ExitCode: $? 1>&2",
+            capture3_timeout("ssh #{@host} #{@command}",
                             :pgroup => true, :stdin_data => @stdin)
         else
-            Open3.capture3("ssh -n #{@host} #{@command} ; echo ExitCode: $? 1>&2",
+            capture3_timeout("ssh -n #{@host} #{@command}",
                             :pgroup => true)
         end
     end

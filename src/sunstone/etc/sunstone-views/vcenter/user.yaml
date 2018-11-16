@@ -4,6 +4,7 @@ link_logo:
 text_link_logo:
 confirm_vms: false
 filter-view: true
+do_count_animation: true
 enabled_tabs:
     - dashboard-tab
     - instances-top-tab
@@ -75,6 +76,14 @@ features:
 
     # True to show the attributes info (VM & VRouters)
     show_attributes_info: true
+
+    # If it is set to true, the host capacity will be checked. This will only affect oneadmin requests,
+    # regular users resize requests will always be enforced
+    resize_enforce: false
+
+    deploy_enforce: false
+
+    migrate_enforce: false
 tabs:
     dashboard-tab:
         # The following widgets can be used inside any of the '_per_row' settings
@@ -230,6 +239,8 @@ tabs:
             Template.delete_dialog: true
             Template.share: true
             Template.unshare: true
+            Template.lockU: true
+            Template.unlock: true
             Template.edit_labels: true
             Template.menu_labels: true
         template_creation_tabs:
@@ -377,13 +388,17 @@ tabs:
             VM.snapshot_delete: true
             VM.disk_snapshot_create: true
             VM.disk_snapshot_revert: true
+            VM.disk_snapshot_rename: true
             VM.disk_snapshot_delete: true
             VM.resched: false
             VM.unresched: false
             VM.save_as_template: true
             VM.updateconf: true
+            VM.lockU: true
+            VM.unlock: true
             VM.edit_labels: true
             VM.menu_labels: true
+        autorefresh_info: 5000 # ms
     oneflow-services-tab:
         panel_tabs:
             service_info_tab: true
@@ -464,6 +479,8 @@ tabs:
             VirtualRouter.delete: true
             VirtualRouter.attachnic: true
             VirtualRouter.detachnic: true
+            VirtualRouter.lockU: true
+            VirtualRouter.unlock: true
             VirtualRouter.edit_labels: true
             VirtualRouter.menu_labels: true
     infrastructure-top-tab:
@@ -619,6 +636,8 @@ tabs:
             Image.snapshot_flatten: true
             Image.snapshot_revert: true
             Image.snapshot_delete: true
+            Image.lockU: true
+            Image.unlock: true
             Image.edit_labels: true
             Image.menu_labels: true
     files-tab:
@@ -677,6 +696,8 @@ tabs:
             MarketPlace.chgrp: true
             MarketPlace.chmod: true
             MarketPlace.delete: true
+            MarketPlace.lockU: true
+            MarketPlace.unlock: true
             MarketPlace.edit_labels: true
             MarketPlace.menu_labels: true
     marketplaceapps-tab:
@@ -753,6 +774,8 @@ tabs:
             Network.add_ar: false
             Network.remove_ar: true
             Network.update_ar: true
+            Network.lockU: true
+            Network.unlock: true
             Network.edit_labels: true
             Network.menu_labels: true
     vnets-topology-tab:
@@ -842,3 +865,5 @@ tabs:
            VMGroup.chmod: true
            VMGroup.chown: true
            VMGroup.chgrp: true
+           VMGroup.lockU: true
+           VMGroup.unlock: true

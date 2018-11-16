@@ -16,23 +16,23 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
 end
 
-$: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+"/cli"
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
 
 require 'command_parser'
 require 'one_helper/onevnet_helper'
 require 'one_helper/onecluster_helper'
 
-cmd=CommandParser::CmdParser.new(ARGV) do
-    usage "`onevnet` <command> [<args>] [<options>]"
+CommandParser::CmdParser.new(ARGV) do
+    usage '`onevnet` <command> [<args>] [<options>]'
     version OpenNebulaHelper::ONE_VERSION
 
     helper = OneVNetHelper.new
@@ -41,34 +41,34 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.set_client(options)
     end
 
-    USE={
-        :name  => "use",
-        :large => "--use",
-        :description => "lock use actions"
+    USE = {
+        :name  => 'use',
+        :large => '--use',
+        :description => 'lock use actions'
     }
 
-    MANAGE={
-        :name  => "manage",
-        :large => "--manage",
-        :description => "lock manage actions"
+    MANAGE = {
+        :name  => 'manage',
+        :large => '--manage',
+        :description => 'lock manage actions'
     }
 
-    ADMIN={
-        :name  => "admin",
-        :large => "--admin",
-        :description => "lock admin actions"
+    ADMIN = {
+        :name  => 'admin',
+        :large => '--admin',
+        :description => 'lock admin actions'
     }
 
-    ALL={
-        :name  => "all",
-        :large => "--all",
-        :description => "lock all actions"
+    ALL = {
+        :name  => 'all',
+        :large => '--all',
+        :description => 'lock all actions'
     }
 
     ########################################################################
     # Global Options
     ########################################################################
-    set :option, CommandParser::OPTIONS+OpenNebulaHelper::CLIENT_OPTIONS
+    set :option, CommandParser::OPTIONS + OpenNebulaHelper::CLIENT_OPTIONS
 
     CREATE_OPTIONS = [OneClusterHelper::CLUSTER]
     STD_OPTIONS = CommandParser::OPTIONS + OpenNebulaHelper::CLIENT_OPTIONS
@@ -76,12 +76,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     ########################################################################
     # Formatters for arguments
     ########################################################################
-    set :format, :groupid, OpenNebulaHelper.rname_to_id_desc("GROUP") do |arg|
-        OpenNebulaHelper.rname_to_id(arg, "GROUP")
+    set :format, :groupid, OpenNebulaHelper.rname_to_id_desc('GROUP') do |arg|
+        OpenNebulaHelper.rname_to_id(arg, 'GROUP')
     end
 
-    set :format, :userid, OpenNebulaHelper.rname_to_id_desc("USER") do |arg|
-        OpenNebulaHelper.rname_to_id(arg, "USER")
+    set :format, :userid, OpenNebulaHelper.rname_to_id_desc('USER') do |arg|
+        OpenNebulaHelper.rname_to_id(arg, 'USER')
     end
 
     set :format, :vnetid, OneVNetHelper.to_id_desc do |arg|
@@ -96,7 +96,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.filterflag_to_i(arg)
     end
 
-    set :format, :ar_id, "Integer" do |arg|
+    set :format, :ar_id, 'Integer' do |arg|
         format_int(arg)
     end
 
@@ -108,16 +108,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Creates a new Virtual Network from the given template file
     EOT
 
-    command :create, create_desc, :file, :options=>CREATE_OPTIONS do
+    command :create, create_desc, :file, :options => CREATE_OPTIONS do
         cid = options[:cluster] || ClusterPool::NONE_CLUSTER_ID
 
         helper.create_resource(options) do |vn|
             begin
-                template=File.read(args[0])
+                template = File.read(args[0])
                 vn.allocate(template, cid)
-            rescue => e
-                STDERR.puts e.message
-                exit -1
+            rescue StandardError => e
+                STDERR.puts "Error creating network: #{e.message}"
+                exit(-1)
             end
         end
     end
@@ -127,7 +127,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :delete, delete_desc, [:range, :vnetid_list] do
-        helper.perform_actions(args[0],options,"deleted") do |vn|
+        helper.perform_actions(args[0], options, 'deleted') do |vn|
             vn.delete
         end
     end
@@ -138,41 +138,41 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :addar, addar_desc, :vnetid, [:file, nil],
             :options => STD_OPTIONS + OneVNetHelper::ADDAR_OPTIONS do
-        helper.perform_action(args[0],options,"lease added") do |vn|
+        helper.perform_action(args[0], options, 'lease added') do |vn|
             if args[1]
                 ar = File.read(args[1])
             else
-                ar = "AR = [ "
+                ar = 'AR = [ '
 
                 if options[:ip]
                     if options[:ip6_global] || options[:ip6_ula]
-                        ar << "TYPE=\"IP4_6\""
+                        ar << 'TYPE="IP4_6"'
                     elsif options[:ip6]
-                        ar << "TYPE=\"IP4_6_STATIC\""
+                        ar << 'TYPE="IP4_6_STATIC"'
                     else
-                        ar << "TYPE=\"IP4\""
+                        ar << 'TYPE="IP4"'
                     end
                 elsif options[:ip6]
-                    ar << "TYPE=\"IP6_STATIC\""
+                    ar << 'TYPE="IP6_STATIC"'
                 elsif options[:ip6_global] || options[:ip6_ula]
-                    ar << "TYPE=\"IP6\""
+                    ar << 'TYPE="IP6"'
                 else
-                    ar << "TYPE=\"ETHER\""
+                    ar << 'TYPE="ETHER"'
                 end
 
                 if options[:size]
-                    ar << ", SIZE = " << options[:size]
+                    ar << ', SIZE = ' << options[:size]
                 else
-                    STDERR.puts "Address range needs to specify size (-s size)"
-                    exit -1
+                    STDERR.puts 'Address range needs to specify size (-s size)'
+                    exit(-1)
                 end
 
                 if options[:ip6]
-                    m = /([\h:]*)\/(\d.*)$/.match(options[:ip6])
+                    m = %r{([\h:]*)\/(\d.*)$}.match(options[:ip6])
 
                     if m.nil? || m[1].nil?
-                        STDERR.puts "Missing or wrong IP6"
-                        exit -1
+                        STDERR.puts 'Missing or wrong IP6'
+                        exit(-1)
                     else
                         begin
                             require 'ipaddr'
@@ -180,19 +180,19 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                             ip = IPAddr.new(m[1])
 
                             if !ip.ipv6?
-                                STDERR.puts "Wrong IP6 format address"
-                                exit -1
+                                STDERR.puts 'Wrong IP6 format address'
+                                exit(-1)
                             end
-                        rescue
-                            STDERR.puts "Wrong IP6 format address"
-                            exit -1
+                        rescue StandardError
+                            STDERR.puts 'Wrong IP6 format address'
+                            exit(-1)
                         end
 
                     end
 
                     if m[2].nil?
-                        STDERR.puts "IP6 address need to set the prefix length"
-                        exit -1
+                        STDERR.puts 'IP6 address need to set the prefix length'
+                        exit(-1)
                     end
 
                     ar << ", PREFIX_LENGTH=\"#{m[2]}\""
@@ -200,19 +200,21 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                     options[:ip6] = m[1]
                 end
 
-                ar << ", IP = " << options[:ip] if options[:ip]
-                ar << ", IP6 = " << options[:ip6] if options[:ip6]
-                ar << ", MAC = " << options[:mac] if options[:mac]
-                ar << ", GLOBAL_PREFIX = " <<
-                      options[:ip6_global] if options[:ip6_global]
-                ar << ", ULA_PREFIX = " <<
-                      options[:ip6_ula] if options[:ip6_ula]
-                ar << ", GATEWAY = " << options[:gateway] if options[:gateway]
-                ar << ", MASK = "    << options[:netmask] if options[:netmask]
-                ar << ", VN_MAD = "  << options[:vn_mad]  if options[:vn_mad]
-                ar << ", VLAN_ID = " << options[:vlanid]  if options[:vlanid]
+                ar << ', IP = ' << options[:ip] if options[:ip]
+                ar << ', IP6 = ' << options[:ip6] if options[:ip6]
+                ar << ', MAC = ' << options[:mac] if options[:mac]
+                if options[:ip6_global]
+                    ar << ', GLOBAL_PREFIX = ' << options[:ip6_global]
+                end
+                if options[:ip6_ula]
+                    ar << ', ULA_PREFIX = ' << options[:ip6_ula]
+                end
+                ar << ', GATEWAY = ' << options[:gateway] if options[:gateway]
+                ar << ', MASK = '    << options[:netmask] if options[:netmask]
+                ar << ', VN_MAD = '  << options[:vn_mad]  if options[:vn_mad]
+                ar << ', VLAN_ID = ' << options[:vlanid]  if options[:vlanid]
 
-                ar << "]"
+                ar << ']'
             end
 
             vn.add_ar(ar)
@@ -224,7 +226,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :addleases, addleases_desc, :vnetid, :ip, [:mac, nil] do
-        helper.perform_action(args[0],options,"lease added") do |vn|
+        helper.perform_action(args[0], options, 'lease added') do |vn|
             vn.addleases(args[1], args[2])
         end
     end
@@ -234,7 +236,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :rmar, rmar_desc, :vnetid, :ar_id do
-        helper.perform_action(args[0],options,"address range removed") do |vn|
+        helper.perform_action(args[0], options, 'address range removed') do |vn|
             vn.rm_ar(args[1])
         end
     end
@@ -244,7 +246,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :rmleases, rmleases_desc, :vnetid, :ip do
-        helper.perform_action(args[0],options,"lease removed") do |vn|
+        helper.perform_action(args[0], options, 'lease removed') do |vn|
             vn.rmleases(args[1])
         end
     end
@@ -254,7 +256,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :free, free_desc, :vnetid, :ar_id do
-        helper.perform_action(args[0],options,"address range freed") do |vn|
+        helper.perform_action(args[0], options, 'address range freed') do |vn|
             vn.free(args[1])
         end
     end
@@ -264,8 +266,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :hold, hold_desc, :vnetid, :ip,
-        :options=>STD_OPTIONS + [OneVNetHelper::AR] do
-        helper.perform_action(args[0],options,"lease on hold") do |vn|
+            :options => STD_OPTIONS + [OneVNetHelper::AR] do
+        helper.perform_action(args[0], options, 'lease on hold') do |vn|
             ar = options[:address_range] || -1
 
             vn.hold(args[1], ar)
@@ -277,9 +279,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :release, release_desc, :vnetid, :ip,
-        :options=>STD_OPTIONS + [OneVNetHelper::AR] do
-        helper.perform_action(args[0],options,"lease released") do |vn|
-            ar  = options[:address_range] || -1
+            :options => STD_OPTIONS + [OneVNetHelper::AR] do
+        helper.perform_action(args[0], options, 'lease released') do |vn|
+            ar = options[:address_range] || -1
 
             vn.release(args[1], ar)
         end
@@ -293,10 +295,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :reserve, reserve_desc, :vnetid, [:vnetid, nil],
-        :options=>STD_OPTIONS + [OneVNetHelper::AR, OneVNetHelper::NAME,
-            OneVNetHelper::SIZE, OneVNetHelper::MAC, OneVNetHelper::IP,
-            OneVNetHelper::IP6 ] do
-        helper.perform_action(args[0],options,"reservation made") do |vn|
+            :options => STD_OPTIONS + [OneVNetHelper::AR,
+                                       OneVNetHelper::NAME,
+                                       OneVNetHelper::SIZE,
+                                       OneVNetHelper::MAC,
+                                       OneVNetHelper::IP,
+                                       OneVNetHelper::IP6] do
+        helper.perform_action(args[0], options, 'reservation made') do |vn|
             size = options[:size] || -1
             name = options[:name] || -1
 
@@ -306,13 +311,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             addr = options[:ip6] if options[:ip6]
 
             if size == -1
-                STDERR.puts "Specify a size (-s size) for the reservation"
-                exit -1
+                STDERR.puts 'Specify a size (-s size) for the reservation'
+                exit(-1)
             end
 
             if name == -1 && args[1].nil?
-                STDERR.puts "Specify a name (-n name) for the reservation"
-                exit -1
+                STDERR.puts 'Specify a name (-n name) for the reservation'
+                exit(-1)
             end
 
             res = vn.reserve(name, size, options[:address_range], addr, args[1])
@@ -325,13 +330,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-
     chgrp_desc = <<-EOT.unindent
         Changes the Virtual Network group
     EOT
 
-    command :chgrp, chgrp_desc,[:range, :vnetid_list], :groupid do
-        helper.perform_actions(args[0],options,"Group changed") do |vn|
+    command :chgrp, chgrp_desc, [:range, :vnetid_list], :groupid do
+        helper.perform_actions(args[0], options, 'Group changed') do |vn|
             vn.chown(-1, args[1].to_i)
         end
     end
@@ -341,9 +345,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :chown, chown_desc, [:range, :vnetid_list], :userid,
-            [:groupid,nil] do
-        gid = args[2].nil? ? -1 : args[2].to_i
-        helper.perform_actions(args[0],options,"Owner/Group changed") do |vn|
+            [:groupid, nil] do
+        args[2].nil? ? gid = -1 : gid = args[2].to_i
+        helper.perform_actions(args[0], options, 'Owner/Group changed') do |vn|
             vn.chown(args[1].to_i, gid)
         end
     end
@@ -353,7 +357,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :chmod, chmod_desc, [:range, :vnetid_list], :octet do
-        helper.perform_actions(args[0],options, "Permissions changed") do |vn|
+        helper.perform_actions(args[0], options, 'Permissions changed') do |vn|
             vn.chmod_octet(args[1])
         end
     end
@@ -363,8 +367,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :list, list_desc, [:filterflag, nil],
-            :options=>CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS+
-            [OpenNebulaHelper::DESCRIBE] do
+            :options => CLIHelper::OPTIONS + OpenNebulaHelper::OPTIONS +
+                        [OpenNebulaHelper::DESCRIBE] do
         helper.list_pool(options, false, args[0])
     end
 
@@ -373,8 +377,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :show, show_desc, :vnetid,
-            :options=>[OpenNebulaHelper::XML, OneVNetHelper::SHOW_AR] do
-        helper.show_resource(args[0],options)
+            :options => [OpenNebulaHelper::XML, OneVNetHelper::SHOW_AR] do
+        helper.show_resource(args[0], options)
     end
 
     update_desc = <<-EOT.unindent
@@ -383,8 +387,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :update, update_desc, :vnetid, [:file, nil],
-    :options=>OpenNebulaHelper::APPEND do
-        helper.perform_action(args[0],options,"modified") do |obj|
+            :options => OpenNebulaHelper::APPEND do
+        helper.perform_action(args[0], options, 'modified') do |obj|
             if options[:append]
                 str = OpenNebulaHelper.append_template(args[0], obj, args[1])
             else
@@ -403,32 +407,36 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :updatear, update_ar_desc, :vnetid, :ar_id, [:file, nil] do
-        helper.perform_action(args[0],options,"modified") do |obj|
+        helper.perform_action(args[0], options, 'modified') do |obj|
             rc = obj.info
 
             if OpenNebula.is_error?(rc)
                 puts rc.message
-                exit -1
+                exit(-1)
             end
 
             obj.delete_element("AR_POOL/AR[AR_ID!=#{args[1]}]")
-            obj.delete_element("AR_POOL/AR/LEASES")
-            obj.delete_element("AR_POOL/AR/USED_LEASES")
-            obj.delete_element("AR_POOL/AR/MAC_END")
-            obj.delete_element("AR_POOL/AR/IP_END")
-            obj.delete_element("AR_POOL/AR/IP6_ULA")
-            obj.delete_element("AR_POOL/AR/IP6_ULA_END")
-            obj.delete_element("AR_POOL/AR/IP6_GLOBAL")
-            obj.delete_element("AR_POOL/AR/IP6_GLOBAL_END")
+            obj.delete_element('AR_POOL/AR/LEASES')
+            obj.delete_element('AR_POOL/AR/USED_LEASES')
+            obj.delete_element('AR_POOL/AR/MAC_END')
+            obj.delete_element('AR_POOL/AR/IP_END')
+            obj.delete_element('AR_POOL/AR/IP6_ULA')
+            obj.delete_element('AR_POOL/AR/IP6_ULA_END')
+            obj.delete_element('AR_POOL/AR/IP6_GLOBAL')
+            obj.delete_element('AR_POOL/AR/IP6_GLOBAL_END')
 
-            if obj.template_like_str("AR_POOL").empty?
-                puts "Address Range #{args[1]} does not exist for "<<
-                    "Virtual Network #{args[0]}"
-                exit -1
+            if obj.template_like_str('AR_POOL').empty?
+                puts "Address Range #{args[1]} does not exist for " \
+                     "Virtual Network #{args[0]}"
+                exit(-1)
             end
 
-            str = OpenNebulaHelper.update_template_helper(false, args[0], obj,
-                args[2], "AR_POOL", false)
+            str = OpenNebulaHelper.update_template_helper(false,
+                                                          args[0],
+                                                          obj,
+                                                          args[2],
+                                                          'AR_POOL',
+                                                          false)
 
             helper.set_client(options)
             obj = helper.retrieve_resource(obj.id)
@@ -442,7 +450,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :rename, rename_desc, :vnetid, :name do
-        helper.perform_action(args[0],options,"renamed") do |o|
+        helper.perform_action(args[0], options, 'renamed') do |o|
             o.rename(args[1])
         end
     end
@@ -458,8 +466,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :lock, lock_desc, :vnetid,
-        :options => [USE, MANAGE, ADMIN, ALL] do
-        helper.perform_action(args[0],options,"VNet locked") do |vnet|
+            :options => [USE, MANAGE, ADMIN, ALL] do
+        helper.perform_action(args[0], options, 'VNet locked') do |vnet|
             if !options[:use].nil?
                 level = 1
             elsif !options[:manage].nil?
@@ -481,7 +489,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :unlock, unlock_desc, :vnetid do
-        helper.perform_action(args[0],options,"VNet unlocked") do |vnet|
+        helper.perform_action(args[0], options, 'VNet unlocked') do |vnet|
             vnet.unlock
         end
     end

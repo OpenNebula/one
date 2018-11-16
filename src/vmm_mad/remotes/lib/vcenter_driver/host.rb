@@ -1,3 +1,19 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
 module VCenterDriver
 
 class HostFolder
@@ -441,6 +457,7 @@ class ClusterComputeResource
         }
 
         vms.each do |vm_ref,info|
+            vm_info = ""
             begin
                 esx_host = esx_hosts[info["runtime.host"]._ref]
                 info[:esx_host_name] = esx_host[:name]
@@ -476,7 +493,7 @@ class ClusterComputeResource
                 vm.monitor(stats)
 
                 vm_name = "#{info["name"]} - #{cluster_name}"
-                str_info << %Q{
+                vm_info << %Q{
                 VM = [
                     ID="#{id}",
                     VM_NAME="#{vm_name}",
@@ -486,21 +503,37 @@ class ClusterComputeResource
                 # if the machine does not exist in opennebula it means that is a wild:
                 unless vm.one_exist?
                     vm_template_64 = Base64.encode64(vm.vm_to_one(vm_name)).gsub("\n","")
-                    str_info << "VCENTER_TEMPLATE=\"YES\","
-                    str_info << "IMPORT_TEMPLATE=\"#{vm_template_64}\","
+                    vm_info << "VCENTER_TEMPLATE=\"YES\","
+                    vm_info << "IMPORT_TEMPLATE=\"#{vm_template_64}\","
                 end
 
-                str_info << "POLL=\"#{vm.info.gsub('"', "\\\"")}\"]"
-
+                vm_info << "POLL=\"#{vm.info.gsub('"', "\\\"")}\"]"
             rescue Exception => e
-                STDERR.puts e.inspect
-                STDERR.puts e.backtrace
+                vm_info = error_monitoring(e, vm_ref, info)
             end
+
+            str_info << vm_info
         end
 
         view.DestroyView # Destroy the view
 
         return str_info, last_mon_time
+    end
+
+    def error_monitoring(e, vm_ref, info = {})
+        error_info = ''
+        vm_name = info['name'] || nil
+        tmp_str = e.inspect
+        tmp_str << e.backtrace.join("\n")
+
+        error_info << %Q{
+        VM = [
+            VM_NAME="#{vm_name}",
+            DEPLOY_ID="#{vm_ref}",
+        }
+
+        error_info << "ERROR=\"#{Base64.encode64(tmp_str).gsub("\n","")}\"]"
+
     end
 
     def monitor_customizations

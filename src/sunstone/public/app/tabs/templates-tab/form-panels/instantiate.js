@@ -43,7 +43,7 @@ define(function(require) {
   var Humanize = require("utils/humanize");
   var TemplateUtils = require("utils/template-utils");
   var UniqueId = require("utils/unique-id");
-  var Actions = require("utils/actions");
+  var ScheduleActions = require("utils/schedule_action");
 
   /*
     CONSTANTS
@@ -128,53 +128,19 @@ define(function(require) {
     context.on("click", "#add_scheduling_inst_action", function() {
       var actions = ["terminate", "terminate-hard", "hold", "release", "stop", "suspend", "resume", "reboot", "reboot-hard", "poweroff", "poweroff-hard", "undeploy", "undeploy-hard", "snapshot-create"];
       $("#add_scheduling_inst_action", context).attr("disabled", "disabled");
-      var html = "<tr>\
-      <td></td>\
-      <td>\
-      <select id=\"select_new_action\" class=\"select_new_action\" name=\"select_action\">";
-      $.each(actions, function(key, action){
-        var actionAux = action.replace("-", "_");
-        if (Config.isTabActionEnabled("vms-tab", "VM." + actionAux)){
-          html += "<option value=\"" + action + "\">" + Locale.tr(action) + "</option>";
-        }
-      });
-      html += "</select>\
-        </td>\
-          <td>\
-            <input id=\"date_input\" type=\"date\" placeholder=\"2013/12/30\"/>\
-            <input id=\"time_input\" type=\"time\" placeholder=\"12:30\"/>\
-          </td>\
-        <td>\
-          <button id=\"add_inst_action_json\" class=\"button small secondary radius\" >" + Locale.tr("Add") + "</button>\
-        </td>\
-        <td colspan=2></td>\
-      </tr>";
-      $("#scheduling_inst_actions_table").append(html);
+
+      ScheduleActions.htmlNewAction(actions, context, "inst");
+      ScheduleActions.setup(context)
+
       return false;
     });
 
     context.off("click", "#add_inst_action_json");
     context.on("click" , "#add_inst_action_json", function(){
-      var date_input_value = $("#date_input", context).val();
-      var time_input_value = $("#time_input", context).val();
-
-      if (date_input_value == "" || time_input_value == ""){
-        return false;
+      var sched_action = ScheduleActions.retrieveNewAction(context);
+      if (sched_action != false) {
+        $("#sched_inst_actions_body").append(ScheduleActions.fromJSONtoActionsTable(sched_action));
       }
-
-      var time_value = date_input_value + " " + time_input_value;
-      var epoch_str = new Date(time_value);
-      var time = parseInt(epoch_str.getTime()) / 1000;
-
-      var new_action = $("#select_new_action", context).val();
-      var sched_action = {};
-      sched_action.ACTION = new_action;
-      sched_action.TIME = time;
-
-      $(this).parents("tr").remove();
-      $("#add_scheduling_inst_action", context).removeAttr("disabled");
-
-      $("#sched_inst_actions_body").append(Actions.fromJSONtoActionsTable(sched_action));
 
       return false;
     });
@@ -338,32 +304,11 @@ define(function(require) {
         }
       }
 
-      var templateJSON = {};
-      var actionsJSON = [];
+      tmp_json['SCHED_ACTION'] = ScheduleActions.retrieve(context);
 
-      $("#scheduling_inst_actions_table tbody tr").each(function(index){
-        var first = $(this).children("td")[0];
-        if(!$("select", first).html()){
-          var actionJSON = {};
-          actionJSON.ID = index;
-          $(this).children("td").each(function(index2){
-            if(index2 == 0)
-              actionJSON.ACTION = $(this).text();
-            else if (index2 == 1){
-              var pretty_time = $(this).text();
-              pretty_time = pretty_time.split(" ");
-              var date = Actions.convertDate(pretty_time[1]);
-              var time_value = date + " " + pretty_time[0];
-              var epoch_str = new Date(time_value);
-              var time = parseInt(epoch_str.getTime()) / 1000;
-              actionJSON.TIME = time;
-            }
-          });
-        }
-        if (!$.isEmptyObject(actionJSON)) {actionsJSON.push(actionJSON);};
-      });
-
-      tmp_json["SCHED_ACTION"] = actionsJSON;
+      if (tmp_json['SCHED_ACTION'].length == 0) {
+        delete tmp_json['SCHED_ACTION'];
+      }
 
       capacityContext = $(".capacityContext"  + template_id, context);
       $.extend(tmp_json, CapacityInputs.retrieveChanges(capacityContext));
@@ -442,7 +387,8 @@ define(function(require) {
                 hostsDatatable: that.hostsTable.dataTableHTML,
                 dsDatatable: that.datastoresTable.dataTableHTML,
                 usersDatatable: that.usersTable.dataTableHTML,
-                groupDatatable: that.groupTable.dataTableHTML
+                groupDatatable: that.groupTable.dataTableHTML,
+                table_sched_actions: ScheduleActions.htmlTable("inst")
               }) );
 
           $(".provision_host_selector" + template_json.VMTEMPLATE.ID, context).data("hostsTable", that.hostsTable);
@@ -450,7 +396,7 @@ define(function(require) {
           $(".provision_uid_selector" + template_json.VMTEMPLATE.ID, context).data("usersTable", that.usersTable);
           $(".provision_gid_selector" + template_json.VMTEMPLATE.ID, context).data("groupTable", that.groupTable);
 
-          var actions = Actions.fromJSONtoActionsTable(template_json.VMTEMPLATE.TEMPLATE.SCHED_ACTION);
+          var actions = ScheduleActions.fromJSONtoActionsTable(template_json.VMTEMPLATE.TEMPLATE.SCHED_ACTION);
           $("#sched_inst_actions_body").append(actions);
 
           var selectOptions = {
@@ -539,7 +485,9 @@ define(function(require) {
           NicsSection.insert(template_json,
             $(".nicsContext"  + template_json.VMTEMPLATE.ID, context),
             { "forceIPv4": true,
-              "securityGroups": Config.isFeatureEnabled("secgroups")
+              "securityGroups": Config.isFeatureEnabled("secgroups"),
+              "name": " ",
+              "fieldset": false
             });
 
           VMGroupSection.insert(template_json,

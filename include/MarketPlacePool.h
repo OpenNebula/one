@@ -72,6 +72,18 @@ public:
         return static_cast<MarketPlace *>(PoolSQL::get(oid));
     };
 
+    /**
+     *  Function to get a read only MarketPlace from the pool, the object is loaded if not
+     *  in memory
+     *    @param oid MarketPlace unique id
+     *    @param lock locks the MarketPlace mutex
+     *    @return a pointer to the MarketPlace, 0 if not loaded
+     */
+    MarketPlace * get_ro(int oid)
+    {
+        return static_cast<MarketPlace *>(PoolSQL::get_ro(oid));
+    };
+
     /** Update a particular MarketPlace
      *    @param  objsql points to the market
      *    @return 0 on success
@@ -102,14 +114,15 @@ public:
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
      *  @param limit parameters used for pagination
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(std::ostringstream& oss, const std::string& where,
-		const std::string& limit)
+    int dump(std::string& oss, const std::string& where,
+		const std::string& limit, bool desc)
     {
-        return PoolSQL::dump(oss, "MARKETPLACE_POOL", MarketPlace::table, where,
-                             limit);
+        return PoolSQL::dump(oss, "MARKETPLACE_POOL", "body", MarketPlace::table, where,
+                             limit, desc);
     };
 
     /**

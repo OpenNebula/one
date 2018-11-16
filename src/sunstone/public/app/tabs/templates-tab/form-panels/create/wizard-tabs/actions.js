@@ -20,6 +20,7 @@ define(function(require) {
    */
 
   var Config = require('sunstone-config');
+  var ScheduleActions = require('utils/schedule_action');
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var WizardFields = require('utils/wizard-fields');
@@ -59,7 +60,9 @@ define(function(require) {
   return WizardTab;
 
   function _html() {
-    return TemplateHTML();
+    return TemplateHTML({
+      'table_sched_actions': ScheduleActions.htmlTable("temp")
+    });
   }
 
   function _onShow(context, panelForm) {
@@ -68,103 +71,39 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 		var actions = ["terminate", "terminate-hard", "hold", "release", "stop", "suspend", "resume", "reboot", "reboot-hard", "poweroff", "poweroff-hard", "undeploy", "undeploy-hard", "snapshot-create"];
+
     context.off('click', '#add_scheduling_temp_action');
     context.on('click', '#add_scheduling_temp_action', function() {
       $("#add_scheduling_temp_action", context).attr("disabled", "disabled");
-      var html = '<tr>\
-      <td></td>\
-      <td>\
-      <select id="select_new_action" class="select_new_action" name="select_action">';
-      $.each(actions, function(key, action){
-        var actionAux = action.replace("-", "_");
-        if (Config.isTabActionEnabled("vms-tab", "VM." + actionAux)){
-          html += '<option value="' + action + '">' + Locale.tr(action) + '</option>';
-        }
-      });
-      html += '</select>\
-        </td>\
-          <td>\
-            <input id="date_input" type="date" placeholder="2013/12/30"/>\
-            <input id="time_input" type="time" placeholder="12:30"/>\
-          </td>\
-        <td>\
-          <button id="add_temp_action_json" class="button small secondary radius" >' + Locale.tr("Add") + '</button>\
-        </td>\
-        <td colspan=2></td>\
-      </tr>';
-      $("#scheduling_temp_actions_table").append(html);
+      ScheduleActions.htmlNewAction(actions, context, "temp");
+      ScheduleActions.setup(context)
       return false;
     });
 
     context.off("click", "#add_temp_action_json");
     context.on("click" , "#add_temp_action_json", function(){
-      var date_input_value = $("#date_input", context).val();
-      var time_input_value = $("#time_input", context).val();
-
-      if (date_input_value == "" || time_input_value == ""){
-        return false;
+      var sched_action = ScheduleActions.retrieveNewAction(context);
+      if (sched_action != false) {
+        $("#sched_temp_actions_body").append(ScheduleActions.fromJSONtoActionsTable(sched_action));
       }
-
-      var time_value = date_input_value + ' ' + time_input_value;
-      var epoch_str = new Date(time_value);
-      var time = parseInt(epoch_str.getTime()) / 1000;
-
-      var new_action = $("#select_new_action", context).val();
-      var sched_action = {};
-      sched_action.ACTION = new_action;
-      sched_action.TIME = time;
-
-      $(this).parents('tr').remove();
-      $("#add_scheduling_temp_action", context).removeAttr("disabled");
-
-      $("#sched_temp_actions_body").append(Actions.fromJSONtoActionsTable(sched_action));
-			
       return false;
     });
 
-    context.on("focusout" , "#time_input", function(){
-      $("#time_input").removeAttr("data-invalid");
-      $("#time_input").removeAttr("class");
+    context.off("click", ".remove_action_x");
+    context.on("click", ".remove_action_x", function () {
+        $(this).parents('tr').remove();
     });
 
-    context.off("click", ".remove_action_x");
-    context.on("click", ".remove_action_x", function(){
-      $(this).parents('tr').remove();
-    });
   }
 
   function _retrieve(context) {
     var templateJSON = {};
-    var actionsJSON = [];
-
-    $("#scheduling_temp_actions_table tbody tr").each(function(index){
-      var first = $(this).children("td")[0];
-      if(!$('select', first).html()){
-        var actionJSON = {};
-        actionJSON.ID = index;
-        $(this).children("td").each(function(index2){
-          if(index2 == 0)
-            actionJSON.ACTION = $(this).text();
-          else if (index2 == 1){
-            var pretty_time = $(this).text();
-            pretty_time = pretty_time.split(' ');
-            var date = Actions.convertDate(pretty_time[1]);
-            var time_value = date + ' ' + pretty_time[0];
-            var epoch_str = new Date(time_value);
-            var time = parseInt(epoch_str.getTime()) / 1000;
-            actionJSON.TIME = time;
-          }
-        });
-      }
-      if (!$.isEmptyObject(actionJSON)) {actionsJSON.push(actionJSON)};
-    });
-
-    templateJSON['SCHED_ACTION'] = actionsJSON;
+    templateJSON['SCHED_ACTION'] = ScheduleActions.retrieve(context);
     return templateJSON;
   }
 
   function _fill(context, templateJSON) {
-    var actions = Actions.fromJSONtoActionsTable(templateJSON.SCHED_ACTION);
+    var actions = ScheduleActions.fromJSONtoActionsTable(templateJSON.SCHED_ACTION);
     $("#sched_temp_actions_body").append(actions);
     delete templateJSON['SCHED_ACTION'];
   }

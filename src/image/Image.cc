@@ -98,14 +98,11 @@ int Image::insert(SqlDB *db, string& error_str)
 {
     int rc;
 
-    string path_attr;
-    string type_att;
+    string type_attr;
     string persistent_attr;
     string dev_prefix;
-    string source_attr;
-    string saved_id;
     string size_attr;
-    string driver;
+    string tm_mad;
 
     istringstream iss;
     ostringstream oss;
@@ -120,14 +117,14 @@ int Image::insert(SqlDB *db, string& error_str)
 
     // ------------ TYPE --------------------
 
-    erase_template_attribute("TYPE", type_att);
+    erase_template_attribute("TYPE", type_attr);
 
-    if ( type_att.empty() == true )
+    if ( type_attr.empty() == true )
     {
-        type_att = ImagePool::default_type();
+        type_attr = ImagePool::default_type();
     }
 
-    if (set_type(type_att, error_str) != 0)
+    if (set_type(type_attr, error_str) != 0)
     {
         goto error_common;
     }
@@ -183,16 +180,41 @@ int Image::insert(SqlDB *db, string& error_str)
 
     erase_template_attribute("PATH", path);
     erase_template_attribute("SOURCE", source);
+    erase_template_attribute("FSTYPE", fs_type);
+    erase_template_attribute("TM_MAD", tm_mad);
 
     if (!is_saving())
     {
-        if ( source.empty() && path.empty() && type != DATABLOCK )
+        if ( source.empty() && path.empty() && type != DATABLOCK && type != OS)
         {
             goto error_no_path;
         }
         else if ( !source.empty() && !path.empty() )
         {
             goto error_path_and_source;
+        }
+
+        if ( path.empty() && (type == Image::DATABLOCK || type == Image::OS))
+        {
+            if ( fs_type.empty() )
+            {
+                string driver;
+
+                fs_type = "raw"; //Default
+
+                get_template_attribute("DRIVER", driver);
+
+                one_util::tolower(driver);
+
+                if (driver == "qcow2" || (driver.empty() &&  tm_mad == "qcow2"))
+                {
+                    fs_type = "qcow2";
+                }
+            }
+        }
+        else
+        {
+            fs_type = "";
         }
     }
     else
@@ -576,6 +598,17 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
         }
     }
 
+    //Image is being copied/cloned
+    if ( state == Image::LOCKED_USED || state == Image::LOCKED_USED_PERS 
+            || state == Image::LOCKED )
+    {
+        disk->replace("CLONING", "YES");
+    }
+    else
+    {
+        disk->remove("CLONING");
+    }
+
     //--------------------------------------------------------------------------
     //   TYPE attribute
     //--------------------------------------------------------------------------
@@ -891,7 +924,8 @@ bool Image::test_set_persistent(Template * image_template, int uid, int gid,
     string per_oned;
     string conf_name;
 
-    bool persistent;
+    bool persistent  = false;
+    bool tmpl_persis = false;
 
     if ( is_allocate )
     {
@@ -902,20 +936,32 @@ bool Image::test_set_persistent(Template * image_template, int uid, int gid,
         conf_name = "DEFAULT_IMAGE_PERSISTENT";
     }
 
+    bool has_persistent = image_template->get("PERSISTENT", tmpl_persis);
+
+    // Get default persistent value from user, group or oned.conf
+    // If no default value found the use PERSISTENT from image template
     int rc = nd.get_configuration_attribute(uid, gid, conf_name, per_oned);
-  
-    bool has_persistent = image_template->get("PERSISTENT", persistent);
-  
-    if ( rc == 0 && !has_persistent )
+
+    if ( rc == 0 )
     {
-        if ( one_util::toupper(per_oned) == "YES" )
+        if ( per_oned.empty() )
+        {
+            persistent = tmpl_persis;
+        }
+        else if (one_util::toupper(per_oned) == "YES")
         {
             persistent = true;
         }
-        else if ( one_util::toupper(per_oned) == "NO" )
-        {
-            persistent = false;
-        }
+    }
+    else
+    {
+        persistent = tmpl_persis;
+    }
+
+    // Honor template persistent value for ne.image.allocate
+    if (is_allocate && has_persistent)
+    {
+        persistent = tmpl_persis;
     }
 
     image_template->replace("PERSISTENT", persistent);

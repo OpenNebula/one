@@ -1,3 +1,19 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
 module VCenterDriver
 require 'digest'
 require 'uri'
@@ -76,15 +92,12 @@ class Storage
         VCenterDriver::VIHelper.check_opts(opts, [:persistent])
 
         ds_name      = disk[:datastore].name
-        image_path   = disk[:path]
+        image_path   = disk[:path_wo_ds]
         image_type   = disk[:type]
         image_prefix = disk[:prefix]
 
         one_image = {}
         one_image[:template] = ""
-
-        # Remove ds info from path
-        image_path.sub!(/^\[#{ds_name}\] /, "")
 
         # Get image name
         file_name = File.basename(image_path).gsub(/\.vmdk$/,"")
@@ -105,7 +118,7 @@ class Storage
             one_image[:template] << "PATH=\"vcenter://#{image_path}\"\n"
             one_image[:template] << "TYPE=\"#{image_type}\"\n"
             one_image[:template] << "PERSISTENT=\"#{opts[:persistent]}\"\n"
-            one_image[:template] << "VCENTER_IMPORTED=\"YES\"\n"
+            one_image[:template] << "VCENTER_IMPORTED=\"YES\"\n" unless CONFIG[:delete_images]
             one_image[:template] << "DEV_PREFIX=\"#{image_prefix}\"\n"
         else
             # Return the image XML if it already exists
@@ -268,10 +281,8 @@ end # class Storage
 class StoragePod < Storage
 
     def initialize(item, vi_client=nil)
-        if !item.instance_of? RbVmomi::VIM::StoragePod
-            raise "Expecting type 'RbVmomi::VIM::StoragePod'. " <<
-                  "Got '#{item.class} instead."
-        end
+
+        check_item(item, RbVmomi::VIM::StoragePod)
 
         @item = item
     end
@@ -287,11 +298,7 @@ class Datastore < Storage
     attr_accessor :one_item
 
     def initialize(item, vi_client=nil)
-        if !item.instance_of? RbVmomi::VIM::Datastore
-            raise "Expecting type 'RbVmomi::VIM::Datastore'. " <<
-                  "Got '#{item.class} instead."
-        end
-
+        check_item(item, RbVmomi::VIM::Datastore)
         @vi_client = vi_client
         @item = item
         @one_item = {}
@@ -566,9 +573,6 @@ class Datastore < Storage
         ds_id = @one_item["ID"]
 
         begin
-            # Prepare sha256 crypto generator
-            sha256        = Digest::SHA256.new
-
             # Create Search Spec
             search_params = get_search_params(ds_name)
 
@@ -581,7 +585,9 @@ class Datastore < Storage
 
                 # Remove [datastore] from file path
                 folderpath = ""
+                size = result.folderPath.size
                 if result.folderPath[-1] != "]"
+                    result.folderPath[size] = '/' if result.folderPath[-1] != '/'
                     folderpath = result.folderPath.sub(/^\[#{ds_name}\] /, "")
                 end
 
@@ -617,18 +623,15 @@ class Datastore < Storage
 
                     # Generate a crypto hash
                     # this hash is used to avoid name collisions
-                    opts = {
-                        name: image_name,
-                        key:  "#{image_name} - #{ds_name} [#{image_path}]"
-                    }
-                    import_name = images.key?(image_name) ? VCenterDriver::VIHelper.generate_name(opts, 3) : image_name
+                    key = "#{image_name}#{ds_name}#{image_path}"
+                    import_name = VCenterDriver::VIHelper.one_name(OpenNebula::ImagePool, image_name, key, ipool)
 
                     # Set template
                     one_image =  "NAME=\"#{import_name}\"\n"
                     one_image << "PATH=\"vcenter://#{image_path}\"\n"
                     one_image << "PERSISTENT=\"NO\"\n"
                     one_image << "TYPE=\"#{image_type}\"\n"
-                    one_image << "VCENTER_IMPORTED=\"YES\"\n"
+                    one_image << "VCENTER_IMPORTED=\"YES\"\n" unless CONFIG[:delete_images]
                     one_image << "DEV_PREFIX=\"#{disk_prefix}\"\n"
 
                     # Check image hasn't already been imported
@@ -664,6 +667,46 @@ class Datastore < Storage
     # This is never cached
     def self.new_from_ref(ref, vi_client)
         self.new(RbVmomi::VIM::Datastore.new(vi_client.vim, ref), vi_client)
+    end
+
+    # detach disk from vCenter vm if possible, destroy the disk on FS
+    def self.detach_and_destroy(disk, vm, disk_id, prev_ds_ref, vi_client)
+        # it's not a CDROM (CLONE=NO)
+        is_cd = !(disk["CLONE"].nil? || disk["CLONE"] == "YES")
+
+        begin
+            # Detach disk if possible (VM is reconfigured) and gather vCenter info
+            # Needed for poweroff machines too
+            ds_ref, img_path = vm.detach_disk(disk)
+
+            return if is_cd
+
+            # Disk could't be detached, use OpenNebula info
+            if !(ds_ref && img_path && !img_path.empty?)
+                img_path = vm.disk_real_path(disk, disk_id)
+                ds_ref = prev_ds_ref
+            end
+
+            # If disk was already detached we have no way to remove it
+            ds = VCenterDriver::Datastore.new_from_ref(ds_ref, vi_client)
+
+
+            search_params = ds.get_search_params(ds['name'],
+                                                File.dirname(img_path),
+                                                File.basename(img_path))
+
+            # Perform search task and return results
+            search_task = ds['browser'].SearchDatastoreSubFolders_Task(search_params)
+            search_task.wait_for_completion
+
+            ds.delete_virtual_disk(img_path)
+            img_dir = File.dirname(img_path)
+            ds.rm_directory(img_dir) if ds.dir_empty?(img_dir)
+        rescue Exception => e
+            if !e.message.start_with?('FileNotFound')
+                raise e.message # Ignore FileNotFound
+            end
+        end
     end
 end # class Datastore
 
@@ -716,9 +759,12 @@ class DsImporter < VCenterDriver::VcImporter
                 rc = object.update(one, true)
         }
 
+        opts = @info[selected[:ref]][:opts]
+
         # Datastore info comes in a pair (SYS, IMG)
         pair     = selected[:ds]
         clusters = selected[:cluster]
+        clusters = opts["selected_clusters"].each.map(&:to_i) if opts && opts["selected_clusters"]
 
         res = {id: [], name: selected[:simple_name]}
         @info[:rollback] = []
@@ -772,14 +818,14 @@ class ImageImporter < VCenterDriver::VcImporter
         dsid = selected[:dsid].to_i
         name = selected[:name]
 
-        rc = resource.allocate(info, dsid)
+        rc = resource.allocate(info, dsid, false)
         VCenterDriver::VIHelper.check_error(rc, message)
 
         resource.info
         id = resource['ID']
         @rollback << Raction.new(resource, :delete)
 
-        {id: id, name: name}
+        return {id: [id], name: name}
     end
 
 end

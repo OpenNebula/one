@@ -27,7 +27,7 @@ int RequestManagerUpdateTemplate::replace_template(
         const RequestAttributes &att,
         string &error_str)
 {
-    if (att.uid!=UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
+    if (!att.is_admin())
     {
         return object->replace_template(tmpl, true, error_str);
     }
@@ -46,7 +46,7 @@ int RequestManagerUpdateTemplate::append_template(
         const RequestAttributes &att,
         string &error_str)
 {
-    if (att.uid!=UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
+    if (!att.is_admin())
     {
         return object->append_template(tmpl, true, error_str);
     }

@@ -277,7 +277,7 @@ int DatastorePool::drop(PoolObjectSQL * objsql, string& error_msg)
 
 int DatastorePool::disk_attribute(int ds_id, VirtualMachineDisk * disk)
 {
-    Datastore * ds = get(ds_id);
+    Datastore * ds = get_ro(ds_id);
 
     if (ds == 0)
     {

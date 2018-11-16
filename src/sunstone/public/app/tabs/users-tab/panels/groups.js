@@ -108,7 +108,7 @@ define(function(require) {
     this.groupsTableEdit.selectResourceTableSelect({ids: this.groups});
     var that = this;
 
-    $("#cancel_update_group").hide(); 
+    $("#cancel_update_group").hide();
     var that = this;
     context.off("click", "#update_group");
     context.on("click", "#update_group", function() {
@@ -122,21 +122,21 @@ define(function(require) {
       });
       $(".show_labels").hide();
       $(".select_labels").show();
+      $("#submit-group").show();
     });
 
     context.off("click", "#cancel_update_group");
     context.on("click", "#cancel_update_group", function() {
       $(".select_labels").hide();
       $(".show_labels").show();
-
+      $("#submit-group").hide();
     });
-    
 
     $('#Form_change_second_grp').submit(function() {
       var selectPrimaryGrp = $("#choose_primary_grp  .resource_list_select").val();
       var selectedGroupsList = that.groupsTableEdit.retrieveResourceTableSelect();
 
-      if (selectPrimaryGrp != -1 && selectPrimaryGrp != that.element.GID) { 
+      if (selectPrimaryGrp != -1 && selectPrimaryGrp != that.element.GID) {
         Sunstone.runAction("User.chgrp", [that.element.ID], selectPrimaryGrp);
       }
 
@@ -158,6 +158,7 @@ define(function(require) {
        Sunstone.runAction('User.refresh');
       }, 1500);
 
+      return false;
     });
     return false;
   }

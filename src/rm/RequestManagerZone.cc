@@ -151,7 +151,7 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
         {
             bool updated = false;
 
-            while (!updated) 
+            while (!updated)
             {
                 Zone * zone = (static_cast<ZonePool *>(pool))->get(id);
 
@@ -257,6 +257,38 @@ void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void ZoneResetServer::request_execute(xmlrpc_c::paramList const& paramList,
+    RequestAttributes& att)
+{
+    Nebula& nd = Nebula::instance();
+
+    int id     = xmlrpc_c::value_int(paramList.getInt(1));
+    int zs_id  = xmlrpc_c::value_int(paramList.getInt(2));
+
+    string error_str;
+
+    if ( id != nd.get_zone_id() )
+    {
+        att.resp_msg = "Servers have to be deleted through the target zone"
+             " endpoints";
+        failure_response(ACTION, att);
+
+        return;
+    }
+
+    if ( basic_authorization(id, att) == false )
+    {
+        return;
+    }
+
+	nd.get_raftm()->reset_index(zs_id);
+
+    success_response(id, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
     RequestAttributes& att)
 {
@@ -281,7 +313,7 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
 
     LogDBRecord lr, prev_lr;
 
-    if ( att.uid != 0 )
+    if (!att.is_oneadmin())
     {
         att.resp_id  = current_term;
 
@@ -393,7 +425,7 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
 
     ostringstream sql_oss(sql);
 
-    if ( logdb->insert_log_record(index, term, sql_oss, 0, fed_index) != 0 )
+    if (logdb->insert_log_record(index, term, sql_oss, 0, fed_index, true) != 0)
     {
         att.resp_msg = "Error writing log record";
         att.resp_id  = current_term;
@@ -432,7 +464,7 @@ void ZoneVoteRequest::request_execute(xmlrpc_c::paramList const& paramList,
 
     logdb->get_last_record_index(log_index, log_term);
 
-    if ( att.uid != 0 )
+    if (!att.is_oneadmin())
     {
         att.resp_id  = current_term;
 
@@ -522,7 +554,7 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
     int prev   = xmlrpc_c::value_int(paramList.getInt(2));
     string sql = xmlrpc_c::value_string(paramList.getString(3));
 
-    if ( att.uid != 0 )
+    if (!att.is_oneadmin())
     {
         att.resp_id  = -1;
 

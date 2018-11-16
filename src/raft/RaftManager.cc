@@ -74,7 +74,7 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
 
         bsr << "bootstrap state";
 
-        logdb->insert_log_record(-1, -1, bsr, 0, -1);
+        logdb->insert_log_record(-1, -1, bsr, 0, -1, false);
 
         raft_state.replace("TERM", 0);
         raft_state.replace("VOTEDFOR", -1);
@@ -313,6 +313,7 @@ void RaftManager::add_server(int follower_id, const std::string& endpoint)
     }
 
     num_servers++;
+
     servers.insert(std::make_pair(follower_id, endpoint));
 
 	next.insert(std::make_pair(follower_id, log_index + 1));
@@ -546,21 +547,16 @@ void RaftManager::follower(unsigned int _term)
 
     NebulaLog::log("RCM", Log::INFO, "oned is set to follower mode");
 
-    std::map<int, ReplicaRequest *>::iterator it;
-
-    for ( it = requests.begin() ; it != requests.end() ; ++it )
-    {
-        it->second->result = false;
-        it->second->timeout= false;
-        it->second->message= "oned is now follower";
-
-        it->second->notify();
-    }
-
     next.clear();
     match.clear();
 
     requests.clear();
+
+    //Reset heartbeat when turning into follower when a higher term is found:
+    // 1. On vote request
+    // 2. On heartbeat response
+    // 3. On log replicate request
+	clock_gettime(CLOCK_REALTIME, &last_heartbeat);
 
     pthread_mutex_unlock(&mutex);
 
@@ -586,11 +582,32 @@ void RaftManager::replicate_log(ReplicaRequest * request)
     {
         request->notify();
 
+        requests.remove(request->index());
+
         pthread_mutex_unlock(&mutex);
         return;
     }
 
-    if ( num_servers <= 1 )
+    //Count servers that need to replicate this record
+    int to_commit = num_servers / 2; 
+
+    std::map<int, unsigned int>::iterator it;
+
+    for (it = next.begin(); it != next.end() && to_commit > 0; ++it)
+    {
+        int rindex = request->index();
+
+        if ( rindex < (int) it->second )
+        {
+            to_commit--;
+        }
+		 else if ( rindex == (int) it->second )
+		 {
+            replica_manager.replicate(it->first);
+        }
+    }
+
+    if ( to_commit <= 0 )
     {
         request->notify();
 
@@ -598,17 +615,14 @@ void RaftManager::replicate_log(ReplicaRequest * request)
         request->timeout = false;
 
         commit = request->index();
+
+        requests.remove(request->index());
     }
     else
     {
-        request->to_commit(num_servers / 2 );
+        request->to_commit(to_commit);
 
-        requests.insert(std::make_pair(request->index(), request));
-    }
-
-    if ( num_servers > 1 )
-    {
-        replica_manager.replicate();
+        requests.set(request->index(), request);
     }
 
     pthread_mutex_unlock(&mutex);
@@ -627,9 +641,9 @@ void RaftManager::replicate_success(int follower_id)
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
 
-	unsigned int db_last_index, db_last_term;
+	unsigned int db_lindex, db_lterm;
 
-    logdb->get_last_record_index(db_last_index, db_last_term);
+    logdb->get_last_record_index(db_lindex, db_lterm);
 
     pthread_mutex_lock(&mutex);
 
@@ -647,21 +661,13 @@ void RaftManager::replicate_success(int follower_id)
     match_it->second = replicated_index;
     next_it->second  = replicated_index + 1;
 
-    it = requests.find(replicated_index);
-
-    if ( it != requests.end() )
+    if ( requests.add_replica(replicated_index) == 0 )
     {
-        it->second->inc_replicas();
-
-        if ( it->second->to_commit() == 0 )
-        {
-            requests.erase(it);
-
-            commit = replicated_index;
-        }
+        commit = replicated_index;
     }
-
-    if ((db_last_index > replicated_index) && (state == LEADER))
+        
+    if (db_lindex > replicated_index && state == LEADER &&
+            requests.is_replicable(replicated_index + 1))
     {
         replica_manager.replicate(follower_id);
     }
@@ -781,6 +787,7 @@ void RaftManager::timer_action(const ActionRequest& ar)
 {
     static int mark_tics  = 0;
     static int purge_tics = 0;
+    ostringstream oss;
 
     mark_tics++;
     purge_tics++;
@@ -795,14 +802,25 @@ void RaftManager::timer_action(const ActionRequest& ar)
     // Database housekeeping
     if ( (purge_tics * timer_period_ms) >= purge_period_ms )
     {
+        ostringstream oss;
+
         Nebula& nd    = Nebula::instance();
         LogDB * logdb = nd.get_logdb();
 
-        NebulaLog::log("RCM", Log::INFO, "Purging obsolete LogDB records");
+        oss << "Purging obsolete LogDB records: ";
 
-        logdb->purge_log();
+        int rc = logdb->purge_log();
 
         purge_tics = 0;
+
+        if (rc > 0 && purge_period_ms > 60000) //logs removed, wakeup in 60s 
+        {
+            purge_tics = (int) ((purge_period_ms - 60000)/timer_period_ms);
+        }
+
+        oss << rc << " records purged";
+
+        NebulaLog::log("RCM", Log::INFO, oss);
     }
 
 	// Leadership
@@ -1015,10 +1033,15 @@ void RaftManager::request_vote()
 
         logdb->update_raft_state(raft_state_xml);
 
-        srand(_server_id);
+        srand(_server_id+1);
 
-        ms = rand() % 500 + election_timeout.tv_sec * 1000
+        ms = rand() % 1000 + election_timeout.tv_sec * 1000
             + election_timeout.tv_nsec / 1000000;
+
+        oss.str("");
+
+        oss << "No leader found, starting new election in " << ms << "ms"; 
+        NebulaLog::log("RCM", Log::INFO, oss);
 
         set_timeout(ms, etimeout);
 
@@ -1267,4 +1290,27 @@ std::string& RaftManager::to_xml(std::string& raft_xml)
     return raft_xml;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
+void RaftManager::reset_index(int follower_id)
+{
+    std::map<int, unsigned int>::iterator next_it;
+
+	unsigned int log_index, log_term;
+
+	LogDB * logdb = Nebula::instance().get_logdb();
+
+    logdb->get_last_record_index(log_index, log_term);
+
+    pthread_mutex_lock(&mutex);
+
+    next_it = next.find(follower_id);
+
+    if ( next_it != next.end() )
+    {
+        next_it->second = log_index + 1;
+    }
+
+    pthread_mutex_unlock(&mutex);
+}

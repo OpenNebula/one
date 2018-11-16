@@ -232,7 +232,7 @@ define(function(require) {
       var start_script = WizardFields.retrieveInput($(".START_SCRIPT", context));
       if (start_script != "") {
         if ($(".ENCODE_START_SCRIPT", context).is(":checked")) {
-          contextJSON["START_SCRIPT_BASE64"] = btoa($(".START_SCRIPT", context).val());
+          contextJSON["START_SCRIPT_BASE64"] = btoa(unescape(encodeURIComponent($(".START_SCRIPT", context).val())));
         } else {
           contextJSON["START_SCRIPT"] = start_script;
         }
@@ -341,7 +341,7 @@ define(function(require) {
 
         } else if ("START_SCRIPT_BASE64" == key) {
           $(".ENCODE_START_SCRIPT", context).prop('checked', 'checked');
-          $(".START_SCRIPT", context).val(atob(value));
+          $(".START_SCRIPT", context).val(decodeURIComponent(escape(window.atob(value))));
         } else if ("START_SCRIPT" ==  key) {
           WizardFields.fillInput($(".START_SCRIPT", context), value);
         } else {

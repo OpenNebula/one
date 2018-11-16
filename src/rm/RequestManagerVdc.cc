@@ -58,19 +58,16 @@ void VdcEditGroup::request_execute(
         return;
     }
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(AuthRequest::ADMIN, vdc_perms);         // ADMIN VDC
+    ar.add_auth(AuthRequest::ADMIN, group_perms);       // ADMIN GROUP
+
+    if (UserPool::authorize(ar) == -1)
     {
-        AuthRequest ar(att.uid, att.group_ids);
-
-        ar.add_auth(AuthRequest::ADMIN, vdc_perms);         // ADMIN VDC
-        ar.add_auth(AuthRequest::ADMIN, group_perms);       // ADMIN GROUP
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
-            return;
-        }
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
+        return;
     }
 
     vdc = static_cast<VdcPool*>(pool)->get(vdc_id);
@@ -183,28 +180,25 @@ void VdcEditResource::request_execute(
         }
     }
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(AuthRequest::ADMIN, vdc_perms);         // ADMIN VDC
+
+    if (zone_exists)
     {
-        AuthRequest ar(att.uid, att.group_ids);
+        ar.add_auth(AuthRequest::ADMIN, zone_perms);    // ADMIN ZONE
+    }
 
-        ar.add_auth(AuthRequest::ADMIN, vdc_perms);         // ADMIN VDC
+    if (res_exists)
+    {
+        ar.add_auth(AuthRequest::ADMIN, res_perms);     // ADMIN RESOURCE
+    }
 
-        if (zone_exists)
-        {
-            ar.add_auth(AuthRequest::ADMIN, zone_perms);    // ADMIN ZONE
-        }
-
-        if (res_exists)
-        {
-            ar.add_auth(AuthRequest::ADMIN, res_perms);     // ADMIN RESOURCE
-        }
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
-            return;
-        }
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
+        return;
     }
 
     vdc = static_cast<VdcPool*>(pool)->get(vdc_id);

@@ -72,8 +72,47 @@
           </xs:complexType>
         -->
         </xs:element>
-        <xs:element name="TEMPLATE" type="xs:anyType"/>
-        <xs:element name="USER_TEMPLATE" type="xs:anyType"/>
+        <xs:element name="TEMPLATE">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+              <xs:element name="DISK" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+                    <xs:element name="VCENTER_DS_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="VCENTER_INSTANCE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+              <xs:element name="NIC" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+                    <xs:element name="BRIDGE_TYPE" type="xs:string"/>
+                    <xs:element name="VCENTER_INSTANCE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="VCENTER_NET_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="VCENTER_PORTGROUP_TYPE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="USER_TEMPLATE">
+          <xs:complexType>
+             <xs:sequence>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+              <xs:element name="VCENTER_CCR_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_DS_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_INSTANCE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
         <xs:element name="HISTORY_RECORDS">
           <xs:complexType>
             <xs:sequence>
@@ -143,6 +182,7 @@
                       RECOVER_ACTION          = 42
                       RETRY_ACTION            = 43
                       MONITOR_ACTION          = 44
+                      DISK_SNAPSHOT_RENAME_ACTION = 45
                     -->
                     <xs:element name="ACTION" type="xs:integer"/>
                     <xs:element name="UID" type="xs:integer"/>

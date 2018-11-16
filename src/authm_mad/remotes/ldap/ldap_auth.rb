@@ -131,31 +131,26 @@ class OpenNebula::LdapAuth
     end
 
     def find_user(name)
-        begin
-            filter = Net::LDAP::Filter.eq(@options[:user_field], escape(name))
+        filter = Net::LDAP::Filter.equals(@options[:user_field], name)
 
-            result = @ldap.search(
-                :base       => @options[:base],
-                :attributes => @options[:attributes],
-                :filter     => filter
-            )
+        result = @ldap.search(
+            :base       => @options[:base],
+            :attributes => @options[:attributes],
+            :filter     => filter
+        )
+
+        if result && result.first
+            @user = result.first
+            [@user.dn, @user[@options[:user_group_field]]]
+        else
+            result=@ldap.search(:base => name)
 
             if result && result.first
                 @user = result.first
-                [@user.dn, @user[@options[:user_group_field]]]
+                [name, @user[@options[:user_group_field]]]
             else
-                result=@ldap.search(:base => name)
-
-                if result && result.first
-                    @user = result.first
-                    [name, @user[@options[:user_group_field]]]
-                else
-                    [nil, nil]
-                end
+                [nil, nil]
             end
-        rescue Exception => e
-            STDERR.puts e.message
-            [nil, nil]
         end
     end
 
@@ -199,7 +194,7 @@ class OpenNebula::LdapAuth
                 end
             end
         else
-            filter = "(#{@options[:group_field]}=#{@user[@options[:user_group_field]].first})"
+            filter = Net::LDAP::Filter.equals(@options[:group_field], @user[@options[:user_group_field]].first)
             @ldap.search(
                 :base       => @options[:base],
                 :attributes => [ "dn" ],
@@ -213,24 +208,5 @@ class OpenNebula::LdapAuth
 
         groups.delete(false)
         groups.compact.uniq
-    end
-
-private
-
-    # The escapes code has been copied from <net-ldap>/lib/net/ldap/filter.rb
-    FILTER_ESCAPES = {
-      "\0" => '00',
-      '*'  => '2A',
-      '('  => '28',
-      ')'  => '29',
-      '\\' => '5C',
-      '?'  => '3F',
-      '='  => '3D'
-    }
-
-    FILTER_ESCAPE_RE = Regexp.new("[" + FILTER_ESCAPES.keys.map { |e| Regexp.escape(e) }.join + "]")
-
-    def escape(string)
-      string.gsub(FILTER_ESCAPE_RE) { |char| "\\" + FILTER_ESCAPES[char] }
     end
 end

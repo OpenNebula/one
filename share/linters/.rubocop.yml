@@ -1,0 +1,204 @@
+#
+# Configuration file for rubocop linter
+# Applies to every ruby file on the OpenNebula repository
+#
+
+
+########
+# LAYOUT
+########
+
+# Check indendation
+Layout/IndentationWidth:
+    Width: 4
+
+# no space before block paramenter {|var| code }
+Layout/SpaceInsideBlockBraces:
+    SpaceBeforeBlockParameters: false
+
+# X indentation raw & method call
+Layout/IndentArray:
+    EnforcedStyle: consistent
+
+Layout/IndentHash:
+    EnforcedStyle: consistent
+###
+
+# Align the end keyword
+Layout/EndAlignment:
+    AutoCorrect: true
+
+# empty line after X declaration and before X end:
+Layout/EmptyLinesAroundClassBody:
+    EnforcedStyle: empty_lines
+
+Layout/EmptyLinesAroundModuleBody:
+    EnforcedStyle: empty_lines
+
+# it's mandatory to left a empty line before guard clause
+Layout/EmptyLineAfterGuardClause:
+    Enabled: true
+
+###
+
+#######
+# STYLE
+#######
+
+Style/StringLiterals:
+    EnforcedStyle: single_quotes
+
+Style/SignalException:
+    EnforcedStyle: only_raise
+
+Style/BracesAroundHashParameters:
+    EnforcedStyle: context_dependent
+
+Style/ConditionalAssignment:
+    EnforcedStyle: assign_inside_condition
+
+# No parentheses with no argument
+Style/DefWithParentheses:
+    Enabled: true
+
+# Simple loop does not require each
+Style/EachForSimpleLoop:
+    Enabled: false
+
+# empty elses must be omitted
+Style/EmptyElse:
+    EnforcedStyle: empty
+
+# use for instead of each
+Style/For:
+    EnforcedStyle: each
+
+# declare key, value pairs with =>
+Style/HashSyntax:
+    EnforcedStyle: hash_rockets
+
+# You can put if blocks inside if
+Style/IfInsideElse:
+    Enabled: false
+
+# one line if/unless conditions
+Style/IfUnlessModifier:
+    Enabled: false
+
+# Mandatory use of Parentheses in method calls
+Style/MethodCallWithArgsParentheses:
+    Enabled: false
+
+# Use unless in one line statement
+Style/NegatedIf:
+    EnforcedStyle: postfix
+
+# better tu use next instead of if
+Style/Next:
+    EnforcedStyle: skip_modifier_ifs
+
+# not use _ in numbers
+Style/NumericLiterals:
+    Enabled: false
+
+# optional parameters always at the end
+Style/OptionalArguments:
+    Enabled: true
+
+# return nil not allowed
+Style/ReturnNil:
+    Enabled: true
+
+# use rescue splitted in lines
+Style/RescueModifier:
+    Enabled: false
+
+Style/MutableConstant:
+    Enabled: false
+
+Style/SymbolProc:
+    Enabled: false
+
+######
+# LINT
+######
+
+# check calls to pry
+Lint/Debugger:
+    Enabled: true
+
+# check duplicate X:
+Lint/DuplicateCaseCondition:
+    Enabled: true
+
+Lint/DuplicateMethods:
+    Enabled: true
+
+Lint/DuplicatedKey:
+    Enabled: true
+##
+
+# check empty exceptions
+Lint/HandleExceptions:
+    Enabled: true
+
+# check matching parameters in format
+Lint/FormatParameterMismatch:
+    Enabled: true
+
+## else as block
+Lint/ElseLayout:
+    Enabled: true
+
+# Check for shadowed parameters inside a block
+Lint/ShadowingOuterLocalVariable:
+    Enabled: true
+
+
+#########
+# METRICS
+########
+
+Metrics/BlockLength:
+    Enabled: False
+
+# Line Length config:
+Metrics/LineLength:
+    Max: 80
+
+# Parameter list config:
+Metrics/ParameterLists:
+    Max: 5
+    CountKeywordArgs: true
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+# Block nesting is 4
+Metrics/BlockNesting:
+  Max: 5
+
+Metrics/AbcSize:
+  Enabled: false
+
+# Disable method length
+Metrics/MethodLength:
+  Enabled: false
+
+# uppercase constant mandatory
+Naming/ConstantName:
+    Enabled: true
+
+Naming/HeredocDelimiterNaming:
+    Enabled: false
+
+###
+# Bundler
+####
+
+# order alphabetically deactivated
+Bundler/OrderedGems:
+    Enabled: false

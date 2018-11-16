@@ -43,6 +43,7 @@
           </xs:complexType>
         </xs:element>
         <xs:element name="BRIDGE" type="xs:string"/>
+        <xs:element name="BRIDGE_TYPE" type="xs:string" minOccurs="0"/>
         <xs:element name="PARENT_NETWORK_ID" type="xs:string"/>
         <xs:element name="VN_MAD" type="xs:string"/>
         <xs:element name="PHYDEV" type="xs:string"/>
@@ -58,7 +59,19 @@
             </xs:sequence>
           </xs:complexType>
         </xs:element>
-        <xs:element name="TEMPLATE" type="xs:anyType"/>
+        <xs:element name="TEMPLATE">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+              <xs:element name="VCENTER_FROM_WILD" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_INSTANCE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_NET_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_PORTGROUP_TYPE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_TEMPLATE_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
         <xs:element name="AR_POOL">
           <xs:complexType>
             <xs:sequence minOccurs="0">

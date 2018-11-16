@@ -22,6 +22,8 @@
 #include <set>
 #include <vector>
 
+#include <string.h>
+
 using namespace std;
 
 /**
@@ -31,7 +33,7 @@ class Callbackable
 {
 public:
 
-    Callbackable():cb(0),arg(0)
+    Callbackable():cb(0),arg(0),affected_rows(0)
     {
         pthread_mutex_init(&mutex,0);
     };
@@ -52,7 +54,7 @@ public:
      *    @param ptr to the callback function
      *    @param arg custom arguments for the callback function
      */
-    void set_callback(Callback _cb, void * _arg = 0)
+    virtual void set_callback(Callback _cb, void * _arg = 0)
     {
         pthread_mutex_lock(&mutex);
 
@@ -64,7 +66,7 @@ public:
      *  Test if the CallBack is set for the object.
      *    @return true if the callback is set
      */
-    bool isCallBackSet()
+    virtual bool isCallBackSet()
     {
         return (cb != 0);
     };
@@ -76,6 +78,8 @@ public:
      */
     int do_callback(int num, char **values, char **names)
     {
+        ++affected_rows;
+
         return (this->*cb)(arg, num, values, names);
     };
 
@@ -90,6 +94,23 @@ public:
         pthread_mutex_unlock(&mutex);
     }
 
+     /**
+     *  set affected rows variable
+     */
+    void set_affected_rows(int num_rows)
+    {
+        affected_rows = num_rows;
+    }
+
+    /**
+     *  get affected rows variable
+     */
+    int get_affected_rows()
+    {
+        return affected_rows;
+    }
+
+
 private:
     /**
      *  SQL callback to be executed for each row result of an SQL statement
@@ -100,6 +121,11 @@ private:
      *  Custom arguments for the callback
      */
     void *   arg;
+
+    /**
+     * num of affected rows
+     */
+    int affected_rows;
 
     /**
      *  Mutex for locking the callback function.
@@ -251,6 +277,46 @@ private:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+class string_cb : public Callbackable
+{
+public:
+    string_cb(int _total):total_values(_total){};
+
+    void set_callback(std::string * _str)
+    {
+        str = _str;
+
+        Callbackable::set_callback(
+                static_cast<Callbackable::Callback>(&string_cb::callback));
+    };
+
+    int callback(void * nil, int num, char **values, char **names)
+    {
+        if ( (!values[0]) || (num != total_values) )
+        {
+            return -1;
+        }
+
+        for (int i=0; i < total_values; i++)
+        {
+            if ( values[i] != NULL )
+            {
+                str->append(values[i]);
+            }
+        }
+
+        return 0;
+    };
+
+private:
+    int total_values;
+
+    std::string * str;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 class stream_cb : public Callbackable
 {
 public:
@@ -287,6 +353,20 @@ private:
     int total_values;
 
     ostringstream * oss;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class empty_cb : public Callbackable
+{
+public:
+    void set_callback(Callback _cb, void * _arg = 0){};
+
+    bool isCallBackSet()
+    {
+        return false;
+    };
 };
 
 #endif /*CALLBACKABLE_H_*/

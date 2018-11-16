@@ -55,6 +55,23 @@ module OpenNebula
         return error_str
     end
 
+    def self.is_disk?(arg)
+        arg.match("disk\.[0-9]+$")
+    end
+
+    # Gets the host from an argument
+    def self.arg_host(arg)
+        result = arg.match("^\([^:]*\):.*$")
+
+        return result[1] if result
+    end
+
+    def self.arg_path(arg)
+        result = arg.match('^[^:]*:(.*)$')
+
+        return result[1] if result
+    end
+
     # Executes a command, if it fails returns error message and exits
     # If a second parameter is present it is used as the error message when
     # the command fails

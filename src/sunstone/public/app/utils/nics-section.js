@@ -24,6 +24,7 @@ define(function(require) {
   var TemplateDD = require('hbs!./nics-section/dd');
   var SecurityGroupsTable = require('tabs/secgroups-tab/datatable');
   var VNetsTable = require('tabs/vnets-tab/datatable');
+  var TemplateUtils = require('utils/template-utils');
 
   var provision_nic_accordion_dd_id = 0;
 
@@ -112,62 +113,83 @@ define(function(require) {
         nic = {};
       }
 
-      var val = $(this).data("vnetsTable").retrieveResourceTableSelect();
+      var that = this;
 
-      if (val == undefined || val == ""){
-        if (nic["NETWORK"] == undefined && nic["NETWORK_ID"] == undefined ){
-          // No network name or id in original NIC, and no selection done
-          return true; //continue
-        } else {
-          return nic;
+      if( $("input#"+that.id+"_network_mode", $(this)).prop("checked") ){
+        nic = {};
+        nic["NETWORK_MODE"] = "auto";
+        var req = $("input#"+that.id+"_SCHED_REQUIREMENTS", $(this)).val();
+        var rank = $("input#"+that.id+"_SCHED_RANK", $(this)).val();
+
+        if ( req && req !== "" ){
+          nic["SCHED_REQUIREMENTS"] = req;
+        }
+
+        if ( rank && rank !== "" ){
+          nic["SCHED_RANK"] = rank;
         }
       }
 
-      delete nic["NETWORK"];
-      delete nic["NETWORK_ID"];
-      delete nic["NETWORK_UNAME"];
-      delete nic["NETWORK_UID"];
-    
-      nic["NETWORK_ID"] = val;
+      if ( !nic["NETWORK_MODE"] || ( nic["NETWORK_MODE"] && nic["NETWORK_MODE"] !== "auto" ) )
+      {
 
-      delete nic["FLOATING_IP"];
-      if ($("input.floating_ip", $(this)).prop("checked")){
-        nic["FLOATING_IP"] = "YES";
-      }
+        var val = $(this).data("vnetsTable").retrieveResourceTableSelect();
 
-      var ip4 = $("input.manual_ip4", $(this)).val();
-
-      if (ip4 != undefined){
-        delete nic["IP"];
-
-        if (ip4 != ""){
-          nic["IP"] = ip4;
+        if (val == undefined || val == ""){
+          if (nic["NETWORK"] == undefined && nic["NETWORK_ID"] == undefined ){
+            // No network name or id in original NIC, and no selection done
+            return true; //continue
+          } else {
+            return nic;
+          }
         }
-      }
 
-      var ip6 = $("input.manual_ip6", $(this)).val();
+        delete nic["NETWORK"];
+        delete nic["NETWORK_ID"];
+        delete nic["NETWORK_UNAME"];
+        delete nic["NETWORK_UID"];
 
-      if (ip6 != undefined){
-        delete nic["IP6"];
+        nic["NETWORK_ID"] = val;
 
-        if (ip6 != ""){
-          nic["IP6"] = ip6;
+        delete nic["FLOATING_IP"];
+        if ($("input.floating_ip", $(this)).prop("checked")){
+          nic["FLOATING_IP"] = "YES";
         }
-      }
-      delete nic["VROUTER_MANAGEMENT"];
 
-      if ($("input.management", $(this)).prop("checked")){
-        nic["VROUTER_MANAGEMENT"] = "YES";
-      }
+        var ip4 = $("input.manual_ip4", $(this)).val();
 
-      var sgTable = $(this).data("sgTable");
+        if (ip4 != undefined){
+          delete nic["IP"];
 
-      if (sgTable){
-        delete nic["SECURITY_GROUPS"];
+          if (ip4 != ""){
+            nic["IP"] = ip4;
+          }
+        }
 
-        var secgroups = sgTable.retrieveResourceTableSelect();
-        if (secgroups != undefined && secgroups.length != 0) {
-          nic["SECURITY_GROUPS"] = secgroups.join(",");
+        var ip6 = $("input.manual_ip6", $(this)).val();
+
+        if (ip6 != undefined){
+          delete nic["IP6"];
+
+          if (ip6 != ""){
+            nic["IP6"] = ip6;
+          }
+        }
+        delete nic["VROUTER_MANAGEMENT"];
+
+        if ($("input.management", $(this)).prop("checked")){
+          nic["VROUTER_MANAGEMENT"] = "YES";
+        }
+
+        var sgTable = $(this).data("sgTable");
+
+        if (sgTable){
+          delete nic["SECURITY_GROUPS"];
+
+          var secgroups = sgTable.retrieveResourceTableSelect();
+          if (secgroups != undefined && secgroups.length != 0) {
+            nic["SECURITY_GROUPS"] = secgroups.join(",");
+          }
         }
       }
 
@@ -198,6 +220,14 @@ define(function(require) {
       options = {};
     }
 
+    var vnetsTableAuto = new VNetsTable('vnet_nics_section_auto_'+provision_nic_accordion_dd_id,
+    {
+      'select': true,
+      'selectOptions': {
+        'multiple_choice': true
+      }
+    });
+
     var vnetsTable = new VNetsTable(
       'vnet_nics_section_'+provision_nic_accordion_dd_id,
       { 'select': true });
@@ -217,14 +247,117 @@ define(function(require) {
 
     var dd_context = $(TemplateDD({
       vnetsTableHTML: vnetsTable.dataTableHTML,
+      vnetsTableAutoHTML: vnetsTableAuto.dataTableHTML,
       securityGroupsTableHTML: sgHtml,
       provision_nic_accordion_dd_id: provision_nic_accordion_dd_id,
       options: options
     })).appendTo(context);
 
+    var selectOptions = {
+      'selectOptions': {
+        'select_callback': function(aData, options) {
+            var req_string=[];
+            var selected_vnets = vnetsTableAuto.retrieveResourceTableSelect();
+
+            $.each(selected_vnets, function(index, netID) {
+              req_string.push('ID=\\"'+netID+'\\"');
+            });
+            $(".SCHED_REQUIREMENTS", dd_context).val(req_string.join(" | "));
+        },
+        'unselect_callback': function(aData, options) {
+          var req_string=[];
+          var selected_vnets = vnetsTableAuto.retrieveResourceTableSelect();
+
+          $.each(selected_vnets, function(index, netID) {
+            req_string.push('ID="'+netID+'"');
+          });
+          $(".SCHED_REQUIREMENTS", dd_context).val(req_string.join(" | "));
+        }
+      }
+    }
+
+    vnetsTableAuto.initialize(selectOptions);
+    vnetsTableAuto.refreshResourceTableSelect();
+
     $(".nic-section-entry", dd_context).data("template_nic", options.nic);
     $(".nic-section-entry", dd_context).data("vnetsTable", vnetsTable);
     $(".nic-section-entry", dd_context).data("sgTable", sgTable);
+    $(".auto", dd_context).hide();
+    $(".no_auto", dd_context).show();
+
+    if ( options.hide_auto_button && options.hide_auto_button === true ){
+      $(".only_template", dd_context).hide();
+    }
+
+    $("input#provision_accordion_dd_"+provision_nic_accordion_dd_id+"_network_mode", dd_context).on("change", function(){
+      var network_mode_on = $(this).prop("checked");
+
+      if(network_mode_on){
+        $(".no_auto", dd_context).hide();
+        $(".auto", dd_context).show();
+      } else {
+        $(".auto", dd_context).hide();
+        $(".no_auto", dd_context).show();
+      }
+    });
+
+    $("input[name='provision_accordion_dd_"+provision_nic_accordion_dd_id+"_req_select']", dd_context).on("change", function() {
+      if (this.value == "vnet_select") {
+        $(".net_select",dd_context).show();
+      } else {
+        $(".net_select",dd_context).hide();
+      }
+    });
+
+    $("input[name='provision_accordion_dd_"+provision_nic_accordion_dd_id+"_rank_select']", dd_context).on("change", function() {
+      $(".SCHED_RANK", dd_context).val(this.value);
+    });
+
+    if ( options.nic && options.nic["NETWORK_MODE"] && options.nic["NETWORK_MODE"] === "auto" ) {
+
+      $("input#provision_accordion_dd_"+provision_nic_accordion_dd_id+"_network_mode", dd_context).prop("checked", true);
+      $(".no_auto", dd_context).hide();
+      $(".auto", dd_context).show();
+
+      if ( options.nic["SCHED_REQUIREMENTS"] ) {
+        $("input#provision_accordion_dd_"+provision_nic_accordion_dd_id+"_SCHED_REQUIREMENTS", dd_context).val(options.nic["SCHED_REQUIREMENTS"]);
+      }
+
+      if ( options.nic["SCHED_RANK"] ) {
+        $("input#provision_accordion_dd_"+provision_nic_accordion_dd_id+"_SCHED_RANK", dd_context).val(options.nic["SCHED_RANK"]);
+      }
+
+      var reqJSON = options.nic['SCHED_REQUIREMENTS'];
+      if (reqJSON) {
+        var req = TemplateUtils.escapeDoubleQuotes(reqJSON);
+
+        var net_id_regexp = /(\s|\||\b)ID=\\"([0-9]+)\\"/g;
+
+        var nets = [];
+        while (match = net_id_regexp.exec(req)) {
+            nets.push(match[2])
+        }
+
+        var selectedResourcesAuto = {
+            ids : nets
+          }
+
+        vnetsTableAuto.selectResourceTableSelect(selectedResourcesAuto);
+      }
+
+      var rankJSON = options.nic["SCHED_RANK"];
+      if (rankJSON) {
+          var striping_regexp = /^-USED_LEASES$/;
+          var packing_regexp = /^USED_LEASES$/;
+
+          if (striping_regexp.test(rankJSON)) {
+              $("input[name='provision_accordion_dd_"+provision_nic_accordion_dd_id+"_rank_select']#stripingRadio", context).click();
+          }
+          else if (packing_regexp.test(rankJSON)) {
+              $("input[name='provision_accordion_dd_"+provision_nic_accordion_dd_id+"_rank_select']#packingRadio", context).click();
+          }
+      }
+    }
 
     Tips.setup(dd_context);
     Foundation.reInit(context);
@@ -293,7 +426,18 @@ define(function(require) {
    */
   function _generate_provision_network_accordion(context, options) {
     context.off();
-    context.html(TemplateSection());
+    var name = "Network";
+    if (options.name){
+      name = options.name;
+    }
+    var fieldset = true;
+    if (options.fieldset !== undefined){
+      fieldset = options.fieldset;
+    }
+    context.html(TemplateSection({
+      "name": Locale.tr(name),
+      "fieldset": fieldset
+    }));
 
     if (options.hide_add_button == true){
       $(".provision_add_network_interface", context).hide();

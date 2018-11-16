@@ -75,7 +75,8 @@ define(function(require) {
         management: true,
         securityGroups: Config.isFeatureEnabled("secgroups"),
         hide_add_button:true,
-        click_add_button:true
+        click_add_button:true,
+        hide_auto_button: true
       });
 
     $('#' + DIALOG_ID + 'Form', context).submit(function() {

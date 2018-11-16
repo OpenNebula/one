@@ -30,6 +30,8 @@ const int LibVirtDriver::GLUSTER_DEFAULT_PORT = 24007;
 
 const int LibVirtDriver::ISCSI_DEFAULT_PORT = 3260;
 
+#define set_sec_default(v, dv) if (v.empty() && !dv.empty()){v = dv;}
+
 /**
  *  This function generates the <host> element for network disks
  */
@@ -80,6 +82,75 @@ static void do_network_hosts(ofstream& file,
     }
 
     file << "\t\t\t</source>" << endl;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static int to_i(const string& sval)
+{
+    int ival;
+
+    istringstream iss(sval);
+
+    iss >> ival;
+
+    if (iss.fail() || !iss.eof())
+    {
+        return -1;
+    }
+
+    return ival;
+}
+
+static void insert_sec(ofstream& file, const string& base, const string& s,
+        const string& sm, const string& sml)
+{
+    int s_i = 0;
+
+    if (!s.empty())
+    {
+        s_i = to_i(s);
+
+        if (s_i < 0)
+        {
+            return;
+        }
+
+        file << "\t\t\t\t<" << base << "_sec>" << one_util::escape_xml(s)
+             << "</" << base << "_sec>\n";
+    }
+
+    if (!sm.empty())
+    {
+        int sm_i = to_i(sm);
+
+        if (sm_i < 0)
+        {
+            return;
+        }
+
+        if ( sm_i > s_i )
+        {
+            file << "\t\t\t\t<" << base << "_sec_max>"
+                 << one_util::escape_xml(sm)
+                 << "</" << base << "_sec_max>\n";
+
+            if (!sml.empty())
+            {
+                int sml_i = to_i(sml);
+
+                if (sml_i < 0)
+                {
+                    return;
+                }
+
+                file << "\t\t\t\t<" << base << "_sec_max_length>"
+                     << one_util::escape_xml(sml)
+                     << "</" << base << "_sec_max_length>\n";
+            }
+        }
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -142,19 +213,43 @@ int LibVirtDriver::deployment_description_kvm(
     string  gluster_host    = "";
     string  gluster_volume  = "";
 
-    string  total_bytes_sec = "";
-    string  read_bytes_sec  = "";
-    string  write_bytes_sec = "";
-    string  total_iops_sec  = "";
-    string  read_iops_sec   = "";
-    string  write_iops_sec  = "";
+    string  total_bytes_sec            = "";
+    string  total_bytes_sec_max_length = "";
+    string  total_bytes_sec_max        = "";
+    string  read_bytes_sec             = "";
+    string  read_bytes_sec_max_length  = "";
+    string  read_bytes_sec_max         = "";
+    string  write_bytes_sec            = "";
+    string  write_bytes_sec_max_length = "";
+    string  write_bytes_sec_max        = "";
+    string  total_iops_sec             = "";
+    string  total_iops_sec_max_length  = "";
+    string  total_iops_sec_max         = "";
+    string  read_iops_sec              = "";
+    string  read_iops_sec_max_length   = "";
+    string  read_iops_sec_max          = "";
+    string  write_iops_sec             = "";
+    string  write_iops_sec_max_length  = "";
+    string  write_iops_sec_max         = "";
 
-    string  default_total_bytes_sec = "";
-    string  default_read_bytes_sec  = "";
-    string  default_write_bytes_sec = "";
-    string  default_total_iops_sec  = "";
-    string  default_read_iops_sec   = "";
-    string  default_write_iops_sec  = "";
+    string  default_total_bytes_sec            = "";
+    string  default_total_bytes_sec_max_length = "";
+    string  default_total_bytes_sec_max        = "";
+    string  default_read_bytes_sec             = "";
+    string  default_read_bytes_sec_max_length  = "";
+    string  default_read_bytes_sec_max         = "";
+    string  default_write_bytes_sec            = "";
+    string  default_write_bytes_sec_max_length = "";
+    string  default_write_bytes_sec_max        = "";
+    string  default_total_iops_sec             = "";
+    string  default_total_iops_sec_max_length  = "";
+    string  default_total_iops_sec_max         = "";
+    string  default_read_iops_sec              = "";
+    string  default_read_iops_sec_max_length   = "";
+    string  default_read_iops_sec_max          = "";
+    string  default_write_iops_sec             = "";
+    string  default_write_iops_sec_max_length  = "";
+    string  default_write_iops_sec_max         = "";
 
     int     disk_id;
     int     order;
@@ -174,6 +269,8 @@ int LibVirtDriver::deployment_description_kvm(
     string  ip     = "";
     string  vrouter_ip = "";
     string  filter = "";
+    string  virtio_queues = "";
+    string  bridge_type = "";
 
     string  i_avg_bw = "";
     string  i_peak_bw = "";
@@ -404,7 +501,7 @@ int LibVirtDriver::deployment_description_kvm(
         }
         else
         {
-            cpu_mode = "host-model";
+            cpu_mode = "custom";
         }
 
         //TODO #756 cache, feature
@@ -414,9 +511,9 @@ int LibVirtDriver::deployment_description_kvm(
     {
         file << "\t<cpu mode=" << one_util::escape_xml_attr(cpu_mode) << ">\n";
 
-        if ( cpu_mode == "host-model" )
+        if ( cpu_mode == "custom" )
         {
-            file << "\t\t<model fallback='allow'>" << one_util::escape_xml(cpu_model)
+            file << "\t\t<model fallback='forbid'>" << one_util::escape_xml(cpu_model)
                  << "</model>\n";
         }
 
@@ -461,12 +558,30 @@ int LibVirtDriver::deployment_description_kvm(
 
     get_default("DISK", "IO", default_driver_disk_io);
     get_default("DISK", "DISCARD", default_driver_discard);
+
     get_default("DISK", "TOTAL_BYTES_SEC", default_total_bytes_sec);
+    get_default("DISK", "TOTAL_BYTES_SEC_MAX", default_total_bytes_sec_max);
+    get_default("DISK", "TOTAL_BYTES_SEC_MAX_LENGTH", default_total_bytes_sec_max_length);
+
     get_default("DISK", "READ_BYTES_SEC", default_read_bytes_sec);
+    get_default("DISK", "READ_BYTES_SEC_MAX", default_read_bytes_sec_max);
+    get_default("DISK", "READ_BYTES_SEC_MAX_LENGTH", default_read_bytes_sec_max_length);
+
     get_default("DISK", "WRITE_BYTES_SEC", default_write_bytes_sec);
+    get_default("DISK", "WRITE_BYTES_SEC_MAX", default_write_bytes_sec_max);
+    get_default("DISK", "WRITE_BYTES_SEC_MAX_LENGTH", default_write_bytes_sec_max_length);
+
     get_default("DISK", "TOTAL_IOPS_SEC", default_total_iops_sec);
+    get_default("DISK", "TOTAL_IOPS_SEC_MAX", default_total_iops_sec_max);
+    get_default("DISK", "TOTAL_IOPS_SEC_MAX_LENGTH", default_total_iops_sec_max_length);
+
     get_default("DISK", "READ_IOPS_SEC", default_read_iops_sec);
+    get_default("DISK", "READ_IOPS_SEC_MAX", default_read_iops_sec_max);
+    get_default("DISK", "READ_IOPS_SEC_MAX_LENGTH", default_read_iops_sec_max_length);
+
     get_default("DISK", "WRITE_IOPS_SEC", default_write_iops_sec);
+    get_default("DISK", "WRITE_IOPS_SEC_MAX", default_write_iops_sec_max);
+    get_default("DISK", "WRITE_IOPS_SEC_MAX_LENGTH", default_write_iops_sec_max_length);
 
     // ------------------------------------------------------------------------
 
@@ -474,67 +589,80 @@ int LibVirtDriver::deployment_description_kvm(
 
     for (int i=0; i < num ;i++)
     {
-        type            = disk[i]->vector_value("TYPE");
-        disk_type       = disk[i]->vector_value("DISK_TYPE");
-        target          = disk[i]->vector_value("TARGET");
-        ro              = disk[i]->vector_value("READONLY");
-        driver          = disk[i]->vector_value("DRIVER");
-        cache           = disk[i]->vector_value("CACHE");
-        disk_io         = disk[i]->vector_value("IO");
-        discard         = disk[i]->vector_value("DISCARD");
-        source          = disk[i]->vector_value("SOURCE");
-        clone           = disk[i]->vector_value("CLONE");
+        type      = disk[i]->vector_value("TYPE");
+        disk_type = disk[i]->vector_value("DISK_TYPE");
+        target    = disk[i]->vector_value("TARGET");
+        ro        = disk[i]->vector_value("READONLY");
+        driver    = disk[i]->vector_value("DRIVER");
+        cache     = disk[i]->vector_value("CACHE");
+        disk_io   = disk[i]->vector_value("IO");
+        discard   = disk[i]->vector_value("DISCARD");
+        source    = disk[i]->vector_value("SOURCE");
+        clone     = disk[i]->vector_value("CLONE");
 
-        ceph_host       = disk[i]->vector_value("CEPH_HOST");
-        ceph_secret     = disk[i]->vector_value("CEPH_SECRET");
-        ceph_user       = disk[i]->vector_value("CEPH_USER");
-        pool_name       = disk[i]->vector_value("POOL_NAME");
+        ceph_host   = disk[i]->vector_value("CEPH_HOST");
+        ceph_secret = disk[i]->vector_value("CEPH_SECRET");
+        ceph_user   = disk[i]->vector_value("CEPH_USER");
+        pool_name   = disk[i]->vector_value("POOL_NAME");
 
-        iscsi_host      = disk[i]->vector_value("ISCSI_HOST");
-        iscsi_user      = disk[i]->vector_value("ISCSI_USER");
-        iscsi_usage     = disk[i]->vector_value("ISCSI_USAGE");
-        iscsi_iqn       = disk[i]->vector_value("ISCSI_IQN");
+        iscsi_host  = disk[i]->vector_value("ISCSI_HOST");
+        iscsi_user  = disk[i]->vector_value("ISCSI_USER");
+        iscsi_usage = disk[i]->vector_value("ISCSI_USAGE");
+        iscsi_iqn   = disk[i]->vector_value("ISCSI_IQN");
 
-        gluster_host    = disk[i]->vector_value("GLUSTER_HOST");
-        gluster_volume  = disk[i]->vector_value("GLUSTER_VOLUME");
+        gluster_host   = disk[i]->vector_value("GLUSTER_HOST");
+        gluster_volume = disk[i]->vector_value("GLUSTER_VOLUME");
 
         sheepdog_host   = disk[i]->vector_value("SHEEPDOG_HOST");
         total_bytes_sec = disk[i]->vector_value("TOTAL_BYTES_SEC");
-        read_bytes_sec  = disk[i]->vector_value("READ_BYTES_SEC");
-        write_bytes_sec = disk[i]->vector_value("WRITE_BYTES_SEC");
-        total_iops_sec  = disk[i]->vector_value("TOTAL_IOPS_SEC");
-        read_iops_sec   = disk[i]->vector_value("READ_IOPS_SEC");
-        write_iops_sec  = disk[i]->vector_value("WRITE_IOPS_SEC");
 
-        if ( total_bytes_sec.empty() && !default_total_bytes_sec.empty())
-        {
-            total_bytes_sec = default_total_bytes_sec;
-        }
+        total_bytes_sec            = disk[i]->vector_value("TOTAL_BYTES_SEC");
+        total_bytes_sec_max        = disk[i]->vector_value("TOTAL_BYTES_SEC_MAX");
+        total_bytes_sec_max_length = disk[i]->vector_value("TOTAL_BYTES_SEC_MAX_LENGTH");
 
-        if ( read_bytes_sec.empty() && !default_read_bytes_sec.empty())
-        {
-            read_bytes_sec = default_read_bytes_sec;
-        }
+        read_bytes_sec             = disk[i]->vector_value("READ_BYTES_SEC");
+        read_bytes_sec_max         = disk[i]->vector_value("READ_BYTES_SEC_MAX");
+        read_bytes_sec_max_length  = disk[i]->vector_value("READ_BYTES_SEC_MAX_LENGTH");
 
-        if ( write_bytes_sec.empty() && !default_write_bytes_sec.empty())
-        {
-            write_bytes_sec = default_write_bytes_sec;
-        }
+        write_bytes_sec            = disk[i]->vector_value("WRITE_BYTES_SEC");
+        write_bytes_sec_max        = disk[i]->vector_value("WRITE_BYTES_SEC_MAX");
+        write_bytes_sec_max_length = disk[i]->vector_value("WRITE_BYTES_SEC_MAX_LENGTH");
 
-        if ( total_iops_sec.empty() && !default_total_iops_sec.empty())
-        {
-            total_iops_sec = default_total_iops_sec;
-        }
+        total_iops_sec             = disk[i]->vector_value("TOTAL_IOPS_SEC");
+        total_iops_sec_max         = disk[i]->vector_value("TOTAL_IOPS_SEC_MAX");
+        total_iops_sec_max_length  = disk[i]->vector_value("TOTAL_IOPS_SEC_MAX_LENGTH");
 
-        if ( read_iops_sec.empty() && !default_read_iops_sec.empty())
-        {
-            read_iops_sec = default_read_iops_sec;
-        }
+        read_iops_sec              = disk[i]->vector_value("READ_IOPS_SEC");
+        read_iops_sec_max          = disk[i]->vector_value("READ_IOPS_SEC_MAX");
+        read_iops_sec_max_length   = disk[i]->vector_value("READ_IOPS_SEC_MAX_LENGTH");
 
-        if ( write_iops_sec.empty() && !default_write_iops_sec.empty())
-        {
-            write_iops_sec = default_write_iops_sec;
-        }
+        write_iops_sec             = disk[i]->vector_value("WRITE_IOPS_SEC");
+        write_iops_sec_max         = disk[i]->vector_value("WRITE_IOPS_SEC_MAX");
+        write_iops_sec_max_length  = disk[i]->vector_value("WRITE_IOPS_SEC_MAX_LENGTH");
+
+        set_sec_default(read_bytes_sec, default_read_bytes_sec);
+        set_sec_default(read_bytes_sec_max, default_read_bytes_sec_max);
+        set_sec_default(read_bytes_sec_max_length, default_read_bytes_sec_max_length);
+
+        set_sec_default(write_bytes_sec, default_write_bytes_sec);
+        set_sec_default(write_bytes_sec_max, default_write_bytes_sec_max);
+        set_sec_default(write_bytes_sec_max_length, default_write_bytes_sec_max_length);
+
+        set_sec_default(total_bytes_sec, default_total_bytes_sec);
+        set_sec_default(total_bytes_sec_max, default_total_bytes_sec_max);
+        set_sec_default(total_bytes_sec_max_length, default_total_bytes_sec_max_length);
+
+        set_sec_default(read_iops_sec, default_read_iops_sec);
+        set_sec_default(read_iops_sec_max, default_read_iops_sec_max);
+        set_sec_default(read_iops_sec_max_length, default_read_iops_sec_max_length);
+
+        set_sec_default(write_iops_sec, default_write_iops_sec);
+        set_sec_default(write_iops_sec_max, default_write_iops_sec_max);
+        set_sec_default(write_iops_sec_max_length, default_write_iops_sec_max_length);
+
+        set_sec_default(total_iops_sec, default_total_iops_sec);
+        set_sec_default(total_iops_sec_max, default_total_iops_sec_max);
+        set_sec_default(total_iops_sec_max_length, default_total_iops_sec_max_length);
 
         disk[i]->vector_value_str("DISK_ID", disk_id);
 
@@ -788,54 +916,52 @@ int LibVirtDriver::deployment_description_kvm(
 
         file << "/>" << endl;
 
-        // ---- I/O Options  ----
-
-        if (!(total_bytes_sec.empty() && read_bytes_sec.empty() &&
-              write_bytes_sec.empty() && total_iops_sec.empty() &&
-              read_iops_sec.empty() && write_iops_sec.empty()))
+        // ---- I/O Options ----
+        // - total cannot be set if read or write
+        // - max_length cannot be set if no max
+        // - max has to be greater than value
+        // ---------------------
+        if (!(total_bytes_sec.empty() &&
+              total_bytes_sec_max.empty() &&
+              read_bytes_sec.empty() &&
+              read_bytes_sec_max.empty() &&
+              write_bytes_sec.empty() &&
+              write_bytes_sec_max.empty() &&
+              total_iops_sec.empty() &&
+              total_iops_sec_max.empty() &&
+              read_iops_sec.empty() &&
+              read_iops_sec_max.empty() &&
+              write_iops_sec.empty() &&
+              write_iops_sec_max.empty()))
         {
             file << "\t\t\t<iotune>" << endl;
 
-            if ( !total_bytes_sec.empty() )
+            if ( total_bytes_sec.empty() && total_bytes_sec_max.empty() )
             {
-                file << "\t\t\t\t<total_bytes_sec>"
-                     << one_util::escape_xml(total_bytes_sec)
-                     << "</total_bytes_sec>\n";
+                insert_sec(file, "read_bytes", read_bytes_sec ,
+                        read_bytes_sec_max , read_bytes_sec_max_length);
+
+                insert_sec(file, "write_bytes", write_bytes_sec ,
+                        write_bytes_sec_max , write_bytes_sec_max_length);
+            }
+            else
+            {
+                insert_sec(file, "total_bytes", total_bytes_sec ,
+                        total_bytes_sec_max , total_bytes_sec_max_length);
             }
 
-            if ( !read_bytes_sec.empty() )
+            if ( total_iops_sec.empty() && total_iops_sec_max.empty() )
             {
-                file << "\t\t\t\t<read_bytes_sec>"
-                     << one_util::escape_xml(read_bytes_sec)
-                     << "</read_bytes_sec>\n";
-            }
+                insert_sec(file, "read_iops", read_iops_sec ,
+                        read_iops_sec_max , read_iops_sec_max_length);
 
-            if ( !write_bytes_sec.empty() )
-            {
-                file << "\t\t\t\t<write_bytes_sec>"
-                     << one_util::escape_xml(write_bytes_sec)
-                     << "</write_bytes_sec>\n";
+                insert_sec(file, "write_iops", write_iops_sec ,
+                        write_iops_sec_max , write_iops_sec_max_length);
             }
-
-            if ( !total_iops_sec.empty() )
+            else
             {
-                file << "\t\t\t\t<total_iops_sec>"
-                     << one_util::escape_xml(total_iops_sec)
-                     << "</total_iops_sec>\n";
-            }
-
-            if ( !read_iops_sec.empty() )
-            {
-                file << "\t\t\t\t<read_iops_sec>"
-                     << one_util::escape_xml(read_iops_sec)
-                     << "</read_iops_sec>\n";
-            }
-
-            if ( !write_iops_sec.empty() )
-            {
-                file << "\t\t\t\t<write_iops_sec>"
-                     << one_util::escape_xml(write_iops_sec)
-                     << "</write_iops_sec>\n";
+                insert_sec(file, "total_iops", total_iops_sec ,
+                        total_iops_sec_max , total_iops_sec_max_length);
             }
 
             file << "\t\t\t</iotune>" << endl;
@@ -902,14 +1028,16 @@ int LibVirtDriver::deployment_description_kvm(
 
     for(int i=0; i<num; i++)
     {
-        bridge = nic[i]->vector_value("BRIDGE");
-        vn_mad = nic[i]->vector_value("VN_MAD");
-        mac    = nic[i]->vector_value("MAC");
-        target = nic[i]->vector_value("TARGET");
-        script = nic[i]->vector_value("SCRIPT");
-        model  = nic[i]->vector_value("MODEL");
-        ip     = nic[i]->vector_value("IP");
-        filter = nic[i]->vector_value("FILTER");
+        bridge        = nic[i]->vector_value("BRIDGE");
+        vn_mad        = nic[i]->vector_value("VN_MAD");
+        mac           = nic[i]->vector_value("MAC");
+        target        = nic[i]->vector_value("TARGET");
+        script        = nic[i]->vector_value("SCRIPT");
+        model         = nic[i]->vector_value("MODEL");
+        ip            = nic[i]->vector_value("IP");
+        filter        = nic[i]->vector_value("FILTER");
+        virtio_queues = nic[i]->vector_value("VIRTIO_QUEUES");
+        bridge_type   = nic[i]->vector_value("BRDIGE_TYPE");
 
         vrouter_ip = nic[i]->vector_value("VROUTER_IP");
 
@@ -929,8 +1057,7 @@ int LibVirtDriver::deployment_description_kvm(
         {
             file << "\t\t<interface type='bridge'>" << endl;
 
-            if (VirtualNetwork::str_to_driver(vn_mad) == VirtualNetwork::OVSWITCH ||
-                VirtualNetwork::str_to_driver(vn_mad) == VirtualNetwork::OVSWITCH_VXLAN)
+            if (VirtualNetwork::str_to_bridge_type(bridge_type) == VirtualNetwork::OPENVSWITCH)
             {
                 file << "\t\t\t<virtualport type='openvswitch'/>" << endl;
             }
@@ -978,6 +1105,13 @@ int LibVirtDriver::deployment_description_kvm(
         {
             file << "\t\t\t<model type="
                  << one_util::escape_xml_attr(*the_model) << "/>\n";
+
+            if(!virtio_queues.empty() && *the_model == "virtio")
+            {
+                file << "\t\t\t<driver name='vhost' queues="
+                     << one_util::escape_xml_attr(virtio_queues)
+                     << "/>\n";
+            }
         }
 
         if (!ip.empty() )

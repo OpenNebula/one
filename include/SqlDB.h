@@ -61,7 +61,12 @@ public:
         return exec(cmd, 0, false);
     }
 
-    /**
+    virtual int exec_wr(ostringstream& cmd, Callbackable* obj)
+    {
+        return exec(cmd, obj, false);
+    }
+
+   /**
      *  This function returns a legal SQL string that can be used in an SQL
      *  statement.
      *    @param str the string to be escaped
@@ -82,6 +87,14 @@ public:
      * @return true if supported
      */
     virtual bool multiple_values_support() = 0;
+
+    /**
+     * Returns true if this Database can use LIMIT in queries with DELETE
+     *  and UPDATE
+     *
+     * @return true if supported
+     */
+    virtual bool limit_support() = 0;
 
 protected:
     /**

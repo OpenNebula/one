@@ -81,76 +81,73 @@ Request::ErrorCode RequestManagerChmod::chmod(
 {
     PoolObjectSQL * object;
 
-    if ( att.uid != 0 && att.gid != 0)
+    AuthRequest::Operation op = AuthRequest::MANAGE;
+    PoolObjectAuth  perms;
+
+    object = pool->get(oid);
+
+    if ( object == 0 )
     {
-        AuthRequest::Operation op = AuthRequest::MANAGE;
-        PoolObjectAuth  perms;
+        att.resp_id = oid;
+        return NO_EXISTS;
+    }
 
-        object = pool->get(oid);
+    object->get_permissions(perms);
 
-        if ( object == 0 )
+    object->unlock();
+
+    if ( owner_a == perms.owner_a )
+    {
+        owner_a = -1;
+    }
+
+    if ( group_a == perms.group_a )
+    {
+        group_a = -1;
+    }
+
+    if ( other_u == perms.other_u )
+    {
+        other_u = -1;
+    }
+
+    if ( other_m == perms.other_m )
+    {
+        other_m = -1;
+    }
+
+    if ( other_a == perms.other_a )
+    {
+        other_a = -1;
+    }
+
+    if ( owner_a != -1 || group_a != -1 || other_a != -1 )
+    {
+        op = AuthRequest::ADMIN;
+    }
+
+    if ( other_u != -1 || other_m != -1 || other_a != -1 )
+    {
+        bool enable_other;
+
+        Nebula::instance().get_configuration_attribute(
+                "ENABLE_OTHER_PERMISSIONS", enable_other);
+
+        if ( !enable_other )
         {
-            att.resp_id = oid;
-            return NO_EXISTS;
-        }
-
-        object->get_permissions(perms);
-
-        object->unlock();
-
-        if ( owner_a == perms.owner_a )
-        {
-            owner_a = -1;
-        }
-
-        if ( group_a == perms.group_a )
-        {
-            group_a = -1;
-        }
-
-        if ( other_u == perms.other_u )
-        {
-            other_u = -1;
-        }
-
-        if ( other_m == perms.other_m )
-        {
-            other_m = -1;
-        }
-
-        if ( other_a == perms.other_a )
-        {
-            other_a = -1;
-        }
-
-        if ( owner_a != -1 || group_a != -1 || other_a != -1 )
-        {
-            op = AuthRequest::ADMIN;
-        }
-
-        if ( other_u != -1 || other_m != -1 || other_a != -1 )
-        {
-            bool enable_other;
-
-            Nebula::instance().get_configuration_attribute(
-                    "ENABLE_OTHER_PERMISSIONS", enable_other);
-
-            if ( !enable_other )
-            {
-                att.resp_msg = "'other' permissions is disabled in oned.conf";
-                return AUTHORIZATION;
-            }
-        }
-
-        AuthRequest ar(att.uid, att.group_ids);
-
-        ar.add_auth(op, perms);
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
+            att.resp_msg = "'other' permissions is disabled in oned.conf";
             return AUTHORIZATION;
         }
+    }
+
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(op, perms);
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+        return AUTHORIZATION;
     }
 
     // ------------- Update the object ---------------------
@@ -213,7 +210,7 @@ Request::ErrorCode TemplateChmod::chmod(
 		return SUCCESS;
     }
 
-	VMTemplate* tmpl = static_cast<VMTemplatePool*>(pool)->get(oid);
+	VMTemplate* tmpl = static_cast<VMTemplatePool*>(pool)->get_ro(oid);
 
 	vector<VectorAttribute *> vdisks;
 	vector<VectorAttribute *>::iterator i;
@@ -265,5 +262,87 @@ Request::ErrorCode TemplateChmod::chmod(
 	}
 
 	return SUCCESS;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualRouterChmod::request_execute(xmlrpc_c::paramList const& paramList,
+                                          RequestAttributes& att)
+{
+    int oid     = xmlrpc_c::value_int(paramList.getInt(1));
+
+    int owner_u = xmlrpc_c::value_int(paramList.getInt(2));
+    int owner_m = xmlrpc_c::value_int(paramList.getInt(3));
+    int owner_a = xmlrpc_c::value_int(paramList.getInt(4));
+
+    int group_u = xmlrpc_c::value_int(paramList.getInt(5));
+    int group_m = xmlrpc_c::value_int(paramList.getInt(6));
+    int group_a = xmlrpc_c::value_int(paramList.getInt(7));
+
+    int other_u = xmlrpc_c::value_int(paramList.getInt(8));
+    int other_m = xmlrpc_c::value_int(paramList.getInt(9));
+    int other_a = xmlrpc_c::value_int(paramList.getInt(10));
+
+    bool recursive = false;
+
+    VirtualRouter * vrouter;
+
+    set<int>::const_iterator  it;
+    set<int> vms;
+
+    if (paramList.size() > 11)
+    {
+        recursive = xmlrpc_c::value_boolean(paramList.getBoolean(11));
+    }
+
+    vrouter = vrpool->get_ro(oid);
+
+    if ( vrouter == 0 )
+    {
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
+    }
+
+    vms = vrouter->get_vms();
+
+    vrouter->unlock();
+
+    ErrorCode ec = chmod(vrpool, oid,
+                        owner_u, owner_m, owner_a,
+                        group_u, group_m, group_a,
+                        other_u, other_m, other_a,
+                        recursive, att);
+
+    if ( ec != SUCCESS )
+    {
+        failure_response(ec, att);
+        return;
+    }
+
+    for (it = vms.begin(); it != vms.end(); it++)
+    {
+        int vm_id = *it;
+
+        ErrorCode ec_aux = chmod(pool, vm_id,
+                        owner_u, owner_m, owner_a,
+                        group_u, group_m, group_a,
+                        other_u, other_m, other_a,
+                        recursive, att);
+
+        if ( ec_aux != SUCCESS )
+        {
+            ec = ec_aux;
+        }
+    }
+
+    if ( ec == SUCCESS )
+    {
+        success_response(oid, att);
+    }
+    else
+    {
+        failure_response(ec, att);
+    }
 }
 

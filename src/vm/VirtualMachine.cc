@@ -31,6 +31,7 @@
 #include "NebulaLog.h"
 #include "NebulaUtil.h"
 #include "Snapshots.h"
+#include "ScheduledAction.h"
 
 #include "Nebula.h"
 
@@ -456,12 +457,12 @@ const char * VirtualMachine::table = "vm_pool";
 
 const char * VirtualMachine::db_names =
     "oid, name, body, uid, gid, last_poll, state, lcm_state, "
-    "owner_u, group_u, other_u";
+    "owner_u, group_u, other_u, short_body";
 
 const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
     "vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
     "gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, "
-    "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
+    "owner_u INTEGER, group_u INTEGER, other_u INTEGER, short_body MEDIUMTEXT)";
 
 
 const char * VirtualMachine::monit_table = "vm_monitoring";
@@ -762,6 +763,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     long int ivalue;
     float fvalue;
     set<int> cluster_ids;
+    set<int> datastore_ids;
     vector<Template *> quotas;
 
     ostringstream oss;
@@ -1000,7 +1002,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // Parse the context & requirements
     // -------------------------------------------------------------------------
 
-    rc = parse_context(error_str);
+    rc = parse_context(error_str, false); //Don't generate context for auto NICs
 
     if ( rc != 0 )
     {
@@ -1014,7 +1016,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         goto error_requirements;
     }
 
-    rc = automatic_requirements(cluster_ids, error_str);
+    rc = automatic_requirements(cluster_ids, datastore_ids, error_str);
 
     if ( rc != 0 )
     {
@@ -1057,6 +1059,14 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     }
 
     // ------------------------------------------------------------------------
+    // Parse VM actions
+    // ------------------------------------------------------------------------
+    if ( parse_sched_action(error_str) == -1 )
+    {
+        goto error_rollback;
+    }
+
+    // ------------------------------------------------------------------------
 
     parse_well_known_attributes();
 
@@ -1069,6 +1079,15 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     if ( rc != 0 )
     {
         goto error_update;
+    }
+
+    //-------------------------------------------------------------------------
+    //Check for missing unlock callbacks during creation
+    //-------------------------------------------------------------------------
+
+    if ( state == VirtualMachine::CLONING )
+    {
+        Nebula::instance().get_lcm()->trigger(LCMAction::DISK_LOCK_SUCCESS,oid);
     }
 
     return 0;
@@ -1089,7 +1108,7 @@ error_graphics:
     goto error_rollback;
 
 error_rollback:
-    release_disk_images(quotas);
+    release_disk_images(quotas, true);
 
 error_leases_rollback:
     release_network_leases();
@@ -1139,6 +1158,39 @@ error_common:
 /* ------------------------------------------------------------------------ */
 
 /**
+ * @return -1 for incompatible datastore IDs, -2 for missing datastore IDs
+ */
+static int check_and_set_datastores_id(const set<int> &csystem_ds, 
+        set<int> &ds_ids)
+{
+    if ( csystem_ds.empty() )
+    {
+        return -2;
+    }
+
+    if ( ds_ids.empty() )
+    {
+        ds_ids = csystem_ds;
+
+        return 0;
+    }
+
+    set<int> intersection = one_util::set_intersection(ds_ids, csystem_ds);
+
+    if (intersection.empty())
+    {
+        return -1;
+    }
+
+    ds_ids = intersection;
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+
+
+/**
  * @return -1 for incompatible cluster IDs, -2 for missing cluster IDs
  */
 static int check_and_set_cluster_id(
@@ -1170,7 +1222,8 @@ static int check_and_set_cluster_id(
         return 0;
     }
 
-    set<int> intersection = one_util::set_intersection(cluster_ids, vatt_cluster_ids);
+    set<int> intersection = one_util::set_intersection(cluster_ids,
+            vatt_cluster_ids);
 
     if (intersection.empty())
     {
@@ -1423,10 +1476,76 @@ error_common:
 }
 
 /* ------------------------------------------------------------------------ */
+
+/**
+ * Returns the list of Datastore IDs where the VM can be deployed, based
+ * on the images and his image datastores
+ *
+ * @param tmpl of the VirtualMachine
+ * @param datastore_ids set of Cluster IDs
+ * @param error_str Returns the error reason, if any
+ * @return 0 on success
+ */
+static int get_datastore_requirements(Template *tmpl, set<int>& ds_ids, 
+        string& error_str)
+{
+    ostringstream oss;
+
+    vector<VectorAttribute*> vatts;
+    set<int> csystem_ds;
+
+    DatastorePool * ds_pool = Nebula::instance().get_dspool();
+
+    int incomp_id;
+
+    // Get cluster id from all DISK vector attributes (IMAGE Datastore)
+    int num_vatts = tmpl->get("DISK",vatts);
+
+    for(int i=0; i<num_vatts; i++)
+    {
+        int val;
+
+        if (vatts[i]->vector_value("DATASTORE_ID", val) != 0)
+        {
+            continue;
+        }
+
+        Datastore * ds = ds_pool->get(val);
+
+        if ( ds != 0)
+        {
+            ds->get_compatible_system_ds(csystem_ds);
+
+            ds->unlock();
+
+            int rc = check_and_set_datastores_id(csystem_ds, ds_ids);
+
+            if ( rc != 0 )
+            {
+                incomp_id = i;
+                goto error_disk;
+            }
+        }
+    }
+
+    return 0;
+
+error_disk:
+    oss << "Incompatible system datastore in DISK. Images Datastore for DISK "
+        << incomp_id
+        << " has not the same complatible system datastore"
+        << "(system datastores " << one_util::join(ds_ids, ',') << ")";
+
+    error_str = oss.str();
+
+    return -1;
+}
+
+/* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
 int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
-    string& error_str)
+        set<int>& datastore_ids, string& error_str)
 {
     string tm_mad_system;
     ostringstream   oss;
@@ -1434,6 +1553,7 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
 
     obj_template->erase("AUTOMATIC_REQUIREMENTS");
     obj_template->erase("AUTOMATIC_DS_REQUIREMENTS");
+    obj_template->erase("AUTOMATIC_NIC_REQUIREMENTS");
 
     int rc = get_cluster_requirements(obj_template, cluster_ids, error_str);
 
@@ -1441,6 +1561,8 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
     {
         return -1;
     }
+
+    rc = get_datastore_requirements(obj_template, datastore_ids, error_str);
 
     if ( !cluster_ids.empty() )
     {
@@ -1489,18 +1611,42 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
 
     // Set automatic System DS requirements
 
-    if ( !cluster_ids.empty() )
+    if ( !cluster_ids.empty() || !datastore_ids.empty() )
     {
-        set<int>::iterator i = cluster_ids.begin();
-
-        oss << "(\"CLUSTERS/ID\" @> " << *i;
-
-        for (++i; i != cluster_ids.end(); i++)
+        if ( !cluster_ids.empty() )
         {
-            oss << " | \"CLUSTERS/ID\" @> " << *i;
+            set<int>::iterator i = cluster_ids.begin();
+
+            oss << "(\"CLUSTERS/ID\" @> " << *i;
+
+            for (++i; i != cluster_ids.end(); i++)
+            {
+                oss << " | \"CLUSTERS/ID\" @> " << *i;
+            }
+
+            oss << ")";
+
+            obj_template->add("AUTOMATIC_NIC_REQUIREMENTS", oss.str());
+
+            if ( !datastore_ids.empty() )
+            {
+                oss << " & ";
+            }
         }
 
-        oss << ")";
+        if ( !datastore_ids.empty() )
+        {
+            set<int>::iterator i = datastore_ids.begin();
+
+            oss << "(\"ID\" @> " << *i;
+
+            for (++i; i != datastore_ids.end(); i++)
+            {
+                oss << " | \"ID\" @> " << *i;
+            }
+
+            oss << ")";
+        }
 
         obj_template->add("AUTOMATIC_DS_REQUIREMENTS", oss.str());
     }
@@ -1516,9 +1662,10 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
     ostringstream   oss;
     int             rc;
 
-    string xml_body;
+    string xml_body, short_xml_body;
     char * sql_name;
     char * sql_xml;
+    char * sql_short_xml;
 
     sql_name =  db->escape_str(name.c_str());
 
@@ -1537,6 +1684,18 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
     if ( validate_xml(sql_xml) != 0 )
     {
         goto error_xml;
+    }
+
+    sql_short_xml = db->escape_str(to_xml_short(short_xml_body).c_str());
+
+    if ( sql_short_xml == 0 )
+    {
+        goto error_body_short;
+    }
+
+    if ( validate_xml(sql_short_xml) != 0 )
+    {
+        goto error_xml_short;
     }
 
     if(replace)
@@ -1559,15 +1718,20 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          lcm_state       << ","
         <<          owner_u         << ","
         <<          group_u         << ","
-        <<          other_u         << ")";
+        <<          other_u         << ","
+        << "'" <<   sql_short_xml   << "'"
+        << ")";
 
     db->free_str(sql_name);
     db->free_str(sql_xml);
+    db->free_str(sql_short_xml);
 
     rc = db->exec_wr(oss);
 
     return rc;
 
+error_xml_short:
+    db->free_str(sql_short_xml);
 error_xml:
     db->free_str(sql_name);
     db->free_str(sql_xml);
@@ -1576,6 +1740,8 @@ error_xml:
 
     goto error_common;
 
+error_body_short:
+    db->free_str(sql_xml);
 error_body:
     db->free_str(sql_name);
     goto error_generic;
@@ -1937,14 +2103,15 @@ bool VirtualMachine::is_vrouter()
 
 void VirtualMachine::set_auth_request(int uid,
                                       AuthRequest& ar,
-                                      VirtualMachineTemplate *tmpl)
+                                      VirtualMachineTemplate *tmpl,
+                                      bool check_lock)
 {
     VirtualMachineDisks::disk_iterator disk;
     VirtualMachineDisks tdisks(tmpl, false);
 
     for( disk = tdisks.begin(); disk != tdisks.end(); ++disk)
     {
-        (*disk)->authorize(uid, &ar);
+        (*disk)->authorize(uid, &ar, check_lock);
     }
 
     VirtualMachineNics::nic_iterator nic;
@@ -1952,7 +2119,7 @@ void VirtualMachine::set_auth_request(int uid,
 
     for( nic = tnics.begin(); nic != tnics.end(); ++nic)
     {
-        (*nic)->authorize(uid, &ar);
+        (*nic)->authorize(uid, &ar, check_lock);
     }
 
     const VectorAttribute * vmgroup = tmpl->get("VMGROUP");
@@ -2036,6 +2203,103 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
         {
             oss << snapshots->to_xml(snap_xml);
         }
+    }
+
+    oss << "</VM>";
+
+    xml = oss.str();
+
+    return xml;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& VirtualMachine::to_xml_short(string& xml)
+{
+    string disks_xml, monitoring_xml, user_template_xml, history_xml, nics_xml;
+    ostringstream   oss;
+    string cpu_tmpl, mem_tmpl, auto_reqs, auto_ds_reqs, auto_nic_reqs;
+
+    obj_template->get("CPU", cpu_tmpl);
+    obj_template->get("MEMORY", mem_tmpl);
+    obj_template->get("AUTOMATIC_REQUIREMENTS", auto_reqs);
+    obj_template->get("AUTOMATIC_DS_REQUIREMENTS", auto_ds_reqs);
+    obj_template->get("AUTOMATIC_NIC_REQUIREMENTS", auto_nic_reqs);
+
+    oss << "<VM>"
+        << "<ID>"        << oid       << "</ID>"
+        << "<UID>"       << uid       << "</UID>"
+        << "<GID>"       << gid       << "</GID>"
+        << "<UNAME>"     << uname     << "</UNAME>"
+        << "<GNAME>"     << gname     << "</GNAME>"
+        << "<NAME>"      << name      << "</NAME>"
+        << "<LAST_POLL>" << last_poll << "</LAST_POLL>"
+        << "<STATE>"     << state     << "</STATE>"
+        << "<LCM_STATE>" << lcm_state << "</LCM_STATE>"
+        << "<RESCHED>"   << resched   << "</RESCHED>"
+        << "<STIME>"     << stime     << "</STIME>"
+        << "<ETIME>"     << etime     << "</ETIME>"
+        << "<DEPLOY_ID>" << deploy_id << "</DEPLOY_ID>";
+
+    oss << "<TEMPLATE>"
+        << "<CPU>"       << cpu_tmpl  << "</CPU>"
+        << "<MEMORY>"    << mem_tmpl  << "</MEMORY>"
+        << disks.to_xml_short(disks_xml)
+        << nics.to_xml_short(nics_xml);
+
+    VectorAttribute * graph = obj_template->get("GRAPHICS");
+
+    if ( graph != 0 )
+    {
+        graph->to_xml(oss);
+    }
+
+    if (!auto_reqs.empty())
+    {
+        oss << "<AUTOMATIC_REQUIREMENTS>";
+        oss << one_util::escape_xml(auto_reqs);
+        oss << "</AUTOMATIC_REQUIREMENTS>";
+    }
+
+    if (!auto_ds_reqs.empty())
+    {
+        oss << "<AUTOMATIC_DS_REQUIREMENTS>";
+        oss << one_util::escape_xml(auto_ds_reqs);
+        oss << "</AUTOMATIC_DS_REQUIREMENTS>";
+    }
+
+    if (!auto_nic_reqs.empty())
+    {
+        oss << "<AUTOMATIC_NIC_REQUIREMENTS>";
+        oss << one_util::escape_xml(auto_nic_reqs);
+        oss << "</AUTOMATIC_NIC_REQUIREMENTS>";
+    }
+
+    oss << "</TEMPLATE>"
+        << monitoring.to_xml_short(monitoring_xml)
+        << user_obj_template->to_xml_short(user_template_xml);
+
+    if ( hasHistory() )
+    {
+        oss << "<HISTORY_RECORDS>";
+        oss << history_records[history_records.size() - 1]->to_xml_short(history_xml);
+        oss << "</HISTORY_RECORDS>";
+    }
+    else
+    {
+        oss << "<HISTORY_RECORDS/>";
+    }
+
+    std::vector<VectorAttribute *> vm_groups;
+
+    if (obj_template->get("VMGROUP", vm_groups) > 0)
+    {
+        for (std::vector<VectorAttribute *>::iterator it = vm_groups.begin();
+				it != vm_groups.end() ; it++)
+		{
+			(*it)->to_xml(oss);
+		}
     }
 
     oss << "</VM>";
@@ -2284,6 +2548,22 @@ int VirtualMachine::replace_template(
         return -1;
     }
 
+    /* ---------------------------------------------------------------------- */
+    /*  Parse attributes in USER_TEMPLATE:                                    */
+    /*  - SCHED_ACTION                                                        */
+    /* ---------------------------------------------------------------------- */
+    SchedActions sactions(new_tmpl);
+
+    if ( sactions.parse(error, false) == -1 )
+    {
+        delete new_tmpl;
+        return -1;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Replace new_tmpl to the current user_template                          */
+    /* ---------------------------------------------------------------------- */
+
     if (user_obj_template != 0)
     {
         if (keep_restricted && new_tmpl->check_restricted(ra, user_obj_template))
@@ -2333,6 +2613,21 @@ int VirtualMachine::append_template(
         return -1;
     }
 
+    /* ---------------------------------------------------------------------- */
+    /*  Parse attributes in USER_TEMPLATE:                                    */
+    /*  - SCHED_ACTION                                                        */
+    /* ---------------------------------------------------------------------- */
+    SchedActions sactions(new_tmpl);
+
+    if ( sactions.parse(error, false) == -1 )
+    {
+        delete new_tmpl;
+        return -1;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Append new_tmpl to the current user_template                           */
+    /* ---------------------------------------------------------------------- */
     if (user_obj_template != 0)
     {
         if (keep_restricted && new_tmpl->check_restricted(rname, user_obj_template))
@@ -2613,7 +2908,8 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     }
     else if ( context_bck != 0 && context_new != 0 )
     {
-        string files_ds = context_bck->vector_value("FILES_DS");
+        string files_ds     = context_bck->vector_value("FILES_DS");
+        string files_ds_new = context_new->vector_value("FILES_DS");
 
         context_new = context_new->clone();
         context_new->remove("FILES_DS");
@@ -2624,7 +2920,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
         obj_template->remove(context_bck);
         obj_template->set(context_new);
 
-        if ( parse_context(err) != 0 )
+        if ( parse_context(err, true) != 0 )
         {
             obj_template->erase("CONTEXT");
             obj_template->set(context_bck);
@@ -2632,7 +2928,9 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
             return -1;
         }
 
-        if ( !files_ds.empty() )
+        context_new = obj_template->get("CONTEXT");
+
+        if ( !files_ds.empty() && !files_ds_new.empty())
         {
             context_new->replace("FILES_DS", files_ds);
         }
@@ -2756,11 +3054,21 @@ int VirtualMachine::get_disk_images(string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::release_disk_images(vector<Template *>& quotas)
+void VirtualMachine::release_disk_images(vector<Template *>& quotas, 
+        bool set_state)
 {
-    bool image_error = (state == ACTIVE && lcm_state != EPILOG) &&
-                        state != PENDING && state != HOLD &&
-                        state != CLONING && state != CLONING_FAILURE;
+    bool image_error;
+
+    if ( set_state )
+    {
+        image_error = (state == ACTIVE && lcm_state != EPILOG) &&
+                       state != PENDING && state != HOLD &&
+                       state != CLONING && state != CLONING_FAILURE;
+    }
+    else
+    {
+        image_error = false;
+    }
 
     disks.release_images(oid, image_error, quotas);
 }
@@ -2875,9 +3183,82 @@ int VirtualMachine::clear_saveas_state()
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-/* VirtualMachine Nic interface                                                */
+/* VirtualMachine Nic interface                                               */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int VirtualMachine::get_auto_network_leases(VirtualMachineTemplate * tmpl, 
+        string& estr)
+{
+    vector<VectorAttribute *> vnics;
+    vector<VectorAttribute*>::iterator it;
+
+    int nic_id;
+
+    /* ---------------------------------------------------------------------- */
+    /* Update auto NICs with the scheduling resulti                           */
+    /* ---------------------------------------------------------------------- */
+    tmpl->get("NIC", vnics);
+
+    for (it = vnics.begin(); it != vnics.end(); ++it)
+    {
+        std::string net_mode;
+
+        (*it)->vector_value("NIC_ID", nic_id);
+
+        VirtualMachineNic * nic = get_nic(nic_id);
+
+        net_mode = nic->vector_value("NETWORK_MODE");
+        one_util::toupper(net_mode);
+
+        string network_id = nic->vector_value("NETWORK_ID");
+
+        if (nic == 0 || net_mode != "AUTO" || !network_id.empty())
+        {
+            std::ostringstream oss;
+
+            oss << "NIC_ID "<< nic_id << " not found or not AUTO";
+            estr = oss.str();
+
+            return -1;
+        }
+
+        nic->replace("NETWORK_ID", (*it)->vector_value("NETWORK_ID"));
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Get the network leases & security groups for NICs in auto mode         */
+    /* ---------------------------------------------------------------------- */
+    vector<VectorAttribute*> sgs;
+
+    vector<Attribute *> anics;
+
+    VectorAttribute * nic_default = obj_template->get("NIC_DEFAULT");
+
+    if (nics.get_auto_network_leases(oid, uid, nic_default, sgs, estr) == -1)
+    {
+        return -1;
+    }
+
+    obj_template->set(sgs);
+
+    /* ---------------------------------------------------------------------- */
+    /* Generate the CONTEXT for NICs in auto mode                             */
+    /* ---------------------------------------------------------------------- */
+    VectorAttribute * context = obj_template->get("CONTEXT");
+
+    if ( context == 0 )
+    {
+        return 0;
+    }
+
+    if ( generate_network_context(context, estr, true) != 0 )
+    {
+        return -1;
+    }
+
+    return 0;
+}
 
 int VirtualMachine::get_network_leases(string& estr)
 {
@@ -2886,7 +3267,7 @@ int VirtualMachine::get_network_leases(string& estr)
     /*   * NIC                                                                */
     /*   * PCI + TYPE = NIC                                                   */
     /* ---------------------------------------------------------------------- */
-    vector<Attribute  * > anics;
+    vector<Attribute *> anics;
 
     user_obj_template->remove("NIC", anics);
 
@@ -3076,4 +3457,40 @@ void VirtualMachine::release_vmgroup()
 
     vmgrouppool->del_vm(thegroup, get_oid());
 }
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int VirtualMachine::parse_sched_action(string& error_str)
+{
+    SchedActions sactions(user_obj_template);
+
+    return sactions.parse(error_str, false);
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int VirtualMachine::check_tm_mad_disks(const string& tm_mad, string& error)
+{
+    string tm_mad_sys;
+    
+    obj_template->get("TM_MAD_SYSTEM", tm_mad_sys);
+
+    if ( !tm_mad_sys.empty() ) // VM has TM_MAD_SYSTEM already defined
+    {
+        return 0;
+    }
+    if ( disks.check_tm_mad(tm_mad, error) != 0 )
+    {
+        return -1;
+    }
+
+    obj_template->add("TM_MAD_SYSTEM", tm_mad);
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 

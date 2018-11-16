@@ -72,6 +72,17 @@ public:
         return static_cast<SecurityGroup *>(PoolSQL::get(oid));
     };
 
+    /**
+     *  Function to get a read only SecurityGroup from the pool, if the object is not in memory
+     *  it is loaded from the DB
+     *    @param oid SecurityGroup unique id
+     *    @return a pointer to the SecurityGroup, 0 if the SecurityGroup could not be loaded
+     */
+    SecurityGroup * get_ro(int oid)
+    {
+        return static_cast<SecurityGroup *>(PoolSQL::get_ro(oid));
+    };
+
     /** Update a particular SecurityGroup
      *    @param securitygroup pointer to SecurityGroup
      *    @return 0 on success
@@ -96,13 +107,15 @@ public:
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
      *  @param limit parameters used for pagination
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit)
+    int dump(string& oss, const string& where, const string& limit,
+            bool desc)
     {
-        return PoolSQL::dump(oss, "SECURITY_GROUP_POOL", SecurityGroup::table,
-                where, limit);
+        return PoolSQL::dump(oss, "SECURITY_GROUP_POOL", "body", SecurityGroup::table,
+                where, limit, desc);
     };
 
     /**

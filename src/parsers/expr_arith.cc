@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.4.  */
+/* A Bison parser, made by GNU Bison 3.1.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.0.4"
+#define YYBISON_VERSION "3.1"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -224,13 +224,13 @@ typedef signed char yytype_int8;
 #ifdef YYTYPE_UINT16
 typedef YYTYPE_UINT16 yytype_uint16;
 #else
-typedef unsigned short int yytype_uint16;
+typedef unsigned short yytype_uint16;
 #endif
 
 #ifdef YYTYPE_INT16
 typedef YYTYPE_INT16 yytype_int16;
 #else
-typedef short int yytype_int16;
+typedef short yytype_int16;
 #endif
 
 #ifndef YYSIZE_T
@@ -242,7 +242,7 @@ typedef short int yytype_int16;
 #  include <stddef.h> /* INFRINGES ON USER NAME SPACE */
 #  define YYSIZE_T size_t
 # else
-#  define YYSIZE_T unsigned int
+#  define YYSIZE_T unsigned
 # endif
 #endif
 
@@ -294,7 +294,7 @@ typedef short int yytype_int16;
 # define YYUSE(E) /* empty */
 #endif
 
-#if defined __GNUC__ && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
+#if defined __GNUC__ && ! defined __ICC && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
 /* Suppress an incorrect diagnostic about yylval being uninitialized.  */
 # define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN \
     _Pragma ("GCC diagnostic push") \
@@ -464,7 +464,7 @@ union yyalloc
 #define YYMAXUTOK   260
 
 #define YYTRANSLATE(YYX)                                                \
-  ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
+  ((unsigned) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
 
 /* YYTRANSLATE[TOKEN-NUM] -- Symbol number corresponding to TOKEN-NUM
    as returned by yylex, without out-of-bounds checking.  */
@@ -811,7 +811,7 @@ do {                                                            \
 static void
 yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, mem_collector * mc, ObjectXML * oxml, int& result, char ** error_msg, yyscan_t scanner)
 {
-  unsigned long int yylno = yyrline[yyrule];
+  unsigned long yylno = yyrline[yyrule];
   int yynrhs = yyr2[yyrule];
   int yyi;
   YYFPRINTF (stderr, "Reducing stack by rule %d (line %lu):\n",
@@ -1037,6 +1037,7 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
       case N:                               \
         yyformat = S;                       \
       break
+    default: /* Avoid compiler warnings. */
       YYCASE_(0, YY_("syntax error"));
       YYCASE_(1, YY_("syntax error, unexpected %s"));
       YYCASE_(2, YY_("syntax error, unexpected %s, expecting %s"));
@@ -1277,7 +1278,7 @@ YYLTYPE yylloc = yyloc_default;
       yylsp = yyls + yysize - 1;
 
       YYDPRINTF ((stderr, "Stack size increased to %lu\n",
-                  (unsigned long int) yystacksize));
+                  (unsigned long) yystacksize));
 
       if (yyss + yystacksize - 1 <= yyssp)
         YYABORT;
@@ -1383,79 +1384,80 @@ yyreduce:
      GCC warning that YYVAL may be used uninitialized.  */
   yyval = yyvsp[1-yylen];
 
-  /* Default location.  */
+  /* Default location. */
   YYLLOC_DEFAULT (yyloc, (yylsp - yylen), yylen);
+  yyerror_range[1] = yyloc;
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
         case 2:
-#line 99 "expr_arith.y" /* yacc.c:1646  */
+#line 99 "expr_arith.y" /* yacc.c:1651  */
     { result = static_cast<int>((yyvsp[0].val_float));}
-#line 1395 "expr_arith.cc" /* yacc.c:1646  */
+#line 1397 "expr_arith.cc" /* yacc.c:1651  */
     break;
 
   case 3:
-#line 100 "expr_arith.y" /* yacc.c:1646  */
+#line 100 "expr_arith.y" /* yacc.c:1651  */
     { result = 0; }
-#line 1401 "expr_arith.cc" /* yacc.c:1646  */
+#line 1403 "expr_arith.cc" /* yacc.c:1651  */
     break;
 
   case 4:
-#line 103 "expr_arith.y" /* yacc.c:1646  */
+#line 103 "expr_arith.y" /* yacc.c:1651  */
     { float val; oxml->search((yyvsp[0].val_str), val); (yyval.val_float) = val; }
-#line 1407 "expr_arith.cc" /* yacc.c:1646  */
+#line 1409 "expr_arith.cc" /* yacc.c:1651  */
     break;
 
   case 5:
-#line 104 "expr_arith.y" /* yacc.c:1646  */
+#line 104 "expr_arith.y" /* yacc.c:1651  */
     { (yyval.val_float) = (yyvsp[0].val_float); }
-#line 1413 "expr_arith.cc" /* yacc.c:1646  */
+#line 1415 "expr_arith.cc" /* yacc.c:1651  */
     break;
 
   case 6:
-#line 105 "expr_arith.y" /* yacc.c:1646  */
+#line 105 "expr_arith.y" /* yacc.c:1651  */
     { (yyval.val_float) = static_cast<float>((yyvsp[0].val_int)); }
-#line 1419 "expr_arith.cc" /* yacc.c:1646  */
+#line 1421 "expr_arith.cc" /* yacc.c:1651  */
     break;
 
   case 7:
-#line 106 "expr_arith.y" /* yacc.c:1646  */
+#line 106 "expr_arith.y" /* yacc.c:1651  */
     { (yyval.val_float) = (yyvsp[-2].val_float) + (yyvsp[0].val_float);}
-#line 1425 "expr_arith.cc" /* yacc.c:1646  */
+#line 1427 "expr_arith.cc" /* yacc.c:1651  */
     break;
 
   case 8:
-#line 107 "expr_arith.y" /* yacc.c:1646  */
+#line 107 "expr_arith.y" /* yacc.c:1651  */
     { (yyval.val_float) = (yyvsp[-2].val_float) - (yyvsp[0].val_float);}
-#line 1431 "expr_arith.cc" /* yacc.c:1646  */
+#line 1433 "expr_arith.cc" /* yacc.c:1651  */
     break;
 
   case 9:
-#line 108 "expr_arith.y" /* yacc.c:1646  */
+#line 108 "expr_arith.y" /* yacc.c:1651  */
     { (yyval.val_float) = (yyvsp[-2].val_float) * (yyvsp[0].val_float);}
-#line 1437 "expr_arith.cc" /* yacc.c:1646  */
+#line 1439 "expr_arith.cc" /* yacc.c:1651  */
     break;
 
   case 10:
-#line 109 "expr_arith.y" /* yacc.c:1646  */
+#line 109 "expr_arith.y" /* yacc.c:1651  */
     { (yyval.val_float) = (yyvsp[-2].val_float) / (yyvsp[0].val_float);}
-#line 1443 "expr_arith.cc" /* yacc.c:1646  */
+#line 1445 "expr_arith.cc" /* yacc.c:1651  */
     break;
 
   case 11:
-#line 110 "expr_arith.y" /* yacc.c:1646  */
+#line 110 "expr_arith.y" /* yacc.c:1651  */
     { (yyval.val_float) = - (yyvsp[0].val_float);}
-#line 1449 "expr_arith.cc" /* yacc.c:1646  */
+#line 1451 "expr_arith.cc" /* yacc.c:1651  */
     break;
 
   case 12:
-#line 111 "expr_arith.y" /* yacc.c:1646  */
+#line 111 "expr_arith.y" /* yacc.c:1651  */
     { (yyval.val_float) = (yyvsp[-1].val_float);}
-#line 1455 "expr_arith.cc" /* yacc.c:1646  */
+#line 1457 "expr_arith.cc" /* yacc.c:1651  */
     break;
 
 
-#line 1459 "expr_arith.cc" /* yacc.c:1646  */
+#line 1461 "expr_arith.cc" /* yacc.c:1651  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1578,7 +1580,6 @@ yyerrorlab:
   if (/*CONSTCOND*/ 0)
      goto yyerrorlab;
 
-  yyerror_range[1] = yylsp[1-yylen];
   /* Do not reclaim the symbols of the rule whose action triggered
      this YYERROR.  */
   YYPOPSTACK (yylen);
@@ -1690,7 +1691,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 114 "expr_arith.y" /* yacc.c:1906  */
+#line 114 "expr_arith.y" /* yacc.c:1910  */
 
 
 void expr_arith_error(

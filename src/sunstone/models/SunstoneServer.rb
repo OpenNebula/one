@@ -20,6 +20,7 @@ require 'OpenNebulaJSON'
 include OpenNebulaJSON
 
 require 'OpenNebulaVNC'
+require 'OpenNebulaAddons'
 require 'OpenNebulaJSON/JSONUtils'
 #include JSONUtils
 

@@ -63,7 +63,7 @@ void SystemSql::request_execute(xmlrpc_c::paramList const& paramList,
 
     SqlDB * db;
 
-    if ( att.uid != 0 )
+    if (!att.is_oneadmin())
     {
         att.resp_id  = -1;
 
@@ -164,7 +164,7 @@ void SystemSqlQuery::request_execute(xmlrpc_c::paramList const& paramList,
 
     std::string result;
 
-    if ( att.uid != 0 )
+    if (!att.is_oneadmin())
     {
         att.resp_id  = -1;
 

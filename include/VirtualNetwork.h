@@ -60,7 +60,15 @@ public:
         OVSWITCH       = 5,
         VXLAN          = 6,
         VCENTER        = 7,
-        OVSWITCH_VXLAN = 8
+        OVSWITCH_VXLAN = 8,
+        BRIDGE         = 9
+    };
+
+    enum BridgeType {
+        UNDEFINED           = 0,
+        LINUX               = 1,
+        OPENVSWITCH         = 2,
+        VCENTER_PORT_GROUPS = 3
     };
 
     static string driver_to_str(VirtualNetworkDriver ob)
@@ -76,6 +84,7 @@ public:
             case VXLAN:          return "vxlan";
             case VCENTER:        return "vcenter";
             case OVSWITCH_VXLAN: return "ovswitch_vxlan";
+            case BRIDGE:         return "bridge";
         }
     };
 
@@ -113,9 +122,48 @@ public:
         {
             return OVSWITCH_VXLAN;
         }
+        else if ( ob == "bridge" )
+        {
+            return BRIDGE;
+        }
         else
         {
             return NONE;
+        }
+    };
+
+    static string bridge_type_to_str(BridgeType ob)
+    {
+        switch (ob)
+        {
+            case UNDEFINED:
+            case LINUX:
+                return "linux";
+            case OPENVSWITCH:
+                return "openvswitch";
+            case VCENTER_PORT_GROUPS:
+                return "vcenter_port_groups";
+                break;
+        }
+    };
+
+    static BridgeType str_to_bridge_type(const string& ob)
+    {
+        if ( ob == "linux" )
+        {
+            return LINUX;
+        }
+        else if ( ob == "openvswitch" )
+        {
+            return OPENVSWITCH;
+        }
+        else if ( ob == "vcenter_port_groups" )
+        {
+            return VCENTER_PORT_GROUPS;
+        }
+        else
+        {
+            return UNDEFINED;
         }
     };
 
@@ -460,6 +508,12 @@ public:
     int get_template_attribute(const char * name, int& value, int ar_id) const;
 
     /**
+     *  Adds the security group of the VNet and its ARs to the given set
+     *    @param sgs to put the sg ids in
+     */
+    void get_security_groups(set<int> & sgs);
+
+    /**
      *    @return A copy of the VNET Template
      */
     VirtualNetworkTemplate * clone_template() const
@@ -563,6 +617,11 @@ private:
      */
     ObjectCollection vrouters;
 
+    /**
+     *  Bridge type of the VirtualNetwork
+     */
+    string bridge_type;
+
     // *************************************************************************
     // VLAN ID functions
     // *************************************************************************
@@ -578,6 +637,14 @@ private:
      */
     void parse_vlan_id(const char * id_name, const char * auto_name,
             string& id, bool& auto_id);
+
+    /**
+     *  Check consistency of PHYDEV, BRIDGE and VLAN attributes depending on
+     *  the network driver
+     *    @param error_str describing the error
+     *    @return 0 on success -1 otherwise
+     */
+    int parse_phydev_vlans(string& error_str);
 
     // *************************************************************************
     // Address allocation funtions
@@ -625,6 +692,17 @@ private:
     }
 
     // *************************************************************************
+    // BRIDGE TYPE functions
+    // *************************************************************************
+
+    /**
+     *  This function parses the BRIDGE TYPE attribute.
+     *
+     *    @param br_type the bridge type associated to the nic
+     */
+    int parse_bridge_type(const string &vn_mad, string &error_str);
+
+    // *************************************************************************
     // DataBase implementation (Private)
     // *************************************************************************
 
@@ -668,7 +746,7 @@ private:
     int from_xml(const string &xml_str);
 
     /**
-     * Updates the BRIDGE, PHY_DEV, and VLAN_ID attributes.
+     * Updates the BRIDGE, PHYDEV, and VLAN_ID attributes.
      *    @param error string describing the error if any
      *    @return 0 on success
      */

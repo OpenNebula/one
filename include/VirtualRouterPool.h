@@ -73,9 +73,22 @@ public:
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    VirtualRouter * get(int oid)
+    VirtualRouter * get(int oid) 
     {
         return static_cast<VirtualRouter *>(PoolSQL::get(oid));
+    };
+
+    /**
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database).
+     *   @param oid the object unique identifier
+     *   @param lock locks the object if true
+     *
+     *   @return a pointer to the object, 0 in case of failure
+     */
+    VirtualRouter * get_ro(int oid)
+    {
+        return static_cast<VirtualRouter *>(PoolSQL::get_ro(oid));
     };
 
     /**
@@ -84,13 +97,15 @@ public:
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
      *  @param limit parameters used for pagination
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit)
+    int dump(string& oss, const string& where, const string& limit,
+            bool desc)
     {
-        return PoolSQL::dump(oss, "VROUTER_POOL", VirtualRouter::table, where,
-                             limit);
+        return PoolSQL::dump(oss, "VROUTER_POOL", "body", VirtualRouter::table, where,
+                             limit, desc);
     };
 
     /**

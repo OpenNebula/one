@@ -133,52 +133,61 @@ define(function(require) {
       $("input#vn_mad", context).removeAttr("value");
       $("#vcenter_switch_name", context).removeAttr("required");
       $("#vcenter_cluster_id", context).removeAttr("required");
+      $("#phydev", context).removeAttr("required");
       $(".sec_groups_datatable", context).show();
       $("#vnetCreateSecurityTab-label").show();
-      switch ($(this).val()) {
-      case "dummy":
-        $("div.mode_param.dummy", context).show();
-        $("div.mode_param.dummy [wizard_field]", context).prop("wizard_field_disabled", false);
+      $("#automatic_vlan_id option[value='NO']", context).show();
+      $("input[wizard_field=\"VLAN_ID\"]", context).removeAttr("required");
 
-        $("input#bridge", context).attr("required", "");
+      switch ($(this).val()) {
+      case "bridge":
+        $("div.mode_param.bridge", context).show();
+        $("div.mode_param.bridge [wizard_field]", context).prop("wizard_field_disabled", false);
+
+        $("input#bridge", context).removeAttr("required");
         break;
       case "fw":
         $("div.mode_param.fw", context).show();
         $("div.mode_param.fw [wizard_field]", context).prop("wizard_field_disabled", false);
 
-        $("input#bridge", context).attr("required", "");
+        $("input#bridge", context).removeAttr("required");
         break;
       case "802.1Q":
         $("div.mode_param.8021Q", context).show();
         $("div.mode_param.8021Q [wizard_field]", context).prop("wizard_field_disabled", false);
 
         $("input#bridge", context).removeAttr("required");
+        $("#phydev", context).attr("required", "");
+        $("#automatic_vlan_id option[value='NO']", context).hide();
         break;
       case "vxlan":
         $("div.mode_param.vxlan", context).show();
         $("div.mode_param.vxlan [wizard_field]", context).prop("wizard_field_disabled", false);
 
         $("input#bridge", context).removeAttr("required");
+        $("#automatic_vlan_id option[value='NO']", context).hide();
+        $("#phydev", context).attr("required", "");
         break;
       case "ebtables":
         $("div.mode_param.ebtables", context).show();
         $("div.mode_param.ebtables [wizard_field]", context).prop("wizard_field_disabled", false);
 
-        $("input#bridge", context).attr("required", "");
+        $("input#bridge", context).removeAttr("required");
         break;
       case "ovswitch":
         $("div.mode_param.ovswitch", context).show();
         $("#vnetCreateSecurityTab-label").hide();
         $("div.mode_param.ovswitch [wizard_field]", context).prop("wizard_field_disabled", false);
 
-        $("input#bridge", context).attr("required", "");
+        $("input#bridge", context).removeAttr("required");
         break;
       case "ovswitch_vxlan":
         $("div.mode_param.ovswitch_vxlan", context).show();
         $("#vnetCreateSecurityTab-label").hide();
         $("div.mode_param.ovswitch_vxlan [wizard_field]", context).prop("wizard_field_disabled", false);
 
-        $("input#bridge", context).attr("required", "");
+        $("input#bridge", context).removeAttr("required");
+        $("#phydev", context).attr("required", "");
         break;
       case "vcenter":
         $("div.mode_param.vcenter", context).show();
@@ -216,21 +225,33 @@ define(function(require) {
 
       $("div.network_mode_description").hide();
       $("div.network_mode_description[value=\"" + $(this).val() + "\"]").show();
+
+      if ($("input[wizard_field=\"VLAN_ID\"]", context).is(":visible")){
+        $("input[wizard_field=\"VLAN_ID\"]", context).attr("required", "");
+      } else {
+        $("input[wizard_field=\"VLAN_ID\"]", context).removeAttr("required");
+      }
+
+      if ($("input[wizard_field=\"OUTER_VLAN_ID\"]", context).is(":visible")){
+        $("input[wizard_field=\"OUTER_VLAN_ID\"]", context).attr("required", "");
+      } else {
+        $("input[wizard_field=\"OUTER_VLAN_ID\"]", context).removeAttr("required");
+      }
     });
 
     $("select[wizard_field=AUTOMATIC_VLAN_ID]", context).change(function(){
       if($(this).val() != "") {
-        $("input[wizard_field=\"VLAN_ID\"]", context).hide().prop("wizard_field_disabled", true);
+        $("input[wizard_field=\"VLAN_ID\"]", context).hide().prop("wizard_field_disabled", true).removeAttr("required");
       } else {
-        $("input[wizard_field=\"VLAN_ID\"]", context).show().prop("wizard_field_disabled", false);
+        $("input[wizard_field=\"VLAN_ID\"]", context).show().prop("wizard_field_disabled", false).attr("required", "");
       }
     });
 
     $("select[wizard_field=AUTOMATIC_OUTER_VLAN_ID]", context).change(function(){
       if($(this).val() != "") {
-        $("input[wizard_field=\"OUTER_VLAN_ID\"]", context).hide().prop("wizard_field_disabled", true);
+        $("input[wizard_field=\"OUTER_VLAN_ID\"]", context).hide().prop("wizard_field_disabled", true).removeAttr("required");
       } else {
-        $("input[wizard_field=\"OUTER_VLAN_ID\"]", context).show().prop("wizard_field_disabled", false);
+        $("input[wizard_field=\"OUTER_VLAN_ID\"]", context).show().prop("wizard_field_disabled", false).attr("required", "");
       }
     });
 
@@ -253,7 +274,7 @@ define(function(require) {
     if (config["mode"] === "kvm"){
       $("#network_mode option[value=\"vcenter\"]", context).hide();
     } else if (config["mode"] === "vcenter"){
-      $("#network_mode option[value=\"dummy\"]", context).hide();
+      $("#network_mode option[value=\"bridge\"]", context).hide();
       $("#network_mode option[value=\"fw\"]", context).hide();
       $("#network_mode option[value=\"ebtables\"]", context).hide();
       $("#network_mode option[value=\"802.1Q\"]", context).hide();
@@ -279,7 +300,7 @@ define(function(require) {
     // Append the new div containing the tab and add the tab to the list
     var a = $("<li class='tabs-title'>" +
         "<a id='ar_tab" + str_ar_tab_id + "' href='#" + str_ar_tab_id + "Tab'>" +
-        Locale.tr("Address Range") + " <i class='fas fa-times-circle remove-tab'></i></a></li>"
+        Locale.tr("AR") + " <i class='fas fa-times-circle remove-tab'></i></a></li>"
       ).appendTo($("ul#vnet_wizard_ar_tabs", context));
 
     $(html_tab_content).appendTo($("#vnet_wizard_ar_tabs_content", context));
@@ -330,6 +351,8 @@ define(function(require) {
       network_json["SECURITY_GROUPS"] = secgroups.join(",");
     }
 
+    var cluster_id = $(".resource_list_select", $('#vnet_cluster_id', context)).val();
+
     $.extend(network_json, CustomTagsTable.retrieve($("#vnetCreateContextTab", context)));
 
     $(".ar_tab", context).each(function() {
@@ -346,7 +369,8 @@ define(function(require) {
 
     if (this.action == "create") {
       network_json = {
-        "vnet" : network_json
+        "vnet" : network_json,
+        "cluster_id": cluster_id
       };
 
       Sunstone.runAction("Network.create", network_json);
@@ -380,6 +404,20 @@ define(function(require) {
       var ar_id = $(this).attr("ar_id");
       that.arTabObjects[ar_id].onShow();
     });
+
+    if (this.action === "create"){
+      $("div#vnet_cluster_div", context).show();
+      var cluster_id = $("div#vnet_cluster_id .resource_list_select", context).val();
+      if (!cluster_id) cluster_id = "0";
+
+      ResourceSelect.insert({
+        context: $('#vnet_cluster_id', context),
+        resourceName: 'Cluster',
+        initValue: cluster_id
+      });
+    } else {
+      $("div#vnet_cluster_div", context).hide();
+    }
   }
 
   function _fill(context, element) {

@@ -110,9 +110,11 @@ module CLIHelper
     ANSI_RED="\33[31m"
     ANSI_GREEN="\33[32m"
     ANSI_RESET="\33[0m"
+    ANSI_YELLOW="\33[33m"
 
-    OK_STATES=%w{runn rdy on}
-    BAD_STATES=%w{fail err err}
+    OK_STATES=%w{runn rdy on configured}
+    BAD_STATES=%w{fail err err error}
+    REGULAR_STATES=%w{pending}
 
     def CLIHelper.color_state(stat)
         if $stdout.tty?
@@ -121,6 +123,8 @@ module CLIHelper
                 ANSI_GREEN+stat+ANSI_RESET
             when *BAD_STATES
                 ANSI_RED+stat+ANSI_RESET
+            when *REGULAR_STATES
+                ANSI_YELLOW+stat+ANSI_RESET
             else
                 stat
             end
@@ -132,14 +136,19 @@ module CLIHelper
     # Print header
     def CLIHelper.print_header(str, underline=true)
         if $stdout.tty?
-            scr_bold
-            scr_underline if underline
-            print str
-            scr_restore
+            print_tty_header(str, underline)
         else
             print str
         end
         puts
+    end
+
+    # Pretty print header
+    def CLIHelper.print_tty_header(str, underline=true)
+        scr_bold
+        scr_underline if underline
+        print str
+        scr_restore
     end
 
     module HashWithSearch
@@ -256,10 +265,18 @@ module CLIHelper
             end
         end
 
+        def print_tty_header
+            CLIHelper.print_tty_header(header_str)
+            puts
+        end
+
         private
 
         def print_table(data, options)
-            CLIHelper.print_header(header_str) if !options[:csv]
+            if !options[:csv] && !options[:noheader]
+                CLIHelper.print_header(header_str)
+            end
+
             data ? print_data(data, options) : puts
         end
 

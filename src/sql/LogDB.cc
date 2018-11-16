@@ -104,9 +104,9 @@ int LogDBRecord::select_cb(void *nil, int num, char **values, char **names)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-LogDB::LogDB(SqlDB * _db, bool _solo, unsigned int _lret):solo(_solo), db(_db),
-    next_index(0), last_applied(-1), last_index(-1), last_term(-1),
-    log_retention(_lret)
+LogDB::LogDB(SqlDB * _db, bool _solo, unsigned int _lret, unsigned int _lp):
+    solo(_solo), db(_db), next_index(0), last_applied(-1), last_index(-1),
+    last_term(-1), log_retention(_lret), limit_purge(_lp)
 {
     int r, i;
 
@@ -120,7 +120,7 @@ LogDB::LogDB(SqlDB * _db, bool _solo, unsigned int _lret):solo(_solo), db(_db),
 
         oss << time(0);
 
-        insert_log_record(0, 0, oss, time(0), -1);
+        insert_log_record(0, 0, oss, time(0), -1, false);
     }
 
     setup_index(r, i);
@@ -206,8 +206,6 @@ int LogDB::get_log_record(unsigned int index, LogDBRecord& lr)
         prev_index = 0;
     }
 
-    lr.index = index + 1;
-
     oss << "SELECT c.log_index, c.term, c.sqlcmd,"
         << " c.timestamp, c.fed_index, p.log_index, p.term"
         << " FROM logdb c, logdb p WHERE c.log_index = " << index
@@ -219,7 +217,7 @@ int LogDB::get_log_record(unsigned int index, LogDBRecord& lr)
 
     lr.unset_callback();
 
-    if ( lr.index != index )
+    if ( lr.get_affected_rows() == 0 )
     {
         rc = -1;
     }
@@ -290,7 +288,7 @@ int LogDB::update_raft_state(std::string& raft_xml)
 /* -------------------------------------------------------------------------- */
 
 int LogDB::insert(int index, int term, const std::string& sql, time_t tstamp,
-        int fed_index)
+        int fed_index, bool replace)
 {
     std::ostringstream oss;
 
@@ -312,7 +310,16 @@ int LogDB::insert(int index, int term, const std::string& sql, time_t tstamp,
         return -1;
     }
 
-    oss << "INSERT INTO " << table << " ("<< db_names <<") VALUES ("
+    if (replace)
+    {
+        oss << "REPLACE";
+    }
+    else
+    {
+        oss << "INSERT";
+    }
+
+    oss << " INTO " << table << " ("<< db_names <<") VALUES ("
         << index << "," << term << "," << "'" << sql_db << "'," << tstamp
         << "," << fed_index << ")";
 
@@ -389,13 +396,19 @@ int LogDB::insert_log_record(unsigned int term, std::ostringstream& sql,
         _fed_index = fed_index;
     }
 
-    if ( insert(index, term, sql.str(), timestamp, _fed_index) != 0 )
+    if ( insert(index, term, sql.str(), timestamp, _fed_index, false) != 0 )
     {
         NebulaLog::log("DBM", Log::ERROR, "Cannot insert log record in DB");
 
         pthread_mutex_unlock(&mutex);
 
         return -1;
+    }
+
+    //allocate a replication request if log record is going to be replicated
+    if ( timestamp == 0 )
+    {
+        Nebula::instance().get_raftm()->replicate_allocate(next_index);
     }
 
     last_index = next_index;
@@ -418,13 +431,13 @@ int LogDB::insert_log_record(unsigned int term, std::ostringstream& sql,
 /* -------------------------------------------------------------------------- */
 
 int LogDB::insert_log_record(unsigned int index, unsigned int term,
-        std::ostringstream& sql, time_t timestamp, int fed_index)
+        std::ostringstream& sql, time_t timestamp, int fed_index, bool replace)
 {
     int rc;
 
     pthread_mutex_lock(&mutex);
 
-    rc = insert(index, term, sql.str(), timestamp, fed_index);
+    rc = insert(index, term, sql.str(), timestamp, fed_index, replace);
 
     if ( rc == 0 )
     {
@@ -467,6 +480,12 @@ int LogDB::_exec_wr(ostringstream& cmd, int federated_index)
         if ( rc == 0 && Nebula::instance().is_federation_enabled() )
         {
             insert_log_record(0, cmd, time(0), federated_index);
+
+            pthread_mutex_lock(&mutex);
+
+            last_applied = last_index;
+
+            pthread_mutex_unlock(&mutex);
         }
 
         return rc;
@@ -559,24 +578,71 @@ int LogDB::purge_log()
 {
     std::ostringstream oss;
 
+    empty_cb cb;
+
+    int rc = 0;
+
     pthread_mutex_lock(&mutex);
 
-    if ( last_index < log_retention )
+    /* ---------------------------------------------------------------------- */
+    /* Non-federated records. Keep last log_retention records                 */
+    /* ---------------------------------------------------------------------- */
+    oss << "DELETE FROM logdb WHERE timestamp > 0 AND log_index >= 0 "
+        << "AND fed_index = -1 AND log_index < ("
+        << "  SELECT MIN(i.log_index) FROM ("
+        << "    SELECT log_index FROM logdb WHERE fed_index = -1 AND"
+        << "      timestamp > 0 AND log_index >= 0 "
+        << "      ORDER BY log_index DESC LIMIT " << log_retention
+        << "  ) AS i"
+        << ")";
+
+    if ( db->limit_support() )
     {
-        pthread_mutex_unlock(&mutex);
-        return 0;
+        oss << " LIMIT " << limit_purge;
     }
 
-    unsigned int delete_index = last_applied - log_retention;
+    if ( db->exec_wr(oss, &cb) != -1 )
+    {
+        rc = cb.get_affected_rows();
+    }
 
-    // keep the last "log_retention" records as well as those not applied to DB
+    /* ---------------------------------------------------------------------- */
+    /* Federated records. Keep last log_retention federated records           */
+    /* ---------------------------------------------------------------------- */
+    if ( fed_log.size() < log_retention ) 
+    {
+        pthread_mutex_unlock(&mutex);
+
+        return rc;
+    }
+
+    cb.set_affected_rows(0);
+
+    oss.str("");
+
     oss << "DELETE FROM logdb WHERE timestamp > 0 AND log_index >= 0 "
-        << "AND log_index < "  << delete_index;
+        << "AND fed_index != -1 AND log_index < ("
+        << "  SELECT MIN(i.log_index) FROM ("
+        << "    SELECT log_index FROM logdb WHERE fed_index != -1 AND"
+        << "      timestamp > 0 AND log_index >= 0 "
+        << "      ORDER BY log_index DESC LIMIT " << log_retention
+        << "  ) AS i"
+        << ")";
 
-    int rc = db->exec_wr(oss);
+    if ( db->limit_support() )
+    {
+        oss << " LIMIT " << limit_purge;
+    }
+
+    if ( db->exec_wr(oss, &cb) != -1 )
+    {
+        rc += cb.get_affected_rows();
+    }
+
+    build_federated_index();
 
     pthread_mutex_unlock(&mutex);
-
+    
     return rc;
 }
 

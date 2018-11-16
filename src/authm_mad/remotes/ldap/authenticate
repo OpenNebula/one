@@ -31,6 +31,7 @@ $: << RUBY_LIB_LOCATION
 require 'yaml'
 require 'opennebula/ldap_auth'
 require 'uri'
+require 'timeout'
 require 'rexml/document'
 require 'opennebula/error'
 require 'opennebula/xml_utils'
@@ -65,65 +66,91 @@ elsif order.class != Array
     exit(-1)
 end
 
-authenticated=false
-
-order.each do |server_name|
-    STDERR.puts "Trying server #{server_name}"
-
-    server_conf=options[server_name]
-    if !server_conf
-        STDERR.puts "Configuration for server not found"
-        break
-    end
-
-begin
-    ldap=OpenNebula::LdapAuth.new(server_conf)
-
-    user_name,user_group_name=ldap.find_user(user)
-
-    if !user_name
-        STDERR.puts "User #{user} not found"
-        next
-    end
-
-    if server_conf[:group]
-        if !ldap.is_in_group?(user_group_name, server_conf[:group])
-            STDERR.puts "User #{user} is not in group #{server_conf[:group]}"
-            next
+order.each do |name|
+    if name.is_a? Array
+        servers = name
+    elsif name.is_a? Hash
+        if name.keys.size == 1
+            servers = [name.values].flatten
+        else
+            STDERR.puts ":order contains invalid group configuration: #{name}"
+            exit(-1)
         end
-    end
-
-    if ldap.authenticate(user_name, secret)
-        groups = ldap.get_groups
-        if groups.empty?
-            if !server_conf[:mapping_default]
-                STDERR.puts "User does not belong to a mapped group"
-                authenticated = false
-                break
-            else
-                groups = [server_conf[:mapping_default]]
-            end
-        end
-
-        group_list = groups.join(' ')
-        escaped_user=URI_PARSER.escape(user)
-        escaped_secret=URI_PARSER.escape(user_name)
-        puts "ldap #{escaped_user} #{escaped_secret} #{group_list}"
-        authenticated=true
-        break
     else
-        STDERR.puts "Bad user/password"
+        servers = [name]
     end
 
-rescue Exception => e
-    STDERR.puts "Exception raised authenticating to LDAP"
-    STDERR.puts e.inspect
-    STDERR.puts e.backtrace.join("\n")
-end # rescue
+    STDERR.puts "Using group of servers: #{servers.join(', ')}" if servers.length>1
+
+    servers.each do |server_name|
+        STDERR.puts "Trying LDAP server #{server_name} "
+
+        server_conf=options[server_name]
+        if !server_conf
+            STDERR.puts "Configuration for server not found"
+            break
+        end
+
+        begin
+            # timeout
+            timeout = server_conf[:timeout]
+            timeout ||= 15
+
+            Timeout.timeout(timeout) do
+                ldap=OpenNebula::LdapAuth.new(server_conf)
+
+                user_name, user_group_name = ldap.find_user(user)
+
+                if !user_name
+                    STDERR.puts "User #{user} not found"
+                    break
+                end
+
+                if server_conf[:group]
+                    if !ldap.is_in_group?(user_group_name, server_conf[:group])
+                        STDERR.puts "User #{user} is not in group #{server_conf[:group]}"
+                        break
+                    end
+                end
+
+                if ldap.authenticate(user_name, secret)
+                    groups = ldap.get_groups
+                    if groups.empty?
+                        if !server_conf[:mapping_default]
+                            STDERR.puts "User does not belong to a mapped group"
+                            break
+                        else
+                            groups = [server_conf[:mapping_default]]
+                        end
+                    end
+
+                    # authentication success
+                    group_list = groups.join(' ')
+                    escaped_user = URI_PARSER.escape(user).strip.downcase
+                    escaped_secret = URI_PARSER.escape(user_name)
+
+                    puts "ldap #{escaped_user} #{escaped_secret} #{group_list}"
+                    exit
+                else
+                    STDERR.puts "Bad user/password"
+                    break
+                end
+            end
+
+            # Note: break inside the Timeout block breaks only from
+            # the Timeout block. To break from the servers loop,
+            # we need to repeat here!
+            break
+        rescue SystemExit
+            raise
+        rescue Timeout::Error
+            STDERR.puts "Communication timed out with LDAP #{server_name}"
+        rescue Exception => e
+            STDERR.puts "Exception raised with LDAP #{server_name}: #{e}"
+        end
+    end
 end
 
-if !authenticated
-    STDERR.puts "Could not authenticate user #{user}"
-    exit(-1)
-end
-
+# authentication failure
+STDERR.puts "Could not authenticate user #{user}"
+exit(-1)

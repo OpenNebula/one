@@ -79,7 +79,7 @@ void HostMonitoring::request_execute(
     int id  = xmlrpc_c::value_int(paramList.getInt(1));
     int rc;
 
-    ostringstream oss;
+    std::string oss;
 
     if ( basic_authorization(id, att) == false )
     {
@@ -95,7 +95,7 @@ void HostMonitoring::request_execute(
         return;
     }
 
-    success_response(oss.str(), att);
+    success_response(oss, att);
 
     return;
 }

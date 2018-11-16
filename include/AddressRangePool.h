@@ -309,6 +309,12 @@ public:
     const set<int>& get_security_groups(int ar_id) const;
 
     /**
+     *  Gets a the security group set of all ARs
+     *    @param sgs set with all the SG ids
+     */
+    void get_all_security_groups(set<int>& sgs);
+
+    /**
      *  Generate a XML representation of the Address Range Pool
      *    @param sstream where the ARPool is written
      *    @param extended true to include lease information

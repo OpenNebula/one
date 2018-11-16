@@ -15,8 +15,7 @@
 /* ------------------------------------------------------------------------ */
 
 #include "VMTemplate.h"
-
-#define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
+#include "ScheduledAction.h"
 
 /* ************************************************************************ */
 /* VMTemplate :: Constructor/Destructor                                     */
@@ -74,9 +73,14 @@ int VMTemplate::insert(SqlDB *db, string& error_str)
     erase_template_attribute("NAME", name);
 
     // ---------------------------------------------------------------------
-    // Remove DONE/MESSAGE from SCHED_ACTION
+    // Remove DONE/MESSAGE from SCHED_ACTION and check rest attributes
     // ---------------------------------------------------------------------
-    parse_sched_action();
+    int rc = parse_sched_action(error_str);
+
+    if (rc == -1)
+    {
+        return rc;
+    }
 
     // ------------------------------------------------------------------------
     // Insert the Template
@@ -167,18 +171,11 @@ error_common:
     return -1;
 }
 
-void VMTemplate::parse_sched_action()
+int VMTemplate::parse_sched_action(string& error_str)
 {
-    vector<VectorAttribute *> _sched_actions;
-    vector<VectorAttribute *>::iterator i;
+    SchedActions sactions(obj_template);
 
-    get_template_attribute("SCHED_ACTION", _sched_actions);
-
-    for ( i = _sched_actions.begin(); i != _sched_actions.end() ; ++i)
-    {
-        (*i)->remove("DONE");
-        (*i)->remove("MESSAGE");
-    }
+    return sactions.parse(error_str, true);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -186,7 +183,11 @@ void VMTemplate::parse_sched_action()
 
 int VMTemplate::post_update_template(string& error)
 {
-    parse_sched_action();
+    int rc = parse_sched_action(error);
+    if (rc == -1)
+    {
+        return rc;
+    }
 
     return 0;
 }

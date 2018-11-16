@@ -240,32 +240,57 @@ int Client::call(const std::string& endpoint, const std::string& method,
         const xmlrpc_c::paramList& plist, unsigned int _timeout,
         xmlrpc_c::value * const result, std::string& error)
 {
-    xmlrpc_c::clientXmlTransport_curl transport(
-        xmlrpc_c::clientXmlTransport_curl::constrOpt().timeout(_timeout));
+// Transport timeouts are not reliably implemented, interrupt flag and async
+// client performs better.
+//    xmlrpc_c::clientXmlTransport_curl transport(
+//        xmlrpc_c::clientXmlTransport_curl::constrOpt().timeout(_timeout));
+    xmlrpc_c::clientXmlTransport_curl transport;
 
     xmlrpc_c::carriageParm_curl0  carriage(endpoint);
 
     xmlrpc_c::client_xml client(&transport);
     xmlrpc_c::rpcPtr     rpc_client(method, plist);
 
-    int xml_rc = 0;
+    int xml_rc   = 0;
+    int int_flag = 0;
 
     try
     {
         rpc_client->start(&client, &carriage);
 
-        client.finishAsync(xmlrpc_c::timeout());
+        client.setInterrupt(&int_flag);
 
-        if ( rpc_client->isSuccessful() )
+        if ( _timeout == 0 )
         {
-            *result = rpc_client->getResult();
+            client.finishAsync(xmlrpc_c::timeout());
         }
-        else //RPC failed
+        else
         {
-            xmlrpc_c::fault failure = rpc_client->getFault();
+            client.finishAsync(_timeout);
+        }
 
-            error  = failure.getDescription();
+        if ( rpc_client->isFinished() )
+        {
+            if ( rpc_client->isSuccessful() )
+            {
+                *result = rpc_client->getResult();
+            }
+            else //RPC failed
+            {
+                xmlrpc_c::fault failure = rpc_client->getFault();
+
+                error  = failure.getDescription();
+                xml_rc = -1;
+            }
+        }
+        else //rpc not finished. Interrupt it
+        {
+            int_flag = 1;
+
+            error  = "RPC call timed out and aborted";
             xml_rc = -1;
+
+            client.finishAsync(xmlrpc_c::timeout());
         }
     }
     catch (exception const& e)

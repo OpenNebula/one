@@ -31,7 +31,9 @@ source_files=[
     'VMGroupPoolXML.cc',
     'VMGroupXML.cc',
     'DatastorePoolXML.cc',
-    'DatastoreXML.cc']
+    'DatastoreXML.cc',
+    'VirtualNetworkPoolXML.cc',
+    'VirtualNetworkXML.cc']
 
 # Build library
 sched_env.StaticLibrary(lib_name, source_files)

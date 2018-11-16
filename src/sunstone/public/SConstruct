@@ -20,14 +20,13 @@ import os
 
 Import('env')
 
+
 if env['sunstone']=='yes':
     print "Generating Sunstone minified files\n"
-    exit_code=os.system("grunt --gruntfile ./Gruntfile.js sass")
-    if exit_code != 0:
-        print "Error generating Sunstone css files\n"
-        exit(-1)
 
-    exit_code=os.system("grunt --gruntfile ./Gruntfile.js requirejs")
+    exit_code=os.system("./build.sh")
+
     if exit_code != 0:
         print "Error generating minifying Sunstone files\n"
         exit(-1)
+

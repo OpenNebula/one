@@ -103,6 +103,8 @@ else
     fi
 
     CLONE_CMD=$(cat <<EOF
+set -e -o pipefail
+
 cd $DST_DIR
 
 rm -rf "${DST_PATH}.snap"

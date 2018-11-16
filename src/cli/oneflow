@@ -16,16 +16,16 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
 end
 
-$: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+'/cli'
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
 
 require 'command_parser'
 require 'opennebula/oneflow_client'
@@ -35,139 +35,142 @@ require 'one_helper/onevm_helper'
 
 require 'json'
 
-USER_AGENT = "CLI"
+USER_AGENT = 'CLI'
 
 # Base Path representing the resource to be used in the requests
-RESOURCE_PATH = "/service"
+RESOURCE_PATH = '/service'
 
 #
 # Table
 #
 
 SERVICE_TABLE = CLIHelper::ShowTable.new(nil, self) do
-    column :ID, "ID", :size=>10 do |d|
-        d["ID"]
+    column :ID, 'ID', :size => 10 do |d|
+        d['ID']
     end
 
-    column :USER, "Username", :left, :size=>15 do |d|
-        d["UNAME"]
+    column :USER, 'Username', :left, :size => 15 do |d|
+        d['UNAME']
     end
 
-    column :GROUP, "Group", :left, :size=>15 do |d|
-        d["GNAME"]
+    column :GROUP, 'Group', :left, :size => 15 do |d|
+        d['GNAME']
     end
 
-    column :NAME, "Name", :size=>25, :left=>true do |d|
-        d["NAME"]
+    column :NAME, 'Name', :size => 25, :left => true do |d|
+        d['NAME']
     end
 
-    column :STATE, "State", :size=>11, :left=>true do |d|
-        Service.state_str(d["TEMPLATE"]["BODY"]['state'])
+    column :STATE, 'State', :size => 11, :left => true do |d|
+        Service.state_str(d['TEMPLATE']['BODY']['state'])
     end
 
     default :ID, :USER, :GROUP, :NAME, :STATE
 end
 
 NODE_TABLE = CLIHelper::ShowTable.new(nil, self) do
-    column :VM_ID, "ONE identifier for Virtual Machine", :size=>6 do |d|
-        st = ""
+    column :VM_ID, 'ONE identifier for Virtual Machine', :size => 6 do |d|
+        st = ''
         if d['scale_up']
-            st << "\u2191 "
+            st << '\u2191 '
         elsif d['disposed']
-            st << "\u2193 "
+            st << '\u2193 '
         end
 
         if d['vm_info'].nil?
             st << d['deploy_id'].to_s
         else
-            st << d['vm_info']['VM']["ID"]
+            st << d['vm_info']['VM']['ID']
         end
 
         st
     end
 
-    column :NAME, "Name of the Virtual Machine", :left,
-            :size=>23 do |d|
+    column :NAME, 'Name of the Virtual Machine', :left,
+           :size => 23 do |d|
         if !d['vm_info'].nil?
-            if d['vm_info']['VM']["RESCHED"] == "1"
-                "*#{d["NAME"]}"
+            if d['vm_info']['VM']['RESCHED'] == '1'
+                "*#{d['NAME']}"
             else
-                d['vm_info']['VM']["NAME"]
+                d['vm_info']['VM']['NAME']
             end
         else
-            ""
+            ''
         end
     end
 
-    column :USER, "Username of the Virtual Machine owner", :left,
-            :size=>8 do |d|
+    column :USER, 'Username of the Virtual Machine owner', :left,
+           :size => 8 do |d|
         if !d['vm_info'].nil?
-            d['vm_info']['VM']["UNAME"]
+            d['vm_info']['VM']['UNAME']
         else
-            ""
+            ''
         end
     end
 
-    column :GROUP, "Group of the Virtual Machine", :left,
-            :size=>8 do |d|
+    column :GROUP, 'Group of the Virtual Machine', :left,
+           :size => 8 do |d|
         if !d['vm_info'].nil?
-            d['vm_info']['VM']["GNAME"]
+            d['vm_info']['VM']['GNAME']
         else
-            ""
+            ''
         end
     end
 
-    column :STAT, "Actual status", :size=>4 do |d,e|
+    column :STAT, 'Actual status', :size => 4 do |d, _|
         if !d['vm_info'].nil?
-            OneVMHelper.state_to_str(d['vm_info']['VM']["STATE"], d['vm_info']['VM']["LCM_STATE"])
+            OneVMHelper.state_to_str(d['vm_info']['VM']['STATE'],
+                                     d['vm_info']['VM']['LCM_STATE'])
         else
-            ""
+            ''
         end
     end
 
-    column :UCPU, "CPU percentage used by the VM", :size=>4 do |d|
+    column :UCPU, 'CPU percentage used by the VM', :size => 4 do |d|
         if !d['vm_info'].nil?
-            d['vm_info']['VM']["CPU"]
+            d['vm_info']['VM']['CPU']
         else
-            ""
+            ''
         end
     end
 
-    column :UMEM, "Memory used by the VM", :size=>7 do |d|
+    column :UMEM, 'Memory used by the VM', :size => 7 do |d|
         if !d['vm_info'].nil?
-            OpenNebulaHelper.unit_to_str(d['vm_info']['VM']["MEMORY"].to_i, {})
+            OpenNebulaHelper.unit_to_str(d['vm_info']['VM']['MEMORY'].to_i, {})
         else
-            ""
+            ''
         end
     end
 
-    column :HOST, "Host where the VM is running", :left, :size=>20 do |d|
+    column :HOST, 'Host where the VM is running', :left, :size => 20 do |d|
         if !d['vm_info'].nil?
-            if d['vm_info']['VM']['HISTORY_RECORDS'] && d['vm_info']['VM']['HISTORY_RECORDS']['HISTORY']
-                state_str = VirtualMachine::VM_STATE[d['vm_info']['VM']['STATE'].to_i]
-                if %w{ACTIVE SUSPENDED}.include? state_str
-                    history = if d['vm_info']['VM']['HISTORY_RECORDS']['HISTORY'].instance_of?(Array)
-                        d['vm_info']['VM']['HISTORY_RECORDS']['HISTORY'].last
-                    else
-                        d['vm_info']['VM']['HISTORY_RECORDS']['HISTORY']
-                    end
-
+            if d['vm_info']['VM']['HISTORY_RECORDS'] &&
+               d['vm_info']['VM']['HISTORY_RECORDS']['HISTORY']
+                state_str =
+                    VirtualMachine::VM_STATE[d['vm_info']['VM']['STATE'].to_i]
+                history = d['vm_info']['VM']['HISTORY_RECORDS']['HISTORY']
+                if %w[ACTIVE SUSPENDED].include? state_str
+                    history = history.last if history.instance_of?(Array)
                     history['HOSTNAME']
                 end
             end
         else
-            ""
+            ''
         end
     end
 
-    column :TIME, "Time since the VM was submitted", :size=>10 do |d|
+    column :TIME, 'Time since the VM was submitted', :size => 10 do |d|
         if !d['vm_info'].nil?
-            stime = d['vm_info']['VM']["STIME"].to_i
-            etime = d['vm_info']['VM']["ETIME"]=="0" ? Time.now.to_i : d['vm_info']['VM']["ETIME"].to_i
-            dtime = etime-stime
+            stime = d['vm_info']['VM']['STIME'].to_i
+            if d['vm_info']['VM']['ETIME'] == '0'
+                etime = Time.now.to_i
+            else
+                etime = d['vm_info']['VM']['ETIME'].to_i
+            end
+            dtime = etime - stime
             OpenNebulaHelper.period_to_str(dtime, false)
         else
-            ""
+            ''
         end
     end
 
@@ -176,19 +179,18 @@ end
 
 # List the services. This method is used in top and list commands
 # @param [Service::Client] client
-# @param [Array] args
 # @param [Hash] options
 # @return [[Integer, String], Integer] Returns the exit_code and optionally
 #   a String to be printed
-def list_services(client, args, options)
+def list_services(client, options)
     response = client.get(RESOURCE_PATH)
 
-    if CloudClient::is_error?(response)
+    if CloudClient.is_error?(response)
         [response.code.to_i, response.to_s]
     else
-        #[0,response.body]
+        # [0,response.body]
         if options[:json]
-            [0,response.body]
+            [0, response.body]
         else
             array_list = JSON.parse(response.body)
             SERVICE_TABLE.show(array_list['DOCUMENT_POOL']['DOCUMENT'])
@@ -206,73 +208,92 @@ end
 def show_service(client, args, options)
     response = client.get("#{RESOURCE_PATH}/#{args[0]}")
 
-    if CloudClient::is_error?(response)
+    if CloudClient.is_error?(response)
         [response.code.to_i, response.to_s]
     else
-        #[0,response.body]
+        # [0,response.body]
         if options[:json]
-            [0,response.body]
+            [0, response.body]
         else
-            str="%-20s: %-20s"
-            str_h1="%-80s"
+            str = '%-20s: %-20s'
+            str_h1 = '%-80s'
 
             document_hash = JSON.parse(response.body)
             template = document_hash['DOCUMENT']['TEMPLATE']['BODY']
+            str_header = "SERVICE #{document_hash['DOCUMENT']['ID']} "\
+                         'INFORMATION'
+            CLIHelper.print_header(str_h1 % str_header)
 
-            CLIHelper.print_header(str_h1 % "SERVICE #{document_hash['DOCUMENT']['ID']} INFORMATION")
+            puts format(str, ['ID', document_hash['DOCUMENT']['ID']])
+            puts format(str, ['NAME', document_hash['DOCUMENT']['NAME']])
+            puts format(str, ['USER', document_hash['DOCUMENT']['UNAME']])
+            puts format(str, ['GROUP', document_hash['DOCUMENT']['GNAME']])
 
-            puts str % ["ID",   document_hash['DOCUMENT']['ID']]
-            puts str % ["NAME", document_hash['DOCUMENT']['NAME']]
-            puts str % ["USER", document_hash['DOCUMENT']['UNAME']]
-            puts str % ["GROUP",document_hash['DOCUMENT']['GNAME']]
-
-            puts str % ["STRATEGY", template['deployment']]
-            puts str % ["SERVICE STATE", Service.state_str(template['state'])]
-            puts str % ["SHUTDOWN", template['shutdown_action']] if template['shutdown_action']
-
-            puts
-
-            CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
-
-            ["OWNER", "GROUP", "OTHER"].each { |e|
-                mask = "---"
-                mask[0] = "u" if document_hash['DOCUMENT']['PERMISSIONS']["#{e}_U"] == "1"
-                mask[1] = "m" if document_hash['DOCUMENT']['PERMISSIONS']["#{e}_M"] == "1"
-                mask[2] = "a" if document_hash['DOCUMENT']['PERMISSIONS']["#{e}_A"] == "1"
-
-                puts str % [e,  mask]
-            }
+            puts format(str, ['STRATEGY', template['deployment']])
+            puts format(str,
+                        ['SERVICE STATE', Service.state_str(template['state'])])
+            if template['shutdown_action']
+                puts format(str, ['SHUTDOWN', template['shutdown_action']])
+            end
 
             puts
 
-            template['roles'].each {|role|
+            CLIHelper.print_header(str_h1 % 'PERMISSIONS', false)
+
+            %w[OWNER GROUP OTHER].each do |e|
+                mask = '---'
+                permissions_hash = document_hash['DOCUMENT']['PERMISSIONS']
+                mask[0] = 'u' if permissions_hash["#{e}_U"] == '1'
+                mask[1] = 'm' if permissions_hash["#{e}_M"] == '1'
+                mask[2] = 'a' if permissions_hash["#{e}_A"] == '1'
+
+                puts format(str, [e, mask])
+            end
+
+            puts
+
+            template['roles'].each do |role|
                 CLIHelper.print_header("ROLE #{role['name']}", false)
 
-                puts str % ["ROLE STATE", Role.state_str(role['state'])]
-                puts str % ["PARENTS", role['parents'].join(', ')] if role['parents']
-                puts str % ["VM TEMPLATE", role['vm_template']]
-                puts str % ["CARDINALITY", role['cardinality']]
-                puts str % ["MIN VMS", role['min_vms']] if role['min_vms']
-                puts str % ["MAX VMS", role['max_vms']] if role['max_vms']
-                puts str % ["COOLDOWN", "#{role['cooldown']}s"] if role['cooldown']
-                puts str % ["SHUTDOWN", role['shutdown_action']] if role['shutdown_action']
+                puts format(str, ['ROLE STATE', Role.state_str(role['state'])])
+                if role['parents']
+                    puts format(str, ['PARENTS', role['parents'].join(', ')])
+                end
+                puts format(str, ['VM TEMPLATE', role['vm_template']])
+                puts format(str, ['CARDINALITY', role['cardinality']])
+                if role['min_vms']
+                    puts format(str, ['MIN VMS', role['min_vms']])
+                end
+                if role['max_vms']
+                    puts format(str, ['MAX VMS', role['max_vms']])
+                end
+                if role['coolddown']
+                    puts format(str, ['COOLDOWN', "#{role['cooldown']}s"])
+                end
+                if role['shutdown_action']
+                    puts format(str, ['SHUTDOWN', role['shutdown_action']])
+                end
 
-                puts "NODES INFORMATION"
+                puts 'NODES INFORMATION'
                 NODE_TABLE.show(role['nodes'])
 
-                if !role['elasticity_policies'].nil? && role['elasticity_policies'].size > 0 || !role['scheduled_policies'].nil? && role['scheduled_policies'].size > 0
+                if !role['elasticity_policies'].nil? &&
+                   !role['elasticity_policies'].empty? ||
+                   !role['scheduled_policies'].nil? &&
+                   !role['scheduled_policies'].emtpty?
                     puts
-                    puts "ELASTICITY RULES"
+                    puts 'ELASTICITY RULES'
 
-                    if role['elasticity_policies'] && role['elasticity_policies'].size > 0
+                    if role['elasticity_policies'] &&
+                       !role['elasticity_policies'].emtpty?
                         puts
-#                        puts "ELASTICITY POLICIES"
+                        #                        puts 'ELASTICITY POLICIES'
                         CLIHelper::ShowTable.new(nil, self) do
-                            column :ADJUST, "", :left, :size=>12 do |d|
+                            column :ADJUST, '', :left, :size => 12 do |d|
                                 adjust_str(d)
                             end
 
-                            column :EXPRESSION, "", :left, :size=>48 do |d|
+                            column :EXPRESSION, '', :left, :size => 48 do |d|
                                 if !d['expression_evaluated'].nil?
                                     d['expression_evaluated']
                                 else
@@ -280,19 +301,20 @@ def show_service(client, args, options)
                                 end
                             end
 
-                            column :'EVALS', "", :right, :size=>5 do |d|
+                            column :EVALS, '', :right, :size => 5 do |d|
                                 if d['period_number']
-                                    "#{d['true_evals'].to_i}/#{d['period_number']}"
+                                    "#{d['true_evals'].to_i}/"\
+                                    "#{d['period_number']}"
                                 else
-                                    "-"
+                                    '-'
                                 end
                             end
 
-                            column :PERIOD, "", :size=>6 do |d|
-                                d['period'] ?  "#{d['period']}s" : '-'
+                            column :PERIOD, '', :size => 6 do |d|
+                                d['period'] ? "#{d['period']}s" : '-'
                             end
 
-                            column :COOL, "", :size=>5 do |d|
+                            column :COOL, '', :size => 5 do |d|
                                 d['cooldown'] ? "#{d['cooldown']}s" : '-'
                             end
 
@@ -300,15 +322,16 @@ def show_service(client, args, options)
                         end.show([role['elasticity_policies']].flatten, {})
                     end
 
-                    if role['scheduled_policies'] && role['scheduled_policies'].size > 0
+                    if role['scheduled_policies'] &&
+                       !role['scheduled_policies'].empty?
                         puts
-#                        puts "SCHEDULED POLICIES"
+                        #                        puts 'SCHEDULED POLICIES'
                         CLIHelper::ShowTable.new(nil, self) do
-                            column :ADJUST, "", :left, :size=>12 do |d|
+                            column :ADJUST, '', :left, :size => 12 do |d|
                                 adjust_str(d)
                             end
 
-                            column :TIME, "", :left, :size=>67 do |d|
+                            column :TIME, '', :left, :size => 67 do |d|
                                 if d['start_time']
                                     Time.parse(d['start_time']).to_s
                                 else
@@ -322,17 +345,17 @@ def show_service(client, args, options)
                 end
 
                 puts
-            }
+            end
 
             puts
 
-            CLIHelper.print_header(str_h1 % "LOG MESSAGES",false)
+            CLIHelper.print_header(str_h1 % 'LOG MESSAGES', false)
 
             if template['log']
-                template['log'].each { |log|
-                    t = Time.at(log['timestamp']).strftime("%m/%d/%y %H:%M")
+                template['log'].each do |log|
+                    t = Time.at(log['timestamp']).strftime('%m/%d/%y %H:%M')
                     puts "#{t} [#{log['severity']}] #{log['message']}"
-                }
+                end
             end
 
             0
@@ -341,7 +364,7 @@ def show_service(client, args, options)
 end
 
 def adjust_str(policy)
-    sign = policy['adjust'].to_i >= 0 ? "+" : "-"
+    policy['adjust'].to_i >= 0 ? sign = '+' : sign = '-'
     adjust = policy['adjust'].to_i.abs
 
     case policy['type']
@@ -363,8 +386,8 @@ end
 # Commands
 #
 
-cmd=CommandParser::CmdParser.new(ARGV) do
-    usage "`oneflow` <command> [<args>] [<options>]"
+CommandParser::CmdParser.new(ARGV) do
+    usage '`oneflow` <command> [<args>] [<options>]'
     version OpenNebulaHelper::ONE_VERSION
 
     set :option, Service::DEFAULT_OPTIONS
@@ -374,27 +397,29 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     #
     # Formatters for arguments
     #
-    set :format, :groupid, OpenNebulaHelper.rname_to_id_desc("GROUP") do |arg|
-        OpenNebulaHelper.rname_to_id(arg, "GROUP")
+    set :format, :groupid, OpenNebulaHelper.rname_to_id_desc('GROUP') do |arg|
+        OpenNebulaHelper.rname_to_id(arg, 'GROUP')
     end
 
-    set :format, :userid, OpenNebulaHelper.rname_to_id_desc("USER") do |arg|
-        OpenNebulaHelper.rname_to_id(arg, "USER")
+    set :format, :userid, OpenNebulaHelper.rname_to_id_desc('USER') do |arg|
+        OpenNebulaHelper.rname_to_id(arg, 'USER')
     end
 
-    set :format, :service_id, Service.rname_to_id_desc("SERVICE") do |arg|
-        Service.rname_to_id(arg, "SERVICE")
+    set :format, :service_id, Service.rname_to_id_desc('SERVICE') do |arg|
+        Service.rname_to_id(arg, 'SERVICE')
     end
 
-    set :format, :service_id_list, Service.list_to_id_desc("SERVICE") do |arg|
-        Service.list_to_id(arg, "SERVICE")
+    set :format, :service_id_list, Service.list_to_id_desc('SERVICE') do |arg|
+        Service.list_to_id(arg, 'SERVICE')
     end
 
-    set :format, :vm_action, "Actions supported: #{Role::SCHEDULE_ACTIONS.join(', ')}" do |arg|
+    set :format, :vm_action,
+        'Actions supported: #{Role::SCHEDULE_ACTIONS.join(', ')}' do |arg|
         if Role::SCHEDULE_ACTIONS.include?(arg)
             [0, arg]
         else
-            [-1, "Action #{arg} is not supported. Actions supported: #{Role::SCHEDULE_ACTIONS.join(', ')}"]
+            [-1, "Action #{arg} is not supported. Actions supported: "\
+                 "#{Role::SCHEDULE_ACTIONS.join(', ')}"]
         end
     end
 
@@ -408,12 +433,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :list, list_desc, :options => Service::JSON_FORMAT do
         client = Service::Client.new(
-                    :username   => options[:username],
-                    :password   => options[:password],
-                    :url        => options[:server],
-                    :user_agent => USER_AGENT)
+            :username   => options[:username],
+            :password   => options[:password],
+            :url        => options[:server],
+            :user_agent => USER_AGENT
+        )
 
-        list_services(client, args, options)
+        list_services(client, options)
     end
 
     #
@@ -426,10 +452,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :show, show_desc, :service_id, :options => Service::JSON_FORMAT do
         client = Service::Client.new(
-                    :username   => options[:username],
-                    :password   => options[:password],
-                    :url        => options[:server],
-                    :user_agent => USER_AGENT)
+            :username   => options[:username],
+            :password   => options[:password],
+            :url        => options[:server],
+            :user_agent => USER_AGENT
+        )
 
         show_service(client, args, options)
     end
@@ -444,37 +471,34 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :top, top_desc, [:service_id, nil],
-            :options => [Service::JSON_FORMAT, Service::TOP, CLIHelper::DELAY] do
+            :options => [Service::JSON_FORMAT,
+                         Service::TOP,
+                         CLIHelper::DELAY] do
         client = Service::Client.new(
-                    :username   => options[:username],
-                    :password   => options[:password],
-                    :url        => options[:server],
-                    :user_agent => USER_AGENT)
+            :username   => options[:username],
+            :password   => options[:password],
+            :url        => options[:server],
+            :user_agent => USER_AGENT
+        )
 
-        delay=options[:delay] ? options[:delay] : 3
+        options[:delay] ? delay = options[:delay] : delay = 3
 
         begin
-            while true
+            loop do
                 CLIHelper.scr_cls
-                CLIHelper.scr_move(0,0)
+                CLIHelper.scr_move(0, 0)
 
                 if args[0]
                     rc, message = show_service(client, args, options)
-
-                    if rc != 0
-                        raise message
-                    end
                 else
-                    rc, message = list_services(client, args, options)
-
-                    if rc != 0
-                        raise message
-                    end
+                    rc, message = list_services(client, options)
                 end
+
+                raise message if rc
 
                 sleep delay
             end
-        rescue Exception => e
+        rescue StandardError => e
             puts e.message
             -1
         end
@@ -490,14 +514,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :delete, delete_desc, [:range, :service_id_list] do
         client = Service::Client.new(
-                    :username   => options[:username],
-                    :password   => options[:password],
-                    :url        => options[:server],
-                    :user_agent => USER_AGENT)
+            :username   => options[:username],
+            :password   => options[:password],
+            :url        => options[:server],
+            :user_agent => USER_AGENT
+        )
 
-        Service.perform_actions(args[0]) { |service_id|
+        Service.perform_actions(args[0]) do |service_id|
             client.delete("#{RESOURCE_PATH}/#{service_id}")
-        }
+        end
     end
 
     #
@@ -511,16 +536,17 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :shutdown, shutdown_desc, [:range, :service_id_list] do
         client = Service::Client.new(
-                    :username   => options[:username],
-                    :password   => options[:password],
-                    :url        => options[:server],
-                    :user_agent => USER_AGENT)
+            :username   => options[:username],
+            :password   => options[:password],
+            :url        => options[:server],
+            :user_agent => USER_AGENT
+        )
 
-        Service.perform_actions(args[0]) { |service_id|
+        Service.perform_actions(args[0]) do |service_id|
             json_action = Service.build_json_action('shutdown')
 
             client.post("#{RESOURCE_PATH}/#{service_id}/action", json_action)
-        }
+        end
     end
 
     #
@@ -538,16 +564,17 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :recover, recover_desc, [:range, :service_id_list] do
         client = Service::Client.new(
-                    :username   => options[:username],
-                    :password   => options[:password],
-                    :url        => options[:server],
-                    :user_agent => USER_AGENT)
+            :username   => options[:username],
+            :password   => options[:password],
+            :url        => options[:server],
+            :user_agent => USER_AGENT
+        )
 
-        Service.perform_actions(args[0]) { |service_id|
+        Service.perform_actions(args[0]) do |service_id|
             json_action = Service.build_json_action('recover')
 
             client.post("#{RESOURCE_PATH}/#{service_id}/action", json_action)
-        }
+        end
     end
 
     #
@@ -558,27 +585,29 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Scale a role to the given cardinality
     EOT
 
-    command :'scale', scale_desc, :service_id, :role_name,
-        :cardinality, :options => [Service::FORCE] do
+    command :scale, scale_desc, :service_id, :role_name,
+            :cardinality, :options => [Service::FORCE] do
         client = Service::Client.new(
-                    :username   => options[:username],
-                    :password   => options[:password],
-                    :url        => options[:server],
-                    :user_agent => USER_AGENT)
+            :username   => options[:username],
+            :password   => options[:password],
+            :url        => options[:server],
+            :user_agent => USER_AGENT
+        )
 
-        if !(args[2] =~ /^\d+$/)
-            puts "Cardinality must be an integer number"
-            exit -1
+        if args[2] !~ /^\d+$/
+            puts 'Cardinality must be an integer number'
+            exit(-1)
         end
 
         exit_code = 0
 
-        json =  "{ \"cardinality\" : #{args[2]},\n"<<
+        json =  "{ \"cardinality\" : #{args[2]},\n" \
                 "  \"force\" : #{options[:force] == true} }"
 
-        response = client.put("#{RESOURCE_PATH}/#{args[0]}/role/#{args[1]}", json)
+        response = client
+                   .put("#{RESOURCE_PATH}/#{args[0]}/role/#{args[1]}", json)
 
-        if CloudClient::is_error?(response)
+        if CloudClient.is_error?(response)
             puts response.to_s
             exit_code = response.code.to_i
         end
@@ -592,41 +621,44 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :chgrp, chgrp_desc, [:range, :service_id_list], :groupid do
         client = Service::Client.new(
-                    :username   => options[:username],
-                    :password   => options[:password],
-                    :url        => options[:server],
-                    :user_agent => USER_AGENT)
+            :username   => options[:username],
+            :password   => options[:password],
+            :url        => options[:server],
+            :user_agent => USER_AGENT
+        )
 
-        Service.perform_actions(args[0]) { |service_id|
-            params = Hash.new
+        Service.perform_actions(args[0]) do |service_id|
+            params = {}
             params['group_id'] = args[1].to_i
 
             json_action = Service.build_json_action('chgrp', params)
 
             client.post("#{RESOURCE_PATH}/#{service_id}/action", json_action)
-        }
+        end
     end
 
     chown_desc = <<-EOT.unindent
         Changes the service owner and group
     EOT
 
-    command :chown, chown_desc, [:range, :service_id_list], :userid, [:groupid, nil] do
+    command :chown, chown_desc,
+            [:range, :service_id_list], :userid, [:groupid, nil] do
         client = Service::Client.new(
-                    :username   => options[:username],
-                    :password   => options[:password],
-                    :url        => options[:server],
-                    :user_agent => USER_AGENT)
+            :username   => options[:username],
+            :password   => options[:password],
+            :url        => options[:server],
+            :user_agent => USER_AGENT
+        )
 
-        Service.perform_actions(args[0]) { |service_id|
-            params = Hash.new
+        Service.perform_actions(args[0]) do |service_id|
+            params = {}
             params['owner_id'] = args[1]
             params['group_id'] = args[2] if args[2]
 
             json_action = Service.build_json_action('chown', params)
 
             client.post("#{RESOURCE_PATH}/#{service_id}/action", json_action)
-        }
+        end
     end
 
     chmod_desc = <<-EOT.unindent
@@ -635,40 +667,43 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :chmod, chmod_desc, [:range, :service_id_list], :octet do
         client = Service::Client.new(
-                    :username   => options[:username],
-                    :password   => options[:password],
-                    :url        => options[:server],
-                    :user_agent => USER_AGENT)
+            :username   => options[:username],
+            :password   => options[:password],
+            :url        => options[:server],
+            :user_agent => USER_AGENT
+        )
 
-        Service.perform_actions(args[0]) { |service_id|
-            params = Hash.new
+        Service.perform_actions(args[0]) do |service_id|
+            params = {}
             params['octet'] = args[1]
 
             json_action = Service.build_json_action('chmod', params)
 
             client.post("#{RESOURCE_PATH}/#{service_id}/action", json_action)
-        }
+        end
     end
 
     rename_desc = <<-EOT.unindent
-        Renames the Service 
+        Renames the Service
     EOT
 
     command :rename, rename_desc, :service_id, :name do
         client = Service::Client.new(
-                    :username   => options[:username],
-                    :password   => options[:password],
-                    :url        => options[:server],
-                    :user_agent => USER_AGENT)
+            :username   => options[:username],
+            :password   => options[:password],
+            :url        => options[:server],
+            :user_agent => USER_AGENT
+        )
 
-        params = Hash.new
+        params = {}
         params['name'] = args[1]
 
         json_action = Service.build_json_action('rename', params)
 
-        response = client.post("#{RESOURCE_PATH}/#{args[0]}/action", json_action)
+        response = client
+                   .post("#{RESOURCE_PATH}/#{args[0]}/action", json_action)
 
-        if CloudClient::is_error?(response)
+        if CloudClient.is_error?(response)
             [response.code.to_i, response.to_s]
         else
             response.code.to_i
@@ -677,26 +712,28 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     action_desc = <<-EOT.unindent
         Perform an action on all the Virtual Machines of a given role.
-        Actions supported: #{Role::SCHEDULE_ACTIONS.join(",")}
+        Actions supported: #{Role::SCHEDULE_ACTIONS.join(',')}
     EOT
 
-    command :"action", action_desc, :service_id, :role_name, :vm_action,
-        :options => [Service::PERIOD, Service::NUMBER] do
+    command :action, action_desc, :service_id, :role_name, :vm_action,
+            :options => [Service::PERIOD, Service::NUMBER] do
 
         client = Service::Client.new(
-                    :username   => options[:username],
-                    :password   => options[:password],
-                    :url        => options[:server],
-                    :user_agent => USER_AGENT)
+            :username   => options[:username],
+            :password   => options[:password],
+            :url        => options[:server],
+            :user_agent => USER_AGENT
+        )
 
-        Service.perform_actions([args[0]]) { |service_id|
-            params = Hash.new
+        Service.perform_actions([args[0]]) do |service_id|
+            params = {}
             params[:period] = options[:period].to_i if options[:period]
             params[:number] = options[:number].to_i if options[:number]
 
             json_action = Service.build_json_action(args[2], params)
 
-            client.post("#{RESOURCE_PATH}/#{service_id}/role/#{args[1]}/action", json_action)
-        }
+            client.post("#{RESOURCE_PATH}/#{service_id}/role/#{args[1]}/action",
+                        json_action)
+        end
     end
 end

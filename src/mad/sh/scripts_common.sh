@@ -32,6 +32,7 @@ LVCREATE=${LVCREATE:-lvcreate}
 LVREMOVE=${LVREMOVE:-lvremove}
 LVCHANGE=${LVCHANGE:-lvchange}
 LVSCAN=${LVSCAN:-lvscan}
+LVEXTEND=${LVEXTEND:-lvextend}
 LVS=${LVS:-lvs}
 LN=${LN:-ln}
 MD5SUM=${MD5SUM:-md5sum}
@@ -635,7 +636,7 @@ function get_source_xml {
         BCK_IFS=$IFS
         IFS=':'
 
-        unset k HOST_PARTS SOURCE_HOST
+        unset k HOST_PARTS
 
         for part in $host ; do
             HOST_PARTS[k++]="$part"
@@ -690,11 +691,23 @@ function get_source_xml {
 # * DISK_IO
 # * ORDER
 # * TOTAL_BYTES_SEC
+# * TOTAL_BYTES_SEC_MAX
+# * TOTAL_BYTES_SEC_MAX_LENGTH
 # * READ_BYTES_SEC
+# * READ_BYTES_SEC_MAX
+# * READ_BYTES_SEC_MAX_LENGTH
 # * WRITE_BYTES_SEC
+# * WRITE_BYTES_SEC_MAX
+# * WRITE_BYTES_SEC_MAX_LENGTH
 # * TOTAL_IOPS_SEC
+# * TOTAL_IOPS_SEC_MAX
+# * TOTAL_IOPS_SEC_MAX_LENGTH
 # * READ_IOPS_SEC
+# * READ_IOPS_SEC_MAX
+# * READ_IOPS_SEC_MAX_LENGTH
 # * WRITE_IOPS_SEC
+# * WRITE_IOPS_SEC_MAX
+# * WRITE_IOPS_SEC_MAX_LENGTH
 # * TYPE_SOURCE: libvirt xml source name. $TYPE_SOURCE=$SOURCE => file=/my/path
 # * SOURCE: disk source, can be path, ceph pool/image, device...
 # * TYPE_XML
@@ -741,11 +754,23 @@ function get_disk_information {
                         $DISK_XPATH/IO \
                         $DISK_XPATH/ORDER \
                         $DISK_XPATH/TOTAL_BYTES_SEC \
+                        $DISK_XPATH/TOTAL_BYTES_SEC_MAX \
+                        $DISK_XPATH/TOTAL_BYTES_SEC_MAX_LENGTH \
                         $DISK_XPATH/READ_BYTES_SEC \
+                        $DISK_XPATH/READ_BYTES_SEC_MAX \
+                        $DISK_XPATH/READ_BYTES_SEC_MAX_LENGTH \
                         $DISK_XPATH/WRITE_BYTES_SEC \
+                        $DISK_XPATH/WRITE_BYTES_SEC_MAX \
+                        $DISK_XPATH/WRITE_BYTES_SEC_MAX_LENGTH \
                         $DISK_XPATH/TOTAL_IOPS_SEC \
+                        $DISK_XPATH/TOTAL_IOPS_SEC_MAX \
+                        $DISK_XPATH/TOTAL_IOPS_SEC_MAX_LENGTH \
                         $DISK_XPATH/READ_IOPS_SEC \
-                        $DISK_XPATH/WRITE_IOPS_SEC)
+                        $DISK_XPATH/READ_IOPS_SEC_MAX \
+                        $DISK_XPATH/READ_IOPS_SEC_MAX_LENGTH \
+                        $DISK_XPATH/WRITE_IOPS_SEC \
+                        $DISK_XPATH/WRITE_IOPS_SEC_MAX \
+                        $DISK_XPATH/WRITE_IOPS_SEC_MAX_LENGTH )
 
     VMID="${XPATH_ELEMENTS[j++]}"
     DRIVER="${XPATH_ELEMENTS[j++]:-$DEFAULT_TYPE}"
@@ -770,11 +795,23 @@ function get_disk_information {
     DISK_IO="${XPATH_ELEMENTS[j++]}"
     ORDER="${XPATH_ELEMENTS[j++]}"
     TOTAL_BYTES_SEC="${XPATH_ELEMENTS[j++]}"
+    TOTAL_BYTES_SEC_MAX="${XPATH_ELEMENTS[j++]}"
+    TOTAL_BYTES_SEC_MAX_LENGTH="${XPATH_ELEMENTS[j++]}"
     READ_BYTES_SEC="${XPATH_ELEMENTS[j++]}"
+    READ_BYTES_SEC_MAX="${XPATH_ELEMENTS[j++]}"
+    READ_BYTES_SEC_MAX_LENGTH="${XPATH_ELEMENTS[j++]}"
     WRITE_BYTES_SEC="${XPATH_ELEMENTS[j++]}"
+    WRITE_BYTES_SEC_MAX="${XPATH_ELEMENTS[j++]}"
+    WRITE_BYTES_SEC_MAX_LENGTH="${XPATH_ELEMENTS[j++]}"
     TOTAL_IOPS_SEC="${XPATH_ELEMENTS[j++]}"
+    TOTAL_IOPS_SEC_MAX="${XPATH_ELEMENTS[j++]}"
+    TOTAL_IOPS_SEC_MAX_LENGTH="${XPATH_ELEMENTS[j++]}"
     READ_IOPS_SEC="${XPATH_ELEMENTS[j++]}"
+    READ_IOPS_SEC_MAX="${XPATH_ELEMENTS[j++]}"
+    READ_IOPS_SEC_MAX_LENGTH="${XPATH_ELEMENTS[j++]}"
     WRITE_IOPS_SEC="${XPATH_ELEMENTS[j++]}"
+    WRITE_IOPS_SEC_MAX="${XPATH_ELEMENTS[j++]}"
+    WRITE_IOPS_SEC_MAX_LENGTH="${XPATH_ELEMENTS[j++]}"
 
     TYPE=$(echo "$TYPE"|tr A-Z a-z)
     READONLY=$(echo "$READONLY"|tr A-Z a-z)
@@ -799,7 +836,7 @@ function get_disk_information {
         fi
 
         SOURCE_ARGS="protocol='iscsi'"
-        SOURCE_HOST=$(get_source_xml $ISCSI_HOST)
+        SOURCE_HOST=$(get_source_xml "$ISCSI_HOST")
 
         if [ -n "$ISCSI_USAGE" -a -n "$ISCSI_USER" ]; then
             AUTH="<auth username='$ISCSI_USER'>\
@@ -829,7 +866,7 @@ function get_disk_information {
         fi
 
         SOURCE_ARGS="protocol='rbd'"
-        SOURCE_HOST=$(get_source_xml $CEPH_HOST)
+        SOURCE_HOST=$(get_source_xml "$CEPH_HOST")
 
         if [ -n "$CEPH_USER" -a -n "$CEPH_SECRET" ]; then
             AUTH="<auth username='$CEPH_USER'>\
@@ -892,6 +929,7 @@ function get_disk_information {
 # * MODEL
 # * IP
 # * FILTER
+# * VIRTIO_QUEUES
 # * VROUTER_IP
 # * INBOUND_AVG_BW
 # * INBOUND_PEAK_BW
@@ -924,6 +962,7 @@ function get_nic_information {
                         $NIC_XPATH/MODEL \
                         $NIC_XPATH/IP \
                         $NIC_XPATH/FILTER \
+                        $NIC_XPATH/VIRTIO_QUEUES \
                         $NIC_XPATH/VROUTER_IP \
                         $NIC_XPATH/INBOUND_AVG_BW \
                         $NIC_XPATH/INBOUND_PEAK_BW \
@@ -943,6 +982,7 @@ function get_nic_information {
     MODEL="${XPATH_ELEMENTS[j++]}"
     IP="${XPATH_ELEMENTS[j++]}"
     FILTER="${XPATH_ELEMENTS[j++]}"
+    VIRTIO_QUEUES="${XPATH_ELEMENTS[j++]}"
     VROUTER_IP="${XPATH_ELEMENTS[j++]}"
     INBOUND_AVG_BW="${XPATH_ELEMENTS[j++]}"
     INBOUND_PEAK_BW="${XPATH_ELEMENTS[j++]}"

@@ -29,72 +29,119 @@ DRV_ACTION="$5"
 
 get_disk_information "ATTACH='YES'"
 
+function insert_sec() {
+    name=$1
+    s=$2
+    sm=$3
+    sml=$4
+
+    if [ -n "${s}" ]; then
+        XML+="<${name}_sec>$(xml_esc "${s}")</${name}_sec>"
+    else
+        s="0"
+    fi
+
+    if [ -n "${sm}" ]; then
+        if [ "${sm}" -gt "${s}" ]; then
+            XML+="<${name}_sec_max>$(xml_esc "${sm}")</${name}_sec_max>"
+
+            if [ -n "${sml}" ]; then
+                XML+="<${name}_sec_max_length>$(xml_esc "${sml}")"
+                XML+="</${name}_sec_max_length>"
+            fi
+        fi
+    fi
+}
+
 # defaults
 CACHE=${CACHE:-${DEFAULT_ATTACH_CACHE}}
-CACHE=${CACHE:-default}  # https://github.com/OpenNebula/one/blob/c0d081917224f1d467582b8d8ac052a48040ec00/src/vmm/LibVirtDriverKVM.cc#L459
+CACHE=${CACHE:-default}
 DISCARD=${DISCARD:-${DEFAULT_ATTACH_DISCARD}}
 DISK_IO=${DISK_IO:-${DEFAULT_ATTACH_IO}}
 TOTAL_BYTES_SEC=${TOTAL_BYTES_SEC:-${DEFAULT_ATTACH_TOTAL_BYTES_SEC}}
+TOTAL_BYTES_SEC_MAX_LENGTH=${TOTAL_BYTES_SEC_MAX_LENGTH:-${DEFAULT_ATTACH_TOTAL_BYTES_SEC_MAX_LENGTH}}
+TOTAL_BYTES_SEC_MAX=${TOTAL_BYTES_SEC_MAX:-${DEFAULT_ATTACH_TOTAL_BYTES_SEC_MAX}}
 READ_BYTES_SEC=${READ_BYTES_SEC:-${DEFAULT_ATTACH_READ_BYTES_SEC}}
+READ_BYTES_SEC_MAX_LENGTH=${READ_BYTES_SEC_MAX_LENGTH:-${DEFAULT_ATTACH_READ_BYTES_SEC_MAX_LENGTH}}
+READ_BYTES_SEC_MAX=${READ_BYTES_SEC_MAX:-${DEFAULT_ATTACH_READ_BYTES_SEC_MAX}}
 WRITE_BYTES_SEC=${WRITE_BYTES_SEC:-${DEFAULT_ATTACH_WRITE_BYTES_SEC}}
+WRITE_BYTES_SEC_MAX_LENGTH=${WRITE_BYTES_SEC_MAX_LENGTH:-${DEFAULT_ATTACH_WRITE_BYTES_SEC_MAX_LENGTH}}
+WRITE_BYTES_SEC_MAX=${WRITE_BYTES_SEC_MAX:-${DEFAULT_ATTACH_WRITE_BYTES_SEC_MAX}}
 TOTAL_IOPS_SEC=${TOTAL_IOPS_SEC:-${DEFAULT_ATTACH_TOTAL_IOPS_SEC}}
+TOTAL_IOPS_SEC_MAX_LENGTH=${TOTAL_IOPS_SEC_MAX_LENGTH:-${DEFAULT_ATTACH_TOTAL_IOPS_SEC_MAX_LENGTH}}
+TOTAL_IOPS_SEC_MAX=${TOTAL_IOPS_SEC_MAX:-${DEFAULT_ATTACH_TOTAL_IOPS_SEC_MAX}}
 READ_IOPS_SEC=${READ_IOPS_SEC:-${DEFAULT_ATTACH_READ_IOPS_SEC}}
+READ_IOPS_SEC_MAX_LENGTH=${READ_IOPS_SEC_MAX_LENGTH:-${DEFAULT_ATTACH_READ_IOPS_SEC_MAX_LENGTH}}
+READ_IOPS_SEC_MAX=${READ_IOPS_SEC_MAX:-${DEFAULT_ATTACH_READ_IOPS_SEC_MAX}}
 WRITE_IOPS_SEC=${WRITE_IOPS_SEC:-${DEFAULT_ATTACH_WRITE_IOPS_SEC}}
+WRITE_IOPS_SEC_MAX_LENGTH=${WRITE_IOPS_SEC_MAX_LENGTH:-${DEFAULT_ATTACH_WRITE_IOPS_SEC_MAX_LENGTH}}
+WRITE_IOPS_SEC_MAX=${WRITE_IOPS_SEC_MAX:-${DEFAULT_ATTACH_WRITE_IOPS_SEC_MAX}}
 
 # disk XML
 XML=''
 
 XML+="<disk type='$(xml_esc "${TYPE_XML}")' device='$(xml_esc "${DEVICE}")'>"
 
-XML+=" <driver name='qemu' type='$(xml_esc "${DRIVER}")'"
+XML+="<driver name='qemu' type='$(xml_esc "${DRIVER}")'"
 [ -n "${CACHE}" ] && XML+=" cache='$(xml_esc "${CACHE}")'"
 [ -n "${DISK_IO}" ] && XML+=" io='$(xml_esc "${DISK_IO}")'"
 [ -n "${DISCARD}" ] && XML+=" discard='$(xml_esc "${DISCARD}")'"
-XML+=" />"
+XML+="/>"
 
-XML+=" <source ${TYPE_SOURCE}='$(xml_esc "${SOURCE}")' ${SOURCE_ARGS}>"
-XML+="  ${SOURCE_HOST}"
-XML+=" </source>"
+XML+="<source ${TYPE_SOURCE}='$(xml_esc "${SOURCE}")' ${SOURCE_ARGS}>"
+XML+="${SOURCE_HOST}"
+XML+="</source>"
 
 [ -n "${AUTH}" ] && XML+=" ${AUTH}"
 
-XML+=" <target dev='$(xml_esc "${TARGET}")'/>"
+XML+="<target dev='$(xml_esc "${TARGET}")'/>"
 [ -n "${ORDER}" ] && XML+=" <boot order='$(xml_esc "${ORDER}")'/>"
-[ "${READONLY}" = 'yes' ] && XML+=" <readonly/>"
+[ "${READONLY}" = 'yes' ] && XML+="<readonly/>"
 
 if [ -n "${TOTAL_BYTES_SEC}${READ_BYTES_SEC}${WRITE_BYTES_SEC}" ] || \
-   [ -n "${TOTAL_IOPS_SEC}${READ_IOPS_SEC}${WRITE_IOPS_SEC}" ];
+   [ -n "${TOTAL_BYTES_SEC_MAX}${READ_BYTES_SEC_MAX}${WRITE_BYTES_SEC_MAX}" ] || \
+   [ -n "${TOTAL_IOPS_SEC}${READ_IOPS_SEC}${WRITE_IOPS_SEC}" ] || \
+   [ -n "${TOTAL_IOPS_SEC_MAX}${READ_IOPS_SEC_MAX}${WRITE_IOPS_SEC_MAX}" ];
 then
-    XML+=" <iotune>"
+    XML+="<iotune>"
 
-    [ -n "${TOTAL_BYTES_SEC}" ] && \
-        XML+=" <total_bytes_sec>$(xml_esc "${TOTAL_BYTES_SEC}")</total_bytes_sec>"
-    [ -n "${READ_BYTES_SEC}" ] && \
-        XML+=" <read_bytes_sec>$(xml_esc "${READ_BYTES_SEC}")</read_bytes_sec>"
-    [ -n "${WRITE_BYTES_SEC}" ] && \
-        XML+=" <write_bytes_sec>$(xml_esc "${WRITE_BYTES_SEC}")</write_bytes_sec>"
+    if [ -n "${TOTAL_BYTES_SEC}${TOTAL_BYTES_SEC_MAX}" ]; then
+        insert_sec "total_bytes" "${TOTAL_BYTES_SEC}" "${TOTAL_BYTES_SEC_MAX}" \
+            "${TOTAL_BYTES_SEC_MAX_LENGTH}"
+    else
+        insert_sec "read_bytes" "${READ_BYTES_SEC}" "${READ_BYTES_SEC_MAX}" \
+            "${READ_BYTES_SEC_MAX_LENGTH}"
 
-    [ -n "${TOTAL_IOPS_SEC}" ] && \
-        XML+=" <total_iops_sec>$(xml_esc "${TOTAL_IOPS_SEC}")</total_iops_sec>"
-    [ -n "${READ_IOPS_SEC}" ] && \
-        XML+=" <read_iops_sec>$(xml_esc "${READ_IOPS_SEC}")</read_iops_sec>"
-    [ -n "${WRITE_IOPS_SEC}" ] && \
-        XML+=" <write_iops_sec>$(xml_esc "${WRITE_IOPS_SEC}")</write_iops_sec>"
+        insert_sec "write_bytes" "${WRITE_BYTES_SEC}" "${WRITE_BYTES_SEC_MAX}" \
+            "${WRITE_BYTES_SEC_MAX_LENGTH}"
+    fi
 
-    XML+=" </iotune>"
+    if [ -n "${TOTAL_BYTES_SEC}${TOTAL_BYTES_SEC_MAX}" ]; then
+        insert_sec "total_iops" "${TOTAL_IOPS_SEC}" "${TOTAL_IOPS_SEC_MAX}" \
+            "${TOTAL_IOPS_SEC_MAX_LENGTH}"
+    else
+        insert_sec "read_iops" "${READ_IOPS_SEC}" "${READ_IOPS_SEC_MAX}" \
+            "${READ_IOPS_SEC_MAX_LENGTH}"
+
+        insert_sec "write_iops" "${WRITE_IOPS_SEC}" "${WRITE_IOPS_SEC_MAX}" \
+            "${WRITE_IOPS_SEC_MAX_LENGTH}"
+    fi
+
+    XML+="</iotune>"
 fi
 
 if [ -z "${DISK_TARGET##sd*}" ]; then
     CTRL_TARGET=$(( $(LC_CTYPE=C printf '%d' "'${DISK_TARGET##sd}") - 97 ))
     if [ ${CTRL_TARGET} -ge 0 ] && [ ${CTRL_TARGET} -lt 256 ]; then
-        XML+=" <address type='drive' controller='0' bus='0' target='${CTRL_TARGET}' unit='0'/>"
+        XML+="<address type='drive' controller='0' bus='0' target='${CTRL_TARGET}' unit='0'/>"
     fi
 fi
 
-XML+=" </disk>"
+XML+="</disk>"
 
 # device attach
 ATTACH_CMD=$(cat <<EOF
+set -e -o pipefail
 virsh --connect $LIBVIRT_URI attach-device $DOMAIN <(
 cat <<EOT
 ${XML}

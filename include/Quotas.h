@@ -162,11 +162,24 @@ public:
      *  for the given user and group
      *    @param uid of the user
      *    @param gid of the group
-     *    @param tmpl template for the image, with usage
+     *    @param tmpl template for the vm with usage
      */
     static void vm_del(int uid, int gid, Template * tmpl)
     {
         quota_del(VIRTUALMACHINE, uid, gid, tmpl);
+    }
+
+    /**
+     *  Check VM related usage (network, image and compute) from quota counters
+     *  for the given user and group. Quotas are updated if not exceeded.
+     *    @param uid of the user
+     *    @param gid of the group
+     *    @param tmpl template for the vm with usage
+     *    @param error string
+     */
+    static void vm_check(int uid, int gid, Template * tmpl, string& error)
+    {
+        quota_check(VIRTUALMACHINE, uid, gid, tmpl, error);
     }
 
     /**
@@ -209,14 +222,23 @@ public:
     static void ds_del_recreate(int uid, int gid, vector<Template *>& ds_quotas);
 
     /**
-     *  Delete usage from the given quota counters.
-     *  for the given user and group
+     *  Delete usage from the given quota counters for the given user and group
      *    @param type the quota to work with
      *    @param uid of the user
      *    @param gid of the group
      *    @param tmpl template for the image, with usage
      */
     static void quota_del(QuotaType type, int uid, int gid, Template * tmpl);
+
+    /**
+     *  Delete usage from the given quota counters for the given user and group
+     *    @param type the quota to work with
+     *    @param uid of the user
+     *    @param gid of the group
+     *    @param tmpl template for the image, with usage
+     */
+    static void quota_check(QuotaType type, int uid, int gid, Template * tmpl,
+        string& error);
 
 protected:
     /**

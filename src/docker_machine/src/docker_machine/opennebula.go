@@ -7,7 +7,8 @@ import (
 	"io/ioutil"
 	"strconv"
 	"time"
-	"goca"
+
+	"github.com/OpenNebula/one/src/oca/go/src/goca"
 
 	"github.com/docker/machine/libmachine/drivers"
 	"github.com/docker/machine/libmachine/log"
@@ -37,15 +38,16 @@ type Driver struct {
 	Xmlrpcurl      string
 	Config         goca.OneConfig
 	DisableVNC     bool
+	StartRetries   string
 }
 
 const (
-	defaultTimeout = 1 * time.Second
-	defaultSSHUser = "docker"
-	defaultCPU     = "1"
-	defaultVCPU    = "1"
-	defaultMemory  = "1024"
-
+	defaultTimeout      = 1 * time.Second
+	defaultSSHUser      = "docker"
+	defaultCPU          = "1"
+	defaultVCPU         = "1"
+	defaultMemory       = "1024"
+	defaultStartRetries = "600"
 	// This is the contextualization script that will be executed by OpenNebula
 	contextScript = `#!/bin/sh
 
@@ -221,6 +223,12 @@ func (d *Driver) GetCreateFlags() []mcnflag.Flag {
 			Usage:  "Set the url for one xmlrpc server",
 			EnvVar: "ONE_XMLRPC",
 		},
+		mcnflag.StringFlag{
+			Name:   "opennebula-start-retries",
+			Usage:  "Set the number of retries until de vm is running",
+			EnvVar: "ONE_START_RETRIES",
+			Value:  defaultStartRetries,
+		},
 	}
 }
 
@@ -260,6 +268,9 @@ func (d *Driver) SetConfigFromFlags(flags drivers.DriverOptions) error {
 
 	// VNC
 	d.DisableVNC = flags.Bool("opennebula-disable-vnc")
+
+	// CONFIG
+	d.StartRetries = flags.String("opennebula-start-retries")
 
 	// Either TemplateName or TemplateID
 	if d.TemplateName != "" && d.TemplateID != "" {
@@ -645,7 +656,8 @@ func (d *Driver) Start() error {
 	vm.Resume()
 
 	s := state.None
-	for retry := 0; retry < 50 && s != state.Running; retry++ {
+	retries, _ := strconv.Atoi(d.StartRetries)
+	for retry := 0; retry < retries && s != state.Running; retry++ {
 		s, err = d.GetState()
 		if err != nil {
 			return err

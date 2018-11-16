@@ -134,9 +134,9 @@ void VirtualMachinePoolAccounting::request_execute(
     int time_start  = xmlrpc_c::value_int(paramList.getInt(2));
     int time_end    = xmlrpc_c::value_int(paramList.getInt(3));
 
-    ostringstream oss;
-    string        where;
-    int           rc;
+    string oss;
+    string where;
+    int rc;
 
     if ( filter_flag < GROUP )
     {
@@ -158,7 +158,7 @@ void VirtualMachinePoolAccounting::request_execute(
         return;
     }
 
-    success_response(oss.str(), att);
+    success_response(oss, att);
 
     return;
 }
@@ -176,7 +176,7 @@ void VirtualMachinePoolShowback::request_execute(
     int end_month   = xmlrpc_c::value_int(paramList.getInt(4));
     int end_year    = xmlrpc_c::value_int(paramList.getInt(5));
 
-    ostringstream oss;
+    string oss;
     string        where;
     int           rc;
 
@@ -202,7 +202,7 @@ void VirtualMachinePoolShowback::request_execute(
         return;
     }
 
-    success_response(oss.str(), att);
+    success_response(oss, att);
 
     return;
 }
@@ -216,7 +216,7 @@ void VirtualMachinePoolMonitoring::request_execute(
 {
     int filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
 
-    ostringstream oss;
+    string oss;
     string        where;
     int           rc;
 
@@ -238,7 +238,7 @@ void VirtualMachinePoolMonitoring::request_execute(
         return;
     }
 
-    success_response(oss.str(), att);
+    success_response(oss, att);
 
     return;
 }
@@ -260,9 +260,10 @@ void HostPoolMonitoring::request_execute(
         xmlrpc_c::paramList const& paramList,
         RequestAttributes& att)
 {
-    ostringstream oss;
-    string        where;
-    int           rc;
+    string oss;
+    string where;
+
+    int rc;
 
     where_filter(att, ALL, -1, -1, "", "", false, false, false, where);
 
@@ -275,7 +276,7 @@ void HostPoolMonitoring::request_execute(
         return;
     }
 
-    success_response(oss.str(), att);
+    success_response(oss, att);
 
     return;
 }
@@ -437,9 +438,14 @@ void RequestManagerPoolInfoFilter::dump(
         const string&      and_clause,
         const string&      or_clause)
 {
-    ostringstream oss;
-    string        where_string, limit_clause;
-    int           rc;
+    std::string str;
+
+    std::ostringstream oss;
+
+    std::string where_string, limit_clause;
+    std::string desc;
+
+    int rc;
 
     if ( filter_flag < GROUP )
     {
@@ -463,10 +469,13 @@ void RequestManagerPoolInfoFilter::dump(
     {
         oss << start_id << "," << -end_id;
         limit_clause = oss.str();
-        oss.str("");
     }
 
-    rc = pool->dump(oss, where_string, limit_clause);
+    Nebula::instance().get_configuration_attribute(att.uid, att.gid, 
+            "API_LIST_ORDER", desc);
+
+    rc = pool->dump(str, where_string, limit_clause,
+            one_util::toupper(desc) == "DESC");
 
     if ( rc != 0 )
     {
@@ -475,7 +484,7 @@ void RequestManagerPoolInfoFilter::dump(
         return;
     }
 
-    success_response(oss.str(), att);
+    success_response(str, att);
 
     return;
 }
@@ -528,10 +537,14 @@ void VirtualNetworkPoolInfo::request_execute(
     /* ---------------------------------------------------------------------- */
     /*  Get the VNET pool                                                     */
     /* ---------------------------------------------------------------------- */
+    std::string pool_oss;
+    std::string desc;
 
-    ostringstream pool_oss;
+    Nebula::instance().get_configuration_attribute(att.uid, att.gid, 
+            "API_LIST_ORDER", desc);
 
-    int rc = pool->dump(pool_oss, where_string.str(), limit_clause.str());
+    int rc = pool->dump(pool_oss, where_string.str(), limit_clause.str(),
+            one_util::toupper(desc) == "DESC");
 
     if ( rc != 0 )
     {
@@ -540,7 +553,7 @@ void VirtualNetworkPoolInfo::request_execute(
         return;
     }
 
-    success_response(pool_oss.str(), att);
+    success_response(pool_oss, att);
 
     return;
 }

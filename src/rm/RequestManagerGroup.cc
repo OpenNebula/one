@@ -119,21 +119,18 @@ void GroupEditAdmin::request_execute(
         return;
     }
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(AuthRequest::ADMIN, group_perms);   // MANAGE GROUP
+
+    ar.add_auth(AuthRequest::ADMIN, user_perms);    // MANAGE USER
+
+    if (UserPool::authorize(ar) == -1)
     {
-        AuthRequest ar(att.uid, att.group_ids);
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
 
-        ar.add_auth(AuthRequest::ADMIN, group_perms);   // MANAGE GROUP
-
-        ar.add_auth(AuthRequest::ADMIN, user_perms);    // MANAGE USER
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
-
-            return;
-        }
+        return;
     }
 
     group = static_cast<GroupPool*>(pool)->get(group_id);

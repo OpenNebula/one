@@ -85,8 +85,14 @@ define(function(require) {
     $(document).on("click", ".accordion_advanced_toggle", function() {
       if ($(this).hasClass("active")) {
         $(this).removeClass("active");
+        if ($(this).hasClass("importation")) {
+          $(this).css("color", "").css("font-weight", "normal");
+        }
       } else {
         $(this).addClass("active");
+        if ($(this).hasClass("importation")) {
+          $(this).css("color", "#555").css("font-weight", "bold");
+        }
       }
 
       $(".content", $(this).closest(".accordion_advanced")).toggle();

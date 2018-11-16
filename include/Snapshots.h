@@ -102,11 +102,16 @@ public:
     int active_snapshot(int id);
 
     /**
+     * Rename the given snapshot by the given name
+     */
+
+    int rename_snapshot(int id, const string& name, string& str_error);
+
+    /**
      *  Clear all the snapshots in the list
      */
     void clear()
     {
-        next_snapshot = 0;
         active        = -1;
         disk_id       = -1;
 

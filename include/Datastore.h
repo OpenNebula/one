@@ -248,6 +248,24 @@ public:
      */
     int enable(bool enable, string& error_str);
 
+    /**
+     * Return a set with compatible system ds for an image ds
+     */
+    void get_compatible_system_ds(set<int> &compatible_sys_ds)
+    {
+        string compatible_sys_ds_str;
+
+        get_template_attribute("COMPATIBLE_SYS_DS", compatible_sys_ds_str);
+
+        one_util::split_unique(compatible_sys_ds_str, ',', compatible_sys_ds);
+    }
+
+    /**
+     *  Verify the proper definition of the TM_MAD by checking the attributes
+     *  related to the TM defined in TM_MAD_CONF
+     */
+    int get_tm_mad_targets(const string &tm_mad, string& ln_target, string& clone_target, string& disk_type);
+
 private:
 
     // -------------------------------------------------------------------------

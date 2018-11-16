@@ -53,11 +53,13 @@ VG_NAME="vg-one-$DS_SYS_ID"
 DEV="/dev/${VG_NAME}/${LV_NAME}"
 
 DUMP_CMD=$(cat <<EOF
+    set -e -o pipefail
     $DD if=$DEV of=$DST_PATH bs=64k
 EOF
 )
 
 DELETE_CMD=$(cat <<EOF
+    set -e -o pipefail
     $SUDO $LVREMOVE -f $DEV
 EOF
 )

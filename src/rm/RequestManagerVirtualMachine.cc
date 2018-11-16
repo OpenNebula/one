@@ -46,12 +46,6 @@ bool RequestManagerVirtualMachine::vm_authorization(
         return false;
     }
 
-    if ( att.uid == 0 )
-    {
-        object->unlock();
-        return true;
-    }
-
     object->get_permissions(vm_perms);
 
     object->unlock();
@@ -75,7 +69,7 @@ bool RequestManagerVirtualMachine::vm_authorization(
 
     if ( vtmpl != 0 )
     {
-        VirtualMachine::set_auth_request(att.uid, ar, vtmpl);
+        VirtualMachine::set_auth_request(att.uid, ar, vtmpl, true);
     }
 
     if ( ds_perm != 0 )
@@ -108,7 +102,7 @@ bool RequestManagerVirtualMachine::quota_resize_authorization(
         RequestAttributes&  att)
 {
     PoolObjectAuth      vm_perms;
-    VirtualMachine *    vm = Nebula::instance().get_vmpool()->get(oid);
+    VirtualMachine *    vm = Nebula::instance().get_vmpool()->get_ro(oid);
 
     if (vm == 0)
     {
@@ -226,7 +220,7 @@ int RequestManagerVirtualMachine::get_default_ds_information(
 
     ds_id = -1;
 
-    cluster = clpool->get(cluster_id);
+    cluster = clpool->get_ro(cluster_id);
 
     if (cluster == 0)
     {
@@ -275,7 +269,7 @@ int RequestManagerVirtualMachine::get_ds_information(int ds_id,
 {
     Nebula& nd = Nebula::instance();
 
-    Datastore * ds = nd.get_dspool()->get(ds_id);
+    Datastore * ds = nd.get_dspool()->get_ro(ds_id);
 
     ds_cluster_ids.clear();
 
@@ -333,7 +327,7 @@ int RequestManagerVirtualMachine::get_host_information(
     Nebula&    nd    = Nebula::instance();
     HostPool * hpool = nd.get_hpool();
 
-    Host *     host  = hpool->get(hid);
+    Host *     host  = hpool->get_ro(hid);
 
     if ( host == 0 )
     {
@@ -385,7 +379,7 @@ bool RequestManagerVirtualMachine::check_host(
 
     vm->get_requirements(cpu, mem, disk, pci);
 
-    host = hpool->get(hid);
+    host = hpool->get_ro(hid);
 
     if (host == 0)
     {
@@ -426,7 +420,24 @@ VirtualMachine * RequestManagerVirtualMachine::get_vm(int id,
 {
     VirtualMachine * vm;
 
-    vm = static_cast<VirtualMachine *>(pool->get(id));
+    vm = static_cast<VirtualMachinePool *>(pool)->get(id);
+
+    if ( vm == 0 )
+    {
+        att.resp_id = id;
+        failure_response(NO_EXISTS, att);
+        return 0;
+    }
+
+    return vm;
+}
+
+VirtualMachine * RequestManagerVirtualMachine::get_vm_ro(int id,
+                                                      RequestAttributes& att)
+{
+    VirtualMachine * vm;
+
+    vm = static_cast<VirtualMachinePool *>(pool)->get_ro(id);
 
     if ( vm == 0 )
     {
@@ -484,6 +495,8 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
     int    rc;
 
+    std::string memory, cpu;
+
     Nebula& nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
 
@@ -492,6 +505,8 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
     AuthRequest::Operation op;
     History::VMAction action;
+
+    VirtualMachineTemplate quota_tmpl;
 
     VirtualMachine * vm;
 
@@ -519,6 +534,21 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
+    vm->get_template_attribute("MEMORY", memory);
+    vm->get_template_attribute("CPU", cpu);
+
+    quota_tmpl.add("RUNNING_MEMORY", memory);
+    quota_tmpl.add("RUNNING_CPU", cpu);
+    quota_tmpl.add("RUNNING_VMS", 1);
+
+    quota_tmpl.add("VMS", 0);
+    quota_tmpl.add("MEMORY", 0);
+    quota_tmpl.add("CPU", 0);
+
+    RequestAttributes& att_aux(att);
+    att_aux.uid = vm->get_uid();
+    att_aux.gid = vm->get_gid();
+
     if (vm->is_imported() && !vm->is_imported_action_supported(action))
     {
         att.resp_msg = "Action \"" + action_st + "\" is not supported for "
@@ -530,18 +560,15 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if (vm->is_vrouter() && !VirtualRouter::is_action_supported(action))
+    vm->unlock();
+
+     if ( action == History::RESUME_ACTION && 
+             !quota_authorization(&quota_tmpl, Quotas::VIRTUALMACHINE, att_aux, 
+                 att.resp_msg) )
     {
-        att.resp_msg = "Action \"" + action_st + "\" is not supported for "
-            "virtual router VMs";
-
         failure_response(ACTION, att);
-
-        vm->unlock();
         return;
     }
-
-    vm->unlock();
 
     switch (action)
     {
@@ -725,6 +752,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     DatastorePool * dspool = nd.get_dspool();
 
     VirtualMachine * vm;
+    VirtualMachineTemplate  tmpl;
 
     string hostname;
     string vmm_mad;
@@ -735,13 +763,14 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     PoolObjectAuth * auth_ds_perms;
 
     string tm_mad;
+    string error_str;
 
     bool auth = false;
+    bool check_nic_auto = false;
 
     // ------------------------------------------------------------------------
     // Get request parameters and information about the target host
     // ------------------------------------------------------------------------
-
     int  id      = xmlrpc_c::value_int(paramList.getInt(1));
     int  hid     = xmlrpc_c::value_int(paramList.getInt(2));
     bool enforce = false;
@@ -757,6 +786,21 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         ds_id = xmlrpc_c::value_int(paramList.getInt(4));
     }
 
+    if ( paramList.size() > 5 ) // Template with network scheduling results
+    {
+        std::string str_tmpl = xmlrpc_c::value_string(paramList.getString(5));
+
+        check_nic_auto = !str_tmpl.empty();
+
+        int rc = tmpl.parse_str_or_xml(str_tmpl, att.resp_msg);
+
+        if ( rc != 0 )
+        {
+            failure_response(INTERNAL, att);
+            return;
+        }
+    }
+
     if (get_host_information(hid,
                              hostname,
                              vmm_mad,
@@ -768,11 +812,11 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
+
     // ------------------------------------------------------------------------
     // Get information about the system DS to use (tm_mad & permissions)
     // ------------------------------------------------------------------------
-
-    if ((vm = get_vm(id, att)) == 0)
+    if ((vm = get_vm_ro(id, att)) == 0)
     {
         return;
     }
@@ -783,7 +827,12 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
          vm->get_action() == History::UNDEPLOY_HARD_ACTION))
     {
         ds_id = vm->get_ds_id();
+
+        check_nic_auto = false;
     }
+
+    int uid = vm->get_uid();
+    int gid = vm->get_gid();
 
     vm->unlock();
 
@@ -836,7 +885,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     }
     else
     {
-        Datastore * ds = dspool->get(ds_id);
+        Datastore * ds = dspool->get_ro(ds_id);
 
         if (ds == 0 )
         {
@@ -857,8 +906,37 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     // ------------------------------------------------------------------------
     // Authorize request
     // ------------------------------------------------------------------------
+    if ( check_nic_auto ) //Authorize network schedule and quotas
+    {
+        RequestAttributes att_quota(uid, gid, att);
 
-    auth = vm_authorization(id, 0, 0, att, &host_perms, auth_ds_perms, 0, auth_op);
+        if (!att.is_admin())
+        {
+            string aname;
+
+            if (tmpl.check_restricted(aname))
+            {
+                att.resp_msg = "NIC includes a restricted attribute " + aname;
+
+                failure_response(AUTHORIZATION, att);
+                return;
+            }
+        }
+
+        if (!quota_authorization(&tmpl, Quotas::NETWORK, att_quota, att.resp_msg))
+        {
+            failure_response(AUTHORIZATION, att);
+            return;
+        }
+
+        auth = vm_authorization(id, 0, &tmpl, att, &host_perms, auth_ds_perms,0,
+                    auth_op);
+    }
+    else
+    {
+        auth = vm_authorization(id, 0, 0, att, &host_perms, auth_ds_perms, 0,
+                    auth_op);
+    }
 
     if (auth == false)
     {
@@ -897,6 +975,24 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
+    if ( check_nic_auto && vm->get_auto_network_leases(&tmpl, att.resp_msg) != 0 )
+    {
+        failure_response(ACTION, att);
+
+        vm->unlock();
+        return;
+    }
+
+    if ( vm->check_tm_mad_disks(tm_mad, att.resp_msg) != 0)
+    {
+        failure_response(ACTION, att);
+
+        vm->unlock();
+        return;
+    }
+
+    static_cast<VirtualMachinePool *>(pool)->update(vm);
+
     // ------------------------------------------------------------------------
     // Add deployment dependent attributes to VM
     //   - volatile disk (selected system DS driver)
@@ -928,7 +1024,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     // ------------------------------------------------------------------------
-    // deploy the VM
+    // deploy the VM (import/deploy unlocks the vm object)
     // ------------------------------------------------------------------------
 
     if (vm->is_imported())
@@ -939,8 +1035,6 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     {
         dm->deploy(vm, att);
     }
-
-    vm->unlock();
 
     success_response(id, att);
 }
@@ -1018,7 +1112,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     }
     else
     {
-        Datastore * ds = dspool->get(ds_id);
+        Datastore * ds = dspool->get_ro(ds_id);
 
         if (ds == 0 )
         {
@@ -1094,15 +1188,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    if (vm->is_vrouter() && !VirtualRouter::is_action_supported(action))
-    {
-        att.resp_msg = "Migration is not supported for virtual router VMs";
-        failure_response(ACTION, att);
-
-        vm->unlock();
-        return;
-    }
-
     // Get System DS information from current History record
     c_ds_id  = vm->get_ds_id();
     c_tm_mad = vm->get_tm_mad();
@@ -1149,7 +1234,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     vm->unlock();
 
     // Check we are migrating to a compatible cluster
-    Host * host = nd.get_hpool()->get(c_hid);
+    Host * host = nd.get_hpool()->get_ro(c_hid);
 
     if (host == 0)
     {
@@ -1360,7 +1445,7 @@ void VirtualMachineDiskSaveas::request_execute(
     // -------------------------------------------------------------------------
     // Get the data of the Image to be saved
     // -------------------------------------------------------------------------
-    img = ipool->get(iid_orig);
+    img = ipool->get_ro(iid_orig);
 
     if ( img == 0 )
     {
@@ -1397,7 +1482,7 @@ void VirtualMachineDiskSaveas::request_execute(
     // -------------------------------------------------------------------------
     // Get the data of the DataStore for the new image & size
     // -------------------------------------------------------------------------
-    if ((ds = dspool->get(ds_id)) == 0 )
+    if ((ds = dspool->get_ro(ds_id)) == 0 )
     {
         goto error_ds;
     }
@@ -1591,7 +1676,7 @@ void VirtualMachineMonitoring::request_execute(
     int  id = xmlrpc_c::value_int(paramList.getInt(1));
     int  rc;
 
-    ostringstream oss;
+    string oss;
 
     bool auth = vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op);
 
@@ -1609,7 +1694,7 @@ void VirtualMachineMonitoring::request_execute(
         return;
     }
 
-    success_response(oss.str(), att);
+    success_response(oss, att);
 
     return;
 }
@@ -1617,50 +1702,25 @@ void VirtualMachineMonitoring::request_execute(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
-                                            RequestAttributes& att)
+void VirtualMachineAttach::request_execute(
+        xmlrpc_c::paramList const&  paramList,
+        RequestAttributes&          att)
 {
-    Nebula&           nd = Nebula::instance();
-    DispatchManager * dm = nd.get_dm();
+    VirtualMachine *        vm;
+    VirtualMachineTemplate  tmpl;
 
-    VirtualMachineTemplate tmpl;
-    PoolObjectAuth         vm_perms;
-
-    VirtualMachine *     vm;
-
-    int    rc;
-    bool   volatile_disk;
+    int     rc;
 
     int     id       = xmlrpc_c::value_int(paramList.getInt(1));
     string  str_tmpl = xmlrpc_c::value_string(paramList.getString(2));
 
     // -------------------------------------------------------------------------
-    // Parse Disk template
+    // Check if the VM is a Virtual Router
     // -------------------------------------------------------------------------
-
-    rc = tmpl.parse_str_or_xml(str_tmpl, att.resp_msg);
-
-    if ( rc != 0 )
-    {
-        failure_response(INTERNAL, att);
-        return;
-    }
-
-    // -------------------------------------------------------------------------
-    // Authorize the operation & check quotas
-    // -------------------------------------------------------------------------
-
-    if ( vm_authorization(id, 0, &tmpl, att, 0, 0, 0, auth_op) == false )
-    {
-        return;
-    }
-
     if ((vm = get_vm(id, att)) == 0)
     {
         return;
     }
-
-    vm->get_permissions(vm_perms);
 
     if ( !vm->hasHistory() )
     {
@@ -1671,17 +1731,87 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    volatile_disk = set_volatile_disk_info(vm, vm->get_ds_id(), tmpl);
-
-    if (vm->is_vrouter() &&
-            !VirtualRouter::is_action_supported(History::DISK_ATTACH_ACTION))
+    if (vm->is_vrouter())
     {
         att.resp_msg = "Action is not supported for virtual router VMs";
-        failure_response(ACTION, att);
+        failure_response(Request::ACTION, att);
 
         vm->unlock();
         return;
     }
+
+    vm->unlock();
+
+    // -------------------------------------------------------------------------
+    // Parse NIC template
+    // -------------------------------------------------------------------------
+    rc = tmpl.parse_str_or_xml(str_tmpl, att.resp_msg);
+
+    if ( rc != 0 )
+    {
+        failure_response(INTERNAL, att);
+        return;
+    }
+
+    // -------------------------------------------------------------------------
+    // Perform the attach
+    // -------------------------------------------------------------------------
+    ErrorCode ec = request_execute(id, tmpl, att);
+
+    if ( ec == SUCCESS )
+    {
+        success_response(id, att);
+    }
+    else
+    {
+        failure_response(ec, att);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Request::ErrorCode VirtualMachineAttach::request_execute(int id,
+        VirtualMachineTemplate& tmpl, RequestAttributes& att)
+{
+    Nebula&           nd = Nebula::instance();
+    DispatchManager * dm = nd.get_dm();
+
+    PoolObjectAuth         vm_perms;
+
+    VirtualMachine *     vm;
+
+    int    rc;
+    bool   volatile_disk;
+
+    // -------------------------------------------------------------------------
+    // Authorize the operation & check quotas
+    // -------------------------------------------------------------------------
+
+    if ( vm_authorization(id, 0, &tmpl, att, 0, 0, 0, auth_op) == false )
+    {
+        return AUTHORIZATION;
+    }
+
+    if (!att.is_admin())
+    {
+        string aname;
+
+        if (tmpl.check_restricted(aname))
+        {
+            att.resp_msg = "DISK includes a restricted attribute " + aname;
+            return AUTHORIZATION;
+        }
+    }
+
+    if ((vm = get_vm(id, att)) == 0)
+    {
+        return NO_EXISTS;
+    }
+
+    vm->get_permissions(vm_perms);
+
+    volatile_disk = set_volatile_disk_info(vm, vm->get_ds_id(), tmpl);
 
     vm->unlock();
 
@@ -1694,7 +1824,7 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (quota_resize_authorization(id, &deltas, att_quota) == false)
     {
-        return;
+        return AUTHORIZATION;
     }
 
     if (volatile_disk == false)
@@ -1702,7 +1832,7 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
         if ( quota_authorization(&tmpl, Quotas::IMAGE, att_quota) == false )
         {
             quota_rollback(&deltas, Quotas::VM, att_quota);
-            return;
+            return AUTHORIZATION;
         }
     }
 
@@ -1717,14 +1847,10 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
             quota_rollback(&tmpl, Quotas::IMAGE, att_quota);
         }
 
-        failure_response(ACTION, att);
-    }
-    else
-    {
-        success_response(id, att);
+        return ACTION;
     }
 
-    return;
+    return SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1757,7 +1883,7 @@ void VirtualMachineDetach::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if (vm->is_vrouter() && !VirtualRouter::is_action_supported(History::NIC_DETACH_ACTION))
+    if (vm->is_vrouter())
     {
         att.resp_msg = "Action is not supported for virtual router VMs";
         failure_response(ACTION, att);
@@ -1813,7 +1939,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
 
     bool enforce = true;
 
-    if (att.uid == UserPool::ONEADMIN_ID || att.gid == GroupPool::ONEADMIN_ID)
+    if (att.is_admin())
     {
         enforce = enforce_param;
     }
@@ -1837,7 +1963,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if (att.uid != UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
+    if (!att.is_admin())
     {
         string aname;
 
@@ -1858,7 +1984,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
     tmpl.get("VCPU", nvcpu);
     tmpl.get("MEMORY", nmemory);
 
-    vm = vmpool->get(id);
+    vm = vmpool->get_ro(id);
 
     if (vm == 0)
     {
@@ -2217,8 +2343,7 @@ void VirtualMachineAttachNic::request_execute(
         return;
     }
 
-    if (vm->is_vrouter() &&
-            !VirtualRouter::is_action_supported(History::NIC_ATTACH_ACTION))
+    if (vm->is_vrouter())
     {
         att.resp_msg = "Action is not supported for virtual router VMs";
         failure_response(Request::ACTION, att);
@@ -2274,7 +2399,7 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
     // -------------------------------------------------------------------------
     // Authorize the operation, restricted attributes & check quotas
     // -------------------------------------------------------------------------
-    vm = vmpool->get(id);
+    vm = vmpool->get_ro(id);
 
     if ( vm == 0 )
     {
@@ -2287,24 +2412,21 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
 
     vm->unlock();
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(AuthRequest::MANAGE, vm_perms);
+
+    VirtualMachine::set_auth_request(att.uid, ar, &tmpl, true);
+
+    if (UserPool::authorize(ar) == -1)
     {
-        AuthRequest ar(att.uid, att.group_ids);
-
-        ar.add_auth(AuthRequest::MANAGE, vm_perms);
-
-        VirtualMachine::set_auth_request(att.uid, ar, &tmpl);
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            return AUTHORIZATION;
-        }
+        att.resp_msg = ar.message;
+        return AUTHORIZATION;
     }
 
     RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
 
-    if (att.uid != UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
+    if (!att.is_admin())
     {
         string aname;
 
@@ -2356,8 +2478,7 @@ void VirtualMachineDetachNic::request_execute(
         return;
     }
 
-    if (vm->is_vrouter() &&
-            !VirtualRouter::is_action_supported(History::NIC_DETACH_ACTION))
+    if (vm->is_vrouter())
     {
         att.resp_msg = "Action is not supported for virtual router VMs";
         failure_response(Request::ACTION, att);
@@ -2399,7 +2520,7 @@ Request::ErrorCode VirtualMachineDetachNic::request_execute(int id, int nic_id,
     // -------------------------------------------------------------------------
     // Authorize the operation
     // -------------------------------------------------------------------------
-    vm = vmpool->get(id);
+    vm = vmpool->get_ro(id);
 
     if ( vm == 0 )
     {
@@ -2410,17 +2531,14 @@ Request::ErrorCode VirtualMachineDetachNic::request_execute(int id, int nic_id,
 
     vm->unlock();
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(AuthRequest::MANAGE, vm_perms);
+
+    if (UserPool::authorize(ar) == -1)
     {
-        AuthRequest ar(att.uid, att.group_ids);
-
-        ar.add_auth(AuthRequest::MANAGE, vm_perms);
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            return AUTHORIZATION;
-        }
+        att.resp_msg = ar.message;
+        return AUTHORIZATION;
     }
 
     // -------------------------------------------------------------------------
@@ -2464,6 +2582,7 @@ void VirtualMachineRecover::request_execute(
 
         case 3: //delete
         case 4: //delete-recreate set same as delete in OpenNebulaTemplate
+        case 5: //delete-db
             aop = nd.get_vm_auth_op(History::DELETE_ACTION);
             break;
 
@@ -2507,6 +2626,9 @@ void VirtualMachineRecover::request_execute(
 
         case 4: //delete-recreate
             rc = dm->delete_recreate(vm, att, error);
+            break;
+        case 5:
+            rc = dm->delete_vm_db(vm, att, error);
             break;
     }
 
@@ -2644,7 +2766,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     {
         PoolObjectAuth img_perms;
 
-        Image* img = ipool->get(img_id);
+        Image* img = ipool->get_ro(img_id);
 
         if (img == 0)
         {
@@ -2825,7 +2947,7 @@ void VirtualMachineDiskSnapshotDelete::request_execute(
     {
         PoolObjectAuth img_perms;
 
-        Image* img = ipool->get(img_id);
+        Image* img = ipool->get_ro(img_id);
 
         if (img == 0)
         {
@@ -2867,6 +2989,72 @@ void VirtualMachineDiskSnapshotDelete::request_execute(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VirtualMachineDiskSnapshotRename::request_execute(xmlrpc_c::paramList const& paramList,
+            RequestAttributes& att)
+{
+    VirtualMachine *  vm;
+
+    ostringstream oss;
+
+    const VirtualMachineDisk * disk;
+
+    int rc;
+
+    int id               = xmlrpc_c::value_int(paramList.getInt(1));
+    int did              = xmlrpc_c::value_int(paramList.getInt(2));
+    int snap_id          = xmlrpc_c::value_int(paramList.getInt(3));
+    string new_snap_name = xmlrpc_c::value_string(paramList.getString(4));
+
+    if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
+    {
+        return;
+    }
+
+    if ((vm = get_vm(id, att)) == 0)
+    {
+        oss << "Could not rename the snapshot for VM " << id
+            << ", VM does not exist";
+
+        att.resp_msg = oss.str();
+
+        return;
+    }
+
+    disk = (const_cast<const VirtualMachine *>(vm))->get_disk(did);
+
+    if (disk == 0)
+    {
+        att.resp_msg = "VM disk does not exist";
+        failure_response(ACTION, att);
+
+        vm->unlock();
+
+        return;
+    }
+
+    rc = vm->rename_disk_snapshot(did, snap_id, new_snap_name, att.resp_msg);
+
+    if ( rc != 0 )
+    {
+        failure_response(ACTION, att);
+	
+	vm->unlock();
+	    
+	return;
+    }
+    
+    success_response(id, att);
+        
+    pool->update(vm);
+
+    vm->unlock();
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachineUpdateConf::request_execute(
         xmlrpc_c::paramList const& paramList, RequestAttributes& att)
 {
@@ -2898,7 +3086,6 @@ void VirtualMachineUpdateConf::request_execute(
     /* ---------------------------------------------------------------------- */
     /* Update VirtualMachine Configuration                                    */
     /* ---------------------------------------------------------------------- */
-
     vm = static_cast<VirtualMachinePool *>(pool)->get(id);
 
     if (vm == 0)
@@ -2908,7 +3095,7 @@ void VirtualMachineUpdateConf::request_execute(
         return;
     }
 
-    if ( att.uid != UserPool::ONEADMIN_ID && att.gid != GroupPool::ONEADMIN_ID )
+    if (!att.is_admin())
     {
         string aname;
 
@@ -2931,39 +3118,44 @@ void VirtualMachineUpdateConf::request_execute(
     if ( vm->updateconf(tmpl, att.resp_msg) != 0 )
     {
         failure_response(INTERNAL, att);
+
+        vm->unlock();
+        return;
     }
-    else
+
+    /* ---------------------------------------------------------------------- */
+    /* Update PORT if a new GRAPHICS section has been added & VM is deployed. */
+    /* ---------------------------------------------------------------------- */
+    VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
+
+    unsigned int port;
+    VirtualMachine::VmState state = vm->get_state();
+
+    if (graphics != 0 && graphics->vector_value("PORT", port) == -1 &&
+        (state == VirtualMachine::ACTIVE || state == VirtualMachine::POWEROFF ||
+          state == VirtualMachine::SUSPENDED))
     {
         ClusterPool * cpool = Nebula::instance().get_clpool();
-        VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
 
-        unsigned int port;
-        int rc;
-        int cluster_id;
+        int rc = cpool->get_vnc_port(vm->get_cid(), vm->get_oid(), port);
 
-        if (graphics != 0 && graphics->vector_value("PORT", port) == 0)
+        if ( rc != 0 )
         {
-            cluster_id = vm->get_cid();
+            att.resp_msg = "No free VNC ports available in the cluster";
+            failure_response(INTERNAL, att);
 
-            rc = cpool->get_vnc_port(cluster_id, vm->get_oid(), port);
-
-            if ( rc == 0 )
-            {
-                graphics->replace("PORT", port);
-            }
-            else
-            {
-                att.resp_msg = "No free VNC ports available in the cluster";
-                failure_response(INTERNAL, att);
-            }
+            vm->unlock();
+            return;
         }
 
-        success_response(id, att);
+        graphics->replace("PORT", port);
     }
 
     static_cast<VirtualMachinePool *>(pool)->update(vm);
 
     vm->unlock();
+
+    success_response(id, att);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -3067,7 +3259,7 @@ void VirtualMachineDiskResize::request_execute(
 
         if ( img_id != -1 )
         {
-            Image* img = ipool->get(img_id);
+            Image* img = ipool->get_ro(img_id);
 
             if (img == 0)
             {

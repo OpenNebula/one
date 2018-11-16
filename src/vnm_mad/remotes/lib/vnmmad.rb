@@ -30,6 +30,7 @@ require 'security_groups_iptables'
 require 'vnm_driver'
 require 'sg_driver'
 require 'vlan'
+require 'no_vlan'
 require 'scripts_common'
 
 Dir[File.expand_path('vnmmad-load.d', File.dirname(__FILE__)) + "/*.rb"].each{ |f| require f }
@@ -49,6 +50,7 @@ rescue
         :validate_vlan_id    => false,
         :vlan_mtu            => "1500",
         :ipset_maxelem       => "65536",
+        :keep_empty_bridge   => false,
     }
 end
 

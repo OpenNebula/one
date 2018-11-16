@@ -1,5 +1,23 @@
-module VCenterDriver
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
 require 'digest'
+
+module VCenterDriver
+
 class NetworkFolder
     attr_accessor :item, :items
 
@@ -51,10 +69,10 @@ class Network
     include Memoize
 
     def initialize(item, vi_client=nil)
-        if !item.instance_of?(RbVmomi::VIM::Network)  &&
-           !item.instance_of?(RbVmomi::VIM::DistributedVirtualPortgroup )
-            raise "Expecting type 'RbVmomi::VIM::Network'. " <<
-                  "Got '#{item.class} instead."
+        begin
+            check_item(item, RbVmomi::VIM::Network)
+        rescue
+            check_item(item, RbVmomi::VIM::DistributedVirtualPortgroup)
         end
 
         @vi_client = vi_client
@@ -117,13 +135,13 @@ class Network
         unmanaged             = opts[:unmanaged] || nil
         template_ref          = opts[:template_ref] || nil
         dc_ref                = opts[:dc_ref] || nil
-        vm_or_template_name   = opts[:vm_or_template_name] || nil
         template_id           = opts[:template_id] || nil
 
         bridge_name = network_name
         network_name = network_name.gsub("/","_")
 
-        network_import_name = generate_name(network_name, {:vcenter_name=>vcenter_instance_name, :dc_name=>dc_name})
+
+        network_import_name = VCenterDriver::VIHelper.one_name(OpenNebula::VirtualNetworkPool, network_name, network_ref+vcenter_uuid)
 
         one_tmp[:name]             = bridge_name
         one_tmp[:import_name]      = network_import_name
@@ -146,13 +164,11 @@ class Network
                    "VCENTER_PORTGROUP_TYPE=\"#{network_type}\"\n"\
                    "VCENTER_NET_REF=\"#{network_ref}\"\n"\
                    "VCENTER_INSTANCE_ID=\"#{vcenter_uuid}\"\n"\
-                   "OPENNEBULA_MANAGED=\"NO\"\n"
+                   "VCENTER_IMPORTED=\"YES\"\n"
 
         if unmanaged == "wild"
             template += "VCENTER_FROM_WILD=\"#{template_id}\"\n"
         end
-
-        #template += "VCENTER_CCR_REF=\"#{ccr_ref}\"\n" if !unmanaged
 
         template += "VCENTER_TEMPLATE_REF=\"#{template_ref}\"\n" if template_ref
 
@@ -217,10 +233,8 @@ end # class Network
 class PortGroup < Network
 
     def initialize(item, vi_client=nil)
-        if !item.instance_of?(RbVmomi::VIM::Network)
-            raise "Expecting type 'RbVmomi::VIM::Network'. " <<
-                  "Got '#{item.class} instead."
-        end
+
+        check_item(item, RbVmomi::VIM::Network)
 
         @vi_client = vi_client
         @item = item
@@ -245,10 +259,8 @@ end # class PortGroup
 class DistributedPortGroup < Network
 
     def initialize(item, vi_client=nil)
-        if !item.instance_of?(RbVmomi::VIM::DistributedVirtualPortgroup )
-           raise "Expecting type 'RbVmomi::VIM::DistributedVirtualPortgroup'. " <<
-                  "Got '#{item.class} instead."
-        end
+
+        check_item(item, RbVmomi::VIM::DistributedVirtualPortgroup)
 
         @vi_client = vi_client
         @item = item
@@ -273,10 +285,8 @@ end # class DistributedPortGroup
 class DistributedVirtualSwitch < Network
 
     def initialize(item, vi_client=nil)
-        if !item.instance_of?(RbVmomi::VIM::VmwareDistributedVirtualSwitch )
-           raise "Expecting type 'RbVmomi::VIM::VmwareDistributedVirtualSwitch'. " <<
-                  "Got '#{item.class} instead."
-        end
+
+        check_item(item, RbVmomi::VIM::VmwareDistributedVirtualSwitch)
 
         @vi_client = vi_client
         @item = item
@@ -288,6 +298,7 @@ class NetImporter < VCenterDriver::VcImporter
     def initialize(one_client, vi_client)
         super(one_client, vi_client)
         @one_class = OpenNebula::VirtualNetwork
+        @defaults = { size: "255", type: "ether" }
     end
 
     def get_list(args = {})
@@ -329,7 +340,8 @@ class NetImporter < VCenterDriver::VcImporter
         case type
         when "4", "ip4", "ip"
         	str << "IP4\""
-            str << ",IP=\"#{opts[:ip]}\"" if opts[:ip]
+            opts[:ip] = "192.168.1.1" if opts[:ip].empty?
+            str << ",IP=\"#{opts[:ip]}\""
         when 'ip6'
             str << "IP6\""
             str << ",GLOBAL_PREFIX=\"#{opts[:global_prefix]}\"" if opts[:global_prefix]
@@ -364,6 +376,7 @@ class NetImporter < VCenterDriver::VcImporter
         end
 
         selected[:one] << build_ar(opts)
+        selected[:clusters][:one_ids] = opts["selected_clusters"].each.map(&:to_i) if opts["selected_clusters"]
 
         res = {id: [], name: selected[:name]}
         create(selected[:one]) do |one_object, id|
@@ -373,14 +386,5 @@ class NetImporter < VCenterDriver::VcImporter
 
         return res
     end
-
-    def defaults
-        { size: "255", type: "ether" }
-    end
-
-    def attr
-        "TEMPLATE/VCENTER_NET_REF"
-    end
 end
 end # module VCenterDriver
-

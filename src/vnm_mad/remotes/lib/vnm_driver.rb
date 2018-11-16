@@ -84,6 +84,8 @@ module VNMMAD
 
         # Parse network configuration and add it to the nic
         def add_nic_conf(nic)
+            return if nic[:conf] and nic[:conf].instance_of? Hash
+
             default_conf = CONF || {}
             nic_conf = {}
 
@@ -116,6 +118,8 @@ module VNMMAD
         end
 
         def add_command_conf(nic, conf_name)
+            return if nic[conf_name] and nic[conf_name].instance_of? Hash
+
             default_conf = CONF[conf_name] || {}
             nic_conf = {}
 

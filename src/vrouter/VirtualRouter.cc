@@ -19,27 +19,6 @@
 #include "Nebula.h"
 #include "VirtualMachine.h"
 #include "Request.h"
-
-static const History::VMAction action[15] = {
-    History::MIGRATE_ACTION,
-    History::LIVE_MIGRATE_ACTION,
-    History::HOLD_ACTION,
-    History::RELEASE_ACTION,
-    History::RESUME_ACTION,
-    History::REBOOT_ACTION,
-    History::REBOOT_HARD_ACTION,
-    History::RESCHED_ACTION,
-    History::UNRESCHED_ACTION,
-    History::DISK_SNAPSHOT_CREATE_ACTION,
-    History::DISK_SNAPSHOT_DELETE_ACTION,
-    History::TERMINATE_ACTION,
-    History::TERMINATE_HARD_ACTION,
-    History::DELETE_ACTION,
-    History::DELETE_RECREATE_ACTION
-};
-
-const ActionSet<History::VMAction> VirtualRouter::SUPPORTED_ACTIONS(action, 15);
-
 /* -------------------------------------------------------------------------- */
 
 static void vrouter_prefix(VectorAttribute* nic, const string& attr)
@@ -220,9 +199,6 @@ int VirtualRouter::shutdown_vms(const set<int>& _vms, const RequestAttributes& r
 
     return result;
 }
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
 
 int VirtualRouter::get_network_leases(string& estr)
 {
@@ -707,14 +683,15 @@ VectorAttribute* VirtualRouter::get_nic(int nic_id) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualRouter::set_auth_request(int uid, AuthRequest& ar, Template *tmpl)
+void VirtualRouter::set_auth_request(int uid, AuthRequest& ar, Template *tmpl,
+                                    bool check_lock)
 {
     VirtualMachineNics::nic_iterator nic;
     VirtualMachineNics tnics(tmpl);
 
     for( nic = tnics.begin(); nic != tnics.end(); ++nic)
     {
-        (*nic)->authorize_vrouter(uid, &ar);
+        (*nic)->authorize_vrouter(uid, &ar, check_lock);
     }
 }
 

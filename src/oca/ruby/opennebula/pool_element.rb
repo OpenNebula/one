@@ -110,7 +110,9 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def update(xml_method, new_template, *args)
-            new_template ||= template_xml
+            if new_template.nil?
+                return Error.new("Wrong argument", Error::EXML_RPC_CALL)
+            end
 
             return call(xml_method, @pe_id, new_template, *args)
         end

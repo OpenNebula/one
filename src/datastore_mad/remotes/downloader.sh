@@ -227,7 +227,7 @@ function get_rbd_cmd
 TEMP=`getopt -o m:s:l:c:n -l md5:,sha1:,limit:,max-size:,nodecomp -- "$@"`
 
 if [ $? != 0 ] ; then
-    echo "Arguments error"
+    echo "Arguments error" >&2
     exit -1
 fi
 

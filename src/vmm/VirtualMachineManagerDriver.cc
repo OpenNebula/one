@@ -792,7 +792,8 @@ void VirtualMachineManagerDriver::process_poll(VirtualMachine* vm,
 
         case 'e': //Failed
             if ( vm->get_state() == VirtualMachine::ACTIVE &&
-                 vm->get_lcm_state() == VirtualMachine::RUNNING )
+                ( vm->get_lcm_state() == VirtualMachine::RUNNING ||
+                  vm->get_lcm_state() == VirtualMachine::UNKNOWN ))
             {
                 vm->log("VMM",Log::INFO,"VM running but monitor state is ERROR.");
 
@@ -803,6 +804,7 @@ void VirtualMachineManagerDriver::process_poll(VirtualMachine* vm,
         case 'd': //The VM was powered-off
             if ( vm->get_state() == VirtualMachine::ACTIVE &&
                 ( vm->get_lcm_state() == VirtualMachine::RUNNING ||
+                  vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
                   vm->get_lcm_state() == VirtualMachine::SHUTDOWN ||
                   vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF ||
                   vm->get_lcm_state() == VirtualMachine::SHUTDOWN_UNDEPLOY ))

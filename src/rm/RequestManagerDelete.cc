@@ -27,11 +27,6 @@ static Request::ErrorCode delete_authorization(PoolSQL* pool,
 {
     PoolObjectAuth  perms;
 
-    if ( att.uid == 0 )
-    {
-        return Request::SUCCESS;
-    }
-
     PoolObjectSQL * object = pool->get(oid);
 
     if ( object == 0 )
@@ -536,7 +531,7 @@ int MarketPlaceAppDelete::drop(PoolObjectSQL * object, bool recursive,
         return -1;
     }
 
-    MarketPlace * mp = marketpool->get(mp_id);
+    MarketPlace * mp = marketpool->get_ro(mp_id);
 
     if ( mp == 0 )
     {

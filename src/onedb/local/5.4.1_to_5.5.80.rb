@@ -35,6 +35,10 @@ module Migrator
 
         feature_1709()
 
+        feature_1377()
+
+        bug_2189()
+
         log_time()
 
         return true
@@ -55,6 +59,37 @@ module Migrator
         doc.search("//#{element}").each do |node|
             node.remove
         end
+    end
+
+    def feature_1377()
+        @db.run "DROP TABLE IF EXISTS old_document_pool;"
+        @db.run "ALTER TABLE document_pool RENAME TO old_document_pool;"
+
+        create_table(:document_pool)
+
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_document_pool") do |row|
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING) { |c| 
+                    c.default_xml.noblanks
+                }
+
+                delete_element(doc, "LOCK")
+
+                @db[:document_pool].insert(
+                    :oid        => row[:oid],
+                    :name       => row[:name],
+                    :body       => doc.root.to_s,
+                    :type       => row[:type],
+                    :uid        => row[:uid],
+                    :gid        => row[:gid],
+                    :owner_u    => row[:owner_u],
+                    :group_u    => row[:group_u],
+                    :other_u    => row[:other_u]
+                )
+            end
+        end
+
+      @db.run "DROP TABLE old_document_pool;"
     end
 
     def feature_1709()
@@ -85,7 +120,8 @@ module Migrator
         regions = az_conf["regions"]
 
         if !regions
-            STDERR.puts "  > Regions not found in Az config file, skipping migration"
+            STDERR.puts "  > Regions not found in Az config file, " << 
+                "skipping migration"
             return
         end
 
@@ -132,5 +168,96 @@ module Migrator
         @db.run "DROP TABLE old_host_pool;"
 
         STDERR.puts "  > You can now delete #{az_driver_conf} file"
+    end
+
+    def bug_2189()
+        @db.run "DROP TABLE IF EXISTS old_image_pool;"
+        @db.run "ALTER TABLE image_pool RENAME TO old_image_pool;"
+
+        create_table(:image_pool)
+
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_image_pool") do |row|
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){
+                    |c| c.default_xml.noblanks
+                }
+
+                max = doc.xpath("//SNAPSHOTS/SNAPSHOT/ID").max
+
+                if max
+                    next_snapshot = max.text.to_i + 1
+                else
+                    next_snapshot = 0
+                end
+
+                sxml = doc.xpath("//SNAPSHOTS")
+
+                if !sxml
+                    ns = doc.create_element("NEXT_SNAPSHOT")
+
+                    ns.content = next_snapshot
+
+                    sxml = sxml.first.add_child(ns)
+                end
+
+                @db[:image_pool].insert(
+                    :oid      => row[:oid],
+                    :name     => row[:name],
+                    :body     => doc.root.to_s,
+                    :uid      => row[:uid],
+                    :gid      => row[:gid],
+                    :owner_u  => row[:owner_u],
+                    :group_u  => row[:group_u],
+                    :other_u  => row[:other_u])
+            end
+        end
+
+        @db.run "DROP TABLE old_image_pool;"
+
+        @db.run "DROP TABLE IF EXISTS old_vm_pool;"
+        @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
+
+        create_table(:vm_pool)
+
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_vm_pool") do |row|
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){ |c| 
+                    c.default_xml.noblanks
+                }
+
+                max = doc.xpath("//SNAPSHOTS/SNAPSHOT/ID").max
+
+                if max
+                    next_snapshot = max.text.to_i + 1
+                else
+                    next_snapshot = 0
+                end
+
+                sxml = doc.xpath("//SNAPSHOTS")
+
+                if !sxml
+                    ns = doc.create_element("NEXT_SNAPSHOT")
+
+                    ns.content = next_snapshot
+
+                    sxml = sxml.first.add_child(ns)
+                end
+
+                @db[:vm_pool].insert(
+                    :oid        => row[:oid],
+                    :name       => row[:name],
+                    :body       => doc.root.to_s,
+                    :uid        => row[:uid],
+                    :gid        => row[:gid],
+                    :last_poll  => row[:last_poll],
+                    :state      => row[:state],
+                    :lcm_state  => row[:lcm_state],
+                    :owner_u    => row[:owner_u],
+                    :group_u    => row[:group_u],
+                    :other_u    => row[:other_u])
+            end
+        end
+
+        @db.run "DROP TABLE old_vm_pool;"
     end
 end

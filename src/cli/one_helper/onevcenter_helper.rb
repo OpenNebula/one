@@ -19,6 +19,9 @@ require 'one_helper'
 
 class OneVcenterHelper < OpenNebulaHelper::OneHelper
 
+    #
+    # vCenter importer will divide rvmomi resources
+    # in this group, makes parsing easier.
     module VOBJECT
       DATASTORE = 1
       TEMPLATE = 2
@@ -26,37 +29,63 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
       IMAGE = 4
     end
 
+    #
+    # onevcenter helper main constant
+    # This will control everything displayed on STDOUT
+    # Resources (above) uses this table
+    #
+    # struct:   [Array] LIST FORMAT for opennebula cli
+    #           related methods: * cli_format
+    #
+    # columns:  [Hash(column => Integer)] Will be used in the list command, Integer represent nbytes
+    #           related methods: * format_list
+    #
+    # cli:      [Array] with mandatory args, for example image listing needs a datastore
+    #           related methods: * parse_opts
+    #
+    # dialogue: [Lambda] Used only for Vobject that require a previous dialogue with the user, will be triggered
+    #                    on importation process
+    #           related methods: * network_dialogue
+    #                            * template_dialogue
+    #
     TABLE = {
         VOBJECT::DATASTORE => {
             :struct  => ["DATASTORE_LIST", "DATASTORE"],
-            :columns => {:IMID => 5, :REF => 15, :NAME => 25, :CLUSTERS => 10},
+            :columns => {:IMID => 5, :REF => 15, :NAME => 50, :CLUSTERS => 10},
             :cli     => [:host],
             :dialogue => ->(arg){}
         },
         VOBJECT::TEMPLATE => {
             :struct  => ["TEMPLATE_LIST", "TEMPLATE"],
-            :columns => {:IMID => 5, :REF => 10, :NAME => 35},
+            :columns => {:IMID => 5, :REF => 10, :NAME => 50},
             :cli     => [:host],
             :dialogue => ->(arg){ OneVcenterHelper.template_dialogue(arg) }
         },
         VOBJECT::NETWORK => {
             :struct  => ["NETWORK_LIST", "NETWORK"],
-            :columns => {:IMID => 5, :REF => 15, :NAME => 10},
+            :columns => {:IMID => 5, :REF => 15, :NAME => 30, :CLUSTERS => 20},
             :cli     => [:host],
             :dialogue => ->(arg){ OneVcenterHelper.network_dialogue(arg) }
         },
         VOBJECT::IMAGE => {
             :struct  => ["IMAGE_LIST", "IMAGE"],
-            :columns => {:IMID => 5,:REF => 20, :PATH => 20},
+            :columns => {:IMID => 5,:REF => 35, :PATH => 60},
             :cli     => [:host, :datastore],
             :dialogue => ->(arg){}
         }
     }
 
 
-    #######################
+    ################################################################
     # CLI ARGS
-    ########################
+    ################################################################
+
+    # these methods will be used by table :cli property
+    # the purpose is to inject code when -d option in this case is used
+    #
+	# @param arg [String] The parameter passed to the option:w
+    #
+
     def datastore(arg)
         ds = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, arg)
 
@@ -68,9 +97,14 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
 
     def host(arg)
     end
+
     ########################
 
 
+    # In list command you can use this method to print a header
+    #
+	# @param vcenter_host [String] this text will be displayed
+    #
     def show_header(vcenter_host)
         CLIHelper.scr_bold
         CLIHelper.scr_underline
@@ -80,7 +114,14 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
 
     end
 
+    # Using for parse a String into a VOBJECT
+    # We will use VOBJECT instances for handle any operatiion
+    #
+	# @param type [String] String representing the vCenter resource
+    #
     def set_object(type)
+        raise "you need to use -o option!" unless type
+
         type = type.downcase
         if (type == "datastores")
             @vobject = VOBJECT::DATASTORE
@@ -90,9 +131,22 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
             @vobject = VOBJECT::NETWORK
         elsif (type == "images")
             @vobject = VOBJECT::IMAGE
+        else
+            puts "unknown #{type} type option"
+            puts "  -o options:"
+            puts "      datastores"
+            puts "      templates"
+            puts "      networks"
+            puts "      images"
+
+            exit 0
         end
     end
 
+    # Handles connection to vCenter.
+    #
+	# @param options [Hash] options for the connection
+    #
     def connection_options(object_name, options)
         if  options[:vuser].nil? || options[:vcenter].nil?
             raise "vCenter connection parameters are mandatory to import"\
@@ -113,6 +167,8 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
         {TABLE[@vobject][:struct].first => {TABLE[@vobject][:struct].last => hash.values}}
     end
 
+    # This method will print a list for a vcenter_resource.
+    #
     def list_object(options, list)
         vcenter_host = list.keys[0]
         list = cli_format(list.values.first)
@@ -123,10 +179,21 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
         table.show(list)
     end
 
+    # handles :cli section of TABLE
+    # used for executing the dialogue in some VOBJECTS
+    #
+    # @param object_info [Hash] This is the object with all the info related to the object
+    #                           that will be imported
+    #
     def cli_dialogue(object_info)
         return TABLE[@vobject][:dialogue].(object_info)
     end
 
+    # This method iterates over the possible options for certain resources
+    # and will raise an error in case of missing mandatory param
+    #
+    # @param opts [Hash] options object passed to the onecenter tool
+    #
     def parse_opts(opts)
         set_object(opts[:object])
 
@@ -136,10 +203,31 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
             res[arg] = self.method(arg).call(opts[arg])
         end
 
+        res[:config] = parse_file(opts[:configuration]) if opts[:configuration]
 
         return res
     end
 
+    # This method will parse a yaml
+    # Only used for a feature that adds the posibility
+    # of import resources with custom params (bulk)
+    #
+    # @param path [String] Path of the file
+    #
+    def parse_file(path)
+        begin
+            config = YAML::load(File.read(path))
+        rescue Exception => e
+            str_error="Unable to read '#{path}'. Invalid YAML syntax:\n"
+
+            raise str_error
+        end
+    end
+
+    # Use the attributes provided by TABLE
+    # with the purpose of build a complete CLI list
+    # OpenNebula way
+    #
     def format_list()
         config = TABLE[@vobject][:columns]
         table = CLIHelper::ShowTable.new() do
@@ -156,7 +244,8 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
             end
 
             column :CLUSTERS, "CLUSTERS", :left, :size=>config[:CLUSTERS] || 10 do |d|
-                d[:cluster].to_s || d[:clusters][:one_ids].to_s
+                d = d[:clusters] if d[:clusters]
+                d[:one_ids] || d[:cluster].to_s
             end
 
             column :PATH, "PATH", :left, :size=>config[:PATH] || 10 do |d|
@@ -169,6 +258,9 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
         table
     end
 
+    ################################################################
+    # CLI DIALOGUES
+    ################################################################
     def self.template_dialogue(t)
         rps_list = -> {
             return "" if t[:rp_list].empty?
@@ -190,6 +282,8 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
             resourcepool: [],
             type: ''
         }
+
+        STDOUT.print "\n- Template: \e[92m#{t[:template_name]}\e[39m\n\n"\
 
         # LINKED CLONE OPTION
         STDOUT.print "\n    For faster deployment operations"\
@@ -274,6 +368,8 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
             return answer
         }
 
+        STDOUT.print "\n- Network: \e[92m#{n[:name]}\e[39m\n\n"\
+
         opts = { size: "255", type: "ether" }
 
 		question =  "    How many VMs are you planning"\
@@ -281,7 +377,7 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
         opts[:size] = ask.call(question, "255")
 
 		question = "    What type of Virtual Network"\
-				   " do you want to create (IPv[4],IPv[6], [E]thernet)?"
+				   " do you want to create (IPv[4],IPv[6], [E]thernet)? "
         type_answer = ask.call(question, "ether")
 
         supported_types = ["4","6","ether", "e", "ip4", "ip6" ]

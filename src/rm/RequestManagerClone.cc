@@ -85,25 +85,22 @@ Request::ErrorCode RequestManagerClone::clone(int source_id, const string &name,
     tmpl->erase("NAME");
     tmpl->set(new SingleAttribute("NAME", name));
 
-    if ( att.uid != 0 )
+    string tmpl_str = "";
+
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(auth_op, perms); //USE OBJECT
+
+    tmpl->to_xml(tmpl_str);
+
+    ar.add_create_auth(att.uid, att.gid, auth_object, tmpl_str);
+
+    if (UserPool::authorize(ar) == -1)
     {
-        string tmpl_str = "";
+        att.resp_msg = ar.message;
 
-        AuthRequest ar(att.uid, att.group_ids);
-
-        ar.add_auth(auth_op, perms); //USE OBJECT
-
-        tmpl->to_xml(tmpl_str);
-
-        ar.add_create_auth(att.uid, att.gid, auth_object, tmpl_str);
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-
-            delete tmpl;
-            return AUTHORIZATION;
-        }
+        delete tmpl;
+        return AUTHORIZATION;
     }
 
     rc = pool_allocate(source_id, tmpl, new_id, att);
@@ -143,7 +140,6 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
     // -------------------------------------------------------------------------
 	ImageDelete     img_delete;
 	ImageClone      img_clone;
-    ImagePersistent img_persistent;
 
 	TemplateDelete tmpl_delete;
 
@@ -161,7 +157,7 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
     RequestAttributes img_att(att);
     img_att.resp_obj    = PoolObjectSQL::IMAGE;
 
-    VMTemplate * vmtmpl = tpool->get(new_id);
+    VMTemplate * vmtmpl = tpool->get_ro(new_id);
 
     if (vmtmpl == 0)
     {
@@ -187,7 +183,8 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
 
             oss << name << "-disk-" << ndisk;
 
-            ec = img_clone.request_execute(img_id,oss.str(),-1, new_img_id,img_att);
+            ec = img_clone.request_execute(img_id, oss.str(), -1,
+                    (*disk)->is_managed(), new_img_id, img_att);
 
             if ( ec != SUCCESS)
             {
@@ -196,22 +193,6 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
                 att.resp_msg = "Failed to clone images: " + img_att.resp_msg;
 
                 goto error_images;
-            }
-
-            if ( (*disk)->is_managed() )
-            {
-                ec = img_persistent.request_execute(new_img_id, true, img_att);
-
-                if (ec != SUCCESS)
-                {
-                    NebulaLog::log("ReM",Log::ERROR,failure_message(ec,img_att));
-
-                    img_delete.request_execute(img_id, img_att);
-
-                    att.resp_msg = "Failed to clone images: " + img_att.resp_msg;
-
-                    goto error_images;
-                }
             }
 
             (*disk)->remove("IMAGE");

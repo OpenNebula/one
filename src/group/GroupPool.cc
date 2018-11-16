@@ -222,7 +222,8 @@ int GroupPool::drop(PoolObjectSQL * objsql, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int GroupPool::dump(ostringstream& oss, const string& where, const string& limit)
+int GroupPool::dump(string& oss, const string& where, 
+    const string& limit, bool desc)
 {
     int     rc;
     string  def_quota_xml;
@@ -241,14 +242,19 @@ int GroupPool::dump(ostringstream& oss, const string& where, const string& limit
 
     cmd << " ORDER BY oid";
 
+    if ( desc == true )
+    {
+        cmd << " DESC";
+    }
+
     if ( !limit.empty() )
     {
         cmd << " LIMIT " << limit;
     }
 
-    oss << "<GROUP_POOL>";
+    oss.append("<GROUP_POOL>");
 
-    stream_cb cb(2);
+    string_cb cb(2);
 
     cb.set_callback(&oss);
 
@@ -256,9 +262,9 @@ int GroupPool::dump(ostringstream& oss, const string& where, const string& limit
 
     cb.unset_callback();
 
-    oss << Nebula::instance().get_default_group_quota().to_xml(def_quota_xml);
+    oss.append(Nebula::instance().get_default_group_quota().to_xml(def_quota_xml));
 
-    oss << "</GROUP_POOL>";
+    oss.append("</GROUP_POOL>");
 
     return rc;
 }

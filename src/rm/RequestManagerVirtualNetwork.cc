@@ -235,7 +235,7 @@ void VirtualNetworkReserve::request_execute(
             return;
         }
 
-        rvn = vnpool->get(rid);
+        rvn = vnpool->get_ro(rid);
 
         if (rvn == 0)
         {
@@ -319,7 +319,7 @@ void VirtualNetworkReserve::request_execute(
     // -------------------------------------------------------------------------
     // Authorize the operation Parent:USE Reservation:MANAGE
     // -------------------------------------------------------------------------
-    vn = vnpool->get(id);
+    vn = vnpool->get_ro(id);
 
     if ( vn == 0 )
     {
@@ -381,7 +381,7 @@ void VirtualNetworkReserve::request_execute(
         }
     }
 
-    rvn = vnpool->get(rid);
+    rvn = vnpool->get_ro(rid);
 
     if (rvn == 0)
     {

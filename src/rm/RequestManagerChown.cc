@@ -27,7 +27,9 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
     int                       oid,
     int                       new_uid,
     int                       new_gid,
-    RequestAttributes&        att)
+    RequestAttributes&        att,
+    PoolSQL *                 pool,
+    PoolObjectSQL::ObjectType auth_object)
 {
     std::map<Quotas::QuotaType, Template *> quota_map;
     std::map<Quotas::QuotaType, Template *> quota_to_rback;
@@ -36,6 +38,8 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
 
     int old_uid;
     int old_gid;
+
+    std::string memory, cpu;
 
     PoolObjectSQL *   object;
 
@@ -65,6 +69,20 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
         }
 
         Template * tmpl = vm->clone_template();
+
+        if ( (vm->get_state() == VirtualMachine::ACTIVE) ||
+         (vm->get_state() == VirtualMachine::PENDING) ||
+         (vm->get_state() == VirtualMachine::CLONING) ||
+         (vm->get_state() == VirtualMachine::CLONING_FAILURE) ||
+         (vm->get_state() == VirtualMachine::HOLD) )
+        {
+            vm->get_template_attribute("MEMORY", memory);
+            vm->get_template_attribute("CPU", cpu);
+
+            tmpl->add("RUNNING_MEMORY", memory);
+            tmpl->add("RUNNING_CPU", cpu);
+            tmpl->add("RUNNING_VMS", 1);
+        }
 
         quota_map.insert(make_pair(Quotas::VIRTUALMACHINE, tmpl));
 
@@ -279,6 +297,8 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     PoolObjectSQL * object;
 
+    set<int> vms;
+
     // ------------- Check new user and group id's ---------------------
 
     if ( noid > -1  )
@@ -303,36 +323,33 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     // ------------- Set authorization request for non-oneadmin's --------------
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+
+    rc = get_info(pool, oid, auth_object, att, operms, oname, true);
+
+    if ( rc == -1 )
     {
-        AuthRequest ar(att.uid, att.group_ids);
+        return;
+    }
 
-        rc = get_info(pool, oid, auth_object, att, operms, oname, true);
+    ar.add_auth(auth_op, operms); // MANAGE OBJECT
 
-        if ( rc == -1 )
-        {
-            return;
-        }
+    if ( noid > -1  )
+    {
+        ar.add_auth(AuthRequest::MANAGE, nuperms); // MANAGE USER
+    }
 
-        ar.add_auth(auth_op, operms); // MANAGE OBJECT
+    if ( ngid > -1  )
+    {
+        ar.add_auth(AuthRequest::USE, ngperms); // USE GROUP
+    }
 
-        if ( noid > -1  )
-        {
-            ar.add_auth(AuthRequest::MANAGE, nuperms); // MANAGE USER
-        }
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
 
-        if ( ngid > -1  )
-        {
-            ar.add_auth(AuthRequest::USE, ngperms); // USE GROUP
-        }
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
-
-            return;
-        }
+        return;
     }
 
     // --------------- Check name uniqueness -----------------------------------
@@ -362,6 +379,10 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
             att.resp_id = oid;
             failure_response(NO_EXISTS, att);
         }
+        else if ( auth_object == PoolObjectSQL::VROUTER )
+        {
+            vms = static_cast<VirtualRouter *>(object)->get_vms();
+        }
     }
 
     if ( object == 0 )
@@ -383,7 +404,52 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     object->unlock();
 
-    success_response(oid, att);
+    if ( auth_object != PoolObjectSQL::VROUTER )
+    {
+        success_response(oid, att);
+        return;
+    }
+
+    // --------------- Recursive change associated VM objects ------------------
+    // IMPORTANT!: pool/auth_object members are redirected to the VM pool to 
+    // chown VMs
+    // -------------------------------------------------------------------------
+    bool error_vm_quotas = false;
+
+    PoolSQL * vm_pool = Nebula::instance().get_vmpool();
+
+    for (set<int>::const_iterator it = vms.begin(); it != vms.end(); it++)
+    {
+        int vm_id = *it;
+
+        PoolObjectSQL * vm = get_and_quota(vm_id, noid, ngid, att, vm_pool, PoolObjectSQL::VM);
+
+        if ( vm == 0 )
+        {
+            error_vm_quotas = true;
+
+            continue;
+        }
+
+        if ( noid != -1 )
+        {
+            vm->set_user(noid, nuname);
+        }
+
+        if ( ngid != -1 )
+        {
+            vm->set_group(ngid, ngname);
+        }
+
+        vm_pool->update(vm);
+
+        vm->unlock();
+    }
+
+    if (!error_vm_quotas)
+    {
+        success_response(oid, att);
+    }
 
     return;
 }
@@ -422,7 +488,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ((user = upool->get(oid)) == 0 )
+    if ((user = upool->get_ro(oid)) == 0 )
     {
         att.resp_obj = PoolObjectSQL::USER;
         att.resp_id  = oid;
@@ -478,20 +544,17 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(auth_op, uperms);           // MANAGE USER
+    ar.add_auth(AuthRequest::USE, ngperms); // USE GROUP
+
+    if (UserPool::authorize(ar) == -1)
     {
-        AuthRequest ar(att.uid, att.group_ids);
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
 
-        ar.add_auth(auth_op, uperms);           // MANAGE USER
-        ar.add_auth(AuthRequest::USE, ngperms); // USE GROUP
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
-
-            return;
-        }
+        return;
     }
 
     // ------------- Change users primary group ---------------------
@@ -572,3 +635,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     return;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+

@@ -69,9 +69,9 @@ protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
 
-    void unlock_db(PoolObjectSQL * object, const int owner, const int req_id)
+    int unlock_db(PoolObjectSQL * object, const int owner, const int req_id)
     {
-        object->unlock_db(owner, req_id);
+        return object->unlock_db(owner, req_id);
     };
 };
 

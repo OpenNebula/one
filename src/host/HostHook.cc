@@ -79,13 +79,26 @@ void HostStateMapHook::remove_host (int id)
 
 void merge_state(Host::HostState &state)
 {
-    if (state == Host::MONITORING_ERROR)
+    switch(state)
     {
-        state = Host::ERROR;
-    }
-    else if (state == Host::MONITORING_DISABLED)
-    {
-        state = Host::DISABLED;
+        case Host::INIT:
+        case Host::MONITORED:
+        case Host::ERROR:
+        case Host::DISABLED:
+        case Host::OFFLINE:
+            break;
+        case Host::MONITORING_ERROR:
+            state = Host::ERROR;
+            break;
+        case Host::MONITORING_DISABLED:
+            state = Host::DISABLED;
+            break;
+        case Host::MONITORING_MONITORED:
+            state = Host::MONITORED;
+            break;
+        case Host::MONITORING_INIT:
+            state = Host::INIT;
+            break;
     }
 }
 

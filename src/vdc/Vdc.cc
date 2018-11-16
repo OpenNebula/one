@@ -440,7 +440,7 @@ ResourceSet::ResourceSet(PoolObjectSQL::ObjectType _type):type(_type)
         case PoolObjectSQL::HOST:
         case PoolObjectSQL::NET:
         case PoolObjectSQL::DATASTORE:
-            xml_name = PoolObjectSQL::type_to_str(type);
+            xml_name = ResourceSet::type_to_vdc_str(type);
             name_attr = "DEFAULT_VDC_" + xml_name + "_ACL";
 
             insert_default_rules(name_attr, type);

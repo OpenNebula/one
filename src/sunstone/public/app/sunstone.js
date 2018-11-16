@@ -683,7 +683,7 @@ define(function(require) {
     var hashRes = ["Dashboard", "Settings", "NetworkTopology"];
     var res = SunstoneCfg["tabs"][tabName]["resource"];
     if (res) {
-      if (!hashRes.includes(res)){
+      if (hashRes.indexOf(res) < 0){
         Sunstone.runAction(res + ".list");
       } else {
         Sunstone.runAction(res + ".refresh");
@@ -875,7 +875,7 @@ define(function(require) {
       call({data:dataArg, success: callback, error:err});
       break;
     case "single":
-      if (extraParam) {
+      if (extraParam !== undefined) {
         call({
           data:{
             id:dataArg,
@@ -1185,7 +1185,11 @@ define(function(require) {
   };
 
   var _rightInfoVisible = function(context) {
-    return $(".sunstone-info", context).is(":visible");
+    return $(".sunstone-info", context).is(":visible")
+  };
+
+  var _infoTabVisible = function(context, tab) {
+    return $(tab, $(".sunstone-info", context)).is(":visible")
   };
 
   var _rightListVisible = function(context) {
@@ -1285,6 +1289,7 @@ define(function(require) {
 
 
     "rightInfoVisible": _rightInfoVisible,
+    "infoTabVisible": _infoTabVisible,
     "rightListVisible": _rightListVisible,
     "rightInfoResourceId": _rightInfoResourceId,
 

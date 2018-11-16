@@ -62,19 +62,19 @@ class OneVdcHelper < OpenNebulaHelper::OneHelper
             end
 
             column :CLUSTERS, "Number of Clusters", :size=>8 do |d|
-                @ext.id_list_size(d["CLUSTERS"]["CLUSTER"], "CLUSTER")
+                @ext.id_list_size(d["CLUSTERS"]["CLUSTER"], "CLUSTER") rescue "-"
             end
 
             column :HOSTS, "Number of Hosts", :size=>5 do |d|
-                @ext.id_list_size(d["HOSTS"]["HOST"], "HOST")
+                @ext.id_list_size(d["HOSTS"]["HOST"], "HOST") rescue "-"
             end
 
             column :VNETS, "Number of Networks", :size=>5 do |d|
-                @ext.id_list_size(d["VNETS"]["VNET"], "VNET")
+                @ext.id_list_size(d["VNETS"]["VNET"], "VNET") rescue "-"
             end
 
             column :DATASTORES, "Number of Datastores", :size=>10 do |d|
-                @ext.id_list_size(d["DATASTORES"]["DATASTORE"], "DATASTORE")
+                @ext.id_list_size(d["DATASTORES"]["DATASTORE"], "DATASTORE") rescue "-"
             end
 
             default :ID, :NAME, :GROUPS, :CLUSTERS, :HOSTS, :VNETS, :DATASTORES

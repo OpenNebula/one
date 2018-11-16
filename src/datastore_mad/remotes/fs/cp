@@ -134,10 +134,10 @@ if [ -n "$BRIDGE_LIST" ]; then
     DST_HOST=`get_destination_host $ID`
     TMP_DST="$STAGING_DIR/$IMAGE_HASH"
 
-    exec_and_log "eval $COPY_COMMAND | $SSH $DST_HOST $DD of=$TMP_DST bs=64k" \
+    multiline_exec_and_log "set -e -o pipefail; $COPY_COMMAND | $SSH $DST_HOST $DD of=$TMP_DST bs=64k" \
                  "Error dumping $SRC to $DST_HOST:$TMP_DST"
 
-    ssh_exec_and_log    "$DST_HOST" "mkdir -p $BASE_PATH; mv -f $TMP_DST $DST" \
+    ssh_exec_and_log    "$DST_HOST" "set -e -o pipefail; mkdir -p $BASE_PATH; mv -f $TMP_DST $DST" \
                         "Error moving $TMP_DST to $DST in $DST_HOST"
 
     if [ "x$CONVERT" = 'xyes' ] && [ -n "$DRIVER" ]; then
@@ -146,7 +146,7 @@ if [ -n "$BRIDGE_LIST" ]; then
     fi
 else
     mkdir -p "$BASE_PATH"
-    exec_and_log "$COPY_COMMAND" "Error copying $SRC to $DST"
+    multiline_exec_and_log "set -e -o pipefail; $COPY_COMMAND" "Error copying $SRC to $DST"
 
     if [ "x$CONVERT" = 'xyes' ] && [ -n "$DRIVER" ]; then
         multiline_exec_and_log "$CONVERT_CMD" "Error converting $DST"

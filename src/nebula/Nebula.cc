@@ -236,12 +236,14 @@ void Nebula::start(bool bootstrap_only)
     time_t log_purge;
 
     unsigned int log_retention;
+    unsigned int limit_purge;
 
     vatt->vector_value("LOG_PURGE_TIMEOUT", log_purge);
     vatt->vector_value("ELECTION_TIMEOUT_MS", election_ms);
     vatt->vector_value("BROADCAST_TIMEOUT_MS", bcast_ms);
     vatt->vector_value("XMLRPC_TIMEOUT_MS", xmlrpc_ms);
     vatt->vector_value("LOG_RETENTION", log_retention);
+    vatt->vector_value("LIMIT_PURGE", limit_purge);
 
     Log::set_zone_id(zone_id);
 
@@ -342,7 +344,7 @@ void Nebula::start(bool bootstrap_only)
             }
         }
 
-        logdb = new LogDB(db_backend, solo, log_retention);
+        logdb = new LogDB(db_backend, solo, log_retention, limit_purge);
 
         if ( federation_master )
         {
@@ -478,10 +480,16 @@ void Nebula::start(bool bootstrap_only)
     MadManager::mad_manager_system_init();
 
     time_t timer_period;
-    time_t monitor_period;
+    time_t monitor_interval_host;
+    time_t monitor_interval_datastore;
+    time_t monitor_interval_market;
+    time_t monitor_interval_vm;
 
     nebula_configuration->get("MANAGER_TIMER", timer_period);
-    nebula_configuration->get("MONITORING_INTERVAL", monitor_period);
+    nebula_configuration->get("MONITORING_INTERVAL_HOST", monitor_interval_host);
+    nebula_configuration->get("MONITORING_INTERVAL_DATASTORE", monitor_interval_datastore);
+    nebula_configuration->get("MONITORING_INTERVAL_MARKET", monitor_interval_market);
+    nebula_configuration->get("MONITORING_INTERVAL_VM", monitor_interval_vm);
 
     // ---- ACL Manager ----
     try
@@ -769,7 +777,6 @@ void Nebula::start(bool bootstrap_only)
         int    vm_limit;
 
         bool   do_poll;
-        time_t poll_period = 0;
 
         nebula_configuration->get("VM_PER_INTERVAL", vm_limit);
 
@@ -777,11 +784,9 @@ void Nebula::start(bool bootstrap_only)
 
         nebula_configuration->get("VM_INDIVIDUAL_MONITORING", do_poll);
 
-        poll_period = monitor_period * 2.5;
-
         vmm = new VirtualMachineManager(
             timer_period,
-            poll_period,
+            monitor_interval_vm,
             do_poll,
             vm_limit,
             vmm_mads);
@@ -832,7 +837,7 @@ void Nebula::start(bool bootstrap_only)
         im = new InformationManager(hpool,
                                     clpool,
                                     timer_period,
-                                    monitor_period,
+                                    monitor_interval_host,
                                     host_limit,
                                     monitor_threads,
                                     remotes_location,
@@ -927,7 +932,7 @@ void Nebula::start(bool bootstrap_only)
         nebula_configuration->get("DATASTORE_MAD", image_mads);
 
         imagem = new ImageManager(timer_period,
-                                  monitor_period,
+                                  monitor_interval_datastore,
                                   ipool,
                                   dspool,
                                   image_mads);
@@ -951,7 +956,7 @@ void Nebula::start(bool bootstrap_only)
 
         nebula_configuration->get("MARKET_MAD", mmads);
 
-        marketm = new MarketPlaceManager(timer_period, monitor_period, mmads);
+        marketm = new MarketPlaceManager(timer_period, monitor_interval_market, mmads);
     }
     catch (bad_alloc&)
     {

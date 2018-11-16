@@ -61,12 +61,18 @@ public:
     {
         switch (op)
         {
-            case USE:    return "USE";
-            case MANAGE: return "MANAGE";
-            case ADMIN:  return "ADMIN";
-            case CREATE: return "CREATE";
-            default:     return "";
+            case USE:           return "USE";
+            case USE_NO_LCK:    return "USE";
+            case MANAGE:        return "MANAGE";
+            case MANAGE_NO_LCK: return "MANAGE";
+            case ADMIN:         return "ADMIN";
+            case ADMIN_NO_LCK:  return "ADMIN";
+            case CREATE:        return "CREATE";
+            case CREATE_NO_LCK: return "CREATE";
+            case NONE:          return "";
         }
+
+        return "";
     };
 
     static Operation str_to_operation(string str)
@@ -156,7 +162,7 @@ public:
 
     bool core_authorize()
     {
-        return ( uid == 0 || self_authorize );
+        return self_authorize;
     }
 
     bool core_authenticate()

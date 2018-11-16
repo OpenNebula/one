@@ -37,13 +37,13 @@ require 'shellwords'
 
 # IPAM Manager driver
 class IPAMDriver < OpenNebulaDriver
-
     # IPAM Driver Protocol constants
     ACTION = {
-        :register_address_range => "REGISTER_ADDRESS_RANGE",
-        :allocate_address       => "ALLOCATE_ADDRESS",
-        :get_address            => "GET_ADDRESS",
-        :free_address           => "FREE_ADDRESS"
+        :register_address_range   => "REGISTER_ADDRESS_RANGE",
+        :unregister_address_range => "UNREGISTER_ADDRESS_RANGE",
+        :allocate_address         => "ALLOCATE_ADDRESS",
+        :get_address              => "GET_ADDRESS",
+        :free_address             => "FREE_ADDRESS"
     }
 
     # Init the driver
@@ -53,10 +53,11 @@ class IPAMDriver < OpenNebulaDriver
             :threaded      => false,
             :retries       => 0,
             :local_actions => {
-                ACTION[:register_address_range] => nil,
-                ACTION[:allocate_address]       => nil,
-                ACTION[:get_address]            => nil,
-                ACTION[:free_address]           => nil
+                ACTION[:register_address_range]   => nil,
+                ACTION[:unregister_address_range] => nil,
+                ACTION[:allocate_address]         => nil,
+                ACTION[:get_address]              => nil,
+                ACTION[:free_address]             => nil
             }
         }.merge!(options)
 
@@ -75,6 +76,9 @@ class IPAMDriver < OpenNebulaDriver
         register_action(ACTION[:register_address_range].to_sym,
             method("register_address_range"))
 
+        register_action(ACTION[:unregister_address_range].to_sym,
+            method("unregister_address_range"))
+
         register_action(ACTION[:allocate_address].to_sym,
             method("allocate_address"))
 
@@ -85,6 +89,10 @@ class IPAMDriver < OpenNebulaDriver
 
     def register_address_range(id, drv_message)
         do_ipam_action(id, :register_address_range, drv_message)
+    end
+
+    def unregister_address_range(id, drv_message)
+        do_ipam_action(id, :unregister_address_range, drv_message)
     end
 
     def allocate_address(id, drv_message)

@@ -25,10 +25,85 @@
 #include "Resource.h"
 
 #include "VirtualMachineTemplate.h"
+#include "ScheduledAction.h"
 
 class ImageDatastorePoolXML;
 
 using namespace std;
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineNicXML : public ObjectXML
+{
+public:
+
+    /**
+     *  Returns a vector of matched datastores
+    */
+    const vector<Resource *>& get_match_networks()
+    {
+        return match_networks.get_resources();
+    }
+
+    /**
+     *  Adds a matching network
+     *    @param oid of the network
+     */
+    void add_match_network(int oid)
+    {
+        match_networks.add_resource(oid);
+    }
+
+    /**
+     *  Sort the matched networks for the VM
+     */
+    void sort_match_networks()
+    {
+       match_networks.sort_resources();
+    }
+
+    /**
+     *  Removes the matched networks
+     */
+    void clear_match_networks()
+    {
+        match_networks.clear();
+    }
+
+    //--------------------------------------------------------------------------
+    // Rank & requirements set & get
+    //--------------------------------------------------------------------------
+    const string& get_rank()
+    {
+        return rank;
+    };
+
+    void set_rank(const string& r)
+    {
+        rank = r;
+    }
+
+    const string& get_requirements()
+    {
+        return requirements;
+    };
+
+    void set_requirements(const string& r)
+    {
+        requirements = r;
+    }
+
+private:
+    ResourceMatch match_networks;
+
+    string rank;
+
+    string requirements;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 class VirtualMachineXML : public ObjectXML
 {
@@ -105,6 +180,20 @@ public:
         return ds_rank;
     };
 
+    const string& get_nic_rank(int nic_id)
+    {
+        static std::string es;
+
+        std::map<int, VirtualMachineNicXML *>::iterator it = nics.find(nic_id);
+
+        if ( it != nics.end() )
+        {
+            return it->second->get_rank();
+        }
+
+        return es;
+    };
+
     const string& get_requirements()
     {
         return requirements;
@@ -113,6 +202,20 @@ public:
     const string& get_ds_requirements()
     {
         return ds_requirements;
+    }
+
+    const string& get_nic_requirements(int nic_id)
+    {
+        static std::string es;
+
+        std::map<int, VirtualMachineNicXML *>::iterator it = nics.find(nic_id);
+
+        if ( it != nics.end() )
+        {
+            return it->second->get_requirements();
+        }
+
+        return es;
     }
 
     /**
@@ -204,6 +307,20 @@ public:
     }
 
     /**
+     *  Adds a matching network
+     *    @param oid of the network
+     */
+    void add_match_network(int oid, int nic_id)
+    {
+        std::map<int, VirtualMachineNicXML *>::iterator it = nics.find(nic_id);
+
+        if ( it != nics.end() )
+        {
+            it->second->add_match_network(oid);
+        }
+    }
+
+    /**
      *  Returns a vector of matched hosts
      */
     const vector<Resource *> get_match_hosts()
@@ -217,6 +334,40 @@ public:
     const vector<Resource *> get_match_datastores()
     {
         return match_datastores.get_resources();
+    }
+
+    /**
+     *  Returns a vector of matched networks
+     */
+    const vector<Resource *>& get_match_networks(int nic_id)
+    {
+        static std::vector<Resource *> ev;
+
+        std::map<int, VirtualMachineNicXML *>::iterator it = nics.find(nic_id);
+
+        if ( it != nics.end() )
+        {
+            return it->second->get_match_networks();
+        }
+
+        return ev;
+    }
+
+    /**
+     *  Returns a VirtualMachineNicXML
+     */
+    VirtualMachineNicXML * get_nic(int nic_id)
+    {
+        VirtualMachineNicXML * n = 0;
+
+        std::map<int, VirtualMachineNicXML *>::iterator it = nics.find(nic_id);
+
+        if ( it != nics.end() )
+        {
+            n = it->second;
+        }
+
+        return n;
     }
 
     /**
@@ -236,6 +387,19 @@ public:
     }
 
     /**
+     *  Sort the matched networks for the VM
+     */
+    void sort_match_networks(int nic_id)
+    {
+        std::map<int, VirtualMachineNicXML *>::iterator it = nics.find(nic_id);
+
+        if ( it != nics.end() )
+        {
+            it->second->sort_match_networks();
+        }
+    }
+
+    /**
      *  Removes the matched hosts
      */
     void clear_match_hosts()
@@ -249,6 +413,19 @@ public:
     void clear_match_datastores()
     {
         match_datastores.clear();
+    }
+
+    /**
+     *  Removes the matched networks
+     */
+    void clear_match_networks()
+    {
+        map<int, VirtualMachineNicXML *>::iterator it;
+
+        for (it = nics.begin(); it != nics.end(); it++ )
+        {
+            it->second->clear_match_networks();
+        }
     }
 
     /**
@@ -325,11 +502,9 @@ public:
      *
      * @param attributes to hold the VM actions
      */
-    void get_actions(vector<Attribute *>& attributes) const
+    SchedActions * get_actions()
     {
-        attributes.clear();
-
-        user_template->remove("SCHED_ACTION", attributes);
+        return new SchedActions(user_template);
     }
 
     /**
@@ -369,6 +544,14 @@ public:
      */
     bool clear_log();
 
+    /**
+     *  Return ids of NICs with NETWORK_MODE=auto (i.e. need to schedule networks)
+     */
+    set<int> get_nics_ids()
+    {
+        return nics_ids_auto;
+    }
+
 protected:
 
     /**
@@ -383,6 +566,7 @@ protected:
     ResourceMatch match_hosts;
 
     ResourceMatch match_datastores;
+
 
     bool only_public_cloud;
 
@@ -416,9 +600,12 @@ protected:
     string ds_requirements;
     string ds_rank;
 
+    set<int> nics_ids_auto;
+
+    map<int, VirtualMachineNicXML *> nics;
+
     VirtualMachineTemplate * vm_template;   /**< The VM template */
     VirtualMachineTemplate * user_template; /**< The VM user template */
-
 };
 
 #endif /* VM_XML_H_ */

@@ -107,7 +107,7 @@
     </select>
   </div>
   {{#unless volatile}}
-  <div class="medium-6 columns hypervisor">
+  <div class="medium-6 columns hypervisor only_kvm">
     <label for="SIZE">
       {{tr "Size on instantiate"}}
       {{{tip (tr "The size of the disk will be modified to match this size when the template is instantiated")}}}
@@ -126,39 +126,123 @@
   </div>
   {{/unless}}
 </div>
-<div class="row vm_param">
-  <div class="medium-6 columns hypervisor only_kvm">
-    <fieldset>
-      <legend>{{tr "IO throttling (bytes/s)"}}</legend>
-      <label for="TOTAL_BYTES_SEC">
-        {{tr "Total (read+write) bytes/s"}}
-      </label>
-      <input wizard_field="TOTAL_BYTES_SEC" type="number" min="0" id="TOTAL_BYTES_SEC" name="TOTAL_BYTES_SEC" />
-      <label for="READ_BYTES_SEC">
-        {{tr "Read bytes/s"}}
-      </label>
-      <input wizard_field="READ_BYTES_SEC" type="number" min="0" id="READ_BYTES_SEC" name="READ_BYTES_SEC" />
-      <label for="WRITE_BYTES_SEC">
-        {{tr "Write bytes/s"}}
-      </label>
-      <input wizard_field="WRITE_BYTES_SEC" type="number" min="0" id="WRITE_BYTES_SEC" name="WRITE_BYTES_SEC" />
-    </fieldset>
+<fieldset>
+  <legend>{{tr "Throttling (Bytes/s)"}}</legend>
+  <div class="row vm_param">
+    <div class="medium-4 columns hypervisor only_kvm">
+      <fieldset>
+        <legend>{{tr "Total"}}</legend>
+        <label for="TOTAL_BYTES_SEC">
+          {{tr "Value"}}
+        </label>
+        <input wizard_field="TOTAL_BYTES_SEC" type="number" min="0" id="TOTAL_BYTES_SEC" name="TOTAL_BYTES_SEC" />
+        <label for="TOTAL_BYTES_SEC_MAX">
+          {{tr "Maximum"}}
+        </label>
+        <input wizard_field="TOTAL_BYTES_SEC_MAX" type="number" min="0" id="TOTAL_BYTES_SEC_MAX" name="TOTAL_BYTES_SEC_MAX" />
+        <label for="TOTAL_BYTES_SEC_MAX_LENGTH">
+          {{tr "Maximum length"}}
+        </label>
+        <input wizard_field="TOTAL_BYTES_SEC_MAX_LENGTH" type="number" min="0" id="TOTAL_BYTES_SEC_MAX_LENGTH" name="TOTAL_BYTES_SEC_MAX_LENGTH" />
+      </fieldset>
+    </div>
+    <div class="medium-4 columns hypervisor only_kvm">
+      <fieldset>
+        <legend>{{tr "Read"}}</legend>
+        <label for="READ_BYTES_SEC">
+          {{tr "Value"}}
+        </label>
+        <input wizard_field="READ_BYTES_SEC" type="number" min="0" id="READ_BYTES_SEC" name="READ_BYTES_SEC" />
+        <label for="READ_BYTES_SEC_MAX">
+          {{tr "Maximum"}}
+        </label>
+        <input wizard_field="READ_BYTES_SEC_MAX" type="number" min="0" id="READ_BYTES_SEC_MAX" name="READ_BYTES_SEC_MAX" />
+        <label for="READ_BYTES_SEC_MAX_LENGTH">
+          {{tr "Maximum length"}}
+        </label>
+        <input wizard_field="READ_BYTES_SEC_MAX_LENGTH" type="number" min="0" id="READ_BYTES_SEC_MAX_LENGTH" name="READ_BYTES_SEC_MAX_LENGTH" />
+      </fieldset>
+    </div>
+    <div class="medium-4 columns hypervisor only_kvm">
+      <fieldset>
+        <legend>{{tr "Write"}}</legend>
+        <label for="WRITE_BYTES_SEC">
+          {{tr "Value"}}
+        </label>
+        <input wizard_field="WRITE_BYTES_SEC" type="number" min="0" id="WRITE_BYTES_SEC" name="WRITE_BYTES_SEC" />
+        <label for="WRITE_BYTES_SEC_MAX">
+          {{tr "Maximum"}}
+        </label>
+        <input wizard_field="WRITE_BYTES_SEC_MAX" type="number" min="0" id="WRITE_BYTES_SEC_MAX" name="WRITE_BYTES_SEC_MAX" />
+        <label for="WRITE_BYTES_SEC_MAX_LENGTH">
+          {{tr "Maximum length"}}
+        </label>
+        <input wizard_field="WRITE_BYTES_SEC_MAX_LENGTH" type="number" min="0" id="WRITE_BYTES_SEC_MAX_LENGTH" name="WRITE_BYTES_SEC_MAX_LENGTH" />
+      </fieldset>
+    </div>
   </div>
-  <div class="medium-6 columns hypervisor only_kvm">
-    <fieldset>
-      <legend>{{tr "IO throttling (IOPS)"}}</legend>
-      <label for="TOTAL_IOPS_SEC">
-        {{tr "Total (read+write) IOPS"}}
-      </label>
-      <input wizard_field="TOTAL_IOPS_SEC" type="number" min="0" id="TOTAL_IOPS_SEC" name="TOTAL_IOPS_SEC" />
-      <label for="READ_IOPS_SEC">
-        {{tr "Read IOPS"}}
-      </label>
-      <input wizard_field="READ_IOPS_SEC" type="number" min="0" id="READ_IOPS_SEC" name="READ_IOPS_SEC" />
-      <label for="WRITE_IOPS_SEC">
-        {{tr "Write IOPS Sec"}}
-      </label>
-      <input wizard_field="WRITE_IOPS_SEC" type="number" min="0" id="WRITE_IOPS_SEC" name="WRITE_IOPS_SEC" />
-    </fieldset>
+</fieldset>
+<fieldset>
+  <legend>{{tr "Throttling (IOPS)"}}</legend>
+  <div class="row vm_param">
+    <div class="medium-4 columns hypervisor only_kvm">
+      <fieldset>
+        <legend>{{tr "Total"}}</legend>
+        <label for="TOTAL_IOPS_SEC">
+          {{tr "Value"}}
+        </label>
+        <input wizard_field="TOTAL_IOPS_SEC" type="number" min="0" id="TOTAL_IOPS_SEC" name="TOTAL_IOPS_SEC" />
+        <label for="TOTAL_IOPS_SEC_MAX">
+          {{tr "Maximum"}}
+        </label>
+        <input wizard_field="TOTAL_IOPS_SEC_MAX" type="number" min="0" id="TOTAL_IOPS_SEC_MAX" name="TOTAL_IOPS_SEC_MAX" />
+        <label for="TOTAL_IOPS_SEC_MAX_LENGTH">
+          {{tr "Maximum length"}}
+        </label>
+        <input wizard_field="TOTAL_IOPS_SEC_MAX_LENGTH" type="number" min="0" id="TOTAL_IOPS_SEC_MAX_LENGTH" name="TOTAL_IOPS_SEC_MAX_LENGTH" />
+      </fieldset>
+    </div>
+    <div class="medium-4 columns hypervisor only_kvm">
+      <fieldset>
+        <legend>{{tr "Read"}}</legend>
+        <label for="READ_IOPS_SEC">
+          {{tr "Value"}}
+        </label>
+        <input wizard_field="READ_IOPS_SEC" type="number" min="0" id="READ_IOPS_SEC" name="READ_IOPS_SEC" />
+        <label for="READ_IOPS_SEC_MAX">
+          {{tr "Maximum"}}
+        </label>
+        <input wizard_field="READ_IOPS_SEC_MAX" type="number" min="0" id="READ_IOPS_SEC_MAX" name="READ_IOPS_SEC_MAX" />
+        <label for="READ_IOPS_SEC_MAX_LENGTH">
+          {{tr "Maximum length"}}
+        </label>
+        <input wizard_field="READ_IOPS_SEC_MAX_LENGTH" type="number" min="0" id="READ_IOPS_SEC_MAX_LENGTH" name="READ_IOPS_SEC_MAX_LENGTH" />
+      </fieldset>
+    </div>
+    <div class="medium-4 columns hypervisor only_kvm">
+      <fieldset>
+        <legend>{{tr "Write"}}</legend>
+        <label for="WRITE_IOPS_SEC">
+          {{tr "Value"}}
+        </label>
+        <input wizard_field="WRITE_IOPS_SEC" type="number" min="0" id="WRITE_IOPS_SEC" name="WRITE_IOPS_SEC" />
+        <label for="WRITE_IOPS_SEC_MAX">
+          {{tr "Maximum"}}
+        </label>
+        <input wizard_field="WRITE_IOPS_SEC_MAX" type="number" min="0" id="WRITE_IOPS_SEC_MAX" name="WRITE_IOPS_SEC_MAX" />
+        <label for="WRITE_IOPS_SEC_MAX_LENGTH">
+          {{tr "Maximum length"}}
+        </label>
+        <input wizard_field="WRITE_IOPS_SEC_MAX_LENGTH" type="number" min="0" id="WRITE_IOPS_SEC_MAX_LENGTH" name="WRITE_IOPS_SEC_MAX_LENGTH" />
+      </fieldset>
+    </div>
+    <div class="row" style="display: none">
+      <div class="medium-6 columns">
+        <label>
+          {{tr "OPENNEBULA MANAGEMENT"}}
+        </label>
+        <input type="text" wizard_field="OPENNEBULA_MANAGED" id="OPENNEBULA_MANAGED" name="OPENNEBULA_MANAGED"/>
+      </div>
+    </div>
   </div>
-</div>
+</fieldset>

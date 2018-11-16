@@ -357,7 +357,7 @@ public:
      */
     static string code_version()
     {
-        return "5.5.80"; // bump version
+        return "5.7.80"; // bump version
     }
 
     /**
@@ -366,7 +366,7 @@ public:
      */
     static string shared_db_version()
     {
-        return "5.5.80";
+        return "5.7.80";
     }
 
     /**
@@ -375,7 +375,7 @@ public:
      */
     static string local_db_version()
     {
-        return "5.5.80";
+        return "5.7.80";
     }
 
     /**
@@ -458,7 +458,7 @@ public:
     {
         if ( uid != -1 )
         {
-            User * user = upool->get(uid);
+            User * user = upool->get_ro(uid);
 
             if ( user == 0 )
             {
@@ -481,7 +481,7 @@ public:
             user->unlock();
         }
 
-        Group * group = gpool->get(gid);
+        Group * group = gpool->get_ro(gid);
 
         if ( group == 0 )
         {
@@ -516,6 +516,15 @@ public:
     {
         return get_conf_attribute("DS_MAD_CONF", ds_name, value);
     };
+
+    /**
+     * Gets a VN configuration attribute
+     */
+    int get_vn_conf_attribute(const std::string& vn_name,
+        const VectorAttribute* &value) const
+    {
+        return get_conf_attribute("VN_MAD_CONF", vn_name, value);
+    }
 
     /**
      *  Gets a TM configuration attribute

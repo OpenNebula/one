@@ -41,7 +41,7 @@ protected:
         int oid = xmlrpc_c::value_int(pl.getInt(1));
         std::string xml = xmlrpc_c::value_string(pl.getString(2));
 
-        if ( att.uid != UserPool::ONEADMIN_ID )
+        if (!att.is_oneadmin())
         {
             failure_response(AUTHORIZATION, att);
             return;
@@ -151,7 +151,7 @@ public:
         int oid = xmlrpc_c::value_int(pl.getInt(1));
         std::string xml = xmlrpc_c::value_string(pl.getString(2));
 
-        if ( att.uid != UserPool::ONEADMIN_ID )
+        if (!att.is_oneadmin())
         {
             failure_response(AUTHORIZATION, att);
             return;

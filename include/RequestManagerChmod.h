@@ -204,11 +204,19 @@ public:
                             "Changes permission bits of a virtual router")
     {
         Nebula& nd  = Nebula::instance();
-        pool        = nd.get_vrouterpool();
+        vrpool      = nd.get_vrouterpool();
+        pool        = nd.get_vmpool();
         auth_object = PoolObjectSQL::VROUTER;
     };
 
     ~VirtualRouterChmod(){};
+
+    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
+        RequestAttributes& att);
+
+private:
+
+    VirtualRouterPool  * vrpool;
 };
 
 /* ------------------------------------------------------------------------- */

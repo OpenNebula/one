@@ -73,8 +73,7 @@ int UserChangePassword::user_action(int     user_id,
         allowed = false;
     }
 
-    if (!allowed && att.uid != UserPool::ONEADMIN_ID &&
-        att.gid != GroupPool::ONEADMIN_ID)
+    if (!allowed && !att.is_admin())
     {
         error_str = "Password for driver " + user->get_auth_driver() +
                     " cannot be changed.";
@@ -207,7 +206,7 @@ void UserEditGroup::
     PoolObjectAuth uperms;
     PoolObjectAuth gperms;
 
-    User* user = upool->get(user_id);
+    User* user = upool->get_ro(user_id);
 
     if ( user == 0 )
     {
@@ -249,19 +248,16 @@ void UserEditGroup::
         return;
     }
 
-    if ( att.uid != UserPool::ONEADMIN_ID )
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(AuthRequest::MANAGE, uperms);   // MANAGE USER
+    ar.add_auth(AuthRequest::MANAGE, gperms);   // MANAGE GROUP
+
+    if (UserPool::authorize(ar) == -1)
     {
-        AuthRequest ar(att.uid, att.group_ids);
-
-        ar.add_auth(AuthRequest::MANAGE, uperms);   // MANAGE USER
-        ar.add_auth(AuthRequest::MANAGE, gperms);   // MANAGE GROUP
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
-            return;
-        }
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
+        return;
     }
 
     if ( secondary_group_action(user_id, group_id, paramList, att.resp_msg) < 0 )
@@ -418,32 +414,29 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
         egid = xmlrpc_c::value_int(paramList.getInt(4));
     }
 
-    if (att.uid != 0)
+    PoolObjectAuth perms;
+
+    user = static_cast<UserPool *>(pool)->get_ro(uname);
+
+    if ( user == 0 )
     {
-        PoolObjectAuth perms;
+        failure_response(NO_EXISTS, att);
+        return;
+    }
 
-        user = static_cast<UserPool *>(pool)->get(uname);
+    user->get_permissions(perms);
 
-        if ( user == 0 )
-        {
-            failure_response(NO_EXISTS, att);
-            return;
-        }
+    user->unlock();
 
-        user->get_permissions(perms);
+    AuthRequest ar(att.uid, att.group_ids);
 
-        user->unlock();
+    ar.add_auth(auth_op, perms);
 
-        AuthRequest ar(att.uid, att.group_ids);
-
-        ar.add_auth(auth_op, perms);
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
-            return;
-        }
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
+        return;
     }
 
     user = static_cast<UserPool *>(pool)->get(uname);

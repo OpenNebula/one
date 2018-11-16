@@ -67,8 +67,6 @@ private:
     static VirtualMachinePool * vmpool;
 
     static MonitorThreadPool * mthpool;
-
-    static time_t monitor_interval;
 };
 
 // -----------------------------------------------------------------------------

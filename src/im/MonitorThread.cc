@@ -42,8 +42,6 @@ ClusterPool * MonitorThread::cpool;
 
 VirtualMachinePool * MonitorThread::vmpool;
 
-time_t MonitorThread::monitor_interval;
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -148,7 +146,7 @@ void MonitorThread::do_message()
 
     if (cid != -1)
     {
-        Cluster *cluster = cpool->get(cid);
+        Cluster * cluster = cpool->get_ro(cid);
 
         if (cluster != 0)
         {
@@ -160,7 +158,7 @@ void MonitorThread::do_message()
 
     for (itm = datastores.begin(); itm != datastores.end(); itm++)
     {
-        ds = dspool->get(itm->first);
+        ds = dspool->get_ro(itm->first);
 
         if (ds == 0)
         {
@@ -207,12 +205,13 @@ void MonitorThread::do_message()
 
     hpool->update(host);
 
-    hpool->update_monitoring(host);
+    if ( hpool->update_monitoring(host) == 0 )
+    {
+        oss << "Host " << host->get_name() << " (" << host->get_oid() << ")"
+            << " successfully monitored.";
 
-    oss << "Host " << host->get_name() << " (" << host->get_oid() << ")"
-        << " successfully monitored.";
-
-    NebulaLog::log("InM", Log::DEBUG, oss);
+        NebulaLog::log("InM", Log::DEBUG, oss);
+    }
 
     host->unlock();
 
@@ -227,7 +226,7 @@ void MonitorThread::do_message()
 
         for (its = lost.begin(); its != lost.end(); its++)
         {
-            VirtualMachine * vm = vmpool->get(*its);
+            VirtualMachine * vm = vmpool->get_ro(*its);
 
             if (vm == 0)
             {
@@ -289,14 +288,8 @@ void MonitorThread::do_message()
 
         // The rediscovered set is not stored in the DB, the update method
         // is not needed
-        host = hpool->get(host_id);
 
-        if ( host != 0 )
-        {
-            host->set_prev_rediscovered_vms(rediscovered_vms);
-
-            host->unlock();
-        }
+        hpool->update_prev_rediscovered_vms(host_id, rediscovered_vms);
     }
 };
 
@@ -318,9 +311,6 @@ MonitorThreadPool::MonitorThreadPool(int max_thr):concurrent_threads(max_thr),
     MonitorThread::cpool  = Nebula::instance().get_clpool();
 
     MonitorThread::vmpool = Nebula::instance().get_vmpool();
-
-    Nebula::instance().get_configuration_attribute("MONITORING_INTERVAL",
-        MonitorThread::monitor_interval);
 
     MonitorThread::mthpool= this;
 

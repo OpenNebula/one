@@ -62,6 +62,8 @@ public:
     {
         delete leader_hook;
         delete follower_hook;
+
+        pthread_mutex_destroy(&mutex);
     };
 
     // -------------------------------------------------------------------------
@@ -88,6 +90,15 @@ public:
      *  send the log to the followers
      */
     void replicate_log(ReplicaRequest * rr);
+
+    /**
+     *  Allocate a replica request fot the given index.
+     *    @param rindex of the record for the request
+     */
+	void replicate_allocate(int rindex)
+	{
+		requests.allocate(rindex);
+	}
 
     /**
      *  Finalizes the Raft Consensus Manager
@@ -286,6 +297,12 @@ public:
      */
 	void delete_server(int follower_id);
 
+    /**
+     *  Reset index for a follower.
+     *    @param follower_id id of server
+     */
+	void reset_index(int follower_id);
+
 private:
     friend void * raft_manager_loop(void *arg);
 
@@ -306,8 +323,7 @@ private:
     /**
      * Clients waiting for a log replication
      */
-    std::map<int, ReplicaRequest *> requests;
-
+    ReplicaRequestMap requests;
 
     // -------------------------------------------------------------------------
     // Raft state

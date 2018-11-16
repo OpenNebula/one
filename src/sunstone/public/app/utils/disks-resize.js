@@ -79,7 +79,7 @@ define(function(require){
       disks = [template_disk];
     }
 
-    if (opts.template_base_json) {
+    if (opts.template_base_json && opts.template_base_json.VMTEMPLATE) {
       var template_base_disk = opts.template_base_json.VMTEMPLATE.TEMPLATE.DISK;
       var disks_base = [];
       if ($.isArray(template_base_disk)) {
@@ -128,6 +128,7 @@ define(function(require){
           "</div>").appendTo($(".disksContainer", disksContext));
         if (disks_base) {
           disks_base[disk_id].SIZE = disk.SIZE;
+          disks_base[disk_id].ORIGINAL_SIZE = disk.ORIGINAL_SIZE;
           diskContext.data("template_disk", disks_base[disk_id]);
         }
 
@@ -223,14 +224,20 @@ define(function(require){
     $(".diskContainer", context).each(function(){
       if ($(this).data("template_disk")) {
         disk = $(this).data("template_disk");
-
         var fields = WizardFields.retrieve(this);
 
-        var size = $.extend(true, [], fields.SIZE);
-        var size = size.join("");
-        var diskAux = $.extend(true, {}, disk);
-        diskAux["SIZE"] = fields.SIZE;
-        disks.push(diskAux);
+        if (disk["SIZE"] && fields["SIZE"] && disk["ORIGINAL_SIZE"] === fields["SIZE"] && fields["SIZE"] === disk["SIZE"]){
+          if (disk["IMAGE_ID"] || disk["IMAGE_NAME"]){
+            delete disk["SIZE"];
+          }
+          delete disk["ORIGINAL_SIZE"];
+          disks.push(disk);
+        } else {
+          var diskAux = $.extend(true, {}, disk);
+          diskAux["SIZE"] = fields["SIZE"];
+          delete diskAux["ORIGINAL_SIZE"];
+          disks.push(diskAux);
+        }
       }
     });
 

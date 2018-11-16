@@ -84,6 +84,22 @@ public:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+class ZoneResetServer : public RequestManagerZone
+{
+public:
+    ZoneResetServer():
+        RequestManagerZone("one.zone.resetserver", "Reset server log index",
+                "A:sis"){};
+
+    ~ZoneResetServer(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 class ZoneReplicateLog : public RequestManagerZone
 {
 public:

@@ -18,31 +18,47 @@
 # Set up the environment for the driver                                        #
 # ---------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-   BIN_LOCATION = "/usr/bin" if !defined?(BIN_LOCATION)
-   LIB_LOCATION = "/usr/lib/one" if !defined?(LIB_LOCATION)
-   ETC_LOCATION = "/etc/one/" if !defined?(ETC_LOCATION)
-   VAR_LOCATION = "/var/lib/one" if !defined?(VAR_LOCATION)
+   BIN_LOCATION = '/usr/bin'     unless defined?(BIN_LOCATION)
+   LIB_LOCATION = '/usr/lib/one' unless defined?(LIB_LOCATION)
+   ETC_LOCATION = '/etc/one/'    unless defined?(ETC_LOCATION)
+   VAR_LOCATION = '/var/lib/one' unless defined?(VAR_LOCATION)
 else
-   BIN_LOCATION = ONE_LOCATION + "/bin"  if !defined?(BIN_LOCATION)
-   LIB_LOCATION = ONE_LOCATION + "/lib"  if !defined?(LIB_LOCATION)
-   ETC_LOCATION = ONE_LOCATION + "/etc/" if !defined?(ETC_LOCATION)
-   VAR_LOCATION = ONE_LOCATION + "/var/" if !defined?(VAR_LOCATION)
+   BIN_LOCATION = ONE_LOCATION + '/bin'  unless defined?(BIN_LOCATION)
+   LIB_LOCATION = ONE_LOCATION + '/lib'  unless defined?(LIB_LOCATION)
+   ETC_LOCATION = ONE_LOCATION + '/etc/' unless defined?(ETC_LOCATION)
+   VAR_LOCATION = ONE_LOCATION + '/var/' unless defined?(VAR_LOCATION)
 end
 
 ENV['LANG'] = 'C'
 
-$: << LIB_LOCATION + '/ruby/vendors/rbvmomi/lib'
-$: << LIB_LOCATION + '/ruby'
-$: << LIB_LOCATION + '/ruby/vcenter_driver'
+$LOAD_PATH << LIB_LOCATION + '/ruby/vendors/rbvmomi/lib'
+$LOAD_PATH << LIB_LOCATION + '/ruby'
+$LOAD_PATH << LIB_LOCATION + '/ruby/vcenter_driver'
+
+class VCenterConf < Hash
+    DEFAULT_CONFIGURATION = {
+        delete_images: false
+    }
+
+    def initialize
+        self.replace(DEFAULT_CONFIGURATION)
+        begin
+            self.merge!(YAML.load_file("#{VAR_LOCATION}/remotes/etc/vmm/vcenter/vcenterc"))
+        rescue
+        end
+    end
+end
 
 require 'rbvmomi'
 require 'yaml'
 require 'opennebula'
 require 'base64'
 require 'openssl'
+require 'digest'
+require 'resolv'
 
 # ---------------------------------------------------------------------------- #
 # vCenter Library                                                              #
@@ -55,10 +71,16 @@ require 'vi_helper'
 require 'datacenter'
 require 'host'
 require 'datastore'
+require 'vm_template'
 require 'virtual_machine'
 require 'network'
 require 'file_helper'
-require 'importer'
+
+CHECK_REFS = true
+
+module VCenterDriver
+    CONFIG = VCenterConf.new
+end
 
 # ---------------------------------------------------------------------------- #
 # Helper functions                                                             #
@@ -69,12 +91,26 @@ def error_message(message)
     error_str << message
     error_str << "\nERROR MESSAGE ------>8--"
 
-    return error_str
+    error_str
 end
 
 def check_valid(parameter, label)
     if parameter.nil? || parameter.empty?
         STDERR.puts error_message("The parameter '#{label}' is required for this action.")
-        exit -1
+        exit(-1)
+    end
+end
+
+def check_item(item, target_class)
+    begin
+        item.name if CHECK_REFS
+        if target_class
+            if !item.instance_of?(target_class)
+                raise "Expecting type 'RbVmomi::VIM::#{target_class}'. " \
+                        "Got '#{item.class} instead."
+            end
+        end
+    rescue RbVmomi::Fault => e
+        raise "Reference \"#{item._ref}\" error [#{e.message}]. The reference does not exist"
     end
 end

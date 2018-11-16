@@ -13,8 +13,8 @@
   :size: 9
   :left: true
 
-:RVM:
-  :desc: Number of Virtual Machines running
+:TVM:
+  :desc: Total Virtual Machines allocated to the Host
   :size: 3
 
 :ZVM:
@@ -70,7 +70,10 @@
 - :ID
 - :NAME
 - :CLUSTER
-- :RVM
+- :TVM
 - :ALLOCATED_CPU
 - :ALLOCATED_MEM
 - :STAT
+
+:default_actions:
+  - :flush: resched

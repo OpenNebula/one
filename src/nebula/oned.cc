@@ -50,7 +50,7 @@ static void print_help()
          << "SYNOPSIS\n"
          << "  Starts the OpenNebula daemon\n\n"
          << "OPTIONS\n"
-         << "  -v, --verbose\toutput version information and exit\n"
+         << "  -v, --version\toutput version information and exit\n"
          << "  -h, --help\tdisplay this help and exit\n"
          << "  -f, --foreground\tforeground, do not fork the oned daemon\n"
          << "  -i, --init-db\tinitialize the database and exit\n";
@@ -224,7 +224,7 @@ int main(int argc, char **argv)
             break;
     }
 
-    return 0;
+    _exit(-1);
 
 error_chdir:
     cerr << "Error: cannot change to dir " << wd << "\n";

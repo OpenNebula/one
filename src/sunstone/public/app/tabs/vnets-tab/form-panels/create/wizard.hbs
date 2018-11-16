@@ -53,6 +53,10 @@
           </label>
           <input type="text" wizard_field="NAME" required name="name" id="name"/>
         </div>
+        <div class="medium-6 columns" id="vnet_cluster_div" hidden>
+          <label for="cluster">{{tr "Cluster"}}</label>
+          <div id="vnet_cluster_id" name="vnet_cluster_id"></div>
+        </div>
       </div>
       <div class="row">
         <div class="medium-6 columns">
@@ -81,7 +85,7 @@
             {{tr "Network mode"}}
           </label>
           <select wizard_field="VN_MAD" name="network_mode" id="network_mode">
-            <option value="dummy">{{tr "Bridged"}}</option>
+            <option value="bridge">{{tr "Bridged"}}</option>
             <option value="fw">{{tr "Bridged & Security Groups"}}</option>
             <option value="ebtables">{{tr "Bridged & ebtables VLAN"}}</option>
             <option value="802.1Q">{{tr "802.1Q"}}</option>
@@ -99,8 +103,8 @@
           <input type="text" wizard_field="VN_MAD" name="vn_mad" id="vn_mad" />
         </div>
         <div class="large-12 columns">
-          <div class="network_mode_description" value="dummy">
-            {{tr "Bridged, virtual machine traffic is directly bridged through an existing Linux bridge in the nodes. No traffic filtering is made."}}
+          <div class="network_mode_description" value="bridge">
+            {{tr "Bridged, virtual machine traffic is directly bridged. The Linux bridge is created in the nodes as needed. No traffic filtering is made."}}
           </div>
           <div class="network_mode_description" value="fw">
             {{tr "Bridged & Security Groups, bridged network with Security Group rules."}}
@@ -150,15 +154,15 @@
         <div class="medium-3 columns left mode_param 8021Q vxlan ovswitch ovswitch_vxlan vcenter custom">
           <label>
             {{tr "VLAN ID"}}
-            <select wizard_field="AUTOMATIC_VLAN_ID">
+            <select id="automatic_vlan_id" wizard_field="AUTOMATIC_VLAN_ID">
               <option value="YES">{{tr "Automatic VLAN ID"}}</option>
               <option value="NO">{{tr "No VLAN network"}}</option>
               <option value="">{{tr "Manual VLAN ID"}}</option>
             </select>
-            <input type="number" wizard_field="VLAN_ID"/>
+            <input id="manual_id" type="number" wizard_field="VLAN_ID"/>
           </label>
         </div>
-        <div class="medium-3 columns left mode_param 8021Q vxlan ovswitch_vxlan custom">
+        <div class="medium-3 columns left mode_param bridge fw ebtables 8021Q vxlan ovswitch ovswitch_vxlan custom">
           <label for="phydev">
             {{tr "Physical device"}}
             <span class="tip">
@@ -231,7 +235,7 @@
         <div class="medium-2 columns">
           <ul class="tabs vertical" id="vnet_wizard_ar_tabs" data-tabs></ul>
           <div class="text-center">
-            <button type="button" class="button small tabs-add" id="vnet_wizard_ar_btn">
+            <button type="button" class="button small tabs-add" id="vnet_wizard_ar_btn" style="margin-top: 5%">
               <i class="fas fa-lg fa-plus-circle"></i>
             </button>
           </div>
@@ -253,7 +257,7 @@
       <div class="row" id="default_sg_warning">
         <div class="large-12 columns">
           <span class="radius warning label">
-            <i class="fas fa-warning"/> {{tr "The default Security Group 0 is automatically added to new Virtual Networks"}}
+            <i class="fas fa-exclamation-triangle"/> {{tr "The default Security Group 0 is automatically added to new Virtual Networks"}}
           </span>
         </div>
       </div>
