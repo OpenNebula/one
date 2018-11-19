@@ -637,8 +637,9 @@ func (vm *VM) Delete() error {
 
 // Deploy in the selected hostID and/or dsID. Enforce to return error in case of
 // overcommitment. Enforce is automatically enabled for non-oneadmin users.
-func (vm *VM) Deploy(hostID uint, enforce bool, dsID uint) error {
-	_, err := client.Call("one.vm.deploy", vm.ID, int(hostID), enforce, int(dsID))
+// Set dsID to -1 to let OpenNebula choose the datastore.
+func (vm *VM) Deploy(hostID uint, enforce bool, dsID int) error {
+	_, err := client.Call("one.vm.deploy", vm.ID, int(hostID), enforce, dsID)
 	return err
 }
 

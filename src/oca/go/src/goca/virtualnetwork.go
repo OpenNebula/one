@@ -161,8 +161,8 @@ func (vn *VirtualNetwork) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
 // Chown changes the ownership of a virtual network.
 // * userID: The User ID of the new owner. If set to -1, it will not change.
 // * groupID: The Group ID of the new group. If set to -1, it will not change.
-func (vn *VirtualNetwork) Chown(userID, groupID uint) error {
-	_, err := client.Call("one.vn.chown", vn.ID, int(userID), int(groupID))
+func (vn *VirtualNetwork) Chown(userID, groupID int) error {
+	_, err := client.Call("one.vn.chown", vn.ID, userID, groupID)
 	return err
 }
 

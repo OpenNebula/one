@@ -117,8 +117,8 @@ func (document *Document) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
 // Chown changes the ownership of a document.
 // * userID: The User ID of the new owner. If set to -1, it will not change.
 // * groupID: The Group ID of the new group. If set to -1, it will not change.
-func (document *Document) Chown(userID, groupID uint) error {
-	_, err := client.Call("one.document.chown", document.ID, int(userID), int(groupID))
+func (document *Document) Chown(userID, groupID int) error {
+	_, err := client.Call("one.document.chown", document.ID, userID, groupID)
 	return err
 }
 

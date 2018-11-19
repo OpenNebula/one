@@ -78,8 +78,8 @@ func (user *User) Passwd(password string) error {
 // * token: The token
 // * timeSeconds: Valid period in seconds; 0 reset the token and -1 for a non-expiring token.
 // * effectiveGID: Effective GID to use with this token. To use the current GID and user groups set it to -1
-func (user *User) Login(token string, timeSeconds int, effectiveGID uint) error {
-	_, err := client.Call("one.user.login", user.ID, token, timeSeconds, int(effectiveGID))
+func (user *User) Login(token string, timeSeconds int, effectiveGID int) error {
+	_, err := client.Call("one.user.login", user.ID, token, timeSeconds, effectiveGID)
 	return err
 }
 
