@@ -1149,7 +1149,8 @@ void  LifeCycleManager::monitor_poweroff_action(int vid)
         return;
     }
 
-    if ( vm->get_lcm_state() == VirtualMachine::RUNNING )
+    if ( vm->get_lcm_state() == VirtualMachine::RUNNING ||
+            vm->get_lcm_state() == VirtualMachine::UNKNOWN )
     {
         //----------------------------------------------------
         //                POWEROFF STATE

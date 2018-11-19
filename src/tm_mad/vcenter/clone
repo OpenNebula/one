@@ -91,21 +91,21 @@ begin
     # TODO: we should think about what to do with swap_disks
     is_storage_drs = target_ds_ref.start_with?('group-')
 
-    return 0 if !disk.managed? || (is_storage_drs && disk.volatile?)
+    if !(!disk.managed? || (is_storage_drs && disk.volatile?))
+        raise "Non persistent images not supported for StorageDRS datastores" if is_storage_drs
 
-    raise "Non persistent images not supported for StorageDRS datastores" if is_storage_drs
+        source_ds_vc = VCenterDriver::Datastore.new_from_ref(source_ds_ref, vi_client)
 
-    source_ds_vc = VCenterDriver::Datastore.new_from_ref(source_ds_ref, vi_client)
+        if source_ds_ref == target_ds_ref
+            target_ds_vc = source_ds_vc
+        else
+            target_ds_vc = VCenterDriver::Storage.new_from_ref(target_ds_ref, vi_client)
+        end
 
-    if source_ds_ref == target_ds_ref
-        target_ds_vc = source_ds_vc
-    else
-        target_ds_vc = VCenterDriver::Storage.new_from_ref(target_ds_ref, vi_client)
+        target_ds_name_vc = target_ds_vc['name']
+
+        source_ds_vc.copy_virtual_disk(src_path, target_ds_vc, target_path, new_size)
     end
-
-    target_ds_name_vc = target_ds_vc['name']
-
-    source_ds_vc.copy_virtual_disk(src_path, target_ds_vc, target_path, new_size)
 rescue Exception => e
     message = "Error clone virtual disk #{src_path} in "\
               "datastore #{target_ds_name_vc}. "\

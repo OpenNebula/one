@@ -384,7 +384,7 @@ int Host::update_info(Template        &tmpl,
 
     for(map_it = found.begin(); map_it != found.end(); )
     {
-        if ( one_util::regex_match("STATE=. ",map_it->second.c_str()) != 0 )
+        if ( one_util::regex_match("STATE=.",map_it->second.c_str()) != 0 )
         {
             tmp_lost_vms->insert(map_it->first);
             found.erase(map_it++);

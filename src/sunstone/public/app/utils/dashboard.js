@@ -16,7 +16,15 @@
 
 define(function(require) {
 
+  var Config = require('sunstone-config');
+
   function _counterAnimation(domClass, value, extra) {
+    var time = 1500;
+
+    if ( !Config.doCountAnimation ){
+      time = 1;
+    }
+
     if(!extra){
       extra = "";
     }
@@ -24,7 +32,7 @@ define(function(require) {
       $(this).prop('Counter', 0).animate({
           Counter: value
       }, {
-          duration: 1500,
+          duration: time,
           easing: 'swing',
           step: function (now) {
               $(this).text(Math.ceil(now) + " " + extra);
@@ -34,6 +42,12 @@ define(function(require) {
   }
 
   function _counterAnimationDecimal(domClass, value, extra) {
+    var time = 1500;
+
+    if ( !Config.doCountAnimation ){
+      time = 1;
+    }
+
     if(!extra){
       extra = "";
     }
@@ -41,7 +55,7 @@ define(function(require) {
       $(this).prop('Counter', 0).animate({
           Counter: value
       }, {
-          duration: 1500,
+          duration: time,
           easing: 'swing',
           step: function (now) {
             $(this).text(Math.round(now*10)/10 + " " + extra);
