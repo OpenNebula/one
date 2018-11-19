@@ -168,7 +168,7 @@ class VirtualMachine < VCenterDriver::Template
             @vc_res[:datastore]
         end
 
-        def ds_ref
+        def image_ds_ref
             @one_res['VCENTER_DS_REF']
         end
 
