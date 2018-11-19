@@ -38,12 +38,12 @@ module OpenNebula
             :unlock      => "vntemplate.unlock"
         }
 
-        # Creates a Template description with just its identifier
-        # this method should be used to create plain Template objects.
+        # Creates a VNTemplate description with just its identifier
+        # this method should be used to create plain VNTemplate objects.
         # +id+ the id of the user
         #
         # Example:
-        #   template = Template.new(Template.build_xml(3),rpc_client)
+        #   vntemplate = VNTemplate.new(VNTemplate.build_xml(3),rpc_client)
         #
         def VNTemplate.build_xml(pe_id=nil)
             if pe_id
@@ -66,13 +66,12 @@ module OpenNebula
         # XML-RPC Methods for the Template Object
         #######################################################################
 
-        # Retrieves the information of the given Template.
-        # @param extended [true,false] optional flag to process the template and
+        # Retrieves the information of the given VNTemplate.
         # include extended information, such as the SIZE for each DISK
-        def info(extended=false)
+        def info()
             return Error.new('ID not defined') if !@pe_id
 
-            rc = @client.call(TEMPLATE_METHODS[:info], @pe_id, extended)
+            rc = @client.call(TEMPLATE_METHODS[:info], @pe_id, false)
 
             if !OpenNebula.is_error?(rc)
                 initialize_xml(rc, 'VNTEMPLATE')
@@ -87,9 +86,9 @@ module OpenNebula
 
         alias_method :info!, :info
 
-        # Allocates a new Template in OpenNebula
+        # Allocates a new VNTemplate in OpenNebula
         #
-        # @param description [String] The contents of the Template.
+        # @param description [String] The contents of the VNTemplate.
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
@@ -104,18 +103,18 @@ module OpenNebula
         # 
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def delete(recursive=false)
-            return call(TEMPLATE_METHODS[:delete], @pe_id, recursive)
+        def delete()
+            return call(TEMPLATE_METHODS[:delete], @pe_id, false)
         end
 
-        # Creates a VM instance from a Template
+        # Creates a VNet instance from a VNTemplate
         #
-        # @param name [String] Name for the VM instance. If it is an empty
+        # @param name [String] Name for the VNet instance. If it is an empty
         #   string OpenNebula will set a default name
-        # @param template [String] User provided Template to merge with the
+        # @param template [String] User provided VNTemplate to merge with the
         #   one being instantiated
         #
-        # @return [Integer, OpenNebula::Error] The new VM id, Error
+        # @return [Integer, OpenNebula::Error] The new VNet id, Error
         #   otherwise
         def instantiate(name="", template="")
             return Error.new('ID not defined') if !@pe_id
@@ -129,9 +128,9 @@ module OpenNebula
             return rc
         end
 
-        # Replaces the template contents
+        # Replaces the vntemplate contents
         #
-        # @param new_template [String] New template contents
+        # @param new_template [String] New vntemplate contents
         # @param append [true, false] True to append new attributes instead of
         #   replace the whole template
         #
@@ -159,10 +158,10 @@ module OpenNebula
             super(TEMPLATE_METHODS[:chown], uid, gid)
         end
 
-        # Changes the Template permissions.
+        # Changes the VNTemplate permissions.
         #
         # @param octet [String] Permissions octed , e.g. 640
-        # @param recursive [true,false] optional, chmods the template plus
+        # @param recursive [true,false] optional, chmods the vntemplate plus
         # any image defined in DISK.
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
@@ -182,10 +181,10 @@ module OpenNebula
                 other_m, other_a, recursive)
         end
 
-        # Changes the Template permissions.
+        # Changes the VNTemplate permissions.
         # Each [Integer] argument must be 1 to allow, 0 deny, -1 do not change
         #
-        # @param recursive [true,false] optional, chmods the template plus
+        # @param recursive [true,false] optional, chmods the vntemplate plus
         # any image defined in DISK.
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
@@ -196,25 +195,24 @@ module OpenNebula
                 group_m, group_a, other_u, other_m, other_a, recursive)
         end
 
-        # Clones this Template into a new one
+        # Clones this VNTemplate into a new one
         #
-        # @param [String] name for the new Template.
-        # @param recursive [true,false] optional, clones the template plus
+        # @param [String] name for the new VNTemplate.
         # any image defined in DISK. The new IMAGE_ID is set into each DISK.
         #
         # @return [Integer, OpenNebula::Error] The new Template ID in case
         #   of success, Error otherwise
-        def clone(name, recursive=false)
+        def clone(name)
             return Error.new('ID not defined') if !@pe_id
 
-            rc = @client.call(TEMPLATE_METHODS[:clone], @pe_id, name, recursive)
+            rc = @client.call(TEMPLATE_METHODS[:clone], @pe_id, name, false)
 
             return rc
         end
 
-        # Renames this Template
+        # Renames this VNTemplate
         #
-        # @param name [String] New name for the Template.
+        # @param name [String] New name for the VNTemplate.
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
@@ -223,7 +221,7 @@ module OpenNebula
         end
 
         #######################################################################
-        # Helpers to get Template information
+        # Helpers to get VNTemplate information
         #######################################################################
 
         # Returns the group identifier
@@ -236,12 +234,12 @@ module OpenNebula
             self['UID'].to_i
         end
 
-        # Lock a Template
+        # Lock a VNTemplate
         def lock(level)
             return call(TEMPLATE_METHODS[:lock], @pe_id, level)
         end
 
-        # Unlock a Template
+        # Unlock a VNTemplate
         def unlock()
             return call(TEMPLATE_METHODS[:unlock], @pe_id)
         end
