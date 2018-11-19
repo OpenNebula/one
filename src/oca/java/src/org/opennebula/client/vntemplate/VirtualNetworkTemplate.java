@@ -24,7 +24,7 @@ import org.w3c.dom.Node;
  * This class represents an OpenNebula Virtual Network template.
  * It also offers static XML-RPC call wrappers.
  */
-public class VNTemplate extends PoolElement
+public class VirtualNetworkTemplate extends PoolElement
 {
 
     private static final String METHOD_PREFIX = "vntemplate.";
@@ -45,7 +45,7 @@ public class VNTemplate extends PoolElement
      * @param id The VNtemplate id.
      * @param client XML-RPC Client.
      */
-    public VNTemplate(int id, Client client)
+    public VirtualNetworkTemplate(int id, Client client)
     {
         super(id, client);
     }
@@ -53,7 +53,7 @@ public class VNTemplate extends PoolElement
     /**
      * @see PoolElement
      */
-    protected VNTemplate(Node xmlElement, Client client)
+    protected VirtualNetworkTemplate(Node xmlElement, Client client)
     {
         super(xmlElement, client);
     }
@@ -94,14 +94,12 @@ public class VNTemplate extends PoolElement
      *
      * @param client XML-RPC Client.
      * @param id The VNtemplate id for the VNtemplate to retrieve the information from
-     * @param extended optional flag to process the vntemplate and include
-     * extended information
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.
      */
-    public static OneResponse info(Client client, int id, boolean extended)
+    public static OneResponse info(Client client, int id)
     {
-        return client.call(INFO, id, extended);
+        return client.call(INFO, id, false);
     }
 
     /**
