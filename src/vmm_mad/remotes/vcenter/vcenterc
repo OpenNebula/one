@@ -17,4 +17,4 @@
 # No  : VCENTER_IMPORTED attribute will be set on imported images
 #       this attribute prevents the image to be deleted.
 # Yes : You can delete the images using OpenNebula.
-:delete_images: Yes
+:delete_images: No
