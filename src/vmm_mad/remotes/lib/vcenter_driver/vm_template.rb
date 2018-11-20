@@ -47,7 +47,7 @@ class Template
         end
     end
 
-    def wild?
+    def vm?
         self.class == VCenterDriver::VirtualMachine
     end
 
@@ -255,7 +255,7 @@ class Template
                     break
                 end
 
-                opts = {:persistent => wild? ? "YES":"NO"}
+                opts = {:persistent => vm? ? "YES":"NO"}
                 image_import = VCenterDriver::Datastore.get_image_import_template(disk, ipool, type, datastore_found["ID"], opts)
                 #Image is already in the datastore
                 if image_import[:one]
@@ -424,7 +424,7 @@ class Template
                     nic_tmp = "NIC=[\n"
                     nic_tmp << "NETWORK_ID=\"#{network_found["ID"]}\",\n"
 
-                    if wild?
+                    if vm?
                         ar_tmp = create_ar(nic)
                         network_found.add_ar(ar_tmp)
                         network_found.info
@@ -462,7 +462,7 @@ class Template
                                                             hpool)["CLUSTER_ID"] rescue -1
                     end
 
-                    if wild?
+                    if vm?
                         unmanaged = "wild"
                     else
                         unmanaged = "template"
@@ -493,7 +493,7 @@ class Template
                     ar_tmp << "SIZE=255\n"
                     ar_tmp << "]\n"
 
-                    if wild?
+                    if vm?
                         ar_tmp << create_ar(nic, true)
                     end
 
@@ -509,7 +509,7 @@ class Template
                     nic_tmp = "NIC=[\n"
                     nic_tmp << "NETWORK_ID=\"#{one_vn.id}\",\n"
 
-                    if wild?
+                    if vm?
                         last_id = save_ar_ids(one_vn, nic, ar_ids)
                         nic_tmp << "AR_ID=\"#{last_id}\",\n"
                         nic_tmp << "MAC=\"#{nic[:mac]}\",\n" if nic[:mac]
@@ -665,7 +665,7 @@ class Template
 
             nic = retrieve_from_device(device)
             nic[:mac] = device.macAddress rescue nil
-            if wild?
+            if vm?
                 if online?
                     inets_raw ||= @item["guest.net"].map.with_index { |x,i| [x.macAddress, x] }
                     inets = parse_live.call(inets_raw) if inets.empty?
