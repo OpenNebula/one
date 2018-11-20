@@ -98,9 +98,6 @@ module OpenNebula
 
         # Deletes the Template
         # 
-        # @param recursive [true,false] optional, deletes the template plus
-        # any image defined in DISK.
-        # 
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def delete()

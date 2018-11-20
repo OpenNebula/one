@@ -28,12 +28,8 @@ void VNTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 {
     int    id   = xmlrpc_c::value_int(paramList.getInt(1));
     string name = xmlrpc_c::value_string(paramList.getString(2));
-    string str_uattrs;             //Optional XML-RPC argument
-
-    if ( paramList.size() > 2 )
-    {
-        str_uattrs = xmlrpc_c::value_string(paramList.getString(3));
-    }
+    string str_uattrs = xmlrpc_c::value_string(paramList.getString(3));
+    
 
     VNTemplate * tmpl = static_cast<VNTemplatePool* > (pool)->get_ro(id);
 

@@ -79,7 +79,6 @@ CommandParser::CmdParser.new(ARGV) do
     instantiate_options = [
         OneVNTemplateHelper::VN_NAME,
         OneVNTemplateHelper::MULTIPLE,
-        OneVNTemplateHelper::USERDATA,
         OneVNTemplateHelper::EXTENDED,
         OpenNebulaHelper::AS_USER,
         OpenNebulaHelper::AS_GROUP
@@ -151,7 +150,7 @@ CommandParser::CmdParser.new(ARGV) do
     command :clone, clone_desc, :templateid, :name do
 
         helper.perform_action(args[0], options, 'cloned') do |t|
-            res = t.clone(args[1], false)
+            res = t.clone(args[1])
 
             if !OpenNebula.is_error?(res)
                 puts "ID: #{res}"
@@ -168,7 +167,7 @@ CommandParser::CmdParser.new(ARGV) do
     command :delete, delete_desc, [:range, :templateid_list] do
 
         helper.perform_actions(args[0], options, 'deleted') do |t|
-            t.delete(false)
+            t.delete()
         end
     end
 

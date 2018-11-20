@@ -67,94 +67,46 @@ const char * VNTemplate::db_bootstrap =
 
 int VNTemplate::insert(SqlDB *db, string& error_str)
 {
-    string vn_mad, attr;
+    string vn_mad, phydev, bridge, auto_id_str, vlan_id, auto_outer_str, outer_id;
+    bool auto_id = false, auto_outer = false;
+    int rc;
 
-    bool check_phydev = false;
-    bool check_bridge = false;
-    bool check_vlan   = false;
-    bool check_outer  = false;
-
-    bool check_other  = false;
-    vector<string> other;
-    
     // ---------------------------------------------------------------------
     // Check always mandatory attributes
     // ---------------------------------------------------------------------
     erase_template_attribute("NAME", name);
 
     get_template_attribute("VN_MAD", vn_mad);
+
     if (vn_mad.empty())
     {
         goto error_vnmad;
     }
 
-    switch (VirtualNetwork::str_to_driver(vn_mad))
+    get_template_attribute("PHYDEV", phydev);
+    get_template_attribute("BRIDGE", bridge);
+    get_template_attribute("AUTOMATIC_VLAN_ID", auto_id_str);
+
+    if (auto_id_str == "YES")
     {
-        case VirtualNetwork::VCENTER:
-            other.push_back("VCENTER_NET_REF");
-    
-        case VirtualNetwork::DUMMY:
-            check_bridge = true;
-            break;
-
-        case VirtualNetwork::VXLAN:
-        case VirtualNetwork::VLAN:
-            check_phydev = true;
-            check_vlan   = true;
-            break;
-
-        case VirtualNetwork::OVSWITCH_VXLAN:
-            check_outer  = true;
-
-        case VirtualNetwork::BRIDGE:
-        case VirtualNetwork::OVSWITCH:
-        case VirtualNetwork::EBTABLES:
-        case VirtualNetwork::FW:
-            break;
-
-        case VirtualNetwork::NONE:
-            return 0;
+        auto_id = true;
     }
 
-    if ( check_phydev && !get_template_attribute("PHYDEV", attr))
+    get_template_attribute("VLAN_ID", vlan_id);
+    get_template_attribute("AUTOMATIC_OUTER_VLAN_ID", auto_outer_str);
+
+    if (auto_outer_str == "YES")
     {
-        error_str = "PHYDEV is mandatory for driver " + vn_mad;
+        auto_outer = true;
+    }
+
+    get_template_attribute("OUTER_VLAN_ID", outer_id);
+
+    rc = VirtualNetwork::parse_phydev_vlans(obj_template, vn_mad, phydev, bridge, auto_id, vlan_id, auto_outer, outer_id, error_str);
+
+    if (rc == -1)
+    {
         return -1;
-    }
-
-    if ( check_bridge && !get_template_attribute("BRIDGE", attr))
-    {
-        error_str = "BRIDGE is mandatory for driver " + vn_mad;
-        return -1;
-    }
-
-    if ( check_vlan && !get_template_attribute("AUTOMATIC_VLAN_ID", attr)
-         && !get_template_attribute("VLAN_ID", attr))
-    {
-        error_str = "VLAN_ID (or AUTOMATIC) is mandatory for driver " + vn_mad;
-        return -1;
-    }
-
-    if ( check_outer && !get_template_attribute("AUTOMATIC_OUTER_VLAN_ID", attr) 
-        && !get_template_attribute("OUTER_VLAN_ID", attr) )
-    {
-        error_str = "OUTER_VLAN_ID (or AUTOMATIC) is mandatory for driver " + vn_mad;
-        return -1;
-    }
-
-    if ( check_other )
-    {
-        vector<string>::iterator it;
-        string value;
-
-        for ( it = other.begin(); it != other.end() ; ++it)
-        {
-            if (!get_template_attribute((*it).c_str(), value))
-            {
-                error_str = *it + " is mandatory for driver " + vn_mad;
-                return -1;
-            }
-        }
     }
 
     // ------------------------------------------------------------------------
