@@ -855,17 +855,25 @@ module OpenNebula
                     image_id = disk["IMAGE_ID"]
 
                     if !image_id.nil? && !image_id.empty?
-                        rc = disk_saveas(disk_id.to_i,"#{name}-disk-#{disk_id}","",-1)
+                        if disk['TYPE'] == 'CDROM'
+                            replace << "DISK = [ IMAGE_ID = #{image_id}"
+                            if disk["OPENNEBULA_MANAGED"]
+                                replace << ", OPENNEBULA_MANAGED=#{disk["OPENNEBULA_MANAGED"]}"
+                            end
+                            replace << " ]\n"
+                        else
+                            rc = disk_saveas(disk_id.to_i,"#{name}-disk-#{disk_id}","",-1)
 
-                        raise if OpenNebula.is_error?(rc)
+                            raise if OpenNebula.is_error?(rc)
 
-                        if persistent == true
-                            OpenNebula::Image.new_with_id(rc.to_i, @client).persistent()
+                            if persistent == true
+                                OpenNebula::Image.new_with_id(rc.to_i, @client).persistent()
+                            end
+
+                            img_ids << rc.to_i
+
+                            replace << "DISK = [ IMAGE_ID = #{rc} ]\n"
                         end
-
-                        img_ids << rc.to_i
-
-                        replace << "DISK = [ IMAGE_ID = #{rc} ]\n"
                     else
                         # Volatile disks cannot be saved, so the definition is copied
                         replace << self.template_like_str(
@@ -874,12 +882,13 @@ module OpenNebula
                 end
 
                 self.each('TEMPLATE/NIC') do |nic|
-
                     nic_id = nic["NIC_ID"]
+
                     if nic_id.nil? || nic_id.empty?
                         rc = Error.new('The NIC_ID is missing from the VM template')
                         raise
                     end
+
                     REMOVE_VNET_ATTRS.each do |attr|
                         nic.delete_element(attr)
                     end
