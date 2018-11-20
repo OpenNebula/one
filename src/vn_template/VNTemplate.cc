@@ -209,14 +209,6 @@ error_common:
 
 string& VNTemplate::to_xml(string& xml) const
 {
-    return to_xml(xml, obj_template);
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-string& VNTemplate::to_xml(string& xml, const Template* tmpl) const
-{
     ostringstream   oss;
     string          template_xml;
     string          perm_str;
@@ -232,7 +224,7 @@ string& VNTemplate::to_xml(string& xml, const Template* tmpl) const
             << lock_db_to_xml(lock_str)
             << perms_to_xml(perm_str)
             << "<REGTIME>"  << regtime    << "</REGTIME>"
-            << tmpl->to_xml(template_xml)
+            << obj_template->to_xml(template_xml)
         << "</VNTEMPLATE>";
 
     xml = oss.str();

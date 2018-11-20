@@ -166,13 +166,7 @@ void VirtualNetworkTemplateInfo::request_execute(xmlrpc_c::paramList const& para
     PoolObjectAuth perms;
 
     int             oid = xmlrpc_c::value_int(paramList.getInt(1));
-    bool            extended = false;
     string          str;
-
-    if ( paramList.size() > 2 )
-    {
-        extended = xmlrpc_c::value_boolean(paramList.getBoolean(2));
-    }
 
     vn_tmpl = tpool->get_ro(oid);
 
@@ -181,11 +175,6 @@ void VirtualNetworkTemplateInfo::request_execute(xmlrpc_c::paramList const& para
         att.resp_id = oid;
         failure_response(NO_EXISTS, att);
         return;
-    }
-
-    if (extended)
-    {
-        extended_tmpl = vn_tmpl->clone_template();
     }
 
     vn_tmpl->get_permissions(perms);
@@ -216,17 +205,8 @@ void VirtualNetworkTemplateInfo::request_execute(xmlrpc_c::paramList const& para
         return;
     }
 
-    if (extended)
-    {
-        vn_tmpl->to_xml(str, extended_tmpl);
-
-        delete extended_tmpl;
-    }
-    else
-    {
-        vn_tmpl->to_xml(str);
-    }
-
+    vn_tmpl->to_xml(str);
+    
     vn_tmpl->unlock();
 
     success_response(str, att);

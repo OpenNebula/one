@@ -70,8 +70,6 @@ Request::ErrorCode VNTemplateInstantiate::request_execute(int id, string name,
 {
     int rc;
 
-    ostringstream sid;
-
     PoolObjectAuth perms;
 
     Nebula& nd = Nebula::instance();
@@ -150,13 +148,8 @@ Request::ErrorCode VNTemplateInstantiate::request_execute(int id, string name,
     /* Store the template attributes in the VN                                */
     /* ---------------------------------------------------------------------- */
     tmpl->erase("NAME");
-    tmpl->erase("TEMPLATE_NAME");
-    tmpl->erase("TEMPLATE_ID");
-
-    sid << id;
-
-    tmpl->set(new SingleAttribute("TEMPLATE_NAME", tmpl_name));
-    tmpl->set(new SingleAttribute("TEMPLATE_ID", sid.str()));
+    tmpl->replace("TEMPLATE_NAME", tmpl_name);
+    tmpl->replace("TEMPLATE_ID", id);
 
     if (!name.empty())
     {
@@ -191,6 +184,11 @@ Request::ErrorCode VNTemplateInstantiate::request_execute(int id, string name,
         string str_error;
     
         cluster = clpool->get(*clusters_it);
+
+        if (cluster == 0)
+        {
+            continue;
+        }
         
         cluster->add_vnet(vid, str_error);
 
