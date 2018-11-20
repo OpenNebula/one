@@ -387,6 +387,7 @@ void Nebula::start(bool bootstrap_only)
             rc += SecurityGroupPool::bootstrap(logdb);
             rc += VirtualRouterPool::bootstrap(logdb);
             rc += VMGroupPool::bootstrap(logdb);
+            rc += VNTemplatePool::bootstrap(logdb);
 
             // Create the system tables only if bootstrap went well
             if (rc == 0)
@@ -665,6 +666,7 @@ void Nebula::start(bool bootstrap_only)
         vdcpool  = new VdcPool(db_ptr, is_federation_slave());
 
         tpool = new VMTemplatePool(logdb);
+        vntpool = new VNTemplatePool(logdb);
 
         secgrouppool = new SecurityGroupPool(logdb);
 

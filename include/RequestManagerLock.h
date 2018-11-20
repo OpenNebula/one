@@ -160,6 +160,7 @@ public:
 
     ~VMTemplateLock(){};
 };
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -175,6 +176,40 @@ public:
     };
 
     ~VMTemplateUnlock(){};
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VNTemplateLock: public RequestManagerLock
+{
+public:
+    VNTemplateLock():
+        RequestManagerLock("one.vntemplate.lock",
+                           "Lock a VN Template"){
+        Nebula& nd  = Nebula::instance();
+        auth_object = PoolObjectSQL::VNTEMPLATE;
+        pool        =  nd.get_vntpool();
+    };
+
+    ~VNTemplateLock(){};
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VNTemplateUnlock: public RequestManagerUnlock
+{
+public:
+    VNTemplateUnlock():
+        RequestManagerUnlock("one.vntemplate.unlock",
+                           "Unlock a VN Template"){
+        Nebula& nd  = Nebula::instance();
+        auth_object = PoolObjectSQL::VNTEMPLATE;
+        pool        =  nd.get_vntpool();
+    };
+
+    ~VNTemplateUnlock(){};
 };
 
 /* -------------------------------------------------------------------------- */

@@ -124,6 +124,48 @@ protected:
 	};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VNTemplateClone : public RequestManagerClone
+{
+public:
+    VNTemplateClone():
+        RequestManagerClone("one.vntemplate.clone",
+                "Clone a virtual network template", "A:sisb")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vntpool();
+
+        auth_object = PoolObjectSQL::VNTEMPLATE;
+        auth_op     = AuthRequest::USE;
+    };
+
+    ~VNTemplateClone(){};
+
+    ErrorCode request_execute(int source_id, const string &name, int &new_id,
+            bool recursive, const string& s_uattrs, RequestAttributes& att)
+    {
+        return clone(source_id, name, new_id, recursive, s_uattrs, att);
+    };
+
+protected:
+
+    Template * clone_template(PoolObjectSQL* obj)
+    {
+        return static_cast<VNTemplate*>(obj)->clone_template();
+    };
+
+    int pool_allocate(int sid, Template * tmpl, int& id, RequestAttributes& att)
+    {
+        VNTemplatePool * tpool     = static_cast<VNTemplatePool *>(pool);
+        VirtualNetworkTemplate * t = static_cast<VirtualNetworkTemplate*>(tmpl);
+
+        return tpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
+                t, &id, att.resp_msg);
+    };
+
+};
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */

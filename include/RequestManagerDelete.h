@@ -116,6 +116,31 @@ protected:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+class VirtualNetworkTemplateDelete : public RequestManagerDelete
+{
+public:
+    VirtualNetworkTemplateDelete():
+        RequestManagerDelete("one.vntemplate.delete",
+                             "A:sib",
+                             "Deletes a virtual network template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vntpool();
+        auth_object = PoolObjectSQL::VNTEMPLATE;
+    };
+
+    ~VirtualNetworkTemplateDelete(){};
+
+    ErrorCode request_execute(int oid, bool recursive, RequestAttributes& att)
+    {
+        return delete_object(oid, recursive, att);
+    }
+
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 class VirtualNetworkDelete: public RequestManagerDelete
 {
 public:

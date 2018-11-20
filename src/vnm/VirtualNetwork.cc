@@ -141,7 +141,9 @@ LIST OF MANDATORY ARGUMENTS FOR NETWORK DEFINITION
 | ovswitch_vxlan | yes     | no     | OUTER or AUTOMATIC_OUTER |                |
 +----------------+---------+--------+--------------------------+----------------+
 */
-int VirtualNetwork::parse_phydev_vlans(string& estr)
+int VirtualNetwork::parse_phydev_vlans(const Template& tmpl, const string& vn_mad, const string& phydev, 
+                                       const string& bridge, const bool auto_id, const string& vlan_id, 
+                                       const bool auto_outer, const string& outer_id, string& estr)
 {
     bool check_phydev = false;
     bool check_bridge = false;
@@ -155,6 +157,7 @@ int VirtualNetwork::parse_phydev_vlans(string& estr)
     {
         case VirtualNetwork::VCENTER:
             other.push_back("VCENTER_NET_REF");
+            check_other = true;
 
         case VirtualNetwork::DUMMY:
             check_bridge = true;
@@ -191,13 +194,13 @@ int VirtualNetwork::parse_phydev_vlans(string& estr)
         return -1;
     }
 
-    if ( check_vlan && !vlan_id_automatic && vlan_id.empty() )
+    if ( check_vlan && !auto_id && vlan_id.empty() )
     {
         estr = "VLAN_ID (or AUTOMATIC) is mandatory for driver " + vn_mad;
         return -1;
     }
 
-    if ( check_outer && !outer_vlan_id_automatic && outer_vlan_id.empty() )
+    if ( check_outer && !auto_outer && outer_id.empty() )
     {
         estr = "OUTER_VLAN_ID (or AUTOMATIC) is mandatory for driver " + vn_mad;
         return -1;
@@ -210,7 +213,7 @@ int VirtualNetwork::parse_phydev_vlans(string& estr)
 
         for ( it = other.begin(); it != other.end() ; ++it)
         {
-            if (!PoolObjectSQL::get_template_attribute((*it).c_str(), value))
+            if (!tmpl.get((*it).c_str(), value))
             {
                 estr = *it + " is mandatory for driver " + vn_mad;
                 return -1;
@@ -230,8 +233,52 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     ostringstream       ose;
 
     string sg_str, vis;
+    
+    string value;
+    string name;
+    string prefix;
 
+    
     int rc, num_ars;
+
+    ostringstream oss;
+
+    // ------------------------------------------------------------------------
+    // Set a name if the VN has not got one (and is created via template)
+    // ------------------------------------------------------------------------
+
+    obj_template->get("TEMPLATE_ID", value);
+    obj_template->erase("TEMPLATE_ID");
+
+    if (!value.empty())
+    {
+        obj_template->add("TEMPLATE_ID", value);
+    }
+    
+    obj_template->get("NAME",name);
+    obj_template->erase("NAME");
+
+    obj_template->get("TEMPLATE_NAME", prefix);
+    obj_template->erase("TEMPLATE_NAME");
+
+    if (prefix.empty() && name.empty())
+    {
+        goto error_name;
+    }
+
+    if (name.empty() == true)
+    {
+        oss.str("");
+        oss << prefix << "-" << oid;
+        name = oss.str();
+    }
+
+    if ( !PoolObjectSQL::name_is_valid(name, error_str) )
+    {
+        goto error_name;
+    }
+
+    this->name = name;
 
     //--------------------------------------------------------------------------
     // VirtualNetwork Attributes from the template
@@ -244,12 +291,6 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     //
     // Note: VLAN_IDs if not set will be allocated in VirtualNetworkPool
     //--------------------------------------------------------------------------
-    erase_template_attribute("NAME",name);
-
-    if (name.empty())
-    {
-        goto error_name;
-    }
 
     erase_template_attribute("VN_MAD", vn_mad);
 
@@ -274,7 +315,8 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     // -------------------------------------------------------------------------
     // Check consistency for PHYDEV, BRIDGE and VLAN_IDs based on the driver
     // -------------------------------------------------------------------------
-    rc = parse_phydev_vlans(error_str);
+    rc = parse_phydev_vlans(obj_template, vn_mad, phydev, bridge, vlan_id_automatic, vlan_id, 
+                            outer_vlan_id_automatic, outer_vlan_id, error_str);
 
     if (rc != 0)
     {

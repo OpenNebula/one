@@ -38,6 +38,7 @@ module Migrator
     def up
         feature_2253
         feature_2489
+        feature_826
         true
     end
 
@@ -231,6 +232,10 @@ module Migrator
         end
 
         Nokogiri::XML(short_body.to_xml).root.to_s
+    end
+
+    def feature_826
+        create_table(:vn_template_pool)
     end
 
 end

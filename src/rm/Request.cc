@@ -71,6 +71,8 @@ string Request::object_name(PoolObjectSQL::ObjectType ob)
             return "marketplaceapp";
         case PoolObjectSQL::VMGROUP:
             return "vm group";
+        case PoolObjectSQL::VNTEMPLATE:
+            return "virtual network template";
         default:
             return "-";
       }

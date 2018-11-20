@@ -149,6 +149,29 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+class VirtualNetworkTemplateRename : public RequestManagerRename
+{
+public:
+    VirtualNetworkTemplateRename():
+        RequestManagerRename("one.vntemplate.rename",
+                             "Renames a virtual network template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vntpool();
+        auth_object = PoolObjectSQL::VNTEMPLATE;
+    };
+
+    ~VirtualNetworkTemplateRename(){};
+
+    int exist(const string& name, int uid)
+    {
+        return pool->exist(name, uid);
+    }
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 
 class VirtualNetworkRename: public RequestManagerRename
 {

@@ -38,6 +38,7 @@
 #include "MarketPlacePool.h"
 #include "MarketPlaceAppPool.h"
 #include "VMGroupPool.h"
+#include "VNTemplatePool.h"
 
 #include "VirtualMachineManager.h"
 #include "LifeCycleManager.h"
@@ -167,6 +168,10 @@ public:
     {
         return vmgrouppool;
     };
+
+    VNTemplatePool * get_vntpool(){
+        return vntpool;
+    }
 
     // --------------------------------------------------------------
     // Manager Accessors
@@ -694,7 +699,7 @@ private:
         vmpool(0), hpool(0), vnpool(0), upool(0), ipool(0), gpool(0), tpool(0),
         dspool(0), clpool(0), docpool(0), zonepool(0), secgrouppool(0),
         vdcpool(0), vrouterpool(0), marketpool(0), apppool(0), vmgrouppool(0),
-        lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0), authm(0), aclm(0),
+        vntpool(0), lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0), authm(0), aclm(0),
         imagem(0), marketm(0), ipamm(0), raftm(0), frm(0)
     {
         const char * nl = getenv("ONE_LOCATION");
@@ -765,6 +770,7 @@ private:
         delete logdb;
         delete fed_logdb;
         delete system_db;
+        delete vntpool;
     };
 
     Nebula& operator=(Nebula const&){return *this;};
@@ -837,7 +843,7 @@ private:
     MarketPlacePool    * marketpool;
     MarketPlaceAppPool * apppool;
     VMGroupPool        * vmgrouppool;
-
+    VNTemplatePool     * vntpool;
     // ---------------------------------------------------------------
     // Nebula Managers
     // ---------------------------------------------------------------

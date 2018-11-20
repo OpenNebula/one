@@ -704,6 +704,66 @@ bool TemplateAllocate::allocate_authorization(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+
+Request::ErrorCode VirtualNetworkTemplateAllocate::pool_allocate(
+        xmlrpc_c::paramList const&  paramList,
+        Template *                  tmpl,
+        int&                        id,
+        RequestAttributes&          att)
+{
+    VNTemplatePool * vnpool = static_cast<VNTemplatePool *>(pool);
+
+    VirtualNetworkTemplate * ttmpl=static_cast<VirtualNetworkTemplate *>(tmpl);
+
+    int rc = vnpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
+        ttmpl, &id, att.resp_msg);
+
+    if (rc < 0)
+    {
+        return Request::INTERNAL;
+    }
+
+    return Request::SUCCESS;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool VirtualNetworkTemplateAllocate::allocate_authorization(
+		xmlrpc_c::paramList const&  paramList,
+        Template *          tmpl,
+        RequestAttributes&  att,
+        PoolObjectAuth *    cluster_perms)
+{
+    AuthRequest ar(att.uid, att.group_ids);
+    string      t64;
+    string      aname;
+
+    if (!RequestManagerAllocate::allocate_authorization(paramList, tmpl, att, cluster_perms))
+    {
+        return false;
+    }
+
+    VirtualNetworkTemplate * ttmpl = static_cast<VirtualNetworkTemplate *>(tmpl);
+
+    // ------------ Check template for restricted attributes -------------------
+    if (!att.is_admin())
+    {
+        if (ttmpl->check_restricted(aname))
+        {
+            att.resp_msg = "VM Template includes a restricted attribute "+aname;
+
+            failure_response(AUTHORIZATION, att);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 Request::ErrorCode HostAllocate::pool_allocate(
         xmlrpc_c::paramList const&  paramList,
         Template *                  tmpl,

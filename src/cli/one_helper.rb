@@ -179,6 +179,20 @@ EOT
         }
     ]
 
+    AS_USER = {
+            :name   => 'as_uid',
+            :large  => '--as_uid uid',
+            :format => Integer,
+            :description => 'The User ID to instantiate the VM'
+    }
+
+    AS_GROUP = {
+            :name   => 'as_gid',
+            :large  => '--as_gid gid',
+            :format => Integer,
+            :description => 'The Group ID to instantiate the VM'
+    }
+    
     #NOTE: Other options defined using this array, add new options at the end
     TEMPLATE_OPTIONS=[
         {
@@ -368,18 +382,8 @@ EOT
             :description => "In a vCenter environment sets the the VMs and Template folder where the VM will be placed in." \
             " The path uses slashes to separate folders. For example: --vcenter_vm_folder \"/Management/VMs\""
         },
-        {
-            :name   => 'as_uid',
-            :large  => '--as_uid uid',
-            :format => Integer,
-            :description => 'The User ID to instantiate the VM'
-        },
-        {
-            :name   => 'as_gid',
-            :large  => '--as_gid gid',
-            :format => Integer,
-            :description => 'The Group ID to instantiate the VM'
-        }
+        AS_GROUP,
+        AS_USER
     ]
 
     FORCE={
@@ -1407,6 +1411,82 @@ EOT
         end
 
         [0, template]
+    end
+
+    def self.create_ar(options)
+        ar = 'AR = [ '
+
+        if options[:ip]
+            if options[:ip6_global] || options[:ip6_ula]
+                ar << 'TYPE="IP4_6"'
+            elsif options[:ip6]
+                ar << 'TYPE="IP4_6_STATIC"'
+            else
+                ar << 'TYPE="IP4"'
+            end
+        elsif options[:ip6]
+            ar << 'TYPE="IP6_STATIC"'
+        elsif options[:ip6_global] || options[:ip6_ula]
+            ar << 'TYPE="IP6"'
+        else
+            ar << 'TYPE="ETHER"'
+        end
+
+        if options[:size]
+            ar << ', SIZE = ' << options[:size]
+        else
+            STDERR.puts 'Address range needs to specify size (-s size)'
+            exit(-1)
+        end
+
+        if options[:ip6]
+            m = %r{([\h:]*)\/(\d.*)$}.match(options[:ip6])
+
+            if m.nil? || m[1].nil?
+                STDERR.puts 'Missing or wrong IP6'
+                exit(-1)
+            else
+                begin
+                    require 'ipaddr'
+
+                    ip = IPAddr.new(m[1])
+
+                    if !ip.ipv6?
+                        STDERR.puts 'Wrong IP6 format address'
+                        exit(-1)
+                    end
+                rescue StandardError
+                    STDERR.puts 'Wrong IP6 format address'
+                    exit(-1)
+                end
+
+            end
+
+            if m[2].nil?
+                STDERR.puts 'IP6 address need to set the prefix length'
+                exit(-1)
+            end
+
+            ar << ", PREFIX_LENGTH=\"#{m[2]}\""
+
+            options[:ip6] = m[1]
+        end
+
+        ar << ', IP = ' << options[:ip] if options[:ip]
+        ar << ', IP6 = ' << options[:ip6] if options[:ip6]
+        ar << ', MAC = ' << options[:mac] if options[:mac]
+        if options[:ip6_global]
+            ar << ', GLOBAL_PREFIX = ' << options[:ip6_global]
+        end
+        if options[:ip6_ula]
+            ar << ', ULA_PREFIX = ' << options[:ip6_ula]
+        end
+        ar << ', GATEWAY = ' << options[:gateway] if options[:gateway]
+        ar << ', MASK = '    << options[:netmask] if options[:netmask]
+        ar << ', VN_MAD = '  << options[:vn_mad]  if options[:vn_mad]
+        ar << ', VLAN_ID = ' << options[:vlanid]  if options[:vlanid]
+
+        ar << ']'
     end
 
     def self.create_template_options_used?(options)

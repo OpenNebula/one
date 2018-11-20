@@ -314,8 +314,6 @@ Request::ErrorCode VMTemplateInstantiate::merge(
                 const string    &str_uattrs,
                 RequestAttributes& att)
 {
-
-
 	int rc;
 
 	VirtualMachineTemplate  uattrs;

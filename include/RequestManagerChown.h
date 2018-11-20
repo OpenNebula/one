@@ -125,6 +125,25 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+class VirtualNetworkTemplateChown : public RequestManagerChown
+{
+public:
+    VirtualNetworkTemplateChown():
+        RequestManagerChown("one.vntemplate.chown",
+                            "Changes ownership of a virtual network template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vntpool();
+        auth_object = PoolObjectSQL::VNTEMPLATE;
+    };
+
+    ~VirtualNetworkTemplateChown(){};
+};
+
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 
 class VirtualNetworkChown: public RequestManagerChown
 {
