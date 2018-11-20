@@ -98,6 +98,8 @@ public:
         return PoolObjectSQL::exist(db, table.c_str(), oid);
     }
 
+    void exist(const string& id_str, std::set<int>& id_list);
+
     /**
      *  Finds a set objects that satisfies a given condition
      *   @param oids a vector with the oids of the objects.

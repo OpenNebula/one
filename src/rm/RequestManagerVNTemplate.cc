@@ -88,7 +88,6 @@ Request::ErrorCode VNTemplateInstantiate::request_execute(int id, string name,
 
     string cluster_ids_str;
     set<int> cluster_ids;
-    vector<int> existing_clusters;
     set<int>::iterator clusters_it;
 
 
@@ -118,16 +117,7 @@ Request::ErrorCode VNTemplateInstantiate::request_execute(int id, string name,
 
     if (!cluster_ids_str.empty())
     {
-        one_util::split_unique(cluster_ids_str, ',', cluster_ids);
-        clpool->search(existing_clusters, "cluster_pool", "true order by 1 ASC");
-
-        for (clusters_it = cluster_ids.begin(); clusters_it != cluster_ids.end(); ++clusters_it)
-        {
-            if (!std::binary_search(existing_clusters.begin(), existing_clusters.end(), *clusters_it))
-            {
-                cluster_ids.erase(clusters_it);
-            }
-        }
+        clpool->exist(cluster_ids_str, cluster_ids);
     }
 
     if (cluster_ids_str.empty())
