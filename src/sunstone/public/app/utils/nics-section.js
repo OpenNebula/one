@@ -269,7 +269,7 @@ define(function(require) {
           var selected_vnets = vnetsTableAuto.retrieveResourceTableSelect();
 
           $.each(selected_vnets, function(index, netID) {
-            req_string.push('ID="'+netID+'"');
+            req_string.push('ID=\\"'+netID+'\\"');
           });
           $(".SCHED_REQUIREMENTS", dd_context).val(req_string.join(" | "));
         }
@@ -320,7 +320,7 @@ define(function(require) {
       $(".auto", dd_context).show();
 
       if ( options.nic["SCHED_REQUIREMENTS"] ) {
-        $("input#provision_accordion_dd_"+provision_nic_accordion_dd_id+"_SCHED_REQUIREMENTS", dd_context).val(options.nic["SCHED_REQUIREMENTS"]);
+        $("input#provision_accordion_dd_"+provision_nic_accordion_dd_id+"_SCHED_REQUIREMENTS", dd_context).val(options.nic["SCHED_REQUIREMENTS"].split('"').join("\\\""));
       }
 
       if ( options.nic["SCHED_RANK"] ) {
