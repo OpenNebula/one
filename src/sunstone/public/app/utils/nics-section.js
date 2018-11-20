@@ -128,6 +128,10 @@ define(function(require) {
         if ( rank && rank !== "" ){
           nic["SCHED_RANK"] = rank;
         }
+      } else {
+        delete nic["NETWORK_MODE"];
+        delete nic["SCHED_REQUIREMENTS"];
+        delete nic["SCHED_RANK"];
       }
 
       if ( !nic["NETWORK_MODE"] || ( nic["NETWORK_MODE"] && nic["NETWORK_MODE"] !== "auto" ) )
