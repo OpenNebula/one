@@ -227,6 +227,10 @@ class VirtualMachine < VCenterDriver::Template
             @one_res["TYPE"] && @one_res["TYPE"].downcase == "fs"
         end
 
+        def cloned?
+            @one_res['SOURCE'] != @vc_res[:path_wo_ds]
+        end
+
         def connected?
             raise @error_message unless @vc_res
 
@@ -416,6 +420,10 @@ class VirtualMachine < VCenterDriver::Template
     # @return Boolean whether the VM exists in vCenter
     def is_new?
         one_item["DEPLOY_ID"].empty?
+    end
+
+    def wild?
+        !!(one_item['TEMPLATE/IMPORTED'] && one_item['TEMPLATE/IMPORTED'] == 'YES')
     end
 
     # @return Boolean wheter the vm exists in OpenNebula

@@ -37,8 +37,10 @@ $: << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
-path = ARGV[0]
-vmid = ARGV[2]
+path    = ARGV[0]
+im_path = ARGV[1]
+vmid    = ARGV[2]
+dsid    = ARGV[3]
 
 check_valid path, "path"
 check_valid vmid, "vmid"
@@ -64,9 +66,16 @@ begin
     if disk
         vm.one_item = one_vm
 
-        # Don't detach persistent disks if the VM has snapshots,
-        # or the instantiate to persistent is used
-        vm.ndetach_disk(disk) if !vm.has_snapshots? && !vm.instantiated_as_persistent?
+        # Don't detach persistent disks if the VM has snapshots
+        # or the instantiate to persistent is used, we need the entire template and save it in delete process!
+        if !vm.has_snapshots? && !vm.instantiated_as_persistent?
+            vm.ndetach_disk(disk)
+
+            if disk.cloned?
+                ds = VCenterDriver::Datastore.new(disk.ds)
+                ds.move_virtual_disk(disk, im_path, dsid, vi_client)
+            end
+        end
     end
 
 rescue Exception => e
