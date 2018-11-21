@@ -610,6 +610,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/onemarket \
            src/cli/onemarketapp \
            src/cli/onevcenter \
+           src/cli/onevntemplate \
            src/onedb/onedb \
            src/mad/utils/tty_expect \
            share/scripts/one"
@@ -1484,7 +1485,9 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/marketplace.rb \
                             src/oca/ruby/opennebula/marketplaceapp_pool.rb \
                             src/oca/ruby/opennebula/marketplaceapp.rb \
-                            src/oca/ruby/opennebula/utils.rb"
+                            src/oca/ruby/opennebula/utils.rb \
+                            src/oca/ruby/opennebula/vntemplate_pool.rb \
+                            src/oca/ruby/opennebula/vntemplate.rb"
 
 #-------------------------------------------------------------------------------
 # Common Cloud Files
@@ -1627,7 +1630,8 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/onevrouter_helper.rb \
                    src/cli/one_helper/onemarketapp_helper.rb \
                    src/cli/one_helper/onevcenter_helper.rb \
-                   src/cli/one_helper/onemarket_helper.rb"
+                   src/cli/one_helper/onemarket_helper.rb \
+                   src/cli/one_helper/onevntemplate_helper.rb"
 
 CLI_BIN_FILES="src/cli/onevm \
                src/cli/onehost \
@@ -1649,7 +1653,8 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/onevdc \
                src/cli/onevrouter \
                src/cli/onemarketapp \
-               src/cli/onemarket"
+               src/cli/onemarket \
+               src/cli/onevntemplate"
 
 CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onehost.yaml \

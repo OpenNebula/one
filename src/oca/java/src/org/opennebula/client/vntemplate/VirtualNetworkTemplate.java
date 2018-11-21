@@ -80,19 +80,6 @@ public class VirtualNetworkTemplate extends PoolElement
      * Retrieves the information of the given VNTemplate.
      *
      * @param client XML-RPC Client.
-     * @param id The vntemplate id for the vntemplate to retrieve the information from
-     * @return If successful the message contains the string
-     * with the information returned by OpenNebula.
-     */
-    public static OneResponse info(Client client, int id)
-    {
-        return info(client, id, false);
-    }
-
-    /**
-     * Retrieves the information of the given VNTemplate.
-     *
-     * @param client XML-RPC Client.
      * @param id The VNtemplate id for the VNtemplate to retrieve the information from
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.
@@ -182,9 +169,9 @@ public class VirtualNetworkTemplate extends PoolElement
         return client.call(CHMOD, id,
                             owner_u, owner_m, owner_a,
                             group_u, group_m, group_a,
-                            other_u, other_m, other_a,
-                            false);
+                            other_u, other_m, other_a);
     }
+
 
     /**
      * Changes the permissions
@@ -192,11 +179,26 @@ public class VirtualNetworkTemplate extends PoolElement
      * @param client XML-RPC Client.
      * @param id The id of the target object.
      * @param octet Permissions octed , e.g. 640
+     * @param recursive chmods the template plus any image defined in DISK.
+     * 
      * @return If an error occurs the error message contains the reason.
      */
     public static OneResponse chmod(Client client, int id, String octet)
     {
-        return chmod(client, id, octet, false);
+        int owner_u = (Integer.parseInt(octet.substring(0, 1)) & 4) != 0 ? 1 : 0;
+        int owner_m = (Integer.parseInt(octet.substring(0, 1)) & 2) != 0 ? 1 : 0;
+        int owner_a = (Integer.parseInt(octet.substring(0, 1)) & 1) != 0 ? 1 : 0;
+        int group_u = (Integer.parseInt(octet.substring(1, 2)) & 4) != 0 ? 1 : 0;
+        int group_m = (Integer.parseInt(octet.substring(1, 2)) & 2) != 0 ? 1 : 0;
+        int group_a = (Integer.parseInt(octet.substring(1, 2)) & 1) != 0 ? 1 : 0;
+        int other_u = (Integer.parseInt(octet.substring(2, 3)) & 4) != 0 ? 1 : 0;
+        int other_m = (Integer.parseInt(octet.substring(2, 3)) & 2) != 0 ? 1 : 0;
+        int other_a = (Integer.parseInt(octet.substring(2, 3)) & 1) != 0 ? 1 : 0;
+
+        return chmod(client, id,
+                owner_u, owner_m, owner_a,
+                group_u, group_m, group_a,
+                other_u, other_m, other_a);
     }
 
     /**
@@ -205,11 +207,13 @@ public class VirtualNetworkTemplate extends PoolElement
      * @param client XML-RPC Client.
      * @param id The id of the target object.
      * @param octet Permissions octed , e.g. 640
+     * @param recursive chmods the template plus any image defined in DISK.
+     * 
      * @return If an error occurs the error message contains the reason.
      */
     public static OneResponse chmod(Client client, int id, int octet)
     {
-        return chmod(client, id, octet, false);
+        return chmod(client, id, Integer.toString(octet));
     }
 
     /**
@@ -303,7 +307,7 @@ public class VirtualNetworkTemplate extends PoolElement
      */
     public OneResponse info(boolean extended)
     {
-        OneResponse response = info(client, id, extended);
+        OneResponse response = info(client, id);
         super.processInfo(response);
         return response;
     }
@@ -315,7 +319,7 @@ public class VirtualNetworkTemplate extends PoolElement
      */
     public OneResponse delete()
     {
-        return delete(client, id, false);
+        return delete(client, id);
     }
 
     /**
@@ -424,11 +428,10 @@ public class VirtualNetworkTemplate extends PoolElement
                              int group_u, int group_m, int group_a,
                              int other_u, int other_m, int other_a)
     {
-        return chmod(client, id,
-                    owner_u, owner_m, owner_a,
-                    group_u, group_m, group_a,
-                    other_u, other_m, other_a,
-                    false);
+        return client.call(CHMOD, id,
+                            owner_u, owner_m, owner_a,
+                            group_u, group_m, group_a,
+                            other_u, other_m, other_a);
     }
 
     /**
@@ -439,7 +442,7 @@ public class VirtualNetworkTemplate extends PoolElement
      */
     public OneResponse chmod(String octet)
     {
-        return chmod(client, id, octet, false);
+        return chmod(client, id, octet);
     }
 
     /**
@@ -450,7 +453,7 @@ public class VirtualNetworkTemplate extends PoolElement
      */
     public OneResponse chmod(int octet)
     {
-        return chmod(client, id, octet, false);
+        return chmod(client, id, octet);
     }
 
     /**
@@ -478,7 +481,7 @@ public class VirtualNetworkTemplate extends PoolElement
      */
     public OneResponse instantiate(String name)
     {
-        return instantiate(client, id, name, "",);
+        return instantiate(client, id, name, "");
     }
 
     /**
