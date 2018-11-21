@@ -55,11 +55,6 @@ usage() {
 
 PARAMETERS=":u:g:d:ehkrlcsporlfG"
 
-if [ $# = 0 ] ; then
-    usage
-    exit 1
-fi
-
 INSTALL_ETC="yes"
 UNINSTALL="no"
 LINK="no"
@@ -73,8 +68,7 @@ ONEADMIN_GROUP=`id -g`
 SRC_DIR=$PWD
 DOCKER_MACHINE="no"
 
-while getopts $PARAMETERS opt 
-do
+while getopts $PARAMETERS opt; do
     case $opt in
         e) DOCKER_MACHINE="yes" ;;
         h) usage; exit 0;;
@@ -92,6 +86,7 @@ do
         \?) usage; exit 1 ;;
     esac
 done
+
 shift $(($OPTIND - 1))
 
 #-------------------------------------------------------------------------------
