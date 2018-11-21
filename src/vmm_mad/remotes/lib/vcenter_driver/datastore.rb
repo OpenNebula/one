@@ -376,6 +376,27 @@ class Datastore < Storage
         target_path
     end
 
+    def move_virtual_disk(disk, dest_path, dest_dsid, vi_client = nil)
+        vi_client = @vi_client unless vi_client
+
+        target_ds     = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, dest_dsid, false)
+        target_ds_ref = target_ds['TEMPLATE/VCENTER_DS_REF']
+        target_ds_vc  = VCenterDriver::Datastore.new_from_ref(target_ds_ref, vi_client)
+        dest_name     = target_ds_vc['name']
+
+        dest_path = "[#{dest_name}] #{dest_path}"
+        orig_path = "[#{self['name']}] #{disk.path}"
+
+        move_params = {
+            sourceName:       orig_path,
+            sourceDatacenter: get_dc.item,
+            destName:         dest_path,
+            force:            true
+        }
+
+        get_vdm.MoveVirtualDisk_Task(move_params).wait_for_completion
+    end
+
     def rm_directory(directory)
         ds_name = self['name']
 
