@@ -28,7 +28,7 @@ import org.w3c.dom.Node;
  * This class represents an OpenNebula Virtual Network Template pool.
  * It also offers static XML-RPC call wrappers.
  */
-public class VirtualNetworkTemplatePool extends Pool implements Iterable<Template>
+public class VirtualNetworkTemplatePool extends Pool implements Iterable<VirtualNetworkTemplate>
 {
     private static final String ELEMENT_NAME = "VNTEMPLATE";
     private static final String INFO_METHOD  = "vntemplatepool.info";
