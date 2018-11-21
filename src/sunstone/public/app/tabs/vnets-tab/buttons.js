@@ -35,16 +35,15 @@ define(function(require) {
       icon: '<i class="fas fa-download"/>',
       alwaysActive: true
     },
-    "Network.update_dialog" : {
-      type: "action",
-      layout: "main",
-      text: Locale.tr("Update")
-    },
     "Network.reserve_dialog" : {
       type: "action",
       layout: "main",
       text: Locale.tr("Reserve"),
-      custom_classes: "only-sunstone-info reserve-sunstone-info",
+    },
+    "Network.update_dialog" : {
+      type: "action",
+      layout: "main",
+      text: Locale.tr("Update")
     },
     "Network.addtocluster" : {
       type : "action",

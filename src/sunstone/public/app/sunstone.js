@@ -60,6 +60,7 @@ define(function(require) {
     "marketplaceapps-tab",
     "network-top-tab",
     "vnets-tab",
+    "vnets-templates-tab",
     "vnets-topology-tab",
     "vnets-topology-tab",
     "support-tab",
