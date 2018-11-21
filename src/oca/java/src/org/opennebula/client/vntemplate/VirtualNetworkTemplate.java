@@ -179,7 +179,6 @@ public class VirtualNetworkTemplate extends PoolElement
      * @param client XML-RPC Client.
      * @param id The id of the target object.
      * @param octet Permissions octed , e.g. 640
-     * @param recursive chmods the template plus any image defined in DISK.
      * 
      * @return If an error occurs the error message contains the reason.
      */
@@ -207,7 +206,6 @@ public class VirtualNetworkTemplate extends PoolElement
      * @param client XML-RPC Client.
      * @param id The id of the target object.
      * @param octet Permissions octed , e.g. 640
-     * @param recursive chmods the template plus any image defined in DISK.
      * 
      * @return If an error occurs the error message contains the reason.
      */
@@ -460,12 +458,8 @@ public class VirtualNetworkTemplate extends PoolElement
      * Creates a VNET instance from a VNTemplate
      *
      * @param name A string containing the name of the VM instance, can be empty.
-     * @param onHold False to create this VM in pending state, true on hold
      * @param template User provided Template to merge with the one
      * being instantiated
-     * @param persistent true to create a private persistent copy of the
-     * template plus any image defined in DISK, and instantiate that copy
-     * 
      * @return If successful the message contains the VM Instance ID.
      */
     public OneResponse instantiate(String name, String template)

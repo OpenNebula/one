@@ -41,8 +41,6 @@ public class VirtualNetworkTemplatePool extends Pool implements Iterable<Virtual
      * and the ones in his group)
      *
      * @param client XML-RPC Client.
-     *
-     * @see TemplatePool#TemplatePool(Client, int)
      */
     public VirtualNetworkTemplatePool(Client client)
     {
@@ -143,7 +141,6 @@ public class VirtualNetworkTemplatePool extends Pool implements Iterable<Virtual
      * VNTemplates in the pool. The filter used is the one set in
      * the constructor.
      *
-     * @see TemplatePool#info(Client, int)
      *
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.
