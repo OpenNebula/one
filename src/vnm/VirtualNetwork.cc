@@ -141,7 +141,7 @@ LIST OF MANDATORY ARGUMENTS FOR NETWORK DEFINITION
 | ovswitch_vxlan | yes     | no     | OUTER or AUTOMATIC_OUTER |                |
 +----------------+---------+--------+--------------------------+----------------+
 */
-int VirtualNetwork::parse_phydev_vlans(const Template& tmpl, const string& vn_mad, const string& phydev, 
+int VirtualNetwork::parse_phydev_vlans(const Template* tmpl, const string& vn_mad, const string& phydev, 
                                        const string& bridge, const bool auto_id, const string& vlan_id, 
                                        const bool auto_outer, const string& outer_id, string& estr)
 {
@@ -213,7 +213,7 @@ int VirtualNetwork::parse_phydev_vlans(const Template& tmpl, const string& vn_ma
 
         for ( it = other.begin(); it != other.end() ; ++it)
         {
-            if (!tmpl.get((*it).c_str(), value))
+            if (!tmpl->get((*it).c_str(), value))
             {
                 estr = *it + " is mandatory for driver " + vn_mad;
                 return -1;
