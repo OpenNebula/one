@@ -50,7 +50,7 @@ EOT
     end
 
     def self.conf_file
-        "onetemplate.yaml"
+        "onevntemplate.yaml"
     end
 
     INT_EXP = /^-?\d+$/
