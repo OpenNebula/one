@@ -1669,7 +1669,8 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onevdc.yaml \
                 src/cli/etc/onevrouter.yaml \
                 src/cli/etc/onemarketapp.yaml \
-                src/cli/etc/onemarket.yaml"
+                src/cli/etc/onemarket.yaml \
+                src/cli/etc/onevntemplate.yaml"
 
 #-----------------------------------------------------------------------------
 # Sunstone files
