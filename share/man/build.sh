@@ -43,6 +43,7 @@ COMMANDS=(
     'onemarket'         'manages internal and external Marketplaces'
     'onemarketapp'      'manages appliances from Marketplaces'
     'onevmgroup'        'manages VM groups'
+    'onevntemplate'     'manages Virtual Network Templates'
 
     'oneflow'           'Manage oneFlow Services'
     'oneflow-template'  'Manage oneFlow Templates'
