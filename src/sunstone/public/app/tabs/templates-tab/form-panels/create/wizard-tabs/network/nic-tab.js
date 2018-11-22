@@ -324,7 +324,7 @@ define(function(require) {
       $(".auto", context).show();
 
       if ( templateJSON["SCHED_REQUIREMENTS"] ) {
-        $("input#"+this.nicTabId+"_SCHED_REQUIREMENTS", context).val(templateJSON["SCHED_REQUIREMENTS"]);
+        $("input#"+this.nicTabId+"_SCHED_REQUIREMENTS", context).val(templateJSON["SCHED_REQUIREMENTS"].split('"').join("\\\""));
       }
 
       if ( templateJSON["SCHED_RANK"] ) {
