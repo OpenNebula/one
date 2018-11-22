@@ -29,10 +29,10 @@ define(function(require) {
   ];
 
   var _panels = [
-    require('./vnets-tab/panels/info'),
-    require('./vnets-tab/panels/ar'),
-    require('./vnets-tab/panels/secgroups'),
-    require('./vnets-tab/panels/clusters')
+    require('./vnets-templates-tab/panels/info'),
+    require('./vnets-templates-tab/panels/ar'),
+    require('./vnets-templates-tab/panels/secgroups'),
+    require('./vnets-templates-tab/panels/clusters')
   ];
 
   var _panelsHooks = [

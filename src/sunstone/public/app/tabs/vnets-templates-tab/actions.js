@@ -34,7 +34,7 @@ define(function(require) {
   var CLUSTERS_DIALOG_ID = require('utils/dialogs/clusters/dialogId');
 
   var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
-    XML_ROOT, Locale.tr("Virtual Network created"));
+    XML_ROOT, Locale.tr("Virtual Network Template created"));
 
   var _actions = {
     "VNTemplate.create" : _commonActions.create(CREATE_DIALOG_ID),

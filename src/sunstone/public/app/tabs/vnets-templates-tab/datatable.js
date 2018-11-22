@@ -34,8 +34,8 @@ define(function(require) {
   var RESOURCE = "VNTemplate";
   var XML_ROOT = "VNTEMPLATE";
   var TAB_NAME = require('./tabId');
-  var LABELS_COLUMN = 7;
-  var SEARCH_COLUMN = 8;
+  var LABELS_COLUMN = 6;
+  var SEARCH_COLUMN = 7;
   var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
@@ -59,7 +59,7 @@ define(function(require) {
           {"sWidth": "35px", "aTargets": [0]},
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
           {"bVisible": false, "aTargets": ['_all']},
-          {"sType": "num", "aTargets": [1, 5]}
+          {"sType": "num", "aTargets": [1, 6]}
       ]
     }
 
@@ -69,7 +69,6 @@ define(function(require) {
       Locale.tr("Owner"),
       Locale.tr("Group"),
       Locale.tr("Cluster"),
-      Locale.tr("Bridge"),
       Locale.tr("Labels"),
       "search_data"
     ];
@@ -78,10 +77,10 @@ define(function(require) {
       "id_index": 1,
       "name_index": 2,
       "uname_index": 3,
-      "select_resource": Locale.tr("Please select a network from the list"),
-      "you_selected": Locale.tr("You selected the following network:"),
-      "select_resource_multiple": Locale.tr("Please select one or more networks from the list"),
-      "you_selected_multiple": Locale.tr("You selected the following networks:")
+      "select_resource": Locale.tr("Please select a network template from the list"),
+      "you_selected": Locale.tr("You selected the following network template:"),
+      "select_resource_multiple": Locale.tr("Please select one or more networks templates from the list"),
+      "you_selected_multiple": Locale.tr("You selected the following networks templates:")
     };
 
     this.totalVNets = 0;
@@ -110,13 +109,8 @@ define(function(require) {
     this.totalVNets++;
 
     var clusters = '-';
-    if (element.CLUSTERS != undefined){
-      clusters = element.CLUSTERS;
-    }
-
-    var bridge = "-";
-    if (element.TEMPLATE.BRIDGE != undefined) {
-      bridge = element.TEMPLATE.BRIDGE;
+    if (element.TEMPLATE.CLUSTERS != undefined){
+      clusters = element.TEMPLATE.CLUSTERS;
     }
 
     var search = {
@@ -125,7 +119,7 @@ define(function(require) {
       GNAME:    element.GNAME,
     }
 
-    var color_html = Status.state_lock_to_color("VNET",false, element_json[XML_ROOT]["LOCK"]);
+    var color_html = Status.state_lock_to_color("VNTEMPLATE",false, element_json[XML_ROOT]["LOCK"]);
 
     return [
       '<input class="check_item" type="checkbox" '+
@@ -137,7 +131,6 @@ define(function(require) {
       element.UNAME,
       element.GNAME,
       clusters,
-      bridge,
       (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
       btoa(unescape(encodeURIComponent(JSON.stringify(search))))
     ];

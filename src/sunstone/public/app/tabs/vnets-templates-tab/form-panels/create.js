@@ -115,6 +115,16 @@ define(function(require) {
 
     var number_of_ar = 0;
 
+    $("#vnet_wizard_ar_btn", context).bind("click", function() {
+      that.addARTab(number_of_ar, context);
+      number_of_ar++;
+      var mode = $("#network_mode", context).val();
+      if (mode == "vcenter"){
+        $(".sec_groups_datatable", context).hide();
+      }
+      return false;
+    });
+
     $("#vnetCreateARTab #vnetCreateARTabUpdate", context).hide();
 
     $("#network_mode", context).change(function() {
