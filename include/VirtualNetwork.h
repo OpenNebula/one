@@ -68,7 +68,8 @@ public:
         UNDEFINED           = 0,
         LINUX               = 1,
         OPENVSWITCH         = 2,
-        VCENTER_PORT_GROUPS = 3
+        VCENTER_PORT_GROUPS = 3,
+        BRNONE              = 4
     };
 
     static string driver_to_str(VirtualNetworkDriver ob)
@@ -143,6 +144,8 @@ public:
                 return "openvswitch";
             case VCENTER_PORT_GROUPS:
                 return "vcenter_port_groups";
+            case BRNONE:
+                return "none";
                 break;
         }
     };
@@ -160,6 +163,10 @@ public:
         else if ( ob == "vcenter_port_groups" )
         {
             return VCENTER_PORT_GROUPS;
+        }
+        else if (ob == "none")
+        {
+            return BRNONE;
         }
         else
         {
