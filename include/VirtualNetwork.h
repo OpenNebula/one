@@ -173,7 +173,7 @@ public:
      *    @param error_str describing the error
      *    @return 0 on success -1 otherwise
      */
-    static int parse_phydev_vlans(const Template& tmpl, const string& vn_mad, const string& phydev, 
+    static int parse_phydev_vlans(const Template* tmpl, const string& vn_mad, const string& phydev, 
                                   const string& bridge, const bool auto_id, const string& vlan_id, 
                                   const bool auto_outer, const string& outer_id, string& estr);
 
