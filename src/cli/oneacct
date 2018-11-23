@@ -77,10 +77,10 @@ CommandParser::CmdParser.new(ARGV) do
 
         common_opts = {
             :start_time => start_time,
-            :end_time   => end_time,
-            :host       => options[:host],
-            :group      => options[:group],
-            :xpath      => options[:xpath]
+            :end_time => end_time,
+            :host => options[:host],
+            :group => options[:group],
+            :xpath => options[:xpath]
         }
 
         pool = OpenNebula::VirtualMachinePool.new(helper.client)

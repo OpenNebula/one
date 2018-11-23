@@ -3,6 +3,9 @@
 # Applies to every ruby file on the OpenNebula repository
 #
 
+AllCops:
+  Include:
+    - 'src/cli'
 
 ########
 # LAYOUT

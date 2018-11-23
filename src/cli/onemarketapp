@@ -45,25 +45,25 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     USE = {
-        :name  => 'use',
+        :name => 'use',
         :large => '--use',
         :description => 'lock use actions'
     }
 
     MANAGE = {
-        :name  => 'manage',
+        :name => 'manage',
         :large => '--manage',
         :description => 'lock manage actions'
     }
 
     ADMIN = {
-        :name  => 'admin',
+        :name => 'admin',
         :large => '--admin',
         :description => 'lock admin actions'
     }
 
     ALL = {
-        :name  => 'all',
+        :name => 'all',
         :large => '--all',
         :description => 'lock all actions'
     }
