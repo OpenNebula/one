@@ -95,11 +95,11 @@ begin
         vm.poweroff_hard if vm.is_powered_on?
         vm.remove_all_snapshots if vm.has_snapshots?
 
-        vm.disks.each do |disk_id, disk|
-            vm.ndetach_disk(disk) if disk.persistent?
+        if vm.instantiated_as_persistent?
+            vm.convert_to_template
+        else
+            vm.destroy
         end
-
-        vm.destroy
     end
 
 rescue Exception => e
