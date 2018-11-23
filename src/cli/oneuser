@@ -130,7 +130,7 @@ CommandParser::CmdParser.new(ARGV) do
     }
 
     TIME = {
-        :name  => 'time',
+        :name => 'time',
         :large => '--time x',
         :format => Integer,
         :description => 'Token duration in seconds, defaults to 36000 (10 h). '\
@@ -147,8 +147,8 @@ CommandParser::CmdParser.new(ARGV) do
     }
 
     FORCE = {
-        :name   => 'force',
-        :large  => '--force',
+        :name => 'force',
+        :large => '--force',
         :description => 'Force one_auth file rewrite'
     }
 
@@ -160,22 +160,22 @@ CommandParser::CmdParser.new(ARGV) do
     }
 
     GROUP = {
-        :name   => 'group',
-        :large  => '--group id|name',
+        :name => 'group',
+        :large => '--group id|name',
         :description => 'Effective GID to use with this token.',
         :format => String,
-        :proc   => lambda {|o, _|
+        :proc => lambda {|o, _|
             OpenNebulaHelper.rname_to_id(o, 'GROUP')
         }
     }
 
     GROUP_CREATE = {
-        :name   => 'group',
-        :large  => '--group id|name',
+        :name => 'group',
+        :large => '--group id|name',
         :description => 'Comma-separated list of Groups for the new User. '\
                         'The first Group will be the main one.',
         :format => String,
-        :proc   => lambda {|o, _|
+        :proc => lambda {|o, _|
             gids = o.split(',').map do |g|
                 id = OpenNebulaHelper.rname_to_id(g, 'GROUP')
 
@@ -192,8 +192,8 @@ CommandParser::CmdParser.new(ARGV) do
     }
 
     GLOBAL = {
-        :name   => 'global',
-        :large  => '--global',
+        :name => 'global',
+        :large => '--global',
         :description => 'Find a global Token.'
     }
 

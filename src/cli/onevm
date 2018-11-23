@@ -80,58 +80,58 @@ CommandParser::CmdParser.new(ARGV) do
     }
 
     ENFORCE = {
-        :name  => 'enforce',
+        :name => 'enforce',
         :short => '-e',
         :large => '--enforce',
         :description => 'Enforce that the host capacity is not exceeded'
     }
 
     SUCCESS = {
-        :name  => 'success',
+        :name => 'success',
         :large => '--success',
         :description => 'Recover a VM by succeeding the pending action'
     }
 
     FAILURE = {
-        :name  => 'failure',
+        :name => 'failure',
         :large => '--failure',
         :description => 'Recover a VM by failing the pending action'
     }
 
     RETRY = {
-        :name  => 'retry',
+        :name => 'retry',
         :large => '--retry',
         :description => 'Recover a VM by retrying the last failed action'
     }
 
     DELETE = {
-        :name  => 'delete',
+        :name => 'delete',
         :large => '--delete',
         :description => 'No recover action possible, delete the VM'
     }
 
     RECREATE = {
-        :name  => 'recreate',
+        :name => 'recreate',
         :large => '--recreate',
         :description => 'No recover action possible, delete and recreate the VM'
     }
 
     DELETE_DB = {
-        :name  => 'deletedb',
+        :name => 'deletedb',
         :large => '--delete-db',
         :description => 'No recover action possible, delete the VM from the '\
                         'DB. It does not trigger any action on the hypervisor'
     }
 
     INTERACTIVE = {
-        :name  => 'interactive',
+        :name => 'interactive',
         :large => '--interactive',
         :description => 'Enables interactive recovery. Only works alongside '\
                         ' the --retry option.'
     }
 
     SNAP = {
-        :name  => 'snapshot',
+        :name => 'snapshot',
         :short => '-s snapshot',
         :large => '--snapshot snapshot',
         :format => String,
@@ -139,31 +139,31 @@ CommandParser::CmdParser.new(ARGV) do
     }
 
     PERSISTENT = {
-        :name  => 'persistent',
+        :name => 'persistent',
         :large => '--persistent',
         :description => 'Make the new images persistent'
     }
 
     USE = {
-        :name  => 'use',
+        :name => 'use',
         :large => '--use',
         :description => 'lock use actions'
     }
 
     MANAGE = {
-        :name  => 'manage',
+        :name => 'manage',
         :large => '--manage',
         :description => 'lock manage actions'
     }
 
     ADMIN = {
-        :name  => 'admin',
+        :name => 'admin',
         :large => '--admin',
         :description => 'lock admin actions'
     }
 
     ALL = {
-        :name  => 'all',
+        :name => 'all',
         :large => '--all',
         :description => 'lock all actions'
     }
