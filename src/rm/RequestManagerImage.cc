@@ -118,15 +118,6 @@ Request::ErrorCode ImagePersistent::request_execute(
 
     ds_id = image->get_ds_id();
 
-    if ( !image->is_managed() )
-    {
-        att.resp_msg = "Cannot change persistent state for non-managed images";
-
-        image->unlock();
-
-        return ACTION;
-    }
-
     image->unlock();
 
     ds = dspool->get_ro(ds_id);

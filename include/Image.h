@@ -191,18 +191,6 @@ public:
         return (persistent_img == 1);
     };
 
-    bool is_managed() const
-    {
-        bool one_managed;
-
-        if (get_template_attribute("OPENNEBULA_MANAGED", one_managed) == false)
-        {
-            one_managed = true;
-        }
-
-        return one_managed;
-    }
-
     /**
      *  Check the PERSISTENT attribute in an image Template, if not set the
      *  DEFAULT_IMAGE_PERSISTENT and DEFAULT_IMAGE_PERSISTENT_NEW are check in
