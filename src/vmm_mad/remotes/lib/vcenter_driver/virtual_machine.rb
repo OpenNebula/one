@@ -672,7 +672,7 @@ class VirtualMachine < VCenterDriver::Template
 
         # @item is populated
         @item = vm
-        reference_unmanaged_devices(vc_template_ref)
+        reference_unmanaged_devices(vc_template_ref) unless instantiated_as_persistent?
 
         return self['_ref']
     end
@@ -982,7 +982,7 @@ class VirtualMachine < VCenterDriver::Template
                     vcenter_disk  = vcenter_disks.select{|d| d[:key] == template_disk[:key] && d[:device].deviceInfo.summary == template_disk[:device].deviceInfo.summary}.first
                 end
 
-                raise "disk with path #{unmanaged_disk_source} not found in the vCenter VM" if !defined?(vcenter_disk) || vcenter_disk.empty?
+                raise "disk with path #{unmanaged_disk_source} not found in the vCenter VM" if !vcenter_disk
 
                 reference = {}
                 reference[:key]   = "opennebula.disk.#{unmanaged_disk["DISK_ID"]}"
@@ -2187,6 +2187,40 @@ class VirtualMachine < VCenterDriver::Template
         end
     end
 
+    # Remove the MAC addresses so they cannot be in conflict
+    # with OpenNebula assigned mac addresses.
+    # We detach all nics from the VM
+    def convert_to_template()
+            detach_all_nics
+
+            # We attach new NICs where the MAC address is assigned by vCenter
+            nic_specs = []
+            nics = one_item.retrieve_xmlelements("TEMPLATE/NIC")
+            nics.each do |nic|
+                if (nic["OPENNEBULA_MANAGED"] && nic["OPENNEBULA_MANAGED"].upcase == "NO")
+                    nic_specs << calculate_add_nic_spec_autogenerate_mac(nic)
+                end
+            end
+
+            # Reconfigure VM to add unmanaged nics
+            spec_hash = {}
+            spec_hash[:deviceChange] = nic_specs
+            spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+            @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+
+            # Convert VM to template in vCenter
+            mark_as_template
+
+            # Edit the Opennebula template
+            one_client = OpenNebula::Client.new
+            template_id = one_item['TEMPLATE/TEMPLATE_ID']
+            new_template = OpenNebula::Template.new_with_id(template_id, one_client)
+            new_template.info
+
+            # Update the template reference
+            new_template.update("VCENTER_TEMPLATE_REF=#{@item._ref}", true)
+    end
+
     # TODO
     def nresize_unmanaged_disks
         spec = {deviceChange: []}
@@ -2195,7 +2229,9 @@ class VirtualMachine < VCenterDriver::Template
             spec[:deviceChange] << d.config(:resize)
         end
 
-        @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+        if !spec[:deviceChange].empty?
+            @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+        end
     end
 
     #TODO

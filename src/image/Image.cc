@@ -731,6 +731,7 @@ ImageTemplate * Image::clone_template(const string& new_name) const
     tmpl->replace("PATH",   source);
     tmpl->replace("FSTYPE", fs_type);
     tmpl->replace("SIZE",   size_mb);
+    tmpl->erase("VCENTER_IMPORTED");
 
     if ( is_persistent() )
     {

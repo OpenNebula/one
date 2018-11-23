@@ -184,7 +184,7 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
             oss << name << "-disk-" << ndisk;
 
             ec = img_clone.request_execute(img_id, oss.str(), -1,
-                    (*disk)->is_managed(), new_img_id, img_att);
+                    true, new_img_id, img_att);
 
             if ( ec != SUCCESS)
             {
