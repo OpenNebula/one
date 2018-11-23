@@ -325,7 +325,7 @@ vcenter://*)
     command="$VAR_LOCATION/remotes/datastore/vcenter_downloader.rb '$(esc_sq "$FROM")'"
     ;;
 lxd://*)
-    command="$VAR_LOCATION/remotes/datastore/lxd_downloader.sh '$(esc_sq "$FROM")'"
+    command="$VAR_LOCATION/remotes/datastore/lxd_downloader.sh \"$FROM\""
     ;;
 *)
     if [ ! -r $FROM ]; then

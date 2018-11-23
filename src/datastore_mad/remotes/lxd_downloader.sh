@@ -1,10 +1,47 @@
 #!/bin/bash
 
+get_tag_name () {
+    version=`oned -v | grep "is distributed" | awk '{print $2}'`
+    version_numbers=`echo $version | tr -d .`
+    version_length=`echo $version_numbers | wc -c`
+    if [ $version_length -eq "4" ]; then
+        version_numbers=$(($version_numbers * 10))
+    fi
+        
+    selected_tag="none"
+    for tag in `curl -sSL https://api.github.com/repos/OpenNebula/addon-context-linux/releases | 
+grep "\"tag_name\":" | awk '{print $2}' | cut -d 'v' -f 2 | cut -d '"' -f 1`; do
+        tag_numbers=`echo $tag | tr -d .`
+        tag_length=`echo $tag_numbers | wc -c`
+        if [ $tag_length -eq "4" ]; then
+            tag_numbers=$(($tag_numbers * 10))
+        fi
+        if [ $tag_numbers -le $version_numbers ]; then
+            selected_tag=$tag
+            break
+        fi
+    done
+}
+
+dns_server="8.8.8.8"
 tmp_dir=/var/tmp
 common_dir=/var/tmp/common
 id=`uuidgen`
 url=$1
+url_and_arguments=`echo $url | grep -oP "^"lxd://"\K.*"`
+rootfs_url=`echo $url_and_arguments | cut -d '?' -f 1`
+arguments=`echo $url_and_arguments | cut -d '?' -f 2`
+get_tag_name
+#Create a shell variable for every parameter and# 
+#sets it to the correspondig value              #
+for p in ${arguments//&/ };do 
+    kvp=( ${p/=/ } ); 
+    k=${kvp[0]};v=${kvp[1]};
+    eval $k=$v;
+done
+
 rootfs_url=`echo $url | grep -oP "^"lxd://"\K.*"`
+curl="curl -L"
 if [[ $rootfs_url == *"turnkeylinux.org"* ]]; then
     untar_options="xvzpf"
     extension="tar.gz"
@@ -28,25 +65,29 @@ fi
 
 output=$tmp_dir/$id.$extension
 
-curl $rootfs_url --output $output --silent
-qemu-img create -f raw $tmp_dir/$id.raw 5G  > /dev/null 2>&1
-mkfs.ext4 -F $tmp_dir/$id.raw > /dev/null 2>&1
+$curl $rootfs_url --output $output --silent
+qemu-img create -f raw $tmp_dir/$id.raw ${size}M  > /dev/null 2>&1
+
+case $filesystem in
+    "ext4")
+        mkfs.ext4 -F $tmp_dir/$id.raw > /dev/null 2>&1
+        ;;
+    "xfs")
+        mkfs.xfs -f $tmp_dir/$id.raw > /dev/null 2>&1
+        ;;
+    *)
+        mkfs.ext4 -F $tmp_dir/$id.raw > /dev/null 2>&1
+        ;;
+esac
+
+
 mkdir $tmp_dir/$id
 sudo mount $tmp_dir/$id.raw $tmp_dir/$id
 sudo chown oneadmin:oneadmin $tmp_dir/$id
-##sudo mkdir $tmp_dir/$id/rootfs
-#mkdir $tmp_dir/$id/rootfs
-##sudo chown oneadmin:oneadmin $tmp_dir/$id/rootfs
-#echo "sudo tar $untar_options $output -C $tmp_dir/$id" >> /tmp/log
 sudo tar $untar_options $output -C $tmp_dir/$id > /dev/null 2>&1
 sync
 
-#cp $common_dir/metadata.yaml $tmp_dir/$id/metadata.yaml
-#cp -r $common_dir/templates $tmp_dir/$id/templates
-
-#sed -i -e "s/description_goes_here/$distro $version ($date)/g" $tmp_dir/$id/metadata.yaml
-#sed -i -e "s/distro_goes_here/$distro/g" $tmp_dir/$id/metadata.yaml
-#sed -i -e "s/version_goes_here/$version/g" $tmp_dir/$id/metadata.yaml
+context_url="https://github.com/OpenNebula/addon-context-linux/releases/download"
 
 case "$rootfs_url" in
 *ubuntu*|*debian*)
@@ -54,10 +95,10 @@ case "$rootfs_url" in
     read -r -d '' commands << EOT
         export PATH=$PATH:/bin:/sbin
         rm -f /etc/resolv.conf > /dev/null 2>&1
-        echo "nameserver 8.8.8.8" > /etc/resolv.conf
+        echo "nameserver $dns_server" > /etc/resolv.conf
         apt-get update > /dev/null
         apt-get install curl -y > /dev/null 2>&1
-        curl https://github.com/OpenNebula/addon-context-linux/releases/download/v5.6.0/one-context_5.6.0-1.deb -Lsfo /root/context.deb
+        $curl $context_url/v$selected_tag/one-context_$selected_tag-1.deb -Lsfo /root/context.deb
         apt-get install /root/context.deb -y > /dev/null 2>&1
 EOT
     ;;
@@ -65,24 +106,24 @@ EOT
     terminal="/bin/bash"
     read -r -d '' commands << EOT
         export PATH=$PATH:/bin:/sbin
-        echo "nameserver 8.8.8.8" > /etc/resolv.conf
-        curl https://github.com/OpenNebula/addon-context-linux/releases/download/v5.6.0/one-context-5.6.0-1.el6.noarch.rpm -Lsfo /root/context.rpm
+        echo "nameserver $dns_server" > /etc/resolv.conf
+        $curl $context_url/v$selected_tag/one-context-$selected_tag-1.el6.noarch.rpm -Lsfo /root/context.rpm
         yum install /root/context.rpm -y > /dev/null 2>&1
 EOT
     ;;
 *centos/7*)
     terminal="/bin/bash"
     read -r -d '' commands << EOT
-        echo "nameserver 8.8.8.8" > /etc/resolv.conf
-        curl https://github.com/OpenNebula/addon-context-linux/releases/download/v5.6.0/one-context-5.6.0-1.el7.noarch.rpm -Lsfo /root/context.rpm
+        echo "nameserver $dns_server" > /etc/resolv.conf
+        $curl $context_url/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lsfo /root/context.rpm
         yum install /root/context.rpm -y > /dev/null 2>&1
 EOT
     ;;
 *alpine*)
     terminal="/bin/bash"
     read -r -d '' commands << EOT
-        echo "nameserver 8.8.8.8" > /etc/resolv.conf
-        curl https://github.com/OpenNebula/addon-context-linux/releases/download/v5.6.0/one-context-5.6.0-1.el7.noarch.rpm -Lsfo /root/context.rpm
+        echo "nameserver $dns_server" > /etc/resolv.conf
+        $curl $context_url/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lsfo /root/context.rpm
         yum install /root/context.rpm -y > /dev/null 2>&1
 EOT
     ;;
@@ -107,10 +148,14 @@ sync
 
 rm -f $output
 sudo umount $tmp_dir/$id
-
-#######Temporal
-#qemu-img convert -f raw -O qcow2 $tmp_dir/$id.raw $tmp_dir/$id.qcow2 > /dev/null 2>&1
-
 rmdir $tmp_dir/$id
-cat $tmp_dir/$id.raw && rm -f $tmp_dir/$id.raw
-#cat $tmp_dir/$id.qcow2 && rm -f $tmp_dir/$id.qcow2
+
+if [ "$format" == "qcow2" ]; then
+    qemu-img convert -f raw -O qcow2 $tmp_dir/$id.raw $tmp_dir/$id.qcow2 > /dev/null 2>&1
+    cat $tmp_dir/$id.qcow2 && rm -f $tmp_dir/$id.qcow2
+else
+    cat $tmp_dir/$id.raw 
+fi
+
+rm -f $tmp_dir/$id.raw
+
