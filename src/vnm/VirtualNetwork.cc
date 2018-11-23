@@ -323,7 +323,18 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
         goto error_parse;
     }
 
-    if (bridge.empty())
+    erase_template_attribute("BRIDGE_TYPE", bridge_type);
+
+    rc = parse_bridge_type(vn_mad, error_str);
+
+    if (rc != 0)
+    {
+        goto error_common;
+    }
+
+    add_template_attribute("BRIDGE_TYPE", bridge_type);
+
+    if (bridge.empty() && bridge_type != "none")
     {
         ostringstream oss;
 
@@ -342,17 +353,6 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     }
 
     add_template_attribute("BRIDGE", bridge);
-
-    erase_template_attribute("BRIDGE_TYPE", bridge_type);
-
-    rc = parse_bridge_type(vn_mad, error_str);
-
-    if (rc != 0)
-    {
-        goto error_common;
-    }
-
-    add_template_attribute("BRIDGE_TYPE", bridge_type);
 
     //--------------------------------------------------------------------------
     // Get the Address Ranges
