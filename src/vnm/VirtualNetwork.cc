@@ -150,8 +150,6 @@ int VirtualNetwork::parse_phydev_vlans(const Template* tmpl, const string& vn_ma
     bool check_vlan   = false;
     bool check_outer  = false;
 
-    vector<string> other;
-
     switch (VirtualNetwork::str_to_driver(vn_mad))
     {
         case VirtualNetwork::DUMMY:
@@ -201,23 +199,6 @@ int VirtualNetwork::parse_phydev_vlans(const Template* tmpl, const string& vn_ma
         estr = "OUTER_VLAN_ID (or AUTOMATIC) is mandatory for driver " + vn_mad;
         return -1;
     }
-
-    /*
-    if ( check_other )
-    {
-        vector<string>::iterator it;
-        string value;
-
-        for ( it = other.begin(); it != other.end() ; ++it)
-        {
-            if (!tmpl->get((*it).c_str(), value))
-            {
-                estr = *it + " is mandatory for driver " + vn_mad;
-                return -1;
-            }
-        }
-    }
-    */
 
     return 0;
 }
