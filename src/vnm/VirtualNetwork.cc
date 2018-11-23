@@ -150,15 +150,10 @@ int VirtualNetwork::parse_phydev_vlans(const Template* tmpl, const string& vn_ma
     bool check_vlan   = false;
     bool check_outer  = false;
 
-    bool check_other  = false;
     vector<string> other;
 
     switch (VirtualNetwork::str_to_driver(vn_mad))
     {
-        case VirtualNetwork::VCENTER:
-            other.push_back("VCENTER_NET_REF");
-            check_other = true;
-
         case VirtualNetwork::DUMMY:
             check_bridge = true;
             break;
@@ -173,6 +168,7 @@ int VirtualNetwork::parse_phydev_vlans(const Template* tmpl, const string& vn_ma
             check_outer  = true;
 
         case VirtualNetwork::BRIDGE:
+        case VirtualNetwork::VCENTER:
         case VirtualNetwork::OVSWITCH:
         case VirtualNetwork::EBTABLES:
         case VirtualNetwork::FW:
@@ -206,6 +202,7 @@ int VirtualNetwork::parse_phydev_vlans(const Template* tmpl, const string& vn_ma
         return -1;
     }
 
+    /*
     if ( check_other )
     {
         vector<string>::iterator it;
@@ -220,6 +217,7 @@ int VirtualNetwork::parse_phydev_vlans(const Template* tmpl, const string& vn_ma
             }
         }
     }
+    */
 
     return 0;
 }
