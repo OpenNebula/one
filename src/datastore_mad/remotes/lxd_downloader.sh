@@ -123,8 +123,8 @@ EOT
     terminal="/bin/bash"
     read -r -d '' commands << EOT
         echo "nameserver $dns_server" > /etc/resolv.conf
-        $curl $context_url/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lsfo /root/context.rpm
-        yum install /root/context.rpm -y > /dev/null 2>&1
+        $curl $context_url/v$selected_tag/one-context-$selected_tag-r1.apk -Lsfo /root/context.apk
+        apk add --allow-untrusted /root/context.apk > /dev/null 2>&1
 EOT
     ;;
 *opensuse*)
