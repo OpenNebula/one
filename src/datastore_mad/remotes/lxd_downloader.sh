@@ -143,6 +143,7 @@ esac
 
 cat << EOF | sudo chroot $tmp_dir/$id $terminal
 $commands
+echo "#This file is modified by OpenNebula. Don't write in here" > /etc/resolv.conf
 EOF
 sync
 
