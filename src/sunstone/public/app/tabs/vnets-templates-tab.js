@@ -24,8 +24,8 @@ define(function(require) {
   var DATATABLE_ID = "dataTableVNTemplate";
 
   var _dialogs = [
-    require('./vnets-tab/dialogs/add-ar'),
-    require('./vnets-tab/dialogs/update-ar'),
+    require('./vnets-templates-tab/dialogs/add-ar'),
+    require('./vnets-templates-tab/dialogs/update-ar'),
   ];
 
   var _panels = [
@@ -40,16 +40,17 @@ define(function(require) {
   ];
 
   var _formPanels = [
-    require('./vnets-templates-tab/form-panels/create')
+    require('./vnets-templates-tab/form-panels/create'),
+    require('./vnets-templates-tab/form-panels/instantiate')
   ];
 
   var VNetsTemplatesTab = {
     tabId: TAB_ID,
-    title: Locale.tr("Virtual Networks Templates"),
+    title: Locale.tr("VNet Templates"),
     icon: 'fa-network-wired',
     tabClass: "subTab",
     parentTab: "network-top-tab",
-    listHeader: Locale.tr("Virtual Networks Templates"),
+    listHeader: Locale.tr("Virtual Network Templates"),
     infoHeader: Locale.tr("Virtual Network Template"),
     lockable: true,
     subheader: '<span class="total_vnets_templates"/> <small>'+Locale.tr("TOTAL")+'</small>',

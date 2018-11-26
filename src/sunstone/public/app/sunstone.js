@@ -351,6 +351,11 @@ define(function(require) {
           strClass.push("success", "button");
           buttonCode = "<button class=\"" + strClass.join(" ") + "\" href=\"" + buttonName + "\">" + text + "</button>";
           break;
+        case "create_flatten":
+          buttonContext = $("#" + customId + "create_buttons_flatten", buttonsRow);
+          text = button.text;
+          buttonCode = "<li><a class=\"" + strClass.join(" ") + "\" href=\"" + buttonName + "\" data=\"" + data + "\">" + text + "</a></li>";
+          break;
         case "refresh":
           buttonContext = $("#" + customId + "refresh_buttons", buttonsRow);
           icon = button.icon ? button.icon : "<i class=\"fas fa-sync-alt\"/>";
@@ -489,6 +494,10 @@ define(function(require) {
       if ($("#" + customId + "labels_buttons button", buttonsRow).length != 0) {
         $("#" + customId + "labels_buttons").append(
           "<div id=\"" + customId + "LabelsDropdown\" class=\"only-sunstone-info only-sunstone-list labels-dropdown dropdown-pane large menu vertical\" data-dropdown data-close-on-click=\"true\"></div>");
+      }
+
+      if ($("#" + customId + "create_buttons_flatten li", actionBlock).length == 0) {
+        $("button[data-toggle=" + customId + "create_buttons_flatten]", actionBlock).remove();
       }
 
       $("#" + customId + "labels_buttons").foundation();

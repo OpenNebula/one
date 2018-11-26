@@ -26,19 +26,20 @@ define(function(require) {
     },
     "Network.create_dialog" : {
       type: "create_dialog",
-      layout: "create"
+      text:  Locale.tr("Create"),
+      layout: "create_flatten",
+      custom_classes: "only-sunstone-list"
     },
     "Network.import_dialog" : {
       type: "create_dialog",
-      layout: "create",
+      layout: "create_flatten",
       text:  Locale.tr("Import"),
-      icon: '<i class="fas fa-download"/>',
-      alwaysActive: true
+      custom_classes: "only-sunstone-list"
     },
     "Network.reserve_dialog" : {
-      type: "action",
-      layout: "main",
-      text: Locale.tr("Reserve"),
+      type: "create_dialog",
+      layout: "create_flatten",
+      text: Locale.tr("Reserve")
     },
     "Network.update_dialog" : {
       type: "action",
@@ -48,7 +49,7 @@ define(function(require) {
     "Network.addtocluster" : {
       type : "action",
       layout: "main",
-      text : Locale.tr("Select cluster")
+      text : Locale.tr("Clusters")
     },
     "Network.chown" : {
       type: "confirm_with_select",
