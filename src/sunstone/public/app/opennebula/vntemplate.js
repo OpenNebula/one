@@ -60,22 +60,6 @@ define(function(require) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "release", action_obj);
     },
-    "add_ar" : function(params) {
-      var action_obj = {"ar_template" : params.data.extra_param};
-      OpenNebulaAction.simple_action(params, RESOURCE, "add_ar", action_obj);
-    },
-    "rm_ar" : function(params) {
-      var action_obj = params.data.extra_param;
-      OpenNebulaAction.simple_action(params, RESOURCE, "rm_ar", action_obj);
-    },
-    "update_ar": function(params) {
-      var action_obj = {"ar_template" : params.data.extra_param};
-      OpenNebulaAction.simple_action(params, RESOURCE, "update_ar", action_obj);
-    },
-    "update": function(params) {
-      var action_obj = {"template_raw" : params.data.extra_param};
-      OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj);
-    },
     "append": function(params) {
       var action_obj = {"template_raw" : params.data.extra_param, append : true};
       OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj);
@@ -93,6 +77,10 @@ define(function(require) {
     "unlock" : function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "unlock");
     },
+    "instantiate" : function(params) {
+      var action_obj = params.data.extra_param ? params.data.extra_param : {};
+      OpenNebulaAction.simple_action(params, RESOURCE, "instantiate", action_obj);
+    }
   }
 
   return NetworkTemplate;

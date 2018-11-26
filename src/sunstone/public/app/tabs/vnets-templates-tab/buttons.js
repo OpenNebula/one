@@ -33,6 +33,11 @@ define(function(require) {
       layout: "main",
       text: Locale.tr("Update")
     },
+    "VNTemplate.instantiate_vnets" : {
+      type: "action",
+      layout: "main",
+      text: Locale.tr("Instantiate")
+    },
     "VNTemplate.addtocluster" : {
       type : "action",
       layout: "main",

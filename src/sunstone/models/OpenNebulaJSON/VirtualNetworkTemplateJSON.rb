@@ -42,19 +42,17 @@ module OpenNebulaJSON
             end
 
             rc = case action_hash['perform']
-                 when "publish"   then self.publish
-                 when "unpublish" then self.unpublish
-                 when "update"    then self.update(action_hash['params'])
-                 when "chown"     then self.chown(action_hash['params'])
-                 when "chmod"     then self.chmod_octet(action_hash['params'])
-                 when "hold"      then self.hold(action_hash['params'])
-                 when "release"   then self.release(action_hash['params'])
-                 when "rename"    then self.rename(action_hash['params'])
-                 when "rm_ar"     then self.rm_ar(action_hash['params'])
-                 when "add_ar"    then self.add_ar(action_hash['params'])
-                 when "update_ar" then self.update_ar(action_hash['params'])
-                 when "lock"         then self.lock(action_hash['params'])
-                 when "unlock"       then self.unlock(action_hash['params'])
+                 when "publish"     then self.publish
+                 when "unpublish"   then self.unpublish
+                 when "update"      then self.update(action_hash['params'])
+                 when "chown"       then self.chown(action_hash['params'])
+                 when "chmod"       then self.chmod_octet(action_hash['params'])
+                 when "hold"        then self.hold(action_hash['params'])
+                 when "release"     then self.release(action_hash['params'])
+                 when "rename"      then self.rename(action_hash['params'])
+                 when "lock"        then self.lock(action_hash['params'])
+                 when "unlock"      then self.unlock(action_hash['params'])
+                 when "instantiate" then self.instantiate(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                                 " available for this resource"
@@ -90,35 +88,23 @@ module OpenNebulaJSON
             super(params['name'])
         end
 
-        def rm_ar(params=Hash.new)
-            super(params['ar_id'])
-        end
-
-        def add_ar(params=Hash.new)
-            template_json = params['ar_template']
-            template = template_to_str(template_json)
-
-            super(template)
-        end
-
-        def update_ar(params=Hash.new)
-            template_json = params['ar_template']
-            template = template_to_str(template_json)
-
-            super(template)
-        end
-
-        def reserve(params=Hash.new)
-            super(params['name'], params['size'], params['ar_id'],
-                params['addr'], params['vntemplate'])
-        end
-
         def lock(params=Hash.new)
             super(params['level'].to_i)
         end
 
         def unlock(params=Hash.new)
             super()
+        end
+
+        def instantiate(params=Hash.new)
+
+            if params['template']
+                template = template_to_str(params['template'])
+
+                super(params['vnet_name'], template)
+            else
+                super(params['vnet_name'], "")
+            end
         end
     end
 end

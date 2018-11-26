@@ -32,6 +32,7 @@ define(function(require) {
   var UPDATE_AR_DIALOG_ID = require('tabs/vnets-tab/dialogs/update-ar/dialogId');
   var RESERVE_DIALOG_ID = require('tabs/vnets-tab/dialogs/reserve/dialogId');
   var CLUSTERS_DIALOG_ID = require('utils/dialogs/clusters/dialogId');
+  var INSTANTIATE_DIALOG_ID = require('./form-panels/instantiate/formPanelId');
 
   var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
     XML_ROOT, Locale.tr("Virtual Network Template created"));
@@ -126,7 +127,39 @@ define(function(require) {
         Sunstone.getDialog(CLUSTERS_DIALOG_ID).show();
       },
       error: Notifier.onError
-    }
+    },
+    "VNTemplate.instantiate" : {
+      type: "multiple",
+      call: OpenNebulaResource.instantiate,
+      callback: function(request, response) {
+        Sunstone.hideFormPanel();
+        OpenNebulaAction.clear_cache("VNET");
+
+        Notifier.notifyCustom(Locale.tr("VNet created"),
+          Navigation.link(" ID: " + response, "vnets-tab", response),
+          false);
+      },
+      elements: function(opts) {
+        return Sunstone.getDataTable(TAB_ID).elements(opts);
+      },
+      error: function(request, response){
+        Sunstone.hideFormPanelLoading();
+        Notifier.onError(request, response);
+      },
+      notify: false
+    },
+    "VNTemplate.instantiate_vnets" : {
+      type: "custom",
+      call: function(){
+        //Sunstone.resetFormPanel(TAB_ID, INSTANTIATE_DIALOG_ID);
+        var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
+
+        Sunstone.showFormPanel(TAB_ID, INSTANTIATE_DIALOG_ID, "instantiate",
+          function(formPanelInstance, context) {
+            formPanelInstance.setTemplateIds(context, selected_nodes);
+          });
+      }
+    },
   };
 
   return _actions;
