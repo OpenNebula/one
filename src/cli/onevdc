@@ -75,7 +75,7 @@ CommandParser::CmdParser.new(ARGV) do
 
         if !arg.nil? &&
            arg.class != Integer &&
-           arg.upcase == "ALL"
+           arg.casecmp('ALL').zero?
             [0, Vdc::ALL_RESOURCES]
         else
             OpenNebulaHelper.rname_to_id(arg, 'CLUSTER')
@@ -88,7 +88,7 @@ CommandParser::CmdParser.new(ARGV) do
 
         if !arg.nil? &&
            arg.class != Integer &&
-           arg.upcase == "ALL"
+           arg.casecmp('ALL').zero?
             [0, Vdc::ALL_RESOURCES]
         else
             OpenNebulaHelper.rname_to_id(arg, 'HOST')
@@ -101,7 +101,7 @@ CommandParser::CmdParser.new(ARGV) do
 
         if !arg.nil? &&
            arg.class != Integer &&
-           arg.upcase == "ALL"
+           arg.casecmp('ALL').zero?
             [0, Vdc::ALL_RESOURCES]
         else
             OpenNebulaHelper.rname_to_id(arg, 'DATASTORE')
@@ -114,7 +114,7 @@ CommandParser::CmdParser.new(ARGV) do
 
         if !arg.nil? &&
            arg.class != Integer &&
-           arg.upcase == "ALL"
+           arg.casecmp('ALL').zero?
             [0, Vdc::ALL_RESOURCES]
         else
             OpenNebulaHelper.rname_to_id(arg, 'VNET')

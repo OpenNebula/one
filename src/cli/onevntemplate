@@ -43,25 +43,25 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     USE = {
-        :name  => 'use',
+        :name => 'use',
         :large => '--use',
         :description => 'lock use actions'
     }
 
     MANAGE = {
-        :name  => 'manage',
+        :name => 'manage',
         :large => '--manage',
         :description => 'lock manage actions'
     }
 
     ADMIN = {
-        :name  => 'admin',
+        :name => 'admin',
         :large => '--admin',
         :description => 'lock admin actions'
     }
 
     ALL = {
-        :name  => 'all',
+        :name => 'all',
         :large => '--all',
         :description => 'lock all actions'
     }
@@ -148,7 +148,6 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :clone, clone_desc, :templateid, :name do
-
         helper.perform_action(args[0], options, 'cloned') do |t|
             res = t.clone(args[1])
 
@@ -165,9 +164,8 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :delete, delete_desc, [:range, :templateid_list] do
-
         helper.perform_actions(args[0], options, 'deleted') do |t|
-            t.delete()
+            t.delete
         end
     end
 
@@ -184,7 +182,6 @@ CommandParser::CmdParser.new(ARGV) do
         exit_code = 0
 
         number = options[:multiple] || 1
-        user_inputs = nil
 
         number.times do |i|
             exit_code = helper.perform_action(args[0], options,
@@ -216,7 +213,7 @@ CommandParser::CmdParser.new(ARGV) do
                         extra_template << OpenNebulaHelper.create_ar(options)
                     end
                 end
-                
+
                 res = t.instantiate(name, extra_template)
 
                 if !OpenNebula.is_error?(res)
@@ -259,7 +256,6 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :chmod, chmod_desc, [:range, :templateid_list], :octet do
-
         recursive = (options[:recursive] == true)
 
         helper.perform_actions(args[0], options, 'Permissions changed') do |t|
