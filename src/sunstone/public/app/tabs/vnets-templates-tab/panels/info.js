@@ -40,6 +40,8 @@ define(function(require) {
   var RESOURCE = "VNTemplate";
   var XML_ROOT = "VNTEMPLATE";
 
+  var HIDE_ATTRIBUTES = ["AR", "CLUSTERS"];
+
   /*
     CONSTRUCTOR
    */
@@ -83,6 +85,9 @@ define(function(require) {
       if (!$.inArray(key, hiddenKeys) > -1) {
         if (key.match(/^VCENTER_*/)){
           strippedTemplateVcenter[key] = value;
+        }
+        else if ( HIDE_ATTRIBUTES.indexOf(key) > -1 ) {
+          ;
         }
         else {
           strippedTemplate[key] = value;
