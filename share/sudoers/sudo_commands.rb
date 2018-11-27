@@ -16,6 +16,19 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+ONE_LOCATION=ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    REMOTES_LOCATION="/var/lib/one/remotes/"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    REMOTES_LOCATION=ONE_LOCATION+"/var/remotes/"
+end
+
+$: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+"/cli"
+
 require "erb"
 
 
@@ -27,6 +40,7 @@ CMDS = {
     :OVS   => %w(ovs-ofctl ovs-vsctl),
     :XEN   => %w(xentop xl xm),
     :CEPH  => %w(rbd),
+    :MRKT  => %W{#{REMOTES_LOCATION}datastore/create_container_image.sh},
     :HA    => [
         'systemctl start opennebula-flow',
         'systemctl stop opennebula-flow',

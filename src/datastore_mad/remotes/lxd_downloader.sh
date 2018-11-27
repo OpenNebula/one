@@ -1,5 +1,33 @@
 #!/bin/bash
 
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+if [ -z "${ONE_LOCATION}" ]; then
+    LIB_LOCATION=/usr/lib/one
+    VAR_LOCATION=/var/lib/one
+else
+    LIB_LOCATION=$ONE_LOCATION/lib
+    VAR_LOCATION=$ONE_LOCATION/var
+fi
+
+. $LIB_LOCATION/sh/scripts_common.sh
+
+DRIVER_PATH=$(dirname $0)
+
 get_tag_name () {
     version=`oned -v | grep "is distributed" | awk '{print $2}'`
     version_numbers=`echo $version | tr -d .`
@@ -138,7 +166,7 @@ EOT
 esac
 
 #Create raw image with container
-cat << EOF | sudo /var/lib/one/remotes/datastore/create_container_image.sh $tmp_dir $id $extension $terminal
+cat << EOF | sudo $VAR_LOCATION/remotes/datastore/create_container_image.sh $tmp_dir $id $extension $terminal
 $commands
 EOF
 
