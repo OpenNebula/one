@@ -25,12 +25,12 @@ grep "\"tag_name\":" | awk '{print $2}' | cut -d 'v' -f 2 | cut -d '"' -f 1`; do
 
 dns_server="8.8.8.8"
 tmp_dir=/var/tmp
-common_dir=/var/tmp/common
 id=`uuidgen`
 url=$1
 url_and_arguments=`echo $url | grep -oP "^"lxd://"\K.*"`
 rootfs_url=`echo $url_and_arguments | cut -d '?' -f 1`
 arguments=`echo $url_and_arguments | cut -d '?' -f 2`
+
 get_tag_name
 #Create a shell variable for every parameter and# 
 #sets it to the correspondig value              #
@@ -82,10 +82,6 @@ esac
 
 
 mkdir $tmp_dir/$id
-sudo mount $tmp_dir/$id.raw $tmp_dir/$id
-sudo chown oneadmin:oneadmin $tmp_dir/$id
-sudo tar $untar_options $output -C $tmp_dir/$id > /dev/null 2>&1
-sync
 
 context_url="https://github.com/OpenNebula/addon-context-linux/releases/download"
 
@@ -141,16 +137,12 @@ EOT
     ;;
 esac
 
-cat << EOF | sudo chroot $tmp_dir/$id $terminal
+#Create raw image with container
+cat << EOF | sudo /var/lib/one/remotes/datastore/create_container_image.sh $tmp_dir $id $extension $terminal
 $commands
-echo "#This file is modified by OpenNebula. Don't write in here" > /etc/resolv.conf
-rm -f /etc/ssh/ssh_host_* > /dev/null 2>&1
-usermod -p '*' root > /dev/null 2>&1
 EOF
-sync
 
 rm -f $output
-sudo umount $tmp_dir/$id
 rmdir $tmp_dir/$id
 
 if [ "$format" == "qcow2" ]; then
