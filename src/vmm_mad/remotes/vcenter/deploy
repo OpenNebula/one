@@ -44,6 +44,7 @@ drv_action.initialize_xml(Base64.decode64(STDIN.read), 'VM')
 
 deploy_id    = drv_action['DEPLOY_ID']
 host_id      = drv_action['HISTORY_RECORDS/HISTORY/HID']
+deploy       = {}
 
 begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
@@ -53,17 +54,15 @@ begin
         # VM is not new, we just need to reconfigure it and to power it on
         vm = VCenterDriver::VirtualMachine.new_one(vi_client, deploy_id, one_vm)
     else
-        # VM is new, clone the VM from template
+        deploy[:template_ref] = drv_action['USER_TEMPLATE/VCENTER_TEMPLATE_REF']
         vm = VCenterDriver::VirtualMachine.new_from_clone(vi_client,
                                                           drv_action,
                                                           vm_id)
     end
 
     if vm.is_powered_off?
-        vm.nresize_unmanaged_disks
-        vm.sync
+        vm.sync(deploy)
         vm.poweron
-        vm.set_running(true)
     end
 
     puts vm['_ref']

@@ -458,6 +458,8 @@ class VirtualMachine < VCenterDriver::Template
     end
 
     def get_unmanaged_keys
+        return @keys if @keys
+
         unmanaged_keys = {}
         @item.config.extraConfig.each do |val|
              if val[:key].include?("opennebula.disk")
@@ -672,7 +674,6 @@ class VirtualMachine < VCenterDriver::Template
 
         # @item is populated
         @item = vm
-        reference_unmanaged_devices(vc_template_ref) unless instantiated_as_persistent?
 
         return self['_ref']
     end
@@ -951,9 +952,10 @@ class VirtualMachine < VCenterDriver::Template
         end
     end
 
-    def reference_unmanaged_devices(template_ref)
+    def reference_unmanaged_devices(template_ref, execute = true)
         extraconfig   = []
         device_change = []
+        spec          = {}
 
         # Get unmanaged disks in OpenNebula's VM template
         xpath = "TEMPLATE/DISK[OPENNEBULA_MANAGED=\"NO\" or OPENNEBULA_MANAGED=\"no\"]"
@@ -989,6 +991,11 @@ class VirtualMachine < VCenterDriver::Template
                 reference[:value] = "#{vcenter_disk[:key]}"
                 extraconfig << reference
             end
+
+            if !execute
+                @keys = {}
+                extraconfig.each {|r| @keys[r[:key]] = r[:value]}
+            end
         end
 
         # Add info for existing nics in template in vm xml
@@ -1018,11 +1025,15 @@ class VirtualMachine < VCenterDriver::Template
 
         # Save in extraconfig the key for unmanaged disks
         if !extraconfig.empty? || !device_change.empty?
-            spec = {}
             spec[:extraConfig]  = extraconfig if !extraconfig.empty?
             spec[:deviceChange] = device_change if !device_change.empty?
+
+            return spec unless execute
+
             @item.ReconfigVM_Task(:spec => spec).wait_for_completion
         end
+
+        {}
     end
 
     def resize_unmanaged_disks
@@ -1132,17 +1143,37 @@ class VirtualMachine < VCenterDriver::Template
 
     # TODO
     # Synchronize the OpenNebula VM representation with vCenter VM
-    def sync
+    def sync(deploy = {})
         extraconfig   = []
         device_change = []
 
-        sync_disks(:all)
+        # deploy operation, no instantiated as persistent
+        if deploy[:template_ref] && !instantiated_as_persistent?
+            template_ref = deploy[:template_ref]
+            refs = reference_unmanaged_devices(template_ref)
+
+            # changes in deploy op (references)
+            device_change += refs[:deviceChange] if refs[:deviceChange]
+            extraconfig   += refs[:extraConfig]  if refs[:extraConfig]
+        end
+
+        info_disks
+        nresize_unmanaged_disks
+
+        disks = sync_disks(:all, false)
+
+        # changes from sync_disks
+        device_change += disks[:deviceChange] if disks[:deviceChange]
+        extraconfig   += disks[:extraConfig]  if disks[:extraConfig]
 
         # get token and context
         extraconfig += extraconfig_context
 
         # vnc configuration (for config_array hash)
         extraconfig += extraconfig_vnc
+
+        # opennebula.running flag
+        extraconfig += set_running(true, false)
 
         # device_change hash (nics)
         device_change += device_change_nics
@@ -1157,6 +1188,7 @@ class VirtualMachine < VCenterDriver::Template
         }
 
         spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+
         @item.ReconfigVM_Task(:spec => spec).wait_for_completion
     end
 
@@ -1674,16 +1706,17 @@ class VirtualMachine < VCenterDriver::Template
             end
 
             # Remove reference opennebula.disk if exist
-            extra_config << disk.config(:delete) if keys["#{d.key}"]
+            extra_config << d.config(:delete) if keys["#{d.key}"]
         end
 
         return detach_disk_array, extra_config
     end
 
     # TODO
-    def sync_disks(option = :nil)
+    def sync_disks(option = :nil, execute = true)
         spec_hash       = {}
         device_change_d = []
+        device_change_a = []
         extra_config    = []
 
         device_change_d, extra_config = detach_disks_specs if option == :all
@@ -1694,7 +1727,13 @@ class VirtualMachine < VCenterDriver::Template
             spec_hash[:extraConfig] = create_storagedrs_disks(device_change_spod, device_change_spod_ids)
         end
 
-        spec_hash[:deviceChange] = device_change_a + device_change_d
+        device_change = device_change_a + device_change_d
+
+        if !device_change.empty?
+            spec_hash[:deviceChange] = device_change_a + device_change_d
+        end
+
+        return spec_hash unless execute
 
         spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
         @item.ReconfigVM_Task(:spec => spec).wait_for_completion
@@ -2583,12 +2622,15 @@ class VirtualMachine < VCenterDriver::Template
         @item.guest.toolsRunningStatus == 'guestToolsRunning'
     end
 
-    def set_running(state)
+    def set_running(state, execute = true)
         value = state ? "yes" : "no"
 
         config_array = [
             { :key => "opennebula.vm.running", :value => value }
         ]
+
+        return config_array unless execute
+
         spec = RbVmomi::VIM.VirtualMachineConfigSpec(
             { :extraConfig => config_array }
         )
