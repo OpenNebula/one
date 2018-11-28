@@ -570,20 +570,24 @@ class Template
         ide_controlled  = []
         sata_controlled = []
         scsi_controlled = []
+        controller      = {}
 
         @item["config.hardware.device"].each do |device|
             disk = {}
 
             if device.is_a? RbVmomi::VIM::VirtualIDEController
                 ide_controlled.concat(device.device)
+                controller[device.key] = "ide#{device.busNumber}"
             end
 
             if device.is_a? RbVmomi::VIM::VirtualSATAController
                 sata_controlled.concat(device.device)
+                controller[device.key] = "sata#{device.busNumber}"
             end
 
             if device.is_a? RbVmomi::VIM::VirtualSCSIController
                 scsi_controlled.concat(device.device)
+                controller[device.key] = "scsi#{device.busNumber}"
             end
 
             if is_disk_or_iso?(device)
@@ -596,6 +600,8 @@ class Template
                 disk[:prefix]    = "hd" if ide_controlled.include?(device.key)
                 disk[:prefix]    = "sd" if scsi_controlled.include?(device.key)
                 disk[:prefix]    = "sd" if sata_controlled.include?(device.key)
+                disk[:tag]       = "#{controller[device.controllerKey]}:#{device.unitNumber}"
+
                 disks << disk
             end
         end
