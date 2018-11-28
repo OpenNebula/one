@@ -28,7 +28,7 @@ class Qcow2Mapper <  Mapper
     def do_map(one_vm, disk, directory)
         device = nbd_device
 
-        return nil if device.empty?
+        return if device.empty?
 
         dsrc = disk_source(one_vm, disk)
         cmd  = "#{COMMANDS[:nbd]} -c #{device} #{dsrc}"
@@ -39,23 +39,8 @@ class Qcow2Mapper <  Mapper
             OpenNebula.log_error("do_map: #{err}")
             return
         end
-
-        times = 0
-        loop do
-            sleep 0.5
-            
-            nbd_parts = lsblk(device)
-            
-            if times == 10
-                text = "failed #{times} times to get #{nbd_parts}" 
-                OpenNebula.log_error("do_map: #{text}")
-                return 
-            end
-
-            break if nbd_parts && nbd_parts[0] && nbd_parts[0]['fstype']
-            
-            times += 1
-        end
+        
+        sleep 0.5 # TODO: improve settledown, lsblk -f fails
 
         device
     end
