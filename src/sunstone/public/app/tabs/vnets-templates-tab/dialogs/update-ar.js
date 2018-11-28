@@ -24,6 +24,7 @@ define(function(require) {
   var ArTab = require('tabs/vnets-tab/utils/ar-tab');
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
+  var TemplateUtils = require('utils/template-utils');
   var Locale = require('utils/locale');
 
   /*
@@ -61,7 +62,8 @@ define(function(require) {
 
   function _html() {
     return TemplateHTML({
-      'arTabHTML': this.arTab.html("update_ar")
+      'arTabHTML': this.arTab.html("update_ar"),
+      'action': "VNTemplate.update_ar"
     });
   }
 
@@ -81,8 +83,16 @@ define(function(require) {
 
         data['AR_ID'] = that.arId;
 
-        var obj = {AR: data};
-        Sunstone.runAction('VNTemplate.update_ar', that.vnetId, obj);
+        for (i in that.element.TEMPLATE.AR) {
+          if ( that.element.TEMPLATE.AR[i].AR_ID == that.arId ) {
+            that.element.TEMPLATE.AR[i] = data;
+            break;
+          }
+        }
+
+        delete that.element.TEMPLATE.AR_POOL;
+
+        Sunstone.runAction('VNTemplate.update_ar', that.vntmplId, TemplateUtils.templateToString(that.element.TEMPLATE));
 
         return false;
       })
@@ -98,8 +108,9 @@ define(function(require) {
   }
 
   function _setParams(params) {
-    this.vnetId = params.vnetId;
+    this.vntmplId = params.vntmplId;
     this.arId = params.arId;
+    this.element = params.element;
 
     $('#ar_id', this.dialogElement).text(params.arId);
     this.arTab.fill(params.arData);

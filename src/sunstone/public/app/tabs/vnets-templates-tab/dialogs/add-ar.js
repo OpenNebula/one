@@ -25,6 +25,7 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     CONSTANTS
@@ -51,7 +52,7 @@ define(function(require) {
   Dialog.prototype.html = _html;
   Dialog.prototype.onShow = _onShow;
   Dialog.prototype.setup = _setup;
-  Dialog.prototype.setId = _setId;
+  Dialog.prototype.setParams = _setParams;
 
   return Dialog;
 
@@ -61,7 +62,8 @@ define(function(require) {
 
   function _html() {
     return TemplateHTML({
-      'arTabHTML': this.arTab.html("add_ar")
+      'arTabHTML': this.arTab.html("add_ar"),
+      'action': "VNTemplate.add_ar"
     });
   }
 
@@ -75,19 +77,26 @@ define(function(require) {
       Sunstone.getDialog(DIALOG_ID).show();
     });
 
-    // $('#add_ar_form', context)
-    //   .on('forminvalid.zf.abide', function(ev, frm) {
-    //     Notifier.notifyError(Locale.tr("One or more required fields are missing."));
-    //   })
-    //   .on('formvalid.zf.abide', function(ev, frm) {
-    //     var data = that.arTab.retrieve();
+    $('#add_ar_form', context)
+      .on('forminvalid.zf.abide', function(ev, frm) {
+        Notifier.notifyError(Locale.tr("One or more required fields are missing."));
+      })
+      .on('formvalid.zf.abide', function(ev, frm) {
+        var data = that.arTab.retrieve();
 
-    //     var obj = {AR: data};
-    //     Sunstone.runAction('VNTemplate.add_ar', that.vnetId, obj);
-    //   })
-    //   .on("submit", function(ev) {
-    //     ev.preventDefault();
-    //   });
+        if ( that.element.TEMPLATE.AR != undefined ) {
+          that.element.TEMPLATE.AR.push(data);
+        } else {
+          that.element.TEMPLATE.AR = data;
+        }
+
+        delete that.element.TEMPLATE.AR_POOL;
+
+        Sunstone.runAction('VNTemplate.add_ar', that.vntmplId, TemplateUtils.templateToString(that.element.TEMPLATE));
+      })
+      .on("submit", function(ev) {
+        ev.preventDefault();
+      });
   }
 
   function _onShow(context) {
@@ -96,7 +105,8 @@ define(function(require) {
     this.arTab.onShow();
   }
 
-  function _setId(id) {
-    this.vnetId = id;
+  function _setParams(params) {
+    this.vntmplId = params.id;
+    this.element = params.element;
   }
 });
