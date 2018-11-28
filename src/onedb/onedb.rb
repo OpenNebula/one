@@ -59,14 +59,19 @@ class OneDB
         end
     end
 
-    def get_password(question="MySQL Password: ")
-        # Hide input characters
-        `stty -echo`
-        print question
-        passwd = STDIN.gets.strip
-        `stty echo`
-        puts ""
-
+    def get_password()
+        one_auth = ""
+        if ENV['ONE_AUTH'] and !ENV['ONE_AUTH'].empty? and
+            File.file?(ENV['ONE_AUTH'])
+            one_auth = File.read(ENV["ONE_AUTH"])
+        elsif ENV['HOME'] and File.file?(ENV['HOME']+'/.one/one_auth')
+            one_auth = File.read(ENV['HOME']+'/.one/one_auth')
+        elsif File.file?('/var/lib/one/.one/one_auth')
+            one_auth = File.read('/var/lib/one/.one/one_auth')
+        else
+            raise NO_ONE_AUTH_ERROR
+        end
+        password = one_auth.split(':')[1]
         return passwd
     end
 
