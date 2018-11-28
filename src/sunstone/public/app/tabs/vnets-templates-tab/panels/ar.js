@@ -28,6 +28,7 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var OpenNebulaNetworkTemplate = require('opennebula/vntemplate');
   var Notifier = require('utils/notifier');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     CONSTANTS
@@ -82,7 +83,8 @@ define(function(require) {
 
       for (var i=0; i<arList.length; i++){
         var ar = arList[i];
-        var id = ar.AR_ID;
+        var id = i;
+        ar.AR_ID = i;
 
         var type = (ar.TYPE ? ar.TYPE : "--");
 
@@ -106,11 +108,14 @@ define(function(require) {
           prefix = "--";
         }
 
+        var leases = "--";
+
         processedARList.push({
           "id" : id,
           "type" : type,
           "start" : start,
-          "prefixHTML" : prefix
+          "prefixHTML" : prefix,
+          "leases": leases
         });
       }
     }
@@ -167,7 +172,7 @@ define(function(require) {
     });
 
 
-    if (Config.isTabActionEnabled("vnets-templatas-tab", "VNTemplate.remove_ar")) {
+    if (Config.isTabActionEnabled("vnets-templates-tab", "VNTemplate.remove_ar")) {
       context.off("click", 'button#rm_ar_button');
       context.on("click", 'button#rm_ar_button', function(){
         var ar_id = $(this).attr('ar_id');
@@ -179,7 +184,17 @@ define(function(require) {
           //question :
           submit : function(){
             var obj = {ar_id: ar_id};
-            Sunstone.runAction('VNTemplate.rm_ar',that.element.ID,obj);
+
+            for (i in that.element.TEMPLATE.AR) {
+              if ( that.element.TEMPLATE.AR[i].AR_ID == ar_id ) {
+                that.element.TEMPLATE.AR.splice(i, 1);
+                break;
+              }
+            }
+
+            delete that.element.TEMPLATE.AR_POOL;
+
+            Sunstone.runAction('VNTemplate.rm_ar', that.element.ID, TemplateUtils.templateToString(that.element.TEMPLATE));
 
             return false;
           }
@@ -197,7 +212,11 @@ define(function(require) {
       context.on("click", 'button#add_ar_button', function(){
         var id = that.element.ID;
 
-        Sunstone.getDialog(ADD_AR_DIALOG_ID).setId(id);
+        Sunstone.getDialog(ADD_AR_DIALOG_ID).setParams({
+          'id': id,
+          'element': that.element,
+        });
+
         Sunstone.getDialog(ADD_AR_DIALOG_ID).show();
 
         return false;
@@ -210,22 +229,25 @@ define(function(require) {
         var id = that.element.ID;
         var ar_id = $(this).attr('ar_id');
 
+        var element = that.element;
+
         OpenNebulaNetworkTemplate.show({
           data : {
             id: id
           },
           timeout: true,
           success: function (request, vn){
-            var vn_info = vn.VNET;
+            var vntmpl_info = vn.VNTEMPLATE;
 
-            var ar = getAR(vn_info, ar_id);
+            var ar = getAR(vntmpl_info, ar_id);
 
             if(ar != undefined){
               Sunstone.getDialog(UPDATE_AR_DIALOG_ID).reset();
 
               Sunstone.getDialog(UPDATE_AR_DIALOG_ID).setParams({
-                'vnetId': id,
+                'vntmplId': id,
                 'arId': ar_id,
+                'element': element,
                 'arData': $.extend({}, ar)
               });
 
@@ -268,12 +290,14 @@ define(function(require) {
   //============================================================================
 
   // TODO move to util?
-  function getAR(vn_info, arId){
-    var ar_list = Utils.getARList(vn_info);
+  function getAR(vntmpl_info, arId){
+    vntmpl_info.TEMPLATE.AR_POOL = {};
+    vntmpl_info.TEMPLATE.AR_POOL.AR = vntmpl_info.TEMPLATE.AR;
+    var ar_list = Utils.getARList(vntmpl_info.TEMPLATE);
     var ar = undefined;
 
     for (var i=0; i<ar_list.length; i++){
-      if (arId == ar_list[i].AR_ID){
+      if (arId == i){
         ar = $.extend({}, ar_list[i]);
         break;
       }
@@ -286,8 +310,8 @@ define(function(require) {
 
   // TODO: move to its own file?
 
-  function _arHTML(vn_info, arId){
-    var ar = getAR(vn_info, arId);
+  function _arHTML(vntmpl_info, arId){
+    var ar = getAR(vntmpl_info, arId);
 
     if(ar == undefined){
         return "";
@@ -373,8 +397,8 @@ define(function(require) {
     });
   }
 
-  function _arSetup(section, vn_info, ar_id){
-    var ar = getAR(vn_info, ar_id);
+  function _arSetup(section, vntmpl_info, ar_id){
+    var ar = getAR(vntmpl_info, ar_id);
 
     if(ar == undefined){
         return;

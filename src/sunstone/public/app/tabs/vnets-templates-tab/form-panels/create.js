@@ -101,7 +101,13 @@ define(function(require) {
       "formPanelId": this.formPanelId,
       "customTagsHTML": CustomTagsTable.html(),
       "securityGroupsTableHTML": this.securityGroupsTable.dataTableHTML,
-      "clustersTableHTML": this.clustersTable.dataTableHTML
+      "clustersTableHTML": this.clustersTable.dataTableHTML,
+      "createGeneralTab": "vntemplateCreateGeneralTab",
+      "createBridgeTab": "vntemplateCreateBridgeTab",
+      "createARTab": "vntemplateCreateARTab",
+      "createSecurityTab": "vntemplateCreateSecurityTab",
+      "createQoSTab": "vntemplateCreateQoSTab",
+      "createContextTab": "vntemplatecreateContextTab"
     });
   }
 
@@ -125,7 +131,7 @@ define(function(require) {
       return false;
     });
 
-    $("#vnetCreateARTab #vnetCreateARTabUpdate", context).hide();
+    $("#vntemplateCreateARTab #vntemplateCreateARTabUpdate", context).hide();
 
     $("#network_mode", context).change(function() {
       $("div.mode_param", context).hide();
@@ -137,7 +143,7 @@ define(function(require) {
       $("#vcenter_cluster_id", context).removeAttr("required");
       $("#phydev", context).removeAttr("required");
       $(".sec_groups_datatable", context).show();
-      $("#vnetCreateSecurityTab-label").show();
+      $("#vntemplateCreateSecurityTab-label").show();
       $("#automatic_vlan_id option[value='NO']", context).show();
       $("input[wizard_field=\"VLAN_ID\"]", context).removeAttr("required");
 
@@ -178,14 +184,14 @@ define(function(require) {
         break;
       case "ovswitch":
         $("div.mode_param.ovswitch", context).show();
-        $("#vnetCreateSecurityTab-label").hide();
+        $("#vntemplateCreateSecurityTab-label").hide();
         $("div.mode_param.ovswitch [wizard_field]", context).prop("wizard_field_disabled", false);
 
         $("input#bridge", context).removeAttr("required");
         break;
       case "ovswitch_vxlan":
         $("div.mode_param.ovswitch_vxlan", context).show();
-        $("#vnetCreateSecurityTab-label").hide();
+        $("#vntemplateCreateSecurityTab-label").hide();
         $("div.mode_param.ovswitch_vxlan [wizard_field]", context).prop("wizard_field_disabled", false);
 
         $("input#bridge", context).removeAttr("required");
@@ -197,7 +203,7 @@ define(function(require) {
         $("div.mode_param.vcenter [wizard_field]", context).prop("wizard_field_disabled", false);
         $("input#bridge", context).attr("value", $("#name", context).val());
         $("#vcenter_switch_name", context).attr("required", "");
-        $("#vnetCreateSecurityTab-label").hide();
+        $("#vntemplateCreateSecurityTab-label").hide();
         ResourceSelect.insert({
           context: $("#vcenter_cluster_id", context),
           resourceName: "Host",
@@ -265,7 +271,7 @@ define(function(require) {
     this.securityGroupsTable.initialize();
     this.clustersTable.initialize();
 
-    CustomTagsTable.setup($("#vnetCreateContextTab", context));
+    CustomTagsTable.setup($("#vntemplateCreateContextTab", context));
 
     Foundation.reflow(context, "tabs");
 
@@ -286,7 +292,7 @@ define(function(require) {
       $("#network_mode option[value=\"ovswitch_vxlan\"]", context).hide();
     }
 
-    $("#vnetCreateARTab ul#vnet_wizard_ar_tabs i.remove-tab", context).trigger("click");
+    $("#vntemplateCreateARTab ul#vnet_wizard_ar_tabs i.remove-tab", context).trigger("click");
 
     return false;
   }
@@ -347,10 +353,10 @@ define(function(require) {
     //Fetch values
     var network_json = {};
 
-    $.extend(network_json, WizardFields.retrieve($("#vnetCreateGeneralTab", context)));
-    $.extend(network_json, WizardFields.retrieve($("#vnetCreateBridgeTab", context)));
-    $.extend(network_json, WizardFields.retrieve($("#vnetCreateQoSTab", context)));
-    $.extend(network_json, WizardFields.retrieve($("#vnetCreateContextTab", context)));
+    $.extend(network_json, WizardFields.retrieve($("#vntemplateCreateGeneralTab", context)));
+    $.extend(network_json, WizardFields.retrieve($("#vntemplateCreateBridgeTab", context)));
+    $.extend(network_json, WizardFields.retrieve($("#vntemplateCreateQoSTab", context)));
+    $.extend(network_json, WizardFields.retrieve($("#vntemplateCreateContextTab", context)));
 
     var secgroups = this.securityGroupsTable.retrieveResourceTableSelect();
     if (secgroups != undefined && secgroups.length != 0) {
@@ -362,7 +368,7 @@ define(function(require) {
       network_json["CLUSTERS"] = clusters.join(",");
     }
 
-    $.extend(network_json, CustomTagsTable.retrieve($("#vnetCreateContextTab", context)));
+    $.extend(network_json, CustomTagsTable.retrieve($("#vntemplateCreateContextTab", context)));
 
     $(".ar_tab", context).each(function() {
       var ar_id = $(this).attr("ar_id");
@@ -412,7 +418,9 @@ define(function(require) {
 
     $(".ar_tab", context).each(function() {
       var ar_id = $(this).attr("ar_id");
-      that.arTabObjects[ar_id].onShow();
+      if (that.arTabObjects[ar_id] != undefined) {
+        that.arTabObjects[ar_id].onShow();
+      }
     });
 
     if (this.action === "create"){
@@ -466,10 +474,10 @@ define(function(require) {
                                 attr("disabled", "disabled").trigger("change");
     }
 
-    WizardFields.fill($("#vnetCreateGeneralTab", context), element.TEMPLATE);
-    WizardFields.fill($("#vnetCreateBridgeTab", context), element.TEMPLATE);
-    WizardFields.fill($("#vnetCreateQoSTab", context), element.TEMPLATE);
-    WizardFields.fill($("#vnetCreateContextTab", context), element.TEMPLATE);
+    WizardFields.fill($("#vntemplateCreateGeneralTab", context), element.TEMPLATE);
+    WizardFields.fill($("#vntemplateCreateBridgeTab", context), element.TEMPLATE);
+    WizardFields.fill($("#vntemplateCreateQoSTab", context), element.TEMPLATE);
+    WizardFields.fill($("#vntemplateCreateContextTab", context), element.TEMPLATE);
 
     if ($("#network_mode", context).val() == undefined){
       $("#network_mode", context).val("custom").change();
@@ -507,11 +515,11 @@ define(function(require) {
       delete element.TEMPLATE[field_name];
     });
 
-    CustomTagsTable.fill($("#vnetCreateContextTab", context), element.TEMPLATE);
+    CustomTagsTable.fill($("#vntemplateCreateContextTab", context), element.TEMPLATE);
 
     // Remove the first AR added in initialize_
-    $("#vnetCreateARTab ul#vnet_wizard_ar_tabs i.remove-tab", context).trigger("click");
-    $("#vnetCreateARTab #vnetCreateARTabUpdate", context).show();
-    $("#vnetCreateARTab #vnetCreateARTabCreate", context).hide();
+    $("#vntemplateCreateARTab ul#vnet_wizard_ar_tabs i.remove-tab", context).trigger("click");
+    $("#vntemplateCreateARTab #vntemplateCreateARTabUpdate", context).show();
+    $("#vntemplateCreateARTab #vntemplateCreateARTabCreate", context).hide();
   }
 });
