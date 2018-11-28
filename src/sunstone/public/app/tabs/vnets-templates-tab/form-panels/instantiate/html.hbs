@@ -24,16 +24,10 @@
       <label for="vnet_name">
         {{tr "Network name"}}
         <span class="tip">
-          {{tr "Defaults to 'template name-<vnetid>' when empty. When creating several VNets, the wildcard %i will be replaced with a number starting from 0"}}.
+          {{tr "Defaults to 'template name-<vnetid>' when empty."}}.
         </span>
       </label>
       <input type="text" name="vnet_name" id="vnet_name" />
-    </div>
-    <div class="medium-4 columns">
-      <label for="vnet_n_times">
-        {{tr "Number of instances"}}
-      </label>
-      <input type="number" name="vnet_n_times" id="vnet_n_times" value="1" min="1">
     </div>
   </div>
   <div class="row">

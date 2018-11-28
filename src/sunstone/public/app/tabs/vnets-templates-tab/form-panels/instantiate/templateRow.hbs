@@ -17,15 +17,47 @@
 <br>
 <div class="template-row" element-id="{{element.ID}}">
   <div class="row">
-    <div class="medium-2 small-12 columns">
+    <div class="medium-5 small-12 columns">
       <h6>
         {{element.NAME}}<br>
       </h6>
     </div>
-    <div class="medium-5 small-12 columns disksContext{{element.ID}}" style="padding-top: 15px"></div>
   </div>
   <div class="row">
-    <div class="medium-5 small-12 columns template_user_inputs{{element.ID}}"></div>
+    <div class="medium-5 small-12 columns">
+      {{#isTabActionEnabled "vntemplate-tab" "VNTemplate.add_ar"}}
+        <button class="button success small radius" id="add_ar_button">
+          <span class="fas fa-plus"></span> {{tr "Address Range"}}
+        </button>
+      {{/isTabActionEnabled}}
+    </div>
+  </div>
+  <div class="row">
+    <div class="medium-12 small-12 columns vntemplate_ars_{{element.ID}}">
+      <fieldset>
+        <legend>{{tr "Address Ranges"}}</legend>
+        <table id="datatable_ars_{{element.ID}}" class="dataTable hover">
+          <thead>
+            <tr>
+              <th>{{tr "Address Range"}}</th>
+              <th>{{tr "Type"}}</th>
+              <th>{{tr "Start"}}</th>
+              <th>{{tr "IPv6 Prefix"}}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each arList}}
+              <tr ar="{{id}}">
+                <td style="white-space: nowrap" class="value_td">{{id}}</td>
+                <td style="white-space: nowrap" class="value_td">{{type}}</td>
+                <td style="white-space: nowrap" class="value_td">{{start}}</td>
+                <td style="white-space: nowrap" class="value_td">{{{prefixHTML}}}</td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </fieldset>
+    </div>
   </div>
 </div>
 <br>

@@ -27,6 +27,7 @@ define(function(require) {
   var OpenNebulaVNTemplate = require("opennebula/vntemplate");
   var Locale = require("utils/locale");
   var Tips = require("utils/tips");
+  var Utils = require('tabs/vnets-tab/utils/common');
   var WizardFields = require("utils/wizard-fields");
   var TemplateUtils = require("utils/template-utils");
   var Config = require("sunstone-config");
@@ -93,32 +94,22 @@ define(function(require) {
     }
 
     var vnet_name = $("#vnet_name", context).val();
-    var n_times = $("#vnet_n_times", context).val();
-    var n_times_int = 1;
-
-    if (n_times.length) {
-      n_times_int = parseInt(n_times, 10);
-    }
-
-
 
     $.each(this.selected_nodes, function(index, template_id) {
       var extra_info = {}
 
-      var tmp_json = WizardFields.retrieve($(".vntemplate_user_inputs" + template_id, context));
-      $.each(tmp_json, function(key, value){
-        if (Array.isArray(value)){
-          delete tmp_json[key];
-          tmp_json[key] = value.join(",");
-        }
-      });
+      // var tmp_json = WizardFields.retrieve($(".vntemplate_user_inputs" + template_id, context));
+      // $.each(tmp_json, function(key, value){
+      //   if (Array.isArray(value)){
+      //     delete tmp_json[key];
+      //     tmp_json[key] = value.join(",");
+      //   }
+      // });
 
       extra_info["template"] = tmp_json;
-        for (var i = 0; i < n_times_int; i++) {
-          extra_info["vnet_name"] = vnet_name.replace(/%i/gi, i); // replace wildcard
+      extra_info["vnet_name"] = vnet_name.replace(/%i/gi, i); // replace wildcard
 
-          Sunstone.runAction("VNTemplate.instantiate", [template_id], extra_info);
-        }
+      Sunstone.runAction("VNTemplate.instantiate", [template_id], extra_info);
     });
 
     return false;
@@ -160,9 +151,54 @@ define(function(require) {
         success: function (request, template_json) {
           that.template_objects.push(template_json);
 
+          var processedARList = [];
+
+          if (template_json.VNTEMPLATE.TEMPLATE.AR != undefined) {
+            template_json.VNTEMPLATE.TEMPLATE.AR_POOL = {};
+            template_json.VNTEMPLATE.TEMPLATE.AR_POOL.AR = template_json.VNTEMPLATE.TEMPLATE.AR;
+            var arList = Utils.getARList(template_json.VNTEMPLATE.TEMPLATE);
+
+            for (var i=0; i<arList.length; i++){
+              var ar = arList[i];
+              var id = i;
+              ar.AR_ID = i;
+
+              var type = (ar.TYPE ? ar.TYPE : "--");
+
+              var start = "";
+
+              if(ar.TYPE == "IP4" || ar.TYPE == "IP4_6"){
+                start = (ar.IP ? ar.IP : "--");
+              } else {
+                start = (ar.MAC ? ar.MAC : "--");
+              }
+
+              var prefix = "";
+
+              if(ar.GLOBAL_PREFIX && ar.ULA_PREFIX){
+                prefix += ar.GLOBAL_PREFIX + "<br>" + ar.ULA_PREFIX;
+              } else if (ar.GLOBAL_PREFIX){
+                prefix += ar.GLOBAL_PREFIX;
+              } else if (ar.ULA_PREFIX){
+                prefix += ar.ULA_PREFIX;
+              } else {
+                prefix = "--";
+              }
+
+              processedARList.push({
+                "id" : id,
+                "type" : type,
+                "start" : start,
+                "prefixHTML" : prefix
+              });
+            }
+          }
+
           templatesContext.append(
             TemplateRowHTML(
-              { element: template_json.VMTEMPLATE
+              {
+                element  : template_json.VMTEMPLATE,
+                'arList' : processedARList
               })
           );
 
