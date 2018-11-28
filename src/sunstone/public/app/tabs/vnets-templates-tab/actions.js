@@ -50,7 +50,6 @@ define(function(require) {
     "VNTemplate.chgrp": _commonActions.multipleAction('chgrp'),
     "VNTemplate.chmod": _commonActions.singleAction('chmod'),
     "VNTemplate.rename": _commonActions.singleAction('rename'),
-    "VNTemplate.update" : _commonActions.update(),
     "VNTemplate.update_template" : _commonActions.updateTemplate(),
     "VNTemplate.append_template" : _commonActions.appendTemplate(),
     "VNTemplate.update_dialog" : _commonActions.checkAndShowUpdate(),
@@ -61,7 +60,7 @@ define(function(require) {
     "VNTemplate.unlock": _commonActions.multipleAction('unlock', false),
     "VNTemplate.add_ar" : {
       type: "single",
-      call: OpenNebulaResource.add_ar,
+      call: OpenNebulaResource.update,
       callback: function(req) {
         // Reset the wizard
         Sunstone.getDialog(ADD_AR_DIALOG_ID).hide();
@@ -72,19 +71,9 @@ define(function(require) {
       error: Notifier.onError
     },
 
-    "VNTemplate.rm_ar" : {
-      type: "single",
-      call: OpenNebulaResource.rm_ar,
-      callback: function(req) {
-        OpenNebulaAction.clear_cache("VNET");
-        Sunstone.runAction("VNTemplate.show",req.request.data[0]);
-      },
-      error: Notifier.onError
-    },
-
     "VNTemplate.update_ar" : {
       type: "single",
-      call: OpenNebulaResource.update_ar,
+      call: OpenNebulaResource.update,
       callback: function(req) {
         // Reset the wizard
         Sunstone.getDialog(UPDATE_AR_DIALOG_ID).hide();
@@ -95,21 +84,14 @@ define(function(require) {
       error: Notifier.onError
     },
 
-    "VNTemplate.reserve_dialog" : {
-      type: "custom",
-      call: function() {
-        var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
-        if (selected_nodes.length != 1) {
-          Notifier.notifyMessage("Please select one (and just one) Virtual Network Template.");
-          return false;
-        }
-
-        var resource_id = "" + selected_nodes[0];
-
-        Sunstone.getDialog(RESERVE_DIALOG_ID).setParams({vnetId: resource_id});
-        Sunstone.getDialog(RESERVE_DIALOG_ID).reset();
-        Sunstone.getDialog(RESERVE_DIALOG_ID).show();
-      }
+    "VNTemplate.rm_ar" : {
+      type: "single",
+      call: OpenNebulaResource.update,
+      callback: function(req) {
+        OpenNebulaAction.clear_cache("VNTEMPLATE");
+        Sunstone.runAction("VNTemplate.show",req.request.data[0]);
+      },
+      error: Notifier.onError
     },
 
     "VNTemplate.addtocluster" : _commonActions.checkAndShow("clusters"),
