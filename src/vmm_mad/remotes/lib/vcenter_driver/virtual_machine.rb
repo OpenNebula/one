@@ -156,6 +156,12 @@ class VirtualMachine < VCenterDriver::Template
             @vc_res[:device]
         end
 
+        def node
+            raise @error_message unless exists?
+
+            @vc_res[:tag]
+        end
+
         def path
             raise @error_message unless exists?
 
@@ -962,7 +968,7 @@ class VirtualMachine < VCenterDriver::Template
         unmanaged_disks = one_item.retrieve_xmlelements(xpath)
 
         # unmanaged disks:
-        if !unmanaged_disks.empty?
+        if !unmanaged_disks.empty? && !instantiated_as_persistent?
 
             # Get vcenter VM disks to know real path of cloned disk
             vcenter_disks = get_vcenter_disks
@@ -1141,6 +1147,28 @@ class VirtualMachine < VCenterDriver::Template
         extra_config
     end
 
+    SUPPORTED_DEV = ['disk']
+    def set_boot_order(boot_info)
+        convert = -> (device_str){
+            spl = device_str.scan(/^disk|\d+$/)
+            if !SUPPORTED_DEV.include?(spl[0])
+                raise "#{device_str} is not supported in boot order"
+            end
+
+            for i in 0..1
+                device = send(spl[0], *[spl[1]])
+                break if device.exists?
+                sync_disks
+            end
+
+            RbVmomi::VIM.VirtualMachineBootOptionsBootableDiskDevice({deviceKey: device.key})
+        }
+
+        boot_order = boot_info.split(',').map{ |str| convert.call(str) }
+
+        RbVmomi::VIM.VirtualMachineBootOptions({bootOrder: boot_order})
+    end
+
     # TODO
     # Synchronize the OpenNebula VM representation with vCenter VM
     def sync(deploy = {})
@@ -1148,7 +1176,7 @@ class VirtualMachine < VCenterDriver::Template
         device_change = []
 
         # deploy operation, no instantiated as persistent
-        if deploy[:template_ref] && !instantiated_as_persistent?
+        if deploy[:template_ref]
             template_ref = deploy[:template_ref]
             refs = reference_unmanaged_devices(template_ref)
 
@@ -1157,9 +1185,13 @@ class VirtualMachine < VCenterDriver::Template
             extraconfig   += refs[:extraConfig]  if refs[:extraConfig]
         end
 
-        info_disks
+        if deploy[:boot] && !deploy[:boot].empty?
+            boot_opts = set_boot_order(deploy[:boot])
+        end
+
         nresize_unmanaged_disks
 
+        info_disks
         disks = sync_disks(:all, false)
 
         # changes from sync_disks
@@ -1186,6 +1218,7 @@ class VirtualMachine < VCenterDriver::Template
             :extraConfig  => extraconfig,
             :deviceChange => device_change
         }
+        spec_hash[:bootOptions] = boot_opts if boot_opts
 
         spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
 
@@ -2258,6 +2291,9 @@ class VirtualMachine < VCenterDriver::Template
 
             # Update the template reference
             new_template.update("VCENTER_TEMPLATE_REF=#{@item._ref}", true)
+            if !new_template['TEMPLATE/OS'] || new_template['TEMPLATE/OS'].empty?
+                new_template.update('OS=[BOOT="disk0"]', true)
+            end
     end
 
     # TODO
