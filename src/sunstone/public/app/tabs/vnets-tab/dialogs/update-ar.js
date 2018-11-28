@@ -61,7 +61,8 @@ define(function(require) {
 
   function _html() {
     return TemplateHTML({
-      'arTabHTML': this.arTab.html("update_ar")
+      'arTabHTML': this.arTab.html("update_ar"),
+      'action': "Network.update_ar"
     });
   }
 

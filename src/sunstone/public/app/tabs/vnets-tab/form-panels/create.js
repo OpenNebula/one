@@ -98,7 +98,13 @@ define(function(require) {
     return TemplateWizardHTML({
       "formPanelId": this.formPanelId,
       "customTagsHTML": CustomTagsTable.html(),
-      "securityGroupsTableHTML": this.securityGroupsTable.dataTableHTML
+      "securityGroupsTableHTML": this.securityGroupsTable.dataTableHTML,
+      "createGeneralTab": "vnetCreateGeneralTab",
+      "createBridgeTab": "vnetCreateBridgeTab",
+      "createARTab": "vnetCreateARTab",
+      "createSecurityTab": "vnetCreateSecurityTab",
+      "createQoSTab": "vnetCreateQoSTab",
+      "createContextTab": "vnetcreateContextTab"
     });
   }
 
