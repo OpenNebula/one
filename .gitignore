@@ -21,6 +21,8 @@ src/oca/java/jar
 src/oca/java/share/doc
 src/oca/java/java-oca*.tar.gz
 
+src/vmm_mad/remotes/lxd/tests/
+
 src/docker_machine/pkg
 src/docker_machine/src/docker_machine/bin/docker-machine-driver-opennebula
 src/docker_machine/src/docker_machine/vendor/
@@ -36,3 +38,5 @@ src/sunstone/public/locale/languages/*.js
 
 share/esx-fw-vnc/*.rpm
 share/esx-fw-vnc/.vagrant*
+
+*.vscode

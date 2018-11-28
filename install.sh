@@ -253,12 +253,16 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/etc \
           $VAR_LOCATION/remotes/etc/datastore/ceph \
           $VAR_LOCATION/remotes/etc/im/kvm-probes.d \
+          $VAR_LOCATION/remotes/etc/im/lxd-probes.d \
           $VAR_LOCATION/remotes/etc/vmm/kvm \
+          $VAR_LOCATION/remotes/etc/vmm/lxd \
           $VAR_LOCATION/remotes/etc/vmm/vcenter \
           $VAR_LOCATION/remotes/etc/vnm \
           $VAR_LOCATION/remotes/im \
           $VAR_LOCATION/remotes/im/kvm.d \
           $VAR_LOCATION/remotes/im/kvm-probes.d \
+          $VAR_LOCATION/remotes/im/lxd.d \
+          $VAR_LOCATION/remotes/im/lxd-probes.d \
           $VAR_LOCATION/remotes/im/vcenter.d \
           $VAR_LOCATION/remotes/im/ec2.d \
           $VAR_LOCATION/remotes/im/az.d \
@@ -270,6 +274,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vmm/ec2 \
           $VAR_LOCATION/remotes/vmm/az \
           $VAR_LOCATION/remotes/vmm/one \
+          $VAR_LOCATION/remotes/vmm/lxd \
           $VAR_LOCATION/remotes/vnm \
           $VAR_LOCATION/remotes/vnm/802.1Q \
           $VAR_LOCATION/remotes/vnm/vxlan \
@@ -396,6 +401,9 @@ INSTALL_FILES=(
     IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d
     IM_PROBES_KVM_PROBES_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d
     IM_PROBES_ETC_KVM_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/kvm-probes.d
+    IM_PROBES_LXD_FILES:$VAR_LOCATION/remotes/im/lxd.d
+    IM_PROBES_LXD_PROBES_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d
+    IM_PROBES_ETC_LXD_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/lxd-probes.d
     IM_PROBES_VCENTER_FILES:$VAR_LOCATION/remotes/im/vcenter.d
     IM_PROBES_EC2_FILES:$VAR_LOCATION/remotes/im/ec2.d
     IM_PROBES_AZ_FILES:$VAR_LOCATION/remotes/im/az.d
@@ -411,7 +419,10 @@ INSTALL_FILES=(
     VMM_EXEC_LIB_FILES:$VAR_LOCATION/remotes/vmm/lib
     VMM_EXEC_LIB_VCENTER_FILES:$LIB_LOCATION/ruby/vcenter_driver
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
+    VMM_EXEC_LXD_SCRIPTS:$VAR_LOCATION/remotes/vmm/lxd
+    VMM_EXEC_LXD_LIB:$VAR_LOCATION/remotes/vmm/lxd
     VMM_EXEC_ETC_KVM_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/kvm
+    VMM_EXEC_ETC_LXD_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/lxd
     VMM_EXEC_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/vmm/vcenter
     VMM_EXEC_ETC_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/vcenter
     VMM_EXEC_EC2_SCRIPTS:$VAR_LOCATION/remotes/vmm/ec2
@@ -713,6 +724,45 @@ VMM_EXEC_LIB_VCENTER_FILES="src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb
                     src/vmm_mad/remotes/lib/vcenter_driver/network.rb"
 
 #-------------------------------------------------------------------------------
+# VMM SH Driver LXD scripts, to be installed under $REMOTES_LOCATION/vmm/lxd
+#-------------------------------------------------------------------------------
+VMM_EXEC_LXD_SCRIPTS="src/vmm_mad/remotes/lxd/cancel \
+                    src/vmm_mad/remotes/lxd/deploy \
+                    src/vmm_mad/remotes/lxd/migrate \
+                    src/vmm_mad/remotes/lxd/migrate_local \
+                    src/vmm_mad/remotes/lxd/restore \
+                    src/vmm_mad/remotes/lxd/reboot \
+                    src/vmm_mad/remotes/lxd/reset \
+                    src/vmm_mad/remotes/lxd/save \
+                    src/vmm_mad/remotes/lxd/poll \
+                    src/vmm_mad/remotes/lxd/attach_disk \
+                    src/vmm_mad/remotes/lxd/detach_disk \
+                    src/vmm_mad/remotes/lxd/attach_nic \
+                    src/vmm_mad/remotes/lxd/detach_nic \
+                    src/vmm_mad/remotes/lxd/snapshot_create \
+                    src/vmm_mad/remotes/lxd/snapshot_revert \
+                    src/vmm_mad/remotes/lxd/snapshot_delete \
+                    src/vmm_mad/remotes/lxd/shutdown \
+                    src/vmm_mad/remotes/lxd/reconfigure \
+                    src/vmm_mad/remotes/lxd/prereconfigure \
+                    src/vmm_mad/remotes/lxd/resize_disk"
+
+VMM_EXEC_LXD_LIB="src/vmm_mad/remotes/lib/lxd/opennebula_vm.rb \
+                src/vmm_mad/remotes/lib/lxd/mapper/mapper.rb \
+                src/vmm_mad/remotes/lib/lxd/mapper/qcow2.rb \
+                src/vmm_mad/remotes/lib/lxd/mapper/raw.rb \
+                src/vmm_mad/remotes/lib/lxd/mapper/rbd.rb \
+                src/vmm_mad/remotes/lib/lxd/client.rb \
+                src/vmm_mad/remotes/lib/lxd/command.rb \
+                src/vmm_mad/remotes/lib/lxd/container.rb"
+
+#-------------------------------------------------------------------------------
+# VMM configuration LXD scripts, to be installed under $REMOTES_LOCATION/etc/vmm/lxd
+#-------------------------------------------------------------------------------
+
+VMM_EXEC_ETC_LXD_SCRIPTS="src/vmm_mad/remotes/lxd/lxdrc"
+
+#-------------------------------------------------------------------------------
 # VMM SH Driver KVM scripts, to be installed under $REMOTES_LOCATION/vmm/kvm
 #-------------------------------------------------------------------------------
 
@@ -869,6 +919,21 @@ IM_PROBES_KVM_PROBES_FILES="src/im_mad/remotes/kvm-probes.d/kvm.rb \
                      src/im_mad/remotes/common.d/collectd-client-shepherd.sh"
 
 IM_PROBES_ETC_KVM_PROBES_FILES="src/im_mad/remotes/kvm-probes.d/pci.conf"
+
+IM_PROBES_LXD_PROBES_FILES="src/im_mad/remotes/lxd-probes.d/lxd.rb \
+                     src/im_mad/remotes/lxd-probes.d/architecture.sh \
+                     src/im_mad/remotes/lxd-probes.d/cpu.sh \
+                     src/im_mad/remotes/lxd-probes.d/poll.sh \
+                     src/im_mad/remotes/lxd-probes.d/name.sh \
+                     src/im_mad/remotes/lxd-probes.d/pci.rb \
+                     src/im_mad/remotes/lxd-probes.d/monitor_ds.sh \
+                     src/im_mad/remotes/lxd-probes.d/version.sh \
+                     src/im_mad/remotes/lxd-probes.d/collectd-client-shepherd.sh"
+
+IM_PROBES_LXD_FILES="src/im_mad/remotes/lxd.d/collectd-client_control.sh \
+                     src/im_mad/remotes/lxd.d/collectd-client.rb"
+
+IM_PROBES_ETC_LXD_PROBES_FILES="src/im_mad/remotes/lxd-probes.d/pci.conf"
 
 IM_PROBES_VCENTER_FILES="src/im_mad/remotes/vcenter.d/poll"
 
