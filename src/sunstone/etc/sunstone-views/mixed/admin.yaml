@@ -817,6 +817,7 @@ tabs:
             VNTemplate.add_ar: true
             VNTemplate.remove_ar: true
             VNTemplate.update_ar: true
+            VNTemplate.update: true
             VNTemplate.lockU: true
             VNTemplate.unlock: true
             VNTemplate.edit_labels: true
