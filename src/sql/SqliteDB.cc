@@ -125,13 +125,11 @@ int SqliteDB::exec(ostringstream& cmd, Callbackable* obj, bool quiet)
         if (rc == SQLITE_BUSY || rc == SQLITE_IOERR)
         {
             struct timeval timeout;
-            fd_set zero;
 
-            FD_ZERO(&zero);
             timeout.tv_sec  = 0;
             timeout.tv_usec = 250000;
 
-            select(0, &zero, &zero, &zero, &timeout);
+            select(0, NULL, NULL, NULL, &timeout);
         }
     }while( (rc == SQLITE_BUSY || rc == SQLITE_IOERR) &&
             (counter < 10));
