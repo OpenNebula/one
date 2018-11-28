@@ -368,7 +368,7 @@ class Mapper
                     partitions = [partitions]
                 end
 
-                partitions.delete_if { |p|  
+                partitions.delete_if { |p|
                     p['fstype'].casecmp?('swap') if p['fstype']
                 }
             end
