@@ -41,10 +41,9 @@ class OneDB
                 STDERR.puts "  $ sudo gem install mysql2"
                 exit -1
             end
-
             passwd = ops[:passwd]
             if !passwd
-                passwd = get_password
+                passwd = password_mysql
             end
 
             @backend = BackEndMySQL.new(
@@ -59,20 +58,38 @@ class OneDB
         end
     end
 
-    def get_password()
-        one_auth = ""
-        if ENV['ONE_AUTH'] and !ENV['ONE_AUTH'].empty? and
-            File.file?(ENV['ONE_AUTH'])
-            one_auth = File.read(ENV["ONE_AUTH"])
-        elsif ENV['HOME'] and File.file?(ENV['HOME']+'/.one/one_auth')
-            one_auth = File.read(ENV['HOME']+'/.one/one_auth')
-        elsif File.file?('/var/lib/one/.one/one_auth')
-            one_auth = File.read('/var/lib/one/.one/one_auth')
+    def password_mysql
+        if ENV['ONE_MYSQL_AUTH'] && !ENV['ONE_MYSQL_AUTH'].empty?
+            ENV['ONE_MYSQL_AUTH']
+        elsif ENV['HOME'] && File.file?(ENV['HOME'] + '/.one/mysql_auth')
+            File.read(ENV['HOME'] + '/.one/mysql_auth').delete("\n")
+        elsif File.file?('/var/lib/one/.one/mysql_auth')
+            File.read('/var/lib/one/.one/mysql_auth').delete("\n")
         else
-            raise NO_ONE_AUTH_ERROR
+            config_file = File.open('/var/lib/one/config')
+            found = false
+            credentials = ''
+            until found do
+                line = config_file.gets
+                if line =~ /DB=/
+                    credentials = line
+                    found = true
+                end
+            end
+            credentials = credentials.split(',')
+            passwd = ''
+            found = false
+            i = 0
+            until found do
+                elem = credentials[i]
+                if elem =~ /PASSWD=/
+                    passwd = elem.split('=')[1]
+                    found = true
+                end
+                i += 1
+            end
+            passwd
         end
-        password = one_auth.split(':')[1]
-        return passwd
     end
 
     def backup(bck_file, ops, backend=@backend)
