@@ -66,7 +66,9 @@ class Mapper
         :e2fsck     => 'sudo e2fsck',
         :resize2fs  => 'sudo resize2fs',
         :xfs_growfs => 'sudo xfs_growfs',
-        :chmod_nfs  => 'chmod o+w'
+        :chmod_nfs  => 'chmod o+w',
+        :rbd        => 'sudo rbd --id',
+        :df         => 'sudo df -h'
     }
 
     #---------------------------------------------------------------------------
@@ -399,11 +401,10 @@ class Mapper
     def disk_source(one_vm, disk)
         ds_path = one_vm.ds_path
         ds_id   = one_vm.sysds_id
-
         vm_id   = one_vm.vm_id
         disk_id = disk['DISK_ID']
 
-         "#{ds_path}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
+        "#{ds_path}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
     end
 
     #  Adds path to the partition Hash. This is needed for lsblk version < 2.33
