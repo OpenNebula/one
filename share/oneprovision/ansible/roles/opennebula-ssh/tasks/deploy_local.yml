@@ -1,0 +1,31 @@
+---
+
+- name: Update local known_hosts
+  connection: local
+  become: no
+  known_hosts:
+    name: "{{ inventory_hostname }}"
+    key: "{{ inventory_hostname }} {{ item.type }} {{ item.key }}"
+  when: item.key != ''
+  with_items:
+    - {  type: 'ssh-dss', key: "{{ ansible_ssh_host_key_dss_public | default('') }}" }
+    - {  type: 'ssh-rsa', key: "{{ ansible_ssh_host_key_rsa_public | default('') }}" }
+    - {  type: 'ecdsa-sha2-nistp256', key: "{{ ansible_ssh_host_key_ecdsa_public | default('') }}" }
+    - {  type: 'ssh-ed25519', key: "{{ ansible_ssh_host_key_ed25519_public | default('') }}" }
+
+- name: Update remote authorized_keys
+  authorized_key:
+    user: "oneadmin"
+    key: "{{ lookup('file', '/var/lib/one/.ssh/id_rsa.pub') }}"
+
+- name: Copy local SSH keys / known_hosts
+  copy:
+    src: /var/lib/one/.ssh/{{ item.name }}
+    dest: /var/lib/one/.ssh/{{ item.name }}
+    owner: 9869
+    group: 9869
+    mode: "{{ item.mode }}"
+  with_items:
+    - { name: 'id_rsa',      mode: '0600' }
+    - { name: 'id_rsa.pub',  mode: '0644' }
+    - { name: 'known_hosts', mode: '0644' }

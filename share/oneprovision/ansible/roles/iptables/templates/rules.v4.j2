@@ -1,0 +1,27 @@
+# {{ ansible_managed }}
+*nat
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+{% if iptables_masquerade_enabled %}
+-A POSTROUTING -o {{ iptables_masquerade_interface }} -j MASQUERADE
+{% endif %}
+COMMIT
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+{% if iptables_base_rules_enabled %}
+-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -p icmp -j ACCEPT
+-A INPUT -i lo -j ACCEPT
+{% for service in iptables_base_rules_services %}
+-A INPUT {% if iptables_base_rules_interface %}-i {{ iptables_base_rules_interface }}{% endif %} -p {{ service.protocol }} -m state --state NEW -m {{ service.protocol }} --dport {{ service.port }} -j ACCEPT
+{% endfor %}
+{% if iptables_base_rules_strict %}
+-A INPUT {% if iptables_base_rules_interface %}-i {{ iptables_base_rules_interface }}{% endif %} -j REJECT --reject-with icmp-host-prohibited
+-A FORWARD {% if iptables_base_rules_interface %}-i {{ iptables_base_rules_interface }}{% endif %} -j REJECT --reject-with icmp-host-prohibited
+{% endif %}
+{% endif %}
+COMMIT

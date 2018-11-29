@@ -1,0 +1,37 @@
+---
+
+- name: Validate configuration parameters
+  assert:
+    that:
+      -  "{{ item }} is defined"
+      -  "{{ item }} is not none"
+  with_items:
+    - opennebula_p2p_vxlan_bridge
+    - opennebula_p2p_vxlan_phydev
+    - opennebula_p2p_vxlan_vxlan_vni
+    - opennebula_p2p_vxlan_vxlan_dev
+    - opennebula_p2p_vxlan_vxlan_local_ip
+    - opennebula_p2p_vxlan_remotes
+
+- name: Create configuration
+  template:
+    src: opennebula-p2p-vxlan.j2
+    dest: /etc/default/opennebula-p2p-vxlan
+  notify: 'reload opennebula-p2p-vxlan'
+
+- name: Deploy script
+  copy:
+    src: opennebula-p2p-vxlan
+    dest: /usr/local/sbin/
+    mode: '0755'
+
+- name: Deploy service script
+  copy:
+    src: opennebula-p2p-vxlan.service
+    dest: /etc/systemd/system/
+
+- name: Start service
+  service:
+    name: opennebula-p2p-vxlan
+    state: started
+    enabled: yes

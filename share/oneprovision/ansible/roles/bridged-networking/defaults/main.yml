@@ -1,0 +1,27 @@
+################################################################################
+# Mandatory
+################################################################################
+
+# The bridge that will be created
+bridged_networking_bridge: br0
+
+# Manage configuration for bridge
+bridged_networking_bridge_manage: True
+
+# The network device connected to the bridge
+bridged_networking_iface: eth1
+
+# Manage configuration of interface connected to bridge
+bridged_networking_iface_manage: True
+
+# IP address of the bridge
+bridged_networking_static_ip: NULL
+
+# Netmask of the bridge
+bridged_networking_static_netmask: '255.255.255.0'
+
+# Gateway of the bridge
+bridged_networking_static_gateway: NULL
+
+# Name of interface to take the IP configuration for bridge, if bridged_networking_static_ip not defined
+bridged_networking_ip_iface: eth1

@@ -1,0 +1,11 @@
+---
+
+- name: Check supported platform
+  assert:
+    that: |
+      (ansible_distribution == 'Ubuntu' and ansible_distribution_version == '16.04') or
+      (ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04') or
+      (ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7')
+    msg: "Unsupported target OS"
+
+- include: clean_netconfigs.yml

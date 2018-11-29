@@ -1,0 +1,13 @@
+---
+
+- name: Restart Libvirtd (RedHat)
+  service: name=libvirtd state=restarted enabled=yes
+  when: ansible_os_family == "RedHat"
+
+- name: Restart Libvirtd (Debian)
+  service: name=libvirtd state=restarted enabled=yes
+  when: ansible_distribution == "Debian"
+
+- name: Restart Libvirt-bin (Ubuntu)
+  service: name=libvirt-bin state=restarted enabled=yes
+  when: ansible_distribution == "Ubuntu"

@@ -1,0 +1,50 @@
+{
+  "id": "28e41feb-9f9f-421a-8f00-dcb75dbbb0b3",
+  "name": "First Project",
+  "credit_amount": 0,
+  "created_at": "2015-03-20T16:15:23Z",
+  "updated_at": "2015-10-01T16:52:08Z",
+  "max_devices": {
+    "baremetal_0": null,
+    "baremetal_1": null,
+    "baremetal_3": null
+  },
+  "members": [
+    {
+      "href": "/users/0e338778-447d-48a4-a9fc-a0ffdde2e1d7"
+    },
+    {
+      "href": "/users/0f6c6a41-c9ef-4289-aa16-aa63eacf2c47"
+    }
+  ],
+  "memberships": [
+    {
+      "href": "/memberships/e018e2b0-33b2-44c1-82ed-44f9664d7391"
+    },
+    {
+      "href": "/memberships/2f5d944a-d848-410b-ab36-a58584e5cafe"
+    }
+  ],
+  "invitations": [],
+  "payment_method": null,
+  "devices": [
+    {
+      "href": "/devices/840fd8bb-d4e6-4d30-a051-5848f0047589"
+    },
+    {
+      "href": "/devices/c9ae2725-430c-43d2-b3ee-7914d8de9852"
+    },
+    {
+      "href": "/devices/64669c44-0818-4c12-bfb7-1753404dc932"
+    }
+  ],
+  "ssh_keys": [
+    {
+      "href": "/ssh-keys/a019c04e-5c77-4161-af42-009be135212f"
+    },
+    {
+      "href": "/ssh-keys/f521e117-b21c-465e-9054-81f46641f6e8"
+    }
+  ],
+  "href": "/projects/28e41feb-9f9f-421a-8f00-dcb75dbbb0b3"
+}

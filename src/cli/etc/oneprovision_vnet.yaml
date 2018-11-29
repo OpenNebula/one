@@ -1,0 +1,48 @@
+---
+:ID:
+  :desc: ONE identifier for Virtual Network
+  :size: 4
+
+:USER:
+  :desc: Username of the Virtual Network owner
+  :size: 15
+  :left: true
+
+:GROUP:
+  :desc: Group of the Virtual Network
+  :size: 12
+  :left: true
+
+:NAME:
+  :desc: Name of the Virtual Network
+  :size: 19
+  :left: true
+
+:CLUSTERS:
+  :desc: Cluster IDs
+  :size: 10
+  :left: true
+
+:BRIDGE:
+  :desc: Bridge associated to the Virtual Network
+  :size: 8
+  :left: true
+
+:PROVIDER:
+  :desc: Baremetal provider name
+  :size: 8
+  :left: true
+
+:LEASES:
+  :desc: Number of this Virtual Networks given leases
+  :size: 6
+
+:default:
+- :ID
+- :USER
+- :GROUP
+- :NAME
+- :CLUSTERS
+- :BRIDGE
+- :PROVIDER
+- :LEASES

@@ -1,0 +1,103 @@
+{
+  "projects": [
+    {
+      "id": "28e41feb-9f9f-421a-8f00-dcb75dbbb0b3",
+      "name": "First Project",
+      "credit_amount": 0,
+      "created_at": "2015-03-20T16:15:23Z",
+      "updated_at": "2015-10-01T16:52:08Z",
+      "max_devices": {
+        "baremetal_0": null,
+        "baremetal_1": null,
+        "baremetal_3": null
+      },
+      "members": [
+        {
+          "href": "/users/0e338778-447d-48a4-a9fc-a0ffdde2e1d7"
+        },
+        {
+          "href": "/users/0f6c6a41-c9ef-4289-aa16-aa63eacf2c47"
+        }
+      ],
+      "memberships": [
+        {
+          "href": "/memberships/e018e2b0-33b2-44c1-82ed-44f9664d7391"
+        },
+        {
+          "href": "/memberships/2f5d944a-d848-410b-ab36-a58584e5cafe"
+        }
+      ],
+      "invitations": [],
+      "payment_method": null,
+      "devices": [
+        {
+          "href": "/devices/840fd8bb-d4e6-4d30-a051-5848f0047589"
+        }
+      ],
+      "ssh_keys": [
+        {
+          "href": "/ssh-keys/a019c04e-5c77-4161-af42-009be135212f"
+        }
+      ],
+      "href": "/projects/28e41feb-9f9f-421a-8f00-dcb75dbbb0b3"
+    },
+    {
+      "id": "41f1eae7-f86e-4956-ab5e-58ecb3fc09b2",
+      "name": "Second Project",
+      "credit_amount": 0,
+      "created_at": "2015-03-30T16:23:57Z",
+      "updated_at": "2015-03-30T16:23:57Z",
+      "max_devices": {
+        "baremetal_0": null,
+        "baremetal_1": null,
+        "baremetal_3": null
+      },
+      "members": [
+        {
+          "href": "/users/00673daf-5a30-4458-8beb-00390b5c2d09"
+        }
+      ],
+      "memberships": [
+        {
+          "href": "/memberships/76170731-e2ed-4a4f-9157-66f291216428"
+        }
+      ],
+      "invitations": [],
+      "payment_method": null,
+      "devices": [
+        {
+          "href": "/devices/79877d95-03b4-43ef-85ec-623eb32d3613"
+        },
+        {
+          "href": "/devices/a24e7e3c-5810-4291-bbe6-3d4f2e867cef"
+        },
+        {
+          "href": "/devices/dedb4101-c56f-4e0d-8390-8838cb5d8c0f"
+        }
+      ],
+      "ssh_keys": [
+        {
+          "href": "/ssh-keys/a019c04e-5c77-4161-af42-009be135212f"
+        },
+        {
+          "href": "/ssh-keys/f521e117-b21c-465e-9054-81f46641f6e8"
+        }
+      ],
+      "href": "/projects/41f1eae7-f86e-4956-ab5e-58ecb3fc09b2"
+    }
+  ],
+  "meta": {
+    "first": {
+      "href": "/projects?page=1"
+    },
+    "previous": null,
+    "self": {
+      "href": "/projects?page=1"
+    },
+    "next": null,
+    "last": {
+      "href": "/projects?page=1"
+    },
+    "total": 2
+  }
+}

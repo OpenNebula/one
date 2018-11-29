@@ -1,0 +1,46 @@
+---
+:ID:
+  :desc: ONE identifier for Host
+  :size: 4
+
+:NAME:
+  :desc: Name of the Host
+  :size: 15
+  :left: true
+
+:CLUSTER:
+  :desc: Name of the Cluster
+  :size: 9
+  :left: true
+
+:RVM:
+  :desc: Number of Virtual Machines running
+  :size: 3
+
+:ZVM:
+  :desc: Number of Virtual Machine zombies
+  :size: 3
+
+:PROVIDER:
+  :desc: Baremetal provider name
+  :size: 8
+  :left: true
+
+:VM_MAD:
+  :desc: Virtual Machine driver
+  :size: 8
+  :left: true
+
+:STAT:
+  :desc: Host status
+  :size: 6
+  :left: true
+
+:default:
+- :ID
+- :NAME
+- :CLUSTER
+- :RVM
+- :PROVIDER
+- :VM_MAD
+- :STAT

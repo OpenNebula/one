@@ -44,6 +44,7 @@ COMMANDS=(
     'onemarketapp'      'manages appliances from Marketplaces'
     'onevmgroup'        'manages VM groups'
     'onevntemplate'     'manages Virtual Network Templates'
+    'oneprovision'      'manages OpenNebula provisions'
 
     'oneflow'           'Manage oneFlow Services'
     'oneflow-template'  'Manage oneFlow Templates'

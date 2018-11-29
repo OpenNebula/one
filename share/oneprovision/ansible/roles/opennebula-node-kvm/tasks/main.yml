@@ -1,0 +1,16 @@
+---
+
+- include: centos.yml
+  when: ansible_os_family == "RedHat"
+
+- include: debian.yml
+  when: ansible_os_family == "Debian"
+
+- include: kvm.yml
+  when: opennebula_node_kvm_manage_kvm == True
+
+- include: libvirt.yml
+
+- name: "create datastore for ONE_LOCATION"
+  file: path={{ one_location }}/var/datastores owner=oneadmin group=oneadmin state=directory
+  when: one_location is defined

@@ -1,0 +1,76 @@
+---
+:ID:
+  :desc: ONE identifier for the Datastore
+  :size: 4
+
+:USER:
+  :desc: Username of the Datastore owner
+  :size: 10
+  :left: true
+
+:GROUP:
+  :desc: Group of the Datastore
+  :size: 10
+  :left: true
+
+:NAME:
+  :desc: Name of the Datastore
+  :size: 13
+  :left: true
+
+:SIZE:
+  :desc: Total Datastore size
+  :size: 10
+
+:AVAIL:
+  :desc: Free Datastore size (%)
+  :size: 5
+  :left: true
+
+:CLUSTERS:
+  :desc: Cluster IDs
+  :size: 12
+  :left: true
+
+:IMAGES:
+  :desc: Number of Images
+  :size: 6
+
+:TYPE:
+  :desc: Datastore type
+  :size: 4
+  :left: true
+
+:DS:
+  :desc: Datastore driver
+  :size: 7
+  :left: true
+
+:PROVIDER:
+  :desc: Baremetal provider name
+  :size: 8
+  :left: true
+
+:TM:
+  :desc: Transfer driver
+  :size: 7
+  :left: true
+
+:STAT:
+  :desc: State of the Datastore
+  :size: 4
+  :left: true
+
+:default:
+- :ID
+- :NAME
+- :SIZE
+- :AVAIL
+- :CLUSTERS
+- :IMAGES
+- :TYPE
+- :DS
+- :PROVIDER
+- :TM
+- :STAT
+

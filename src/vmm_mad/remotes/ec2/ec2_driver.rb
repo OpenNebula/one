@@ -307,9 +307,7 @@ class EC2Driver
         }
 
         begin
-            if !xmlhost["TEMPLATE/PROVISION"]
-                conn_opts = OpenNebula.decrypt(conn_opts, token)
-            end
+            conn_opts = OpenNebula.decrypt(conn_opts, token)
 
             conn_opts[:region] = xmlhost["#{@tmplBase}/REGION_NAME"]
         rescue

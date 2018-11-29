@@ -1,0 +1,28 @@
+---
+:ID:
+  :desc: Cluster identifier
+  :size: 5
+
+:NAME:
+  :desc: Name of the Cluster
+  :size: 25
+  :left: true
+
+:HOSTS:
+  :desc: Number of Hosts
+  :size: 5
+
+:VNETS:
+  :desc: Number of Networks
+  :size: 5
+
+:DATASTORES:
+  :desc: Number of Datastores
+  :size: 10
+
+:default:
+- :ID
+- :NAME
+- :HOSTS
+- :VNETS
+- :DATASTORES

@@ -1,0 +1,13 @@
+---
+
+# Manage SSH server configuration
+opennebula_ssh_manage_sshd: True
+
+# SSH server option for Password Authentication
+opennebula_ssh_sshd_passwordauthentication: 'no'
+
+# SSH server option for PermitRootLogin
+opennebula_ssh_sshd_permitrootlogin: 'without-password'
+
+# Deploy local oneadmin's SSH key to remote host
+opennebula_ssh_deploy_local: True

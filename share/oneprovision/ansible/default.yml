@@ -1,0 +1,16 @@
+---
+
+- hosts: all
+  gather_facts: false
+  roles:
+    - python
+
+- hosts: nodes
+  roles:
+    - ddc
+    - opennebula-repository
+    - opennebula-node-kvm
+    - opennebula-ssh
+    - tuntap
+    - bridged-networking
+    - iptables
