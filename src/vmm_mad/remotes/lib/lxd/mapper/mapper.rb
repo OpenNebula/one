@@ -182,15 +182,23 @@ class Mapper
         OpenNebula.log_info "Unmapping disk at #{directory}"
 
         sys_parts  = lsblk('')
-        partitions = []
-        device     = ''
 
         return false if !sys_parts
 
+        partitions = []
+
+        df = "#{COMMANDS[:df]} #{directory} | grep /dev"
+        rc, device, err = Command.execute(df, false)
+        device = device.chomp.split(' ')[0]
+
+        if rc != 0
+            OpenNebula.log_error("unmap: #{err}")
+            return
+        end
+
         sys_parts.each { |d|
-            if d['mountpoint'] == directory
+            if d['path'] == device
                 partitions = [d]
-                device     = d['path']
                 break
             end
 
