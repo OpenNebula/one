@@ -92,6 +92,7 @@
                   <xs:sequence>
                     <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
                     <xs:element name="BRIDGE_TYPE" type="xs:string"/>
+                    <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
                     <xs:element name="VCENTER_INSTANCE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="VCENTER_NET_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="VCENTER_PORTGROUP_TYPE" type="xs:string" minOccurs="0" maxOccurs="1"/>
@@ -199,6 +200,7 @@
             <xs:sequence>
               <xs:element name="ALLOW_ORPHANS" type="xs:string"/>
               <xs:element name="DISK_ID" type="xs:integer"/>
+              <xs:element name="NEXT_SNAPSHOT" type="xs:integer"/>
               <xs:element name="SNAPSHOT" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                   <xs:sequence>
