@@ -1,0 +1,539 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION=ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    REMOTES_LOCATION="/var/lib/one/remotes"
+    ANSIBLE_LOCATION="/usr/share/one/oneprovision/ansible"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    REMOTES_LOCATION=ONE_LOCATION+"/var/remotes"
+    ANSIBLE_LOCATION=ONE_LOCATION+"/usr/share/oneprovision/ansible"
+end
+
+$: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+"/cli"
+
+$PING_TIMEOUT  = 20
+$PING_RETRIES  = 10
+$MAX_RETRIES   = 3
+$RUN_MODE      = :interactive
+$FAIL_CHOICE   = :quit
+$CLEANUP       = false
+$THREADS       = 3
+
+require 'command_parser'
+require 'one_helper'
+require 'one_helper/oneprovision_helpers/common_helper'
+require 'one_helper/oneprovision_helpers/host_helper'
+require 'one_helper/oneprovision_helpers/ansible_helper'
+require 'one_helper/oneprovision_helpers/datastore_helper'
+require 'one_helper/oneprovision_helpers/provision_helper'
+require 'one_helper/oneprovision_helpers/cluster_helper'
+require 'one_helper/oneprovision_helpers/vnet_helper'
+require 'tempfile'
+require 'base64'
+
+CommandParser::CmdParser.new(ARGV) do
+    usage "`oneprovision` <command> [<file>] [<hostid>] [<args>] [<options>]"
+    version OpenNebulaHelper::ONE_VERSION
+
+    $common_helper = CommonHelper.new
+    $host_helper = OneProvisionHostHelper.new
+    $ansible_helper = OneProvisionAnsibleHelper.new
+    $provision_helper = OneProvisionProvisionHelper.new
+    $cluster_helper = OneProvisionClusterHelper.new
+    $datastore_helper = OneProvisionDatastoreHelper.new
+    $vnet_helper = OneProvisionVnetHelper.new
+
+    $mutex = Mutex.new
+
+    before_proc do
+        $common_helper.set_client(options)
+        $host_helper.set_client(options)
+        $ansible_helper.set_client(options)
+        $provision_helper.set_client(options)
+        $cluster_helper.set_client(options)
+        $datastore_helper.set_client(options)
+        $vnet_helper.set_client(options)
+    end
+
+    ########################################################################
+    # Global Options
+    ########################################################################
+
+    VERBOSE = {
+        :name   => "verbose",
+        :short  => "-d",
+        :large  => "--verbose",
+        :description => "Set verbose logging mode",
+    }
+
+    DEBUG = {
+        :name   => "debug",
+        :short  => "-D",
+        :large  => "--debug" ,
+        :description => "Set debug logging mode",
+        :format => String
+    }
+
+    BATCH = {
+        :name   => "batch",
+        :short  => "-b",
+        :large  => "--batch",
+        :description => "Run in non-interactive mode (no questions)",
+        :format => String,
+    }
+
+    FAIL_RETRY = {
+        :name   => "fail_retry",
+        :large  => "--fail-retry number",
+        :description => "Set batch failover mode to number of retries",
+        :format => Integer
+    }
+
+    FAIL_CLEANUP = {
+        :name   => "fail_cleanup",
+        :large  => "--fail-cleanup",
+        :description => "Set batch failover mode to clean up and quit",
+    }
+
+    FAIL_SKIP = {
+        :name   => "fail_skip",
+        :large  => "--fail-skip",
+        :description => "Set batch failover mode to skip failing part",
+    }
+
+    FAIL_QUIT = {
+        :name   => "fail_quit",
+        :large  => "--fail-quit",
+        :description => "Set batch failover mode to quit (default)",
+    }
+
+    FORCE = {
+        :name   => "force",
+        :short  => "-F",
+        :large  => "--force",
+        :description => "Force configure to execute",
+        :format => String
+    }
+
+    HARD = {
+        :name   => "hard",
+        :short  => "-H",
+        :large  => "--hard",
+        :description => "Reset the host",
+        :format => String
+    }
+
+    PING_TIMEOUT = {
+        :name   => "ping_timeout",
+        :large  => "--ping-timeout seconds",
+        :description => "Set timeout for ping (default: #{$PING_TIMEOUT} secs)",
+        :format => Integer
+    }
+
+    PING_RETRIES = {
+        :name   => "ping_retries",
+        :large  => "--ping-retries number",
+        :description => "Set retries for ping (default: #{$PING_RETRIES})",
+        :format => Integer
+    }
+
+    THREADS = {
+        :name  => "threads",
+        :short => "-t threads",
+        :large => "--threads threads",
+        :description => "Set threads for create (default: #{$THREADS})",
+        :format => Integer
+    }
+
+    DELETE_ALL = {
+        :name  => "delete_all",
+        :large => "--delete-all",
+        :description => "Delete all vms and images first, then delete the resources."
+    }
+
+    INCREMENTAL = {
+        :name  => "incremental",
+        :large => "--incremental",
+        :description => "Configure just new hosts, default is configure the whole provision."
+    }
+
+    DUMP = {
+        :name  => "dump",
+        :large => "--dump",
+        :description => "Dump the configuration file result."
+    }
+
+    MODES = CommandParser::OPTIONS - [ CommandParser::VERBOSE ] + [
+        VERBOSE, DEBUG, BATCH,
+        FAIL_RETRY, FAIL_CLEANUP, FAIL_SKIP, FAIL_QUIT ]
+
+    CREATE_OPTIONS = [ THREADS, MODES, PING_TIMEOUT, PING_RETRIES]
+
+    ########################################################################
+    # Formatters for arguments
+    ########################################################################
+
+    set :format, :hostid, CommonHelper.to_id_desc do |arg|
+        $host_helper.to_id(arg)
+    end
+
+    set :format, :hostid_list, CommonHelper.list_to_id_desc do |arg|
+        $host_helper.list_to_id(arg)
+    end
+
+    ########################################################################
+    # Provision Commands
+    ########################################################################
+
+    create_desc = <<-EOT.unindent
+        Provision a new cluster via bare metal provider
+    EOT
+
+    command :create, create_desc, :config, :options=>CREATE_OPTIONS do
+        $common_helper.get_mode(options)
+
+        $provision_helper.create(args[0], options)
+
+        0
+    end
+
+    ###
+
+    validate_desc = <<-EOT.unindent
+        Validate configuration file
+    EOT
+
+    command :validate, validate_desc, [:config_file], :options=>DUMP do
+        $common_helper.validate_configuration(args[0], options)
+
+        0
+    end
+
+    ###
+
+    provision_list_desc = <<-EOT.unindent
+        List all avaliable provisions
+    EOT
+
+    #TODO add xml option
+    command :list, provision_list_desc, :options=>CommandParser::OPTIONS+CLIHelper::OPTIONS do
+        columns = ['clusters', 'hosts', 'networks', 'datastores']
+
+        $provision_helper.format_pool(options).show($provision_helper.get_list(columns, true), options)
+
+        0
+    end
+
+    ###
+
+    provision_show_desc = <<-EOT.unindent
+        Show provision details
+    EOT
+
+    command :show, provision_show_desc, [:provisionid], :options=>CommandParser::OPTIONS do
+        $provision_helper.show(args[0], options)
+
+        0
+    end
+
+    ###
+
+    provision_configure_desc = <<-EOT.unindent
+        Run configuration in all provision hosts
+    EOT
+
+    command :configure, provision_configure_desc, :provisionid, :options=>[MODES,FORCE] do
+        $common_helper.get_mode(options)
+
+        $provision_helper.configure(args[0], options)
+
+        0
+    end
+
+    ###
+
+=begin
+    provision_update_desc = <<-EOT
+        Update the provision, adding more resources
+    EOT
+
+    command :update, provision_update_desc, :provisionid, :config, :options=>[CREATE_OPTIONS, INCREMENTAL] do
+        $common_helper.get_mode(options)
+
+        $provision_helper.update(args[0], args[1], options)
+
+        0
+    end
+=end
+
+    ###
+
+    provision_delete_desc = <<-EOT
+        Deletes and unprovisions all the resources
+    EOT
+
+    command :delete, provision_delete_desc, :provisionid, :options=>[MODES,THREADS,DELETE_ALL] do
+        $common_helper.get_mode(options)
+
+        provision = Provision.new(args[0])
+        provision.refresh
+
+        provision.delete((options.has_key? :delete_all))
+
+        0
+    end
+
+    ########################################################################
+    # Cluster Commands
+    ########################################################################
+
+    cluster_list_desc = <<-EOT
+        List all availables clusters
+    EOT
+
+    command [:cluster, :list], cluster_list_desc, :options=>CommandParser::OPTIONS+CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS + [OpenNebulaHelper::DESCRIBE] do
+        columns = ['hosts', 'networks', 'datastores']
+
+        $cluster_helper.format_pool(options).show($provision_helper.get_list(columns, false), options)
+
+        0
+    end
+
+    ###
+
+    cluster_delete_desc = <<-EOT
+        Deletes and unprovisions the given cluster
+    EOT
+
+    command [:cluster, :delete], cluster_delete_desc, [:range,:clusterid_list], :options=>[MODES,FORCE] do
+        $common_helper.get_mode(options)
+
+        $cluster_helper.perform_actions(args[0],options,"deleted") do |cluster|
+            rc = cluster.delete
+
+            if OpenNebula.is_error?(rc)
+                $common_helper.fail(rc.message)
+            end
+        end
+
+        0
+    end
+
+    ########################################################################
+    # Host Commands
+    ########################################################################
+
+=begin
+    host_create_desc = <<-EOT.unindent
+        Create a single host
+    EOT
+
+    command [:host, :create], create_desc, :config, :options=>CREATE_OPTIONS do
+        $common_helper.get_mode(options)
+
+        $provision_helper.create(args[0], options)
+
+        0
+    end
+=end
+
+    ###
+
+    host_resume_desc = <<-EOT.unindent
+        Resume the host
+    EOT
+
+    command [:host, :resume], host_resume_desc, [:range,:hostid_list], :options=>MODES do
+        $common_helper.get_mode(options)
+
+        $host_helper.perform_actions(args[0],options,"enabled") do |host|
+            $host_helper.resume_host(host)
+        end
+    end
+
+    ###
+
+    host_poweroff_desc = <<-EOT.unindent
+        Power off the host
+    EOT
+
+    command [:host, :poweroff], host_poweroff_desc, [:range,:hostid_list], :options=>MODES do
+        $common_helper.get_mode(options)
+
+        $host_helper.perform_actions(args[0],options,"disabled") do |host|
+            $host_helper.poweroff_host(host)
+        end
+    end
+
+    ###
+
+    host_reboot_desc = <<-EOT.unindent
+        Reboot the host
+    EOT
+
+    command [:host, :reboot], host_reboot_desc, [:range,:hostid_list], :options=>[MODES, HARD] do
+        $common_helper.get_mode(options)
+
+        $host_helper.perform_actions(args[0],options,"enabled") do |host|
+            $host_helper.reboot_host(host, options)
+        end
+    end
+
+    ###
+
+    host_delete_desc = <<-EOT.unindent
+        Unprovisions and deletes the given Host
+    EOT
+
+    command [:host, :delete], host_delete_desc, [:range,:hostid_list], :options=>MODES do
+        $common_helper.get_mode(options)
+
+        $host_helper.perform_actions(args[0],options,"deleted") do |host|
+            host.info
+
+            begin
+                $host_helper.delete_host(host)
+            rescue => e
+                $common_helper.fail("Delete failed on exception: #{e.to_s}")
+            end
+        end
+    end
+
+    ###
+
+    host_configure_desc = <<-EOT.unindent
+        Run configuration on the host
+    EOT
+
+    command [:host, :configure], host_configure_desc, [:range,:hostid_list], :options=>[MODES,FORCE] do
+        $common_helper.get_mode(options)
+
+        $host_helper.perform_actions(args[0],options,"configured") do |host|
+            $host_helper.configure_host([host], options)
+        end
+    end
+
+    ###
+
+    host_ssh_desc = <<-EOT.unindent
+        Establish SSH conection to the host
+    EOT
+
+    command [:host, :ssh], host_ssh_desc, :hostid, [:command, nil], :options=>CommandParser::OPTIONS do
+        $host_helper.perform_action(args[0],options,"") do |host|
+            $host_helper.ssh_host(host, args)
+        end
+    end
+
+    ###
+
+    host_list_desc = <<-EOT.unindent
+        Lists bare metal Hosts in the pool
+    EOT
+
+    command [:host, :list], host_list_desc, :options=>CommandParser::OPTIONS+CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS + [OpenNebulaHelper::DESCRIBE] do
+        if !options.has_key? :filter
+            options.merge!(filter: ["PROVIDER!=-"])
+        end
+
+        $host_helper.list_pool(options)
+    end
+
+    ###
+
+    host_top_desc = <<-EOT.unindent
+        Lists bare metal Hosts continuously
+    EOT
+
+    command [:host, :top], host_top_desc, :options=>CommandParser::OPTIONS+CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS do
+        if !options.has_key? :filter
+            options.merge!(filter: ["PROVIDER!=-"])
+        end
+
+        $host_helper.list_pool(options, true)
+    end
+
+    ########################################################################
+    # Datastores Commands
+    ########################################################################
+
+    datastore_list_desc = <<-EOT
+        List all availables datastores
+    EOT
+
+    command [:datastore, :list], datastore_list_desc, :options=>CommandParser::OPTIONS+CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS + [OpenNebulaHelper::DESCRIBE] do
+        $datastore_helper.format_pool(options).show($provision_helper.get_provision_resources(['datastores']), options)
+
+        0
+    end
+
+    ###
+
+    datastore_delete_desc = <<-EOT
+        Deletes and unprovisions the given datastore
+    EOT
+
+    command [:datastore, :delete], datastore_delete_desc, [:range,:datastoreid_list], :options=>[MODES,FORCE] do
+        $common_helper.get_mode(options)
+
+        $datastore_helper.perform_actions(args[0],options,"deleted") do |datastore|
+            $logger.info("Deleting datastore #{datastore['ID']}")
+
+            datastore.delete
+        end
+
+        0
+    end
+
+    ########################################################################
+    # Vnets Commands
+    ########################################################################
+
+    vnet_list_desc = <<-EOT
+        List all availables virtual networks
+    EOT
+
+    command [:vnet, :list], vnet_list_desc, :options=>CommandParser::OPTIONS+CLIHelper::OPTIONS+OpenNebulaHelper::OPTIONS + [OpenNebulaHelper::DESCRIBE] do
+        $vnet_helper.format_pool(options).show($provision_helper.get_provision_resources(['networks']), options)
+
+        0
+    end
+
+    ###
+
+    vnet_delete_desc = <<-EOT
+        Deletes and unprovisions the given virtual network
+    EOT
+
+    command [:vnet, :delete], vnet_delete_desc, [:range,:vnetid_list], :options=>[MODES,FORCE] do
+        $common_helper.get_mode(options)
+
+        $vnet_helper.perform_actions(args[0],options,"deleted") do |vnet|
+            $logger.info("Deleting vnet #{vnet['ID']}")
+
+            vnet.delete
+        end
+
+        0
+    end
+end

@@ -1,0 +1,35 @@
+---
+
+- name: Install apt-transport-https
+  apt:
+    name: apt-transport-https
+    state: present
+    update_cache: yes
+
+- name: Add repository key
+  apt_key:
+    url: https://downloads.opennebula.org/repo/repo.key
+    validate_certs: no
+    state: present
+  register: apt_result
+  until: apt_result | succeeded
+  retries: 3
+  delay: 10
+
+- name: Add OpenNebula repository (Ubuntu)
+  apt_repository:
+    state: present
+    filename: opennebula
+    repo: 'deb {{ opennebula_repository_base  }}/{{ ansible_distribution }}/{{ ansible_distribution_version }} stable opennebula'
+    validate_certs: no
+    update_cache: yes
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Add OpenNebula repository (Debian)
+  apt_repository:
+    state: present
+    filename: opennebula
+    repo: 'deb {{ opennebula_repository_base  }}/{{ ansible_distribution }}/{{ ansible_distribution_major_version }} stable opennebula'
+    validate_certs: no
+    update_cache: yes
+  when: ansible_distribution == 'Debian'

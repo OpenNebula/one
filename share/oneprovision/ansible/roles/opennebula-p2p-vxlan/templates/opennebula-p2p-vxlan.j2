@@ -1,0 +1,7 @@
+{{ ansible_managed | comment }}
+ONE_P2P_BRIDGE={{ opennebula_p2p_vxlan_bridge | quote }}
+ONE_P2P_PHYDEV={{ opennebula_p2p_vxlan_phydev | quote }}
+ONE_P2P_VXLAN_VNI={{ opennebula_p2p_vxlan_vxlan_vni | quote }}
+ONE_P2P_VXLAN_DEV={{ opennebula_p2p_vxlan_vxlan_dev | quote }}
+ONE_P2P_VXLAN_LOCAL_IP={{ opennebula_p2p_vxlan_vxlan_local_ip | quote }}
+ONE_P2P_REMOTES={{ opennebula_p2p_vxlan_remotes | join(' ') | quote }}

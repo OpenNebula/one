@@ -1,0 +1,150 @@
+---
+
+#TODO: IPv6
+- name: Manage live iptables rule - masquerade
+  iptables:
+    state: "{% if iptables_masquerade_enabled %}present{% else %}absent{% endif %}"
+    table: nat
+    chain: POSTROUTING
+    out_interface: "{{ iptables_masquerade_interface }}"
+    jump: MASQUERADE
+
+- block:
+  # default IPv4 rules
+  - name: Live iptables rule - accept related/established
+    iptables:
+      action: insert
+      table: filter
+      chain: INPUT
+      match: state
+      ctstate: RELATED,ESTABLISHED
+      jump: ACCEPT
+      rule_num: 1
+  - name: Live iptables rule - accept icmp
+    iptables:
+      action: insert
+      table: filter
+      chain: INPUT
+      protocol: icmp
+      jump: ACCEPT
+      rule_num: 2
+  - name: Live iptables rule - accept all on lo
+    iptables:
+      action: insert
+      table: filter
+      chain: INPUT
+      in_interface: lo
+      jump: ACCEPT
+      rule_num: 3
+  - name: Live iptables rules for services
+    iptables:
+      action: insert
+      table: filter
+      chain: INPUT
+      protocol: "{{ item.protocol | default('tcp') }}"
+      match: state
+      ctstate: NEW
+      destination_port: "{{ item.port | mandatory }}"
+      in_interface: "{{ iptables_base_rules_interface }}"
+      jump: ACCEPT
+      rule_num: 4
+    with_items:
+      - "{{ iptables_base_rules_services }}"
+  - name: Live iptables rule - reject all the rest in INPUT chain
+    iptables:
+      state: "{% if iptables_base_rules_strict %}present{% else %}absent{% endif %}"
+      action: append
+      table: filter
+      chain: INPUT
+      reject_with: icmp-host-prohibited
+      in_interface: "{{ iptables_base_rules_interface }}"
+      jump: REJECT
+  - name: Live iptables rule - reject all the rest in FORWARD chain
+    iptables:
+      state: "{% if iptables_base_rules_strict %}present{% else %}absent{% endif %}"
+      action: append
+      table: filter
+      chain: FORWARD
+      reject_with: icmp-host-prohibited
+      in_interface: "{{ iptables_base_rules_interface }}"
+      jump: REJECT
+
+  # default IPv6 rules
+  - name: Live ip6tables rule - accept related/established
+    iptables:
+      action: insert
+      ip_version: ipv6
+      table: filter
+      chain: INPUT
+      match: state
+      ctstate: RELATED,ESTABLISHED
+      jump: ACCEPT
+      rule_num: 1
+  - name: Live ip6tables rule - accept ipv6-icmp
+    iptables:
+      action: insert
+      ip_version: ipv6
+      table: filter
+      chain: INPUT
+      protocol: ipv6-icmp
+      jump: ACCEPT
+      rule_num: 2
+  - name: Live ip6tables rule - accept all on lo
+    iptables:
+      action: insert
+      ip_version: ipv6
+      table: filter
+      chain: INPUT
+      in_interface: lo
+      jump: ACCEPT
+      rule_num: 3
+  - name: Live ip6tables rules for services
+    iptables:
+      action: insert
+      ip_version: ipv6
+      table: filter
+      chain: INPUT
+      protocol: "{{ item.protocol | default('tcp') }}"
+      match: state
+      ctstate: NEW
+      destination_port: "{{ item.port | mandatory }}"
+      in_interface: "{{ iptables_base_rules_interface }}"
+      jump: ACCEPT
+      rule_num: 4
+    with_items:
+      - "{{ iptables_base_rules_services }}"
+  - name: Live ip6tables rule - accept DHCPv6
+    iptables:
+      action: insert
+      ip_version: ipv6
+      table: filter
+      chain: INPUT
+      protocol: udp
+      match: state
+      ctstate: NEW
+      destination: fe80::/64
+      destination_port: 546
+      in_interface: "{{ iptables_base_rules_interface }}"
+      jump: ACCEPT
+      rule_num: 5
+  - name: Live ip6tables rule - reject all the rest in INPUT chain
+    iptables:
+      state: "{% if iptables_base_rules_strict %}present{% else %}absent{% endif %}"
+      action: append
+      ip_version: ipv6
+      table: filter
+      chain: INPUT
+      reject_with: icmp6-adm-prohibited
+      in_interface: "{{ iptables_base_rules_interface }}"
+      jump: REJECT
+  - name: Live ip6tables rule - reject all the rest in FORWARD chain
+    iptables:
+      state: "{% if iptables_base_rules_strict %}present{% else %}absent{% endif %}"
+      action: append
+      ip_version: ipv6
+      table: filter
+      chain: FORWARD
+      reject_with: icmp6-adm-prohibited
+      in_interface: "{{ iptables_base_rules_interface }}"
+      jump: REJECT
+  when: iptables_base_rules_enabled

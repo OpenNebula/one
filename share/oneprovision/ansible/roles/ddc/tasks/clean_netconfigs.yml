@@ -1,0 +1,26 @@
+---
+
+#TODO: fix just once
+- name: Disable obsolete network configuration
+  shell: |
+    ip link >/dev/null || exit 1
+
+    for FILE in ifcfg-*; do
+      # skip interfaces disabled "on boot"
+      if grep -q -i '^ONBOOT=["'\'']no'; then
+        continue
+      fi
+
+      # get interface name from configuration or filename
+      IFACE=$(awk -F= 'toupper($1) ~ /(DEVICE|NAME)/ { gsub("['\''\"]", "", $2); print $2; exit }' ${FILE})
+      IFACE=${IFACE:-${FILE##ifcfg-}}
+
+      # if interface does not exist, disable configuration
+      if ! ip link show ${IFACE} >/dev/null 2>&1; then
+        mv ${FILE} disabled-${FILE}
+      fi
+    done
+  args:
+    executable: /bin/bash
+    chdir: /etc/sysconfig/network-scripts
+  when: ansible_os_family == "RedHat"

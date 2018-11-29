@@ -1,0 +1,11 @@
+---
+
+- name: Configure TUN/TAP (Debian like)
+  blockinfile:
+    dest: /etc/network/interfaces
+    block: |
+      auto {{ tuntap_name }}
+      iface {{ tuntap_name }} inet manual
+          pre-up ip tuntap add {{ tuntap_name }} mode {{ tuntap_mode }}
+          post-down ip link del dev {{ tuntap_name }}
+    marker: "# {mark} ANSIBLE MANAGED BLOCK {{ tuntap_name }}"

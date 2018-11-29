@@ -1,0 +1,17 @@
+---
+
+###############################################################################
+# Valid defaults
+###############################################################################
+
+# OpenNebula repository version
+opennebula_repository_version: '5.6'
+
+# Repository of the OpenNebula packages
+opennebula_repository_base: 'https://downloads.opennebula.org/repo/{{ opennebula_repository_version }}'
+
+# Enable gpg check for the packages
+opennebula_repository_gpgcheck: yes
+
+# Enable gpg check for the repos (RHEL/CentOS only)
+opennebula_repository_repo_gpgcheck: yes

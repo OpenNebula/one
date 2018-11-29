@@ -1,0 +1,20 @@
+# {{ ansible_managed }}
+TYPE=Bridge
+DEVICE={{ bridged_networking_bridge }}
+ONBOOT=yes
+BOOTPROTO=static
+NM_CONTOLLED=no
+DELAY=0
+{% if bridged_networking_static_ip %}
+IPADDR={{ bridged_networking_static_ip }}
+{% if bridged_networking_static_netmask %}NETMASK={{ bridged_networking_static_netmask }}{% endif %}
+{% if bridged_networking_static_gateway %}GATEWAY={{ bridged_networking_static_gateway }}{% endif %}
+{% elif bridged_networking_ip_iface and bridged_networking_ip_iface.replace(':', '_') in ansible_interfaces and 'ipv4' in hostvars[inventory_hostname]["ansible_"+bridged_networking_ip_iface.replace(':', '_') ] %}
+
+# IP configuration taken from '{{ bridged_networking_ip_iface }}'
+IPADDR={{ hostvars[inventory_hostname]["ansible_"+bridged_networking_ip_iface.replace(':', '_') ].ipv4.address }}
+NETMASK={{ hostvars[inventory_hostname]["ansible_"+bridged_networking_ip_iface.replace(':', '_') ].ipv4.netmask }}
+{% if ansible_default_ipv4.interface == bridged_networking_ip_iface.replace(':', '_') %}
+GATEWAY={{ ansible_default_ipv4.gateway }}
+{% endif %}
+{% endif %}

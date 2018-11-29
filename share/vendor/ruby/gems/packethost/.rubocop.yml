@@ -1,0 +1,18 @@
+AllCops:
+  Include:
+    - '**/Rakefile'
+    - lib/**/*
+
+Documentation:
+  Enabled: false
+
+LineLength:
+  Enabled: false
+
+Style/PredicateName:
+  NamePrefix:
+    - is_
+    - have_
+
+Style/MethodMissing:
+  Enabled: false
