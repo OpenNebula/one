@@ -66,7 +66,8 @@ class Mapper
         :e2fsck     => 'sudo e2fsck',
         :resize2fs  => 'sudo resize2fs',
         :xfs_growfs => 'sudo xfs_growfs',
-        :chmod_nfs  => 'chmod o+w'
+        :chmod_nfs  => 'chmod o+w',
+        :rbd        => 'sudo rbd --id'
     }
 
     #---------------------------------------------------------------------------
@@ -182,28 +183,35 @@ class Mapper
         OpenNebula.log_info "Unmapping disk at #{directory}"
 
         sys_parts  = lsblk('')
-        partitions = []
-        device     = ''
 
         return false if !sys_parts
 
+        partitions = []
+        device = ''
+
+        ds = one_vm.lxdrc[:datastore_location] + "/#{one_vm.sysds_id}"
+        real_ds = File.readlink(ds) if File.symlink?(ds)
+
+        real_path = directory
+        real_path = real_ds + directory.split(ds)[-1] if directory.include?(ds)
+
         sys_parts.each { |d|
-            if d['mountpoint'] == directory
+            if d['mountpoint'] == real_path
                 partitions = [d]
                 device     = d['path']
                 break
             end
 
             d['children'].each { |c|
-                if c['mountpoint'] == directory
+                if c['mountpoint'] == real_path
                     partitions = d['children']
                     device     = d['path']
                     break
                 end
-            } if d['children']
-
-            break if !partitions.empty?
-        }
+                } if d['children']
+                
+                break if !partitions.empty?
+            }
 
         partitions.delete_if { |p| !p['mountpoint'] }
 
@@ -213,7 +221,7 @@ class Mapper
 
         umount(partitions)
 
-        do_unmap(device, one_vm, disk, directory)
+        do_unmap(device, one_vm, disk, real_path)
 
         return true
     end
@@ -368,7 +376,7 @@ class Mapper
                     partitions = [partitions]
                 end
 
-                partitions.delete_if { |p|  
+                partitions.delete_if { |p|
                     p['fstype'].casecmp?('swap') if p['fstype']
                 }
             end
@@ -391,11 +399,10 @@ class Mapper
     def disk_source(one_vm, disk)
         ds_path = one_vm.ds_path
         ds_id   = one_vm.sysds_id
-
         vm_id   = one_vm.vm_id
         disk_id = disk['DISK_ID']
 
-         "#{ds_path}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
+        "#{ds_path}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
     end
 
     #  Adds path to the partition Hash. This is needed for lsblk version < 2.33
