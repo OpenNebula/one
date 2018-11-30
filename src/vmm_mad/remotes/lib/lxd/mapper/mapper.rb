@@ -67,8 +67,7 @@ class Mapper
         :resize2fs  => 'sudo resize2fs',
         :xfs_growfs => 'sudo xfs_growfs',
         :chmod_nfs  => 'chmod o+w',
-        :rbd        => 'sudo rbd --id',
-        :df         => 'sudo df -h'
+        :rbd        => 'sudo rbd --id'
     }
 
     #---------------------------------------------------------------------------
@@ -188,32 +187,31 @@ class Mapper
         return false if !sys_parts
 
         partitions = []
+        device = ''
 
-        df = "#{COMMANDS[:df]} #{directory} | grep /dev"
-        rc, device, err = Command.execute(df, false)
-        device = device.chomp.split(' ')[0]
+        ds = one_vm.lxdrc[:datastore_location] + "/#{one_vm.sysds_id}"
+        real_ds = File.readlink(ds) if File.symlink?(ds)
 
-        if rc != 0
-            OpenNebula.log_error("unmap: #{err}")
-            return
-        end
+        real_path = directory
+        real_path = real_ds + directory.split(ds)[-1] if directory.include?(ds)
 
         sys_parts.each { |d|
-            if d['path'] == device
+            if d['mountpoint'] == real_path
                 partitions = [d]
+                device     = d['path']
                 break
             end
 
             d['children'].each { |c|
-                if c['mountpoint'] == directory
+                if c['mountpoint'] == real_path
                     partitions = d['children']
                     device     = d['path']
                     break
                 end
-            } if d['children']
-
-            break if !partitions.empty?
-        }
+                } if d['children']
+                
+                break if !partitions.empty?
+            }
 
         partitions.delete_if { |p| !p['mountpoint'] }
 
@@ -223,7 +221,7 @@ class Mapper
 
         umount(partitions)
 
-        do_unmap(device, one_vm, disk, directory)
+        do_unmap(device, one_vm, disk, real_path)
 
         return true
     end
