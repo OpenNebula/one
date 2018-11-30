@@ -28,17 +28,23 @@ define(function(require) {
   var Locale = require("utils/locale");
   var Tips = require("utils/tips");
   var Utils = require('tabs/vnets-tab/utils/common');
-  var WizardFields = require("utils/wizard-fields");
-  var TemplateUtils = require("utils/template-utils");
-  var Config = require("sunstone-config");
-  var UniqueId = require("utils/unique-id");
-
+  var ArTab = require("tabs/vnets-tab/utils/ar-tab");
+  var Config = require('sunstone-config');
+  var Ar = require("../panels/ar");
+  var SecurityGroupsTable = require('tabs/secgroups-tab/datatable');
+  var TemplateARInfo = require('hbs!tabs/vnets-tab/panels/ar/arInfo');
+  var OpenNebulaNetworkTemplate = require('opennebula/vntemplate');
   /*
     CONSTANTS
    */
 
   var FORM_PANEL_ID = require("./instantiate/formPanelId");
+  var SG_TABLE_ID = FORM_PANEL_ID + "SecurityGroupsTable";
   var TAB_ID = require("../tabId");
+
+  var INSTANTIATE_ADD_AR_DIALOG_ID = require('../dialogs/instantiate-add-ar/dialogId');
+  var INSTANTIATE_UPDATE_AR_DIALOG_ID = require('../dialogs/instantiate-update-ar/dialogId');
+  var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
 
   /*
     CONSTRUCTOR
@@ -82,6 +88,7 @@ define(function(require) {
   }
 
   function _setup(context) {
+    this.arTemplates = [];
   }
 
   function _submitWizard(context) {
@@ -96,17 +103,15 @@ define(function(require) {
     var vnet_name = $("#vnet_name", context).val();
 
     $.each(this.selected_nodes, function(index, template_id) {
-      var extra_info = {}
+      var extra_info = {};
+      extra_info["template"] = {};
 
-      // var tmp_json = WizardFields.retrieve($(".vntemplate_user_inputs" + template_id, context));
-      // $.each(tmp_json, function(key, value){
-      //   if (Array.isArray(value)){
-      //     delete tmp_json[key];
-      //     tmp_json[key] = value.join(",");
-      //   }
-      // });
+      if ( !Array.isArray(that.arTemplates[template_id].AR) ) {
+        that.arTemplates[template_id].AR = [that.arTemplates[template_id].AR]
+      }
 
-      extra_info["template"] = tmp_json;
+      extra_info["template"]["AR"] = that.arTemplates[template_id].AR;
+
       extra_info["vnet_name"] = vnet_name.replace(/%i/gi, i); // replace wildcard
 
       Sunstone.runAction("VNTemplate.instantiate", [template_id], extra_info);
@@ -117,6 +122,8 @@ define(function(require) {
 
   function _setTemplateIds(context, selected_nodes) {
     var that = this;
+
+    this.arTemplates = [];
 
     this.selected_nodes = selected_nodes;
     this.template_objects = [];
@@ -151,56 +158,17 @@ define(function(require) {
         success: function (request, template_json) {
           that.template_objects.push(template_json);
 
-          var processedARList = [];
-
-          if (template_json.VNTEMPLATE.TEMPLATE.AR != undefined) {
-            template_json.VNTEMPLATE.TEMPLATE.AR_POOL = {};
-            template_json.VNTEMPLATE.TEMPLATE.AR_POOL.AR = template_json.VNTEMPLATE.TEMPLATE.AR;
-            var arList = Utils.getARList(template_json.VNTEMPLATE.TEMPLATE);
-
-            for (var i=0; i<arList.length; i++){
-              var ar = arList[i];
-              var id = i;
-              ar.AR_ID = i;
-
-              var type = (ar.TYPE ? ar.TYPE : "--");
-
-              var start = "";
-
-              if(ar.TYPE == "IP4" || ar.TYPE == "IP4_6"){
-                start = (ar.IP ? ar.IP : "--");
-              } else {
-                start = (ar.MAC ? ar.MAC : "--");
-              }
-
-              var prefix = "";
-
-              if(ar.GLOBAL_PREFIX && ar.ULA_PREFIX){
-                prefix += ar.GLOBAL_PREFIX + "<br>" + ar.ULA_PREFIX;
-              } else if (ar.GLOBAL_PREFIX){
-                prefix += ar.GLOBAL_PREFIX;
-              } else if (ar.ULA_PREFIX){
-                prefix += ar.ULA_PREFIX;
-              } else {
-                prefix = "--";
-              }
-
-              processedARList.push({
-                "id" : id,
-                "type" : type,
-                "start" : start,
-                "prefixHTML" : prefix
-              });
-            }
-          }
+          var ar = new Ar(template_json);
 
           templatesContext.append(
             TemplateRowHTML(
               {
                 element  : template_json.VMTEMPLATE,
-                'arList' : processedARList
+                "arHTML" : ar.html()
               })
           );
+
+          _setup_ar(context, template_json.VNTEMPLATE, that.arTemplates);
 
           idsDone += 1;
           if (idsLength == idsDone){
@@ -224,4 +192,265 @@ define(function(require) {
     return false;
   }
 
+  function _setup_ar(context, element, arTemplates) {
+    var that = this;
+    that.element = element;
+
+    var arTemplates = arTemplates;
+
+    arTemplates[element.ID] = element.TEMPLATE;
+
+    var ar_list_dataTable = $("#ar_list_datatable", context).dataTable({
+      "bSortClasses" : false,
+      "bDeferRender": true,
+      "aoColumnDefs": [
+        //{ "bSortable": false, "aTargets": [3,4] },
+      ]
+    });
+
+    // TODO: should be a method for sunstone-config?
+    ar_list_dataTable.fnSort( [ [0,config['user_config']['table_order']] ] );
+
+    ar_list_dataTable.off("click", 'tbody tr');
+    ar_list_dataTable.on("click", 'tbody tr', function(e){
+      var aData = ar_list_dataTable.fnGetData(this);
+      if (!aData) return true;
+      var id = aData[0];
+      if (!id) return true;
+
+      if ( $("#ar_show_info .collapse", context).length == 0 ) {
+
+        if(that.last_selected_row_ar) {
+          that.last_selected_row_ar.children().each(function(){
+            $(this).removeClass('markrowchecked');
+          });
+        }
+
+        that.last_selected_row_ar = $(this);
+        $(this).children().each(function(){
+          $(this).addClass('markrowchecked');
+        });
+
+        $("#update_ar_button", context).attr("ar_id", id);
+        $("#update_ar_button", context).prop("disabled", false);
+
+        $("#rm_ar_button", context).attr("ar_id", id).removeAttr('disabled');
+
+        $("#ar_show_info", context).html(_arHTML(that.element, id));
+
+        _arSetup($("#ar_show_info", context), that.element, id);
+
+        return false;
+      } else {
+        $("#ar_show_info", context).html("");
+      }
+
+      $("#ar_show_info .collapse", context).length
+    });
+
+
+    if (Config.isTabActionEnabled("vnets-templates-tab", "VNTemplate.remove_ar")) {
+      context.off("click", 'button#rm_ar_button');
+      context.on("click", 'button#rm_ar_button', function(){
+        var ar_id = $(this).attr('ar_id');
+
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
+          //header :
+          headerTabId: TAB_ID,
+          body : Locale.tr("This will delete all the addresses in this range"),
+          //question :
+          submit : function(){
+            $('#ar_list_datatable', context).DataTable().row('tr[ar="'+ar_id+'"]').remove().draw();
+            $("#ar_show_info", context).html("");
+            return false;
+          }
+        });
+
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
+
+        return false;
+      });
+    }
+
+    if (Config.isTabActionEnabled("vnets-templates-tab", "VNTemplate.add_ar")) {
+      context.off("click", 'button#add_ar_button');
+      context.on("click", 'button#add_ar_button', function(){
+        var id = that.element.ID;
+
+        Sunstone.getDialog(INSTANTIATE_ADD_AR_DIALOG_ID).setParams({
+          'id': id,
+          'element': that.element,
+          'table': "ar_list_datatable",
+          'context': context,
+          'tableObject': ar_list_dataTable
+        });
+
+        Sunstone.getDialog(INSTANTIATE_ADD_AR_DIALOG_ID).show();
+
+        return false;
+      });
+    }
+
+    if (Config.isTabActionEnabled("vnets-templates-tab", "VNTemplate.update_ar")) {
+      context.off("click", 'button#update_ar_button');
+      context.on("click", 'button#update_ar_button', function(){
+        var id = that.element.ID;
+        var ar_id = $(this).attr('ar_id');
+
+        var element = that.element;
+
+        OpenNebulaNetworkTemplate.show({
+          data : {
+            id: id
+          },
+          timeout: true,
+          success: function (request, vn){
+            var vntmpl_info = vn.VNTEMPLATE;
+
+            var ar = getAR(vntmpl_info, ar_id);
+
+            if(ar != undefined){
+              Sunstone.getDialog(INSTANTIATE_UPDATE_AR_DIALOG_ID).reset();
+
+              Sunstone.getDialog(INSTANTIATE_UPDATE_AR_DIALOG_ID).setParams({
+                'vntmplId': id,
+                'arId': ar_id,
+                'element': element,
+                'arData': $.extend({}, ar),
+                'table': "ar_list_datatable",
+                'context': context
+              });
+
+              Sunstone.getDialog(INSTANTIATE_UPDATE_AR_DIALOG_ID).show();
+
+            } else {
+              Notifier.notifyError(Locale.tr("The Address Range was not found"));
+            }
+          },
+          error: Notifier.onError
+        });
+
+        return false;
+      });
+    }
+
+    return false;
+  }
+
+  function _arSetup(section, vntmpl_info, ar_id){
+    var ar = getAR(vntmpl_info, ar_id);
+
+    if(ar == undefined){
+        return;
+    }
+
+    if (this.secgroupTable != undefined){
+      this.secgroupTable.initialize();
+      this.secgroupTable.refreshResourceTableSelect();
+    }
+  }
+
+  function _arHTML(vntmpl_info, arId){
+    var ar = getAR(vntmpl_info, arId);
+
+    if(ar == undefined){
+        return "";
+    }
+
+    var first_mac       = ar.MAC;
+    var last_mac        = ar.MAC_END;
+    var first_ip        = ar.IP;
+    var last_ip         = ar.IP_END;
+    var first_ip6_static= ar.IP6;
+    var last_ip6_static = ar.IP6_END;
+    var first_ip6_global= ar.IP6_GLOBAL;
+    var last_ip6_global = ar.IP6_GLOBAL_END;
+    var first_ip6_ula   = ar.IP6_ULA;
+    var last_ip6_ula    = ar.IP6_ULA_END;
+
+    var arKnownAttr = [
+      {key: Locale.tr("Type"),         value: ar.TYPE},
+      {key: Locale.tr("Global prefix"),value: ar.GLOBAL_PREFIX},
+      {key: Locale.tr("ULA prefix"),   value: ar.ULA_PREFIX},
+      {key: Locale.tr("Size"),         value: ar.SIZE},
+      {key: Locale.tr("IPAM driver"),  value: ar.IPAM_MAD},
+    ];
+
+    delete ar["MAC_END"];
+    delete ar["IP_END"];
+    delete ar["IP6_ULA"];
+    delete ar["IP6_ULA_END"];
+    delete ar["IP6"];
+    delete ar["IP6_END"];
+    delete ar["IP6_GLOBAL"];
+    delete ar["IP6_GLOBAL_END"];
+    delete ar["AR_ID"];
+    delete ar["IPAM_MAD"];
+    delete ar["TYPE"];
+    delete ar["MAC"];
+    delete ar["IP"];
+    delete ar["GLOBAL_PREFIX"];
+    delete ar["ULA_PREFIX"];
+    delete ar["SIZE"];
+    delete ar["LEASES"];
+
+    this.secgroupTable = undefined;
+    var secgroupTableHTML = undefined;
+
+    if (ar.SECURITY_GROUPS != undefined &&
+        ar.SECURITY_GROUPS.length != 0){
+
+      var secgroups = ar.SECURITY_GROUPS.split(",");
+
+      var opts = {
+        info: true,
+        select: true,
+        selectOptions: {
+          read_only: true,
+          fixed_ids: secgroups
+        }
+      };
+
+      this.secgroupTable = new SecurityGroupsTable(SG_TABLE_ID, opts);
+      secgroupTableHTML = this.secgroupTable.dataTableHTML;
+    }
+
+    delete ar["SECURITY_GROUPS"];
+
+    var arExtraAttr = ar;
+
+    return TemplateARInfo({
+      'arId': arId,
+      'arKnownAttr': arKnownAttr,
+      'arExtraAttr': arExtraAttr,
+      'first_mac': first_mac,
+      'last_mac': last_mac,
+      'first_ip': first_ip,
+      'last_ip': last_ip,
+      'first_ip6_static': first_ip6_static,
+      'last_ip6_static': last_ip6_static,
+      'first_ip6_global': first_ip6_global,
+      'last_ip6_global': last_ip6_global,
+      'first_ip6_ula': first_ip6_ula,
+      'last_ip6_ula': last_ip6_ula,
+      'secgroupTableHTML': secgroupTableHTML
+    });
+  }
+
+  function getAR(vntmpl_info, arId){
+    vntmpl_info.TEMPLATE.AR_POOL = {};
+    vntmpl_info.TEMPLATE.AR_POOL.AR = vntmpl_info.TEMPLATE.AR;
+    var ar_list = Utils.getARList(vntmpl_info.TEMPLATE);
+    var ar = undefined;
+
+    for (var i=0; i<ar_list.length; i++){
+      if (arId == i){
+        ar = $.extend({}, ar_list[i]);
+        break;
+      }
+    }
+
+    return ar;
+  }
 });

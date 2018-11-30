@@ -73,7 +73,6 @@ define(function(require) {
 
     that.arTab.setup(context, "update_ar");
 
-
     $('#update_ar_form', context)
       .on('forminvalid.zf.abide', function(ev, frm) {
         Notifier.notifyError(Locale.tr("One or more required fields are missing."));
@@ -98,7 +97,8 @@ define(function(require) {
       })
       .on("submit", function(ev) {
         ev.preventDefault();
-      });
+      }
+    );
   }
 
   function _onShow(context) {
