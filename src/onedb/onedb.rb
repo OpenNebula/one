@@ -43,7 +43,6 @@ class OneDB
             end
 
             passwd = ops[:passwd]
-            passwd = nil
             if !passwd
                 passwd = password_mysql
             end
