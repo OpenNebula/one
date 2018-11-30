@@ -19,6 +19,7 @@
 #include "Nebula.h"
 #include "VirtualMachine.h"
 #include "Request.h"
+#include "VirtualMachineTemplate.h"
 /* -------------------------------------------------------------------------- */
 
 static void vrouter_prefix(VectorAttribute* nic, const string& attr)
@@ -46,8 +47,15 @@ static void prepare_nic_vm(VectorAttribute * nic)
         vrouter_prefix(nic, "IP6_LINK");
         vrouter_prefix(nic, "IP6_ULA");
         vrouter_prefix(nic, "IP6_GLOBAL");
+        vrouter_prefix(nic, "VLAN_ID");
 
-        // TODO: remove all other attrs, such as AR, BRIDGE, etc?
+        std::set<std::string> restricted = VirtualMachineTemplate::get_element("NIC");
+        std::set<std::string>::iterator it;
+
+        for (it = restricted.begin(); it != restricted.end(); ++it)
+        {
+            nic->remove(*it);
+        }
     }
 }
 

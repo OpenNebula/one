@@ -76,6 +76,11 @@ public:
         Template::parse_restricted(ra, restricted);
     }
 
+    const static std::set<std::string>& get_element(string name)
+    {
+        return restricted.at(name);
+    }
+
 private:
     /**
      *  Restricted attribute list for VirtualMachineTemplates
