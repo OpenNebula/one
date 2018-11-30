@@ -54,18 +54,6 @@ public:
         return is_flag("PERSISTENT");
     }
 
-    bool is_managed() const
-    {
-        bool one_managed;
-
-        if (vector_value("OPENNEBULA_MANAGED", one_managed) == -1)
-        {
-            one_managed = true;
-        }
-
-        return one_managed;
-    }
-
     bool allow_orphans() const
     {
         bool orphans;
