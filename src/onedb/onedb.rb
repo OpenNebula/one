@@ -15,7 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'onedb_backend'
-require 'pry-byebug'
+
 # If set to true, extra verbose time log will be printed for each migrator
 LOG_TIME = false
 
@@ -62,12 +62,10 @@ class OneDB
 
     def password_mysql
         if ENV['ONE_MYSQL_AUTH'] && !ENV['ONE_MYSQL_AUTH'].empty?
-            binding.pry
             credentials = File.read(ENV['ONE_MYSQL_AUTH'])
             credentials = credentials.split(':')[1].delete("\n")
             return credentials
         elsif ENV['HOME'] && File.file?(ENV['HOME'] + '/.one/mysql_auth')
-            binding.pry
             credentials = File.read(ENV['HOME'] + '/.one/mysql_auth')
             credentials = credentials.split(':')[1].delete("\n")
             return credentials
