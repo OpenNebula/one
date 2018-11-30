@@ -26,6 +26,8 @@ define(function(require) {
   var _dialogs = [
     require('./vnets-templates-tab/dialogs/add-ar'),
     require('./vnets-templates-tab/dialogs/update-ar'),
+    require('./vnets-templates-tab/dialogs/instantiate-update-ar'),
+    require('./vnets-templates-tab/dialogs/instantiate-add-ar')
   ];
 
   var _panels = [
@@ -46,7 +48,7 @@ define(function(require) {
 
   var VNetsTemplatesTab = {
     tabId: TAB_ID,
-    title: Locale.tr("VNet Templates"),
+    title: Locale.tr("Network Templates"),
     icon: 'fa-network-wired',
     tabClass: "subTab",
     parentTab: "network-top-tab",
