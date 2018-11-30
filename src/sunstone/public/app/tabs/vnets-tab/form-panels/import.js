@@ -115,7 +115,6 @@ define(function(require) {
     $(context).off("click", "#import_vcenter_networks");
     $(context).on("click", "#import_vcenter_networks", function(){
       that.vCenterNetworks.import(context);
-      $("#vnets-tabrefresh_buttons button").click();
       return false;
     });
 

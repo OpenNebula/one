@@ -130,10 +130,6 @@ define(function(require) {
       return _config['user_config']["table_order"];
     },
 
-    "autorefreshInfo": function(tabName) {
-      return _config['view']['tabs'][tabName]['autorefresh_info'] || 10000;
-    },
-
     "provision": {
       "dashboard": {
         "isEnabled": function(widget) {
