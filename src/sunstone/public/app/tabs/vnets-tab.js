@@ -44,7 +44,8 @@ define(function(require) {
 
   var _formPanels = [
     require('./vnets-tab/form-panels/create'),
-    require('./vnets-tab/form-panels/import')
+    require('./vnets-tab/form-panels/import'),
+    require('./vnets-tab/form-panels/instantiate')
   ];
 
   var VNetsTab = {

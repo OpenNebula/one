@@ -769,6 +769,7 @@ tabs:
         actions:
             Network.refresh: true
             Network.create_dialog: true
+            Network.instantiate_dialog: true
             Network.import_dialog: true
             Network.update_dialog: true
             Network.reserve_dialog: true
