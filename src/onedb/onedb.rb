@@ -15,7 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'onedb_backend'
-
+require 'pry-byebug'
 # If set to true, extra verbose time log will be printed for each migrator
 LOG_TIME = false
 
@@ -41,7 +41,9 @@ class OneDB
                 STDERR.puts "  $ sudo gem install mysql2"
                 exit -1
             end
+
             passwd = ops[:passwd]
+            passwd = nil
             if !passwd
                 passwd = password_mysql
             end
@@ -60,36 +62,43 @@ class OneDB
 
     def password_mysql
         if ENV['ONE_MYSQL_AUTH'] && !ENV['ONE_MYSQL_AUTH'].empty?
-            ENV['ONE_MYSQL_AUTH']
+            binding.pry
+            credentials = File.read(ENV['ONE_MYSQL_AUTH'])
+            credentials = credentials.split(':')[1].delete("\n")
+            return credentials
         elsif ENV['HOME'] && File.file?(ENV['HOME'] + '/.one/mysql_auth')
-            File.read(ENV['HOME'] + '/.one/mysql_auth').delete("\n")
-        elsif File.file?('/var/lib/one/.one/mysql_auth')
-            File.read('/var/lib/one/.one/mysql_auth').delete("\n")
-        else
-            config_file = File.open('/var/lib/one/config')
-            found = false
-            credentials = ''
-            until found do
-                line = config_file.gets
-                if line =~ /DB=/
-                    credentials = line
-                    found = true
-                end
-            end
-            credentials = credentials.split(',')
-            passwd = ''
-            found = false
-            i = 0
-            until found do
-                elem = credentials[i]
-                if elem =~ /PASSWD=/
-                    passwd = elem.split('=')[1]
-                    found = true
-                end
-                i += 1
-            end
-            passwd
+            binding.pry
+            credentials = File.read(ENV['HOME'] + '/.one/mysql_auth')
+            credentials = credentials.split(':')[1].delete("\n")
+            return credentials
         end
+
+        credentials_file = File.open('/var/lib/one/config')
+        found = false
+        credentials = ''
+
+        until found do
+            line = credentials_file.gets
+            if line =~ /DB=/
+                credentials = line
+                found = true
+            end
+        end
+
+        credentials = credentials.split(',')
+        passwd = ''
+        found = false
+        i = 0
+
+        until found do
+            elem = credentials[i]
+            if elem =~ /PASSWD=/
+                passwd = elem.split('=')[1]
+                found = true
+            end
+            i += 1
+        end
+        passwd
     end
 
     def backup(bck_file, ops, backend=@backend)
