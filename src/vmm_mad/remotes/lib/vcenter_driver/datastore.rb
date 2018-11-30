@@ -106,12 +106,8 @@ class Storage
         image = VIHelper.find_image_by("SOURCE", OpenNebula::ImagePool, image_path, ds_id, ipool)
 
         if image.nil?
-            # Generate a name with the reference
-            begin
-                image_name = "#{file_name} - #{ds_name} [#{type[:object]} #{type[:id]}]"
-            rescue
-                image_name = "#{file_name} - #{ds_name}"
-            end
+            key = "#{file_name}#{ds_name}#{image_path}"
+            image_name = VCenterDriver::VIHelper.one_name(OpenNebula::ImagePool, file_name, key, ipool)
 
             #Set template
             one_image[:template] << "NAME=\"#{image_name}\"\n"
