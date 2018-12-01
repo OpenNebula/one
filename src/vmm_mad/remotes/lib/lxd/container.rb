@@ -392,8 +392,6 @@ class Container
 
             ds = "#{ds_path}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
 
-            Command.execute("#{Mapper::COMMANDS[:chmod_nfs]} #{ds}", false)
-
             _rc, out, _err = Command.execute("#{Mapper::COMMANDS[:file]} #{ds}", false)
 
             case out

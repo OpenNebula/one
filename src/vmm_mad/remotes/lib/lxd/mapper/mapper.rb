@@ -57,7 +57,7 @@ class Mapper
         :mount      => 'sudo mount',
         :umount     => 'sudo umount',
         :kpartx     => 'sudo kpartx',
-        :nbd        => 'sudo qemu-nbd',
+        :nbd        => 'sudo -u root -g oneadmin qemu-nbd',
         :su_mkdir   => 'sudo mkdir -p',
         :mkdir      => 'mkdir -p',
         :cat        => 'sudo cat',
@@ -66,7 +66,6 @@ class Mapper
         :e2fsck     => 'sudo e2fsck',
         :resize2fs  => 'sudo resize2fs',
         :xfs_growfs => 'sudo xfs_growfs',
-        :chmod_nfs  => 'chmod o+w',
         :rbd        => 'sudo rbd --id'
     }
 
