@@ -51,6 +51,7 @@ module KVM
         :dumpxml    => 'virsh --connect LIBVIRT_URI --readonly dumpxml',
         :domifstat  => 'virsh --connect LIBVIRT_URI --readonly domifstat',
         :domblkstat => 'virsh --connect LIBVIRT_URI --readonly domblkstat',
+        :domstats   => 'virsh --connect LIBVIRT_URI --readonly domstats',
         :top        => 'top -b -d2 -n 2 -p ',
         'LIBVIRT_URI' => 'qemu:///system'
     }
@@ -80,13 +81,13 @@ module KVM
         cpu = get_cpu_info({one_vm => vm})
 
         resident_mem = psinfo[5].to_i
-        swap_mem     = get_swap_usage(vm[:pid]).to_i
+        max_mem      = dominfo['Max memory'].split(/\s+/).first.to_i
 
         values=Hash.new
 
         values[:state]  = get_state(dominfo['State'], vm[:reason])
         values[:cpu]    = cpu[vm[:pid]] if cpu[vm[:pid]]
-        values[:memory] = resident_mem + swap_mem
+        values[:memory] = [resident_mem, max_mem].max
 
         xml = dump_xml(one_vm)
 
@@ -99,6 +100,7 @@ module KVM
     #
     # @return [Hash, nil] Hash with the VM information or nil in case of error
     def self.get_all_vm_info
+        t1=Time.now
         vms_info = Hash.new
         vms      = Hash.new
 
@@ -128,6 +130,8 @@ module KVM
                 info[:pid]     = psinfo[1]
                 info[:reason]  = dom_state_reason(vm)
 
+                #info = {:dominfo=>{"Id"=>"81", "Name"=>"one-80", "UUID"=>"9044e7ac-2c36-4e89-a48c-a7e9a561cf2a", "OS Type"=>"hvm", "State"=>"running", "CPU(s)"=>"1", "CPU time"=>"9.2s", "Max memory"=>"65536 KiB", "Used memory"=>"65536 KiB", "Persistent"=>"no", "Autostart"=>"disable", "Managed save"=>"no", "Security model"=>"none", "Security DOI"=>"0"}, :psinfo=>["oneadmin", "23667", "0.0", "0.4", "1096504", "144740", "?", "Sl", "Nov27", "0:09", "/usr/bin/qemu-system-x86_64", "-name", "guest=one-80,debug-threads=on", "-S", "-object", "secret,id=masterKey0,format=raw,file=/var/lib/libvirt/qemu/domain-81-one-80/master-key.aes", "-machine", "pc-i440fx-bionic,accel=kvm,usb=off,dump-guest-core=off", "-m", "64", "-realtime", "mlock=off", "-smp", "1,sockets=1,cores=1,threads=1", "-uuid", "9044e7ac-2c36-4e89-a48c-a7e9a561cf2a", "-no-user-config", "-nodefaults", "-chardev", "socket,id=charmonitor,path=/var/lib/libvirt/qemu/domain-81-one-80/monitor.sock,server,nowait", "-mon", "chardev=charmonitor,id=monitor,mode=control", "-rtc", "base=utc", "-no-shutdown", "-boot", "strict=on", "-device", "piix3-usb-uhci,id=usb,bus=pci.0,addr=0x1.0x2", "-drive", "file=/var/lib/one//datastores/0/80/disk.0,format=qcow2,if=none,id=drive-virtio-disk0,cache=none", "-device", "virtio-blk-pci,scsi=off,bus=pci.0,addr=0x3,drive=drive-virtio-disk0,id=virtio-disk0,bootindex=1", "-drive", "file=/var/lib/one//datastores/0/80/disk.1,format=raw,if=none,id=drive-ide0-0-0,readonly=on", "-device", "ide-cd,bus=ide.0,unit=0,drive=drive-ide0-0-0,id=ide0-0-0", "-vnc", "0.0.0.0:80", "-device", "cirrus-vga,id=video0,bus=pci.0,addr=0x2", "-device", "virtio-balloon-pci,id=balloon0,bus=pci.0,addr=0x4", "-msg", "timestamp=on"], :name=>"one-80", :pid=>"23667", :reason=>"booted"}
+
                 vms[vm]=info
             end
         end
@@ -139,13 +143,13 @@ module KVM
             dominfo = vm[:dominfo]
 
             resident_mem = ps_data[5].to_i
-            swap_mem     = get_swap_usage(vm[:pid]).to_i
+            max_mem      = dominfo['Max memory'].split(/\s+/).first.to_i
 
             values = Hash.new
 
             values[:state]  = get_state(dominfo['State'], vm[:reason])
             values[:cpu]    = cpu[vm[:pid]] if cpu[vm[:pid]]
-            values[:memory] = resident_mem + swap_mem
+            values[:memory] = [resident_mem, max_mem].max
 
             xml = dump_xml(name)
 
@@ -157,8 +161,7 @@ module KVM
             end
 
             if (values[:state] == 'a') && (vm[:reason] != 'migrating')
-                values.merge!(get_interface_statistics(name, xml))
-                values.merge!(get_diskio_statistics(name, xml))
+                values.merge!(get_io_statistics(name, xml))
             end
 
             vms_info[vm[:name]] = values
@@ -241,14 +244,6 @@ module KVM
     def self.process_info(uuid)
         ps=`ps auxwww | grep -- '-uuid #{uuid}' | grep -v grep`
         ps.split(/\s+/)
-    end
-
-    # Gets the swap allocation of given process
-    #   @param pid [String] process id
-    #   @return [Integer] of swap allocation of given process
-    def self.get_swap_usage(pid)
-        swap=`cat /proc/#{pid}/status 2>/dev/null | grep VmSwap`
-        swap.split()[1] || 0
     end
 
     # Gets the info of a domain by its id
@@ -364,6 +359,7 @@ module KVM
 
     def self.get_diskio_statistics(vmid, text = nil)
         disks=get_disk_names(vmid, text)
+        puts "disk = #{disks}"
 
         if disks && !disks.empty?
             values={}
@@ -395,6 +391,32 @@ module KVM
             {}
         end
     end
+
+    def self.get_io_statistics(vmid, text = nil)
+        #disks=get_disk_names(vmid, text)
+        #puts "disk = #{disks}"
+        vm_stats=`#{virsh(:domstats)} #{vmid}`
+
+        #if disks && !disks.empty?
+        values={}
+        values[:netrx] = 0
+        values[:nettx] = 0
+        values[:diskrdbytes]=0
+        values[:diskwrbytes]=0
+        values[:diskrdiops]=0
+        values[:diskwriops]=0
+
+        vm_stats.scan(/rx.bytes=(\d*)/).each { |value| values[:netrx]+=value[0].to_i }
+        vm_stats.scan(/tx.bytes=(\d*)/).each { |value| values[:nettx]+=value[0].to_i }
+        vm_stats.scan(/rd.bytes=(\d*)/).each { |value| values[:diskrdbytes]+=value[0].to_i }
+        vm_stats.scan(/wr.bytes=(\d*)/).each { |value| values[:diskwrbytes]+=value[0].to_i }
+        vm_stats.scan(/rd.reqs=(\d*)/).each { |value| values[:diskrdiops]+=value[0].to_i }
+        vm_stats.scan(/wr.reqs=(\d*)/).each { |value| values[:diskwriops]+=value[0].to_i }
+
+        values
+    end
+
+
 
     # Translate libvirt state to Opennebula monitor state
     #  @param state [String] libvirt state
