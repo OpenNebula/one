@@ -53,10 +53,9 @@ source_ds = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, source_ds_id
 source_ds_ref = source_ds['TEMPLATE/VCENTER_DS_REF']
 
 # Generate target path
-target_path = "#{ds_image_dir}/#{id}/one-#{id}.vmdk"
+target_path = "#{ds_image_dir}/#{id}/one-#{id}"
 
 begin
-
     vi_client = VCenterDriver::VIClient.new_from_datastore(source_ds_id)
 
     ds = VCenterDriver::Datastore.new_from_ref(source_ds_ref, vi_client)
@@ -64,6 +63,10 @@ begin
     target_ds_vc = VCenterDriver::Datastore.new_from_ref(target_ds_ref, vi_client)
 
     target_ds_name = target_ds_vc['name']
+
+    ext = File.extname(src_path)
+    ext = '.vmdk' if ext.empty?
+    target_path << ext
 
     puts ds.copy_virtual_disk(src_path, target_ds_vc, target_path)
 
