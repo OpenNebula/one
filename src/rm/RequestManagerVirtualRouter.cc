@@ -184,6 +184,7 @@ void VirtualRouterAttachNic::request_execute(
     VirtualRouterPool*  vrpool = static_cast<VirtualRouterPool*>(pool);
     VirtualRouter *     vr;
     VectorAttribute*    nic;
+    VectorAttribute*    nic_bck;
 
     VirtualMachineTemplate  tmpl;
     PoolObjectAuth          vr_perms;
@@ -256,6 +257,11 @@ void VirtualRouterAttachNic::request_execute(
 
     nic = vr->attach_nic(&tmpl, att.resp_msg);
 
+    if ( nic != 0 )
+    {
+        nic_bck = nic->clone();
+    }
+
     set<int> vms = vr->get_vms();
 
     vrpool->update(vr);
@@ -279,17 +285,21 @@ void VirtualRouterAttachNic::request_execute(
     {
         VirtualMachineTemplate tmpl;
 
-        tmpl.set(nic->clone());
+        tmpl.set(nic_bck->clone());
 
         ErrorCode ec = vm_attach_nic.request_execute(*vmid, tmpl, att);
 
         if (ec != SUCCESS) //TODO: manage individual attach error, do rollback?
         {
+            delete nic_bck;
+
             failure_response(ACTION, att);
 
             return;
         }
     }
+
+    delete nic_bck;
 
     success_response(vrid, att);
 }
