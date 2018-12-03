@@ -78,11 +78,43 @@ public:
 
     string& to_xml_short(string& xml) const;
 
+    /**
+     *  Get restricted attributes for NIC
+     */
+    static void restricted_nic(std::set<std::string>& rs)
+    {
+        get_restricted("NIC", rs);
+    }
+
+    /**
+     *  Get restricted attributes for DISK
+     */
+    static void restricted_disk(std::set<std::string>& rs)
+    {
+        get_restricted("DISK", rs);
+    }
+
 private:
     /**
      *  Restricted attribute list for VirtualMachineTemplates
      */
     static std::map<std::string, std::set<std::string> > restricted;
+
+    /**
+     *  @param rs set of restricted attributes for a key
+     *  @param name key in the restricted map
+     */
+    static void get_restricted(const std::string& name, std::set<std::string>& rs)
+    {
+        std::map<std::string, std::set<std::string> >::iterator it;
+
+        it = restricted.find(name);
+
+        if ( it != restricted.end())
+        {
+            rs = it->second;
+        }
+    }
 };
 
 /* -------------------------------------------------------------------------- */
