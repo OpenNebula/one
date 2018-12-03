@@ -65,7 +65,8 @@ func (group *Group) Delete() error {
 
 // Info retrieves information for the group.
 func (group *Group) Info() error {
-	_, err := client.Call("one.group.info", group.ID)
+	response, err := client.Call("one.group.info", group.ID)
+	group.body = response.Body()
 	return err
 }
 
