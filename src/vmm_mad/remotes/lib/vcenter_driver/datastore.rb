@@ -351,22 +351,27 @@ class Datastore < Storage
         end
 
         copy_params = {
-            :sourceName       => "[#{source_ds_name}] #{src_path}",
-            :sourceDatacenter => get_dc.item,
-            :destName         => "[#{target_ds_name}] #{target_path}"
+            :sourceName        => "[#{source_ds_name}] #{src_path}",
+            :sourceDatacenter  => get_dc.item
         }
 
-        get_vdm.CopyVirtualDisk_Task(copy_params).wait_for_completion
+        if File.extname(src_path) == '.vmdk'
+            copy_params[:destName] = "[#{target_ds_name}] #{target_path}"
+            get_vdm.CopyVirtualDisk_Task(copy_params).wait_for_completion
 
-        if new_size
-            resize_spec = {
-                :name => "[#{target_ds_name}] #{target_path}",
-                :datacenter => target_ds.get_dc.item,
-                :newCapacityKb => new_size,
-                :eagerZero => false
-            }
+            if new_size
+                resize_spec = {
+                    :name => "[#{target_ds_name}] #{target_path}",
+                    :datacenter => target_ds.get_dc.item,
+                    :newCapacityKb => new_size,
+                    :eagerZero => false
+                }
 
-            get_vdm.ExtendVirtualDisk_Task(resize_spec).wait_for_completion
+                get_vdm.ExtendVirtualDisk_Task(resize_spec).wait_for_completion
+            end
+        else
+            copy_params[:destinationName] = "[#{target_ds_name}] #{target_path}"
+            get_fm.CopyDatastoreFile_Task(copy_params)
         end
 
         target_path
