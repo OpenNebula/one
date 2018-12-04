@@ -72,6 +72,7 @@ class VirtualMachine < VCenterDriver::Template
             @id      = id
             @one_res = one_res
             @vc_res  = vc_res
+
         end
 
         def id
@@ -201,7 +202,9 @@ class VirtualMachine < VCenterDriver::Template
         end
 
         def is_cd?
-            !(@one_res["CLONE"].nil? || @one_res["CLONE"] == "YES")
+            raise @error_message unless exists?
+
+            @vc_res[:type] == 'CDROM'
         end
 
         def config(action)
@@ -245,6 +248,14 @@ class VirtualMachine < VCenterDriver::Template
 
         def get_size()
             @size if @size
+        end
+
+        def boot_dev()
+            if is_cd?
+                RbVmomi::VIM.VirtualMachineBootOptionsBootableCdromDevice()
+            else
+                RbVmomi::VIM.VirtualMachineBootOptionsBootableDiskDevice({deviceKey: device.key})
+            end
         end
 
         def set_size(size)
@@ -311,10 +322,11 @@ class VirtualMachine < VCenterDriver::Template
         end
 
         @vi_client = vi_client
-        @vm_id = one_id
-        @locking = true
-        @vm_info = nil
-        @disks = {}
+        @vm_id     = one_id
+        @locking   = true
+        @vm_info   = nil
+        @free_ide  = []
+        @disks     = {}
     end
 
     ############################################################################
@@ -825,13 +837,18 @@ class VirtualMachine < VCenterDriver::Template
     end
 
     def disks_each(condition)
-        i = 0
+        res = []
+        i   = 0
         disks.each do |id, disk|
             next unless disk.method(condition).call
 
-            yield disk, i
+            yield disk, i if block_given?
+
+            res << disk
             i+=1
         end
+
+        res
     end
 
     def disks_synced?
@@ -910,9 +927,9 @@ class VirtualMachine < VCenterDriver::Template
         vc_disk = query_disk(one_disk, keys, vc_disks)
 
         if vc_disk
-            @disks[index] = Disk.new(index.to_i, one_disk, vc_disk)
+            Disk.new(index.to_i, one_disk, vc_disk)
         else
-            @disks[index] = Disk.one_disk(index.to_i, one_disk)
+            Disk.one_disk(index.to_i, one_disk)
         end
     end
 
@@ -955,11 +972,8 @@ class VirtualMachine < VCenterDriver::Template
                 reference[:value] = "#{vcenter_disk[:key]}"
                 extraconfig << reference
             end
-
-            if !execute
                 @keys = {}
                 extraconfig.each {|r| @keys[r[:key]] = r[:value]}
-            end
         end
 
         # Add info for existing nics in template in vm xml
@@ -1076,7 +1090,7 @@ class VirtualMachine < VCenterDriver::Template
                 sync_disks
             end
 
-            RbVmomi::VIM.VirtualMachineBootOptionsBootableDiskDevice({deviceKey: device.key})
+            device.boot_dev
         }
 
         boot_order = boot_info.split(',').map{ |str| convert.call(str) }
@@ -1100,13 +1114,13 @@ class VirtualMachine < VCenterDriver::Template
             extraconfig   += refs[:extraConfig]  if refs[:extraConfig]
         end
 
+        disks = sync_disks(:all, false)
+        nresize_unmanaged_disks
+
         if deploy[:boot] && !deploy[:boot].empty?
             boot_opts = set_boot_order(deploy[:boot])
         end
 
-        nresize_unmanaged_disks
-
-        disks = sync_disks(:all, false)
 
         # changes from sync_disks
         device_change += disks[:deviceChange] if disks[:deviceChange]
@@ -1536,6 +1550,11 @@ class VirtualMachine < VCenterDriver::Template
         return attach_disk_array, attach_spod_array, attach_spod_disk_info
     end
 
+    def delete_key(key)
+        return unless @keys
+        @keys.each{|k,v| @keys.delete(k) if v == key}
+    end
+
     # TODO
     def detach_disks_specs()
         detach_disk_array = []
@@ -1543,17 +1562,21 @@ class VirtualMachine < VCenterDriver::Template
         keys = get_unmanaged_keys.invert
         ipool = VCenterDriver::VIHelper.one_pool(OpenNebula::ImagePool)
         disks_each(:detached?) do |d|
+            key = d.key
             source = VCenterDriver::FileHelper.escape_path(d.path)
             persistent = VCenterDriver::VIHelper.find_persistent_image_by_source(source, ipool)
 
+            op = {operation: :remove, device: d.device}
             if !persistent
-                op = {operation: :remove, device: d.device}
                 op[:fileOperation] = :destroy unless d.type == "CDROM"
-                detach_disk_array << op
             end
+            detach_disk_array << op
 
-            # Remove reference opennebula.disk if exist
-            extra_config << d.config(:delete) if keys["#{d.key}"]
+            @free_ide << [d.device.controllerKey, d.device.unitNumber] if d.type == 'CDROM'
+
+            # Remove reference opennebula.disk if exist from vmx and cache
+            delete_key(key)
+            extra_config << d.config(:delete) if keys[key]
         end
 
         return detach_disk_array, extra_config
@@ -1561,14 +1584,19 @@ class VirtualMachine < VCenterDriver::Template
 
     # TODO
     def sync_disks(option = :nil, execute = true)
+        info_disks
+
         spec_hash       = {}
-        device_change_d = []
         device_change_a = []
+        device_change_d = []
         extra_config    = []
 
-        device_change_d, extra_config = detach_disks_specs if option == :all
+        if option == :all
+            device_change_d, extra_config = detach_disks_specs
+            spec_hash[:extraConfig] = extra_config     if !extra_config.empty?
+        end
+
         device_change_a, device_change_spod, device_change_spod_ids = attach_disks_specs
-        spec_hash[:extraConfig]  = extra_config  if !extra_config.empty?
 
         if !device_change_spod.empty?
             spec_hash[:extraConfig] = create_storagedrs_disks(device_change_spod, device_change_spod_ids)
@@ -1802,12 +1830,19 @@ class VirtualMachine < VCenterDriver::Template
                       "when the VM is in the powered off state"
             end
 
-            controller, unit_number = find_free_ide_controller(position)
+            if !@free_ide.empty?
+                tup         = @free_ide.shift
+                key         = tup.first
+                unit_number = tup.last
+            else
+                controller, unit_number = find_free_ide_controller(position)
+                key = controller.key
+            end
 
             device = RbVmomi::VIM::VirtualCdrom(
                 :backing       => vmdk_backing,
                 :key           => -1,
-                :controllerKey => controller.key,
+                :controllerKey => key,
                 :unitNumber    => unit_number,
 
                 :connectable => RbVmomi::VIM::VirtualDeviceConnectInfo(
@@ -1944,7 +1979,6 @@ class VirtualMachine < VCenterDriver::Template
     end
 
     def find_free_ide_controller(position=0)
-
         free_ide_controllers = []
         ide_schema           = {}
 
