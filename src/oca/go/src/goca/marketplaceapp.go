@@ -71,7 +71,7 @@ func NewMarketPlaceAppFromName(name string) (*MarketPlaceApp, error) {
 // CreateMarketPlaceApp allocates a new marketplace app. It returns the new marketplace app ID.
 // * tpl: template of the marketplace app
 // * market: market place ID
-func CreateMarketPlaceApp(tpl string, int market) (uint, error) {
+func CreateMarketPlaceApp(tpl string, market int) (uint, error) {
 	response, err := client.Call("one.marketapp.allocate", tpl, market)
 	if err != nil {
 		return 0, err
