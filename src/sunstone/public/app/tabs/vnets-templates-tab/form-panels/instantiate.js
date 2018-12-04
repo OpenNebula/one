@@ -283,6 +283,11 @@ define(function(require) {
         return false;
       } else {
         $("#ar_show_info", context).html("");
+        if(that.last_selected_row_ar) {
+          that.last_selected_row_ar.children().each(function(){
+            $(this).removeClass('markrowchecked');
+          });
+        }
       }
 
       $("#ar_show_info .collapse", context).length
