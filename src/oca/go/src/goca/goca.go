@@ -49,10 +49,7 @@ type Resource interface {
 
 // Initializes the client variable, used as a singleton
 func init() {
-	err := SetClient(NewConfig("", "", ""))
-	if err != nil {
-		log.Fatal(err)
-	}
+	SetClient(NewConfig("", "", ""))
 }
 
 // NewConfig returns a new OneConfig object with the specified user, password,
@@ -95,7 +92,7 @@ func NewConfig(user string, password string, xmlrpcURL string) OneConfig {
 }
 
 // SetClient assigns a value to the client variable
-func SetClient(conf OneConfig) error {
+func SetClient(conf OneConfig) {
 
 	xmlrpcClient, xmlrpcClientError := xmlrpc.NewClient(conf.XmlrpcURL, nil)
 
@@ -104,8 +101,6 @@ func SetClient(conf OneConfig) error {
 		xmlrpcClient:      xmlrpcClient,
 		xmlrpcClientError: xmlrpcClientError,
 	}
-
-	return nil
 }
 
 // SystemVersion returns the current OpenNebula Version
