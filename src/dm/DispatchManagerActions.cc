@@ -181,7 +181,8 @@ int DispatchManager::import(VirtualMachine * vm, const RequestAttributes& ra)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int DispatchManager::migrate(VirtualMachine * vm, const RequestAttributes& ra)
+int DispatchManager::migrate(VirtualMachine * vm, int poff_migrate,
+        const RequestAttributes& ra)
 {
     ostringstream oss;
     int           vid;
@@ -202,7 +203,21 @@ int DispatchManager::migrate(VirtualMachine * vm, const RequestAttributes& ra)
          vm->get_state() == VirtualMachine::POWEROFF ||
          vm->get_state() == VirtualMachine::SUSPENDED)
     {
-        lcm->trigger(LCMAction::MIGRATE, vid, ra);
+        switch (poff_migrate) {
+            case 0:
+                lcm->trigger(LCMAction::MIGRATE, vid, ra);
+                break;
+            case 1:
+                lcm->trigger(LCMAction::POFF_MIGRATE, vid, ra);
+                break;
+            case 2:
+                lcm->trigger(LCMAction::POFF_HARD_MIGRATE, vid, ra);
+                break;
+
+            default: /* Defaults to <5.8 behavior */
+                lcm->trigger(LCMAction::MIGRATE, vid, ra);
+                break;
+        }
     }
     else
     {

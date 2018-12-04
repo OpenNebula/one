@@ -171,6 +171,18 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         :description=> "Does not communicate with the guest OS"
     }
 
+    POFF = {
+        :name        => "poweroff",
+        :large       => "--poff",
+        :description => "Do the migrate by poweringoff the vm"
+    }
+
+    POFFHARD = {
+        :name        => "poweroff_hard",
+        :large       => "--poff-hard",
+        :description => "Do the migrate by poweringoff hard the vm"
+    }
+
     def self.rname
         "VM"
     end
@@ -527,6 +539,16 @@ in the frontend machine.
             puts "(#{i}) #{line}"
         end
         puts
+    end
+
+    def get_migration_type(options)
+        if options[:poweroff]
+            return 1
+        elsif options[:poweroff_hard]
+            return 2
+        else
+            return 0
+        end
     end
 
     private

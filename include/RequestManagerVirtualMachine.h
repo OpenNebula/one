@@ -155,7 +155,7 @@ public:
     VirtualMachineMigrate():
         RequestManagerVirtualMachine("one.vm.migrate",
                                      "Migrates a virtual machine",
-                                     "A:siibbi"){
+                                     "A:siibbii"){
         auth_op = Nebula::instance().get_vm_auth_op(History::MIGRATE_ACTION);
     };
 

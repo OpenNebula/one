@@ -29,7 +29,7 @@ void VNTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     int    id   = xmlrpc_c::value_int(paramList.getInt(1));
     string name = xmlrpc_c::value_string(paramList.getString(2));
     string str_uattrs = xmlrpc_c::value_string(paramList.getString(3));
-    
+
 
     VNTemplate * tmpl = static_cast<VNTemplatePool* > (pool)->get_ro(id);
 
@@ -157,7 +157,7 @@ Request::ErrorCode VNTemplateInstantiate::request_execute(int id, string name,
     }
 
     //--------------------------------------------------------------------------
-    
+
     AuthRequest ar(att.uid, att.group_ids);
 
     ar.add_auth(AuthRequest::USE, perms); //USE TEMPLATE
@@ -182,14 +182,14 @@ Request::ErrorCode VNTemplateInstantiate::request_execute(int id, string name,
     {
         Cluster* cluster;
         string str_error;
-    
+
         cluster = clpool->get(*clusters_it);
 
         if (cluster == 0)
         {
             continue;
         }
-        
+
         cluster->add_vnet(vid, str_error);
 
         clpool->update(cluster);

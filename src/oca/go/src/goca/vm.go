@@ -718,8 +718,8 @@ func (vm *VM) DiskResize(diskID int, size string) error {
 }
 
 // Migrate a VM to a target host and/or to another ds
-func (vm *VM) Migrate(hostID uint, live, enforce bool, dsID uint) error {
-	_, err := client.Call("one.vm.migrate", int(hostID), live, enforce, int(dsID))
+func (vm *VM) Migrate(hostID uint, live, enforce bool, dsID uint, migrationType int) error {
+	_, err := client.Call("one.vm.migrate", int(hostID), live, enforce, int(dsID), migrationType)
 	return err
 }
 

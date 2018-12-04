@@ -557,7 +557,8 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :migrate, migrate_desc, [:range, :vmid_list], :hostid,
-            [:datastoreid, nil], :options => [ENFORCE, OneVMHelper::LIVE] do
+            [:datastoreid, nil], :options => [ENFORCE, OneVMHelper::LIVE,
+        OneVMHelper::POFF, OneVMHelper::POFFHARD] do
         host_id = args[1]
         verbose = "migrating to #{host_id}"
 
@@ -567,7 +568,8 @@ CommandParser::CmdParser.new(ARGV) do
             vm.migrate(host_id,
                        options[:live] == true,
                        options[:enforce] == true,
-                       ds_id)
+                       ds_id,
+                       helper.get_migration_type(options))
         end
     end
 

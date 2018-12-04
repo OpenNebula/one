@@ -250,6 +250,12 @@ void LifeCycleManager::user_action(const ActionRequest& ar)
     case LCMAction::MIGRATE:
         migrate_action(la);
         break;
+    case LCMAction::POFF_MIGRATE:
+        migrate_action(la);
+        break;
+    case LCMAction::POFF_HARD_MIGRATE:
+        migrate_action(la);
+        break;
     case LCMAction::LIVE_MIGRATE:
         live_migrate_action(la);
         break;

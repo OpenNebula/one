@@ -20,6 +20,53 @@
 #include "VirtualMachineManager.h"
 #include "ImageManager.h"
 
+void LifeCycleManager::start_prolog_migrate(VirtualMachine* vm, int vid)
+{
+    int    cpu, mem, disk;
+    vector<VectorAttribute *> pci;
+
+    time_t the_time = time(0);
+
+    //----------------------------------------------------
+    //                PROLOG_MIGRATE STATE
+    //----------------------------------------------------
+
+    vm->set_state(VirtualMachine::PROLOG_MIGRATE);
+
+    if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
+    {
+        vm->delete_snapshots();
+    }
+
+    vm->reset_info();
+
+    vm->set_previous_etime(the_time);
+
+    vm->set_previous_vm_info();
+
+    vm->set_previous_running_etime(the_time);
+
+    vmpool->update_previous_history(vm);
+
+    vm->set_prolog_stime(the_time);
+
+    vmpool->update_history(vm);
+
+    vmpool->update(vm);
+
+    vm->get_requirements(cpu, mem, disk, pci);
+
+    if ( vm->get_hid() != vm->get_previous_hid() )
+    {
+        hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem,
+            disk, pci);
+    }
+
+    //----------------------------------------------------
+
+    tm->trigger(TMAction::PROLOG_MIGR,vid);
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -37,53 +84,11 @@ void  LifeCycleManager::save_success_action(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::SAVE_MIGRATE )
     {
-        int    cpu, mem, disk;
-        vector<VectorAttribute *> pci;
-
-        time_t the_time = time(0);
-
-        //----------------------------------------------------
-        //                PROLOG_MIGRATE STATE
-        //----------------------------------------------------
-
-        vm->set_state(VirtualMachine::PROLOG_MIGRATE);
-
-        if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
-        {
-            vm->delete_snapshots();
-        }
-
-        vm->reset_info();
-
-        vm->set_previous_etime(the_time);
-
-        vm->set_previous_vm_info();
-
-        vm->set_previous_running_etime(the_time);
-
-        vmpool->update_previous_history(vm);
-
-        vm->set_prolog_stime(the_time);
-
-        vmpool->update_history(vm);
-
-        vmpool->update(vm);
-
-        vm->get_requirements(cpu, mem, disk, pci);
-
-        if ( vm->get_hid() != vm->get_previous_hid() )
-        {
-            hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem,
-                disk, pci);
-        }
-
-        //----------------------------------------------------
-
-        tm->trigger(TMAction::PROLOG_MIGR,vid);
+        start_prolog_migrate(vm, vid);
     }
     else if (vm->get_lcm_state() == VirtualMachine::SAVE_SUSPEND)
     {
-        time_t              the_time = time(0);
+        time_t the_time = time(0);
 
         //----------------------------------------------------
         //                SUSPENDED STATE
@@ -112,7 +117,7 @@ void  LifeCycleManager::save_success_action(int vid)
     }
     else if ( vm->get_lcm_state() == VirtualMachine::SAVE_STOP)
     {
-        time_t              the_time = time(0);
+        time_t the_time = time(0);
 
         //----------------------------------------------------
         //                 EPILOG_STOP STATE
@@ -479,7 +484,6 @@ void  LifeCycleManager::shutdown_success_action(int vid)
         //----------------------------------------------------
         //                   EPILOG STATE
         //----------------------------------------------------
-
         vm->set_state(VirtualMachine::EPILOG);
 
         if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
@@ -554,6 +558,10 @@ void  LifeCycleManager::shutdown_success_action(int vid)
         //----------------------------------------------------
 
         tm->trigger(TMAction::EPILOG_STOP,vid);
+    }
+    else if (vm->get_lcm_state() == VirtualMachine::SAVE_MIGRATE)
+    {
+        start_prolog_migrate(vm, vid);
     }
     else
     {
@@ -659,10 +667,18 @@ void LifeCycleManager::prolog_success_action(int vid)
 
                 case VirtualMachine::PROLOG_MIGRATE:
                 case VirtualMachine::PROLOG_MIGRATE_FAILURE: //recover success
-                    action = VMMAction::RESTORE;
-                    vm->set_state(VirtualMachine::BOOT_MIGRATE);
+                    if (vm->get_action() == History::POFF_MIGRATE_ACTION ||
+                          vm->get_action() == History::POFF_HARD_MIGRATE_ACTION)
+                    {
+                        action = VMMAction::DEPLOY;
+                        vm->set_state(VirtualMachine::BOOT);
+                    }
+                    else
+                    {
+                        action = VMMAction::RESTORE;
+                        vm->set_state(VirtualMachine::BOOT_MIGRATE);
+                    }
                     break;
-
                 case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
                 case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE:
                 case VirtualMachine::PROLOG:

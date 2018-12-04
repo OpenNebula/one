@@ -440,6 +440,12 @@ string History::action_to_str(VMAction action)
         case MIGRATE_ACTION:
             st = "migrate";
         break;
+        case POFF_MIGRATE_ACTION:
+            st = "poweroff-migrate";
+            break;
+        case POFF_HARD_MIGRATE_ACTION:
+            st = "poweroff-hard-migrate";
+            break;
         case LIVE_MIGRATE_ACTION:
             st = "live-migrate";
         break;

@@ -212,7 +212,7 @@ module OpenNebula
             disk-snapshot-create disk-snapshot-delete terminate terminate-hard
             disk-resize deploy chown chmod updateconf rename resize update
             snapshot-resize snapshot-delete snapshot-revert disk-saveas
-            disk-snapshot-revert recover retry monitor disk-snapshot-rename}
+            disk-snapshot-revert recover retry monitor disk-snapshot-rename 46 47 poff-migrt ph-migrt}
 
         EXTERNAL_IP_ATTRS = [
             'GUEST_IP',
@@ -466,12 +466,16 @@ module OpenNebula
         #   overcommited. Defaults to false
         # @param ds_id [Integer] The System Datastore where to migrate the VM.
         #   To use the current one, set it to -1
+        # @param mtype [Integer] How to perform the cold migration: 
+        #     - 0: save - restore,
+        #     - 1: power off - boot
+        #     - 2: power off hard - boot
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def migrate(host_id, live=false, enforce=false, ds_id=-1)
+        def migrate(host_id, live=false, enforce=false, ds_id=-1, mtype=0)
             call(VM_METHODS[:migrate], @pe_id, host_id.to_i, live==true,
-                enforce, ds_id.to_i)
+                enforce, ds_id.to_i, mtype)
         end
 
         # @deprecated use {#migrate} instead

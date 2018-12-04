@@ -163,10 +163,11 @@ public:
      *  If the function fails the calling funtion is responsible for recovering
      *  from the error.
      *    @param vm pointer to a VirtualMachine with its mutex locked.
+     *    @param poff migration type: 0(save), 1(poff), 2(poff-hard)
      *    @param ra information about the API call request
      *    @return 0 on success
      */
-    int migrate(VirtualMachine * vm, const RequestAttributes& request);
+    int migrate(VirtualMachine * vm, int poff, const RequestAttributes& request);
 
     /**
      *  Migrates a VM. The following actions must be performed before calling

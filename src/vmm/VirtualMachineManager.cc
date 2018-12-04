@@ -561,9 +561,12 @@ void VirtualMachineManager::shutdown_action(
     VirtualMachine *                    vm;
     const VirtualMachineManagerDriver * vmd;
 
+    string        hostname;
     string        vm_tmpl;
     string *      drv_msg;
     ostringstream os;
+
+    int      ds_id;
 
     // Get the VM from the pool
     vm = vmpool->get(vid);
@@ -586,9 +589,26 @@ void VirtualMachineManager::shutdown_action(
         goto error_driver;
     }
 
+    // Use previous host if it is a migration
+    if ( vm->get_lcm_state() == VirtualMachine::SAVE_MIGRATE )
+    {
+        if (!vm->hasPreviousHistory())
+        {
+            goto error_previous_history;
+        }
+
+        hostname        = vm->get_previous_hostname();
+        ds_id           = vm->get_previous_ds_id();
+    }
+    else
+    {
+        hostname        = vm->get_hostname();
+        ds_id           = vm->get_ds_id();
+    }
+
     // Invoke driver method
     drv_msg = format_message(
-        vm->get_hostname(),
+        hostname,
         "",
         vm->get_deploy_id(),
         "",
@@ -598,7 +618,7 @@ void VirtualMachineManager::shutdown_action(
         "",
         "",
         vm->to_xml(vm_tmpl),
-        vm->get_ds_id(),
+        ds_id,
         -1);
 
     vmd->shutdown(vid, *drv_msg);
@@ -611,6 +631,10 @@ void VirtualMachineManager::shutdown_action(
 
 error_history:
     os << "shutdown_action, VM has no history";
+    goto error_common;
+
+error_previous_history:
+    os << "save_action, VM has no previous history";
     goto error_common;
 
 error_driver:
@@ -776,8 +800,10 @@ void VirtualMachineManager::cancel_action(
     VirtualMachine * vm;
     ostringstream    os;
 
+    string   hostname;
     string   vm_tmpl;
     string * drv_msg;
+    int ds_id;
 
     const VirtualMachineManagerDriver *   vmd;
 
@@ -802,9 +828,26 @@ void VirtualMachineManager::cancel_action(
         goto error_driver;
     }
 
+    // Use previous host if it is a migration
+    if ( vm->get_lcm_state() == VirtualMachine::SAVE_MIGRATE )
+    {
+        if (!vm->hasPreviousHistory())
+        {
+            goto error_previous_history;
+        }
+
+        hostname        = vm->get_previous_hostname();
+        ds_id           = vm->get_previous_ds_id();
+    }
+    else
+    {
+        hostname        = vm->get_hostname();
+        ds_id           = vm->get_ds_id();
+    }
+
     // Invoke driver method
     drv_msg = format_message(
-        vm->get_hostname(),
+        hostname,
         "",
         vm->get_deploy_id(),
         "",
@@ -814,7 +857,7 @@ void VirtualMachineManager::cancel_action(
         "",
         "",
         vm->to_xml(vm_tmpl),
-        vm->get_ds_id(),
+        ds_id,
         -1);
 
     vmd->cancel(vid, *drv_msg);
@@ -827,6 +870,10 @@ void VirtualMachineManager::cancel_action(
 
 error_history:
     os << "cancel_action, VM has no history";
+    goto error_common;
+
+error_previous_history:
+    os << "save_action, VM has no previous history";
     goto error_common;
 
 error_driver:
