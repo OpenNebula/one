@@ -19,18 +19,14 @@
 ONE_LOCATION=ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
-    REMOTES_LOCATION="/var/lib/one/remotes/"
+    LIB_LOCATION="/usr/lib/one"
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
-    REMOTES_LOCATION=ONE_LOCATION+"/var/remotes/"
+    LIB_LOCATION=ONE_LOCATION+"/lib"
 end
 
 $: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+"/cli"
 
 require "erb"
-
 
 CMDS = {
     :MISC  => %w(mkfs sync mkswap),
@@ -40,7 +36,7 @@ CMDS = {
     :OVS   => %w(ovs-ofctl ovs-vsctl),
     :XEN   => %w(xentop xl xm),
     :CEPH  => %w(rbd),
-    :MRKT  => %W{#{REMOTES_LOCATION}datastore/create_container_image.sh},
+    :MRKT  => %W{#{LIB_LOCATION}/sh/create_container_image.sh},
     :HA    => [
         'systemctl start opennebula-flow',
         'systemctl stop opennebula-flow',

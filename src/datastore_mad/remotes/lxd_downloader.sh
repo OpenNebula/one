@@ -166,7 +166,7 @@ EOT
 esac
 
 #Create raw image with container
-cat << EOF | sudo $VAR_LOCATION/remotes/datastore/create_container_image.sh $tmp_dir $id $extension $terminal
+cat << EOF | sudo $LIB_LOCATION/sh/create_container_image.sh $tmp_dir $id $extension $terminal
 $commands
 EOF
 
