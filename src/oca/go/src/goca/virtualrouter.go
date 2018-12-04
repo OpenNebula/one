@@ -122,10 +122,10 @@ func (vr *VirtualRouter) Delete() error {
 // * number: Number of VMs to instantiate.
 // * tplid: VM Template id to instantiate.
 // * name: Name for the VM instances. If it is an empty string OpenNebula will set a default name. Wildcard %i can be used.
-// * pending: False to create the VM on pending (default), True to create it on hold.
+// * hold: False to create the VM on pending (default), True to create it on hold.
 // * extra: A string containing an extra template to be merged with the one being instantiated. It can be empty. Syntax can be the usual attribute=value or XML.
 func (vr *VirtualRouter) Instantiate(number, tplid int, name string, hold bool, extra string) (uint, error) {
-	response, err := client.Call("one.vrouter.instantiate", vr.ID, number, tplid, name, pending, extra)
+	response, err := client.Call("one.vrouter.instantiate", vr.ID, number, tplid, name, hold, extra)
 
 	if err != nil {
 		return 0, err
