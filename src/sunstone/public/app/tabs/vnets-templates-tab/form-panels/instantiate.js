@@ -34,6 +34,8 @@ define(function(require) {
   var SecurityGroupsTable = require('tabs/secgroups-tab/datatable');
   var TemplateARInfo = require('hbs!tabs/vnets-tab/panels/ar/arInfo');
   var OpenNebulaNetworkTemplate = require('opennebula/vntemplate');
+  var CustomTagsTable = require("utils/custom-tags-table");
+  var WizardFields = require("utils/wizard-fields");
   /*
     CONSTANTS
    */
@@ -112,6 +114,13 @@ define(function(require) {
 
       extra_info["template"]["AR"] = that.arTemplates[template_id].AR;
 
+      $.extend(extra_info["template"], WizardFields.retrieve($("#instantiateContext", context)));
+
+      var secgroups = that.securityGroupsTable.retrieveResourceTableSelect();
+      if (secgroups != undefined && secgroups.length != 0) {
+        extra_info["template"]["SECURITY_GROUPS"] = secgroups.join(",");
+      }
+
       extra_info["vnet_name"] = vnet_name.replace(/%i/gi, i); // replace wildcard
 
       Sunstone.runAction("VNTemplate.instantiate", [template_id], extra_info);
@@ -160,13 +169,44 @@ define(function(require) {
 
           var ar = new Ar(template_json);
 
+          var vn_tmpl = template_json.VNTEMPLATE;
+
+          var opts = {
+            info: false,
+            select: true,
+            selectOptions: {"multiple_choice": true}
+          };
+
+          that.securityGroupsTable = new SecurityGroupsTable("vnet_tmpl_instantiate_sg_"+vn_tmpl.ID, opts);
+
           templatesContext.append(
             TemplateRowHTML(
               {
-                element  : template_json.VMTEMPLATE,
-                "arHTML" : ar.html()
+                element  : vn_tmpl,
+                "arHTML" : ar.html(),
+                "securityGroupsTableHTML": that.securityGroupsTable.dataTableHTML,
+                "customTagsHTML": CustomTagsTable.html()
               })
           );
+
+          if (vn_tmpl.TEMPLATE.AR != undefined){
+            $("button#add_ar_button", context).hide();
+          }
+
+          $(".provision_sg_selector" + vn_tmpl.ID, context).data("sgTable", that.securityGroupsTable);
+
+          that.securityGroupsTable.initialize();
+          that.securityGroupsTable.refreshResourceTableSelect();
+
+          var sgs = template_json.VNTEMPLATE.TEMPLATE.SECURITY_GROUPS;
+          if (sgs) {
+            var selectedResources = {
+              ids : sgs.spli(",")
+            };
+            that.securityGroupsTable.selectResourceTableSelect(selectedResources);
+          }
+
+          WizardFields.fill($("#instantiateContext", context), vn_tmpl.TEMPLATE);
 
           _setup_ar(context, template_json.VNTEMPLATE, that.arTemplates);
 
@@ -216,9 +256,9 @@ define(function(require) {
       var aData = ar_list_dataTable.fnGetData(this);
       if (!aData) return true;
       var id = aData[0];
-      if (!id) return true;
+      if (id == undefined) return true;
 
-      if ( $("#ar_show_info .collapse", context).length == 0 ) {
+      if ( !$(this).children().hasClass("markrowchecked") ) {
 
         if(that.last_selected_row_ar) {
           that.last_selected_row_ar.children().each(function(){

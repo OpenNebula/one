@@ -85,6 +85,10 @@ define(function(require) {
         var data = that.arTab.retrieve();
 
         if ( that.element.TEMPLATE.AR != undefined ) {
+          if ( !Array.isArray(that.element.TEMPLATE.AR) ){
+            that.element.TEMPLATE.AR = [that.element.TEMPLATE.AR];
+          }
+          data.AR_ID = that.element.TEMPLATE.AR[that.element.TEMPLATE.AR.length-1].AR_ID+1;
           that.element.TEMPLATE.AR.push(data);
         } else {
           that.element.TEMPLATE.AR = data;

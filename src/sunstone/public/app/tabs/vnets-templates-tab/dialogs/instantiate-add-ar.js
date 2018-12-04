@@ -125,17 +125,12 @@ define(function(require) {
           <td style="white-space: nowrap" class="value_td">--</td>\
         </tr>';
 
-        //$("table#"+that.table+" tr.odd", this.context).remove();
-        //$("table#"+that.table+" tbody", this.context).append(html);
-        $("#ar_list_datatable", that.context).DataTable().clear().draw();
         var row = [ data.AR_ID, data.TYPE, start, prefix, "--"]
         $("#ar_list_datatable", that.context).DataTable().rows.add([row]);
 
         $("#ar_list_datatable", that.context).DataTable().columns.adjust().draw();
 
         $("#ar_list_datatable tbody tr:last", that.context).attr("ar", data.AR_ID);
-
-        //that.tableObject.Datatable().ajax.reload();
 
         Sunstone.getDialog(DIALOG_ID).hide();
       })

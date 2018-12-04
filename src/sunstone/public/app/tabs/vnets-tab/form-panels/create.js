@@ -104,7 +104,7 @@ define(function(require) {
       "createARTab": "vnetCreateARTab",
       "createSecurityTab": "vnetCreateSecurityTab",
       "createQoSTab": "vnetCreateQoSTab",
-      "createContextTab": "vnetcreateContextTab"
+      "createContextTab": "vnetCreateContextTab"
     });
   }
 
