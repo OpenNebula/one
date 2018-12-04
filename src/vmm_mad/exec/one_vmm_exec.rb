@@ -169,14 +169,16 @@ class VmmAction
             end
         end
 
-        vm_template_xml.elements.each("TEMPLATE/NIC") do |element|
-            vn_mad = element.get_text("VN_MAD").to_s
+        ["NIC", "NIC_ALIAS"].each do |r|
+            vm_template_xml.elements.each("TEMPLATE/#{r}") do |element|
+                vn_mad = element.get_text("VN_MAD").to_s
 
-            next if vn_mad.empty?
+                next if vn_mad.empty?
 
-            vnm_drivers << vn_mad unless vnm_drivers.include?(vn_mad)
+                vnm_drivers << vn_mad unless vnm_drivers.include?(vn_mad)
 
-            add_element_to_path(vm_vnm_xml, element, "TEMPLATE/NIC")
+                add_element_to_path(vm_vnm_xml, element, "TEMPLATE/#{r}")
+            end
         end
 
         return [vnm_drivers, vm_vnm_xml]
@@ -902,11 +904,23 @@ class ExecDriver < VirtualMachineDriver
         target_device = xml_data.elements['VM/TEMPLATE/CONTEXT/TARGET']
         target_device = target_device.text if target_device
 
+        nic_alias = false
+        external = false
+
+        if xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']"]
+            base_tmpl = "VM/TEMPLATE/NIC[ATTACH='YES']"
+        else
+            base_tmpl = "VM/TEMPLATE/NIC_ALIAS[ATTACH='YES']"
+            nic_alias = true
+        end
+
+        external = true if xml_data.elements["#{base_tmpl}/EXTERNAL"]
+
         begin
-            source = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/BRIDGE"]
-            mac    = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/MAC"]
-            target = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/TARGET"]
-            vn_mad = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/VN_MAD"]
+            source = xml_data.elements["#{base_tmpl}/BRIDGE"]
+            mac    = xml_data.elements["#{base_tmpl}/MAC"]
+            target = xml_data.elements["#{base_tmpl}/TARGET"]
+            vn_mad = xml_data.elements["#{base_tmpl}/VN_MAD"]
 
             source = source.text.strip
             mac    = mac.text.strip
@@ -918,7 +932,7 @@ class ExecDriver < VirtualMachineDriver
             return
         end
 
-        model = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/MODEL"]
+        model = xml_data.elements["#{base_tmpl}/MODEL"]
 
         model = model.text if !model.nil?
         model = model.strip if !model.nil?
@@ -926,37 +940,56 @@ class ExecDriver < VirtualMachineDriver
 
         action = VmmAction.new(self, id, :attach_nic, drv_message)
 
-        steps=[
-            # Execute pre-attach networking setup
-            {
-                :driver   => :vnm,
-                :action   => :pre
-            },
-            # Attach the new NIC
-            {
-                :driver     => :vmm,
-                :action     => :attach_nic,
-                :parameters => [:deploy_id, mac, source, model, vn_mad, target]
-            },
-            # Execute post-boot networking setup
-            {
-                :driver       => :vnm,
-                :action       => :post,
-                :parameters   => [:deploy_id],
-                :fail_actions => [
-                    {
-                        :driver     => :vmm,
-                        :action     => :detach_nic,
-                        :parameters => [:deploy_id, mac]
-                    }
-                ]
-            },
-            {
-                :driver     => :vmm,
-                :action     => :prereconfigure,
-                :parameters => [:deploy_id, target_device]
-            }
-        ]
+        if !nic_alias
+            steps=[
+                # Execute pre-attach networking setup
+                {
+                    :driver   => :vnm,
+                    :action   => :pre
+                },
+                # Attach the new NIC
+                {
+                    :driver     => :vmm,
+                    :action     => :attach_nic,
+                    :parameters => [:deploy_id, mac, source, model, vn_mad, target]
+                },
+                # Execute post-boot networking setup
+                {
+                    :driver       => :vnm,
+                    :action       => :post,
+                    :parameters   => [:deploy_id],
+                    :fail_actions => [
+                        {
+                            :driver     => :vmm,
+                            :action     => :detach_nic,
+                            :parameters => [:deploy_id, mac]
+                        }
+                    ]
+                }
+            ]
+        elsif nic_alias && external
+            steps=[
+                # Execute pre-attach networking setup
+                {
+                    :driver   => :vnm,
+                    :action   => :pre
+                },
+                # Execute post-boot networking setup
+                {
+                    :driver       => :vnm,
+                    :action       => :post,
+                    :parameters   => [:deploy_id]
+                }
+            ]
+        else
+            steps = []
+        end
+
+        steps << {
+            :driver     => :vmm,
+            :action     => :prereconfigure,
+            :parameters => [:deploy_id, target_device]
+        }
 
         if tm_command && !tm_command.empty?
             steps << {
@@ -981,8 +1014,20 @@ class ExecDriver < VirtualMachineDriver
     def detach_nic(id, drv_message)
         xml_data = decode(drv_message)
 
+        nic_alias = false
+        external = false
+
+        if xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']"]
+            base_tmpl = "VM/TEMPLATE/NIC[ATTACH='YES']"
+        else
+            base_tmpl = "VM/TEMPLATE/NIC_ALIAS[ATTACH='YES']"
+            nic_alias = true
+        end
+
+        external = true if xml_data.elements["#{base_tmpl}/EXTERNAL"]
+
         begin
-            mac = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/MAC"]
+            mac = xml_data.elements["#{base_tmpl}/MAC"]
             mac = mac.text.strip
         rescue
             send_message(action, RESULT[:failure], id,
@@ -992,19 +1037,31 @@ class ExecDriver < VirtualMachineDriver
 
         action = VmmAction.new(self, id, :detach_nic, drv_message)
 
-        steps=[
-            # Detach the NIC
-            {
-                :driver     => :vmm,
-                :action     => :detach_nic,
-                :parameters => [:deploy_id, mac]
-            },
-            # Clean networking setup
-            {
-                :driver       => :vnm,
-                :action       => :clean
-            }
-        ]
+        if !nic_alias
+            steps=[
+                # Detach the NIC
+                {
+                    :driver     => :vmm,
+                    :action     => :detach_nic,
+                    :parameters => [:deploy_id, mac]
+                },
+                # Clean networking setup
+                {
+                    :driver       => :vnm,
+                    :action       => :clean
+                }
+            ]
+        elsif nic_alias && external
+            steps=[
+                # Clean networking setup
+                {
+                    :driver       => :vnm,
+                    :action       => :clean
+                }
+            ]
+        else
+            steps = []
+        end
 
         action.run(steps)
     end
