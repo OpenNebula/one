@@ -65,6 +65,12 @@ features:
     # True to show the vnet datatable to instantiate VM
     show_vnet_instantiate: true
 
+    # True to show context section to instantiate Network
+    show_context_instantiate_vnet: true
+
+    # True to show context section to instantiate Network
+    show_security_instantiate_vnet: true
+
     # True to show the host datatable to instantiate VM
     show_host_instantiate: true
 
