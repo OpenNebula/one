@@ -1917,7 +1917,7 @@ int init_ctrl_pipe()
             return -1;
         }
     }
-    else if ( buffer.st_mode & S_IFMT != S_IFIFO )
+    else if ( (buffer.st_mode & S_IFMT) != S_IFIFO )
     {
         fprintf(stderr,"File %s is not valid, please remove it\n", CTRL_PIPE_PATH);
         return -1;
@@ -1965,7 +1965,7 @@ int add_cmd(struct vncterm_command * cmd, struct vncterm_command ** client_fds)
 
     char serv[NI_MAXSERV];
 
-	int yes = 1;
+    int yes = 1;
 
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family   = AF_UNSPEC;
@@ -1991,11 +1991,11 @@ int add_cmd(struct vncterm_command * cmd, struct vncterm_command ** client_fds)
         return -1;
     }
 
-	if (setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, (char *)&yes, sizeof(int)) < 0) 
-	{
+    if (setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, (char *)&yes, sizeof(int)) < 0)
+    {
         freeaddrinfo(results);
-		close(sd);
-		return -1;
+        close(sd);
+        return -1;
     }
 
 
@@ -2015,6 +2015,8 @@ int add_cmd(struct vncterm_command * cmd, struct vncterm_command ** client_fds)
     }
 
     client_fds[sd] = cmd;
+
+    return 0;
 }
 
 void cmd_ctrl_pipe(int pipe_fd, struct vncterm_command ** client_fds)
