@@ -19,4 +19,4 @@
 #
 
 Cmnd_Alias ONE_MAPPER = /bin/lsblk, /sbin/losetup, /bin/mount, /bin/umount, /sbin/kpartx, /usr/bin/qemu-nbd, /bin/mkdir, /usr/bin/catfstab, /sbin/e2fsck, /sbin/resize2fs, /usr/sbin/xfs_growfs, /usr/bin/rbd
-oneadmin ALL=(ALL) NOPASSWD: ONE_MAPPER
+oneadmin ALL=(ALL:ALL) NOPASSWD: ONE_MAPPER

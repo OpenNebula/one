@@ -57,7 +57,7 @@ class Mapper
         :mount      => 'sudo mount',
         :umount     => 'sudo umount',
         :kpartx     => 'sudo kpartx',
-        :nbd        => 'sudo qemu-nbd',
+        :nbd        => 'sudo -u root -g oneadmin qemu-nbd',
         :su_mkdir   => 'sudo mkdir -p',
         :mkdir      => 'mkdir -p',
         :cat        => 'sudo cat',
@@ -66,7 +66,6 @@ class Mapper
         :e2fsck     => 'sudo e2fsck',
         :resize2fs  => 'sudo resize2fs',
         :xfs_growfs => 'sudo xfs_growfs',
-        :chmod_nfs  => 'chmod o+w',
         :rbd        => 'sudo rbd --id'
     }
 
@@ -182,18 +181,19 @@ class Mapper
     def unmap(one_vm, disk, directory)
         OpenNebula.log_info "Unmapping disk at #{directory}"
 
-        sys_parts  = lsblk('')
+        sys_parts = lsblk('')
 
-        return false if !sys_parts
-
+        return false unless sys_parts
+ 
         partitions = []
         device = ''
+        real_path = directory
 
         ds = one_vm.lxdrc[:datastore_location] + "/#{one_vm.sysds_id}"
-        real_ds = File.readlink(ds) if File.symlink?(ds)
-
-        real_path = directory
-        real_path = real_ds + directory.split(ds)[-1] if directory.include?(ds)
+        if File.symlink?(ds)
+            real_ds = File.readlink(ds)
+            real_path = real_ds + directory.split(ds)[-1] if directory.include?(ds)
+        end
 
         sys_parts.each { |d|
             if d['mountpoint'] == real_path
@@ -213,13 +213,15 @@ class Mapper
                 break if !partitions.empty?
             }
 
-        partitions.delete_if { |p| !p['mountpoint'] }
-
-        partitions.sort! { |a,b|  
-            b['mountpoint'].length <=> a['mountpoint'].length 
-        }
-
+            partitions.delete_if { |p| !p['mountpoint'] }
+            
+            partitions.sort! { |a,b|  
+                b['mountpoint'].length <=> a['mountpoint'].length 
+            }
+            
         umount(partitions)
+
+
 
         do_unmap(device, one_vm, disk, real_path)
 

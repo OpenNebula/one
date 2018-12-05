@@ -221,6 +221,7 @@ else:
 # libxml2
 main_env.ParseConfig('xml2-config --libs --cflags')
 
+svncterm_path = 'src/vmm_mad/remotes/lib/lxd/svncterm_server/SConstruct'
 
 # SCONS scripts to build
 build_scripts=[
@@ -269,8 +270,15 @@ build_scripts=[
     'src/im_mad/collectd/SConstruct',
     'src/client/SConstruct',
     'src/docker_machine/SConstruct',
-    'src/vmm_mad/remotes/lib/lxd/svncterm_server/SConstruct'
+    svncterm_path
 ]
+
+# disable svncterm
+svncterm = ARGUMENTS.get('svncterm', 'yes')
+if svncterm == 'no':
+    build_scripts.remove(svncterm_path)
+else:
+    pass
 
 for script in build_scripts:
     env = main_env.Clone()
