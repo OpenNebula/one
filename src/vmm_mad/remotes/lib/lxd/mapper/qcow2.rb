@@ -33,6 +33,9 @@ class Qcow2Mapper <  Mapper
         dsrc = disk_source(one_vm, disk)
         cmd  = "#{COMMANDS[:nbd]} -c #{device} #{dsrc}"
 
+        ds = one_vm.lxdrc[:datastore_location] + "/#{one_vm.sysds_id}"
+        File.chmod(0664, dsrc) if File.symlink?(ds)
+        
         rc, _out, err = Command.execute(cmd, true)
         
         if rc != 0 
