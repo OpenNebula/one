@@ -33,6 +33,8 @@
 #include <stdlib.h>
 #include <zlib.h> 
 #include <string.h>
+#include <linux/limits.h>
+#include <getopt.h>
 
 /* -------------------------------------------------------------------------- */
 /* Font glyph storage array and map pointer                                   */
