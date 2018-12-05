@@ -118,6 +118,16 @@ func SystemVersion() (string, error) {
 	return response.Body(), nil
 }
 
+// SystemConfig returns the current OpenNebula config
+func SystemConfig() (string, error) {
+	response, err := client.Call("one.system.config")
+	if err != nil {
+		return "", err
+	}
+
+	return response.Body(), nil
+}
+
 // Call is an XML-RPC wrapper. It returns a pointer to response and an error.
 func (c *oneClient) Call(method string, args ...interface{}) (*response, error) {
 	var (
