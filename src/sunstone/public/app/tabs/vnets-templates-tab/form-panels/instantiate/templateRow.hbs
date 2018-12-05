@@ -29,15 +29,6 @@
   <fieldset>
     <legend>{{tr "Address Ranges"}}</legend>
     <div class="row">
-      <div class="medium-5 small-12 columns">
-        {{#isTabActionEnabled "vnets-templates-tab" "VNTemplate.add_ar"}}
-          <button class="button success small radius" id="add_ar_button">
-            <span class="fas fa-plus"></span> {{tr "Address Range"}}
-          </button>
-        {{/isTabActionEnabled}}
-      </div>
-    </div>
-    <div class="row">
       {{{arHTML}}}
     </div>
   </fieldset>
