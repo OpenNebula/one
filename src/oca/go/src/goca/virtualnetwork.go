@@ -175,6 +175,7 @@ func (vn *VirtualNetwork) Rename(newName string) error {
 
 // Info retrieves information for the virtual network.
 func (vn *VirtualNetwork) Info() error {
-	_, err := client.Call("one.vn.info", vn.ID)
+	response, err := client.Call("one.vn.info", vn.ID)
+	vn.body = response.Body()
 	return err
 }

@@ -84,7 +84,8 @@ func (vdc *Vdc) Rename(newName string) error {
 
 // Info retrieves information for the VDC.
 func (vdc *Vdc) Info() error {
-	_, err := client.Call("one.vdc.info", vdc.ID)
+	response, err := client.Call("one.vdc.info", vdc.ID)
+	vdc.body = response.Body()
 	return err
 }
 

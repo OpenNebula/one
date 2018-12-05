@@ -91,7 +91,8 @@ func (host *Host) Rename(newName string) error {
 
 // Info retrieves information for the host.
 func (host *Host) Info() error {
-	_, err := client.Call("one.host.info", host.ID)
+	response, err := client.Call("one.host.info", host.ID)
+	host.body = response.Body()
 	return err
 }
 

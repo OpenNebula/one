@@ -125,6 +125,7 @@ func (cluster *Cluster) Rename(newName string) error {
 
 // Info retrieves information for the cluster.
 func (cluster *Cluster) Info() error {
-	_, err := client.Call("one.cluster.info", cluster.ID)
+	response, err := client.Call("one.cluster.info", cluster.ID)
+	cluster.body = response.Body()
 	return err
 }

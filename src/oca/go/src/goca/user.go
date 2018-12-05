@@ -129,6 +129,7 @@ func (user *User) DelGroup(groupID uint) error {
 
 // Info retrieves information for the user.
 func (user *User) Info() error {
-	_, err := client.Call("one.user.info", user.ID)
+	response, err := client.Call("one.user.info", user.ID)
+	user.body = response.Body()
 	return err
 }
