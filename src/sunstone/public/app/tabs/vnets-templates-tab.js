@@ -49,7 +49,7 @@ define(function(require) {
   var VNetsTemplatesTab = {
     tabId: TAB_ID,
     title: Locale.tr("Network Templates"),
-    icon: 'fa-network-wired',
+    icon: 'fa-clone',
     tabClass: "subTab",
     parentTab: "network-top-tab",
     listHeader: Locale.tr("Virtual Network Templates"),

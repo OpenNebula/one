@@ -122,7 +122,11 @@ define(function(require) {
 
     return TemplateAR({
       'element': this.element,
-      'arList' : processedARList
+      'arList' : processedARList,
+      'tab': "vnets-templates-tab",
+      'action_add': "VNTemplate.add_ar",
+      'action_update': "VNTemplate.update_ar",
+      'action_rm': "VNTemplate.rm_ar"
     });
   }
 
