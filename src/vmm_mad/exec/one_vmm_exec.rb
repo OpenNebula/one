@@ -1012,6 +1012,7 @@ class ExecDriver < VirtualMachineDriver
     #  DETACHNIC action to detach a nic interface
     #
     def detach_nic(id, drv_message)
+        action = ACTION[:detach_nic]
         xml_data = decode(drv_message)
 
         nic_alias = false
@@ -1034,8 +1035,6 @@ class ExecDriver < VirtualMachineDriver
                 "Error in #{ACTION[:detach_nic]}, MAC needed in NIC")
             return
         end
-
-        action = VmmAction.new(self, id, :detach_nic, drv_message)
 
         if !nic_alias
             steps=[
@@ -1063,7 +1062,13 @@ class ExecDriver < VirtualMachineDriver
             steps = []
         end
 
-        action.run(steps)
+        if steps.empty?
+            send_message(action, RESULT[:success], id, "")
+        else
+            action = VmmAction.new(self, id, :detach_nic, drv_message)
+
+            action.run(steps)
+        end
     end
 
     #
