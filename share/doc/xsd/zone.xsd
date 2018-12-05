@@ -13,10 +13,10 @@
             </xs:sequence>
           </xs:complexType>
         </xs:element>
-        <xs:element name="TEMPLATE"/>
+        <xs:element name="TEMPLATE">
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="ENDPOINT" type="xs:string">
+              <xs:element name="ENDPOINT" type="xs:string"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>
