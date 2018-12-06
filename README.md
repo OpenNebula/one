@@ -33,6 +33,7 @@ Additionally, to build OpenNebula from source you need:
 * **flex** >= 2.5 (optional, only needed to rebuild the parsers)
 * **bison** >= 2.3 (optional, only needed to rebuild the parsers)
 * **libxml2-dev**
+* **libvncserver-dev** (optional, only needed to build svncterm_server)
 
 ### Ruby Libraries Requirements
 
@@ -115,6 +116,7 @@ The argument expression *[OPTIONAL]* is used to set non-default values for:
         new_xmlrpc  yes if you have an xmlrpc-c version >= 1.31
         sunstone    yes if you want to build sunstone minified files
         systemd     yes if you want to build systemd support
+        svncterm    no if you want to skip building vnc support for LXD drivers
 
 
 ### Installation
