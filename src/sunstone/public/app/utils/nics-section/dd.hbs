@@ -18,23 +18,45 @@
       <span class="label secondary">{{tr "Select a Network"}} </span>
       {{/if}}
     </span>
-    <i class="right fas fa-times-circle remove-tab provision_remove_nic"></i>
+    <i id="remove_nic_{{provision_nic_accordion_dd_id}}" class="right fas fa-times-circle remove-tab provision_remove_nic"></i>
   </a>
   <div id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}" class="accordion-content nic-section-entry" data-tab-content>
     <div class="only_template">
       <div class="row autoContainer">
         <div class="large-12 large-centered columns">
-          <div class="switch left">
-            <input class="switch-input" id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_network_mode" type="checkbox">
-            <label class="switch-paddle" for="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_network_mode">
-            </label>
-          </div>
-          <label class="left">
-            &nbsp;&nbsp;
-            {{tr "Automatic selection"}}
-            {{{tip (tr "The Schedule will decide which is the bets virtual network")}}}
-          </label>
-        </div>
+            <fieldset id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_interface_type_section">
+                <legend>{{tr "Interface type"}}</legend>
+                <div class="switch left">
+                  <input class="switch-input" id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_interface_type" type="checkbox">
+                  <label class="switch-paddle" for="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_interface_type">
+                  </label>
+                </div>
+                <label class="left">
+                  &nbsp;&nbsp;
+                  {{tr "Alias"}}
+                  {{{tip (tr "The NIC will be attached as an alias")}}}
+                </label>
+                &nbsp;&nbsp;
+                <span id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_no_alias" class="radius warning label">
+                <i class="fas fa-exclamation-triangle"/> {{tr "NIC has alias"}}
+                </span>
+                <select id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_alias_parent" style="width: 200px; margin-left: 5px"></select>
+            </fieldset>
+            <fieldset>
+                <legend>{{tr "Network selection"}}</legend>
+                <div id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_network_selection">
+                    <div class="switch left">
+                      <input class="switch-input" id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_network_mode" type="checkbox">
+                      <label class="switch-paddle" for="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_network_mode">
+                      </label>
+                    </div>
+                    <label class="left">
+                      &nbsp;&nbsp;
+                      {{tr "Automatic selection"}}
+                      {{{tip (tr "The Schedule will decide which is the bets virtual network")}}}
+                    </label>
+                </div>
+            </fieldset>
       </div>
       <div class="auto">
         <fieldset>

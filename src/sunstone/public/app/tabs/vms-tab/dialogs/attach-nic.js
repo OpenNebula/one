@@ -53,6 +53,7 @@ define(function(require) {
   Dialog.prototype.onShow = _onShow;
   Dialog.prototype.setup = _setup;
   Dialog.prototype.setElement = _setElement;
+  Dialog.prototype.setNicsNames = _setNicsNames;
 
   return Dialog;
 
@@ -68,15 +69,37 @@ define(function(require) {
   }
 
   function _setup(context) {
+    this.context = context;
+
     var that = this;
+
     that.nicTab.setup(context, {hide_pci: true, hide_auto: true});
 
     Tips.setup(context);
 
+    $("#parent", context).hide();
+
+    $("#attach_alias", context).change(function() {
+        if(this.checked) {
+            $("#parent", context).show();
+        } else {
+            $("#parent", context).hide();
+        }
+    });
+
     $('#' + DIALOG_ID + 'Form', context).submit(function() {
       var templateJSON = that.nicTab.retrieve(context);
-      var obj = {
-        "NIC": templateJSON
+
+      if($("#attach_alias", context).prop("checked")) {
+        templateJSON.PARENT = $("#parent").val();
+
+        var obj = {
+            "NIC_ALIAS": templateJSON
+        }
+      } else {
+        var obj = {
+            "NIC": templateJSON
+        }
       }
 
       Sunstone.runAction('VM.attachnic', that.element.ID, obj);
@@ -99,5 +122,16 @@ define(function(require) {
 
   function _setElement(element) {
     this.element = element
+  }
+
+  function _setNicsNames(nicsNames) {
+    $("#parent", this.context).empty();
+    var that = this;
+
+    nicsNames.forEach(function(element) {
+        var alias_str = element.ID + " " + element.NET + " " + element.IP;
+
+        $("#parent", that.context).append(new Option(alias_str, element.NAME));
+    });
   }
 });

@@ -43,9 +43,11 @@ define(function(require) {
     CONSTRUCTOR
    */
 
-  function NicTab(nicTabId) {
+  function NicTab(nicTabId, nics) {
     that = this;
+    this.nicId = nicTabId - 1;
     this.nicTabId = 'nicTab' + nicTabId + UniqueId.id();
+    this.nics = nics;
 
     var options = {
       'select': true,
@@ -78,6 +80,7 @@ define(function(require) {
   NicTab.prototype.retrieve = _retrieve;
   NicTab.prototype.fill = _fill;
   NicTab.prototype.generateRequirements = _generateRequirements;
+  NicTab.prototype.fill_alias = _fill_alias;
 
   return NicTab;
 
@@ -107,6 +110,7 @@ define(function(require) {
    */
   function _setup(context, options) {
     var that = this;
+    that.context = context;
 
     if (options != undefined && options.hide_pci == true){
       $("input.pci-type-nic", context).attr('disabled', 'disabled');
@@ -194,13 +198,127 @@ define(function(require) {
       if(network_mode_on){
         $(".no_auto", context).hide();
         $(".auto", context).show();
+        $("#" + that.nicTabId + "interface_type", context).hide();
       } else {
         $(".auto", context).hide();
         $(".no_auto", context).show();
+        $("#" + that.nicTabId + "interface_type", context).show();
       }
     });
 
     $(".auto", context).hide();
+
+    $("input#" + this.nicTabId + "_interface_type", context).on("change", function(){
+        var alias_on = $(this).prop("checked");
+        var alias;
+        var found = false;
+
+        $.each(that.nics, function(index, value) {
+            if (value.ALIAS === ("NIC" + that.nicId)) {
+                alias = value.ALIAS;
+            }
+        });
+
+        $("#" + that.nicTabId + "_alias_parent", context).empty();
+        $("#" + that.nicTabId + "_alias_parent", context).append(new Option("Choose NIC", "INVALID"));
+        $("#" + that.nicTabId + "_alias_parent", context).val("INVALID");
+        $("#" + that.nicTabId + "_no_alias", context).html("Nic has alias");
+
+        if (that.nics.length == 1 && alias_on) {
+            $("#" + that.nicTabId + "_alias_parent", context).hide();
+            $(".network_selection", context).hide();
+            $("#" + that.nicTabId + "_no_alias", context).html("No NIC available");
+            $("#" + that.nicTabId + "_no_alias").show();
+        } else {
+            if(alias_on && !alias) {
+                $("#" + that.nicTabId + "_alias_parent", context).show();
+                $(".network_selection", context).hide();
+                $("#" + that.nicTabId + "_no_alias").hide();
+            } else if (alias_on && alias) {
+                $("#" + that.nicTabId + "_alias_parent", context).hide();
+                $(".network_selection", context).hide();
+                $("#" + that.nicTabId + "_no_alias").show();
+            } else {
+                $.each(that.nics, function(index, value) {
+                    if (value.NAME == ("NIC" + that.nicId)) {
+                        alias = value.ALIAS;
+                        value.ALIAS = false;
+                    }
+                });
+
+                if (alias) {
+                    $.each(that.nics, function(index, value) {
+                        if (value.ALIAS == alias) {
+                            found = true;
+                        }
+                    });
+
+                    if (found) {
+                        $("#remove_nic_" + (alias[alias.length - 1])).hide();
+                    } else {
+                        $("#remove_nic_" + (alias[alias.length - 1])).show();
+                    }
+                }
+
+                $("#" + that.nicTabId + "_alias_parent", context).hide();
+                $(".network_selection", context).show();
+                $("#" + that.nicTabId + "_no_alias").hide();
+            }
+        }
+    });
+
+    $("#" + this.nicTabId + "_no_alias").hide();
+
+    $("#" + this.nicTabId + "_alias_parent", context).append(new Option("Choose NIC", "INVALID"));
+    $("#" + this.nicTabId + "_alias_parent", context).val("INVALID");
+
+    $("#" + this.nicTabId + "_alias_parent", context).on("click", function(){
+        var selected_nic = $("#" + that.nicTabId + "_alias_parent", context).val();
+        var add = false;
+        var found = false;
+
+        $("#" + that.nicTabId + "_alias_parent").empty();
+
+        that.nics.forEach(function(element) {
+            if(element.NAME != ("NIC" + that.nicId) && !element.ALIAS &&
+                    (that.nicId > element.NAME[element.NAME.length - 1])) {
+                $("#" + that.nicTabId + "_alias_parent").append(new Option(element.NAME, element.NAME));
+                add = true;
+            }
+        });
+
+        if (!add) {
+            $("#" + that.nicTabId + "_alias_parent", context).append(new Option("No NIC available", "INVALID"));
+            $("#" + that.nicTabId + "_alias_parent", context).val("INVALID");
+        } else if (add && selected_nic == "INVALID") {
+           $("#" + that.nicTabId + "_alias_parent", context).val($("#" + that.nicTabId + "_alias_parent option:first").val());
+           selected_nic = $("#" + that.nicTabId + "_alias_parent", context).val();
+        }
+
+        $.each(that.nics, function(index, value) {
+            if (value.NAME == ("NIC" + that.nicId) && selected_nic != "INVALID") {
+                value.ALIAS = selected_nic;
+            }
+        });
+
+        if (selected_nic && selected_nic != "INVALID") {
+            $.each(that.nics, function(index, value) {
+                if (value.ALIAS == selected_nic) {
+                    found = true;
+                }
+            });
+
+            if (found) {
+                $("#remove_nic_" + (selected_nic[selected_nic.length - 1])).hide();
+            } else {
+                $("#remove_nic_" + (selected_nic[selected_nic.length - 1])).show();
+            }
+
+            $("#" + that.nicTabId + "_alias_parent", context).val(selected_nic);
+        }
+    });
+
+    $("#" + this.nicTabId + "_alias_parent", context).hide();
 
     context.on("change", "input[name='" + that.nicTabId + "_req_select']", function() {
       if ($("input[name='" + that.nicTabId + "_req_select']:checked").val() == "vnet_select") {
@@ -253,6 +371,13 @@ define(function(require) {
       if ( rank !== "" ){
         nicJSON["SCHED_RANK"] = rank;
       }
+    }
+
+    if(!$("input#" + this.nicTabId + "_interface_type", context).prop("checked") ||
+            $("#" + this.nicTabId + "_alias_parent", context).val() == "INVALID") {
+        delete nicJSON["PARENT"];
+    } else {
+      nicJSON["PARENT"] = $("#" + this.nicTabId + "_alias_parent", context).val();
     }
 
     return nicJSON;
@@ -376,4 +501,20 @@ define(function(require) {
 
     $("input#"+this.nicTabId+"_SCHED_REQUIREMENTS", context).val(req_string.join(" | "));
   };
+
+  function _fill_alias(nicname) {
+    $.each(this.nics, function(index, value) {
+        if (value.NAME == ("NIC" + that.nicId)) {
+            value.ALIAS = nicname;
+        }
+    });
+
+    $("#" + this.nicTabId + "interface_type", this.context).show();
+    $("input#" + this.nicTabId + "_interface_type", this.context).click();
+    $("#" + this.nicTabId + "_alias_parent", this.context).show();
+    $("#" + this.nicTabId + "_alias_parent", this.context).empty();
+    $("#" + this.nicTabId + "_alias_parent").append(new Option(nicname, nicname));
+    $("#" + this.nicTabId + "_alias_parent", this.context).val(nicname);
+    $(".network_selection", this.context).hide();
+  }
 });

@@ -17,16 +17,37 @@
   <div class="only_create">
     <div class="row autoContainer">
       <div class="large-12 large-centered columns">
-        <div class="switch left">
-          <input class="switch-input" id="{{nicTabId}}_network_mode" type="checkbox">
-          <label class="switch-paddle" for="{{nicTabId}}_network_mode">
-          </label>
-        </div>
-        <label class="left">
-          &nbsp;&nbsp;
-          {{tr "Automatic selection"}}
-          {{{tip (tr "The Schedule will decide which is the bets virtual network")}}}
-        </label>
+        <fieldset id="{{nicTabId}}interface_type">
+            <legend>{{tr "Interface type"}}</legend>
+            <div class="switch left">
+              <input class="switch-input" id="{{nicTabId}}_interface_type" type="checkbox">
+              <label class="switch-paddle" for="{{nicTabId}}_interface_type">
+              </label>
+            </div>
+            <label class="left">
+              &nbsp;&nbsp;
+              {{tr "Alias"}}
+              {{{tip (tr "The NIC will be attached as an alias")}}}
+            </label>
+            &nbsp;&nbsp;
+            <span id="{{nicTabId}}_no_alias" class="radius warning label">
+            <i class="fas fa-exclamation-triangle"/> {{tr "NIC has alias"}}
+            </span>
+            <select id="{{nicTabId}}_alias_parent" style="width: 200px; margin-left: 5px"></select>
+        </fieldset>
+        <fieldset>
+            <legend>{{tr "Network selection"}}</legend>
+            <div class="switch left network_selection">
+              <input class="switch-input" id="{{nicTabId}}_network_mode" type="checkbox">
+              <label class="switch-paddle" for="{{nicTabId}}_network_mode">
+              </label>
+            </div>
+            <label class="left network_selection">
+              &nbsp;&nbsp;
+              {{tr "Automatic selection"}}
+              {{{tip (tr "The Schedule will decide which is the bets virtual network")}}}
+            </label>
+        </fieldset>
       </div>
     </div>
     <div class="auto">
