@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"strings"
 
@@ -31,6 +30,23 @@ type oneClient struct {
 	xmlrpcClientError error
 }
 
+type InitError struct {
+	token     string
+	xmlRpcErr string
+}
+
+func (r *InitError) Error() string {
+	return fmt.Sprintf("Unitialized client. Token: '%s', xmlrpcClientError: '%s'", r.token, r.xmlRpcErr)
+}
+
+type BadResponseError struct {
+	ExpectedType string
+}
+
+func (r *BadResponseError) Error() string {
+	return fmt.Sprintf("Unexpected XML-RPC response, Expected: %s", r.ExpectedType)
+}
+
 type response struct {
 	status   bool
 	body     string
@@ -49,10 +65,7 @@ type Resource interface {
 
 // Initializes the client variable, used as a singleton
 func init() {
-	err := SetClient(NewConfig("", "", ""))
-	if err != nil {
-		log.Fatal(err)
-	}
+	SetClient(NewConfig("", "", ""))
 }
 
 // NewConfig returns a new OneConfig object with the specified user, password,
@@ -95,7 +108,7 @@ func NewConfig(user string, password string, xmlrpcURL string) OneConfig {
 }
 
 // SetClient assigns a value to the client variable
-func SetClient(conf OneConfig) error {
+func SetClient(conf OneConfig) {
 
 	xmlrpcClient, xmlrpcClientError := xmlrpc.NewClient(conf.XmlrpcURL, nil)
 
@@ -104,8 +117,6 @@ func SetClient(conf OneConfig) error {
 		xmlrpcClient:      xmlrpcClient,
 		xmlrpcClientError: xmlrpcClientError,
 	}
-
-	return nil
 }
 
 // SystemVersion returns the current OpenNebula Version
@@ -140,7 +151,7 @@ func (c *oneClient) Call(method string, args ...interface{}) (*response, error) 
 	)
 
 	if c.xmlrpcClientError != nil {
-		return nil, fmt.Errorf("Unitialized client. Token: '%s', xmlrpcClient: '%s'", c.token, c.xmlrpcClientError)
+		return nil, InitError{Token: c.token, xmlrpcErr: c.xmlrpcClientError}
 	}
 
 	result := []interface{}{}
@@ -152,12 +163,12 @@ func (c *oneClient) Call(method string, args ...interface{}) (*response, error) 
 
 	err := c.xmlrpcClient.Call(method, xmlArgs, &result)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	status, ok = result[0].(bool)
 	if ok == false {
-		log.Fatal("Unexpected XML-RPC response. Expected: Index 0 Boolean")
+		return nil, BadResponseError{ExpectedType: "Index 0: Boolean"}
 	}
 
 	body, ok = result[1].(string)
@@ -166,7 +177,7 @@ func (c *oneClient) Call(method string, args ...interface{}) (*response, error) 
 		if ok == false {
 			bodyBool, ok = result[1].(bool)
 			if ok == false {
-				log.Fatal("Unexpected XML-RPC response. Expected: Index 0 Int or String")
+				return nil, BadResponseError{ExpectedType: "Index 1: Int or String"}
 			}
 		}
 	}
