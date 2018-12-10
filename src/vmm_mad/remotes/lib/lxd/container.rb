@@ -305,7 +305,7 @@ class Container
 
         update
 
-        mapper = new_disk_mapper(@one, disk_element)
+        mapper = new_disk_mapper(disk_element)
         mapper.unmap(@one, disk_element, csrc)
     end
 
