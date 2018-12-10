@@ -128,8 +128,8 @@ func (sg *SecurityGroup) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
 // Chown changes the ownership of a security group.
 // * userID: The User ID of the new owner. If set to -1, it will not change.
 // * groupID: The Group ID of the new group. If set to -1, it will not change.
-func (sg *SecurityGroup) Chown(userID, groupID uint) error {
-	_, err := client.Call("one.secgroup.chown", sg.ID, int(userID), int(groupID))
+func (sg *SecurityGroup) Chown(userID, groupID int) error {
+	_, err := client.Call("one.secgroup.chown", sg.ID, userID, groupID)
 	return err
 }
 
