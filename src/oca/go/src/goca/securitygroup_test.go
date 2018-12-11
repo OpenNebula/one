@@ -1,4 +1,4 @@
-package goca_test
+package goca
 
 import (
 	"testing"
