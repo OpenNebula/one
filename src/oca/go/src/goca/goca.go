@@ -32,7 +32,7 @@ type oneClient struct {
 
 type InitError struct {
 	token     string
-	xmlRpcErr string
+	xmlRpcErr error
 }
 
 func (r *InitError) Error() string {
@@ -40,11 +40,11 @@ func (r *InitError) Error() string {
 }
 
 type BadResponseError struct {
-	ExpectedType string
+	expectedType string
 }
 
 func (r *BadResponseError) Error() string {
-	return fmt.Sprintf("Unexpected XML-RPC response, Expected: %s", r.ExpectedType)
+	return fmt.Sprintf("Unexpected XML-RPC response, Expected: %s", r.expectedType)
 }
 
 type response struct {
@@ -151,7 +151,7 @@ func (c *oneClient) Call(method string, args ...interface{}) (*response, error) 
 	)
 
 	if c.xmlrpcClientError != nil {
-		return nil, InitError{Token: c.token, xmlrpcErr: c.xmlrpcClientError}
+		return nil, &InitError{token: c.token, xmlRpcErr: c.xmlrpcClientError}
 	}
 
 	result := []interface{}{}
@@ -168,7 +168,7 @@ func (c *oneClient) Call(method string, args ...interface{}) (*response, error) 
 
 	status, ok = result[0].(bool)
 	if ok == false {
-		return nil, BadResponseError{ExpectedType: "Index 0: Boolean"}
+		return nil, &BadResponseError{expectedType: "Index 0: Boolean"}
 	}
 
 	body, ok = result[1].(string)
@@ -177,7 +177,7 @@ func (c *oneClient) Call(method string, args ...interface{}) (*response, error) 
 		if ok == false {
 			bodyBool, ok = result[1].(bool)
 			if ok == false {
-				return nil, BadResponseError{ExpectedType: "Index 1: Int or String"}
+				return nil, &BadResponseError{expectedType: "Index 1: Int or String"}
 			}
 		}
 	}
