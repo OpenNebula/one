@@ -106,11 +106,11 @@ func TestVirtualNetwork(t *testing.T) {
     }
 
     // Change Owner to oneadmin call
-    err = vnet.Chown(0, 0)
+    err = vnet.Chown(1, 1)
 	if err != nil {
 		t.Error(err)
 	}
-	
+
     err = vnet.Info()
 	if err != nil {
 		t.Error(err)
@@ -128,12 +128,12 @@ func TestVirtualNetwork(t *testing.T) {
 		t.Errorf("Could not get user name")
 	}
 
-    if "oneadmin" != uname {
+    if "serveradmin" != uname {
 		t.Error("Virtual network owner is not oenadmin")
 	}
 
     // Compare with caller group
-    if "oneadmin" != gname {
+    if "users" != gname {
         t.Error("Virtual network owner group is not oneadmin")
     }
 

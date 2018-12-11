@@ -97,7 +97,7 @@ func TestImage(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	
+
     err = image.Info()
 	if err != nil {
 		t.Error(err)
@@ -132,11 +132,11 @@ func TestImage(t *testing.T) {
     }
 
     // Change Owner to oneadmin call
-    err = image.Chown(0, 0)
+    err = image.Chown(1, 1)
 	if err != nil {
 		t.Error(err)
 	}
-	
+
     err = image.Info()
 	if err != nil {
 		t.Error(err)
@@ -154,12 +154,12 @@ func TestImage(t *testing.T) {
 		t.Errorf("Could not get user name")
 	}
 
-    if "oneadmin" != uname {
+    if "serveradmin" != uname {
 		t.Error("Image owner is not oneadmin")
 	}
 
     // Compare with caller group
-    if "oneadmin" != gname {
+    if "users" != gname {
         t.Error("Image owner group is not oneadmin")
     }
 
