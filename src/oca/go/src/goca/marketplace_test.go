@@ -1,145 +1,118 @@
 package goca
 
 import (
-    "testing"
-    "strings"
+	"testing"
+	"goca"
 )
 
-var mpTpl = `
-NAME = "MPTEST"
-MARKET_MAD = "http"
-ZONE_ID = 0
-BASE_URL = "http://frontend.opennebula.org/"
-PUBLIC_DIR = "/var/loca/market-http"
-BRIDGE_LIST = "web-server.opennebula.org"
-`
 
-// Helper to create a Marketplace
-func createMarketPlace(t *testing.T) *MarketPlace {
-	id, err := CreateMarketPlace(mpTpl)
+func TestMarketplace(t *testing.T){
+	var mkt_name string = "marketplace_test_go"
+
+	var market *goca.MarketPlace
+
+	var mkt_template string =  "NAME = \"" + mkt_name + "\"\n" +
+							"MARKET_MAD = \"http\"\n" +
+							"BASE_URL = \"http://url/\"\n" +
+							"PUBLIC_DIR = \"/var/loca/market-http\""
+
+	//Create Marketpkace
+	market_id, err := goca.CreateMarketPlace(mkt_template)
+
 	if err != nil {
-		t.Error(err)
+		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	// Get Marketplace by ID
-	mp := NewMarketPlace(id)
+	market = goca.NewMarketPlace(market_id)
+	market.Info()
 
-	err = mp.Info()
+	actual, _:= market.XMLResource.XPath("/MARKETPLACE/NAME")
+
+	if actual != mkt_name {
+		t.Errorf("Test failed, expected: '%s', got:  '%s'", mkt_name, actual)
+	}
+
+	tmpl := "ATT1 = \"VAL1\""
+
+	//Update Marketpkace
+	err = market.Update(tmpl, 1)
+
 	if err != nil {
-		t.Error(err)
+		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	return mp
-}
+	market.Info()
 
-func TestMarketPlace(t *testing.T) {
-	mp := createMarketPlace(t)
+	actual_mm, _ := market.XMLResource.XPath("/MARKETPLACE/TEMPLATE/MARKET_MAD")
+	actual_1,  _ := market.XMLResource.XPath("/MARKETPLACE/TEMPLATE/ATT1")
 
-	idParse, err := GetID(t, mp, "MARKETPLACE")
+	if actual_mm != "http" {
+		t.Errorf("Test failed, expected: '%s', got:  '%s'", "http", actual_mm)
+	}
+
+	if actual_1 != "VAL1" {
+		t.Errorf("Test failed, expected: '%s', got:  '%s'", "VAL1", actual_1)
+	}
+
+	//Change permissions for Marketpkace
+	err = market.Chmod(1,1,1,1,1,1,1,1,1)
+
 	if err != nil {
-		t.Error(err)
+		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	if idParse != mp.ID {
-		t.Errorf("Marketplace ID does not match")
+	market.Info()
+
+	expected := "111111111"
+	actual, _ = market.XMLResource.XPath("/MARKETPLACE/PERMISSIONS")
+
+	if actual != expected {
+		t.Errorf("Test failed, expected: '%s', got:  '%s'", expected, actual)
 	}
 
-	// Get security group by Name
-	name, ok := mp.XPath("/MARKETPLACE/NAME")
-	if !ok {
-		t.Errorf("Could not get name")
-	}
+	//Change owner of Marketpkace
+	err = market.Chown(1,1)
 
-	mp, err = NewMarketPlaceFromName(name)
 	if err != nil {
-		t.Error(err)
+		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	err = mp.Info()
+	market.Info()
+
+	expected_usr := "1"
+	expected_grp := "1"
+	actual_usr, _ :=market.XMLResource.XPath("/MARKETPLACE/UID")
+	actual_grp, _ :=market.XMLResource.XPath("/MARKETPLACE/GID")
+
+	if actual_usr != expected_usr {
+		t.Errorf("Test failed, expected: '%s', got:  '%s'", expected_usr, actual_usr)
+	}
+
+	if actual_grp != expected_grp {
+		t.Errorf("Test failed, expected: '%s', got:  '%s'", expected_grp, actual_grp)
+	}
+
+	rename := mkt_name + "-renamed"
+
+	//Rename Marketpkace
+	err = market.Rename(rename)
+
 	if err != nil {
-		t.Error(err)
+		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	idParse, err = GetID(t, mp, "MARKETPLACE")
+	market.Info()
 
-	if idParse != mp.ID {
-		t.Errorf("Marketplace ID does not match")
+	actual, _ = market.XMLResource.XPath("/MARKETPLACE/NAME")
+
+	if actual != rename {
+		t.Errorf("Test failed, expected: '%s', got:  '%s'", rename, actual)
 	}
 
-    // Change Owner to user call
-    err = mp.Chown(-1, -1)
+	//Delete Marketpkace
+	err = market.Delete()
+
 	if err != nil {
-		t.Error(err)
-	}
-	
-    err = mp.Info()
-	if err != nil {
-		t.Error(err)
-	}
-
-	// Get Marketplace Owner Name
-	uname, ok := mp.XPath("/MARKETPLACE/UNAME")
-	if !ok {
-		t.Errorf("Could not get user name")
-	}
-
-	// Get Marketplace owner group Name
-	gname, ok := mp.XPath("/MARKETPLACE/GNAME")
-	if !ok {
-		t.Errorf("Could not get group name")
-	}
-
-    // Compare with caller username
-    caller := strings.Split(client.token, ":")[0]
-    if caller != uname {
-        t.Error("Caller user and marketplace owner user mismatch")
-    }
-
-    group, err := GetUserGroup(t, caller)
-	if err != nil {
-        t.Error("Cannot retreive caller group")
-	}
-
-    // Compare with caller group
-    if group != gname {
-        t.Error("Caller group and security group owner group mismatch")
-    }
-
-    // Change Owner to oneadmin call
-    err = mp.Chown(0, 0)
-	if err != nil {
-		t.Error(err)
-	}
-	
-    err = mp.Info()
-	if err != nil {
-		t.Error(err)
-	}
-
-	// Get Marketplace Owner Name
-	uname, ok = mp.XPath("/MARKETPLACE/UNAME")
-	if !ok {
-		t.Errorf("Could not get user name")
-	}
-
-	// Get Marketplace Owner Name
-	gname, ok = mp.XPath("/MARKETPLACE/GNAME")
-	if !ok {
-		t.Errorf("Could not get user name")
-	}
-
-    if "oneadmin" != uname {
-		t.Error("MarketPlace owner is not oneadmin")
-	}
-
-    // Compare with caller group
-    if "oneadmin" != gname {
-        t.Error("MarketPlace owner group is not oneadmin")
-    }
-
-	// Delete template
-	err = mp.Delete()
-	if err != nil {
-		t.Error(err)
+		t.Errorf("Test failed:\n" + err.Error())
 	}
 }

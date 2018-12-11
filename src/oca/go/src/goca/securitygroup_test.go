@@ -1,149 +1,134 @@
-package goca
+package goca_test
 
 import (
-    "testing"
-    "strings"
+	"testing"
+	"goca"
 )
 
-var sgTpl = `
-NAME = "ssh-test"
-RULE = [
-  PROTOCOL = "TCP",
-  RANGE = 22,
-  RULE_TYPE = "inbound"
-]
-RULE = [
-  PROTOCOL = "TCP",
-  RULE_TYPE = "outbound"
-]
-`
+func TestSGAllocate(t *testing.T){
+	var sg_name string = "new_test_sg"
+	var sg *goca.SecurityGroup
+	var sg_template string =  "NAME = \"" + sg_name + "\"\n" +
+							"DESCRIPTION  = \"test security group\"\n"+
+							"ATT1 = \"VAL1\"\n" +
+							"ATT2 = \"VAL2\""
 
-// Helper to create a Security Group
-func createSecurityGroup(t *testing.T) *SecurityGroup {
-	id, err := CreateSecurityGroup(sgTpl)
+	//Create SG
+	sg_id, err := goca.CreateSecurityGroup(sg_template)
+
 	if err != nil {
-		t.Error(err)
+	    t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	// Get Security Group by ID
-	secgroup := NewSecurityGroup(id)
+	sg = goca.NewSecurityGroup(sg_id)
+	sg.Info()
 
-	err = secgroup.Info()
+	actual, _:= sg.XMLResource.XPath("/SECURITY_GROUP/NAME")
+
+	if actual != sg_name {
+		t.Errorf("Test failed, expected: '%s', got:  '%s'", sg_name, actual)
+	}
+
+	tmpl := "ATT3 = \"VAL3\""
+
+	//Update SG
+	err = sg.Update(tmpl, 1)
+
 	if err != nil {
-		t.Error(err)
+	    t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	return secgroup
-}
+	sg.Info()
 
-func TestSecurityGroup(t *testing.T) {
-	secgroup := createSecurityGroup(t)
+	actual_1, _ := sg.XMLResource.XPath("/SECURITY_GROUP/TEMPLATE/ATT1")
+	actual_3, _ := sg.XMLResource.XPath("/SECURITY_GROUP/TEMPLATE/ATT3")
 
-	idParse, err := GetID(t, secgroup, "SECURITY_GROUP")
+	if actual_1 != "VAL1" {
+		t.Errorf("Test failed, expected: '%s', got:  '%s'", "VAL1", actual_1)
+	}
+
+	if actual_3 != "VAL3" {
+		t.Errorf("Test failed, expected: '%s', got:  '%s'", "VAL3", actual_3)
+	}
+
+	clone_name := sg_name + "-cloned"
+
+	//Clone SG
+	clone_id, err := sg.Clone(clone_name)
+
 	if err != nil {
-		t.Error(err)
+	    t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	if idParse != secgroup.ID {
-		t.Errorf("Security Group ID does not match")
+	clone := goca.NewSecurityGroup(clone_id)
+	clone.Info()
+
+	actual, _ = clone.XMLResource.XPath("/SECURITY_GROUP/NAME")
+
+	if actual != clone_name {
+		t.Errorf("Test failed, expected: '%s', got:  '%s'", clone_name, actual)
 	}
 
-	// Get security group by Name
-	name, ok := secgroup.XPath("/SECURITY_GROUP/NAME")
-	if !ok {
-		t.Errorf("Could not get name")
-	}
+	clone.Delete()
 
-	secgroup, err = NewSecurityGroupFromName(name)
+	//Change permission of SG
+	err = sg.Chmod(1,1,1,1,1,1,1,1,1)
+
 	if err != nil {
-		t.Error(err)
+	    t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	err = secgroup.Info()
+	sg.Info()
+
+	expected := "111111111"
+	actual, _ = sg.XMLResource.XPath("/SECURITY_GROUP/PERMISSIONS")
+
+	if actual != expected {
+		t.Errorf("Test failed, expected: '%s', got:  '%s'", expected, actual)
+	}
+
+	//Change owner of SG
+	err = sg.Chown(1,1)
+
 	if err != nil {
-		t.Error(err)
+	    t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	idParse, err = GetID(t, secgroup, "SECURITY_GROUP")
+	sg.Info()
 
-	if idParse != secgroup.ID {
-		t.Errorf("Security Group ID does not match")
+	expected_usr := "1"
+	expected_grp := "1"
+	actual_usr, _ := sg.XMLResource.XPath("/SECURITY_GROUP/UID")
+	actual_grp, _ := sg.XMLResource.XPath("/SECURITY_GROUP/GID")
+
+	if actual_usr != expected_usr {
+		t.Errorf("Test failed, expected: '%s', got:  '%s'", expected_usr, actual_usr)
 	}
 
-    // Change Owner to user call
-    err = secgroup.Chown(-1, -1)
+	if actual_grp != expected_grp {
+		t.Errorf("Test failed, expected: '%s', got:  '%s'", expected_grp, actual_grp)
+	}
+
+	//Rename SG
+	rename := sg_name + "-renamed"
+	err = sg.Rename(rename)
+
 	if err != nil {
-		t.Error(err)
+	    t.Errorf("Test failed:\n" + err.Error())
 	}
-	
-    err = secgroup.Info()
+
+	sg.Info()
+
+	actual, _ = sg.XMLResource.XPath("/SECURITY_GROUP/NAME")
+
+	if actual != rename {
+		t.Errorf("Test failed, expected: '%s', got:  '%s'", rename, actual)
+	}
+
+	//Delete SG
+	err = sg.Delete()
+
 	if err != nil {
-		t.Error(err)
-	}
-
-	// Get Security Group Owner Name
-	uname, ok := secgroup.XPath("/SECURITY_GROUP/UNAME")
-	if !ok {
-		t.Errorf("Could not get user name")
-	}
-
-	// Get Security Group owner group Name
-	gname, ok := secgroup.XPath("/SECURITY_GROUP/GNAME")
-	if !ok {
-		t.Errorf("Could not get group name")
-	}
-
-    // Compare with caller username
-    caller := strings.Split(client.token, ":")[0]
-    if caller != uname {
-        t.Error("Caller user and security group owner user mismatch")
-    }
-
-    group, err := GetUserGroup(t, caller)
-	if err != nil {
-        t.Error("Cannot retreive caller group")
-	}
-
-    // Compare with caller group
-    if group != gname {
-        t.Error("Caller group and security group owner group mismatch")
-    }
-
-    // Change Owner to oneadmin call
-    err = secgroup.Chown(0, 0)
-	if err != nil {
-		t.Error(err)
-	}
-	
-    err = secgroup.Info()
-	if err != nil {
-		t.Error(err)
-	}
-
-	// Get Security Group Owner Name
-	uname, ok = secgroup.XPath("/SECURITY_GROUP/UNAME")
-	if !ok {
-		t.Errorf("Could not get user name")
-	}
-
-	// Get Security Group Owner Name
-	gname, ok = secgroup.XPath("/SECURITY_GROUP/GNAME")
-	if !ok {
-		t.Errorf("Could not get user name")
-	}
-
-    if "oneadmin" != uname {
-		t.Error("Security group owner is not oneadmin")
-	}
-
-    // Compare with caller group
-    if "oneadmin" != gname {
-        t.Error("Security group owner group is not oneadmin")
-    }
-
-	// Delete template
-	err = secgroup.Delete()
-	if err != nil {
-		t.Error(err)
+		t.Errorf("Test failed:\n" + err.Error())
 	}
 }
