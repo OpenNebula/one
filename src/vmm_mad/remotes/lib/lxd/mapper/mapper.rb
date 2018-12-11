@@ -60,7 +60,8 @@ class Mapper
         :nbd        => 'sudo -u root -g oneadmin qemu-nbd',
         :su_mkdir   => 'sudo mkdir -p',
         :mkdir      => 'mkdir -p',
-        :cat        => 'sudo cat',
+        :catfstab   => 'sudo catfstab',
+        :cat        => 'cat',
         :file       => 'file -L',
         :blkid      => 'sudo blkid',
         :e2fsck     => 'sudo e2fsck',
@@ -263,7 +264,10 @@ class Mapper
 
             return false if !rc
 
-            cmd = "#{COMMANDS[:cat]} #{path}/etc/fstab"
+            bin = COMMANDS[:catfstab]
+            bin = COMMANDS[:cat] unless path.include?('containers/one-')
+
+            cmd = "#{bin} #{path}/etc/fstab"
 
             rc, fstab, e = Command.execute(cmd, false)
 
