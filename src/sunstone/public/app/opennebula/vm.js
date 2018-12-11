@@ -447,6 +447,14 @@ define(function(require) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "migrate", action_obj);
     },
+    "migrate_poff": function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "migrate_poff", action_obj);
+    },
+    "migrate_poff_hard": function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "migrate_poff_hard", action_obj);
+    },
     "disk_saveas": function(params) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "disk_saveas", action_obj);

@@ -151,6 +151,7 @@ require.config({
         'tabs/marketplaceapps-tab',
         'tabs/network-top-tab',
         'tabs/vnets-tab',
+        'tabs/vnets-templates-tab',
         'tabs/vnets-topology-tab',
         'tabs/secgroups-tab',
         'tabs/settings-tab',

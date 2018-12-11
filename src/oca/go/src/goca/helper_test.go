@@ -43,3 +43,25 @@ func WaitResource(f func() bool) bool {
 	}
 	return false
 }
+
+// Get User Main Group name
+func GetUserGroup(t *testing.T, user string) (string, error){
+    u, err := NewUserFromName(user)
+	if err != nil {
+        t.Error("Cannot retreive caller user ID")
+	}
+
+    // Get User Info
+    err = u.Info()
+	if err != nil {
+        t.Error("Cannot retreive caller user Info")
+	}
+
+    // Get Caller Group
+	ugroup, ok := u.XPath("/USER/GNAME")
+	if !ok {
+		t.Errorf("Could not get caller group name")
+	}
+
+    return ugroup, nil
+}

@@ -45,6 +45,9 @@ const (
 	// ImageDelete image is in delete state
 	ImageDelete
 
+	// ImageUsedPers image is in use and persistent
+	ImageUsedPers
+
 	// ImageLockUsed image is in locked state (non-persistent)
 	ImageLockUsed
 

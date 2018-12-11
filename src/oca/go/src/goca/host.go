@@ -12,6 +12,52 @@ type HostPool struct {
 	XMLResource
 }
 
+// HostState is the state of an OpenNebula Host
+type HostState int
+
+const (
+	// HostInit host is in the initial state when enabled
+	HostInit = iota
+
+	// HostMonitoringMonitored host is being monitored (from monitored state)
+	HostMonitoringMonitored
+
+	// HostMonitored host has been successfully monitored
+	HostMonitored
+
+	// HostError host has encountered an error ocurred while monitoring
+	HostError
+
+	// HostDisabled host is disabled
+	HostDisabled
+
+	// HostMonitoringError host is being monitored (from error state)
+	HostMonitoringError
+
+	// HostMonitoringInit host is being monitored (from init state)
+	HostMonitoringInit
+
+	// HostMonitoringDisabled host is being monitored (from disabled state)
+	HostMonitoringDisabled
+
+	// HostOffline host is totally offline
+	HostOffline
+)
+
+func (st HostState) String() string {
+	return [...]string{
+		"INIT",
+		"MONITORING_MONITORED",
+		"MONITORED",
+		"ERROR",
+		"DISABLED",
+		"MONITORING_ERROR",
+		"MONITORING_INIT",
+		"MONITORING_DISABLED",
+		"OFFLINE",
+	}[st]
+}
+
 // NewHostPool returns a host pool. A connection to OpenNebula is
 // performed.
 func NewHostPool() (*HostPool, error) {

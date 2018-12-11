@@ -111,8 +111,8 @@ func (market *MarketPlace) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
 // Chown changes the ownership of a marketplace.
 // * userID: The User ID of the new owner. If set to -1, it will not change.
 // * groupID: The Group ID of the new group. If set to -1, it will not change.
-func (market *MarketPlace) Chown(userID, groupID uint) error {
-	_, err := client.Call("one.market.chown", market.ID, int(userID), int(groupID))
+func (market *MarketPlace) Chown(userID, groupID int) error {
+	_, err := client.Call("one.market.chown", market.ID, userID, groupID)
 	return err
 }
 

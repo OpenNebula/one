@@ -1115,7 +1115,7 @@ class VirtualMachine < VCenterDriver::Template
         end
 
         disks = sync_disks(:all, false)
-        nresize_unmanaged_disks
+        resize_unmanaged_disks
 
         if deploy[:boot] && !deploy[:boot].empty?
             boot_opts = set_boot_order(deploy[:boot])
@@ -1530,7 +1530,6 @@ class VirtualMachine < VCenterDriver::Template
         end
     end
 
-    # TODO
     def attach_disks_specs()
         attach_disk_array = []
         attach_spod_array = []
@@ -1555,7 +1554,6 @@ class VirtualMachine < VCenterDriver::Template
         @keys.each{|k,v| @keys.delete(k) if v == key}
     end
 
-    # TODO
     def detach_disks_specs()
         detach_disk_array = []
         extra_config      = []
@@ -1740,8 +1738,7 @@ class VirtualMachine < VCenterDriver::Template
         end
     end
 
-    # TODO
-    def ndetach_disk(disk)
+    def detach_disk(disk)
         return unless disk.exists?
 
         spec_hash = {}
@@ -1758,7 +1755,6 @@ class VirtualMachine < VCenterDriver::Template
         end
     end
 
-    # TODO
     def destroy_disk(disk)
         one_vm = one_item
 
@@ -1767,7 +1763,7 @@ class VirtualMachine < VCenterDriver::Template
 
         return unless detachable
 
-        ndetach_disk(disk)
+        detach_disk(disk)
         disk.destroy()
 
         @disks.delete(disk.id.to_s)
@@ -1935,8 +1931,7 @@ class VirtualMachine < VCenterDriver::Template
             end
     end
 
-    # TODO
-    def nresize_unmanaged_disks
+    def resize_unmanaged_disks
         spec = {deviceChange: []}
         disks_each(:one?) do |d|
             next unless !d.managed? && d.new_size
@@ -1948,7 +1943,6 @@ class VirtualMachine < VCenterDriver::Template
         end
     end
 
-    #TODO
     def resize_disk(disk)
         if !disk.exists?
             size = disk.get_size
