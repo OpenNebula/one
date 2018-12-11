@@ -408,6 +408,11 @@ define(function(require) {
           text = button.text;
           buttonCode = "<li><a class=\"" + strClass.join(" ") + "\" href=\"" + buttonName + "\">" + text + "</a></li>";
           break;
+        case "vmsmigration_buttons":
+          buttonContext = $("#" + customId + "vmsmigration_buttons", buttonsRow);
+          text = button.text;
+          buttonCode = "<li><a class=\"" + strClass.join(" ") + "\" href=\"" + buttonName + "\">" + text + "</a></li>";
+          break;
         case "more_select":
           buttonContext = $("#" + customId + "more_buttons", buttonsRow);
           text = button.text;
@@ -459,6 +464,10 @@ define(function(require) {
 
       if ($("#" + customId + "vmsplanification_buttons li", actionBlock).length == 0) {
         $("button[data-toggle=" + customId + "vmsplanification_buttons]", actionBlock).remove();
+      }
+
+      if ($("#" + customId + "vmsmigration_buttons li", actionBlock).length == 0) {
+        $("button[data-toggle=" + customId + "vmsmigration_buttons]", actionBlock).remove();
       }
 
       if ($("#" + customId + "vmsdelete_buttons li", actionBlock).length == 0) {
