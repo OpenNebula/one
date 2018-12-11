@@ -409,7 +409,8 @@ class Container
                 return FSRawMapper.new
             end
         when 'RBD'
-            RBDMapper.new
+            OpenNebula.log "Using rbd disk mapper for #{ds}"
+            RBDMapper.new(disk)
         end
     end
 

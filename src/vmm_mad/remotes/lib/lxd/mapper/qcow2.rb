@@ -53,9 +53,7 @@ class Qcow2Mapper <  Mapper
 
         rc, out, err = Command.execute(cmd, true)
 
-        if rc != 0
-            OpenNebula.log_error("do_unmap: #{err}")
-        end
+        OpenNebula.log_error("do_unmap: #{err}") if rc != 0
     end
 
     private

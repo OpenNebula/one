@@ -21,40 +21,40 @@ $LOAD_PATH.unshift File.dirname(__FILE__)
 require 'mapper'
 
 # Ceph RBD mapper
-class RBD < Mapper
+class RBDMapper < Mapper
 
-    def initialize(ceph_user)
-        @ceph_user = ceph_user
+    def initialize(disk)
+        @ceph_user = disk['CEPH_USER']
     end
 
-    def map(image)
-        `sudo rbd --id #{@ceph_user} map #{image}`.chomp
+    def disk_source(vm_id, disk)
+        src = disk['SOURCE']
+        return "#{src}-#{vm_id}-#{disk['DISK_ID']}" if disk['CLONE'] == 'YES'
     end
 
-    def unmap(block)
-        shell("sudo rbd --id #{@ceph_user} unmap #{block}")
-    end
+    def do_map(one_vm, disk, _directory)
+        dsrc = disk_source(one_vm.vm_id, disk)
 
-    # Returns an array of mountable block's partitions
-    def detect_parts(block)
-        parts = `blkid | grep #{block} | grep -w UUID | awk {'print $1'}`.split(":\n")
-        uuids = []
-        parts.each {|part| uuids.append `blkid #{part} -o export | grep -w UUID`.chomp("\n")[5..-1] }
+        cmd = "#{COMMANDS[:rbd]} #{@ceph_user} map #{dsrc}"
 
-        formatted = []
-        0.upto parts.length - 1 do |i|
-            formatted[i] = { 'name' => parts[i], 'uuid' => uuids[i] }
+        rc, out, err = Command.execute(cmd, false)
+
+        if rc != 0
+            OpenNebula.log_error("do_map: #{err}")
+            return
         end
 
-        formatted
+        out.chomp
     end
 
-    def get_parts(block)
-        parts = detect_parts(block)
-        parts.each do |part|
-            part['name'].slice!('//dev')
+    def do_unmap(device, one_vm, disk, directory)
+        cmd = "#{COMMANDS[:rbd]} #{@ceph_user} unmap #{device}"
+
+        rc, _out, err = Command.execute(cmd, false)
+
+        if rc != 0
+            OpenNebula.log_error("do_map: #{err}")
+            return
         end
-        parts
     end
-
 end

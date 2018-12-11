@@ -67,7 +67,7 @@ class Mapper
         :e2fsck     => 'sudo e2fsck',
         :resize2fs  => 'sudo resize2fs',
         :xfs_growfs => 'sudo xfs_growfs',
-        :rbd        => 'sudo rbd --id'
+        :rbd        => 'sudo rbd-nbd --id'
     }
 
     #---------------------------------------------------------------------------
@@ -222,11 +222,9 @@ class Mapper
             
         umount(partitions)
 
-
-
         do_unmap(device, one_vm, disk, real_path)
 
-        return true
+        true
     end
 
     private
@@ -337,9 +335,11 @@ class Mapper
 
         Command.execute("#{cmd} #{path}", false)
 
-        rc, out, err = Command.execute("#{COMMANDS[:mount]} #{dev} #{path}",true)
+        rc, _out, err = Command.execute("#{COMMANDS[:mount]} #{dev} #{path}", true)
 
-        if rc != 0 
+        if rc != 0
+            return true if err.include?("unknown filesystem type 'swap'")
+
             OpenNebula.log_error("mount_dev: #{err}")
             return false
         end
