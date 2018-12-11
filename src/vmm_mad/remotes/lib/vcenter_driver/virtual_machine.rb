@@ -2209,10 +2209,11 @@ class VirtualMachine < VCenterDriver::Template
             # retrieve host from DRS
             resourcepool = config[:cluster].resourcePool
 
-            #relocate_spec_params = {}
-            #relocate_spec_params[:pool] = resourcepool
-            #relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(relocate_spec_params)
-            #@item.RelocateVM_Task(spec: relocate_spec, priority: "defaultPriority").wait_for_completion
+            relocate_spec_params = {}
+            relocate_spec_params[:pool] = resourcepool
+            relocate_spec_params[:datastore] = config[:datastore]
+            relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(relocate_spec_params)
+            @item.RelocateVM_Task(spec: relocate_spec, priority: "defaultPriority").wait_for_completion
 
             @item.MigrateVM_Task(:pool=> resourcepool, :priority => "defaultPriority").wait_for_completion
 
@@ -2668,8 +2669,12 @@ class VirtualMachine < VCenterDriver::Template
         pool = OpenNebula::HostPool.new(one_client)
         pool.info
 
+        datastores = OpenNebula::DatastorePool.new(one_client)
+        datastores.info
+
         src_id = pool["/HOST_POOL/HOST[NAME='#{src_host}']/ID"].to_i
         dst_id = pool["/HOST_POOL/HOST[NAME='#{dst_host}']/ID"].to_i
+        datastore = datastores["/DATASTORE_POOL/DATASTORE[ID='#{ds}']/TEMPLATE/VCENTER_DS_REF"]
 
         vi_client = VCenterDriver::VIClient.new_from_host(src_id)
 
@@ -2686,7 +2691,7 @@ class VirtualMachine < VCenterDriver::Template
         ccr_ref  = dst_host['/HOST/TEMPLATE/VCENTER_CCR_REF']
         vc_host  = VCenterDriver::ClusterComputeResource.new_from_ref(ccr_ref, vi_client).item
 
-        config = { :cluster => vc_host }
+        config = { :cluster => vc_host, :datastore => datastore }
         vc_vm.migrate(config)
 
         vm.replace({ 'VCENTER_CCR_REF' => ccr_ref})
