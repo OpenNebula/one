@@ -57,13 +57,25 @@ define(function(require) {
     "VM.migrate" : {
       type: "action",
       text: Locale.tr("Migrate"),
-      layout: "vmsplanification_buttons",
+      layout: "vmsmigration_buttons",
+      custom_classes : "state-dependent"
+    },
+    "VM.migrate_poff" : {
+      type: "action",
+      text: Locale.tr("Migrate") + ' <span class="label secondary radius">' + Locale.tr("Poweroff") + '</span>',
+      layout: "vmsmigration_buttons",
+      custom_classes : "state-dependent"
+    },
+    "VM.migrate_poff_hard" : {
+      type: "action",
+      text: Locale.tr("Migrate") + ' <span class="label secondary radius">' + Locale.tr("Poweroff-hard") + '</span>',
+      layout: "vmsmigration_buttons",
       custom_classes : "state-dependent"
     },
     "VM.migrate_live" : {
       type: "action",
       text: Locale.tr("Migrate") + ' <span class="label secondary radius">' + Locale.tr("live") + '</span>',
-      layout: "vmsplanification_buttons",
+      layout: "vmsmigration_buttons",
       custom_classes : "state-dependent"
     },
     "VM.hold" : {

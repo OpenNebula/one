@@ -86,6 +86,8 @@ define(function(require) {
     "VM.append_template": _commonActions.appendTemplate(),
     "VM.deploy_action": _commonActions.singleAction('deploy'),
     "VM.migrate_action": _commonActions.singleAction('migrate'),
+    "VM.migrate_poff_action": _commonActions.singleAction('migrate_poff'),
+    "VM.migrate_poff_hard_action": _commonActions.singleAction('migrate_poff_hard'),
     "VM.migrate_live_action": _commonActions.singleAction('livemigrate'),
     "VM.attachdisk": _commonActions.singleAction('attachdisk'),
     "VM.detachdisk": _commonActions.singleAction('detachdisk'),
@@ -135,6 +137,27 @@ define(function(require) {
        var dialog = Sunstone.getDialog(MIGRATE_DIALOG_ID);
        dialog.reset();
        dialog.setLive(false);
+       dialog.setType(0);
+       dialog.show();
+     }
+    },
+    "VM.migrate_poff" : {
+      type: "custom",
+      call: function() {
+       var dialog = Sunstone.getDialog(MIGRATE_DIALOG_ID);
+       dialog.reset();
+       dialog.setLive(false);
+       dialog.setType(1);
+       dialog.show();
+     }
+    },
+    "VM.migrate_poff_hard" : {
+      type: "custom",
+      call: function() {
+       var dialog = Sunstone.getDialog(MIGRATE_DIALOG_ID);
+       dialog.reset();
+       dialog.setLive(false);
+       dialog.setType(2);
        dialog.show();
      }
     },
@@ -144,6 +167,7 @@ define(function(require) {
        var dialog = Sunstone.getDialog(MIGRATE_DIALOG_ID);
        dialog.reset();
        dialog.setLive(true);
+       dialog.setType(0);
        dialog.show();
      }
     },
