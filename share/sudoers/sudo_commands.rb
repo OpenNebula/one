@@ -16,8 +16,17 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require "erb"
+ONE_LOCATION=ENV["ONE_LOCATION"]
 
+if !ONE_LOCATION
+    LIB_LOCATION="/usr/lib/one"
+else
+    LIB_LOCATION=ONE_LOCATION+"/lib"
+end
+
+$: << RUBY_LIB_LOCATION
+
+require "erb"
 
 CMDS = {
     :MISC  => %w(mkfs sync mkswap),
@@ -27,6 +36,7 @@ CMDS = {
     :OVS   => %w(ovs-ofctl ovs-vsctl),
     :XEN   => %w(xentop xl xm),
     :CEPH  => %w(rbd),
+    :MRKT  => %W{#{LIB_LOCATION}/sh/create_container_image.sh},
     :HA    => [
         'systemctl start opennebula-flow',
         'systemctl stop opennebula-flow',
