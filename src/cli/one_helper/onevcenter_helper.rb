@@ -359,7 +359,7 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
     end
 
     def self.network_dialogue(n)
-        ask = -> (question, default = ""){
+        ask = ->(question, default = ""){
             STDOUT.print question
             answer = STDIN.gets.strip
 

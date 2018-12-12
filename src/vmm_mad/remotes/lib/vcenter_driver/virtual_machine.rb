@@ -1078,7 +1078,7 @@ class VirtualMachine < VCenterDriver::Template
 
     SUPPORTED_DEV = ['disk']
     def set_boot_order(boot_info)
-        convert = -> (device_str){
+        convert = ->(device_str){
             spl = device_str.scan(/^disk|\d+$/)
             if !SUPPORTED_DEV.include?(spl[0])
                 raise "#{device_str} is not supported in boot order"
