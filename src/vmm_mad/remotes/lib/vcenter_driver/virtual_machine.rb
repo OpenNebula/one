@@ -14,6 +14,9 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+# Constants
+IDE  = 'ide'
+SCSI = 'scsi'
 
 module VCenterDriver
 
@@ -325,7 +328,6 @@ class VirtualMachine < VCenterDriver::Template
         @vm_id     = one_id
         @locking   = true
         @vm_info   = nil
-        @free_ide  = []
         @disks     = {}
     end
 
@@ -476,8 +478,6 @@ class VirtualMachine < VCenterDriver::Template
     end
 
     def get_unmanaged_keys
-        return @keys if @keys
-
         unmanaged_keys = {}
         @item.config.extraConfig.each do |val|
              if val[:key].include?("opennebula.disk")
@@ -840,14 +840,12 @@ class VirtualMachine < VCenterDriver::Template
 
     def disks_each(condition)
         res = []
-        i   = 0
         disks.each do |id, disk|
             next unless disk.method(condition).call
 
-            yield disk, i if block_given?
+            yield disk if block_given?
 
             res << disk
-            i+=1
         end
 
         res
@@ -974,8 +972,6 @@ class VirtualMachine < VCenterDriver::Template
                 reference[:value] = "#{vcenter_disk[:key]}"
                 extraconfig << reference
             end
-                @keys = {}
-                extraconfig.each {|r| @keys[r[:key]] = r[:value]}
         end
 
         # Add info for existing nics in template in vm xml
@@ -1527,23 +1523,24 @@ class VirtualMachine < VCenterDriver::Template
         attach_spod_array = []
         attach_spod_disk_info = {}
 
-        disks_each(:no_exists?) do |disk, i|
+        pos = {IDE => 0, SCSI => 0}
+        disks_each(:no_exists?) do |disk|
+            k = disk.one_item['TYPE'] == 'CDROM' ? IDE : SCSI
+
             if disk.storpod?
-                spec = calculate_add_disk_spec(disk.one_item, i)
+                spec = calculate_add_disk_spec(disk.one_item, pos[k])
                 attach_spod_array << spec
                 unit_ctrl = "#{spec[:device].controllerKey}-#{spec[:device].unitNumber}"
                 attach_spod_disk_info[unit_ctrl] = disk.id
             else
-                attach_disk_array << calculate_add_disk_spec(disk.one_item, i)
+                attach_disk_array << calculate_add_disk_spec(disk.one_item, pos[k])
             end
+
+            pos[k]+=1
         end
 
-        return attach_disk_array, attach_spod_array, attach_spod_disk_info
-    end
 
-    def delete_key(key)
-        return unless @keys
-        @keys.each{|k,v| @keys.delete(k) if v == key}
+        return attach_disk_array, attach_spod_array, attach_spod_disk_info
     end
 
     def detach_disks_specs()
@@ -1562,10 +1559,7 @@ class VirtualMachine < VCenterDriver::Template
             end
             detach_disk_array << op
 
-            @free_ide << [d.device.controllerKey, d.device.unitNumber] if d.type == 'CDROM'
-
             # Remove reference opennebula.disk if exist from vmx and cache
-            delete_key(key)
             extra_config << d.config(:delete) if keys[key]
         end
 
@@ -1815,19 +1809,12 @@ class VirtualMachine < VCenterDriver::Template
                       "when the VM is in the powered off state"
             end
 
-            if !@free_ide.empty?
-                tup         = @free_ide.shift
-                key         = tup.first
-                unit_number = tup.last
-            else
-                controller, unit_number = find_free_ide_controller(position)
-                key = controller.key
-            end
+            controller, unit_number = find_free_ide_controller(position)
 
             device = RbVmomi::VIM::VirtualCdrom(
                 :backing       => vmdk_backing,
                 :key           => -1,
-                :controllerKey => key,
+                :controllerKey => controller.key,
                 :unitNumber    => unit_number,
 
                 :connectable => RbVmomi::VIM::VirtualDeviceConnectInfo(
