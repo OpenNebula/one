@@ -15,5 +15,5 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require){
-  return 'add_ar_dialog';
+  return 'vntemplate_add_ar_dialog';
 });
