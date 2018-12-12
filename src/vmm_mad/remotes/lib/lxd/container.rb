@@ -152,7 +152,7 @@ class Container
     # Runs command inside container
     # @param command [String] to execute through lxc exec
     def exec(command)
-        Command.lxd_execute(name, command)
+        Command.lxc_execute(name, command)
     end
 
     #---------------------------------------------------------------------------
@@ -186,7 +186,7 @@ class Container
 
         nic_xml = @one.get_nic_by_mac(mac)
 
-        return unless nic_xml
+        raise 'Missing NIC xml' unless nic_xml
 
         nic_config = @one.nic(nic_xml)
 
@@ -211,7 +211,8 @@ class Container
         return unless @one
 
         @one.get_disks.each do |disk|
-            setup_disk(disk, operation)
+            status = setup_disk(disk, operation)
+            return nil unless status
         end
 
         return unless @one.has_context?
@@ -224,7 +225,12 @@ class Container
         context_path = "#{@one.lxdrc[:containers]}/#{name}/rootfs/context"
         create_context_dir = "#{Mapper::COMMANDS[:su_mkdir]} #{context_path}"
 
-        Command.execute(create_context_dir, false)
+        rc, _o, e = Command.execute(create_context_dir, false)
+
+        if rc != 0
+            OpenNebula.log_error("setup_storage: #{e}")
+            return
+        end
 
         mapper.public_send(operation, @one, context, csrc)
     end
@@ -238,9 +244,10 @@ class Container
         context = @one.get_context_disk
         mapper  = FSRawMapper.new
 
-        mapper.map(@one, context, csrc)
+        return unless mapper.map(@one, context, csrc)
 
         update
+        true
     end
 
     # Removes the context section from the LXD configuration and unmap the
@@ -263,9 +270,11 @@ class Container
     # Attach disk to container (ATTACH = YES) in VM description
     def attach_disk(source)
         disk_element = hotplug_disk
-        return unless disk_element
 
-        setup_disk(disk_element, 'map')
+        raise 'Missing hotplug info' unless disk_element
+
+        status = setup_disk(disk_element, 'map')
+        return unless status
 
         source2 = source.dup
         if source
@@ -278,6 +287,7 @@ class Container
         @lxc['devices'].update(disk_hash)
 
         update
+        true
     end
 
     # Detects disk being hotplugged

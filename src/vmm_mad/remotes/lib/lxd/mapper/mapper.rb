@@ -219,15 +219,16 @@ class Mapper
             partitions.sort! { |a,b|  
                 b['mountpoint'].length <=> a['mountpoint'].length 
             }
-            
-        umount(partitions)
 
-        do_unmap(device, one_vm, disk, real_path)
+        return unless umount(partitions)
+
+        return unless do_unmap(device, one_vm, disk, real_path)
 
         true
     end
 
     private
+
     #---------------------------------------------------------------------------
     # Methods to mount/umount partitions
     #---------------------------------------------------------------------------
@@ -238,7 +239,7 @@ class Mapper
         partitions.each { |p|
             next if !p['mountpoint']
 
-            umount_dev(p['path'])
+            return nil unless umount_dev(p['path'])
         }
     end
 
@@ -270,7 +271,8 @@ class Mapper
             rc, fstab, e = Command.execute(cmd, false)
 
             if fstab.empty?
-                umount_dev(p['path'])
+                return false unless umount_dev(p['path'])
+
                 next
             end
 
@@ -306,11 +308,12 @@ class Mapper
 
                 rc = mount_dev(p['path'], path + mount_point)
                 return false if !rc
+
                 break
             }
         end
 
-        return rc
+        rc
     end
 
     # --------------------------------------------------------------------------
@@ -333,7 +336,12 @@ class Mapper
             cmd = COMMANDS[:mkdir]
         end
 
-        Command.execute("#{cmd} #{path}", false)
+        rc, _out, err = Command.execute("#{cmd} #{path}", false)
+
+        if rc != 0
+            OpenNebula.log_error("mount_dev: #{err}")
+            return false
+        end
 
         rc, _out, err = Command.execute("#{COMMANDS[:mount]} #{dev} #{path}", true)
 
@@ -350,7 +358,12 @@ class Mapper
     def umount_dev(dev)
         OpenNebula.log_info "Umounting disk mapped at #{dev}"
 
-        Command.execute("#{COMMANDS[:umount]} #{dev}", true)
+        rc, _o, e = Command.execute("#{COMMANDS[:umount]} #{dev}", true)
+
+        return true if rc.zero?
+
+        OpenNebula.log_error("umount_dev: #{e}")
+        nil
     end
 
     #---------------------------------------------------------------------------

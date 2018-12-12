@@ -31,12 +31,10 @@ class FSRawMapper < Mapper
 
         rc, out, err = Command.execute(cmd, true)
 
-        if rc != 0 || out.empty?
-            OpenNebula.log_error("do_map: #{err}")
-            return
-        end
+        return out.chomp unless rc != 0 || out.empty?
 
-        out.chomp
+        OpenNebula.log_error("do_map: #{err}")
+        nil
     end
 
     def do_unmap(device, one_vm, disk, directory)
@@ -44,7 +42,10 @@ class FSRawMapper < Mapper
 
         rc, _out, err = Command.execute(cmd, true)
 
+        return true if rc.zero?
+
         OpenNebula.log_error("do_unmap: #{err}") if rc != 0
+        nil
     end
 end
 
@@ -78,10 +79,11 @@ class DiskRawMapper < Mapper
         dsrc = disk_source(one_vm, disk)
         cmd  = "#{COMMANDS[:kpartx]} -d #{dsrc}"
 
-        rc, out, err = Command.execute(cmd, true)
+        rc, _out, err = Command.execute(cmd, true)
 
-        if rc != 0
-            OpenNebula.log_error("do_unmap: #{err}")
-        end
+        return true if rc.zero?
+
+        OpenNebula.log_error("do_unmap: #{err}")
+        nil
     end
 end

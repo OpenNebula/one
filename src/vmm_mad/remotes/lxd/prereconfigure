@@ -36,4 +36,4 @@ xml = STDIN.read
 client    = LXDClient.new
 container = Container.get(vm_name, xml, client)
 
-container.detach_context
+raise 'Failed to detach context' unless container.detach_context
