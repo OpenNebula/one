@@ -39,12 +39,10 @@ class RBDMapper < Mapper
 
         rc, out, err = Command.execute(cmd, false)
 
-        if rc != 0
-            OpenNebula.log_error("do_map: #{err}")
-            return
-        end
+        return out.chomp if rc.zero?
 
-        out.chomp
+        OpenNebula.log_error("do_map: #{err}")
+        nil
     end
 
     def do_unmap(device, one_vm, disk, directory)
@@ -52,9 +50,9 @@ class RBDMapper < Mapper
 
         rc, _out, err = Command.execute(cmd, false)
 
-        if rc != 0
-            OpenNebula.log_error("do_map: #{err}")
-            return
-        end
+        return true if rc.zero?
+
+        OpenNebula.log_error("do_unmap: #{err}")
+        nil
     end
 end

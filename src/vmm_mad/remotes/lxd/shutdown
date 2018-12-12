@@ -43,11 +43,10 @@ else
 end
 
 if !container.wild?
-    begin
-        container.setup_storage('unmap')
-    rescue StandardError => e
+    unmapped = container.setup_storage('unmap')
+    unless unmapped
         container.start
-        raise e
+        raise 'Failed to dismantle container storage'
     end
 
     container.delete

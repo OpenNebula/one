@@ -35,14 +35,14 @@ class Qcow2Mapper <  Mapper
 
         ds = one_vm.lxdrc[:datastore_location] + "/#{one_vm.sysds_id}"
         File.chmod(0664, dsrc) if File.symlink?(ds)
-        
+
         rc, _out, err = Command.execute(cmd, true)
-        
-        if rc != 0 
+
+        if rc != 0
             OpenNebula.log_error("do_map: #{err}")
             return
         end
-        
+
         sleep 0.5 # TODO: improve settledown, lsblk -f fails
 
         device
@@ -51,9 +51,12 @@ class Qcow2Mapper <  Mapper
     def do_unmap(device, one_vm, disk, directory)
         cmd = "#{COMMANDS[:nbd]} -d #{device}"
 
-        rc, out, err = Command.execute(cmd, true)
+        rc, _out, err = Command.execute(cmd, true)
 
-        OpenNebula.log_error("do_unmap: #{err}") if rc != 0
+        return true if rc.zero?
+
+        OpenNebula.log_error("do_unmap: #{err}") 
+        nil
     end
 
     private
