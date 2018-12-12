@@ -40,7 +40,7 @@ clean:
 	rm -rf build dist pyone/bindings *.egg-info doc
 
 dist:
-	${PYTHON} setup.py sdist bdist_wheel
+	${PYTHON} setup.py bdist_wheel
 
 install:
 	${PYTHON} setup.py install ${root}
