@@ -201,7 +201,7 @@ define(function(require) {
           var sgs = template_json.VNTEMPLATE.TEMPLATE.SECURITY_GROUPS;
           if (sgs) {
             var selectedResources = {
-              ids : sgs.spli(",")
+              ids : sgs.split(",")
             };
             that.securityGroupsTable.selectResourceTableSelect(selectedResources);
           }
