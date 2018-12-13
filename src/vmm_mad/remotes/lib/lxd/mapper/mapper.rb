@@ -330,6 +330,18 @@ class Mapper
     def mount_dev(dev, path)
         OpenNebula.log_info "Mounting #{dev} at #{path}"
 
+        rc, out, err = Command.execute("#{COMMANDS[:lsblk]} -J", false)
+
+        if rc != 0 || out.empty?
+            OpenNebula.log_error("mount_dev: #{err}")
+            return false
+        end
+
+        if out.match?(path)
+            OpenNebula.log_error("mount_dev: Mount detected in #{path}")
+            return false
+        end
+
         if path =~ /.*\/rootfs/
             cmd = COMMANDS[:su_mkdir]
         else
