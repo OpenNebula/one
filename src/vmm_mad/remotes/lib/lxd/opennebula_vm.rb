@@ -25,8 +25,7 @@ class LXDConfiguration < Hash
             :width   => '800',
             :height  => '600',
             :timeout => '300'
-        },
-        :datastore_location => '/var/lib/one/datastores',
+        }
     }
 
     def initialize
@@ -43,7 +42,7 @@ end
 # This class parses and wraps the information in the Driver action data
 class OpenNebulaVM
 
-    attr_reader :xml, :vm_id, :vm_name, :sysds_id, :ds_path, :rootfs_id, :lxdrc
+    attr_reader :xml, :vm_id, :vm_name, :sysds_id, :ds_path, :rootfs_id, :lxdrc, :sysds_path
 
     #---------------------------------------------------------------------------
     # Class Constructor
@@ -63,12 +62,13 @@ class OpenNebulaVM
         # Load Driver configuration
         @lxdrc = LXDConfiguration.new
 
-        @ds_path = @lxdrc[:datastore_location]
-
         # Sets the DISK ID of the root filesystem
         disk = @xml.element('//TEMPLATE/DISK')
 
         return unless disk
+
+        @ds_path = get_dspath(disk)
+        @sysds_path = "#{@ds_path}/#{@sysds_id}"
 
         @rootfs_id = disk['DISK_ID']
         boot_order = @xml['//TEMPLATE/OS/BOOT']
@@ -372,6 +372,25 @@ class OpenNebulaVM
         mapped
     end
 
+    # Returns the datastores BASE_PATH location
+    def get_dspath(disk)
+        source = disk['SOURCE']
+        cut = "/#{disk['DATASTORE_ID']}/"
+        result = source.split(cut)
+
+        if result.length == 2
+            path = result[0]
+        else
+            path = ''
+            0.upto(result.length - 2) do |i|
+                path << "#{result[i]}/#{dsid}/"
+            end
+
+            path = path[0..path.rindex(cut)]
+        end
+
+        path.gsub('//', '/')
+    end
 end
 
 # This class abstracts the access to XML elements. It provides basic methods

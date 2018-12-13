@@ -190,19 +190,19 @@ class Mapper
         device = ''
         real_path = directory
 
-        ds = one_vm.lxdrc[:datastore_location] + "/#{one_vm.sysds_id}"
+        ds = one_vm.sysds_path
         if File.symlink?(ds)
             real_ds = File.readlink(ds)
             real_path = real_ds + directory.split(ds)[-1] if directory.include?(ds)
         end
-
+        
         sys_parts.each { |d|
             if d['mountpoint'] == real_path
                 partitions = [d]
                 device     = d['path']
                 break
             end
-
+            
             d['children'].each { |c|
                 if c['mountpoint'] == real_path
                     partitions = d['children']
@@ -213,7 +213,7 @@ class Mapper
                 
                 break if !partitions.empty?
             }
-
+            
             partitions.delete_if { |p| !p['mountpoint'] }
             
             partitions.sort! { |a,b|  
