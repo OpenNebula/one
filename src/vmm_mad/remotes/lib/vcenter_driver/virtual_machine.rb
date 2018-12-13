@@ -14,10 +14,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# Constants
-IDE  = 'ide'
-SCSI = 'scsi'
-
 module VCenterDriver
 
 class VirtualMachineFolder
@@ -1523,9 +1519,9 @@ class VirtualMachine < VCenterDriver::Template
         attach_spod_array = []
         attach_spod_disk_info = {}
 
-        pos = {IDE => 0, SCSI => 0}
+        pos = {:ide => 0, :scsi => 0}
         disks_each(:no_exists?) do |disk|
-            k = disk.one_item['TYPE'] == 'CDROM' ? IDE : SCSI
+            k = disk.one_item['TYPE'] == 'CDROM' ? :ide : :scsi
 
             if disk.storpod?
                 spec = calculate_add_disk_spec(disk.one_item, pos[k])
