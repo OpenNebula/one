@@ -40,8 +40,8 @@ define(function(require) {
   var RESOURCE = "VNTemplate";
   var XML_ROOT = "VNTEMPLATE";
 
-  var ADD_AR_DIALOG_ID = require('tabs/vnets-tab/dialogs/add-ar/dialogId');
-  var UPDATE_AR_DIALOG_ID = require('tabs/vnets-tab/dialogs/update-ar/dialogId');
+  var ADD_AR_DIALOG_ID = require('../dialogs/add-ar/dialogId');
+  var UPDATE_AR_DIALOG_ID = require('../dialogs/update-ar/dialogId');
   var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
 
   /*
@@ -126,7 +126,7 @@ define(function(require) {
       'tab': "vnets-templates-tab",
       'action_add': "VNTemplate.add_ar",
       'action_update': "VNTemplate.update_ar",
-      'action_rm': "VNTemplate.rm_ar"
+      'action_rm': "VNTemplate.remove_ar"
     });
   }
 
@@ -198,7 +198,7 @@ define(function(require) {
 
             delete that.element.TEMPLATE.AR_POOL;
 
-            Sunstone.runAction('VNTemplate.rm_ar', that.element.ID, TemplateUtils.templateToString(that.element.TEMPLATE));
+            Sunstone.runAction('VNTemplate.remove_ar', that.element.ID, TemplateUtils.templateToString(that.element.TEMPLATE));
 
             return false;
           }

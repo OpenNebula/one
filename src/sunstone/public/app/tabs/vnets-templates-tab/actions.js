@@ -85,7 +85,7 @@ define(function(require) {
       error: Notifier.onError
     },
 
-    "VNTemplate.rm_ar" : {
+    "VNTemplate.remove_ar" : {
       type: "single",
       call: OpenNebulaResource.update,
       callback: function(req) {
