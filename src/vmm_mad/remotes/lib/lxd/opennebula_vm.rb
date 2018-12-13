@@ -27,7 +27,6 @@ class LXDConfiguration < Hash
             :timeout => '300'
         },
         :datastore_location => '/var/lib/one/datastores',
-        :containers         => '/var/lib/lxd/storage-pools/default/containers'
     }
 
     def initialize

@@ -68,6 +68,7 @@ class Container
 
         @lxc = lxc
         @one = one
+        @containers = "#{@client.lxd_path}/storage-pools/default/containers"
     end
 
     class << self
@@ -222,7 +223,7 @@ class Container
         context = @one.get_context_disk
         mapper  = FSRawMapper.new
 
-        context_path = "#{@one.lxdrc[:containers]}/#{name}/rootfs/context"
+        context_path = "#{@containers}/#{name}/rootfs/context"
         create_context_dir = "#{Mapper::COMMANDS[:su_mkdir]} #{context_path}"
 
         rc, _o, e = Command.execute(create_context_dir, false)
@@ -330,7 +331,7 @@ class Container
         disk_id = disk['DISK_ID']
 
         if disk_id == @one.rootfs_id
-            target = "#{@one.lxdrc[:containers]}/#{name}/rootfs"
+            target = "#{@containers}/#{name}/rootfs"
         else
             target = @one.disk_mountpoint(disk_id)
         end
