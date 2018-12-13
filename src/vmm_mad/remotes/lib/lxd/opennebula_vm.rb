@@ -375,7 +375,7 @@ class OpenNebulaVM
     # Returns the datastores BASE_PATH location
     def get_dspath(disk)
         source = disk['SOURCE']
-        cut = "/#{disk['DATASTORE_ID']}/"
+        cut    = "/#{disk['DATASTORE_ID']}/"
         result = source.split(cut)
 
         if result.length == 2
