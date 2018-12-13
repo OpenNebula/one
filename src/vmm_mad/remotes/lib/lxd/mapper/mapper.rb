@@ -220,6 +220,11 @@ class Mapper
                 b['mountpoint'].length <=> a['mountpoint'].length 
             }
 
+        if device.empty?
+            OpenNebula.log_error("Failed to detect block device from #{directory}")
+            return
+        end
+
         return unless umount(partitions)
 
         return unless do_unmap(device, one_vm, disk, real_path)
