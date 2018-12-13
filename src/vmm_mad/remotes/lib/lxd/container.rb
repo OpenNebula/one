@@ -71,6 +71,7 @@ class Container
 
         @containers = "#{@client.lxd_path}/storage-pools/default/containers"
         @rootfs_dir = "#{@containers}/#{name}/rootfs"
+        
         @context_path = "#{@rootfs_dir}/context"
     end
 
