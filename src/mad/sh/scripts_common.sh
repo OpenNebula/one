@@ -955,6 +955,7 @@ function get_nic_information {
     done < <($CMD       /VMM_DRIVER_ACTION_DATA/VM/ID \
                         $NIC_XPATH/NIC_ID \
                         $NIC_XPATH/BRIDGE \
+                        $NIC_XPATH/BRIDGE_TYPE \
                         $NIC_XPATH/VN_MAD \
                         $NIC_XPATH/MAC \
                         $NIC_XPATH/TARGET \
@@ -975,6 +976,7 @@ function get_nic_information {
     VMID="${XPATH_ELEMENTS[j++]}"
     NIC_ID="${XPATH_ELEMENTS[j++]}"
     BRIDGE="${XPATH_ELEMENTS[j++]}"
+    BRIDGE_TYPE="${XPATH_ELEMENTS[j++]}"
     VN_MAD="${XPATH_ELEMENTS[j++]}"
     MAC="${XPATH_ELEMENTS[j++]}"
     NIC_TARGET="${XPATH_ELEMENTS[j++]}"

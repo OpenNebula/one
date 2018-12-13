@@ -14,6 +14,9 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+# Constants
+IDE  = 'ide'
+SCSI = 'scsi'
 
 module VCenterDriver
 
@@ -325,7 +328,6 @@ class VirtualMachine < VCenterDriver::Template
         @vm_id     = one_id
         @locking   = true
         @vm_info   = nil
-        @free_ide  = []
         @disks     = {}
     end
 
@@ -476,8 +478,6 @@ class VirtualMachine < VCenterDriver::Template
     end
 
     def get_unmanaged_keys
-        return @keys if @keys
-
         unmanaged_keys = {}
         @item.config.extraConfig.each do |val|
              if val[:key].include?("opennebula.disk")
@@ -693,6 +693,8 @@ class VirtualMachine < VCenterDriver::Template
         # @item is populated
         @item = vm
 
+        reference_unmanaged_devices(vc_template_ref)
+
         return self['_ref']
     end
 
@@ -838,14 +840,12 @@ class VirtualMachine < VCenterDriver::Template
 
     def disks_each(condition)
         res = []
-        i   = 0
         disks.each do |id, disk|
             next unless disk.method(condition).call
 
-            yield disk, i if block_given?
+            yield disk if block_given?
 
             res << disk
-            i+=1
         end
 
         res
@@ -972,8 +972,6 @@ class VirtualMachine < VCenterDriver::Template
                 reference[:value] = "#{vcenter_disk[:key]}"
                 extraconfig << reference
             end
-                @keys = {}
-                extraconfig.each {|r| @keys[r[:key]] = r[:value]}
         end
 
         # Add info for existing nics in template in vm xml
@@ -1078,7 +1076,7 @@ class VirtualMachine < VCenterDriver::Template
 
     SUPPORTED_DEV = ['disk']
     def set_boot_order(boot_info)
-        convert = -> (device_str){
+        convert = ->(device_str){
             spl = device_str.scan(/^disk|\d+$/)
             if !SUPPORTED_DEV.include?(spl[0])
                 raise "#{device_str} is not supported in boot order"
@@ -1103,16 +1101,6 @@ class VirtualMachine < VCenterDriver::Template
     def sync(deploy = {})
         extraconfig   = []
         device_change = []
-
-        # deploy operation, no instantiated as persistent
-        if deploy[:template_ref]
-            template_ref = deploy[:template_ref]
-            refs = reference_unmanaged_devices(template_ref)
-
-            # changes in deploy op (references)
-            device_change += refs[:deviceChange] if refs[:deviceChange]
-            extraconfig   += refs[:extraConfig]  if refs[:extraConfig]
-        end
 
         disks = sync_disks(:all, false)
         resize_unmanaged_disks
@@ -1535,23 +1523,24 @@ class VirtualMachine < VCenterDriver::Template
         attach_spod_array = []
         attach_spod_disk_info = {}
 
-        disks_each(:no_exists?) do |disk, i|
+        pos = {IDE => 0, SCSI => 0}
+        disks_each(:no_exists?) do |disk|
+            k = disk.one_item['TYPE'] == 'CDROM' ? IDE : SCSI
+
             if disk.storpod?
-                spec = calculate_add_disk_spec(disk.one_item, i)
+                spec = calculate_add_disk_spec(disk.one_item, pos[k])
                 attach_spod_array << spec
                 unit_ctrl = "#{spec[:device].controllerKey}-#{spec[:device].unitNumber}"
                 attach_spod_disk_info[unit_ctrl] = disk.id
             else
-                attach_disk_array << calculate_add_disk_spec(disk.one_item, i)
+                attach_disk_array << calculate_add_disk_spec(disk.one_item, pos[k])
             end
+
+            pos[k]+=1
         end
 
-        return attach_disk_array, attach_spod_array, attach_spod_disk_info
-    end
 
-    def delete_key(key)
-        return unless @keys
-        @keys.each{|k,v| @keys.delete(k) if v == key}
+        return attach_disk_array, attach_spod_array, attach_spod_disk_info
     end
 
     def detach_disks_specs()
@@ -1570,10 +1559,7 @@ class VirtualMachine < VCenterDriver::Template
             end
             detach_disk_array << op
 
-            @free_ide << [d.device.controllerKey, d.device.unitNumber] if d.type == 'CDROM'
-
             # Remove reference opennebula.disk if exist from vmx and cache
-            delete_key(key)
             extra_config << d.config(:delete) if keys[key]
         end
 
@@ -1585,26 +1571,23 @@ class VirtualMachine < VCenterDriver::Template
         info_disks
 
         spec_hash       = {}
-        device_change_a = []
-        device_change_d = []
+        device_change   = []
         extra_config    = []
 
         if option == :all
-            device_change_d, extra_config = detach_disks_specs
-            spec_hash[:extraConfig] = extra_config     if !extra_config.empty?
+            detach_op = {}
+            detach_op[:deviceChange], detach_op[:extraConfig] = detach_disks_specs
+            perform = !detach_op[:deviceChange].empty? || !detach_op[:extraConfig].empty?
+            @item.ReconfigVM_Task(:spec => detach_op).wait_for_completion if perform
         end
 
-        device_change_a, device_change_spod, device_change_spod_ids = attach_disks_specs
+        device_change, device_change_spod, device_change_spod_ids = attach_disks_specs
 
         if !device_change_spod.empty?
             spec_hash[:extraConfig] = create_storagedrs_disks(device_change_spod, device_change_spod_ids)
         end
 
-        device_change = device_change_a + device_change_d
-
-        if !device_change.empty?
-            spec_hash[:deviceChange] = device_change_a + device_change_d
-        end
+        spec_hash[:deviceChange] = device_change unless device_change.empty?
 
         return spec_hash unless execute
 
@@ -1826,19 +1809,12 @@ class VirtualMachine < VCenterDriver::Template
                       "when the VM is in the powered off state"
             end
 
-            if !@free_ide.empty?
-                tup         = @free_ide.shift
-                key         = tup.first
-                unit_number = tup.last
-            else
-                controller, unit_number = find_free_ide_controller(position)
-                key = controller.key
-            end
+            controller, unit_number = find_free_ide_controller(position)
 
             device = RbVmomi::VIM::VirtualCdrom(
                 :backing       => vmdk_backing,
                 :key           => -1,
-                :controllerKey => key,
+                :controllerKey => controller.key,
                 :unitNumber    => unit_number,
 
                 :connectable => RbVmomi::VIM::VirtualDeviceConnectInfo(
@@ -1926,9 +1902,6 @@ class VirtualMachine < VCenterDriver::Template
 
             # Update the template reference
             new_template.update("VCENTER_TEMPLATE_REF=#{@item._ref}", true)
-            if !new_template['TEMPLATE/OS'] || new_template['TEMPLATE/OS'].empty?
-                new_template.update('OS=[BOOT="disk0"]', true)
-            end
     end
 
     def resize_unmanaged_disks
@@ -1978,8 +1951,9 @@ class VirtualMachine < VCenterDriver::Template
 
         used_numbers      = []
         available_numbers = []
+        devices           = @item.config.hardware.device
 
-        @item["config.hardware.device"].each do |dev|
+        devices.each do |dev|
             if dev.is_a? RbVmomi::VIM::VirtualIDEController
                 if ide_schema[dev.key].nil?
                     ide_schema[dev.key] = {}
@@ -2008,7 +1982,7 @@ class VirtualMachine < VCenterDriver::Template
 
         controller = nil
 
-        @item['config.hardware.device'].each do |device|
+        devices.each do |device|
             if device.deviceInfo.label == available_controller_label
                 controller = device
                 break
@@ -2026,8 +2000,9 @@ class VirtualMachine < VCenterDriver::Template
 
         used_numbers      = []
         available_numbers = []
+        devices           = @item.config.hardware.device
 
-        @item["config.hardware.device"].each do |dev|
+        devices.each do |dev|
             if dev.is_a? RbVmomi::VIM::VirtualSCSIController
                 if scsi_schema[dev.key].nil?
                     scsi_schema[dev.key] = {}
@@ -2052,13 +2027,13 @@ class VirtualMachine < VCenterDriver::Template
         if free_scsi_controllers.length > 0
             available_controller_label = free_scsi_controllers[0]
         else
-            add_new_scsi(scsi_schema)
+            add_new_scsi(scsi_schema, devices)
             return find_free_controller
         end
 
         controller = nil
 
-        @item['config.hardware.device'].each do |device|
+        devices.each do |device|
             if device.deviceInfo.label == available_controller_label
                 controller = device
                 break
@@ -2070,7 +2045,7 @@ class VirtualMachine < VCenterDriver::Template
         return controller, new_unit_number
     end
 
-    def add_new_scsi(scsi_schema)
+    def add_new_scsi(scsi_schema, devices)
         controller = nil
 
         if scsi_schema.keys.length >= 4
@@ -2102,7 +2077,7 @@ class VirtualMachine < VCenterDriver::Template
 
         @item.ReconfigVM_Task(:spec => vm_config_spec).wait_for_completion
 
-        @item["config.hardware.device"].each do |device|
+        devices.each do |device|
             if device.class == RbVmomi::VIM::VirtualLsiLogicController &&
                 device.key == scsi_key
 
@@ -2869,7 +2844,6 @@ class VmmImporter < VCenterDriver::VcImporter
 
         # Set reference to template disks and nics in VM template
         vc_vm.one_item = vm
-        vc_vm.reference_unmanaged_devices(vm_ref)
 
         request_vnc(vc_vm)
 
