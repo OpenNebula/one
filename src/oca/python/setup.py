@@ -41,7 +41,7 @@ if sys.version_info[0] < 3:
 
 setup(
     name='opennebula',
-    version='1.1.9',
+    version='5.7.80',
     description='Python Bindings for OpenNebula XML-RPC API',
     long_description=long_description,
 
