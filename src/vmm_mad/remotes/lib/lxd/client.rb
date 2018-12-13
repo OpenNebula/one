@@ -31,14 +31,25 @@ class LXDClient
     API    = '/1.0'.freeze
     HEADER = { 'Host' => 'localhost' }.freeze
 
-    SOCK_PATH = '/var/lib/lxd/unix.socket'
+    attr_reader :lxd_path
 
-    # Enable communication with LXD via unix socket
-    begin
-        SOCK = Net::BufferedIO.new(UNIXSocket.new(SOCK_PATH))
-    rescue StandardError
-        STDERR.puts('Could not open LXD socket')
-        Process.exit(1)
+    def initialize
+        paths = ['/var/lib/lxd', '/var/snap/lxd/common/lxd']
+
+        @socket   = nil
+        @lxd_path = nil
+
+        paths.each do |path|
+            begin
+                @socket   = socket(path)
+                @lxd_path = path
+                break
+            rescue
+                next
+            end
+        end
+
+        raise 'Failed to open LXD socket' unless @socket
     end
 
     # Performs HTTP::Get
@@ -89,6 +100,11 @@ class LXDClient
 
     private
 
+    # Enable communication with LXD via unix socket
+    def socket(lxd_path)
+        Net::BufferedIO.new(UNIXSocket.new("#{lxd_path}/unix.socket"))
+    end
+
     # Returns the HTTPResponse body as a hash
     # Params:
     # +request+:: +Net::HTTP::Request+ made to the http server
@@ -98,16 +114,16 @@ class LXDClient
     def get_response(request, data)
         request.body = JSON.dump(data) unless data.nil?
 
-        request.exec(SOCK, '1.1', request.path)
+        request.exec(@socket, '1.1', request.path)
 
         response = nil
 
         loop do
-            response = Net::HTTPResponse.read_new(SOCK)
+            response = Net::HTTPResponse.read_new(@socket)
             break unless response.is_a?(Net::HTTPContinue)
         end
 
-        response.reading_body(SOCK, request.response_body_permitted?) {}
+        response.reading_body(@socket, request.response_body_permitted?) {}
 
         response = JSON.parse(response.body)
 

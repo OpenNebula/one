@@ -68,53 +68,58 @@ class Container
 
         @lxc = lxc
         @one = one
+
+        @containers = "#{@client.lxd_path}/storage-pools/default/containers"
+        @rootfs_dir = "#{@containers}/#{name}/rootfs"
+        
+        @context_path = "#{@rootfs_dir}/context"
     end
 
     class << self
 
-    # Returns specific container, by its name
-    # Params:
-    # +name+:: container name
-    def get(name, one_xml, client)
-        info = client.get("#{CONTAINERS}/#{name}")['metadata']
+        # Returns specific container, by its name
+        # Params:
+        # +name+:: container name
+        def get(name, one_xml, client)
+            info = client.get("#{CONTAINERS}/#{name}")['metadata']
 
-        one  = nil
-        one  = OpenNebulaVM.new(one_xml) if one_xml
+            one  = nil
+            one  = OpenNebulaVM.new(one_xml) if one_xml
 
-        Container.new(info, one, client)
-    rescue LXDError => exception
-        raise exception
-    end
-
-    # Creates container from a OpenNebula VM xml description
-    def new_from_xml(one_xml, client)
-        one = OpenNebulaVM.new(one_xml)
-
-        Container.new(one.to_lxc, one, client)
-    end
-
-    # Returns an array of container objects
-    def get_all(client)
-        containers = []
-
-        container_names = client.get(CONTAINERS)['metadata']
-        container_names.each do |name|
-            name = name.split('/').last
-            containers.push(get(name, nil, client))
+            Container.new(info, one, client)
+        rescue LXDError => exception
+            raise exception
         end
 
-        containers
-    end
+        # Creates container from a OpenNebula VM xml description
+        def new_from_xml(one_xml, client)
+            one = OpenNebulaVM.new(one_xml)
 
-    # Returns boolean indicating if the container exists(true) or not (false)
-    def exist?(name, client)
-        client.get("#{CONTAINERS}/#{name}")
-        true
-    rescue LXDError => exception
-        raise exception if exception.body['error_code'] != 404
+            Container.new(one.to_lxc, one, client)
+        end
 
-        false
-    end
+        # Returns an array of container objects
+        def get_all(client)
+            containers = []
+
+            container_names = client.get(CONTAINERS)['metadata']
+            container_names.each do |name|
+                name = name.split('/').last
+                containers.push(get(name, nil, client))
+            end
+
+            containers
+        end
+
+        # Returns boolean indicating if the container exists(true) or not (false)
+        def exist?(name, client)
+            client.get("#{CONTAINERS}/#{name}")
+            true
+        rescue LXDError => exception
+            raise exception if exception.body['error_code'] != 404
+
+            false
+        end
 
     end
 
@@ -131,6 +136,10 @@ class Container
 
     # Delete container
     def delete(wait: true, timeout: '')
+        unless Dir.empty?(@rootfs_dir) || (Dir["#{@rootfs_dir}/*"] == [@context_path] && Dir.empty?(@context_path))
+            raise 'Container rootfs not empty'
+        end
+
         wait?(@client.delete("#{CONTAINERS}/#{name}"), wait, timeout)
     end
 
@@ -222,8 +231,7 @@ class Container
         context = @one.get_context_disk
         mapper  = FSRawMapper.new
 
-        context_path = "#{@one.lxdrc[:containers]}/#{name}/rootfs/context"
-        create_context_dir = "#{Mapper::COMMANDS[:su_mkdir]} #{context_path}"
+        create_context_dir = "#{Mapper::COMMANDS[:su_mkdir]} #{@context_path}"
 
         rc, _o, e = Command.execute(create_context_dir, false)
 
@@ -330,7 +338,7 @@ class Container
         disk_id = disk['DISK_ID']
 
         if disk_id == @one.rootfs_id
-            target = "#{@one.lxdrc[:containers]}/#{name}/rootfs"
+            target = @rootfs_dir
         else
             target = @one.disk_mountpoint(disk_id)
         end

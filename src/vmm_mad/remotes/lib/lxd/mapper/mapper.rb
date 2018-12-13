@@ -190,19 +190,19 @@ class Mapper
         device = ''
         real_path = directory
 
-        ds = one_vm.lxdrc[:datastore_location] + "/#{one_vm.sysds_id}"
+        ds = one_vm.sysds_path
         if File.symlink?(ds)
             real_ds = File.readlink(ds)
             real_path = real_ds + directory.split(ds)[-1] if directory.include?(ds)
         end
-
+        
         sys_parts.each { |d|
             if d['mountpoint'] == real_path
                 partitions = [d]
                 device     = d['path']
                 break
             end
-
+            
             d['children'].each { |c|
                 if c['mountpoint'] == real_path
                     partitions = d['children']
@@ -213,12 +213,17 @@ class Mapper
                 
                 break if !partitions.empty?
             }
-
+            
             partitions.delete_if { |p| !p['mountpoint'] }
             
             partitions.sort! { |a,b|  
                 b['mountpoint'].length <=> a['mountpoint'].length 
             }
+
+        if device.empty?
+            OpenNebula.log_error("Failed to detect block device from #{directory}")
+            return
+        end
 
         return unless umount(partitions)
 
@@ -329,6 +334,18 @@ class Mapper
     # @return true on success
     def mount_dev(dev, path)
         OpenNebula.log_info "Mounting #{dev} at #{path}"
+
+        rc, out, err = Command.execute("#{COMMANDS[:lsblk]} -J", false)
+
+        if rc != 0 || out.empty?
+            OpenNebula.log_error("mount_dev: #{err}")
+            return false
+        end
+
+        if out.match?(path)
+            OpenNebula.log_error("mount_dev: Mount detected in #{path}")
+            return false
+        end
 
         if path =~ /.*\/rootfs/
             cmd = COMMANDS[:su_mkdir]

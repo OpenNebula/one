@@ -28,19 +28,3 @@
   :width: 800
   :height: 600
   :timeout: 300
-
-################################################################################
-# OpenNebula Configuration Options
-################################################################################
-#
-# Default path for the datastores. This only need to be change if the 
-# corresponding value in oned.conf has been modified.
-:datastore_location: /var/lib/one/datastores
-
-
-################################################################################
-# LXD Options
-################################################################################
-#
-# Path to containers location to mount the root file systems 
-:containers: /var/lib/lxd/storage-pools/default/containers
