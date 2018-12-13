@@ -67,7 +67,7 @@ class OpenNebulaVM
 
         return unless disk
 
-        @ds_path = get_dspath(disk)
+        @ds_path    = get_dspath(disk)
         @sysds_path = "#{@ds_path}/#{@sysds_id}"
 
         @rootfs_id = disk['DISK_ID']
