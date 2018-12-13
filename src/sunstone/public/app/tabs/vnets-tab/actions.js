@@ -151,7 +151,8 @@ define(function(require) {
       callback: function(request, response) {
         Sunstone.getDialog(CLUSTERS_DIALOG_ID).setParams({
           element: response[XML_ROOT],
-          resource:"vnet"
+          resource:"vnet",
+          resource_name: RESOURCE
         });
 
         Sunstone.getDialog(CLUSTERS_DIALOG_ID).reset();

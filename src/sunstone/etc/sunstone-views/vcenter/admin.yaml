@@ -796,6 +796,7 @@ tabs:
             vnet_template_ar_list_tab: true
             vnet_template_sg_list_tab: true
             vnet_template_clusters_tab: true
+            vnet_template_template_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID

@@ -41,7 +41,8 @@ define(function(require) {
     "VNTemplate.addtocluster" : {
       type : "action",
       layout: "main",
-      text : Locale.tr("Select cluster")
+      text : Locale.tr("Select cluster"),
+      custom_classes: "only-sunstone-info"
     },
     "VNTemplate.chown" : {
       type: "confirm_with_select",

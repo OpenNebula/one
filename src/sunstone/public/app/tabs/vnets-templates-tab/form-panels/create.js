@@ -385,9 +385,8 @@ define(function(require) {
     if (this.action == "create") {
       network_json = {
         "vntemplate" : network_json,
-        "clusters": clusters
+        //"clusters": clusters
       };
-
       Sunstone.runAction("VNTemplate.create", network_json);
       return false;
     } else if (this.action == "update") {
@@ -405,7 +404,8 @@ define(function(require) {
 
     } else if (this.action == "update") {
       var template_raw = $("textarea#template", context).val();
-      Sunstone.runAction("VNTemplate.update", this.resourceId, template_raw);
+      var vntemplate_json = {vntemplate: {vntemplate_raw: template}};
+      Sunstone.runAction("VNTemplate.update", this.resourceId, vntemplate_json);
       return false;
     }
   }
@@ -452,7 +452,7 @@ define(function(require) {
 
     // Show all network mode inputs, and make them not required. This will change
     // if a different network model is selected
-    $("input#bridge", context).attr("required", "");
+    $("input#bridge", context).removeAttr("required");
     $("div.mode_param", context).show();
     $("div.mode_param [wizard_field]", context).prop("wizard_field_disabled", true).removeAttr("required");
 
