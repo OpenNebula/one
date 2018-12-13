@@ -45,7 +45,41 @@ class VectorAttribute;
 class Snapshots
 {
 public:
-    Snapshots(int _disk_id, bool orphans);
+
+    enum AllowOrphansMode
+    {
+        ALLOW = 0,
+        DENY  = 1,
+        MIXED = 2
+    };
+
+    static string allow_orphans_mode_to_str(AllowOrphansMode aom)
+    {
+        switch (aom)
+        {
+            case ALLOW: return "YES";
+            case DENY:  return "NO";
+            case MIXED: return "MIXED";
+        }
+    };
+
+    static AllowOrphansMode str_to_allow_orphans_mode(const string& aom)
+    {
+        if (aom == "YES")
+        {
+            return ALLOW;
+        }
+        else if (aom == "MIXED")
+        {
+            return MIXED;
+        }
+        else
+        {
+            return DENY;
+        }
+    };
+
+    Snapshots(int _disk_id, AllowOrphansMode orphans);
 
     Snapshots(const Snapshots& s);
 
@@ -98,8 +132,12 @@ public:
     /**
      *  Set the given snapshot as active. Updates the values of the current
      *  snapshot
+     *
+     *    @param id id of the snapshot
+     *    @param revert true if the cause of changing the active snapshot
+     *                  is because a revert
      */
-    int active_snapshot(int id);
+    int active_snapshot(int id, bool revert);
 
     /**
      * Rename the given snapshot by the given name
@@ -224,6 +262,10 @@ private:
      */
     void init();
 
+    void add_child_mixed(VectorAttribute *snapshot);
+
+    int add_child_deny(VectorAttribute *snapshot);  
+
     /**
      *  Text representation of the snapshot pool. To be stored as part of the
      *  VM or Image Templates
@@ -248,12 +290,17 @@ private:
     /**
      * Allow to remove parent snapshots and active one
      */
-    bool orphans;
+    AllowOrphansMode orphans;
 
     /**
      * Snapshot pointer map
      */
     map<int, VectorAttribute *> snapshot_pool;
+
+    /**
+     * Current snaphsot base for mixed mode
+     */
+    int current_base;
 };
 
 #endif /*SNAPSHOTS_H_*/
