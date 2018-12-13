@@ -36,12 +36,12 @@ class LXDClient
     def initialize
         paths = ['/var/lib/lxd', '/var/snap/lxd/common/lxd']
 
-        @socket = nil
+        @socket   = nil
         @lxd_path = nil
 
         paths.each do |path|
             begin
-                @socket = socket(path)
+                @socket   = socket(path)
                 @lxd_path = path
                 break
             rescue
