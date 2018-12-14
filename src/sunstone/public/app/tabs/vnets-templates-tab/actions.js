@@ -139,6 +139,11 @@ define(function(require) {
         //Sunstone.resetFormPanel(TAB_ID, INSTANTIATE_DIALOG_ID);
         var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
 
+        if (selected_nodes.length != 1) {
+          Notifier.notifyMessage("Please select one (and just one) Virtual Network Template.");
+          return false;
+        }
+
         Sunstone.showFormPanel(TAB_ID, INSTANTIATE_DIALOG_ID, "instantiate",
           function(formPanelInstance, context) {
             formPanelInstance.setTemplateIds(context, selected_nodes);
