@@ -549,7 +549,7 @@ public:
 
     void revert_snapshot(int snap_id)
     {
-        snapshots.active_snapshot(snap_id, false);
+        snapshots.active_snapshot(snap_id, true);
     };
 
     void set_target_snapshot(int snap_id)
