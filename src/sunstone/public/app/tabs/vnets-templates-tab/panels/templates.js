@@ -14,6 +14,53 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-define(function(require){
-  return 'vntemplate_add_ar_dialog';
+define(function(require) {
+
+    var TemplateInfo = require('hbs!./template/html');
+    var Locale = require('utils/locale');
+    var TemplateUtils = require('utils/template-utils');
+    /*
+      CONSTANTS
+     */
+
+    var TAB_ID = require('../tabId');
+    var PANEL_ID = require('./template/panelId');
+    var RESOURCE = "VNTemplate"
+    var XML_ROOT = "VNTEMPLATE"
+
+    /*
+      CONSTRUCTOR
+     */
+
+    function Panel(info) {
+      this.tabId = TAB_ID;
+      this.resource = RESOURCE;
+
+      this.title = Locale.tr("Template");
+      this.icon = "fa-file";
+
+      this.element = info[XML_ROOT];
+
+      return this;
+    };
+
+    Panel.PANEL_ID = PANEL_ID;
+    Panel.prototype.html = _html;
+    Panel.prototype.setup = _setup;
+
+    return Panel;
+
+    /*
+        FUNCTION DEFINITIONS
+    */
+
+    function _html() {
+        return TemplateInfo({
+            'element': this.element,
+            'templateString': TemplateUtils.templateToString(this.element.TEMPLATE)
+        });
+    }
+
+    function _setup(context) {
+    }
 });

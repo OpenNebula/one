@@ -50,6 +50,7 @@ define(function(require) {
     "VNTemplate.chgrp": _commonActions.multipleAction('chgrp'),
     "VNTemplate.chmod": _commonActions.singleAction('chmod'),
     "VNTemplate.rename": _commonActions.singleAction('rename'),
+    "VNTemplate.update" : _commonActions.update(),
     "VNTemplate.update_template" : _commonActions.updateTemplate(),
     "VNTemplate.append_template" : _commonActions.appendTemplate(),
     "VNTemplate.update_dialog" : _commonActions.checkAndShowUpdate(),
@@ -84,7 +85,7 @@ define(function(require) {
       error: Notifier.onError
     },
 
-    "VNTemplate.rm_ar" : {
+    "VNTemplate.remove_ar" : {
       type: "single",
       call: OpenNebulaResource.update,
       callback: function(req) {
@@ -102,7 +103,9 @@ define(function(require) {
       callback: function(request, response) {
         Sunstone.getDialog(CLUSTERS_DIALOG_ID).setParams({
           element: response[XML_ROOT],
-          resource:"vntemplate"
+          resource:"vntemplate",
+          resource_name: RESOURCE,
+          only_update_template: true
         });
 
         Sunstone.getDialog(CLUSTERS_DIALOG_ID).reset();

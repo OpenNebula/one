@@ -74,6 +74,8 @@ define(function(require) {
     that.arTab.setup(context, "add_ar");
 
     $('#submit_ar_reset_button', context).click(function(){
+      Sunstone.getDialog(DIALOG_ID).hide();
+      Sunstone.getDialog(DIALOG_ID).reset();
       Sunstone.getDialog(DIALOG_ID).show();
     });
 

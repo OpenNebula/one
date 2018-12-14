@@ -15,5 +15,5 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require){
-  return 'vntemplate_add_ar_dialog';
+  return 'vnet_template_template_tab';
 });

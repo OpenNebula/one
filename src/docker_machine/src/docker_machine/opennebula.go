@@ -104,9 +104,9 @@ func (d *Driver) buildConfig() {
 	d.Config = goca.NewConfig(d.User, d.Password, d.Xmlrpcurl)
 }
 
-func (d *Driver) setClient() error {
+func (d *Driver) setClient() {
 	d.buildConfig()
-	return goca.SetClient(d.Config)
+	goca.SetClient(d.Config)
 }
 
 // GetCreateFlags registers the flags this driver adds to

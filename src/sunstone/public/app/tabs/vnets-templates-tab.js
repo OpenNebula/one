@@ -34,7 +34,8 @@ define(function(require) {
     require('./vnets-templates-tab/panels/info'),
     require('./vnets-templates-tab/panels/ar'),
     require('./vnets-templates-tab/panels/secgroups'),
-    require('./vnets-templates-tab/panels/clusters')
+    require('./vnets-templates-tab/panels/clusters'),
+    require('./vnets-templates-tab/panels/templates')
   ];
 
   var _panelsHooks = [

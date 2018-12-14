@@ -201,7 +201,7 @@ define(function(require) {
           var sgs = template_json.VNTEMPLATE.TEMPLATE.SECURITY_GROUPS;
           if (sgs) {
             var selectedResources = {
-              ids : sgs.spli(",")
+              ids : sgs.split(",")
             };
             that.securityGroupsTable.selectResourceTableSelect(selectedResources);
           }
@@ -343,38 +343,25 @@ define(function(require) {
         var id = that.element.ID;
         var ar_id = $(this).attr('ar_id');
 
-        var element = that.element;
+        var ar = getAR(that.element, ar_id);
 
-        OpenNebulaNetworkTemplate.show({
-          data : {
-            id: id
-          },
-          timeout: true,
-          success: function (request, vn){
-            var vntmpl_info = vn.VNTEMPLATE;
+        if(ar != undefined){
+          Sunstone.getDialog(INSTANTIATE_UPDATE_AR_DIALOG_ID).reset();
 
-            var ar = getAR(vntmpl_info, ar_id);
+          Sunstone.getDialog(INSTANTIATE_UPDATE_AR_DIALOG_ID).setParams({
+            'vntmplId': id,
+            'arId': ar_id,
+            'element': that.element,
+            'arData': $.extend({}, ar),
+            'table': "ar_list_datatable",
+            'context': context
+          });
 
-            if(ar != undefined){
-              Sunstone.getDialog(INSTANTIATE_UPDATE_AR_DIALOG_ID).reset();
+          Sunstone.getDialog(INSTANTIATE_UPDATE_AR_DIALOG_ID).show();
 
-              Sunstone.getDialog(INSTANTIATE_UPDATE_AR_DIALOG_ID).setParams({
-                'vntmplId': id,
-                'arId': ar_id,
-                'element': element,
-                'arData': $.extend({}, ar),
-                'table': "ar_list_datatable",
-                'context': context
-              });
-
-              Sunstone.getDialog(INSTANTIATE_UPDATE_AR_DIALOG_ID).show();
-
-            } else {
-              Notifier.notifyError(Locale.tr("The Address Range was not found"));
-            }
-          },
-          error: Notifier.onError
-        });
+        } else {
+          Notifier.notifyError(Locale.tr("The Address Range was not found"));
+        }
 
         return false;
       });
