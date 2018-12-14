@@ -358,7 +358,12 @@ class Container
         bin  = 'svncterm_server'
         server = "#{bin} #{vnc_args}"
 
-        Command.execute_once(server, true)
+        rc, _o, e = Command.execute_once(server, true)
+
+        if rc != 0
+            OpenNebula.log_error("do_map: #{e}")
+            return
+        end
 
         lfd = Command.lock
 
