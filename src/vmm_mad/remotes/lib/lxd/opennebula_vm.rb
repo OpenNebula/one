@@ -25,7 +25,8 @@ class LXDConfiguration < Hash
             :width   => '800',
             :height  => '600',
             :timeout => '300'
-        }
+        },
+        :datastore_location => '/var/lib/one/datastores'
     }
 
     def initialize
@@ -42,7 +43,7 @@ end
 # This class parses and wraps the information in the Driver action data
 class OpenNebulaVM
 
-    attr_reader :xml, :vm_id, :vm_name, :sysds_id, :ds_path, :rootfs_id, :lxdrc, :sysds_path
+    attr_reader :xml, :vm_id, :vm_name, :sysds_id, :sysds_path, :rootfs_id, :lxdrc
 
     #---------------------------------------------------------------------------
     # Class Constructor
@@ -52,23 +53,21 @@ class OpenNebulaVM
         @xml = @xml.element('//VM')
 
         @vm_id    = @xml['//TEMPLATE/VMID']
-        @sysds_id = @xml['//HISTORY_RECORDS/HISTORY/DS_ID']
-
         @vm_name  = @xml['//DEPLOY_ID']
         @vm_name  = "one-#{@vm_id}" if @vm_name.empty?
 
-        return if wild?
-
         # Load Driver configuration
         @lxdrc = LXDConfiguration.new
+
+        @sysds_id = @xml['//HISTORY_RECORDS/HISTORY/DS_ID']
+        @sysds_path = "#{@lxdrc[:datastore_location]}/#{@sysds_id}"
+
+        return if wild?
 
         # Sets the DISK ID of the root filesystem
         disk = @xml.element('//TEMPLATE/DISK')
 
         return unless disk
-
-        @ds_path = get_dspath(disk)
-        @sysds_path = "#{@ds_path}/#{@sysds_id}"
 
         @rootfs_id = disk['DISK_ID']
         boot_order = @xml['//TEMPLATE/OS/BOOT']
@@ -206,7 +205,7 @@ class OpenNebulaVM
 
         return if cid.empty?
 
-        source = "#{@ds_path}/#{@sysds_id}/#{@vm_id}/mapper/disk.#{cid}"
+        source = disk_mountpoint(cid)
 
         hash['context'] = {
             'type'   => 'disk',
@@ -216,7 +215,7 @@ class OpenNebulaVM
     end
 
     def disk_mountpoint(disk_id)
-        "#{@ds_path}/#{@sysds_id}/#{@vm_id}/mapper/disk.#{disk_id}"
+        "#{@sysds_path}/#{@vm_id}/mapper/disk.#{disk_id}"
     end
 
     # Creates a disk hash from DISK xml element
@@ -310,7 +309,7 @@ class OpenNebulaVM
         if !data.empty? && type.casecmp('lxd').zero?
             begin
                 raw_data = JSON.parse("{#{data}}")
-            rescue StandardError
+            rescue
             end
         end
 
@@ -340,7 +339,7 @@ class OpenNebulaVM
         pass = '-' unless pass && !pass.empty?
 
         case signal
-        when 'start' 
+        when 'start'
             command = @lxdrc[:vnc][:command]
             "#{data['PORT']} #{pass} lxc exec #{@vm_name} #{command}\n"
         when 'stop'
@@ -372,25 +371,6 @@ class OpenNebulaVM
         mapped
     end
 
-    # Returns the datastores BASE_PATH location
-    def get_dspath(disk)
-        source = disk['SOURCE']
-        cut = "/#{disk['DATASTORE_ID']}/"
-        result = source.split(cut)
-
-        if result.length == 2
-            path = result[0]
-        else
-            path = ''
-            0.upto(result.length - 2) do |i|
-                path << "#{result[i]}/#{dsid}/"
-            end
-
-            path = path[0..path.rindex(cut)]
-        end
-
-        path.gsub('//', '/')
-    end
 end
 
 # This class abstracts the access to XML elements. It provides basic methods

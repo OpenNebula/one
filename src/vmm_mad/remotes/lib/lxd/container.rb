@@ -135,9 +135,10 @@ class Container
 
     # Delete container
     def delete(wait: true, timeout: '')
-        unless Dir.empty?(@rootfs_dir) || (Dir["#{@rootfs_dir}/*"] == [@context_path] && Dir.empty?(@context_path))
-            raise 'Container rootfs not empty'
-        end
+        cmd = "#{Mapper::COMMANDS[:lsblk]} -J"
+        _rc, o, _e = Command.execute(cmd, false)
+
+        raise "Container rootfs still mounted \n#{o}" if o.include?(@rootfs_dir)
 
         wait?(@client.delete("#{CONTAINERS}/#{name}"), wait, timeout)
     end
@@ -330,10 +331,6 @@ class Container
     def setup_disk(disk, operation)
         return unless @one
 
-        ds_path = @one.ds_path
-        ds_id   = @one.sysds_id
-
-        vm_id   = @one.vm_id
         disk_id = disk['DISK_ID']
 
         if disk_id == @one.rootfs_id
@@ -401,15 +398,14 @@ class Container
     def new_disk_mapper(disk)
         case disk['TYPE']
         when 'FILE'
-            ds_path = @one.ds_path
-            ds_id   = @one.sysds_id
+            ds = "#{@one.sysds_path}/#{@one.vm_id}/disk.#{disk['DISK_ID']}"
 
-            vm_id   = @one.vm_id
-            disk_id = disk['DISK_ID']
+            rc, out, err = Command.execute("#{Mapper::COMMANDS[:file]} #{ds}", false)
 
-            ds = "#{ds_path}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
-
-            _rc, out, _err = Command.execute("#{Mapper::COMMANDS[:file]} #{ds}", false)
+            unless rc.zero?
+                OpenNebula.log_error("do_map: #{err}")
+                return
+            end
 
             case out
             when /.*QEMU QCOW.*/
@@ -422,7 +418,7 @@ class Container
                 OpenNebula.log "Using raw disk mapper for #{ds}"
                 return DiskRawMapper.new
             else
-                OpenNebula.log('Unknown image format, trying raw filesystem mapper')
+                OpenNebula.log("Unknown #{out} image format, trying raw filesystem mapper")
                 return FSRawMapper.new
             end
         when 'RBD'
