@@ -169,7 +169,7 @@ EOT
 EOT
     ;;
 *alpine*)
-    terminal="/bin/bash"
+    terminal="/bin/ash"
     read -r -d '' commands << EOT
         echo "nameserver $DNS_SERVER" > /etc/resolv.conf
         $CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-r1.apk -Lsfo /root/context.apk
@@ -177,13 +177,13 @@ EOT
 EOT
     ;;
 *opensuse*)
-    terminal="/bin/ash"
+    terminal="/bin/sh"
     read -r -d '' commands << EOT
         echo "OpenSuse is not yet supported" > /root/opennebula_context.log
 EOT
     ;;
 *)
-    terminal="/bin/bash"
+    terminal="/bin/sh"
     read -r -d '' commands << EOT
         echo "This distro is not supported by OpenNebula context" > /root/opennebula_context.log
 EOT
