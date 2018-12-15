@@ -433,12 +433,7 @@ class Mapper
 
     # @return [String] the canonical disk path for the given disk
     def disk_source(one_vm, disk)
-        ds_path = one_vm.ds_path
-        ds_id   = one_vm.sysds_id
-        vm_id   = one_vm.vm_id
-        disk_id = disk['DISK_ID']
-
-        "#{ds_path}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
+        "#{one_vm.sysds_path}/#{one_vm.vm_id}/disk.#{disk['DISK_ID']}"
     end
 
     #  Adds path to the partition Hash. This is needed for lsblk version < 2.33

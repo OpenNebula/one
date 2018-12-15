@@ -40,6 +40,6 @@ if iso_path != ''
 
     raise 'Failed to attach context' unless container.attach_context
 
-    rc, _out, err = container.exec('one-contextd local 2>/dev/null')
+    rc, _out, err = container.exec('one-contextd local')
     raise err unless rc.zero?
 end

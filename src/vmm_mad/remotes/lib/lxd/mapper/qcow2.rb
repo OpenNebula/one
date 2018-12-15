@@ -54,7 +54,7 @@ class Qcow2Mapper <  Mapper
 
         return true if rc.zero?
 
-        OpenNebula.log_error("do_unmap: #{err}") 
+        OpenNebula.log_error("do_unmap: #{err}")
         nil
     end
 
