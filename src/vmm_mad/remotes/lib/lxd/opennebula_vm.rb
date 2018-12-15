@@ -69,9 +69,6 @@ class OpenNebulaVM
 
         return unless disk
 
-        @ds_path    = get_dspath(disk)
-        @sysds_path = "#{@ds_path}/#{@sysds_id}"
-
         @rootfs_id = disk['DISK_ID']
         boot_order = @xml['//TEMPLATE/OS/BOOT']
         @rootfs_id = boot_order.split(',')[0][-1] unless boot_order.empty?
@@ -374,25 +371,6 @@ class OpenNebulaVM
         mapped
     end
 
-    # Returns the datastores BASE_PATH location
-    def get_dspath(disk)
-        source = disk['SOURCE']
-        cut    = "/#{disk['DATASTORE_ID']}/"
-        result = source.split(cut)
-
-        if result.length == 2
-            path = result[0]
-        else
-            path = ''
-            0.upto(result.length - 2) do |i|
-                path << "#{result[i]}/#{dsid}/"
-            end
-
-            path = path[0..path.rindex(cut)]
-        end
-
-        path.gsub('//', '/')
-    end
 end
 
 # This class abstracts the access to XML elements. It provides basic methods
