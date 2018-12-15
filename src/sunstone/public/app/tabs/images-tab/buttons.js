@@ -26,7 +26,9 @@ define(function(require) {
     },
     "Image.create_dialog" : {
       type: "create_dialog",
-      layout: "create"
+      text:  Locale.tr("Create"),
+      layout: "create_flatten",
+      custom_classes: "only-sunstone-list"
     },
     "Image.upload_marketplace_dialog" : {
       type: "action",
@@ -34,9 +36,10 @@ define(function(require) {
     },
     "Image.import_dialog" : {
       type: "create_dialog",
-      layout: "create",
       text:  Locale.tr("Import"),
-      icon: '<i class="fas fa-download"/>'
+      layout: "create_flatten",
+      custom_classes: "only-sunstone-list",
+      alwaysActive: true
     },
     "Image.chown" : {
       type: "confirm_with_select",
