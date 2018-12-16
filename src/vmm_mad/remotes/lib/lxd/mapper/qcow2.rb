@@ -21,6 +21,7 @@ $LOAD_PATH.unshift File.dirname(__FILE__)
 require 'mapper'
 
 class Qcow2Mapper <  Mapper
+
     # Max number of block devices. This should be set to the parameter used
     # to load the nbd kernel module (default in kernel is 16)
     NBDS_MAX = 256
@@ -38,7 +39,7 @@ class Qcow2Mapper <  Mapper
         rc, _out, err = Command.execute(cmd, true)
 
         if rc != 0
-            OpenNebula.log_error("do_map: #{err}")
+            OpenNebula.log_error("#{__method__}: #{err}")
             return
         end
 
@@ -54,7 +55,7 @@ class Qcow2Mapper <  Mapper
 
         return true if rc.zero?
 
-        OpenNebula.log_error("do_unmap: #{err}")
+        OpenNebula.log_error("#{__method__}: #{err}")
         nil
     end
 
@@ -76,8 +77,9 @@ class Qcow2Mapper <  Mapper
             return "/dev/nbd#{i}" unless nbds.include?(i)
         }
 
-        OpenNebula.log_error("nbd_device: Cannot find free nbd device")
+        OpenNebula.log_error("#{__method__}: Cannot find free nbd device")
 
         ''
     end
+
 end

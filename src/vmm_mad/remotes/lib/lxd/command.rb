@@ -21,6 +21,7 @@ require 'open3'
 # This module can be used to execute commands. It wraps popen3 and provides
 # locking capabilites using flock
 module Command
+
     LOCK_FILE = '/tmp/onelxd-lock'
 
     def self.execute(cmd, block)
@@ -31,7 +32,7 @@ module Command
         begin
             fd = lock if block
 
-            Open3.popen3(cmd) { |i, o, e, t| 
+            Open3.popen3(cmd) {|i, o, e, t|
                 rc = t.value.exitstatus
 
                 stdout = o.read
@@ -41,7 +42,6 @@ module Command
                 e.close
             }
         rescue
-
         ensure
             unlock(fd) if block
         end
@@ -67,11 +67,11 @@ module Command
         lfd = File.open(LOCK_FILE,"w")
         lfd.flock(File::LOCK_EX)
 
-        return lfd
+        lfd
     end
 
     def self.unlock(lfd)
         lfd.close
     end
-end
 
+end

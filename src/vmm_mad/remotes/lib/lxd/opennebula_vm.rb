@@ -29,12 +29,15 @@ class LXDConfiguration < Hash
         :datastore_location => '/var/lib/one/datastores'
     }
 
+    LXDRC = '../../etc/vmm/lxd/lxdrc'
+
     def initialize
         replace(DEFAULT_CONFIGURATION)
 
         begin
-            merge!(YAML.load_file("#{__dir__}/../../etc/vmm/lxd/lxdrc"))
-        rescue
+            merge!(YAML.load_file("#{__dir__}/#{LXDRC}"))
+        rescue => e
+            OpenNebula.log_error e
         end
     end
 

@@ -185,7 +185,7 @@ class Mapper
         sys_parts = lsblk('')
 
         return false unless sys_parts
- 
+
         partitions = []
         device = ''
 
@@ -197,30 +197,30 @@ class Mapper
             real_ds = File.readlink(ds)
             real_path = real_ds + dir_ok.split(ds)[-1] if dir_ok.include?(ds)
         end
-        
-        sys_parts.each { |d|
+
+        sys_parts.each {|d|
             if d['mountpoint'] == real_path
                 partitions = [d]
                 device     = d['path']
                 break
             end
-            
+
             d['children'].each { |c|
-                if c['mountpoint'] == real_path
-                    partitions = d['children']
-                    device     = d['path']
-                    break
-                end
-                } if d['children']
-                
-                break if !partitions.empty?
-            }
-            
-            partitions.delete_if { |p| !p['mountpoint'] }
-            
-            partitions.sort! { |a,b|  
-                b['mountpoint'].length <=> a['mountpoint'].length 
-            }
+                next unless c['mountpoint'] == real_path
+
+                partitions = d['children']
+                device     = d['path']
+                break
+            } if d['children']
+
+            break if !partitions.empty?
+        }
+
+        partitions.delete_if {|p| !p['mountpoint'] }
+
+        partitions.sort! {|a, b|
+            b['mountpoint'].length <=> a['mountpoint'].length
+        }
 
         if device.empty?
             OpenNebula.log_error("Failed to detect block device from #{directory}")
