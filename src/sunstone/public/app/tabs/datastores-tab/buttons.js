@@ -25,13 +25,16 @@ define(function(require) {
     },
     "Datastore.create_dialog" : {
       type: "create_dialog",
-      layout: "create"
+      text:  Locale.tr("Create"),
+      layout: "create_flatten",
+      custom_classes: "only-sunstone-list"
     },
     "Datastore.import_dialog" : {
       type: "create_dialog",
-      layout: "create",
       text:  Locale.tr("Import"),
-      icon: '<i class="fas fa-download"/>'
+      layout: "create_flatten",
+      custom_classes: "only-sunstone-list",
+      alwaysActive: true
     },
     "Datastore.addtocluster" : {
       type : "action",

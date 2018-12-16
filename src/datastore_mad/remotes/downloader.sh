@@ -328,6 +328,9 @@ rbd://*)
 vcenter://*)
     command="$VAR_LOCATION/remotes/datastore/vcenter_downloader.rb '$(esc_sq "$FROM")'"
     ;;
+lxd://*)
+    command="$VAR_LOCATION/remotes/datastore/lxd_downloader.sh \"$FROM\""
+    ;;
 *)
     if [ ! -r $FROM ]; then
         echo "Cannot read from $FROM" >&2
