@@ -30,6 +30,8 @@ class RBDMapper < Mapper
     def disk_source(vm_id, disk)
         src = disk['SOURCE']
         return "#{src}-#{vm_id}-#{disk['DISK_ID']}" if disk['CLONE'] == 'YES'
+
+        src
     end
 
     def do_map(one_vm, disk, _directory)
