@@ -188,12 +188,14 @@ class Mapper
  
         partitions = []
         device = ''
-        real_path = directory
+
+        dir_ok = directory.dup.gsub('//', '/')
+        real_path = dir_ok
 
         ds = one_vm.sysds_path
         if File.symlink?(ds)
             real_ds = File.readlink(ds)
-            real_path = real_ds + directory.split(ds)[-1] if directory.include?(ds)
+            real_path = real_ds + dir_ok.split(ds)[-1] if dir_ok.include?(ds)
         end
         
         sys_parts.each { |d|
