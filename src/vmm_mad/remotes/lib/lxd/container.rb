@@ -316,8 +316,12 @@ class Container
 
         disk_name = "disk#{disk_element['DISK_ID']}"
 
-        csrc = @lxc['devices'][disk_name]['source'].clone
+        unless @lxc['devices'].key?(disk_name)
+            OpenNebula.log_error "Failed to detect #{disk_name} on \
+            container devices\n#{@lxc['devices']}"
+        end
 
+        csrc = @lxc['devices'][disk_name]['source'].clone
 
         @lxc['devices'].delete(disk_name)['source']
 
@@ -403,7 +407,7 @@ class Container
         case disk['TYPE']
         when 'FILE'
 
-            ds = "#{@one.sysds_path}/#{@one.vm_id}/disk.#{disk['DISK_ID']}"
+            ds = Mapper.new.disk_source(@one, disk)
 
             rc, out, err = Command.execute("#{Mapper::COMMANDS[:file]} #{ds}", false)
 
@@ -423,12 +427,15 @@ class Container
                 OpenNebula.log "Using raw disk mapper for #{ds}"
                 DiskRawMapper.new
             else
-                OpenNebula.log("Unknown #{out} image format, trying raw filesystem mapper")
+                OpenNebula.log("Unknown #{out} image format, \
+                    trying raw filesystem mapper")
                 FSRawMapper.new
             end
         when 'RBD'
-            OpenNebula.log "Using rbd disk mapper for #{ds}"
-            RBDMapper.new(disk)
+            rbd = RBDMapper.new(disk)
+            OpenNebula.log "Using rbd disk mapper for \
+            #{rbd.disk_source(@one.vm_id, disk)}"
+            rbd
         end
     end
 

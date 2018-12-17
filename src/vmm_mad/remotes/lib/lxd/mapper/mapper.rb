@@ -45,6 +45,7 @@ require 'command'
 #     }
 # ]
 class Mapper
+
     #---------------------------------------------------------------------------
     # Class constants
     #   - COMMANDS list of commands executed by the driver. This list can
@@ -441,12 +442,11 @@ class Mapper
     def lsblk_path(p)
         return unless !p['path'] && p['name']
 
-        if File.exists?("/dev/#{p['name']}")
+        if File.exist?("/dev/#{p['name']}")
             p['path'] = "/dev/#{p['name']}"
-        elsif File.exists?("/dev/mapper/#{p['name']}")
+        elsif File.exist?("/dev/mapper/#{p['name']}")
             p['path'] = "/dev/mapper/#{p['name']}"
         end
     end
 
 end
-
