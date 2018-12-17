@@ -26,12 +26,12 @@ class Qcow2Mapper <  Mapper
     # to load the nbd kernel module (default in kernel is 16)
     NBDS_MAX = 256
 
-    def do_map(one_vm, disk, directory)
+    def do_map(one_vm, disk, _directory)
         device = nbd_device
 
         return if device.empty?
 
-        dsrc = disk_source(one_vm, disk)
+        dsrc = one_vm.disk_source(disk)
         cmd  = "#{COMMANDS[:nbd]} -c #{device} #{dsrc}"
 
         File.chmod(0664, dsrc) if File.symlink?(one_vm.sysds_path)
@@ -48,7 +48,7 @@ class Qcow2Mapper <  Mapper
         device
     end
 
-    def do_unmap(device, one_vm, disk, directory)
+    def do_unmap(device, _one_vm, _disk, _directory)
         cmd = "#{COMMANDS[:nbd]} -d #{device}"
 
         rc, _out, err = Command.execute(cmd, true)

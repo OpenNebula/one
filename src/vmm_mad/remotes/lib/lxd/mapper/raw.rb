@@ -26,8 +26,8 @@ require 'mapper'
 class FSRawMapper < Mapper
 
     def do_map(one_vm, disk, _directory)
-        dsrc = disk_source(one_vm, disk)
-        cmd  = "#{COMMANDS[:losetup]} -f --show #{dsrc}"
+        dsrc = one_vm.disk_source(disk)
+        cmd = "#{COMMANDS[:losetup]} -f --show #{dsrc}"
 
         rc, out, err = Command.execute(cmd, true)
 
@@ -59,7 +59,7 @@ class DiskRawMapper < Mapper
     #   add map loop3p3 (253:2): 0 1366016 linear 7:3 731136
     # Fisrt line is matched to look for loop device 3, and return "/dev/loop3"
     def do_map(one_vm, disk, directory)
-        dsrc = disk_source(one_vm, disk)
+        dsrc = one_vm.disk_source(disk)
         cmd  = "#{COMMANDS[:kpartx]} -av #{dsrc}"
 
         rc, out, err = Command.execute(cmd, true)
@@ -78,7 +78,7 @@ class DiskRawMapper < Mapper
 
     # Unmaps all devices and loops with kpartx using the source file
     def do_unmap(device, one_vm, disk, directory)
-        dsrc = disk_source(one_vm, disk)
+        dsrc = one_vm.disk_source(disk)
         cmd  = "#{COMMANDS[:kpartx]} -d #{dsrc}"
 
         rc, _out, err = Command.execute(cmd, true)

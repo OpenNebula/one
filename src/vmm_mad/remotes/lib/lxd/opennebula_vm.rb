@@ -46,7 +46,7 @@ end
 # This class parses and wraps the information in the Driver action data
 class OpenNebulaVM
 
-    attr_reader :xml, :vm_id, :vm_name, :sysds_id, :sysds_path, :rootfs_id, :lxdrc
+    attr_reader :xml, :vm_id, :vm_name, :sysds_path, :rootfs_id, :lxdrc
 
     #---------------------------------------------------------------------------
     # Class Constructor
@@ -62,8 +62,8 @@ class OpenNebulaVM
         # Load Driver configuration
         @lxdrc = LXDConfiguration.new
 
-        @sysds_id = @xml['//HISTORY_RECORDS/HISTORY/DS_ID']
-        @sysds_path = "#{@lxdrc[:datastore_location]}/#{@sysds_id}"
+        sysds_id = @xml['//HISTORY_RECORDS/HISTORY/DS_ID']
+        @sysds_path = "#{@lxdrc[:datastore_location]}/#{sysds_id}"
 
         return if wild?
 
@@ -221,6 +221,20 @@ class OpenNebulaVM
         "#{@sysds_path}/#{@vm_id}/mapper/disk.#{disk_id}"
     end
 
+    # @return [String] the canonical disk path for the given disk
+    def disk_source(disk)
+        disk_id = disk['DISK_ID']
+
+        if disk['TYPE'] == 'RBD'
+            src = disk['SOURCE']
+            return "#{src}-#{vm_id}-#{disk['DISK_ID']}" if disk['CLONE'] == 'YES'
+
+            return src
+        end
+
+        "#{@sysds_path}/#{@vm_id}/disk.#{disk_id}"
+    end
+
     # Creates a disk hash from DISK xml element
     def disk(info, source, path)
         disk_id = info['DISK_ID']
@@ -241,6 +255,9 @@ class OpenNebulaVM
             end
 
             disk_name = "disk#{disk_id}"
+
+            source = source.gsub('//', '/') if source.include?('//')
+
             disk = { 'type' => 'disk', 'source' => source, 'path' => path }
         end
 

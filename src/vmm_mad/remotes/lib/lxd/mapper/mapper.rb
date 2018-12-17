@@ -45,6 +45,7 @@ require 'command'
 #     }
 # ]
 class Mapper
+
     #---------------------------------------------------------------------------
     # Class constants
     #   - COMMANDS list of commands executed by the driver. This list can
@@ -189,8 +190,7 @@ class Mapper
         partitions = []
         device = ''
 
-        dir_ok = directory.dup.gsub('//', '/')
-        real_path = dir_ok
+        real_path = directory
 
         ds = one_vm.sysds_path
         if File.symlink?(ds)
@@ -205,7 +205,7 @@ class Mapper
                 break
             end
 
-            d['children'].each { |c|
+            d['children'].each {|c|
                 next unless c['mountpoint'] == real_path
 
                 partitions = d['children']
@@ -433,21 +433,15 @@ class Mapper
         partitions
     end
 
-    # @return [String] the canonical disk path for the given disk
-    def disk_source(one_vm, disk)
-        "#{one_vm.sysds_path}/#{one_vm.vm_id}/disk.#{disk['DISK_ID']}"
-    end
-
     #  Adds path to the partition Hash. This is needed for lsblk version < 2.33
     def lsblk_path(p)
         return unless !p['path'] && p['name']
 
-        if File.exists?("/dev/#{p['name']}")
+        if File.exist?("/dev/#{p['name']}")
             p['path'] = "/dev/#{p['name']}"
-        elsif File.exists?("/dev/mapper/#{p['name']}")
+        elsif File.exist?("/dev/mapper/#{p['name']}")
             p['path'] = "/dev/mapper/#{p['name']}"
         end
     end
 
 end
-
