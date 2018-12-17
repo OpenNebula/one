@@ -19,6 +19,10 @@
 #-------------------------------------------------------------------------------
 # Configuration attributes and parameters
 #-------------------------------------------------------------------------------
+
+USER=oneadmin
+GROUP=oneadmin
+
 DRIVER_PATH=$(dirname $0)
 
 tmp_dir=$1
@@ -41,7 +45,7 @@ esac
 # Mount container disk image and untar rootfs contents to it
 #-------------------------------------------------------------------------------
 mount $tmp_dir/$id.raw $tmp_dir/$id
-chown oneadmin:oneadmin $tmp_dir/$id
+chown $USER:$GROUP $tmp_dir/$id
 tar $untar_options $tmp_dir/$id.$extension -C $tmp_dir/$id > /dev/null 2>&1
 
 sync

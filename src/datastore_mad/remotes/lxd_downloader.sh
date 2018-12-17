@@ -102,7 +102,7 @@ selected_tag=get_tag_name
 for p in ${arguments//&/ }; do
     kvp=( ${p/=/ } );
     k=${kvp[0]};v=${kvp[1]};
-    eval $k=$v;
+    [ -n "$k" -a -n "$v" ] && eval $k=$v;
 done
 
 extension="tar.xz"
@@ -210,6 +210,8 @@ fi
 #-------------------------------------------------------------------------------
 [ -f $output ] && rm -f $output > /dev/null 2>&1
 [ -n "$id" -a -d $TMP_DIR/$id ] && rm -rf $TMP_DIR/$id > /dev/null 2>&1
-[ -f $output_raw ] rm -f $output_raw > /dev/null 2>&1
-[ -f $output_qcow ] rm -f $output_qcow > /dev/null 2>&1
+[ -f $output_raw ] && rm -f $output_raw > /dev/null 2>&1
+[ -f $output_qcow ] && rm -f $output_qcow > /dev/null 2>&1
+
+exit 0
 
