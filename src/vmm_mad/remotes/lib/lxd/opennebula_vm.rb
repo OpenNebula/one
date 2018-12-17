@@ -232,9 +232,7 @@ class OpenNebulaVM
             return src
         end
 
-        src = disk_mountpoint(disk_id)
-        src.slice!('/mapper')
-        src
+        "#{@sysds_path}/#{@vm_id}/disk.#{disk_id}"
     end
 
     # Creates a disk hash from DISK xml element
