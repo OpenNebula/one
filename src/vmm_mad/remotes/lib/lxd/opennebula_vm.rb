@@ -241,6 +241,9 @@ class OpenNebulaVM
             end
 
             disk_name = "disk#{disk_id}"
+
+            source = source.gsub('//', '/') if source.include?('//')
+
             disk = { 'type' => 'disk', 'source' => source, 'path' => path }
         end
 

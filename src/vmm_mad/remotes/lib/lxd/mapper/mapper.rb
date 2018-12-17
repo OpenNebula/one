@@ -189,13 +189,12 @@ class Mapper
         partitions = []
         device = ''
 
-        dir_ok = directory.dup.gsub('//', '/')
-        real_path = dir_ok
+        real_path = directory
 
         ds = one_vm.sysds_path
         if File.symlink?(ds)
             real_ds = File.readlink(ds)
-            real_path = real_ds + dir_ok.split(ds)[-1] if dir_ok.include?(ds)
+            real_path = real_ds + directory.split(ds)[-1] if directory.include?(ds)
         end
 
         sys_parts.each {|d|
@@ -205,7 +204,7 @@ class Mapper
                 break
             end
 
-            d['children'].each { |c|
+            d['children'].each {|c|
                 next unless c['mountpoint'] == real_path
 
                 partitions = d['children']
