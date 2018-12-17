@@ -128,6 +128,28 @@ class VirtualMachine < VCenterDriver::Template
         def initialize(id, one_res, vc_res)
             super(id, one_res, vc_res)
         end
+
+        def self.one_nic(id, one_res)
+            @error_message = "vCenter device does not exist at the moment"
+
+            self.new(id, one_res, nil)
+        end
+
+        def self.vc_nic(vc_res)
+            @error_message = "one nic does not exist at the moment"
+
+            self.new(nil, nil, vc_res)
+        end
+
+        def key
+            raise @error_message unless exists?
+
+            @vc_res.key
+        end
+
+        def boot_dev()
+             RbVmomi::VIM.VirtualMachineBootOptionsBootableEthernetDevice({deviceKey: key})
+        end
     end
 
     class Disk < Resource
@@ -325,6 +347,7 @@ class VirtualMachine < VCenterDriver::Template
         @locking   = true
         @vm_info   = nil
         @disks     = {}
+        @nics = {macs: {}}
     end
 
     ############################################################################
@@ -825,13 +848,30 @@ class VirtualMachine < VCenterDriver::Template
     end
 
     def nics
-        @nics.size == get_one_nics.size
+        if !@nics[:macs].empty?
+            return @nics.reject{|k| k == :macs}
+        end
+
+        info_nics
     end
 
     def disks
         return @disks unless @disks.empty?
 
         info_disks
+    end
+
+    def nics_each(condition)
+        res = []
+        nics.each do |id, nic|
+            next unless nic.method(condition).call
+
+            yield nic if block_given?
+
+            res << nic
+        end
+
+        res
     end
 
     def disks_each(condition)
@@ -858,11 +898,13 @@ class VirtualMachine < VCenterDriver::Template
     end
 
     def get_one_disks
+        one_item.info
         one_item.retrieve_xmlelements("TEMPLATE/DISK")
     end
 
     def get_one_nics
-        one_item.retrieve_xmlelements("TEMPLATE/NICS")
+        one_item.info
+        one_item.retrieve_xmlelements("TEMPLATE/NIC")
     end
 
     def query_disk(one_disk, keys, vc_disks)
@@ -881,6 +923,36 @@ class VirtualMachine < VCenterDriver::Template
         return nil if query.size != 1
 
         query.first
+    end
+
+    def query_nic(mac, vc_nics)
+        nic = vc_nics.select{|dev| dev.macAddress == mac }.first
+
+        vc_nics.delete(nic) if nic
+    end
+
+    def info_nics
+        @nics = {macs: {}}
+
+        vc_nics  = get_vcenter_nics
+        one_nics = get_one_nics
+
+        one_nics.each do |one_nic|
+            index  = one_nic["NIC_ID"]
+            mac    = one_nic["MAC"]
+            vc_dev = query_nic(mac, vc_nics)
+
+            if vc_dev
+                @nics[index]      = Nic.new(index.to_i, one_nic, vc_dev)
+                @nics[:macs][mac] = index
+            else
+                @nics[index]      = Nic.one_nic(index.to_i, one_nic)
+            end
+        end
+
+        vc_nics.each {|d| @nics[d.backing.deviceName] = Nic.vc_nic(d)}
+
+        @nics.reject{|k| k == :macs}
     end
 
     def info_disks
@@ -907,6 +979,37 @@ class VirtualMachine < VCenterDriver::Template
         vc_disks.each {|d| @disks[d[:path_wo_ds]] = Disk.vc_disk(d)}
 
         @disks
+    end
+
+    def nic(index, opts = {})
+        index = index.to_s
+        is_mac = index.match(/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/)
+
+        if is_mac
+            mac = index
+            index = @nics[:macs][mac]
+        end
+
+        return @nics[index] if @nics[index] && opts[:sync].nil?
+
+        if is_mac
+            one_nic = one_item.retrieve_xmlelements("TEMPLATE/NIC[MAC='#{mac}']").first rescue nil
+            index = one_nic['NIC_ID'] if one_nic
+        else
+            one_nic = one_item.retrieve_xmlelements("TEMPLATE/NIC[NIC_ID='#{index}']").first rescue nil
+            mac     = one_nic['MAC'] if one_nic
+        end
+
+        raise "nic #{index} not found" unless one_nic
+
+        vc_nics = get_vcenter_nics
+        vc_nic  = query_nic(mac, vc_nics)
+
+        if vc_nic
+            Nic.new(index.to_i, one_nic, vc_nic)
+        else
+            Nic.one_nic(index.to_i, one_nic)
+        end
     end
 
     def disk(index, opts = {})
@@ -976,19 +1079,26 @@ class VirtualMachine < VCenterDriver::Template
 
         begin
             if !unmanaged_nics.empty?
-                unics = unmanaged_nics.size
-                index = 0
-                self["config.hardware.device"].each do |device|
-                    next unless is_nic?(device)
+                nics  = get_vcenter_nics
 
-                    name = unmanaged_nics[index]["BRIDGE"]
-                    next unless name == device.deviceInfo.summary
+                select = ->(name){
+                    device = nil
+                    nics.each do |nic|
+                        next unless nic.deviceInfo.summary == name
+                        device = nic
+                        break
+                    end
 
-                    # Edit capacity setting new size in KB
-                    device.macAddress = unmanaged_nics[index]["MAC"]
-                    device_change << { :device => device, :operation => :edit }
-                    index += 1
-                    break if index == unics
+                    raise 'Problem with your unmanaged nics!' unless device
+
+                    nics.delete(device)
+                }
+
+                unmanaged_nics.each do |unic|
+                    vnic  = select.call(unic['BRIDGE'])
+
+                    vnic.macAddress   = unic['MAC']
+                    device_change << { :device => vnic, :operation => :edit }
                 end
             end
         rescue Exception => e
@@ -1070,18 +1180,16 @@ class VirtualMachine < VCenterDriver::Template
         extra_config
     end
 
-    SUPPORTED_DEV = ['disk']
     def set_boot_order(boot_info)
         convert = ->(device_str){
-            spl = device_str.scan(/^disk|\d+$/)
-            if !SUPPORTED_DEV.include?(spl[0])
-                raise "#{device_str} is not supported in boot order"
-            end
+            spl = device_str.scan(/^(nic|disk)(\d+$)/).flatten
+            raise "#{device_str} is not supported" if spl.empty?
 
+            sync = "sync_#{spl[0]}s"
             for i in 0..1
                 device = send(spl[0], *[spl[1]])
                 break if device.exists?
-                sync_disks
+                send(sync)
             end
 
             device.boot_dev
@@ -1090,6 +1198,32 @@ class VirtualMachine < VCenterDriver::Template
         boot_order = boot_info.split(',').map{ |str| convert.call(str) }
 
         RbVmomi::VIM.VirtualMachineBootOptions({bootOrder: boot_order})
+    end
+
+    def sync_nics(option = :none, execute = true)
+        device_change = []
+
+        if option == :all
+            nics_each(:detached?) do |nic|
+                device_change << {
+                    :operation => :remove,
+                    :device    => nic.vc_item
+                }
+            end
+        end
+
+        nics_each(:no_exists?) do |nic|
+            device_change << calculate_add_nic_spec(nic.one_item)
+        end
+
+        return device_change unless execute
+
+        spec_hash = { :deviceChange => device_change }
+
+        spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+        @item.ReconfigVM_Task(:spec => spec).wait_for_completion
+
+        info_nics
     end
 
     # TODO
@@ -1120,7 +1254,7 @@ class VirtualMachine < VCenterDriver::Template
         extraconfig += set_running(true, false)
 
         # device_change hash (nics)
-        device_change += device_change_nics
+        device_change += sync_nics(:all, false)
 
         # Set CPU, memory and extraconfig
         num_cpus = one_item["TEMPLATE/VCPU"] || 1
@@ -1261,11 +1395,12 @@ class VirtualMachine < VCenterDriver::Template
         network = self["runtime.host"].network.select do |n|
             n._ref == vnet_ref || n.name == pg_name
         end
-
         network = network.first
 
-        card_num = 1 # start in one, we want the next avaliable id
+        raise "#{pg_name} not found in #{self['runtime.host'].name}" unless network
 
+        # start in one, we want the next avaliable id
+        card_num = 1
         @item["config.hardware.device"].each do |dv|
             card_num += 1 if is_nic?(dv)
         end
@@ -1303,6 +1438,8 @@ class VirtualMachine < VCenterDriver::Template
                  :port => port)
         end
 
+        # grab the last unitNumber to ensure the nic to be added at the end
+        @unic = @unic || get_vcenter_nics.map{|d| d.unitNumber}.max rescue 0
         card_spec = {
             :key => 0,
             :deviceInfo => {
@@ -1311,7 +1448,8 @@ class VirtualMachine < VCenterDriver::Template
             },
             :backing     => backing,
             :addressType => mac ? 'manual' : 'generated',
-            :macAddress  => mac
+            :macAddress  => mac,
+            :unitNumber  => @unic+=1
         }
 
         if (limit || rsrv) && (limit > 0)
@@ -1874,8 +2012,8 @@ class VirtualMachine < VCenterDriver::Template
 
             # We attach new NICs where the MAC address is assigned by vCenter
             nic_specs = []
-            nics = one_item.retrieve_xmlelements("TEMPLATE/NIC")
-            nics.each do |nic|
+            one_nics = one_item.retrieve_xmlelements("TEMPLATE/NIC")
+            one_nics.each do |nic|
                 if (nic["OPENNEBULA_MANAGED"] && nic["OPENNEBULA_MANAGED"].upcase == "NO")
                     nic_specs << calculate_add_nic_spec_autogenerate_mac(nic)
                 end
