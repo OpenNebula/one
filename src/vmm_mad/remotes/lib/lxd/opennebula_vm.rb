@@ -225,7 +225,7 @@ class OpenNebulaVM
     def disk_source(disk)
         disk_id = disk['DISK_ID']
 
-        unless disk['CEPH_USER'].empty?
+        if disk['TYPE'] == 'RBD'
             src = disk['SOURCE']
             return "#{src}-#{vm_id}-#{disk['DISK_ID']}" if disk['CLONE'] == 'YES'
 
