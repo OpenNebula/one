@@ -46,7 +46,7 @@ end
 # This class parses and wraps the information in the Driver action data
 class OpenNebulaVM
 
-    attr_reader :xml, :vm_id, :vm_name, :sysds_id, :sysds_path, :rootfs_id, :lxdrc
+    attr_reader :xml, :vm_id, :vm_name, :sysds_path, :rootfs_id, :lxdrc
 
     #---------------------------------------------------------------------------
     # Class Constructor
@@ -62,8 +62,8 @@ class OpenNebulaVM
         # Load Driver configuration
         @lxdrc = LXDConfiguration.new
 
-        @sysds_id = @xml['//HISTORY_RECORDS/HISTORY/DS_ID']
-        @sysds_path = "#{@lxdrc[:datastore_location]}/#{@sysds_id}"
+        sysds_id = @xml['//HISTORY_RECORDS/HISTORY/DS_ID']
+        @sysds_path = "#{@lxdrc[:datastore_location]}/#{sysds_id}"
 
         return if wild?
 
