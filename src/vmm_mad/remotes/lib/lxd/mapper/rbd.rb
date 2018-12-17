@@ -27,15 +27,8 @@ class RBDMapper < Mapper
         @ceph_user = disk['CEPH_USER']
     end
 
-    def disk_source(vm_id, disk)
-        src = disk['SOURCE']
-        return "#{src}-#{vm_id}-#{disk['DISK_ID']}" if disk['CLONE'] == 'YES'
-
-        src
-    end
-
     def do_map(one_vm, disk, _directory)
-        dsrc = disk_source(one_vm.vm_id, disk)
+        dsrc = one_vm.disk_source(disk)
 
         cmd = "#{COMMANDS[:rbd]} #{@ceph_user} map #{dsrc}"
 

@@ -407,7 +407,7 @@ class Container
         case disk['TYPE']
         when 'FILE'
 
-            ds = Mapper.new.disk_source(@one, disk)
+            ds = @one.disk_source(disk)
 
             rc, out, err = Command.execute("#{Mapper::COMMANDS[:file]} #{ds}", false)
 
@@ -432,10 +432,8 @@ class Container
                 FSRawMapper.new
             end
         when 'RBD'
-            rbd = RBDMapper.new(disk)
-            OpenNebula.log "Using rbd disk mapper for \
-            #{rbd.disk_source(@one.vm_id, disk)}"
-            rbd
+            OpenNebula.log "Using rbd disk mapper for #{ds}"
+            RBDMapper.new(disk)
         end
     end
 

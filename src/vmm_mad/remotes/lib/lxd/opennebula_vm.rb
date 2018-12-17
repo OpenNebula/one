@@ -221,6 +221,22 @@ class OpenNebulaVM
         "#{@sysds_path}/#{@vm_id}/mapper/disk.#{disk_id}"
     end
 
+    # @return [String] the canonical disk path for the given disk
+    def disk_source(disk)
+        disk_id = disk['DISK_ID']
+
+        unless disk['CEPH_USER'].empty?
+            src = disk['SOURCE']
+            return "#{src}-#{vm_id}-#{disk['DISK_ID']}" if disk['CLONE'] == 'YES'
+
+            return src
+        end
+
+        src = disk_mountpoint(disk_id)
+        src.slice!('/mapper')
+        src
+    end
+
     # Creates a disk hash from DISK xml element
     def disk(info, source, path)
         disk_id = info['DISK_ID']
