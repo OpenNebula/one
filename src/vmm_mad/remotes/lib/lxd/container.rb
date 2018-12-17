@@ -236,7 +236,7 @@ class Container
         rc, _o, e = Command.execute(create_context_dir, false)
 
         if rc != 0
-            OpenNebula.log_error("setup_storage: #{e}")
+            OpenNebula.log_error("#{__method__}: #{e}")
             return
         end
 
@@ -360,8 +360,8 @@ class Container
 
         rc, _o, e = Command.execute_once(server, true)
 
-        if rc != 0
-            OpenNebula.log_error("do_map: #{e}")
+        unless [nil, 0].include?(rc)
+            OpenNebula.log_error("#{__method__}: #{e}\nFailed to start vnc")
             return
         end
 
@@ -370,7 +370,6 @@ class Container
         File.open(pipe, 'a') do |f|
             f.write command
         end
-
     ensure
         Command.unlock(lfd) if lfd
     end
@@ -403,28 +402,29 @@ class Container
     def new_disk_mapper(disk)
         case disk['TYPE']
         when 'FILE'
+
             ds = "#{@one.sysds_path}/#{@one.vm_id}/disk.#{disk['DISK_ID']}"
 
             rc, out, err = Command.execute("#{Mapper::COMMANDS[:file]} #{ds}", false)
 
             unless rc.zero?
-                OpenNebula.log_error("do_map: #{err}")
+                OpenNebula.log_error("#{__method__} #{err}")
                 return
             end
 
             case out
             when /.*QEMU QCOW.*/
                 OpenNebula.log "Using qcow2 mapper for #{ds}"
-                return Qcow2Mapper.new
+                Qcow2Mapper.new
             when /.*filesystem.*/
                 OpenNebula.log "Using raw filesystem mapper for #{ds}"
-                return FSRawMapper.new
+                FSRawMapper.new
             when /.*boot sector.*/
                 OpenNebula.log "Using raw disk mapper for #{ds}"
-                return DiskRawMapper.new
+                DiskRawMapper.new
             else
                 OpenNebula.log("Unknown #{out} image format, trying raw filesystem mapper")
-                return FSRawMapper.new
+                FSRawMapper.new
             end
         when 'RBD'
             OpenNebula.log "Using rbd disk mapper for #{ds}"

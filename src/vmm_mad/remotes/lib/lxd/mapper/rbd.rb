@@ -30,6 +30,8 @@ class RBDMapper < Mapper
     def disk_source(vm_id, disk)
         src = disk['SOURCE']
         return "#{src}-#{vm_id}-#{disk['DISK_ID']}" if disk['CLONE'] == 'YES'
+
+        src
     end
 
     def do_map(one_vm, disk, _directory)
@@ -41,18 +43,19 @@ class RBDMapper < Mapper
 
         return out.chomp if rc.zero?
 
-        OpenNebula.log_error("do_map: #{err}")
+        OpenNebula.log_error("#{__method__}: #{err}")
         nil
     end
 
-    def do_unmap(device, one_vm, disk, directory)
+    def do_unmap(device, _one_vm, _disk, _directory)
         cmd = "#{COMMANDS[:rbd]} #{@ceph_user} unmap #{device}"
 
         rc, _out, err = Command.execute(cmd, false)
 
         return true if rc.zero?
 
-        OpenNebula.log_error("do_unmap: #{err}")
+        OpenNebula.log_error("#{__method__}: #{err}")
         nil
     end
+
 end

@@ -25,7 +25,7 @@ require 'mapper'
 #-------------------------------------------------------------------------------
 class FSRawMapper < Mapper
 
-    def do_map(one_vm, disk, directory)
+    def do_map(one_vm, disk, _directory)
         dsrc = disk_source(one_vm, disk)
         cmd  = "#{COMMANDS[:losetup]} -f --show #{dsrc}"
 
@@ -33,23 +33,25 @@ class FSRawMapper < Mapper
 
         return out.chomp unless rc != 0 || out.empty?
 
-        OpenNebula.log_error("do_map: #{err}")
+        OpenNebula.log_error("#{__method__}: #{err}")
         nil
     end
 
-    def do_unmap(device, one_vm, disk, directory)
+    def do_unmap(device, _one_vm, _disk, _directory)
         cmd = "#{COMMANDS[:losetup]} -d #{device}"
 
         rc, _out, err = Command.execute(cmd, true)
 
         return true if rc.zero?
 
-        OpenNebula.log_error("do_unmap: #{err}") if rc != 0
+        OpenNebula.log_error("#{__method__}: #{err}") if rc != 0
         nil
     end
+
 end
 
 class DiskRawMapper < Mapper
+
     # Maps the whole file using kpartx. The output should be something like:
     #   $ sudo kpartx -av /var/lib/one/datastores/100/0/disk.0
     #   add map loop3p1 (253:0): 0 204800 linear 7:3 2048
@@ -63,8 +65,8 @@ class DiskRawMapper < Mapper
         rc, out, err = Command.execute(cmd, true)
 
         if rc != 0 || out.empty?
-            OpenNebula.log_error("do_map: #{err}")
-            return nil
+            OpenNebula.log_error("#{__method__}: #{err}")
+            return
         end
 
         loopdev = out.lines[0].match(/.*add map loop(\d+)p\d+.*/)
@@ -83,7 +85,8 @@ class DiskRawMapper < Mapper
 
         return true if rc.zero?
 
-        OpenNebula.log_error("do_unmap: #{err}")
+        OpenNebula.log_error("#{__method__}: #{err}")
         nil
     end
+
 end
