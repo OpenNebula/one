@@ -65,37 +65,58 @@ end # class VirtualMachineFolder
 
 class VirtualMachine < VCenterDriver::Template
 
+    ############################################################################
+    # Resource Classes
+    ############################################################################
+
     # Resource base class
+    #
+    # @param id [Integer] The OpenNebula resource id
+    # @param one_res [XMLElement] The OpenNebula representation of the object
+    # @param vc_res [vCenter_class_specific] vCenter representation of the objecct
     class Resource
         def initialize(id, one_res, vc_res)
             @id      = id
             @one_res = one_res
             @vc_res  = vc_res
-
         end
 
         def id
+            raise_if_no_one
+
             @id
         end
 
         def one_item
+            raise_if_no_one
+
             @one_res
         end
 
         def vc_item
+            raise_if_no_exists
+
             @vc_res
         end
 
         def one?
-            return true if @one_res
-
-            false
+            !@one_res.nil?
         end
 
         def exists?
-            return true if @vc_res
+            !@vc_res.nil?
+        end
 
-            false
+        def raise_if_no_one
+            if !one?
+                raise 'OpenNebula device does not exist at the moment'
+            end
+        end
+
+        def raise_if_no_exists
+            if !exists?
+                raise 'vCenter device does not exist at the moment'
+            end
         end
 
         def no_exists?
@@ -115,6 +136,7 @@ class VirtualMachine < VCenterDriver::Template
         end
 
         def managed?
+            raise_if_no_one
             if @one_res
                 !(@one_res['OPENNEBULA_MANAGED'] &&
                   @one_res['OPENNEBULA_MANAGED'].downcase == "no")
@@ -129,20 +151,22 @@ class VirtualMachine < VCenterDriver::Template
             super(id, one_res, vc_res)
         end
 
+        # Create the OpenNebula nic representation
+        # Allow as to create the class without vCenter representation
+        # example: attached nics not synced with vCenter
         def self.one_nic(id, one_res)
-            @error_message = "vCenter device does not exist at the moment"
-
             self.new(id, one_res, nil)
         end
 
+        # Create the vCenter nic representation
+        # Allow as to create the class without OpenNebula representation
+        # example: detached nics that not exists in OpenNebula
         def self.vc_nic(vc_res)
-            @error_message = "one nic does not exist at the moment"
-
             self.new(nil, nil, vc_res)
         end
 
         def key
-            raise @error_message unless exists?
+            raise_if_no_exists
 
             @vc_res.key
         end
@@ -157,63 +181,70 @@ class VirtualMachine < VCenterDriver::Template
             super(id, one_res, vc_res)
         end
 
+        # Create the OpenNebula disk representation
+        # Allow as to create the class without vCenter representation
+        # example: attached disks not synced with vCenter
         def self.one_disk(id, one_res)
-            @error_message = "vCenter device does not exist at the moment"
             self.new(id, one_res, nil)
         end
 
+        # Create the vCenter disk representation
+        # Allow as to create the class without OpenNebula representation
+        # example: detached disks that not exists in OpenNebula
         def self.vc_disk(vc_res)
-            @error_message = "one disk does not exist at the moment"
             self.new(nil, nil, vc_res)
         end
 
 
         def storpod?
+           raise_if_no_one
            @one_res["VCENTER_DS_REF"].start_with?('group-')
         end
 
         def device
-            raise @error_message unless exists?
+            raise_if_no_exists
 
             @vc_res[:device]
         end
 
         def node
-            raise @error_message unless exists?
+            raise_if_no_exists
 
             @vc_res[:tag]
         end
 
         def path
-            raise @error_message unless exists?
+            raise_if_no_exists
 
             @vc_res[:path_wo_ds]
         end
 
         def ds
-            raise @error_message unless exists?
+            raise_if_no_exists
 
             @vc_res[:datastore]
         end
 
         def image_ds_ref
+            raise_if_no_one
+
             @one_res['VCENTER_DS_REF']
         end
 
         def key
-            raise @error_message unless exists?
+            raise_if_no_exists
 
             @vc_res[:key]
         end
 
         def prefix
-            raise @error_message unless exists?
+            raise_if_no_exists
 
             @vc_res[:prefix]
         end
 
         def type
-            raise @error_message unless exists?
+            raise_if_no_exists
 
             @vc_res[:type]
         end
@@ -223,13 +254,14 @@ class VirtualMachine < VCenterDriver::Template
         end
 
         def is_cd?
-            raise @error_message unless exists?
+            raise_if_no_exists
 
             @vc_res[:type] == 'CDROM'
         end
 
         def config(action)
-            raise @error_message unless exists?
+            raise_if_no_exists
+
             config = {}
 
             if action == :delete
@@ -250,19 +282,25 @@ class VirtualMachine < VCenterDriver::Template
         end
 
         def persistent?
+            raise_if_no_one
+
             @one_res['PERSISTENT'] == 'YES'
         end
 
         def volatile?
+            raise_if_no_one
+
             @one_res["TYPE"] && @one_res["TYPE"].downcase == "fs"
         end
 
         def cloned?
+            raise_if_no_one
+
             @one_res['SOURCE'] != @vc_res[:path_wo_ds]
         end
 
         def connected?
-            raise @error_message unless @vc_res
+            raise_if_no_exists
 
             @vc_res[:device].connectable.connected
         end
@@ -303,7 +341,7 @@ class VirtualMachine < VCenterDriver::Template
 
         def destroy()
             return if is_cd?
-            raise "This device does not exist in vCetenter" unless exists?
+            raise_if_no_exists
 
             ds       = VCenterDriver::Datastore.new(self.ds)
             img_path = self.path
@@ -322,6 +360,10 @@ class VirtualMachine < VCenterDriver::Template
             end
         end
     end
+
+    ############################################################################
+    # Virtual Machine main Class
+    ############################################################################
 
     VM_PREFIX_DEFAULT = "one-$i-"
 
@@ -847,6 +889,14 @@ class VirtualMachine < VCenterDriver::Template
         clone_parameters
     end
 
+    ############################################################################
+    # VirtualMachine Resource model methods
+    ############################################################################
+
+    #
+    #gets the representation of the nics
+    #
+    #@return [Hash(String => self.Nic)
     def nics
         if !@nics[:macs].empty?
             return @nics.reject{|k| k == :macs}
@@ -855,12 +905,21 @@ class VirtualMachine < VCenterDriver::Template
         info_nics
     end
 
+    #gets the representation of the disks
+    #
+    #@return [Hash(String => self.Disk)
     def disks
         return @disks unless @disks.empty?
 
         info_disks
     end
 
+    #iterate over the nics model
+    #
+    #@param condition[Symbol] selects nics that matches certain condition
+    #see Self.Nic|Resource class to see some methods: :exits?, :one?...
+    #
+    #@return yield the nic
     def nics_each(condition)
         res = []
         nics.each do |id, nic|
@@ -874,6 +933,12 @@ class VirtualMachine < VCenterDriver::Template
         res
     end
 
+    #iterate over the disks model
+    #
+    #@param condition[Symbol] selects disks that matches certain condition
+    #see Self.Disk|Resource class to see some methods: :exits?, :one?...
+    #
+    #@return yield the disk
     def disks_each(condition)
         res = []
         disks.each do |id, disk|
@@ -897,16 +962,26 @@ class VirtualMachine < VCenterDriver::Template
         one_item['USER_TEMPLATE/VCENTER_TEMPLATE_REF']
     end
 
+    # Queries to OpenNebula the machine disks xml representation
     def get_one_disks
         one_item.info
         one_item.retrieve_xmlelements("TEMPLATE/DISK")
     end
 
+    # Queries to OpenNebula the machine nics xml representation
     def get_one_nics
         one_item.info
         one_item.retrieve_xmlelements("TEMPLATE/NIC")
     end
 
+    # perform a query to vCenter asking for the OpenNebula disk
+    #
+    # @param one_disk [XMLelement]  The OpenNebula object representation of the disk
+    # @param keys [Hash (String => String)] Hashmap with the unmanaged keys
+    # @param vc_disks [Array (vcenter_disks)] Array of the machine real disks
+    # see get_vcenter_disks method
+    #
+    # @return [vCenter_disk] the proper disk
     def query_disk(one_disk, keys, vc_disks)
         index    = one_disk['DISK_ID']
         cloned   = one_disk["CLONE"].nil? || one_disk["CLONE"] == "YES"
@@ -925,12 +1000,22 @@ class VirtualMachine < VCenterDriver::Template
         query.first
     end
 
+    # perform a query to vCenter asking for the OpenNebula nic
+    #
+    # @param vc_disks [String] The mac of the nic
+    # @param vc_disks [Array (vcenter_nic)] Array of the machine real nics
+    #
+    # @return [vCenter_nic] the proper nic
     def query_nic(mac, vc_nics)
         nic = vc_nics.select{|dev| dev.macAddress == mac }.first
 
         vc_nics.delete(nic) if nic
     end
 
+    # Refresh VcenterDriver machine nics model, does not perform
+    # any sync operation!
+    #
+    # @return [Hash ("String" => self.Nic)] Model representation of nics
     def info_nics
         @nics = {macs: {}}
 
@@ -955,6 +1040,10 @@ class VirtualMachine < VCenterDriver::Template
         @nics.reject{|k| k == :macs}
     end
 
+    # Refresh VcenterDriver machine disks model, does not perform any
+    # sync operation!
+    #
+    # @return [Hash ("String" => self.Disk)] Model representation of disks
     def info_disks
         @disks = {}
 
@@ -981,6 +1070,11 @@ class VirtualMachine < VCenterDriver::Template
         @disks
     end
 
+    # Queries for a certain nic
+    #
+    # @param index [String| Integer] the id of the nic or the mac
+    # @param opts [hash (symbol=>boolean)]
+    #   :sync : allow you to ignore local class memory
     def nic(index, opts = {})
         index = index.to_s
         is_mac = index.match(/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/)
@@ -1012,6 +1106,11 @@ class VirtualMachine < VCenterDriver::Template
         end
     end
 
+    # Queries for a certain nic
+    #
+    # @param index [String | Integer] the id of the disk
+    # @param opts [hash (symbol=>boolean)]
+    #   :sync : allow you to ignore local class memory
     def disk(index, opts = {})
         index = index.to_s
 
@@ -1180,6 +1279,12 @@ class VirtualMachine < VCenterDriver::Template
         extra_config
     end
 
+    # set the boot order of the machine
+    #
+    # @param index [String | boot_info] boot information stored in
+    # the template of the virtual machine. example: disk0, nic0
+    #
+    # @return [Array (vCenterbootClass)] An array with the vCenter classes
     def set_boot_order(boot_info)
         convert = ->(device_str){
             spl = device_str.scan(/^(nic|disk)(\d+$)/).flatten
@@ -1200,10 +1305,20 @@ class VirtualMachine < VCenterDriver::Template
         RbVmomi::VIM.VirtualMachineBootOptions({bootOrder: boot_order})
     end
 
+    # sync OpenNebula nic model with vCenter
+    #
+    # @param option  [symbol]  if :all is provided the method will try to sync
+    # all the nics (detached and not existing ones) otherwishe it will only sync
+    # the nics that are not existing
+    #
+    # @param execute [boolean] indicates if the reconfigure operation is going to
+    # be executed
     def sync_nics(option = :none, execute = true)
         device_change = []
 
         if option == :all
+            # detached? condition indicates that the nic exists in OpeNebula but not
+            # in vCenter
             nics_each(:detached?) do |nic|
                 device_change << {
                     :operation => :remove,
@@ -1212,6 +1327,7 @@ class VirtualMachine < VCenterDriver::Template
             end
         end
 
+        # no_exits? condition indicates that the nic does not exist in vCenter
         nics_each(:no_exists?) do |nic|
             device_change << calculate_add_nic_spec(nic.one_item)
         end
@@ -1226,7 +1342,6 @@ class VirtualMachine < VCenterDriver::Template
         info_nics
     end
 
-    # TODO
     # Synchronize the OpenNebula VM representation with vCenter VM
     def sync(deploy = {})
         extraconfig   = []
@@ -1652,6 +1767,8 @@ class VirtualMachine < VCenterDriver::Template
         end
     end
 
+    # try to get specs for new attached disks
+    # using disk_each method with :no_exists? condition
     def attach_disks_specs()
         attach_disk_array = []
         attach_spod_array = []
@@ -1677,6 +1794,8 @@ class VirtualMachine < VCenterDriver::Template
         return attach_disk_array, attach_spod_array, attach_spod_disk_info
     end
 
+    # try to get specs for detached disks
+    # using disk_each method with :dechaded? condition
     def detach_disks_specs()
         detach_disk_array = []
         extra_config      = []
@@ -1700,7 +1819,14 @@ class VirtualMachine < VCenterDriver::Template
         return detach_disk_array, extra_config
     end
 
-    # TODO
+    # sync OpenNebula disk model with vCenter
+    #
+    # @param option  [symbol]  if :all is provided the method will try to sync
+    # all the disks (detached and not existing ones) otherwishe it will only sync
+    # the disks that are not existing
+    #
+    # @param execute [boolean] indicates if the reconfigure operation is going to
+    # be executed
     def sync_disks(option = :nil, execute = true)
         info_disks
 
@@ -1731,11 +1857,10 @@ class VirtualMachine < VCenterDriver::Template
         info_disks
     end
 
+    # TODO position? and disk size for volatile?
     # TO DEPRECATE: build new attach using new tm
     # Attach DISK to VM (hotplug)
     def attach_disk
-        # TODO position? and disk size for volatile?
-
         spec_hash = {}
         disk = nil
         device_change = []
