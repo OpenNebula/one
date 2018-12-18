@@ -146,7 +146,7 @@ define(function(require) {
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = "fa-power-off";
     this.title = Locale.tr("OS & CPU");
-    this.classes = "hypervisor only_kvm";
+    this.classes = "hypervisor"
 
     this.kernelFilesTable = new FilesTable(
       this.wizardTabId + UniqueId.id(),
