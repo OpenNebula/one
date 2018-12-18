@@ -30,16 +30,16 @@ define(function(require) {
       layout: "create_flatten",
       custom_classes: "only-sunstone-list"
     },
-    "Network.instantiate_dialog" : {
-      type: "create_dialog",
-      text:  Locale.tr("Instantiate"),
-      layout: "create_flatten",
-      custom_classes: "only-sunstone-list"
-    },
     "Network.import_dialog" : {
       type: "create_dialog",
       layout: "create_flatten",
       text:  Locale.tr("Import"),
+      custom_classes: "only-sunstone-list"
+    },
+    "Network.instantiate_dialog" : {
+      type: "create_dialog",
+      text:  Locale.tr("Instantiate"),
+      layout: "create_flatten",
       custom_classes: "only-sunstone-list"
     },
     "Network.reserve_dialog" : {
