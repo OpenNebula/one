@@ -94,7 +94,7 @@ class VirtualMachine < VCenterDriver::Template
         end
 
         def vc_item
-            raise_if_no_exists
+            raise_if_no_exists_in_vcenter
 
             @vc_res
         end
@@ -107,13 +107,15 @@ class VirtualMachine < VCenterDriver::Template
             !@vc_res.nil?
         end
 
-        def raise_if_no_one
+        # Fails if the device is not present in OpenNebula
+        def raise_if_no_exists_in_one
             if !one?
                 raise 'OpenNebula device does not exist at the moment'
             end
         end
 
-        def raise_if_no_exists
+        # Fails if the device is not present in vCenter
+        def raise_if_no_exists_in_vcenter
             if !exists?
                 raise 'vCenter device does not exist at the moment'
             end
@@ -166,7 +168,7 @@ class VirtualMachine < VCenterDriver::Template
         end
 
         def key
-            raise_if_no_exists
+            raise_if_no_exists_in_vcenter
 
             @vc_res.key
         end
@@ -202,25 +204,25 @@ class VirtualMachine < VCenterDriver::Template
         end
 
         def device
-            raise_if_no_exists
+            raise_if_no_exists_in_vcenter
 
             @vc_res[:device]
         end
 
         def node
-            raise_if_no_exists
+            raise_if_no_exists_in_vcenter
 
             @vc_res[:tag]
         end
 
         def path
-            raise_if_no_exists
+            raise_if_no_exists_in_vcenter
 
             @vc_res[:path_wo_ds]
         end
 
         def ds
-            raise_if_no_exists
+            raise_if_no_exists_in_vcenter
 
             @vc_res[:datastore]
         end
@@ -232,19 +234,19 @@ class VirtualMachine < VCenterDriver::Template
         end
 
         def key
-            raise_if_no_exists
+            raise_if_no_exists_in_vcenter
 
             @vc_res[:key]
         end
 
         def prefix
-            raise_if_no_exists
+            raise_if_no_exists_in_vcenter
 
             @vc_res[:prefix]
         end
 
         def type
-            raise_if_no_exists
+            raise_if_no_exists_in_vcenter
 
             @vc_res[:type]
         end
@@ -254,13 +256,13 @@ class VirtualMachine < VCenterDriver::Template
         end
 
         def is_cd?
-            raise_if_no_exists
+            raise_if_no_exists_in_vcenter
 
             @vc_res[:type] == 'CDROM'
         end
 
         def config(action)
-            raise_if_no_exists
+            raise_if_no_exists_in_vcenter
 
             config = {}
 
@@ -300,7 +302,7 @@ class VirtualMachine < VCenterDriver::Template
         end
 
         def connected?
-            raise_if_no_exists
+            raise_if_no_exists_in_vcenter
 
             @vc_res[:device].connectable.connected
         end
@@ -341,7 +343,7 @@ class VirtualMachine < VCenterDriver::Template
 
         def destroy()
             return if is_cd?
-            raise_if_no_exists
+            raise_if_no_exists_in_vcenter
 
             ds       = VCenterDriver::Datastore.new(self.ds)
             img_path = self.path
@@ -1308,7 +1310,7 @@ class VirtualMachine < VCenterDriver::Template
     # sync OpenNebula nic model with vCenter
     #
     # @param option  [symbol]  if :all is provided the method will try to sync
-    # all the nics (detached and not existing ones) otherwishe it will only sync
+    # all the nics (detached and not existing ones) otherwise it will only sync
     # the nics that are not existing
     #
     # @param execute [boolean] indicates if the reconfigure operation is going to
@@ -1343,6 +1345,11 @@ class VirtualMachine < VCenterDriver::Template
     end
 
     # Synchronize the OpenNebula VM representation with vCenter VM
+    #
+    # if the device exists in vCenter and not in OpenNebula : detach
+    # if the device exists in OpenNebula and not in vCenter : attach
+    # if the device exists in both : noop
+    #
     def sync(deploy = {})
         extraconfig   = []
         device_change = []
@@ -1857,8 +1864,7 @@ class VirtualMachine < VCenterDriver::Template
         info_disks
     end
 
-    # TODO position? and disk size for volatile?
-    # TO DEPRECATE: build new attach using new tm
+    # TO DEPRECATE: build new attach using new disk class structure
     # Attach DISK to VM (hotplug)
     def attach_disk
         spec_hash = {}
