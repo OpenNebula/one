@@ -49,7 +49,7 @@ CURL="curl -L"
 # This function returns the associated context packages version to the installed
 # OpenNebula version
 #-------------------------------------------------------------------------------
-get_tag_name () {
+function get_tag_name {
     local version=`oned -v | grep "is distributed" | awk '{print $2}' | tr -d .`
 
     if [ `echo $version | wc -c` -eq 4 ]; then
@@ -96,7 +96,7 @@ url=`echo $MARKET_URL | grep -oP "^"lxd://"\K.*"`
 rootfs_url=`echo $url | cut -d '?' -f 1`
 arguments=`echo $url | cut -d '?' -f 2`
 
-selected_tag=get_tag_name
+selected_tag=`get_tag_name`
 
 #Create a shell variable for every argument (size=5219, format=raw...)
 for p in ${arguments//&/ }; do
@@ -141,52 +141,58 @@ mkdir $TMP_DIR/$id
 case "$rootfs_url" in
 *ubuntu*|*debian*)
     terminal="/bin/bash"
-    read -r -d '' commands << EOT
-        export PATH=$PATH:/bin:/sbin
-        rm -f /etc/resolv.conf > /dev/null 2>&1
-        echo "nameserver $DNS_SERVER" > /etc/resolv.conf
-        apt-get update > /dev/null
-        apt-get install curl -y > /dev/null 2>&1
-        $CURL $CONTEXT_URL/v$selected_tag/one-context_$selected_tag-1.deb -Lsfo /root/context.deb
-        apt-get install /root/context.deb -y > /dev/null 2>&1
-EOT
+    commands=$(cat <<EOC
+export PATH=\$PATH:/bin:/sbin
+
+rm -f /etc/resolv.conf > /dev/null 2>&1
+echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+
+apt-get update > /dev/null
+apt-get install curl -y > /dev/null 2>&1
+
+$CURL $CONTEXT_URL/v$selected_tag/one-context_$selected_tag-1.deb -Lsfo /root/context.deb
+apt-get install /root/context.deb -y > /dev/null 2>&1
+EOC
+)
     ;;
 *centos/6*)
     terminal="/bin/bash"
-    read -r -d '' commands << EOT
-        export PATH=$PATH:/bin:/sbin
-        echo "nameserver $DNS_SERVER" > /etc/resolv.conf
-        $CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el6.noarch.rpm -Lsfo /root/context.rpm
-        yum install /root/context.rpm -y > /dev/null 2>&1
-EOT
+    commands=$(cat <<EOC
+export PATH=\$PATH:/bin:/sbin
+
+echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el6.noarch.rpm -Lsfo /root/context.rpm
+yum install /root/context.rpm -y > /dev/null 2>&1
+EOC
+)
     ;;
 *centos/7*)
     terminal="/bin/bash"
-    read -r -d '' commands << EOT
-        echo "nameserver $DNS_SERVER" > /etc/resolv.conf
-        $CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lsfo /root/context.rpm
-        yum install /root/context.rpm -y > /dev/null 2>&1
-EOT
+    commands=$(cat <<EOC
+echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lsfo /root/context.rpm
+yum install /root/context.rpm -y > /dev/null 2>&1
+EOC
+)
     ;;
 *alpine*)
     terminal="/bin/ash"
-    read -r -d '' commands << EOT
-        echo "nameserver $DNS_SERVER" > /etc/resolv.conf
-        $CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-r1.apk -Lsfo /root/context.apk
-        apk add --allow-untrusted /root/context.apk > /dev/null 2>&1
-EOT
-    ;;
-*opensuse*)
-    terminal="/bin/sh"
-    read -r -d '' commands << EOT
-        echo "OpenSuse is not yet supported" > /root/opennebula_context.log
-EOT
+    commands=$(cat <<EOC
+echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-r1.apk -Lsfo /root/context.apk
+apk add --allow-untrusted /root/context.apk > /dev/null 2>&1
+EOC
+)
     ;;
 *)
     terminal="/bin/sh"
-    read -r -d '' commands << EOT
-        echo "This distro is not supported by OpenNebula context" > /root/opennebula_context.log
-EOT
+    commands=$(cat <<EOC
+echo "$distro-$version is not supported by OpenNebula context" > /root/opennebula_context.log
+EOC
+)
     ;;
 esac
 
@@ -214,4 +220,3 @@ fi
 [ -f $output_qcow ] && rm -f $output_qcow > /dev/null 2>&1
 
 exit 0
-
