@@ -53,7 +53,7 @@ func TestMarketplaceApp(t *testing.T){
 	mkt_app = NewMarketPlaceApp(app_id)
 	mkt_app.Info()
 
-	actual, _:= mkt_app.XMLResource.XPath("/MARKETPLACEAPP/NAME")
+	actual := mkt_app.Name
 
 	if actual != mkt_app_name {
 		t.Errorf("Test failed, expected: '%s', got:  '%s'", mkt_app_name, actual)

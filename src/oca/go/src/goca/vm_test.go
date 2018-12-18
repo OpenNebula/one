@@ -104,8 +104,7 @@ func (s *VMSuite) TestVMUpdate(c *C) {
 	err = vm.Info()
 	c.Assert(err, IsNil)
 
-	val, ok := vm.XPath("/VM/USER_TEMPLATE/A")
-	c.Assert(ok, Equals, true)
+	val := vm.UserTemplate.Dynamic.GetContentByName("A")
 	c.Assert(val, Equals, "B")
 }
 
@@ -194,11 +193,7 @@ func (s *VMSuite) TestVMResize(c *C) {
 	err = vm.Info()
 	c.Assert(err, IsNil)
 
-	cpu, ok := vm.XPath("/VM/TEMPLATE/CPU")
-	c.Assert(ok, Equals, true)
-	c.Assert(cpu, Equals, "2.5")
+	c.Assert(vm.Template.CPU, Equals, "2.5")
 
-	memory, ok := vm.XPath("/VM/TEMPLATE/MEMORY")
-	c.Assert(ok, Equals, true)
-	c.Assert(memory, Equals, "512")
+	c.Assert(vm.Template.Memory, Equals, "512")
 }

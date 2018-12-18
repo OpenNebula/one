@@ -5,7 +5,7 @@ import (
 )
 
 // Helper to create a template
-func createTemplate(t *testing.T) *Template {
+func createTemplate(t *testing.T) (*Template, uint) {
 	templateName := GenName("template")
 
 	// Create template
@@ -28,28 +28,22 @@ func createTemplate(t *testing.T) *Template {
 		t.Error(err)
 	}
 
-	return template
+	return template, id
 }
 
 func TestTemplateCreateAndDelete(t *testing.T) {
-	template := createTemplate(t)
+	var err error
 
-	idParse, err := GetID(t, template, "VMTEMPLATE")
-	if err != nil {
-		t.Error(err)
-	}
+	template, idOrig := createTemplate(t)
 
-	if idParse != template.ID {
+	idParse := template.ID
+	if idParse != idOrig {
 		t.Errorf("Template ID does not match")
 	}
 
 	// Get template by Name
-	templateName, ok := template.XPath("/VMTEMPLATE/NAME")
-	if !ok {
-		t.Errorf("Could not get name")
-	}
-
-	template, err = NewTemplateFromName(templateName)
+	name := template.Name
+	template, err = NewTemplateFromName(name)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -59,9 +53,8 @@ func TestTemplateCreateAndDelete(t *testing.T) {
 		t.Error(err)
 	}
 
-	idParse, err = GetID(t, template, "VMTEMPLATE")
-
-	if idParse != template.ID {
+	idParse = template.ID
+	if idParse != idOrig {
 		t.Errorf("Template ID does not match")
 	}
 
@@ -107,7 +100,7 @@ func TestTemplateInstantiate(t *testing.T) {
 }
 
 func TestTemplateUpdate(t *testing.T) {
-	template := createTemplate(t)
+	template, _ := createTemplate(t)
 
 	tpl := NewTemplateBuilder()
 	tpl.AddValue("A", "B")
@@ -120,8 +113,13 @@ func TestTemplateUpdate(t *testing.T) {
 		t.Error(err)
 	}
 
-	if val, ok := template.XPath("/VMTEMPLATE/TEMPLATE/A"); !ok || val != "B" {
-		t.Errorf("Expecting A=B")
+	val, err := template.Template.Dynamic.GetContentByName("A")
+	if err != nil {
+		t.Errorf("Test failed, can't retrieve '%s', error: %s", "A", err.Error())
+	} else {
+		if val != "B" {
+			t.Errorf("Expecting A=B")
+		}
 	}
 
 	// Delete template
