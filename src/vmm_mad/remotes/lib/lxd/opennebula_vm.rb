@@ -353,7 +353,7 @@ class OpenNebulaVM
     # Creates or closes a connection to a container rfb port depending on signal
     def vnc_command(signal)
         data = @xml.element('//TEMPLATE/GRAPHICS')
-        return unless data && data['PORT'] && data['TYPE'] && data['TYPE'].casecmp?('vnc')
+        return unless data && data['PORT'] && data['TYPE'] && data['TYPE'].casecmp('vnc').zero?
 
         pass = data['PASSWD']
         pass = '-' unless pass && !pass.empty?
