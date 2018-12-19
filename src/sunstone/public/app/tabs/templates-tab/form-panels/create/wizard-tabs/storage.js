@@ -54,7 +54,7 @@ define(function(require) {
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-server';
     this.title = Locale.tr("Storage");
-    this.classes = "hypervisor only_kvm only_vcenter"
+    this.classes = "hypervisor"
 
     if(opts.listener != undefined){
       this.listener = opts.listener;

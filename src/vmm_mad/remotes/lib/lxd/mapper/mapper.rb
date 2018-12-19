@@ -45,6 +45,7 @@ require 'command'
 #     }
 # ]
 class Mapper
+
     #---------------------------------------------------------------------------
     # Class constants
     #   - COMMANDS list of commands executed by the driver. This list can
@@ -60,13 +61,14 @@ class Mapper
         :nbd        => 'sudo -u root -g oneadmin qemu-nbd',
         :su_mkdir   => 'sudo mkdir -p',
         :mkdir      => 'mkdir -p',
-        :cat        => 'sudo cat',
+        :catfstab   => 'sudo catfstab',
+        :cat        => 'cat',
         :file       => 'file -L',
         :blkid      => 'sudo blkid',
         :e2fsck     => 'sudo e2fsck',
         :resize2fs  => 'sudo resize2fs',
         :xfs_growfs => 'sudo xfs_growfs',
-        :rbd        => 'sudo rbd --id'
+        :rbd        => 'sudo rbd-nbd --id'
     }
 
     #---------------------------------------------------------------------------
@@ -184,51 +186,56 @@ class Mapper
         sys_parts = lsblk('')
 
         return false unless sys_parts
- 
+
         partitions = []
         device = ''
+
         real_path = directory
 
-        ds = one_vm.lxdrc[:datastore_location] + "/#{one_vm.sysds_id}"
+        ds = one_vm.sysds_path
         if File.symlink?(ds)
             real_ds = File.readlink(ds)
-            real_path = real_ds + directory.split(ds)[-1] if directory.include?(ds)
+            real_path = real_ds + real_path.split(ds)[-1] if real_path.include?(ds)
         end
 
-        sys_parts.each { |d|
+        sys_parts.each {|d|
             if d['mountpoint'] == real_path
                 partitions = [d]
                 device     = d['path']
                 break
             end
 
-            d['children'].each { |c|
-                if c['mountpoint'] == real_path
-                    partitions = d['children']
-                    device     = d['path']
-                    break
-                end
-                } if d['children']
-                
-                break if !partitions.empty?
-            }
+            d['children'].each {|c|
+                next unless c['mountpoint'] == real_path
 
-            partitions.delete_if { |p| !p['mountpoint'] }
-            
-            partitions.sort! { |a,b|  
-                b['mountpoint'].length <=> a['mountpoint'].length 
-            }
-            
-        umount(partitions)
+                partitions = d['children']
+                device     = d['path']
+                break
+            } if d['children']
 
+            break if !partitions.empty?
+        }
 
+        partitions.delete_if {|p| !p['mountpoint'] }
 
-        do_unmap(device, one_vm, disk, real_path)
+        partitions.sort! {|a, b|
+            b['mountpoint'].length <=> a['mountpoint'].length
+        }
 
-        return true
+        if device.empty?
+            OpenNebula.log_error("Failed to detect block device from #{directory}")
+            return
+        end
+
+        return unless umount(partitions)
+
+        return unless do_unmap(device, one_vm, disk, real_path)
+
+        true
     end
 
     private
+
     #---------------------------------------------------------------------------
     # Methods to mount/umount partitions
     #---------------------------------------------------------------------------
@@ -239,7 +246,7 @@ class Mapper
         partitions.each { |p|
             next if !p['mountpoint']
 
-            umount_dev(p['path'])
+            return nil unless umount_dev(p['path'])
         }
     end
 
@@ -263,12 +270,16 @@ class Mapper
 
             return false if !rc
 
-            cmd = "#{COMMANDS[:cat]} #{path}/etc/fstab"
+            bin = COMMANDS[:catfstab]
+            bin = COMMANDS[:cat] unless path.include?('containers/one-')
+
+            cmd = "#{bin} #{path}/etc/fstab"
 
             rc, fstab, e = Command.execute(cmd, false)
 
             if fstab.empty?
-                umount_dev(p['path'])
+                return false unless umount_dev(p['path'])
+
                 next
             end
 
@@ -304,11 +315,12 @@ class Mapper
 
                 rc = mount_dev(p['path'], path + mount_point)
                 return false if !rc
+
                 break
             }
         end
 
-        return rc
+        rc
     end
 
     # --------------------------------------------------------------------------
@@ -325,17 +337,36 @@ class Mapper
     def mount_dev(dev, path)
         OpenNebula.log_info "Mounting #{dev} at #{path}"
 
+        rc, out, err = Command.execute("#{COMMANDS[:lsblk]} -J", false)
+
+        if rc != 0 || out.empty?
+            OpenNebula.log_error("mount_dev: #{err}")
+            return false
+        end
+
+        if out.match?(path)
+            OpenNebula.log_error("mount_dev: Mount detected in #{path}")
+            return false
+        end
+
         if path =~ /.*\/rootfs/
             cmd = COMMANDS[:su_mkdir]
         else
             cmd = COMMANDS[:mkdir]
         end
 
-        Command.execute("#{cmd} #{path}", false)
+        rc, _out, err = Command.execute("#{cmd} #{path}", false)
 
-        rc, out, err = Command.execute("#{COMMANDS[:mount]} #{dev} #{path}",true)
+        if rc != 0
+            OpenNebula.log_error("mount_dev: #{err}")
+            return false
+        end
 
-        if rc != 0 
+        rc, _out, err = Command.execute("#{COMMANDS[:mount]} #{dev} #{path}", true)
+
+        if rc != 0
+            return true if err.include?("unknown filesystem type 'swap'")
+
             OpenNebula.log_error("mount_dev: #{err}")
             return false
         end
@@ -346,7 +377,12 @@ class Mapper
     def umount_dev(dev)
         OpenNebula.log_info "Umounting disk mapped at #{dev}"
 
-        Command.execute("#{COMMANDS[:umount]} #{dev}", true)
+        rc, _o, e = Command.execute("#{COMMANDS[:umount]} #{dev}", true)
+
+        return true if rc.zero?
+
+        OpenNebula.log_error("umount_dev: #{e}")
+        nil
     end
 
     #---------------------------------------------------------------------------
@@ -397,26 +433,15 @@ class Mapper
         partitions
     end
 
-    # @return [String] the canonical disk path for the given disk
-    def disk_source(one_vm, disk)
-        ds_path = one_vm.ds_path
-        ds_id   = one_vm.sysds_id
-        vm_id   = one_vm.vm_id
-        disk_id = disk['DISK_ID']
-
-        "#{ds_path}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
-    end
-
     #  Adds path to the partition Hash. This is needed for lsblk version < 2.33
     def lsblk_path(p)
         return unless !p['path'] && p['name']
 
-        if File.exists?("/dev/#{p['name']}")
+        if File.exist?("/dev/#{p['name']}")
             p['path'] = "/dev/#{p['name']}"
-        elsif File.exists?("/dev/mapper/#{p['name']}")
+        elsif File.exist?("/dev/mapper/#{p['name']}")
             p['path'] = "/dev/mapper/#{p['name']}"
         end
     end
 
 end
-

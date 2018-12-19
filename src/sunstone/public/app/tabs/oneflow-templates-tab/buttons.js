@@ -25,7 +25,9 @@ define(function(require) {
     },
     "ServiceTemplate.create_dialog" : {
       type: "create_dialog",
-      layout: "create"
+      text:  Locale.tr("Create"),
+      layout: "create_flatten",
+      custom_classes: "only-sunstone-list"
     },
     "ServiceTemplate.update_dialog" : {
       type: "action",
@@ -33,9 +35,9 @@ define(function(require) {
       text: Locale.tr("Update")
     },
     "ServiceTemplate.instantiate_dialog" : {
-      type: "action",
-      layout: "main",
-      text: Locale.tr("Instantiate")
+      type: "create_dialog",
+      text:  Locale.tr("Instantiate"),
+      layout: "create_flatten"
     },
     "ServiceTemplate.chown" : {
       type: "confirm_with_select",

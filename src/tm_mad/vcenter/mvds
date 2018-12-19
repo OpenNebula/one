@@ -65,11 +65,11 @@ begin
     vmperst   = vm.instantiated_as_persistent?
 
     # Don't detach persistent disks if the VM has snapshots
-    if disk && !vm.has_snapshots?
+    if disk && disk.exists? && !vm.has_snapshots?
         vm.one_item = one_vm
 
         # Do not detach persistent unmanaged disk, we need them for mark as a template
-        vm.ndetach_disk(disk) if disk.managed? || !vmperst
+        vm.detach_disk(disk) if disk.managed? || !vmperst
 
         if disk.cloned?
             ds = VCenterDriver::Datastore.new(disk.ds)

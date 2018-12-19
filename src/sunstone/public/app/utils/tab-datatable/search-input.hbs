@@ -18,9 +18,7 @@
 <div id="{{dataTableSearchId}}-wrapper" class="input-group">
   <input class="input-group-field" id="{{dataTableSearchId}}" type="search" placeholder="{{tr "Search"}}" />
   <div class="input-group-button">
-    <button type="button" class="button search-dropdown secondary" data-toggle="{{dataTableSearchId}}-dropdown">
-      <i class="fas fa-fw fa-caret-down"/>
-    </button>
+    <i class="fas fa-filter search-button" data-toggle="{{dataTableSearchId}}-dropdown"></i>
   </div>
   <div class="dropdown-pane left large" id="{{dataTableSearchId}}-dropdown" data-dropdown data-auto-focus="true">
     {{{searchDropdownHTML}}}

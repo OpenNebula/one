@@ -95,6 +95,7 @@ fi
 # domfsfreeze or suspend the domain before.
 if [ "${LCM_STATE}" = '26' ] && [ "${SNAP_ID}" = '-1' ]; then
     CPDS_CMD_EXPORT=$(cat <<EOF
+touch ${DST_PATH}
 if ! virsh -c ${LIBVIRT_URI} blockcopy ${DEPLOY_ID} ${DISK_TARGET} ${DST_PATH} --wait --finish; then
     if virsh -c ${LIBVIRT_URI} domfsfreeze ${DEPLOY_ID}; then
         trap "virsh -c ${LIBVIRT_URI} domfsthaw ${DEPLOY_ID}" EXIT TERM INT HUP

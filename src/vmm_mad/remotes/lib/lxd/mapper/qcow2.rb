@@ -21,41 +21,42 @@ $LOAD_PATH.unshift File.dirname(__FILE__)
 require 'mapper'
 
 class Qcow2Mapper <  Mapper
+
     # Max number of block devices. This should be set to the parameter used
     # to load the nbd kernel module (default in kernel is 16)
     NBDS_MAX = 256
 
-    def do_map(one_vm, disk, directory)
+    def do_map(one_vm, disk, _directory)
         device = nbd_device
 
         return if device.empty?
 
-        dsrc = disk_source(one_vm, disk)
+        dsrc = one_vm.disk_source(disk)
         cmd  = "#{COMMANDS[:nbd]} -c #{device} #{dsrc}"
 
-        ds = one_vm.lxdrc[:datastore_location] + "/#{one_vm.sysds_id}"
-        File.chmod(0664, dsrc) if File.symlink?(ds)
-        
+        File.chmod(0664, dsrc) if File.symlink?(one_vm.sysds_path)
+
         rc, _out, err = Command.execute(cmd, true)
-        
-        if rc != 0 
-            OpenNebula.log_error("do_map: #{err}")
+
+        if rc != 0
+            OpenNebula.log_error("#{__method__}: #{err}")
             return
         end
-        
+
         sleep 0.5 # TODO: improve settledown, lsblk -f fails
 
         device
     end
 
-    def do_unmap(device, one_vm, disk, directory)
+    def do_unmap(device, _one_vm, _disk, _directory)
         cmd = "#{COMMANDS[:nbd]} -d #{device}"
 
-        rc, out, err = Command.execute(cmd, true)
+        rc, _out, err = Command.execute(cmd, true)
 
-        if rc != 0
-            OpenNebula.log_error("do_unmap: #{err}")
-        end
+        return true if rc.zero?
+
+        OpenNebula.log_error("#{__method__}: #{err}")
+        nil
     end
 
     private
@@ -76,8 +77,9 @@ class Qcow2Mapper <  Mapper
             return "/dev/nbd#{i}" unless nbds.include?(i)
         }
 
-        OpenNebula.log_error("nbd_device: Cannot find free nbd device")
+        OpenNebula.log_error("#{__method__}: Cannot find free nbd device")
 
         ''
     end
+
 end

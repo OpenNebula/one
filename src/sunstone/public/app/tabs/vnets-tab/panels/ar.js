@@ -116,7 +116,11 @@ define(function(require) {
 
     return TemplateAR({
       'element': this.element,
-      'arList' : processedARList
+      'arList' : processedARList,
+      'tab': "vnets-tab",
+      'action_add': "Network.add_ar",
+      'action_update': "Network.update_ar",
+      'action_rm': "Network.rm_ar"
     });
   }
 

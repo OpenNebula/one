@@ -68,53 +68,57 @@ class Container
 
         @lxc = lxc
         @one = one
+
+        @containers = "#{@client.lxd_path}/storage-pools/default/containers"
+        @rootfs_dir = "#{@containers}/#{name}/rootfs"
+        @context_path = "#{@rootfs_dir}/context"
     end
 
     class << self
 
-    # Returns specific container, by its name
-    # Params:
-    # +name+:: container name
-    def get(name, one_xml, client)
-        info = client.get("#{CONTAINERS}/#{name}")['metadata']
+        # Returns specific container, by its name
+        # Params:
+        # +name+:: container name
+        def get(name, one_xml, client)
+            info = client.get("#{CONTAINERS}/#{name}")['metadata']
 
-        one  = nil
-        one  = OpenNebulaVM.new(one_xml) if one_xml
+            one  = nil
+            one  = OpenNebulaVM.new(one_xml) if one_xml
 
-        Container.new(info, one, client)
-    rescue LXDError => exception
-        raise exception
-    end
-
-    # Creates container from a OpenNebula VM xml description
-    def new_from_xml(one_xml, client)
-        one = OpenNebulaVM.new(one_xml)
-
-        Container.new(one.to_lxc, one, client)
-    end
-
-    # Returns an array of container objects
-    def get_all(client)
-        containers = []
-
-        container_names = client.get(CONTAINERS)['metadata']
-        container_names.each do |name|
-            name = name.split('/').last
-            containers.push(get(name, nil, client))
+            Container.new(info, one, client)
+        rescue LXDError => exception
+            raise exception
         end
 
-        containers
-    end
+        # Creates container from a OpenNebula VM xml description
+        def new_from_xml(one_xml, client)
+            one = OpenNebulaVM.new(one_xml)
 
-    # Returns boolean indicating if the container exists(true) or not (false)
-    def exist?(name, client)
-        client.get("#{CONTAINERS}/#{name}")
-        true
-    rescue LXDError => exception
-        raise exception if exception.body['error_code'] != 404
+            Container.new(one.to_lxc, one, client)
+        end
 
-        false
-    end
+        # Returns an array of container objects
+        def get_all(client)
+            containers = []
+
+            container_names = client.get(CONTAINERS)['metadata']
+            container_names.each do |name|
+                name = name.split('/').last
+                containers.push(get(name, nil, client))
+            end
+
+            containers
+        end
+
+        # Returns boolean indicating if the container exists(true) or not (false)
+        def exist?(name, client)
+            client.get("#{CONTAINERS}/#{name}")
+            true
+        rescue LXDError => exception
+            raise exception if exception.body['error_code'] != 404
+
+            false
+        end
 
     end
 
@@ -131,6 +135,11 @@ class Container
 
     # Delete container
     def delete(wait: true, timeout: '')
+        cmd = "#{Mapper::COMMANDS[:lsblk]} -J"
+        _rc, o, _e = Command.execute(cmd, false)
+
+        raise "Container rootfs still mounted \n#{o}" if o.include?(@rootfs_dir)
+
         wait?(@client.delete("#{CONTAINERS}/#{name}"), wait, timeout)
     end
 
@@ -152,7 +161,7 @@ class Container
     # Runs command inside container
     # @param command [String] to execute through lxc exec
     def exec(command)
-        Command.lxd_execute(name, command)
+        Command.lxc_execute(name, command)
     end
 
     #---------------------------------------------------------------------------
@@ -186,7 +195,7 @@ class Container
 
         nic_xml = @one.get_nic_by_mac(mac)
 
-        return unless nic_xml
+        raise 'Missing NIC xml' unless nic_xml
 
         nic_config = @one.nic(nic_xml)
 
@@ -211,7 +220,8 @@ class Container
         return unless @one
 
         @one.get_disks.each do |disk|
-            setup_disk(disk, operation)
+            status = setup_disk(disk, operation)
+            return nil unless status
         end
 
         return unless @one.has_context?
@@ -221,10 +231,14 @@ class Container
         context = @one.get_context_disk
         mapper  = FSRawMapper.new
 
-        context_path = "#{@one.lxdrc[:containers]}/#{name}/rootfs/context"
-        create_context_dir = "#{Mapper::COMMANDS[:su_mkdir]} #{context_path}"
+        create_context_dir = "#{Mapper::COMMANDS[:su_mkdir]} #{@context_path}"
 
-        Command.execute(create_context_dir, false)
+        rc, _o, e = Command.execute(create_context_dir, false)
+
+        if rc != 0
+            OpenNebula.log_error("#{__method__}: #{e}")
+            return
+        end
 
         mapper.public_send(operation, @one, context, csrc)
     end
@@ -238,9 +252,10 @@ class Container
         context = @one.get_context_disk
         mapper  = FSRawMapper.new
 
-        mapper.map(@one, context, csrc)
+        return unless mapper.map(@one, context, csrc)
 
         update
+        true
     end
 
     # Removes the context section from the LXD configuration and unmap the
@@ -263,9 +278,11 @@ class Container
     # Attach disk to container (ATTACH = YES) in VM description
     def attach_disk(source)
         disk_element = hotplug_disk
-        return unless disk_element
 
-        setup_disk(disk_element, 'map')
+        raise 'Missing hotplug info' unless disk_element
+
+        status = setup_disk(disk_element, 'map')
+        return unless status
 
         source2 = source.dup
         if source
@@ -278,6 +295,7 @@ class Container
         @lxc['devices'].update(disk_hash)
 
         update
+        true
     end
 
     # Detects disk being hotplugged
@@ -298,14 +316,18 @@ class Container
 
         disk_name = "disk#{disk_element['DISK_ID']}"
 
-        csrc = @lxc['devices'][disk_name]['source'].clone
+        unless @lxc['devices'].key?(disk_name)
+            OpenNebula.log_error "Failed to detect #{disk_name} on \
+            container devices\n#{@lxc['devices']}"
+        end
 
+        csrc = @lxc['devices'][disk_name]['source'].clone
 
         @lxc['devices'].delete(disk_name)['source']
 
         update
 
-        mapper = new_disk_mapper(@one, disk_element)
+        mapper = new_disk_mapper(disk_element)
         mapper.unmap(@one, disk_element, csrc)
     end
 
@@ -313,14 +335,10 @@ class Container
     def setup_disk(disk, operation)
         return unless @one
 
-        ds_path = @one.ds_path
-        ds_id   = @one.sysds_id
-
-        vm_id   = @one.vm_id
         disk_id = disk['DISK_ID']
 
         if disk_id == @one.rootfs_id
-            target = "#{@one.lxdrc[:containers]}/#{name}/rootfs"
+            target = @rootfs_dir
         else
             target = @one.disk_mountpoint(disk_id)
         end
@@ -344,14 +362,18 @@ class Container
         bin  = 'svncterm_server'
         server = "#{bin} #{vnc_args}"
 
-        Command.execute_once(server, true)
+        rc, _o, e = Command.execute_once(server, true)
+
+        unless [nil, 0].include?(rc)
+            OpenNebula.log_error("#{__method__}: #{e}\nFailed to start vnc")
+            return
+        end
 
         lfd = Command.lock
 
         File.open(pipe, 'a') do |f|
             f.write command
         end
-
     ensure
         Command.unlock(lfd) if lfd
     end
@@ -384,32 +406,34 @@ class Container
     def new_disk_mapper(disk)
         case disk['TYPE']
         when 'FILE'
-            ds_path = @one.ds_path
-            ds_id   = @one.sysds_id
 
-            vm_id   = @one.vm_id
-            disk_id = disk['DISK_ID']
+            ds = @one.disk_source(disk)
 
-            ds = "#{ds_path}/#{ds_id}/#{vm_id}/disk.#{disk_id}"
+            rc, out, err = Command.execute("#{Mapper::COMMANDS[:file]} #{ds}", false)
 
-            _rc, out, _err = Command.execute("#{Mapper::COMMANDS[:file]} #{ds}", false)
+            unless rc.zero?
+                OpenNebula.log_error("#{__method__} #{err}")
+                return
+            end
 
             case out
             when /.*QEMU QCOW.*/
                 OpenNebula.log "Using qcow2 mapper for #{ds}"
-                return Qcow2Mapper.new
+                Qcow2Mapper.new
             when /.*filesystem.*/
                 OpenNebula.log "Using raw filesystem mapper for #{ds}"
-                return FSRawMapper.new
+                FSRawMapper.new
             when /.*boot sector.*/
                 OpenNebula.log "Using raw disk mapper for #{ds}"
-                return DiskRawMapper.new
+                DiskRawMapper.new
             else
-                OpenNebula.log('Unknown image format, trying raw filesystem mapper')
-                return FSRawMapper.new
+                OpenNebula.log("Unknown #{out} image format, \
+                    trying raw filesystem mapper")
+                FSRawMapper.new
             end
         when 'RBD'
-            RBDMapper.new
+            OpenNebula.log "Using rbd disk mapper for #{ds}"
+            RBDMapper.new(disk)
         end
     end
 

@@ -36,6 +36,7 @@ module Migrator
     end
 
     def up
+        bug_2687         # MUST be run before 2489, which generates short body
         feature_2253
         feature_2489
         feature_826
@@ -238,4 +239,82 @@ module Migrator
         create_table(:vn_template_pool)
     end
 
+    def bug_2687
+        @db.run "DROP TABLE IF EXISTS old_image_pool;"
+        @db.run "ALTER TABLE image_pool RENAME TO old_image_pool;"
+
+        create_table(:image_pool)
+
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_image_pool") do |row|
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){
+                    |c| c.default_xml.noblanks
+                }
+
+                next_snapshot = doc.at_xpath("//SNAPSHOTS/NEXT_SNAPSHOT")
+
+                unless next_snapshot
+                    max = doc.xpath("//SNAPSHOTS/SNAPSHOT/ID").max
+
+                    if max
+                        next_snapshot = max.text.to_i + 1
+                    else
+                        next_snapshot = 0
+                    end
+
+                    sxml = doc.xpath("//SNAPSHOTS")
+
+                    if sxml
+                        ns = doc.create_element("NEXT_SNAPSHOT")
+                        ns.content = next_snapshot
+                        sxml = sxml.first.add_child(ns)
+                    end
+                end
+
+                row[:body] = doc.root.to_s
+
+                @db[:image_pool].insert(row)
+            end
+        end
+
+        @db.run "DROP TABLE old_image_pool;"
+
+        @db.run "DROP TABLE IF EXISTS old_vm_pool;"
+        @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
+
+        create_table(:vm_pool)
+
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_vm_pool") do |row|
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){ |c|
+                    c.default_xml.noblanks
+                }
+
+                # evaluate each disk snapshot individually
+                doc.xpath("//SNAPSHOTS").each do |disk|
+                    next_snapshot = disk.at_xpath("NEXT_SNAPSHOT")
+
+                    next if next_snapshot
+
+                    max = disk.xpath("SNAPSHOT/ID").max
+
+                    if max
+                        next_snapshot = max.text.to_i + 1
+                    else
+                        next_snapshot = 0
+                    end
+
+                    ns = doc.create_element("NEXT_SNAPSHOT")
+                    ns.content = next_snapshot
+                    disk.add_child(ns)
+                end
+
+                row[:body] = doc.root.to_s
+
+                @db[:vm_pool].insert(row)
+            end
+        end
+
+        @db.run "DROP TABLE old_vm_pool;"
+    end
 end

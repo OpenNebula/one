@@ -23,6 +23,7 @@ enabled_tabs:
     - marketplaceapps-tab
     - network-top-tab
     - vnets-tab
+    - vnets-templates-tab
     - vnets-topology-tab
     #- secgroups-tab
     - infrastructure-top-tab
@@ -66,6 +67,12 @@ features:
 
     # True to show the host datatable to instantiate VM
     show_host_instantiate: false
+
+    # True to show context section to instantiate Network
+    show_context_instantiate_vnet: true
+
+    # True to show context section to instantiate Network
+    show_security_instantiate_vnet: true
 
     # True to show an input to specify the the VMs and Template path/folder where a vCenter VM will
     # deployed to
@@ -783,6 +790,42 @@ tabs:
             Network.unlock: true
             Network.edit_labels: true
             Network.menu_labels: true
+    vnets-templates-tab:
+        panel_tabs:
+            vnet_template_info_tab: true
+            vnet_template_ar_list_tab: true
+            vnet_template_sg_list_tab: true
+            vnet_template_clusters_tab: true
+            vnet_template_template_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Name
+            - 3         # Owner
+            - 4         # Group
+            - 6         # Cluster
+            #- 10       # Labels
+            #- 11       # Search data
+        actions:
+            VNTemplate.refresh: true
+            VNTemplate.create_dialog: true
+            VNTemplate.import_dialog: true
+            VNTemplate.update_dialog: true
+            VNTemplate.rename: true
+            VNTemplate.chown: true
+            VNTemplate.chgrp: true
+            VNTemplate.chmod: true
+            VNTemplate.delete: true
+            VNTemplate.hold_lease: true
+            VNTemplate.release_lease: true
+            VNTemplate.add_ar: true
+            VNTemplate.remove_ar: true
+            VNTemplate.update_ar: true
+            VNTemplate.update: true
+            VNTemplate.lockU: true
+            VNTemplate.unlock: true
+            VNTemplate.edit_labels: true
+            VNTemplate.menu_labels: true
     vnets-topology-tab:
         panel_tabs:
         actions:

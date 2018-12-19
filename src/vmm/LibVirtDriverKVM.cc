@@ -1037,7 +1037,7 @@ int LibVirtDriver::deployment_description_kvm(
         ip            = nic[i]->vector_value("IP");
         filter        = nic[i]->vector_value("FILTER");
         virtio_queues = nic[i]->vector_value("VIRTIO_QUEUES");
-        bridge_type   = nic[i]->vector_value("BRDIGE_TYPE");
+        bridge_type   = nic[i]->vector_value("BRIDGE_TYPE");
 
         vrouter_ip = nic[i]->vector_value("VROUTER_IP");
 

@@ -61,7 +61,8 @@ define(function(require) {
 
   function _html() {
     return TemplateHTML({
-      'arTabHTML': this.arTab.html("add_ar")
+      'arTabHTML': this.arTab.html("add_ar"),
+      'action': "Network.add_ar"
     });
   }
 
@@ -72,6 +73,8 @@ define(function(require) {
     that.arTab.setup(context, "add_ar");
 
     $('#submit_ar_reset_button', context).click(function(){
+      Sunstone.getDialog(DIALOG_ID).hide();
+      Sunstone.getDialog(DIALOG_ID).reset();
       Sunstone.getDialog(DIALOG_ID).show();
     });
 

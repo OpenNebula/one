@@ -68,10 +68,10 @@ func NewVirtualNetworkFromName(name string) (*VirtualNetwork, error) {
 	return NewVirtualNetwork(id), nil
 }
 
-// CreateVirtualnetwork allocates a new virtualnetwork. It returns the new virtualnetwork ID.
+// CreateVirtualNetwork allocates a new virtualnetwork. It returns the new virtualnetwork ID.
 // * tpl: template of the virtualnetwork
 // * clusterID: The cluster ID. If it is -1, the default one will be used.
-func CreateVirtualnetwork(tpl string, clusterID int) (uint, error) {
+func CreateVirtualNetwork(tpl string, clusterID int) (uint, error) {
 	response, err := client.Call("one.vn.allocate", tpl, clusterID)
 	if err != nil {
 		return 0, err

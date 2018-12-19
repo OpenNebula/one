@@ -37,4 +37,4 @@ xml = STDIN.read
 client    = LXDClient.new
 container = Container.get(vm_name, xml, client)
 
-container.attach_disk(image_path)
+raise 'failed to attach disk' unless container.attach_disk(image_path)

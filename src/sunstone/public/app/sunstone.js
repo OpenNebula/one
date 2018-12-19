@@ -60,6 +60,7 @@ define(function(require) {
     "marketplaceapps-tab",
     "network-top-tab",
     "vnets-tab",
+    "vnets-templates-tab",
     "vnets-topology-tab",
     "vnets-topology-tab",
     "support-tab",
@@ -350,6 +351,11 @@ define(function(require) {
           strClass.push("success", "button");
           buttonCode = "<button class=\"" + strClass.join(" ") + "\" href=\"" + buttonName + "\">" + text + "</button>";
           break;
+        case "create_flatten":
+          buttonContext = $("#" + customId + "create_buttons_flatten", buttonsRow);
+          text = button.text;
+          buttonCode = "<li><a class=\"" + strClass.join(" ") + "\" href=\"" + buttonName + "\" data=\"" + data + "\">" + text + "</a></li>";
+          break;
         case "refresh":
           buttonContext = $("#" + customId + "refresh_buttons", buttonsRow);
           icon = button.icon ? button.icon : "<i class=\"fas fa-sync-alt\"/>";
@@ -408,6 +414,11 @@ define(function(require) {
           text = button.text;
           buttonCode = "<li><a class=\"" + strClass.join(" ") + "\" href=\"" + buttonName + "\">" + text + "</a></li>";
           break;
+        case "vmsmigration_buttons":
+          buttonContext = $("#" + customId + "vmsmigration_buttons", buttonsRow);
+          text = button.text;
+          buttonCode = "<li><a class=\"" + strClass.join(" ") + "\" href=\"" + buttonName + "\">" + text + "</a></li>";
+          break;
         case "more_select":
           buttonContext = $("#" + customId + "more_buttons", buttonsRow);
           text = button.text;
@@ -461,6 +472,10 @@ define(function(require) {
         $("button[data-toggle=" + customId + "vmsplanification_buttons]", actionBlock).remove();
       }
 
+      if ($("#" + customId + "vmsmigration_buttons li", actionBlock).length == 0) {
+        $("button[data-toggle=" + customId + "vmsmigration_buttons]", actionBlock).remove();
+      }
+
       if ($("#" + customId + "vmsdelete_buttons li", actionBlock).length == 0) {
         $("button[data-toggle=" + customId + "vmsdelete_buttons]", actionBlock).remove();
       }
@@ -488,6 +503,10 @@ define(function(require) {
       if ($("#" + customId + "labels_buttons button", buttonsRow).length != 0) {
         $("#" + customId + "labels_buttons").append(
           "<div id=\"" + customId + "LabelsDropdown\" class=\"only-sunstone-info only-sunstone-list labels-dropdown dropdown-pane large menu vertical\" data-dropdown data-close-on-click=\"true\"></div>");
+      }
+
+      if ($("#" + customId + "create_buttons_flatten li", actionBlock).length == 0) {
+        $("button[data-toggle=" + customId + "create_buttons_flatten]", actionBlock).remove();
       }
 
       $("#" + customId + "labels_buttons").foundation();
