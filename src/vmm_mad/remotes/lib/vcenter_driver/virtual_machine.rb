@@ -372,6 +372,10 @@ class VirtualMachine < VCenterDriver::Template
     POLL_ATTRIBUTE    = OpenNebula::VirtualMachine::Driver::POLL_ATTRIBUTE
     VM_STATE          = OpenNebula::VirtualMachine::Driver::VM_STATE
 
+    DNET_CARD         = RbVmomi::VIM::VirtualEthernetCardDistributedVirtualPortBackingInfo
+    NET_CARD          = RbVmomi::VIM::VirtualEthernetCardNetworkBackingInfo
+
+
     VM_SHUTDOWN_TIMEOUT = 600 #10 minutes til poweroff hard
 
     attr_accessor :item, :vm_id
@@ -1037,7 +1041,17 @@ class VirtualMachine < VCenterDriver::Template
             end
         end
 
-        vc_nics.each {|d| @nics[d.backing.deviceName] = Nic.vc_nic(d)}
+        vc_nics.each do |d|
+            backing = d.backing
+
+            if backing.class == NET_CARD
+                key = backing.network._ref
+            else
+                key = backing.port.portgroupKey
+            end
+
+            @nics[key] = Nic.vc_nic(d)
+        end
 
         @nics.reject{|k| k == :macs}
     end
