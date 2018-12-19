@@ -195,7 +195,7 @@ class Mapper
         ds = one_vm.sysds_path
         if File.symlink?(ds)
             real_ds = File.readlink(ds)
-            real_path = real_ds + dir_ok.split(ds)[-1] if dir_ok.include?(ds)
+            real_path = real_ds + real_path.split(ds)[-1] if real_path.include?(ds)
         end
 
         sys_parts.each {|d|
