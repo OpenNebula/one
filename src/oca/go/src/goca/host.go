@@ -1,5 +1,10 @@
 package goca
 
+import (
+	"errors"
+	"strconv"
+)
+
 // Host represents an OpenNebula Host
 type Host struct {
 	XMLResource
@@ -149,4 +154,25 @@ func (host *Host) Info() error {
 func (host *Host) Monitoring() error {
 	_, err := client.Call("one.host.monitoring", host.ID)
 	return err
+}
+
+// State returns the HostState
+func (host *Host) State() (HostState, error) {
+	stateString, ok := host.XPath("/HOST/STATE")
+	if ok != true {
+		return -1, errors.New("Unable to parse host State")
+	}
+
+	state, _ := strconv.Atoi(stateString)
+
+	return HostState(state), nil
+}
+
+// StateString returns the HostState as string
+func (host *Host) StateString() (string, error) {
+	state, err := host.State()
+	if err != nil {
+		return "", err
+	}
+	return HostState(state).String(), nil
 }
