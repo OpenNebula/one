@@ -1147,6 +1147,27 @@ class VirtualMachine < VCenterDriver::Template
         end
     end
 
+    def nic_model_class(nicmodel)
+        case nicmodel
+        when 'virtuale1000', 'e1000'
+            return RbVmomi::VIM::VirtualE1000
+        when 'virtuale1000e', 'e1000e'
+            return RbVmomi::VIM::VirtualE1000e
+        when 'virtualpcnet32', 'pcnet32'
+            return RbVmomi::VIM::VirtualPCNet32
+        when 'virtualsriovethernetcard', 'sriovethernetcard'
+            return RbVmomi::VIM::VirtualSriovEthernetCard
+        when 'virtualvmxnetm', 'vmxnetm'
+            return RbVmomi::VIM::VirtualVmxnetm
+        when 'virtualvmxnet2', 'vmnet2'
+            return RbVmomi::VIM::VirtualVmxnet2
+        when 'virtualvmxnet3', 'vmxnet3'
+            return RbVmomi::VIM::VirtualVmxnet3
+        else # If none matches, use VirtualE1000
+            return RbVmomi::VIM::VirtualE1000
+        end
+    end
+
     def reference_unmanaged_devices(template_ref, execute = true)
         extraconfig   = []
         device_change = []
@@ -1211,9 +1232,21 @@ class VirtualMachine < VCenterDriver::Template
 
                 unmanaged_nics.each do |unic|
                     vnic  = select.call(unic['BRIDGE'])
-
-                    vnic.macAddress   = unic['MAC']
-                    device_change << { :device => vnic, :operation => :edit }
+                    if unic['MODEL'] && !unic['MODEL'].empty? && !unic['MODEL'].nil?
+                        vcenter_nic_class    = vnic.class
+                        opennebula_nic_class = nic_model_class(unic['MODEL'])
+                        if vcenter_nic_class != opennebula_nic_class
+                            # delete actual nic and update the new one.
+                            device_change << { :device => vnic, :operation => :remove }
+                            device_change << calculate_add_nic_spec(unic)
+                        else
+                            vnic.macAddress   = unic['MAC']
+                            device_change << { :device => vnic, :operation => :edit }
+                        end
+                    else
+                        vnic.macAddress   = unic['MAC']
+                        device_change << { :device => vnic, :operation => :edit }
+                    end
                 end
             end
         rescue Exception => e
@@ -1432,7 +1465,7 @@ class VirtualMachine < VCenterDriver::Template
 
     def extraconfig_vnc
         if one_item["TEMPLATE/GRAPHICS"]
-            vnc_port   = one_item["TEMPLATE/GRAPHICS/PORT"]
+            vnc_port   = one_item["TEMPLATE/GRAPHICS/PORT"] || ''
             vnc_listen = one_item["TEMPLATE/GRAPHICS/LISTEN"] || "0.0.0.0"
             vnc_keymap = one_item["TEMPLATE/GRAPHICS/KEYMAP"]
 
