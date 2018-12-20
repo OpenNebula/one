@@ -82,13 +82,13 @@ class VirtualMachine < VCenterDriver::Template
         end
 
         def id
-            raise_if_no_one
+            raise_if_no_exists_in_one
 
             @id
         end
 
         def one_item
-            raise_if_no_one
+            raise_if_no_exists_in_one
 
             @one_res
         end
@@ -138,7 +138,7 @@ class VirtualMachine < VCenterDriver::Template
         end
 
         def managed?
-            raise_if_no_one
+            raise_if_no_exists_in_one
             if @one_res
                 !(@one_res['OPENNEBULA_MANAGED'] &&
                   @one_res['OPENNEBULA_MANAGED'].downcase == "no")
@@ -199,7 +199,7 @@ class VirtualMachine < VCenterDriver::Template
 
 
         def storpod?
-           raise_if_no_one
+           raise_if_no_exists_in_one
            @one_res["VCENTER_DS_REF"].start_with?('group-')
         end
 
@@ -228,7 +228,7 @@ class VirtualMachine < VCenterDriver::Template
         end
 
         def image_ds_ref
-            raise_if_no_one
+            raise_if_no_exists_in_one
 
             @one_res['VCENTER_DS_REF']
         end
@@ -284,19 +284,19 @@ class VirtualMachine < VCenterDriver::Template
         end
 
         def persistent?
-            raise_if_no_one
+            raise_if_no_exists_in_one
 
             @one_res['PERSISTENT'] == 'YES'
         end
 
         def volatile?
-            raise_if_no_one
+            raise_if_no_exists_in_one
 
             @one_res["TYPE"] && @one_res["TYPE"].downcase == "fs"
         end
 
         def cloned?
-            raise_if_no_one
+            raise_if_no_exists_in_one
 
             @one_res['SOURCE'] != @vc_res[:path_wo_ds]
         end
@@ -371,6 +371,10 @@ class VirtualMachine < VCenterDriver::Template
 
     POLL_ATTRIBUTE    = OpenNebula::VirtualMachine::Driver::POLL_ATTRIBUTE
     VM_STATE          = OpenNebula::VirtualMachine::Driver::VM_STATE
+
+    DNET_CARD         = RbVmomi::VIM::VirtualEthernetCardDistributedVirtualPortBackingInfo
+    NET_CARD          = RbVmomi::VIM::VirtualEthernetCardNetworkBackingInfo
+
 
     VM_SHUTDOWN_TIMEOUT = 600 #10 minutes til poweroff hard
 
@@ -1037,7 +1041,17 @@ class VirtualMachine < VCenterDriver::Template
             end
         end
 
-        vc_nics.each {|d| @nics[d.backing.deviceName] = Nic.vc_nic(d)}
+        vc_nics.each do |d|
+            backing = d.backing
+
+            if backing.class == NET_CARD
+                key = backing.network._ref
+            else
+                key = backing.port.portgroupKey
+            end
+
+            @nics[key] = Nic.vc_nic(d)
+        end
 
         @nics.reject{|k| k == :macs}
     end
