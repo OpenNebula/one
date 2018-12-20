@@ -84,6 +84,9 @@ func (zone *Zone) Rename(newName string) error {
 // Info retrieves information for the zone.
 func (zone *Zone) Info() error {
 	response, err := client.Call("one.zone.info", zone.ID)
+	if err != nil {
+		return err
+	}
 	zone.body = response.Body()
-	return err
+	return nil
 }
