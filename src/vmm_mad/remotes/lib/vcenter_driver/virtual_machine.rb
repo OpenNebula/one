@@ -2457,19 +2457,24 @@ class VirtualMachine < VCenterDriver::Template
     end
 
     def migrate(config = {})
-        raise "You need at least 1 parameter" if config.size == 0
+        raise "You need at least 1 parameter to perform a migration" if config.size == 0
 
         begin
             # retrieve host from DRS
             resourcepool = config[:cluster].resourcePool
+            datastore    = config[:datastore]
 
-            relocate_spec_params = {}
-            relocate_spec_params[:pool] = resourcepool
-            relocate_spec_params[:datastore] = config[:datastore]
-            relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(relocate_spec_params)
-            @item.RelocateVM_Task(spec: relocate_spec, priority: "defaultPriority").wait_for_completion
+            if datastore
+                relocate_spec_params = {
+                    pool:      resourcepool,
+                    datastore: datastore,
+                }
 
-            @item.MigrateVM_Task(:pool=> resourcepool, :priority => "defaultPriority").wait_for_completion
+                relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(relocate_spec_params)
+                @item.RelocateVM_Task(spec: relocate_spec, priority: "defaultPriority").wait_for_completion
+            else
+                @item.MigrateVM_Task(:pool=> resourcepool, :priority => "defaultPriority").wait_for_completion
+            end
 
         rescue Exception => e
             raise "Cannot migrate VM #{e.message}\n#{e.backtrace.join("\n")}"
@@ -2923,12 +2928,15 @@ class VirtualMachine < VCenterDriver::Template
         pool = OpenNebula::HostPool.new(one_client)
         pool.info
 
-        datastores = OpenNebula::DatastorePool.new(one_client)
-        datastores.info
-
         src_id = pool["/HOST_POOL/HOST[NAME='#{src_host}']/ID"].to_i
         dst_id = pool["/HOST_POOL/HOST[NAME='#{dst_host}']/ID"].to_i
-        datastore = datastores["/DATASTORE_POOL/DATASTORE[ID='#{ds}']/TEMPLATE/VCENTER_DS_REF"]
+
+        # diferent destination ds
+        if ds
+            ds_pool = OpenNebula::DatastorePool.new(one_client)
+            ds_pool.info
+            datastore = ds_pool["/DATASTORE_POOL/DATASTORE[ID='#{ds}']/TEMPLATE/VCENTER_DS_REF"]
+        end
 
         vi_client = VCenterDriver::VIClient.new_from_host(src_id)
 
@@ -2945,7 +2953,9 @@ class VirtualMachine < VCenterDriver::Template
         ccr_ref  = dst_host['/HOST/TEMPLATE/VCENTER_CCR_REF']
         vc_host  = VCenterDriver::ClusterComputeResource.new_from_ref(ccr_ref, vi_client).item
 
-        config = { :cluster => vc_host, :datastore => datastore }
+        config = { :cluster => vc_host }
+
+        config[:datastore] = datastore if datastore
         vc_vm.migrate(config)
 
         vm.replace({ 'VCENTER_CCR_REF' => ccr_ref})
