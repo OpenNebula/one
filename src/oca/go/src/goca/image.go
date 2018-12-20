@@ -138,8 +138,11 @@ func NewImageFromName(name string) (*Image, error) {
 // Info connects to OpenNebula and fetches the information of the Image
 func (image *Image) Info() error {
 	response, err := client.Call("one.image.info", image.ID)
+	if err != nil {
+		return err
+	}
 	image.body = response.Body()
-	return err
+	return nil
 }
 
 // State looks up the state of the image and returns the ImageState

@@ -80,8 +80,11 @@ func CreateTemplate(template string) (uint, error) {
 // Info connects to OpenNebula and fetches the information of the Template
 func (template *Template) Info() error {
 	response, err := client.Call("one.template.info", template.ID)
+	if err != nil {
+		return err
+	}
 	template.body = response.Body()
-	return err
+	return nil
 }
 
 // Update will modify the template. If appendTemplate is 0, it will
