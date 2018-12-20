@@ -276,7 +276,7 @@ class Container
     end
 
     # Attach disk to container (ATTACH = YES) in VM description
-    def attach_disk(source)
+    def attach_disk
         disk_element = hotplug_disk
 
         raise 'Missing hotplug info' unless disk_element
@@ -284,13 +284,7 @@ class Container
         status = setup_disk(disk_element, 'map')
         return unless status
 
-        source2 = source.dup
-        if source
-            mapper_location = source2.index('/disk.')
-            source2.insert(mapper_location, '/mapper')
-        end
-
-        disk_hash = @one.disk(disk_element, source2, nil)
+        disk_hash = @one.disk(disk_element, nil, nil)
 
         @lxc['devices'].update(disk_hash)
 

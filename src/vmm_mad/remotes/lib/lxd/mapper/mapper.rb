@@ -191,12 +191,7 @@ class Mapper
         device = ''
 
         real_path = directory
-
-        ds = one_vm.sysds_path
-        if File.symlink?(ds)
-            real_ds = File.readlink(ds)
-            real_path = real_ds + real_path.split(ds)[-1] if real_path.include?(ds)
-        end
+        real_path = File.realpath(directory) if File.symlink?(one_vm.sysds_path)
 
         sys_parts.each {|d|
             if d['mountpoint'] == real_path
@@ -344,7 +339,7 @@ class Mapper
             return false
         end
 
-        if out.match?(path)
+        if out.include?(path)
             OpenNebula.log_error("mount_dev: Mount detected in #{path}")
             return false
         end
@@ -397,14 +392,14 @@ class Mapper
 
         if rc != 0 || o.empty?
             OpenNebula.log_error("lsblk: #{e}")
-            return nil
+            return
         end
 
         partitions = nil
 
         begin
             partitions = JSON.parse(o)['blockdevices']
-            
+
             if !device.empty?
                 partitions = partitions[0]
 
@@ -414,13 +409,13 @@ class Mapper
                     partitions = [partitions]
                 end
 
-                partitions.delete_if { |p|
-                    p['fstype'].casecmp?('swap') if p['fstype']
+                partitions.delete_if {|p|
+                    p['fstype'].casecmp('swap').zero? if p['fstype']
                 }
             end
         rescue
             OpenNebula.log_error("lsblk: error parsing lsblk -OJ #{device}")
-            return nil
+            return
         end
 
         # Fix for lsblk paths for version < 2.33

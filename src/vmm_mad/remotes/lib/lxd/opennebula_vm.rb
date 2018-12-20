@@ -218,7 +218,9 @@ class OpenNebulaVM
     end
 
     def disk_mountpoint(disk_id)
-        "#{@sysds_path}/#{@vm_id}/mapper/disk.#{disk_id}"
+        datastore = @sysds_path
+        datastore = File.readlink(@sysds_path) if File.symlink?(@sysds_path)
+        "#{datastore}/#{@vm_id}/mapper/disk.#{disk_id}"
     end
 
     # @return [String] the canonical disk path for the given disk
@@ -353,7 +355,7 @@ class OpenNebulaVM
     # Creates or closes a connection to a container rfb port depending on signal
     def vnc_command(signal)
         data = @xml.element('//TEMPLATE/GRAPHICS')
-        return unless data && data['PORT'] && data['TYPE'] && data['TYPE'].casecmp?('vnc')
+        return unless data && data['PORT'] && data['TYPE'] && data['TYPE'].casecmp('vnc').zero?
 
         pass = data['PASSWD']
         pass = '-' unless pass && !pass.empty?
