@@ -43,9 +43,9 @@ define(function(require) {
       text: Locale.tr("Update")
     },
     "Template.instantiate_vms" : {
-      type: "create_dialog",
+      type: "action",
       text:  Locale.tr("Instantiate"),
-      layout: "create_flatten"
+      layout: "main"
     },
     "Template.chown" : {
       type: "confirm_with_select",
