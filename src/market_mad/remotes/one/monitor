@@ -23,7 +23,7 @@ require 'base64'
 require 'rexml/document'
 
 class OneMarket
-    ONE_MARKET_URL = 'http://marketplace.opennebula.systems/'
+    ONE_MARKET_URL = 'https://marketplace.opennebula.systems/'
     AGENT          = 'Market Driver'
     VERSION        = File.dirname(__FILE__) + '/../../VERSION'
 
@@ -51,7 +51,8 @@ class OneMarket
 
         req['User-Agent'] = @agent
 
-        response = Net::HTTP.start(uri.hostname, uri.port, p_host, p_port) {|http|
+        response = Net::HTTP.start(uri.hostname, uri.port, p_host, p_port,
+                                   :use_ssl => uri.scheme == 'https') { |http|
             http.request(req)
         }
 
