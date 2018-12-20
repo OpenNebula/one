@@ -191,12 +191,7 @@ class Mapper
         device = ''
 
         real_path = directory
-
-        ds = one_vm.sysds_path
-        if File.symlink?(ds)
-            real_ds = File.readlink(ds)
-            real_path = real_ds + real_path.split(ds)[-1] if real_path.include?(ds)
-        end
+        real_path = File.realpath(directory) if File.symlink?(one_vm.sysds_path)
 
         sys_parts.each {|d|
             if d['mountpoint'] == real_path

@@ -218,7 +218,9 @@ class OpenNebulaVM
     end
 
     def disk_mountpoint(disk_id)
-        "#{@sysds_path}/#{@vm_id}/mapper/disk.#{disk_id}"
+        datastore = @sysds_path
+        datastore = File.readlink(@sysds_path) if File.symlink?(@sysds_path)
+        "#{datastore}/#{@vm_id}/mapper/disk.#{disk_id}"
     end
 
     # @return [String] the canonical disk path for the given disk
