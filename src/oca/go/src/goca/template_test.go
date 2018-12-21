@@ -51,7 +51,7 @@ func TestTemplateCreateAndDelete(t *testing.T) {
 
 	template, err = NewTemplateFromName(templateName)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	err = template.Info()

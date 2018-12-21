@@ -71,7 +71,7 @@ func TestImage(t *testing.T) {
 
 	image, err = NewImageFromName(name)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	err = image.Info()

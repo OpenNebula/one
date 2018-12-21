@@ -52,7 +52,7 @@ func TestVirtualNetwork(t *testing.T) {
 
 	vnet, err = NewVirtualNetworkFromName(name)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	err = vnet.Info()
