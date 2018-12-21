@@ -53,11 +53,6 @@ module Command
         execute(cmd, lock) unless running?(cmd.split[0])
     end
 
-    def self.lxc_execute(lxd_id, cmd)
-        cmd = "lxc exec #{lxd_id} -- #{cmd}"
-        execute(cmd, true)
-    end
-
     # Return true if command is running
     def self.running?(command)
         !`ps  --noheaders -C #{command}`.empty?
