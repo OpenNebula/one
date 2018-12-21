@@ -152,9 +152,9 @@ define(function(require) {
 
     } else {
       clusters = this.element.TEMPLATE.CLUSTERS;
-      clusters = clusters.split(",");
 
       if (clusters !== undefined ) {
+        clusters = clusters.split(",");
         if ($.isArray(clusters)) {
           this.originalClusterIds = clusters;
         } else {
