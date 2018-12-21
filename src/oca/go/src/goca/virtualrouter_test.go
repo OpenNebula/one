@@ -2,27 +2,26 @@ package goca
 
 import (
 	"testing"
-	"goca"
 )
 
 
 
 func TestVirtualRouter(t *testing.T){
 	var vr_name string = "new_vr"
-	var vr *goca.VirtualRouter
+	var vr *VirtualRouter
 	var vr_template string = "NAME = \"" + vr_name + "\"\n" +
 							"VROUTER = YES\n" +
 							"ATT1 = \"VAL1\"\n" +
 							"ATT2 = \"VAL2\""
 
 	//Create VirtualRouter
-	vr_id, err := goca.CreateVirtualRouter(vr_template)
+	vr_id, err := CreateVirtualRouter(vr_template)
 
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	vr = goca.NewVirtualRouter(vr_id)
+	vr = NewVirtualRouter(vr_id)
 	vr.Info()
 
 	actual, _:= vr.XMLResource.XPath("/VROUTER/NAME")
@@ -113,7 +112,7 @@ func TestVirtualRouter(t *testing.T){
 		   "VROUTER = YES\n"+
 		   "MEMORY = 64\n"
 
-	tmpl_id, err := goca.CreateTemplate(tmpl)
+	tmpl_id, err := CreateTemplate(tmpl)
 
 	if err != nil {
 	    t.Errorf("Test failed:\n" + err.Error())
@@ -122,14 +121,14 @@ func TestVirtualRouter(t *testing.T){
 	//Instantiate VirtualRouter
 	vr.Instantiate(1, int(tmpl_id), "vr_test_go", false, "")
 
-	vm, err := goca.NewVMFromName("vr_test_go")
+	vm, err := NewVMFromName("vr_test_go")
 
 	if err != nil {
-	    t.Errorf("Test failed:\n" + err.Error())
+	    t.Fatal("Test failed:\n" + err.Error())
 	}
 
 	vm.TerminateHard()
-	template := goca.NewTemplate(tmpl_id)
+	template := NewTemplate(tmpl_id)
 
 	template.Delete()
 
@@ -137,7 +136,7 @@ func TestVirtualRouter(t *testing.T){
 			   "BRIDGE = vbr0\n" +
 			   "VN_MAD = dummy\n"
 
-	vnet_id, _ := goca.CreateVirtualNetwork(vn_tmpl, 0)
+	vnet_id, _ := CreateVirtualNetwork(vn_tmpl, 0)
 
 	nic_tmpl := "NIC = [ NETWORK=\"go-net\" ]"
 
@@ -156,7 +155,7 @@ func TestVirtualRouter(t *testing.T){
 		t.Errorf("Test failed, expected: '%s', got:  '%s'", "go-net", actual)
 	}
 
-	vnet := goca.NewVirtualNetwork(vnet_id)
+	vnet := NewVirtualNetwork(vnet_id)
 	vnet.Delete()
 
 	//Detach nic from VirtualRouter
