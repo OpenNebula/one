@@ -22,6 +22,7 @@ define(function(require) {
   var BaseDialog = require('utils/dialogs/dialog');
   var ClustersTable = require('tabs/clusters-tab/datatable');
   var Sunstone = require('sunstone');
+  var TemplateUtils = require("utils/template-utils");
 
   /*
     TEMPLATES
@@ -36,6 +37,7 @@ define(function(require) {
   var DIALOG_ID = require('./clusters/dialogId');
   var DATASTORES_TAB_ID = require('tabs/datastores-tab/tabId');
   var VNETS_TAB_ID = require('tabs/vnets-tab/tabId');
+  var VNTEMPLATE_TAB_ID = require('tabs/vnets-templates-tab/tabId');
 
   /*
     CONSTRUCTOR
@@ -81,35 +83,37 @@ define(function(require) {
     $('#' + DIALOG_ID + 'Form', dialog).submit(function() {
       var selectedClustersList = that.clustersTable.retrieveResourceTableSelect();
 
-      $.each(selectedClustersList, function(index, clusterId) {
-        if ($.inArray(clusterId, that.originalClusterIds) === -1) {
-          if(that.resource == "datastore"){
-            Sunstone.runAction('Cluster.adddatastore', clusterId, that.element.ID);
-          } else {
-            Sunstone.runAction('Cluster.addvnet', clusterId, that.element.ID);
-          }
-        }
-      });
+      if ( that.only_update_template != undefined && that.only_update_template != true) {
 
-      $.each(that.originalClusterIds, function(index, clusterId) {
-        if ($.inArray(clusterId, selectedClustersList) === -1) {
-          if(that.resource == "datastore"){
-            Sunstone.runAction('Cluster.deldatastore', clusterId, that.element.ID);
-          } else {
-            Sunstone.runAction('Cluster.delvnet', clusterId, that.element.ID);
+        $.each(selectedClustersList, function(index, clusterId) {
+          if ($.inArray(clusterId, that.originalClusterIds) === -1) {
+            if(that.resource == "datastore"){
+              Sunstone.runAction('Cluster.adddatastore', clusterId, that.element.ID);
+            } else {
+              Sunstone.runAction('Cluster.addvnet', clusterId, that.element.ID);
+            }
           }
-        }
-      });
+        });
+
+        $.each(that.originalClusterIds, function(index, clusterId) {
+          if ($.inArray(clusterId, selectedClustersList) === -1) {
+            if(that.resource == "datastore"){
+              Sunstone.runAction('Cluster.deldatastore', clusterId, that.element.ID);
+            } else {
+              Sunstone.runAction('Cluster.delvnet', clusterId, that.element.ID);
+            }
+          }
+        });
+      } else {
+        that.element.TEMPLATE.CLUSTER = selectedClustersList.join(",");
+        Sunstone.runAction(that.resource_name+".update", that.element.ID, TemplateUtils.templateToString(that.element.TEMPLATE))
+      }
 
       Sunstone.getDialog(DIALOG_ID).hide();
       Sunstone.getDialog(DIALOG_ID).reset();
 
       setTimeout(function() {
-        if(that.resource == "datastore"){
-          Sunstone.runAction('Datastore.refresh');
-        } else {
-          Sunstone.runAction('Network.refresh');
-        }
+        Sunstone.runAction(that.resource_name+".refresh");
       }, 1500);
 
       return false;
@@ -125,24 +129,50 @@ define(function(require) {
   function _setParams(params) {
     this.element = params.element;
 
-    if (this.element.CLUSTERS !== undefined && this.element.CLUSTERS.ID !== undefined) {
-      if ($.isArray(this.element.CLUSTERS.ID)) {
-        this.originalClusterIds = this.element.CLUSTERS.ID;
-      } else {
-        this.originalClusterIds = [this.element.CLUSTERS.ID];
-      }
-    } else {
-      this.originalClusterIds = [];
-    }
-
     this.resource = params.resource;
+
+    this.resource_name = params.resource_name;
+
+    this.only_update_template = params.only_update_template;
+
+    var clusters;
+
+    if ( this.only_update_template != undefined && this.only_update_template != true ) {
+      clusters = this.element.CLUSTERS;
+
+      if (clusters !== undefined && clusters.ID !== undefined) {
+        if ($.isArray(clusters.ID)) {
+          this.originalClusterIds = clusters.ID;
+        } else {
+          this.originalClusterIds = [clusters.ID];
+        }
+      } else {
+        this.originalClusterIds = [];
+      }
+
+    } else {
+      clusters = this.element.TEMPLATE.CLUSTERS;
+      clusters = clusters.split(",");
+
+      if (clusters !== undefined ) {
+        if ($.isArray(clusters)) {
+          this.originalClusterIds = clusters;
+        } else {
+          this.originalClusterIds = [clusters];
+        }
+      } else {
+        this.originalClusterIds = [];
+      }
+    }
   }
 
   function _onShow(dialog) {
     if(this.resource == "datastore"){
       this.setNames( {tabId: DATASTORES_TAB_ID} );
-    }else{
+    }else if ( this.resource == "vnet" ){
       this.setNames( {tabId: VNETS_TAB_ID} );
+    } else {
+      this.setNames( {tabId: VNTEMPLATE_TAB_ID} );
     }
 
     this.clustersTable.refreshResourceTableSelect();

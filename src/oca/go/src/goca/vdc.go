@@ -85,8 +85,11 @@ func (vdc *Vdc) Rename(newName string) error {
 // Info retrieves information for the VDC.
 func (vdc *Vdc) Info() error {
 	response, err := client.Call("one.vdc.info", vdc.ID)
+	if err != nil {
+		return err
+	}
 	vdc.body = response.Body()
-	return err
+	return nil
 }
 
 // AddGroup adds a group to the VDC

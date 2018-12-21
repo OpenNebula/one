@@ -38,6 +38,8 @@ if iso_path != ''
     client    = LXDClient.new
     container = Container.get(vm_name, xml, client)
 
-    container.attach_context
-    container.exec('one-contextd local 2>/dev/null')
+    raise 'Failed to attach context' unless container.attach_context
+
+    rc, _out, err = container.exec('one-contextd local')
+    OpenNebula.log_error "Failed to run contextualization\n#{err}" unless rc.zero?
 end

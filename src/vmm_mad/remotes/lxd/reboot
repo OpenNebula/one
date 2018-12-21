@@ -31,7 +31,7 @@ client    = LXDClient.new
 container = Container.get(vm_name, nil, client)
 
 # ------------------------------------------------------------------------------
-# Stop the container, start it and reset VNC server
+# Stop the container, start it
 # ------------------------------------------------------------------------------
 if ARGV[-1] == '-f'
     container.stop(:force => true)

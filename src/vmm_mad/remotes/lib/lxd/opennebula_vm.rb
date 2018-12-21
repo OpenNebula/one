@@ -26,16 +26,18 @@ class LXDConfiguration < Hash
             :height  => '600',
             :timeout => '300'
         },
-        :datastore_location => '/var/lib/one/datastores',
-        :containers         => '/var/lib/lxd/storage-pools/default/containers'
+        :datastore_location => '/var/lib/one/datastores'
     }
+
+    LXDRC = '../../etc/vmm/lxd/lxdrc'
 
     def initialize
         replace(DEFAULT_CONFIGURATION)
 
         begin
-            merge!(YAML.load_file("#{__dir__}/../../etc/vmm/lxd/lxdrc"))
-        rescue
+            merge!(YAML.load_file("#{__dir__}/#{LXDRC}"))
+        rescue => e
+            OpenNebula.log_error e
         end
     end
 
@@ -44,7 +46,7 @@ end
 # This class parses and wraps the information in the Driver action data
 class OpenNebulaVM
 
-    attr_reader :xml, :vm_id, :vm_name, :sysds_id, :ds_path, :rootfs_id, :lxdrc
+    attr_reader :xml, :vm_id, :vm_name, :sysds_path, :rootfs_id, :lxdrc
 
     #---------------------------------------------------------------------------
     # Class Constructor
@@ -54,17 +56,16 @@ class OpenNebulaVM
         @xml = @xml.element('//VM')
 
         @vm_id    = @xml['//TEMPLATE/VMID']
-        @sysds_id = @xml['//HISTORY_RECORDS/HISTORY/DS_ID']
-
         @vm_name  = @xml['//DEPLOY_ID']
         @vm_name  = "one-#{@vm_id}" if @vm_name.empty?
-
-        return if wild?
 
         # Load Driver configuration
         @lxdrc = LXDConfiguration.new
 
-        @ds_path = @lxdrc[:datastore_location]
+        sysds_id = @xml['//HISTORY_RECORDS/HISTORY/DS_ID']
+        @sysds_path = "#{@lxdrc[:datastore_location]}/#{sysds_id}"
+
+        return if wild?
 
         # Sets the DISK ID of the root filesystem
         disk = @xml.element('//TEMPLATE/DISK')
@@ -207,7 +208,7 @@ class OpenNebulaVM
 
         return if cid.empty?
 
-        source = "#{@ds_path}/#{@sysds_id}/#{@vm_id}/mapper/disk.#{cid}"
+        source = disk_mountpoint(cid)
 
         hash['context'] = {
             'type'   => 'disk',
@@ -217,7 +218,23 @@ class OpenNebulaVM
     end
 
     def disk_mountpoint(disk_id)
-        "#{@ds_path}/#{@sysds_id}/#{@vm_id}/mapper/disk.#{disk_id}"
+        datastore = @sysds_path
+        datastore = File.readlink(@sysds_path) if File.symlink?(@sysds_path)
+        "#{datastore}/#{@vm_id}/mapper/disk.#{disk_id}"
+    end
+
+    # @return [String] the canonical disk path for the given disk
+    def disk_source(disk)
+        disk_id = disk['DISK_ID']
+
+        if disk['TYPE'] == 'RBD'
+            src = disk['SOURCE']
+            return "#{src}-#{vm_id}-#{disk['DISK_ID']}" if disk['CLONE'] == 'YES'
+
+            return src
+        end
+
+        "#{@sysds_path}/#{@vm_id}/disk.#{disk_id}"
     end
 
     # Creates a disk hash from DISK xml element
@@ -240,6 +257,9 @@ class OpenNebulaVM
             end
 
             disk_name = "disk#{disk_id}"
+
+            source = source.gsub('//', '/') if source.include?('//')
+
             disk = { 'type' => 'disk', 'source' => source, 'path' => path }
         end
 
@@ -311,7 +331,7 @@ class OpenNebulaVM
         if !data.empty? && type.casecmp('lxd').zero?
             begin
                 raw_data = JSON.parse("{#{data}}")
-            rescue StandardError
+            rescue
             end
         end
 
@@ -335,13 +355,13 @@ class OpenNebulaVM
     # Creates or closes a connection to a container rfb port depending on signal
     def vnc_command(signal)
         data = @xml.element('//TEMPLATE/GRAPHICS')
-        return unless data && data['PORT'] && data['TYPE'] == 'vnc'
+        return unless data && data['PORT'] && data['TYPE'] && data['TYPE'].casecmp('vnc').zero?
 
         pass = data['PASSWD']
         pass = '-' unless pass && !pass.empty?
 
         case signal
-        when 'start' 
+        when 'start'
             command = @lxdrc[:vnc][:command]
             "#{data['PORT']} #{pass} lxc exec #{@vm_name} #{command}\n"
         when 'stop'

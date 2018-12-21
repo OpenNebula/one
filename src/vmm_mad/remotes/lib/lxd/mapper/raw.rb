@@ -25,30 +25,33 @@ require 'mapper'
 #-------------------------------------------------------------------------------
 class FSRawMapper < Mapper
 
-    def do_map(one_vm, disk, directory)
-        dsrc = disk_source(one_vm, disk)
-        cmd  = "#{COMMANDS[:losetup]} -f --show #{dsrc}"
+    def do_map(one_vm, disk, _directory)
+        dsrc = one_vm.disk_source(disk)
+        cmd = "#{COMMANDS[:losetup]} -f --show #{dsrc}"
 
         rc, out, err = Command.execute(cmd, true)
 
-        if rc != 0 || out.empty?
-            OpenNebula.log_error("do_map: #{err}")
-            return
-        end
+        return out.chomp unless rc != 0 || out.empty?
 
-        out.chomp
+        OpenNebula.log_error("#{__method__}: #{err}")
+        nil
     end
 
-    def do_unmap(device, one_vm, disk, directory)
+    def do_unmap(device, _one_vm, _disk, _directory)
         cmd = "#{COMMANDS[:losetup]} -d #{device}"
 
         rc, _out, err = Command.execute(cmd, true)
 
-        OpenNebula.log_error("do_unmap: #{err}") if rc != 0
+        return true if rc.zero?
+
+        OpenNebula.log_error("#{__method__}: #{err}") if rc != 0
+        nil
     end
+
 end
 
 class DiskRawMapper < Mapper
+
     # Maps the whole file using kpartx. The output should be something like:
     #   $ sudo kpartx -av /var/lib/one/datastores/100/0/disk.0
     #   add map loop3p1 (253:0): 0 204800 linear 7:3 2048
@@ -56,14 +59,14 @@ class DiskRawMapper < Mapper
     #   add map loop3p3 (253:2): 0 1366016 linear 7:3 731136
     # Fisrt line is matched to look for loop device 3, and return "/dev/loop3"
     def do_map(one_vm, disk, directory)
-        dsrc = disk_source(one_vm, disk)
+        dsrc = one_vm.disk_source(disk)
         cmd  = "#{COMMANDS[:kpartx]} -av #{dsrc}"
 
         rc, out, err = Command.execute(cmd, true)
 
         if rc != 0 || out.empty?
-            OpenNebula.log_error("do_map: #{err}")
-            return nil
+            OpenNebula.log_error("#{__method__}: #{err}")
+            return
         end
 
         loopdev = out.lines[0].match(/.*add map loop(\d+)p\d+.*/)
@@ -75,13 +78,15 @@ class DiskRawMapper < Mapper
 
     # Unmaps all devices and loops with kpartx using the source file
     def do_unmap(device, one_vm, disk, directory)
-        dsrc = disk_source(one_vm, disk)
+        dsrc = one_vm.disk_source(disk)
         cmd  = "#{COMMANDS[:kpartx]} -d #{dsrc}"
 
-        rc, out, err = Command.execute(cmd, true)
+        rc, _out, err = Command.execute(cmd, true)
 
-        if rc != 0
-            OpenNebula.log_error("do_unmap: #{err}")
-        end
+        return true if rc.zero?
+
+        OpenNebula.log_error("#{__method__}: #{err}")
+        nil
     end
+
 end

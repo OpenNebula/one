@@ -184,13 +184,17 @@ class OpenNebula::LdapAuth
         end
     end
 
+    def in_hash_ignore_case?(hash, key)
+        return hash.keys.find {|k| key.downcase == k.downcase}
+    end
+
     def get_groups
         groups = []
 
         if @options[:rfc2307bis]
             [@user['memberOf']].flatten.each do |group|
-                if @mapping[group]
-                    groups << @mapping[group]
+                if (g = in_hash_ignore_case?(@mapping, group))
+                    groups << @mapping[g]
                 end
             end
         else
@@ -200,9 +204,10 @@ class OpenNebula::LdapAuth
                 :attributes => [ "dn" ],
                 :filter     => filter
             ) do |entry|
-                if @mapping[entry.dn]
-                    groups << @mapping[entry.dn]
+                if (g = in_hash_ignore_case?(@mapping, entry.dn))
+                    groups << @mapping[g]
                 end
+
             end
         end
 

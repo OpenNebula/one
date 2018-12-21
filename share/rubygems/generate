@@ -95,7 +95,7 @@ GEM_DESCRIPTION={
     :cli => {
         :name => 'opennebula-cli',
         :files => [
-            ['src/cli/one[a-z]*', '/bin'],
+            ['src/cli/one[a-z]*', '/bin', 'oneprovision'],
             ['src/cli/*.rb', '/lib'],
             ['src/cli/one_helper/*.rb', '/lib/one_helper'],
             ['NOTICE', ''],
@@ -123,11 +123,11 @@ end
 def file_list(description)
     files=Array.new
 
-    description[:files].each do |f, prefix|
-        source=Dir.glob(f)
+    description[:files].each do |f, prefix, exclude|
+        Dir.glob(f).each do |source|
+            next if (! exclude.nil?) and (source.match(exclude))
 
-        files+=source.map do |source|
-            [source, sane_prefix(prefix)+File.basename(source)]
+            files << [source, sane_prefix(prefix)+File.basename(source)]
         end
     end
 

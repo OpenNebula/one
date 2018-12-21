@@ -317,6 +317,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/market/http \
           $VAR_LOCATION/remotes/market/one \
           $VAR_LOCATION/remotes/market/s3 \
+          $VAR_LOCATION/remotes/market/linuxcontainers \
           $VAR_LOCATION/remotes/datastore/iscsi_libvirt \
           $VAR_LOCATION/remotes/auth \
           $VAR_LOCATION/remotes/auth/plain \
@@ -462,6 +463,7 @@ INSTALL_FILES=(
     MARKETPLACE_DRIVER_HTTP_SCRIPTS:$VAR_LOCATION/remotes/market/http
     MARKETPLACE_DRIVER_ONE_SCRIPTS:$VAR_LOCATION/remotes/market/one
     MARKETPLACE_DRIVER_S3_SCRIPTS:$VAR_LOCATION/remotes/market/s3
+    MARKETPLACE_DRIVER_LXC_SCRIPTS:$VAR_LOCATION/remotes/market/linuxcontainers
     IPAM_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/ipam/dummy
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
     NETWORK_ETC_FILES:$VAR_LOCATION/remotes/etc/vnm
@@ -687,7 +689,9 @@ RUBY_AUTH_LIB_FILES="src/authm_mad/remotes/ssh/ssh_auth.rb \
 # and remotes directory
 #-----------------------------------------------------------------------------
 
-MAD_SH_LIB_FILES="src/mad/sh/scripts_common.sh"
+MAD_SH_LIB_FILES="src/mad/sh/scripts_common.sh \
+                src/mad/sh/create_container_image.sh"
+
 MAD_RUBY_LIB_FILES="src/mad/ruby/scripts_common.rb"
 
 #-------------------------------------------------------------------------------
@@ -1300,6 +1304,7 @@ TM_ISCSI_FILES="src/tm_mad/iscsi_libvirt/clone \
 
 DATASTORE_DRIVER_COMMON_SCRIPTS="src/datastore_mad/remotes/xpath.rb \
                              src/datastore_mad/remotes/downloader.sh \
+                             src/datastore_mad/remotes/lxd_downloader.sh \
                              src/datastore_mad/remotes/vcenter_uploader.rb \
                              src/datastore_mad/remotes/vcenter_downloader.rb \
                              src/datastore_mad/remotes/url.rb \
@@ -1377,6 +1382,7 @@ DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi_libvirt/cp \
 #   - HTTP based marketplace, $REMOTES_LOCATION/market/http
 #   - OpenNebula public marketplace, $REMOTES_LOCATION/market/one
 #   - S3-obeject based marketplace, $REMOTES_LOCATION/market/s3
+#   - Linuxcontainers.org marketplace $REMOTE_LOCATION/market/linuxcontainers
 #-------------------------------------------------------------------------------
 
 MARKETPLACE_DRIVER_HTTP_SCRIPTS="src/market_mad/remotes/http/import \
@@ -1391,6 +1397,10 @@ MARKETPLACE_DRIVER_S3_SCRIPTS="src/market_mad/remotes/s3/import \
             src/market_mad/remotes/s3/delete \
             src/market_mad/remotes/s3/monitor \
             src/market_mad/remotes/s3/S3.rb"
+
+MARKETPLACE_DRIVER_LXC_SCRIPTS="src/market_mad/remotes/linuxcontainers/import \
+            src/market_mad/remotes/linuxcontainers/delete \
+            src/market_mad/remotes/linuxcontainers/monitor"
 
 #-------------------------------------------------------------------------------
 # Migration scripts for onedb command, to be installed under $LIB_LOCATION
@@ -1875,6 +1885,7 @@ SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/ClusterJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/DatastoreJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/VirtualNetworkJSON.rb \
+                    src/sunstone/models/OpenNebulaJSON/VirtualNetworkTemplateJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/ZoneJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/SecurityGroupJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/VdcJSON.rb \

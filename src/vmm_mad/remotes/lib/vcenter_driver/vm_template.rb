@@ -611,7 +611,7 @@ class Template
 
     def get_vcenter_nics
         nics = []
-        self["config.hardware.device"].each { |device| nics << device if is_nic?(device)}
+        @item.config.hardware.device.each { |device| nics << device if is_nic?(device)}
 
         nics
     end

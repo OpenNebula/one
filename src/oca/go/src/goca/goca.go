@@ -1,7 +1,6 @@
 package goca
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -13,6 +12,53 @@ import (
 var (
 	client *oneClient
 )
+
+// OneClientErrCode is the error code from the OpenNebula response
+type OneClientErrCode int
+
+const (
+	// OneSuccess code for a successful response
+	OneSuccess             = 0x0000
+
+	// OneAuthenticationError code if the user could not be authenticated
+	OneAuthenticationError = 0x0100
+
+	// OneAuthorizationError code if the user is not authorized to perform the requested action
+	OneAuthorizationError  = 0x0200
+
+	// OneNoExistsError code if the requested resource does not exist
+	OneNoExistsError       = 0x0400
+
+	// OneActionError code if the state is wrong to perform the action
+	OneActionError         = 0x0800
+
+	// OneXmlRpcApiError code if there is wrong parameter passed, e.g. param should be -1 or -2, but -3 was received
+	OneXMLRPCAPIError      = 0x1000
+
+	// OneInteralError code if there is an internal error, e.g. the resource could not be loaded from the DB
+	OneInteralError        = 0x2000
+)
+
+func (s OneClientErrCode) String() string {
+	switch s {
+	case OneSuccess:
+		return "SUCCESS"
+	case OneAuthenticationError:
+		return "AUTHENTICATION"
+	case OneAuthorizationError:
+		return "AUTHORIZATION"
+	case OneNoExistsError:
+		return "NO_EXISTS"
+	case OneActionError:
+		return "ACTION"
+	case OneXMLRPCAPIError:
+		return "XML_RPC_API"
+	case OneInteralError:
+		return "INTERNAL"
+	default:
+		return ""
+	}
+}
 
 // OneConfig contains the information to communicate with OpenNebula
 type OneConfig struct {
@@ -32,7 +78,7 @@ type oneClient struct {
 
 type InitError struct {
 	token     string
-	xmlRpcErr string
+	xmlRpcErr error
 }
 
 func (r *InitError) Error() string {
@@ -40,11 +86,21 @@ func (r *InitError) Error() string {
 }
 
 type BadResponseError struct {
-	ExpectedType string
+	expectedType string
 }
 
 func (r *BadResponseError) Error() string {
-	return fmt.Sprintf("Unexpected XML-RPC response, Expected: %s", r.ExpectedType)
+	return fmt.Sprintf("Unexpected XML-RPC response, Expected: %s", r.expectedType)
+}
+
+// ResponseError contains the error datas from an OpenNebula error reponse
+type ResponseError struct {
+	Code OneClientErrCode
+	msg  string
+}
+
+func (e *ResponseError) Error() string {
+	return fmt.Sprintf("%s (%s)", e.msg, e.Code.String())
 }
 
 type response struct {
@@ -148,10 +204,11 @@ func (c *oneClient) Call(method string, args ...interface{}) (*response, error) 
 		body    string
 		bodyInt int64
 		bodyBool bool
+		errCode  int64
 	)
 
 	if c.xmlrpcClientError != nil {
-		return nil, InitError{Token: c.token, xmlrpcErr: c.xmlrpcClientError}
+		return nil, &InitError{token: c.token, xmlRpcErr: c.xmlrpcClientError}
 	}
 
 	result := []interface{}{}
@@ -168,7 +225,7 @@ func (c *oneClient) Call(method string, args ...interface{}) (*response, error) 
 
 	status, ok = result[0].(bool)
 	if ok == false {
-		return nil, BadResponseError{ExpectedType: "Index 0: Boolean"}
+		return nil, &BadResponseError{expectedType: "Index 0: Boolean"}
 	}
 
 	body, ok = result[1].(string)
@@ -177,20 +234,23 @@ func (c *oneClient) Call(method string, args ...interface{}) (*response, error) 
 		if ok == false {
 			bodyBool, ok = result[1].(bool)
 			if ok == false {
-				return nil, BadResponseError{ExpectedType: "Index 1: Int or String"}
+				return nil, &BadResponseError{expectedType: "Index 1: Int or String"}
 			}
 		}
 	}
 
-	// TODO: errCode? result[2]
+	errCode, ok = result[2].(int64)
+	if ok == false {
+		return nil, &BadResponseError{expectedType: "Index 2: Int"}
+	}
+
+	if status == false {
+		return nil, &ResponseError{Code: OneClientErrCode(errCode), msg: body}
+	}
 
 	r := &response{status, body, int(bodyInt), bodyBool}
 
-	if status == false {
-		err = errors.New(body)
-	}
-
-	return r, err
+	return r, nil
 }
 
 // Body accesses the body of the response

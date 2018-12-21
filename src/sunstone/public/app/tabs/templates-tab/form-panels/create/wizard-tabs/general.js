@@ -207,20 +207,20 @@ define(function(require) {
     });
 
     context.on("change", "input[name='hypervisor']", function() {
-      // TODO define context (for example: this.closest('form'))
-      $(".hypervisor").hide();
-      $(".only_" + this.value).show();
-
       if (this.value == "vcenter"){
         $("#vcenter_template_ref", context).attr("required", "");
         $("#vcenter_instance_id", context).attr("required", "");
         $("#vcenter_ccr_ref", context).attr("required", "");
         $("#MEMORY", context).attr("pattern", "^([048]|\\d*[13579][26]|\\d*[24680][048])$");
+        $('.only_kvm').hide();
+        $('.only_vcenter').show();
       } else {
         $("#vcenter_template_ref", context).removeAttr("required");
         $("#vcenter_instance_id", context).removeAttr("required");
         $("#vcenter_ccr_ref", context).removeAttr("required");
         $("#MEMORY", context).removeAttr("pattern");
+        $('.only_kvm').show();
+        $('.only_vcenter').hide();
       }
       // There is another listener in context.js setup
     });
@@ -236,9 +236,13 @@ define(function(require) {
     if (config["mode"] === "kvm"){
       $("#kvmRadio", context).click();
       $("#template_hypervisor_form", context).hide();
+      $('.only_kvm').show();
+      $('.only_vcenter').hide();
     } else if (config["mode"] === "vcenter"){
       $("#vcenterRadio", context).click();
       $("#template_hypervisor_form", context).hide();
+      $('.only_kvm').hide();
+      $('.only_vcenter').show();
     }
   }
 

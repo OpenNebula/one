@@ -84,7 +84,7 @@ module LXD
                 values[:memory] = get_memory(name)
                 values[:netrx], values[:nettx] = get_net_statistics(vmd['network'])
 
-                running_containers.append(name)
+                running_containers.push(name)
                 vms_info[name][:memory] = values[:memory]
             end
 

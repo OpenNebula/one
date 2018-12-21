@@ -68,12 +68,15 @@ end
 if container.wild?
     container.start
 else
-    container.setup_storage('map')
+    mapped = container.setup_storage('map')
+    raise 'failed to setup container storage' unless mapped
 
     if container.start != 'Running'
         OpenNebula.log_error('Container failed to start')
 
-        container.setup_storage('unmap')
+        deleted = container.setup_storage('unmap')
+        raise 'failed to dismantle container storage' unless deleted
+
         container.delete
 
         raise LXDError, container.status

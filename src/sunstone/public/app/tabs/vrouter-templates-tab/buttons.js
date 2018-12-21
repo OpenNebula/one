@@ -25,9 +25,9 @@ define(function(require) {
     "VirtualRouterTemplate.update_dialog" : TemplateButtons["Template.update_dialog"],
 //    "VirtualRouterTemplate.instantiate_vms" : TemplateButtons["Template.instantiate_vms"],
     "VirtualRouterTemplate.instantiate_dialog" : {
-      type: "action",
-      layout: "main",
-      text: Locale.tr("Instantiate")
+      type: "create_dialog",
+      text:  Locale.tr("Instantiate"),
+      layout: "create_flatten"
     },
     "VirtualRouterTemplate.chown" : TemplateButtons["Template.chown"],
     "VirtualRouterTemplate.chgrp" : TemplateButtons["Template.chgrp"],

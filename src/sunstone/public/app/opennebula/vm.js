@@ -298,6 +298,16 @@ define(function(require) {
     "VROUTER_IP6_ULA"
   ];
 
+  var NIC_ALIAS_IP_ATTRS = [
+    "IP",
+    "IP6",
+    "IP6_GLOBAL",
+    "IP6_ULA",
+    "VROUTER_IP",
+    "VROUTER_IP6_GLOBAL",
+    "VROUTER_IP6_ULA"
+  ];
+
   var EXTERNAL_NETWORK_ATTRIBUTES = [
     'GUEST_IP',
     'GUEST_IP_ADDRESSES',
@@ -446,6 +456,14 @@ define(function(require) {
     "migrate": function(params) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "migrate", action_obj);
+    },
+    "migrate_poff": function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "migrate_poff", action_obj);
+    },
+    "migrate_poff_hard": function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "migrate_poff_hard", action_obj);
     },
     "disk_saveas": function(params) {
       var action_obj = params.data.extra_param;
@@ -646,6 +664,7 @@ define(function(require) {
       return MIGRATE_ACTION_STR[stateId];
     },
     "ipsStr": ipsStr,
+    "aliasStr": aliasStr,
     "retrieveExternalIPs": retrieveExternalIPs,
     "retrieveExternalNetworkAttrs": retrieveExternalNetworkAttrs,
     "isNICGraphsSupported": isNICGraphsSupported,
@@ -780,6 +799,38 @@ define(function(require) {
     {
       $.each(nic, function(index, value) {
         $.each(NIC_IP_ATTRS, function(j, attr){
+          if (value[attr]) {
+            ips.push(value[attr]);
+          }
+        });
+      });
+    }
+
+    if (ips.length > 0) {
+      return ips.join(divider);
+    } else {
+      return '--';
+    }
+  };
+
+  // Return the Alias or several Aliases of a VM
+  function aliasStr(element, divider) {
+    var divider = divider || "<br>"
+    var nic_alias = element.TEMPLATE.NIC_ALIAS;
+    var ips = [];
+
+    if (nic_alias == undefined){
+      nic_alias = [];
+    }
+
+    if (!$.isArray(nic_alias)) {
+      nic_alias = [nic_alias];
+    }
+
+    if(ips.length==0)
+    {
+      $.each(nic_alias, function(index, value) {
+        $.each(NIC_ALIAS_IP_ATTRS, function(j, attr){
           if (value[attr]) {
             ips.push(value[attr]);
           }

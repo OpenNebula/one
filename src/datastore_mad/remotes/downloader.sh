@@ -328,6 +328,10 @@ rbd://*)
 vcenter://*)
     command="$VAR_LOCATION/remotes/datastore/vcenter_downloader.rb '$(esc_sq "$FROM")'"
     ;;
+lxd://*)
+    file_type="application/octet-stream"
+    command="$VAR_LOCATION/remotes/datastore/lxd_downloader.sh \"$FROM\""
+    ;;
 *)
     if [ ! -r $FROM ]; then
         echo "Cannot read from $FROM" >&2
@@ -337,7 +341,7 @@ vcenter://*)
     ;;
 esac
 
-file_type=$(get_type "$command")
+[ -z "$file_type" ] && file_type=$(get_type "$command")
 decompressor=$(get_decompressor "$file_type")
 
 if [ -z "${MAX_SIZE}" ]; then

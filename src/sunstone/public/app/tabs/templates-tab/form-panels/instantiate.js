@@ -259,16 +259,20 @@ define(function(require) {
 
       var nics = [];
       var pcis = [];
+      var alias = [];
 
       $.each(networks, function(){
         if (this.TYPE == "NIC"){
           pcis.push(this);
+        } else if (this.PARENT) {
+          alias.push(this);
         } else {
           nics.push(this);
         }
       });
 
       tmp_json.NIC = nics;
+      tmp_json.NIC_ALIAS = alias;
 
       // Replace PCIs of type nic only
       var original_tmpl = that.template_objects[index].VMTEMPLATE;
@@ -295,6 +299,10 @@ define(function(require) {
 
       if (pcis.length > 0) {
         tmp_json.PCI = pcis;
+      }
+
+      if (alias.length > 0) {
+        tmp_json.NIC_ALIAS = alias;
       }
 
       if (Config.isFeatureEnabled("vcenter_vm_folder")){

@@ -35,4 +35,4 @@ xml = STDIN.read
 client    = LXDClient.new
 container = Container.get(vm_name, xml, client)
 
-container.detach_disk
+raise 'failed to detach disk' unless container.detach_disk

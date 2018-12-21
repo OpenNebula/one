@@ -204,3 +204,8 @@ meter {
 .tabs-content.vertical.disks-container {
   min-height: 400px;
 }
+
+.search-button {
+  color: #8a8a8a;
+  padding: 0.6em;
+}

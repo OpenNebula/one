@@ -16,18 +16,26 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+ONE_LOCATION=ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    LIB_LOCATION="/usr/lib/one"
+else
+    LIB_LOCATION=ONE_LOCATION+"/lib"
+end
+
 require "erb"
 
-
 CMDS = {
-    :MISC  => %w(mkfs sync mkswap),
-    :NET   => %w(brctl ebtables iptables ip6tables ip ipset arping),
-    :LVM   => %w(lvcreate lvremove lvs vgdisplay lvchange lvscan lvextend),
-    :ISCSI => %w(iscsiadm tgt-admin tgtadm),
-    :OVS   => %w(ovs-ofctl ovs-vsctl),
-    :XEN   => %w(xentop xl xm),
-    :CEPH  => %w(rbd),
-    :HA    => [
+    :MISC   => %w(mkfs sync mkswap),
+    :NET    => %w(brctl ebtables iptables ip6tables ip ipset arping),
+    :LVM    => %w(lvcreate lvremove lvs vgdisplay lvchange lvscan lvextend),
+    :ISCSI  => %w(iscsiadm tgt-admin tgtadm),
+    :OVS    => %w(ovs-ofctl ovs-vsctl),
+    :XEN    => %w(xentop xl xm),
+    :CEPH   => %w(rbd),
+    :MARKET => %W{#{LIB_LOCATION}/sh/create_container_image.sh},
+    :HA     => [
         'systemctl start opennebula-flow',
         'systemctl stop opennebula-flow',
         'systemctl start opennebula-gate',

@@ -55,7 +55,7 @@ define(function(require) {
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-folder';
     this.title = Locale.tr("Context");
-    this.classes = "hypervisor only_kvm only_vcenter";
+    this.classes = "hypervisor";
 
     this.contextFilesTable = new FilesTable('ContextTable' + UniqueId.id(), {
       'select': true,
