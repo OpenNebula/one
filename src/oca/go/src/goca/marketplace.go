@@ -12,20 +12,25 @@ type MarketPlacePool struct {
 
 // MarketPlace represents an OpenNebula MarketPlace
 type MarketPlace struct {
-	ID                 uint         `xml:"ID"`
-	UID                int          `xml:"UID"`
-	GID                int          `xml:"GID"`
-	UName              string       `xml:"UNAME"`
-	GName              string       `xml:"GNAME"`
-	Name               string       `xml:"NAME"`
-	MarketMad          string       `xml:"MARKET_MAD"`
-	ZoneID             string       `xml:"ZONE_ID"`
-	TotalMB            int          `xml:"TOTAL_MB"`
-	FreeMB             int          `xml:"FREE_MB"`
-	UsedMB             int          `xml:"USED_MB"`
-	MarketPlaceAppsIDs []int        `xml:"MARKETPLACEAPPS>ID"`
-	Permissions        *Permissions `xml:"PERMISSIONS"`
-	Template           interface{}  `xml:"TEMPLATE"`
+	ID                 uint                `xml:"ID"`
+	UID                int                 `xml:"UID"`
+	GID                int                 `xml:"GID"`
+	UName              string              `xml:"UNAME"`
+	GName              string              `xml:"GNAME"`
+	Name               string              `xml:"NAME"`
+	MarketMad          string              `xml:"MARKET_MAD"`
+	ZoneID             string              `xml:"ZONE_ID"`
+	TotalMB            int                 `xml:"TOTAL_MB"`
+	FreeMB             int                 `xml:"FREE_MB"`
+	UsedMB             int                 `xml:"USED_MB"`
+	MarketPlaceAppsIDs []int               `xml:"MARKETPLACEAPPS>ID"`
+	Permissions        *Permissions        `xml:"PERMISSIONS"`
+	Template           marketPlaceTemplate `xml:"TEMPLATE"`
+}
+
+// MarketPlaceTemplate represent the template part of the MarketPlace
+type marketPlaceTemplate struct {
+	Dynamic unmatchedTagsSlice `xml:",any"`
 }
 
 // NewMarketPlacePool returns a marketplace pool. A connection to OpenNebula is

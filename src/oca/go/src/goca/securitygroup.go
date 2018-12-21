@@ -12,18 +12,30 @@ type SecurityGroupPool struct {
 
 // SecurityGroup represents an OpenNebula SecurityGroup
 type SecurityGroup struct {
-	ID          uint         `xml:"ID"`
-	UID         int          `xml:"UID"`
-	GID         int          `xml:"GID"`
-	UName       string       `xml:"UNAME"`
-	GName       string       `xml:"GNAME"`
-	Name        string       `xml:"NAME"`
-	Permissions *Permissions `xml:"PERMISSIONS"`
-	UpdatedVMs  []int        `xml:"UPDATED_VMS>ID"`
-	OutdatedVMs []int        `xml:"OUTDATED_VMS>ID"`
-	UpdatingVMs []int        `xml:"UPDATING_VMS>ID"`
-	ErrorVMs    []int        `xml:"ERROR_VMS>ID"`
-	Template    interface{}  `xml:"TEMPLATE"`
+	ID          uint                  `xml:"ID"`
+	UID         int                   `xml:"UID"`
+	GID         int                   `xml:"GID"`
+	UName       string                `xml:"UNAME"`
+	GName       string                `xml:"GNAME"`
+	Name        string                `xml:"NAME"`
+	Permissions *Permissions          `xml:"PERMISSIONS"`
+	UpdatedVMs  []int                 `xml:"UPDATED_VMS>ID"`
+	OutdatedVMs []int                 `xml:"OUTDATED_VMS>ID"`
+	UpdatingVMs []int                 `xml:"UPDATING_VMS>ID"`
+	ErrorVMs    []int                 `xml:"ERROR_VMS>ID"`
+	Template    securityGroupTemplate `xml:"TEMPLATE"`
+}
+
+// VirtualRouterTemplate represent the template part of the OpenNebula VirtualRouter
+type securityGroupTemplate struct {
+	Description string              `xml:"DESCRIPTION"`
+	Rules       []securityGroupRule `xml:"RULE"`
+	Dynamic     unmatchedTagsSlice  `xml:",any"`
+}
+
+type securityGroupRule struct {
+	Protocol string `xml:"PROTOCOL"`
+	RuleType string `xml:"RULE_TYPE"`
 }
 
 // NewSecurityGroupPool returns a security group pool. A connection to OpenNebula is

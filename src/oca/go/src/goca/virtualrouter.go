@@ -12,19 +12,30 @@ type VirtualRouterPool struct {
 
 // VirtualRouter represents an OpenNebula VirtualRouter
 type VirtualRouter struct {
-	ID          uint         `xml:"ID"`
-	UID         int          `xml:"UID"`
-	GID         int          `xml:"GID"`
-	UName       string       `xml:"UNAME"`
-	GName       string       `xml:"GNAME"`
-	Name        string       `xml:"NAME"`
-	LockInfos   *Lock        `xml:"LOCK"`
-	Permissions *Permissions `xml:"PERMISSIONS"`
-	Type        int          `xml:"TYPE"`
-	DiskType    int          `xml:"DISK_TYPE"`
-	Persistent  int          `xml:"PERSISTENT"`
-	VMsID       []int        `xml:"VMS>ID"`
-	Template    interface{}  `xml:"TEMPLATE"`
+	ID          uint                  `xml:"ID"`
+	UID         int                   `xml:"UID"`
+	GID         int                   `xml:"GID"`
+	UName       string                `xml:"UNAME"`
+	GName       string                `xml:"GNAME"`
+	Name        string                `xml:"NAME"`
+	LockInfos   *Lock                 `xml:"LOCK"`
+	Permissions *Permissions          `xml:"PERMISSIONS"`
+	Type        int                   `xml:"TYPE"`
+	DiskType    int                   `xml:"DISK_TYPE"`
+	Persistent  int                   `xml:"PERSISTENT"`
+	VMsID       []int                 `xml:"VMS>ID"`
+	Template    virtualRouterTemplate `xml:"TEMPLATE"`
+}
+
+// VirtualRouterTemplate represent the template part of the OpenNebula VirtualRouter
+type virtualRouterTemplate struct {
+	NIC     []virtualRouterNIC `xml:"NIC"`
+	Dynamic unmatchedTagsSlice `xml:",any"`
+}
+
+type virtualRouterNIC struct {
+	NICID   int                `xml:"NIC_ID"`
+	Dynamic unmatchedTagsSlice `xml:",any"`
 }
 
 // NewVirtualRouterPool returns a virtual router pool. A connection to OpenNebula is

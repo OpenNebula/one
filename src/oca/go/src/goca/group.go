@@ -20,11 +20,15 @@ type Group struct {
 }
 
 type groupBase struct {
-	ID       uint        `xml:"ID"`
-	Name     string      `xml:"NAME"`
-	Users    []int       `xml:"USERS>ID"`
-	Admins   []int       `xml:"ADMINS>ID"`
-	Template interface{} `xml:"TEMPLATE"`
+	ID       uint          `xml:"ID"`
+	Name     string        `xml:"NAME"`
+	Users    []int         `xml:"USERS>ID"`
+	Admins   []int         `xml:"ADMINS>ID"`
+	Template groupTemplate `xml:"TEMPLATE"`
+}
+
+type groupTemplate struct {
+	Dynamic unmatchedTagsSlice `xml:",any"`
 }
 
 // NewGroupPool returns a group pool. A connection to OpenNebula is

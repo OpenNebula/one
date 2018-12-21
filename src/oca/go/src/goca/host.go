@@ -13,17 +13,17 @@ type HostPool struct {
 
 // Host represents an OpenNebula Host
 type Host struct {
-	ID          uint        `xml:"ID"`
-	Name        string      `xml:"NAME"`
-	StateRaw    int         `xml:"STATE"`
-	IMMAD       string      `xml:"IM_MAD"`
-	VMMAD       string      `xml:"VM_MAD"`
-	LastMonTime int         `xml:"LAST_MON_TIME"`
-	ClusterID   int         `xml:"CLUSTER_ID"`
-	Cluster     string      `xml:"CLUSTER"`
-	Share       hostShare   `xml:"HOST_SHARE"`
-	VMsID       []int       `xml:"VMS>ID"`
-	Template    interface{} `xml:"TEMPLATE"`
+	ID          uint         `xml:"ID"`
+	Name        string       `xml:"NAME"`
+	StateRaw    int          `xml:"STATE"`
+	IMMAD       string       `xml:"IM_MAD"`
+	VMMAD       string       `xml:"VM_MAD"`
+	LastMonTime int          `xml:"LAST_MON_TIME"`
+	ClusterID   int          `xml:"CLUSTER_ID"`
+	Cluster     string       `xml:"CLUSTER"`
+	Share       hostShare    `xml:"HOST_SHARE"`
+	VMsID       []int        `xml:"VMS>ID"`
+	Template    hostTemplate `xml:"TEMPLATE"`
 }
 
 type hostShare struct {
@@ -59,6 +59,13 @@ type hostDS struct {
 	UsedMB  int `xml:"USED_MB"`
 	FreeMB  int `xml:"FREE_MB"`
 	TotalMB int `xml:"TOTAL_MB"`
+}
+
+type hostTemplate struct {
+	// Example of reservation: https://github.com/OpenNebula/addon-storpool/blob/ba9dd3462b369440cf618c4396c266f02e50f36f/misc/reserved.sh
+	ReservedMem int                `xml:"RESERVED_MEM"`
+	ReservedCpu int                `xml:"RESERVED_CPU"`
+	Dynamic     unmatchedTagsSlice `xml:",any"`
 }
 
 // HostState is the state of an OpenNebula Host

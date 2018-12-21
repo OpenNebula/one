@@ -12,16 +12,20 @@ type DocumentPool struct {
 
 // Document represents an OpenNebula Document
 type Document struct {
-	ID          uint         `xml:"ID"`
-	UID         int          `xml:"UID"`
-	GID         int          `xml:"GID"`
-	UName       string       `xml:"UNAME"`
-	GName       string       `xml:"GNAME"`
-	Name        string       `xml:"NAME"`
-	Type        string       `xml:"TYPE"`
-	Permissions *Permissions `xml:"PERMISSIONS"`
-	LockInfos   *Lock        `xml:"LOCK"`
-	Template    interface{}  `xml:"TEMPLATE"`
+	ID          uint             `xml:"ID"`
+	UID         int              `xml:"UID"`
+	GID         int              `xml:"GID"`
+	UName       string           `xml:"UNAME"`
+	GName       string           `xml:"GNAME"`
+	Name        string           `xml:"NAME"`
+	Type        string           `xml:"TYPE"`
+	Permissions *Permissions     `xml:"PERMISSIONS"`
+	LockInfos   *Lock            `xml:"LOCK"`
+	Template    documentTemplate `xml:"TEMPLATE"`
+}
+
+type documentTemplate struct {
+	Dynamic unmatchedTagsSlice `xml:",any"`
 }
 
 // NewDocumentPool returns a document pool. A connection to OpenNebula is

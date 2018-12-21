@@ -18,27 +18,37 @@ type VM struct {
 }
 
 type vmBase struct {
-	ID              uint         `xml:"ID"`
-	UID             int          `xml:"UID"`
-	GID             int          `xml:"GID"`
-	UName           string       `xml:"UNAME"`
-	GName           string       `xml:"GNAME"`
-	Name            string       `xml:"NAME"`
-	Permissions     *Permissions `xml:"PERMISSIONS"`
-	LastPoll        int          `xml:"LAST_POLL"`
-	StateRaw        int          `xml:"STATE"`
-	LCMStateRaw     int          `xml:"LCM_STATE"`
-	PrevStateRaw    int          `xml:"PREV_STATE"`
-	PrevLCMStateRaw int          `xml:"PREV_LCM_STATE"`
-	ReschedValue    int          `xml:"RESCHED"`
-	STime           int          `xml:"STIME"`
-	ETime           int          `xml:"ETIME"`
-	DeployID        string       `xml:"DEPLOY_ID"`
-	//XXX Monitoring   Monitoring       `xml:"MONITORING"`
-	Template       interface{}       `xml:"TEMPLATE"`
-	UserTemplate   interface{}       `xml:"USER_TEMPLATE"`
-	HistoryRecords []vmHistoryRecord `xml:"HISTORY_RECORDS>HISTORY"`
-	HistoryRecords []historyRecord   `xml:"HISTORY_RECORDS>HISTORY"`
+	ID              uint              `xml:"ID"`
+	UID             int               `xml:"UID"`
+	GID             int               `xml:"GID"`
+	UName           string            `xml:"UNAME"`
+	GName           string            `xml:"GNAME"`
+	Name            string            `xml:"NAME"`
+	Permissions     *Permissions      `xml:"PERMISSIONS"`
+	LastPoll        int               `xml:"LAST_POLL"`
+	StateRaw        int               `xml:"STATE"`
+	LCMStateRaw     int               `xml:"LCM_STATE"`
+	PrevStateRaw    int               `xml:"PREV_STATE"`
+	PrevLCMStateRaw int               `xml:"PREV_LCM_STATE"`
+	ReschedValue    int               `xml:"RESCHED"`
+	STime           int               `xml:"STIME"`
+	ETime           int               `xml:"ETIME"`
+	DeployID        string            `xml:"DEPLOY_ID"`
+	Monitoring      vmMonitoring      `xml:"MONITORING"`
+	Template        vmTemplate        `xml:"TEMPLATE"`
+	UserTemplate    *vmUserTemplate   `xml:"USER_TEMPLATE"`
+	HistoryRecords  []vmHistoryRecord `xml:"HISTORY_RECORDS>HISTORY"`
+}
+
+type vmMonitoring struct {
+	DiskSize     []vmMonitoringDiskSize     `xml:"DISK_SIZE"`
+	SnapshotSize []vmMonitoringSnapshotSize `xml:"SNAPSHOT_SIZE"`
+	Dynamic      unmatchedTagsSlice         `xml:",any"`
+}
+
+type vmMonitoringDiskSize struct {
+	ID   int `xml:"ID"`
+	Size int `xml:"SIZE"`
 }
 
 // History records
@@ -64,6 +74,73 @@ type vmHistoryRecord struct {
 	VMMad     string                    `xml:"VM_MAD"`
 	TMMad     string                    `xml:"TM_MAD"`
 	Snapshots []vmHistoryRecordSnapshot `xml:"SNAPSHOTS"`
+}
+
+// VMUserTemplate contain custom attributes
+type vmUserTemplate struct {
+	Error        string           `xml:"ERROR"`
+	SchedMessage string           `xml:"SCHED_MESSAGE"`
+	Dynamic      unmatchedTagsMap `xml:",any"`
+}
+
+type vmTemplate struct {
+	CPU               float64               `xml:"CPU"`
+	Memory            int                   `xml:"MEMORY"`
+	NIC               []vmNic               `xml:"NIC"`
+	NICAlias          []vmNicAlias          `xml:"NIC_ALIAS"`
+	Context           *vmContext            `xml:"CONTEXT"`
+	Disk              []vmDisk              `xml:"DISK"`
+	Graphics          *vmGraphics           `xml:"GRAPHICS"`
+	OS                *vmOS                 `xml:"OS"`
+	Snapshot          []VMSnapshot          `xml:"SNAPSHOT"`
+	SecurityGroupRule []vmSecurityGroupRule `xml:"SECURITY_GROUP_RULE"`
+	Dynamic           unmatchedTagsSlice    `xml:",any"`
+}
+
+type vmContext struct {
+	Dynamic unmatchedTagsMap `xml:",any"`
+}
+
+type vmNic struct {
+	ID      int                `xml:"NIC_ID"`
+	Network string             `xml:"NETWORK"`
+	IP      string             `xml:"IP"`
+	MAC     string             `xml:"MAC"`
+	PhyDev  string             `xml:"PHYDEV"`
+	Dynamic unmatchedTagsSlice `xml:",any"`
+}
+
+type vmNicAlias struct {
+	ID       int    `xml:"NIC_ID"`    // minOccurs=1
+	Parent   string `xml:"PARENT"`    // minOccurs=1
+	ParentId string `xml:"PARENT_ID"` // minOccurs=1
+}
+
+type vmGraphics struct {
+	Listen string `xml:"LISTEN"`
+	Port   string `xml:"PORT"`
+	Type   string `xml:"TYPE"`
+}
+
+type vmDisk struct {
+	ID           int                `xml:"DISK_ID"`
+	Datastore    string             `xml:"DATASTORE"`
+	DiskType     string             `xml:"DISK_TYPE"`
+	Image        string             `xml:"IMAGE"`
+	Driver       string             `xml:"DRIVER"`
+	OriginalSize int                `xml:"ORIGINAL_SIZE"`
+	Size         int                `xml:"SIZE"`
+	Dynamic      unmatchedTagsSlice `xml:",any"`
+}
+
+type vmOS struct {
+	Arch string `xml:"ARCH"`
+	Boot string `xml:"BOOT"`
+}
+
+type vmSecurityGroupRule struct {
+	securityGroupRule
+	SecurityGroup string `xml:"SECURITY_GROUP_NAME"`
 }
 
 // VMState is the state of the Virtual Machine

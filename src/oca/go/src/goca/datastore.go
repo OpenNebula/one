@@ -13,25 +13,29 @@ type DatastorePool struct {
 
 // Datastore represents an OpenNebula Datastore
 type Datastore struct {
-	ID          uint         `xml:"ID"`
-	UID         int          `xml:"UID"`
-	GID         int          `xml:"GID"`
-	UName       string       `xml:"UNAME"`
-	GName       string       `xml:"GNAME"`
-	Name        string       `xml:"NAME"`
-	Permissions *Permissions `xml:"PERMISSIONS"`
-	DSMad       string       `xml:"DS_MAD"`
-	TMMad       string       `xml:"TM_MAD"`
-	BasePath    string       `xml:"BASE_PATH"`
-	Type        string       `xml:"TYPE"`
-	DiskType    string       `xml:"DISK_TYPE"`
-	StateRaw    int          `xml:"STATE"`
-	ClustersID  []int        `xml:"CLUSTERS>ID"`
-	TotalMB     int          `xml:"TOTAL_MB"`
-	FreeMB      int          `xml:"FREE_MB"`
-	UsedMB      int          `xml:"USED_MB"`
-	ImagesID    []int        `xml:"IMAGES>ID"`
-	Template    interface{}  `xml:"TEMPLATE"`
+	ID          uint              `xml:"ID"`
+	UID         int               `xml:"UID"`
+	GID         int               `xml:"GID"`
+	UName       string            `xml:"UNAME"`
+	GName       string            `xml:"GNAME"`
+	Name        string            `xml:"NAME"`
+	Permissions *Permissions      `xml:"PERMISSIONS"`
+	DSMad       string            `xml:"DS_MAD"`
+	TMMad       string            `xml:"TM_MAD"`
+	BasePath    string            `xml:"BASE_PATH"`
+	Type        string            `xml:"TYPE"`
+	DiskType    string            `xml:"DISK_TYPE"`
+	StateRaw    int               `xml:"STATE"`
+	ClustersID  []int             `xml:"CLUSTERS>ID"`
+	TotalMB     int               `xml:"TOTAL_MB"`
+	FreeMB      int               `xml:"FREE_MB"`
+	UsedMB      int               `xml:"USED_MB"`
+	ImagesID    []int             `xml:"IMAGES>ID"`
+	Template    datastoreTemplate `xml:"TEMPLATE"`
+}
+
+type datastoreTemplate struct {
+	Dynamic unmatchedTagsSlice `xml:",any"`
 }
 
 // DatastoreState is the state of an OpenNebula datastore

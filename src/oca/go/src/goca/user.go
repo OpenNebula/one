@@ -30,7 +30,11 @@ type userBase struct {
 	AuthDriver  string       `xml:"AUTH_DRIVER"`
 	Enabled     int          `xml:"ENABLED"`
 	LoginTokens []loginToken `xml:"LOGIN_TOKEN"`
-	Template    interface{}  `xml:"TEMPLATE"`
+	Template    userTemplate `xml:"TEMPLATE"`
+}
+
+type userTemplate struct {
+	Dynamic unmatchedTagsSlice `xml:",any"`
 }
 
 type loginToken struct {

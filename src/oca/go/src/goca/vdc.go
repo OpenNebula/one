@@ -19,7 +19,11 @@ type Vdc struct {
 	Hosts      []vdcHost      `xml:"HOSTS>HOST"`
 	Datastores []vdcDatastore `xml:"DATASTORES>DATASTORE"`
 	VNets      []vdcVNet      `xml:"VNETS>VNET"`
-	Template   interface{}    `xml:"TEMPLATE"`
+	Template   vdcTemplate    `xml:"TEMPLATE"`
+}
+
+type vdcTemplate struct {
+	Dynamic unmatchedTagsSlice `xml:",any"`
 }
 
 type vdcCluster struct {

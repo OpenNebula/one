@@ -19,26 +19,30 @@ type VirtualNetwork struct {
 
 // VirtualNetworkBase represents common attributes for parts of VirtualNetworkPool and VirtualNetwork
 type virtualNetworkBase struct {
-	ID                   uint         `xml:"ID"`
-	UID                  int          `xml:"UID"`
-	GID                  int          `xml:"GID"`
-	UName                string       `xml:"UNAME"`
-	GName                string       `xml:"GNAME"`
-	Name                 string       `xml:"NAME"`
-	Permissions          *Permissions `xml:"PERMISSIONS"`
-	Clusters             []int        `xml:"CLUSTERS>ID"`
-	Bridge               string       `xml:"BRIDGE"`
-	BridgeType           string       `xml:"BRIDGE_TYPE"` // minOccurs=0
-	ParentNetworkID      string       `xml:"PARENT_NETWORK_ID"`
-	VNMad                string       `xml:"VN_MAD"`
-	PhyDev               string       `xml:"PHYDEV"`
-	VlanID               string       `xml:"VLAN_ID"`       // minOccurs=0
-	OuterVlanID          string       `xml:"OUTER_VLAN_ID"` // minOccurs=0
-	VlanIDAutomatic      string       `xml:"VLAN_ID_AUTOMATIC"`
-	OuterVlanIDAutomatic string       `xml:"OUTER_VLAN_ID_AUTOMATIC"`
-	UsedLeases           int          `xml:"USED_LEASES"`
-	VRouters             []int        `xml:"VROUTERS>ID"`
-	Template             interface{}  `xml:"TEMPLATE"`
+	ID                   uint                   `xml:"ID"`
+	UID                  int                    `xml:"UID"`
+	GID                  int                    `xml:"GID"`
+	UName                string                 `xml:"UNAME"`
+	GName                string                 `xml:"GNAME"`
+	Name                 string                 `xml:"NAME"`
+	Permissions          *Permissions           `xml:"PERMISSIONS"`
+	Clusters             []int                  `xml:"CLUSTERS>ID"`
+	Bridge               string                 `xml:"BRIDGE"`
+	BridgeType           string                 `xml:"BRIDGE_TYPE"` // minOccurs=0
+	ParentNetworkID      string                 `xml:"PARENT_NETWORK_ID"`
+	VNMad                string                 `xml:"VN_MAD"`
+	PhyDev               string                 `xml:"PHYDEV"`
+	VlanID               string                 `xml:"VLAN_ID"`       // minOccurs=0
+	OuterVlanID          string                 `xml:"OUTER_VLAN_ID"` // minOccurs=0
+	VlanIDAutomatic      string                 `xml:"VLAN_ID_AUTOMATIC"`
+	OuterVlanIDAutomatic string                 `xml:"OUTER_VLAN_ID_AUTOMATIC"`
+	UsedLeases           int                    `xml:"USED_LEASES"`
+	VRouters             []int                  `xml:"VROUTERS>ID"`
+	Template             virtualNetworkTemplate `xml:"TEMPLATE"`
+}
+
+type virtualNetworkTemplate struct {
+	Dynamic unmatchedTagsSlice `xml:",any"`
 }
 
 // AR represent an Address Range

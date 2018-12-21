@@ -12,16 +12,54 @@ type TemplatePool struct {
 
 // Template represents an OpenNebula Template
 type Template struct {
-	ID          uint         `xml:"ID"`
-	UID         int          `xml:"UID"`
-	GID         int          `xml:"GID"`
-	UName       string       `xml:"UNAME"`
-	GName       string       `xml:"GNAME"`
-	Name        string       `xml:"NAME"`
-	LockInfos   *Lock        `xml:"LOCK"`
-	Permissions *Permissions `xml:"PERMISSIONS"`
-	RegTime     int          `xml:"REGTIME"`
-	Template    interface{}  `xml:"TEMPLATE"`
+	ID          uint             `xml:"ID"`
+	UID         int              `xml:"UID"`
+	GID         int              `xml:"GID"`
+	UName       string           `xml:"UNAME"`
+	GName       string           `xml:"GNAME"`
+	Name        string           `xml:"NAME"`
+	LockInfos   *Lock            `xml:"LOCK"`
+	Permissions *Permissions     `xml:"PERMISSIONS"`
+	RegTime     int              `xml:"REGTIME"`
+	Template    templateTemplate `xml:"TEMPLATE"`
+}
+
+// templateTemplate represent the template part of the OpenNebula Template
+type templateTemplate struct {
+	CPU        float64             `xml:"CPU"`
+	Memory     int                 `xml:"MEMORY"`
+	Context    *templateContext    `xml:"CONTEXT"`
+	Disk       []templateDisk      `xml:"DISK"`
+	Graphics   *templateGraphics   `xml:"GRAPHICS"`
+	NICDefault *templateNicDefault `xml:"NIC_DEFAULT"`
+	OS         *templateOS         `xml:"OS"`
+	UserInputs templateUserInputs  `xml:"USER_INPUTS"`
+	Dynamic    unmatchedTagsSlice  `xml:",any"`
+}
+
+type templateContext struct {
+	Dynamic unmatchedTagsSlice `xml:",any"`
+}
+
+type templateDisk struct {
+	Dynamic unmatchedTagsSlice `xml:",any"`
+}
+
+type templateGraphics struct {
+	Dynamic unmatchedTagsSlice `xml:",any"`
+}
+
+type templateUserInputs struct {
+	Dynamic unmatchedTagsSlice `xml:",any"`
+}
+
+type templateNicDefault struct {
+	Model string `xml:"MODEL"`
+}
+
+type templateOS struct {
+	Arch string `xml:"ARCH"`
+	Boot string `xml:"BOOT"`
 }
 
 // NewTemplatePool returns a template pool. A connection to OpenNebula is

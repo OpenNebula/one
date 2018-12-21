@@ -12,12 +12,19 @@ type ClusterPool struct {
 
 // Cluster represents an OpenNebula Cluster
 type Cluster struct {
-	ID           uint        `xml:"ID"`
-	Name         string      `xml:"NAME"`
-	HostsID      []int       `xml:"HOSTS>ID"`
-	DatastoresID []int       `xml:"DATASTORES>ID"`
-	VnetsID      []int       `xml:"VNETS>ID"`
-	Template     interface{} `xml:"TEMPLATE"`
+	ID           uint            `xml:"ID"`
+	Name         string          `xml:"NAME"`
+	HostsID      []int           `xml:"HOSTS>ID"`
+	DatastoresID []int           `xml:"DATASTORES>ID"`
+	VnetsID      []int           `xml:"VNETS>ID"`
+	Template     clusterTemplate `xml:"TEMPLATE"`
+}
+
+type clusterTemplate struct {
+	// Example of reservation: https://github.com/OpenNebula/addon-storpool/blob/ba9dd3462b369440cf618c4396c266f02e50f36f/misc/reserved.sh
+	ReservedMem string             `xml:"RESERVED_MEM"`
+	ReservedCpu string             `xml:"RESERVED_CPU"`
+	Dynamic     unmatchedTagsSlice `xml:",any"`
 }
 
 // NewClusterPool returns a cluster pool. A connection to OpenNebula is

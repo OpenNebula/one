@@ -8,25 +8,27 @@ import (
 
 // ZonePool represents an OpenNebula ZonePool
 type ZonePool struct {
-	zoneBase
+	ID         uint         `xml:"ZONE>ID"`
+	Name       string       `xml:"ZONE>NAME"`
+	Template   zoneTemplate `xml:"ZONE>TEMPLATE"`
 	ServerPool []zoneServer `xml:"ZONE>SERVER_POOL>SERVER"`
 }
 
 // Zone represents an OpenNebula Zone
 type Zone struct {
-	zoneBase
+	ID         uint         `xml:"ID"`
+	Name       string       `xml:"NAME"`
+	Template   zoneTemplate `xml:"TEMPLATE"`
 	ServerPool []zoneServer `xml:"SERVER_POOL>SERVER"`
-}
-
-type zoneBase struct {
-	ID       uint   `xml:"ID","ZONE>ID"`
-	Name     string `xml:"NAME","ZONE>ID"`
-	Template string `xml:"TEMPLATE>ENDPOINT","ZONE>TEMPLATE>ENDPOINT"`
 }
 
 type zoneServer struct {
 	ID       int    `xml:"ID"`
 	Name     string `xml:"NAME"`
+	Endpoint string `xml:"ENDPOINT"`
+}
+
+type zoneTemplate struct {
 	Endpoint string `xml:"ENDPOINT"`
 }
 
@@ -95,7 +97,7 @@ func NewZonePool() (*ZonePool, error) {
 
 // NewZone finds a zone object by ID. No connection to OpenNebula.
 func NewZone(id uint) *Zone {
-	return &Zone{zoneBase: zoneBase{ID: id}}
+	return &Zone{ID: id}
 }
 
 // NewZoneFromName finds a zone object by name. It connects to

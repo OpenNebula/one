@@ -14,16 +14,21 @@ type VNTemplatePool struct {
 
 // VNTemplate represents an OpenNebula Virtual Network Template
 type VNTemplate struct {
-	ID          uint        `xml:"ID"`
-	UID         int         `xml:"UID"`
-	GID         int         `xml:"GID"`
-	UName       string      `xml:"UNAME"`
-	GName       string      `xml:"GNAME"`
-	Name        string      `xml:"NAME"`
-	LockInfos   *Lock       `xml:"LOCK"`
-	Permissions Permissions `xml:"PERMISSIONS"`
-	RegTime     string      `xml:"REGTIME"`
-	Template    interface{} `xml:"TEMPLATE"`
+	ID          uint               `xml:"ID"`
+	UID         int                `xml:"UID"`
+	GID         int                `xml:"GID"`
+	UName       string             `xml:"UNAME"`
+	GName       string             `xml:"GNAME"`
+	Name        string             `xml:"NAME"`
+	LockInfos   *Lock              `xml:"LOCK"`
+	Permissions Permissions        `xml:"PERMISSIONS"`
+	RegTime     string             `xml:"REGTIME"`
+	Template    vnTemplateTemplate `xml:"TEMPLATE"`
+}
+
+type vnTemplateTemplate struct {
+	VNMad   string             `xml:"VN_MAD"`
+	Dynamic unmatchedTagsSlice `xml:",any"`
 }
 
 // NewVNTemplatePool returns a vntemplate pool. A connection to OpenNebula is

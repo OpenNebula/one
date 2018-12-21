@@ -22,7 +22,19 @@ type ImageSnapshot struct {
 }
 
 // VM entity related
+type VMSnapshot struct {
+	HypervisorID string `xml:"HYPERVISOR_ID"`
+	Name         string `xml:"NAME"`
+	ID           int    `xml:"SNAPSHOT_ID"`
+	Time         string `xml:"TIME"`
+}
+
 type vmHistoryRecordSnapshot struct {
 	ImageSnapshot
 	DiskID int `xml:"DISK_ID"`
+}
+
+type vmMonitoringSnapshotSize struct {
+	DiskID int `xml:"DISK_ID"`
+	Size   int `xml:"SIZE"`
 }

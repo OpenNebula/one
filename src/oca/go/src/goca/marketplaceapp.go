@@ -12,29 +12,33 @@ type MarketPlaceAppPool struct {
 
 // MarketPlaceApp represents an OpenNebula MarketPlaceApp
 type MarketPlaceApp struct {
-	ID            uint         `xml:"ID"`
-	UID           int          `xml:"UID"`
-	GID           int          `xml:"GID"`
-	UName         string       `xml:"UNAME"`
-	GName         string       `xml:"GNAME"`
-	LockInfos     *Lock        `xml:"LOCK"`
-	Permissions   *Permissions `xml:"PERMISSIONS"`
-	RegTime       int          `xml:"REGTIME"`
-	Name          string       `xml:"NAME"`
-	ZoneId        string       `xml:"ZONE_ID"`
-	OriginId      string       `xml:"ORIGIN_ID"`
-	Source        string       `xml:"SOURCE"`
-	MD5           string       `xml:"MD5"`
-	Size          int          `xml:"SIZE"`
-	Description   string       `xml:"DESCRIPTION"`
-	Version       string       `xml:"VERSION"`
-	Format        string       `xml:"FORMAT"`
-	AppTemplate64 string       `xml:"APPTEMPLATE64"`
-	MarketPlaceID int          `xml:"MARKETPLACEID"`
-	MarketPlace   string       `xml:"MARKETPLACE"`
-	State         int          `xml:"STATE"`
-	Type          int          `xml:"TYPE"`
-	Template      interface{}  `xml:"TEMPLATE"`
+	ID            uint                   `xml:"ID"`
+	UID           int                    `xml:"UID"`
+	GID           int                    `xml:"GID"`
+	UName         string                 `xml:"UNAME"`
+	GName         string                 `xml:"GNAME"`
+	LockInfos     *Lock                  `xml:"LOCK"`
+	Permissions   *Permissions           `xml:"PERMISSIONS"`
+	RegTime       int                    `xml:"REGTIME"`
+	Name          string                 `xml:"NAME"`
+	ZoneId        string                 `xml:"ZONE_ID"`
+	OriginId      string                 `xml:"ORIGIN_ID"`
+	Source        string                 `xml:"SOURCE"`
+	MD5           string                 `xml:"MD5"`
+	Size          int                    `xml:"SIZE"`
+	Description   string                 `xml:"DESCRIPTION"`
+	Version       string                 `xml:"VERSION"`
+	Format        string                 `xml:"FORMAT"`
+	AppTemplate64 string                 `xml:"APPTEMPLATE64"`
+	MarketPlaceID int                    `xml:"MARKETPLACEID"`
+	MarketPlace   string                 `xml:"MARKETPLACE"`
+	State         int                    `xml:"STATE"`
+	Type          int                    `xml:"TYPE"`
+	Template      marketPlaceAppTemplate `xml:"TEMPLATE"`
+}
+
+type marketPlaceAppTemplate struct {
+	Dynamic unmatchedTagsSlice `xml:,any`
 }
 
 // NewMarketPlaceAppPool returns a marketplace app pool. A connection to OpenNebula is

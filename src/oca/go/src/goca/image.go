@@ -40,7 +40,11 @@ type Image struct {
 	ClonesID        []int         `xml:"CLONES>ID"`
 	AppClonesID     []int         `xml:"APP_CLONES>ID"`
 	Snapshots       ImageSnapshot `xml:"SNAPSHOTS"`
-	Template        interface{}   `xml:"TEMPLATE"`
+	Template        imageTemplate `xml:"TEMPLATE"`
+}
+
+type imageTemplate struct {
+	Dynamic unmatchedTagsSlice `xml:",any"`
 }
 
 // ImageState is the state of the Image
