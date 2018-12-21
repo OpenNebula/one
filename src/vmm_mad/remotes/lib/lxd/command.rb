@@ -23,6 +23,7 @@ require 'open3'
 module Command
 
     LOCK_FILE = '/tmp/onelxd-lock'
+    LXC_COMMAND = 'lxc' # prepend sudo if node uses lxd snap package
 
     def self.execute(cmd, block)
         rc = -1
@@ -54,7 +55,7 @@ module Command
     end
 
     def self.lxc_execute(lxd_id, cmd)
-        cmd = "lxc exec #{lxd_id} -- #{cmd}"
+        cmd = "#{LXC_COMMAND} exec #{lxd_id} -- #{cmd}"
         execute(cmd, true)
     end
 
