@@ -1232,20 +1232,17 @@ class VirtualMachine < VCenterDriver::Template
 
                 unmanaged_nics.each do |unic|
                     vnic  = select.call(unic['BRIDGE'])
-                    if unic['MODEL'] && !unic['MODEL'].empty? && !unic['MODEL'].nil?
-                        vcenter_nic_class    = vnic.class
-                        opennebula_nic_class = nic_model_class(unic['MODEL'])
-                        if vcenter_nic_class != opennebula_nic_class
+                    vcenter_nic_class    = vnic.class
+                   new_model = unic['MODEL'] && !unic['MODEL'].empty? && !unic['MODEL'].nil?
+                    opennebula_nic_class = nic_model_class(unic['MODEL']) if new_model
+
+                    if new_model && opennebula_nic_class != vcenter_nic_class
                             # delete actual nic and update the new one.
                             device_change << { :device => vnic, :operation => :remove }
                             device_change << calculate_add_nic_spec(unic)
-                        else
+                    else
                             vnic.macAddress   = unic['MAC']
                             device_change << { :device => vnic, :operation => :edit }
-                        end
-                    else
-                        vnic.macAddress   = unic['MAC']
-                        device_change << { :device => vnic, :operation => :edit }
                     end
                 end
             end
