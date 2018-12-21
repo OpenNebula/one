@@ -1233,7 +1233,7 @@ class VirtualMachine < VCenterDriver::Template
                 unmanaged_nics.each do |unic|
                     vnic  = select.call(unic['BRIDGE'])
                     vcenter_nic_class    = vnic.class
-                   new_model = unic['MODEL'] && !unic['MODEL'].empty? && !unic['MODEL'].nil?
+                    new_model = unic['MODEL'] && !unic['MODEL'].empty? && !unic['MODEL'].nil?
                     opennebula_nic_class = nic_model_class(unic['MODEL']) if new_model
 
                     if new_model && opennebula_nic_class != vcenter_nic_class
