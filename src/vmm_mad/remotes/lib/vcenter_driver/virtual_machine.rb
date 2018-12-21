@@ -2961,12 +2961,8 @@ class VirtualMachine < VCenterDriver::Template
         pool = OpenNebula::HostPool.new(one_client)
         pool.info
 
-        datastores = OpenNebula::DatastorePool.new(one_client)
-        datastores.info
-
         src_id = pool["/HOST_POOL/HOST[NAME='#{src_host}']/ID"].to_i
         dst_id = pool["/HOST_POOL/HOST[NAME='#{dst_host}']/ID"].to_i
-        datastore = datastores["/DATASTORE_POOL/DATASTORE[ID='#{ds}']/TEMPLATE/VCENTER_DS_REF"]
 
         # different destination ds
         if ds
