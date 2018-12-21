@@ -160,6 +160,8 @@ define(function(require) {
     var templateJSON = {}
     $.each(this.wizardTabs, function(index, wizardTab) {
       $.extend(true, templateJSON, wizardTab.retrieve($('#' + wizardTab.wizardTabId, context)));
+
+      var a = templateJSON;
     });
 
     // vCenter PUBLIC_CLOUD is not defined in the hybrid tab. Because it is
@@ -173,6 +175,16 @@ define(function(require) {
     // PCI with TYPE=NIC is not defined in the 'other' tab. Because it is
     // part of an array, and it is filled in different tabs, the $.extend deep
     // merge can't work. We define an auxiliary attribute for it.
+
+    if (templateJSON["NIC_ALIAS"]) {
+        var alias = templateJSON["NIC_ALIAS"];
+
+        if (alias) {
+            templateJSON["NIC_ALIAS"] = alias;
+        } else {
+            delete templateJSON["NIC_ALIAS"];
+        }
+    }
 
     if (templateJSON["NIC_PCI"] != undefined) {
       if (templateJSON['PCI'] == undefined) {

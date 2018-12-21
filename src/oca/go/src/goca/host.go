@@ -138,8 +138,11 @@ func (host *Host) Rename(newName string) error {
 // Info retrieves information for the host.
 func (host *Host) Info() error {
 	response, err := client.Call("one.host.info", host.ID)
+	if err != nil {
+		return err
+	}
 	host.body = response.Body()
-	return err
+	return nil
 }
 
 // Monitoring returns the host monitoring records.

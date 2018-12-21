@@ -113,6 +113,9 @@ func (datastore *Datastore) Enable(enable bool) error {
 // Info retrieves information for the datastore.
 func (datastore *Datastore) Info() error {
 	response, err := client.Call("one.datastore.info", datastore.ID)
+	if err != nil {
+		return err
+	}
 	datastore.body = response.Body()
-	return err
+	return nil
 }

@@ -26,9 +26,7 @@ define(function(require) {
     },
     "VNTemplate.create_dialog" : {
       type: "create_dialog",
-      text:  Locale.tr("Create"),
-      layout: "create_flatten",
-      custom_classes: "only-sunstone-list"
+      layout: "create"
     },
     "VNTemplate.update_dialog" : {
       type: "action",
@@ -36,9 +34,9 @@ define(function(require) {
       text: Locale.tr("Update")
     },
     "VNTemplate.instantiate_vnets" : {
-      type: "create_dialog",
+      type: "action",
       text:  Locale.tr("Instantiate"),
-      layout: "create_flatten"
+      layout: "main"
     },
     "VNTemplate.addtocluster" : {
       type : "action",

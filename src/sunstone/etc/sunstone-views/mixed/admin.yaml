@@ -812,7 +812,7 @@ tabs:
         actions:
             VNTemplate.refresh: true
             VNTemplate.create_dialog: true
-            VNTemplate.import_dialog: true
+            VNTemplate.instantiate_vnets: true
             VNTemplate.update_dialog: true
             VNTemplate.rename: true
             VNTemplate.chown: true

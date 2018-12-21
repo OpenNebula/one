@@ -66,8 +66,11 @@ func (group *Group) Delete() error {
 // Info retrieves information for the group.
 func (group *Group) Info() error {
 	response, err := client.Call("one.group.info", group.ID)
+	if err != nil {
+		return err
+	}
 	group.body = response.Body()
-	return err
+	return nil
 }
 
 // Update replaces the group template contents.

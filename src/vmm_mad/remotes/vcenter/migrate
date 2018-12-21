@@ -34,6 +34,7 @@ src_host = ARGV[-3]
 dst_host = ARGV[-4]
 
 begin
+    # TODO: grab destination ds
     VCenterDriver::VirtualMachine.migrate_routine(vm_id,
                                                   src_host,
                                                   dst_host)

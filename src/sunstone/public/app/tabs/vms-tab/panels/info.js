@@ -80,6 +80,8 @@ define(function(require) {
 
     var IP = OpenNebula.VM.ipsStr(this.element);
 
+    var alias = OpenNebula.VM.aliasStr(this.element);
+
     if (this.element.TEMPLATE.VROUTER_ID != undefined){
       vrouterHTML = Navigation.link(
         OpenNebula.VirtualRouter.getName(this.element.TEMPLATE.VROUTER_ID),
@@ -133,6 +135,7 @@ define(function(require) {
       "prettyStartTime": prettyStartTime,
       "deployId": deployId,
       "IP": IP,
+      "alias": alias,
       "resched": resched,
       "permissionsTableHTML": permissionsTableHTML,
       "templateTableVcenterHTML": templateTableVcenterHTML,
