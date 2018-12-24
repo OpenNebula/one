@@ -157,8 +157,8 @@ void OpenNebulaTemplate::set_multiple_conf_default()
     set_conf_ds("ssh",            "",                     "NO");
     set_conf_ds("vmfs",           "BRIDGE_LIST",          "NO");
     set_conf_ds("vcenter",
-		"VCENTER_INSTANCE_ID, VCENTER_DS_REF, VCENTER_DC_REF, VCENTER_HOST, VCENTER_USER, VCENTER_PASSWORD",
-		"NO");
+        "VCENTER_INSTANCE_ID, VCENTER_DS_REF, VCENTER_DC_REF, VCENTER_HOST, VCENTER_USER, VCENTER_PASSWORD",
+        "NO");
     set_conf_ds("ceph",
                 "DISK_TYPE,BRIDGE_LIST,CEPH_HOST,CEPH_USER,CEPH_SECRET",
                 "NO");

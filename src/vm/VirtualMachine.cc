@@ -2462,7 +2462,7 @@ int VirtualMachine::from_xml(const string &xml_str)
 
     for (vector<xmlNodePtr>::iterator it=content.begin();it!=content.end();it++)
     {
-        Snapshots * snap = new Snapshots(-1, false);
+        Snapshots * snap = new Snapshots(-1, Snapshots::DENY);
 
         rc += snap->from_xml_node(*it);
 
