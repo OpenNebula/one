@@ -1,8 +1,10 @@
 package goca
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"strings"
 
@@ -71,9 +73,9 @@ type OneConfig struct {
 }
 
 type oneClient struct {
+	url               string
 	token             string
-	xmlrpcClient      *xmlrpc.Client
-	xmlrpcClientError error
+	httpClient        *http.Client
 }
 
 type InitError struct {
@@ -166,12 +168,10 @@ func NewConfig(user string, password string, xmlrpcURL string) OneConfig {
 // SetClient assigns a value to the client variable
 func SetClient(conf OneConfig) {
 
-	xmlrpcClient, xmlrpcClientError := xmlrpc.NewClient(conf.XmlrpcURL, nil)
-
 	client = &oneClient{
+		url:               conf.XmlrpcURL,
 		token:             conf.Token,
-		xmlrpcClient:      xmlrpcClient,
-		xmlrpcClientError: xmlrpcClientError,
+		httpClient:        &http.Client{},
 	}
 }
 
@@ -207,22 +207,54 @@ func (c *oneClient) Call(method string, args ...interface{}) (*response, error) 
 		errCode  int64
 	)
 
-	if c.xmlrpcClientError != nil {
-		return nil, &InitError{token: c.token, xmlRpcErr: c.xmlrpcClientError}
-	}
-
-	result := []interface{}{}
-
 	xmlArgs := make([]interface{}, len(args)+1)
 
 	xmlArgs[0] = c.token
 	copy(xmlArgs[1:], args[:])
 
-	err := c.xmlrpcClient.Call(method, xmlArgs, &result)
+	buf, err := xmlrpc.EncodeMethodCall(method, xmlArgs...)
 	if err != nil {
 		return nil, err
 	}
 
+	var req *http.Request
+	req, err = http.NewRequest("POST", c.url, bytes.NewBuffer(buf))
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	respData, err := ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Sprintf("http error (Code: %d)", resp.StatusCode)
+	}
+
+	// Server side XML-RPC library: xmlrpc-c
+	xmlrpcResp := xmlrpc.NewResponse(respData)
+
+	// Handle the <fault> tag in the xml server response
+	if xmlrpcResp.Failed() {
+		return nil, err
+	}
+
+	result := []interface{}{}
+
+	// Unmarshall the XML-RPC response
+	if err = xmlrpcResp.Unmarshal(&result); err != nil {
+		// invalid xml, type mismastch ...
+		return nil, err
+	}
+
+	// Parse according the XML-RPC OpenNebula API documentation
 	status, ok = result[0].(bool)
 	if ok == false {
 		return nil, &BadResponseError{expectedType: "Index 0: Boolean"}
