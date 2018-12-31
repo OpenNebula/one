@@ -48,10 +48,9 @@ type oneClient struct {
 }
 
 type response struct {
-	status   bool
-	body     string
-	bodyInt  int
-	bodyBool bool
+	status  bool
+	body    string
+	bodyInt int
 }
 
 // Initializes the client variable, used as a singleton
@@ -140,8 +139,7 @@ func (c *oneClient) endpointCall(url string, method string, args ...interface{})
 		status  bool
 		body    string
 		bodyInt int64
-		bodyBool bool
-		errCode  int64
+		errCode int64
 	)
 
 	xmlArgs := make([]interface{}, len(args)+1)
@@ -211,11 +209,8 @@ func (c *oneClient) endpointCall(url string, method string, args ...interface{})
 	if ok == false {
 		bodyInt, ok = result[1].(int64)
 		if ok == false {
-			bodyBool, ok = result[1].(bool)
-			if ok == false {
-				return nil,
-					&ClientError{ClientRespONeParse, "index 1: boolean expected", resp, err}
-			}
+			return nil,
+				&ClientError{ClientRespONeParse, "index 1: int or string expected", resp, err}
 		}
 	}
 
@@ -232,7 +227,7 @@ func (c *oneClient) endpointCall(url string, method string, args ...interface{})
 		}
 	}
 
-	r := &response{status, body, int(bodyInt), bodyBool}
+	r := &response{status, body, int(bodyInt)}
 
 	return r, nil
 }
