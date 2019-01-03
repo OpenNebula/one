@@ -6,13 +6,6 @@
       <xs:sequence>
         <xs:element name="ID" type="xs:integer"/>
         <xs:element name="NAME" type="xs:string"/>
-        <xs:element name="VMS">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
         <xs:element name="TEMPLATE">
           <xs:complexType>
             <xs:sequence>
