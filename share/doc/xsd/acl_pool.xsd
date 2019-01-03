@@ -6,12 +6,14 @@
       <xs:sequence maxOccurs="1" minOccurs="1">
         <xs:element name="ACL" maxOccurs="unbounded" minOccurs="0">
           <xs:complexType>
-            <xs:element name="ID" type="xs:integer"/>
-            <xs:element name="USER" type="xs:integer"/>
-            <xs:element name="RESOURCE" type="xs:integer"/>
-            <xs:element name="RIGHTS" type="xs:integer"/>
-            <xs:element name="ZONE" type="xs:integer"/>
-            <xs:element name="STRING" type="xs:string"/>
+            <xs:sequence>
+              <xs:element name="ID" type="xs:integer"/>
+              <xs:element name="USER" type="xs:integer"/>
+              <xs:element name="RESOURCE" type="xs:integer"/>
+              <xs:element name="RIGHTS" type="xs:integer"/>
+              <xs:element name="ZONE" type="xs:integer"/>
+              <xs:element name="STRING" type="xs:string"/>
+            </xs:sequence>
           </xs:complexType>
         </xs:element>
       </xs:sequence>
