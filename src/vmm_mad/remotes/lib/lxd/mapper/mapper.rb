@@ -63,7 +63,7 @@ class Mapper
         :mkdir      => 'mkdir -p',
         :catfstab   => 'sudo catfstab',
         :cat        => 'cat',
-        :file       => 'file -L',
+        :file       => 'file -L -s',
         :blkid      => 'sudo blkid',
         :e2fsck     => 'sudo e2fsck',
         :resize2fs  => 'sudo resize2fs',
