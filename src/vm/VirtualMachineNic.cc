@@ -321,7 +321,7 @@ int VirtualMachineNics::get_network_leases(int vm_id, int uid,
 
             return -1;
         }
-        else
+        else if (vnic->name() == "NIC_ALIAS")
         {
             alias_nics.push_back(vnic);
         }
