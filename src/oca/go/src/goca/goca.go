@@ -38,15 +38,6 @@ type response struct {
 	bodyBool bool
 }
 
-// Resource implements an OpenNebula Resource methods. *XMLResource implements
-// all these methods
-type Resource interface {
-	Body() string
-	XPath(string) (string, bool)
-	XPathIter(string) *XMLIter
-	GetIDFromName(string, string) (uint, error)
-}
-
 // Initializes the client variable, used as a singleton
 func init() {
 	SetClient(NewConfig("", "", ""))
