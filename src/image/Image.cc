@@ -223,7 +223,6 @@ int Image::insert(SqlDB *db, string& error_str)
     }
 
     state = LOCKED; //LOCKED till the ImageManager copies it to the Repository
-    lock_db(-1,-1, PoolObjectSQL::LockStates::ST_USE);
 
     //--------------------------------------------------------------------------
     // Insert the Image

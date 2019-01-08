@@ -66,7 +66,42 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList,
         recursive = xmlrpc_c::value_boolean(paramList.getBoolean(2));
     }
 
-    ErrorCode ec = delete_object(oid, recursive, att);
+    ErrorCode ec = delete_object(oid, recursive, att, auth_op);
+
+    if ( ec == SUCCESS )
+    {
+        success_response(oid, att);
+    }
+    else
+    {
+        failure_response(ec, att);
+    }
+}
+
+void ImageDelete::request_execute(xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    int  oid                    = xmlrpc_c::value_int(paramList.getInt(1));
+    AuthRequest::Operation auth = auth_op;
+
+    //get the image
+    Image* img = static_cast<ImagePool *>(pool)->get_ro(oid);
+
+    if (img == 0)
+    {
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
+        return;
+    }
+
+    //check if the image state is LOCKED (4)
+    if (img->get_state() == 4){
+        auth = AuthRequest::ADMIN;
+    }
+
+    img->unlock();
+
+    ErrorCode ec = delete_object(oid, false, att, auth);
 
     if ( ec == SUCCESS )
     {
@@ -83,10 +118,12 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList,
 /* ------------------------------------------------------------------------- */
 
 Request::ErrorCode RequestManagerDelete::delete_object(int oid,
-	bool recursive, RequestAttributes& att)
+	bool recursive, RequestAttributes& att, AuthRequest::Operation auth)
 {
     string    err;
-    ErrorCode ec = delete_authorization(pool, oid, auth_op, att);
+    ErrorCode ec;
+
+    ec = delete_authorization(pool, oid, auth, att);
 
     if ( ec != SUCCESS )
     {

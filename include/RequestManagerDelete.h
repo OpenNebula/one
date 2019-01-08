@@ -60,7 +60,7 @@ protected:
         RequestAttributes& att);
 
     ErrorCode delete_object(int oid, bool recursive,
-        RequestAttributes& att);
+        RequestAttributes& att, AuthRequest::Operation auth);
 
     /* -------------------------------------------------------------------- */
 
@@ -105,7 +105,7 @@ public:
 
     ErrorCode request_execute(int oid, bool recursive, RequestAttributes& att)
     {
-        return delete_object(oid, recursive, att);
+        return delete_object(oid, recursive, att, auth_op);
     }
 
 protected:
@@ -133,7 +133,7 @@ public:
 
     ErrorCode request_execute(int oid, bool recursive, RequestAttributes& att)
     {
-        return delete_object(oid, recursive, att);
+        return delete_object(oid, recursive, att, auth_op);
     }
 
 };
@@ -188,8 +188,11 @@ public:
 
     ErrorCode request_execute(int oid, RequestAttributes& att)
     {
-        return delete_object(oid, false, att);
+        return delete_object(oid, false, att, auth_op);
     };
+
+    void request_execute(xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att);
 
 protected:
 
