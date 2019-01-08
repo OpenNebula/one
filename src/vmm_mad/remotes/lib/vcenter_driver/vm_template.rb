@@ -593,7 +593,7 @@ class Template
             if is_disk_or_iso?(device)
                 disk[:device]    = device
 
-                raise "not datastore found" unless device.backing.datastore
+                raise "datastore not found for VM's device" unless device.backing.datastore
                 disk[:datastore] = device.backing.datastore
                 disk[:path]      = device.backing.fileName
                 disk[:path_wo_ds]= disk[:path].sub(/^\[(.*?)\] /, "")
