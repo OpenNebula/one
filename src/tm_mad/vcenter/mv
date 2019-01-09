@@ -42,8 +42,16 @@ begin
     exit 0 if OpenNebula.is_disk?(dst_path)
     exit 0 if src == dst
 
-    # TODO: considerations about dsid argument, should be different to origin dsid
-    VCenterDriver::VirtualMachine.migrate_routine(vmid, host_orig,  host_dest)
+    one_client = OpenNebula::Client.new
+    vm = OpenNebula::VirtualMachine.new_with_id(vmid, one_client)
+    vm.info
+    src_ds = vm.to_hash["VM"]["HISTORY_RECORDS"]["HISTORY"][-2]["DS_ID"]
+
+    if src_ds == dsid
+        VCenterDriver::VirtualMachine.migrate_routine(vmid, host_orig,  host_dest)
+    else
+        VCenterDriver::VirtualMachine.migrate_routine(vmid, host_orig,  host_dest, dsid)
+    end
 
 rescue StandardError => e
     message = "Cannot migrate for VM #{vmid}"\
