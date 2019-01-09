@@ -163,8 +163,15 @@ class Mapper
 
             Command.execute("#{COMMANDS[:xfs_growfs]} -d #{directory}", false)
         when /ext/
-            Command.execute("#{COMMANDS[:e2fsck]} -f -y #{device}", false)
-            Command.execute("#{COMMANDS[:resize2fs]} #{device}", false)
+            rc, _o, e = Command.execute("#{COMMANDS[:e2fsck]} -f -y #{device}", false)
+
+            if rc.zero?
+                Command.execute("#{COMMANDS[:resize2fs]} #{device}", false)
+            else
+                OpenNebula.log_error "#{__method__}: failed to resize #{device}
+                \n#{e}"
+            end
+
             rc = mount_dev(device, directory)
         else
             OpenNebula.log_info "Skipped filesystem #{fs_type} resize"
