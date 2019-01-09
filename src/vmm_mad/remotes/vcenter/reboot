@@ -47,9 +47,8 @@ rescue StandardError => e
               "#{vc_cluster_name} failed due to "\
               "\"#{e.message}\"\n#{e.backtrace.join("\n")}"
     OpenNebula.log_error(message)
-    if vi_client.get_property_vcenter_conf(:debug_information)
-        STDERR.puts "#{message} #{e.backtrace}"
-    end
+    STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
+
     exit(-1)
 ensure
     vi_client.close_connection if vi_client

@@ -769,7 +769,7 @@ class VirtualMachine < VCenterDriver::Template
     # The exception needs to be handled in the VMM drivers and any
     # process that uses this method
     def wait_timeout(action, timeout = 300)
-        conf = @vi_client.get_property_vcenter_conf(:vm_poweron_wait_default)
+        conf = CONFIG[:vm_poweron_wait_default]
 
         timeout    = conf || timeout
         time_start = Time.now

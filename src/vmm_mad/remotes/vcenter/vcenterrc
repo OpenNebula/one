@@ -18,3 +18,9 @@
 #       this attribute prevents the image to be deleted.
 # Yes : You can delete the images using OpenNebula.
 :delete_images: No
+
+# Default timeout to complete deploy
+:vm_poweron_wait_default: 300
+
+# Show stacktraces on every exception
+:debug_information: false

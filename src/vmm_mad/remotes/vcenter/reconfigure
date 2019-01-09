@@ -50,9 +50,8 @@ rescue StandardErrord => e
               "#{vc_cluster_name} failed due to "\
               "\"#{e.message}\"."
     STDERR.puts error_message(message)
-    if vi_client.get_property_vcenter_conf(:debug_information)
-        STDERR.puts "#{e.backtrace}"
-    end
+    STDERR.puts "#{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
+
     exit(-1)
 ensure
     vi_client.close_connection if vi_client
