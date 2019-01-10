@@ -229,6 +229,7 @@ class Template
 
             #Get disks and info required
             vc_disks = get_vcenter_disks
+            vc_disks.sort_by! {|d| d[:device].unitNumber}
 
             # Track allocated images
             allocated_images = []
