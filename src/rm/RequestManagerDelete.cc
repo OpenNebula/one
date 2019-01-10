@@ -16,6 +16,7 @@
 
 #include "RequestManagerDelete.h"
 #include "NebulaUtil.h"
+#include "Image.h"
 
 using namespace std;
 
@@ -94,8 +95,8 @@ void ImageDelete::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    //check if the image state is LOCKED (4)
-    if (img->get_state() == 4){
+    if (img->is_locked())
+    {
         auth = AuthRequest::ADMIN;
     }
 
