@@ -408,9 +408,22 @@ def install_bundler_gem
     gems = Gem::Dependency.new("bundler")
 
     if gems.matching_specs.empty?
-        rc = system("gem install bundler")
+        rc = nil
+
+        # Bundler 2.0.x requires Ruby 2.3+
+        # https://github.com/OpenNebula/one/issues/2778
+        [nil, '~>2', '<2'].each do |version|
+            if version
+                rc = system("gem install bundler --version '#{version}'")
+            else
+                rc = system("gem install bundler")
+            end
+
+            break if rc
+        end
+
         if !rc
-            STDERR.new("Error installing bundler")
+            STDERR.puts "Error installing bundler"
             exit(-1)
         end
     end
