@@ -1491,11 +1491,13 @@ public:
      *    @param disk_id of the disk
      *    @param snap_id of the snapshot
      *    @param error if any
+     *    @param revert true if the cause of changing the active snapshot
+     *                  is because a revert
      *    @return -1 if error
      */
-    int revert_disk_snapshot(int disk_id, int snap_id)
+    int revert_disk_snapshot(int disk_id, int snap_id, bool revert)
     {
-        return disks.revert_snapshot(disk_id, snap_id);
+        return disks.revert_snapshot(disk_id, snap_id, revert);
     }
 
     /**

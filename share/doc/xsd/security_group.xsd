@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://opennebula.org/XMLSchema" elementFormDefault="qualified" targetNamespace="http://opennebula.org/XMLSchema">
-  <xs:element name="DATASTORE">
+  <xs:element name="SECURITY_GROUP">
     <xs:complexType>
       <xs:sequence>
         <xs:element name="ID" type="xs:integer"/>
@@ -24,24 +24,28 @@
             </xs:sequence>
           </xs:complexType>
         </xs:element>
-        <xs:element name="DS_MAD" type="xs:string"/>
-        <xs:element name="TM_MAD" type="xs:string"/>
-        <xs:element name="BASE_PATH" type="xs:string"/>
-        <xs:element name="TYPE" type="xs:integer"/>
-        <xs:element name="DISK_TYPE" type="xs:integer"/>
-        <!-- Possible STATE values are 0 (READY) and 1 (DISABLE)-->
-        <xs:element name="STATE" type="xs:integer"/>
-        <xs:element name="CLUSTERS">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
-            </xs:sequence>
-          </xs:complexType>
+        <xs:element name="UPDATED_VMS">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+              </xs:complexType>
         </xs:element>
-        <xs:element name="TOTAL_MB" type="xs:integer"/>
-        <xs:element name="FREE_MB" type="xs:integer"/>
-        <xs:element name="USED_MB" type="xs:integer"/>
-        <xs:element name="IMAGES">
+        <xs:element name="OUTDATED_VMS">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+              </xs:complexType>
+        </xs:element>
+        <xs:element name="UPDATING_VMS">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+              </xs:complexType>
+        </xs:element>
+        <xs:element name="ERROR_VMS">
               <xs:complexType>
                 <xs:sequence>
                   <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
@@ -51,14 +55,15 @@
         <xs:element name="TEMPLATE">
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="VCENTER_DC_NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_DC_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_DS_NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_DS_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_HOST" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_INSTANCE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_PASSWORD" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_USER" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="DESCRIPTION" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="RULE" maxOccurs="unbounded" minOccurs="0">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="PROTOCOL" type="xs:string"/>
+                    <xs:element name="RULE_TYPE" type="xs:string"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
               <xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax"/>
             </xs:sequence>
           </xs:complexType>

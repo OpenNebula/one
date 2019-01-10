@@ -245,7 +245,10 @@ define(function(require) {
     var that = this;
 
     if (!that.nics.find(nic => nic.NAME === ("NIC" + that.numberOfNics))) {
-        that.nics.push({"NAME": "NIC" + that.numberOfNics, "ALIAS": false});
+        that.nics.push({"NAME": "NIC" + that.numberOfNics,
+                        "ALIAS": false,
+                        "ID": that.numberOfNics,
+                        "CONTEXT": context});
     }
 
     that.numberOfNics++;
@@ -296,12 +299,12 @@ define(function(require) {
 
   function _renameTabLinks(context) {
     $("#" + LINKS_CONTAINER_ID + " li", context).each(function(index) {
-      $("a", this).html(Locale.tr("NIC") + ' ' + index + " <i id='remove_nic_" + index + "'class='fa fa-times-circle remove-tab'></i>");
+      $("a", this).html(Locale.tr("NIC") + ' ' + index + " <i id='update_remove_nic_" + index + "'class='fa fa-times-circle remove-tab'></i>");
 
-      if (!that.nics.find(nic => nic.ALIAS === ("NIC" + index))) {
-        $("#remove_nic_" + index).show();
+      if (that.nics.find(nic => nic.ALIAS === ("NIC" + index))) {
+        $("#update_remove_nic_" + index).hide();
       } else {
-        $("#remove_nic_" + index).hide();
+        $("#update_remove_nic_" + index).show();
       }
     })
 

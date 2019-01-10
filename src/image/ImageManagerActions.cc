@@ -1064,7 +1064,7 @@ void ImageManager::set_image_snapshots(int iid, const Snapshots& s)
 
 void ImageManager::clear_image_snapshots(int iid)
 {
-    Snapshots _snaps(-1, false);
+    Snapshots _snaps(-1, Snapshots::DENY);
 
     set_image_snapshots(iid, _snaps);
 }

@@ -40,13 +40,15 @@ $LOAD_PATH << LIB_LOCATION + '/ruby/vcenter_driver'
 
 class VCenterConf < Hash
     DEFAULT_CONFIGURATION = {
-        delete_images: false
+        delete_images:           false,
+        vm_poweron_wait_default: 300,
+        debug_information:       false
     }
 
     def initialize
         self.replace(DEFAULT_CONFIGURATION)
         begin
-            self.merge!(YAML.load_file("#{VAR_LOCATION}/remotes/etc/vmm/vcenter/vcenterc"))
+            self.merge!(YAML.load_file("#{VAR_LOCATION}/remotes/etc/vmm/vcenter/vcenterrc"))
         rescue
         end
     end
