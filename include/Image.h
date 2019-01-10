@@ -192,6 +192,13 @@ public:
     };
 
     /**
+     *  @return true if the image is in a locked state
+     */
+    bool is_locked() const
+    {
+        return state == LOCKED || state == LOCKED_USED || state == LOCKED_USED_PERS;
+    };
+    /**
      *  Check the PERSISTENT attribute in an image Template, if not set the
      *  DEFAULT_IMAGE_PERSISTENT and DEFAULT_IMAGE_PERSISTENT_NEW are check in
      *  user/group/oned.conf to set the attribute in the image.
