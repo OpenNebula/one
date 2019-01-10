@@ -168,8 +168,7 @@ class Mapper
             if rc.zero?
                 Command.execute("#{COMMANDS[:resize2fs]} #{device}", false)
             else
-                OpenNebula.log_error "#{__method__}: failed to resize #{device}
-                \n#{e}"
+                OpenNebula.log_error "#{__method__}: failed to resize #{device}\n#{e}"
             end
 
             rc = mount_dev(device, directory)
