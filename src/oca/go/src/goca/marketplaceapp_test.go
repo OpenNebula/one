@@ -19,7 +19,8 @@ func TestMarketplaceApp(t *testing.T){
 
 	//Create an image
 	img_tmpl := "NAME = \"test_img_go" + "\"\n" +
-				"PATH = /etc/hosts\n"
+	"TYPE = DATABLOCK\n" +
+	"SIZE = 1\n"
 
 	mkt_img_id, err = goca.CreateImage(img_tmpl, 1)
 
