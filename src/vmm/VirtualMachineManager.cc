@@ -2408,6 +2408,9 @@ void VirtualMachineManager::detach_nic_action(
     string        vm_tmpl;
     string *      drv_msg;
     string        error_str;
+    string  prolog_cmd;
+    string  disk_path;
+    string  password;
 
     // Get the VM from the pool
     vm = vmpool->get(vid);
@@ -2430,6 +2433,11 @@ void VirtualMachineManager::detach_nic_action(
         goto error_driver;
     }
 
+    if ( do_context_command(vm, password, prolog_cmd, disk_path) == -1 )
+    {
+        goto error_no_tm_command;
+    }
+
     // Invoke driver method
     drv_msg = format_message(
         vm->get_hostname(),
@@ -2438,9 +2446,9 @@ void VirtualMachineManager::detach_nic_action(
         "",
         "",
         "",
+        prolog_cmd,
         "",
-        "",
-        "",
+        disk_path,
         vm->to_xml(vm_tmpl),
         vm->get_ds_id(),
         -1);
@@ -2461,6 +2469,11 @@ error_history:
 error_driver:
     os.str("");
     os << "detach_nic_action, error getting driver " << vm->get_vmm_mad();
+    goto error_common;
+
+error_no_tm_command:
+    os.str("");
+    os << "Cannot set context disk to update it for VM " << vm->get_oid();
     goto error_common;
 
 error_common:

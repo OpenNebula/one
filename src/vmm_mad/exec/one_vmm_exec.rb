@@ -1015,6 +1015,15 @@ class ExecDriver < VirtualMachineDriver
         action = ACTION[:detach_nic]
         xml_data = decode(drv_message)
 
+        tm_command = xml_data.elements['TM_COMMAND']
+        tm_command = tm_command.text if tm_command
+
+        target_path = xml_data.elements['DISK_TARGET_PATH']
+        target_path = target_path.text if target_path
+
+        target_device = xml_data.elements['VM/TEMPLATE/CONTEXT/TARGET']
+        target_device = target_device.text if target_device
+
         nic_alias = false
         external = false
 
@@ -1035,6 +1044,8 @@ class ExecDriver < VirtualMachineDriver
                 "Error in #{ACTION[:detach_nic]}, MAC needed in NIC")
             return
         end
+
+        action = VmmAction.new(self, id, :detach_nic, drv_message)
 
         if !nic_alias
             steps=[
@@ -1062,13 +1073,27 @@ class ExecDriver < VirtualMachineDriver
             steps = []
         end
 
-        if steps.empty?
-            send_message(action, RESULT[:success], id, "")
-        else
-            action = VmmAction.new(self, id, :detach_nic, drv_message)
+        steps << {
+            :driver     => :vmm,
+            :action     => :prereconfigure,
+            :parameters => [:deploy_id, target_device]
+        }
 
-            action.run(steps)
+        if tm_command && !tm_command.empty?
+            steps << {
+                :driver     => :tm,
+                :action     => :tm_context,
+                :parameters => tm_command.strip.split(' ')
+            }
         end
+
+        steps << {
+            :driver     => :vmm,
+            :action     => :reconfigure,
+            :parameters => [:deploy_id, target_device, target_path]
+        }
+
+        action.run(steps)
     end
 
     #
