@@ -2,13 +2,12 @@ package goca
 
 import (
 	"testing"
-	"goca"
 	"strconv"
 )
 
 func TestMarketplaceApp(t *testing.T){
 	var mkt_app_name string = "new_mkt_app"
-	var mkt_app *goca.MarketPlaceApp
+	var mkt_app *MarketPlaceApp
 	var mkt_app_tmpl string
 	var mkt_img_id uint
 	var market_id  uint
@@ -22,7 +21,7 @@ func TestMarketplaceApp(t *testing.T){
 	"TYPE = DATABLOCK\n" +
 	"SIZE = 1\n"
 
-	mkt_img_id, err = goca.CreateImage(img_tmpl, 1)
+	mkt_img_id, err = CreateImage(img_tmpl, 1)
 
 	if err != nil {
 	    t.Errorf("Test failed:\n" + err.Error())
@@ -36,7 +35,7 @@ func TestMarketplaceApp(t *testing.T){
 	"BASE_URL = \"http://url/\"\n" +
 	"PUBLIC_DIR = \"/var/loca/market-http\"\n"
 
-	market_id, err = goca.CreateMarketPlace(mkt_tmpl)
+	market_id, err = CreateMarketPlace(mkt_tmpl)
 
 	if err != nil {
 	    t.Errorf("Test failed:\n" + err.Error())
@@ -45,13 +44,13 @@ func TestMarketplaceApp(t *testing.T){
 	mkt_app_tmpl += "MARKETPLACE_ID=\"" + strconv.Itoa(int(market_id)) + "\"\n"
 
 	//Create MarketplaceApp
-	app_id, err := goca.CreateMarketPlaceApp(mkt_app_tmpl, int(market_id))
+	app_id, err := CreateMarketPlaceApp(mkt_app_tmpl, int(market_id))
 
 	if err != nil {
 	    t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	mkt_app = goca.NewMarketPlaceApp(app_id)
+	mkt_app = NewMarketPlaceApp(app_id)
 	mkt_app.Info()
 
 	actual, _:= mkt_app.XMLResource.XPath("/MARKETPLACEAPP/NAME")
@@ -68,7 +67,7 @@ func TestMarketplaceApp(t *testing.T){
 	}
 
 	//delete image
-	img := goca.NewImage(mkt_img_id)
+	img := NewImage(mkt_img_id)
 	err = img.Delete()
 
 	if err != nil {
@@ -76,7 +75,7 @@ func TestMarketplaceApp(t *testing.T){
 	}
 
 	//delete marketplace
-	market := goca.NewMarketPlace(market_id)
+	market := NewMarketPlace(market_id)
 	err = market.Delete()
 
 	if err != nil {
