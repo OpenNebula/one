@@ -1479,38 +1479,6 @@ class VirtualMachine < VCenterDriver::Template
         end
     end
 
-    def device_change_nics
-        # Final list of changes to be applied in vCenter
-        device_change = []
-
-        # Hash of interfaces from the OpenNebula xml
-        nics_in_template = {}
-        xpath = "TEMPLATE/NIC"
-        one_item.each(xpath) { |nic|
-            nics_in_template[nic["MAC"]] = nic
-        }
-
-        # Remove all NICs in the spawned VM, they'll be recreated
-	    # using the configuration of the NICs defined in OpenNebula
-        self["config.hardware.device"].each do |dv|
-            if is_nic?(dv)
-                # B4897 - It was detached in poweroff, remove it from VM
-                device_change << {
-                    :operation => :remove,
-                    :device    => dv
-                }
-            end
-        end
-
-        # Attach new nics (nics_in_template now contains only the interfaces
-        # not present in the VM in vCenter)
-        nics_in_template.each do |key, nic|
-            device_change << calculate_add_nic_spec(nic)
-        end
-
-        return device_change
-    end
-
     # Regenerate context when devices are hot plugged (reconfigure)
     def regenerate_context
         spec_hash = { :extraConfig  => extraconfig_context }
@@ -1772,24 +1740,18 @@ class VirtualMachine < VCenterDriver::Template
     # Detach NIC from VM
     def detach_nic
         spec_hash = {}
-        nic = nil
 
         # Extract nic from driver action
-        nic = one_item.retrieve_xmlelements("TEMPLATE/NIC[ATTACH='YES']").first
-        mac = nic["MAC"]
+        one_nic = one_item.retrieve_xmlelements("TEMPLATE/NIC[ATTACH='YES']").first
+        mac = one_nic["MAC"]
+        nic = nic(mac) rescue nil
 
-        # Get VM nic element if it has a device with that mac
-        nic_device = @item["config.hardware.device"].find do |device|
-            is_nic?(device) && (device.macAddress ==  mac)
-        end rescue nil
-
-        return if nic_device.nil? #Silently ignore if nic is not found
+        return if !nic || nic.no_exists?
 
         # Remove NIC from VM in the ReconfigVM_Task
         spec_hash[:deviceChange] = [
                 :operation => :remove,
-                :device => nic_device ]
-
+                :device => nic.vc_item ]
         begin
             @item.ReconfigVM_Task(:spec => spec_hash).wait_for_completion
         rescue Exception => e
@@ -1802,11 +1764,11 @@ class VirtualMachine < VCenterDriver::Template
         spec_hash = {}
         device_change = []
 
-        @item["config.hardware.device"].each do |device|
-            if is_nic?(device)
-                device_change << {:operation => :remove, :device => device}
-            end
+        nics_each(:exists?) do |nic|
+            device_change << {:operation => :remove, :device => nic.vc_item}
         end
+
+        return if device_change.empty?
 
         # Remove NIC from VM in the ReconfigVM_Task
         spec_hash[:deviceChange] = device_change
@@ -1908,7 +1870,6 @@ class VirtualMachine < VCenterDriver::Template
         info_disks
     end
 
-    # TO DEPRECATE: build new attach using new disk class structure
     # Attach DISK to VM (hotplug)
     def attach_disk
         spec_hash = {}
