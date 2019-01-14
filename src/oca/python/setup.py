@@ -40,7 +40,7 @@ if sys.version_info[0] < 3:
     install_requires.append('future')
 
 setup(
-    name='opennebula',
+    name='pyone',
     version='5.7.80',
     description='Python Bindings for OpenNebula XML-RPC API',
     long_description=long_description,
