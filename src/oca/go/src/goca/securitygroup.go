@@ -143,6 +143,9 @@ func (sg *SecurityGroup) Rename(newName string) error {
 // Info retrieves information for the security group.
 func (sg *SecurityGroup) Info() error {
 	response, err := client.Call("one.secgroup.info", sg.ID)
+	if err != nil {
+		return err
+	}
 	sg.body = response.Body()
-	return err
+	return nil
 }
