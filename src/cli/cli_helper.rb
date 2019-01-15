@@ -71,8 +71,18 @@ module CLIHelper
         :description => "Sets the delay in seconds for top command"
     }
 
+    NO_PAGER = {
+        :name  => "no_pager",
+        :large => "--no-pager",
+        :format => String,
+        :description => "Disable pagination",
+        :proc => lambda { |o, options|
+            ENV['ONE_PAGER'] = 'cat' if File.exists?('/bin/cat')
+        }
+    }
+
     #OPTIONS = [LIST, ORDER, FILTER, HEADER, DELAY]
-    OPTIONS = [LIST, LISTCONF, DELAY, FILTER, CSV_OPT]
+    OPTIONS = [LIST, LISTCONF, DELAY, FILTER, CSV_OPT, NO_PAGER]
 
     # Sets bold font
     def CLIHelper.scr_bold
