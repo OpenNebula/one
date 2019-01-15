@@ -259,7 +259,7 @@ CommandParser::CmdParser.new(ARGV) do
 
                 extra_template << "\n#{user_inputs}"
 
-                extra_template = extra_template.strip if extra_template.strip.empty?
+                extra_template.strip!
 
                 persistent = !options[:persistent].nil?
 
