@@ -411,7 +411,7 @@ class Container
     #  so new mappers does not need to modified source code
     def new_disk_mapper(disk)
         case disk['TYPE']
-        when 'FILE'
+        when 'FILE', 'BLOCK'
 
             ds = @one.disk_source(disk)
 
