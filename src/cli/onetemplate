@@ -259,6 +259,8 @@ CommandParser::CmdParser.new(ARGV) do
 
                 extra_template << "\n#{user_inputs}"
 
+                extra_template.strip!
+
                 persistent = !options[:persistent].nil?
 
                 res = t.instantiate(name, on_hold, extra_template, persistent)
