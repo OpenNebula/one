@@ -193,6 +193,17 @@ module OpenNebula
                 image = Image.new(Image.build_xml, @client)
                 rc    = image.allocate(tmpl, options[:dsid])
 
+                ds = OpenNebula::Datastore.new_with_id(options[:dsid], @client)
+                image.info
+                ds.info
+
+                xpath = 'TEMPLATE/DRIVER'
+                if ds[xpath] == 'vcenter' && self['FORMAT'] != 'iso' && self['FORMAT'] != 'vmdk'
+                    image.replace({'FORMAT' => 'vmdk'})
+                elsif ds[xpath] && ds[xpath] != 'vcenter' && self['FORMAT'] == 'vmdk'
+                    image.replace({'FORMAT' => ds[xpath] })
+                end
+
                 return { :image => [rc] } if OpenNebula.is_error?(rc)
 
                 image_id = image.id
