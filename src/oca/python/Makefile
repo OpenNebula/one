@@ -14,7 +14,7 @@
 # limitations under the License.
 
 # Use full path to ensure virtualenv compatibility
-PYTHON = $(shell which python) 
+PYTHON = $(shell which python)
 GDS = $(shell which generateDS)
 PWD = $(shell pwd)
 
@@ -35,7 +35,7 @@ pyone/bindings/__init__.py pyone/bindings/supbind.py: $(schemas)
 	sed -i "s/import sys/import sys\nfrom pyone.util import TemplatedType/" pyone/bindings/__init__.py
 	sed -i "s/(supermod\./(TemplatedType, supermod\./g" pyone/bindings/__init__.py
 
-.PHONY: clean
+.PHONY: clean dist
 clean:
 	rm -rf build dist pyone/bindings *.egg-info doc
 
