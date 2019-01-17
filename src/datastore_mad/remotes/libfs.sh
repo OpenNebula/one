@@ -451,6 +451,31 @@ function check_restricted {
 }
 
 #-------------------------------------------------------------------------------
+# Filter out hosts which are not ON
+#   @param $1 - space separated list of hosts
+#   @return   - space separated list of hosts which are in ON state
+#-------------------------------------------------------------------------------
+function get_only_on_hosts {
+    INPUT_ARRAY=($1)
+
+    ONEHOST_LIST_ON_CMD='onehost list --no-pager --csv --filter="STAT=on" --list=NAME,STAT'
+    ON_HOSTS_STR=$(eval "$ONEHOST_LIST_ON_CMD 2>/dev/null")
+
+    if [[ $? = 0 ]]; then
+        ON_HOSTS_ARRAY=($( echo "$ON_HOSTS_STR" | $AWK -F, '{ if (NR>1) print $1 }'))
+        for A in "${INPUT_ARRAY[@]}"; do
+            for B in "${ON_HOSTS_ARRAY[@]}"; do
+                [[ $A == $B ]] && { echo $A; break; }
+            done
+        done
+    else
+        # onehost cmd failed, can't filter anything, better return unchanged
+        echo $1
+        return 1
+    fi
+}
+
+#-------------------------------------------------------------------------------
 # Gets the host to be used as bridge to talk to the storage system
 # Implements a round robin for the bridges
 #   @param $1 - ID to be used to round-robin between host bridges. Random if
@@ -458,6 +483,7 @@ function check_restricted {
 #   @return host to be used as bridge
 #-------------------------------------------------------------------------------
 function get_destination_host {
+    BRIDGE_LIST=$(get_only_on_hosts "$BRIDGE_LIST")
     HOSTS_ARRAY=($BRIDGE_LIST)
     N_HOSTS=${#HOSTS_ARRAY[@]}
 
