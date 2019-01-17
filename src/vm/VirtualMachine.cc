@@ -2744,7 +2744,8 @@ static std::map<std::string,std::vector<std::string>> UPDATECONF_ATTRS = {
 		   "GUEST_AGENT"} },
 		{"INPUT", {"TYPE", "BUS"} },
 		{"GRAPHICS", {"TYPE", "LISTEN", "PASSWD", "KEYMAP"} },
-		{"RAW", {"TYPE", "DATA", "DATA_VMX"} }
+		{"RAW", {"TYPE", "DATA", "DATA_VMX"} },
+               {"CPU_MODEL", {"MODEL"} }
 	};
 
 /**
@@ -2884,7 +2885,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     }
 
     // -------------------------------------------------------------------------
-    // Update OS, FEATURES, INPUT, GRAPHICS, RAW
+    // Update OS, FEATURES, INPUT, GRAPHICS, RAW, CPU_MODEL
     // -------------------------------------------------------------------------
     replace_vector_values(obj_template, &tmpl, "OS");
 
@@ -2900,6 +2901,8 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     replace_vector_values(obj_template, &tmpl, "GRAPHICS");
 
     replace_vector_values(obj_template, &tmpl, "RAW");
+
+    replace_vector_values(obj_template, &tmpl, "CPU_MODEL");
 
     // -------------------------------------------------------------------------
     // Update CONTEXT: any value
