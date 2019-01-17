@@ -456,16 +456,14 @@ function check_restricted {
 #   @return   - space separated list of hosts which are in ON state
 #-------------------------------------------------------------------------------
 function get_only_on_hosts {
-    INPUT_ARRAY=($1)
+    ALL_HOSTS_ARRAY=($1)
+    ON_HOSTS_STR=$(onehost list --no-pager --csv --filter="STAT=on" --list=NAME,STAT 2>/dev/null)
 
-    ONEHOST_LIST_ON_CMD='onehost list --no-pager --csv --filter="STAT=on" --list=NAME,STAT'
-    ON_HOSTS_STR=$(eval "$ONEHOST_LIST_ON_CMD 2>/dev/null")
-
-    if [[ $? = 0 ]]; then
-        ON_HOSTS_ARRAY=($( echo "$ON_HOSTS_STR" | $AWK -F, '{ if (NR>1) print $1 }'))
-        for A in "${INPUT_ARRAY[@]}"; do
-            for B in "${ON_HOSTS_ARRAY[@]}"; do
-                [[ $A == $B ]] && { echo $A; break; }
+    if [ $? -eq 0 ]; then
+        ON_HOSTS_ARRAY=($( echo "$ON_HOSTS_STR" | awk -F, '{ if (NR>1) print $1 }'))
+        for HOST in "${ALL_HOSTS_ARRAY[@]}"; do
+            for ON_HOST in "${ON_HOSTS_ARRAY[@]}"; do
+                [ $HOST = $ON_HOST ] && { echo $HOST; break; }
             done
         done
     else
