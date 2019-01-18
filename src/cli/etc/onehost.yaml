@@ -61,6 +61,10 @@
   :desc: Real MEM
   :size: 18
 
+:PROVIDER:
+  :desc: Host provider
+  :size: 8
+
 :STAT:
   :desc: Host status
   :size: 6

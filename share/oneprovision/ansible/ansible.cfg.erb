@@ -1,0 +1,15 @@
+[defaults]
+retry_files_enabled = False
+deprecation_warnings = False
+display_skipped_hosts = False
+callback_whitelist =
+stdout_callback = skippy
+host_key_checking = False
+remote_user = <%= remote_user %>
+remote_port = <%= remote_port %>
+private_key_file = <%= private_key %>
+roles_path = <%= roles %>
+
+[privilege_escalation]
+become = yes
+become_user = root
