@@ -28,7 +28,7 @@ src/vmm_mad/remotes/lxd/tests/
 src/oca/python/pyone/bindings
 src/oca/python/build/
 src/oca/python/dist/
-src/oca/python/opennebula.egg-info/
+src/oca/python/pyone.egg-info/
 src/oca/python/doc/
 
 src/docker_machine/pkg
