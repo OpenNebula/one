@@ -1573,7 +1573,7 @@ class VirtualMachine < VCenterDriver::Template
         end
 
         # grab the last unitNumber to ensure the nic to be added at the end
-        @unic = @unic || get_vcenter_nics.map{|d| d.unitNumber}.max rescue 0
+        @unic = @unic || get_vcenter_nics.map{|d| d.unitNumber}.max || 0
         card_spec = {
             :key => 0,
             :deviceInfo => {
