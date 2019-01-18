@@ -367,7 +367,7 @@ func (l LCMState) String() string {
 	case SaveStop:
 		return "SAVE_STOP"
 	case SaveSuspend:
-		return "SAVESuspend"
+		return "SAVE_SUSPEND"
 	case SaveMigrate:
 		return "SAVE_MIGRATE"
 	case PrologMigrate:
@@ -393,7 +393,7 @@ func (l LCMState) String() string {
 	case BootPoweroff:
 		return "BOOT_POWEROFF"
 	case BootSuspended:
-		return "BOOTSuspendED"
+		return "BOOT_SUSPENDED"
 	case BootStopped:
 		return "BOOT_STOPPED"
 	case CleanupDelete:
@@ -407,7 +407,7 @@ func (l LCMState) String() string {
 	case HotplugSaveasPoweroff:
 		return "HOTPLUG_SAVEAS_POWEROFF"
 	case HotplugSaveasSuspended:
-		return "HOTPLUG_SAVEASSuspendED"
+		return "HOTPLUG_SAVEAS_SUSPENDED"
 	case ShutdownUndeploy:
 		return "SHUTDOWN_UNDEPLOY"
 	case EpilogUndeploy:
@@ -441,9 +441,9 @@ func (l LCMState) String() string {
 	case PrologMigratePoweroffFailure:
 		return "PROLOG_MIGRATE_POWEROFF_FAILURE"
 	case PrologMigrateSuspend:
-		return "PROLOG_MIGRATESuspend"
+		return "PROLOG_MIGRATE_SUSPEND"
 	case PrologMigrateSuspendFailure:
-		return "PROLOG_MIGRATESuspend_FAILURE"
+		return "PROLOG_MIGRATE_SUSPEND_FAILURE"
 	case BootUndeployFailure:
 		return "BOOT_UNDEPLOY_FAILURE"
 	case BootStoppedFailure:
@@ -459,11 +459,11 @@ func (l LCMState) String() string {
 	case DiskSnapshotDeletePoweroff:
 		return "DISK_SNAPSHOT_DELETE_POWEROFF"
 	case DiskSnapshotSuspended:
-		return "DISK_SNAPSHOTSuspendED"
+		return "DISK_SNAPSHOT_SUSPENDED"
 	case DiskSnapshotRevertSuspended:
-		return "DISK_SNAPSHOT_REVERTSuspendED"
+		return "DISK_SNAPSHOT_REVERT_SUSPENDED"
 	case DiskSnapshotDeleteSuspended:
-		return "DISK_SNAPSHOT_DELETESuspendED"
+		return "DISK_SNAPSHOT_DELETE_SUSPENDED"
 	case DiskSnapshot:
 		return "DISK_SNAPSHOT"
 	case DiskSnapshotDelete:

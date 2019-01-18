@@ -117,7 +117,7 @@ func CreateImage(template string, dsid uint) (uint, error) {
 }
 
 // NewImagePool returns a new image pool. It accepts the scope of the query. It
-// performs an OpenNebula connectio to fetch the information.
+// performs an OpenNebula connection to fetch the information.
 func NewImagePool(args ...int) (*ImagePool, error) {
 	var who, start, end int
 
