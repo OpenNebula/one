@@ -65,9 +65,11 @@ module VXLAN
             ip_link_conf << "#{option} #{value} "
         end
 
+        # `ip link add ...` returns 2 when vxlan device already exists
+        # allow it to prevent race conditions
         OpenNebula.exec_and_log("#{command(:ip)} link add #{@nic[@attr_vlan_dev]}"\
             " #{mtu} type vxlan id #{@nic[@attr_vlan_id]} #{group} #{ttl}"\
-            " #{tep} #{ip_link_conf}")
+            " #{tep} #{ip_link_conf}", nil, 2)
 
         OpenNebula.exec_and_log("#{command(:ip)} link set #{@nic[@attr_vlan_dev]} up")
     end
