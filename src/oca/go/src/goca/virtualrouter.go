@@ -1,19 +1,30 @@
 package goca
 
 import (
+	"encoding/xml"
 	"errors"
 )
 
-// VirtualRouter represents an OpenNebula VirtualRouter
-type VirtualRouter struct {
-	XMLResource
-	ID   uint
-	Name string
-}
-
 // VirtualRouterPool represents an OpenNebula VirtualRouterPool
 type VirtualRouterPool struct {
-	XMLResource
+	VirtualRouters []VirtualRouter `xml:"VROUTER"`
+}
+
+// VirtualRouter represents an OpenNebula VirtualRouter
+type VirtualRouter struct {
+	ID          uint         `xml:"ID"`
+	UID         int          `xml:"UID"`
+	GID         int          `xml:"GID"`
+	UName       string       `xml:"UNAME"`
+	GName       string       `xml:"GNAME"`
+	Name        string       `xml:"NAME"`
+	LockInfos   *Lock        `xml:"LOCK"`
+	Permissions *Permissions `xml:"PERMISSIONS"`
+	Type        int          `xml:"TYPE"`
+	DiskType    int          `xml:"DISK_TYPE"`
+	Persistent  int          `xml:"PERSISTENT"`
+	VMsID       []int        `xml:"VMS>ID"`
+	Template    interface{}  `xml:"TEMPLATE"`
 }
 
 // NewVirtualRouterPool returns a virtual router pool. A connection to OpenNebula is
@@ -39,10 +50,14 @@ func NewVirtualRouterPool(args ...int) (*VirtualRouterPool, error) {
 		return nil, err
 	}
 
-	vrouterpool := &VirtualRouterPool{XMLResource{body: response.Body()}}
+	vrouterPool := &VirtualRouterPool{}
 
-	return vrouterpool, err
+	err = xml.Unmarshal([]byte(response.Body()), vrouterPool)
+	if err != nil {
+		return nil, err
+	}
 
+	return vrouterPool, nil
 }
 
 // NewVirtualRouter finds a virtual router object by ID. No connection to OpenNebula.
@@ -54,14 +69,25 @@ func NewVirtualRouter(id uint) *VirtualRouter {
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the virtual router.
 func NewVirtualRouterFromName(name string) (*VirtualRouter, error) {
+	var id uint
+
 	vrouterPool, err := NewVirtualRouterPool()
 	if err != nil {
 		return nil, err
 	}
 
-	id, err := vrouterPool.GetIDFromName(name, "/VROUTER_POOL/VROUTER")
-	if err != nil {
-		return nil, err
+	match := false
+	for i := 0; i < len(vrouterPool.VirtualRouters); i++ {
+		if vrouterPool.VirtualRouters[i].Name == name {
+			if match {
+				return nil, errors.New("multiple resources with that name")
+			}
+			id = vrouterPool.VirtualRouters[i].ID
+			match = true
+		}
+	}
+	if !match {
+		return nil, errors.New("resource not found")
 	}
 
 	return NewVirtualRouter(id), nil
@@ -84,8 +110,7 @@ func (vr *VirtualRouter) Info() error {
 	if err != nil {
 		return err
 	}
-	vr.body = response.Body()
-	return nil
+	return xml.Unmarshal([]byte(response.Body()), vr)
 }
 
 // Update will modify the virtual router. If appendVirtualRouter is 0, it will

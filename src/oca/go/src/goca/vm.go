@@ -1,20 +1,68 @@
 package goca
 
 import (
+	"encoding/xml"
 	"errors"
-	"strconv"
 )
-
-// VM represents an OpenNebula Virtual Machine
-type VM struct {
-	XMLResource
-	ID   uint
-	Name string
-}
 
 // VMPool represents an OpenNebula Virtual Machine pool
 type VMPool struct {
-	XMLResource
+	VMs []vmBase `xml:"VM"`
+}
+
+// VM represents an OpenNebula Virtual Machine
+type VM struct {
+	vmBase
+	LockInfos *Lock `xml:"LOCK"`
+}
+
+type vmBase struct {
+	ID              uint         `xml:"ID"`
+	UID             int          `xml:"UID"`
+	GID             int          `xml:"GID"`
+	UName           string       `xml:"UNAME"`
+	GName           string       `xml:"GNAME"`
+	Name            string       `xml:"NAME"`
+	Permissions     *Permissions `xml:"PERMISSIONS"`
+	LastPoll        int          `xml:"LAST_POLL"`
+	StateRaw        int          `xml:"STATE"`
+	LCMStateRaw     int          `xml:"LCM_STATE"`
+	PrevStateRaw    int          `xml:"PREV_STATE"`
+	PrevLCMStateRaw int          `xml:"PREV_LCM_STATE"`
+	ReschedValue    int          `xml:"RESCHED"`
+	STime           int          `xml:"STIME"`
+	ETime           int          `xml:"ETIME"`
+	DeployID        string       `xml:"DEPLOY_ID"`
+	//XXX Monitoring   Monitoring       `xml:"MONITORING"`
+	Template       interface{}       `xml:"TEMPLATE"`
+	UserTemplate   interface{}       `xml:"USER_TEMPLATE"`
+	HistoryRecords []vmHistoryRecord `xml:"HISTORY_RECORDS>HISTORY"`
+	HistoryRecords []historyRecord   `xml:"HISTORY_RECORDS>HISTORY"`
+}
+
+// History records
+type vmHistoryRecord struct {
+	OID       int                       `xml:"OID"`
+	SEQ       int                       `xml:"SEQ"`
+	Hostname  string                    `xml:"HOSTNAME"`
+	HID       int                       `xml:"HID"`
+	CID       int                       `xml:"CID"`
+	DSID      int                       `xml:"DS_ID"`
+	Action    int                       `xml:"ACTION"`
+	UID       int                       `xml:"UID"`
+	GID       int                       `xml:"GID"`
+	RequestID string                    `xml:"REQUEST_ID"`
+	PSTime    int                       `xml:"PSTIME"`
+	PETime    int                       `xml:"PETIME"`
+	RSTime    int                       `xml:"RSTIME"`
+	RETime    int                       `xml:"RETIME"`
+	ESTime    int                       `xml:"ESTIME"`
+	EETime    int                       `xml:"EETIME"`
+	STime     int                       `xml:"STIME"`
+	ETime     int                       `xml:"ETIME"`
+	VMMad     string                    `xml:"VM_MAD"`
+	TMMad     string                    `xml:"TM_MAD"`
+	Snapshots []vmHistoryRecordSnapshot `xml:"SNAPSHOTS"`
 }
 
 // VMState is the state of the Virtual Machine
@@ -451,10 +499,13 @@ func NewVMPool(args ...int) (*VMPool, error) {
 		return nil, err
 	}
 
-	vmpool := &VMPool{XMLResource{body: response.Body()}}
+	vmPool := &VMPool{}
+	err = xml.Unmarshal([]byte(response.Body()), vmPool)
+	if err != nil {
+		return nil, err
+	}
 
-	return vmpool, err
-
+	return vmPool, nil
 }
 
 // Monitoring returns all the virtual machine monitorin records
@@ -529,51 +580,46 @@ func CreateVM(template string, pending bool) (uint, error) {
 // NewVM finds an VM by ID returns a new VM object. At this stage no
 // connection to OpenNebula is performed.
 func NewVM(id uint) *VM {
-	return &VM{ID: id}
+	return &VM{vmBase: vmBase{ID: id}}
 }
 
 // NewVMFromName finds the VM by name and returns a VM object. It connects to
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the VM.
 func NewVMFromName(name string) (*VM, error) {
-	vmpool, err := NewVMPool()
+	var id uint
+
+	vmPool, err := NewVMPool()
 	if err != nil {
 		return nil, err
 	}
 
-	id, err := vmpool.GetIDFromName(name, "/VM_POOL/VM")
-	if err != nil {
-		return nil, err
+	match := false
+	for i := 0; i < len(vmPool.VMs); i++ {
+		if vmPool.VMs[i].Name != name {
+			continue
+		}
+		if match {
+			return nil, errors.New("multiple resources with that name")
+		}
+		id = vmPool.VMs[i].ID
+		match = true
+	}
+	if !match {
+		return nil, errors.New("resource not found")
 	}
 
 	return NewVM(id), nil
 }
 
 // State returns the VMState and LCMState
-func (vm *VM) State() (VMState, LCMState, error) {
-	vmStateString, ok := vm.XPath("/VM/STATE")
-	if ok != true {
-		return -1, -1, errors.New("Unable to parse VM State")
-	}
-
-	lcmStateString, ok := vm.XPath("/VM/LCM_STATE")
-	if ok != true {
-		return -1, -1, errors.New("Unable to parse LCM State")
-	}
-
-	vmState, _ := strconv.Atoi(vmStateString)
-	lcmState, _ := strconv.Atoi(lcmStateString)
-
-	return VMState(vmState), LCMState(lcmState), nil
+func (vm *vmBase) State() (VMState, LCMState, error) {
+	return VMState(vm.StateRaw), LCMState(vm.LCMStateRaw), nil
 }
 
 // StateString returns the VMState and LCMState as strings
-func (vm *VM) StateString() (string, string, error) {
-	vmState, lcmState, err := vm.State()
-	if err != nil {
-		return "", "", err
-	}
-	return VMState(vmState).String(), LCMState(lcmState).String(), nil
+func (vm *vmBase) StateString() (string, string, error) {
+	return VMState(vm.StateRaw).String(), LCMState(vm.LCMStateRaw).String(), nil
 }
 
 // Action is the generic method to run any action on the VM
@@ -588,8 +634,7 @@ func (vm *VM) Info() error {
 	if err != nil {
 		return err
 	}
-	vm.body = response.Body()
-	return nil
+	return xml.Unmarshal([]byte(response.Body()), vm)
 }
 
 // Update will modify the VM's template. If appendTemplate is 0, it will

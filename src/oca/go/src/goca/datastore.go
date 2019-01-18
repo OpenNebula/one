@@ -1,15 +1,36 @@
 package goca
 
-// Datastore represents an OpenNebula Datastore
-type Datastore struct {
-	XMLResource
-	ID   uint
-	Name string
-}
+import (
+	"encoding/xml"
+	"errors"
+)
 
 // DatastorePool represents an OpenNebula DatastorePool
 type DatastorePool struct {
-	XMLResource
+	Datastores []Datastore `xml:"DATASTORE"`
+}
+
+// Datastore represents an OpenNebula Datastore
+type Datastore struct {
+	ID          uint         `xml:"ID"`
+	UID         int          `xml:"UID"`
+	GID         int          `xml:"GID"`
+	UName       string       `xml:"UNAME"`
+	GName       string       `xml:"GNAME"`
+	Name        string       `xml:"NAME"`
+	Permissions *Permissions `xml:"PERMISSIONS"`
+	DSMad       string       `xml:"DS_MAD"`
+	TMMad       string       `xml:"TM_MAD"`
+	BasePath    string       `xml:"BASE_PATH"`
+	Type        string       `xml:"TYPE"`
+	DiskType    string       `xml:"DISK_TYPE"`
+	StateRaw    int          `xml:"STATE"`
+	ClustersID  []int        `xml:"CLUSTERS>ID"`
+	TotalMB     int          `xml:"TOTAL_MB"`
+	FreeMB      int          `xml:"FREE_MB"`
+	UsedMB      int          `xml:"USED_MB"`
+	ImagesID    []int        `xml:"IMAGES>ID"`
+	Template    interface{}  `xml:"TEMPLATE"`
 }
 
 // NewDatastorePool returns a datastore pool. A connection to OpenNebula is
@@ -20,9 +41,13 @@ func NewDatastorePool() (*DatastorePool, error) {
 		return nil, err
 	}
 
-	datastorepool := &DatastorePool{XMLResource{body: response.Body()}}
+	datastorePool := &DatastorePool{}
+	err = xml.Unmarshal([]byte(response.Body()), datastorePool)
+	if err != nil {
+		return nil, err
+	}
 
-	return datastorepool, err
+	return datastorePool, nil
 }
 
 // NewDatastore finds a datastore object by ID. No connection to OpenNebula.
@@ -34,14 +59,26 @@ func NewDatastore(id uint) *Datastore {
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the datastore.
 func NewDatastoreFromName(name string) (*Datastore, error) {
+	var id uint
+
 	datastorePool, err := NewDatastorePool()
 	if err != nil {
 		return nil, err
 	}
 
-	id, err := datastorePool.GetIDFromName(name, "/DATASTORE_POOL/DATASTORE")
-	if err != nil {
-		return nil, err
+	match := false
+	for i := 0; i < len(datastorePool.Datastores); i++ {
+		if datastorePool.Datastores[i].Name != name {
+			continue
+		}
+		if match {
+			return nil, errors.New("multiple resources with that name")
+		}
+		id = datastorePool.Datastores[i].ID
+		match = true
+	}
+	if !match {
+		return nil, errors.New("resource not found")
 	}
 
 	return NewDatastore(id), nil
@@ -116,6 +153,5 @@ func (datastore *Datastore) Info() error {
 	if err != nil {
 		return err
 	}
-	datastore.body = response.Body()
-	return nil
+	return xml.Unmarshal([]byte(response.Body()), datastore)
 }

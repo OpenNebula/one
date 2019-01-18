@@ -1,15 +1,32 @@
 package goca
 
-// Zone represents an OpenNebula Zone
-type Zone struct {
-	XMLResource
-	ID   uint
-	Name string
-}
+import (
+	"encoding/xml"
+	"errors"
+)
 
 // ZonePool represents an OpenNebula ZonePool
 type ZonePool struct {
-	XMLResource
+	zoneBase
+	ServerPool []zoneServer `xml:"ZONE>SERVER_POOL>SERVER"`
+}
+
+// Zone represents an OpenNebula Zone
+type Zone struct {
+	zoneBase
+	ServerPool []zoneServer `xml:"SERVER_POOL>SERVER"`
+}
+
+type zoneBase struct {
+	ID       uint   `xml:"ID","ZONE>ID"`
+	Name     string `xml:"NAME","ZONE>ID"`
+	Template string `xml:"TEMPLATE>ENDPOINT","ZONE>TEMPLATE>ENDPOINT"`
+}
+
+type zoneServer struct {
+	ID       int    `xml:"ID"`
+	Name     string `xml:"NAME"`
+	Endpoint string `xml:"ENDPOINT"`
 }
 
 // NewZonePool returns a zone pool. A connection to OpenNebula is
@@ -20,14 +37,18 @@ func NewZonePool() (*ZonePool, error) {
 		return nil, err
 	}
 
-	zonepool := &ZonePool{XMLResource{body: response.Body()}}
+	zonePool := &ZonePool{}
+	err = xml.Unmarshal([]byte(response.Body()), zonePool)
+	if err != nil {
+		return nil, err
+	}
 
-	return zonepool, err
+	return zonePool, err
 }
 
 // NewZone finds a zone object by ID. No connection to OpenNebula.
 func NewZone(id uint) *Zone {
-	return &Zone{ID: id}
+	return &Zone{zoneBase: zoneBase{ID: id}}
 }
 
 // NewZoneFromName finds a zone object by name. It connects to
@@ -39,12 +60,11 @@ func NewZoneFromName(name string) (*Zone, error) {
 		return nil, err
 	}
 
-	id, err := zonePool.GetIDFromName(name, "/ZONE_POOL/ZONE")
-	if err != nil {
-		return nil, err
+	if zonePool.Name != name {
+		return nil, errors.New("resource not found")
 	}
 
-	return NewZone(id), nil
+	return NewZone(zonePool.ID), nil
 }
 
 // CreateZone allocates a new zone. It returns the new zone ID.
@@ -87,6 +107,5 @@ func (zone *Zone) Info() error {
 	if err != nil {
 		return err
 	}
-	zone.body = response.Body()
-	return nil
+	return xml.Unmarshal([]byte(response.Body()), zone)
 }
