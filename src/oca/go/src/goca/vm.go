@@ -3,6 +3,7 @@ package goca
 import (
 	"encoding/xml"
 	"errors"
+	"fmt"
 )
 
 // VMPool represents an OpenNebula Virtual Machine pool
@@ -105,6 +106,14 @@ const (
 	// CloningFailure state
 	CloningFailure VMState = 11
 )
+
+func (st VMState) isValid() bool {
+	if (st >= Init && st <= Done) ||
+		(st >= Poweroff && st <= CloningFailure) {
+		return true
+	}
+	return false
+}
 
 func (s VMState) String() string {
 	switch s {
@@ -333,6 +342,15 @@ const (
 	// DiskResizeUndeployed lcm state
 	DiskResizeUndeployed LCMState = 64
 )
+
+func (st LCMState) isValid() bool {
+	if (st >= LcmInit && st <= Shutdown) ||
+		(st >= CleanupResubmit && st <= DiskSnapshot) ||
+		(st >= DiskSnapshotDelete && st <= DiskResizeUndeployed) {
+		return true
+	}
+	return false
+}
 
 func (l LCMState) String() string {
 	switch l {
@@ -614,12 +632,28 @@ func NewVMFromName(name string) (*VM, error) {
 
 // State returns the VMState and LCMState
 func (vm *vmBase) State() (VMState, LCMState, error) {
-	return VMState(vm.StateRaw), LCMState(vm.LCMStateRaw), nil
+	state := VMState(vm.StateRaw)
+	if !state.isValid() {
+		return -1, -1, fmt.Errorf("VM State: this state value is not currently handled: %d\n", vm.StateRaw)
+	}
+	lcmState := LCMState(vm.LCMStateRaw)
+	if !lcmState.isValid() {
+		return state, -1, fmt.Errorf("VM LCMState: this state value is not currently handled: %d\n", vm.LCMStateRaw)
+	}
+	return state, lcmState, nil
 }
 
 // StateString returns the VMState and LCMState as strings
 func (vm *vmBase) StateString() (string, string, error) {
-	return VMState(vm.StateRaw).String(), LCMState(vm.LCMStateRaw).String(), nil
+	state := VMState(vm.StateRaw)
+	if !state.isValid() {
+		return "", "", fmt.Errorf("VM State: this state value is not currently handled: %d\n", vm.StateRaw)
+	}
+	lcmState := LCMState(vm.LCMStateRaw)
+	if !lcmState.isValid() {
+		return state.String(), "", fmt.Errorf("VM LCMState: this state value is not currently handled: %d\n", vm.LCMStateRaw)
+	}
+	return state.String(), lcmState.String(), nil
 }
 
 // Action is the generic method to run any action on the VM

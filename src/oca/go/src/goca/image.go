@@ -3,6 +3,7 @@ package goca
 import (
 	"encoding/xml"
 	"errors"
+	"fmt"
 )
 
 // ImagePool represents an OpenNebula Image pool
@@ -79,6 +80,13 @@ const (
 	// ImageLockUsedPers image is in locked state (persistent)
 	ImageLockUsedPers
 )
+
+func (st ImageState) isValid() bool {
+	if st >= ImageInit && st <= ImageLockUsedPers {
+		return true
+	}
+	return false
+}
 
 // String returns the string version of the ImageState
 func (s ImageState) String() string {
@@ -186,12 +194,20 @@ func (image *Image) Info() error {
 
 // State looks up the state of the image and returns the ImageState
 func (image *Image) State() (ImageState, error) {
-	return ImageState(image.StateRaw), nil
+	state := ImageState(image.StateRaw)
+	if !state.isValid() {
+		return -1, fmt.Errorf("Image State: this state value is not currently handled: %d\n", image.StateRaw)
+	}
+	return state, nil
 }
 
 // StateString returns the state in string format
 func (image *Image) StateString() (string, error) {
-	return ImageState(image.StateRaw).String(), nil
+	state := ImageState(image.StateRaw)
+	if !state.isValid() {
+		return "", fmt.Errorf("Image State: this state value is not currently handled: %d\n", image.StateRaw)
+	}
+	return state.String(), nil
 }
 
 // Clone clones an existing image. It returns the clone ID

@@ -3,6 +3,7 @@ package goca
 import (
 	"encoding/xml"
 	"errors"
+	"fmt"
 )
 
 // HostPool represents an OpenNebula HostPool
@@ -91,6 +92,13 @@ const (
 	// HostOffline host is totally offline
 	HostOffline
 )
+
+func (st HostState) isValid() bool {
+	if st >= HostInit && st <= HostOffline {
+		return true
+	}
+	return false
+}
 
 func (st HostState) String() string {
 	return [...]string{
@@ -215,10 +223,18 @@ func (host *Host) Monitoring() error {
 
 // State looks up the state of the image and returns the ImageState
 func (host *Host) State() (HostState, error) {
-	return HostState(host.StateRaw), nil
+	state := HostState(host.StateRaw)
+	if !state.isValid() {
+		return -1, fmt.Errorf("Host State: this state value is not currently handled: %d\n", host.StateRaw)
+	}
+	return state, nil
 }
 
 // StateString returns the state in string format
 func (host *Host) StateString() (string, error) {
-	return HostState(host.StateRaw).String(), nil
+	state := HostState(host.StateRaw)
+	if !state.isValid() {
+		return "", fmt.Errorf("Host StateString: this state value is not currently handled: %d\n", host.StateRaw)
+	}
+	return state.String(), nil
 }

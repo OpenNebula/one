@@ -3,6 +3,7 @@ package goca
 import (
 	"encoding/xml"
 	"errors"
+	"fmt"
 )
 
 // ZonePool represents an OpenNebula ZonePool
@@ -56,6 +57,13 @@ const (
 	// ZoneServerRaftLeader when the server is the leader
 	ZoneServerRaftLeader = 3
 )
+
+func (st ZoneServerRaftState) isValid() bool {
+	if st >= ZoneServerRaftSolo && st <= ZoneServerRaftLeader {
+		return true
+	}
+	return false
+}
 
 func (st ZoneServerRaftState) String() string {
 	return [...]string{
@@ -165,10 +173,18 @@ func GetRaftStatus(serverUrl string) (*ZoneServerRaftStatus, error) {
 
 // State looks up the state of the zone server and returns the ZoneServerRaftState
 func (server *ZoneServerRaftStatus) State() (ZoneServerRaftState, error) {
-	return ZoneServerRaftState(server.StateRaw), nil
+	state := ZoneServerRaftState(server.StateRaw)
+	if !state.isValid() {
+		return -1, fmt.Errorf("Zone server State: this state value is not currently handled: %d\n", server.StateRaw)
+	}
+	return state, nil
 }
 
 // StateString returns the state in string format
 func (server *ZoneServerRaftStatus) StateString() (string, error) {
-	return ZoneServerRaftState(server.StateRaw).String(), nil
+	state := ZoneServerRaftState(server.StateRaw)
+	if !state.isValid() {
+		return "", fmt.Errorf("Zone server StateString: this state value is not currently handled: %d\n", server.StateRaw)
+	}
+	return state.String(), nil
 }

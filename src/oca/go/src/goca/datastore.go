@@ -3,6 +3,7 @@ package goca
 import (
 	"encoding/xml"
 	"errors"
+	"fmt"
 )
 
 // DatastorePool represents an OpenNebula DatastorePool
@@ -43,6 +44,13 @@ const (
 	// DatastoreDisable datastore is disabled
 	DatastoreDisable
 )
+
+func (st DatastoreState) isValid() bool {
+	if st >= DatastoreReady && st <= DatastoreDisable {
+		return true
+	}
+	return false
+}
 
 func (st DatastoreState) String() string {
 	return [...]string{
@@ -176,10 +184,18 @@ func (datastore *Datastore) Info() error {
 
 // State looks up the state of the image and returns the DatastoreState
 func (datastore *Datastore) State() (DatastoreState, error) {
-	return DatastoreState(datastore.StateRaw), nil
+	state := DatastoreState(datastore.StateRaw)
+	if !state.isValid() {
+		return -1, fmt.Errorf("Datastore State: this state value is not currently handled: %d\n", datastore.StateRaw)
+	}
+	return state, nil
 }
 
 // StateString returns the state in string format
 func (datastore *Datastore) StateString() (string, error) {
-	return DatastoreState(datastore.StateRaw).String(), nil
+	state := DatastoreState(datastore.StateRaw)
+	if !state.isValid() {
+		return "", fmt.Errorf("Datastore StateString: this state value is not currently handled: %d\n", datastore.StateRaw)
+	}
+	return state.String(), nil
 }
