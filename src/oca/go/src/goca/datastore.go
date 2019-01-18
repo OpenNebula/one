@@ -33,6 +33,24 @@ type Datastore struct {
 	Template    interface{}  `xml:"TEMPLATE"`
 }
 
+// DatastoreState is the state of an OpenNebula datastore
+type DatastoreState int
+
+const (
+	// DatastoreReady datastore is ready
+	DatastoreReady = iota
+
+	// DatastoreDisable datastore is disabled
+	DatastoreDisable
+)
+
+func (st DatastoreState) String() string {
+	return [...]string{
+		"READY",
+		"DISABLE",
+	}[st]
+}
+
 // NewDatastorePool returns a datastore pool. A connection to OpenNebula is
 // performed.
 func NewDatastorePool() (*DatastorePool, error) {
@@ -154,4 +172,14 @@ func (datastore *Datastore) Info() error {
 		return err
 	}
 	return xml.Unmarshal([]byte(response.Body()), datastore)
+}
+
+// State looks up the state of the image and returns the DatastoreState
+func (datastore *Datastore) State() (DatastoreState, error) {
+	return DatastoreState(datastore.StateRaw), nil
+}
+
+// StateString returns the state in string format
+func (datastore *Datastore) StateString() (string, error) {
+	return DatastoreState(datastore.StateRaw).String(), nil
 }
