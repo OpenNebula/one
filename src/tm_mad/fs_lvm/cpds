@@ -66,5 +66,6 @@ log "Dumping $SRC to $DST"
 
 ssh_exec_and_log "$SRC_HOST" "$DUMP_CMD" \
     "Error dumping $SRC to $DST"
+hup_collectd $SRC_HOST
 
 exit 0
