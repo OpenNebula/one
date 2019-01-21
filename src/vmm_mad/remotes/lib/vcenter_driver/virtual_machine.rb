@@ -1050,7 +1050,7 @@ class VirtualMachine < VCenterDriver::Template
                 key = backing.port.portgroupKey
             end
 
-            @nics[key] = Nic.vc_nic(d)
+            @nics["#{key}#{d.key}"] = Nic.vc_nic(d)
         end
 
         @nics.reject{|k| k == :macs}
