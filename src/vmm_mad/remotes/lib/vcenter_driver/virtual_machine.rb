@@ -2359,11 +2359,11 @@ class VirtualMachine < VCenterDriver::Template
     end
 
     # Create a snapshot for the VM
-    def create_snapshot(snap_id, snap_name)
+    def create_snapshot(snap_id, snap_name, memory = true)
         snapshot_hash = {
             :name        => snap_id,
             :description => "OpenNebula Snapshot: #{snap_name}",
-            :memory      => true,
+            :memory      => memory,
             :quiesce     => true
         }
 
