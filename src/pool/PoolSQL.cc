@@ -148,7 +148,14 @@ int PoolSQL::allocate(PoolObjectSQL *objsql, string& error_str)
 
     if( rc == -1 )
     {
-        _set_lastOID(--lastOID, db, table);
+        lastOID = lastOID - 1;
+
+        if ( lastOID < 0 )
+        {
+            lastOID = 0;
+        }
+
+        _set_lastOID(lastOID, db, table);
     }
 
     unlock();
