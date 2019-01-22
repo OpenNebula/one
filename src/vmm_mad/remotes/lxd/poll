@@ -232,9 +232,9 @@ module LXD
             arch     = container.architecture
             capacity = container.expanded_config
 
-            cpu = ""
-            vcpu= ""
-            mem = ""
+            cpu = ''
+            vcpu = ''
+            mem = ''
 
             if capacity
                 cpu  = capacity['limits.cpu.allowance']
@@ -242,9 +242,9 @@ module LXD
                 mem  = capacity['limits.memory'] 
             end
 
-            cpu  = "50%"  if !cpu || cpu.empty?
-            vcpu = "1"    if !vcpu || vcpu.empty?
-            mem  = "512M" if !mem || mem.empty?
+            cpu  = '50%'  if !cpu || cpu.empty?
+            vcpu = '1'    if !vcpu || vcpu.empty?
+            mem  = '512MB' if !mem || mem.empty?
  
             cpu = cpu.chomp('%').to_f / 100
             mem = parse_memory(mem)
