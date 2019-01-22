@@ -29,6 +29,45 @@ type zoneServer struct {
 	Endpoint string `xml:"ENDPOINT"`
 }
 
+// ZoneServerRaftStatus contains the raft status datas of a server
+type ZoneServerRaftStatus struct {
+	ID          int `xml:"SERVER_ID"`
+	StateRaw    int `xml:"STATE"`
+	Term        int `xml:"TERM"`
+	Votedfor    int `xml:"VOTEDFOR"`
+	Commit      int `xml:"COMMIT"`
+	LogIndex    int `xml:"LOG_INDEX"`
+	FedlogIndex int `xml:"FEDLOG_INDEX"`
+}
+
+// ZoneServerRaftState is the state of an OpenNebula server from a zone (See HA and Raft)
+type ZoneServerRaftState int
+
+const (
+	// ZoneServerRaftSolo is the initial leader
+	ZoneServerRaftSolo ZoneServerRaftState = 0
+
+	// ZoneServerRaftCandidate when the server is candidate to election
+	ZoneServerRaftCandidate = 1
+
+	// ZoneServerRaftFollower when the server is a follower
+	ZoneServerRaftFollower = 2
+
+	// ZoneServerRaftLeader when the server is the leader
+	ZoneServerRaftLeader = 3
+)
+
+func (st ZoneServerRaftState) String() string {
+	return [...]string{
+		"SOLO",
+		"CANDIDATE",
+		"FOLLOWER",
+		"LEADER",
+	}[st]
+}
+
+// NewZonePool returns a zone pool. A connection to OpenNebula is
+
 // NewZonePool returns a zone pool. A connection to OpenNebula is
 // performed.
 func NewZonePool() (*ZonePool, error) {
@@ -108,4 +147,28 @@ func (zone *Zone) Info() error {
 		return err
 	}
 	return xml.Unmarshal([]byte(response.Body()), zone)
+}
+
+//GetRaftStatus give the raft status of the server behind the current RPC endpoint. To get endpoints make an info call.
+func GetRaftStatus(serverUrl string) (*ZoneServerRaftStatus, error) {
+	response, err := client.endpointCall(serverUrl, "one.zone.raftstatus")
+	if err != nil {
+		return nil, err
+	}
+	s := &ZoneServerRaftStatus{}
+	err = xml.Unmarshal([]byte(response.Body()), s)
+	if err != nil {
+		return nil, err
+	}
+	return s, nil
+}
+
+// State looks up the state of the zone server and returns the ZoneServerRaftState
+func (server *ZoneServerRaftStatus) State() (ZoneServerRaftState, error) {
+	return ZoneServerRaftState(server.StateRaw), nil
+}
+
+// StateString returns the state in string format
+func (server *ZoneServerRaftStatus) StateString() (string, error) {
+	return ZoneServerRaftState(server.StateRaw).String(), nil
 }
