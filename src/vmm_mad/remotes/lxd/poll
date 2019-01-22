@@ -243,7 +243,6 @@ module LXD
             cpu  = '50%'  if !cpu || cpu.empty?
             vcpu = '1'    if !vcpu || vcpu.empty?
             mem  = '512MB' if !mem || mem.empty?
-
             cpu = cpu.chomp('%').to_f / 100
             mem = parse_memory(mem)
 
