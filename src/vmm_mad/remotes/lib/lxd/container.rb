@@ -169,8 +169,6 @@ class Container
         rc, o, e = Command.execute("sudo #{cmd}", true) if e.include?(err)
 
         OpenNebula.log_error("#{__method__}: Failed to run command #{cmd}: #{e}") unless rc.zero?
-            
-        end
 
         [rc, o, e]
     end
