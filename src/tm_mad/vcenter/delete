@@ -104,6 +104,9 @@ begin
 
 rescue Exception => e
     vi_client.close_connection if vi_client
-    STDERR.puts "#{@error_message}. Reason: #{e.message}\n#{e.backtrace}"
+    message = "#{@error_message}. Reason: #{e.message}\n#{e.backtrace}"
+    OpenNebula.log_error(message)
+    STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
+
     exit -1
 end
