@@ -72,7 +72,9 @@ begin
 rescue Exception => e
     message = "Error resizing disk #{disk_id} for VM #{one_vm["NAME"]} "\
               "Reason: #{e.message}\n#{e.backtrace}"
-    STDERR.puts error_message(message)
+    OpenNebula.log_error(message)
+    STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
+
     exit -1
 ensure
     vi_client.close_connection if vi_client

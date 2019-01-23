@@ -273,7 +273,7 @@ class Container
     # Removes the context section from the LXD configuration and unmap the
     # context device
     def detach_context
-        return unless @one.has_context?
+        return 'no context' unless @one.has_context?
 
         csrc = @lxc['devices']['context']['source'].clone
 

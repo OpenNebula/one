@@ -58,5 +58,7 @@ rescue StandardError => e
               'failed due to '\
               "\"#{e.message}\"\n"
     OpenNebula.log_error(message)
+    STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
+
     exit(-1)
 end

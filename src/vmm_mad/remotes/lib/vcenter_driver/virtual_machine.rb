@@ -1050,7 +1050,7 @@ class VirtualMachine < VCenterDriver::Template
                 key = backing.port.portgroupKey
             end
 
-            @nics[key] = Nic.vc_nic(d)
+            @nics["#{key}#{d.key}"] = Nic.vc_nic(d)
         end
 
         @nics.reject{|k| k == :macs}
@@ -1217,10 +1217,17 @@ class VirtualMachine < VCenterDriver::Template
             if !unmanaged_nics.empty?
                 nics  = get_vcenter_nics
 
-                select = ->(name){
+                select_net =->(ref){
                     device = nil
                     nics.each do |nic|
-                        next unless nic.deviceInfo.summary == name
+                        type = nic.backing.class
+                        if type == NET_CARD
+                            nref = nic.backing.network._ref
+                        else
+                            nref = nic.backing.port.portgroupKey
+                        end
+
+                        next unless nref == ref
                         device = nic
                         break
                     end
@@ -1231,7 +1238,7 @@ class VirtualMachine < VCenterDriver::Template
                 }
 
                 unmanaged_nics.each do |unic|
-                    vnic  = select.call(unic['BRIDGE'])
+                    vnic  = select_net.call(unic['VCENTER_NET_REF'])
                     vcenter_nic_class    = vnic.class
                     new_model = unic['MODEL'] && !unic['MODEL'].empty? && !unic['MODEL'].nil?
                     opennebula_nic_class = nic_model_class(unic['MODEL']) if new_model
@@ -1573,7 +1580,7 @@ class VirtualMachine < VCenterDriver::Template
         end
 
         # grab the last unitNumber to ensure the nic to be added at the end
-        @unic = @unic || get_vcenter_nics.map{|d| d.unitNumber}.max rescue 0
+        @unic = @unic || get_vcenter_nics.map{|d| d.unitNumber}.max || 0
         card_spec = {
             :key => 0,
             :deviceInfo => {

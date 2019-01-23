@@ -1131,11 +1131,12 @@ CommandParser::CmdParser.new(ARGV) do
         This command accepts a template file or opens an editor, the full list
         of configuration attributes are:
 
-        OS       = ["ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER", "BOOT"]
-        FEATURES = ["ACPI", "PAE", "APIC", "LOCALTIME", "HYPERV", "GUEST_AGENT"]
-        INPUT    = ["TYPE", "BUS"]
-        GRAPHICS = ["TYPE", "LISTEN", "PASSWD", "KEYMAP" ]
-        RAW      = ["DATA", "DATA_VMX", "TYPE"]
+        OS        = ["ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER", "BOOT"]
+        FEATURES  = ["ACPI", "PAE", "APIC", "LOCALTIME", "HYPERV", "GUEST_AGENT"]
+        INPUT     = ["TYPE", "BUS"]
+        GRAPHICS  = ["TYPE", "LISTEN", "PASSWD", "KEYMAP" ]
+        RAW       = ["DATA", "DATA_VMX", "TYPE"]
+        CPU_MODEL = ["MODEL"]
         CONTEXT (any value, **variable substitution will be made**)
     EOT
 
@@ -1156,7 +1157,7 @@ CommandParser::CmdParser.new(ARGV) do
 
                 template = vm.template_like_str('TEMPLATE', true,
                                                 'OS | FEATURES | INPUT | '\
-                                                'GRAPHICS | RAW | CONTEXT')
+                                                'GRAPHICS | RAW | CONTEXT | CPU_MODEL')
                 template = OpenNebulaHelper.editor_input(template)
             end
 
