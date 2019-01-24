@@ -35,6 +35,7 @@ class Container
     # Class Constants API and Containers Paths
     #---------------------------------------------------------------------------
     CONTAINERS = 'containers'.freeze
+    LXC_COMMAND = 'lxc'
 
     #---------------------------------------------------------------------------
     # Methods to access container attributes
@@ -161,7 +162,7 @@ class Container
     # Runs command inside container
     # @param command [String] to execute through lxc exec
     def exec(command)
-        cmd = "lxc exec #{@one.vm_name} -- #{command}"
+        cmd = "#{LXC_COMMAND} exec #{@one.vm_name} -- #{command}"
         rc, o, e = Command.execute(cmd, true)
 
         # TODO: this should be removed when Snap bug is fixed
