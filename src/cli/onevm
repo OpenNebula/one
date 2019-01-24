@@ -1157,7 +1157,8 @@ CommandParser::CmdParser.new(ARGV) do
 
                 template = vm.template_like_str('TEMPLATE', true,
                                                 'OS | FEATURES | INPUT | '\
-                                                'GRAPHICS | RAW | CONTEXT | CPU_MODEL')
+                                                'GRAPHICS | RAW | CONTEXT | '\
+                                                'CPU_MODEL')
                 template = OpenNebulaHelper.editor_input(template)
             end
 
