@@ -8,5 +8,4 @@ before_install:
   - sudo npm install -g grunt-cli
   - (cd src/sunstone/public && npm install && bower install)
 script:
-  - rubocop -c share/linters/.rubocop.yml src/cli
   - set -o errexit; source .travis/smoke_tests.sh

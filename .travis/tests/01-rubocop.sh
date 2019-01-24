@@ -14,4 +14,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-scons sunstone=yes mysql=yes systemd=yes new_xmlrpc=yes
+# lint ruby code
+
+ln -s share/linters/.rubocop.yml . && rubocop

@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -16,35 +14,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-#-------------------------------------------------------------------------------
-# Smoke tests for OpenNebula, to be triggered by travis or manually
-# It executes all scripts in 'tests' folder and expects 0 exit code
-#-------------------------------------------------------------------------------
+# check that OpenNebula compiles
 
-# default parameters values
-
-LOG_FILE='smoke_tests.results'
-
-check_test() {
-    local TEST=$1
-
-    echo "Executing test $TEST" >> ${LOG_FILE}
-    eval $TEST >> ${LOG_FILE} 2>&1
-    RC=$?
-    echo "RC for $TEST is $RC"
-    return $RC
-}
-
-for smoke_test in .travis/tests/*.sh; do
-  check_test "$smoke_test" || break
-done
-
-if [ $RC == 0 ]; then
-   echo "All tests OK!"
-else
-   echo "Test failed: "$smoke_test
-   echo "Log follows:"
-   cat $LOG_FILE
-fi
-
-exit $RC
+scons sunstone=yes mysql=yes systemd=yes new_xmlrpc=yes
