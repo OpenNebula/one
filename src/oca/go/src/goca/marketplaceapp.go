@@ -134,8 +134,11 @@ func (marketApp *MarketPlaceApp) Rename(newName string) error {
 // Info retrieves information for the marketplace app.
 func (marketApp *MarketPlaceApp) Info() error {
 	response, err := client.Call("one.marketapp.info", marketApp.ID)
+	if err != nil {
+		return err
+	}
 	marketApp.body = response.Body()
-	return err
+	return nil
 }
 
 // Lock locks the marketplace app depending on blocking level.

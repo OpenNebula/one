@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -75,11 +75,11 @@ module OpenNebula
     # Executes a command, if it fails returns error message and exits
     # If a second parameter is present it is used as the error message when
     # the command fails
-    def self.exec_and_log(command, message=nil)
+    def self.exec_and_log(command, message=nil, allowed_return_code=0)
         output=`#{command} 2>&1 1>/dev/null`
         code=$?.exitstatus
 
-        if code!=0
+        if code!=0 && code!=allowed_return_code
             log_error "Command \"#{command}\" failed."
             log_error output
             if !message

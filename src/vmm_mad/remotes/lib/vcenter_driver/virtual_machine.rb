@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -1050,7 +1050,7 @@ class VirtualMachine < VCenterDriver::Template
                 key = backing.port.portgroupKey
             end
 
-            @nics[key] = Nic.vc_nic(d)
+            @nics["#{key}#{d.key}"] = Nic.vc_nic(d)
         end
 
         @nics.reject{|k| k == :macs}
@@ -1217,10 +1217,17 @@ class VirtualMachine < VCenterDriver::Template
             if !unmanaged_nics.empty?
                 nics  = get_vcenter_nics
 
-                select = ->(name){
+                select_net =->(ref){
                     device = nil
                     nics.each do |nic|
-                        next unless nic.deviceInfo.summary == name
+                        type = nic.backing.class
+                        if type == NET_CARD
+                            nref = nic.backing.network._ref
+                        else
+                            nref = nic.backing.port.portgroupKey
+                        end
+
+                        next unless nref == ref
                         device = nic
                         break
                     end
@@ -1231,7 +1238,7 @@ class VirtualMachine < VCenterDriver::Template
                 }
 
                 unmanaged_nics.each do |unic|
-                    vnic  = select.call(unic['BRIDGE'])
+                    vnic  = select_net.call(unic['VCENTER_NET_REF'])
                     vcenter_nic_class    = vnic.class
                     new_model = unic['MODEL'] && !unic['MODEL'].empty? && !unic['MODEL'].nil?
                     opennebula_nic_class = nic_model_class(unic['MODEL']) if new_model
@@ -1479,38 +1486,6 @@ class VirtualMachine < VCenterDriver::Template
         end
     end
 
-    def device_change_nics
-        # Final list of changes to be applied in vCenter
-        device_change = []
-
-        # Hash of interfaces from the OpenNebula xml
-        nics_in_template = {}
-        xpath = "TEMPLATE/NIC"
-        one_item.each(xpath) { |nic|
-            nics_in_template[nic["MAC"]] = nic
-        }
-
-        # Remove all NICs in the spawned VM, they'll be recreated
-	    # using the configuration of the NICs defined in OpenNebula
-        self["config.hardware.device"].each do |dv|
-            if is_nic?(dv)
-                # B4897 - It was detached in poweroff, remove it from VM
-                device_change << {
-                    :operation => :remove,
-                    :device    => dv
-                }
-            end
-        end
-
-        # Attach new nics (nics_in_template now contains only the interfaces
-        # not present in the VM in vCenter)
-        nics_in_template.each do |key, nic|
-            device_change << calculate_add_nic_spec(nic)
-        end
-
-        return device_change
-    end
-
     # Regenerate context when devices are hot plugged (reconfigure)
     def regenerate_context
         spec_hash = { :extraConfig  => extraconfig_context }
@@ -1605,7 +1580,7 @@ class VirtualMachine < VCenterDriver::Template
         end
 
         # grab the last unitNumber to ensure the nic to be added at the end
-        @unic = @unic || get_vcenter_nics.map{|d| d.unitNumber}.max rescue 0
+        @unic = @unic || get_vcenter_nics.map{|d| d.unitNumber}.max || 0
         card_spec = {
             :key => 0,
             :deviceInfo => {
@@ -1772,24 +1747,18 @@ class VirtualMachine < VCenterDriver::Template
     # Detach NIC from VM
     def detach_nic
         spec_hash = {}
-        nic = nil
 
         # Extract nic from driver action
-        nic = one_item.retrieve_xmlelements("TEMPLATE/NIC[ATTACH='YES']").first
-        mac = nic["MAC"]
+        one_nic = one_item.retrieve_xmlelements("TEMPLATE/NIC[ATTACH='YES']").first
+        mac = one_nic["MAC"]
+        nic = nic(mac) rescue nil
 
-        # Get VM nic element if it has a device with that mac
-        nic_device = @item["config.hardware.device"].find do |device|
-            is_nic?(device) && (device.macAddress ==  mac)
-        end rescue nil
-
-        return if nic_device.nil? #Silently ignore if nic is not found
+        return if !nic || nic.no_exists?
 
         # Remove NIC from VM in the ReconfigVM_Task
         spec_hash[:deviceChange] = [
                 :operation => :remove,
-                :device => nic_device ]
-
+                :device => nic.vc_item ]
         begin
             @item.ReconfigVM_Task(:spec => spec_hash).wait_for_completion
         rescue Exception => e
@@ -1802,11 +1771,11 @@ class VirtualMachine < VCenterDriver::Template
         spec_hash = {}
         device_change = []
 
-        @item["config.hardware.device"].each do |device|
-            if is_nic?(device)
-                device_change << {:operation => :remove, :device => device}
-            end
+        nics_each(:exists?) do |nic|
+            device_change << {:operation => :remove, :device => nic.vc_item}
         end
+
+        return if device_change.empty?
 
         # Remove NIC from VM in the ReconfigVM_Task
         spec_hash[:deviceChange] = device_change
@@ -1908,7 +1877,6 @@ class VirtualMachine < VCenterDriver::Template
         info_disks
     end
 
-    # TO DEPRECATE: build new attach using new disk class structure
     # Attach DISK to VM (hotplug)
     def attach_disk
         spec_hash = {}

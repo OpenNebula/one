@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -129,10 +129,19 @@ module LXD
 
             state
         end
+        
+        def lxc_path(vm_name)
+            path = 'lxc/' + vm_name
+            path = "#{ENV['LXC_CGROUP_PREFIX']}#{path}" if ENV['LXC_CGROUP_PREFIX']
+        end    
 
         def get_memory(vm_name)
-            stat = File.read('/sys/fs/cgroup/memory/lxc/' + vm_name + '/memory.usage_in_bytes').to_i
-            stat / 1024
+            begin
+                stat = File.read('/sys/fs/cgroup/memory/' + lxc_path(vm_name) + '/memory.usage_in_bytes').to_i
+                stat / 1024
+            rescue StandardError
+                return 0
+            end
         end
 
         def get_net_statistics(vmd)
@@ -196,7 +205,8 @@ module LXD
         def get_process_jiffies(vm_name)
             begin
                 jiffies = 0
-                stat = File.read('/sys/fs/cgroup/cpu,cpuacct/lxc/' + vm_name + '/cpuacct.stat')
+                
+                stat = File.read('/sys/fs/cgroup/cpu,cpuacct/' + lxc_path(vm_name) + '/cpuacct.stat')
                 stat.lines.each {|line| jiffies += line.split(' ')[1] }
             rescue StandardError
                 return 0

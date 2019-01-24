@@ -1,5 +1,5 @@
 # Copyright 2018 www.privaz.io Valletech AB
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ if sys.version_info[0] < 3:
     install_requires.append('future')
 
 setup(
-    name='opennebula',
+    name='pyone',
     version='5.7.80',
     description='Python Bindings for OpenNebula XML-RPC API',
     long_description=long_description,

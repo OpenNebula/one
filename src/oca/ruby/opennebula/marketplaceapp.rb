@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -192,6 +192,17 @@ module OpenNebula
 
                 image = Image.new(Image.build_xml, @client)
                 rc    = image.allocate(tmpl, options[:dsid])
+
+                ds = OpenNebula::Datastore.new_with_id(options[:dsid], @client)
+                image.info
+                ds.info
+
+                xpath = 'TEMPLATE/DRIVER'
+                if ds[xpath] == 'vcenter' && self['FORMAT'] != 'iso' && self['FORMAT'] != 'vmdk'
+                    image.replace({'FORMAT' => 'vmdk'})
+                elsif ds[xpath] && ds[xpath] != 'vcenter' && self['FORMAT'] == 'vmdk'
+                    image.replace({'FORMAT' => ds[xpath] })
+                end
 
                 return { :image => [rc] } if OpenNebula.is_error?(rc)
 

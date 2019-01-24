@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -165,14 +165,14 @@ class Container
         cmd = "#{LXC_COMMAND} exec #{@one.vm_name} -- #{command}"
         rc, o, e = Command.execute(cmd, true)
 
-        # TODO this should be removed when Snap bug is fixed
-        # Snap patch
-        rc, o, e = Command.execute("sudo #{cmd}", true) if e.include?('cannot create user data directory:')
-        
+        # TODO: this should be removed when Snap bug is fixed
+        err = 'cannot create user data directory:'
+        rc, o, e = Command.execute("sudo #{cmd}", true) if e.include?(err)
+
         return [rc, o, e] unless rc != 0
-        
+
         OpenNebula.log_error("#{__method__}: Failed to run command #{cmd}: #{e}")
-        
+
         [rc, o, e]
     end
 
@@ -273,7 +273,7 @@ class Container
     # Removes the context section from the LXD configuration and unmap the
     # context device
     def detach_context
-        return unless @one.has_context?
+        return 'no context' unless @one.has_context?
 
         csrc = @lxc['devices']['context']['source'].clone
 
@@ -411,7 +411,7 @@ class Container
     #  so new mappers does not need to modified source code
     def new_disk_mapper(disk)
         case disk['TYPE']
-        when 'FILE'
+        when 'FILE', 'BLOCK'
 
             ds = @one.disk_source(disk)
 

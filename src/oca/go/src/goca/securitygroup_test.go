@@ -2,25 +2,24 @@ package goca
 
 import (
 	"testing"
-	"goca"
 )
 
 func TestSGAllocate(t *testing.T){
 	var sg_name string = "new_test_sg"
-	var sg *goca.SecurityGroup
+	var sg *SecurityGroup
 	var sg_template string =  "NAME = \"" + sg_name + "\"\n" +
 							"DESCRIPTION  = \"test security group\"\n"+
 							"ATT1 = \"VAL1\"\n" +
 							"ATT2 = \"VAL2\""
 
 	//Create SG
-	sg_id, err := goca.CreateSecurityGroup(sg_template)
+	sg_id, err := CreateSecurityGroup(sg_template)
 
 	if err != nil {
 	    t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	sg = goca.NewSecurityGroup(sg_id)
+	sg = NewSecurityGroup(sg_id)
 	sg.Info()
 
 	actual, _:= sg.XMLResource.XPath("/SECURITY_GROUP/NAME")
@@ -60,7 +59,7 @@ func TestSGAllocate(t *testing.T){
 	    t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	clone := goca.NewSecurityGroup(clone_id)
+	clone := NewSecurityGroup(clone_id)
 	clone.Info()
 
 	actual, _ = clone.XMLResource.XPath("/SECURITY_GROUP/NAME")

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -219,6 +219,7 @@ fi
 
 SHARE_DIRS="$SHARE_LOCATION/examples \
             $SHARE_LOCATION/websockify \
+            $SHARE_LOCATION/websockify/websockify \
             $SHARE_LOCATION/esx-fw-vnc \
             $SHARE_LOCATION/oneprovision"
 
@@ -477,7 +478,8 @@ INSTALL_FILES=(
     NETWORK_OVSWITCH_VXLAN_FILES:$VAR_LOCATION/remotes/vnm/ovswitch_vxlan
     NETWORK_VCENTER_FILES:$VAR_LOCATION/remotes/vnm/vcenter
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
-    WEBSOCKIFY_SHARE_FILES:$SHARE_LOCATION/websockify
+    WEBSOCKIFY_SHARE_RUN_FILES:$SHARE_LOCATION/websockify
+    WEBSOCKIFY_SHARE_MODULE_FILES:$SHARE_LOCATION/websockify/websockify
     ESX_FW_VNC_SHARE_FILES:$SHARE_LOCATION/esx-fw-vnc
     INSTALL_GEMS_SHARE_FILES:$SHARE_LOCATION
     ONETOKEN_SHARE_FILE:$SHARE_LOCATION
@@ -1530,9 +1532,12 @@ EXAMPLE_SHARE_FILES="share/examples/vm.template \
 # Files required to interact with the websockify server
 #-------------------------------------------------------------------------------
 
-WEBSOCKIFY_SHARE_FILES="share/websockify/websocketproxy.py \
-                        share/websockify/websocket.py \
-                        share/websockify/websockify"
+WEBSOCKIFY_SHARE_RUN_FILES="share/websockify/run"
+WEBSOCKIFY_SHARE_MODULE_FILES="share/websockify/websockify/__init__.py \
+                               share/websockify/websockify/auth_plugins.py \
+                               share/websockify/websockify/token_plugins.py \
+                               share/websockify/websockify/websocket.py \
+                               share/websockify/websockify/websocketproxy.py"
 
 #-------------------------------------------------------------------------------
 # Installation packages for ESX hosts to enable VNC ports

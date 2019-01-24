@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -63,7 +63,7 @@ class Mapper
         :mkdir      => 'mkdir -p',
         :catfstab   => 'sudo catfstab',
         :cat        => 'cat',
-        :file       => 'file -L',
+        :file       => 'file -L -s',
         :blkid      => 'sudo blkid',
         :e2fsck     => 'sudo e2fsck',
         :resize2fs  => 'sudo resize2fs',
@@ -163,12 +163,13 @@ class Mapper
 
             Command.execute("#{COMMANDS[:xfs_growfs]} -d #{directory}", false)
         when /ext/
-            rc, _o, e = Command.execute("#{COMMANDS[:e2fsck]} -f -y #{device}", false)
+            _rc, o, e = Command.execute("#{COMMANDS[:e2fsck]} -f -y #{device}", false)
 
-            if rc.zero?
-                Command.execute("#{COMMANDS[:resize2fs]} #{device}", false)
+            if o.empty?
+                err = "#{__method__}: failed to resize #{device}\n#{e}"
+                OpenNebula.log_error err
             else
-                OpenNebula.log_error "#{__method__}: failed to resize #{device}\n#{e}"
+                Command.execute("#{COMMANDS[:resize2fs]} #{device}", false)
             end
 
             rc = mount_dev(device, directory)

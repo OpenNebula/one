@@ -126,6 +126,9 @@ func (market *MarketPlace) Rename(newName string) error {
 // Info retrieves information for the marketplace.
 func (market *MarketPlace) Info() error {
 	response, err := client.Call("one.market.info", market.ID)
+	if err != nil {
+		return err
+	}
 	market.body = response.Body()
-	return err
+	return nil
 }
