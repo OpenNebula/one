@@ -129,13 +129,15 @@ module LXD
 
             state
         end
+        
+        def lxc_path(vm_name)
+            path = 'lxc/' + vm_name
+            path = "#{ENV['LXC_CGROUP_PREFIX']}#{path}" if ENV['LXC_CGROUP_PREFIX']
+        end    
 
         def get_memory(vm_name)
             begin
-                lxc_path = 'lxc/' + vm_name
-                lxc_path = "#{ENV['LXC_CGROUP_PREFIX']}#{lxc_path}" if ENV['LXC_CGROUP_PREFIX']
-                
-                stat = File.read('/sys/fs/cgroup/memory/' + lxc_path + '/memory.usage_in_bytes').to_i
+                stat = File.read('/sys/fs/cgroup/memory/' + lxc_path(vm_name) + '/memory.usage_in_bytes').to_i
                 stat / 1024
             rescue StandardError
                 return 0
@@ -202,12 +204,9 @@ module LXD
 
         def get_process_jiffies(vm_name)
             begin
-                lxc_path = 'lxc/' + vm_name
-                if ENV['LXC_CGROUP_PREFIX']
-                    lxc_path = ENV['LXC_CGROUP_PREFIX'] + lxc_path
-                end
                 jiffies = 0
-                stat = File.read('/sys/fs/cgroup/cpu,cpuacct/' + lxc_path + '/cpuacct.stat')
+                
+                stat = File.read('/sys/fs/cgroup/cpu,cpuacct/' + lxc_path(vm_name) + '/cpuacct.stat')
                 stat.lines.each {|line| jiffies += line.split(' ')[1] }
             rescue StandardError
                 return 0
