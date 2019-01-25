@@ -169,9 +169,8 @@ class Container
         err = 'cannot create user data directory:'
         rc, o, e = Command.execute("sudo #{cmd}", true) if e.include?(err)
 
-        return [rc, o, e] unless rc != 0
-
-        OpenNebula.log_error("#{__method__}: Failed to run command #{cmd}: #{e}")
+        log = "Failed to run command #{cmd}: #{e}"
+        OpenNebula.log_error("#{__method__}: #{log}") unless rc.zero?
 
         [rc, o, e]
     end
