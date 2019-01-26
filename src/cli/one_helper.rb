@@ -516,10 +516,12 @@ EOT
         #  List pool functions
         #-----------------------------------------------------------------------
         def start_pager
-            pager = ENV['ONE_PAGER'] || 'less'
+            pager = ENV['ONE_PAGER'] || 'more'
 
             # Start pager, defaults to less
             p_r, p_w = IO.pipe
+
+            Signal.trap('PIPE', 'SIG_IGN')
 
             lpid = fork do
                 $stdin.reopen(p_r)
@@ -531,7 +533,7 @@ EOT
 
                 exec([pager, pager])
             end
-            
+
             # Send listing to pager pipe
             $stdout.close
             $stdout = p_w.dup
@@ -547,6 +549,9 @@ EOT
 
             begin
                 Process.wait(lpid)
+            rescue Interrupt
+                Process.kill("TERM", lpid)
+                Process.wait(lpid)
             rescue Errno::ECHILD
             end
         end
@@ -558,12 +563,11 @@ EOT
                 elements = 0
                 page     = ""
 
-                pool.each {|e| 
-                    elements += 1 
+                pool.each {|e|
+                    elements += 1
                     page << e.to_xml(true) << "\n"
                 }
             else
-            
                 pname = pool.pool_name
                 ename = pool.element_name
 
@@ -585,8 +589,8 @@ EOT
         # output
         #-----------------------------------------------------------------------
         def list_pool_table(table, pool, options, filter_flag)
-            if $stdout.isatty and (!options.key?:no_pager) 
-                size = $stdout.winsize[0] - 1 
+            if $stdout.isatty and (!options.key?:no_pager)
+                size = $stdout.winsize[0] - 1
 
                 # ----------- First page, check if pager is needed -------------
                 rc = pool.get_page(size, 0)
@@ -662,8 +666,8 @@ EOT
         # List pool in XML format, pagination is used in interactive output
         #-----------------------------------------------------------------------
         def list_pool_xml(pool, options, filter_flag)
-            if $stdout.isatty 
-                size = $stdout.winsize[0] - 1 
+            if $stdout.isatty
+                size = $stdout.winsize[0] - 1
 
                 # ----------- First page, check if pager is needed -------------
                 rc = pool.get_page(size, 0)
