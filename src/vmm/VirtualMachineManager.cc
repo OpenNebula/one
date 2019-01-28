@@ -2420,6 +2420,19 @@ void VirtualMachineManager::detach_nic_action(
         return;
     }
 
+    int uid = vm->get_created_by_uid();
+    int owner_id = vm->get_uid();
+    vm->unlock();
+
+    password = Nebula::instance().get_upool()->get_token_password(uid, owner_id);
+
+    vm = vmpool->get(vid);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
     if (!vm->hasHistory())
     {
         goto error_history;
