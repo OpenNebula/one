@@ -103,7 +103,7 @@ class VirtualNetworkTemplateChmod : public RequestManagerChmod
 public:
     VirtualNetworkTemplateChmod():
         RequestManagerChmod("one.vntemplate.chmod", "Changes permission bits of a "
-            "virtual network template", "A:siiiiiiiiiib")
+            "virtual network template")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vntpool();
