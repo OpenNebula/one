@@ -773,6 +773,12 @@ Metrics/BlockLength:
 Metrics/LineLength:
     Max: 80
 
+Metrics/ModuleLength:
+    Enabled: False
+
+Metrics/ClassLength:
+    Enabled: False
+
 # Parameter list config:
 Metrics/ParameterLists:
     Max: 5
