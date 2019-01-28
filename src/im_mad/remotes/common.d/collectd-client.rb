@@ -88,12 +88,11 @@ class CollectdClient
 
             # Collect the Data
             ts = Time.now
-            data = run_probes
+
+            # Send signal to itself to run probes and send the data
+            Process.kill('HUP', $$)
 
             run_probes_time = (Time.now - ts).to_i
-
-            # Send the Data
-            send data
 
             # Sleep during the Cycle
             sleep_time = @monitor_push_period - run_probes_time
@@ -130,4 +129,16 @@ sleep rand monitor_push_period
 # Start push monitorization
 client = CollectdClient.new(hypervisor, number, host, port, probes_args,
                             monitor_push_period)
+
+Signal.trap('HUP') do
+    # ignore another HUP until we handle this one
+    this_handler = Signal.trap('HUP', 'IGNORE')
+
+    data = client.run_probes
+    client.send data
+
+    # set the handler back
+    Signal.trap('HUP', this_handler)
+end
+
 client.monitor

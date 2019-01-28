@@ -20,7 +20,7 @@ $LOAD_PATH.unshift File.dirname(__FILE__)
 
 require 'mapper'
 
-class Qcow2Mapper <  Mapper
+class Qcow2Mapper < Mapper
 
     # Max number of block devices. This should be set to the parameter used
     # to load the nbd kernel module (default in kernel is 16)
@@ -32,18 +32,20 @@ class Qcow2Mapper <  Mapper
         return if device.empty?
 
         dsrc = one_vm.disk_source(disk)
-        cmd  = "#{COMMANDS[:nbd]} -c #{device} #{dsrc}"
+        File.chmod(0o664, dsrc) if File.symlink?(one_vm.sysds_path)
 
-        File.chmod(0664, dsrc) if File.symlink?(one_vm.sysds_path)
+        map = "#{COMMANDS[:nbd]} -c #{device} #{dsrc}"
+        rc, _out, err = Command.execute(map, false)
 
-        rc, _out, err = Command.execute(cmd, true)
-
-        if rc != 0
+        unless rc.zero?
             OpenNebula.log_error("#{__method__}: #{err}")
             return
         end
 
-        sleep 0.5 # TODO: improve settledown, lsblk -f fails
+        sleep 5 # wait for parts to come out
+
+        partitions = lsblk(device)
+        show_parts(device) unless partitions[0]['type'] == 'part'
 
         device
     end
@@ -51,7 +53,7 @@ class Qcow2Mapper <  Mapper
     def do_unmap(device, _one_vm, _disk, _directory)
         cmd = "#{COMMANDS[:nbd]} -d #{device}"
 
-        rc, _out, err = Command.execute(cmd, true)
+        rc, _out, err = Command.execute(cmd, false)
 
         return true if rc.zero?
 
@@ -61,21 +63,32 @@ class Qcow2Mapper <  Mapper
 
     private
 
-    def nbd_device()
+    def show_parts(device)
+        get_parts = "#{COMMANDS[:kpartx]} -s -av #{device}"
+
+        rc, _out, err = Command.execute(get_parts, false)
+
+        unless rc.zero?
+            OpenNebula.log_error("#{__method__}: #{err}")
+            return
+        end
+    end
+
+    def nbd_device
         sys_parts = lsblk('')
         device_id = -1
         nbds      = []
 
-        sys_parts.each { |p|
+        sys_parts.each do |p|
             m = p['name'].match(/nbd(\d+)/)
-            next if !m
+            next unless m
 
             nbds << m[1].to_i
-        }
+        end
 
-        NBDS_MAX.times { |i|
+        NBDS_MAX.times do |i|
             return "/dev/nbd#{i}" unless nbds.include?(i)
-        }
+        end
 
         OpenNebula.log_error("#{__method__}: Cannot find free nbd device")
 

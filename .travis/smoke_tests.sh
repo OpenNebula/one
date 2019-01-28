@@ -16,56 +16,35 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# cpds host:remote_system_ds/disk.i fe:SOURCE snapid vmid dsid
-#   - fe is the front-end hostname
-#   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
-#   - host is the target host to deploy the VM
-#   - remote_system_ds is the path for the system datastore in the host
-#   - snapid is the snapshot id. "-1" for none
+#-------------------------------------------------------------------------------
+# Smoke tests for OpenNebula, to be triggered by travis or manually
+# It executes all scripts in 'tests' folder and expects 0 exit code
+#-------------------------------------------------------------------------------
 
-SRC=$1
-DST=$2
-SNAP_ID=$3
-VM_ID=$4
-DS_ID=$5
+# default parameters values
 
-if [ -z "${ONE_LOCATION}" ]; then
-    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+LOG_FILE='smoke_tests.results'
+
+check_test() {
+    local TEST=$1
+
+    echo "Executing test $TEST" >> ${LOG_FILE}
+    eval $TEST >> ${LOG_FILE} 2>&1
+    RC=$?
+    echo "RC for $TEST is $RC"
+    return $RC
+}
+
+for smoke_test in .travis/tests/*.sh; do
+  check_test "$smoke_test" || break
+done
+
+if [ $RC == 0 ]; then
+   echo "All tests OK!"
 else
-    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+   echo "Test failed: "$smoke_test
+   echo "Log follows:"
+   cat $LOG_FILE
 fi
 
-source $TMCOMMON
-
-#-------------------------------------------------------------------------------
-# Set dst path and dir
-#-------------------------------------------------------------------------------
-SRC_PATH=`arg_path $SRC`
-SRC_HOST=`arg_host $SRC`
-
-DST_PATH=`arg_path $DST`
-DST_HOST=`arg_host $DST`
-
-DISK_ID=$(echo $SRC_PATH|$AWK -F. '{print $NF}')
-DS_SYS_ID=$(echo $SRC_PATH|$AWK -F/ '{print $(NF-2)}')
-
-LV_NAME="lv-one-$VM_ID-$DISK_ID"
-VG_NAME="vg-one-$DS_SYS_ID"
-
-DEV="/dev/${VG_NAME}/${LV_NAME}"
-
-DUMP_CMD=$(cat <<EOF
-    $DD if=$DEV of=$DST_PATH bs=64k
-EOF
-)
-
-#-------------------------------------------------------------------------------
-# Move the image back to the datastore
-#-------------------------------------------------------------------------------
-log "Dumping $SRC to $DST"
-
-ssh_exec_and_log "$SRC_HOST" "$DUMP_CMD" \
-    "Error dumping $SRC to $DST"
-hup_collectd $SRC_HOST
-
-exit 0
+exit $RC

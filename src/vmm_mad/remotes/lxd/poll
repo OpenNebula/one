@@ -129,19 +129,17 @@ module LXD
 
             state
         end
-        
+
         def lxc_path(vm_name)
             path = 'lxc/' + vm_name
             path = "#{ENV['LXC_CGROUP_PREFIX']}#{path}" if ENV['LXC_CGROUP_PREFIX']
-        end    
+        end
 
         def get_memory(vm_name)
-            begin
-                stat = File.read('/sys/fs/cgroup/memory/' + lxc_path(vm_name) + '/memory.usage_in_bytes').to_i
-                stat / 1024
-            rescue StandardError
-                return 0
-            end
+            stat = File.read('/sys/fs/cgroup/memory/' + lxc_path(vm_name) + '/memory.usage_in_bytes').to_i
+            stat / 1024
+        rescue StandardError
+            0
         end
 
         def get_net_statistics(vmd)
@@ -176,7 +174,7 @@ module LXD
             cpu_jiffies = get_cpu_jiffies - start_cpu_jiffies
 
             vm_names.each do |vm_name|
-                cpu_used[vm_name] = (get_process_jiffies(vm_name).to_f - 
+                cpu_used[vm_name] = (get_process_jiffies(vm_name).to_f -
                         cpu_used[vm_name]) / cpu_jiffies
 
                 cpu_used[vm_name] = (cpu_used[vm_name] * multiplier).round(2)
@@ -205,7 +203,7 @@ module LXD
         def get_process_jiffies(vm_name)
             begin
                 jiffies = 0
-                
+
                 stat = File.read('/sys/fs/cgroup/cpu,cpuacct/' + lxc_path(vm_name) + '/cpuacct.stat')
                 stat.lines.each {|line| jiffies += line.split(' ')[1] }
             rescue StandardError
@@ -232,20 +230,19 @@ module LXD
             arch     = container.architecture
             capacity = container.expanded_config
 
-            cpu = ""
-            vcpu= ""
-            mem = ""
+            cpu = ''
+            vcpu = ''
+            mem = ''
 
             if capacity
                 cpu  = capacity['limits.cpu.allowance']
                 vcpu = capacity['limits.cpu']
-                mem  = capacity['limits.memory'] 
+                mem  = capacity['limits.memory']
             end
 
-            cpu  = "50%"  if !cpu || cpu.empty?
-            vcpu = "1"    if !vcpu || vcpu.empty?
-            mem  = "512M" if !mem || mem.empty?
- 
+            cpu  = '50%'  if !cpu || cpu.empty?
+            vcpu = '1'    if !vcpu || vcpu.empty?
+            mem  = '512MB' if !mem || mem.empty?
             cpu = cpu.chomp('%').to_f / 100
             mem = parse_memory(mem)
 

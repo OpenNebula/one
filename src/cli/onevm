@@ -557,8 +557,10 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :migrate, migrate_desc, [:range, :vmid_list], :hostid,
-            [:datastoreid, nil], :options => [ENFORCE, OneVMHelper::LIVE,
-        OneVMHelper::POFF, OneVMHelper::POFFHARD] do
+            [:datastoreid, nil], :options => [ENFORCE,
+                                              OneVMHelper::LIVE,
+                                              OneVMHelper::POFF,
+                                              OneVMHelper::POFFHARD] do
         host_id = args[1]
         verbose = "migrating to #{host_id}"
 
@@ -795,7 +797,8 @@ CommandParser::CmdParser.new(ARGV) do
 
             if ip
                 if !nic_alias && !nic_name
-                    template = "NIC = [ NETWORK_ID = #{network_id}, IP = #{ip} ]"
+                    template = "NIC = [ NETWORK_ID = #{network_id},\
+                                        IP = #{ip} ]"
                 elsif !nic_alias && nic_name
                     template = "NIC = [ NETWORK_ID = #{network_id},
                                         IP = #{ip},
@@ -1125,8 +1128,8 @@ CommandParser::CmdParser.new(ARGV) do
         state, valid states are: pending, failure, poweroff, undeploy, hold or
         cloning.
 
-        This command accepts a template file or opens an editor, the full list of
-        configuration attributes are:
+        This command accepts a template file or opens an editor, the full list
+        of configuration attributes are:
 
         OS        = ["ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER", "BOOT"]
         FEATURES  = ["ACPI", "PAE", "APIC", "LOCALTIME", "HYPERV", "GUEST_AGENT"]
@@ -1154,7 +1157,8 @@ CommandParser::CmdParser.new(ARGV) do
 
                 template = vm.template_like_str('TEMPLATE', true,
                                                 'OS | FEATURES | INPUT | '\
-                                                'GRAPHICS | RAW | CONTEXT | CPU_MODEL')
+                                                'GRAPHICS | RAW | CONTEXT | '\
+                                                'CPU_MODEL')
                 template = OpenNebulaHelper.editor_input(template)
             end
 
@@ -1163,8 +1167,8 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     lock_desc = <<-EOT.unindent
-        Locks a VM with differents levels for lock any actions with this VM, show and
-        monitoring never will be locked.
+        Locks a VM with differents levels for lock any actions with this VM,
+        show and monitoring never will be locked.
         Aalid states are: All.
     EOT
 

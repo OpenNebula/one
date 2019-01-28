@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -16,44 +14,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# mvds host:remote_system_ds/disk.i fe:SOURCE vmid dsid
-#   - fe is the front-end hostname
-#   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
-#   - host is the target host to deploy the VM
-#   - remote_system_ds is the path for the system datastore in the host
-#   - vmid is the id of the VM
-#   - dsid is the target datastore (0 is the system datastore)
+# lint ruby code
 
-SRC=$1
-DST=$2
-
-VMID=$3
-DSID=$4
-
-if [ -z "${ONE_LOCATION}" ]; then
-    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
-else
-    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
-fi
-
-. $TMCOMMON
-
-SRC_PATH="$(arg_path $SRC)"
-SRC_HOST="$(arg_host $SRC)"
-SRC_PATH_SNAP="${SRC_PATH}.snap"
-
-DST_SNAP="${DST}.snap"
-
-#-------------------------------------------------------------------------------
-# Move the image back to the datastore
-#-------------------------------------------------------------------------------
-
-log "Moving $SRC to datastore as $DST"
-exec_and_log "$SCP -r $SRC $DST" "Error copying $SRC to $DST"
-
-if $SSH $SRC_HOST ls ${SRC_PATH_SNAP} >/dev/null 2>&1; then
-    exec_and_log "rsync -r --delete ${SRC_HOST}:${SRC_PATH_SNAP}/ ${DST_SNAP}"
-    hup_collectd $SRC_HOST
-fi
-
-exit 0
+ln -s share/linters/.rubocop.yml . && rubocop

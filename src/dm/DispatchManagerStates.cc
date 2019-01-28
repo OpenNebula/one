@@ -314,6 +314,8 @@ void  DispatchManager::resubmit_action(int vid)
 
         vm->set_state(VirtualMachine::PENDING);
 
+        vm->set_deploy_id(""); //reset the deploy-id
+
         vmpool->update(vm);
 
         vm->unlock();
