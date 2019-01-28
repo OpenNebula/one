@@ -2460,11 +2460,13 @@ class VirtualMachine < VCenterDriver::Template
         begin
             # retrieve host from DRS
             resourcepool = config[:cluster].resourcePool
+            host         = config[:cluster].host.first
             datastore    = config[:datastore]
 
             if datastore
                 relocate_spec_params = {
                     pool:      resourcepool,
+                    host:      host,
                     datastore: datastore,
                 }
 
