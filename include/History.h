@@ -258,6 +258,10 @@ private:
      */
     string& to_xml(string& xml, bool database) const;
 
+    string& to_json(string& json) const;
+
+    string& to_token(string& text) const;
+
     /**
      *  Rebuilds the object from an xml node
      *    @param node The xml node pointer

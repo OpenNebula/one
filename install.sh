@@ -1458,8 +1458,7 @@ ONEDB_SHARED_MIGRATOR_FILES="src/onedb/shared/2.0_to_2.9.80.rb \
                              src/onedb/shared/5.3.80_to_5.4.0.rb \
                              src/onedb/shared/5.4.0_to_5.4.1.rb \
                              src/onedb/shared/5.4.1_to_5.5.80.rb \
-                             src/onedb/shared/5.5.80_to_5.6.0.rb \
-                             src/onedb/shared/5.6.0_to_5.7.80.rb"
+                             src/onedb/shared/5.5.80_to_5.6.0.rb"
 
 ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/4.5.80_to_4.7.80.rb \
                             src/onedb/local/4.7.80_to_4.9.80.rb \

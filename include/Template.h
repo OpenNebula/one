@@ -170,6 +170,10 @@ public:
      */
     string& to_xml(string& xml) const;
 
+    string& to_json(string& xml) const;
+
+    string& to_token(string& xml) const;
+
     /**
      *  Writes the template in a plain text string
      *    @param str string that hold the template representation

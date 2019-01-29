@@ -178,6 +178,36 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
     }
 
     /**
+     * Retrieves all or part of the Virtual Machines in the pool. The
+     * Virtual Machines to retrieve can be also filtered by Id, specifying the
+     * first and last Id to include; and by state.
+     *
+     * @param client XML-RPC Client.
+     * @param filter Filter flag to use. Possible values:
+     * <ul>
+     * <li>{@link Pool#ALL}: All Virtual Machines</li>
+     * <li>{@link Pool#MINE}: Connected user's Virtual Machines</li>
+     * <li>{@link Pool#MINE_GROUP}: Connected user's Virtual Machines, and the ones in
+     * his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Virtual Machines</li>
+     * <li>&gt;= 0 UID User's Virtual Machines</li>
+     * </ul>
+     * @param startId Lowest Id to retrieve
+     * @param endId Biggest Id to retrieve
+     * @param state Numeric state of the Virtual Machines wanted, or one
+     * of {@link VirtualMachinePool#ALL_VM} or
+     * {@link VirtualMachinePool#NOT_DONE}
+     * @param query query for FTS
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse info_search(Client client, int filter,
+            int startId, int endId, int state, String query)
+    {
+        return client.call(INFO_METHOD, filter, startId, endId, state, query);
+    }
+
+    /**
      * Retrieves the monitoring data for all or part of the Virtual
      * Machines in the pool.
      *

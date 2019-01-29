@@ -252,8 +252,6 @@ void Nebula::start(bool bootstrap_only)
     // -----------------------------------------------------------
     try
     {
-        bool db_is_sqlite = true;
-
         string server;
         int    port;
         string user;
@@ -265,12 +263,7 @@ void Nebula::start(bool bootstrap_only)
 
         if ( _db != 0 )
         {
-            string value = _db->vector_value("BACKEND");
-
-            if (value == "mysql")
-            {
-                db_is_sqlite = false;
-            }
+            db_backend_type = _db->vector_value("BACKEND");
 
             if (_db->vector_value("SERVER", server) == -1)
             {
@@ -303,7 +296,7 @@ void Nebula::start(bool bootstrap_only)
             }
         }
 
-        if ( db_is_sqlite )
+        if ( db_backend_type == "sqlite" )
         {
             db_backend = new SqliteDB(var_location + "one.db");
         }

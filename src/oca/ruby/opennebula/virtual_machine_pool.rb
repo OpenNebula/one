@@ -115,6 +115,23 @@ module OpenNebula
                                INFO_NOT_DONE)
         end
 
+        def info_search(args = {})
+            default_args = {
+                :who      => INFO_ALL,
+                :start_id => -1,
+                :end_id   => -1,
+                :state    => INFO_NOT_DONE,
+                :query    => ""
+            }.merge!(args)
+
+            return info_filter(VM_POOL_METHODS[:info],
+                               default_args[:who],
+                               default_args[:start_id],
+                               default_args[:end_id],
+                               default_args[:state],
+                               default_args[:query])
+        end
+
         alias_method :info!, :info
         alias_method :info_all!, :info_all
         alias_method :info_mine!, :info_mine
@@ -458,8 +475,8 @@ module OpenNebula
             data_hash
         end
 
-        def info_filter(xml_method, who, start_id, end_id, state)
-            return xmlrpc_info(xml_method, who, start_id, end_id, state)
+        def info_filter(xml_method, who, start_id, end_id, state, query="")
+            return xmlrpc_info(xml_method, who, start_id, end_id, state, query)
         end
     end
 end
