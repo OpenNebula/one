@@ -1000,6 +1000,7 @@ IM_PROBES_LXD_PROBES_FILES="src/im_mad/remotes/lxd-probes.d/lxd.rb \
                      src/im_mad/remotes/lxd-probes.d/pci.rb \
                      src/im_mad/remotes/lxd-probes.d/monitor_ds.sh \
                      src/im_mad/remotes/lxd-probes.d/version.sh \
+                     src/im_mad/remotes/lxd-probes.d/profiles.sh \
                      src/im_mad/remotes/lxd-probes.d/collectd-client-shepherd.sh"
 
 IM_PROBES_LXD_FILES="src/im_mad/remotes/lxd.d/collectd-client_control.sh \
