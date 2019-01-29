@@ -135,10 +135,15 @@ end
 
 # Error used for raising LXDClient exception when response is error return value
 class LXDError < StandardError
-    attr_reader :body
+
+    attr_reader :body, :error, :error_code, :type
 
     def initialize(msg = 'LXD API error')
         @body = msg
+        @error = @body['error']
+        @error_code = @body['error_code']
+        @type = @body['type']
         super
     end
+
 end
