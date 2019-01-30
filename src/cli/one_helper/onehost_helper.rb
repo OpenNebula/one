@@ -381,6 +381,99 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         end
     end
 
+    def forceupdate(host_ids, options)
+
+        if Process.uid.zero? || Process.gid.zero?
+            STDERR.puts("Cannot run 'onehost forceupdate' as root")
+            exit -1
+        end
+
+        cluster_id = options[:cluster]
+
+        # Get the Host pool
+        filter_flag ||= OpenNebula::Pool::INFO_ALL
+
+        pool = factory_pool(filter_flag)
+
+        rc = pool.info
+        return -1, rc.message if OpenNebula.is_error?(rc)
+
+        # Assign hosts to threads
+        queue = Array.new
+
+        pool.each do |host|
+            if host_ids
+                next if !host_ids.include?(host['ID'].to_i)
+            elsif cluster_id
+                next if host['CLUSTER_ID'].to_i != cluster_id
+            end
+
+            vm_mad = host['VM_MAD'].downcase
+            state = host['STATE']
+
+            # Skip this host from remote syncing if it's a PUBLIC_CLOUD host
+            next if host['TEMPLATE/PUBLIC_CLOUD'] == 'YES'
+
+            # Skip this host from remote syncing if it's OFFLINE
+            next if Host::HOST_STATES[state.to_i] == 'OFFLINE'
+
+            # Skip this host if it is a vCenter cluster
+            next if vm_mad == "vcenter"
+
+            queue << host
+        end
+
+        # Run the jobs in threads
+        host_errors = Array.new
+        queue_lock = Mutex.new
+        error_lock = Mutex.new
+        total = queue.length
+
+        if total==0
+            puts "No hosts are going to be forced."
+            exit(0)
+        end
+
+        ts = (1..NUM_THREADS).map do |t|
+            Thread.new do
+                while true do
+                    host = nil
+                    size = 0
+
+                    queue_lock.synchronize do
+                        host=queue.shift
+                        size=queue.length
+                    end
+
+                    break if !host
+
+                    cmd='cat /tmp/one-collectd-client.pid | xargs kill -HUP'
+                    system("ssh #{host['NAME']} \"#{cmd}\" 2>/dev/null")
+
+                    if !$?.success?
+                        error_lock.synchronize {
+                            host_errors << host['NAME']
+                        }
+                    else
+                        puts "#{host['NAME']} monitoring forced"
+                    end
+                end
+            end
+        end
+
+        # Wait for threads to finish
+        ts.each{|t| t.join}
+
+        if host_errors.empty?
+            puts "All hosts updated successfully."
+            0
+        else
+            STDERR.puts "Failed to update the following hosts:"
+            host_errors.each{|h| STDERR.puts "* #{h}"}
+            -1
+        end
+    end
+
     private
 
     def print_update_info(current, total, host)
