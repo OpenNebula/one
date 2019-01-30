@@ -1277,7 +1277,11 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     if (ds_id != -1)
     {
-        if ( c_ds_id != ds_id && live )
+        VirtualMachineManager * vmm = Nebula::instance().get_vmm();
+        const VirtualMachineManagerDriver * vmmd = vmm->get(vmm_mad);
+
+
+        if ( c_ds_id != ds_id && live && !vmmd->is_ds_live_migration())
         {
             att.resp_msg = "A migration to a different system datastore "
                 "cannot be performed live.";
