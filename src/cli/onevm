@@ -1056,9 +1056,9 @@ CommandParser::CmdParser.new(ARGV) do
 
             rc = pool.info_search(:query => options[:search])
 
-            if rc != nil
+            if !rc.nil?
                 puts rc.message
-                exit -1
+                exit(-1)
             end
 
             if options[:xml]
