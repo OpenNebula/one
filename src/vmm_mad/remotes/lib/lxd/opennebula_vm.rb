@@ -340,7 +340,19 @@ class OpenNebulaVM
 
     def profile(hash)
         profile = @xml['//USER_TEMPLATE/LXD_PROFILE']
-        profile = 'default' if profile.empty?
+
+        if profile.empty?
+            profile = 'default'
+        else
+            begin
+                LXDClient.new.get("profiles/#{profile}")
+            rescue LXDError => e
+                raise e unless e.error_code == 404
+
+                OpenNebula.log_error "Profile \"#{profile}\" not found\n#{e}"
+                profile = 'default'
+            end
+        end
 
         hash['profiles'] = [profile]
     end
