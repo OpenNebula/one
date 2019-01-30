@@ -1510,8 +1510,9 @@ class VirtualMachine < VCenterDriver::Template
         mac     = nic["MAC"]
         pg_name = nic["BRIDGE"]
         default = VCenterDriver::VIHelper.get_default('VM/TEMPLATE/NIC/MODEL')
+        tmodel  = one_item['USER_TEMPLATE/NIC_DEFAULT/MODEL']
 
-        model   = nic['MODEL'] || default
+        model   = nic['MODEL'] || tmodel || default
         raise 'nic model cannot be empty!' if model == ''
 
         vnet_ref  = nic["VCENTER_NET_REF"]
@@ -1606,8 +1607,9 @@ class VirtualMachine < VCenterDriver::Template
         pg_name = nic["BRIDGE"]
         model   = ''
         default = VCenterDriver::VIHelper.get_default('VM/TEMPLATE/NIC/MODEL')
+        tmodel  = one_item['USER_TEMPLATE/NIC_DEFAULT/MODEL']
 
-        model   = nic['MODEL'] || default
+        model   = nic['MODEL'] || tmodel || default
 
         vnet_ref  = nic["VCENTER_NET_REF"]
         backing   = nil
