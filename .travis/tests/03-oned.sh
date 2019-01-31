@@ -16,7 +16,7 @@
 
 # install oned system wide
 
-sudo ./install.sh
+sudo ./install.sh -u travis
 
 # start oned
 
