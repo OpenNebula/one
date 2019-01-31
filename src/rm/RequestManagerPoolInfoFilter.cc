@@ -102,9 +102,7 @@ void VirtualMachinePoolInfo::request_execute(
     {
         fts_query = xmlrpc_c::value_string(paramList.getString(5));
 
-        std::string backend = Nebula::instance().get_db_backend();
-
-        if (!fts_query.empty() && backend == "sqlite")
+        if (!fts_query.empty() && !pool->is_fts_available())
         {
             att.resp_msg = "Full text search is not allowed with sqlite backend";
 

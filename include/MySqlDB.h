@@ -84,6 +84,11 @@ public:
      */
     bool limit_support();
 
+    /**
+     *  Return true if the backend allows FTS index
+     */
+     bool fts_available();
+
 protected:
     /**
      *  Wraps the mysql_query function call

@@ -96,6 +96,11 @@ public:
      */
     virtual bool limit_support() = 0;
 
+    /**
+     *  Return true if the backend allows FTS index
+     */
+    virtual bool fts_available() = 0;
+
 protected:
     /**
      *  Performs a DB transaction

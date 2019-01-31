@@ -1067,7 +1067,7 @@ CommandParser::CmdParser.new(ARGV) do
                 table.show(pool.to_hash, options)
             end
 
-            return 0
+            0
         end
     end
 

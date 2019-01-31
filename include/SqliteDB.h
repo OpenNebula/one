@@ -79,6 +79,10 @@ public:
      */
     bool limit_support();
 
+    bool fts_available()
+    {
+        return false;
+    }
 protected:
     /**
      *  Wraps the sqlite3_exec function call, and locks the DB mutex.

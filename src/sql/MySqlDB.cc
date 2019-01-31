@@ -345,3 +345,21 @@ void MySqlDB::free_db_connection(MYSQL * db)
 }
 
 /* -------------------------------------------------------------------------- */
+
+bool MySqlDB::fts_available()
+{
+    unsigned long version;
+
+    version = mysql_get_server_version(db_escape_connect);
+
+    if (version >= 50600)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
