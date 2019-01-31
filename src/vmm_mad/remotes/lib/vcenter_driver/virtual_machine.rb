@@ -2931,6 +2931,12 @@ class VirtualMachine < VCenterDriver::Template
         return one_vm
     end
 
+    # Migrate a VM to another cluster and/or datastore
+    # @params [int] vm_id ID of the VM to be migrated
+    # params [String] src_host Name of the source cluster    
+    # params [String] dst_host Name of the target cluster    
+    # params [Bool] hot_ds Wether this is a DS migration with the VM running or not
+    # params [int] Destination datastore ID
     def self.migrate_routine(vm_id, src_host, dst_host, hot_ds = false, ds = nil)
         one_client = OpenNebula::Client.new
         pool = OpenNebula::HostPool.new(one_client)
