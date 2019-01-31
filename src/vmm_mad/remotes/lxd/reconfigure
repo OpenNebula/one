@@ -40,6 +40,6 @@ if iso_path != ''
 
     raise 'Failed to attach context' unless container.attach_context
 
-    rc, _out, err = container.exec('one-contextd local')
+    rc, _out, err = container.exec('service one-context-reconfigure start')
     OpenNebula.log_error "Failed to run contextualization\n#{err}" unless rc.zero?
 end
