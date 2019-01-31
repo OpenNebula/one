@@ -22,6 +22,9 @@ sudo ./install.sh -u travis
 mkdir $HOME/.one
 echo "oneadmin:opennebula" > $HOME/.one/one_auth
 
+# Install gems
+/usr/share/one/install_gems --yes
+
 # start oned
 
 one start
