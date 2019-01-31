@@ -50,8 +50,13 @@ class Qcow2Mapper < Mapper
     end
 
     def do_unmap(device, _one_vm, _disk, _directory)
-        hide_parts(device) # TODO: avoid using if kpartx was not used
-
+        #After mapping and unmapping a qcow2 the next mapped qcow2 may collide with the previous one. 
+        #The use of kpartx before unmapping seems to prevent this behavior on the nbd module used with 
+        #the kernel versions in ubuntu 16.04
+        #
+        # TODO: avoid using if kpartx was not used
+        hide_parts(device)
+        
         cmd = "#{COMMANDS[:nbd]} -d #{device}"
 
         rc, _out, err = Command.execute(cmd, false)
