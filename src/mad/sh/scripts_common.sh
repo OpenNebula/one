@@ -460,12 +460,23 @@ function ssh_make_path
 {
     SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 1>/dev/null <<EOF
 set -e -o pipefail
-if [ ! -d $2 ]; then
-   mkdir -p $2
 
-   if [ -n "$3" ]; then
-       echo "$3" > "\$(dirname $2)/.monitor"
-   fi
+if [ ! -d $2 ]; then
+    mkdir -p $2
+fi
+
+# create or update .monitor content
+if [ -n "$3" ]; then
+    MONITOR_FN="\$(dirname $2)/.monitor"
+
+    MONITOR=''
+    if [ -f "\\${MONITOR_FN}" ]; then
+        MONITOR="\\$(cat "\\${MONITOR_FN}" 2>/dev/null)"
+    fi
+
+    if [ "x\\${MONITOR}" != "x$3" ]; then
+        echo "$3" > "\\${MONITOR_FN}"
+    fi
 fi
 EOF`
     SSH_EXEC_RC=$?

@@ -118,7 +118,7 @@ if [ -n "$EC_POOL_NAME" ]; then
 fi
 
 if [ "${TYPE}" = 'FILE' ]; then
-    ssh_make_path $DST_HOST $DST_DIR
+    ssh_make_path $DST_HOST $DST_DIR 'ssh'
 
     CLONE_CMD=$(cat <<EOF
         RBD="${RBD}"
