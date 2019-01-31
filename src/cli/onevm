@@ -1047,8 +1047,28 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :list, list_desc, [:filterflag, nil],
             :options => CLIHelper::OPTIONS + OpenNebulaHelper::OPTIONS +
-                        [OpenNebulaHelper::DESCRIBE] do
-        helper.list_pool(options, false, args[0])
+                        [OpenNebulaHelper::DESCRIBE] + [OneVMHelper::SEARCH] do
+        if !options[:search]
+            helper.list_pool(options, false, args[0])
+        else
+            table = helper.format_pool(options)
+            pool = OpenNebula::VirtualMachinePool.new(OneVMHelper.get_client)
+
+            rc = pool.info_search(:query => options[:search])
+
+            if !rc.nil?
+                puts rc.message
+                exit(-1)
+            end
+
+            if options[:xml]
+                puts pool.to_xml
+            else
+                table.show(pool.to_hash, options)
+            end
+
+            return 0
+        end
     end
 
     show_desc = <<-EOT.unindent

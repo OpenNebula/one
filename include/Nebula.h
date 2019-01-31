@@ -371,7 +371,7 @@ public:
      */
     static string shared_db_version()
     {
-        return "5.7.80";
+        return "5.6.0";
     }
 
     /**
@@ -578,6 +578,15 @@ public:
         return nebula_configuration->to_xml(xml);
     };
 
+    /**
+     *  Gets the database backend type
+     *    @return database backend type
+     */
+    string get_db_backend() const
+    {
+        return db_backend_type;
+    }
+
     // -----------------------------------------------------------------------
     // Default Quotas
     // -----------------------------------------------------------------------
@@ -695,7 +704,7 @@ private:
                             "/DEFAULT_GROUP_QUOTAS/NETWORK_QUOTA",
                             "/DEFAULT_GROUP_QUOTAS/IMAGE_QUOTA",
                             "/DEFAULT_GROUP_QUOTAS/VM_QUOTA"),
-        system_db(0), logdb(0), fed_logdb(0),
+        system_db(0), db_backend_type("sqlite"), logdb(0), fed_logdb(0),
         vmpool(0), hpool(0), vnpool(0), upool(0), ipool(0), gpool(0), tpool(0),
         dspool(0), clpool(0), docpool(0), zonepool(0), secgrouppool(0),
         vdcpool(0), vrouterpool(0), marketpool(0), apppool(0), vmgrouppool(0),
@@ -819,6 +828,7 @@ private:
     // ---------------------------------------------------------------
 
     SystemDB * system_db;
+    string     db_backend_type;
 
     // ---------------------------------------------------------------
     // Nebula Pools

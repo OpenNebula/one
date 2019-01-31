@@ -1000,6 +1000,7 @@ IM_PROBES_LXD_PROBES_FILES="src/im_mad/remotes/lxd-probes.d/lxd.rb \
                      src/im_mad/remotes/lxd-probes.d/pci.rb \
                      src/im_mad/remotes/lxd-probes.d/monitor_ds.sh \
                      src/im_mad/remotes/lxd-probes.d/version.sh \
+                     src/im_mad/remotes/lxd-probes.d/profiles.sh \
                      src/im_mad/remotes/lxd-probes.d/collectd-client-shepherd.sh"
 
 IM_PROBES_LXD_FILES="src/im_mad/remotes/lxd.d/collectd-client_control.sh \
@@ -1458,8 +1459,7 @@ ONEDB_SHARED_MIGRATOR_FILES="src/onedb/shared/2.0_to_2.9.80.rb \
                              src/onedb/shared/5.3.80_to_5.4.0.rb \
                              src/onedb/shared/5.4.0_to_5.4.1.rb \
                              src/onedb/shared/5.4.1_to_5.5.80.rb \
-                             src/onedb/shared/5.5.80_to_5.6.0.rb \
-                             src/onedb/shared/5.6.0_to_5.7.80.rb"
+                             src/onedb/shared/5.5.80_to_5.6.0.rb"
 
 ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/4.5.80_to_4.7.80.rb \
                             src/onedb/local/4.7.80_to_4.9.80.rb \

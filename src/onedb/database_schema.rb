@@ -91,8 +91,15 @@ class OneDBBacKEnd
             vm_pool: "oid INTEGER PRIMARY KEY, name VARCHAR(128), " <<
                 "body MEDIUMTEXT, uid INTEGER, gid INTEGER, " <<
                 "last_poll INTEGER, state INTEGER, lcm_state INTEGER, " <<
-                "owner_u INTEGER, group_u INTEGER, other_u INTEGER, short_body MEDIUMTEXT",
-            
+                "owner_u INTEGER, group_u INTEGER, other_u INTEGER, short_body MEDIUMTEXT, " <<
+                "search_token MEDIUMTEXT, FULLTEXT ftidx(search_token)",
+
+            vm_pool_sqlite: "oid INTEGER PRIMARY KEY, name VARCHAR(128), " <<
+                "body MEDIUMTEXT, uid INTEGER, gid INTEGER, " <<
+                "last_poll INTEGER, state INTEGER, lcm_state INTEGER, " <<
+                "owner_u INTEGER, group_u INTEGER, other_u INTEGER, short_body MEDIUMTEXT, " <<
+                "search_token MEDIUMTEXT",
+
             vn_template_pool: "oid INTEGER PRIMARY KEY, name VARCHAR(128), " <<
                 "body MEDIUMTEXT, uid INTEGER, gid INTEGER," <<
                 "owner_u INTEGER, group_u INTEGER, other_u INTEGER"

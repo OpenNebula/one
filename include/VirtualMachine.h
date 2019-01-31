@@ -1884,6 +1884,10 @@ private:
      */
     string& to_xml_extended(string& xml, int n_history) const;
 
+    string& to_json(string& json) const;
+
+    string& to_token(string& text) const;
+
     // -------------------------------------------------------------------------
     // Attribute Parser
     // -------------------------------------------------------------------------

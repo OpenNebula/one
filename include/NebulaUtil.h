@@ -208,6 +208,11 @@ namespace one_util
     {
         return escape(v, "'", "'");
     }
+
+    void escape_json(const std::string& str, std::ostringstream& s);
+
+    void escape_token(const std::string& str, std::ostringstream& s);
+
     /**
      * Checks if a strings matches a regular expression
      *
@@ -236,7 +241,8 @@ namespace one_util
             const std::string& replacement);
 
     template <class T>
-    std::set<T> set_intersection(const std::set<T> &first, const std::set<T> &second)
+    std::set<T> set_intersection(const std::set<T> &first, const std::set<T>
+            &second)
     {
         std::set<T> output;
 
@@ -247,48 +253,48 @@ namespace one_util
         return output;
     }
 
-	/**
+    /**
      *  Compress the input string unsing zlib
      *    @param in input string
      *    @param bool64 true to base64 encode output
      *    @return pointer to the compressed sting (must be freed) or 0 in case
      *    of error
      */
-	std::string * zlib_compress(const std::string& in, bool base64);
+    std::string * zlib_compress(const std::string& in, bool base64);
 
-	/**
+    /**
      *  Decompress the input string unsing zlib
      *    @param in input string
      *    @param base64 true if the input is base64 encoded
      *    @return pointer to the decompressed sting (must be freed) or 0 in case
      *    of error
      */
-	std::string * zlib_decompress(const std::string& in, bool base64);
+    std::string * zlib_decompress(const std::string& in, bool base64);
 
-	extern "C" void sslmutex_lock_callback(int mode, int type, char *file,
-		int line);
+    extern "C" void sslmutex_lock_callback(int mode, int type, char *file,
+        int line);
 
-	extern "C" unsigned long sslmutex_id_callback();
+    extern "C" unsigned long sslmutex_id_callback();
 
-	class SSLMutex
-	{
-	public:
-		static void initialize();
+    class SSLMutex
+    {
+    public:
+        static void initialize();
 
-		static void finalize();
+        static void finalize();
 
-	private:
-		friend void sslmutex_lock_callback(int mode, int type, char *file,
-			int line);
+    private:
+        friend void sslmutex_lock_callback(int mode, int type, char *file,
+            int line);
 
-		SSLMutex();
+        SSLMutex();
 
-		~SSLMutex();
+        ~SSLMutex();
 
-		static SSLMutex * ssl_mutex;
+        static SSLMutex * ssl_mutex;
 
-		static std::vector<pthread_mutex_t *> vmutex;
-	};
+        static std::vector<pthread_mutex_t *> vmutex;
+    };
 };
 
 #endif /* _NEBULA_UTIL_H_ */

@@ -30,7 +30,6 @@ $LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
 require 'command_parser'
 require 'one_helper/onevntemplate_helper'
 require 'one_helper/onevnet_helper'
-require 'pry'
 
 CommandParser::CmdParser.new(ARGV) do
     usage '`onevntemplate` <command> [<args>] [<options>]'

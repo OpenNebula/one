@@ -386,19 +386,14 @@ bool Template::get(const string& name, bool& value) const
 
 string& Template::to_xml(string& xml) const
 {
-    multimap<string,Attribute *>::const_iterator  it;
-    ostringstream                           oss;
-    string *                                s;
+    multimap<string,Attribute *>::const_iterator it;
+    ostringstream oss;
 
     oss << "<" << xml_root << ">";
 
     for ( it = attributes.begin(); it!=attributes.end(); it++)
     {
-        s = it->second->to_xml();
-
-        oss << *s;
-
-        delete s;
+        it->second->to_xml(oss);
     }
 
     oss << "</" << xml_root << ">";
@@ -407,6 +402,81 @@ string& Template::to_xml(string& xml) const
 
     return xml;
 }
+
+string& Template::to_json(string& json) const
+{
+    multimap<string, Attribute *>::const_iterator it;
+    ostringstream oss;
+
+    bool is_first = true;
+
+    oss << "\"" << xml_root << "\": {";
+
+    for ( it = attributes.begin(); it!=attributes.end(); )
+    {
+        if (!is_first)
+        {
+            oss << ",";
+        }
+        else
+        {
+            is_first = false;
+        }
+
+        oss << "\"" << it->first << "\": ";
+
+        if ( attributes.count(it->first) == 1 )
+        {
+            it->second->to_json(oss);
+
+            ++it;
+        }
+        else
+        {
+            std::string jelem = it->first;
+            bool is_array_first = true;
+
+            oss << "[ ";
+
+            for ( ; it->first == jelem && it != attributes.end() ; ++it )
+            {
+                if ( !is_array_first )
+                {
+                    oss << ",";
+                }
+                else
+                {
+                    is_array_first = false;
+                }
+
+                it->second->to_json(oss);
+            }
+
+            oss << "]";
+        }
+    }
+
+    oss << "}";
+
+    json = oss.str();
+
+    return json;
+}
+
+string& Template::to_token(string& str) const
+{
+    ostringstream os;
+    multimap<string,Attribute *>::const_iterator  it;
+
+    for ( it = attributes.begin(); it!=attributes.end(); it++)
+    {
+        it->second->to_token(os);
+    }
+
+    str = os.str();
+    return str;
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

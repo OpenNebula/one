@@ -1163,8 +1163,8 @@ class VirtualMachine < VCenterDriver::Template
             return RbVmomi::VIM::VirtualVmxnet2
         when 'virtualvmxnet3', 'vmxnet3'
             return RbVmomi::VIM::VirtualVmxnet3
-        else # If none matches, use VirtualE1000
-            return RbVmomi::VIM::VirtualE1000
+        else # If none matches, use vmxnet3
+            return RbVmomi::VIM::VirtualVmxnet3
         end
     end
 
@@ -1238,20 +1238,20 @@ class VirtualMachine < VCenterDriver::Template
                 }
 
                 unmanaged_nics.each do |unic|
-                    vnic  = select_net.call(unic['VCENTER_NET_REF'])
-                    vcenter_nic_class    = vnic.class
-                    new_model = unic['MODEL'] && !unic['MODEL'].empty? && !unic['MODEL'].nil?
-                    opennebula_nic_class = nic_model_class(unic['MODEL']) if new_model
+                    vnic      = select_net.call(unic['VCENTER_NET_REF'])
+                    nic_class = vnic.class
+                    new_model = nic_model_class(unic['MODEL']) if unic['MODEL']
 
-                    if new_model && opennebula_nic_class != vcenter_nic_class
-                            # delete actual nic and update the new one.
+                    # delete actual nic and update the new one.
+                    if new_model && new_model != nic_class
                             device_change << { :device => vnic, :operation => :remove }
-                            device_change << calculate_add_nic_spec(unic)
+                            device_change << calculate_add_nic_spec(unic, vnic.unitNumber)
                     else
                             vnic.macAddress   = unic['MAC']
                             device_change << { :device => vnic, :operation => :edit }
                     end
                 end
+
             end
         rescue Exception => e
             raise "There is a problem with your vm NICS, make sure that they are working properly. Error: #{e.message}"
@@ -1370,13 +1370,20 @@ class VirtualMachine < VCenterDriver::Template
         device_change = []
 
         if option == :all
+            dchange = []
+
             # detached? condition indicates that the nic exists in OpeNebula but not
             # in vCenter
             nics_each(:detached?) do |nic|
-                device_change << {
+                dchange << {
                     :operation => :remove,
                     :device    => nic.vc_item
                 }
+            end
+            if !dchange.empty?
+                dspec_hash = { :deviceChange => dchange }
+                dspec = RbVmomi::VIM.VirtualMachineConfigSpec(dspec_hash)
+                @item.ReconfigVM_Task(:spec => dspec).wait_for_completion
             end
         end
 
@@ -1499,21 +1506,15 @@ class VirtualMachine < VCenterDriver::Template
     end
 
     # Returns an array of actions to be included in :deviceChange
-    def calculate_add_nic_spec(nic)
+    def calculate_add_nic_spec(nic, unumber = nil)
         mac     = nic["MAC"]
         pg_name = nic["BRIDGE"]
-        model   = ''
+        default = VCenterDriver::VIHelper.get_default('VM/TEMPLATE/NIC/MODEL')
+        tmodel  = one_item['USER_TEMPLATE/NIC_DEFAULT/MODEL']
 
-        if !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').nil? &&
-            !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').empty?
-            model = one_item['TEMPLATE/NIC_DEFAULT/MODEL']
-        elsif  (model.nil? || model.empty?) &&
-            !nic['MODEL'].nil? &&
-            !nic['MODEL'].empty?
-            model = nic['MODEL']
-        else
-            model = VCenterDriver::VIHelper.get_default('VM/TEMPLATE/NIC/MODEL')
-        end
+        model   = nic['MODEL'] || tmodel || default
+        raise 'nic model cannot be empty!' if model == ''
+
         vnet_ref  = nic["VCENTER_NET_REF"]
         backing   = nil
 
@@ -1546,24 +1547,7 @@ class VirtualMachine < VCenterDriver::Template
             card_num += 1 if is_nic?(dv)
         end
 
-        nic_card = case model
-                        when "virtuale1000", "e1000"
-                            RbVmomi::VIM::VirtualE1000
-                        when "virtuale1000e", "e1000e"
-                            RbVmomi::VIM::VirtualE1000e
-                        when "virtualpcnet32", "pcnet32"
-                            RbVmomi::VIM::VirtualPCNet32
-                        when "virtualsriovethernetcard", "sriovethernetcard"
-                            RbVmomi::VIM::VirtualSriovEthernetCard
-                        when "virtualvmxnetm", "vmxnetm"
-                            RbVmomi::VIM::VirtualVmxnetm
-                        when "virtualvmxnet2", "vmnet2"
-                            RbVmomi::VIM::VirtualVmxnet2
-                        when "virtualvmxnet3", "vmxnet3"
-                            RbVmomi::VIM::VirtualVmxnet3
-                        else # If none matches, use VirtualE1000
-                            RbVmomi::VIM::VirtualE1000
-                   end
+        nic_card = nic_model_class(model)
 
         if network.class == RbVmomi::VIM::Network
             backing = RbVmomi::VIM.VirtualEthernetCardNetworkBackingInfo(
@@ -1580,7 +1564,13 @@ class VirtualMachine < VCenterDriver::Template
         end
 
         # grab the last unitNumber to ensure the nic to be added at the end
-        @unic = @unic || get_vcenter_nics.map{|d| d.unitNumber}.max || 0
+        if !unumber
+            @unic   = @unic || get_vcenter_nics.map{|d| d.unitNumber}.max || 0
+            unumber = @unic += 1
+        else
+            @unic   = unumber
+        end
+
         card_spec = {
             :key => 0,
             :deviceInfo => {
@@ -1590,7 +1580,7 @@ class VirtualMachine < VCenterDriver::Template
             :backing     => backing,
             :addressType => mac ? 'manual' : 'generated',
             :macAddress  => mac,
-            :unitNumber  => @unic+=1
+            :unitNumber  => unumber
         }
 
         if (limit || rsrv) && (limit > 0)
@@ -1616,17 +1606,11 @@ class VirtualMachine < VCenterDriver::Template
     def calculate_add_nic_spec_autogenerate_mac(nic)
         pg_name = nic["BRIDGE"]
         model   = ''
+        default = VCenterDriver::VIHelper.get_default('VM/TEMPLATE/NIC/MODEL')
+        tmodel  = one_item['USER_TEMPLATE/NIC_DEFAULT/MODEL']
 
-        if !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').nil? &&
-            !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').empty?
-            model = one_item['TEMPLATE/NIC_DEFAULT/MODEL']
-        elsif  (model.nil? || model.empty?) &&
-            !nic['MODEL'].nil? &&
-            !nic['MODEL'].empty?
-            model = nic['MODEL']
-        else
-            model = VCenterDriver::VIHelper.get_default('VM/TEMPLATE/NIC/MODEL')
-        end
+        model   = nic['MODEL'] || tmodel || default
+
         vnet_ref  = nic["VCENTER_NET_REF"]
         backing   = nil
 
@@ -1658,24 +1642,7 @@ class VirtualMachine < VCenterDriver::Template
             card_num += 1 if is_nic?(dv)
         end
 
-        nic_card = case model
-                        when "virtuale1000", "e1000"
-                            RbVmomi::VIM::VirtualE1000
-                        when "virtuale1000e", "e1000e"
-                            RbVmomi::VIM::VirtualE1000e
-                        when "virtualpcnet32", "pcnet32"
-                            RbVmomi::VIM::VirtualPCNet32
-                        when "virtualsriovethernetcard", "sriovethernetcard"
-                            RbVmomi::VIM::VirtualSriovEthernetCard
-                        when "virtualvmxnetm", "vmxnetm"
-                            RbVmomi::VIM::VirtualVmxnetm
-                        when "virtualvmxnet2", "vmnet2"
-                            RbVmomi::VIM::VirtualVmxnet2
-                        when "virtualvmxnet3", "vmxnet3"
-                            RbVmomi::VIM::VirtualVmxnet3
-                        else # If none matches, use VirtualE1000
-                            RbVmomi::VIM::VirtualE1000
-                   end
+        nic_card = nic_model_class(model)
 
         if network.class == RbVmomi::VIM::Network
             backing = RbVmomi::VIM.VirtualEthernetCardNetworkBackingInfo(
