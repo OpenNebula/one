@@ -32,12 +32,21 @@ require 'vcenter_driver'
 vm_id    = ARGV[-2]
 src_host = ARGV[-3]
 dst_host = ARGV[-4]
+dsid     = ARGV[-5]
 
 begin
-    # TODO: grab destination ds
-    VCenterDriver::VirtualMachine.migrate_routine(vm_id,
-                                                  src_host,
-                                                  dst_host)
+
+    one_client = OpenNebula::Client.new
+    vm = OpenNebula::VirtualMachine.new_with_id(vm_id, one_client)
+    vm.info
+    src_ds = vm.retrieve_elements("HISTORY_RECORDS/HISTORY/DS_ID")[-2]
+
+    if src_ds == dsid
+        VCenterDriver::VirtualMachine.migrate_routine(vm_id, src_host,  dst_host)
+    else
+        VCenterDriver::VirtualMachine.migrate_routine(vm_id, src_host,  dst_host, true, dsid)
+    end
+
 rescue StandardError => e
     message = "Cannot migrate for VM #{vm_id}"\
               'failed due to '\

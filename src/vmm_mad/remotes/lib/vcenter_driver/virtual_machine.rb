@@ -2435,6 +2435,16 @@ class VirtualMachine < VCenterDriver::Template
                     datastore: datastore,
                 }
 
+                if config[:esx_migration_list].is_a?(String)
+                    if config[:esx_migration_list]==""
+                        relocate_spec_params[:host] = config[:cluster].host.sample
+                    elsif config[:esx_migration_list]!="Selected_by_DRS"
+                        hosts = config[:esx_migration_list].split(' ')
+                        relocate_spec_params[:host] = hosts.sample
+                    end
+                end
+
+
                 relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(relocate_spec_params)
                 @item.RelocateVM_Task(spec: relocate_spec, priority: "defaultPriority").wait_for_completion
             else
@@ -2888,7 +2898,13 @@ class VirtualMachine < VCenterDriver::Template
         return one_vm
     end
 
-    def self.migrate_routine(vm_id, src_host, dst_host, ds = nil)
+    # Migrate a VM to another cluster and/or datastore
+    # @params [int] vm_id ID of the VM to be migrated
+    # params [String] src_host Name of the source cluster    
+    # params [String] dst_host Name of the target cluster    
+    # params [Bool] hot_ds Wether this is a DS migration with the VM running or not
+    # params [int] Destination datastore ID
+    def self.migrate_routine(vm_id, src_host, dst_host, hot_ds = false, ds = nil)
         one_client = OpenNebula::Client.new
         pool = OpenNebula::HostPool.new(one_client)
         pool.info
@@ -2913,6 +2929,8 @@ class VirtualMachine < VCenterDriver::Template
         vm.info
         dst_host.info
 
+        esx_migration_list = dst_host['/HOST/TEMPLATE/ESX_MIGRATION_LIST']
+
         # required vcenter objects
         vc_vm = VCenterDriver::VirtualMachine.new_without_id(vi_client, vm['/VM/DEPLOY_ID'])
         ccr_ref  = dst_host['/HOST/TEMPLATE/VCENTER_CCR_REF']
@@ -2921,6 +2939,12 @@ class VirtualMachine < VCenterDriver::Template
         config = { :cluster => vc_host }
 
         config[:datastore] = datastore if datastore
+        if hot_ds
+            config[:esx_migration_list] = esx_migration_list if esx_migration_list
+        else
+            config[:esx_migration_list] = "Selected_by_DRS"
+        end
+
         vc_vm.migrate(config)
 
         vm.replace({ 'VCENTER_CCR_REF' => ccr_ref})
