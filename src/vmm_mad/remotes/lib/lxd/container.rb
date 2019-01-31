@@ -235,7 +235,7 @@ class Container
             return nil unless status
         end
 
-        return unless @one.has_context?
+        return 'no context' unless @one.has_context?
 
         csrc = @lxc['devices']['context']['source'].clone
 
