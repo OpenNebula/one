@@ -123,6 +123,10 @@ func SystemConfig() (string, error) {
 
 // Call is an XML-RPC wrapper. It returns a pointer to response and an error.
 func (c *oneClient) Call(method string, args ...interface{}) (*response, error) {
+	return c.endpointCall(c.url, method, args...)
+}
+
+func (c *oneClient) endpointCall(url string, method string, args ...interface{}) (*response, error) {
 	var (
 		ok bool
 
@@ -144,7 +148,7 @@ func (c *oneClient) Call(method string, args ...interface{}) (*response, error) 
 			&ClientError{Code: ClientReqBuild, msg: "xmlrpc request encoding", err: err}
 	}
 
-	req, err := http.NewRequest("POST", c.url, bytes.NewBuffer(buf))
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(buf))
 	if err != nil {
 		return nil,
 			&ClientError{Code: ClientReqBuild, msg: "http request build", err: err}
