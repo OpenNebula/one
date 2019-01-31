@@ -50,7 +50,7 @@ begin
     if src_ds == dsid
         VCenterDriver::VirtualMachine.migrate_routine(vmid, host_orig,  host_dest)
     else
-        VCenterDriver::VirtualMachine.migrate_routine(vmid, host_orig,  host_dest, dsid)
+        VCenterDriver::VirtualMachine.migrate_routine(vmid, host_orig,  host_dest, false, dsid)
     end
 
 rescue StandardError => e
