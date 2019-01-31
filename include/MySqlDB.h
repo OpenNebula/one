@@ -176,6 +176,8 @@ public:
 
     bool limit_support(){return true;};
 
+    bool fts_available(){return false;};
+
 protected:
     int exec(ostringstream& cmd, Callbackable* obj, bool quiet){return -1;};
 };
