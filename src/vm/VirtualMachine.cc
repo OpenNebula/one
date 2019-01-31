@@ -489,13 +489,11 @@ int VirtualMachine::bootstrap(SqlDB * db)
 {
     int rc;
 
-    string backend = Nebula::instance().get_db_backend();
-
     ostringstream oss_vm;
-    
+
     oss_vm << VirtualMachine::db_bootstrap;
 
-    if (backend == "mysql")
+    if (db->fts_available())
     {
         oss_vm << ", FULLTEXT ftidx(search_token))";
     }

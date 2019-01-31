@@ -273,6 +273,13 @@ public:
         db->free_str(str);
     }
 
+    /**
+     * Return true if FTS is available.
+     */
+     bool is_fts_available()
+     {
+         return db->fts_available();
+     }
 protected:
 
     /**
