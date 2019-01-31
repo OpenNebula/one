@@ -34,12 +34,16 @@ vm_id    = ARGV[-2]
 src_host = ARGV[-3]
 dst_host = ARGV[-4]
 
+drv_action = OpenNebula::XMLElement.new
+drv_action.initialize_xml(Base64.decode64(STDIN.read), 'VMM_DRIVER_ACTION_DATA')
+
+dst_ds = drv_action['VM/HISTORY_RECORDS/HISTORY/DS_ID']
+src_ds = drv_action['DATASTORE/ID']
+
 begin
     vi_client = VCenterDriver::VIClient.new_from_host(src_host)
     vm        = VCenterDriver::VirtualMachine.new(vi_client, d_id, vm_id)
-
-    # TODO: compare src_dsid with dest_dsid variables
-    new_ds = false
+    new_ds    = dst_ds != src_ds
 
     error = !vm.disks_each(:managed?).empty? && new_ds
     raise 'live migration with managed disk is not supported' if error
