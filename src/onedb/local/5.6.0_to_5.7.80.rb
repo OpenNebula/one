@@ -74,7 +74,12 @@ module Migrator
 
         @db.run 'DROP TABLE IF EXISTS old_vm_pool;'
         @db.run 'ALTER TABLE vm_pool RENAME TO old_vm_pool;'
-        create_table(:vm_pool)
+
+        if @db.adapter_scheme == :sqlite
+            create_table(:vm_pool_sqlite, "vm_pool", db_version)
+        else
+            create_table(:vm_pool, nil, db_version)
+        end
 
         @db.transaction do
             # updates VM's nics
@@ -108,9 +113,9 @@ module Migrator
         @db.run 'DROP TABLE IF EXISTS old_vm_pool;'
         @db.run 'ALTER TABLE vm_pool RENAME TO old_vm_pool;'
 
-        if @backend.class == BackEndSQLite
-            create_table(:vm_pool_sqlite, nil, db_version)
-        elsif
+        if @db.adapter_scheme == :sqlite
+            create_table(:vm_pool_sqlite, "vm_pool", db_version)
+        else
             create_table(:vm_pool, nil, db_version)
         end
 
@@ -349,7 +354,11 @@ module Migrator
         @db.run "DROP TABLE IF EXISTS old_vm_pool;"
         @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
 
-        create_table(:vm_pool)
+        if @db.adapter_scheme == :sqlite
+            create_table(:vm_pool_sqlite, "vm_pool", db_version)
+        else
+            create_table(:vm_pool, nil, db_version)
+        end
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_vm_pool") do |row|
