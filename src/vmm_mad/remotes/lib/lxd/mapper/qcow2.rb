@@ -50,7 +50,7 @@ class Qcow2Mapper < Mapper
     end
 
     def do_unmap(device, _one_vm, _disk, _directory)
-        #After mapping and unmapping a qcow2 the next mapped qcow2 may collide with the previous one. 
+        #After mapping and unmapping a qcow2 disk the next mapped qcow2 may collide with the previous one. 
         #The use of kpartx before unmapping seems to prevent this behavior on the nbd module used with 
         #the kernel versions in ubuntu 16.04
         #
