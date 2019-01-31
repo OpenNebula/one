@@ -113,7 +113,6 @@ AllCops:
     - src/vmm_mad/remotes/vcenter/reboot
     - src/vmm_mad/remotes/vcenter/deploy
     - src/vmm_mad/remotes/vcenter/reset
-    - src/vmm_mad/remotes/vcenter/migrate
     - src/vmm_mad/remotes/vcenter/reconfigure
     - src/vmm_mad/remotes/vcenter/save
     - src/vmm_mad/remotes/vcenter/restore

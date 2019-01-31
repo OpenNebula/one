@@ -19,9 +19,9 @@
 ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' unless defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' unless defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
@@ -29,30 +29,36 @@ $LOAD_PATH << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
+d_id     = ARGV[0]
 vm_id    = ARGV[-2]
 src_host = ARGV[-3]
 dst_host = ARGV[-4]
-dsid     = ARGV[-5]
 
 begin
+    vi_client = VCenterDriver::VIClient.new_from_host(src_host)
+    vm        = VCenterDriver::VirtualMachine.new(vi_client, d_id, vm_id)
 
-    one_client = OpenNebula::Client.new
-    vm = OpenNebula::VirtualMachine.new_with_id(vm_id, one_client)
-    vm.info
-    src_ds = vm.retrieve_elements("HISTORY_RECORDS/HISTORY/DS_ID")[-2]
+    # TODO: compare src_dsid with dest_dsid variables
+    new_ds = false
 
-    if src_ds == dsid
-        VCenterDriver::VirtualMachine.migrate_routine(vm_id, src_host,  dst_host)
+    error = !vm.disks_each(:managed?).empty? && new_ds
+    raise 'live migration with managed disk is not supported' if error
+
+    if new_ds
+        VCenterDriver::VirtualMachine
+            .migrate_routine(vm_id, src_host, dst_host, true, dsid)
     else
-        VCenterDriver::VirtualMachine.migrate_routine(vm_id, src_host,  dst_host, true, dsid)
+        VCenterDriver::VirtualMachine.migrate_routine(vm_id, src_host, dst_host)
     end
-
 rescue StandardError => e
     message = "Cannot migrate for VM #{vm_id}"\
               'failed due to '\
               "\"#{e.message}\"."
     OpenNebula.log_error(message)
-    STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
+
+    if VCenterDriver::CONFIG[:debug_information]
+        STDERR.puts "#{message} #{e.backtrace}"
+    end
 
     exit(-1)
 end
