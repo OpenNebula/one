@@ -44,13 +44,19 @@ class Qcow2Mapper < Mapper
 
         sleep 5 # wait for parts to come out
 
-        partitions = lsblk(device)
-        show_parts(device) unless partitions[0]['type'] == 'part'
+        show_parts(device) unless part?(device)
 
         device
     end
 
     def do_unmap(device, _one_vm, _disk, _directory)
+        #After mapping and unmapping a qcow2 disk the next mapped qcow2 may collide with the previous one. 
+        #The use of kpartx before unmapping seems to prevent this behavior on the nbd module used with 
+        #the kernel versions in ubuntu 16.04
+        #
+        # TODO: avoid using if kpartx was not used
+        hide_parts(device)
+        
         cmd = "#{COMMANDS[:nbd]} -d #{device}"
 
         rc, _out, err = Command.execute(cmd, false)
@@ -63,15 +69,28 @@ class Qcow2Mapper < Mapper
 
     private
 
+    def part?(device)
+        partitions = lsblk(device)
+        return true unless partitions[0]['type'] == 'part'
+
+        false
+    end
+
     def show_parts(device)
-        get_parts = "#{COMMANDS[:kpartx]} -s -av #{device}"
+        action_parts(device, '-s -av')
+    end
 
-        rc, _out, err = Command.execute(get_parts, false)
+    def hide_parts(device)
+        action_parts(device, '-d')
+    end
 
-        unless rc.zero?
-            OpenNebula.log_error("#{__method__}: #{err}")
-            return
-        end
+    def action_parts(device, action)
+        cmd = "#{COMMANDS[:kpartx]} #{action} #{device}"
+        rc, _out, err = Command.execute(cmd, false)
+
+        return unless rc.zero?
+
+        OpenNebula.log_error("#{__method__}: #{err}")
     end
 
     def nbd_device
