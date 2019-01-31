@@ -27,4 +27,4 @@ echo "Sunstone error log"
 cat /var/log/one/sunstone.error
 echo "---------"
 
-exit 1
+exit $RC
