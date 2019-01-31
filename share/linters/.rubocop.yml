@@ -360,7 +360,6 @@ AllCops:
     - src/cli/command_parser.rb
     - src/cli/cli_helper.rb
     - src/cli/one_helper.rb
-    - src/cli/one_helper/onehost_helper.rb
     - src/cli/one_helper/onevmgroup_helper.rb
     - src/cli/one_helper/onemarket_helper.rb
     - src/cli/one_helper/onesecgroup_helper.rb
