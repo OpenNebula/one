@@ -1279,7 +1279,13 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     {
         VirtualMachineManager * vmm = Nebula::instance().get_vmm();
         const VirtualMachineManagerDriver * vmmd = vmm->get(vmm_mad);
-
+	    
+	if ( vmmd == 0 )
+	{
+            att.resp_msg = "Cannot find vmm driver: " + vmm_mad;
+            failure_response(ACTION, att);
+            return;		
+	}
 
         if ( c_ds_id != ds_id && live && !vmmd->is_ds_live_migration())
         {
