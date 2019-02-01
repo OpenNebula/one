@@ -11,7 +11,7 @@ fi
 tmpfile=$(mktemp /tmp/lxd_probe.XXXXXX)
 
 echo "$profiles" > "$tmpfile"
-out=$(tr '\n' ',' < "$tmpfile")
+out=$(tr '\n' ' ' < "$tmpfile")
 out=${out::-1}
 
 echo -e LXD_PROFILES=\""$out"\"
