@@ -196,6 +196,8 @@ class OpenNebulaVM
         disks = @xml.elements('//TEMPLATE/DISK')
 
         disks.each do |n|
+            next if n['TYPE'] == 'fs' || n['TYPE'] == 'swap'
+
             hash.update(disk(n, nil, nil))
         end
 

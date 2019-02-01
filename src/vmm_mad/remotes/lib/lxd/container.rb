@@ -231,6 +231,12 @@ class Container
         return unless @one
 
         @one.get_disks.each do |disk|
+            if disk['TYPE'] == 'fs' || disk['TYPE'] == 'swap'
+                e = "disk #{disk['DISK_ID']} type #{disk['TYPE']} not supported"
+                OpenNebula.log_error e
+                next
+            end
+
             status = setup_disk(disk, operation)
             return nil unless status
         end
