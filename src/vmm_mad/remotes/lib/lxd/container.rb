@@ -231,11 +231,17 @@ class Container
         return unless @one
 
         @one.get_disks.each do |disk|
+            if @one.volatile?(disk)
+                e = "disk #{disk['DISK_ID']} type #{disk['TYPE']} not supported"
+                OpenNebula.log_error e
+                next
+            end
+
             status = setup_disk(disk, operation)
             return nil unless status
         end
 
-        return unless @one.has_context?
+        return 'no context' unless @one.has_context?
 
         csrc = @lxc['devices']['context']['source'].clone
 
