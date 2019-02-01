@@ -75,7 +75,7 @@ module Migrator
         @db.run 'DROP TABLE IF EXISTS old_vm_pool;'
         @db.run 'ALTER TABLE vm_pool RENAME TO old_vm_pool;'
 
-        if @db.adapter_scheme == :sqlite
+        if !is_fts_available
             create_table(:vm_pool_sqlite, "vm_pool", db_version)
         else
             create_table(:vm_pool, nil, db_version)
@@ -113,7 +113,7 @@ module Migrator
         @db.run 'DROP TABLE IF EXISTS old_vm_pool;'
         @db.run 'ALTER TABLE vm_pool RENAME TO old_vm_pool;'
 
-        if @db.adapter_scheme == :sqlite
+        if !is_fts_available
             create_table(:vm_pool_sqlite, "vm_pool", db_version)
         else
             create_table(:vm_pool, nil, db_version)
@@ -205,6 +205,18 @@ module Migrator
         end
 
         return str_scaped
+    end
+
+    def is_fts_available()
+        if @db.adapter_scheme == :sqlite
+            return false
+        else
+            if @db.server_version >= 50600
+                return true
+            else
+                return false
+            end
+        end
     end
 
     def gen_short_body(body)
@@ -354,7 +366,7 @@ module Migrator
         @db.run "DROP TABLE IF EXISTS old_vm_pool;"
         @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
 
-        if @db.adapter_scheme == :sqlite
+        if !is_fts_available
             create_table(:vm_pool_sqlite, "vm_pool", db_version)
         else
             create_table(:vm_pool, nil, db_version)
