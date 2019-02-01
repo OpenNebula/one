@@ -231,7 +231,7 @@ class Container
         return unless @one
 
         @one.get_disks.each do |disk|
-            if disk['TYPE'] == 'fs' || disk['TYPE'] == 'swap'
+            if @one.volatile?(disk)
                 e = "disk #{disk['DISK_ID']} type #{disk['TYPE']} not supported"
                 OpenNebula.log_error e
                 next
