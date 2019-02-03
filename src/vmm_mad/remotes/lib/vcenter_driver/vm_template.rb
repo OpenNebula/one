@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -229,6 +229,7 @@ class Template
 
             #Get disks and info required
             vc_disks = get_vcenter_disks
+            vc_disks.sort_by! {|d| d[:device].unitNumber}
 
             # Track allocated images
             allocated_images = []
@@ -592,6 +593,8 @@ class Template
 
             if is_disk_or_iso?(device)
                 disk[:device]    = device
+
+                raise "datastore not found for VM's device" unless device.backing.datastore
                 disk[:datastore] = device.backing.datastore
                 disk[:path]      = device.backing.fileName
                 disk[:path_wo_ds]= disk[:path].sub(/^\[(.*?)\] /, "")

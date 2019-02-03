@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -326,6 +326,8 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
     ostringstream oss;
     std::stringstream ss;
 
+    string orph;
+
     if ( Nebula::instance().get_tm_conf_attribute(tm_mad, vatt) != 0 )
     {
         goto error_conf;
@@ -443,11 +445,9 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
         remove_template_attribute("SHARED");
     }
 
-    bool orph;
-
     if ( vatt->vector_value("ALLOW_ORPHANS", orph) == -1 )
     {
-        orph = false;
+        orph = "NO";
     }
 
     replace_template_attribute("ALLOW_ORPHANS", orph);

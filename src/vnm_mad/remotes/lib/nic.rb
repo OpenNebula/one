@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -110,7 +110,12 @@ module VNMMAD
                 end
 
                 if deploy_id && vm.vm_info[:dumpxml].nil?
-                    vm.vm_info[:dumpxml] = YAML.safe_load(`lxc config show #{deploy_id} 2>/dev/null`)
+                    cmd = "lxc config show #{deploy_id} 2>/dev/null"
+
+                    config = YAML.safe_load(`#{cmd}`)
+                    config = YAML.safe_load(`sudo #{cmd}`) if config.nil?
+
+                    vm.vm_info[:dumpxml] = config
 
                     vm.vm_info.each_key do |k|
                         vm.vm_info[k] = nil if vm.vm_info[k].to_s.strip.empty?

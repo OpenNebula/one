@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -280,7 +280,7 @@ int VirtualMachineNics::get_network_leases(int vm_id, int uid,
 
         one_util::toupper(net_mode);
 
-        if (vnic->name() == "NIC")
+        if (vnic->name() == "NIC" || vnic->name() == "PCI")
         {
             VirtualMachineNic * nic = new VirtualMachineNic(vnic, nic_id);
 
@@ -321,7 +321,7 @@ int VirtualMachineNics::get_network_leases(int vm_id, int uid,
 
             return -1;
         }
-        else
+        else if (vnic->name() == "NIC_ALIAS")
         {
             alias_nics.push_back(vnic);
         }

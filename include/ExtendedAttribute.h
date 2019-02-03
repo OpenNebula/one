@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -92,9 +92,19 @@ protected:
         return va->marshall(_sep);
     };
 
-    string * to_xml() const
+    void to_xml(std::ostringstream& s) const
     {
-        return va->to_xml();
+        return va->to_xml(s);
+    };
+
+    void to_json(std::ostringstream& s) const
+    {
+        return va->to_json(s);
+    };
+
+    void to_token(std::ostringstream& s) const
+    {
+        return va->to_token(s);
     };
 
     void unmarshall(const std::string& sattr, const char * _sep = 0)

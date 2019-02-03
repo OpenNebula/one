@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -44,7 +44,7 @@ class FSRawMapper < Mapper
 
         return true if rc.zero?
 
-        OpenNebula.log_error("#{__method__}: #{err}") if rc != 0
+        OpenNebula.log_error("#{__method__}: #{err}")
         nil
     end
 
@@ -60,7 +60,7 @@ class DiskRawMapper < Mapper
     # Fisrt line is matched to look for loop device 3, and return "/dev/loop3"
     def do_map(one_vm, disk, directory)
         dsrc = one_vm.disk_source(disk)
-        cmd  = "#{COMMANDS[:kpartx]} -av #{dsrc}"
+        cmd  = "#{COMMANDS[:kpartx]} -s -av #{dsrc}"
 
         rc, out, err = Command.execute(cmd, true)
 

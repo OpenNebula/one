@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -1893,7 +1893,7 @@ void LifeCycleManager::disk_snapshot_success(int vid)
     bool img_owner, vm_owner;
 
     const VirtualMachineDisk * disk;
-    Snapshots           snaps(-1, false);
+    Snapshots           snaps(-1, Snapshots::DENY);
     const Snapshots*    tmp_snaps;
     string              error_str;
 
@@ -1924,10 +1924,14 @@ void LifeCycleManager::disk_snapshot_success(int vid)
             vm->set_state(VirtualMachine::RUNNING);
         case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
+            vm->log("LCM", Log::INFO, "VM disk snapshot operation completed.");
+            vm->revert_disk_snapshot(disk_id, snap_id, false);
+            break;
+
         case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
             vm->log("LCM", Log::INFO, "VM disk snapshot operation completed.");
-            vm->revert_disk_snapshot(disk_id, snap_id);
+            vm->revert_disk_snapshot(disk_id, snap_id, true);
             break;
 
         case VirtualMachine::DISK_SNAPSHOT_DELETE:
@@ -2036,7 +2040,7 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
     Template *vm_quotas = 0;
 
     const VirtualMachineDisk* disk;
-    Snapshots           snaps(-1, false);
+    Snapshots           snaps(-1, Snapshots::DENY);
     const Snapshots*    tmp_snaps;
     string              error_str;
 

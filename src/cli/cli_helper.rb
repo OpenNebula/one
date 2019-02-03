@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -71,8 +71,18 @@ module CLIHelper
         :description => "Sets the delay in seconds for top command"
     }
 
+    NO_PAGER = {
+        :name  => "no_pager",
+        :large => "--no-pager",
+        :format => String,
+        :description => "Disable pagination",
+        :proc => lambda { |o, options|
+            ENV['ONE_PAGER'] = 'cat' if File.exists?('/bin/cat')
+        }
+    }
+
     #OPTIONS = [LIST, ORDER, FILTER, HEADER, DELAY]
-    OPTIONS = [LIST, LISTCONF, DELAY, FILTER, CSV_OPT]
+    OPTIONS = [LIST, LISTCONF, DELAY, FILTER, CSV_OPT, NO_PAGER]
 
     # Sets bold font
     def CLIHelper.scr_bold
@@ -293,7 +303,7 @@ module CLIHelper
 
             begin
                 if options[:csv]
-                    puts CSV.generate_line(@default_columns)
+                    puts CSV.generate_line(@default_columns) if !options[:noheader]
                     res_data.each {|l| puts CSV.generate_line(l) }
                 else
                     res_data.each{|l|

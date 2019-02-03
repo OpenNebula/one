@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -122,15 +122,6 @@ define(function(require) {
     }
     return number.toFixed(6);
   }
-  function caculatedTotalMemory(context){
-    var memory_cost = document.getElementById('MEMORY_COST').value;
-    var type = document.getElementById('MEMORY_UNIT_COST').value;
-    var real_memory = document.getElementById('MEMORY').value;
-    memory = memory_cost * real_memory * 24 * 30; //24 hours and 30 days
-    document.getElementById('total_value_memory').textContent = convertCostNumber(memory);
-    if (memory_cost != "")
-      $(".total_memory_cost", context).show();
-  }
 
   function _setup(context) {
     var that = this;
@@ -145,21 +136,15 @@ define(function(require) {
     });
 
     context.on("change", "#MEMORY_COST", function() {
-      caculatedTotalMemory(context);
       CapacityCreate.calculatedRealMemory(context);
     });
 
     context.on("change", "#MEMORY_UNIT_COST", function() {
-      caculatedTotalMemory(context);
-      CapacityCreate.calculatedRealMemory();
+      CapacityCreate.calculatedRealMemory(context);
     });
 
      context.on("change", "#CPU_COST", function() {
-      var cpu = document.getElementById('CPU').value;
-      var cpu_cost = document.getElementById('CPU_COST').value;
-      document.getElementById('total_value_cpu').textContent = convertCostNumber(cpu * cpu_cost * 24 * 30);
-      $(".total_cpu_cost", context).show();
-      CapacityCreate.calculatedRealCpu();
+      CapacityCreate.calculatedRealCpu(context);
     });
 
     context.on("change", "#DISK_COST", function() {

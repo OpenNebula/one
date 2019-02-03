@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -14,7 +14,20 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# No  : VCENTER_IMPORTED attribute will be set on imported images
-#       this attribute prevents the image to be deleted.
-# Yes : You can delete the images using OpenNebula.
-:delete_images: No
+# install oned system wide
+
+sudo ./install.sh -u travis
+
+# Set credentials
+mkdir $HOME/.one
+echo "oneadmin:opennebula" > $HOME/.one/one_auth
+
+# Install gems
+/usr/share/one/install_gems --yes
+
+# start oned
+
+one start
+
+# check it's up
+timeout 60 sh -c 'until nc -z $0 $1; do sleep 1; done' localhost 2633

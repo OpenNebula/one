@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -38,7 +38,7 @@ module Migrator
     def up
         bug_2687         # MUST be run before 2489, which generates short body
         feature_2253
-        feature_2489
+        feature_2489_2671
         feature_826
         true
     end
@@ -74,7 +74,12 @@ module Migrator
 
         @db.run 'DROP TABLE IF EXISTS old_vm_pool;'
         @db.run 'ALTER TABLE vm_pool RENAME TO old_vm_pool;'
-        create_table(:vm_pool)
+
+        if !is_fts_available
+            create_table(:vm_pool_sqlite, "vm_pool", db_version)
+        else
+            create_table(:vm_pool, nil, db_version)
+        end
 
         @db.transaction do
             # updates VM's nics
@@ -104,10 +109,15 @@ module Migrator
         @db.run 'DROP TABLE old_vm_pool;'
     end
 
-    def feature_2489
+    def feature_2489_2671
         @db.run 'DROP TABLE IF EXISTS old_vm_pool;'
         @db.run 'ALTER TABLE vm_pool RENAME TO old_vm_pool;'
-        create_table(:vm_pool, nil, db_version)
+
+        if !is_fts_available
+            create_table(:vm_pool_sqlite, "vm_pool", db_version)
+        else
+            create_table(:vm_pool, nil, db_version)
+        end
 
         @db.transaction do
             @db.fetch('SELECT * FROM old_vm_pool') do |row|
@@ -116,6 +126,7 @@ module Migrator
                 end
 
                 row[:short_body] = gen_short_body(doc)
+                row[:search_token] = gen_search_body(doc)
 
                 @db[:vm_pool].insert(row)
             end
@@ -132,6 +143,79 @@ module Migrator
             return 'openvswitch'
         else
             return 'linux'
+        end
+    end
+
+    def gen_search_body(body)
+
+        search_body = "UNAME=" + escape_token(body.root.xpath('UNAME').text) + "\n" +
+                      "GNAME=" + escape_token(body.root.xpath('GNAME').text) + "\n" +
+                      "NAME=" + escape_token(body.root.xpath('NAME').text) + "\n" +
+                      "LAST_POLL=" + escape_token(body.root.xpath('LAST_POLL').text) + "\n" +
+                      "PREV_STATE=" + escape_token(body.root.xpath('PREV_STATE').text) + "\n" +
+                      "PREV_LCM_STATE=" + escape_token(body.root.xpath('PREV_LCM_STATE').text) + "\n" +
+                      "RESCHED=" + escape_token(body.root.xpath('RESCHED').text) + "\n" +
+                      "STIME=" + escape_token(body.root.xpath('STIME').text) + "\n" +
+                      "ETIME=" + escape_token(body.root.xpath('ETIME').text) + "\n" +
+                      "DEPLOY_ID=" + escape_token(body.root.xpath('DEPLOY_ID').text) + "\n"
+
+        body.root.xpath("//TEMPLATE/*").each do |node|
+            search_body += to_token(node)
+        end
+
+        node = Nokogiri::XML(body.root.xpath("//HISTORY_RECORDS/HISTORY[last()]").to_s)
+
+        if !node.root.nil?
+            search_body += history_to_token(node)
+        end
+
+        return search_body
+    end
+
+    def to_token(node)
+        search_body = ""
+        if node.children.size > 1
+            node.children.each do |child|
+                search_body += to_token(child)
+            end
+        elsif
+            search_body += node.name + "=" + escape_token(node.children.text) + "\n"
+        end
+
+        return search_body
+    end
+
+    def history_to_token(hr)
+        hr_token = "HOSTNAME=" + escape_token(hr.xpath("//HOSTNAME").text) + "\n" +
+                   "HID=" + hr.xpath("//HID").text + "\n" +
+                   "CID=" + hr.xpath("//CID").text + "\n" +
+                   "DS_ID=" + hr.xpath("//DS_ID").text + "\n"
+    end
+
+    def escape_token(str)
+        str_scaped = ""
+
+        str.split("").each do |c|
+            case c
+            when '-', '_', '.', ':'
+                str_scaped += '_'
+            else
+                str_scaped += c
+            end
+        end
+
+        return str_scaped
+    end
+
+    def is_fts_available()
+        if @db.adapter_scheme == :sqlite
+            return false
+        else
+            if @db.server_version >= 50600
+                return true
+            else
+                return false
+            end
         end
     end
 
@@ -282,7 +366,11 @@ module Migrator
         @db.run "DROP TABLE IF EXISTS old_vm_pool;"
         @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
 
-        create_table(:vm_pool)
+        if !is_fts_available
+            create_table(:vm_pool_sqlite, "vm_pool", db_version)
+        else
+            create_table(:vm_pool, nil, db_version)
+        end
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_vm_pool") do |row|

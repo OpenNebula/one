@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -135,10 +135,15 @@ end
 
 # Error used for raising LXDClient exception when response is error return value
 class LXDError < StandardError
-    attr_reader :body
+
+    attr_reader :body, :error, :error_code, :type
 
     def initialize(msg = 'LXD API error')
         @body = msg
+        @error = @body['error']
+        @error_code = @body['error_code']
+        @type = @body['type']
         super
     end
+
 end

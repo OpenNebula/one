@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -49,8 +49,7 @@ module KVM
         :domstate   => 'virsh --connect LIBVIRT_URI --readonly domstate',
         :list       => 'virsh --connect LIBVIRT_URI --readonly list',
         :dumpxml    => 'virsh --connect LIBVIRT_URI --readonly dumpxml',
-        :domifstat  => 'virsh --connect LIBVIRT_URI --readonly domifstat',
-        :domblkstat => 'virsh --connect LIBVIRT_URI --readonly domblkstat',
+        :domstats   => 'virsh --connect LIBVIRT_URI --readonly domstats',
         :top        => 'top -b -d2 -n 2 -p ',
         'LIBVIRT_URI' => 'qemu:///system'
     }
@@ -90,7 +89,7 @@ module KVM
 
         xml = dump_xml(one_vm)
 
-        values.merge!(get_interface_statistics(one_vm, xml))
+        values.merge!(get_io_statistics(one_vm, xml))
 
         return values
     end
@@ -157,8 +156,7 @@ module KVM
             end
 
             if (values[:state] == 'a') && (vm[:reason] != 'migrating')
-                values.merge!(get_interface_statistics(name, xml))
-                values.merge!(get_diskio_statistics(name, xml))
+                values.merge!(get_io_statistics(name, xml))
             end
 
             vms_info[vm[:name]] = values
@@ -306,94 +304,37 @@ module KVM
         `#{virsh(:dumpxml)} '#{vmid}' 2>/dev/null`
     end
 
-    # Aggregate statics of all VM NICs
-    #   @param the ID of the VM as defined in libvirt
-    #   @param text [nil, String] dumpxml output or nil to execute dumpxml
-    #   @return [Hash] with network stats, by name [symbol] :netrx, :nettx
-    def self.get_interface_statistics(vmid, text = nil)
-        text = dump_xml(vmid) if !text
+    def self.get_io_statistics(vmid, text = nil)
+        vm_stats=`#{virsh(:domstats)} #{vmid}`
 
-        return {} if $?.exitstatus != 0
-
-        doc = REXML::Document.new(text)
-
-        interfaces = Array.new
-
-        doc.elements.each('domain/devices/interface/target') do |ele|
-            interfaces << ele.attributes["dev"]
-        end
-
-        return {} if interfaces.empty?
-
-        values = Hash.new
-
+        values={}
         values[:netrx] = 0
         values[:nettx] = 0
+        values[:diskrdbytes]=0
+        values[:diskwrbytes]=0
+        values[:diskrdiops]=0
+        values[:diskwriops]=0
 
-        interfaces.each do |interface|
-            text=`#{virsh(:domifstat)} #{vmid} #{interface} 2>/dev/null`
 
-            next if $?.exitstatus != 0
-
-            text.each_line do |line|
-                columns = line.split(/\s+/)
-
-                case columns[1]
-                    when 'rx_bytes'
-                        values[:netrx] += columns[2].to_i
-                    when 'tx_bytes'
-                        values[:nettx]+=columns[2].to_i
-                    end
-                end
+        vm_stats.each_line do |line|
+            columns=line.split(/=(\d+)/)
+            case columns[0]
+            when /rx.bytes/
+                values[:netrx]+=columns[1].to_i
+            when /tx.bytes/
+                values[:nettx]+=columns[1].to_i
+            when /rd.bytes/
+                values[:diskrdbytes]+=columns[1].to_i
+            when /wr.bytes/
+                values[:diskwrbytes]+=columns[1].to_i
+            when /rd.reqs/
+                values[:diskrdiops]+=columns[1].to_i
+            when /wr.reqs/
+                values[:diskwriops]+=columns[1].to_i
+           end
         end
 
         values
-    end
-
-    def self.get_disk_names(vmid, text = nil)
-        text = dump_xml(vmid) if !text
-
-        doc=REXML::Document.new(text)
-        disks = []
-        doc.elements.each('domain/devices/disk/target') do |ele|
-            disks << ele.attributes["dev"]
-        end
-
-        disks
-    end
-
-    def self.get_diskio_statistics(vmid, text = nil)
-        disks=get_disk_names(vmid, text)
-
-        if disks && !disks.empty?
-            values={}
-            values[:diskrdbytes]=0
-            values[:diskwrbytes]=0
-            values[:diskrdiops]=0
-            values[:diskwriops]=0
-
-            disks.each do |disk|
-                text=`#{virsh(:domblkstat)} #{vmid} #{disk} 2>/dev/null`
-
-                text.each_line do |line|
-                    columns=line.split(/\s+/)
-                    case columns[1]
-                    when 'rd_bytes'
-                        values[:diskrdbytes]+=columns[2].to_i
-                    when 'wr_bytes'
-                        values[:diskwrbytes]+=columns[2].to_i
-                    when 'rd_req'
-                        values[:diskrdiops]+=columns[2].to_i
-                    when 'wr_req'
-                        values[:diskwriops]+=columns[2].to_i
-                    end
-                end
-            end
-
-            values
-        else
-            {}
-        end
     end
 
     # Translate libvirt state to Opennebula monitor state

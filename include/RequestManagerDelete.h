@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -60,7 +60,7 @@ protected:
         RequestAttributes& att);
 
     ErrorCode delete_object(int oid, bool recursive,
-        RequestAttributes& att);
+        RequestAttributes& att, AuthRequest::Operation auth);
 
     /* -------------------------------------------------------------------- */
 
@@ -105,7 +105,7 @@ public:
 
     ErrorCode request_execute(int oid, bool recursive, RequestAttributes& att)
     {
-        return delete_object(oid, recursive, att);
+        return delete_object(oid, recursive, att, auth_op);
     }
 
 protected:
@@ -121,7 +121,7 @@ class VirtualNetworkTemplateDelete : public RequestManagerDelete
 public:
     VirtualNetworkTemplateDelete():
         RequestManagerDelete("one.vntemplate.delete",
-                             "A:sib",
+                             "A:si",
                              "Deletes a virtual network template")
     {
         Nebula& nd  = Nebula::instance();
@@ -133,7 +133,7 @@ public:
 
     ErrorCode request_execute(int oid, bool recursive, RequestAttributes& att)
     {
-        return delete_object(oid, recursive, att);
+        return delete_object(oid, false, att, auth_op);
     }
 
 };
@@ -188,8 +188,11 @@ public:
 
     ErrorCode request_execute(int oid, RequestAttributes& att)
     {
-        return delete_object(oid, false, att);
+        return delete_object(oid, false, att, auth_op);
     };
+
+    void request_execute(xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att);
 
 protected:
 

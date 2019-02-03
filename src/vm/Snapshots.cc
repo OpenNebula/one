@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,21 +20,24 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Snapshots::Snapshots(int _disk_id, bool _orphans):
+Snapshots::Snapshots(int _disk_id, AllowOrphansMode _orphans):
     snapshot_template(false,'=',"SNAPSHOTS"),
     next_snapshot(0),
     active(-1),
     disk_id(_disk_id),
-    orphans(_orphans)
+    orphans(_orphans),
+    current_base(-1)
 {
     if (_disk_id != -1)
     {
         snapshot_template.add("DISK_ID", _disk_id);
     }
 
-    snapshot_template.add("ALLOW_ORPHANS", _orphans);
+    snapshot_template.add("ALLOW_ORPHANS", allow_orphans_mode_to_str(_orphans));
 
     snapshot_template.add("NEXT_SNAPSHOT", 0);
+
+    snapshot_template.add("CURRENT_BASE", -1);
 };
 
 Snapshots::Snapshots(const Snapshots& s):
@@ -42,7 +45,8 @@ Snapshots::Snapshots(const Snapshots& s):
     next_snapshot(0),
     active(-1),
     disk_id(-1),
-    orphans(false)
+    orphans(DENY),
+    current_base(-1)
 {
     init();
 }
@@ -55,6 +59,7 @@ Snapshots& Snapshots::operator= (const Snapshots& s)
         active        = s.active;
         disk_id       = s.disk_id;
         orphans       = s.orphans;
+        current_base  = s.current_base;
 
         snapshot_template = s.snapshot_template;
 
@@ -119,9 +124,20 @@ void Snapshots::init()
 
     snapshot_template.get("NEXT_SNAPSHOT", next_snapshot);
 
-    if ( snapshot_template.get("ALLOW_ORPHANS", orphans) == false )
+    string orphans_str;
+
+    if (snapshot_template.get("ALLOW_ORPHANS", orphans_str) == false)
     {
-        orphans = false;
+        orphans = DENY;
+    }
+    else
+    {
+        orphans = str_to_allow_orphans_mode(one_util::toupper(orphans_str));
+    }
+
+    if (snapshot_template.get("CURRENT_BASE", current_base) == false)
+    {
+        current_base = -1;
     }
 }
 
@@ -141,37 +157,18 @@ int Snapshots::create_snapshot(const string& name, long long size_mb)
     snapshot->replace("ID", next_snapshot);
     snapshot->replace("DATE", static_cast<long long>(time(0)));
 
-    if (!orphans)
+    if (orphans == DENY)
     {
-        snapshot->replace("PARENT", active);
-
-        if (active != -1)
+        if (add_child_deny(snapshot) == -1)
         {
-            VectorAttribute * parent = get_snapshot(active);
-
-            if (parent == 0)
-            {
-                delete snapshot;
-                return -1;
-            }
-
-            string children = parent->vector_value("CHILDREN");
-
-            if (children.empty())
-            {
-                parent->replace("CHILDREN", next_snapshot);
-            }
-            else
-            {
-                ostringstream oss;
-
-                oss << children << "," << next_snapshot;
-
-                parent->replace("CHILDREN", oss.str());
-            }
+            return -1;
         }
     }
-    else
+    else if (orphans == MIXED)
+    {
+        add_child_mixed(snapshot);
+    }
+    else //ALLOW
     {
         snapshot->replace("PARENT", "-1");
     }
@@ -189,6 +186,73 @@ int Snapshots::create_snapshot(const string& name, long long size_mb)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void Snapshots::add_child_mixed(VectorAttribute *snapshot)
+{
+    snapshot->replace("PARENT", current_base);
+
+    if (current_base != -1)
+    {
+        VectorAttribute * parent = get_snapshot(current_base);
+
+        if (parent != 0)
+        {
+            string children = parent->vector_value("CHILDREN");
+
+            if (children.empty())
+            {
+                parent->replace("CHILDREN", next_snapshot);
+            }
+            else
+            {
+                ostringstream oss;
+
+                oss << children << "," << next_snapshot;
+
+                parent->replace("CHILDREN", oss.str());
+            }
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Snapshots::add_child_deny(VectorAttribute *snapshot)
+{
+    snapshot->replace("PARENT", active);
+
+    if (active != -1)
+    {
+        VectorAttribute * parent = get_snapshot(active);
+
+        if (parent == 0)
+        {
+            delete snapshot;
+            return -1;
+        }
+
+        string children = parent->vector_value("CHILDREN");
+
+        if (children.empty())
+        {
+            parent->replace("CHILDREN", next_snapshot);
+        }
+        else
+        {
+            ostringstream oss;
+
+            oss << children << "," << next_snapshot;
+
+            parent->replace("CHILDREN", oss.str());
+        }
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void Snapshots::delete_snapshot(int id)
 {
     int parent_id;
@@ -200,7 +264,7 @@ void Snapshots::delete_snapshot(int id)
         return;
     }
 
-    if (!orphans)
+    if (orphans == DENY || orphans == MIXED)
     {
         snapshot->vector_value("PARENT", parent_id);
 
@@ -243,7 +307,7 @@ void Snapshots::delete_snapshot(int id)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Snapshots::active_snapshot(int id)
+int Snapshots::active_snapshot(int id, bool revert)
 {
     if (static_cast<int>(id) == active)
     {
@@ -255,6 +319,12 @@ int Snapshots::active_snapshot(int id)
     if (snapshot == 0)
     {
         return -1;
+    }
+
+    if (revert && (orphans == MIXED))
+    {
+        current_base = id;
+        snapshot_template.replace("CURRENT_BASE", id);
     }
 
     snapshot->replace("ACTIVE", true);
@@ -353,7 +423,7 @@ bool Snapshots::test_delete(int id, string& error) const
         return false;
     }
 
-    if (!orphans)
+    if (orphans == DENY || orphans == MIXED)
     {
         snapshot->vector_value("ACTIVE", current);
 

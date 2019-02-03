@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -232,6 +232,7 @@ define(function(require) {
         } else {
             if(alias_on && !alias) {
                 $("#" + that.nicTabId + "_alias_parent", context).show();
+                $("#" + that.nicTabId + "_alias_parent", context).click();
                 $(".network_selection", context).hide();
                 $("#" + that.nicTabId + "_no_alias").hide();
             } else if (alias_on && alias) {
@@ -246,19 +247,7 @@ define(function(require) {
                     }
                 });
 
-                if (alias) {
-                    $.each(that.nics, function(index, value) {
-                        if (value.ALIAS == alias) {
-                            found = true;
-                        }
-                    });
-
-                    if (found) {
-                        $("#remove_nic_" + (alias[alias.length - 1])).hide();
-                    } else {
-                        $("#remove_nic_" + (alias[alias.length - 1])).show();
-                    }
-                }
+                _hide_remove(that.nics);
 
                 $("#" + that.nicTabId + "_alias_parent", context).hide();
                 $(".network_selection", context).show();
@@ -290,29 +279,16 @@ define(function(require) {
         if (!add) {
             $("#" + that.nicTabId + "_alias_parent", context).append(new Option("No NIC available", "INVALID"));
             $("#" + that.nicTabId + "_alias_parent", context).val("INVALID");
-        } else if (add && selected_nic == "INVALID") {
-           $("#" + that.nicTabId + "_alias_parent", context).val($("#" + that.nicTabId + "_alias_parent option:first").val());
-           selected_nic = $("#" + that.nicTabId + "_alias_parent", context).val();
         }
 
         $.each(that.nics, function(index, value) {
-            if (value.NAME == ("NIC" + that.nicId) && selected_nic != "INVALID") {
+            if (value.NAME == ("NIC" + that.nicId) && selected_nic && selected_nic != "INVALID") {
                 value.ALIAS = selected_nic;
             }
         });
 
         if (selected_nic && selected_nic != "INVALID") {
-            $.each(that.nics, function(index, value) {
-                if (value.ALIAS == selected_nic) {
-                    found = true;
-                }
-            });
-
-            if (found) {
-                $("#remove_nic_" + (selected_nic[selected_nic.length - 1])).hide();
-            } else {
-                $("#remove_nic_" + (selected_nic[selected_nic.length - 1])).show();
-            }
+            _hide_remove(that.nics);
 
             $("#" + that.nicTabId + "_alias_parent", context).val(selected_nic);
         }
@@ -510,11 +486,19 @@ define(function(require) {
     });
 
     $("#" + this.nicTabId + "interface_type", this.context).show();
-    $("input#" + this.nicTabId + "_interface_type", this.context).click();
     $("#" + this.nicTabId + "_alias_parent", this.context).show();
-    $("#" + this.nicTabId + "_alias_parent", this.context).empty();
-    $("#" + this.nicTabId + "_alias_parent").append(new Option(nicname, nicname));
+    $("#" + this.nicTabId + "_alias_parent", this.context).click();
+    $("#" + this.nicTabId + "_interface_type", this.context).click();
     $("#" + this.nicTabId + "_alias_parent", this.context).val(nicname);
-    $(".network_selection", this.context).hide();
+  }
+
+  function _hide_remove(nics) {
+    $.each(nics, function(index, value) {
+        if (that.nics.find(nic => nic.ALIAS === value.NAME)) {
+            $("#update_remove_nic_" + value.ID).hide();
+        } else {
+            $("#update_remove_nic_" + value.ID).show();
+        }
+    });
   }
 });

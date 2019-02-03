@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -30,14 +30,9 @@ begin
     machines = []
     models   = []
 
-    Open3.popen3("virsh -r -c qemu:///system capabilities") {|i, o, e, t|
-        if t.value.exitstatus != 0
-            exit -1
-        end
-
-        capabilities = o.read
-    }
-
+    cmd = 'virsh -r -c qemu:///system capabilities'
+    capabilities, e, s = Open3.capture3(cmd)
+    exit(-1) unless s.success?
 
     cap_xml = REXML::Document.new(capabilities)
     cap_xml = cap_xml.root
@@ -94,12 +89,9 @@ begin
             end
         }
 
-        cpu_models = ""
-        Open3.popen3("virsh -r -c qemu:///system cpu-models #{a}") {|i, o, e, t|
-            break if t.value.exitstatus != 0
-
-            cpu_models = o.read
-        }
+        cmd = "virsh -r -c qemu:///system cpu-models #{a}"
+        cpu_models, e, s = Open3.capture3(cmd)
+        break unless s.success?
 
         cpu_models.each_line { |l|
             l.chomp!

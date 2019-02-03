@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -191,6 +191,13 @@ public:
         return (persistent_img == 1);
     };
 
+    /**
+     *  @return true if the image is in a locked state
+     */
+    bool is_locked() const
+    {
+        return state == LOCKED || state == LOCKED_USED || state == LOCKED_USED_PERS;
+    };
     /**
      *  Check the PERSISTENT attribute in an image Template, if not set the
      *  DEFAULT_IMAGE_PERSISTENT and DEFAULT_IMAGE_PERSISTENT_NEW are check in
@@ -549,7 +556,7 @@ public:
 
     void revert_snapshot(int snap_id)
     {
-        snapshots.active_snapshot(snap_id);
+        snapshots.active_snapshot(snap_id, true);
     };
 
     void set_target_snapshot(int snap_id)

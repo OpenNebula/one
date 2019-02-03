@@ -2,14 +2,13 @@ package goca
 
 import (
 	"testing"
-	"goca"
 )
 
 
 func TestMarketplace(t *testing.T){
 	var mkt_name string = "marketplace_test_go"
 
-	var market *goca.MarketPlace
+	var market *MarketPlace
 
 	var mkt_template string =  "NAME = \"" + mkt_name + "\"\n" +
 							"MARKET_MAD = \"http\"\n" +
@@ -17,13 +16,13 @@ func TestMarketplace(t *testing.T){
 							"PUBLIC_DIR = \"/var/loca/market-http\""
 
 	//Create Marketpkace
-	market_id, err := goca.CreateMarketPlace(mkt_template)
+	market_id, err := CreateMarketPlace(mkt_template)
 
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	market = goca.NewMarketPlace(market_id)
+	market = NewMarketPlace(market_id)
 	market.Info()
 
 	actual, _:= market.XMLResource.XPath("/MARKETPLACE/NAME")

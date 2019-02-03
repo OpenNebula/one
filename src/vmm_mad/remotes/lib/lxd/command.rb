@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -51,11 +51,6 @@ module Command
 
     def self.execute_once(cmd, lock)
         execute(cmd, lock) unless running?(cmd.split[0])
-    end
-
-    def self.lxc_execute(lxd_id, cmd)
-        cmd = "lxc exec #{lxd_id} -- #{cmd}"
-        execute(cmd, true)
     end
 
     # Return true if command is running

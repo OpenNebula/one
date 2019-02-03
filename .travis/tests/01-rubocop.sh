@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -14,12 +14,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-#*******************************************************************************
-#                     vCenter Driver Configuration file
-#*******************************************************************************
+# lint ruby code
 
-# Default timeout to complete deploy
-:vm_poweron_wait_default: 300
-
-# Show stacktraces on every exception
-:debug_information: false
+ln -s share/linters/.rubocop.yml . && rubocop

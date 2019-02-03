@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -20,7 +20,7 @@ $LOAD_PATH.unshift File.dirname(__FILE__)
 
 require 'mapper'
 
-class Qcow2Mapper <  Mapper
+class Qcow2Mapper < Mapper
 
     # Max number of block devices. This should be set to the parameter used
     # to load the nbd kernel module (default in kernel is 16)
@@ -32,26 +32,34 @@ class Qcow2Mapper <  Mapper
         return if device.empty?
 
         dsrc = one_vm.disk_source(disk)
-        cmd  = "#{COMMANDS[:nbd]} -c #{device} #{dsrc}"
+        File.chmod(0o664, dsrc) if File.symlink?(one_vm.sysds_path)
 
-        File.chmod(0664, dsrc) if File.symlink?(one_vm.sysds_path)
+        map = "#{COMMANDS[:nbd]} -c #{device} #{dsrc}"
+        rc, _out, err = Command.execute(map, false)
 
-        rc, _out, err = Command.execute(cmd, true)
-
-        if rc != 0
+        unless rc.zero?
             OpenNebula.log_error("#{__method__}: #{err}")
             return
         end
 
-        sleep 0.5 # TODO: improve settledown, lsblk -f fails
+        sleep 5 # wait for parts to come out
+
+        show_parts(device) unless part?(device)
 
         device
     end
 
     def do_unmap(device, _one_vm, _disk, _directory)
+        #After mapping and unmapping a qcow2 disk the next mapped qcow2 may collide with the previous one. 
+        #The use of kpartx before unmapping seems to prevent this behavior on the nbd module used with 
+        #the kernel versions in ubuntu 16.04
+        #
+        # TODO: avoid using if kpartx was not used
+        hide_parts(device)
+        
         cmd = "#{COMMANDS[:nbd]} -d #{device}"
 
-        rc, _out, err = Command.execute(cmd, true)
+        rc, _out, err = Command.execute(cmd, false)
 
         return true if rc.zero?
 
@@ -61,21 +69,45 @@ class Qcow2Mapper <  Mapper
 
     private
 
-    def nbd_device()
+    def part?(device)
+        partitions = lsblk(device)
+        return true unless partitions[0]['type'] == 'part'
+
+        false
+    end
+
+    def show_parts(device)
+        action_parts(device, '-s -av')
+    end
+
+    def hide_parts(device)
+        action_parts(device, '-d')
+    end
+
+    def action_parts(device, action)
+        cmd = "#{COMMANDS[:kpartx]} #{action} #{device}"
+        rc, _out, err = Command.execute(cmd, false)
+
+        return unless rc.zero?
+
+        OpenNebula.log_error("#{__method__}: #{err}")
+    end
+
+    def nbd_device
         sys_parts = lsblk('')
         device_id = -1
         nbds      = []
 
-        sys_parts.each { |p|
+        sys_parts.each do |p|
             m = p['name'].match(/nbd(\d+)/)
-            next if !m
+            next unless m
 
             nbds << m[1].to_i
-        }
+        end
 
-        NBDS_MAX.times { |i|
+        NBDS_MAX.times do |i|
             return "/dev/nbd#{i}" unless nbds.include?(i)
-        }
+        end
 
         OpenNebula.log_error("#{__method__}: Cannot find free nbd device")
 

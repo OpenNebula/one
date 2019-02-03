@@ -29,6 +29,7 @@
         <xs:element name="BASE_PATH" type="xs:string"/>
         <xs:element name="TYPE" type="xs:integer"/>
         <xs:element name="DISK_TYPE" type="xs:integer"/>
+        <!-- Possible STATE values are 0 (READY) and 1 (DISABLE)-->
         <xs:element name="STATE" type="xs:integer"/>
         <xs:element name="CLUSTERS">
           <xs:complexType>

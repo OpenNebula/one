@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -188,6 +188,21 @@ public:
         return vmd->is_keep_snapshots();
     }
 
+    /**
+     *  Returns a pointer to a Virtual Machine Manager driver. The driver is
+     *  searched by its name.
+     *    @param name the name of the driver
+     *    @return the VM driver owned by uid with attribute name equal to value
+     *    or 0 in not found
+     */
+    const VirtualMachineManagerDriver * get(
+        const string&   name)
+    {
+        string _name("NAME");
+        return static_cast<const VirtualMachineManagerDriver *>
+               (MadManager::get(0,_name,name));
+    };
+
 private:
     /**
      *  Thread id for the Virtual Machine Manager
@@ -254,21 +269,6 @@ private:
     {
         return static_cast<const VirtualMachineManagerDriver *>
                (MadManager::get(0,name,value));
-    };
-
-    /**
-     *  Returns a pointer to a Virtual Machine Manager driver. The driver is
-     *  searched by its name.
-     *    @param name the name of the driver
-     *    @return the VM driver owned by uid with attribute name equal to value
-     *    or 0 in not found
-     */
-    const VirtualMachineManagerDriver * get(
-        const string&   name)
-    {
-        string _name("NAME");
-        return static_cast<const VirtualMachineManagerDriver *>
-               (MadManager::get(0,_name,name));
     };
 
     // -------------------------------------------------------------------------

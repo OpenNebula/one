@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -252,8 +252,6 @@ void Nebula::start(bool bootstrap_only)
     // -----------------------------------------------------------
     try
     {
-        bool db_is_sqlite = true;
-
         string server;
         int    port;
         string user;
@@ -265,12 +263,7 @@ void Nebula::start(bool bootstrap_only)
 
         if ( _db != 0 )
         {
-            string value = _db->vector_value("BACKEND");
-
-            if (value == "mysql")
-            {
-                db_is_sqlite = false;
-            }
+            db_backend_type = _db->vector_value("BACKEND");
 
             if (_db->vector_value("SERVER", server) == -1)
             {
@@ -303,7 +296,7 @@ void Nebula::start(bool bootstrap_only)
             }
         }
 
-        if ( db_is_sqlite )
+        if ( db_backend_type == "sqlite" )
         {
             db_backend = new SqliteDB(var_location + "one.db");
         }

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -83,6 +83,11 @@ public:
      * @return true if supported
      */
     bool limit_support();
+
+    /**
+     *  Return true if the backend allows FTS index
+     */
+     bool fts_available();
 
 protected:
     /**
@@ -170,6 +175,8 @@ public:
     bool multiple_values_support(){return true;};
 
     bool limit_support(){return true;};
+
+    bool fts_available(){return false;};
 
 protected:
     int exec(ostringstream& cmd, Callbackable* obj, bool quiet){return -1;};

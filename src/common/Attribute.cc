@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -65,25 +65,9 @@ string * VectorAttribute::marshall(const char * _sep) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string * VectorAttribute::to_xml() const
-{
-    ostringstream oss;
-
-    to_xml(oss);
-
-    string * xml = new string;
-
-    *xml = oss.str();
-
-    return xml;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void VectorAttribute::to_xml(ostringstream &oss) const
 {
-    map<string,string>::const_iterator    it;
+    map<string,string>::const_iterator it;
 
     oss << "<" << name() << ">";
 
@@ -100,6 +84,60 @@ void VectorAttribute::to_xml(ostringstream &oss) const
     }
 
     oss << "</"<< name() << ">";
+}
+
+void VectorAttribute::to_json(std::ostringstream& s) const
+{
+    if ( attribute_value.empty() )
+    {
+        s << "{}";
+        return;
+    }
+
+    map<string,string>::const_iterator it = attribute_value.begin();
+    bool is_first = true;
+
+    s << "{";
+
+    for (++it; it!=attribute_value.end(); it++)
+    {
+        if ( it->first.empty() )
+        {
+            continue;
+        }
+
+        if ( !is_first )
+        {
+            s << ",";
+        }
+        else
+        {
+            is_first = false;
+        }
+
+        s << "\"" << it->first << "\": ";
+        one_util::escape_json(it->second, s);
+    }
+
+    s << "}";
+}
+
+void VectorAttribute::to_token(std::ostringstream& s) const
+{
+    map<string,string>::const_iterator it;
+
+    for (it=attribute_value.begin(); it!=attribute_value.end(); it++)
+    {
+        if (it->first.empty() || it->second.empty())
+        {
+            continue;
+        }
+
+        one_util::escape_token(it->first, s);
+        s << "=";
+        one_util::escape_token(it->second, s);
+        s << std::endl;
+    }
 }
 
 /* -------------------------------------------------------------------------- */

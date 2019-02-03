@@ -81,8 +81,11 @@ func CreateVirtualRouter(tpl string) (uint, error) {
 // Info connects to OpenNebula and fetches the information of the VirtualRouter
 func (vr *VirtualRouter) Info() error {
 	response, err := client.Call("one.vrouter.info", vr.ID)
+	if err != nil {
+		return err
+	}
 	vr.body = response.Body()
-	return err
+	return nil
 }
 
 // Update will modify the virtual router. If appendVirtualRouter is 0, it will

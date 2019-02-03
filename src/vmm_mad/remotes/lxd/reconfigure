@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -29,17 +29,17 @@ vm_name  = ARGV[0]
 iso_path = ARGV[2]
 vm_id    = ARGV[3]
 
-xml = STDIN.read
+exit 0 if iso_path == ''
 
 # ------------------------------------------------------------------------------
 # Setup Context for the container
 # ------------------------------------------------------------------------------
-if iso_path != ''
-    client    = LXDClient.new
-    container = Container.get(vm_name, xml, client)
+xml = STDIN.read
+client    = LXDClient.new
+container = Container.get(vm_name, xml, client)
 
-    raise 'Failed to attach context' unless container.attach_context
+raise 'Failed to attach context' unless container.attach_context
 
-    rc, _out, err = container.exec('one-contextd local')
-    OpenNebula.log_error "Failed to run contextualization\n#{err}" unless rc.zero?
-end
+rc, _out, err = container.exec('service one-context-reconfigure start')
+
+OpenNebula.log_error "Failed to run recontextualization service \n#{err}" unless rc.zero?

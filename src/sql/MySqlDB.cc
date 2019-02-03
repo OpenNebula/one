@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -342,6 +342,24 @@ void MySqlDB::free_db_connection(MYSQL * db)
     pthread_cond_signal(&cond);
 
     pthread_mutex_unlock(&mutex);
+}
+
+/* -------------------------------------------------------------------------- */
+
+bool MySqlDB::fts_available()
+{
+    unsigned long version;
+
+    version = mysql_get_server_version(db_escape_connect);
+
+    if (version >= 50600)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 /* -------------------------------------------------------------------------- */

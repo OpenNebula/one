@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -26,13 +26,13 @@
 
 int AddressRangeIPAM::from_vattr(VectorAttribute * attr, std::string& error_msg)
 {
+    std::ostringstream oss;
+
     IPAMManager * ipamm = Nebula::instance().get_ipamm();
 
-    std::string * ar_xml   = attr->to_xml();
+    attr->to_xml(oss);
 
-    IPAMRequest ir(*ar_xml);
-
-    free(ar_xml);
+    IPAMRequest ir(oss.str());
 
     ipamm->trigger(IPMAction::REGISTER_ADDRESS_RANGE, &ir);
 

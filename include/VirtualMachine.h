@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -1491,11 +1491,13 @@ public:
      *    @param disk_id of the disk
      *    @param snap_id of the snapshot
      *    @param error if any
+     *    @param revert true if the cause of changing the active snapshot
+     *                  is because a revert
      *    @return -1 if error
      */
-    int revert_disk_snapshot(int disk_id, int snap_id)
+    int revert_disk_snapshot(int disk_id, int snap_id, bool revert)
     {
-        return disks.revert_snapshot(disk_id, snap_id);
+        return disks.revert_snapshot(disk_id, snap_id, revert);
     }
 
     /**
@@ -1881,6 +1883,10 @@ private:
      *  @return a reference to the generated string
      */
     string& to_xml_extended(string& xml, int n_history) const;
+
+    string& to_json(string& json) const;
+
+    string& to_token(string& text) const;
 
     // -------------------------------------------------------------------------
     // Attribute Parser

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -96,12 +96,28 @@ void VirtualMachinePoolInfo::request_execute(
     int end_id      = xmlrpc_c::value_int(paramList.getInt(3));
     int state       = xmlrpc_c::value_int(paramList.getInt(4));
 
-    ostringstream state_filter;
+    std::string fts_query;
+
+    if (paramList.size() > 5)
+    {
+        fts_query = xmlrpc_c::value_string(paramList.getString(5));
+
+        if (!fts_query.empty() && !pool->is_fts_available())
+        {
+            att.resp_msg = "Full text search is not allowed with sqlite backend";
+
+            failure_response(INTERNAL, att);
+            return;
+        }
+    }
+
+    ostringstream and_filter;
 
     if (( state < VirtualMachinePoolInfo::ALL_VM ) ||
         ( state > VirtualMachine::CLONING_FAILURE ))
     {
         att.resp_msg = "Incorrect filter_flag, state";
+
         failure_response(XML_RPC_API, att);
         return;
     }
@@ -112,15 +128,39 @@ void VirtualMachinePoolInfo::request_execute(
             break;
 
         case VirtualMachinePoolInfo::NOT_DONE:
-            state_filter << "state <> " << VirtualMachine::DONE;
+            and_filter << "state <> " << VirtualMachine::DONE;
             break;
 
         default:
-            state_filter << "state = " << state;
+            and_filter << "state = " << state;
             break;
     }
 
-    dump(att, filter_flag, start_id, end_id, state_filter.str(), "");
+    if (!fts_query.empty())
+    {
+        char * _fts_query = pool->escape_str(fts_query);
+
+        if ( _fts_query == 0 )
+        {
+            att.resp_msg = "Error building search query";
+
+            failure_response(INTERNAL, att);
+            return;
+        }
+
+        if (!and_filter.str().empty())
+        {
+            and_filter << " AND ";
+        }
+
+        and_filter << "MATCH(search_token) AGAINST ('+\"";
+        one_util::escape_token(_fts_query, and_filter);
+        and_filter << "\"' in boolean mode)";
+
+        pool->free_str(_fts_query);
+    }
+
+    dump(att, filter_flag, start_id, end_id, and_filter.str(), "");
 }
 
 /* ------------------------------------------------------------------------- */
@@ -471,7 +511,7 @@ void RequestManagerPoolInfoFilter::dump(
         limit_clause = oss.str();
     }
 
-    Nebula::instance().get_configuration_attribute(att.uid, att.gid, 
+    Nebula::instance().get_configuration_attribute(att.uid, att.gid,
             "API_LIST_ORDER", desc);
 
     rc = pool->dump(str, where_string, limit_clause,

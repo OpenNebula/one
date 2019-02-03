@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -65,9 +65,11 @@ module VXLAN
             ip_link_conf << "#{option} #{value} "
         end
 
+        # `ip link add ...` returns 2 when vxlan device already exists
+        # allow it to prevent race conditions
         OpenNebula.exec_and_log("#{command(:ip)} link add #{@nic[@attr_vlan_dev]}"\
             " #{mtu} type vxlan id #{@nic[@attr_vlan_id]} #{group} #{ttl}"\
-            " #{tep} #{ip_link_conf}")
+            " #{tep} #{ip_link_conf}", nil, 2)
 
         OpenNebula.exec_and_log("#{command(:ip)} link set #{@nic[@attr_vlan_dev]} up")
     end

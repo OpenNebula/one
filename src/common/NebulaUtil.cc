@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -375,6 +375,57 @@ std::string one_util::gsub(const std::string& st, const std::string& sfind,
     }
 
     return result;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void one_util::escape_json(const std::string& str, std::ostringstream& s)
+{
+    std::string::const_iterator it;
+
+    s << "\"";
+
+    for (it = str.begin(); it != str.end(); ++it)
+    {
+        switch (*it)
+        {
+            case '\\': s << "\\\\"; break;
+            case '"' : s << "\\\""; break;
+            case '/' : s << "\\/";  break;
+            case '\b': s << "\\b";  break;
+            case '\f': s << "\\f";  break;
+            case '\n': s << "\\n";  break;
+            case '\r': s << "\\r";  break;
+            case '\t': s << "\\t";  break;
+            default  : s << *it;
+        }
+    }
+
+    s << "\"";
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void one_util::escape_token(const std::string& str, std::ostringstream& s)
+{
+    std::string::const_iterator it;
+
+    for (it = str.begin(); it != str.end(); ++it)
+    {
+        switch (*it)
+        {
+            case '-':
+            case '_':
+            case '.':
+            case ':':
+                s << '_';
+                break;
+            default :
+                s << *it;
+        }
+    }
 }
 
 /* -------------------------------------------------------------------------- */

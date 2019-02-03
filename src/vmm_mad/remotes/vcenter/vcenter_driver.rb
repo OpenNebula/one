@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -40,13 +40,15 @@ $LOAD_PATH << LIB_LOCATION + '/ruby/vcenter_driver'
 
 class VCenterConf < Hash
     DEFAULT_CONFIGURATION = {
-        delete_images: false
+        delete_images:           false,
+        vm_poweron_wait_default: 300,
+        debug_information:       false
     }
 
     def initialize
         self.replace(DEFAULT_CONFIGURATION)
         begin
-            self.merge!(YAML.load_file("#{VAR_LOCATION}/remotes/etc/vmm/vcenter/vcenterc"))
+            self.merge!(YAML.load_file("#{VAR_LOCATION}/remotes/etc/vmm/vcenter/vcenterrc"))
         rescue
         end
     end

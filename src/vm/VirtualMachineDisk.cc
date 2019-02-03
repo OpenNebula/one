@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -277,14 +277,14 @@ int VirtualMachineDisk::create_snapshot(const string& name, string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachineDisk::revert_snapshot(int snap_id)
+int VirtualMachineDisk::revert_snapshot(int snap_id, bool revert)
 {
     if ( snapshots == 0 )
     {
         return -1;
     }
 
-    return snapshots->active_snapshot(snap_id);
+    return snapshots->active_snapshot(snap_id, revert);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1367,7 +1367,7 @@ const Snapshots * VirtualMachineDisks::get_snapshots(int id, string& error) cons
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachineDisks::revert_snapshot(int id, int snap_id)
+int VirtualMachineDisks::revert_snapshot(int id, int snap_id, bool revert)
 {
     VirtualMachineDisk * disk =
         static_cast<VirtualMachineDisk *>(get_attribute(id));
@@ -1377,7 +1377,7 @@ int VirtualMachineDisks::revert_snapshot(int id, int snap_id)
         return -1;
     }
 
-    return disk->revert_snapshot(snap_id);
+    return disk->revert_snapshot(snap_id, revert);
 }
 
 /* -------------------------------------------------------------------------- */

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -1277,7 +1277,17 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     if (ds_id != -1)
     {
-        if ( c_ds_id != ds_id && live )
+        VirtualMachineManager * vmm = Nebula::instance().get_vmm();
+        const VirtualMachineManagerDriver * vmmd = vmm->get(vmm_mad);
+	    
+	if ( vmmd == 0 )
+	{
+            att.resp_msg = "Cannot find vmm driver: " + vmm_mad;
+            failure_response(ACTION, att);
+            return;		
+	}
+
+        if ( c_ds_id != ds_id && live && !vmmd->is_ds_live_migration())
         {
             att.resp_msg = "A migration to a different system datastore "
                 "cannot be performed live.";

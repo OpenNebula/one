@@ -585,8 +585,11 @@ func (vm *VM) Action(action string) error {
 // Info connects to OpenNebula and fetches the information of the VM
 func (vm *VM) Info() error {
 	response, err := client.Call("one.vm.info", vm.ID)
+	if err != nil {
+		return err
+	}
 	vm.body = response.Body()
-	return err
+	return nil
 }
 
 // Update will modify the VM's template. If appendTemplate is 0, it will

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -119,7 +119,7 @@ define(function(require) {
            nicId ++;
         });
 
-        _hide_remove(context);
+        _hide_remove();
       }
     } catch(err) {
       _generate_provision_network_accordion(
@@ -371,6 +371,7 @@ define(function(require) {
         } else {
             if(alias_on && !alias) {
                 $("#provision_accordion_dd_" + dd_context["dd_id"] + "_alias_parent", dd_context).show();
+                $("#provision_accordion_dd_" + dd_context["dd_id"] + "_alias_parent", dd_context).click();
                 $(".network_selection", dd_context).hide();
                 $("#provision_accordion_dd_" + dd_context["dd_id"] + "_no_alias", dd_context).hide();
             } else if (alias_on && alias) {
@@ -384,7 +385,7 @@ define(function(require) {
                     }
                 });
 
-                _hide_remove(that.context);
+                _hide_remove();
 
                 $("#provision_accordion_dd_" + dd_context["dd_id"] + "_alias_parent", dd_context).hide();
                 $(".network_selection", dd_context).show();
@@ -413,19 +414,16 @@ define(function(require) {
         if (!add) {
             $("#provision_accordion_dd_" + dd_context["dd_id"] + "_alias_parent", dd_context).append(new Option("No NIC available", "INVALID"));
             $("#provision_accordion_dd_" + dd_context["dd_id"] + "_alias_parent", dd_context).val("INVALID");
-        } else if (add && selected_nic == "INVALID") {
-            selected_nic = $("#provision_accordion_dd_" + dd_context["dd_id"] + "_alias_parent option:first").val();
-            $("#provision_accordion_dd_" + dd_context["dd_id"] + "_alias_parent", dd_context).val(selected_nic);
         }
 
         $.each(_nics, function(index, value) {
-            if (value.NAME == ("NIC" + dd_context["nic_id"])) {
+            if (value.NAME == ("NIC" + dd_context["nic_id"]) && selected_nic && selected_nic != "INVALID") {
                 value.ALIAS = selected_nic;
             }
         });
 
         if (selected_nic && selected_nic != "INVALID") {
-            _hide_remove(that.context);
+            _hide_remove();
 
             $("#provision_accordion_dd_" + dd_context["dd_id"] + "_alias_parent", dd_context).val(selected_nic);
         }
@@ -647,20 +645,18 @@ define(function(require) {
     });
 
     $("#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_interface_type_section", this.context).show();
-    $("input#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_interface_type", this.context).click();
     $("#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_alias_parent", this.context).show();
-    $("#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_alias_parent").empty();
-    $("#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_alias_parent").append(new Option(nicname, nicname));
+    $("#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_alias_parent", this.context).click();
+    $("#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_interface_type", this.context).click();
     $("#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_alias_parent", this.context).val(nicname);
-    $("#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_network_selection", this.context).hide();
   }
 
-  function _hide_remove(context) {
+  function _hide_remove() {
     $.each(_nics, function(index, value) {
         if (_nics.find(nic => nic.ALIAS === value.NAME)) {
-            $("#remove_nic_" + value.DD_ID, context).hide();
+            $("#remove_nic_" + value.DD_ID).hide();
         } else {
-            $("#remove_nic_" + value.DD_ID, context).show();
+            $("#remove_nic_" + value.DD_ID).show();
         }
     });
   }

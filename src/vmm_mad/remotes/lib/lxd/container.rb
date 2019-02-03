@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -35,6 +35,7 @@ class Container
     # Class Constants API and Containers Paths
     #---------------------------------------------------------------------------
     CONTAINERS = 'containers'.freeze
+    LXC_COMMAND = 'lxc'
 
     #---------------------------------------------------------------------------
     # Methods to access container attributes
@@ -161,7 +162,17 @@ class Container
     # Runs command inside container
     # @param command [String] to execute through lxc exec
     def exec(command)
-        Command.lxc_execute(name, command)
+        cmd = "#{LXC_COMMAND} exec #{@one.vm_name} -- #{command}"
+        rc, o, e = Command.execute(cmd, true)
+
+        # TODO: this should be removed when Snap bug is fixed
+        err = 'cannot create user data directory:'
+        rc, o, e = Command.execute("sudo #{cmd}", true) if e.include?(err)
+
+        log = "Failed to run command #{cmd}: #{e}"
+        OpenNebula.log_error("#{__method__}: #{log}") unless rc.zero?
+
+        [rc, o, e]
     end
 
     #---------------------------------------------------------------------------
@@ -220,11 +231,17 @@ class Container
         return unless @one
 
         @one.get_disks.each do |disk|
+            if @one.volatile?(disk)
+                e = "disk #{disk['DISK_ID']} type #{disk['TYPE']} not supported"
+                OpenNebula.log_error e
+                next
+            end
+
             status = setup_disk(disk, operation)
             return nil unless status
         end
 
-        return unless @one.has_context?
+        return 'no context' unless @one.has_context?
 
         csrc = @lxc['devices']['context']['source'].clone
 
@@ -261,7 +278,7 @@ class Container
     # Removes the context section from the LXD configuration and unmap the
     # context device
     def detach_context
-        return unless @one.has_context?
+        return 'no context' unless @one.has_context?
 
         csrc = @lxc['devices']['context']['source'].clone
 
@@ -399,7 +416,7 @@ class Container
     #  so new mappers does not need to modified source code
     def new_disk_mapper(disk)
         case disk['TYPE']
-        when 'FILE'
+        when 'FILE', 'BLOCK'
 
             ds = @one.disk_source(disk)
 

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2018, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -83,7 +83,11 @@ public:
      *  by the calling function.
      *    @return a string (allocated in the heap) holding the attribute value.
      */
-    virtual string * to_xml() const = 0;
+    virtual void to_xml(std::ostringstream& s) const = 0;
+
+    virtual void to_json(std::ostringstream& s) const = 0;
+
+    virtual void to_token(std::ostringstream& s) const = 0;
 
     /**
      *  Builds a new attribute from a string.
@@ -158,17 +162,31 @@ public:
      *
      *  <attribute_name>attribute_value</attribute_name>
      *
-     *  The string MUST be freed by the calling function.
-     *    @return a string (allocated in the heap) holding the attribute value.
+     *  @paran s the stream to write the attribute.
      */
-    string * to_xml() const
+    void to_xml(std::ostringstream& s) const
     {
-        string * xml = new string;
+        s << "<" << attribute_name << ">" << one_util::escape_xml(attribute_value)
+          << "</"<< attribute_name << ">";
 
-        *xml = "<" + name() + ">" + one_util::escape_xml(attribute_value) +
-               "</"+ name() + ">";
+    }
 
-        return xml;
+    void to_json(std::ostringstream& s) const
+    {
+        one_util::escape_json(attribute_value, s); 
+    }
+
+    void to_token(std::ostringstream& s) const
+    {
+        if (attribute_name.empty() || attribute_value.empty())
+        {
+            return;
+        }
+
+        one_util::escape_token(attribute_name, s);
+        s << "=";
+        one_util::escape_token(attribute_value, s);
+        s << std::endl;
     }
 
     /**
@@ -350,12 +368,11 @@ public:
      *  The string MUST be freed by the calling function.
      *    @return a string (allocated in the heap) holding the attribute value.
      */
-    string * to_xml() const;
+    void to_xml(std::ostringstream& s) const;
 
-    /**
-     *  Same as above but the attribute is written in an string stream;
-     */
-    void to_xml(ostringstream &oss) const;
+    void to_json(std::ostringstream& s) const;
+
+    void to_token(std::ostringstream& s) const;
 
     /**
      *  Builds a new attribute from a string of the form:
