@@ -130,7 +130,7 @@ CLONE_CMD=$(cat <<EOF
     hostname -f >"${DST_DIR}/.host" || :
 
     # zero trailing space
-    if [ -n "${ZERO_LVM_ON_CREATE}" ]; then
+    if [ "${ZERO_LVM_ON_CREATE}" = "yes" ]; then
     LVSIZE=\$(${SUDO} ${LVS} --nosuffix --noheadings --units B -o lv_size "${DEV}" | tr -d '[:blank:]')
     ${DD} if=/dev/zero of="${DEV}" bs=64k \
         oflag=seek_bytes iflag=count_bytes \

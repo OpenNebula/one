@@ -78,7 +78,7 @@ EOF
 
 if [ -n "${DS_SYS_ID}" ]; then
 
-    if [ -n "${ZERO_LVM_ON_DELETE}" ]; then
+    if [ "${ZERO_LVM_ON_DELETE}" = "yes" ]; then
         ssh_exec_and_log "$DST_HOST" "$ZERO_CMD" "Error cleaning $DST_PATH"
     fi
 

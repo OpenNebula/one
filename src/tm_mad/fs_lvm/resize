@@ -59,7 +59,7 @@ VG_NAME="vg-one-$DS_SYS_ID"
 DEV="/dev/${VG_NAME}/${LV_NAME}"
 
 # Get current LV size
-if [ -n "${ZERO_LVM_ON_CREATE}" ]; then
+if [ "${ZERO_LVM_ON_CREATE}" = "yes" ]; then
 
 LVSIZE_CMD=$(cat <<EOF
     set -e -o pipefail
@@ -91,7 +91,7 @@ exclusive "${LOCK}" 120 ssh_exec_and_log "$SRC_HOST" "$RESIZE_CMD" \
         "Error resizing LV named $LV_NAME"
 
 # Zero additional space
-if [ -n "${ZERO_LVM_ON_CREATE}" ]; then
+if [ "${ZERO_LVM_ON_CREATE}" = "yes" ]; then
 ZERO_CMD=$(cat <<EOF
     set -e -o pipefail
 
