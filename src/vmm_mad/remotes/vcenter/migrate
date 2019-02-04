@@ -50,7 +50,7 @@ begin
 
     if new_ds
         VCenterDriver::VirtualMachine
-            .migrate_routine(vm_id, src_host, dst_host, true, dsid)
+            .migrate_routine(vm_id, src_host, dst_host, true, dst_ds)
     else
         VCenterDriver::VirtualMachine.migrate_routine(vm_id, src_host, dst_host)
     end
