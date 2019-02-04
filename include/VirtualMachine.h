@@ -1670,6 +1670,11 @@ public:
      */
     int check_tm_mad_disks(const string& tm_mad, string& error);
 
+    time_t get_stime() const
+    {
+        return stime;
+    }
+
 private:
 
     // -------------------------------------------------------------------------
