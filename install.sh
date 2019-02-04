@@ -254,6 +254,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
 
 VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/etc \
+          $VAR_LOCATION/remotes/etc/tm/fs_lvm \
           $VAR_LOCATION/remotes/etc/datastore/ceph \
           $VAR_LOCATION/remotes/etc/im/kvm-probes.d \
           $VAR_LOCATION/remotes/etc/im/lxd-probes.d \
@@ -446,6 +447,7 @@ INSTALL_FILES=(
     TM_FILES:$VAR_LOCATION/remotes/tm
     TM_SHARED_FILES:$VAR_LOCATION/remotes/tm/shared
     TM_FS_LVM_FILES:$VAR_LOCATION/remotes/tm/fs_lvm
+    TM_FS_LVM_ETC_FILES:$VAR_LOCATION/remotes/etc/tm/fs_lvm/fs_lvm.conf
     TM_QCOW2_FILES:$VAR_LOCATION/remotes/tm/qcow2
     TM_SSH_FILES:$VAR_LOCATION/remotes/tm/ssh
     TM_CEPH_FILES:$VAR_LOCATION/remotes/tm/ceph
@@ -1172,6 +1174,9 @@ TM_FS_LVM_FILES="src/tm_mad/fs_lvm/activate \
                  src/tm_mad/fs_lvm/failmigrate \
                  src/tm_mad/fs_lvm/delete \
                  src/tm_mad/fs_lvm/resize"
+
+TM_FS_LVM_ETC_FILES="src/tm_mad/fs_lvm/fs_lvm.conf"
+
 
 TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
                  src/tm_mad/qcow2/delete \
