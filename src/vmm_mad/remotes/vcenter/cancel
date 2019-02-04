@@ -36,6 +36,10 @@ vm_id     = ARGV[-2]
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(STDIN.read), 'VMM_DRIVER_ACTION_DATA')
 
+lcm_state = drv_action['/VMM_DRIVER_ACTION_DATA/VM/LCM_STATE']
+check_valid(lcm_state, 'lcm_state')
+lcm_state_str = OpenNebula::VirtualMachine::LCM_STATE[lcm_state.to_i]
+
 host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, host)
 host_id = host['ID']
 
@@ -45,6 +49,17 @@ begin
     vm = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vm_id)
 
     vm.one_item = drv_action.retrieve_xmlelements('VM').first
+
+    if (%{'SAVE_MIGRATE'}).include?(lcm_state_str)
+        vm.vm_id = vm_id
+        dst_ds = drv_action['VM/HISTORY_RECORDS/HISTORY/DS_ID']
+        src_ds = drv_action['DATASTORE/ID']
+
+        new_ds = dst_ds != src_ds
+
+        error = !vm.disks_each(:managed?).empty? && new_ds
+        raise 'cold datastore migration in poweroff hard with managed disk(s) is not supported' if error
+    end
 
     vm.poweroff_hard
 rescue StandardError => e

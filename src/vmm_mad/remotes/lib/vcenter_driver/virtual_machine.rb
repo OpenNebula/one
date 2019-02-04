@@ -670,10 +670,9 @@ class VirtualMachine < VCenterDriver::Template
     # Create and reconfigure VM related methods
     ############################################################################
 
-    # This function creates a new VM from the @one_item XML and returns the
+    # This function creates a new VM from the driver_action XML and returns the
     # VMware ref
-    # @param one_item OpenNebula::VirtualMachine
-    # @param vi_client VCenterDriver::VIClient
+    # @param drv_action XML representing the deploy action
     # @return String vmware ref
     def clone_vm(drv_action)
         vcenter_name = get_vcenter_name
@@ -970,13 +969,11 @@ class VirtualMachine < VCenterDriver::Template
 
     # Queries to OpenNebula the machine disks xml representation
     def get_one_disks
-        one_item.info
         one_item.retrieve_xmlelements("TEMPLATE/DISK")
     end
 
     # Queries to OpenNebula the machine nics xml representation
     def get_one_nics
-        one_item.info
         one_item.retrieve_xmlelements("TEMPLATE/NIC")
     end
 
@@ -2900,10 +2897,10 @@ class VirtualMachine < VCenterDriver::Template
 
     # Migrate a VM to another cluster and/or datastore
     # @params [int] vm_id ID of the VM to be migrated
-    # params [String] src_host Name of the source cluster    
-    # params [String] dst_host Name of the target cluster    
+    # params [String] src_host Name of the source cluster
+    # params [String] dst_host Name of the target cluster
     # params [Bool] hot_ds Wether this is a DS migration with the VM running or not
-    # params [int] Destination datastore ID
+    # params [int] ds Destination datastore ID
     def self.migrate_routine(vm_id, src_host, dst_host, hot_ds = false, ds = nil)
         one_client = OpenNebula::Client.new
         pool = OpenNebula::HostPool.new(one_client)
@@ -2933,6 +2930,13 @@ class VirtualMachine < VCenterDriver::Template
 
         # required vcenter objects
         vc_vm = VCenterDriver::VirtualMachine.new_without_id(vi_client, vm['/VM/DEPLOY_ID'])
+
+        vc_vm.vm_id = vm_id
+        error = !vc_vm.disks_each(:managed?).empty? && !ds.nil?
+        # We know this comes from a migration from poweroff state (not a poweroff migration)
+        # since all the other cases are treated in vmm drivers: save, migrate and shutdown
+        raise 'datastore migration from poweroff state with managed disks is not supported' if error
+
         ccr_ref  = dst_host['/HOST/TEMPLATE/VCENTER_CCR_REF']
         vc_host  = VCenterDriver::ClusterComputeResource.new_from_ref(ccr_ref, vi_client).item
 

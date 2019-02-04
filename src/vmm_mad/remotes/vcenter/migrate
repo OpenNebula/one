@@ -29,7 +29,7 @@ $LOAD_PATH << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
-d_id     = ARGV[0]
+vm_ref   = ARGV[0]
 vm_id    = ARGV[-2]
 src_host = ARGV[-3]
 dst_host = ARGV[-4]
@@ -42,11 +42,11 @@ src_ds = drv_action['DATASTORE/ID']
 
 begin
     vi_client = VCenterDriver::VIClient.new_from_host(src_host)
-    vm        = VCenterDriver::VirtualMachine.new(vi_client, d_id, vm_id)
+    vm        = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vm_id)
     new_ds    = dst_ds != src_ds
 
     error = !vm.disks_each(:managed?).empty? && new_ds
-    raise 'live migration with managed disk is not supported' if error
+    raise 'live datastore migration with managed disk is not supported' if error
 
     if new_ds
         VCenterDriver::VirtualMachine
