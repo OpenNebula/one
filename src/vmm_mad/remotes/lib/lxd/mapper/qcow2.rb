@@ -42,9 +42,10 @@ class Qcow2Mapper < Mapper
             return
         end
 
+        # TODO: improve wait condition
         sleep 5 # wait for parts to come out
 
-        show_parts(device) unless part?(device)
+        show_parts(device) unless parts_on?(device)
 
         device
     end
@@ -56,7 +57,6 @@ class Qcow2Mapper < Mapper
         #
         # TODO: avoid using if kpartx was not used
         hide_parts(device)
-        
         cmd = "#{COMMANDS[:nbd]} -d #{device}"
 
         rc, _out, err = Command.execute(cmd, false)
@@ -69,9 +69,10 @@ class Qcow2Mapper < Mapper
 
     private
 
-    def part?(device)
+    # Returns true if device has mapped partitions
+    def parts_on?(device)
         partitions = lsblk(device)
-        return true unless partitions[0]['type'] == 'part'
+        return true if partitions[0]['type'] == 'part'
 
         false
     end
@@ -84,13 +85,15 @@ class Qcow2Mapper < Mapper
         action_parts(device, '-d')
     end
 
+    # Runs kpartx vs a device with required flags as arguments
     def action_parts(device, action)
         cmd = "#{COMMANDS[:kpartx]} #{action} #{device}"
         rc, _out, err = Command.execute(cmd, false)
 
-        return unless rc.zero?
+        return true if rc.zero?
 
         OpenNebula.log_error("#{__method__}: #{err}")
+        false
     end
 
     def nbd_device
