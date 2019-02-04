@@ -354,6 +354,12 @@ int LibVirtDriver::deployment_description_kvm(
     file << "\t<name>one-" << vm->get_oid() << "</name>" << endl;
 
     // ------------------------------------------------------------------------
+    // Title name
+    // ------------------------------------------------------------------------
+
+    file << "\t<title>" << vm->get_name() << "</title>" << endl;
+
+    // ------------------------------------------------------------------------
     // CPU & Memory
     // ------------------------------------------------------------------------
 
@@ -1476,6 +1482,30 @@ int LibVirtDriver::deployment_description_kvm(
          << "\t\t\t<one:system_datastore>"
          << one_util::escape_xml(vm->get_system_dir())
          << "</one:system_datastore>\n"
+         << "<one:name>"
+         << one_util::escape_xml(vm->get_name())
+         << "</one:name>\n"
+         << "\t\t\t<one:uname>"
+         << one_util::escape_xml(vm->get_uname())
+         << "</one:uname>\n"
+         << "\t\t\t<one:uid>"
+         << vm->get_uid()
+         << "</one:uid>\n"
+         << "\t\t\t<one:gname>"
+         << one_util::escape_xml(vm->get_gname())
+         << "</one:gname>\n"
+         << "\t\t\t<one:gid>"
+         << vm->get_gid()
+         << "</one:gid>\n"
+         << "\t\t\t<one:opennebula_version>"
+         << Nebula::instance().code_version()
+         << "</one:opennebula_version>\n"
+         << "\t\t\t<one:stime>"
+         << vm->get_stime()
+         << "</one:stime>\n"
+         << "\t\t\t<one:deployment_time>"
+         << time(0)
+         << "</one:deployment_time>\n"
          << "\t\t</one:vm>\n"
         // << "\t\t<opennebula>\n" << vm->to_xml(vm_xml) << "\t\t</opennebula>\n"
          << "\t</metadata>\n";
