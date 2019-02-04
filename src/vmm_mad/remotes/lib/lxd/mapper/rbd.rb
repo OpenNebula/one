@@ -34,6 +34,9 @@ class RBDMapper < Mapper
 
         rc, out, err = Command.execute(cmd, false)
 
+        # TODO: improve wait condition
+        sleep 5 # wait for partition table
+
         return out.chomp if rc.zero?
 
         OpenNebula.log_error("#{__method__}: #{err}")
