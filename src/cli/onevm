@@ -557,8 +557,10 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :migrate, migrate_desc, [:range, :vmid_list], :hostid,
-            [:datastoreid, nil], :options => [ENFORCE, OneVMHelper::LIVE,
-        OneVMHelper::POFF, OneVMHelper::POFFHARD] do
+            [:datastoreid, nil], :options => [ENFORCE,
+                                              OneVMHelper::LIVE,
+                                              OneVMHelper::POFF,
+                                              OneVMHelper::POFFHARD] do
         host_id = args[1]
         verbose = "migrating to #{host_id}"
 
@@ -795,7 +797,8 @@ CommandParser::CmdParser.new(ARGV) do
 
             if ip
                 if !nic_alias && !nic_name
-                    template = "NIC = [ NETWORK_ID = #{network_id}, IP = #{ip} ]"
+                    template = "NIC = [ NETWORK_ID = #{network_id}, \
+                                IP = #{ip} ]"
                 elsif !nic_alias && nic_name
                     template = "NIC = [ NETWORK_ID = #{network_id},
                                         IP = #{ip},
