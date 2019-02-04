@@ -55,8 +55,8 @@ begin
         VCenterDriver::VirtualMachine.migrate_routine(vm_id, src_host, dst_host)
     end
 rescue StandardError => e
-    message = "Cannot migrate for VM #{vm_id}"\
-              'failed due to '\
+    message = "Cannot migrate for VM #{vm_id}. "\
+              'Failed due to '\
               "\"#{e.message}\"."
     OpenNebula.log_error(message)
 
