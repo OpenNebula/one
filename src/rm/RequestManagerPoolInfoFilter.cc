@@ -104,7 +104,7 @@ void VirtualMachinePoolInfo::request_execute(
 
         if (!fts_query.empty() && !pool->is_fts_available())
         {
-            att.resp_msg = "Full text search is not allowed with sqlite backend";
+            att.resp_msg = "Full text search is not supported by the SQL backend";
 
             failure_response(INTERNAL, att);
             return;
