@@ -54,7 +54,15 @@ void RequestManagerLock::request_execute(xmlrpc_c::paramList const& paramList,
 
         object->unlock();
 
-        success_response((rc == 0), att);
+        if (rc != 0)
+        {
+            att.resp_msg = "Error trying to lock the resource.";
+            failure_response(ACTION, att);
+        }
+        else
+        {
+            success_response(oid, att);
+        }
     }
     else
     {
