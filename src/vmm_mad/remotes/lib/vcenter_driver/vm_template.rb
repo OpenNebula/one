@@ -826,7 +826,23 @@ class Template
         if !@vm_info["datastore"].nil?
            !@vm_info["datastore"].last.nil? &&
            !@vm_info["datastore"].last._ref.nil?
-            str << "VCENTER_DS_REF = \"#{@vm_info["datastore"].last._ref}\"\n"
+            if @vm_info["datastore"].length > 1
+                swap_path = ""
+                @vm_info["config.extraConfig"].each do |element|
+                    if element.key == "sched.swap.derivedName"
+                        swap_path = element.value
+                    end
+                end
+                @vm_info["datastore"].each do |datastore|
+                    path = datastore.summary.url.sub(/ds:\/\/\/*/, "")
+                    if not swap_path.include? path
+                        str << "VCENTER_DS_REF = \"#{datastore._ref}\"\n"
+                        break
+                    end
+                end
+            else
+                str << "VCENTER_DS_REF = \"#{@vm_info["datastore"].last._ref}\"\n"
+            end
         end
 
         vnc_port = nil
