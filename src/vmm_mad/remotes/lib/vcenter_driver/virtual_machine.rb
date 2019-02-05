@@ -969,11 +969,13 @@ class VirtualMachine < VCenterDriver::Template
 
     # Queries to OpenNebula the machine disks xml representation
     def get_one_disks
+        one_item.info
         one_item.retrieve_xmlelements("TEMPLATE/DISK")
     end
 
     # Queries to OpenNebula the machine nics xml representation
     def get_one_nics
+        one_item.info
         one_item.retrieve_xmlelements("TEMPLATE/NIC")
     end
 
@@ -1685,17 +1687,13 @@ class VirtualMachine < VCenterDriver::Template
     end
 
     # Add NIC to VM
-    def attach_nic
+    def attach_nic(one_nic)
         spec_hash = {}
-        nic = nil
-
-        # Extract nic from driver action
-        nic = one_item.retrieve_xmlelements("TEMPLATE/NIC[ATTACH='YES']").first
 
         begin
             # A new NIC requires a vcenter spec
             attach_nic_array = []
-            attach_nic_array << calculate_add_nic_spec(nic)
+            attach_nic_array << calculate_add_nic_spec(one_nic)
             spec_hash[:deviceChange] = attach_nic_array if !attach_nic_array.empty?
 
             # Reconfigure VM
@@ -1709,12 +1707,9 @@ class VirtualMachine < VCenterDriver::Template
     end
 
     # Detach NIC from VM
-    def detach_nic
+    def detach_nic(mac)
         spec_hash = {}
 
-        # Extract nic from driver action
-        one_nic = one_item.retrieve_xmlelements("TEMPLATE/NIC[ATTACH='YES']").first
-        mac = one_nic["MAC"]
         nic = nic(mac) rescue nil
 
         return if !nic || nic.no_exists?
@@ -3018,7 +3013,9 @@ class VirtualMachine < VCenterDriver::Template
         id = one_item["ID"] || one_item["VM/ID"] rescue -1
 
         self.new(vi_client, ref, id).tap do |vm|
-            vm.one_item = one_item
+            if one_item.instance_of?(OpenNebula::VirtualMachine)
+                vm.one_item = one_item
+            end
         end
     end
 
