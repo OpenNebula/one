@@ -87,7 +87,10 @@ class OpenNebula::ServerX509Auth < OpenNebula::X509Auth
     # auth method for auth_mad
     def authenticate(server_user, server_pass, signed_text)
         begin
-            s_user, t_user, expires = decrypt(signed_text).split(':')
+            token_array = decrypt(signed_text).split(':')
+
+            s_user  = token_array[0]
+            expires = token_array[-1]
 
             return "Server password missmatch" if server_pass != password
 
