@@ -86,7 +86,7 @@ module OpenNebulaCloudAuth
             egid = user["//LOGIN_TOKEN [ TOKEN = \"#{password}\" ]/EGID"]
 
             auth_name = user.name
-            auth_name = "#{auth_name}:#{egid}" if egid
+            auth_name = "#{auth_name}:#{egid}" if egid && egid != -1
 
             return auth_name
         end
