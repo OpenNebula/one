@@ -46,7 +46,11 @@ begin
     one_item = drv_action.retrieve_xmlelements('VM').first
     vm = VCenterDriver::VirtualMachine.new_one(vi_client, vm_ref, one_item)
 
-    vm.detach_nic
+    # Extract nic from driver action
+    one_nic = one_item.retrieve_xmlelements("TEMPLATE/NIC[ATTACH='YES']").first
+    mac     = one_nic["MAC"]
+
+    vm.detach_nic(mac)
 rescue StandardError => e
     message = "Detach NIC for VM #{vm_ref} on vCenter cluster " \
               "#{vc_cluster_name} failed due to \"#{e.message}\"."

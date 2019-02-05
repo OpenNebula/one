@@ -48,10 +48,7 @@ begin
 
     vm = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vm_id)
 
-    vm.one_item = drv_action.retrieve_xmlelements('VM').first
-
     if (%{'SAVE_MIGRATE'}).include?(lcm_state_str)
-        vm.vm_id = vm_id
         dst_ds = drv_action['VM/HISTORY_RECORDS/HISTORY/DS_ID']
         src_ds = drv_action['DATASTORE/ID']
 
