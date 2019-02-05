@@ -42,7 +42,7 @@ DATASTORE_PATH="${XPATH_ELEMENTS[i++]}"
 
 # ------ Delete snapshot metadata and the snapshot itself ----------
 
-rm ${DATASTORE_PATH}/${NAME}.xml 2>/dev/null || true
+[ -n "$DATASTORE_PATH" ] && rm ${DATASTORE_PATH}/${NAME}.xml 2>/dev/null || true
 
 exec_and_log \
     "virsh --connect $LIBVIRT_URI snapshot-delete $DOMAIN $NAME" \
