@@ -826,24 +826,9 @@ class Template
         if !@vm_info["datastore"].nil?
            !@vm_info["datastore"].last.nil? &&
            !@vm_info["datastore"].last._ref.nil?
-            if @vm_info["datastore"].length > 1
-                swap_path = ""
-                @vm_info["config.extraConfig"].each do |element|
-                    if element.key == "sched.swap.derivedName"
-                        swap_path = element.value
-                    end
-                end
-                @vm_info["datastore"].each do |datastore|
-                    path = datastore.summary.url.sub(/ds:\/\/\/*/, "")
-                    if not swap_path.include? path
-                        str << "VCENTER_DS_REF = \"#{datastore._ref}\"\n"
-                        break
-                    end
-                end
-            else
-                str << "VCENTER_DS_REF = \"#{@vm_info["datastore"].last._ref}\"\n"
-            end
-        end
+            ds_ref = vm_template_ds_ref
+            str << "VCENTER_DS_REF = \"#{ds_ref}\"\n"
+       end
 
         vnc_port = nil
         keymap = VCenterDriver::VIHelper.get_default("VM/TEMPLATE/GRAPHICS/KEYMAP")
@@ -894,6 +879,36 @@ class Template
 
         return str
     end
+
+    #Gets MOREF from Datastore used by the VM. It validates
+    #the selected DS is not only used to host swap.
+    def vm_template_ds_ref
+        begin
+            ds_ref = nil
+            if @vm_info["datastore"].length > 1
+                swap_path = ""
+                @vm_info["config.extraConfig"].each do |element|
+                    if element.key == "sched.swap.derivedName"
+                        swap_path = element.value
+                    end
+                end
+                @vm_info["datastore"].each do |datastore|
+                    path = datastore.summary.url.sub(/ds:\/\/\/*/, "")
+                    if !swap_path.include? path && !datastore._ref.nil?
+                        ds_ref = datastore._ref
+                        break
+                    end
+                end
+            else
+                if !@vm_info["datastore"]._ref.nil?
+                    ds_ref = @vm_info["datastore"]._ref
+                end
+            end
+        rescue Exception => e
+            error = "Could not find DATASTORE for this VM. Reason: #{e.message}"
+        end
+    end
+
 
     def self.template_to_one(template, vc_uuid, ccr_ref, ccr_name, import_name, host_id)
 
