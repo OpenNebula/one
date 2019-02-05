@@ -283,7 +283,7 @@ helpers do
             csrftoken_plain = Time.now.to_f.to_s + SecureRandom.base64
             session[:csrftoken] = Digest::MD5.hexdigest(csrftoken_plain)
 
-            group = OpenNebula::Group.new_with_id(user['GID'], client)
+            group = OpenNebula::Group.new_with_id(OpenNebula::Group::SELF, client)
             rc = group.info
             if OpenNebula.is_error?(rc)
                 logger.error { rc.message }
