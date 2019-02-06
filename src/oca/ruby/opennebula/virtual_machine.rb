@@ -782,6 +782,12 @@ module OpenNebula
         REMOVE_VNET_ATTRS = %w{AR_ID BRIDGE CLUSTER_ID IP MAC TARGET NIC_ID
             NETWORK_ID VN_MAD SECURITY_GROUPS VLAN_ID}
 
+        REMOVE_IMAGE_ATTRS = %w{DEV_PREFIX SOURCE ORIGINAL_SIZE SIZE
+            DISK_SNAPSHOT_TOTAL_SIZE DRIVER IMAGE_STATE SAVE CLONE READONLY
+            PERSISTENT TARGET ALLOW_ORPHANS CLONE_TARGET CLUSTER_ID DATASTORE
+            DATASTORE_ID DISK_ID DISK_TYPE IMAGE_ID IMAGE IMAGE_UNAME LN_TARGET
+            TM_MAD TYPE OPENNEBULA_MANAGED}
+
         def save_as_template(name,description, persistent=nil)
             img_ids = []
             new_tid = nil
@@ -858,13 +864,19 @@ module OpenNebula
                         raise
                     end
 
-                    image_id = disk["IMAGE_ID"]
+                    image_id           = disk["IMAGE_ID"]
+                    opennebula_managed = disk["OPENNEBULA_MANAGED"]
+                    type               = disk["TYPE"]
+
+                    REMOVE_IMAGE_ATTRS.each do |attr|
+                        disk.delete_element(attr)
+                    end
 
                     if !image_id.nil? && !image_id.empty?
-                        if disk['TYPE'] == 'CDROM'
+                        if type == 'CDROM'
                             replace << "DISK = [ IMAGE_ID = #{image_id}"
-                            if disk["OPENNEBULA_MANAGED"]
-                                replace << ", OPENNEBULA_MANAGED=#{disk["OPENNEBULA_MANAGED"]}"
+                            if opennebula_managed
+                                replace << ", OPENNEBULA_MANAGED=#{opennebula_managed}"
                             end
                             replace << " ]\n"
                         else
@@ -878,7 +890,14 @@ module OpenNebula
 
                             img_ids << rc.to_i
 
-                            replace << "DISK = [ IMAGE_ID = #{rc} ]\n"
+                            disk_template = disk.template_like_str(".").tr("\n", ",\n")
+
+                            if disk_template.empty?
+                                replace << "DISK = [ IMAGE_ID = #{rc} ] \n"
+                            else
+                                replace << "DISK = [ IMAGE_ID = #{rc}, " <<
+                                    disk_template << " ] \n"
+                            end
                         end
                     else
                         # Volatile disks cannot be saved, so the definition is copied
