@@ -110,7 +110,7 @@ class Template
                                           :name   => template_name,
                                           :spec   => clone_spec).wait_for_completion
             template_ref = template._ref
-        rescue Exception => e
+        rescue StandardError => e
             if !e.message.start_with?('DuplicateName')
                 error = "Could not create the template clone. Reason: #{e.message}"
                 return error, nil
@@ -159,7 +159,7 @@ class Template
                 if self['config.template']
                     @item.MarkAsVirtualMachine(:pool => get_rp, :host => self['runtime.host'])
                 end
-            rescue Exception => e
+            rescue StandardError => e
                 @item.MarkAsTemplate()
                 error = "Cannot mark the template as a VirtualMachine. Not using linked clones. Reason: #{e.message}/#{e.backtrace}"
                 use_linked_clones = false
@@ -186,7 +186,7 @@ class Template
                 end
 
                 @item.ReconfigVM_Task(:spec => spec).wait_for_completion if !spec[:deviceChange].empty?
-            rescue Exception => e
+            rescue StandardError => e
                 error = "Cannot create the delta disks on top of the template. Reason: #{e.message}."
                 use_linked_clones = false
                 return error, use_linked_clones
@@ -299,7 +299,7 @@ class Template
                 end
             end
 
-        rescue Exception => e
+        rescue StandardError => e
             error = "\n    There was an error trying to create an image for disk in vcenter template. Reason: #{e.message}\n#{e.backtrace}"
         ensure
             unlock
@@ -529,7 +529,7 @@ class Template
                     npool.info_all
                 end
             end
-        rescue Exception => e
+        rescue StandardError => e
             error = "\n    There was an error trying to create a virtual network to repesent a vCenter network for a VM or VM Template. Reason: #{e.message}"
         ensure
             unlock
@@ -904,8 +904,10 @@ class Template
                     ds_ref = @vm_info["datastore"]._ref
                 end
             end
-        rescue Exception => e
+	    return ds_ref
+        rescue StandardError => e
             error = "Could not find DATASTORE for this VM. Reason: #{e.message}"
+	    return error
         end
     end
 
@@ -1052,7 +1054,7 @@ class Template
             # Get the OpenNebula's template hash
             one_tmp[:one] = template_to_one(template, vcenter_uuid, template_ccr_ref, template_ccr_name, import_name, host_id)
             return one_tmp
-        rescue Exception => e
+        rescue StandardError => e
             return nil
         end
     end
