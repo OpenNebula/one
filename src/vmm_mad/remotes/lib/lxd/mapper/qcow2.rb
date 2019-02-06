@@ -43,7 +43,7 @@ class Qcow2Mapper < Mapper
         end
 
         # TODO: improve wait condition
-        sleep 5 # wait for parts to come out
+        sleep 1 # wait for parts to come out
 
         show_parts(device) unless parts_on?(device)
 

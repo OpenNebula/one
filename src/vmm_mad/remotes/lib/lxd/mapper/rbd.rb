@@ -35,7 +35,7 @@ class RBDMapper < Mapper
         rc, out, err = Command.execute(cmd, false)
 
         # TODO: improve wait condition
-        sleep 5 # wait for partition table
+        sleep 1 # wait for partition table
 
         return out.chomp if rc.zero?
 
