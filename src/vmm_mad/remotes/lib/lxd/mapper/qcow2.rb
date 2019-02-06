@@ -24,7 +24,7 @@ class Qcow2Mapper < Mapper
 
     # Max number of block devices. This should be set to the parameter used
     # to load the nbd kernel module (default in kernel is 16)
-    NBDS_MAX = 256
+    NBDS_MAX = 256 # TODO: Read system config file
 
     def do_map(one_vm, disk, _directory)
         device = nbd_device
@@ -35,7 +35,7 @@ class Qcow2Mapper < Mapper
         File.chmod(0o664, dsrc) if File.symlink?(one_vm.sysds_path)
 
         map = "#{COMMANDS[:nbd]} -c #{device} #{dsrc}"
-        rc, _out, err = Command.execute(map, false)
+        rc, _out, err = Command.execute(map, true)
 
         unless rc.zero?
             OpenNebula.log_error("#{__method__}: #{err}")
@@ -43,7 +43,7 @@ class Qcow2Mapper < Mapper
         end
 
         # TODO: improve wait condition
-        sleep 5 # wait for parts to come out
+        sleep 1 # wait for parts to come out
 
         show_parts(device) unless parts_on?(device)
 
@@ -69,36 +69,8 @@ class Qcow2Mapper < Mapper
 
     private
 
-    # Returns true if device has mapped partitions
-    def parts_on?(device)
-        partitions = lsblk(device)
-        return true if partitions[0]['type'] == 'part'
-
-        false
-    end
-
-    def show_parts(device)
-        action_parts(device, '-s -av')
-    end
-
-    def hide_parts(device)
-        action_parts(device, '-d')
-    end
-
-    # Runs kpartx vs a device with required flags as arguments
-    def action_parts(device, action)
-        cmd = "#{COMMANDS[:kpartx]} #{action} #{device}"
-        rc, _out, err = Command.execute(cmd, false)
-
-        return true if rc.zero?
-
-        OpenNebula.log_error("#{__method__}: #{err}")
-        false
-    end
-
     def nbd_device
         sys_parts = lsblk('')
-        device_id = -1
         nbds      = []
 
         sys_parts.each do |p|
