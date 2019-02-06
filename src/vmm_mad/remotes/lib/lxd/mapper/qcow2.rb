@@ -24,7 +24,7 @@ class Qcow2Mapper < Mapper
 
     # Max number of block devices. This should be set to the parameter used
     # to load the nbd kernel module (default in kernel is 16)
-    NBDS_MAX = 256
+    NBDS_MAX = 256 # TODO: Read system config file
 
     def do_map(one_vm, disk, _directory)
         device = nbd_device
@@ -35,7 +35,7 @@ class Qcow2Mapper < Mapper
         File.chmod(0o664, dsrc) if File.symlink?(one_vm.sysds_path)
 
         map = "#{COMMANDS[:nbd]} -c #{device} #{dsrc}"
-        rc, _out, err = Command.execute(map, false)
+        rc, _out, err = Command.execute(map, true)
 
         unless rc.zero?
             OpenNebula.log_error("#{__method__}: #{err}")
@@ -71,7 +71,6 @@ class Qcow2Mapper < Mapper
 
     def nbd_device
         sys_parts = lsblk('')
-        device_id = -1
         nbds      = []
 
         sys_parts.each do |p|

@@ -33,7 +33,13 @@ class RBDMapper < Mapper
 
         cmd = "#{COMMANDS[:rbd]} #{@ceph_user} map #{dsrc}"
 
-        rc, out, err = Command.execute(cmd, false)
+        rc, out, err = Command.execute(cmd, true)
+
+        unless rc.zero?
+
+            OpenNebula.log_error("#{__method__}: #{err}")
+            return
+        end
 
         # TODO: improve wait condition
         sleep 1 # wait for partition table
