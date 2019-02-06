@@ -76,6 +76,8 @@ exclusive "${LOCK}" 120 ssh_exec_and_log "$DST_HOST" "$CREATE_CMD" \
 
 MKIMAGE_CMD=$(cat <<EOF
     set -e -o pipefail
+    export PATH=/usr/sbin:/sbin:\$PATH
+
     mkdir -p $DST_DIR
 
     hostname -f >"${DST_DIR}/.host" || :
