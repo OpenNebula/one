@@ -44,9 +44,9 @@ class RBDMapper < Mapper
         # TODO: improve wait condition
         sleep 1 # wait for partition table
 
-        # TODO: deprecate workaround for ubuntu 16.04 not
-        # updating partition tables
-        try_mount(out.chomp)
+        device = out.chomp
+        try_mount(device)
+        device
     end
 
     def do_unmap(device, _one_vm, _disk, _directory)
@@ -64,12 +64,9 @@ class RBDMapper < Mapper
 
     # This function tries to mount mapped devices to force update of partition
     # tables
-    def try_mount(device)
-        dev = device
-        dev += "p1" if parts_on?(device)
-
+    def try_mount(dev)
         cmd = "#{COMMANDS[:mount]} --fake #{dev} /mnt"
-
-        device
+        Command.execute(cmd, false)
     end
+
 end
