@@ -19,6 +19,7 @@
 $LOAD_PATH.unshift File.dirname(__FILE__)
 
 require 'mapper'
+require 'tmpdir'
 
 # Ceph RBD mapper
 class RBDMapper < Mapper
@@ -37,10 +38,7 @@ class RBDMapper < Mapper
         # TODO: improve wait condition
         sleep 1 # wait for partition table
 
-        return out.chomp if rc.zero?
-
-        OpenNebula.log_error("#{__method__}: #{err}")
-        nil
+        workaround_bug(out.chomp)
     end
 
     def do_unmap(device, _one_vm, _disk, _directory)
@@ -52,6 +50,41 @@ class RBDMapper < Mapper
 
         OpenNebula.log_error("#{__method__}: #{err}")
         nil
+    end
+
+    private
+
+    def workaround_bug(device)
+        if parts_on?(device)
+            fix_single(device)
+        else
+            fix_multi(device)
+        end
+        device
+    end
+
+    def fix_single(device)
+        fix("#{device}p1")
+    end
+
+    def fix_multi(device)
+        fix(device)
+    end
+
+    def fix(device)
+        dir = Dir.mktmpdir
+
+        cmd = "#{COMMANDS[:mount]} #{device} #{dir}"
+        rc, _out, err = Command.execute(cmd, false)
+
+        if rc.zero?
+            cmd = "#{COMMANDS[:umount]} #{dir}"
+            Command.execute(cmd, false)
+        else
+            OpenNebula.log_error "Sanity check\n#{err}"
+        end
+
+        FileUtils.remove_entry dir
     end
 
 end
