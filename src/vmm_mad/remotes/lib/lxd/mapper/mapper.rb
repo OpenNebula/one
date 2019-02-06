@@ -446,4 +446,31 @@ class Mapper
         end
     end
 
+    # Returns true if device has mapped partitions
+    def parts_on?(device)
+        partitions = lsblk(device)
+        return true if partitions[0]['type'] == 'part'
+
+        false
+    end
+
+    def show_parts(device)
+        action_parts(device, '-s -av')
+    end
+
+    def hide_parts(device)
+        action_parts(device, '-d')
+    end
+
+    # Runs kpartx vs a device with required flags as arguments
+    def action_parts(device, action)
+        cmd = "#{COMMANDS[:kpartx]} #{action} #{device}"
+        rc, _out, err = Command.execute(cmd, false)
+
+        return true if rc.zero?
+
+        OpenNebula.log_error("#{__method__}: #{err}")
+        false
+    end
+
 end
