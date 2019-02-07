@@ -85,13 +85,13 @@ type virtualNetworkAR struct {
 type lease struct {
 	IP        string `xml:"IP"`
 	IP6       string `xml:"IP6"`
-	IP6Global string `xml:"IP6Global"`
-	IP6Link   string `xml:"IP6Link"`
+	IP6Global string `xml:"IP6GLOBAL"`
+	IP6Link   string `xml:"IP6LINK"`
 	IP6ULA    string `xml:"IP6ULA"`
 	MAC       string `xml:"MAC"`
 	VM        int    `xml:"VM"`
-	VNet      int    `xml:"VNet"`
-	VRouter   int    `xml:"VRouter"`
+	VNet      int    `xml:"VNET"`
+	VRouter   int    `xml:"VROUTER"`
 }
 
 // NewVirtualNetworkPool returns a virtualnetwork pool. A connection to OpenNebula is
