@@ -1,16 +1,82 @@
 package goca
 
-// Zone represents an OpenNebula Zone
-type Zone struct {
-	XMLResource
-	ID   uint
-	Name string
-}
+import (
+	"encoding/xml"
+	"errors"
+	"fmt"
+)
 
 // ZonePool represents an OpenNebula ZonePool
 type ZonePool struct {
-	XMLResource
+	ID         uint         `xml:"ZONE>ID"`
+	Name       string       `xml:"ZONE>NAME"`
+	Template   zoneTemplate `xml:"ZONE>TEMPLATE"`
+	ServerPool []zoneServer `xml:"ZONE>SERVER_POOL>SERVER"`
 }
+
+// Zone represents an OpenNebula Zone
+type Zone struct {
+	ID         uint         `xml:"ID"`
+	Name       string       `xml:"NAME"`
+	Template   zoneTemplate `xml:"TEMPLATE"`
+	ServerPool []zoneServer `xml:"SERVER_POOL>SERVER"`
+}
+
+type zoneServer struct {
+	ID       int    `xml:"ID"`
+	Name     string `xml:"NAME"`
+	Endpoint string `xml:"ENDPOINT"`
+}
+
+type zoneTemplate struct {
+	Endpoint string `xml:"ENDPOINT"`
+}
+
+// ZoneServerRaftStatus contains the raft status datas of a server
+type ZoneServerRaftStatus struct {
+	ID          int `xml:"SERVER_ID"`
+	StateRaw    int `xml:"STATE"`
+	Term        int `xml:"TERM"`
+	Votedfor    int `xml:"VOTEDFOR"`
+	Commit      int `xml:"COMMIT"`
+	LogIndex    int `xml:"LOG_INDEX"`
+	FedlogIndex int `xml:"FEDLOG_INDEX"`
+}
+
+// ZoneServerRaftState is the state of an OpenNebula server from a zone (See HA and Raft)
+type ZoneServerRaftState int
+
+const (
+	// ZoneServerRaftSolo is the initial leader
+	ZoneServerRaftSolo ZoneServerRaftState = 0
+
+	// ZoneServerRaftCandidate when the server is candidate to election
+	ZoneServerRaftCandidate = 1
+
+	// ZoneServerRaftFollower when the server is a follower
+	ZoneServerRaftFollower = 2
+
+	// ZoneServerRaftLeader when the server is the leader
+	ZoneServerRaftLeader = 3
+)
+
+func (st ZoneServerRaftState) isValid() bool {
+	if st >= ZoneServerRaftSolo && st <= ZoneServerRaftLeader {
+		return true
+	}
+	return false
+}
+
+func (st ZoneServerRaftState) String() string {
+	return [...]string{
+		"SOLO",
+		"CANDIDATE",
+		"FOLLOWER",
+		"LEADER",
+	}[st]
+}
+
+// NewZonePool returns a zone pool. A connection to OpenNebula is
 
 // NewZonePool returns a zone pool. A connection to OpenNebula is
 // performed.
@@ -20,9 +86,13 @@ func NewZonePool() (*ZonePool, error) {
 		return nil, err
 	}
 
-	zonepool := &ZonePool{XMLResource{body: response.Body()}}
+	zonePool := &ZonePool{}
+	err = xml.Unmarshal([]byte(response.Body()), zonePool)
+	if err != nil {
+		return nil, err
+	}
 
-	return zonepool, err
+	return zonePool, err
 }
 
 // NewZone finds a zone object by ID. No connection to OpenNebula.
@@ -39,12 +109,11 @@ func NewZoneFromName(name string) (*Zone, error) {
 		return nil, err
 	}
 
-	id, err := zonePool.GetIDFromName(name, "/ZONE_POOL/ZONE")
-	if err != nil {
-		return nil, err
+	if zonePool.Name != name {
+		return nil, errors.New("resource not found")
 	}
 
-	return NewZone(id), nil
+	return NewZone(zonePool.ID), nil
 }
 
 // CreateZone allocates a new zone. It returns the new zone ID.
@@ -87,6 +156,37 @@ func (zone *Zone) Info() error {
 	if err != nil {
 		return err
 	}
-	zone.body = response.Body()
-	return nil
+	return xml.Unmarshal([]byte(response.Body()), zone)
+}
+
+//GetRaftStatus give the raft status of the server behind the current RPC endpoint. To get endpoints make an info call.
+func GetRaftStatus(serverUrl string) (*ZoneServerRaftStatus, error) {
+	response, err := client.endpointCall(serverUrl, "one.zone.raftstatus")
+	if err != nil {
+		return nil, err
+	}
+	s := &ZoneServerRaftStatus{}
+	err = xml.Unmarshal([]byte(response.Body()), s)
+	if err != nil {
+		return nil, err
+	}
+	return s, nil
+}
+
+// State looks up the state of the zone server and returns the ZoneServerRaftState
+func (server *ZoneServerRaftStatus) State() (ZoneServerRaftState, error) {
+	state := ZoneServerRaftState(server.StateRaw)
+	if !state.isValid() {
+		return -1, fmt.Errorf("Zone server State: this state value is not currently handled: %d\n", server.StateRaw)
+	}
+	return state, nil
+}
+
+// StateString returns the state in string format
+func (server *ZoneServerRaftStatus) StateString() (string, error) {
+	state := ZoneServerRaftState(server.StateRaw)
+	if !state.isValid() {
+		return "", fmt.Errorf("Zone server StateString: this state value is not currently handled: %d\n", server.StateRaw)
+	}
+	return state.String(), nil
 }

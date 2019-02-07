@@ -22,7 +22,7 @@ func TestSGAllocate(t *testing.T){
 	sg = NewSecurityGroup(sg_id)
 	sg.Info()
 
-	actual, _:= sg.XMLResource.XPath("/SECURITY_GROUP/NAME")
+	actual := sg.Name
 
 	if actual != sg_name {
 		t.Errorf("Test failed, expected: '%s', got:  '%s'", sg_name, actual)
@@ -39,15 +39,22 @@ func TestSGAllocate(t *testing.T){
 
 	sg.Info()
 
-	actual_1, _ := sg.XMLResource.XPath("/SECURITY_GROUP/TEMPLATE/ATT1")
-	actual_3, _ := sg.XMLResource.XPath("/SECURITY_GROUP/TEMPLATE/ATT3")
-
-	if actual_1 != "VAL1" {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", "VAL1", actual_1)
+	actual_1, err := sg.Template.Dynamic.GetContentByName("ATT1")
+	if err != nil {
+		t.Errorf("Test failed, can't retrieve '%s', error: %s", "ATT1", err.Error())
+	} else {
+		if actual_1 != "VAL1" {
+			t.Errorf("Test failed, expected: '%s', got:  '%s'", "VAL1", actual_1)
+		}
 	}
 
-	if actual_3 != "VAL3" {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", "VAL3", actual_3)
+	actual_3, err := sg.Template.Dynamic.GetContentByName("ATT3")
+	if err != nil {
+		t.Errorf("Test failed, can't retrieve '%s', error: %s", "ATT3", err.Error())
+	} else {
+		if actual_3 != "VAL3" {
+			t.Errorf("Test failed, expected: '%s', got:  '%s'", "VAL3", actual_3)
+		}
 	}
 
 	clone_name := sg_name + "-cloned"
@@ -62,7 +69,7 @@ func TestSGAllocate(t *testing.T){
 	clone := NewSecurityGroup(clone_id)
 	clone.Info()
 
-	actual, _ = clone.XMLResource.XPath("/SECURITY_GROUP/NAME")
+	actual = sg.Name
 
 	if actual != clone_name {
 		t.Errorf("Test failed, expected: '%s', got:  '%s'", clone_name, actual)
@@ -79,11 +86,11 @@ func TestSGAllocate(t *testing.T){
 
 	sg.Info()
 
-	expected := "111111111"
-	actual, _ = sg.XMLResource.XPath("/SECURITY_GROUP/PERMISSIONS")
+	expected_perm := Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1}
+	actual_perm := sg.Permissions
 
-	if actual != expected {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", expected, actual)
+	if actual_perm == nil || *actual_perm != expected_perm {
+		t.Errorf("Test failed, expected: '%s', got:  '%s'", expected_perm.String(), actual_perm.String())
 	}
 
 	//Change owner of SG
@@ -95,17 +102,17 @@ func TestSGAllocate(t *testing.T){
 
 	sg.Info()
 
-	expected_usr := "1"
-	expected_grp := "1"
-	actual_usr, _ := sg.XMLResource.XPath("/SECURITY_GROUP/UID")
-	actual_grp, _ := sg.XMLResource.XPath("/SECURITY_GROUP/GID")
+	expected_usr := 1
+	expected_grp := 1
+	actual_usr := sg.UID
+	actual_grp := sg.GID
 
 	if actual_usr != expected_usr {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", expected_usr, actual_usr)
+		t.Errorf("Test failed, expected: '%d', got:  '%d'", expected_usr, actual_usr)
 	}
 
 	if actual_grp != expected_grp {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", expected_grp, actual_grp)
+		t.Errorf("Test failed, expected: '%d', got:  '%d'", expected_grp, actual_grp)
 	}
 
 	//Rename SG
@@ -118,7 +125,7 @@ func TestSGAllocate(t *testing.T){
 
 	sg.Info()
 
-	actual, _ = sg.XMLResource.XPath("/SECURITY_GROUP/NAME")
+	actual = sg.Name
 
 	if actual != rename {
 		t.Errorf("Test failed, expected: '%s', got:  '%s'", rename, actual)

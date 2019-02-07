@@ -1,17 +1,97 @@
 package goca
 
-import "errors"
-
-// VirtualNetwork represents an OpenNebula VirtualNetwork
-type VirtualNetwork struct {
-	XMLResource
-	ID   uint
-	Name string
-}
+import (
+	"encoding/xml"
+	"errors"
+)
 
 // VirtualNetworkPool represents an OpenNebula VirtualNetworkPool
 type VirtualNetworkPool struct {
-	XMLResource
+	VirtualNetworks []virtualNetworkPoolBase `xml:"VNET"`
+}
+
+// VirtualNetwork represents an OpenNebula VirtualNetwork
+type VirtualNetwork struct {
+	virtualNetworkBase
+	Lock *Lock              `xml:"LOCK"`
+	ARs  []virtualNetworkAR `xml:"AR_POOL>AR"`
+}
+
+// VirtualNetworkBase represents common attributes for parts of VirtualNetworkPool and VirtualNetwork
+type virtualNetworkBase struct {
+	ID                   uint                   `xml:"ID"`
+	UID                  int                    `xml:"UID"`
+	GID                  int                    `xml:"GID"`
+	UName                string                 `xml:"UNAME"`
+	GName                string                 `xml:"GNAME"`
+	Name                 string                 `xml:"NAME"`
+	Permissions          *Permissions           `xml:"PERMISSIONS"`
+	Clusters             []int                  `xml:"CLUSTERS>ID"`
+	Bridge               string                 `xml:"BRIDGE"`
+	BridgeType           string                 `xml:"BRIDGE_TYPE"` // minOccurs=0
+	ParentNetworkID      string                 `xml:"PARENT_NETWORK_ID"`
+	VNMad                string                 `xml:"VN_MAD"`
+	PhyDev               string                 `xml:"PHYDEV"`
+	VlanID               string                 `xml:"VLAN_ID"`       // minOccurs=0
+	OuterVlanID          string                 `xml:"OUTER_VLAN_ID"` // minOccurs=0
+	VlanIDAutomatic      string                 `xml:"VLAN_ID_AUTOMATIC"`
+	OuterVlanIDAutomatic string                 `xml:"OUTER_VLAN_ID_AUTOMATIC"`
+	UsedLeases           int                    `xml:"USED_LEASES"`
+	VRouters             []int                  `xml:"VROUTERS>ID"`
+	Template             virtualNetworkTemplate `xml:"TEMPLATE"`
+}
+
+type virtualNetworkTemplate struct {
+	Dynamic unmatchedTagsSlice `xml:",any"`
+}
+
+// AR represent an Address Range
+type virtualNetworkPoolBase struct {
+	virtualNetworkBase
+	ARs []virtualNetworkARPool `xml:"AR_POOL>AR"`
+}
+
+type virtualNetworkARBase struct {
+	ARID              string `xml:"AR_ID"`
+	GlobalPrefix      string `xml:"GLOBAL_PREFIX"` // minOccurs=0
+	IP                string `xml:"IP"`            // minOccurs=0
+	MAC               string `xml:"MAC"`
+	ParentNetworkARID string `xml:"PARENT_NETWORK_AR_ID"` // minOccurs=0
+	Size              int    `xml:"SIZE"`
+	Type              string `xml:"TYPE"`
+	ULAPrefix         string `xml:"ULA_PREFIX"` // minOccurs=0
+	VNMAD             string `xml:"VN_MAD"`     // minOccurs=0
+}
+
+type virtualNetworkARPool struct {
+	virtualNetworkARBase
+	Allocated string `xml:ALLOCATED`
+}
+
+type virtualNetworkAR struct {
+	virtualNetworkARBase
+	MACEnd       string  `xml:"MAC_END"`
+	IPEnd        string  `xml:"IP_END"`
+	IP6ULA       string  `xml:"IP6_ULA"`
+	IP6ULAEnd    string  `xml:"IP6_ULA_END"`
+	IP6Global    string  `xml:"IP6_GLOBAL"`
+	IP6GlobalEnd string  `xml:"IP6_GLOBAL_END"`
+	IP6          string  `xml:"IP6"`
+	IP6End       string  `xml:"IP6_END"`
+	UsedLeases   string  `xml:"USED_LEASES"`
+	Leases       []lease `xml:"LEASES>LEASE"`
+}
+
+type lease struct {
+	IP        string `xml:"IP"`
+	IP6       string `xml:"IP6"`
+	IP6Global string `xml:"IP6Global"`
+	IP6Link   string `xml:"IP6Link"`
+	IP6ULA    string `xml:"IP6ULA"`
+	MAC       string `xml:"MAC"`
+	VM        int    `xml:"VM"`
+	VNet      int    `xml:"VNet"`
+	VRouter   int    `xml:"VRouter"`
 }
 
 // NewVirtualNetworkPool returns a virtualnetwork pool. A connection to OpenNebula is
@@ -41,28 +121,44 @@ func NewVirtualNetworkPool(args ...int) (*VirtualNetworkPool, error) {
 		return nil, err
 	}
 
-	vnpool := &VirtualNetworkPool{XMLResource{body: response.Body()}}
+	vnPool := &VirtualNetworkPool{}
+	err = xml.Unmarshal([]byte(response.Body()), &vnPool)
+	if err != nil {
+		return nil, err
+	}
 
-	return vnpool, err
+	return vnPool, nil
 }
 
 // NewVirtualNetwork finds a virtualnetwork object by ID. No connection to OpenNebula.
 func NewVirtualNetwork(id uint) *VirtualNetwork {
-	return &VirtualNetwork{ID: id}
+	return &VirtualNetwork{virtualNetworkBase: virtualNetworkBase{ID: id}}
 }
 
 // NewVirtualNetworkFromName finds a virtualnetwork object by name. It connects to
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the virtualnetwork.
 func NewVirtualNetworkFromName(name string) (*VirtualNetwork, error) {
-	virtualnetworkPool, err := NewVirtualNetworkPool()
+	var id uint
+
+	virtualNetworkPool, err := NewVirtualNetworkPool()
 	if err != nil {
 		return nil, err
 	}
 
-	id, err := virtualnetworkPool.GetIDFromName(name, "/VNET_POOL/VNET")
-	if err != nil {
-		return nil, err
+	match := false
+	for i := 0; i < len(virtualNetworkPool.VirtualNetworks); i++ {
+		if virtualNetworkPool.VirtualNetworks[i].Name != name {
+			continue
+		}
+		if match {
+			return nil, errors.New("multiple resources with that name")
+		}
+		id = virtualNetworkPool.VirtualNetworks[i].ID
+		match = true
+	}
+	if !match {
+		return nil, errors.New("resource not found")
 	}
 
 	return NewVirtualNetwork(id), nil
@@ -179,6 +275,5 @@ func (vn *VirtualNetwork) Info() error {
 	if err != nil {
 		return err
 	}
-	vn.body = response.Body()
-	return nil
+	return xml.Unmarshal([]byte(response.Body()), vn)
 }

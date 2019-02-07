@@ -1,15 +1,49 @@
 package goca
 
-// Vdc represents an OpenNebula Vdc
-type Vdc struct {
-	XMLResource
-	ID   uint
-	Name string
-}
+import (
+	"encoding/xml"
+	"errors"
+)
 
 // VdcPool represents an OpenNebula VdcPool
 type VdcPool struct {
-	XMLResource
+	Vdcs []Vdc `xml:"VDC"`
+}
+
+// Vdc represents an OpenNebula Vdc
+type Vdc struct {
+	ID         uint           `xml:"ID"`
+	Name       string         `xml:"NAME"`
+	GroupsID   []int          `xml:"GROUPS>ID"`
+	Clusters   []vdcCluster   `xml:"CLUSTERS>CLUSTER"`
+	Hosts      []vdcHost      `xml:"HOSTS>HOST"`
+	Datastores []vdcDatastore `xml:"DATASTORES>DATASTORE"`
+	VNets      []vdcVNet      `xml:"VNETS>VNET"`
+	Template   vdcTemplate    `xml:"TEMPLATE"`
+}
+
+type vdcTemplate struct {
+	Dynamic unmatchedTagsSlice `xml:",any"`
+}
+
+type vdcCluster struct {
+	ZoneID    int `xml:"ZONE_ID"`
+	ClusterID int `xml:"CLUSTER_ID"`
+}
+
+type vdcHost struct {
+	ZoneID int `xml:"ZONE_ID"`
+	HostID int `xml:"HOST_ID"`
+}
+
+type vdcDatastore struct {
+	ZoneID      int `xml:"ZONE_ID"`
+	DatastoreID int `xml:"DATASTORE_ID"`
+}
+
+type vdcVNet struct {
+	ZoneID int `xml:"ZONE_ID"`
+	VnetID int `xml:"VNET_ID"`
 }
 
 // NewVdcPool returns a vdc pool. A connection to OpenNebula is
@@ -20,9 +54,13 @@ func NewVdcPool() (*VdcPool, error) {
 		return nil, err
 	}
 
-	vdcpool := &VdcPool{XMLResource{body: response.Body()}}
+	vdcPool := &VdcPool{}
+	err = xml.Unmarshal([]byte(response.Body()), vdcPool)
+	if err != nil {
+		return nil, err
+	}
 
-	return vdcpool, err
+	return vdcPool, nil
 }
 
 // NewVdc finds a vdc object by ID. No connection to OpenNebula.
@@ -34,14 +72,26 @@ func NewVdc(id uint) *Vdc {
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the vdc.
 func NewVdcFromName(name string) (*Vdc, error) {
+	var id uint
+
 	vdcPool, err := NewVdcPool()
 	if err != nil {
 		return nil, err
 	}
 
-	id, err := vdcPool.GetIDFromName(name, "/VDC_POOL/VDC")
-	if err != nil {
-		return nil, err
+	match := false
+	for i := 0; i < len(vdcPool.Vdcs); i++ {
+		if vdcPool.Vdcs[i].Name != name {
+			continue
+		}
+		if match {
+			return nil, errors.New("multiple resources with that name")
+		}
+		id = vdcPool.Vdcs[i].ID
+		match = true
+	}
+	if !match {
+		return nil, errors.New("resource not found")
 	}
 
 	return NewVdc(id), nil
@@ -88,8 +138,7 @@ func (vdc *Vdc) Info() error {
 	if err != nil {
 		return err
 	}
-	vdc.body = response.Body()
-	return nil
+	return xml.Unmarshal([]byte(response.Body()), vdc)
 }
 
 // AddGroup adds a group to the VDC

@@ -1,19 +1,65 @@
 package goca
 
 import (
+	"encoding/xml"
 	"errors"
 )
 
-// Template represents an OpenNebula Template
-type Template struct {
-	XMLResource
-	ID   uint
-	Name string
-}
-
 // TemplatePool represents an OpenNebula TemplatePool
 type TemplatePool struct {
-	XMLResource
+	Templates []Template `xml:"VMTEMPLATE"`
+}
+
+// Template represents an OpenNebula Template
+type Template struct {
+	ID          uint             `xml:"ID"`
+	UID         int              `xml:"UID"`
+	GID         int              `xml:"GID"`
+	UName       string           `xml:"UNAME"`
+	GName       string           `xml:"GNAME"`
+	Name        string           `xml:"NAME"`
+	LockInfos   *Lock            `xml:"LOCK"`
+	Permissions *Permissions     `xml:"PERMISSIONS"`
+	RegTime     int              `xml:"REGTIME"`
+	Template    templateTemplate `xml:"TEMPLATE"`
+}
+
+// templateTemplate represent the template part of the OpenNebula Template
+type templateTemplate struct {
+	CPU        float64             `xml:"CPU"`
+	Memory     int                 `xml:"MEMORY"`
+	Context    *templateContext    `xml:"CONTEXT"`
+	Disk       []templateDisk      `xml:"DISK"`
+	Graphics   *templateGraphics   `xml:"GRAPHICS"`
+	NICDefault *templateNicDefault `xml:"NIC_DEFAULT"`
+	OS         *templateOS         `xml:"OS"`
+	UserInputs templateUserInputs  `xml:"USER_INPUTS"`
+	Dynamic    unmatchedTagsSlice  `xml:",any"`
+}
+
+type templateContext struct {
+	Dynamic unmatchedTagsSlice `xml:",any"`
+}
+
+type templateDisk struct {
+	Dynamic unmatchedTagsSlice `xml:",any"`
+}
+
+type templateGraphics struct {
+	Dynamic unmatchedTagsSlice `xml:",any"`
+}
+
+type templateUserInputs struct {
+	Dynamic unmatchedTagsSlice `xml:",any"`
+}
+
+type templateNicDefault struct {
+	Model string `xml:"MODEL"`
+}
+
+type templateOS struct {
+	Arch string `xml:"ARCH"`
+	Boot string `xml:"BOOT"`
 }
 
 // NewTemplatePool returns a template pool. A connection to OpenNebula is
@@ -39,10 +85,13 @@ func NewTemplatePool(args ...int) (*TemplatePool, error) {
 		return nil, err
 	}
 
-	templatepool := &TemplatePool{XMLResource{body: response.Body()}}
+	templatePool := &TemplatePool{}
+	err = xml.Unmarshal([]byte(response.Body()), templatePool)
+	if err != nil {
+		return nil, err
+	}
 
-	return templatepool, err
-
+	return templatePool, nil
 }
 
 // NewTemplate finds a template object by ID. No connection to OpenNebula.
@@ -54,14 +103,26 @@ func NewTemplate(id uint) *Template {
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the template.
 func NewTemplateFromName(name string) (*Template, error) {
+	var id uint
+
 	templatePool, err := NewTemplatePool()
 	if err != nil {
 		return nil, err
 	}
 
-	id, err := templatePool.GetIDFromName(name, "/VMTEMPLATE_POOL/VMTEMPLATE")
-	if err != nil {
-		return nil, err
+	match := false
+	for i := 0; i < len(templatePool.Templates); i++ {
+		if templatePool.Templates[i].Name != name {
+			continue
+		}
+		if match {
+			return nil, errors.New("multiple resources with that name")
+		}
+		id = templatePool.Templates[i].ID
+		match = true
+	}
+	if !match {
+		return nil, errors.New("resource not found")
 	}
 
 	return NewTemplate(id), nil
@@ -83,8 +144,7 @@ func (template *Template) Info() error {
 	if err != nil {
 		return err
 	}
-	template.body = response.Body()
-	return nil
+	return xml.Unmarshal([]byte(response.Body()), template)
 }
 
 // Update will modify the template. If appendTemplate is 0, it will

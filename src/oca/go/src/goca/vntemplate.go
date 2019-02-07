@@ -1,19 +1,34 @@
 package goca
 
+// Since version 5.8 of OpenNebula
+
 import (
+	"encoding/xml"
 	"errors"
 )
 
-// VNTemplate represents an OpenNebula Virtual Network Template
-type VNTemplate struct {
-	XMLResource
-	ID   uint
-	Name string
-}
-
 // VNTemplatePool represents an OpenNebula Virtual Network TemplatePool
 type VNTemplatePool struct {
-	XMLResource
+	VNTemplates []VNTemplate `xml:"VNTEMPLATE"`
+}
+
+// VNTemplate represents an OpenNebula Virtual Network Template
+type VNTemplate struct {
+	ID          uint               `xml:"ID"`
+	UID         int                `xml:"UID"`
+	GID         int                `xml:"GID"`
+	UName       string             `xml:"UNAME"`
+	GName       string             `xml:"GNAME"`
+	Name        string             `xml:"NAME"`
+	LockInfos   *Lock              `xml:"LOCK"`
+	Permissions Permissions        `xml:"PERMISSIONS"`
+	RegTime     string             `xml:"REGTIME"`
+	Template    vnTemplateTemplate `xml:"TEMPLATE"`
+}
+
+type vnTemplateTemplate struct {
+	VNMad   string             `xml:"VN_MAD"`
+	Dynamic unmatchedTagsSlice `xml:",any"`
 }
 
 // NewVNTemplatePool returns a vntemplate pool. A connection to OpenNebula is
@@ -39,9 +54,13 @@ func NewVNTemplatePool(args ...int) (*VNTemplatePool, error) {
 		return nil, err
 	}
 
-	vntemplatepool := &VNTemplatePool{XMLResource{body: response.Body()}}
+	vnTemplatePool := &VNTemplatePool{}
+	err = xml.Unmarshal([]byte(response.Body()), vnTemplatePool)
+	if err != nil {
+		return nil, err
+	}
 
-	return vntemplatepool, err
+	return vnTemplatePool, nil
 
 }
 
@@ -54,14 +73,26 @@ func NewVNTemplate(id uint) *VNTemplate {
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the vntemplate.
 func NewVNTemplateFromName(name string) (*VNTemplate, error) {
-	vntemplatePool, err := NewVNTemplatePool()
+	var id uint
+
+	vnTemplatePool, err := NewVNTemplatePool()
 	if err != nil {
 		return nil, err
 	}
 
-	id, err := vntemplatePool.GetIDFromName(name, "/VNTEMPLATE_POOL/VNTEMPLATE")
-	if err != nil {
-		return nil, err
+	match := false
+	for i := 0; i < len(vnTemplatePool.VNTemplates); i++ {
+		if vnTemplatePool.VNTemplates[i].Name != name {
+			continue
+		}
+		if match {
+			return nil, errors.New("multiple resources with that name")
+		}
+		id = vnTemplatePool.VNTemplates[i].ID
+		match = true
+	}
+	if !match {
+		return nil, errors.New("resource not found")
 	}
 
 	return NewVNTemplate(id), nil
@@ -80,8 +111,10 @@ func CreateVNTemplate(vntemplate string) (uint, error) {
 // Info connects to OpenNebula and fetches the information of the VNTemplate
 func (vntemplate *VNTemplate) Info() error {
 	response, err := client.Call("one.vntemplate.info", vntemplate.ID)
-	vntemplate.body = response.Body()
-	return err
+	if err != nil {
+		return err
+	}
+	return xml.Unmarshal([]byte(response.Body()), vntemplate)
 }
 
 // Update will modify the vntemplate. If appendTemplate is 0, it will

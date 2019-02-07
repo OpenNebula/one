@@ -1,20 +1,146 @@
 package goca
 
 import (
+	"encoding/xml"
 	"errors"
-	"strconv"
+	"fmt"
 )
-
-// VM represents an OpenNebula Virtual Machine
-type VM struct {
-	XMLResource
-	ID   uint
-	Name string
-}
 
 // VMPool represents an OpenNebula Virtual Machine pool
 type VMPool struct {
-	XMLResource
+	VMs []vmBase `xml:"VM"`
+}
+
+// VM represents an OpenNebula Virtual Machine
+type VM struct {
+	vmBase
+	LockInfos *Lock `xml:"LOCK"`
+}
+
+type vmBase struct {
+	ID              uint              `xml:"ID"`
+	UID             int               `xml:"UID"`
+	GID             int               `xml:"GID"`
+	UName           string            `xml:"UNAME"`
+	GName           string            `xml:"GNAME"`
+	Name            string            `xml:"NAME"`
+	Permissions     *Permissions      `xml:"PERMISSIONS"`
+	LastPoll        int               `xml:"LAST_POLL"`
+	StateRaw        int               `xml:"STATE"`
+	LCMStateRaw     int               `xml:"LCM_STATE"`
+	PrevStateRaw    int               `xml:"PREV_STATE"`
+	PrevLCMStateRaw int               `xml:"PREV_LCM_STATE"`
+	ReschedValue    int               `xml:"RESCHED"`
+	STime           int               `xml:"STIME"`
+	ETime           int               `xml:"ETIME"`
+	DeployID        string            `xml:"DEPLOY_ID"`
+	Monitoring      vmMonitoring      `xml:"MONITORING"`
+	Template        vmTemplate        `xml:"TEMPLATE"`
+	UserTemplate    *vmUserTemplate   `xml:"USER_TEMPLATE"`
+	HistoryRecords  []vmHistoryRecord `xml:"HISTORY_RECORDS>HISTORY"`
+}
+
+type vmMonitoring struct {
+	DiskSize     []vmMonitoringDiskSize     `xml:"DISK_SIZE"`
+	SnapshotSize []vmMonitoringSnapshotSize `xml:"SNAPSHOT_SIZE"`
+	Dynamic      unmatchedTagsSlice         `xml:",any"`
+}
+
+type vmMonitoringDiskSize struct {
+	ID   int `xml:"ID"`
+	Size int `xml:"SIZE"`
+}
+
+// History records
+type vmHistoryRecord struct {
+	OID       int                       `xml:"OID"`
+	SEQ       int                       `xml:"SEQ"`
+	Hostname  string                    `xml:"HOSTNAME"`
+	HID       int                       `xml:"HID"`
+	CID       int                       `xml:"CID"`
+	DSID      int                       `xml:"DS_ID"`
+	Action    int                       `xml:"ACTION"`
+	UID       int                       `xml:"UID"`
+	GID       int                       `xml:"GID"`
+	RequestID string                    `xml:"REQUEST_ID"`
+	PSTime    int                       `xml:"PSTIME"`
+	PETime    int                       `xml:"PETIME"`
+	RSTime    int                       `xml:"RSTIME"`
+	RETime    int                       `xml:"RETIME"`
+	ESTime    int                       `xml:"ESTIME"`
+	EETime    int                       `xml:"EETIME"`
+	STime     int                       `xml:"STIME"`
+	ETime     int                       `xml:"ETIME"`
+	VMMad     string                    `xml:"VM_MAD"`
+	TMMad     string                    `xml:"TM_MAD"`
+	Snapshots []vmHistoryRecordSnapshot `xml:"SNAPSHOTS"`
+}
+
+// VMUserTemplate contain custom attributes
+type vmUserTemplate struct {
+	Error        string           `xml:"ERROR"`
+	SchedMessage string           `xml:"SCHED_MESSAGE"`
+	Dynamic      unmatchedTagsMap `xml:",any"`
+}
+
+type vmTemplate struct {
+	CPU               float64               `xml:"CPU"`
+	Memory            int                   `xml:"MEMORY"`
+	NIC               []vmNic               `xml:"NIC"`
+	NICAlias          []vmNicAlias          `xml:"NIC_ALIAS"`
+	Context           *vmContext            `xml:"CONTEXT"`
+	Disk              []vmDisk              `xml:"DISK"`
+	Graphics          *vmGraphics           `xml:"GRAPHICS"`
+	OS                *vmOS                 `xml:"OS"`
+	Snapshot          []VMSnapshot          `xml:"SNAPSHOT"`
+	SecurityGroupRule []vmSecurityGroupRule `xml:"SECURITY_GROUP_RULE"`
+	Dynamic           unmatchedTagsSlice    `xml:",any"`
+}
+
+type vmContext struct {
+	Dynamic unmatchedTagsMap `xml:",any"`
+}
+
+type vmNic struct {
+	ID      int                `xml:"NIC_ID"`
+	Network string             `xml:"NETWORK"`
+	IP      string             `xml:"IP"`
+	MAC     string             `xml:"MAC"`
+	PhyDev  string             `xml:"PHYDEV"`
+	Dynamic unmatchedTagsSlice `xml:",any"`
+}
+
+type vmNicAlias struct {
+	ID       int    `xml:"NIC_ID"`    // minOccurs=1
+	Parent   string `xml:"PARENT"`    // minOccurs=1
+	ParentId string `xml:"PARENT_ID"` // minOccurs=1
+}
+
+type vmGraphics struct {
+	Listen string `xml:"LISTEN"`
+	Port   string `xml:"PORT"`
+	Type   string `xml:"TYPE"`
+}
+
+type vmDisk struct {
+	ID           int                `xml:"DISK_ID"`
+	Datastore    string             `xml:"DATASTORE"`
+	DiskType     string             `xml:"DISK_TYPE"`
+	Image        string             `xml:"IMAGE"`
+	Driver       string             `xml:"DRIVER"`
+	OriginalSize int                `xml:"ORIGINAL_SIZE"`
+	Size         int                `xml:"SIZE"`
+	Dynamic      unmatchedTagsSlice `xml:",any"`
+}
+
+type vmOS struct {
+	Arch string `xml:"ARCH"`
+	Boot string `xml:"BOOT"`
+}
+
+type vmSecurityGroupRule struct {
+	securityGroupRule
+	SecurityGroup string `xml:"SECURITY_GROUP_NAME"`
 }
 
 // VMState is the state of the Virtual Machine
@@ -57,6 +183,14 @@ const (
 	// CloningFailure state
 	CloningFailure VMState = 11
 )
+
+func (st VMState) isValid() bool {
+	if (st >= Init && st <= Done) ||
+		(st >= Poweroff && st <= CloningFailure) {
+		return true
+	}
+	return false
+}
 
 func (s VMState) String() string {
 	switch s {
@@ -286,6 +420,15 @@ const (
 	DiskResizeUndeployed LCMState = 64
 )
 
+func (st LCMState) isValid() bool {
+	if (st >= LcmInit && st <= Shutdown) ||
+		(st >= CleanupResubmit && st <= DiskSnapshot) ||
+		(st >= DiskSnapshotDelete && st <= DiskResizeUndeployed) {
+		return true
+	}
+	return false
+}
+
 func (l LCMState) String() string {
 	switch l {
 	case LcmInit:
@@ -301,7 +444,7 @@ func (l LCMState) String() string {
 	case SaveStop:
 		return "SAVE_STOP"
 	case SaveSuspend:
-		return "SAVESuspend"
+		return "SAVE_SUSPEND"
 	case SaveMigrate:
 		return "SAVE_MIGRATE"
 	case PrologMigrate:
@@ -327,7 +470,7 @@ func (l LCMState) String() string {
 	case BootPoweroff:
 		return "BOOT_POWEROFF"
 	case BootSuspended:
-		return "BOOTSuspendED"
+		return "BOOT_SUSPENDED"
 	case BootStopped:
 		return "BOOT_STOPPED"
 	case CleanupDelete:
@@ -341,7 +484,7 @@ func (l LCMState) String() string {
 	case HotplugSaveasPoweroff:
 		return "HOTPLUG_SAVEAS_POWEROFF"
 	case HotplugSaveasSuspended:
-		return "HOTPLUG_SAVEASSuspendED"
+		return "HOTPLUG_SAVEAS_SUSPENDED"
 	case ShutdownUndeploy:
 		return "SHUTDOWN_UNDEPLOY"
 	case EpilogUndeploy:
@@ -375,9 +518,9 @@ func (l LCMState) String() string {
 	case PrologMigratePoweroffFailure:
 		return "PROLOG_MIGRATE_POWEROFF_FAILURE"
 	case PrologMigrateSuspend:
-		return "PROLOG_MIGRATESuspend"
+		return "PROLOG_MIGRATE_SUSPEND"
 	case PrologMigrateSuspendFailure:
-		return "PROLOG_MIGRATESuspend_FAILURE"
+		return "PROLOG_MIGRATE_SUSPEND_FAILURE"
 	case BootUndeployFailure:
 		return "BOOT_UNDEPLOY_FAILURE"
 	case BootStoppedFailure:
@@ -393,11 +536,11 @@ func (l LCMState) String() string {
 	case DiskSnapshotDeletePoweroff:
 		return "DISK_SNAPSHOT_DELETE_POWEROFF"
 	case DiskSnapshotSuspended:
-		return "DISK_SNAPSHOTSuspendED"
+		return "DISK_SNAPSHOT_SUSPENDED"
 	case DiskSnapshotRevertSuspended:
-		return "DISK_SNAPSHOT_REVERTSuspendED"
+		return "DISK_SNAPSHOT_REVERT_SUSPENDED"
 	case DiskSnapshotDeleteSuspended:
-		return "DISK_SNAPSHOT_DELETESuspendED"
+		return "DISK_SNAPSHOT_DELETE_SUSPENDED"
 	case DiskSnapshot:
 		return "DISK_SNAPSHOT"
 	case DiskSnapshotDelete:
@@ -451,10 +594,13 @@ func NewVMPool(args ...int) (*VMPool, error) {
 		return nil, err
 	}
 
-	vmpool := &VMPool{XMLResource{body: response.Body()}}
+	vmPool := &VMPool{}
+	err = xml.Unmarshal([]byte(response.Body()), vmPool)
+	if err != nil {
+		return nil, err
+	}
 
-	return vmpool, err
-
+	return vmPool, nil
 }
 
 // Monitoring returns all the virtual machine monitorin records
@@ -529,51 +675,62 @@ func CreateVM(template string, pending bool) (uint, error) {
 // NewVM finds an VM by ID returns a new VM object. At this stage no
 // connection to OpenNebula is performed.
 func NewVM(id uint) *VM {
-	return &VM{ID: id}
+	return &VM{vmBase: vmBase{ID: id}}
 }
 
 // NewVMFromName finds the VM by name and returns a VM object. It connects to
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the VM.
 func NewVMFromName(name string) (*VM, error) {
-	vmpool, err := NewVMPool()
+	var id uint
+
+	vmPool, err := NewVMPool()
 	if err != nil {
 		return nil, err
 	}
 
-	id, err := vmpool.GetIDFromName(name, "/VM_POOL/VM")
-	if err != nil {
-		return nil, err
+	match := false
+	for i := 0; i < len(vmPool.VMs); i++ {
+		if vmPool.VMs[i].Name != name {
+			continue
+		}
+		if match {
+			return nil, errors.New("multiple resources with that name")
+		}
+		id = vmPool.VMs[i].ID
+		match = true
+	}
+	if !match {
+		return nil, errors.New("resource not found")
 	}
 
 	return NewVM(id), nil
 }
 
 // State returns the VMState and LCMState
-func (vm *VM) State() (VMState, LCMState, error) {
-	vmStateString, ok := vm.XPath("/VM/STATE")
-	if ok != true {
-		return -1, -1, errors.New("Unable to parse VM State")
+func (vm *vmBase) State() (VMState, LCMState, error) {
+	state := VMState(vm.StateRaw)
+	if !state.isValid() {
+		return -1, -1, fmt.Errorf("VM State: this state value is not currently handled: %d\n", vm.StateRaw)
 	}
-
-	lcmStateString, ok := vm.XPath("/VM/LCM_STATE")
-	if ok != true {
-		return -1, -1, errors.New("Unable to parse LCM State")
+	lcmState := LCMState(vm.LCMStateRaw)
+	if !lcmState.isValid() {
+		return state, -1, fmt.Errorf("VM LCMState: this state value is not currently handled: %d\n", vm.LCMStateRaw)
 	}
-
-	vmState, _ := strconv.Atoi(vmStateString)
-	lcmState, _ := strconv.Atoi(lcmStateString)
-
-	return VMState(vmState), LCMState(lcmState), nil
+	return state, lcmState, nil
 }
 
 // StateString returns the VMState and LCMState as strings
-func (vm *VM) StateString() (string, string, error) {
-	vmState, lcmState, err := vm.State()
-	if err != nil {
-		return "", "", err
+func (vm *vmBase) StateString() (string, string, error) {
+	state := VMState(vm.StateRaw)
+	if !state.isValid() {
+		return "", "", fmt.Errorf("VM State: this state value is not currently handled: %d\n", vm.StateRaw)
 	}
-	return VMState(vmState).String(), LCMState(lcmState).String(), nil
+	lcmState := LCMState(vm.LCMStateRaw)
+	if !lcmState.isValid() {
+		return state.String(), "", fmt.Errorf("VM LCMState: this state value is not currently handled: %d\n", vm.LCMStateRaw)
+	}
+	return state.String(), lcmState.String(), nil
 }
 
 // Action is the generic method to run any action on the VM
@@ -588,8 +745,7 @@ func (vm *VM) Info() error {
 	if err != nil {
 		return err
 	}
-	vm.body = response.Body()
-	return nil
+	return xml.Unmarshal([]byte(response.Body()), vm)
 }
 
 // Update will modify the VM's template. If appendTemplate is 0, it will
