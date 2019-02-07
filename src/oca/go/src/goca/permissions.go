@@ -15,7 +15,7 @@ type Permissions struct {
 }
 
 func (p *Permissions) String() string {
-	permStr := [8]string{"uma", "um-", "u-a", "u--", "-ma", "-m-", "--a", "---"}
+	permStr := [8]string{"---", "--a", "-m-", "-ma", "u--", "u-a", "um-", "uma"}
 	owner := permStr[p.OwnerU<<2|p.OwnerM<<1|p.OwnerA]
 	group := permStr[p.GroupU<<2|p.GroupM<<1|p.GroupA]
 	other := permStr[p.OtherU<<2|p.OtherM<<1|p.OtherA]
