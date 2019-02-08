@@ -44,10 +44,10 @@ LOGOS_CONFIGURATION_FILE = ETC_LOCATION + "/sunstone-logos.yaml"
 
 SUNSTONE_ROOT_DIR = File.dirname(__FILE__)
 
-$: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+'/cloud'
-$: << SUNSTONE_ROOT_DIR
-$: << SUNSTONE_ROOT_DIR+'/models'
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cloud'
+$LOAD_PATH << SUNSTONE_ROOT_DIR
+$LOAD_PATH << SUNSTONE_ROOT_DIR + '/models'
 
 DISPLAY_NAME_XPATH = 'TEMPLATE/SUNSTONE/DISPLAY_NAME'
 TABLE_ORDER_XPATH = 'TEMPLATE/SUNSTONE/TABLE_ORDER'
@@ -662,6 +662,14 @@ get '/infrastructure' do
     end
 
     infrastructure[:kvm_info] = { :set_cpu_models => set_cpu_models.to_a, :set_kvm_machines => set_kvm_machines.to_a }
+
+    set_lxd_profiles = Set.new
+
+    xml.each('HOST/TEMPLATE/LXD_PROFILES') do |lxd_profiles|
+        set_lxd_profiles += lxd_profiles.text.split(" ")
+    end
+
+    infrastructure[:lxd_profiles] = set_lxd_profiles.to_a
 
     [200, infrastructure.to_json]
 end
