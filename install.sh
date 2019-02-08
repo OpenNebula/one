@@ -249,8 +249,8 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/sh \
           $LIB_LOCATION/ruby/cli \
           $LIB_LOCATION/ruby/cli/one_helper \
-          $LIB_LOCATION/ruby/cli/one_helper/oneprovision_helpers \
-          $LIB_LOCATION/ruby/vcenter_driver"
+          $LIB_LOCATION/ruby/vcenter_driver \
+          $LIB_LOCATION/oneprovision/lib"
 
 VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/etc \
@@ -517,9 +517,10 @@ INSTALL_CLIENT_FILES=(
 
 INSTALL_ONEPROVISION_FILES=(
     ONEPROVISION_BIN_FILES:$BIN_LOCATION
-    ONEPROVISION_ONE_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper/oneprovision_helpers
+    ONEPROVISION_ONE_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
     ONEPROVISION_CONF_FILES:$ETC_LOCATION/cli
     ONEPROVISION_ANSIBLE_FILES:$SHARE_LOCATION/oneprovision
+    ONEPROVISION_LIB_FILES:$LIB_LOCATION/oneprovision/lib
 )
 
 INSTALL_SUNSTONE_RUBY_FILES=(
@@ -1832,21 +1833,22 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
 
 ONEPROVISION_BIN_FILES="src/cli/oneprovision"
 
-ONEPROVISION_ONE_LIB_FILES="src/cli/one_helper/oneprovision_helpers/ansible_helper.rb \
-                            src/cli/one_helper/oneprovision_helpers/cluster_helper.rb \
-                            src/cli/one_helper/oneprovision_helpers/common_helper.rb \
-                            src/cli/one_helper/oneprovision_helpers/datastore_helper.rb \
-                            src/cli/one_helper/oneprovision_helpers/host_helper.rb \
-                            src/cli/one_helper/oneprovision_helpers/provision_helper.rb \
-                            src/cli/one_helper/oneprovision_helpers/vnet_helper.rb"
+ONEPROVISION_ONE_LIB_FILES="src/cli/one_helper/oneprovision_helper.rb"
 
-ONEPROVISION_CONF_FILES="src/cli/etc/oneprovision_cluster.yaml \
-                      src/cli/etc/oneprovision_datastore.yaml \
-                      src/cli/etc/oneprovision_host.yaml \
-                      src/cli/etc/oneprovision_provision.yaml \
-                      src/cli/etc/oneprovision_vnet.yaml"
+ONEPROVISION_CONF_FILES="src/cli/etc/oneprovision.yaml"
 
 ONEPROVISION_ANSIBLE_FILES="share/oneprovision/ansible"
+
+ONEPROVISION_LIB_FILES="src/oneprovision/lib/ansible.rb \
+                        src/oneprovision/lib/oneprovision.rb \
+                        src/oneprovision/lib/cluster.rb \
+                        src/oneprovision/lib/datastore.rb \
+                        src/oneprovision/lib/driver.rb \
+                        src/oneprovision/lib/host.rb \
+                        src/oneprovision/lib/provision.rb \
+                        src/oneprovision/lib/resource.rb \
+                        src/oneprovision/lib/utils.rb \
+                        src/oneprovision/lib/vnet.rb"
 
 #-----------------------------------------------------------------------------
 # Sunstone files
