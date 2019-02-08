@@ -268,6 +268,8 @@ class Mapper
         # Look for fstab and mount rootfs in path. First partition with
         # a /etc/fstab file is used as rootfs and it is kept mounted
         partitions.each do |p|
+            OpenNebula.log("Looking for fstab on #{p['path']}")
+
             rc = mount_dev(p['path'], path)
 
             return false if !rc
@@ -277,7 +279,7 @@ class Mapper
 
             cmd = "#{bin} #{path}/etc/fstab"
 
-            rc, fstab, e = Command.execute(cmd, false)
+            _rc, fstab, _e = Command.execute(cmd, false)
 
             if fstab.empty?
                 return false unless umount_dev(p['path'])
@@ -285,11 +287,12 @@ class Mapper
                 next
             end
 
+            OpenNebula.log("Found fstab on #{p['path']}")
             break
         end
 
         if fstab.empty?
-            OpenNebula.log_error("mount: No fstab file found in disk partitions")
+            OpenNebula.log_error('No fstab file found')
             return false
         end
 
@@ -310,7 +313,7 @@ class Mapper
                 next
             end
 
-            next if mount_point == '/' || mount_point == 'swap'
+            next if %w[/ swap].include?(mount_point)
 
             partitions.each { |p|
                 next if p[key] != value
@@ -339,30 +342,9 @@ class Mapper
     def mount_dev(dev, path)
         OpenNebula.log_info "Mounting #{dev} at #{path}"
 
-        rc, out, err = Command.execute("#{COMMANDS[:lsblk]} -J", false)
+        return false if mount_on?(path)
 
-        if rc != 0 || out.empty?
-            OpenNebula.log_error("mount_dev: #{err}")
-            return false
-        end
-
-        if out.include?(path)
-            OpenNebula.log_error("mount_dev: Mount detected in #{path}")
-            return false
-        end
-
-        if path =~ /.*\/rootfs/
-            cmd = COMMANDS[:su_mkdir]
-        else
-            cmd = COMMANDS[:mkdir]
-        end
-
-        rc, _out, err = Command.execute("#{cmd} #{path}", false)
-
-        if rc != 0
-            OpenNebula.log_error("mount_dev: #{err}")
-            return false
-        end
+        mkdir_safe(path)
 
         rc, _out, err = Command.execute("#{COMMANDS[:mount]} #{dev} #{path}", true)
 
@@ -381,7 +363,7 @@ class Mapper
 
         rc, _o, e = Command.execute("#{COMMANDS[:umount]} #{dev}", true)
 
-        return true if rc.zero?
+        return true if rc.zero? || e.include?('not mounted')
 
         OpenNebula.log_error("umount_dev: #{e}")
         nil
@@ -466,6 +448,31 @@ class Mapper
     def action_parts(device, action)
         cmd = "#{COMMANDS[:kpartx]} #{action} #{device}"
         rc, _out, err = Command.execute(cmd, false)
+
+        return true if rc.zero?
+
+        OpenNebula.log_error("#{__method__}: #{err}")
+        false
+    end
+
+    def mount_on?(path)
+        _rc, out, _err = Command.execute("#{COMMANDS[:lsblk]} -J", false)
+
+        if out.include?(path)
+            OpenNebula.log_error("mount_dev: Mount detected in #{path}")
+            return true
+        end
+        false
+    end
+
+    def mkdir_safe(path)
+        if path =~ /.*\/rootfs/
+            cmd = COMMANDS[:su_mkdir]
+        else
+            cmd = COMMANDS[:mkdir]
+        end
+
+        rc, _out, err = Command.execute("#{cmd} #{path}", false)
 
         return true if rc.zero?
 
