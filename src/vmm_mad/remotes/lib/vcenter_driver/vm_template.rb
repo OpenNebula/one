@@ -805,7 +805,6 @@ class Template
     end
 
     def vm_to_one(vm_name)
-
         str = "NAME   = \"#{vm_name}\"\n"\
               "CPU    = \"#{@vm_info["config.hardware.numCPU"]}\"\n"\
               "vCPU   = \"#{@vm_info["config.hardware.numCPU"]}\"\n"\
@@ -899,15 +898,17 @@ class Template
                         break
                     end
                 end
-            else
-                if !@vm_info["datastore"]._ref.nil?
-                    ds_ref = @vm_info["datastore"]._ref
+            elsif @vm_info["datastore"].length == 1
+                if !@vm_info["datastore"].first._ref.nil?
+                    ds_ref = @vm_info["datastore"].first._ref
                 end
             end
-	    return ds_ref
+
+	        return ds_ref
         rescue StandardError => e
             error = "Could not find DATASTORE for this VM. Reason: #{e.message}"
-	    return error
+
+	        return error
         end
     end
 
