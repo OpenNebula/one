@@ -268,6 +268,8 @@ class Mapper
         # Look for fstab and mount rootfs in path. First partition with
         # a /etc/fstab file is used as rootfs and it is kept mounted
         partitions.each do |p|
+            OpenNebula.log("Looking for fstab on #{p['path']}")
+
             rc = mount_dev(p['path'], path)
 
             return false if !rc
@@ -285,11 +287,12 @@ class Mapper
                 next
             end
 
+            OpenNebula.log("Found fstab on #{p['path']}")
             break
         end
 
         if fstab.empty?
-            OpenNebula.log_error("mount: No fstab file found in disk partitions")
+            OpenNebula.log_error('No fstab file found')
             return false
         end
 
