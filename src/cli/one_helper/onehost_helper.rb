@@ -212,12 +212,12 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 end
             end
 
-            column :PROVIDER, "Host provider", :left, :size => 6 do |d|
+            column :PROVIDER, 'Host provider', :left, :size => 6 do |d|
                 d['TEMPLATE']['PM_MAD'].nil? ? '-' : d['TEMPLATE']['PM_MAD']
             end
 
-            column :STAT, "Host status", :left, :size => 6 do |d|
-                OneHostHelper.state_to_str(d["STATE"])
+            column :STAT, 'Host status', :left, :size => 6 do |d|
+                OneHostHelper.state_to_str(d['STATE'])
             end
 
             default :ID, :NAME, :CLUSTER, :TVM,

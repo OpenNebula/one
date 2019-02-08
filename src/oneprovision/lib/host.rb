@@ -21,8 +21,10 @@ module OneProvision
     # Host
     class Host < Resource
 
-        # Mutex to syncrhonize delete operations
+        # Mutex to synchronize delete operations
+        # rubocop:disable Style/ClassVars
         @@mutex = Mutex.new
+        # rubocop:enable Style/ClassVars
 
         # Class constructor
         def initialize(id = nil)
