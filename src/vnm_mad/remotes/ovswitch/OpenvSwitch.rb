@@ -391,7 +391,7 @@ private
     def create_bridge
         return if @bridges.keys.include? @nic[:bridge]
 
-        OpenNebula.exec_and_log("#{command(:ovs_vsctl)} add-br #{@nic[:bridge]}")
+        OpenNebula.exec_and_log("#{command(:ovs_vsctl)} --may-exist add-br #{@nic[:bridge]}")
 
         set_bridge_options
 

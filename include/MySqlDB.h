@@ -84,6 +84,11 @@ public:
      */
     bool limit_support();
 
+    /**
+     *  Return true if the backend allows FTS index
+     */
+     bool fts_available();
+
 protected:
     /**
      *  Wraps the mysql_query function call
@@ -170,6 +175,8 @@ public:
     bool multiple_values_support(){return true;};
 
     bool limit_support(){return true;};
+
+    bool fts_available(){return false;};
 
 protected:
     int exec(ostringstream& cmd, Callbackable* obj, bool quiet){return -1;};

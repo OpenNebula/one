@@ -14,10 +14,10 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# No  : VCENTER_IMPORTED attribute will be set on imported images
+# no  : VCENTER_IMPORTED attribute will be set on imported images
 #       this attribute prevents the image to be deleted.
-# Yes : You can delete the images using OpenNebula.
-:delete_images: No
+# yes : You can delete the images using OpenNebula.
+:delete_images: no
 
 # Default timeout to complete deploy
 :vm_poweron_wait_default: 300

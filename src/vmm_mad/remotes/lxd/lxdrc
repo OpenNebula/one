@@ -24,7 +24,7 @@
 #   - :height: of the terminal
 #   - :timeout: seconds to close the terminal if no input has been received
 :vnc:
-  :command: /bin/bash
+  :command: /bin/login
   :width: 800
   :height: 600
   :timeout: 300

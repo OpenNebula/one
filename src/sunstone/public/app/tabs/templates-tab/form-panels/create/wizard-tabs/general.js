@@ -29,6 +29,7 @@ define(function(require) {
   var OpenNebula = require('opennebula');
   var UsersTable = require("tabs/users-tab/datatable");
   var GroupTable = require("tabs/groups-tab/datatable");
+  var OpenNebulaHost = require("opennebula/host");
 
   /*
     TEMPLATES
@@ -198,6 +199,7 @@ define(function(require) {
         $("#vcenter_ccr_ref", context).attr("required", "");
         $("#MEMORY", context).attr("pattern", "^([048]|\\d*[13579][26]|\\d*[24680][048])$");
         $('.only_kvm').hide();
+        $('.only_lxd').hide();
         $('.only_vcenter').show();
       } else {
         $("#vcenter_template_ref", context).removeAttr("required");
@@ -206,8 +208,20 @@ define(function(require) {
         $("#MEMORY", context).removeAttr("pattern");
         $('.only_kvm').show();
         $('.only_vcenter').hide();
+        if (this.value != "lxd")
+        {
+            $('.only_lxd').hide();
+        }
       }
       // There is another listener in context.js setup
+
+      // Needs proper LXD view, this is just a workaround
+        // All KVM settings are available in LXD plus
+        // Privileged, Profile and Security Nesting
+
+      if (this.value == "lxd"){
+        $('.only_lxd').show();
+      }
     });
 
     CapacityCreate.setup($("div.capacityCreate", context));
@@ -229,6 +243,33 @@ define(function(require) {
       $('.only_kvm').hide();
       $('.only_vcenter').show();
     }
+
+    fillLXDProfiles(context)
+  }
+
+  function fillLXDProfiles(context){
+    OpenNebulaHost.lxdProfilesInfo({
+      data : {},
+      timeout: true,
+      success: function (request, lxdProfilesInfo){
+        if ($("#lxd_profile", context).html() === undefined){
+          lxdprofiles = lxdProfilesInfo;
+
+          var html = "<select id=\"lxd_profile\">";
+          html += "<option value=\"\">" + " " + "</option>";
+          $.each(lxdprofiles, function(i, lxdprofile){
+            html += "<option value='" + lxdprofile + "'>" + lxdprofile + "</option>";
+          });
+          html += "</select>";
+          $("#lxd_profile_label", context).append(html);
+        }
+
+      },
+      error: function(request, error_json){
+        console.error("There was an error requesting lxd info: " +
+                      error_json.error.message);
+      }
+    });
   }
 
   function _retrieve(context) {
@@ -241,6 +282,12 @@ define(function(require) {
       if (Config.isFeatureEnabled("vcenter_vm_folder")) {
         templateJSON["VCENTER_VM_FOLDER"] = WizardFields.retrieveInput($("#vcenter_vm_folder", context))
       }
+    }
+
+    if (templateJSON["HYPERVISOR"] == 'lxd') {
+      templateJSON["LXD_SECURITY_PRIVILEGED"] = WizardFields.retrieveInput($("#lxd_security_privileged", context));
+      templateJSON["LXD_PROFILE"] = WizardFields.retrieveInput($("#lxd_profile", context));
+      templateJSON["LXD_SECURITY_NESTING"] = WizardFields.retrieveInput($("#lxd_security_nesting", context));
     }
 
     var sunstone_template = {};
@@ -351,6 +398,11 @@ define(function(require) {
       }
     }
 
+    // LXD specific attributes
+    if (templateJSON["HYPERVISOR"] == 'lxd') {
+		fillLXD(context, templateJSON)
+    }
+
     if (templateJSON["HYPERVISOR"]) {
       $("input[name='hypervisor'][value='"+templateJSON["HYPERVISOR"]+"']", context).trigger("click")
       delete templateJSON["HYPERVISOR"];
@@ -412,4 +464,22 @@ define(function(require) {
 
     WizardFields.fill(context, templateJSON);
   }
+
+  function fillLXD(context, templateJSON) {
+    if (templateJSON["LXD_SECURITY_PRIVILEGED"]){
+      WizardFields.fillInput($("#lxd_security_privileged", context), templateJSON["LXD_SECURITY_PRIVILEGED"]);
+      delete templateJSON["LXD_SECURITY_PRIVILEGED"];
+    }
+
+    if (templateJSON["LXD_PROFILE"]){
+      WizardFields.fillInput($("#lxd_profile", context), templateJSON["LXD_PROFILE"]);
+      delete templateJSON["LXD_PROFILE"];
+    }
+
+    if (templateJSON["LXD_SECURITY_NESTING"]){
+      WizardFields.fillInput($("#lxd_security_nesting", context), templateJSON["LXD_SECURITY_NESTING"]);
+      delete templateJSON["LXD_SECURITY_NESTING"];
+    }
+  }
+
 });

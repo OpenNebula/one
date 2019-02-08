@@ -1,17 +1,41 @@
 package goca
 
-import "errors"
-
-// SecurityGroup represents an OpenNebula SecurityGroup
-type SecurityGroup struct {
-	XMLResource
-	ID   uint
-	Name string
-}
+import (
+	"encoding/xml"
+	"errors"
+)
 
 // SecurityGroupPool represents an OpenNebula SecurityGroupPool
 type SecurityGroupPool struct {
-	XMLResource
+	SecurityGroups []SecurityGroup `xml:"SECURITY_GROUP"`
+}
+
+// SecurityGroup represents an OpenNebula SecurityGroup
+type SecurityGroup struct {
+	ID          uint                  `xml:"ID"`
+	UID         int                   `xml:"UID"`
+	GID         int                   `xml:"GID"`
+	UName       string                `xml:"UNAME"`
+	GName       string                `xml:"GNAME"`
+	Name        string                `xml:"NAME"`
+	Permissions *Permissions          `xml:"PERMISSIONS"`
+	UpdatedVMs  []int                 `xml:"UPDATED_VMS>ID"`
+	OutdatedVMs []int                 `xml:"OUTDATED_VMS>ID"`
+	UpdatingVMs []int                 `xml:"UPDATING_VMS>ID"`
+	ErrorVMs    []int                 `xml:"ERROR_VMS>ID"`
+	Template    securityGroupTemplate `xml:"TEMPLATE"`
+}
+
+// VirtualRouterTemplate represent the template part of the OpenNebula VirtualRouter
+type securityGroupTemplate struct {
+	Description string              `xml:"DESCRIPTION"`
+	Rules       []securityGroupRule `xml:"RULE"`
+	Dynamic     unmatchedTagsSlice  `xml:",any"`
+}
+
+type securityGroupRule struct {
+	Protocol string `xml:"PROTOCOL"`
+	RuleType string `xml:"RULE_TYPE"`
 }
 
 // NewSecurityGroupPool returns a security group pool. A connection to OpenNebula is
@@ -41,9 +65,13 @@ func NewSecurityGroupPool(args ...int) (*SecurityGroupPool, error) {
 		return nil, err
 	}
 
-	secgrouppool := &SecurityGroupPool{XMLResource{body: response.Body()}}
+	secgroupPool := &SecurityGroupPool{}
+	err = xml.Unmarshal([]byte(response.Body()), secgroupPool)
+	if err != nil {
+		return nil, err
+	}
 
-	return secgrouppool, err
+	return secgroupPool, nil
 }
 
 // NewSecurityGroup finds a security group object by ID. No connection to OpenNebula.
@@ -55,14 +83,26 @@ func NewSecurityGroup(id uint) *SecurityGroup {
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the security group.
 func NewSecurityGroupFromName(name string) (*SecurityGroup, error) {
+	var id uint
+
 	secgroupPool, err := NewSecurityGroupPool()
 	if err != nil {
 		return nil, err
 	}
 
-	id, err := secgroupPool.GetIDFromName(name, "/SECURITY_GROUP_POOL/SECURITY_GROUP")
-	if err != nil {
-		return nil, err
+	match := false
+	for i := 0; i < len(secgroupPool.SecurityGroups); i++ {
+		if secgroupPool.SecurityGroups[i].Name != name {
+			continue
+		}
+		if match {
+			return nil, errors.New("multiple resources with that name")
+		}
+		id = secgroupPool.SecurityGroups[i].ID
+		match = true
+	}
+	if !match {
+		return nil, errors.New("resource not found")
 	}
 
 	return NewSecurityGroup(id), nil
@@ -146,6 +186,5 @@ func (sg *SecurityGroup) Info() error {
 	if err != nil {
 		return err
 	}
-	sg.body = response.Body()
-	return nil
+	return xml.Unmarshal([]byte(response.Body()), sg)
 }

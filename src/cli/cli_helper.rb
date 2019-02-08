@@ -303,7 +303,7 @@ module CLIHelper
 
             begin
                 if options[:csv]
-                    puts CSV.generate_line(@default_columns)
+                    puts CSV.generate_line(@default_columns) if !options[:noheader]
                     res_data.each {|l| puts CSV.generate_line(l) }
                 else
                     res_data.each{|l|

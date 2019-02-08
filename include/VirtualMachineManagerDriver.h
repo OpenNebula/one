@@ -103,6 +103,14 @@ public:
         return keep_snapshots;
     }
 
+    /**
+     *  @return true if datastore live migration
+     */
+    bool is_ds_live_migration() const
+    {
+        return ds_live_migration;
+    }
+
 protected:
     /**
      *  Gets a configuration attr from driver configuration file (single
@@ -158,6 +166,11 @@ private:
      * create/delete cycles and live migrations.
      */
     bool keep_snapshots;
+
+    /**
+     * Set to true if live migration between datastores is allowed.
+     */
+    bool ds_live_migration;
 
     /**
      *  Pointer to the Virtual Machine Pool, to access VMs

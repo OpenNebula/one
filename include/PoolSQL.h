@@ -251,6 +251,35 @@ public:
     static void oid_filter(int     start_id,
                            int     end_id,
                            string& filter);
+
+    /**
+     *  This function returns a legal SQL string that can be used in an SQL
+     *  statement. The string is encoded to an escaped SQL string, taking into
+     *  account the current character set of the connection.
+     *    @param str the string to be escaped
+     *    @return a valid SQL string or NULL in case of failure
+     */
+    char * escape_str(const string& str)
+    {
+        return db->escape_str(str);
+    }
+
+    /**
+     *  Frees a previously scaped string
+     *    @param str pointer to the str
+     */
+    void free_str(char * str)
+    {
+        db->free_str(str);
+    }
+
+    /**
+     * Return true if FTS is available.
+     */
+     bool is_fts_available()
+     {
+         return db->fts_available();
+     }
 protected:
 
     /**

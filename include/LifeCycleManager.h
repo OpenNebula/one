@@ -310,7 +310,9 @@ private:
     // -------------------------------------------------------------------------
     // Internal Actions, triggered by OpenNebula components & drivers
     // -------------------------------------------------------------------------
-    void start_prolog_migrate(VirtualMachine* vm, int vid);
+    void start_prolog_migrate(VirtualMachine* vm);
+
+    void revert_migrate_after_failure(VirtualMachine* vm);
 
     void save_success_action(int vid);
     void save_failure_action(int vid);

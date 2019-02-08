@@ -457,13 +457,13 @@ const char * VirtualMachine::table = "vm_pool";
 
 const char * VirtualMachine::db_names =
     "oid, name, body, uid, gid, last_poll, state, lcm_state, "
-    "owner_u, group_u, other_u, short_body";
+    "owner_u, group_u, other_u, short_body, search_token";
 
 const char * VirtualMachine::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
-    "vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
-    "gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, "
-    "owner_u INTEGER, group_u INTEGER, other_u INTEGER, short_body MEDIUMTEXT)";
-
+    "vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, "
+    "uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, "
+    "lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
+    "short_body MEDIUMTEXT, search_token MEDIUMTEXT";
 
 const char * VirtualMachine::monit_table = "vm_monitoring";
 
@@ -489,7 +489,19 @@ int VirtualMachine::bootstrap(SqlDB * db)
 {
     int rc;
 
-    ostringstream oss_vm(VirtualMachine::db_bootstrap);
+    ostringstream oss_vm;
+
+    oss_vm << VirtualMachine::db_bootstrap;
+
+    if (db->fts_available())
+    {
+        oss_vm << ", FULLTEXT ftidx(search_token))";
+    }
+    else
+    {
+        oss_vm << ")";
+    }
+
     ostringstream oss_monit(VirtualMachine::monit_db_bootstrap);
     ostringstream oss_hist(History::db_bootstrap);
     ostringstream oss_showback(VirtualMachine::showback_db_bootstrap);
@@ -1662,10 +1674,12 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
     ostringstream   oss;
     int             rc;
 
-    string xml_body, short_xml_body;
+    string xml_body, short_xml_body, text;
+
     char * sql_name;
     char * sql_xml;
     char * sql_short_xml;
+    char * sql_text;
 
     sql_name =  db->escape_str(name.c_str());
 
@@ -1698,6 +1712,13 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
         goto error_xml_short;
     }
 
+    sql_text = db->escape_str(to_token(text).c_str());
+
+    if ( sql_text == 0 )
+    {
+        goto error_text;
+    }
+
     if(replace)
     {
         oss << "REPLACE";
@@ -1719,17 +1740,21 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          owner_u         << ","
         <<          group_u         << ","
         <<          other_u         << ","
-        << "'" <<   sql_short_xml   << "'"
+        << "'" <<   sql_short_xml   << "',"
+        << "'" <<   sql_text        << "'"
         << ")";
 
     db->free_str(sql_name);
     db->free_str(sql_xml);
     db->free_str(sql_short_xml);
+    db->free_str(sql_text);
 
     rc = db->exec_wr(oss);
 
     return rc;
 
+error_text:
+    db->free_str(sql_text);
 error_xml_short:
     db->free_str(sql_short_xml);
 error_xml:
@@ -2145,7 +2170,7 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
     string snap_xml;
     string lock_str;
 
-    ostringstream   oss;
+    ostringstream oss;
 
     oss << "<VM>"
         << "<ID>"        << oid       << "</ID>"
@@ -2210,6 +2235,91 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
     xml = oss.str();
 
     return xml;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& VirtualMachine::to_json(string& json) const
+{
+    string template_json;
+    string user_template_json;
+    string history_json;
+
+    ostringstream oss;
+
+    oss << "{\"VM\":{"
+        << "\"ID\": \""<< oid << "\","
+        << "\"UID\": \""<< uid << "\","
+        << "\"GID\": \""<< gid << "\","
+        << "\"UNAME\": \""<< uname << "\","
+        << "\"GNAME\": \""<< gname << "\","
+        << "\"NAME\": \""<< name << "\","
+        << "\"LAST_POLL\": \""<< last_poll << "\","
+        << "\"STATE\": \""<< state << "\","
+        << "\"LCM_STATE\": \""<< lcm_state << "\","
+        << "\"PREV_STATE\": \""<< prev_state << "\","
+        << "\"PREV_LCM_STATE\": \""<< prev_lcm_state << "\","
+        << "\"RESCHED\": \""<< resched << "\","
+        << "\"STIME\": \""<< stime << "\","
+        << "\"ETIME\": \""<< etime << "\","
+        << "\"DEPLOY_ID\": \""<< deploy_id << "\","
+        << obj_template->to_json(template_json) << ","
+        << user_obj_template->to_json(user_template_json);
+
+    if ( hasHistory() )
+    {
+        oss << ",\"HISTORY_RECORDS\": [";
+
+        oss << history->to_json(history_json);
+
+        oss << "]";
+    }
+
+    oss << "}}";
+
+
+    json = oss.str();
+
+    return json;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& VirtualMachine::to_token(string& text) const
+{
+    string template_text;
+    string user_template_text;
+    string history_text;
+
+    ostringstream oss;
+
+    oss << "UNAME="<< uname << "\n"
+        << "GNAME="<< gname << "\n";
+
+    oss << "NAME=";
+    one_util::escape_token(name, oss);
+    oss << "\n";
+
+    oss << "LAST_POLL="<< last_poll << "\n"
+        << "PREV_STATE="<< prev_state << "\n"
+        << "PREV_LCM_STATE="<< prev_lcm_state << "\n"
+        << "RESCHED="<< resched << "\n"
+        << "STIME="<< stime << "\n"
+        << "ETIME="<< etime << "\n"
+        << "DEPLOY_ID="<< deploy_id << "\n"
+        << obj_template->to_token(template_text) << "\n"
+        << user_obj_template->to_token(user_template_text);
+
+    if ( hasHistory() )
+    {
+        oss << "\n" << history->to_token(history_text);
+    }
+
+    text = oss.str();
+
+    return text;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2744,7 +2854,8 @@ static std::map<std::string,std::vector<std::string>> UPDATECONF_ATTRS = {
 		   "GUEST_AGENT"} },
 		{"INPUT", {"TYPE", "BUS"} },
 		{"GRAPHICS", {"TYPE", "LISTEN", "PASSWD", "KEYMAP"} },
-		{"RAW", {"TYPE", "DATA", "DATA_VMX"} }
+		{"RAW", {"TYPE", "DATA", "DATA_VMX"} },
+               {"CPU_MODEL", {"MODEL"} }
 	};
 
 /**
@@ -2884,7 +2995,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     }
 
     // -------------------------------------------------------------------------
-    // Update OS, FEATURES, INPUT, GRAPHICS, RAW
+    // Update OS, FEATURES, INPUT, GRAPHICS, RAW, CPU_MODEL
     // -------------------------------------------------------------------------
     replace_vector_values(obj_template, &tmpl, "OS");
 
@@ -2900,6 +3011,8 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     replace_vector_values(obj_template, &tmpl, "GRAPHICS");
 
     replace_vector_values(obj_template, &tmpl, "RAW");
+
+    replace_vector_values(obj_template, &tmpl, "CPU_MODEL");
 
     // -------------------------------------------------------------------------
     // Update CONTEXT: any value

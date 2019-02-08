@@ -121,7 +121,7 @@ class VirtualNetworkTemplateDelete : public RequestManagerDelete
 public:
     VirtualNetworkTemplateDelete():
         RequestManagerDelete("one.vntemplate.delete",
-                             "A:sib",
+                             "A:si",
                              "Deletes a virtual network template")
     {
         Nebula& nd  = Nebula::instance();
@@ -133,7 +133,7 @@ public:
 
     ErrorCode request_execute(int oid, bool recursive, RequestAttributes& att)
     {
-        return delete_object(oid, recursive, att, auth_op);
+        return delete_object(oid, false, att, auth_op);
     }
 
 };

@@ -285,4 +285,17 @@ CommandParser::CmdParser.new(ARGV) do
             o.import_wild(args[1])
         end
     end
+
+    forceupdate_desc = <<-EOT.unindent
+        Forces host monitoring update
+        Examples:
+            onehost forceupdate host01
+            onehost forceupdate host01,host02,host03
+            onehost forceupdate -c myCluster
+    EOT
+
+    command :forceupdate, forceupdate_desc, [:range, :hostid_list, nil],
+            :options => [OneClusterHelper::CLUSTER] do
+        helper.forceupdate(args[0], options)
+    end
 end

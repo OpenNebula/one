@@ -110,7 +110,7 @@ class Template
                                           :name   => template_name,
                                           :spec   => clone_spec).wait_for_completion
             template_ref = template._ref
-        rescue Exception => e
+        rescue StandardError => e
             if !e.message.start_with?('DuplicateName')
                 error = "Could not create the template clone. Reason: #{e.message}"
                 return error, nil
@@ -159,7 +159,7 @@ class Template
                 if self['config.template']
                     @item.MarkAsVirtualMachine(:pool => get_rp, :host => self['runtime.host'])
                 end
-            rescue Exception => e
+            rescue StandardError => e
                 @item.MarkAsTemplate()
                 error = "Cannot mark the template as a VirtualMachine. Not using linked clones. Reason: #{e.message}/#{e.backtrace}"
                 use_linked_clones = false
@@ -186,7 +186,7 @@ class Template
                 end
 
                 @item.ReconfigVM_Task(:spec => spec).wait_for_completion if !spec[:deviceChange].empty?
-            rescue Exception => e
+            rescue StandardError => e
                 error = "Cannot create the delta disks on top of the template. Reason: #{e.message}."
                 use_linked_clones = false
                 return error, use_linked_clones
@@ -299,7 +299,7 @@ class Template
                 end
             end
 
-        rescue Exception => e
+        rescue StandardError => e
             error = "\n    There was an error trying to create an image for disk in vcenter template. Reason: #{e.message}\n#{e.backtrace}"
         ensure
             unlock
@@ -529,7 +529,7 @@ class Template
                     npool.info_all
                 end
             end
-        rescue Exception => e
+        rescue StandardError => e
             error = "\n    There was an error trying to create a virtual network to repesent a vCenter network for a VM or VM Template. Reason: #{e.message}"
         ensure
             unlock
@@ -805,7 +805,6 @@ class Template
     end
 
     def vm_to_one(vm_name)
-
         str = "NAME   = \"#{vm_name}\"\n"\
               "CPU    = \"#{@vm_info["config.hardware.numCPU"]}\"\n"\
               "vCPU   = \"#{@vm_info["config.hardware.numCPU"]}\"\n"\
@@ -826,8 +825,9 @@ class Template
         if !@vm_info["datastore"].nil?
            !@vm_info["datastore"].last.nil? &&
            !@vm_info["datastore"].last._ref.nil?
-            str << "VCENTER_DS_REF = \"#{@vm_info["datastore"].last._ref}\"\n"
-        end
+            ds_ref = vm_template_ds_ref
+            str << "VCENTER_DS_REF = \"#{ds_ref}\"\n"
+       end
 
         vnc_port = nil
         keymap = VCenterDriver::VIHelper.get_default("VM/TEMPLATE/GRAPHICS/KEYMAP")
@@ -878,6 +878,40 @@ class Template
 
         return str
     end
+
+    #Gets MOREF from Datastore used by the VM. It validates
+    #the selected DS is not only used to host swap.
+    def vm_template_ds_ref
+        begin
+            ds_ref = nil
+            if @vm_info["datastore"].length > 1
+                swap_path = ""
+                @vm_info["config.extraConfig"].each do |element|
+                    if element.key == "sched.swap.derivedName"
+                        swap_path = element.value
+                    end
+                end
+                @vm_info["datastore"].each do |datastore|
+                    path = datastore.summary.url.sub(/ds:\/\/\/*/, "")
+                    if !swap_path.include? path && !datastore._ref.nil?
+                        ds_ref = datastore._ref
+                        break
+                    end
+                end
+            elsif @vm_info["datastore"].length == 1
+                if !@vm_info["datastore"].first._ref.nil?
+                    ds_ref = @vm_info["datastore"].first._ref
+                end
+            end
+
+	        return ds_ref
+        rescue StandardError => e
+            error = "Could not find DATASTORE for this VM. Reason: #{e.message}"
+
+	        return error
+        end
+    end
+
 
     def self.template_to_one(template, vc_uuid, ccr_ref, ccr_name, import_name, host_id)
 
@@ -1021,7 +1055,7 @@ class Template
             # Get the OpenNebula's template hash
             one_tmp[:one] = template_to_one(template, vcenter_uuid, template_ccr_ref, template_ccr_name, import_name, host_id)
             return one_tmp
-        rescue Exception => e
+        rescue StandardError => e
             return nil
         end
     end

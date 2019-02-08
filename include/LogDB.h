@@ -251,6 +251,11 @@ public:
 
     int next_federated(int index);
 
+    bool fts_available()
+    {
+        return db->fts_available();
+    }
+
 protected:
     int exec(std::ostringstream& cmd, Callbackable* obj, bool quiet)
     {
@@ -414,6 +419,11 @@ public:
     bool limit_support()
     {
         return _logdb->limit_support();
+    }
+
+    bool fts_available()
+    {
+        return _logdb->fts_available();
     }
 
 protected:

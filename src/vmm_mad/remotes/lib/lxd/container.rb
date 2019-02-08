@@ -169,9 +169,8 @@ class Container
         err = 'cannot create user data directory:'
         rc, o, e = Command.execute("sudo #{cmd}", true) if e.include?(err)
 
-        return [rc, o, e] unless rc != 0
-
-        OpenNebula.log_error("#{__method__}: Failed to run command #{cmd}: #{e}")
+        log = "Failed to run command #{cmd}: #{e}"
+        OpenNebula.log_error("#{__method__}: #{log}") unless rc.zero?
 
         [rc, o, e]
     end
@@ -232,11 +231,17 @@ class Container
         return unless @one
 
         @one.get_disks.each do |disk|
+            if @one.volatile?(disk)
+                e = "disk #{disk['DISK_ID']} type #{disk['TYPE']} not supported"
+                OpenNebula.log_error e
+                next
+            end
+
             status = setup_disk(disk, operation)
             return nil unless status
         end
 
-        return unless @one.has_context?
+        return 'no context' unless @one.has_context?
 
         csrc = @lxc['devices']['context']['source'].clone
 
@@ -273,7 +278,7 @@ class Container
     # Removes the context section from the LXD configuration and unmap the
     # context device
     def detach_context
-        return unless @one.has_context?
+        return 'no context' unless @one.has_context?
 
         csrc = @lxc['devices']['context']['source'].clone
 

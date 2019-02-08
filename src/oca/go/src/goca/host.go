@@ -1,20 +1,71 @@
 package goca
 
 import (
+	"encoding/xml"
 	"errors"
-	"strconv"
+	"fmt"
 )
-
-// Host represents an OpenNebula Host
-type Host struct {
-	XMLResource
-	ID   uint
-	Name string
-}
 
 // HostPool represents an OpenNebula HostPool
 type HostPool struct {
-	XMLResource
+	Hosts []Host `xml:"HOST"`
+}
+
+// Host represents an OpenNebula Host
+type Host struct {
+	ID          uint         `xml:"ID"`
+	Name        string       `xml:"NAME"`
+	StateRaw    int          `xml:"STATE"`
+	IMMAD       string       `xml:"IM_MAD"`
+	VMMAD       string       `xml:"VM_MAD"`
+	LastMonTime int          `xml:"LAST_MON_TIME"`
+	ClusterID   int          `xml:"CLUSTER_ID"`
+	Cluster     string       `xml:"CLUSTER"`
+	Share       hostShare    `xml:"HOST_SHARE"`
+	VMsID       []int        `xml:"VMS>ID"`
+	Template    hostTemplate `xml:"TEMPLATE"`
+}
+
+type hostShare struct {
+	DiskUsage int `xml:"DISK_USAGE"`
+	MemUsage  int `xml:"MEM_USAGE"`
+	CPUUsage  int `xml:"CPU_USAGE"`
+	TotalMem  int `xml:"TOTAL_MEM"`
+	TotalCPU  int `xml:"TOTAL_CPU"`
+
+	MaxDisk int `xml:"MAX_DISK"`
+	MaxMem  int `xml:"MAX_MEM"`
+	MaxCPU  int `xml:"MAX_CPU"`
+
+	FreeDisk int `xml:"FREE_DISK"`
+	FreeMem  int `xml:"FREE_MEM"`
+	FreeCPU  int `xml:"FREE_CPU"`
+
+	UsedDisk int `xml:"USED_DISK"`
+	UsedMem  int `xml:"USED_MEM"`
+	UsedCPU  int `xml:"USED_CPU"`
+
+	RunningVMs int            `xml:"RUNNING_VMS"`
+	Stores     hostDataStores `xml:"DATASTORES"`
+	PCIDevices interface{}    `xml:"PCI_DEVICES>PCI"`
+}
+
+type hostDataStores struct {
+	DSs []hostDS `xml:"DS"`
+}
+
+type hostDS struct {
+	ID      int `xml:"ID"`
+	UsedMB  int `xml:"USED_MB"`
+	FreeMB  int `xml:"FREE_MB"`
+	TotalMB int `xml:"TOTAL_MB"`
+}
+
+type hostTemplate struct {
+	// Example of reservation: https://github.com/OpenNebula/addon-storpool/blob/ba9dd3462b369440cf618c4396c266f02e50f36f/misc/reserved.sh
+	ReservedMem int                `xml:"RESERVED_MEM"`
+	ReservedCpu int                `xml:"RESERVED_CPU"`
+	Dynamic     unmatchedTagsSlice `xml:",any"`
 }
 
 // HostState is the state of an OpenNebula Host
@@ -49,6 +100,13 @@ const (
 	HostOffline
 )
 
+func (st HostState) isValid() bool {
+	if st >= HostInit && st <= HostOffline {
+		return true
+	}
+	return false
+}
+
 func (st HostState) String() string {
 	return [...]string{
 		"INIT",
@@ -71,9 +129,12 @@ func NewHostPool() (*HostPool, error) {
 		return nil, err
 	}
 
-	hostpool := &HostPool{XMLResource{body: response.Body()}}
-
-	return hostpool, err
+	hostPool := &HostPool{}
+	err = xml.Unmarshal([]byte(response.Body()), &hostPool)
+	if err != nil {
+		return nil, err
+	}
+	return hostPool, nil
 }
 
 // NewHost finds a host object by ID. No connection to OpenNebula.
@@ -85,14 +146,26 @@ func NewHost(id uint) *Host {
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the host.
 func NewHostFromName(name string) (*Host, error) {
+	var id uint
+
 	hostPool, err := NewHostPool()
 	if err != nil {
 		return nil, err
 	}
 
-	id, err := hostPool.GetIDFromName(name, "/HOST_POOL/HOST")
-	if err != nil {
-		return nil, err
+	match := false
+	for i := 0; i < len(hostPool.Hosts); i++ {
+		if hostPool.Hosts[i].Name != name {
+			continue
+		}
+		if match {
+			return nil, errors.New("multiple resources with that name")
+		}
+		id = hostPool.Hosts[i].ID
+		match = true
+	}
+	if !match {
+		return nil, errors.New("resource not found")
 	}
 
 	return NewHost(id), nil
@@ -146,8 +219,7 @@ func (host *Host) Info() error {
 	if err != nil {
 		return err
 	}
-	host.body = response.Body()
-	return nil
+	return xml.Unmarshal([]byte(response.Body()), host)
 }
 
 // Monitoring returns the host monitoring records.
@@ -156,23 +228,20 @@ func (host *Host) Monitoring() error {
 	return err
 }
 
-// State returns the HostState
+// State looks up the state of the image and returns the ImageState
 func (host *Host) State() (HostState, error) {
-	stateString, ok := host.XPath("/HOST/STATE")
-	if ok != true {
-		return -1, errors.New("Unable to parse host State")
+	state := HostState(host.StateRaw)
+	if !state.isValid() {
+		return -1, fmt.Errorf("Host State: this state value is not currently handled: %d\n", host.StateRaw)
 	}
-
-	state, _ := strconv.Atoi(stateString)
-
-	return HostState(state), nil
+	return state, nil
 }
 
-// StateString returns the HostState as string
+// StateString returns the state in string format
 func (host *Host) StateString() (string, error) {
-	state, err := host.State()
-	if err != nil {
-		return "", err
+	state := HostState(host.StateRaw)
+	if !state.isValid() {
+		return "", fmt.Errorf("Host StateString: this state value is not currently handled: %d\n", host.StateRaw)
 	}
-	return HostState(state).String(), nil
+	return state.String(), nil
 }

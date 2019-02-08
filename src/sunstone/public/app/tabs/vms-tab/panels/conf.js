@@ -56,7 +56,7 @@ define(function(require) {
     var conf = {};
     var template = this.element.TEMPLATE;
 
-    $.each(["OS", "FEATURES", "INPUT", "GRAPHICS", "RAW", "CONTEXT"], function(){
+    $.each(["OS", "FEATURES", "INPUT", "GRAPHICS", "RAW", "CONTEXT", "CPU_MODEL"], function(){
       if(template[this] != undefined){
         conf[this] = template[this];
       }

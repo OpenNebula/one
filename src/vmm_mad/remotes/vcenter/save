@@ -30,6 +30,7 @@ $LOAD_PATH << File.dirname(__FILE__)
 require 'vcenter_driver'
 
 vm_ref          = ARGV[0]
+vm_id           = ARGV[3]
 vc_cluster_name = ARGV[-1]
 
 host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, vc_cluster_name)
@@ -45,7 +46,7 @@ check_valid(lcm_state, 'lcm_state')
 lcm_state_str = OpenNebula::VirtualMachine::LCM_STATE[lcm_state.to_i]
 
 if !(%{'SAVE_SUSPEND', 'SAVE_STOP', 'SAVE_MIGRATE'}).include?(lcm_state_str)
-    STDERR.puts "Wrong lcm state #{lcm_state_str} }when saving VM"
+    STDERR.puts "Wrong lcm state #{lcm_state_str} when saving VM"
     exit(-1)
 end
 
@@ -53,6 +54,17 @@ begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
 
     vm = VCenterDriver::VirtualMachine.new_without_id(vi_client, vm_ref)
+
+    if (%{'SAVE_MIGRATE'}).include?(lcm_state_str)
+        vm.vm_id = vm_id
+        dst_ds = drv_action['VM/HISTORY_RECORDS/HISTORY/DS_ID']
+        src_ds = drv_action['DATASTORE/ID']
+
+        new_ds = dst_ds != src_ds
+
+        error = !vm.disks_each(:managed?).empty? && new_ds
+        raise 'cold datastore migration with managed disk(s) is not supported' if error
+    end
 
     vm.suspend
 

@@ -1,17 +1,44 @@
 package goca
 
-import "errors"
-
-// MarketPlaceApp represents an OpenNebula MarketPlaceApp
-type MarketPlaceApp struct {
-	XMLResource
-	ID   uint
-	Name string
-}
+import (
+	"encoding/xml"
+	"errors"
+)
 
 // MarketPlaceAppPool represents an OpenNebula MarketPlaceAppPool
 type MarketPlaceAppPool struct {
-	XMLResource
+	MarketPlaceApps []MarketPlaceApp `xml:"MARKETPLACEAPP"`
+}
+
+// MarketPlaceApp represents an OpenNebula MarketPlaceApp
+type MarketPlaceApp struct {
+	ID            uint                   `xml:"ID"`
+	UID           int                    `xml:"UID"`
+	GID           int                    `xml:"GID"`
+	UName         string                 `xml:"UNAME"`
+	GName         string                 `xml:"GNAME"`
+	LockInfos     *Lock                  `xml:"LOCK"`
+	Permissions   *Permissions           `xml:"PERMISSIONS"`
+	RegTime       int                    `xml:"REGTIME"`
+	Name          string                 `xml:"NAME"`
+	ZoneId        string                 `xml:"ZONE_ID"`
+	OriginId      string                 `xml:"ORIGIN_ID"`
+	Source        string                 `xml:"SOURCE"`
+	MD5           string                 `xml:"MD5"`
+	Size          int                    `xml:"SIZE"`
+	Description   string                 `xml:"DESCRIPTION"`
+	Version       string                 `xml:"VERSION"`
+	Format        string                 `xml:"FORMAT"`
+	AppTemplate64 string                 `xml:"APPTEMPLATE64"`
+	MarketPlaceID int                    `xml:"MARKETPLACEID"`
+	MarketPlace   string                 `xml:"MARKETPLACE"`
+	State         int                    `xml:"STATE"`
+	Type          int                    `xml:"TYPE"`
+	Template      marketPlaceAppTemplate `xml:"TEMPLATE"`
+}
+
+type marketPlaceAppTemplate struct {
+	Dynamic unmatchedTagsSlice `xml:,any`
 }
 
 // NewMarketPlaceAppPool returns a marketplace app pool. A connection to OpenNebula is
@@ -41,9 +68,13 @@ func NewMarketPlaceAppPool(args ...int) (*MarketPlaceAppPool, error) {
 		return nil, err
 	}
 
-	marketapppool := &MarketPlaceAppPool{XMLResource{body: response.Body()}}
+	marketappPool := &MarketPlaceAppPool{}
+	err = xml.Unmarshal([]byte(response.Body()), marketappPool)
+	if err != nil {
+		return nil, err
+	}
 
-	return marketapppool, err
+	return marketappPool, nil
 }
 
 // NewMarketPlaceApp finds a marketplace app object by ID. No connection to OpenNebula.
@@ -55,14 +86,26 @@ func NewMarketPlaceApp(id uint) *MarketPlaceApp {
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the marketplace app.
 func NewMarketPlaceAppFromName(name string) (*MarketPlaceApp, error) {
+	var id uint
+
 	marketAppPool, err := NewMarketPlaceAppPool()
 	if err != nil {
 		return nil, err
 	}
 
-	id, err := marketAppPool.GetIDFromName(name, "/MARKETPLACEAPP_POOL/MARKETPLACEAPP")
-	if err != nil {
-		return nil, err
+	match := false
+	for i := 0; i < len(marketAppPool.MarketPlaceApps); i++ {
+		if marketAppPool.MarketPlaceApps[i].Name != name {
+			continue
+		}
+		if match {
+			return nil, errors.New("multiple resources with that name")
+		}
+		id = marketAppPool.MarketPlaceApps[i].ID
+		match = true
+	}
+	if !match {
+		return nil, errors.New("resource not found")
 	}
 
 	return NewMarketPlaceApp(id), nil
@@ -137,8 +180,7 @@ func (marketApp *MarketPlaceApp) Info() error {
 	if err != nil {
 		return err
 	}
-	marketApp.body = response.Body()
-	return nil
+	return xml.Unmarshal([]byte(response.Body()), marketApp)
 }
 
 // Lock locks the marketplace app depending on blocking level.

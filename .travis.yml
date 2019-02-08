@@ -1,0 +1,27 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+dist: xenial
+language: generic
+before_install:
+  - sudo apt-get install -y libsystemd-dev bash-completion bison debhelper default-jdk flex javahelper libmysql++-dev libsqlite3-dev libssl-dev libws-commons-util-java libxml2-dev libxmlrpc3-client-java libxmlrpc3-common-java libxslt1-dev libcurl4-openssl-dev ruby scons libxmlrpc-c++8-dev npm libvncserver-dev
+  - gem install rubocop
+  - sudo npm install -g bower
+  - sudo npm install -g grunt
+  - sudo npm install -g grunt-cli
+  - (cd src/sunstone/public && npm install && bower install)
+script:
+  - set -o errexit; source .travis/smoke_tests.sh

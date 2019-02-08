@@ -557,8 +557,10 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :migrate, migrate_desc, [:range, :vmid_list], :hostid,
-            [:datastoreid, nil], :options => [ENFORCE, OneVMHelper::LIVE,
-        OneVMHelper::POFF, OneVMHelper::POFFHARD] do
+            [:datastoreid, nil], :options => [ENFORCE,
+                                              OneVMHelper::LIVE,
+                                              OneVMHelper::POFF,
+                                              OneVMHelper::POFFHARD] do
         host_id = args[1]
         verbose = "migrating to #{host_id}"
 
@@ -795,7 +797,8 @@ CommandParser::CmdParser.new(ARGV) do
 
             if ip
                 if !nic_alias && !nic_name
-                    template = "NIC = [ NETWORK_ID = #{network_id}, IP = #{ip} ]"
+                    template = "NIC = [ NETWORK_ID = #{network_id}, \
+                                IP = #{ip} ]"
                 elsif !nic_alias && nic_name
                     template = "NIC = [ NETWORK_ID = #{network_id},
                                         IP = #{ip},
@@ -1044,8 +1047,28 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :list, list_desc, [:filterflag, nil],
             :options => CLIHelper::OPTIONS + OpenNebulaHelper::OPTIONS +
-                        [OpenNebulaHelper::DESCRIBE] do
-        helper.list_pool(options, false, args[0])
+                        [OpenNebulaHelper::DESCRIBE] + [OneVMHelper::SEARCH] do
+        if !options[:search]
+            helper.list_pool(options, false, args[0])
+        else
+            table = helper.format_pool(options)
+            pool = OpenNebula::VirtualMachinePool.new(OneVMHelper.get_client)
+
+            rc = pool.info_search(:query => options[:search])
+
+            if !rc.nil?
+                puts rc.message
+                exit(-1)
+            end
+
+            if options[:xml]
+                puts pool.to_xml
+            else
+                table.show(pool.to_hash, options)
+            end
+
+            0
+        end
     end
 
     show_desc = <<-EOT.unindent
@@ -1128,11 +1151,12 @@ CommandParser::CmdParser.new(ARGV) do
         This command accepts a template file or opens an editor, the full list of
         configuration attributes are:
 
-        OS       = ["ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER", "BOOT"]
-        FEATURES = ["ACPI", "PAE", "APIC", "LOCALTIME", "HYPERV", "GUEST_AGENT"]
-        INPUT    = ["TYPE", "BUS"]
-        GRAPHICS = ["TYPE", "LISTEN", "PASSWD", "KEYMAP" ]
-        RAW      = ["DATA", "DATA_VMX", "TYPE"]
+        OS        = ["ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER", "BOOT"]
+        FEATURES  = ["ACPI", "PAE", "APIC", "LOCALTIME", "HYPERV", "GUEST_AGENT"]
+        INPUT     = ["TYPE", "BUS"]
+        GRAPHICS  = ["TYPE", "LISTEN", "PASSWD", "KEYMAP" ]
+        RAW       = ["DATA", "DATA_VMX", "TYPE"]
+        CPU_MODEL = ["MODEL"]
         CONTEXT (any value, **variable substitution will be made**)
     EOT
 
@@ -1153,7 +1177,8 @@ CommandParser::CmdParser.new(ARGV) do
 
                 template = vm.template_like_str('TEMPLATE', true,
                                                 'OS | FEATURES | INPUT | '\
-                                                'GRAPHICS | RAW | CONTEXT')
+                                                'GRAPHICS | RAW | CONTEXT | '\
+                                                'CPU_MODEL')
                 template = OpenNebulaHelper.editor_input(template)
             end
 

@@ -44,7 +44,7 @@ class FSRawMapper < Mapper
 
         return true if rc.zero?
 
-        OpenNebula.log_error("#{__method__}: #{err}") if rc != 0
+        OpenNebula.log_error("#{__method__}: #{err}")
         nil
     end
 

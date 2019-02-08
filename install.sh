@@ -219,6 +219,7 @@ fi
 
 SHARE_DIRS="$SHARE_LOCATION/examples \
             $SHARE_LOCATION/websockify \
+            $SHARE_LOCATION/websockify/websockify \
             $SHARE_LOCATION/esx-fw-vnc \
             $SHARE_LOCATION/oneprovision"
 
@@ -253,6 +254,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
 
 VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/etc \
+          $VAR_LOCATION/remotes/etc/tm/fs_lvm \
           $VAR_LOCATION/remotes/etc/datastore/ceph \
           $VAR_LOCATION/remotes/etc/im/kvm-probes.d \
           $VAR_LOCATION/remotes/etc/im/lxd-probes.d \
@@ -445,6 +447,7 @@ INSTALL_FILES=(
     TM_FILES:$VAR_LOCATION/remotes/tm
     TM_SHARED_FILES:$VAR_LOCATION/remotes/tm/shared
     TM_FS_LVM_FILES:$VAR_LOCATION/remotes/tm/fs_lvm
+    TM_FS_LVM_ETC_FILES:$VAR_LOCATION/remotes/etc/tm/fs_lvm/fs_lvm.conf
     TM_QCOW2_FILES:$VAR_LOCATION/remotes/tm/qcow2
     TM_SSH_FILES:$VAR_LOCATION/remotes/tm/ssh
     TM_CEPH_FILES:$VAR_LOCATION/remotes/tm/ceph
@@ -477,7 +480,8 @@ INSTALL_FILES=(
     NETWORK_OVSWITCH_VXLAN_FILES:$VAR_LOCATION/remotes/vnm/ovswitch_vxlan
     NETWORK_VCENTER_FILES:$VAR_LOCATION/remotes/vnm/vcenter
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
-    WEBSOCKIFY_SHARE_FILES:$SHARE_LOCATION/websockify
+    WEBSOCKIFY_SHARE_RUN_FILES:$SHARE_LOCATION/websockify
+    WEBSOCKIFY_SHARE_MODULE_FILES:$SHARE_LOCATION/websockify/websockify
     ESX_FW_VNC_SHARE_FILES:$SHARE_LOCATION/esx-fw-vnc
     INSTALL_GEMS_SHARE_FILES:$SHARE_LOCATION
     ONETOKEN_SHARE_FILE:$SHARE_LOCATION
@@ -999,6 +1003,7 @@ IM_PROBES_LXD_PROBES_FILES="src/im_mad/remotes/lxd-probes.d/lxd.rb \
                      src/im_mad/remotes/lxd-probes.d/pci.rb \
                      src/im_mad/remotes/lxd-probes.d/monitor_ds.sh \
                      src/im_mad/remotes/lxd-probes.d/version.sh \
+                     src/im_mad/remotes/lxd-probes.d/profiles.sh \
                      src/im_mad/remotes/lxd-probes.d/collectd-client-shepherd.sh"
 
 IM_PROBES_LXD_FILES="src/im_mad/remotes/lxd.d/collectd-client_control.sh \
@@ -1170,6 +1175,9 @@ TM_FS_LVM_FILES="src/tm_mad/fs_lvm/activate \
                  src/tm_mad/fs_lvm/failmigrate \
                  src/tm_mad/fs_lvm/delete \
                  src/tm_mad/fs_lvm/resize"
+
+TM_FS_LVM_ETC_FILES="src/tm_mad/fs_lvm/fs_lvm.conf"
+
 
 TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
                  src/tm_mad/qcow2/delete \
@@ -1457,8 +1465,7 @@ ONEDB_SHARED_MIGRATOR_FILES="src/onedb/shared/2.0_to_2.9.80.rb \
                              src/onedb/shared/5.3.80_to_5.4.0.rb \
                              src/onedb/shared/5.4.0_to_5.4.1.rb \
                              src/onedb/shared/5.4.1_to_5.5.80.rb \
-                             src/onedb/shared/5.5.80_to_5.6.0.rb \
-                             src/onedb/shared/5.6.0_to_5.7.80.rb"
+                             src/onedb/shared/5.5.80_to_5.6.0.rb"
 
 ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/4.5.80_to_4.7.80.rb \
                             src/onedb/local/4.7.80_to_4.9.80.rb \
@@ -1531,9 +1538,12 @@ EXAMPLE_SHARE_FILES="share/examples/vm.template \
 # Files required to interact with the websockify server
 #-------------------------------------------------------------------------------
 
-WEBSOCKIFY_SHARE_FILES="share/websockify/websocketproxy.py \
-                        share/websockify/websocket.py \
-                        share/websockify/websockify"
+WEBSOCKIFY_SHARE_RUN_FILES="share/websockify/run"
+WEBSOCKIFY_SHARE_MODULE_FILES="share/websockify/websockify/__init__.py \
+                               share/websockify/websockify/auth_plugins.py \
+                               share/websockify/websockify/token_plugins.py \
+                               share/websockify/websockify/websocket.py \
+                               share/websockify/websockify/websocketproxy.py"
 
 #-------------------------------------------------------------------------------
 # Installation packages for ESX hosts to enable VNC ports

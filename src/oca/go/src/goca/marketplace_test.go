@@ -4,7 +4,6 @@ import (
 	"testing"
 )
 
-
 func TestMarketplace(t *testing.T){
 	var mkt_name string = "marketplace_test_go"
 
@@ -25,7 +24,7 @@ func TestMarketplace(t *testing.T){
 	market = NewMarketPlace(market_id)
 	market.Info()
 
-	actual, _:= market.XMLResource.XPath("/MARKETPLACE/NAME")
+	actual := market.Name
 
 	if actual != mkt_name {
 		t.Errorf("Test failed, expected: '%s', got:  '%s'", mkt_name, actual)
@@ -42,15 +41,18 @@ func TestMarketplace(t *testing.T){
 
 	market.Info()
 
-	actual_mm, _ := market.XMLResource.XPath("/MARKETPLACE/TEMPLATE/MARKET_MAD")
-	actual_1,  _ := market.XMLResource.XPath("/MARKETPLACE/TEMPLATE/ATT1")
+	actual_mm := market.MarketMad
+	actual_1, err := market.Template.Dynamic.GetContentByName("ATT1")
+	if err != nil {
+		t.Errorf("Test failed, can't retrieve '%s', error: %s", "ATT1", err.Error())
+	} else {
+		if actual_1 != "VAL1" {
+			t.Errorf("Test failed, expected: '%s', got:  '%s'", "VAL1", actual_1)
+		}
+	}
 
 	if actual_mm != "http" {
 		t.Errorf("Test failed, expected: '%s', got:  '%s'", "http", actual_mm)
-	}
-
-	if actual_1 != "VAL1" {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", "VAL1", actual_1)
 	}
 
 	//Change permissions for Marketpkace
@@ -62,11 +64,11 @@ func TestMarketplace(t *testing.T){
 
 	market.Info()
 
-	expected := "111111111"
-	actual, _ = market.XMLResource.XPath("/MARKETPLACE/PERMISSIONS")
+	expected_perm := Permissions{ 1, 1, 1, 1, 1, 1, 1, 1, 1 }
+	actual_perm := *market.Permissions
 
-	if actual != expected {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", expected, actual)
+	if actual_perm != expected_perm {
+		t.Errorf("Test failed, expected: '%s', got:  '%s'", expected_perm.String(), actual_perm.String())
 	}
 
 	//Change owner of Marketpkace
@@ -78,17 +80,17 @@ func TestMarketplace(t *testing.T){
 
 	market.Info()
 
-	expected_usr := "1"
-	expected_grp := "1"
-	actual_usr, _ :=market.XMLResource.XPath("/MARKETPLACE/UID")
-	actual_grp, _ :=market.XMLResource.XPath("/MARKETPLACE/GID")
+	expected_usr := 1
+	expected_grp := 1
+	actual_usr := market.UID
+	actual_grp := market.GID
 
 	if actual_usr != expected_usr {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", expected_usr, actual_usr)
+		t.Errorf("Test failed, expected: '%d', got:  '%d'", expected_usr, actual_usr)
 	}
 
 	if actual_grp != expected_grp {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", expected_grp, actual_grp)
+		t.Errorf("Test failed, expected: '%d', got:  '%d'", expected_grp, actual_grp)
 	}
 
 	rename := mkt_name + "-renamed"
@@ -102,7 +104,7 @@ func TestMarketplace(t *testing.T){
 
 	market.Info()
 
-	actual, _ = market.XMLResource.XPath("/MARKETPLACE/NAME")
+	actual = market.Name
 
 	if actual != rename {
 		t.Errorf("Test failed, expected: '%s', got:  '%s'", rename, actual)
