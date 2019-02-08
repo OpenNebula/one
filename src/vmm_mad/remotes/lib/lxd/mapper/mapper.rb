@@ -381,7 +381,7 @@ class Mapper
 
         rc, _o, e = Command.execute("#{COMMANDS[:umount]} #{dev}", true)
 
-        return true if rc.zero?
+        return true if rc.zero? || e.include?('not mounted')
 
         OpenNebula.log_error("umount_dev: #{e}")
         nil
