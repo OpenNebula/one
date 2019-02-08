@@ -383,6 +383,7 @@ class OpenNebulaVM
 
         case signal
         when 'start'
+            # TODO: Allow to set vnc command on VM template
             command = @lxdrc[:vnc][:command]
             "#{data['PORT']} #{pass} lxc exec #{@vm_name} #{command}\n"
         when 'stop'
