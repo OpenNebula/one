@@ -2418,7 +2418,8 @@ class VirtualMachine < VCenterDriver::Template
 
         begin
             # retrieve host from DRS
-            resourcepool = config[:cluster].resourcePool
+            one_cluster = config[:cluster]
+            resourcepool = one_cluster.item.resourcePool
             datastore    = config[:datastore]
 
             if datastore
@@ -2429,10 +2430,12 @@ class VirtualMachine < VCenterDriver::Template
 
                 if config[:esx_migration_list].is_a?(String)
                     if config[:esx_migration_list]==""
-                        relocate_spec_params[:host] = config[:cluster].host.sample
+                        relocate_spec_params[:host] = config[:cluster].item.host.sample
                     elsif config[:esx_migration_list]!="Selected_by_DRS"
-                        hosts = config[:esx_migration_list].split(' ')
-                        relocate_spec_params[:host] = hosts.sample
+                        hostnames = config[:esx_migration_list].split(' ')
+                        hostname = hostnames.sample
+                        host_moref = one_cluster.hostname_to_moref(hostname)
+                        relocate_spec_params[:host] = host_moref
                     end
                 end
 
@@ -2933,7 +2936,7 @@ class VirtualMachine < VCenterDriver::Template
         raise 'datastore migration from poweroff state with managed disks is not supported' if error
 
         ccr_ref  = dst_host['/HOST/TEMPLATE/VCENTER_CCR_REF']
-        vc_host  = VCenterDriver::ClusterComputeResource.new_from_ref(ccr_ref, vi_client).item
+        vc_host  = VCenterDriver::ClusterComputeResource.new_from_ref(ccr_ref, vi_client)
 
         config = { :cluster => vc_host }
 

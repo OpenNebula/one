@@ -258,8 +258,6 @@ class ClusterComputeResource
     end
 
     def filter_hosts
-        host_info = ""
-
         view = @vi_client.vim.serviceContent.viewManager.CreateContainerView({
             container: @item, #View for Hosts inside this cluster
             type:      ['HostSystem'],
@@ -303,6 +301,7 @@ class ClusterComputeResource
     end
 
     def monitor_host_systems
+        host_info = ""
         result = filter_hosts
         hosts = {}
         result.each do |r|
