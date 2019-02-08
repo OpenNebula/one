@@ -243,7 +243,21 @@ class ClusterComputeResource
         return rp_info
     end
 
-    def monitor_host_systems
+    def hostname_to_moref(hostname)
+        result = filter_hosts
+
+        moref = ""
+        result.each do |r|
+            if r.obj.name == hostname
+                moref = r.obj._ref
+                break
+            end
+        end
+        raise "Host #{hostname} was not found" if moref.empty?
+        return moref
+    end
+
+    def filter_hosts
         host_info = ""
 
         view = @vi_client.vim.serviceContent.viewManager.CreateContainerView({
@@ -284,7 +298,12 @@ class ClusterComputeResource
         )
 
         result = pc.RetrieveProperties(:specSet => [filterSpec])
+        view.DestroyView # Destroy the view
+        return result
+    end
 
+    def monitor_host_systems
+        result = filter_hosts
         hosts = {}
         result.each do |r|
             hashed_properties = r.to_hash
@@ -318,8 +337,6 @@ class ClusterComputeResource
             host_info << "FREE_MEM="    << free_memory.to_s
             host_info << "]"
         end
-
-        view.DestroyView # Destroy the view
 
         return host_info
     end
