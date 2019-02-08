@@ -603,7 +603,7 @@ func NewVMPool(args ...int) (*VMPool, error) {
 	return vmPool, nil
 }
 
-// Monitoring returns all the virtual machine monitorin records
+// Monitoring returns all the virtual machine monitoring records
 // filter flag:
 // -4: Resources belonging to the user's primary group
 // -3: Resources belonging to the user
