@@ -38,7 +38,7 @@ module OneProvision
         # @return [Boolean] True if exists, false if not
         def exists
             resource = Cluster.new
-            pool = resource.pool
+            pool     = resource.pool
             pool.info
 
             pool.each do |c|
@@ -86,7 +86,7 @@ module OneProvision
                 end
 
                 if host.running_vms?
-                    Utils.fail("Provision with running VMs can't be deleted")
+                    Utils.fail('Provision with running VMs can\'t be deleted')
                 end
             end
 
@@ -164,77 +164,22 @@ module OneProvision
         #
         # @param config [String] Path to the configuration file
         def create(config)
-            Driver.retry_loop 'Failed to create  provision' do
-                Ansible.check_ansible_version
+            Ansible.check_ansible_version
 
+            Driver.retry_loop 'Failed to create  provision' do
                 # read provision file
                 cfg = Utils.create_config(Utils.read_config(config))
 
                 @name = cfg['name']
 
-                cluster = nil
-                cid     = nil
-
-                cname = cfg['cluster']['name']
-
                 OneProvisionLogger.info('Creating provision objects')
 
-                Driver.retry_loop 'Failed to create cluster' do
-                    msg = "Creating OpenNebula cluster: #{cname}"
-
-                    OneProvisionLogger.debug(msg)
-
-                    # create new cluster
-                    cluster = Cluster.new
-                    cluster.create(cfg['cluster'], @id)
-                    cluster = cluster.one
-                    cid = cluster.id
-
-                    @clusters << cluster
-
-                    OneProvisionLogger.debug("cluster created with ID: #{cid}")
-                end
+                cluster = create_cluster(cfg)
+                cid     = cluster.id
 
                 Mode.new_cleanup(true)
 
-                %w[datastores networks].each do |r|
-                    next if cfg[r].nil?
-
-                    cfg[r].each do |x|
-                        begin
-                            driver = cfg['defaults']['provision']['driver']
-                            msg    = "#{r}: #{x['name']}"
-
-                            Driver.retry_loop "Failed to create #{msg}" do
-                                OneProvisionLogger
-                                    .debug("Creating OpenNebula #{msg}")
-
-                                erb = Utils.evaluate_erb(self, x)
-
-                                if r == 'datastores'
-                                    datastore = Datastore.new
-                                    datastore.create(cid.to_i, erb, driver, @id)
-                                    @datastores << datastore.one
-                                else
-                                    vnet = Vnet.new
-                                    vnet.create(cid.to_i, erb, driver, @id)
-                                    @vnets << vnet.one
-                                end
-
-                                r   = 'vnets' if r == 'networks'
-                                rid = instance_variable_get("@#{r}").last['ID']
-
-                                OneProvisionLogger
-                                    .debug("#{r} created with ID: #{rid}")
-                            end
-                        rescue OneProvisionCleanupException
-                            refresh
-                            delete
-
-                            exit - 1
-                        end
-                    end
-                end
+                create_resources(cfg, cid)
 
                 if cfg['hosts'].nil?
                     puts "ID: #{@id}"
@@ -243,18 +188,7 @@ module OneProvision
                 end
 
                 begin
-                    cfg['hosts'].each do |h|
-                        erb = Utils.evaluate_erb(self, h)
-                        dfile = Utils .create_deployment_file(erb, @id)
-                        playbook = cfg['playbook']
-
-                        host = Host.new
-                        host = host.create(dfile.to_xml, cid.to_i, playbook)
-
-                        @hosts << host
-
-                        host.offline
-                    end
+                    create_hosts(cfg, cid)
 
                     # ask user to be patient, mandatory for now
                     STDERR.puts 'WARNING: This operation can ' \
@@ -262,53 +196,7 @@ module OneProvision
 
                     OneProvisionLogger.info('Deploying')
 
-                    deploy_ids      = []
-                    threads         = []
-                    processed_hosts = 0
-
-                    @hosts.each do |host|
-                        processed_hosts += 1
-
-                        host.info
-
-                        # deploy host
-                        pm_mad = host['TEMPLATE/PM_MAD']
-                        id     = host['ID']
-
-                        OneProvisionLogger.debug("Deploying host: #{id}")
-
-                        deploy_file = Tempfile.new("xmlDeploy#{id}")
-                        deploy_file.close
-
-                        Driver.write_file_log(deploy_file.path, host.to_xml)
-
-                        if Options.threads > 1
-                            threads << Thread.new do
-                                Thread.current[:output] =
-                                    Driver.pm_driver_action(pm_mad,
-                                                            'deploy',
-                                                            [deploy_file.path,
-                                                             'TODO'])
-                            end
-
-                            if threads.size == Options.threads ||
-                               processed_hosts == @hosts.size
-                                threads.map do |thread|
-                                    thread.join
-                                    deploy_ids << thread[:output]
-                                    deploy_file.unlink
-                                end
-
-                                threads.clear
-                            end
-                        else
-                            deploy_ids << Driver
-                                          .pm_driver_action(pm_mad,
-                                                            'deploy',
-                                                            [deploy_file.path,
-                                                             'TODO'])
-                        end
-                    end
+                    deploy_ids = deploy_hosts
 
                     if deploy_ids.nil? || deploy_ids.empty?
                         Utils.fail('Deployment failed, no ID got from driver')
@@ -316,15 +204,7 @@ module OneProvision
 
                     OneProvisionLogger.info('Monitoring hosts')
 
-                    @hosts.each do |h|
-                        h.add_element('//TEMPLATE/PROVISION',
-                                      'DEPLOY_ID' => deploy_ids.shift.strip)
-                        h.update(h.template_str)
-
-                        host = Host.new(h['ID'])
-                        name = host.poll
-                        h.rename(name)
-                    end
+                    update_hosts(deploy_ids)
 
                     Ansible.configure(@hosts)
 
@@ -343,6 +223,165 @@ module OneProvision
         #   is already configured
         def configure(force)
             Ansible.configure(@hosts, force)
+        end
+
+        private
+
+        # Creates a new cluster
+        #
+        # @param cfg [Key-Value Object] Configuration of the PROVISION
+        #
+        # @return [OpenNebula::Cluster] The new cluster
+        def create_cluster(cfg)
+            cluster = nil
+
+            Driver.retry_loop 'Failed to create cluster' do
+                msg = "Creating OpenNebula cluster: #{cfg['cluster']['name']}"
+
+                OneProvisionLogger.debug(msg)
+
+                # create new cluster
+                cluster = Cluster.new
+                cluster.create(cfg['cluster'], @id)
+                cluster = cluster.one
+                cid = cluster.id
+
+                @clusters << cluster
+
+                OneProvisionLogger.debug("cluster created with ID: #{cid}")
+            end
+
+            cluster
+        end
+
+        # Creates PROVISION resources (datastores and networks)
+        #
+        # @param cfg [Key-Value Object] Configuration of the PROVISION
+        # @param cid [String]           Cluster ID
+        def create_resources(cfg, cid)
+            %w[datastores networks].each do |r|
+                next if cfg[r].nil?
+
+                cfg[r].each do |x|
+                    begin
+                        driver = cfg['defaults']['provision']['driver']
+                        r_name = "#{r}: #{x['name']}"
+
+                        Driver.retry_loop "Failed to create #{r_name}" do
+                            msg = "Creating OpenNebula #{r_name}"
+
+                            OneProvisionLogger.debug(msg)
+
+                            erb = Utils.evaluate_erb(self, x)
+
+                            if r == 'datastores'
+                                datastore = Datastore.new
+                                datastore.create(cid.to_i, erb, driver, @id)
+                                @datastores << datastore.one
+                            else
+                                vnet = Vnet.new
+                                vnet.create(cid.to_i, erb, driver, @id)
+                                @vnets << vnet.one
+                            end
+
+                            r   = 'vnets' if r == 'networks'
+                            rid = instance_variable_get("@#{r}").last['ID']
+                            msg = "#{r} created with ID: #{rid}"
+
+                            OneProvisionLogger.debug(msg)
+                        end
+                    rescue OneProvisionCleanupException
+                        refresh
+                        delete
+
+                        exit - 1
+                    end
+                end
+            end
+        end
+
+        # Creates PROVISION hosts
+        #
+        # @param cfg [Key-Value Object] Configuration of the PROVISION
+        # @param cid [String]           Cluster ID
+        def create_hosts(cfg, cid)
+            cfg['hosts'].each do |h|
+                erb      = Utils.evaluate_erb(self, h)
+                dfile    = Utils .create_deployment_file(erb, @id)
+                playbook = cfg['playbook']
+
+                host = Host.new
+                host = host.create(dfile.to_xml, cid.to_i, playbook)
+
+                @hosts << host
+
+                host.offline
+            end
+        end
+
+        # Deploy PROVISION hosts
+        #
+        # @return [Array] Provider deploy ids
+        def deploy_hosts
+            deploy_ids = []
+            threads    = []
+            p_hosts    = 0
+
+            @hosts.each do |host|
+                p_hosts += 1
+
+                host.info
+
+                # deploy host
+                pm = host['TEMPLATE/PM_MAD']
+                id = host['ID']
+
+                OneProvisionLogger.debug("Deploying host: #{id}")
+
+                deploy_file = Tempfile.new("xmlDeploy#{id}")
+                deploy_file.close
+
+                Driver.write_file_log(deploy_file.path, host.to_xml)
+
+                params = [deploy_file.path, 'TODO']
+
+                if Options.threads > 1
+                    threads << Thread.new do
+                        output = Driver.pm_driver_action(pm, 'deploy', params)
+                        Thread.current[:output] = output
+                    end
+
+                    if threads.size == Options.threads || p_hosts == @hosts.size
+                        threads.map do |thread|
+                            thread.join
+                            deploy_ids << thread[:output]
+                            deploy_file.unlink
+                        end
+
+                        threads.clear
+                    end
+                else
+                    deploy_ids << Driver.pm_driver_action(pm, 'deploy', params)
+                end
+            end
+
+            deploy_ids
+        end
+
+        # Updates PROVISION hosts with deploy_id
+        #
+        # @param deploy_ids [Array] Array with all the deploy ids
+        def update_hosts(deploy_ids)
+            @hosts.each do |h|
+                deploy_id = deploy_ids.shift.strip
+
+                h.add_element('//TEMPLATE/PROVISION', 'DEPLOY_ID' => deploy_id)
+                h.update(h.template_str)
+
+                host = Host.new(h['ID'])
+                name = host.poll
+                h.rename(name)
+            end
         end
 
     end

@@ -225,7 +225,9 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :validate, validate_desc, [:config_file], :options => DUMP do
-        OneProvision::Utils.validate_configuration(args[0], (options.key? :dump))
+        dump = options.key? :dump
+
+        OneProvision::Utils.validate_configuration(args[0], dump)
 
         0
     end
