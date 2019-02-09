@@ -145,7 +145,7 @@ class LinuxContainersMarket
 
             tmpl = ""
 
-            print_var(tmpl, "NAME", "#{distro[0...-1]}_#{version[0...-1]}")
+            print_var(tmpl, "NAME", "#{distro[0...-1]}_#{version[0...-1]} - LXD")
             print_var(tmpl, "SOURCE", "#{source}")
             print_var(tmpl, "IMPORT_ID", id)
             print_var(tmpl, "ORIGIN_ID", "-1")
