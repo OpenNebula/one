@@ -520,6 +520,7 @@ INSTALL_ONEPROVISION_FILES=(
     ONEPROVISION_ONE_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
     ONEPROVISION_CONF_FILES:$ETC_LOCATION/cli
     ONEPROVISION_ANSIBLE_FILES:$SHARE_LOCATION/oneprovision
+    ONEPROVISION_TEMPLATES_FILES:$SHARE_LOCATION/oneprovision
     ONEPROVISION_LIB_FILES:$LIB_LOCATION/oneprovision/lib
 )
 
@@ -1838,6 +1839,8 @@ ONEPROVISION_ONE_LIB_FILES="src/cli/one_helper/oneprovision_helper.rb"
 ONEPROVISION_CONF_FILES="src/cli/etc/oneprovision.yaml"
 
 ONEPROVISION_ANSIBLE_FILES="share/oneprovision/ansible"
+
+ONEPROVISION_TEMPLATES_FILES="share/oneprovision/templates"
 
 ONEPROVISION_LIB_FILES="src/oneprovision/lib/ansible.rb \
                         src/oneprovision/lib/oneprovision.rb \

@@ -69,6 +69,8 @@ module OneProvision
                 check_config(config)
 
                 puts config.to_yaml if dump
+
+                0
             end
 
             # Checks configuration fole

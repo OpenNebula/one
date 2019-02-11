@@ -56,6 +56,8 @@ module OneProvision
             @datastores = Datastore.new.get(@id)
             @hosts      = Host.new.get(@id)
             @vnets      = Vnet.new.get(@id)
+
+            @name       = @clusters[0]['TEMPLATE/PROVISION/NAME']
         end
 
         # TODO: rename delete_all -> cleanup
@@ -135,6 +137,8 @@ module OneProvision
                     end
                 end
             end
+
+            0
         end
 
         # Returns the binding of the class
@@ -184,7 +188,7 @@ module OneProvision
                 if cfg['hosts'].nil?
                     puts "ID: #{@id}"
 
-                    exit 0
+                    return 0
                 end
 
                 begin
@@ -209,10 +213,12 @@ module OneProvision
                     Ansible.configure(@hosts)
 
                     puts "ID: #{@id}"
+
+                    0
                 rescue OneProvisionCleanupException
                     delete
 
-                    exit(-1)
+                    -1
                 end
             end
         end
@@ -284,9 +290,10 @@ module OneProvision
                                 @vnets << vnet.one
                             end
 
-                            r   = 'vnets' if r == 'networks'
-                            rid = instance_variable_get("@#{r}").last['ID']
-                            msg = "#{r} created with ID: #{rid}"
+                            r     = 'vnets' if r == 'networks'
+                            rid   = instance_variable_get("@#{r}").last['ID']
+                            rname = r.chomp('s').capitalize
+                            msg   = "#{rname} created with ID: #{rid}"
 
                             OneProvisionLogger.debug(msg)
                         end
@@ -294,7 +301,7 @@ module OneProvision
                         refresh
                         delete
 
-                        exit - 1
+                        -1
                     end
                 end
             end

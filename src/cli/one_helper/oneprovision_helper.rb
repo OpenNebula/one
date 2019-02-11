@@ -170,7 +170,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
             element['ID'] = i if provision_list
             element['ID'] = provision.clusters[0]['ID'] unless provision_list
 
-            element['NAME'] = provision.clusters[0]['NAME']
+            element['NAME'] = provision.name
             element['STATUS'] = provision.status
 
             columns.each do |c|
@@ -191,6 +191,8 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         columns = %w[clusters hosts vnets datastores]
 
         format_pool.show(get_list(columns, true), options)
+
+        0
     end
 
     def show(provision_id)
@@ -202,7 +204,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
 
         ret = {}
         ret['id'] = provision_id
-        ret['name'] = provision.clusters[0]['NAME']
+        ret['name'] = provision.name
         ret['status'] = provision.status
 
         %w[clusters datastores hosts vnets].each do |r|
@@ -214,6 +216,8 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         end
 
         format_resource(ret)
+
+        0
     end
 
     def format_resource(provision)
@@ -222,9 +226,9 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         id     = provision['id']
 
         CLIHelper.print_header(str_h1 % "PROVISION #{id} INFORMATION")
-        puts format('ID      :%<s>s', :s => id)
-        puts format('NAME    :%<s>s', :s => provision['name'])
-        puts format('STATUS  :%<s>s', :s => CLIHelper.color_state(status))
+        puts format('ID      : %<s>s', :s => id)
+        puts format('NAME    : %<s>s', :s => provision['name'])
+        puts format('STATUS  : %<s>s', :s => CLIHelper.color_state(status))
 
         puts
         CLIHelper.print_header(format('%<s>s', :s => 'CLUSTERS'))

@@ -40,11 +40,19 @@ module OneProvision
         #
         # @param command [String] Command to execute in the HOST
         def ssh(command)
+            check
+
             ip          = @one['NAME']
             private_key = @one['TEMPLATE/PROVISION_CONNECTION/PRIVATE_KEY']
             remote_user = @one['TEMPLATE/PROVISION_CONNECTION/REMOTE_USER']
 
-            exec("ssh -i #{private_key} #{remote_user}@#{ip} '#{command}'")
+            begin
+                exec("ssh -i #{private_key} #{remote_user}@#{ip} '#{command}'")
+            rescue StandardError => e
+                puts e.message unless e.is_a? SystemExit
+
+                -1
+            end
         end
 
         # Gets the public IP of the HOST

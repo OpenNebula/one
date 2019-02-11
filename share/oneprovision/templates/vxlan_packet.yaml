@@ -1,0 +1,25 @@
+---
+version: 2
+playbook: vxlan_packet
+
+networks:
+  - name:        "nat"
+    vn_mad:      "dummy"
+    bridge:      "br0"
+    dns:         "8.8.8.8 8.8.4.4"
+    gateway:     "192.168.150.1"
+    description: "Host-only networking with NAT"
+    ar:
+      - ip:   "192.168.150.2"
+        size: "253"
+        type: "IP4"
+
+  - name:        "private"
+    vn_mad:      "dummy"
+    bridge:      "vxlan100"
+    mtu:         "1450"
+    description: "Private networking"
+    ar:
+      - ip:   "192.168.160.2"
+        size: "253"
+        type: "IP4"

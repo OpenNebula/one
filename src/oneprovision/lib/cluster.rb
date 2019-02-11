@@ -34,6 +34,7 @@ module OneProvision
         # @param provision_id [String] ID of the provision
         def create(template, provision_id)
             template['provision']['provision_id'] = provision_id
+            template['provision']['name']         = template['name']
 
             name     = template['name']
             template = Utils.template_like_str(template)
