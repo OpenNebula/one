@@ -16,7 +16,7 @@ networks:
 
   - name:        "private"
     vn_mad:      "dummy"
-    bridge:      "vxlan100"
+    bridge:      "vxbr100"
     mtu:         "1450"
     description: "Private networking"
     ar:
