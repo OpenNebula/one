@@ -211,6 +211,8 @@ define(function(require) {
         if (this.value != "lxd")
         {
             $('.only_lxd').hide();
+            $('.not_lxd').show();
+            $('.raw_type').val('kvm');
         }
       }
       // There is another listener in context.js setup
@@ -221,6 +223,8 @@ define(function(require) {
 
       if (this.value == "lxd"){
         $('.only_lxd').show();
+        $('.not_lxd').hide();
+        $('.raw_type').val('lxd');
       }
     });
 
