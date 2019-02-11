@@ -262,71 +262,11 @@ class Mapper
 
         # Multiple partitions
         # -------------------
-        rc    = true
-        fstab = ''
+        fstab = find_fstab(partitions, path)
+        return unless fstab
 
-        # Look for fstab and mount rootfs in path. First partition with
-        # a /etc/fstab file is used as rootfs and it is kept mounted
-        partitions.each do |p|
-            OpenNebula.log("Looking for fstab on #{p['path']}")
-
-            rc = mount_dev(p['path'], path)
-
-            return false if !rc
-
-            bin = COMMANDS[:catfstab]
-            bin = COMMANDS[:cat] unless path.include?('containers/one-')
-
-            cmd = "#{bin} #{path}/etc/fstab"
-
-            _rc, fstab, _e = Command.execute(cmd, false)
-
-            if fstab.empty?
-                return false unless umount_dev(p['path'])
-
-                next
+        parse_fstab(partitions, path, fstab)
             end
-
-            OpenNebula.log("Found fstab on #{p['path']}")
-            break
-        end
-
-        if fstab.empty?
-            OpenNebula.log_error('No fstab file found')
-            return false
-        end
-
-        # Parse fstab contents & mount partitions
-        fstab.each_line do |l|
-            next if l.strip.chomp.empty?
-            next if l =~ /\s*#/
-
-            fs, mount_point, type, opts, dump, pass = l.split
-
-            if l =~ /^\s*LABEL=/ # disk by LABEL
-                value = fs.split("=").last.strip.chomp
-                key   = 'label'
-            elsif l =~ /^\s*UUID=/ #disk by UUID
-                value = fs.split("=").last.strip.chomp
-                key   = 'uuid'
-            else #disk by device - NOT SUPPORTED or other FS
-                next
-            end
-
-            next if %w[/ swap].include?(mount_point)
-
-            partitions.each { |p|
-                next if p[key] != value
-
-                rc = mount_dev(p['path'], path + mount_point)
-                return false if !rc
-
-                break
-            }
-        end
-
-        rc
-    end
 
     # --------------------------------------------------------------------------
     # Functions to mount/umount devices
@@ -478,6 +418,71 @@ class Mapper
 
         OpenNebula.log_error("#{__method__}: #{err}")
         false
+    end
+
+    # Look for fstab and mount rootfs in path. First partition with
+    # a /etc/fstab file is used as rootfs and it is kept mounted
+    def find_fstab(partitions, path)
+        fstab = ''
+        partitions.each do |p|
+            OpenNebula.log("Looking for fstab on #{p['path']}")
+
+            rc = mount_dev(p['path'], path)
+
+            bin = COMMANDS[:catfstab]
+            bin = COMMANDS[:cat] unless path.include?('containers/one-')
+
+            cmd = "#{bin} #{path}/etc/fstab"
+
+            _rc, fstab, _e = Command.execute(cmd, false)
+
+            if fstab.empty?
+                return false unless umount_dev(p['path'])
+
+                next
+            end
+
+            OpenNebula.log("Found fstab on #{p['path']}")
+            break
+        end
+
+        return fstab unless fstab.empty?
+
+        OpenNebula.log_error('No fstab file found')
+        # TODO: Unmap device
+        false
+    end
+
+    # Parse fstab contents & mount partitions
+    def parse_fstab(partitions, path, fstab)
+        fstab.each_line do |l|
+            next if l.strip.chomp.empty?
+            next if l =~ /\s*#/
+
+            fs, mount_point, _type, _opts, _dump, _pass = l.split
+
+            if l =~ /^\s*LABEL=/ # disk by LABEL
+                value = fs.split('=').last.strip.chomp
+                key   = 'label'
+            elsif l =~ /^\s*UUID=/ # disk by UUID
+                value = fs.split('=').last.strip.chomp
+                key   = 'uuid'
+            else # disk by device - NOT SUPPORTED or other FS
+                next
+            end
+
+            next if %w[/ swap].include?(mount_point)
+
+            partitions.each {|p|
+                next if p[key] != value
+
+                return false unless mount_dev(p['path'], path + mount_point)
+
+                break
+            }
+        end
+
+        true
     end
 
 end
