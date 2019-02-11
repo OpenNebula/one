@@ -1033,7 +1033,6 @@ define(function(require) {
     //_popFormPanelLoading(tabId);
     // Workaround until Foundation.abide support hidden forms
 
-    var context = $("#" + tabId);
     $(".sunstone-form-title", context).text(Locale.tr("Submitting..."));
     $(".submit_button", context).text(Locale.tr("Submitting..."));
 
@@ -1041,7 +1040,6 @@ define(function(require) {
 
     setTimeout(function() {
       var formPanelInstance = SunstoneCfg["tabs"][tabId].activeFormPanel;
-
       if ($(".wizardForms", context).is(":visible")) {
         $("#" + formPanelInstance.formPanelId + "Wizard").submit();
       } else if ($(".advancedForms", context).is(":visible")) {
