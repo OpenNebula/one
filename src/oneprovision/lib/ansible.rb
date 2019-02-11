@@ -134,6 +134,8 @@ module OneProvision
                         host.update(configured, true)
                         host.enable
                     end
+
+                    0
                 else
                     error = 'PROVISION_CONFIGURATION_STATUS=error'
 
