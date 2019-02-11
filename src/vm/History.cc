@@ -341,6 +341,62 @@ string& History::to_xml(string& xml, bool database) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+string& History::to_json(string& json) const
+{
+    ostringstream oss;
+
+    oss << "\"HISTORY\": {" <<
+          "\"OID\": \""      << oid           << "\"," <<
+          "\"SEQ\": \""      << seq           << "\"," <<
+          "\"HOSTNAME\": \"" << hostname      << "\"," <<
+          "\"HID\": \""      << hid           << "\"," <<
+          "\"CID\": \""      << cid           << "\"," <<
+          "\"STIME\": \""    << stime         << "\"," <<
+          "\"ETIME\": \""    << etime         << "\"," <<
+          "\"VM_MAD\": \""   << vmm_mad_name  << "\"," <<
+          "\"TM_MAD\": \""   << tm_mad_name   << "\"," <<
+          "\"DS_ID\": \""    << ds_id         << "\"," <<
+          "\"PSTIME\": \""   << prolog_stime  << "\"," <<
+          "\"PETIME\": \""   << prolog_etime  << "\"," <<
+          "\"RSTIME\": \""   << running_stime << "\"," <<
+          "\"RETIME\": \""   << running_etime << "\"," <<
+          "\"ESTIME\": \""   << epilog_stime  << "\"," <<
+          "\"EETIME\": \""   << epilog_etime  << "\"," <<
+          "\"ACTION\": \""   << action        << "\"," <<
+          "\"UID\": \""      << uid           << "\"," <<
+          "\"GID\": \""      << gid           << "\"," <<
+          "\"REQUEST_ID\": \"" << req_id      << "\",";
+
+    oss << "}";
+
+    json = oss.str();
+
+    return json;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& History::to_token(string& text) const
+{
+    ostringstream oss;
+
+    oss << "HOSTNAME=";
+    one_util::escape_token(hostname, oss);
+    oss << "\n";
+
+    oss << "HID="   << hid   << "\n" <<
+           "CID="   << cid   << "\n" <<
+           "DS_ID=" << ds_id << "\n";
+
+    text = oss.str();
+
+    return text;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 string& History::to_xml_short(string& xml) const
 {
     ostringstream oss;

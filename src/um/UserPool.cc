@@ -871,16 +871,16 @@ auth_failure_driver:
     NebulaLog::log("AuM",Log::ERROR,oss);
 
     goto auth_failure;
-	
+
 auth_failure_token:
     NebulaLog::log("AuM", Log::ERROR, "Token has expired.");
     goto auth_failure;
-	
+
 auth_failure_nodriver:
     NebulaLog::log("AuM",Log::ERROR,
         "Auth Error: Authentication driver not enabled. "
         "Check AUTH_MAD in oned.conf");
-	
+
 auth_failure:
     user_id  = -1;
     group_id = -1;
@@ -920,9 +920,15 @@ bool UserPool::authenticate_server(User *        user,
 
     string target_username;
     string second_token;
+    string egid;
+
+    istringstream iss;
+
+    int egid_i = -1;
 
     Nebula& nd         = Nebula::instance();
     AuthManager* authm = nd.get_authm();
+    GroupPool* gpool   = nd.get_gpool();
 
     server_username = user->name;
     server_password = user->password;
@@ -934,11 +940,32 @@ bool UserPool::authenticate_server(User *        user,
     user->unlock();
 
     // token = target_username:second_token
-    int rc = User::split_secret(token,target_username,second_token);
+    int rc = User::split_secret(token, target_username, second_token);
 
     if ( rc != 0 )
     {
         goto wrong_server_token;
+    }
+
+    // Look for a EGID in the user token. The second token can be:
+    // second_token = egid:server_admin_auth
+    // second_token = server_admin_auth
+    rc = User::split_secret(second_token, egid, second_token);
+
+    if ( rc == -1 ) //No EGID found
+    {
+        egid_i = -1;
+    }
+    else
+    {
+        iss.str(egid);
+
+        iss >> egid_i;
+
+        if (iss.fail() || !iss.eof())
+        {
+            goto wrong_server_token;
+        }
     }
 
     user = get_ro(target_username);
@@ -963,6 +990,16 @@ bool UserPool::authenticate_server(User *        user,
     umask  = user->get_umask();
 
     user->unlock();
+
+    //server_admin token set a EGID, update auth info
+    if ( egid_i != - 1 )
+    {
+        group_id = egid_i;
+        gname    = gpool->get_name(egid_i);
+
+        group_ids.clear();
+        group_ids.insert(egid_i);
+    }
 
     if (result)
     {

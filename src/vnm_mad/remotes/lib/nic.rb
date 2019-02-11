@@ -110,7 +110,12 @@ module VNMMAD
                 end
 
                 if deploy_id && vm.vm_info[:dumpxml].nil?
-                    vm.vm_info[:dumpxml] = YAML.safe_load(`lxc config show #{deploy_id} 2>/dev/null`)
+                    cmd = "lxc config show #{deploy_id} 2>/dev/null"
+
+                    config = YAML.safe_load(`#{cmd}`)
+                    config = YAML.safe_load(`sudo #{cmd}`) if config.nil?
+
+                    vm.vm_info[:dumpxml] = config
 
                     vm.vm_info.each_key do |k|
                         vm.vm_info[k] = nil if vm.vm_info[k].to_s.strip.empty?

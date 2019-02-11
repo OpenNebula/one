@@ -493,7 +493,14 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
     }
     else if (valid > 0 || valid == -1)
     {
-        if ( egid != -1 && (!user->is_in_group(egid) || att.group_ids.count(egid) == 0) )
+        /**
+         * Scoped token checks
+         * 1. user is in the target group
+         * 2. Authenticated groups for the user include the target group
+         * 3. user is not oneadmin or admin group
+         */
+        if ( egid != -1 && !att.is_admin() && ( !user->is_in_group(egid) ||
+                    att.group_ids.count(egid) == 0) )
         {
             att.resp_msg = "EGID is not in user group list";
             failure_response(XML_RPC_API,  att);

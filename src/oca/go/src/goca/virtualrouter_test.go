@@ -24,7 +24,7 @@ func TestVirtualRouter(t *testing.T){
 	vr = NewVirtualRouter(vr_id)
 	vr.Info()
 
-	actual, _:= vr.XMLResource.XPath("/VROUTER/NAME")
+	actual := vr.Name
 
 	if actual != vr_name {
 		t.Errorf("Test failed, expected: '%s', got:  '%s'", vr_name, actual)
@@ -41,15 +41,22 @@ func TestVirtualRouter(t *testing.T){
 
 	vr.Info()
 
-	actual_1, _ := vr.XMLResource.XPath("/VROUTER/TEMPLATE/ATT1")
-	actual_3, _ := vr.XMLResource.XPath("/VROUTER/TEMPLATE/ATT3")
-
-	if actual_1 != "VAL1" {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", "VAL1", actual_1)
+	actual_1, err := vr.Template.Dynamic.GetContentByName("ATT1")
+	if err != nil {
+		t.Errorf("Test failed, can't retrieve '%s', error: %s", "ATT1", err.Error())
+	} else {
+		if actual_1 != "VAL1" {
+			t.Errorf("Test failed, expected: '%s', got:  '%s'", "VAL1", actual_1)
+		}
 	}
 
-	if actual_3 != "VAL3" {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", "VAL3", actual_3)
+	actual_3, err := vr.Template.Dynamic.GetContentByName("ATT3")
+	if err != nil {
+		t.Errorf("Test failed, can't retrieve '%s', error: %s", "ATT3", err.Error())
+	} else {
+		if actual_3 != "VAL3" {
+			t.Errorf("Test failed, expected: '%s', got:  '%s'", "VAL3", actual_3)
+		}
 	}
 
 	//Change permissions of VirtualRouter
@@ -61,11 +68,11 @@ func TestVirtualRouter(t *testing.T){
 
 	vr.Info()
 
-	expected := "111111111"
-	actual, _ = vr.XMLResource.XPath("/VROUTER/PERMISSIONS")
+	expected_perm := Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1}
+	actual_perm := vr.Permissions
 
-	if actual != expected {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", expected, actual)
+	if actual_perm == nil || *actual_perm != expected_perm {
+		t.Errorf("Test failed, expected: '%s', got:  '%s'", expected_perm.String(), actual_perm.String())
 	}
 
 	//Change owner of VirtualRouter
@@ -77,17 +84,17 @@ func TestVirtualRouter(t *testing.T){
 
 	vr.Info()
 
-	expected_usr := "1"
-	expected_grp := "1"
-	actual_usr, _ := vr.XMLResource.XPath("/VROUTER/UID")
-	actual_grp, _ := vr.XMLResource.XPath("/VROUTER/GID")
+	expected_usr := 1
+	expected_grp := 1
+	actual_usr := vr.UID
+	actual_grp := vr.GID
 
 	if actual_usr != expected_usr {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", expected_usr, actual_usr)
+		t.Errorf("Test failed, expected: '%d', got:  '%d'", expected_usr, actual_usr)
 	}
 
 	if actual_grp != expected_grp {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", expected_grp, actual_grp)
+		t.Errorf("Test failed, expected: '%d', got:  '%d'", expected_grp, actual_grp)
 	}
 
 	rename := vr_name + "-renamed"
@@ -101,7 +108,7 @@ func TestVirtualRouter(t *testing.T){
 
 	vr.Info()
 
-	actual, _ = vr.XMLResource.XPath("/VROUTER/NAME")
+	actual = vr.Name
 
 	if actual != rename {
 		t.Errorf("Test failed, expected: '%s', got:  '%s'", rename, actual)
@@ -149,10 +156,13 @@ func TestVirtualRouter(t *testing.T){
 
 	vr.Info()
 
-	actual, _ = vr.XMLResource.XPath("/VROUTER/TEMPLATE/NIC/NETWORK")
-
-	if actual != "go-net" {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", "go-net", actual)
+	actualNet, err := vr.Template.Dynamic.GetContentByName("NETWORK")
+	if err != nil {
+		t.Errorf("Test failed, can't retrieve '%s', error: %s", "NETWORK", err.Error())
+	} else {
+		if actualNet != "go-net" {
+			t.Errorf("Test failed, expected: '%s', got:  '%s'", "go-net", actualNet)
+		}
 	}
 
 	vnet := NewVirtualNetwork(vnet_id)
@@ -174,9 +184,12 @@ func TestVirtualRouter(t *testing.T){
 
 	vr.Info()
 
-	actual, _ = vr.XMLResource.XPath("/VROUTER/LOCK/LOCKED")
-	if actual != "4" {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", "4", actual)
+	actualLock := vr.LockInfos
+	if actualLock == nil {
+		t.Errorf("Test failed, expected: '%s', got:  '%s'", "LockInfos", "nil")
+	}
+	if actualLock.Locked != 4 {
+		t.Errorf("Test failed, expected: '%d', got:  '%d'", 4, actualLock.Locked)
 	}
 
 	//Unlock VirtualRouter
@@ -188,9 +201,13 @@ func TestVirtualRouter(t *testing.T){
 
 	vr.Info()
 
-	actual, _= vr.XMLResource.XPath("/VROUTER/LOCK/LOCKED")
-	if actual != "" {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", "", actual)
+	actualLock = vr.LockInfos
+	if actualLock == nil {
+		t.Errorf("Test failed, expected: '%s', got:  '%s'", "LockInfos", "nil")
+	}
+	// XXX is it useful ? fail at previous part ?
+	if actualLock.Locked != 0 {
+		t.Errorf("Test failed, expected: '%d', got:  '%d'", 0, actualLock.Locked)
 	}
 
 	//Delete VirtualRouter

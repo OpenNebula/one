@@ -33,7 +33,7 @@ func ImageExpectState(image *Image, state string) func() bool {
 }
 
 // Helper to create a Image
-func createImage(t *testing.T) *Image {
+func createImage(t *testing.T) (*Image, uint) {
     // Datastore ID 1 means default for image
 	id, err := CreateImage(imageTpl, 1)
 	if err != nil {
@@ -48,26 +48,21 @@ func createImage(t *testing.T) *Image {
 		t.Error(err)
 	}
 
-	return image
+	return image, id
 }
 
 func TestImage(t *testing.T) {
-	image := createImage(t)
+	var err error
 
-	idParse, err := GetID(t, image, "IMAGE")
-	if err != nil {
-		t.Error(err)
-	}
+	image, idOrig := createImage(t)
 
-	if idParse != image.ID {
+	idParse := image.ID
+	if idParse != idOrig {
 		t.Errorf("Image ID does not match")
 	}
 
 	// Get image by Name
-	name, ok := image.XPath("/IMAGE/NAME")
-	if !ok {
-		t.Errorf("Could not get name")
-	}
+	name := image.Name
 
 	image, err = NewImageFromName(name)
 	if err != nil {
@@ -79,9 +74,8 @@ func TestImage(t *testing.T) {
 		t.Error(err)
 	}
 
-	idParse, err = GetID(t, image, "IMAGE")
-
-	if idParse != image.ID {
+	idParse = image.ID
+	if idParse != idOrig {
 		t.Errorf("Image ID does not match")
 	}
 
@@ -104,16 +98,10 @@ func TestImage(t *testing.T) {
 	}
 
 	// Get Image Owner Name
-	uname, ok := image.XPath("/IMAGE/UNAME")
-	if !ok {
-		t.Errorf("Could not get user name")
-	}
+	uname := image.UName
 
 	// Get Image owner group Name
-	gname, ok := image.XPath("/IMAGE/GNAME")
-	if !ok {
-		t.Errorf("Could not get group name")
-	}
+	gname := image.GName
 
     // Compare with caller username
     caller := strings.Split(client.token, ":")[0]
@@ -143,16 +131,10 @@ func TestImage(t *testing.T) {
 	}
 
 	// Get Image Owner Name
-	uname, ok = image.XPath("/IMAGE/UNAME")
-	if !ok {
-		t.Errorf("Could not get user name")
-	}
+	uname = image.UName
 
-	// Get Image Owner Name
-	gname, ok = image.XPath("/IMAGE/GNAME")
-	if !ok {
-		t.Errorf("Could not get user name")
-	}
+	// Get Image owner group Name
+	gname = image.GName
 
     if "serveradmin" != uname {
 		t.Error("Image owner is not oneadmin")

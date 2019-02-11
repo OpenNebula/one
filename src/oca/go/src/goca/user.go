@@ -1,15 +1,46 @@
 package goca
 
-// User represents an OpenNebula User
-type User struct {
-	XMLResource
-	ID   uint
-	Name string
-}
+import (
+	"encoding/xml"
+	"errors"
+)
 
 // UserPool represents an OpenNebula UserPool
 type UserPool struct {
-	XMLResource
+	Users             []userBase `xml:"USER"`
+	Quotas            []quotas   `xml:"QUOTAS"`
+	DefaultUserQuotas quotasList `xml:"DEFAULT_USER_QUOTAS"`
+}
+
+// User represents an OpenNebula user
+type User struct {
+	userBase
+	quotasList
+	DefaultUserQuotas quotasList `xml:"DEFAULT_USER_QUOTAS"`
+}
+
+// User represents an OpenNebula User
+type userBase struct {
+	ID          uint         `xml:"ID"`
+	GID         int          `xml:"GID"`
+	GroupsID    []int        `xml:"GROUPS>ID"`
+	GName       string       `xml:"GNAME"`
+	Name        string       `xml:"NAME"`
+	Password    string       `xml:"PASSWORD"`
+	AuthDriver  string       `xml:"AUTH_DRIVER"`
+	Enabled     int          `xml:"ENABLED"`
+	LoginTokens []loginToken `xml:"LOGIN_TOKEN"`
+	Template    userTemplate `xml:"TEMPLATE"`
+}
+
+type userTemplate struct {
+	Dynamic unmatchedTagsSlice `xml:",any"`
+}
+
+type loginToken struct {
+	Token          string `xml:"TOKEN"`
+	ExpirationTime int    `xml:"EXPIRATION_TIME"`
+	EGID           int    `xml:"EGID"`
 }
 
 // NewUserPool returns a user pool. A connection to OpenNebula is
@@ -20,28 +51,44 @@ func NewUserPool() (*UserPool, error) {
 		return nil, err
 	}
 
-	userpool := &UserPool{XMLResource{body: response.Body()}}
+	userpool := &UserPool{}
+	err = xml.Unmarshal([]byte(response.Body()), userpool)
+	if err != nil {
+		return nil, err
+	}
 
-	return userpool, err
+	return userpool, nil
 }
 
 // NewUser finds a user object by ID. No connection to OpenNebula.
 func NewUser(id uint) *User {
-	return &User{ID: id}
+	return &User{userBase: userBase{ID: id}}
 }
 
 // NewUserFromName finds a user object by name. It connects to
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the user.
 func NewUserFromName(name string) (*User, error) {
+	var id uint
+
 	userPool, err := NewUserPool()
 	if err != nil {
 		return nil, err
 	}
 
-	id, err := userPool.GetIDFromName(name, "/USER_POOL/USER")
-	if err != nil {
-		return nil, err
+	match := false
+	for i := 0; i < len(userPool.Users); i++ {
+		if userPool.Users[i].Name != name {
+			continue
+		}
+		if match {
+			return nil, errors.New("multiple resources with that name")
+		}
+		id = userPool.Users[i].ID
+		match = true
+	}
+	if !match {
+		return nil, errors.New("resource not found")
 	}
 
 	return NewUser(id), nil
@@ -133,6 +180,5 @@ func (user *User) Info() error {
 	if err != nil {
 		return err
 	}
-	user.body = response.Body()
-	return nil
+	return xml.Unmarshal([]byte(response.Body()), user)
 }

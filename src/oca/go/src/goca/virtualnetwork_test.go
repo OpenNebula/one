@@ -15,7 +15,7 @@ VN_MAD = "vxlan"
 `
 
 // Helper to create a Virtual Network
-func createVirtualNetwork(t *testing.T) *VirtualNetwork {
+func createVirtualNetwork(t *testing.T) (*VirtualNetwork, uint) {
 	id, err := CreateVirtualNetwork(vnTpl, -1)
 	if err != nil {
 		t.Error(err)
@@ -29,26 +29,21 @@ func createVirtualNetwork(t *testing.T) *VirtualNetwork {
 		t.Error(err)
 	}
 
-	return vnet
+	return vnet, id
 }
 
 func TestVirtualNetwork(t *testing.T) {
-	vnet := createVirtualNetwork(t)
+	var err error
 
-	idParse, err := GetID(t, vnet, "VNET")
-	if err != nil {
-		t.Error(err)
-	}
+	vnet, idOrig := createVirtualNetwork(t)
 
-	if idParse != vnet.ID {
+	idParse := vnet.ID
+	if idParse != idOrig {
 		t.Errorf("Virtual Network ID does not match")
 	}
 
 	// Get virtual network by Name
-	name, ok := vnet.XPath("/VNET/NAME")
-	if !ok {
-		t.Errorf("Could not get name")
-	}
+	name := vnet.Name
 
 	vnet, err = NewVirtualNetworkFromName(name)
 	if err != nil {
@@ -60,9 +55,8 @@ func TestVirtualNetwork(t *testing.T) {
 		t.Error(err)
 	}
 
-	idParse, err = GetID(t, vnet, "VNET")
-
-	if idParse != vnet.ID {
+	idParse = vnet.ID
+	if idParse != idOrig {
 		t.Errorf("Virtual Network ID does not match")
 	}
 
@@ -78,16 +72,10 @@ func TestVirtualNetwork(t *testing.T) {
 	}
 
 	// Get Virtual Network Owner Name
-	uname, ok := vnet.XPath("/VNET/UNAME")
-	if !ok {
-		t.Errorf("Could not get user name")
-	}
+	uname := vnet.UName
 
-	// Get Virtual Network owner group Name
-	gname, ok := vnet.XPath("/VNET/GNAME")
-	if !ok {
-		t.Errorf("Could not get group name")
-	}
+	// Get Image owner group Name
+	gname := vnet.GName
 
     // Compare with caller username
     caller := strings.Split(client.token, ":")[0]
@@ -117,16 +105,10 @@ func TestVirtualNetwork(t *testing.T) {
 	}
 
 	// Get Virtual Network Owner Name
-	uname, ok = vnet.XPath("/VNET/UNAME")
-	if !ok {
-		t.Errorf("Could not get user name")
-	}
+	uname = vnet.UName
 
-	// Get Virtual Network Owner Name
-	gname, ok = vnet.XPath("/VNET/GNAME")
-	if !ok {
-		t.Errorf("Could not get user name")
-	}
+	// Get Image owner group Name
+	gname = vnet.GName
 
     if "serveradmin" != uname {
 		t.Error("Virtual network owner is not oenadmin")

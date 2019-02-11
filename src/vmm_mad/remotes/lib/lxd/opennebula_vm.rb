@@ -196,6 +196,8 @@ class OpenNebulaVM
         disks = @xml.elements('//TEMPLATE/DISK')
 
         disks.each do |n|
+            next if volatile?(n)
+
             hash.update(disk(n, nil, nil))
         end
 
@@ -305,6 +307,13 @@ class OpenNebulaVM
         { disk_name => disk }
     end
 
+    # Return true if disk if volatile
+    def volatile?(disk)
+        return true if %w[fs swap].include? disk['TYPE']
+
+        false
+    end
+
     #---------------------------------------------------------------------------
     # Container Mapping: Extra Configuration & Profiles
     #---------------------------------------------------------------------------
@@ -340,7 +349,19 @@ class OpenNebulaVM
 
     def profile(hash)
         profile = @xml['//USER_TEMPLATE/LXD_PROFILE']
-        profile = 'default' if profile.empty?
+
+        if profile.empty?
+            profile = 'default'
+        else
+            begin
+                LXDClient.new.get("profiles/#{profile}")
+            rescue LXDError => e
+                raise e unless e.error_code == 404
+
+                OpenNebula.log_error "Profile \"#{profile}\" not found\n#{e}"
+                profile = 'default'
+            end
+        end
 
         hash['profiles'] = [profile]
     end
@@ -362,6 +383,7 @@ class OpenNebulaVM
 
         case signal
         when 'start'
+            # TODO: Allow to set vnc command on VM template
             command = @lxdrc[:vnc][:command]
             "#{data['PORT']} #{pass} lxc exec #{@vm_name} #{command}\n"
         when 'stop'

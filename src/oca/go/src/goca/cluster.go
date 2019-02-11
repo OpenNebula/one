@@ -1,15 +1,30 @@
 package goca
 
-// Cluster represents an OpenNebula Cluster
-type Cluster struct {
-	XMLResource
-	ID   uint
-	Name string
-}
+import (
+	"encoding/xml"
+	"errors"
+)
 
 // ClusterPool represents an OpenNebula ClusterPool
 type ClusterPool struct {
-	XMLResource
+	Clusters []Cluster `xml:"CLUSTER"`
+}
+
+// Cluster represents an OpenNebula Cluster
+type Cluster struct {
+	ID           uint            `xml:"ID"`
+	Name         string          `xml:"NAME"`
+	HostsID      []int           `xml:"HOSTS>ID"`
+	DatastoresID []int           `xml:"DATASTORES>ID"`
+	VnetsID      []int           `xml:"VNETS>ID"`
+	Template     clusterTemplate `xml:"TEMPLATE"`
+}
+
+type clusterTemplate struct {
+	// Example of reservation: https://github.com/OpenNebula/addon-storpool/blob/ba9dd3462b369440cf618c4396c266f02e50f36f/misc/reserved.sh
+	ReservedMem string             `xml:"RESERVED_MEM"`
+	ReservedCpu string             `xml:"RESERVED_CPU"`
+	Dynamic     unmatchedTagsSlice `xml:",any"`
 }
 
 // NewClusterPool returns a cluster pool. A connection to OpenNebula is
@@ -20,9 +35,13 @@ func NewClusterPool() (*ClusterPool, error) {
 		return nil, err
 	}
 
-	clusterpool := &ClusterPool{XMLResource{body: response.Body()}}
+	clusterPool := &ClusterPool{}
+	err = xml.Unmarshal([]byte(response.Body()), clusterPool)
+	if err != nil {
+		return nil, err
+	}
 
-	return clusterpool, err
+	return clusterPool, nil
 
 }
 
@@ -35,14 +54,26 @@ func NewCluster(id uint) *Cluster {
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the cluster.
 func NewClusterFromName(name string) (*Cluster, error) {
+	var id uint
+
 	clusterPool, err := NewClusterPool()
 	if err != nil {
 		return nil, err
 	}
 
-	id, err := clusterPool.GetIDFromName(name, "/CLUSTER_POOL/CLUSTER")
-	if err != nil {
-		return nil, err
+	match := false
+	for i := 0; i < len(clusterPool.Clusters); i++ {
+		if clusterPool.Clusters[i].Name != name {
+			continue
+		}
+		if match {
+			return nil, errors.New("multiple resources with that name")
+		}
+		id = clusterPool.Clusters[i].ID
+		match = true
+	}
+	if !match {
+		return nil, errors.New("resource not found")
 	}
 
 	return NewCluster(id), nil
@@ -129,6 +160,5 @@ func (cluster *Cluster) Info() error {
 	if err != nil {
 		return err
 	}
-	cluster.body = response.Body()
-	return nil
+	return xml.Unmarshal([]byte(response.Body()), cluster)
 }

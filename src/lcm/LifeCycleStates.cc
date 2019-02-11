@@ -20,7 +20,7 @@
 #include "VirtualMachineManager.h"
 #include "ImageManager.h"
 
-void LifeCycleManager::start_prolog_migrate(VirtualMachine* vm, int vid)
+void LifeCycleManager::start_prolog_migrate(VirtualMachine* vm)
 {
     int    cpu, mem, disk;
     vector<VectorAttribute *> pci;
@@ -64,7 +64,63 @@ void LifeCycleManager::start_prolog_migrate(VirtualMachine* vm, int vid)
 
     //----------------------------------------------------
 
-    tm->trigger(TMAction::PROLOG_MIGR,vid);
+    tm->trigger(TMAction::PROLOG_MIGR,vm->get_oid());
+}
+
+void LifeCycleManager::revert_migrate_after_failure(VirtualMachine* vm)
+{
+        int    cpu, mem, disk;
+        vector<VectorAttribute *> pci;
+
+        time_t the_time = time(0);
+
+        //----------------------------------------------------
+        //           RUNNING STATE FROM SAVE_MIGRATE
+        //----------------------------------------------------
+
+        vm->set_state(VirtualMachine::RUNNING);
+
+        vm->set_etime(the_time);
+
+        vm->set_vm_info();
+
+        vmpool->update_history(vm);
+
+        vm->get_requirements(cpu, mem, disk, pci);
+
+        if ( vm->get_hid() != vm->get_previous_hid() )
+        {
+            hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
+        }
+
+        vm->set_previous_etime(the_time);
+
+        vm->set_previous_vm_info();
+
+        vm->set_previous_running_etime(the_time);
+
+        vmpool->update_previous_history(vm);
+
+        // --- Add new record by copying the previous one
+
+        vm->cp_previous_history();
+
+        vm->set_stime(the_time);
+
+        vm->set_running_stime(the_time);
+
+        vm->set_last_poll(0);
+
+        vmpool->update_history(vm);
+
+        vmpool->update(vm);
+
+        vm->log("LCM", Log::INFO, "Fail to save VM state while migrating."
+                " Assuming that the VM is still RUNNING (will poll VM).");
+
+        //----------------------------------------------------
+
+        vmm->trigger(VMMAction::POLL,vm->get_oid());
 }
 
 /* -------------------------------------------------------------------------- */
@@ -84,7 +140,7 @@ void  LifeCycleManager::save_success_action(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::SAVE_MIGRATE )
     {
-        start_prolog_migrate(vm, vid);
+        start_prolog_migrate(vm);
     }
     else if (vm->get_lcm_state() == VirtualMachine::SAVE_SUSPEND)
     {
@@ -168,58 +224,7 @@ void  LifeCycleManager::save_failure_action(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::SAVE_MIGRATE )
     {
-        int    cpu, mem, disk;
-        vector<VectorAttribute *> pci;
-
-        time_t the_time = time(0);
-
-        //----------------------------------------------------
-        //           RUNNING STATE FROM SAVE_MIGRATE
-        //----------------------------------------------------
-
-        vm->set_state(VirtualMachine::RUNNING);
-
-        vm->set_etime(the_time);
-
-        vm->set_vm_info();
-
-        vmpool->update_history(vm);
-
-        vm->get_requirements(cpu, mem, disk, pci);
-
-        if ( vm->get_hid() != vm->get_previous_hid() )
-        {
-            hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
-        }
-
-        vm->set_previous_etime(the_time);
-
-        vm->set_previous_vm_info();
-
-        vm->set_previous_running_etime(the_time);
-
-        vmpool->update_previous_history(vm);
-
-        // --- Add new record by copying the previous one
-
-        vm->cp_previous_history();
-
-        vm->set_stime(the_time);
-
-        vm->set_running_stime(the_time);
-
-        vm->set_last_poll(0);
-
-        vmpool->update_history(vm);
-
-        vmpool->update(vm);
-
-        vm->log("LCM", Log::INFO, "Fail to save VM state while migrating."
-                " Assuming that the VM is still RUNNING (will poll VM).");
-
-        //----------------------------------------------------
-
-        vmm->trigger(VMMAction::POLL,vid);
+        revert_migrate_after_failure(vm);
     }
     else if ( vm->get_lcm_state() == VirtualMachine::SAVE_SUSPEND ||
               vm->get_lcm_state() == VirtualMachine::SAVE_STOP )
@@ -561,7 +566,7 @@ void  LifeCycleManager::shutdown_success_action(int vid)
     }
     else if (vm->get_lcm_state() == VirtualMachine::SAVE_MIGRATE)
     {
-        start_prolog_migrate(vm, vid);
+        start_prolog_migrate(vm);
     }
     else
     {
@@ -607,6 +612,10 @@ void  LifeCycleManager::shutdown_failure_action(int vid)
         //----------------------------------------------------
 
         vmm->trigger(VMMAction::POLL,vid);
+    }
+    else if (vm->get_lcm_state() == VirtualMachine::SAVE_MIGRATE)
+    {
+        revert_migrate_after_failure(vm);
     }
     else
     {

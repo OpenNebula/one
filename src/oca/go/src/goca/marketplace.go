@@ -1,17 +1,36 @@
 package goca
 
-import "errors"
-
-// MarketPlace represents an OpenNebula MarketPlace
-type MarketPlace struct {
-	XMLResource
-	ID   uint
-	Name string
-}
+import (
+	"encoding/xml"
+	"errors"
+)
 
 // MarketPlacePool represents an OpenNebula MarketPlacePool
 type MarketPlacePool struct {
-	XMLResource
+	MarketPlaces []MarketPlace `xml:"MARKETPLACE"`
+}
+
+// MarketPlace represents an OpenNebula MarketPlace
+type MarketPlace struct {
+	ID                 uint                `xml:"ID"`
+	UID                int                 `xml:"UID"`
+	GID                int                 `xml:"GID"`
+	UName              string              `xml:"UNAME"`
+	GName              string              `xml:"GNAME"`
+	Name               string              `xml:"NAME"`
+	MarketMad          string              `xml:"MARKET_MAD"`
+	ZoneID             string              `xml:"ZONE_ID"`
+	TotalMB            int                 `xml:"TOTAL_MB"`
+	FreeMB             int                 `xml:"FREE_MB"`
+	UsedMB             int                 `xml:"USED_MB"`
+	MarketPlaceAppsIDs []int               `xml:"MARKETPLACEAPPS>ID"`
+	Permissions        *Permissions        `xml:"PERMISSIONS"`
+	Template           marketPlaceTemplate `xml:"TEMPLATE"`
+}
+
+// MarketPlaceTemplate represent the template part of the MarketPlace
+type marketPlaceTemplate struct {
+	Dynamic unmatchedTagsSlice `xml:",any"`
 }
 
 // NewMarketPlacePool returns a marketplace pool. A connection to OpenNebula is
@@ -41,9 +60,13 @@ func NewMarketPlacePool(args ...int) (*MarketPlacePool, error) {
 		return nil, err
 	}
 
-	marketpool := &MarketPlacePool{XMLResource{body: response.Body()}}
+	marketPool := &MarketPlacePool{}
+	err = xml.Unmarshal([]byte(response.Body()), marketPool)
+	if err != nil {
+		return nil, err
+	}
 
-	return marketpool, err
+	return marketPool, nil
 }
 
 // NewMarketPlace finds a marketplace object by ID. No connection to OpenNebula.
@@ -55,14 +78,26 @@ func NewMarketPlace(id uint) *MarketPlace {
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the marketplace.
 func NewMarketPlaceFromName(name string) (*MarketPlace, error) {
+	var id uint
+
 	marketPool, err := NewMarketPlacePool()
 	if err != nil {
 		return nil, err
 	}
 
-	id, err := marketPool.GetIDFromName(name, "/MARKETPLACE_POOL/MARKETPLACE")
-	if err != nil {
-		return nil, err
+	match := false
+	for i := 0; i < len(marketPool.MarketPlaces); i++ {
+		if marketPool.MarketPlaces[i].Name != name {
+			continue
+		}
+		if match {
+			return nil, errors.New("multiple resources with that name")
+		}
+		id = marketPool.MarketPlaces[i].ID
+		match = true
+	}
+	if !match {
+		return nil, errors.New("resource not found")
 	}
 
 	return NewMarketPlace(id), nil
@@ -129,6 +164,5 @@ func (market *MarketPlace) Info() error {
 	if err != nil {
 		return err
 	}
-	market.body = response.Body()
-	return nil
+	return xml.Unmarshal([]byte(response.Body()), market)
 }

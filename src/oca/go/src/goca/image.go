@@ -1,20 +1,50 @@
 package goca
 
 import (
+	"encoding/xml"
 	"errors"
-	"strconv"
+	"fmt"
 )
-
-// Image represents an OpenNebula Image
-type Image struct {
-	XMLResource
-	ID   uint
-	Name string
-}
 
 // ImagePool represents an OpenNebula Image pool
 type ImagePool struct {
-	XMLResource
+	Images []Image `xml:"IMAGE"`
+}
+
+// Image represents an OpenNebula Image
+type Image struct {
+	ID              uint          `xml:"ID"`
+	UID             int           `xml:"UID"`
+	GID             int           `xml:"GID"`
+	UName           string        `xml:"UNAME"`
+	GName           string        `xml:"GNAME"`
+	Name            string        `xml:"NAME"`
+	LockInfos       *Lock         `xml:"LOCK"`
+	Permissions     *Permissions  `xml:"PERMISSIONS"`
+	Type            int           `xml:"TYPE"`
+	DiskType        int           `xml:"DISK_TYPE"`
+	PersistentValue int           `xml:"PERSISTENT"`
+	RegTime         int           `xml:"REGTIME"`
+	Source          string        `xml:"SOURCE"`
+	Path            string        `xml:"PATH"`
+	FsType          string        `xml:"FSTYPE"`
+	Size            int           `xml:"SIZE"`
+	StateRaw        int           `xml:"STATE"`
+	RunningVMs      int           `xml:"RUNNING_VMS"`
+	CloningOps      int           `xml:"CLONING_OPS"`
+	CloningID       int           `xml:"CLONING_ID"`
+	TargetSnapshot  int           `xml:"TARGET_SNAPSHOT"`
+	DatastoreID     int           `xml:"DATASTORE_ID"`
+	Datastore       string        `xml:"DATASTORE"`
+	VMsID           []int         `xml:"VMS>ID"`
+	ClonesID        []int         `xml:"CLONES>ID"`
+	AppClonesID     []int         `xml:"APP_CLONES>ID"`
+	Snapshots       ImageSnapshot `xml:"SNAPSHOTS"`
+	Template        imageTemplate `xml:"TEMPLATE"`
+}
+
+type imageTemplate struct {
+	Dynamic unmatchedTagsSlice `xml:",any"`
 }
 
 // ImageState is the state of the Image
@@ -55,6 +85,13 @@ const (
 	ImageLockUsedPers
 )
 
+func (st ImageState) isValid() bool {
+	if st >= ImageInit && st <= ImageLockUsedPers {
+		return true
+	}
+	return false
+}
+
 // String returns the string version of the ImageState
 func (s ImageState) String() string {
 	return [...]string{
@@ -84,7 +121,7 @@ func CreateImage(template string, dsid uint) (uint, error) {
 }
 
 // NewImagePool returns a new image pool. It accepts the scope of the query. It
-// performs an OpenNebula connectio to fetch the information.
+// performs an OpenNebula connection to fetch the information.
 func NewImagePool(args ...int) (*ImagePool, error) {
 	var who, start, end int
 
@@ -106,10 +143,13 @@ func NewImagePool(args ...int) (*ImagePool, error) {
 		return nil, err
 	}
 
-	imagepool := &ImagePool{XMLResource{body: response.Body()}}
+	imagePool := &ImagePool{}
+	err = xml.Unmarshal([]byte(response.Body()), imagePool)
+	if err != nil {
+		return nil, err
+	}
 
-	return imagepool, err
-
+	return imagePool, nil
 }
 
 // NewImage finds an image by ID returns a new Image object. At this stage no
@@ -122,14 +162,26 @@ func NewImage(id uint) *Image {
 // to OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the image.
 func NewImageFromName(name string) (*Image, error) {
+	var id uint
+
 	imagePool, err := NewImagePool()
 	if err != nil {
 		return nil, err
 	}
 
-	id, err := imagePool.GetIDFromName(name, "/IMAGE_POOL/IMAGE")
-	if err != nil {
-		return nil, err
+	match := false
+	for i := 0; i < len(imagePool.Images); i++ {
+		if imagePool.Images[i].Name != name {
+			continue
+		}
+		if match {
+			return nil, errors.New("multiple resources with that name")
+		}
+		id = imagePool.Images[i].ID
+		match = true
+	}
+	if !match {
+		return nil, errors.New("resource not found")
 	}
 
 	return NewImage(id), nil
@@ -141,29 +193,25 @@ func (image *Image) Info() error {
 	if err != nil {
 		return err
 	}
-	image.body = response.Body()
-	return nil
+	return xml.Unmarshal([]byte(response.Body()), image)
 }
 
 // State looks up the state of the image and returns the ImageState
 func (image *Image) State() (ImageState, error) {
-	stateString, ok := image.XPath("/IMAGE/STATE")
-	if ok != true {
-		return -1, errors.New("Unable to parse Image State")
+	state := ImageState(image.StateRaw)
+	if !state.isValid() {
+		return -1, fmt.Errorf("Image State: this state value is not currently handled: %d\n", image.StateRaw)
 	}
-
-	state, _ := strconv.Atoi(stateString)
-
-	return ImageState(state), nil
+	return state, nil
 }
 
 // StateString returns the state in string format
 func (image *Image) StateString() (string, error) {
-	state, err := image.State()
-	if err != nil {
-		return "", err
+	state := ImageState(image.StateRaw)
+	if !state.isValid() {
+		return "", fmt.Errorf("Image State: this state value is not currently handled: %d\n", image.StateRaw)
 	}
-	return ImageState(state).String(), nil
+	return state.String(), nil
 }
 
 // Clone clones an existing image. It returns the clone ID

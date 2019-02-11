@@ -985,6 +985,14 @@ public:
     // Timers & Requirements
     // ------------------------------------------------------------------------
     /**
+     *   @return time when the VM was created (in epoch)
+     */
+    time_t get_stime() const
+    {
+        return stime;
+    };
+
+    /**
      *  Gets time from last information polling.
      *    @return time of last poll (epoch) or 0 if never polled
      */
@@ -1274,8 +1282,7 @@ public:
      *    @param  uid for template owner
      *    @param  ar the AuthRequest object
      *    @param  tmpl the virtual machine template
-     *    @param  
-     * lock for check if the resource is lock or not
+     *    @param  check_lock for check if the resource is lock or not
      */
     static void set_auth_request(int uid, AuthRequest& ar,
             VirtualMachineTemplate *tmpl, bool check_lock);
@@ -1883,6 +1890,10 @@ private:
      *  @return a reference to the generated string
      */
     string& to_xml_extended(string& xml, int n_history) const;
+
+    string& to_json(string& json) const;
+
+    string& to_token(string& text) const;
 
     // -------------------------------------------------------------------------
     // Attribute Parser

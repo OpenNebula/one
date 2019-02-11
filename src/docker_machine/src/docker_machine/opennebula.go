@@ -521,8 +521,10 @@ func (d *Driver) GetIP() (string, error) {
 		return "", err
 	}
 
-	if ip, ok := vm.XPath("/VM/TEMPLATE/NIC/IP"); ok {
-		d.IPAddress = ip
+	if len(vm.Template.NIC) > 0 {
+		if vm.Template.NIC[0].IP != "" {
+			d.IPAddress = vm.Template.NIC[0].IP
+		}
 	}
 
 	if d.IPAddress == "" {

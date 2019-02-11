@@ -47,7 +47,10 @@ begin
 
     vm = VCenterDriver::VirtualMachine.new_one(vi_client, vm_ref, one_item)
 
-    vm.attach_nic
+    # Extract nic from driver action
+    nic = one_item.retrieve_xmlelements("TEMPLATE/NIC[ATTACH='YES']").first
+
+    vm.attach_nic(nic)
 rescue StandardError => e
     message = "Attach NIC for VM #{vm_ref} on vCenter cluster "\
               "#{vc_cluster_name} failed due to \"#{e.message}\"\n"

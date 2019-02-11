@@ -670,10 +670,9 @@ class VirtualMachine < VCenterDriver::Template
     # Create and reconfigure VM related methods
     ############################################################################
 
-    # This function creates a new VM from the @one_item XML and returns the
+    # This function creates a new VM from the driver_action XML and returns the
     # VMware ref
-    # @param one_item OpenNebula::VirtualMachine
-    # @param vi_client VCenterDriver::VIClient
+    # @param drv_action XML representing the deploy action
     # @return String vmware ref
     def clone_vm(drv_action)
         vcenter_name = get_vcenter_name
@@ -1050,7 +1049,7 @@ class VirtualMachine < VCenterDriver::Template
                 key = backing.port.portgroupKey
             end
 
-            @nics[key] = Nic.vc_nic(d)
+            @nics["#{key}#{d.key}"] = Nic.vc_nic(d)
         end
 
         @nics.reject{|k| k == :macs}
@@ -1163,8 +1162,8 @@ class VirtualMachine < VCenterDriver::Template
             return RbVmomi::VIM::VirtualVmxnet2
         when 'virtualvmxnet3', 'vmxnet3'
             return RbVmomi::VIM::VirtualVmxnet3
-        else # If none matches, use VirtualE1000
-            return RbVmomi::VIM::VirtualE1000
+        else # If none matches, use vmxnet3
+            return RbVmomi::VIM::VirtualVmxnet3
         end
     end
 
@@ -1217,10 +1216,17 @@ class VirtualMachine < VCenterDriver::Template
             if !unmanaged_nics.empty?
                 nics  = get_vcenter_nics
 
-                select = ->(name){
+                select_net =->(ref){
                     device = nil
                     nics.each do |nic|
-                        next unless nic.deviceInfo.summary == name
+                        type = nic.backing.class
+                        if type == NET_CARD
+                            nref = nic.backing.network._ref
+                        else
+                            nref = nic.backing.port.portgroupKey
+                        end
+
+                        next unless nref == ref
                         device = nic
                         break
                     end
@@ -1231,20 +1237,20 @@ class VirtualMachine < VCenterDriver::Template
                 }
 
                 unmanaged_nics.each do |unic|
-                    vnic  = select.call(unic['BRIDGE'])
-                    vcenter_nic_class    = vnic.class
-                    new_model = unic['MODEL'] && !unic['MODEL'].empty? && !unic['MODEL'].nil?
-                    opennebula_nic_class = nic_model_class(unic['MODEL']) if new_model
+                    vnic      = select_net.call(unic['VCENTER_NET_REF'])
+                    nic_class = vnic.class
+                    new_model = nic_model_class(unic['MODEL']) if unic['MODEL']
 
-                    if new_model && opennebula_nic_class != vcenter_nic_class
-                            # delete actual nic and update the new one.
+                    # delete actual nic and update the new one.
+                    if new_model && new_model != nic_class
                             device_change << { :device => vnic, :operation => :remove }
-                            device_change << calculate_add_nic_spec(unic)
+                            device_change << calculate_add_nic_spec(unic, vnic.unitNumber)
                     else
                             vnic.macAddress   = unic['MAC']
                             device_change << { :device => vnic, :operation => :edit }
                     end
                 end
+
             end
         rescue Exception => e
             raise "There is a problem with your vm NICS, make sure that they are working properly. Error: #{e.message}"
@@ -1363,13 +1369,20 @@ class VirtualMachine < VCenterDriver::Template
         device_change = []
 
         if option == :all
+            dchange = []
+
             # detached? condition indicates that the nic exists in OpeNebula but not
             # in vCenter
             nics_each(:detached?) do |nic|
-                device_change << {
+                dchange << {
                     :operation => :remove,
                     :device    => nic.vc_item
                 }
+            end
+            if !dchange.empty?
+                dspec_hash = { :deviceChange => dchange }
+                dspec = RbVmomi::VIM.VirtualMachineConfigSpec(dspec_hash)
+                @item.ReconfigVM_Task(:spec => dspec).wait_for_completion
             end
         end
 
@@ -1492,21 +1505,15 @@ class VirtualMachine < VCenterDriver::Template
     end
 
     # Returns an array of actions to be included in :deviceChange
-    def calculate_add_nic_spec(nic)
+    def calculate_add_nic_spec(nic, unumber = nil)
         mac     = nic["MAC"]
         pg_name = nic["BRIDGE"]
-        model   = ''
+        default = VCenterDriver::VIHelper.get_default('VM/TEMPLATE/NIC/MODEL')
+        tmodel  = one_item['USER_TEMPLATE/NIC_DEFAULT/MODEL']
 
-        if !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').nil? &&
-            !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').empty?
-            model = one_item['TEMPLATE/NIC_DEFAULT/MODEL']
-        elsif  (model.nil? || model.empty?) &&
-            !nic['MODEL'].nil? &&
-            !nic['MODEL'].empty?
-            model = nic['MODEL']
-        else
-            model = VCenterDriver::VIHelper.get_default('VM/TEMPLATE/NIC/MODEL')
-        end
+        model   = nic['MODEL'] || tmodel || default
+        raise 'nic model cannot be empty!' if model == ''
+
         vnet_ref  = nic["VCENTER_NET_REF"]
         backing   = nil
 
@@ -1539,24 +1546,7 @@ class VirtualMachine < VCenterDriver::Template
             card_num += 1 if is_nic?(dv)
         end
 
-        nic_card = case model
-                        when "virtuale1000", "e1000"
-                            RbVmomi::VIM::VirtualE1000
-                        when "virtuale1000e", "e1000e"
-                            RbVmomi::VIM::VirtualE1000e
-                        when "virtualpcnet32", "pcnet32"
-                            RbVmomi::VIM::VirtualPCNet32
-                        when "virtualsriovethernetcard", "sriovethernetcard"
-                            RbVmomi::VIM::VirtualSriovEthernetCard
-                        when "virtualvmxnetm", "vmxnetm"
-                            RbVmomi::VIM::VirtualVmxnetm
-                        when "virtualvmxnet2", "vmnet2"
-                            RbVmomi::VIM::VirtualVmxnet2
-                        when "virtualvmxnet3", "vmxnet3"
-                            RbVmomi::VIM::VirtualVmxnet3
-                        else # If none matches, use VirtualE1000
-                            RbVmomi::VIM::VirtualE1000
-                   end
+        nic_card = nic_model_class(model)
 
         if network.class == RbVmomi::VIM::Network
             backing = RbVmomi::VIM.VirtualEthernetCardNetworkBackingInfo(
@@ -1573,7 +1563,13 @@ class VirtualMachine < VCenterDriver::Template
         end
 
         # grab the last unitNumber to ensure the nic to be added at the end
-        @unic = @unic || get_vcenter_nics.map{|d| d.unitNumber}.max rescue 0
+        if !unumber
+            @unic   = @unic || get_vcenter_nics.map{|d| d.unitNumber}.max || 0
+            unumber = @unic += 1
+        else
+            @unic   = unumber
+        end
+
         card_spec = {
             :key => 0,
             :deviceInfo => {
@@ -1583,7 +1579,7 @@ class VirtualMachine < VCenterDriver::Template
             :backing     => backing,
             :addressType => mac ? 'manual' : 'generated',
             :macAddress  => mac,
-            :unitNumber  => @unic+=1
+            :unitNumber  => unumber
         }
 
         if (limit || rsrv) && (limit > 0)
@@ -1609,17 +1605,11 @@ class VirtualMachine < VCenterDriver::Template
     def calculate_add_nic_spec_autogenerate_mac(nic)
         pg_name = nic["BRIDGE"]
         model   = ''
+        default = VCenterDriver::VIHelper.get_default('VM/TEMPLATE/NIC/MODEL')
+        tmodel  = one_item['USER_TEMPLATE/NIC_DEFAULT/MODEL']
 
-        if !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').nil? &&
-            !one_item.retrieve_xmlelements('TEMPLATE/NIC_DEFAULT/MODEL').empty?
-            model = one_item['TEMPLATE/NIC_DEFAULT/MODEL']
-        elsif  (model.nil? || model.empty?) &&
-            !nic['MODEL'].nil? &&
-            !nic['MODEL'].empty?
-            model = nic['MODEL']
-        else
-            model = VCenterDriver::VIHelper.get_default('VM/TEMPLATE/NIC/MODEL')
-        end
+        model   = nic['MODEL'] || tmodel || default
+
         vnet_ref  = nic["VCENTER_NET_REF"]
         backing   = nil
 
@@ -1651,24 +1641,7 @@ class VirtualMachine < VCenterDriver::Template
             card_num += 1 if is_nic?(dv)
         end
 
-        nic_card = case model
-                        when "virtuale1000", "e1000"
-                            RbVmomi::VIM::VirtualE1000
-                        when "virtuale1000e", "e1000e"
-                            RbVmomi::VIM::VirtualE1000e
-                        when "virtualpcnet32", "pcnet32"
-                            RbVmomi::VIM::VirtualPCNet32
-                        when "virtualsriovethernetcard", "sriovethernetcard"
-                            RbVmomi::VIM::VirtualSriovEthernetCard
-                        when "virtualvmxnetm", "vmxnetm"
-                            RbVmomi::VIM::VirtualVmxnetm
-                        when "virtualvmxnet2", "vmnet2"
-                            RbVmomi::VIM::VirtualVmxnet2
-                        when "virtualvmxnet3", "vmxnet3"
-                            RbVmomi::VIM::VirtualVmxnet3
-                        else # If none matches, use VirtualE1000
-                            RbVmomi::VIM::VirtualE1000
-                   end
+        nic_card = nic_model_class(model)
 
         if network.class == RbVmomi::VIM::Network
             backing = RbVmomi::VIM.VirtualEthernetCardNetworkBackingInfo(
@@ -1714,17 +1687,13 @@ class VirtualMachine < VCenterDriver::Template
     end
 
     # Add NIC to VM
-    def attach_nic
+    def attach_nic(one_nic)
         spec_hash = {}
-        nic = nil
-
-        # Extract nic from driver action
-        nic = one_item.retrieve_xmlelements("TEMPLATE/NIC[ATTACH='YES']").first
 
         begin
             # A new NIC requires a vcenter spec
             attach_nic_array = []
-            attach_nic_array << calculate_add_nic_spec(nic)
+            attach_nic_array << calculate_add_nic_spec(one_nic)
             spec_hash[:deviceChange] = attach_nic_array if !attach_nic_array.empty?
 
             # Reconfigure VM
@@ -1738,12 +1707,9 @@ class VirtualMachine < VCenterDriver::Template
     end
 
     # Detach NIC from VM
-    def detach_nic
+    def detach_nic(mac)
         spec_hash = {}
 
-        # Extract nic from driver action
-        one_nic = one_item.retrieve_xmlelements("TEMPLATE/NIC[ATTACH='YES']").first
-        mac = one_nic["MAC"]
         nic = nic(mac) rescue nil
 
         return if !nic || nic.no_exists?
@@ -2452,7 +2418,8 @@ class VirtualMachine < VCenterDriver::Template
 
         begin
             # retrieve host from DRS
-            resourcepool = config[:cluster].resourcePool
+            one_cluster = config[:cluster]
+            resourcepool = one_cluster.item.resourcePool
             datastore    = config[:datastore]
 
             if datastore
@@ -2460,6 +2427,18 @@ class VirtualMachine < VCenterDriver::Template
                     pool:      resourcepool,
                     datastore: datastore,
                 }
+
+                if config[:esx_migration_list].is_a?(String)
+                    if config[:esx_migration_list]==""
+                        relocate_spec_params[:host] = config[:cluster].item.host.sample
+                    elsif config[:esx_migration_list]!="Selected_by_DRS"
+                        hostnames = config[:esx_migration_list].split(' ')
+                        hostname = hostnames.sample
+                        host_moref = one_cluster.hostname_to_moref(hostname)
+                        relocate_spec_params[:host] = host_moref
+                    end
+                end
+
 
                 relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(relocate_spec_params)
                 @item.RelocateVM_Task(spec: relocate_spec, priority: "defaultPriority").wait_for_completion
@@ -2914,7 +2893,13 @@ class VirtualMachine < VCenterDriver::Template
         return one_vm
     end
 
-    def self.migrate_routine(vm_id, src_host, dst_host, ds = nil)
+    # Migrate a VM to another cluster and/or datastore
+    # @params [int] vm_id ID of the VM to be migrated
+    # params [String] src_host Name of the source cluster
+    # params [String] dst_host Name of the target cluster
+    # params [Bool] hot_ds Wether this is a DS migration with the VM running or not
+    # params [int] ds Destination datastore ID
+    def self.migrate_routine(vm_id, src_host, dst_host, hot_ds = false, ds = nil)
         one_client = OpenNebula::Client.new
         pool = OpenNebula::HostPool.new(one_client)
         pool.info
@@ -2939,14 +2924,29 @@ class VirtualMachine < VCenterDriver::Template
         vm.info
         dst_host.info
 
+        esx_migration_list = dst_host['/HOST/TEMPLATE/ESX_MIGRATION_LIST']
+
         # required vcenter objects
         vc_vm = VCenterDriver::VirtualMachine.new_without_id(vi_client, vm['/VM/DEPLOY_ID'])
+
+        vc_vm.vm_id = vm_id
+        error = !vc_vm.disks_each(:managed?).empty? && !ds.nil?
+        # We know this comes from a migration from poweroff state (not a poweroff migration)
+        # since all the other cases are treated in vmm drivers: save, migrate and shutdown
+        raise 'datastore migration from poweroff state with managed disks is not supported' if error
+
         ccr_ref  = dst_host['/HOST/TEMPLATE/VCENTER_CCR_REF']
-        vc_host  = VCenterDriver::ClusterComputeResource.new_from_ref(ccr_ref, vi_client).item
+        vc_host  = VCenterDriver::ClusterComputeResource.new_from_ref(ccr_ref, vi_client)
 
         config = { :cluster => vc_host }
 
         config[:datastore] = datastore if datastore
+        if hot_ds
+            config[:esx_migration_list] = esx_migration_list if esx_migration_list
+        else
+            config[:esx_migration_list] = "Selected_by_DRS"
+        end
+
         vc_vm.migrate(config)
 
         vm.replace({ 'VCENTER_CCR_REF' => ccr_ref})
@@ -3016,7 +3016,9 @@ class VirtualMachine < VCenterDriver::Template
         id = one_item["ID"] || one_item["VM/ID"] rescue -1
 
         self.new(vi_client, ref, id).tap do |vm|
-            vm.one_item = one_item
+            if one_item.instance_of?(OpenNebula::VirtualMachine)
+                vm.one_item = one_item
+            end
         end
     end
 

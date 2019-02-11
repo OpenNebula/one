@@ -45,18 +45,21 @@ begin
     one_client = OpenNebula::Client.new
     vm = OpenNebula::VirtualMachine.new_with_id(vmid, one_client)
     vm.info
+
     src_ds = vm.retrieve_elements("HISTORY_RECORDS/HISTORY/DS_ID")[-2]
 
     if src_ds == dsid
         VCenterDriver::VirtualMachine.migrate_routine(vmid, host_orig,  host_dest)
     else
-        VCenterDriver::VirtualMachine.migrate_routine(vmid, host_orig,  host_dest, dsid)
+        VCenterDriver::VirtualMachine.migrate_routine(vmid, host_orig,  host_dest, false, dsid)
     end
 
 rescue StandardError => e
-    message = "Cannot migrate for VM #{vmid}"\
-              'failed due to '\
+    message = "Cannot migrate for VM #{vmid}. "\
+              'Failed due to '\
               "\"#{e.message}\"\n"
     OpenNebula.log_error(message)
+    STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
+
     exit(-1)
 end

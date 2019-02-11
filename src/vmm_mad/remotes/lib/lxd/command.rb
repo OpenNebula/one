@@ -32,21 +32,12 @@ module Command
         begin
             fd = lock if block
 
-            Open3.popen3(cmd) {|i, o, e, t|
-                rc = t.value.exitstatus
-
-                stdout = o.read
-                stderr = e.read
-
-                o.close
-                e.close
-            }
-        rescue
+            stdout, stderr, s = Open3.capture3(cmd)
         ensure
             unlock(fd) if block
         end
 
-        [rc, stdout, stderr]
+        [s.exitstatus, stdout, stderr]
     end
 
     def self.execute_once(cmd, lock)

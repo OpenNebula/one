@@ -198,6 +198,13 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         :format     => String
     }
 
+    SEARCH = {
+        :name       => "search",
+        :large      => "--search search",
+        :description=> "query in KEY=VALUE format",
+        :format     => String
+    }
+
     def self.rname
         "VM"
     end

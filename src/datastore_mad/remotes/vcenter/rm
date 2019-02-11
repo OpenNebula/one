@@ -88,7 +88,9 @@ rescue Exception => e
     if !e.message.start_with?('FileNotFound')
         message = "Error deleting virtual disk #{img_src}."\
                   " Reason: \"#{e.message}\"\n#{e.backtrace}"
-        STDERR.puts error_message(message)
+        OpenNebula.log_error(message)
+        STDERR.puts "#{message} #{e.backtrace}" if VCenterDriver::CONFIG[:debug_information]
+
         exit -1
     end
 ensure

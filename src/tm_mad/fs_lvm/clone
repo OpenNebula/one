@@ -37,6 +37,7 @@ DRIVER_PATH=$(dirname $0)
 
 source $TMCOMMON
 source ${DRIVER_PATH}/../../datastore/libfs.sh
+source ${DRIVER_PATH}/../../etc/tm/fs_lvm/fs_lvm.conf
 
 #-------------------------------------------------------------------------------
 # Set dst path and dir
@@ -129,10 +130,12 @@ CLONE_CMD=$(cat <<EOF
     hostname -f >"${DST_DIR}/.host" || :
 
     # zero trailing space
+    if [ "${ZERO_LVM_ON_CREATE}" = "yes" ]; then
     LVSIZE=\$(${SUDO} ${LVS} --nosuffix --noheadings --units B -o lv_size "${DEV}" | tr -d '[:blank:]')
     ${DD} if=/dev/zero of="${DEV}" bs=64k \
         oflag=seek_bytes iflag=count_bytes \
         seek="${ZERO_SEEK_BYTES}" count="\$(( LVSIZE - ${ZERO_SEEK_BYTES} ))"
+    fi
 
     $QEMU_IMG convert -O raw "$SRC_PATH" "$DEV"
     rm -f "$DST_PATH"
@@ -142,4 +145,5 @@ EOF
 
 ssh_exec_and_log "$DST_HOST" "$CLONE_CMD" \
         "Error cloning $SRC_PATH to $LV_NAME"
+hup_collectd $DST_HOST
 exit 0

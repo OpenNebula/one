@@ -19,6 +19,7 @@
 $LOAD_PATH.unshift File.dirname(__FILE__)
 
 require 'mapper'
+require 'tmpdir'
 
 # Ceph RBD mapper
 class RBDMapper < Mapper
@@ -32,12 +33,20 @@ class RBDMapper < Mapper
 
         cmd = "#{COMMANDS[:rbd]} #{@ceph_user} map #{dsrc}"
 
-        rc, out, err = Command.execute(cmd, false)
+        rc, out, err = Command.execute(cmd, true)
 
-        return out.chomp if rc.zero?
+        unless rc.zero?
 
-        OpenNebula.log_error("#{__method__}: #{err}")
-        nil
+            OpenNebula.log_error("#{__method__}: #{err}")
+            return
+        end
+
+        # TODO: improve wait condition
+        sleep 1 # wait for partition table
+
+        device = out.chomp
+        try_mount(device)
+        device
     end
 
     def do_unmap(device, _one_vm, _disk, _directory)
@@ -49,6 +58,15 @@ class RBDMapper < Mapper
 
         OpenNebula.log_error("#{__method__}: #{err}")
         nil
+    end
+
+    private
+
+    # This function tries to mount mapped devices to force update of partition
+    # tables
+    def try_mount(dev)
+        cmd = "#{COMMANDS[:mount]} --fake #{dev} /mnt"
+        Command.execute(cmd, false)
     end
 
 end

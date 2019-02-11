@@ -27,15 +27,10 @@
         </xs:element>
         <xs:element name="LAST_POLL" type="xs:integer"/>
 
-        <!-- STATE values,
-        see http://docs.opennebula.org/stable/user/references/vm_states.html
+        <!-- STATE and LCM_STATE values,
+        see http://docs.opennebula.org/5.6/operation/references/vm_states.html#list-of-states
         -->
         <xs:element name="STATE" type="xs:integer"/>
-
-        <!-- LCM_STATE values, this sub-state is relevant only when STATE is
-             ACTIVE (4)
-        see http://docs.opennebula.org/stable/user/references/vm_states.html
-        -->
         <xs:element name="LCM_STATE" type="xs:integer"/>
         <xs:element name="PREV_STATE" type="xs:integer"/>
         <xs:element name="PREV_LCM_STATE" type="xs:integer"/>

@@ -132,7 +132,7 @@ class VNTemplateClone : public RequestManagerClone
 public:
     VNTemplateClone():
         RequestManagerClone("one.vntemplate.clone",
-                "Clone a virtual network template", "A:sisb")
+                "Clone a virtual network template", "A:sis")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vntpool();
@@ -144,9 +144,9 @@ public:
     ~VNTemplateClone(){};
 
     ErrorCode request_execute(int source_id, const string &name, int &new_id,
-            bool recursive, const string& s_uattrs, RequestAttributes& att)
+            const string& s_uattrs, RequestAttributes& att)
     {
-        return clone(source_id, name, new_id, recursive, s_uattrs, att);
+        return clone(source_id, name, new_id, false, s_uattrs, att);
     };
 
 protected:

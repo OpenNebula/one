@@ -22,7 +22,9 @@ module OneProvision
         class << self
 
             # Mutex to synchronize console output
+            # rubocop:disable Style/ClassVars
             @@mutex = Mutex.new
+            # rubocop:enable Style/ClassVars
 
             # Retry the operation in case of failure
             #
