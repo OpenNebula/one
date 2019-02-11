@@ -20,6 +20,7 @@ $LOAD_PATH.unshift File.dirname(__FILE__)
 
 require 'fileutils'
 require 'json'
+require 'tmpdir'
 
 require 'opennebula_vm'
 require 'command'
@@ -256,6 +257,7 @@ class Mapper
     # @param partitions [Array] with partition device names
     # @param path [String] to directory to mount the disk partitions
     def mount(partitions, path)
+        # TODO: Unmap device if mount fails
         # Single partition
         # ----------------
         return  mount_dev(partitions[0]['path'], path) if partitions.size == 1
@@ -263,9 +265,12 @@ class Mapper
         # Multiple partitions
         # -------------------
         fstab = find_fstab(partitions, path)
-        return unless fstab
 
-        parse_fstab(partitions, path, fstab)
+        if fstab
+            parse_fstab(partitions, path, fstab)
+        else
+            guess_root(partitions, path)
+        end
     end
 
     # --------------------------------------------------------------------------
@@ -450,8 +455,42 @@ class Mapper
         return fstab unless fstab.empty?
 
         OpenNebula.log_error('No fstab file found')
-        # TODO: Unmap device
+
         false
+    end
+
+    # Extracts a seemingly root partition of the partition table
+    def guess_root(partitions, path)
+        OpenNebula.log('Guessing root partition')
+
+        dir = Dir.mktmpdir
+        root = false
+
+        partitions.each do |p|
+            rc = mount_dev(p['path'], dir)
+            next unless rc
+
+            _rc, o, _e = Command.execute("ls #{dir}", false)
+
+            # Check if if partition contains a rootfs layout
+            layout = o.split("\n")
+
+            if (layout & %w[bin boot dev]).any?
+                root = true
+
+                umount_dev(p['path'])
+                mount_dev(p['path'], path)
+
+                OpenNebula.log("Trying partition /dev/#{p['name']} as /")
+                break
+            end
+
+            umount_dev(p['path'])
+            next
+        end
+
+        FileUtils.remove_entry(dir)
+        root
     end
 
     # Parse fstab contents & mount partitions
