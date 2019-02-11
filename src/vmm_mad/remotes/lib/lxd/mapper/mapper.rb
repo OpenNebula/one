@@ -92,7 +92,7 @@ class Mapper
     # @param disk [XMLElement] with the disk data
     # @param directory [String] where the disk has to be mounted
     #
-    # @return nil 
+    # @return nil
     def do_unmap(device, one_vm, disk, directory)
         OpenNebula.log_error("unmap function not implemented for #{self.class}")
         return nil
@@ -266,7 +266,7 @@ class Mapper
         return unless fstab
 
         parse_fstab(partitions, path, fstab)
-            end
+    end
 
     # --------------------------------------------------------------------------
     # Functions to mount/umount devices
@@ -374,10 +374,12 @@ class Mapper
         false
     end
 
+    # Extracts the partiton table from a device
     def show_parts(device)
         action_parts(device, '-s -av')
     end
 
+    # Hides the partiton table from a device
     def hide_parts(device)
         action_parts(device, '-d')
     end
@@ -397,7 +399,7 @@ class Mapper
         _rc, out, _err = Command.execute("#{COMMANDS[:lsblk]} -J", false)
 
         if out.include?(path)
-            OpenNebula.log_error("mount_dev: Mount detected in #{path}")
+            OpenNebula.log_error("#{__method__}: Mount detected in #{path}")
             return true
         end
         false
