@@ -21,9 +21,9 @@ class LXDConfiguration < Hash
 
     DEFAULT_CONFIGURATION = {
         :vnc => {
-            :command => '/bin/bash',
-            :width   => '800',
-            :height  => '600',
+            :command => '/bin/login',
+            :width => '800',
+            :height => '600',
             :timeout => '300'
         },
         :datastore_location => '/var/lib/one/datastores'
@@ -36,7 +36,7 @@ class LXDConfiguration < Hash
 
         begin
             merge!(YAML.load_file("#{__dir__}/#{LXDRC}"))
-        rescue => e
+        rescue StandardError => e
             OpenNebula.log_error e
         end
     end
@@ -147,15 +147,15 @@ class OpenNebulaVM
         eth = {
             'name' => "eth#{info['NIC_ID']}",
             'host_name' => info['TARGET'],
-            'parent'    => info['BRIDGE'],
-            'hwaddr'    => info['MAC'],
-            'nictype'   => 'bridged',
-            'type'      => 'nic'
+            'parent' => info['BRIDGE'],
+            'hwaddr' => info['MAC'],
+            'nictype' => 'bridged',
+            'type' => 'nic'
         }
 
         nic_map = {
             'limits.ingress' => 'INBOUND_AVG_BW',
-            'limits.egress'  => 'OUTBOUND_AVG_BW'
+            'limits.egress' => 'OUTBOUND_AVG_BW'
         }
 
         io_map(nic_map, eth, info) {|v| "#{v.to_i * 8}kbit" }
@@ -183,7 +183,7 @@ class OpenNebulaVM
         end
     end
 
-    def get_context_disk()
+    def get_context_disk
         @xml.element('//TEMPLATE/CONTEXT')
     end
 
@@ -213,9 +213,9 @@ class OpenNebulaVM
         source = disk_mountpoint(cid)
 
         hash['context'] = {
-            'type'   => 'disk',
+            'type' => 'disk',
             'source' => source,
-            'path'   => '/context'
+            'path' => '/context'
         }
     end
 
@@ -288,7 +288,7 @@ class OpenNebulaVM
 
         if tbytes.empty? && tiops.empty?
             disk_map = {
-                'limits.read'  => 'READ_BYTES_SEC',
+                'limits.read' => 'READ_BYTES_SEC',
                 'limits.write' => 'WRITE_BYTES_SEC'
             }
 
@@ -296,7 +296,7 @@ class OpenNebulaVM
 
             if !mapped
                 disk_map = {
-                    'limits.read'  => 'READ_IOPS_SEC',
+                    'limits.read' => 'READ_IOPS_SEC',
                     'limits.write' => 'WRITE_IOPS_SEC'
                 }
 
@@ -320,7 +320,7 @@ class OpenNebulaVM
     def extra_config(hash)
         security = {
             'security.privileged' => 'false',
-            'security.nesting'    => 'false'
+            'security.nesting' => 'false'
         }
 
         security.each_key do |key|
@@ -340,7 +340,7 @@ class OpenNebulaVM
         if !data.empty? && type.casecmp('lxd').zero?
             begin
                 raw_data = JSON.parse("{#{data}}")
-            rescue
+            rescue StandardError
             end
         end
 
@@ -383,8 +383,9 @@ class OpenNebulaVM
 
         case signal
         when 'start'
-            # TODO: Allow to set vnc command on VM template
             command = @lxdrc[:vnc][:command]
+            command = data['COMMAND'] if data['COMMAND']
+
             "#{data['PORT']} #{pass} lxc exec #{@vm_name} #{command}\n"
         when 'stop'
             "-#{data['PORT']}\n"
