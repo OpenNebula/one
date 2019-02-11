@@ -24,7 +24,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
     TEMPLATE_XPATH = '//HOST/TEMPLATE'
     HYBRID = {
         :ec2 => {
-            :help => <<-EOT.unindent,
+            :help => <<-EOT.unindent
                 #-----------------------------------------------------------------------
                 # Supported EC2 AUTH ATTRIBUTTES:
                 #
@@ -46,7 +46,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
             EOT
         },
         :az => {
-            :help => <<-EOT.unindent,
+            :help => <<-EOT.unindent
                 #-----------------------------------------------------------------------
                 # Supported AZURE AUTH ATTRIBUTTES:
                 #
