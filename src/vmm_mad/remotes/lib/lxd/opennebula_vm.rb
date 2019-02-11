@@ -384,7 +384,7 @@ class OpenNebulaVM
         case signal
         when 'start'
             command = @lxdrc[:vnc][:command]
-            command = data['COMMAND'] if data['COMMAND']
+            command = data['COMMAND'] unless data['COMMAND'].empty?
 
             "#{data['PORT']} #{pass} lxc exec #{@vm_name} #{command}\n"
         when 'stop'
