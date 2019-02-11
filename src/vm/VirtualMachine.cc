@@ -1532,7 +1532,7 @@ static int get_datastore_requirements(Template *tmpl, set<int>& ds_ids,
 
             int rc = check_and_set_datastores_id(csystem_ds, ds_ids);
 
-            if ( rc != 0 )
+            if ( rc == -1 )
             {
                 incomp_id = i;
                 goto error_disk;
@@ -1575,6 +1575,11 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
     }
 
     rc = get_datastore_requirements(obj_template, datastore_ids, error_str);
+
+    if (rc == -1)
+    {
+        return -1;
+    }
 
     if ( !cluster_ids.empty() )
     {
