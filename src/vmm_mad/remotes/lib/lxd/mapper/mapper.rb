@@ -289,8 +289,6 @@ class Mapper
         rc, _out, err = Command.execute("#{COMMANDS[:mount]} #{dev} #{path}", true)
 
         if rc != 0
-            return true if err.include?("unknown filesystem type 'swap'")
-
             OpenNebula.log_error("mount_dev: #{err}")
             return false
         end
@@ -428,6 +426,7 @@ class Mapper
             OpenNebula.log("Looking for fstab on #{p['path']}")
 
             rc = mount_dev(p['path'], path)
+            next unless rc
 
             bin = COMMANDS[:catfstab]
             bin = COMMANDS[:cat] unless path.include?('containers/one-')
