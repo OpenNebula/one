@@ -10,6 +10,7 @@
   when: opennebula_node_kvm_manage_kvm == True
 
 - include: libvirt.yml
+- include: security.yml
 
 - name: "create datastore for ONE_LOCATION"
   file: path={{ one_location }}/var/datastores owner=oneadmin group=oneadmin state=directory

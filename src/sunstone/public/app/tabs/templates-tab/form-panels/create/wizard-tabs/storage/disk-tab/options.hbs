@@ -2,7 +2,7 @@
   <div class="medium-6 columns hypervisor only_kvm">
     <label for="TARGET">
       {{tr "Target device"}}
-      {{{tip (tr "Device to map image disk. If set, it will overwrite the default device mapping.")}}}
+      {{{tip (tr "Device to map image disk. If set, it will overwrite the default device mapping. In LXD this setting specifies a disk mount point like /mnt.")}}}
     </label>
     <input type="text" wizard_field="TARGET" id="TARGET" name="target" placeholder="sdc"/>
   </div>
@@ -21,7 +21,7 @@
   </div>
 </div>
 <div class="row">
-  <div class="medium-6 columns hypervisor only_kvm">
+  <div class="medium-6 columns hypervisor only_kvm not_lxd">
     <label>
       {{tr "BUS"}}
       <select id="disk_dev_prefix" name="disk_dev_prefix">
@@ -72,7 +72,7 @@
   </div>
 </div>
 <div class="row vm_param">
-  <div class="medium-6 columns hypervisor only_kvm">
+  <div class="medium-6 columns hypervisor only_kvm not_lxd">
     <label for="CACHE">
       {{tr "Cache"}}
     </label>
@@ -86,7 +86,7 @@
       <option value="unsafe">unsafe</option>
     </select>
   </div>
-  <div class="medium-6 columns hypervisor only_kvm">
+  <div class="medium-6 columns hypervisor only_kvm not_lxd">
     <label for="IO">
       {{tr "IO policy"}}
     </label>
@@ -96,7 +96,7 @@
       <option value="native">native</option>
     </select>
   </div>
-  <div class="medium-6 columns hypervisor only_kvm">
+  <div class="medium-6 columns hypervisor only_kvm not_lxd">
     <label for="DISCARD">
       {{tr "Discard"}}
     </label>
