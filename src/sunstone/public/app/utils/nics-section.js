@@ -15,25 +15,25 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Locale = require('utils/locale');
-  var Tips = require('utils/tips');
-  var Notifier = require('utils/notifier');
-  var OpenNebula = require('opennebula');
-  var OpenNebulaTemplate = require('opennebula/template');
-  var TemplateSection = require('hbs!./nics-section/html');
-  var TemplateDD = require('hbs!./nics-section/dd');
-  var SecurityGroupsTable = require('tabs/secgroups-tab/datatable');
-  var VNetsTable = require('tabs/vnets-tab/datatable');
-  var TemplateUtils = require('utils/template-utils');
+  var Locale = require("utils/locale");
+  var Tips = require("utils/tips");
+  var Notifier = require("utils/notifier");
+  var OpenNebula = require("opennebula");
+  var OpenNebulaTemplate = require("opennebula/template");
+  var TemplateSection = require("hbs!./nics-section/html");
+  var TemplateDD = require("hbs!./nics-section/dd");
+  var SecurityGroupsTable = require("tabs/secgroups-tab/datatable");
+  var VNetsTable = require("tabs/vnets-tab/datatable");
+  var TemplateUtils = require("utils/template-utils");
 
   var provision_nic_accordion_dd_id = 0;
   var nicId = 0;
   var _nics = [];
 
   return {
-    'insert': _insert,
-    'retrieve': _retrieve
-  }
+    "insert": _insert,
+    "retrieve": _retrieve
+  };
 
   /**
    * Inserts the section into the context container
@@ -62,7 +62,7 @@ define(function(require) {
 
     try {
       if (OpenNebulaTemplate.isNetworkChangeEnabled(template_json)) {
-        var template_nic = template_json.VMTEMPLATE.TEMPLATE.NIC
+        var template_nic = template_json.VMTEMPLATE.TEMPLATE.NIC;
 
         var nics = [];
 
@@ -86,7 +86,7 @@ define(function(require) {
           }
         });
 
-        var template_alias = template_json.VMTEMPLATE.TEMPLATE.NIC_ALIAS
+        var template_alias = template_json.VMTEMPLATE.TEMPLATE.NIC_ALIAS;
         var alias = [];
 
         if ($.isArray(template_alias)){
@@ -238,7 +238,7 @@ define(function(require) {
       nics.push(nic);
     });
 
-    return nics
+    return nics;
   }
 
   /**
@@ -262,26 +262,26 @@ define(function(require) {
       options = {};
     }
 
-    var vnetsTableAuto = new VNetsTable('vnet_nics_section_auto_'+provision_nic_accordion_dd_id,
+    var vnetsTableAuto = new VNetsTable("vnet_nics_section_auto_"+provision_nic_accordion_dd_id,
     {
-      'select': true,
-      'selectOptions': {
-        'multiple_choice': true
+      "select": true,
+      "selectOptions": {
+        "multiple_choice": true
       }
     });
 
     var vnetsTable = new VNetsTable(
-      'vnet_nics_section_'+provision_nic_accordion_dd_id,
-      { 'select': true });
+      "vnet_nics_section_"+provision_nic_accordion_dd_id,
+      { "select": true });
 
     var sgTable;
     var sgHtml = "";
 
     if (options.securityGroups == true){
       sgTable = new SecurityGroupsTable(
-          'sg_nics_section_'+provision_nic_accordion_dd_id,
-          { 'select': true,
-            'selectOptions': { 'multiple_choice': true }
+          "sg_nics_section_"+provision_nic_accordion_dd_id,
+          { "select": true,
+            "selectOptions": { "multiple_choice": true }
           });
 
       sgHtml = sgTable.dataTableHTML;
@@ -299,27 +299,27 @@ define(function(require) {
     dd_context["dd_id"] = provision_nic_accordion_dd_id;
 
     var selectOptions = {
-      'selectOptions': {
-        'select_callback': function(aData, options) {
+      "selectOptions": {
+        "select_callback": function(aData, options) {
             var req_string=[];
             var selected_vnets = vnetsTableAuto.retrieveResourceTableSelect();
 
             $.each(selected_vnets, function(index, netID) {
-              req_string.push('ID=\\"'+netID+'\\"');
+              req_string.push("ID=\\\""+netID+"\\\"");
             });
             $(".SCHED_REQUIREMENTS", dd_context).val(req_string.join(" | "));
         },
-        'unselect_callback': function(aData, options) {
+        "unselect_callback": function(aData, options) {
           var req_string=[];
           var selected_vnets = vnetsTableAuto.retrieveResourceTableSelect();
 
           $.each(selected_vnets, function(index, netID) {
-            req_string.push('ID=\\"'+netID+'\\"');
+            req_string.push("ID=\\\""+netID+"\\\"");
           });
           $(".SCHED_REQUIREMENTS", dd_context).val(req_string.join(" | "));
         }
       }
-    }
+    };
 
     vnetsTableAuto.initialize(selectOptions);
     vnetsTableAuto.refreshResourceTableSelect();
@@ -329,10 +329,6 @@ define(function(require) {
     $(".nic-section-entry", dd_context).data("sgTable", sgTable);
     $(".auto", dd_context).hide();
     $(".no_auto", dd_context).show();
-
-    if ( options.hide_auto_button && options.hide_auto_button === true ){
-      $(".only_template", dd_context).hide();
-    }
 
     $("input#provision_accordion_dd_"+provision_nic_accordion_dd_id+"_network_mode", dd_context).on("change", function(){
       var network_mode_on = $(this).prop("checked");
@@ -450,14 +446,14 @@ define(function(require) {
       $(".auto", dd_context).show();
 
       if ( options.nic["SCHED_REQUIREMENTS"] ) {
-        $("input#provision_accordion_dd_"+provision_nic_accordion_dd_id+"_SCHED_REQUIREMENTS", dd_context).val(options.nic["SCHED_REQUIREMENTS"].split('"').join("\\\""));
+        $("input#provision_accordion_dd_"+provision_nic_accordion_dd_id+"_SCHED_REQUIREMENTS", dd_context).val(options.nic["SCHED_REQUIREMENTS"].split("\"").join("\\\""));
       }
 
       if ( options.nic["SCHED_RANK"] ) {
         $("input#provision_accordion_dd_"+provision_nic_accordion_dd_id+"_SCHED_RANK", dd_context).val(options.nic["SCHED_RANK"]);
       }
 
-      var reqJSON = options.nic['SCHED_REQUIREMENTS'];
+      var reqJSON = options.nic["SCHED_REQUIREMENTS"];
       if (reqJSON) {
         var req = TemplateUtils.escapeDoubleQuotes(reqJSON);
 
@@ -465,12 +461,12 @@ define(function(require) {
 
         var nets = [];
         while (match = net_id_regexp.exec(req)) {
-            nets.push(match[2])
+            nets.push(match[2]);
         }
 
         var selectedResourcesAuto = {
             ids : nets
-          }
+          };
 
         vnetsTableAuto.selectResourceTableSelect(selectedResourcesAuto);
       }
@@ -512,14 +508,14 @@ define(function(require) {
       if (options.nic.NETWORK_ID != undefined) {
         selectedResources = {
             ids : options.nic.NETWORK_ID
-          }
+          };
       } else if (options.nic.NETWORK != undefined && options.nic.NETWORK_UNAME != undefined) {
         selectedResources = {
             names : {
               name: options.nic.NETWORK,
               uname: options.nic.NETWORK_UNAME
             }
-          }
+          };
       }
 
       if (selectedResources != undefined){
@@ -527,7 +523,7 @@ define(function(require) {
       }
 
       if (options.securityGroups == true && options.nic.SECURITY_GROUPS != undefined){
-        sgTable.selectResourceTableSelect({ids: options.nic.SECURITY_GROUPS.split(',')});
+        sgTable.selectResourceTableSelect({ids: options.nic.SECURITY_GROUPS.split(",")});
       }
     }
 
@@ -548,7 +544,7 @@ define(function(require) {
     });
 
     if (!options.nic) {
-      $('a', dd_context).trigger("click");
+      $("a", dd_context).trigger("click");
     }
   }
 
@@ -584,7 +580,7 @@ define(function(require) {
       $(".provision_add_network_interface", context).hide();
     }
 
-    Foundation.reflow(context, 'accordion');
+    Foundation.reflow(context, "accordion");
 
     $(".provision_add_network_interface", context).on("click", function() {
       if (!_nics.find(nic => nic.NAME === ("NIC" + nicId))) {
@@ -602,33 +598,33 @@ define(function(require) {
   }
 
   function update_provision_networks_datatable(datatable) {
-    datatable.html('<div class="text-center">' +
-      '<span class="fa-stack fa-5x">' +
-        '<i class="fas fa-cloud fa-stack-2x"></i>' +
-        '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
-      '</span>' +
-      '<br>' +
-      '<br>' +
-      '<span>' +
-      '</span>' +
-      '</div>');
+    datatable.html("<div class=\"text-center\">" +
+      "<span class=\"fa-stack fa-5x\">" +
+        "<i class=\"fas fa-cloud fa-stack-2x\"></i>" +
+        "<i class=\"fa  fa-spinner fa-spin fa-stack-1x fa-inverse\"></i>" +
+      "</span>" +
+      "<br>" +
+      "<br>" +
+      "<span>" +
+      "</span>" +
+      "</div>");
 
     OpenNebula.Network.list({
       timeout: true,
       success: function (request, item_list) {
         datatable.fnClearTable(true);
         if (item_list.length == 0) {
-          datatable.html('<div class="text-center">' +
-            '<span class="fa-stack fa-5x">' +
-              '<i class="fas fa-cloud fa-stack-2x"></i>' +
-              '<i class="fas fa-info-circle fa-stack-1x fa-inverse"></i>' +
-            '</span>' +
-            '<br>' +
-            '<br>' +
-            '<span>' +
+          datatable.html("<div class=\"text-center\">" +
+            "<span class=\"fa-stack fa-5x\">" +
+              "<i class=\"fas fa-cloud fa-stack-2x\"></i>" +
+              "<i class=\"fas fa-info-circle fa-stack-1x fa-inverse\"></i>" +
+            "</span>" +
+            "<br>" +
+            "<br>" +
+            "<span>" +
               Locale.tr("There are no networks available.") +
-            '</span>' +
-            '</div>');
+            "</span>" +
+            "</div>");
         } else {
           datatable.fnAddData(item_list);
         }
@@ -660,4 +656,4 @@ define(function(require) {
         }
     });
   }
-})
+});
