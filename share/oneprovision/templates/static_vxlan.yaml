@@ -1,6 +1,6 @@
 ---
 version: 2
-playbook: vxlan_packet
+playbook: static_vxlan
 
 networks:
   - name:        "nat"
