@@ -79,7 +79,7 @@ private:
  *  This class implements a generic DB interface with replication. The associated
  *  DB stores a log to replicate on followers.
  */
-class LogDB : public SqlDB, Callbackable
+class LogDB : public SqlDB
 {
 public:
     LogDB(SqlDB * _db, bool solo, unsigned int log_retention,
@@ -104,7 +104,7 @@ public:
      *  timestamp of the record is updated.
      *    @param index of the log record
      */
-	int apply_log_records(unsigned int commit_index);
+    int apply_log_records(unsigned int commit_index);
 
     /**
      *  Deletes the record in start_index and all that follow it
@@ -218,6 +218,10 @@ public:
         return db->limit_support();
     }
 
+    bool fts_available()
+    {
+        return db->fts_available();
+    }
     // -------------------------------------------------------------------------
     // Database methods
     // -------------------------------------------------------------------------
@@ -251,16 +255,11 @@ public:
 
     int next_federated(int index);
 
-    bool fts_available()
-    {
-        return db->fts_available();
-    }
-
 protected:
-    int exec(std::ostringstream& cmd, Callbackable* obj, bool quiet)
+    std::error_code execute(std::ostringstream& cmd, Callbackable *obj, bool quiet)
     {
-        return -1;
-    }
+        return SqlError::INTERNAL;
+    };
 
 private:
     pthread_mutex_t mutex;
@@ -337,11 +336,6 @@ private:
      *  (fed_index = index), > 0 set (fed_index = federated)
      */
     int _exec_wr(ostringstream& cmd, int federated);
-
-    /**
-     *  Callback to store the IDs of federated records in the federated log.
-     */
-    int index_cb(void *null, int num, char **values, char **names);
 
     /**
      *  Applies the SQL command of the given record to the database. The
@@ -427,10 +421,10 @@ public:
     }
 
 protected:
-    int exec(std::ostringstream& cmd, Callbackable* obj, bool quiet)
+    std::error_code execute(std::ostringstream& cmd, Callbackable *obj, bool quiet)
     {
-        return -1;
-    }
+        return SqlError::INTERNAL;
+    };
 
 private:
 

@@ -352,12 +352,13 @@ int LogDB::insert(int index, int term, const std::string& sql, time_t tstamp,
 int LogDB::apply_log_record(LogDBRecord * lr)
 {
     ostringstream oss_sql;
+    int rc = -1;
 
     oss_sql.str(lr->sql);
 
-    int rc = db->exec_wr(oss_sql);
+    std::error_code ec = db->execute_wr(oss_sql);
 
-    if ( rc == 0 )
+    if (ec == SqlError::SUCCESS || ec == SqlError::SQL_DUP_KEY)
     {
         std::ostringstream oss;
 
@@ -370,6 +371,8 @@ int LogDB::apply_log_record(LogDBRecord * lr)
         }
 
         last_applied = lr->index;
+
+        rc = 0;
     }
 
     return rc;
@@ -525,13 +528,13 @@ int LogDB::delete_log_records(unsigned int start_index)
 
     if ( rc == 0 )
     {
-    	LogDBRecord lr;
+        LogDBRecord lr;
 
         next_index = start_index;
 
         last_index = start_index - 1;
 
-		if ( get_log_record(last_index, lr) == 0 )
+        if ( get_log_record(last_index, lr) == 0 )
         {
             last_term = lr.term;
         }
@@ -539,7 +542,7 @@ int LogDB::delete_log_records(unsigned int start_index)
 
     pthread_mutex_unlock(&mutex);
 
-	return rc;
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -549,26 +552,26 @@ int LogDB::apply_log_records(unsigned int commit_index)
 {
     pthread_mutex_lock(&mutex);
 
-	while (last_applied < commit_index )
-	{
-    	LogDBRecord lr;
+    while (last_applied < commit_index )
+    {
+        LogDBRecord lr;
 
-		if ( get_log_record(last_applied + 1, lr) != 0 )
-		{
+        if ( get_log_record(last_applied + 1, lr) != 0 )
+        {
             pthread_mutex_unlock(&mutex);
-			return -1;
-		}
+            return -1;
+        }
 
-		if ( apply_log_record(&lr) != 0 )
-		{
+        if ( apply_log_record(&lr) != 0 )
+        {
             pthread_mutex_unlock(&mutex);
-			return -1;
-		}
-	}
+            return -1;
+        }
+    }
 
     pthread_mutex_unlock(&mutex);
 
-	return 0;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -609,7 +612,7 @@ int LogDB::purge_log()
     /* ---------------------------------------------------------------------- */
     /* Federated records. Keep last log_retention federated records           */
     /* ---------------------------------------------------------------------- */
-    if ( fed_log.size() < log_retention ) 
+    if ( fed_log.size() < log_retention )
     {
         pthread_mutex_unlock(&mutex);
 
@@ -642,7 +645,7 @@ int LogDB::purge_log()
     build_federated_index();
 
     pthread_mutex_unlock(&mutex);
-    
+
     return rc;
 }
 
@@ -670,7 +673,7 @@ int LogDB::replicate(int rindex)
     }
     else if ( rr.result == true ) //Record replicated on majority of followers
     {
-		rc = apply_log_records(rindex);
+        rc = apply_log_records(rindex);
     }
     else
     {
@@ -688,17 +691,6 @@ int LogDB::replicate(int rindex)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-int LogDB::index_cb(void *null, int num, char **values, char **names)
-{
-    if ( num == 0 || values == 0 || values[0] == 0 )
-    {
-        return -1;
-    }
-
-    fed_log.insert(atoi(values[0]));
-
-    return 0;
-}
 
 void LogDB::build_federated_index()
 {
@@ -706,13 +698,15 @@ void LogDB::build_federated_index()
 
     fed_log.clear();
 
-    set_callback(static_cast<Callbackable::Callback>(&LogDB::index_cb), 0);
+    set_cb<int> cb;
+
+    cb.set_callback(&fed_log);
 
     oss << "SELECT fed_index FROM " << table << " WHERE fed_index != -1 ";
 
-    db->exec_rd(oss, this);
+    db->exec_rd(oss, &cb);
 
-    unset_callback();
+    cb.unset_callback();
 }
 
 /* -------------------------------------------------------------------------- */

@@ -92,7 +92,7 @@ protected:
      *    @param arg to pass to the callback function
      *    @return 0 on success
      */
-    int exec(ostringstream& cmd, Callbackable* obj, bool quiet);
+    std::error_code execute(std::ostringstream& cmd, Callbackable *obj, bool quiet);
 
 private:
     /**

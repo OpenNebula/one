@@ -331,7 +331,7 @@ void Nebula::start(bool bootstrap_only)
 
         if ( (solo && local_bootstrap) || bootstrap_only)
         {
-            if ( logdb->bootstrap(db_backend) != 0 )
+            if ( LogDB::bootstrap(db_backend) != 0 )
             {
                 throw runtime_error("Error bootstrapping database.");
             }

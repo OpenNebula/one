@@ -20,7 +20,32 @@
 #include <sstream>
 #include "Callbackable.h"
 
-using namespace std;
+/**
+ *  Abstract error conditions on SQL backends
+ */
+enum class SqlError
+{
+    SUCCESS    = 0x0000000,
+    INTERNAL   = 0x0000001,
+    CONNECTION = 0x1000000,
+    SQL        = 0x2000000,
+    SQL_DUP_KEY= 0x2000001
+};
+
+namespace std
+{
+    template<>
+        struct is_error_code_enum<SqlError> : true_type {};
+};
+
+struct SqlErrorCategory : std::error_category
+{
+    const char * name() const noexcept override;
+
+    std::string message(int e) const override;
+};
+
+std::error_code make_error_code(SqlError e);
 
 /**
  * SqlDB class.Provides an abstract interface to implement a SQL backend
@@ -46,24 +71,31 @@ public:
      *    @param callbak function to execute on each data returned
      *    @return 0 on success
      */
-    virtual int exec_local_wr(ostringstream& cmd)
+    virtual int exec_local_wr(std::ostringstream& cmd)
     {
         return exec(cmd, 0, false);
     }
 
-    virtual int exec_rd(ostringstream& cmd, Callbackable* obj)
+    virtual int exec_rd(std::ostringstream& cmd, Callbackable* obj)
     {
         return exec(cmd, obj, false);
     }
 
-    virtual int exec_wr(ostringstream& cmd)
+    virtual int exec_wr(std::ostringstream& cmd)
     {
         return exec(cmd, 0, false);
     }
 
-    virtual int exec_wr(ostringstream& cmd, Callbackable* obj)
+    virtual int exec_wr(std::ostringstream& cmd, Callbackable* obj)
     {
         return exec(cmd, obj, false);
+    }
+
+    /* ---------------------------------------------------------------------- */
+
+    std::error_code execute_wr(std::ostringstream& cmd)
+    {
+        return execute(cmd, 0, false);
     }
 
    /**
@@ -72,7 +104,7 @@ public:
      *    @param str the string to be escaped
      *    @return a valid SQL string or NULL in case of failure
      */
-    virtual char * escape_str(const string& str) = 0;
+    virtual char * escape_str(const std::string& str) = 0;
 
     /**
      *  Frees a previously scaped string
@@ -109,7 +141,22 @@ protected:
      *    @param quiet True to log errors with DDEBUG level instead of ERROR
      *    @return 0 on success
      */
-    virtual int exec(ostringstream& cmd, Callbackable* obj, bool quiet) = 0;
+    int exec(std::ostringstream& cmd, Callbackable* obj, bool quiet)
+    {
+        int rc = 0;
+
+        std::error_code ec = execute(cmd, obj, quiet);
+
+        if (ec != SqlError::SUCCESS)
+        {
+            rc = -1;
+        };
+
+        return rc;
+    }
+
+    virtual std::error_code execute(std::ostringstream& cmd, Callbackable *obj,
+            bool quiet) = 0;
 };
 
 #endif /*SQL_DB_H_*/
