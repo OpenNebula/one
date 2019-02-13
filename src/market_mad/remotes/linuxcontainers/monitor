@@ -40,7 +40,8 @@ class LinuxContainersMarket
             :CPU => '1', :MEMORY => '768', :LXD_SECURITY_PRIVILEGED => 'true',
             :GRAPHICS => { :LISTEN => '0.0.0.0', :TYPE => 'vnc' },
             :CONTEXT => {
-                :NETWORK => 'YES', :SSH_PUBLIC_KEY => '$USER[SSH_PUBLIC_KEY]'
+                :NETWORK => 'YES', :SSH_PUBLIC_KEY => '$USER[SSH_PUBLIC_KEY]',
+                :SET_HOSTNAME => '$NAME'
             }
         }
     }
