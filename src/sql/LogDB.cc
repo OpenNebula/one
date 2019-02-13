@@ -351,14 +351,11 @@ int LogDB::insert(int index, int term, const std::string& sql, time_t tstamp,
 
 int LogDB::apply_log_record(LogDBRecord * lr)
 {
-    ostringstream oss_sql;
-    int rc = -1;
+    ostringstream oss_sql(lr->sql);
 
-    oss_sql.str(lr->sql);
+    int rc = db->exec_ext(oss_sql);
 
-    std::error_code ec = db->execute_wr(oss_sql);
-
-    if (ec == SqlError::SUCCESS || ec == SqlError::SQL_DUP_KEY)
+    if (rc == SqlDB::SUCCESS || rc == SqlDB::SQL_DUP_KEY)
     {
         std::ostringstream oss;
 
@@ -373,6 +370,10 @@ int LogDB::apply_log_record(LogDBRecord * lr)
         last_applied = lr->index;
 
         rc = 0;
+    }
+    else
+    {
+        rc = -1;
     }
 
     return rc;

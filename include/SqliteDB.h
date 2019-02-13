@@ -92,7 +92,7 @@ protected:
      *    @param arg to pass to the callback function
      *    @return 0 on success
      */
-    std::error_code execute(std::ostringstream& cmd, Callbackable *obj, bool quiet);
+    virtual int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet);
 
 private:
     /**
@@ -148,7 +148,7 @@ public:
     bool limit_support(){return true;};
 
 protected:
-    int exec(ostringstream& cmd, Callbackable* obj, bool quiet){return -1;};
+    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet){return -1;};
 };
 #endif
 

@@ -96,7 +96,7 @@ protected:
      *    @param obj Callbackable obj to call if the query succeeds
      *    @return 0 on success
      */
-    std::error_code execute(std::ostringstream& cmd, Callbackable *obj, bool quiet);
+    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet);
 
 private:
 
@@ -179,7 +179,7 @@ public:
     bool fts_available(){return false;};
 
 protected:
-    int exec(ostringstream& cmd, Callbackable* obj, bool quiet){return -1;};
+    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet){return -1;};
 };
 #endif
 

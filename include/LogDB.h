@@ -256,9 +256,9 @@ public:
     int next_federated(int index);
 
 protected:
-    std::error_code execute(std::ostringstream& cmd, Callbackable *obj, bool quiet)
+    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
     {
-        return SqlError::INTERNAL;
+        return SqlDB::INTERNAL;
     };
 
 private:
@@ -421,9 +421,9 @@ public:
     }
 
 protected:
-    std::error_code execute(std::ostringstream& cmd, Callbackable *obj, bool quiet)
+    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
     {
-        return SqlError::INTERNAL;
+        return SqlDB::INTERNAL;
     };
 
 private:

@@ -163,12 +163,12 @@ bool MySqlDB::limit_support()
 
 /* -------------------------------------------------------------------------- */
 
-std::error_code MySqlDB::execute(std::ostringstream& cmd, Callbackable *obj, bool quiet)
+int MySqlDB::exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
 {
     string str         = cmd.str();
     const char * c_str = str.c_str();
 
-    std::error_code ec = SqlError::SUCCESS;
+    int ec = SqlDB::SUCCESS;
 
     Log::MessageType error_level = quiet ? Log::DDEBUG : Log::ERROR;
 
@@ -204,16 +204,16 @@ std::error_code MySqlDB::execute(std::ostringstream& cmd, Callbackable *obj, boo
                     oss << "... Reconnection attempt failed.";
                 }
 
-                ec = SqlError::CONNECTION;
+                ec = SqlDB::CONNECTION;
                 break;
 
             // Error codes that should be considered applied for the RAFT log.
             case ER_DUP_ENTRY:
-                ec = SqlError::SQL_DUP_KEY;
+                ec = SqlDB::SQL_DUP_KEY;
                 break;
 
             default:
-                ec = SqlError::SQL; //Default exit code for errors
+                ec = SqlDB::SQL; //Default exit code for errors
                 break;
         }
 
@@ -256,7 +256,7 @@ std::error_code MySqlDB::execute(std::ostringstream& cmd, Callbackable *obj, boo
 
                 free_db_connection(db);
 
-                return make_error_code(SqlError::SQL);
+                return SqlDB::SQL;
             }
 
             // Fetch the names of the fields
@@ -275,7 +275,7 @@ std::error_code MySqlDB::execute(std::ostringstream& cmd, Callbackable *obj, boo
             {
                 if ( obj->do_callback(num_fields, row, names) != 0 )
                 {
-                    ec = make_error_code(SqlError::SQL);
+                    ec = SqlDB::SQL;
                     break;
                 }
             }

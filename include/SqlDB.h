@@ -21,33 +21,6 @@
 #include "Callbackable.h"
 
 /**
- *  Abstract error conditions on SQL backends
- */
-enum class SqlError
-{
-    SUCCESS    = 0x0000000,
-    INTERNAL   = 0x0000001,
-    CONNECTION = 0x1000000,
-    SQL        = 0x2000000,
-    SQL_DUP_KEY= 0x2000001
-};
-
-namespace std
-{
-    template<>
-        struct is_error_code_enum<SqlError> : true_type {};
-};
-
-struct SqlErrorCategory : std::error_category
-{
-    const char * name() const noexcept override;
-
-    std::string message(int e) const override;
-};
-
-std::error_code make_error_code(SqlError e);
-
-/**
  * SqlDB class.Provides an abstract interface to implement a SQL backend
  */
 class SqlDB
@@ -57,6 +30,15 @@ public:
     SqlDB(){};
 
     virtual ~SqlDB(){};
+
+    enum SqlError
+    {
+        SUCCESS     = 0,
+        INTERNAL    = -1,
+        CONNECTION  = -100,
+        SQL         = -200,
+        SQL_DUP_KEY = -201
+    };
 
     /* ---------------------------------------------------------------------- */
     /* Database Operations                                                    */
@@ -93,9 +75,14 @@ public:
 
     /* ---------------------------------------------------------------------- */
 
-    std::error_code execute_wr(std::ostringstream& cmd)
+    int exec_ext(std::ostringstream& cmd)
     {
-        return execute(cmd, 0, false);
+        return exec_ext(cmd, 0, false);
+    }
+
+    int exec_ext(std::ostringstream& cmd, Callbackable * obj)
+    {
+        return exec_ext(cmd, obj, false);
     }
 
    /**
@@ -139,15 +126,13 @@ protected:
      *    @param sql_cmd the SQL command
      *    @param callbak function to execute on each data returned
      *    @param quiet True to log errors with DDEBUG level instead of ERROR
-     *    @return 0 on success
+     *    @return 0 on success -1 on failure
      */
     int exec(std::ostringstream& cmd, Callbackable* obj, bool quiet)
     {
-        int rc = 0;
+        int rc = exec_ext(cmd, obj, quiet);
 
-        std::error_code ec = execute(cmd, obj, quiet);
-
-        if (ec != SqlError::SUCCESS)
+        if (rc != 0)
         {
             rc = -1;
         };
@@ -155,8 +140,11 @@ protected:
         return rc;
     }
 
-    virtual std::error_code execute(std::ostringstream& cmd, Callbackable *obj,
-            bool quiet) = 0;
+    /**
+     *  This function performs a DB transaction and returns and extended error code
+     *    @return SqlError enum
+     */
+    virtual int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet) = 0;
 };
 
 #endif /*SQL_DB_H_*/

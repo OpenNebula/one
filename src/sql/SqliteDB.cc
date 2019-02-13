@@ -89,9 +89,9 @@ bool SqliteDB::limit_support()
 
 /* -------------------------------------------------------------------------- */
 
-std::error_code SqliteDB::execute(std::ostringstream& cmd, Callbackable *obj, bool quiet)
+int SqliteDB::exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
 {
-    int rc;
+    int rc, ec;
 
     const char * c_str;
     string       str;
@@ -104,8 +104,6 @@ std::error_code SqliteDB::execute(std::ostringstream& cmd, Callbackable *obj, bo
 
     Log::MessageType error_level;
     std::ostringstream oss;
-
-    std::error_code ec;
 
     str   = cmd.str();
     c_str = str.c_str();
@@ -154,24 +152,24 @@ std::error_code SqliteDB::execute(std::ostringstream& cmd, Callbackable *obj, bo
     {
         case SQLITE_BUSY:
         case SQLITE_IOERR:
-            ec = SqlError::CONNECTION;
+            ec = SqlDB::CONNECTION;
             break;
 
         case SQLITE_OK:
-            ec = SqlError::SUCCESS;
+            ec = SqlDB::SUCCESS;
             break;
 
         // Error codes that should be considered applied for the RAFT log.
         case SQLITE_CONSTRAINT_UNIQUE:
-            ec = SqlError::SQL_DUP_KEY;
+            ec = SqlDB::SQL_DUP_KEY;
             break;
 
         default:
-            ec = SqlError::SQL;
+            ec = SqlDB::SQL;
             break;
     }
 
-    if ( ec != SqlError::SUCCESS && err_msg != NULL )
+    if ( ec != SqlDB::SUCCESS && err_msg != NULL )
     {
         error_level = quiet ? Log::DDEBUG : Log::ERROR;
 
