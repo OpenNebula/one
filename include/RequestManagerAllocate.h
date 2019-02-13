@@ -198,7 +198,7 @@ public:
             int id,
             string& error_msg)
     {
-        return cluster->add_vnet(id, error_msg);
+        return clpool->add_to_cluster(PoolObjectSQL::NET, cluster, id, error_msg);
     };
 };
 
@@ -334,7 +334,7 @@ public:
             int id,
             string& error_msg)
     {
-        return cluster->add_host(id, error_msg);
+        return clpool->add_to_cluster(PoolObjectSQL::HOST, cluster, id, error_msg);;
     };
 };
 
@@ -445,7 +445,7 @@ public:
             int id,
             string& error_msg)
     {
-        return cluster->add_datastore(id, error_msg);
+        return clpool->add_to_cluster(PoolObjectSQL::DATASTORE, cluster, id, error_msg);
     };
 };
 

@@ -186,8 +186,6 @@ int RequestManagerDelete::drop(PoolObjectSQL * object, bool recursive,
 				return rc;
 			}
 
-			clpool->update(cluster);
-
 			cluster->unlock();
 		}
 	}

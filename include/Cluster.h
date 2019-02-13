@@ -36,58 +36,6 @@ public:
     // *************************************************************************
 
     /**
-     *  Adds this host ID to the set.
-     *    @param id to be added to the cluster
-     *    @param error_msg Error message, if any
-     *    @return 0 on success
-     */
-    int add_host(int id, string& error_msg)
-    {
-        int rc = hosts.add(id);
-
-        if ( rc < 0 )
-        {
-            error_msg = "Host ID is already in the cluster set.";
-        }
-
-        return rc;
-    }
-
-    /**
-     *  Deletes this host ID from the set.
-     *    @param id to be deleted from the cluster
-     *    @param error_msg Error message, if any
-     *    @return 0 on success
-     */
-    int del_host(int id, string& error_msg)
-    {
-        int rc = hosts.del(id);
-
-        if ( rc < 0 )
-        {
-            error_msg = "Host ID is not part of the cluster set.";
-        }
-
-        return rc;
-    }
-
-    /**
-     *  Adds this datastore ID to the set.
-     *    @param id to be added to the cluster
-     *    @param error_msg Error message, if any
-     *    @return 0 on success
-     */
-    int add_datastore(int id, string& error_msg);
-
-    /**
-     *  Deletes this datastore ID from the set.
-     *    @param id to be deleted from the cluster
-     *    @param error_msg Error message, if any
-     *    @return 0 on success
-     */
-    int del_datastore(int id, string& error_msg);
-
-    /**
      *  Returns a copy of the datastore IDs set
      */
     set<int> get_datastores()
@@ -100,42 +48,6 @@ public:
      *    @return the ID of the System
      */
     static int get_default_system_ds(const set<int>& ds_collection);
-
-    /**
-     *  Adds this vnet ID to the set.
-     *    @param id to be added to the cluster
-     *    @param error_msg Error message, if any
-     *    @return 0 on success
-     */
-    int add_vnet(int id, string& error_msg)
-    {
-        int rc = vnets.add(id);
-
-        if ( rc < 0 )
-        {
-            error_msg = "Network ID is already in the cluster set.";
-        }
-
-        return rc;
-    }
-
-    /**
-     *  Deletes this vnet ID from the set.
-     *    @param id to be deleted from the cluster
-     *    @param error_msg Error message, if any
-     *    @return 0 on success
-     */
-    int del_vnet(int id, string& error_msg)
-    {
-        int rc = vnets.del(id);
-
-        if ( rc < 0 )
-        {
-            error_msg = "Network ID is not part of the cluster set.";
-        }
-
-        return rc;
-    }
 
     /**
      *  Returns a copy of the host IDs set
@@ -378,6 +290,77 @@ private:
     Template * get_new_template() const
     {
         return new ClusterTemplate;
+    }
+
+    /**
+     * Add a resource to the corresponding set.
+     * @return 0 on success
+     */
+    int add_resource(PoolObjectSQL::ObjectType type, int resource_id, string& error_msg)
+    {
+        ostringstream oss;
+
+        int rc;
+
+        switch (type)
+        {
+            case PoolObjectSQL::DATASTORE:
+                rc = datastores.add(resource_id);
+                break;
+            case PoolObjectSQL::NET:
+                rc = vnets.add(resource_id);
+                break;
+            case PoolObjectSQL::HOST:
+                rc = hosts.add(resource_id);
+                break;
+            default:
+                oss << "Invalid resource type: "<< PoolObjectSQL::type_to_str(type);
+                error_msg = oss.str();
+                return -1;
+        }
+
+        if (rc != 0)
+        {
+            oss << PoolObjectSQL::type_to_str(type) << " ID is already in the cluster set.";
+            error_msg = oss.str();
+        }
+
+        return rc;
+    }
+
+    /**
+     * Remove a resource from the corresponding set.
+     * @return 0 on success
+     */
+    int del_resource(PoolObjectSQL::ObjectType type, int resource_id, string& error_msg)
+    {
+        ostringstream oss;
+        int rc;
+
+        switch (type)
+        {
+            case PoolObjectSQL::DATASTORE:
+                rc = datastores.del(resource_id);
+                break;
+            case PoolObjectSQL::NET:
+                rc = vnets.del(resource_id);
+                break;
+            case PoolObjectSQL::HOST:
+                rc = hosts.del(resource_id);
+                break;
+            default:
+                oss << "Invalid resource type: "<< PoolObjectSQL::type_to_str(type);
+                error_msg = oss.str();
+                return -1;
+        }
+
+        if (rc != 0)
+        {
+            oss << PoolObjectSQL::type_to_str(type) << " ID is not in the cluster set.";
+            error_msg = oss.str();
+        }
+
+        return rc;
     }
 };
 

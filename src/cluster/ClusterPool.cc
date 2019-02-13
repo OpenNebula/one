@@ -63,11 +63,9 @@ ClusterPool::ClusterPool(SqlDB * db, const VectorAttribute * _vnc_conf):
             goto error_bootstrap;
         }
 
-        cluster->add_datastore(DatastorePool::SYSTEM_DS_ID, error_str);
-        cluster->add_datastore(DatastorePool::DEFAULT_DS_ID, error_str);
-        cluster->add_datastore(DatastorePool::FILE_DS_ID, error_str);
-
-        update(cluster);
+        add_to_cluster(PoolObjectSQL::DATASTORE, cluster, DatastorePool::SYSTEM_DS_ID,  error_str);
+        add_to_cluster(PoolObjectSQL::DATASTORE, cluster, DatastorePool::DEFAULT_DS_ID,  error_str);
+        add_to_cluster(PoolObjectSQL::DATASTORE, cluster, DatastorePool::FILE_DS_ID, error_str);
 
         cluster->unlock();
 
@@ -264,3 +262,114 @@ int ClusterPool::query_vnet_clusters(int oid, set<int> &cluster_ids)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int ClusterPool::add_to_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster,
+                                          int resource_id, string& error_msg)
+{
+    ostringstream oss;
+    string table, names;
+
+    int rc;
+
+    switch (type)
+    {
+        case PoolObjectSQL::DATASTORE:
+            table = cluster->datastore_table;
+            names = cluster->datastore_db_names;
+            break;
+        case PoolObjectSQL::NET:
+            table = cluster->network_table;
+            names = cluster->network_db_names;
+            break;
+        case PoolObjectSQL::HOST:
+            break;
+        default:
+            oss << type << " cannot be added to the cluster";
+            error_msg = oss.str();
+            return -1;
+    }
+
+    if (!table.empty())
+    {
+        oss << "INSERT INTO " << cluster->datastore_table <<" ("
+            << cluster->datastore_db_names << ") VALUES (" << cluster->get_oid()
+            << "," << resource_id << ")";
+
+        rc = db->exec_wr(oss);
+
+        if (rc != 0)
+        {
+            oss.str("");
+            oss << "Error inserting the " << PoolObjectSQL::type_to_str(type) << " - cluster relation.";
+            error_msg =  oss.str();
+
+            return -1;
+        }
+    }
+
+    rc = cluster->add_resource(type, resource_id, error_msg);
+
+    if (rc != 0)
+    {
+        return -1;
+    }
+
+    update(cluster);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ClusterPool::del_from_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster,
+                                          int resource_id, string& error_msg)
+{
+    ostringstream oss;
+    string table, names;
+
+    switch (type)
+    {
+        case PoolObjectSQL::DATASTORE:
+            table = cluster->datastore_table;
+            names = cluster->datastore_db_names;
+            break;
+        case PoolObjectSQL::NET:
+            table = cluster->network_table;
+            names = cluster->network_db_names;
+            break;
+        case PoolObjectSQL::HOST:
+            break;
+        default:
+            oss << type << " cannot be added to the cluster";
+            error_msg = oss.str();
+            return -1;
+    }
+
+    if (!table.empty())
+    {
+        oss << "DELETE FROM " << cluster->datastore_table << " WHERE cid = "
+            << cluster->get_oid() << " AND oid = " << resource_id;
+
+        int rc = db->exec_wr(oss);
+
+        if (rc != 0)
+        {
+            oss.str("");
+            oss << "Error deleting the " << PoolObjectSQL::type_to_str(type) << " from the cluster.";
+            error_msg =  oss.str();
+
+            return -1;
+        }
+    }
+
+    cluster->del_resource(type, resource_id, error_msg);
+
+    update(cluster);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+

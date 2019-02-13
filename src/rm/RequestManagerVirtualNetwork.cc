@@ -493,9 +493,7 @@ void VirtualNetworkReserve::request_execute(
 
             if ( cluster != 0 )
             {
-                cluster->add_vnet(rid, att.resp_msg);
-
-                clpool->update(cluster);
+                clpool->add_to_cluster(PoolObjectSQL::NET, cluster, rid, att.resp_msg);
 
                 cluster->unlock();
             }
