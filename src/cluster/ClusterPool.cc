@@ -63,9 +63,12 @@ ClusterPool::ClusterPool(SqlDB * db, const VectorAttribute * _vnc_conf):
             goto error_bootstrap;
         }
 
-        add_to_cluster(PoolObjectSQL::DATASTORE, cluster, DatastorePool::SYSTEM_DS_ID,  error_str);
-        add_to_cluster(PoolObjectSQL::DATASTORE, cluster, DatastorePool::DEFAULT_DS_ID,  error_str);
-        add_to_cluster(PoolObjectSQL::DATASTORE, cluster, DatastorePool::FILE_DS_ID, error_str);
+        add_to_cluster(PoolObjectSQL::DATASTORE, cluster, DatastorePool::SYSTEM_DS_ID,
+                error_str);
+        add_to_cluster(PoolObjectSQL::DATASTORE, cluster, DatastorePool::DEFAULT_DS_ID,
+                error_str);
+        add_to_cluster(PoolObjectSQL::DATASTORE, cluster, DatastorePool::FILE_DS_ID,
+                error_str);
 
         cluster->unlock();
 
@@ -266,7 +269,6 @@ int ClusterPool::query_vnet_clusters(int oid, set<int> &cluster_ids)
 int ClusterPool::add_to_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster,
                                           int resource_id, string& error_msg)
 {
-    ostringstream oss;
     string table, names;
 
     int rc;
@@ -284,13 +286,21 @@ int ClusterPool::add_to_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster
         case PoolObjectSQL::HOST:
             break;
         default:
-            oss << type << " cannot be added to the cluster";
-            error_msg = oss.str();
+            error_msg = "Invalid resource type: " + PoolObjectSQL::type_to_str(type);
             return -1;
+    }
+
+    rc = cluster->add_resource(type, resource_id, error_msg);
+
+    if (rc != 0)
+    {
+        return -1;
     }
 
     if (!table.empty())
     {
+        ostringstream oss;
+
         oss << "INSERT INTO " << cluster->datastore_table <<" ("
             << cluster->datastore_db_names << ") VALUES (" << cluster->get_oid()
             << "," << resource_id << ")";
@@ -299,19 +309,12 @@ int ClusterPool::add_to_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster
 
         if (rc != 0)
         {
-            oss.str("");
-            oss << "Error inserting the " << PoolObjectSQL::type_to_str(type) << " - cluster relation.";
-            error_msg =  oss.str();
+            cluster->del_resource(type, resource_id, error_msg);
+
+            error_msg =  "Error updating cluster elemnts table";
 
             return -1;
         }
-    }
-
-    rc = cluster->add_resource(type, resource_id, error_msg);
-
-    if (rc != 0)
-    {
-        return -1;
     }
 
     update(cluster);
@@ -325,7 +328,6 @@ int ClusterPool::add_to_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster
 int ClusterPool::del_from_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster,
                                           int resource_id, string& error_msg)
 {
-    ostringstream oss;
     string table, names;
 
     switch (type)
@@ -341,13 +343,21 @@ int ClusterPool::del_from_cluster(PoolObjectSQL::ObjectType type, Cluster* clust
         case PoolObjectSQL::HOST:
             break;
         default:
-            oss << type << " cannot be added to the cluster";
-            error_msg = oss.str();
+            error_msg = "Invalid resource type: " + PoolObjectSQL::type_to_str(type);
             return -1;
+    }
+
+    int rc = cluster->del_resource(type, resource_id, error_msg);
+
+    if ( rc != 0 )
+    {
+        return -1;
     }
 
     if (!table.empty())
     {
+        ostringstream oss;
+
         oss << "DELETE FROM " << cluster->datastore_table << " WHERE cid = "
             << cluster->get_oid() << " AND oid = " << resource_id;
 
@@ -355,15 +365,14 @@ int ClusterPool::del_from_cluster(PoolObjectSQL::ObjectType type, Cluster* clust
 
         if (rc != 0)
         {
-            oss.str("");
-            oss << "Error deleting the " << PoolObjectSQL::type_to_str(type) << " from the cluster.";
-            error_msg =  oss.str();
+            cluster->add_resource(type, resource_id, error_msg);
+
+            error_msg =  "Error updating cluster elements table";
 
             return -1;
         }
     }
 
-    cluster->del_resource(type, resource_id, error_msg);
 
     update(cluster);
 

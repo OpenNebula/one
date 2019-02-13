@@ -334,7 +334,6 @@ private:
      */
     int del_resource(PoolObjectSQL::ObjectType type, int resource_id, string& error_msg)
     {
-        ostringstream oss;
         int rc;
 
         switch (type)
@@ -349,15 +348,13 @@ private:
                 rc = hosts.del(resource_id);
                 break;
             default:
-                oss << "Invalid resource type: "<< PoolObjectSQL::type_to_str(type);
-                error_msg = oss.str();
+                error_msg = "Invalid resource type: " + PoolObjectSQL::type_to_str(type);
                 return -1;
         }
 
         if (rc != 0)
         {
-            oss << PoolObjectSQL::type_to_str(type) << " ID is not in the cluster set.";
-            error_msg = oss.str();
+            error_msg = PoolObjectSQL::type_to_str(type) + " is not in the cluster set.";
         }
 
         return rc;
