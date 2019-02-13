@@ -256,8 +256,6 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
             return;
         }
 
-        clpool->update(cluster);
-
         cluster->unlock();
     }
 

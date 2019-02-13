@@ -204,12 +204,12 @@ public:
             int id,
             string& error_msg)
     {
-        return cluster->add_datastore(id, error_msg);
+        return clpool->add_to_cluster(PoolObjectSQL::DATASTORE, cluster, id, error_msg);
     };
 
     virtual int del_object(Cluster* cluster, int id, string& error_msg)
     {
-        return cluster->del_datastore(id, error_msg);
+        return clpool->del_from_cluster(PoolObjectSQL::DATASTORE, cluster, id, error_msg);
     };
 
     virtual void get(int oid, PoolObjectSQL ** object, Clusterable ** cluster_obj)
@@ -289,12 +289,12 @@ public:
             int id,
             string& error_msg)
     {
-        return cluster->add_vnet(id, error_msg);
+        return clpool->add_to_cluster(PoolObjectSQL::NET, cluster, id, error_msg);
     };
 
     virtual int del_object(Cluster* cluster, int id, string& error_msg)
     {
-        return cluster->del_vnet(id, error_msg);
+        return clpool->del_from_cluster(PoolObjectSQL::NET, cluster, id, error_msg);
     };
 
     virtual void get(int oid, PoolObjectSQL ** object, Clusterable ** cluster_obj)
