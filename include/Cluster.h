@@ -313,7 +313,7 @@ private:
                 break;
             default:
                 ostringstream oss;
-                oss << type << " ID is already in the cluster set.";
+                oss << PoolObjectSQL::type_to_str(type) << " ID is already in the cluster set.";
                 error_msg = oss.str();
                 return -1;
         }
@@ -342,7 +342,7 @@ private:
                 break;
             default:
                 ostringstream oss;
-                oss << type << " ID is not part of the cluster set.";
+                oss << tyPoolObjectSQL::type_to_str(type)pe << " ID is not part of the cluster set.";
                 error_msg = oss.str();
                 return -1;
         }

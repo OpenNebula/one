@@ -300,7 +300,7 @@ int ClusterPool::add_to_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster
         if (rc != 0)
         {
             oss.str("");
-            oss << "Error inserting the " << type << " - cluster relation.";
+            oss << "Error inserting the " << PoolObjectSQL::type_to_str(type) << " - cluster relation.";
             error_msg =  oss.str();
 
             return -1;
@@ -349,21 +349,21 @@ int ClusterPool::del_from_cluster(PoolObjectSQL::ObjectType type, Cluster* clust
     if (!table.empty())
     {
         oss << "DELETE FROM " << cluster->datastore_table << " WHERE cid = "
-            << cluster->get_oid() << " AND oid = " << resource_id << ")";
+            << cluster->get_oid() << " AND oid = " << resource_id;
 
         int rc = db->exec_wr(oss);
 
         if (rc != 0)
         {
             oss.str("");
-            oss << "Error adding the" << type << "to the cluster.";
+            oss << "Error deleting the " << PoolObjectSQL::type_to_str(type) << " from the cluster.";
             error_msg =  oss.str();
 
             return -1;
         }
     }
 
-    cluster->add_resource(type, resource_id, error_msg);
+    cluster->del_resource(type, resource_id, error_msg);
 
     update(cluster);
 
