@@ -363,7 +363,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                         sync_cmd = "rsync -Laz --delete #{REMOTES_LOCATION}" \
                                    " #{host['NAME']}:#{remote_dir}"
                     else
-                        sync_cmd = "scp -rp #{REMOTES_LOCATION}/. " \
+                        sync_cmd = "scp -rp #{REMOTES_LOCATION}/* " \
                                    "#{host['NAME']}:#{remote_dir} 2> /dev/null"
                     end
 
