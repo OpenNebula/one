@@ -74,7 +74,7 @@ class InformationManagerDriver < OpenNebulaDriver
         if !action_is_local?(:MONITOR)
             if do_update == "1" || @options[:force_copy]
                 # Use SCP to sync:
-                sync_cmd = "scp -r #{@local_scripts_base_path}/. " \
+                sync_cmd = "scp -r #{@local_scripts_base_path}/* " \
                     "#{host}:#{@remote_scripts_base_path}"
 
                 # Use rsync to sync:
