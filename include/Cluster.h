@@ -298,6 +298,8 @@ private:
      */
     int add_resource(PoolObjectSQL::ObjectType type, int resource_id, string& error_msg)
     {
+        ostringstream oss;
+
         int rc;
 
         switch (type)
@@ -312,10 +314,15 @@ private:
                 rc = hosts.add(resource_id);
                 break;
             default:
-                ostringstream oss;
-                oss << PoolObjectSQL::type_to_str(type) << " ID is already in the cluster set.";
+                oss << "Invalid resource type: "<< PoolObjectSQL::type_to_str(type);
                 error_msg = oss.str();
                 return -1;
+        }
+
+        if (rc != 0)
+        {
+            oss << PoolObjectSQL::type_to_str(type) << " ID is already in the cluster set.";
+            error_msg = oss.str();
         }
 
         return rc;
@@ -327,6 +334,7 @@ private:
      */
     int del_resource(PoolObjectSQL::ObjectType type, int resource_id, string& error_msg)
     {
+        ostringstream oss;
         int rc;
 
         switch (type)
@@ -341,10 +349,15 @@ private:
                 rc = hosts.del(resource_id);
                 break;
             default:
-                ostringstream oss;
-                oss << PoolObjectSQL::type_to_str(type) << " ID is not part of the cluster set.";
+                oss << "Invalid resource type: "<< PoolObjectSQL::type_to_str(type);
                 error_msg = oss.str();
                 return -1;
+        }
+
+        if (rc != 0)
+        {
+            oss << PoolObjectSQL::type_to_str(type) << " ID is not in the cluster set.";
+            error_msg = oss.str();
         }
 
         return rc;
