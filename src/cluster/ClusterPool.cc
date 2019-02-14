@@ -301,8 +301,8 @@ int ClusterPool::add_to_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster
     {
         ostringstream oss;
 
-        oss << "INSERT INTO " << cluster->datastore_table <<" ("
-            << cluster->datastore_db_names << ") VALUES (" << cluster->get_oid()
+        oss << "INSERT INTO " << table <<" ("
+            << names << ") VALUES (" << cluster->get_oid()
             << "," << resource_id << ")";
 
         rc = db->exec_wr(oss);
@@ -328,17 +328,15 @@ int ClusterPool::add_to_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster
 int ClusterPool::del_from_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster,
                                           int resource_id, string& error_msg)
 {
-    string table, names;
+    string table;
 
     switch (type)
     {
         case PoolObjectSQL::DATASTORE:
             table = cluster->datastore_table;
-            names = cluster->datastore_db_names;
             break;
         case PoolObjectSQL::NET:
             table = cluster->network_table;
-            names = cluster->network_db_names;
             break;
         case PoolObjectSQL::HOST:
             break;
@@ -358,7 +356,7 @@ int ClusterPool::del_from_cluster(PoolObjectSQL::ObjectType type, Cluster* clust
     {
         ostringstream oss;
 
-        oss << "DELETE FROM " << cluster->datastore_table << " WHERE cid = "
+        oss << "DELETE FROM " << table << " WHERE cid = "
             << cluster->get_oid() << " AND oid = " << resource_id;
 
         int rc = db->exec_wr(oss);
