@@ -752,6 +752,10 @@ Lint/ElseLayout:
 Lint/ShadowingOuterLocalVariable:
     Enabled: true
 
+# Check for debugger info
+Lint/Debugger:
+     Enabled: true
+
 
 #########
 # METRICS
