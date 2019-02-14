@@ -47,12 +47,12 @@ define(function (require) {
 		})).find("#relative_time", context).on("click", function(e){
       $("#schedule_type",context).prop("checked",false);
       if($(this).is(":checked")){
-        $("#no_relative_time_form, .periodic",context).hide();
+        $("#no_relative_time_form, .periodic",context).addClass("hide");
         $("#schedule_time",context).prop("",false);
-        $("#relative_time_form",context).show();
+        $("#relative_time_form",context).removeClass("hide");
       }else{
-        $("#relative_time_form",context).hide();
-        $("#no_relative_time_form",context).show();
+        $("#relative_time_form",context).addClass("hide");
+        $("#no_relative_time_form",context).removeClass("hide");
       }
     });
 		if (res === "vms"){
@@ -287,6 +287,7 @@ define(function (require) {
     }
     sched_action.ACTION = new_action;
     $("#scheduling_" + this.res + "_actions_table .create", context).remove();
+    $("#no_relative_time_form",context).addClass("hide");
     $("#add_scheduling_" + this.res + "_action", context).removeAttr("disabled");
     return sched_action;
 	}
