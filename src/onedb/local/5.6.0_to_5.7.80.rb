@@ -396,8 +396,6 @@ module Migrator
     end
 
     def create_idxs
-        require 'pry'
-        binding.pry
         if !is_fts_available
             create_idx(:index_sqlite, db_version)
         else
