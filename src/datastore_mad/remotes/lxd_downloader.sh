@@ -105,7 +105,9 @@ for p in ${arguments//&/ }; do
     [ -n "$k" -a -n "$v" ] && eval $k=$v;
 done
 
-extension="tar.xz"
+#Only works with double extensions (.tar.xz and .tar.gz)
+extension=`echo $rootfs_url | rev | cut -d "." -f 1,2 | rev`
+#extension="tar.xz"
 
 distro=`echo $rootfs_url | cut -d '/' -f 5`
 version=`echo $rootfs_url | cut -d '/' -f 6`
