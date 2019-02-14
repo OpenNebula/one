@@ -65,9 +65,7 @@ CONTEXT = [
         @options.merge!(options)
 
         version_path = File.dirname(__FILE__) + '/../../VERSION'
-        value = "OpenNebula #{File.read(version_path)}"
-
-        @options[:agent] = value if File.exist? version_path
+        @options[:agent] = "OpenNebula #{File.read(version_path)}" if File.exist? version_path
     end
 
     # Get container information
