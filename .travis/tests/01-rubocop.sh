@@ -17,3 +17,16 @@
 # lint ruby code
 
 ln -s share/linters/.rubocop.yml . && rubocop
+
+rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
+
+# check for require 'pry'
+find . -name "*.rb"|xargs grep 'require'|grep "pry\|pry-byebug"
+
+rc=$?; if [[ $rc != 1 ]]; then exit 1; fi
+
+find src/cli/* \( -path src/cli/one_helper -o -path src/cli/etc \) -prune -o -print |xargs grep 'require'|grep "pry\|pry-byebug"
+
+rc=$?; if [[ $rc != 1 ]]; then exit 1; fi
+
+exit 0
