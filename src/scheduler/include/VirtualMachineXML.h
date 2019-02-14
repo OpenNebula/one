@@ -160,6 +160,11 @@ public:
         return dsid;
     };
 
+    time_t get_stime() const
+    {
+        return stime;
+    }
+
     bool is_resched() const
     {
         return (resched == 1);
@@ -586,7 +591,7 @@ protected:
 
     int   state;
 
-    long int         memory;
+    long int    memory;
     float       cpu;
     long long   system_ds_usage;
 
@@ -599,6 +604,8 @@ protected:
 
     string ds_requirements;
     string ds_rank;
+
+    time_t stime;
 
     set<int> nics_ids_auto;
 

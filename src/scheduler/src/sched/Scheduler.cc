@@ -1737,7 +1737,7 @@ int Scheduler::do_scheduled_actions()
         {
             ostringstream oss;
 
-            if (!(*action)->is_due())
+            if (!(*action)->is_due(vm->get_stime()))
             {
                 continue;
             }

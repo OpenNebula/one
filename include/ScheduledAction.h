@@ -99,9 +99,10 @@ public:
     int parse(std::string& error, bool clean);
 
     /**
+     *  @param stime time when the time was started for relative time specs
      *  @return true if the action needs to be executed.
      */
-    bool is_due();
+    bool is_due(time_t stime);
 
     /**
      *  Compute the next action, updating the TIME attribute for this action

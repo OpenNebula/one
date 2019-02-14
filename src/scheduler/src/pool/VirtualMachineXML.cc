@@ -169,6 +169,8 @@ void VirtualMachineXML::init_attributes()
 
     xpath(action, "/VM/HISTORY_RECORDS/HISTORY/ACTION", -1);
 
+    xpath(stime,  "/VM/STIME", (time_t) 0);
+
     resume = (action == History::STOP_ACTION ||
               action == History::UNDEPLOY_ACTION ||
               action == History::UNDEPLOY_HARD_ACTION );

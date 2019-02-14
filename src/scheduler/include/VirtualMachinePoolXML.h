@@ -165,8 +165,8 @@ protected:
     {
         ostringstream oss;
 
-        oss << "/VM_POOL/VM/USER_TEMPLATE/SCHED_ACTION[TIME < " << time(0)
-            << " and not(DONE > 0)]/../..";
+        oss << "/VM_POOL/VM/USER_TEMPLATE/SCHED_ACTION[(TIME < " << time(0)
+            << " and not(DONE > 0)) or ( TIME[starts-with(text(),\"+\")] and not(DONE>0) ) ]/../..";
 
         return get_nodes(oss.str().c_str(), content);
     }

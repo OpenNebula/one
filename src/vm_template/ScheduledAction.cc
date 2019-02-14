@@ -293,13 +293,32 @@ static int days_in_period(SchedAction::Repeat& r, int month, int year)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool SchedAction::is_due()
+bool SchedAction::is_due(time_t stime)
 {
-    time_t action_time, done_time;
+    time_t action_time, done_time, origin = 0;
+
+    std::istringstream iss;
 
     bool has_done = vector_value("DONE", done_time) == 0;
 
-    vector_value("TIME", action_time);
+    std::string action_time_s = vector_value("TIME");
+
+    if ( action_time_s[0] == '+' )
+    {
+        origin = stime;
+        action_time_s.erase(0, 1);
+    }
+
+    iss.str(action_time_s);
+
+    iss >> action_time;
+
+    if (iss.fail() || !iss.eof())
+    {
+        return false;
+    }
+
+    action_time += origin;
 
     return ((!has_done || done_time < action_time) && action_time < time(0));
 }
