@@ -271,8 +271,6 @@ int ClusterPool::add_to_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster
 {
     string table, names;
 
-    int rc;
-
     switch (type)
     {
         case PoolObjectSQL::DATASTORE:
@@ -290,7 +288,7 @@ int ClusterPool::add_to_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster
             return -1;
     }
 
-    rc = cluster->add_resource(type, resource_id, error_msg);
+    int rc = cluster->add_resource(type, resource_id, error_msg);
 
     if (rc != 0)
     {
@@ -370,7 +368,6 @@ int ClusterPool::del_from_cluster(PoolObjectSQL::ObjectType type, Cluster* clust
             return -1;
         }
     }
-
 
     update(cluster);
 

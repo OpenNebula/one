@@ -87,9 +87,34 @@ public:
     }
 
     // *************************************************************************
+    // DataBase implementation (Public)
+    // *************************************************************************
+    /**
+     * Function to print the Cluster object into a string in XML format
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    string& to_xml(string& xml) const;
+
+    /**
+     *  Rebuilds the object from an xml formatted string
+     *    @param xml_str The xml-formatted string
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int from_xml(const string &xml_str);
+
+private:
+
+    // -------------------------------------------------------------------------
+    // Friends
+    // -------------------------------------------------------------------------
+
+    friend class ClusterPool;
+
+    // *************************************************************************
     // VNC Port management function
     // *************************************************************************
-
     /**
      *  Returns a free VNC port, it will try first to allocate base_port + vmid.
      *  If this port is not free the first lower port from the VNC_PORT/START
@@ -115,33 +140,6 @@ public:
     {
         return vnc_bitmap.set(port);
     }
-
-    // *************************************************************************
-    // DataBase implementation (Public)
-    // *************************************************************************
-
-    /**
-     * Function to print the Cluster object into a string in XML format
-     *  @param xml the resulting XML string
-     *  @return a reference to the generated string
-     */
-    string& to_xml(string& xml) const;
-
-    /**
-     *  Rebuilds the object from an xml formatted string
-     *    @param xml_str The xml-formatted string
-     *
-     *    @return 0 on success, -1 otherwise
-     */
-    int from_xml(const string &xml_str);
-
-private:
-
-    // -------------------------------------------------------------------------
-    // Friends
-    // -------------------------------------------------------------------------
-
-    friend class ClusterPool;
 
     // *************************************************************************
     // Constructor
@@ -234,11 +232,7 @@ private:
     {
         string error_str;
 
-        int rc = insert_replace(db, true, error_str);
-
-        rc += vnc_bitmap.update(db);
-
-        return rc;
+        return insert_replace(db, true, error_str);
     }
 
     /**
