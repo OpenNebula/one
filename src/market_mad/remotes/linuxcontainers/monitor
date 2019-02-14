@@ -35,16 +35,22 @@ class LinuxContainersMarket
         :sizemb => 1024,
         :fs => 'ext4',
         :format => 'raw',
-        :agent => 'OpenNebula',
-        :template => {
-            :CPU => '1', :MEMORY => '768', :LXD_SECURITY_PRIVILEGED => 'true',
-            :GRAPHICS => { :LISTEN => '0.0.0.0', :TYPE => 'vnc' },
-            :CONTEXT => {
-                :NETWORK => 'YES', :SSH_PUBLIC_KEY => '$USER[SSH_PUBLIC_KEY]',
-                :SET_HOSTNAME => '$NAME'
+        :agent => 'OpenNebula'
             }
-        }
-    }
+
+    TEMPLATE = "
+CPU = \"1\"
+MEMORY = \"768\"
+LXD_SECURITY_PRIVILEGED = \"true\"
+GRAPHICS = [
+    LISTEN  =\"0.0.0.0\",
+    TYPE  =\"vnc\"
+]
+CONTEXT = [
+    NETWORK  =\"YES\",
+    SSH_PUBLIC_KEY  =\"$USER[SSH_PUBLIC_KEY]\",
+    SET_HOSTNAME  =\"$NAME\"
+    ]"
 
     #---------------------------------------------------------------------------
     # Configuration varibales
@@ -166,8 +172,7 @@ class LinuxContainersMarket
                 tmpl64 = ''
                 print_var(tmpl64, 'DRIVER', 'raw')
                 print_var(tmpl, 'APPTEMPLATE64', Base64.strict_encode64(tmpl64))
-
-                print_var(tmpl, 'VMTEMPLATE64', vm_tmpl64)
+                print_var(tmpl, 'VMTEMPLATE64', Base64.strict_encode64(TEMPLATE))
 
                 appstr << "APP=\"#{Base64.strict_encode64(tmpl)}\"\n"
             end
@@ -196,34 +201,6 @@ class LinuxContainersMarket
         return if val.class == String && val.empty?
 
         str << "#{name}=\"#{val}\"\n"
-    end
-
-    def vm_tmpl64
-        template = JSON.generate(DEFAULTS[:template])
-        template = JSON.parse(template, :symbolize_names => true)
-        template = template_to_str(template)
-        Base64.strict_encode64(template)
-    end
-
-    def template_to_str(thash)
-        thash.collect do |key, value|
-            next if value.nil? || value.empty?
-
-            case value.class.name
-            when 'Hash'
-                attr = "#{key.to_s.upcase} = [ "
-
-                attr << value.collect do |k, v|
-                    next if v.nil? || v.empty?
-
-                    "#{k.to_s.upcase}  =\"#{v}\""
-                end.compact.join(',')
-
-                attr << "]\n"
-            when 'String'
-                "#{key.to_s.upcase} = \"#{value}\""
-            end
-        end.compact.join("\n")
     end
 
 end
