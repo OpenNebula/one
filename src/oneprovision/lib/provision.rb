@@ -270,7 +270,10 @@ module OneProvision
 
                 cfg[r].each do |x|
                     begin
-                        driver = cfg['defaults']['provision']['driver']
+                        if cfg['defaults'] && cfg['defaults']['driver']
+                            driver = cfg['defaults']['provision']['driver']
+                        end
+
                         r_name = "#{r}: #{x['name']}"
 
                         Driver.retry_loop "Failed to create #{r_name}" do

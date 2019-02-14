@@ -79,7 +79,6 @@ module OneProvision
             def check_config(config)
                 name = config['name']
                 version = config['version']
-                defaults = config['defaults']['provision']
 
                 if !version.nil? && version != 1
                     Utils.fail('There is an error in your configuration ' \
@@ -91,11 +90,6 @@ module OneProvision
                                'file: no name given')
                 end
 
-                if defaults.nil?
-                    Utils.fail('There is an error in your configuration' \
-                               'file: defaults provision is missing')
-                end
-
                 if config['hosts']
                     config['hosts'].each_with_index do |h, i|
                         im = h['im_mad']
@@ -105,7 +99,7 @@ module OneProvision
                         if im.nil?
                             Utils.fail('There is an error in your ' \
                                        'configuration file: there is ' \
-                                        "no im_mad in host #{i + 1}")
+                                       "no im_mad in host #{i + 1}")
                         end
 
                         if vm.nil?
@@ -124,13 +118,25 @@ module OneProvision
                     end
                 end
 
-                return unless config['datastores']
+                if config['datastores']
+                    config['datastores'].each_with_index do |d, i|
+                        if d['tm_mad'].nil?
+                            Utils.fail('There is an error in your ' \
+                                       'configuration file: there is '\
+                                       "no tm_mad in datastore #{i + 1}")
+                        end
 
-                config['datastores'].each_with_index do |d, i|
-                    if d['tm_mad'].nil?
+                        next
+                    end
+                end
+
+                return unless config['networks']
+
+                config['networks'].each_with_index do |n, i|
+                    if n['vn_mad'].nil?
                         Utils.fail('There is an error in your ' \
                                    'configuration file: there is '\
-                                   "no tm_mad in datastore #{i + 1}")
+                                   "no vn_mad in newtork #{i + 1}")
                     end
 
                     next
@@ -149,6 +155,8 @@ module OneProvision
                     cluster = yaml['cluster']
 
                     yaml['cluster'] = { 'name' => yaml['name'] } if cluster.nil?
+
+                    defaults = yaml['defaults']
 
                     # TODO: schema check
                     if yaml['hosts']
@@ -174,12 +182,25 @@ module OneProvision
                         next unless yaml[r]
 
                         yaml[r] = yaml[r].map do |x|
-                            x['provision'] = yaml['defaults']['provision']
+                            if defaults && x['provision']
+                                x['provision'].merge!(defaults['provision'])
+                            else
+                                x['provision'] = {} unless x['provision']
+                            end
+
                             x
                         end
                     end
 
-                    yaml['cluster']['provision'] = yaml['defaults']['provision']
+                    cluster_p = yaml['cluster']['provision']
+
+                    if defaults && cluster_p
+                        yaml['cluster']['provision']
+                            .merge!(defaults['provision'])
+                    else
+
+                        yaml['cluster']['provision'] = {} unless cluster_p
+                    end
                 rescue StandardError => e
                     Utils.fail("Failed to read configuration: #{e}")
                 end
