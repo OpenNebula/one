@@ -37,7 +37,7 @@ class LinuxContainersMarket
         :fs => 'ext4',
         :format => 'raw',
         :agent => 'OpenNebula'
-            }
+    }
 
     TEMPLATE = "
 CPU = \"1\"
@@ -148,25 +148,16 @@ CONTEXT = [
         #-----------------------------------------------------------------------
         tree.each do |distro, value|
             value.each do |version, path|
-                id = '-1'
                 source = app_url(path)
                 description = 'Downloaded from https://images.linuxcontainers.org'
                 name = "#{distro[0...-1]}_#{version[0...-1]} - LXD"
 
+                l1 = %w[NAME SOURCE IMPORT_ID ORIGIN_ID TYPE PUBLISHER FORMAT DESCRIPTION VERSION TAGS REGTIME SIZE]
+                l2 = [name, source.to_s, '-1', '-1', 'IMAGE', 'linuxcontainers.org', 'raw', description, '1.0', '', app_time(path), @options[:sizemb]]
+
                 tmpl = ''
 
-                print_var(tmpl, 'NAME', name)
-                print_var(tmpl, 'SOURCE', source.to_s)
-                print_var(tmpl, 'IMPORT_ID', id)
-                print_var(tmpl, 'ORIGIN_ID', '-1')
-                print_var(tmpl, 'TYPE', 'IMAGE')
-                print_var(tmpl, 'PUBLISHER', 'linuxcontainers.org')
-                print_var(tmpl, 'FORMAT', 'raw')
-                print_var(tmpl, 'DESCRIPTION', description)
-                print_var(tmpl, 'VERSION', '1.0')
-                print_var(tmpl, 'TAGS', '')
-                print_var(tmpl, 'REGTIME', '1523362012')
-                print_var(tmpl, 'SIZE', @options[:sizemb])
+                0.upto(l1.length) {|i| print_var(tmpl, l1[i], l2[i]) }
 
                 tmpl64 = ''
                 print_var(tmpl64, 'DRIVER', 'raw')
@@ -226,10 +217,10 @@ begin
     drv_message = Base64.decode64(ARGV[0])
     doc = REXML::Document.new(drv_message).root
 
-    set_option(options, doc, :url, 'MARKETPLACE/TEMPLATE/ENDPOINT')
-    set_option(options, doc, :sizemb, 'MARKETPLACE/TEMPLATE/IMAGE_SIZE_MB')
-    set_option(options, doc, :fs, 'MARKETPLACE/TEMPLATE/FILESYSTEM')
-    set_option(options, doc, :format, 'MARKETPLACE/TEMPLATE/FORMAT')
+    l1 = %i[url sizemb fs format]
+    l2 = ['MARKETPLACE/TEMPLATE/ENDPOINT', 'MARKETPLACE/TEMPLATE/IMAGE_SIZE_MB', 'MARKETPLACE/TEMPLATE/FILESYSTEM', 'MARKETPLACE/TEMPLATE/FORMAT']
+
+    0.upto(l1.length) {|i| set_option(options, doc, l1[i], l2[i]) }
 
     puts LinuxContainersMarket.new(options).get_appliances
 rescue Exception
