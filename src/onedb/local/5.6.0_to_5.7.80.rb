@@ -40,6 +40,7 @@ module Migrator
         feature_2253
         feature_2489_2671
         feature_826
+        create_idxs
         true
     end
 
@@ -75,11 +76,7 @@ module Migrator
         @db.run 'DROP TABLE IF EXISTS old_vm_pool;'
         @db.run 'ALTER TABLE vm_pool RENAME TO old_vm_pool;'
 
-        if !is_fts_available
-            create_table(:vm_pool_sqlite, "vm_pool", db_version)
-        else
-            create_table(:vm_pool, nil, db_version)
-        end
+        create_table(:vm_pool)
 
         @db.transaction do
             # updates VM's nics
@@ -113,11 +110,7 @@ module Migrator
         @db.run 'DROP TABLE IF EXISTS old_vm_pool;'
         @db.run 'ALTER TABLE vm_pool RENAME TO old_vm_pool;'
 
-        if !is_fts_available
-            create_table(:vm_pool_sqlite, "vm_pool", db_version)
-        else
-            create_table(:vm_pool, nil, db_version)
-        end
+        create_table(:vm_pool)
 
         @db.transaction do
             @db.fetch('SELECT * FROM old_vm_pool') do |row|
@@ -366,11 +359,7 @@ module Migrator
         @db.run "DROP TABLE IF EXISTS old_vm_pool;"
         @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
 
-        if !is_fts_available
-            create_table(:vm_pool_sqlite, "vm_pool", db_version)
-        else
-            create_table(:vm_pool, nil, db_version)
-        end
+        create_table(:vm_pool)
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_vm_pool") do |row|
@@ -404,5 +393,13 @@ module Migrator
         end
 
         @db.run "DROP TABLE old_vm_pool;"
+    end
+
+    def create_idxs
+        if !is_fts_available
+            create_idx(:index_sqlite, db_version)
+        else
+            create_idx(:index_sql, db_version)
+        end
     end
 end
