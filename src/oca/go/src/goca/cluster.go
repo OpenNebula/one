@@ -7,11 +7,13 @@ import (
 
 // ClusterPool represents an OpenNebula ClusterPool
 type ClusterPool struct {
+	c        OneClient
 	Clusters []Cluster `xml:"CLUSTER"`
 }
 
 // Cluster represents an OpenNebula Cluster
 type Cluster struct {
+	c            OneClient       `xml:"-"`
 	ID           uint            `xml:"ID"`
 	Name         string          `xml:"NAME"`
 	HostsID      []int           `xml:"HOSTS>ID"`
@@ -29,34 +31,38 @@ type clusterTemplate struct {
 
 // NewClusterPool returns a cluster pool. A connection to OpenNebula is
 // performed.
-func NewClusterPool() (*ClusterPool, error) {
+func NewClusterPool(client OneClient) (*ClusterPool, error) {
 	response, err := client.Call("one.clusterpool.info")
 	if err != nil {
 		return nil, err
 	}
 
-	clusterPool := &ClusterPool{}
+	clusterPool := &ClusterPool{c: client}
 	err = xml.Unmarshal([]byte(response.Body()), clusterPool)
 	if err != nil {
 		return nil, err
 	}
 
-	return clusterPool, nil
+	// Propagate the client
+	for i := 0; i < len(clusterPool.Clusters); i++ {
+		clusterPool.Clusters[i].c = client
+	}
 
+	return clusterPool, nil
 }
 
 // NewCluster finds a cluster object by ID. No connection to OpenNebula.
-func NewCluster(id uint) *Cluster {
-	return &Cluster{ID: id}
+func NewCluster(client OneClient, id uint) *Cluster {
+	return &Cluster{c: client, ID: id}
 }
 
 // NewClusterFromName finds a cluster object by name. It connects to
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the cluster.
-func NewClusterFromName(name string) (*Cluster, error) {
+func NewClusterFromName(client OneClient, name string) (*Cluster, error) {
 	var id uint
 
-	clusterPool, err := NewClusterPool()
+	clusterPool, err := NewClusterPool(client)
 	if err != nil {
 		return nil, err
 	}
@@ -76,11 +82,11 @@ func NewClusterFromName(name string) (*Cluster, error) {
 		return nil, errors.New("resource not found")
 	}
 
-	return NewCluster(id), nil
+	return NewCluster(client, id), nil
 }
 
 // CreateCluster allocates a new cluster. It returns the new cluster ID.
-func CreateCluster(name string) (uint, error) {
+func CreateCluster(client OneClient, name string) (uint, error) {
 	response, err := client.Call("one.cluster.allocate", name)
 	if err != nil {
 		return 0, err
@@ -91,7 +97,7 @@ func CreateCluster(name string) (uint, error) {
 
 // Delete deletes the given cluster from the pool.
 func (cluster *Cluster) Delete() error {
-	_, err := client.Call("one.cluster.delete", cluster.ID)
+	_, err := cluster.c.Call("one.cluster.delete", cluster.ID)
 	return err
 }
 
@@ -101,62 +107,62 @@ func (cluster *Cluster) Delete() error {
 // * appendCluster: Update type: 0: Replace the whole cluster. 1: Merge new
 //   	cluster with the existing one.
 func (cluster *Cluster) Update(tpl string, appendCluster int) error {
-	_, err := client.Call("one.cluster.update", cluster.ID, tpl, appendCluster)
+	_, err := cluster.c.Call("one.cluster.update", cluster.ID, tpl, appendCluster)
 	return err
 }
 
 // AddHost adds a host to the given cluster.
 // * hostID: The host ID.
 func (cluster *Cluster) AddHost(hostID uint) error {
-	_, err := client.Call("one.cluster.addhost", cluster.ID, int(hostID))
+	_, err := cluster.c.Call("one.cluster.addhost", cluster.ID, int(hostID))
 	return err
 }
 
 // DelHost removes a host from the given cluster.
 // * hostID: The host ID.
 func (cluster *Cluster) DelHost(hostID uint) error {
-	_, err := client.Call("one.cluster.delhost", cluster.ID, int(hostID))
+	_, err := cluster.c.Call("one.cluster.delhost", cluster.ID, int(hostID))
 	return err
 }
 
 // AddDatastore adds a datastore to the given cluster.
 // * dsID: The datastore ID.
 func (cluster *Cluster) AddDatastore(dsID uint) error {
-	_, err := client.Call("one.cluster.adddatastore", cluster.ID, int(dsID))
+	_, err := cluster.c.Call("one.cluster.adddatastore", cluster.ID, int(dsID))
 	return err
 }
 
 // DelDatastore removes a datastore from the given cluster.
 // * dsID: The datastore ID.
 func (cluster *Cluster) DelDatastore(dsID uint) error {
-	_, err := client.Call("one.cluster.deldatastore", cluster.ID, int(dsID))
+	_, err := cluster.c.Call("one.cluster.deldatastore", cluster.ID, int(dsID))
 	return err
 }
 
 // AddVnet adds a vnet to the given cluster.
 // * vnetID: The vnet ID.
 func (cluster *Cluster) AddVnet(vnetID uint) error {
-	_, err := client.Call("one.cluster.addvnet", cluster.ID, int(vnetID))
+	_, err := cluster.c.Call("one.cluster.addvnet", cluster.ID, int(vnetID))
 	return err
 }
 
 // DelVnet removes a vnet from the given cluster.
 // * vnetID: The vnet ID.
 func (cluster *Cluster) DelVnet(vnetID uint) error {
-	_, err := client.Call("one.cluster.delvnet", cluster.ID, int(vnetID))
+	_, err := cluster.c.Call("one.cluster.delvnet", cluster.ID, int(vnetID))
 	return err
 }
 
 // Rename renames a cluster.
 // * newName: The new name.
 func (cluster *Cluster) Rename(newName string) error {
-	_, err := client.Call("one.cluster.rename", cluster.ID, newName)
+	_, err := cluster.c.Call("one.cluster.rename", cluster.ID, newName)
 	return err
 }
 
 // Info retrieves information for the cluster.
 func (cluster *Cluster) Info() error {
-	response, err := client.Call("one.cluster.info", cluster.ID)
+	response, err := cluster.c.Call("one.cluster.info", cluster.ID)
 	if err != nil {
 		return err
 	}

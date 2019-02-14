@@ -8,6 +8,7 @@ import (
 
 // ZonePool represents an OpenNebula ZonePool
 type ZonePool struct {
+	c          OneClient
 	ID         uint         `xml:"ZONE>ID"`
 	Name       string       `xml:"ZONE>NAME"`
 	Template   zoneTemplate `xml:"ZONE>TEMPLATE"`
@@ -16,6 +17,7 @@ type ZonePool struct {
 
 // Zone represents an OpenNebula Zone
 type Zone struct {
+	c          OneClient
 	ID         uint         `xml:"ID"`
 	Name       string       `xml:"NAME"`
 	Template   zoneTemplate `xml:"TEMPLATE"`
@@ -77,34 +79,32 @@ func (st ZoneServerRaftState) String() string {
 }
 
 // NewZonePool returns a zone pool. A connection to OpenNebula is
-
-// NewZonePool returns a zone pool. A connection to OpenNebula is
 // performed.
-func NewZonePool() (*ZonePool, error) {
+func NewZonePool(client OneClient) (*ZonePool, error) {
 	response, err := client.Call("one.zonepool.info")
 	if err != nil {
 		return nil, err
 	}
 
-	zonePool := &ZonePool{}
+	zonePool := &ZonePool{c: client}
 	err = xml.Unmarshal([]byte(response.Body()), zonePool)
 	if err != nil {
 		return nil, err
 	}
 
-	return zonePool, err
+	return zonePool, nil
 }
 
 // NewZone finds a zone object by ID. No connection to OpenNebula.
-func NewZone(id uint) *Zone {
-	return &Zone{ID: id}
+func NewZone(client OneClient, id uint) *Zone {
+	return &Zone{c: client, ID: id}
 }
 
 // NewZoneFromName finds a zone object by name. It connects to
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the zone.
-func NewZoneFromName(name string) (*Zone, error) {
-	zonePool, err := NewZonePool()
+func NewZoneFromName(client OneClient, name string) (*Zone, error) {
+	zonePool, err := NewZonePool(client)
 	if err != nil {
 		return nil, err
 	}
@@ -113,14 +113,14 @@ func NewZoneFromName(name string) (*Zone, error) {
 		return nil, errors.New("resource not found")
 	}
 
-	return NewZone(zonePool.ID), nil
+	return NewZone(client, zonePool.ID), nil
 }
 
 // CreateZone allocates a new zone. It returns the new zone ID.
 // * tpl:	A string containing the template of the ZONE. Syntax can be the usual
 //     attribute=value or XML.
 // * clusterID: The id of the cluster. If -1, the default one will be used
-func CreateZone(tpl string, clusterID int) (uint, error) {
+func CreateZone(client OneClient, tpl string, clusterID int) (uint, error) {
 	response, err := client.Call("one.zone.allocate", tpl, clusterID)
 	if err != nil {
 		return 0, err
@@ -131,7 +131,7 @@ func CreateZone(tpl string, clusterID int) (uint, error) {
 
 // Delete deletes the given zone from the pool.
 func (zone *Zone) Delete() error {
-	_, err := client.Call("one.zone.delete", zone.ID)
+	_, err := zone.c.Call("one.zone.delete", zone.ID)
 	return err
 }
 
@@ -139,20 +139,20 @@ func (zone *Zone) Delete() error {
 // * tpl: The new template contents. Syntax can be the usual attribute=value or XML.
 // * appendTemplate: Update type: 0: Replace the whole template. 1: Merge new template with the existing one.
 func (zone *Zone) Update(tpl string, appendTemplate int) error {
-	_, err := client.Call("one.zone.update", zone.ID, tpl, appendTemplate)
+	_, err := zone.c.Call("one.zone.update", zone.ID, tpl, appendTemplate)
 	return err
 }
 
 // Rename renames a zone.
 // * newName: The new name.
 func (zone *Zone) Rename(newName string) error {
-	_, err := client.Call("one.zone.rename", zone.ID, newName)
+	_, err := zone.c.Call("one.zone.rename", zone.ID, newName)
 	return err
 }
 
 // Info retrieves information for the zone.
 func (zone *Zone) Info() error {
-	response, err := client.Call("one.zone.info", zone.ID)
+	response, err := zone.c.Call("one.zone.info", zone.ID)
 	if err != nil {
 		return err
 	}
@@ -161,8 +161,8 @@ func (zone *Zone) Info() error {
 }
 
 //GetRaftStatus give the raft status of the server behind the current RPC endpoint. To get endpoints make an info call.
-func GetRaftStatus(serverUrl string) (*ZoneServerRaftStatus, error) {
-	response, err := client.endpointCall(serverUrl, "one.zone.raftstatus")
+func GetRaftStatus(client OneClient, serverUrl string) (*ZoneServerRaftStatus, error) {
+	response, err := client.EndpointCall(serverUrl, "one.zone.raftstatus")
 	if err != nil {
 		return nil, err
 	}

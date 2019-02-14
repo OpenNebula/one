@@ -8,11 +8,13 @@ import (
 
 // VMPool represents an OpenNebula Virtual Machine pool
 type VMPool struct {
+	c   OneClient
 	VMs []VM `xml:"VM"`
 }
 
 // VM represents an OpenNebula Virtual Machine
 type VM struct {
+	c               OneClient
 	ID              uint              `xml:"ID"`
 	UID             int               `xml:"UID"`
 	GID             int               `xml:"GID"`
@@ -559,7 +561,7 @@ func (l LCMState) String() string {
 }
 
 // NewVMPool returns a new image pool. It accepts the scope of the query.
-func NewVMPool(args ...int) (*VMPool, error) {
+func NewVMPool(client OneClient, args ...int) (*VMPool, error) {
 	var who, start, end, state int
 
 	switch len(args) {
@@ -592,10 +594,15 @@ func NewVMPool(args ...int) (*VMPool, error) {
 		return nil, err
 	}
 
-	vmPool := &VMPool{}
+	vmPool := &VMPool{c: client}
 	err = xml.Unmarshal([]byte(response.Body()), vmPool)
 	if err != nil {
 		return nil, err
+	}
+
+	// Propagate the client
+	for i := 0; i < len(vmPool.VMs); i++ {
+		vmPool.VMs[i].c = client
 	}
 
 	return vmPool, nil
@@ -609,7 +616,7 @@ func NewVMPool(args ...int) (*VMPool, error) {
 // -1: Resources belonging to the user and any of his groups
 // >= 0: UID User's Resources
 func (vmpool *VMPool) Monitoring(filter int) error {
-	_, err := client.Call("one.vmpool.monitoring", filter)
+	_, err := vmpool.c.Call("one.vmpool.monitoring", filter)
 	return err
 }
 
@@ -622,7 +629,7 @@ func (vmpool *VMPool) Monitoring(filter int) error {
 //   >= 0: UID User's Resources
 // if startTime and/or endTime are -1 it means no limit
 func (vmpool *VMPool) Accounting(filter, startTime, endTime int) error {
-	_, err := client.Call("one.vmpool.accounting", filter)
+	_, err := vmpool.c.Call("one.vmpool.accounting", filter)
 	return err
 }
 
@@ -641,7 +648,7 @@ func (vmpool *VMPool) Accounting(filter, startTime, endTime int) error {
 // lastYear: Can be -1, in which case the time interval won't have a right
 //   boundary.
 func (vmpool *VMPool) Showback(filter, firstMonth, firstYear, lastMonth, lastYear int) error {
-	_, err := client.Call("one.vmpool.showback", filter, firstMonth, firstYear, lastMonth, lastYear)
+	_, err := vmpool.c.Call("one.vmpool.showback", filter, firstMonth, firstYear, lastMonth, lastYear)
 	return err
 }
 
@@ -655,13 +662,13 @@ func (vmpool *VMPool) Showback(filter, firstMonth, firstYear, lastMonth, lastYea
 // lastYear: Can be -1, in which case the time interval won't have a right
 //   boundary.
 func (vmpool *VMPool) CalculateShowback(firstMonth, firstYear, lastMonth, lastYear int) error {
-	_, err := client.Call("one.vmpool.calculateshowback", firstMonth, firstYear, lastMonth, lastYear)
+	_, err := vmpool.c.Call("one.vmpool.calculateshowback", firstMonth, firstYear, lastMonth, lastYear)
 	return err
 }
 
 // CreateVM allocates a new VM based on the template string provided. It
 // returns the image ID
-func CreateVM(template string, pending bool) (uint, error) {
+func CreateVM(client OneClient, template string, pending bool) (uint, error) {
 	response, err := client.Call("one.vm.allocate", template, pending)
 	if err != nil {
 		return 0, err
@@ -672,17 +679,17 @@ func CreateVM(template string, pending bool) (uint, error) {
 
 // NewVM finds an VM by ID returns a new VM object. At this stage no
 // connection to OpenNebula is performed.
-func NewVM(id uint) *VM {
-	return &VM{ID: id}
+func NewVM(client OneClient, id uint) *VM {
+	return &VM{c: client, ID: id}
 }
 
 // NewVMFromName finds the VM by name and returns a VM object. It connects to
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the VM.
-func NewVMFromName(name string) (*VM, error) {
+func NewVMFromName(client OneClient, name string) (*VM, error) {
 	var id uint
 
-	vmPool, err := NewVMPool()
+	vmPool, err := NewVMPool(client)
 	if err != nil {
 		return nil, err
 	}
@@ -702,7 +709,7 @@ func NewVMFromName(name string) (*VM, error) {
 		return nil, errors.New("resource not found")
 	}
 
-	return NewVM(id), nil
+	return NewVM(client, id), nil
 }
 
 // State returns the VMState and LCMState
@@ -733,13 +740,13 @@ func (vm *VM) StateString() (string, string, error) {
 
 // Action is the generic method to run any action on the VM
 func (vm *VM) Action(action string) error {
-	_, err := client.Call("one.vm.action", action, vm.ID)
+	_, err := vm.c.Call("one.vm.action", action, vm.ID)
 	return err
 }
 
 // Info connects to OpenNebula and fetches the information of the VM
 func (vm *VM) Info() error {
-	response, err := client.Call("one.vm.info", vm.ID)
+	response, err := vm.c.Call("one.vm.info", vm.ID)
 	if err != nil {
 		return err
 	}
@@ -750,46 +757,46 @@ func (vm *VM) Info() error {
 // Update will modify the VM's template. If appendTemplate is 0, it will
 // replace the whole template. If its 1, it will merge.
 func (vm *VM) Update(tpl string, appendTemplate int) error {
-	_, err := client.Call("one.vm.update", vm.ID, tpl, appendTemplate)
+	_, err := vm.c.Call("one.vm.update", vm.ID, tpl, appendTemplate)
 	return err
 }
 
 // UpdateConf updates (appends) a set of supported configuration attributes in
 // the VM template
 func (vm *VM) UpdateConf(tpl string) error {
-	_, err := client.Call("one.vm.updateconf", vm.ID, tpl)
+	_, err := vm.c.Call("one.vm.updateconf", vm.ID, tpl)
 	return err
 }
 
 // Monitoring Returns the virtual machine monitoring records
 func (vm *VM) Monitoring() error {
-	_, err := client.Call("one.vm.monitoring", vm.ID)
+	_, err := vm.c.Call("one.vm.monitoring", vm.ID)
 	return err
 }
 
 // Chown changes the owner/group of a VM. If uid or gid is -1 it will not
 // change
 func (vm *VM) Chown(uid, gid int) error {
-	_, err := client.Call("one.vm.chown", vm.ID, uid, gid)
+	_, err := vm.c.Call("one.vm.chown", vm.ID, uid, gid)
 	return err
 }
 
 // Chmod changes the permissions of a VM. If any perm is -1 it will not
 // change
 func (vm *VM) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
-	_, err := client.Call("one.vm.chmod", vm.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
+	_, err := vm.c.Call("one.vm.chmod", vm.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
 	return err
 }
 
 // Rename changes the name of a VM
 func (vm *VM) Rename(newName string) error {
-	_, err := client.Call("one.vm.rename", vm.ID, newName)
+	_, err := vm.c.Call("one.vm.rename", vm.ID, newName)
 	return err
 }
 
 // Delete will remove the VM from OpenNebula
 func (vm *VM) Delete() error {
-	_, err := client.Call("one.vm.delete", vm.ID)
+	_, err := vm.c.Call("one.vm.delete", vm.ID)
 	return err
 }
 
@@ -797,62 +804,62 @@ func (vm *VM) Delete() error {
 // overcommitment. Enforce is automatically enabled for non-oneadmin users.
 // Set dsID to -1 to let OpenNebula choose the datastore.
 func (vm *VM) Deploy(hostID uint, enforce bool, dsID int) error {
-	_, err := client.Call("one.vm.deploy", vm.ID, int(hostID), enforce, dsID)
+	_, err := vm.c.Call("one.vm.deploy", vm.ID, int(hostID), enforce, dsID)
 	return err
 }
 
 // Resize changes the capacity of the virtual machine
 func (vm *VM) Resize(template string, enforce bool) error {
-	_, err := client.Call("one.vm.resize", vm.ID, template, enforce)
+	_, err := vm.c.Call("one.vm.resize", vm.ID, template, enforce)
 	return err
 }
 
 // DiskSaveas exports a disk to an image. If imageType is empty the default one
 // will be used. If snapID is -1 the current image state will be exported
 func (vm *VM) DiskSaveas(diskID int, imageName, imageType string, snapID int) error {
-	_, err := client.Call("one.vm.disksaveas", vm.ID, diskID, imageName, imageType, snapID)
+	_, err := vm.c.Call("one.vm.disksaveas", vm.ID, diskID, imageName, imageType, snapID)
 	return err
 }
 
 // DiskSnapshotCreate will create a snapshot of the disk image
 func (vm *VM) DiskSnapshotCreate(diskID int, description string) error {
-	_, err := client.Call("one.vm.disksnapshotcreate", vm.ID, diskID, description)
+	_, err := vm.c.Call("one.vm.disksnapshotcreate", vm.ID, diskID, description)
 	return err
 }
 
 // DiskSnapshotDelete will delete a snapshot
 func (vm *VM) DiskSnapshotDelete(diskID, snapID int) error {
-	_, err := client.Call("one.vm.disksnapshotdelete", vm.ID, diskID, snapID)
+	_, err := vm.c.Call("one.vm.disksnapshotdelete", vm.ID, diskID, snapID)
 	return err
 }
 
 // DiskSnapshotRevert will revert disk state to a previously taken snapshot
 func (vm *VM) DiskSnapshotRevert(diskID, snapID int) error {
-	_, err := client.Call("one.vm.disksnapshotrevert", vm.ID, diskID, snapID)
+	_, err := vm.c.Call("one.vm.disksnapshotrevert", vm.ID, diskID, snapID)
 	return err
 }
 
 // SnapshotCreate creates a new virtual machine snapshot. name can be empty
 func (vm *VM) SnapshotCreate(name string) error {
-	_, err := client.Call("one.vm.snapshotcreate", vm.ID, name)
+	_, err := vm.c.Call("one.vm.snapshotcreate", vm.ID, name)
 	return err
 }
 
 // SnapshotDelete deletes a virtual machine snapshot
 func (vm *VM) SnapshotDelete(snapID int) error {
-	_, err := client.Call("one.vm.snapshotdelete", vm.ID, snapID)
+	_, err := vm.c.Call("one.vm.snapshotdelete", vm.ID, snapID)
 	return err
 }
 
 // SnapshotRevert reverts a virtual machine to a snapshot
 func (vm *VM) SnapshotRevert(snapID int) error {
-	_, err := client.Call("one.vm.snapshotrevert", vm.ID, snapID)
+	_, err := vm.c.Call("one.vm.snapshotrevert", vm.ID, snapID)
 	return err
 }
 
 // DiskSnapshotRename renames a snapshot
 func (vm *VM) DiskSnapshotRename(diskID, snapID int, newName string) error {
-	_, err := client.Call("one.vm.disksnapshotrename", vm.ID, diskID, snapID, newName)
+	_, err := vm.c.Call("one.vm.disksnapshotrename", vm.ID, diskID, snapID, newName)
 	return err
 }
 
@@ -860,37 +867,37 @@ func (vm *VM) DiskSnapshotRename(diskID, snapID int, newName string) error {
 // a single DISK vector attribute. Syntax can be the usual attribute=value or
 // XML
 func (vm *VM) Attach(diskTemplate string) error {
-	_, err := client.Call("one.vm.attach", vm.ID, diskTemplate)
+	_, err := vm.c.Call("one.vm.attach", vm.ID, diskTemplate)
 	return err
 }
 
 // Detach a disk from a virtual machine
 func (vm *VM) Detach(diskID int) error {
-	_, err := client.Call("one.vm.detach", vm.ID, diskID)
+	_, err := vm.c.Call("one.vm.detach", vm.ID, diskID)
 	return err
 }
 
 // DiskResize a disk of a virtual machine
 func (vm *VM) DiskResize(diskID int, size string) error {
-	_, err := client.Call("one.vm.diskresize", vm.ID, diskID, size)
+	_, err := vm.c.Call("one.vm.diskresize", vm.ID, diskID, size)
 	return err
 }
 
 // Migrate a VM to a target host and/or to another ds
 func (vm *VM) Migrate(hostID uint, live, enforce bool, dsID uint, migrationType int) error {
-	_, err := client.Call("one.vm.migrate", int(hostID), live, enforce, int(dsID), migrationType)
+	_, err := vm.c.Call("one.vm.migrate", int(hostID), live, enforce, int(dsID), migrationType)
 	return err
 }
 
 // AttachNic attaches new network interface to the virtual machine
 func (vm *VM) AttachNic(tpl string) error {
-	_, err := client.Call("one.vm.attachnic", vm.ID, tpl)
+	_, err := vm.c.Call("one.vm.attachnic", vm.ID, tpl)
 	return err
 }
 
 // DetachNic detaches a network interface from the virtual machine
 func (vm *VM) DetachNic(nicID string) error {
-	_, err := client.Call("one.vm.detachnic", vm.ID, nicID)
+	_, err := vm.c.Call("one.vm.detachnic", vm.ID, nicID)
 	return err
 }
 
@@ -975,7 +982,7 @@ func (vm *VM) Unresched() error {
 
 // Recover recovers a stuck VM that is waiting for a driver operation
 func (vm *VM) Recover(op int) error {
-	_, err := client.Call("one.vm.recover", vm.ID, op)
+	_, err := vm.c.Call("one.vm.recover", vm.ID, op)
 	return err
 }
 

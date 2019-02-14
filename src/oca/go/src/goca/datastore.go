@@ -8,11 +8,13 @@ import (
 
 // DatastorePool represents an OpenNebula DatastorePool
 type DatastorePool struct {
+	c          OneClient
 	Datastores []Datastore `xml:"DATASTORE"`
 }
 
 // Datastore represents an OpenNebula Datastore
 type Datastore struct {
+	c           OneClient
 	ID          uint              `xml:"ID"`
 	UID         int               `xml:"UID"`
 	GID         int               `xml:"GID"`
@@ -65,33 +67,38 @@ func (st DatastoreState) String() string {
 
 // NewDatastorePool returns a datastore pool. A connection to OpenNebula is
 // performed.
-func NewDatastorePool() (*DatastorePool, error) {
+func NewDatastorePool(client OneClient) (*DatastorePool, error) {
 	response, err := client.Call("one.datastorepool.info")
 	if err != nil {
 		return nil, err
 	}
 
-	datastorePool := &DatastorePool{}
+	datastorePool := &DatastorePool{c: client}
 	err = xml.Unmarshal([]byte(response.Body()), datastorePool)
 	if err != nil {
 		return nil, err
+	}
+
+	// Propagate the client
+	for i := 0; i < len(datastorePool.Datastores); i++ {
+		datastorePool.Datastores[i].c = client
 	}
 
 	return datastorePool, nil
 }
 
 // NewDatastore finds a datastore object by ID. No connection to OpenNebula.
-func NewDatastore(id uint) *Datastore {
-	return &Datastore{ID: id}
+func NewDatastore(client OneClient, id uint) *Datastore {
+	return &Datastore{c: client, ID: id}
 }
 
 // NewDatastoreFromName finds a datastore object by name. It connects to
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the datastore.
-func NewDatastoreFromName(name string) (*Datastore, error) {
+func NewDatastoreFromName(client OneClient, name string) (*Datastore, error) {
 	var id uint
 
-	datastorePool, err := NewDatastorePool()
+	datastorePool, err := NewDatastorePool(client)
 	if err != nil {
 		return nil, err
 	}
@@ -111,13 +118,13 @@ func NewDatastoreFromName(name string) (*Datastore, error) {
 		return nil, errors.New("resource not found")
 	}
 
-	return NewDatastore(id), nil
+	return NewDatastore(client, id), nil
 }
 
 // CreateDatastore allocates a new datastore. It returns the new datastore ID.
 // * tpl: template of the datastore
 // * clusterID: The cluster ID. If it is -1, the default one will be used.
-func CreateDatastore(tpl string, clusterID int) (uint, error) {
+func CreateDatastore(client OneClient, tpl string, clusterID int) (uint, error) {
 	response, err := client.Call("one.datastore.allocate", tpl, clusterID)
 	if err != nil {
 		return 0, err
@@ -128,7 +135,7 @@ func CreateDatastore(tpl string, clusterID int) (uint, error) {
 
 // Delete deletes the given datastore from the pool.
 func (datastore *Datastore) Delete() error {
-	_, err := client.Call("one.datastore.delete", datastore.ID)
+	_, err := datastore.c.Call("one.datastore.delete", datastore.ID)
 	return err
 }
 
@@ -136,7 +143,7 @@ func (datastore *Datastore) Delete() error {
 // * tpl: The new template contents. Syntax can be the usual attribute=value or XML.
 // * appendTemplate: Update type: 0: Replace the whole template. 1: Merge new template with the existing one.
 func (datastore *Datastore) Update(tpl string, appendTemplate int) error {
-	_, err := client.Call("one.datastore.update", datastore.ID, tpl, appendTemplate)
+	_, err := datastore.c.Call("one.datastore.update", datastore.ID, tpl, appendTemplate)
 	return err
 }
 
@@ -151,7 +158,7 @@ func (datastore *Datastore) Update(tpl string, appendTemplate int) error {
 // * om: OTHER MANAGE bit. If set to -1, it will not change.
 // * oa: OTHER ADMIN bit. If set to -1, it will not change.
 func (datastore *Datastore) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
-	_, err := client.Call("one.datastore.chmod", datastore.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
+	_, err := datastore.c.Call("one.datastore.chmod", datastore.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
 	return err
 }
 
@@ -159,27 +166,27 @@ func (datastore *Datastore) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error 
 // * userID: The User ID of the new owner. If set to -1, it will not change.
 // * groupID: The Group ID of the new group. If set to -1, it will not change.
 func (datastore *Datastore) Chown(userID, groupID int) error {
-	_, err := client.Call("one.datastore.chown", datastore.ID, userID, groupID)
+	_, err := datastore.c.Call("one.datastore.chown", datastore.ID, userID, groupID)
 	return err
 }
 
 // Rename renames a datastore.
 // * newName: The new name.
 func (datastore *Datastore) Rename(newName string) error {
-	_, err := client.Call("one.datastore.rename", datastore.ID, newName)
+	_, err := datastore.c.Call("one.datastore.rename", datastore.ID, newName)
 	return err
 }
 
 // Enable enables or disables a datastore.
 // * enable: True for enabling
 func (datastore *Datastore) Enable(enable bool) error {
-	_, err := client.Call("one.datastore.enable", datastore.ID, enable)
+	_, err := datastore.c.Call("one.datastore.enable", datastore.ID, enable)
 	return err
 }
 
 // Info retrieves information for the datastore.
 func (datastore *Datastore) Info() error {
-	response, err := client.Call("one.datastore.info", datastore.ID)
+	response, err := datastore.c.Call("one.datastore.info", datastore.ID)
 	if err != nil {
 		return err
 	}

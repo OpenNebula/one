@@ -7,11 +7,13 @@ import (
 
 // MarketPlaceAppPool represents an OpenNebula MarketPlaceAppPool
 type MarketPlaceAppPool struct {
+	c               OneClient
 	MarketPlaceApps []MarketPlaceApp `xml:"MARKETPLACEAPP"`
 }
 
 // MarketPlaceApp represents an OpenNebula MarketPlaceApp
 type MarketPlaceApp struct {
+	c             OneClient
 	ID            uint                   `xml:"ID"`
 	UID           int                    `xml:"UID"`
 	GID           int                    `xml:"GID"`
@@ -43,7 +45,7 @@ type marketPlaceAppTemplate struct {
 
 // NewMarketPlaceAppPool returns a marketplace app pool. A connection to OpenNebula is
 // performed.
-func NewMarketPlaceAppPool(args ...int) (*MarketPlaceAppPool, error) {
+func NewMarketPlaceAppPool(client OneClient, args ...int) (*MarketPlaceAppPool, error) {
 	var who, start, end int
 
 	switch len(args) {
@@ -63,32 +65,37 @@ func NewMarketPlaceAppPool(args ...int) (*MarketPlaceAppPool, error) {
 		return nil, errors.New("Wrong number of arguments")
 	}
 
-    response, err := client.Call("one.marketapppool.info", who, start, end)
+	response, err := client.Call("one.marketapppool.info", who, start, end)
 	if err != nil {
 		return nil, err
 	}
 
-	marketappPool := &MarketPlaceAppPool{}
+	marketappPool := &MarketPlaceAppPool{c: client}
 	err = xml.Unmarshal([]byte(response.Body()), marketappPool)
 	if err != nil {
 		return nil, err
+	}
+
+	// Propagate the client
+	for i := 0; i < len(marketappPool.MarketPlaceApps); i++ {
+		marketappPool.MarketPlaceApps[i].c = client
 	}
 
 	return marketappPool, nil
 }
 
 // NewMarketPlaceApp finds a marketplace app object by ID. No connection to OpenNebula.
-func NewMarketPlaceApp(id uint) *MarketPlaceApp {
-	return &MarketPlaceApp{ID: id}
+func NewMarketPlaceApp(client OneClient, id uint) *MarketPlaceApp {
+	return &MarketPlaceApp{c: client, ID: id}
 }
 
 // NewMarketPlaceAppFromName finds a marketplace app object by name. It connects to
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the marketplace app.
-func NewMarketPlaceAppFromName(name string) (*MarketPlaceApp, error) {
+func NewMarketPlaceAppFromName(client OneClient, name string) (*MarketPlaceApp, error) {
 	var id uint
 
-	marketAppPool, err := NewMarketPlaceAppPool()
+	marketAppPool, err := NewMarketPlaceAppPool(client)
 	if err != nil {
 		return nil, err
 	}
@@ -108,13 +115,13 @@ func NewMarketPlaceAppFromName(name string) (*MarketPlaceApp, error) {
 		return nil, errors.New("resource not found")
 	}
 
-	return NewMarketPlaceApp(id), nil
+	return NewMarketPlaceApp(client, id), nil
 }
 
 // CreateMarketPlaceApp allocates a new marketplace app. It returns the new marketplace app ID.
 // * tpl: template of the marketplace app
 // * market: market place ID
-func CreateMarketPlaceApp(tpl string, market int) (uint, error) {
+func CreateMarketPlaceApp(client OneClient, tpl string, market int) (uint, error) {
 	response, err := client.Call("one.marketapp.allocate", tpl, market)
 	if err != nil {
 		return 0, err
@@ -125,22 +132,22 @@ func CreateMarketPlaceApp(tpl string, market int) (uint, error) {
 
 // Delete deletes the given marketplace app from the pool.
 func (marketApp *MarketPlaceApp) Delete() error {
-	_, err := client.Call("one.marketapp.delete", marketApp.ID)
+	_, err := marketApp.c.Call("one.marketapp.delete", marketApp.ID)
 	return err
 }
 
 // Enable enables or disables a marketplace app.
 // * enable: True for enabling, False for disabling
 func (marketApp *MarketPlaceApp) Enable(enable bool) error {
-    _, err := client.Call("one.marketapp.enable", marketApp.ID, enable)
-    return err
+	_, err := marketApp.c.Call("one.marketapp.enable", marketApp.ID, enable)
+	return err
 }
 
 // Update replaces the marketplace app template contents.
 // * tpl: The new template contents. Syntax can be the usual attribute=value or XML.
 // * appendTemplate: Update type: 0: Replace the whole template. 1: Merge new template with the existing one.
 func (marketApp *MarketPlaceApp) Update(tpl string, appendTemplate int) error {
-	_, err := client.Call("one.marketapp.update", marketApp.ID, tpl, appendTemplate)
+	_, err := marketApp.c.Call("one.marketapp.update", marketApp.ID, tpl, appendTemplate)
 	return err
 }
 
@@ -155,7 +162,7 @@ func (marketApp *MarketPlaceApp) Update(tpl string, appendTemplate int) error {
 // * om: OTHER MANAGE bit. If set to -1, it will not change.
 // * oa: OTHER ADMIN bit. If set to -1, it will not change.
 func (marketApp *MarketPlaceApp) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
-	_, err := client.Call("one.marketapp.chmod", marketApp.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
+	_, err := marketApp.c.Call("one.marketapp.chmod", marketApp.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
 	return err
 }
 
@@ -163,20 +170,20 @@ func (marketApp *MarketPlaceApp) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) e
 // * userID: The User ID of the new owner. If set to -1, it will not change.
 // * groupID: The Group ID of the new group. If set to -1, it will not change.
 func (marketApp *MarketPlaceApp) Chown(userID, groupID int) error {
-	_, err := client.Call("one.marketapp.chown", marketApp.ID, userID, groupID)
+	_, err := marketApp.c.Call("one.marketapp.chown", marketApp.ID, userID, groupID)
 	return err
 }
 
 // Rename renames a marketplace app.
 // * newName: The new name.
 func (marketApp *MarketPlaceApp) Rename(newName string) error {
-	_, err := client.Call("one.marketapp.rename", marketApp.ID, newName)
+	_, err := marketApp.c.Call("one.marketapp.rename", marketApp.ID, newName)
 	return err
 }
 
 // Info retrieves information for the marketplace app.
 func (marketApp *MarketPlaceApp) Info() error {
-	response, err := client.Call("one.marketapp.info", marketApp.ID)
+	response, err := marketApp.c.Call("one.marketapp.info", marketApp.ID)
 	if err != nil {
 		return err
 	}
@@ -186,13 +193,13 @@ func (marketApp *MarketPlaceApp) Info() error {
 
 // Lock locks the marketplace app depending on blocking level.
 func (marketApp *MarketPlaceApp) Lock(level uint) error {
-	_, err := client.Call("one.marketapp.lock", marketApp.ID, level)
+	_, err := marketApp.c.Call("one.marketapp.lock", marketApp.ID, level)
 	return err
 }
 
 // Unlock unlocks the marketplace app.
 func (marketApp *MarketPlaceApp) Unlock() error {
-	_, err := client.Call("one.marketapp.unlock", marketApp.ID)
+	_, err := marketApp.c.Call("one.marketapp.unlock", marketApp.ID)
 	return err
 }
 

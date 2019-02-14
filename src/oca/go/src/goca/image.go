@@ -8,11 +8,13 @@ import (
 
 // ImagePool represents an OpenNebula Image pool
 type ImagePool struct {
+	c      OneClient
 	Images []Image `xml:"IMAGE"`
 }
 
 // Image represents an OpenNebula Image
 type Image struct {
+	c               OneClient
 	ID              uint          `xml:"ID"`
 	UID             int           `xml:"UID"`
 	GID             int           `xml:"GID"`
@@ -111,7 +113,7 @@ func (s ImageState) String() string {
 
 // CreateImage allocates a new image based on the template string provided. It
 // returns the image ID.
-func CreateImage(template string, dsid uint) (uint, error) {
+func CreateImage(client OneClient, template string, dsid uint) (uint, error) {
 	response, err := client.Call("one.image.allocate", template, dsid)
 	if err != nil {
 		return 0, err
@@ -122,7 +124,7 @@ func CreateImage(template string, dsid uint) (uint, error) {
 
 // NewImagePool returns a new image pool. It accepts the scope of the query. It
 // performs an OpenNebula connection to fetch the information.
-func NewImagePool(args ...int) (*ImagePool, error) {
+func NewImagePool(client OneClient, args ...int) (*ImagePool, error) {
 	var who, start, end int
 
 	switch len(args) {
@@ -143,10 +145,15 @@ func NewImagePool(args ...int) (*ImagePool, error) {
 		return nil, err
 	}
 
-	imagePool := &ImagePool{}
+	imagePool := &ImagePool{c: client}
 	err = xml.Unmarshal([]byte(response.Body()), imagePool)
 	if err != nil {
 		return nil, err
+	}
+
+	// Propagate the client
+	for i := 0; i < len(imagePool.Images); i++ {
+		imagePool.Images[i].c = client
 	}
 
 	return imagePool, nil
@@ -154,17 +161,17 @@ func NewImagePool(args ...int) (*ImagePool, error) {
 
 // NewImage finds an image by ID returns a new Image object. At this stage no
 // connection to OpenNebula is performed.
-func NewImage(id uint) *Image {
-	return &Image{ID: id}
+func NewImage(client OneClient, id uint) *Image {
+	return &Image{c: client, ID: id}
 }
 
 // NewImageFromName finds an image by name and returns Image object. It connects
 // to OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the image.
-func NewImageFromName(name string) (*Image, error) {
+func NewImageFromName(client OneClient, name string) (*Image, error) {
 	var id uint
 
-	imagePool, err := NewImagePool()
+	imagePool, err := NewImagePool(client)
 	if err != nil {
 		return nil, err
 	}
@@ -184,12 +191,12 @@ func NewImageFromName(name string) (*Image, error) {
 		return nil, errors.New("resource not found")
 	}
 
-	return NewImage(id), nil
+	return NewImage(client, id), nil
 }
 
 // Info connects to OpenNebula and fetches the information of the Image
 func (image *Image) Info() error {
-	response, err := client.Call("one.image.info", image.ID)
+	response, err := image.c.Call("one.image.info", image.ID)
 	if err != nil {
 		return err
 	}
@@ -217,7 +224,7 @@ func (image *Image) StateString() (string, error) {
 
 // Clone clones an existing image. It returns the clone ID
 func (image *Image) Clone(cloneName string, dsid int) (uint, error) {
-	response, err := client.Call("one.image.clone", image.ID, cloneName, dsid)
+	response, err := image.c.Call("one.image.clone", image.ID, cloneName, dsid)
 	if err != nil {
 		return 0, err
 	}
@@ -228,82 +235,82 @@ func (image *Image) Clone(cloneName string, dsid int) (uint, error) {
 // Update will modify the image's template. If appendTemplate is 0, it will
 // replace the whole template. If its 1, it will merge.
 func (image *Image) Update(tpl string, appendTemplate int) error {
-	_, err := client.Call("one.image.update", image.ID, tpl, appendTemplate)
+	_, err := image.c.Call("one.image.update", image.ID, tpl, appendTemplate)
 	return err
 }
 
 // Chtype changes the type of the Image
 func (image *Image) Chtype(newType string) error {
-	_, err := client.Call("one.image.chtype", image.ID, newType)
+	_, err := image.c.Call("one.image.chtype", image.ID, newType)
 	return err
 }
 
 // Chown changes the owner/group of the image. If uid or gid is -1 it will not
 // change
 func (image *Image) Chown(uid, gid int) error {
-	_, err := client.Call("one.image.chown", image.ID, uid, gid)
+	_, err := image.c.Call("one.image.chown", image.ID, uid, gid)
 	return err
 }
 
 // Chmod changes the permissions of the image. If any perm is -1 it will not
 // change
 func (image *Image) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
-	_, err := client.Call("one.image.chmod", image.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
+	_, err := image.c.Call("one.image.chmod", image.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
 	return err
 }
 
 // Rename changes the name of the image
 func (image *Image) Rename(newName string) error {
-	_, err := client.Call("one.image.rename", image.ID, newName)
+	_, err := image.c.Call("one.image.rename", image.ID, newName)
 	return err
 }
 
 // SnapshotDelete will delete a snapshot from the image
 func (image *Image) SnapshotDelete(snapID int) error {
-	_, err := client.Call("one.image.snapshotdelete", image.ID, snapID)
+	_, err := image.c.Call("one.image.snapshotdelete", image.ID, snapID)
 	return err
 }
 
 // SnapshotRevert reverts image state to a previous snapshot
 func (image *Image) SnapshotRevert(snapID int) error {
-	_, err := client.Call("one.image.snapshotrevert", image.ID, snapID)
+	_, err := image.c.Call("one.image.snapshotrevert", image.ID, snapID)
 	return err
 }
 
 // SnapshotFlatten flattens the snapshot image and discards others
 func (image *Image) SnapshotFlatten(snapID int) error {
-	_, err := client.Call("one.image.snapshotflatten", image.ID, snapID)
+	_, err := image.c.Call("one.image.snapshotflatten", image.ID, snapID)
 	return err
 }
 
 // Enable enables (or disables) the image
 func (image *Image) Enable(enable bool) error {
-	_, err := client.Call("one.image.enable", image.ID, enable)
+	_, err := image.c.Call("one.image.enable", image.ID, enable)
 	return err
 }
 
 // Persistent sets the image as persistent (or not)
 func (image *Image) Persistent(persistent bool) error {
-	_, err := client.Call("one.image.persistent", image.ID, persistent)
+	_, err := image.c.Call("one.image.persistent", image.ID, persistent)
 	return err
 }
 
 // Lock locks the image following block level.
 func (image *Image) Lock(level uint) error {
-	_, err := client.Call("one.image.lock", image.ID, level)
+	_, err := image.c.Call("one.image.lock", image.ID, level)
 	return err
 }
 
 // Unlock unlocks the image.
 func (image *Image) Unlock() error {
-	_, err := client.Call("one.image.unlock", image.ID)
+	_, err := image.c.Call("one.image.unlock", image.ID)
 	return err
 }
 
 // Delete will remove the image from OpenNebula, which will remove it from the
 // backend.
 func (image *Image) Delete() error {
-	_, err := client.Call("one.image.delete", image.ID)
+	_, err := image.c.Call("one.image.delete", image.ID)
 	return err
 }
 

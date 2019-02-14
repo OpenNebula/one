@@ -9,11 +9,13 @@ import (
 
 // VNTemplatePool represents an OpenNebula Virtual Network TemplatePool
 type VNTemplatePool struct {
+	c           OneClient
 	VNTemplates []VNTemplate `xml:"VNTEMPLATE"`
 }
 
 // VNTemplate represents an OpenNebula Virtual Network Template
 type VNTemplate struct {
+	c           OneClient
 	ID          uint               `xml:"ID"`
 	UID         int                `xml:"UID"`
 	GID         int                `xml:"GID"`
@@ -33,7 +35,7 @@ type vnTemplateTemplate struct {
 
 // NewVNTemplatePool returns a vntemplate pool. A connection to OpenNebula is
 // performed.
-func NewVNTemplatePool(args ...int) (*VNTemplatePool, error) {
+func NewVNTemplatePool(client OneClient, args ...int) (*VNTemplatePool, error) {
 	var who, start, end int
 
 	switch len(args) {
@@ -54,28 +56,32 @@ func NewVNTemplatePool(args ...int) (*VNTemplatePool, error) {
 		return nil, err
 	}
 
-	vnTemplatePool := &VNTemplatePool{}
+	vnTemplatePool := &VNTemplatePool{c: client}
 	err = xml.Unmarshal([]byte(response.Body()), vnTemplatePool)
 	if err != nil {
 		return nil, err
 	}
 
-	return vnTemplatePool, nil
+	// Propagate the client
+	for i := 0; i < len(vnTemplatePool.VNTemplates); i++ {
+		vnTemplatePool.VNTemplates[i].c = client
+	}
 
+	return vnTemplatePool, nil
 }
 
 // NewVNTemplate finds a vntemplate object by ID. No connection to OpenNebula.
-func NewVNTemplate(id uint) *VNTemplate {
-	return &VNTemplate{ID: id}
+func NewVNTemplate(client OneClient, id uint) *VNTemplate {
+	return &VNTemplate{c: client, ID: id}
 }
 
 // NewVNTemplateFromName finds a vntemplate object by name. It connects to
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the vntemplate.
-func NewVNTemplateFromName(name string) (*VNTemplate, error) {
+func NewVNTemplateFromName(client OneClient, name string) (*VNTemplate, error) {
 	var id uint
 
-	vnTemplatePool, err := NewVNTemplatePool()
+	vnTemplatePool, err := NewVNTemplatePool(client)
 	if err != nil {
 		return nil, err
 	}
@@ -95,11 +101,11 @@ func NewVNTemplateFromName(name string) (*VNTemplate, error) {
 		return nil, errors.New("resource not found")
 	}
 
-	return NewVNTemplate(id), nil
+	return NewVNTemplate(client, id), nil
 }
 
 // CreateVNTemplate allocates a new vntemplate. It returns the new vntemplate ID.
-func CreateVNTemplate(vntemplate string) (uint, error) {
+func CreateVNTemplate(client OneClient, vntemplate string) (uint, error) {
 	response, err := client.Call("one.vntemplate.allocate", vntemplate)
 	if err != nil {
 		return 0, err
@@ -110,7 +116,7 @@ func CreateVNTemplate(vntemplate string) (uint, error) {
 
 // Info connects to OpenNebula and fetches the information of the VNTemplate
 func (vntemplate *VNTemplate) Info() error {
-	response, err := client.Call("one.vntemplate.info", vntemplate.ID)
+	response, err := vntemplate.c.Call("one.vntemplate.info", vntemplate.ID)
 	if err != nil {
 		return err
 	}
@@ -121,39 +127,39 @@ func (vntemplate *VNTemplate) Info() error {
 // Update will modify the vntemplate. If appendTemplate is 0, it will
 // replace the whole vntemplate. If its 1, it will merge.
 func (vntemplate *VNTemplate) Update(tpl string, appendTemplate int) error {
-	_, err := client.Call("one.vntemplate.update", vntemplate.ID, tpl, appendTemplate)
+	_, err := vntemplate.c.Call("one.vntemplate.update", vntemplate.ID, tpl, appendTemplate)
 	return err
 }
 
 // Chown changes the owner/group of a vntemplate. If uid or gid is -1 it will not
 // change
 func (vntemplate *VNTemplate) Chown(uid, gid int) error {
-	_, err := client.Call("one.vntemplate.chown", vntemplate.ID, uid, gid)
+	_, err := vntemplate.c.Call("one.vntemplate.chown", vntemplate.ID, uid, gid)
 	return err
 }
 
 // Chmod changes the permissions of a vntemplate. If any perm is -1 it will not
 // change
 func (vntemplate *VNTemplate) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
-	_, err := client.Call("one.vntemplate.chmod", vntemplate.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
+	_, err := vntemplate.c.Call("one.vntemplate.chmod", vntemplate.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
 	return err
 }
 
 // Rename changes the name of vntemplate
 func (vntemplate *VNTemplate) Rename(newName string) error {
-	_, err := client.Call("one.vntemplate.rename", vntemplate.ID, newName)
+	_, err := vntemplate.c.Call("one.vntemplate.rename", vntemplate.ID, newName)
 	return err
 }
 
 // Delete will remove the vntemplate from OpenNebula.
 func (vntemplate *VNTemplate) Delete() error {
-	_, err := client.Call("one.vntemplate.delete", vntemplate.ID)
+	_, err := vntemplate.c.Call("one.vntemplate.delete", vntemplate.ID)
 	return err
 }
 
 // Instantiate will instantiate the template
 func (vntemplate *VNTemplate) Instantiate(name string, extra string) (uint, error) {
-	response, err := client.Call("one.vntemplate.instantiate", vntemplate.ID, name, extra)
+	response, err := vntemplate.c.Call("one.vntemplate.instantiate", vntemplate.ID, name, extra)
 
 	if err != nil {
 		return 0, err
@@ -164,19 +170,19 @@ func (vntemplate *VNTemplate) Instantiate(name string, extra string) (uint, erro
 
 // Clone an existing vntemplate.
 func (vntemplate *VNTemplate) Clone(name string) error {
-	_, err := client.Call("one.vntemplate.clone", vntemplate.ID, name)
+	_, err := vntemplate.c.Call("one.vntemplate.clone", vntemplate.ID, name)
 	return err
 }
 
 //Lock an existing vntemplate
 func (vntemplate *VNTemplate) Lock(level uint) error {
-	_, err := client.Call("one.vntemplate.lock", vntemplate.ID, level)
+	_, err := vntemplate.c.Call("one.vntemplate.lock", vntemplate.ID, level)
 	return err
 }
 
 //Unlock an existing vntemplate
 func (vntemplate *VNTemplate) Unlock() error {
-	_, err := client.Call("one.vntemplate.unlock", vntemplate.ID)
+	_, err := vntemplate.c.Call("one.vntemplate.unlock", vntemplate.ID)
 	return err
 }
 

@@ -4,6 +4,7 @@ import "encoding/xml"
 
 // ACLPool represents an OpenNebula ACL list pool
 type ACLPool struct {
+	c        OneClient
 	ID       uint   `xml:"ID"`
 	User     int    `xml:"USER"`
 	Resource int    `xml:"RESOURCE"`
@@ -14,13 +15,13 @@ type ACLPool struct {
 
 // NewACLPool returns an acl pool. A connection to OpenNebula is
 // performed.
-func NewACLPool() (*ACLPool, error) {
+func NewACLPool(client OneClient) (*ACLPool, error) {
 	response, err := client.Call("one.acl.info")
 	if err != nil {
 		return nil, err
 	}
 
-	aclPool := &ACLPool{}
+	aclPool := &ACLPool{c: client}
 	err = xml.Unmarshal([]byte(response.Body()), aclPool)
 	if err != nil {
 		return nil, err
@@ -33,7 +34,7 @@ func NewACLPool() (*ACLPool, error) {
 // * user: User component of the new rule. A string containing a hex number.
 // * resource: Resource component of the new rule. A string containing a hex number.
 // * rights: Rights component of the new rule. A string containing a hex number.
-func CreateACLRule(user, resource, rights string) (uint, error) {
+func CreateACLRule(client OneClient, user, resource, rights string) (uint, error) {
 	response, err := client.Call("one.acl.addrule", user, resource, rights)
 	if err != nil {
 		return 0, err
@@ -43,7 +44,7 @@ func CreateACLRule(user, resource, rights string) (uint, error) {
 }
 
 // DeleteACLRule deletes an ACL rule.
-func DeleteACLRule(aclID uint) error {
+func DeleteACLRule(client OneClient, aclID uint) error {
 	_, err := client.Call("one.acl.delrule", int(aclID))
 	return err
 }

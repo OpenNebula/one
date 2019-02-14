@@ -7,11 +7,13 @@ import (
 
 // VirtualRouterPool represents an OpenNebula VirtualRouterPool
 type VirtualRouterPool struct {
+	c              OneClient
 	VirtualRouters []VirtualRouter `xml:"VROUTER"`
 }
 
 // VirtualRouter represents an OpenNebula VirtualRouter
 type VirtualRouter struct {
+	c           OneClient
 	ID          uint                  `xml:"ID"`
 	UID         int                   `xml:"UID"`
 	GID         int                   `xml:"GID"`
@@ -40,7 +42,7 @@ type virtualRouterNIC struct {
 
 // NewVirtualRouterPool returns a virtual router pool. A connection to OpenNebula is
 // performed.
-func NewVirtualRouterPool(args ...int) (*VirtualRouterPool, error) {
+func NewVirtualRouterPool(client OneClient, args ...int) (*VirtualRouterPool, error) {
 	var who, start, end int
 
 	switch len(args) {
@@ -61,28 +63,32 @@ func NewVirtualRouterPool(args ...int) (*VirtualRouterPool, error) {
 		return nil, err
 	}
 
-	vrouterPool := &VirtualRouterPool{}
-
+	vrouterPool := &VirtualRouterPool{c: client}
 	err = xml.Unmarshal([]byte(response.Body()), vrouterPool)
 	if err != nil {
 		return nil, err
+	}
+
+	// Propagate the client
+	for i := 0; i < len(vrouterPool.VirtualRouters); i++ {
+		vrouterPool.VirtualRouters[i].c = client
 	}
 
 	return vrouterPool, nil
 }
 
 // NewVirtualRouter finds a virtual router object by ID. No connection to OpenNebula.
-func NewVirtualRouter(id uint) *VirtualRouter {
-	return &VirtualRouter{ID: id}
+func NewVirtualRouter(client OneClient, id uint) *VirtualRouter {
+	return &VirtualRouter{c: client, ID: id}
 }
 
 // NewVirtualRouterFromName finds a virtual router object by name. It connects to
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the virtual router.
-func NewVirtualRouterFromName(name string) (*VirtualRouter, error) {
+func NewVirtualRouterFromName(client OneClient, name string) (*VirtualRouter, error) {
 	var id uint
 
-	vrouterPool, err := NewVirtualRouterPool()
+	vrouterPool, err := NewVirtualRouterPool(client)
 	if err != nil {
 		return nil, err
 	}
@@ -101,12 +107,12 @@ func NewVirtualRouterFromName(name string) (*VirtualRouter, error) {
 		return nil, errors.New("resource not found")
 	}
 
-	return NewVirtualRouter(id), nil
+	return NewVirtualRouter(client, id), nil
 }
 
 // CreateVirtualRouter allocates a new virtual router. It returns the new Virtual Router ID
 // * tpl: template of the marketplace
-func CreateVirtualRouter(tpl string) (uint, error) {
+func CreateVirtualRouter(client OneClient, tpl string) (uint, error) {
 	response, err := client.Call("one.vrouter.allocate", tpl)
 	if err != nil {
 		return 0, err
@@ -117,7 +123,7 @@ func CreateVirtualRouter(tpl string) (uint, error) {
 
 // Info connects to OpenNebula and fetches the information of the VirtualRouter
 func (vr *VirtualRouter) Info() error {
-	response, err := client.Call("one.vrouter.info", vr.ID)
+	response, err := vr.c.Call("one.vrouter.info", vr.ID)
 	if err != nil {
 		return err
 	}
@@ -128,33 +134,33 @@ func (vr *VirtualRouter) Info() error {
 // Update will modify the virtual router. If appendVirtualRouter is 0, it will
 // replace the whole virtual router. If its 1, it will merge.
 func (vr *VirtualRouter) Update(tpl string, appendVirtualRouter int) error {
-	_, err := client.Call("one.vrouter.update", vr.ID, tpl, appendVirtualRouter)
+	_, err := vr.c.Call("one.vrouter.update", vr.ID, tpl, appendVirtualRouter)
 	return err
 }
 
 // Chown changes the owner/group of a virtual router. If uid or gid is -1 it will not
 // change
 func (vr *VirtualRouter) Chown(uid, gid int) error {
-	_, err := client.Call("one.vrouter.chown", vr.ID, uid, gid)
+	_, err := vr.c.Call("one.vrouter.chown", vr.ID, uid, gid)
 	return err
 }
 
 // Chmod changes the permissions of a virtual router. If any perm is -1 it will not
 // change
 func (vr *VirtualRouter) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
-	_, err := client.Call("one.vrouter.chmod", vr.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
+	_, err := vr.c.Call("one.vrouter.chmod", vr.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
 	return err
 }
 
 // Rename changes the name of virtual router
 func (vr *VirtualRouter) Rename(newName string) error {
-	_, err := client.Call("one.vrouter.rename", vr.ID, newName)
+	_, err := vr.c.Call("one.vrouter.rename", vr.ID, newName)
 	return err
 }
 
 // Delete will remove the virtual router from OpenNebula.
 func (vr *VirtualRouter) Delete() error {
-	_, err := client.Call("one.vrouter.delete", vr.ID)
+	_, err := vr.c.Call("one.vrouter.delete", vr.ID)
 	return err
 }
 
@@ -165,7 +171,7 @@ func (vr *VirtualRouter) Delete() error {
 // * hold: False to create the VM on pending (default), True to create it on hold.
 // * extra: A string containing an extra template to be merged with the one being instantiated. It can be empty. Syntax can be the usual attribute=value or XML.
 func (vr *VirtualRouter) Instantiate(number, tplid int, name string, hold bool, extra string) (uint, error) {
-	response, err := client.Call("one.vrouter.instantiate", vr.ID, number, tplid, name, hold, extra)
+	response, err := vr.c.Call("one.vrouter.instantiate", vr.ID, number, tplid, name, hold, extra)
 
 	if err != nil {
 		return 0, err
@@ -177,26 +183,26 @@ func (vr *VirtualRouter) Instantiate(number, tplid int, name string, hold bool, 
 // AttachNic attaches a new network interface to the virtual router and the virtual machines.
 // * tpl: NIC template string
 func (vr *VirtualRouter) AttachNic(tpl string) error {
-	_, err := client.Call("one.vrouter.attachnic", vr.ID, tpl)
+	_, err := vr.c.Call("one.vrouter.attachnic", vr.ID, tpl)
 	return err
 }
 
 // DetachNic detaches a network interface from the virtual router and the virtual machines
 // * nicid: NIC ID to detach
 func (vr *VirtualRouter) DetachNic(nicid uint) error {
-	_, err := client.Call("one.vrouter.detachnic", vr.ID, nicid)
+	_, err := vr.c.Call("one.vrouter.detachnic", vr.ID, nicid)
 	return err
 }
 
 // Lock locks the virtual router depending on blocking level.
 func (vr *VirtualRouter) Lock(level uint) error {
-	_, err := client.Call("one.vrouter.lock", vr.ID, level)
+	_, err := vr.c.Call("one.vrouter.lock", vr.ID, level)
 	return err
 }
 
 // Unlock unlocks the virtual router.
 func (vr *VirtualRouter) Unlock() error {
-	_, err := client.Call("one.vrouter.unlock", vr.ID)
+	_, err := vr.c.Call("one.vrouter.unlock", vr.ID)
 	return err
 }
 

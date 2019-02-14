@@ -7,11 +7,13 @@ import (
 
 // VdcPool represents an OpenNebula VdcPool
 type VdcPool struct {
+	c    OneClient
 	Vdcs []Vdc `xml:"VDC"`
 }
 
 // Vdc represents an OpenNebula Vdc
 type Vdc struct {
+	c          OneClient
 	ID         uint           `xml:"ID"`
 	Name       string         `xml:"NAME"`
 	GroupsID   []int          `xml:"GROUPS>ID"`
@@ -48,33 +50,38 @@ type vdcVNet struct {
 
 // NewVdcPool returns a vdc pool. A connection to OpenNebula is
 // performed.
-func NewVdcPool() (*VdcPool, error) {
+func NewVdcPool(client OneClient) (*VdcPool, error) {
 	response, err := client.Call("one.vdcpool.info")
 	if err != nil {
 		return nil, err
 	}
 
-	vdcPool := &VdcPool{}
+	vdcPool := &VdcPool{c: client}
 	err = xml.Unmarshal([]byte(response.Body()), vdcPool)
 	if err != nil {
 		return nil, err
+	}
+
+	// Propagate the client
+	for i := 0; i < len(vdcPool.Vdcs); i++ {
+		vdcPool.Vdcs[i].c = client
 	}
 
 	return vdcPool, nil
 }
 
 // NewVdc finds a vdc object by ID. No connection to OpenNebula.
-func NewVdc(id uint) *Vdc {
-	return &Vdc{ID: id}
+func NewVdc(client OneClient, id uint) *Vdc {
+	return &Vdc{c: client, ID: id}
 }
 
 // NewVdcFromName finds a vdc object by name. It connects to
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the vdc.
-func NewVdcFromName(name string) (*Vdc, error) {
+func NewVdcFromName(client OneClient, name string) (*Vdc, error) {
 	var id uint
 
-	vdcPool, err := NewVdcPool()
+	vdcPool, err := NewVdcPool(client)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +101,7 @@ func NewVdcFromName(name string) (*Vdc, error) {
 		return nil, errors.New("resource not found")
 	}
 
-	return NewVdc(id), nil
+	return NewVdc(client, id), nil
 }
 
 // CreateVdc allocates a new vdc. It returns the new vdc ID.
@@ -102,7 +109,7 @@ func NewVdcFromName(name string) (*Vdc, error) {
 //     attribute=value or XML.
 // * clusterID: The cluster ID. If it is -1, this virtual network won’t be added
 //     to any cluster
-func CreateVdc(tpl string, clusterID int) (uint, error) {
+func CreateVdc(client OneClient, tpl string, clusterID int) (uint, error) {
 	response, err := client.Call("one.vdc.allocate", tpl, clusterID)
 	if err != nil {
 		return 0, err
@@ -113,7 +120,7 @@ func CreateVdc(tpl string, clusterID int) (uint, error) {
 
 // Delete deletes the given VDC from the pool.
 func (vdc *Vdc) Delete() error {
-	_, err := client.Call("one.vdc.delete", vdc.ID)
+	_, err := vdc.c.Call("one.vdc.delete", vdc.ID)
 	return err
 }
 
@@ -121,20 +128,20 @@ func (vdc *Vdc) Delete() error {
 // * tpl: The new template contents. Syntax can be the usual attribute=value or XML.
 // * appendTemplate: Update type: 0: Replace the whole template. 1: Merge new template with the existing one.
 func (vdc *Vdc) Update(tpl string, appendTemplate int) error {
-	_, err := client.Call("one.vdc.update", vdc.ID, tpl, appendTemplate)
+	_, err := vdc.c.Call("one.vdc.update", vdc.ID, tpl, appendTemplate)
 	return err
 }
 
 // Rename renames a VDC.
 // * newName: The new name.
 func (vdc *Vdc) Rename(newName string) error {
-	_, err := client.Call("one.vdc.rename", vdc.ID, newName)
+	_, err := vdc.c.Call("one.vdc.rename", vdc.ID, newName)
 	return err
 }
 
 // Info retrieves information for the VDC.
 func (vdc *Vdc) Info() error {
-	response, err := client.Call("one.vdc.info", vdc.ID)
+	response, err := vdc.c.Call("one.vdc.info", vdc.ID)
 	if err != nil {
 		return err
 	}
@@ -145,14 +152,14 @@ func (vdc *Vdc) Info() error {
 // AddGroup adds a group to the VDC
 // * groupID: The group ID.
 func (vdc *Vdc) AddGroup(groupID uint) error {
-	_, err := client.Call("one.vdc.addgroup", vdc.ID, int(groupID))
+	_, err := vdc.c.Call("one.vdc.addgroup", vdc.ID, int(groupID))
 	return err
 }
 
 // DelGroup deletes a group from the VDC
 // * groupID: The group ID.
 func (vdc *Vdc) DelGroup(groupID uint) error {
-	_, err := client.Call("one.vdc.delgroup", vdc.ID, int(groupID))
+	_, err := vdc.c.Call("one.vdc.delgroup", vdc.ID, int(groupID))
 	return err
 }
 
@@ -160,7 +167,7 @@ func (vdc *Vdc) DelGroup(groupID uint) error {
 // * zoneID: The Zone ID.
 // * clusterID: The Cluster ID.
 func (vdc *Vdc) AddCluster(zoneID, clusterID uint) error {
-	_, err := client.Call("one.vdc.addcluster", vdc.ID, int(zoneID), int(clusterID))
+	_, err := vdc.c.Call("one.vdc.addcluster", vdc.ID, int(zoneID), int(clusterID))
 	return err
 }
 
@@ -168,7 +175,7 @@ func (vdc *Vdc) AddCluster(zoneID, clusterID uint) error {
 // * zoneID: The Zone ID.
 // * clusterID: The Cluster ID.
 func (vdc *Vdc) DelCluster(zoneID, clusterID uint) error {
-	_, err := client.Call("one.vdc.delcluster", vdc.ID, int(zoneID), int(clusterID))
+	_, err := vdc.c.Call("one.vdc.delcluster", vdc.ID, int(zoneID), int(clusterID))
 	return err
 }
 
@@ -176,7 +183,7 @@ func (vdc *Vdc) DelCluster(zoneID, clusterID uint) error {
 // * zoneID: The Zone ID.
 // * hostID: The Host ID.
 func (vdc *Vdc) AddHost(zoneID, hostID uint) error {
-	_, err := client.Call("one.vdc.addhost", vdc.ID, int(zoneID), int(hostID))
+	_, err := vdc.c.Call("one.vdc.addhost", vdc.ID, int(zoneID), int(hostID))
 	return err
 }
 
@@ -184,7 +191,7 @@ func (vdc *Vdc) AddHost(zoneID, hostID uint) error {
 // * zoneID: The Zone ID.
 // * hostID: The Host ID.
 func (vdc *Vdc) DelHost(zoneID, hostID uint) error {
-	_, err := client.Call("one.vdc.delhost", vdc.ID, int(zoneID), int(hostID))
+	_, err := vdc.c.Call("one.vdc.delhost", vdc.ID, int(zoneID), int(hostID))
 	return err
 }
 
@@ -192,7 +199,7 @@ func (vdc *Vdc) DelHost(zoneID, hostID uint) error {
 // * zoneID: The Zone ID.
 // * dsID: The Datastore ID.
 func (vdc *Vdc) AddDatastore(zoneID, dsID uint) error {
-	_, err := client.Call("one.vdc.adddatastore", vdc.ID, int(zoneID), int(dsID))
+	_, err := vdc.c.Call("one.vdc.adddatastore", vdc.ID, int(zoneID), int(dsID))
 	return err
 }
 
@@ -200,7 +207,7 @@ func (vdc *Vdc) AddDatastore(zoneID, dsID uint) error {
 // * zoneID: The Zone ID.
 // * dsID: The Datastore ID.
 func (vdc *Vdc) DelDatastore(zoneID, dsID uint) error {
-	_, err := client.Call("one.vdc.deldatastore", vdc.ID, int(zoneID), int(dsID))
+	_, err := vdc.c.Call("one.vdc.deldatastore", vdc.ID, int(zoneID), int(dsID))
 	return err
 }
 
@@ -208,7 +215,7 @@ func (vdc *Vdc) DelDatastore(zoneID, dsID uint) error {
 // * zoneID: The Zone ID.
 // * vnetID: The Vnet ID.
 func (vdc *Vdc) AddVnet(zoneID, vnetID uint) error {
-	_, err := client.Call("one.vdc.addvnet", vdc.ID, int(zoneID), int(vnetID))
+	_, err := vdc.c.Call("one.vdc.addvnet", vdc.ID, int(zoneID), int(vnetID))
 	return err
 }
 
@@ -216,6 +223,6 @@ func (vdc *Vdc) AddVnet(zoneID, vnetID uint) error {
 // * zoneID: The Zone ID.
 // * vnetID: The Vnet ID.
 func (vdc *Vdc) DelVnet(zoneID, vnetID uint) error {
-	_, err := client.Call("one.vdc.delvnet", vdc.ID, int(zoneID), int(vnetID))
+	_, err := vdc.c.Call("one.vdc.delvnet", vdc.ID, int(zoneID), int(vnetID))
 	return err
 }

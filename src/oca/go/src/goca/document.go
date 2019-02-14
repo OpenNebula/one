@@ -7,11 +7,13 @@ import (
 
 // DocumentPool represents an OpenNebula DocumentPool
 type DocumentPool struct {
+	c         OneClient
 	Documents []Document `xml:"DOCUMENT"`
 }
 
 // Document represents an OpenNebula Document
 type Document struct {
+	c           OneClient
 	ID          uint             `xml:"ID"`
 	UID         int              `xml:"UID"`
 	GID         int              `xml:"GID"`
@@ -30,7 +32,7 @@ type documentTemplate struct {
 
 // NewDocumentPool returns a document pool. A connection to OpenNebula is
 // performed.
-func NewDocumentPool(documentType int, args ...int) (*DocumentPool, error) {
+func NewDocumentPool(client OneClient, documentType int, args ...int) (*DocumentPool, error) {
 	var who, start, end int
 
 	switch len(args) {
@@ -55,27 +57,32 @@ func NewDocumentPool(documentType int, args ...int) (*DocumentPool, error) {
 		return nil, err
 	}
 
-	documentPool := &DocumentPool{}
+	documentPool := &DocumentPool{c: client}
 	err = xml.Unmarshal([]byte(response.Body()), documentPool)
 	if err != nil {
 		return nil, err
+	}
+
+	// Propagate the client
+	for i := 0; i < len(documentPool.Documents); i++ {
+		documentPool.Documents[i].c = client
 	}
 
 	return documentPool, nil
 }
 
 // NewDocument finds a document object by ID. No connection to OpenNebula.
-func NewDocument(id uint) *Document {
-	return &Document{ID: id}
+func NewDocument(client OneClient, id uint) *Document {
+	return &Document{c: client, ID: id}
 }
 
 // NewDocumentFromName finds a document object by name. It connects to
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the document.
-func NewDocumentFromName(name string, documentType int) (*Document, error) {
+func NewDocumentFromName(client OneClient, name string, documentType int) (*Document, error) {
 	var id uint
 
-	documentPool, err := NewDocumentPool(documentType)
+	documentPool, err := NewDocumentPool(client, documentType)
 	if err != nil {
 		return nil, err
 	}
@@ -95,11 +102,11 @@ func NewDocumentFromName(name string, documentType int) (*Document, error) {
 		return nil, errors.New("resource not found")
 	}
 
-	return NewDocument(id), nil
+	return NewDocument(client, id), nil
 }
 
 // CreateDocument allocates a new document. It returns the new document ID.
-func CreateDocument(tpl string, documentType int) (uint, error) {
+func CreateDocument(client OneClient, tpl string, documentType int) (uint, error) {
 	response, err := client.Call("one.document.allocate", tpl, documentType)
 	if err != nil {
 		return 0, err
@@ -111,13 +118,13 @@ func CreateDocument(tpl string, documentType int) (uint, error) {
 // Clone clones an existing document.
 // * newName: Name for the new document.
 func (document *Document) Clone(newName string) error {
-	_, err := client.Call("one.document.clone", document.ID, newName)
+	_, err := document.c.Call("one.document.clone", document.ID, newName)
 	return err
 }
 
 // Delete deletes the given document from the pool.
 func (document *Document) Delete() error {
-	_, err := client.Call("one.document.delete", document.ID)
+	_, err := document.c.Call("one.document.delete", document.ID)
 	return err
 }
 
@@ -125,7 +132,7 @@ func (document *Document) Delete() error {
 // * tpl: The new document template contents. Syntax can be the usual attribute=value or XML.
 // * appendTemplate: Update type: 0: Replace the whole template. 1: Merge new template with the existing one.
 func (document *Document) Update(tpl string, appendTemplate int) error {
-	_, err := client.Call("one.document.update", document.ID, tpl, appendTemplate)
+	_, err := document.c.Call("one.document.update", document.ID, tpl, appendTemplate)
 	return err
 }
 
@@ -140,7 +147,7 @@ func (document *Document) Update(tpl string, appendTemplate int) error {
 // * om: OTHER MANAGE bit. If set to -1, it will not change.
 // * oa: OTHER ADMIN bit. If set to -1, it will not change.
 func (document *Document) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
-	_, err := client.Call("one.document.chmod", document.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
+	_, err := document.c.Call("one.document.chmod", document.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
 	return err
 }
 
@@ -148,27 +155,27 @@ func (document *Document) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
 // * userID: The User ID of the new owner. If set to -1, it will not change.
 // * groupID: The Group ID of the new group. If set to -1, it will not change.
 func (document *Document) Chown(userID, groupID int) error {
-	_, err := client.Call("one.document.chown", document.ID, userID, groupID)
+	_, err := document.c.Call("one.document.chown", document.ID, userID, groupID)
 	return err
 }
 
 // Rename renames a document.
 // * newName: The new name.
 func (document *Document) Rename(newName string) error {
-	_, err := client.Call("one.document.rename", document.ID, newName)
+	_, err := document.c.Call("one.document.rename", document.ID, newName)
 	return err
 }
 
 // Lock locks the document at the api level. The lock automatically expires after 2 minutes.
 // * applicationName: String to identify the application requesting the lock.
 func (document *Document) Lock(applicationName string) error {
-	_, err := client.Call("one.document.lock", document.ID, applicationName)
+	_, err := document.c.Call("one.document.lock", document.ID, applicationName)
 	return err
 }
 
 // Unlock unlocks the document at the api level.
 // * applicationName: String to identify the application requesting the lock.
 func (document *Document) Unlock(applicationName string) error {
-	_, err := client.Call("one.document.unlock", document.ID, applicationName)
+	_, err := document.c.Call("one.document.unlock", document.ID, applicationName)
 	return err
 }

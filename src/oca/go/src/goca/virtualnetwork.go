@@ -7,11 +7,13 @@ import (
 
 // VirtualNetworkPool represents an OpenNebula VirtualNetworkPool
 type VirtualNetworkPool struct {
+	c               OneClient
 	VirtualNetworks []VirtualNetwork `xml:"VNET"`
 }
 
 // VirtualNetwork represents an OpenNebula VirtualNetwork
 type VirtualNetwork struct {
+	c                    OneClient
 	ID                   uint                   `xml:"ID"`
 	UID                  int                    `xml:"UID"`
 	GID                  int                    `xml:"GID"`
@@ -81,7 +83,7 @@ type lease struct {
 
 // NewVirtualNetworkPool returns a virtualnetwork pool. A connection to OpenNebula is
 // performed.
-func NewVirtualNetworkPool(args ...int) (*VirtualNetworkPool, error) {
+func NewVirtualNetworkPool(client OneClient, args ...int) (*VirtualNetworkPool, error) {
 	var who, start, end int
 
 	switch len(args) {
@@ -106,27 +108,32 @@ func NewVirtualNetworkPool(args ...int) (*VirtualNetworkPool, error) {
 		return nil, err
 	}
 
-	vnPool := &VirtualNetworkPool{}
+	vnPool := &VirtualNetworkPool{c: client}
 	err = xml.Unmarshal([]byte(response.Body()), &vnPool)
 	if err != nil {
 		return nil, err
+	}
+
+	// Propagate the client
+	for i := 0; i < len(vnPool.VirtualNetworks); i++ {
+		vnPool.VirtualNetworks[i].c = client
 	}
 
 	return vnPool, nil
 }
 
 // NewVirtualNetwork finds a virtualnetwork object by ID. No connection to OpenNebula.
-func NewVirtualNetwork(id uint) *VirtualNetwork {
-	return &VirtualNetwork{ID: id}
+func NewVirtualNetwork(client OneClient, id uint) *VirtualNetwork {
+	return &VirtualNetwork{c: client, ID: id}
 }
 
 // NewVirtualNetworkFromName finds a virtualnetwork object by name. It connects to
 // OpenNebula to retrieve the pool, but doesn't perform the Info() call to
 // retrieve the attributes of the virtualnetwork.
-func NewVirtualNetworkFromName(name string) (*VirtualNetwork, error) {
+func NewVirtualNetworkFromName(client OneClient, name string) (*VirtualNetwork, error) {
 	var id uint
 
-	virtualNetworkPool, err := NewVirtualNetworkPool()
+	virtualNetworkPool, err := NewVirtualNetworkPool(client)
 	if err != nil {
 		return nil, err
 	}
@@ -146,13 +153,13 @@ func NewVirtualNetworkFromName(name string) (*VirtualNetwork, error) {
 		return nil, errors.New("resource not found")
 	}
 
-	return NewVirtualNetwork(id), nil
+	return NewVirtualNetwork(client, id), nil
 }
 
 // CreateVirtualNetwork allocates a new virtualnetwork. It returns the new virtualnetwork ID.
 // * tpl: template of the virtualnetwork
 // * clusterID: The cluster ID. If it is -1, the default one will be used.
-func CreateVirtualNetwork(tpl string, clusterID int) (uint, error) {
+func CreateVirtualNetwork(client OneClient, tpl string, clusterID int) (uint, error) {
 	response, err := client.Call("one.vn.allocate", tpl, clusterID)
 	if err != nil {
 		return 0, err
@@ -163,56 +170,56 @@ func CreateVirtualNetwork(tpl string, clusterID int) (uint, error) {
 
 // Delete deletes the given virtual network from the pool.
 func (vn *VirtualNetwork) Delete() error {
-	_, err := client.Call("one.vn.delete", vn.ID)
+	_, err := vn.c.Call("one.vn.delete", vn.ID)
 	return err
 }
 
 // AddAr adds address ranges to a virtual network.
 // * tpl: template of the address ranges to add. Syntax can be the usual attribute=value or XML
 func (vn *VirtualNetwork) AddAr(tpl string) error {
-	_, err := client.Call("one.vn.add_ar", vn.ID, tpl)
+	_, err := vn.c.Call("one.vn.add_ar", vn.ID, tpl)
 	return err
 }
 
 // RmAr removes an address range from a virtual network.
 // * arID: ID of the address range to remove.
 func (vn *VirtualNetwork) RmAr(arID int) error {
-	_, err := client.Call("one.vn.rm_ar", vn.ID, arID)
+	_, err := vn.c.Call("one.vn.rm_ar", vn.ID, arID)
 	return err
 }
 
 // UpdateAr updates the attributes of an address range.
 // * tpl: template of the address ranges to update. Syntax can be the usual attribute=value or XML
 func (vn *VirtualNetwork) UpdateAr(tpl string) error {
-	_, err := client.Call("one.vn.update_ar", vn.ID, tpl)
+	_, err := vn.c.Call("one.vn.update_ar", vn.ID, tpl)
 	return err
 }
 
 // Reserve reserve network addresses.
 // * tpl: Template
 func (vn *VirtualNetwork) Reserve(tpl string) error {
-	_, err := client.Call("one.vn.reserve", vn.ID, tpl)
+	_, err := vn.c.Call("one.vn.reserve", vn.ID, tpl)
 	return err
 }
 
 // FreeAr frees a reserved address range from a virtual network.
 // * arID: ID of the address range to free.
 func (vn *VirtualNetwork) FreeAr(arID int) error {
-	_, err := client.Call("one.vn.free_ar", vn.ID, arID)
+	_, err := vn.c.Call("one.vn.free_ar", vn.ID, arID)
 	return err
 }
 
 // Hold holds a virtual network Lease as used.
 // * tpl: template of the lease to hold
 func (vn *VirtualNetwork) Hold(tpl string) error {
-	_, err := client.Call("one.vn.hold", vn.ID, tpl)
+	_, err := vn.c.Call("one.vn.hold", vn.ID, tpl)
 	return err
 }
 
 // Release releases a virtual network Lease on hold.
 // * tpl: template of the lease to release
 func (vn *VirtualNetwork) Release(tpl string) error {
-	_, err := client.Call("one.vn.release", vn.ID, tpl)
+	_, err := vn.c.Call("one.vn.release", vn.ID, tpl)
 	return err
 }
 
@@ -220,7 +227,7 @@ func (vn *VirtualNetwork) Release(tpl string) error {
 // * tpl: The new template contents. Syntax can be the usual attribute=value or XML.
 // * appendTemplate: Update type: 0: Replace the whole template. 1: Merge new template with the existing one.
 func (vn *VirtualNetwork) Update(tpl string, appendTemplate int) error {
-	_, err := client.Call("one.vn.update", vn.ID, tpl, appendTemplate)
+	_, err := vn.c.Call("one.vn.update", vn.ID, tpl, appendTemplate)
 	return err
 }
 
@@ -235,7 +242,7 @@ func (vn *VirtualNetwork) Update(tpl string, appendTemplate int) error {
 // * om: OTHER MANAGE bit. If set to -1, it will not change.
 // * oa: OTHER ADMIN bit. If set to -1, it will not change.
 func (vn *VirtualNetwork) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
-	_, err := client.Call("one.vn.chmod", vn.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
+	_, err := vn.c.Call("one.vn.chmod", vn.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
 	return err
 }
 
@@ -243,20 +250,20 @@ func (vn *VirtualNetwork) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
 // * userID: The User ID of the new owner. If set to -1, it will not change.
 // * groupID: The Group ID of the new group. If set to -1, it will not change.
 func (vn *VirtualNetwork) Chown(userID, groupID int) error {
-	_, err := client.Call("one.vn.chown", vn.ID, userID, groupID)
+	_, err := vn.c.Call("one.vn.chown", vn.ID, userID, groupID)
 	return err
 }
 
 // Rename renames a virtual network.
 // * newName: The new name.
 func (vn *VirtualNetwork) Rename(newName string) error {
-	_, err := client.Call("one.vn.rename", vn.ID, newName)
+	_, err := vn.c.Call("one.vn.rename", vn.ID, newName)
 	return err
 }
 
 // Info retrieves information for the virtual network.
 func (vn *VirtualNetwork) Info() error {
-	response, err := client.Call("one.vn.info", vn.ID)
+	response, err := vn.c.Call("one.vn.info", vn.ID)
 	if err != nil {
 		return err
 	}
