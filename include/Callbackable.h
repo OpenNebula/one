@@ -369,4 +369,45 @@ public:
     };
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+template<class T>
+class multiple_vector_cb : public Callbackable
+{
+public:
+    void set_callback(vector<T> * _columns)
+    {
+        columns = _columns;
+
+        Callbackable::set_callback(
+                static_cast<Callbackable::Callback>(&multiple_vector_cb::callback));
+    };
+
+    int callback(void * nil, int num, char **values, char **names)
+    {
+        if ( num == 0 || values == 0 || values[0] == 0 )
+        {
+            return -1;
+        }
+
+        for (char *c = *values; c; c = *++values)
+        {
+            std::istringstream iss(c);
+
+            T value;
+
+            iss >> value;
+
+            columns->push_back(value);
+        }
+
+        return 0;
+    };
+
+private:
+
+    vector<T> *  columns;
+};
+
 #endif /*CALLBACKABLE_H_*/

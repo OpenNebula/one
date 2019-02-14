@@ -583,28 +583,22 @@ int LogDB::purge_log()
     std::ostringstream oss;
 
     empty_cb cb;
+    multiple_vector_cb<int> cb_info;
+    std::vector<int> maxmin;
 
     int rc = 0;
 
     pthread_mutex_lock(&mutex);
 
-    oss << "SELECT MIN(log_index) FROM logdb WHERE log_index >= 0";
+    oss << "SELECT MIN(log_index), MAX(log_index) FROM logdb WHERE log_index >= 0";
 
-    cb_dbg.set_callback(&min_idx);
-    db->exec_rd(oss, &cb_dbg);
-    cb_dbg.unset_callback();
-
-    oss.str("");
-
-    oss << "SELECT MAX(log_index) FROM logdb WHERE log_index >= 0";
-
-    cb_dbg.set_callback(&max_idx);
-    db->exec_rd(oss, &cb_dbg);
-    cb_dbg.unset_callback();
+    cb_info.set_callback(&maxmin);
+    db->exec_rd(oss, &cb_info);
+    cb_info.unset_callback();
 
     oss.str("");
 
-    oss << "BEFORE-PURGE: MIN log_index: " << min_idx << ", MAX log_index: " << max_idx;
+    oss << "BEFORE-PURGE: MIN log_index: " << maxmin[0] << ", MAX log_index: " << maxmin[1];
 
     NebulaLog::log("DBM",Log::INFO,oss);
 
@@ -634,23 +628,15 @@ int LogDB::purge_log()
 
     oss.str("");
 
-    oss << "SELECT MIN(log_index) FROM logdb WHERE log_index >= 0";
+    oss << "SELECT MIN(log_index), MAX(log_index) FROM logdb WHERE log_index >= 0";
 
-    cb_dbg.set_callback(&min_idx);
-    db->exec_rd(oss, &cb_dbg);
-    cb_dbg.unset_callback();
-
-    oss.str("");
-
-    oss << "SELECT MAX(log_index) FROM logdb WHERE log_index >= 0";
-
-    cb_dbg.set_callback(&max_idx);
-    db->exec_rd(oss, &cb_dbg);
-    cb_dbg.unset_callback();
+    cb_info.set_callback(&maxmin);
+    db->exec_rd(oss, &cb_info);
+    cb_info.unset_callback();
 
     oss.str("");
 
-    oss << "AFTER-PURGE: MIN log_index: " << min_idx << ", MAX log_index: " << max_idx;
+    oss << "AFTER-PURGE: MIN log_index: " << maxmin[0] << ", MAX log_index: " << maxmin[1];
 
     NebulaLog::log("DBM",Log::INFO,oss);
 
