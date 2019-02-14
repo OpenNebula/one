@@ -242,6 +242,16 @@ private:
     }
 
     /**
+     *  Writes/updates the vnc_bitmap data in the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int update_vnc_bitmap(SqlDB *db)
+    {
+        return vnc_bitmap.update(db);
+    }
+
+    /**
      *  Reads the PoolObjectSQL (identified by its OID) from the database.
      *    @param db pointer to the db
      *    @return 0 on success
