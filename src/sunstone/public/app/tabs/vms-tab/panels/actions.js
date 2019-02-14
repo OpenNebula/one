@@ -19,19 +19,19 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var Locale = require('utils/locale');
-  var Sunstone = require('sunstone');
-  var Humanize = require('utils/humanize');
-  var TemplateUtils = require('utils/template-utils');
-  var Config = require('sunstone-config');
-  var ScheduleActions = require('utils/schedule_action');
+  var Locale = require("utils/locale");
+  var Sunstone = require("sunstone");
+  var Humanize = require("utils/humanize");
+  var TemplateUtils = require("utils/template-utils");
+  var Config = require("sunstone-config");
+  var ScheduleActions = require("utils/schedule_action");
 
   /*
     CONSTANTS
    */
 
-  var TAB_ID = require('../tabId');
-  var PANEL_ID = require('./actions/panelId');
+  var TAB_ID = require("../tabId");
+  var PANEL_ID = require("./actions/panelId");
   var RESOURCE = "VM";
   var XML_ROOT = "VM";
 
@@ -61,41 +61,41 @@ define(function(require) {
 
   function _html() {
     var that = this;
-    var html = '<div class="row">\
-      <div class="large-12 columns">\
-        <table id="scheduling_vms_actions_table" class="info_table dataTable">\
+    var html = "<div class=\"row\">\
+      <div class=\"large-12 columns\">\
+        <table id=\"scheduling_vms_actions_table\" class=\"info_table dataTable\">\
          <thead>\
            <tr>\
-              <th>' + Locale.tr("ID") + '</th>\
-              <th>' + Locale.tr("Action") + '</th>\
-              <th>' + Locale.tr("Time") + '</th>\
-              <th>' + Locale.tr("Rep") + '</th>\
-              <th>' + Locale.tr("End") + '</th>\
-              <th>' + Locale.tr("Done") + '</th>\
-              <th>' + Locale.tr("Message") + '</th>\
-              <th colspan=""> </th>\
-              <th><button id="add_scheduling_vms_action" class="button small success right radius" >' + Locale.tr("Add action") + '</button></th>\
+              <th>" + Locale.tr("ID") + "</th>\
+              <th>" + Locale.tr("Action") + "</th>\
+              <th>" + Locale.tr("Time") + "</th>\
+              <th>" + Locale.tr("Rep") + "</th>\
+              <th>" + Locale.tr("End") + "</th>\
+              <th>" + Locale.tr("Done") + "</th>\
+              <th>" + Locale.tr("Message") + "</th>\
+              <th colspan=\"\"> </th>\
+              <th><button id=\"add_scheduling_vms_action\" class=\"button small success right radius\" >" + Locale.tr("Add action") + "</button></th>\
            </tr>\
           </thead>\
-          <tbody id="sched_vms_actions_body">'+
+          <tbody id=\"sched_vms_actions_body\">"+
           vmsfromJSONtoActionsTable(that.element.USER_TEMPLATE.SCHED_ACTION) +
-         '</tbody>\
+         "</tbody>\
          </table>\
         </div>\
-      </div>';
+      </div>";
 
-    ScheduleActions.htmlTable("vms") //only charge the resource attribute
+    ScheduleActions.htmlTable("vms"); //only charge the resource attribute
     return html;
   }
 
   function _setup(context) {
     var that = this;
     var actions = ["terminate", "terminate-hard", "hold", "release", "stop", "suspend", "resume", "reboot", "reboot-hard", "poweroff", "poweroff-hard", "undeploy", "undeploy-hard", "snapshot-create"];
-    context.off('click', '#add_scheduling_vms_action');
-    context.on('click', '#add_scheduling_vms_action', function() {
+    context.off("click", "#add_scheduling_vms_action");
+    context.on("click", "#add_scheduling_vms_action", function() {
       $("#add_scheduling_vms_action", context).attr("disabled", "disabled");
       ScheduleActions.htmlNewAction(actions, context, "vms");
-      ScheduleActions.setup(context)
+      ScheduleActions.setup(context);
       return false;
     });
 
@@ -127,8 +127,8 @@ define(function(require) {
 
       $.each(that.element.USER_TEMPLATE.SCHED_ACTION, function(i, element) {
         if (element.ID != index)
-          tmp_tmpl[i] = element
-      })
+          tmp_tmpl[i] = element;
+      });
 
       that.element.USER_TEMPLATE.SCHED_ACTION = tmp_tmpl;
       var template_str = TemplateUtils.templateToString(that.element.USER_TEMPLATE);
@@ -141,11 +141,11 @@ define(function(require) {
 
   // Returns an HTML string with the json keys and values
   function vmsfromJSONtoActionsTable(actions_array) {
-    var str = ""
-    var empty = '\
-      <tr id="no_actions_tr">\
-          <td colspan="6">' + Locale.tr("No actions to show") + '</td>\
-      </tr>'    ;
+    var str = "";
+    var empty = "\
+      <tr id=\"no_actions_tr\">\
+          <td colspan=\"6\">" + Locale.tr("No actions to show") + "</td>\
+      </tr>"    ;
 
     if (!actions_array) {
       return empty;
@@ -163,7 +163,7 @@ define(function(require) {
 
     $.each(actions_array, function(index, scheduling_action) {
       str += "<tr class='tr_action_"+scheduling_action.ID+"' data='" + JSON.stringify(scheduling_action) + "'>";
-      str += '<td class="id_row">' + TemplateUtils.htmlEncode(scheduling_action.ID) + '</td>'
+      str += "<td class=\"id_row\">" + TemplateUtils.htmlEncode(scheduling_action.ID) + "</td>";
       var actions = ScheduleActions.fromJSONtoActionsTable([scheduling_action], scheduling_action.ID, true);
       str += actions;
       str += vmsfromJSONtoActionRow(scheduling_action);
@@ -177,14 +177,14 @@ define(function(require) {
     var done_str    = scheduling_action.DONE ? (Humanize.prettyTime(scheduling_action.DONE)) : "";
     var message_str = scheduling_action.MESSAGE ? scheduling_action.MESSAGE : "";
 
-    var str = '<td class="done_row">' + done_str + '</td>\
-       <td class="message_row">' + TemplateUtils.htmlEncode(message_str) + '</td>\
+    var str = "<td class=\"done_row\">" + done_str + "</td>\
+       <td class=\"message_row\">" + TemplateUtils.htmlEncode(message_str) + "</td>\
        <td>\
          <div>\
-           <a id="minus_' + scheduling_action.ID + '" class="remove_action_x" href="#"><i class="fas fa-trash-alt"/></a>\
+           <a id=\"minus_" + scheduling_action.ID + "\" class=\"remove_action_x\" href=\"#\"><i class=\"fas fa-trash-alt\"/></a>\
          </div>\
        </td>\
-     </tr>';
+     </tr>";
 
     return str;
   }
