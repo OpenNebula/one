@@ -506,7 +506,7 @@ int VirtualMachine::bootstrap(SqlDB * db)
     ostringstream oss_hist(History::db_bootstrap);
     ostringstream oss_showback(VirtualMachine::showback_db_bootstrap);
 
-    ostringstream oss_index("CREATE INDEX state_idx on vm_pool (state);");
+    ostringstream oss_index("CREATE INDEX state_oid_idx on vm_pool (state, oid);");
 
     rc =  db->exec_local_wr(oss_vm);
     rc += db->exec_local_wr(oss_index);
