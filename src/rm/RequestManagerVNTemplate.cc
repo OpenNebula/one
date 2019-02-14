@@ -190,9 +190,7 @@ Request::ErrorCode VNTemplateInstantiate::request_execute(int id, string name,
             continue;
         }
 
-        cluster->add_vnet(vid, str_error);
-
-        clpool->update(cluster);
+        clpool->add_to_cluster(PoolObjectSQL::NET, cluster, vid, str_error);
 
         cluster->unlock();
     }

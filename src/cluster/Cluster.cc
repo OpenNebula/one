@@ -118,36 +118,6 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Cluster::add_datastore(int id, string& error_msg)
-{
-   int rc = datastores.add(id);
-
-    if ( rc < 0 )
-    {
-        error_msg = "Datastore ID is already in the cluster set.";
-    }
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int Cluster::del_datastore(int id, string& error_msg)
-{
-    int rc = datastores.del(id);
-
-    if ( rc < 0 )
-    {
-        error_msg = "Datastore ID is not part of the cluster set.";
-    }
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int Cluster::get_default_system_ds(const set<int>& ds_set)
 {
     Nebula& nd = Nebula::instance();
@@ -241,98 +211,6 @@ int Cluster::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     db->free_str(sql_name);
     db->free_str(sql_xml);
-
-    if (rc == 0)
-    {
-        if (db->multiple_values_support())
-        {
-            set<int>::iterator i;
-
-            rc = 0;
-
-            oss.str("");
-            oss << "DELETE FROM " << network_table  << " WHERE cid = " << oid;
-            rc += db->exec_wr(oss);
-
-            oss.str("");
-            oss << "DELETE FROM " << datastore_table<< " WHERE cid = " << oid;
-            rc += db->exec_wr(oss);
-
-            set<int> datastore_set = datastores.get_collection();
-
-            if (!datastore_set.empty())
-            {
-                oss.str("");
-                oss << "INSERT INTO " << datastore_table
-                    << " (" << datastore_db_names << ") VALUES ";
-
-                i = datastore_set.begin();
-
-                oss << "(" << oid  << "," << *i << ")";
-
-                for(++i; i != datastore_set.end(); i++)
-                {
-                    oss << ", (" << oid  << "," << *i << ")";
-                }
-
-                rc += db->exec_wr(oss);
-            }
-
-            set<int> vnet_set = vnets.get_collection();
-
-            if (!vnet_set.empty())
-            {
-                oss.str("");
-                oss << "INSERT INTO " << network_table
-                    << " (" << network_db_names << ") VALUES ";
-
-                i = vnet_set.begin();
-
-                oss << "(" << oid  << "," << *i << ")";
-
-                for(++i; i != vnet_set.end(); i++)
-                {
-                    oss << ", (" << oid  << "," << *i << ")";
-                }
-
-                rc += db->exec_wr(oss);
-            }
-        }
-        else
-        {
-            oss.str("");
-
-            oss <<"BEGIN; "
-                <<"DELETE FROM "<< network_table  <<" WHERE cid = "<< oid<< "; "
-                <<"DELETE FROM "<< datastore_table<<" WHERE cid = "<< oid<< "; ";
-
-            set<int>::iterator i;
-
-            set<int> datastore_set = datastores.get_collection();
-
-            for(i = datastore_set.begin(); i != datastore_set.end(); i++)
-            {
-                oss << "INSERT INTO " << datastore_table
-                    << " (" << datastore_db_names << ") VALUES ("
-                    << oid  << ","
-                    << *i   << "); ";
-            }
-
-            set<int> vnet_set = vnets.get_collection();
-
-            for(i = vnet_set.begin(); i != vnet_set.end(); i++)
-            {
-                oss << "INSERT INTO " << network_table
-                    << " (" << network_db_names << ") VALUES ("
-                    << oid  << ","
-                    << *i   << "); ";
-            }
-
-            oss << "COMMIT";
-
-            rc = db->exec_wr(oss);
-        }
-    }
 
     return rc;
 

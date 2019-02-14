@@ -164,7 +164,7 @@ protected:
 
     int del_from_cluster(Cluster* cluster, int id, string& error_msg)
     {
-        return cluster->del_vnet(id, error_msg);
+        return clpool->del_from_cluster(PoolObjectSQL::NET, cluster, id, error_msg);
     };
 
     int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att);
@@ -229,7 +229,7 @@ protected:
 
     int del_from_cluster(Cluster* cluster, int id, string& error_msg)
     {
-        return cluster->del_host(id, error_msg);
+        return clpool->del_from_cluster(PoolObjectSQL::HOST, cluster, id, error_msg);
     };
 
     int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att);
@@ -310,7 +310,7 @@ public:
 
     int del_from_cluster(Cluster* cluster, int id, string& error_msg)
     {
-        return cluster->del_datastore(id, error_msg);
+        return clpool->del_from_cluster(PoolObjectSQL::DATASTORE, cluster, id, error_msg);
     };
 };
 

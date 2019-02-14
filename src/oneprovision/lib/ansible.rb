@@ -97,7 +97,9 @@ module OneProvision
                     Utils.fail('Hosts are already configured')
                 end
 
-                configure_all(hosts)
+                Driver.retry_loop 'Failed to configure hosts' do
+                    configure_all(hosts)
+                end
             end
 
             # TODO: expect multiple hosts
@@ -206,9 +208,13 @@ module OneProvision
                         host = Regexp.last_match(1)
 
                         begin
-                            text = JSON.parse(Regexp.last_match(2))['msg']
-                                       .strip.tr("\n", ' ')
-                            text = "- #{text}"
+                            match = JSON.parse(Regexp.last_match(2))
+
+                            msg   = match['msg']
+                            msg   = match['reason'] if msg.nil?
+
+                            text  = msg.strip.tr("\n", ' ')
+                            text  = "- #{text}"
                         rescue StandardError => e
                             raise e
                         end
@@ -216,8 +222,9 @@ module OneProvision
                         host = Regexp.last_match(1)
                     end
 
-                    rtn << format('- 15%<h>s : TASK[%<t>s] %<tx>s',
-                                  :h => host, :t => task, :tx => text)
+                    content = { :h => host, :t => task, :tx => text }
+
+                    rtn << format('- %<h>s : TASK[%<t>s] %<tx>s', content)
                 end
 
                 rtn.join("\n")

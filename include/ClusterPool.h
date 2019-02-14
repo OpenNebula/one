@@ -203,7 +203,7 @@ public:
      *
      *  @return 0 on success
      */
-    int dump(string& oss, const string& where, const string& limit, 
+    int dump(string& oss, const string& where, const string& limit,
         bool desc)
     {
         return PoolSQL::dump(oss, "CLUSTER_POOL", "body", Cluster::table, where,
@@ -235,6 +235,28 @@ public:
      * @return 0 on success
      */
     int query_vnet_clusters(int oid, set<int> &cluster_ids);
+
+    /**
+     * Adds a resource to the specifyed cluster and update the clusters body.
+     * @param type Resource type
+     * @param cluster Cluster in which the resource will be included
+     * @param resource_id Id of the resource
+     * @param error_msg error message
+     * @return 0 on success
+     */
+    int add_to_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster,
+                       int resource_id, string& error_msg);
+
+    /**
+     * Removes a resource from the specifyed cluster and update the clusters body.
+     * @param type Resource type
+     * @param cluster Cluster from which the resource will be removed
+     * @param resource_id Id of the resource
+     * @param error_msg error message
+     * @return 0 on success
+     */
+    int del_from_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster,
+                         int resource_id, string& error_msg);
 
 private:
     /**

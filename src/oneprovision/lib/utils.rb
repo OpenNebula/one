@@ -81,7 +81,12 @@ module OneProvision
                 version = config['version']
                 defaults = config['defaults']['provision']
 
-                if name.nil? && version == 2
+                if !version.nil? && version != 1
+                    Utils.fail('There is an error in your configuration ' \
+                               'file: Unsupported version')
+                end
+
+                if name.nil?
                     Utils.fail('There is an error in your configuration ' \
                                'file: no name given')
                 end
