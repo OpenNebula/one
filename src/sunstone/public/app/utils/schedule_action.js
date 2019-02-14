@@ -44,12 +44,20 @@ define(function (require) {
 		$("#scheduling_" + res + "_actions_table tbody", context).append(TemplateHTML({
 			"actions": options,
 			"res": that.res
-		}));
-
+		})).find("#relative_time", context).on("click", function(e){
+      $("#schedule_type",context).prop("checked",false);
+      if($(this).is(":checked")){
+        $("#no_relative_time_form, .periodic",context).hide();
+        $("#schedule_time",context).prop("",false);
+        $("#relative_time_form",context).show();
+      }else{
+        $("#relative_time_form",context).hide();
+        $("#no_relative_time_form",context).show();
+      }
+    });
 		if (res === "vms"){
 			$("#title", context).prop("colspan", "2");
 			$("#td_days", context).prop("colspan", "5");
-
 		}
 	}
 
@@ -173,90 +181,114 @@ define(function (require) {
 	}
 
 	function _retrieveNewAction(context) {
-		var periodic = $("input#schedule_type", context).prop("checked");
-		var time_input_value = $("#time_input", context).val();
-		var date_input_value = $("#date_input", context).val();
-		var new_action = $("#select_new_action", context).val();
-		var rep = 0;
-		var end_type = 1;
-		var days = "";
-		var end_value = 1;
-		var sched_action = {};
-
-		if (date_input_value === "") {
-			Notifier.notifyError("Date not defined.");
-			return false;
-		}
-
-		if (time_input_value === ""){
-			Notifier.notifyError("Time not defined.");
-			return false;
-		}
-
-		if (periodic) {
-
-			if (!this.repeat || !this.end_type) {
-				return false;
-			}
-
-			if (this.repeat === "week") {
-				$("input[name='days']:checked").each(function () {
-					days = days + (this).value + ",";
-				});
-				days = days.slice(0, -1);
-			} else if (this.repeat === "month") {
-				rep = 1;
-				days = $("#days_month_value", context).val();
-			} else if (this.repeat === "year"){
-				rep = 2;
-				days = $("#days_year_value", context).val();
-			} else {
-				rep = 3;
-				days = $("#days_hour_value", context).val();
-			}
-
-			if (days === "") {
-				Notifier.notifyError("Hours or days not defined.");
-				return false;
-			}
-
-			if (this.end_type === "never") {
-				end_type = 0;
-			} else if (this.end_type === "n_rep") {
-				end_value = $("#end_value_n_rep", context).val();
-				if (end_value === "") {
-					Notifier.notifyError("Repetition number not defined.");
-					return false;
-				}
-			} else if (this.end_type === "date") {
-				end_type = 2;
-				end_date = $("#end_value_date", context).val();
-				if (end_date === "") {
-					Notifier.notifyError("End date not defined.");
-					return false;
-				}
-				var time_value = end_date + " " + time_input_value;
-				var epoch_str = new Date(time_value);
-				end_value = parseInt(epoch_str.getTime()) / 1000;
-			}
-
-			sched_action.DAYS = days;
-			sched_action.REPEAT = rep;
-			sched_action.END_TYPE = end_type;
-			sched_action.END_VALUE = end_value;
-		}
-
-		var time_value = date_input_value + " " + time_input_value;
-		var epoch_str = new Date(time_value);
-		var time = parseInt(epoch_str.getTime()) / 1000;
-
-		sched_action.ACTION = new_action;
-		sched_action.TIME = time;
-
-		$("#scheduling_" + this.res + "_actions_table .create", context).remove();
-		$("#add_scheduling_" + this.res + "_action", context).removeAttr("disabled");
-
-		return sched_action;
+    var relative_time = $("#relative_time",context).prop("checked");
+    var new_action = $("#select_new_action", context).val();
+    var sched_action = {};
+    if(relative_time){
+      var time_number = $("#time_number", context).val();
+      var time_unit = $("#time_unit", context).val();
+      var send_time = 0;
+      if (time_number === "" || time_number <= 0 ) {
+		  	Notifier.notifyError("Time Number not defined.");
+		  	return false;
+		  }
+      switch (time_unit) {
+        case "years":
+          send_time = time_number * 365 * 24 * 3600;
+        break;
+        case "months":
+          send_time = time_number * 30 * 24 * 3600;
+        break;
+        case "weeks":
+          send_time = time_number * 7 * 24 * 3600;
+        break;
+        case "days":
+          send_time = time_number * 24 * 3600;
+        break;
+        case "hours":
+          send_time = time_number * 3600;
+        break;
+        case "minutes":
+          send_time = time_number * 60;
+        break;
+        default:
+          Notifier.notifyError("Error in unit time");
+		  	  return false;
+        break;
+      }
+      sched_action.TIME = "+" + send_time;
+    }else{
+      var periodic = $("input#schedule_type", context).prop("checked");
+		  var time_input_value = $("#time_input", context).val();
+		  var date_input_value = $("#date_input", context).val();
+		  var rep = 0;
+		  var end_type = 1;
+		  var days = "";
+		  var end_value = 1;
+		  if (date_input_value === "") {
+		  	Notifier.notifyError("Date not defined.");
+		  	return false;
+		  }
+		  if (time_input_value === ""){
+		  	Notifier.notifyError("Time not defined.");
+		  	return false;
+		  }
+		  if (periodic) {
+		  	if (!this.repeat || !this.end_type) {
+		  		return false;
+		  	}
+		  	if (this.repeat === "week") {
+		  		$("input[name='days']:checked").each(function () {
+		  			days = days + (this).value + ",";
+		  		});
+		  		days = days.slice(0, -1);
+		  	} else if (this.repeat === "month") {
+		  		rep = 1;
+		  		days = $("#days_month_value", context).val();
+		  	} else if (this.repeat === "year"){
+		  		rep = 2;
+		  		days = $("#days_year_value", context).val();
+		  	} else {
+		  		rep = 3;
+		  		days = $("#days_hour_value", context).val();
+		  	}
+		  	if (days === "") {
+		  		Notifier.notifyError("Hours or days not defined.");
+		  		return false;
+		  	}
+		  	if (this.end_type === "never") {
+		  		end_type = 0;
+		  	} else if (this.end_type === "n_rep") {
+		  		end_value = $("#end_value_n_rep", context).val();
+		  		if (end_value === "") {
+		  			Notifier.notifyError("Repetition number not defined.");
+		  			return false;
+		  		}
+		  	} else if (this.end_type === "date") {
+		  		end_type = 2;
+		  		end_date = $("#end_value_date", context).val();
+		  		if (end_date === "") {
+		  			Notifier.notifyError("End date not defined.");
+		  			return false;
+		  		}
+		  		var time_value = end_date + " " + time_input_value;
+		  		var epoch_str = new Date(time_value);
+		  		end_value = parseInt(epoch_str.getTime()) / 1000;
+		  	}
+		  	sched_action.DAYS = days;
+		  	sched_action.REPEAT = rep;
+		  	sched_action.END_TYPE = end_type;
+		  	sched_action.END_VALUE = end_value;
+		  }
+		  var timeCal = date_input_value + " " + time_input_value;
+		  epochStr = new Date(time);
+		  var time = parseInt(epochStr.getTime()) / 1000;
+		  sched_action.TIME = time;
+    }
+    sched_action.ACTION = new_action;
+    $("#scheduling_" + this.res + "_actions_table .create", context).remove();
+    $("#add_scheduling_" + this.res + "_action", context).removeAttr("disabled");
+    return sched_action;
 	}
 
 	function _fromJSONtoActionsTable(actions_array, action_id, minus) {

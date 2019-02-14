@@ -1,5 +1,6 @@
-{{! -------------------------------------------------------------------------- }} {{! Copyright 2002-2019, OpenNebula Project,
-OpenNebula Systems }} {{! }} {{! Licensed under the Apache License, Version 2.0 (the "License"); you may }} {{! not use this
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2019, OpenNebula Project, OpenNebula Systems }} {{! }} 
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may }} {{! not use this
 file except in compliance with the License. You may obtain }} {{! a copy of the License at }} {{! }} {{! http://www.apache.org/licenses/LICENSE-2.0
 }} {{! }} {{! Unless required by applicable law or agreed to in writing, software }} {{! distributed under the License is
 distributed on an "AS IS" BASIS, }} {{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. }} {{! See
@@ -15,7 +16,31 @@ the License for the specific language governing permissions and }} {{! limitatio
 	<td>
 		<select style="width: 80%" id="select_new_action" class="select_new_action" name="select_action">{{{actions}}}</select>
 	</td>
-	<td>
+	<td colspan="2">
+    <input type="checkbox" id="relative_time"/>
+    <label for="relative_time">{{tr "Relative Time"}}</label>
+  </td>
+</tr>
+<tr id="relative_time_form" style="display:none;">
+  <td></td>
+  <td>
+    <input type="number" id="time_number" placeholder="{{tr 'Time'}}" style="width: 80%">
+  </td>
+  <td>
+    <select id="time_unit" style="width: 80%">
+      <option value="years">{{tr "Years"}}</option>
+      <option value="months">{{tr "Months"}}</option>
+      <option value="weeks">{{tr "Weeks"}}</option>
+      <option value="days">{{tr "Days"}}</option>
+      <option value="hours">{{tr "Hours"}}</option>
+      <option value="minutes">{{tr "Minutes"}}</option>
+    </select>
+  </td>
+  <td></td>
+</tr>
+<tr id="no_relative_time_form">
+  <td></td>
+  <td>
 		<input style="width: 80%" id="date_input" type="date" />
 	</td>
 	<td>
