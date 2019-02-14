@@ -73,7 +73,7 @@ public:
         {
           rc = cluster->get_vnc_port(vm_id, port);
 
-          update(cluster);
+          update_vnc_bitmap(cluster);
 
           cluster->unlock();
         }
@@ -94,7 +94,7 @@ public:
         {
             cluster->release_vnc_port(port);
 
-            update(cluster);
+            update_vnc_bitmap(cluster);
 
             cluster->unlock();
         }
@@ -117,7 +117,7 @@ public:
         {
             rc = cluster->set_vnc_port(port);
 
-            update(cluster);
+            update_vnc_bitmap(cluster);
 
             cluster->unlock();
         }
@@ -257,6 +257,16 @@ public:
      */
     int del_from_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster,
                          int resource_id, string& error_msg);
+
+    /**
+     * Updates the cluster vnc bitmap.
+     * @cluster the cluster to be updated.
+     * @return 0 on success
+     */
+    int update_vnc_bitmap(Cluster* cluster)
+    {
+        return cluster->update_vnc_bitmap(db);
+    }
 
 private:
     /**
