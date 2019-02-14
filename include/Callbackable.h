@@ -369,4 +369,50 @@ public:
     };
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+template< template<class...> class Container, class T>
+class multiple_cb : public Callbackable
+{
+public:
+    void set_callback(Container<T> * _columns)
+    {
+        columns = _columns;
+
+        Callbackable::set_callback(
+                static_cast<Callbackable::Callback>(&multiple_cb::callback));
+    };
+
+    int callback(void * nil, int num, char **values, char **names)
+    {
+        if ( num == 0 || values == 0 )
+        {
+            return -1;
+        }
+
+        for (int i=0; i < num ; ++i)
+        {
+            if (values[i] == 0)
+            {
+                continue;
+            }
+
+            std::istringstream iss(values[i]);
+
+            T value;
+
+            iss >> value;
+
+            columns->push_back(value);
+        }
+
+        return 0;
+    };
+
+private:
+
+    Container<T> *  columns;
+};
+
 #endif /*CALLBACKABLE_H_*/

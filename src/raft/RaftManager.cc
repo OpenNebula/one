@@ -802,12 +802,8 @@ void RaftManager::timer_action(const ActionRequest& ar)
     // Database housekeeping
     if ( (purge_tics * timer_period_ms) >= purge_period_ms )
     {
-        ostringstream oss;
-
         Nebula& nd    = Nebula::instance();
         LogDB * logdb = nd.get_logdb();
-
-        oss << "Purging obsolete LogDB records: ";
 
         int rc = logdb->purge_log();
 
@@ -817,66 +813,61 @@ void RaftManager::timer_action(const ActionRequest& ar)
         {
             purge_tics = (int) ((purge_period_ms - 60000)/timer_period_ms);
         }
-
-        oss << rc << " records purged";
-
-        NebulaLog::log("RCM", Log::INFO, oss);
     }
 
-	// Leadership
-	struct timespec the_time;
+    // Leadership
+    struct timespec the_time;
 
-	clock_gettime(CLOCK_REALTIME, &the_time);
+    clock_gettime(CLOCK_REALTIME, &the_time);
 
-	pthread_mutex_lock(&mutex);
+    pthread_mutex_lock(&mutex);
 
-	if ( state == LEADER ) // Send the heartbeat
-	{
-		time_t sec  = last_heartbeat.tv_sec + broadcast_timeout.tv_sec;
-		long   nsec = last_heartbeat.tv_nsec + broadcast_timeout.tv_nsec;
+    if ( state == LEADER ) // Send the heartbeat
+    {
+        time_t sec  = last_heartbeat.tv_sec + broadcast_timeout.tv_sec;
+        long   nsec = last_heartbeat.tv_nsec + broadcast_timeout.tv_nsec;
 
 
-		if ((sec < the_time.tv_sec) || (sec == the_time.tv_sec &&
-				nsec <= the_time.tv_nsec))
-		{
-			heartbeat_manager.replicate();
+        if ((sec < the_time.tv_sec) || (sec == the_time.tv_sec &&
+                nsec <= the_time.tv_nsec))
+        {
+            heartbeat_manager.replicate();
 
             clock_gettime(CLOCK_REALTIME, &last_heartbeat);
 
             pthread_mutex_unlock(&mutex);
-		}
+        }
         else
         {
             pthread_mutex_unlock(&mutex);
         }
+    }
+    else if ( state == FOLLOWER )
+    {
+        time_t sec  = last_heartbeat.tv_sec + election_timeout.tv_sec;
+        long   nsec = last_heartbeat.tv_nsec + election_timeout.tv_nsec;
 
-	}
-	else if ( state == FOLLOWER )
-	{
-		time_t sec  = last_heartbeat.tv_sec + election_timeout.tv_sec;
-		long   nsec = last_heartbeat.tv_nsec + election_timeout.tv_nsec;
-
-		if ((sec < the_time.tv_sec) || (sec == the_time.tv_sec &&
-				nsec <= the_time.tv_nsec))
-		{
-			NebulaLog::log("RRM", Log::ERROR, "Failed to get heartbeat from "
-				"leader. Starting election proccess");
+        if ((sec < the_time.tv_sec) || (sec == the_time.tv_sec &&
+                nsec <= the_time.tv_nsec))
+        {
+            NebulaLog::log("RRM", Log::ERROR, "Failed to get heartbeat from "
+                "leader. Starting election proccess");
 
             state = CANDIDATE;
 
             pthread_mutex_unlock(&mutex);
 
             request_vote();
-		}
+        }
         else
         {
             pthread_mutex_unlock(&mutex);
         }
-	}
-	else //SOLO or CANDIDATE, do nothing
-	{
-		pthread_mutex_unlock(&mutex);
-	}
+    }
+    else //SOLO or CANDIDATE, do nothing
+    {
+        pthread_mutex_unlock(&mutex);
+    }
 
     return;
 }

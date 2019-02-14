@@ -580,17 +580,35 @@ int LogDB::apply_log_records(unsigned int commit_index)
 
 int LogDB::purge_log()
 {
-    std::ostringstream oss;
+    std::ostringstream oss, foss;
 
     empty_cb cb;
 
-    int rc = 0;
+    multiple_cb<std::vector, int> cb_info;
+    std::vector<int> maxmin_i;
+    std::vector<int> maxmin_e;
+
+    int rc  = 0;
+    int frc = 0;
 
     pthread_mutex_lock(&mutex);
+
+    /* ---------------- Record log state -------------------- */
+
+    oss << "SELECT MIN(log_index), MAX(log_index) FROM logdb WHERE log_index >= 0";
+
+    cb_info.set_callback(&maxmin_i);
+
+    db->exec_rd(oss, &cb_info);
+
+    cb_info.unset_callback();
 
     /* ---------------------------------------------------------------------- */
     /* Non-federated records. Keep last log_retention records                 */
     /* ---------------------------------------------------------------------- */
+    cb.set_affected_rows(0);
+
+    oss.str("");
     oss << "DELETE FROM logdb WHERE timestamp > 0 AND log_index >= 0 "
         << "AND fed_index = -1 AND log_index < ("
         << "  SELECT MIN(i.log_index) FROM ("
@@ -610,11 +628,35 @@ int LogDB::purge_log()
         rc = cb.get_affected_rows();
     }
 
+    /* ---------------- Record log state -------------------- */
+
+    oss.str("");
+    oss << "SELECT MIN(log_index), MAX(log_index) FROM logdb WHERE log_index >= 0";
+
+    cb_info.set_callback(&maxmin_e);
+
+    db->exec_rd(oss, &cb_info);
+
+    cb_info.unset_callback();
+
+    oss.str("");
+    oss << "Purging obsolete LogDB records: " << rc << " records purged. Log state: " 
+        << maxmin_i[0] << "," << maxmin_i[1] << " - " << maxmin_e[0] << "," << maxmin_e[1];
+
+    NebulaLog::log("DBM", Log::INFO, oss);
+
     /* ---------------------------------------------------------------------- */
     /* Federated records. Keep last log_retention federated records           */
     /* ---------------------------------------------------------------------- */
+
+    foss << "Purging obsolete federated LogDB records: ";
+
     if ( fed_log.size() < log_retention )
     {
+        foss << "0 records purged. Federated log size: " << fed_log.size();
+
+        NebulaLog::log("DBM", Log::INFO, foss);
+
         pthread_mutex_unlock(&mutex);
 
         return rc;
@@ -623,7 +665,6 @@ int LogDB::purge_log()
     cb.set_affected_rows(0);
 
     oss.str("");
-
     oss << "DELETE FROM logdb WHERE timestamp > 0 AND log_index >= 0 "
         << "AND fed_index != -1 AND log_index < ("
         << "  SELECT MIN(i.log_index) FROM ("
@@ -640,10 +681,16 @@ int LogDB::purge_log()
 
     if ( db->exec_wr(oss, &cb) != -1 )
     {
-        rc += cb.get_affected_rows();
+        frc = cb.get_affected_rows();
+
+        rc += frc;
     }
 
     build_federated_index();
+
+    foss << frc << " records purged. Federated log size: " << fed_log.size();
+
+    NebulaLog::log("DBM", Log::INFO, foss);
 
     pthread_mutex_unlock(&mutex);
 
