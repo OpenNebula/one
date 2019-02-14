@@ -588,6 +588,28 @@ int LogDB::purge_log()
 
     pthread_mutex_lock(&mutex);
 
+    oss << "SELECT MIN(log_index) FROM logdb WHERE log_index >= 0";
+
+    cb_dbg.set_callback(&min_idx);
+    db->exec_rd(oss, &cb_dbg);
+    cb_dbg.unset_callback();
+
+    oss.str("");
+
+    oss << "SELECT MAX(log_index) FROM logdb WHERE log_index >= 0";
+
+    cb_dbg.set_callback(&max_idx);
+    db->exec_rd(oss, &cb_dbg);
+    cb_dbg.unset_callback();
+
+    oss.str("");
+
+    oss << "BEFORE-PURGE: MIN log_index: " << min_idx << ", MAX log_index: " << max_idx;
+
+    NebulaLog::log("DBM",Log::INFO,oss);
+
+    oss.str("");
+
     /* ---------------------------------------------------------------------- */
     /* Non-federated records. Keep last log_retention records                 */
     /* ---------------------------------------------------------------------- */
@@ -610,11 +632,37 @@ int LogDB::purge_log()
         rc = cb.get_affected_rows();
     }
 
+    oss.str("");
+
+    oss << "SELECT MIN(log_index) FROM logdb WHERE log_index >= 0";
+
+    cb_dbg.set_callback(&min_idx);
+    db->exec_rd(oss, &cb_dbg);
+    cb_dbg.unset_callback();
+
+    oss.str("");
+
+    oss << "SELECT MAX(log_index) FROM logdb WHERE log_index >= 0";
+
+    cb_dbg.set_callback(&max_idx);
+    db->exec_rd(oss, &cb_dbg);
+    cb_dbg.unset_callback();
+
+    oss.str("");
+
+    oss << "AFTER-PURGE: MIN log_index: " << min_idx << ", MAX log_index: " << max_idx;
+
+    NebulaLog::log("DBM",Log::INFO,oss);
+
     /* ---------------------------------------------------------------------- */
     /* Federated records. Keep last log_retention federated records           */
     /* ---------------------------------------------------------------------- */
     if ( fed_log.size() < log_retention )
     {
+        oss.str("");
+        oss << "No need of purge, FED_LOG_SIZE: " << fed_log.size() << " < LOG_RETENTION: " << log_retention;
+        NebulaLog::log("DBM",Log::INFO,oss);
+
         pthread_mutex_unlock(&mutex);
 
         return rc;
