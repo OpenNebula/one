@@ -188,11 +188,20 @@ define(function (require) {
       var time_number = $("#time_number", context).val();
       var time_unit = $("#time_unit", context).val();
       var send_time = 0;
-      if (time_number === "") {
+      if (time_number === "" || time_number <= 0 ) {
 		  	Notifier.notifyError("Time Number not defined.");
 		  	return false;
 		  }
       switch (time_unit) {
+        case "years":
+          send_time = time_number * 365 * 24 * 3600;
+        break;
+        case "months":
+          send_time = time_number * 30 * 24 * 3600;
+        break;
+        case "weeks":
+          send_time = time_number * 7 * 24 * 3600;
+        break;
         case "days":
           send_time = time_number * 24 * 3600;
         break;
