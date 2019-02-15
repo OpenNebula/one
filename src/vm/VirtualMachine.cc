@@ -1513,7 +1513,7 @@ static int get_datastore_requirements(Template *tmpl, set<int>& ds_ids,
     // Get cluster id from all DISK vector attributes (IMAGE Datastore)
     int num_vatts = tmpl->get("DISK",vatts);
 
-    for(int i=0; i<num_vatts; i++)
+    for(int i=0; i<num_vatts; i++, csystem_ds.clear())
     {
         int val;
 
