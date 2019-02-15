@@ -2990,10 +2990,6 @@ class VirtualMachine < VCenterDriver::Template
         vc_vm = VCenterDriver::VirtualMachine.new_without_id(vi_client, vm['/VM/DEPLOY_ID'])
 
         vc_vm.vm_id = vm_id
-        error = !vc_vm.disks_each(:managed?).empty? && !ds.nil?
-        # We know this comes from a migration from poweroff state (not a poweroff migration)
-        # since all the other cases are treated in vmm drivers: save, migrate and shutdown
-        raise 'datastore migration from poweroff state with managed disks is not supported' if error
 
         ccr_ref  = dst_host['/HOST/TEMPLATE/VCENTER_CCR_REF']
         vc_host  = VCenterDriver::ClusterComputeResource.new_from_ref(ccr_ref, vi_client)

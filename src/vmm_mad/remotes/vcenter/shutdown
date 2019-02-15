@@ -62,19 +62,6 @@ begin
 
     vm = VCenterDriver::VirtualMachine.new_without_id(vi_client, vm_ref)
 
-
-    if (%{'SAVE_MIGRATE'}).include?(lcm_state_str)
-        vm.vm_id = vm_id
-        dst_ds = drv_action['VM/HISTORY_RECORDS/HISTORY/DS_ID']
-        src_ds = drv_action['DATASTORE/ID']
-
-        new_ds = dst_ds != src_ds
-
-        error = !vm.disks_each(:managed?).empty? && new_ds
-        raise 'cold datastore migration in poweroff with managed disk(s) is not supported' if error
-    end
-
-
     vm.shutdown # Undeploy, Poweroff or Terminate
 rescue StandardError => e
     message = "Shutdown of VM #{vm_ref} on vCenter cluster "\
