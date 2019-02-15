@@ -105,7 +105,14 @@ for p in ${arguments//&/ }; do
     [ -n "$k" -a -n "$v" ] && eval $k=$v;
 done
 
-extension="tar.xz"
+second_extension=`echo $rootfs_url | rev | cut -d "." -f 2 | rev`
+if [ "$second_extension" == "tar" ]; then
+    extension=`echo $rootfs_url | rev | cut -d "." -f 1,2 | rev`
+else
+    extension=`echo $rootfs_url | rev | cut -d "." -f 1 | rev`
+    if [ ${#extension} -ge 4 ]; then exit 1
+    fi
+fi
 
 distro=`echo $rootfs_url | cut -d '/' -f 5`
 version=`echo $rootfs_url | cut -d '/' -f 6`
