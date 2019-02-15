@@ -232,7 +232,13 @@ define(function (require) {
 		  if (time_input_value === ""){
 		  	Notifier.notifyError("Time not defined.");
 		  	return false;
-		  }
+      }
+      var timeCal = date_input_value + " " + time_input_value;
+		  epochStr = new Date(timeCal);
+      var time = parseInt(epochStr.getTime()) / 1000;
+      sched_action.END_TYPE = end_type;
+      sched_action.END_VALUE = time;
+		  sched_action.TIME = time;
 		  if (periodic) {
 		  	if (!this.repeat || !this.end_type) {
 		  		return false;
@@ -277,16 +283,13 @@ define(function (require) {
 		  	}
 		  	sched_action.DAYS = days;
 		  	sched_action.REPEAT = rep;
-		  	sched_action.END_TYPE = end_type;
 		  	sched_action.END_VALUE = end_value;
 		  }
-		  var timeCal = date_input_value + " " + time_input_value;
-		  epochStr = new Date(time);
-		  var time = parseInt(epochStr.getTime()) / 1000;
-		  sched_action.TIME = time;
     }
     sched_action.ACTION = new_action;
     $("#scheduling_" + this.res + "_actions_table .create", context).remove();
+    $("#scheduling_" + this.res + "_actions_table #relative_time_form", context).remove();
+    $("#scheduling_" + this.res + "_actions_table #no_relative_time_form", context).remove();
     $("#no_relative_time_form",context).addClass("hide");
     $("#add_scheduling_" + this.res + "_action", context).removeAttr("disabled");
     return sched_action;
@@ -393,7 +396,7 @@ define(function (require) {
 			str += "<tr class='tr_action' data='" + JSON.stringify(scheduling_action) + "'>";
     }
 
-    var time = scheduling_action.TIME;
+    var time = scheduling_action.TIME.toString();
     time = isNaN(time)? time_str : (time && time.match(/^\+(.*)/gi)? _time(time) : time_str);
 
 		str += "<td class='action_row'>" + TemplateUtils.htmlEncode(scheduling_action.ACTION) + "</td>\
