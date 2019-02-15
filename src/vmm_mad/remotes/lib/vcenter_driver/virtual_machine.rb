@@ -1009,8 +1009,8 @@ class VirtualMachine < VCenterDriver::Template
         if key
             query = vc_disks.select {|dev| key == dev[:key]}
         else
-            error = 'disk metadata is corrupted and you have snapshots'
             if has_snapshots?
+                error = 'disk metadata is corrupted and you have snapshots'
                 raise error
             end
 
