@@ -152,12 +152,17 @@ CONTEXT = [
                 description = 'Downloaded from https://images.linuxcontainers.org'
                 name = "#{distro[0...-1]}_#{version[0...-1]} - LXD"
 
-                l1 = %w[NAME SOURCE IMPORT_ID ORIGIN_ID TYPE PUBLISHER FORMAT DESCRIPTION VERSION TAGS REGTIME SIZE]
-                l2 = [name, source.to_s, '-1', '-1', 'IMAGE', 'linuxcontainers.org', 'raw', description, '1.0', '', app_time(path), @options[:sizemb]]
+                data = {
+                    'NAME' => name, 'SOURCE' => source.to_s, 'FORMAT' => 'raw',
+                    'IMPORT_ID' => '-1', 'ORIGIN_ID' => '-1', 'TYPE' => 'IMAGE',
+                    'PUBLISHER' => 'linuxcontainers.org', 'VERSION' => '1.0',
+                    'DESCRIPTION' => description, 'REGTIME' => app_time(path),
+                    'TAGS' => '', 'SIZE' => @options[:sizemb]
+                }
 
                 tmpl = ''
 
-                0.upto(l1.length) {|i| print_var(tmpl, l1[i], l2[i]) }
+                data.each {|key, value| print_var(tmpl, key, value) }
 
                 tmpl64 = ''
                 print_var(tmpl64, 'DRIVER', 'raw')
@@ -217,10 +222,12 @@ begin
     drv_message = Base64.decode64(ARGV[0])
     doc = REXML::Document.new(drv_message).root
 
-    l1 = %i[url sizemb fs format]
-    l2 = ['MARKETPLACE/TEMPLATE/ENDPOINT', 'MARKETPLACE/TEMPLATE/IMAGE_SIZE_MB', 'MARKETPLACE/TEMPLATE/FILESYSTEM', 'MARKETPLACE/TEMPLATE/FORMAT']
+    data = { :url => 'MARKETPLACE/TEMPLATE/ENDPOINT',
+             :sizemb => 'MARKETPLACE/TEMPLATE/IMAGE_SIZE_MB',
+             :fs => 'MARKETPLACE/TEMPLATE/FILESYSTEM',
+             :format => 'MARKETPLACE/TEMPLATE/FORMAT' }
 
-    0.upto(l1.length) {|i| set_option(options, doc, l1[i], l2[i]) }
+    data.each {|key, value| set_option(options, doc, key, value) }
 
     puts LinuxContainersMarket.new(options).get_appliances
 rescue Exception
