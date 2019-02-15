@@ -85,20 +85,20 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         provision.create(config)
     end
 
-    def configure(provision_id, options)
+    def configure(provision_id, force)
         provision = OneProvision::Provision.new(provision_id)
 
         provision.refresh
 
-        provision.configure((options.key? :force))
+        provision.configure(force)
     end
 
-    def delete(provision_id)
+    def delete(provision_id, cleanup)
         provision = OneProvision::Provision.new(provision_id)
 
         provision.refresh
 
-        provision.delete
+        provision.delete(cleanup)
     end
 
     #######################################################################

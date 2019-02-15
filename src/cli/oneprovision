@@ -155,9 +155,9 @@ CommandParser::CmdParser.new(ARGV) do
         :format => Integer
     }
 
-    DELETE_ALL = {
-        :name => 'delete_all',
-        :large => '--delete-all',
+    CLEANUP = {
+        :name => 'cleanup',
+        :large => '--cleanup',
         :description => 'Delete all vms and images first, ' \
                         'then delete the resources.'
     }
@@ -254,7 +254,7 @@ CommandParser::CmdParser.new(ARGV) do
             :options => [MODES, FORCE] do
         helper.parse_options(options)
 
-        helper.configure(args[0], options)
+        helper.configure(args[0], (options.key?(:force)))
     end
 
     ###
@@ -266,10 +266,10 @@ CommandParser::CmdParser.new(ARGV) do
     command :delete,
             provision_delete_desc,
             :provisionid,
-            :options => [MODES, THREADS, DELETE_ALL] do
+            :options => [MODES, THREADS, CLEANUP] do
         helper.parse_options(options)
 
-        helper.delete(args[0])
+        helper.delete(args[0], (options.key? :cleanup))
     end
 
     ########################################################################

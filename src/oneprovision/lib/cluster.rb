@@ -30,11 +30,12 @@ module OneProvision
 
         # Creates a new CLUSTER in OpenNebula
         #
-        # @param template     [String] Template of the CLUSTER
-        # @param provision_id [String] ID of the provision
-        def create(template, provision_id)
+        # @param template       [String] Template of the CLUSTER
+        # @param provision_id   [String] ID of the provision
+        # @param provision_name [String] Name of the provision
+        def create(template, provision_id, provision_name)
             template['provision']['provision_id'] = provision_id
-            template['provision']['name']         = template['name']
+            template['provision']['name']         = provision_name
 
             name     = template['name']
             template = Utils.template_like_str(template)

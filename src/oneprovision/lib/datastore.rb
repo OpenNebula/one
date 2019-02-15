@@ -32,8 +32,10 @@ module OneProvision
         # @param template     [String]  Template of the DATASTORE
         # @param pm_mad       [String]  Provision Manager Driver
         # @param provision_id [String]  ID of the provision
-        def create(cluster_id, template, pm_mad, provision_id)
+        # @param provision_name [String] Name of the provision
+        def create(cluster_id, template, pm_mad, provision_id, provision_name)
             template['provision']['provision_id'] = provision_id
+            template['provision']['name']         = provision_name
 
             template  = Utils.template_like_str(template)
             template += "PM_MAD=\"#{pm_mad}\"\n"

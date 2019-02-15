@@ -180,30 +180,24 @@ module OneProvision
                 OneProvisionLogger.debug("Offlining OpenNebula host: #{id}")
 
                 @@mutex.synchronize do
-                    rc = @one.offline
-                    if OpenNebula.is_error?(rc)
-                        raise OneProvisionLoopException, rc.message
-                    end
+                    Utils.exception(@one.offline)
                 end
             end
 
-            # unprovision host
-            OneProvisionLogger.debug("Undeploying host: #{id}")
+            if deploy_id
+                # unprovision host
+                OneProvisionLogger.debug("Undeploying host: #{id}")
 
-            Driver.pm_driver_action(pm_mad, 'cancel', [deploy_id, name], @one)
+                params = [deploy_id, name]
+
+                Driver.pm_driver_action(pm_mad, 'cancel', params, @one)
+            end
 
             # delete ONE host
             OneProvisionLogger.debug("Deleting OpenNebula host: #{id}")
 
             @@mutex.synchronize do
-                # Fix ubuntu 14.04 borken pipe
-                @one.info
-
-                rc = @one.delete
-
-                if OpenNebula.is_error?(rc)
-                    raise OneProvisionLoopException, rc.message
-                end
+                Utils.exception(@one.delete)
             end
         end
 
