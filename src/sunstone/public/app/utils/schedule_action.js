@@ -316,6 +316,43 @@ define(function (require) {
 		return str;
 	}
 
+  function _parseTime(time=0){
+    r = time;
+    if(Math.round(time) !== time) {
+        r = time.toFixed(2);
+    }
+    return r;
+  }
+
+  function _time(unit=undefined){
+    if(unit && unit>0){
+      years = unit / 365 / 24 / 3600;
+      months = unit / 30 / 24 / 3600;
+      weeks = unit / 7 / 24 / 3600;
+      days = unit / 24 / 3600;
+      hours = unit / 3600;
+      minutes = unit / 60;
+      if(years >= 1){
+        return _parseTime(years) + " " + Locale.tr("Years");
+      }
+      if(months >= 1){
+        return _parseTime(months) + " " + Locale.tr("Months");
+      }
+      if(weeks >= 1){
+        return _parseTime(weeks) + " " + Locale.tr("Weeks");
+      }
+      if(days >= 1){
+        return _parseTime(days) + " " + Locale.tr("Days");
+      }
+      if(hours >= 1){
+        return _parseTime(hours) + " " + Locale.tr("Hours");
+      }
+      if(minutes >= 1){
+        return _parseTime(minutes) + " " + Locale.tr("Minutes");
+      }
+    }
+  }
+
 	function _fromJSONtoActionRow(scheduling_action, action_id, minus) {
 		var time_str = Humanize.prettyTime(scheduling_action.TIME);
 		var rep_str = "";
@@ -354,9 +391,13 @@ define(function (require) {
 		var str = "";
 		if (action_id === undefined) {
 			str += "<tr class='tr_action' data='" + JSON.stringify(scheduling_action) + "'>";
-		}
+    }
+
+    var time = scheduling_action.TIME;
+    time = isNaN(time)? time_str : (time && time.match(/^\+(.*)/gi)? _time(time) : time_str);
+
 		str += "<td class='action_row'>" + TemplateUtils.htmlEncode(scheduling_action.ACTION) + "</td>\
-        <td nowrap class='time_row'>" + time_str + "</td>\
+        <td nowrap class='time_row'>" + time + "</td>\
         <td nowrap class='rep_row'>" + rep_str + "</td>\
         <td nowrap class='end_row'>" + end_str + "</td>";
 		if (minus === undefined) {
