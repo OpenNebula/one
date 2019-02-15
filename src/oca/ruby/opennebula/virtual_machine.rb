@@ -947,16 +947,6 @@ module OpenNebula
             end
         end
 
-    private
-        def action(name)
-            return Error.new('ID not defined') if !@pe_id
-
-            rc = @client.call(VM_METHODS[:action], name, @pe_id)
-            rc = nil if !OpenNebula.is_error?(rc)
-
-            return rc
-        end
-
         def wait_state(state, timeout=10)
             vm_state = ""
             lcm_state = ""
@@ -977,6 +967,16 @@ module OpenNebula
 
             return Error.new("Timeout expired for state #{state}. "<<
                 "VM is in state #{vm_state}, #{lcm_state}")
+        end
+
+    private
+        def action(name)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(VM_METHODS[:action], name, @pe_id)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
         end
 
         def wait_lcm_state(state, timeout=10)

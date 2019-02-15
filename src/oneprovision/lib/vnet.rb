@@ -28,12 +28,14 @@ module OneProvision
 
         # Creates a new VNET in OpenNebula
         #
-        # @param cluster_id   [Integer] ID of the CLUSTER where is the VNET
-        # @param template     [String]  Template of the VNET
-        # @param pm_mad       [String]  Provision Manager Driver
-        # @param provision_id [String]  ID of the provision
-        def create(cluster_id, template, pm_mad, provision_id)
+        # @param cluster_id     [Integer] ID of the CLUSTER where is the VNET
+        # @param template       [String]  Template of the VNET
+        # @param pm_mad         [String]  Provision Manager Driver
+        # @param provision_id   [String]  ID of the provision
+        # @param provision_name [String]  Name of the provision
+        def create(cluster_id, template, pm_mad, provision_id, provision_name)
             template['provision']['provision_id'] = provision_id
+            template['provision']['name']         = provision_name
 
             template  = Utils.template_like_str(template)
             template += "PM_MAD=\"#{pm_mad}\"\n"

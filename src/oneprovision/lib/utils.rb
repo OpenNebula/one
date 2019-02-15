@@ -164,7 +164,11 @@ module OneProvision
                             sections = %w[connection provision configuration]
                             sections.each do |section|
                                 data = CONFIG_DEFAULTS[section] || {}
-                                defaults = yaml['defaults'][section]
+
+                                if yaml['defaults']
+                                    defaults = yaml['defaults'][section]
+                                end
+
                                 h_sec = host[section]
                                 # merge defaults with globals
                                 # and device specific params
@@ -182,24 +186,21 @@ module OneProvision
                         next unless yaml[r]
 
                         yaml[r] = yaml[r].map do |x|
-                            if defaults && x['provision']
+                            x['provision'] ||= {}
+
+                            if defaults && defaults.key?('provision')
                                 x['provision'].merge!(defaults['provision'])
-                            else
-                                x['provision'] = {} unless x['provision']
                             end
 
                             x
                         end
                     end
 
-                    cluster_p = yaml['cluster']['provision']
+                    yaml['cluster']['provision'] ||= {}
 
-                    if defaults && cluster_p
+                    if defaults && defaults.key?('provision')
                         yaml['cluster']['provision']
                             .merge!(defaults['provision'])
-                    else
-
-                        yaml['cluster']['provision'] = {} unless cluster_p
                     end
                 rescue StandardError => e
                     Utils.fail("Failed to read configuration: #{e}")
@@ -305,11 +306,12 @@ module OneProvision
 
             # Creates the host deployment file
             #
-            # @param host         [Hash]          Hash with host information
-            # @param provision_id [String]        ID of the provision
+            # @param host           [Hash]   Hash with host information
+            # @param provision_id   [String] ID of the provision
+            # @param provision_name [String] Name of the provision
             #
             # @return             [Nokogiri::XML] XML with the host information
-            def create_deployment_file(host, provision_id)
+            def create_deployment_file(host, provision_id, provision_name)
                 ssh_key = try_read_file(host['connection']['public_key'])
                 config = Base64.strict_encode64(host['configuration'].to_yaml)
 
@@ -328,6 +330,7 @@ module OneProvision
                                     end
                                 end
                                 xml.send('PROVISION_ID', provision_id)
+                                xml.send('NAME', provision_name)
                             end
                             if host['configuration']
                                 xml.PROVISION_CONFIGURATION_BASE64 config
@@ -359,6 +362,13 @@ module OneProvision
             def fail(text, code = -1)
                 STDERR.puts "ERROR: #{text}"
                 exit(code)
+            end
+
+            # Checks if the return_code is error
+            def exception(return_code)
+                error = OpenNebula.is_error?(return_code)
+
+                raise OneProvisionLoopException, return_code.message if error
             end
 
             # Gets error message

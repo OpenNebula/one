@@ -60,35 +60,32 @@ module OneProvision
             @name       = @clusters[0]['TEMPLATE/PROVISION/NAME']
         end
 
-        # TODO: rename delete_all -> cleanup
-        #
         # Deletes the PROVISION
         #
-        def delete
+        # @param cleanup [Boolean] True to delete running VMs and images
+        def delete(cleanup = false)
             Utils.fail('Provision not found.') unless exists
+
+            if running_vms? && !cleanup
+                Utils.fail('Provision with running VMs can\'t be deleted')
+            end
+
+            if images? && !cleanup
+                Utils.fail('Provision with images can\'t be deleted')
+            end
+
+            delete_vms if cleanup
+
+            delete_images if cleanup
 
             OneProvisionLogger.info("Deleting provision #{@id}")
 
             # offline and (optionally) clean all hosts
             OneProvisionLogger.debug('Offlining OpenNebula hosts')
 
-            @hosts.each do |h|
-                host = Host.new(h['ID'])
-
+            @hosts.each do |host|
                 Driver.retry_loop 'Failed to offline host' do
-                    rc = h.offline
-                    if OpenNebula.is_error?(rc)
-                        raise OneProvisionLoopException, rc.message
-                    end
-
-                    rc = h.info
-                    if OpenNebula.is_error?(rc)
-                        raise OneProvisionLoopException, rc.message
-                    end
-                end
-
-                if host.running_vms?
-                    Utils.fail('Provision with running VMs can\'t be deleted')
+                    Utils.exception(host.offline)
                 end
             end
 
@@ -97,25 +94,27 @@ module OneProvision
 
             threads = []
 
-            @hosts.each do |host|
-                host = Host.new(host['ID'])
+            Driver.retry_loop 'Failed to delete hosts' do
+                @hosts.each do |host|
+                    host = Host.new(host['ID'])
 
-                if Options.threads > 1
-                    while Thread.list.count > Options.threads
-                        threads.map do |thread|
-                            thread.join(5)
+                    if Options.threads > 1
+                        while Thread.list.count > Options.threads
+                            threads.map do |thread|
+                                thread.join(5)
+                            end
                         end
-                    end
 
-                    threads << Thread.new do
+                        threads << Thread.new do
+                            host.delete
+                        end
+                    else
                         host.delete
                     end
-                else
-                    host.delete
                 end
-            end
 
-            threads.map(&:join)
+                threads.map(&:join)
+            end
 
             # delete all other deployed objects
             OneProvisionLogger.info('Deleting provision objects')
@@ -127,13 +126,7 @@ module OneProvision
                     Driver.retry_loop "Failed to delete #{msg}" do
                         OneProvisionLogger.debug("Deleting OpenNebula #{msg}")
 
-                        # Fix ubuntu 14.04 broken pipe
-                        obj.info
-
-                        rc = obj.delete
-                        if OpenNebula.is_error?(rc)
-                            raise OneProvisionLoopException, rc.message
-                        end
+                        Utils.exception(obj.delete)
                     end
                 end
             end
@@ -170,7 +163,7 @@ module OneProvision
         def create(config)
             Ansible.check_ansible_version
 
-            Driver.retry_loop 'Failed to create  provision' do
+            begin
                 # read provision file
                 cfg = Utils.create_config(Utils.read_config(config))
 
@@ -178,12 +171,19 @@ module OneProvision
 
                 OneProvisionLogger.info('Creating provision objects')
 
-                cluster = create_cluster(cfg)
-                cid     = cluster.id
+                cluster = nil
+                cid     = nil
+
+                Driver.retry_loop 'Failed to create cluster' do
+                    cluster = create_cluster(cfg)
+                    cid     = cluster.id
+                end
 
                 Mode.new_cleanup(true)
 
-                create_resources(cfg, cid)
+                Driver.retry_loop 'Failed to create some resources' do
+                    create_resources(cfg, cid)
+                end
 
                 if cfg['hosts'].nil?
                     puts "ID: #{@id}"
@@ -191,35 +191,39 @@ module OneProvision
                     return 0
                 end
 
-                begin
+                Driver.retry_loop 'Failed to create hosts' do
                     create_hosts(cfg, cid)
-
-                    # ask user to be patient, mandatory for now
-                    STDERR.puts 'WARNING: This operation can ' \
-                        'take tens of minutes. Please be patient.'
-
-                    OneProvisionLogger.info('Deploying')
-
-                    deploy_ids = deploy_hosts
-
-                    if deploy_ids.nil? || deploy_ids.empty?
-                        Utils.fail('Deployment failed, no ID got from driver')
-                    end
-
-                    OneProvisionLogger.info('Monitoring hosts')
-
-                    update_hosts(deploy_ids)
-
-                    Ansible.configure(@hosts)
-
-                    puts "ID: #{@id}"
-
-                    0
-                rescue OneProvisionCleanupException
-                    delete
-
-                    -1
                 end
+
+                # ask user to be patient, mandatory for now
+                STDERR.puts 'WARNING: This operation can ' \
+                    'take tens of minutes. Please be patient.'
+
+                OneProvisionLogger.info('Deploying')
+
+                deploy_ids = nil
+
+                Driver.retry_loop 'Failed to deploy hosts' do
+                    deploy_ids = deploy_hosts
+                end
+
+                if deploy_ids.nil? || deploy_ids.empty?
+                    Utils.fail('Deployment failed, no ID got from driver')
+                end
+
+                OneProvisionLogger.info('Monitoring hosts')
+
+                update_hosts(deploy_ids)
+
+                Ansible.configure(@hosts)
+
+                puts "ID: #{@id}"
+
+                0
+            rescue OneProvisionCleanupException
+                delete
+
+                -1
             end
         end
 
@@ -239,23 +243,19 @@ module OneProvision
         #
         # @return [OpenNebula::Cluster] The new cluster
         def create_cluster(cfg)
-            cluster = nil
+            msg = "Creating OpenNebula cluster: #{cfg['cluster']['name']}"
 
-            Driver.retry_loop 'Failed to create cluster' do
-                msg = "Creating OpenNebula cluster: #{cfg['cluster']['name']}"
+            OneProvisionLogger.debug(msg)
 
-                OneProvisionLogger.debug(msg)
+            # create new cluster
+            cluster = Cluster.new
+            cluster.create(cfg['cluster'], @id, @name)
+            cluster = cluster.one
+            cid = cluster.id
 
-                # create new cluster
-                cluster = Cluster.new
-                cluster.create(cfg['cluster'], @id)
-                cluster = cluster.one
-                cid = cluster.id
+            @clusters << cluster
 
-                @clusters << cluster
-
-                OneProvisionLogger.debug("cluster created with ID: #{cid}")
-            end
+            OneProvisionLogger.debug("cluster created with ID: #{cid}")
 
             cluster
         end
@@ -269,43 +269,32 @@ module OneProvision
                 next if cfg[r].nil?
 
                 cfg[r].each do |x|
-                    begin
-                        if cfg['defaults'] && cfg['defaults']['driver']
-                            driver = cfg['defaults']['provision']['driver']
-                        end
-
-                        r_name = "#{r}: #{x['name']}"
-
-                        Driver.retry_loop "Failed to create #{r_name}" do
-                            msg = "Creating OpenNebula #{r_name}"
-
-                            OneProvisionLogger.debug(msg)
-
-                            erb = Utils.evaluate_erb(self, x)
-
-                            if r == 'datastores'
-                                datastore = Datastore.new
-                                datastore.create(cid.to_i, erb, driver, @id)
-                                @datastores << datastore.one
-                            else
-                                vnet = Vnet.new
-                                vnet.create(cid.to_i, erb, driver, @id)
-                                @vnets << vnet.one
-                            end
-
-                            r     = 'vnets' if r == 'networks'
-                            rid   = instance_variable_get("@#{r}").last['ID']
-                            rname = r.chomp('s').capitalize
-                            msg   = "#{rname} created with ID: #{rid}"
-
-                            OneProvisionLogger.debug(msg)
-                        end
-                    rescue OneProvisionCleanupException
-                        refresh
-                        delete
-
-                        -1
+                    if cfg['defaults'] && cfg['defaults']['driver']
+                        driver = cfg['defaults']['provision']['driver']
                     end
+
+                    msg = "Creating OpenNebula #{r}: #{x['name']}"
+
+                    OneProvisionLogger.debug(msg)
+
+                    erb = Utils.evaluate_erb(self, x)
+
+                    if r == 'datastores'
+                        datastore = Datastore.new
+                        datastore.create(cid.to_i, erb, driver, @id, @name)
+                        @datastores << datastore.one
+                    else
+                        vnet = Vnet.new
+                        vnet.create(cid.to_i, erb, driver, @id, @name)
+                        @vnets << vnet.one
+                    end
+
+                    r     = 'vnets' if r == 'networks'
+                    rid   = instance_variable_get("@#{r}").last['ID']
+                    rname = r.chomp('s').capitalize
+                    msg   = "#{rname} created with ID: #{rid}"
+
+                    OneProvisionLogger.debug(msg)
                 end
             end
         end
@@ -317,7 +306,7 @@ module OneProvision
         def create_hosts(cfg, cid)
             cfg['hosts'].each do |h|
                 erb      = Utils.evaluate_erb(self, h)
-                dfile    = Utils .create_deployment_file(erb, @id)
+                dfile    = Utils .create_deployment_file(erb, @id, @name)
                 playbook = cfg['playbook']
 
                 host = Host.new
@@ -392,6 +381,111 @@ module OneProvision
                 name = host.poll
                 h.rename(name)
             end
+        end
+
+        # Checks if the PROVISION has running VMs
+        #
+        # @return [Boolean] True if there are running VMs
+        def running_vms?
+            @hosts.each do |host|
+                Utils.exception(host.info)
+
+                return true if host['HOST_SHARE/RUNNING_VMS'].to_i > 0
+            end
+
+            false
+        end
+
+        # Checks if the PROVISION has images in its datastores
+        #
+        # @return [Boolean] True if there are images
+        def images?
+            @datastores.each do |datastore|
+                Utils.exception(datastore.info)
+
+                images = datastore.retrieve_elements('IMAGES/ID')
+
+                return true if images
+            end
+
+            false
+        end
+
+        # Deletes VMs from the PROVISION
+        def delete_vms
+            Driver.retry_loop 'Failed to delete running_vms' do
+                hosts = []
+
+                @hosts.each do |host|
+                    Utils.exception(host.info)
+
+                    hosts << host if host['HOST_SHARE/RUNNING_VMS'].to_i > 0
+                end
+
+                hosts.each do |host|
+                    vm_ids = host.retrieve_elements('VMS/ID')
+
+                    vm_ids.each do |id|
+                        delete_object('vm', id)
+                    end
+                end
+
+                if running_vms?
+                    raise OneProvisionLoopException, 'Still found running VMs'
+                end
+            end
+        end
+
+        # Deletes images from the PROVISION
+        def delete_images
+            Driver.retry_loop 'Failed to delete images' do
+                datastores = []
+
+                @datastores.each do |datastore|
+                    Utils.exception(datastore.info)
+
+                    images = datastore.retrieve_elements('IMAGES/ID')
+
+                    datastores << datastore if images
+                end
+
+                datastores.each do |datastore|
+                    image_ids = datastore.retrieve_elements('IMAGES/ID')
+
+                    image_ids.each do |id|
+                        delete_object('image', id)
+                    end
+                end
+
+                if images?
+                    raise OneProvisionLoopException, 'Still found images'
+                end
+            end
+        end
+
+        # Deletes an object
+        #
+        # @param type [String] Type of the object (vm, image)
+        # @param id   [String] ID of the object
+        def delete_object(type, id)
+            msg = "Deleting OpenNebula #{type} #{id}"
+
+            OneProvision::OneProvisionLogger.debug(msg)
+
+            object = nil
+            client = OpenNebula::Client.new
+
+            if type == 'vm'
+                object = OpenNebula::VirtualMachine.new_with_id(id, client)
+            else
+                object = OpenNebula::Image.new_with_id(id, client)
+            end
+
+            Utils.exception(object.info)
+
+            Utils.exception(object.delete)
+
+            Utils.exception(object.wait_state('DONE')) if type == 'vm'
         end
 
     end

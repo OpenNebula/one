@@ -79,9 +79,7 @@ module OneProvision
                 rc = @one.allocate(template, cluster)
             end
 
-            if OpenNebula.is_error?(rc)
-                Utils.fail(rc.message)
-            end
+            Utils.exception(rc)
 
             if @type == 'Cluster'
                 @one.update(template, true)
@@ -97,11 +95,7 @@ module OneProvision
         # @return [Array] with provision resource if id!=nil
         #                 with all resources if if==nil
         def get(id = nil)
-            rc = @pool.info
-
-            if OpenNebula.is_error?(rc)
-                Utils.fail(rc.message)
-            end
+            Utils.exception(@pool.info)
 
             if id
                 return @pool.select do |resource|
