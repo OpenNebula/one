@@ -442,7 +442,6 @@ AllCops:
     - src/oca/ruby/opennebula/user.rb
     - src/oca/ruby/deprecated/OpenNebula.rb
     - src/vmm_mad/dummy/one_vmm_dummy.rb
-    - src/vmm_mad/remotes/vcenter/vcenter_driver.rb
     - src/vmm_mad/remotes/one/opennebula_driver.rb
     - src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb
     - src/vmm_mad/remotes/lib/vcenter_driver/vcenter_importer.rb

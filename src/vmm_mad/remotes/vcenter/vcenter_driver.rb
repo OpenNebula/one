@@ -21,15 +21,15 @@
 ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-   BIN_LOCATION = '/usr/bin'     unless defined?(BIN_LOCATION)
-   LIB_LOCATION = '/usr/lib/one' unless defined?(LIB_LOCATION)
-   ETC_LOCATION = '/etc/one/'    unless defined?(ETC_LOCATION)
-   VAR_LOCATION = '/var/lib/one' unless defined?(VAR_LOCATION)
+    BIN_LOCATION = '/usr/bin'     unless defined?(BIN_LOCATION)
+    LIB_LOCATION = '/usr/lib/one' unless defined?(LIB_LOCATION)
+    ETC_LOCATION = '/etc/one/'    unless defined?(ETC_LOCATION)
+    VAR_LOCATION = '/var/lib/one' unless defined?(VAR_LOCATION)
 else
-   BIN_LOCATION = ONE_LOCATION + '/bin'  unless defined?(BIN_LOCATION)
-   LIB_LOCATION = ONE_LOCATION + '/lib'  unless defined?(LIB_LOCATION)
-   ETC_LOCATION = ONE_LOCATION + '/etc/' unless defined?(ETC_LOCATION)
-   VAR_LOCATION = ONE_LOCATION + '/var/' unless defined?(VAR_LOCATION)
+    BIN_LOCATION = ONE_LOCATION + '/bin' unless defined?(BIN_LOCATION)
+    LIB_LOCATION = ONE_LOCATION + '/lib'  unless defined?(LIB_LOCATION)
+    ETC_LOCATION = ONE_LOCATION + '/etc/' unless defined?(ETC_LOCATION)
+    VAR_LOCATION = ONE_LOCATION + '/var/' unless defined?(VAR_LOCATION)
 end
 
 ENV['LANG'] = 'C'
@@ -38,20 +38,26 @@ $LOAD_PATH << LIB_LOCATION + '/ruby/vendors/rbvmomi/lib'
 $LOAD_PATH << LIB_LOCATION + '/ruby'
 $LOAD_PATH << LIB_LOCATION + '/ruby/vcenter_driver'
 
+# Holds vCenter configuration parameters
 class VCenterConf < Hash
+
     DEFAULT_CONFIGURATION = {
-        delete_images:           false,
-        vm_poweron_wait_default: 300,
-        debug_information:       false
+        :delete_images => false,
+        :vm_poweron_wait_default => 300,
+        :debug_information => false
     }
 
     def initialize
-        self.replace(DEFAULT_CONFIGURATION)
+        replace(DEFAULT_CONFIGURATION)
         begin
-            self.merge!(YAML.load_file("#{VAR_LOCATION}/remotes/etc/vmm/vcenter/vcenterrc"))
-        rescue
+            vcenterrc_path = "#{VAR_LOCATION}/remotes/etc/vmm/vcenter/vcenterrc"
+            merge!(YAML.load_file(vcenterrc_path))
+        rescue StandardError => e
+            STDERR.puts error_message("Couldn't load vcenterrc. \
+                                       Reason #{e.message}.")
         end
     end
+
 end
 
 require 'rbvmomi'
@@ -81,7 +87,9 @@ require 'file_helper'
 CHECK_REFS = true
 
 module VCenterDriver
+
     CONFIG = VCenterConf.new
+
 end
 
 # ---------------------------------------------------------------------------- #
@@ -97,22 +105,22 @@ def error_message(message)
 end
 
 def check_valid(parameter, label)
-    if parameter.nil? || parameter.empty?
-        STDERR.puts error_message("The parameter '#{label}' is required for this action.")
-        exit(-1)
-    end
+    return unless parameter.nil? || parameter.empty?
+
+    STDERR.puts error_message("The parameter '#{label}'\
+                               is required for this action.")
+    exit(-1)
 end
 
 def check_item(item, target_class)
-    begin
-        item.name if CHECK_REFS
-        if target_class
-            if !item.instance_of?(target_class)
-                raise "Expecting type 'RbVmomi::VIM::#{target_class}'. " \
-                        "Got '#{item.class} instead."
-            end
+    item.name if CHECK_REFS
+    if target_class
+        if !item.instance_of?(target_class)
+            raise "Expecting type 'RbVmomi::VIM::#{target_class}'. " \
+                    "Got '#{item.class} instead."
         end
-    rescue RbVmomi::Fault => e
-        raise "Reference \"#{item._ref}\" error [#{e.message}]. The reference does not exist"
     end
+rescue RbVmomi::Fault => e
+    raise "Reference \"#{item._ref}\" error [#{e.message}]. \
+           The reference does not exist"
 end

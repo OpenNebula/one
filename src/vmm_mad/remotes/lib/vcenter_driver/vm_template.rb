@@ -213,7 +213,7 @@ class Template
 
     ########################################################################
     # Import vcenter disks
-    # @param type [object] contains the type of the object(:object) and identificator(:id)
+    # @param type [object] contains the type of the object(:object) and identifier(:id)
     # @return error, template_disks
     ########################################################################
     def import_vcenter_disks(vc_uuid, dpool, ipool, type)
@@ -893,7 +893,7 @@ class Template
                 end
                 @vm_info["datastore"].each do |datastore|
                     path = datastore.summary.url.sub(/ds:\/\/\/*/, "")
-                    if !swap_path.include? path && !datastore._ref.nil?
+                    if !swap_path.include?(path) && !datastore._ref.nil?
                         ds_ref = datastore._ref
                         break
                     end
