@@ -790,6 +790,10 @@ class Template
         !(device.class.ancestors.index(RbVmomi::VIM::VirtualDisk)).nil?
     end
 
+    def is_cdrom?(device)
+        device.backing.is_a? RbVmomi::VIM::VirtualCdromIsoBackingInfo
+    end
+
     #  Checks if a RbVmomi::VIM::VirtualDevice is a network interface
     def is_nic?(device)
         !device.class.ancestors.index(RbVmomi::VIM::VirtualEthernetCard).nil?

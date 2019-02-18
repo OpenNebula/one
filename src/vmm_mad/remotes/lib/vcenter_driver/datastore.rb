@@ -385,13 +385,15 @@ class Datastore < Storage
         target_ds_vc  = VCenterDriver::Datastore.new_from_ref(target_ds_ref, vi_client)
         dest_name     = target_ds_vc['name']
 
-        dest_path = "[#{dest_name}] #{dest_path}"
+        target_ds_vc.create_directory(File.dirname(dest_path))
+
+        dpath_ds  = "[#{dest_name}] #{dest_path}"
         orig_path = "[#{self['name']}] #{disk.path}"
 
         move_params = {
             sourceName:       orig_path,
             sourceDatacenter: get_dc.item,
-            destName:         dest_path,
+            destName:         dpath_ds,
             force:            true
         }
 

@@ -93,9 +93,9 @@ begin
     else
         @error_message = "Error unregistering vm #{vmid} (#{vm_ref})."
         vm.poweroff_hard if vm.is_powered_on?
-        vm.remove_all_snapshots if vm.has_snapshots?
 
         if vm.instantiated_as_persistent?
+            vm.remove_all_snapshots if vm.has_snapshots?
             vm.convert_to_template
         else
             vm.destroy
