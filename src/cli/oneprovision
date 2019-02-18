@@ -333,9 +333,9 @@ CommandParser::CmdParser.new(ARGV) do
             host_resume_desc,
             %i[range hostid_list],
             :options => [MODES] do
-        operation =  { :operation => 'resume',:message => 'enabled' }
+        operation =  { :operation => 'resume', :message => 'enabled' }
 
-        helper.hosts_operation(args[0], operation, options)
+        helper.hosts_operation(args, operation, options)
     end
 
     ###
@@ -348,9 +348,9 @@ CommandParser::CmdParser.new(ARGV) do
             host_poweroff_desc,
             %i[range hostid_list],
             :options => [MODES] do
-        operation =  { :operation => 'poweroff',:message => 'disabled' }
+        operation =  { :operation => 'poweroff', :message => 'disabled' }
 
-        helper.hosts_operation(args[0],operation, options)
+        helper.hosts_operation(args, operation, options)
     end
 
     ###
@@ -363,9 +363,9 @@ CommandParser::CmdParser.new(ARGV) do
             host_reboot_desc,
             %i[range hostid_list],
             :options => [MODES, HARD] do
-        operation =  { :operation => 'reboot',:message => 'enabled' }
+        operation =  { :operation => 'reboot', :message => 'enabled' }
 
-        helper.hosts_operation(args[0],operation, options)
+        helper.hosts_operation(args, operation, options)
     end
 
     ###
@@ -378,9 +378,9 @@ CommandParser::CmdParser.new(ARGV) do
             host_delete_desc,
             %i[range hostid_list],
             :options => [MODES] do
-        operation =  { :operation => 'delete',:message => 'deleted' }
+        operation =  { :operation => 'delete', :message => 'deleted' }
 
-        helper.hosts_operation(args[0],operation, options)
+        helper.hosts_operation(args, operation, options)
     end
 
     ###
@@ -393,9 +393,9 @@ CommandParser::CmdParser.new(ARGV) do
             host_configure_desc,
             %i[range hostid_list],
             :options => [MODES, FORCE] do
-        operation =  { :operation => 'configure',:message => 'enabled' }
+        operation =  { :operation => 'configure', :message => 'enabled' }
 
-        helper.hosts_operation(args[0],operation, options)
+        helper.hosts_operation(args, operation, options)
     end
 
     ###
@@ -408,8 +408,9 @@ CommandParser::CmdParser.new(ARGV) do
             host_ssh_desc,
             :hostid,
             [:command, nil] do
-        host = OneProvision::Host.new(args[0])
-        host.ssh(args[1])
+        operation =  { :operation => 'ssh', :message => 'enabled' }
+
+        helper.hosts_operation(args, operation, options)
     end
 
     ###
@@ -486,22 +487,9 @@ CommandParser::CmdParser.new(ARGV) do
             datastore_delete_desc,
             %i[range datastoreid_list],
             :options => [MODES, FORCE] do
-        helper.parse_options(options)
+        operation =  { :operation => 'delete', :message => 'deleted' }
 
-        datastore_helper = OneDatastoreHelper.new
-        datastore_helper.set_client(options)
-
-        datastore_helper.perform_actions(args[0],
-                                         options,
-                                         'deleted') do |datastore|
-            msg = "Deleting datastore #{datastore['ID']}"
-
-            OneProvision::OneProvisionLogger.info(msg)
-
-            datastore.delete
-        end
-
-        0
+        helper.datastores_operation(args, operation, options)
     end
 
     ########################################################################
@@ -533,17 +521,8 @@ CommandParser::CmdParser.new(ARGV) do
             vnet_delete_desc,
             %i[range vnetid_list],
             :options => [MODES, FORCE] do
-        helper.parse_options(options)
+        operation =  { :operation => 'delete', :message => 'deleted' }
 
-        vnet_helper = OneVNetHelper.new
-        vnet_helper.set_client(options)
-
-        vnet_helper.perform_actions(args[0], options, 'deleted') do |vnet|
-            OneProvision::OneProvisionLogger.info("Deleting vnet #{vnet['ID']}")
-
-            vnet.delete
-        end
-
-        0
+        helper.vnets_operation(args, operation, options)
     end
 end
