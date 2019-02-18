@@ -186,8 +186,9 @@ class Container
     def stop(options = { :timeout => 120 })
         change_state(__method__, options)
     rescue StandardError => exception
-        raise unless exception.class == Net::ReadTimeout
+        raise exception unless exception.class == Net::ReadTimeout
 
+        OpenNebula.log_error "Timeout detected\n#{exception}\nForcing shutdown"
         stop(:force => true)
     end
 
