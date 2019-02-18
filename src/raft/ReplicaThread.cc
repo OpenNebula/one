@@ -96,9 +96,9 @@ void ReplicaThread::do_replication()
 
             if ( pthread_cond_timedwait(&cond, &mutex, &timeout) == ETIMEDOUT )
             {
-                if ( _prending_requests == true )
+                if ( _pending_requests == true )
                 {
-                    NebulaLog::log("RCM", Log::WARN, "Replication timeout with pending requests");
+                    NebulaLog::log("RCM", Log::WARNING, "Replication timeout with pending requests");
                 }
 
                 _pending_requests = retry_request || _pending_requests;
