@@ -1,6 +1,8 @@
 
 # OpenNebula
 
+[![Build Status](https://travis-ci.org/OpenNebula/one.svg?branch=master)](https://travis-ci.org/OpenNebula/one)
+
 ## Description
 
 OpenNebula is an open-source project delivering a simple but feature-rich and
