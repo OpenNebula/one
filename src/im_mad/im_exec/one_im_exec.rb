@@ -73,6 +73,17 @@ class InformationManagerDriver < OpenNebulaDriver
 
         if !action_is_local?(:MONITOR)
             if do_update == "1" || @options[:force_copy]
+                # Recreate dir for remote scripts
+                mkdir_cmd = "mkdir -p #{@remote_scripts_base_path}"
+
+                cmd = SSHCommand.run(mkdir_cmd, host, log_method(number))
+
+                if cmd.code!=0
+                    send_message('MONITOR', RESULT[:failure], number,
+                        'Could not update remotes')
+                    return
+                end
+
                 # Use SCP to sync:
                 sync_cmd = "scp -r #{@local_scripts_base_path}/* " \
                     "#{host}:#{@remote_scripts_base_path}"
