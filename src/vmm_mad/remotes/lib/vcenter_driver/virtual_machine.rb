@@ -1775,7 +1775,7 @@ class VirtualMachine < VCenterDriver::Template
 
         pos = {:ide => 0, :scsi => 0}
         disks_each(:no_exists?) do |disk|
-            k = disk.one_item['TYPE'] == 'CDROM' ? :ide : :scsi
+            k = disk.one_item['DEV_PREFIX'] == 'hd' ? :ide : :scsi
 
             if disk.storpod?
                 spec = calculate_add_disk_spec(disk.one_item, pos[k])
@@ -2085,16 +2085,17 @@ class VirtualMachine < VCenterDriver::Template
 
         img_name = VCenterDriver::FileHelper.unescape_path(img_name_escaped)
 
-        type     = disk["TYPE"]
-        size_kb  = disk["SIZE"].to_i * 1024
+        type        = disk["TYPE"]
+        size_kb     = disk["SIZE"].to_i * 1024
+        ide_or_scsi = disk["DEV_PREFIX"] == "hd" ? :ide : :scsi
 
         if type == "CDROM"
-            # CDROM drive will be found in the IMAGE DS
+            # CDROM ISO will be found in the IMAGE DS
             ds_ref   = disk["VCENTER_DS_REF"]
             ds       = VCenterDriver::Storage.new_from_ref(ds_ref, @vi_client)
             ds_name  = ds['name']
 
-            # CDROM can only be added when the VM is in poweroff state
+            # CDROM ISO can only be added when the VM is in poweroff state
             vmdk_backing = RbVmomi::VIM::VirtualCdromIsoBackingInfo(
                 :datastore => ds.item,
                 :fileName  => "[#{ds_name}] #{img_name}"
@@ -2127,7 +2128,12 @@ class VirtualMachine < VCenterDriver::Template
 
         else
             # TYPE is regular disk (not CDROM)
-            controller, unit_number = find_free_controller(position)
+
+            if ide_or_scsi == :scsi
+                controller, unit_number = find_free_controller(position)
+            else
+                controller, unit_number = find_free_ide_controller(position)
+            end
 
             storpod = disk["VCENTER_DS_REF"].start_with?('group-')
             if storpod
