@@ -96,6 +96,8 @@ class LXDClient
         response = get("operations/#{operation_id}/wait#{timeout}")
 
         raise LXDError, response if response['metadata']['status'] == 'Failure'
+
+        response
     end
 
     private

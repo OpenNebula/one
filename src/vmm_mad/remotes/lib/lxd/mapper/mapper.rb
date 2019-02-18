@@ -92,7 +92,7 @@ class Mapper
     # @param disk [XMLElement] with the disk data
     # @param directory [String] where the disk has to be mounted
     #
-    # @return nil 
+    # @return nil
     def do_unmap(device, one_vm, disk, directory)
         OpenNebula.log_error("unmap function not implemented for #{self.class}")
         return nil
@@ -256,76 +256,21 @@ class Mapper
     # @param partitions [Array] with partition device names
     # @param path [String] to directory to mount the disk partitions
     def mount(partitions, path)
+        # TODO: Unmap device if mount fails
         # Single partition
         # ----------------
         return  mount_dev(partitions[0]['path'], path) if partitions.size == 1
 
         # Multiple partitions
         # -------------------
-        rc    = true
-        fstab = ''
+        fstab = find_fstab(partitions, path)
 
-        # Look for fstab and mount rootfs in path. First partition with
-        # a /etc/fstab file is used as rootfs and it is kept mounted
-        partitions.each do |p|
-            OpenNebula.log("Looking for fstab on #{p['path']}")
-
-            rc = mount_dev(p['path'], path)
-
-            return false if !rc
-
-            bin = COMMANDS[:catfstab]
-            bin = COMMANDS[:cat] unless path.include?('containers/one-')
-
-            cmd = "#{bin} #{path}/etc/fstab"
-
-            _rc, fstab, _e = Command.execute(cmd, false)
-
-            if fstab.empty?
-                return false unless umount_dev(p['path'])
-
-                next
-            end
-
-            OpenNebula.log("Found fstab on #{p['path']}")
-            break
-        end
-
-        if fstab.empty?
-            OpenNebula.log_error('No fstab file found')
+        if !fstab
+            # TODO: Unmap the device
             return false
         end
 
-        # Parse fstab contents & mount partitions
-        fstab.each_line do |l|
-            next if l.strip.chomp.empty?
-            next if l =~ /\s*#/
-
-            fs, mount_point, type, opts, dump, pass = l.split
-
-            if l =~ /^\s*LABEL=/ # disk by LABEL
-                value = fs.split("=").last.strip.chomp
-                key   = 'label'
-            elsif l =~ /^\s*UUID=/ #disk by UUID
-                value = fs.split("=").last.strip.chomp
-                key   = 'uuid'
-            else #disk by device - NOT SUPPORTED or other FS
-                next
-            end
-
-            next if %w[/ swap].include?(mount_point)
-
-            partitions.each { |p|
-                next if p[key] != value
-
-                rc = mount_dev(p['path'], path + mount_point)
-                return false if !rc
-
-                break
-            }
-        end
-
-        rc
+        parse_fstab(partitions, path, fstab)
     end
 
     # --------------------------------------------------------------------------
@@ -349,8 +294,6 @@ class Mapper
         rc, _out, err = Command.execute("#{COMMANDS[:mount]} #{dev} #{path}", true)
 
         if rc != 0
-            return true if err.include?("unknown filesystem type 'swap'")
-
             OpenNebula.log_error("mount_dev: #{err}")
             return false
         end
@@ -436,10 +379,12 @@ class Mapper
         false
     end
 
+    # Extracts the partiton table from a device
     def show_parts(device)
         action_parts(device, '-s -av')
     end
 
+    # Hides the partiton table from a device
     def hide_parts(device)
         action_parts(device, '-d')
     end
@@ -459,7 +404,7 @@ class Mapper
         _rc, out, _err = Command.execute("#{COMMANDS[:lsblk]} -J", false)
 
         if out.include?(path)
-            OpenNebula.log_error("mount_dev: Mount detected in #{path}")
+            OpenNebula.log_error("#{__method__}: Mount detected in #{path}")
             return true
         end
         false
@@ -478,6 +423,72 @@ class Mapper
 
         OpenNebula.log_error("#{__method__}: #{err}")
         false
+    end
+
+    # Look for fstab and mount rootfs in path. First partition with
+    # a /etc/fstab file is used as rootfs and it is kept mounted
+    def find_fstab(partitions, path)
+        fstab = ''
+        partitions.each do |p|
+            OpenNebula.log("Looking for fstab on #{p['path']}")
+
+            rc = mount_dev(p['path'], path)
+            next unless rc
+
+            bin = COMMANDS[:catfstab]
+            bin = COMMANDS[:cat] unless path.include?('containers/one-')
+
+            cmd = "#{bin} #{path}/etc/fstab"
+
+            _rc, fstab, _e = Command.execute(cmd, false)
+
+            if fstab.empty?
+                return false unless umount_dev(p['path'])
+
+                next
+            end
+
+            OpenNebula.log("Found fstab on #{p['path']}")
+            break
+        end
+
+        return fstab unless fstab.empty?
+
+        OpenNebula.log_error('No fstab file found')
+
+        false
+    end
+
+    # Parse fstab contents & mount partitions
+    def parse_fstab(partitions, path, fstab)
+        fstab.each_line do |l|
+            next if l.strip.chomp.empty?
+            next if l =~ /\s*#/
+
+            fs, mount_point, _type, _opts, _dump, _pass = l.split
+
+            if l =~ /^\s*LABEL=/ # disk by LABEL
+                value = fs.split('=').last.strip.chomp
+                key   = 'label'
+            elsif l =~ /^\s*UUID=/ # disk by UUID
+                value = fs.split('=').last.strip.chomp
+                key   = 'uuid'
+            else # disk by device - NOT SUPPORTED or other FS
+                next
+            end
+
+            next if %w[/ swap].include?(mount_point)
+
+            partitions.each {|p|
+                next if p[key] != value
+
+                return false unless mount_dev(p['path'], path + mount_point)
+
+                break
+            }
+        end
+
+        true
     end
 
 end
