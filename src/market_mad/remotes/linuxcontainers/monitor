@@ -36,14 +36,7 @@ class LinuxContainersMarket
         :sizemb => 1024,
         :fs => 'ext4',
         :format => 'raw',
-        :agent => 'OpenNebula',
-        :template => {
-            :CPU => '1', :MEMORY => '768', :LXD_SECURITY_PRIVILEGED => 'true',
-            :GRAPHICS => { :LISTEN => '0.0.0.0', :TYPE => 'vnc' },
-            :CONTEXT => {
-                :NETWORK => 'YES', :SSH_PUBLIC_KEY => '$USER[SSH_PUBLIC_KEY]'
-            }
-        }
+        :agent => 'OpenNebula'
     }
 
     TEMPLATE = "
@@ -73,9 +66,7 @@ CONTEXT = [
         @options.merge!(options)
 
         version_path = File.dirname(__FILE__) + '/../../VERSION'
-        value = "OpenNebula #{File.read(version_path)}"
-
-        @options[:agent] = value if File.exist? version_path
+        @options[:agent] = "OpenNebula #{File.read(version_path)}" if File.exist? version_path
     end
 
     # Get container information
@@ -157,31 +148,26 @@ CONTEXT = [
         #-----------------------------------------------------------------------
         tree.each do |distro, value|
             value.each do |version, path|
-                id = '-1'
                 source = app_url(path)
                 description = 'Downloaded from https://images.linuxcontainers.org'
                 name = "#{distro[0...-1]}_#{version[0...-1]} - LXD"
 
+                data = {
+                    'NAME' => name, 'SOURCE' => source.to_s, 'FORMAT' => 'raw',
+                    'IMPORT_ID' => '-1', 'ORIGIN_ID' => '-1', 'TYPE' => 'IMAGE',
+                    'PUBLISHER' => 'linuxcontainers.org', 'VERSION' => '1.0',
+                    'DESCRIPTION' => description, 'REGTIME' => app_time(path),
+                    'TAGS' => '', 'SIZE' => @options[:sizemb]
+                }
+
                 tmpl = ''
 
-                print_var(tmpl, 'NAME', name)
-                print_var(tmpl, 'SOURCE', source.to_s)
-                print_var(tmpl, 'IMPORT_ID', id)
-                print_var(tmpl, 'ORIGIN_ID', '-1')
-                print_var(tmpl, 'TYPE', 'IMAGE')
-                print_var(tmpl, 'PUBLISHER', 'linuxcontainers.org')
-                print_var(tmpl, 'FORMAT', 'raw')
-                print_var(tmpl, 'DESCRIPTION', description)
-                print_var(tmpl, 'VERSION', '1.0')
-                print_var(tmpl, 'TAGS', '')
-                print_var(tmpl, 'REGTIME', '1523362012')
-                print_var(tmpl, 'SIZE', @options[:sizemb])
+                data.each {|key, value| print_var(tmpl, key, value) }
 
                 tmpl64 = ''
                 print_var(tmpl64, 'DRIVER', 'raw')
                 print_var(tmpl, 'APPTEMPLATE64', Base64.strict_encode64(tmpl64))
-
-                print_var(tmpl, 'VMTEMPLATE64', vm_tmpl64)
+                print_var(tmpl, 'VMTEMPLATE64', Base64.strict_encode64(TEMPLATE))
 
                 appstr << "APP=\"#{Base64.strict_encode64(tmpl)}\"\n"
             end
@@ -222,34 +208,6 @@ CONTEXT = [
         str << "#{name}=\"#{val}\"\n"
     end
 
-    def vm_tmpl64
-        template = JSON.generate(DEFAULTS[:template])
-        template = JSON.parse(template, :symbolize_names => true)
-        template = template_to_str(template)
-        Base64.strict_encode64(template)
-    end
-
-    def template_to_str(thash)
-        thash.collect do |key, value|
-            next if value.nil? || value.empty?
-
-            case value.class.name
-            when 'Hash'
-                attr = "#{key.to_s.upcase} = [ "
-
-                attr << value.collect do |k, v|
-                    next if v.nil? || v.empty?
-
-                    "#{k.to_s.upcase}  =\"#{v}\""
-                end.compact.join(',')
-
-                attr << "]\n"
-            when 'String'
-                "#{key.to_s.upcase} = \"#{value}\""
-            end
-        end.compact.join("\n")
-    end
-
 end
 
 ################################################################################
@@ -265,6 +223,11 @@ begin
     doc = REXML::Document.new(drv_message).root
 
     pre = 'MARKETPLACE/TEMPLATE'
+
+    data = { :url => "#{pre}/ENDPOINT", :sizemb => "#{pre}/IMAGE_SIZE_MB",
+             :fs => "#{pre}/FILESYSTEM", :format => "#{pre}/FORMAT" }
+
+    data.each {|key, value| set_option(options, doc, key, value) }
 
     puts LinuxContainersMarket.new(options).get_appliances
 rescue Exception
