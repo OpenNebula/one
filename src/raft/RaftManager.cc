@@ -589,11 +589,11 @@ void RaftManager::replicate_log(ReplicaRequest * request)
     }
 
     //Count servers that need to replicate this record
-    int to_commit = num_servers / 2; 
+    int to_commit = num_servers / 2;
 
     std::map<int, unsigned int>::iterator it;
 
-    for (it = next.begin(); it != next.end() && to_commit > 0; ++it)
+    for (it = next.begin(); it != next.end() ; ++it)
     {
         int rindex = request->index();
 
@@ -601,8 +601,8 @@ void RaftManager::replicate_log(ReplicaRequest * request)
         {
             to_commit--;
         }
-		 else if ( rindex == (int) it->second )
-		 {
+        else if ( rindex == (int) it->second )
+        {
             replica_manager.replicate(it->first);
         }
     }
@@ -641,7 +641,7 @@ void RaftManager::replicate_success(int follower_id)
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
 
-	unsigned int db_lindex, db_lterm;
+    unsigned int db_lindex, db_lterm;
 
     logdb->get_last_record_index(db_lindex, db_lterm);
 
@@ -665,7 +665,7 @@ void RaftManager::replicate_success(int follower_id)
     {
         commit = replicated_index;
     }
-        
+
     if (db_lindex > replicated_index && state == LEADER &&
             requests.is_replicable(replicated_index + 1))
     {
