@@ -20,7 +20,6 @@ $LOAD_PATH.unshift File.dirname(__FILE__)
 
 require 'fileutils'
 require 'json'
-require 'tmpdir'
 
 require 'opennebula_vm'
 require 'command'
