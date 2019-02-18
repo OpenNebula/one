@@ -233,6 +233,7 @@ define(function (require) {
 		  	Notifier.notifyError("Time not defined.");
 		  	return false;
       }
+      end_type = 2;
       var timeCal = date_input_value + " " + time_input_value;
 		  epochStr = new Date(timeCal);
       var time = parseInt(epochStr.getTime()) / 1000;
@@ -240,6 +241,7 @@ define(function (require) {
       sched_action.END_VALUE = time;
 		  sched_action.TIME = time;
 		  if (periodic) {
+        end_type = 1;
 		  	if (!this.repeat || !this.end_type) {
 		  		return false;
 		  	}
@@ -284,7 +286,8 @@ define(function (require) {
 		  	sched_action.DAYS = days;
 		  	sched_action.REPEAT = rep;
 		  	sched_action.END_VALUE = end_value;
-		  }
+      }
+      sched_action.END_TYPE = end_type;
     }
     sched_action.ACTION = new_action;
     $("#scheduling_" + this.res + "_actions_table .create", context).remove();
