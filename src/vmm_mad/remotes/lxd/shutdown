@@ -44,13 +44,9 @@ end
 
 if !container.wild?
     unmapped = container.setup_storage('unmap')
-    unless unmapped
-        container.start
-        raise 'Failed to dismantle container storage'
-    end
+    raise 'Failed to dismantle container storage' unless unmapped
 
     container.delete
-
 end
 
 container.vnc('stop')
