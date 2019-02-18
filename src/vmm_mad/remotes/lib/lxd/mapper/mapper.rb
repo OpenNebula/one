@@ -266,11 +266,12 @@ class Mapper
         # -------------------
         fstab = find_fstab(partitions, path)
 
-        if fstab
-            parse_fstab(partitions, path, fstab)
-        else
-            guess_root(partitions, path)
+        if !fstab
+            # TODO: Unmap the device
+            return false
         end
+
+        parse_fstab(partitions, path, fstab)
     end
 
     # --------------------------------------------------------------------------
@@ -457,40 +458,6 @@ class Mapper
         OpenNebula.log_error('No fstab file found')
 
         false
-    end
-
-    # Extracts a seemingly root partition of the partition table
-    def guess_root(partitions, path)
-        OpenNebula.log('Guessing root partition')
-
-        dir = Dir.mktmpdir
-        root = false
-
-        partitions.each do |p|
-            rc = mount_dev(p['path'], dir)
-            next unless rc
-
-            _rc, o, _e = Command.execute("ls #{dir}", false)
-
-            # Check if if partition contains a rootfs layout
-            layout = o.split("\n")
-
-            if (layout & %w[bin boot dev]).any?
-                root = true
-
-                umount_dev(p['path'])
-                mount_dev(p['path'], path)
-
-                OpenNebula.log("Trying partition /dev/#{p['name']} as /")
-                break
-            end
-
-            umount_dev(p['path'])
-            next
-        end
-
-        FileUtils.remove_entry(dir)
-        root
     end
 
     # Parse fstab contents & mount partitions
