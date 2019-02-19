@@ -335,7 +335,7 @@ CommandParser::CmdParser.new(ARGV) do
             :options => [MODES] do
         operation =  { :operation => 'resume', :message => 'enabled' }
 
-        helper.hosts_operation(args, operation, options)
+        helper.resources_operation(args, operation, options, 'HOST')
     end
 
     ###
@@ -350,7 +350,7 @@ CommandParser::CmdParser.new(ARGV) do
             :options => [MODES] do
         operation =  { :operation => 'poweroff', :message => 'disabled' }
 
-        helper.hosts_operation(args, operation, options)
+        helper.resources_operation(args, operation, options, 'HOST')
     end
 
     ###
@@ -365,7 +365,7 @@ CommandParser::CmdParser.new(ARGV) do
             :options => [MODES, HARD] do
         operation =  { :operation => 'reboot', :message => 'enabled' }
 
-        helper.hosts_operation(args, operation, options)
+        helper.resources_operation(args, operation, options, 'HOST')
     end
 
     ###
@@ -380,7 +380,7 @@ CommandParser::CmdParser.new(ARGV) do
             :options => [MODES] do
         operation =  { :operation => 'delete', :message => 'deleted' }
 
-        helper.hosts_operation(args, operation, options)
+        helper.resources_operation(args, operation, options, 'HOST')
     end
 
     ###
@@ -395,7 +395,7 @@ CommandParser::CmdParser.new(ARGV) do
             :options => [MODES, FORCE] do
         operation =  { :operation => 'configure', :message => 'enabled' }
 
-        helper.hosts_operation(args, operation, options)
+        helper.resources_operation(args, operation, options, 'HOST')
     end
 
     ###
@@ -410,7 +410,7 @@ CommandParser::CmdParser.new(ARGV) do
             [:command, nil] do
         operation =  { :operation => 'ssh', :message => 'enabled' }
 
-        helper.hosts_operation(args, operation, options)
+        helper.resources_operation(args, operation, options, 'HOST')
     end
 
     ###
@@ -489,7 +489,7 @@ CommandParser::CmdParser.new(ARGV) do
             :options => [MODES, FORCE] do
         operation =  { :operation => 'delete', :message => 'deleted' }
 
-        helper.datastores_operation(args, operation, options)
+        helper.resources_operation(args, operation, options, 'DATASTORE')
     end
 
     ########################################################################
@@ -523,6 +523,6 @@ CommandParser::CmdParser.new(ARGV) do
             :options => [MODES, FORCE] do
         operation =  { :operation => 'delete', :message => 'deleted' }
 
-        helper.vnets_operation(args, operation, options)
+        helper.resources_operation(args, operation, options, 'VNET')
     end
 end

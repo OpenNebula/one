@@ -105,34 +105,22 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     # Helper host functions
     #######################################################################
 
-    def hosts_operation(args, operation, options)
-        parse_options(options)
+    def host_operation(host, operation, options, args)
+        host = OneProvision::Host.new(host['ID'])
 
-        pool   = OneProvision::Host.new.pool
-        helper = OneHostHelper.new
-
-        hosts = name_to_id(args[0], pool)
-
-        helper.set_client(options)
-        helper.perform_actions(hosts,
-                               options,
-                               operation[:message]) do |host|
-            host = OneProvision::Host.new(host['ID'])
-
-            case operation[:operation]
-            when 'resume'
-                host.resume
-            when 'poweroff'
-                host.poweroff
-            when 'reboot'
-                host.reboot((options.key? :hard))
-            when 'delete'
-                host.delete
-            when 'configure'
-                host.configure((options.key? :force))
-            when 'ssh'
-                host.ssh(args[1])
-            end
+        case operation[:operation]
+        when 'resume'
+            host.resume
+        when 'poweroff'
+            host.poweroff
+        when 'reboot'
+            host.reboot((options.key? :hard))
+        when 'delete'
+            host.delete
+        when 'configure'
+            host.configure((options.key? :force))
+        when 'ssh'
+            host.ssh(args)
         end
     end
 
@@ -140,26 +128,14 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     # Helper datastore functions
     #######################################################################
 
-    def datastores_operation(args, operation, options)
-        parse_options(options)
+    def datastore_operation(datastore, operation)
+        case operation[:operation]
+        when 'delete'
+            msg = "Deleting datastore #{datastore['ID']}"
 
-        pool   = OneProvision::Datastore.new.pool
-        helper = OneDatastoreHelper.new
+            OneProvision::OneProvisionLogger.info(msg)
 
-        datastores = name_to_id(args[0], pool)
-
-        helper.set_client(options)
-        helper.perform_actions(datastores,
-                               options,
-                               operation[:message]) do |datastore|
-            case operation[:operation]
-            when 'delete'
-                msg = "Deleting datastore #{datastore['ID']}"
-
-                OneProvision::OneProvisionLogger.info(msg)
-
-                datastore.delete
-            end
+            datastore.delete
         end
     end
 
@@ -167,25 +143,45 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     # Helper vnet functions
     #######################################################################
 
-    def vnets_operation(args, operation, options)
+    def vnet_operation(vnet, operation)
+        case operation[:operation]
+        when 'delete'
+            msg = "Deleting vnet #{vnet['ID']}"
+
+            OneProvision::OneProvisionLogger.info(msg)
+
+            vnet.delete
+        end
+    end
+
+    #######################################################################
+    # Helper resource functions
+    #######################################################################
+
+    def resources_operation(args, operation, options, type)
         parse_options(options)
 
-        pool   = OneProvision::Vnet.new.pool
-        helper = OneVNetHelper.new
+        helper = nil
 
-        vnets = name_to_id(args[0], pool)
+        case type
+        when 'HOST'      then helper = OneHostHelper.new
+        when 'DATASTORE' then helper = OneDatastoreHelper.new
+        when 'VNET'      then helper = OneVNetHelper.new
+        end
+
+        objects = names_to_ids(args[0], type)
 
         helper.set_client(options)
-        helper.perform_actions(vnets,
+        helper.perform_actions(objects,
                                options,
-                               operation[:message]) do |vnet|
-            case operation[:operation]
-            when 'delete'
-                msg = "Deleting vnet #{vnet['ID']}"
-
-                OneProvision::OneProvisionLogger.info(msg)
-
-                vnet.delete
+                               operation[:message]) do |obj|
+            case type
+            when 'HOST'      then host_operation(obj,
+                                                 operation,
+                                                 options,
+                                                 args[1])
+            when 'DATASTORE' then datastore_operation(obj, operation)
+            when 'VNET'      then vnet_operation(obj, operation)
             end
         end
     end
@@ -217,14 +213,9 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         ids
     end
 
-    def name_to_id(objects, pool)
+    def names_to_ids(objects, type)
         objects = [objects].flatten.map do |obj|
-            if obj.to_s =~ /^[0-9]+$/
-                obj.to_i
-            else
-                pool.info
-                pool.select {|object| object.name == obj }.first.id
-            end
+            OpenNebulaHelper.rname_to_id(obj.to_s, type)[1]
         end
 
         objects
