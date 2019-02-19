@@ -40,7 +40,8 @@ module Migrator
         feature_2253
         feature_2489_2671
         feature_826
-        create_idxs
+        feature_2966
+        create_idxs      #MUST be the last one 
         true
     end
 
@@ -275,9 +276,9 @@ module Migrator
                 }
 
                 xml.MONITORING {
-                    xml.CPU body.root.xpath('MONITORING/CPU').text
-                    xml.MEMORY body.root.xpath('MONITORING/MEMORY').text
-                    xml.STATE body.root.xpath('MONITORING/STATE').text
+                    xml.CPU body.root.xpath('MONITORING/CPU').text unless body.root.xpath('MONITORING/CPU').text.empty?
+                    xml.MEMORY body.root.xpath('MONITORING/MEMORY').text unless body.root.xpath('MONITORING/MEMORY').text.empty?
+                    xml.STATE body.root.xpath('MONITORING/STATE').text unless body.root.xpath('MONITORING/STATE').text.empty?
                 }
 
                 xml.USER_TEMPLATE {
@@ -400,6 +401,21 @@ module Migrator
             create_idx(:index_sqlite, db_version)
         else
             create_idx(:index_sql, db_version)
+        end
+    end
+
+    def feature_2966
+        @db.run "ALTER TABLE logdb ADD applied BOOLEAN DEFAULT 1;"
+        @db.run "UPDATE logdb SET applied = 0 WHERE timestamp = 0;"
+
+        if @db.adapter_scheme == :sqlite
+            @db.run "DROP INDEX IF EXISTS timestamp_idx"
+        else
+            begin
+                @db.run "ALTER TABLE logdb DROP INDEX timestamp_idx;"
+            rescue Sequel::DatabaseError
+            end
+            @db.run "ALTER TABLE logdb ALTER COLUMN applied DROP DEFAULT"
         end
     end
 end
