@@ -99,9 +99,11 @@ class OneDBBacKEnd
                 "owner_u INTEGER, group_u INTEGER, other_u INTEGER",
 
             index_sql: ["CREATE INDEX state_oid_idx ON vm_pool (state, oid);",
-                        "CREATE FULLTEXT INDEX ftidx ON vm_pool(search_token)"],
+                        "CREATE FULLTEXT INDEX ftidx ON vm_pool(search_token);",
+                        "CREATE INDEX applied_idx ON logdb (applied);"],
 
-            index_sqlite: ["CREATE INDEX state_oid_idx ON vm_pool (state, oid);"]
+            index_sqlite: ["CREATE INDEX state_oid_idx ON vm_pool (state, oid);",
+                           "CREATE INDEX applied_idx ON logdb (applied);"]
         }
     }
 

@@ -25,11 +25,11 @@
 
 const char * LogDB::table = "logdb";
 
-const char * LogDB::db_names = "log_index, term, sqlcmd, timestamp, fed_index";
+const char * LogDB::db_names = "log_index, term, sqlcmd, timestamp, fed_index, applied";
 
 const char * LogDB::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
     "logdb (log_index INTEGER PRIMARY KEY, term INTEGER, sqlcmd MEDIUMTEXT, "
-    "timestamp INTEGER, fed_index INTEGER)";
+    "timestamp INTEGER, fed_index INTEGER, applied BOOLEAN)";
 
 /* -------------------------------------------------------------------------- */
 
@@ -46,7 +46,7 @@ int LogDB::bootstrap(SqlDB *_db)
 
     rc += _db->exec_local_wr(oss);
 
-    oss.str("CREATE INDEX timestamp_idx on logdb (timestamp);");
+    oss.str("CREATE INDEX applied_idx on logdb (applied);");
 
     rc += _db->exec_local_wr(oss);
 
@@ -319,9 +319,11 @@ int LogDB::insert(int index, int term, const std::string& sql, time_t tstamp,
         oss << "INSERT";
     }
 
+    bool applied = tstamp != 0;
+
     oss << " INTO " << table << " ("<< db_names <<") VALUES ("
         << index << "," << term << "," << "'" << sql_db << "'," << tstamp
-        << "," << fed_index << ")";
+        << "," << fed_index << "," << applied << ")";
 
     int rc = db->exec_wr(oss);
 
@@ -590,8 +592,10 @@ int LogDB::purge_log()
     empty_cb cb;
 
     multiple_cb<std::vector, int> cb_info;
+    single_cb<string> cb_min_idx;
     std::vector<int> maxmin_i;
     std::vector<int> maxmin_e;
+    string min_idx;
 
     int rc  = 0;
     int frc = 0;
@@ -611,17 +615,25 @@ int LogDB::purge_log()
     /* ---------------------------------------------------------------------- */
     /* Non-federated records. Keep last log_retention records                 */
     /* ---------------------------------------------------------------------- */
+
+    oss.str("");
+    oss << "  SELECT MIN(i.log_index) FROM ("
+        << "    SELECT log_index FROM logdb WHERE fed_index = -1 AND"
+        << "      applied = 1 AND log_index >= 0 "
+        << "      ORDER BY log_index DESC LIMIT " << log_retention
+        << "  ) AS i";
+
+    cb_min_idx.set_callback(&min_idx);
+
+    db->exec_rd(oss, &cb_min_idx);
+
+    cb_min_idx.unset_callback();
+
     cb.set_affected_rows(0);
 
     oss.str("");
-    oss << "DELETE FROM logdb WHERE timestamp > 0 AND log_index >= 0 "
-        << "AND fed_index = -1 AND log_index < ("
-        << "  SELECT MIN(i.log_index) FROM ("
-        << "    SELECT log_index FROM logdb WHERE fed_index = -1 AND"
-        << "      timestamp > 0 AND log_index >= 0 "
-        << "      ORDER BY log_index DESC LIMIT " << log_retention
-        << "  ) AS i"
-        << ")";
+    oss << "DELETE FROM logdb WHERE applied = 1 AND log_index >= 0 "
+        << "AND fed_index = -1 AND log_index < " << min_idx;
 
     if ( db->limit_support() )
     {
@@ -645,7 +657,7 @@ int LogDB::purge_log()
     cb_info.unset_callback();
 
     oss.str("");
-    oss << "Purging obsolete LogDB records: " << rc << " records purged. Log state: " 
+    oss << "Purging obsolete LogDB records: " << rc << " records purged. Log state: "
         << maxmin_i[0] << "," << maxmin_i[1] << " - " << maxmin_e[0] << "," << maxmin_e[1];
 
     NebulaLog::log("DBM", Log::INFO, oss);
@@ -667,17 +679,24 @@ int LogDB::purge_log()
         return rc;
     }
 
+    oss.str("");
+    oss << "  SELECT MIN(i.log_index) FROM ("
+        << "    SELECT log_index FROM logdb WHERE fed_index != -1 AND"
+        << "      applied = 1 AND log_index >= 0 "
+        << "      ORDER BY log_index DESC LIMIT " << log_retention
+        << "  ) AS i";
+
+    cb_min_idx.set_callback(&min_idx);
+
+    db->exec_rd(oss, &cb_min_idx);
+
+    cb_min_idx.unset_callback();
+
     cb.set_affected_rows(0);
 
     oss.str("");
-    oss << "DELETE FROM logdb WHERE timestamp > 0 AND log_index >= 0 "
-        << "AND fed_index != -1 AND log_index < ("
-        << "  SELECT MIN(i.log_index) FROM ("
-        << "    SELECT log_index FROM logdb WHERE fed_index != -1 AND"
-        << "      timestamp > 0 AND log_index >= 0 "
-        << "      ORDER BY log_index DESC LIMIT " << log_retention
-        << "  ) AS i"
-        << ")";
+    oss << "DELETE FROM logdb WHERE applied = 1 AND log_index >= 0 "
+        << "AND fed_index != -1 AND log_index < " << min_idx;
 
     if ( db->limit_support() )
     {
