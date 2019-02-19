@@ -319,7 +319,7 @@ int LogDB::insert(int index, int term, const std::string& sql, time_t tstamp,
         oss << "INSERT";
     }
 
-    bool applied = fed_index != 0;
+    bool applied = tstamp != 0;
 
     oss << " INTO " << table << " ("<< db_names <<") VALUES ("
         << index << "," << term << "," << "'" << sql_db << "'," << tstamp
