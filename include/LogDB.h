@@ -82,7 +82,7 @@ private:
 class LogDB : public SqlDB
 {
 public:
-    LogDB(SqlDB * _db, bool solo, unsigned int log_retention,
+    LogDB(SqlDB * _db, bool solo, bool cache, unsigned int log_retention,
             unsigned int limit_purge);
 
     virtual ~LogDB();
@@ -268,6 +268,11 @@ private:
      *  The Database was started in solo mode (no server_id defined)
      */
     bool solo;
+
+    /**
+     * True for cache servers
+     */
+    bool cache;
 
     /**
      *  Pointer to the underlying DB store

@@ -601,7 +601,7 @@ void RaftManager::replicate_log(ReplicaRequest * request)
         {
             to_commit--;
         }
-        else if ( rindex == (int) it->second )
+        else
         {
             replica_manager.replicate(it->first);
         }
@@ -789,6 +789,13 @@ void RaftManager::timer_action(const ActionRequest& ar)
     static int purge_tics = 0;
     ostringstream oss;
 
+    Nebula& nd = Nebula::instance();
+
+    if ( nd.is_cache() )
+    {
+        return;
+    }
+
     mark_tics++;
     purge_tics++;
 
@@ -802,7 +809,6 @@ void RaftManager::timer_action(const ActionRequest& ar)
     // Database housekeeping
     if ( (purge_tics * timer_period_ms) >= purge_period_ms )
     {
-        Nebula& nd    = Nebula::instance();
         LogDB * logdb = nd.get_logdb();
 
         int rc = logdb->purge_log();

@@ -104,8 +104,8 @@ int LogDBRecord::select_cb(void *nil, int num, char **values, char **names)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-LogDB::LogDB(SqlDB * _db, bool _solo, unsigned int _lret, unsigned int _lp):
-    solo(_solo), db(_db), next_index(0), last_applied(-1), last_index(-1),
+LogDB::LogDB(SqlDB * _db, bool _solo, bool _cache, unsigned int _lret, unsigned int _lp):
+    solo(_solo), cache(_cache), db(_db), next_index(0), last_applied(-1), last_index(-1),
     last_term(-1), log_retention(_lret), limit_purge(_lp)
 {
     int r, i;
@@ -493,6 +493,11 @@ int LogDB::_exec_wr(ostringstream& cmd, int federated_index)
         }
 
         return rc;
+    }
+    else if ( cache )
+    {
+        NebulaLog::log("DBM", Log::ERROR,"Tried to modify DB in caching mode");
+        return -1;
     }
     else if ( raftm == 0 || !raftm->is_leader() )
     {

@@ -182,7 +182,7 @@ void InformationManager::timer_action(const ActionRequest& ar)
     Nebula& nd          = Nebula::instance();
     RaftManager * raftm = nd.get_raftm();
 
-    if ( !raftm->is_leader() && !raftm->is_solo() )
+    if ( !raftm->is_leader() && !raftm->is_solo() && !nd.is_cache() )
     {
         return;
     }

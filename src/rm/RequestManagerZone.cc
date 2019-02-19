@@ -321,6 +321,15 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
+    if ( nd.is_cache() )
+    {
+        att.resp_msg = "Server is in cache mode.";
+        att.resp_id  = 0;
+
+        failure_response(ACTION, att);
+        return;
+    }
+
     if ( leader_term < current_term )
     {
         std::ostringstream oss;
@@ -472,6 +481,15 @@ void ZoneVoteRequest::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
+    if ( nd.is_cache() )
+    {
+        att.resp_msg = "Server is in cache mode.";
+        att.resp_id  = 0;
+
+        failure_response(ACTION, att);
+        return;
+    }
+
     if ( candidate_term < current_term )
     {
         att.resp_msg = "Candidate's term is outdated";
@@ -559,6 +577,15 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
         att.resp_id  = -1;
 
         failure_response(AUTHORIZATION, att);
+        return;
+    }
+
+    if ( nd.is_cache() )
+    {
+        att.resp_msg = "Server is in cache mode.";
+        att.resp_id  = -1;
+
+        failure_response(ACTION, att);
         return;
     }
 

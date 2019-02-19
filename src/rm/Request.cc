@@ -383,11 +383,15 @@ void Request::execute(
         return;
     }
 
-    if ( raftm->is_follower() && leader_only)
+    if ( (raftm->is_follower() || nd.is_cache()) && leader_only)
     {
         string leader_endpoint, error;
 
-        if ( raftm->get_leader_endpoint(leader_endpoint) != 0 )
+        if ( nd.is_cache() )
+        {
+            leader_endpoint = nd.get_master_oned();
+        }
+        else if ( raftm->get_leader_endpoint(leader_endpoint) != 0 )
         {
             att.resp_msg = "Cannot process request, no leader found";
             failure_response(INTERNAL, att);
