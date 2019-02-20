@@ -720,10 +720,6 @@ Style/SymbolProc:
 # LINT
 ######
 
-# check calls to pry
-Lint/Debugger:
-    Enabled: true
-
 # check duplicate X:
 Lint/DuplicateCaseCondition:
     Enabled: true
