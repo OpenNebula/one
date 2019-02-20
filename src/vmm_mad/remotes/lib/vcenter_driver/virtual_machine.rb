@@ -976,13 +976,13 @@ class VirtualMachine < VCenterDriver::Template
 
     # Queries to OpenNebula the machine disks xml representation
     def get_one_disks
-        one_item.info
+        one_item.info if one_item.instance_of?(OpenNebula::VirtualMachine)
         one_item.retrieve_xmlelements("TEMPLATE/DISK")
     end
 
     # Queries to OpenNebula the machine nics xml representation
     def get_one_nics
-        one_item.info
+        one_item.info if one_item.instance_of?(OpenNebula::VirtualMachine)
         one_item.retrieve_xmlelements("TEMPLATE/NIC")
     end
 
