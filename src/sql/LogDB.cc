@@ -361,7 +361,7 @@ int LogDB::apply_log_record(LogDBRecord * lr)
     {
         std::ostringstream oss;
 
-        oss << "UPDATE logdb SET timestamp = " << time(0) << " WHERE "
+        oss << "UPDATE logdb SET timestamp = " << time(0) << ", applied = 1" << " WHERE "
             << "log_index = " << lr->index << " AND timestamp = 0";
 
         if ( db->exec_wr(oss) != 0 )
