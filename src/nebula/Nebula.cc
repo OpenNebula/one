@@ -1178,8 +1178,10 @@ void Nebula::start(bool bootstrap_only)
 
         im->finalize();
         hm->finalize();
+
         imagem->finalize();
         marketm->finalize();
+
         ipamm->finalize();
         frm->finalize();
 
@@ -1199,13 +1201,19 @@ void Nebula::start(bool bootstrap_only)
 
     raftm->finalize();
     aclm->finalize();
+
     rm->finalize();
     authm->finalize();
 
     pthread_join(rm->get_thread_id(),0);
     pthread_join(authm->get_thread_id(),0);
-    pthread_join(aclm->get_thread_id(),0);
     pthread_join(raftm->get_thread_id(),0);
+
+    if(is_federation_slave())
+    {
+        pthread_join(aclm->get_thread_id(),0);
+    }
+
 
     //XML Library
     xmlCleanupParser();
