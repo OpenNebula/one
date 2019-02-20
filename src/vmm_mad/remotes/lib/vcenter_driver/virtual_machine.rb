@@ -1420,6 +1420,16 @@ class VirtualMachine < VCenterDriver::Template
         info_nics
     end
 
+    #Get required parameters to use VMware HTML Console SDK
+    #To be used with the following SDK:
+    #https://code.vmware.com/web/sdk/2.1.0/html-console
+    #
+    def get_html_console_parameters
+      ticket = @item.AcquireTicket( :ticketType => "webmks" )
+      ticket_parameters = {:ticket => ticket.ticket, :host => ticket.host, :port => ticket.port}
+      ticket_parameters
+    end
+
     # Synchronize the OpenNebula VM representation with vCenter VM
     #
     # if the device exists in vCenter and not in OpenNebula : detach
