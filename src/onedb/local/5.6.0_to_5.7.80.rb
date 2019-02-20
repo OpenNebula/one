@@ -20,6 +20,7 @@ require 'zlib'
 require 'pathname'
 require 'yaml'
 require 'opennebula'
+require 'vcenter_driver'
 
 $LOAD_PATH << File.dirname(__FILE__)
 
@@ -36,6 +37,7 @@ module Migrator
     end
 
     def up
+        feature_2944
         bug_2687         # MUST be run before 2489, which generates short body
         feature_2253
         feature_2489_2671
@@ -46,6 +48,86 @@ module Migrator
     end
 
     private
+
+    def feature_2944
+        vclient =->(hid){
+            row = @db.fetch("SELECT * FROM host_pool WHERE oid = #{hid}").first
+            xml = row[:body]
+
+            doc = Nokogiri::XML(xml, nil, NOKOGIRI_ENCODING) do |c|
+                c.default_xml.noblanks
+            end.root.at_xpath('/HOST/TEMPLATE')
+
+            rp = doc.xpath("VCENTER_RESOURCE_POOL").first
+            rp = rp.text if rp
+
+            token    = File.read(VAR_LOCATION+'/.one/one_key')
+            password = doc.xpath("VCENTER_PASSWORD").first.text
+            password = VCenterDriver::VIClient::decrypt(password, token)
+
+            connection = {
+                :host     => doc.xpath("VCENTER_HOST").first.text,
+                :user     => doc.xpath("VCENTER_USER").first.text,
+                :rp       => rp,
+                :ccr      => doc.xpath("VCENTER_CCR_REF").first.text,
+                :password => password
+            }
+
+            VCenterDriver::VIClient.new(connection)
+        }
+
+        @db.fetch('SELECT * FROM vm_pool') do |row|
+            begin
+                doc = Nokogiri::XML(row[:body], nil, NOKOGIRI_ENCODING) do |c|
+                    c.default_xml.noblanks
+                end
+
+                one_vm = OpenNebula::XMLElement.new(doc.root.at_xpath('/VM'))
+
+                next unless one_vm["USER_TEMPLATE/HYPERVISOR"] == 'vcenter'
+
+                vmid      = one_vm['ID']
+                hid       = one_vm['HISTORY_RECORDS/HISTORY/HID[last()]']
+                vmref     = one_vm['DEPLOY_ID']
+
+                next if !vmref || one_vm['STATE'] == '6'
+
+                vi_client = vclient.call(hid)
+
+                puts
+                puts "one Machine #{vmid} vCenter ref: #{vmref}"
+                vm = VCenterDriver::VirtualMachine.new(vi_client, vmref, vmid).tap do |i|
+                    i.one_item = one_vm
+                end
+
+                extraconfig = []
+                vm.disks_each(:managed?) do |disk|
+                    begin
+                        k    = "opennebula.mdisk.#{disk.id}"
+                        v    = "#{disk.key}"
+                    rescue Exception => e
+                        puts "  disk:#{disk.id}"
+                        puts "   #{e.message} (No action needed)"
+                        next
+                    end
+
+                    extraconfig << {key: k, value: v}
+                    puts "  write #{k} : #{v}"
+                end
+
+                spec = RbVmomi::VIM.VirtualMachineConfigSpec(
+                    { :extraConfig => extraconfig }
+                )
+                vm.item.ReconfigVM_Task(:spec => spec).wait_for_completion
+            rescue Exception => e
+                if e.message.include? 'reference does not exist'
+                    puts "  This machine does not exist in vCenter"
+                else
+                    puts e.message
+                end
+            end
+        end
+    end
 
     def feature_2253
         @db.run 'DROP TABLE IF EXISTS old_network_pool;'
