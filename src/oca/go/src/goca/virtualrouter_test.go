@@ -156,12 +156,13 @@ func TestVirtualRouter(t *testing.T){
 
 	vr.Info()
 
-	actualNet, err := vr.Template.Dynamic.GetContentByName("NETWORK")
-	if err != nil {
-		t.Errorf("Test failed, can't retrieve '%s', error: %s", "NETWORK", err.Error())
+	if len(vr.Template.NIC) == 0{
+		t.Errorf("Test failed, can't retrieve '%s', error: %s", "NIC", err.Error())
 	} else {
-		if actualNet != "go-net" {
-			t.Errorf("Test failed, expected: '%s', got:  '%s'", "go-net", actualNet)
+		actualNetName, _ :=  vr.Template.NIC[0].Dynamic.GetContentByName("NETWORK")
+
+		if actualNetName != "go-net" {
+			t.Errorf("Test failed, expected: '%s', got:  '%s'", "go-net", actualNetName)
 		}
 	}
 
@@ -202,12 +203,8 @@ func TestVirtualRouter(t *testing.T){
 	vr.Info()
 
 	actualLock = vr.LockInfos
-	if actualLock == nil {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", "LockInfos", "nil")
-	}
-	// XXX is it useful ? fail at previous part ?
-	if actualLock.Locked != 0 {
-		t.Errorf("Test failed, expected: '%d', got:  '%d'", 0, actualLock.Locked)
+	if actualLock != nil {
+		t.Errorf("Test failed, expected: '%s', got:  '%s'", "nil", "LockInfos")
 	}
 
 	//Delete VirtualRouter
