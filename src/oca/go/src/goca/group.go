@@ -104,6 +104,7 @@ func (group *Group) Info() error {
 	if err != nil {
 		return err
 	}
+	*group = Group{}
 	return xml.Unmarshal([]byte(response.Body()), group)
 }
 

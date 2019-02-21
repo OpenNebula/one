@@ -275,5 +275,6 @@ func (vn *VirtualNetwork) Info() error {
 	if err != nil {
 		return err
 	}
+	*vn = VirtualNetwork{}
 	return xml.Unmarshal([]byte(response.Body()), vn)
 }

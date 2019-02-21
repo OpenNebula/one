@@ -121,6 +121,7 @@ func (vr *VirtualRouter) Info() error {
 	if err != nil {
 		return err
 	}
+	*vr = VirtualRouter{}
 	return xml.Unmarshal([]byte(response.Body()), vr)
 }
 

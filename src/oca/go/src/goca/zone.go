@@ -156,6 +156,7 @@ func (zone *Zone) Info() error {
 	if err != nil {
 		return err
 	}
+	*zone = Zone{}
 	return xml.Unmarshal([]byte(response.Body()), zone)
 }
 

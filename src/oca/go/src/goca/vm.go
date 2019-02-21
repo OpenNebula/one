@@ -745,6 +745,7 @@ func (vm *VM) Info() error {
 	if err != nil {
 		return err
 	}
+	*vm = VM{}
 	return xml.Unmarshal([]byte(response.Body()), vm)
 }
 

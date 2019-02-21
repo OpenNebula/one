@@ -180,5 +180,6 @@ func (user *User) Info() error {
 	if err != nil {
 		return err
 	}
+	*user = User{}
 	return xml.Unmarshal([]byte(response.Body()), user)
 }

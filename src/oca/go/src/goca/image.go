@@ -193,6 +193,7 @@ func (image *Image) Info() error {
 	if err != nil {
 		return err
 	}
+	*image = Image{}
 	return xml.Unmarshal([]byte(response.Body()), image)
 }
 

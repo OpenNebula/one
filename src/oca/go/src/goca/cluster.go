@@ -160,5 +160,6 @@ func (cluster *Cluster) Info() error {
 	if err != nil {
 		return err
 	}
+	*cluster = Cluster{}
 	return xml.Unmarshal([]byte(response.Body()), cluster)
 }
