@@ -164,5 +164,6 @@ func (market *MarketPlace) Info() error {
 	if err != nil {
 		return err
 	}
+	*market = MarketPlace{}
 	return xml.Unmarshal([]byte(response.Body()), market)
 }

@@ -8,16 +8,11 @@ import (
 
 // VMPool represents an OpenNebula Virtual Machine pool
 type VMPool struct {
-	VMs []vmBase `xml:"VM"`
+	VMs []VM `xml:"VM"`
 }
 
 // VM represents an OpenNebula Virtual Machine
 type VM struct {
-	vmBase
-	LockInfos *Lock `xml:"LOCK"`
-}
-
-type vmBase struct {
 	ID              uint              `xml:"ID"`
 	UID             int               `xml:"UID"`
 	GID             int               `xml:"GID"`
@@ -34,10 +29,13 @@ type vmBase struct {
 	STime           int               `xml:"STIME"`
 	ETime           int               `xml:"ETIME"`
 	DeployID        string            `xml:"DEPLOY_ID"`
-	Monitoring      vmMonitoring      `xml:"MONITORING"`
+	MonitoringInfos vmMonitoring      `xml:"MONITORING"`
 	Template        vmTemplate        `xml:"TEMPLATE"`
 	UserTemplate    *vmUserTemplate   `xml:"USER_TEMPLATE"`
 	HistoryRecords  []vmHistoryRecord `xml:"HISTORY_RECORDS>HISTORY"`
+
+	// Not filled with NewUserPool call
+	LockInfos *Lock `xml:"LOCK"`
 }
 
 type vmMonitoring struct {
@@ -675,7 +673,7 @@ func CreateVM(template string, pending bool) (uint, error) {
 // NewVM finds an VM by ID returns a new VM object. At this stage no
 // connection to OpenNebula is performed.
 func NewVM(id uint) *VM {
-	return &VM{vmBase: vmBase{ID: id}}
+	return &VM{ID: id}
 }
 
 // NewVMFromName finds the VM by name and returns a VM object. It connects to
@@ -708,7 +706,7 @@ func NewVMFromName(name string) (*VM, error) {
 }
 
 // State returns the VMState and LCMState
-func (vm *vmBase) State() (VMState, LCMState, error) {
+func (vm *VM) State() (VMState, LCMState, error) {
 	state := VMState(vm.StateRaw)
 	if !state.isValid() {
 		return -1, -1, fmt.Errorf("VM State: this state value is not currently handled: %d\n", vm.StateRaw)
@@ -721,7 +719,7 @@ func (vm *vmBase) State() (VMState, LCMState, error) {
 }
 
 // StateString returns the VMState and LCMState as strings
-func (vm *vmBase) StateString() (string, string, error) {
+func (vm *VM) StateString() (string, string, error) {
 	state := VMState(vm.StateRaw)
 	if !state.isValid() {
 		return "", "", fmt.Errorf("VM State: this state value is not currently handled: %d\n", vm.StateRaw)
@@ -745,6 +743,7 @@ func (vm *VM) Info() error {
 	if err != nil {
 		return err
 	}
+	*vm = VM{}
 	return xml.Unmarshal([]byte(response.Body()), vm)
 }
 

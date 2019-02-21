@@ -7,24 +7,22 @@ import (
 
 // GroupPool represents an OpenNebula GroupPool
 type GroupPool struct {
-	Groups            []groupBase `xml:"GROUP"`
-	Quotas            []quotas    `xml:"QUOTAS"`
-	DefaultUserQuotas quotasList  `xml:"DEFAULT_USER_QUOTAS"`
+	Groups            []Group    `xml:"GROUP"`
+	Quotas            []quotas   `xml:"QUOTAS"`
+	DefaultUserQuotas quotasList `xml:"DEFAULT_USER_QUOTAS"`
 }
 
 // Group represents an OpenNebula Group
 type Group struct {
-	groupBase
-	quotasList
-	DefaultUserQuotas quotasList `xml:"DEFAULT_USER_QUOTAS"`
-}
-
-type groupBase struct {
 	ID       uint          `xml:"ID"`
 	Name     string        `xml:"NAME"`
 	Users    []int         `xml:"USERS>ID"`
 	Admins   []int         `xml:"ADMINS>ID"`
 	Template groupTemplate `xml:"TEMPLATE"`
+
+	// Variable part between one.grouppool.info and one.group.info
+	quotasList
+	DefaultUserQuotas quotasList `xml:"DEFAULT_USER_QUOTAS"`
 }
 
 type groupTemplate struct {
@@ -50,7 +48,7 @@ func NewGroupPool() (*GroupPool, error) {
 
 // NewGroup finds a group object by ID. No connection to OpenNebula.
 func NewGroup(id uint) *Group {
-	return &Group{groupBase: groupBase{ID: id}}
+	return &Group{ID: id}
 }
 
 // NewGroupFromName finds a group object by name. It connects to
@@ -104,6 +102,7 @@ func (group *Group) Info() error {
 	if err != nil {
 		return err
 	}
+	*group = Group{}
 	return xml.Unmarshal([]byte(response.Body()), group)
 }
 

@@ -7,18 +7,11 @@ import (
 
 // VirtualNetworkPool represents an OpenNebula VirtualNetworkPool
 type VirtualNetworkPool struct {
-	VirtualNetworks []virtualNetworkPoolBase `xml:"VNET"`
+	VirtualNetworks []VirtualNetwork `xml:"VNET"`
 }
 
 // VirtualNetwork represents an OpenNebula VirtualNetwork
 type VirtualNetwork struct {
-	virtualNetworkBase
-	Lock *Lock              `xml:"LOCK"`
-	ARs  []virtualNetworkAR `xml:"AR_POOL>AR"`
-}
-
-// VirtualNetworkBase represents common attributes for parts of VirtualNetworkPool and VirtualNetwork
-type virtualNetworkBase struct {
 	ID                   uint                   `xml:"ID"`
 	UID                  int                    `xml:"UID"`
 	GID                  int                    `xml:"GID"`
@@ -39,47 +32,39 @@ type virtualNetworkBase struct {
 	UsedLeases           int                    `xml:"USED_LEASES"`
 	VRouters             []int                  `xml:"VROUTERS>ID"`
 	Template             virtualNetworkTemplate `xml:"TEMPLATE"`
+
+	// Variable parts between one.vnpool.info and one.vn.info
+	ARs  []virtualNetworkAR `xml:"AR_POOL>AR"`
+	Lock *Lock              `xml:"LOCK"`
 }
 
 type virtualNetworkTemplate struct {
 	Dynamic unmatchedTagsSlice `xml:",any"`
 }
 
-// AR represent an Address Range
-type virtualNetworkPoolBase struct {
-	virtualNetworkBase
-	ARs []virtualNetworkARPool `xml:"AR_POOL>AR"`
-}
-
-type virtualNetworkARBase struct {
-	ARID              string `xml:"AR_ID"`
-	GlobalPrefix      string `xml:"GLOBAL_PREFIX"` // minOccurs=0
-	IP                string `xml:"IP"`            // minOccurs=0
-	MAC               string `xml:"MAC"`
-	ParentNetworkARID string `xml:"PARENT_NETWORK_AR_ID"` // minOccurs=0
-	Size              int    `xml:"SIZE"`
-	Type              string `xml:"TYPE"`
-	ULAPrefix         string `xml:"ULA_PREFIX"` // minOccurs=0
-	VNMAD             string `xml:"VN_MAD"`     // minOccurs=0
-}
-
-type virtualNetworkARPool struct {
-	virtualNetworkARBase
-	Allocated string `xml:ALLOCATED`
-}
-
 type virtualNetworkAR struct {
-	virtualNetworkARBase
-	MACEnd       string  `xml:"MAC_END"`
-	IPEnd        string  `xml:"IP_END"`
-	IP6ULA       string  `xml:"IP6_ULA"`
-	IP6ULAEnd    string  `xml:"IP6_ULA_END"`
-	IP6Global    string  `xml:"IP6_GLOBAL"`
-	IP6GlobalEnd string  `xml:"IP6_GLOBAL_END"`
-	IP6          string  `xml:"IP6"`
-	IP6End       string  `xml:"IP6_END"`
-	UsedLeases   string  `xml:"USED_LEASES"`
-	Leases       []lease `xml:"LEASES>LEASE"`
+	ARID              string  `xml:"AR_ID"`
+	GlobalPrefix      string  `xml:"GLOBAL_PREFIX"` // minOccurs=0
+	IP                string  `xml:"IP"`            // minOccurs=0
+	MAC               string  `xml:"MAC"`
+	ParentNetworkARID string  `xml:"PARENT_NETWORK_AR_ID"` // minOccurs=0
+	Size              int     `xml:"SIZE"`
+	Type              string  `xml:"TYPE"`
+	ULAPrefix         string  `xml:"ULA_PREFIX"` // minOccurs=0
+	VNMAD             string  `xml:"VN_MAD"`     // minOccurs=0
+	MACEnd            string  `xml:"MAC_END"`
+	IPEnd             string  `xml:"IP_END"`
+	IP6ULA            string  `xml:"IP6_ULA"`
+	IP6ULAEnd         string  `xml:"IP6_ULA_END"`
+	IP6Global         string  `xml:"IP6_GLOBAL"`
+	IP6GlobalEnd      string  `xml:"IP6_GLOBAL_END"`
+	IP6               string  `xml:"IP6"`
+	IP6End            string  `xml:"IP6_END"`
+	UsedLeases        string  `xml:"USED_LEASES"`
+	Leases            []lease `xml:"LEASES>LEASE"`
+
+	// Not filled with Info
+	Allocated string `xml:ALLOCATED`
 }
 
 type lease struct {
@@ -132,7 +117,7 @@ func NewVirtualNetworkPool(args ...int) (*VirtualNetworkPool, error) {
 
 // NewVirtualNetwork finds a virtualnetwork object by ID. No connection to OpenNebula.
 func NewVirtualNetwork(id uint) *VirtualNetwork {
-	return &VirtualNetwork{virtualNetworkBase: virtualNetworkBase{ID: id}}
+	return &VirtualNetwork{ID: id}
 }
 
 // NewVirtualNetworkFromName finds a virtualnetwork object by name. It connects to
@@ -275,5 +260,6 @@ func (vn *VirtualNetwork) Info() error {
 	if err != nil {
 		return err
 	}
+	*vn = VirtualNetwork{}
 	return xml.Unmarshal([]byte(response.Body()), vn)
 }

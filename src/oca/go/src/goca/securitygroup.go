@@ -186,5 +186,6 @@ func (sg *SecurityGroup) Info() error {
 	if err != nil {
 		return err
 	}
+	*sg = SecurityGroup{}
 	return xml.Unmarshal([]byte(response.Body()), sg)
 }

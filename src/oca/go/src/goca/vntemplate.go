@@ -114,6 +114,7 @@ func (vntemplate *VNTemplate) Info() error {
 	if err != nil {
 		return err
 	}
+	*vntemplate = VNTemplate{}
 	return xml.Unmarshal([]byte(response.Body()), vntemplate)
 }
 

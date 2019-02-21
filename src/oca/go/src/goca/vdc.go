@@ -138,6 +138,7 @@ func (vdc *Vdc) Info() error {
 	if err != nil {
 		return err
 	}
+	*vdc = Vdc{}
 	return xml.Unmarshal([]byte(response.Body()), vdc)
 }
 

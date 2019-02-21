@@ -219,6 +219,7 @@ func (host *Host) Info() error {
 	if err != nil {
 		return err
 	}
+	*host = Host{}
 	return xml.Unmarshal([]byte(response.Body()), host)
 }
 
