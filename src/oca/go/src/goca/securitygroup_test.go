@@ -69,7 +69,7 @@ func TestSGAllocate(t *testing.T){
 	clone := NewSecurityGroup(clone_id)
 	clone.Info()
 
-	actual = sg.Name
+	actual = clone.Name
 
 	if actual != clone_name {
 		t.Errorf("Test failed, expected: '%s', got:  '%s'", clone_name, actual)

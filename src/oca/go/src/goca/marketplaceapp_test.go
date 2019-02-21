@@ -23,6 +23,15 @@ func TestMarketplaceApp(t *testing.T){
 
 	mkt_img_id, err = CreateImage(img_tmpl, 1)
 
+	WaitResource(func() bool{
+		img, _ := NewImageFromName("test_img_go")
+		img.Info()
+
+		state, _ := img.State()
+
+		return state == ImageReady
+	})
+
 	if err != nil {
 	    t.Errorf("Test failed:\n" + err.Error())
 	}

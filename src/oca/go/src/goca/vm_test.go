@@ -12,6 +12,7 @@ func Test(t *testing.T) { TestingT(t) }
 type VMSuite struct {
 	templateID uint
 	vmID       uint
+	hostID     uint
 }
 
 var _ = Suite(&VMSuite{})
@@ -28,6 +29,17 @@ func (s *VMSuite) SetUpSuite(c *C) {
 	c.Assert(err, IsNil)
 
 	s.templateID = templateID
+
+	s.hostID, _ = CreateHost("dummy-test", "dummy", "dummy", 0)
+
+	tmpl := "TM_MAD=dummy\nDS_MAD=dummy"
+
+	ds_img := NewDatastore(1)
+	ds_img.Update(tmpl, 1)
+
+	ds_sys := NewDatastore(0)
+	ds_sys.Update(tmpl, 1)
+
 }
 
 func (s *VMSuite) SetUpTest(c *C) {
@@ -51,6 +63,9 @@ func (s *VMSuite) TearDownTest(c *C) {
 func (s *VMSuite) TearDownSuite(c *C) {
 	template := NewTemplate(s.templateID)
 	template.Delete()
+
+	host := NewHost(s.hostID)
+	host.Delete()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -68,7 +83,7 @@ func VMExpectState(c *C, vm *VM, state, lcmState string) func() bool {
 			return true
 		}
 
-		if state != "" && s == state {
+		if state != "" && s == state && lcmState == ""{
 			return true
 		}
 
@@ -82,7 +97,7 @@ func VMExpectState(c *C, vm *VM, state, lcmState string) func() bool {
 
 func (s *VMSuite) TestVMDeploy(c *C) {
 	vm := NewVM(s.vmID)
-	err := vm.Release()
+	err := vm.Deploy(s.hostID, false, -1)
 	c.Assert(err, IsNil)
 	c.Assert(WaitResource(VMExpectState(c, vm, "ACTIVE", "RUNNING")), Equals, true)
 }
@@ -116,7 +131,7 @@ func (s *VMSuite) TestVMUpdate(c *C) {
 
 func (s *VMSuite) TestVMTerminate(c *C) {
 	vm := NewVM(s.vmID)
-	err := vm.Release()
+	err := vm.Deploy(s.hostID, false, -1)
 	c.Assert(err, IsNil)
 	c.Assert(WaitResource(VMExpectState(c, vm, "ACTIVE", "RUNNING")), Equals, true)
 
@@ -127,7 +142,7 @@ func (s *VMSuite) TestVMTerminate(c *C) {
 
 func (s *VMSuite) TestVMTerminateHard(c *C) {
 	vm := NewVM(s.vmID)
-	err := vm.Release()
+	err :=vm.Deploy(s.hostID, false, -1)
 	c.Assert(err, IsNil)
 	c.Assert(WaitResource(VMExpectState(c, vm, "ACTIVE", "RUNNING")), Equals, true)
 
@@ -137,7 +152,7 @@ func (s *VMSuite) TestVMTerminateHard(c *C) {
 
 func (s *VMSuite) TestVMStop(c *C) {
 	vm := NewVM(s.vmID)
-	err := vm.Release()
+	err := vm.Deploy(s.hostID, false, -1)
 	c.Assert(err, IsNil)
 	c.Assert(WaitResource(VMExpectState(c, vm, "ACTIVE", "RUNNING")), Equals, true)
 
@@ -148,7 +163,7 @@ func (s *VMSuite) TestVMStop(c *C) {
 
 func (s *VMSuite) TestVMSuspend(c *C) {
 	vm := NewVM(s.vmID)
-	err := vm.Release()
+	err := vm.Deploy(s.hostID, false, -1)
 	c.Assert(err, IsNil)
 	c.Assert(WaitResource(VMExpectState(c, vm, "ACTIVE", "RUNNING")), Equals, true)
 
@@ -159,7 +174,7 @@ func (s *VMSuite) TestVMSuspend(c *C) {
 
 func (s *VMSuite) TestVMResume(c *C) {
 	vm := NewVM(s.vmID)
-	err := vm.Release()
+	err := vm.Deploy(s.hostID, false, -1)
 	c.Assert(err, IsNil)
 	c.Assert(WaitResource(VMExpectState(c, vm, "ACTIVE", "RUNNING")), Equals, true)
 
@@ -174,7 +189,7 @@ func (s *VMSuite) TestVMResume(c *C) {
 
 func (s *VMSuite) TestVMResize(c *C) {
 	vm := NewVM(s.vmID)
-	err := vm.Release()
+	err := vm.Deploy(s.hostID, false, -1)
 	c.Assert(err, IsNil)
 	c.Assert(WaitResource(VMExpectState(c, vm, "ACTIVE", "RUNNING")), Equals, true)
 
@@ -193,7 +208,7 @@ func (s *VMSuite) TestVMResize(c *C) {
 	err = vm.Info()
 	c.Assert(err, IsNil)
 
-	c.Assert(vm.Template.CPU, Equals, "2.5")
+	c.Assert(vm.Template.CPU, Equals, 2.5)
 
-	c.Assert(vm.Template.Memory, Equals, "512")
+	c.Assert(vm.Template.Memory, Equals, 512)
 }
