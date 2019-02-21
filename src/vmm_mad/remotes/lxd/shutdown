@@ -36,15 +36,28 @@ container = Container.get(vm_name, xml, client)
 # ------------------------------------------------------------------------------
 # Stop the container & unmap devices if not a wild container
 # ------------------------------------------------------------------------------
-if ARGV[-1] == '-f'
-    container.stop(:force => true)
-else
-    container.stop
+begin
+    if ARGV[-1] == '-f'
+        container.stop(:force => true)
+    else
+        container.stop
+    end
+rescue => exception
+    OpenNebula.log_error exception
 end
 
 if !container.wild?
-    unmapped = container.setup_storage('unmap')
-    raise 'Failed to dismantle container storage' unless unmapped
+    # This call may return an operation output instead of a container data
+    # in case of timeout. The call breaks the container attributes
+    # it needs to be read again
+
+    container = Container.get(vm_name, xml, client) # :status => "Sucess"
+    container = Container.get(vm_name, xml, client) unless %w[Running Stopped].include? container.status
+
+    container.stop(:force => true) if container.status == 'Running'
+
+    e = 'Failed to dismantle container storage'
+    raise "#{e}\n#{container}" unless container.setup_storage('unmap')
 
     container.delete
 end
