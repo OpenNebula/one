@@ -18,41 +18,41 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  var Notifier = require('utils/notifier');
-  var BaseFormPanel = require('utils/form-panels/form-panel');
-  var Sunstone = require('sunstone');
-  var Locale = require('utils/locale');
-  var Tips = require('utils/tips');
-  var TemplateUtils = require('utils/template-utils');
-  var WizardFields = require('utils/wizard-fields');
+  var Notifier = require("utils/notifier");
+  var BaseFormPanel = require("utils/form-panels/form-panel");
+  var Sunstone = require("sunstone");
+  var Locale = require("utils/locale");
+  var Tips = require("utils/tips");
+  var TemplateUtils = require("utils/template-utils");
+  var WizardFields = require("utils/wizard-fields");
 
   /*
     TEMPLATES
    */
 
-  var TemplateWizardHTML = require('hbs!./create/wizard');
-  var TemplateAdvancedHTML = require('hbs!./create/advanced');
+  var TemplateWizardHTML = require("hbs!./create/wizard");
+  var TemplateAdvancedHTML = require("hbs!./create/advanced");
 
   /*
     CONSTANTS
    */
 
   var WIZARD_TABS = [
-    require('./create/wizard-tabs/general'),
-    require('./create/wizard-tabs/storage'),
-    require('./create/wizard-tabs/network'),
-    require('./create/wizard-tabs/os'),
-    require('./create/wizard-tabs/io'),
-    require('./create/wizard-tabs/actions'),
-    require('./create/wizard-tabs/context'),
-    require('./create/wizard-tabs/scheduling'),
-    require('./create/wizard-tabs/hybrid'),
-    require('./create/wizard-tabs/vmgroup'),
-    require('./create/wizard-tabs/other')
-  ]
+    require("./create/wizard-tabs/general"),
+    require("./create/wizard-tabs/storage"),
+    require("./create/wizard-tabs/network"),
+    require("./create/wizard-tabs/os"),
+    require("./create/wizard-tabs/io"),
+    require("./create/wizard-tabs/actions"),
+    require("./create/wizard-tabs/context"),
+    require("./create/wizard-tabs/scheduling"),
+    require("./create/wizard-tabs/hybrid"),
+    require("./create/wizard-tabs/vmgroup"),
+    require("./create/wizard-tabs/other")
+  ];
 
-  var TEMPLATES_TAB_ID = require('tabs/templates-tab/tabId');
-  var VROUTER_TEMPLATES_TAB_ID = require('tabs/vrouter-templates-tab/tabId');
+  var TEMPLATES_TAB_ID = require("tabs/templates-tab/tabId");
+  var VROUTER_TEMPLATES_TAB_ID = require("tabs/vrouter-templates-tab/tabId");
 
   /*
     CONSTRUCTOR
@@ -71,15 +71,15 @@ define(function(require) {
     }
 
     this.actions = {
-      'create': {
-        'title': create_title,
-        'buttonText': Locale.tr("Create"),
-        'resetButton': true
+      "create": {
+        "title": create_title,
+        "buttonText": Locale.tr("Create"),
+        "resetButton": true
       },
-      'update': {
-        'title': update_title,
-        'buttonText': Locale.tr("Update"),
-        'resetButton': false
+      "update": {
+        "title": update_title,
+        "buttonText": Locale.tr("Update"),
+        "resetButton": false
       }
     };
 
@@ -103,7 +103,7 @@ define(function(require) {
       } catch (err) {
         console.log(err);
       }
-    })
+    });
 
     BaseFormPanel.call(this);
   }
@@ -129,8 +129,8 @@ define(function(require) {
   function _htmlWizard() {
 
     return TemplateWizardHTML({
-      'formPanelId': this.formPanelId,
-      'wizardTabs': this.wizardTabs
+      "formPanelId": this.formPanelId,
+      "wizardTabs": this.wizardTabs
     });
   }
 
@@ -140,26 +140,26 @@ define(function(require) {
 
   function _setup(context) {
     $.each(this.wizardTabs, function(index, wizardTab) {
-      wizardTab.setup($('#' + wizardTab.wizardTabId, context));
+      wizardTab.setup($("#" + wizardTab.wizardTabId, context));
     });
 
-    Foundation.reflow(context, 'tabs');
-    Foundation.reflow(context, 'tooltip');
+    Foundation.reflow(context, "tabs");
+    Foundation.reflow(context, "tooltip");
   }
 
   function _onShow(context) {
     var that = this;
-    $('a[href="#'+ that.wizardTabs[0].wizardTabId +'"]', context).trigger("click");
+    $("a[href=\"#"+ that.wizardTabs[0].wizardTabId +"\"]", context).trigger("click");
 
     $.each(that.wizardTabs, function(index, wizardTab) {
-      wizardTab.onShow($('#' + wizardTab.wizardTabId, context), that);
+      wizardTab.onShow($("#" + wizardTab.wizardTabId, context), that);
     });
   }
 
   function _retrieve(context) {
-    var templateJSON = {}
+    var templateJSON = {};
     $.each(this.wizardTabs, function(index, wizardTab) {
-      $.extend(true, templateJSON, wizardTab.retrieve($('#' + wizardTab.wizardTabId, context)));
+      $.extend(true, templateJSON, wizardTab.retrieve($("#" + wizardTab.wizardTabId, context)));
 
       var a = templateJSON;
     });
@@ -168,8 +168,8 @@ define(function(require) {
     // part of an array, and it is filled in different tabs, the $.extend deep
     // merge can't work. We define an auxiliary attribute for it.
 
-    if (templateJSON['PUBLIC_CLOUD'] == undefined) {
-      templateJSON['PUBLIC_CLOUD'] = [];
+    if (templateJSON["PUBLIC_CLOUD"] == undefined) {
+      templateJSON["PUBLIC_CLOUD"] = [];
     }
 
     // PCI with TYPE=NIC is not defined in the 'other' tab. Because it is
@@ -187,11 +187,11 @@ define(function(require) {
     }
 
     if (templateJSON["NIC_PCI"] != undefined) {
-      if (templateJSON['PCI'] == undefined) {
-        templateJSON['PCI'] = [];
+      if (templateJSON["PCI"] == undefined) {
+        templateJSON["PCI"] = [];
       }
 
-      templateJSON['PCI'] = templateJSON['PCI'].concat(templateJSON["NIC_PCI"]);
+      templateJSON["PCI"] = templateJSON["PCI"].concat(templateJSON["NIC_PCI"]);
 
       delete templateJSON["NIC_PCI"];
     }
@@ -203,7 +203,7 @@ define(function(require) {
     var templateJSON = this.retrieve(context);
 
     if (this.action == "create") {
-      Sunstone.runAction(this.resource+".create", {'vmtemplate': templateJSON});
+      Sunstone.runAction(this.resource+".create", {"vmtemplate": templateJSON});
       return false;
     } else if (this.action == "update") {
       Sunstone.runAction(this.resource+".update", this.resourceId, TemplateUtils.templateToString(templateJSON));
@@ -212,7 +212,7 @@ define(function(require) {
   }
 
   function _submitAdvanced(context) {
-    var templateStr = $('textarea#template', context).val();
+    var templateStr = $("textarea#template", context).val();
 
     if (this.action == "create") {
       Sunstone.runAction(this.resource+".create", {"vmtemplate": {"template_raw": templateStr}});
@@ -237,10 +237,10 @@ define(function(require) {
     WizardFields.fillInput($("#NAME", context), element.NAME);
 
     // Populates the Avanced mode Tab
-    $('#template', context).val(TemplateUtils.templateToString(templateJSON));
+    $("#template", context).val(TemplateUtils.templateToString(templateJSON));
 
     $.each(this.wizardTabs, function(index, wizardTab) {
-      wizardTab.fill($('#' + wizardTab.wizardTabId, context), templateJSON);
+      wizardTab.fill($("#" + wizardTab.wizardTabId, context), templateJSON);
     });
 
     // After all tabs have been filled, perform a notify
@@ -265,7 +265,7 @@ define(function(require) {
 
       $.each(that.wizardTabs, function(index, wizardTab) {
         if (wizardTab.notify != undefined){
-          wizardTab.notify($('#' + wizardTab.wizardTabId, context), templateJSON);
+          wizardTab.notify($("#" + wizardTab.wizardTabId, context), templateJSON);
         }
       });
 

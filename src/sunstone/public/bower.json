@@ -17,7 +17,8 @@
     "datatables": "1.10.12",
     "navigo": "2.1.1",
     "sprintf": "1.0.3",
-    "jquery-ui": "^1.12.1"
+    "jquery-ui": "^1.12.1",
+    "wickedpicker": "git://github.com/ericjgagnon/wickedpicker#dd2cce3"
   },
   "authors": [
     "Daniel Molina <dmolina@opennebula.org>",
@@ -35,5 +36,6 @@
     "bower_components",
     "test",
     "tests"
-  ]
+  ],
+  "main": ""
 }

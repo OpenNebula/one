@@ -85,7 +85,7 @@ define(function(require) {
     $.each(Config.enabledTabs, function(i, tabName){
       var name = "./tabs/" + tabName;
       if (DefaultTabsArr.indexOf(tabName) == -1){
-        name = "./addons/tabs/" + tabName
+        name = "./addons/tabs/" + tabName;
       }
       var tabObj = require(name);
       var _tabId = tabObj.tabId;
@@ -122,7 +122,7 @@ define(function(require) {
     $.each(Config.allTabs(), function(i, tabName){
       var name = "./tabs/" + tabName;
       if (DefaultTabsArr.indexOf(tabName) == -1){
-        name = "./addons/tabs/" + tabName
+        name = "./addons/tabs/" + tabName;
       }
       var tabObj = require(name);
 

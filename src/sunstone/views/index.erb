@@ -67,9 +67,11 @@
 
 
     <% if $conf[:env] == 'dev' %>
+    <link href="bower_components/wickedpicker/dist/wickedpicker.min.css" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
     <link href="css/app.css?v=<%= OpenNebula::VERSION %>" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
     <link href="css/custom.css?v=<%= OpenNebula::VERSION %>" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
     <% else %>
+    <link href="bower_components/wickedpicker/dist/wickedpicker.min.css" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
     <link href="css/app.min.css?v=<%= OpenNebula::VERSION %>" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
     <link href="css/custom.css?v=<%= OpenNebula::VERSION %>" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
     <% end %>
