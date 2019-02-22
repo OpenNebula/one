@@ -19,25 +19,25 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var BaseDialog = require('utils/dialogs/dialog');
-  var ClustersTable = require('tabs/clusters-tab/datatable');
-  var Sunstone = require('sunstone');
+  var BaseDialog = require("utils/dialogs/dialog");
+  var ClustersTable = require("tabs/clusters-tab/datatable");
+  var Sunstone = require("sunstone");
   var TemplateUtils = require("utils/template-utils");
 
   /*
     TEMPLATES
    */
 
-  var TemplateHTML = require('hbs!./clusters/html');
+  var TemplateHTML = require("hbs!./clusters/html");
 
   /*
     CONSTANTS
    */
 
-  var DIALOG_ID = require('./clusters/dialogId');
-  var DATASTORES_TAB_ID = require('tabs/datastores-tab/tabId');
-  var VNETS_TAB_ID = require('tabs/vnets-tab/tabId');
-  var VNTEMPLATE_TAB_ID = require('tabs/vnets-templates-tab/tabId');
+  var DIALOG_ID = require("./clusters/dialogId");
+  var DATASTORES_TAB_ID = require("tabs/datastores-tab/tabId");
+  var VNETS_TAB_ID = require("tabs/vnets-tab/tabId");
+  var VNTEMPLATE_TAB_ID = require("tabs/vnets-templates-tab/tabId");
 
   /*
     CONSTRUCTOR
@@ -64,15 +64,15 @@ define(function(require) {
    */
 
   function _html() {
-    this.clustersTable = new ClustersTable('clusters-'+this.dialogId, {
+    this.clustersTable = new ClustersTable("clusters-"+this.dialogId, {
         info: false,
         select: true,
-        selectOptions: {'multiple_choice': true}
+        selectOptions: {"multiple_choice": true}
       });
 
     return TemplateHTML({
-      'dialogId': this.dialogId,
-      'clustersTableHTML': this.clustersTable.dataTableHTML
+      "dialogId": this.dialogId,
+      "clustersTableHTML": this.clustersTable.dataTableHTML
     });
   }
 
@@ -80,7 +80,7 @@ define(function(require) {
     var that = this;
     that.clustersTable.initialize();
 
-    $('#' + DIALOG_ID + 'Form', dialog).submit(function() {
+    $("#" + DIALOG_ID + "Form", dialog).submit(function() {
       var selectedClustersList = that.clustersTable.retrieveResourceTableSelect();
 
       if ( that.only_update_template != undefined && that.only_update_template != true) {
@@ -88,9 +88,9 @@ define(function(require) {
         $.each(selectedClustersList, function(index, clusterId) {
           if ($.inArray(clusterId, that.originalClusterIds) === -1) {
             if(that.resource == "datastore"){
-              Sunstone.runAction('Cluster.adddatastore', clusterId, that.element.ID);
+              Sunstone.runAction("Cluster.adddatastore", clusterId, that.element.ID);
             } else {
-              Sunstone.runAction('Cluster.addvnet', clusterId, that.element.ID);
+              Sunstone.runAction("Cluster.addvnet", clusterId, that.element.ID);
             }
           }
         });
@@ -98,21 +98,22 @@ define(function(require) {
         $.each(that.originalClusterIds, function(index, clusterId) {
           if ($.inArray(clusterId, selectedClustersList) === -1) {
             if(that.resource == "datastore"){
-              Sunstone.runAction('Cluster.deldatastore', clusterId, that.element.ID);
+              Sunstone.runAction("Cluster.deldatastore", clusterId, that.element.ID);
             } else {
-              Sunstone.runAction('Cluster.delvnet', clusterId, that.element.ID);
+              Sunstone.runAction("Cluster.delvnet", clusterId, that.element.ID);
             }
           }
         });
       } else {
         that.element.TEMPLATE.CLUSTER = selectedClustersList.join(",");
-        Sunstone.runAction(that.resource_name+".update", that.element.ID, TemplateUtils.templateToString(that.element.TEMPLATE))
+        Sunstone.runAction(that.resource_name+".update", that.element.ID, TemplateUtils.templateToString(that.element.TEMPLATE));
       }
 
       Sunstone.getDialog(DIALOG_ID).hide();
       Sunstone.getDialog(DIALOG_ID).reset();
 
       setTimeout(function() {
+        console.log("n");
         Sunstone.runAction(that.resource_name+".refresh");
       }, 1500);
 

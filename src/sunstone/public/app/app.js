@@ -17,7 +17,7 @@
 define(function(require) {
   require('jquery');
   require('jquery-ui');
-
+  require('wickedpicker');
   require('foundation');
 
   Foundation.Dropdown.defaults.positionClass = 'left';

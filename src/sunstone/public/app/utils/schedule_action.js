@@ -34,6 +34,17 @@ define(function (require) {
 
   function _htmlNewAction(actions, context, res) {
     var options = "";
+    var clearEmpySpaces = function(e){
+      var value = e.val().replace(/\s/g, "");
+      e.val(value);
+    };
+    var options_date_picker = {
+      title: Locale.tr("Hour"),
+      twentyFour: "true",
+      timeSeparator: ":",
+      beforeShow: clearEmpySpaces,
+      now: "12:30"
+    };
     var that = this;
     $.each(actions, function (key, action) {
       var actionAux = action.replace("-", "_");
@@ -41,10 +52,12 @@ define(function (require) {
         options += "<option value=\"" + action + "\">" + Locale.tr(action) + "</option>";
       }
     });
-    $("#scheduling_" + res + "_actions_table tbody", context).append(TemplateHTML({
+    var schedule = $("#scheduling_" + res + "_actions_table tbody", context).append(TemplateHTML({
       "actions": options,
       "res": that.res
-    })).find("#relative_time", context).on("click", function (e) {
+    }));
+    schedule.find("#time_input",context).on("click",function(e){e.stopPropagation();}).wickedpicker(options_date_picker);
+    schedule.find("#relative_time", context).on("click", function (e) {
       $("#schedule_type", context).prop("checked", false);
       if ($(this).is(":checked")) {
         $("#no_relative_time_form, .periodic", context).addClass("hide");

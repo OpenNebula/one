@@ -19,18 +19,18 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var BaseDialog = require('utils/dialogs/dialog');
-  var TemplateHTML = require('hbs!./clone/html');
-  var Sunstone = require('sunstone');
-  var Notifier = require('utils/notifier');
-  var OpenNebulaServiceTemplate = require('opennebula/servicetemplate');
+  var BaseDialog = require("utils/dialogs/dialog");
+  var TemplateHTML = require("hbs!./clone/html");
+  var Sunstone = require("sunstone");
+  var Notifier = require("utils/notifier");
+  var OpenNebulaServiceTemplate = require("opennebula/servicetemplate");
 
   /*
     CONSTANTS
    */
 
-  var DIALOG_ID = require('./clone/dialogId');
-  var ONEFLOW_TEMPLATES_TAB_ID = require('tabs/oneflow-templates-tab/tabId')
+  var DIALOG_ID = require("./clone/dialogId");
+  var ONEFLOW_TEMPLATES_TAB_ID = require("tabs/oneflow-templates-tab/tabId");
 
   /*
     CONSTRUCTOR
@@ -57,16 +57,16 @@ define(function(require) {
 
   function _html() {
     return TemplateHTML({
-      'dialogId': this.dialogId
+      "dialogId": this.dialogId
     });
   }
 
   function _setup(context) {
     var that = this;
 
-    $('#' + DIALOG_ID + 'Form', context).submit(function() {
+    $("#" + DIALOG_ID + "Form", context).submit(function() {
       var extra_info;
-      var name = $('input[name="name"]', this).val();
+      var name = $("input[name=\"name\"]", this).val();
       var sel_elems = Sunstone.getDataTable(ONEFLOW_TEMPLATES_TAB_ID).elements();
 
       if (sel_elems.length > 1) {
@@ -74,17 +74,18 @@ define(function(require) {
           //If we are cloning several images we
           //use the name as prefix
           extra_info = name + OpenNebulaServiceTemplate.getName(sel_elems[i]);
-          Sunstone.runAction('ServiceTemplate.clone', sel_elems[i], extra_info);
+          Sunstone.runAction("ServiceTemplate.clone", sel_elems[i], extra_info);
         }
       } else {
         extra_info = name;
-        Sunstone.runAction('ServiceTemplate.clone', sel_elems[0], extra_info)
+        Sunstone.runAction("ServiceTemplate.clone", sel_elems[0], extra_info);
       }
 
       Sunstone.getDialog(DIALOG_ID).hide();
       Sunstone.getDialog(DIALOG_ID).reset();
       setTimeout(function() {
-        Sunstone.runAction('ServiceTemplate.refresh');
+        console.log("e");
+        Sunstone.runAction("ServiceTemplate.refresh");
       }, 1500);
       return false;
     });
@@ -99,13 +100,13 @@ define(function(require) {
 
     //show different text depending on how many elements are selected
     if (sel_elems.length > 1) {
-      $('.clone_one', context).hide();
-      $('.clone_several', context).show();
-      $('input[name="name"]',context).val('Copy of ');
+      $(".clone_one", context).hide();
+      $(".clone_several", context).show();
+      $("input[name=\"name\"]",context).val("Copy of ");
     } else {
-      $('.clone_one', context).show();
-      $('.clone_several', context).hide();
-      $('input[name="name"]', context).val('Copy of ' + sel_elems[0].name);
+      $(".clone_one", context).show();
+      $(".clone_several", context).hide();
+      $("input[name=\"name\"]", context).val("Copy of " + sel_elems[0].name);
     };
 
     $("input[name='name']", context).focus();
