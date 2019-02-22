@@ -26,37 +26,35 @@ class Qcow2Mapper < Mapper
     # to load the nbd kernel module (default in kernel is 16)
     NBDS_MAX = 256 # TODO: Read system config file
 
-    def do_map(one_vm, disk, _directory)
+    def do_map
         device = nbd_device
-
         return if device.empty?
 
-        dsrc = one_vm.disk_source(disk)
-        File.chmod(0o664, dsrc) if File.symlink?(one_vm.sysds_path)
+        nfs_patch
 
-        map = "#{COMMANDS[:nbd]} -c #{device} #{dsrc}"
-        rc, _out, err = Command.execute(map, true)
+        cmd = "#{COMMANDS[:nbd]} -c #{device} #{@disk_src}"
+        rc, _out, err = Command.execute(cmd, true)
 
         unless rc.zero?
             OpenNebula.log_error("#{__method__}: #{err}")
             return
         end
 
-        # TODO: improve wait condition
-        sleep 1 # wait for parts to come out
+        fake_mount(device)
 
-        show_parts(device) unless parts_on?(device)
+        show_parts(device) if multipart?(device)
 
         device
     end
 
-    def do_unmap(device, _one_vm, _disk, _directory)
-        #After mapping and unmapping a qcow2 disk the next mapped qcow2 may collide with the previous one. 
-        #The use of kpartx before unmapping seems to prevent this behavior on the nbd module used with 
-        #the kernel versions in ubuntu 16.04
-        #
-        # TODO: avoid using if kpartx was not used
-        hide_parts(device)
+    def do_unmap(device)
+        # After mapping and unmapping a qcow2 disk the next mapped qcow2
+        # may collide with the previous one. The use of kpartx before unmapping
+        # seems to prevent this behavior on the nbd module used with
+        # the kernel versions in ubuntu 16.04
+
+        hide_parts(device) if parts_on?(device)
+
         cmd = "#{COMMANDS[:nbd]} -d #{device}"
 
         rc, _out, err = Command.execute(cmd, false)
@@ -69,6 +67,24 @@ class Qcow2Mapper < Mapper
 
     private
 
+    # Checks if device is multipart or singlepart
+    def multipart?(device)
+        cmd = "#{COMMANDS[:lsblk]} -o MAJ:MIN -J #{device}"
+        _rc, out, _err = Command.execute(cmd, false)
+
+        out = JSON.parse(out)
+        OpenNebula.log '==========='
+        OpenNebula.log out
+        numbers = out['blockdevices'][0]['maj:min']
+        OpenNebula.log numbers
+        OpenNebula.log '==========='
+
+        return true if numbers.include?(':0')
+
+        false
+    end
+
+    # Returns the first available nbd device for ulter mapping
     def nbd_device
         sys_parts = lsblk('')
         nbds      = []
@@ -87,6 +103,10 @@ class Qcow2Mapper < Mapper
         OpenNebula.log_error("#{__method__}: Cannot find free nbd device")
 
         ''
+    end
+
+    def nfs_patch
+        File.chmod(0o664, @disk_src) if File.symlink?(@vm.sysds_path)
     end
 
 end

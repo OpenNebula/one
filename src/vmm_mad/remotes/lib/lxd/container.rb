@@ -72,7 +72,6 @@ class Container
 
         @containers = "#{@client.lxd_path}/storage-pools/default/containers"
         @rootfs_dir = "#{@containers}/#{name}/rootfs"
-        @context_path = "#{@rootfs_dir}/context"
     end
 
     class << self
@@ -244,12 +243,8 @@ class Container
 
         return 'no context' unless @one.has_context?
 
-        csrc = @lxc['devices']['context']['source'].clone
-
-        context = @one.get_context_disk
-        mapper  = FSRawMapper.new
-
-        create_context_dir = "#{Mapper::COMMANDS[:su_mkdir]} #{@context_path}"
+        context_path = "#{@rootfs_dir}/context"
+        create_context_dir = "#{Mapper::COMMANDS[:su_mkdir]} #{context_path}"
 
         rc, _o, e = Command.execute(create_context_dir, false)
 
@@ -258,7 +253,10 @@ class Container
             return
         end
 
-        mapper.public_send(operation, @one, context, csrc)
+        mountpoint = @lxc['devices']['context']['source'].clone
+
+        mapper = FSRawMapper.new(@one, @one.context_disk, mountpoint)
+        mapper.public_send(operation)
     end
 
     # Generate the context devices and maps the context the device
@@ -268,7 +266,7 @@ class Container
         csrc = @lxc['devices']['context']['source'].clone
 
         context = @one.get_context_disk
-        mapper  = FSRawMapper.new
+        mapper  = FSRawMapper.new #TODO: Fix
 
         return unless mapper.map(@one, context, csrc)
 
@@ -288,7 +286,7 @@ class Container
         update
 
         context = @one.get_context_disk
-        mapper  = FSRawMapper.new
+        mapper  = FSRawMapper.new # TODO: Fix
 
         mapper.unmap(@one, context, csrc)
     end
@@ -339,8 +337,8 @@ class Container
 
         update
 
-        mapper = new_disk_mapper(disk_element)
-        mapper.unmap(@one, disk_element, csrc)
+        mapper = new_disk_mapper(disk_element) # TODO: Fix
+        mapper.unmap(@one, disk_element, csrc) # TODO: Fix
     end
 
     # Setup the disk by mapping/unmapping the disk device
@@ -355,8 +353,8 @@ class Container
             target = @one.disk_mountpoint(disk_id)
         end
 
-        mapper = new_disk_mapper(disk)
-        mapper.public_send(operation, @one, disk, target)
+        mapper = new_disk_mapper(disk, target)
+        mapper.public_send(operation)
     end
 
     # Start the svncterm server if it is down.
@@ -415,7 +413,7 @@ class Container
     #
     #  TODO This maps should be built dynamically or based on a DISK attribute
     #  so new mappers does not need to modified source code
-    def new_disk_mapper(disk)
+    def new_disk_mapper(disk, directory)
         case disk['TYPE']
         when 'FILE', 'BLOCK'
 
@@ -431,21 +429,21 @@ class Container
             case out
             when /.*QEMU QCOW.*/
                 OpenNebula.log "Using qcow2 mapper for #{ds}"
-                Qcow2Mapper.new
+                Qcow2Mapper.new(@one, disk, directory)
             when /.*filesystem.*/
                 OpenNebula.log "Using raw filesystem mapper for #{ds}"
-                FSRawMapper.new
+                FSRawMapper.new(@one, disk, directory)
             when /.*boot sector.*/
                 OpenNebula.log "Using raw disk mapper for #{ds}"
-                DiskRawMapper.new
+                DiskRawMapper.new(@one, disk, directory)
             else
                 OpenNebula.log("Unknown #{out} image format, \
                     trying raw filesystem mapper")
-                FSRawMapper.new
+                FSRawMapper.new(@one, disk, directory)
             end
         when 'RBD'
             OpenNebula.log "Using rbd disk mapper for #{ds}"
-            RBDMapper.new(disk)
+            RBDMapper.new(disk) # TODO: Fix
         end
     end
 

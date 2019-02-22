@@ -184,7 +184,7 @@ class OpenNebulaVM
         end
     end
 
-    def get_context_disk
+    def context_disk
         @xml.element('//TEMPLATE/CONTEXT')
     end
 

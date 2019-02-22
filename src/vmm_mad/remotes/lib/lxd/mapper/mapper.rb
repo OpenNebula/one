@@ -54,6 +54,7 @@ class Mapper
     #---------------------------------------------------------------------------
     COMMANDS = {
         :lsblk      => 'sudo lsblk',
+        # :su_lsblk   => 'sudo lsblk', # TODO: Replace
         :losetup    => 'sudo losetup',
         :mount      => 'sudo mount',
         :umount     => 'sudo umount',
@@ -71,6 +72,13 @@ class Mapper
         :rbd        => 'sudo rbd-nbd --id'
     }
 
+    def initialize(one_vm, disk, directory)
+        @vm   = one_vm
+        @dir  = directory
+        @disk = disk
+        @disk_src = @vm.disk_source(disk)
+    end
+
     #---------------------------------------------------------------------------
     # Interface to be implemented by specific mapper modules
     #---------------------------------------------------------------------------
@@ -79,12 +87,12 @@ class Mapper
     # @param onevm [OpenNebulaVM] with the VM description
     # @param disk [XMLElement] with the disk data
     # @param directory [String] where the disk has to be mounted
-    # @return [String] Name of the mapped device, empty in case of error. 
+    # @return [String] Name of the mapped device, empty in case of error.
     #
     # Errors should be log using OpenNebula driver functions
-    def do_map(one_vm, disk, directory)
+    def do_map
         OpenNebula.log_error("map function not implemented for #{self.class}")
-        return nil
+        nil
     end
 
     # Unmaps a previously mapped partition
@@ -93,9 +101,9 @@ class Mapper
     # @param directory [String] where the disk has to be mounted
     #
     # @return nil
-    def do_unmap(device, one_vm, disk, directory)
+    def do_unmap(_device)
         OpenNebula.log_error("unmap function not implemented for #{self.class}")
-        return nil
+        nil
     end
 
     #---------------------------------------------------------------------------
@@ -109,12 +117,12 @@ class Mapper
     # mounted. Example: /var/lib/one/datastores/100/3/mapper/disk.2
     #
     # @return true on success
-    def map(one_vm, disk, directory)
-        return true if mount_on?(directory)
+    def map
+        return true if mount_on?(@dir)
 
-        device = do_map(one_vm, disk, directory)
+        device = do_map
 
-        OpenNebula.log_info "Mapping disk at #{directory} using device #{device}"
+        OpenNebula.log_info "Mapping disk at #{@dir} using device #{device}"
 
         return false if !device
 
@@ -126,20 +134,20 @@ class Mapper
         # Mount disk images with partitions
         #-----------------------------------------------------------------------
 
-        return mount(partitions, directory) if partitions[0]['type'] == 'part'
+        return mount(partitions, @dir) if partitions[0]['type'] == 'part'
 
         #-----------------------------------------------------------------------
         # Resize partitions if needed and mount single filesystem disk images
         #-----------------------------------------------------------------------
         type = partitions[0]['type']
 
-        return mount_dev(device, directory) unless %w[loop disk].include?(type)
+        return mount_dev(device, @dir) unless %w[loop disk].include?(type)
 
-        size     = disk['SIZE'].to_i if disk['SIZE']
-        osize    = disk['ORIGINAL_SIZE'].to_i if disk['ORIGINAL_SIZE']
+        size     = @disk['SIZE'].to_i if @disk['SIZE']
+        osize    = @disk['ORIGINAL_SIZE'].to_i if @disk['ORIGINAL_SIZE']
 
         # TODO: Osize is always < size after 1st resize during deployment
-        return mount_dev(device, directory) unless size > osize
+        return mount_dev(device, @dir) unless size > osize
 
         # Resize filesystem
         cmd = "#{COMMANDS[:blkid]} -o export #{device}"
@@ -160,10 +168,10 @@ class Mapper
 
         case fs_type
         when /xfs/
-            rc = mount_dev(device, directory)
+            rc = mount_dev(device, @dir)
             return false unless rc
 
-            Command.execute("#{COMMANDS[:xfs_growfs]} -d #{directory}", false)
+            Command.execute("#{COMMANDS[:xfs_growfs]} -d #{@dir}", false)
         when /ext/
             _rc, o, e = Command.execute("#{COMMANDS[:e2fsck]} -f -y #{device}", false)
 
@@ -174,10 +182,10 @@ class Mapper
                 Command.execute("#{COMMANDS[:resize2fs]} #{device}", false)
             end
 
-            rc = mount_dev(device, directory)
+            rc = mount_dev(device, @dir)
         else
             OpenNebula.log_info "Skipped filesystem #{fs_type} resize"
-            rc = mount_dev(device, directory)
+            rc = mount_dev(device, @dir)
         end
 
         rc
@@ -189,8 +197,8 @@ class Mapper
     # mounted. Example: /var/lib/one/datastores/100/3/mapper/disk.2
     #
     # @return true on success
-    def unmap(one_vm, disk, directory)
-        OpenNebula.log_info "Unmapping disk at #{directory}"
+    def unmap
+        OpenNebula.log_info "Unmapping disk at #{@dir}"
 
         sys_parts = lsblk('')
 
@@ -199,8 +207,8 @@ class Mapper
         partitions = []
         device = ''
 
-        real_path = directory
-        real_path = File.realpath(directory) if File.symlink?(one_vm.sysds_path)
+        real_path = @dir
+        real_path = File.realpath(@dir) if File.symlink?(@vm.sysds_path)
 
         sys_parts.each {|d|
             if d['mountpoint'] == real_path
@@ -217,7 +225,7 @@ class Mapper
                 break
             } if d['children']
 
-            break if !partitions.empty?
+            break unless partitions.empty?
         }
 
         partitions.delete_if {|p| !p['mountpoint'] }
@@ -227,13 +235,12 @@ class Mapper
         }
 
         if device.empty?
-            OpenNebula.log_error("Failed to detect block device from #{directory}")
+            OpenNebula.log_error("Failed to detect block device from #{real_path}")
             return
         end
 
         return unless umount(partitions)
-
-        return unless do_unmap(device, one_vm, disk, real_path)
+        return unless do_unmap(device)
 
         true
     end
@@ -287,6 +294,8 @@ class Mapper
     #
     # @return true on success
     def mount_dev(dev, path)
+        return true if mount_on?(dev)
+
         OpenNebula.log_info "Mounting #{dev} at #{path}"
 
         mkdir_safe(path)
@@ -379,24 +388,31 @@ class Mapper
         false
     end
 
+    # This function tries to mount mapped devices to force update of partition
+    # tables
+    def fake_mount(dev)
+        cmd = "#{COMMANDS[:mount]} --fake #{dev} /mnt"
+        Command.execute(cmd, false)
+    end
+
     # Extracts the partiton table from a device
     def show_parts(device)
-        action_parts(device, '-s -av')
+        kpartx(device, '-s -av')
     end
 
     # Hides the partiton table from a device
     def hide_parts(device)
-        action_parts(device, '-d')
+        kpartx(device, '-d')
     end
 
     # Runs kpartx vs a device with required flags as arguments
-    def action_parts(device, action)
+    def kpartx(device, action)
         cmd = "#{COMMANDS[:kpartx]} #{action} #{device}"
-        rc, _out, err = Command.execute(cmd, false)
+        rc, out, err = Command.execute(cmd, false)
 
-        return true if rc.zero?
+        return out if rc.zero? && !out.empty?
 
-        OpenNebula.log_error("#{__method__}: #{err}")
+        OpenNebula.log_error("#{__method__}: #{cmd}: #{err}")
         false
     end
 
