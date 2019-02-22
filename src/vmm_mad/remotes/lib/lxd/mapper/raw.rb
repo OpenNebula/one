@@ -26,22 +26,21 @@ require 'mapper'
 class FSRawMapper < Mapper
 
     def do_map
-        cmd = "#{COMMANDS[:losetup]} -f --show #{@disk_src}"
-
-        rc, out, err = Command.execute(cmd, true)
-
-        return out.chomp unless rc != 0 || out.empty?
-
-        OpenNebula.log_error("#{__method__}: #{err}")
-        nil
+        losetup('-f --show', @disk_src)
     end
 
     def do_unmap(device)
-        cmd = "#{COMMANDS[:losetup]} -d #{device}"
+        losetup('-d', device)
+    end
 
-        rc, _out, err = Command.execute(cmd, true)
+    private
 
-        return true if rc.zero?
+    def losetup(flags, arg)
+        cmd = "#{COMMANDS[:losetup]} #{flags} #{arg}"
+
+        rc, out, err = Command.execute(cmd, false)
+
+        return out.chomp if rc.zero?
 
         OpenNebula.log_error("#{__method__}: #{err}")
         nil

@@ -241,54 +241,52 @@ class Container
             return nil unless status
         end
 
-        return 'no context' unless @one.has_context?
+        return true unless @one.context?
 
+        if operation == 'map'
+            return unless contextualize
+        end
+
+        context_mapper_do(operation)
+    end
+
+    # Sets up the contextualization directory inside the container
+    def contextualize
         context_path = "#{@rootfs_dir}/context"
         create_context_dir = "#{Mapper::COMMANDS[:su_mkdir]} #{context_path}"
 
         rc, _o, e = Command.execute(create_context_dir, false)
 
-        if rc != 0
-            OpenNebula.log_error("#{__method__}: #{e}")
-            return
-        end
+        return true if rc.zero?
 
-        mountpoint = @lxc['devices']['context']['source'].clone
-
-        mapper = FSRawMapper.new(@one, @one.context_disk, mountpoint)
-        mapper.public_send(operation)
+        OpenNebula.log_error("#{__method__}: #{e}")
     end
 
     # Generate the context devices and maps the context the device
     def attach_context
         @one.context(@lxc['devices'])
 
-        csrc = @lxc['devices']['context']['source'].clone
-
-        context = @one.get_context_disk
-        mapper  = FSRawMapper.new #TODO: Fix
-
-        return unless mapper.map(@one, context, csrc)
+        return unless context_mapper_do('map')
 
         update
+
         true
+    end
+
+    def context_mapper_do(operation)
+        mapper = FSRawMapper.new(@one, @one.context_disk, @one.context_mountpoint)
+        mapper.public_send(operation)
     end
 
     # Removes the context section from the LXD configuration and unmap the
     # context device
     def detach_context
-        return 'no context' unless @one.has_context?
-
-        csrc = @lxc['devices']['context']['source'].clone
+        return true unless @one.context?
 
         @lxc['devices'].delete('context')['source']
-
         update
 
-        context = @one.get_context_disk
-        mapper  = FSRawMapper.new # TODO: Fix
-
-        mapper.unmap(@one, context, csrc)
+        context_mapper_do('unmap')
     end
 
     # Attach disk to container (ATTACH = YES) in VM description

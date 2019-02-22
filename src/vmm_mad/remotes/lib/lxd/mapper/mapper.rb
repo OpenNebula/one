@@ -72,6 +72,8 @@ class Mapper
         :rbd        => 'sudo rbd-nbd --id'
     }
 
+    attr_reader :disk_src, :device
+
     def initialize(one_vm, disk, directory)
         @vm   = one_vm
         @dir  = directory
@@ -124,11 +126,11 @@ class Mapper
 
         OpenNebula.log_info "Mapping disk at #{@dir} using device #{device}"
 
-        return false if !device
+        return false unless device
 
         partitions = lsblk(device)
 
-        return false if !partitions
+        return false unless partitions
 
         #-----------------------------------------------------------------------
         # Mount disk images with partitions
@@ -388,10 +390,9 @@ class Mapper
         false
     end
 
-    # This function tries to mount mapped devices to force update of partition
-    # tables
-    def fake_mount(dev)
-        cmd = "#{COMMANDS[:mount]} --fake #{dev} /mnt"
+    # Force update of the device partition tables
+    def update_partable
+        cmd = "#{COMMANDS[:mount]} --fake #{@device} /mnt"
         Command.execute(cmd, false)
     end
 
@@ -410,7 +411,7 @@ class Mapper
         cmd = "#{COMMANDS[:kpartx]} #{action} #{device}"
         rc, out, err = Command.execute(cmd, false)
 
-        return out if rc.zero? && !out.empty?
+        return out if rc.zero?
 
         OpenNebula.log_error("#{__method__}: #{cmd}: #{err}")
         false

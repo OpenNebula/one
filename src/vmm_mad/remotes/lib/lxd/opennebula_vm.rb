@@ -78,7 +78,7 @@ class OpenNebulaVM
         @rootfs_id = boot_order.split(',')[0][-1] unless boot_order.empty?
     end
 
-    def has_context?
+    def context?
         !@xml['//TEMPLATE/CONTEXT/DISK_ID'].empty?
     end
 
@@ -206,18 +206,19 @@ class OpenNebulaVM
     end
 
     # Generate Context information
+    # TODO: Remove argument
     def context(hash)
-        cid = @xml['//TEMPLATE/CONTEXT/DISK_ID']
-
-        return if cid.empty?
-
-        source = disk_mountpoint(cid)
+        return unless context?
 
         hash['context'] = {
             'type'   => 'disk',
-            'source' => source,
+            'source' => context_mountpoint,
             'path'   => '/context'
         }
+    end
+
+    def context_mountpoint
+        disk_mountpoint(@xml['//TEMPLATE/CONTEXT/DISK_ID'])
     end
 
     def disk_mountpoint(disk_id)

@@ -27,24 +27,17 @@ class Qcow2Mapper < Mapper
     NBDS_MAX = 256 # TODO: Read system config file
 
     def do_map
-        device = nbd_device
+        @device = nbd_device
         return if device.empty?
 
         nfs_patch
 
-        cmd = "#{COMMANDS[:nbd]} -c #{device} #{@disk_src}"
-        rc, _out, err = Command.execute(cmd, true)
+        return unless nbd('-c', @device)
 
-        unless rc.zero?
-            OpenNebula.log_error("#{__method__}: #{err}")
-            return
-        end
+        update_partable
+        xenial_patch # TODO: Drop in xenial EOL
 
-        fake_mount(device)
-
-        show_parts(device) if multipart?(device)
-
-        device
+        @device
     end
 
     def do_unmap(device)
@@ -53,11 +46,18 @@ class Qcow2Mapper < Mapper
         # seems to prevent this behavior on the nbd module used with
         # the kernel versions in ubuntu 16.04
 
-        hide_parts(device) if parts_on?(device)
+        hide_parts(device) if parts_on?(device) # TODO: Drop in xenial EOL
+        nbd('-d', device)
+    end
 
-        cmd = "#{COMMANDS[:nbd]} -d #{device}"
+    private
 
-        rc, _out, err = Command.execute(cmd, false)
+    # nbd command handler
+    def nbd(flags, arg)
+        cmd = "#{COMMANDS[:nbd]} #{flags} #{arg}"
+        cmd << " #{@disk_src}" if flags == '-c'
+
+        rc, _out, err = Command.execute(cmd, true)
 
         return true if rc.zero?
 
@@ -65,23 +65,11 @@ class Qcow2Mapper < Mapper
         nil
     end
 
-    private
+    # For ubuntu1604, runs kpartx if doesn't detect partition table
+    def xenial_patch
+        return if parts_on?(@device)
 
-    # Checks if device is multipart or singlepart
-    def multipart?(device)
-        cmd = "#{COMMANDS[:lsblk]} -o MAJ:MIN -J #{device}"
-        _rc, out, _err = Command.execute(cmd, false)
-
-        out = JSON.parse(out)
-        OpenNebula.log '==========='
-        OpenNebula.log out
-        numbers = out['blockdevices'][0]['maj:min']
-        OpenNebula.log numbers
-        OpenNebula.log '==========='
-
-        return true if numbers.include?(':0')
-
-        false
+        show_parts(@device)
     end
 
     # Returns the first available nbd device for ulter mapping
@@ -105,6 +93,7 @@ class Qcow2Mapper < Mapper
         ''
     end
 
+    # Required to use if @disk_src comes from an NFS mount
     def nfs_patch
         File.chmod(0o664, @disk_src) if File.symlink?(@vm.sysds_path)
     end
