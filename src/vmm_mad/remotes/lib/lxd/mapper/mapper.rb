@@ -110,6 +110,8 @@ class Mapper
     #
     # @return true on success
     def map(one_vm, disk, directory)
+        return true if mount_on?(directory)
+
         device = do_map(one_vm, disk, directory)
 
         OpenNebula.log_info "Mapping disk at #{directory} using device #{device}"
@@ -286,8 +288,6 @@ class Mapper
     # @return true on success
     def mount_dev(dev, path)
         OpenNebula.log_info "Mounting #{dev} at #{path}"
-
-        return false if mount_on?(path)
 
         mkdir_safe(path)
 

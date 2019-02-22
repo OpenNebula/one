@@ -46,14 +46,14 @@ rescue => exception
     OpenNebula.log_error exception
 end
 
+# This call may return an operation output instead of a container data
+# in case of timeout. The call breaks the container attributes
+# it needs to be read again
+container = Container.get(vm_name, xml, client) # :status => "Sucess"
+# Fixer call
+container = Container.get(vm_name, xml, client) unless %w[Running Stopped].include? container.status
+
 if !container.wild?
-    # This call may return an operation output instead of a container data
-    # in case of timeout. The call breaks the container attributes
-    # it needs to be read again
-
-    container = Container.get(vm_name, xml, client) # :status => "Sucess"
-    container = Container.get(vm_name, xml, client) unless %w[Running Stopped].include? container.status
-
     container.stop(:force => true) if container.status == 'Running'
 
     e = 'Failed to dismantle container storage'
