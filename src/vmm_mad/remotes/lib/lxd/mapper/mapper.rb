@@ -251,6 +251,18 @@ class Mapper
         nil
     end
 
+    def self.mount_on?(path)
+        _rc, out, _err = Command.execute("#{COMMANDS[:lsblk]} -J", false)
+
+        if out.include?(path)
+            OpenNebula.log_error("#{__method__}: Mount detected in #{path}")
+            return true
+        end
+        false
+    end
+
+    private
+
     #---------------------------------------------------------------------------
     # Methods to mount/umount partitions
     #---------------------------------------------------------------------------
@@ -384,20 +396,6 @@ class Mapper
         end
     end
 
-    # Returns true if device has mapped partitions
-    def parts_on?(device)
-        partitions = lsblk(device)
-        return true if partitions[0]['type'] == 'part'
-
-        false
-    end
-
-    # Force update of the device partition tables
-    def update_partable
-        cmd = "#{COMMANDS[:mount]} --fake #{@device} /mnt"
-        Command.execute(cmd, false)
-    end
-
     # Extracts the partiton table from a device
     def show_parts(device)
         kpartx(device, '-s -av')
@@ -419,17 +417,18 @@ class Mapper
         false
     end
 
-    def mount_on?(path)
-        _rc, out, _err = Command.execute("#{COMMANDS[:lsblk]} -J", false)
+    # Returns true if device has mapped partitions
+    def parts_on?(device)
+        partitions = lsblk(device)
+        return true if partitions[0]['type'] == 'part'
 
-        if out.include?(path)
-            OpenNebula.log_error("#{__method__}: Mount detected in #{path}")
-            return true
+        false
         end
+
     # Force update of the device partition tables
     def update_partable
         cmd = "#{COMMANDS[:mount]} --fake #{@device} /mnt"
-        Command.execute(cmd, false)
+        Command.execstageute(cmd, false)
     end
 
     def mkdir_safe(path)
