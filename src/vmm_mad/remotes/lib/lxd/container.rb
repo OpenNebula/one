@@ -74,7 +74,7 @@ class Container
         # Params:
         # +name+:: container name
         def get(name, one_xml, client)
-            info = client.get("#{CONTAINERS}/#{name}")['metadata']
+            info = info(name, client)
 
             one  = nil
             one  = OpenNebulaVM.new(one_xml) if one_xml
@@ -114,6 +114,11 @@ class Container
             false
         end
 
+        # Retreive container configuration information
+        def info(name, client)
+            client.get("#{CONTAINERS}/#{name}")['metadata']
+    end
+
     end
 
     #---------------------------------------------------------------------------
@@ -124,7 +129,7 @@ class Container
         @lxc['source'] = { 'type' => 'none' }
         wait?(@client.post(CONTAINERS, @lxc), wait, timeout)
 
-        @lxc = @client.get("#{CONTAINERS}/#{name}")['metadata']
+        update_info
     end
 
     # Delete container
@@ -368,14 +373,14 @@ class Container
         response = @client.put("#{CONTAINERS}/#{name}/state", options)
         status = wait?(response, options[:wait], options[:timeout])
 
-        @lxc = @client.get("#{CONTAINERS}/#{name}")['metadata']
+        update_info
 
         status
     end
 
-    # Retreive metadata for the container
-    def metadata
-        @lxc = @client.get("#{CONTAINERS}/#{name}")['metadata']
+    # Sets the LXD container query output to container object attributes
+    def update_info
+        @lxc = self.class.info(name, @client)
     end
 
     # Returns a mapper for the disk
