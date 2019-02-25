@@ -116,7 +116,7 @@ class Container
         # Retreive container configuration information
         def info(name, client)
             client.get("#{CONTAINERS}/#{name}")['metadata']
-    end
+        end
 
     end
 
@@ -278,7 +278,7 @@ class Container
     def setup_storage(operation)
         return unless @one
 
-        @one.get_disks.each do |disk|
+        @one.disks.each do |disk|
             next if setup_disk(disk, operation)
 
             return nil
@@ -295,26 +295,24 @@ class Container
 
     # Attach disk to container (ATTACH = YES) in VM description
     def attach_disk
-        disk_element = hotplug_disk
+        disk = hotplug_disk
 
-        raise 'Missing hotplug info' unless disk_element
+        return if @one.volatile?(disk)
 
-        return unless setup_disk(disk_element, 'map')
+        mapper = new_disk_mapper(disk, @one.disk_mountpoint(disk['DISK_ID']))
+        mapper.public_send(operation)
 
-        disk_hash = @one.disk(disk_element, nil, nil)
-
-        @lxc['devices'].update(disk_hash)
-
+        @lxc['devices'].update(@one.disk(disk, nil, nil))
         update
+
         true
     end
 
     # Detach disk to container (ATTACH = YES) in VM description
     def detach_disk
-        disk_element = hotplug_disk
-        raise 'Missing hotplug info' unless disk_element
+        disk = hotplug_disk
 
-        disk_name = "disk#{disk_element['DISK_ID']}"
+        disk_name = "disk#{disk['DISK_ID']}"
 
         if !@lxc['devices'].key?(disk_name)
             OpenNebula.log_error "Failed to detect #{disk_name} on \
@@ -328,7 +326,7 @@ class Container
         @lxc['devices'].delete(disk_name)['source']
         update
 
-        mapper = new_disk_mapper(disk_element, mountpoint)
+        mapper = new_disk_mapper(disk, mountpoint)
         mapper.unmap
     end
 
@@ -424,7 +422,7 @@ class Container
             end
         when 'RBD'
             OpenNebula.log "Using rbd disk mapper for #{ds}"
-            RBDMapper.new(disk) # TODO: Fix
+            RBDMapper.new(@one, disk, directory)
         end
     end
 
@@ -432,18 +430,20 @@ class Container
     def hotplug_disk
         return unless @one
 
-        disk_a = @one.get_disks.select do |disk|
+        disk_a = @one.disks.select do |disk|
             disk['ATTACH'].casecmp('YES').zero?
         end
 
-        disk_a.first
+        disk = disk_a.first
+        raise 'Missing hotplug info' unless disk
+
+        disk
     end
 
     # Setup the disk by mapping/unmapping the disk device
     def setup_disk(disk, operation)
         return unless @one
 
-        # TODO: Don't check rootfsid when hotpluging
         if disk['DISK_ID'] == @one.rootfs_id
             mountpoint = @rootfs_dir
         else
