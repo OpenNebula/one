@@ -87,7 +87,7 @@ class Container
         def new_from_xml(one_xml, client)
             one = OpenNebulaVM.new(one_xml)
 
-            Container.new(one.to_lxc, one, client)
+            Container.new(one.to_lxd, one, client)
         end
 
         # Returns an array of container objects

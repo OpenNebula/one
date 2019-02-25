@@ -19,7 +19,6 @@ require 'yaml'
 # This class reads and holds configuration attributes for the LXD driver
 class LXDConfiguration < Hash
 
-    # TODO: Create lxdrc file from this hash to avoid duplicated config
     DEFAULT_CONFIGURATION = {
         :vnc => {
             :command => '/bin/login',
@@ -86,63 +85,27 @@ class OpenNebulaVM
         @vm_name && !@vm_name.include?('one-')
     end
 
-    # Returns a Hash representing the LXC configuration for this OpenNebulaVM
-    def to_lxc
-        lxc = {}
+    # Returns a Hash representing the LXD configuration for this OpenNebulaVM
+    def to_lxd
+        @lxd_config = {}
 
-        lxc['name'] = @vm_name
+        @lxd_config['name'] = @vm_name
+        @lxd_config['config'] = {}
+        @lxd_config['devices'] = {}
 
-        lxc['config']  = {}
-        lxc['devices'] = {}
+        profile
+        memory
+        cpu
+        extra_config
+        network
+        storage unless wild?
 
-        profile(lxc)
-        memory(lxc['config'])
-        cpu(lxc['config'])
-        extra_config(lxc['config'])
-        network(lxc['devices'])
-        storage(lxc['devices']) unless wild?
-
-        lxc
-    end
-
-    #---------------------------------------------------------------------------
-    # Container Attribute Mapping
-    #---------------------------------------------------------------------------
-    # Creates a dictionary for LXD containing $MEMORY RAM allocated
-    def memory(hash)
-        hash['limits.memory'] = "#{@xml['//TEMPLATE/MEMORY']}MB"
-    end
-
-    # Creates a dictionary for LXD  $CPU percentage and cores
-    def cpu(hash)
-        cpu = @xml['//TEMPLATE/CPU']
-        hash['limits.cpu.allowance'] = "#{(cpu.to_f * 100).to_i}%"
-
-        vcpu = @xml['//TEMPLATE/VCPU']
-        hash['limits.cpu'] = vcpu unless vcpu.empty?
+        @lxd_config
     end
 
     #---------------------------------------------------------------------------
     # Container Device Mapping: Networking
     #---------------------------------------------------------------------------
-    # Get nic by mac
-    def get_nic_by_mac(mac)
-        get_nics.each do |n|
-            return n if n['MAC'] == mac
-        end
-    end
-
-    def get_nics
-        @xml.elements('//TEMPLATE/NIC')
-    end
-
-    # Sets up the network interfaces configuration in devices
-    def network(hash)
-        get_nics.each do |n|
-            hash.update(nic(n))
-        end
-    end
-
     # Creates a nic hash from NIC xml root
     def nic(info)
         eth = {
@@ -164,82 +127,20 @@ class OpenNebulaVM
         { "eth#{info['NIC_ID']}" => eth }
     end
 
+    def nics
+        @xml.elements('//TEMPLATE/NIC')
+    end
+
+    # Get nic by mac
+    def get_nic_by_mac(mac)
+        nics.each do |n|
+            return n if n['MAC'] == mac
+        end
+    end
+
     #---------------------------------------------------------------------------
     # Container Device Mapping: Storage
     #---------------------------------------------------------------------------
-    # Get disk by target
-    def get_disk_by_target(value)
-        get_disk_by('TARGET', value)
-    end
-
-    # Get disk by id
-    def get_disk_by_id(value)
-        get_disk_by('DISK_ID', value)
-    end
-
-    # Get a disk depending on the filter xml key and the matching value
-    def get_disks_by(filter, value)
-        get_disks.each do |n|
-            return n if n[filter] == value
-        end
-    end
-
-    def context_disk
-        @xml.element('//TEMPLATE/CONTEXT')
-    end
-
-    def get_disks
-        @xml.elements('//TEMPLATE/DISK')
-    end
-
-    # Sets up the storage devices configuration in devices
-    def storage(hash)
-        disks = @xml.elements('//TEMPLATE/DISK')
-
-        disks.each do |n|
-            next if volatile?(n)
-
-            hash.update(disk(n, nil, nil))
-        end
-
-        context(hash)
-    end
-
-    # Generate Context information
-    # TODO: Remove argument
-    def context(hash)
-        return unless context?
-
-        hash['context'] = {
-            'type'   => 'disk',
-            'source' => context_mountpoint,
-            'path'   => '/context'
-        }
-    end
-
-    def context_mountpoint
-        disk_mountpoint(@xml['//TEMPLATE/CONTEXT/DISK_ID'])
-    end
-
-    def disk_mountpoint(disk_id)
-        datastore = @sysds_path
-        datastore = File.readlink(@sysds_path) if File.symlink?(@sysds_path)
-        "#{datastore}/#{@vm_id}/mapper/disk.#{disk_id}"
-    end
-
-    # @return [String] the canonical disk path for the given disk
-    def disk_source(disk)
-        disk_id = disk['DISK_ID']
-
-        if disk['TYPE'] == 'RBD'
-            src = disk['SOURCE']
-            return "#{src}-#{vm_id}-#{disk['DISK_ID']}" if disk['CLONE'] == 'YES'
-
-            return src
-        end
-
-        "#{@sysds_path}/#{@vm_id}/disk.#{disk_id}"
-    end
 
     # Creates a disk hash from DISK xml element
     def disk(info, source, path)
@@ -309,6 +210,39 @@ class OpenNebulaVM
         { disk_name => disk }
     end
 
+    def context_disk
+        @xml.element('//TEMPLATE/CONTEXT')
+    end
+
+    def disks
+        @xml.elements('//TEMPLATE/DISK')
+    end
+
+    def context_mountpoint
+        disk_mountpoint(@xml['//TEMPLATE/CONTEXT/DISK_ID'])
+    end
+
+    def disk_mountpoint(disk_id)
+        datastore = @sysds_path
+        datastore = File.readlink(@sysds_path) if File.symlink?(@sysds_path)
+        "#{datastore}/#{@vm_id}/mapper/disk.#{disk_id}"
+    end
+
+    # @return [String] the canonical disk path for the given disk
+    def disk_source(disk)
+        disk_id = disk['DISK_ID']
+
+        # Returns path on pool if rbd
+        if disk['TYPE'] == 'RBD'
+            src = disk['SOURCE']
+            return src unless disk['CLONE'] == 'YES'
+
+            return "#{src}-#{vm_id}-#{disk['DISK_ID']}"
+        end
+
+        "#{@sysds_path}/#{@vm_id}/disk.#{disk_id}"
+    end
+
     # Return true if disk if volatile
     def volatile?(disk)
         return false unless %w[fs swap].include? disk['TYPE']
@@ -319,61 +253,20 @@ class OpenNebulaVM
         true
     end
 
-    #---------------------------------------------------------------------------
-    # Container Mapping: Extra Configuration & Profiles
-    #---------------------------------------------------------------------------
-    def extra_config(hash)
-        security = {
-            'security.privileged' => 'false',
-            'security.nesting'    => 'false'
-        }
-
-        security.each_key do |key|
-            item  = "LXD_SECURITY_#{key.split('.').last.swapcase}"
-
-            value = @xml["//USER_TEMPLATE/#{item}"]
-            security[key] = value unless value.empty?
-        end
-
-        hash.merge!(security)
-
-        raw_data = {}
-
-        data = @xml['//TEMPLATE/RAW/DATA']
-        type = @xml['//TEMPLATE/RAW/TYPE']
-
-        if !data.empty? && type.casecmp('lxd').zero?
-            begin
-                raw_data = JSON.parse("{#{data}}")
-            rescue
-            end
-        end
-
-        hash.merge!(raw_data) unless raw_data.empty?
+    # Get disk by target
+    def get_disk_by_target(value)
+        get_disk_by('TARGET', value)
     end
 
-    def profile(hash)
-        profile = @xml['//USER_TEMPLATE/LXD_PROFILE']
-
-        if profile.empty?
-            profile = 'default'
-        else
-            begin
-                LXDClient.new.get("profiles/#{profile}")
-            rescue LXDError => e
-                raise e unless e.error_code == 404
-
-                OpenNebula.log_error "Profile \"#{profile}\" not found\n#{e}"
-                profile = 'default'
-            end
-        end
-
-        hash['profiles'] = [profile]
+    # Get disk by id
+    def get_disk_by_id(value)
+        get_disk_by('DISK_ID', value)
     end
 
-    def device_info(devices, key, filter)
-        devices.each do |device|
-            return device[key] if device[key].value?(filter)
+    # Get a disk depending on the filter xml key and the matching value
+    def get_disks_by(filter, value)
+        disks.each do |n|
+            return n if n[filter] == value
         end
     end
 
@@ -398,6 +291,111 @@ class OpenNebulaVM
     end
 
     private
+
+    #---------------------------------------------------------------------------
+    # Container Attribute Mapping
+    #---------------------------------------------------------------------------
+    # Creates a dictionary for LXD containing $MEMORY RAM allocated
+    def memory
+        @lxd_config['config']['limits.memory'] = "#{@xml['//TEMPLATE/MEMORY']}MB"
+    end
+
+    # Creates a dictionary for LXD $CPU percentage and cores
+    def cpu
+        cpu = @xml['//TEMPLATE/CPU']
+        @lxd_config['config']['limits.cpu.allowance'] = "#{(cpu.to_f * 100).to_i}%"
+
+        vcpu = @xml['//TEMPLATE/VCPU']
+        @lxd_config['config']['limits.cpu'] = vcpu unless vcpu.empty?
+    end
+
+    #---------------------------------------------------------------------------
+    # Container Device Mapping: Networking
+    #---------------------------------------------------------------------------
+    # Sets up the network interfaces configuration in devices
+    def network
+        nics.each do |n|
+            @lxd_config['devices'].update(nic(n))
+        end
+    end
+
+    #---------------------------------------------------------------------------
+    # Container Device Mapping: Storage
+    #---------------------------------------------------------------------------
+    # Sets up the storage devices configuration in devices
+    def storage
+        disks = @xml.elements('//TEMPLATE/DISK')
+
+        disks.each do |n|
+            next if volatile?(n)
+
+            @lxd_config['devices'].update(disk(n, nil, nil))
+        end
+
+        context
+    end
+
+    # Generate Context information
+    def context
+        return unless context?
+
+        @lxd_config['devices']['context'] = {
+            'type'   => 'disk',
+            'source' => context_mountpoint,
+            'path'   => '/context'
+        }
+    end
+
+    # Sets user defined profile if present, fallbacks to default profile
+    def profile
+        profile = @xml['//USER_TEMPLATE/LXD_PROFILE']
+
+        if profile.empty?
+            profile = 'default'
+        else
+            begin
+                LXDClient.new.get("profiles/#{profile}")
+            rescue LXDError => e
+                raise e unless e.error_code == 404
+
+                OpenNebula.log_error "Profile \"#{profile}\" not found\n#{e}"
+                profile = 'default'
+            end
+        end
+
+        @lxd_config['profiles'] = [profile]
+    end
+
+    def extra_config
+        security = {
+            'security.privileged' => 'false',
+            'security.nesting'    => 'false'
+        }
+
+        security.each_key do |key|
+            item  = "LXD_SECURITY_#{key.split('.').last.swapcase}"
+
+            value = @xml["//USER_TEMPLATE/#{item}"]
+            security[key] = value unless value.empty?
+        end
+
+        @lxd_config['config'].merge!(security)
+
+        raw_data = {}
+
+        data = @xml['//TEMPLATE/RAW/DATA']
+        type = @xml['//TEMPLATE/RAW/TYPE']
+
+        if !data.empty? && type.casecmp('lxd').zero?
+            begin
+                raw_data = JSON.parse("{#{data}}")
+            rescue => e
+                OpenNebula.log_error e
+            end
+        end
+
+        @lxd_config['config'].merge!(raw_data) unless raw_data.empty?
+    end
 
     # Maps IO limits from an OpenNebula VM configuration to a LXD configuration
     #   map: Hash that defines LXD name to OpenNebula name mapping
