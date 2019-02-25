@@ -311,9 +311,12 @@ class OpenNebulaVM
 
     # Return true if disk if volatile
     def volatile?(disk)
-        return true if %w[fs swap].include? disk['TYPE']
+        return false unless %w[fs swap].include? disk['TYPE']
 
-        false
+        e = "disk #{disk['DISK_ID']} type #{disk['TYPE']} not supported"
+        OpenNebula.log_error e
+
+        true
     end
 
     #---------------------------------------------------------------------------

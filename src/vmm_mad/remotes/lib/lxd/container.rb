@@ -40,8 +40,8 @@ class Container
     #---------------------------------------------------------------------------
     # Methods to access container attributes
     #---------------------------------------------------------------------------
-    CONTAINER_ATTRIBUTES = %w[name status status_code devices config profile
-                              expanded_config expanded_devices architecture].freeze
+    CONTAINER_ATTRIBUTES = %w[name devices architecture config profile
+                              expanded_config expanded_devices ].freeze
 
     CONTAINER_ATTRIBUTES.each do |attr|
         define_method(attr.to_sym) do
@@ -51,12 +51,6 @@ class Container
         define_method("#{attr}=".to_sym) do |value|
             @lxc[attr] = value
         end
-    end
-
-    # Return if this is a wild container. Needs the associated OpenNebulaVM
-    # description
-    def wild?
-        @one.wild? if @one
     end
 
     #---------------------------------------------------------------------------
@@ -123,7 +117,7 @@ class Container
     end
 
     #---------------------------------------------------------------------------
-    # Container Management & Monitor
+    # Container Management
     #---------------------------------------------------------------------------
     # Create a container without a base image
     def create(wait: true, timeout: '')
@@ -149,18 +143,9 @@ class Container
         wait?(@client.put("#{CONTAINERS}/#{name}", @lxc), wait, timeout)
     end
 
-    # Returns the container current state
-    def monitor
-        @client.get("#{CONTAINERS}/#{name}/state")
-    end
-
-    # Retreive metadata for the container
-    def get_metadata
-        @lxc = @client.get("#{CONTAINERS}/#{name}")['metadata']
-    end
-
     # Runs command inside container
     # @param command [String] to execute through lxc exec
+    # TODO: Use REST
     def exec(command)
         cmd = "#{LXC_COMMAND} exec #{@one.vm_name} -- #{command}"
         rc, o, e = Command.execute(cmd, true)
@@ -175,8 +160,73 @@ class Container
         [rc, o, e]
     end
 
+    # Start the svncterm server if it is down.
+    def vnc(signal)
+        command = @one.vnc_command(signal)
+        return if command.nil?
+
+        w = @one.lxdrc[:vnc][:width]
+        h = @one.lxdrc[:vnc][:height]
+        t = @one.lxdrc[:vnc][:timeout]
+
+        vnc_args = "-w #{w} -h #{h} -t #{t}"
+
+        pipe = '/tmp/svncterm_server_pipe'
+        bin  = 'svncterm_server'
+        server = "#{bin} #{vnc_args}"
+
+        rc, _o, e = Command.execute_once(server, true)
+
+        unless [nil, 0].include?(rc)
+            OpenNebula.log_error("#{__method__}: #{e}\nFailed to start vnc")
+            return
+        end
+
+        lfd = Command.lock
+
+        File.open(pipe, 'a') do |f|
+            f.write command
+        end
+    ensure
+        Command.unlock(lfd) if lfd
+    end
+
     #---------------------------------------------------------------------------
-    # Contianer Status Control
+    # Container Monitoring
+    #---------------------------------------------------------------------------
+    def running?
+        return true if status == 'Running'
+
+        false
+    end
+
+    def stopped?
+        return true if status == 'Stopped'
+
+        false
+    end
+
+    def status
+        monitor['metadata']['status'] if Container.exist?(@name, @client)
+    end
+
+    def status_code
+        monitor['metadata']['status_code']
+    end
+
+    # Returns the container live state
+    def monitor
+        @client.get("#{CONTAINERS}/#{name}/state")
+    end
+
+    # Return if this is a wild container. Needs the associated OpenNebulaVM
+    # description
+    def wild?
+        @one.wild? if @one
+    end
+
+    #---------------------------------------------------------------------------
+    # Container Status Control
     #---------------------------------------------------------------------------
     def start(options = {})
         change_state(__method__, options)
@@ -231,14 +281,9 @@ class Container
         return unless @one
 
         @one.get_disks.each do |disk|
-            if @one.volatile?(disk)
-                e = "disk #{disk['DISK_ID']} type #{disk['TYPE']} not supported"
-                OpenNebula.log_error e
-                next
-            end
+            next if setup_disk(disk, operation)
 
-            status = setup_disk(disk, operation)
-            return nil unless status
+            return nil
         end
 
         return true unless @one.context?
@@ -250,16 +295,43 @@ class Container
         context_mapper_do(operation)
     end
 
-    # Sets up the contextualization directory inside the container
-    def contextualize
-        context_path = "#{@rootfs_dir}/context"
-        create_context_dir = "#{Mapper::COMMANDS[:su_mkdir]} #{context_path}"
+    # Attach disk to container (ATTACH = YES) in VM description
+    def attach_disk
+        disk_element = hotplug_disk
 
-        rc, _o, e = Command.execute(create_context_dir, false)
+        raise 'Missing hotplug info' unless disk_element
 
-        return true if rc.zero?
+        return unless setup_disk(disk_element, 'map')
 
-        OpenNebula.log_error("#{__method__}: #{e}")
+        disk_hash = @one.disk(disk_element, nil, nil)
+
+        @lxc['devices'].update(disk_hash)
+
+        update
+        true
+    end
+
+    # Detach disk to container (ATTACH = YES) in VM description
+    def detach_disk
+        disk_element = hotplug_disk
+        raise 'Missing hotplug info' unless disk_element
+
+        disk_name = "disk#{disk_element['DISK_ID']}"
+
+        if !@lxc['devices'].key?(disk_name)
+            OpenNebula.log_error "Failed to detect #{disk_name} on \
+            container devices\n#{@lxc['devices']}"
+
+            return
+        end
+
+        mountpoint = @lxc['devices'][disk_name]['source'].clone
+
+        @lxc['devices'].delete(disk_name)['source']
+        update
+
+        mapper = new_disk_mapper(disk_element, mountpoint)
+        mapper.unmap
     end
 
     # Generate the context devices and maps the context the device
@@ -273,11 +345,6 @@ class Container
         true
     end
 
-    def context_mapper_do(operation)
-        mapper = FSRawMapper.new(@one, @one.context_disk, @one.context_mountpoint)
-        mapper.public_send(operation)
-    end
-
     # Removes the context section from the LXD configuration and unmap the
     # context device
     def detach_context
@@ -287,103 +354,6 @@ class Container
         update
 
         context_mapper_do('unmap')
-    end
-
-    # Attach disk to container (ATTACH = YES) in VM description
-    def attach_disk
-        disk_element = hotplug_disk
-
-        raise 'Missing hotplug info' unless disk_element
-
-        status = setup_disk(disk_element, 'map')
-        return unless status
-
-        disk_hash = @one.disk(disk_element, nil, nil)
-
-        @lxc['devices'].update(disk_hash)
-
-        update
-        true
-    end
-
-    # Detects disk being hotplugged
-    def hotplug_disk
-        return unless @one
-
-        disk_a = @one.get_disks.select do |disk|
-            disk['ATTACH'].casecmp('YES').zero?
-        end
-
-        disk_a.first
-    end
-
-    # Detach disk to container (ATTACH = YES) in VM description
-    def detach_disk
-        disk_element = hotplug_disk
-        return unless disk_element
-
-        disk_name = "disk#{disk_element['DISK_ID']}"
-
-        unless @lxc['devices'].key?(disk_name)
-            OpenNebula.log_error "Failed to detect #{disk_name} on \
-            container devices\n#{@lxc['devices']}"
-        end
-
-        csrc = @lxc['devices'][disk_name]['source'].clone
-
-        @lxc['devices'].delete(disk_name)['source']
-
-        update
-
-        mapper = new_disk_mapper(disk_element) # TODO: Fix
-        mapper.unmap(@one, disk_element, csrc) # TODO: Fix
-    end
-
-    # Setup the disk by mapping/unmapping the disk device
-    def setup_disk(disk, operation)
-        return unless @one
-
-        disk_id = disk['DISK_ID']
-
-        if disk_id == @one.rootfs_id
-            target = @rootfs_dir
-        else
-            target = @one.disk_mountpoint(disk_id)
-        end
-
-        mapper = new_disk_mapper(disk, target)
-        mapper.public_send(operation)
-    end
-
-    # Start the svncterm server if it is down.
-    def vnc(signal)
-        command = @one.vnc_command(signal)
-        return if command.nil?
-
-        w = @one.lxdrc[:vnc][:width]
-        h = @one.lxdrc[:vnc][:height]
-        t = @one.lxdrc[:vnc][:timeout]
-
-        vnc_args = "-w #{w} -h #{h} -t #{t}"
-
-        pipe = '/tmp/svncterm_server_pipe'
-        bin  = 'svncterm_server'
-        server = "#{bin} #{vnc_args}"
-
-        rc, _o, e = Command.execute_once(server, true)
-
-        unless [nil, 0].include?(rc)
-            OpenNebula.log_error("#{__method__}: #{e}\nFailed to start vnc")
-            return
-        end
-
-        lfd = Command.lock
-
-        File.open(pipe, 'a') do |f|
-            f.write command
-        end
-    ensure
-        Command.unlock(lfd) if lfd
     end
 
     private
@@ -404,6 +374,11 @@ class Container
         @lxc = @client.get("#{CONTAINERS}/#{name}")['metadata']
 
         status
+    end
+
+    # Retreive metadata for the container
+    def metadata
+        @lxc = @client.get("#{CONTAINERS}/#{name}")['metadata']
     end
 
     # Returns a mapper for the disk
@@ -443,6 +418,51 @@ class Container
             OpenNebula.log "Using rbd disk mapper for #{ds}"
             RBDMapper.new(disk) # TODO: Fix
         end
+    end
+
+    # Returns disk element being hotplugged
+    def hotplug_disk
+        return unless @one
+
+        disk_a = @one.get_disks.select do |disk|
+            disk['ATTACH'].casecmp('YES').zero?
+        end
+
+        disk_a.first
+    end
+
+    # Setup the disk by mapping/unmapping the disk device
+    def setup_disk(disk, operation)
+        return unless @one
+
+        # TODO: Don't check rootfsid when hotpluging
+        if disk['DISK_ID'] == @one.rootfs_id
+            mountpoint = @rootfs_dir
+        else
+            return if @one.volatile?(disk)
+
+            mountpoint = @one.disk_mountpoint(disk['DISK_ID'])
+        end
+
+        mapper = new_disk_mapper(disk, mountpoint)
+        mapper.public_send(operation)
+    end
+
+    def context_mapper_do(operation)
+        mapper = FSRawMapper.new(@one, @one.context_disk, @one.context_mountpoint)
+        mapper.public_send(operation)
+    end
+
+    # Sets up the contextualization directory inside the container
+    def contextualize
+        context_path = "#{@rootfs_dir}/context"
+        create_context_dir = "#{Mapper::COMMANDS[:su_mkdir]} #{context_path}"
+
+        rc, _o, e = Command.execute(create_context_dir, false)
+
+        return true if rc.zero?
+
+        OpenNebula.log_error("#{__method__}: #{e}")
     end
 
 end

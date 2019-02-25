@@ -26,17 +26,17 @@ require 'command'
 
 # Mappers class provides an interface to map devices into the host filesystem
 # This class uses an array of partitions as output by lsblk in JSON:
-#  [ 
+#  [
 #    {
-#     "name"   : "loop1p3", 
+#     "name"   : "loop1p3",
 #     "path"   : "/dev/mapper/loop1p3",
 #     "type"   : "part",
-#     "fstype" : "..", 
-#     "label"  : null, 
-#     "uuid"   : null, 
-#     "fsavail": "...M", 
-#     "fsuse%" : "..%", 
-#     "mountpoint":"/boot" 
+#     "fstype" : "..",
+#     "label"  : null,
+#     "uuid"   : null,
+#     "fsavail": "...M",
+#     "fsuse%" : "..%",
+#     "mountpoint":"/boot"
 #     },
 #     {
 #      ....
@@ -82,40 +82,13 @@ class Mapper
     end
 
     #---------------------------------------------------------------------------
-    # Interface to be implemented by specific mapper modules
-    #---------------------------------------------------------------------------
-
-    # Maps the disk to host devices
-    # @param onevm [OpenNebulaVM] with the VM description
-    # @param disk [XMLElement] with the disk data
-    # @param directory [String] where the disk has to be mounted
-    # @return [String] Name of the mapped device, empty in case of error.
-    #
-    # Errors should be log using OpenNebula driver functions
-    def do_map
-        OpenNebula.log_error("map function not implemented for #{self.class}")
-        nil
-    end
-
-    # Unmaps a previously mapped partition
-    # @param device [String] where the disk is mapped
-    # @param disk [XMLElement] with the disk data
-    # @param directory [String] where the disk has to be mounted
-    #
-    # @return nil
-    def do_unmap(_device)
-        OpenNebula.log_error("unmap function not implemented for #{self.class}")
-        nil
-    end
-
-    #---------------------------------------------------------------------------
     # Mapper Interface 'map' & 'unmap' methods
     #---------------------------------------------------------------------------
 
     # Maps a disk to a given directory
     # @param onevm [OpenNebulaVM] with the VM description
     # @param disk [XMLElement] with the disk data
-    # @param directory [String] Path to the directory where the disk has to be 
+    # @param directory [String] Path to the directory where the disk has to be
     # mounted. Example: /var/lib/one/datastores/100/3/mapper/disk.2
     #
     # @return true on success
@@ -195,7 +168,7 @@ class Mapper
 
     # Unmaps a disk from a given directory
     # @param disk [XMLElement] with the disk data
-    # @param directory [String] Path to the directory where the disk has to be 
+    # @param directory [String] Path to the directory where the disk has to be
     # mounted. Example: /var/lib/one/datastores/100/3/mapper/disk.2
     #
     # @return true on success
@@ -219,13 +192,15 @@ class Mapper
                 break
             end
 
-            d['children'].each {|c|
-                next unless c['mountpoint'] == real_path
+            if d['children']
+                d['children'].each {|c|
+                    next unless c['mountpoint'] == real_path
 
-                partitions = d['children']
-                device     = d['path']
-                break
-            } if d['children']
+                    partitions = d['children']
+                    device     = d['path']
+                    break
+                }
+            end
 
             break unless partitions.empty?
         }
@@ -250,14 +225,41 @@ class Mapper
     private
 
     #---------------------------------------------------------------------------
+    # Interface to be implemented by specific mapper modules
+    #---------------------------------------------------------------------------
+
+    # Maps the disk to host devices
+    # @param onevm [OpenNebulaVM] with the VM description
+    # @param disk [XMLElement] with the disk data
+    # @param directory [String] where the disk has to be mounted
+    # @return [String] Name of the mapped device, empty in case of error.
+    #
+    # Errors should be log using OpenNebula driver functions
+    def do_map
+        OpenNebula.log_error("map function not implemented for #{self.class}")
+        nil
+    end
+
+    # Unmaps a previously mapped partition
+    # @param device [String] where the disk is mapped
+    # @param disk [XMLElement] with the disk data
+    # @param directory [String] where the disk has to be mounted
+    #
+    # @return nil
+    def do_unmap(_device)
+        OpenNebula.log_error("unmap function not implemented for #{self.class}")
+        nil
+    end
+
+    #---------------------------------------------------------------------------
     # Methods to mount/umount partitions
     #---------------------------------------------------------------------------
 
     # Umounts partitions
     # @param partitions [Array] with partition device names
     def umount(partitions)
-        partitions.each { |p|
-            next if !p['mountpoint']
+        partitions.each {|p|
+            next unless p['mountpoint']
 
             return nil unless umount_dev(p['path'])
         }
@@ -362,10 +364,10 @@ class Mapper
         end
 
         # Fix for lsblk paths for version < 2.33
-        partitions.each { |p|
+        partitions.each {|p|
             lsblk_path(p)
 
-            p['children'].each { |q| lsblk_path(q) } if p['children']
+            p['children'].each {|q| lsblk_path(q) } if p['children']
         }
 
         partitions
@@ -428,7 +430,7 @@ class Mapper
     end
 
     def mkdir_safe(path)
-        if path =~ /.*\/rootfs/
+        if path =~ %r{.*/rootfs}
             cmd = COMMANDS[:su_mkdir]
         else
             cmd = COMMANDS[:mkdir]

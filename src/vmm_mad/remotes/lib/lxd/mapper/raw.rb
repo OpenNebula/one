@@ -26,7 +26,8 @@ require 'mapper'
 class FSRawMapper < Mapper
 
     def do_map
-        losetup('-f --show', @disk_src)
+        @device = losetup('-f --show', @disk_src)
+        @device
     end
 
     def do_unmap(device)

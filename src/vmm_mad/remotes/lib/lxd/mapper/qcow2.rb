@@ -20,6 +20,7 @@ $LOAD_PATH.unshift File.dirname(__FILE__)
 
 require 'mapper'
 
+# Qcow2 mappers backed by qemu-nbd
 class Qcow2Mapper < Mapper
 
     # Max number of block devices. This should be set to the parameter used
