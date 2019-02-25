@@ -93,13 +93,13 @@ class Mapper
     #
     # @return true on success
     def map
-        return true if mount_on?(@dir)
+        return true if self.class.mount_on?(@dir)
 
-        device = do_map
+        do_map
 
         OpenNebula.log_info "Mapping disk at #{@dir} using device #{device}"
 
-        return false unless device
+        return false unless @device
 
         partitions = lsblk(device)
 
@@ -116,16 +116,16 @@ class Mapper
         #-----------------------------------------------------------------------
         type = partitions[0]['type']
 
-        return mount_dev(device, @dir) unless %w[loop disk].include?(type)
+        return mount_dev(@device, @dir) unless %w[loop disk].include?(type)
 
         size     = @disk['SIZE'].to_i if @disk['SIZE']
         osize    = @disk['ORIGINAL_SIZE'].to_i if @disk['ORIGINAL_SIZE']
 
         # TODO: Osize is always < size after 1st resize during deployment
-        return mount_dev(device, @dir) unless size > osize
+        return mount_dev(@device, @dir) unless size > osize
 
         # Resize filesystem
-        cmd = "#{COMMANDS[:blkid]} -o export #{device}"
+        cmd = "#{COMMANDS[:blkid]} -o export #{@device}"
         _rc, o, _e = Command.execute(cmd, false)
 
         fs_type = ''
@@ -139,28 +139,28 @@ class Mapper
 
         rc = true
 
-        OpenNebula.log_info "Resizing filesystem #{fs_type} on #{device}"
+        OpenNebula.log_info "Resizing filesystem #{fs_type} on #{@device}"
 
         case fs_type
         when /xfs/
-            rc = mount_dev(device, @dir)
+            rc = mount_dev(@device, @dir)
             return false unless rc
 
             Command.execute("#{COMMANDS[:xfs_growfs]} -d #{@dir}", false)
         when /ext/
-            _rc, o, e = Command.execute("#{COMMANDS[:e2fsck]} -f -y #{device}", false)
+            _rc, o, e = Command.execute("#{COMMANDS[:e2fsck]} -f -y #{@device}", false)
 
             if o.empty?
-                err = "#{__method__}: failed to resize #{device}\n#{e}"
+                err = "#{__method__}: failed to resize #{@device}\n#{e}"
                 OpenNebula.log_error err
             else
-                Command.execute("#{COMMANDS[:resize2fs]} #{device}", false)
+                Command.execute("#{COMMANDS[:resize2fs]} #{@device}", false)
             end
 
-            rc = mount_dev(device, @dir)
+            rc = mount_dev(@device, @dir)
         else
             OpenNebula.log_info "Skipped filesystem #{fs_type} resize"
-            rc = mount_dev(device, @dir)
+            rc = mount_dev(@device, @dir)
         end
 
         rc
@@ -216,13 +216,13 @@ class Mapper
             return
         end
 
+        @device = device
+
         return unless umount(partitions)
-        return unless do_unmap(device)
+        return unless do_unmap
 
-        true
+        @device
     end
-
-    private
 
     #---------------------------------------------------------------------------
     # Interface to be implemented by specific mapper modules
@@ -426,7 +426,10 @@ class Mapper
             OpenNebula.log_error("#{__method__}: Mount detected in #{path}")
             return true
         end
-        false
+    # Force update of the device partition tables
+    def update_partable
+        cmd = "#{COMMANDS[:mount]} --fake #{@device} /mnt"
+        Command.execute(cmd, false)
     end
 
     def mkdir_safe(path)

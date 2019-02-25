@@ -133,6 +133,7 @@ class LXDClient
 
         response
     end
+
 end
 
 # Error used for raising LXDClient exception when response is error return value

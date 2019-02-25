@@ -33,11 +33,11 @@ class RBDMapper < Mapper
 
         update_partable
 
-        @device
+        true
     end
 
-    def do_unmap(device)
-        rbd('unmap', device)
+    def do_unmap
+        rbd('unmap', @device)
     end
 
     private

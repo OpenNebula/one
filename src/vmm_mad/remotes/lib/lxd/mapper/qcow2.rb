@@ -38,17 +38,17 @@ class Qcow2Mapper < Mapper
         update_partable
         xenial_patch # TODO: Drop in xenial EOL
 
-        @device
+        true
     end
 
-    def do_unmap(device)
+    def do_unmap
         # After mapping and unmapping a qcow2 disk the next mapped qcow2
         # may collide with the previous one. The use of kpartx before unmapping
         # seems to prevent this behavior on the nbd module used with
         # the kernel versions in ubuntu 16.04
 
-        hide_parts(device) if parts_on?(device) # TODO: Drop in xenial EOL
-        nbd('-d', device)
+        hide_parts(@device) if parts_on?(@device) # TODO: Drop in xenial EOL
+        nbd('-d', @device)
     end
 
     private

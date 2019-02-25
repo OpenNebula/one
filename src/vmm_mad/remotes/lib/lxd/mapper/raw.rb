@@ -27,11 +27,11 @@ class FSRawMapper < Mapper
 
     def do_map
         @device = losetup('-f --show', @disk_src)
-        @device
+        true
     end
 
-    def do_unmap(device)
-        losetup('-d', device)
+    def do_unmap
+        losetup('-d', @device)
     end
 
     private
@@ -70,7 +70,7 @@ class DiskRawMapper < Mapper
     end
 
     # Unmaps all devices and loops with kpartx using the source file
-    def do_unmap(_disksource)
+    def do_unmap
         hide_parts(@disk_src)
     end
 
