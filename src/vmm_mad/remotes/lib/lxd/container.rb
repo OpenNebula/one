@@ -203,11 +203,11 @@ class Container
     #---------------------------------------------------------------------------
 
     def running?
-        status_ask('running')
+        status_ask('Running')
     end
 
     def stopped?
-        status_ask('stopped')
+        status_ask('Stopped')
     end
 
     def status
@@ -377,7 +377,7 @@ class Container
     end
 
     def status_ask(state)
-        return true if status == state.capitalize
+        return true if status == state
 
         false
     end
