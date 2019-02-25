@@ -162,7 +162,7 @@ class Container
         [rc, o, e]
     end
 
-    # Start the svncterm server if it is down.
+    # Sets up the container vnc connection
     def vnc(signal)
         command = @one.vnc_command(signal)
         return if command.nil?
@@ -193,38 +193,35 @@ class Container
         Command.unlock(lfd) if lfd
     end
 
+    # Return if this is a wild container. Needs the associated OpenNebulaVM
+    # description
+    def wild?
+        @one.wild? if @one
+    end
+
     #---------------------------------------------------------------------------
     # Container Monitoring
     #---------------------------------------------------------------------------
-    def running?
-        return true if status == 'Running'
 
-        false
+    def running?
+        status_ask('running')
     end
 
     def stopped?
-        return true if status == 'Stopped'
-
-        false
+        status_ask('stopped')
     end
 
     def status
-        monitor['metadata']['status'] if Container.exist?(@name, @client)
+        statuses('status')
     end
 
     def status_code
-        monitor['metadata']['status_code']
+        statuses('status_code')
     end
 
     # Returns the container live state
     def monitor
         @client.get("#{CONTAINERS}/#{name}/state")
-    end
-
-    # Return if this is a wild container. Needs the associated OpenNebulaVM
-    # description
-    def wild?
-        @one.wild? if @one
     end
 
     #---------------------------------------------------------------------------
@@ -376,6 +373,16 @@ class Container
         update_info
 
         status
+    end
+
+    def statuses(key)
+        monitor['metadata'][key] if Container.exist?(name, @client)
+    end
+
+    def status_ask(state)
+        return true if status == state.capitalize
+
+        false
     end
 
     # Sets the LXD container query output to container object attributes

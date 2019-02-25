@@ -63,8 +63,8 @@ else
     raise 'Fail setting container storage' unless container.setup_storage('map')
 
     begin
-        operation = container.start
-        raise operation unless container.running?
+        container.start
+        raise container.monitor unless container.running?
     rescue LXDError => exception
         if container.setup_storage('unmap')
             container.delete
