@@ -310,7 +310,7 @@ class Mapper
     #
     # @return true on success
     def mount_dev(dev, path)
-        return true if mount_on?(dev)
+        return true if self.class.mount_on?(path)
 
         OpenNebula.log_info "Mounting #{dev} at #{path}"
 
