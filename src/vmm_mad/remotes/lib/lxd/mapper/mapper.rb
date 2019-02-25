@@ -246,7 +246,7 @@ class Mapper
     # @param directory [String] where the disk has to be mounted
     #
     # @return nil
-    def do_unmap(_device)
+    def do_unmap
         OpenNebula.log_error("unmap function not implemented for #{self.class}")
         nil
     end
@@ -316,14 +316,13 @@ class Mapper
 
         mkdir_safe(path)
 
-        rc, _out, err = Command.execute("#{COMMANDS[:mount]} #{dev} #{path}", true)
+        cmd = "#{COMMANDS[:mount]} #{dev} #{path}"
+        rc, _out, err = Command.execute(cmd, false)
 
-        if rc != 0
-            OpenNebula.log_error("mount_dev: #{err}")
-            return false
-        end
+        return true if rc.zero?
 
-        true
+        OpenNebula.log_error("#{__method__}: #{err}")
+        nil
     end
 
     def umount_dev(dev)
@@ -333,7 +332,7 @@ class Mapper
 
         return true if rc.zero? || e.include?('not mounted')
 
-        OpenNebula.log_error("umount_dev: #{e}")
+        OpenNebula.log_error("#{__method__}: #{e}")
         nil
     end
 
@@ -423,12 +422,12 @@ class Mapper
         return true if partitions[0]['type'] == 'part'
 
         false
-        end
+    end
 
     # Force update of the device partition tables
     def update_partable
         cmd = "#{COMMANDS[:mount]} --fake #{@device} /mnt"
-        Command.execstageute(cmd, false)
+        Command.execute(cmd, false)
     end
 
     def mkdir_safe(path)
