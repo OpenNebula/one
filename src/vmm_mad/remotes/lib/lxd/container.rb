@@ -54,6 +54,11 @@ class Container
     end
 
     #---------------------------------------------------------------------------
+    # Status helpers names
+    #---------------------------------------------------------------------------
+    STATES = %w[running stopped]
+
+    #---------------------------------------------------------------------------
     # Class constructors & static methods
     #---------------------------------------------------------------------------
     # Creates the container object in memory.
@@ -202,20 +207,18 @@ class Container
     # Container Monitoring
     #---------------------------------------------------------------------------
 
-    def running?
-        status_ask('Running')
+    # Generates status and status code query methods
+    %w[status status_code].each do |key|
+        define_method(key.to_sym) do
+            statuses(key)
+        end
     end
 
-    def stopped?
-        status_ask('Stopped')
-    end
-
-    def status
-        statuses('status')
-    end
-
-    def status_code
-        statuses('status_code')
+    # Generates exact status helpers
+    STATES.each do |state|
+        define_method((state + '?').to_sym) do
+            status_ask(state.capitalize)
+        end
     end
 
     # Returns the container live state
