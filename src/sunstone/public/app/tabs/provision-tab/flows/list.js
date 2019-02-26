@@ -78,7 +78,6 @@ define(function(require) {
       "</div>");
 
     setTimeout( function(){
-      console.log("g");
       OpenNebula.Service.list({
         timeout: true,
         success: function (request, item_list){
