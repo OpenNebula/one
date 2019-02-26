@@ -254,11 +254,10 @@ class Mapper
     def self.mount_on?(path)
         _rc, out, _err = Command.execute("#{COMMANDS[:lsblk]} -J", false)
 
-        if out.include?(path)
+        return unless out.include?(path)
+
             OpenNebula.log_error("#{__method__}: Mount detected in #{path}")
-            return true
-        end
-        false
+        true
     end
 
     private
@@ -344,8 +343,8 @@ class Mapper
     # for host partitions
     # @return [Hash] with partitions
     def lsblk(device)
-        rc, o, e = Command.execute("#{COMMANDS[:lsblk]} -OJ #{device}", false)
-
+        cmd = "#{COMMANDS[:lsblk]} -OJ #{device}"
+        rc, o, e = Command.execute(cmd, false)
         if rc != 0 || o.empty?
             OpenNebula.log_error("lsblk: #{e}")
             return
@@ -370,7 +369,7 @@ class Mapper
                 }
             end
         rescue
-            OpenNebula.log_error("lsblk: error parsing lsblk -OJ #{device}")
+            OpenNebula.log_error("#{__method__}: error parsing #{cmd}")
             return
         end
 

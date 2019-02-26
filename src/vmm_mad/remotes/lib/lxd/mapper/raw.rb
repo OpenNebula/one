@@ -21,7 +21,7 @@ $LOAD_PATH.unshift File.dirname(__FILE__)
 require 'mapper'
 
 #-------------------------------------------------------------------------------
-# Implements the mapping of raw filesystems
+# Implements the mapping of raw filesystems using losetup
 #-------------------------------------------------------------------------------
 class FSRawMapper < Mapper
 
@@ -50,7 +50,7 @@ class FSRawMapper < Mapper
 end
 
 #-------------------------------------------------------------------------------
-# Implements the mapping of multiple partition raw disk images
+# Implements the mapping of multiple partition raw disk images using kpartx
 #-------------------------------------------------------------------------------
 class DiskRawMapper < Mapper
 
