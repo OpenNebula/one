@@ -32,6 +32,11 @@ def cast2one(param):
     :param param: the parameter to make nebula friendly
     :return: casted parameter
     '''
+    def is_nested_dict(dictionary):
+        for val in dictionary.values():
+            if isinstance(val, dict):
+                return True
+        return False
 
     if isinstance(param, IntEnum):
         # if the param is a constant we return its value
@@ -44,7 +49,7 @@ def cast2one(param):
         # if the dictionary is not empty
         if bool(param):
             root = list(param.values())[0]
-            if isinstance(root, dict):
+            if is_nested_dict(param):
                 # We return this dictionary as XML
                 return dicttoxml.dicttoxml(param, root=False, attr_type=False,
                                            cdata=True).decode('utf8')

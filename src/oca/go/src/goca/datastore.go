@@ -183,6 +183,7 @@ func (datastore *Datastore) Info() error {
 	if err != nil {
 		return err
 	}
+	*datastore = Datastore{}
 	return xml.Unmarshal([]byte(response.Body()), datastore)
 }
 

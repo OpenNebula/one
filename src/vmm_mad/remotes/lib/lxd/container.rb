@@ -139,6 +139,7 @@ class Container
         cmd = "#{Mapper::COMMANDS[:lsblk]} -J"
         _rc, o, _e = Command.execute(cmd, false)
 
+        # TODO: Add extra mounts to raise
         raise "Container rootfs still mounted \n#{o}" if o.include?(@rootfs_dir)
 
         wait?(@client.delete("#{CONTAINERS}/#{name}"), wait, timeout)
@@ -182,7 +183,7 @@ class Container
         change_state(__method__, options)
     end
 
-    def stop(options = {})
+    def stop(options = { :timeout => 120 })
         change_state(__method__, options)
     end
 
@@ -402,7 +403,7 @@ class Container
         options.update(:action => action)
 
         response = @client.put("#{CONTAINERS}/#{name}/state", options)
-        wait?(response, options[:wait], options[:timeout])
+        status = wait?(response, options[:wait], options[:timeout])
 
         @lxc = @client.get("#{CONTAINERS}/#{name}")['metadata']
 

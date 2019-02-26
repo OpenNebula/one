@@ -188,7 +188,7 @@ int Host::extract_ds_info(
     {
         ostringstream ess;
 
-        ess << "Error parsing host information: " << error_msg
+        ess << "Error parsing host " << oid << " information: " << error_msg
             << ". Monitoring information: " << endl << parse_str;
 
         NebulaLog::log("ONE", Log::ERROR, ess);

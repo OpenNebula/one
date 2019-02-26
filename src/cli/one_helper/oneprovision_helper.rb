@@ -105,27 +105,83 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     # Helper host functions
     #######################################################################
 
-    def hosts_operation(hosts, operation, options)
+    def host_operation(host, operation, options, args)
+        host = OneProvision::Host.new(host['ID'])
+
+        case operation[:operation]
+        when 'resume'
+            host.resume
+        when 'poweroff'
+            host.poweroff
+        when 'reboot'
+            host.reboot((options.key? :hard))
+        when 'delete'
+            host.delete
+        when 'configure'
+            host.configure((options.key? :force))
+        when 'ssh'
+            host.ssh(args)
+        end
+    end
+
+    #######################################################################
+    # Helper datastore functions
+    #######################################################################
+
+    def datastore_operation(datastore, operation)
+        case operation[:operation]
+        when 'delete'
+            msg = "Deleting datastore #{datastore['ID']}"
+
+            OneProvision::OneProvisionLogger.info(msg)
+
+            datastore.delete
+        end
+    end
+
+    #######################################################################
+    # Helper vnet functions
+    #######################################################################
+
+    def vnet_operation(vnet, operation)
+        case operation[:operation]
+        when 'delete'
+            msg = "Deleting vnet #{vnet['ID']}"
+
+            OneProvision::OneProvisionLogger.info(msg)
+
+            vnet.delete
+        end
+    end
+
+    #######################################################################
+    # Helper resource functions
+    #######################################################################
+
+    def resources_operation(args, operation, options, type)
         parse_options(options)
 
-        host_helper = OneHostHelper.new
-        host_helper.set_client(options)
-        host_helper.perform_actions(hosts,
-                                    options,
-                                    operation[:message]) do |host|
-            host = OneProvision::Host.new(host['ID'])
+        helper = nil
 
-            case operation[:operation]
-            when 'resume'
-                host.resume
-            when 'poweroff'
-                host.poweroff
-            when 'reboot'
-                host.reboot((options.key? :hard))
-            when 'delete'
-                host.delete
-            when 'configure'
-                host.configure((options.key? :force))
+        case type
+        when 'HOST'      then helper = OneHostHelper.new
+        when 'DATASTORE' then helper = OneDatastoreHelper.new
+        when 'VNET'      then helper = OneVNetHelper.new
+        end
+
+        objects = names_to_ids(args[0], type)
+
+        helper.set_client(options)
+        helper.perform_actions(objects,
+                               options,
+                               operation[:message]) do |obj|
+            case type
+            when 'HOST'      then host_operation(obj,
+                                                 operation,
+                                                 options,
+                                                 args[1])
+            when 'DATASTORE' then datastore_operation(obj, operation)
+            when 'VNET'      then vnet_operation(obj, operation)
             end
         end
     end
@@ -155,6 +211,14 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         clusters.each {|c| ids << c['TEMPLATE/PROVISION/PROVISION_ID'] }
 
         ids
+    end
+
+    def names_to_ids(objects, type)
+        objects = [objects].flatten.map do |obj|
+            OpenNebulaHelper.rname_to_id(obj.to_s, type)[1]
+        end
+
+        objects
     end
 
     def get_list(columns, provision_list)

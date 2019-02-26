@@ -9,10 +9,6 @@ var imageTpl = `
 NAME = "test-image"
 SIZE = 1
 TYPE = "DATABLOCK"
-DEV_PREFIX = "sd"
-DRIVER = "qcow2"
-PERSISTENT = "YES"
-TM_MAD = "ssh"
 `
 
 func ImageExpectState(image *Image, state string) func() bool {

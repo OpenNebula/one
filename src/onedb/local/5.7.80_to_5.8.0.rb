@@ -14,16 +14,30 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'set'
+require 'base64'
+require 'zlib'
+require 'pathname'
+require 'yaml'
+require 'opennebula'
+
+$LOAD_PATH << File.dirname(__FILE__)
+
+# OpenNebula DB migrator to 5.8
 module Migrator
+
+    include OpenNebula
+
     def db_version
-        "5.7.80"
+        '5.8.0'
     end
 
     def one_version
-        "OpenNebula 5.7.80"
+        'OpenNebula 5.8.0'
     end
 
     def up
-        return true
+        true
     end
+
 end

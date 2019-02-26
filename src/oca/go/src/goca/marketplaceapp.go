@@ -180,6 +180,7 @@ func (marketApp *MarketPlaceApp) Info() error {
 	if err != nil {
 		return err
 	}
+	*marketApp = MarketPlaceApp{}
 	return xml.Unmarshal([]byte(response.Body()), marketApp)
 }
 

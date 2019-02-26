@@ -144,6 +144,7 @@ func (template *Template) Info() error {
 	if err != nil {
 		return err
 	}
+	*template = Template{}
 	return xml.Unmarshal([]byte(response.Body()), template)
 }
 

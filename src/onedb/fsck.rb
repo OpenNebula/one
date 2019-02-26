@@ -53,7 +53,7 @@ require 'fsck/quotas'
 
 module OneDBFsck
     VERSION = "5.6.0"
-    LOCAL_VERSION = "5.7.80"
+    LOCAL_VERSION = "5.8.0"
 
     def db_version
         if defined?(@db_version) && @db_version

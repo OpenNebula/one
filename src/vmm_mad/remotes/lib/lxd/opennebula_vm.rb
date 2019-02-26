@@ -19,9 +19,10 @@ require 'yaml'
 # This class reads and holds configuration attributes for the LXD driver
 class LXDConfiguration < Hash
 
+    # TODO: Create lxdrc file from this hash to avoid duplicated config
     DEFAULT_CONFIGURATION = {
         :vnc => {
-            :command => '/bin/bash',
+            :command => '/bin/login',
             :width   => '800',
             :height  => '600',
             :timeout => '300'
@@ -183,7 +184,7 @@ class OpenNebulaVM
         end
     end
 
-    def get_context_disk()
+    def get_context_disk
         @xml.element('//TEMPLATE/CONTEXT')
     end
 
@@ -376,15 +377,16 @@ class OpenNebulaVM
     # Creates or closes a connection to a container rfb port depending on signal
     def vnc_command(signal)
         data = @xml.element('//TEMPLATE/GRAPHICS')
-        return unless data && data['PORT'] && data['TYPE'] && data['TYPE'].casecmp('vnc').zero?
+        return unless data && data['TYPE'].casecmp('vnc').zero?
 
         pass = data['PASSWD']
-        pass = '-' unless pass && !pass.empty?
+        pass = '-' if pass.empty?
 
         case signal
         when 'start'
-            # TODO: Allow to set vnc command on VM template
             command = @lxdrc[:vnc][:command]
+            command = data['COMMAND'] unless data['COMMAND'].empty?
+
             "#{data['PORT']} #{pass} lxc exec #{@vm_name} #{command}\n"
         when 'stop'
             "-#{data['PORT']}\n"

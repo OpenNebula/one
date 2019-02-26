@@ -7,20 +7,13 @@ import (
 
 // UserPool represents an OpenNebula UserPool
 type UserPool struct {
-	Users             []userBase `xml:"USER"`
+	Users             []User     `xml:"USER"`
 	Quotas            []quotas   `xml:"QUOTAS"`
 	DefaultUserQuotas quotasList `xml:"DEFAULT_USER_QUOTAS"`
 }
 
 // User represents an OpenNebula user
 type User struct {
-	userBase
-	quotasList
-	DefaultUserQuotas quotasList `xml:"DEFAULT_USER_QUOTAS"`
-}
-
-// User represents an OpenNebula User
-type userBase struct {
 	ID          uint         `xml:"ID"`
 	GID         int          `xml:"GID"`
 	GroupsID    []int        `xml:"GROUPS>ID"`
@@ -31,6 +24,10 @@ type userBase struct {
 	Enabled     int          `xml:"ENABLED"`
 	LoginTokens []loginToken `xml:"LOGIN_TOKEN"`
 	Template    userTemplate `xml:"TEMPLATE"`
+
+	// Variable part between one.userpool.info and one.user.info
+	quotasList
+	DefaultUserQuotas quotasList `xml:"DEFAULT_USER_QUOTAS"`
 }
 
 type userTemplate struct {
@@ -62,7 +59,7 @@ func NewUserPool() (*UserPool, error) {
 
 // NewUser finds a user object by ID. No connection to OpenNebula.
 func NewUser(id uint) *User {
-	return &User{userBase: userBase{ID: id}}
+	return &User{ID: id}
 }
 
 // NewUserFromName finds a user object by name. It connects to
@@ -180,5 +177,6 @@ func (user *User) Info() error {
 	if err != nil {
 		return err
 	}
+	*user = User{}
 	return xml.Unmarshal([]byte(response.Body()), user)
 }

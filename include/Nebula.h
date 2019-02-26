@@ -380,7 +380,7 @@ public:
      */
     static string local_db_version()
     {
-        return "5.7.80";
+        return "5.8.0";
     }
 
     /**
@@ -414,6 +414,11 @@ public:
     bool is_federation_slave()
     {
         return federation_enabled && !federation_master;
+    };
+
+    bool is_cache()
+    {
+        return cache;
     };
 
     int get_zone_id()
@@ -812,6 +817,7 @@ private:
 
     bool    federation_enabled;
     bool    federation_master;
+    bool    cache;
     int     zone_id;
     int     server_id;
     string  master_oned;

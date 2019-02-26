@@ -61,11 +61,13 @@ disk_id = img_path.split(".")[-1]
 begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
     vm        = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vmid)
-    disk      = vm.disk(disk_id)
     vmperst   = vm.instantiated_as_persistent?
 
+    vm.remove_all_snapshots if vm.has_snapshots?
+    disk      = vm.disk(disk_id)
+
     # Don't detach persistent disks if the VM has snapshots
-    if disk && disk.exists? && !vm.has_snapshots?
+    if disk && disk.exists?
         vm.one_item = one_vm
 
         # Do not detach persistent unmanaged disk, we need them for mark as a template
