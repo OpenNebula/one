@@ -15,26 +15,26 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Sunstone = require('sunstone');
-  var Notifier = require('utils/notifier');
-  var Locale = require('utils/locale');
-  var DataTable = require('./datatable');
-  var OpenNebulaResource = require('opennebula/network');
-  var OpenNebulaCluster = require('opennebula/cluster');
-  var OpenNebulaAction = require('opennebula/action');
-  var CommonActions = require('utils/common-actions');
+  var Sunstone = require("sunstone");
+  var Notifier = require("utils/notifier");
+  var Locale = require("utils/locale");
+  var DataTable = require("./datatable");
+  var OpenNebulaResource = require("opennebula/network");
+  var OpenNebulaCluster = require("opennebula/cluster");
+  var OpenNebulaAction = require("opennebula/action");
+  var CommonActions = require("utils/common-actions");
 
   var RESOURCE = "Network";
   var XML_ROOT = "VNET";
-  var TAB_ID = require('./tabId');
+  var TAB_ID = require("./tabId");
 
-  var INSTANTIATE_DIALOG_ID = require('./form-panels/instantiate/formPanelId');
-  var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
-  var ADD_AR_DIALOG_ID = require('./dialogs/add-ar/dialogId');
-  var UPDATE_AR_DIALOG_ID = require('./dialogs/update-ar/dialogId');
-  var RESERVE_DIALOG_ID = require('./dialogs/reserve/dialogId');
-  var IMPORT_DIALOG_ID = require('./form-panels/import/formPanelId');
-  var CLUSTERS_DIALOG_ID = require('utils/dialogs/clusters/dialogId');
+  var INSTANTIATE_DIALOG_ID = require("./form-panels/instantiate/formPanelId");
+  var CREATE_DIALOG_ID = require("./form-panels/create/formPanelId");
+  var ADD_AR_DIALOG_ID = require("./dialogs/add-ar/dialogId");
+  var UPDATE_AR_DIALOG_ID = require("./dialogs/update-ar/dialogId");
+  var RESERVE_DIALOG_ID = require("./dialogs/reserve/dialogId");
+  var IMPORT_DIALOG_ID = require("./form-panels/import/formPanelId");
+  var CLUSTERS_DIALOG_ID = require("utils/dialogs/clusters/dialogId");
 
   var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
     XML_ROOT, Locale.tr("Virtual Network created"));
@@ -46,21 +46,21 @@ define(function(require) {
     "Network.show" : _commonActions.show(),
     "Network.refresh" : _commonActions.refresh(),
     "Network.delete" : _commonActions.del(),
-    "Network.hold": _commonActions.singleAction('hold'),
-    "Network.release": _commonActions.singleAction('release'),
-    "Network.chown": _commonActions.multipleAction('chown'),
-    "Network.chgrp": _commonActions.multipleAction('chgrp'),
-    "Network.chmod": _commonActions.singleAction('chmod'),
-    "Network.rename": _commonActions.singleAction('rename'),
+    "Network.hold": _commonActions.singleAction("hold"),
+    "Network.release": _commonActions.singleAction("release"),
+    "Network.chown": _commonActions.multipleAction("chown"),
+    "Network.chgrp": _commonActions.multipleAction("chgrp"),
+    "Network.chmod": _commonActions.singleAction("chmod"),
+    "Network.rename": _commonActions.singleAction("rename"),
     "Network.update" : _commonActions.update(),
     "Network.update_template" : _commonActions.updateTemplate(),
     "Network.append_template" : _commonActions.appendTemplate(),
     "Network.update_dialog" : _commonActions.checkAndShowUpdate(),
     "Network.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
-    "Network.lockM": _commonActions.multipleAction('lock', false),
-    "Network.lockU": _commonActions.multipleAction('lock', false),
-    "Network.lockA": _commonActions.multipleAction('lock', false),
-    "Network.unlock": _commonActions.multipleAction('unlock', false),
+    "Network.lockM": _commonActions.multipleAction("lock", false),
+    "Network.lockU": _commonActions.multipleAction("lock", false),
+    "Network.lockA": _commonActions.multipleAction("lock", false),
+    "Network.unlock": _commonActions.multipleAction("unlock", false),
 
     "Network.import_dialog" : {
       type: "custom",
