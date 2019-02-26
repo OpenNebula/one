@@ -417,8 +417,8 @@ class Mapper
     end
 
     # Returns true if device has mapped partitions
-    def parts_on?(device)
-        partitions = lsblk(device)
+    def parts_on?
+        partitions = lsblk(@device)
         return true if partitions[0]['type'] == 'part'
 
         false
