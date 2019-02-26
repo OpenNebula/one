@@ -23,13 +23,8 @@ require 'mapper'
 # Qcow2 mappers backed by qemu-nbd
 class Qcow2Mapper < Mapper
 
-    # Max number of block devices. This should be set to the parameter used
-    # to load the nbd kernel module (default in kernel is 16)
-    NBDS_MAX = 256 # TODO: Read system config file
-
     def do_map
-        @device = nbd_device
-        return if device.empty?
+        return unless available_nbd
 
         nfs_patch
 
@@ -47,6 +42,12 @@ class Qcow2Mapper < Mapper
     end
 
     private
+
+    # Detects Max number of block devices
+    def nbd_devices
+        nbds = Dir.entries('/dev/').select {|dev| dev[/nbd/] }
+        nbds[0].split('nbd')[-1].to_i
+    end
 
     # nbd command handler
     def nbd(flags, arg)
@@ -75,7 +76,7 @@ class Qcow2Mapper < Mapper
     end
 
     # Returns the first available nbd device for ulter mapping
-    def nbd_device
+    def available_nbd
         sys_parts = lsblk('')
         nbds      = []
 
@@ -86,13 +87,16 @@ class Qcow2Mapper < Mapper
             nbds << m[1].to_i
         end
 
-        NBDS_MAX.times do |i|
-            return "/dev/nbd#{i}" unless nbds.include?(i)
+        nbd_devices.times do |i|
+            next if nbds.include?(i)
+
+            @device = "/dev/nbd#{i}"
+            return true
         end
 
         OpenNebula.log_error("#{__method__}: Cannot find free nbd device")
 
-        ''
+        nil
     end
 
     # Required to use if @disk_src comes from an NFS mount

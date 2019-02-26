@@ -52,6 +52,7 @@ class Mapper
     #   be tunned to specific paths. It contians the list of commands executed
     #   as root
     #---------------------------------------------------------------------------
+    # TODO: Create command based functions
     COMMANDS = {
         :lsblk      => 'sudo lsblk',
         # :su_lsblk   => 'sudo lsblk', # TODO: Replace
@@ -256,7 +257,7 @@ class Mapper
 
         return unless out.include?(path)
 
-            OpenNebula.log_error("#{__method__}: Mount detected in #{path}")
+        OpenNebula.log_error("#{__method__}: Mount detected in #{path}")
         true
     end
 
@@ -342,6 +343,7 @@ class Mapper
     # @param device [String] to get the partitions from. Use and empty string
     # for host partitions
     # @return [Hash] with partitions
+    # TODO: Rename
     def lsblk(device)
         cmd = "#{COMMANDS[:lsblk]} -OJ #{device}"
         rc, o, e = Command.execute(cmd, false)
