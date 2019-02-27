@@ -115,13 +115,17 @@ module OneProvision
                 instance.run_mode[:fail_choice] = :cleanup
             elsif options.key? :fail_retry
                 instance.run_mode[:fail_choice] = :retry
-                instance.run_mode[:max_retries] = options[:fail_retry].to_i
             elsif options.key? :fail_skip
                 instance.run_mode[:fail_choice] = :skip
             elsif options.key? :fail_quit
                 instance.run_mode[:fail_choice] = :quit
             else
                 instance.run_mode[:fail_choice] = FAIL_CHOICE_DEFAULT
+            end
+
+            if options[:fail_retry]
+                instance.run_mode[:max_retries] = options[:fail_retry].to_i
+            else
                 instance.run_mode[:max_retries] = MAX_RETRIES_DEFAULT
             end
 
