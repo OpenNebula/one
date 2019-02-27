@@ -121,7 +121,6 @@ define(function(require) {
       fill_provision_vms_datatable(datatable, data);
     } else {
       setTimeout(function() {
-        console.log("i");
           OpenNebula.VM.list({
             timeout: true,
             success: function (request, item_list) {
