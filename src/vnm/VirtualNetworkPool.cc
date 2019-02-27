@@ -146,6 +146,12 @@ int VirtualNetworkPool::allocate (
     {
         vn = get(*oid);
 
+        if (vn == 0)
+        {
+            error_str = "An error occurred while allocating the virtual network.";
+            goto error_common;
+        }
+
         if ( set_vlan_id(vn) != 0 )
         {
             error_str = "Cannot automatically assign VLAN_ID to network.";
@@ -165,6 +171,9 @@ error_duplicated:
     error_str = oss.str();
     
     delete vn;
+
+error_common:
+
     *oid = -1;
 
     return *oid;
