@@ -38,7 +38,13 @@ define(function (require) {
       var value = e.val().replace(/\s/g, "");
       e.val(value);
     };
-    var options_date_picker = {
+
+    var options_date_picker={
+      dateFormat: "yy-mm-dd",
+      minDate: new Date(),
+      showOptions: { direction: "down" }
+    };
+    var options_hour_picker = {
       title: Locale.tr("Hour"),
       twentyFour: "true",
       timeSeparator: ":",
@@ -56,7 +62,15 @@ define(function (require) {
       "actions": options,
       "res": that.res
     }));
-    schedule.find("#time_input",context).on("click",function(e){e.stopPropagation();}).wickedpicker(options_date_picker);
+
+    //input periodic scheduled date
+    schedule.find("#end_value_date",context).on("click",function(e){e.stopPropagation();$(".wickedpicker").hide();}).on("keypress",function(e){e.preventDefault(); return false;}).datepicker(options_date_picker);
+
+    //input date scheduled
+    schedule.find("#date_input",context).on("click",function(e){e.stopPropagation();$(".wickedpicker").hide();}).on("keypress",function(e){e.preventDefault(); return false;}).datepicker(options_date_picker);
+
+    schedule.find("#time_input",context).on("click",function(e){e.stopPropagation();}).wickedpicker(options_hour_picker);
+
     schedule.find("#relative_time", context).on("click", function (e) {
       $("#schedule_type", context).prop("checked", false);
       if ($(this).is(":checked")) {
@@ -85,10 +99,7 @@ define(function (require) {
     if (mm < 10) {
       mm = "0" + mm;
     }
-    today = yyyy + "-" + mm + "-" + dd;
-    $("#date_input", context).attr("min", today);
-    $("#date_input", context).attr("value", today);
-
+    $("#date_input", context).attr("value", yyyy + "-" + mm + "-" + dd);
     $(".periodic", context).hide();
 
     $("input#schedule_type", context).on("change", function () {
@@ -162,10 +173,10 @@ define(function (require) {
           if (mm < 10) {
             mm = "0" + mm;
           }
-          min = yyyy + "-" + mm + "-" + dd;
+          min = yyyy + "-" + mm + "-" + dd ;
           break;
       }
-      $("#end_value_" + value, context).attr("min", min);
+      $("#end_value_" + value, context).attr("value", min);
       $("#end_value_" + value, context).prop("disabled", false);
     });
 
@@ -292,7 +303,7 @@ define(function (require) {
             Notifier.notifyError("End date not defined.");
             return false;
           }
-          var time_value = end_date + " " + time_input_value;
+          var time_value = end_date + " 12:00";
           var epoch_str = new Date(time_value);
           end_value = parseInt(epoch_str.getTime()) / 1000;
         }
