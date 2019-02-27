@@ -124,7 +124,7 @@ extern "C" void * rm_action_loop(void *arg)
 /**
  *  Connection class is used to pass arguments to connection threads.
  */
-struct Connection 
+struct Connection
 {
     Connection(int c, ConnectionManager * cm):conn_fd(c), conn_manager(cm){};
 
@@ -154,7 +154,7 @@ extern "C" void * rm_do_connection(void *arg)
 };
 
 /**
- *  Connection Manager Thread waits for client connections and starts a new 
+ *  Connection Manager Thread waits for client connections and starts a new
  *  thread to handle the request.
  */
 extern "C" void * rm_xml_server_loop(void *arg)
@@ -196,12 +196,12 @@ extern "C" void * rm_xml_server_loop(void *arg)
 
         socklen_t addr_len = sizeof(struct sockaddr_storage);
 
-        int client_fd = accept(rm->socket_fd, (struct sockaddr*) &addr, 
+        int client_fd = accept(rm->socket_fd, (struct sockaddr*) &addr,
                 &addr_len);
 
         int nc = cm->add();
 
-        oss << "Number of active connections: " << nc; 
+        oss << "Number of active connections: " << nc;
 
         NebulaLog::log("ReM", Log::DDEBUG, oss);
 
@@ -294,7 +294,7 @@ int RequestManager::setup_socket()
 
     fcntl(socket_fd,F_SETFD,FD_CLOEXEC); // Close socket in MADs
 
-    rc = bind(socket_fd, result->ai_addr, result->ai_addrlen);
+    rc = ::bind(socket_fd, result->ai_addr, result->ai_addrlen);
 
     freeaddrinfo(result);
 
@@ -1209,4 +1209,3 @@ void RequestManager::register_xml_methods()
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
