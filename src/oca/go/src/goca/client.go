@@ -21,39 +21,11 @@ type OneConfig struct {
 	Endpoint string
 }
 
-// RPCCaller is the interface to satisfy in order to be usable by the controller
-type RPCCaller interface {
-	Call(method string, args ...interface{}) (*Response, error)
-	EndpointCall(url, method string, args ...interface{}) (*Response, error)
-}
-
 // Client is a basic XML-RPC client implementing RPCCaller
 type Client struct {
 	url        string
 	token      string
 	httpClient *http.Client
-}
-
-// Controller is the controller used to make requets on various entities
-type Controller struct {
-	Client RPCCaller
-}
-
-// entitiesController is a controller for entitites
-type entitiesController struct {
-	c *Controller
-}
-
-// entityController is a controller for an entity
-type entityController struct {
-	c  *Controller
-	ID uint
-}
-
-// entityControllerName is a controller for an entity
-type entityNameController struct {
-	c    *Controller
-	Name string
 }
 
 // Response contain raw data from an OpenNebula XML-RPC reponse
@@ -103,39 +75,13 @@ func NewConfig(user string, password string, endpoint string) OneConfig {
 	return config
 }
 
+// NewClient return a new basic one client
 func NewClient(conf OneConfig) *Client {
 	return &Client{
 		url:        conf.Endpoint,
 		token:      conf.Token,
 		httpClient: &http.Client{},
 	}
-}
-
-// NewClient return a new one client
-func NewController(c RPCCaller) *Controller {
-	return &Controller{
-		Client: c,
-	}
-}
-
-// SystemVersion returns the current OpenNebula Version
-func (c *Controller) SystemVersion() (string, error) {
-	response, err := c.Client.Call("one.system.version")
-	if err != nil {
-		return "", err
-	}
-
-	return response.Body(), nil
-}
-
-// SystemConfig returns the current OpenNebula config
-func (c *Controller) SystemConfig() (string, error) {
-	response, err := c.Client.Call("one.system.config")
-	if err != nil {
-		return "", err
-	}
-
-	return response.Body(), nil
 }
 
 // Call is an XML-RPC wrapper. It returns a pointer to response and an error.
