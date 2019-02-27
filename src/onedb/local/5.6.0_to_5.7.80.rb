@@ -313,46 +313,46 @@ module Migrator
                 xml.DEPLOY_ID body.root.xpath('DEPLOY_ID').text
                 xml.TEMPLATE {
                     xml.AUTOMATIC_REQUIREMENTS body.root.xpath('TEMPLATE/AUTOMATIC_REQUIREMENTS').text
-                    xml.AUTOMATIC_DS_REQUIREMENTS body.root.xpath('TEMPLATE/AUTOMATIC_DS_REQUIREMENTS').text
+                    xml.AUTOMATIC_DS_REQUIREMENTS body.root.xpath('TEMPLATE/AUTOMATIC_DS_REQUIREMENTS').text unless body.root.xpath('TEMPLATE/AUTOMATIC_DS_REQUIREMENTS').text.empty?
                     xml.CPU body.root.xpath('TEMPLATE/CPU').text
 
                     body.root.xpath('TEMPLATE//DISK').each do |disk|
                         xml.DISK {
-                            xml.DATASTORE disk.xpath('DATASTORE').text
-                            xml.DATASTORE_ID disk.xpath('DATASTORE_ID').text
-                            xml.DISK_ID disk.xpath('DISK_ID').text
-                            xml.IMAGE disk.xpath('IMAGE').text
-                            xml.IMAGE_ID disk.xpath('IMAGE_ID').text
-                            xml.SIZE disk.xpath('SIZE').text
-                            xml.TARGET disk.xpath('TARGET').text
-                            xml.TYPE disk.xpath('TYPE').text
-                            xml.CLONE disk.xpath('CLONE').text
-                            xml.CLONE_TARGET disk.xpath('CLONE_TARGET').text
-                            xml.LN_TARGET disk.xpath('LN_TARGET').text
-                            xml.DISK_SNAPSHOT_TOTAL_SIZE disk.xpath('DISK_SNAPSHOT_TOTAL_SIZE').text
+                            xml.DATASTORE disk.xpath('DATASTORE').text unless disk.xpath('DATASTORE').text.empty?
+                            xml.DATASTORE_ID disk.xpath('DATASTORE_ID').text unless disk.xpath('DATASTORE_ID').text.empty?
+                            xml.DISK_ID disk.xpath('DISK_ID').text unless disk.xpath('DISK_ID').text.empty?
+                            xml.IMAGE disk.xpath('IMAGE').text unless disk.xpath('IMAGE').text.empty?
+                            xml.IMAGE_ID disk.xpath('IMAGE_ID').text unless disk.xpath('IMAGE_ID').text.empty?
+                            xml.SIZE disk.xpath('SIZE').text unless disk.xpath('SIZE').text.empty?
+                            xml.TARGET disk.xpath('TARGET').text unless disk.xpath('TARGET').text.empty?
+                            xml.TYPE disk.xpath('TYPE').text unless disk.xpath('TYPE').text.empty?
+                            xml.CLONE disk.xpath('CLONE').text unless disk.xpath('CLONE').text.empty?
+                            xml.CLONE_TARGET disk.xpath('CLONE_TARGET').text unless disk.xpath('CLONE_TARGET').text.empty?
+                            xml.LN_TARGET disk.xpath('LN_TARGET').text unless disk.xpath('LN_TARGET').text.empty?
+                            xml.DISK_SNAPSHOT_TOTAL_SIZE disk.xpath('DISK_SNAPSHOT_TOTAL_SIZE').text unless disk.xpath('DISK_SNAPSHOT_TOTAL_SIZE').text.empty?
                         }
                     end
 
                     xml.GRAPHICS {
-                        xml.LISTEN body.root.xpath('TEMPLATE/GRAPHICS/LISTEN').text
-                        xml.PASSWD body.root.xpath('TEMPLATE/GRAPHICS/PASSWD').text
-                        xml.PORT body.root.xpath('TEMPLATE/GRAPHICS/PORT').text
-                        xml.RANDOM_PASSWD body.root.xpath('TEMPLATE/GRAPHICS/RANDOM_PASSWD').text
-                        xml.TYPE body.root.xpath('TEMPLATE/GRAPHICS/TYPE').text
-                    }
+                        xml.LISTEN body.root.xpath('TEMPLATE/GRAPHICS/LISTEN').text unless body.root.xpath('TEMPLATE/GRAPHICS/LISTEN').text.empty?
+                        xml.PASSWD body.root.xpath('TEMPLATE/GRAPHICS/PASSWD').text unless body.root.xpath('TTEMPLATE/GRAPHICS/PASSWD').text.empty?
+                        xml.PORT body.root.xpath('TEMPLATE/GRAPHICS/PORT').text unless body.root.xpath('TEMPLATE/GRAPHICS/PORT').text.empty?
+                        xml.RANDOM_PASSWD body.root.xpath('TEMPLATE/GRAPHICS/RANDOM_PASSWD').text unless body.root.xpath('TEMPLATE/GRAPHICS/RANDOM_PASSWD').text.empty?
+                        xml.TYPE body.root.xpath('TEMPLATE/GRAPHICS/TYPE').text unless body.root.xpath('TEMPLATE/GRAPHICS/TYPE').text.empty?
+                    } unless body.root.xpath('TEMPLATE/GRAPHICS').text.empty?
 
-                    xml.MEMORY body.root.xpath('TEMPLATE/MEMORY').text
+                    xml.MEMORY body.root.xpath('TEMPLATE/MEMORY').text unless body.root.xpath('TEMPLATE/MEMORY').text.empty?
 
                     body.root.xpath("TEMPLATE//NIC").each do |nic|
                         xml.NIC {
-                            xml.IP nic.xpath('IP').text
-                            xml.IP nic.xpath('IP6').text
-                            xml.IP nic.xpath('IP6_ULA').text
-                            xml.MAC nic.xpath('MAC').text
-                            xml.NETWORK nic.xpath('NETWORK').text
-                            xml.NETWORK_ID nic.xpath('NETWORK_ID').text
-                            xml.NIC_ID nic.xpath('NIC_ID').text
-                            xml.SECURITY_GROUPS nic.xpath('SECURITY_GROUPS').text
+                            xml.IP nic.xpath('IP').text unless nic.xpath('IP').text.empty?
+                            xml.IP6 nic.xpath('IP6').text unless nic.xpath('IP6').text.empty?
+                            xml.IP6_ULA nic.xpath('IP6_ULA').text unless nic.xpath('IP6_ULA').text.empty?
+                            xml.MAC nic.xpath('MAC').text unless nic.xpath('MAC').text.empty?
+                            xml.NETWORK nic.xpath('NETWORK').text unless nic.xpath('NETWORK').text.empty?
+                            xml.NETWORK_ID nic.xpath('NETWORK_ID').text unless nic.xpath('NETWORK_ID').text.empty?
+                            xml.NIC_ID nic.xpath('NIC_ID').text unless nic.xpath('NIC_ID').text.empty?
+                            xml.SECURITY_GROUPS nic.xpath('SECURITY_GROUPS').text unless nic.xpath('SECURITY_GROUPS').text.empty?
                         }
                     end
                 }

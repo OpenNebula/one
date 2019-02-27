@@ -38,6 +38,7 @@ define(function (require) {
       var value = e.val().replace(/\s/g, "");
       e.val(value);
     };
+
     var options_date_picker={
       dateFormat: "yy-mm-dd",
       minDate: new Date(),
@@ -69,6 +70,7 @@ define(function (require) {
     schedule.find("#date_input",context).on("click",function(e){e.stopPropagation();$(".wickedpicker").hide();}).on("keypress",function(e){e.preventDefault(); return false;}).datepicker(options_date_picker);
 
     schedule.find("#time_input",context).on("click",function(e){e.stopPropagation();}).wickedpicker(options_hour_picker);
+
     schedule.find("#relative_time", context).on("click", function (e) {
       $("#schedule_type", context).prop("checked", false);
       if ($(this).is(":checked")) {
