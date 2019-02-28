@@ -31,14 +31,17 @@ func TestVirtualRouter(t *testing.T){
 							"ATT2 = \"VAL2\""
 
 	//Create VirtualRouter
-	vr_id, err := CreateVirtualRouter(vr_template)
+	vr_id, err := testCtrl.VirtualRouters().Create(vr_template)
 
 	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
+		t.Fatalf("Test failed:\n" + err.Error())
 	}
 
-	vr = NewVirtualRouter(vr_id)
-	vr.Info()
+	vrC := testCtrl.VirtualRouter(vr_id)
+	vr, err = vrC.Info()
+	if err != nil {
+	    t.Errorf("Test failed:\n" + err.Error())
+	}
 
 	actual := vr.Name
 
@@ -49,13 +52,17 @@ func TestVirtualRouter(t *testing.T){
 	tmpl := "ATT3 = \"VAL3\""
 
 	//Update VirtualRouter
-	err = vr.Update(tmpl, 1)
+	err = vrC.Update(tmpl, 1)
 
 	if err != nil {
 	    t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	vr.Info()
+	vr, err = vrC.Info()
+	if err != nil {
+	    t.Errorf("Test failed:\n" + err.Error())
+	}
+
 
 	actual_1, err := vr.Template.Dynamic.GetContentByName("ATT1")
 	if err != nil {
@@ -76,13 +83,17 @@ func TestVirtualRouter(t *testing.T){
 	}
 
 	//Change permissions of VirtualRouter
-	err = vr.Chmod(1,1,1,1,1,1,1,1,1)
+	err = vrC.Chmod(1,1,1,1,1,1,1,1,1)
 
 	if err != nil {
 	    t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	vr.Info()
+	vr, err = vrC.Info()
+	if err != nil {
+	    t.Errorf("Test failed:\n" + err.Error())
+	}
+
 
 	expected_perm := Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1}
 	actual_perm := vr.Permissions
@@ -92,13 +103,16 @@ func TestVirtualRouter(t *testing.T){
 	}
 
 	//Change owner of VirtualRouter
-	err = vr.Chown(1,1)
+	err = vrC.Chown(1,1)
 
 	if err != nil {
 	    t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	vr.Info()
+	vr, err = vrC.Info()
+	if err != nil {
+	    t.Errorf("Test failed:\n" + err.Error())
+	}
 
 	expected_usr := 1
 	expected_grp := 1
@@ -116,13 +130,16 @@ func TestVirtualRouter(t *testing.T){
 	rename := vr_name + "-renamed"
 
 	//Rename VirtualRouter
-	err = vr.Rename(rename)
+	err = vrC.Rename(rename)
 
 	if err != nil {
 	    t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	vr.Info()
+	vr, err = vrC.Info()
+	if err != nil {
+	    t.Errorf("Test failed:\n" + err.Error())
+	}
 
 	actual = vr.Name
 
@@ -135,23 +152,25 @@ func TestVirtualRouter(t *testing.T){
 		   "VROUTER = YES\n"+
 		   "MEMORY = 64\n"
 
-	tmpl_id, err := CreateTemplate(tmpl)
-
+	tmpl_id, err := testCtrl.Templates().Create(tmpl)
 	if err != nil {
 	    t.Errorf("Test failed:\n" + err.Error())
 	}
 
 	//Instantiate VirtualRouter
-	vr.Instantiate(1, int(tmpl_id), "vr_test_go", false, "")
+	vrC.Instantiate(1, int(tmpl_id), "vr_test_go", false, "")
 
-	vm, err := NewVMFromName("vr_test_go")
-
+	id, err := testCtrl.VMs().ByName("vr_test_go")
 	if err != nil {
 	    t.Fatal("Test failed:\n" + err.Error())
 	}
 
-	vm.TerminateHard()
-	template := NewTemplate(tmpl_id)
+	err = testCtrl.VM(id).TerminateHard()
+	if err != nil {
+	    t.Fatal("Test failed:\n" + err.Error())
+	}
+
+	template := testCtrl.Template(tmpl_id)
 
 	template.Delete()
 
@@ -159,18 +178,21 @@ func TestVirtualRouter(t *testing.T){
 			   "BRIDGE = vbr0\n" +
 			   "VN_MAD = dummy\n"
 
-	vnet_id, _ := CreateVirtualNetwork(vn_tmpl, 0)
+	vnet_id, _ := testCtrl.VirtualNetworks().Create(vn_tmpl, 0)
 
 	nic_tmpl := "NIC = [ NETWORK=\"go-net\" ]"
 
 	//Attach nic to VirtualRouter
-	err = vr.AttachNic(nic_tmpl)
+	err = vrC.AttachNic(nic_tmpl)
 
 	if err != nil {
 	    t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	vr.Info()
+	vr, err = vrC.Info()
+	if err != nil {
+	    t.Errorf("Test failed:\n" + err.Error())
+	}
 
 	if len(vr.Template.NIC) == 0{
 		t.Errorf("Test failed, can't retrieve '%s', error: %s", "NIC", err.Error())
@@ -182,24 +204,28 @@ func TestVirtualRouter(t *testing.T){
 		}
 	}
 
-	vnet := NewVirtualNetwork(vnet_id)
-	vnet.Delete()
+	err = testCtrl.VirtualNetwork(vnet_id).Delete()
+	if err != nil {
+	    t.Errorf("Test failed:\n" + err.Error())
+	}
 
 	//Detach nic from VirtualRouter
-	err = vr.DetachNic(0)
-
+	err = vrC.DetachNic(0)
 	if err != nil {
 	    t.Errorf("Test failed:\n" + err.Error())
 	}
 
 	//LockAll for VirtualRouter
-	err = vr.LockAll()
+	err = vrC.LockAll()
 
 	if err != nil {
 	    t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	vr.Info()
+	vr, err = vrC.Info()
+	if err != nil {
+	    t.Errorf("Test failed:\n" + err.Error())
+	}
 
 	actualLock := vr.LockInfos
 	if actualLock == nil {
@@ -210,13 +236,16 @@ func TestVirtualRouter(t *testing.T){
 	}
 
 	//Unlock VirtualRouter
-	err = vr.Unlock()
+	err = vrC.Unlock()
 
 	if err != nil {
 	    t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	vr.Info()
+	vr, err = vrC.Info()
+	if err != nil {
+	    t.Errorf("Test failed:\n" + err.Error())
+	}
 
 	actualLock = vr.LockInfos
 	if actualLock != nil {
@@ -224,7 +253,7 @@ func TestVirtualRouter(t *testing.T){
 	}
 
 	//Delete VirtualRouter
-	err = vr.Delete()
+	err = vrC.Delete()
 
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())

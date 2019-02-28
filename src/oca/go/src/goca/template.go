@@ -21,6 +21,12 @@ import (
 	"errors"
 )
 
+// TemplatesController is a controller for a pool of template
+type TemplatesController entitiesController
+
+// TemplateController is a controller for Template entities
+type TemplateController entityController
+
 // TemplatePool represents an OpenNebula TemplatePool
 type TemplatePool struct {
 	Templates []Template `xml:"VMTEMPLATE"`
@@ -78,9 +84,46 @@ type templateOS struct {
 	Boot string `xml:"BOOT"`
 }
 
-// NewTemplatePool returns a template pool. A connection to OpenNebula is
+// Templates returns a Templates controller.
+func (c *Controller) Templates() *TemplatesController {
+	return &TemplatesController{c}
+}
+
+// Template returns a Template controller
+func (c *Controller) Template(id uint) *TemplateController {
+	return &TemplateController{c, id}
+}
+
+// ByName returns a Template by Name
+func (c *TemplatesController) ByName(name string, args ...int) (uint, error) {
+	var id uint
+
+	templatePool, err := c.Info(args...)
+	if err != nil {
+		return 0, err
+	}
+
+	match := false
+	for i := 0; i < len(templatePool.Templates); i++ {
+		if templatePool.Templates[i].Name != name {
+			continue
+		}
+		if match {
+			return 0, errors.New("multiple resources with that name")
+		}
+		id = templatePool.Templates[i].ID
+		match = true
+	}
+	if !match {
+		return 0, errors.New("resource not found")
+	}
+
+	return id, nil
+}
+
+// Info returns a template pool. A connection to OpenNebula is
 // performed.
-func NewTemplatePool(args ...int) (*TemplatePool, error) {
+func (tc *TemplatesController) Info(args ...int) (*TemplatePool, error) {
 	var who, start, end int
 
 	switch len(args) {
@@ -96,7 +139,7 @@ func NewTemplatePool(args ...int) (*TemplatePool, error) {
 		return nil, errors.New("Wrong number of arguments")
 	}
 
-	response, err := client.Call("one.templatepool.info", who, start, end)
+	response, err := tc.c.Client.Call("one.templatepool.info", who, start, end)
 	if err != nil {
 		return nil, err
 	}
@@ -110,43 +153,24 @@ func NewTemplatePool(args ...int) (*TemplatePool, error) {
 	return templatePool, nil
 }
 
-// NewTemplate finds a template object by ID. No connection to OpenNebula.
-func NewTemplate(id uint) *Template {
-	return &Template{ID: id}
-}
-
-// NewTemplateFromName finds a template object by name. It connects to
-// OpenNebula to retrieve the pool, but doesn't perform the Info() call to
-// retrieve the attributes of the template.
-func NewTemplateFromName(name string) (*Template, error) {
-	var id uint
-
-	templatePool, err := NewTemplatePool()
+// Info connects to OpenNebula and fetches the information of the Template
+func (tc *TemplateController) Info() (*Template, error) {
+	response, err := tc.c.Client.Call("one.template.info", tc.ID)
+	if err != nil {
+		return nil, err
+	}
+	template := &Template{}
+	err = xml.Unmarshal([]byte(response.Body()), template)
 	if err != nil {
 		return nil, err
 	}
 
-	match := false
-	for i := 0; i < len(templatePool.Templates); i++ {
-		if templatePool.Templates[i].Name != name {
-			continue
-		}
-		if match {
-			return nil, errors.New("multiple resources with that name")
-		}
-		id = templatePool.Templates[i].ID
-		match = true
-	}
-	if !match {
-		return nil, errors.New("resource not found")
-	}
-
-	return NewTemplate(id), nil
+	return template, nil
 }
 
-// CreateTemplate allocates a new template. It returns the new template ID.
-func CreateTemplate(template string) (uint, error) {
-	response, err := client.Call("one.template.allocate", template)
+// Create allocates a new template. It returns the new template ID.
+func (tc *TemplatesController) Create(template string) (uint, error) {
+	response, err := tc.c.Client.Call("one.template.allocate", template)
 	if err != nil {
 		return 0, err
 	}
@@ -154,52 +178,42 @@ func CreateTemplate(template string) (uint, error) {
 	return uint(response.BodyInt()), nil
 }
 
-// Info connects to OpenNebula and fetches the information of the Template
-func (template *Template) Info() error {
-	response, err := client.Call("one.template.info", template.ID)
-	if err != nil {
-		return err
-	}
-	*template = Template{}
-	return xml.Unmarshal([]byte(response.Body()), template)
-}
-
 // Update will modify the template. If appendTemplate is 0, it will
 // replace the whole template. If its 1, it will merge.
-func (template *Template) Update(tpl string, appendTemplate int) error {
-	_, err := client.Call("one.template.update", template.ID, tpl, appendTemplate)
+func (tc *TemplateController) Update(tpl string, appendTemplate int) error {
+	_, err := tc.c.Client.Call("one.template.update", tc.ID, tpl, appendTemplate)
 	return err
 }
 
 // Chown changes the owner/group of a template. If uid or gid is -1 it will not
 // change
-func (template *Template) Chown(uid, gid int) error {
-	_, err := client.Call("one.template.chown", template.ID, uid, gid)
+func (tc *TemplateController) Chown(uid, gid int) error {
+	_, err := tc.c.Client.Call("one.template.chown", tc.ID, uid, gid)
 	return err
 }
 
 // Chmod changes the permissions of a template. If any perm is -1 it will not
 // change
-func (template *Template) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
-	_, err := client.Call("one.template.chmod", template.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
+func (tc *TemplateController) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
+	_, err := tc.c.Client.Call("one.template.chmod", tc.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
 	return err
 }
 
 // Rename changes the name of template
-func (template *Template) Rename(newName string) error {
-	_, err := client.Call("one.template.rename", template.ID, newName)
+func (tc *TemplateController) Rename(newName string) error {
+	_, err := tc.c.Client.Call("one.template.rename", tc.ID, newName)
 	return err
 }
 
 // Delete will remove the template from OpenNebula.
-func (template *Template) Delete() error {
-	_, err := client.Call("one.template.delete", template.ID)
+func (tc *TemplateController) Delete() error {
+	_, err := tc.c.Client.Call("one.template.delete", tc.ID)
 	return err
 }
 
 // Instantiate will instantiate the template
-func (template *Template) Instantiate(name string, pending bool, extra string, clone bool) (uint, error) {
-	response, err := client.Call("one.template.instantiate", template.ID, name, pending, extra, clone)
+func (tc *TemplateController) Instantiate(name string, pending bool, extra string, clone bool) (uint, error) {
+	response, err := tc.c.Client.Call("one.template.instantiate", tc.ID, name, pending, extra, clone)
 
 	if err != nil {
 		return 0, err
@@ -210,7 +224,7 @@ func (template *Template) Instantiate(name string, pending bool, extra string, c
 
 // Clone an existing template. If recursive is true it will clone the template
 // plus any image defined in DISK. The new IMAGE_ID is set into each DISK.
-func (template *Template) Clone(name string, recursive bool) error {
-	_, err := client.Call("one.template.clone", template.ID, name, recursive)
+func (tc *TemplateController) Clone(name string, recursive bool) error {
+	_, err := tc.c.Client.Call("one.template.clone", tc.ID, name, recursive)
 	return err
 }

@@ -16,6 +16,7 @@
 
 package goca
 
+// Lock actions on a resources
 type Lock struct {
 	Locked int `xml:"LOCKED"`
 	Owner  int `xml:"OWNER"`

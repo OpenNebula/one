@@ -16,8 +16,7 @@
 
 package goca
 
-//import "fmt"
-
+// Permissions is associated to OpenNebula resources
 type Permissions struct {
 	OwnerU int `xml:"OWNER_U"`
 	OwnerM int `xml:"OWNER_M"`

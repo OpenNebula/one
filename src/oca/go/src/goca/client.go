@@ -27,44 +27,36 @@ import (
 	"github.com/kolo/xmlrpc"
 )
 
-var (
-	client *oneClient
-)
-
 // OneConfig contains the information to communicate with OpenNebula
 type OneConfig struct {
 	// Token is the authentication string. In the format of <user>:<password>
 	Token string
 
-	// XmlrpcURL contains OpenNebula's XML-RPC API endpoint. Defaults to
+	// Endpoint contains OpenNebula's XML-RPC API endpoint. Defaults to
 	// http://localhost:2633/RPC2
-	XmlrpcURL string
+	Endpoint string
 }
 
-type oneClient struct {
-	url               string
-	token             string
-	httpClient        *http.Client
+// Client is a basic XML-RPC client implementing RPCCaller
+type Client struct {
+	url        string
+	token      string
+	httpClient *http.Client
 }
 
-type response struct {
+type Response struct {
 	status  bool
 	body    string
 	bodyInt int
 }
 
-// Initializes the client variable, used as a singleton
-func init() {
-	SetClient(NewConfig("", "", ""))
-}
-
 // NewConfig returns a new OneConfig object with the specified user, password,
-// and xmlrpcURL
-func NewConfig(user string, password string, xmlrpcURL string) OneConfig {
+// and endpoint
+func NewConfig(user string, password string, endpoint string) OneConfig {
 	var authToken string
 	var oneAuthPath string
 
-	oneXmlrpc := xmlrpcURL
+	oneXmlrpc := endpoint
 
 	if user == "" && password == "" {
 		oneAuthPath = os.Getenv("ONE_AUTH")
@@ -90,49 +82,28 @@ func NewConfig(user string, password string, xmlrpcURL string) OneConfig {
 	}
 
 	config := OneConfig{
-		Token:     authToken,
-		XmlrpcURL: oneXmlrpc,
+		Token:    authToken,
+		Endpoint: oneXmlrpc,
 	}
 
 	return config
 }
 
-// SetClient assigns a value to the client variable
-func SetClient(conf OneConfig) {
-
-	client = &oneClient{
-		url:               conf.XmlrpcURL,
-		token:             conf.Token,
-		httpClient:        &http.Client{},
+// NewClient return a new basic one client
+func NewClient(conf OneConfig) *Client {
+	return &Client{
+		url:        conf.Endpoint,
+		token:      conf.Token,
+		httpClient: &http.Client{},
 	}
-}
-
-// SystemVersion returns the current OpenNebula Version
-func SystemVersion() (string, error) {
-	response, err := client.Call("one.system.version")
-	if err != nil {
-		return "", err
-	}
-
-	return response.Body(), nil
-}
-
-// SystemConfig returns the current OpenNebula config
-func SystemConfig() (string, error) {
-	response, err := client.Call("one.system.config")
-	if err != nil {
-		return "", err
-	}
-
-	return response.Body(), nil
 }
 
 // Call is an XML-RPC wrapper. It returns a pointer to response and an error.
-func (c *oneClient) Call(method string, args ...interface{}) (*response, error) {
-	return c.endpointCall(c.url, method, args...)
+func (c *Client) Call(method string, args ...interface{}) (*Response, error) {
+	return c.EndpointCall(c.url, method, args...)
 }
 
-func (c *oneClient) endpointCall(url string, method string, args ...interface{}) (*response, error) {
+func (c *Client) EndpointCall(url string, method string, args ...interface{}) (*Response, error) {
 	var (
 		ok bool
 
@@ -209,8 +180,8 @@ func (c *oneClient) endpointCall(url string, method string, args ...interface{})
 	if ok == false {
 		bodyInt, ok = result[1].(int64)
 		if ok == false {
-            return nil,
-                &ClientError{ClientRespONeParse, "index 1: int or string expected", resp, nil}
+			return nil,
+				&ClientError{ClientRespONeParse, "index 1: int or string expected", resp, nil}
 		}
 	}
 
@@ -227,17 +198,17 @@ func (c *oneClient) endpointCall(url string, method string, args ...interface{})
 		}
 	}
 
-	r := &response{status, body, int(bodyInt)}
+	r := &Response{status, body, int(bodyInt)}
 
 	return r, nil
 }
 
 // Body accesses the body of the response
-func (r *response) Body() string {
+func (r *Response) Body() string {
 	return r.body
 }
 
 // BodyInt accesses the body of the response, if it's an int.
-func (r *response) BodyInt() int {
+func (r *Response) BodyInt() int {
 	return r.bodyInt
 }

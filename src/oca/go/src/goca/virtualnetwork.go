@@ -21,6 +21,12 @@ import (
 	"errors"
 )
 
+// VirtualNetworksController is a controller for a pool of VirtualNetworks
+type VirtualNetworksController entitiesController
+
+// VirtualNetworkController is a controller for VirtualNetwork entities
+type VirtualNetworkController entityController
+
 // VirtualNetworkPool represents an OpenNebula VirtualNetworkPool
 type VirtualNetworkPool struct {
 	VirtualNetworks []VirtualNetwork `xml:"VNET"`
@@ -95,9 +101,45 @@ type lease struct {
 	VRouter   int    `xml:"VROUTER"`
 }
 
-// NewVirtualNetworkPool returns a virtualnetwork pool. A connection to OpenNebula is
-// performed.
-func NewVirtualNetworkPool(args ...int) (*VirtualNetworkPool, error) {
+// VirtualNetworks returns a VirtualNetworks controller
+func (c *Controller) VirtualNetworks() *VirtualNetworksController {
+	return &VirtualNetworksController{c}
+}
+
+// VirtualNetwork returns a VirtualNetwork controller
+func (c *Controller) VirtualNetwork(id uint) *VirtualNetworkController {
+	return &VirtualNetworkController{c, id}
+}
+
+// ByName returns a VirtualNetwork ID from name
+func (c *VirtualNetworksController) ByName(name string, args ...int) (uint, error) {
+	var id uint
+
+	virtualNetworkPool, err := c.Info(args...)
+	if err != nil {
+		return 0, err
+	}
+
+	match := false
+	for i := 0; i < len(virtualNetworkPool.VirtualNetworks); i++ {
+		if virtualNetworkPool.VirtualNetworks[i].Name != name {
+			continue
+		}
+		if match {
+			return 0, errors.New("multiple resources with that name")
+		}
+		id = virtualNetworkPool.VirtualNetworks[i].ID
+		match = true
+	}
+	if !match {
+		return 0, errors.New("resource not found")
+	}
+
+	return id, nil
+}
+
+// Info returns a virtualnetwork pool.
+func (vc *VirtualNetworksController) Info(args ...int) (*VirtualNetworkPool, error) {
 	var who, start, end int
 
 	switch len(args) {
@@ -117,7 +159,7 @@ func NewVirtualNetworkPool(args ...int) (*VirtualNetworkPool, error) {
 		return nil, errors.New("Wrong number of arguments")
 	}
 
-	response, err := client.Call("one.vnpool.info", who, start, end)
+	response, err := vc.c.Client.Call("one.vnpool.info", who, start, end)
 	if err != nil {
 		return nil, err
 	}
@@ -131,45 +173,25 @@ func NewVirtualNetworkPool(args ...int) (*VirtualNetworkPool, error) {
 	return vnPool, nil
 }
 
-// NewVirtualNetwork finds a virtualnetwork object by ID. No connection to OpenNebula.
-func NewVirtualNetwork(id uint) *VirtualNetwork {
-	return &VirtualNetwork{ID: id}
-}
-
-// NewVirtualNetworkFromName finds a virtualnetwork object by name. It connects to
-// OpenNebula to retrieve the pool, but doesn't perform the Info() call to
-// retrieve the attributes of the virtualnetwork.
-func NewVirtualNetworkFromName(name string) (*VirtualNetwork, error) {
-	var id uint
-
-	virtualNetworkPool, err := NewVirtualNetworkPool()
+// Info retrieves information for the virtual network.
+func (vc *VirtualNetworkController) Info() (*VirtualNetwork, error) {
+	response, err := vc.c.Client.Call("one.vn.info", vc.ID)
 	if err != nil {
 		return nil, err
 	}
-
-	match := false
-	for i := 0; i < len(virtualNetworkPool.VirtualNetworks); i++ {
-		if virtualNetworkPool.VirtualNetworks[i].Name != name {
-			continue
-		}
-		if match {
-			return nil, errors.New("multiple resources with that name")
-		}
-		id = virtualNetworkPool.VirtualNetworks[i].ID
-		match = true
+	vn := &VirtualNetwork{}
+	err = xml.Unmarshal([]byte(response.Body()), vn)
+	if err != nil {
+		return nil, err
 	}
-	if !match {
-		return nil, errors.New("resource not found")
-	}
-
-	return NewVirtualNetwork(id), nil
+	return vn, nil
 }
 
-// CreateVirtualNetwork allocates a new virtualnetwork. It returns the new virtualnetwork ID.
+// Create allocates a new virtualnetwork. It returns the new virtualnetwork ID.
 // * tpl: template of the virtualnetwork
 // * clusterID: The cluster ID. If it is -1, the default one will be used.
-func CreateVirtualNetwork(tpl string, clusterID int) (uint, error) {
-	response, err := client.Call("one.vn.allocate", tpl, clusterID)
+func (vc *VirtualNetworksController) Create(tpl string, clusterID int) (uint, error) {
+	response, err := vc.c.Client.Call("one.vn.allocate", tpl, clusterID)
 	if err != nil {
 		return 0, err
 	}
@@ -178,65 +200,65 @@ func CreateVirtualNetwork(tpl string, clusterID int) (uint, error) {
 }
 
 // Delete deletes the given virtual network from the pool.
-func (vn *VirtualNetwork) Delete() error {
-	_, err := client.Call("one.vn.delete", vn.ID)
+func (vc *VirtualNetworkController) Delete() error {
+	_, err := vc.c.Client.Call("one.vn.delete", vc.ID)
 	return err
 }
 
 // AddAr adds address ranges to a virtual network.
 // * tpl: template of the address ranges to add. Syntax can be the usual attribute=value or XML
-func (vn *VirtualNetwork) AddAr(tpl string) error {
-	_, err := client.Call("one.vn.add_ar", vn.ID, tpl)
+func (vc *VirtualNetworkController) AddAr(tpl string) error {
+	_, err := vc.c.Client.Call("one.vn.add_ar", vc.ID, tpl)
 	return err
 }
 
 // RmAr removes an address range from a virtual network.
 // * arID: ID of the address range to remove.
-func (vn *VirtualNetwork) RmAr(arID int) error {
-	_, err := client.Call("one.vn.rm_ar", vn.ID, arID)
+func (vc *VirtualNetworkController) RmAr(arID int) error {
+	_, err := vc.c.Client.Call("one.vn.rm_ar", vc.ID, arID)
 	return err
 }
 
 // UpdateAr updates the attributes of an address range.
 // * tpl: template of the address ranges to update. Syntax can be the usual attribute=value or XML
-func (vn *VirtualNetwork) UpdateAr(tpl string) error {
-	_, err := client.Call("one.vn.update_ar", vn.ID, tpl)
+func (vc *VirtualNetworkController) UpdateAr(tpl string) error {
+	_, err := vc.c.Client.Call("one.vn.update_ar", vc.ID, tpl)
 	return err
 }
 
 // Reserve reserve network addresses.
 // * tpl: Template
-func (vn *VirtualNetwork) Reserve(tpl string) error {
-	_, err := client.Call("one.vn.reserve", vn.ID, tpl)
+func (vc *VirtualNetworkController) Reserve(tpl string) error {
+	_, err := vc.c.Client.Call("one.vn.reserve", vc.ID, tpl)
 	return err
 }
 
 // FreeAr frees a reserved address range from a virtual network.
 // * arID: ID of the address range to free.
-func (vn *VirtualNetwork) FreeAr(arID int) error {
-	_, err := client.Call("one.vn.free_ar", vn.ID, arID)
+func (vc *VirtualNetworkController) FreeAr(arID int) error {
+	_, err := vc.c.Client.Call("one.vn.free_ar", vc.ID, arID)
 	return err
 }
 
 // Hold holds a virtual network Lease as used.
 // * tpl: template of the lease to hold
-func (vn *VirtualNetwork) Hold(tpl string) error {
-	_, err := client.Call("one.vn.hold", vn.ID, tpl)
+func (vc *VirtualNetworkController) Hold(tpl string) error {
+	_, err := vc.c.Client.Call("one.vn.hold", vc.ID, tpl)
 	return err
 }
 
 // Release releases a virtual network Lease on hold.
 // * tpl: template of the lease to release
-func (vn *VirtualNetwork) Release(tpl string) error {
-	_, err := client.Call("one.vn.release", vn.ID, tpl)
+func (vc *VirtualNetworkController) Release(tpl string) error {
+	_, err := vc.c.Client.Call("one.vn.release", vc.ID, tpl)
 	return err
 }
 
 // Update replaces the virtual network template contents.
 // * tpl: The new template contents. Syntax can be the usual attribute=value or XML.
 // * appendTemplate: Update type: 0: Replace the whole template. 1: Merge new template with the existing one.
-func (vn *VirtualNetwork) Update(tpl string, appendTemplate int) error {
-	_, err := client.Call("one.vn.update", vn.ID, tpl, appendTemplate)
+func (vc *VirtualNetworkController) Update(tpl string, appendTemplate int) error {
+	_, err := vc.c.Client.Call("one.vn.update", vc.ID, tpl, appendTemplate)
 	return err
 }
 
@@ -250,32 +272,22 @@ func (vn *VirtualNetwork) Update(tpl string, appendTemplate int) error {
 // * ou: OTHER USE bit. If set to -1, it will not change.
 // * om: OTHER MANAGE bit. If set to -1, it will not change.
 // * oa: OTHER ADMIN bit. If set to -1, it will not change.
-func (vn *VirtualNetwork) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
-	_, err := client.Call("one.vn.chmod", vn.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
+func (vc *VirtualNetworkController) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
+	_, err := vc.c.Client.Call("one.vn.chmod", vc.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
 	return err
 }
 
 // Chown changes the ownership of a virtual network.
 // * userID: The User ID of the new owner. If set to -1, it will not change.
 // * groupID: The Group ID of the new group. If set to -1, it will not change.
-func (vn *VirtualNetwork) Chown(userID, groupID int) error {
-	_, err := client.Call("one.vn.chown", vn.ID, userID, groupID)
+func (vc *VirtualNetworkController) Chown(userID, groupID int) error {
+	_, err := vc.c.Client.Call("one.vn.chown", vc.ID, userID, groupID)
 	return err
 }
 
 // Rename renames a virtual network.
 // * newName: The new name.
-func (vn *VirtualNetwork) Rename(newName string) error {
-	_, err := client.Call("one.vn.rename", vn.ID, newName)
+func (vc *VirtualNetworkController) Rename(newName string) error {
+	_, err := vc.c.Client.Call("one.vn.rename", vc.ID, newName)
 	return err
-}
-
-// Info retrieves information for the virtual network.
-func (vn *VirtualNetwork) Info() error {
-	response, err := client.Call("one.vn.info", vn.ID)
-	if err != nil {
-		return err
-	}
-	*vn = VirtualNetwork{}
-	return xml.Unmarshal([]byte(response.Body()), vn)
 }

@@ -29,14 +29,17 @@ func TestSGAllocate(t *testing.T){
 							"ATT2 = \"VAL2\""
 
 	//Create SG
-	sg_id, err := CreateSecurityGroup(sg_template)
+	sg_id, err := testCtrl.SecurityGroups().Create(sg_template)
 
+	if err != nil {
+	    t.Fatalf("Test failed:\n" + err.Error())
+	}
+
+	sgC := testCtrl.SecurityGroup(sg_id)
+	sg, err = sgC.Info()
 	if err != nil {
 	    t.Errorf("Test failed:\n" + err.Error())
 	}
-
-	sg = NewSecurityGroup(sg_id)
-	sg.Info()
 
 	actual := sg.Name
 
@@ -47,13 +50,16 @@ func TestSGAllocate(t *testing.T){
 	tmpl := "ATT3 = \"VAL3\""
 
 	//Update SG
-	err = sg.Update(tmpl, 1)
+	err = sgC.Update(tmpl, 1)
 
 	if err != nil {
 	    t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	sg.Info()
+	sg, err = sgC.Info()
+	if err != nil {
+	    t.Errorf("Test failed:\n" + err.Error())
+	}
 
 	actual_1, err := sg.Template.Dynamic.GetContentByName("ATT1")
 	if err != nil {
@@ -76,14 +82,16 @@ func TestSGAllocate(t *testing.T){
 	clone_name := sg_name + "-cloned"
 
 	//Clone SG
-	clone_id, err := sg.Clone(clone_name)
+	clone_id, err := sgC.Clone(clone_name)
 
 	if err != nil {
 	    t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	clone := NewSecurityGroup(clone_id)
-	clone.Info()
+	clone, err := testCtrl.SecurityGroup(clone_id).Info()
+	if err != nil {
+	    t.Errorf("Test failed:\n" + err.Error())
+	}
 
 	actual = clone.Name
 
@@ -91,16 +99,19 @@ func TestSGAllocate(t *testing.T){
 		t.Errorf("Test failed, expected: '%s', got:  '%s'", clone_name, actual)
 	}
 
-	clone.Delete()
+	testCtrl.SecurityGroup(clone_id).Delete()
 
 	//Change permission of SG
-	err = sg.Chmod(1,1,1,1,1,1,1,1,1)
+	err = sgC.Chmod(1,1,1,1,1,1,1,1,1)
 
 	if err != nil {
 	    t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	sg.Info()
+	sg, err = sgC.Info()
+	if err != nil {
+	    t.Errorf("Test failed:\n" + err.Error())
+	}
 
 	expected_perm := Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1}
 	actual_perm := sg.Permissions
@@ -110,13 +121,16 @@ func TestSGAllocate(t *testing.T){
 	}
 
 	//Change owner of SG
-	err = sg.Chown(1,1)
+	err = sgC.Chown(1,1)
 
 	if err != nil {
 	    t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	sg.Info()
+	sg, err = sgC.Info()
+	if err != nil {
+	    t.Errorf("Test failed:\n" + err.Error())
+	}
 
 	expected_usr := 1
 	expected_grp := 1
@@ -133,13 +147,16 @@ func TestSGAllocate(t *testing.T){
 
 	//Rename SG
 	rename := sg_name + "-renamed"
-	err = sg.Rename(rename)
+	err = sgC.Rename(rename)
 
 	if err != nil {
 	    t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	sg.Info()
+	sg, err = sgC.Info()
+	if err != nil {
+	    t.Errorf("Test failed:\n" + err.Error())
+	}
 
 	actual = sg.Name
 
@@ -148,7 +165,7 @@ func TestSGAllocate(t *testing.T){
 	}
 
 	//Delete SG
-	err = sg.Delete()
+	err = sgC.Delete()
 
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())

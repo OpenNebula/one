@@ -40,9 +40,9 @@ type UnmatchedTag struct {
 // UnmatchedTagsMap store tags not handled by Unmarshal in a map, it should be labelled with `xml",any"`
 type unmatchedTagsMap map[string]string
 
-func (m *unmatchedTagsMap) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
-	if *m == nil {
-		*m = unmatchedTagsMap{}
+func (u *unmatchedTagsMap) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	if *u == nil {
+		*u = unmatchedTagsMap{}
 	}
 
 	e := UnmatchedTag{}
@@ -52,10 +52,10 @@ func (m *unmatchedTagsMap) UnmarshalXML(d *xml.Decoder, start xml.StartElement) 
 	}
 
 	// Fail the parsing of the whole xml
-	//if _, ok := (*m)[e.XMLName.Local]; ok {
+	//if _, ok := (*u)[e.XMLName.Local]; ok {
 	//	return fmt.Errorf("UnmatchedTagsMap: UnmarshalXML: Tag %s:  multiple entries with the same name", e.XMLName.Local)
 	//}
-	(*m)[e.XMLName.Local] = e.Content
+	(*u)[e.XMLName.Local] = e.Content
 
 	return nil
 }

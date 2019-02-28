@@ -21,6 +21,12 @@ import (
 	"errors"
 )
 
+// MarketPlacesController is a controller for a pool of MarketPlaces
+type MarketPlacesController entitiesController
+
+// MarketPlaceController is a controller for MarketPlace entities
+type MarketPlaceController entityController
+
 // MarketPlacePool represents an OpenNebula MarketPlacePool
 type MarketPlacePool struct {
 	MarketPlaces []MarketPlace `xml:"MARKETPLACE"`
@@ -49,9 +55,47 @@ type marketPlaceTemplate struct {
 	Dynamic unmatchedTagsSlice `xml:",any"`
 }
 
-// NewMarketPlacePool returns a marketplace pool. A connection to OpenNebula is
+// MarketPlaces returns a MarketPlaces controller
+func (c *Controller) MarketPlaces() *MarketPlacesController {
+	return &MarketPlacesController{c}
+}
+
+// MarketPlace return MarketPlace controller
+func (c *Controller) MarketPlace(id uint) *MarketPlaceController {
+	return &MarketPlaceController{c, id}
+}
+
+// ByName return MarketPlace ID from name
+func (c *MarketPlacesController) ByName(name string) (uint, error) {
+	var id uint
+
+	marketPool, err := c.Info()
+	if err != nil {
+		return 0, err
+	}
+
+	match := false
+	for i := 0; i < len(marketPool.MarketPlaces); i++ {
+		if marketPool.MarketPlaces[i].Name != name {
+			continue
+		}
+		if match {
+			return 0, errors.New("multiple resources with that name")
+		}
+		id = marketPool.MarketPlaces[i].ID
+		match = true
+	}
+	if !match {
+		return 0, errors.New("resource not found")
+	}
+
+	return id, nil
+
+}
+
+// Info returns a marketplace pool. A connection to OpenNebula is
 // performed.
-func NewMarketPlacePool(args ...int) (*MarketPlacePool, error) {
+func (mc *MarketPlacesController) Info(args ...int) (*MarketPlacePool, error) {
 	var who, start, end int
 
 	switch len(args) {
@@ -71,7 +115,7 @@ func NewMarketPlacePool(args ...int) (*MarketPlacePool, error) {
 		return nil, errors.New("Wrong number of arguments")
 	}
 
-    response, err := client.Call("one.marketpool.info", who, start, end)
+	response, err := mc.c.Client.Call("one.marketpool.info", who, start, end)
 	if err != nil {
 		return nil, err
 	}
@@ -85,44 +129,24 @@ func NewMarketPlacePool(args ...int) (*MarketPlacePool, error) {
 	return marketPool, nil
 }
 
-// NewMarketPlace finds a marketplace object by ID. No connection to OpenNebula.
-func NewMarketPlace(id uint) *MarketPlace {
-	return &MarketPlace{ID: id}
-}
-
-// NewMarketPlaceFromName finds a marketplace object by name. It connects to
-// OpenNebula to retrieve the pool, but doesn't perform the Info() call to
-// retrieve the attributes of the marketplace.
-func NewMarketPlaceFromName(name string) (*MarketPlace, error) {
-	var id uint
-
-	marketPool, err := NewMarketPlacePool()
+// Info retrieves information for the marketplace.
+func (mc *MarketPlaceController) Info() (*MarketPlace, error) {
+	response, err := mc.c.Client.Call("one.market.info", mc.ID)
 	if err != nil {
 		return nil, err
 	}
-
-	match := false
-	for i := 0; i < len(marketPool.MarketPlaces); i++ {
-		if marketPool.MarketPlaces[i].Name != name {
-			continue
-		}
-		if match {
-			return nil, errors.New("multiple resources with that name")
-		}
-		id = marketPool.MarketPlaces[i].ID
-		match = true
+	market := &MarketPlace{}
+	err = xml.Unmarshal([]byte(response.Body()), market)
+	if err != nil {
+		return nil, err
 	}
-	if !match {
-		return nil, errors.New("resource not found")
-	}
-
-	return NewMarketPlace(id), nil
+	return market, nil
 }
 
-// CreateMarketPlace allocates a new marketplace. It returns the new marketplace ID.
+// Create allocates a new marketplace. It returns the new marketplace ID.
 // * tpl: template of the marketplace
-func CreateMarketPlace(tpl string) (uint, error) {
-	response, err := client.Call("one.market.allocate", tpl)
+func (mc *MarketPlacesController) Create(tpl string) (uint, error) {
+	response, err := mc.c.Client.Call("one.market.allocate", tpl)
 	if err != nil {
 		return 0, err
 	}
@@ -131,16 +155,16 @@ func CreateMarketPlace(tpl string) (uint, error) {
 }
 
 // Delete deletes the given marketplace from the pool.
-func (market *MarketPlace) Delete() error {
-	_, err := client.Call("one.market.delete", market.ID)
+func (mc *MarketPlaceController) Delete() error {
+	_, err := mc.c.Client.Call("one.market.delete", mc.ID)
 	return err
 }
 
 // Update replaces the marketplace template contents.
 // * tpl: The new template contents. Syntax can be the usual attribute=value or XML.
 // * appendTemplate: Update type: 0: Replace the whole template. 1: Merge new template with the existing one.
-func (market *MarketPlace) Update(tpl string, appendTemplate int) error {
-	_, err := client.Call("one.market.update", market.ID, tpl, appendTemplate)
+func (mc *MarketPlaceController) Update(tpl string, appendTemplate int) error {
+	_, err := mc.c.Client.Call("one.market.update", mc.ID, tpl, appendTemplate)
 	return err
 }
 
@@ -154,32 +178,22 @@ func (market *MarketPlace) Update(tpl string, appendTemplate int) error {
 // * ou: OTHER USE bit. If set to -1, it will not change.
 // * om: OTHER MANAGE bit. If set to -1, it will not change.
 // * oa: OTHER ADMIN bit. If set to -1, it will not change.
-func (market *MarketPlace) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
-	_, err := client.Call("one.market.chmod", market.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
+func (mc *MarketPlaceController) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
+	_, err := mc.c.Client.Call("one.market.chmod", mc.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
 	return err
 }
 
 // Chown changes the ownership of a marketplace.
 // * userID: The User ID of the new owner. If set to -1, it will not change.
 // * groupID: The Group ID of the new group. If set to -1, it will not change.
-func (market *MarketPlace) Chown(userID, groupID int) error {
-	_, err := client.Call("one.market.chown", market.ID, userID, groupID)
+func (mc *MarketPlaceController) Chown(userID, groupID int) error {
+	_, err := mc.c.Client.Call("one.market.chown", mc.ID, userID, groupID)
 	return err
 }
 
 // Rename renames a marketplace.
 // * newName: The new name.
-func (market *MarketPlace) Rename(newName string) error {
-	_, err := client.Call("one.market.rename", market.ID, newName)
+func (mc *MarketPlaceController) Rename(newName string) error {
+	_, err := mc.c.Client.Call("one.market.rename", mc.ID, newName)
 	return err
-}
-
-// Info retrieves information for the marketplace.
-func (market *MarketPlace) Info() error {
-	response, err := client.Call("one.market.info", market.ID)
-	if err != nil {
-		return err
-	}
-	*market = MarketPlace{}
-	return xml.Unmarshal([]byte(response.Body()), market)
 }

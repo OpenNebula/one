@@ -22,6 +22,12 @@ import (
 	"fmt"
 )
 
+// HostsController is a controller for create an host or a pool of hosts
+type HostsController entitiesController
+
+// HostController is a controller for host entities
+type HostController entityController
+
 // HostPool represents an OpenNebula HostPool
 type HostPool struct {
 	Hosts []Host `xml:"HOST"`
@@ -116,14 +122,14 @@ const (
 	HostOffline
 )
 
-func (st HostState) isValid() bool {
-	if st >= HostInit && st <= HostOffline {
+func (s HostState) isValid() bool {
+	if s >= HostInit && s <= HostOffline {
 		return true
 	}
 	return false
 }
 
-func (st HostState) String() string {
+func (s HostState) String() string {
 	return [...]string{
 		"INIT",
 		"MONITORING_MONITORED",
@@ -134,13 +140,49 @@ func (st HostState) String() string {
 		"MONITORING_INIT",
 		"MONITORING_DISABLED",
 		"OFFLINE",
-	}[st]
+	}[s]
 }
 
-// NewHostPool returns a host pool. A connection to OpenNebula is
-// performed.
-func NewHostPool() (*HostPool, error) {
-	response, err := client.Call("one.hostpool.info")
+// Hosts returns a hosts controller.
+func (c *Controller) Hosts() *HostsController {
+	return &HostsController{c}
+}
+
+// Host return an host controller with an ID.
+func (c *Controller) Host(id uint) *HostController {
+	return &HostController{c, id}
+}
+
+// ByName finds a Host ID from name
+func (c *HostsController) ByName(name string) (uint, error) {
+	var id uint
+
+	hostPool, err := c.Info()
+	if err != nil {
+		return 0, err
+	}
+
+	match := false
+	for i := 0; i < len(hostPool.Hosts); i++ {
+		if hostPool.Hosts[i].Name != name {
+			continue
+		}
+		if match {
+			return 0, errors.New("multiple resources with that name")
+		}
+		id = hostPool.Hosts[i].ID
+		match = true
+	}
+	if !match {
+		return 0, errors.New("resource not found")
+	}
+	return id, nil
+}
+
+// Info returns a host pool. A connection to OpenNebula is
+// performed
+func (hc *HostsController) Info() (*HostPool, error) {
+	response, err := hc.c.Client.Call("one.hostpool.info")
 	if err != nil {
 		return nil, err
 	}
@@ -153,47 +195,27 @@ func NewHostPool() (*HostPool, error) {
 	return hostPool, nil
 }
 
-// NewHost finds a host object by ID. No connection to OpenNebula.
-func NewHost(id uint) *Host {
-	return &Host{ID: id}
-}
-
-// NewHostFromName finds a host object by name. It connects to
-// OpenNebula to retrieve the pool, but doesn't perform the Info() call to
-// retrieve the attributes of the host.
-func NewHostFromName(name string) (*Host, error) {
-	var id uint
-
-	hostPool, err := NewHostPool()
+// Info retrieves information for the host from ID
+func (hc *HostController) Info() (*Host, error) {
+	response, err := hc.c.Client.Call("one.host.info", hc.ID)
 	if err != nil {
 		return nil, err
 	}
-
-	match := false
-	for i := 0; i < len(hostPool.Hosts); i++ {
-		if hostPool.Hosts[i].Name != name {
-			continue
-		}
-		if match {
-			return nil, errors.New("multiple resources with that name")
-		}
-		id = hostPool.Hosts[i].ID
-		match = true
+	host := &Host{}
+	err = xml.Unmarshal([]byte(response.Body()), host)
+	if err != nil {
+		return nil, err
 	}
-	if !match {
-		return nil, errors.New("resource not found")
-	}
-
-	return NewHost(id), nil
+	return host, nil
 }
 
-// CreateHost allocates a new host. It returns the new host ID.
+// Create allocates a new host. It returns the new host ID.
 // * name: name of the host
 // * im: information driver for the host
 // * vm: virtualization driver for the host
 // * clusterID: The cluster ID. If it is -1, the default one will be used.
-func CreateHost(name, im, vm string, clusterID int) (uint, error) {
-	response, err := client.Call("one.host.allocate", name, im, vm, clusterID)
+func (hc *HostsController) Create(name, im, vm string, clusterID int) (uint, error) {
+	response, err := hc.c.Client.Call("one.host.allocate", name, im, vm, clusterID)
 	if err != nil {
 		return 0, err
 	}
@@ -202,50 +224,40 @@ func CreateHost(name, im, vm string, clusterID int) (uint, error) {
 }
 
 // Delete deletes the given host from the pool
-func (host *Host) Delete() error {
-	_, err := client.Call("one.host.delete", host.ID)
+func (hc *HostController) Delete() error {
+	_, err := hc.c.Client.Call("one.host.delete", hc.ID)
 	return err
 }
 
 // Status sets the status of the host
 // * status: 0: ENABLED, 1: DISABLED, 2: OFFLINE
-func (host *Host) Status(status int) error {
-	_, err := client.Call("one.host.status", host.ID, status)
+func (hc *HostController) Status(status int) error {
+	_, err := hc.c.Client.Call("one.host.status", hc.ID, status)
 	return err
 }
 
 // Update replaces the host’s template contents.
 // * tpl: The new template contents. Syntax can be the usual attribute=value or XML.
 // * appendTemplate: Update type: 0: Replace the whole template. 1: Merge new template with the existing one.
-func (host *Host) Update(tpl string, appendTemplate int) error {
-	_, err := client.Call("one.host.update", host.ID, tpl, appendTemplate)
+func (hc *HostController) Update(tpl string, appendTemplate int) error {
+	_, err := hc.c.Client.Call("one.host.update", hc.ID, tpl, appendTemplate)
 	return err
 }
 
 // Rename renames a host.
 // * newName: The new name.
-func (host *Host) Rename(newName string) error {
-	_, err := client.Call("one.host.rename", host.ID, newName)
+func (hc *HostController) Rename(newName string) error {
+	_, err := hc.c.Client.Call("one.host.rename", hc.ID, newName)
 	return err
 }
 
-// Info retrieves information for the host.
-func (host *Host) Info() error {
-	response, err := client.Call("one.host.info", host.ID)
-	if err != nil {
-		return err
-	}
-	*host = Host{}
-	return xml.Unmarshal([]byte(response.Body()), host)
-}
-
 // Monitoring returns the host monitoring records.
-func (host *Host) Monitoring() (string, error) {
-	monitor_data, err := client.Call("one.host.monitoring", host.ID)
+func (hc *HostController) Monitoring() (string, error) {
+	monitor_data, err := hc.c.Client.Call("one.host.monitoring", hc.ID)
 
-	if err != nil{
+	if err != nil {
 		return "", err
-	}else {
+	} else {
 		return monitor_data.Body(), err
 	}
 }

@@ -22,6 +22,12 @@ import (
 	"fmt"
 )
 
+// ZonesController is a controller for a pool of Zones
+type ZonesController entitiesController
+
+// ZoneController is a controller for Zone entities
+type ZoneController entityController
+
 // ZonePool represents an OpenNebula ZonePool
 type ZonePool struct {
 	ID         uint         `xml:"ZONE>ID"`
@@ -76,28 +82,50 @@ const (
 	ZoneServerRaftLeader = 3
 )
 
-func (st ZoneServerRaftState) isValid() bool {
-	if st >= ZoneServerRaftSolo && st <= ZoneServerRaftLeader {
+func (s ZoneServerRaftState) isValid() bool {
+	if s >= ZoneServerRaftSolo && s <= ZoneServerRaftLeader {
 		return true
 	}
 	return false
 }
 
-func (st ZoneServerRaftState) String() string {
+func (s ZoneServerRaftState) String() string {
 	return [...]string{
 		"SOLO",
 		"CANDIDATE",
 		"FOLLOWER",
 		"LEADER",
-	}[st]
+	}[s]
 }
 
-// NewZonePool returns a zone pool. A connection to OpenNebula is
+// Zones returns a Zones controller.
+func (c *Controller) Zones() *ZonesController {
+	return &ZonesController{c}
+}
 
-// NewZonePool returns a zone pool. A connection to OpenNebula is
+// Zone returns a Zone controller
+func (c *Controller) Zone(id uint) *ZoneController {
+	return &ZoneController{c, id}
+}
+
+// ByName returns a zone id from name
+func (c *ZonesController) ByName(name string) (uint, error) {
+	zonePool, err := c.Info()
+	if err != nil {
+		return 0, err
+	}
+
+	if zonePool.Name != name {
+		return 0, errors.New("resource not found")
+	}
+
+	return zonePool.ID, nil
+}
+
+// Info returns a zone pool. A connection to OpenNebula is
 // performed.
-func NewZonePool() (*ZonePool, error) {
-	response, err := client.Call("one.zonepool.info")
+func (zc *ZonesController) Info() (*ZonePool, error) {
+	response, err := zc.c.Client.Call("one.zonepool.info")
 	if err != nil {
 		return nil, err
 	}
@@ -111,33 +139,26 @@ func NewZonePool() (*ZonePool, error) {
 	return zonePool, err
 }
 
-// NewZone finds a zone object by ID. No connection to OpenNebula.
-func NewZone(id uint) *Zone {
-	return &Zone{ID: id}
-}
-
-// NewZoneFromName finds a zone object by name. It connects to
-// OpenNebula to retrieve the pool, but doesn't perform the Info() call to
-// retrieve the attributes of the zone.
-func NewZoneFromName(name string) (*Zone, error) {
-	zonePool, err := NewZonePool()
+// Info retrieves information for the zone.
+func (zc *ZoneController) Info() (*Zone, error) {
+	response, err := zc.c.Client.Call("one.zone.info", zc.ID)
 	if err != nil {
 		return nil, err
 	}
-
-	if zonePool.Name != name {
-		return nil, errors.New("resource not found")
+	zone := &Zone{}
+	err = xml.Unmarshal([]byte(response.Body()), zone)
+	if err != nil {
+		return nil, err
 	}
-
-	return NewZone(zonePool.ID), nil
+	return zone, nil
 }
 
-// CreateZone allocates a new zone. It returns the new zone ID.
+// Create allocates a new zone. It returns the new zc.ID.
 // * tpl:	A string containing the template of the ZONE. Syntax can be the usual
 //     attribute=value or XML.
 // * clusterID: The id of the cluster. If -1, the default one will be used
-func CreateZone(tpl string, clusterID int) (uint, error) {
-	response, err := client.Call("one.zone.allocate", tpl, clusterID)
+func (zc *ZonesController) Create(tpl string, clusterID int) (uint, error) {
+	response, err := zc.c.Client.Call("one.zone.allocate", tpl, clusterID)
 	if err != nil {
 		return 0, err
 	}
@@ -146,39 +167,29 @@ func CreateZone(tpl string, clusterID int) (uint, error) {
 }
 
 // Delete deletes the given zone from the pool.
-func (zone *Zone) Delete() error {
-	_, err := client.Call("one.zone.delete", zone.ID)
+func (zc *ZoneController) Delete() error {
+	_, err := zc.c.Client.Call("one.zone.delete", zc.ID)
 	return err
 }
 
 // Update replaces the zone template contents.
 // * tpl: The new template contents. Syntax can be the usual attribute=value or XML.
 // * appendTemplate: Update type: 0: Replace the whole template. 1: Merge new template with the existing one.
-func (zone *Zone) Update(tpl string, appendTemplate int) error {
-	_, err := client.Call("one.zone.update", zone.ID, tpl, appendTemplate)
+func (zc *ZoneController) Update(tpl string, appendTemplate int) error {
+	_, err := zc.c.Client.Call("one.zone.update", zc.ID, tpl, appendTemplate)
 	return err
 }
 
 // Rename renames a zone.
 // * newName: The new name.
-func (zone *Zone) Rename(newName string) error {
-	_, err := client.Call("one.zone.rename", zone.ID, newName)
+func (zc *ZoneController) Rename(newName string) error {
+	_, err := zc.c.Client.Call("one.zone.rename", zc.ID, newName)
 	return err
 }
 
-// Info retrieves information for the zone.
-func (zone *Zone) Info() error {
-	response, err := client.Call("one.zone.info", zone.ID)
-	if err != nil {
-		return err
-	}
-	*zone = Zone{}
-	return xml.Unmarshal([]byte(response.Body()), zone)
-}
-
-//GetRaftStatus give the raft status of the server behind the current RPC endpoint. To get endpoints make an info call.
-func GetRaftStatus(serverUrl string) (*ZoneServerRaftStatus, error) {
-	response, err := client.endpointCall(serverUrl, "one.zone.raftstatus")
+// ServerRaftStatus give the raft status of the server behind the current RPC endpoint. To get endpoints make an info call.
+func (zc *ZonesController) ServerRaftStatus() (*ZoneServerRaftStatus, error) {
+	response, err := zc.c.Client.Call("one.zone.raftstatus")
 	if err != nil {
 		return nil, err
 	}

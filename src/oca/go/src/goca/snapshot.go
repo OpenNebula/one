@@ -29,7 +29,7 @@ type snapshot struct {
 	Size     int    `xml:"SIZE"`
 }
 
-// Image entity related
+// ImageSnapshot entity related
 type ImageSnapshot struct {
 	AllowOrphans string     `xml:"ALLOW_ORPHANS"`
 	CurrentBase  int        `xml:"CURRENT_BASE"`
@@ -37,7 +37,7 @@ type ImageSnapshot struct {
 	Snapshots    []snapshot `xml:"SNAPSHOT"`
 }
 
-// VM entity related
+// VMSnapshot entity related
 type VMSnapshot struct {
 	HypervisorID string `xml:"HYPERVISOR_ID"`
 	Name         string `xml:"NAME"`

@@ -22,7 +22,7 @@ import (
 	"strings"
 )
 
-// TemplateBuilder represents an OpenNebula syntax template
+// TemplateBuilder represents an OpenNebula syntax template. There is no XML-RPC call done.
 type TemplateBuilder struct {
 	elements []TemplateBuilderElement
 }

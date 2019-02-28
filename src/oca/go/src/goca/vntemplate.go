@@ -23,6 +23,12 @@ import (
 	"errors"
 )
 
+// VNTemplatesController is a controller for a pool of VNTemplate
+type VNTemplatesController entitiesController
+
+// VNTemplateController is a controller for VNTemplate entities
+type VNTemplateController entityController
+
 // VNTemplatePool represents an OpenNebula Virtual Network TemplatePool
 type VNTemplatePool struct {
 	VNTemplates []VNTemplate `xml:"VNTEMPLATE"`
@@ -47,9 +53,46 @@ type vnTemplateTemplate struct {
 	Dynamic unmatchedTagsSlice `xml:",any"`
 }
 
-// NewVNTemplatePool returns a vntemplate pool. A connection to OpenNebula is
+// VNTemplates returns a VNTemplates controller.
+func (c *Controller) VNTemplates() *VNTemplatesController {
+	return &VNTemplatesController{c}
+}
+
+// VNTemplate return an VNTemplate controller.
+func (c *Controller) VNTemplate(id uint) *VNTemplateController {
+	return &VNTemplateController{c, id}
+}
+
+// ByName returns a VNTemplate id from name
+func (c *VNTemplatesController) ByName(name string) (uint, error) {
+	var id uint
+
+	vnTemplatePool, err := c.Info()
+	if err != nil {
+		return 0, err
+	}
+
+	match := false
+	for i := 0; i < len(vnTemplatePool.VNTemplates); i++ {
+		if vnTemplatePool.VNTemplates[i].Name != name {
+			continue
+		}
+		if match {
+			return 0, errors.New("multiple resources with that name")
+		}
+		id = vnTemplatePool.VNTemplates[i].ID
+		match = true
+	}
+	if !match {
+		return 0, errors.New("resource not found")
+	}
+
+	return id, nil
+}
+
+// Info returns a vntemplate pool. A connection to OpenNebula is
 // performed.
-func NewVNTemplatePool(args ...int) (*VNTemplatePool, error) {
+func (vc *VNTemplatesController) Info(args ...int) (*VNTemplatePool, error) {
 	var who, start, end int
 
 	switch len(args) {
@@ -65,7 +108,7 @@ func NewVNTemplatePool(args ...int) (*VNTemplatePool, error) {
 		return nil, errors.New("Wrong number of arguments")
 	}
 
-	response, err := client.Call("one.vntemplatepool.info", who, start, end)
+	response, err := vc.c.Client.Call("one.vntemplatepool.info", who, start, end)
 	if err != nil {
 		return nil, err
 	}
@@ -80,43 +123,24 @@ func NewVNTemplatePool(args ...int) (*VNTemplatePool, error) {
 
 }
 
-// NewVNTemplate finds a vntemplate object by ID. No connection to OpenNebula.
-func NewVNTemplate(id uint) *VNTemplate {
-	return &VNTemplate{ID: id}
-}
-
-// NewVNTemplateFromName finds a vntemplate object by name. It connects to
-// OpenNebula to retrieve the pool, but doesn't perform the Info() call to
-// retrieve the attributes of the vntemplate.
-func NewVNTemplateFromName(name string) (*VNTemplate, error) {
-	var id uint
-
-	vnTemplatePool, err := NewVNTemplatePool()
+// Info connects to OpenNebula and fetches the information of the VNTemplate
+func (vc *VNTemplateController) Info() (*VNTemplate, error) {
+	response, err := vc.c.Client.Call("one.vntemplate.info", vc.ID)
+	if err != nil {
+		return nil, err
+	}
+	vntemplate := &VNTemplate{}
+	err = xml.Unmarshal([]byte(response.Body()), vntemplate)
 	if err != nil {
 		return nil, err
 	}
 
-	match := false
-	for i := 0; i < len(vnTemplatePool.VNTemplates); i++ {
-		if vnTemplatePool.VNTemplates[i].Name != name {
-			continue
-		}
-		if match {
-			return nil, errors.New("multiple resources with that name")
-		}
-		id = vnTemplatePool.VNTemplates[i].ID
-		match = true
-	}
-	if !match {
-		return nil, errors.New("resource not found")
-	}
-
-	return NewVNTemplate(id), nil
+	return vntemplate, nil
 }
 
-// CreateVNTemplate allocates a new vntemplate. It returns the new vntemplate ID.
-func CreateVNTemplate(vntemplate string) (uint, error) {
-	response, err := client.Call("one.vntemplate.allocate", vntemplate)
+// Create allocates a new vntemplate. It returns the new vntemplate ID.
+func (vc *VNTemplateController) Create(vntemplate string) (uint, error) {
+	response, err := vc.c.Client.Call("one.vntemplate.allocate", vntemplate)
 	if err != nil {
 		return 0, err
 	}
@@ -124,52 +148,42 @@ func CreateVNTemplate(vntemplate string) (uint, error) {
 	return uint(response.BodyInt()), nil
 }
 
-// Info connects to OpenNebula and fetches the information of the VNTemplate
-func (vntemplate *VNTemplate) Info() error {
-	response, err := client.Call("one.vntemplate.info", vntemplate.ID)
-	if err != nil {
-		return err
-	}
-	*vntemplate = VNTemplate{}
-	return xml.Unmarshal([]byte(response.Body()), vntemplate)
-}
-
 // Update will modify the vntemplate. If appendTemplate is 0, it will
 // replace the whole vntemplate. If its 1, it will merge.
-func (vntemplate *VNTemplate) Update(tpl string, appendTemplate int) error {
-	_, err := client.Call("one.vntemplate.update", vntemplate.ID, tpl, appendTemplate)
+func (vc *VNTemplateController) Update(tpl string, appendTemplate int) error {
+	_, err := vc.c.Client.Call("one.vntemplate.update", vc.ID, tpl, appendTemplate)
 	return err
 }
 
 // Chown changes the owner/group of a vntemplate. If uid or gid is -1 it will not
 // change
-func (vntemplate *VNTemplate) Chown(uid, gid int) error {
-	_, err := client.Call("one.vntemplate.chown", vntemplate.ID, uid, gid)
+func (vc *VNTemplateController) Chown(uid, gid int) error {
+	_, err := vc.c.Client.Call("one.vntemplate.chown", vc.ID, uid, gid)
 	return err
 }
 
 // Chmod changes the permissions of a vntemplate. If any perm is -1 it will not
 // change
-func (vntemplate *VNTemplate) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
-	_, err := client.Call("one.vntemplate.chmod", vntemplate.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
+func (vc *VNTemplateController) Chmod(uu, um, ua, gu, gm, ga, ou, om, oa int) error {
+	_, err := vc.c.Client.Call("one.vntemplate.chmod", vc.ID, uu, um, ua, gu, gm, ga, ou, om, oa)
 	return err
 }
 
 // Rename changes the name of vntemplate
-func (vntemplate *VNTemplate) Rename(newName string) error {
-	_, err := client.Call("one.vntemplate.rename", vntemplate.ID, newName)
+func (vc *VNTemplateController) Rename(newName string) error {
+	_, err := vc.c.Client.Call("one.vntemplate.rename", vc.ID, newName)
 	return err
 }
 
 // Delete will remove the vntemplate from OpenNebula.
-func (vntemplate *VNTemplate) Delete() error {
-	_, err := client.Call("one.vntemplate.delete", vntemplate.ID)
+func (vc *VNTemplateController) Delete() error {
+	_, err := vc.c.Client.Call("one.vntemplate.delete", vc.ID)
 	return err
 }
 
 // Instantiate will instantiate the template
-func (vntemplate *VNTemplate) Instantiate(name string, extra string) (uint, error) {
-	response, err := client.Call("one.vntemplate.instantiate", vntemplate.ID, name, extra)
+func (vc *VNTemplateController) Instantiate(name string, extra string) (uint, error) {
+	response, err := vc.c.Client.Call("one.vntemplate.instantiate", vc.ID, name, extra)
 
 	if err != nil {
 		return 0, err
@@ -179,41 +193,41 @@ func (vntemplate *VNTemplate) Instantiate(name string, extra string) (uint, erro
 }
 
 // Clone an existing vntemplate.
-func (vntemplate *VNTemplate) Clone(name string) error {
-	_, err := client.Call("one.vntemplate.clone", vntemplate.ID, name)
+func (vc *VNTemplateController) Clone(name string) error {
+	_, err := vc.c.Client.Call("one.vntemplate.clone", vc.ID, name)
 	return err
 }
 
 //Lock an existing vntemplate
-func (vntemplate *VNTemplate) Lock(level uint) error {
-	_, err := client.Call("one.vntemplate.lock", vntemplate.ID, level)
+func (vc *VNTemplateController) Lock(level uint) error {
+	_, err := vc.c.Client.Call("one.vntemplate.lock", vc.ID, level)
 	return err
 }
 
 //Unlock an existing vntemplate
-func (vntemplate *VNTemplate) Unlock() error {
-	_, err := client.Call("one.vntemplate.unlock", vntemplate.ID)
+func (vc *VNTemplateController) Unlock() error {
+	_, err := vc.c.Client.Call("one.vntemplate.unlock", vc.ID)
 	return err
 }
 
 // Lock actions
 
 // LockUse locks USE actions for the vntemplate
-func (vntemplate *VNTemplate) LockUse() error {
-    return vntemplate.Lock(1)
+func (vc *VNTemplateController) LockUse() error {
+	return vc.Lock(1)
 }
 
 // LockManage locks MANAGE actions for the vntemplate
-func (vntemplate *VNTemplate) LockManage() error {
-    return vntemplate.Lock(2)
+func (vc *VNTemplateController) LockManage() error {
+	return vc.Lock(2)
 }
 
 // LockAdmin locks ADMIN actions for the vntemplate
-func (vntemplate *VNTemplate) LockAdmin() error {
-    return vntemplate.Lock(3)
+func (vc *VNTemplateController) LockAdmin() error {
+	return vc.Lock(3)
 }
 
 // LockAll locks all actions for the vntemplate
-func (vntemplate *VNTemplate) LockAll() error {
-    return vntemplate.Lock(4)
+func (vc *VNTemplateController) LockAll() error {
+	return vc.Lock(4)
 }

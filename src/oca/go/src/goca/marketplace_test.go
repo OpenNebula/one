@@ -31,14 +31,20 @@ func TestMarketplace(t *testing.T){
 							"PUBLIC_DIR = \"/var/loca/market-http\""
 
 	//Create Marketpkace
-	market_id, err := CreateMarketPlace(mkt_template)
+	market_id, err := testCtrl.MarketPlaces().Create(mkt_template)
+	if err != nil {
+		t.Fatalf("Test failed:\n" + err.Error())
+	}
 
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	market = NewMarketPlace(market_id)
-	market.Info()
+	marketCtrl := testCtrl.MarketPlace(market_id)
+	market, err = marketCtrl.Info()
+	if err != nil {
+		t.Errorf("Test failed:\n" + err.Error())
+	}
 
 	actual := market.Name
 
@@ -49,13 +55,16 @@ func TestMarketplace(t *testing.T){
 	tmpl := "ATT1 = \"VAL1\""
 
 	//Update Marketpkace
-	err = market.Update(tmpl, 1)
+	err = marketCtrl.Update(tmpl, 1)
 
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	market.Info()
+	market, err = marketCtrl.Info()
+	if err != nil {
+		t.Errorf("Test failed:\n" + err.Error())
+	}
 
 	actual_mm := market.MarketMad
 	actual_1, err := market.Template.Dynamic.GetContentByName("ATT1")
@@ -72,13 +81,16 @@ func TestMarketplace(t *testing.T){
 	}
 
 	//Change permissions for Marketpkace
-	err = market.Chmod(1,1,1,1,1,1,1,1,1)
+	err = marketCtrl.Chmod(1,1,1,1,1,1,1,1,1)
 
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	market.Info()
+	market, err = marketCtrl.Info()
+	if err != nil {
+		t.Errorf("Test failed:\n" + err.Error())
+	}
 
 	expected_perm := Permissions{ 1, 1, 1, 1, 1, 1, 1, 1, 1 }
 	actual_perm := *market.Permissions
@@ -88,13 +100,16 @@ func TestMarketplace(t *testing.T){
 	}
 
 	//Change owner of Marketpkace
-	err = market.Chown(1,1)
+	err = marketCtrl.Chown(1,1)
 
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	market.Info()
+	market, err = marketCtrl.Info()
+	if err != nil {
+		t.Errorf("Test failed:\n" + err.Error())
+	}
 
 	expected_usr := 1
 	expected_grp := 1
@@ -112,13 +127,16 @@ func TestMarketplace(t *testing.T){
 	rename := mkt_name + "-renamed"
 
 	//Rename Marketpkace
-	err = market.Rename(rename)
+	err = marketCtrl.Rename(rename)
 
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	market.Info()
+	market, err = marketCtrl.Info()
+	if err != nil {
+		t.Errorf("Test failed:\n" + err.Error())
+	}
 
 	actual = market.Name
 
@@ -127,7 +145,7 @@ func TestMarketplace(t *testing.T){
 	}
 
 	//Delete Marketpkace
-	err = market.Delete()
+	err = marketCtrl.Delete()
 
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())

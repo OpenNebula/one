@@ -21,6 +21,12 @@ import (
 	"errors"
 )
 
+// UsersController is a controller for a pool of Users
+type UsersController entitiesController
+
+// UserController is a controller for User entities
+type UserController entityController
+
 // UserPool represents an OpenNebula UserPool
 type UserPool struct {
 	Users             []User     `xml:"USER"`
@@ -56,10 +62,47 @@ type loginToken struct {
 	EGID           int    `xml:"EGID"`
 }
 
-// NewUserPool returns a user pool. A connection to OpenNebula is
+// Users returns a Users controller.
+func (c *Controller) Users() *UsersController {
+	return &UsersController{c}
+}
+
+// User returns a User controller.
+func (c *Controller) User(id uint) *UserController {
+	return &UserController{c, id}
+}
+
+// ByName returns a User by Name
+func (c *UsersController) ByName(name string) (uint, error) {
+	var id uint
+
+	userPool, err := c.Info()
+	if err != nil {
+		return 0, err
+	}
+
+	match := false
+	for i := 0; i < len(userPool.Users); i++ {
+		if userPool.Users[i].Name != name {
+			continue
+		}
+		if match {
+			return 0, errors.New("multiple resources with that name")
+		}
+		id = userPool.Users[i].ID
+		match = true
+	}
+	if !match {
+		return 0, errors.New("resource not found")
+	}
+
+	return id, err
+}
+
+// Info returns a user pool. A connection to OpenNebula is
 // performed.
-func NewUserPool() (*UserPool, error) {
-	response, err := client.Call("one.userpool.info")
+func (uc *UsersController) Info() (*UserPool, error) {
+	response, err := uc.c.Client.Call("one.userpool.info")
 	if err != nil {
 		return nil, err
 	}
@@ -73,47 +116,28 @@ func NewUserPool() (*UserPool, error) {
 	return userpool, nil
 }
 
-// NewUser finds a user object by ID. No connection to OpenNebula.
-func NewUser(id uint) *User {
-	return &User{ID: id}
-}
-
-// NewUserFromName finds a user object by name. It connects to
-// OpenNebula to retrieve the pool, but doesn't perform the Info() call to
-// retrieve the attributes of the user.
-func NewUserFromName(name string) (*User, error) {
-	var id uint
-
-	userPool, err := NewUserPool()
+// Info retrieves information for the user from ID
+func (uc *UserController) Info() (*User, error) {
+	response, err := uc.c.Client.Call("one.user.info", uc.ID)
+	if err != nil {
+		return nil, err
+	}
+	user := &User{}
+	err = xml.Unmarshal([]byte(response.Body()), user)
 	if err != nil {
 		return nil, err
 	}
 
-	match := false
-	for i := 0; i < len(userPool.Users); i++ {
-		if userPool.Users[i].Name != name {
-			continue
-		}
-		if match {
-			return nil, errors.New("multiple resources with that name")
-		}
-		id = userPool.Users[i].ID
-		match = true
-	}
-	if !match {
-		return nil, errors.New("resource not found")
-	}
-
-	return NewUser(id), nil
+	return user, nil
 }
 
-// CreateUser allocates a new user. It returns the new user ID.
+// Create allocates a new user. It returns the new user ID.
 // * name: name of the user
 // * password: password of the user
 // * authDriver: auth driver
 // * groupIDs: array of groupIDs to add to the user
-func CreateUser(name, password, authDriver string, groupIDs []uint) (uint, error) {
-	response, err := client.Call("one.user.allocate", name, password, authDriver, groupIDs)
+func (uc *UsersController) Create(name, password, authDriver string, groupIDs []uint) (uint, error) {
+	response, err := uc.c.Client.Call("one.user.allocate", name, password, authDriver, groupIDs)
 	if err != nil {
 		return 0, err
 	}
@@ -122,15 +146,15 @@ func CreateUser(name, password, authDriver string, groupIDs []uint) (uint, error
 }
 
 // Delete deletes the given user from the pool.
-func (user *User) Delete() error {
-	_, err := client.Call("one.user.delete", user.ID)
+func (uc *UserController) Delete() error {
+	_, err := uc.c.Client.Call("one.user.delete", uc.ID)
 	return err
 }
 
 // Passwd changes the password for the given user.
 // * password: The new password
-func (user *User) Passwd(password string) error {
-	_, err := client.Call("one.user.passwd", user.ID, password)
+func (uc *UserController) Passwd(password string) error {
+	_, err := uc.c.Client.Call("one.user.passwd", uc.ID, password)
 	return err
 }
 
@@ -138,61 +162,51 @@ func (user *User) Passwd(password string) error {
 // * token: The token
 // * timeSeconds: Valid period in seconds; 0 reset the token and -1 for a non-expiring token.
 // * effectiveGID: Effective GID to use with this token. To use the current GID and user groups set it to -1
-func (user *User) Login(token string, timeSeconds int, effectiveGID int) error {
-	_, err := client.Call("one.user.login", user.ID, token, timeSeconds, effectiveGID)
+func (uc *UserController) Login(token string, timeSeconds int, effectiveGID int) error {
+	_, err := uc.c.Client.Call("one.user.login", uc.ID, token, timeSeconds, effectiveGID)
 	return err
 }
 
 // Update replaces the user template contents.
 // * tpl: The new template contents. Syntax can be the usual attribute=value or XML.
 // * appendTemplate: Update type: 0: Replace the whole template. 1: Merge new template with the existing one.
-func (user *User) Update(tpl string, appendTemplate int) error {
-	_, err := client.Call("one.user.update", user.ID, tpl, appendTemplate)
+func (uc *UserController) Update(tpl string, appendTemplate int) error {
+	_, err := uc.c.Client.Call("one.user.update", uc.ID, tpl, appendTemplate)
 	return err
 }
 
 // Chauth changes the authentication driver and the password for the given user.
 // * authDriver: The new authentication driver.
 // * password: The new password. If it is an empty string
-func (user *User) Chauth(authDriver, password string) error {
-	_, err := client.Call("one.user.chauth", user.ID, authDriver, password)
+func (uc *UserController) Chauth(authDriver, password string) error {
+	_, err := uc.c.Client.Call("one.user.chauth", uc.ID, authDriver, password)
 	return err
 }
 
 // Quota sets the user quota limits.
 // * tpl: The new quota template contents. Syntax can be the usual attribute=value or XML.
-func (user *User) Quota(tpl string) error {
-	_, err := client.Call("one.user.quota", user.ID, tpl)
+func (uc *UserController) Quota(tpl string) error {
+	_, err := uc.c.Client.Call("one.user.quota", uc.ID, tpl)
 	return err
 }
 
 // Chgrp changes the group of the given user.
 // * groupID: The Group ID of the new group.
-func (user *User) Chgrp(groupID uint) error {
-	_, err := client.Call("one.user.chgrp", user.ID, int(groupID))
+func (uc *UserController) Chgrp(groupID uint) error {
+	_, err := uc.c.Client.Call("one.user.chgrp", uc.ID, int(groupID))
 	return err
 }
 
 // AddGroup adds the User to a secondary group.
 // * groupID: The Group ID of the new group.
-func (user *User) AddGroup(groupID uint) error {
-	_, err := client.Call("one.user.addgroup", user.ID, int(groupID))
+func (uc *UserController) AddGroup(groupID uint) error {
+	_, err := uc.c.Client.Call("one.user.addgroup", uc.ID, int(groupID))
 	return err
 }
 
 // DelGroup removes the User from a secondary group
 // * groupID: The Group ID.
-func (user *User) DelGroup(groupID uint) error {
-	_, err := client.Call("one.user.delgroup", user.ID, int(groupID))
+func (uc *UserController) DelGroup(groupID uint) error {
+	_, err := uc.c.Client.Call("one.user.delgroup", uc.ID, int(groupID))
 	return err
-}
-
-// Info retrieves information for the user.
-func (user *User) Info() error {
-	response, err := client.Call("one.user.info", user.ID)
-	if err != nil {
-		return err
-	}
-	*user = User{}
-	return xml.Unmarshal([]byte(response.Body()), user)
 }

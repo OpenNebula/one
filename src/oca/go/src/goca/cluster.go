@@ -21,6 +21,12 @@ import (
 	"errors"
 )
 
+// ClustersController is a controller for Clusters
+type ClustersController entitiesController
+
+// ClusterController is a controller for Cluster entity
+type ClusterController entityController
+
 // ClusterPool represents an OpenNebula ClusterPool
 type ClusterPool struct {
 	Clusters []Cluster `xml:"CLUSTER"`
@@ -43,10 +49,47 @@ type clusterTemplate struct {
 	Dynamic     unmatchedTagsSlice `xml:",any"`
 }
 
-// NewClusterPool returns a cluster pool. A connection to OpenNebula is
+// Clusters returns a Clusters controller.
+func (c *Controller) Clusters() *ClustersController {
+	return &ClustersController{c}
+}
+
+// Cluster returns a Cluster controller.
+func (c *Controller) Cluster(id uint) *ClusterController {
+	return &ClusterController{c, id}
+}
+
+// ByName returns a Cluster ID from name
+func (c *ClustersController) ByName(name string) (uint, error) {
+	var id uint
+
+	clusterPool, err := c.Info()
+	if err != nil {
+		return 0, err
+	}
+
+	match := false
+	for i := 0; i < len(clusterPool.Clusters); i++ {
+		if clusterPool.Clusters[i].Name != name {
+			continue
+		}
+		if match {
+			return 0, errors.New("multiple resources with that name")
+		}
+		id = clusterPool.Clusters[i].ID
+		match = true
+	}
+	if !match {
+		return 0, errors.New("resource not found")
+	}
+
+	return id, nil
+}
+
+// Info returns a cluster pool. A connection to OpenNebula is
 // performed.
-func NewClusterPool() (*ClusterPool, error) {
-	response, err := client.Call("one.clusterpool.info")
+func (cc *ClustersController) Info() (*ClusterPool, error) {
+	response, err := cc.c.Client.Call("one.clusterpool.info")
 	if err != nil {
 		return nil, err
 	}
@@ -58,46 +101,25 @@ func NewClusterPool() (*ClusterPool, error) {
 	}
 
 	return clusterPool, nil
-
 }
 
-// NewCluster finds a cluster object by ID. No connection to OpenNebula.
-func NewCluster(id uint) *Cluster {
-	return &Cluster{ID: id}
-}
-
-// NewClusterFromName finds a cluster object by name. It connects to
-// OpenNebula to retrieve the pool, but doesn't perform the Info() call to
-// retrieve the attributes of the cluster.
-func NewClusterFromName(name string) (*Cluster, error) {
-	var id uint
-
-	clusterPool, err := NewClusterPool()
+// Info retrieves information for the cluster.
+func (cc *ClusterController) Info() (*Cluster, error) {
+	response, err := cc.c.Client.Call("one.cluster.info", cc.ID)
 	if err != nil {
 		return nil, err
 	}
-
-	match := false
-	for i := 0; i < len(clusterPool.Clusters); i++ {
-		if clusterPool.Clusters[i].Name != name {
-			continue
-		}
-		if match {
-			return nil, errors.New("multiple resources with that name")
-		}
-		id = clusterPool.Clusters[i].ID
-		match = true
+	cluster := &Cluster{}
+	err = xml.Unmarshal([]byte(response.Body()), cluster)
+	if err != nil {
+		return nil, err
 	}
-	if !match {
-		return nil, errors.New("resource not found")
-	}
-
-	return NewCluster(id), nil
+	return cluster, nil
 }
 
-// CreateCluster allocates a new cluster. It returns the new cluster ID.
-func CreateCluster(name string) (uint, error) {
-	response, err := client.Call("one.cluster.allocate", name)
+// Create allocates a new cluster. It returns the new cluster ID.
+func (cc *ClustersController) Create(name string) (uint, error) {
+	response, err := cc.c.Client.Call("one.cluster.allocate", name)
 	if err != nil {
 		return 0, err
 	}
@@ -106,8 +128,8 @@ func CreateCluster(name string) (uint, error) {
 }
 
 // Delete deletes the given cluster from the pool.
-func (cluster *Cluster) Delete() error {
-	_, err := client.Call("one.cluster.delete", cluster.ID)
+func (cc *ClusterController) Delete() error {
+	_, err := cc.c.Client.Call("one.cluster.delete", cc.ID)
 	return err
 }
 
@@ -116,66 +138,56 @@ func (cluster *Cluster) Delete() error {
 //   	XML.
 // * appendCluster: Update type: 0: Replace the whole cluster. 1: Merge new
 //   	cluster with the existing one.
-func (cluster *Cluster) Update(tpl string, appendCluster int) error {
-	_, err := client.Call("one.cluster.update", cluster.ID, tpl, appendCluster)
+func (cc *ClusterController) Update(tpl string, appendCluster int) error {
+	_, err := cc.c.Client.Call("one.cluster.update", cc.ID, tpl, appendCluster)
 	return err
 }
 
 // AddHost adds a host to the given cluster.
 // * hostID: The host ID.
-func (cluster *Cluster) AddHost(hostID uint) error {
-	_, err := client.Call("one.cluster.addhost", cluster.ID, int(hostID))
+func (cc *ClusterController) AddHost(hostID uint) error {
+	_, err := cc.c.Client.Call("one.cluster.addhost", cc.ID, int(hostID))
 	return err
 }
 
 // DelHost removes a host from the given cluster.
 // * hostID: The host ID.
-func (cluster *Cluster) DelHost(hostID uint) error {
-	_, err := client.Call("one.cluster.delhost", cluster.ID, int(hostID))
+func (cc *ClusterController) DelHost(hostID uint) error {
+	_, err := cc.c.Client.Call("one.cluster.delhost", cc.ID, int(hostID))
 	return err
 }
 
 // AddDatastore adds a datastore to the given cluster.
 // * dsID: The datastore ID.
-func (cluster *Cluster) AddDatastore(dsID uint) error {
-	_, err := client.Call("one.cluster.adddatastore", cluster.ID, int(dsID))
+func (cc *ClusterController) AddDatastore(dsID uint) error {
+	_, err := cc.c.Client.Call("one.cluster.adddatastore", cc.ID, int(dsID))
 	return err
 }
 
 // DelDatastore removes a datastore from the given cluster.
 // * dsID: The datastore ID.
-func (cluster *Cluster) DelDatastore(dsID uint) error {
-	_, err := client.Call("one.cluster.deldatastore", cluster.ID, int(dsID))
+func (cc *ClusterController) DelDatastore(dsID uint) error {
+	_, err := cc.c.Client.Call("one.cluster.deldatastore", cc.ID, int(dsID))
 	return err
 }
 
 // AddVnet adds a vnet to the given cluster.
 // * vnetID: The vnet ID.
-func (cluster *Cluster) AddVnet(vnetID uint) error {
-	_, err := client.Call("one.cluster.addvnet", cluster.ID, int(vnetID))
+func (cc *ClusterController) AddVnet(vnetID uint) error {
+	_, err := cc.c.Client.Call("one.cluster.addvnet", cc.ID, int(vnetID))
 	return err
 }
 
 // DelVnet removes a vnet from the given cluster.
 // * vnetID: The vnet ID.
-func (cluster *Cluster) DelVnet(vnetID uint) error {
-	_, err := client.Call("one.cluster.delvnet", cluster.ID, int(vnetID))
+func (cc *ClusterController) DelVnet(vnetID uint) error {
+	_, err := cc.c.Client.Call("one.cluster.delvnet", cc.ID, int(vnetID))
 	return err
 }
 
 // Rename renames a cluster.
 // * newName: The new name.
-func (cluster *Cluster) Rename(newName string) error {
-	_, err := client.Call("one.cluster.rename", cluster.ID, newName)
+func (cc *ClusterController) Rename(newName string) error {
+	_, err := cc.c.Client.Call("one.cluster.rename", cc.ID, newName)
 	return err
-}
-
-// Info retrieves information for the cluster.
-func (cluster *Cluster) Info() error {
-	response, err := client.Call("one.cluster.info", cluster.ID)
-	if err != nil {
-		return err
-	}
-	*cluster = Cluster{}
-	return xml.Unmarshal([]byte(response.Body()), cluster)
 }
