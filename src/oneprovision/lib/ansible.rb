@@ -149,8 +149,8 @@ module OneProvision
 
                     raise OneProvisionLoopException, errors
                 end
-            rescue StandardError
-                raise OneProvisionLoopException
+            rescue StandardError => error
+                raise OneProvisionLoopException, error.text
             end
 
             # Retries ssh connection
