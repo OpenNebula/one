@@ -647,7 +647,6 @@ BIN_FILES="src/nebula/oned \
            src/cli/onevcenter \
            src/cli/onevntemplate \
            src/onedb/onedb \
-           src/mad/utils/tty_expect \
            share/scripts/one"
 
 #-------------------------------------------------------------------------------
