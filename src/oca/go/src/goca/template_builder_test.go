@@ -5,7 +5,7 @@ import (
 )
 
 func Example() {
-	template := NewTemplateBuilder()
+	template := testCtrl.TemplateBuilder().New()
 
 	// Main
 	template.AddValue("cpu", 1)

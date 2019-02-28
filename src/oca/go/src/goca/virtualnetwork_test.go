@@ -16,15 +16,13 @@ VN_MAD = "vxlan"
 
 // Helper to create a Virtual Network
 func createVirtualNetwork(t *testing.T) (*VirtualNetwork, uint) {
-	id, err := CreateVirtualNetwork(vnTpl, -1)
+	id, err := testCtrl.VirtualNetworks().Create(vnTpl, -1)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	// Get Virtual Network by ID
-	vnet := NewVirtualNetwork(id)
-
-	err = vnet.Info()
+	vnet, err := testCtrl.VirtualNetwork(id).Info()
 	if err != nil {
 		t.Error(err)
 	}
@@ -45,12 +43,13 @@ func TestVirtualNetwork(t *testing.T) {
 	// Get virtual network by Name
 	name := vnet.Name
 
-	vnet, err = NewVirtualNetworkFromName(name)
+	id, err := testCtrl.VirtualNetworkByName(name)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = vnet.Info()
+	vnetC := testCtrl.VirtualNetwork(id)
+	vnet, err = vnetC.Info()
 	if err != nil {
 		t.Error(err)
 	}
@@ -61,12 +60,12 @@ func TestVirtualNetwork(t *testing.T) {
 	}
 
     // Change Owner to user call
-    err = vnet.Chown(-1, -1)
+    err = vnetC.Chown(-1, -1)
 	if err != nil {
 		t.Error(err)
 	}
 	
-    err = vnet.Info()
+    vnet, err = vnetC.Info()
 	if err != nil {
 		t.Error(err)
 	}
@@ -78,7 +77,7 @@ func TestVirtualNetwork(t *testing.T) {
 	gname := vnet.GName
 
     // Compare with caller username
-    caller := strings.Split(client.token, ":")[0]
+    caller := strings.Split(testClient.token, ":")[0]
     if caller != uname {
         t.Error("Caller user and virtual network owner user mismatch")
     }
@@ -94,12 +93,12 @@ func TestVirtualNetwork(t *testing.T) {
     }
 
     // Change Owner to oneadmin call
-    err = vnet.Chown(1, 1)
+    err = vnetC.Chown(1, 1)
 	if err != nil {
 		t.Error(err)
 	}
 
-    err = vnet.Info()
+    vnet, err = vnetC.Info()
 	if err != nil {
 		t.Error(err)
 	}
@@ -120,7 +119,7 @@ func TestVirtualNetwork(t *testing.T) {
     }
 
 	// Delete template
-	err = vnet.Delete()
+	err = vnetC.Delete()
 	if err != nil {
 		t.Error(err)
 	}

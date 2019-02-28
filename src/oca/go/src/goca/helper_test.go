@@ -8,6 +8,9 @@ import (
 	"time"
 )
 
+var testClient = NewClient(NewConfig("", "", ""))
+var testCtrl = NewController(testClient)
+
 // Appends a random string to a name
 func GenName(name string) string {
 	t := strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -29,13 +32,13 @@ func WaitResource(f func() bool) bool {
 
 // Get User Main Group name
 func GetUserGroup(t *testing.T, user string) (string, error){
-    u, err := NewUserFromName(user)
+    uid, err := testCtrl.UserByName(user)
 	if err != nil {
         t.Error("Cannot retreive caller user ID")
 	}
 
     // Get User Info
-    err = u.Info()
+    u, err := testCtrl.User(uid).Info()
 	if err != nil {
         t.Error("Cannot retreive caller user Info")
 	}
