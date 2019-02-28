@@ -6,6 +6,9 @@ import (
 	"strings"
 )
 
+// TemplateController is a controller for Template entities
+type TemplateBuilderController entityController
+
 // TemplateBuilder represents an OpenNebula syntax template
 type TemplateBuilder struct {
 	elements []TemplateBuilderElement
@@ -29,8 +32,12 @@ type TemplateBuilderVector struct {
 	pairs []TemplateBuilderPair
 }
 
+func (t *Controller) TemplateBuilder() *TemplateBuilderController {
+	return &TemplateBuilderController{}
+}
+
 // NewTemplateBuilder returns a new TemplateBuilder object
-func NewTemplateBuilder() *TemplateBuilder {
+func (t *TemplateBuilderController) New() *TemplateBuilder {
 	return &TemplateBuilder{}
 }
 
