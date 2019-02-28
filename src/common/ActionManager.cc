@@ -16,6 +16,7 @@
 
 #include "ActionManager.h"
 #include <ctime>
+#include <errno.h>
 
 /* ************************************************************************** */
 /* ActionManager constructor & destructor                                   */
