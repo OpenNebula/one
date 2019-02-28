@@ -19,7 +19,6 @@ package goca
 // RPCCaller is the interface to satisfy in order to be usable by the controller
 type RPCCaller interface {
 	Call(method string, args ...interface{}) (*Response, error)
-	EndpointCall(url, method string, args ...interface{}) (*Response, error)
 }
 
 // Controller is the controller used to make requets on various entities
