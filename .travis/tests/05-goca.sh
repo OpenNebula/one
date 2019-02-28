@@ -14,24 +14,12 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# install oned system wide
+# walk to goca path
+cd src/oca/go/src/goca
 
-sudo ./install.sh -u travis
+# install dependencies
+go get
+go get gopkg.in/check.v1
 
-# Set credentials
-mkdir $HOME/.one
-echo "oneadmin:opennebula" > $HOME/.one/one_auth
-
-# Install gems
-sudo /usr/share/one/install_gems --yes
-
-# Enable dummy drivers
-sudo chmod o+w /etc/one/oned.conf
-echo 'IM_MAD = [ NAME="dummy", SUNSTONE_NAME="Testing", EXECUTABLE="one_im_dummy"]' >> /etc/one/oned.conf
-echo 'VM_MAD = [ NAME="dummy", SUNSTONE_NAME="Testing", EXECUTABLE="one_vmm_dummy",TYPE="xml" ]' >> /etc/one/oned.conf
-
-# start oned
-one start
-
-# check it's up
-timeout 60 sh -c 'until nc -z $0 $1; do sleep 1; done' localhost 2633
+# run tests
+go test

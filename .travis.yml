@@ -17,7 +17,7 @@
 dist: xenial
 language: generic
 before_install:
-  - sudo apt-get install -y libsystemd-dev bash-completion bison debhelper default-jdk flex javahelper libmysql++-dev libsqlite3-dev libssl-dev libws-commons-util-java libxml2-dev libxmlrpc3-client-java libxmlrpc3-common-java libxslt1-dev libcurl4-openssl-dev ruby scons libxmlrpc-c++8-dev npm libvncserver-dev
+  - sudo apt-get install -y libsystemd-dev bash-completion bison debhelper default-jdk flex javahelper libmysql++-dev libsqlite3-dev libssl-dev libws-commons-util-java libxml2-dev libxmlrpc3-client-java libxmlrpc3-common-java libxslt1-dev libcurl4-openssl-dev ruby scons libxmlrpc-c++8-dev npm libvncserver-dev qemu-utils
   - gem install rubocop
   - sudo npm install -g bower
   - sudo npm install -g grunt
