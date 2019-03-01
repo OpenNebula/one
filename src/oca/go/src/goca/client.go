@@ -24,6 +24,7 @@ import (
 	"os"
 	"strings"
 
+	cleanhttp "github.com/hashicorp/go-cleanhttp"
 	"github.com/kolo/xmlrpc"
 )
 
@@ -94,7 +95,7 @@ func NewClient(conf OneConfig) *Client {
 	return &Client{
 		url:        conf.Endpoint,
 		token:      conf.Token,
-		httpClient: &http.Client{},
+		httpClient: cleanhttp.DefaultPooledClient(),
 	}
 }
 

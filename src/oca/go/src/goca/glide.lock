@@ -1,13 +1,10 @@
-hash: ac9bb59552226f818b59a1f54831140c20901e060de067f144f54d4e100d0e12
-updated: 2017-11-28T12:03:57.539724958+01:00
+hash: 6a42391db781b910fc0600420cc578feca12055fd5d9eddb5ac4dd101c63ef28
+updated: 2019-03-07T11:20:45.37225322+01:00
 imports:
+- name: github.com/hashicorp/go-cleanhttp
+  version: e8ab9daed8d1ddd2d3c4efba338fe2eeae2e4f18
 - name: github.com/kolo/xmlrpc
-  version: 0826b98aaa29c0766956cb40d45cf7482a597671
-- name: golang.org/x/net
-  version: fc492d2e106922eb3aa4bca863d55e882c087ae3
-  subpackages:
-  - html
-  - html/atom
-- name: gopkg.in/xmlpath.v2
-  version: 860cbeca3ebcc600db0b213c0e83ad6ce91f5739
-testImports: []
+  version: 16bdd962781df9696f40cc2bab924f1a855a7f89
+testImports:
+- name: gopkg.in/check.v1
+  version: 788fd78401277ebd861206a03c884797c6ec5541
