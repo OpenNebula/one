@@ -52,7 +52,7 @@ class VirtualNetworkDriver
             :parameters => nil
         }.merge(ops)
 
-        cmd_params =  "#{@vm_encoded}"
+        cmd_params =  ''
         cmd_params << " #{options[:parameters]}" if options[:parameters]
 
         result = RESULT[:success]
@@ -66,7 +66,7 @@ class VirtualNetworkDriver
             elsif @ssh_stream != nil
                 if options[:stdin]
                     cmdin = "cat << EOT | #{cmd}"
-                    stdin = "#{options[:stdin]}\nEOT\n"
+                    stdin = "#{@vm_encoded}\nEOT\n"
                 else
                     cmdin = cmd
                     stdin = nil

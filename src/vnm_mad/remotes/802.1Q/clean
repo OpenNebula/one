@@ -21,7 +21,7 @@ $: << File.join(File.dirname(__FILE__), "..")
 
 require 'vlan_tag_driver'
 
-template64   = ARGV[0]
+template64   = STDIN.read
 deploy_id    = nil
 xpath_filter = VLANTagDriver::XPATH_FILTER
 

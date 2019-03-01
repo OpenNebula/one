@@ -21,7 +21,7 @@ $: << File.join(File.dirname(__FILE__), "..")
 
 require 'OpenvSwitchVXLAN'
 
-template64   = ARGV[0]
+template64   = STDIN.read
 deploy_id    = nil
 xpath_filter = OpenvSwitchVXLAN::XPATH_FILTER
 
