@@ -707,11 +707,11 @@ private:
     };
 
     /**
-     *  "Encrypts" the password with SHA1 digest
+     *  "Encrypts" the password with SHA256 digest
      *  @param password
-     *  @return sha1 encrypted password
+     *  @return sha256 encrypted password
      */
-    static string sha1_digest(const string& pass);
+    static string sha256_digest(const string& pass);
 
 protected:
 

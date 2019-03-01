@@ -65,9 +65,9 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             password = OpenNebula::X509Auth.escape_dn(password)
         end
 
-        if options[:sha1] || options[:driver] == OpenNebula::User::CIPHER_AUTH
-            require 'digest/sha1'
-            password = Digest::SHA1.hexdigest(password)
+        if options[:sha256] || options[:driver] == OpenNebula::User::CIPHER_AUTH
+            require 'digest/sha2'
+            password = Digest::SHA256.hexdigest(password)
         end
 
         return 0, password

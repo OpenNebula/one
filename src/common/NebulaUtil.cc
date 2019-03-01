@@ -211,6 +211,25 @@ string one_util::sha1_digest(const string& in)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+string one_util::sha256_digest(const string& in)
+{
+    unsigned char digest[SHA256_DIGEST_LENGTH];
+    stringstream oss;
+
+    SHA256((unsigned char*) in.c_str(),
+            in.length(),
+           (unsigned char*) &digest);
+
+    for(int i = 0; i < SHA256_DIGEST_LENGTH; i++)
+         oss << setfill('0') << setw(2) << hex << nouppercase
+             << (unsigned int) digest[i];
+
+    return oss.str();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 string * one_util::aes256cbc_encrypt(const string& in, const string password)
 {
     EVP_CIPHER_CTX *ctx;
@@ -262,7 +281,7 @@ string one_util::random_password()
 
     sstr << rand();
 
-    return sha1_digest(sstr.str());
+    return sha256_digest(sstr.str());
 }
 
 /* -------------------------------------------------------------------------- */

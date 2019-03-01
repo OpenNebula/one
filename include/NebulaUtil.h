@@ -49,7 +49,14 @@ namespace one_util
      */
     std::string sha1_digest(const std::string& in);
 
-   /**
+    /**
+     *  sha256 digest
+     *  @param in the string to be hashed
+     *  @return sha256 hash of str
+     */
+    std::string sha256_digest(const std::string& in);
+
+    /**
     *  Base 64 encoding
     *    @param in the string to encoded
     *    @return a pointer to the encoded string (must be freed) or 0 in case of

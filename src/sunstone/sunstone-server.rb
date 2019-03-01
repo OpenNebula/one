@@ -281,7 +281,7 @@ helpers do
             session[:display_name] = user[DISPLAY_NAME_XPATH] || user['NAME']
 
             csrftoken_plain = Time.now.to_f.to_s + SecureRandom.base64
-            session[:csrftoken] = Digest::MD5.hexdigest(csrftoken_plain)
+            session[:csrftoken] = Digest::SHA256.hexdigest(csrftoken_plain)
 
             group = OpenNebula::Group.new_with_id(OpenNebula::Group::SELF, client)
             rc = group.info

@@ -173,7 +173,7 @@ UserPool::UserPool(SqlDB * db,
     allocate(&server_uid,
              SERVER_NAME,
              GroupPool::ONEADMIN_ID,
-             one_util::sha1_digest(random),
+             one_util::sha256_digest(random),
              "server_cipher",
              true,
              gids,
@@ -374,7 +374,7 @@ int UserPool::allocate (
 
     if (auth_driver == UserPool::CORE_AUTH)
     {
-        upass = one_util::sha1_digest(password);
+        upass = one_util::sha256_digest(password);
     }
 
     if (gids.empty())
@@ -662,6 +662,19 @@ bool UserPool::authenticate_internal(User *        user,
     AuthRequest ar(user_id, group_ids);
 
     // -------------------------------------------------------------------------
+    // Update SHA1 to SHA256
+    // -------------------------------------------------------------------------
+    if (password == one_util::sha1_digest(token))
+    {
+        int rc = user->set_password(token, error_str);
+
+        if ( rc == 0 )
+        {
+            update(user);
+        }
+    }
+
+    // -------------------------------------------------------------------------
     // Check if token is a login or session token, and set EGID if needed
     // -------------------------------------------------------------------------
     bool exists_token = false;
@@ -704,6 +717,7 @@ bool UserPool::authenticate_internal(User *        user,
     }
 
     user->unlock();
+
     // -------------------------------------------------------------------------
     // Not a valid token, perform authentication
     // -------------------------------------------------------------------------

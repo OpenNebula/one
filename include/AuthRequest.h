@@ -168,8 +168,9 @@ public:
     bool core_authenticate()
     {
         string sha1_session = one_util::sha1_digest(session);
+        string sha256_session = one_util::sha256_digest(session);
 
-        return (password == sha1_session);
+        return (password == sha1_session) || (password == sha256_session);
     }
 
 private:
