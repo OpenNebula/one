@@ -223,10 +223,7 @@ class VmmAction
 
                 params = get_parameters(step[:parameters])
 
-                result, info = vnm.do_action(@id,
-                                             step[:action],
-                                             :stdin => true,
-                                             :parameters => params)
+                result, info = vnm.do_action(@id, step[:action], :parameters => params)
             when :tm
                 result, info = @tm.do_transfer_action(@id, step[:parameters])
 

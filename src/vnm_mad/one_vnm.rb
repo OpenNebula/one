@@ -62,15 +62,10 @@ class VirtualNetworkDriver
             cmd = action_command_line(aname, cmd_params, nil, subdirectory)
 
             if action_is_local?(aname)
-                execution = LocalCommand.run(cmd, log_method(id))
+                execution = LocalCommand.run(cmd, log_method(id), "#{@vm_encoded}")
             elsif @ssh_stream != nil
-                if options[:stdin]
-                    cmdin = "cat << EOT | #{cmd}"
-                    stdin = "#{@vm_encoded}\nEOT\n"
-                else
-                    cmdin = cmd
-                    stdin = nil
-                end
+                cmdin = "cat << EOT | #{cmd}"
+                stdin = "#{@vm_encoded}\nEOT\n"
 
                 execution = @ssh_stream.run(cmdin, stdin, cmd)
             else
