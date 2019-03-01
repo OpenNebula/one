@@ -346,7 +346,7 @@ int User::set_password(const string& passwd, string& error_str)
     {
         if (auth_driver == UserPool::CORE_AUTH)
         {
-            password = one_util::sha1_digest(passwd);
+            password = one_util::sha256_digest(passwd);
         }
         else
         {

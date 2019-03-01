@@ -72,11 +72,10 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Read password from file'
     }
 
-    SHA1 = {
-        :name => 'sha1',
-        :large => '--sha1',
-        :description => "The password will be hashed using the sha1\n" \
-                        ' ' * 31 << 'algorithm'
+    SHA256 = {
+        :name => 'sha256',
+        :large => '--sha256',
+        :description => 'The password will be hashed using the sha256 algorithm'
     }
 
     SSH = {
@@ -203,7 +202,7 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'enable stdin password'
     }
 
-    auth_options = [READ_FILE, SHA1, SSH, X509, KEY, CERT, DRIVER]
+    auth_options = [READ_FILE, SHA256, SSH, X509, KEY, CERT, DRIVER]
 
     create_options = auth_options.clone.unshift(GROUP_CREATE)
 

@@ -15,7 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'openssl'
-require 'digest/sha1'
+require 'digest/sha2'
 
 require 'base64'
 require 'fileutils'
@@ -40,7 +40,7 @@ class OpenNebula::ServerCipherAuth
 
         if !srv_passwd.empty?
             # truncate token to 32-bytes for Ruby >= 2.4
-            @key = Digest::SHA1.hexdigest(@srv_passwd)[0..31]
+            @key = Digest::SHA256.hexdigest(@srv_passwd)[0..31]
         else
             @key = ""
         end

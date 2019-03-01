@@ -23,7 +23,7 @@ module SunstoneCloudAuth
 
             one_pass = get_password(username, 'core')
 
-            if one_pass && one_pass == Digest::SHA1.hexdigest(password)
+            if one_pass && one_pass == Digest::SHA256.hexdigest(password)
                 return username
             end
         end
