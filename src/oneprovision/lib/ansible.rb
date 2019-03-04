@@ -289,6 +289,20 @@ module OneProvision
 
                 c << "\n"
 
+                c << "[targets]\n"
+
+                hosts.each do |h|
+                    h.info
+
+                    conn = get_host_template_conn(h)
+
+                    c << "#{h['NAME']} "
+                    c << 'ansible_connection=ssh '
+                    c << "ansible_ssh_private_key_file=#{conn['private_key']} "
+                    c << "ansible_user=#{conn['remote_user']} "
+                    c << "ansible_port=#{conn['remote_port']}\n"
+                end
+
                 Driver.write_file_log("#{ansible_dir}/inventory", c)
 
                 # Generate "host_vars" directory
@@ -315,18 +329,10 @@ module OneProvision
                 # TODO: what if private_key isn't filename, but content
                 # TODO: store private key / packet
                 #   credentials securely in the ONE
-                ruser = hosts[0]['TEMPLATE/PROVISION_CONNECTION/REMOTE_USER']
-                rport = hosts[0]['TEMPLATE/PROVISION_CONNECTION/REMOTE_PORT']
-                prkey = hosts[0]['TEMPLATE/PROVISION_CONNECTION/PRIVATE_KEY']
                 roles = "#{ANSIBLE_LOCATION}/roles"
 
-                vals = { :remote_user => ruser,
-                         :remote_port => rport,
-                         :private_key => prkey,
-                         :roles => roles }
-
                 c = File.read("#{ANSIBLE_LOCATION}/ansible.cfg.erb")
-                c = ERBVal.render_from_hash(c, vals)
+                c = ERBVal.render_from_hash(c, :roles => roles)
 
                 Driver.write_file_log("#{ansible_dir}/ansible.cfg", c)
 
