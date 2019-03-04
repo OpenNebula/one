@@ -43,7 +43,7 @@ module Migrator
         feature_2489_2671
         feature_826
         feature_2966
-        create_idxs      #MUST be the last one 
+        create_idxs      #MUST be the last one
         true
     end
 
@@ -52,6 +52,7 @@ module Migrator
     def feature_2944
         vclient =->(hid){
             row = @db.fetch("SELECT * FROM host_pool WHERE oid = #{hid}").first
+            raise "Host #{hid} not found in the OpenNebula DB" if !row[:body]
             xml = row[:body]
 
             doc = Nokogiri::XML(xml, nil, NOKOGIRI_ENCODING) do |c|
@@ -105,7 +106,7 @@ module Migrator
                     begin
                         k    = "opennebula.mdisk.#{disk.id}"
                         v    = "#{disk.key}"
-                    rescue Exception => e
+                    rescue StandardError => e
                         puts "  disk:#{disk.id}"
                         puts "   #{e.message} (No action needed)"
                         next
@@ -119,11 +120,12 @@ module Migrator
                     { :extraConfig => extraconfig }
                 )
                 vm.item.ReconfigVM_Task(:spec => spec).wait_for_completion
-            rescue Exception => e
+            rescue StandardError => e
                 if e.message.include? 'reference does not exist'
-                    puts "  This machine does not exist in vCenter"
+                    STDERR.puts "  This machine does not exist in vCenter"
                 else
-                    puts e.message
+                    STDERR.puts "Couldn't process VM #{vmid}." if vmid
+                    STDERR.puts e.message
                 end
             end
         end
