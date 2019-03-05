@@ -19,6 +19,14 @@ import sys
 import shutil
 sys.path.append("./share/scons")
 from lex_bison import *
+from subprocess import Popen,PIPE,STDOUT
+
+# Get git version
+try:
+    out = Popen(["git", "describe", "--dirty", "--always", "--abbrev=8"],stdout=PIPE)
+    git_version = out.communicate()[0].rstrip()
+except OSError:
+    git_version = "not known"
 
 # This is the absolute path where the project is located
 cwd = os.getcwd()
@@ -26,6 +34,10 @@ cwd = os.getcwd()
 # Environment that will be applied to each scons child
 main_env = Environment()
 main_env['ENV']['PATH'] = os.environ['PATH']
+
+#git_version=os.popen("git describe --dirty --always --abbrev=8").read().rstrip()
+
+main_env['CXXFLAGS'] = " -DGITVERSION=\'\"" + git_version + "\"\'"
 
 # snippet borrowed from http://dev.gentoo.org/~vapier/scons-blows.txt
 # makes scons aware of build related environment variables
@@ -269,8 +281,7 @@ build_scripts=[
     'share/rubygems/SConstruct',
     'src/im_mad/collectd/SConstruct',
     'src/client/SConstruct',
-    'src/docker_machine/SConstruct',
-    svncterm_path
+    'src/docker_machine/SConstruct'
 ]
 
 # disable svncterm

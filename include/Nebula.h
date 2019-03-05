@@ -362,7 +362,12 @@ public:
      */
     static string code_version()
     {
-        return "5.9.80"; // bump version
+       ostringstream os;
+
+       // bump version
+       os << "5.9.80 (" << GITVERSION << ")";
+
+        return os.str();
     }
 
     /**
