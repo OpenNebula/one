@@ -35,8 +35,6 @@ cwd = os.getcwd()
 main_env = Environment()
 main_env['ENV']['PATH'] = os.environ['PATH']
 
-#git_version=os.popen("git describe --dirty --always --abbrev=8").read().rstrip()
-
 main_env['CXXFLAGS'] = " -DGITVERSION=\'\"" + git_version + "\"\'"
 
 # snippet borrowed from http://dev.gentoo.org/~vapier/scons-blows.txt
