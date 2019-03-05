@@ -318,6 +318,8 @@ bool MarketPlaceAppPool::test_map_check(int app_id)
 
     if ( it == map_check.end() )
     {
+        map_check.insert(make_pair(app_id, 1));
+
         return false;
     }
 
