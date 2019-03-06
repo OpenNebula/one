@@ -73,8 +73,9 @@ VirtualMachineAttribute * VirtualMachineAttributeSet::remove_attribute(
 
         if ( vma->is_flag(flag) == true )
         {
-            tmp = vma;
             a_set.erase(it);
+
+            return vma;
         }
     }
 
