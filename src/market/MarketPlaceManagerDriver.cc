@@ -169,30 +169,33 @@ static void monitor_action(
         apps_mp.erase(app_id);
     }
 
-    for (set<int>::iterator i = apps_mp.begin(); i != apps_mp.end(); ++i)
+    if (num > 0) // num = 0 when no APP information in monitor data 
     {
-        if (apppool->test_map_check(*i)) //delete app
+        for (set<int>::iterator i = apps_mp.begin(); i != apps_mp.end(); ++i)
         {
-            std::string error;
-
-            MarketPlaceApp * app = apppool->get(*i);
-
-            if ( app == 0 )
+            if (apppool->test_map_check(*i)) //delete app
             {
-                continue;
+                std::string error;
+
+                MarketPlaceApp * app = apppool->get(*i);
+
+                if ( app == 0 )
+                {
+                    continue;
+                }
+
+                rc = apppool->drop(app, error);
+
+                app->unlock();
+
+                market = marketpool->get(id);
+
+                market->del_marketapp(*i);
+
+                marketpool->update(market);
+
+                market->unlock();
             }
-
-            rc = apppool->drop(app, error);
-
-            app->unlock();
-
-            market = marketpool->get(id);
-
-            market->del_marketapp(*i);
-
-            marketpool->update(market);
-
-            market->unlock();
         }
     }
 
