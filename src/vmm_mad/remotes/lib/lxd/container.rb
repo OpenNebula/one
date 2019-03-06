@@ -35,7 +35,6 @@ class Container
     # Class Constants API and Containers Paths
     #---------------------------------------------------------------------------
     CONTAINERS = 'containers'.freeze
-    LXC_COMMAND = 'lxc'
 
     #---------------------------------------------------------------------------
     # Methods to access container attributes
@@ -69,6 +68,8 @@ class Container
 
         @lxc = lxc
         @one = one
+        @lxc_command = 'lxc'
+        @lxc_command.prepend 'sudo' if client.snap
 
         @containers = "#{@client.lxd_path}/storage-pools/default/containers"
         @rootfs_dir = "#{@containers}/#{name}/rootfs"
@@ -163,6 +164,7 @@ class Container
     # Runs command inside container
     # @param command [String] to execute through lxc exec
     def exec(command)
+        cmd = "#{@lxc_command} exec #{@one.vm_name} -- #{command}"
         cmd = "#{LXC_COMMAND} exec #{@one.vm_name} -- #{command}"
         rc, o, e = Command.execute(cmd, true)
 
@@ -361,7 +363,7 @@ class Container
 
     # Start the svncterm server if it is down.
     def vnc(signal)
-        command = @one.vnc_command(signal)
+        command = @one.vnc_command(signal, @lxc_command)
         return if command.nil?
 
         w = @one.lxdrc[:vnc][:width]
