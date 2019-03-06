@@ -169,7 +169,7 @@ static void monitor_action(
         apps_mp.erase(app_id);
     }
 
-    if (num > 0) // num = 0 means HTTP market
+    if (num > 0) // num = 0 when no APP information in monitor data 
     {
         for (set<int>::iterator i = apps_mp.begin(); i != apps_mp.end(); ++i)
         {
