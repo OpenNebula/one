@@ -549,7 +549,6 @@ INSTALL_SUNSTONE_PUBLIC_MINIFIED_FILES=(
   SUNSTONE_PUBLIC_LOCALE_CS_CZ:$SUNSTONE_LOCATION/public/locale/languages
   SUNSTONE_PUBLIC_LOCALE_DE:$SUNSTONE_LOCATION/public/locale/languages
   SUNSTONE_PUBLIC_LOCALE_DA:$SUNSTONE_LOCATION/public/locale/languages
-  SUNSTONE_PUBLIC_LOCALE_EL_GR:$SUNSTONE_LOCATION/public/locale/languages
   SUNSTONE_PUBLIC_LOCALE_EN_US:$SUNSTONE_LOCATION/public/locale/languages
   SUNSTONE_PUBLIC_LOCALE_ES_ES:$SUNSTONE_LOCATION/public/locale/languages
   SUNSTONE_PUBLIC_LOCALE_FA_IR:$SUNSTONE_LOCATION/public/locale/languages
@@ -1997,10 +1996,6 @@ src/sunstone/public/locale/languages/de_datatable.txt"
 SUNSTONE_PUBLIC_LOCALE_DA="\
 src/sunstone/public/locale/languages/da.js \
 src/sunstone/public/locale/languages/da_datatable.txt"
-
-SUNSTONE_PUBLIC_LOCALE_EL_GR="\
-src/sunstone/public/locale/languages/el_GR.js \
-src/sunstone/public/locale/languages/el_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_EN_US="\
 src/sunstone/public/locale/languages/en_US.js \
