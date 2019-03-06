@@ -165,17 +165,7 @@ class Container
     # @param command [String] to execute through lxc exec
     def exec(command)
         cmd = "#{@lxc_command} exec #{@one.vm_name} -- #{command}"
-        cmd = "#{LXC_COMMAND} exec #{@one.vm_name} -- #{command}"
-        rc, o, e = Command.execute(cmd, true)
-
-        # TODO: this should be removed when Snap bug is fixed
-        err = 'cannot create user data directory:'
-        rc, o, e = Command.execute("sudo #{cmd}", true) if e.include?(err)
-
-        log = "Failed to run command #{cmd}: #{e}"
-        OpenNebula.log_error("#{__method__}: #{log}") unless rc.zero?
-
-        [rc, o, e]
+        Command.execute(cmd, true)
     end
 
     #---------------------------------------------------------------------------
