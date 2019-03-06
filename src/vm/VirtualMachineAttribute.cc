@@ -75,7 +75,7 @@ VirtualMachineAttribute * VirtualMachineAttributeSet::remove_attribute(
         {
             a_set.erase(it);
 
-            return tmp;
+            return vma;
         }
     }
 
