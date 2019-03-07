@@ -172,8 +172,9 @@ class FileHelper
             # RW 2048000 VMFS "filename-flat.vdmdk"
             file_to_download = file.split(" ")[3][1..-2]
             files_to_download << file_to_download
-            if ds.is_descriptor?(descriptor_url.host + "/" + file_to_download)
-                files_to_download << download_all_filenames_in_descriptor(descriptor_url.host + "/" + file_to_download)
+            image_path = File.dirname(descriptor_url.host+descriptor_url.path)
+            if ds.is_descriptor?(image_path + "/" + file_to_download)
+                files_to_download << download_all_filenames_in_descriptor(image_path + "/" + file_to_download)
             end
         end
 
@@ -202,8 +203,9 @@ class FileHelper
             descriptor_name = File.basename vcenter_url.path
             temp_folder = VAR_LOCATION + "/vcenter/" + descriptor_name + "/"
             FileUtils.mkdir_p(temp_folder) if !File.directory?(temp_folder)
-
-            self.download_vmdks(files_to_download, vcenter_url.host, temp_folder, ds)
+            
+            image_path = File.dirname(vcenter_url.host+vcenter_url.path)
+            self.download_vmdks(files_to_download, image_path, temp_folder, ds)
 
             # Create tar.gz
             rs = system("cd #{temp_folder} && tar czf #{descriptor_name}.tar.gz #{files_to_download.join(' ')} > /dev/null 2>&1")
