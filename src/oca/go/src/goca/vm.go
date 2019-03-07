@@ -127,7 +127,7 @@ type vmNic struct {
 type vmNicAlias struct {
 	ID       int    `xml:"NIC_ID"`    // minOccurs=1
 	Parent   string `xml:"PARENT"`    // minOccurs=1
-	ParentId string `xml:"PARENT_ID"` // minOccurs=1
+	ParentID string `xml:"PARENT_ID"` // minOccurs=1
 }
 
 type vmGraphics struct {

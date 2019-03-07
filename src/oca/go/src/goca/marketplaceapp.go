@@ -37,8 +37,8 @@ type MarketPlaceApp struct {
 	Permissions   *Permissions           `xml:"PERMISSIONS"`
 	RegTime       int                    `xml:"REGTIME"`
 	Name          string                 `xml:"NAME"`
-	ZoneId        string                 `xml:"ZONE_ID"`
-	OriginId      string                 `xml:"ORIGIN_ID"`
+	ZoneID        string                 `xml:"ZONE_ID"`
+	OriginID      string                 `xml:"ORIGIN_ID"`
 	Source        string                 `xml:"SOURCE"`
 	MD5           string                 `xml:"MD5"`
 	Size          int                    `xml:"SIZE"`
