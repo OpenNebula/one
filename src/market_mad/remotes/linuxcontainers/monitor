@@ -76,6 +76,9 @@ CONTEXT = [
         http_proxy = ENV['http_proxy'] || ENV['HTTP_PROXY']
 
         if http_proxy
+            # prepend 'http' if missing to parse with URI()
+            http_proxy = 'http://' + http_proxy if http_proxy !~ /^http/
+
             p_uri   = URI(http_proxy)
             p_host  = p_uri.host
             p_port  = p_uri.port
