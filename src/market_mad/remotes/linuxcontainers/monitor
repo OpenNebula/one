@@ -67,7 +67,8 @@ CONTEXT = [
         @options.merge!(options)
 
         version_path = File.dirname(__FILE__) + '/../../VERSION'
-        @options[:agent] = "OpenNebula #{File.read(version_path)}" if File.exist? version_path
+        @options[:agent] = "OpenNebula #{File.read(version_path)}" \
+            if File.exist? version_path
     end
 
     # Get container information
@@ -110,7 +111,7 @@ CONTEXT = [
     end
 
     # Get the list of appliances
-    def get_appliances
+    def fetch_appliances
         first_level = '/images/'
 
         rc, body = get(first_level)
@@ -125,11 +126,11 @@ CONTEXT = [
 
             next if rc != 0
 
-            version = body.scan(%r{a href="(.*/)">})
-            version.shift # Remove first entry ("Parent Directory")
+            versions = body.scan(%r{a href="(.*/)">})
+            versions.shift # Remove first entry ("Parent Directory")
 
             version_path = {}
-            version.each do |version|
+            versions.each do |version|
                 path = "#{first_level}#{distro[0]}#{version[0]}amd64/default/"
                 rc, body = get(path)
 
@@ -166,12 +167,14 @@ CONTEXT = [
 
                 tmpl = ''
 
-                data.each {|key, value| print_var(tmpl, key, value) }
+                data.each {|key, val| print_var(tmpl, key, val) }
 
                 tmpl64 = ''
                 print_var(tmpl64, 'DRIVER', 'raw')
-                print_var(tmpl, 'APPTEMPLATE64', Base64.strict_encode64(tmpl64))
-                print_var(tmpl, 'VMTEMPLATE64', Base64.strict_encode64(TEMPLATE))
+                print_var(tmpl, 'APPTEMPLATE64',
+                          Base64.strict_encode64(tmpl64))
+                print_var(tmpl, 'VMTEMPLATE64',
+                          Base64.strict_encode64(TEMPLATE))
 
                 appstr << "APP=\"#{Base64.strict_encode64(tmpl)}\"\n"
             end
@@ -190,8 +193,8 @@ CONTEXT = [
     #    ./20181214_07:42/rootfs.tar.xz?size=5120&filesystem=ext4&format=raw
     #
     def app_url(path)
-        "\\\"lxd://#{@options[:url]}#{path}?size=#{@options[:sizemb]}&filesystem=" \
-            "#{@options[:fs]}&format=#{@options[:format]}\\\""
+        "\\\"lxd://#{@options[:url]}#{path}?size=#{@options[:sizemb]}" \
+        "&filesystem=#{@options[:fs]}&format=#{@options[:format]}\\\""
     end
 
     # Returns build date based on image path
@@ -217,8 +220,8 @@ end
 ################################################################################
 # Main Program. Outpust the list of marketplace appliances
 ################################################################################
-def set_option(o, d, name, path)
-    o[name] = d.elements[path].text if d.elements[path]
+def set_option(option, doc, name, path)
+    option[name] = ddoc.elements[path].text if doc.elements[path]
 end
 
 begin
@@ -233,6 +236,7 @@ begin
 
     data.each {|key, value| set_option(options, doc, key, value) }
 
-    puts LinuxContainersMarket.new(options).get_appliances
-rescue Exception
+    puts LinuxContainersMarket.new(options).fetch_appliances
+rescue StandardError
+    nil
 end

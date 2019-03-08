@@ -183,8 +183,6 @@ AllCops:
     - src/market_mad/remotes/s3/monitor
     - src/market_mad/remotes/s3/delete
     - src/market_mad/remotes/s3/import
-    - src/market_mad/remotes/linuxcontainers/monitor
-    - src/market_mad/remotes/one/monitor
     - src/tm_mad/vcenter/monitor
     - src/tm_mad/vcenter/delete
     - src/tm_mad/vcenter/mvds
