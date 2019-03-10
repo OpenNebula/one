@@ -44,7 +44,7 @@ include a handy script to install them and the requirements. It is located at
 `share/install_gems/install_gems` and you should use it to install the
 required gems. You have more information at:
 
-  https://docs.opennebula.org/5.4/integration/references/compile.html
+  https://docs.opennebula.org/stable/integration/references/compile.html
 
 If you want to install them manually here are the list of required rubygems:
 
@@ -156,11 +156,11 @@ You can find the documentation about OpenNebula architecture, installation,
 configuration and references to configuration files in this documentation
 chapter:
 
-https://docs.opennebula.org/5.4/deployment/index.html
+https://docs.opennebula.org/stable/deployment/index.html
 
 The reference about the main configuration file is located here:
 
-https://docs.opennebula.org/5.4/deployment/references/oned_conf.html
+https://docs.opennebula.org/stable/deployment/references/oned_conf.html
 
 
 ## Contact
