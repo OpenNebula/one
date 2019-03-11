@@ -136,6 +136,8 @@ define(function(require) {
 
     this.totalApps++;
 
+    this.type = OpenNebulaMarketPlaceApp.typeStr(element.TYPE);
+
     var search = {
       NAME:           element.NAME,
       UNAME:          element.UNAME,

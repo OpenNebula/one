@@ -65,7 +65,6 @@ class OneMarket
 
     def get_appliances()
         rc, body = get('/appliance')
-
         if rc != 0
             return rc, body
         end
@@ -83,7 +82,7 @@ class OneMarket
             print_var(tmpl, "SOURCE",      source)
             print_var(tmpl, "IMPORT_ID",   id)
             print_var(tmpl, "ORIGIN_ID",   "-1")
-            print_var(tmpl, "TYPE",        "IMAGE")
+            print_var(tmpl, "TYPE",        app["type"])
             print_var(tmpl, "PUBLISHER",   app["publisher"])
             print_var(tmpl, "FORMAT",      app["format"])
             print_var(tmpl, "DESCRIPTION", app["short_description"])

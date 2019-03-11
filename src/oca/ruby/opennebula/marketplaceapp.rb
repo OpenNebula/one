@@ -53,6 +53,7 @@ module OpenNebula
             "VMTEMPLATE"        => "tpl",
             "SERVICE_TEMPLATE"  => "srv"
         }
+
         # Creates a MarketPlace description with just its identifier
         # this method should be used to create plain MarketPlace objects.
         # +id+ the id of the user
@@ -169,27 +170,30 @@ module OpenNebula
         #     :vmtemplate => [ vmtemplates ids/OpenNebula::Error ],
         #     :image => [ vm ids/OpenNebula::Error ] }
         def export(options={})
-            return Error.new("Missing datastore id") if options[:dsid].nil?
-            return Error.new("Missing name to export app") if options[:name].nil?
-
             rc  = info
             return rc if OpenNebula.is_error?(rc)
             return Error.new("App is not in READY state") if state_str!="READY"
 
+            if options[:dsid].nil? && type_str != "VMTEMPLATE"
+                return Error.new("Missing datastore id")
+            end
+
+            return Error.new("Missing name to export app") if options[:name].nil?
+
+            if !self['APPTEMPLATE64'].nil?
+                tmpl=Base64::decode64(self['APPTEMPLATE64'])
+            else
+                tmpl=""
+            end
+
+            name = options[:name] || "marketapp-#{self.id}"
+
+            tmpl << "\n"
+            tmpl << "NAME=\"" << name << "\"\n"
+            tmpl << "FROM_APP=\""       << self['ID'] << "\"\n"
+
             case type_str
             when "IMAGE"
-                if !self['APPTEMPLATE64'].nil?
-                    tmpl=Base64::decode64(self['APPTEMPLATE64'])
-                else
-                    tmpl=""
-                end
-
-                name = options[:name] || "marketapp-#{self.id}"
-
-                tmpl << "\n"
-                tmpl << "NAME=\"" << name << "\"\n"
-                tmpl << "FROM_APP=\""       << self['ID'] << "\"\n"
-
                 image = Image.new(Image.build_xml, @client)
                 rc    = image.allocate(tmpl, options[:dsid])
 
@@ -207,6 +211,7 @@ module OpenNebula
                 return { :image => [rc] } if OpenNebula.is_error?(rc)
 
                 image_id = image.id
+
                 vmtpl_id = -1
 
                 if !self['TEMPLATE/VMTEMPLATE64'].nil?
@@ -228,8 +233,30 @@ module OpenNebula
                 end
 
                 return { :image => [image_id], :vmtemplate => [vmtpl_id] }
+            when "VMTEMPLATE"
+                vmtpl_id = -1
+                image_id = "There is no image associated to the APP"
+
+                if !self['TEMPLATE/VMTEMPLATE64'].nil?
+                    tmpl=Base64::decode64(self['TEMPLATE/VMTEMPLATE64'])
+
+                    tmpl_name = options[:vmtemplate_name] || name
+
+                    tmpl << "\nNAME=\"#{tmpl_name}\"\n"
+
+                    vmtpl = Template.new(Template.build_xml, @client)
+                    rc    = vmtpl.allocate(tmpl)
+
+                    if OpenNebula.is_error?(rc)
+                        return { :image => [image_id], :vmtemplate => [rc] }
+                    end
+
+                    vmtpl_id = vmtpl.id
+                end
+
+                return { :image => [image_id], :vmtemplate => [vmtpl_id] }
             else
-                return Error.new("App type #{app.type_str} not supported")
+                return Error.new("App type #{type_str} not supported")
             end
         end
 
