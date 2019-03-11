@@ -213,7 +213,7 @@ SUPPORT = {
     :author_name => "OpenNebula Support Team",
     :support_subscription => "http://opennebula.systems/support/",
     :account => "http://opennebula.systems/buy/",
-    :docs => "http://docs.opennebula.org/5.7/",
+    :docs => "http://docs.opennebula.org/5.8/",
     :community => "http://opennebula.org/support/community/",
     :project => "OpenNebula"
 }
