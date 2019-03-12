@@ -221,7 +221,7 @@ end
 # Main Program. Outpust the list of marketplace appliances
 ################################################################################
 def set_option(option, doc, name, path)
-    option[name] = ddoc.elements[path].text if doc.elements[path]
+    option[name] = doc.elements[path].text if doc.elements[path]
 end
 
 begin
