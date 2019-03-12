@@ -22,6 +22,7 @@ require 'json'
 require 'base64'
 require 'rexml/document'
 require 'time'
+require 'digest/md5'
 
 #-------------------------------------------------------------------------------
 #
@@ -153,16 +154,10 @@ CONTEXT = [
         #-----------------------------------------------------------------------
         tree.each do |distro, value|
             value.each do |version, path|
-                source = app_url(path)
-                description = 'Downloaded from https://images.linuxcontainers.org'
-                name = "#{distro[0...-1]}_#{version[0...-1]} - LXD"
+                regtime = app_time(path).to_s
 
                 data = {
-                    'NAME' => name, 'SOURCE' => source.to_s, 'FORMAT' => 'raw',
-                    'IMPORT_ID' => '-1', 'ORIGIN_ID' => '-1', 'TYPE' => 'IMAGE',
-                    'PUBLISHER' => 'linuxcontainers.org', 'VERSION' => '1.0',
-                    'DESCRIPTION' => description, 'REGTIME' => app_time(path),
-                    'TAGS' => '', 'SIZE' => @options[:sizemb]
+                    'REGTIME' => regtime, 'MD5' => md5(regtime),
                 }
 
                 tmpl = ''
@@ -213,6 +208,13 @@ CONTEXT = [
         return if val.class == String && val.empty?
 
         str << "#{name}=\"#{val}\"\n"
+    end
+
+    # Returns an md5 from a combination of the @option hash and an input string
+    def md5(string)
+        crit = string
+        @options.each {|_k, v| crit << v.to_s }
+        Digest::MD5.hexdigest(crit)
     end
 
 end
