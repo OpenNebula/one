@@ -31,15 +31,16 @@ class LXDClient
     API    = '/1.0'.freeze
     HEADER = { 'Host' => 'localhost' }.freeze
 
-    attr_reader :lxd_path
+    attr_reader :lxd_path, :snap
 
     def initialize
-        paths = ['/var/lib/lxd', '/var/snap/lxd/common/lxd']
+        snap_path = '/var/snap/lxd/common/lxd'
+        apt_path = '/var/lib/lxd'
 
         @socket = nil
         @lxd_path = nil
 
-        paths.each do |path|
+        [apt_path, snap_path].each do |path|
             begin
                 @socket = socket(path)
                 @lxd_path = path
@@ -50,6 +51,8 @@ class LXDClient
         end
 
         raise 'Failed to open LXD socket' unless @socket
+
+        @snap = @lxd_path == snap_path
     end
 
     # Performs HTTP::Get
@@ -133,6 +136,7 @@ class LXDClient
 
         response
     end
+
 end
 
 # Error used for raising LXDClient exception when response is error return value
