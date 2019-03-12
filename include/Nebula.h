@@ -353,7 +353,11 @@ public:
      */
     static string version()
     {
-        return "OpenNebula " + code_version();
+       ostringstream os;
+       os << "OpenNebula " << code_version();
+       os << " (" << GITVERSION << ")";
+
+       return os.str();
     };
 
     /**
