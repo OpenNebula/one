@@ -52,8 +52,7 @@ class LXDClient
 
         raise 'Failed to open LXD socket' unless @socket
 
-        @snap = false
-        @snap = true if @lxd_path == snap_path
+        @snap = @lxd_path == snap_path
     end
 
     # Performs HTTP::Get
