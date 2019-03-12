@@ -154,22 +154,28 @@ CONTEXT = [
         #-----------------------------------------------------------------------
         tree.each do |distro, value|
             value.each do |version, path|
+                description = "Downloaded from #{@options[:url]}"
                 regtime = app_time(path).to_s
 
                 data = {
+                    'NAME' => "#{distro[0...-1]}_#{version[0...-1]} - LXD",
+                    'SIZE' => @options[:sizemb], 'PUBLISHER' => @options[:url],
+                    'FORMAT' => @options[:format], 'SOURCE' => app_url(path).to_s,
                     'REGTIME' => regtime, 'MD5' => md5(regtime),
+                    'IMPORT_ID' => '-1', 'ORIGIN_ID' => '-1', 'VERSION' => '1.0',
+                    'TYPE' => 'IMAGE', 'DESCRIPTION' => description, 'TAGS' => ''
                 }
 
                 tmpl = ''
-
                 data.each {|key, val| print_var(tmpl, key, val) }
 
                 tmpl64 = ''
                 print_var(tmpl64, 'DRIVER', 'raw')
-                print_var(tmpl, 'APPTEMPLATE64',
-                          Base64.strict_encode64(tmpl64))
-                print_var(tmpl, 'VMTEMPLATE64',
-                          Base64.strict_encode64(TEMPLATE))
+
+                data = { 'APPTEMPLATE64' => tmpl64, 'VMTEMPLATE64' => TEMPLATE }
+                data.each do |key, val|
+                    print_var(tmpl, key, Base64.strict_encode64(val))
+                end
 
                 appstr << "APP=\"#{Base64.strict_encode64(tmpl)}\"\n"
             end
