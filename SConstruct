@@ -280,7 +280,8 @@ build_scripts=[
     'share/rubygems/SConstruct',
     'src/im_mad/collectd/SConstruct',
     'src/client/SConstruct',
-    'src/docker_machine/SConstruct'
+    'src/docker_machine/SConstruct',
+    svncterm_path
 ]
 
 # disable svncterm
