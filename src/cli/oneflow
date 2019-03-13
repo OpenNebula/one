@@ -280,12 +280,12 @@ def show_service(client, args, options)
                 if !role['elasticity_policies'].nil? &&
                    !role['elasticity_policies'].empty? ||
                    !role['scheduled_policies'].nil? &&
-                   !role['scheduled_policies'].emtpty?
+                   !role['scheduled_policies'].empty?
                     puts
                     puts 'ELASTICITY RULES'
 
                     if role['elasticity_policies'] &&
-                       !role['elasticity_policies'].emtpty?
+                       !role['elasticity_policies'].empty?
                         puts
                         #                        puts 'ELASTICITY POLICIES'
                         CLIHelper::ShowTable.new(nil, self) do
