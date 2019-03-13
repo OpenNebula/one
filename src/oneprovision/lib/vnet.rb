@@ -22,8 +22,8 @@ module OneProvision
     class Vnet < Resource
 
         # Class constructor
-        def initialize
-            super 'Vnet'
+        def initialize(id = nil)
+            super('Vnet', id)
         end
 
         # Creates a new VNET in OpenNebula
@@ -41,6 +41,28 @@ module OneProvision
             template += "PM_MAD=\"#{pm_mad}\"\n"
 
             super(cluster_id, template)
+        end
+
+        # Deletes the address ranges from the vnet
+        def delete_ars
+            ars = @one.to_hash['VNET']['AR_POOL']['AR']
+            id  = @one.id
+
+            [ars].flatten.each do |ar|
+                delete_ar(id, ar['AR_ID'])
+            end
+        end
+
+        private
+
+        # Delete an specific address range
+        #
+        # @param id    [Integer] The id of the vnet
+        # @param ar_id [Integer] The id of the ar
+        def delete_ar(id, ar_id)
+            OneProvisionLogger.debug("Deleting AR #{ar_id} from VNET #{id}")
+
+            @one.rm_ar(ar_id)
         end
 
     end

@@ -61,9 +61,15 @@ module OneProvision
 
                 @pool = OpenNebula::HostPool.new(client)
             when 'Vnet'
-                xml = OpenNebula::VirtualNetwork.build_xml
+                if !id
+                    xml = OpenNebula::VirtualNetwork.build_xml
 
-                @one = OpenNebula::VirtualNetwork.new(xml, client)
+                    @one = OpenNebula::VirtualNetwork.new(xml, client)
+                else
+                    @one = OpenNebula::VirtualNetwork.new_with_id(id, client)
+                    @one.info
+                end
+
                 @pool = OpenNebula::VirtualNetworkPool.new(client)
             end
         end
