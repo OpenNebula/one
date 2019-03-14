@@ -186,9 +186,7 @@ module OneProvision
 
                 Mode.new_cleanup(true)
 
-                Driver.retry_loop 'Failed to create some resources' do
-                    create_resources(cfg, cid)
-                end
+                create_resources(cfg, cid)
 
                 if cfg['hosts'].nil?
                     puts "ID: #{@id}"
@@ -196,9 +194,7 @@ module OneProvision
                     return 0
                 end
 
-                Driver.retry_loop 'Failed to create hosts' do
-                    create_hosts(cfg, cid)
-                end
+                create_hosts(cfg, cid)
 
                 # ask user to be patient, mandatory for now
                 STDERR.puts 'WARNING: This operation can ' \
@@ -274,32 +270,34 @@ module OneProvision
                 next if cfg[r].nil?
 
                 cfg[r].each do |x|
-                    if cfg['defaults'] && cfg['defaults']['driver']
-                        driver = cfg['defaults']['provision']['driver']
+                    Driver.retry_loop 'Failed to create some resources' do
+                        if cfg['defaults'] && cfg['defaults']['driver']
+                            driver = cfg['defaults']['provision']['driver']
+                        end
+
+                        erb = Utils.evaluate_erb(self, x)
+
+                        msg = "Creating OpenNebula #{r}: #{erb['name']}"
+
+                        OneProvisionLogger.debug(msg)
+
+                        if r == 'datastores'
+                            datastore = Datastore.new
+                            datastore.create(cid.to_i, erb, driver, @id, @name)
+                            @datastores << datastore.one
+                        else
+                            vnet = Vnet.new
+                            vnet.create(cid.to_i, erb, driver, @id, @name)
+                            @vnets << vnet.one
+                        end
+
+                        r     = 'vnets' if r == 'networks'
+                        rid   = instance_variable_get("@#{r}").last['ID']
+                        rname = r.chomp('s').capitalize
+                        msg   = "#{rname} created with ID: #{rid}"
+
+                        OneProvisionLogger.debug(msg)
                     end
-
-                    msg = "Creating OpenNebula #{r}: #{x['name']}"
-
-                    OneProvisionLogger.debug(msg)
-
-                    erb = Utils.evaluate_erb(self, x)
-
-                    if r == 'datastores'
-                        datastore = Datastore.new
-                        datastore.create(cid.to_i, erb, driver, @id, @name)
-                        @datastores << datastore.one
-                    else
-                        vnet = Vnet.new
-                        vnet.create(cid.to_i, erb, driver, @id, @name)
-                        @vnets << vnet.one
-                    end
-
-                    r     = 'vnets' if r == 'networks'
-                    rid   = instance_variable_get("@#{r}").last['ID']
-                    rname = r.chomp('s').capitalize
-                    msg   = "#{rname} created with ID: #{rid}"
-
-                    OneProvisionLogger.debug(msg)
                 end
             end
         end
@@ -310,16 +308,18 @@ module OneProvision
         # @param cid [String]           Cluster ID
         def create_hosts(cfg, cid)
             cfg['hosts'].each do |h|
-                erb      = Utils.evaluate_erb(self, h)
-                dfile    = Utils .create_deployment_file(erb, @id, @name)
-                playbook = cfg['playbook']
+                Driver.retry_loop 'Failed to create some host' do
+                    erb      = Utils.evaluate_erb(self, h)
+                    dfile    = Utils.create_deployment_file(erb, @id, @name)
+                    playbook = cfg['playbook']
 
-                host = Host.new
-                host = host.create(dfile.to_xml, cid.to_i, playbook)
+                    host = Host.new
+                    host = host.create(dfile.to_xml, cid.to_i, playbook)
 
-                @hosts << host
+                    @hosts << host
 
-                host.offline
+                    host.offline
+                end
             end
         end
 
