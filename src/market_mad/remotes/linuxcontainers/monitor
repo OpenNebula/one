@@ -74,35 +74,12 @@ CONTEXT = [
 
     # Get container information
     def get(path)
-        # Get proxy params (needed for ruby 1.9.3)
-        http_proxy = ENV['http_proxy'] || ENV['HTTP_PROXY']
-
-        if http_proxy
-            # prepend 'http' if missing to parse with URI()
-            http_proxy = 'http://' + http_proxy if http_proxy !~ /^http/
-
-            p_uri   = URI(http_proxy)
-            p_host  = p_uri.host
-            p_port  = p_uri.port
-        else
-            p_host  = nil
-            p_port  = nil
-        end
-
         uri = URI(@options[:url] + path)
 
-        rc  = Net::HTTP.get_response(uri)
-
-        uri = URI(rc['location']) if rc.is_a? Net::HTTPRedirection
-
         req = Net::HTTP::Get.new(uri.request_uri)
-
         req['User-Agent'] = @options[:agent]
 
-        response = Net::HTTP.start(uri.hostname, uri.port, p_host, p_port,
-                                   :use_ssl => uri.scheme == 'https') do |http|
-            http.request(req)
-        end
+        response = @http_client.request(req)
 
         return 0, response.body if response.is_a? Net::HTTPSuccess
 
@@ -114,6 +91,8 @@ CONTEXT = [
     # Get the list of appliances
     def fetch_appliances
         first_level = '/images/'
+
+        open_connection
 
         rc, body = get(first_level)
 
@@ -193,13 +172,10 @@ CONTEXT = [
 
     private
 
-    # Generate the URL for the appliance
-    #   path of the continer at linuxcontainers.org
-    # Example:
+    # Generate the URL for the appliance path of the container. Example:
     #
     # lxd://https://images.linuxcontainers.org/images/ubuntu/xenial/amd64/default/\
     #    ./20181214_07:42/rootfs.tar.xz?size=5120&filesystem=ext4&format=raw
-    #
     def app_url(path)
         "\\\"lxd://#{@options[:url]}#{path}?size=#{@options[:sizemb]}" \
         "&filesystem=#{@options[:fs]}&format=#{@options[:format]}\\\""
@@ -226,6 +202,34 @@ CONTEXT = [
     # Returns an md5 from a combination of the @option hash and an input string
     def md5(string)
         Digest::MD5.hexdigest("#{@options} #{string}")
+    end
+
+    # Opens a TCP connection to @options[:url]
+    def open_connection
+        http_proxy = ENV['http_proxy'] || ENV['HTTP_PROXY'] # for ruby 1.9.3
+
+        if http_proxy
+            http_proxy = 'http://' + http_proxy if http_proxy !~ /^http/
+
+            p_uri   = URI(http_proxy)
+            p_host  = p_uri.host
+            p_port  = p_uri.port
+        else
+            p_host  = nil
+            p_port  = nil
+        end
+
+        uri = URI(@options[:url])
+
+        response = Net::HTTP.get_response(uri)
+
+        if response.is_a? Net::HTTPRedirection
+            @options[:url] = response['location']
+            uri = URI(@options[:url])
+        end
+
+        @http_client = Net::HTTP.start(uri.hostname, uri.port, p_host, p_port,
+                                       :use_ssl => uri.scheme == 'https')
     end
 
 end
