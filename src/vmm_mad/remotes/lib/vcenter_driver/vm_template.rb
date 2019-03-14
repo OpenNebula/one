@@ -614,7 +614,9 @@ class Template
 
     def get_vcenter_nics
         nics = []
-        @item.config.hardware.device.each { |device| nics << device if is_nic?(device)}
+        @item.config.hardware.device.each do |device|
+            nics << device if is_nic?(device)
+        end
 
         nics
     end
@@ -622,12 +624,17 @@ class Template
     def retrieve_from_device(device)
         res = {}
 
-        # Let's find out if it is a standard or distributed network
-        # If distributed, it needs to be instantitaed from the ref
-        if device.backing.is_a? RbVmomi::VIM::VirtualEthernetCardDistributedVirtualPortBackingInfo
-            if device.backing.port.portKey.match(/^[a-z]+-\d+$/)
+        # Lets find out if it is a standard or distributed network
+        # If distributed, it needs to be instantiated from the ref
+        vim_eth_dist_class =
+            RbVmomi::VIM::VirtualEthernetCardDistributedVirtualPortBackingInfo
+
+        if device.backing.is_a? vim_eth_dist_class
+            if device.backint.port.portKey &&
+               device.backing.port.portKey.match(/^[a-z]+-\d+$/)
                 ref = device.backing.port.portKey
-            elsif device.backing.port.portgroupKey.match(/^[a-z]+-\d+$/)
+            elsif device.backing.port.portgroupKey &&
+                  device.backing.port.portgroupKey.match(/^[a-z]+-\d+$/)
                 ref = device.backing.port.portgroupKey
             else
                 raise "Cannot get hold of Network for device #{device}"
@@ -668,7 +675,6 @@ class Template
         nics = []
         inets_raw = nil
         inets = {}
-        num_device = 0
         @item["config.hardware.device"].each do |device|
             next unless is_nic?(device)
 
@@ -680,7 +686,7 @@ class Template
                     inets = parse_live.call(inets_raw) if inets.empty?
 
                     if !inets[nic[:mac]]
-                        ipAddresses = inets[nic[:mac]].ipConfig.ipAddress
+                        ipAddresses = inets[nic[:mac]].ipConfig.ipAddress rescue nil
                     end
 
                     if !ipAddresses.nil? && !ipAddresses.empty?
