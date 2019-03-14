@@ -81,7 +81,7 @@ fi
 # ------------ Compute datastore usage -------------
 
 MONITOR_SCRIPT=$(cat <<EOF
-$CEPH df --format xml
+$CEPH df detail --format xml
 EOF
 )
 
