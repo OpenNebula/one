@@ -44,7 +44,7 @@ else
     LOCK_FILE=$ONE_LOCATION/var/.lock
 fi
 
-KILL_9_SECONDS=5
+KILL_9_SECONDS=10
 BACKUP="true"
 
 #------------------------------------------------------------------------------
