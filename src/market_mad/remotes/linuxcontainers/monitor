@@ -70,6 +70,8 @@ CONTEXT = [
         version_path = File.dirname(__FILE__) + '/../../VERSION'
         @options[:agent] = "OpenNebula #{File.read(version_path)}" \
             if File.exist? version_path
+                
+        @http_client = nil
     end
 
     # Get container information
@@ -168,6 +170,9 @@ CONTEXT = [
         end
 
         appstr
+        
+    ensure
+        @http_client.finish if @http_client
     end
 
     private
@@ -206,6 +211,8 @@ CONTEXT = [
 
     # Opens a TCP connection to @options[:url]
     def open_connection
+        @http_client.finish if @http_client
+        
         http_proxy = ENV['http_proxy'] || ENV['HTTP_PROXY'] # for ruby 1.9.3
 
         if http_proxy
