@@ -224,7 +224,7 @@ int main(int argc, char **argv)
             break;
     }
 
-    _exit(-1);
+    _exit(0);
 
 error_chdir:
     cerr << "Error: cannot change to dir " << wd << "\n";
