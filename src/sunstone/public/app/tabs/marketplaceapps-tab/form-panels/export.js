@@ -26,6 +26,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var DataStoresTable = require('tabs/datastores-tab/datatable');
   var DataStore = require('opennebula/datastore');
+  var OpenNebulaMarketPlaceApp = require('opennebula/marketplaceapp');
   var Config = require('sunstone-config');
   var OpenNebula = require('opennebula');
   var TemplateUtils = require('utils/template-utils');
@@ -87,6 +88,7 @@ define(function(require) {
   function _htmlWizard() {
     return TemplateWizardHTML({
       'formPanelId': this.formPanelId,
+      'template': this.type == "VMTEMPLATE",
       'datastoresTableHTML': this.datastoresTable.dataTableHTML
     });
   }
@@ -119,8 +121,9 @@ define(function(require) {
     });
   }
 
-  function _setResourceId(context, resourceId) {
+  function _setResourceId(context, resourceId, type) {
     this.resourceId = resourceId;
+    this.type       = type;
 
     OpenNebula.MarketPlaceApp.show({
       data : {

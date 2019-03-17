@@ -17,42 +17,45 @@
 require 'opennebula/pool_element'
 
 module OpenNebula
+
     class MarketPlaceApp < PoolElement
+
         #######################################################################
         # Constants and Class Methods
         #######################################################################
 
         MARKETPLACEAPP_METHODS = {
-            :info       => "marketapp.info",
-            :allocate   => "marketapp.allocate",
-            :delete     => "marketapp.delete",
-            :update     => "marketapp.update",
-            :chown      => "marketapp.chown",
-            :chmod      => "marketapp.chmod",
-            :rename     => "marketapp.rename",
-            :enable     => "marketapp.enable",
-            :lock       => "marketapp.lock",
-            :unlock     => "marketapp.unlock"
+            :info       => 'marketapp.info',
+            :allocate   => 'marketapp.allocate',
+            :delete     => 'marketapp.delete',
+            :update     => 'marketapp.update',
+            :chown      => 'marketapp.chown',
+            :chmod      => 'marketapp.chmod',
+            :rename     => 'marketapp.rename',
+            :enable     => 'marketapp.enable',
+            :lock       => 'marketapp.lock',
+            :unlock     => 'marketapp.unlock'
         }
 
-        MARKETPLACEAPP_STATES=%w{INIT READY LOCKED ERROR DISABLED}
+        MARKETPLACEAPP_STATES = %w{INIT READY LOCKED ERROR DISABLED}
 
         SHORT_MARKETPLACEAPP_STATES={
-            "INIT"      => "ini",
-            "READY"     => "rdy",
-            "LOCKED"    => "lck",
-            "ERROR"     => "err",
-            "DISABLED"  => "dis"
+            'INIT'      => 'ini',
+            'READY'     => 'rdy',
+            'LOCKED'    => 'lck',
+            'ERROR'     => 'err',
+            'DISABLED'  => 'dis'
         }
 
-        MARKETPLACEAPP_TYPES=%w{UNKNOWN IMAGE VMTEMPLATE SERVICE_TEMPLATE}
+        MARKETPLACEAPP_TYPES = %w{UNKNOWN IMAGE VMTEMPLATE SERVICE_TEMPLATE}
 
         SHORT_MARKETPLACEAPP_TYPES = {
-            "UNKNOWN"           => "unk",
-            "IMAGE"             => "img",
-            "VMTEMPLATE"        => "tpl",
-            "SERVICE_TEMPLATE"  => "srv"
+            'UNKNOWN'          => 'unk',
+            'IMAGE'            => 'img',
+            'VMTEMPLATE'       => 'tpl',
+            'SERVICE_TEMPLATE' => 'srv'
         }
+
         # Creates a MarketPlace description with just its identifier
         # this method should be used to create plain MarketPlace objects.
         # +id+ the id of the user
@@ -60,14 +63,14 @@ module OpenNebula
         # Example:
         #  app = MarketPlaceApp.new(MarketPlace.build_xml(3),rpc_client)
         #
-        def MarketPlaceApp.build_xml(pe_id=nil)
+        def MarketPlaceApp.build_xml(pe_id = nil)
             if pe_id
                 app_xml = "<MARKETPLACEAPP><ID>#{pe_id}</ID></MARKETPLACEAPP>"
             else
-                app_xml = "<MARKETPLACEAPP></MARKETPLACEAPP>"
+                app_xml = '<MARKETPLACEAPP></MARKETPLACEAPP>'
             end
 
-            XMLElement.build_xml(app_xml,'MARKETPLACEAPP')
+            XMLElement.build_xml(app_xml, 'MARKETPLACEAPP')
         end
 
         # Class constructor
@@ -80,7 +83,7 @@ module OpenNebula
         #######################################################################
 
         # Retrieves the information of the given marketplace app
-        def info()
+        def info
             super(MARKETPLACEAPP_METHODS[:info], 'MARKETPLACEAPP')
         end
 
@@ -98,7 +101,7 @@ module OpenNebula
         end
 
         # Deletes the marketplace app
-        def delete()
+        def delete
             super(MARKETPLACEAPP_METHODS[:delete])
         end
 
@@ -110,7 +113,7 @@ module OpenNebula
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def update(new_template, append=false)
+        def update(new_template, append = false)
             super(MARKETPLACEAPP_METHODS[:update], new_template, append ? 1 : 0)
         end
 
@@ -152,7 +155,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def rename(name)
-            return call(MARKETPLACEAPP_METHODS[:rename], @pe_id, name)
+            call(MARKETPLACEAPP_METHODS[:rename], @pe_id, name)
         end
 
         # Exports this app to a suitable OpenNebula object
@@ -168,79 +171,80 @@ module OpenNebula
         #   { :vm => [ vm ids/OpenNebula::Error ],
         #     :vmtemplate => [ vmtemplates ids/OpenNebula::Error ],
         #     :image => [ vm ids/OpenNebula::Error ] }
-        def export(options={})
-            return Error.new("Missing datastore id") if options[:dsid].nil?
-            return Error.new("Missing name to export app") if options[:name].nil?
-
-            rc  = info
+        def export(options = {})
+            rc = info
             return rc if OpenNebula.is_error?(rc)
-            return Error.new("App is not in READY state") if state_str!="READY"
+            return Error.new('App is not READY') if state_str != 'READY'
+
+            if options[:dsid].nil? && type_str != 'VMTEMPLATE'
+                return Error.new('Missing datastore id')
+            end
+
+            return Error.new('Missing name to export app') if options[:name].nil?
+
+            if !self['APPTEMPLATE64'].nil?
+                tmpl = Base64.decode64(self['APPTEMPLATE64'])
+            else
+                tmpl = ''
+            end
+
+            name = options[:name] || "marketapp-#{id}"
+            options[:vmtemplate_name] = name unless options[:vmtemplate_name]
+
+            tmpl << "\n"
+            tmpl << 'NAME=\"' << name << '\"\n'
+            tmpl << 'FROM_APP=\"' << self['ID'] << '\"\n'
 
             case type_str
-            when "IMAGE"
-                if !self['APPTEMPLATE64'].nil?
-                    tmpl=Base64::decode64(self['APPTEMPLATE64'])
-                else
-                    tmpl=""
-                end
-
-                name = options[:name] || "marketapp-#{self.id}"
-
-                tmpl << "\n"
-                tmpl << "NAME=\"" << name << "\"\n"
-                tmpl << "FROM_APP=\""       << self['ID'] << "\"\n"
-
+            when 'IMAGE'
                 image = Image.new(Image.build_xml, @client)
                 rc    = image.allocate(tmpl, options[:dsid])
 
                 ds = OpenNebula::Datastore.new_with_id(options[:dsid], @client)
-                image.info
-                ds.info
 
-                xpath = 'TEMPLATE/DRIVER'
-                if ds[xpath] == 'vcenter' && self['FORMAT'] != 'iso' && self['FORMAT'] != 'vmdk'
-                    image.replace({'FORMAT' => 'vmdk'})
-                elsif ds[xpath] && ds[xpath] != 'vcenter' && self['FORMAT'] == 'vmdk'
-                    image.replace({'FORMAT' => ds[xpath] })
+                rc_image = image.info
+                rc_ds    = ds.info
+
+                image_error = OpenNebula.is_error?(rc_image)
+                ds_error    = OpenNebula.is_error?(rc_ds)
+
+                xpath  = 'TEMPLATE/DRIVER'
+                format = self['FORMAT']
+                type   = ds[xpath]
+
+                if !image_error && !ds_error
+                    if type == 'vcenter' && format != 'iso' && format != 'vmdk'
+                        image.replace('FORMAT' => 'vmdk')
+                    elsif type && type != 'vcenter' && format == 'vmdk'
+                        image.replace('FORMAT' => type)
+                    end
                 end
 
                 return { :image => [rc] } if OpenNebula.is_error?(rc)
 
-                image_id = image.id
-                vmtpl_id = -1
+                vmtpl_id = create_vmtemplate(options, image.id)
 
-                if !self['TEMPLATE/VMTEMPLATE64'].nil?
-                    tmpl=Base64::decode64(self['TEMPLATE/VMTEMPLATE64'])
+                return { :image => [image.id], :vmtemplate => [vmtpl_id] }
 
-                    tmpl_name = options[:vmtemplate_name] || name
+            when 'VMTEMPLATE'
+                # TODO import all the images associated to a VMTEMPLATE app
+                # current version only support no-image based apps (e.g. hybrid)
+                vmtpl_id = create_vmtemplate(options)
 
-                    tmpl << "\nNAME=\"#{tmpl_name}\"\n"
-                    tmpl << "DISK=[ IMAGE_ID = #{image.id} ]\n"
-
-                    vmtpl = Template.new(Template.build_xml, @client)
-                    rc    = vmtpl.allocate(tmpl)
-
-                    if OpenNebula.is_error?(rc)
-                        return { :image => [image_id], :vmtemplate => [rc] }
-                    end
-
-                    vmtpl_id = vmtpl.id
-                end
-
-                return { :image => [image_id], :vmtemplate => [vmtpl_id] }
+                return { :image => [], :vmtemplate => [vmtpl_id] }
             else
-                return Error.new("App type #{app.type_str} not supported")
+                return Error.new("App type #{type_str} not supported")
             end
         end
 
         # Enables this app
         def enable
-            return call(MARKETPLACEAPP_METHODS[:enable], @pe_id, true)
+            call(MARKETPLACEAPP_METHODS[:enable], @pe_id, true)
         end
 
         # Enables this app
         def disable
-            return call(MARKETPLACEAPP_METHODS[:enable], @pe_id, false)
+            call(MARKETPLACEAPP_METHODS[:enable], @pe_id, false)
         end
 
         # ---------------------------------------------------------------------
@@ -277,14 +281,37 @@ module OpenNebula
             SHORT_MARKETPLACEAPP_STATES[state_str]
         end
 
-        #Locked a MarketplaceApp
+        # Locked a MarketplaceApp
         def lock(level)
-            return call(MARKETPLACEAPP_METHODS[:lock], @pe_id, level)
+            call(MARKETPLACEAPP_METHODS[:lock], @pe_id, level)
         end
 
-        #Unlocked a MarketplaceApp
+        # Unlocked a MarketplaceApp
         def unlock()
-            return call(MARKETPLACEAPP_METHODS[:unlock], @pe_id)
+            call(MARKETPLACEAPP_METHODS[:unlock], @pe_id)
         end
+
+        private
+
+        # Creates a VM template based on the VMTEMPLATE64 attribute
+        # @return [Integer, OpenNebula::Error] template id or error
+        # TODO this method needs to be extended to support [image_ids]
+        def create_vmtemplate(options, image_id = nil)
+            return if self['TEMPLATE/VMTEMPLATE64'].nil?
+
+            tmpl = Base64.decode64(self['TEMPLATE/VMTEMPLATE64'])
+
+            tmpl << "\nNAME=\"#{options[:vmtemplate_name]}\"\n"
+            tmpl << "DISK=[ IMAGE_ID = #{image_id} ]\n" if image_id
+
+            vmtpl = Template.new(Template.build_xml, @client)
+            rc    = vmtpl.allocate(tmpl)
+
+            return rc if OpenNebula.is_error?(rc)
+
+            vmtpl.id
+        end
+
     end
+
 end
