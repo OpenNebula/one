@@ -77,7 +77,7 @@ MarketPlaceApp::~MarketPlaceApp(){};
 
 int MarketPlaceApp::parse_template(string& error_str)
 {
-	//MarketPlaceAppPool::allocate checks NAME & ZONE_ID
+    //MarketPlaceAppPool::allocate checks NAME & ZONE_ID
     erase_template_attribute("NAME", name);
     remove_template_attribute("ZONE_ID");
 
@@ -90,7 +90,18 @@ int MarketPlaceApp::parse_template(string& error_str)
 
     regtime = time(NULL);
 
-    type = IMAGE;
+    std::string str_type;
+
+    get_template_attribute("TYPE", str_type);
+
+    if (!str_type.empty())
+    {
+        type = str_to_type(str_type);
+    }
+    else
+    {
+        type = IMAGE;
+    }
 
     //Known attributes
     //ORIGIN_ID
@@ -441,7 +452,19 @@ int MarketPlaceApp::from_template64(const std::string &info64, std::string& err)
 
     state = READY;
 
-    type      = IMAGE;
+    std::string str_type;
+
+    get_template_attribute("TYPE", str_type);
+
+    if (!str_type.empty())
+    {
+        type = str_to_type(str_type);
+    }
+    else
+    {
+        type = IMAGE;
+    }
+
     origin_id = -1;
 
     remove_template_attribute("TYPE");
