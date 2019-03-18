@@ -25,7 +25,7 @@
      Copyright 2002-2018, OpenNebula Project, OpenNebula Systems
 
      - This is a modification of the original svncterm program. The server
-     is control through a named pipe. This program is intended to use in 
+     is control through a named pipe. This program is intended to use in
      conjuntion with the OpenNebula LXD driver.
      - Adds an inetd like funcioanlity to handle client connections
      - Simplify timeout managemnt
@@ -37,7 +37,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h> 
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netdb.h>
@@ -52,7 +52,7 @@
 #include <locale.h>
 
 /* svncterm server */
-#include <fcntl.h>  
+#include <fcntl.h>
 #include <sys/stat.h>
 #include <limits.h>
 
@@ -71,8 +71,7 @@
 }
 
 /* these colours are from linux kernel drivers/char/vt.c */
-unsigned char color_table[] = { 0, 4, 2, 6, 1, 5, 3, 7,
-				8,12,10,14, 9,13,11,15 };
+unsigned char color_table[] = { 0, 4, 2, 6, 1, 5, 3, 7, 8,12,10,14, 9,13,11,15 };
 
 /* the default colour table, for VGA+ colour systems */
 int default_red[] = {0x00,0xaa,0x00,0xaa,0x00,0xaa,0x00,0xaa,
@@ -91,12 +90,12 @@ ucs2_to_utf8 (unicode c, char *out)
     out[1] = 0;
     return 1;
   } else if (c < 0x800) {
-    out[0] = 0xc0 | (c >> 6); 	//  110***** 10******
+    out[0] = 0xc0 | (c >> 6);	//  110***** 10******
     out[1] = 0x80 | (c & 0x3f);
     out[2] = 0;
     return 2;
   } else {
-    out[0] = 0xe0 | (c >> 12); 	//  1110**** 10****** 10******
+    out[0] = 0xe0 | (c >> 12);	//  1110**** 10****** 10******
     out[1] = 0x80 | ((c >> 6) & 0x3f);
     out[2] = 0x80 | (c & 0x3f);
     out[3] = 0;
@@ -107,8 +106,8 @@ ucs2_to_utf8 (unicode c, char *out)
 }
 
 static void
-rfb_draw_char (rfbScreenInfoPtr rfbScreen, int x, int y,
-	       unsigned short c, rfbPixel col)
+rfb_draw_char (rfbScreenInfoPtr rfbScreen, int x, int y, unsigned short c, 
+        rfbPixel col)
 {
   if (c > vt_font_size) {
     rfbLog ("undefined font glyph %d\n", c);
@@ -124,11 +123,11 @@ rfb_draw_char (rfbScreenInfoPtr rfbScreen, int x, int y,
   for(j = 0; j < 16; j++) {
     for(i = 0; i < 8; i++) {
       if ((i&7) == 0) {
-	d=*data;
-	data++;
+        d=*data;
+        data++;
       }
       if (d&0x80)
-	*(rfbScreen->frameBuffer+(y+j)*rowstride+(x+i)) = *colour;
+        *(rfbScreen->frameBuffer+(y+j)*rowstride+(x+i)) = *colour;
       d<<=1;
     }
   }
@@ -370,7 +369,7 @@ vncterm_virtual_scroll (vncTerm *vt, int lines)
     for(i = 0; i < lines; i++) {
       if (vt->y_displ == y1) break;
       if (--vt->y_displ < 0) {
-	vt->y_displ = vt->total_height - 1;
+        vt->y_displ = vt->total_height - 1;
       }
     }
   } else {
@@ -378,7 +377,7 @@ vncterm_virtual_scroll (vncTerm *vt, int lines)
     for(i = 0; i < lines; i++) {
       if (vt->y_displ == vt->y_base) break;
       if (++vt->y_displ == vt->total_height) {
-	vt->y_displ = 0;
+        vt->y_displ = 0;
       }
     }
 
@@ -416,7 +415,7 @@ vncterm_put_lf (vncTerm *vt)
 
     if (vt->y_displ == vt->y_base) {
       if (++vt->y_displ == vt->total_height) {
-	vt->y_displ = 0;
+        vt->y_displ = 0;
       }
     }
 
@@ -1948,7 +1947,7 @@ void del_cmd(struct vncterm_command * cmd, struct vncterm_command ** client_fds)
         close(i);
 
         free_vncterm_command(client_fds[i]);
-        
+
         client_fds[i] = NULL;
 
         break;
@@ -2113,16 +2112,16 @@ int vncterm_cmd(int sd, int timeout, int width, int heigth,
         struct vncterm_command * vcmd)
 {
 #ifdef DEBUG
-	rfbLogEnable (1);
+    rfbLogEnable (1);
 #else
-	rfbLogEnable (0);
+    rfbLogEnable (0);
 #endif
-	int status;
-	int master;
+    int status;
+    int master;
 
-	char ptyname[1024];
+    char ptyname[1024];
 
-	struct winsize dimensions;
+    struct winsize dimensions;
 
     char **argv = NULL;
     int argc    = 0;
@@ -2136,71 +2135,71 @@ int vncterm_cmd(int sd, int timeout, int width, int heigth,
         argc_ptr = &argc;
     }
 
-	vncTerm *vt = create_vncterm(sd, width, heigth, argc_ptr, argv);
+    vncTerm *vt = create_vncterm(sd, width, heigth, argc_ptr, argv);
 
-	setlocale(LC_ALL, ""); // set from environment
+    setlocale(LC_ALL, ""); // set from environment
 
-	char *ctype = setlocale (LC_CTYPE, NULL); // query LC_CTYPE
+    char *ctype = setlocale (LC_CTYPE, NULL); // query LC_CTYPE
 
-	// fixme: ist there a standard way to detect utf8 mode ?
-	if (strcasestr(ctype, ".utf-8") || strcasestr(ctype, ".utf8")) 
-	{
-		vt->utf8 = 1;
-	}
+    // fixme: ist there a standard way to detect utf8 mode ?
+    if (strcasestr(ctype, ".utf-8") || strcasestr(ctype, ".utf8"))
+    {
+        vt->utf8 = 1;
+    }
 
-	dimensions.ws_col = vt->width;
-	dimensions.ws_row = vt->height;
+    dimensions.ws_col = vt->width;
+    dimensions.ws_row = vt->height;
 
-	setenv ("TERM", TERM, 1);
+    setenv ("TERM", TERM, 1);
 
-	int pid = forkpty (&master, ptyname, NULL, &dimensions);
+    int pid = forkpty (&master, ptyname, NULL, &dimensions);
 
-	switch (pid)
-	{
-		case -1:
-			perror("fork()");
-			exit(-1);
+    switch (pid)
+    {
+        case -1:
+            perror("fork()");
+            exit(-1);
 
-		case 0:
+        case 0:
             close(sd);
 
-			signal(SIGQUIT, SIG_DFL);
-			signal(SIGTERM, SIG_DFL);
-			signal(SIGINT, SIG_DFL);
+            signal(SIGQUIT, SIG_DFL);
+            signal(SIGTERM, SIG_DFL);
+            signal(SIGINT, SIG_DFL);
 
-			execvp(vcmd->argv[0], vcmd->argv);
-			break;
-		default:
-			break;
-	}
+            execvp(vcmd->argv[0], vcmd->argv);
+            break;
+        default:
+            break;
+    }
 
-	int count = 0;
+    int count = 0;
 
-	char buffer[1024];
-	
+    char buffer[1024];
+
     int c;
     int rc, error;
 
     socklen_t error_len = sizeof(int);
 
-	while(1)
-	{
-		fd_set fs;
-		struct timeval tv;
+    while(1)
+    {
+        fd_set fs;
+        struct timeval tv;
 
-		FD_ZERO(&fs);
-		
+        FD_ZERO(&fs);
+
         FD_SET(master, &fs);
 
-		tv.tv_sec  = 0;
-		tv.tv_usec = 5000; /* 5 ms */
+        tv.tv_sec  = 0;
+        tv.tv_usec = 5000; /* 5 ms */
 
-		if ( count * 45 > timeout*1000 )
-		{
-			break;
-		}
+        if ( count * 45 > timeout*1000 )
+        {
+            break;
+        }
 
-		rfbProcessEvents (vt->screen, 40000); /* 40 ms */
+        rfbProcessEvents (vt->screen, 40000); /* 40 ms */
 
         /* Check socket status */
 
@@ -2211,45 +2210,50 @@ int vncterm_cmd(int sd, int timeout, int width, int heigth,
             break;
         }
 
-		if (vt->ibuf_count > 0) 
-		{
-			write(master, vt->ibuf, vt->ibuf_count);
+        if (vt->ibuf_count > 0)
+        {
+            write(master, vt->ibuf, vt->ibuf_count);
 
-			vt->ibuf_count = 0;
+            vt->ibuf_count = 0;
 
-			last_time = time (NULL);
-		}
+            last_time = time (NULL);
+        }
 
-		int num_fds = select (master + 1, &fs, NULL, NULL, &tv);
-		
-		if ( num_fds == 0 )
-		{
-			count++;
-			continue;
-		}
-		else if ( num_fds == -1 )
-		{
-			break;
-		}
+        int num_fds = select (master + 1, &fs, NULL, NULL, &tv);
 
-		count = 0;
+        if ( num_fds == 0 )
+        {
+            count++;
+            continue;
+        }
+        else if ( num_fds == -1 )
+        {
+            break;
+        }
 
-		while ((c = read(master, buffer, 1024)) == -1) 
-		{
-			if (errno != EAGAIN) 
-			{
-				break;
-			}
-		}
-		
-		vncterm_puts(vt, buffer, c);
-	}
+        count = 0;
+
+        while ((c = read(master, buffer, 1024)) == -1)
+        {
+            if (errno != EAGAIN)
+            {
+                break;
+            }
+        }
+
+        if ( c < 0 )
+        {
+            break;
+        }
+
+        vncterm_puts(vt, buffer, c);
+    }
 
     kill(pid, 9);
 
     waitpid(pid, &status, 0);
 
-	exit (0);
+    exit (0);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2298,18 +2302,18 @@ int vncterm_server(int ctrl_pipe, int timeout, int width, int height)
 
         if ( FD_ISSET(ctrl_pipe, &fds) )
         {
-			cmd_ctrl_pipe(ctrl_pipe, client_fds);
+            cmd_ctrl_pipe(ctrl_pipe, client_fds);
         }
 
-		for (int i = 0; i < MAX_CLIENT_FD; ++i)
-		{
+        for (int i = 0; i < MAX_CLIENT_FD; ++i)
+        {
             if ( client_fds[i] == NULL || !FD_ISSET(i, &fds))
             {
                 continue;
             }
 
             int client_sd = accept(i, NULL, NULL);
-            
+
             if ( client_sd != -1 )
             {
                 int pid = fork();
@@ -2326,13 +2330,12 @@ int vncterm_server(int ctrl_pipe, int timeout, int width, int height)
 
                 close(client_sd);
             }
-		}
+        }
     }
 }
 
-void sigchld_handler(int signo) 
+void sigchld_handler(int signo)
 {
-
     waitpid(-1, NULL, 0);
 };
 
@@ -2348,7 +2351,7 @@ int main (int argc, char** argv)
 
     int opt;
 
-    while ((opt = getopt(argc, argv, "w:h:t:")) != -1) 
+    while ((opt = getopt(argc, argv, "w:h:t:")) != -1)
     {
         switch (opt)
         {
