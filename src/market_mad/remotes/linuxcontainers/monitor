@@ -170,7 +170,6 @@ CONTEXT = [
         end
 
         appstr
-
     ensure
         @http_client.finish if @http_client
     end
