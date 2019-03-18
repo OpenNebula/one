@@ -101,13 +101,15 @@ class ClusterComputeResource
         total_memory,
         effective_mem,
         num_hosts,
-        num_eff_hosts = @item.collect("summary.totalCpu",
+        num_eff_hosts,
+        overall_status = @item.collect("summary.totalCpu",
                                       "summary.numCpuCores",
                                       "summary.effectiveCpu",
                                       "summary.totalMemory",
                                       "summary.effectiveMemory",
                                       "summary.numHosts",
-                                      "summary.numEffectiveHosts"
+                                      "summary.numEffectiveHosts",
+                                      "summary.overallStatus"
         )
 
         mhz_core = total_cpu.to_f / num_cpu_cores.to_f
@@ -129,6 +131,7 @@ class ClusterComputeResource
         str_info << "HYPERVISOR=vcenter\n"
         str_info << "TOTALHOST=" << num_hosts.to_s << "\n"
         str_info << "AVAILHOST=" << num_eff_hosts.to_s << "\n"
+        str_info << "STATUS=" << overall_status << "\n"
 
         # CPU
         str_info << "CPUSPEED=" << mhz_core.to_s   << "\n"
