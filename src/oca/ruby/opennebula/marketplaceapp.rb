@@ -192,8 +192,8 @@ module OpenNebula
             options[:vmtemplate_name] = name unless options[:vmtemplate_name]
 
             tmpl << "\n"
-            tmpl << 'NAME=\"' << name << '\"\n'
-            tmpl << 'FROM_APP=\"' << self['ID'] << '\"\n'
+            tmpl << "NAME=\"" << name << "\"\n"
+            tmpl << "FROM_APP=\"" << self['ID'] << "\"\n"
 
             case type_str
             when 'IMAGE'
