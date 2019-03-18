@@ -630,7 +630,7 @@ class Template
             RbVmomi::VIM::VirtualEthernetCardDistributedVirtualPortBackingInfo
 
         if device.backing.is_a? vim_eth_dist_class
-            if device.backint.port.portKey &&
+            if device.backing.port.portKey &&
                device.backing.port.portKey.match(/^[a-z]+-\d+$/)
                 ref = device.backing.port.portKey
             elsif device.backing.port.portgroupKey &&
