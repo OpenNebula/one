@@ -205,8 +205,8 @@ rbd_df_monitor() {
     if [ $quota_bytes -ne 0 ]; then
         if [ $quota_bytes -lt $free ]; then
             export free=$quota_bytes
-￼       fi
-￼   fi
+        fi
+    fi
 
     cat << EOF | tr -d '[:blank:][:space:]'
         USED_MB=$(($bytes_used / 1024**2))\n
