@@ -23,7 +23,7 @@ require 'container'
 require_relative '../../scripts_common'
 
 # ------------------------------------------------------------------------------
-# Action Arguments, STDIN includes XML description of the OpenNebula VM
+# Action Arguments, STDIN doesn't include XML description of the OpenNebula VM
 # ------------------------------------------------------------------------------
 vm_name = ARGV[0]
 

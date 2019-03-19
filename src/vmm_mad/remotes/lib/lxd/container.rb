@@ -181,7 +181,7 @@ class Container
         # Remove nic from ovs-switch if needed
         @one.get_nics.each do |nic|
             del_bridge_port(nic) # network driver matching implemented here
-    end
+        end
     end
 
     def restart(options = {})
@@ -218,7 +218,8 @@ class Container
             device.include?('eth') && config['hwaddr'] == mac
         end
 
-        update
+        # Removes nic from ovs-switch if needed
+        update if del_bridge_port(@one.get_nic_by_mac(mac))
     end
 
     #---------------------------------------------------------------------------
