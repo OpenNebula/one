@@ -29,6 +29,7 @@ vm_name = ARGV[0]
 
 client    = LXDClient.new
 container = Container.get(vm_name, nil, client)
+container = Container.get(vm_name, container.config['user.xml'], client)
 
 # ------------------------------------------------------------------------------
 # Stop the container, start it
