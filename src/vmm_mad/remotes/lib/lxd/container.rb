@@ -177,6 +177,11 @@ class Container
 
     def stop(options = { :timeout => 120 })
         change_state(__method__, options)
+
+        # Remove nic from ovs-switch if needed
+        @one.get_nics.each do |nic|
+            del_bridge_port(nic) # network driver matching implemented here
+    end
     end
 
     def restart(options = {})
