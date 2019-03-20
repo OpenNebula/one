@@ -94,7 +94,7 @@ class LXDClient
     def wait(response, timeout)
         operation_id = response['operation'].split('/').last
 
-        timeout = "?timeout=#{timeout}" if timeout
+        timeout = "?timeout=#{timeout}" if [nil, ''].include?(timeout)
 
         response = get("operations/#{operation_id}/wait#{timeout}")
 
