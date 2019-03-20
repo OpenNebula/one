@@ -75,6 +75,8 @@ else
         operation = container.start
         raise operation if container.status != 'Running'
     rescue LXDError => exception
+        # TODO: Improve wait condition
+        sleep 1 # Wait for LXD to revert non-rootfs disks mountpoint
         storage_deleted = container.setup_storage('unmap')
 
         if storage_deleted
