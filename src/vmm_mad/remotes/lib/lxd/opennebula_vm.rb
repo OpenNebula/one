@@ -357,7 +357,7 @@ class OpenNebulaVM
             begin
                 LXDClient.new.get("profiles/#{profile}")
             rescue LXDError => e
-                raise e unless e.error_code == 404
+                raise e unless e.code == 404
 
                 OpenNebula.log_error "Profile \"#{profile}\" not found\n#{e}"
                 profile = 'default'

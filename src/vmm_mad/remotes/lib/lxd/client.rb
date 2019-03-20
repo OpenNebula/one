@@ -142,13 +142,17 @@ end
 # Error used for raising LXDClient exception when response is error return value
 class LXDError < StandardError
 
-    attr_reader :body, :error, :error_code, :type
+    attr_reader :body, :error, :code, :type
 
-    def initialize(msg = 'LXD API error')
-        @body = msg
+    def initialize(response)
+        raise "Got wrong argument class: #{response.class}, expecting Hash" \
+        unless response.class == Hash
+
+        @body  = response
+        @code  = @body['error_code']
+        @type  = @body['type']
         @error = @body['error']
-        @error_code = @body['error_code']
-        @type = @body['type']
+
         super
     end
 

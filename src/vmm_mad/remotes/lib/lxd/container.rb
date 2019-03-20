@@ -114,8 +114,8 @@ class Container
         def exist?(name, client)
             client.get("#{CONTAINERS}/#{name}")
             true
-        rescue LXDError => exception
-            raise exception if exception.error_code != 404
+        rescue LXDError => e
+            raise e if e.code != 404
 
             false
         end
