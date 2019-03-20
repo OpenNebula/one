@@ -88,8 +88,6 @@ class Container
             one  = OpenNebulaVM.new(one_xml) if one_xml
 
             Container.new(info, one, client)
-        rescue LXDError => exception
-            raise exception
         end
 
         # Creates container from a OpenNebula VM xml description
@@ -112,12 +110,12 @@ class Container
             containers
         end
 
-        # Returns boolean indicating if the container exists(true) or not (false)
+        # Returns boolean indicating the container exists(true) or not (false)
         def exist?(name, client)
             client.get("#{CONTAINERS}/#{name}")
             true
         rescue LXDError => exception
-            raise exception if exception.body['error_code'] != 404
+            raise exception if exception.error_code != 404
 
             false
         end

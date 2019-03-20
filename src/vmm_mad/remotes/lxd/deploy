@@ -51,7 +51,7 @@ if Container.exist?(container.name, client)
     container.get_metadata
 
     err_msg = 'A container with the same ID is already running'
-    raise LXDError, err_msg if container.status == 'Running'
+    raise err_msg if container.status == 'Running'
 
     container.config = config
 
