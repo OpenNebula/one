@@ -51,7 +51,7 @@ if Container.exist?(container.name, client)
     container.get_metadata
 
     err_msg = 'A container with the same ID is already running'
-    raise LXDError, err_msg if container.status == 'Running'
+    raise err_msg if container.status == 'Running'
 
     container.config = config
 
@@ -74,7 +74,9 @@ else
     begin
         operation = container.start
         raise operation if container.status != 'Running'
-    rescue LXDError => exception
+    rescue StandardError => exception
+        # TODO: Improve wait condition
+        sleep 5 # Wait for LXD to revert non-rootfs disks mountpoint
         storage_deleted = container.setup_storage('unmap')
 
         if storage_deleted
@@ -83,7 +85,7 @@ else
             OpenNebula.log_error 'failed to dismantle container storage'
         end
 
-        raise LXDError, exception
+        raise exception
     end
 
 end
