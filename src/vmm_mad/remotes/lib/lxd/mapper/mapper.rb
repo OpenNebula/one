@@ -137,24 +137,11 @@ class Mapper
 
         return mount_dev(device, directory) unless %w[loop disk].include?(type)
 
-        size     = disk['SIZE'].to_i if disk['SIZE']
-        osize    = disk['ORIGINAL_SIZE'].to_i if disk['ORIGINAL_SIZE']
+        fstype = get_fstype(device)
 
-        cmd = "#{COMMANDS[:blkid]} -o export #{device}"
-        _rc, o, _e = Command.execute(cmd, false)
+        return unless reset_fs_uuid(fstype, device)
 
-        fs_type = ''
-
-        o.each_line {|l|
-            next unless (m = l.match(/TYPE=(.*)/))
-
-            fs_type = m[1]
-            break
-        }
-
-        reset_fs_uuid(fs_type, device)
-
-        mount_resize_fs(device, directory, fs_type, size, osize)
+        mount_resize_fs(device, directory, fstype, disk)
     end
 
     # Unmaps a disk from a given directory
@@ -455,7 +442,7 @@ class Mapper
 
             next if %w[/ swap].include?(mount_point)
 
-            partitions.each { |p|
+            partitions.each {|p|
                 next if p[key] != value
 
                 return false unless mount_dev(p['path'], path + mount_point)
@@ -471,7 +458,10 @@ class Mapper
     # @param fs_type [String]
     # @param size, osize [Integer] disk size and original size
     # @return true if success
-    def mount_resize_fs(device, directory, fs_type, size, osize)
+    def mount_resize_fs(device, directory, fs_type, disk)
+        size     = disk['SIZE'].to_i if disk['SIZE']
+        osize    = disk['ORIGINAL_SIZE'].to_i if disk['ORIGINAL_SIZE']
+
         # TODO: osize is always < size after 1st resize during deployment
         return mount_dev(device, directory) unless size > osize
 
@@ -521,6 +511,22 @@ class Mapper
         return true if rc.zero?
 
         OpenNebula.log_error "#{__method__}: failed to change UUID: #{e}\n"
+    end
+
+    def get_fstype(device)
+        cmd = "#{COMMANDS[:blkid]} -o export #{device}"
+        _rc, o, _e = Command.execute(cmd, false)
+
+        fstype = ''
+
+        o.each_line {|l|
+            next unless (m = l.match(/TYPE=(.*)/))
+
+            fstype = m[1]
+            break
+        }
+
+        fstype
     end
 
 end
