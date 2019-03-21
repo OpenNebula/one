@@ -232,7 +232,7 @@ class Container
             return nil unless status
         end
 
-        return 'no context' unless @one.has_context?
+        return true unless @one.has_context?
 
         csrc = @lxc['devices']['context']['source'].clone
 
@@ -269,7 +269,7 @@ class Container
     # Removes the context section from the LXD configuration and unmap the
     # context device
     def detach_context
-        return 'no context' unless @one.has_context?
+        return true unless @one.has_context?
 
         csrc = @lxc['devices']['context']['source'].clone
 
