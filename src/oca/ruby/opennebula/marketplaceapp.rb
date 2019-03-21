@@ -297,7 +297,7 @@ module OpenNebula
         # @return [Integer, OpenNebula::Error] template id or error
         # TODO this method needs to be extended to support [image_ids]
         def create_vmtemplate(options, image_id = nil)
-            return if self['TEMPLATE/VMTEMPLATE64'].nil?
+            return -1 if self['TEMPLATE/VMTEMPLATE64'].nil?
 
             tmpl = Base64.decode64(self['TEMPLATE/VMTEMPLATE64'])
 
