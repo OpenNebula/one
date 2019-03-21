@@ -474,13 +474,21 @@ class Mapper
 
             Command.execute("#{COMMANDS[:xfs_growfs]} -d #{directory}", false)
         when /ext/
-            _rc, o, e = Command.execute("#{COMMANDS[:e2fsck]} -f -y #{device}", false)
+            err = "#{__method__}: failed to resize #{device}\n"
+
+            _rc, o, e = check_ext4(device)
 
             if o.empty?
-                err = "#{__method__}: failed to resize #{device}\n#{e}"
-                OpenNebula.log_error err
+                OpenNebula.log_error("#{err}#{e}")
+                return
             else
-                Command.execute("#{COMMANDS[:resize2fs]} #{device}", false)
+                cmd = "#{COMMANDS[:resize2fs]} #{device}"
+                rc, _o, e = Command.execute(cmd, false)
+
+                if rc != 0
+                    OpenNebula.log_error("#{err}#{e}")
+                    return
+                end
             end
 
             rc = mount_dev(device, directory)
@@ -502,15 +510,17 @@ class Mapper
         when /xfs/
             cmd = "#{COMMANDS[:xfs_admin]} -U generate #{device}"
         when /ext/
-            cmd = "#{COMMANDS[:tune2fs]} tune2fs -U random #{device}"
+            check_ext4(device)
+            cmd = "#{COMMANDS[:tune2fs]} -U random #{device}"
         else
             return true
         end
 
-        rc, _o, e = Command.execute(cmd, false)
+        rc, o, e = Command.execute(cmd, false)
         return true if rc.zero?
 
-        OpenNebula.log_error "#{__method__}: failed to change UUID: #{e}\n"
+        OpenNebula.log_error "#{__method__}: error changing UUID: #{o}\n#{e}\n"
+        nil
     end
 
     def get_fstype(device)
@@ -527,6 +537,10 @@ class Mapper
         }
 
         fstype
+    end
+
+    def check_ext4(part)
+        Command.execute("#{COMMANDS[:e2fsck]} -f -y #{part}", false)
     end
 
 end
