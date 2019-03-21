@@ -18,5 +18,5 @@
 # This file is meant for allow oneadmin to run the following commands as root
 #
 
-Cmnd_Alias ONE_MAPPER = /bin/lsblk, /sbin/losetup, /bin/mount, /bin/umount, /sbin/kpartx, /usr/bin/qemu-nbd, /bin/mkdir, /usr/bin/catfstab, /sbin/blkid, /sbin/e2fsck, /sbin/resize2fs, /usr/sbin/xfs_growfs, /usr/bin/rbd-nbd
+Cmnd_Alias ONE_MAPPER = /bin/lsblk, /sbin/losetup, /bin/mount, /bin/umount, /sbin/kpartx, /usr/bin/qemu-nbd, /bin/mkdir, /usr/bin/catfstab, /sbin/blkid, /sbin/e2fsck, /sbin/resize2fs, /usr/sbin/xfs_growfs, /usr/bin/rbd-nbd, /usr/sbin/xfs_admin, /sbin/tune2fs
 oneadmin ALL=(ALL:ALL) NOPASSWD: ONE_MAPPER

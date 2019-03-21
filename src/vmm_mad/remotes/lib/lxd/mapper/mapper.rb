@@ -26,17 +26,17 @@ require 'command'
 
 # Mappers class provides an interface to map devices into the host filesystem
 # This class uses an array of partitions as output by lsblk in JSON:
-#  [ 
+#  [
 #    {
-#     "name"   : "loop1p3", 
+#     "name"   : "loop1p3",
 #     "path"   : "/dev/mapper/loop1p3",
 #     "type"   : "part",
-#     "fstype" : "..", 
-#     "label"  : null, 
-#     "uuid"   : null, 
-#     "fsavail": "...M", 
-#     "fsuse%" : "..%", 
-#     "mountpoint":"/boot" 
+#     "fstype" : "..",
+#     "label"  : null,
+#     "uuid"   : null,
+#     "fsavail": "...M",
+#     "fsuse%" : "..%",
+#     "mountpoint":"/boot"
 #     },
 #     {
 #      ....
@@ -68,7 +68,9 @@ class Mapper
         :e2fsck     => 'sudo e2fsck',
         :resize2fs  => 'sudo resize2fs',
         :xfs_growfs => 'sudo xfs_growfs',
-        :rbd        => 'sudo rbd-nbd --id'
+        :rbd        => 'sudo rbd-nbd --id',
+        :xfs_admin  => 'sudo xfs_admin',
+        :tune2fs    => 'sudo tune2fs'
     }
 
     #---------------------------------------------------------------------------
@@ -79,12 +81,12 @@ class Mapper
     # @param onevm [OpenNebulaVM] with the VM description
     # @param disk [XMLElement] with the disk data
     # @param directory [String] where the disk has to be mounted
-    # @return [String] Name of the mapped device, empty in case of error. 
+    # @return [String] Name of the mapped device, empty in case of error.
     #
     # Errors should be log using OpenNebula driver functions
-    def do_map(one_vm, disk, directory)
+    def do_map(_one_vm, _disk, _directory)
         OpenNebula.log_error("map function not implemented for #{self.class}")
-        return nil
+        nil
     end
 
     # Unmaps a previously mapped partition
@@ -93,9 +95,9 @@ class Mapper
     # @param directory [String] where the disk has to be mounted
     #
     # @return nil
-    def do_unmap(device, one_vm, disk, directory)
+    def do_unmap(_device, _one_vm, _disk, _directory)
         OpenNebula.log_error("unmap function not implemented for #{self.class}")
-        return nil
+        nil
     end
 
     #---------------------------------------------------------------------------
@@ -105,7 +107,7 @@ class Mapper
     # Maps a disk to a given directory
     # @param onevm [OpenNebulaVM] with the VM description
     # @param disk [XMLElement] with the disk data
-    # @param directory [String] Path to the directory where the disk has to be 
+    # @param directory [String] Path to the directory where the disk has to be
     # mounted. Example: /var/lib/one/datastores/100/3/mapper/disk.2
     #
     # @return true on success
@@ -116,11 +118,11 @@ class Mapper
 
         OpenNebula.log_info "Mapping disk at #{directory} using device #{device}"
 
-        return false if !device
+        return false unless device
 
         partitions = lsblk(device)
 
-        return false if !partitions
+        return false unless partitions
 
         #-----------------------------------------------------------------------
         # Mount disk images with partitions
@@ -138,10 +140,6 @@ class Mapper
         size     = disk['SIZE'].to_i if disk['SIZE']
         osize    = disk['ORIGINAL_SIZE'].to_i if disk['ORIGINAL_SIZE']
 
-        # TODO: Osize is always < size after 1st resize during deployment
-        return mount_dev(device, directory) unless size > osize
-
-        # Resize filesystem
         cmd = "#{COMMANDS[:blkid]} -o export #{device}"
         _rc, o, _e = Command.execute(cmd, false)
 
@@ -154,38 +152,14 @@ class Mapper
             break
         }
 
-        rc = true
+        reset_fs_uuid(fs_type, device)
 
-        OpenNebula.log_info "Resizing filesystem #{fs_type} on #{device}"
-
-        case fs_type
-        when /xfs/
-            rc = mount_dev(device, directory)
-            return false unless rc
-
-            Command.execute("#{COMMANDS[:xfs_growfs]} -d #{directory}", false)
-        when /ext/
-            _rc, o, e = Command.execute("#{COMMANDS[:e2fsck]} -f -y #{device}", false)
-
-            if o.empty?
-                err = "#{__method__}: failed to resize #{device}\n#{e}"
-                OpenNebula.log_error err
-            else
-                Command.execute("#{COMMANDS[:resize2fs]} #{device}", false)
-            end
-
-            rc = mount_dev(device, directory)
-        else
-            OpenNebula.log_info "Skipped filesystem #{fs_type} resize"
-            rc = mount_dev(device, directory)
-        end
-
-        rc
+        mount_resize_fs(device, directory, fs_type, size, osize)
     end
 
     # Unmaps a disk from a given directory
     # @param disk [XMLElement] with the disk data
-    # @param directory [String] Path to the directory where the disk has to be 
+    # @param directory [String] Path to the directory where the disk has to be
     # mounted. Example: /var/lib/one/datastores/100/3/mapper/disk.2
     #
     # @return true on success
@@ -209,15 +183,17 @@ class Mapper
                 break
             end
 
-            d['children'].each {|c|
-                next unless c['mountpoint'] == real_path
+            if d['children']
+                d['children'].each {|c|
+                    next unless c['mountpoint'] == real_path
 
-                partitions = d['children']
-                device     = d['path']
-                break
-            } if d['children']
+                    partitions = d['children']
+                    device     = d['path']
+                    break
+                }
+            end
 
-            break if !partitions.empty?
+            break unless partitions.empty?
         }
 
         partitions.delete_if {|p| !p['mountpoint'] }
@@ -247,8 +223,8 @@ class Mapper
     # Umounts partitions
     # @param partitions [Array] with partition device names
     def umount(partitions)
-        partitions.each { |p|
-            next if !p['mountpoint']
+        partitions.each {|p|
+            next unless p['mountpoint']
 
             return nil unless umount_dev(p['path'])
         }
@@ -351,10 +327,10 @@ class Mapper
         end
 
         # Fix for lsblk paths for version < 2.33
-        partitions.each { |p|
+        partitions.each {|p|
             lsblk_path(p)
 
-            p['children'].each { |q| lsblk_path(q) } if p['children']
+            p['children'].each {|q| lsblk_path(q) } if p['children']
         }
 
         partitions
@@ -411,7 +387,7 @@ class Mapper
     end
 
     def mkdir_safe(path)
-        if path =~ /.*\/rootfs/
+        if path =~ %r{.*/rootfs}
             cmd = COMMANDS[:su_mkdir]
         else
             cmd = COMMANDS[:mkdir]
@@ -479,7 +455,7 @@ class Mapper
 
             next if %w[/ swap].include?(mount_point)
 
-            partitions.each {|p|
+            partitions.each { |p|
                 next if p[key] != value
 
                 return false unless mount_dev(p['path'], path + mount_point)
@@ -489,6 +465,62 @@ class Mapper
         end
 
         true
+    end
+
+    # This function mounts and resizes a FS if needed
+    # @param fs_type [String]
+    # @param size, osize [Integer] disk size and original size
+    # @return true if success
+    def mount_resize_fs(device, directory, fs_type, size, osize)
+        # TODO: osize is always < size after 1st resize during deployment
+        return mount_dev(device, directory) unless size > osize
+
+        OpenNebula.log_info "Resizing filesystem #{fs_type} on #{device}"
+
+        case fs_type
+        when /xfs/
+            rc = mount_dev(device, directory)
+            return false unless rc
+
+            Command.execute("#{COMMANDS[:xfs_growfs]} -d #{directory}", false)
+        when /ext/
+            _rc, o, e = Command.execute("#{COMMANDS[:e2fsck]} -f -y #{device}", false)
+
+            if o.empty?
+                err = "#{__method__}: failed to resize #{device}\n#{e}"
+                OpenNebula.log_error err
+            else
+                Command.execute("#{COMMANDS[:resize2fs]} #{device}", false)
+            end
+
+            rc = mount_dev(device, directory)
+        else
+            OpenNebula.log_info 'Skipped filesystem resize'
+
+            rc = mount_dev(device, directory)
+        end
+
+        rc
+    end
+
+    # Generate a new UUID for the FS
+    #  @param fs_type [String]
+    #  @param device  [String]
+    #  @return true if the UUID was updated (or it was not needed to update)
+    def reset_fs_uuid(fs_type, device)
+        case fs_type
+        when /xfs/
+            cmd = "#{COMMANDS[:xfs_admin]} -U generate #{device}"
+        when /ext/
+            cmd = "#{COMMANDS[:tune2fs]} tune2fs -U random #{device}"
+        else
+            return true
+        end
+
+        rc, _o, e = Command.execute(cmd, false)
+        return true if rc.zero?
+
+        OpenNebula.log_error "#{__method__}: failed to change UUID: #{e}\n"
     end
 
 end
