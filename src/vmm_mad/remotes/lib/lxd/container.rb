@@ -88,8 +88,6 @@ class Container
             one  = OpenNebulaVM.new(one_xml) if one_xml
 
             Container.new(info, one, client)
-        rescue LXDError => exception
-            raise exception
         end
 
         # Creates container from a OpenNebula VM xml description
@@ -112,12 +110,12 @@ class Container
             containers
         end
 
-        # Returns boolean indicating if the container exists(true) or not (false)
+        # Returns boolean indicating the container exists(true) or not (false)
         def exist?(name, client)
             client.get("#{CONTAINERS}/#{name}")
             true
-        rescue LXDError => exception
-            raise exception if exception.body['error_code'] != 404
+        rescue LXDError => e
+            raise e if e.code != 404
 
             false
         end
@@ -234,7 +232,7 @@ class Container
             return nil unless status
         end
 
-        return 'no context' unless @one.has_context?
+        return true unless @one.has_context?
 
         csrc = @lxc['devices']['context']['source'].clone
 
@@ -271,7 +269,7 @@ class Container
     # Removes the context section from the LXD configuration and unmap the
     # context device
     def detach_context
-        return 'no context' unless @one.has_context?
+        return true unless @one.has_context?
 
         csrc = @lxc['devices']['context']['source'].clone
 
