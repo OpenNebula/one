@@ -198,8 +198,8 @@ func (vc *VNTemplateController) Clone(name string) error {
 	return err
 }
 
-//Lock an existing vntemplate
-func (vc *VNTemplateController) Lock(level uint) error {
+//Lock an existing vntemplate. See levels in locks.go.
+func (vc *VNTemplateController) Lock(level LockLevel) error {
 	_, err := vc.c.Client.Call("one.vntemplate.lock", vc.ID, level)
 	return err
 }
@@ -208,26 +208,4 @@ func (vc *VNTemplateController) Lock(level uint) error {
 func (vc *VNTemplateController) Unlock() error {
 	_, err := vc.c.Client.Call("one.vntemplate.unlock", vc.ID)
 	return err
-}
-
-// Lock actions
-
-// LockUse locks USE actions for the vntemplate
-func (vc *VNTemplateController) LockUse() error {
-	return vc.Lock(1)
-}
-
-// LockManage locks MANAGE actions for the vntemplate
-func (vc *VNTemplateController) LockManage() error {
-	return vc.Lock(2)
-}
-
-// LockAdmin locks ADMIN actions for the vntemplate
-func (vc *VNTemplateController) LockAdmin() error {
-	return vc.Lock(3)
-}
-
-// LockAll locks all actions for the vntemplate
-func (vc *VNTemplateController) LockAll() error {
-	return vc.Lock(4)
 }

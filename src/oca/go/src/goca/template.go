@@ -228,3 +228,15 @@ func (tc *TemplateController) Clone(name string, recursive bool) error {
 	_, err := tc.c.Client.Call("one.template.clone", tc.ID, name, recursive)
 	return err
 }
+
+// Lock locks the template following block level. See levels in locks.go.
+func (tc *TemplateController) Lock(level LockLevel) error {
+	_, err := tc.c.Client.Call("one.template.lock", tc.ID, level)
+	return err
+}
+
+// Unlock unlocks the template.
+func (tc *TemplateController) Unlock() error {
+	_, err := tc.c.Client.Call("one.template.unlock", tc.ID)
+	return err
+}

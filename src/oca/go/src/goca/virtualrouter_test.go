@@ -216,7 +216,7 @@ func TestVirtualRouter(t *testing.T){
 	}
 
 	//LockAll for VirtualRouter
-	err = vrC.LockAll()
+	err = vrC.Lock(LockAll)
 
 	if err != nil {
 	    t.Errorf("Test failed:\n" + err.Error())

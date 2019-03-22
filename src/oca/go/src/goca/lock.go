@@ -23,3 +23,20 @@ type Lock struct {
 	Time   int `xml:"TIME"`
 	ReqID  int `xml:"REQ_ID"`
 }
+
+// LockLevel is the level of locking of an OpenNebula entity
+type LockLevel int
+
+const (
+	// LockUse locks all possible actions
+	LockUse LockLevel = 1
+
+	// LockManage locks manage and admin actions
+	LockManage LockLevel = 2
+
+	// LockAdmin locks admin actions
+	LockAdmin LockLevel = 3
+
+	// LockAll locks all actions
+	LockAll LockLevel = 4
+)

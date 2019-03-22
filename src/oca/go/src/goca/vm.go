@@ -1060,3 +1060,15 @@ func (vc *VMController) RecoverDelete() error {
 func (vc *VMController) RecoverDeleteRecreate() error {
 	return vc.Recover(4)
 }
+
+// Lock locks the vm following lock level. See levels in locks.go.
+func (vc *VMController) Lock(level LockLevel) error {
+	_, err := vc.c.Client.Call("one.vm.lock", vc.ID, level)
+	return err
+}
+
+// Unlock unlocks the vm.
+func (vc *VMController) Unlock() error {
+	_, err := vc.c.Client.Call("one.vm.unlock", vc.ID)
+	return err
+}

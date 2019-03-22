@@ -214,8 +214,8 @@ func (mc *MarketPlaceAppController) Rename(newName string) error {
 	return err
 }
 
-// Lock locks the marketplace app depending on blocking level.
-func (mc *MarketPlaceAppController) Lock(level uint) error {
+// Lock locks the marketplace app depending on blocking level. See levels in locks.go.
+func (mc *MarketPlaceAppController) Lock(level LockLevel) error {
 	_, err := mc.c.Client.Call("one.marketapp.lock", mc.ID, level)
 	return err
 }
@@ -224,26 +224,4 @@ func (mc *MarketPlaceAppController) Lock(level uint) error {
 func (mc *MarketPlaceAppController) Unlock() error {
 	_, err := mc.c.Client.Call("one.marketapp.unlock", mc.ID)
 	return err
-}
-
-// Lock actions
-
-// LockUse locks USE actions for the marketplace app
-func (mc *MarketPlaceAppController) LockUse() error {
-	return mc.Lock(1)
-}
-
-// LockManage locks MANAGE actions for the marketplace app
-func (mc *MarketPlaceAppController) LockManage() error {
-	return mc.Lock(2)
-}
-
-// LockAdmin locks ADMIN actions for the marketplace app
-func (mc *MarketPlaceAppController) LockAdmin() error {
-	return mc.Lock(3)
-}
-
-// LockAll locks all actions for the marketplace app
-func (mc *MarketPlaceAppController) LockAll() error {
-	return mc.Lock(4)
 }

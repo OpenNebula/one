@@ -323,8 +323,8 @@ func (ic *ImageController) Persistent(persistent bool) error {
 	return err
 }
 
-// Lock locks the image following block level.
-func (ic *ImageController) Lock(level uint) error {
+// Lock locks the image following lock level. See levels in locks.go.
+func (ic *ImageController) Lock(level LockLevel) error {
 	_, err := ic.c.Client.Call("one.image.lock", ic.ID, level)
 	return err
 }
@@ -340,26 +340,4 @@ func (ic *ImageController) Unlock() error {
 func (ic *ImageController) Delete() error {
 	_, err := ic.c.Client.Call("one.image.delete", ic.ID)
 	return err
-}
-
-// Lock actions
-
-// LockUse locks USE actions for the image
-func (ic *ImageController) LockUse() error {
-	return ic.Lock(1)
-}
-
-// LockManage locks MANAGE actions for the image
-func (ic *ImageController) LockManage() error {
-	return ic.Lock(2)
-}
-
-// LockAdmin locks ADMIN actions for the image
-func (ic *ImageController) LockAdmin() error {
-	return ic.Lock(3)
-}
-
-// LockAll locks all actions for the image
-func (ic *ImageController) LockAll() error {
-	return ic.Lock(4)
 }

@@ -291,3 +291,15 @@ func (vc *VirtualNetworkController) Rename(newName string) error {
 	_, err := vc.c.Client.Call("one.vn.rename", vc.ID, newName)
 	return err
 }
+
+// Lock locks the vn following lock level. See levels in locks.go.
+func (vc *VirtualNetworkController) Lock(level LockLevel) error {
+	_, err := vc.c.Client.Call("one.vn.lock", vc.ID, level)
+	return err
+}
+
+// Unlock unlocks the vn.
+func (vc *VirtualNetworkController) Unlock() error {
+	_, err := vc.c.Client.Call("one.vn.unlock", vc.ID)
+	return err
+}

@@ -202,16 +202,14 @@ func (dc *DocumentController) Rename(newName string) error {
 	return err
 }
 
-// Lock locks the document at the api level. The lock automatically expires after 2 minutes.
-// * applicationName: String to identify the application requesting the lock.
-func (dc *DocumentController) Lock(applicationName string) error {
-	_, err := dc.c.Client.Call("one.document.lock", dc.ID, applicationName)
+// Lock locks the document following lock level. See levels in locks.go.
+func (dc *DocumentController) Lock(level LockLevel) error {
+	_, err := dc.c.Client.Call("one.document.lock", dc.ID, level)
 	return err
 }
 
-// Unlock unlocks the document at the api level.
-// * applicationName: String to identify the application requesting the lock.
-func (dc *DocumentController) Unlock(applicationName string) error {
-	_, err := dc.c.Client.Call("one.document.unlock", dc.ID, applicationName)
+// Unlock unlocks the document.
+func (dc *DocumentController) Unlock() error {
+	_, err := dc.c.Client.Call("one.document.unlock", dc.ID)
 	return err
 }

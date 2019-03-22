@@ -218,8 +218,8 @@ func (vc *VirtualRouterController) DetachNic(nicid uint) error {
 	return err
 }
 
-// Lock locks the virtual router depending on blocking level.
-func (vc *VirtualRouterController) Lock(level uint) error {
+// Lock locks the virtual router depending on blocking level. See levels in locks.go.
+func (vc *VirtualRouterController) Lock(level LockLevel) error {
 	_, err := vc.c.Client.Call("one.vrouter.lock", vc.ID, level)
 	return err
 }
@@ -228,26 +228,4 @@ func (vc *VirtualRouterController) Lock(level uint) error {
 func (vc *VirtualRouterController) Unlock() error {
 	_, err := vc.c.Client.Call("one.vrouter.unlock", vc.ID)
 	return err
-}
-
-// Lock actions
-
-// LockUse locks USE actions for the virtual router
-func (vc *VirtualRouterController) LockUse() error {
-	return vc.Lock(1)
-}
-
-// LockManage locks MANAGE actions for the virtual router
-func (vc *VirtualRouterController) LockManage() error {
-	return vc.Lock(2)
-}
-
-// LockAdmin locks ADMIN actions for the virtual router
-func (vc *VirtualRouterController) LockAdmin() error {
-	return vc.Lock(3)
-}
-
-// LockAll locks all actions for the virtual router
-func (vc *VirtualRouterController) LockAll() error {
-	return vc.Lock(4)
 }
