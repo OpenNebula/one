@@ -144,7 +144,13 @@ class LXDError < StandardError
 
     attr_reader :body, :error, :code, :type
 
-    def initialize(response)
+    INTERNAL_ERROR = {
+        'error_code' => 500,
+        'type'       => 'driver',
+        'error'      => 'driver unknown error'
+    }
+
+    def initialize(response = INTERNAL_ERROR)
         raise "Got wrong argument class: #{response.class}, expecting Hash" \
         unless response.class == Hash
 

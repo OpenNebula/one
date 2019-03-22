@@ -459,8 +459,8 @@ class Mapper
     # @param size, osize [Integer] disk size and original size
     # @return true if success
     def mount_resize_fs(device, directory, fs_type, disk)
-        size     = disk['SIZE'].to_i if disk['SIZE']
-        osize    = disk['ORIGINAL_SIZE'].to_i if disk['ORIGINAL_SIZE']
+        size  = disk['SIZE'].to_i if disk['SIZE']
+        osize = disk['ORIGINAL_SIZE'].to_i if disk['ORIGINAL_SIZE']
 
         # TODO: osize is always < size after 1st resize during deployment
         return mount_dev(device, directory) unless size > osize
@@ -474,13 +474,22 @@ class Mapper
 
             Command.execute("#{COMMANDS[:xfs_growfs]} -d #{directory}", false)
         when /ext/
-            _rc, o, e = Command.execute("#{COMMANDS[:e2fsck]} -f -y #{device}", false)
+            err = "#{__method__}: failed to resize #{device}\n"
+
+            cmd = "#{COMMANDS[:e2fsck]} -f -y #{device}"
+            _rc, o, e = Command.execute(cmd, false)
 
             if o.empty?
-                err = "#{__method__}: failed to resize #{device}\n#{e}"
-                OpenNebula.log_error err
+                OpenNebula.log_error("#{err}#{e}")
+                return false
             else
-                Command.execute("#{COMMANDS[:resize2fs]} #{device}", false)
+                cmd = "#{COMMANDS[:resize2fs]} #{device}"
+                rc, _o, e = Command.execute(cmd, false)
+
+                if rc != 0
+                    OpenNebula.log_error("#{err}#{e}")
+                    return false
+                end
             end
 
             rc = mount_dev(device, directory)
@@ -502,15 +511,17 @@ class Mapper
         when /xfs/
             cmd = "#{COMMANDS[:xfs_admin]} -U generate #{device}"
         when /ext/
-            cmd = "#{COMMANDS[:tune2fs]} tune2fs -U random #{device}"
+            Command.execute("#{COMMANDS[:e2fsck]} -f -y #{device}", false)
+            cmd = "#{COMMANDS[:tune2fs]} -U random #{device}"
         else
             return true
         end
 
-        rc, _o, e = Command.execute(cmd, false)
+        rc, o, e = Command.execute(cmd, false)
         return true if rc.zero?
 
-        OpenNebula.log_error "#{__method__}: failed to change UUID: #{e}\n"
+        OpenNebula.log_error "#{__method__}: error changing UUID: #{o}\n#{e}\n"
+        false
     end
 
     def get_fstype(device)
