@@ -117,32 +117,36 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
     WEEKLY = {
         :name       => "weekly",
         :large      => "--weekly days",
-        :description => "Schedules this action to be executed after" \
-        "the given time. For example: onevm resume 0 --schedule \"09/23 14:15\"",
+        :description => "Repeats the schedule action the days of the week specified," \
+        "it can be a number between 0,6 separated with commas." \
+        "For example: onevm resume 0 --schedule \"09/23 14:15\" --weekly 0,2,4",
         :format     => String
     }
 
     MONTHLY = {
         :name       => "monthly",
         :large      => "--monthly days",
-        :description => "Schedules this action to be executed after" \
-        "the given time. For example: onevm resume 0 --schedule \"09/23 14:15\"",
+        :description => "Repeats the schedule action the days of the month specified," \
+        "it can be a number between 0,31 separated with commas." \
+        "For example: onevm resume 0 --schedule \"09/23 14:15\" --monthly 0,14",
         :format     => String
     }
 
     YEARLY = {
         :name       => "yearly",
         :large      => "--yearly days",
-        :description => "Schedules this action to be executed after" \
-        "the given time. For example: onevm resume 0 --schedule \"09/23 14:15\"",
+        :description => "Repeats the schedule action the days of the year specified," \
+        "it can be a number between 0,365 separated with commas." \
+        "For example: onevm resume 0 --schedule \"09/23 14:15\" --yearly 30,60",
         :format     => String
     }
 
     HOURLY = {
         :name       => "hourly",
         :large      => "--hourly hour",
-        :description => "Schedules this action to be executed after" \
-        "the given time. For example: onevm resume 0 --schedule \"09/23 14:15\"",
+        :description => "Repeats the schedule action each hours specified," \
+        "it can be a number between 0,168 separated with commas." \
+        "For example: onevm resume 0 --schedule \"09/23 14:15\" --hourly 1,5",
         :format     => Numeric
     }
 
