@@ -634,6 +634,9 @@ Layout/EmptyLinesAroundModuleBody:
 Layout/EmptyLineAfterGuardClause:
     Enabled: true
 
+Layout/AlignHash:
+    Enabled: false
+
 ###
 
 #######
