@@ -106,9 +106,9 @@ public:
 
     /**
      *  Compute the next action, updating the TIME attribute for this action
-     *    @return -1 if action ended 0 otherwise
+     *    @return time for next action, if ended or error -1
      */
-    int next_action();
+    time_t next_action();
 };
 
 /**
