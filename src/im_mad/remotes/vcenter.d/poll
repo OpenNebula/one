@@ -49,7 +49,10 @@ begin
     cluster = VCenterDriver::ClusterComputeResource.new_from_ref(ccr_ref, vi_client)
 
     # Print monitoring info
-    puts cluster.monitor
+    cluster_info = cluster.monitor
+    puts cluster_info
+    raise "vCenter cluster health is on red, check issues on vCenter" if cluster_info.include?("STATUS=red")
+
     puts cluster.monitor_host_systems
 
     # Print VM monitor info
