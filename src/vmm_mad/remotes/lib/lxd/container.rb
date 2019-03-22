@@ -392,7 +392,7 @@ class Container
 
     # Deletes the switch port. Unlike libvirt, LXD doesn't handle this.
     def del_bridge_port(nic)
-        return 'not ovswitch' unless nic['VN_MAD'] == 'ovswitch'
+        return true unless nic['VN_MAD'] == 'ovswitch'
 
         cmd = 'sudo ovs-vsctl --if-exists del-port '\
         "#{nic['BRIDGE']} #{nic['TARGET']}"
@@ -402,7 +402,7 @@ class Container
         return true if rc.zero?
 
         OpenNebula.log_error "#{__method__}: #{e}"
-        nil
+        false
     end
 
     # Waits or no for response depending on wait value
