@@ -98,17 +98,17 @@ type vmUserTemplate struct {
 }
 
 type vmTemplate struct {
-	CPU               float64               `xml:"CPU"`
-	Memory            int                   `xml:"MEMORY"`
-	NIC               []vmNic               `xml:"NIC"`
-	NICAlias          []vmNicAlias          `xml:"NIC_ALIAS"`
-	Context           *vmContext            `xml:"CONTEXT"`
-	Disk              []vmDisk              `xml:"DISK"`
-	Graphics          *vmGraphics           `xml:"GRAPHICS"`
-	OS                *vmOS                 `xml:"OS"`
-	Snapshot          []VMSnapshot          `xml:"SNAPSHOT"`
-	SecurityGroupRule []vmSecurityGroupRule `xml:"SECURITY_GROUP_RULE"`
-	Dynamic           unmatchedTagsSlice    `xml:",any"`
+	CPU                float64               `xml:"CPU"`
+	Memory             int                   `xml:"MEMORY"`
+	NICs               []vmNic               `xml:"NIC"`
+	NICAliases         []vmNicAlias          `xml:"NIC_ALIAS"`
+	Context            *vmContext            `xml:"CONTEXT"`
+	Disks              []vmDisk              `xml:"DISK"`
+	Graphics           *vmGraphics           `xml:"GRAPHICS"`
+	OS                 *vmOS                 `xml:"OS"`
+	Snapshots          []VMSnapshot          `xml:"SNAPSHOT"`
+	SecurityGroupRules []vmSecurityGroupRule `xml:"SECURITY_GROUP_RULE"`
+	Dynamic            unmatchedTagsSlice    `xml:",any"`
 }
 
 type vmContext struct {
