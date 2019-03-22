@@ -36,8 +36,7 @@ vc_cluster_name = ARGV[3]
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(STDIN.read), 'VMM_DRIVER_ACTION_DATA')
 
-host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, vc_cluster_name)
-host_id = host['ID']
+host_id = drv_action['VM/HISTORY_RECORDS/HISTORY/HID']
 
 snap_name = drv_action["VM/TEMPLATE/SNAPSHOT[ACTIVE='YES']/NAME"]
 

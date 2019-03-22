@@ -33,13 +33,12 @@ vm_ref          = ARGV[0]
 vc_cluster_name = ARGV[1]
 vm_id           = ARGV[2]
 
-host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, vc_cluster_name)
-host_id = host['ID']
-
 drv_action_enc = STDIN.read.delete("\n")
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc),
                           'VMM_DRIVER_ACTION_DATA')
+
+host_id = drv_action['VM/HISTORY_RECORDS/HISTORY/HID']
 
 lcm_state = drv_action['/VMM_DRIVER_ACTION_DATA/VM/LCM_STATE']
 check_valid(lcm_state, 'lcm_state')
