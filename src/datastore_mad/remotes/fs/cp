@@ -33,6 +33,7 @@ fi
 
 DRIVER_PATH=$(dirname $0)
 source ${DRIVER_PATH}/../libfs.sh
+source ${DRIVER_PATH}/../../etc/datastore/fs/fs.conf
 
 # -------- Get cp and datastore arguments from OpenNebula core ------------
 
@@ -134,7 +135,7 @@ if [ -n "$BRIDGE_LIST" ]; then
     DST_HOST=`get_destination_host $ID`
     TMP_DST="$STAGING_DIR/$IMAGE_HASH"
 
-    multiline_exec_and_log "set -e -o pipefail; $COPY_COMMAND | $SSH $DST_HOST $DD of=$TMP_DST bs=64k" \
+    multiline_exec_and_log "set -e -o pipefail; $COPY_COMMAND | $SSH $DST_HOST $DD of=$TMP_DST bs=${DD_BLOCK_SIZE:-64k}" \
                  "Error dumping $SRC to $DST_HOST:$TMP_DST"
 
     ssh_exec_and_log    "$DST_HOST" "set -e -o pipefail; mkdir -p $BASE_PATH; mv -f $TMP_DST $DST" \

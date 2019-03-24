@@ -98,7 +98,7 @@ ZERO_CMD=$(cat <<EOF
     LVSIZE_NEW=\$(${SUDO} ${LVS} --nosuffix --noheadings --units B -o lv_size "${DEV}" | \
         tr -d '[:blank:]')
 
-    ${DD} if=/dev/zero of="${DEV}" bs=64k \
+    ${DD} if=/dev/zero of="${DEV}" bs=${DD_BLOCK_SIZE:-64k} \
         oflag=seek_bytes iflag=count_bytes \
         seek="${LVSIZE_OLD}" count="\$(( LVSIZE_NEW - ${LVSIZE_OLD} ))"
 EOF

@@ -143,7 +143,7 @@ http://*|https://*)
     ;;
 esac
 
-multiline_exec_and_log "set -e -o pipefail; $DUMP | $SSH $DST_HOST $DD of=$TMP_DST bs=64k" \
+multiline_exec_and_log "set -e -o pipefail; $DUMP | $SSH $DST_HOST $DD of=$TMP_DST bs=${DD_BLOCK_SIZE:-64k}" \
              "Error dumping $SRC to $DST_HOST:$TMP_DST"
 
 if [ "$RBD_FORMAT" = "2" ]; then

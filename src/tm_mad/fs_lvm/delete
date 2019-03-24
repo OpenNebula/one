@@ -52,7 +52,7 @@ ZERO_CMD=$(cat <<EOF
     DEV=\$(readlink $DST_PATH)
 
     if echo "\$DEV" | grep "^/dev/" &>/dev/null; then
-        ${DD} if=/dev/zero of="\${DEV}" bs=64k || :
+        ${DD} if=/dev/zero of="\${DEV}" bs=${DD_BLOCK_SIZE:-64k} || :
     fi
 EOF
 )

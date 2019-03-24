@@ -84,7 +84,7 @@ MKIMAGE_CMD=$(cat <<EOF
 
     # zero the volume
     if [ "${ZERO_LVM_ON_CREATE}" = "yes" ]; then
-        ${DD} if=/dev/zero of="${DEV}" bs=64k || :
+        ${DD} if=/dev/zero of="${DEV}" bs=${DD_BLOCK_SIZE:-64k} || :
     fi
 
     [ "$FSTYPE" = "swap" ] && mkswap ${DEV}
