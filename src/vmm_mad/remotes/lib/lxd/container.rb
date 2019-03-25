@@ -166,6 +166,17 @@ class Container
         Command.execute(cmd, true)
     end
 
+    def show_log
+        cmd = "#{@lxc_command} info --show-log #{@lxc['name']}"
+        rc, o, e = Command.execute(cmd, false)
+
+        if rc.zero?
+            OpenNebula.log o
+        else
+            OpenNebula.log_error e
+        end
+    end
+
     #---------------------------------------------------------------------------
     # Contianer Status Control
     #---------------------------------------------------------------------------
@@ -406,6 +417,9 @@ class Container
     # Waits or no for response depending on wait value
     def wait?(response, wait, timeout)
         @client.wait(response, timeout) unless wait == false
+    rescue LXDError => e
+        show_log
+        raise e
     end
 
     # Performs an action on the container that changes the execution status.
