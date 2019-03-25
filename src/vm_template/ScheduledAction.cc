@@ -296,11 +296,12 @@ static int days_in_period(SchedAction::Repeat& r, int month, int year)
 bool SchedAction::is_due(time_t stime)
 {
     time_t action_time, done_time, origin = 0;
+    int repeat;
 
     std::istringstream iss;
 
-    bool has_done = vector_value("DONE", done_time) == 0;
-
+    bool has_done   = vector_value("DONE", done_time) == 0;
+    bool has_repeat = vector_value("REPEAT", repeat) == 0;
     std::string action_time_s = vector_value("TIME");
 
     if ( action_time_s[0] == '+' )
@@ -320,13 +321,14 @@ bool SchedAction::is_due(time_t stime)
 
     action_time += origin;
 
-    return ((!has_done || done_time < action_time) && action_time < time(0));
+    return ((!has_done || done_time < action_time || has_repeat)
+                && action_time < time(0));
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int SchedAction::next_action()
+time_t SchedAction::next_action()
 {
     Repeat r;
     EndOn  eo;
@@ -358,7 +360,7 @@ int SchedAction::next_action()
     int end_value;
     int rc = vector_value("END_VALUE", end_value);
 
-    if ( rc == -1 )
+    if ( rc == -1 && eo != NEVER)
     {
         return -1;
     }
@@ -393,7 +395,7 @@ int SchedAction::next_action()
 
         replace("TIME", action_time);
 
-        return 0;
+        return action_time;
     }
 
     /* ---------------------------------------------------------------------  */
@@ -449,5 +451,5 @@ int SchedAction::next_action()
 
     replace("TIME", action_time);
 
-    return 0;
+    return action_time;
 }

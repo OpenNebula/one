@@ -1759,11 +1759,17 @@ int Scheduler::do_scheduled_actions()
 
                 if (rc == 0)
                 {
+                    time_t done_time = time(0);
+                    time_t next_time;
+
                     (*action)->remove("MESSAGE");
 
-                    (*action)->replace("DONE", time(0));
+                    (*action)->replace("DONE", done_time);
 
-                    (*action)->next_action();
+                    do
+                    {
+                        next_time = (*action)->next_action();
+                    } while ( next_time < done_time && next_time != -1 );
 
                     oss << "Success.";
                 }
