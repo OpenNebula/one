@@ -27,4 +27,4 @@ xpath_filter = OpenvSwitchVLAN::XPATH_FILTER
 
 ovs = OpenvSwitchVLAN.from_base64(template64, xpath_filter, deploy_id)
 
-ovs.activate(pre_action=true)
+ovs.activate

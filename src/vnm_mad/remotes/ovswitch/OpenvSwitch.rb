@@ -34,7 +34,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         end
     end
 
-    def activate(pre_action=false)
+    def activate
         lock
 
         @bridges = get_bridges
@@ -65,13 +65,11 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
                 # In net/pre action, we just need to ensure the bridge is
                 # created so the libvirt/QEMU can add VM interfaces into that.
                 # Any other driver actions are done in net/post action.
-                if pre_action
-                    next
-                else
-                    STDERR.puts "No tap device found for nic #{@nic[:nic_id]}"
-                    unlock
-                    exit 1
-                end
+                next if VNMMAD.pre_action?
+
+                STDERR.puts "No tap device found for nic #{@nic[:nic_id]}"
+                unlock
+                exit 1
             end
 
             # Apply VLAN
