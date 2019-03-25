@@ -25,6 +25,10 @@ DEP_FILE_LOCATION=$(dirname $DEP_FILE)
 mkdir -p $DEP_FILE_LOCATION
 cat > $DEP_FILE
 
+if [ "x$DROP_CACHES" = "xyes" ]; then
+    sudo sysctl vm.drop_caches=1 >/dev/null
+fi
+
 DATA=`virsh --connect $LIBVIRT_URI create $DEP_FILE`
 
 if [ "x$?" = "x0" ]; then

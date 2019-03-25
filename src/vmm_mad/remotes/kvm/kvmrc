@@ -26,6 +26,12 @@ export LIBVIRT_MD_KEY=one
 # Seconds to wait after shutdown until timeout
 export SHUTDOWN_TIMEOUT=300
 
+# Sometimes using writethrough cache may produce 'Cannot allocate memory'
+# errors durting the VM allocation. Uncomment this line to drop caches each
+# time before starting the VM, this would allow to free up memory and guarantee
+# the needed capacity to fit the virtual machine on the host.
+#export DROP_CACHES=yes
+
 # Uncomment this line to force VM cancellation after shutdown timeout
 #export FORCE_DESTROY=yes
 

@@ -10,5 +10,6 @@ Cmnd_Alias ONE_XEN = /usr/sbin/xentop, /usr/sbin/xl, /usr/sbin/xm
 Cmnd_Alias ONE_CEPH = /usr/bin/rbd
 Cmnd_Alias ONE_MARKET = /usr/lib/one/sh/create_container_image.sh
 Cmnd_Alias ONE_HA = /usr/bin/systemctl start opennebula-flow, /usr/bin/systemctl stop opennebula-flow, /usr/bin/systemctl start opennebula-gate, /usr/bin/systemctl stop opennebula-gate, /usr/sbin/service opennebula-flow start, /usr/sbin/service opennebula-flow stop, /usr/sbin/service opennebula-gate start, /usr/sbin/service opennebula-gate stop
+Cmnd_Alias ONE_SYSCTL = /usr/sbin/sysctl vm.drop_caches=1
 
-oneadmin ALL=(ALL) NOPASSWD: ONE_MISC, ONE_NET, ONE_LVM, ONE_ISCSI, ONE_OVS, ONE_XEN, ONE_CEPH, ONE_MARKET, ONE_HA
+oneadmin ALL=(ALL) NOPASSWD: ONE_MISC, ONE_NET, ONE_LVM, ONE_ISCSI, ONE_OVS, ONE_XEN, ONE_CEPH, ONE_MARKET, ONE_HA, ONE_SYSCTL
