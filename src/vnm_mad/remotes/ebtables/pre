@@ -26,4 +26,4 @@ deploy_id    = ARGV[1]
 xpath_filter = EbtablesVLAN::XPATH_FILTER
 
 onevlan = EbtablesVLAN.from_base64(template64, xpath_filter, deploy_id)
-onevlan.activate(pre_action=true)
+onevlan.activate
